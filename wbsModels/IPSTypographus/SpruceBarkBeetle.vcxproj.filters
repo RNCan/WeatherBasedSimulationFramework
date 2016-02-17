@@ -7,9 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SBBDevelopment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SBBModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -19,11 +16,11 @@
     <ClCompile Include="SBBColdTolerance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SBBEquations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SBBDevelopment.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="SBBModel.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -31,6 +28,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SBBColdTolerance.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SBBEquations.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

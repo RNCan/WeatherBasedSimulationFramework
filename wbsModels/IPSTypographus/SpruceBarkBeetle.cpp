@@ -5,23 +5,26 @@
 //          
 //
 // Description: the CSpruceBarkBeetle represent one western spruce budworm insect. 
-
 //
 //*****************************************************************************
-// 25/09/2013   Rémi Saint-Amant    Creation 
+// 22/01/2016	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
+// 25/09/2013	Rémi Saint-Amant    Creation 
 //*****************************************************************************
 
+
+#include <math.h>
+#include "basic/UtilMath.h"
+#include "basic/Evapotranspiration.h"
+#include "basic/WeatherStation.h"
 #include "SpruceBarkBeetle.h"
 
-#include "UtilMath.h"
-#include "Weather.h"
-#include <math.h>
-#include "Evapotranspiration.h"
 
-using namespace CFL;
 using namespace std;
-using namespace DAILY_DATA;
+using namespace WBSF::HOURLY_DATA;
 
+
+namespace WBSF
+{
 
 //Flight duration after swarming. After Öhrn 2014
 static const double FLIGHT_DD_SUM = 33.4;
@@ -38,14 +41,15 @@ static const double REEMERGENCE_T = 20.0;
 //******************************************************************
 //CSpruceBarkBeetleTree class
 
-CSpruceBarkBeetleTree::CSpruceBarkBeetleTree(/*CBioSIMModelBase* pModel,*/ CStand* pStand):CSpruceBarkBeetleTreeBase(pStand)
+CSpruceBarkBeetleTree::CSpruceBarkBeetleTree(/*CBioSIMModelBase* pModel,*/ CStand* pStand):
+	CHost(pStand)
 {
 	Reset();
 }
 
 void CSpruceBarkBeetleTree::Reset()
 {
-	CSpruceBarkBeetleTreeBase::Reset();
+	CHost::Reset();
 
 	//m_defoliation=0.5;
 	//m_bEnergyLoss=true;
@@ -56,7 +60,7 @@ void CSpruceBarkBeetleTree::Reset()
 
 void CSpruceBarkBeetleTree::HappyNewYear()
 {
-	CSpruceBarkBeetleTreeBase::HappyNewYear();
+	CHost::HappyNewYear();
 
 	//m_ddays=0;
 	//m_probBudMineable=0;
@@ -109,7 +113,7 @@ public:
 		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
 		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			CFL::Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
 	}
 };
 
@@ -136,7 +140,7 @@ public:
 		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
 		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			CFL::Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
 	}
 };
 
@@ -165,7 +169,7 @@ public:
 		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
 		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			CFL::Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
 	}
 };
 
@@ -193,7 +197,7 @@ public:
 		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
 		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			CFL::Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
 	}
 };
 	
@@ -268,62 +272,6 @@ void CSpruceBarkBeetleTree::GetStat(CTRef d, CModelStat& stat, int generation)
 	//stat[S_SHOOT_DEVEL] = m_ddShoot;
 	
 }
-/*
-void CSpruceBarkBeetleTree::ComputeMineable(const CDailyWaveVector& T)
-{
-	//Bud development 
-	//This is calculated for the first summer, then reset on December 31.
-	//This is part of the tree's daily "Live" loop, starting on m_startDate
-
-	//Constants and parameters 
-	static const int    START_DATE = 92-1; //First day (0- based) for degree day summation for bud develpment
-	static const double BASE_TEMP  = 8.2 ; //dd summation of bud development
-	static const double MAX_TEMP   = 14.4; //dd summation of bud development
-	static const double a          = 95.9; //dd for 50% of buds mineable
-	static const double b          = 2.123;//dd variance around the 50% dd sum
-
-	if(T.GetFirstTRef().GetJDay() >= START_DATE)
-	{
-		// Loop over every time step in one day
-		for (int h=0; h<(int)T.size(); h++)
-		{
-			//Linear DDays with upper threshold
-			m_ddays += Max(0,(Min(T[h],MAX_TEMP)-BASE_TEMP)/T.size());
-		}
-
-		//At end of day, compute proportion of buds mineable
-		m_probBudMineable=0;
-
-		if(m_ddays > 0) 
-		{
-			m_probBudMineable=1/(1+exp(-((m_ddays-a)/(b*sqrt(m_ddays))))); //A sigmoid inreasing function (from 0 to 1) of ddays
-		}
-	}
-}
-
-void CSpruceBarkBeetleTree::ComputeShootDevel(const CDailyWaveVector& T)
-{
-	//Shoot development 
-	//This is calculated for the first summer, then reset on December 31.
-	//This is part of the tree's daily "Live" loop, starting on START_DATE
-
-	//Constants and parameters 
-	static const int    START_DATE = 92-1;    //First day (0- based) for degree day summation for bud develpment
-	static const double BASE_TEMP  = 11.5;    //dd summation of bud development
-	static const double MAX_TEMP   = 35.;     //dd summation of bud development
-
-	if(T.GetFirstTRef().GetJDay() >= START_DATE)
-	{
-		// Loop over every time step in one day
-		for (int h=0; h<(int)T.size(); h++)
-		{
-			//Linear DDays with upper threshold
-			m_ddShoot += Max(0,(Min(T[h],MAX_TEMP)-BASE_TEMP)/T.size());
-		}
-
-	}
-}
-*/
 //******************************************************************
 //CSpruceBarkBeetle class
 
@@ -344,8 +292,8 @@ void CSpruceBarkBeetleTree::ComputeShootDevel(const CDailyWaveVector& T)
 //
 // Note: m_relativeDevRate member is modified.
 //*****************************************************************************
-CSpruceBarkBeetle::CSpruceBarkBeetle(CHost* pHost, CTRef creationDate, double age, bool bFertil, int generation, double scaleFactor):
-	CBug(pHost, creationDate, age, bFertil, generation, scaleFactor)
+CSpruceBarkBeetle::CSpruceBarkBeetle(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, int generation, double scaleFactor) :
+	CIndividue(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 {
 //	m_bSwarming=false;
 	m_hibernationDD;
@@ -473,7 +421,7 @@ CSpruceBarkBeetle& CSpruceBarkBeetle::operator=(const CSpruceBarkBeetle& in)
 void CSpruceBarkBeetle::AssignRelativeDevRate()
 {
 	for(int s=0; s<NB_STAGES; s++)
-		m_relativeDevRate[s] = CSBBDevelopmentTable::GetRelativeRate(RandomGenerator(), s, m_sex);
+		m_relativeDevRate[s] = CSBBTableLookup::GetRelativeRate(RandomGenerator(), s, m_sex);
 
 	m_relativeOviposition = CSBBOviposition::GetRelativeRate(RandomGenerator(), CSBBOviposition::DEVELOPEMENT_RATE); 
 	m_relativeFecondity = CSBBOviposition::GetRelativeRate(RandomGenerator(), CSBBOviposition::BROOD_RATE); //fecundity is determined at moult from L5 to L6, based on L6 survival probability (in CSpruceBarkBeetle::IsDeadByWindow(double T, double dt) )
@@ -631,33 +579,7 @@ void CSpruceBarkBeetle::Live(const CDailyWaveVector& T, const CWeatherDay& wDay)
 	}
 }
 
-//void CSpruceBarkBeetle::Brood(const CDailyWaveVector& T, const CWeatherDay& wDay)
-//{
-//	
-//	if( GetStage() == ADULT && m_sex == FEMALE )
-//	{
-//		CSpruceBarkBeetleTree* pTree = (CSpruceBarkBeetleTree*) m_pHost;
-//
-//		//For optimization, if AUTO_BALANCE_EGG is active, we reduce the number of eggs created
-//		double pSurv = AUTO_BALANCE_EGG?GetOverallSurvival(pTree->GetEnergyLoss()):1;
-//
-//		//determine individual's egg production this time step, 
-//		int newEggs=int(m_brood*pSurv);
-//		for(int i=0; i<newEggs; i++)
-//		{
-//			if( m_bFertil )
-//			{
-//				//if( RandomGenerator().Randu() < pSurv)
-//				pTree->AddBug( new CSpruceBarkBeetle(pTree, T.GetFirstTRef(), EGG, true, m_generation+1, m_scaleFactor) );
-//			}
-//
-//			//std::vector<int>::push_back(
-//			m_nbEgg++;
-//		}
-//	}
-//}
-
-void CSpruceBarkBeetle::Brood(const CDailyWaveVector& T, const CWeatherDay& weaDay)
+void CSpruceBarkBeetle::Brood(CWeatherDay& T)
 {
 	if( m_bFertil && m_brood>0)
 	{
@@ -845,7 +767,7 @@ void CSpruceBarkBeetle::ComputeSwarming(int s, double T, double DL)
 
 	
 
-	//const CSBBDevelopmentTable& rates = GetStand()->m_rates;
+	//const CSBBTableLookup& rates = GetStand()->m_rates;
 	double R = GetStand()->m_rates.GetRate(s,T);
 	m_RStat += R*S[s]/sumS;
 
@@ -870,7 +792,7 @@ void CSpruceBarkBeetle::Develop(CTRef date, double T, const CWeatherDay& wDay, s
 	_ASSERTE(m_status==HEALTHY);
 
 	int s = GetStage();
-	const CSBBDevelopmentTable& rates = GetStand()->m_rates;
+	const CSBBTableLookup& rates = GetStand()->m_rates;
 	double dayLength = GetModel()->GetInfo().m_loc.GetDayLength(date)/3600;
 	
 	
@@ -1736,4 +1658,5 @@ double CSpruceBarkBeetleStand::GetP2AutomnProbability(int sex)
 
 
 	return (sex==CBug::MALE)?m_P2Prob[0]:m_P2Prob[1];
+}
 }

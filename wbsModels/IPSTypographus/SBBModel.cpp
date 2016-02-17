@@ -14,25 +14,30 @@
 //              seasonal biology. 
 //
 //*****************************************************************************
-// 30/09/2013	1.0		Rémi Saint-Amant    Creation
+// 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
+// 30/09/2013	1.0.0	Rémi Saint-Amant    Creation
 //*****************************************************************************
+
+#include "basic/timeStep.h"
+#include "basic/UtilMath.h"
+#include "ModelBase/EntryPoint.h"
+#include "ModelBase/SimulatedAnnealingVector.h"
+#include "ModelBase/SnowMelt.h"
+#include "SBBEquations.h"
 #include "SBBModel.h"
-#include "timeStep.h"
-#include "EntryPoint.h"
-#include "SimulatedAnnealingVector.h"
-#include "UtilMath.h"
-#include "SBBDevelopment.h"
-#include "SnowMelt.h"
 
 
-using namespace CFL;
-using namespace HOURLY_DATA;
 
+using namespace std;
+using namespace WBSF::HOURLY_DATA;
+
+namespace WBSF
+{
 
 //uncomment this line to activate version for simulated annealing
 static const bool ACTIVATE_PARAMETRIZATION = false;
 static const bool P1_ONLY = false;
-static CFL::CCriticalSection CS;
+static CCriticalSection CS;
 
 
 
@@ -60,7 +65,7 @@ enum TOuputA{ O_A_SWARMING_OBS, O_A_SWARMING_SIM, O_A_SWARMING, O_A_DIAPAUSE, O_
 typedef CModelStatVectorTemplate<NB_OUTPUT_A> CAnnualOutputVector;
 
 
-enum TData{ OBS_ID, LONG_DAY_L, SHORT_DAY_L, T_NIGHT, T_DAY, FIRST_STAGE_SHORT_DAY, LAST_STAGE_SHORT_DAY, NB_SHORT_DAY, DIAPAUSE, NB_DIAPAUSE, NB_BUGS=DIAPAUSE, NB_DEAD, SWARMING_DATE, SWARMING_SD, NB_SWARMING};
+enum TData{ OBS_ID, LONG_DAY_L, SHORT_DAY_L, I_TNIGHT, I_TDAY, FIRST_STAGE_SHORT_DAY, LAST_STAGE_SHORT_DAY, NB_SHORT_DAY, DIAPAUSE, NB_DIAPAUSE, NB_BUGS=DIAPAUSE, NB_DEAD, SWARMING_DATE, SWARMING_SD, NB_SWARMING};
 static std::vector<CWeatherStation> WEATHER_ARRAY;
 static const double OBSERVATION_SWARMING_W[20][NB_SWARMING] = 
 //Long day length	Short day length	T day	T night Number of insects	% dead		Swarming 
@@ -122,39 +127,38 @@ static const double OBSERVATION_DIAPAUSE[24][NB_DIAPAUSE] =
 
 void CSBBModel::ExecuteDailyTest(CModelStatVector& output)
 {
-	gTimeStep.Set(1);
+	//gTimeStep.Set(1);
 
-	output.resize(365);
-	output.SetFirstTRef(CTRef(0,0,0));
-	
-	
-	int locNo = stdString::ToInt(m_info.m_loc.m_ID)-1;
-	const double* OBSERVATION = m_info.m_locCounter.GetTotal()==24?&(OBSERVATION_DIAPAUSE[locNo][OBS_ID]):&(OBSERVATION_SWARMING_W[locNo][OBS_ID]);
-		
-	CS.Enter();
-	if( WEATHER_ARRAY.empty())
-		WEATHER_ARRAY.resize(m_info.m_locCounter.GetTotal());
-	
-	if( WEATHER_ARRAY[locNo].GetNbYear() == 0)
-	{
-		CWeatherDay wDay;
-		wDay(DAILY_DATA::TMIN) = OBSERVATION[T_NIGHT];
-		wDay(DAILY_DATA::TMAX) = OBSERVATION[T_DAY];
-	
-		WEATHER_ARRAY[locNo].AddYear(0);
-		for(CTRef d=CTRef(0, FIRST_MONTH, FIRST_DAY); d<=CTRef(0, LAST_MONTH, LAST_DAY); d++)
-		{
-			WEATHER_ARRAY[locNo].SetData(d, wDay);
-		}
-	}
-	CS.Leave();
-
-	CSpruceBarkBeetleStatVector simStat;
-
-	
-	Simulate( locNo, OBSERVATION[LONG_DAY_L], OBSERVATION[SHORT_DAY_L], OBSERVATION[T_NIGHT], OBSERVATION[T_DAY], OBSERVATION[FIRST_STAGE_SHORT_DAY], OBSERVATION[LAST_STAGE_SHORT_DAY], (int)OBSERVATION[NB_SHORT_DAY], simStat);
-	ComputeRegularStat(simStat, output);
+	//output.resize(365);
+	//output.SetFirstTRef(CTRef(0,0,0));
+	//
+	//
+	//int locNo = ToInt(m_info.m_loc.m_ID)-1;
+	//const double* OBSERVATION = m_info.m_locCounter.GetTotal()==24?&(OBSERVATION_DIAPAUSE[locNo][OBS_ID]):&(OBSERVATION_SWARMING_W[locNo][OBS_ID]);
+	//	
+	//CS.Enter();
+	//if( WEATHER_ARRAY.empty())
+	//	WEATHER_ARRAY.resize(m_info.m_locCounter.GetTotal());
+	//
+	//if( WEATHER_ARRAY[locNo].GetNbYears() == 0)
+	//{
+	//	CWeatherDay wDay;
+	//	wDay(DAILY_DATA::TMIN) = OBSERVATION[T_NIGHT];
+	//	wDay(DAILY_DATA::TMAX) = OBSERVATION[T_DAY];
+	//
+	//	WEATHER_ARRAY[locNo].AddYear(0);
+	//	for(CTRef d=CTRef(0, FIRST_MONTH, FIRST_DAY); d<=CTRef(0, LAST_MONTH, LAST_DAY); d++)
+	//	{
+	//		WEATHER_ARRAY[locNo].SetData(d, wDay);
+	//	}
 	//}
+	//CS.Leave();
+
+	//CSpruceBarkBeetleStatVector simStat;
+
+	//
+	//Simulate( locNo, OBSERVATION[LONG_DAY_L], OBSERVATION[SHORT_DAY_L], OBSERVATION[T_NIGHT], OBSERVATION[T_DAY], OBSERVATION[FIRST_STAGE_SHORT_DAY], OBSERVATION[LAST_STAGE_SHORT_DAY], (int)OBSERVATION[NB_SHORT_DAY], simStat);
+	//ComputeRegularStat(simStat, output);
 }
 
 
@@ -168,7 +172,7 @@ CSBBModel::CSBBModel()
 
 	NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION?4+NB_STAGES+5+5+1:3;
 
-	VERSION = "1.0 (2014)";
+	VERSION = "1.1.0 (2016)";
 
 	m_bApplyMortality = true;
 	m_bFertilEgg=false;	//If female is fertile, eggs will be added to the development
@@ -216,25 +220,26 @@ ERMsg CSBBModel::OnExecuteDaily()
 	ERMsg msg;
 
 	//Actual model execution
-	CSnowMelt snow;
-	snow.SetLon(-120);
-	snow.Compute(m_weather);
+	//CSnowMelt snow;
+	//snow.SetLon(-120);
+	//snow.Compute(m_weather);
 	
-	for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
-	{
-		CWeatherDay day = m_weather[d];
-		day(SNOW) = snow.GetResult()[d].m_hs;//mm
-		day(SNDH) = snow.GetResult()[d].m_hs;//cm
-		m_weather.SetData(d,day);
-	}
+	//CTPeriod p = m_weather.GetEntireTPeriod()
+	//for(CTRef d=p.Begin(); d<=p.End(); d++)
+	//{
+	//	CWeatherDay day = m_weather[d];
+	//	day(SNOW) = snow.GetResult()[d].m_hs;//mm
+	//	day(SNDH) = snow.GetResult()[d].m_hs;//cm
+	//	m_weather.SetData(d,day);
+	//}
 
 
 	CSpruceBarkBeetleStatVector stat;
 	GetDailyStat(stat);
 
-	CDailyOutputVector output;
-	ComputeRegularStat(stat, output);
-	SetOutput(output);
+	//CDailyOutputVector output;
+	ComputeRegularStat(stat, m_output);
+	//SetOutput(output);
 
 	
 	
@@ -308,12 +313,13 @@ ERMsg CSBBModel::OnExecuteAnnual()
 	CSpruceBarkBeetleStatVector stat;
 	GetDailyStat(stat);
 
-	CAnnualOutputVector output(m_weather.GetNbYear(), CTRef(m_weather[0].GetYear()));
+	CAnnualOutputVector output(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)));
 
-	for(int y=0; y<m_weather.GetNbYear(); y++)
+	for(size_t y=0; y<m_weather.size(); y++)
 	{
-		int year = m_weather[y].GetYear();
-		CTPeriod p(CTRef(year, FIRST_MONTH, FIRST_DAY), CTRef(year, LAST_MONTH, LAST_DAY));
+		CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+		//int year = m_weather[y].GetTRef().GetYear();
+		//CTPeriod p(CTRef(year, FIRST_MONTH, FIRST_DAY), CTRef(year, LAST_MONTH, LAST_DAY));
 
 		double sumDiapause = stat.GetStat(S_DIAPAUSE_1, p)[SUM];
 		double sumSwarming = stat.GetStat(S_SWARMING_1_F1_i+m_swarmingNo, p)[SUM];
@@ -370,14 +376,18 @@ ERMsg CSBBModel::OnExecuteAnnual()
 
 void CSBBModel::GetDailyStat(CModelStatVector& stat)
 {
+	if (m_weather.IsDaily())
+		m_weather.ComputeHourlyVariables();
+
 	//This is where the model is actually executed
-	stat.resize(m_weather.GetNbDay());
-	stat.SetFirstTRef(m_weather.GetFirstTRef());
+	stat.Init(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)), NB_STAT);
+
 	
 	//we simulate 2 years at a time. 
 	//we also manager the possibility to have only one year
-	for(int y1=0; y1<m_weather.GetNbYear(); y1++)
+	for(size_t y1=0; y1<m_weather.size(); y1++)
 	{
+		CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY));
 		//Create stand
 		CSpruceBarkBeetleStand stand(this);
 		stand.m_bFertilEgg = m_bFertilEgg;
@@ -387,37 +397,35 @@ void CSBBModel::GetDailyStat(CModelStatVector& stat)
 		stand.m_k = m_k;
 		stand.m_s = m_s;
 
-		//stand.m_defoliation=m_defoliation;
-		
-
 		stand.m_bApplyAttrition = m_bApplyMortality&&m_bApplyAttrition;
 		stand.m_bApplyWinterMortality = m_bApplyMortality&&m_bApplyWinterMortality;
 		stand.m_nbReemergeMax = m_nbReemergeMax;
 		
 		//Create the initial attack
-		CSpruceBarkBeetleTree* pTree = new CSpruceBarkBeetleTree(&stand);
+		CHostPtr pTree = make_shared<CSpruceBarkBeetleTree>(&stand);
 		pTree->m_nbMinObjects = m_nbMinObjects;
 		pTree->m_nbMaxObjects = m_nbMaxObjects;
-		pTree->Initialize(m_nbObjects, m_initialPopulation, m_weather[y1].GetFirstTRef(), ADULT, true);
+		pTree->Initialize<CSpruceBarkBeetle>(CInitialPopulation(p.Begin(), m_nbObjects, m_initialPopulation, ADULT, NOT_INIT, true));
 	
-		stand.SetTree(pTree);
+		stand.m_host.push_back(pTree);
 
 		int nbYear = m_bFertilEgg?2:1;
-		for(int y=0; y<nbYear && y1+y<m_weather.GetNbYear(); y++)
+		for(size_t y=0; y<nbYear && y1+y<m_weather.size(); y++)
 		{
-			int yy=y1+y; 
+			size_t yy=y1+y; 
 
-			for(CTRef d=m_weather[yy].GetFirstTRef(); d<=m_weather[yy].GetLastTRef(); d++)
+			CTPeriod pp = m_weather[yy].GetEntireTPeriod(CTM(CTM::DAILY));
+			for(CTRef d=pp.Begin(); d<=pp.End(); d++)
 			{
-				stand.Live(d, m_weather[yy][d]);
+				stand.Live(m_weather.GetDay(d));
 				stand.GetStat(d, stat[d]);
 
 				
 				if(P1_ONLY && stat[d][S_DEAD_ADULT_0]==100)//temporaire
-					d=m_weather[yy].GetLastTRef();
+					d=pp.End();
 
-				if( m_bAutoBalanceObject )
-					stand.AdjustPopulation();
+				//if( m_bAutoBalanceObject )
+				stand.AdjustPopulation();
 
 				HxGridTestConnection();
 			}
@@ -506,14 +514,14 @@ ERMsg CSBBModel::ProcessParameter(const CParameterVector& parameters)
 
 
 //simulated annaling 
-void CSBBModel::AddDailyResult(const CStdStringVector& header, const CStdStringVector& data)
+void CSBBModel::AddDailyResult(const StringVector& header, const StringVector& data)
 {
 	if( data.size() == 8||data.size() == 9)
 	{
 		std::vector<double> obs(1);
 	
-		CTRef ref(data[2].ToInt(), data[3].ToInt()-1, data[4].ToInt()-1);
-		obs[0] = data[6].ToDouble();
+		CTRef ref(ToInt(data[2]), ToInt(data[3]) - 1, ToInt(data[4]) - 1);
+		obs[0] = ToDouble(data[6]);
 
 		m_SAResult.push_back( CSAResult(ref, obs) );
 	}
@@ -521,10 +529,10 @@ void CSBBModel::AddDailyResult(const CStdStringVector& header, const CStdStringV
 	{
 		std::vector<double> obs(4);
 	
-		CTRef ref(data[2].ToInt(), data[3].ToInt()-1, data[4].ToInt()-1);
-		obs[0] = data[6].ToDouble();
-		obs[1] = data[8].ToDouble();
-		obs[2] = data[10].ToDouble();
+		CTRef ref(ToInt(data[2]), ToInt(data[3]) - 1, ToInt(data[4]) - 1);
+		obs[0] = ToDouble(data[6]);
+		obs[1] = ToDouble(data[8]);
+		obs[2] = ToDouble(data[10]);
 
 		m_SAResult.push_back( CSAResult(ref, obs) );
 	}
@@ -533,13 +541,13 @@ void CSBBModel::AddDailyResult(const CStdStringVector& header, const CStdStringV
 		//Sweden
 		std::vector<double> obs(3);
 	
-		CTRef ref(-999, data[2].ToInt()-1, data[3].ToInt()-1);
+		CTRef ref(-999, ToInt(data[2]) - 1, ToInt(data[3]) - 1);
 
 		CStatistic stat[3];
 		bool bAdd=false;
 		for(int i=0; i<3; i++)//F1, F2, F3
 		{
-			obs[i] = data[i+7].ToDouble();
+			obs[i] = ToDouble(data[i + 7]);
 			bAdd = bAdd || obs[i]>0;//at least one value is not zero
 		}
 
@@ -561,7 +569,7 @@ double GetRate(double alpha, double beta, double gamma, double Tmax, double T)
 		Rt = a1-a2-gamma;
 	//}
 
-	return Max(0, Min(1, Rt));
+	return max(0.0, min(1.0, Rt));
 }
 
 double GetF(double alpha, double beta, double gamma, double Tmax, double T)
@@ -574,87 +582,83 @@ double GetF(double alpha, double beta, double gamma, double Tmax, double T)
 		F = a1-a2-gamma;
 	//}
 
-	return Max(0, F);
+	return max(0.0, F);
 }
-
-using namespace DAILY_DATA;
-
-
 
 void CSBBModel::Simulate( int locNo, double longtDayLength, double shortDayLength, double TNight, double TDay, double firstStageShortDay, double lastStageShortDay, int nbShortDay, CSpruceBarkBeetleStatVector& stat)
 {
-	
-	::gTimeStep.Set(1);
-
-	CTRef firsTRef(0, 0, 0);
-
-
-	
-	CDailyWaveVector dailyWave;
-	dailyWave.resize(24);
-	dailyWave.m_timeStep=1;
-	for(int i=0; i<24; i++)
-		dailyWave[i] = i<longtDayLength?TDay:TNight;
-
-		//This is where the model is actually executed
-	stat.resize(365);
-	stat.SetFirstTRef(firsTRef);
-
-
-//Create stand
-	CSpruceBarkBeetleStand stand(this);
-	//stand.m_rates.Save("D:/Rates.csv");
-	stand.m_bFertilEgg = m_bFertilEgg;
-	stand.m_survivalRate = m_survivalRate;
-	stand.m_longDayLength = longtDayLength;
-	stand.m_shortDayLength = shortDayLength;
-	stand.m_firstStageShortDay = firstStageShortDay;
-	stand.m_lastStageShortDay = lastStageShortDay;
-	stand.m_nbShortDay = nbShortDay;
-	
-	
-	stand.m_p = m_p;
-	stand.m_k = m_k;
-	stand.m_s = m_s;
-
-	
-	//stand.m_swarmingP = m_p;
-	//stand.m_defoliation=m_defoliation;
-		
-
-	stand.m_bApplyAttrition = m_bApplyMortality&&m_bApplyAttrition;
-	stand.m_bApplyWinterMortality = m_bApplyMortality&&m_bApplyWinterMortality;
-	stand.m_nbReemergeMax = m_nbReemergeMax;
-		
-	//Create the initial attack
-	CSpruceBarkBeetleTree* pTree = new CSpruceBarkBeetleTree(&stand);
-	pTree->m_nbMinObjects = m_nbMinObjects;
-	pTree->m_nbMaxObjects = m_nbMaxObjects;
-	pTree->Initialize(m_nbObjects, m_initialPopulation, firsTRef, EGG, false, 1);
-	//pTree->Initialize(m_nbObjects, m_initialPopulation, weather.GetFirstTRef(), ADULT, false, 0);
-	
-	stand.SetTree(pTree);
-
-//if Simulated Annealing, set 
-	if(ACTIVATE_PARAMETRIZATION)
-	{
-		//stand.m_rates.SetRho25(m_rho25Factor);
-		//stand.m_rates.Save("D:\\Rates.csv");
-	}
-
-	for(CTRef d=WEATHER_ARRAY[locNo].GetFirstTRef(); d<=CTRef(0, MAY, LAST_DAY); d++)
-	{
-		dailyWave.m_firstTRef = d;
-		
-		//stand.Live(d, weather[d]);
-		stand.Live(dailyWave, WEATHER_ARRAY[locNo].GetDay(d) );
-		stand.GetStat(d, stat[d]);
-
-		if( m_bAutoBalanceObject )
-			stand.AdjustPopulation();
-
-		HxGridTestConnection();
-	}
+//	
+//	m_timeStep.Set(1);
+//
+//	CTRef firsTRef(0, 0, 0);
+//
+//
+//	
+//	CDailyWaveVector dailyWave;
+//	dailyWave.resize(24);
+//	dailyWave.m_timeStep=1;
+//	for(int i=0; i<24; i++)
+//		dailyWave[i] = i<longtDayLength?TDay:TNight;
+//
+//		//This is where the model is actually executed
+//	stat.resize(365);
+//	stat.SetFirstTRef(firsTRef);
+//
+//
+////Create stand
+//	CSpruceBarkBeetleStand stand(this);
+//	//stand.m_rates.Save("D:/Rates.csv");
+//	stand.m_bFertilEgg = m_bFertilEgg;
+//	stand.m_survivalRate = m_survivalRate;
+//	stand.m_longDayLength = longtDayLength;
+//	stand.m_shortDayLength = shortDayLength;
+//	stand.m_firstStageShortDay = firstStageShortDay;
+//	stand.m_lastStageShortDay = lastStageShortDay;
+//	stand.m_nbShortDay = nbShortDay;
+//	
+//	
+//	stand.m_p = m_p;
+//	stand.m_k = m_k;
+//	stand.m_s = m_s;
+//
+//	
+//	//stand.m_swarmingP = m_p;
+//	//stand.m_defoliation=m_defoliation;
+//		
+//
+//	stand.m_bApplyAttrition = m_bApplyMortality&&m_bApplyAttrition;
+//	stand.m_bApplyWinterMortality = m_bApplyMortality&&m_bApplyWinterMortality;
+//	stand.m_nbReemergeMax = m_nbReemergeMax;
+//		
+//	//Create the initial attack
+//	CSpruceBarkBeetleTree* pTree = new CSpruceBarkBeetleTree(&stand);
+//	pTree->m_nbMinObjects = m_nbMinObjects;
+//	pTree->m_nbMaxObjects = m_nbMaxObjects;
+//	pTree->Initialize(m_nbObjects, m_initialPopulation, firsTRef, EGG, false, 1);
+//	//pTree->Initialize(m_nbObjects, m_initialPopulation, weather.GetFirstTRef(), ADULT, false, 0);
+//	
+//	stand.SetTree(pTree);
+//
+////if Simulated Annealing, set 
+//	if(ACTIVATE_PARAMETRIZATION)
+//	{
+//		//stand.m_rates.SetRho25(m_rho25Factor);
+//		//stand.m_rates.Save("D:\\Rates.csv");
+//	}
+//
+//	for(CTRef d=WEATHER_ARRAY[locNo].GetFirstTRef(); d<=CTRef(0, MAY, LAST_DAY); d++)
+//	{
+//		dailyWave.m_firstTRef = d;
+//		
+//		//stand.Live(d, weather[d]);
+//		stand.Live(dailyWave, WEATHER_ARRAY[locNo].GetDay(d) );
+//		stand.GetStat(d, stat[d]);
+//
+//		if( m_bAutoBalanceObject )
+//			stand.AdjustPopulation();
+//
+//		HxGridTestConnection();
+//	}
 }
 
 double CSBBModel::GetDi50(double T)
@@ -908,17 +912,18 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 		{
 			if( m_firstJday.front() == 999)
 			{
-				CSnowMelt snow;
+				/*CSnowMelt snow;
 				snow.SetLon(-120);
-				snow.Compute(m_weather);
+				snow.Compute(m_weather);*/
 	
-				for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
-				{
-					CWeatherDay day = m_weather[d];
-					day(SNOW) = snow.GetResult()[d].m_hs;//mm
-					day(SNDH) = snow.GetResult()[d].m_hs;//cm
-					m_weather.SetData(d,day);
-				}
+
+				//for (CTRef d = p.Begin(); d <= p.End(); d++)
+				//{
+				//	CWeatherDay day = m_weather[d];
+				//	day(SNOW) = snow.GetResult()[d].m_hs;//mm
+				//	day(SNDH) = snow.GetResult()[d].m_hs;//cm
+				//	m_weather.SetData(d,day);
+				//}
 
 				//m_firstJday = m_SAResult.front().m_ref.GetJDay(); 
 				//m_lastJday = m_SAResult.back().m_ref.GetJDay();
@@ -928,19 +933,19 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 					{
 						if( m_SAResult[i].m_obs[j] > 0)
 						{
-							m_firstJday[j] = Min(m_firstJday[j], m_SAResult[i].m_ref.GetJDay()); 
-							m_lastJday[j] = Max(m_lastJday[j], m_SAResult[i].m_ref.GetJDay());
+							m_firstJday[j] = min(m_firstJday[j], m_SAResult[i].m_ref.GetJDay()); 
+							m_lastJday[j] = max(m_lastJday[j], m_SAResult[i].m_ref.GetJDay());
 						}
 					}
 				}
 
 
-				if( GetInfo().m_loc.m_ID == "49" )
-				{
-					for(int y=0; y<m_weather.GetNbYear(); y++)
-						if( m_weather[y].GetYear() == 2010)
-							m_weather.RemoveYear(y);//remove 2010 for Gallarmstrop
-				}
+				//if( GetInfo().m_loc.m_ID == "49" )
+				//{
+				//	for(int y=0; y<m_weather.GetNbYears(); y++)
+				//		if( m_weather[y].GetYear() == 2010)
+				//			m_weather.RemoveYear(y);//remove 2010 for Gallarmstrop
+				//}
 
 				//put input as % of total swarm
 				CStatistic stat[3];
@@ -969,7 +974,7 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 				{
 					if( simStat[d][i] >-999 )
 					{
-						int jd = min(364, d.GetJDay());
+						size_t jd = min(364ull, d.GetJDay());
 						stat[jd]+=simStat[d][i];
 					}
 				}
@@ -1063,8 +1068,8 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 						if( swarmingJday==-999)
 							swarmingJday=m_lastJday[y];
 			
-						int jDay1 = m_firstJday[y];
-						int jDay2 = m_lastJday[y];
+						size_t jDay1 = m_firstJday[y];
+						size_t jDay2 = m_lastJday[y];
 								
 						double obsJday = ((double)m_SAResult[i].m_ref.GetJDay()-jDay1)/(jDay2-jDay1)*100;
 						double simJday = (swarmingJday-jDay1)/(jDay2-jDay1)*100;
@@ -1091,7 +1096,7 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 					
 					//}
 							
-					int jd = min(365, m_SAResult[i].m_ref.GetJDay());
+					size_t jd = min(365ull, m_SAResult[i].m_ref.GetJDay());
 					double sim = merge[jd][VARIABLES[0][y]];///totalSwarms;		
 					double obs = m_SAResult[i].m_obs[y];
 					stat.Add(sim, obs);
@@ -1104,17 +1109,17 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 
 			if( m_firstJday[0] == 999)
 			{
-				CSnowMelt snow;
-				snow.SetLon(-120);
-				snow.Compute(m_weather);
+				//CSnowMelt snow;
+				//snow.SetLon(-120);
+				//snow.Compute(m_weather);
 	
-				for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
-				{
-					CWeatherDay day = m_weather[d];
-					day(SNOW) = snow.GetResult()[d].m_hs;//mm
-					day(SNDH) = snow.GetResult()[d].m_hs;//cm
-					m_weather.SetData(d,day);
-				}
+				//for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
+				//{
+				//	CWeatherDay day = m_weather[d];
+				//	day(SNOW) = snow.GetResult()[d].m_hs;//mm
+				//	day(SNDH) = snow.GetResult()[d].m_hs;//cm
+				//	m_weather.SetData(d,day);
+				//}
 
 				m_firstJday[0] = 364;
 				m_lastJday[0] = 0;
@@ -1124,8 +1129,8 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 					const CSAResultVector& resul = SA[i]->GetSAResult();
 					for(size_t j=0; j<resul.size(); j++)
 					{
-						m_firstJday[0] = Min( m_firstJday[0], resul[j].m_ref.GetJDay() );
-						m_lastJday[0] = Max( m_lastJday[0], resul[j].m_ref.GetJDay() );
+						m_firstJday[0] = min( m_firstJday[0], resul[j].m_ref.GetJDay() );
+						m_lastJday[0] = max( m_lastJday[0], resul[j].m_ref.GetJDay() );
 					}
 				}
 
@@ -1135,11 +1140,11 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
  
 				int firstYear = (int)years[LOWEST];
 				int lastYear = (int)years[HIGHEST];
-				while( m_weather.GetNbYear() > 1 && m_weather.GetFirstYear() < firstYear )
-					m_weather.RemoveYear(0);
+				//while( m_weather.GetNbYears() > 1 && m_weather.GetFirstYear() < firstYear )
+					//m_weather.RemoveYear(0);
 	
-				while( m_weather.GetNbYear() > 1 && m_weather.GetLastYear() > lastYear )
-					m_weather.RemoveYear(m_weather.GetNbYear()-1);
+				//while( m_weather.GetNbYear() > 1 && m_weather.GetLastYear() > lastYear )
+					//m_weather.RemoveYear(m_weather.GetNbYear()-1);
 
 				ASSERT( m_weather.GetFirstYear() == firstYear );
 				ASSERT( m_weather.GetLastYear() == lastYear );
@@ -1203,8 +1208,8 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 						
 				
 			
-							int jDay1 = m_firstJday[0];
-							int jDay2 = m_lastJday[0];
+							size_t jDay1 = m_firstJday[0];
+							size_t jDay2 = m_lastJday[0];
 							double obsJday = ((double)m_SAResult[i].m_ref.GetJDay()-jDay1)/(jDay2-jDay1)*100;
 							double simJday = (swarmingJday-jDay1)/(jDay2-jDay1)*100;
 							stat.Add(simJday, obsJday);
@@ -1237,17 +1242,17 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 
 			if( m_firstJday[0] == 999)
 			{
-				CSnowMelt snow;
-				snow.SetLon(-120);
-				snow.Compute(m_weather);
+				//CSnowMelt snow;
+				//snow.SetLon(-120);
+				//snow.Compute(m_weather);
 	
-				for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
-				{
-					CWeatherDay day = m_weather[d];
-					day(SNOW) = snow.GetResult()[d].m_hs;//mm
-					day(SNDH) = snow.GetResult()[d].m_hs;//cm
-					m_weather.SetData(d,day);
-				}
+				//for(CTRef d=m_weather.GetFirstTRef(); d<=m_weather.GetLastTRef(); d++)
+				//{
+				//	CWeatherDay day = m_weather[d];
+				//	day(SNOW) = snow.GetResult()[d].m_hs;//mm
+				//	day(SNDH) = snow.GetResult()[d].m_hs;//cm
+				//	m_weather.SetData(d,day);
+				//}
 
 				m_firstJday[0] = 364;
 				m_lastJday[0] = 0;
@@ -1257,8 +1262,8 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 					const CSAResultVector& resul = SA[i]->GetSAResult();
 					for(size_t j=0; j<resul.size(); j++)
 					{
-						m_firstJday[0] = Min( m_firstJday[0], resul[j].m_ref.GetJDay() );
-						m_lastJday[0] = Max( m_lastJday[0], resul[j].m_ref.GetJDay() );
+						m_firstJday[0] = min( m_firstJday[0], resul[j].m_ref.GetJDay() );
+						m_lastJday[0] = max( m_lastJday[0], resul[j].m_ref.GetJDay() );
 					}
 				}
 
@@ -1268,11 +1273,11 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
  
 				int firstYear = (int)years[LOWEST];
 				int lastYear = (int)years[HIGHEST];
-				while( m_weather.GetNbYear() > 1 && m_weather.GetFirstYear() < firstYear )
-					m_weather.RemoveYear(0);
+				//while( m_weather.GetNbYears() > 1 && m_weather.GetFirstYear() < firstYear )
+					//m_weather.RemoveYear(0);
 	
-				while( m_weather.GetNbYear() > 1 && m_weather.GetLastYear() > lastYear )
-					m_weather.RemoveYear(m_weather.GetNbYear()-1);
+				//while( m_weather.GetNbYear() > 1 && m_weather.GetLastYear() > lastYear )
+					//m_weather.RemoveYear(m_weather.GetNbYear()-1);
 
 				ASSERT( m_weather.GetFirstYear() == firstYear );
 				ASSERT( m_weather.GetLastYear() == lastYear );
@@ -1331,8 +1336,8 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 						ASSERT( swarmingJday>-999);
 					}
 			
-					int jDay1 = m_firstJday[0];
-					int jDay2 = m_lastJday[0];
+					size_t jDay1 = m_firstJday[0];
+					size_t jDay2 = m_lastJday[0];
 					double obsJday = ((double)m_SAResult[i].m_ref.GetJDay()-jDay1)/(jDay2-jDay1)*100;
 					double simJday = (swarmingJday-jDay1)/(jDay2-jDay1)*100;
 					stat.Add(simJday, obsJday);
@@ -1362,7 +1367,7 @@ void CSBBModel::GetFValueDaily(CStatisticXY& stat)
 
 void CSBBModel::GetFValueDailyEmergence(CStatisticXY& stat)
 {
-	//CSBBDevelopmentTable table;
+	//CSBBTableLookup table;
 	CRandomGenerator random;
 
 	static const double T[6] = 
@@ -1415,7 +1420,7 @@ void CSBBModel::GetFValueDailyEmergence(CStatisticXY& stat)
 	{
 		//double r = m_s[0] + m_s[1]*Max(0, Min(1, exp(m_s[2]*(T[t]-33.7))));
 		//stat.Add( r, OR[t]);
-		stat.Add( Max(0, GetLoganLactin( T[t], m_s[0],m_s[1],m_s[2],18.2, 7.9, 33.7)), OR[t]);
+		stat.Add( max(0.0, GetLoganLactin( T[t], m_s[0],m_s[1],m_s[2],18.2, 7.9, 33.7)), OR[t]);
 	}
 	
 	
@@ -1431,7 +1436,7 @@ void CSBBModel::GetFValueDailyEmergence(CStatisticXY& stat)
 
 
 	//CRandomGenerator RG;
-	//CSBBDevelopmentTable table;
+	//CSBBTableLookup table;
 
 	//int s = TENERAL_ADULT;
 	//for(int t=0; t<6; t++)
@@ -1450,7 +1455,7 @@ void CSBBModel::GetFValueDailyEmergence(CStatisticXY& stat)
 	//		}
 	//	
 	//		for(int i=0; i< N[s][t]; i++)
-	//			stat.Add( S[CFL::STD_DEV], SD[s][t] );
+	//			stat.Add( S[STD_DEV], SD[s][t] );
 	//	}
 	//}
 
@@ -1487,3 +1492,4 @@ void CSBBModel::GetFValueDailyEmergence(CStatisticXY& stat)
 
 
 
+}
