@@ -218,7 +218,7 @@ namespace WBSF
 		//we also manager the possibility to have only one year 
 		for (size_t y1 = 0; y1 < m_weather.GetNbYears(); y1++)
 		{
-			CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY));
+			CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY)); 
 
 			//Create stand
 			CWSBStand stand(this);

@@ -374,7 +374,7 @@ namespace WBSF
 
 		if (!m_sorted.empty())
 		{
-			size_t n = max(1ull, size_t(ceil(p / 100 * m_sorted.size()))) - 1ull;
+			size_t n = max(size_t(1), size_t(ceil(p / 100 * m_sorted.size()))) - size_t(1);
 			value = m_sorted[n];
 		}
 
