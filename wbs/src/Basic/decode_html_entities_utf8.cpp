@@ -2,14 +2,7 @@
 Distributed under the Boost Software License, Version 1.0
 */
 #include "stdafx.h"
-#include "entities.h"
-
-
-//#include <errno.h>
-//#include <stdbool.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <windows.h>
+#include "decode_html_entities_utf8.h"
 #include <string>
 
 #define UNICODE_MAX 0x10FFFFul
