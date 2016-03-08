@@ -149,7 +149,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,8
+ FILEVERSION 4,0,0,9
  PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -167,7 +167,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.0.0.8"
+            VALUE "FileVersion", "4.0.0.9"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "ÉditeurHoraire"
@@ -177,7 +177,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Match Weather station"
-            VALUE "FileVersion", "4.0.0.8"
+            VALUE "FileVersion", "4.0.0.9"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"

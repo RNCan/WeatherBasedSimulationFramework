@@ -226,6 +226,7 @@
     <ClInclude Include="LocationsListView.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MatchStationApp.h" />
+    <ClInclude Include="MatchStationCmdLine.h" />
     <ClInclude Include="MatchStationDoc.h" />
     <ClInclude Include="NormalsCorrectionWnd.h" />
     <ClInclude Include="NormalsEstimateWnd.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="LocationsListView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MatchStationApp.cpp" />
+    <ClCompile Include="MatchStationCmdLine.cpp" />
     <ClCompile Include="MatchStationDoc.cpp" />
     <ClCompile Include="NormalsCorrectionWnd.cpp" />
     <ClCompile Include="NormalsEstimateWnd.cpp" />

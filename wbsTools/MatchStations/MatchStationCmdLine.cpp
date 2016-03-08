@@ -1,12 +1,13 @@
-// MyCommandLineInfo.cpp: implementation of the CWeatherCmdLine class.
+// MyCommandLineInfo.cpp: implementation of the CMatchStationCmdLine class.
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "WeatherCmdLine.h"
+#include "MatchStationCmdLine.h"
 #include "Resource.h"
-#include "UtilWin.h"
-#include "AppOption.h"
+#include "UI/Common/UtilWin.h"
+#include "UI/Common/AppOption.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -19,24 +20,24 @@ using namespace UtilWin;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-const char* CWeatherCmdLine::PARAM_NAME[NB_PARAM]={"FILTER","NAME","ID"};
-//const char* CWeatherCmdLine::DEFAULT_PARAM[NB_PARAM]={"","",""};
+const char* CMatchStationCmdLine::PARAM_NAME[NB_PARAM]={"V", "Y", "N","","",""};
+//const char* CMatchStationCmdLine::DEFAULT_PARAM[NB_PARAM]={"","",""};
 
 
 
-CWeatherCmdLine::CWeatherCmdLine():
+CMatchStationCmdLine::CMatchStationCmdLine():
 CStdCmdLine(NB_ALL_PARAM)
 {}
 
 
-CWeatherCmdLine::~CWeatherCmdLine()
+CMatchStationCmdLine::~CMatchStationCmdLine()
 {}
 
 
-short CWeatherCmdLine::GetOptionIndex(LPCTSTR lpszParam)
+short CMatchStationCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 {
 	short index = CStdCmdLine::GetOptionIndex(lpszParam);
-	if( index!=-1 )
+	if (index != -1)
 		return index;
 
 	CString tmp(lpszParam);
@@ -51,15 +52,41 @@ short CWeatherCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 		}
 	}
 
+	
 	return index;
 }
 
-//void CWeatherCmdLine::ParseParam( LPCTSTR lpszParam, BOOL bFlag, BOOL bLast )
+void CMatchStationCmdLine::ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL bLast)
+{
+
+	if (!bFlag && m_lastOption==-1 )
+	{
+		CString ext = UtilWin::GetFileExtension(pszParam);
+		short index = -1;
+		if (ext.CompareNoCase(_T(".NormalsStations")) == 0)
+			index = NORMALS_FILEPATH;
+		else if (ext.CompareNoCase(_T(".DailyStations")) == 0)
+			index = DAILY_FILEPATH;
+		else if (ext.CompareNoCase(_T(".HourlyStations")) == 0)
+			index = HOURLY_FILEPATH;
+
+		if (index != -1)
+		{
+			m_bParam[index] = true;
+			m_param[index] = pszParam;
+			ParseLast(bLast);
+			return;
+		}
+	}
+
+	return CStdCmdLine::ParseParam(pszParam, bFlag, bLast);
+}
+//void CMatchStationCmdLine::ParseParam( LPCTSTR lpszParam, BOOL bFlag, BOOL bLast )
 //{
 //	CStdCmdLine::ParseParam( lpszParam, bFlag, bLast );
 //}
 
-//ERMsg CWeatherCmdLine::IsValid()
+//ERMsg CMatchStationCmdLine::IsValid()
 //{
 //	ERMsg msg = CStdCmdLine::IsValid();
 //
@@ -105,13 +132,13 @@ short CWeatherCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 //	return m_msg;
 //}
 
-//bool CWeatherCmdLine::NeedQuote(short i)
+//bool CMatchStationCmdLine::NeedQuote(short i)
 //{
 //	ASSERT( i>=0 && i<NB_PARAM);
 //	return NEED_QUOTE[i];
 //}
 
-//CString CWeatherCmdLine::GetCommandLine()
+//CString CMatchStationCmdLine::GetCommandLine()
 //{
 //	ASSERT( IsValid() );
 //

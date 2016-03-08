@@ -41,9 +41,8 @@
 using namespace std;
 using namespace UtilWin;
 using namespace WBSF::HOURLY_DATA;
+using namespace WBSF;
 
-namespace WBSF
-{
 
 static const int STD_GAP = 8;
 static const int CHART_BASE_ID = 1000;
@@ -152,8 +151,6 @@ CGraphVector CWeightChartCtrl::GetChartDefine()const
 	if (graphics.empty())
 	{
 		
-	//	for (size_t v = 0; v < NB_VAR_H; v++)
-		//{
 		if (!m_observationStations.empty())
 		{
 			CGraph graph;
@@ -161,7 +158,7 @@ CGraphVector CWeightChartCtrl::GetChartDefine()const
 			graph.m_Ytitle1 = GetVariableUnits(m_variable);
 			graph.m_bShowLegend = true;
 
-			for (size_t s = 0; s < min(10ull, m_observationStations.size()); s++)
+			for (size_t s = 0; s < min(size_t(10), m_observationStations.size()); s++)
 			{
 				CGraphSerie serie = DEFAULT_WEIGHT_SERIES;
 				serie.m_name = m_observationStations[s].m_name;
@@ -234,7 +231,7 @@ void CWeightChartCtrl::Update()
 
 		CTPeriod entirePeriod;
 		
-		for (size_t s = 0; s < min(10ull, m_observationStations.size()); s++)
+		for (size_t s = 0; s < min(size_t(10), m_observationStations.size()); s++)
 				entirePeriod += m_observationStations[s].GetEntireTPeriod();
 
 
@@ -2002,5 +1999,4 @@ void CGradientChartWnd::OnSaveGraph()
 			strFilename += GetDefaultFilterExt(filter, openDlg.m_ofn.nFilterIndex - 1);
 	}
 
-}
 }

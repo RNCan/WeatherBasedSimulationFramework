@@ -10,61 +10,67 @@
 #include "resource.h"
 #include "UI/Common/MFCEditBrowseCtrlEx.h"
 
-namespace WBSF
+class CMatchStationDoc;
+
+
+class CFilePathDlg : public CDialog
 {
-	class CFilePathDlg : public CDialogEx
-	{
-		DECLARE_DYNAMIC(CFilePathDlg)
-		DECLARE_MESSAGE_MAP()
+	//DECLARE_DYNAMIC(CFilePathDlg)
+	DECLARE_MESSAGE_MAP()
 
-	public:
+public:
 
-		CFilePathDlg(CWnd* pParent = NULL);   // standard constructor
-		virtual ~CFilePathDlg();
+	CMatchStationDoc* GetDocument();
 
 
-		int Create(CWnd* pParent = NULL);
-		void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	CFilePathDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CFilePathDlg();
 
 
-	protected:
-
-		enum { IDD = IDD_DIALOGBAR };
-		void DoDataExchange(CDataExchange* pDX);
-
-		CMFCEditBrowseCtrlEx	m_normalsFilePathCtrl;
-		CMFCEditBrowseCtrlEx	m_observationFilePathCtrl;
-
-		afx_msg void OnSize(UINT nType, int cx, int cy);
-		afx_msg void OnChange(UINT ID);
-	};
+	int Create(CWnd* pParent = NULL);
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
 
+protected:
 
+	enum { IDD = IDD_DIALOGBAR };
+	void DoDataExchange(CDataExchange* pDX);
 
-	//***********************************************************************
-	//
-	class CFilePathWnd : public CDockablePane
-	{
-		DECLARE_DYNAMIC(CFilePathWnd)
-		DECLARE_MESSAGE_MAP()
+	CMFCEditBrowseCtrlEx	m_normalsFilePathCtrl;
+	CMFCEditBrowseCtrlEx	m_observationFilePathCtrl;
 
-	public:
-
-		CFilePathWnd();
-		virtual ~CFilePathWnd();
-
-		void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnChange(UINT ID);
+};
 
 
 
-	protected:
 
-		afx_msg int OnCreate(LPCREATESTRUCT lp);
-		afx_msg void OnSize(UINT nType, int cx, int cy);
+//***********************************************************************
+//
+class CFilePathWnd : public CDockablePane
+{
+	DECLARE_DYNAMIC(CFilePathWnd)
+	DECLARE_MESSAGE_MAP()
+
+public:
 
 
-	private:
-		CFilePathDlg m_wndDlg;
-	};
-}
+	static CMatchStationDoc* GetDocument();
+
+	CFilePathWnd();
+	virtual ~CFilePathWnd();
+
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+
+
+
+protected:
+
+	afx_msg int OnCreate(LPCREATESTRUCT lp);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+
+
+private:
+	CFilePathDlg m_wndDlg;
+};

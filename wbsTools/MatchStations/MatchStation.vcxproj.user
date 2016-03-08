@@ -1,21 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-Y 2005 -N 6 -V 0 "D:\Travaux\WSB\LOC\LatitudeTransect.csv" "U:\Biosim_Database\Normals\Canada-USA 1981-2010.NormalsStations"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-Y 2005 -N 6 -V 0 "D:\Travaux\WSB\LOC\LatitudeTransect.csv" "U:\Biosim_Database\Normals\Canada-USA 1981-2010.NormalsStations"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-Y 2005 -N 6 -V 0 "D:\Travaux\WSB\LOC\LatitudeTransect.csv" "U:\Biosim_Database\Normals\Canada-USA 1981-2010.NormalsStations"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-Y 2005 -N 6 -V 0 "D:\Travaux\WSB\LOC\LatitudeTransect.csv" "U:\Biosim_Database\Normals\Canada-USA 1981-2010.NormalsStations"</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

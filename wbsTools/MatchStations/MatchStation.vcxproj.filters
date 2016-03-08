@@ -59,6 +59,9 @@
     <ClInclude Include="ObservationEstimateWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MatchStationCmdLine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -104,6 +107,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObservationEstimateWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchStationCmdLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

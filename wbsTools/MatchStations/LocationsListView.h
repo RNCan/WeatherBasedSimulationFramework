@@ -15,87 +15,81 @@
 
 
 
-namespace WBSF
+class CMatchStationDoc;
+
+
+
+
+//**************************************************************************************************************************************
+class CMainToolBar : public CMFCToolBar
 {
+public:
 
-	class CMatchStationDoc;
+	DECLARE_SERIAL(CMainToolBar)
 
-
-
-
-	//**************************************************************************************************************************************
-	class CMainToolBar : public CMFCToolBar
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
 	{
-	public:
-
-		DECLARE_SERIAL(CMainToolBar)
-
-		virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
-		{
-			CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
-		}
-		//virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-		//virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-		virtual BOOL AllowShowOnList() const { return TRUE; }
-
-		virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
-		//virtual void AdjustLocations();
-		void UpdateButton();
-	};
+		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+//	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
+	//virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
+	virtual BOOL AllowShowOnList() const { return TRUE; }
+	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+};
 
 
 
-	class CLocationsListView : public CView
-	{
-	protected: // create from serialization only
-		CLocationsListView();
-		DECLARE_DYNCREATE(CLocationsListView)
+class CLocationsListView : public CView
+{
+protected: // create from serialization only
+	CLocationsListView();
+	DECLARE_DYNCREATE(CLocationsListView)
 
-		// Attributes
-	public:
-		CMatchStationDoc* GetDocument();
+	// Attributes
+public:
+	
+	CMatchStationDoc* GetDocument();
 
-		// Operations
-	public:
+	// Operations
+public:
 
-		// Implementation
-	public:
-		virtual ~CLocationsListView();
+	// Implementation
+public:
+	virtual ~CLocationsListView();
 
 #ifdef _DEBUG
-		virtual void AssertValid() const;
-		virtual void Dump(CDumpContext& dc) const;
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-	protected:
+protected:
 
-		CLocationVectorCtrl		m_locationVectorCtrl;
-
-
-		DECLARE_MESSAGE_MAP()
-		afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-		afx_msg void OnContextMenu(CWnd*, CPoint point);
-		afx_msg LRESULT OnSetText(WPARAM wParam, LPARAM lParam);
-		afx_msg void OnSize(UINT nType, int cx, int cy);
-		afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
-		afx_msg LRESULT  OnSelectionChange(WPARAM, LPARAM);
-		afx_msg void OnSearchPropertyChange(UINT id);
-		afx_msg void OnUpdateSearchProperty(CCmdUI* pCmdUI);
+	WBSF::CLocationVectorCtrl		m_locationVectorCtrl;
 
 
-		virtual BOOL PreTranslateMessage(MSG* pMsg);
-		virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-		virtual void OnInitialUpdate();
+	DECLARE_MESSAGE_MAP()
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnContextMenu(CWnd*, CPoint point);
+	afx_msg LRESULT OnSetText(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
+	afx_msg LRESULT  OnSelectionChange(WPARAM, LPARAM);
+	afx_msg void OnSearchPropertyChange(UINT id);
+	afx_msg void OnUpdateSearchProperty(CCmdUI* pCmdUI);
 
-		void OnDraw(CDC* pDC);
-		void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-		void AdjustLayout();
-	};
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual void OnInitialUpdate();
+
+	void OnDraw(CDC* pDC);
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	void AdjustLayout();
+};
 
 
-	inline CMatchStationDoc* CLocationsListView::GetDocument()
-	{
-		return (CMatchStationDoc*)m_pDocument;
-	}
-
+inline CMatchStationDoc* CLocationsListView::GetDocument()
+{
+	return (CMatchStationDoc*)m_pDocument;
 }
+

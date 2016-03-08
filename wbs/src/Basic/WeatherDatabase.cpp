@@ -217,9 +217,9 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 	std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
 	if (FileExists(referencedFilePath) && FileExists(optFilePath))
 	{
-		
 		callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(optFilePath) ));
-		if( m_zop.Load(optFilePath) )
+		msg = m_zop.Load(optFilePath);
+		if(msg)
 		{
 			if(m_zop.IsStationDefinitionUpToDate(referencedFilePath) )
 			{

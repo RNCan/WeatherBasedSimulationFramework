@@ -474,7 +474,7 @@ namespace WBSF
 
 		if (boost::iequals(header, "KeyID") || boost::iequals(header, "ID") || boost::iequals(header, "UniqueID") || boost::iequals(header, "CleNo"))
 			member = ID;
-		else if (boost::iequals(header, "Name") || boost::iequals(header, "Nom") || boost::iequals(header, "StationName") || boost::iequals(header, "NomStation") || boost::iequals(header, "LOC_FILE 4") || boost::iequals(header, "LOC_FILE 3"))
+		else if (boost::iequals(header, "Name") || boost::iequals(header, "Nom") || boost::iequals(header, "StationName") || boost::iequals(header, "NomStation") || boost::iequals(header, "LOC_FILE 4") || boost::iequals(header, "LOC_FILE 4 1") || boost::iequals(header, "LOC_FILE 4 2") || boost::iequals(header, "LOC_FILE 3"))
 			member = NAME;
 		else if (boost::iequals(header, "Latitude") || boost::iequals(header, "Lat") || boost::iequals(header, "Y"))
 			member = LAT;

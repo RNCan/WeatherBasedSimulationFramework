@@ -8,45 +8,48 @@
 #endif
 
 #include "resource.h"       // symboles principaux
+#include "MatchStationCmdLine.h"
 
-namespace WBSF
+
+
+
+// CMatchStationApp:
+// Consultez DPT.cpp pour l'implémentation de cette classe
+//
+
+class CMatchStationApp : public CWinAppEx
 {
+public:
+	CMatchStationApp();
 
 
+	// Substitutions
+public:
+	virtual BOOL InitInstance();
 
-	// CMatchStationApp:
-	// Consultez DPT.cpp pour l'implémentation de cette classe
-	//
+	// Implémentation
+	UINT  m_nAppLook;
+	BOOL  m_bHiColorIcons;
 
-	class CMatchStationApp : public CWinAppEx
-	{
-	public:
-		CMatchStationApp();
+	virtual void PreLoadState();
+	virtual void LoadCustomState();
+	virtual void SaveCustomState();
+	virtual int ExitInstance();
 
+	CMatchStationCmdLine m_cmdInfo;
 
-		// Substitutions
-	public:
-		virtual BOOL InitInstance();
+protected:
 
-		// Implémentation
-		UINT  m_nAppLook;
-		BOOL  m_bHiColorIcons;
-
-		virtual void PreLoadState();
-		virtual void LoadCustomState();
-		virtual void SaveCustomState();
-
-		afx_msg void OnAppAbout();
-		DECLARE_MESSAGE_MAP()
+		
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnAppAbout();
 
 
-	protected:
+	
+//	BOOL ProcessShellCommand(CMatchStationCmdLine& cmdInfo);
+	
+	ULONG_PTR m_nGdiplusToken;
 
-		ULONG_PTR m_nGdiplusToken;
-	public:
-		virtual int ExitInstance();
-	};
+};
 
-	extern CMatchStationApp theApp;
-
-}
+extern CMatchStationApp theApp;

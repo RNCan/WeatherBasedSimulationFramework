@@ -511,10 +511,12 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return str;
 	}
 
-
+	
 	template <typename T, typename V>
 	bool IsEqual(const T& a, const V& b, bool bCase = false){ return (bCase ? strcmp(a, b): _stricmp(a, b)) == 0; }
-	inline bool IsEqual(const std::string& str1, const std::string& str2, bool bCase = false){ return IsEqual(str1.c_str(), str2.c_str()); }
+	inline bool IsEqual(const std::string& str1, const char* str2, bool bCase = false){ return IsEqual<const char*>(str1.c_str(), str2); }
+	inline bool IsEqual(const std::string& str1, const std::string& str2, bool bCase = false){ return IsEqual<const char*>(str1.c_str(), str2.c_str()); }
+
 	bool IsEqualNoCase(const std::string& str1, const std::string& str2);
 	
 	inline std::string ToString(COLORREF c){ return ToStringStd(GetRValue(c))+" "+ToStringStd(GetGValue(c))+" "+ToStringStd(GetBValue(c));}
