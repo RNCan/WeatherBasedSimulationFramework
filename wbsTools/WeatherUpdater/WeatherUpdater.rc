@@ -1,0 +1,1179 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include <SDKDDKVer.h>
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\WeatherUpdater.ico"
+IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+IDR_TASK_TOOLBAR1       PNG                     "res\\TaskToolbar1.png"
+IDR_TASK_TOOLBAR2       PNG                     "res\\TaskToolbar2.png"
+IDR_TASK                PNG                     "res\\Task.png"
+IDR_MENU_IMAGES         PNG                     "res\\menu_images.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MENU_IMAGES TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    BUTTON      ID_FILE_SAVE_AS
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_EXECUTE
+    BUTTON      ID_OPTIONS
+    BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_TASK_EC_DAILY
+    BUTTON      ID_TASK_EC_HOURLY
+    BUTTON      ID_TASK_EC_FORECAST
+    BUTTON      ID_TASK_EC_OLD_RADAR
+    BUTTON      ID_TASK_EC_NEW_RADAR
+    BUTTON      ID_TASK_NOAA_GHCND
+    BUTTON      ID_TASK_NOAA_GSOD
+    BUTTON      ID_TASK_NOAA_ISD_LITE
+    BUTTON      ID_TASK_SNOTEL
+    BUTTON      ID_TASK_NOMAD_RUC
+    BUTTON      ID_TASK_SM_DAILY
+    BUTTON      ID_TASK_SM_HOURLY
+    BUTTON      ID_TASK_SM_CIPRA_HOURLY
+    BUTTON      ID_TASK_ADD_OTHER_DOWNLOADER
+    SEPARATOR
+    BUTTON      ID_TASK_CREATE_HOURLY_DATABSE
+    BUTTON      ID_TASK_CREATE_DAILY_DATABSE
+    BUTTON      ID_TASK_HOURLY2DAILY_DATABSE
+    BUTTON      ID_TASK_CREATE_NORMALS_DATABSE
+    BUTTON      ID_TASK_MERGE_DATABASE
+    BUTTON      ID_TASK_MOVE_DATABASE_TOGETHER
+    BUTTON      ID_TASK_CROP_DATABASE
+    BUTTON      ID_TASK_COMPRESS_UNCOMPRESS
+    BUTTON      ID_TASK_DOWNLOAD_UPLOAD
+    BUTTON      ID_TASK_CONVERT_DATABASE
+    BUTTON      ID_TASK_OTHER_TOOLS
+END
+
+IDR_MAINFRAME_TOOLBAR TOOLBAR 32, 32
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_EXECUTE
+    BUTTON      ID_OPTIONS
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_TASK_TOOLBAR1 TOOLBAR 32, 32
+BEGIN
+    BUTTON      ID_ADD_EC_DAILY
+    BUTTON      ID_ADD_EC_HOURLY
+    BUTTON      ID_ADD_EC_FORECAST
+    BUTTON      ID_ADD_EC_OLD_RADAR
+    BUTTON      ID_ADD_EC_NEW_RADAR
+    SEPARATOR
+    BUTTON      ID_ADD_NOAA_GHCND
+    BUTTON      ID_ADD_NOAA_GSOD
+    BUTTON      ID_ADD_NOAA_ISD_LITE
+    BUTTON      ID_ADD_SNOTEL
+    BUTTON      ID_ADD_NOMAD_RUC
+    SEPARATOR
+    BUTTON      ID_ADD_SM_DAILY
+    BUTTON      ID_ADD_SM_HOURLY
+    BUTTON      ID_ADD_SM_CIPRA_HOURLY
+    SEPARATOR
+    BUTTON      ID_ADD_OTHER_DOWNLOADER
+END
+
+IDR_TASK_TOOLBAR2 TOOLBAR 32, 32
+BEGIN
+    BUTTON      ID_TOOL_CREATE_HOURLY_DATABSE
+    BUTTON      ID_TOOL_CREATE_DAILY_DATABSE
+    BUTTON      ID_TOOL_HOURLY2DAILY_DATABSE
+    BUTTON      ID_TOOL_DAILY2NORMALS_DATABSE
+    SEPARATOR
+    BUTTON      ID_TOOL_MERGE_DATABASE
+    BUTTON      ID_TOOL_MOVE_DATABASE_TOGETHER
+    BUTTON      ID_TOOL_CROP_DATABASE
+    BUTTON      ID_TOOL_COMPRESS_UNCOMPRESS
+    BUTTON      ID_TOOL_DOWNLOAD_UPLOAD
+    BUTTON      ID_TOOL_CONVERT_DATABASE_OLD
+    BUTTON      ID_TOOL_CONVERT_DATABASE_NEW
+    BUTTON      ID_TOOL_OTHER_TOOLS
+END
+
+IDR_TASK TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_TASK_EC_DAILY
+    BUTTON      ID_TASK_EC_HOURLY
+    BUTTON      ID_TASK_EC_FORECAST
+    BUTTON      ID_TASK_EC_OLD_RADAR
+    BUTTON      ID_TASK_EC_NEW_RADAR
+    BUTTON      ID_TASK_NOAA_GHCND
+    BUTTON      ID_TASK_NOAA_GSOD
+    BUTTON      ID_TASK_NOAA_ISD_LITE
+    BUTTON      ID_TASK_SNOTEL
+    BUTTON      ID_TASK_NOMAD_RUC
+    BUTTON      ID_TASK_SM_DAILY
+    BUTTON      ID_TASK_SM_HOURLY
+    BUTTON      ID_TASK_SM_CIPRA_HOURLY
+    BUTTON      ID_TASK_ADD_OTHER_DOWNLOADER
+    SEPARATOR
+    BUTTON      ID_TASK_CREATE_HOURLY_DATABSE
+    BUTTON      ID_TASK_CREATE_DAILY_DATABSE
+    BUTTON      ID_TASK_HOURLY2DAILY_DATABSE
+    BUTTON      ID_TASK_CREATE_NORMALS_DATABSE
+    BUTTON      ID_TASK_MERGE_DATABASE
+    BUTTON      ID_TASK_MOVE_DATABASE_TOGETHER
+    BUTTON      ID_TASK_CROP_DATABASE
+    BUTTON      ID_TASK_COMPRESS_UNCOMPRESS
+    BUTTON      ID_TASK_DOWNLOAD_UPLOAD
+    BUTTON      ID_TASK_CONVERT_DATABASE
+    BUTTON      ID_TASK_OTHER_TOOLS
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 4,0,1,2
+ PRODUCTVERSION 4,0,1,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "0c0c04b0"
+        BEGIN
+            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
+            VALUE "FileVersion", "5.0.0.0"
+            VALUE "InternalName", "WeatherUpdater.exe"
+            VALUE "OriginalFilename", "WeatherUpdater.exe"
+            VALUE "ProductName", "EditeurQuotidien"
+            VALUE "ProductVersion", "5.0.0.0"
+        END
+        BLOCK "100904b0"
+        BEGIN
+            VALUE "CompanyName", "Laurentian Forestry Center"
+            VALUE "FileDescription", "Normals Weather Editor"
+            VALUE "FileVersion", "5.0.0.0"
+            VALUE "InternalName", "WeatherUpdater.exe"
+            VALUE "OriginalFilename", "WeatherUpdater.exe"
+            VALUE "ProductName", "WeatherUpdater"
+            VALUE "ProductVersion", "5.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0xc0c, 1200, 0x1009, 1200
+    END
+END
+
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&Fichier"
+    BEGIN
+        MENUITEM "&Nouveau\tCtrl+N",            ID_FILE_NEW
+        MENUITEM "&Ouvrir...\tCtrl+O",          ID_FILE_OPEN
+        MENUITEM "&Enregistrer\tCtrl+S",        ID_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Fichier récent",              ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Quitter",                    ID_APP_EXIT
+    END
+    POPUP "&Edition"
+    BEGIN
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM "Co&ller\tCtrl+V",             ID_EDIT_PASTE
+    END
+    POPUP "&Affichage"
+    BEGIN
+        POPUP "&Barres d'outils et fenêtres d'ancrage"
+        BEGIN
+            MENUITEM "<espace réservé>",            ID_VIEW_TOOLBAR
+        END
+        MENUITEM "B&arre d'état",               ID_VIEW_STATUS_BAR
+        POPUP "Aspe&ct de l'application"
+        BEGIN
+            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio 200&5",         ID_VIEW_APPLOOK_VS_2005
+            MENUITEM "Visual Studio 200&8",         ID_VIEW_APPLOOK_VS_2008
+            POPUP "Office 200&7"
+            BEGIN
+                MENUITEM "Style &bleu",                 ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "Style &noir",                 ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "Style a&rgenté",              ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "Style cya&n",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+        MENUITEM SEPARATOR
+        POPUP "L&angue"
+        BEGIN
+            MENUITEM "&Français",                   ID_LANGUAGE_FRENCH
+            MENUITEM "&English",                    ID_LANGUAGE_ENGLISH
+        END
+        MENUITEM "&Options",                    ID_OPTIONS
+    END
+    POPUP "A&ide"
+    BEGIN
+        MENUITEM "À &propos de WeatherUpdater...", ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_EDIT MENU
+BEGIN
+    POPUP "Edition"
+    BEGIN
+        MENUITEM "&Couper\tCtrl+X",             ID_EDIT_CUT
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM "Co&ller\tCtrl+V",             ID_EDIT_PASTE
+    END
+END
+
+IDR_THEME_MENU MENU
+BEGIN
+    MENUITEM "Office 2007 (Style &bleu)",   ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (Style &noir)",   ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (Style a&rgenté)", ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (Style cya&n)",   ID_VIEW_APPLOOK_OFF_2007_AQUA
+    MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "E",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include <SDKDDKVer.h>\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""afxribbon.rc""        // ressources de barre de contrôles et de ruban MFC\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
+    "LANGUAGE 12, 1\r\n"
+    "#include ""res\\WeatherUpdater.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
+    "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
+    "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""l.FRA\\afxribbon.rc""        // ressources de barre de contrôles et de ruban MFC\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\r\n"
+    "#include ""WeatherBasedSimulationString.rc""\r\n"
+    "#include ""WeatherBasedSimulationUI.rc""\r\n"
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "WeatherUpdater\n\nWeatherUpdater\nProjet (*.Update)\n.Update\n\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OPTION_CAPTION      "Options"
+	IDS_PROPERTIES_WND		"Propriétées"
+	IDS_OUTPUT_WND			"Sortie"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "WeatherUpdater"
+    AFX_IDS_IDLEMESSAGE     "Prêt"
+END
+
+STRINGTABLE
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Crée une nouvelle base de données\nNouveau"
+    ID_FILE_OPEN            "Ouvre une base de données existant\nOuvrir"
+    ID_FILE_CLOSE           "Ferme la base de données actif\nFermer"
+    ID_FILE_SAVE            "Enregistre la base de données actif\nEnregistrer"
+    ID_FILE_SAVE_AS         "Enregistre la base de données actif sous un nouveau nom\nEnregistrer sous"
+    ID_FILE_PAGE_SETUP      "Modifie les options d'impression\nMise en page"
+    ID_FILE_PRINT_SETUP     "Modifie les options d'impression et celles de l'imprimante\nConfiguration de l'impression"
+    ID_FILE_PRINT           "Imprime le document actif\nImprimer"
+    ID_FILE_PRINT_DIRECT    "Imprimer le document actif à l'aide des options actuelles\nImprimer rapidement"
+    ID_FILE_PRINT_PREVIEW   "Affiche les pages entières\nAperçu avant impression"
+END
+
+STRINGTABLE
+BEGIN
+    ID_OPTIONS              "Afficher les options de l'application\nOptions"
+    ID_EXECUTE              "Executer les taches cochées\nExécuter"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Affiche des informations sur le programme, le numéro de version et le copyright\nÀ propos de"
+    ID_APP_EXIT             "Quitte l'application et demande si la base de données quotidiennes doit être enregistrée\nQuitter"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Ouvre ce document"
+    ID_FILE_MRU_FILE2       "Ouvre ce document"
+    ID_FILE_MRU_FILE3       "Ouvre ce document"
+    ID_FILE_MRU_FILE4       "Ouvre ce document"
+    ID_FILE_MRU_FILE5       "Ouvre ce document"
+    ID_FILE_MRU_FILE6       "Ouvre ce document"
+    ID_FILE_MRU_FILE7       "Ouvre ce document"
+    ID_FILE_MRU_FILE8       "Ouvre ce document"
+    ID_FILE_MRU_FILE9       "Ouvre ce document"
+    ID_FILE_MRU_FILE10      "Ouvre ce document"
+    ID_FILE_MRU_FILE11      "Ouvre ce document"
+    ID_FILE_MRU_FILE12      "Ouvre ce document"
+    ID_FILE_MRU_FILE13      "Ouvre ce document"
+    ID_FILE_MRU_FILE14      "Ouvre ce document"
+    ID_FILE_MRU_FILE15      "Ouvre ce document"
+    ID_FILE_MRU_FILE16      "Ouvre ce document"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Bascule vers le volet de fenêtre suivant\nVolet suivant"
+    ID_PREV_PANE            "Bascule vers le volet de fenêtre précédent\nVolet précédent"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_SPLIT         "Fractionne la fenêtre active en volets\nFractionner"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Efface la sélection\nEffacer"
+    ID_EDIT_CLEAR_ALL       "Efface tout\nEffacer tout"
+    ID_EDIT_COPY            "Copie la sélection et la place dans le Presse-papiers\nCopier"
+    ID_EDIT_CUT             "Coupe la sélection et la place dans le Presse-papiers\nCouper"
+    ID_EDIT_FIND            "Recherche le texte spécifié\nRechercher"
+    ID_EDIT_PASTE           "Insère le contenu du presse-papiers\nColler"
+    ID_EDIT_REPEAT          "Répète la dernière action\nRépéter"
+    ID_EDIT_REPLACE         "Remplace un texte spécifié par un texte différent\nRemplacer"
+    ID_EDIT_SELECT_ALL      "Sélectionne l'intégralité du document\nSélectionner tout"
+    ID_EDIT_UNDO            "Annule la dernière action\nAnnuler"
+    ID_EDIT_REDO            "Rétablit l'action précédemment annulée\nRétablir"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_STATUS_BAR      "Affiche ou masque la barre d'état\nBarre d'état"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Modifie la taille de la fenêtre"
+    AFX_IDS_SCMOVE          "Modifie la position de la fenêtre"
+    AFX_IDS_SCMINIMIZE      "Réduit la fenêtre en icône"
+    AFX_IDS_SCMAXIMIZE      "Affiche la fenêtre en plein écran"
+    AFX_IDS_SCNEXTWINDOW    "Bascule vers la fenêtre de document suivante"
+    AFX_IDS_SCPREVWINDOW    "Bascule vers la fenêtre de document précédente"
+    AFX_IDS_SCCLOSE         "Ferme la fenêtre active et demande si les documents doivent être enregistrés"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restaure la fenêtre à sa taille normale"
+    AFX_IDS_SCTASKLIST      "Active la liste des tâches"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Fermer"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_CUSTOMIZE   "Personnaliser..."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UPDATE_DIR          "Mise a jour du répertoire :"
+    IDS_UPDATE_FROM         "à partir du site : "
+    IDS_NB_STATIONS         "Le nombre de stations trouvés : "
+    IDS_UPDATE_FILE         "Mise à jour des fichiers de données"
+    IDS_UPDATE_END          " : %1/%2 fichier(s) mis à jour"
+    IDS_CREATE_DATABASE     "Création de la base de données : "
+    IDS_FROM_DIR            "à partir des fichiers du répertoire :"
+    IDS_WORD_TASK           "Tâches"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TASK_NOT_EXIST      "La tâche %1 n'existe pas. Vérifier l'orthographe et l'existence de cette tâche."
+    IDS_CLEAN_LIST          "Purification de la liste des fichiers..."
+    IDS_LOAD_FILE_LIST      "Chargement de la liste des fichiers..."
+    IDS_SAVE_PROJET         "Vous devez sauvegerder votre projet avant de pouvoir ajouter une tâche."
+    IDS_NB_FILES_CLEARED    "Le nombre de fichiers après nettoyage : "
+    IDS_NB_FILES_DOWNLOADED "Le nombre de fichiers téléchargés : "
+    IDS_LOAD_PAGE           "%1: %2 pages(s) de stations à télécharger"
+    IDS_NB_FILES_FOUND      "Le nombre de fichiers trouvés : "
+    IDS_ZIP_FILE            "Compression des fichiers..."
+    IDS_UNZIP_FILE          "Décompression des fichiers..."
+    IDS_INVALID_PASSWORD    "La combinaison {usagé, mot de passe} est invalide"
+    IDS_INVALID_NOAA_DATFILE 
+                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""DSET"""
+    IDS_INVALID_NOAA_STNFILE 
+                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""COOPID""."
+    IDS_UNKNOWN_TASK        "La tâche ""%1"" a un type inconnu(%2)."
+    IDS_INVALID_INPUT_TASK  "Une tâche de la catégorie téléchargement doit être spécifiée comme tâche de données"
+    IDS_LOAD_STATION_LIST   "Chargement de la liste des stations"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SERVER_DOWN         "Serveur de base de données en panne, ou erreur pendant l'exécution d'une requête"
+    IDS_NO_WEATHER          "Il n'y pas de données météo utiles pour la station :"
+    IDS_NO_STATION_INFORMATION 
+                            "Il n'y a pas d'information pour la station : %1"
+    IDS_NUMBER_FILES        "Le nombre de fichier à télécharger = "
+    IDS_UNABLE_DOWNLOAD_LIST 
+                            "Impossible de télécharger la liste des fichiers. Réessayer plus tard."
+    IDS_UNABLE_DOWNLOAD_DEFENITION 
+                            "Incapable de trouver le fichier de définition (ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). Le serveur peux être en problème ou votre pare-feu empâche l'application de télécharger l'information."
+    IDS_CLIP_WEATHER        "Rogner une base de données météorologiques"
+    IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
+    IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
+    IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
+    IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+    IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
+    IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
+    IDS_GET_STATION_LIST    "Recherche de la liste des stations"
+    IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
+    IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CATEGORY_NAME       "Télécharger des données météorologiques|Manipulation de données météorologiques"
+    IDS_STATION_ADDED       "Stations ajoutées : "
+    IDS_BOUNDINGBOX_PROPERTY "X minimum|X maximum|Y minimum|Y maximum"
+    IDS_PROVINCES           "Alberta|Colombie-Britannique|Manitoba|Nouveau-Brunswick|Terre-Neuve|Territoires du nord ouest|Nouvelle Écosse|Nunavut|Ontario|Île du prince Edward|Québec|Saskatchewan|Yukon|Tous"
+    IDS_REGION_NAME         "Nouveau-Brunswick, Nouvelle-Écosse, Île-du-Prince-Édouard, Terre-Neuve-et-Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Territoires du Nord-Ouest, Nunavut|Colombie-Britannique, Yukon|Québec"
+    IDS_FTP_DIRECTION       "Télécharger|Téléverser"
+    IDS_FTP_CONNECTION_TYPE "Utilisez les paramètres pré configurés d'Internet Explorer|Utilisez une connexion directe|Utilisez une connexion par le serveur proxy"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_EC_DAILY         "Télécharger les données quotidiennes d'Environnement Canada"
+    ID_ADD_EC_DAILY_P       "Répertoire de travail|Première année|Dernière année|Province(s)|Cadre|Force téléchargement|Extraire neige"
+    ID_ADD_EC_HOURLY        "Télécharger les données horaires d'Environnement Canada"
+    ID_ADD_EC_HOURLY_P      "Répertoire de travail|Première année|Dernière année|Premier mois|Dernier mois|Province(s)|Limites géographiques(optionnel)|Force téléchargement|Extraire direction du vent|Extraire le pression de vapeur (Es, Ea)|Extraire pression atmosphérique"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_EC_FORECAST      "Télécharger les prévision d'Environnement Canada"
+    ID_ADD_EC_FORECAST_P    "Répertoire de travail|Region(s)"
+    ID_ADD_EC_OLD_RADAR     "Télécharger les images radars historique d'Environnement Canada (format GIF)"
+    ID_ADD_EC_OLD_RADAR_P   "Répertoire de travail|Radar|Type|Periode"
+    ID_ADD_EC_NEW_RADAR     "Télécharger les images radars d'Environnement Canada (format GIF)"
+    ID_ADD_EC_NEW_RADAR_P   "Répertoire de travail|Type"
+    ID_ADD_NOAA_GHCND       "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN-Daily)"" via NOAA"
+    ID_ADD_NOAA_GHCND_P     "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Limites|DEM(optionnelle)|Utiliser DEM|Afficher FTPTransfer|Extraire le vent|Extraire la neige"
+    ID_ADD_NOAA_GSOD        "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA"
+    ID_ADD_NOAA_GSOD_P      "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Limites"
+    ID_ADD_NOAA_ISD_LITE    "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA"
+    ID_ADD_NOAA_ISD_LITE_P  "Répertoire de travail|Première année|Dernière année|Premier mois|Dernier mois|Pays|États (si USA)|Limites géographiques(optionnel)|Extraire direction du vent|Extraire pression atmosphérique"
+    ID_ADD_SNOTEL           "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS"
+    ID_ADD_SNOTEL_P         "Répertoire de travail|Première année|Dernière année|Type|États|Mettre à jour la liste des stations"
+    ID_ADD_NOMAD_RUC        "Télécharger les grilles de données ""Rapid Update Cycle (RUC)"" via NOMADS (NOAA)"
+    ID_ADD_NOMAD_RUC_P      "Répertoire de travail|Période (YYYY1-MM1-DD1-HH1/YYYY2-MM2-DD2-HH2)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_SM_DAILY         "Télécharger les données quotidiennes du Québec via Solutions-Mesonet"
+    ID_ADD_SM_DAILY_P       "Répertoire de travail|Première année|Dernière année|Nom d'usager|Mot de passe"
+    ID_ADD_SM_HOURLY        "Télécharger les données horaires du Québec via Solutions-Mesonet"
+    ID_ADD_SM_HOURLY_P      "Répertoire de travail|Première année|Dernière année|Premier mois|Dernier mois|Limites géographiques(optionnel)|Nom d'usager|Mot de passe|Mise à jours des coordonnées|Extraire direction du vent|Extraire radiation solaire"
+    ID_ADD_SM_CIPRA_HOURLY  "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet"
+    ID_ADD_SM_CIPRA_HOURLY_P 
+                            "Répertoire de travail|Première année|Dernière année|Nom d'usager|Mot de passe"
+    ID_ADD_OTHER_DOWNLOADER "Autre"
+    ID_ADD_OTHER_DOWNLOADER_P "Répertoire de travail"
+    ID_ADD_EC_PRCP_RADAR    "Télécharger les précipitations radars d'Environnement Canada (format grib2)"
+    ID_ADD_EC_PRCP_RADAR_P  "Répertoire de travail|Type"
+    ID_ADD_EC_GRIB_FORECAST "Télécharger les prévisions d'Environnement Canada (format gribs)"
+    ID_ADD_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
+    ID_ADD_ACIS             "Télécharger les données agro-climatiques quotidiennes de l'Alberta/Manitoba via ACIS"
+    ID_ADD_ACIS_P           "Répertoire de travail|Première année|Dernière année|Nom d'usager|Mot de passe|Type"
+    ID_ADD_BC_PAWS          "Télécharger les données données quotidiennes du ministère des transport de la Colombie Britannique"
+    ID_ADD_BC_PAWS_P        "Répertoire de travail"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_BC_SNOWPILLOW    "Télécharger les données quotidiennes ""Automated Snow Pillow Data"" de la Colombie Britannique"
+    ID_ADD_BC_SNOWPILLOW_P  "Répertoire de travail"
+    ID_TOOL_CREATE_HOURLY_DATABSE "Générer une base de données horaires"
+    ID_TOOL_CREATE_HOURLY_DATABSE_P 
+                            "Tâche de données|Tâche prévisions|Première année|Dernière année|Premier mois|Dernier mois|Fichier de sortie|Nettoyage des observations horaires clairsemés|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TOOL_CREATE_DAILY_DATABSE "Générer une base de données quotidiennes"
+    ID_TOOL_CREATE_DAILY_DATABSE_P 
+                            "Tâche de données|Tâche prévisions|Première année|Dernière année|Nettoyage des observations quotidiennes clairsemés|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
+    ID_TOOL_HOURLY2DAILY_DATABSE 
+                            "Créer une base de données quotidiennes à partir d'une base de données horaires"
+    ID_TOOL_HOURLY2DAILY_DATABSE_P 
+                            "Fichier d'entrée|Fichier de sortie|Première année|Dernière année"
+    ID_TOOL_DAILY2NORMALS_DATABSE 
+                            "Créer une base de données normales à partir d'une base de données quotidiennes"
+    ID_TOOL_DAILY2NORMALS_DATABSE_P 
+                            "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cC|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
+    ID_TOOL_MERGE_DATABASE  "Fusionner deux bases de données météorologiques"
+    ID_TOOL_MERGE_DATABASE_P 
+                            "Fichier d'entrée 1|Fichier d'entrée 2|Distance max(m)|Différence d'élévation Max(m)|Fichier de sortie|Détruire l'ancienne BD|Type|Priorité à"
+    ID_TOOL_MOVE_DATABASE_TOGETHER 
+                            "Déplacer 2 bases de données dans une même (déplacements de fichiers)"
+    ID_TOOL_MOVE_DATABASE_TOGETHER_P 
+                            "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie"
+    ID_TOOL_CROP_DATABASE   "Rogner une base de données météorologiques"
+    ID_TOOL_CROP_DATABASE_P "Fichier d'entrée|Shapefile(optionnel)|LOC(optionnel)|Limites(optionnel)|Première Année|Dernière Année|Fichier de sortie|Détruire l'ancienne BD"
+    ID_TOOL_COMPRESS_UNCOMPRESS "Compresser/Décompresser des fichiers"
+    ID_TOOL_COMPRESS_UNCOMPRESS_P 
+                            "Commande;Fichiers Zip;Répertoire;Filtre (pour compresser);Récursion sur les sous-répertoires"
+    ID_TOOL_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP"
+    ID_TOOL_DOWNLOAD_UPLOAD_P 
+                            "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TOOL_CONVERT_DATABASE_OLD 
+                            "Convertir une base de données BioSIM 11 vers une base de données BioSIM 10"
+    ID_TOOL_CONVERT_DATABASE_OLD_P "Fichier d'entrée|Fichier de sortie"
+    ID_TOOL_CONVERT_DATABASE_NEW 
+                            "Convertir une base de données BioSIM 10 vers une base de données BioSIM 11"
+    ID_TOOL_CONVERT_DATABASE_NEW_P "Fichier d'entrée|Fichier de sortie"
+    ID_TOOL_OTHER_TOOLS     "Autre"
+    ID_TOOL_OTHER_TOOLS_P   "----"
+    ID_MMG_RCM22            "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 RCM4 au 22 km"
+    ID_MMG_RCM22_P          "Répertoire RCM4 (22km)|Région|Fichier de sortie"
+    ID_MMG_GCM10            "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km"
+    ID_MMG_GCM10_P          "Répertoire GCM4 (10km)|Fichier de sortie"
+    ID_MMG_GCM4             "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km"
+    ID_MMG_GCM4_P           "Répertoire GCM4 (10km)|Fichier de sortie"
+END
+
+STRINGTABLE
+BEGIN
+    ID_MMG_HADGEM2_10       "Créer une matrice mensuelles moyennes (MMG) à partir des données Hadley réinterpolées aux 10 km"
+    ID_MMG_HADGEM2_10_P     "Répertoire HadGEM2-ES (10km)|Fichier de sortie"
+    ID_MMG_MIROC_10         "Créer une matrice mensuelles moyennes (MMG) à partir des données MIROC réinterpolées aux 10 km"
+    ID_MMG_MIROC_10_P       "Répertoire MIROC (10km)|Fichier de sortie"
+    ID_MMG_CESM1_CAM5_10    "Créer une matrice mensuelles moyennes (MMG) à partir des données du ""Community Earth System Model"" version 1 qui inclut le ""Community Atmospheric Model"" version 5 réinterpolées aux 10 km"
+    ID_MMG_CESM1_CAM5_10_P  "Répertoire CESM1 (10km)|Fichier de sortie"
+END
+
+#endif    // French (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        POPUP "&Application Look"
+        BEGIN
+            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio 200&5",         ID_VIEW_APPLOOK_VS_2005
+            MENUITEM "Visual Studio 200&8",         ID_VIEW_APPLOOK_VS_2008
+            POPUP "Office 200&7"
+            BEGIN
+                MENUITEM "&Blue Style",                 ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "B&lack Style",                ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "&Silver Style",               ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "&Aqua Style",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+        MENUITEM SEPARATOR
+        POPUP "L&anguage"
+        BEGIN
+            MENUITEM "&Français",                   ID_LANGUAGE_FRENCH
+            MENUITEM "&English",                    ID_LANGUAGE_ENGLISH
+        END
+        MENUITEM "&Options",                    ID_OPTIONS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About WeatherUpdater...",    ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_EDIT MENU
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+END
+
+IDR_THEME_MENU MENU
+BEGIN
+    MENUITEM "Office 2007 (&Blue Style)",   ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (B&lack Style)",  ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (&Silver Style)", ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (&Aqua Style)",   ID_VIEW_APPLOOK_OFF_2007_AQUA
+    MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "WeatherUpdater\n\nWeatherUpdater\nproject (*.Update)\n.Update\n\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OPTION_CAPTION      "Options"
+	IDS_PROPERTIES_WND		"Properties"
+	IDS_OUTPUT_WND			"Output"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "WeatherUpdater"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Create a new project\nNew"
+    ID_FILE_OPEN            "Open an existing project\nOpen"
+    ID_FILE_CLOSE           "Close the active project\nClose"
+    ID_FILE_SAVE            "Save the active project\nSave"
+    ID_FILE_SAVE_AS         "Save the active project with a new name\nSave As"
+END
+
+STRINGTABLE
+BEGIN
+    ID_OPTIONS              "Show application options\nOptions"
+    ID_EXECUTE              "Execute checked tasks\nExecute"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle Status Bar"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UPDATE_DIR          "Directory update:"
+    IDS_UPDATE_FROM         "From site: "
+    IDS_NB_STATIONS         "The number of stations found: "
+    IDS_UPDATE_FILE         "Data file update"
+    IDS_UPDATE_END          " : %1/%2 file(s) updated"
+    IDS_CREATE_DATABASE     "Database Creation: "
+    IDS_FROM_DIR            "From file in directory:"
+    IDS_WORD_TASK           "Task"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TASK_NOT_EXIST      "Task %1 doesn't exist. Verify spelling and task existence."
+    IDS_CLEAN_LIST          "Clean files list..."
+    IDS_LOAD_FILE_LIST      "Loading files..."
+    IDS_SAVE_PROJET         "You must save you project before add a tast."
+    IDS_NB_FILES_CLEARED    "The number of files after clearing: "
+    IDS_NB_FILES_DOWNLOADED "The number of files downloaded: "
+    IDS_LOAD_PAGE           "%1: %2 stations list page(s) to download"
+    IDS_NB_FILES_FOUND      "The number of files found: "
+    IDS_ZIP_FILE            "Zip files..."
+    IDS_UNZIP_FILE          "Unzip files.."
+    IDS_INVALID_PASSWORD    "Invalid {user name, password} combinaison"
+    IDS_INVALID_NOAA_DATFILE 
+                            "Invalid data file. File ""%1"" doesn't begin with ""DSET""."
+    IDS_INVALID_NOAA_STNFILE 
+                            "Invalid data file. File ""%1"" doesn't begin with ""COOPID""."
+    IDS_UNKNOWN_TASK        "Task ""%1"" is of unknown type(%2)."
+    IDS_INVALID_INPUT_TASK  "A task of download's category must be specified as data task"
+    IDS_LOAD_STATION_LIST   "Load station list"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SERVER_DOWN         "Database server is down or Error Occurred While Processing Request."
+    IDS_NO_WEATHER          "There is no useful weather information for station: "
+    IDS_NO_STATION_INFORMATION "No information for station: %1"
+    IDS_NUMBER_FILES        "Number of files to download: "
+    IDS_UNABLE_DOWNLOAD_LIST "Unable to download files list. Try later."
+    IDS_UNABLE_DOWNLOAD_DEFENITION 
+                            "Unable to find definition file(ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). The server can have problem or your firewall blocks the download."
+    IDS_CLIP_WEATHER        "Crop weather database"
+    IDS_SERVER_BUSY         "WARNING: The server is busy. Not able to find all stations list (Partial downloads)"
+    IDS_NO_CC_ENTRY         "No climatic change values are available for the station %1"
+    IDS_MERGE_TYPE          "Take DB1 value|Mean DB1 and DB2|take DB2 value "
+    IDS_DOWNLOAD            "Downloading file with FTPTrasnfer...\r\nThis can take several minutes."
+    IDS_WARNING_CORRUPT_FILE "WARNING: The file ""%1"" is corrupt."
+    IDS_GSOD_OPTIMISATION   "Create optimization files"
+    IDS_GET_STATION_LIST    "Looking for stations list"
+    IDS_PRIORITY_RULES      "Largest amount of data|Greatest number of years|Oldest data|Newest data"
+    IDS_UPLOAD              "Uploading file with FTPTrasnfer...\r\nThis can take several minutes."
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List "
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROVINCES           "Alberta|British-Columbia|Manitoba|New-Brunswick|Newfoundland|Northwest Territories|Nova Scotia|Nunavut|Ontario|Prince Edward Island|Quebec|Saskatchewan|Yukon|All"
+    IDS_REGION_NAME         "New Brunswick, Nova Scotia, Prince Edward Island, Newfoundland and Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Northwest Territories, Nunavut|British Columbia, Yukon|Québec"
+    IDS_FTP_DIRECTION       "Download|Upload"
+    IDS_FTP_CONNECTION_TYPE "Use Preconfigued Internet Explorer Settings|Use Direct Connection|Use Proxy Server Connection"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_EC_DAILY         "Download daily data from Environment Canada"
+    ID_ADD_EC_DAILY_P       "Description|Working directory|First Year|Last Year|Province(s)|Bounding box|Force Download|Extract snow"
+    ID_ADD_EC_HOURLY        "Download hourly data from Environment Canada"
+    ID_ADD_EC_HOURLY_P      "Description|Working directory|First Year|Last Year|First month|Last month|Province(s)|Bounding box(optional)|Force download|Extract wind direction|Extract vapor pressure (Es, Ea)|Extract atmospheric pressure"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_EC_FORECAST      "Downlaod Environment Canada hourly forecast "
+    ID_ADD_EC_FORECAST_P    "Description|Working directory|Region(s)"
+    ID_ADD_EC_OLD_RADAR     "Dowload Historical Radar images data from Environment Canada (GIF format)"
+    ID_ADD_EC_OLD_RADAR_P   "Description|Working directory|Radar|Type|Period"
+    ID_ADD_EC_NEW_RADAR     "Dowload Radar images data from Environment Canada (GIF format)"
+    ID_ADD_EC_NEW_RADAR_P   "Description|Working directory|Type"
+    ID_ADD_NOAA_GHCND       "Download Global Historical Climatology Network (GHCN) daily data via NOAA"
+    ID_ADD_NOAA_GHCND_P     "Working directory|Country|States (if USA)|Extents (optional)|DEM (optional)|Use DEM|Show FTPTransfer|Extract wind|Extract snow"
+    ID_ADD_NOAA_GSOD        "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA"
+    ID_ADD_NOAA_GSOD_P      "Working directory|Country|States (if USA)|Extents (optional)"
+    ID_ADD_NOAA_ISD_LITE    "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA"
+    ID_ADD_NOAA_ISD_LITE_P  "Working directory|First month|Last month|Country|State(s) (if USA)|Extents (optional)|Extract wind direction|Extract atmospheric pressure"
+    ID_ADD_SNOTEL           "Download Snow Telemetry (SnoTel)  daily data via NRCS"
+    ID_ADD_SNOTEL_P         "Working directory|Type|States|Update station list"
+    ID_ADD_NOMAD_RUC        "Download Rapid Update Cycle (RUC) grids from NOMADS server of the NOAA site"
+    ID_ADD_NOMAD_RUC_P      "Working directory|Period (YYYY1-MM1-DD1-HH1/YYYY2-MM2-DD2-HH2)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_SM_DAILY         "Download Québec daily data via Solutions-Mesonet"
+    ID_ADD_SM_DAILY_P       "Working directory|UserName|Password"
+    ID_ADD_SM_HOURLY        "Download Québec houry data via Solutions-Mesonet"
+    ID_ADD_SM_HOURLY_P      "Working directory|First month|Last month|Extents (optional)|UserName|Password|Update coordinates|Extract wind direction|Extract solar radiation"
+    ID_ADD_SM_CIPRA_HOURLY  "Download agro-climatic hourly data via Solutions-Mesonet"
+    ID_ADD_SM_CIPRA_HOURLY_P "Working directory|User Name|Password"
+    ID_ADD_EC_PRCP_RADAR    "Dowload Precipitation Radar data from Environment Canada (gribs format)"
+    ID_ADD_EC_PRCP_RADAR_P  "Description|Working directory|Type"
+    ID_ADD_EC_GRIB_FORECAST "Download forecast from Environment Canada (gribs format)"
+    ID_ADD_EC_GRIB_FORECAST_P "Description|Working directory|Type"
+    ID_ADD_ACIS             "Download agro-climatic daily data for Alberta/Manitoba via ACIS"
+    ID_ADD_ACIS_P           "Working directory|User Name|Password|Type"
+    ID_ADD_BC_PAWS          "Downlaod BC Ministry of Transport Avalanche Program daily data"
+    ID_ADD_BC_PAWS_P        "Working directory"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_BC_SNOWPILLOW    "Downlaod BC Snow Pillow daily data"
+    ID_ADD_BC_SNOWPILLOW_P  "Working directory"
+    ID_TOOL_CREATE_HOURLY_DATABSE "Generate hourly database"
+    ID_TOOL_CREATE_HOURLY_DATABSE_P 
+                            "Description|Data Task|Forecast Task|First year|Last year|First month|Last month|Cleaning of sparse hourly observations|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TOOL_CREATE_DAILY_DATABSE "Generate daily database"
+    ID_TOOL_CREATE_DAILY_DATABSE_P 
+                            "Description|Data Task|Forecast Task|First year|Last year|Minimum monthly completeness (%)|Minimum annual completeness (%)"
+    ID_TOOL_HOURLY2DAILY_DATABSE "Create daily database from hourly database"
+    ID_TOOL_HOURLY2DAILY_DATABSE_P "Input File|Output File"
+    ID_TOOL_DAILY2NORMALS_DATABSE 
+                            "Create normals database from daily database"
+    ID_TOOL_DAILY2NORMALS_DATABSE_P 
+                            "Input File|Output File|First year|Last year|Minimum number of years|Apply Climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
+    ID_TOOL_MERGE_DATABASE  "Merge two weather databases"
+    ID_TOOL_MERGE_DATABASE_P 
+                            "Input File 1|Input File 2|Max Distance(m)|Max elevation difference(m)|Output file path|Type|Priority to"
+    ID_TOOL_MOVE_DATABASE_TOGETHER 
+                            "Move two databases into an other database (move files)"
+    ID_TOOL_MOVE_DATABASE_TOGETHER_P "Input File 1|Input File 2|Output File"
+    ID_TOOL_CROP_DATABASE   "Crop weather database"
+    ID_TOOL_CROP_DATABASE_P "Input file|Output file path|First year|Last year|Shapefile(optional)|IDs(optional)|Bounding box(optional)"
+    ID_TOOL_COMPRESS_UNCOMPRESS "Zip/Unzip files"
+    ID_TOOL_COMPRESS_UNCOMPRESS_P 
+                            "Command;Zip file path;Directory;Zip Filter;Recursive sub-directory"
+    ID_TOOL_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site"
+    ID_TOOL_DOWNLOAD_UPLOAD_P 
+                            "Direction|Server|Remote file|Local File|User Name|Password|Connection Type|Connection Timeout|Proxy|Speed limit|Ascii|Passive Mode"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TOOL_CONVERT_DATABASE_OLD 
+                            "Convert BioSIM 11 database to BioSIM 10 database"
+    ID_TOOL_CONVERT_DATABASE_OLD_P "Input File|Output File"
+    ID_TOOL_CONVERT_DATABASE_NEW 
+                            "Convert BioSIM 10 database to BioSIM 11 database"
+    ID_TOOL_CONVERT_DATABASE_NEW_P "Input File|Output File"
+    ID_TOOL_OTHER_TOOLS     "Other"
+    ID_TOOL_OTHER_TOOLS_P   "----"
+    ID_MMG_RCM22            "Create monthly mean grid (MMG) from CCCma ESM2 RCM4 at 22 km"
+    ID_MMG_RCM22_P          "RCM4 (22km) directory|Region|Output file"
+    ID_MMG_GCM10            "Create monthly mean grid (MMG) from CCCma ESM2 GCM4 downscaled at 10 km"
+    ID_MMG_GCM10_P          "GCM4 (10km) directory|Output file"
+    ID_MMG_GCM4             "Create monthly mean grid (MMG) from CCCma ESM2 GCM4"
+    ID_MMG_GCM4_P           "GCM4 directory|Output file"
+END
+
+STRINGTABLE
+BEGIN
+    ID_MMG_HADGEM2_10       "Create monthly mean grid (MMG) from the Hadley Centre Global Environment Model, version 2, which incorporates an earth systems model downscaled at 10km"
+    ID_MMG_HADGEM2_10_P     "Répertoire HadGEM2-ES (10km)|Fichier de sortie"
+    ID_MMG_MIROC_10         "Create monthly mean grid (MMG) from MIROC model downscaled at 10 km"
+    ID_MMG_MIROC_10_P       "Répertoire MIROC (10km)|Fichier de sortie"
+    ID_MMG_CESM1_CAM5_10    "Create a monthly mean grid (MMG) from the Community Earth System Model version 1 that includes the Community Atmospheric Model version 5  downscaled at 10 km"
+    ID_MMG_CESM1_CAM5_10_P  "Répertoire CESM-CAM5 (10km)|Fichier de sortie"
+END
+
+#endif    // English (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"    // ressources impression/aperçu avant impression
+#if !defined(_AFXDLL)
+#include "afxribbon.rc"        // ressources de barre de contrôles et de ruban MFC
+#endif
+#endif
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+LANGUAGE 12, 1
+#include "res\WeatherUpdater.rc2"  // ressources non modifiées par Microsoft Visual C++
+#include "l.FRA\afxres.rc"      // Composants standard
+#include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
+#if !defined(_AFXDLL)
+#include "l.FRA\afxribbon.rc"        // ressources de barre de contrôles et de ruban MFC
+#endif
+#endif
+
+#include "WeatherBasedSimulationString.rc"
+#include "WeatherBasedSimulationUI.rc"
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

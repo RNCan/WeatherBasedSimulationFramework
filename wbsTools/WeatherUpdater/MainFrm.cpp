@@ -1,0 +1,473 @@
+
+// MainFrm.cpp : implémentation de la classe CMainFrame
+//
+
+#include "stdafx.h"
+#include "WeatherUpdater.h"
+#include "MainFrm.h"
+
+#include "Basic/Registry.h"
+#include "Basic/DynamicRessource.h"
+#include "WeatherUpdaterOptionsDlg.h"
+
+
+using namespace WBSF;
+using namespace UtilWin;
+
+
+static const UINT ID_LAGUAGE_CHANGE = 5;//from document
+static const UINT ID_OUTPUT_WND = 1151;
+static const UINT ID_PROPERTIES_WND = 1152;
+
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+// CMainFrame
+
+IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx) 
+
+const int  iMaxUserToolbars = 10;
+const UINT uiFirstUserToolBarId = AFX_IDW_CONTROLBAR_FIRST + 40;
+const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
+
+BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
+	ON_WM_CREATE()
+	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
+	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
+	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+	ON_WM_SETTINGCHANGE()
+	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
+	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
+	
+END_MESSAGE_MAP()
+
+static UINT indicators[] =
+{
+	ID_SEPARATOR,           // indicateur de la ligne d'état
+};
+
+// construction ou destruction de CMainFrame
+
+CMainFrame::CMainFrame()
+{
+	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+	CTabbedPane::m_pTabWndRTC = RUNTIME_CLASS(CMFCTabCtrl24);
+}
+
+CMainFrame::~CMainFrame()
+{
+}
+
+int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	BOOL bNameValid;
+
+	if (!m_wndMenuBar.Create(this))
+	{
+		TRACE0("Impossible de créer la barre de menus\n");
+		return -1;      // échec de la création
+	}
+
+	m_wndMenuBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
+	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
+	m_wndMenuBar.SetRecentlyUsedMenus(FALSE);
+
+	// empêche la barre de menus de prendre le focus lors de l'activation
+
+	CMFCPopupMenu::SetForceMenuFocus(FALSE);
+
+	//m_wndToolBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
+	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME_TOOLBAR, 0, 0, 1))
+	{
+		TRACE0("Impossible de créer toolbar\n");
+		return -1;      // échec de la création
+	}
+
+	//m_wndToolImages.Load(IDR_MAINFRAME_256);
+	//m_wndToolBar.LoadBitmap(IDR_MAINFRAME_256, 0, 0, TRUE);
+
+	CString strToolBarName;
+	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
+	ASSERT(bNameValid);
+	m_wndToolBar.SetWindowText(strToolBarName);
+
+	// Charger l'image de l'élément de menu (non placée sur l'une des barres d'outils standard) :
+	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
+
+	//CString strCustomize;
+	//bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	//ASSERT(bNameValid);
+	//m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+
+	// Autoriser les opérations de barres d'outils définies par l'utilisateur :
+	//InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
+
+	if (!m_wndStatusBar.Create(this))
+	{
+		TRACE0("Impossible de créer la barre d'état\n");
+		return -1;      // échec de la création
+	}
+	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+
+	// TODO: supprimez ces cinq lignes si vous ne souhaitez pas que la barre d'outils et la barre de menus soient ancrables
+	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndMenuBar);
+	DockPane(&m_wndToolBar);
+
+
+	// activer le comportement de la fenêtre d'ancrage de style Visual Studio 2005
+	CDockingManager::SetDockingMode(DT_SMART);
+	// activer le comportement de masquage automatique de la fenêtre d'ancrage de style Visual Studio 2005
+	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+
+	
+	//CMFCToolBar::AddToolBarForImageCollection();
+
+	// créer des fenêtres d'ancrage
+	if (!CreateDockingWindows())
+	{
+		TRACE0("Impossible de créer des fenêtres d'ancrage\n");
+		return -1;
+	}
+
+	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	
+	
+	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT);
+	m_wndOutput.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
+	
+//DockPane(&m_wndProperties);
+
+
+	// définir le gestionnaire visuel et le style visuel en fonction d'une valeur persistante
+	OnApplicationLook(theApp.m_nAppLook); 
+
+	// Activer le remplacement du menu de la fenêtre d'ancrage et de la barre d'outils
+	CString strCustomize;
+	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	ASSERT(bNameValid);
+	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR, TRUE, FALSE);
+	LoadtBasicCommand();
+
+	return 0;
+}
+
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+{
+	if( !CFrameWndEx::PreCreateWindow(cs) )
+		return FALSE;
+	// TODO: changez ici la classe ou les styles Window en modifiant
+	//  CREATESTRUCT cs
+
+	return TRUE;
+}
+
+BOOL CMainFrame::CreateDockingWindows()
+{
+	BOOL bNameValid;
+	
+	// Créer la fenêtre Propriétés
+	CString strPropertiesWnd;
+	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
+	ASSERT(bNameValid);
+	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("Impossible de créer la fenêtre Propriétés\n");
+		return FALSE; // échec de la création
+	}
+
+	// Créer la fenêtre Sortie
+	CString strOutputWnd;
+	bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND); 
+	ASSERT(bNameValid);
+	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("Impossible de créer la fenêtre Sortie\n");
+		return FALSE; // échec de la création
+	}
+
+	
+
+	SetDockingWindowIcons(theApp.m_bHiColorIcons);
+	return TRUE;
+}
+
+void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
+{
+
+	HICON hOutputIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OUTPUT_WND), IMAGE_ICON, 24, 24, 0);
+	m_wndOutput.SetIcon(hOutputIcon, TRUE);
+
+	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
+	m_wndProperties.SetIcon(hPropertiesBarIcon, TRUE);
+
+}
+
+// diagnostics pour CMainFrame
+
+#ifdef _DEBUG
+void CMainFrame::AssertValid() const
+{
+	CFrameWndEx::AssertValid();
+}
+
+void CMainFrame::Dump(CDumpContext& dc) const
+{
+	CFrameWndEx::Dump(dc);
+}
+#endif //_DEBUG
+
+
+// gestionnaires de messages pour CMainFrame
+
+void CMainFrame::OnViewCustomize()
+{
+	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* analyser les menus */);
+	pDlgCust->EnableUserDefinedToolbars();
+	pDlgCust->Create();
+}
+
+
+
+LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
+{
+	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
+	if (lres == 0)
+	{
+		return 0;
+	}
+
+	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
+	ASSERT_VALID(pUserToolbar);
+
+	BOOL bNameValid;
+	CString strCustomize;
+	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	ASSERT(bNameValid);
+
+	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+	return lres;
+}
+
+void CMainFrame::OnApplicationLook(UINT id)
+{
+	CWaitCursor wait;
+
+	theApp.m_nAppLook = id;
+
+	switch (theApp.m_nAppLook)
+	{
+	case ID_VIEW_APPLOOK_WIN_2000:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
+		break;
+
+	case ID_VIEW_APPLOOK_OFF_XP:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
+		break;
+
+	case ID_VIEW_APPLOOK_WIN_XP:
+		CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+		break;
+
+	case ID_VIEW_APPLOOK_OFF_2003:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
+		CDockingManager::SetDockingMode(DT_SMART);
+		break;
+
+	case ID_VIEW_APPLOOK_VS_2005:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
+		CDockingManager::SetDockingMode(DT_SMART);
+		break;
+
+	case ID_VIEW_APPLOOK_VS_2008:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
+		CDockingManager::SetDockingMode(DT_SMART);
+		break;
+
+	case ID_VIEW_APPLOOK_WINDOWS_7:
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
+		CDockingManager::SetDockingMode(DT_SMART);
+		break;
+
+	default:
+		switch (theApp.m_nAppLook)
+		{
+		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
+			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
+			break;
+
+		case ID_VIEW_APPLOOK_OFF_2007_BLACK:
+			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
+			break;
+
+		case ID_VIEW_APPLOOK_OFF_2007_SILVER:
+			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
+			break;
+
+		case ID_VIEW_APPLOOK_OFF_2007_AQUA:
+			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
+			break;
+		}
+
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
+		CDockingManager::SetDockingMode(DT_SMART);
+	}
+
+	m_wndOutput.UpdateFonts();
+	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
+
+	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
+}
+
+void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
+}
+
+
+BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
+{
+	// la classe de base effectue le travail
+
+	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
+	{
+		return FALSE;
+	}
+
+
+	// activer le bouton de personnalisation pour toutes les barres d'outils utilisateur
+	BOOL bNameValid;
+	CString strCustomize;
+	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	ASSERT(bNameValid);
+
+	for (int i = 0; i < iMaxUserToolbars; i ++)
+	{
+		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
+		if (pUserToolbar != NULL)
+		{
+			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+		}
+	}
+
+	return TRUE;
+}
+ 
+
+void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
+{
+	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
+	m_wndOutput.UpdateFonts();
+}
+
+void CMainFrame::ActivateFrame(int nCmdShow)
+{
+	//OnUpdate(NULL, 0, NULL);
+	CFrameWndEx::ActivateFrame(nCmdShow);
+}
+
+void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+{ 
+	m_wndOutput.OnUpdate(pSender, lHint, pHint);
+	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
+}
+
+int GetLanguage(UINT id)
+{
+	return id - ID_LANGUAGE_FRENCH;
+}
+void CMainFrame::OnLanguageChange(UINT id)
+{
+	WBSF::CRegistry registry;
+	if (registry.GetLanguage() != GetLanguage(id))
+	{
+		registry.SetLanguage(GetLanguage(id));
+
+		HINSTANCE hInst = NULL;
+		if (GetLanguage(id) == WBSF::CRegistry::FRENCH)
+		{
+			hInst = LoadLibraryW(L"WeatherUpdaterFrc.dll");
+		}
+		else
+		{
+			hInst = LoadLibraryW(L"WeatherUpdater.exe");
+		}
+
+		if (hInst != NULL)
+			AfxSetResourceHandle(hInst);
+
+		//set resources for non MFC get string
+		CDynamicResources::set(AfxGetResourceHandle());
+		
+		WBSF::CStatistic::ReloadString();
+		WBSF::CTM::ReloadString();
+		
+		m_wndMenuBar.RestoreOriginalState();
+
+		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
+		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
+		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
+		
+		GetActiveDocument()->UpdateAllViews(NULL, ID_LAGUAGE_CHANGE);
+		Invalidate();
+	}
+	
+
+}
+
+void CMainFrame::LoadtBasicCommand()
+{
+	CList<UINT, UINT> lstBasicCommands;
+
+	lstBasicCommands.AddTail(ID_FILE_NEW);
+	lstBasicCommands.AddTail(ID_FILE_OPEN);
+	lstBasicCommands.AddTail(ID_FILE_SAVE);
+	lstBasicCommands.AddTail(ID_FILE_PRINT);
+	lstBasicCommands.AddTail(ID_APP_EXIT);
+	lstBasicCommands.AddTail(ID_EDIT_CUT);
+	lstBasicCommands.AddTail(ID_EDIT_PASTE);
+	lstBasicCommands.AddTail(ID_EDIT_UNDO);
+	lstBasicCommands.AddTail(ID_APP_ABOUT);
+	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
+	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLUE);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_SILVER);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLACK);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
+	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_WINDOWS_7);
+	lstBasicCommands.AddTail(ID_LANGUAGE_FRENCH);
+	lstBasicCommands.AddTail(ID_LANGUAGE_ENGLISH);
+
+	
+	CMFCToolBar::SetBasicCommands(lstBasicCommands);
+}
+
+
+void CMainFrame::OnLanguageUI(CCmdUI* pCmdUI)
+{
+	WBSF::CRegistry registry;
+	pCmdUI->SetRadio(registry.GetLanguage() == GetLanguage(pCmdUI->m_nID));
+}
+
+
+
+void CMainFrame::OnEditOptions()
+{
+	CWeatherUpdaterOptionsDlg dlg;
+	dlg.DoModal();
+
+}

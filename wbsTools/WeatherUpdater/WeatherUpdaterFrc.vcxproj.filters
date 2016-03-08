@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Image Include="res\ChartsToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\menuimages.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\NormalsEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\Option.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\OptionIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\output_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\properties_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\spreadsheet_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\StationsListToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TableToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\chart_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{8e26ac94-4bb2-4172-802d-e95c3a27948a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WeatherUpdater.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
