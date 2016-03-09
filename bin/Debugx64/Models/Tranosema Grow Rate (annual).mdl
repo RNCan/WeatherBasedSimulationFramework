@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="Windows - 1252"?>
+<Model version="3">
+    <Title>Tranosema Biology</Title>
+    <Version>1.0</Version>
+    <ID>.Tranosema</ID>
+    <EXE>Tranosema Biology.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Development, fecondity and attrition of Tranosema</Description>
+    <WindowRect>0 0 147 229</WindowRect>
+    <SimulatedCategory>T TR</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>ApplyAttrition</Name>
+            <Caption>ApplyAttrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>25 10 45 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Attrition</Name>
+            <Caption>Attrition</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>54 10 76 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Gmax</Name>
+            <Title>Gmax</Title>
+            <Units>Generation</Units>
+            <Description>Number of complete generation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g1</Name>
+            <Title>GrowRate_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g2</Name>
+            <Title>GroRate_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g3</Name>
+            <Title>GrowRate_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g4</Name>
+            <Title>GrowRate_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g5</Name>
+            <Title>GrowRate_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g6</Name>
+            <Title>GrowRate_g6</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g7</Name>
+            <Title>GrowRate_g7</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GrowRate_g8</Name>
+            <Title>GrowRate_g8</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
