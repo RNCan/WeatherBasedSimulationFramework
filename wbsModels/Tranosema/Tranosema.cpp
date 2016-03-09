@@ -172,7 +172,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (weather[H_TMIN][LOWEST] < LO_TEMP && GetStage() != PUPA)
+		else if (weather[H_TMIN][LOWEST] < LO_TEMP && GetStage() != PUPAE)
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
