@@ -163,8 +163,8 @@ namespace WBSF
 		CTRef GetLastTRef()const{ return m_firstTRef + (size() - 1); }
 
 		using CModelStatVectorBase::at;
-		const CModelStat& at(CTRef d)const{ return at(d - m_firstTRef); }
-		CModelStat& at(CTRef d){ return at(d - m_firstTRef); }
+		const CModelStat& at(CTRef d)const{ ASSERT(d.GetTM() == m_firstTRef.GetTM()); return at(d - m_firstTRef); }
+		CModelStat& at(CTRef d){ ASSERT(d.GetTM() == m_firstTRef.GetTM());  return at(d - m_firstTRef); }
 		using CModelStatVectorBase::operator[];
 		const CModelStat& operator [](CTRef d)const{ return at(d); }
 		CModelStat& operator [](CTRef d){ return at(d); }

@@ -29,7 +29,7 @@ namespace WBSF
 	const char * CRegistry::GIS = "QGIS";
 	const char * CRegistry::PLT_WIDGET = "PLTWidget";
 	const char * CRegistry::PLT_WIN = "PLTWin";
-	const char * CRegistry::HOURLY_EDITOR = "MatchStation";
+	const char * CRegistry::HOURLY_EDITOR = "HourlyEditor";
 	const char * CRegistry::DAILY_EDITOR = "DailyEditor";
 	const char * CRegistry::NORMAL_EDITOR = "NormalsEditor";
 	const char * CRegistry::MODEL_EDITOR = "ModelEditor";

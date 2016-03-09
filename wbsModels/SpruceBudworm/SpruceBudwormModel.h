@@ -31,8 +31,8 @@ namespace WBSF
 		//parameter
 		CTRef m_fixDate;
 		double m_fixAI;
-		double m_surv[10];
-		double m_P[5];
+		//double m_surv[10];
+		//double m_P[5];
 
 		bool m_bHaveAttrition;
 		bool m_bFertility;

@@ -47,17 +47,31 @@ namespace WBSF
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_fixAI = 0;
-		for (size_t i = 0; i < NB_STAGES; i++)
-			m_surv[i] = 1;
 
 		m_treeKind = 0;
-
 		m_bFertility = false;
-		//m_bAutoBalanceObject = true;
 	}
 
 	CSpruceBudwormModel::~CSpruceBudwormModel()
 	{
+	}
+
+
+	//this method is call to load your parameter in your variable
+	ERMsg CSpruceBudwormModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+		int c = 0;
+
+		m_bHaveAttrition = parameters[c++].GetBool();
+		m_bFertility = parameters[c++].GetBool();
+		m_treeKind = parameters[c++].GetInt();
+
+		m_fixDate = parameters[c++].GetTRef();
+		m_fixAI = parameters[c++].GetReal();
+
+		return msg;
 	}
 
 	ERMsg CSpruceBudwormModel::OnExecuteAnnual()
@@ -71,12 +85,12 @@ namespace WBSF
 		ExecuteDaily(stat, true);
 
 
-		CAnnualOutput stateA(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()));
+		CAnnualOutput stateA(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()+1));
 
 		for (size_t y = 0; y < m_weather.size() - 1; y++)
 		{
 			CStatistic statL22;
-			CTPeriod p = m_weather[y + 1].GetEntireTPeriod();
+			CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 				statL22 += stat[d][S_L22];
 
@@ -145,7 +159,6 @@ namespace WBSF
 				size_t yy = y1 + y;
 
 				CTPeriod p = m_weather[yy].GetEntireTPeriod(CTM(CTM::DAILY));
-				//p.Transform(CTM(CTM::DAILY));
 
 				for (CTRef d = p.Begin(); d <= p.End(); d++)
 				{
@@ -171,43 +184,6 @@ namespace WBSF
 		}
 	}
 
-
-	//this method is call to load your parameter in your variable
-	ERMsg CSpruceBudwormModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg msg;
-
-		int c = 0;
-
-		m_bHaveAttrition = parameters[c++].GetBool();
-		m_bFertility = parameters[c++].GetBool();
-		m_treeKind = parameters[c++].GetInt();
-
-		m_fixDate = parameters[c++].GetTRef();
-		m_fixAI = parameters[c++].GetReal();
-
-		//m_nbBugs=parameters[c++].GetInt();
-
-		//ASSERT(false);//a revoir ...
-		//bool bChange=false;
-		//for(int i=0; i<NB_STAGES; i++)
-		//{
-		//	double p=parameters[c++].GetReal();
-		//	if( fabs(p-CSBDevelopment::b1Factor[EGG+i])>0.0001 )
-		//	{
-		//		bChange=true;
-		//		CSBDevelopment::b1Factor[EGG+i] =  p;
-		//	}
-		//}
-		//
-		//
-		////init only if parameter change
-		//if( bChange )
-		//	CSBDevelopmentTable::Reinit();
-		//}
-
-		return msg;
-	}
 
 
 
