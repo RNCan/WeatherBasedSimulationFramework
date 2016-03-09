@@ -169,11 +169,16 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
+		else if (weather[H_TMIN][LOWEST] < -5. && GetStage() != PUPA)
+		{
+			m_status = DEAD;
+			m_death = FROZEN;
+		}
 		else if (weather.GetTRef().GetJDay() >= 364)
 		{
 			//all bugs are kill at the ead of the season
 			m_status = DEAD;
-			m_death = FROZEN;
+			m_death = OTHERS;
 		}
 	}
 
