@@ -24,7 +24,7 @@ namespace WBSF
 	protected:
 
 		void GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& SBWStat);
-		void ExecuteDaily(CModelStatVector& SBWStat, std::vector<CModelStatVector>& stat);
+		void ExecuteDailyAllGenerations(CModelStatVector& SBWStat, std::vector<CModelStatVector>& stat);
 
 
 		bool m_bHaveAttrition;

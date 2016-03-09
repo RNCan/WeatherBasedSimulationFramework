@@ -29,8 +29,8 @@ namespace WBSF
 	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, NB_DAILY_OUTPUT };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
-	enum{ O_A_NB_GENERATION, O_A_GROW_RATE0, O_A_GROW_RATE1, O_A_GROW_RATE2, O_A_GROW_RATE3, O_A_GROW_RATE4, O_A_GROW_RATE5, O_A_GROW_RATE6, O_A_GROW_RATE7, NB_ANNUAL_STAT };
-	extern char ANNUAL_HEADER[] = "Gmax,GrowRate0,GrowRate1,GrowRate2,GrowRate3,GrowRate4,GrowRate5,GrowRate6,GrowRate7";
+	enum{ O_A_NB_GENERATION, O_A_GROW_RATE1, O_A_GROW_RATE2, O_A_GROW_RATE3, O_A_GROW_RATE4, O_A_GROW_RATE5, O_A_GROW_RATE6, O_A_GROW_RATE7, O_A_GROW_RATE8, NB_ANNUAL_STAT, NB_MAX_GENERATION = 8 };
+	extern char ANNUAL_HEADER[] = "Gmax,GrowRate1,GrowRate2,GrowRate3,GrowRate4,GrowRate5,GrowRate6,GrowRate7,GrowRate8";
 
 
 	CTranosemaModel::CTranosemaModel()
@@ -112,21 +112,23 @@ namespace WBSF
 	ERMsg CTranosemaModel::OnExecuteDaily()
 	{
 		ERMsg msg;
+		
+		//if daily data, compute sub-daily data
+		if (m_weather.IsDaily())
+			m_weather.ComputeHourlyVariables();
+		
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
-
-
-		if (m_weather.IsDaily())//if daily data, compute sub-daily data
-			m_weather.ComputeHourlyVariables();
-
+		
 		GetSpruceBudwormBiology(m_weather, SBWStat);
 
+		//one CModelStatVector by generation
 		vector<CModelStatVector> TranosemaStat;
-		ExecuteDaily(SBWStat, TranosemaStat);
+		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
 
-
+		//merge generations vector into one output vector (max of 4 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		size_t maxG = min(4ull, TranosemaStat.size());
+		size_t maxG = min(size_t(4), TranosemaStat.size());
 		m_output.Init(p.size(), p.Begin(), maxG*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -142,11 +144,10 @@ namespace WBSF
 		return msg;
 	}
 
-	void CTranosemaModel::ExecuteDaily(CModelStatVector& SBWStat, vector<CModelStatVector>& stat)
+	void CTranosemaModel::ExecuteDailyAllGenerations(CModelStatVector& SBWStat, vector<CModelStatVector>& stat)
 	{
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		//stat.Init(p.GetNbRef(), p.Begin(), NB_STATS, 0);
 
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
@@ -173,7 +174,7 @@ namespace WBSF
 			stand.m_host.push_front(pHost);
 
 
-			//run the model for the entire period of the year
+			//run the model for all days of all years
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 			{
 				stand.Live(m_weather.GetDay(d));
@@ -196,20 +197,17 @@ namespace WBSF
 	ERMsg CTranosemaModel::OnExecuteAnnual()
 	{
 		ERMsg msg;
-		//Init spruce budworm data
-		CModelStatVector SBWStat;
-
 
 		if (m_weather.IsDaily())//if daily data, compute sub-daily data
 			m_weather.ComputeHourlyVariables();
 
+		//Init spruce budworm data
+		CModelStatVector SBWStat;
+
 		GetSpruceBudwormBiology(m_weather, SBWStat);
 
-		vector<CModelStatVector> TranosemaStat;//one output per generation
-		ExecuteDaily(SBWStat, TranosemaStat);
-
-
-
+		vector<CModelStatVector> TranosemaStat;
+		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
 		m_output.Init(p, NB_ANNUAL_STAT, 0, ANNUAL_HEADER);
@@ -217,7 +215,7 @@ namespace WBSF
 
 		//now compute annual grow rates
 		//Get last complete generation
-		size_t maxG = min(9ull, TranosemaStat.size());
+		size_t maxG = min(size_t(NB_MAX_GENERATION-1), TranosemaStat.size());
 		if (maxG > 0)
 		{
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -243,7 +241,7 @@ namespace WBSF
 						CStatistic adultStat = TranosemaStat[g + 1].GetStat(E_ADULT, season);
 						double nbAdult = adultStat[SUM];
 						if (nbAdult­¯¹ > 0.01)
-							m_output[TRef][O_A_GROW_RATE0 + g] = nbAdult / nbAdult­¯¹;
+							m_output[TRef][O_A_GROW_RATE1 + g] = nbAdult / nbAdult­¯¹;
 
 						nbAdult­¯¹ = nbAdult;
 					}
