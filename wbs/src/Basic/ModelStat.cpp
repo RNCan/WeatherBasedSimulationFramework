@@ -646,12 +646,13 @@ namespace WBSF
 		Init(in, CTTransformation(p1, p2));
 	}
 
-	void CTStatMatrix::Init(const CModelStatVector& in, const CTTransformation& TT)
+	void CTStatMatrix::Init(const CModelStatVector& in, const CTTransformation& TTin)
 	{
 		CTStatMatrix& me = *this;
-		CTPeriod pIn = TT.GetPeriodIn().IsInit() ? TT.GetPeriodIn(): in.GetTPeriod();
-		CTPeriod pOut = TT.GetPeriodOut().IsInit() ? TT.GetPeriodOut(): pIn;
+		CTPeriod pIn = TTin.GetPeriodIn().IsInit() ? TTin.GetPeriodIn(): in.GetTPeriod();
+		CTPeriod pOut = TTin.GetPeriodOut().IsInit() ? TTin.GetPeriodOut(): pIn;
 		
+		CTTransformation TT(pIn, pOut);
 		CTStatMatrixBase::Init(pOut, in.GetNbStat());
 
 		for (CTRef TRefIn = pIn.Begin(); TRefIn <= pIn.End(); TRefIn++)

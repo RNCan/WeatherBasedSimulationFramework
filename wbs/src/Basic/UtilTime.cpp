@@ -1660,7 +1660,7 @@ CTPeriod& CTPeriod::Transform(const CTM& TM)
 		
 		if (bResetMonth)
 			m_end.m_month = LAST_MONTH;
-		if (bResetMonth)
+		if (bResetDay)
 			m_end.m_day = WBSF::GetNbDayPerMonth(m_end.GetYear(), m_end.GetMonth());
 		if (bResetHour)
 			m_end.m_hour = LAST_HOUR;
