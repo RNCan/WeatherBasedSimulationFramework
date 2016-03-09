@@ -156,6 +156,9 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CTranosema::Die(const CWeatherDay& weather)
 	{
+ //ceci est n test de modification
+		static const double LO_TEMP = -5;
+ 
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
