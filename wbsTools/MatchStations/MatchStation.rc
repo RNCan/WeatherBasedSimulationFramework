@@ -30,7 +30,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME			ICON					"res\\MatchStation.ico"
+IDR_MAINFRAME           ICON                    "res\\MatchStation.ico"
 IDI_WEIGHT_CHART_WND    ICON                    "res\\weight_chart_wnd.ico"
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
@@ -40,7 +40,7 @@ IDI_CORRECTION_WND      ICON                    "res\\Correction_wnd.ico"
 IDI_ESTIMATE_N_WND      ICON                    "res\\estimateN_wnd.ico"
 IDI_ESTIMATE_O_WND      ICON                    "res\\estimateO_wnd.ico"
 IDI_OBSERVATION_WND     ICON                    "res\\observations_wnd.ico"
-IDI_NORMAL_WND			ICON                    "res\\Normals_wnd.ico"
+IDI_NORMAL_WND          ICON                    "res\\Normals_wnd.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -49,7 +49,7 @@ IDI_NORMAL_WND			ICON                    "res\\Normals_wnd.ico"
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDR_MAINFRAME_TOOLBAR   BITMAP                  "res\\MainFrameToolbar.bmp"
-IDR_WEIGHT_GRAPH_TOOLBAR BITMAP                 "res\\ChartsToolbar.bmp"
+IDR_WEIGHT_GRAPH_TOOLBAR BITMAP                  "res\\ChartsToolbar.bmp"
 IDR_LOCATION_TOOLBAR    BITMAP                  "res\\LocationToolbar.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,9
+ FILEVERSION 4,0,0,12
  PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -166,18 +166,18 @@ BEGIN
         BLOCK "0c0c04b0"
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
-            VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.0.0.9"
+            VALUE "FileDescription", "Recherches les stations météo pour une localisation"
+            VALUE "FileVersion", "4.0.0.12"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
-            VALUE "ProductName", "ÉditeurHoraire"
+            VALUE "ProductName", "MatchStation"
             VALUE "ProductVersion", "4.0.0.0"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
-            VALUE "FileDescription", "Match Weather station"
-            VALUE "FileVersion", "4.0.0.9"
+            VALUE "FileDescription", "Match weather station for location"
+            VALUE "FileVersion", "4.0.0.12"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"
@@ -262,7 +262,6 @@ BEGIN
         BEGIN
             MENUITEM "<espace réservé>",            ID_VIEW_TOOLBAR
         END
-        MENUITEM "B&arre d'état",               ID_VIEW_STATUS_BAR
         POPUP "Aspect de l'a&pplication"
         BEGIN
             MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
@@ -294,51 +293,6 @@ BEGIN
     POPUP "A&ide"
     BEGIN
         MENUITEM "À &propos de MatchStation...", ID_APP_ABOUT
-    END
-END
-
-IDR_POPUP_EDIT MENU
-BEGIN
-    POPUP "Edition"
-    BEGIN
-        MENUITEM "&Couper\tCtrl+X",             ID_EDIT_CUT
-        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
-        MENUITEM "Co&ller\tCtrl+V",             ID_EDIT_PASTE
-    END
-END
-
-IDR_POPUP_SORT MENU
-BEGIN
-    POPUP "Tri"
-    BEGIN
-        MENUITEM "Tr&ier par ordre alphabétique", ID_SORTING_SORTALPHABETIC
-        MENUITEM "Tri&er par type",             ID_SORTING_SORTBYTYPE
-        MENUITEM "Trier par a&ccès",            ID_SORTING_SORTBYACCESS
-        MENUITEM "&Grouper par type",           ID_SORTING_GROUPBYTYPE
-    END
-END
-
-IDR_POPUP_EXPLORER MENU
-BEGIN
-    POPUP "Explorateur"
-    BEGIN
-        MENUITEM "&Ouvrir",                     ID_OPEN
-        MENUITEM "Ou&vrir avec...",             ID_OPEN_WITH
-        MENUITEM SEPARATOR
-        MENUITEM "&Couper\tCtrl+X",             ID_EDIT_CUT
-        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
-        MENUITEM "Supp&rimer",                  ID_EDIT_CLEAR
-        MENUITEM SEPARATOR
-        MENUITEM "Pr&opriétés...",              ID_PROPERTIES
-    END
-END
-
-IDR_OUTPUT_POPUP MENU
-BEGIN
-    POPUP "Fenêtre contextuelle"
-    BEGIN
-        MENUITEM "&Copier",                     ID_EDIT_COPY
-        MENUITEM "Effa&cer",                    ID_EDIT_CLEAR
     END
 END
 
@@ -448,16 +402,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "StationAvoisinante"
     AFX_IDS_IDLEMESSAGE     "Prêt"
-END
-
-STRINGTABLE
-BEGIN
-    ID_INDICATOR_EXT        "EXT"
-    ID_INDICATOR_CAPS       "CAP"
-    ID_INDICATOR_NUM        "NUM"
-    ID_INDICATOR_SCRL       "SCRL"
-    ID_INDICATOR_OVR        "OVR"
-    ID_INDICATOR_REC        "REC"
 END
 
 STRINGTABLE
@@ -581,8 +525,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard"
-    IDS_TOOLBAR_CUSTOMIZE   "Personnaliser..."
+    IDS_TOOLBAR_STANDARD    "Standard "
+    IDS_TOOLBAR_STATUS      "Barre d'état"
     IDS_PROPERTIES_LOCATION_HEADER 
                             "Localisation|Informations spécifique au site"
 END
@@ -666,7 +610,6 @@ BEGIN
         BEGIN
             MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
         END
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         POPUP "&Application Look"
         BEGIN
             MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
@@ -698,51 +641,6 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&About MatchStation...",      ID_APP_ABOUT
-    END
-END
-
-IDR_POPUP_EDIT MENU
-BEGIN
-    POPUP "Edit"
-    BEGIN
-        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
-        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
-        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
-    END
-END
-
-IDR_POPUP_SORT MENU
-BEGIN
-    POPUP "Sorting"
-    BEGIN
-        MENUITEM "&Sort Alphabeticaly",         ID_SORTING_SORTALPHABETIC
-        MENUITEM "Sort by &Type",               ID_SORTING_SORTBYTYPE
-        MENUITEM "Sort by Acc&ess",             ID_SORTING_SORTBYACCESS
-        MENUITEM "Group by t&ype",              ID_SORTING_GROUPBYTYPE
-    END
-END
-
-IDR_POPUP_EXPLORER MENU
-BEGIN
-    POPUP "Explorer"
-    BEGIN
-        MENUITEM "&Open",                       ID_OPEN
-        MENUITEM "Open &With....",              ID_OPEN_WITH
-        MENUITEM SEPARATOR
-        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
-        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
-        MENUITEM "&Remove",                     ID_EDIT_CLEAR
-        MENUITEM SEPARATOR
-        MENUITEM "&Properties...",              ID_PROPERTIES
-    END
-END
-
-IDR_OUTPUT_POPUP MENU
-BEGIN
-    POPUP "Popup"
-    BEGIN
-        MENUITEM "&Copy",                       ID_EDIT_COPY
-        MENUITEM "&Clear",                      ID_EDIT_CLEAR
     END
 END
 
@@ -795,16 +693,6 @@ STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "MatchStation"
     AFX_IDS_IDLEMESSAGE     "Ready"
-END
-
-STRINGTABLE
-BEGIN
-    ID_INDICATOR_EXT        "EXT"
-    ID_INDICATOR_CAPS       "CAP"
-    ID_INDICATOR_NUM        "NUM"
-    ID_INDICATOR_SCRL       "SCRL"
-    ID_INDICATOR_OVR        "OVR"
-    ID_INDICATOR_REC        "REC"
 END
 
 STRINGTABLE
@@ -929,7 +817,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard "
-    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+    IDS_TOOLBAR_STATUS      "Status Bar"
     IDS_PROPERTIES_LOCATION_HEADER "Location|Site Specific Informations"
 END
 

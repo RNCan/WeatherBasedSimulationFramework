@@ -85,7 +85,7 @@ IMPLEMENT_DYNCREATE(CLocationsListView, CView)
 BEGIN_MESSAGE_MAP(CLocationsListView, CView)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_WM_CONTEXTMENU()
+	//ON_WM_CONTEXTMENU()
 	ON_MESSAGE(WM_SETTEXT, OnSetText)
 	ON_MESSAGE(CLocationVectorCtrl::UWM_SELECTION_CHANGE, OnSelectionChange)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_LOCATIONS, OnUpdateStatusBar)
@@ -98,39 +98,20 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CLocationsListView construction/destruction
+static const int ID_INDICATOR_NB_STATIONS = 0xE711;
+
+static UINT indicators[] =
+{
+	ID_SEPARATOR,
+	ID_INDICATOR_NB_STATIONS
+};
 
 CLocationsListView::CLocationsListView()
-{
-}
+{}
 
 CLocationsListView::~CLocationsListView()
-{
-}
+{}
 
-BOOL CLocationsListView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
-	return CView::PreCreateWindow(cs);
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CLocationsListView diagnostics
-
-#ifdef _DEBUG
-void CLocationsListView::AssertValid() const
-{
-	CView::AssertValid();
-}
-
-void CLocationsListView::Dump(CDumpContext& dc) const
-{
-	CView::Dump(dc);
-}
-
-#endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 // CLocationsListView message handlers
@@ -144,21 +125,27 @@ int CLocationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-
-
 	if (!m_locationVectorCtrl.CreateGrid(WS_CHILD | WS_VISIBLE | WS_TABSTOP, CRect(0, 0, 0, 0), this, IDC_STATION_LIST_ID))
 	{
 		TRACE0("Impossible de créer le controle\n");
 		return -1;      // échec de la création
 	}
 
+	if (!m_statusCtrl.Create(this))
+	{
+		TRACE0("Failed to create status bar\n");
+		return -1;      // fail to create
+	}
+	m_statusCtrl.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
+	m_statusCtrl.SetOwner(this);
+	m_statusCtrl.SetPaneInfo(0, ID_SEPARATOR, SBPS_STRETCH, 0);
+
 
 	return 0;
 }
 
 void CLocationsListView::OnDraw(CDC* pDC)
-{
-}
+{}
 
 LRESULT CLocationsListView::OnSetText(WPARAM wParam, LPARAM lParam)
 {
@@ -227,9 +214,14 @@ void CLocationsListView::AdjustLayout()
 		return;
 	}
 
-	CRect rectClient;
-	GetClientRect(rectClient);
-	m_locationVectorCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+	CRect rect;
+	GetClientRect(rect);
+	int cyTlb = m_statusCtrl.CalcFixedLayout(FALSE, TRUE).cy;
+
+
+	m_locationVectorCtrl.SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height()-cyTlb, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+	m_statusCtrl.SetWindowPos(NULL, rect.left, rect.Height() - cyTlb, rect.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	
 }
 
 
@@ -239,7 +231,6 @@ void CLocationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 	if (pCmdUI->m_nID == ID_INDICATOR_NB_LOCATIONS)
 	{
 		CMatchStationDoc* pDoc = GetDocument();
-
 
 		long nbRows = m_locationVectorCtrl.GetNumberRows();
 
@@ -253,9 +244,11 @@ void CLocationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 		ASSERT(pDC);
 		CSize size = pDC->GetTextExtent(text);
 
-		CMFCStatusBar* pStatusBar = static_cast <CMFCStatusBar*> (pCmdUI->m_pOther);
-		UINT nStyle = pStatusBar->GetPaneStyle(1);
-		pStatusBar->SetPaneInfo(1, ID_INDICATOR_NB_LOCATIONS, nStyle, size.cx);
+		//CMFCStatusBar* pStatusBar = static_cast <CMFCStatusBar*> (pCmdUI->m_pOther);
+		//UINT nStyle = pStatusBar->GetPaneStyle(1);
+		//pStatusBar->SetPaneInfo(1, ID_INDICATOR_NB_LOCATIONS, nStyle, size.cx);
+		UINT nStyle = m_statusCtrl.GetPaneStyle(1);
+		m_statusCtrl.SetPaneInfo(1, ID_INDICATOR_NB_STATIONS, nStyle, size.cx);
 	}
 
 
@@ -345,3 +338,18 @@ void CLocationsListView::OnInitialUpdate()
 	pDoc->UpdateAllViews(NULL, NULL, NULL);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// CLocationsListView diagnostics
+
+#ifdef _DEBUG
+void CLocationsListView::AssertValid() const
+{
+	CView::AssertValid();
+}
+
+void CLocationsListView::Dump(CDumpContext& dc) const
+{
+	CView::Dump(dc);
+}
+
+#endif //_DEBUG

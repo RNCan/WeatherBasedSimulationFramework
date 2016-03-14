@@ -18,17 +18,17 @@
 using namespace UtilWin;
 using namespace WBSF;
 
-static const int ID_LAGUAGE_CHANGE			= 5;//from document
-static const UINT ID_VIEW_NORMALS_WND       = 1001;
-static const UINT ID_VIEW_OBSERVATION_WND   = 1002;
-static const UINT ID_VIEW_WEIGHT_CHARTS_WND = 1003;
-static const UINT ID_VIEW_OUTPUTWND         = 1004;
-static const UINT ID_VIEW_PROPERTIESWND     = 1005;
-static const UINT ID_VIEW_FILEPATH_WND      = 1006;
-static const UINT ID_VIEW_GRADIENT_WND      = 1007;
-static const UINT ID_VIEW_CORRECTION_WND    = 1008;
-static const UINT ID_VIEW_ESTIMATE_WND		= 1009;
-static const UINT ID_VIEW_OBS_ESTIMATE_WND	= 1010;
+static const UINT ID_LAGUAGE_CHANGE			= 5;//from document
+static const UINT ID_VIEW_NORMALS_WND		= 500 + 1;
+static const UINT ID_VIEW_OBSERVATION_WND   = 500 + 2;
+static const UINT ID_VIEW_WEIGHT_CHARTS_WND = 500 + 3;
+static const UINT ID_VIEW_OUTPUTWND         = 500 + 4;
+static const UINT ID_VIEW_PROPERTIESWND     = 500 + 5;
+static const UINT ID_VIEW_FILEPATH_WND      = 500 + 6;
+static const UINT ID_VIEW_GRADIENT_WND      = 500 + 7;
+static const UINT ID_VIEW_CORRECTION_WND    = 500 + 8;
+static const UINT ID_VIEW_ESTIMATE_WND		= 500 + 9;
+static const UINT ID_VIEW_OBS_ESTIMATE_WND	= 500 + 10;
 
 
 
@@ -44,21 +44,15 @@ static const UINT ID_VIEW_OBS_ESTIMATE_WND	= 1010;
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
-
-const int  iMaxUserToolbars = 10;
-const UINT uiFirstUserToolBarId = AFX_IDW_CONTROLBAR_FIRST + 40;
-const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
-
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
-	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
 	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
 	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
-	ON_REGISTERED_MESSAGE(AFX_WM_RESETTOOLBAR, OnToolbarReset)
+	//ON_REGISTERED_MESSAGE(AFX_WM_RESETTOOLBAR, OnToolbarReset)
 
 END_MESSAGE_MAP()
 
@@ -68,8 +62,8 @@ END_MESSAGE_MAP()
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // indicateur de la ligne d'état
-	ID_INDICATOR_NB_LOCATIONS
 };
+
 
 // construction ou destruction de CMainFrame
 
@@ -93,18 +87,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ORIENT_ANY);
 	EnableAutoHidePanes(CBRS_ORIENT_ANY);
 
+	
 	VERIFY(m_wndMenuBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY));
 	m_wndMenuBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
+	//m_wndMenuBar.RestoreOriginalState();//reload menu from resource
 	m_wndMenuBar.SetRecentlyUsedMenus(FALSE);
-	m_wndMenuBar.SetWindowText(L"Menu");
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar, AFX_IDW_DOCKBAR_TOP);
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 
+	
 	VERIFY(m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY));
 	VERIFY(m_wndToolBar.LoadToolBar(IDR_MAINFRAME_TOOLBAR, 0, 0, 1));
-	m_wndToolBar.EnableDocking(CBRS_ORIENT_HORZ);
+	//m_wndToolBar.RestoreOriginalState();//reload good resource when language is chnaged from other aspplication
 	m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
+	m_wndToolBar.EnableDocking(CBRS_ORIENT_HORZ);
 	DockPane(&m_wndToolBar, AFX_IDW_DOCKBAR_TOP);
 	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 
@@ -120,7 +117,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnApplicationLook(theApp.m_nAppLook);
 
 	// Activer le remplacement du menu de la fenêtre d'ancrage et de la barre d'outils
-	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, GetCString(IDS_TOOLBAR_CUSTOMIZE), ID_VIEW_TOOLBAR, TRUE, FALSE);
+	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
 	LoadtBasicCommand();
 		 
 	return 0;
@@ -211,18 +208,22 @@ BOOL CMainFrame::CreateDockingWindows()
 
 
 	DockPane(&m_wndFilePath, AFX_IDW_DOCKBAR_TOP);
-	DockPane(&m_normalsWnd, AFX_IDW_DOCKBAR_RIGHT);
+	
+	
+	CDockablePane* pPaneFrame = NULL;
+	DockPane(&m_normalsWnd, AFX_IDW_DOCKBAR_RIGHT, CRect(0, 0, 800, 800));
+	m_gradientWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0, &pPaneFrame);
+	m_correctionWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0);
+	m_estimateWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0);
+
+	
+	m_observationWnd.DockToWindow(pPaneFrame, CBRS_ALIGN_BOTTOM);
+	m_obsEstimateWnd.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
+	m_weightChartsWnd.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
+	m_wndOutput.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
+	
+	
 	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_BOTTOM);
-	m_observationWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-	m_gradientWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-	m_correctionWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-	m_estimateWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-	m_obsEstimateWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-	m_weightChartsWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD);
-
-
-	m_wndOutput.AttachToTabWnd(&m_wndProperties, DM_STANDARD);
-
 	return TRUE;
 }
 
@@ -259,52 +260,6 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	HICON hWeightChartsBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_WEIGHT_CHART_WND), IMAGE_ICON, 24, 24, 0);
 	m_weightChartsWnd.SetIcon(hWeightChartsBarIcon, TRUE);
 }
-
-// diagnostics pour CMainFrame
-
-#ifdef _DEBUG
-void CMainFrame::AssertValid() const
-{
-	CFrameWndEx::AssertValid();
-}
-
-void CMainFrame::Dump(CDumpContext& dc) const
-{
-	CFrameWndEx::Dump(dc);
-}
-#endif //_DEBUG
-
-
-// gestionnaires de messages pour CMainFrame
-
-void CMainFrame::OnViewCustomize()
-{
-	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* analyser les menus */);
-	pDlgCust->EnableUserDefinedToolbars();
-	pDlgCust->Create();
-}
-
-
-
-//LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
-//{
-//	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
-//	if (lres == 0)
-//	{
-//		return 0;
-//	}
-//
-//	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
-//	ASSERT_VALID(pUserToolbar);
-//
-//	BOOL bNameValid;
-//	CString strCustomize;
-//	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-//	ASSERT(bNameValid);
-//
-//	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-//	return lres;
-//}
 
 
 void CMainFrame::OnApplicationLook(UINT id)
@@ -384,46 +339,12 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 }
 
 
-BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext)
-{
-	// la classe de base effectue le travail
-
-	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
-	{
-		return FALSE;
-	}
-
-
-	// activer le bouton de personnalisation pour toutes les barres d'outils utilisateur
-	/*BOOL bNameValid;
-	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	ASSERT(bNameValid);
-
-	for (int i = 0; i < iMaxUserToolbars; i ++)
-	{
-	CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
-	if (pUserToolbar != NULL)
-	{
-	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-	}
-	}*/
-
-	return TRUE;
-}
-
 
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
 	m_wndOutput.UpdateFonts();
 }
-
-//void CMainFrame::ActivateFrame(int nCmdShow)
-//{
-//	OnUpdate(NULL, 0, NULL);
-//	CFrameWndEx::ActivateFrame(nCmdShow);
-//}
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
@@ -472,8 +393,23 @@ void CMainFrame::OnLanguageChange(UINT id)
 		CStatistic::ReloadString();
 		CTM::ReloadString();
 
-		m_wndMenuBar.RestoreOriginalState();
+		//m_wndMenuBar.RestoreOriginalState();
+		//m_wndToolBar.RestoreOriginalState();
+		m_wndToolBar.ResetAll();
+		
+		//m_wndMenuBar.SetDefaultMenuResId(IDR_MAINFRAME);
+		m_wndMenuBar.ResetAll();
 
+		
+		m_wndMenuBar.Invalidate();
+		m_wndToolBar.Invalidate();
+		DrawMenuBar();
+		//CMFCToolBar::ResetAllImages();
+		CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
+
+
+		//m_wndMenuBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
+		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
 		m_wndFilePath.SetWindowText(GetCString(IDS_FILEPATH_WND));
 		m_normalsWnd.SetWindowText(GetCString(IDS_NORMALS_WND));
 		m_observationWnd.SetWindowText(GetCString(IDS_OBSERVATION_WND));
@@ -513,10 +449,6 @@ void CMainFrame::LoadtBasicCommand()
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLACK);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_WINDOWS_7);
-	lstBasicCommands.AddTail(ID_SORTING_SORTALPHABETIC);
-	lstBasicCommands.AddTail(ID_SORTING_SORTBYTYPE);
-	lstBasicCommands.AddTail(ID_SORTING_SORTBYACCESS);
-	lstBasicCommands.AddTail(ID_SORTING_GROUPBYTYPE);
 	lstBasicCommands.AddTail(ID_SENDTO_SHOWMAP);
 	lstBasicCommands.AddTail(ID_SORTPROPERTIES);
 	lstBasicCommands.AddTail(ID_NB_STATIONS);
@@ -579,44 +511,44 @@ public:
 
 };
 
-IMPLEMENT_DYNCREATE(CMyEditBox, CMFCToolBarEditBoxButton)
-	LRESULT CMainFrame::OnToolbarReset(WPARAM wp, LPARAM)
-{
-	UINT uiToolBarId = (UINT)wp;
-	TRACE("CMainFrame::OnToolbarReset : %i\n", uiToolBarId);
-
-	/*switch (uiToolBarId)
-	{
-	case IDR_NORMALS_TOOLBAR:
-	{
-	CMFCToolBarEditBoxButton button1(ID_NB_NORMALS_STATION, GetCmdMgr()->GetCmdImage(ID_NB_NORMALS_STATION, FALSE));
-	m_wndToolBar2.ReplaceButton(ID_NB_NORMALS_STATION, button1);
-	CMFCToolBarEditBoxButton button2(ID_NORMALS_FILEPATH, GetCmdMgr()->GetCmdImage(ID_NORMALS_FILEPATH, FALSE), ES_AUTOHSCROLL, 250);
-	m_wndToolBar2.ReplaceButton(ID_NORMALS_FILEPATH, button2);
-
-	CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_NORMALS_FILEPATH); ASSERT(pCtrl);
-	CMFCToolBarEditCtrl* pCtrl2 = static_cast<CMFCToolBarEditCtrl*>(pCtrl->GetEditBox());
-	pCtrl2->EnableFileBrowseButton(_T(".NormalsStations"), _T("*.NormalsStations|*.NormalsStations||"));
-	}
-	break;
-
-	case IDR_OBSERVATION_TOOLBAR:
-	{
-	CMFCToolBarEditBoxButton button1(ID_NB_OBSERVATION_STATION, GetCmdMgr()->GetCmdImage(ID_NB_OBSERVATION_STATION, FALSE));
-	m_wndToolBar3.ReplaceButton(ID_NB_OBSERVATION_STATION, button1);
-	CMFCToolBarEditBoxButton button2(ID_OBSERVATION_FILEPATH, GetCmdMgr()->GetCmdImage(ID_OBSERVATION_FILEPATH, FALSE), ES_AUTOHSCROLL, 250);
-	m_wndToolBar3.ReplaceButton(ID_OBSERVATION_FILEPATH, button2);
-
-	CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_OBSERVATION_FILEPATH); ASSERT(pCtrl);
-	CMFCToolBarEditCtrl* pCtrl2 = static_cast<CMFCToolBarEditCtrl*>(pCtrl->GetEditBox());
-	pCtrl2->EnableFileBrowseButton(_T(".DailyStations"), _T("*.DailyStations|*.DailyStations||"));
-	}
-
-	break;
-	}*/
-
-	return 0;
-}
+//IMPLEMENT_DYNCREATE(CMyEditBox, CMFCToolBarEditBoxButton)
+//	LRESULT CMainFrame::OnToolbarReset(WPARAM wp, LPARAM)
+//{
+//	UINT uiToolBarId = (UINT)wp;
+//	TRACE("CMainFrame::OnToolbarReset : %i\n", uiToolBarId);
+//
+//	/*switch (uiToolBarId)
+//	{
+//	case IDR_NORMALS_TOOLBAR:
+//	{
+//	CMFCToolBarEditBoxButton button1(ID_NB_NORMALS_STATION, GetCmdMgr()->GetCmdImage(ID_NB_NORMALS_STATION, FALSE));
+//	m_wndToolBar2.ReplaceButton(ID_NB_NORMALS_STATION, button1);
+//	CMFCToolBarEditBoxButton button2(ID_NORMALS_FILEPATH, GetCmdMgr()->GetCmdImage(ID_NORMALS_FILEPATH, FALSE), ES_AUTOHSCROLL, 250);
+//	m_wndToolBar2.ReplaceButton(ID_NORMALS_FILEPATH, button2);
+//
+//	CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_NORMALS_FILEPATH); ASSERT(pCtrl);
+//	CMFCToolBarEditCtrl* pCtrl2 = static_cast<CMFCToolBarEditCtrl*>(pCtrl->GetEditBox());
+//	pCtrl2->EnableFileBrowseButton(_T(".NormalsStations"), _T("*.NormalsStations|*.NormalsStations||"));
+//	}
+//	break;
+//
+//	case IDR_OBSERVATION_TOOLBAR:
+//	{
+//	CMFCToolBarEditBoxButton button1(ID_NB_OBSERVATION_STATION, GetCmdMgr()->GetCmdImage(ID_NB_OBSERVATION_STATION, FALSE));
+//	m_wndToolBar3.ReplaceButton(ID_NB_OBSERVATION_STATION, button1);
+//	CMFCToolBarEditBoxButton button2(ID_OBSERVATION_FILEPATH, GetCmdMgr()->GetCmdImage(ID_OBSERVATION_FILEPATH, FALSE), ES_AUTOHSCROLL, 250);
+//	m_wndToolBar3.ReplaceButton(ID_OBSERVATION_FILEPATH, button2);
+//
+//	CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_OBSERVATION_FILEPATH); ASSERT(pCtrl);
+//	CMFCToolBarEditCtrl* pCtrl2 = static_cast<CMFCToolBarEditCtrl*>(pCtrl->GetEditBox());
+//	pCtrl2->EnableFileBrowseButton(_T(".DailyStations"), _T("*.DailyStations|*.DailyStations||"));
+//	}
+//
+//	break;
+//	}*/
+//
+//	return 0;
+//}
 	
 
 void CMainFrame::AdjustDockingLayout(HDWP hdwp)
@@ -631,4 +563,18 @@ void CMainFrame::AdjustDockingLayout(HDWP hdwp)
 	}
 }
 
+
+// diagnostics pour CMainFrame
+
+#ifdef _DEBUG
+void CMainFrame::AssertValid() const
+{
+	CFrameWndEx::AssertValid();
+}
+
+void CMainFrame::Dump(CDumpContext& dc) const
+{
+	CFrameWndEx::Dump(dc);
+}
+#endif //_DEBUG
 

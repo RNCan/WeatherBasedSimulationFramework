@@ -52,6 +52,19 @@ END_MESSAGE_MAP()
 
 void COutputEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
+	CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
+	HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
+	if (hMenu != NULL)
+	{
+		CMenu* pMenu = CMenu::FromHandle(hMenu);
+		ASSERT(pMenu);
+
+		CMenu* pSumMenu = pMenu->GetSubMenu(0);
+		ASSERT(pSumMenu);
+
+		pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, this);
+	}
+
 	/*CMenu menu;
 	menu.LoadMenu(IDR_EDIT_MENU);
 
@@ -177,10 +190,16 @@ void COutputWnd::UpdateFonts()
 
 void COutputWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
-	if (lHint == CWeatherUpdaterDoc::INIT || lHint == CWeatherUpdaterDoc::OUTPUT_CHANGE)
+	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
+	if (!pDoc)
+		return;
+
+
+	if (lHint == CWeatherUpdaterDoc::INIT || lHint == CWeatherUpdaterDoc::SELECTION_CHANGE || lHint == CWeatherUpdaterDoc::TASK_CHANGE)
 	{
-		CWeatherUpdaterDoc* pDoc = GetDocument();
-		m_wndOutput.SetWindowText(CString(pDoc->GetOutputText().c_str()));
+		size_t t = pDoc->GetCurType();
+		size_t p = pDoc->GetCurPos(t);
+		m_wndOutput.SetWindowText(CString(pDoc->GetOutputText(t,p).c_str()));
 	}
 }
 

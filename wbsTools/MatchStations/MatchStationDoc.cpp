@@ -608,7 +608,7 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 	//ASSERT(pNormalsDB.get());
 
 	if(CWeatherGradient::GetShore().get()==NULL)
-		msg += CWeatherGradient::SetShore(GetApplicationPath() + "Shore.ann");
+		msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
 
 	//CWeatherGradient testGradient;

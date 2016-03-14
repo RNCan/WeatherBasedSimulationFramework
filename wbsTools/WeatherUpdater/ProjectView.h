@@ -2,9 +2,11 @@
 
 //#include "Simulation/Executable.h"
 #include "UI/VariableSelectionCtrl.h"
+#include "TaskTreeCtrl.h"
 
 
 class CWeatherUpdaterDoc;
+
 
 class CProjectWndToolBar : public CMFCToolBar
 {
@@ -20,8 +22,6 @@ class CProjectWndToolBar : public CMFCToolBar
 };
 
 
-
-
 class CProjectWndStatusBar : public CStatusBar
 {
 	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
@@ -33,41 +33,64 @@ class CProjectWndStatusBar : public CStatusBar
 
 
 
+
 class CTaskWnd : public CWnd
 {
 public:
 
-CTaskWnd(UINT ctrlID = 1001, UINT toolbarID = 1002);
-		
+	static CWeatherUpdaterDoc* GetDocument();
 
-UINT m_ctrlID;
-UINT m_toolbarID;
+	CTaskWnd(size_t t, UINT toolbarID);
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
-
-CFont m_fntPropList;
-CProjectWndToolBar		m_wndToolBar;
-WBSF::CStatisticSelectionCtrl	m_taskCtrl;
-CProjectWndStatusBar	m_wndStatusBar;
+	size_t m_type;
+	UINT m_toolbarID;
 
 
-DECLARE_MESSAGE_MAP()
-afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-afx_msg void OnSize(UINT nType, int cx, int cy);
-afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
-afx_msg LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
-afx_msg LRESULT OnItemExpanded(WPARAM wParam, LPARAM lParam);
-afx_msg LRESULT OnBeginDrag(WPARAM, LPARAM);
-afx_msg LRESULT OnEndDrag(WPARAM, LPARAM);
-afx_msg LRESULT OnDropHover(WPARAM, LPARAM);
+	CFont m_fntPropList;
+	CProjectWndToolBar	m_wndToolBar;
+	CTaskTreeCtrl		m_taskCtrl;
+	CProjectWndStatusBar m_wndStatusBar;
 
 	
-void AdjustLayout();
+	DECLARE_MESSAGE_MAP()
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateToolBar(CCmdUI *pCmdUI);
+	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
+	afx_msg LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
+	//afx_msg LRESULT OnItemExpanded(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnBeginDrag(WPARAM, LPARAM);
+	afx_msg LRESULT OnEndDrag(WPARAM, LPARAM);
+	afx_msg LRESULT OnDropHover(WPARAM, LPARAM);
+	
+
+	afx_msg void OnAdd(UINT ID);
+	afx_msg void OnRemove();
+	afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNameChange(NMHDR* pNMHDR, LRESULT* pResult);
+
+	afx_msg void OnEditCopy();
+	afx_msg void OnEditPaste();
+	afx_msg void OnEditDuplicate();
+
+
+	void AdjustLayout();
+
+	static UINT CtrlBaseID(UINT ID);
+	static UINT CtrlID(const std::string& className);
+	static std::string ClassName(UINT ID);
+	
+
 };
 
+
+//*****************************************************************************************************
 class CProjectView : public CView
 {
 	DECLARE_DYNCREATE(CProjectView)
-		
+
 public:
 
 	CProjectView();
@@ -84,7 +107,7 @@ public:
 
 protected:
 
-		
+
 	CTaskWnd m_wnd1;
 	CTaskWnd m_wnd2;
 	CPaneSplitter m_wndSplitter;
@@ -94,15 +117,15 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
+	//afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnExecute();
 	afx_msg BOOL OnOpenWorkingDir(UINT ID);
-	afx_msg void OnUpdateNbExecute(CCmdUI* pCmdUI);
-		
-		
-	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
-	afx_msg void OnToolbarCommand(UINT ID);
-	afx_msg void OnAddTask();
+	//afx_msg void OnUpdateNbExecute(CCmdUI* pCmdUI);
+
+
+	//afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
+	//afx_msg void OnToolbarCommand(UINT ID);
+	//afx_msg void OnAddTask();
 
 };
 

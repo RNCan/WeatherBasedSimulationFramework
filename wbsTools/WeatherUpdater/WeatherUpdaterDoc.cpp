@@ -37,7 +37,8 @@ CWeatherUpdaterDoc::CWeatherUpdaterDoc()
 {
 	CAppOption options(_T("Settings"));
 
-	m_currentTaskID.clear(); 
+	m_currentType = 0;
+	m_currentPos.fill(-1);
 }
 
 CWeatherUpdaterDoc::~CWeatherUpdaterDoc()
@@ -49,8 +50,9 @@ BOOL CWeatherUpdaterDoc::OnNewDocument()
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-	m_currentTaskID.clear();
-	m_outputText.clear();
+	m_currentType = 0;
+	m_currentPos.fill(-1);
+	m_outputMessage.clear();
 	
 
 	return TRUE;
@@ -62,12 +64,11 @@ BOOL CWeatherUpdaterDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
 
-	m_currentTaskID.clear();
-	m_outputText.clear();
+	m_currentType = 0;
+	m_currentPos.fill(-1);
+	m_outputMessage.clear();
 
 	std::string filePath = CStringA(lpszPathName);
-
-	
 	
 //	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
 	
@@ -209,34 +210,27 @@ void CWeatherUpdaterDoc::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-void CWeatherUpdaterDoc::SetCurTaskID(const std::string& ID)
+void CWeatherUpdaterDoc::SetCurPos(size_t t, size_t p)
 {
+	ASSERT(t < CTaskBase::NB_TYPES);
+
 	ERMsg msg;
 
-	if (ID != m_currentTaskID)
+	if (t != m_currentType || p != m_currentPos[t])
 	{
-		m_currentTaskID = ID;
-
-
-		if (!ID.empty())
-		{
-			m_task;
-		}
+		m_currentType = t;
+		m_currentPos[t] = p;
 		
 		UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
 
-		if (!msg)
-			SetOutputText(SYGetText(msg));
+		//m_outputMessage[]
+		//msg = LoadOutput( GetOUtputName() )
+		//if (msg)
+			//SetOutputText(SYGetText(msg));
+
+		
 	}
 }
-
-
-void CWeatherUpdaterDoc::SetTask(const std::string& ID, const CTask& task)
-{
-	m_task = task;
-	UpdateAllViews(NULL, TASK_CHANGE, NULL);
-}
-
 
 void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
 {
@@ -252,10 +246,9 @@ void CWeatherUpdaterDoc::OnExecute()
 
 	//assert(false);//todo
 	//msg = m_pDatabase->Open(UtilWin::ToUTF8(lpszPathName), CWeatherDatabase::modeRead, dlg.GetCallback());
+
+
 	dlg.DestroyWindow();
-
-
-	SetOutputText("La vérification s'affichera ici un jour...");
 
 }
 
@@ -273,3 +266,89 @@ void CWeatherUpdaterDoc::OnInitialUpdate()
 	pMainFrm->OnUpdate(NULL, NULL, NULL);
 }
 
+const std::string& CWeatherUpdaterDoc::GetOutputText(size_t t, size_t p)
+{ 
+	ASSERT(t < CTaskBase::NB_TYPES);
+
+	static const std::string EMPTY_STRING;
+	
+	
+	if (p < m_project[t].size())
+	{
+		std::string hash = ToString(t) + "_" + ToString(p) + "_" + m_project[t][p]->Get(CTaskBase::NAME);
+		return m_outputMessage[hash];
+	}
+	
+	return EMPTY_STRING;
+}
+
+//void CWeatherUpdaterDoc::SetOutputText(size_t t, size_t p, const std::string & in)
+//{ 
+//	ASSERT(t < CTaskBase::NB_TYPES);
+//
+//
+//	if (in != m_outputText){ m_outputText = in; UpdateAllViews(NULL, OUTPUT_CHANGE, NULL); 
+//} 
+//
+void CWeatherUpdaterDoc::AddTask(size_t t, size_t p, WBSF::CTaskPtr pTask)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(p <= m_project[t].size());
+
+	m_project[t].insert(m_project[t].begin() + p, pTask);
+
+	m_currentType=t;
+	m_currentPos[t]=p;
+
+	CDocument::UpdateAllViews(NULL, ADD_TASK, NULL);
+}
+
+void CWeatherUpdaterDoc::RemoveTask(size_t t, size_t p)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(p<m_project[t].size());
+
+	m_project[t].erase(m_project[t].begin() + p);
+
+	m_currentType = t;
+	m_currentPos[t] = p>=m_project[t].size() ? p - 1:p;
+
+
+	CDocument::UpdateAllViews(NULL, REMOVE_TASK, NULL);
+}
+
+void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool bAfter)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(from<m_project[t].size());
+	ASSERT(to<m_project[t].size());
+	ASSERT(from != to);
+	ASSERT(from!=NOT_INIT);
+	ASSERT(to != NOT_INIT);
+
+	if (from == to)
+		return;
+	
+	if (to < from)
+	{
+		if (bAfter)
+			to++;
+	}
+	else//if (to > from)
+	{
+		if (!bAfter)
+			to--;
+	}
+		
+	ASSERT(to != NOT_INIT);
+
+	CTaskPtr pTask = m_project[t][from];
+	m_project[t].erase(m_project[t].begin() + from);
+	m_project[t].insert(m_project[t].begin() + to, pTask);
+
+
+	m_currentType = t;
+	m_currentPos[t] = to;
+
+	CDocument::UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
+}

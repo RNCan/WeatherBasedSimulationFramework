@@ -277,6 +277,8 @@
     <Image Include="res\DataToolbar.bmp" />
     <Image Include="res\DPT.ico" />
     <Image Include="res\DPTDoc.ico" />
+    <Image Include="res\estimateN_wnd.ico" />
+    <Image Include="res\estimateO_wnd.ico" />
     <Image Include="res\estimate_wnd.ico" />
     <Image Include="res\explorer.bmp" />
     <Image Include="res\explorer_hc.bmp" />
@@ -299,6 +301,8 @@
     <Image Include="res\menuimages.bmp" />
     <Image Include="res\menuimages_hc.bmp" />
     <Image Include="res\NormalsToolbar.bmp" />
+    <Image Include="res\Normals_wnd.ico" />
+    <Image Include="res\observations_wnd.ico" />
     <Image Include="res\ObservationToolbar.bmp" />
     <Image Include="res\obs_estimate_wnd.ico" />
     <Image Include="res\Option.ico" />

@@ -37,7 +37,15 @@ public:
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
 };
 
-
+//*************************************************************************************************************
+class CStationsListStatusBar : public CStatusBar
+{
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CStatusBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+};
+//*************************************************************************************************************
 
 class CLocationsListView : public CView
 {
@@ -57,15 +65,11 @@ public:
 public:
 	virtual ~CLocationsListView();
 
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
 
 protected:
 
-	WBSF::CLocationVectorCtrl		m_locationVectorCtrl;
-
+	WBSF::CLocationVectorCtrl	m_locationVectorCtrl;
+	CStationsListStatusBar		m_statusCtrl;
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -79,12 +83,18 @@ protected:
 
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual void OnInitialUpdate();
 
 	void OnDraw(CDC* pDC);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	void AdjustLayout();
+
+
+
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
 };
 
 

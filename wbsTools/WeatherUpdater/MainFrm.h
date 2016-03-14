@@ -4,7 +4,7 @@
 #pragma once
 
 #include "OutputWnd.h"
-#include "PropertiesWnd.h"
+#include "TaskPropertiesWnd.h"
 
 
 
@@ -12,31 +12,23 @@ class CMainFrame : public CFrameWndEx
 {
 
 protected: // création à partir de la sérialisation uniquement
+	
+	DECLARE_DYNCREATE(CMainFrame)
 	CMainFrame();
 
-
-	// Attributs
 public:
 
-	// Opérations
-public:
+	virtual ~CMainFrame();
 
 	void ActivateFrame(int nCmdShow);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	void LoadtBasicCommand();
 
-	// Substitutions
-public:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 
-	// Implémentation
-public:
-	virtual ~CMainFrame();
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+
+//	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	//virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+
 
 protected:  // membres incorporés de la barre de contrôle
 
@@ -45,14 +37,15 @@ protected:  // membres incorporés de la barre de contrôle
 	CMFCStatusBar     m_wndStatusBar;
 
 	COutputWnd        m_wndOutput;
-	CPropertiesWnd    m_wndProperties;
+	CTaskPropertyWnd  m_wndProperties;
 
 	// Fonctions générées de la table des messages
 protected:
 
+	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnViewCustomize();
-	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
+	//afx_msg void OnViewCustomize();
+	//afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
@@ -64,8 +57,12 @@ protected:
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 
 
-	DECLARE_MESSAGE_MAP()
-	DECLARE_DYNCREATE(CMainFrame)
+
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
+
 };
 
 

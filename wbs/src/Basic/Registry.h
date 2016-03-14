@@ -22,22 +22,25 @@ namespace WBSF
 		~CRegistry();
 
 		//application path
+
 		static const char * BIOSIM;
 		static const char * SHOWMAP;
-		static const char * GIS;
-		static const char * PLT_WIDGET;
-		static const char * PLT_WIN;
 		static const char * HOURLY_EDITOR;
 		static const char * DAILY_EDITOR;
 		static const char * NORMAL_EDITOR;
 		static const char * MODEL_EDITOR;
-		static const char * SPREADSHEET1;
-		static const char * SPREADSHEET2;
 		static const char * MATCH_STATION;
-		static const char * TEXT_EDITOR;
-		static const char * R_SCRIPT;
 		static const char * WEATHER_UPDATER;
 		static const char * FTP_TRANSFER;
+		static const char * TDATE;
+		static const char * MERGEFILE;
+
+		static const char * TEXT_EDITOR;
+		static const char * XML_EDITOR;
+		static const char * SPREADSHEET1;
+		static const char * SPREADSHEET2;
+		static const char * GIS;
+		static const char * R_SCRIPT;
 
 		//common path
 		static const char * WEATHER;

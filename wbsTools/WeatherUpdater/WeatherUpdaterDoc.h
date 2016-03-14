@@ -2,11 +2,12 @@
 
 
 #include "Basic/NormalsDatabase.h"
+#include "wbs/TaskBase.h"
 
 
 
-
-typedef std::string CTask;
+typedef std::vector<WBSF::CTaskPtr> CTaskPtrVector;
+typedef std::array<CTaskPtrVector, WBSF::CTaskBase::NB_TYPES> CWUProject;
 
 class CWeatherUpdaterDoc : public CDocument
 {
@@ -21,22 +22,34 @@ public:
 	//
 	enum TEvent
 	{
-		INIT = 0, SELECTION_CHANGE, TASK_CHANGE, OUTPUT_CHANGE, LANGUAGE_CHANGE, NB_EVENTS
+		INIT = 0, ADD_TASK, REMOVE_TASK, SELECTION_CHANGE, TASK_CHANGE, LANGUAGE_CHANGE, NB_EVENTS
 	};
 
 
+	
+//	void SetCurType(size_t t);
+	size_t GetCurType()const { return m_currentType; }
+	void SetCurPos(size_t t, size_t p);
+	size_t GetCurPos(size_t t)const { return m_currentPos[t]; }
 
-	void SetCurTaskID(const std::string& ID);
-	const std::string& GetCurTaskID()const { return m_currentTaskID; }
+	//void SetTask(size_t t, size_t p, const CTaskPtr& task);
+	const CTaskPtrVector& GetTaskVector(size_t t)const{ return m_project[t]; }
+	WBSF::CTaskPtr GetTask(size_t t, size_t p){ ASSERT(t < WBSF::CTaskBase::NB_TYPES);  return p < m_project[t].size() ? m_project[t][p] : WBSF::CTaskPtr(); }
+	
+	void AddTask(size_t t, size_t p, WBSF::CTaskPtr pTask);
+	void RemoveTask(size_t t, size_t p);
+	void Move(size_t t, size_t from, size_t to, bool bAfter = true);
 
-	void SetTask(const std::string& ID, const std::string& task);
-	const CTask& GetTask(const std::string& ID)const{ return m_task;}
+	//void SetTask(size_t t, const std::string& ID, const std::string& task);
+	//const CTask& GetTask(size_t t, const std::string& ID)const{ return m_task; }
 
 	//const WBSF::CNormalsStationPtr& GetCurTask()const{ return m_pStation; }
 	//void SetCurTask(WBSF::CLocation& station, CView* pSender = NULL);
 
-	const std::string& GetOutputText()const{ return m_outputText; }
-	void SetOutputText(const std::string & in){ if (in != m_outputText){ m_outputText = in; UpdateAllViews(NULL, OUTPUT_CHANGE, NULL); } }
+	const std::string& GetOutputText(size_t t, size_t p);
+	
+	//void SetOutputText(size_t t, size_t p, const std::string & in);
+	
 
 	void OnInitialUpdate();
 
@@ -81,14 +94,17 @@ public:
 
 
 	//properties
-	std::string m_outputText;
-	std::string m_currentTaskID;
+	//std::string m_outputText;
+
+	size_t m_currentType;
+	std::array<size_t, WBSF::CTaskBase::NB_TYPES> m_currentPos;
 
 	std::string m_filePath;
-	std::string m_project;
-	std::string m_lastProject;
+	CWUProject m_project;
+	CWUProject m_lastProject;
+	//size_t m_lastCurrentType;
 
-	CTask m_task;
-
+	//CWUProject m_task;
+	std::map<std::string, std::string> m_outputMessage;
 
 };

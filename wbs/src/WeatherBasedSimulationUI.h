@@ -446,6 +446,8 @@
 #define IDC_MAP_INPUT_WIDTH             1220
 #define IDC_MAP_LAT1                    1221
 #define IDC_GENLOC_STATION_TYPE         1221
+#define IDC_MFCPROPERTYGRID1            1221
+#define IDC_PROPERTIES                  1221
 #define IDC_MAP_LAT2                    1222
 #define IDC_GENLOC_NORMAL_NAME          1222
 #define IDC_MAP_LON2                    1223
@@ -833,7 +835,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        203
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1221
+#define _APS_NEXT_CONTROL_VALUE         1222
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

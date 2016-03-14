@@ -300,6 +300,18 @@
     <Image Include="res\obs_estimate_wnd.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\estimateN_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\estimateO_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\observations_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Normals_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MatchStation.rc">

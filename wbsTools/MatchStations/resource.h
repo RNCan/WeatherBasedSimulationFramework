@@ -4,17 +4,9 @@
 //
 #define IDD_DIALOGBAR                   100
 #define IDS_TOOLBAR_STANDARD            120
-#define IDS_TOOLBAR_CUSTOMIZE           121
+#define IDS_TOOLBAR_STATUS	            121
 #define IDS_PROPERTIES_LOCATION_HEADER  122
-#define ID_VIEW_CUSTOMIZE               126
 #define IDR_MAINFRAME                   128
-#define ID_PROPERTIES                   130
-#define ID_OPEN                         131
-#define ID_OPEN_WITH                    132
-#define ID_SORTING_GROUPBYTYPE          133
-#define ID_SORTING_SORTALPHABETIC       134
-#define ID_SORTING_SORTBYTYPE           135
-#define ID_SORTING_SORTBYACCESS         136
 #define ID_SORTPROPERTIES               137
 #define ID_EXPAND_ALL                   138
 #define IDS_LOCATION_LIST_WND           141
@@ -29,13 +21,9 @@
 #define IDS_SEARCH_TOOLBAR              150
 #define IDS_ESTIMATE_WND                151
 #define IDS_OBS_ESTIMATE_WND            152
-#define IDR_POPUP_EDIT                  170
 #define IDR_MAINFRAME_TOOLBAR           172
-#define IDR_POPUP_SORT                  173
-#define IDR_POPUP_EXPLORER              174
 #define IDR_MENU_IMAGES                 175
 #define IDR_WEIGHT_GRAPH_TOOLBAR        176
-#define IDR_OUTPUT_POPUP                177
 #define IDR_PROPERTIES                  178
 #define IDR_LOCATION_TOOLBAR            179
 #define IDR_NORMALS_TOOLBAR             180
@@ -54,15 +42,15 @@
 #define ID_VIEW_APPLOOK_OFF_2007_SILVER 217
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   218
 #define ID_VIEW_APPLOOK_WINDOWS_7       219
-#define IDI_OBSERVATION_WND				331
-#define IDI_NORMAL_WND					332
+#define IDI_OBSERVATION_WND             331
+#define IDI_NORMAL_WND                  332
 #define IDI_WEIGHT_CHART_WND            333
 #define IDI_OUTPUT_WND                  334
 #define IDI_PROPERTIES_WND              335
 #define IDI_FILEPATH_WND                336
 #define IDI_GRADIENT_WND                337
 #define IDI_CORRECTION_WND              338
-#define IDI_ESTIMATE_N_WND				339
+#define IDI_ESTIMATE_N_WND              339
 #define IDI_ESTIMATE_O_WND              340
 #define IDC_NORMALS_FILEPATH            1021
 #define IDC_OBSERVATION_FILEPATH        1022
@@ -105,9 +93,9 @@
 #define ID_NORMALS_FILEPATH             32861
 #define ID_NB_OBSERVATION_STATION       32862
 #define ID_OBSERVATION_FILEPATH         32863
-#define ID_INDICATOR_NB_LOCATIONS       32880
 #define ID_LANGUAGE_FRENCH              38000
 #define ID_LANGUAGE_ENGLISH             38001
+#define ID_INDICATOR_NB_LOCATIONS       59153
 
 // Next default values for new objects
 // 

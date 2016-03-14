@@ -40,7 +40,7 @@ END_MESSAGE_MAP()
 CMatchStationApp::CMatchStationApp() :
 	m_nGdiplusToken(0)
 {
-	//SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
+	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
 	SetAppID(_T("NRCan.MatchStation.4"));
 

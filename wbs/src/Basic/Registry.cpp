@@ -24,29 +24,35 @@ namespace WBSF
 	const char* CRegistry::KEY_NAME = "Software\\NRCan\\";
 
 
+
 	const char * CRegistry::BIOSIM = "BioSIM11";
 	const char * CRegistry::SHOWMAP = "ShowMap";
 	const char * CRegistry::GIS = "QGIS";
-	const char * CRegistry::PLT_WIDGET = "PLTWidget";
-	const char * CRegistry::PLT_WIN = "PLTWin";
+	//const char * CRegistry::PLT_WIDGET = "PLTWidget";
+	//const char * CRegistry::PLT_WIN = "PLTWin";
 	const char * CRegistry::HOURLY_EDITOR = "HourlyEditor";
 	const char * CRegistry::DAILY_EDITOR = "DailyEditor";
 	const char * CRegistry::NORMAL_EDITOR = "NormalsEditor";
 	const char * CRegistry::MODEL_EDITOR = "ModelEditor";
-
-	const char * CRegistry::SPREADSHEET1 = "Excel";
-	const char * CRegistry::SPREADSHEET2 = "Excel";
 	const char * CRegistry::MATCH_STATION = "MatchStation";
-	const char * CRegistry::TEXT_EDITOR = "TextEditor";
-	const char * CRegistry::R_SCRIPT = "RScript";
-	const char * CRegistry::FTP_TRANSFER = "FTPTransfer";
 	const char * CRegistry::WEATHER_UPDATER = "WeatherUpdater";
+	const char * CRegistry::FTP_TRANSFER = "FTPTransfer";
+	const char * CRegistry::TDATE = "TDate";
+	const char * CRegistry::MERGEFILE = "MergeFile";
+	
+
+	const char * CRegistry::TEXT_EDITOR = "TextEditor";
+	const char * CRegistry::XML_EDITOR = "XMLEditor";
+	const char * CRegistry::SPREADSHEET1 = "Spreadsheet1";
+	const char * CRegistry::SPREADSHEET2 = "Spreadsheet2";
+	
+	const char * CRegistry::R_SCRIPT = "RScript";
 
 
 	const char * CRegistry::WEATHER = "WeatherPath";
 	const char * CRegistry::MAPS = "MapsPath";
 	const char * CRegistry::MAPS_EXTENSIONS = "MapsExtensions";
-
+	
 
 	//****************************************************************************
 	// Sommaire:     Constructeur par défaut.
@@ -267,8 +273,8 @@ namespace WBSF
 		if (filePath.empty())
 			filePath = GetProfileString(itemName + " FilePath", "", true);
 
-		if (filePath.empty())
-			filePath = itemName + ".exe";
+		//if (filePath.empty())
+			//filePath = itemName + ".exe";
 
 		return filePath;
 	}

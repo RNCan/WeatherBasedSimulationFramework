@@ -16,8 +16,8 @@ using namespace UtilWin;
 
 
 static const UINT ID_LAGUAGE_CHANGE = 5;//from document
-static const UINT ID_OUTPUT_WND = 1151;
-static const UINT ID_PROPERTIES_WND = 1152;
+static const UINT ID_OUTPUT_WND = 501;
+static const UINT ID_PROPERTIES_WND = 502;
 
 
 #ifdef _DEBUG
@@ -28,14 +28,8 @@ static const UINT ID_PROPERTIES_WND = 1152;
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx) 
 
-const int  iMaxUserToolbars = 10;
-const UINT uiFirstUserToolBarId = AFX_IDW_CONTROLBAR_FIRST + 40;
-const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
-
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
-	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
-	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
@@ -67,139 +61,74 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	BOOL bNameValid;
+	//main frame
+	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
+	CDockingManager::SetDockingMode(DT_SMART);
+	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+	EnableDocking(CBRS_ALIGN_ANY);
 
-	if (!m_wndMenuBar.Create(this))
-	{
-		TRACE0("Impossible de créer la barre de menus\n");
-		return -1;      // échec de la création
-	}
 
+	//menu
+	VERIFY(m_wndMenuBar.Create(this));
 	m_wndMenuBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 	m_wndMenuBar.SetRecentlyUsedMenus(FALSE);
-
-	// empêche la barre de menus de prendre le focus lors de l'activation
-
-	CMFCPopupMenu::SetForceMenuFocus(FALSE);
-
-	//m_wndToolBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
-		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME_TOOLBAR, 0, 0, 1))
-	{
-		TRACE0("Impossible de créer toolbar\n");
-		return -1;      // échec de la création
-	}
-
-	//m_wndToolImages.Load(IDR_MAINFRAME_256);
-	//m_wndToolBar.LoadBitmap(IDR_MAINFRAME_256, 0, 0, TRUE);
-
-	CString strToolBarName;
-	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
-	ASSERT(bNameValid);
-	m_wndToolBar.SetWindowText(strToolBarName);
-
-	// Charger l'image de l'élément de menu (non placée sur l'une des barres d'outils standard) :
-	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
-
-	//CString strCustomize;
-	//bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	//ASSERT(bNameValid);
-	//m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-
-	// Autoriser les opérations de barres d'outils définies par l'utilisateur :
-	//InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
-
-	if (!m_wndStatusBar.Create(this))
-	{
-		TRACE0("Impossible de créer la barre d'état\n");
-		return -1;      // échec de la création
-	}
-	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
-
-	// TODO: supprimez ces cinq lignes si vous ne souhaitez pas que la barre d'outils et la barre de menus soient ancrables
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
-	EnableDocking(CBRS_ALIGN_ANY);
+	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 	DockPane(&m_wndMenuBar);
+
+
+	//toolbar
+	VERIFY(m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC));
+	VERIFY(m_wndToolBar.LoadToolBar(IDR_MAINFRAME_TOOLBAR, 0, 0, 1));
+	m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
+	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 	DockPane(&m_wndToolBar);
 
+	//status
+	VERIFY(m_wndStatusBar.Create(this));
+	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-	// activer le comportement de la fenêtre d'ancrage de style Visual Studio 2005
-	CDockingManager::SetDockingMode(DT_SMART);
-	// activer le comportement de masquage automatique de la fenêtre d'ancrage de style Visual Studio 2005
-	EnableAutoHidePanes(CBRS_ALIGN_ANY);
 
-	
-	//CMFCToolBar::AddToolBarForImageCollection();
-
-	// créer des fenêtres d'ancrage
-	if (!CreateDockingWindows())
-	{
-		TRACE0("Impossible de créer des fenêtres d'ancrage\n");
-		return -1;
-	}
-
-	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	//create dockable panes
+	VERIFY(CreateDockingWindows());
 	
 	
-	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT);
+	//dock panes
+	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT, CRect(0,0,800,800));
 	m_wndOutput.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
 	
-//DockPane(&m_wndProperties);
 
-
-	// définir le gestionnaire visuel et le style visuel en fonction d'une valeur persistante
 	OnApplicationLook(theApp.m_nAppLook); 
-
-	// Activer le remplacement du menu de la fenêtre d'ancrage et de la barre d'outils
-	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	ASSERT(bNameValid);
-	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR, TRUE, FALSE);
+	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
 	LoadtBasicCommand();
 
 	return 0;
 }
 
-BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
-{
-	if( !CFrameWndEx::PreCreateWindow(cs) )
-		return FALSE;
-	// TODO: changez ici la classe ou les styles Window en modifiant
-	//  CREATESTRUCT cs
-
-	return TRUE;
-}
-
 BOOL CMainFrame::CreateDockingWindows()
 {
-	BOOL bNameValid;
 	
 	// Créer la fenêtre Propriétés
-	CString strPropertiesWnd;
-	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
-	ASSERT(bNameValid);
-	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
+	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+
 
 	// Créer la fenêtre Sortie
-	CString strOutputWnd;
-	bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND); 
-	ASSERT(bNameValid);
-	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Sortie\n");
 		return FALSE; // échec de la création
 	}
-
-	
+	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
 
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
+
 	return TRUE;
 }
 
@@ -214,51 +143,37 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 
 }
 
-// diagnostics pour CMainFrame
-
-#ifdef _DEBUG
-void CMainFrame::AssertValid() const
-{
-	CFrameWndEx::AssertValid();
-}
-
-void CMainFrame::Dump(CDumpContext& dc) const
-{
-	CFrameWndEx::Dump(dc);
-}
-#endif //_DEBUG
-
 
 // gestionnaires de messages pour CMainFrame
-
-void CMainFrame::OnViewCustomize()
-{
-	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* analyser les menus */);
-	pDlgCust->EnableUserDefinedToolbars();
-	pDlgCust->Create();
-}
-
-
-
-LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
-{
-	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
-	if (lres == 0)
-	{
-		return 0;
-	}
-
-	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
-	ASSERT_VALID(pUserToolbar);
-
-	BOOL bNameValid;
-	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	ASSERT(bNameValid);
-
-	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-	return lres;
-}
+//
+//void CMainFrame::OnViewCustomize()
+//{
+//	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* analyser les menus */);
+//	pDlgCust->EnableUserDefinedToolbars();
+//	pDlgCust->Create();
+//}
+//
+//
+//
+//LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
+//{
+//	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
+//	if (lres == 0)
+//	{
+//		return 0;
+//	}
+//
+//	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
+//	ASSERT_VALID(pUserToolbar);
+//
+//	BOOL bNameValid;
+//	CString strCustomize;
+//	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+//	ASSERT(bNameValid);
+//
+//	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+//	return lres;
+//}
 
 void CMainFrame::OnApplicationLook(UINT id)
 {
@@ -336,35 +251,35 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
-
-BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
-{
-	// la classe de base effectue le travail
-
-	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
-	{
-		return FALSE;
-	}
-
-
-	// activer le bouton de personnalisation pour toutes les barres d'outils utilisateur
-	BOOL bNameValid;
-	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	ASSERT(bNameValid);
-
-	for (int i = 0; i < iMaxUserToolbars; i ++)
-	{
-		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
-		if (pUserToolbar != NULL)
-		{
-			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-		}
-	}
-
-	return TRUE;
-}
- 
+//
+//BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
+//{
+//	// la classe de base effectue le travail
+//
+//	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
+//	{
+//		return FALSE;
+//	}
+//
+//
+//	// activer le bouton de personnalisation pour toutes les barres d'outils utilisateur
+//	BOOL bNameValid;
+//	CString strCustomize;
+//	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+//	ASSERT(bNameValid);
+//
+//	for (int i = 0; i < iMaxUserToolbars; i ++)
+//	{
+//		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
+//		if (pUserToolbar != NULL)
+//		{
+//			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+//		}
+//	}
+//
+//	return TRUE;
+//}
+// 
 
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
@@ -414,7 +329,12 @@ void CMainFrame::OnLanguageChange(UINT id)
 		WBSF::CStatistic::ReloadString();
 		WBSF::CTM::ReloadString();
 		
+		
+		m_wndToolBar.RestoreOriginalState();
 		m_wndMenuBar.RestoreOriginalState();
+
+		CMFCToolBar::ResetAllImages();
+		CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 
 		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
 		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
@@ -471,3 +391,19 @@ void CMainFrame::OnEditOptions()
 	dlg.DoModal();
 
 }
+
+
+
+// diagnostics pour CMainFrame
+
+#ifdef _DEBUG
+void CMainFrame::AssertValid() const
+{
+	CFrameWndEx::AssertValid();
+}
+
+void CMainFrame::Dump(CDumpContext& dc) const
+{
+	CFrameWndEx::Dump(dc);
+}
+#endif //_DEBUG

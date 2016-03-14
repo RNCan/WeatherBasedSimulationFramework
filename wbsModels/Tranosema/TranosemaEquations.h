@@ -12,7 +12,7 @@ namespace WBSF
 
 	namespace Tranosema
 	{
-		enum TStages{ EGG, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		enum TStages{ EGG, PUPAE, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
 	}
 
 

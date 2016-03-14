@@ -44,7 +44,7 @@
 //1.6.0 01/02/2008  New NOAA download from FTP site and packDB
 //					Correction of a bug in the EnvCan pack DB and the complet flag
 //1.4.1 13/09/2007  New SnowTel download
-//					Corection of a problem with focus window and menu
+//					Correction of a problem with focus window and menu
 //					Add Copy/Paste functionnality
 //					Solve memory leak problem with vld.h
 //1.3.0	05/04/2007	New LOC file format
@@ -61,9 +61,10 @@
 #include "UI/Common/AboutDlg.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
-
 #include <gdiplus.h>
+
 using namespace Gdiplus;
+using namespace WBSF;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,22 +85,12 @@ END_MESSAGE_MAP()
 
 // construction CWeatherUpdaterApp
 
-CWeatherUpdaterApp::CWeatherUpdaterApp() :m_nGdiplusToken(0)
+CWeatherUpdaterApp::CWeatherUpdaterApp() :
+	m_nGdiplusToken(0)
 {
+	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
-
-	// prend en charge le Gestionnaire de redémarrage
-	//m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
-#ifdef _MANAGED
-	// Si l'application est créée à l'aide de la prise en charge Common Language Runtime (/clr):
-	//     1) Ce paramètre supplémentaire est nécessaire à la prise en charge du Gestionnaire de redémarrage.
-	//     2) Dans votre study, vous devez ajouter une référence à System.Windows.Forms pour la génération.
-	System::Windows::Forms::Application::SetUnhandledExceptionMode(System::Windows::Forms::UnhandledExceptionMode::ThrowException);
-#endif
-
-	// TODO: remplacer la chaîne d'ID de l'application ci-dessous par une chaîne ID unique ; le format recommandé
-	// pour la chaîne est CompanyName.ProductName.SubProduct.VersionInformation
-	SetAppID(_T("NRCan.WeatherUpdater.11"));
+	SetAppID(_T("NRCan.WeatherUpdater.5"));
 	
 }
 
@@ -218,19 +209,13 @@ void CWeatherUpdaterApp::OnAppAbout()
 {
 	UtilWin::CAboutDlg aboutDlg(AFX_IDS_APP_TITLE); 
 	aboutDlg.m_lastBuild = CStringA(WBSF::GetCompilationDateString(__DATE__).c_str());
-	//aboutDlg.m_extra = _T("Collaboration : \t\tPierre Duval");
 	aboutDlg.DoModal();
 }
 
-// CWeatherUpdaterApp, méthodes de chargement/d'enregistrement de la personnalisation
 
 void CWeatherUpdaterApp::PreLoadState()
 {
-	///BOOL bNameValid;
-	//CString strName;
-	//bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	//ASSERT(bNameValid);
-	//GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+	GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT);
 }
 
 void CWeatherUpdaterApp::LoadCustomState()
@@ -240,8 +225,6 @@ void CWeatherUpdaterApp::LoadCustomState()
 void CWeatherUpdaterApp::SaveCustomState()
 {
 }
-
-// gestionnaires de messages pour CWeatherUpdaterApp
 
 
 
