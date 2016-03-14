@@ -55,7 +55,7 @@ namespace WBSF
 
 		//Adult development rate parameters (2 parameters)
 		enum TRelDevParameters{ P1, P2, NB_PARAMETERS };
-		static const double P[1][NB_PARAMETERS] = { -5.4165, 0.08626 }; //Adult
+		static const double P[1][NB_PARAMETERS] = { -5.1696, 0.07065 }; //Adult, latest estimates 2016/03/14 JR
 
 		double Rt = exp(P[0][P1])*pow(exp(T), P[0][P2]);
 
@@ -97,7 +97,7 @@ namespace WBSF
 			//  x      s
 			{ 0.000, 0.084740 },	//Egg
 			{ 0.000, 0.090060 },	//Pupa
-			{ 0.000, 0.262100 }		//Adult
+			{ 0.000, 0.268500 }		//Adult (-.5385/2, half variablity JR 2016/03/14)
 		};
 
 
