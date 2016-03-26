@@ -222,52 +222,6 @@ namespace UtilWWW
 		return msg;
 	}
 
-	/*CString FindString(const CString& source, const TCHAR* strBegin, const TCHAR* strEnd, int& posBegin, int& posEnd)
-	{
-		CString text;
-		posBegin = source.Find(strBegin, posEnd );
-
-		if( posBegin!=-1)
-		{
-			posBegin += int(_tcslen(strBegin));
-			posEnd= source.Find( strEnd, posBegin );
-			ASSERT(posEnd!=-1);
-			if( posEnd!=-1 )
-				text = source.Mid(posBegin, posEnd-posBegin);
-		}
-
-		return text;
-	}
-
-	CString FindString(const CString& source, const TCHAR* strBegin, const TCHAR* strEnd, int& posBegin)
-	{
-		ASSERT( posBegin!=-1);
-
-		CString text;
-		posBegin = source.Find(Convert(strBegin), posBegin);
-
-		if( posBegin!=-1)
-		{
-			posBegin += int(_tcslen(strBegin));
-			int posEnd = source.Find(Convert(strEnd), posBegin);
-			ASSERT(posEnd!=-1);
-			if( posEnd!=-1 )
-			{
-				text = source.Mid(posBegin, posEnd-posBegin);
-				posBegin = posEnd;
-			}
-		}
-
-		return text;
-	}
-
-	CString FindString(const CString& source, const TCHAR* strBegin, const TCHAR* strEnd)
-	{
-		int posBegin=0;
-		return FindString(source, strBegin, strEnd, posBegin);
-	}
-	*/
-
 	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password )
 	{
 		ASSERT(	pConnection.get() != NULL);
@@ -379,17 +333,7 @@ namespace UtilWWW
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags, BOOL bFailIfExists )
 	{
 		ASSERT(	pConnection.get() != NULL);
-	/*	CInternetFile* pFile = pConnection->OpenFile(InputFilePath);
-		CFileStatus s;
-		if( pFile && pFile->GetStatus(s) )
-		{
-			int i;
-			i=0;
-		}
-
-		pFile->Close();
-		delete pFile;
-	*/
+	
 		//DWORD flag = INTERNET_FLAG_TRANSFER_BINARY|INTERNET_FLAG_RELOAD|INTERNET_FLAG_EXISTING_CONNECT|INTERNET_FLAG_DONT_CACHE;
 		//INTERNET_FLAG_RELOAD;
 		ERMsg msg;
@@ -504,23 +448,13 @@ namespace UtilWWW
 
 		info.m_size = finder.GetLength();
 
-		//a vérifier
-		//if( page.FindOneOf("*?") != -1)
-			//_tcsncpy_s( info.m_filePath, _MAX_PATH, (LPCTSTR) finder.GetFilePath(), _MAX_PATH);
-		//else _tcsncpy_s( info.m_filePath, _MAX_PATH, (LPCTSTR) finder.GetFileName(), _MAX_PATH);
-
-		//a vérifier!!!!!!!
-		CString test1 = finder.GetFilePath();
-		CString test2 = finder.GetFileName();
-		//if( test1.GetLength() >= test2.GetLength() ) //test2.GetLength()>0 && test2[0]== '/' )
-		//_tcsncpy_s( info.m_filePath, _MAX_PATH, (LPCTSTR) finder.GetFilePath(), _MAX_PATH);
-		//else _tcsncpy_s( info.m_filePath, _MAX_PATH, (LPCTSTR) finder.GetFileName(), _MAX_PATH);
+		//CString test1 = finder.GetFilePath();
+		//CString test2 = finder.GetFileName();
 		if (bHaveWildcard)
 			info.m_filePath = UtilWin::ToUTF8(finder.GetFilePath());
-			//strncpy_s( info.m_filePath, _MAX_PATH, ToUTF8(finder.GetFilePath()), _MAX_PATH);
 		else 
-			info.m_filePath = /*ToUTF8(GetPath(finder.GetFileURL()) +*/ UtilWin::ToUTF8(finder.GetFileName());
-			//strncpy_s(info.m_filePath, _MAX_PATH, ToUTF8(finder.GetFileName()), _MAX_PATH);
+			info.m_filePath = UtilWin::ToUTF8(finder.GetFileName());
+
 
 		info.m_attribute = 0;
 			
@@ -547,8 +481,6 @@ namespace UtilWWW
 			CTime time;
 			finder.GetLastWriteTime(time);
 			info.m_time = time.GetTime();
-			//finder.GetCreationTime(info.m_ctime);//really usefull??
-			//finder.GetLastAccessTime(info.m_atime);
 		}
 		CATCH_ALL(e)
 		{}
@@ -778,27 +710,6 @@ namespace UtilWWW
 		return msg;
 	}
 
-	/*ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSession& ISession, DWORD flags )
-	{
-		ERMsg msg;
-
-		//DWORD flags = INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE|INTERNET_FLAG_SECURE;
-		pConnection.reset( ISession.GetHttpConnection(serverName, flags) );
-		if (pConnection.get())
-		{
-			ISession.SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
-		}
-		else
-		{
-			msg.asgType( ERMsg::ERREUR);
-			CInternetException e(GetLastError() );
-			msg = UtilWin::SYGetMessage(e);
-		}
-
-		return msg;
-	}
-	*/
-
 	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password  )
 	{
 		ERMsg msg;
@@ -820,60 +731,6 @@ namespace UtilWWW
 		return msg;
 	}
 
-/*	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSession& ISession, bool bPassif, const CString& userName, const CString& password  )
-	{
-		ERMsg msg;
-		
-
-		pConnection.reset();
-		//pConnection.reset( ISession.GetFtpConnection(serverName, "anonymous", " ", INTERNET_DEFAULT_FTP_PORT, bPassif) );
-		for(int i=0; i<4&&pConnection.get()==NULL; i++)
-		{
-			TRY
-			{
-				ISession.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 1000);
-				ISession.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 1000);
-				ISession.SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 1000);
-				ISession.SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
-				ISession.SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
-				ISession.SetOption(INTERNET_OPTION_REFRESH, 0);
-				//INTERNET_OPTION_PROXY
-				//PRE_CONFIG_INTERNET_ACCESS
-				
-				//pConnection.reset( ISession.GetFtpConnection(serverName, "anonymous", " ", INTERNET_DEFAULT_FTP_PORT, bPassif) );
-				pConnection.reset( ISession.GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif) );
-				
-				
-//				DWORD value;
-//				ISession.QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, value);
-//				ISession.QueryOption(INTERNET_OPTION_RECEIVE_TIMEOUT, value);
-			}
-			CATCH_ALL(e)
-			{
-				ISession.Close();
-				Sleep(1000);//wait 1 second
-				
-			}
-			END_CATCH_ALL
-
-			
-		}
-
-		if( pConnection.get()==NULL)
-		{
-			msg.asgType( ERMsg::ERREUR);
-			CInternetException e(GetLastError() );
-			msg = UtilWin::SYGetMessage(e);
-		}
-		return msg;
-	}
-*/
-
-//	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags=INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE|PRE_CONFIG_INTERNET_ACCESS, LPCTSTR userName=NULL, LPCTSTR password=NULL );
-	//ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags=INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE|PRE_CONFIG_INTERNET_ACCESS, LPCTSTR userName=NULL, LPCTSTR password=NULL, BOOL bPassif=true);//const CString& userName="anonymous", const CString& password=" " );
-	//ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags=INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE||PRE_CONFIG_INTERNET_ACCESS, BOOL bBinary=FALSE);
-	//ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, BOOL bFailIfExists = FALSE, DWORD flags=INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE|PRE_CONFIG_INTERNET_ACCESS );
-	
 	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bPassif )
 	{
 		ERMsg msg;
@@ -983,39 +840,7 @@ namespace UtilWWW
 	{
 		return IsFileUpToDate(pConnection, UtilWin::Convert(URL), UtilWin::Convert(localFilePath), bLookFileSize, bLookFileTime);
 	}
-	/*ERMsg GetPageText(CHttpConnectionPtr& pConnection, const std::string& URL, std::string& text, bool replaceAccent, DWORD flags)
-	{
-		ERMsg msg;
-
-		CString tmp;
-		msg = GetPageText(pConnection, Convert(URL), tmp, replaceAccent, flags);
-		text = ToUTF8(tmp);
-
-		return msg;
-	}*/
+	
 
 
 }
-
-
-//// if access was denied, prompt the user for the password 
-//switch (dwRet) 
-//{ 
-//case HTTP_STATUS_DENIED: 
-//					
-//pURLFile->SetOption(INTERNET_OPTION_USERNAME, (LPVOID)(LPCTSTR)userName, userName.GetLength() ); 
-//pURLFile->SetOption(INTERNET_OPTION_PASSWORD, (LPVOID)(LPCTSTR)password, password.GetLength() ); 
-//pURLFile->SendRequest(); 
-//pURLFile->QueryInfoStatusCode(dwRet); 
-//break; 
-//case HTTP_STATUS_PROXY_AUTH_REQ: 
-//pURLFile->SetOption (INTERNET_OPTION_PROXY_USERNAME, (LPVOID)(LPCTSTR)userName, userName.GetLength() ); 
-//pURLFile->SetOption (INTERNET_OPTION_PROXY_PASSWORD, (LPVOID)(LPCTSTR)password, password.GetLength() ); 
-//pURLFile->SendRequest(); 
-//pURLFile->QueryInfoStatusCode(dwRet); 
-//break; 
-//} 
-//
-//
-
-
