@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConvertDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskBase.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskFactory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UISolutionMesonetDaily.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UISolutionMesonetHourly.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateDailyDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateHourlyDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateNormalsDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CopyFTP.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CountrySelection.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GSODStationOptimisation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDSLiteStationOptimisation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MergeWeather.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProvinceSelection.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEnvCanDaily.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEnvCanHourly.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEnvCanHourlyForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGHCN.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGSOD.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIISDLite.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LocationOptimisation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvCanLocationMap.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateSelection.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AppendWeather.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipWeather.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UICIPRA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIRapidUpdateCycle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEnvCanPrcpRadar.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEnvCanRadar.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UISnowTel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ZipUnzip.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConvertDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UISolutionMesonetDaily.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UISolutionMesonetHourly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateDailyDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateHourlyDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateNormalsDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CopyFTP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CountrySelection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GSODStationOptimisation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IDSLiteStationOptimisation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MergeWeather.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProvinceSelection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanDaily.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanHourly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanHourlyForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGHCN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGSOD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIISDLite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LocationOptimisation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnvCanLocationMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateSelection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AppendWeather.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipWeather.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UICIPRA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIRapidUpdateCycle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanPrcpRadar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanRadar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UISnowTel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ZipUnzip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

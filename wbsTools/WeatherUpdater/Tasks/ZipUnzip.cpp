@@ -1,0 +1,153 @@
+#include "stdafx.h"
+#include "ZipUnzip.h"
+#include "TaskFactory.h"
+#include "../Resource.h"
+#include "WeatherBasedSimulationString.h"
+
+using namespace std;
+
+namespace WBSF
+{
+
+	//*********************************************************************
+	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory" };
+	const StringVector CZipUnzip::ATTRIBUTE_TITLE(IDS_TOOL_ZIP_UNZIP_P, "|;");
+	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
+	const char* CZipUnzip::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ZipUnzip";  return THE_CLASS_NAME; }
+	CTaskBase::TType CZipUnzip::ClassType()const { return CTaskBase::TOOLS; }
+	static size_t CLASS_ID = CTaskFactory::RegisterClass(CZipUnzip::CLASS_NAME(), CZipUnzip::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("Zip", CZipUnzip::create);
+	
+
+	CZipUnzip::CZipUnzip(void)
+	{}
+
+	CZipUnzip::~CZipUnzip(void)
+	{}
+
+
+
+	//void CZipUnzip::Reset()
+	//{
+	//	m_command = UNZIP;
+	//	m_zipFilePath.clear();
+	//	m_directory.clear();
+	//	m_filter = "*.*";
+	//	m_bCopySubDirectory = false;
+	//}
+
+	std::string CZipUnzip::Option(size_t i)const
+	{
+		string str;
+		switch (i)
+		{
+		case COMMAND:str = GetString(IDS_CONVERT_DIRECTION); break;
+		case ZIP_FILEPATH:str = GetString(IDS_STR_FILTER_ZIP); break;
+		case COPY_SUB_DIRECTORY: str = "0"; break;
+		};
+
+		return str;
+	}
+
+	std::string CZipUnzip::Default(size_t i)const
+	{
+		std::string str;
+		switch (i)
+		{
+		case COMMAND:	str = ToString(UNZIP); break;
+		case FILTER:str = "*.*"; break;
+		case COPY_SUB_DIRECTORY: str = "0"; break;
+		};
+
+		return str;
+	}
+
+
+	ERMsg CZipUnzip::Execute(CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t command = as<size_t>(COMMAND);
+
+		if (command == ZIP)
+			msg = Zip(callback);
+		else if (command == UNZIP)
+			msg = Unzip(callback);
+		else
+			msg.ajoute("Unknown zip commad");
+
+		return msg;
+	}
+
+	ERMsg CZipUnzip::Zip(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string filepath = Get(ZIP_FILEPATH);
+		string dir = GetDir(DIRECTORY);
+		string filter = Get(FILTER);
+
+		if (FileExists(filepath))
+			RemoveFile(filepath);
+
+		string command = GetApplicationPath() + "External\\7z.exe a ";
+		if (as<bool>(COPY_SUB_DIRECTORY) )
+			command += "-r ";
+
+		command += "\"" + filepath + "\" \"" + dir + filter + "\"";
+
+		callback.SetCurrentDescription(GetString(IDS_ZIP_FILE));
+		callback.AddMessage(GetString(IDS_ZIP_FILE));
+
+		msg = WinExecWait(command.c_str());
+
+		if (msg)
+		{
+			if (FileExists(filepath))
+			{
+				callback.AddMessage(FormatMsg(IDS_BSC_FILE_CREATE_SUCCESS, filepath));
+			}
+			else
+			{
+				msg.ajoute(FormatMsg(IDS_BSC_FILE_CREATE_FAILED, filepath));
+			}
+		}
+
+		return msg;
+	}
+
+
+
+	ERMsg CZipUnzip::Unzip(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string filepath = Get(ZIP_FILEPATH);
+		string dir = GetDir(DIRECTORY);
+
+		if (FileExists(filepath))
+		{
+			msg = CreateMultipleDir(dir);
+			if (msg)
+			{
+				string command = GetApplicationPath() + "External\\7z.exe x \"" + filepath + "\" -aoa -o\"" + dir + "\"";
+
+				callback.SetCurrentDescription(GetString(IDS_UNZIP_FILE));
+				callback.AddMessage(GetString(IDS_UNZIP_FILE));
+
+				msg = WinExecWait(command.c_str());
+			}
+		}
+		else
+		{
+			msg.ajoute(FormatMsg(IDS_BSC_FILE_NOT_EXIST, filepath));
+		}
+
+
+
+		return msg;
+	}
+
+
+
+}
