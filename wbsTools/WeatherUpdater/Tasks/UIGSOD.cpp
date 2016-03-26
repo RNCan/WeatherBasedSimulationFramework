@@ -24,14 +24,14 @@ namespace WBSF
 
 
 	const char* CUIGSOD::SERVER_NAME = "ftp.ncdc.noaa.gov";
-	const char* CUIGSOD::SERVER_PATH = "/pub/data/gsod/";
-	const char* CUIGSOD::LIST_PATH = "/pub/data/noaa/";
+	const char* CUIGSOD::SERVER_PATH = "pub/data/gsod/";
+	const char* CUIGSOD::LIST_PATH = "pub/data/noaa/";
 
 
 
 	//*********************************************************************
-	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "BoundingBox" };
-	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_GEORECT };
+	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };
+	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
 	const StringVector CUIGSOD::ATTRIBUTE_TITLE(IDS_UPDATER_NOAA_GSOD_P, "|;");
 	const char* CUIGSOD::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GSOD";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIGSOD::ClassType()const { return CTaskBase::UPDATER; }
@@ -81,7 +81,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 		if (msg)
 		{
 			string path = GetHistoryFilePath(false);
@@ -136,9 +136,11 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
 				if (toDo[0])
 				{
 					msgTmp = FindDirectories(pConnection, SERVER_PATH, dirList);
@@ -148,13 +150,13 @@ namespace WBSF
 
 				if (msgTmp)
 				{
-					for (int y = 0; y < dirList.size() && msg&&msgTmp; y++)
+					for (size_t y = 0; y < dirList.size() && msg&&msgTmp; y++)
 					{
 						msg += callback.StepIt(0);
 
 						const CFileInfo& info = dirList[y];
 						string path = info.m_filePath;
-						int year = ToInt(path.substr(15, 4));
+						int year = ToInt(path.substr(14, 4));
 						if (year >= firstYear && year <= lastYear)
 						{
 							int index = year - firstYear + 1;
@@ -261,7 +263,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
 				TRY

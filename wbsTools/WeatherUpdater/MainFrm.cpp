@@ -363,19 +363,23 @@ void CMainFrame::OnEditOptions()
 
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-	CWinApp* pApp = AfxGetApp();
-	if (pApp)
+	
+	if (GetActiveDocument() == NULL)
 	{
-		POSITION  pos = pApp->GetFirstDocTemplatePosition();
-		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
-		if (docT)
+		CWinApp* pApp = AfxGetApp();
+		if (pApp)
 		{
-			pos = docT->GetFirstDocPosition();
-			CDocument* pDoc = docT->GetNextDoc(pos);
-			if (pDoc)
+			POSITION  pos = pApp->GetFirstDocTemplatePosition();
+			CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+			if (docT)
 			{
-				//if (pDoc->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-					//return TRUE;
+				pos = docT->GetFirstDocPosition();
+				CDocument* pDoc = docT->GetNextDoc(pos);
+				if (pDoc)
+				{
+					if (pDoc->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+						return TRUE;
+				}
 			}
 		}
 	}

@@ -314,7 +314,7 @@ namespace WBSF
 				{
 					ASSERT( (*it2)->GetProject() == this);
 					ERMsg msgTmp = (*it2)->Execute(callback);
-					std::string str = GetOutputString(msgTmp, callback, false, "\n");
+					std::string str = GetOutputString(msgTmp, callback, true, "\n");
 					ReplaceString(str, "\n", "|");
 					ReplaceString(str, "\r", "");
 

@@ -23,8 +23,8 @@ namespace WBSF
 	const char* CUIISDLite::LIST_PATH = "pub/data/noaa/";
 
 	//*********************************************************************
-	const char* CUIISDLite::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "BoundingBox"};
-	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_GEORECT};
+	const char* CUIISDLite::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States"};
+	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE};
 	const StringVector CUIISDLite::ATTRIBUTE_TITLE(IDS_UPDATER_NOAA_ISD_LITE_P, "|;");
 	const char* CUIISDLite::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ISD-Lite";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIISDLite::ClassType()const { return CTaskBase::UPDATER; }
@@ -138,7 +138,7 @@ namespace WBSF
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession);
 			if (msgTmp)
 			{
-
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 				if (toDo[0])
 				{

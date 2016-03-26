@@ -80,9 +80,11 @@ namespace WBSF
 
 		if (pTask.get() != NULL)
 		{
-			//pTask->Set("FIRST_YEAR", Get(BEGIN));
-			//pTask->Set("LAST_YEAR", Get(END));
+			string firstYear = pTask->Get("FIRST_YEAR");
+			string lastYear = pTask->Get("LAST_YEAR");
 			msg = CreateDatabase(*pTask, callback);
+			pTask->Set("FIRST_YEAR", firstYear);
+			pTask->Set("LAST_YEAR", lastYear);
 		}
 		else
 		{

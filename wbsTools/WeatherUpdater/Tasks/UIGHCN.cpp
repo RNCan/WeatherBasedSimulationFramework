@@ -108,7 +108,7 @@ ERMsg CUIGHCND::UpdateStationHistory()
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 	
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 	if (msg)
 	{
 		string path = GetStationFilePath(false);
@@ -149,9 +149,10 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 		
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 	if (msg)
 	{
+		//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
 		string filter = string(SERVER_PATH) + "by_year/*.gz";
 		msg = FindFiles(pConnection, filter, fileList, callback);	
 
@@ -310,15 +311,15 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 		if( !bDEMElev || false )
 		{
 			CCountrySelection countries(Get(COUNTRIES));
-			CGeoRect boundingBox;
+			//CGeoRect boundingBox;
 			size_t country = CCountrySelection::GetCountry(location.GetSSI("Country").c_str());
 			ASSERT( country != NOT_INIT);
 
 			if( countries.none() || countries.at(country) )
 			{
-				if( boundingBox.IsRectEmpty() ||
-					boundingBox.PtInRect( location ) )
-				{
+				//if( boundingBox.IsRectEmpty() ||
+					//boundingBox.PtInRect( location ) )
+				//{
 					if( IsEqualNoCase( location.GetSSI("Country"), "US") )
 					{
 						CStateSelection states(Get(STATES));
@@ -330,7 +331,7 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 					{
 						bRep=true;
 					}//use this state if USA
-				}//in the bounding extents
+				//}//in the bounding extents
 			}//use this country
 		}//use DEM elevation
 	}//station exist
@@ -497,6 +498,10 @@ ERMsg CUIGHCND::GetStationList(StringVector& list, CCallback& callback)
 {
 	ERMsg msg; 
 
+	msg = PreProcess(callback);
+	if (!msg)
+		return msg;
+
 	list.clear();
 		
 	for (SimpleDataMap::const_iterator it=m_loadedData.begin(); it != m_loadedData.end(); it++)
@@ -531,7 +536,7 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 {
 	ERMsg msg;
 	
-	
+
 	GetStationInformation(ID, station);
 	station.m_name = PurgeFileName(station.m_name);
 

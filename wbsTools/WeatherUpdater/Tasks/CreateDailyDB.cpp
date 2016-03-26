@@ -77,9 +77,11 @@ namespace WBSF
 
 		if (pTask.get() != NULL)
 		{
-			//pTask->Set("FIRST_YEAR", Get(BEGIN));
-			//pTask->Set("LAST_YEAR", Get(END));
+			string firstYear = pTask->Get("FIRST_YEAR");
+			string lastYear = pTask->Get("LAST_YEAR");
 			msg = CreateDatabase(*pTask, callback);
+			pTask->Set("FIRST_YEAR", firstYear);
+			pTask->Set("LAST_YEAR", lastYear);
 		}
 		else
 		{
@@ -180,22 +182,22 @@ namespace WBSF
 		CTimer timerRead;
 		CTimer timerWrite;
 
-	/*	CTask forecastTask;
-		if (!m_forecastName.empty())
-		{
-			msg = forecastTask.LoadFromDoc(m_forecastName);
+		//CTaskBase forecastTask;
+		//if (!Get(FORECAST).empty())
+		//{
+		//	msg = forecastTask.LoadFromDoc(m_forecastName);
 
-			if (msg)
-			{
-				CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
-				msg = forecast.PreProcess(callback);
-			}
+		//	if (msg)
+		//	{
+		//		CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
+		//		//msg = forecast.PreProcess(callback);
+		//	}
 
 
-			if (!msg)
-				return msg;
-		}
-*/
+		//	if (!msg)
+		//		return msg;
+		//}
+
 		string outputFilePath = GetOutputFilePath(Get(OUTPUT_FILEPATH), CDailyDatabase::DATABASE_EXT);
 		CreateMultipleDir(GetPath(outputFilePath));
 

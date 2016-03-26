@@ -1032,12 +1032,26 @@ void CProjectView::OnInitialUpdate()
 
 BOOL CProjectView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-	//let the trl to route command
-	if (m_wnd1.m_taskCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
 	
-	if (m_wnd2.m_taskCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+	CWnd* pFocus = GetFocus();
+	if (pFocus)
+	{
+		CWnd* pParent = pFocus->GetParent();
+		//CWnd* pOwner = pFocus->GetParentOwner();
+
+		if (pFocus == &m_wnd1 || pParent == &m_wnd1)
+		{
+			if (m_wnd1.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+				return TRUE;
+		}
+
+		if(pFocus == &m_wnd2 || pParent == &m_wnd2)
+		{
+			if (m_wnd2.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+				return TRUE;
+		}
+	}
+	
 
 	return CView::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
