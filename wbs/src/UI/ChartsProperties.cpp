@@ -1,0 +1,736 @@
+//******************************************************************************
+//  Project:		Weather-based simulation framework (WBSF)
+//	Programmer:     Rémi Saint-Amant
+// 
+//  It under the terms of the GNU General Public License as published by
+//     the Free Software Foundation
+//  It is provided "as is" without express or implied warranty.
+//******************************************************************************
+// 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
+//****************************************************************************
+#include "stdafx.h"
+
+#include "Basic/Statistic.h"
+#include "Basic/WeatherDefine.h"
+#include "UI/Common/UtilWin.h"
+#include "UI/Common/CommonCtrl.h"
+#include "UI/Common/AppOption.h"
+#include "ChartsProperties.h"
+#include "UI/Common/FileNameProperty.h"
+
+
+#include "WeatherBasedSimulationString.h"
+
+//using namespace UtilWin;
+using namespace WBSF::HOURLY_DATA;
+
+namespace WBSF
+{
+
+#define AFX_PROP_HAS_LIST 0x0001
+
+	//*****************************************************************************************************
+	void CChartsListCtrl::FillCharts()
+	{
+		m_pWndList->DeleteAllItems();
+		for (size_t i = 0; i < m_graphics.size(); i++)
+		{
+			AddItem(CString(m_graphics[i].m_name.c_str()));
+		}
+	}
+
+
+	void CChartsListCtrl::OnSelectionChanged()
+	{
+		if (!m_bInProcess)
+			m_seriesListCtrl.SetChartIndex(GetSelItem());
+	}
+
+
+	void CChartsListCtrl::OnAfterAddItem(int iItem)
+	{
+		CVSListBox::OnAfterAddItem(iItem);
+		m_graphics.push_back(CGraph());
+
+		m_seriesListCtrl.SetChartIndex(-1);
+		m_seriesListCtrl.SetChartIndex(iItem);
+
+	}
+
+	BOOL CChartsListCtrl::OnBeforeRemoveItem(int iItem)
+	{
+		ASSERT(iItem >= 0 && iItem < m_graphics.size());
+		m_graphics.erase(m_graphics.begin() + iItem);
+		return TRUE;
+	}
+
+	void CChartsListCtrl::OnAfterRenameItem(int iItem)
+	{
+		ASSERT(iItem >= 0 && iItem < m_graphics.size());
+		m_graphics[iItem].m_name = CStringA(GetItemText(iItem));
+	}
+
+	void CChartsListCtrl::OnAfterMoveItemUp(int iItem)
+	{
+		ASSERT(iItem >= 0 && iItem < m_graphics.size() - 1);
+
+		CGraph graph = m_graphics[iItem + 1];
+		m_graphics[iItem + 1] = m_graphics[iItem];
+		m_graphics[iItem] = graph;
+	}
+
+
+	void CChartsListCtrl::OnAfterMoveItemDown(int iItem)
+	{
+		ASSERT(iItem > 0 && iItem < m_graphics.size());
+		CGraph graph = m_graphics[iItem - 1];
+		m_graphics[iItem - 1] = m_graphics[iItem];
+		m_graphics[iItem] = graph;
+	}
+
+
+	void CChartsListCtrl::OnClickButton(int iButton)
+	{
+		m_bInProcess = true;
+		CVSListBox::OnClickButton(iButton);
+		m_bInProcess = false;
+
+		//m_seriesListCtrl.SetChartIndex(-1);
+		//m_seriesListCtrl.SetChartIndex(GetSelItem());
+	}
+
+	//*****************************************************************************************************
+	void CSeriesListCtrl::SetChartIndex(int index)
+	{
+		if (index != m_chartIndex)
+		{
+			m_pWndList->DeleteAllItems();
+			m_chartIndex = index;
+
+			if (index >= 0)
+			{
+				const CGraphSerieVector& series = m_graphics[index].m_series;
+
+				for (size_t i = 0; i < series.size(); i++)
+				{
+					AddItem(CString(series[i].m_name.c_str()));
+				}
+			}
+		}
+
+
+	}
+
+	void CSeriesListCtrl::OnSelectionChanged()
+	{
+		if (!m_bInProcess)
+			m_seriesPropertyGridCtrl.Set(m_chartIndex, GetSelItem());
+	}
+
+	void CSeriesListCtrl::OnAfterAddItem(int iItem)
+	{
+		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+
+		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
+		series.push_back(CGraphSerie());
+		m_seriesPropertyGridCtrl.Set(m_chartIndex, GetSelItem(), true);
+
+		ASSERT(iItem >= 0 && iItem < series.size());
+	}
+
+	BOOL CSeriesListCtrl::OnBeforeRemoveItem(int iItem)
+	{
+		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
+
+		ASSERT(iItem >= 0 && iItem < series.size());
+		series.erase(series.begin() + iItem);
+
+		return CVSListBox::OnBeforeRemoveItem(iItem);
+	}
+
+	void CSeriesListCtrl::OnAfterRenameItem(int iItem)
+	{
+		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
+		ASSERT(iItem >= 0 && iItem < series.size());
+		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+
+		CVSListBox::OnAfterRenameItem(iItem);
+	}
+
+	void CSeriesListCtrl::OnAfterMoveItemUp(int iItem)
+	{
+		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
+		ASSERT(iItem >= 0 && iItem < series.size() - 1);
+		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+
+
+		CGraphSerie serie = series[iItem + 1];
+		series[iItem + 1] = series[iItem];
+		series[iItem] = serie;
+
+		CVSListBox::OnAfterMoveItemUp(iItem);
+
+	}
+
+	void CSeriesListCtrl::OnAfterMoveItemDown(int iItem)
+	{
+		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
+		ASSERT(iItem > 0 && iItem < series.size());
+		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+
+		CGraphSerie serie = series[iItem - 1];
+		series[iItem - 1] = series[iItem];
+		series[iItem] = serie;
+
+		CVSListBox::OnAfterMoveItemDown(iItem);
+	}
+
+	void CSeriesListCtrl::OnClickButton(int iButton)
+	{
+		m_bInProcess = true;
+		CVSListBox::OnClickButton(iButton);
+		m_bInProcess = false;
+
+		SelectItem(GetSelItem());
+	}
+
+	//*****************************************************************************************************
+
+	class CColorProperty : public CMFCPropertyGridColorProperty
+	{
+	public:
+
+		CColorProperty(const CString& strName, const COLORREF& color, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridColorProperty(strName, color, NULL, lpszDescr, dwData)
+		{
+			EnableOtherButton(UtilWin::GetCString(IDS_STR_OTHER));
+		}
+	};
+
+
+	class CSymbolProperty : public CMFCPropertyGridProperty
+	{
+	public:
+
+		CString GetOptionText(int i){ return CString(CGraphSerie::GetSyboleTypeTitle(i).c_str()); }
+		CSymbolProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
+		{
+			m_bAllowEdit = false;
+
+			for (int i = -1; i < CGraphSerie::NB_SYMBOL_TYPE; i++)
+				AddOption(GetOptionText(i));
+
+			AllowEdit(FALSE);
+
+			SetOriginalValue(GetOptionText(index));
+		}
+
+
+		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+		{
+			//new CLineStyleCB(;
+			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+		}
+
+		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	};
+
+	class CLineStyleProperty : public CMFCPropertyGridProperty
+	{
+	public:
+
+		CString GetOptionText(int i){ return CString(CGraphSerie::GetLineStyleTitle(i).c_str()); }
+		CLineStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
+		{
+			m_bAllowEdit = false;
+
+			for (int i = -1; i < CGraphSerie::NB_LINE_STYLE; i++)
+				AddOption(GetOptionText(i));
+
+			AllowEdit(FALSE);
+
+			SetOriginalValue(GetOptionText(index));
+		}
+
+
+		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+		{
+			//new CLineStyleCB(;
+			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+		}
+
+		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	};
+
+
+	class CFillStyleProperty : public CMFCPropertyGridProperty
+	{
+	public:
+
+		CString GetOptionText(int i){ return CString(CGraphSerie::GetFillStyleTitle(i).c_str()); }
+		CFillStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
+		{
+			m_bAllowEdit = false;
+
+			for (int i = -1; i < CGraphSerie::NB_FILL_STYLE; i++)
+				AddOption(GetOptionText(i));
+
+			AllowEdit(FALSE);
+
+			SetOriginalValue(GetOptionText(index));
+		}
+
+
+		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+		{
+			//new CLineStyleCB(;
+			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+		}
+
+		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	};
+	//*****************************************************************************************************
+
+
+	BEGIN_MESSAGE_MAP(CSeriesPropertyGridCtrl, CMFCPropertyGridCtrl)
+		//ON_WM_CREATE()
+	END_MESSAGE_MAP()
+
+	CSeriesPropertyGridCtrl::CSeriesPropertyGridCtrl(CGraphVector& graphics) :
+		m_graphics(graphics)
+	{
+		m_chartIndex = -1;
+		m_serieIndex = -1;
+	}
+
+
+	enum TGraph
+	{
+		TITLE, X_AXIS_TITLE, Y_LEFT_AXIS_TITLE, Y_RIGHT_AXIS_TITLE, SHOW_LEGEND,
+		VARIABLE, STATISTIC, SERIE_TYPE, Y_AXIS, ENABLE_SHADOW, SHADOW_DEPTH, SHADOW_COLOR,
+		SYMBOL_TYPE, SYMBOL_SIZE_X, SYMBOL_SIZE_Y, SYMBOL_COLOR, SYMBOL_FILLED, SYMBOL_FILL_COLOR,
+		LINE_STYLE, LINE_WIDTH, LINE_COLOR, LINE_SMOOTHED,
+		FILL_STYLE, FILL_DIRECTION, FILL_COLOR,
+		HIST_DIRECTION, HIST_BAR_WIDTH, HIST_BAR_COLOR, HIST_BORDER_WIDTH, HIST_BORDER_COLOR,
+		NB_GRAPH_WEATHER_PROPERTIES
+	};
+
+
+
+	void CSeriesPropertyGridCtrl::Init()
+	{
+		CMFCPropertyGridCtrl::Init();
+
+		RemoveAll();
+
+		static COleVariant Bool((short)VARIANT_FALSE, VT_BOOL);
+		static COleVariant Int(0l, VT_I4);
+		static CString String;
+		static COLORREF Color;
+
+		CRect rect;
+		GetClientRect(rect);
+
+		//add all attribute
+		CAppOption options;
+		StringVector propertyHeader(GetString(IDS_STR_PROPERTY_HEADER), ";|");
+		m_nLeftColumnWidth = options.GetProfileInt(_T("WeatherChartsPropertiesSplitterPos"), rect.Width() / 2);
+
+		EnableHeaderCtrl(true, CString(propertyHeader[0].c_str()), CString(propertyHeader[1].c_str()));
+		EnableDescriptionArea(true);
+		SetVSDotNetLook(true);
+		MarkModifiedProperties(true);
+		SetAlphabeticMode(false);
+		SetShowDragContext(true);
+		EnableWindow(true);
+		AlwaysShowUserToolTip();
+
+
+
+		//General
+
+		//
+		//
+		CStringArrayEx section(IDS_DBEDIT_GRAPH_WEATHER);
+		CStringArrayEx name(IDS_DBEDIT_GRAPH_WEATHER_PROPERTIES);
+		CStringArrayEx description(IDS_DBEDIT_GRAPH_WEATHER_DESCRIPTION);
+
+
+		CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(section[0], -1);
+		CMFCPropertyGridProperty* pGraph = new CMFCPropertyGridProperty(section[1], -1);
+
+
+		ASSERT(name.GetSize() == NB_GRAPH_WEATHER_PROPERTIES);
+		ASSERT(description.GetSize() == NB_GRAPH_WEATHER_PROPERTIES);
+
+
+		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[TITLE], String, description[TITLE], TITLE));
+		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[X_AXIS_TITLE], String, description[X_AXIS_TITLE], X_AXIS_TITLE));
+		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[Y_LEFT_AXIS_TITLE], String, description[Y_LEFT_AXIS_TITLE], Y_LEFT_AXIS_TITLE));
+		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[Y_RIGHT_AXIS_TITLE], String, description[Y_RIGHT_AXIS_TITLE], Y_RIGHT_AXIS_TITLE));
+		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[SHOW_LEGEND], Bool, description[SHOW_LEGEND], SHOW_LEGEND));
+		pGroup->AddSubItem(pGraph);
+
+		CMFCPropertyGridProperty* pSeries = new CMFCPropertyGridProperty(section[2], -1);
+
+		CMFCPropertyGridProperty* pGeneral = new CMFCPropertyGridProperty(section[3], -1);
+		pGeneral->AddSubItem(new CWeatherVariableProperty(name[VARIABLE], H_TAIR, description[VARIABLE], VARIABLE));
+		pGeneral->AddSubItem(new CStatisticProperty(name[STATISTIC], WBSF::MEAN, description[STATISTIC], STATISTIC));
+		pGeneral->AddSubItem(new CSerieTypeProperty(name[SERIE_TYPE], WBSF::MEAN, description[SERIE_TYPE], SERIE_TYPE));
+		pGeneral->AddSubItem(new CYAxisTypeProperty(name[Y_AXIS], CGraphSerie::LEFT_AXIS, description[Y_AXIS], Y_AXIS));
+		pGeneral->AddSubItem(new CMFCPropertyGridProperty(name[ENABLE_SHADOW], Bool, description[ENABLE_SHADOW], ENABLE_SHADOW));
+		pGeneral->AddSubItem(new CMFCPropertyGridProperty(name[SHADOW_DEPTH], Int, description[SHADOW_DEPTH], SHADOW_DEPTH));
+		pGeneral->AddSubItem(new CColorProperty(name[SHADOW_COLOR], Color, description[SHADOW_COLOR], SHADOW_COLOR));
+		pSeries->AddSubItem(pGeneral);
+
+		CMFCPropertyGridProperty* pSymbol = new CMFCPropertyGridProperty(section[4], -1);
+		pSymbol->AddSubItem(new CSymbolProperty(name[SYMBOL_TYPE], 0, description[SYMBOL_TYPE], SYMBOL_TYPE));
+		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_COLOR], Color, description[SYMBOL_COLOR], SYMBOL_COLOR));
+		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_SIZE_X], Int, description[SYMBOL_SIZE_X], SYMBOL_SIZE_X));
+		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_SIZE_Y], Int, description[SYMBOL_SIZE_Y], SYMBOL_SIZE_Y));
+		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_FILLED], Bool, description[SYMBOL_FILLED], SYMBOL_FILLED));
+		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_FILL_COLOR], Color, description[SYMBOL_FILL_COLOR], SYMBOL_FILL_COLOR));
+		pSeries->AddSubItem(pSymbol);
+
+		CMFCPropertyGridProperty* pLine = new CMFCPropertyGridProperty(section[5], -1);
+		pLine->AddSubItem(new CLineStyleProperty(name[LINE_STYLE], CGraphSerie::lsNone, description[LINE_STYLE], LINE_STYLE));
+		pLine->AddSubItem(new CColorProperty(name[LINE_COLOR], Color, description[LINE_COLOR], LINE_COLOR));
+		pLine->AddSubItem(new CMFCPropertyGridProperty(name[LINE_WIDTH], Int, description[LINE_WIDTH], LINE_WIDTH));
+		pLine->AddSubItem(new CMFCPropertyGridProperty(name[LINE_SMOOTHED], Bool, description[LINE_SMOOTHED], LINE_SMOOTHED));
+		pSeries->AddSubItem(pLine);
+
+		CMFCPropertyGridProperty* pFill = new CMFCPropertyGridProperty(section[6], -1);
+		pFill->AddSubItem(new CFillStyleProperty(name[FILL_STYLE], 0, description[FILL_STYLE], FILL_STYLE));
+		pFill->AddSubItem(new CFillDirectionProperty(name[FILL_DIRECTION], CGraphSerie::FILL_BOTTOM, description[FILL_DIRECTION], FILL_DIRECTION));
+		pFill->AddSubItem(new CColorProperty(name[FILL_COLOR], Color, description[FILL_COLOR], FILL_COLOR));
+		pSeries->AddSubItem(pFill);
+
+		CMFCPropertyGridProperty* pHist = new CMFCPropertyGridProperty(section[7], -1);
+		pHist->AddSubItem(new CHistDirectionProperty(name[HIST_DIRECTION], 0, description[HIST_DIRECTION], HIST_DIRECTION));
+		pHist->AddSubItem(new CMFCPropertyGridProperty(name[HIST_BAR_WIDTH], Int, description[HIST_BAR_WIDTH], HIST_BAR_WIDTH));
+		pHist->AddSubItem(new CColorProperty(name[HIST_BAR_COLOR], Color, description[HIST_BAR_COLOR], HIST_BAR_COLOR));
+		pHist->AddSubItem(new CMFCPropertyGridProperty(name[HIST_BORDER_WIDTH], Int, description[HIST_BORDER_WIDTH], HIST_BORDER_WIDTH));
+		pHist->AddSubItem(new CColorProperty(name[HIST_BORDER_COLOR], Color, description[HIST_BORDER_COLOR], HIST_BORDER_COLOR));
+		pSeries->AddSubItem(pHist);
+
+		pGroup->AddSubItem(pSeries);
+
+
+		AddProperty(pGroup);
+
+	}
+
+	void CSeriesPropertyGridCtrl::Set(int chartIndex, int serieIndex, bool bForceReload)
+	{
+
+		if (chartIndex != m_chartIndex ||
+			serieIndex != m_serieIndex ||
+			bForceReload)
+		{
+			if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
+			{
+				if (m_pSel->GetOptionCount() > 0)
+					OnSelectCombo();
+
+				EndEditItem();
+			}
+
+			m_chartIndex = chartIndex;
+			m_serieIndex = serieIndex;
+
+			if (m_chartIndex >= 0 && m_chartIndex < m_graphics.size())
+			{
+				const CGraph& graph = m_graphics[m_chartIndex];
+				if (m_serieIndex >= 0 && m_serieIndex < graph.m_series.size())
+				{
+					const CGraphSerie& serie = graph.m_series[m_serieIndex];
+
+					for (int i = 0; i < NB_GRAPH_WEATHER_PROPERTIES; i++)
+					{
+						CMFCPropertyGridProperty* pProp = FindItemByData(i);
+						ASSERT(pProp);
+
+						switch (i)
+						{
+						case TITLE:				pProp->SetValue(CString(graph.m_title.c_str())); break;
+						case X_AXIS_TITLE:		pProp->SetValue(CString(graph.m_Xtitle.c_str())); break;
+						case Y_LEFT_AXIS_TITLE: pProp->SetValue(CString(graph.m_Ytitle1.c_str())); break;
+						case Y_RIGHT_AXIS_TITLE:pProp->SetValue(CString(graph.m_Ytitle2.c_str())); break;
+						case SHOW_LEGEND:		pProp->SetValue(COleVariant((short)graph.m_bShowLegend, VT_BOOL)); break;
+
+						case VARIABLE:			((CWeatherVariableProperty*)pProp)->SetIndex(serie.m_variable); break;
+						case STATISTIC:			((CStatisticProperty*)pProp)->SetIndex(serie.m_statistic); break;
+						case SERIE_TYPE:		((CSerieTypeProperty*)pProp)->SetIndex(serie.m_type); break;
+						case Y_AXIS:			((CYAxisTypeProperty*)pProp)->SetIndex(serie.m_YAxis); break;
+						case ENABLE_SHADOW:		pProp->SetValue(COleVariant((short)serie.m_bEnableShadow, VT_BOOL)); break;
+						case SHADOW_DEPTH:		pProp->SetValue(COleVariant((long)serie.m_shadowDepth, VT_I4)); break;
+						case SHADOW_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_shadowColor); break;
+
+						case SYMBOL_TYPE:		((CSymbolProperty*)pProp)->SetIndex(serie.m_symbolType); break;
+						case SYMBOL_SIZE_X:		pProp->SetValue(COleVariant((long)serie.m_symbolWidth, VT_I4)); break;
+						case SYMBOL_SIZE_Y:		pProp->SetValue(COleVariant((long)serie.m_symbolHeight, VT_I4)); break;
+						case SYMBOL_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_symbolColor); break;
+						case SYMBOL_FILLED:		pProp->SetValue(COleVariant((short)serie.m_bSymbolFilled, VT_BOOL)); break;
+						case SYMBOL_FILL_COLOR: ((CColorProperty*)pProp)->SetColor(serie.m_symbolFillColor); break;
+
+						case LINE_STYLE:		((CLineStyleProperty*)pProp)->SetIndex(serie.m_lineStyle); break;
+						case LINE_WIDTH:		pProp->SetValue(COleVariant((long)serie.m_lineWidth, VT_I4)); break;
+						case LINE_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_lineColor); break;
+						case LINE_SMOOTHED:		pProp->SetValue(COleVariant((short)serie.m_bLineSmoothed, VT_BOOL)); break;
+
+						case FILL_STYLE:		((CFillStyleProperty*)pProp)->SetIndex(serie.m_fillStyle); break;
+						case FILL_DIRECTION:	((CFillDirectionProperty*)pProp)->SetIndex(serie.m_fillDirection); break;
+						case FILL_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_fillColor); break;
+
+						case HIST_DIRECTION:	((CHistDirectionProperty*)pProp)->SetIndex(serie.m_histDirection); break;
+						case HIST_BAR_WIDTH:	pProp->SetValue(COleVariant((long)serie.m_histBarWidth, VT_I4)); break;
+						case HIST_BAR_COLOR:	((CColorProperty*)pProp)->SetColor(serie.m_histBarColor); break;
+						case HIST_BORDER_WIDTH:	pProp->SetValue(COleVariant((long)serie.m_histBorderWidth, VT_I4)); break;
+						case HIST_BORDER_COLOR:	((CColorProperty*)pProp)->SetColor(serie.m_histBorderColor); break;
+						default: ASSERT(false);
+						}
+					}
+				}
+			}
+
+			EnableProperties(m_chartIndex >= 0 && m_serieIndex >= 0);
+		}
+	}
+
+
+	void CSeriesPropertyGridCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pProp) const
+	{
+		ASSERT(m_chartIndex >= 0 && m_serieIndex >= 0);
+
+		if (m_chartIndex >= 0 && m_serieIndex >= 0)
+		{
+			CGraph& graph = m_graphics[m_chartIndex];
+			CGraphSerie& serie = graph.m_series[m_serieIndex];
+
+			COleVariant value = pProp->GetValue();
+
+			int i = (int)pProp->GetData();
+			switch (i)
+			{
+			case TITLE:				graph.m_title = CStringA(value); break;
+			case X_AXIS_TITLE:		graph.m_Xtitle = CStringA(value); break;
+			case Y_LEFT_AXIS_TITLE: graph.m_Ytitle1 = CStringA(value); break;
+			case Y_RIGHT_AXIS_TITLE:graph.m_Ytitle2 = CStringA(value); break;
+			case SHOW_LEGEND:		graph.m_bShowLegend = value.bVal; break;
+
+			case VARIABLE:			serie.m_variable = ((CWeatherVariableProperty*)pProp)->GetIndex(); break;
+			case STATISTIC:			serie.m_statistic = ((CStatisticProperty*)pProp)->GetIndex();
+			case SERIE_TYPE:		serie.m_type = ((CSerieTypeProperty*)pProp)->GetIndex(); break;
+			case Y_AXIS:			serie.m_YAxis = ((CYAxisTypeProperty*)pProp)->GetIndex(); break;
+			case ENABLE_SHADOW:		serie.m_bEnableShadow = value.bVal; break;
+			case SHADOW_DEPTH:		serie.m_shadowDepth = value.lVal; break;
+			case SHADOW_COLOR:		serie.m_shadowColor = ((CColorProperty*)pProp)->GetColor(); break;
+
+			case SYMBOL_TYPE:		serie.m_symbolType = ((CSymbolProperty*)pProp)->GetIndex(); break;
+			case SYMBOL_COLOR:		serie.m_symbolColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case SYMBOL_SIZE_X:		serie.m_symbolWidth = value.lVal; break;
+			case SYMBOL_SIZE_Y:		serie.m_symbolHeight = value.lVal; break;
+			case SYMBOL_FILLED:		serie.m_bSymbolFilled = value.bVal; break;
+			case SYMBOL_FILL_COLOR: serie.m_symbolFillColor = ((CColorProperty*)pProp)->GetColor(); break;
+
+			case LINE_STYLE:		serie.m_lineStyle = ((CLineStyleProperty*)pProp)->GetIndex(); break;
+			case LINE_WIDTH:		serie.m_lineWidth = value.lVal; break;
+			case LINE_COLOR:		serie.m_lineColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case LINE_SMOOTHED:		serie.m_bLineSmoothed = value.bVal; break;
+
+			case FILL_STYLE:		serie.m_fillStyle = ((CFillStyleProperty*)pProp)->GetIndex(); break;
+			case FILL_DIRECTION:	serie.m_fillDirection = ((CFillDirectionProperty*)pProp)->GetIndex(); break;
+			case FILL_COLOR:		serie.m_fillColor = ((CColorProperty*)pProp)->GetColor(); break;
+
+			case HIST_DIRECTION:	serie.m_histDirection = ((CHistDirectionProperty*)pProp)->GetIndex(); break;
+			case HIST_BAR_WIDTH:	serie.m_histBarWidth = value.lVal; break;
+			case HIST_BAR_COLOR:	serie.m_histBarColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case HIST_BORDER_WIDTH:	serie.m_histBorderWidth = value.lVal; break;
+			case HIST_BORDER_COLOR:	serie.m_histBorderColor = ((CColorProperty*)pProp)->GetColor(); break;
+
+			default: ASSERT(false);
+			}
+		}
+	}
+
+	void CSeriesPropertyGridCtrl::EnableProperties(BOOL bEnable)
+	{
+		for (int i = 0; i < GetPropertyCount(); i++)
+		{
+			CMFCPropertyGridProperty* pProp = GetProperty(i);
+			EnableProperties(pProp, bEnable);
+		}
+	}
+
+	void CSeriesPropertyGridCtrl::EnableProperties(CMFCPropertyGridProperty* pProp, BOOL bEnable)
+	{
+		pProp->Enable(bEnable);
+
+		for (int ii = 0; ii < pProp->GetSubItemsCount(); ii++)
+			EnableProperties(pProp->GetSubItem(ii), bEnable);
+	}
+
+
+	BOOL CSeriesPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
+	{
+
+		if (pMsg->message == WM_KEYDOWN)
+		{
+			BOOL bAlt = GetKeyState(VK_CONTROL) & 0x8000;
+			if (pMsg->wParam == VK_RETURN)
+			{
+				if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
+				{
+					if (m_pSel->GetOptionCount()>0)
+						OnSelectCombo();
+
+					EndEditItem();
+
+					//select next item
+					size_t ID = m_pSel->GetData();
+					size_t newID = (ID + 1) % GetProperty(0)->GetSubItemsCount();
+					CMFCPropertyGridProperty* pNext = FindItemByData(newID);
+					if (pNext)
+					{
+						SetCurSel(pNext);
+						EditItem(pNext);
+					}
+
+					return TRUE; // this doesn't need processing anymore
+				}
+
+			}
+			else if (pMsg->wParam == VK_DOWN && bAlt)
+			{
+				m_pSel->OnClickButton(CPoint(-1, -1));
+				return TRUE; // this doesn't need processing anymore
+			}
+		}
+
+		return CMFCPropertyGridCtrl::PreTranslateMessage(pMsg); // all other cases still need default processing;
+	}
+
+	BOOL CSeriesPropertyGridCtrl::ValidateItemData(CMFCPropertyGridProperty* /*pProp*/)
+	{
+		return TRUE;
+	}
+
+
+	//**************************************************************************************************************
+
+	// CChartsProperties dialog
+
+	IMPLEMENT_DYNAMIC(CChartsProperties, CDialog)
+
+		BEGIN_MESSAGE_MAP(CChartsProperties, CDialog)
+			ON_WM_SIZE()
+			ON_WM_DESTROY()
+		END_MESSAGE_MAP()
+
+		void CChartsProperties::DoDataExchange(CDataExchange* pDX)
+		{
+			CDialog::DoDataExchange(pDX);
+			DDX_Control(pDX, IDC_CHARTS, m_chartsCtrl);
+			DDX_Control(pDX, IDC_SERIES, m_seriesCtrl);
+			DDX_Control(pDX, IDC_SERIES_PROPERTY, m_seriesPropertiesCtrl);
+
+
+			if (!pDX->m_bSaveAndValidate)
+			{
+				m_chartsCtrl.FillCharts();
+
+				//resize window
+				CRect rectClient;
+				GetWindowRect(rectClient);
+
+				CAppOption option;
+				rectClient = option.GetProfileRect(_T("WeatherChartsPropertiesRect"), rectClient);
+				UtilWin::EnsureRectangleOnDisplay(rectClient);
+				SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+			}
+
+
+		}
+
+
+
+		CChartsProperties::CChartsProperties(CWnd* pParent /*=NULL*/) :
+			CDialog(CChartsProperties::IDD, pParent),
+			m_seriesPropertiesCtrl(m_graphics),
+			m_seriesCtrl(m_graphics, m_seriesPropertiesCtrl),
+			m_chartsCtrl(m_graphics, m_seriesCtrl)
+		{
+
+		}
+
+		CChartsProperties::~CChartsProperties()
+		{
+		}
+
+
+		void CChartsProperties::OnSize(UINT nType, int cx, int cy)
+		{
+			CDialog::OnSize(nType, cx, cy);
+
+			AdjustLayout();
+		}
+
+		void CChartsProperties::AdjustLayout()
+		{
+			static const int MARGE = 10;
+			if (GetSafeHwnd() == NULL || m_seriesPropertiesCtrl.GetSafeHwnd() == NULL)
+			{
+				return;
+			}
+
+			CRect rectClient;
+			GetClientRect(rectClient);
+
+			CRect rectOK;
+			GetDlgItem(IDOK)->GetWindowRect(rectOK); ScreenToClient(rectOK);
+
+			rectOK.left = rectClient.right - MARGE - rectOK.Width();
+			rectOK.right = rectClient.right - MARGE;
+
+			CRect rectCancel;
+			GetDlgItem(IDCANCEL)->GetWindowRect(rectCancel); ScreenToClient(rectCancel);
+			rectCancel.left = rectClient.right - MARGE - rectCancel.Width();
+			rectCancel.right = rectClient.right - MARGE;
+
+			CRect rect1;
+			m_chartsCtrl.GetWindowRect(rect1); ScreenToClient(rect1);
+			rect1.bottom = rectClient.bottom - MARGE;
+
+			CRect rect2;
+			m_seriesCtrl.GetWindowRect(rect2); ScreenToClient(rect2);
+			rect2.bottom = rectClient.bottom - MARGE;
+
+			CRect rect3;
+			m_seriesPropertiesCtrl.GetWindowRect(rect3); ScreenToClient(rect3);
+			rect3.right = rectClient.right - MARGE - rectOK.Width() - MARGE;
+			rect3.bottom = rectClient.bottom - MARGE;
+
+			m_chartsCtrl.SetWindowPos(NULL, 0, 0, rect1.Width(), rect1.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+			m_seriesCtrl.SetWindowPos(NULL, 0, 0, rect2.Width(), rect2.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+			m_seriesPropertiesCtrl.SetWindowPos(NULL, 0, 0, rect3.Width(), rect3.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+
+			GetDlgItem(IDOK)->SetWindowPos(NULL, rectOK.left, rectOK.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+			GetDlgItem(IDCANCEL)->SetWindowPos(NULL, rectCancel.left, rectCancel.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+		}
+
+
+		void CChartsProperties::OnDestroy()
+		{
+			CRect rectClient;
+			GetWindowRect(rectClient);
+
+			CAppOption option;
+			option.WriteProfileRect(_T("WeatherChartsPropertiesRect"), rectClient);
+
+			CDialog::OnDestroy();
+		}
+
+}
