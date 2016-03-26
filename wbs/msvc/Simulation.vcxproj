@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4B930370-8BF8-4E89-A3E7-0741999F8EE5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WeatherBasedSimulationFramework</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Simulation\AdvancedNormalStation.cpp" />
+    <ClCompile Include="..\src\Simulation\Analysis.cpp" />
+    <ClCompile Include="..\src\Simulation\ATM.cpp" />
+    <ClCompile Include="..\src\Simulation\BioSIMProject.cpp" />
+    <ClCompile Include="..\src\Simulation\CopyExport.cpp" />
+    <ClCompile Include="..\src\Simulation\DBBase.cpp" />
+    <ClCompile Include="..\src\Simulation\Dispersal.cpp" />
+    <ClCompile Include="..\src\Simulation\Executable.cpp" />
+    <ClCompile Include="..\src\Simulation\ExecutableFactory.cpp" />
+    <ClCompile Include="..\src\Simulation\ExecutableGroup.cpp" />
+    <ClCompile Include="..\src\Simulation\Export.cpp" />
+    <ClCompile Include="..\src\Simulation\FunctionAnalysis.cpp" />
+    <ClCompile Include="..\src\Simulation\Graph.cpp" />
+    <ClCompile Include="..\src\Simulation\ImportSimulation.cpp" />
+    <ClCompile Include="..\src\Simulation\InputAnalysis.cpp" />
+    <ClCompile Include="..\src\Simulation\LoadStaticData.cpp" />
+    <ClCompile Include="..\src\Simulation\Mapping.cpp" />
+    <ClCompile Include="..\src\Simulation\MergeExecutable.cpp" />
+    <ClCompile Include="..\src\Simulation\ModelExecution.cpp" />
+    <ClCompile Include="..\src\Simulation\MonthlyMeanGrid.cpp" />
+    <ClCompile Include="..\src\Simulation\Result.cpp" />
+    <ClCompile Include="..\src\Simulation\script.cpp" />
+    <ClCompile Include="..\src\Simulation\SectionData.cpp" />
+    <ClCompile Include="..\src\Simulation\ModelParameterization.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherGeneration.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherGenerator.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherGeneratorKernel.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherGradient2.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherUpdater.cpp" />
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Simulation\AdvancedNormalStation.h" />
+    <ClInclude Include="..\src\Simulation\Analysis.h" />
+    <ClInclude Include="..\src\Simulation\ATM.h" />
+    <ClInclude Include="..\src\Simulation\BioSIMProject.h" />
+    <ClInclude Include="..\src\Simulation\CopyExport.h" />
+    <ClInclude Include="..\src\Simulation\DBBase.h" />
+    <ClInclude Include="..\src\Simulation\Dispersal.h" />
+    <ClInclude Include="..\src\Simulation\Executable.h" />
+    <ClInclude Include="..\src\Simulation\ExecutableFactory.h" />
+    <ClInclude Include="..\src\Simulation\ExecutableGroup.h" />
+    <ClInclude Include="..\src\Simulation\Export.h" />
+    <ClInclude Include="..\src\Simulation\ExportDefine.h" />
+    <ClInclude Include="..\src\Simulation\FunctionAnalysis.h" />
+    <ClInclude Include="..\src\Simulation\Graph.h" />
+    <ClInclude Include="..\src\Simulation\ImportSimulation.h" />
+    <ClInclude Include="..\src\Simulation\InputAnalysis.h" />
+    <ClInclude Include="..\src\Simulation\LoadStaticData.h" />
+    <ClInclude Include="..\src\Simulation\Mapping.h" />
+    <ClInclude Include="..\src\Simulation\MergeExecutable.h" />
+    <ClInclude Include="..\src\Simulation\ModelExecution.h" />
+    <ClInclude Include="..\src\Simulation\MonthlyMeanGrid.h" />
+    <ClInclude Include="..\src\Simulation\Result.h" />
+    <ClInclude Include="..\src\Simulation\Script.h" />
+    <ClInclude Include="..\src\Simulation\SectionData.h" />
+    <ClInclude Include="..\src\Simulation\ModelParameterization.h" />
+    <ClInclude Include="..\src\Simulation\WeatherGeneration.h" />
+    <ClInclude Include="..\src\Simulation\WeatherGenerator.h" />
+    <ClInclude Include="..\src\Simulation\WeatherGeneratorKernel.h" />
+    <ClInclude Include="..\src\Simulation\WeatherGradient2.h" />
+    <ClInclude Include="..\src\Simulation\WeatherUpdater.h" />
+    <ClInclude Include="stdafx\stdafx.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

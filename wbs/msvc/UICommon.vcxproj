@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\UICommon\AboutDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\AppOption.cpp" />
+    <ClCompile Include="..\src\UICommon\AskDirectoryDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\BioSIMListBox.cpp" />
+    <ClCompile Include="..\src\UICommon\CalenderDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\CDib.cpp" />
+    <ClCompile Include="..\src\UICommon\ChartTRefAxis.cpp" />
+    <ClCompile Include="..\src\UICommon\ColorListBox.cpp" />
+    <ClCompile Include="..\src\UICommon\CommonCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\CustomDDX.cpp" />
+    <ClCompile Include="..\src\UICommon\DiskObject.cpp" />
+    <ClCompile Include="..\src\UICommon\EnableGroupboxControls.cpp" />
+    <ClCompile Include="..\src\UICommon\GeoRectCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\CreateCheckboxImageList.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\VisualStylesXP.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XFileOpenListView.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XFolderDialog.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XHistoryCombo.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XHtmlDraw.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XHtmlTree.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XHyperLink.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XInfoTip.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XMessageBox.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XNamedColors.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XString.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XTipComboBox.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XTipListBox.cpp" />
+    <ClCompile Include="..\src\UICommon\HTMLTree\XWinVer.cpp" />
+    <ClCompile Include="..\src\UICommon\LineStyleCB.cpp" />
+    <ClCompile Include="..\src\UICommon\ListBoxWithHScroll.cpp" />
+    <ClCompile Include="..\src\UICommon\MFCEditBrowseCtrlEx.cpp" />
+    <ClCompile Include="..\src\UICommon\MyPalette.cpp" />
+    <ClCompile Include="..\src\UICommon\MyToolTipCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\NewNameDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\NotifyEdit.cpp" />
+    <ClCompile Include="..\src\UICommon\OneInst.cpp" />
+    <ClCompile Include="..\src\UICommon\OpenDirEditCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\PaletteEditorDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\ProgressStepDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\PropertiesListBox.cpp" />
+    <ClCompile Include="..\src\UICommon\PropertySheetSize.cpp" />
+    <ClCompile Include="..\src\UICommon\ScrollHelper.cpp" />
+    <ClCompile Include="..\src\UICommon\SelectionCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\SelectionDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\SplitterControl.cpp" />
+    <ClCompile Include="..\src\UICommon\StandardCmdLine.cpp" />
+    <ClCompile Include="..\src\UICommon\StaticBitmap.cpp" />
+    <ClCompile Include="..\src\UICommon\StaticEx.cpp" />
+    <ClCompile Include="..\src\UICommon\Subclass.cpp" />
+    <ClCompile Include="..\src\UICommon\SYShowMessage.cpp" />
+    <ClCompile Include="..\src\UICommon\TemporalRefCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\TextDlg.cpp" />
+    <ClCompile Include="..\src\UICommon\UGEditCtrl.cpp" />
+    <ClCompile Include="..\src\UICommon\UtilWin.cpp" />
+    <ClCompile Include="..\src\UICommon\UtilWWW.cpp" />
+    <ClCompile Include="stdafxUI\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\UICommon\AboutDlg.h" />
+    <ClInclude Include="..\src\UICommon\AppOption.h" />
+    <ClInclude Include="..\src\UICommon\AskDirectoryDlg.h" />
+    <ClInclude Include="..\src\UICommon\BioSIMListBox.h" />
+    <ClInclude Include="..\src\UICommon\CalenderDlg.h" />
+    <ClInclude Include="..\src\UICommon\CDib.h" />
+    <ClInclude Include="..\src\UICommon\ChartTRefAxis.h" />
+    <ClInclude Include="..\src\UICommon\ColorListBox.h" />
+    <ClInclude Include="..\src\UICommon\CommonCtrl.h" />
+    <ClInclude Include="..\src\UICommon\CustomDDX.h" />
+    <ClInclude Include="..\src\UICommon\DiskObject.h" />
+    <ClInclude Include="..\src\UICommon\EnableGroupboxControls.h" />
+    <ClInclude Include="..\src\UICommon\FileNameProperty.h" />
+    <ClInclude Include="..\src\UICommon\GeoRectCtrl.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\CreateCheckboxImageList.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\VisualStylesXP.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XFileOpenListView.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XFolderDialog.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XHistoryCombo.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XHtmlDraw.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XHtmlTree.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XHyperLink.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XInfoTip.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XMessageBox.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XNamedColors.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XString.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XTipComboBox.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XTipListBox.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XTrace.h" />
+    <ClInclude Include="..\src\UICommon\HTMLTree\XWinVer.h" />
+    <ClInclude Include="..\src\UICommon\LineStyleCB.h" />
+    <ClInclude Include="..\src\UICommon\ListBoxWithHScroll.h" />
+    <ClInclude Include="..\src\UICommon\MFCEditBrowseCtrlEx.h" />
+    <ClInclude Include="..\src\UICommon\MyPalette.h" />
+    <ClInclude Include="..\src\UICommon\MyToolTipCtrl.h" />
+    <ClInclude Include="..\src\UICommon\NewNameDlg.h" />
+    <ClInclude Include="..\src\UICommon\NotifyEdit.h" />
+    <ClInclude Include="..\src\UICommon\OneInst.h" />
+    <ClInclude Include="..\src\UICommon\OpenDirEditCtrl.h" />
+    <ClInclude Include="..\src\UICommon\PaletteEditorDlg.h" />
+    <ClInclude Include="..\src\UICommon\ProgressStepDlg.h" />
+    <ClInclude Include="..\src\UICommon\PropertiesListBox.h" />
+    <ClInclude Include="..\src\UICommon\PropertySheetSize.h" />
+    <ClInclude Include="..\src\UICommon\ScrollHelper.h" />
+    <ClInclude Include="..\src\UICommon\SelectionCtrl.h" />
+    <ClInclude Include="..\src\UICommon\SelectionDlg.h" />
+    <ClInclude Include="..\src\UICommon\SplitterControl.h" />
+    <ClInclude Include="..\src\UICommon\StandardCmdLine.h" />
+    <ClInclude Include="..\src\UICommon\StaticBitmap.h" />
+    <ClInclude Include="..\src\UICommon\StaticEx.h" />
+    <ClInclude Include="..\src\UICommon\Subclass.h" />
+    <ClInclude Include="..\src\UICommon\SYShowMessage.h" />
+    <ClInclude Include="..\src\UICommon\TemporalRefCtrl.h" />
+    <ClInclude Include="..\src\UICommon\TextDlg.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\ArrayEx.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\ListEx.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\MapEx.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\SortedArray.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\SortedKeyArray.h" />
+    <ClInclude Include="..\src\UICommon\TmplEx\Swap.h" />
+    <ClInclude Include="..\src\UICommon\UGEditCtrl.h" />
+    <ClInclude Include="..\src\UICommon\UtilWin.h" />
+    <ClInclude Include="..\src\UICommon\UtilWWW.h" />
+    <ClInclude Include="stdafxUI\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\UICommon\HTMLTree\dropcopy.cur" />
+    <None Include="..\src\UICommon\HTMLTree\dropmove.cur" />
+    <None Include="..\src\UICommon\HTMLTree\nodrop.cur" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A2358022-47B0-4DE4-A48A-D98D1A233AA5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WeatherBasedSimulationFramework</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/Ultimate Grid\Include;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/Ultimate Grid\Include;../../External/zenXml;../../external\GDAL\Include;stdafxUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS -Zm500 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/Ultimate Grid\Include;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS  -Zm500 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/Ultimate Grid\Include;../../External/zenXml;../../external\GDAL\Include;stdafxUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS -Zm500 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

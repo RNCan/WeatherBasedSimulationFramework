@@ -1,0 +1,940 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="UI">
+      <UniqueIdentifier>{e75496e2-af0d-404e-b09a-60ae534874a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stdafxUI">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{f5694146-db5b-4151-9445-d7af242b0f7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common">
+      <UniqueIdentifier>{983eff4b-30ac-46e0-848b-c818df5acc68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\HTMLTree">
+      <UniqueIdentifier>{d9550da9-8116-4a4e-9b37-365494332b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\TmlpEx">
+      <UniqueIdentifier>{5c8baa31-93a2-4904-a6a7-b94854739282}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafxUI\stdafx.cpp">
+      <Filter>stdafxUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\AnalysisDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\AnalysisPages.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ChartsProperties.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\CopyExportDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\DBEditorPages.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\DBEditorPropSheet.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\DispersalDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ExecutableTree.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\FunctionAnalysisDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\FunctionAnalysisTestDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\GraphDefineDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\GraphPropertyDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ImportSimulationDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\InputAnalysisDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\LOCEditDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\LOCGeneratorDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\MappingAdvancedDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\MappingDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\MergeExecutableDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelExecutionDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelFormDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelFormItem.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelInputDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelInputManagerDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelOutputVarDefGridCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelPages.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\NormalsChartsCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\NormalsDataGridCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ParametersVariationsDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ScriptDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\StationsListCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\TransfoDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\VariableSelectionCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WeaLinkDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WeatherChartsCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WeatherDataGridCtrl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WeatherGenerationDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WeatherUpdateDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WGInputDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\WVariablesEdit.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\OptionAdvanced.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\OptionDir.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\OptionLinks.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\OptionRegional.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ModelParameterizationDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\SimulatedAnnealingCtrlDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\ExtractSSIDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\CreateCheckboxImageList.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\VisualStylesXP.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XFileOpenListView.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XFolderDialog.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XHistoryCombo.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XHtmlDraw.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XHtmlTree.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XHyperLink.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XInfoTip.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XMessageBox.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XNamedColors.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XString.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XTipComboBox.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XTipListBox.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\HTMLTree\XWinVer.cpp">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\AboutDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\AppOption.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\AskDirectoryDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\BioSIMListBox.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\CalenderDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\CDib.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ChartTRefAxis.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ColorListBox.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\CommonCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\CustomDDX.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\DiskObject.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\EnableGroupboxControls.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\FileNameProperty.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\GeoRectCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\LineStyleCB.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ListBoxWithHScroll.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\MFCEditBrowseCtrlEx.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\MyPalette.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\MyToolTipCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\NewNameDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\NotifyEdit.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\OneInst.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\OpenDirEditCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\PaletteEditorDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ProgressStepDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\PropertiesListBox.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\PropertySheetSize.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ScrollHelper.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\SelectionCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\SelectionDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\SplitterControl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\StandardCmdLine.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\StaticBitmap.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\StaticEx.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\Subclass.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\SYShowMessage.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\TemporalRefCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\TextDlg.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\UGEditCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\UtilWin.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\UtilWWW.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafxUI\stdafx.h">
+      <Filter>stdafxUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\AnalysisDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\AnalysisPages.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ChartsProperties.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\CopyExportDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\DBEditorPages.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\DBEditorPropSheet.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\DispersalDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ExecutableTree.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\FunctionAnalysisDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\FunctionAnalysisTestDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\GraphDefineDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\GraphPropertyDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ImportSimulationDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\InputAnalysisDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\LocationVectorCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\LOCEditDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\LOCGeneratorDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\MappingAdvancedDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\MappingDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\MergeExecutableDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelExecutionDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelFormDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelFormItem.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelInputDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelInputManagerDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelOutputVarDefGridCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelPages.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\NormalsChartsCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\NormalsDataGridCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ParametersVariationsDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ScriptDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\StationsListCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\TransfoDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\VariableSelectionCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WeaLinkDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WeatherChartsCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WeatherDataGridCtrl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WeatherGenerationDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WeatherUpdateDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WGInputDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WVariablesEdit.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\OptionAdvanced.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\OptionDir.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\OptionLinks.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\OptionRegional.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WeatherBasedSimulationString.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WeatherBasedSimulationUI.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ModelParameterizationDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\SimulatedAnnealingCtrlDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\ExtractSSIDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\CreateCheckboxImageList.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\VisualStylesXP.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XFileOpenListView.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XFolderDialog.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XFolderDialogRes.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XHistoryCombo.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XHtmlDraw.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XHtmlTree.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XHyperLink.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XInfoTip.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XMessageBox.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XNamedColors.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XString.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XTipComboBox.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XTipListBox.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XTrace.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\HTMLTree\XWinVer.h">
+      <Filter>UI\Common\HTMLTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\ArrayEx.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\ListEx.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\MapEx.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\SortedArray.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\SortedKeyArray.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TmplEx\Swap.h">
+      <Filter>UI\Common\TmlpEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\AboutDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\AppOption.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\AskDirectoryDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\BioSIMListBox.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\CalenderDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\CDib.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ChartTRefAxis.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ColorListBox.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\CommonCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\CustomDDX.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\DiskObject.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\EnableGroupboxControls.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\FileNameProperty.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\GeoRectCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\LineStyleCB.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ListBoxWithHScroll.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\MFCEditBrowseCtrlEx.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\MyPalette.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\MyToolTipCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\NewNameDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\NotifyEdit.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\OneInst.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\OpenDirEditCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\PaletteEditorDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ProgressStepDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\PropertiesListBox.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\PropertySheetSize.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ScrollHelper.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\SelectionCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\SelectionDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\SplitterControl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\StandardCmdLine.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\StaticBitmap.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\StaticEx.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\Subclass.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\SYShowMessage.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TemporalRefCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TextDlg.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\UGEditCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\UtilWin.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\UtilWWW.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\res\Add.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\cut.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\Delete.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\dropcopy.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\dropmove.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\Group.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\Move.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\nodrop.cur">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\res\Split.cur">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\WeatherBasedSimulationString.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\src\WeatherBasedSimulationUI.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\src\res\add.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Add32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\AnalysisPages.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\cmn_open.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ContinuousPeriod1.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ContinuousPeriod1Checked.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ContinuousPeriod2.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ContinuousPeriod2Checked.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\copy32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\DailyEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\DatabaseEditor.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\DatabaseEditor.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\delete.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Delete32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Description.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\down.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Down-Arrow32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Edit32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\EditLocations.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\EditParameters.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\EditParametersVariations.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\EditToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\EditWeatherGenerator.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Excel32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ExecutableImage.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ForEachYearsA.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ForEachYearsD.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ForEachYearsM.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Heart.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Help.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\HourlyEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\info32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ladybug.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Link32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\LinkedDataEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\LocToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\MatchStations.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ModelIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\ModelIcons.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ModelIcons.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\new.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\new.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\NormalsEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Open.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\option32.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\over_all.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\OverAllYearsA.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\OverAllYearsD.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\OverAllYearsM.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ProjectToolbar1 24.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ProjectToolbar2 24.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\RNCan.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\SetAsDefault32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\shape_ty.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ShapeType16.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ShapeType32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\showmap.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ShowMap32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\State.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\up.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\Up-Arrow32.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\YearByYearPeriod1.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\YearByYearPeriod1Checked.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\YearByYearPeriod2.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\NRCan64.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\NRCan64.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\NRCan48.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\NRCan48.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\LocToolbar.png">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
