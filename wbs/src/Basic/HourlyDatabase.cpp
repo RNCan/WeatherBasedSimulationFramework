@@ -41,7 +41,7 @@ namespace WBSF
 	//stategy to get static method
 	int CHourlyDatabase::GetVersion(const std::string& filePath){ return ((CDHDatabaseBase&)CHourlyDatabase()).GetVersion(filePath); }
 	ERMsg CHourlyDatabase::DeleteDatabase(const std::string&  outputFilePath, CCallback& callback){ return ((CDHDatabaseBase&)CHourlyDatabase()).DeleteDatabase(outputFilePath, callback); }
-	ERMsg CHourlyDatabase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback){ return ((CDHDatabaseBase&)CHourlyDatabase()).AppendDatabase(inputFilePath1, inputFilePath2, callback); }
+	//ERMsg CHourlyDatabase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback){ return ((CDHDatabaseBase&)CHourlyDatabase()).AppendDatabase(inputFilePath1, inputFilePath2, callback); }
 	ERMsg CHourlyDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback){ return ((CDHDatabaseBase&)CHourlyDatabase()).RenameDatabase(inputFilePath, outputFilePath, callback); }
 
 }

@@ -1446,14 +1446,14 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 
 	ERMsg msg;
 
-	std::string inputPath1 = WBSF::GetPath(inputFilePath1);
-	std::string inputPath2 = WBSF::GetPath(inputFilePath2);
-	std::string outputPath = GetPath();
+	std::string inputPath1 = GetDataPath(inputFilePath1);
+	std::string inputPath2 = GetDataPath(inputFilePath2);
+	std::string outputPath = GetDataPath(m_filePath);
 
 	if (FileExists(inputFilePath1) && FileExists(inputFilePath2) &&
 		DirectoryExists(inputPath1) && DirectoryExists(inputPath2))
 	{
-		std::string comment = FormatMsg(IDS_BSC_COPY_FILE, inputPath1 + "\n\t" + inputPath2, outputPath);
+		std::string comment = FormatMsg(IDS_BSC_COPY_FILE, inputFilePath1 + "\n\t" + inputFilePath2, m_filePath);
 
 		CWeatherDatabaseOptimization zop1;
 		CWeatherDatabaseOptimization zop2;

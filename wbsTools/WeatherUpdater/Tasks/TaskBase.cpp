@@ -160,47 +160,6 @@ namespace WBSF
 		return ERMsg();
 	}
 
-	//short CTaskBase::GetAttrType(const string& in)
-	//{
-	//	const CParamDefVector& paramDef = GetParameters();
-	//	ASSERT(paramDef.size() == GetNbAttribute());
-
-	//	string tmp(in);
-
-	//	short index = UNKNOWN;
-	//	for (size_t i = 0; i < paramDef.size(); i++)
-	//	{
-	//		if (tmp == paramDef[i].m_ID)
-	//		{
-	//			index = int(i);
-	//			break;
-	//		}
-	//	}
-
-	//	return index;
-	//}
-
-
-	//void CTaskBase::GetParameters(CTaskParameters& param)const
-	//{
-	//	param.clear();
-
-	//	size_t nbAttribute = GetNbAttributes();
-	//	for (size_t i = 0; i < nbAttribute; i++)
-	//		param.insert(GetValue(i));
-	//}
-
-
-	//void CTaskBase::SetParameters(const CTaskParameters& param)
-	//{
-	//	ASSERT(param.size() == GetNbAttribute());
-
-	//	for (size_t i = 0; i < param.size(); i++)
-	//	{
-	//		SetValue((short)i, param[i]);
-	//	}
-	//}
-
 	void CTaskBase::writeStruc(zen::XmlElement& output)const
 	{
 		for (WBSF::CTaskParameters::const_iterator it = m_params.begin(); it != m_params.end(); it++)
@@ -222,7 +181,6 @@ namespace WBSF
 				p.setValue(value);
 			}
 		}
-
 	}
 
 	bool CTaskBase::readStruc(const zen::XmlElement& input)
@@ -305,11 +263,9 @@ namespace WBSF
 		const CTasksProject& me = *this;
 
 		bool bEqual = true;
-		//for (CTasksProject::iterator it1 = begin(); it1 != end() && bEqual; it1++)
 		for (size_t i = 0; i != size() && bEqual; i++)
 		{
 			bEqual = me[i].size() == in[i].size();
-			//for (CTaskPtrVector::iterator it2 = it1->begin(); it2 != it1->end() && bEqual; it2++)
 			for (size_t ii = 0; ii != me[i].size() && bEqual; ii++)
 				bEqual = (*(me[i][ii]) == *(in[i][ii]));
 		}
@@ -363,7 +319,6 @@ namespace WBSF
 					ReplaceString(str, "\r", "");
 
 					(*it2)->SetLastMsg(str);
-					//(*it2)->SetProject(NULL);
 					msg += msgTmp;
 				}
 			}

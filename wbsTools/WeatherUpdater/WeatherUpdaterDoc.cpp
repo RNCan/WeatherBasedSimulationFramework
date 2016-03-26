@@ -112,7 +112,8 @@ namespace zen
 IMPLEMENT_DYNCREATE(CWeatherUpdaterDoc, CDocument)
 BEGIN_MESSAGE_MAP(CWeatherUpdaterDoc, CDocument)
 	ON_COMMAND(ID_EXECUTE, OnExecute)
-	
+	ON_UPDATE_COMMAND_UI(ID_EXECUTE, OnUpdateToolbar)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateToolbar)
 END_MESSAGE_MAP()
 
 
@@ -261,10 +262,6 @@ std::string CWeatherUpdaterDoc::GetUpdaterList()const
 	return str;
 }
 
-void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
-{
-	pCmdUI->Enable(!m_filePath.empty() && !m_bExecute);
-}
 
 // CBioSIMDoc commands
 UINT CWeatherUpdaterDoc::ExecuteTasks(void* pParam)
@@ -436,7 +433,15 @@ void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool bAfter)
 	CDocument::UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
 }
 
+void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
+{
+	switch (pCmdUI->m_nID)
+	{
+	case ID_EXECUTE:	pCmdUI->Enable(!m_filePath.empty() && !m_bExecute); break;
+	case ID_FILE_SAVE:	pCmdUI->Enable(true); break;
+	}
 
+}
 
 #ifdef _DEBUG
 void CWeatherUpdaterDoc::AssertValid() const

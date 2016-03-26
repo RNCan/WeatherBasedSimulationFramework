@@ -92,7 +92,11 @@ namespace WBSF
 			path=path.substr(0,path.size()-1);
 
 		if (!::RemoveDirectoryW(UTF16(path).c_str()))
+		{
 			msg = GetLastErrorMessage();
+			msg.ajoute(pathIn);
+		}
+			
 
 		return msg;
 	}
@@ -101,8 +105,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (!MoveFileExW(UTF16(filePath1).c_str(), UTF16(filePath2).c_str(), MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING))
+		if (!MoveFileExW(UTF16(filePath1).c_str(), UTF16(filePath2).c_str(), MOVEFILE_COPY_ALLOWED))
+		{
 			msg = GetLastErrorMessage();
+			msg.ajoute(FormatMsg(IDS_BSC_UNABLE_RENAME, filePath1, filePath2));
+		}
+			
   
 		return msg;
 	}
@@ -123,7 +131,12 @@ namespace WBSF
 			path2=path2.substr(0,path2.size()-1);
 
 		if (!MoveFileExW(UTF16(path1).c_str(), UTF16(path2).c_str(), MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING))
+		{
 			msg = GetLastErrorMessage();
+			msg.ajoute(pathIn1);
+			msg.ajoute(pathIn2);
+		}
+		
   
 		return msg;
 	}

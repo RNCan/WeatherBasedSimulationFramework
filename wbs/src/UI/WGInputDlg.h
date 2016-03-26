@@ -11,7 +11,8 @@
 
 
 
-#include "ModelBase.h"
+#include "ModelBase/WGInput.h"
+#include "ModelBase/Model.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/CommonCtrl.h"
 #include "UI/Common/MyToolTipCtrl.h"

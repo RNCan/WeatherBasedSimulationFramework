@@ -530,13 +530,17 @@ void CXHtmlTree::OnCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	NMTVCUSTOMDRAW* pCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
 
+	// Take the default processing unless we set this to something else below.
+	*pResult = CDRF_DODEFAULT;
+
+	if (pNMHDR == NULL)
+		return;
+
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 
 	HTREEITEM hItem = reinterpret_cast<HTREEITEM> (pCD->nmcd.dwItemSpec);
 
-	// Take the default processing unless we set this to something else below.
-	*pResult = CDRF_DODEFAULT;
-
+	
 	// First thing - check the draw stage. If it's the control's prepaint
 	// stage, then tell Windows we want messages for every item.
 

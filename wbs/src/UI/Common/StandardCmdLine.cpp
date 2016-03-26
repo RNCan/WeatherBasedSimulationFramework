@@ -11,7 +11,7 @@
 #include "stdafx.h"
 #include "StandardCmdLine.h"
 
-#include "Simulation.h"
+#include "Simulation/Executable.h"
 #include "WeatherBasedSimulationString.h"
 
 #ifdef _DEBUG

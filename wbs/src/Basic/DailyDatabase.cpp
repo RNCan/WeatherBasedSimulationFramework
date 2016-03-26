@@ -198,7 +198,7 @@ namespace WBSF
 
 	int CDailyDatabase::GetVersion(const std::string& filePath){ return ((CDHDatabaseBase&)CDailyDatabase()).GetVersion(filePath); }
 	ERMsg CDailyDatabase::DeleteDatabase(const std::string&  outputFilePath, CCallback& callback){ return ((CDHDatabaseBase&)CDailyDatabase()).DeleteDatabase(outputFilePath, callback); }
-	ERMsg CDailyDatabase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback){ return ((CDHDatabaseBase&)CDailyDatabase()).AppendDatabase(inputFilePath1, inputFilePath2, callback); }
+	//ERMsg CDailyDatabase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback){ return ((CDHDatabaseBase&)CDailyDatabase()).AppendDatabase(inputFilePath1, inputFilePath2, callback); }
 	ERMsg CDailyDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback){ return ((CDHDatabaseBase&)CDailyDatabase()).RenameDatabase(inputFilePath, outputFilePath, callback); }
 
 

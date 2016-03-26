@@ -34,7 +34,7 @@ namespace WBSF
 		{
 		case INPUT_FILEPATH_1:	
 		case INPUT_FILEPATH_2:	
-		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_WEATHER); break;
+		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_OBSERVATION); break;
 		};
 
 
@@ -56,8 +56,9 @@ namespace WBSF
 		string extention1 = GetFileExtension(inputFilePath1);
 		string extention2 = GetFileExtension(inputFilePath2);
 
-		if (IsEqualNoCase(extention1, ".normals") && IsEqualNoCase(extention2, ".normals"))
+		if (IsEqualNoCase(extention1, ".NormalsStation") && IsEqualNoCase(extention2, ".NormalsStation"))
 		{
+			msg.ajoute("It's not possible to append normals stations");
 			//msg = ExecuteNormal(callback);
 		}
 		else if (IsEqualNoCase(extention1, ".DailyStations") && IsEqualNoCase(extention2, ".DailyStations"))

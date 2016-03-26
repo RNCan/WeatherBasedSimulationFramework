@@ -209,11 +209,13 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 		pCmdUI->SetText(text);
 
 		CDC* pDC = GetDC();
-		ASSERT(pDC);
-		CSize size = pDC->GetTextExtent(text);
+		if (pDC)
+		{
+			CSize size = pDC->GetTextExtent(text);
 
-		UINT nStyle = m_wndStatusBar.GetPaneStyle(1);
-		m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_NB_TASK_CHECKED, nStyle, size.cx);
+			UINT nStyle = m_wndStatusBar.GetPaneStyle(1);
+			m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_NB_TASK_CHECKED, nStyle, size.cx);
+		}
 	}
 
 
@@ -415,7 +417,7 @@ void CTaskWnd::OnAdd(UINT ID)
 
 		pTask->Init();
 		size_t size = pDoc->GetTaskVector(m_type).size();
-		pTask->m_name = pTask->GetTypeTitle(m_type) + to_string(size + 1);
+		pTask->m_name = /*pTask->GetTypeTitle(m_type)*/ className + to_string(size + 1);
 		pTask->m_bExecute = true;
 
 		size_t pp = (p + 1);

@@ -35,6 +35,7 @@ protected:  // membres incorporés de la barre de contrôle
 	static const UINT m_uTaskbarBtnCreatedMsg;
 	CComPtr<ITaskbarList3> m_pTaskbarList;
 
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 	// Fonctions générées de la table des messages
 protected:
 
@@ -47,6 +48,8 @@ protected:
 	afx_msg void OnUpdateToolbar(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
 	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
+	
+
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);

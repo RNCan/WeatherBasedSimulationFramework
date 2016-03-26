@@ -36,8 +36,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_SETTINGCHANGE()
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &OnUpdateApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &OnUpdateToolbar)
-	ON_UPDATE_COMMAND_UI(ID_EXECUTE, OnUpdateToolbar)
-	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateToolbar)
 
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &OnApplicationLook)
 	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &OnLanguageChange)
@@ -347,16 +345,11 @@ void CMainFrame::LoadtBasicCommand()
 
 void CMainFrame::OnUpdateToolbar(CCmdUI* pCmdUI)
 {
-	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetActiveDocument();
-
 	switch (pCmdUI->m_nID)
 	{
 	case ID_LANGUAGE_FRENCH:{WBSF::CRegistry registry; pCmdUI->SetRadio(registry.GetLanguage() == WBSF::CRegistry::FRENCH); break; }
 	case ID_LANGUAGE_ENGLISH:{WBSF::CRegistry registry; pCmdUI->SetRadio(registry.GetLanguage() == WBSF::CRegistry::ENGLISH); break; }
-	case ID_EXECUTE:	pCmdUI->Enable(pDoc && !pDoc->GetFilePath().empty() && !pDoc->IsExecute()); break;
-	case ID_FILE_SAVE:	pCmdUI->Enable(true); break;
 	}
-
 }
 
 
@@ -368,6 +361,27 @@ void CMainFrame::OnEditOptions()
 
 }
 
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			CDocument* pDoc = docT->GetNextDoc(pos);
+			if (pDoc)
+			{
+				//if (pDoc->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+					//return TRUE;
+			}
+		}
+	}
+
+	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+}
 
 
 // diagnostics pour CMainFrame

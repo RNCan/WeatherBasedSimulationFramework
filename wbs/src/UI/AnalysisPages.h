@@ -10,8 +10,7 @@
 #pragma once
 
 //#include "Basic.h"
-#include "Simulation.h"
-
+#include "Simulation/Analysis.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/HtmlTree/XHtmlTree.h"
 #include "UI/Common/CommonCtrl.h"

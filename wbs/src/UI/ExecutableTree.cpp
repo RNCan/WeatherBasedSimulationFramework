@@ -25,6 +25,8 @@
 #include "UI/CopyExportDlg.h"
 #include "UI/ModelParameterizationDlg.h"
 #include "UI/ExecutableTree.h"
+#include "Simulation/ExecutableGroup.h"
+#include "Simulation/BioSIMProject.h"
 #include "WeatherBasedSimulationString.h"
 #include "WeatherBasedSimulationUI.h"
 

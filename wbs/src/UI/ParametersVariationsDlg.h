@@ -10,7 +10,7 @@
 #pragma once
 
 
-#include "ModelBase.h"
+#include "ModelBase/ParametersVariations.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/CommonCtrl.h"
 #include "UI/Common/HTMLTree/XInfoTip.h"
