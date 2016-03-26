@@ -10,6 +10,8 @@ class CWeatherUpdaterDoc;
 
 class CProjectWndToolBar : public CMFCToolBar
 {
+	DECLARE_SERIAL(CProjectWndToolBar)
+
 	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
 	{
 		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
@@ -40,15 +42,17 @@ public:
 
 	static CWeatherUpdaterDoc* GetDocument();
 
-	CTaskWnd(size_t t, UINT toolbarID);
+	CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2=-1);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
 	size_t m_type;
-	UINT m_toolbarID;
+	UINT m_toolbarID1;
+	UINT m_toolbarID2;
 
 
 	CFont m_fntPropList;
-	CProjectWndToolBar	m_wndToolBar;
+	CProjectWndToolBar	m_wndToolBar1;
+	CProjectWndToolBar	m_wndToolBar2;
 	CTaskTreeCtrl		m_taskCtrl;
 	CProjectWndStatusBar m_wndStatusBar;
 
@@ -82,7 +86,7 @@ public:
 	static UINT CtrlID(const std::string& className);
 	static std::string ClassName(UINT ID);
 	
-
+	bool m_bInUpdate;
 };
 
 
@@ -99,6 +103,7 @@ public:
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 	virtual void OnDraw(CDC* pDC);
 	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	virtual void OnInitialUpdate();
 
 
 	void AdjustLayout();
@@ -117,15 +122,8 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	//afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnExecute();
 	afx_msg BOOL OnOpenWorkingDir(UINT ID);
-	//afx_msg void OnUpdateNbExecute(CCmdUI* pCmdUI);
-
-
-	//afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
-	//afx_msg void OnToolbarCommand(UINT ID);
-	//afx_msg void OnAddTask();
 
 };
 

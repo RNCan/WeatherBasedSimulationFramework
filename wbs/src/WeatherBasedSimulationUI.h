@@ -450,6 +450,7 @@
 #define IDC_PROPERTIES                  1221
 #define IDC_MAP_LAT2                    1222
 #define IDC_GENLOC_NORMAL_NAME          1222
+#define IDC_CMN_SELECTION               1222
 #define IDC_MAP_LON2                    1223
 #define IDC_GENLOC_FILTER               1223
 #define IDC_MAP_LON1                    1224
@@ -835,7 +836,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        203
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1222
+#define _APS_NEXT_CONTROL_VALUE         1223
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

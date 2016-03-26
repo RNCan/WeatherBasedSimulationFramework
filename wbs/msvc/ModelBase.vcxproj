@@ -175,7 +175,7 @@
     <ClCompile Include="..\src\ModelBase\EntryPoint.cpp" />
     <ClCompile Include="..\src\ModelBase\EquationTableLookup.cpp" />
     <ClCompile Include="..\src\ModelBase\GridHelp.cpp" />
-    <ClCompile Include="..\src\ModelBase\IndividueBase.cpp" />
+    <ClCompile Include="..\src\ModelBase\IndividualBase.cpp" />
     <ClCompile Include="..\src\ModelBase\InputParam.cpp" />
     <ClCompile Include="..\src\ModelBase\Model.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelBaseError.cpp" />
@@ -207,7 +207,7 @@
     <ClInclude Include="..\src\ModelBase\EntryPoint.h" />
     <ClInclude Include="..\src\ModelBase\EquationTableLookup.h" />
     <ClInclude Include="..\src\ModelBase\GridHelp.h" />
-    <ClInclude Include="..\src\ModelBase\IndividueBase.h" />
+    <ClInclude Include="..\src\ModelBase\IndividualBase.h" />
     <ClInclude Include="..\src\ModelBase\InputParam.h" />
     <ClInclude Include="..\src\ModelBase\Model.h" />
     <ClInclude Include="..\src\ModelBase\ModelBaseError.h" />

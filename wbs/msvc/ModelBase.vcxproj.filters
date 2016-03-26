@@ -82,7 +82,7 @@
     <ClCompile Include="..\src\ModelBase\WGInput-ModelInput.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ModelBase\IndividueBase.cpp">
+    <ClCompile Include="..\src\ModelBase\IndividualBase.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -165,7 +165,7 @@
     <ClInclude Include="..\src\ModelBase\WGInput-ModelInput.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ModelBase\IndividueBase.h">
+    <ClInclude Include="..\src\ModelBase\IndividualBase.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

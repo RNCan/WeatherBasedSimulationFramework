@@ -448,7 +448,7 @@ namespace WBSF
 	};
 
 	inline int GetCurrentYear(){ return CTRef::GetCurrentTRef().GetYear(); }
-
+	inline CTRef FromFormatedString(std::string str, std::string format = "", const char* sep = "-", int base = 1){ CTRef TRef; TRef.FromFormatedString(str, format, sep, base); return TRef; }
 	
 
 	class CJDayRef : public CTRef

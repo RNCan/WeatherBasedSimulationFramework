@@ -18,15 +18,20 @@ static char THIS_FILE[] = __FILE__;
 
 static CWeatherUpdaterDoc* GetDocument()
 {
+	CWeatherUpdaterDoc* pDoc = NULL;
 	CWinApp* pApp = AfxGetApp();
 	if (pApp)
 	{
-		CFrameWnd * pFrame = (CFrameWnd *)(pApp->m_pMainWnd);
-		if (pFrame && pFrame->GetSafeHwnd() != NULL)
-			return (CWeatherUpdaterDoc*)(pFrame->GetActiveDocument());
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CWeatherUpdaterDoc*)docT->GetNextDoc(pos);
+		}
 	}
-	return NULL;
 
+	return pDoc;
 }
 
 //**************************************************************************************************************
@@ -143,7 +148,7 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//}
 
 	// Créer les volets de sortie :
-	const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL;
+	const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE;
 
 	if (!m_wndOutput.Create(dwStyle, CRect(0, 0, 0, 0), this, OUTPUT_TEXT_CTRL_ID))
 	{
@@ -197,9 +202,12 @@ void COutputWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 	if (lHint == CWeatherUpdaterDoc::INIT || lHint == CWeatherUpdaterDoc::SELECTION_CHANGE || lHint == CWeatherUpdaterDoc::TASK_CHANGE)
 	{
-		size_t t = pDoc->GetCurType();
-		size_t p = pDoc->GetCurPos(t);
-		m_wndOutput.SetWindowText(CString(pDoc->GetOutputText(t,p).c_str()));
+		size_t t = pDoc->GetCurT();
+		size_t p = pDoc->GetCurP(t);
+		CString str(pDoc->GetOutputText(t, p).c_str());
+		str.Replace(_T("|"), _T("\r\n"));
+
+		m_wndOutput.SetWindowText(str);
 	}
 }
 

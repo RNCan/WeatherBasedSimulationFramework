@@ -9,7 +9,9 @@
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
 #include "WeatherUpdaterOptionsDlg.h"
-
+#include "WeatherUpdaterDoc.h"
+#include "Tasks/StateSelection.h"
+#include "Tasks/ProvinceSelection.h"
 
 using namespace WBSF;
 using namespace UtilWin;
@@ -27,17 +29,40 @@ static const UINT ID_PROPERTIES_WND = 502;
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx) 
+const UINT CMainFrame::m_uTaskbarBtnCreatedMsg = RegisterWindowMessage(_T("TaskbarButtonCreated"));
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
-	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
-	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
-	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
-	
+	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &OnUpdateApplicationLook)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &OnUpdateToolbar)
+	ON_UPDATE_COMMAND_UI(ID_EXECUTE, OnUpdateToolbar)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateToolbar)
+
+	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &OnApplicationLook)
+	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &OnLanguageChange)
+	ON_COMMAND(ID_OPTIONS, &OnEditOptions)
+	ON_REGISTERED_MESSAGE(m_uTaskbarBtnCreatedMsg, OnTaskbarProgress)
 END_MESSAGE_MAP()
+
+LRESULT CMainFrame::OnTaskbarProgress(WPARAM wParam, LPARAM lParam)
+{
+	// On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
+	// and broadcast it, so make sure the OS is Win 7 or later before acting on
+	// the message. (This isn't a problem for this app, which won't run on pre-7,
+	// but you should definitely do this check if your app will run on pre-7.)
+	DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+	DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+	// Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
+	if (dwMajor > 6 || (dwMajor == 6 && dwMinor > 0))
+	{
+		m_pTaskbarList.Release();
+		m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
+	}
+
+	return 0;
+}
 
 static UINT indicators[] =
 {
@@ -48,18 +73,21 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 {
+	
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
 	CTabbedPane::m_pTabWndRTC = RUNTIME_CLASS(CMFCTabCtrl24);
 }
 
 CMainFrame::~CMainFrame()
-{
-}
+{}
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
+
+	CHANGEFILTERSTRUCT cfs = { sizeof(CHANGEFILTERSTRUCT) };
+	ChangeWindowMessageFilterEx(m_hWnd, m_uTaskbarBtnCreatedMsg, MSGFLT_ALLOW, &cfs);
 
 	//main frame
 	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
@@ -90,19 +118,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	VERIFY(m_wndStatusBar.Create(this));
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-
 	//create dockable panes
 	VERIFY(CreateDockingWindows());
-	
 	
 	//dock panes
 	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT, CRect(0,0,800,800));
 	m_wndOutput.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
 	
-
 	OnApplicationLook(theApp.m_nAppLook); 
 	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
 	LoadtBasicCommand();
+
+	CStateSelection::UpdateString();
+	CProvinceSelection::UpdateString();
 
 	return 0;
 }
@@ -144,36 +172,6 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 }
 
 
-// gestionnaires de messages pour CMainFrame
-//
-//void CMainFrame::OnViewCustomize()
-//{
-//	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* analyser les menus */);
-//	pDlgCust->EnableUserDefinedToolbars();
-//	pDlgCust->Create();
-//}
-//
-//
-//
-//LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
-//{
-//	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
-//	if (lres == 0)
-//	{
-//		return 0;
-//	}
-//
-//	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
-//	ASSERT_VALID(pUserToolbar);
-//
-//	BOOL bNameValid;
-//	CString strCustomize;
-//	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-//	ASSERT(bNameValid);
-//
-//	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-//	return lres;
-//}
 
 void CMainFrame::OnApplicationLook(UINT id)
 {
@@ -251,35 +249,6 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
-//
-//BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
-//{
-//	// la classe de base effectue le travail
-//
-//	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
-//	{
-//		return FALSE;
-//	}
-//
-//
-//	// activer le bouton de personnalisation pour toutes les barres d'outils utilisateur
-//	BOOL bNameValid;
-//	CString strCustomize;
-//	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-//	ASSERT(bNameValid);
-//
-//	for (int i = 0; i < iMaxUserToolbars; i ++)
-//	{
-//		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
-//		if (pUserToolbar != NULL)
-//		{
-//			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-//		}
-//	}
-//
-//	return TRUE;
-//}
-// 
 
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
@@ -287,14 +256,10 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 	m_wndOutput.UpdateFonts();
 }
 
-void CMainFrame::ActivateFrame(int nCmdShow)
-{
-	//OnUpdate(NULL, 0, NULL);
-	CFrameWndEx::ActivateFrame(nCmdShow);
-}
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 { 
+	CView* pView = GetActiveView();
 	m_wndOutput.OnUpdate(pSender, lHint, pHint);
 	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
 }
@@ -303,6 +268,7 @@ int GetLanguage(UINT id)
 {
 	return id - ID_LANGUAGE_FRENCH;
 }
+
 void CMainFrame::OnLanguageChange(UINT id)
 {
 	WBSF::CRegistry registry;
@@ -323,12 +289,14 @@ void CMainFrame::OnLanguageChange(UINT id)
 		if (hInst != NULL)
 			AfxSetResourceHandle(hInst);
 
+		
 		//set resources for non MFC get string
 		CDynamicResources::set(AfxGetResourceHandle());
 		
 		WBSF::CStatistic::ReloadString();
 		WBSF::CTM::ReloadString();
-		
+		CStateSelection::UpdateString();
+		CProvinceSelection::UpdateString();
 		
 		m_wndToolBar.RestoreOriginalState();
 		m_wndMenuBar.RestoreOriginalState();
@@ -377,10 +345,18 @@ void CMainFrame::LoadtBasicCommand()
 }
 
 
-void CMainFrame::OnLanguageUI(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateToolbar(CCmdUI* pCmdUI)
 {
-	WBSF::CRegistry registry;
-	pCmdUI->SetRadio(registry.GetLanguage() == GetLanguage(pCmdUI->m_nID));
+	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetActiveDocument();
+
+	switch (pCmdUI->m_nID)
+	{
+	case ID_LANGUAGE_FRENCH:{WBSF::CRegistry registry; pCmdUI->SetRadio(registry.GetLanguage() == WBSF::CRegistry::FRENCH); break; }
+	case ID_LANGUAGE_ENGLISH:{WBSF::CRegistry registry; pCmdUI->SetRadio(registry.GetLanguage() == WBSF::CRegistry::ENGLISH); break; }
+	case ID_EXECUTE:	pCmdUI->Enable(pDoc && !pDoc->GetFilePath().empty() && !pDoc->IsExecute()); break;
+	case ID_FILE_SAVE:	pCmdUI->Enable(true); break;
+	}
+
 }
 
 

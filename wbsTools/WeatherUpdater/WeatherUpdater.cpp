@@ -103,6 +103,9 @@ CWeatherUpdaterApp theApp;
 
 BOOL CWeatherUpdaterApp::InitInstance()
 {
+	//VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	CoInitialize(NULL);
+
 
 	WBSF::CRegistry registre;
 
@@ -119,13 +122,9 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	CDynamicResources::set(AfxGetResourceHandle());
 
-	// InitCommonControlsEx() est requis sur Windows XP si le manifeste de l'application
-	// spécifie l'utilisation de ComCtl32.dll version 6 ou ultérieure pour activer les
-	// styles visuels.  Dans le cas contraire, la création de fenêtres échouera.
+	
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// À définir pour inclure toutes les classes de contrôles communs à utiliser
-	// dans votre application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
@@ -232,6 +231,7 @@ void CWeatherUpdaterApp::SaveCustomState()
 
 int CWeatherUpdaterApp::ExitInstance()
 {
+	CoUninitialize();
 	GdiplusShutdown(m_nGdiplusToken);
 	return CWinAppEx::ExitInstance();
 }

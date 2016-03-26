@@ -51,7 +51,7 @@ namespace WBSF
 
 				size_t nbObjectToCreate = max(size_t(0), Round<size_t>(cumulCreated - nbCreated));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
-					push_back(CIndividueInfo(TRef, age, sex, bFertil, generation, scaleFactor));
+					push_back(CIndividualInfo(TRef, age, sex, bFertil, generation, scaleFactor));
 
 				nbCreated += nbObjectToCreate;
 			}
@@ -59,7 +59,7 @@ namespace WBSF
 			ASSERT(size() == nbObjects);
 
 			while (size() < nbObjects)
-				push_back(CIndividueInfo(peakDay, age, sex, bFertil, generation, scaleFactor));
+				push_back(CIndividualInfo(peakDay, age, sex, bFertil, generation, scaleFactor));
 
 
 			ASSERT(size() == nbObjects);
@@ -513,7 +513,7 @@ namespace WBSF
 
 				size_t nbObjectToCreate = max(size_t(0), Round<size_t>(cumulCreated - nbCreated));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
-					population.push_back(CIndividueInfo(TRef, age, sex, bFertil, generation, nbIndividuPerObject));
+					population.push_back(CIndividualInfo(TRef, age, sex, bFertil, generation, nbIndividuPerObject));
 
 				nbCreated += nbObjectToCreate;
 			}

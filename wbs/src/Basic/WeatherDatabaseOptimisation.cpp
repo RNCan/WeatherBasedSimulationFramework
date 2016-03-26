@@ -512,7 +512,7 @@ namespace WBSF
 
 
 		zen::XmlDoc doc(rootName);
-		doc.setEncoding("Windows - 1252");
+		doc.setEncoding("Windows-1252");
 
 		zen::writeStruc(*this, doc.root());
 		doc.root().setAttribute("version", version);

@@ -1,17 +1,40 @@
 
 #include "stdafx.h"
-#include "Simulation/BioSIMProject.h"
-#include "Simulation/BioSIMProject.h"
-#include "UI/Common\SYShowMessage.h"
-#include "WeatherBasedSimulationUI.h"
-
-#include "wbs/ConvertDB.h"
-#include "wbs/TaskFactory.h"
-
 #include "mainfrm.h"
 #include "ProjectView.h"
-#include "Resource.h"
 #include "WeatherUpdaterDoc.h"
+
+#include "Tasks/UIEnvCanHourly.h"
+#include "Tasks/UIEnvCanDaily.h"
+#include "Tasks/UIEnvCanHourlyForecast.h"
+#include "Tasks/UIEnvCanRadar.h"
+#include "Tasks/UIEnvCanPrcpRadar.h"
+#include "Tasks/UIGHCN.h"
+#include "Tasks/UIGSOD.h"
+#include "Tasks/UIISDLite.h"
+#include "Tasks/UISnowTel.h"
+#include "Tasks/UIRapidUpdateCycle.h"
+#include "Tasks/UISolutionMesonetHourly.h"
+#include "Tasks/UISolutionMesonetDaily.h"
+#include "Tasks/UICIPRA.h"
+
+#include "Tasks/CreateHourlyDB.h"
+#include "Tasks/CreateDailyDB.h"
+#include "Tasks/CreateNormalsDB.h"
+#include "Tasks/MergeWeather.h"
+#include "Tasks/AppendWeather.h"
+#include "Tasks/ClipWeather.h"
+#include "Tasks/CopyFTP.h"
+#include "Tasks/ConvertDB.h"
+#include "Tasks/ZipUnzip.h"
+
+#include "Tasks/TaskFactory.h"
+
+
+#include "UI/Common/SYShowMessage.h"
+#include "Resource.h"
+#include "WeatherBasedSimulationString.h"
+
 
 using namespace std;
 using namespace UtilWin;
@@ -25,6 +48,18 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+IMPLEMENT_SERIAL(CProjectWndToolBar, CMFCToolBar, 1)
+//BOOL CProjectWndToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
+//{
+//	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+//		return FALSE;
+//
+//	UpdateTooltips();
+//	SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE);
+//
+//	return TRUE;
+//}
+//
 
 
 static const int ID_INDICATOR_NB_TASK_CHECKED = 0xE711;
@@ -42,11 +77,11 @@ BEGIN_MESSAGE_MAP(CTaskWnd, CWnd)
 	ON_WM_CONTEXTMENU()
 
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_OTHER_MMG, OnUpdateToolBar)
-	ON_UPDATE_COMMAND_UI(ID_EDIT, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DUPLICATE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_REMOVE, OnUpdateToolBar)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_TASK_CHECKED, OnUpdateStatusBar)
 
 	ON_COMMAND_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_OTHER_MMG, OnAdd)
 	ON_COMMAND(ID_REMOVE, &OnRemove)
@@ -54,20 +89,12 @@ BEGIN_MESSAGE_MAP(CTaskWnd, CWnd)
 	ON_COMMAND(ID_EDIT_PASTE, &OnEditPaste)
 	ON_COMMAND(ID_EDIT_DUPLICATE, &OnEditDuplicate)
 
-
-
-	//ON_COMMAND_RANGE(ID_TASK_CREATE_HOURLY_DATABSE, ID_TASK_OTHER_TOOLS, OnAddTools)
-	//ON_COMMAND_RANGE(IDS_TASK_FIRST_MMG, IDS_TASK_OTHEWR_MMG, OnAddMMG)
 	ON_REGISTERED_MESSAGE(WM_XHTMLTREE_CHECKBOX_CLICKED, OnCheckbox)
-	//ON_REGISTERED_MESSAGE(WM_XHTMLTREE_ITEM_EXPANDED, OnItemExpanded)
 	ON_REGISTERED_MESSAGE(WM_XHTMLTREE_BEGIN_DRAG, OnBeginDrag)
 	ON_REGISTERED_MESSAGE(WM_XHTMLTREE_END_DRAG, OnEndDrag)
 	ON_REGISTERED_MESSAGE(WM_XHTMLTREE_DROP_HOVER, OnDropHover)
 	ON_NOTIFY(TVN_SELCHANGED, ID_TASK_CTRL, OnSelChange)
 	ON_NOTIFY(TVN_ENDLABELEDIT, ID_TASK_CTRL, OnNameChange)
-
-	//ON_NOTIFY(TVN_SELCHANGED, ID_TASK_CTRL1, OnSelChange)
-//	ON_NOTIFY(TVN_SELCHANGED, ID_TASK_CTRL2, OnSelChange)
 
 END_MESSAGE_MAP()
 
@@ -76,22 +103,29 @@ END_MESSAGE_MAP()
 
 CWeatherUpdaterDoc* CTaskWnd::GetDocument()
 {
+	CWeatherUpdaterDoc* pDoc = NULL;
 	CWinApp* pApp = AfxGetApp();
 	if (pApp)
 	{
-		CFrameWnd * pFrame = (CFrameWnd *)(pApp->m_pMainWnd);
-		if (pFrame && pFrame->GetSafeHwnd() != NULL)
-			return (CWeatherUpdaterDoc*)(pFrame->GetActiveDocument());
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CWeatherUpdaterDoc*)docT->GetNextDoc(pos);
+		}
 	}
-	return NULL;
 
+	return pDoc;
 }
 
 
-CTaskWnd::CTaskWnd(size_t t, UINT toolbarID)
+CTaskWnd::CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2)
 {
 	m_type = t;
-	m_toolbarID = toolbarID;
+	m_toolbarID1 = toolbarID1;
+	m_toolbarID2 = toolbarID2;
+	m_bInUpdate = false;
 }
 
 
@@ -104,26 +138,26 @@ int CTaskWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TVS_EDITLABELS | TVS_SHOWSELALWAYS |
 		WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP | WS_BORDER;
 
-	// Create the list control.  Don't worry about specifying
-	// correct coordinates.  That will be handled in OnSize()
-	//m_taskCtrl.SetParent(this);
-	BOOL bResult = m_taskCtrl.Create(dwStyle, CRect(0, 0, 0, 0), this, 1000);
-//	m_taskCtrl.SetDragOps(XHTMLTREE_DO_SCROLL_NORMAL);
+	VERIFY(m_taskCtrl.Create(dwStyle, CRect(0, 0, 0, 0), this, 1000));
+
+	VERIFY(m_wndToolBar1.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, m_toolbarID1));
+	VERIFY(m_wndToolBar1.LoadToolBar(m_toolbarID1, 0, 0, TRUE /* Is locked */));
+	m_wndToolBar1.SetPaneStyle(m_wndToolBar1.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+	m_wndToolBar1.SetPaneStyle(m_wndToolBar1.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+	m_wndToolBar1.SetOwner(this);//| CBRS_SIZE_DYNAMIC 
+	m_wndToolBar1.SetRouteCommandsViaFrame(FALSE);
 	
-
-	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, m_toolbarID);
-	m_wndToolBar.LoadToolBar(m_toolbarID, 0, 0, TRUE /* Is locked */);
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-	m_wndToolBar.SetOwner(this);//| CBRS_SIZE_DYNAMIC 
-	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-
-	if (!m_wndStatusBar.Create(this))
+	if (m_toolbarID2!=-1)
 	{
-		TRACE0("Failed to create status bar\n");
-		return -1;      // fail to create
+		VERIFY(m_wndToolBar2.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, m_toolbarID2));
+		VERIFY(m_wndToolBar2.LoadToolBar(m_toolbarID2, 0, 0, TRUE /* Is locked */));
+		m_wndToolBar2.SetPaneStyle(m_wndToolBar2.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+		m_wndToolBar2.SetPaneStyle(m_wndToolBar2.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+		m_wndToolBar2.SetOwner(this);//| CBRS_SIZE_DYNAMIC 
+		m_wndToolBar2.SetRouteCommandsViaFrame(FALSE);
 	}
 
+	VERIFY(m_wndStatusBar.Create(this));
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 	m_wndStatusBar.SetOwner(this);
 	m_wndStatusBar.SetPaneInfo(0, ID_SEPARATOR, SBPS_STRETCH, 0);
@@ -148,11 +182,15 @@ void CTaskWnd::AdjustLayout()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-	int cxTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cx;
+	int cyTlb = m_wndToolBar1.CalcFixedLayout(FALSE, TRUE).cy;
+	int cxTlb = m_wndToolBar1.CalcFixedLayout(FALSE, TRUE).cx;
+	int nbT = m_wndToolBar2.GetSafeHwnd() ? 2:1;
 
-	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-	m_taskCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - 2 * cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	m_wndToolBar1.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (m_wndToolBar2.GetSafeHwnd())
+		m_wndToolBar2.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+
+	m_taskCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top + nbT*cyTlb, rectClient.Width(), rectClient.Height() - (nbT + 1) * cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndStatusBar.SetWindowPos(NULL, rectClient.left, rectClient.Height() - cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
@@ -163,10 +201,9 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 	if (pCmdUI->m_nID == ID_INDICATOR_NB_TASK_CHECKED)
 	{
-		//	CWeatherDatabasePtr pDB = GetDatabasePtr();
 		long nbRows = m_taskCtrl.GetCheckedCount();
 
-		CString str = _T("Selected = ");//GetString(IDS__NB_STATION);
+		CString str = _T("Selected = ");//GetString(IDS_NB_SELECTED_TASK);
 		CString text = str + UtilWin::ToCString(nbRows);
 
 		pCmdUI->SetText(text);
@@ -184,25 +221,16 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 UINT CTaskWnd::CtrlBaseID(UINT ID)
 {
-	ASSERT(ID >= ID_TASK_FIRST_UPDATER && ID <= ID_TASK_OTHER_MMG);
+	ASSERT(ID >= ID_TASK_FIRST && ID <= ID_TASK_LAST);
 
-	UINT baseID = UINT(-1);
-
-	if (ID >= ID_TASK_FIRST_MMG)
-		baseID = ID_TASK_FIRST_MMG;
-	else if (ID >= ID_TASK_FIRST_TOOLS)
-		baseID = ID_TASK_FIRST_TOOLS;
-	else if (ID >= ID_TASK_FIRST_UPDATER)
-		baseID = ID_TASK_FIRST_UPDATER;
-
-	return baseID;
+	return ID - ID_TASK_FIRST;
 }
 
 
 UINT CTaskWnd::CtrlID(const std::string& className)
 {
 	UINT index = UINT(-1);
-	for (UINT i = ID_TASK_FIRST_UPDATER; i < ID_TASK_OTHER_MMG && index == UINT(-1); i++)
+	for (UINT i = ID_TASK_FIRST; i <= ID_TASK_LAST && index == UINT(-1); i++)
 	{
 		if (ClassName(i) == className)
 			index = i;
@@ -217,34 +245,32 @@ string CTaskWnd::ClassName(UINT ID)
 
 	switch (ID)
 	{
-		//case ID_TASK_EC_DAILY: str = ; break;
-		//case ID_TASK_EC_HOURLY: str = ; break;
-		//case ID_TASK_EC_FORECAST: str = ; break;
-		//case ID_TASK_EC_RADAR: str = ; break;
-		//case ID_TASK_EC_PRCP_RADAR: str = ; break;
-		//case ID_TASK_NOAA_GHCND: str = ; break;
-		//case ID_TASK_NOAA_GSOD: str = ; break;
-		//case ID_TASK_NOAA_ISD_LITE: str = ; break;
-		//case ID_TASK_SNOTEL: str = ; break;
-		//case ID_TASK_NOMAD_RUC: str = ; break;
-		//case ID_TASK_SM_DAILY: str = ; break;
-		//case ID_TASK_SM_HOURLY: str = ; break;
-		//case ID_TASK_SM_CIPRA_HOURLY: str = ; break;
-		//case ID_TASK_OTHER_DOWNLOADER: str = ; break;
-		//case ID_TASK_EC_PRCP_RADAR: str = ; break;
-		//case ID_TASK_EC_GRIB_FORECAST: str = ; break;
+	case ID_TASK_EC_DAILY:		className = CUIEnvCanDaily::CLASS_NAME(); break;
+	case ID_TASK_EC_HOURLY:		className = CUIEnvCanHourly::CLASS_NAME(); break;
+	case ID_TASK_EC_FORECAST:	className = CUIEnvCanHourlyForecast::CLASS_NAME(); break;
+	case ID_TASK_EC_RADAR:		className = CUIEnvCanRadar::CLASS_NAME(); break;
+	case ID_TASK_EC_PRCP_RADAR: className = CUIEnvCanPrcpRadar::CLASS_NAME(); break;
+	case ID_TASK_NOAA_GHCND:	className = CUIGHCND::CLASS_NAME(); break;
+	case ID_TASK_NOAA_GSOD:		className = CUIGSOD::CLASS_NAME(); break;
+	case ID_TASK_NOAA_ISD_LITE: className = CUIISDLite::CLASS_NAME(); break;
+	case ID_TASK_SNOTEL:		className = CUISnoTel::CLASS_NAME(); break;
+	case ID_TASK_NOMAD_RUC:		className = CUIRapidUpdateCycle::CLASS_NAME(); break;
+	case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
+	case ID_TASK_SM_HOURLY:		className = CUISolutionMesonetHourly::CLASS_NAME(); break;
+	case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
+		//case ID_TASK_OTHER_DOWNLOADER: str = ::CLASS_NAME(); break;
+		//case ID_TASK_EC_GRIB_FORECAST: str = ::CLASS_NAME(); break;
 		//case ID_TASK_ACIS: str = ; break;
 		//case ID_TASK_BC_PAWS: str = ; break;
 		//case ID_TASK_BC_SNOWPILLOW: str = ; break;
-		//case ID_TASK_CREATE_HOURLY_DATABSE:className = ; break;
-		//case ID_TASK_CREATE_DAILY_DATABSE:className = ; break;
-		//case ID_TASK_HOURLY2DAILY_DATABSE:className = ; break;
-		//case ID_TASK_DAILY2NORMALS_DATABSE:className = ; break;
-		//case ID_TASK_MERGE_DATABASE:className = ; break;
-		//case ID_TASK_MOVE_DATABASE_TOGETHER:className = ; break;
-		//case ID_TASK_CROP_DATABASE:className = ; break;
-		//case ID_TASK_COMPRESS_UNCOMPRESS:className = ; break;
-		//case ID_TASK_DOWNLOAD_UPLOAD:className = ; break;
+	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
+	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
+	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
+	case ID_TASK_MERGE_DATABASE:className = CMergeWeather::CLASS_NAME(); break;
+	case ID_TASK_APPEND_DATABASE:className = CAppendWeather::CLASS_NAME(); break;
+	case ID_TASK_CROP_DATABASE:	className = CClipWeather::CLASS_NAME(); break;
+	case ID_TASK_ZIP_UNZIP:		className = CZipUnzip::CLASS_NAME(); break;
+	case ID_TASK_DOWNLOAD_UPLOAD:className = CCopyFTP::CLASS_NAME(); break;
 	case ID_TASK_CONVERT_DATABASE:className = CConvertDB::CLASS_NAME(); break;
 		//case ID_TASK_OTHER_TOOLS:className = ; break;
 		//case ID_TASK_RCM22:className = ; break;
@@ -254,7 +280,7 @@ string CTaskWnd::ClassName(UINT ID)
 		//case ID_TASK_MIROC_10:className = ; break;
 		//case ID_TASK_CESM1_CAM5_10:className = ; break;
 
-	default: ASSERT(false);
+		//default: ASSERT(false);
 	}
 
 	return className;
@@ -282,88 +308,119 @@ void CTaskWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 
 void CTaskWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
+	m_bInUpdate = true;
+
+	if (lHint == CWeatherUpdaterDoc::INIT)
+	{
+		m_taskCtrl.DeleteAllItems();
+		
+		UINT imageIndex = ID_TASK_FIRST_TYPE - ID_TASK_FIRST + UINT(m_type);
+		m_taskCtrl.AddRoot(m_type, imageIndex);
+	}
 
 	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument(); 
 	if (!pDoc)
 		return;
-
-
-	ASSERT(pDoc->GetCurType() == m_type);
 	
-
 	if (lHint == CWeatherUpdaterDoc::INIT)
 	{
-		m_taskCtrl.Init();
-
+	
 		const CTaskPtrVector& tasks = pDoc->GetTaskVector(m_type);
 		for (size_t p = 0; p < tasks.size(); p++)
 		{
 			const CTaskPtr& pTask = tasks[p];
-			UINT ID = CtrlID(pTask->ClassName());
-			UINT imageIndex = ID - CtrlBaseID(ID);
-			m_taskCtrl.InsertTask(pTask, imageIndex, m_taskCtrl.GetLastItem(m_taskCtrl.GetRootItem()));
+			if (pTask->ClassType() == m_type)
+			{
+				UINT ID = CtrlID(pTask->ClassName());
+				UINT imageIndex = ID - ID_TASK_FIRST;
+				m_taskCtrl.InsertTask(pTask, imageIndex, m_taskCtrl.GetLastItem(m_taskCtrl.GetRootItem()));
+			}
 		}
 	}
 	else if (lHint == CWeatherUpdaterDoc::ADD_TASK)
 	{
-		size_t p = pDoc->GetCurPos(m_type);
-		const CTaskPtr& pTask = pDoc->GetTask(m_type, p);
-		UINT ID = CtrlID(pTask->ClassName());
-		UINT imageIndex = ID - CtrlBaseID(ID);
+		//size_t p = pDoc->GetCurPos(m_type);
+		//HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
+		//size_t p = m_taskCtrl.GetPosition(hItem);
 
-		HTREEITEM hItem = m_taskCtrl.FindItem(p);
-		m_taskCtrl.InsertTask(pTask, imageIndex, hItem);
+		//const CTaskPtr& pTask = pDoc->GetTask(m_type, p);
+		//UINT ID = CtrlID(pTask->ClassName());
+		//UINT imageIndex = ID - ID_TASK_FIRST;
+
+		//HTREEITEM hItem = m_taskCtrl.FindItem(p);
+		//m_taskCtrl.InsertTask(pTask, imageIndex, hItem);
 	}
 	else if (lHint == CWeatherUpdaterDoc::REMOVE_TASK)
 	{
-		size_t p = pDoc->GetCurPos(m_type);
-		HTREEITEM hItem = m_taskCtrl.FindItem(p);
-		ASSERT(hItem == m_taskCtrl.GetSelectedItem());
-		m_taskCtrl.DeleteItem(hItem);
+		//size_t p = pDoc->GetCurPos(m_type);
+		//HTREEITEM hItem = m_taskCtrl.FindItem(p);
+		//ASSERT(hItem == m_taskCtrl.GetSelectedItem());
+		//m_taskCtrl.DeleteItem(hItem);
 	}
 	else if (lHint == CWeatherUpdaterDoc::SELECTION_CHANGE)
 	{
-		size_t p = pDoc->GetCurPos(m_type);
-
-		HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
-		HTREEITEM hNewItem = m_taskCtrl.FindItem(p);
-		if (hNewItem != hItem)
-			m_taskCtrl.Select(hNewItem, TVGN_CARET);
+		//remove selection if it's not the current pane
+		if (pDoc->GetCurT() != m_type)
+		{
+			size_t p = pDoc->GetCurP(m_type);
+			HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
+			HTREEITEM hNewItem = m_taskCtrl.FindItem(p);
+			if (hNewItem != hItem)
+				m_taskCtrl.Select(hNewItem, TVGN_CARET);
+		}
 	}
-	else if (lHint == CWeatherUpdaterDoc::TASK_CHANGE)
-	{
-		//only execute can change
-		size_t p = pDoc->GetCurPos(m_type);
-		ASSERT(p != NOT_INIT);
+	//else if (lHint == CWeatherUpdaterDoc::TASK_CHANGE)
+	//{
+	//	//only execute can change
+	//	size_t p = pDoc->GetCurPos(m_type);
+	//	ASSERT(p != NOT_INIT);
 
-		HTREEITEM hItem = m_taskCtrl.FindItem(p);
-		CTaskPtr& pTask = pDoc->GetTask(m_type, p);
-		BOOL bChecked = ToBool(pTask->Get(CTaskBase::EXECUTE));
-		if (m_taskCtrl.GetCheck(hItem) != bChecked)
-			m_taskCtrl.SetCheck(hItem, bChecked);
+	//	HTREEITEM hItem = m_taskCtrl.FindItem(p);
+	//	CTaskPtr& pTask = pDoc->GetTask(m_type, p);
+	//	BOOL bChecked = ToBool(pTask->Get(CTaskBase::EXECUTE));
+	//	if (m_taskCtrl.GetCheck(hItem) != bChecked)
+	//		m_taskCtrl.SetCheck(hItem, bChecked);
 
-		std::string name = pTask->Get(CTaskBase::NAME);
-		//if (m_taskCtrl.GetIte.GetCheck(hItem) != name)
-			//m_taskCtrl.SetCheck(hItem, bChecked);
-		
-	}
+	//	std::string name = pTask->Get(CTaskBase::NAME);
+	//	//if (m_taskCtrl.GetIte.GetCheck(hItem) != name)
+	//		//m_taskCtrl.SetCheck(hItem, bChecked);
+	//	
+	//}
+
+	m_bInUpdate = false;
 }
 
 void CTaskWnd::OnAdd(UINT ID)
 {
+	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument(); ASSERT(pDoc);
+	if (pDoc == NULL || pDoc->GetFilePath().empty())
+	{
+		
+		if (AfxMessageBox(IDS_BSC_ASK_CREATE_PROJECT, MB_OKCANCEL) == IDOK)
+			AfxGetMainWnd()->SendMessage(WM_COMMAND, ID_FILE_SAVE);
+
+		if (pDoc == NULL || pDoc->GetFilePath().empty())
+			return;
+	}
+
 	string className = ClassName(ID);
 	if (!className.empty())
 	{
-		CTaskPtr pTask = CTaskFactory::CreateObject(className);
-		CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument(); ASSERT(pDoc);
-
 		HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
-		ASSERT(hItem != NULL);
-
 		size_t p = m_taskCtrl.GetPosition(hItem);
-		ASSERT(p != NOT_INIT);
+		UINT imageIndex = ID - ID_TASK_FIRST;
+		
+		CTaskPtr pTask = CTaskFactory::CreateObject(className);
+		ENSURE(pTask.get());
 
-		pDoc->AddTask(m_type, p, pTask);
+		pTask->Init();
+		size_t size = pDoc->GetTaskVector(m_type).size();
+		pTask->m_name = pTask->GetTypeTitle(m_type) + to_string(size + 1);
+		pTask->m_bExecute = true;
+
+		size_t pp = (p + 1);
+		pDoc->InsertTask(m_type, pp, pTask);
+		m_taskCtrl.InsertTask(pTask, imageIndex, (p==NOT_INIT)?NULL:hItem);
 	}
 }
 
@@ -379,18 +436,21 @@ void CTaskWnd::OnRemove()
 	ASSERT(p != NOT_INIT);
 
 	pDoc->RemoveTask(m_type, p);
+	m_taskCtrl.DeleteItem(hItem);
 }
 
 
 void CTaskWnd::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
-	NMTREEVIEW* pNMTreeView = (NMTREEVIEW*)pNMHDR;
-	HTREEITEM hItem = pNMTreeView->itemNew.hItem;
-	ASSERT(hItem);
+	if (!m_bInUpdate)
+	{
+		CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
+		NMTREEVIEW* pNMTreeView = (NMTREEVIEW*)pNMHDR;
+		HTREEITEM hItem = pNMTreeView->itemNew.hItem;
 
-	size_t p = m_taskCtrl.GetPosition(hItem);
-	pDoc->SetCurPos(m_type, p);
+		size_t p = m_taskCtrl.GetPosition(hItem);
+		pDoc->SetCurP(m_type, p);
+	}
 }
 
 void CTaskWnd::OnEditCopy()
@@ -420,15 +480,11 @@ void CTaskWnd::OnEditPaste()
 	//CTaskPtr pItem = pParent->CopyFromClipBoard();
 	if (pTask)
 	{
-		//pTask->PasteFromClipBoard();
-
-		//UINT imageIndex = ID - CtrlBaseID(ID);
-		//size_t p = m_taskCtrl.InsertTask(pTask, imageIndex);
-
 		HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
 		size_t p = m_taskCtrl.GetPosition(hItem);
 
-		pDoc->AddTask(m_type, p, pTask);
+		size_t pp = (p + 1);
+		pDoc->InsertTask(m_type, pp, pTask);
 
 
 
@@ -467,16 +523,14 @@ void CTaskWnd::OnNameChange(NMHDR* pNMHDR, LRESULT* pResult)
 	LPTSTR pszText = pTVDispInfo->item.pszText;
 	if (pszText)
 	{
-		if (*pszText != _T('\0'))
+		size_t p = m_taskCtrl.GetPosition(hItem);
+		if (*pszText != _T('\0') && p != NOT_INIT)
 		{
-			size_t p = m_taskCtrl.GetPosition(hItem);
-			ASSERT(p != NOT_INIT);
-
 			CTaskPtr& pTask = pDoc->GetTask(m_type, p);
 			ASSERT(pTask.get());
-			pTask->Set(CTaskBase::NAME, string(CStringA(pszText)));
+			pTask->m_name = string(CStringA(pszText));
 
-			pDoc->UpdateAllViews(NULL, CWeatherUpdaterDoc::TASK_CHANGE);
+			//pDoc->UpdateAllViews(NULL, CWeatherUpdaterDoc::TASK_CHANGE);
 		}
 		else
 		{
@@ -525,13 +579,16 @@ LRESULT CTaskWnd::OnCheckbox(WPARAM wParam, LPARAM lParam)
 		if (hItem)
 		{
 			ASSERT(m_type < CTaskBase::NB_TYPES);
-			CWeatherUpdaterDoc* pDoc = GetDocument();
-			size_t p = pDoc->GetCurPos(m_type);
-			WBSF::CTaskPtr pTask = pDoc->GetTask(m_type, p);
-			
-			pTask->Set(CTaskBase::EXECUTE, bChecked ? "1" : "0");
-			
-			pDoc->UpdateAllViews(NULL, CWeatherUpdaterDoc::TASK_CHANGE, NULL);
+			size_t p = m_taskCtrl.GetPosition(hItem);
+
+			if (p != NOT_INIT)
+			{
+				CWeatherUpdaterDoc* pDoc = GetDocument();
+				//size_t p = pDoc->GetCurP(m_type);
+				WBSF::CTaskPtr pTask = pDoc->GetTask(m_type, p);
+				pTask->m_bExecute = bChecked;
+			}
+			//pDoc->UpdateAllViews(NULL, CWeatherUpdaterDoc::TASK_CHANGE, NULL);
 		}
 	}
 
@@ -761,9 +818,6 @@ void CTaskWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 	
 }
 
-//static const UINT ID_TASK_CTRL1 = 1001;
-//static const UINT ID_TASK_CTRL2 = 1002;
-
 
 /////////////////////////////////////////////////////////////////////////////
 // CProjectView
@@ -781,8 +835,8 @@ BEGIN_MESSAGE_MAP(CProjectView, CView)
 END_MESSAGE_MAP()
 
 CProjectView::CProjectView():
-m_wnd1(CTaskBase::UPDATER, IDR_TASK_TOOLBAR1),
-m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR2)
+m_wnd1(CTaskBase::UPDATER, IDR_TASK_TOOLBAR1, IDR_TASK_TOOLBAR2),
+m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR3)
 {
 
 }
@@ -888,11 +942,8 @@ void CProjectView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument(); ASSERT(pDoc);
 	if (pDoc)
 	{
-		size_t t = pDoc->GetCurType();
-		if (t == CTaskBase::UPDATER)
-			m_wnd1.OnUpdate(pSender, lHint, pHint);
-		else if (t == CTaskBase::TOOLS)
-			m_wnd2.OnUpdate(pSender, lHint, pHint);
+		m_wnd1.OnUpdate(pSender, lHint, pHint);
+		m_wnd2.OnUpdate(pSender, lHint, pHint);
 	}
 
 }
@@ -969,6 +1020,13 @@ BOOL CProjectView::OnOpenWorkingDir(UINT ID)
 	return TRUE;
 }
 
+
+void CProjectView::OnInitialUpdate()
+{
+	CWeatherUpdaterDoc* pDoc = static_cast<CWeatherUpdaterDoc*>(GetDocument());
+	ASSERT(pDoc);
+	pDoc->OnInitialUpdate();
+}
 
 BOOL CProjectView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {

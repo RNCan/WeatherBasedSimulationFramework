@@ -173,10 +173,12 @@ bool map_compare (Map const &lhs, Map const &rhs)
 //*********************************************************************************************************************
 //String
 
-
+	class CCallback;
 	std::string PurgeFileName(std::string name);
 	std::string& ReplaceString(std::string& str, const std::string& oldStr, const std::string& newStr);
-	std::string SYGetText(ERMsg msg);
+	std::string GetText(ERMsg msg);
+	//std::string GetOutputString(ERMsg& msg, CCallback& callBack = DEFAULT_CALLBACK, bool bAllMessage = false);
+	std::string GetOutputString(ERMsg msg, CCallback& callBack, bool bAllMessage = true, char* sep = "\n");
 
 
 
@@ -409,7 +411,17 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return t;
 	}
 
-	
+	template <typename T> inline
+		T as(const std::string& str)
+	{
+		T t = 0;
+		if (!str.empty())
+		{
+			std::istringstream ss(str);
+			ss >> t;
+		}
+		return t;
+	}
 	
 	template <typename T> inline
 		T from_string(const std::string& str)

@@ -121,7 +121,7 @@ namespace zen
 
 		zen::XmlDoc doc(rootName); //empty XML document
 		doc.root().setAttribute("version", version);
-		doc.setEncoding("Windows - 1252");
+		doc.setEncoding("Windows-1252");
 
 		try
 		{
@@ -171,7 +171,7 @@ namespace zen
 		try
 		{
 			zen::XmlDoc doc(rootName);
-			doc.setEncoding("Windows - 1252");
+			doc.setEncoding("Windows-1252");
 			doc.root().setAttribute("version", version);
 			zen::writeStruc(Class, doc.root());
 			str = zen::serialize(doc);

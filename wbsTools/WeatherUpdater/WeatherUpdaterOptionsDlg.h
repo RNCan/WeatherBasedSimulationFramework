@@ -67,8 +67,8 @@ public:
 // Attributes
 public:
 
-    COptionLinks m_links;
-	COptionRegional m_regional;
+    WBSF::COptionLinks m_links;
+	WBSF::COptionRegional m_regional;
 	
 	CImageList m_images;
 	

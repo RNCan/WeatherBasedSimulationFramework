@@ -61,7 +61,7 @@ namespace WBSF
 		m_bAtSurfaceOnly = true;
 		m_albedo = CANOPY;
 		m_seed = CRandomGenerator::RANDOM_SEED;
-		m_allowedDerivedVariables = "R Z S SD SWE ES EA VPD WS2 A1 A2";
+		m_allowedDerivedVariables = "WD R Z S SD SWE ES EA VPD WS2 A1 A2";
 		m_bXValidation = false;
 		m_bSkipVerify = false;
 

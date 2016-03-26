@@ -19,10 +19,10 @@
 
 namespace WBSF
 {
-	class CIndividueInfo
+	class CIndividualInfo
 	{
 	public:
-		CIndividueInfo(CTRef creationDate = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 0)
+		CIndividualInfo(CTRef creationDate = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 0)
 		{
 			m_creationDate = creationDate;
 			m_age = age;
@@ -41,7 +41,7 @@ namespace WBSF
 		double m_scaleFactor;
 	};
 
-	class CInitialPopulation : public std::vector < CIndividueInfo >
+	class CInitialPopulation : public std::vector < CIndividualInfo >
 	{
 	public:
 

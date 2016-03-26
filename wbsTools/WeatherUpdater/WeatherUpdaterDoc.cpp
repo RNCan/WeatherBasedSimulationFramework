@@ -17,18 +17,102 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
 #include "MainFrm.h"
+#include "Tasks/TaskFactory.h"
+
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 using namespace WBSF;
+using namespace UtilWin;
+
+
+
+namespace zen
+{
+	void writeStruc(const std::array<std::map<std::string, std::string>, WBSF::CTaskBase::NB_TYPES>& in, zen::XmlElement& output)
+	{
+		size_t t = 0;
+		std::for_each(in.begin(), in.end(),
+			[&](const std::map<std::string, std::string> & childVal)
+		{
+			if (!childVal.empty())
+			{
+				zen::XmlElement& newChild = output.addChild("Tasks");
+				newChild.setAttribute("type", std::to_string(t));
+				std::for_each(childVal.begin(), childVal.end(),
+					[&](const std::pair<std::string, std::string> & childVal2)
+				{
+					zen::XmlElement& newChild2 = newChild.addChild("Task");
+					newChild2.setAttribute("name", childVal2.first);
+					newChild2.setValue(childVal2.second);
+				}
+				);
+
+				t++;
+			}
+		}
+		);
+	}
+
+	
+	bool readStruc(const zen::XmlElement& input, std::array<std::map<std::string, std::string>, WBSF::CTaskBase::NB_TYPES>& out)
+	{
+		bool success = false;
+		out.fill(std::map<std::string, std::string>());
+		
+		auto iterPair = input.getChildren("Tasks");
+		for (auto iter = iterPair.first; iter != iterPair.second; ++iter)
+		{
+			std::string str;
+			if (iter->getAttribute("type", str))
+			{
+				size_t t = ToValue<size_t>(str);
+				if (t < out.size())
+				{
+					auto iterPair2 = iter->getChildren("Task");
+					for (auto it = iterPair2.first; it != iterPair2.second; ++it)
+					{
+						std::string name;
+						std::string msg;
+						if (it->getAttribute("name", name) && it->getValue(msg))
+						{
+							out[t][name] = msg;
+							success = true;
+						}
+					}
+				}
+			}
+		}
+
+		return success;
+	}
+}
+//
+//template <typename U, class T = std::vector<U>> inline
+//bool readStruc4(const zen::XmlElement& input, T& out, const char* XMLFlag)
+//{
+//	bool success = true;
+//	out.clear();
+//
+//	auto iterPair = input.getChildren(XMLFlag);
+//	out.resize(std::distance(iterPair.first, iterPair.second));
+//	T::iterator it = out.begin();
+//	for (auto iter = iterPair.first; iter != iterPair.second; ++iter, it++)
+//	{
+//		if (!zen::readStruc(*iter, *it))
+//			success = false;
+//	}
+//	return success;
+//}
 
 // CWeatherUpdaterDoc
 IMPLEMENT_DYNCREATE(CWeatherUpdaterDoc, CDocument)
 BEGIN_MESSAGE_MAP(CWeatherUpdaterDoc, CDocument)
 	ON_COMMAND(ID_EXECUTE, OnExecute)
-	ON_UPDATE_COMMAND_UI(ID_EXECUTE, OnUpdateToolbar)
+	
 END_MESSAGE_MAP()
 
 
@@ -38,7 +122,8 @@ CWeatherUpdaterDoc::CWeatherUpdaterDoc()
 	CAppOption options(_T("Settings"));
 
 	m_currentType = 0;
-	m_currentPos.fill(-1);
+	m_currentTask.fill(-1);
+	m_bExecute = false;
 }
 
 CWeatherUpdaterDoc::~CWeatherUpdaterDoc()
@@ -51,9 +136,11 @@ BOOL CWeatherUpdaterDoc::OnNewDocument()
 		return FALSE;
 
 	m_currentType = 0;
-	m_currentPos.fill(-1);
-	m_outputMessage.clear();
-	
+	m_currentTask.fill(-1);
+	m_outputMessage.fill(std::map<std::string, std::string>());
+	m_filePath.clear();
+	m_project.clear();
+	m_lastProject.clear();
 
 	return TRUE;
 }
@@ -65,17 +152,25 @@ BOOL CWeatherUpdaterDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	ERMsg msg;
 
 	m_currentType = 0;
-	m_currentPos.fill(-1);
-	m_outputMessage.clear();
+	m_currentTask.fill(-1);
+	m_outputMessage.fill(std::map<std::string, std::string>());
+	m_project.clear();
+	m_lastProject.clear();
 
 	std::string filePath = CStringA(lpszPathName);
 	
-//	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
+	
+	msg = m_project.Load(filePath);
 	
 	
 	if (msg)
 	{
-	
+		m_lastProject = m_project;
+		m_filePath = filePath;
+
+		SetFileExtension(filePath, ".txt");
+		zen::LoadXML(filePath, "OutputMessage", "1", m_outputMessage);
+
 	}
 	else
 	{
@@ -90,16 +185,21 @@ BOOL CWeatherUpdaterDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	ERMsg msg;
 	
 	
-	if (m_project != m_lastProject)
+	if (m_project.empty() || m_project != m_lastProject)
 	{
-
 		std::string filePath = CStringA(lpszPathName);
-
 		
-		//msg = m_pDatabase->Save();
+		msg = m_project.Save(filePath);
 			
-		if (!msg)
+		if (msg)
+		{
+			m_filePath = filePath;
+			m_lastProject = m_project;
+		}
+		else
+		{
 			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+		}
 	}
 
 	return (bool)msg;
@@ -107,23 +207,7 @@ BOOL CWeatherUpdaterDoc::OnSaveDocument(LPCTSTR lpszPathName)
 
 void CWeatherUpdaterDoc::OnCloseDocument()
 {
-	
-	//Save setting
-	CAppOption options(_T("Settings"));
-	//options.WriteProfileInt(_T("DataTMType"), (int)m_TM.Type() );
-	//options.WriteProfileInt(_T("DataStatistic"), (int)m_statistic);
-	//options.WriteProfileString(_T("Years"), CString(stdString::to_string(m_years, " ").c_str()));
-	//options.WriteProfileString(_T("Filters"), CString(m_filters.to_string().c_str()) );
-	//options.WriteProfileString(_T("ChartsPeriod"), CString(m_chartsPeriod.ToString().c_str()));
-	//options.WriteProfileInt(_T("ChartsPeriodEnabled"), m_bPeriodEnabled);
-	//options.WriteProfileInt(_T("ChartsZoom"), m_chartsZoom);
-	
-	
-	
-	
 	CDocument::OnCloseDocument();
-
-	
 }
 
 BOOL CWeatherUpdaterDoc::IsModified()
@@ -134,12 +218,238 @@ BOOL CWeatherUpdaterDoc::IsModified()
 
 BOOL CWeatherUpdaterDoc::SaveModified() // return TRUE if ok to continue
 {
-	
+	if (m_bExecute)
+		return FALSE;
+
 	BOOL bSave = CDocument::SaveModified();
-	
 
 	return bSave;
 }
+// diagnostics pour CWeatherUpdaterDoc
+
+
+void CWeatherUpdaterDoc::SetCurP(size_t t, size_t p)//, size_t a
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+
+	ERMsg msg;
+
+	if (t != m_currentType || p != m_currentTask[t] )
+	{
+		for (size_t tt = 0; tt < m_currentTask.size(); tt++)
+			m_currentTask[tt] = NOT_INIT;
+
+		m_currentType = t;
+		m_currentTask[t] = p;
+		
+		UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
+	}
+
+//	m_currentAttribute = a;
+}
+
+std::string CWeatherUpdaterDoc::GetUpdaterList()const
+{
+	std::string str;
+	for (int i = 0; i < m_project[CTaskBase::UPDATER].size(); i++)
+	{
+		//str += i>0 ? "|": "";
+		//add empty element
+		str += "|" + m_project[CTaskBase::UPDATER][i]->m_name;//que faire si plusieur foisle mem nom???
+	}
+
+	return str;
+}
+
+void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(!m_filePath.empty() && !m_bExecute);
+}
+
+// CBioSIMDoc commands
+UINT CWeatherUpdaterDoc::ExecuteTasks(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CTasksProject* pProject = (CTasksProject*)pMyParam->m_pThis;
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+	{
+		*pMsg = pProject->Execute(*pCallback);
+	}
+	CATCH_ALL(e)
+	{
+		*pMsg = SYGetMessage(*e);
+	}
+	END_CATCH_ALL
+
+	CoUninitialize();
+
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
+
+
+void CWeatherUpdaterDoc::OnExecute()
+{
+	ERMsg msg;
+
+	if (!m_bExecute)
+	{
+		m_bExecute = true;
+
+		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+
+		CProgressStepDlg dlg(AfxGetMainWnd(), true, true);
+		dlg.SetTaskbarList(pMainFrm->GetTaskbarList());
+		CProgressStepDlgParam param(&m_project);
+
+		TRY
+		{
+			msg = dlg.Execute(ExecuteTasks, &param);
+		}
+		CATCH_ALL(e)
+		{
+			msg = SYGetMessage(*e);
+			m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK);
+		}
+		END_CATCH_ALL
+
+		//output for LOG
+		m_lastLog = GetOutputString(msg, dlg.GetCallback());
+		ReplaceString(m_lastLog, "\n", "|");
+		ReplaceString(m_lastLog, "\r", "");
+		
+
+		dlg.DestroyWindow();
+
+		m_bExecute = false;
+	
+		//transfer message 
+		for (size_t t = 0; t < m_project.size(); t++)
+			for (size_t p = 0; p < m_project[t].size(); p++)
+				m_outputMessage[t][m_project[t][p]->m_name] = m_project[t][p]->GetLastMsg();
+
+		//save message
+		std::string filePath(m_filePath);
+		SetFileExtension(filePath, ".txt");
+		msg = zen::SaveXML(filePath, "OutputMessage", "1", m_outputMessage);
+
+
+		UpdateAllViews(NULL, TASK_CHANGE, NULL);
+	}
+}
+
+void CWeatherUpdaterDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
+{
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	pMainFrm->OnUpdate(pSender, lHint, pHint);
+
+	CDocument::UpdateAllViews(pSender, lHint, pHint);
+}
+
+void CWeatherUpdaterDoc::OnInitialUpdate()
+{
+	UpdateAllViews(NULL, NULL, NULL);
+	//CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	//pMainFrm->OnUpdate(NULL, NULL, NULL);
+}
+
+const std::string& CWeatherUpdaterDoc::GetOutputText(size_t t, size_t p)
+{ 
+	ASSERT(t < CTaskBase::NB_TYPES);
+	
+	if (p == NOT_INIT)
+		return m_lastLog;
+	
+	ASSERT(p < m_project[t].size());
+	return m_outputMessage[t][m_project[t][p]->m_name];
+}
+
+//void CWeatherUpdaterDoc::SetOutputText(size_t t, size_t p, const std::string & in)
+//{ 
+//	ASSERT(t < CTaskBase::NB_TYPES);
+//
+//
+//	if (in != m_outputText){ m_outputText = in; UpdateAllViews(NULL, OUTPUT_CHANGE, NULL); 
+//} 
+//
+void CWeatherUpdaterDoc::InsertTask(size_t t, size_t p, WBSF::CTaskPtr& pTask)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(p <= m_project[t].size());
+
+	pTask->SetProject(&m_project);
+	m_project[t].insert(m_project[t].begin() + p, pTask);
+
+	CDocument::UpdateAllViews(NULL, ADD_TASK, NULL);
+}
+
+void CWeatherUpdaterDoc::RemoveTask(size_t t, size_t p)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(p<m_project[t].size());
+
+	m_project[t].erase(m_project[t].begin() + p);
+
+	CDocument::UpdateAllViews(NULL, REMOVE_TASK, NULL);
+}
+
+void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool bAfter)
+{
+	ASSERT(t < CTaskBase::NB_TYPES);
+	ASSERT(from<m_project[t].size());
+	ASSERT(to<m_project[t].size());
+	ASSERT(from != to);
+	ASSERT(from!=NOT_INIT);
+	ASSERT(to != NOT_INIT);
+
+	if (from == to)
+		return;
+	
+	if (to < from)
+	{
+		if (bAfter)
+			to++;
+	}
+	else//if (to > from)
+	{
+		if (!bAfter)
+			to--;
+	}
+		
+	ASSERT(to != NOT_INIT);
+
+	CTaskPtr pTask = m_project[t][from];
+	m_project[t].erase(m_project[t].begin() + from);
+	m_project[t].insert(m_project[t].begin() + to, pTask);
+
+
+	m_currentType = t;
+	m_currentTask[t] = to;
+
+	CDocument::UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
+}
+
+
+
+#ifdef _DEBUG
+void CWeatherUpdaterDoc::AssertValid() const
+{
+	CDocument::AssertValid();
+}
+
+void CWeatherUpdaterDoc::Dump(CDumpContext& dc) const
+{
+	CDocument::Dump(dc);
+}
+#endif //_DEBUG
+
 
 #ifdef SHARED_HANDLERS
 
@@ -152,7 +462,7 @@ void CWeatherUpdaterDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 	CString strText = _T("TODO: implement thumbnail drawing here");
 	LOGFONT lf;
 
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
 	lf.lfHeight = 36;
 
@@ -195,160 +505,3 @@ void CWeatherUpdaterDoc::SetSearchContent(const CString& value)
 
 #endif // SHARED_HANDLERS
 
-// diagnostics pour CWeatherUpdaterDoc
-
-#ifdef _DEBUG
-void CWeatherUpdaterDoc::AssertValid() const
-{
-	CDocument::AssertValid();
-}
-
-void CWeatherUpdaterDoc::Dump(CDumpContext& dc) const
-{
-	CDocument::Dump(dc);
-}
-#endif //_DEBUG
-
-
-void CWeatherUpdaterDoc::SetCurPos(size_t t, size_t p)
-{
-	ASSERT(t < CTaskBase::NB_TYPES);
-
-	ERMsg msg;
-
-	if (t != m_currentType || p != m_currentPos[t])
-	{
-		m_currentType = t;
-		m_currentPos[t] = p;
-		
-		UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
-
-		//m_outputMessage[]
-		//msg = LoadOutput( GetOUtputName() )
-		//if (msg)
-			//SetOutputText(SYGetText(msg));
-
-		
-	}
-}
-
-void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
-{
-	pCmdUI->Enable(!m_filePath.empty());
-}
-
-void CWeatherUpdaterDoc::OnExecute()
-{
-	ERMsg msg;
-
-	CProgressStepDlg dlg(AfxGetMainWnd());
-	dlg.Create();
-
-	//assert(false);//todo
-	//msg = m_pDatabase->Open(UtilWin::ToUTF8(lpszPathName), CWeatherDatabase::modeRead, dlg.GetCallback());
-
-
-	dlg.DestroyWindow();
-
-}
-
-void CWeatherUpdaterDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
-{
-	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	pMainFrm->OnUpdate(pSender, lHint, pHint);
-
-	CDocument::UpdateAllViews(pSender, lHint, pHint);
-}
-
-void CWeatherUpdaterDoc::OnInitialUpdate()
-{
-	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	pMainFrm->OnUpdate(NULL, NULL, NULL);
-}
-
-const std::string& CWeatherUpdaterDoc::GetOutputText(size_t t, size_t p)
-{ 
-	ASSERT(t < CTaskBase::NB_TYPES);
-
-	static const std::string EMPTY_STRING;
-	
-	
-	if (p < m_project[t].size())
-	{
-		std::string hash = ToString(t) + "_" + ToString(p) + "_" + m_project[t][p]->Get(CTaskBase::NAME);
-		return m_outputMessage[hash];
-	}
-	
-	return EMPTY_STRING;
-}
-
-//void CWeatherUpdaterDoc::SetOutputText(size_t t, size_t p, const std::string & in)
-//{ 
-//	ASSERT(t < CTaskBase::NB_TYPES);
-//
-//
-//	if (in != m_outputText){ m_outputText = in; UpdateAllViews(NULL, OUTPUT_CHANGE, NULL); 
-//} 
-//
-void CWeatherUpdaterDoc::AddTask(size_t t, size_t p, WBSF::CTaskPtr pTask)
-{
-	ASSERT(t < CTaskBase::NB_TYPES);
-	ASSERT(p <= m_project[t].size());
-
-	m_project[t].insert(m_project[t].begin() + p, pTask);
-
-	m_currentType=t;
-	m_currentPos[t]=p;
-
-	CDocument::UpdateAllViews(NULL, ADD_TASK, NULL);
-}
-
-void CWeatherUpdaterDoc::RemoveTask(size_t t, size_t p)
-{
-	ASSERT(t < CTaskBase::NB_TYPES);
-	ASSERT(p<m_project[t].size());
-
-	m_project[t].erase(m_project[t].begin() + p);
-
-	m_currentType = t;
-	m_currentPos[t] = p>=m_project[t].size() ? p - 1:p;
-
-
-	CDocument::UpdateAllViews(NULL, REMOVE_TASK, NULL);
-}
-
-void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool bAfter)
-{
-	ASSERT(t < CTaskBase::NB_TYPES);
-	ASSERT(from<m_project[t].size());
-	ASSERT(to<m_project[t].size());
-	ASSERT(from != to);
-	ASSERT(from!=NOT_INIT);
-	ASSERT(to != NOT_INIT);
-
-	if (from == to)
-		return;
-	
-	if (to < from)
-	{
-		if (bAfter)
-			to++;
-	}
-	else//if (to > from)
-	{
-		if (!bAfter)
-			to--;
-	}
-		
-	ASSERT(to != NOT_INIT);
-
-	CTaskPtr pTask = m_project[t][from];
-	m_project[t].erase(m_project[t].begin() + from);
-	m_project[t].insert(m_project[t].begin() + to, pTask);
-
-
-	m_currentType = t;
-	m_currentPos[t] = to;
-
-	CDocument::UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
-}

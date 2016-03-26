@@ -229,18 +229,14 @@ namespace WBSF
 	
 	std::string GetOutputString( ERMsg msg, CCallback& callback, bool bAllMessage, char* sep )
 	{
+
+
+		string strError = GetString(IDS_STR_ERROR);
+		string strSucces = GetString(IDS_STR_SUCCESS);
+		string strLastMessage = GetString(IDS_STR_LAST_ERROR);
+		string strLastComment = GetString(IDS_STR_LAST_COMMENT);
+
 		std::string tmp;
-
-		std::string strError;
-		std::string strSucces;
-		std::string strLastMessage;
-		std::string strLastComment;
-		
-		strError = LoadString( IDS_STR_ERROR );
-		strSucces = LoadString(IDS_STR_SUCCESS);
-		strLastMessage = LoadString(IDS_STR_LAST_ERROR);
-		strLastComment = LoadString(IDS_STR_LAST_COMMENT);
-
 		if( msg )
 			tmp = strLastMessage + strSucces + "\n\n";
 		else 
@@ -1330,7 +1326,7 @@ namespace WBSF
 
 
 
-	std::string SYGetText(ERMsg msg)
+	std::string GetText(ERMsg msg)
 	{
 		std::string messStr;
 
@@ -1349,6 +1345,7 @@ namespace WBSF
 		return messStr;
 	}
 
+	
 
 	std::string& ReplaceString(std::string& str, const std::string& oldStr, const std::string& newStr)
 	{
@@ -1484,20 +1481,27 @@ namespace WBSF
 		std::string strOut;
 		if (!str.empty())
 		{
-			int l = int(ceil((double)str.length() / key.length())*key.length() + 1);
+			try
+			{
+				int l = int(ceil((double)str.length() / key.length())*key.length() + 1);
 
-			std::string init;
-			for (int i = 0; i < l; i++)
-				init += '\0';
+				std::string init;
+				for (int i = 0; i < l; i++)
+					init += '\0';
 
 
-			std::CRijndael oRijndael;
-			oRijndael.MakeKey(key.c_str(), init.c_str(), int(key.length()), int(key.length()));
+				std::CRijndael oRijndael;
+				oRijndael.MakeKey(key.c_str(), init.c_str(), int(key.length()), int(key.length()));
 
-			strOut.resize(l);
-			oRijndael.EncryptBlock(str.c_str(), &(strOut[0]));
-			ASSERT(strOut.size() == l);
-			strOut.resize(strlen(strOut.c_str()));
+				strOut.resize(l);
+				oRijndael.EncryptBlock(str.c_str(), &(strOut[0]));
+				ASSERT(strOut.size() == l);
+				strOut.resize(strlen(strOut.c_str()));
+			}
+			catch (...)
+			{
+
+			}
 		}
 
 		return strOut;
@@ -1510,17 +1514,24 @@ namespace WBSF
 		std::string strOut;
 		if (!str.empty())
 		{
-			int l = int(ceil((double)str.length() / key.length())*key.length() + 1);
+			try
+			{
+				int l = int(ceil((double)str.length() / key.length())*key.length() + 1);
 
-			std::string init;
-			for (int i = 0; i<l; i++)
-				init += '\0';
+				std::string init;
+				for (int i = 0; i < l; i++)
+					init += '\0';
 
-			std::CRijndael oRijndael;
-			oRijndael.MakeKey(key.c_str(), init.c_str(), int(key.length()), int(key.length()));
-			strOut.resize(l);
-			oRijndael.DecryptBlock(str.c_str(), &(strOut[0]));
-			strOut.resize(strlen(strOut.c_str()));
+				std::CRijndael oRijndael;
+				oRijndael.MakeKey(key.c_str(), init.c_str(), int(key.length()), int(key.length()));
+				strOut.resize(l);
+				oRijndael.DecryptBlock(str.c_str(), &(strOut[0]));
+				strOut.resize(strlen(strOut.c_str()));
+			}
+			catch (...)
+			{
+
+			}
 			//strOut.ReleaseBuffer();
 		}
 
@@ -2004,6 +2015,7 @@ std::string StringVector::to_string(const char* sep)const
 
 	return str;
 }
+
 
 }//namespace WBSF
 

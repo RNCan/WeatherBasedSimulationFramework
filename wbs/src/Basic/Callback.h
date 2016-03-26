@@ -131,7 +131,7 @@ protected:
 	HWND* m_phWnd;//progressDlg
 };
 
-std::string GetOutputString(ERMsg msg, WBSF::CCallback& callBack, bool bAllMessage = true, char* sep = "\n");
+
 
 }
 
