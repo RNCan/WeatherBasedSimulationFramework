@@ -749,7 +749,7 @@ BOOL CTaskPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
 
 				//select next item
 				size_t ID = m_pSel->GetData();
-				size_t newID = (ID + 1) % GetProperty(0)->GetSubItemsCount();
+				size_t newID = (ID + 1) % GetPropertyCount();
 				CMFCPropertyGridProperty* pNext = FindItemByData(newID);
 				if (pNext)
 				{
