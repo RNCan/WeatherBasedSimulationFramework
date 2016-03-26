@@ -72,7 +72,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);

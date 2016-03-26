@@ -70,12 +70,12 @@ namespace WBSF
 
 	string CUIISDLite::GetHistoryFilePath(bool bLocal)const
 	{
-		return (bLocal ? Get(WORKING_DIR) : string(LIST_PATH)) + "isd-history.csv";
+		return (bLocal ? GetDir(WORKING_DIR) : string(LIST_PATH)) + "isd-history.csv";
 	}
 
 	string CUIISDLite::GetOutputFilePath(const string& ID, short year, const string& ext)const
 	{
-		return Get(WORKING_DIR) + ToString(year) + "\\" + ID + "-" + ToString(year) + ext;
+		return GetDir(WORKING_DIR) + ToString(year) + "\\" + ID + "-" + ToString(year) + ext;
 	}
 
 
@@ -284,7 +284,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 
 		callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
 		callback.SetNbStep(fileList.size());
@@ -375,7 +375,7 @@ namespace WBSF
 		callback.PushLevel();
 		callback.SetNbStep(3);
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
 
@@ -390,7 +390,7 @@ namespace WBSF
 		msg = UpdateStationHistory();
 
 		if (msg)
-			msg = UpdateOptimisationStationFile(Get(WORKING_DIR), callback);
+			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
 
 		if (msg)
 			msg = LoadOptimisation();
@@ -494,7 +494,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 		msg = UpdateOptimisationStationFile(workingDir, callback);
 
 		if (msg)

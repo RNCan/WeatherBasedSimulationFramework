@@ -54,7 +54,7 @@ namespace WBSF
 		CLocationMap m_stations;
 
 
-		std::string GetHistoryFilePath(bool bLocal = true)const{ return (bLocal ? Get(WORKING_DIR) : std::string(LIST_PATH)) + "isd-history.txt"; }
+		std::string GetHistoryFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(LIST_PATH)) + "isd-history.txt"; }
 
 		ERMsg UpdateStationHistory();
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;

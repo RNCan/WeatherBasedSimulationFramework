@@ -219,7 +219,7 @@ namespace WBSF
 		//problème : certain nom dans le fichier history n'est pas le même que dans le non de fichier
 		callback.SetNbStep(3);
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
 
@@ -235,7 +235,7 @@ namespace WBSF
 		msg = UpdateStationHistory();
 
 		if (msg)
-			msg = UpdateOptimisationStationFile(Get(WORKING_DIR), callback);
+			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
 
 		if (msg)
 			msg = LoadOptimisation();
@@ -330,7 +330,7 @@ namespace WBSF
 
 	string CUIGSOD::GetOutputFilePath(const string& stationName, short year)const
 	{
-		return Get(WORKING_DIR) + ToString(year) + "\\" + stationName + "-" + ToString(year) + ".op";
+		return GetDir(WORKING_DIR) + ToString(year) + "\\" + stationName + "-" + ToString(year) + ".op";
 	}
 
 	string CUIGSOD::GetOutputFilePath(const CFileInfo& info)const
@@ -338,7 +338,7 @@ namespace WBSF
 		int pos = int(strlen(SERVER_PATH));
 		string name = info.m_filePath;
 
-		return Get(WORKING_DIR) + name.substr(pos, 25);
+		return GetDir(WORKING_DIR) + name.substr(pos, 25);
 	}
 
 
@@ -407,7 +407,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 
 		callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
 		callback.SetNbStep(fileList.size());
@@ -500,7 +500,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string workingDir = Get(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 
 		msg = UpdateOptimisationStationFile(workingDir, callback);
 		if (!msg)

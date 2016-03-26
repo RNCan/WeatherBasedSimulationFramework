@@ -141,7 +141,7 @@ namespace WBSF
 		
 		void SetProject(CTasksProject* pProject){ m_pProject = pProject;	}
 		const CTasksProject* GetProject()const{ return m_pProject; }
-		//std::string Get(WORKING_DIR)const{ return GetPath(WORKING_DIR_STR); }
+		//std::string GetDir(WORKING_DIR)const{ return GetPath(WORKING_DIR_STR); }
 		std::string GetDir(size_t i)const;
 
 		const std::string& GetLastMsg()const{ return m_lastMsg; }

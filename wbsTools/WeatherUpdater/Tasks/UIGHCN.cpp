@@ -203,7 +203,7 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 {
 	ERMsg msg;
 
-	string workingDir = Get(WORKING_DIR); 
+	string workingDir = GetDir(WORKING_DIR); 
 	CreateMultipleDir( workingDir );
 
 	string tarFilePath = workingDir + "ghcnd_all.tar";
@@ -275,7 +275,7 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 }
 string CUIGHCND::GetOutputFilePath(const string& fileTitle)const
 {
-	return Get(WORKING_DIR) + "by_year\\" + fileTitle + ".csv";
+	return GetDir(WORKING_DIR) + "by_year\\" + fileTitle + ".csv";
 }
 
 string CUIGHCND::GetOutputFilePath(const CFileInfo& info)const
@@ -365,7 +365,7 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 {
 	ERMsg msg;
 
-	string workingDir = Get(WORKING_DIR); 
+	string workingDir = GetDir(WORKING_DIR); 
 	int firstYear = as<int>(FIRST_YEAR);
 	int lastYear = as<int>(LAST_YEAR);
 
@@ -469,11 +469,11 @@ ERMsg CUIGHCND::PreProcess(CCallback& callback)
 	int lastYear = as<int>(LAST_YEAR);
 
 
-	string path = Get(WORKING_DIR);
+	string path = GetDir(WORKING_DIR);
 	msg = UpdateOptimisationStationFile(path, callback);
 	if (msg)
 	{
-		string workingDir = Get(WORKING_DIR); 
+		string workingDir = GetDir(WORKING_DIR); 
 		
 		msg = LoadOptimisation();
 		if (msg)

@@ -106,7 +106,7 @@ namespace WBSF
 		}
 		else
 		{
-			msg.ajoute("Databse must be of the same type");
+			msg.ajoute("Database must be of the same type");
 		}
 
 		return msg;

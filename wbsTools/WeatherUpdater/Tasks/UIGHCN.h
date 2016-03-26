@@ -72,7 +72,7 @@ namespace WBSF
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 
 
-		std::string GetStationFilePath(bool bLocal = true)const{ return (bLocal ? Get(WORKING_DIR) : std::string(SERVER_PATH)) + "ghcnd-stations.txt"; }
+		std::string GetStationFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(SERVER_PATH)) + "ghcnd-stations.txt"; }
 		ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir);
 		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath);
 
