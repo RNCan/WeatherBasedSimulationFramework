@@ -15,7 +15,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CCopyFTP::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Direction", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive" };
 	//const char* CCopyFTP::COMMAND_NAME[NB_ATTRIBUTES] = { "----", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive" };
-	const StringVector CCopyFTP::ATTRIBUTE_TITLE(IDS_TOOL_CONVERT_DB_P, "|;");
+	const StringVector CCopyFTP::ATTRIBUTE_TITLE(IDS_TOOL_DOWNLOAD_UPLOAD_P, "|;");
 	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_STRING, T_STRING, T_FILEPATH, T_STRING, PASSWORD, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL };
 	const char* CCopyFTP::CLASS_NAME(){ static const char* THE_CLASS_NAME = "FTPTransfer";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCopyFTP::ClassType()const { return CTaskBase::TOOLS; }

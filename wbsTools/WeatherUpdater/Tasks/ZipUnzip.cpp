@@ -41,7 +41,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case COMMAND:		str = GetString(IDS_FTP_DIRECTION); break;
+		case COMMAND:		str = GetString(IDS_STR_ZIP_COMMAND); break;
 		case ZIP_FILEPATH:	str = GetString(IDS_STR_FILTER_ZIP); break;
 		case COPY_SUB_DIRECTORY: str = "0"; break;
 		};
