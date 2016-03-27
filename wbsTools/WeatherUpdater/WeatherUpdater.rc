@@ -659,12 +659,12 @@ BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
     IDS_TOOL_MERGE_DATABASE_P 
-                            "Fichier d'entrée 1|Fichier d'entrée 2|Distance max(m)|Différence d'élévation Max(m)|Fichier de sortie|Détruire l'ancienne BD|Type|Priorité à"
+                            "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DATABASE_P 
                             "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie"
     IDS_TOOL_CROP_DATABASE_P 
                             "Fichier d'entrée|Fichier de sortie|Shapefile(optionnel)|LOC(optionnel)|Limites(optionnel)|Première Année|Dernière Année"
-    IDS_TOOL_ZIP_UNZIP_P    "Commande;Fichiers Zip;Répertoire;Filtre (pour compresser);Récursion sur les sous-répertoires"
+    IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (pour compresser)|Récursion sur les sous-répertoires"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif"
 END
@@ -1101,7 +1101,7 @@ BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply Climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
     IDS_TOOL_MERGE_DATABASE_P 
-                            "Input File 1|Input File 2|Max Distance(m)|Max elevation difference(m)|Output file path|Type|Priority to"
+                            "Input File 1|Input File 2|Output file path|Max Distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DATABASE_P "Input File 1|Input File 2|Output File"
     IDS_TOOL_CROP_DATABASE_P 
                             "Input file|Output file|First year|Last year|IDs(optional)|Bounding box(optional)|Shapefile(optional)"

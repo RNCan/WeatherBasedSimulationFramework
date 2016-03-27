@@ -17,8 +17,8 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CMergeWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilepath", "Distance", "DeltaElev", "Type", "PriorityRule" };
-	const StringVector CMergeWeather::ATTRIBUTE_TITLE(IDS_TOOL_CONVERT_DB_P, "|;");
-	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_FILEPATH, T_COMBO_POSITION, T_COMBO_POSITION };
+	const StringVector CMergeWeather::ATTRIBUTE_TITLE(IDS_TOOL_MERGE_DATABASE_P, "|;");
+	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_COMBO_POSITION, T_COMBO_POSITION };
 	const char* CMergeWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "MergeWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CMergeWeather::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CMergeWeather::CLASS_NAME(), CMergeWeather::create);
@@ -73,8 +73,8 @@ namespace WBSF
 		string inputFilePath1 = TrimConst(Get(INPUT_DB1));
 		string inputFilePath2 = TrimConst(Get(INPUT_DB2));
 		string outputFilePath = TrimConst(Get(OUTPUT_FILEPATH));
-		string extention1 = GetFileExtension(Get(inputFilePath1));
-		string extention2 = GetFileExtension(Get(inputFilePath2));
+		string extention1 = GetFileExtension(inputFilePath1);
+		string extention2 = GetFileExtension(inputFilePath2);
 
 		if (IsEqual(extention1, extention2))
 		{

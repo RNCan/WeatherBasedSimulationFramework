@@ -1,22 +1,13 @@
 #pragma once
 
-//#include "ApproximateNearestNeighbor.h"
-//#include "SearchResult.h"
 #include "TaskBase.h"
 
 namespace WBSF
 {
-
-	//class CNormalsDatabase;
-	//class CDailyDatabase;
-	//class CDailyStation;
-
 	class CMergeWeather : public CTaskBase
 	{
 	public:
 
-		//enum TMerge { FROM_DB1, FROM_MEAN, FROM_DB2, NB_MERGE_TYPE };
-		//enum TPriorityRule { LARGEST_DATA, GREATEST_YEARS, NEWEST, OLDEST, NB_PRIORITY_RULE};
 		enum TAttributes { INPUT_DB1, INPUT_DB2, OUTPUT_FILEPATH, DISTANCE, DELTA_ELEV, MERGE_TYPE, PRIORITY_RULE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CMergeWeather); }

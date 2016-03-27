@@ -203,11 +203,13 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 	{
 		long nbRows = m_taskCtrl.GetCheckedCount();
 
-		CString str = _T("Selected = ");//GetString(IDS_NB_SELECTED_TASK);
+		CString str = GetCString(IDS_NB_SELECTED_TASK);
 		CString text = str + UtilWin::ToCString(nbRows);
 
 		pCmdUI->SetText(text);
 
+		
+		
 		CDC* pDC = GetDC();
 		if (pDC)
 		{
@@ -215,7 +217,10 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 			UINT nStyle = m_wndStatusBar.GetPaneStyle(1);
 			m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_NB_TASK_CHECKED, nStyle, size.cx);
+
+			ReleaseDC(pDC);
 		}
+		
 	}
 
 
@@ -828,12 +833,6 @@ IMPLEMENT_DYNCREATE(CProjectView, CView)
 BEGIN_MESSAGE_MAP(CProjectView, CView)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	//ON_WM_SETFOCUS()
-
-//	ON_COMMAND_RANGE(ID_ADD_EC_DAILY, ID_ADD_BC_SNOWPILLOW, OnAddTask)
-	//ON_UPDATE_COMMAND_UI_RANGE(ID_ADD_EC_DAILY, ID_ADD_BC_SNOWPILLOW, OnUpdateToolBar)
-
-	
 END_MESSAGE_MAP()
 
 CProjectView::CProjectView():
@@ -852,6 +851,8 @@ CProjectView::~CProjectView()
 // CWeatherChartView drawing
 void CProjectView::OnDraw(CDC* pDC)
 {
+	int i;
+	i = 0;
 	//do nothing
 }
 
