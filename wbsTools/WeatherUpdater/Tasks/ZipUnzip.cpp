@@ -12,7 +12,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory" };
 	const StringVector CZipUnzip::ATTRIBUTE_TITLE(IDS_TOOL_ZIP_UNZIP_P, "|;");
-	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
+	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_STRING, T_STRING, T_BOOL };
 	const char* CZipUnzip::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ZipUnzip";  return THE_CLASS_NAME; }
 	CTaskBase::TType CZipUnzip::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CZipUnzip::CLASS_NAME(), CZipUnzip::create);
@@ -41,8 +41,8 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case COMMAND:str = GetString(IDS_CONVERT_DIRECTION); break;
-		case ZIP_FILEPATH:str = GetString(IDS_STR_FILTER_ZIP); break;
+		case COMMAND:		str = GetString(IDS_FTP_DIRECTION); break;
+		case ZIP_FILEPATH:	str = GetString(IDS_STR_FILTER_ZIP); break;
 		case COPY_SUB_DIRECTORY: str = "0"; break;
 		};
 
@@ -55,7 +55,7 @@ namespace WBSF
 		switch (i)
 		{
 		case COMMAND:	str = ToString(UNZIP); break;
-		case FILTER:str = "*.*"; break;
+		case FILTER:	str = "*.*"; break;
 		case COPY_SUB_DIRECTORY: str = "0"; break;
 		};
 
@@ -74,7 +74,7 @@ namespace WBSF
 		else if (command == UNZIP)
 			msg = Unzip(callback);
 		else
-			msg.ajoute("Unknown zip commad");
+			msg.ajoute("Unknown zip command");
 
 		return msg;
 	}

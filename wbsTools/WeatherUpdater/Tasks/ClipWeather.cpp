@@ -22,9 +22,9 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CClipWeather::ATTRIBUTE_NAME[] = { "InputFilepath", "OutputFilepath", "includeIds", "ExcludeIds","shapefile", "LocFilepath", "BoundingBox", "FirstYear", "LastYear" };
+	const char* CClipWeather::ATTRIBUTE_NAME[] = { "InputFilepath", "OutputFilepath", "FirstYear", "LastYear", "IncludeID", "ExcludeID", "BoundingBox", "shapefile", "LocFilepath" };
 	const StringVector CClipWeather::ATTRIBUTE_TITLE(IDS_TOOL_CROP_DATABASE_P, "|;");
-	const size_t CClipWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_FILEPATH, T_FILEPATH, T_GEORECT, T_STRING, T_STRING };
+	const size_t CClipWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_STRING, T_GEORECT, T_FILEPATH, T_FILEPATH };
 	const char* CClipWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ClipWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CClipWeather::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CClipWeather::CLASS_NAME(), CClipWeather::create);
