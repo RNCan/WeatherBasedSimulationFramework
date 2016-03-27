@@ -31,7 +31,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	static const int MAX_NUMBER_IMAGE_LOAD = 22;
+	static const int MAX_NUMBER_IMAGE_LOAD = 12;
 
 static ERMsg TransformWRF2RUC(CCallback& callback);
 
