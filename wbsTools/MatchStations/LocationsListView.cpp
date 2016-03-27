@@ -241,14 +241,13 @@ void CLocationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 		//resize space of text
 		CDC* pDC = GetDC();
-		ASSERT(pDC);
-		CSize size = pDC->GetTextExtent(text);
-
-		//CMFCStatusBar* pStatusBar = static_cast <CMFCStatusBar*> (pCmdUI->m_pOther);
-		//UINT nStyle = pStatusBar->GetPaneStyle(1);
-		//pStatusBar->SetPaneInfo(1, ID_INDICATOR_NB_LOCATIONS, nStyle, size.cx);
-		UINT nStyle = m_statusCtrl.GetPaneStyle(1);
-		m_statusCtrl.SetPaneInfo(1, ID_INDICATOR_NB_STATIONS, nStyle, size.cx);
+		if (pDC)
+		{
+			CSize size = pDC->GetTextExtent(text);
+			UINT nStyle = m_statusCtrl.GetPaneStyle(1);
+			m_statusCtrl.SetPaneInfo(1, ID_INDICATOR_NB_STATIONS, nStyle, size.cx);
+			ReleaseDC(pDC);
+		}
 	}
 
 

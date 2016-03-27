@@ -149,7 +149,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,12
+ FILEVERSION 4,0,0,14
  PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -167,7 +167,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Recherches les stations météo pour une localisation"
-            VALUE "FileVersion", "4.0.0.12"
+            VALUE "FileVersion", "4.0.0.14"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"
@@ -177,7 +177,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Match weather station for location"
-            VALUE "FileVersion", "4.0.0.12"
+            VALUE "FileVersion", "4.0.0.14"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"
@@ -525,7 +525,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard "
+    IDS_TOOLBAR_STANDARD    "Standard"
     IDS_TOOLBAR_STATUS      "Barre d'état"
     IDS_PROPERTIES_LOCATION_HEADER 
                             "Localisation|Informations spécifique au site"
