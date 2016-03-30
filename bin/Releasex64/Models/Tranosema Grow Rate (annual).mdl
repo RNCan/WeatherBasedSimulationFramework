@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Tranosema Biology</Title>
     <Version>1.0</Version>
@@ -19,7 +19,7 @@
             <Caption>ApplyAttrition</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>25 10 45 160</Rect>
+            <Rect>15 10 35 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
@@ -31,9 +31,21 @@
             <Caption>Attrition</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>54 10 76 160</Rect>
+            <Rect>40 10 65 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0.1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>age</Name>
+            <Caption>age</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>70 10 95 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
