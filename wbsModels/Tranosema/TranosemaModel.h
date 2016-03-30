@@ -29,6 +29,7 @@ namespace WBSF
 
 		bool m_bHaveAttrition;
 		double m_generationAttrition;
+		double m_InitialPupalAge;
 
 	};
 

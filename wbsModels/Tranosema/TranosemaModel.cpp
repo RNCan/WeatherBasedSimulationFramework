@@ -59,6 +59,7 @@ namespace WBSF
 		int c = 0;
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
+		m_InitialPupalAge = parameters[c++].GetReal();
 		//m_bFertility = parameters[c++].GetBool();
 
 		return msg;
@@ -154,7 +155,8 @@ namespace WBSF
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			//get initial population from spruce budworm L4 instar
-			CInitialPopulation initialPopulation = SBWStat.GetInitialPopulation(SBW::S_L4, 400, 100, ADULT, NOT_INIT, true, 0, p);
+//			CInitialPopulation initialPopulation = SBWStat.GetInitialPopulation(SBW::S_L4, 400, 100, ADULT, NOT_INIT, true, 0, p);
+			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, PUPA+m_InitialPupalAge, NOT_INIT, true,0);
 
 			//Create stand
 			CTranosemaStand stand(this);

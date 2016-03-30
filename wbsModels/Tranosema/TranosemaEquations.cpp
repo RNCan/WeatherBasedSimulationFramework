@@ -29,7 +29,7 @@ namespace WBSF
 
 	double CTranosemaEquations::Equation1(size_t s, double T)
 	{
-		ASSERT(s >= EGG && s <= PUPAE);
+		ASSERT(s >= EGG && s <= PUPA);
 
 		//development rate parameters (2 variables (Eg, Pupa), 6 parameters)
 		enum TParameters{ RHO25, HA, HL, TL, HH, TH, NB_PARAMETERS };
@@ -74,7 +74,7 @@ namespace WBSF
 		switch (s)
 		{
 		case EGG:
-		case PUPAE: Rt = Equation1(s, T); break;
+		case PUPA: Rt = Equation1(s, T); break;
 		case ADULT:	Rt = Equation2(s, T); break;
 		default: ASSERT(false);
 		}
@@ -173,7 +173,7 @@ namespace WBSF
 		switch (s)
 		{
 		case EGG:
-		case PUPAE:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
+		case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
 		case ADULT:	r = 1; break;
 		default: _ASSERTE(false);
 		}
