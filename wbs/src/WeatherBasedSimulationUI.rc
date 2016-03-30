@@ -3964,7 +3964,7 @@ BEGIN
     IDS_DBEDIT_CONFIRMDELETE 
                             "Êtes-vous sûr de vouloir supprimer ""%1"" de %2?"
     IDS_DBEDIT_CONFIRMDELETESTR "Confirmer la suppression de l'item"
-    IDS_DBEDIT_FORECASTNAME "Prévisions "
+    IDS_DBEDIT_FORECASTNAME "Prévisions"
     IDS_DBEDIT_MODELSNAME   "Modèle"
     IDS_DBEDIT_NORMALSNAME  "Normale"
     IDS_DBEDIT_REALTIMENAME "Quotidienne"

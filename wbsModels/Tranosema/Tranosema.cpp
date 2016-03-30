@@ -27,12 +27,12 @@ namespace WBSF
 	//*********************************************************************************
 	// Object creator
 	//
-	// Input: See CIndividue creator
+	// Input: See CIndividual creator
 	//
 	// Note: m_relativeDevRate member is init ewith random values.
 	//*****************************************************************************
 	CTranosema::CTranosema(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividue(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
+		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		// Each individual created gets the following attributes
 
@@ -60,7 +60,7 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			CIndividue::operator=(in);
+			CIndividual::operator=(in);
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
@@ -86,7 +86,7 @@ namespace WBSF
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-		CIndividue::Live(weather);
+		CIndividual::Live(weather);
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
@@ -145,7 +145,7 @@ namespace WBSF
 
 			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
-			CIndividuePtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, NOT_INIT, true, m_generation + 1, scaleFactor);
+			CIndividualPtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, NOT_INIT, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 
 		}
@@ -252,7 +252,7 @@ namespace WBSF
 	}
 
 
-	void CTranosema::Pack(const CIndividuePtr& pBug)
+	void CTranosema::Pack(const CIndividualPtr& pBug)
 	{
 		CTranosema* in = (CTranosema*)pBug.get();
 
@@ -260,7 +260,7 @@ namespace WBSF
 		m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
-		CIndividue::Pack(pBug);
+		CIndividual::Pack(pBug);
 	}
 
 	//*********************************************************************************************************************

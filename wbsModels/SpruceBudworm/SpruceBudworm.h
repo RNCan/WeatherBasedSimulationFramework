@@ -9,7 +9,7 @@
 #pragma once
 
 #include "Basic/UtilTime.h"
-#include "ModelBase/IndividueBase.h"
+#include "ModelBase/IndividualBase.h"
 #include "SpruceBudwormEquations.h"
 
 namespace WBSF
@@ -31,12 +31,12 @@ namespace WBSF
 
 	class CSBWTree;
 	class CSBWStand;
-	class CSpruceBudworm : public CIndividue
+	class CSpruceBudworm : public CIndividual
 	{
 	public:
 
 		CSpruceBudworm(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = SBW::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
-		CSpruceBudworm(const CSpruceBudworm& in) :WBSF::CIndividue(in){ operator=(in); }
+		CSpruceBudworm(const CSpruceBudworm& in) :WBSF::CIndividual(in){ operator=(in); }
 		CSpruceBudworm& operator=(const CSpruceBudworm& in);
 		~CSpruceBudworm(void);
 
@@ -46,9 +46,9 @@ namespace WBSF
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual double GetInstar(bool includeLast)const	{ return (IsAlive() || m_death == OLD_AGE) ? std::min(m_age < SBW::L2o ? m_age : std::max(double(SBW::L2o), m_age - 1), double(SBW::NB_STAGES) - (includeLast ? 0.0 : 1.0)) : WBSF::CBioSIMModelBase::VMISS; }
 		virtual void FixAI(double delta){ m_age = std::min(double(SBW::ADULT), std::max(double(SBW::L2o), m_age + delta)); }
-		virtual void Pack(const WBSF::CIndividuePtr& in);
+		virtual void Pack(const WBSF::CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return SBW::NB_STAGES; }
-		virtual WBSF::CIndividuePtr CreateCopy()const{ return std::make_shared<CSpruceBudworm>(*this); }
+		virtual WBSF::CIndividualPtr CreateCopy()const{ return std::make_shared<CSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return !(GetStage() == SBW::L2o || GetStage() == SBW::ADULT); }
 
 		double GetRelativeDevRate(size_t s)const { _ASSERTE(s >= 0 && s < SBW::NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 

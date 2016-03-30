@@ -31,7 +31,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	static const int MAX_NUMBER_IMAGE_LOAD = 12;
+	static const int MAX_NUMBER_IMAGE_LOAD = 18;
 
 static ERMsg TransformWRF2RUC(CCallback& callback);
 
@@ -1942,8 +1942,8 @@ bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt1)const
 		if(m_defoliation_DS.GetExtents().IsInside(xy))
 		{
 			double v = m_defoliation_DS.GetPixel(0, xy);
-			if (v != m_defoliation_DS.GetNoData(0))
-				defol = v>m_parameters1.m_defoliationThreshold;
+			//if (v != m_defoliation_DS.GetNoData(0)) no data is no defoliation
+			defol = v>m_parameters1.m_defoliationThreshold;
 		}
 	}
 
@@ -2141,7 +2141,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 
 				for (m_UTCTRef = UTC_period.Begin(); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++)
 				{
-#pragma omp parallel for //if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) est-ce que ça cause encore des problèmes??????
+#pragma omp parallel for if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) //est-ce que ça cause encore des problèmes??????
 					for (__int64 i = 0; i < (__int64 )fls.size(); i++)
 					//for (size_t i = 0; i < fls.size() && msg; i++)
 					{

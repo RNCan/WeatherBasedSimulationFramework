@@ -9,7 +9,7 @@
 #pragma once
 
 #include "Basic/UtilTime.h"
-#include "ModelBase/IndividueBase.h"
+#include "ModelBase/IndividualBase.h"
 #include "TranosemaEquations.h"
 
 
@@ -35,12 +35,12 @@ namespace WBSF
 
 	class CTranosemaHost;
 	class CTranosemaStand;
-	class CTranosema : public CIndividue
+	class CTranosema : public CIndividual
 	{
 	public:
 
 		CTranosema(CHost* pHost, CTRef creationDate = CTRef(), double age = Tranosema::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
-		CTranosema(const CTranosema& in) :CIndividue(in){ operator=(in); }
+		CTranosema(const CTranosema& in) :CIndividual(in){ operator=(in); }
 		CTranosema& operator=(const CTranosema& in);
 		~CTranosema(void);
 
@@ -48,9 +48,9 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual void Pack(const CIndividuePtr& in);
+		virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return Tranosema::NB_STAGES; }
-		virtual CIndividuePtr CreateCopy()const{ return std::make_shared<CTranosema>(*this); }
+		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CTranosema>(*this); }
 
 
 	protected:
@@ -115,8 +115,8 @@ namespace WBSF
 	typedef std::shared_ptr<CTranosemaStand> CTranosemaStandPtr;
 
 	//WARNING: cast must be defined here to avoid bug
-	//inline CIndividuePtrContainer* CTranosema::GetHost(){ return dynamic_cast<CIndividuePtrContainer*>(m_pHost); }
-	//inline const CIndividuePtrContainer* CTranosema::GetHost()const{ return dynamic_cast<const CIndividuePtrContainer*>(m_pHost); }
+	//inline CIndividualPtrContainer* CTranosema::GetHost(){ return dynamic_cast<CIndividualPtrContainer*>(m_pHost); }
+	//inline const CIndividualPtrContainer* CTranosema::GetHost()const{ return dynamic_cast<const CIndividualPtrContainer*>(m_pHost); }
 	inline CTranosemaStand* CTranosema::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosemaStand*>(m_pHost->GetStand()); }
 	inline const CTranosemaStand* CTranosema::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosemaStand*>(m_pHost->GetStand()); }
 	inline CTranosemaEquations& CTranosema::Equations(){ return GetStand()->m_equations; }

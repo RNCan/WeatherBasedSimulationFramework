@@ -43,6 +43,7 @@ namespace WBSF
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
+		m_InitialPupalAge = 0.0;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -121,7 +122,7 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 		
-		GetSpruceBudwormBiology(m_weather, SBWStat);
+		//GetSpruceBudwormBiology(m_weather, SBWStat);
 
 		//one CModelStatVector by generation
 		vector<CModelStatVector> TranosemaStat;
@@ -145,7 +146,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CTranosemaModel::ExecuteDailyAllGenerations(CModelStatVector& SBWStat, vector<CModelStatVector>& stat)
+	void CTranosemaModel::ExecuteDailyAllGenerations(CModelStatVector& /*SBWStat*/, vector<CModelStatVector>& stat)
 	{
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));

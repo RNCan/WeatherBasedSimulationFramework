@@ -7,7 +7,7 @@
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
 // 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
 // 27/09/2011	Rémi Saint-Amant	Add precipitation in live
-// 13/06/2010	Rémi Saint-Amant	inherit from CIndividue
+// 13/06/2010	Rémi Saint-Amant	inherit from CIndividual
 // 23/03/2010   Rémi Saint-Amant    Creation from old code
 //*****************************************************************************
 
@@ -38,12 +38,12 @@ namespace WBSF
 	//*****************************************************************************
 	// Object creator
 	//
-	// Input: See CIndividue creator
+	// Input: See CIndividual creator
 	//
 	// Note: m_relativeDevRate member is init ewith random values.
 	//*****************************************************************************
 	CSpruceBudworm::CSpruceBudworm(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividue(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
+		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage
 		//These are independent in successive life stages
@@ -65,7 +65,7 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			CIndividue::operator=(in);
+			CIndividual::operator=(in);
 			m_OWEnergy = in.m_OWEnergy;
 			m_bMissingEnergyAlreadyApplied = in.m_bMissingEnergyAlreadyApplied;
 
@@ -104,7 +104,7 @@ namespace WBSF
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-		CIndividue::Live(weather);
+		CIndividual::Live(weather);
 
 		CSBWTree* pTree = GetTree();
 		CSBWStand* pStand = GetStand();
@@ -199,7 +199,7 @@ namespace WBSF
 				CSBWStand* pStand = GetStand(); ASSERT(pStand);
 
 				double scaleFactor = m_broods*m_scaleFactor;
-				CIndividuePtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
+				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
 			}
 		}
@@ -432,14 +432,14 @@ namespace WBSF
 	}
 
 
-	void CSpruceBudworm::Pack(const CIndividuePtr& pBug)
+	void CSpruceBudworm::Pack(const CIndividualPtr& pBug)
 	{
 		CSpruceBudworm* in = (CSpruceBudworm*)(pBug.get());
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
-		CIndividue::Pack(pBug);
+		CIndividual::Pack(pBug);
 	}
 
 	//*********************************************************************************************************************
