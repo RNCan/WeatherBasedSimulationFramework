@@ -37,8 +37,8 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 2;
-		VERSION = "1.1.0 (2016)";
+		NB_INPUT_PARAMETER = 3;
+		VERSION = "1.1.1 (2016)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
