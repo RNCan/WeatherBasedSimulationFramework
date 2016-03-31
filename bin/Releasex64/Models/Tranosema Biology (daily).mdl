@@ -6,7 +6,7 @@
     <EXE>Tranosema Biology.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Tranosema</Description>
-    <WindowRect>0 0 194 229</WindowRect>
+    <WindowRect>0 0 167 229</WindowRect>
     <SimulatedCategory>T TR</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -19,10 +19,10 @@
             <Caption>ApplyAttrition</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>15 10 35 160</Rect>
+            <Rect>25 10 45 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>1</DefaultValue>
-            <MinValue>0</MinValue>
+            <MinValue>-1</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -31,7 +31,7 @@
             <Caption>Attrition</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>40 10 65 160</Rect>
+            <Rect>50 10 75 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0.1</DefaultValue>
             <MinValue>0</MinValue>
@@ -39,15 +39,15 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>age</Name>
-            <Caption>age</Caption>
+            <Name>Age of diapause</Name>
+            <Caption>Age of diapause</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>70 10 95 160</Rect>
+            <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
+            <MaxValue>2</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
