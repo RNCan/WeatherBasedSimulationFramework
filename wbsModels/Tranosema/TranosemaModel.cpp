@@ -43,7 +43,7 @@ namespace WBSF
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
-		m_InitialPupalAge = 0.0;
+		m_DiapauseAge = 0.0;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -60,8 +60,9 @@ namespace WBSF
 		int c = 0;
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
-		m_InitialPupalAge = parameters[c++].GetReal();
+		m_DiapauseAge = parameters[c++].GetReal();
 		//m_bFertility = parameters[c++].GetBool();
+		ASSERT(m_DiapauseAge >= 0. && m_DiapauseAge <= 2.);
 
 		return msg;
 	}
@@ -157,7 +158,7 @@ namespace WBSF
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			//get initial population from spruce budworm L4 instar
 //			CInitialPopulation initialPopulation = SBWStat.GetInitialPopulation(SBW::S_L4, 400, 100, ADULT, NOT_INIT, true, 0, p);
-			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, PUPA+m_InitialPupalAge, NOT_INIT, true,0);
+			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, EGG+m_DiapauseAge, NOT_INIT, true,0);
 
 			//Create stand
 			CTranosemaStand stand(this);
