@@ -64,6 +64,7 @@ namespace WBSF
 		double	m_Pmax;			//Potential fecondity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
+		bool m_diapause;
 
 		inline CTranosemaStand* GetStand();
 		inline const CTranosemaStand* GetStand()const;
@@ -99,6 +100,9 @@ namespace WBSF
 		//global variables of all bugs
 		bool m_bApplyAttrition;
 		double m_generationAttrition;
+		double m_diapauseAge;
+		double m_lethalTemp;
+		double m_criticalDaylength;
 
 
 		CTranosemaStand(CBioSIMModelBase* pModel) :

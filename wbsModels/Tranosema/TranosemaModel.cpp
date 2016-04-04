@@ -37,13 +37,15 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 3;
+		NB_INPUT_PARAMETER = 5;
 		VERSION = "1.1.1 (2016)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
-		m_DiapauseAge = 0.0;
+		m_diapauseAge = 0.0;
+		m_lethalTemp = -5.;
+		m_criticalDaylength = 14.;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -60,9 +62,11 @@ namespace WBSF
 		int c = 0;
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
-		m_DiapauseAge = parameters[c++].GetReal();
+		m_diapauseAge = parameters[c++].GetReal();
+		m_lethalTemp = parameters[c++].GetReal();
+		m_criticalDaylength = parameters[c++].GetReal();
 		//m_bFertility = parameters[c++].GetBool();
-		ASSERT(m_DiapauseAge >= 0. && m_DiapauseAge <= 2.);
+		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);
 
 		return msg;
 	}
@@ -141,6 +145,7 @@ namespace WBSF
 				for (size_t s = 0; s < NB_DAILY_OUTPUT; s++)
 					m_output[TRef][g*NB_DAILY_OUTPUT + s] = TranosemaStat[g][TRef][s];
 			}
+			m_output[TRef][6] = m_weather.GetDayLength(TRef)/3600.;
 		}
 
 
@@ -158,7 +163,7 @@ namespace WBSF
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			//get initial population from spruce budworm L4 instar
 //			CInitialPopulation initialPopulation = SBWStat.GetInitialPopulation(SBW::S_L4, 400, 100, ADULT, NOT_INIT, true, 0, p);
-			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, EGG+m_DiapauseAge, NOT_INIT, true,0);
+			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, EGG+m_diapauseAge, NOT_INIT, true,0);
 
 			//Create stand
 			CTranosemaStand stand(this);
@@ -175,6 +180,9 @@ namespace WBSF
 			//Init stand
 			stand.m_bApplyAttrition = m_bHaveAttrition;
 			stand.m_generationAttrition = m_generationAttrition;
+			stand.m_diapauseAge = m_diapauseAge;
+			stand.m_criticalDaylength = m_criticalDaylength;
+			stand.m_lethalTemp = m_lethalTemp;
 			stand.m_host.push_front(pHost);
 
 

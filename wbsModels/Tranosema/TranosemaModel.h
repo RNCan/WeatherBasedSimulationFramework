@@ -29,7 +29,9 @@ namespace WBSF
 
 		bool m_bHaveAttrition;
 		double m_generationAttrition;
-		double m_DiapauseAge;
+		double m_diapauseAge;
+		double m_lethalTemp;
+		double m_criticalDaylength;
 
 	};
 

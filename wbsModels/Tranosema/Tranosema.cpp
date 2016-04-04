@@ -50,6 +50,9 @@ namespace WBSF
 		m_Pᵗ = E°;
 		m_Eᵗ = E°;
 
+		//Individuals are created as non-diapause eggs
+		m_diapause = false;
+
 		m_badluck = false;
 
 	}
@@ -67,6 +70,7 @@ namespace WBSF
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
 			m_luck = in.m_luck;
+			m_diapause = in.m_diapause;
 			m_badluck = in.m_badluck;
 		}
 
@@ -88,6 +92,9 @@ namespace WBSF
 
 		CIndividual::Live(weather);
 
+		double DayLength = weather.GetDayLength() / 3600.;
+		CTRef TRef = weather.GetTRef();
+		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{
@@ -97,6 +104,15 @@ namespace WBSF
 
 			//Relative development rate for time step
 			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
+
+			//Check if egg enters diapause this time step
+			if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
+			{
+				//Egg crosses the m_diapauseAge threshold this time step, and end-sumer daylength is shorter than critical daylength
+				if (JDay>173 && DayLength < GetStand()->m_criticalDaylength)
+					m_diapause = true;
+			}
+
 			if (s == ADULT)
 				r = max(0.00667, r);
 
@@ -110,7 +126,8 @@ namespace WBSF
 
 
 			//Adjust age
-			m_age += r;
+			if(!m_diapause)
+				m_age += r;
 
 			//compute brooding
 			if (m_sex == FEMALE && m_age >= ADULT)
@@ -156,9 +173,7 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CTranosema::Die(const CWeatherDay& weather)
 	{
-		//ceci est un teste de modification
-		static const double LO_TEMP = -5.0;
- 
+		
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
@@ -172,17 +187,17 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-//		else if (weather[H_TMIN][LOWEST] < LO_TEMP && GetStage() != EGG)
-//		{
-//			m_status = DEAD;
-//			m_death = FROZEN;
-//		}
-		else if (weather.GetTRef().GetJDay() >= 364)
+		else if (m_generation>0 && weather[H_TMIN][LOWEST] < GetStand()->m_lethalTemp && !m_diapause)
 		{
-			//all bugs are kill at the ead of the season
 			m_status = DEAD;
-			m_death = OTHERS;
+			m_death = FROZEN;
 		}
+//		else if (weather.GetTRef().GetJDay() >= 364)
+//		{
+//			//all bugs are kill at the ead of the season
+//			m_status = DEAD;
+//			m_death = OTHERS;
+//		}
 	}
 
 	//*****************************************************************************
