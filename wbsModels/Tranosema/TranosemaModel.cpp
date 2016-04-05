@@ -133,9 +133,9 @@ namespace WBSF
 		vector<CModelStatVector> TranosemaStat;
 		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
 
-		//merge generations vector into one output vector (max of 4 generations)
+		//merge generations vector into one output vector (max of 5 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		size_t maxG = min(size_t(4), TranosemaStat.size());
+		size_t maxG = min(size_t(5), TranosemaStat.size());
 		m_output.Init(p.size(), p.Begin(), maxG*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
