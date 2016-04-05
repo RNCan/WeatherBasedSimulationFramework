@@ -114,7 +114,8 @@ namespace WBSF
 //*********************************************************************
 	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "Radar", "FirstDate", "LastDate" };
 	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING_BROWSE, T_DATE, T_DATE };
-	const StringVector CUIEnvCanRadar::ATTRIBUTE_TITLE(IDS_UPDATER_EC_RADAR_P, "|;");
+	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
+	
 	const char* CUIEnvCanRadar::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanRadar";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanRadar::CLASS_NAME(), CUIEnvCanRadar::create);
@@ -229,7 +230,7 @@ namespace WBSF
 	{
 		CTPeriod p;
 		StringVector t1(Get(FIRST_DATE), "-/");
-		StringVector t2(Get(FIRST_DATE), "-/");
+		StringVector t2(Get(LAST_DATE), "-/");
 		if (t1.size() == 4 && t2.size()==4)
 		{
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, ToSizeT(t1[3])), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, ToSizeT(t2[3])));
@@ -264,8 +265,8 @@ namespace WBSF
 		std::bitset<NB_RADAR> selection(Get(RADAR));
 		CTPeriod period = GetPeriod();
 
-		callback.SetCurrentDescription(GetString(IDS_LOAD_FILE_LIST));
-		callback.SetNbStep(selection.count() * period.size() / 2);
+		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), selection.count() * period.size() / 2);
+		//callback.SetNbStep(selection.count() * period.size() / 2);
 
 		size_t type = as<size_t>(TYPE);
 		size_t prcpType = as<size_t>(PRCP_TYPE);
@@ -317,6 +318,7 @@ namespace WBSF
 
 		stationList.insert(stationList.begin(), tmpList.begin(), tmpList.end());
 		callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(stationList.size()));
+		callback.PopTask();
 
 		return msg;
 	}
@@ -327,8 +329,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-		callback.SetNbStep(radarList.size());
+		callback.PushTask(GetString(IDS_CLEAN_LIST), radarList.size());
+		//callback.SetNbStep(radarList.size());
 
 		for (StringVector::iterator it = radarList.begin(); it != radarList.end() && msg;)
 		{
@@ -339,6 +341,8 @@ namespace WBSF
 
 			msg += callback.StepIt();
 		}
+
+		callback.PopTask();
 
 		return msg;
 	}
@@ -364,8 +368,8 @@ namespace WBSF
 
 		CFileInfoVector dirList;
 		msg = UtilWWW::FindDirectories(pConnection, SERVER_PATH, dirList);
-		callback.SetCurrentDescription("Find file");
-		callback.SetNbStep(dirList.size());
+		callback.PushTask("Find file", dirList.size());
+		//callback.SetNbStep(dirList.size());
 
 		CFileInfoVector clearedList;
 		{
@@ -379,8 +383,8 @@ namespace WBSF
 			}
 
 			callback.AddMessage("Number of images found: " + ToString(fileList.size()));
-			callback.SetCurrentDescription("Clear list");
-			callback.SetNbStep(fileList.size());
+			callback.PushTask("Clear list", fileList.size());
+			//callback.SetNbStep(fileList.size());
 
 
 
@@ -408,11 +412,15 @@ namespace WBSF
 				}
 				msg += callback.StepIt();
 			}
+
+			callback.PopTask();
 		}
 
+		callback.PopTask();
+
 		callback.AddMessage("Number of images to download after clearing: " + ToString(clearedList.size()));
-		callback.SetCurrentDescription("Download images");
-		callback.SetNbStep(clearedList.size());
+		callback.PushTask("Download images", clearedList.size());
+		//callback.SetNbStep(clearedList.size());
 
 		int nbDownload = 0;
 		for (size_t i = 0; i < clearedList.size() && msg; i++)
@@ -431,6 +439,7 @@ namespace WBSF
 
 
 		callback.AddMessage("Number of images downloaded: " + ToString(nbDownload));
+		callback.PopTask();
 
 		return msg;
 	}
@@ -470,8 +479,8 @@ namespace WBSF
 			return msg;
 
 
-		callback.SetCurrentDescription("Download images");
-		callback.SetNbStep(imageList.size());
+		callback.PushTask("Download images", imageList.size());
+		//callback.SetNbStep(imageList.size());
 
 
 		int nbRun = 0;
@@ -557,7 +566,7 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						callback.AddTask(1);//one step more
+						//callback.AddTask(1);//one step more
 
 						if (nbRun < 5)
 						{
@@ -575,6 +584,8 @@ namespace WBSF
 
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI));
+		callback.PopTask();
+
 
 		return msg;
 	}

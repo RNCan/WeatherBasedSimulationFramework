@@ -20,14 +20,11 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIEnvCanDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province"};
 	const size_t CUIEnvCanDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE};
-	const StringVector CUIEnvCanDaily::ATTRIBUTE_TITLE(IDS_UPDATER_EC_DAILY_P, "|;");
+	const UINT CUIEnvCanDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_DAILY_P;
+	
 	const char* CUIEnvCanDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanDaily::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanDaily::CLASS_NAME(), CUIEnvCanDaily::create);
-
-	
-	
-
 
 
 	CUIEnvCanDaily::CUIEnvCanDaily(void)
@@ -160,8 +157,8 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 
-		callback.SetCurrentDescription(GetString(IDS_LOAD_STATION_LIST));
-		callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
+		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
+		//callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
 
 
@@ -212,6 +209,7 @@ namespace WBSF
 		pSession->Close();
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+		callback.PopTask();
 
 		return msg;
 	}
@@ -312,8 +310,8 @@ namespace WBSF
 		ERMsg msg;
 
 		//update coordinates
-		callback.SetCurrentDescription("Update coordinates");
-		callback.SetNbStep(stationList.size());
+		callback.PushTask("Update coordinates", stationList.size());
+		//callback.SetNbStep(stationList.size());
 
 
 		CInternetSessionPtr pSession;
@@ -351,6 +349,7 @@ namespace WBSF
 
 		pConnection->Close();
 		pSession->Close();
+		callback.PopTask();
 
 		return msg;
 	}
@@ -521,8 +520,8 @@ namespace WBSF
 		}
 
 		//if (nbFilesToDownload)
-		callback.SetCurrentDescription(info.m_name);
-		callback.SetNbStep(nbFilesToDownload);
+		callback.PushTask(info.m_name, nbFilesToDownload);
+		//callback.SetNbStep(nbFilesToDownload);
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -544,7 +543,7 @@ namespace WBSF
 			}
 		}
 
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -672,7 +671,7 @@ namespace WBSF
 
 
 
-		callback.AddTask(stationList.size());
+		//callback.AddTask(stationList.size());
 
 
 		//InitStat();
@@ -713,7 +712,7 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						callback.AddTask(1);//one step more
+						///callback.AddTask(1);//one step more
 
 						if (nbRun < 5)
 						{

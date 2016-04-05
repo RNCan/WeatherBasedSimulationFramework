@@ -45,10 +45,12 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual void OnPropertyChanged(CMFCPropertyGridProperty* pProp) const;
 	virtual void OnChangeSelection(CMFCPropertyGridProperty* pNewSel, CMFCPropertyGridProperty* pOldSel);
-
+	virtual void Init();
 	void Update();
 	
 	size_t GetCurAtt()const{ return m_curAttibute; }
+	void SetPropertyColumnWidth(int width) { m_nLeftColumnWidth = width; AdjustLayout(); }
+
 protected:
 
 	//void Set(const CTaskParameters& in);
@@ -57,6 +59,8 @@ protected:
 	size_t m_curAttibute;
 
 	DECLARE_MESSAGE_MAP()
+	afx_msg void OnDestroy();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 
 

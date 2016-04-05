@@ -129,15 +129,24 @@ namespace WBSF
 		m_params[i] = value;
 	}
 
-	std::string CTaskBase::GetUpdaterList(bool bForecast)const
+	std::string CTaskBase::GetUpdaterList(bool bHourly, bool bForecast, bool bGrib)const
 	{ 
 		ASSERT(m_pProject); 
-		return m_pProject->GetUpdaterList(bForecast); 
+		return m_pProject->GetUpdaterList(bHourly, bForecast, bGrib);
 	}
 
 	const std::string& CTaskBase::Description(size_t i)const
 	{
 		return EMPTY_STRING;
+	}
+	
+	const std::string& CTaskBase::Title(size_t i)const
+	{ 
+		if (ATTRIBUTE_TITLE.empty())
+			const_cast<CTaskBase*>(this)->ATTRIBUTE_TITLE.LoadString(GetTitleStringID(), "|;");
+
+		ASSERT(i<GetNbAttributes()); 
+		return ATTRIBUTE_TITLE[i]; 
 	}
 
 	std::string CTaskBase::Option(size_t i)const
@@ -215,8 +224,55 @@ namespace WBSF
 
 		return true;
 	}
+	
+	bool CTaskBase::CopyToClipBoard()const
+	{
+		
+		zen::XmlDoc task("WeatherUpdaterTask");
+		task.root().setAttribute("type", WBSF::CTaskBase::GetTypeName(ClassType()));
+		zen::XmlElement& p = task.root().addChild("Task");
+		p.setAttribute("type", ClassName());
+		p.setAttribute("name", m_name);
+		p.setAttribute("execute", m_bExecute);
+		CTaskBase::writeStruc(p);
+		
+		//std::string str = zen::to_string(task, "WeatherUpdaterTask", "1");
+		std::string str = zen::serialize(task); //throw ()
+		return WBSF::SetClipboardText(str);
+	}
+
+	bool CTaskBase::PasteFromClipBoard()
+	{
+		bool bRep = false;
+
+		string str = WBSF::GetClipboardText();
+
+		try
+		{
+			zen::XmlDoc doc = zen::parse(str);
+			if (doc.root().getNameAs<string>() == "WeatherUpdaterTask")
+			{
+				auto it = doc.root().getChild("Task");
+				if (it)
+				{
+					string className;
+					it->getAttribute("type", className);
+					it->getAttribute("name", m_name);
+					it->getAttribute("execute", m_bExecute);
+					if (className == ClassName())
+						bRep = readStruc(*it);
+				}
+			}
+		}
+		catch (...)
+		{
+		}
+
+		return bRep;
+	}
 
 
+	
 	//****************************************************************************************************************************
 	
 	CTasksProject::CTasksProject()
@@ -303,26 +359,55 @@ namespace WBSF
 		return msg;
 	}
 
+
+	size_t CTasksProject::GetNbExecutes(size_t t)const
+	{
+		size_t nbExec = 0;
+		
+		
+		for (size_t tt = 0; tt != size(); tt++)
+		{
+			if (t == NOT_INIT || tt == t)
+			{
+				for (CTaskPtrVector::const_iterator it = at(tt).begin(); it != at(tt).end(); it++)
+					if ((*it)->m_bExecute)
+						nbExec++;
+			}
+		}
+			
+
+		return nbExec;
+	}
+
 	ERMsg CTasksProject::Execute(CCallback& callback)
 	{
 		ERMsg msg;
+
+		callback.PushTask("Execute tasks", GetNbExecutes());
 		for (CTasksProject::iterator it1 = begin(); it1 != end() && !callback.GetUserCancel(); it1++)
 		{
 			for (CTaskPtrVector::iterator it2 = it1->begin(); it2 != it1->end() && !callback.GetUserCancel(); it2++)
 			{
 				if ((*it2)->m_bExecute)
 				{
+					//callback.NextTask();
+
 					ASSERT( (*it2)->GetProject() == this);
+					callback.AddMessage( WBSF::GetCurrentTimeString());
 					ERMsg msgTmp = (*it2)->Execute(callback);
-					std::string str = GetOutputString(msgTmp, callback, true, "\n");
+					callback.AddMessage(WBSF::GetCurrentTimeString());
+					std::string str = GetOutputString(msgTmp, callback, false, "\n");
 					ReplaceString(str, "\n", "|");
 					ReplaceString(str, "\r", "");
 
 					(*it2)->SetLastMsg(str);
 					msg += msgTmp;
+					msg += callback.StepIt();
 				}
 			}
 		}
+
+		callback.PopTask();
 
 		return msg;
 	}
@@ -417,15 +502,19 @@ namespace WBSF
 	}
 
 
-	std::string CTasksProject::GetUpdaterList(bool bWantForecast)const
+	std::string CTasksProject::GetUpdaterList(bool bHourly, bool bForecast, bool bGribs)const
 	{
 		std::string str;
 		CTasksProjectBase::const_iterator updateIt = begin() + CTaskBase::UPDATER;
 		for (CTaskPtrVector::const_iterator it = updateIt->begin(); it != updateIt->end(); it++)
 		{
+			bool bHourlyTask = (*it)->IsHourly();
 			bool bForecastTask = (*it)->IsForecast();
-			if (bWantForecast == bForecastTask)
-				str += "|" + (*it)->m_name;//que faire si plusieur foisle mem nom???
+			bool bGribsTask = (*it)->IsGribs();
+			if (bHourly == bHourlyTask &&
+				bForecast == bForecastTask &&
+				bGribs == bGribsTask )
+				str += "|" + (*it)->m_name;//que faire si plusieur fois le mem nom???
 		}
 
 		return str;

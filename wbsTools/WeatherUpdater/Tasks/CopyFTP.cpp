@@ -13,10 +13,11 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CCopyFTP::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Direction", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive" };
-	//const char* CCopyFTP::COMMAND_NAME[NB_ATTRIBUTES] = { "----", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive" };
-	const StringVector CCopyFTP::ATTRIBUTE_TITLE(IDS_TOOL_DOWNLOAD_UPLOAD_P, "|;");
-	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_STRING, T_STRING, T_FILEPATH, T_STRING, PASSWORD, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL };
+	const char* CCopyFTP::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Direction", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive", "ShowProgress" };
+	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_STRING, T_STRING, T_FILEPATH, T_STRING, PASSWORD, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
+	const UINT CCopyFTP::ATTRIBUTE_TITLE_ID = IDS_TOOL_DOWNLOAD_UPLOAD_P;
+	
+
 	const char* CCopyFTP::CLASS_NAME(){ static const char* THE_CLASS_NAME = "FTPTransfer";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCopyFTP::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCopyFTP::CLASS_NAME(), CCopyFTP::create);
@@ -28,13 +29,6 @@ namespace WBSF
 
 	CCopyFTP::~CCopyFTP(void)
 	{}
-
-	//void CCopyFTP::Reset()
-	//{
-
-	
-
-	//}
 
 
 	std::string CCopyFTP::Option(size_t i)const
@@ -58,7 +52,8 @@ namespace WBSF
 		case CONNECTION_TIMEOUT:str = "15000"; break;
 		case LIMIT:	str = "0"; break;
 		case ASCII:	str = "0"; break;
-		case PASSIVE:	str = "0"; break;
+		case PASSIVE:	str = "1"; break;
+		case SHOW_PROGRESS:	str = "0"; break;
 		};
 
 		return str;
@@ -78,8 +73,8 @@ namespace WBSF
 		string proxy = Get(PROXY);
 		int limit = as<int>(LIMIT);
 		
-		string input = direction == D_DOWNLOAD ? Get(REMOTE) : GetDir(LOCAL);
-		string output = direction == D_DOWNLOAD ? GetDir(LOCAL) : Get(REMOTE);
+		string input = direction == D_DOWNLOAD ? Get(REMOTE) : Get(LOCAL);
+		string output = direction == D_DOWNLOAD ? Get(LOCAL) : Get(REMOTE);
 
 		callback.AddMessage("FTPTransfer from:");
 		callback.AddMessage(input, 1);
@@ -93,13 +88,13 @@ namespace WBSF
 		//string password = Decrypt(m_password);
 
 
-		callback.SetCurrentDescription("FTPTransfer");
-		callback.SetNbStep(1);
+		callback.PushTask("FTPTransfer", 1);
+		//callback.SetNbStep(1);
 
 		string command = GetApplicationPath() + "External\\FTPTransfer.exe ";
 		command += "-Server \"" + Get(SERVER) + "\" ";
 		command += "-Remote \"" + Get(REMOTE) + "\" ";
-		command += "-Local \"" + GetDir(LOCAL) + "\" ";
+		command += "-Local \"" + Get(LOCAL) + "\" ";
 		if (!userName.empty())
 			command += "-UserName \"" + userName + "\" ";
 		if (!password.empty())
@@ -120,12 +115,13 @@ namespace WBSF
 
 
 		DWORD exitCode;
-		msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), SW_SHOW, &exitCode);
+		msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), as<bool>(SHOW_PROGRESS)?SW_SHOW:SW_HIDE, &exitCode);
 		if (msg && exitCode != 0)
 			msg.ajoute("FTPTransfer as exit with error code " + ToString((int)exitCode));
 
 
 		msg += callback.StepIt();
+		callback.PopTask();
 
 
 		return msg;

@@ -20,21 +20,21 @@ class CWeatherUpdaterApp : public CWinAppEx
 public:
 	CWeatherUpdaterApp();
 
-
-// Substitutions
-public:
 	virtual BOOL InitInstance();
 
 // Implémentation
 	UINT  m_nAppLook;
 	BOOL  m_bHiColorIcons;
+	int	  m_exitCode;
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
 
-	afx_msg void OnAppAbout();
+	
 	DECLARE_MESSAGE_MAP()
+	afx_msg void OnAppAbout();
+	afx_msg void OnAppUpdaterReference();
 
 
 protected:

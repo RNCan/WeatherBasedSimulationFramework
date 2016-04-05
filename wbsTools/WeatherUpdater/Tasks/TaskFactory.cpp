@@ -116,13 +116,55 @@ namespace WBSF
 
 	CTaskPtr CTaskFactory::CreateFromClipbord()
 	{
-		string className = "";
-		//a faire
-		if (!IsRegistered(className))
-			return NULL;
+		bool bRep = false;
 
-		return CreateObject(className);
+		string className = "";
+
+		try
+		{
+			string str = WBSF::GetClipboardText();
+			zen::XmlDoc doc = zen::parse(str);
+			if (doc.root().getNameAs<string>() == "WeatherUpdaterTask")
+			{
+				auto it = doc.root().getChild("Task");
+				if (it != NULL)
+				{
+					it->getAttribute("type", className);
+					if (IsRegistered(className))
+					{
+						CTaskPtr pTask = CreateObject(className);
+						ASSERT(pTask);
+
+						it->getAttribute("name", pTask->m_name);
+						it->getAttribute("execute", pTask->m_bExecute);
+						if (pTask->readStruc(*it))
+						{
+							
+							return pTask;
+						}
+					//		if (pTask->PasteFromClipBoard())
+							
+					}
+				}
+					
+			}
+		}
+		catch (...)
+		{
+		}
+		
+
+		return NULL;
 
 	}
-	
+
+	/*void CTaskFactory::UpdateLanguage()
+	{
+		for (std::map<std::string, createF>::iterator it = GetInstance().m_classMap.begin(); it != GetInstance().m_classMap.end(); it++)
+		{
+			createF CreateObject = it->second;
+			CTaskPtr pTask = (*CreateObject)();
+			pTask->UpdateLanguage();
+		}
+	}*/
 }

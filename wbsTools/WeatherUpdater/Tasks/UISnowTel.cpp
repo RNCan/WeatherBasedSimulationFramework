@@ -29,7 +29,8 @@ static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INT
 
 const char* CUISnoTel::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "TemporalType", "State", "FirstYear", "LastYear", "UpdateStationList" };
 const size_t CUISnoTel::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING_BROWSE, T_STRING, T_STRING, T_DATE };
-const StringVector CUISnoTel::ATTRIBUTE_TITLE(IDS_UPDATER_SNOTEL_P, "|;");
+const UINT CUISnoTel::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SNOTEL_P;
+
 const char* CUISnoTel::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SNOTEL";  return THE_CLASS_NAME; }
 CTaskBase::TType CUISnoTel::ClassType()const { return CTaskBase::UPDATER; }
 static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISnoTel::CLASS_NAME(), CUISnoTel::create);
@@ -127,8 +128,8 @@ ERMsg CUISnoTel::UpdateStationInformation(CCallback& callback)const
 
 	CLocationVector stations;
 
-	callback.SetCurrentDescription(GetString(IDS_LOAD_STATION_LIST));
-	callback.SetNbStep(NB_NETWORK);
+	callback.PushTask(GetString(IDS_LOAD_STATION_LIST), NB_NETWORK);
+	//callback.SetNbStep(NB_NETWORK);
 
 	//open a connection on the server
 	CInternetSessionPtr pSession;
@@ -192,6 +193,7 @@ ERMsg CUISnoTel::UpdateStationInformation(CCallback& callback)const
 		}
 	}
 
+	callback.PopTask();
 
 	if (!msg)
 		return msg;
@@ -199,8 +201,8 @@ ERMsg CUISnoTel::UpdateStationInformation(CCallback& callback)const
 	callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stations.size()));
 
 
-	callback.SetCurrentDescription(GetString(IDS_LOAD_STATION_LIST));
-	callback.SetNbStep(stations.size());
+	callback.PushTask(GetString(IDS_LOAD_STATION_LIST), stations.size());
+	//callback.SetNbStep(stations.size());
 
 
 
@@ -245,6 +247,8 @@ ERMsg CUISnoTel::UpdateStationInformation(CCallback& callback)const
 	pConnection->Close();
 	pSession->Close();
 
+	callback.PopTask();
+
 	msg = stations.Save(GetStationListFilePath());
 
 	
@@ -274,8 +278,8 @@ ERMsg CUISnoTel::Execute(CCallback& callback)
 {
 	ERMsg msg;
 
-	callback.PushLevel();
-	callback.SetNbTask(4);
+//	callback.PushLevel();
+	//callback.SetNbTask(4);
 
 	if (!FileExists(GetStationListFilePath()) || as<bool>(UPDATE_STATIONLIST) )
 	{
@@ -286,7 +290,7 @@ ERMsg CUISnoTel::Execute(CCallback& callback)
 	}
 	else
 	{
-		callback.SkipTask(2);
+		//callback.SkipTask(2);
 	}
 	
 	m_stations.clear();
@@ -322,8 +326,8 @@ ERMsg CUISnoTel::Execute(CCallback& callback)
 	CStateSelection states(Get(STATES));
 	size_t Ttype = as<size_t>(TEMPORAL_TYPE);
 
-	callback.SetCurrentDescription(GetString(IDS_GET_STATION_LIST));
-	callback.SetNbStep(m_stations.size()*nbYears);
+	callback.PushTask(GetString(IDS_GET_STATION_LIST), m_stations.size()*nbYears);
+	//callback.SetNbStep(m_stations.size()*nbYears);
 
 	
 	//Get station
@@ -370,9 +374,10 @@ ERMsg CUISnoTel::Execute(CCallback& callback)
 	callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(nbFilesToDownload));
 	callback.AddMessage("");
 
+	callback.PopTask();
 
-	callback.SetCurrentDescription(GetString(IDS_UPDATE_FILE));
-	callback.SetNbStep(nbFilesToDownload);
+	callback.PushTask(GetString(IDS_UPDATE_FILE), nbFilesToDownload);
+	//callback.SetNbStep(nbFilesToDownload);
 
 	for (size_t i = 0; i != m_stations.size() && msg; i++)
 	{
@@ -446,7 +451,7 @@ ERMsg CUISnoTel::Execute(CCallback& callback)
 	pSession->Close();
 
 	callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
-	callback.PopLevel();
+	callback.PopTask();
 
 
 	return msg;

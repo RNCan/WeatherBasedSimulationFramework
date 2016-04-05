@@ -621,13 +621,55 @@ public:
 
 IMPLEMENT_SERIAL(CPropertiesToolBar, CMFCToolBar, 1)
 
+
+//**********************************************************************************************
+
 BEGIN_MESSAGE_MAP(CTaskPropertyGridCtrl, CMFCPropertyGridCtrl)
+	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 CTaskPropertyGridCtrl::CTaskPropertyGridCtrl()
 {
 	m_curAttibute = NOT_INIT;
 }
+
+void CTaskPropertyGridCtrl::Init()
+{
+	CMFCPropertyGridCtrl::Init();
+
+	CStringArrayEx propertyHeader(UtilWin::GetCString(IDS_STR_PROPERTY_HEADER));
+	EnableHeaderCtrl(true, propertyHeader[0], propertyHeader[1]);
+	SetBoolLabels(UtilWin::GetCString(IDS_STR_TRUE), UtilWin::GetCString(IDS_STR_FALSE));
+	EnableDescriptionArea(false);
+	SetVSDotNetLook(true);
+	MarkModifiedProperties(true);
+	SetAlphabeticMode(false);
+	SetShowDragContext(true);
+	EnableWindow(true);
+	AlwaysShowUserToolTip();
+}
+
+int CTaskPropertyGridCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CMFCPropertyGridCtrl::OnCreate(lpCreateStruct) == -1)
+		return -1;
+	
+//	AdjustLayout();
+
+	//CRect rect;
+	//GetClientRect(rect);
+
+	////add all attribute
+	//CAppOption options;
+	//m_nLeftColumnWidth = options.GetProfileInt(_T("ParametersPropertiesSplitterPos"), rect.Width() / 2);
+	//AdjustLayout();
+
+	return 0;
+}
+
+
+
 
 std::string GetUpdaterList()
 {
@@ -644,38 +686,36 @@ void CTaskPropertyGridCtrl::Update()
 
 	if (m_pTask.get() != NULL)
 	{
-			CTaskAttributes attributes;
-			m_pTask->GetAttributes(attributes);
-			
+		m_pTask->UpdateLanguage();
+		CTaskAttributes attributes;
+		m_pTask->GetAttributes(attributes);
+		
+		//CMFCPropertyGridProperty* pTaskProp = new CMFCPropertyGridProperty(); 
 
-			//string GetString(IDS_PROPERTY_ROOT);
-			//CMFCPropertyGridProperty* pGeneral = new CMFCPropertyGridProperty(_T("ALL"), -1);
-			for (size_t i = 0; i<attributes.size(); i++)
+		for (size_t i = 0; i<attributes.size(); i++)
+		{
+			CMFCPropertyGridProperty* pItem = NULL;
+			string str = m_pTask->Get(i);
+			switch (attributes[i].m_type)
 			{
-				CMFCPropertyGridProperty* pItem = NULL;
-				string str = m_pTask->Get(i);
-				switch (attributes[i].m_type)
-				{
-				case T_STRING:			pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-				case T_STRING_BROWSE:	pItem = new CGridBrowseProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_BOOL:			pItem = new CBoolGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-				case T_COMBO_POSITION:	pItem = new CGridComboPosProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_COMBO_STRING:	pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_PATH:			pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_FILEPATH:		pItem = new CStdGriFilepathProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_GEOPOINT:		pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-				case T_GEORECT:			pItem = new CGeoRectProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-				case T_PASSWORD:		pItem = new CPasswordProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-				case T_DATE:			pItem = new CTRefProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-				case T_UPDATER:			pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, m_pTask->Option(i), i); break;//always relead options
-				default: ASSERT(false);
-				}
-
-				//pGeneral->AddSubItem(pItem);
-				AddProperty(pItem);
+			case T_STRING:			pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
+			case T_STRING_BROWSE:	pItem = new CGridBrowseProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_BOOL:			pItem = new CBoolGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
+			case T_COMBO_POSITION:	pItem = new CGridComboPosProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_COMBO_STRING:	pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_PATH:			pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_FILEPATH:		pItem = new CStdGriFilepathProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_GEOPOINT:		pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
+			case T_GEORECT:			pItem = new CGeoRectProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
+			case T_PASSWORD:		pItem = new CPasswordProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
+			case T_DATE:			pItem = new CTRefProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_UPDATER:			pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;//always relead options
+			default: ASSERT(false);
 			}
 
-			//AddProperty(pGeneral);
+			//pGeneral->AddSubItem(pItem);
+			AddProperty(pItem);
+		}
 	}
 
 	Invalidate();
@@ -771,6 +811,14 @@ BOOL CTaskPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
 	return CMFCPropertyGridCtrl::PreTranslateMessage(pMsg); // all other cases still need default processing;
 }
 
+void CTaskPropertyGridCtrl::OnDestroy()
+{
+	
+	CMFCPropertyGridCtrl::OnDestroy();
+ }
+
+
+
 
 //**************************************************************************************************************
 
@@ -851,23 +899,15 @@ int CTaskPropertyWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	UINT style = WS_CHILD | WS_VISIBLE;
 	VERIFY(m_propertiesCtrl.Create(style, CRect(), this, PROPERTY_GRID_ID));
-	m_propertiesCtrl.SetBoolLabels(UtilWin::GetCString(IDS_STR_TRUE), UtilWin::GetCString(IDS_STR_FALSE));
-	m_propertiesCtrl.EnableHeaderCtrl(true, propertyHeader[0], propertyHeader[1]);
-	m_propertiesCtrl.EnableDescriptionArea(false);
-	m_propertiesCtrl.SetVSDotNetLook(true);
-	m_propertiesCtrl.MarkModifiedProperties(true);
-	m_propertiesCtrl.SetAlphabeticMode(false);
-	m_propertiesCtrl.SetShowDragContext(true);
-	m_propertiesCtrl.EnableWindow(true);
-	m_propertiesCtrl.AlwaysShowUserToolTip();
-	 
+	//m_propertiesCtrl.Init();
+
 	VERIFY(m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, IDR_PROPERTIES_TOOLBAR));
 	VERIFY(m_wndToolBar.LoadToolBar(IDR_PROPERTIES_TOOLBAR, 0, 0, TRUE /* Is locked */));
 	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC);
 	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-	 
+	
 
 	return 0;
 }
@@ -900,9 +940,20 @@ void CTaskPropertyWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
 	ASSERT(pDoc);
 
+	if (lHint == CWeatherUpdaterDoc::INIT)
+	{
+		CRect rect;
+		GetClientRect(rect);
+
+		//add all attribute
+		CAppOption options;
+		int width = options.GetProfileInt(_T("ParametersPropertiesSplitterPos"), rect.Width() / 2);
+		m_propertiesCtrl.SetPropertyColumnWidth(width);
+	}
 
 	if (lHint == CWeatherUpdaterDoc::INIT || lHint == CWeatherUpdaterDoc::SELECTION_CHANGE || 
-		lHint == CWeatherUpdaterDoc::ADD_TASK || lHint == CWeatherUpdaterDoc::REMOVE_TASK)
+		lHint == CWeatherUpdaterDoc::ADD_TASK || lHint == CWeatherUpdaterDoc::REMOVE_TASK ||
+		lHint == CWeatherUpdaterDoc::LANGUAGE_CHANGE)
 	{
 		size_t t = pDoc->GetCurT();
 		ASSERT(t != NOT_INIT);
@@ -978,6 +1029,8 @@ void CTaskPropertyWnd::OnDestroy()
 
 	CAppOption option;
 	option.WriteProfileRect(_T("DispersalDlgRect"), rectClient);
+	option.WriteProfileInt(_T("ParametersPropertiesSplitterPos"), m_propertiesCtrl.GetLeftColumnWidth());
+
 
 	CDockablePane::OnDestroy();
 }

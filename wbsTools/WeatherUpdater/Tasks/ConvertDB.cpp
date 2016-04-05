@@ -23,8 +23,9 @@ namespace WBSF
 	//*********************************************************************
 	
 	const char* CConvertDB::ATTRIBUTE_NAME[] = { "Direction", "InputFilepath", "OutputFilepath" };
-	const StringVector CConvertDB::ATTRIBUTE_TITLE(IDS_TOOL_CONVERT_DB_P, "|;");
 	const size_t CConvertDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_FILEPATH };
+	const UINT CConvertDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CONVERT_DB_P;
+	
 	const char* CConvertDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ConvertDB";  return THE_CLASS_NAME; }
 	CTaskBase::TType CConvertDB::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CConvertDB::CLASS_NAME(), CConvertDB::create);
@@ -87,18 +88,29 @@ namespace WBSF
 		if (IsEqualNoCase(extention, ".Normals") || IsEqualNoCase(extention, ".NormalsStations"))
 		{
 			if (direction == TO_NEW_VERSION)
-				msg = CNormalsDatabase::v6_to_v7(inputFilepath, outputFilepath, callback);
+			{
+				msg = CNormalsDatabase::DeleteDatabase(outputFilepath, callback);
+				if (msg)
+					msg = CNormalsDatabase::v6_to_v7(inputFilepath, outputFilepath, callback);
+			}
 			else
-				msg = CNormalsDatabase::v7_to_v6(inputFilepath, outputFilepath, callback);
+			{
+				msg = WBSF::RemoveFile(outputFilepath);
+				if (msg)
+					msg = CNormalsDatabase::v7_to_v6(inputFilepath, outputFilepath, callback);
+			}
 
 		}
 		else if (IsEqualNoCase(extention, ".DailyStations"))
 		{
-			if (direction == TO_NEW_VERSION)
-				msg = CDailyDatabase::v3_to_v4(inputFilepath.c_str(), outputFilepath.c_str(), callback);
-			else
-				msg = CDailyDatabase::v4_to_v3(inputFilepath.c_str(), outputFilepath.c_str(), callback);
-
+			msg = CDailyDatabase::DeleteDatabase(outputFilepath, callback);
+			if (msg)
+			{
+				if (direction == TO_NEW_VERSION)
+					msg = CDailyDatabase::v3_to_v4(inputFilepath.c_str(), outputFilepath.c_str(), callback);
+				else
+					msg = CDailyDatabase::v4_to_v3(inputFilepath.c_str(), outputFilepath.c_str(), callback);
+			}
 		}
 		else
 		{

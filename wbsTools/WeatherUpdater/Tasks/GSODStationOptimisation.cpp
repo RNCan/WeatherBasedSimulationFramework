@@ -27,8 +27,8 @@ namespace WBSF
 			callback.AddMessage(referencedFilePath, 1);
 			callback.AddMessage("");
 
-			callback.SetCurrentDescription(GetString(IDS_GSOD_OPTIMISATION));
-			callback.SetNbStep((size_t)file.length(), 81);
+			callback.PushTask(GetString(IDS_GSOD_OPTIMISATION), (size_t)file.length(), (size_t)81);
+			//callback.SetNbStep((size_t)file.length(), (size_t)81);
 
 
 			CGSODStationOptimisation& me = *this;
@@ -57,6 +57,7 @@ namespace WBSF
 			m_referenceFileStamp = GetFileInfo(referencedFilePath);
 
 			callback.AddMessage("station listed in history file: " + to_string(me.size()));
+			callback.PopTask();
 		}
 
 		return msg;

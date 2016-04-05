@@ -58,7 +58,8 @@ const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
 //const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Countries", "States", "Extents", "DEM", "UseDEMElevation", "ShowFTPTransfer", "ExtractWind", "ExtractSnow" };
 const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };//"BoundingBox" 
 const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
-const StringVector CUIGHCND::ATTRIBUTE_TITLE(IDS_UPDATER_NOAA_GHCND_P, "|;");
+const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
+
 const char* CUIGHCND::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GHCND";  return THE_CLASS_NAME; }
 CTaskBase::TType CUIGHCND::ClassType()const { return CTaskBase::UPDATER; }
 static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIGHCND::CLASS_NAME(), CUIGHCND::create);
@@ -142,8 +143,8 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 
 	///int nbYears = m_lastYear-m_firstYear+1;
 
-	callback.SetCurrentDescription(GetString(IDS_LOAD_FILE_LIST) );
-	callback.SetNbStep(1);
+	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), 1);
+	//callback.SetNbStep(1);
 
 	//open a connection on the server
 	CInternetSessionPtr pSession;
@@ -160,6 +161,7 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 		pSession->Close();
 	}
 	
+	callback.PopTask();
 
 	
 	//remove unwanted file
@@ -231,9 +233,9 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	callback.AddMessage(GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 	callback.AddMessage("");
 	
-	callback.SetCurrentDescription(GetString(IDS_UPDATE_FILE));
-	callback.SetNbStep(fileList.size());
-	callback.PushLevel();
+	callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
+	//callback.SetNbStep(fileList.size());
+	//callback.PushLevel();
 
 	int nbRun = 0;
 	size_t curI = 0;
@@ -270,7 +272,7 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	}
 
 	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(curI), ToString(fileList.size())));
-	callback.PopLevel();
+	callback.PopTask();
 
 	return msg;
 }
@@ -343,8 +345,8 @@ ERMsg CUIGHCND::CleanList(StringVector& fileList, CCallback& callback)const
 {
 	ERMsg msg;
 
-	callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-	callback.SetNbStep(fileList.size());
+	callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
+	//callback.SetNbStep(fileList.size());
 	
 
 	for (StringVector::iterator it = fileList.begin(); it != fileList.end() && msg;)
@@ -358,6 +360,8 @@ ERMsg CUIGHCND::CleanList(StringVector& fileList, CCallback& callback)const
 
 		msg += callback.StepIt();
 	}
+
+	callback.PopTask();
 
 	return msg;
 }
@@ -373,8 +377,8 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	//CStdioFile excludedFile;
 	//excludedFile.Open( workingDir + "FileWithoutInfo.txt", CStdFile::modeWrite|CStdFile::modeCreate);
 
-	callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-	callback.SetNbStep(fileList.size());
+	callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
+	//callback.SetNbStep(fileList.size());
 	
 
 	for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end()&&msg; )
@@ -390,7 +394,8 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 
 		msg += callback.StepIt();
 	}			
-
+	
+	callback.PopTask();
 	//excludedFile.Close();
 	//CStdioFile file("d:\\travail\\anomalie.txt", CStdFile::modeWrite|CStdFile::modeCreate);
 	//for( int i=0; i<missStationArray.size(); i++)
@@ -480,7 +485,7 @@ ERMsg CUIGHCND::PreProcess(CCallback& callback)
 		if (msg)
 		{
 			size_t nbYears = lastYear - firstYear + 1;
-			callback.AddTask(nbYears);
+			//callback.AddTask(nbYears);
 
 			for (size_t y = 0; y<nbYears&&msg; y++)
 			{
@@ -781,8 +786,8 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 		std::istream::pos_type length = file.tellg();
 		file.seekg(0);
 
-		callback.SetCurrentDescription("Load in memory " + GetFileName(filePath));
-		callback.SetNbStep(length);
+		callback.PushTask("Load in memory " + GetFileName(filePath), length);
+		//callback.SetNbStep(length);
 
 		short year = ToShort(GetFileTitle(filePath));
 		//CWeatherStationMap::iterator it = stations.end();
@@ -964,6 +969,8 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 
 			msg += callback.SetCurrentStepPos((size_t)file.tellg());
 		}// for all lines
+
+		callback.PopTask();
 	}
 
 	return msg;

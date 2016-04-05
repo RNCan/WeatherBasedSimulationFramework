@@ -26,7 +26,8 @@ namespace WBSF
 
 	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
 	const size_t CUICIPRA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
-	const StringVector CUICIPRA::ATTRIBUTE_TITLE(IDS_UPDATER_SM_CIPRA_HOURLY_P, "|;");
+	const UINT CUICIPRA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_CIPRA_HOURLY_P;
+	
 	const char* CUICIPRA::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CIPRA";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUICIPRA::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUICIPRA::CLASS_NAME(), CUICIPRA::create);
@@ -89,13 +90,14 @@ namespace WBSF
 
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
-		callback.AddTask(nbYears * 2);
+		//callback.AddTask(nbYears * 2);
 
 		int nbDownload = 0;
 
 		for (size_t t = 0; t < NB_SOURCE_TYPE; t++)
 		{
-			callback.SetCurrentDescription(string("Download ") + SOURCE_TYPE_NAME[t]);
+			callback.PushTask(string("Download ") + SOURCE_TYPE_NAME[t], nbYears);
+
 			for (size_t y = 0; y < nbYears&&msg; y++)
 			{
 				//open a connection on the server
@@ -141,8 +143,8 @@ namespace WBSF
 					callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()), 2);
 
 					//download files
-					callback.SetCurrentDescription(path);
-					callback.SetNbStep(fileList.size());
+					callback.PushTask(path, fileList.size());
+					//callback.SetNbStep(fileList.size());
 
 
 
@@ -176,7 +178,7 @@ namespace WBSF
 						//if an error occur: try again
 						if (!msg && !callback.GetUserCancel())
 						{
-							callback.AddTask(1);//one step more
+							//callback.AddTask(1);//one step more
 
 							if (nbRun < 5)
 							{
@@ -195,8 +197,14 @@ namespace WBSF
 					callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloadPerYear), 2);
 
 					nbDownload += nbDownloadPerYear;
-				}
-			}//if year
+
+					//callback.PopTask();
+				}//for all files
+
+				callback.PopTask();
+			}//for all years
+
+			callback.PopTask();
 		}//type: pomme, agro
 
 
@@ -358,8 +366,8 @@ namespace WBSF
 			}//if file exists
 		}//for all years (files)
 
-		callback.SetCurrentDescription(station.m_name);
-		callback.SetNbStep(filesize);
+		callback.PushTask(station.m_name, filesize);
+		//callback.SetNbStep(filesize);
 
 		//now extact data
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -382,6 +390,9 @@ namespace WBSF
 		//	{
 //				msg.ajoute(GetString(IDS_NO_WEATHER) + station.m_name + " [" + station.m_ID + "]");
 	//		}
+
+		callback.PopTask();
+
 
 		return msg;
 	}

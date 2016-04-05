@@ -112,8 +112,10 @@ namespace WBSF
 		//class description
 		virtual const char* ClassName()const = 0;
 		virtual TType ClassType()const = 0;
+		virtual UINT GetTitleStringID()const=0;
 		virtual bool IsHourly()const{ return false; }
 		virtual bool IsForecast()const{	return false; }
+		virtual bool IsGribs()const{ return false; }
 		virtual bool IsCreator()const{ return false; }
 
 		//attribute
@@ -124,7 +126,6 @@ namespace WBSF
 		//function
 		virtual void Init();
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK) = 0;
-		//virtual ERMsg Execute(CTaskBase& weatherUpdater, CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 
@@ -134,28 +135,36 @@ namespace WBSF
 
 		virtual size_t Type(size_t i)const = 0;
 		virtual const char* Name(size_t i)const=0; 
-		virtual const std::string& Title(size_t i)const = 0;
 		virtual const std::string& Description(size_t i)const;
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 		
+		
 		void SetProject(CTasksProject* pProject){ m_pProject = pProject;	}
 		const CTasksProject* GetProject()const{ return m_pProject; }
-		//std::string GetDir(WORKING_DIR)const{ return GetPath(WORKING_DIR_STR); }
 		std::string GetDir(size_t i)const;
 
 		const std::string& GetLastMsg()const{ return m_lastMsg; }
 		void SetLastMsg(const std::string& msg)const{ const_cast<CTaskBase*>(this)->m_lastMsg = msg; }
 
-		std::string GetUpdaterList(bool bForecast = false)const;
+		std::string GetUpdaterList(bool bHourly = false, bool bForecast = false, bool bGribs = false)const;
+		const std::string& Title(size_t i)const;
+		void UpdateLanguage(){ ATTRIBUTE_TITLE.clear();  }
+		
+
+		bool CopyToClipBoard()const;
+		bool PasteFromClipBoard();
+
 
 	protected:
 
 		CTaskParameters m_params;
+		StringVector ATTRIBUTE_TITLE;
 
 		static std::string PROJECT_PATH;
 		static const std::string EMPTY_STRING;
 		static const char* TYPE_NAME[NB_TYPES];
+
 
 		//for runtime operation
 		CTasksProject* m_pProject;
@@ -201,6 +210,7 @@ namespace WBSF
 
 		void clear();
 		bool empty()const{ return at(0).empty() && at(1).empty() && at(2).empty(); }
+		size_t GetNbExecutes(size_t t=NOT_INIT)const;
 
 		ERMsg Load(const std::string& filePath);
 		ERMsg Save(const std::string& filePath);
@@ -211,7 +221,7 @@ namespace WBSF
 		bool readStruc(const zen::XmlElement& input);
 
 		CTaskPtr GetTask(size_t t, const std::string& name)const;
-		std::string GetUpdaterList(bool bForecast = false)const;
+		std::string GetUpdaterList(bool bHourly = false, bool bForecast = false, bool bGribs = false)const;
 	};
 }
 

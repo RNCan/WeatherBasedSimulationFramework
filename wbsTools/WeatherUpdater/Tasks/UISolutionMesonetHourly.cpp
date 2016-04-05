@@ -24,7 +24,8 @@ namespace WBSF
 
 	const char* CUISolutionMesonetHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear", "UpdateStationList" };
 	const size_t CUISolutionMesonetHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_BOOL };
-	const StringVector CUISolutionMesonetHourly::ATTRIBUTE_TITLE(IDS_UPDATER_SM_HOURLY_P, "|;");
+	const UINT CUISolutionMesonetHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_HOURLY_P;
+	
 	const char* CUISolutionMesonetHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SolutionMesonetHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISolutionMesonetHourly::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISolutionMesonetHourly::CLASS_NAME(), CUISolutionMesonetHourly::create);
@@ -116,15 +117,15 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 		//size_t nbYears = startDate.GetYear() - endDate.GetYear() + 1;
 
-		callback.AddTask(nbYears);
+		//callback.AddTask(nbYears);
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			//int year = startDate.GetYear() + int(y);
 			int year = firstYear + int(y);
 
-			callback.SetCurrentDescription(FormatA("%04d", year));
-			callback.SetNbStep(GetNbDaysPerYear(year));
+			callback.PushTask(FormatA("%04d", year), GetNbDaysPerYear(year));
+			//callback.SetNbStep(GetNbDaysPerYear(year));
 
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
@@ -162,6 +163,8 @@ namespace WBSF
 
 				}//for all days
 			}//for all months
+
+			callback.PopTask();
 		}//for all years
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
@@ -282,8 +285,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
-		callback.SetCurrentDescription(GetString(IDS_LOAD_STATION_LIST));
-		callback.SetNbStep(nbYears * 12);
+		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), nbYears * 12);
+		//callback.SetNbStep(nbYears * 12);
 
 		//find all station available that meet criterious
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -312,6 +315,7 @@ namespace WBSF
 		}
 
 		stationList.insert(stationList.begin(), fileList.begin(), fileList.end());
+		callback.PopTask();
 
 		return msg;
 	}
@@ -360,7 +364,7 @@ namespace WBSF
 			}
 		}
 
-		callback.SetCurrentDescription(station.m_name);
+		callback.PushTask(station.m_name, nbFiles);
 		//callback.SetNbStep(nbFiles);
 
 
@@ -379,7 +383,7 @@ namespace WBSF
 					{
 						msg = ReadData(filePath, TM, station[year], callback);
 						if (msg)
-							msg += callback.StepIt(0);
+							msg += callback.StepIt();
 					}
 				}
 			}
@@ -394,6 +398,7 @@ namespace WBSF
 			}
 		}
 
+		callback.PopTask();
 
 		return msg;
 	}

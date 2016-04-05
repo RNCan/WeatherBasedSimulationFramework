@@ -23,7 +23,8 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIEnvCanPrcpRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "FirstYear", "LastYear" };
 	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING, T_STRING };
-	const StringVector CUIEnvCanPrcpRadar::ATTRIBUTE_TITLE(IDS_UPDATER_EC_PRCP_RADAR_P, "|;");
+	const UINT CUIEnvCanPrcpRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_PRCP_RADAR_P;
+	
 	const char* CUIEnvCanPrcpRadar::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanRadarPrcp";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanPrcpRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanPrcpRadar::CLASS_NAME(), CUIEnvCanPrcpRadar::create);
@@ -150,8 +151,8 @@ namespace WBSF
 
 
 		callback.AddMessage("Number of images to download after clearing: " + ToString(fileList.size()));
-		callback.SetCurrentDescription("Download images");
-		callback.SetNbStep(fileList.size());
+		callback.PushTask("Download images", fileList.size());
+		//callback.SetNbStep(fileList.size());
 
 		int nbDownload = 0;
 		for (size_t i = 0; i < fileList.size() && msg; i++)
@@ -170,6 +171,8 @@ namespace WBSF
 
 
 		callback.AddMessage("Number of images downloaded: " + ToString(nbDownload));
+		callback.PopTask();
+
 
 		return msg;
 	}

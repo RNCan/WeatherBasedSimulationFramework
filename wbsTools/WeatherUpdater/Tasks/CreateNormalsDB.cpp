@@ -22,7 +22,7 @@ namespace WBSF
 
 	const char* CCreateNormalsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilePath", "OutputFilePath", "FirstYear", "LastYear", "NbYears", "ApplyClimaticChange", "MMGFilepath", "ReferencePeriod", "FuturPeriod", "NbNeighbor", "MaxDistance", "Power" };
 	const size_t CCreateNormalsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_BOOL, T_FILEPATH, T_COMBO_POSITION, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING };
-	const StringVector CCreateNormalsDB::ATTRIBUTE_TITLE(IDS_TOOL_CREATE_NORMALS_P, "|;");
+	const UINT CCreateNormalsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_NORMALS_P;
 
 	const char* CCreateNormalsDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateNormals";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateNormalsDB::ClassType()const { return CTaskBase::TOOLS; }

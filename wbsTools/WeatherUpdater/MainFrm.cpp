@@ -12,6 +12,7 @@
 #include "WeatherUpdaterDoc.h"
 #include "Tasks/StateSelection.h"
 #include "Tasks/ProvinceSelection.h"
+#include "WeatherBasedSimulationUI.h"
 
 using namespace WBSF;
 using namespace UtilWin;
@@ -20,6 +21,7 @@ using namespace UtilWin;
 static const UINT ID_LAGUAGE_CHANGE = 5;//from document
 static const UINT ID_OUTPUT_WND = 501;
 static const UINT ID_PROPERTIES_WND = 502;
+static const UINT ID_PROGRESS_WND = 503;
 
 
 #ifdef _DEBUG
@@ -122,6 +124,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//dock panes
 	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT, CRect(0,0,800,800));
 	m_wndOutput.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
+	m_progressWnd.AttachToTabWnd(&m_wndOutput, DM_STANDARD, 0);
+	
+
 	
 	OnApplicationLook(theApp.m_nAppLook); 
 	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
@@ -137,21 +142,15 @@ BOOL CMainFrame::CreateDockingWindows()
 {
 	
 	// Créer la fenêtre Propriétés
-	if (!m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Impossible de créer la fenêtre Propriétés\n");
-		return FALSE; // échec de la création
-	}
+	VERIFY(m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 
-
 	// Créer la fenêtre Sortie
-	if (!m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Impossible de créer la fenêtre Sortie\n");
-		return FALSE; // échec de la création
-	}
+	VERIFY(m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+
+	VERIFY(m_progressWnd.Create(GetCString(IDS_PROGRESS_WND), this, CRect(0, 0, 600, 400), TRUE, ID_PROGRESS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI));
+	m_progressWnd.EnableDocking(CBRS_ALIGN_ANY);
 
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
 
@@ -166,6 +165,9 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
 	m_wndProperties.SetIcon(hPropertiesBarIcon, TRUE);
+
+	HICON hProgressIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROGRESS_WND), IMAGE_ICON, 24, 24, 0);
+	m_progressWnd.SetIcon(hProgressIcon, TRUE);
 
 }
 
@@ -257,9 +259,12 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 { 
-	CView* pView = GetActiveView();
-	m_wndOutput.OnUpdate(pSender, lHint, pHint);
-	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
+	if (GetActiveDocument() != NULL)
+	{
+		m_wndOutput.OnUpdate(pSender, lHint, pHint);
+		m_wndProperties.OnUpdate(pSender, lHint, pHint);
+		m_progressWnd.OnUpdate(pSender, lHint, pHint);
+	}
 }
 
 int GetLanguage(UINT id)
@@ -296,6 +301,7 @@ void CMainFrame::OnLanguageChange(UINT id)
 		CStateSelection::UpdateString();
 		CProvinceSelection::UpdateString();
 		
+		
 		m_wndToolBar.RestoreOriginalState();
 		m_wndMenuBar.RestoreOriginalState();
 
@@ -305,8 +311,12 @@ void CMainFrame::OnLanguageChange(UINT id)
 		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
 		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
 		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
+		m_progressWnd.SetWindowText(GetCString(IDS_PROGRESS_WND));
 		
-		GetActiveDocument()->UpdateAllViews(NULL, ID_LAGUAGE_CHANGE);
+		CWeatherUpdaterDoc* pDoc = static_cast<CWeatherUpdaterDoc*>(GetActiveDocument());
+		ENSURE(pDoc);
+		pDoc->SetLanguage(id);
+		
 		Invalidate();
 	}
 	
@@ -326,6 +336,7 @@ void CMainFrame::LoadtBasicCommand()
 	lstBasicCommands.AddTail(ID_EDIT_PASTE);
 	lstBasicCommands.AddTail(ID_EDIT_UNDO);
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
+	lstBasicCommands.AddTail(ID_UPDATER_REFERENCE);
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);

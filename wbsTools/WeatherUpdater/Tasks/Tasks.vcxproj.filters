@@ -110,6 +110,15 @@
     <ClInclude Include="ZipUnzip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="CreateGribsDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIACISHourly.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIACISDaily.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -206,6 +215,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ZipUnzip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateGribsDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIACISHourly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIACISDaily.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

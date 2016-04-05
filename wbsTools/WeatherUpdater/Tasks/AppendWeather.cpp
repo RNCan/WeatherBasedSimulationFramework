@@ -14,8 +14,10 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CAppendWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilePath" };
-	const StringVector CAppendWeather::ATTRIBUTE_TITLE(IDS_TOOL_APPEND_DATABASE_P, "|;");
 	const size_t CAppendWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH };
+	const UINT CAppendWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_APPEND_DATABASE_P;
+	
+	
 	const char* CAppendWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "AppendWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CAppendWeather::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CAppendWeather::CLASS_NAME(), CAppendWeather::create);

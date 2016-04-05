@@ -19,7 +19,8 @@ namespace WBSF
 
 	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness" };
 	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING };
-	const StringVector CCreateDailyDB::ATTRIBUTE_TITLE(IDS_TOOL_CREATE_DAILY_P, "|;");
+	const UINT CCreateDailyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_DAILY_P;
+	
 
 	const char* CCreateDailyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateDailyDB::ClassType()const { return CTaskBase::TOOLS; }
@@ -39,12 +40,11 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:				str = GetUpdaterList(false); break;
-		case FORECAST:			str = GetUpdaterList(true); break;
+		case INPUT:				str = GetUpdaterList(false, false, false); break;
+		case FORECAST:			str = GetUpdaterList(true, true, false); break;//forecast is only hourly for the moment
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_DAILY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-
 		};
 
 		return str;
@@ -69,7 +69,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		callback.PushLevel();
+//		callback.PushLevel();
 
 		//load the WeatherUpdater
 		CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
@@ -89,7 +89,7 @@ namespace WBSF
 		}
 
 
-		callback.PopLevel();
+		//callback.PopLevel();
 		return msg;
 	}
 
@@ -214,8 +214,8 @@ namespace WBSF
 
 		int nbStationAdded = 0;
 
-		callback.SetCurrentDescription("Load stations list");
-		callback.SetNbStep(2);
+		//callback.SetCurrentDescription("Load stations list");
+		//callback.SetNbStep(2);
 
 		//find all station in the directories
 		//StringVector allStation;
@@ -231,8 +231,8 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.SetCurrentDescription(GetString(IDS_CREATE_DATABASE) + outputFilePath);
-			callback.SetNbStep(stationList.size());
+			callback.PushTask(GetString(IDS_CREATE_DATABASE) + outputFilePath, stationList.size());
+			//callback.SetNbStep(stationList.size());
 
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)
@@ -265,11 +265,11 @@ namespace WBSF
 						station.UseIt(true);
 
 						//Get forecast
-					/*	if (!m_forecastName.empty())
-						{
+						/*	if (!m_forecastName.empty())
+							{
 							CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
 							forecast.GetWeatherStation("", CTM(CTM::DAILY), station, callback);
-						}*/
+							}*/
 						//}
 						//else
 						//{
@@ -292,28 +292,28 @@ namespace WBSF
 				msg += callback.StepIt();
 
 			}
+
+			msg += dailyDB.Close();
+			timer.Stop();
+			callback.PopTask();
+
+
+			if (msg)
+			{
+				msg = dailyDB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
+				dailyDB.Close();
+			}
+
+			if (msg)
+			{
+				callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
+			}
+
+
 		}
-	
-
-		msg += dailyDB.Close();
-		timer.Stop();
-
-		if (msg)
-		{
-			msg = dailyDB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
-			dailyDB.Close();
-		}
-
-		if (msg)
-		{
-			callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
-			callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
-			callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
-			callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
-		}
-
-
-
 
 		return msg;
 	}

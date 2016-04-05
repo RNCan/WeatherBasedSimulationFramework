@@ -23,7 +23,8 @@ namespace WBSF
 
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province" };
 	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE };
-	const StringVector CUIEnvCanHourly::ATTRIBUTE_TITLE(IDS_UPDATER_EC_HOURLY_P, "|;");
+	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
+	
 	const char* CUIEnvCanHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanHourly::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanHourly::CLASS_NAME(), CUIEnvCanHourly::create);
@@ -163,12 +164,12 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		callback.SetCurrentDescription(GetString(IDS_LOAD_STATION_LIST));
-		callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
+		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
+		//callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
 
 		//loop on province
-		for (int i = 0; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+		for (size_t i = 0; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
 		{
 			if (selection.any() && !selection[i])
 				continue;
@@ -204,7 +205,7 @@ namespace WBSF
 		pSession->Close();
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -307,8 +308,8 @@ namespace WBSF
 		ERMsg msg;
 
 		//update coordinates
-		callback.SetCurrentDescription("Update coordinates");
-		callback.SetNbStep(stationList.size());
+		callback.PushTask("Update coordinates", stationList.size());
+		//callback.SetNbStep(stationList.size());
 
 
 		CInternetSessionPtr pSession;
@@ -346,6 +347,7 @@ namespace WBSF
 
 		pConnection->Close();
 		pSession->Close();
+		callback.PopTask();
 
 		return msg;
 	}
@@ -541,7 +543,7 @@ namespace WBSF
 
 
 
-		callback.AddTask(stationList.size() * 2);
+		//callback.AddTask(stationList.size() * 2);
 
 		callback.AddMessage("Download data...", 1);
 
@@ -581,7 +583,7 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						callback.AddTask(2);//one step more
+						//callback.AddTask(2);//one step more
 
 						if (nbRun < 5)
 						{
@@ -618,8 +620,9 @@ namespace WBSF
 		size_t nbYear = lastYear - firstYear + 1;
 		//size_t nbMonths = m_lastMonth - m_firstMonth + 1;
 
-		callback.SetCurrentDescription("Get number of files to update for " + station.m_name);
-		callback.SetNbStep(nbYear * 12);
+		//callback.SetCurrentDescription("Get number of files to update for " + station.m_name);
+		//callback.SetNbStep(nbYear * 12);
+		callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
 		vector< array<bool, 12> > bNeedDownload;
 		bNeedDownload.resize(nbYear);
@@ -643,12 +646,14 @@ namespace WBSF
 			}
 		}
 
+		callback.PopTask();
+
 
 		//
 		if (nbFilesToDownload > 0)
 		{
-			callback.SetCurrentDescription("Update files for " + station.m_name);
-			callback.SetNbStep(nbFilesToDownload);
+			callback.PushTask("Update files for " + station.m_name, nbFilesToDownload);
+			//callback.SetNbStep();
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
@@ -671,44 +676,18 @@ namespace WBSF
 					}
 				}
 			}
+
+			callback.PopTask();
 		}
-		else
-		{
-			callback.SkipTask();
-		}
+		//else
+		//{
+//			callback.SkipTask();
+		//}
 
 
 		return msg;
 	}
-	//
-	//void CUIEnvCanHourly::InitStat()
-	//{
-	//	m_nbDownload=0;
-	//	int nbYear=m_lastYear-m_firstYear+1;
-	//	m_stat.clear();
-	//	m_stat.insert(m_stat.begin(), nbYear, 0);
-	//}
-	//
-	//void CUIEnvCanHourly::AddToStat(int year)
-	//{
-	//	m_nbDownload++;
-	//	m_stat[year-m_firstYear]++;
-	//}
-	//
-	//void CUIEnvCanHourly::ReportStat(CCallback& callback)
-	//{
-	//	for (size_t y = 0; y<m_stat.size(); y++)
-	//	{
-	//		if( m_stat[y] > 0)
-	//		{
-	//			string tmp = FormatMsg( IDS_UPDATE_END, ToString( m_stat[y] ), ToString( m_stat[y] ) );
-	//			string tmp2 = ToString(m_firstYear+int(y)) + tmp;
-	//			callback.AddMessage( tmp2 );
-	//		}
-	//	}
-	//
-	//	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(m_nbDownload), ToString(m_nbDownload)));
-	//}
+	
 
 	bool CUIEnvCanHourly::NeedDownload(const string& filePath, const CLocation& info, int year, size_t m)const
 	{

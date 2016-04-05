@@ -27,7 +27,7 @@ public:
 
 	size_t GetCurP(size_t t)const { return m_currentTask[t]; }
 	void SetCurP(size_t t, size_t p);//, size_t a=-1
-
+	void SetLanguage(size_t ID);
 	
 	
 
@@ -50,6 +50,7 @@ public:
 	virtual BOOL SaveModified(); // return TRUE if ok to continue
 	virtual BOOL IsModified();
 	virtual void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
+	virtual void SetPathName(LPCTSTR lpszPathName, BOOL bAddToMRU);
 
 	std::string GetUpdaterList()const;
 	const std::string& GetFilePath()const{return m_filePath; }

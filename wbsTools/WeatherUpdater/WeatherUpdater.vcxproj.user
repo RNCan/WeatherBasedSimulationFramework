@@ -17,5 +17,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>"D:\Travaux\Simon Trudeau\Update\TéléchargerCanada2015-2016.Update"  -l "D:\Travaux\Simon Trudeau\Update\TéléchargerCanada2015-2016.log" </LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

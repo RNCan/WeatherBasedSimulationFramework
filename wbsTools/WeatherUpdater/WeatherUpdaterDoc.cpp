@@ -302,28 +302,31 @@ void CWeatherUpdaterDoc::OnExecute()
 
 		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 
-		CProgressStepDlg dlg(AfxGetMainWnd(), true, true);
-		dlg.SetTaskbarList(pMainFrm->GetTaskbarList());
+		//CProgressStepDlg dlg(AfxGetMainWnd(), true, true);
+		CProgressDockablePane& progressWnd = pMainFrm->GetProgressPane();
+		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 		CProgressStepDlgParam param(&m_project);
+
+		progressWnd.ShowPane(true, false, true);
 
 		TRY
 		{
-			msg = dlg.Execute(ExecuteTasks, &param);
+			msg = progressWnd.Execute(ExecuteTasks, &param);
+			m_lastLog = GetOutputString(msg, progressWnd.GetCallback(), true);
 		}
 		CATCH_ALL(e)
 		{
 			msg = SYGetMessage(*e);
-			m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK);
+			m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK, true);
 		}
 		END_CATCH_ALL
 
-		//output for LOG
-		m_lastLog = GetOutputString(msg, dlg.GetCallback());
+		
 		ReplaceString(m_lastLog, "\n", "|");
 		ReplaceString(m_lastLog, "\r", "");
 		
 
-		dlg.DestroyWindow();
+		//dlg.DestroyWindow();
 
 		m_bExecute = false;
 	
@@ -340,6 +343,15 @@ void CWeatherUpdaterDoc::OnExecute()
 
 		UpdateAllViews(NULL, TASK_CHANGE, NULL);
 	}
+}
+
+void CWeatherUpdaterDoc::SetLanguage(size_t ID)
+{
+	for (size_t t = 0; t < m_project.size(); t++)
+		for (size_t p = 0; p < m_project[t].size(); p++)
+			m_project[t][p]->UpdateLanguage();
+
+	UpdateAllViews(NULL, CWeatherUpdaterDoc::LANGUAGE_CHANGE);
 }
 
 void CWeatherUpdaterDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -392,35 +404,32 @@ void CWeatherUpdaterDoc::RemoveTask(size_t t, size_t p)
 	ASSERT(t < CTaskBase::NB_TYPES);
 	ASSERT(p<m_project[t].size());
 
+	std::map<std::string, std::string>::iterator it = m_outputMessage[t].find(m_project[t][p]->m_name);
+	if (it != m_outputMessage[t].end())
+		m_outputMessage[t].erase(it);
+
 	m_project[t].erase(m_project[t].begin() + p);
+	
 
 	CDocument::UpdateAllViews(NULL, REMOVE_TASK, NULL);
 }
 
-void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool bAfter)
+void CWeatherUpdaterDoc::Move(size_t t, size_t from, size_t to, bool /*bAfter*/)
 {
 	ASSERT(t < CTaskBase::NB_TYPES);
 	ASSERT(from<m_project[t].size());
-	ASSERT(to<m_project[t].size());
+	ASSERT((to == NOT_INIT) || to<m_project[t].size());
 	ASSERT(from != to);
 	ASSERT(from!=NOT_INIT);
-	ASSERT(to != NOT_INIT);
 
 	if (from == to)
 		return;
 	
-	if (to < from)
-	{
-		if (bAfter)
-			to++;
-	}
-	else//if (to > from)
-	{
-		if (!bAfter)
-			to--;
-	}
+	if (to == NOT_INIT || to < from)
+		to++;
 		
 	ASSERT(to != NOT_INIT);
+	ASSERT(to<m_project[t].size());
 
 	CTaskPtr pTask = m_project[t][from];
 	m_project[t].erase(m_project[t].begin() + from);
@@ -442,6 +451,13 @@ void CWeatherUpdaterDoc::OnUpdateToolbar(CCmdUI* pCmdUI)
 	}
 
 }
+
+void CWeatherUpdaterDoc::SetPathName(LPCTSTR lpszPathName, BOOL bAddToMRU)
+{
+	CDocument::SetPathName(lpszPathName, bAddToMRU);
+	SetTitle(GetPathName());
+}
+
 
 #ifdef _DEBUG
 void CWeatherUpdaterDoc::AssertValid() const

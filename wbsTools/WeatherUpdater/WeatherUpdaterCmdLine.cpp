@@ -1,4 +1,4 @@
-// MyCommandLineInfo.cpp: implementation of the CNormalsCmdLine class.
+// MyCommandLineInfo.cpp: implementation of the CWeatherUpdaterCmdLine class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -20,19 +20,19 @@ using namespace UtilWin;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-const char* CNormalsCmdLine::PARAM_NAME[NB_PARAM]={"FILTER","NAME","ID"};
+const char* CWeatherUpdaterCmdLine::PARAM_NAME[NB_PARAM]={"FILTER","NAME","ID"};
 
 
-CNormalsCmdLine::CNormalsCmdLine():
+CWeatherUpdaterCmdLine::CWeatherUpdaterCmdLine():
 CStdCmdLine(NB_ALL_PARAM)
 {}
 
 
-CNormalsCmdLine::~CNormalsCmdLine()
+CWeatherUpdaterCmdLine::~CWeatherUpdaterCmdLine()
 {}
 
 
-short CNormalsCmdLine::GetOptionIndex(LPCTSTR lpszParam)
+short CWeatherUpdaterCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 {
 	short index = CStdCmdLine::GetOptionIndex(lpszParam);
 	if( index!=-1 )
@@ -53,12 +53,12 @@ short CNormalsCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 	return index;
 }
 
-//void CNormalsCmdLine::ParseParam( LPCTSTR lpszParam, BOOL bFlag, BOOL bLast )
+//void CWeatherUpdaterCmdLine::ParseParam( LPCTSTR lpszParam, BOOL bFlag, BOOL bLast )
 //{
 //	CStdCmdLine::ParseParam( lpszParam, bFlag, bLast );
 //}
 
-//ERMsg CNormalsCmdLine::IsValid()
+//ERMsg CWeatherUpdaterCmdLine::IsValid()
 //{
 //	ERMsg msg = CStdCmdLine::IsValid();
 //
@@ -104,13 +104,13 @@ short CNormalsCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 //	return m_msg;
 //}
 
-//bool CNormalsCmdLine::NeedQuote(short i)
+//bool CWeatherUpdaterCmdLine::NeedQuote(short i)
 //{
 //	ASSERT( i>=0 && i<NB_PARAM);
 //	return NEED_QUOTE[i];
 //}
 
-//CString CNormalsCmdLine::GetCommandLine()
+//CString CWeatherUpdaterCmdLine::GetCommandLine()
 //{
 //	ASSERT( IsValid() );
 //

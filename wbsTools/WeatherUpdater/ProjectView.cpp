@@ -17,10 +17,13 @@
 #include "Tasks/UISolutionMesonetHourly.h"
 #include "Tasks/UISolutionMesonetDaily.h"
 #include "Tasks/UICIPRA.h"
+#include "Tasks/UIACISHourly.h"
+#include "Tasks/UIACISDaily.h"
 
 #include "Tasks/CreateHourlyDB.h"
 #include "Tasks/CreateDailyDB.h"
 #include "Tasks/CreateNormalsDB.h"
+#include "Tasks/CreateGribsDB.h"
 #include "Tasks/MergeWeather.h"
 #include "Tasks/AppendWeather.h"
 #include "Tasks/ClipWeather.h"
@@ -80,11 +83,11 @@ BEGIN_MESSAGE_MAP(CTaskWnd, CWnd)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DUPLICATE, OnUpdateToolBar)
-	ON_UPDATE_COMMAND_UI(ID_REMOVE, OnUpdateToolBar)
+	ON_UPDATE_COMMAND_UI(ID_TASK_DELETE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_TASK_CHECKED, OnUpdateStatusBar)
 
 	ON_COMMAND_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_OTHER_MMG, OnAdd)
-	ON_COMMAND(ID_REMOVE, &OnRemove)
+	ON_COMMAND(ID_TASK_DELETE, &OnRemove)
 	ON_COMMAND(ID_EDIT_COPY, &OnEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &OnEditPaste)
 	ON_COMMAND(ID_EDIT_DUPLICATE, &OnEditDuplicate)
@@ -207,7 +210,6 @@ void CTaskWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 		CString text = str + UtilWin::ToCString(nbRows);
 
 		pCmdUI->SetText(text);
-
 		
 		
 		CDC* pDC = GetDC();
@@ -262,17 +264,19 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_NOAA_ISD_LITE: className = CUIISDLite::CLASS_NAME(); break;
 	case ID_TASK_SNOTEL:		className = CUISnoTel::CLASS_NAME(); break;
 	case ID_TASK_NOMAD_RUC:		className = CUIRapidUpdateCycle::CLASS_NAME(); break;
-	case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
 	case ID_TASK_SM_HOURLY:		className = CUISolutionMesonetHourly::CLASS_NAME(); break;
+	case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
 	case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
 		//case ID_TASK_OTHER_DOWNLOADER: str = ::CLASS_NAME(); break;
 		//case ID_TASK_EC_GRIB_FORECAST: str = ::CLASS_NAME(); break;
-		//case ID_TASK_ACIS: str = ; break;
+	case ID_TASK_ACIS_HOURLY:	className = CUIACISHourly::CLASS_NAME(); break;
+	case ID_TASK_ACIS_DAILY:	className = CUIACISDaily::CLASS_NAME(); break;
 		//case ID_TASK_BC_PAWS: str = ; break;
 		//case ID_TASK_BC_SNOWPILLOW: str = ; break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
+	case ID_TASK_CREATE_GRIBS:	className = CCreateGribsDB::CLASS_NAME(); break;
 	case ID_TASK_MERGE_DATABASE:className = CMergeWeather::CLASS_NAME(); break;
 	case ID_TASK_APPEND_DATABASE:className = CAppendWeather::CLASS_NAME(); break;
 	case ID_TASK_CROP_DATABASE:	className = CClipWeather::CLASS_NAME(); break;
@@ -295,7 +299,17 @@ string CTaskWnd::ClassName(UINT ID)
 
 void CTaskWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(true);
+
+	HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
+	size_t p = m_taskCtrl.GetPosition(hItem);
+	switch(pCmdUI->m_nID)
+	{
+	case ID_EDIT_COPY:
+	case ID_EDIT_DUPLICATE:
+	case ID_TASK_DELETE:	pCmdUI->Enable(p != NOT_INIT); break;
+	default: pCmdUI->Enable(true);
+	}
+	
 }
 
 //
@@ -440,7 +454,7 @@ void CTaskWnd::OnRemove()
 	ASSERT(hItem != NULL);
 
 	size_t p = m_taskCtrl.GetPosition(hItem);
-	ASSERT(p != NOT_INIT);
+	ENSURE(p != NOT_INIT);
 
 	pDoc->RemoveTask(m_type, p);
 	m_taskCtrl.DeleteItem(hItem);
@@ -471,7 +485,7 @@ void CTaskWnd::OnEditCopy()
 	size_t p = m_taskCtrl.GetPosition(hItem);
 	ASSERT(p != NOT_INIT);
 
-	//pDoc->GetTask()->CopyToClipBoard();
+	pDoc->GetTask(m_type, p)->CopyToClipBoard();
 }
 
 void CTaskWnd::OnEditPaste()
@@ -487,13 +501,17 @@ void CTaskWnd::OnEditPaste()
 	//CTaskPtr pItem = pParent->CopyFromClipBoard();
 	if (pTask)
 	{
+		pTask->m_name = GenerateNewName(pTask->m_name);
+
 		HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
 		size_t p = m_taskCtrl.GetPosition(hItem);
 
 		size_t pp = (p + 1);
 		pDoc->InsertTask(m_type, pp, pTask);
 
-
+		UINT ID = CtrlID(pTask->ClassName());
+		UINT imageIndex = ID - ID_TASK_FIRST;
+		m_taskCtrl.InsertTask(pTask, imageIndex, (p == NOT_INIT) ? NULL : hItem);
 
 		//pParent->InsertItem(pItem);
 		//m_taskCtrl.InsertItem(pTask, hItem);
@@ -615,25 +633,7 @@ LRESULT CTaskWnd::OnBeginDrag(WPARAM wParam, LPARAM lParam)
 
 	if (pMsg && pData && pData->hItem)
 	{
-		/*
-		CString strCopyMove = _T("move");
-		if (pData->bCopyDrag)
-		strCopyMove = _T("copy");
-		CString strItem = m_Tree.GetItemText(pData->hItem);
-		TRACE(_T("starting %s drag on '%s'\n"), strCopyMove, strItem);
-
-		if (strItem == _T("Longdog"))
-		lResult = 1;
-
-		if (m_bLog && (lResult == 0))
-		m_List.Printf(CXListBox::Blue, CXListBox::White, 0,
-		_T("%04d  starting %s drag on '%s'"),
-		m_nLineNo++, strCopyMove, strItem);
-		else if (m_bLog && (lResult == 1))
-		m_List.Printf(CXListBox::Red, CXListBox::White, 0,
-		_T("%04d  rejecting drag of '%s'"),
-		m_nLineNo++, strItem);
-		*/
+		lResult = m_taskCtrl.GetPosition(pData->hItem)==NOT_INIT?1:0;
 	}
 	else
 	{
@@ -653,74 +653,41 @@ LRESULT CTaskWnd::OnEndDrag(WPARAM wParam, LPARAM lParam)
 
 	LRESULT lResult = 1;
 
-	if (pMsg && pData && pData->hItem /*&& pDoc->IsInit()*/)
+	if (pMsg && pData && pData->hItem )
 	{
 		HTREEITEM hItem = pData->hItem;
 		HTREEITEM hAfter = pData->hAfter;
-		bool bAfter = ((UINT_PTR)pData->hAfter & 0xFFFF0000) == 0xFFFF0000;
-
-		//HTREEITEM hParent = m_taskCtrl.GetParentItem(pData->hItem);
-		//HTREEITEM hParentPasteOn = NULL;
-		//if (((UINT_PTR)pData->hAfter & 0xFFFF0000) == 0xFFFF0000)
-		//{
-		//	hParentPasteOn = pData->hNewParent;
-		//	hAfter = NULL;
-		//}
-		//else
-		//{
-		//	hParentPasteOn = m_taskCtrl.GetParentItem(pData->hAfter);
-		//	bool bExpended = m_taskCtrl.IsExpanded(pData->hAfter);
-		//	if (bExpended)
-		//		hParentPasteOn = NULL;
-		//}
 		
-		//ASSERT(CTaskTreeCtrl::GetParentItem(pData->hAfter) == hParent);
-		//HTREEITEM hParentPasteOn = CTaskTreeCtrl::GetParentItem(pData->hAfter);
-
-		//HTREEITEM hParentPasteOn = CTaskTreeCtrl::GetParentItem(hPasteOnItem);
-		//if( !CanPaste(pItem, hPasteOnItem ) )
-		//if (hParentPasteOn == hParent)
 		if (hAfter)
 		{
 			CWeatherUpdaterDoc* pDoc = GetDocument();
-
+			ASSERT(pDoc);
+			
+			bool bCopyDrag = pData->bCopyDrag;
+			
 			size_t pFrom = m_taskCtrl.GetPosition(hItem);
 			size_t pTo = m_taskCtrl.GetPosition(hAfter);
-			//pDoc->GetCurPos(m_type);
-			//WBSF::CTaskPtr pTask = pDoc->GetTask(m_type, p);
-			pDoc->Move(pFrom, pTo, bAfter);
 
 
-			//m_pRoot->MoveItem(iName, iAfterName, pData->bCopyDrag);
+			if (bCopyDrag)
+			{
+				CTaskPtr pTask1 = pDoc->GetTask(m_type, pFrom);
+				CTaskPtr pTask2 = CTaskFactory::CreateObject(pTask1->ClassName());
+				*pTask2 = *pTask1;
+
+				//pTask2->m_name = WBSF::GenerateNewName(pTask2->m_name);
+
+				pDoc->InsertTask(m_type, pTo, pTask2);
+			}
+			else
+			{
+				pDoc->Move(m_type, pFrom, pTo, true);
+			}
+				
 
 
-			//HTREEITEM hPasteOnItem = NULL;
-			//if (((UINT_PTR)pData->hAfter & 0xFFFF0000) == 0xFFFF0000)
-			//hPasteOnItem = pData->hNewParent;
-			//else if (pData->hAfter)
-			//hPasteOnItem = pData->hAfter;
+			lResult = 0;
 		}
-		else
-		{
-			lResult = 1;
-		}
-
-		/*if( CanPaste(pItem, hPasteOnItem ) )
-		{
-		}
-		else
-		{
-		lResult = 1;
-		}*/
-		//}
-		//else
-		//{
-		// lParam = 0 ==> drag was terminated by user (left button up
-		// when not on item, ESC key, right mouse button down)
-		//if (m_bLog)
-		//m_List.Printf(CXListBox::Red, CXListBox::White, 0, 
-		//_T("%04d  drag terminated by user"), m_nLineNo++);
-		//}
 	}
 
 	return lResult;	// return 0 to allow drop
@@ -733,56 +700,8 @@ LRESULT CTaskWnd::OnDropHover(WPARAM wParam, LPARAM lParam)
 	ASSERT(pMsg);
 
 	XHTMLTREEDRAGMSGDATA *pData = (XHTMLTREEDRAGMSGDATA *)lParam;
-	//CBioSIMDoc* pDoc = GetDocument();
-
-
 	LRESULT lResult = 0;
 
-	//if (pMsg)
-	//{
-	//	m_taskCtrl
-
-	//	//CBioSIMProject& project = pDoc->GetProject();
-
-	//	//string iName = CTaskTreeCtrl::GetInternalName(pData->hItem);
-	//	//CTaskPtr pItem = project.FindItem(iName);
-	//	HTREEITEM hParent = GetParentItem(pData->hItem);
-	//	//HTREEITEM hPasteOnItem = pData->hAfter;
-	//	//if (((UINT_PTR)pData->hAfter & 0xFFFF0000) == 0xFFFF0000)
-	//	//hPasteOnItem = pData->hNewParent;
-	//	//else if (pData->hAfter)
-	//	//hPasteOnItem = pData->hAfter;
-	//	HTREEITEM hParentPasteOn = GetParentItem(pData->hAfter);
-	//	bool bExpended = IsExpanded(pData->hAfter);
-	//	if (bExpended)
-	//		hParentPasteOn = pData->hAfter;
-	//	//{
-	//	//	//look to se if it the last item
-	//	//	HTREEITEM hNextItem = CTaskTreeCtrl::GetNextItem(pData->hAfter);
-	//	//	HTREEITEM hParentNextItem = CTaskTreeCtrl::GetParentItem(hNextItem);
-	//	//	hParentPasteOn = hParentNextItem;
-	//	//}
-
-
-	//	//if( !CanPaste(pItem, hPasteOnItem ) )
-	//	if (hParent != hParentPasteOn)
-	//		lResult = 1;
-
-	//	CString strItem = GetItemText(hParent);
-	//	CString strTextHover = GetItemText(hParentPasteOn);
-	//	CString proposedNewParent = GetItemText(pData->hNewParent);
-	//	TRACE(_T("*********old parent '%s' new parent '%s' proposed new parent '%s'\n"), strItem, strTextHover, pData->hNewParent ? proposedNewParent : _T("NULL"));
-
-	//	//TRACE(_T("dragging '%s' over '%s'\n"), strItem, strTextHover);
-
-	//	//if (strTextHover == _T("Longdog"))
-	//	//lResult = 1;
-	//}
-	//else
-	//{
-	//	TRACE(_T("ERROR bad param\n"));
-	//	ASSERT(FALSE);
-	//}
 
 	return lResult;
 }

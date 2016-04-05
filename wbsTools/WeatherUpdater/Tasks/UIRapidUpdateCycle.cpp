@@ -59,7 +59,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End" };
 	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE };
-	const StringVector CUIRapidUpdateCycle::ATTRIBUTE_TITLE(IDS_UPDATER_NOMAD_RUC_P, "|;");
+	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOMAD_RUC_P;
 
 	const char* CUIRapidUpdateCycle::CLASS_NAME(){ static const char* THE_CLASS_NAME = "RapidUpdateCycle";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIRapidUpdateCycle::ClassType()const { return CTaskBase::UPDATER; }
@@ -86,8 +86,8 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
-		case BEGIN:
-		case END:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
+		case FIRST_DATE:
+		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		};
 
 		return str;
@@ -190,9 +190,9 @@ namespace WBSF
 	CTPeriod CUIRapidUpdateCycle::GetPeriod()const
 	{
 		CTPeriod p;
-//		StringVector t(m_period, "-/");
-		StringVector t1(Get(BEGIN), "-/");
-		StringVector t2(Get(END), "-/");
+
+		StringVector t1(Get(FIRST_DATE), "-/");
+		StringVector t2(Get(LAST_DATE), "-/");
 		if (t1.size() == 3 && t2.size() == 3)
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, FIRST_HOUR), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, LAST_HOUR));
 
@@ -213,7 +213,7 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		callback.AddTask(1);
+		//callback.AddTask(1);
 
 
 		int nbFilesToDownload = 0;
@@ -242,8 +242,8 @@ namespace WBSF
 		}
 
 		//if (nbFilesToDownload)
-		callback.SetCurrentDescription("Download grib for period");
-		callback.SetNbStep(nbFilesToDownload);
+		callback.PushTask("Download grib for period", nbFilesToDownload);
+		//callback.SetNbStep(nbFilesToDownload);
 
 		int nbRun = 0;
 		CTRef curH = period.Begin();
@@ -297,7 +297,7 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						callback.AddTask(1);//one step more
+						//callback.AddTask(1);//one step more
 
 						if (nbRun < 5)
 						{
@@ -315,7 +315,7 @@ namespace WBSF
 
 
 		callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -335,4 +335,14 @@ namespace WBSF
 		return msg;
 	}
 
+	CTRef CUIRapidUpdateCycle::GetTRef(string filePath)
+	{
+		string name = GetFileTitle(filePath);
+		int year = WBSF::as<int>(name.substr(8, 4));
+		size_t m = WBSF::as<int>(name.substr(12, 2))-1;
+		size_t d = WBSF::as<int>(name.substr(14, 2))-1;
+		size_t h = WBSF::as<int>(name.substr(17, 2));
+
+		return CTRef(year,m,d,h);
+	}
 }

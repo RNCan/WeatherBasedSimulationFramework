@@ -121,6 +121,8 @@ using namespace WBSF;
 		SetAutoCheckChildren(TRUE);
 		SetHtml(FALSE);
 		SetImages(TRUE);
+		SetDragOps(XHTMLTREE_DO_CTRL_KEY);
+		SetDropCursors(IDC_CMN_NODROP, IDC_CMN_DROPCOPY, IDC_CMN_DROPMOVE);
 	}
 
 	//add root

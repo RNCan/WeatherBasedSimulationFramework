@@ -157,8 +157,11 @@
     <ClInclude Include="CopyFTP.h" />
     <ClInclude Include="CountrySelection.h" />
     <ClInclude Include="CreateDailyDB.h" />
+    <ClInclude Include="CreateGribsDB.h" />
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="UIACISDaily.h" />
+    <ClInclude Include="UIACISHourly.h" />
     <ClInclude Include="UICIPRA.h" />
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
@@ -192,8 +195,11 @@
     <ClCompile Include="CopyFTP.cpp" />
     <ClCompile Include="CountrySelection.cpp" />
     <ClCompile Include="CreateDailyDB.cpp" />
+    <ClCompile Include="CreateGribsDB.cpp" />
     <ClCompile Include="CreateHourlyDB.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="UIACISDaily.cpp" />
+    <ClCompile Include="UIACISHourly.cpp" />
     <ClCompile Include="UICIPRA.cpp" />
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />

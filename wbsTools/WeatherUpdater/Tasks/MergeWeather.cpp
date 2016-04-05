@@ -17,8 +17,10 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CMergeWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilepath", "Distance", "DeltaElev", "Type", "PriorityRule" };
-	const StringVector CMergeWeather::ATTRIBUTE_TITLE(IDS_TOOL_MERGE_DATABASE_P, "|;");
 	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_COMBO_POSITION, T_COMBO_POSITION };
+	const UINT CMergeWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_MERGE_DATABASE_P;
+	
+	
 	const char* CMergeWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "MergeWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CMergeWeather::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CMergeWeather::CLASS_NAME(), CMergeWeather::create);
@@ -131,7 +133,7 @@ namespace WBSF
 		if (msg)
 		{
 			callback.AddMessage(GetString(IDS_CREATE_DATABASE));
-			callback.PushLevel();
+//			callback.PushLevel();
 
 			callback.AddMessage(outputFilePath);
 			callback.AddMessage("");
@@ -158,7 +160,7 @@ namespace WBSF
 			}
 
 			
-			callback.PopLevel();
+			//callback.PopLevel();
 		}
 		/*}
 			CATCH_ALL(e)
@@ -188,7 +190,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.SetNbStep(4);
+			//callback.SetNbStep(4);
 
 			//Get the data for each station
 			CDailyDatabase outputDB;
@@ -250,7 +252,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.SetNbStep(4);
+			//callback.SetNbStep(4);
 
 			//Get the data for each station
 			CHourlyDatabase outputDB;

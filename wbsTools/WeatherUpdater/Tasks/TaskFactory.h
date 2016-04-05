@@ -53,6 +53,7 @@ namespace WBSF
 		static bool IsRegistered(const std::string& className);
 
 		static CTaskPtr CreateFromClipbord();
+		//static void UpdateLanguage();
 		//static CInfoParameters& GetInfoParameters(const std::string& sourceName){ return m_classMap[sourceName].m_paramDefArray; }
 		//static CTaskParametersVector& GetParamClassInfo(const std::string& sourceName){ return m_classMap[sourceName]; }
 

@@ -22,7 +22,8 @@ namespace WBSF
 
 	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
 	const size_t CCreateHourlyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_STRING };
-	const StringVector CCreateHourlyDB::ATTRIBUTE_TITLE(IDS_TOOL_CREATE_HOURLY_P, "|;");
+	const UINT CCreateHourlyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_HOURLY_P;
+	
 
 	const char* CCreateHourlyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateHourlyDB::ClassType()const { return CTaskBase::TOOLS; }
@@ -44,8 +45,8 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:				str = GetUpdaterList(false); break;
-		case FORECAST:			str = GetUpdaterList(true); break;
+		case INPUT:				str = GetUpdaterList(true, false, false); break;
+		case FORECAST:			str = GetUpdaterList(true, true, false); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_HOURLY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
@@ -269,8 +270,8 @@ namespace WBSF
 		int nbStationAdded = 0;
 
 
-		callback.SetCurrentDescription("Load stations list");
-		callback.SetNbStep(2);
+		//callback.SetCurrentDescription("Load stations list", 2);
+		//callback.SetNbStep(2);
 
 
 		//find all station in the directories
@@ -283,104 +284,106 @@ namespace WBSF
 		msg += callback.StepIt();
 		//}
 
-		if (!msg)
-			return msg;
-
-	/*	if (!loc.empty())
+		if (msg)
 		{
-			for (StringVector::iterator it = stationList.begin(); it != stationList.end();)
-			{
+
+			/*	if (!loc.empty())
+				{
+				for (StringVector::iterator it = stationList.begin(); it != stationList.end();)
+				{
 				string ID = task.GetStationIDFromName(*it);
 				if (loc.FindByID(ID) == -1)
-					it = stationList.erase(it);
+				it = stationList.erase(it);
 				else
-					it++;
-			}
-		}
-*/
-		callback.SetCurrentDescription(GetString(IDS_CREATE_DATABASE));
-		callback.AddTask(1);
-		callback.SetNbStep(stationList.size());
-		callback.AddMessage("Extracting " + ToString(stationList.size()) + " stations");
+				it++;
+				}
+				}
+				*/
+			callback.PushTask(GetString(IDS_CREATE_DATABASE), stationList.size());
+			//callback.AddTask(1);
+			//callback.SetNbStep(stationList.size());
+			callback.AddMessage("Extracting " + ToString(stationList.size()) + " stations");
 
-		for (size_t i = 0; i < stationList.size() && msg; i++)
-		{
-
-			CWeatherStation station(true);
-
-			timerRead.Start();
-			ERMsg messageTmp = task.GetWeatherStation(stationList[i], CTM(CTM::HOURLY), station, callback);
-			timerRead.Stop();
-
-			if (messageTmp)
+			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
-				//if (m_bClearSparse)
-				CleanSparse(station);
 
+				CWeatherStation station(true);
 
-				if (station.HaveData())
+				timerRead.Start();
+				ERMsg messageTmp = task.GetWeatherStation(stationList[i], CTM(CTM::HOURLY), station, callback);
+				timerRead.Stop();
+
+				if (messageTmp)
 				{
-					ASSERT(!station.m_name.empty());
-					string newName = DB.GetUniqueName(station.m_name);
-					if (newName != station.m_name)
-					{
-						station.m_name = newName;
-						station.SetDataFileName("");
-					}
+					//if (m_bClearSparse)
+					CleanSparse(station);
 
-					//if (std::find(exludeStation.begin(), exludeStation.end(), station.m_ID) == exludeStation.end())
-					//{
-					station.UseIt(true);
 
-					//Get forecast
-					//if (!m_forecastName.empty())
-					//{
-					//	CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
-					//	forecast.GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
-					//}
-					/*}
-					else
+					if (station.HaveData())
 					{
+						ASSERT(!station.m_name.empty());
+						string newName = DB.GetUniqueName(station.m_name);
+						if (newName != station.m_name)
+						{
+							station.m_name = newName;
+							station.SetDataFileName("");
+						}
+
+						//if (std::find(exludeStation.begin(), exludeStation.end(), station.m_ID) == exludeStation.end())
+						//{
+						station.UseIt(true);
+
+						//Get forecast
+						//if (!m_forecastName.empty())
+						//{
+						//	CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
+						//	forecast.GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
+						//}
+						/*}
+						else
+						{
 						station.UseIt(false);
 						callback.AddMessage("Station " + station.m_name + " (" + station.m_ID + ") was exclude by user", 1);
+						}
+						*/
+						timerWrite.Start();
+						messageTmp += DB.Add(station);
+						timerWrite.Stop();
+
+						if (messageTmp)
+							nbStationAdded++;
 					}
-*/
-					timerWrite.Start();
-					messageTmp += DB.Add(station);
-					timerWrite.Stop();
-
-					if (messageTmp)
-						nbStationAdded++;
-				}
-			}//if msg
+				}//if msg
 
 
-			if (!messageTmp)
-				callback.AddMessage(messageTmp, 1);
+				if (!messageTmp)
+					callback.AddMessage(messageTmp, 1);
+
+				if (msg)
+					msg += callback.StepIt();
+			}//for all station
+
+			DB.Close();
+			timer.Stop();
+			callback.PopTask();
 
 			if (msg)
-				msg += callback.StepIt();
-		}//for all station
+			{
+				msg = DB.Open(hourlyDBFilePath, CHourlyDatabase::modeRead, callback);
+				DB.Close();
+			}
 
-		DB.Close();
-		timer.Stop();
 
-
-		if (msg)
-		{
-			msg = DB.Open(hourlyDBFilePath, CHourlyDatabase::modeRead, callback);
-			DB.Close();
+			if (msg)
+			{
+				callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
+			}
 		}
 
-
-		if (msg)
-		{
-			callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
-			callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
-			callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
-			callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
-		}
-
+		//callback.PopTask();
 
 		return msg;
 	}

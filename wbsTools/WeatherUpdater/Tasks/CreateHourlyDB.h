@@ -19,7 +19,9 @@ namespace WBSF
 		virtual ~CCreateHourlyDB(void);
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const;
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+		//virtual void UpdateLanguage();
 		virtual bool IsCreator()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -27,7 +29,7 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i<NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i<NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		virtual const std::string& Title(size_t i)const{ ASSERT(i<NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
+		//virtual const std::string& Title(size_t i)const{ ASSERT(i<NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
@@ -37,7 +39,7 @@ namespace WBSF
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
-		static const StringVector ATTRIBUTE_TITLE;
+		static const UINT ATTRIBUTE_TITLE_ID;
 
 
 		void CleanSparse(CWeatherStation& station)const;

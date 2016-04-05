@@ -18,17 +18,21 @@ namespace WBSF
 
 	public:
 
-		enum TAttributes { WORKING_DIR, BEGIN, END, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
+		static CTRef GetTRef(std::string filePath);
 
 		CUIRapidUpdateCycle(void);
 		virtual ~CUIRapidUpdateCycle(void);
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const;
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+		virtual bool IsHourly()const{ return true; }
+		virtual bool IsGribs()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -37,8 +41,6 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
-		//virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
 	protected:
@@ -49,15 +51,13 @@ namespace WBSF
 
 		std::string GetInputFilePath(CTRef TRef, bool bGrib)const;
 		std::string GetOutputFilePath(CTRef TRef, bool bGrib)const;
-
-		//std::string m_path;
-		//std::string m_period;
-
+	
 		CTPeriod GetPeriod()const;
 
+		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
-		static const StringVector ATTRIBUTE_TITLE;
+		static const UINT ATTRIBUTE_TITLE_ID;
 		static const char* SERVER_NAME;
 		static const char* INPUT_FORMAT1;
 		static const char* INPUT_FORMAT2;

@@ -61,6 +61,8 @@
 #include "UI/Common/AboutDlg.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
+#include "WeatherUpdaterCmdLine.h"
+#include "UI/Common/SYShowMessage.h"
 #include <gdiplus.h>
 
 using namespace Gdiplus;
@@ -75,6 +77,8 @@ using namespace WBSF;
 
 BEGIN_MESSAGE_MAP(CWeatherUpdaterApp, CWinAppEx) 
 	ON_COMMAND(ID_APP_ABOUT, &CWeatherUpdaterApp::OnAppAbout)
+	ON_COMMAND(ID_UPDATER_REFERENCE, &CWeatherUpdaterApp::OnAppUpdaterReference)
+	
 	// Commandes de fichier standard
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
@@ -91,7 +95,7 @@ CWeatherUpdaterApp::CWeatherUpdaterApp() :
 	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
 	SetAppID(_T("NRCan.WeatherUpdater.5"));
-	
+	m_exitCode = 0;
 }
 
 // Seul et unique objet CWeatherUpdaterApp
@@ -117,7 +121,11 @@ BOOL CWeatherUpdaterApp::InitInstance()
 		hInst = LoadLibraryW(L"WeatherUpdaterFrc.dll");
 
 		if (hInst != NULL)
+		{
 			AfxSetResourceHandle(hInst);
+			//CTaskFactory::UpdateLanguage();
+		}
+			
 	}
 
 	CDynamicResources::set(AfxGetResourceHandle());
@@ -155,6 +163,76 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	setlocale(LC_ALL, ".ACP");
 	setlocale(LC_NUMERIC, "English");
+	CRegistry registry("Time Format");
+
+	CTRefFormat format;
+
+	for (int t = 0; t<CTM::NB_REFERENCE; t++)
+	{
+		for (int m = 0; m<CTM::NB_MODE; m++)
+		{
+			CTM tm(t, m);
+			format.SetHeader(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[header]", CTRefFormat::GetDefaultHeader(tm)).c_str());
+			format.SetFormat(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[format]", CTRefFormat::GetDefaultFormat(tm)).c_str());
+			//to correct a old bug
+
+		}
+	}
+
+	CTRef::SetFormat(format);
+
+
+
+	CWeatherUpdaterCmdLine cmdInfo;
+	ParseCommandLine(cmdInfo);
+	// Dispatch commands specified on the command line.  
+	if (cmdInfo.Is(CStdCmdLine::EXECUTE))
+	{
+		ERMsg msg;
+
+		//CSCCallBack callback;
+		CProgressStepDlg dlg(m_pMainWnd);
+		if (cmdInfo.Is(CStdCmdLine::SHOW))
+			dlg.Create();
+		
+		CString curDir = UtilWin::GetCurrentDirectory();
+		std::string absolutePath = CStringA(UtilWin::GetAbsolutePath(curDir, cmdInfo.m_strFileName));
+		//CExecutablePtr projectPtr;
+		WBSF::CTasksProject project;
+		//pProject->SetMyself(&projectPtr);
+		//projectPtr.reset(pProject);
+
+
+		//projectPtr->LoadDefaultCtrl();
+
+		msg += project.Load(absolutePath);
+		if (msg)
+			msg += project.Execute(dlg.GetCallback());
+
+
+		if (cmdInfo.Is(CStdCmdLine::LOG))
+		{
+			WBSF::ofStream file;
+
+			std::string logFilePath(CStringA(cmdInfo.GetParam(CStdCmdLine::LOG)));
+			ERMsg msgTmp = file.open(logFilePath);
+			if (msgTmp)
+			{
+				std::string logText = WBSF::GetOutputString(msg, dlg.GetCallback());
+				file.write(logText);
+				file.close();
+			}
+			msg += msgTmp;
+		}
+
+		if (!msg && cmdInfo.Is(CStdCmdLine::SHOW))
+			::AfxMessageBox(UtilWin::SYGetText(msg));
+
+
+		m_exitCode = msg ? 0 : -1;
+		return FALSE;
+	}
+
 
 	InitContextMenuManager();
 	InitKeyboardManager();
@@ -178,9 +256,6 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
-	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
 
 	// Activer les ouvertures d'exécution DDE
 	EnableShellOpen();
@@ -211,6 +286,13 @@ void CWeatherUpdaterApp::OnAppAbout()
 	aboutDlg.DoModal();
 }
 
+void CWeatherUpdaterApp::OnAppUpdaterReference()
+{
+	std::string filepath = WBSF::GetApplicationPath() + "External\\WeatherSourcesReferences.html";
+	ShellExecute(AfxGetMainWnd()->GetSafeHwnd(), _T("open"), CString(filepath.c_str()), NULL, NULL, SW_SHOW);
+}
+
+
 
 void CWeatherUpdaterApp::PreLoadState()
 {
@@ -233,6 +315,17 @@ int CWeatherUpdaterApp::ExitInstance()
 {
 	CoUninitialize();
 	GdiplusShutdown(m_nGdiplusToken);
+
+	annClose();
+	int exitCode = CWinApp::ExitInstance();
+	if (exitCode == 0)
+		exitCode = m_exitCode;
+
+
+	GetKeyboardManager()->CleanUp();
+	CMFCToolBar::CleanUpImages();
+	CMFCVisualManager::DestroyInstance();
+
 	return CWinAppEx::ExitInstance();
 }
 

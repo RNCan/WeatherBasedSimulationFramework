@@ -250,8 +250,8 @@ namespace WBSF
 			callback.AddMessage(refFilePath, 1);
 			callback.AddMessage("");
 
-			callback.SetCurrentDescription(GetString(IDS_GSOD_OPTIMISATION));
-			callback.SetNbStep((size_t)file.length(), 81 + 1);
+			callback.PushTask(GetString(IDS_GSOD_OPTIMISATION), (size_t)file.length(), size_t(81 + 1));
+			//callback.SetNbStep();
 
 			elevAllStationFile << "Name,ID,Lat,Lon,Elev,res,ElevLo(SRTM4.1),Elev(SRTM4.1),ElevHi(SRTM4.1)\n";
 
@@ -316,6 +316,7 @@ namespace WBSF
 				m_referenceFileStamp = GetFileInfo(refFilePath);
 		}
 
+		callback.PopTask();
 
 		return msg;
 	}

@@ -95,7 +95,8 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIEnvCanHourlyForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Region" };
 	const size_t CUIEnvCanHourlyForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_BROWSE };
-	const StringVector CUIEnvCanHourlyForecast::ATTRIBUTE_TITLE(IDS_UPDATER_EC_FORECAST_P, "|;");
+	const UINT CUIEnvCanHourlyForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_FORECAST_P;
+	
 	const char* CUIEnvCanHourlyForecast::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanHourlyForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanHourlyForecast::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanHourlyForecast::CLASS_NAME(), CUIEnvCanHourlyForecast::create);
@@ -269,7 +270,7 @@ namespace WBSF
 		callback.AddMessage("");
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
-		callback.AddTask(m_selection.count());
+		//callback.AddTask(m_selection.count());
 
 
 		msg = CHourlyDatabase().DeleteDatabase(GetDatabaseFilePath(), callback);
@@ -312,8 +313,8 @@ namespace WBSF
 			callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 
 			//Download files
-			callback.SetCurrentDescription(region);
-			callback.SetNbStep(fileList.size());
+			callback.PushTask(region, fileList.size());
+			//callback.SetNbStep(fileList.size());
 			CreateMultipleDir(outputPath);
 
 			for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
@@ -338,7 +339,7 @@ namespace WBSF
 
 		pConnection->Close();
 		pSession->Close();
-
+		callback.PopTask();
 
 		if (msg)
 		{
@@ -349,9 +350,7 @@ namespace WBSF
 			if (msg)
 			{
 				for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
-				{
 					DB.Add(*it);
-				}
 
 				msg = DB.Close();
 			}

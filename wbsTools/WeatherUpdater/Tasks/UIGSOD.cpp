@@ -32,7 +32,8 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };
 	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
-	const StringVector CUIGSOD::ATTRIBUTE_TITLE(IDS_UPDATER_NOAA_GSOD_P, "|;");
+	const UINT CUIGSOD::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GSOD_P;
+	
 	const char* CUIGSOD::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GSOD";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIGSOD::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIGSOD::CLASS_NAME(), CUIGSOD::create);
@@ -115,8 +116,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
-		callback.SetCurrentDescription(GetString(IDS_LOAD_FILE_LIST));
-		callback.SetNbStep(nbYears);
+		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), nbYears);
+//		callback.SetNbStep(nbYears);
 
 
 
@@ -196,7 +197,7 @@ namespace WBSF
 
 		}
 
-
+		callback.PopTask();
 
 		//remove unwanted file
 		if (msg)
@@ -219,7 +220,7 @@ namespace WBSF
 		ERMsg msg;
 
 		//problème : certain nom dans le fichier history n'est pas le même que dans le non de fichier
-		callback.SetNbStep(3);
+//		callback.SetNbStep(3);
 
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
@@ -249,8 +250,8 @@ namespace WBSF
 			return msg;
 
 
-		callback.SetCurrentDescription(GetString(IDS_UPDATE_FILE));
-		callback.SetNbStep(fileList.size());
+		callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
+		//callback.SetNbStep(fileList.size());
 
 
 		int nbRun = 0;
@@ -314,17 +315,19 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					callback.AddMessage("Waiting 30 seconds for server...");
+					callback.PushTask("Waiting 30 seconds for server...", 600);
 					for (int i = 0; i < 600 && msg; i++)
 					{
 						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt(0);
+						msg += callback.StepIt();
 					}
+					callback.PopTask();
 				}
 			}
 		}
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+		callback.PopTask();
 
 		return msg;
 	}
@@ -386,8 +389,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-		callback.SetNbStep(fileList.size());
+		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
+		//callback.SetNbStep(fileList.size());
 
 
 		for (StringVector::iterator it = fileList.begin(); it != fileList.end() && msg;)
@@ -402,6 +405,8 @@ namespace WBSF
 			msg += callback.StepIt();
 		}
 
+		callback.PopTask();
+
 		return msg;
 	}
 
@@ -411,8 +416,9 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-		callback.SetNbStep(fileList.size());
+		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
+		//callback.SetNbStep(fileList.size());
+		
 
 		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg;)
 		{
@@ -438,6 +444,7 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()), 1);
 		callback.AddMessage("");
 
+		callback.PopTask();
 
 		return msg;
 	}
@@ -521,8 +528,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
-		callback.SetCurrentDescription(GetString(IDS_GET_STATION_LIST));
-		callback.SetNbStep(nbYears);
+		callback.PushTask(GetString(IDS_GET_STATION_LIST), nbYears);
+		//callback.SetNbStep(nbYears);
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -551,6 +558,7 @@ namespace WBSF
 			}
 		}
 
+		callback.PopTask();
 		return msg;
 	}
 

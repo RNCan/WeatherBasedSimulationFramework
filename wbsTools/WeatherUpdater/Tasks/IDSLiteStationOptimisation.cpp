@@ -48,8 +48,8 @@ namespace WBSF
 			callback.AddMessage(referencedFilePath, 1);
 			callback.AddMessage("");
 
-			callback.SetCurrentDescription(GetString(IDS_GSOD_OPTIMISATION));
-			callback.SetNbStep((int)file.length());
+			callback.PushTask(GetString(IDS_GSOD_OPTIMISATION), (int)file.length());
+			//callback.SetNbStep((int)file.length());
 
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop)
 			{
@@ -64,6 +64,8 @@ namespace WBSF
 			}
 
 			callback.AddMessage("station listed in history file: " + to_string(me.size()));
+			callback.PopTask();
+
 		}
 
 		if (msg)

@@ -27,7 +27,7 @@ namespace WBSF
 
 	const char* CUISolutionMesonetDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
 	const size_t CUISolutionMesonetDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
-	const StringVector CUISolutionMesonetDaily::ATTRIBUTE_TITLE(IDS_UPDATER_SM_DAILY_P, "|;");
+	const UINT CUISolutionMesonetDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_DAILY_P;
 
 	const char* CUISolutionMesonetDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SolutionMesonetDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISolutionMesonetDaily::ClassType()const { return CTaskBase::UPDATER; }
@@ -95,7 +95,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
-		callback.AddTask();
+		//callback.AddTask();
 
 		CFileInfoVector dirList;
 		UtilWWW::FindDirectories(pConnection, SUB_DIR, dirList);
@@ -153,8 +153,8 @@ namespace WBSF
 
 					//Download files
 					StringVector tmp(IDS_FTP_DIRECTION);
-					callback.SetCurrentDescription(tmp[0] + " " + dirName);
-					callback.SetNbStep(fileList.size());
+					callback.PushTask(tmp[0] + " " + dirName, fileList.size());
+					//callback.SetNbStep(fileList.size());
 					CreateMultipleDir(outputPath);
 
 					//open a connection on the server
@@ -186,7 +186,7 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						callback.AddTask(1);//one step more
+						//callback.AddTask(1);//one step more
 
 						if (nbRun < 5)
 						{
@@ -200,6 +200,8 @@ namespace WBSF
 
 					pConnection->Close();
 					pSession->Close();
+					callback.PopTask();
+
 				}
 
 			}//year is included

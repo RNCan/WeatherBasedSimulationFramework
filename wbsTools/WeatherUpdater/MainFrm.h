@@ -5,7 +5,7 @@
 
 #include "OutputWnd.h"
 #include "ParametersWnd.h"
-
+#include "UI/Common/ProgressDockablePane.h"
 
 
 class CMainFrame : public CFrameWndEx
@@ -24,6 +24,7 @@ public:
 	void LoadtBasicCommand();
 
 	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
+	CProgressDockablePane& GetProgressPane(){ return m_progressWnd; }
 
 protected:  // membres incorporés de la barre de contrôle
 
@@ -32,6 +33,9 @@ protected:  // membres incorporés de la barre de contrôle
 	CMFCStatusBar     m_wndStatusBar;
 	COutputWnd        m_wndOutput;
 	CTaskPropertyWnd  m_wndProperties;
+	CProgressDockablePane m_progressWnd;
+
+
 	static const UINT m_uTaskbarBtnCreatedMsg;
 	CComPtr<ITaskbarList3> m_pTaskbarList;
 

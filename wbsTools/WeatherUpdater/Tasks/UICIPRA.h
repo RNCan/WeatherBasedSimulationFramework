@@ -8,7 +8,6 @@
 namespace WBSF
 {
 
-	//typedef std::map<std::string, std::string> StringMap;
 	//**************************************************************
 	class CUICIPRA : public CTaskBase
 	{
@@ -23,7 +22,7 @@ namespace WBSF
 
 		//proptree param
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const;
+		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual bool IsHourly()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -33,7 +32,6 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Default(size_t i)const;
 
 	protected:
@@ -46,11 +44,7 @@ namespace WBSF
 		std::string GetOutputFilePath(size_t t, int year, const std::string& name);
 		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
 
-		//std::string m_userName;
-		//std::string m_password;
 		CLocationVector m_stations;
-
-
 		
 		
 		std::string GetStationName(const std::string& ID)const;
@@ -58,7 +52,7 @@ namespace WBSF
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
-		static const StringVector ATTRIBUTE_TITLE;
+		static const UINT ATTRIBUTE_TITLE_ID;
 		static const char* SERVER_NAME;
 		static const char* SUB_DIR;
 	};
