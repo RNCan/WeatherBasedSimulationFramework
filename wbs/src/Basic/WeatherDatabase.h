@@ -60,7 +60,7 @@ namespace WBSF
 		virtual ERMsg Open(const std::string& filePath, UINT flag = modeRead, CCallback& callback = DEFAULT_CALLBACK, bool bSkipVerify=false);
 		virtual ERMsg OpenOptimizationFile(const std::string& referencedFilePath, CCallback& callback = DEFAULT_CALLBACK, bool bSkipVerify=false);
 		virtual ERMsg Save();
-		virtual ERMsg Close(bool bSave = true);
+		virtual ERMsg Close(bool bSave = true, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg Add(const CLocation& station);
 		virtual ERMsg Get(CLocation& station, size_t index, const std::set<int>& years = std::set<int>())const;
 		virtual ERMsg Set(size_t index, const CLocation& station);

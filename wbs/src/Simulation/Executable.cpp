@@ -267,24 +267,32 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 
 	typedef pair<int, size_t> PriorityPair;
 	vector< PriorityPair >execList;
-	//CSortedIndexLArray execList;
-	for(int i= (int)size()-1; i>=0; i--)
-		execList.push_back( PriorityPair(at(i)->GetPriority(), i) );
+	
+	for (size_t i = size() - 1; i < size(); i--)
+	{
+		if (at(i)->GetExecute())
+			execList.push_back(PriorityPair(at(i)->GetPriority(), i));
+	}
 
 	sort(execList.begin(), execList.end() );
 
-	for(size_t ii=0; ii<execList.size(); ii++)
+	callback.PushTask("Execute children of " + GetParent()->m_name, execList.size(), 1);
+	for (size_t ii = 0; ii<execList.size() && !callback.GetUserCancel(); ii++)
 	{
-		size_t i= execList[ii].second;
+		size_t i = execList[ii].second;
 		ERMsg msgTmp = at(i)->ExecuteBasic(fileManager, callback);
-		msg += msgTmp;
+		msg += callback.StepIt();
 
+		msg += msgTmp;
 	    if( msgTmp )
 		{
 			//Execute child task
 			msg += at(i)->ExecuteChild(fileManager, callback);
-		}		
+			
+		}	
 	}
+
+	callback.PopTask();
 
 	return msg;
 }
@@ -613,7 +621,6 @@ ERMsg CExecutable::ExecuteBasic(const CFileManager& fileManager, CCallback& call
 	{
 		callback.DeleteMessages(true);
 		callback.AddMessage( GetDefaultTaskTitle() );
-		callback.PushLevel();
 		callback.AddMessage( GetDescription() );
 		callback.AddMessage( "");
 		callback.AddMessage( GetCurrentTimeString());
@@ -638,7 +645,6 @@ ERMsg CExecutable::ExecuteBasic(const CFileManager& fileManager, CCallback& call
 
 		callback.AddMessage( "");
 		callback.AddMessage( GetCurrentTimeString());
-		callback.PopLevel();
 		callback.AddMessage("*******************************************");
 		
 
@@ -912,8 +918,8 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 	if( pResult && pResult->Open() )
 	{
 		callback.AddMessage(FormatMsg(IDS_SIM_EXPORT, GetExportFilePath(fileManager, EXPORT_CSV)));
-		callback.SetCurrentDescription("Export");
-	    callback.SetNbStep(pResult->GetNbRows());
+		callback.PushTask("Export", pResult->GetNbRows());
+	    //callback.SetNbStep(pResult->GetNbRows());
 
 		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
 		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
@@ -1023,7 +1029,9 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 			msg += callback.StepIt();
 		}//for all rows
-	}
+
+		callback.PopTask();
+	}//if open
 
 	file.close();
 

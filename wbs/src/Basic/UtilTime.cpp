@@ -1987,8 +1987,8 @@ std::string FormatTime(const std::string& format, int year, size_t m, size_t d, 
 	struct tm timeinfo = {0};
 	timeinfo.tm_isdst = 0;
 	timeinfo.tm_year = year - 1900;
-	timeinfo.tm_mon = int(m);
-	timeinfo.tm_mday = int(d);
+	timeinfo.tm_mon = int(m);//month in base zero 
+	timeinfo.tm_mday = int(d+1);//day in base one
 	timeinfo.tm_hour = int(h);
 	timeinfo.tm_min = int(minute);
 	timeinfo.tm_sec = int(second);

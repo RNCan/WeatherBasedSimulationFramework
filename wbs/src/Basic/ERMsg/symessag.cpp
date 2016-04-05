@@ -173,7 +173,8 @@ void SYMessage::ajoute(const std::string& message)
    _INVARIANTS ();
 
    // ---  Ajoute à la liste
-   lstMessages.push_back(message);
+   if (lstMessages.empty() || message != lstMessages.back())
+	lstMessages.push_back(message);
 
    _POSTCONDITION(lstMessages.back() == message);
    _INVARIANTS ();

@@ -847,7 +847,7 @@ namespace WBSF
 			return msg;
 
 
-		callback.SetNbTask(GetNbDBCreate());
+		callback.PushTask("Create all MMG", GetNbDBCreate());
 		for (int p = 0; p < GetNbDBCreate(); p++)
 		{
 			int firstYear = GetFirstYear(p);
@@ -869,9 +869,9 @@ namespace WBSF
 				return msg;
 
 
-			callback.SetCurrentDescription("Create " + GetFileTitle(outputDBFilePath));
+			callback.PushTask("Create " + GetFileTitle(outputDBFilePath), inputDB.size());
 			callback.AddMessage("Create " + GetFileTitle(outputDBFilePath));
-			callback.SetNbStep(inputDB.size());
+			//callback.SetNbStep(inputDB.size());
 
 
 			//for all stations in daily database
@@ -932,6 +932,7 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 
+			callback.PopTask();
 			outputDB.Close();
 
 
@@ -955,7 +956,7 @@ namespace WBSF
 
 		inputDB.Close();
 		MMG.Close();
-
+		callback.PopTask();
 
 
 		return msg;

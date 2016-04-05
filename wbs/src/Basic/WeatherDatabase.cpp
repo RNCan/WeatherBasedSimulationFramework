@@ -191,7 +191,7 @@ ERMsg CWeatherDatabase::Save()
 	return msg;
 }
 
-ERMsg CWeatherDatabase::Close(bool bSave)
+ERMsg CWeatherDatabase::Close(bool bSave, CCallback& callback)
 {
 	ERMsg msg;
 	if (m_openMode == modeWrite && bSave)
@@ -543,7 +543,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 	double b = log(nbStations) / log(4);
 	size_t c = ceil(a - b);
 
-	callback.SetNbTask(c);
+	callback.PushTask("Generate Well Distributed Station", c);
 
 
 	//create a status vector
@@ -558,8 +558,8 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 	while (status.count()>nbStations&&msg)
 	{
 		step++;
-		callback.SetCurrentDescription("Eliminate points: step" + ToString(step));
-		callback.SetNbStep(searchResult.size() * 3);
+		callback.PushTask("Eliminate points: step" + ToString(step), searchResult.size() * 3);
+		//callback.SetNbStep(searchResult.size() * 3);
 
 		callback.AddMessage("Number of station left: " + ToString(status.count()));
 
@@ -628,6 +628,8 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 
 			msg += callback.StepIt();
 		}
+
+		callback.PopTask();
 	}
 
 
@@ -646,6 +648,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		searchResult = result;
 	}
 
+	callback.PopTask();
 
 	return msg;
 }
@@ -1116,8 +1119,8 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 	boost::dynamic_bitset<size_t> addedIndex1(DB1Order.size());
 	boost::dynamic_bitset<size_t> addedIndex2(DB2Order.size());
 
-	callback.SetCurrentDescription( comment );
-	callback.SetNbStep(pDB1->size()+pDB2->size());
+	callback.PushTask(comment, pDB1->size() + pDB2->size());
+	//callback.SetNbStep(pDB1->size()+pDB2->size());
 	
 	
 
@@ -1462,8 +1465,8 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 
 		if (msg)
 		{
-			callback.AddMessage(comment, 1);
-			callback.SetNbStep(zop1.size() + zop2.size());
+			callback.AddMessage(comment);
+			callback.PushTask(comment, zop1.size() + zop2.size());
 
 			m_zop.reserve(m_zop.size() + zop1.size() + zop2.size());
 			for (auto it = zop1.begin(); it != zop1.end() && msg; it++)
@@ -1518,6 +1521,8 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 				msg += DeleteDatabase(inputFilePath1, callback);
 				msg += DeleteDatabase(inputFilePath2, callback);
 			}
+
+			callback.PopTask();
 		}//if msg
 
 	}
@@ -1593,8 +1598,8 @@ ERMsg CDHDatabaseBase::DeleteDatabase(const std::string& filePath, CCallback& ca
 		callback.AddMessage(GetString(IDS_BSC_DELETE_FILE));
 		callback.AddMessage(filePath, 1);
 
-		callback.SetCurrentDescription(GetString(IDS_BSC_DELETE_FILE) + filePath);
-		callback.SetNbStep(files.size() + 9);
+		callback.PushTask(GetString(IDS_BSC_DELETE_FILE) + filePath, files.size() + 9);
+		//callback.SetNbStep(files.size() + 9);
 
 		for (size_t i = 0; i<files.size() && msg; i++)
 		{
@@ -1629,6 +1634,8 @@ ERMsg CDHDatabaseBase::DeleteDatabase(const std::string& filePath, CCallback& ca
 			msg += RemoveFile(zopSearchData);
 
 		msg += RemoveFile(filePath);
+
+		callback.PopTask();
 	}
 	
 

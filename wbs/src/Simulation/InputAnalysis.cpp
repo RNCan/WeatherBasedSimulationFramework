@@ -359,7 +359,7 @@ ERMsg CInputAnalysis::Execute(const CFileManager& fileManager, CCallback& callba
 {
 	ERMsg msg;
 
-	callback.PushLevel();
+//	callback.PushLevel();
 
 	ASSERT(m_pParent);
 	ASSERT(dynamic_cast<const CWeatherGeneration*>(m_pParent) != NULL);
@@ -408,7 +408,7 @@ ERMsg CInputAnalysis::Execute(const CFileManager& fileManager, CCallback& callba
 		resultDB.Close();
 	}
 
-	callback.PopLevel();
+	//callback.PopLevel();
 
 	return msg;
 }
@@ -451,8 +451,8 @@ ERMsg CInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& res
 	
 	CWVariables variables = WG.GetWGInput().m_variables;
 
-	callback.SetCurrentDescription(message);
-	callback.SetNbStep(WG.GetWGInput().GetNbYears()*variables.count()*locations.size());
+	callback.PushTask(message, WG.GetWGInput().GetNbYears()*variables.count()*locations.size());
+	//callback.SetNbStep(WG.GetWGInput().GetNbYears()*variables.count()*locations.size());
 	
 	
 	for (size_t l = 0; l < locations.size() && msg; l++)
@@ -542,6 +542,7 @@ ERMsg CInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& res
 		}//normals/observations
 	}//for all locations
 
+	callback.PopTask();
 
 	return msg;
 }
@@ -578,8 +579,8 @@ ERMsg CInputAnalysis::KernelValidation(const CFileManager& fileManager, CResult&
 	CWVariables variables = WGInput.m_variables;
 	bitset<4> category = GetCategory(variables);
 
-	callback.SetCurrentDescription("Kernel Validation");
-	callback.SetNbStep(category.count()*locations.size());
+	callback.PushTask("Kernel Validation", category.count()*locations.size());
+	//callback.SetNbStep(category.count()*locations.size());
 	callback.AddMessage("Nb replications = " + ToString(WG.GetNbReplications()));
 	callback.AddMessage("Nb years = " + ToString(WGInput.GetNbYears()));
 	callback.AddMessage(string("Remove nearest station = ") + (WGInput.m_bXValidation ? "yes":"no") );//take the same station
@@ -687,6 +688,7 @@ ERMsg CInputAnalysis::KernelValidation(const CFileManager& fileManager, CResult&
 		}
 	}
 
+	callback.PopTask();
 
 	return msg;
 }
@@ -726,8 +728,8 @@ ERMsg CInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResult
 	CWVariables variables = WGInput.m_variables;
 	bitset<4> category = GetCategory(variables);
 
-	callback.SetCurrentDescription("Normals X-Validation");
-	callback.SetNbStep(category.count()*locations.size());
+	callback.PushTask("Normals X-Validation", category.count()*locations.size());
+	//callback.SetNbStep(category.count()*locations.size());
 
 	
 	CStatistic::SetVMiss(VMISS);
@@ -867,8 +869,8 @@ ERMsg CInputAnalysis::XValidationObservations(const CFileManager& fileManager, C
 	//limit category to basic variable
 	CWVariables variables = WGInput.m_variables;
 
-	callback.SetCurrentDescription("X-Validation of observation");
-	callback.SetNbStep(variables.count()*locations.size());
+	callback.PushTask("X-Validation of observation", variables.count()*locations.size());
+	//callback.SetNbStep(variables.count()*locations.size());
 	CStatistic::SetVMiss(VMISS);
 
 
@@ -959,6 +961,7 @@ ERMsg CInputAnalysis::XValidationObservations(const CFileManager& fileManager, C
 		}
 	}
 
+	callback.PopTask();
 
 	return msg;
 }
@@ -982,8 +985,8 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 	CWVariables variables = WGInput.m_variables;
 	bitset<4> category = GetCategory(variables);
 
-	callback.SetCurrentDescription("Estimate of gradients error for normals");
-	callback.SetNbStep(category.count()*locations.size());
+	callback.PushTask("Estimate of gradients error for normals", category.count()*locations.size());
+	//callback.SetNbStep(category.count()*locations.size());
 
 
 	CStatistic::SetVMiss(VMISS);
@@ -1089,6 +1092,8 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 		}
 	}
 
+	callback.PopTask();
+
 	return msg;
 
 }
@@ -1120,8 +1125,8 @@ ERMsg CInputAnalysis::ObservationsError(const CFileManager& fileManager, CResult
 	CWVariables variables = WGInput.m_variables;
 	size_t nbYears = WGInput.GetNbYears();
 
-	callback.SetCurrentDescription("Estimate of gradients error for observations");
-	callback.SetNbStep(variables.count()*locations.size()*nbYears);
+	callback.PushTask("Estimate of gradients error for observations", variables.count()*locations.size()*nbYears);
+	//callback.SetNbStep(variables.count()*locations.size()*nbYears);
 	CStatistic::SetVMiss(VMISS);
 
 
@@ -1242,6 +1247,7 @@ ERMsg CInputAnalysis::ObservationsError(const CFileManager& fileManager, CResult
 		}
 	}
 
+	callback.PopTask();
 
 	return msg;
 
@@ -1262,8 +1268,8 @@ ERMsg CInputAnalysis::ExtractNormal(const CFileManager& fileManager, CResult& re
 	const CWGInput& WGInput = WG.GetWGInput();
 	const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
 
-	callback.SetCurrentDescription("Extract normals");
-	callback.SetNbStep(locations.size());
+	callback.PushTask("Extract normals", locations.size());
+	//callback.SetNbStep(locations.size());
 
 	CStatistic::SetVMiss(VMISS);
 
@@ -1316,8 +1322,8 @@ ERMsg CInputAnalysis::GetNbMissingObservations(const CFileManager& fileManager, 
 
 	const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
 	
-	callback.SetCurrentDescription("Get number of missing observations");
-	callback.SetNbStep(locations.size());
+	callback.PushTask("Get number of missing observations", locations.size());
+	//callback.SetNbStep(locations.size());
 
 
 
@@ -1366,6 +1372,7 @@ ERMsg CInputAnalysis::GetNbMissingObservations(const CFileManager& fileManager, 
 		}
 	}//for all loc
 
+	callback.PopTask();
 
 	return msg;
 }
@@ -1398,8 +1405,8 @@ ERMsg CInputAnalysis::LastObservation(const CFileManager& fileManager, CResult& 
 
 	CWVariables variables = WG.GetWGInput().m_variables;
 
-	callback.SetCurrentDescription("Getting last obsevation");
-	callback.SetNbStep(locations.size());
+	callback.PushTask("Getting last obsevation", locations.size());
+	//callback.SetNbStep(locations.size());
 
 	for (size_t l = 0; l<locations.size() && msg; l++)
 	{
@@ -1433,6 +1440,8 @@ ERMsg CInputAnalysis::LastObservation(const CFileManager& fileManager, CResult& 
 
 		msg += callback.StepIt();
 	}//for all loc
+
+	callback.PopTask();
 
 	return msg;
 }

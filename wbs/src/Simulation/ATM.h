@@ -166,7 +166,7 @@ namespace WBSF
 		double m_Tmin;				//minimum temperature for flight [°C]
 		double m_Tmax;				//maximum temperature for flight [°C]
 		double m_Pmax;				//maximum precipitation for flight [mm/h]
-		double m_Wmin;				//maximum wind speed for flight [km/h]
+		double m_Wmin;				//minimum wind speed for flight [km/h]
 		size_t m_t_liftoff_type;	//
 		double m_t_liftoff_begin;	//Earliest observed lift-off relatif to suset
 		double m_t_liftoff_end;		//latest observed lift-off relatif to suset
@@ -201,12 +201,12 @@ namespace WBSF
 			m_Tmin = 15.0;				//[°C]
 			m_Tmax = 29.5;				//[°C]
 			m_Pmax = 2.5;				//[mm/h]
-			m_Wmin = 0.7 * 3600 / 1000;		//[km/h]
+			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
 
 			m_t_liftoff_type = NEW_TYPE;
 			m_t_liftoff_begin = -1.75;				//19.5;	//attention dans la publication c'est marquer 18.5
-			m_t_liftoff_end = 2.25;					//23.5;		//
-			m_t_liftoff_correction = 0;					//0
+			m_t_liftoff_end = 2.25;					//23.5;	
+			m_t_liftoff_correction = 0;				//0
 			m_duration_type = NEW_TYPE;
 			m_duration = 6.25;						//[h]
 			m_duration_σ = 0.25;					//[h]
@@ -215,7 +215,7 @@ namespace WBSF
 			m_height = 5.3;							//mean of the log of the height 
 			m_height_σ = 0.53;						//stadard deviation of the log of the height (0.53)
 			m_height_hi = 1000;						//[m]
-			m_w_ascent = 0.6 * 3600 / 1000;				//[km/h]
+			m_w_ascent = 0.6 * 3600 / 1000;			//[km/h]
 			m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
 			m_w_horizontal = 2.0 * 3600 / 1000;		//[km/h]
 			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//[km/h] 

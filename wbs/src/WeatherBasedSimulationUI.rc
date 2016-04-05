@@ -25,6 +25,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+IDI_PROGRESS_WND        ICON                    "res/Progress.ico"
 IDI_HEART               ICON                    "res/Heart.ico"
 IDI_RNCAN64             ICON                    "res\\NRCan64.ico"
 IDI_NORMALS_EDITOR      ICON                    "res/NormalsEditor.ico"
@@ -100,6 +101,7 @@ IDB_TEST_PNG            PNG                     "res/DatabaseEditor.png"
 IDB_CMN_OPTION32        PNG                     "res/option32.png"
 IDB_UI_MODEL_ICONS      PNG                     "res\\ModelIcons.png"
 IDR_LOC_TOOLBAR         PNG                     "res/LocToolbar.png"
+IDR_CMN_PROGRESS_TOOLBAR PNG                     "res/ProgressToolbar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -162,6 +164,11 @@ BEGIN
     SEPARATOR
     BUTTON      ID_LOC_DMS
     BUTTON      ID_LOC_DECIMAL_DEGREES
+END
+
+IDR_CMN_PROGRESS_TOOLBAR TOOLBAR 24, 24
+BEGIN
+    BUTTON      ID_CMN_CANCEL
 END
 
 IDR_PROJECT_TOOLBAR1 TOOLBAR 24, 24
@@ -4084,6 +4091,7 @@ BEGIN
     IDS_CMN_MODEL_PAGE      "Modèles"
     IDS_CMN_WEATHERUPDATE_PAGE "Mise-à-jour météo"
     IDS_CMN_SCRIPT_PAGE     "Scriptes"
+    IDS_CMN_PROG_HEADER     "Progression|Description"
 END
 
 STRINGTABLE
@@ -5744,21 +5752,21 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,342,237,50,14
 END
 
-IDD_SIM_WEATHER_UPDATE DIALOGEX 0, 0, 269, 135
+IDD_SIM_WEATHER_UPDATE DIALOGEX 0, 0, 295, 148
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Weather Update"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Name:",IDC_STATIC,7,9,42,8
-    EDITTEXT        IDC_NAME,53,7,209,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NAME,53,7,235,12,ES_AUTOHSCROLL
     LTEXT           "Description:",IDC_STATIC,7,25,42,8
-    EDITTEXT        IDC_DESCRIPTION,53,22,209,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DESCRIPTION,53,22,235,12,ES_AUTOHSCROLL
     LTEXT           "Project:",IDC_STATIC,7,46,33,8
-    COMBOBOX        IDC_KIND,53,44,209,91,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Internal name:",IDC_STATIC,7,117,50,8
-    EDITTEXT        IDC_INTERNAL_NAME,61,115,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,158,113,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,212,113,50,14
+    COMBOBOX        IDC_KIND,53,44,235,91,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Internal name:",IDC_STATIC,7,129,50,8
+    EDITTEXT        IDC_INTERNAL_NAME,61,128,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,173,126,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,238,126,50,14
 END
 
 IDD_MAP_PREPOST DIALOGEX 0, 0, 207, 247
@@ -6548,11 +6556,11 @@ BEGIN
     IDD_SIM_WEATHER_UPDATE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 262
+        RIGHTMARGIN, 288
         VERTGUIDE, 18
         VERTGUIDE, 53
         TOPMARGIN, 7
-        BOTTOMMARGIN, 127
+        BOTTOMMARGIN, 140
     END
 
     IDD_MAP_PREPOST, DIALOG
@@ -8051,6 +8059,7 @@ BEGIN
     IDS_CMN_MODEL_PAGE      "Models"
     IDS_CMN_WEATHERUPDATE_PAGE "WeatherUpdater"
     IDS_CMN_SCRIPT_PAGE     "Scripts"
+    IDS_CMN_PROG_HEADER     "Progress|Description"
 END
 
 STRINGTABLE

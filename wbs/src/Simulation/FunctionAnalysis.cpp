@@ -457,7 +457,7 @@ protected:
 
 
 		size_t nbSection = pResult->GetNbSection();
-		callback.SetNbStep(nbSection);
+		callback.PushTask("Function Ananlysis", nbSection);
 
 		for (size_t s = 0; s < nbSection&&msg; s++)
 		{
@@ -483,6 +483,7 @@ protected:
 
 		result.Close();
 
+		callback.PopTask();
 
 		return msg;
 	}

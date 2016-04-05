@@ -100,7 +100,7 @@ ERMsg CNormalsDataDeque::Save(const std::string& filePath)
 
 }
 
-ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop)
+ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback)
 {
 	ERMsg msg;
 
@@ -111,6 +111,9 @@ ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeather
 
 	if (msg)
 	{
+		callback.PushTask(FormatMsg(IDS_BSC_OPEN_FILE, filePath), size_t(file.length()));
+		//callback.SetNbStep(size_t(file.length()));
+
 		size_t i = 0;
 		for (CSVIterator loop(file); loop != CSVIterator()&&msg; ++loop, i++)
 		{
@@ -165,7 +168,7 @@ ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeather
 					}
 					else
 					{
-						//read all the data fiel and put error message at the end...
+						//read all the data field and put error message at the end...
 					}
 				}
 				else
@@ -173,19 +176,23 @@ ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeather
 					msg.ajoute("Error reading normal file: " + filePath + " at line : " + to_string(i+1));
 					msg.ajoute("Invalid number of columns: " + to_string((*loop).size()) + ", " + to_string(NB_FIELDS + NB_FIXED_COLS) + " expected");
 				}
-			}
+
+				msg += callback.SetCurrentStepPos((size_t)file.tellg());
+			}//if not empty
 		}//for all lines
 
 		if (zop.size() != size())
 			msg.ajoute("Error: index file (.NormalsStations) have " + to_string(zop.size()) + " stations and data file (.csv) have " + to_string(size()) + " stations");
 
+
+		callback.PopTask();
 	}//if msg
 
 	return msg;
 
 }
 
-ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop)
+ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback)
 {
 	ASSERT(MISSING == -999);
 	ERMsg msg;
@@ -196,6 +203,9 @@ ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDa
 	
 	if (msg)
 	{
+		callback.PushTask(FormatMsg(IDS_BSC_SAVE_FILE, filePath), size());
+		//callback.SetNbStep(size());
+
 		//write header
 		file << "StationID,Month";
 		for (size_t f = 0; f != NB_FIELDS && msg; f++)
@@ -207,9 +217,11 @@ ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDa
 		//size_t i = 0;
 		for (size_t i = 0; i != me.size() && msg; i++)
 		{
+			
 			for (size_t m = 0; m != me[i].size() && msg; m++)
 			{
-				file << /*ToString(int(i + 1), 7)*/ zop[i].m_ID << ',' << ToString(int(m + 1), 5);
+				//file << zop[i].m_ID << ',' << ToString(int(m + 1), 5);
+				string line = FormatA("%s,%02d", zop[i].m_ID.c_str(), int(m + 1));
 				
 
 				for (size_t f = 0; f != me[i][m].size() && msg; f++)
@@ -218,20 +230,33 @@ ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDa
 					{
 						string format = "%7." + to_string(GetNormalDataPrecision((int)f)) + "f";
 						string value = FormatA(format.c_str(), me[i][m][f]);
-						file << ',' << value;
+						//file << ',' << value;
+						line += "," + value;
 					}
 					else
 					{
-						file << ", -999.0";
+						line += ", -999.0";
+						//switch (GetNormalDataPrecision(f))
+						//{
+						//case 1:line += ", -999.0"; break;
+						//case 3:line += ", -999.000"; break;
+						//case 4:line += ", -999.0000"; break;
+						//}
+						//file << ", -999.0";
 					}
 					
 				}
 
-				file << endl;
+				//file << endl;
+				file.write(line +"\n");
 			}
+
+			msg += callback.StepIt();
 		}
 
 		file.close();
+
+		callback.PopTask();
 	}
 
 	return msg;
@@ -281,17 +306,17 @@ void CNormalsDatabase::SetPeriod(int firstYeat, int lastYear)
 	m_zop.SetYears(years);
 }
 
-ERMsg CNormalsDatabase::Close()
+ERMsg CNormalsDatabase::Close(bool bSave, CCallback& callback )
 {
 	ERMsg msg;
 	if (m_openMode == modeWrite)
 	{
 		ASSERT(m_zop.size() == m_data.size());
-		if (m_bModified)
+		if (m_bModified && bSave)
 		{
 			msg = m_zop.SaveAsXML(m_filePath, "", GetXMLFlag(), GetVersion());
 			if (msg)
-				msg = m_data.SaveAsCSV(GetNormalsDataFilePath(m_filePath), m_zop);
+				msg = m_data.SaveAsCSV(GetNormalsDataFilePath(m_filePath), m_zop, callback);
 
 			if (msg)
 			{
@@ -335,7 +360,7 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 		if (!FileExists(referencedFilePath))
 		{
 			msg += CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, "", GetXMLFlag(), GetVersion());
-			msg += CNormalsDataDeque().SaveAsCSV(CNormalsDatabase().GetNormalsDataFilePath(referencedFilePath), CWeatherDatabaseOptimization());
+			msg += CNormalsDataDeque().SaveAsCSV(CNormalsDatabase().GetNormalsDataFilePath(referencedFilePath), CWeatherDatabaseOptimization(), DEFAULT_CALLBACK);
 		}
 		
 		if (msg)
@@ -359,11 +384,11 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 
 		if (bDataAsChange)
 		{
-			callback.SetCurrentDescription("Update " + GetFileName(optFilePath));
+			//callback.PushTask("Update " + GetFileName(optFilePath));
 			callback.AddMessage("Update " + GetFileName(optFilePath) + "...");
 			string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
 			
-			msg = m_data.LoadFromCSV(GetNormalsDataFilePath(referencedFilePath), m_zop);
+			msg = m_data.LoadFromCSV(GetNormalsDataFilePath(referencedFilePath), m_zop, callback);
 			
 			if (msg)
 			{
@@ -760,8 +785,8 @@ ERMsg CNormalsDatabase::DeleteDatabase(const string& filePath, CCallback& callba
 		callback.AddMessage(GetString(IDS_BSC_DELETE_FILE));
 		callback.AddMessage(filePath, 1);
 			
-		callback.SetCurrentDescription(GetString(IDS_BSC_DELETE_FILE) + filePath);
-		callback.SetNbStep(2);
+		callback.PushTask(GetString(IDS_BSC_DELETE_FILE) + filePath, 2);
+		//callback.SetNbStep(2);
 
 		msg += RemoveFile(filePath);
 		msg += callback.StepIt();
@@ -788,61 +813,67 @@ ERMsg CNormalsDatabase::DeleteDatabase(const string& filePath, CCallback& callba
 		if (FileExists(zopSearchData))
 			msg += RemoveFile(zopSearchData);
 
+		callback.PopTask();
 	}
 
 	return msg;
 }
 
-ERMsg CNormalsDatabase::Convert(const string& filePath)
-{
-	ERMsg msg;
-	
-	short version = GetVersion(filePath);
-
-	//switch( version )
-	//{
-	//case 5: msg = Version5ToCurrent(filePath); break;
-	//case 6: msg = v6_to_v7(filePath, filePath); break;
-	//default: msg.ajoute( GetString(IDS_WG_BAD_VERSION) );
-	//}
-
-	return msg;
-}
+//ERMsg CNormalsDatabase::Convert(const string& filePath)
+//{
+//	ERMsg msg;
+//	
+//	short version = GetVersion(filePath);
+//
+//	//switch( version )
+//	//{
+//	//case 5: msg = Version5ToCurrent(filePath); break;
+//	//case 6: msg = v6_to_v7(filePath, filePath); break;
+//	//default: msg.ajoute( GetString(IDS_WG_BAD_VERSION) );
+//	//}
+//
+//	return msg;
+//}
 
 ERMsg CNormalsDatabase::v6_to_v7(const string& filePath6, const std::string& filePathV7, CCallback& callback )
 {
 	ERMsg msg;
 
 	
-	
 
 	ifStream stream;
 	msg = stream.open(filePath6);
-	
+
+	//open new database
 	CNormalsDatabase DB7;
 	if (msg)
 		msg = DB7.Open(filePathV7, modeWrite, callback);
 
 
 	if (msg)
-	{ //create successful	
+	{ 
+		callback.PushTask("Convert " + GetFileName(filePath6), (size_t)stream.length());
+		//callback.SetNbStep((size_t)stream.length());
 
 		string line;
 		std::getline(stream, line);//header1
 		std::getline(stream, line);//header2
 
 
-		while (!stream.eof())
+		while (!stream.eof() && msg)
 		{
 			CNormalsStation station;
 			station.LoadV2(stream);
-			if(!stream.eof())
+			if (!stream.eof() && station.IsValid() )
 				DB7.Add(station);
+
+			msg += callback.SetCurrentStepPos((size_t)stream.tellg());
 		}
 		
 			
-		msg = DB7.Close();
+		msg += DB7.Close(true, callback);
 		
+		callback.PopTask();
 	}
 
 	return msg;
@@ -855,12 +886,12 @@ ERMsg CNormalsDatabase::v7_to_v6(const std::string& filePathV7, const std::strin
 	CNormalsDatabase db;
 	msg = db.Open(filePathV7, modeRead, callback);
 	if (msg)
-		msg = db.SaveAsV6(filePathV6);
+		msg = db.SaveAsV6(filePathV6, callback);
 
 	return msg;
 }
 
-ERMsg CNormalsDatabase::SaveAsV6(const string& filePath)
+ERMsg CNormalsDatabase::SaveAsV6(const string& filePath, CCallback& callback)
 {
 	ASSERT(IsOpen());
 
@@ -874,7 +905,9 @@ ERMsg CNormalsDatabase::SaveAsV6(const string& filePath)
 	msg = file.open(filePath);
 	if (msg)
 	{ //create successful
-		
+		callback.PushTask("Convert " + GetFileName(filePath), m_zop.size());
+		//callback.SetNbStep(m_zop.size());
+
 		CTRef time = CTRef::GetCurrentTRef();
 		string tmp = FormatA("%5d%5d%5d%5d%5d%5d", time.GetYear(), time.GetMonth(), time.GetDay(), GetFirstYear(), GetLastYear(), 6);
 
@@ -897,7 +930,7 @@ ERMsg CNormalsDatabase::SaveAsV6(const string& filePath)
 		
 		//write data
 		ASSERT(m_zop.size() == m_data.size());
-		for (size_t i = 0; i < m_zop.size(); i++)
+		for (size_t i = 0; i < m_zop.size()&&msg; i++)
 		{
 			CWVariables vars = m_data[i].GetVariables();
 			
@@ -931,8 +964,12 @@ ERMsg CNormalsDatabase::SaveAsV6(const string& filePath)
 				}
 				file << endl;
 			}
+
+			msg += callback.StepIt();
 		}
 		file.close();
+
+		callback.PopTask();
 	}
 
 	return msg;

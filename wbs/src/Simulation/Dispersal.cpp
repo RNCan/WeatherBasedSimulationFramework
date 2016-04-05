@@ -335,9 +335,9 @@ namespace WBSF
 		GetInputDBInfo(pResult, metadata);
 
 
-		callback.AddTask(metadata.GetNbReplications()*metadata.GetTPeriod().GetNbYears() + 1);
-		callback.SetCurrentDescription("Open Dispersal's Input");
-		callback.SetNbStep(6);
+		//callback.AddTask(metadata.GetNbReplications()*metadata.GetTPeriod().GetNbYears() + 1);
+		callback.PushTask("Open Dispersal's Input", 6);
+		//callback.SetNbStep(6);
 
 		
 
@@ -382,14 +382,15 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
+		callback.PopTask();
 
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
 		for (size_t r = 0; r < metadata.GetNbReplications() && msg; r++)
 		{
 			const CLocationVector& locations = metadata.GetLocations();
-			callback.SetCurrentDescription("Select dispersal insect for replication " + ToString(r + 1));
-			callback.SetNbStep(locations.size());
+			callback.PushTask("Select dispersal insect for replication " + ToString(r + 1), locations.size());
+			//callback.SetNbStep(locations.size());
 
 			for (size_t l = 0; l < locations.size() && msg; l++)
 			{
@@ -460,7 +461,9 @@ namespace WBSF
 					}
 				}
 			}
-		}
+
+			callback.PopTask();
+		}//nb replication
 
 
 		result.Close();

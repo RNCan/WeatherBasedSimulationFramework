@@ -1030,8 +1030,8 @@ ERMsg CGDALDatasetEx::GetRandomCoord(int nbPoint, bool bExpo, bool bExtrem, doub
 	{
 		//m_extents = GetExtents();
         string comment = FormatMsg( IDS_MAP_GENERATERANDOM, m_filePath  );
-        callback.SetCurrentDescription(comment);
-		callback.SetNbStep(nbPixels);
+		callback.PushTask(comment, nbPixels);
+		//callback.SetNbStep(nbPixels);
         
 
 		CBandsHolderMT bandHolder(3);
@@ -1113,6 +1113,7 @@ ERMsg CGDALDatasetEx::GetRandomCoord(int nbPoint, bool bExpo, bool bExtrem, doub
 		}
 		
 		callback.AddMessage("NbPoint = " + ToString(locations.size() + locArrayTmp.size()));
+		callback.PopTask();
 	}//while
 
 	if( msg )
@@ -2174,8 +2175,8 @@ ERMsg CExtractInfo::Execute(CGDALDatasetEx& map, CCallback& callback)
 	m_info[EXTREM].resize(m_nbSub[EXTREM], m_nbSub[EXTREM]);
 	m_info[DENSITY].resize(m_nbSub[DENSITY], m_nbSub[DENSITY]);
 
-	callback.SetCurrentDescription( GetString(IDS_STR_EXTRACT_INFO));
-	callback.SetNbStep( m_extents.GetNbPixels() );
+	callback.PushTask(GetString(IDS_STR_EXTRACT_INFO), m_extents.GetNbPixels());
+	//callback.SetNbStep( m_extents.GetNbPixels() );
 	
 	vector<pair<int,int>> XYindex = m_extents.GetBlockList();
 
@@ -2234,6 +2235,7 @@ ERMsg CExtractInfo::Execute(CGDALDatasetEx& map, CCallback& callback)
 	}
 	classify.ClassifyEqualInterval(30);
 
+	callback.PopTask();
 	
 	return msg;
 }

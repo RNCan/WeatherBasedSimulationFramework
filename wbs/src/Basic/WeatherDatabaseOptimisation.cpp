@@ -604,8 +604,8 @@ namespace WBSF
 
 		StringVector filesList = GetDataFiles();
 
-		callback.SetCurrentDescription(GetString(IDS_WG_DAILY_UPTODATE));
-		callback.SetNbStep(filesList.size());
+		callback.PushTask(GetString(IDS_WG_DAILY_UPTODATE), filesList.size());
+		//callback.SetNbStep(filesList.size());
 
 		filesInfo.reserve(filesList.size());
 		for (size_t i = 0; i < filesList.size() && msg; i++)
@@ -619,6 +619,7 @@ namespace WBSF
 			msg += callback.StepIt();
 		}
 
+		callback.PopTask();
 		return msg;
 	}
 
@@ -637,9 +638,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.AddTask(1);
-		callback.SetCurrentDescription(GetString(IDS_WG_DAILY_CREATE_OPT));
-		callback.SetNbStep(list.size());
+		//callback.AddTask(1);
+		callback.PushTask(GetString(IDS_WG_DAILY_CREATE_OPT), list.size());
+		//callback.SetNbStep(list.size());
 
 		if (FileExists(filePath))
 			msg = m_filesSection.Load(filePath);

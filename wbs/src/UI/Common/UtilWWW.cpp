@@ -513,7 +513,7 @@ namespace UtilWWW
 			GetFileInfo(finder, info, page.FindOneOf(_T("*?")) != -1);
 			fileList.push_back(info);
 
-			msg += callback.StepIt();
+			msg += callback.StepIt(0);
 		}
 		
 		if( errNum != ERROR_NO_MORE_FILES)

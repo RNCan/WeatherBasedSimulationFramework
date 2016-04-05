@@ -340,6 +340,15 @@
     <ClCompile Include="..\src\UI\Common\UtilWWW.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ProgressDockablePane.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\ProListCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\TextProgressCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -690,6 +699,15 @@
     <ClInclude Include="..\src\UI\Common\UtilWWW.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ProgressDockablePane.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\ProListCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\TextProgressCtrl.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\res\Add.cur">
@@ -936,5 +954,7 @@
     <Image Include="..\src\res\LocToolbar.png">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="..\src\res\Progress.ico" />
+    <Image Include="..\src\res\ProgressToolbar.png" />
   </ItemGroup>
 </Project>

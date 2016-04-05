@@ -302,7 +302,7 @@ namespace WBSF
 		double b = log(nbStations) / log(4);
 		size_t c = ceil(a - b);
 
-		callback.SetNbTask(c);
+		callback.PushTask("Generate Well Distributed Station", c);
 
 
 		//vector<size_t> priority;
@@ -320,8 +320,8 @@ namespace WBSF
 		while (status.count() > nbStations&&msg)
 		{
 			step++;
-			callback.SetCurrentDescription("Eliminate points: step" + ToString(step));
-			callback.SetNbStep(pointIn.size() * 3);
+			callback.PushTask("Eliminate points: step" + ToString(step), pointIn.size() * 3);
+			//callback.SetNbStep(pointIn.size() * 3);
 
 			callback.AddMessage("Number of station left: " + ToString(status.count()));
 
@@ -386,7 +386,7 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 
-
+			callback.PopTask();
 		}
 
 
@@ -402,6 +402,7 @@ namespace WBSF
 			}
 		}
 
+		callback.PopTask();
 
 		return msg;
 	}

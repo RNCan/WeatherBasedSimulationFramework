@@ -61,7 +61,9 @@
     <ClCompile Include="..\src\UI\Common\OneInst.cpp" />
     <ClCompile Include="..\src\UI\Common\OpenDirEditCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\PaletteEditorDlg.cpp" />
+    <ClCompile Include="..\src\UI\Common\ProgressDockablePane.cpp" />
     <ClCompile Include="..\src\UI\Common\ProgressStepDlg.cpp" />
+    <ClCompile Include="..\src\UI\Common\ProListCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\PropertiesListBox.cpp" />
     <ClCompile Include="..\src\UI\Common\PropertySheetSize.cpp" />
     <ClCompile Include="..\src\UI\Common\ScrollHelper.cpp" />
@@ -75,6 +77,7 @@
     <ClCompile Include="..\src\UI\Common\SYShowMessage.cpp" />
     <ClCompile Include="..\src\UI\Common\TemporalRefCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\TextDlg.cpp" />
+    <ClCompile Include="..\src\UI\Common\TextProgressCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\UGEditCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\UtilWin.cpp" />
     <ClCompile Include="..\src\UI\Common\UtilWWW.cpp" />
@@ -176,7 +179,9 @@
     <ClInclude Include="..\src\UI\Common\OneInst.h" />
     <ClInclude Include="..\src\UI\Common\OpenDirEditCtrl.h" />
     <ClInclude Include="..\src\UI\Common\PaletteEditorDlg.h" />
+    <ClInclude Include="..\src\UI\Common\ProgressDockablePane.h" />
     <ClInclude Include="..\src\UI\Common\ProgressStepDlg.h" />
+    <ClInclude Include="..\src\UI\Common\ProListCtrl.h" />
     <ClInclude Include="..\src\UI\Common\PropertiesListBox.h" />
     <ClInclude Include="..\src\UI\Common\PropertySheetSize.h" />
     <ClInclude Include="..\src\UI\Common\ScrollHelper.h" />
@@ -190,6 +195,7 @@
     <ClInclude Include="..\src\UI\Common\SYShowMessage.h" />
     <ClInclude Include="..\src\UI\Common\TemporalRefCtrl.h" />
     <ClInclude Include="..\src\UI\Common\TextDlg.h" />
+    <ClInclude Include="..\src\UI\Common\TextProgressCtrl.h" />
     <ClInclude Include="..\src\UI\Common\TmplEx\ArrayEx.h" />
     <ClInclude Include="..\src\UI\Common\TmplEx\ListEx.h" />
     <ClInclude Include="..\src\UI\Common\TmplEx\MapEx.h" />
@@ -334,6 +340,8 @@
     <Image Include="..\src\res\OverAllYearsD.bmp" />
     <Image Include="..\src\res\OverAllYearsM.bmp" />
     <Image Include="..\src\res\over_all.bmp" />
+    <Image Include="..\src\res\Progress.ico" />
+    <Image Include="..\src\res\ProgressToolbar.png" />
     <Image Include="..\src\res\ProjectToolbar1 24.bmp" />
     <Image Include="..\src\res\ProjectToolbar2 24.bmp" />
     <Image Include="..\src\res\RNCan.bmp" />

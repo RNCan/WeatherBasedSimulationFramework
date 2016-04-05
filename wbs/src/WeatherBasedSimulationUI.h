@@ -14,6 +14,8 @@
 #define IDR_LOC_TOOLBAR                 944
 #define IDR_PROJECT_TOOLBAR1            945
 #define IDR_PROJECT_TOOLBAR2            946
+#define IDR_CMN_PROGRESS_TOOLBAR		947
+#define IDI_PROGRESS_WND				948
 #define IDC_CURSOR_GROUP                1000
 #define IDC_CMN_NEW_YEAR                1000
 #define IDC_USE_EXTENT                  1000
@@ -782,6 +784,7 @@
 #define IDS_CMN_MODEL_PAGE              42355
 #define IDS_CMN_WEATHERUPDATE_PAGE      42356
 #define IDS_CMN_SCRIPT_PAGE             42357
+#define IDS_CMN_PROG_HEADER             42358
 #define ID_SHOW_LATBORDER               42720
 #define ID_SHOW_LONBORDER               42721
 #define ID_SHOW_LEGENDE                 42722
@@ -829,6 +832,8 @@
 #define ID_LOC_EXTRACT_SSI              42798
 #define ID_LOC_DECIMAL_DEGREES          42800
 #define ID_LOC_DMS                      42801
+#define ID_CMN_CANCEL                   43000
+#define ID_CMN_PAUSE_RESUME             43001
 
 // Next default values for new objects
 // 

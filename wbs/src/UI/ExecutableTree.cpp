@@ -78,6 +78,7 @@ namespace WBSF
 		ON_UPDATE_COMMAND_UI(ID_ITEM_EXPAND_ALL, OnUpdateToolBar)
 		ON_UPDATE_COMMAND_UI(ID_ITEM_COLLAPSE_ALL, OnUpdateToolBar)
 		ON_UPDATE_COMMAND_UI_RANGE(ID_ADD_FIRST, ID_ADD_LAST, OnUpdateToolBar)
+
 		ON_COMMAND_RANGE(ID_ADD_FIRST, ID_ADD_LAST, OnAdd)
 		ON_COMMAND(ID_EDIT, &OnEdit)
 		ON_COMMAND(ID_EDIT_COPY, &OnEditCopy)
@@ -86,6 +87,7 @@ namespace WBSF
 		ON_COMMAND(ID_EDIT_DUPLICATE, &OnEditDuplicate)
 		ON_COMMAND_EX(ID_ITEM_EXPAND_ALL, OnItemMove)
 		ON_COMMAND_EX(ID_ITEM_COLLAPSE_ALL, OnItemMove)
+
 
 		ON_NOTIFY_REFLECT(NM_DBLCLK, &OnDblClick)
 		ON_NOTIFY_REFLECT(TVN_ENDLABELEDIT, &OnEndEditLabel)
@@ -100,12 +102,10 @@ namespace WBSF
 
 
 	CExecutableTree::CExecutableTree()
-	{
-	}
+	{}
 
 	CExecutableTree::~CExecutableTree()
-	{
-	}
+	{}
 
 
 	void CExecutableTree::PreSubclassWindow()
@@ -765,6 +765,7 @@ namespace WBSF
 		OnEdit();
 		*pResult = TRUE;
 	}
+
 
 	void CExecutableTree::OnEdit()
 	{

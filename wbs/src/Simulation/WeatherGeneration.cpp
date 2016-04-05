@@ -197,9 +197,11 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 		nbYears += WGInput.GetNbYears();
 
 	size_t nbGetDistance = nbFilter*nbYears;
-	callback.SetCurrentDescription(GetString(IDS_SIM_VERIFY_DISTANCE) );
-	callback.SetNbStep(nbGetDistance);
-	callback.PushLevel();
+
+//	callback.SetCurrentDescription(GetString(IDS_SIM_VERIFY_DISTANCE) );
+	//callback.SetNbStep(nbGetDistance);
+	callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance, 1);
+//	callback.PushLevel();
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);
@@ -337,6 +339,8 @@ if (messageTmp)
 
 
 	omp_set_nested(nested);
+
+	callback.PopTask();
 
     return msg;
 }
@@ -940,8 +944,9 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 
     callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
 	callback.AddMessage(DBFilePath, 1);
-	callback.SetCurrentDescription(GetString(IDS_WG_CREATE_WEATHER));
-	callback.SetNbStep(locations.size()*m_nbReplications);
+	//callback.SetCurrentDescription(GetString(IDS_WG_CREATE_WEATHER));
+	//callback.SetNbStep(locations.size()*m_nbReplications);
+	callback.PushTask(GetString(IDS_WG_CREATE_WEATHER), locations.size()*m_nbReplications, 1);
 
 	vector<size_t> locPos;
 	GetLocationIndexGrid(locations, locPos);
@@ -1054,7 +1059,8 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 	result.Close();
 	
 	callback.AddMessage(string("Test Validation = ") + (bTestOK?"OK":"Failed") );
-	
+	callback.PopTask();
+
 	return msg;
 }
 

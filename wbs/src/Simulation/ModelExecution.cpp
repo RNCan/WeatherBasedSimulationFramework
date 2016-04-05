@@ -530,11 +530,12 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 					metadataOut.SetOutputDefinition(model.GetOutputDefinition());
 
 					callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
-					callback.PushLevel();
+					callback.PushTask(GetString(IDS_SIM_CREATE_DATABASE), locations.size()*finalModelInputVector.size()*nbReplications);
+					//callback.SetNbStep(locations.size()*finalModelInputVector.size()*nbReplications);
+//					callback.PushLevel();
 					callback.AddMessage(model.GetCopyright());
 					callback.AddMessage(filePath);
-					callback.SetCurrentDescription(GetString(IDS_SIM_CREATE_DATABASE));
-					callback.SetNbStep(locations.size()*finalModelInputVector.size()*nbReplications);
+					
 
 
 					if (model.GetTransferFileVersion() == CModel::VERSION_STREAM)
@@ -559,7 +560,7 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 					SetExecutionTime(model.GetName(), timerModel.Elapsed() / nbGeneration, metadataOut.GetTPeriod().GetTM(), bUseHxGrid);
 
 
-					callback.PopLevel();
+					callback.PopTask();
 				}
 			}
 		}

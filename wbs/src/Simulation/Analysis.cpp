@@ -835,20 +835,17 @@ namespace WBSF
 	ERMsg CAnalysis::DoAnalysis(CResultPtr& result, CResult& analysisDB, CCallback& callback)
 	{
 		ERMsg msg;
-		callback.PushLevel();
+//		callback.PushLevel();
 
 
 		CDimension dimIn = result->GetDimension();
 		CDimension dimOut = GetOutputDimension(result);
 
 		callback.AddMessage(GetString(IDS_SIM_READ_FROM));
-		callback.PushLevel();
-		callback.AddMessage(result->GetFilePath());
-		callback.PopLevel();
+		callback.AddMessage(result->GetFilePath(), 1);
 		callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
-		callback.PushLevel();
-		callback.AddMessage(analysisDB.GetFilePath());
-		callback.PopLevel();
+		callback.AddMessage(analysisDB.GetFilePath(), 1);
+		
 
 		//only use in mean over location.
 		CLocationStat meanOverlocationStat(extents[dimOut[PARAMETER]][dimOut[REPLICATION]]);
@@ -887,8 +884,8 @@ namespace WBSF
 
 
 
-		callback.SetCurrentDescription(GetString(IDS_SIM_DOANALYSE));
-		callback.SetNbStep(dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
+		callback.PushTask(GetString(IDS_SIM_DOANALYSE), dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
+		//callback.SetNbStep(dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
 
 		size_t test2 = locations.count();
 		//Compute statistics
@@ -976,7 +973,8 @@ namespace WBSF
 			}
 		}
 
-		callback.PopLevel();
+		callback.PopTask();
+
 		return msg;
 	}
 

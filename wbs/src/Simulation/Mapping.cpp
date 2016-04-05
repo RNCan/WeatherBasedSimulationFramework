@@ -480,8 +480,8 @@ namespace WBSF
 		pts->reserve(locArray.size());
 		//	pts->m_bGeographic=true;
 
-		callback.SetCurrentDescription("Compute event");
-		callback.SetNbStep(locArray.size());
+		callback.PushTask("Compute event", locArray.size());
+		//callback.SetNbStep(locArray.size());
 
 		bool bHaveData = false;
 		for (size_t i = 0; i < locArray.size() && msg; i++)
@@ -530,6 +530,10 @@ namespace WBSF
 			callback.AddMessage("Input: " + mapInput.m_DEMFilePath, 1);
 			callback.AddMessage("Output: " + mapInput.m_TEMFilePath, 1);
 		}
+
+
+		callback.PopTask();
+
 
 		return msg;
 	}

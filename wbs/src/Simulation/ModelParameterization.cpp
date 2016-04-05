@@ -571,8 +571,8 @@ ERMsg CModelParameterization::InitialiseComputationVariable( CComputationVariabl
 {
 	ERMsg msg;
 
-	callback.SetCurrentDescription("Initialize Computation Variables");
-	callback.SetNbStep(1);
+	callback.PushTask("Initialize Computation Variables", 1);
+	//callback.SetNbStep(1);
 	
 	
 	computation.m_bounds.resize(m_parameters.size());
@@ -619,7 +619,8 @@ ERMsg CModelParameterization::InitialiseComputationVariable( CComputationVariabl
 	}
 
 	
-	
+	callback.PopTask();
+
 	return msg;
 }
 
@@ -1019,8 +1020,8 @@ ERMsg CModelParameterization::CreateGlobalData(const CFileManager& fileManager, 
 			//inStream.write((char*)(&locIDField), sizeof(locIDField) );
 			//inStream.write((char*)(&locSize), sizeof(locSize) );
 
-			callback.SetCurrentDescription("SaveData");
-			callback.SetNbStep(locations.size());
+			callback.PushTask("SaveData", locations.size());
+			//callback.SetNbStep(locations.size());
 
 			gSession.m_stats.resize(locations.size());
 			for (size_t l = 0; l < locations.size() && msg; l++)
@@ -1048,6 +1049,8 @@ ERMsg CModelParameterization::CreateGlobalData(const CFileManager& fileManager, 
 				*pGlobalDataStream = new TGenericStream(10000000);//CreateGenericStream();
 				(*pGlobalDataStream)->Write(str.c_str(), (DWORD)str.size());
 			}
+
+			callback.PopTask();
 		}
 	}
 
@@ -1498,8 +1501,8 @@ ERMsg CModelParameterization::Optimize(const CFileManager& fileManager, CResult&
 
 			
 
-			callback.SetCurrentDescription("Search optimum. Loop = " + ToString(L) );
-			callback.SetNbStep(m_ctrl.NT()*m_ctrl.NS()*m_tmp.m_X.size());
+			callback.PushTask("Search optimum. Loop = " + ToString(L), m_ctrl.NT()*m_ctrl.NS()*m_tmp.m_X.size());
+			//callback.SetNbStep(m_ctrl.NT()*m_ctrl.NS()*m_tmp.m_X.size());
 			
 			long NUP = 0;
 			long NREJ = 0;
@@ -1669,6 +1672,8 @@ ERMsg CModelParameterization::Optimize(const CFileManager& fileManager, CResult&
 
 			//  If termination criteria is not met, prepare for another loop.
 			m_tmp.PrepareForAnotherLoop(m_ctrl.RT());
+
+			callback.PopTask();
 		}
 		while(!bQuit&&msg);
     

@@ -35,8 +35,7 @@ namespace WBSF
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual void OnPropertyChanged(CMFCPropertyGridProperty* pProp) const;
 		virtual BOOL ValidateItemData(CMFCPropertyGridProperty* /*pProp*/);
-
-		void Init();
+		virtual void Init();
 
 		const CDispersalParamters& Get()const{ return m_parameters; }
 		void Set(const CDispersalParamters& in);

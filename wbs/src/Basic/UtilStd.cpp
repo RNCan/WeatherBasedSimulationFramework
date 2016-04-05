@@ -1313,7 +1313,7 @@ namespace WBSF
 			memcpy(day,compilation_date+4,2);
 
 			//CTime time(ToInt(year), month+1, ToInt(day), 12,0,0 );
-			str = FormatTime("%x", ToInt(year), month, ToInt(day));
+			str = FormatTime("%x", ToInt(year), month, ToSizeT(day - 1));
 		}
  
 		return str;

@@ -42,14 +42,10 @@ namespace WBSF
 
 	void CCallback::Reset()
 	{
-		m_nbTask = 0;
-		m_nCurrentTask = -1;
-		m_bCancelled = false;
+		m_messages.clear();
+		m_messageAccumulator.clear();
+		m_messageDlgAccumulator.clear();
 
-		m_nbStep = 0;
-		m_stepBy = 0;
-		m_stepPos = 0;
-		m_currentLevel = 0;
 		m_phWnd = NULL;
 		m_bPumpMessage = false;
 	}
@@ -63,13 +59,12 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			m_nbTask = in.m_nbTask;
-			m_nCurrentTask = in.m_nCurrentTask;
-			m_nbStep = in.m_nbStep;
-			m_stepBy = in.m_stepBy;
-			m_stepPos = in.m_stepPos;
-			m_currentLevel = in.m_currentLevel;
-			m_oldPos = in.m_oldPos;
+			m_messages = in.m_messages;
+			m_messageAccumulator = in.m_messageAccumulator;
+			m_messageDlgAccumulator = in.m_messageDlgAccumulator;
+
+
+			m_tasks = in.m_tasks;
 			m_phWnd = in.m_phWnd;
 		}
 
@@ -78,69 +73,76 @@ namespace WBSF
 
 	ERMsg CCallback::StepIt(double stepBy)
 	{
+		ASSERT(stepBy==0 || !m_tasks.empty());
 		ERMsg msg;
 
-		m_stepPos += (stepBy == -1) ? m_stepBy : stepBy;
-
-		if (m_stepPos > m_nbStep)
-			m_stepPos = m_nbStep;
-
-		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+		if (!m_tasks.empty())
 		{
-			//try to limit the number of message sent
-			if (int(GetCurrentStepPercent()) != int(m_oldPos))
-			{
-				PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-				m_oldPos = GetCurrentStepPercent();
-			}
+			m_tasks.top().m_stepPos += (stepBy == -1) ? m_tasks.top().m_stepBy : stepBy;
 
-			//a revoir
-			if (m_bPumpMessage)
-			{
-				MSG winMsg;
-				
-				
-				while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
-				{
-					if ((winMsg.message != WM_QUIT)
-						&& (winMsg.message != WM_CLOSE)
-						&& (winMsg.message != WM_DESTROY)
-						&& (winMsg.message != WM_NCDESTROY)
-						&& (winMsg.message != WM_HSCROLL)
-						&& (winMsg.message != WM_VSCROLL))
-					{
-						TranslateMessage((LPMSG)&winMsg);
-						DispatchMessage((LPMSG)&winMsg);
-					}
-				}
-			}
-		}
+			if (m_tasks.top().m_stepPos > m_tasks.top().m_nbStep)
+				m_tasks.top().m_stepPos = m_tasks.top().m_nbStep;
 
-		if (GetUserCancel() && !m_bCancelled)
-		{
-			m_bCancelled = true;
-			ASSERT(!m_userCancelMsg.empty());
-			msg.ajoute(m_userCancelMsg);
+		//	if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+		//	{
+		//		//try to limit the number of message sent
+		//		if (int(GetCurrentStepPercent()) != int(m_tasks.top().m_oldPos))
+		//		{
+		//			PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
+		//			m_tasks.top().m_oldPos = GetCurrentStepPercent();
+		//		}
+
+		//		//a revoir
+		//		if (m_bPumpMessage)
+		//		{
+		//			MSG winMsg;
+
+
+		//			while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
+		//			{
+		//				if ((winMsg.message != WM_QUIT)
+		//					&& (winMsg.message != WM_CLOSE)
+		//					&& (winMsg.message != WM_DESTROY)
+		//					&& (winMsg.message != WM_NCDESTROY)
+		//					&& (winMsg.message != WM_HSCROLL)
+		//					&& (winMsg.message != WM_VSCROLL))
+		//				{
+		//					TranslateMessage((LPMSG)&winMsg);
+		//					DispatchMessage((LPMSG)&winMsg);
+		//				}
+		//			}
+		//		}
+		//	}
+
+			if (GetUserCancel() )//&& !m_bCancelled
+			{
+				//m_bCancelled = true;
+				ASSERT(!m_userCancelMsg.empty());
+				msg.ajoute(m_userCancelMsg);
+			}
 		}
 
 		return msg;
 	}
 
-	void CCallback::SetNbStep(double nbStep, double stepBy)
-	{
-		m_nbStep = nbStep;
-		m_stepBy = stepBy;
-		m_stepPos = 0;
-		m_oldPos = -1;
-		m_nCurrentTask++;
-		if (m_nCurrentTask >= m_nbTask)
-			m_nbTask = m_nCurrentTask + 1;
+	//void CCallback::SetNbStep(double nbStep, double stepBy)
+	//{
+	//	PushTask(m_description, nbStep, stepBy);
+	//	//
 
-		StepIt(0);
-	}
+	//	//m_nbStep = nbStep;
+	//	//m_stepBy = stepBy;
+	//	//m_stepPos = 0;
+	//	//m_oldPos = -1;
+	//	//m_nCurrentTask++; don't incrément task anymore. It's the responsability od the PrograssBar Dialoge owner
+	//	//if (m_nCurrentTask >= m_nbTask)
+	//	//m_nbTask = m_nCurrentTask + 1;
+
+	//	
+	//}
 
 
-	double CCallback::GetCurrentStepPercent()const{ return m_nbStep != 0 ? std::min(100.0, std::max(0.0, m_stepPos*100.0 / m_nbStep)) : 100.0; }
+	double CCallback::GetCurrentStepPercent()const{ return !m_tasks.empty()? (m_tasks.top().m_nbStep != 0 ? std::min(100.0, std::max(0.0, m_tasks.top().m_stepPos*100.0 / m_tasks.top().m_nbStep)) : 100.0):0.0; }
 
 	void CCallback::AddMessage(const ERMsg& message, int level)
 	{
@@ -159,7 +161,7 @@ namespace WBSF
 		static CCriticalSection CS;
 
 		CS.Enter();
-		level = m_currentLevel + std::max(0, level);
+		level = int(GetCurrentLevel()) + std::max(0, level);
 
 		string levelTabs;
 		for (int i = 0; i < level; i++)
@@ -175,7 +177,7 @@ namespace WBSF
 		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 		{
 			PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-			if (m_bPumpMessage)
+			/*if (m_bPumpMessage)
 			{
 				MSG winMsg;
 				while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
@@ -183,7 +185,7 @@ namespace WBSF
 					TranslateMessage((LPMSG)&winMsg);
 					DispatchMessage((LPMSG)&winMsg);
 				}
-			}
+			}*/
 		}
 
 		CS.Leave();
@@ -195,7 +197,7 @@ namespace WBSF
 		m_messages.clear();
 		if (bAccumulation)
 		{
-			m_currentLevel = 0;
+			//m_currentLevel = 0;
 			m_messageAccumulator.clear();
 		}
 	}
@@ -207,5 +209,16 @@ namespace WBSF
 		m_pauseEvent.wait();
 	}
 
+	void CCallback::PushTask(const std::string& description, double nbStep, double stepBy)
+	{
+		m_tasks.push(CCallbackTask(description, nbStep, stepBy));
+		StepIt(0);
+	}
+
+	void CCallback::PopTask()
+	{
+		if (!m_tasks.empty())
+			m_tasks.pop();
+	}
 
 }//namespace WBSF

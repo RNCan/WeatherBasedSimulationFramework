@@ -147,8 +147,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetNbTask(GetNbExecute(true));
+		//callback.PushTask("Main loop over components", GetNbExecute(false));
 		msg += ExecuteChild(fileManager, callback);
+		//callback.PopTask();
 
 		string logText = GetOutputString(msg, callback, true);
 		string filePath = GetLogFilePath(GetPath(fileManager));

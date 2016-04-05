@@ -282,7 +282,7 @@ namespace WBSF
 			for (size_t i = 0; i < resultArray.size(); i++)
 				nbSection += resultArray[i]->GetNbSection();
 
-			callback.SetNbStep(nbSection);
+			callback.PushTask("Merge", nbSection);
 
 
 			for (size_t i = 0; i < resultArray.size() && msg; i++)
@@ -297,12 +297,14 @@ namespace WBSF
 					msg += callback.StepIt();
 				}
 			}
+
+			callback.PopTask();
 		}
 		else //TIME_REF or VARIABLE
 		{
 			size_t nbSection = resultArray[0]->GetNbSection();
 
-			callback.SetNbStep(nbSection);
+			callback.PushTask("Merge", nbSection);
 
 			for (size_t s = 0; s < nbSection&&msg; s++)
 			{
@@ -332,6 +334,8 @@ namespace WBSF
 
 				result.AddSection(section0);
 			}//for all section
+
+			callback.PopTask();
 		}
 
 		for (size_t i = 0; i < resultArray.size(); i++)

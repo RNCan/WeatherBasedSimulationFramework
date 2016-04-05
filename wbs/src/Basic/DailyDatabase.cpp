@@ -83,8 +83,8 @@ namespace WBSF
 		CFileInfoVector info;
 		GetFilesInfo(inputDataPath + "*.csv", false, info);
 
-		callback.SetCurrentDescription("Conversion");
-		callback.SetNbStep(info.size());
+		callback.PushTask("Conversion", info.size());
+		//callback.SetNbStep(info.size());
 
 
 		//file.WriteString("DailyDatabase 2\n");
@@ -114,7 +114,7 @@ namespace WBSF
 
 
 		callback.AddMessage(FormatMsg(IDS_CMN_NB_STATIONS_ADDED, ToString(info.size())), 1);
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -160,8 +160,8 @@ namespace WBSF
 		CFileInfoVector info;
 		GetFilesInfo(inputDataPath + "*.wea", false, info);
 
-		callback.SetCurrentDescription("Conversion");
-		callback.SetNbStep(info.size());
+		callback.PushTask("Conversion", info.size());
+		//callback.SetNbStep(info.size());
 
 
 		//file.WriteString("DailyDatabase 2\n");
@@ -190,7 +190,7 @@ namespace WBSF
 
 
 		callback.AddMessage(FormatMsg(IDS_CMN_NB_STATIONS_ADDED, ToString(info.size())), 1);
-
+		callback.PopTask();
 
 		return msg;
 	}

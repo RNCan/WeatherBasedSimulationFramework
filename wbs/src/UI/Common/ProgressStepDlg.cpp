@@ -122,13 +122,13 @@ ERMsg CProgressStepDlg::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgPa
 
 void CProgressStepDlg::UpdateCtrl() 
 {
-	const string& description = m_callback.GetTaskDescription();
-	if ( !description.empty())
-	{
+	//const string& description = m_callback.GetCurrentTaskMessageText();
+	//if ( !description.empty())
+	//{
 		//m_lastDescription = description;
-		m_descriptionCtrl.SetWindowTextW(CString(description.c_str()));
-		m_callback.SetCurrentDescription("");//delete description
-	}
+		//m_descriptionCtrl.SetWindowTextW(CString(description.c_str()));
+		//m_callback.SetCurrentDescription("");//delete description
+	//}
 
     const string& message = m_callback.GetMessages();
     if( !message.empty() )
@@ -156,11 +156,11 @@ void CProgressStepDlg::UpdateCtrl()
 	if (m_callback.GetCurrentStepPercent() != m_nCurrentStepPos ||
 		bIsIconic != m_bIsIconic)
 	{
-		string stepNo = "?/?";
-		if (m_callback.GetCurrentTaskNo() != -1)
-			stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
+		//string stepNo = "?/?";
+		//if (m_callback.GetCurrentTaskNo() != -1)
+			//stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
 
-		m_stepNoCtrl.SetWindowTextW(CString(stepNo.c_str()));
+		//m_stepNoCtrl.SetWindowTextW(CString(stepNo.c_str()));
 
 		m_bIsIconic = bIsIconic;
 		//get current step pourcent
@@ -175,12 +175,13 @@ void CProgressStepDlg::UpdateCtrl()
 		//update pourcent text
 		stepPourcentage = WBSF::FormatA("%3d%%", m_nCurrentStepPos);
 		m_pourcentageCtrl.SetWindowTextW(CString(stepPourcentage.c_str()));
+		UpdateMainWindowText();
 	}
 
-	if (m_nCurrentTask == -1 || m_nCurrentNbTasks == -1 || 
-		m_nCurrentTask != m_callback.GetCurrentTaskNo() || m_nCurrentNbTasks != m_callback.GetNbTask())
-	{
-		UpdateMainWindowText();
+	//if (m_nCurrentTask == -1 || m_nCurrentNbTasks == -1 || 
+	//	m_nCurrentTask != m_callback.GetCurrentTaskNo() || m_nCurrentNbTasks != m_callback.GetNbTask())
+	//{
+		
 		//update window title
 		//if( pMain )
 		//{
@@ -197,7 +198,7 @@ void CProgressStepDlg::UpdateCtrl()
 		//
 		//m_nCurrentTask = m_callback.GetCurrentTaskNo();
 		//m_nCurrentNbTasks = m_callback.GetNbTask();
-	}
+//	}
 }
 
 void CProgressStepDlg::UpdateMainWindowText()
@@ -208,10 +209,10 @@ void CProgressStepDlg::UpdateMainWindowText()
 	{
 		if( m_bIsIconic )
 		{
-			string stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
+			//string stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
 			string stepPourcentage = WBSF::FormatA("%3d%%", m_nCurrentStepPos);
-			string str = stepNo + " : " + stepPourcentage;
-			pMain->SetWindowTextW(CString(str.c_str()));
+			//string str = stepNo + " : " + stepPourcentage;
+			pMain->SetWindowTextW(CString(stepPourcentage.c_str()));
 		}
 		else
 		{
@@ -221,8 +222,8 @@ void CProgressStepDlg::UpdateMainWindowText()
 				pMain->SetWindowText(CString(m_title.c_str()));
 		}
 		
-		m_nCurrentTask = m_callback.GetCurrentTaskNo();
-		m_nCurrentNbTasks = m_callback.GetNbTask();
+		//m_nCurrentTask = m_callback.GetCurrentTaskNo();
+		//m_nCurrentNbTasks = m_callback.GetNbTask();
 	}
 }
 

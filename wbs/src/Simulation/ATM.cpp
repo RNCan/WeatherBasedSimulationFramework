@@ -1379,8 +1379,8 @@ ERMsg CATMWeather::load_gribs(const std::string& filepath, CCallback& callback)
 
 
 		std::ios::pos_type length = file.length();
-		callback.SetCurrentDescription("Load Gribs");
-		callback.SetNbStep(length);
+		callback.PushTask("Load Gribs", length);
+		//callback.SetNbStep(length);
 
 		for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 		{
@@ -1393,12 +1393,14 @@ ERMsg CATMWeather::load_gribs(const std::string& filepath, CCallback& callback)
 				m_filepath_map[TRef] = (*loop)[1];
 			}
 			
-			callback.SetCurrentStepPos((double)file.tellg());
-			msg += callback.StepIt(0);
+			msg += callback.SetCurrentStepPos((double)file.tellg());
 		}
 
 		if (msg)
 			m_filePathGribs = filepath;
+
+
+		callback.PopTask();
 	}
 
 	return msg;
@@ -1513,7 +1515,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 			}
 			else
 			{
-				msg.ajoute("File for " + UTCTRef.GetFormatedString() + " is Missing");
+				msg.ajoute("File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
 			}
 
 			if (!msg)
@@ -1542,8 +1544,8 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				}
 				else
 				{
-					UTCTRef.Transform(CTM(CTM::DAILY));
-					callback.AddMessage("WARNING: Unable to fing a good starting Gribs weather for " + UTCTRef.GetFormatedString() + " (UTC)");
+					//UTCTRef.Transform(CTM(CTM::DAILY));
+					callback.AddMessage("WARNING: Unable to fing a good starting Gribs weather for " + UTCTRef.GetFormatedString("%Y-%m-%d") + " (UTC)");
 					m_bSkipDay = true;
 					return msg;
 				}
@@ -1717,7 +1719,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					}
 					else
 					{
-						msg.ajoute("Too mush missing value for " + UTCTRef.GetFormatedString() + " (UTC)");
+						msg.ajoute("Too mush missing value for " + UTCTRef.GetFormatedString("%Y-%m-%d") + " (UTC)");
 					}
 				}
 
@@ -2077,7 +2079,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 
 		//get all days to simulate
 		set<CTRef> TRefs = get_TRefs(year);
-		callback.AddTask(TRefs.size()*4);
+		//callback.AddTask(TRefs.size()*4);
 		
 		//simulate for all days
 		for (set<CTRef>::const_iterator it = TRefs.begin(); it != TRefs.end() && msg; it++)
@@ -2100,8 +2102,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 			//in progress step
 			CTRef TRef = *it;
 			size_t nbSteps = m_weather.HaveGribsWeather() ? sunsetTRef.size() : 0 + m_weather.HaveStationWeather() ? 1 : 0;
-			callback.SetCurrentDescription("Load sunset weather for " + TRef.GetFormatedString());
-			callback.SetNbStep(nbSteps);//+1 for weather station
+			callback.PushTask("Load sunset weather for " + TRef.GetFormatedString("%Y-%m-%d"), nbSteps);
+			//callback.SetNbStep(nbSteps);//+1 for weather station
 
 			//load sunset weather
 			for (set<CTRef>::const_iterator itSunset = sunsetTRef.begin(); itSunset != sunsetTRef.end() && msg; itSunset++)
@@ -2109,6 +2111,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 				//load weather at sunset
 				msg += m_weather.LoadWeather(*itSunset, callback);
 			}
+
+			callback.PopTask();
 
 			if (msg && !m_weather.SkipDay())
 			{
@@ -2122,8 +2126,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 				CTPeriod UTC_period = get_UTC_period(fls);
 				ASSERT(UTC_period.IsInit());
 				
-				callback.SetCurrentDescription("Load weather for " + TRef.GetFormatedString());
-				callback.SetNbStep(UTC_period.size());//Load weather for all hours
+				callback.PushTask("Load weather for " + TRef.GetFormatedString("%Y-%m-%d"), UTC_period.size());
+				//callback.SetNbStep(UTC_period.size());//Load weather for all hours
 
 				//pre-Load weather for the day
 				for (CTRef UTCTRef = UTC_period.Begin(); UTCTRef <= UTC_period.End() && msg; UTCTRef++)
@@ -2134,10 +2138,11 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 						msg = callback.StepIt();
 				}
 
+				callback.PopTask();
 
 				//Simulate dispersal
-				callback.SetCurrentDescription("Dispersal for " + TRef.GetFormatedString());
-				callback.SetNbStep(UTC_period.size());
+				callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d"), UTC_period.size());
+				//callback.SetNbStep(UTC_period.size());
 
 				for (m_UTCTRef = UTC_period.Begin(); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++)
 				{
@@ -2201,10 +2206,12 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 					msg += callback.StepIt();
 				}//for all valid hours
 
+				callback.PopTask();
 
-				callback.SetCurrentDescription("Discard weather for " + TRef.GetFormatedString() );
-				callback.SetNbStep(UTC_period.size());//discard weather for all hours
+				callback.PushTask("Discard weather for " + TRef.GetFormatedString("%Y-%m-%d"), UTC_period.size());
+				//callback.SetNbStep(UTC_period.size());//discard weather for all hours
 				msg += m_weather.Discard(callback);
+				callback.PopTask();
 			}//if not skip day
 
 			m_weather.ResetSkipDay();
@@ -2494,15 +2501,15 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 	
 	
 	static const size_t NB_WRF_HOURS= 193;//193 hours
-	callback.SetNbTask(NB_WRF_HOURS);
+	callback.PushTask("Create gribs", NB_WRF_HOURS);
 	
 	for (size_t h = 0; h < NB_WRF_HOURS&&msg; h++)
 	{
 		CTRef UTCRef(2007, JUNE, 21, 0);
 		UTCRef += int(h);
 
-		callback.SetCurrentDescription(UTCRef.GetFormatedString());
-		callback.SetNbStep(7257 * NB_WRF_LEVEL);
+		callback.PushTask(UTCRef.GetFormatedString("%Y-%m-%d-%H"), 7257 * NB_WRF_LEVEL);
+		//callback.SetNbStep(7257 * NB_WRF_LEVEL);
 
 		std::string filePathIn = FormatA("D:\\Travaux\\Brian Sturtevant\\Weather\\WRF\\Original\\wrfbud2_%03d.txt", h);
 		CGDALDatasetEx geotif;
@@ -2640,9 +2647,14 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 					}
 				}
 			}//for all output file
-		}
+		}//if msg
+
+		callback.PopTask();
+
+		msg += callback.StepIt();
 	}//for all 193 hours
 	
+	callback.PopTask();
 
 	return msg;
 }

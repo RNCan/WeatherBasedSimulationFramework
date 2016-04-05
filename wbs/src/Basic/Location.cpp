@@ -622,8 +622,8 @@ namespace WBSF
 		std::streampos size = file.tellg() - ffirst;
 		reserve(size_t(size / 40));
 
-		callback.SetCurrentDescription("Load locations");
-		callback.SetNbStep(size);
+		callback.PushTask("Load locations", size);
+		//callback.SetNbStep(size);
 
 		//begin to read
 		file.seekg(0);
@@ -655,6 +655,7 @@ namespace WBSF
 		}
 
 
+		callback.PopTask();
 		return msg;
 	}
 
@@ -685,8 +686,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetCurrentDescription("Save locations");
-		callback.SetNbStep(size());
+		callback.PushTask("Save locations", size());
+		//callback.SetNbStep(size());
 
 		string header = "KeyID"; //Excel have problem with file begginning by ID
 		for (size_t i = 1; i < CLocation::SSI; i++)
@@ -737,7 +738,7 @@ namespace WBSF
 			msg += callback.StepIt();
 		}
 
-
+		callback.PopTask();
 		return msg;
 	}
 

@@ -1068,8 +1068,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetCurrentDescription("Extract specific site information");
-		callback.SetNbStep(locations.size());
+		callback.PushTask("Extract specific site information", locations.size());
+		//callback.SetNbStep(locations.size());
 
 		CGDALDatasetEx inputDS;
 		
@@ -1140,6 +1140,8 @@ namespace WBSF
 
 			inputDS.Close();
 		}//if msg
+
+		callback.PopTask();
 
 		return msg;
 	}

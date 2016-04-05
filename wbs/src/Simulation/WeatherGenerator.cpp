@@ -1814,15 +1814,15 @@ ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& 
 	assert(XVal() == 0 || XVal() == 1);
 
 	//if (omp_get_num_threads() == 0)
-	{
-		CTPeriod p = m_tgi.GetTPeriod().Transform(CTM(CTM::HOURLY));
-		size_t nbSteps = 0;
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-			nbSteps += m_pGribsDB->get_image_filepath(TRef).empty() ? 0:2;//2 = load + unload
+	//{
+	CTPeriod p = m_tgi.GetTPeriod().Transform(CTM(CTM::HOURLY));
+	size_t nbSteps = 0;
+	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		nbSteps += m_pGribsDB->get_image_filepath(TRef).empty() ? 0:2;//2 = load + unload
 
-		callback.SetCurrentDescription("Load gribs data weather for " + m_target.m_name);
-		callback.SetNbStep(nbSteps);
-	}
+	callback.PushTask("Load gribs data weather for " + m_target.m_name, nbSteps);
+		//callback.SetNbStep(nbSteps);
+	//}
 
 	ERMsg msg;
 	//int currentYear = CTRef::GetCurrentTRef().GetYear();
@@ -1859,6 +1859,8 @@ ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& 
 		}//for all months
 	}//for all years
 
+	callback.PopTask();
+
 	return msg;
 }
 
@@ -1889,8 +1891,8 @@ ERMsg CGribsDatabase::Open(const std::string& filepath, CCallback& callback)
 	if (msg)
 	{
 		std::ios::pos_type length = file.length();
-		callback.SetCurrentDescription("Open Gribs");
-		callback.SetNbStep(length);
+		callback.PushTask("Open Gribs", length);
+		//callback.SetNbStep(length);
 
 		for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 		{
@@ -1909,6 +1911,9 @@ ERMsg CGribsDatabase::Open(const std::string& filepath, CCallback& callback)
 
 		if (msg)
 			m_filePathGribs = filepath;
+
+
+		callback.PopTask();
 	}
 
 

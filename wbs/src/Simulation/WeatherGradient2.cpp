@@ -499,7 +499,7 @@ namespace WBSF
 		ERMsg msg;
 
 		static const double FACTOR_DISTRIBUTE = 0.25;
-		callback.SetNbTask(NB_HEMISPHERE*m_variables.count());
+		callback.PushTask("Create Default Gradient", NB_HEMISPHERE*m_variables.count());
 
 
 		for (size_t z = 0; z < NB_HEMISPHERE; z++)
@@ -533,6 +533,8 @@ namespace WBSF
 			}
 		}
 
+		callback.PopTask();
+
 		return msg;
 	}
 
@@ -541,7 +543,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.SetNbStep(NB_SCALE_GRADIENT*m_variables.count()*12);
+		//callback.SetNbStep(NB_SCALE_GRADIENT*m_variables.count()*12);
+		callback.PushTask("Create gradient", NB_SCALE_GRADIENT*m_variables.count() * 12, 1);
 
 		size_t e = NORTH_HEMISPHERE;
 		if (m_target.m_lat < 0)
@@ -621,6 +624,7 @@ namespace WBSF
 		}//all variable
 		
 		
+		callback.PopTask();
 		return msg;
 	}
 

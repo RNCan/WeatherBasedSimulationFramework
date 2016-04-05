@@ -32,8 +32,8 @@ namespace WBSF
 		ERMsg Load(const std::string& filePath);
 		ERMsg Save(const std::string& filePath);
 
-		ERMsg LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop);
-		ERMsg SaveAsCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop);
+		ERMsg LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback);
+		ERMsg SaveAsCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback);
 
 
 		template<class Archive>
@@ -71,7 +71,7 @@ namespace WBSF
 
 
 		virtual ERMsg OpenOptimizationFile(const std::string& referencedFilePath, CCallback& callBack = DEFAULT_CALLBACK, bool bSkipVerify=false);
-		virtual ERMsg Close();
+		virtual ERMsg Close(bool bSave = true, CCallback& callback = DEFAULT_CALLBACK);
 
 		virtual ERMsg Add(const CLocation& station);
 		virtual ERMsg Get(CLocation& station, size_t index, int year = YEAR_NOT_INIT)const;
@@ -88,7 +88,7 @@ namespace WBSF
 
 		ERMsg GetStations(const CSearchResultVector& results, CNormalsStationVector& stationArray)const;
 		ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, short mergeType, CCallback& callback);
-		ERMsg SaveAsV6(const std::string& filePath);
+		ERMsg SaveAsV6(const std::string& filePath, CCallback& callback);
 
 
 		static int GetVersion(const std::string& filePath);
@@ -99,7 +99,7 @@ namespace WBSF
 		static bool IsExtendedDatabase(const std::string& filePath);
 		static ERMsg v6_to_v7(const std::string& filePathV6, const std::string& filePathV7, CCallback& callback = DEFAULT_CALLBACK);
 		static ERMsg v7_to_v6(const std::string& filePathV7, const std::string& filePathV6, CCallback& callback = DEFAULT_CALLBACK);
-		static ERMsg Convert(const std::string& filePath);
+		//static ERMsg Convert(const std::string& filePath, CCallback& callback);
 		static std::string GetNormalsDataFilePath(const std::string& filePath){ return WBSF::GetPath(filePath) + GetNormalsDataFileName(filePath); }
 		static std::string GetNormalsDataFileName(const std::string& filePath){ return GetFileTitle(filePath) + DATA_EXT; }
 

@@ -564,8 +564,8 @@ namespace WBSF
 				return msg;
 
 
-			callback.SetCurrentDescription(FormatMsg(IDS_SIM_IMPORT, m_fileName));
-			callback.SetNbStep(file.length());
+			callback.PushTask(FormatMsg(IDS_SIM_IMPORT, m_fileName), file.length());
+			//callback.SetNbStep(file.length());
 
 
 			//read file header
@@ -631,7 +631,9 @@ namespace WBSF
 
 				db.Close();
 			}
-		}
+
+			callback.PopTask();
+		}//if msg
 
 
 

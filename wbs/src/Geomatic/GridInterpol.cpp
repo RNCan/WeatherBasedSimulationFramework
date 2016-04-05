@@ -208,8 +208,8 @@ ERMsg CGridInterpol::TrimDataset(CCallback& callback)
 
 	string comment = FormatMsg(IDS_MAP_TRIM_DATA, GetFileTitle(m_TEMFilePath), GetFileTitle(m_DEMFilePath) );
     
-    callback.SetCurrentDescription(comment);
-    callback.SetNbStep(m_pts->size());
+	callback.PushTask(comment, m_pts->size());
+    //callback.SetNbStep(m_pts->size());
 	
 
 	bool bAccepDuplicate = (m_method != UNIVERSAL_KRIGING && m_method != THIN_PLATE_SPLINE );
@@ -304,6 +304,9 @@ ERMsg CGridInterpol::TrimDataset(CCallback& callback)
 		msg.ajoute(error);
 	}
 
+
+	callback.PopTask();
+
 	return msg;
 }
 
@@ -315,8 +318,8 @@ ERMsg CGridInterpol::GenerateSurface(CCallback& callback)
 
     string comment = FormatMsg(IDS_MAP_DOMAP, GetFileTitle(m_TEMFilePath), GetFileTitle(m_DEMFilePath) );
     
-    callback.SetCurrentDescription(comment);
-	callback.SetNbStep(m_inputGrid->GetRasterYSize());
+	callback.PushTask(comment, m_inputGrid->GetRasterYSize());
+	//callback.SetNbStep(m_inputGrid->GetRasterYSize());
     
 	CTimer timer;
 	
@@ -343,6 +346,8 @@ ERMsg CGridInterpol::GenerateSurface(CCallback& callback)
     }
 	
 
+	callback.PopTask();
+
 	return msg;
 }
 
@@ -359,8 +364,8 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 	{
 		string comment = GetString(IDS_MAP_OPTIMISATION );
     
-		callback.SetCurrentDescription(comment);
-		callback.SetNbStep(parameterset.size());
+		callback.PushTask(comment, parameterset.size());
+		//callback.SetNbStep(parameterset.size());
 		
 
 		CTimer timer;
@@ -411,6 +416,8 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			callback.AddMessage("Optimisation = " + SecondToDHMS(timer.Elapsed()) + " s");
 			callback.AddMessage(m_pGridInterpol->GetFeedbackOnOptimisation(parameterset, optimisationR²));
 		}
+
+		callback.PopTask();
 	}//else, if we have only one parameter set, then we take it directly
 	else if ( parameterset.size() == 1)
 	{
@@ -486,8 +493,8 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 
 
 	//run over all blocks
-	callback.SetCurrentDescription("Generate surface");
-	callback.SetNbStep(extents.m_xBlockSize*extents.m_ySize);
+	callback.PushTask("Generate surface", extents.m_xBlockSize*extents.m_ySize);
+	//callback.SetNbStep(extents.m_xBlockSize*extents.m_ySize);
 
 	for(size_t xy=0; xy<XYindex.size(); xy++)//for all blocks
 	{
@@ -564,6 +571,10 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 		GDALRasterBand *pBand = m_outputGrid.GetRasterBand(0);
 		pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0  );
 	}
+
+
+	callback.PopTask();
+
 
 	return msg;
 }
