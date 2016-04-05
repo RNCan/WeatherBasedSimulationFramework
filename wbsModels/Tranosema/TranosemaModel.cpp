@@ -73,46 +73,46 @@ namespace WBSF
 
 	//************************************************************************************************
 	// Daily method
-	void CTranosemaModel::GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& stat)
-	{
-		//This is where the model is actually executed
-		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		stat.Init(p.GetNbRef(), p.Begin(), SBW::TSpruceBudwormStats::NB_STATS, 0, DAILY_HEADER);
+	//void CTranosemaModel::GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& stat)
+	//{
+	//	//This is where the model is actually executed
+	//	CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
+	//	stat.Init(p.GetNbRef(), p.Begin(), SBW::TSpruceBudwormStats::NB_STATS, 0, DAILY_HEADER);
 
-		//we simulate 2 years at a time. 
-		//we also manager the possibility to have only one year
-		for (size_t y = 0; y < weather.size(); y++)
-		{
-			CTPeriod p = weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-
-
-			//Create stand
-			CSBWStand stand(this);
-			//create tree
-			std::shared_ptr<CSBWTree> pHost = make_shared<CSBWTree>(&stand);
-
-			//Init tree
-			pHost->m_kind = CSBWTree::BALSAM_FIR;
-			pHost->m_nbMinObjects = 100;
-			pHost->m_nbMaxObjects = 1000;
-			pHost->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, SBW::L2o, NOT_INIT, false));
+	//	//we simulate 2 years at a time. 
+	//	//we also manager the possibility to have only one year
+	//	for (size_t y = 0; y < weather.size(); y++)
+	//	{
+	//		CTPeriod p = weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
 
-			//Init stand
-			stand.m_bFertilEgg = false;
-			stand.m_bApplyAttrition = false;
-			stand.m_bStopL22 = true;
-			stand.m_host.push_back(pHost);
+	//		//Create stand
+	//		CSBWStand stand(this);
+	//		//create tree
+	//		std::shared_ptr<CSBWTree> pHost = make_shared<CSBWTree>(&stand);
 
-			for (CTRef d = p.Begin(); d <= p.End(); d++)
-			{
-				stand.Live(weather.GetDay(d));
-				stand.GetStat(d, stat[d]);
-				stand.AdjustPopulation();
-				HxGridTestConnection();
-			}
-		}
-	}
+	//		//Init tree
+	//		pHost->m_kind = CSBWTree::BALSAM_FIR;
+	//		pHost->m_nbMinObjects = 100;
+	//		pHost->m_nbMaxObjects = 1000;
+	//		pHost->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, SBW::L2o, NOT_INIT, false));
+
+
+	//		//Init stand
+	//		stand.m_bFertilEgg = false;
+	//		stand.m_bApplyAttrition = false;
+	//		stand.m_bStopL22 = true;
+	//		stand.m_host.push_back(pHost);
+
+	//		for (CTRef d = p.Begin(); d <= p.End(); d++)
+	//		{
+	//			stand.Live(weather.GetDay(d));
+	//			stand.GetStat(d, stat[d]);
+	//			stand.AdjustPopulation();
+	//			HxGridTestConnection();
+	//		}
+	//	}
+	//}
 
 
 	//This method is called to compute the solution
@@ -216,7 +216,7 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 
-		GetSpruceBudwormBiology(m_weather, SBWStat);
+//		GetSpruceBudwormBiology(m_weather, SBWStat);
 
 		vector<CModelStatVector> TranosemaStat;
 		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);

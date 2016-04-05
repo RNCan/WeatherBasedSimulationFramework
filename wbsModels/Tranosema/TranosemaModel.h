@@ -23,7 +23,7 @@ namespace WBSF
 
 	protected:
 
-		void GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& SBWStat);
+		//void GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& SBWStat);
 		void ExecuteDailyAllGenerations(CModelStatVector& SBWStat, std::vector<CModelStatVector>& stat);
 
 
