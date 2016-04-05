@@ -150,7 +150,7 @@ namespace WBSF
 	void CTranosema::Brood(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax);
+		ASSERT(m_totalBroods <= m_Pmax+1);
 
 		m_totalBroods += m_broods;
 
@@ -266,6 +266,10 @@ namespace WBSF
 		return bDeath;
 	}
 
+	bool CTranosema::CanPack(const CIndividualPtr& in)const
+	{
+		return CIndividual::CanPack(in)&&(GetStage()!=ADULT||GetSex()!=FEMALE);
+	}
 
 	void CTranosema::Pack(const CIndividualPtr& pBug)
 	{

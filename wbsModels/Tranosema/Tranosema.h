@@ -48,6 +48,7 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
+		virtual bool CanPack(const CIndividualPtr& in)const;
 		virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return Tranosema::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CTranosema>(*this); }

@@ -21,12 +21,15 @@ using namespace WBSF::Tranosema;
 namespace WBSF
 {
 	static const bool ACTIVATE_PARAMETRIZATION = false;
+	static const size_t NB_GENERATIONS = 5;
+
+
 
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosemaModel::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, NB_DAILY_OUTPUT };
+	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
 	enum{ O_A_NB_GENERATION, O_A_GROW_RATE1, O_A_GROW_RATE2, O_A_GROW_RATE3, O_A_GROW_RATE4, O_A_GROW_RATE5, O_A_GROW_RATE6, O_A_GROW_RATE7, O_A_GROW_RATE8, NB_ANNUAL_STAT, NB_MAX_GENERATION = 8 };
@@ -135,8 +138,8 @@ namespace WBSF
 
 		//merge generations vector into one output vector (max of 5 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		size_t maxG = min(size_t(5), TranosemaStat.size());
-		m_output.Init(p.size(), p.Begin(), maxG*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
+		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size()); 
+		m_output.Init(p.size(), p.Begin(), NB_GENERATIONS*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
@@ -145,7 +148,7 @@ namespace WBSF
 				for (size_t s = 0; s < NB_DAILY_OUTPUT; s++)
 					m_output[TRef][g*NB_DAILY_OUTPUT + s] = TranosemaStat[g][TRef][s];
 			}
-			m_output[TRef][6] = m_weather.GetDayLength(TRef)/3600.;
+			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
 		}
 
 
@@ -185,7 +188,8 @@ namespace WBSF
 			stand.m_lethalTemp = m_lethalTemp;
 			stand.m_host.push_front(pHost);
 
-
+			
+			
 			//run the model for all days of all years
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 			{
