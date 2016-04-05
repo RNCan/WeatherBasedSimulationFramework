@@ -313,7 +313,64 @@
             <Precision>4</Precision>
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
-    </OutputVariableArray>
+        <OutputVariable>
+            <Name>Egg_g4</Name>
+            <Title>Egg_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g4</Name>
+            <Title>Pupa_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g4</Name>
+            <Title>Adult_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g4</Name>
+            <Title>DeadAdult_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g4</Name>
+            <Title>Oviposition_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g4</Name>
+            <Title>Broods_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g4</Name>
+            <Title>Attrition_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+     </OutputVariableArray>
     <Copyright/>
     <Credit/>
     <HelpFileName/>
