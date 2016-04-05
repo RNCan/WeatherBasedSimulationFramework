@@ -21,7 +21,7 @@
             <Type>0</Type>
             <Rect>25 10 45 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>-1</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
@@ -46,8 +46,32 @@
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
-            <MinValue>-1</MinValue>
-            <MaxValue>1</MaxValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lethal temperature</Name>
+            <Caption>Lethal temperature</Caption>
+            <Description>Temperature killing all non-diapause stages</Description>
+            <Type>2</Type>
+            <Rect>110 10 130 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-60</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Critical daylength</Name>
+            <Caption>Critical daylength</Caption>
+            <Description>Daylength for entry into diapause</Description>
+            <Type>2</Type>
+            <Rect>135 10 160 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>14</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
