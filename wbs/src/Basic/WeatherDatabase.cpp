@@ -630,7 +630,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		}
 
 		callback.PopTask();
-	}
+	}//while
 
 
 	if (msg)
@@ -1113,16 +1113,10 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 
 	int nbStationAdded=0;
 
-	
-	//boost::dynamic_bitset<unsigned char> addedIndex1(DB1Order.size());
-	//boost::dynamic_bitset<unsigned char> addedIndex2(DB2Order.size());
 	boost::dynamic_bitset<size_t> addedIndex1(DB1Order.size());
 	boost::dynamic_bitset<size_t> addedIndex2(DB2Order.size());
 
 	callback.PushTask(comment, pDB1->size() + pDB2->size());
-	//callback.SetNbStep(pDB1->size()+pDB2->size());
-	
-	
 
 	for(size_t _i=0; _i<DB1Order.size()&&msg; _i++)
 	{
@@ -1218,7 +1212,7 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 		}
 
 		msg += callback.StepIt();
-	}
+	}//for DB1
 
 	//add station only in the DB2
 	for(size_t _i=0; _i<DB2Order.size()&&msg; _i++)
@@ -1284,13 +1278,14 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 		}
 		
 		msg += callback.StepIt();
-	}
+	}//for DB2
 	
 
 	comment = FormatMsg( IDS_CMN_NB_STATIONS_ADDED, ToString( nbStationAdded ) );
 	callback.AddMessage( comment, 1);
 	
-	
+	callback.PopTask();
+
 	return msg;
 }
 
@@ -1599,8 +1594,7 @@ ERMsg CDHDatabaseBase::DeleteDatabase(const std::string& filePath, CCallback& ca
 		callback.AddMessage(filePath, 1);
 
 		callback.PushTask(GetString(IDS_BSC_DELETE_FILE) + filePath, files.size() + 9);
-		//callback.SetNbStep(files.size() + 9);
-
+		
 		for (size_t i = 0; i<files.size() && msg; i++)
 		{
 			if (FileExists(files[i]))

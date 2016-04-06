@@ -738,59 +738,48 @@ namespace UtilWWW
 		pConnection.reset();
 		pSession.reset();
 		
-		//int nbTry = password==" "?4:1;
-		int nbTry = 1;
-		for(int i=0; i<nbTry&&pConnection.get()==NULL; i++)
+	
+		pSession.reset( new CInternetSession(NULL, 1, flags) );
+
+		TRY
 		{
-			//pSession.reset( new CInternetSession(NULL,1,INTERNET_OPEN_TYPE_DIRECT ,NULL,NULL,INTERNET_FLAG_DONT_CACHE) );//PRE_CONFIG_INTERNET_ACCESS
-			//CString name;
-			//name.Format("test%d", i+1);
-			//pSession.reset( new CInternetSession(name, 1, PRE_CONFIG_INTERNET_ACCESS) );
-			pSession.reset( new CInternetSession(NULL, 1, flags) );
-
-			TRY
-			{
 				
-				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 5000);
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 5000);
-				pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
-				pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
-				pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
+			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 5000);
+			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 5000);
+			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
+			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
+			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
 				
 
-				//INTERNET_FLAG_RAW_DATA|
-				//pConnection.reset( ISession.GetFtpConnection(serverName, "ftp", "rstamant@RNCan.gc.ca", INTERNET_DEFAULT_FTP_PORT, bPassif) );
-				//pConnection.reset( pSession->GetFtpConnection(serverName, "anonymous", " ", INTERNET_DEFAULT_FTP_PORT, (i%2)?!bPassif:bPassif) );
-				pConnection.reset( pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif) );
+			//INTERNET_FLAG_RAW_DATA|
+			//pConnection.reset( ISession.GetFtpConnection(serverName, "ftp", "rstamant@RNCan.gc.ca", INTERNET_DEFAULT_FTP_PORT, bPassif) );
+			//pConnection.reset( pSession->GetFtpConnection(serverName, "anonymous", " ", INTERNET_DEFAULT_FTP_PORT, (i%2)?!bPassif:bPassif) );
+			pConnection.reset( pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif) );
 				
 				
 
-				//ISession.SetOption(INTERNET_OPTION_EXTENDED_ERROR, 1);
+			//ISession.SetOption(INTERNET_OPTION_EXTENDED_ERROR, 1);
 				
-				//DWORD value;
-				//pSession->QueryOption(INTERNET_OPTION_READ_BUFFER_SIZE, value);
-				//pSession->QueryOption(INTERNET_OPTION_WRITE_BUFFER_SIZE, value);
-				//pSession->QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, value);
-				//pSession->QueryOption(INTERNET_OPTION_RECEIVE_TIMEOUT, value);
-				//pSession->QueryOption(INTERNET_OPTION_EXTENDED_ERROR, value);
+			//DWORD value;
+			//pSession->QueryOption(INTERNET_OPTION_READ_BUFFER_SIZE, value);
+			//pSession->QueryOption(INTERNET_OPTION_WRITE_BUFFER_SIZE, value);
+			//pSession->QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, value);
+			//pSession->QueryOption(INTERNET_OPTION_RECEIVE_TIMEOUT, value);
+			//pSession->QueryOption(INTERNET_OPTION_EXTENDED_ERROR, value);
 
 				
-			}
-			CATCH_ALL(e)
-			{
-				pSession->Close();
-				pSession.reset();
-				Sleep(1000);//wait 1 second
-			}
-			END_CATCH_ALL
 		}
-
-		if( pConnection.get()==NULL)
+		CATCH_ALL(e)
 		{
-			CInternetException e(GetLastError() );
-			msg = UtilWin::SYGetMessage(e);
-		}
+			pSession->Close();
+			pSession.reset();
 
+			CString error;
+			e->GetErrorMessage(error.GetBufferSetLength(255), 255);
+			msg.ajoute(CStringA(error));
+		}
+		END_CATCH_ALL
+		
 		return msg;
 	}
 

@@ -11,7 +11,7 @@
 
 #pragma once
 
-
+#include <mutex>
 #include <string>
 #include <wtypes.h>
 #include <algorithm>
@@ -47,7 +47,15 @@ namespace WBSF
 		double m_oldPos;
 	};
 	
-	typedef std::stack<CCallbackTask> CCallbackTaskStack;
+	//typedef std::vector<CCallbackTask> CCallbackTaskStack;
+	class CCallbackTaskStack : public std::stack < CCallbackTask >
+	{
+	public:
+		using std::stack<CCallbackTask>::c; // expose the container
+
+		CCallbackTask& back(){ return top(); }
+		const CCallbackTask& back()const{ return top(); }
+	};
 
 class CCallback  
 {
@@ -92,7 +100,7 @@ public:
 	
 
 	
-	double GetNbStep()const{ return !m_tasks.empty() ? m_tasks.top().m_nbStep : 0; }
+	double GetNbStep()const{ return !m_tasks.empty() ? m_tasks.back().m_nbStep : 0; }
 	//void SetNbStep(size_t nbStep, size_t stepBy ){ SetNbStep((double)nbStep, (double)stepBy); }
 	//void SetNbStep(size_t nbStep, double stepBy = 1){ SetNbStep((double)nbStep, stepBy); }
 	//void SetNbStep(double nbStep, double stepBy);
@@ -106,9 +114,9 @@ public:
 	void PopTask();
 	
     ERMsg StepIt(double stepBy = -1);
-	double GetCurrentStepPos()const{ return !m_tasks.empty() ? m_tasks.top().m_stepPos : 0; }
-	ERMsg SetCurrentStepPos(double stepPos){ if (!m_tasks.empty()) m_tasks.top().m_stepPos = stepPos; return StepIt(0); }
-	ERMsg SetCurrentStepPos(size_t stepPos){ if (!m_tasks.empty()) m_tasks.top().m_stepPos = (double)stepPos; return StepIt(0); }
+	double GetCurrentStepPos()const{ return !m_tasks.empty() ? m_tasks.back().m_stepPos : 0; }
+	ERMsg SetCurrentStepPos(double stepPos){ if (!m_tasks.empty()) m_tasks.back().m_stepPos = stepPos; return StepIt(0); }
+	ERMsg SetCurrentStepPos(size_t stepPos){ if (!m_tasks.empty()) m_tasks.back().m_stepPos = (double)stepPos; return StepIt(0); }
 
 	
 	bool GetUserCancel()const
@@ -137,13 +145,16 @@ public:
 
 	const CCallbackTaskStack& GetTasks()const{ return m_tasks; }
 
+	//void Lock(){m_mutex.lock();}
+	//void Unlock(){ m_mutex.unlock(); }
+
 protected:
 
 
     std::string m_messages;
 	std::string m_messageAccumulator;
 	std::string m_messageDlgAccumulator;
-    std::string m_description;
+    //std::string m_description;
     //double m_nbStep;
 	//double m_stepBy;
     //double m_stepPos;
@@ -158,10 +169,11 @@ protected:
     //int m_nCurrentTask;
 	//int m_currentLevel;
 	bool m_bPumpMessage;
-	bool m_bCancelled;
+	//bool m_bCancelled;
 
 	std::string m_userCancelMsg;
 	HWND* m_phWnd;//progressDlg
+	//std::mutex m_mutex;
 };
 
 

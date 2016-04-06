@@ -12,7 +12,7 @@
 #include "stdafx.h"
 #include "Basic/Callback.h"
 #include "Basic/UtilStd.h"
-
+#include "WeatherBasedSimulationString.h"
 
 using namespace std;
 
@@ -42,6 +42,10 @@ namespace WBSF
 
 	void CCallback::Reset()
 	{
+		SetUserCancelMessage(WBSF::GetString(IDS_BSC_USER_BREAK));
+		SetUserCancel(false);
+		SetPause(false);
+
 		m_messages.clear();
 		m_messageAccumulator.clear();
 		m_messageDlgAccumulator.clear();
@@ -78,41 +82,36 @@ namespace WBSF
 
 		if (!m_tasks.empty())
 		{
-			m_tasks.top().m_stepPos += (stepBy == -1) ? m_tasks.top().m_stepBy : stepBy;
+			m_tasks.back().m_stepPos += (stepBy == -1) ? m_tasks.back().m_stepBy : stepBy;
 
-			if (m_tasks.top().m_stepPos > m_tasks.top().m_nbStep)
-				m_tasks.top().m_stepPos = m_tasks.top().m_nbStep;
+			if (m_tasks.back().m_stepPos > m_tasks.back().m_nbStep)
+				m_tasks.back().m_stepPos = m_tasks.back().m_nbStep;
 
-		//	if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
-		//	{
-		//		//try to limit the number of message sent
-		//		if (int(GetCurrentStepPercent()) != int(m_tasks.top().m_oldPos))
-		//		{
-		//			PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-		//			m_tasks.top().m_oldPos = GetCurrentStepPercent();
-		//		}
-
-		//		//a revoir
-		//		if (m_bPumpMessage)
-		//		{
-		//			MSG winMsg;
-
-
-		//			while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
-		//			{
-		//				if ((winMsg.message != WM_QUIT)
-		//					&& (winMsg.message != WM_CLOSE)
-		//					&& (winMsg.message != WM_DESTROY)
-		//					&& (winMsg.message != WM_NCDESTROY)
-		//					&& (winMsg.message != WM_HSCROLL)
-		//					&& (winMsg.message != WM_VSCROLL))
-		//				{
-		//					TranslateMessage((LPMSG)&winMsg);
-		//					DispatchMessage((LPMSG)&winMsg);
-		//				}
-		//			}
-		//		}
-		//	}
+			if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
+			{
+				//try to limit the number of message sent
+				if (int(GetCurrentStepPercent()) != int(m_tasks.back().m_oldPos))
+				{
+					PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
+					m_tasks.back().m_oldPos = GetCurrentStepPercent();
+				}
+		
+				MSG winMsg;
+				while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
+				{
+					if ((winMsg.message != WM_QUIT)
+						&& (winMsg.message != WM_CLOSE)
+						&& (winMsg.message != WM_DESTROY)
+						&& (winMsg.message != WM_NCDESTROY)
+						&& (winMsg.message != WM_HSCROLL)
+						&& (winMsg.message != WM_VSCROLL))
+					{
+						TranslateMessage((LPMSG)&winMsg);
+						DispatchMessage((LPMSG)&winMsg);
+					}
+				}
+				
+			}
 
 			if (GetUserCancel() )//&& !m_bCancelled
 			{
@@ -142,7 +141,7 @@ namespace WBSF
 	//}
 
 
-	double CCallback::GetCurrentStepPercent()const{ return !m_tasks.empty()? (m_tasks.top().m_nbStep != 0 ? std::min(100.0, std::max(0.0, m_tasks.top().m_stepPos*100.0 / m_tasks.top().m_nbStep)) : 100.0):0.0; }
+	double CCallback::GetCurrentStepPercent()const{ return !m_tasks.empty() ? (m_tasks.back().m_nbStep != 0 ? std::min(100.0, std::max(0.0, m_tasks.back().m_stepPos*100.0 / m_tasks.back().m_nbStep)) : 100.0) : 0.0; }
 
 	void CCallback::AddMessage(const ERMsg& message, int level)
 	{
@@ -206,19 +205,25 @@ namespace WBSF
 	void CCallback::WaitPause()
 	{
 		//wait when pause is activated
-		m_pauseEvent.wait();
+		//m_pauseEvent.wait();
 	}
 
 	void CCallback::PushTask(const std::string& description, double nbStep, double stepBy)
 	{
+		//Lock();
 		m_tasks.push(CCallbackTask(description, nbStep, stepBy));
-		StepIt(0);
+		//Unlock();
+		//StepIt(0);
 	}
 
 	void CCallback::PopTask()
 	{
 		if (!m_tasks.empty())
+		{
+			//Lock();
 			m_tasks.pop();
+			//Unlock();
+		}
 	}
 
 }//namespace WBSF

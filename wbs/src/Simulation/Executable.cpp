@@ -254,11 +254,11 @@ void CExecutableVector::UpdateInternalName()
 
 int CExecutableVector::GetNbExecute(bool bTask)const
 {
-	int nbExecute=0;
-	for(int i=0; i<size(); i++)
+	size_t nbExecute = 0;
+	for (size_t i = 0; i<size(); i++)
 		nbExecute += at(i)->GetNbExecute(bTask);
 	
-	return nbExecute;
+	return (int)nbExecute;
 }
 
 ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& callback)
@@ -269,10 +269,7 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 	vector< PriorityPair >execList;
 	
 	for (size_t i = size() - 1; i < size(); i--)
-	{
-		if (at(i)->GetExecute())
-			execList.push_back(PriorityPair(at(i)->GetPriority(), i));
-	}
+		execList.push_back(PriorityPair(at(i)->GetPriority(), i));
 
 	sort(execList.begin(), execList.end() );
 

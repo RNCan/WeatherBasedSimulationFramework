@@ -374,7 +374,7 @@ BOOL CProgressStepDlg::Create()
 	
 	BOOL bRep = Create(m_pParentWnd);
 	
-	ShowWindow(SW_SHOW);
+	ShowWindow(SW_SHOW); 
 
 	//must process message when single thread
 	m_callback.SetPumpMessage(true);
