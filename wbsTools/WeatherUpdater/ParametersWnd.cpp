@@ -54,10 +54,10 @@ public:
 		CString strResult;
 		
 		//m_ulBrowseFolderFlags = BIF_NEWDIALOGSTYLE;
-		afxShellManager->BrowseForFolder(strResult, m_pWndList, strFolder, 0, BIF_NEWDIALOGSTYLE);
-		if (strResult != strFolder)
+		if (afxShellManager->BrowseForFolder(strResult, m_pWndList, strFolder, 0, BIF_NEWDIALOGSTYLE))
 		{
-			SetValue(strResult);
+			if (strResult != strFolder)
+				SetValue(strResult);
 		}
 
 	}
@@ -813,9 +813,8 @@ BOOL CTaskPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
 
 void CTaskPropertyGridCtrl::OnDestroy()
 {
-	
 	CMFCPropertyGridCtrl::OnDestroy();
- }
+}
 
 
 
@@ -1002,7 +1001,7 @@ void CTaskPropertyWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 		ASSERT(pTask);
 
 		size_t type = pTask->Type(i);
-		bEnable = type == T_FILEPATH || type == T_FILEPATH;
+		bEnable = type == T_FILEPATH || type == T_PATH;
 	}
 
 	

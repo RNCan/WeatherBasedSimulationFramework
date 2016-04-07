@@ -25,6 +25,7 @@ public:
 
 	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
 	CProgressDockablePane& GetProgressPane(){ return m_progressWnd; }
+	CDockablePane* GetActivePane();
 
 protected:  // membres incorporés de la barre de contrôle
 

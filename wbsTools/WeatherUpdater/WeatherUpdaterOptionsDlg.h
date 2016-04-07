@@ -9,46 +9,7 @@
 #include "UI/OptionLinks.h"
 #include "UI/OptionRegional.h"
 #include "WeatherBasedSimulationUI.h"
-//
-//class COptionCharts : public CMFCPropertyPage
-//{
-//
-//	// Construction
-//public:
-//	COptionCharts();
-//	~COptionCharts();
-//
-//	bool OnFinish();
-//	// Dialog Data
-//	enum { IDD = IDD_CMN_OPTION_CHARTS };
-//
-//	CCFLEdit m_maxDataCtrl;
-//	CCFLEdit m_nbPixelsPerXCtrl;
-//
-//	// Overrides
-//	// ClassWizard generate virtual function overrides
-//	
-//protected:
-//	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-//	
-//
-//	// Implementation
-//protected:
-//	// Generated message map functions
-//	
-//	virtual BOOL OnInitDialog();
-//	
-//	DECLARE_MESSAGE_MAP()
-//
-//	bool OnBrowse(CEdit& editBox, CString& fileName);
-//
-//private:
-//
-//	bool m_bInit;
-//
-//public:
-//	virtual void OnOK();
-//};
+
 
 class CWeatherUpdaterOptionsDlg : public CMFCPropertySheet
 {

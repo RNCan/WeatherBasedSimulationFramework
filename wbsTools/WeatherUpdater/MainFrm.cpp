@@ -122,18 +122,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	VERIFY(CreateDockingWindows());
 	
 	//dock panes
-	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT, CRect(0,0,800,800));
+	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_RIGHT);
 	m_wndOutput.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
 	m_progressWnd.AttachToTabWnd(&m_wndOutput, DM_STANDARD, 0);
 	
 
 	
 	OnApplicationLook(theApp.m_nAppLook); 
+	CStateSelection::UpdateString();
+	CProvinceSelection::UpdateString();
+
 	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
 	LoadtBasicCommand();
 
-	CStateSelection::UpdateString();
-	CProvinceSelection::UpdateString();
+	
 
 	return 0;
 }
@@ -142,11 +144,11 @@ BOOL CMainFrame::CreateDockingWindows()
 {
 	
 	// Créer la fenêtre Propriétés
-	VERIFY(m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
+	VERIFY(m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(0, 0, 600, 400), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 
 	// Créer la fenêtre Sortie
-	VERIFY(m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
+	VERIFY(m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(0, 0, 600, 400), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
 
 	VERIFY(m_progressWnd.Create(GetCString(IDS_PROGRESS_WND), this, CRect(0, 0, 600, 400), TRUE, ID_PROGRESS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI));
@@ -364,13 +366,38 @@ void CMainFrame::OnUpdateToolbar(CCmdUI* pCmdUI)
 }
 
 
-
 void CMainFrame::OnEditOptions()
 {
 	CWeatherUpdaterOptionsDlg dlg;
 	dlg.DoModal();
 
 }
+
+
+//return the active pane of the progress tabble group
+CDockablePane* CMainFrame::GetActivePane()
+{
+	CDockablePane* pPane = NULL;
+	if (!m_progressWnd.IsPaneVisible())
+	{
+		HWND hWndTab = NULL;
+		CMFCBaseTabCtrl* parent = m_progressWnd.GetParentTabWnd(hWndTab);
+		if (parent)
+		{
+			int tab = parent->GetActiveTab();
+			CWnd* pWnd = parent->GetTabWnd(tab);
+			pPane = dynamic_cast<CDockablePane*>(pWnd);
+
+			//if (pWnd == &m_wndOutput)
+			//	pPane = &m_wndOutput;
+			//else if (pWnd == &m_wndProperties)
+			//	pPane = &m_wndProperties;
+		}
+	}
+
+	return pPane;
+}
+
 
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {

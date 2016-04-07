@@ -263,6 +263,8 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 
 
+		callback.PushTask("Download Forecast", m_selection.size());
+
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
@@ -293,6 +295,7 @@ namespace WBSF
 		int nbDownload = 0;
 		CWeatherStationVector stations;
 
+		
 		for (size_t i = 0; i < m_selection.size() && msg; i++)
 		{
 			if (m_selection.any() && !m_selection[i])
@@ -333,6 +336,10 @@ namespace WBSF
 
 				msg += callback.StepIt();
 			}
+			
+			callback.PopTask();
+			msg += callback.StepIt();
+
 		}//for all province
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
@@ -365,19 +372,16 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
+		stationList.clear();
 
+		msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
 		if (msg && !m_pShapefile)
 		{
 			m_pShapefile = new CShapeFileBase;
 			msg = m_pShapefile->Read(GetShapefileFilePath());
 		}
 
-		stationList.clear();
-
-		//m_DB.size()
 		for (size_t i = 0; m_DB.size(); i++)
-			//for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 		{
 			const CLocation& station = m_DB[i];
 
@@ -385,9 +389,7 @@ namespace WBSF
 			size_t r = m_selection.GetRegion(region);
 			ASSERT(r != UNKNOWN_POS);
 			if (m_selection[r])
-			{
 				stationList.push_back(station.m_ID);
-			}
 		}
 
 		return msg;
@@ -405,6 +407,19 @@ namespace WBSF
 			ASSERT(!station.m_ID.empty());
 			ASSERT(station.m_lat != -999);
 			ASSERT(station.m_lon != -999);
+
+			if (!m_DB.IsOpen())
+				msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
+				
+			if (msg && !m_pShapefile)
+			{
+				m_pShapefile = new CShapeFileBase;
+				msg = m_pShapefile->Read(GetShapefileFilePath());
+			}
+
+			if (!msg)
+				return msg;
+			
 
 			set<int> years = m_DB.GetYears();
 

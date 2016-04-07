@@ -139,23 +139,11 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-
-	// Créer la fenêtre d'onglets :
-	//if (!m_wndTabs.Create(CMFCTabCtrl::STYLE_FLAT, rectDummy, this, 1))
-	//{
-	//	TRACE0("Impossible de créer la fenêtre d'onglets de sortie\n");
-	//	return -1;      // échec de la création
-	//}
-
-	// Créer les volets de sortie :
+	//create edit control
 	const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE;
 
-	if (!m_wndOutput.Create(dwStyle, CRect(0, 0, 0, 0), this, OUTPUT_TEXT_CTRL_ID))
-	{
-		TRACE0("Impossible de créer les fenêtres Sortie\n");
-		return -1;      // échec de la création
-	}
-
+	VERIFY(m_wndOutput.Create(dwStyle, CRect(0, 0, 0, 0), this, OUTPUT_TEXT_CTRL_ID));
+	m_wndOutput.SetTabStops(8);
 	UpdateFonts();
 
 	return 0;

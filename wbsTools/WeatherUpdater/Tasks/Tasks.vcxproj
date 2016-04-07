@@ -186,6 +186,7 @@
     <ClInclude Include="UISnowTel.h" />
     <ClInclude Include="UISolutionMesonetDaily.h" />
     <ClInclude Include="UISolutionMesonetHourly.h" />
+    <ClInclude Include="UISOPFEUHourly.h" />
     <ClInclude Include="ZipUnzip.h" />
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +229,7 @@
     <ClCompile Include="UISnowTel.cpp" />
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
     <ClCompile Include="UISolutionMesonetHourly.cpp" />
+    <ClCompile Include="UISOPFEUHourly.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

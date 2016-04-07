@@ -109,23 +109,15 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
 		int nbDownload = 0;
 
-//		CTRef startDate = as<CTRef>(START_DATE);
-	//	CTRef endDate = as<CTRef>(END_DATE);
-
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
-		//size_t nbYears = startDate.GetYear() - endDate.GetYear() + 1;
-
-		//callback.AddTask(nbYears);
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
-			//int year = startDate.GetYear() + int(y);
 			int year = firstYear + int(y);
 
 			callback.PushTask(FormatA("%04d", year), GetNbDaysPerYear(year));
-			//callback.SetNbStep(GetNbDaysPerYear(year));
 
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
@@ -276,17 +268,11 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CTRef today = CTRef::GetCurrentTRef();
 
-		//find all station in the directories
-	/*	CTRef startDate = FromFormatedString(Get(START_DATE));
-		CTRef endDate = FromFormatedString(Get(END_DATE));
-		size_t nbYears = startDate.GetYear() - endDate.GetYear() + 1;*/
-
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), nbYears * 12);
-		//callback.SetNbStep(nbYears * 12);
 
 		//find all station available that meet criterious
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -336,23 +322,16 @@ namespace WBSF
 		}
 
 		string workingDir = GetDir(WORKING_DIR);
-		//CTRef startDate = FromFormatedString(Get(START_DATE));
-		//CTRef endDate = FromFormatedString(Get(END_DATE));
-		//size_t nbYears = startDate.GetYear() - endDate.GetYear() + 1;
-
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
-//		station.CreateYears(m_firstYear, nbYears);
 
 		size_t nbFiles = 0;
 		for (size_t y = 0; y < nbYears; y++)
 		{
-			//int year = startDate.GetYear() + int(y);
 			int year = firstYear + int(y);
 			
-			//for (size_t m = startDate.GetMonth(); m <= endDate.GetMonth()&&msg; m++)
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
 				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
@@ -364,16 +343,12 @@ namespace WBSF
 			}
 		}
 
-		callback.PushTask(station.m_name, nbFiles);
-		//callback.SetNbStep(nbFiles);
-
-
 		//now extract data 
+		callback.PushTask(station.m_name, nbFiles);
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
-//				int year = startDate.GetYear() + int(y);
-			//for (size_t m = startDate.GetMonth(); m <= endDate.GetMonth() && msg; m++)
+
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
 				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)

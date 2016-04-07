@@ -91,12 +91,12 @@ BEGIN
     SEPARATOR
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
+	BUTTON      ID_TASK_NOAA_ISD_LITE
+	BUTTON      ID_TASK_SNOTEL
 END
 
 IDR_TASK_TOOLBAR2 TOOLBAR 32, 32
 BEGIN
-    BUTTON      ID_TASK_NOAA_ISD_LITE
-    BUTTON      ID_TASK_SNOTEL
     BUTTON      ID_TASK_NOMAD_RUC
     SEPARATOR
 	BUTTON      ID_TASK_SM_HOURLY
@@ -105,6 +105,7 @@ BEGIN
 	SEPARATOR
 	BUTTON      ID_TASK_ACIS_HOURLY
 	BUTTON      ID_TASK_ACIS_DAILY
+	BUTTON      ID_TASK_SOPFEU
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -148,6 +149,7 @@ BEGIN
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
 	BUTTON      ID_TASK_ACIS_HOURLY
 	BUTTON      ID_TASK_ACIS_DAILY
+	BUTTON      ID_TASK_SOPFEU
     BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -189,7 +191,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,0,33
+ FILEVERSION 5,0,0,36
  PRODUCTVERSION 5,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -207,7 +209,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.0.33"
+            VALUE "FileVersion", "5.0.0.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -217,7 +219,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.0.33"
+            VALUE "FileVersion", "5.0.0.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -619,6 +621,7 @@ BEGIN
     IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
     IDS_TASK_TYPE_TITLE     "Téléchargement|Outils|Grille mensuelle moyenne"
 	IDS_PROPERTY_ROOT		"Propriété"
+	IDS_EXECUTE_TASK		"Execution des tâches"
 END
 
 STRINGTABLE
@@ -651,6 +654,7 @@ BEGIN
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
     IDS_UPDATER_ACIS_HOURLY_P      "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
 	IDS_UPDATER_ACIS_DAILY_P      "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+	IDS_UPDATER_SOPFEU_P		  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_BC_PAWS     "Télécharger les données données quotidiennes du ministère des transport de la Colombie Britannique"
     IDS_UPDATER_BC_PAWS_P   "Répertoire de travail"
 END
@@ -725,6 +729,7 @@ BEGIN
     ID_TASK_SM_CIPRA_HOURLY "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet\nCipra horaire"
 	ID_TASK_ACIS_HOURLY     "Télécharger les données agro-climatiques horaire de l'Alberta via ACIS\nACIS horaire"
 	ID_TASK_ACIS_DAILY     "Télécharger les données agro-climatiques quotidiennes de l'Alberta via ACIS\nACIS quotidien"
+	ID_TASK_SOPFEU			"Télécharger les données horaires de la SOPFEU\nSOPFEU"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1072,6 +1077,7 @@ BEGIN
     IDS_CONVERT_DIRECTION   "To BioSIM 11|To BioSIM 10"
     IDS_TASK_TYPE_TITLE     "Download|Tools|Monhtly Mean Grid"
 	IDS_PROPERTY_ROOT		"Property"
+	IDS_EXECUTE_TASK		"Execute tasks"
 END
 
 STRINGTABLE
@@ -1102,6 +1108,7 @@ BEGIN
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
     IDS_UPDATER_ACIS_HOURLY_P   "User Name|Password|Working directory|First Year|Last Year"
 	IDS_UPDATER_ACIS_DAILY_P    "User Name|Password|Working directory|First Year|Last Year"
+	IDS_UPDATER_SOPFEU_P		"User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_BC_PAWS     "Download BC Ministry of Transport Avalanche Program daily data"
     IDS_UPDATER_BC_PAWS_P   "Working directory"
 END
@@ -1172,6 +1179,7 @@ BEGIN
     ID_TASK_SM_CIPRA_HOURLY "Download agro-climatic hourly data via Solutions-Mesonet\nCipra Hourly"
 	ID_TASK_ACIS_HOURLY		"Download agro-climatic hourly data for Alberta via ACIS\nACIS hourly"
 	ID_TASK_ACIS_DAILY		"Download agro-climatic daily data for Alberta via ACIS\nACIS daily"
+	ID_TASK_SOPFEU			"Download SOPFEU hourly data\nSOPFEU"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

@@ -370,7 +370,7 @@
             <Precision>4</Precision>
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
-     </OutputVariableArray>
+    </OutputVariableArray>
     <Copyright/>
     <Credit/>
     <HelpFileName/>

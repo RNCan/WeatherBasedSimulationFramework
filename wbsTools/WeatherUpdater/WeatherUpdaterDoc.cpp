@@ -254,7 +254,6 @@ std::string CWeatherUpdaterDoc::GetUpdaterList()const
 	std::string str;
 	for (int i = 0; i < m_project[CTaskBase::UPDATER].size(); i++)
 	{
-		//str += i>0 ? "|": "";
 		//add empty element
 		str += "|" + m_project[CTaskBase::UPDATER][i]->m_name;//que faire si plusieur foisle mem nom???
 	}
@@ -301,13 +300,14 @@ void CWeatherUpdaterDoc::OnExecute()
 		m_bExecute = true;
 
 		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-
-		//CProgressStepDlg dlg(AfxGetMainWnd(), true, true);
+		
+		CDockablePane* pActivePane = pMainFrm->GetActivePane();
 		CProgressDockablePane& progressWnd = pMainFrm->GetProgressPane();
 		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
+		progressWnd.ShowPane(true, false, true);
+
 		CProgressStepDlgParam param(&m_project);
 
-		progressWnd.ShowPane(true, false, true);
 
 		TRY
 		{
@@ -325,21 +325,25 @@ void CWeatherUpdaterDoc::OnExecute()
 		ReplaceString(m_lastLog, "\n", "|");
 		ReplaceString(m_lastLog, "\r", "");
 		
-
-		//dlg.DestroyWindow();
-
 		m_bExecute = false;
 	
 		//transfer message 
 		for (size_t t = 0; t < m_project.size(); t++)
+		{
 			for (size_t p = 0; p < m_project[t].size(); p++)
-				m_outputMessage[t][m_project[t][p]->m_name] = m_project[t][p]->GetLastMsg();
+			{
+				if (m_project[t][p]->m_bExecute)
+					m_outputMessage[t][m_project[t][p]->m_name] = m_project[t][p]->GetLastMsg();
+			}
+		}
 
 		//save message
 		std::string filePath(m_filePath);
 		SetFileExtension(filePath, ".txt");
 		msg = zen::SaveXML(filePath, "OutputMessage", "1", m_outputMessage);
 
+		if (pActivePane)
+			pActivePane->ShowPane(true, true, true);
 
 		UpdateAllViews(NULL, TASK_CHANGE, NULL);
 	}
@@ -364,9 +368,7 @@ void CWeatherUpdaterDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* p
 
 void CWeatherUpdaterDoc::OnInitialUpdate()
 {
-	UpdateAllViews(NULL, NULL, NULL);
-	//CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	//pMainFrm->OnUpdate(NULL, NULL, NULL);
+	UpdateAllViews(NULL, INIT, NULL);
 }
 
 const std::string& CWeatherUpdaterDoc::GetOutputText(size_t t, size_t p)

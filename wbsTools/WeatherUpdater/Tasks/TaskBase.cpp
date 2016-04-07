@@ -383,25 +383,41 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("Execute tasks", GetNbExecutes());
+		callback.PushTask(GetString(IDS_EXECUTE_TASK), GetNbExecutes());
 		for (CTasksProject::iterator it1 = begin(); it1 != end() && !callback.GetUserCancel(); it1++)
 		{
 			for (CTaskPtrVector::iterator it2 = it1->begin(); it2 != it1->end() && !callback.GetUserCancel(); it2++)
 			{
 				if ((*it2)->m_bExecute)
 				{
-					//callback.NextTask();
+					ASSERT((*it2)->GetProject() == this);
 
-					ASSERT( (*it2)->GetProject() == this);
-					callback.AddMessage( WBSF::GetCurrentTimeString());
+					callback.DeleteMessages(true);
+					callback.AddMessage("********     " + (*it2)->m_name + "     ********");
+					callback.AddMessage("");
+					callback.AddMessage(GetCurrentTimeString());
+					
+					
 					ERMsg msgTmp = (*it2)->Execute(callback);
-					callback.AddMessage(WBSF::GetCurrentTimeString());
+					
+					ASSERT(callback.GetNbTasks() == 1);
+					while (callback.GetNbTasks() > 1)
+						callback.PopTask();
+
+					callback.AddMessage("");
+					callback.AddMessage(GetCurrentTimeString());
+					callback.AddMessage("*******************************************");
+
+
 					std::string str = GetOutputString(msgTmp, callback, false, "\n");
 					ReplaceString(str, "\n", "|");
 					ReplaceString(str, "\r", "");
 
 					(*it2)->SetLastMsg(str);
 					msg += msgTmp;
+
+					
+
 					msg += callback.StepIt();
 				}
 			}

@@ -119,6 +119,9 @@
     <ClInclude Include="UIACISDaily.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UISOPFEUHourly.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -224,6 +227,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIACISDaily.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UISOPFEUHourly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

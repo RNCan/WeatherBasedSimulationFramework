@@ -10,9 +10,6 @@
 namespace WBSF
 {
 
-////class CDailyAccumulator;
-
-
 	//**************************************************************
 	class CUIISDLite : public CTaskBase
 	{
@@ -29,8 +26,8 @@ namespace WBSF
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-		//virtual void UpdateLanguage();
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual bool IsHourly()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -40,28 +37,16 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
 	protected:
-
-	/*	std::string GetStationListFilePath()const;
-		std::string GetMissingFilePath()const;
-
-		ERMsg LoadStationList(CCallback& callback);
-		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
-
-	*/
-
 
 
 		std::string GetHistoryFilePath(bool bLocal = true)const;
 		ERMsg LoadOptimisation();
 		std::string GetOptFilePath(const std::string& filePath)const;
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
-		//ERMsg ReadData(const std::string& filePath, int timeZone, CDailyData& dailyData, CDailyAccumulator& data, CCallback& callback=DEFAULT_CALLBACK)const;
 		ERMsg ReadData(const std::string& filePath, int timeZone, CWeatherYears& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".isd")const;
 		bool IsFileInclude(const std::string& fileTitle)const;
@@ -74,19 +59,6 @@ namespace WBSF
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback)const;
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback)const;
 
-
-		//CCountrySelection m_countries;
-		//CStateSelection m_states;
-		//size_t m_firstMonth;
-		//size_t m_lastMonth;
-
-		//GeoBasic::CGeoRect m_boundingBox;
-		//short m_type;
-		//bool m_bExtractWindDir;
-		//bool m_bExtractVaporPressure;
-		//bool m_bExtractPressure;
-
-		//CLocationVector m_stationList;
 		CIDSLiteStationOptimisation m_optFile;
 
 
@@ -94,8 +66,6 @@ namespace WBSF
 		void GetStationHeader(const std::string& stationName, CLocation& station);
 		ERMsg LoadStationList();
 		CTRef GetTRef(const StringVector& elem, int timeZone)const;
-
-
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

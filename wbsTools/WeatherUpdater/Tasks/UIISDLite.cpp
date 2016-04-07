@@ -187,12 +187,13 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					callback.AddMessage("Waiting 30 seconds for server...");
-					for (int i = 0; i < 60 && msg; i++)
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
 					{
-						Sleep(500);//wait 500 milisec
-						msg += callback.StepIt(0);
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
 					}
+					callback.PopTask();
 				}
 			}
 		}
@@ -476,13 +477,13 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					//int nbSec = 60*(nbRun-1);
-					callback.AddMessage("Waiting 30 seconds for server...");
-					for (int i = 0; i < 600 && msg; i++)
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
 					{
 						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt(0);
+						msg += callback.StepIt();
 					}
+					callback.PopTask();
 				}
 			}
 		}
