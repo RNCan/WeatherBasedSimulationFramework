@@ -92,34 +92,17 @@ namespace WBSF
 	void CIndividual::Live(const CWeatherDay& weather)
 	{
 		assert(IsCreated(weather.GetTRef()) && IsAlive());
-
-		//m_lastAge = m_age;
-		//m_lastStatus = m_status;
 	}
 
 	void CIndividual::Brood(const CWeatherDay& weather)
 	{
 		assert(IsCreated(weather.GetTRef()) && IsAlive());
-		//m_broods = 0;	//reset brood for this day
 	}
 
 	void CIndividual::Die(const CWeatherDay& weather)
 	{
 		assert(IsCreated(weather.GetTRef()) && IsAlive());
 	}
-	//
-	//void CIndividual::Live(const CDailyWaveVector& T, const CWeatherDay& weaDay)
-	//{
-	//	_ASSERTE( T.size()<=24);//only one day at a time
-	//
-	//	m_lastAge = m_age;
-	//	m_lastStatus = m_status;
-	//	m_broods = 0;		
-	//}
-	//
-	//void Brood(const CDailyWaveVector& T, const CWeatherDay& weaDay)
-	//{}
-
 
 	bool CIndividual::CanPack(const CIndividualPtr& in)const
 	{
@@ -138,7 +121,7 @@ namespace WBSF
 		m_age = (m_age*m_scaleFactor + in->m_age*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
 
-		//By RSA: don't mixed total brood because Age is linear and Brood is exponential. By default take only the brood of this insect
+		//By RSA: don't mixed total broods because Age is linear and Brood is exponential. By default take only the brood of this insect
 		//m_brood= (m_brood*m_scaleFactor + in->m_brood*in->m_scaleFactor)/(m_scaleFactor + in->m_scaleFactor);
 		//m_totalBrood = (m_totalBrood*m_scaleFactor + in->m_totalBrood*in->m_scaleFactor)/(m_scaleFactor + in->m_scaleFactor);
 
