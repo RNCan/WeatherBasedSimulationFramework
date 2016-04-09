@@ -17,6 +17,7 @@ public:
 	virtual ~CProListCtrl();
 
 	void InvalidateProgressCtrls();
+	int InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem);
 	BOOL DeleteItem(int nItem);
 
 	// Generated message map functions

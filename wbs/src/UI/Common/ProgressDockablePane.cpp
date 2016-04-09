@@ -148,8 +148,9 @@ void CProgressDockablePane::OnTimer(UINT_PTR nIDEvent)
 	{
 		while (nbItem < m_callback.GetTasks().size())
 		{
-			m_progressCtrl.InsertItem(nbItem,NULL);
-			m_progressCtrl.SetItemText(nbItem, 1, CString(m_callback.GetTasks().c[nbItem].m_description.c_str()));
+			m_progressCtrl.InsertItem(nbItem, CString(m_callback.GetTasks().c[nbItem].m_description.c_str()));
+			//m_progressCtrl.SetItemData(nbItem, NULL);
+			//m_progressCtrl.SetItemText(nbItem, 1, CString(m_callback.GetTasks().c[nbItem].m_description.c_str()));
 			nbItem = m_progressCtrl.GetItemCount();
 		}
 
@@ -165,17 +166,21 @@ void CProgressDockablePane::OnTimer(UINT_PTR nIDEvent)
 	}
 	//m_callback.Unlock();
 
-	if (nbItem > 0)
+	if (m_progressCtrl.GetItemCount() > 0)
 	{
 		//get the last progress bar
-		CProgressCtrl* pCtrl = (CProgressCtrl*)m_progressCtrl.GetItemData(nbItem-1);
-		if (pCtrl)
+		DWORD_PTR pItem = m_progressCtrl.GetItemData(m_progressCtrl.GetItemCount() - 1);
+		if (pItem!=NULL)
 		{
-			pCtrl->SetPos((int)m_callback.GetCurrentStepPercent());
+			CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
+			if (pCtrl && pCtrl->GetSafeHwnd())
+			{
+				pCtrl->SetPos((int)m_callback.GetCurrentStepPercent());
 
-			CWnd* pMain = ::AfxGetMainWnd();
-			if (m_pTaskbar && pMain)
-				m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+				CWnd* pMain = ::AfxGetMainWnd();
+				if (m_pTaskbar && pMain)
+					m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+			}
 		}
 	}
 	

@@ -63,23 +63,20 @@ void CProListCtrl::OnCustomDraw( NMHDR* pNMHDR, LRESULT* pResult )
 		rcSubItem.right = GetColumnWidth(0);
 		
 		CTextProgressCtrl* pCtrl = (CTextProgressCtrl*)this->GetItemData(nItem);
+		
+		
 		if (NULL == pCtrl)
 		{
 			pCtrl = new CTextProgressCtrl;
-			//if (rcSubItem.Width() > 250)
-				//rcSubItem.right = rcSubItem.left + 250;
 
 			pCtrl->Create(WS_CHILD|WS_VISIBLE|PBS_SMOOTH, rcSubItem, this, 0x1000 + nItem);
 			ASSERT(pCtrl->GetSafeHwnd());
 			pCtrl->SetRange32(0, 100);
 			pCtrl->SetPos( 0 );
 			pCtrl->SetShowPercent(true);
-			this->SetItemData(nItem, (DWORD)pCtrl);
+			SetItemData(nItem, (DWORD_PTR)pCtrl);
 		}
-			
-		//if (rcSubItem.Width() > 250)
-			//rcSubItem.right = rcSubItem.left + 250;
-
+	
 		pCtrl->MoveWindow(rcSubItem);
 		pCtrl->ShowWindow(SW_SHOW);
 		*pResult = CDRF_SKIPDEFAULT;
@@ -132,6 +129,35 @@ void CProListCtrl::InvalidateProgressCtrls()
 	InvalidateRect(rc);
 }
 
+int CProListCtrl::InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem)
+{
+	
+	CTextProgressCtrl* pCtrl = new CTextProgressCtrl;
+	pCtrl->Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, CRect(0,0,0,0), this, 0x1000 + nItem);
+	ASSERT(pCtrl->GetSafeHwnd());
+	pCtrl->SetRange32(0, 100);
+	pCtrl->SetPos( 0 );
+	pCtrl->SetShowPercent(true);
+	
+
+
+	//int rep = CListCtrl::InsertItem(0,nItem, NULL, 0, 0, -1, (LPARAM)pCtrl);
+	int rep = CListCtrl::InsertItem(nItem, NULL);
+	SetItemData(nItem, NULL);
+	SetItemText(nItem, 1, lpszItem);
+	
+	return rep;
+}
+
+//	//if (rcSubItem.Width() > 250)
+//		//rcSubItem.right = rcSubItem.left + 250;
+
+//	pCtrl->Create(WS_CHILD|WS_VISIBLE|PBS_SMOOTH, rcSubItem, this, 0x1000 + nItem);
+//	ASSERT(pCtrl->GetSafeHwnd());
+//	pCtrl->SetRange32(0, 100);
+//	pCtrl->SetPos( 0 );
+//	pCtrl->SetShowPercent(true);
+//	this->SetItemData(nItem, (DWORD)pCtrl);
 BOOL CProListCtrl::DeleteItem(int nItem)
 {
 	ASSERT(nItem >= 0 && nItem < GetItemCount());

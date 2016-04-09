@@ -954,7 +954,11 @@
     <Image Include="..\src\res\LocToolbar.png">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="..\src\res\Progress.ico" />
-    <Image Include="..\src\res\ProgressToolbar.png" />
+    <Image Include="..\src\res\Progress.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\res\ProgressToolbar.png">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
