@@ -1,0 +1,175 @@
+KeyID,name,lat,lon,elev,DataFileName
+CTNK,Algonquin Park,45.5333,-78.2667,330,Algonquin_Park.BRU
+CWZS,Amqui,48.4722,-67.4342,165,Amqui.BRU
+ANFI,Anfield NB,46.9075,-67.4569,250,Anfield_NB.BRU
+CYBG,Bagotville,48.3331,-71,159,Bagotville.BRU
+CWFW,Baie-Comeau,49.2592,-68.145,128,Baie-Comeau.BRU
+CGBC,Baie-Comeau RCS,49.135,-68.2024,21,Baie-Comeau_RCS.BRU
+CQBW,Baldwin,48.5622,-66.1056,620,Baldwin.BRU
+CWRK,Bancroft,45.0714,-77.8789,330,Bancroft.BRU
+CMBA,Barrage amont,47.4989,-76.7306,323,Barriere_-_Barrage_amont.BRU
+CWBA,Barrage Témiscamingue,46.7092,-79.1011,180,Barrage_Temiscamingue.BRU
+CWXS,Bas Caraquet,47.8,-64.8333,5,Bas_Caraquet.BRU
+CZBF,Bathurst,47.6292,-65.7389,59,Bathurst.BRU
+CWHV,Beauceville,46.2,-70.7831,228,Beauceville.BRU
+CXBO,Beauport,46.8372,-71.1972,10,Beauport.BRU
+CQBT,Berthelot,48.4761,-76.2561,400,Berthelot.BRU
+BIGT,Big Tracadie,47.4114,-65.2664,73,Big_Tracadie.BRU
+CQBF,Boffin,46.9544,-71.6075,200,Boffin.BRU
+BOST,Boston Brook,47.4497,-67.6164,304,Boston_Brook.BRU
+CWRZ,Cap D'Espoir,48.4192,-64.3172,15,Cap_D'Espoir.BRU
+CWSG,Cap-Chat,49.1092,-66.6542,4,Cap-Chat.BRU
+CQCU,Capitachouane,47.8272,-76.5972,365,Capitachouane.BRU
+CWSF,Cap-Madeleine,49.25,-65.3172,28,Cap-Madeleine.BRU
+CWTN,Cap-Tourmente,47.0781,-70.78,5,Cap-Tourmente.BRU
+CWEE,Chamouchouane,49.2786,-73.3556,305,Chamouchouane.BRU
+CWIS,Charlevoix,47.2842,-70.6372,717,Charlevoix.BRU
+CZCR,Charlo,48.0333,-66.4358,20,Charlo.BRU
+CQCD,Chute du Diable,48.75,-71.7,174,Chute_du_Diable.BRU
+CWDT,Chute-des-Passes,49.8403,-71.1683,398,Chute-des-Passes.BRU
+comp,Compton,45.2608,-71.8337,245,COMPTN.BRU
+CQYC,Coulonge,46.085,-76.5514,250,Coulonge.BRU
+CWHQ,Deschambault,46.69,-71.9711,61,Deschambault.BRU
+desc,Deschambault (Exp.),46.6763,-71.9243,22,DESCHA.BRU
+DING,Dingee Brook,46.9811,-67.1275,410,Dingee_Brook.BRU
+cqdi,Ditton,45.3733,-71.2514,480,----
+CQDO,Domaine,47.0253,-76.5306,368,Domaine.BRU
+DORVAL,Dorval,45.46611,-73.75,31,DORVAL.BRU
+CQDU,Duchènier,48.115,-68.5928,340,Duchenier.BRU
+CQDM,Dumoine,47.1142,-78.2222,340,Dumoine.BRU
+CQDF,Dunford,47.0244,-71.6047,404,Dunford.BRU
+dunh,Dunham,45.0959,-72.8126,225,DUNHAM.BRU
+CQDN,Dunière,48.7081,-66.7775,460,Duniere.BRU
+CTXR,Earlton Climate,47.7,-79.85,243,Earlton_Climate.BRU
+CERM,Edmunston,47.4167,-68.3245,154,Edmunston.BRU
+CQEO,Escoumins,48.543,-69.4421,650,Escoumins.BRU
+CQES,Estcourt,47.5558,-69.1281,270,Estcourt.BRU
+CQFM,Forêt Montmorency,47.3226,-71.1483,672,Foret_Montmorency.BRU
+fran,Franklin,45.0351,-73.9023,159,FRANKN.BRU
+CWFQ,Frelighsburg,45.05,-72.8331,151,Frelighsburg.BRU
+CQGA,Galifet,47.2572,-73.7381,426,Galifet.BRU
+gara,Garagona,45.0647,-72.8415,167,FRLBRG.BRU
+CMGX,Gaspé,48.9152,-64.9562,502,Gaspe.BRU
+CYGP,Gaspé A,48.7761,-64.4781,35,Gaspe_A.BRU
+CYND,Gatineau A,45.5167,-75.5667,59,Gatineau_A.BRU
+CQGO,Gouin,48.8847,-74.2283,488,Gouin.BRU
+CMGB,Granby,45.3728,-72.7739,90,Granby.BRU
+CQHA,Harricana,48.8992,-78.1586,300,Harricana.BRU
+HEAT,Heath Steele,47.3036,-66.0356,326,Heath_Steele.BRU
+hemm,Hemmingford,45.047,-73.6103,73,HEMGFD.BRU
+henr,Henryville,45.1355,-73.222,39,HRYVIL.BRU
+CXHF,High Falls,45.8394,-75.6482,195,High_Falls.BRU
+HORN,Hornes Gulch,47.833,-67.91,370,Hornes_Gulch.BRU
+cwer,Ile d'Orléans,46.9961,-70.8081,4,----
+CQJR,Jérémie,50.0533,-78.7786,260,Jeremie.BRU
+CWJO,Jonquière,48.4211,-71.1481,127,Jonquiere.BRU
+KAGO,Kagout Brook,47.2342,-66.5711,650,Kagout_Brook.BRU
+CXKE,Kemptville,45,-75.6333,99,Kemptville.BRU
+CMKI,Kipawa,47.1564,-78.9339,324,Kipawa.BRU
+CXKI,Kirkland Lake,48.15,-80,324,Kirkland_Lake.BRU
+CWUX,La Baie,48.2978,-70.9192,135,La_Baie.BRU
+CQLA,La Pêche,45.6222,-76.0192,200,La_Peche.BRU
+CWST,La Pocatière,47.355,-70.0311,30,La_Pocatiere.BRU
+CWDQ,La Tuque,47.4111,-72.7872,167,La_Tuque.BRU
+CQLL,Lac Libéral,49.8433,-72.6292,335,Lac_Liberal.BRU
+CQLP,Lac Panache,48.1375,-72.6331,435,Lac_Panache.BRU
+CWIZ,L'Acadie,45.3,-73.35,44,L'Acadie.BRU
+CQLM,Laflamme,48.9203,-70.2517,594,Laflamme.BRU
+lano,Lanoraie,46.0089,-73.2153,17,----
+CWEW,L'Assomption,45.8161,-73.4331,20,L'Assomption.BRU
+CXLT,Laterrière,48.3072,-71.1292,162,Laterriere.BRU
+CWVY,Lemieux,46.3222,-72.0561,97,Lemieux.BRU
+CWQH,Lennoxville,45.3681,-71.8231,180,Lennoxville.BRU
+LUNT,Lunts Brook,47.5075,-68.2139,318,Lunts_Brook.BRU
+CWMJ,Maniwaki,46.2742,-75.9922,199,Maniwaki.BRU
+CGMG,Matagami,49.7578,-77.7931,279,Matagami.BRU
+CYNM,Matagami A,49.7656,-77.805,280,Matagami_A.BRU
+CMMW,Matawin Barrage amont,46.8618,-73.6591,369,Matawin_Barrage_amont.BRU
+MCRA,McRae Lake,47.6852,-66.2436,404,McRae_Lake.BRU
+cwta,Mctavish,45.505,-73.5792,72,----
+CYMX,Mirabel,45.6661,-74.0331,82,Mirabel.BRU
+CWMI,Miscou Island,48.0167,-64.5,4,Miscou_Island.BRU
+CQMT,Mistaouac,49.4456,-78.8669,312,Mistaouac.BRU
+CQMB,Mistassibi 2,49.3731,-71.9408,183,Mistassibi_2.BRU
+CQMI,Mistassini,49.3327,-72.6308,320,Mistassini.BRU
+CWIX,Mistook,48.6,-71.7167,112,Mistook.BRU
+CQMK,Montagnais,47.8958,-71.8883,497,Montagnais.BRU
+CYYY,Mont-Joli,48.6,-68.2161,48,Mont-Joli.BRU
+CQMO,Montmagny,46.9817,-70.3269,340,Montmagny.BRU
+CWTQ,Montréal Intl,45.4678,-73.7417,31,Montreal_Intl.BRU
+MULL,Mulligan Gulch,47.5933,-66.6386,432,Mulligan_Gulch.BRU
+CWOC,New-Carlisle,48.0122,-65.3311,46,New-Carlisle.BRU
+CWNQ,Nicolet,46.2161,-72.65,7,Nicolet.BRU
+CWOD,Normandin,48.8411,-72.5461,136,Normandin.BRU
+CYYB,North-Bay,46.3636,-79.4228,371,North-Bay.BRU
+CQOB,Observation,48.5686,-65.2025,520,Observation.BRU
+oka,Oka,45.5154,-74.0869,110,OKA.BRU
+CWXC,Onatchiway,48.8942,-71.0317,303,Onatchiway.BRU
+orle,Orleans,46.9716,-70.9571,109,ORLEAN.BRU
+CXOA,Ottawa CDA,45.3833,-75.7167,79,Ottawa_CDA.BRU
+OTTAWA,Ottawa ON,45.3225,-75.6692,114,OTTAWA.BRU
+CQPA,Papineau Labelle,46.2164,-75.1967,260,Papineau_Labelle.BRU
+CTPM,Pembroke,45.8172,-77.117,0,Pembroke.BRU
+CQPM,Pépinière St-Modeste,47.8361,-69.39,170,Pepiniere_St-Modeste.BRU
+CMTS,Pépinière Trécesson,48.5752,-78.2553,349,Pepiniere_Trecesson.BRU
+CWYQ,Pointe-Au-Père,48.5142,-68.4681,4,Pointe-Au-Pere.BRU
+CWBY,Port Menier,49.8389,-64.2933,53,Iles-de-la-Madeleine.BRU
+CWQB,Québec,46.8036,-71.3817,70,Quebec.BRU
+CYQB,Québec A,46.8,-71.3831,70,Quebec_A.BRU
+CQUE,Quévillon,49.0361,-77.0217,293,Quevillon.BRU
+CMRS,Rapide Sept,47.7974,-78.2963,336,Rapide_Sept.BRU
+CARP,Red Pines (au8),47.4333,-65.5833,124,Reservoir_Baskatong.BRU
+CMDW,Réservoir Dozois,47.4475,-77.0762,360,Reservoir_Dozois.BRU
+CMPP,Réservoir Pipmuacan,49.3597,-70.9152,537,Reservoir_Pipmuacan.BRU
+CMRE,Rivière aux Eaux Mortes,47.0974,-72.496,301,Riviere_aux_Eaux_Mortes.BRU
+CMKB,Rivière de la Corneille,46.7502,-76.9319,328,Riviere_de_la_Corneille.BRU
+CMRW,Rivière Windigo,47.9159,-73.3696,306,Riviere_Windigo.BRU
+CWNH,Rivière-du-Loup,47.805,-69.5481,146,Riviere-du-Loup.BRU
+CYRJ,Roberval,48.5161,-72.2661,174,Roberval.BRU
+ROBI,Robinson Tower,47.6963,-67.1875,467,Robinson_Tower.BRU
+CQRO,Rouge-Matawin,46.6581,-74.5128,520,Rouge-Matawin.BRU
+roug,Rougemont P,45.4487,-73.0697,70,ROUGEM.BRU
+CWUY,Rouyn,48.2461,-79.0342,317,Rouyn.BRU
+CYUY,Rouyn A,48.245,-79.0342,302,Rouyn_A.BRU
+CMAI,Saint-Aimé-des-Lacs,47.6867,-70.302,205,Saint-Aime-des-Lacs.BRU
+CWBZ,Saint-Anicet,45.1161,-74.2831,48,Saint-Anicet.BRU
+CWVQ,Sainte-Anne-de-Bellevue,45.4272,-73.9292,38,Sainte-Anne-de-Bellevue.BRU
+CWIT,Sainte-Clotilde,45.1661,-73.6831,52,Sainte-Clotilde.BRU
+CWJB,Sainte-Foy,46.7803,-71.2875,91,Sainte-Foy.BRU
+stme,Sainte-Mélanie,46.1354,-73.5399,117,STEMEL.BRU
+CMSI,Saint-Germain-de-Grantham,45.8253,-72.537,85,Saint-Germain-de-Grantham.BRU
+greg,Saint-Grégoire,45.3484,-73.1565,49,GREG.BRU
+CYHU,Saint-Hubert,45.5161,-73.4161,25,Saint-Hubert.BRU
+CWJT,Saint-Jovite,46.08,-74.555,238,Saint-Jovite.BRU
+stlt,Saint-Laurent,46.8694,-70.9897,10,----
+CWIY,Saint-Léonard,47.15,-67.8333,131,Saint-Leonard.BRU
+CQST,Saint-Maurice,46.9572,-73.0056,370,Saint-Maurice.BRU
+CQSL,Saint-Michel,46.6825,-73.9137,375,Saint-Michel.BRU
+CMMY,Saint-Michel-des-Saints,46.8156,-74.094,390,Saint-Michel-des-Saints.BRU
+stpa,Saint-Paul-Abbotsford,45.4495,-72.8876,113,STPABB.BRU
+cqss,Saint-Simon,45.7115,-72.8403,40,----
+CYZV,Sept-Îles,50.2161,-66.2661,50,Sept-Iles.BRU
+CXSH,Shawinigan,46.5631,-72.7331,110,Shawinigan.BRU
+CYSC,Sherbrooke,45.4331,-71.6831,240,Sherbrooke.BRU
+cqse,Standstead-EST,45.05,-72.0667,381,----
+stan,St-Antoine de Tilly,46.6727,-71.5286,73,TILLY.BRU
+stbr,St-Bruno de Montarville,45.5414,-73.3406,66,SBRUNO.BRU
+stce,Ste-Cecile de Milton,45.4823,-72.7468,127,STECEC.BRU
+sthi,St-Hilaire,45.5328,-73.1613,96,HILAIR.BRU
+stjo,St-Joseph du Lac,45.544,-74.0228,93,STJOS.BRU
+cqsk,Stukely,45.3656,-72.2656,358,----
+CYSB,Sudbury,46.625,-80.7989,348,Sudbury.BRU
+CTSB,Sudbury Climate,46.6333,-80.8,348,Sudbury_Climate.BRU
+CMTH,Thetford Mines,46.0492,-71.2662,430,Thetford_Mines.BRU
+CYTS,Timmins,48.5697,-81.3767,295,Timmins.BRU
+cqti,Tingwick,45.9058,-71.9485,262,----
+CWTY,Trois-Rivières,46.3531,-72.5161,5,Trois-Rivieres.BRU
+CYOY,Valcartier A,46.9003,-71.5033,169,Valcartier_A.BRU
+CGVO,Val-d'Or RCS,48.0565,-77.7866,339,Val-d'Or_RCS.BRU
+CWHM,Varennes,45.7161,-73.3831,20,Varennes.BRU
+vict,Victoriaville,46.0366,-71.9187,149,VICTO.BRU
+VILROY,Villeroy,46.370367,71.883067,122,VILROY.BRU
+CQWG,Wageguma,48.4883,-73.4594,594,Wageguma.BRU
+CQWE,Weymont,47.8497,-73.8119,375,Weymont.BRU
+cmya,Yamaska Nord,45.4174,-72.6096,122,----
+cqze,Zéphirin,46.0428,-72.66,45,----

@@ -1,0 +1,414 @@
+Name,Nom,ID,Latitude,Longitude,Perimeters(km),Area(km²),Region,Zone,PrimeID,CLC_V5,Province
+Kings County,comté de Kings,r9ns,45.05528926,-64.61484723,225.4041,3006.447,atl,11100,550004,11100,NS
+Annapolis County,comté d'Annapolis,r8ns,44.76117171,-65.29149335,286.5485,4891.3731,atl,11200,550005,11200,NS
+Digby County,comté de Digby,r7ns,44.35674917,-65.96381028,289.3839,4791.1245,atl,11300,550006,11300,NS
+Lunenburg County,comté de Lunenburg,r3ns,44.49287798,-64.44072534,244.8615,4085.2937,atl,11400,550007,11400,NS
+Queens County,comté de Queens,r4ns,44.1573609,-64.93993166,238.5289,3181.448,atl,11500,550008,11500,NS
+Shelburne County,comté de Shelburne,r5ns,43.74009793,-65.37989065,274.4266,3731.8174,atl,11600,550009,11600,NS
+Yarmouth County,comté de Yarmouth,r6ns,43.88801767,-65.84837202,234.4547,3120.6262,atl,11700,550010,11700,NS
+Cumberland County - Minas Shore,comté de Cumberland - côte du bassin Minas,r13ns,45.47951789,-64.47575714,361.7479,3704.3526,atl,12100,550011,12100,NS
+Cumberland County North and Cobequid Pass,nord du comté de Cumberland et passage de Cobequid,r14ns,45.79972754,-63.79521214,234.8482,2542.4128,atl,12200,550012,12200,NS
+Colchester County - Cobequid Bay,comté de Colchester - baie de Cobequid,r12ns,45.43055251,-63.77822337,173.9529,1329.2127,atl,12300,550013,12300,NS
+Colchester County North,nord du comté de Colchester,r15ns,45.58784953,-63.27120642,149.1696,1201.4761,atl,12400,550014,12400,NS
+Hants County,comté de Hants,r10ns,45.06835956,-63.88527821,253.2567,3614.7418,atl,12500,550015,12500,NS
+Colchester County - Truro and south,comté de Colchester - Truro et au sud,r11ns,45.26578905,-63.14088258,196.4111,1683.0437,atl,12600,550016,12600,NS
+Halifax Metro and Halifax County West,ville d'Halifax et l'ouest du comté d'Halifax,r1ns,44.66537103,-63.66497945,238.4659,3236.8146,atl,12700,550017,12700,NS
+Halifax County - east of Porters Lake,comté d'Halifax - ? l'est du lac Porters,r2ns,44.92330114,-62.80447053,282.763,4763.783,atl,12800,550018,12800,NS
+Pictou County,comté de Pictou,r16ns,45.59473707,-62.6205136,253.6753,4099.6302,atl,13100,550019,13100,NS
+Guysborough County,comté de Guysborough,r18ns,45.25473728,-61.73222574,354.4721,5826.4688,atl,13200,550020,13200,NS
+Antigonish County,comté d'Antigonish,r17ns,45.66116439,-61.93147057,213.6541,2259.8736,atl,13300,550021,13300,NS
+Richmond County,comté de Richmond,r20ns,45.6440196,-60.84454363,224.2514,2329.9097,atl,14100,550022,14100,NS
+Inverness County - south of Mabou,comté d'Inverness - au sud de Mabou,r21ns,45.9108699,-61.25071657,226.2861,2630.3841,atl,14200,550023,14200,NS
+Inverness County - Mabou and north,comté d'Inverness - Mabou et au nord,r22ns,46.55625574,-61.00825081,325.0119,4216.5057,atl,14300,550024,14300,NS
+Victoria County,comté de Victoria,r23ns,46.69208689,-60.48555647,371.6313,4625.9599,atl,14400,550025,14400,NS
+Sydney Metro and Cape Breton County,ville de Sydney et comté de Cap-Breton,r19ns,46.03261719,-60.22227417,265.7282,4441.0345,atl,14500,550026,14500,NS
+Fredericton and Southern York County,Fredericton et sud du comté de York,r5zf,45.90084261,-67.07479453,378.5028,6563.1385,atl,15100,550027,15100,NB
+Oromocto and Sunbury County,Oromocto et comté de Sunbury,r6zf,45.91024279,-66.38294085,274.6897,2672.8749,atl,15200,550028,15200,NB
+Grand Lake and Queens County,Grand Lac et comté de Queens,r7zf,45.89780937,-65.93032349,316.3742,4101.8741,atl,15300,550029,15300,NB
+Sussex - Kennebecasis Valley and Kings County,Sussex - vallée de Kennebecasis et comté de Kings,r2zf,45.62494647,-65.69444153,305.1527,3670.3953,atl,15400,550030,15400,NB
+Saint John and County,Saint John et le comté,r1zf,45.29757187,-65.74435477,287.9565,3219.5181,atl,15500,550031,15500,NB
+St. Stephen and Northern Charlotte County,St. Stephen et le nord du comté de Charlotte,r4zf,45.35279671,-66.95958286,233.8846,2682.6099,atl,15600,550032,15600,NB
+Grand Manan and Coastal Charlotte County,Grand Manan et le littoral du comté de Charlotte,r3zf,44.87701356,-66.83448296,314.1912,3398.4066,atl,15700,550033,15700,NB
+Woodstock and Carleton County,Woodstock et comté de Carleton,r14zf,46.37828661,-67.4511364,282.4609,3509.1188,atl,16100,550034,16100,NB
+Stanley - Doaktown - Blackville Area,région de Stanley - Doaktown - Blackville,r12zf,46.52450415,-66.38139617,356.156,6020.2794,atl,16200,550035,16200,NB
+Kent County,comté de Kent,r10zf,46.52173473,-65.11706629,367.454,4846.5798,atl,16300,550036,16300,NB
+Moncton and Southeast New Brunswick,Moncton et sud-est du Nouveau-Brunswick,r8zf,45.99591455,-64.67638944,379.81,6460.7567,atl,16400,550037,16400,NB
+Kouchibouguac National Park,parc national Kouchibouguac,r11zf,46.80441207,-64.90467194,83.1681,303.064,atl,16500,550038,16500,NB
+Fundy National Park,parc national Fundy,r9zf,45.57063088,-65.01330544,79.7342,300.1071,atl,16600,550039,16600,NB
+Edmundston and Madawaska County,Edmundston et comté de Madawaska,r17zf,47.41371041,-68.16358375,339.3997,3556.5855,atl,17100,550040,17100,NB
+Campbellton and Restigouche County,Campbellton et comté de Restigouche,r21zf,47.74741689,-66.99229536,479.9014,9279.3415,atl,17200,550041,17200,NB
+Grand Falls and Victoria County,Grand-Sault et comté de Victoria,r15zf,47.027302,-67.32676434,330.728,5739.5479,atl,17300,550042,17300,NB
+Mount Carleton - Renous Highway,Mont Carleton - route Renous,r16zf,47.1241611,-66.34393585,303.8642,6035.0003,atl,17400,550043,17400,NB
+Bathurst and Chaleur Region,Bathurst et la région Chaleur,r19zf,47.59636663,-65.62043675,276.2946,4550.5928,atl,17500,550044,17500,NB
+Miramichi and area,Miramichi et région,r13zf,47.05829985,-65.30611969,257.4992,3844.5792,atl,17600,550045,17600,NB
+Acadian Peninsula,péninsule acadienne,r20zf,47.7213483,-64.88916998,256.5661,3763.2551,atl,17700,550046,17700,NB
+Kings County P.E.I.,comté de Kings Î.-P.-É.,r1pe,46.29044202,-62.43833157,239.7416,3279.3232,atl,18100,550047,18100,PE
+Queens County P.E.I.,comté de Queens Î.-P.-É.,r2pe,46.26900022,-63.13705721,256.0028,3626.8519,atl,18200,550048,18200,PE
+Prince County P.E.I.,comté de Prince Î.-P.-É.,r3pe,46.59768989,-63.99068377,281.7375,3856.5711,atl,18300,550049,18300,PE
+Avalon Peninsula North,péninsule d'Avalon Nord,r020qx,47.76114125,-53.31945903,348.9228,5867.9101,atl,21100,550050,21100,NL
+Avalon Peninsula Southeast,péninsule d'Avalon Sud-Est,r031qx,46.90458956,-53.36386333,280.6801,4474.2665,atl,21200,550051,21200,NL
+St. John's and vicinity,St. John's et les environs,r001qx,47.38283484,-52.84203993,272.1573,3074.1964,atl,21300,550052,21300,NL
+Avalon Peninsula Southwest,péninsule d'Avalon Sud-Ouest,r032qx,47.25726571,-53.99988292,321.8061,4706.0481,atl,21400,550053,21400,NL
+Burin Peninsula,péninsule de Burin,r130qx,47.24323718,-55.12594129,493.4031,11861.9638,atl,22100,550054,22100,NL
+Connaigre,Connaigre,r300qx,47.80625072,-55.75812598,394.8124,10226.8504,atl,22200,550055,22200,NL
+Burgeo - Ramea,Burgeo - Ramea,r310qx,47.92678331,-57.45208172,523.2356,14566.3996,atl,22300,550056,22300,NL
+Channel-Port aux Basques and vicinity,Channel-Port aux Basques et les environs,r320qx,47.80732371,-58.93967595,272.0764,4944.7064,atl,22400,550057,22400,NL
+Corner Brook and vicinity,Corner Brook et les environs,r170qx,49.01108003,-58.22900453,250.0926,3869.3372,atl,23100,550058,23100,NL
+Deer Lake - Humber Valley,Deer Lake - vallée de Humber,r180qx,48.92744182,-57.42032743,355.549,6325.5432,atl,23200,550059,23200,NL
+Gros Morne,Gros-Morne,r190qx,49.59908982,-57.73710808,262.9223,4116.8381,atl,23300,550060,23300,NL
+Bay St. George,baie St. George,r330qx,48.4422714,-58.77882837,282.951,5600.9889,atl,23400,550061,23400,NL
+Buchans and the interior,Buchans et l'intérieur,r120qx,48.58790065,-56.27155133,485.3645,11934.057,atl,24100,550062,24100,NL
+Grand Falls-Windsor and vicinity,Grand Falls-Windsor et les environs,r110qx,48.93652131,-55.60713473,191.6982,2117.1298,atl,24200,550063,24200,NL
+Bay of Exploits,baie des Exploits,r090qx,49.41391513,-54.97360574,387.7324,6918.2545,atl,25100,550064,25100,NL
+Bonavista North,Bonavista Nord,r080qx,49.36827086,-53.7885419,363.8555,6241.1836,atl,25200,550065,25200,NL
+Bonavista Peninsula,péninsule de Bonavista,r050qx,48.45513199,-53.41958517,236.1402,2711.8779,atl,25300,550066,25300,NL
+Clarenville and vicinity,Clarenville et les environs,r040qx,48.08711291,-54.22084404,300.9322,4281.3568,atl,25400,550067,25400,NL
+Gander and vicinity,Gander et les environs,r070qx,48.91217835,-54.70339006,254.6367,3666.3689,atl,25500,550068,25500,NL
+Green Bay - White Bay,Green Bay - White Bay,r100qx,49.71650799,-56.31708308,463.0825,14493.5853,atl,25600,550069,25600,NL
+Terra Nova,Terra Nova,r060qx,48.5729537,-54.23588657,320.5724,6001.002,atl,25700,550070,25700,NL
+Northern Peninsula East,péninsule Northern Est,r220qx,51.04159936,-55.8414144,547.2851,15200.8537,atl,26100,550071,26100,NL
+Parson's Pond - Hawke's Bay,Parson's Pond - Hawke's Bay,r200qx,50.25641912,-57.32483592,248.3868,3580.8201,atl,26200,550072,26200,NL
+Port Saunders and the Straits,Port Saunders et les détroits,r210qx,51.11396135,-56.72814818,397.3817,6335.7811,atl,26300,550073,26300,NL
+Red Bay to L'Anse-au-Clair,de Red Bay ? L'Anse-au-Clair,g610qx,51.83337605,-56.51540089,355.8921,5328.4785,atl,27100,550074,27100,NL
+Norman Bay to Lodge Bay,de Norman Bay ? Lodge Bay,r600qx,52.700623,-56.27533026,495.8452,15221.0206,atl,27200,550075,27200,NL
+Cartwright to Black Tickle,de Cartwright ? Black Tickle,r590qx,53.67752011,-56.94372598,425.3565,10426.9495,atl,27300,550076,27300,NL
+Rigolet and vicinity,Rigolet et les environs,r580qx,54.30757246,-57.97631096,439.6271,10832.4856,atl,27400,550077,27400,NL
+Postville - Makkovik,Postville - Makkovik,r570qx,54.83761579,-59.23251171,459.6862,13162.991,atl,27500,550078,27500,NL
+Hopedale and vicinity,Hopedale et les environs,r560qx,55.42309662,-60.72141976,394.2071,9509.9958,atl,27600,550079,27600,NL
+Nain and vicinity,Nain et les environs,r550qx,56.14236687,-61.91018675,530.8724,15567.7795,atl,27700,550080,27700,NL
+Upper Lake Melville,partie supérieure du lac Melville,r510qx,53.31209245,-60.45727066,249.8717,4921.7008,atl,28100,550081,28100,NL
+Eagle River,Eagle River,r500qx,52.86538064,-58.5833314,603.2904,11859.6505,atl,28200,550082,28200,NL
+Churchill Valley,vallée de Churchill,r520qx,53.21728444,-62.29546782,435.4917,5826.4772,atl,28300,550083,28300,NL
+Churchill Falls and vicinity,Churchill Falls et les environs,r530qx,53.54827888,-64.28249891,335.1241,6242.9502,atl,29100,550084,29100,NL
+Labrador City and Wabush,Labrador City et Wabush,r540qx,53.13384572,-66.32827912,612.892,10227.4003,atl,29200,550085,29200,NL
+Gatineau,Gatineau,r1125,45.48979174,-75.66210791,136.6604,386.741,ont,31100,550086,31100,QC
+Waskaganish,Waskaganish,r71.16,51.07581982,-77.76968134,752.5164,30087.0818,que,31200,550087,31200,QC
+Matagami,Matagami,r71.15,49.90243848,-77.75580623,776.4598,34471.0491,que,31300,550088,31300,QC
+Abitibi,Abitibi,r71.12,48.56234741,-78.0065426,768.8681,36139.8821,que,31400,550089,31400,QC
+Témiscamingue,Témiscamingue,r71.13,47.12103466,-78.53207717,593.0561,20676.1367,que,31500,550090,31500,QC
+La Vérendrye Wildlife Reserve,réserve faunique La Vérendrye,r71.9,47.31640058,-76.86810287,473.0418,13090.9062,que,31600,550091,31600,QC
+Pontiac,Pontiac,r71.11,46.33940371,-76.96687809,531.4765,13824.197,que,31700,550092,31700,QC
+Mont-Laurier,Mont-Laurier,r71.8,46.66539446,-75.35235536,368.7934,7455.3605,que,31800,550093,31800,QC
+Upper Gatineau - Li?vre - Papineau,Haute-Gatineau - Li?vre - Papineau,r71.10,45.99049739,-75.59316534,495.2029,11662.0449,que,31900,550094,31900,QC
+Mont-Tremblant Park - Saint-Michel-des-Saints,parc du Mont-Tremblant - Saint-Michel-des-Saints,r71.7,46.62156993,-74.05097769,383.6554,9424.6361,que,32100,550095,32100,QC
+Laurentians,Laurentides,r71.6,45.99716948,-74.30187076,217.456,2686.4481,que,32200,550096,32200,QC
+Lachute - Saint-Jérôme,Lachute - Saint-Jérôme,r71.5,45.67732278,-74.19422088,208.9991,2249.8544,que,32300,550097,32300,QC
+Metro Montréal - Laval,Montréal métropolitain - Laval,r71.1,45.52040973,-73.65063203,150.2036,1463.5632,que,32400,550098,32400,QC
+Vaudreuil - Soulanges - Huntingdon,Vaudreuil - Soulanges - Huntingdon,r71.2,45.21019709,-74.00593466,307.5776,3736.5472,que,32500,550099,32500,QC
+Lanaudi?re,Lanaudi?re,r71.4,46.09194529,-73.49267031,261.2879,4106.4417,que,32600,550100,32600,QC
+Mauricie,Mauricie,r73.4,46.78117116,-72.69283704,403.3032,9527.4708,que,32700,550101,32700,QC
+Québec,Québec,r73.5,46.77653797,-71.38947382,372.33,8946.5957,que,32800,550102,32800,QC
+James Bay and La Grande River,baie James et rivi?re La Grande,r72.1,52.92037658,-77.46406122,1072.5758,53740.5218,que,33100,550103,33100,QC
+LG Quatre - Laforge and Fontanges,LG Quatre - Laforge et Fontanges,r72.2,53.35908022,-72.91107075,1556.1937,148131.8241,que,33200,550104,33200,QC
+Schefferville,Schefferville,r72.31,54.48005147,-68.66665665,830.6048,30564.4854,que,33300,550105,33300,QC
+Fermont,Fermont,r72.32,52.89571188,-68.33472987,836.4873,31964.0683,que,33400,550106,33400,QC
+Chibougamau,Chibougamau,r73.12,50.51825096,-74.06815379,1076.5597,69559.2307,que,34100,550107,34100,QC
+Parent - Gouin Reservoir,Parent - réservoir Gouin,r71.14,48.15155816,-74.76871227,976.2123,61160.3191,que,34200,550108,34200,QC
+Lac Saint-Jean,Lac Saint-Jean,r73.11,49.01924414,-72.41308841,519.7058,18711.3975,que,34300,550109,34300,QC
+La Tuque,La Tuque,r73.8,47.83591491,-72.52946784,444.4173,10547.3803,que,34400,550110,34400,QC
+Manicouagan River,rivi?re Manicouagan,r74.11,50.56853717,-69.70909395,1280.3178,98822.5974,que,34500,550111,34500,QC
+Les Escoumins - Forestville,Les Escoumins - Forestville,r74.12,48.74919141,-69.33947623,347.2556,6375.1604,que,34600,550112,34600,QC
+Saguenay,Saguenay,r73.10,48.39337866,-70.54426271,438.1234,9788.1471,que,34700,550113,34700,QC
+Charlevoix,Charlevoix,r73.7,47.49489177,-70.41214094,283.5735,3265.1983,que,34800,550114,34800,QC
+Laurentians Wildlife Reserve,réserve faunique des Laurentides,r73.9,47.74677917,-71.28227165,450.0786,12738.533,que,34900,550115,34900,QC
+Rimouski - Mont-Joli,Rimouski - Mont-Joli,r74.3,48.49661339,-68.24620516,452.7516,10589.7803,que,35100,550116,35100,QC
+Matane,Matane,r74.5,48.97134786,-67.22278856,258.5203,4071.4195,que,35200,550117,35200,QC
+Amqui - Matapédia Valley,Amqui - vallée de la Matapédia,r74.4,48.28660586,-67.30133403,272.2129,4105.842,que,35300,550118,35300,QC
+Sainte-Anne-des-Monts - Grande-Vallée,Sainte-Anne-des-Monts - Grande-Vallée,r74.6,49.23659459,-65.74911187,418.4074,7647.6418,que,35400,550119,35400,QC
+Gaspésie National Park - Murdochville,parc national de la Gaspésie - Murdochville,r74.7,48.66788599,-65.90033511,455.9263,11655.0768,que,35500,550120,35500,QC
+Restigouche - Bonaventure,Restigouche - Bonaventure,r74.8,48.16626915,-66.13042015,319.7981,3793.2191,que,35600,550121,35600,QC
+New Carlisle - Chandler,New Carlisle - Chandler,r74.9,48.23611114,-64.98251761,252.6721,3408.6519,que,35700,550122,35700,QC
+Forillon National Park - Gaspé - Percé,parc national de Forillon - Gaspé - Percé,r74.10,48.81510298,-64.44835944,302.9909,4386.1973,que,35800,550123,35800,QC
+Baie-Comeau,Baie-Comeau,r74.13,49.3253401,-68.07858829,309.8187,5078.5718,que,36100,550124,36100,QC
+Sept-Îles - Port-Cartier,Sept-Îles - Port-Cartier,r74.14,50.2288532,-66.47765445,665.9607,18089.7993,que,36200,550125,36200,QC
+Minganie,Minganie,r74.15,50.43630595,-64.0072671,419.4455,9830.3969,que,36300,550126,36300,QC
+Natashquan,Natashquan,r74.17,50.40628642,-61.98413194,432.9462,10787.9281,que,36400,550127,36400,QC
+Chevery,Chevery,r74.18,50.61847388,-59.96531322,476.9613,13395.5006,que,36500,550128,36500,QC
+Blanc-Sablon,Blanc-Sablon,r74.19,51.33847752,-58.08922608,432.7069,8132.7818,que,36600,550129,36600,QC
+Anticosti,Anticosti,r74.16,49.48964892,-63.07194285,540.2963,13899.81,que,36700,550130,36700,QC
+Îles-de-la-Madeleine,Îles-de-la-Madeleine,r1ma,47.50594931,-61.68873606,219.392,2801.9507,atl,36800,550131,36800,QC
+Richelieu Valley - Saint-Hyacinthe,vallée du Richelieu - Saint-Hyacinthe,r71.3,45.55976328,-73.08943402,335.7663,5215.8345,que,37100,550132,37100,QC
+Drummondville - Bois-Francs,Drummondville - Bois-Francs,r73.3,46.10845653,-72.29027321,310.231,5852.3103,que,37200,550133,37200,QC
+Eastern Townships,Estrie,r73.1,45.51777883,-71.78473016,616.1852,16298.4543,que,37300,550134,37300,QC
+Beauce,Beauce,r73.2,46.24065571,-70.65406315,360.6629,6719.6295,que,37400,550135,37400,QC
+Montmagny - L'Islet,Montmagny - L'Islet,r73.6,46.97841976,-70.17647734,289.8387,4513.6089,que,37500,550136,37500,QC
+Kamouraska - Rivi?re-du-Loup - Trois-Pistoles,Kamouraska - Rivi?re-du-Loup - Trois-Pistoles,r74.1,47.75449241,-69.43548406,429.1642,8009.5349,que,37600,550137,37600,QC
+Témiscouata,Témiscouata,r74.2,47.65237205,-68.75279893,237.6435,3275.7462,que,37700,550138,37700,QC
+Ivujivik,Ivujivik,r75.21,62.11306851,-77.01495922,417.2398,10549.8181,que,38100,550139,38100,QC
+Akulivik,Akulivik,r75.16,60.94411965,-76.95045736,600.9976,15264.539,que,38200,550140,38200,QC
+Puvirnituq,Puvirnituq,r75.15,59.72779713,-76.73814638,518.7702,11477.7786,que,38300,550141,38300,QC
+Inukjuak,Inukjuak,r75.14,58.66607153,-76.90521963,634.8273,19450.274,que,38400,550142,38400,QC
+Umiujaq,Umiujaq,r75.13,56.77685615,-76.14953907,766.0775,20234.1818,que,38500,550143,38500,QC
+Kuujjuarapik,Kuujjuarapik,r75.11,54.7740234,-77.26609913,805.0181,31727.2705,que,38600,550144,38600,QC
+Salluit,Salluit,r75.22,61.86910099,-74.74935381,526.8186,16279.4415,que,39100,550145,39100,QC
+Kangiqsujuaq - Raglan Lake,Kangiqsujuaq - lac Raglan,r75.23,61.33607106,-72.53072354,646.2679,16916.5767,que,39200,550146,39200,QC
+Quaqtaq,Quaqtaq,r75.24,60.73643075,-70.37835397,351.6256,5816.8184,que,39300,550147,39300,QC
+Kangirsuk,Kangirsuk,r75.31,60.08988454,-69.93471987,281.4527,3078.0655,que,39400,550148,39400,QC
+Aupaluk,Aupaluk,r75.32,59.2150142,-69.77963859,327.0626,5511.816,que,39500,550149,39500,QC
+Tasiujaq,Tasiujaq,r75.33,58.5193513,-69.39927162,345.7069,7067.6913,que,39600,550150,39600,QC
+Kuujjuaq,Kuujjuaq,r75.34,58.17766503,-67.55918526,504.1708,12066.4138,que,39700,550151,39700,QC
+Kangiqsualujjuaq,Kangiqsualujjuaq,r75.35,59.04260171,-65.51304836,682.5775,12061.4517,que,39800,550152,39800,QC
+Simcoe - Delhi - Norfolk,Simcoe - Delhi - Norfolk,r1106,42.72136408,-80.38349479,222.333,2789.2651,ont,41100,550153,41100,ON
+Dunnville - Caledonia - Haldimand,Dunnville - Caledonia - Haldimand,r1107,42.90723095,-79.83667327,186.211,1778.2486,ont,41200,550154,41200,ON
+Sarnia - Lambton,Sarnia - Lambton,r1103,42.89671545,-82.12088548,320.9751,3611.7935,ont,41300,550155,41300,ON
+Windsor - Essex - Chatham-Kent,Windsor - Essex - Chatham-Kent,r1102,42.20558684,-82.39110651,403.6925,7856.6291,ont,41400,550156,41400,ON
+London - Middlesex,London - Middlesex,r1105,42.99526273,-81.4546216,278.9156,3562.3684,ont,41500,550157,41500,ON
+Elgin,Elgin,r1104,42.64701709,-81.22312957,257.4635,3358.6135,ont,41600,550158,41600,ON
+Oxford - Brant,Oxford - Brant,r1108,43.11471838,-80.60350286,284.7132,3300.8582,ont,41700,550159,41700,ON
+Attawapiskat,Attawapiskat,r1306,53.11672228,-82.65212047,655.7435,19322.4903,ont,42100,550160,42100,ON
+Fort Severn,Fort Severn,r1307,55.95209489,-88.4790125,648.6467,22056.3003,ont,42200,550161,42200,ON
+Peawanuck,Peawanuck,r1308,54.89360946,-84.43562346,918.5032,38382.4429,ont,42300,550162,42300,ON
+Big Trout Lake - Sachigo Lake,Big Trout Lake - Sachigo Lake,r1303,54.485663,-89.88628642,1093.7671,70190.8216,ont,42400,550163,42400,ON
+Sandy Lake - Pikangikum,Sandy Lake - Pikangikum,r1301,52.58698133,-93.05366501,988.0764,62112.3117,ont,42500,550164,42500,ON
+Pickle Lake - Wunnummin Lake,Pickle Lake - Wunnummin Lake,r1302,52.17080565,-89.80911716,990.6145,58721.806,ont,42600,550165,42600,ON
+Fort Hope - Webequie,Fort Hope - Webequie,r1304,52.79423559,-85.69225166,1294.7637,110049.5908,ont,42700,550166,42700,ON
+City of Toronto,ville de Toronto,r1101,43.70725484,-79.36296,128.3931,920.0928,ont,43100,550167,43100,ON
+York - Durham,York - Durham,r1112,44.05212914,-79.1211218,369.4767,5551.873,ont,43200,550168,43200,ON
+Belleville - Quinte - Northumberland,Belleville - Quinte - Northumberland,r1118,44.11740609,-77.9038301,289.8214,3482.9655,ont,43300,550169,43300,ON
+Stirling - Tweed - South Frontenac,Stirling - Tweed - Frontenac Sud,r1121,44.47525579,-76.97056271,324.9575,3671.4022,ont,43400,550170,43400,ON
+Kingston - Prince Edward,Kingston - Prince Edward,r1119,44.09642492,-76.92907991,358.244,4900.7429,ont,43500,550171,43500,ON
+Brockville - Leeds and Grenville,Brockville - Leeds et Grenville,r1123,44.68492496,-75.92134712,312.3338,3872.4576,ont,43600,550172,43600,ON
+Cornwall - Morrisburg,Cornwall - Morrisburg,r1127,45.14929254,-74.9391223,286.8211,3512.2419,ont,43700,550173,43700,ON
+Barrie - Orillia - Midland,Barrie - Orillia - Midland,r1117,44.59974351,-79.80317227,330.1049,4937.4728,ont,44100,550174,44100,ON
+Burk's Falls - Bayfield Inlet,Burk's Falls - Bayfield Inlet,r1133,45.73099397,-79.91787766,343.6473,5121.5071,ont,44200,550175,44200,ON
+Algonquin,Algonquin,r1132,45.84158467,-78.30543424,468.7599,10060.8472,ont,44300,550176,44300,ON
+Parry Sound - Muskoka,Parry Sound - Muskoka,r1129,45.21253636,-79.62963199,416.311,9072.0895,ont,44400,550177,44400,ON
+Haliburton,Haliburton,r1130,45.14402202,-78.51588323,295.375,4705.779,ont,44500,550178,44500,ON
+Bancroft - Bon Echo Park,Bancroft - parc Bon Echo,r1122,44.94089115,-77.55939679,344.9632,6048.0266,ont,44600,550179,44600,ON
+Peterborough - Kawartha Lakes,Peterborough - Kawartha Lakes,r1120,44.53142846,-78.47962314,417.0694,7815.8699,ont,44700,550180,44700,ON
+Prescott and Russell,Prescott et Russell,r1126,45.45835146,-74.95284218,255.9041,2150.6891,ont,45100,550181,45100,ON
+Renfrew - Pembroke - Barry's Bay,Renfrew - Pembroke - Barry's Bay,r1131,45.50247417,-77.14726663,442.7058,6705.8821,ont,45200,550182,45200,ON
+Smiths Falls - Lanark - Sharbot Lake,Smiths Falls - Lanark - Sharbot Lake,r1128,44.99864553,-76.51319982,327.0368,5113.1403,ont,45300,550183,45300,ON
+City of Ottawa,ville d'Ottawa,r1124,45.29351958,-75.77261198,267.0925,2993.7442,ont,45400,550184,45400,ON
+City of Hamilton,ville de Hamilton,r1110,43.2534861,-79.94217704,173.1242,1283.7157,ont,46100,550185,46100,ON
+Grey - Bruce,Grey - Bruce,r1116,44.56148116,-81.08235886,536.2434,13366.7725,ont,46200,550186,46200,ON
+Huron - Perth,Huron - Perth,r1113,43.60787239,-81.32548938,371.4241,6487.709,ont,46300,550187,46300,ON
+Waterloo - Wellington,Waterloo - Wellington,r1114,43.64949995,-80.49068187,357.1362,4276.7707,ont,46400,550188,46400,ON
+Dufferin - Innisfil,Dufferin - Innisfil,r1115,44.10985146,-79.98606926,266.8554,3063.5131,ont,46500,550189,46500,ON
+Halton - Peel,Halton - Peel,r1111,43.64080307,-79.83650635,228.952,2492.4166,ont,46600,550190,46600,ON
+Niagara,Niagara,r1109,43.05800908,-79.3097483,221.228,2606.2915,ont,46700,550191,46700,ON
+Red Lake - Ear Falls,Red Lake - Ear Falls,r1207,50.86897318,-93.9122298,620.7729,22733.0944,ont,47100,550192,47100,ON
+Sioux Lookout - Savant Lake,Sioux Lookout - Savant Lake,r1208,50.43611562,-91.23190372,676.7383,27455.0932,ont,47200,550193,47200,ON
+Kenora - Nestor Falls,Kenora - Nestor Falls,r1202,49.67467969,-94.30256318,532.3069,16863.9282,ont,47300,550194,47300,ON
+Dryden - Ignace,Dryden - Ignace,r1203,49.52181224,-92.1962442,632.0095,20562.1509,ont,47400,550195,47400,ON
+Fort Frances - Rainy Lake,Fort Frances - lac ? la Pluie,r1204,48.80244101,-92.9308258,621.0178,11228.264,ont,47500,550196,47500,ON
+City of Thunder Bay,ville de Thunder Bay,r1201,48.44733606,-89.2228124,101.9142,787.2199,ont,48100,550197,48100,ON
+Lake Nipigon - Wabakimi,lac Nipigon - Wabakimi,r1209,50.18103974,-88.6729801,778.6249,39051.5789,ont,48200,550198,48200,ON
+Geraldton - Manitouwadge - Hornepayne,Geraldton - Manitouwadge - Hornepayne,r1210,49.99248717,-85.6543863,1008.0411,62625.1339,ont,48300,550199,48300,ON
+Atikokan - Upsala - Quetico,Atikokan - Upsala - Quetico,r1205,48.77698896,-90.51202745,767.7706,21804.8708,ont,48400,550200,48400,ON
+Superior West,Supérieur Ouest,r1206,48.47984049,-89.15718187,648.0099,9447.738,ont,48500,550201,48500,ON
+Nipigon - Marathon - Superior North,Nipigon - Marathon - Supérieur Nord,r1211,48.76804192,-87.26816,477.9583,11468.5689,ont,48600,550202,48600,ON
+Wawa - White River - Pukaskwa,Wawa - White River - Pukaskwa,r1212,48.13113894,-85.38708347,633.4584,21319.2901,ont,48700,550203,48700,ON
+Sault Ste. Marie - Superior East,Sault Ste. Marie - Supérieur est,r1213,47.2226363,-84.39783954,604.6234,13138.8593,ont,48800,550204,48800,ON
+Greater Sudbury and vicinity,Grand Sudbury et les environs,r1216,46.56448258,-81.18408957,472.3476,10352.5617,ont,49100,550205,49100,ON
+Elliot Lake - Ranger Lake,Elliot Lake - Ranger Lake,r1219,46.75368016,-82.99567158,499.8071,13590.4996,ont,49200,550206,49200,ON
+Moosonee - Fort Albany,Moosonee - Fort Albany,r1305,51.48561721,-81.16110316,734.4856,25776.1128,ont,49300,550207,49300,ON
+Kapuskasing - Hearst,Kapuskasing - Hearst,r1214,50.31808872,-82.78936323,863.6181,45886.1074,ont,49400,550208,49400,ON
+Timmins - Cochrane,Timmins - Cochrane,r1215,49.34275214,-80.7654361,1001.4367,47101.6662,ont,49500,550209,49500,ON
+Chapleau - Gogama,Chapleau - Gogama,r1217,47.94359422,-82.68649815,928.6685,38941.0018,ont,49600,550210,49600,ON
+Kirkland Lake - New Liskeard - Temagami,Kirkland Lake - New Liskeard - Temagami,r1218,47.48871266,-80.23301375,624.2835,20229.3937,ont,49700,550211,49700,ON
+North Bay - West Nipissing,North Bay - Nipissing Ouest,r1221,46.2955405,-79.67035625,507.6125,11017.5741,ont,49800,550212,49800,ON
+Manitoulin - Blind River - Killarney,Manitoulin - Blind River - Killarney,r1220,45.92687409,-82.25304992,686.3688,17022.3303,ont,49900,550213,49900,ON
+Virden - Souris,Virden - Souris,r1.20,49.79858965,-100.7440706,317.8325,5781.9778,pnr,51100,550214,51100,MB
+Brandon - Carberry - Treherne,Brandon - Carberry - Treherne,r1.18,49.79282453,-99.27102921,355.29,6651.3527,pnr,51200,550215,51200,MB
+Melita - Boissevain - Turtle Mountain Provincial Park,Melita - Boissevain - Turtle Mountain Prov. Park,r1.21,49.26657494,-100.6393862,337.8294,6404.6206,pnr,51300,550216,51300,MB
+Killarney - Pilot Mound - Manitou,Killarney - Pilot Mound - Manitou,r1.19,49.2608861,-99.11723236,355.3315,6697.298,pnr,51400,550217,51400,MB
+City of Winnipeg,ville de Winnipeg,r1.15,49.86205549,-97.15746208,109.1526,474.9006,pnr,52100,550218,52100,MB
+Selkirk - Gimli - Stonewall - Woodlands - Eriksdale,Selkirk - Gimli - Stonewall - Woodlands - Eriksdale,r1.9,50.48029373,-97.57128346,451.362,8717.6106,pnr,52200,550219,52200,MB
+Portage la Prairie - Headingley - Brunkild - Carman,Portage la Prairie - Headingley - Brunkild - Carman,r1.16,49.81203101,-97.95566187,384.8659,6079.4635,pnr,52300,550220,52300,MB
+Dugald - Beausejour - Grand Beach,Dugald - Beausejour - Grand Beach,r1.11,50.15960958,-96.62322522,309.1868,3296.5084,pnr,52400,550221,52400,MB
+Morden - Winkler - Altona - Emerson - Morris,Morden - Winkler - Altona - Emerson - Morris,r1.17,49.25561296,-97.75275374,323.6348,4397.6084,pnr,52500,550222,52500,MB
+Steinbach - St. Adolphe - Dominion City - Vita - Richer,Steinbach - St. Adolphe - Dominion City - Vita - Richer,r1.14,49.3774546,-96.76269654,340.8173,5574.2435,pnr,52600,550223,52600,MB
+Bissett - Nopiming Provincial Park - Pine Falls,Bissett - Nopiming Prov. Park - Pine Falls,r1.10,50.73896963,-95.84037602,395.6803,7129.201,pnr,53100,550224,53100,MB
+Whiteshell - Lac du Bonnet - Pinawa,Whiteshell - Lac du Bonnet - Pinawa,r1.12,49.90529971,-95.78008018,442.824,8680.5586,pnr,53200,550225,53200,MB
+Sprague - Northwest Angle Provincial Forest,Sprague - for?t provinciale Northwest Angle,r1.13,49.23420206,-95.69749438,289.9066,4186.5795,pnr,53300,550226,53300,MB
+Grand Rapids,Grand Rapids,r1.1,52.45656643,-99.00717393,869.6286,19012.2175,pnr,54100,550227,54100,MB
+Arborg - Hecla - Fisher River - Gypsumville - Ashern,Arborg - Hecla - Fisher River - Gypsumville - Ashern,r1.8,51.42854595,-97.76079923,719.9142,16343.0516,pnr,54200,550228,54200,MB
+Dauphin - Roblin - Winnipegosis,Dauphin - Roblin - Winnipegosis,r1.5,51.27472284,-100.5549976,640.9023,9977.2302,pnr,55100,550229,55100,MB
+Minnedosa - Neepawa - Russell - Riding Mountain National Park,Minnedosa - Neepawa - Russell - parc national du Mont-Riding,r1.7,50.47725364,-100.4433494,509.2545,13599.3952,pnr,55200,550230,55200,MB
+Ste. Rose - McCreary - Alonsa - Gladstone,Ste. Rose - McCreary - Alonsa - Gladstone,r1.6,50.83106094,-99.16388564,549.4477,9309.5843,pnr,55300,550231,55300,MB
+The Pas - Wanless - Westray - Clearwater Lake Prov. Park,The Pas - Wanless - Westray - Clearwater Lake Prov. Park,r2.11,53.71518602,-100.6339916,604.7656,20153.4056,pnr,56100,550232,56100,MB
+Swan River - Duck Mountain - Porcupine Provincial Forest,Swan River - mont Duck - for?t provinciale Porcupine,r1.4,52.28081376,-100.8718947,731.212,16058.3898,pnr,56200,550233,56200,MB
+Norway House - Cross Lake - Wabowden,Norway House - Cross Lake - Wabowden,r2.10,54.36187781,-97.33728367,901.8927,44339.325,pnr,57100,550234,57100,MB
+Poplar River,Poplar River,r1.2,52.99518655,-96.36068537,560.6335,18996.707,pnr,57200,550235,57200,MB
+Berens River - Little Grand Rapids - Bloodvein - Atikaki,Berens River - Little Grand Rapids - Bloodvein - Atikaki,r1.3,51.80913767,-95.96673686,555.8643,16498.5179,pnr,57300,550236,57300,MB
+Brochet,Brochet,r2.4,58.55515931,-100.7003711,921.9988,46278.2349,pnr,58100,550237,58100,MB
+Tadoule Lake,Tadoule Lake,r2.3,58.55517928,-97.42524172,1075.0725,70385.7307,pnr,58200,550238,58200,MB
+Lynn Lake - Leaf Rapids - Pukatawagan,Lynn Lake - Leaf Rapids - Pukatawagan,r2.5,56.37471656,-100.6979392,635.691,25160.0163,pnr,58300,550239,58300,MB
+Thompson - Nelson House - Split Lake,Thompson - Nelson House - Split Lake,r2.6,56.13284177,-97.42657914,906.3264,51208.3308,pnr,58400,550240,58400,MB
+Flin Flon - Cranberry Portage - Snow Lake,Flin Flon - Cranberry Portage - Snow Lake,r2.12,54.98345706,-100.6436196,608.2577,22493.0212,pnr,58500,550241,58500,MB
+Churchill,Churchill,r2.1,58.07431195,-94.23291118,934.9956,34323.6528,pnr,59100,550242,59100,MB
+York,York,r2.2,56.82321013,-90.71784614,500.4226,11553.1478,pnr,59200,550243,59200,MB
+Gillam,Gillam,r2.7,56.24915978,-94.48103935,653.4525,22560.8639,pnr,59300,550244,59300,MB
+Shamattawa,Shamattawa,r2.8,55.92044963,-92.27343069,756.5365,32061.7225,pnr,59400,550245,59400,MB
+Island Lake - Oxford House - Gods Lake,Island Lake - Oxford House - Gods Lake,r2.9,54.36752934,-94.07075033,830.8811,31664.9991,pnr,59500,550246,59500,SK
+Leader - Gull Lake,Leader - Gull Lake,r3.21,50.42223844,-109.178821,501.6584,12763.8021,pnr,61100,550247,61100,SK
+Swift Current - Herbert - Cabri - Kyle - Lucky Lake,Swift Current - Herbert - Cabri - Kyle - Lucky Lake,r3.20,50.42332084,-107.6602562,535.2261,15214.9889,pnr,61200,550248,61200,SK
+Shaunavon - Maple Creek - Val Marie - Cypress Hills,Shaunavon - Maple Creek - Val Marie - collines Cypress,r3.22,49.44361818,-108.4956857,774.9914,22198.5147,pnr,61300,550249,61300,SK
+City of Regina,ville de Regina,r3.17,50.45421018,-104.6127031,52.3954,116.5624,pnr,62100,550250,62100,SK
+Moose Jaw - Pense - Central Butte - Craik,Moose Jaw - Pense - Central Butte - Craik,r3.18,50.55618369,-105.9279247,508.4826,15216.7749,pnr,62200,550251,62200,SK
+Fort Qu'Appelle - Indian Head - Lumsden - Pilot Butte,Fort Qu'Appelle - Indian Head - Lumsden - Pilot Butte,r3.16,50.60216687,-104.1433282,610.4192,14103.041,pnr,62300,550252,62300,SK
+Assiniboia - Gravelbourg - Coronach,Assiniboia - Gravelbourg - Coronach,r3.19,49.49723968,-105.7167244,581.5089,18285.8714,pnr,62400,550253,62400,SK
+Estevan - Weyburn - Radville - Milestone,Estevan - Weyburn - Radville - Milestone,r3.15,49.52578135,-103.8321297,529.6811,13611.4853,pnr,62500,550254,62500,SK
+Yorkton - Melville - Esterhazy,Yorkton - Melville - Esterhazy,r3.10,50.96016922,-102.3869996,453.5119,11191.3556,pnr,63100,550255,63100,SK
+Moosomin - Grenfell - Kipling - Wawota,Moosomin - Grenfell - Kipling - Wawota,r3.14,50.1588181,-102.365959,477.0548,11269.9484,pnr,63200,550256,63200,SK
+Carlyle - Oxbow - Carnduff - Bienfait - Stoughton,Carlyle - Oxbow - Carnduff - Bienfait - Stoughton,r3.3,49.40078046,-102.2024559,449.3523,9510.4718,pnr,63300,550257,63300,SK
+Hudson Bay - Porcupine Plain,Hudson Bay - Porcupine Plain,r3.5,52.97028673,-102.4229857,558.0089,14841.2874,pnr,64100,550258,64100,SK
+Kamsack - Canora - Preeceville,Kamsack - Canora - Preeceville,r3.9,51.84680293,-102.4298305,465.0086,11969.0518,pnr,64200,550259,64200,SK
+City of Saskatoon,ville de Saskatoon,r3.8,52.13774639,-106.6463581,52.1098,144.0692,pnr,65100,550260,65100,SK
+Prince Albert - Shellbrook - Spiritwood - Duck Lake,Prince Albert - Shellbrook - Spiritwood - Duck Lake,r3.4,53.32619278,-106.345143,705.0333,17514.9568,pnr,65200,550261,65200,SK
+Melfort - Tisdale - Nipawin - Carrot River,Melfort - Tisdale - Nipawin - Carrot River,r3.2,53.08981911,-104.219025,678.3782,20920.5067,pnr,65300,550262,65300,SK
+Martensville - Warman - Rosthern - Delisle - Wakaw,Martensville - Warman - Rosthern - Delisle - Wakaw,r3.7,52.34091008,-106.5566205,695.715,15067.8761,pnr,65400,550263,65400,SK
+Outlook - Watrous - Hanley - Imperial - Dinsmore,Outlook - Watrous - Hanley - Imperial - Dinsmore,r3.12,51.46641287,-106.5714394,541.9516,14519.2237,pnr,65500,550264,65500,SK
+Humboldt - Wynyard - Wadena - Lanigan - Foam Lake,Humboldt - Wynyard - Wadena - Lanigan - Foam Lake,r3.11,51.77227735,-104.32857,627.2219,20672.3978,pnr,65600,550265,65600,SK
+Meadow Lake - Big River - Green Lake - Pierceland,Meadow Lake - Big River - Green Lake - Pierceland,r3.1,54.14855112,-108.3113401,687.1079,19018.3083,pnr,66100,550266,66100,SK
+The Battlefords - Unity - Maidstone - St. Walburg,The Battlefords - Unity - Maidstone - St. Walburg,r3.6,53.03446887,-108.8345763,713.7727,23256.6012,pnr,66200,550267,66200,SK
+Kindersley - Rosetown - Biggar - Wilkie - Macklin,Kindersley - Rosetown - Biggar - Wilkie - Macklin,r3.13,51.68638129,-108.8880432,666.728,23818.5448,pnr,66300,550268,66300,SK
+Lloydminster - Wainwright - Vermilion - Provost,Lloydminster - Wainwright - Vermilion - Provost,r16.7,53.05677015,-110.9591642,704.8399,21404.0646,pnr,066400-075200,550269,066400-075200,AB. SK
+Île ? la Crosse - Buffalo Narrows - Beauval,Île ? la Crosse - Buffalo Narrows - Beauval,r4.9,55.34190731,-108.3881195,775.2636,34297.721,pnr,67100,550270,67100,SK
+La Ronge - Prince Albert Nat. Park - Narrow Hills Prov. Park,La Ronge - parc nat. de Prince Albert - Narrow Hills Prov. Park,r4.2,54.95664763,-105.496075,909.2983,40624.4784,pnr,67200,550271,67200,SK
+Pelican Narrows - Cumberland House - Creighton,Pelican Narrows - Cumberland House - Creighton,r4.1,54.90218802,-103.0332941,854.0375,38119.0062,pnr,67300,550272,67300,SK
+Uranium City - Camsell Portage,Uranium City - Camsell Portage,r4.6,59.20000203,-109.025003,563.7103,18801.5267,pnr,68100,550273,68100,SK
+Fond-du-Lac - Stony Rapids,Fond-du-Lac - Stony Rapids,r4.5,59.20000081,-106.4580013,700.9353,30701.2776,pnr,68200,550274,68200,SK
+La Loche - Clearwater River Prov. Park - Cluff Lake,La Loche - Clearwater River Prov. Park - lac Cluff,r4.7,57.25999897,-109.0250012,725.518,28472.6482,pnr,68300,550275,68300,SK
+Cree Lake - Key Lake,Cree Lake - lac Key,r4.8,57.26000044,-106.4580001,870.9188,46508.4966,pnr,68400,550276,68400,SK
+Wollaston Lake - Collins Bay,Wollaston Lake - baie Collins,r4.4,58.83077115,-103.5728387,869.0644,39569.4125,pnr,68500,550277,68500,SK
+Southend - Brabant Lake - Kinoosao,Southend - Brabant Lake - Kinoosao,r4.3,56.96900395,-103.2355461,744.192,29988.6286,pnr,68600,550278,68600,SK
+Jasper National Park,parc national Jasper,r15.8,52.85123689,-117.9853167,562.3221,11182.0571,pnr,71100,550279,71100,AB
+Nordegg - Forestry Trunk Road Highway 734,Nordegg - route foresti?re 734,r15.14,52.47987349,-116.2726203,613.9404,12452.0452,pnr,71200,550280,71200,AB
+Rocky Mountain House - Caroline,Rocky Mountain House - Caroline,r15.15,52.72851701,-115.4267749,588.1252,13208.8043,pnr,71300,550281,71300,AB
+Banff National Park,parc national Banff,r15.7,51.67974755,-116.2415117,552.5001,8961.2456,pnr,71400,550282,71400,AB
+Kananaskis - Canmore,Kananaskis - Canmore,r15.6,50.98214019,-114.956823,546.3488,7506.0548,pnr,71500,550283,71500,AB
+Red Deer - Ponoka - Innisfail - Stettler,Red Deer - Ponoka - Innisfail - Stettler,r15.16,52.3137698,-113.1812607,635.1092,14754.3571,pnr,72100,550284,72100,AB
+Airdrie - Cochrane - Olds - Sundre,Airdrie - Cochrane - Olds - Sundre,r15.2,51.54518827,-114.2675963,406.9136,5995.7891,pnr,72200,550285,72200,AB
+Drumheller - Three Hills,Drumheller - Three Hills,r15.4,51.53766517,-112.9247275,497.004,9192.101,pnr,72300,550286,72300,AB
+City of Calgary,ville de Calgary,r15.1,51.03778145,-114.0604074,134.9801,710.1469,pnr,72400,550287,72400,AB
+Okotoks - High River - Claresholm,Okotoks - High River - Claresholm,r15.3,50.46878139,-113.9874346,461.9437,6602.3102,pnr,72500,550288,72500,AB
+Brooks - Strathmore - Vulcan,Brooks - Strathmore - Vulcan,r15.5,50.67076891,-112.7893196,537.2655,15209.6095,pnr,72600,550289,72600,AB
+Crowsnest Pass - Pincher Creek - Waterton Lakes Nat. Park,Crowsnest Pass - Pincher Creek - parc nat. des Lacs-Waterton,r15.13,49.63717493,-114.1659115,454.5191,7426.3242,pnr,73100,550290,73100,AB
+Cardston - Fort Macleod - Magrath,Cardston - Fort Macleod - Magrath,r15.12,49.40676728,-113.2427524,457.5932,6802.3978,pnr,73200,550291,73200,AB
+Lethbridge - Taber - Milk River,Lethbridge - Taber - Milk River,r15.11,49.61517778,-112.2383257,539.1384,11733.6954,pnr,73300,550292,73300,AB
+Hanna - Coronation - Oyen,Hanna - Coronation - Oyen,r15.17,51.60459607,-111.0553959,687.4267,21677.3936,pnr,74100,550293,74100,AB
+Medicine Hat - Bow Island - Suffield,Medicine Hat - Bow Island - Suffield,r15.9,50.35132147,-110.8680235,533.6423,15095.5889,pnr,74200,550294,74200,AB
+Cypress Hills Provincial Park - Foremost,Cypress Hills Provincial Park - Foremost,r15.10,49.40715287,-110.779054,410.3603,9749.6209,pnr,74300,550295,74300,AB
+Bonnyville - St. Paul - Cold Lake - Lac La Biche,Bonnyville - St. Paul - Cold Lake - Lac La Biche,r16.8,54.58613829,-111.1740337,681.389,24644.0617,pnr,75100,550296,75100,AB
+Westlock - Barrhead - Athabasca,Westlock - Barrhead - Athabasca,r16.6,54.49799376,-113.8154936,633.079,15515.0681,pnr,76100,550297,76100,AB
+Spruce Grove - Morinville - Mayerthorpe - Evansburg,Spruce Grove - Morinville - Mayerthorpe - Evansburg,r16.2,53.67703059,-114.6085751,523.1162,8777.1364,pnr,76200,550298,76200,AB
+Fort Saskatchewan - Vegreville - Redwater - Smoky Lake,Fort Saskatchewan - Vegreville - Redwater - Smoky Lake,r16.3,53.85864872,-112.6625081,445.3422,7523.2171,pnr,76300,550299,76300,AB
+City of Edmonton - St. Albert - Sherwood Park,ville d'Edmonton - St. Albert - Sherwood Park,r16.1,53.54442021,-113.4889969,136.8377,798.6907,pnr,76400,550300,76400,AB
+Drayton Valley - Devon - Rimbey - Pigeon Lake,Drayton Valley - Devon - Rimbey - lac Pigeon,r16.4,53.01238939,-114.3595132,412.5317,6756.5421,pnr,76500,550301,76500,AB
+Leduc - Camrose - Wetaskiwin - Tofield,Leduc - Camrose - Wetaskiwin - Tofield,r16.5,53.11178436,-112.83411,456.9049,9049.6586,pnr,76600,550302,76600,AB
+Grande Prairie - Beaverlodge - Valleyview,Grande Prairie - Beaverlodge - Valleyview,r16.11,55.0347434,-118.4294982,671.7538,19629.4098,pnr,77100,550303,77100,AB
+Hinton - Grande Cache,Hinton - Grande Cache,r16.10,53.95781569,-118.5799143,687.0425,22386.5397,pnr,77200,550304,77200,AB
+Slave Lake,Slave Lake,r16.13,55.27026255,-114.6700961,796.5349,21886.2385,pnr,77300,550305,77300,AB
+Whitecourt - Edson - Fox Creek - Swan Hills,Whitecourt - Edson - Fox Creek - Swan Hills,r16.9,54.15652767,-116.2644385,606.9045,20225.5304,pnr,77400,550306,77400,AB
+High Level - Rainbow Lake - Fort Vermilion - Mackenzie Hwy,High Level - Rainbow Lake - Ft Vermilion - rte du Mackenzie,r16.16,58.6336074,-117.1226066,1247.5862,91410.1458,pnr,78100,550307,78100,AB
+Peace River - Fairview - High Prairie - Manning,Peace River - Fairview - High Prairie - Manning,r16.12,56.41681145,-118.2872265,933.6639,42451.4946,pnr,78200,550308,78200,AB
+Wabasca - Peerless Lake - Gift Lake - Cadotte Lake,Wabasca - Peerless Lake - Gift Lake - Cadotte Lake,r16.14,56.51564556,-114.6677695,898.0269,44339.0875,pnr,78300,550309,78300,AB
+Fort Chipewyan - Wood Buffalo National Park,Fort Chipewyan - parc national Wood Buffalo,r16.17,58.73571536,-112.1878766,1211.0437,70884.2402,pnr,79100,550310,79100,AB
+Fort McMurray - Fort MacKay,Fort McMurray - Fort MacKay,r16.15,56.3253157,-111.3336007,774.0536,34458.5667,pnr,79200,550311,79200,AB
+Haida Gwaii,Haida Gwaii,rv11,53.05480111,-132.0971299,1034.3859,59175.8945,pyr,81100,550312,81100,BC
+North Vancouver Island,Île de Vancouver Nord,rv3,50.53402848,-127.6017085,567.8661,11856.8115,pyr,81200,550313,81200,BC
+East Vancouver Island,Île de Vancouver Est,rv5,49.57597195,-124.8386471,612.0335,9720.2388,pyr,81300,550314,81300,BC
+West Vancouver Island,Île de Vancouver Ouest,rv4,49.34931445,-126.0103023,800.5609,14931.2827,pyr,81400,550315,81400,BC
+Inland Vancouver Island,Île de Vancouver - Intérieur,rv4.1,49.28949293,-125.1069028,623.5801,9283.5983,pyr,81500,550316,81500,BC
+Greater Victoria,Grand Victoria,rv6,48.48675157,-123.3914443,149.6513,1371.1574,pyr,81600,550317,81600,BC
+Central Coast - coastal sections,côte centrale - secteurs côtiers,rv2,51.57649144,-127.6950226,878.2827,39526.1369,pyr,82100,550318,82100,BC
+Central Coast - inland sections,côte centrale - secteurs intérieurs,rv2.1,52.03655349,-126.2757275,679.265,19381.885,pyr,82200,550319,82200,BC
+Sunshine Coast,Sunshine Coast,rv9,50.39973936,-124.2971292,730.7153,27797.5998,pyr,82300,550320,82300,BC
+Whistler,Whistler,rv12,50.00432839,-122.6208363,340.9319,6758.9231,pyr,82400,550321,82400,BC
+Howe Sound,baie Howe,rv10,49.53124084,-123.1915912,229.342,1679.6295,pyr,82500,550322,82500,BC
+Metro Vancouver,Vancouver métropolitain,rv7,49.2195935,-123.0190621,191.4789,2476.8684,pyr,82600,550323,82600,BC
+Fraser Valley,vallée du Fraser,rv8,49.34389967,-122.0040198,362.202,7429.4096,pyr,82700,550324,82700,BC
+Southern Gulf Islands,sud des Îles Gulf,rv14,48.95555226,-123.4610964,201.7338,1969.224,pyr,82800,550325,82800,BC
+Fraser Canyon,canyon du Fraser,r19,50.42079868,-122.080072,638.3784,13092.9835,pyr,83100,550326,83100,BC
+South Thompson,Thompson Sud,r5,50.6732934,-120.8453975,409.4617,7086.8108,pyr,83200,550327,83200,BC
+Nicola,Nicola,r6,50.03358975,-120.5409785,405.2394,9242.9431,pyr,83300,550328,83300,BC
+Similkameen,Similkameen,r7,49.29310963,-120.5010664,335.2257,5219.4817,pyr,83400,550329,83400,BC
+Okanagan Valley,vallée de l'Okanagan,r8,49.93332317,-119.3357053,518.1455,13966.737,pyr,83500,550330,83500,BC
+Shuswap,Shuswap,r3,50.88912941,-119.2942043,237.3698,3107.4949,pyr,83600,550331,83600,BC
+Arrow Lakes - Slocan Lake,lacs Arrow - lac Slocan,r10,50.06728381,-118.0188724,533.5145,14204.573,pyr,84100,550332,84100,BC
+Boundary,Boundary,r9,49.21492615,-118.8042293,262.8252,4031.5256,pyr,84200,550333,84200,BC
+West Kootenay,Kootenay Ouest,r11,49.27719435,-117.6008901,285.3005,4780.9826,pyr,84300,550334,84300,BC
+Kootenay Lake,lac Kootenay,r12,49.83377456,-116.8187639,498.4664,10562.1722,pyr,84400,550335,84400,BC
+East Kootenay,Kootenay Est,r13,49.87903273,-115.864736,589.8423,16097.7713,pyr,84500,550336,84500,BC
+Elk Valley,vallée de la rivi?re Elk,r14,49.6920679,-114.8946833,465.0297,7681.0416,pyr,84600,550337,84600,BC
+North Thompson,Thompson Nord,r2,51.50920061,-119.957873,462.5833,11165.1594,pyr,85100,550338,85100,BC
+North Columbia,Columbia Nord,r50,51.96261837,-118.8879457,391.2617,7165.5568,pyr,85200,550339,85200,BC
+Kinbasket,Kinbasket,r18,52.19423233,-118.0627094,552.3744,8941.7835,pyr,85300,550340,85300,BC
+West Columbia,Columbia Ouest,r17,51.18401999,-118.1539936,499.5126,12026.2956,pyr,85400,550341,85400,BC
+East Columbia,Columbia Est,r16,51.17508223,-116.8734078,338.4711,5088.3717,pyr,85500,550342,85500,BC
+Yoho Park - Kootenay Park,parc national Yoho - parc national Kootenay,r15,51.07905953,-116.1179786,367.3146,4051.5935,pyr,85600,550343,85600,BC
+Chilcotin,Chilcotin,r24,51.96870045,-123.9971432,860.041,37859.9783,pyr,86100,550344,86100,BC
+Cariboo,Cariboo,r25,52.65703815,-121.6996459,811.9187,39094.7576,pyr,86200,550345,86200,BC
+100 Mile,100 Mile,r4,51.44887308,-121.1953403,373.1166,8423.5184,pyr,86300,550346,86300,BC
+Yellowhead,Yellowhead,r1,53.26387141,-119.9359754,500.7344,10123.9429,pyr,86400,550347,86400,BC
+Bulkley Valley and The Lakes,vallée de Bulkley et les lacs,r21,55.006167,-126.2974296,1359.5929,86299.5973,pyr,87100,550348,87100,BC
+Williston,Williston,r23,56.04058713,-123.9207417,851.0692,39439.3898,pyr,87200,550349,87200,BC
+B.C. Peace River,rivi?re de la Paix C.-B.,r32,56.00377951,-121.1514224,951.7327,37721.7857,pyr,87300,550350,87300,BC
+Prince George,Prince George,r20,53.93596072,-123.2091613,682.9416,27958.2376,pyr,87400,550351,87400,BC
+McGregor,McGregor,r26,54.42426337,-121.3451295,526.1749,14336.4444,pyr,87500,550352,87500,BC
+Fort Nelson,Fort Nelson,rw35,58.58985173,-121.8528842,1025.2119,65762.083,pyr,88100,550353,88100,BC
+Muncho Lake Park - Stone Mountain Park,Muncho Lake Park et Stone Mountain Park,rw93,58.98970316,-125.0678966,488.4033,14928.0604,pyr,88200,550354,88200,BC
+Watson Lake,Watson Lake,rw92,60.21786764,-128.4454231,774.4601,29950.4458,pyr,088300-092300,550355,088300-092300,BC. NT
+North Coast - coastal sections,côte nord - secteurs côtiers,rv1,53.51337685,-129.8651385,947.8407,40850.9556,pyr,89100,550356,89100,BC
+North Coast - inland sections,côte nord - secteurs intérieurs,rv13,55.19555511,-129.0205355,1301.31,53671.4034,pyr,89200,550357,89200,BC
+Dease Lake,Dease Lake,rw91,57.88192759,-130.2792019,608.8913,23289.3304,pyr,89300,550358,89300,BC
+Cassiar Mountains,chaîne des Cassiars,rw90,59.64223209,-130.1593437,585.4496,20065.3206,pyr,089400-092200,550359,089400-092200,BC. NT
+Teslin,Teslin,rw71,60.0318676,-132.6085846,451.1476,13562.7859,pyr,089500-092100,550360,089500-092100,BC. NT
+Atlin,Atlin,rw72,59.37723747,-133.8621573,395.3906,8956.8154,pyr,89600,550361,89600,BC
+Dawson,Dawson,rw41,63.85695577,-139.2607662,678.9824,27046.1143,pyr,91100,550362,91100,YT
+Mayo,Mayo,rw30,63.68877787,-135.8676156,550.1579,18889.7558,pyr,91200,550363,91200,YT
+Beaver Creek,Beaver Creek,rw42,62.41447229,-139.7323583,603.5807,21612.0355,pyr,91300,550364,91300,YT
+Pelly - Carmacks,Pelly - Carmacks,rw50,62.34577662,-136.2751719,674.0417,28548.6768,pyr,91400,550365,91400,YT
+Kluane Lake,lac Klouane,rw60,61.27161327,-138.899272,564.9167,17682.2099,pyr,91500,550366,91500,YT
+Haines Junction,Haines Junction,rw61,60.79702056,-137.0821275,548.3147,17955.0365,pyr,91600,550367,91600,YT
+Whitehorse,Whitehorse,rw70,60.67220591,-134.8890024,561.0869,20392.7442,pyr,91700,550368,91700,YT
+Faro - Ross River,Faro - Ross River,rw51,61.91169524,-132.4116643,720.7933,25228.1165,pyr,92400,550369,92400,YT
+Dempster,Dempster,rw20,65.8165117,-137.5269503,811.2668,16510.6228,pyr,93100,550370,93100,YT
+Old Crow,Old Crow,rw10,67.67473837,-139.3837533,558.3452,19445.7366,pyr,93200,550371,93200,YT
+Ft. Liard Region including Nahanni Butte - Trout Lake,région de Ft. Liard incluant Nahanni Butte - Trout Lake,r54,60.83603752,-122.4788354,698.8567,28917.4412,pnr,94200,550372,94200,NT
+Ft. Simpson Region including Jean Marie River,région de Ft. Simpson incluant Jean Marie River,r53,61.77980584,-120.9864326,648.1056,21199.7278,pnr,94300,550373,94300,NT
+Wrigley Region,région de Wrigley,r715,63.33641573,-123.8177809,656.4533,20544.1847,pnr,94400,550374,94400,NT
+Norman Wells - Tulita Region,région de Norman Wells - Tulita,r61,65.06083351,-126.3664323,597.6346,17852.8371,pnr,94500,550375,94500,NT
+Fort Good Hope Region,région de Fort Good Hope,r706,66.20238455,-128.9260249,401.4441,9630.9045,pnr,94600,550376,94600,NT
+Deline,Deline,r714,65.19572853,-123.4154322,141.7227,1570.0296,pnr,94710,550377,94710,NT
+Colville Lake,Colville Lake,r708,67.0264321,-126.1168688,149.5367,1774.8458,pnr,94720,550378,94720,NT
+Ft. Providence Region including Kakisa - Chan Lake,région de Ft. Providence incluant Kakisa - lac Chan,r720,61.68051222,-116.7285697,842.6714,37550.7816,pnr,95200,550379,95200,NT
+Yellowknife Region,région de Yellowknife,r55,62.5320806,-114.2343878,317.9297,4899.6056,pnr,95310,550380,95310,NT
+North Slave Region including Wekweeti - Whati - Behchoko,région de Slave nord incluant Wekweeti - Whati - Behchoko,r51,63.63813007,-115.6287878,821.4858,43138.217,pnr,95320,550381,95320,NT
+Hay River Region including Enterprise,région de Hay River incluant Enterprise,r521,60.5320221,-115.8592876,497.8242,14178.1042,pnr,95400,550382,95400,NT
+Thebacha Region including Ft. Smith - Salt River Reserve,région de Thebacha incl. Ft. Smith - réserve de Salt River,r522,60.61531705,-111.8984872,764.0716,25011.0676,pnr,95500,550383,95500,NT
+Ft. Resolution Region including Hwy. 6,région de Fort Resolution incluant la rte 6,r730,61.1626804,-113.4228048,518.0429,16700.7038,pnr,95600,550384,95600,NT
+Lutsel K'e Region,région de Lutsel K'e,r729,61.93842251,-111.2820552,379.7242,7677.2298,pnr,95700,550385,95700,NT
+Sachs Harbour,Sachs Harbour,r17,71.96266609,-125.3600341,194.9829,2458.2651,pnr,96210,550386,96210,NT
+Ulukhaktok,Ulukhaktok,r18,70.78222391,-117.697969,153.9105,1446.4358,pnr,96310,550387,96310,NT
+Paulatuk,Paulatuk,r16,69.34981011,-124.0844524,147.6752,1687.739,pnr,96420,550388,96420,NT
+Tuktoyaktuk - East Channel Region,région de Tuktoyaktuk - East Channel,r63,69.16056202,-133.8181636,458.4653,9443.4419,pnr,96520,550389,96520,NT
+Aklavik Region,région d'Aklavik,r701,68.26811779,-135.3696203,351.4682,7300.8582,pnr,96530,550390,96530,NT
+Inuvik Region,région d'Inuvik,r62,68.23027802,-133.6833277,286.3953,4503.3045,pnr,96540,550391,96540,NT
+South Delta Region including Ft. McPherson - Tsiigehtchic,région du delta sud incluant Ft. McPherson - Tsiigehtchic,r703,67.43704831,-134.6298108,466.4831,12322.7688,pnr,96550,550392,96550,NT
+Cambridge Bay,Cambridge Bay,r65,69.12010685,-105.1004834,159.023,1837.152,pnr,97110,550393,97110,NU
+Kugluktuk,Kugluktuk,r64,67.83253179,-115.1106203,154.6425,1811.2606,pnr,97210,550394,97210,NU
+Taloyoak,Taloyoak,r22,69.56342851,-93.57375279,170.0838,1580.3645,pnr,97310,550395,97310,NU
+Gjoa Haven,Gjoa Haven,r21,68.61040025,-95.84611002,166.4366,1934.4409,pnr,97410,550396,97410,NU
+Kugaaruk,Kugaaruk,r23,68.53066227,-89.69910685,136.6592,1341.6237,pnr,97420,550397,97420,NU
+Baker Lake,Baker Lake,r71,64.30068549,-96.04265881,144.1941,1634.1897,pnr,97510,550398,97510,NU
+Arviat,Arviat,r76,61.09919501,-94.13974626,138.13,1297.7137,pnr,97610,550399,97610,NU
+Rankin Region including Whale Cove,région de Rankin incluant Whale Cove,r739,62.48096382,-92.25246359,437.5613,11383.5492,pnr,97620,550400,97620,NU
+Chesterfield Inlet,Chesterfield Inlet,r72,63.3516776,-90.82288026,141.6483,1458.7501,pnr,97630,550401,97630,NU
+Hall Beach,Hall Beach,r74,68.75769414,-81.38832999,127.5009,1097.4466,pnr,97710,550402,97710,NU
+Igloolik,Igloolik,r746,69.36919239,-81.90051241,147.688,1598.2457,pnr,97720,550403,97720,NU
+Repulse Bay,Repulse Bay,r75,66.51710209,-86.19883597,159.3395,1725.8894,pnr,97730,550404,97730,NU
+Coral Harbour,Coral Harbour,r73,64.18614095,-83.37000578,154.6557,1749.7359,pnr,97810,550405,97810,NU
+Sanikiluaq,Sanikiluaq,r75.12,56.22037785,-79.42800585,594.2468,21419.049,que,97910,550406,97910,NU
+Arctic Bay,Arctic Bay,r750,73.0259884,-85.0737704,150.3152,1543.0246,pnr,98110,550407,98110,NU
+Pond Inlet,Pond Inlet,r92,72.64548326,-77.87306668,134.2516,1249.8881,pnr,98120,550408,98120,NU
+Clyde River,Clyde River,r83,70.48029622,-68.60621815,150.977,1532.3666,pnr,98130,550409,98130,NU
+Qikiqtarjuaq,Qikiqtarjuaq,r49,67.53939559,-64.11207458,138.561,1358.1649,pnr,98210,550410,98210,NU
+Pangnirtung,Pangnirtung,r84,66.14211532,-65.69078784,146.8247,1652.4337,pnr,98220,550411,98220,NU
+Iqaluit,Iqaluit,r81,63.75930427,-68.55139679,142.7724,1570.9436,pnr,98230,550412,98230,NU
+Kimmirut,Kimmirut,r85,62.81922376,-69.86392774,179.5006,1803.5085,pnr,98240,550413,98240,NU
+Cape Dorset,Cape Dorset,r82,64.2509013,-76.54630277,148.8115,1494.8247,pnr,98250,550414,98250,NU
+Resolute,Resolute,r91,74.60022959,-95.01269979,215.4769,3208.2894,pnr,99110,550415,99110,NU
+Grise Fiord,Grise Fiord,r43,76.4480659,-82.92727218,163.2504,1744.223,pnr,99210,550416,99210,NU
