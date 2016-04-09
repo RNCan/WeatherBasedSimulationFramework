@@ -1,0 +1,995 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include <SDKDDKVer.h>
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\DailyEditor.ico"
+IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
+IDI_CHART_WND           ICON                    "res\\charts_wnd.ico"
+IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+IDI_OPTION              ICON                    "res\\Option.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
+IDR_MAINFRAME_TOOLBAR   BITMAP                  "res\\MainFrameToolbar.bmp"
+IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
+IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
+IDR_STATIONSLIST_TOOLBAR BITMAP                  "res\\StationsListToolbar.bmp"
+IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MENU_IMAGES TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    BUTTON      ID_FILE_SAVE_AS
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_OPTIONS
+    BUTTON      ID_VALIDATION
+    BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_TABLE_MODE_VISUALISATION
+    BUTTON      ID_TABLE_MODE_EDITION
+    BUTTON      ID_TABLE_SAVE
+    BUTTON      ID_TABLE_SENDTO_EXCEL
+    BUTTON      ID_TABLE_PERIOD_ENABLED
+    BUTTON      ID_TABLE_PERIOD_BEGIN
+    BUTTON      ID_TABLE_PERIOD_END
+    BUTTON      ID_TABLE_FILTER
+    BUTTON      ID_TABLE_STAT
+    BUTTON      ID_TABLE_TM_TYPE
+    SEPARATOR
+    BUTTON      ID_GRAPH_COPY
+    BUTTON      ID_GRAPH_SAVE
+    BUTTON      ID_GRAPH_OPTIONS
+    BUTTON      ID_GRAPH_ZOOM
+    BUTTON      ID_GRAPH_PERIOD_ENABLED
+    BUTTON      ID_GRAPH_PERIOD_BEGIN
+    BUTTON      ID_GRAPH_PERIOD_END
+    BUTTON      ID_GRAPH_FILTER
+    BUTTON      ID_GRAPH_STAT
+    BUTTON      ID_GRAPH_TM_TYPE
+    SEPARATOR
+    BUTTON      ID_ADD_WEATHER_STATION
+    BUTTON      ID_SENDTO_SHOWMAP
+    BUTTON      ID_SENDTO_EXCEL
+    BUTTON      ID_STATION_LIST_YEAR
+    BUTTON      ID_STATION_LIST_FILTER
+    BUTTON      ID_FLAG_FRENCH
+    BUTTON      ID_FLAG_ENGLISH
+END
+
+IDR_MAINFRAME_TOOLBAR TOOLBAR 32, 32
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_OPTIONS
+    BUTTON      ID_VALIDATION
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_TABLE_TOOLBAR TOOLBAR 24, 24
+BEGIN
+    BUTTON      ID_TABLE_MODE_VISUALISATION
+    BUTTON      ID_TABLE_MODE_EDITION
+    BUTTON      ID_TABLE_SAVE
+    BUTTON      ID_TABLE_SENDTO_EXCEL
+	SEPARATOR
+    BUTTON      ID_TABLE_PERIOD_ENABLED
+    BUTTON      ID_TABLE_PERIOD_BEGIN
+    BUTTON      ID_TABLE_PERIOD_END
+    BUTTON      ID_TABLE_FILTER
+    BUTTON      ID_TABLE_STAT
+    BUTTON      ID_TABLE_TM_TYPE
+END
+
+IDR_GRAPH_TOOLBAR TOOLBAR 24, 24
+BEGIN
+    BUTTON      ID_GRAPH_COPY
+    BUTTON      ID_GRAPH_SAVE
+    BUTTON      ID_GRAPH_OPTIONS
+    BUTTON      ID_GRAPH_ZOOM
+	SEPARATOR
+    BUTTON      ID_GRAPH_PERIOD_ENABLED
+    BUTTON      ID_GRAPH_PERIOD_BEGIN
+    BUTTON      ID_GRAPH_PERIOD_END
+    BUTTON      ID_GRAPH_FILTER
+    BUTTON      ID_GRAPH_STAT
+    BUTTON      ID_GRAPH_TM_TYPE
+END
+
+IDR_STATIONSLIST_TOOLBAR TOOLBAR 24, 24
+BEGIN
+    BUTTON      ID_ADD_WEATHER_STATION
+    SEPARATOR
+    BUTTON      ID_SENDTO_SHOWMAP
+    BUTTON      ID_SENDTO_EXCEL
+    SEPARATOR
+    BUTTON      ID_STATION_LIST_YEAR
+    BUTTON      ID_STATION_LIST_FILTER
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 4,0,4,20
+ PRODUCTVERSION 4,0,4,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "0c0c04b0"
+        BEGIN
+            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
+            VALUE "FileVersion", "4.0.4.20"
+            VALUE "InternalName", "DailyEditor.exe"
+            VALUE "OriginalFilename", "DailyEditor.exe"
+            VALUE "ProductName", "EditeurQuotidien"
+            VALUE "ProductVersion", "4.0.4.0"
+        END
+        BLOCK "100904b0"
+        BEGIN
+            VALUE "CompanyName", "Laurentian Forestry Center"
+            VALUE "FileDescription", "Daily Weather Editor"
+            VALUE "FileVersion", "4.0.4.20"
+            VALUE "InternalName", "DailyEditor.exe"
+            VALUE "OriginalFilename", "DailyEditor.exe"
+            VALUE "ProductName", "DailyEditor"
+            VALUE "ProductVersion", "4.0.4.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0xc0c, 1200, 0x1009, 1200
+    END
+END
+
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&Fichier"
+    BEGIN
+        MENUITEM "&Nouveau\tCtrl+N",            ID_FILE_NEW
+        MENUITEM "&Ouvrir...\tCtrl+O",          ID_FILE_OPEN
+        MENUITEM "&Enregistrer\tCtrl+S",        ID_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Fichier récent",              ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Quitter",                    ID_APP_EXIT
+    END
+    POPUP "&Edition"
+    BEGIN
+        MENUITEM "&Mode visualisation\tCtrl+L", ID_TABLE_MODE_VISUALISATION
+        MENUITEM "Mode éditabl&e\tCtrl+E",      ID_TABLE_MODE_EDITION
+        MENUITEM SEPARATOR
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM "Co&ller\tCtrl+V",             ID_EDIT_PASTE
+    END
+    POPUP "&Affichage"
+    BEGIN
+        POPUP "&Barres d'outils et fenêtres d'ancrage"
+        BEGIN
+            MENUITEM "<espace réservé>",            ID_VIEW_TOOLBAR
+        END
+        POPUP "Aspe&ct de l'application"
+        BEGIN
+            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio 200&5",         ID_VIEW_APPLOOK_VS_2005
+            MENUITEM "Visual Studio 200&8",         ID_VIEW_APPLOOK_VS_2008
+            POPUP "Office 200&7"
+            BEGIN
+                MENUITEM "Style &bleu",                 ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "Style &noir",                 ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "Style a&rgenté",              ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "Style cya&n",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+        MENUITEM SEPARATOR
+        POPUP "L&angue"
+        BEGIN
+            MENUITEM "&Français",                   ID_LANGUAGE_FRENCH
+            MENUITEM "&English",                    ID_LANGUAGE_ENGLISH
+        END
+        MENUITEM "&Options",                    ID_OPTIONS
+    END
+    POPUP "&Données"
+    BEGIN
+        MENUITEM "&Validation (à faire)",       ID_VALIDATION
+    END
+    POPUP "A&ide"
+    BEGIN
+        MENUITEM "À &propos de l'ÉditeurQuotidien...", ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_EDIT MENU
+BEGIN
+    POPUP "Edition"
+    BEGIN
+        MENUITEM "&Couper\tCtrl+X",             ID_EDIT_CUT
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM "Co&ller\tCtrl+V",             ID_EDIT_PASTE
+    END
+END
+
+IDR_POPUP_SORT MENU
+BEGIN
+    POPUP "Tri"
+    BEGIN
+        MENUITEM "Tr&ier par ordre alphabétique", ID_SORTING_SORTALPHABETIC
+        MENUITEM "Tri&er par type",             ID_SORTING_SORTBYTYPE
+        MENUITEM "Trier par a&ccès",            ID_SORTING_SORTBYACCESS
+        MENUITEM "&Grouper par type",           ID_SORTING_GROUPBYTYPE
+    END
+END
+
+IDR_POPUP_EXPLORER MENU
+BEGIN
+    POPUP "Explorateur"
+    BEGIN
+        MENUITEM "&Ouvrir",                     ID_OPEN
+        MENUITEM "Ou&vrir avec...",             ID_OPEN_WITH
+        MENUITEM SEPARATOR
+        MENUITEM "&Compiler",                   ID_DUMMY_COMPILE
+        MENUITEM SEPARATOR
+        MENUITEM "&Couper\tCtrl+X",             ID_EDIT_CUT
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM "Supp&rimer",                  ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "Pr&opriétés...",              ID_PROPERTIES
+    END
+END
+
+IDR_OUTPUT_POPUP MENU
+BEGIN
+    POPUP "Fenêtre contextuelle"
+    BEGIN
+        MENUITEM "&Copier",                     ID_EDIT_COPY
+        MENUITEM "Effa&cer",                    ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Masquer",                    ID_OUTPUT_WND
+    END
+END
+
+IDR_THEME_MENU MENU
+BEGIN
+    MENUITEM "Office 2007 (Style &bleu)",   ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (Style &noir)",   ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (Style a&rgenté)", ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (Style cya&n)",   ID_VIEW_APPLOOK_OFF_2007_AQUA
+    MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "E",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include <SDKDDKVer.h>\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""afxribbon.rc""        // ressources de barre de contrôles et de ruban MFC\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
+    "LANGUAGE 12, 1\r\n"
+    "#include ""res\\DailyEditor.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
+    "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
+    "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""l.FRA\\afxribbon.rc""        // ressources de barre de contrôles et de ruban MFC\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\r\n"
+    "#include ""WeatherBasedSimulationString.rc""\r\n"
+    "#include ""WeatherBasedSimulationUI.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "ÉditeurQuotidien\n\nDailyEditor\nBase de données quotidiennes (*.DailyStations)\n.DailyStations\n\n"
+    IDS_OPTION_CAPTION      "Options"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "ÉditeurQuotidien"
+    AFX_IDS_IDLEMESSAGE     "Prêt"
+END
+
+STRINGTABLE
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Crée une nouvelle base de données\nNouveau"
+    ID_FILE_OPEN            "Ouvre une base de données existant\nOuvrir"
+    ID_FILE_CLOSE           "Ferme la base de données actif\nFermer"
+    ID_FILE_SAVE            "Enregistre la base de données actif\nEnregistrer"
+    ID_FILE_SAVE_AS         "Enregistre la base de données actif sous un nouveau nom\nEnregistrer sous"
+    ID_FILE_PAGE_SETUP      "Modifie les options d'impression\nMise en page"
+    ID_FILE_PRINT_SETUP     "Modifie les options d'impression et celles de l'imprimante\nConfiguration de l'impression"
+    ID_FILE_PRINT           "Imprime le document actif\nImprimer"
+    ID_FILE_PRINT_DIRECT    "Imprimer le document actif à l'aide des options actuelles\nImprimer rapidement"
+    ID_FILE_PRINT_PREVIEW   "Affiche les pages entières\nAperçu avant impression"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TABLE_MODE_VISUALISATION 
+                            "Bascule en mode visualisation pour terminer l'édition des données météorologiques\nMode visualisation"
+    ID_TABLE_MODE_EDITION   "Bascule en mode édition pour permettre la modification les données météorologiques\nMode édition"
+    ID_TABLE_SAVE           "Sauvegarde les données météorologiques sans changer de mode\nSauvegarder données"
+    ID_TABLE_SENDTO_EXCEL   "Permet d'envoyer les données de la station dans Excel\nEnvoyer vers Excel"
+    ID_TABLE_PERIOD_ENABLED "Activer/désactiver une periode définie par l'usager\nPeriode"
+    ID_TABLE_PERIOD_BEGIN   "Début de la periode définie par l'usager\nDébut"
+    ID_TABLE_PERIOD_END     "Fin de la periode définie par l'usager\nFin"
+    ID_TABLE_FILTER         "Afficher uniquement les variables sélectionnés\nFiltrer par variables"
+    ID_TABLE_STAT           "Statistique afficher dans le tableau\nStatistique"
+    ID_TABLE_TM_TYPE        "Type d'espace temporelle\nType temporelle"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VALIDATION           "Faire la validation de la base de données météoroliques\nValider"
+    ID_OPTIONS              "Afficher les options de l'application\nOptions"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Affiche des informations sur le programme, le numéro de version et le copyright\nÀ propos de"
+    ID_APP_EXIT             "Quitte l'application et demande si la base de données quotidiennes doit être enregistrée\nQuitter"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Ouvre ce document"
+    ID_FILE_MRU_FILE2       "Ouvre ce document"
+    ID_FILE_MRU_FILE3       "Ouvre ce document"
+    ID_FILE_MRU_FILE4       "Ouvre ce document"
+    ID_FILE_MRU_FILE5       "Ouvre ce document"
+    ID_FILE_MRU_FILE6       "Ouvre ce document"
+    ID_FILE_MRU_FILE7       "Ouvre ce document"
+    ID_FILE_MRU_FILE8       "Ouvre ce document"
+    ID_FILE_MRU_FILE9       "Ouvre ce document"
+    ID_FILE_MRU_FILE10      "Ouvre ce document"
+    ID_FILE_MRU_FILE11      "Ouvre ce document"
+    ID_FILE_MRU_FILE12      "Ouvre ce document"
+    ID_FILE_MRU_FILE13      "Ouvre ce document"
+    ID_FILE_MRU_FILE14      "Ouvre ce document"
+    ID_FILE_MRU_FILE15      "Ouvre ce document"
+    ID_FILE_MRU_FILE16      "Ouvre ce document"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Bascule vers le volet de fenêtre suivant\nVolet suivant"
+    ID_PREV_PANE            "Bascule vers le volet de fenêtre précédent\nVolet précédent"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_SPLIT         "Fractionne la fenêtre active en volets\nFractionner"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Efface la sélection\nEffacer"
+    ID_EDIT_CLEAR_ALL       "Efface tout\nEffacer tout"
+    ID_EDIT_COPY            "Copie la sélection et la place dans le Presse-papiers\nCopier"
+    ID_EDIT_CUT             "Coupe la sélection et la place dans le Presse-papiers\nCouper"
+    ID_EDIT_FIND            "Recherche le texte spécifié\nRechercher"
+    ID_EDIT_PASTE           "Insère le contenu du presse-papiers\nColler"
+    ID_EDIT_REPEAT          "Répète la dernière action\nRépéter"
+    ID_EDIT_REPLACE         "Remplace un texte spécifié par un texte différent\nRemplacer"
+    ID_EDIT_SELECT_ALL      "Sélectionne l'intégralité du document\nSélectionner tout"
+    ID_EDIT_UNDO            "Annule la dernière action\nAnnuler"
+    ID_EDIT_REDO            "Rétablit l'action précédemment annulée\nRétablir"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_STATUS_BAR      "Affiche ou masque la barre d'état\nBarre d'état"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Modifie la taille de la fenêtre"
+    AFX_IDS_SCMOVE          "Modifie la position de la fenêtre"
+    AFX_IDS_SCMINIMIZE      "Réduit la fenêtre en icône"
+    AFX_IDS_SCMAXIMIZE      "Affiche la fenêtre en plein écran"
+    AFX_IDS_SCNEXTWINDOW    "Bascule vers la fenêtre de document suivante"
+    AFX_IDS_SCPREVWINDOW    "Bascule vers la fenêtre de document précédente"
+    AFX_IDS_SCCLOSE         "Ferme la fenêtre active et demande si les documents doivent être enregistrés"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restaure la fenêtre à sa taille normale"
+    AFX_IDS_SCTASKLIST      "Active la liste des tâches"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Fermer"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TOOLBAR_STANDARD    "Standard"
+	IDS_TOOLBAR_STATUS      "Status Bar"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SPREADSHEET_WND     "Tableur"
+    IDS_CHART_WND           "Graphiques"
+    IDS_OUTPUT_WND          "Sortie de validation"
+    IDS_PROPERTIES_WND      "Propriétés"
+    IDS_STATION_LIST_WND    "Liste des stations"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EDIT_MENU           "Edition"
+	IDS_INDICATOR_NB_STATION      "Stations = "
+    IDS_PROPERTIES_LOCATION_HEADER 
+                            "Localisation|Informations spécifique au site"
+    IDS_SAVE_DATA           "Savegarder les données\nSavegarder"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_WEATHER_STATION  "Ajouter une nouvelle station météorologique\nAjouter"
+    ID_SENDTO_SHOWMAP       "Envoyer la liste actuelle de localisation des stations météorologiques dans ShowMap\nEnvoyer vers ShowMap"
+    ID_SENDTO_EXCEL         "Envoyer la liste actuelle de localisation des stations météorologiques dans Excel\nEnvoyer vers Excel"
+    ID_STATION_LIST_YEAR    "Afficher uniquement les stations météorologiques qui contiennent toutes les années sélectionnés\nFiltrer par années"
+    ID_STATION_LIST_FILTER  "Afficher uniquement les stations météorologiques qui contiennent toutes les varaibles sélectionnés\nFiltrer par variables"
+END
+
+STRINGTABLE
+BEGIN
+    ID_GRAPH_COPY           "Copie les graphiques et dans le Presse-papiers\nCopier graphiques"
+    ID_GRAPH_SAVE           "Exporter les graphiques dans un fichier\nExporter graphiques"
+    ID_GRAPH_OPTIONS        "Permet de définir les variables climatiques et les différentes options graphiques\nDéfinir options graphiques"
+END
+
+STRINGTABLE
+BEGIN
+    ID_GRAPH_ZOOM           "Ajuster la largeur de la zone graphique\nZoom"
+    ID_GRAPH_PERIOD_ENABLED "Activer/désactiver une periode définie par l'usager\nPeriode"
+    ID_GRAPH_PERIOD_BEGIN   "Début de la periode définie par l'usager\nDébut"
+    ID_GRAPH_PERIOD_END     "Fin de la periode définie par l'usager\nFin"
+    ID_GRAPH_FILTER         "Afficher uniquement les graphiques contenant les variables sélectionnées\nFiltrer par variables"
+    ID_GRAPH_STAT           "Statistique afficher dans le tableau\nStatistique"
+    ID_GRAPH_TM_TYPE        "Type d'espace temporelle\nType temporelle"
+END
+
+#endif    // French (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Weather station data in &visualisation mode\tCtrl+R", ID_TABLE_MODE_VISUALISATION
+        MENUITEM "Weather station data in &edition mode\tCtrl+E", ID_TABLE_MODE_EDITION
+        MENUITEM SEPARATOR
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        POPUP "&Application Look"
+        BEGIN
+            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio 200&5",         ID_VIEW_APPLOOK_VS_2005
+            MENUITEM "Visual Studio 200&8",         ID_VIEW_APPLOOK_VS_2008
+            POPUP "Office 200&7"
+            BEGIN
+                MENUITEM "&Blue Style",                 ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "B&lack Style",                ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "&Silver Style",               ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "&Aqua Style",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+        MENUITEM SEPARATOR
+        POPUP "L&anguage"
+        BEGIN
+            MENUITEM "&Français",                   ID_LANGUAGE_FRENCH
+            MENUITEM "&English",                    ID_LANGUAGE_ENGLISH
+        END
+        MENUITEM "&Options",                    ID_OPTIONS
+    END
+    POPUP "&Data"
+    BEGIN
+        MENUITEM "&Validation (todo)",          ID_VALIDATION
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About DailyEditor...",       ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_EDIT MENU
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+END
+
+IDR_POPUP_SORT MENU
+BEGIN
+    POPUP "Sorting"
+    BEGIN
+        MENUITEM "&Sort Alphabetically",        ID_SORTING_SORTALPHABETIC
+        MENUITEM "Sort by &Type",               ID_SORTING_SORTBYTYPE
+        MENUITEM "Sort by Acc&ess",             ID_SORTING_SORTBYACCESS
+        MENUITEM "Group by t&ype",              ID_SORTING_GROUPBYTYPE
+    END
+END
+
+IDR_POPUP_EXPLORER MENU
+BEGIN
+    POPUP "Explorer"
+    BEGIN
+        MENUITEM "&Open",                       ID_OPEN
+        MENUITEM "Open &With....",              ID_OPEN_WITH
+        MENUITEM SEPARATOR
+        MENUITEM "&Compile",                    ID_DUMMY_COMPILE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Remove",                     ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_PROPERTIES
+    END
+END
+
+IDR_OUTPUT_POPUP MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "&Clear",                      ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Hide",                       ID_OUTPUT_WND
+    END
+END
+
+IDR_THEME_MENU MENU
+BEGIN
+    MENUITEM "Office 2007 (&Blue Style)",   ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (B&lack Style)",  ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (&Silver Style)", ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (&Aqua Style)",   ID_VIEW_APPLOOK_OFF_2007_AQUA
+    MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "DailyEditor\n\nDailyEditor\nDaily Database (*.DailyStations)\n.DailyStations\n\n"
+    IDS_OPTION_CAPTION      "Options"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "DailyEditor"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Create a new database\nNew"
+    ID_FILE_OPEN            "Open an existing database\nOpen"
+    ID_FILE_CLOSE           "Close the active database\nClose"
+    ID_FILE_SAVE            "Save the active database\nSave"
+    ID_FILE_SAVE_AS         "Save the active database with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_DIRECT    "Print the active document using current options\nQuick Print"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TABLE_MODE_VISUALISATION 
+                            "Switch to visualisation mode and stop weather data edition\nVisualisation Mode"
+    ID_TABLE_MODE_EDITION   "Switch to edit mode and let weather data modification\nEdit Mode"
+    ID_TABLE_SAVE           "Save weather data\nSave Weather Data"
+    ID_TABLE_SENDTO_EXCEL   "Send weather data to Excel\nSend To Excel"
+    ID_TABLE_PERIOD_ENABLED "Used/unused user define period\nPeriod"
+    ID_TABLE_PERIOD_BEGIN   "User define period begin\nBegin"
+    ID_TABLE_PERIOD_END     "User define period end\nEnd"
+    ID_TABLE_FILTER         "Show only selected variables\nVariables Filter"
+    ID_TABLE_STAT           "Statistic shown\nStatistic"
+    ID_TABLE_TM_TYPE        "Temporal space type\nTemporal Type"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VALIDATION           "Extract information and do weather database validation\nValidation"
+    ID_OPTIONS              "Show application options\nOptions"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle Status Bar"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TOOLBAR_STANDARD    "Standard"
+	IDS_TOOLBAR_STATUS		"Barre d'état"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SPREADSHEET_WND     "Spreadsheet"
+    IDS_CHART_WND           "Graphics"
+    IDS_OUTPUT_WND          "Output"
+    IDS_PROPERTIES_WND      "Properties"
+    IDS_STATION_LIST_WND    "Stations list"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EDIT_MENU           "Edition"
+	IDS_INDICATOR_NB_STATION      "Stations = "
+    IDS_PROPERTIES_LOCATION_HEADER "Location|Site Specific Informations"
+    IDS_SAVE_DATA           "Save data"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADD_WEATHER_STATION  "Add a new weather station\nAdd"
+    ID_SENDTO_SHOWMAP       "Send the actual locations list to ShowMap\nSend To ShowMap"
+    ID_SENDTO_EXCEL         "Send the locations list to Excel\nSend To Excel"
+    ID_STATION_LIST_YEAR    "Show only weather stations that contain all selected years\nYears Filter"
+    ID_STATION_LIST_FILTER  "Show only weather stations that contain all selected variables\nVariables Filter"
+END
+
+STRINGTABLE
+BEGIN
+    ID_GRAPH_COPY           "Copy graphics image to the clipboard\nCopy Graphics"
+    ID_GRAPH_SAVE           "Export graphics to file\nExport Graphics"
+    ID_GRAPH_OPTIONS        "Use to define climatic variables and many graphics options\nDefine Graphics Options"
+END
+
+STRINGTABLE
+BEGIN
+    ID_GRAPH_ZOOM           "Adjust graphics width\nZoom"
+    ID_GRAPH_PERIOD_ENABLED "Used/unused user define period\nPeriod"
+    ID_GRAPH_PERIOD_BEGIN   "User define period begin\nBegin"
+    ID_GRAPH_PERIOD_END     "User define period end\nEnd"
+    ID_GRAPH_FILTER         "Show only plots containing selected variables\nVariables Filter"
+    ID_GRAPH_STAT           "Statistic shown\nStatistic"
+    ID_GRAPH_TM_TYPE        "Temporal space type\nTemporal Type"
+END
+
+#endif    // English (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"    // ressources impression/aperçu avant impression
+#if !defined(_AFXDLL)
+#include "afxribbon.rc"        // ressources de barre de contrôles et de ruban MFC
+#endif
+#endif
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+LANGUAGE 12, 1
+#include "res\DailyEditor.rc2"  // ressources non modifiées par Microsoft Visual C++
+#include "l.FRA\afxres.rc"      // Composants standard
+#include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
+#if !defined(_AFXDLL)
+#include "l.FRA\afxribbon.rc"        // ressources de barre de contrôles et de ruban MFC
+#endif
+#endif
+
+#include "WeatherBasedSimulationString.rc"
+#include "WeatherBasedSimulationUI.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
