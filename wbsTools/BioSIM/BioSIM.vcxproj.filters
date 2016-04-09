@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BioSIM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BioSIMDoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BioSIMOptionDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionBioSIM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertiesWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManagerWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExportWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultGraphWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultDataWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BioSIM.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BioSIMDoc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BioSIMOptionDlg.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionBioSIM.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertiesWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultCtrl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManagerWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExportWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultGraphWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultDataWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectView.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\BioSIM10.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\project_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\BioSIMDoc.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\output_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\validation_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\properties_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Export.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Graph.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Option.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\R.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\MainToolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ProjectToolbar1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ProjectToolbar2.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ProjectElement.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\MenuImages.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ExportToolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\GraphToolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\OptionIcon.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\MainView.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Logo.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ResultToolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BioSIM.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Resource.h">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\MainFrameToolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ProjectToolbar1 24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ProjectToolbar2 24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\TabView.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\BioSIM.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\spreadsheet_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\charts_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Export_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\BioSIM.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\_BioSIM.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Logo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\OptionIcon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ExportToolbar2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\MenuImages.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ExportToolbar1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ExportToolbar2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ResultToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
