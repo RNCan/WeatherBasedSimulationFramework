@@ -83,8 +83,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
     <OutDir>$(Configuration)$(Platform)\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSdk_IncludePath);</IncludePath>
-    <ExecutablePath>D:\project\External\VisualLeakDetector\bin\Win64;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -249,13 +249,13 @@
     <ClCompile Include="MFCPropertyGridDateTimeProperty.cpp" />
     <ClCompile Include="ParametersWnd.cpp" />
     <ClCompile Include="ProjectView.cpp" />
-    <ClCompile Include="TaskTreeCtrl.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Tasks\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TaskTreeCtrl.cpp" />
     <ClCompile Include="WeatherUpdater.cpp" />
     <ClCompile Include="WeatherUpdaterCmdLine.cpp" />
     <ClCompile Include="WeatherUpdaterDoc.cpp" />
@@ -268,7 +268,7 @@
     <ClInclude Include="ParametersWnd.h" />
     <ClInclude Include="ProjectView.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Tasks\stdafx.h" />
     <ClInclude Include="TaskTreeCtrl.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="WeatherUpdater.h" />

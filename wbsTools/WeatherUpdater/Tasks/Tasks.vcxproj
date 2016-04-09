@@ -160,6 +160,7 @@
     <ClInclude Include="CreateGribsDB.h" />
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACISDaily.h" />
     <ClInclude Include="UIACISHourly.h" />
     <ClInclude Include="UICIPRA.h" />
@@ -173,7 +174,6 @@
     <ClInclude Include="MergeWeather.h" />
     <ClInclude Include="ProvinceSelection.h" />
     <ClInclude Include="StateSelection.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaskBase.h" />
     <ClInclude Include="TaskFactory.h" />
@@ -199,6 +199,12 @@
     <ClCompile Include="CreateGribsDB.cpp" />
     <ClCompile Include="CreateHourlyDB.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="UIACISDaily.cpp" />
     <ClCompile Include="UIACISHourly.cpp" />
     <ClCompile Include="UICIPRA.cpp" />
@@ -212,12 +218,6 @@
     <ClCompile Include="MergeWeather.cpp" />
     <ClCompile Include="ProvinceSelection.cpp" />
     <ClCompile Include="StateSelection.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="TaskBase.cpp" />
     <ClCompile Include="TaskFactory.cpp" />
     <ClCompile Include="UIEnvCanDaily.cpp" />

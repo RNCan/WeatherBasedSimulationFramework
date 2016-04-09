@@ -275,9 +275,8 @@ namespace WBSF
 		//callback.AddTask(m_selection.count());
 
 
-		msg = CHourlyDatabase().DeleteDatabase(GetDatabaseFilePath(), callback);
-		if (!msg)
-			return msg;
+		CHourlyDatabase().DeleteDatabase(GetDatabaseFilePath(), callback);
+		
 
 		//open a connection on the server
 		CInternetSessionPtr pSession;
@@ -289,81 +288,83 @@ namespace WBSF
 		if (msg)
 			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
 
-		if (!msg)
-			return msg;
-
-		int nbDownload = 0;
-		CWeatherStationVector stations;
-
-		
-		for (size_t i = 0; i < m_selection.size() && msg; i++)
-		{
-			if (m_selection.any() && !m_selection[i])
-				continue;
-
-			string region = m_selection.GetName((int)i, true);
-			string URL = SERVER_PATH + region + "/cmml/";
-			string outputPath = workingDir + region + "/";
-
-			StringVector filesList = GetFilesList(outputPath + "TRANSMIT.*.xml");
-			for (StringVector::const_iterator it = filesList.begin(); it != filesList.end(); it++)
-				msg += RemoveFile(*it);
-
-			//Load files list
-			CFileInfoVector fileList;
-			UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
-			ClearList(fileList);
-			callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
-
-			//Download files
-			callback.PushTask(region, fileList.size());
-			//callback.SetNbStep(fileList.size());
-			CreateMultipleDir(outputPath);
-
-			for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
-			{
-				string fileName = GetFileName(it->m_filePath);
-				string ID = fileName.substr(0, 8);
-				string outputFilePath = outputPath + fileName;
-
-				msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-				if (msg)
-				{
-					ASSERT(FileExists(outputFilePath));
-					nbDownload++;
-					msg = ReadData(outputFilePath, stations, callback);
-				}
-
-				msg += callback.StepIt();
-			}
-			
-			callback.PopTask();
-			msg += callback.StepIt();
-
-		}//for all province
-
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
-
-		pConnection->Close();
-		pSession->Close();
-		callback.PopTask();
-
 		if (msg)
 		{
 
-			//Create only one database for all forecast
-			CHourlyDatabase DB;
-			msg = DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeWrite, callback);
+			int nbDownload = 0;
+			CWeatherStationVector stations;
+
+
+			for (size_t i = 0; i < m_selection.size() && msg; i++)
+			{
+				if (m_selection.any() && !m_selection[i])
+					continue;
+
+				string region = m_selection.GetName((int)i, true);
+				string URL = SERVER_PATH + region + "/cmml/";
+				string outputPath = workingDir + region + "/";
+
+				StringVector filesList = GetFilesList(outputPath + "TRANSMIT.*.xml");
+				for (StringVector::const_iterator it = filesList.begin(); it != filesList.end(); it++)
+					msg += RemoveFile(*it);
+
+				//Load files list
+				CFileInfoVector fileList;
+				UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
+				ClearList(fileList);
+				callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
+
+				//Download files
+				callback.PushTask(region, fileList.size());
+				//callback.SetNbStep(fileList.size());
+				CreateMultipleDir(outputPath);
+
+				for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+				{
+					string fileName = GetFileName(it->m_filePath);
+					string ID = fileName.substr(0, 8);
+					string outputFilePath = outputPath + fileName;
+
+					msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+					if (msg)
+					{
+						ASSERT(FileExists(outputFilePath));
+						nbDownload++;
+						msg = ReadData(outputFilePath, stations, callback);
+					}
+
+					msg += callback.StepIt();
+				}
+
+				callback.PopTask();
+				msg += callback.StepIt();
+
+			}//for all province
+
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+
+			pConnection->Close();
+			pSession->Close();
+			callback.PopTask();
+
 			if (msg)
 			{
-				for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
-					DB.Add(*it);
 
-				msg = DB.Close();
+				//Create only one database for all forecast
+				CHourlyDatabase DB;
+				msg = DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeWrite, callback);
+				if (msg)
+				{
+					for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
+						DB.Add(*it);
+
+					msg = DB.Close();
+				}
+
 			}
-
 		}
 
+		callback.PopTask();
 		return msg;
 	}
 

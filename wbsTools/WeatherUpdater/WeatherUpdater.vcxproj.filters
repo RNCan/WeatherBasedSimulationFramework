@@ -15,9 +15,6 @@
     <ClCompile Include="OutputWnd.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="WeatherUpdater.cpp">
       <Filter>Files</Filter>
     </ClCompile>
@@ -42,6 +39,9 @@
     <ClCompile Include="MFCPropertyGridDateTimeProperty.cpp">
       <Filter>Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tasks\stdafx.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -51,9 +51,6 @@
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="Version.h">
@@ -81,6 +78,9 @@
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="MFCPropertyGridDateTimeProperty.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tasks\stdafx.h">
       <Filter>Files</Filter>
     </ClInclude>
   </ItemGroup>
