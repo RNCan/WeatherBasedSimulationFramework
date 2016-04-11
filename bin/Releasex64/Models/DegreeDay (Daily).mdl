@@ -140,8 +140,8 @@
     <OutputVariableArray>
         <OutputVariable>
             <Name>DD</Name>
-            <Title>DD (°C·d)</Title>
-            <Units/>
+            <Title>DD</Title>
+            <Units>°C·d</Units>
             <Description>Degree-day. See documentation.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>6</Precision>
