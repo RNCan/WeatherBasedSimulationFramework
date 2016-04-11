@@ -179,8 +179,6 @@ namespace WBSF
 					{
 						output[i][j] = input[i][j];
 					}
-
-
 				}
 			}
 		}
@@ -296,8 +294,6 @@ namespace WBSF
 
 		size_t nbRows = input.GetRows();
 		bool bContinue = true;
-		//double peakMin = -VMISS;
-		//double peakMax = VMISS;
 		CStatistic peakMin;
 		CStatistic peakMax;
 
@@ -330,7 +326,6 @@ namespace WBSF
 		}
 
 		//for all row
-
 		for (size_t i = 0; i < nbRows&&bContinue; i++)
 		{
 			bool bCluster_ij = p.GetCluster(input.GetTRef(i)) == c;
@@ -340,7 +335,7 @@ namespace WBSF
 			bool bCluster_nrowj = p.GetCluster(input.GetTRef(nbRows - i - 1)) == c;
 			bool bValid_nrowj = bCluster_nrowj && input[nbRows - i - 1][j][NB_VALUE] > 0;
 			CStatistic value_nrowj = (m_previousStatisticType >= 0) ? input[nbRows - i - 1][j][m_previousStatisticType] : input[nbRows - i - 1][j];
-			//double value_nrowj = input[nbRows-i-1][j][m_previousStatisticType];
+
 			//Extrac event
 			switch (m_eventType)
 			{
