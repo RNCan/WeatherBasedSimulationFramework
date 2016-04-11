@@ -576,6 +576,7 @@
 #define IDI_CMN_OPEN                    10230
 #define IDI_RNCAN64                     10231
 #define IDI_RNCAN48                     10232
+#define IDI_WEATHER_UPDATER				10233
 #define IDB_DBEDITOR                    10235
 #define IDB_SHAPE_TYPE16                10241
 #define IDB_SHAPE_TYPE32                10242
