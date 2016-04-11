@@ -316,7 +316,6 @@ namespace WBSF
 
 				//Download files
 				callback.PushTask(region, fileList.size());
-				//callback.SetNbStep(fileList.size());
 				CreateMultipleDir(outputPath);
 
 				for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
@@ -345,7 +344,6 @@ namespace WBSF
 
 			pConnection->Close();
 			pSession->Close();
-			callback.PopTask();
 
 			if (msg)
 			{

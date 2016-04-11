@@ -301,8 +301,12 @@ namespace WBSF
 		{
 			Lock();
 			//transfer message to parent
-			string messages = GetTasks().top().m_messages;
+			string messages;
+			if (!GetTasks().empty())
+				messages = GetTasks().top().m_messages;
+
 			GetTasks().pop();
+
 			if (!GetTasks().empty())
 				GetTasks().top().m_messages += messages;
 
