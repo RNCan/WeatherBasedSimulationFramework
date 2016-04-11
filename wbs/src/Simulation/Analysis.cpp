@@ -835,15 +835,13 @@ namespace WBSF
 	ERMsg CAnalysis::DoAnalysis(CResultPtr& result, CResult& analysisDB, CCallback& callback)
 	{
 		ERMsg msg;
-//		callback.PushLevel();
-
 
 		CDimension dimIn = result->GetDimension();
 		CDimension dimOut = GetOutputDimension(result);
 
 		callback.AddMessage(GetString(IDS_SIM_READ_FROM));
 		callback.AddMessage(result->GetFilePath(), 1);
-		callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
+		callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
 		callback.AddMessage(analysisDB.GetFilePath(), 1);
 		
 
@@ -878,14 +876,12 @@ namespace WBSF
 
 
 		//adjust input dimension to selection
-		dimIn[LOCATION] = locations.size();////m_window.m_bSelectLocation ? locations.size() : dimIn[LOCATION];
-		dimIn[PARAMETER] = parametersVariation.size();// m_window.m_bSelectParametersVariations ? parametersVariation.size() : dimIn[PARAMETER];
-		dimIn[VARIABLE] = variables.size();// m_window.m_bSelectVariable ? variables.size() : dimIn[VARIABLE];
-
-
+		dimIn[LOCATION] = locations.size();
+		dimIn[PARAMETER] = parametersVariation.size();
+		dimIn[VARIABLE] = variables.size();
 
 		callback.PushTask(GetString(IDS_SIM_DOANALYSE), dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
-		//callback.SetNbStep(dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
+
 
 		size_t test2 = locations.count();
 		//Compute statistics
@@ -951,9 +947,6 @@ namespace WBSF
 						{
 							size_t sectionNo = analysisDB.GetSectionNo(I, J, K);
 							analysisDB.SetSection(sectionNo, locationStat[J][K]);
-
-							//reset statistics
-							//locationStat[J][K].Reset();
 						}
 					}
 				}

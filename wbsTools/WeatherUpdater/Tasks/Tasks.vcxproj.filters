@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="ConvertDB.h">
       <Filter>Source Files</Filter>
     </ClInclude>

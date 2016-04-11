@@ -174,7 +174,6 @@
     <ClInclude Include="MergeWeather.h" />
     <ClInclude Include="ProvinceSelection.h" />
     <ClInclude Include="StateSelection.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="TaskBase.h" />
     <ClInclude Include="TaskFactory.h" />
     <ClInclude Include="UIEnvCanDaily.h" />

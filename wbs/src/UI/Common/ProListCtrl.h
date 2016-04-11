@@ -17,9 +17,9 @@ public:
 	virtual ~CProListCtrl();
 
 	void InvalidateProgressCtrls();
-	int InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem);
+	int InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem, bool bFinite = true);
 	BOOL DeleteItem(int nItem);
-
+	void SetItemText(int i, const CString& text);
 	// Generated message map functions
 protected:
 	

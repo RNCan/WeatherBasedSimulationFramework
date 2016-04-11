@@ -14,4 +14,5 @@ void AFXAPI DDV_StringNotEmpty(CDataExchange* pDX, CString const& value);
 void AFXAPI DDV_TextFromBrowseCtrl(CDataExchange* pDX, int nIDC, CString& value);
 void AFXAPI DDX_Check(CDataExchange* pDX, int nIDC, bool& bValue);
 void AFXAPI DDX_Text(CDataExchange* pDX, int nIDC, std::string& value);
+void AFXAPI DDX_Text(CDataExchange* pDX, int nIDC, bool& bValue);
 

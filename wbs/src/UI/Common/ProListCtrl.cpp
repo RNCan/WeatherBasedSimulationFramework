@@ -63,9 +63,7 @@ void CProListCtrl::OnCustomDraw( NMHDR* pNMHDR, LRESULT* pResult )
 		rcSubItem.right = GetColumnWidth(0);
 		
 		CTextProgressCtrl* pCtrl = (CTextProgressCtrl*)this->GetItemData(nItem);
-		
-		
-		if (NULL == pCtrl)
+		if (NULL == pCtrl )
 		{
 			pCtrl = new CTextProgressCtrl;
 
@@ -82,6 +80,18 @@ void CProListCtrl::OnCustomDraw( NMHDR* pNMHDR, LRESULT* pResult )
 		*pResult = CDRF_SKIPDEFAULT;
 		return;
 	}
+}
+
+void CProListCtrl::SetItemText(int nItem, const CString& text)
+{
+	if (nItem < GetItemCount())
+	{
+		//CTextProgressCtrl* pCtrl = (CTextProgressCtrl*)this->GetItemData(nItem);
+		//if (pCtrl)
+		CListCtrl::SetItemText(nItem, 1, text);
+			//pCtrl->SetWindowText(text);
+	}
+	
 }
 
 void CProListCtrl::OnHScroll( UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -129,35 +139,33 @@ void CProListCtrl::InvalidateProgressCtrls()
 	InvalidateRect(rc);
 }
 
-int CProListCtrl::InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem)
+int CProListCtrl::InsertItem(_In_ int nItem, _In_z_ LPCTSTR lpszItem, bool bFinite)
 {
 	
 	CTextProgressCtrl* pCtrl = new CTextProgressCtrl;
 	pCtrl->Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, CRect(0,0,0,0), this, 0x1000 + nItem);
-	ASSERT(pCtrl->GetSafeHwnd());
-	pCtrl->SetRange32(0, 100);
-	pCtrl->SetPos( 0 );
-	pCtrl->SetShowPercent(true);
+	ENSURE(pCtrl->GetSafeHwnd());
+	if (bFinite)
+	{
+		pCtrl->SetRange32(0, 100);
+		pCtrl->SetPos(0);
+		pCtrl->SetShowPercent(true);
+	}
+	else
+	{
+		pCtrl->SetMarquee(true, 30);
+		pCtrl->SetMarqueeOptions(10);
+		pCtrl->SetShowPercent(false);
+		pCtrl->SetWindowText(_T("Working..."));
+	}
 	
-
-
-	//int rep = CListCtrl::InsertItem(0,nItem, NULL, 0, 0, -1, (LPARAM)pCtrl);
 	int rep = CListCtrl::InsertItem(nItem, NULL);
-	SetItemData(nItem, NULL);
-	SetItemText(nItem, 1, lpszItem);
+	SetItemData(nItem, (LPARAM)pCtrl);
+	SetItemText(nItem, lpszItem);
 	
 	return rep;
 }
 
-//	//if (rcSubItem.Width() > 250)
-//		//rcSubItem.right = rcSubItem.left + 250;
-
-//	pCtrl->Create(WS_CHILD|WS_VISIBLE|PBS_SMOOTH, rcSubItem, this, 0x1000 + nItem);
-//	ASSERT(pCtrl->GetSafeHwnd());
-//	pCtrl->SetRange32(0, 100);
-//	pCtrl->SetPos( 0 );
-//	pCtrl->SetShowPercent(true);
-//	this->SetItemData(nItem, (DWORD)pCtrl);
 BOOL CProListCtrl::DeleteItem(int nItem)
 {
 	ASSERT(nItem >= 0 && nItem < GetItemCount());

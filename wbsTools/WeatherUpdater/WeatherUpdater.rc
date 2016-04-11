@@ -191,8 +191,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,0,36
- PRODUCTVERSION 5,0,1,0
+ FILEVERSION 5,0,1,40
+ PRODUCTVERSION 5,0,1,40
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -209,21 +209,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.0.36"
+            VALUE "FileVersion", "5.0.1.40"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.0.0.0"
+            VALUE "ProductVersion", "5.0.1.40"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.0.36"
+            VALUE "FileVersion", "5.0.1.40"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.0.0.0"
+            VALUE "ProductVersion", "5.0.1.40"
         END
     END
     BLOCK "VarFileInfo"
@@ -635,10 +635,10 @@ BEGIN
     IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Region(s)"
     IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Première année|Dernière année|Radar|Type|Periode"
     IDS_UPDATER_NOAA_GHCND_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
+                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si USA)"
+                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Première année|Dernière année|Type|États|Mettre à jour la liste des stations"
     IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)"
 END
@@ -1091,7 +1091,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_NOAA_GHCND_P 
-                            "Working directory|First Year|Last Year|Country|States (if USA)"
+                            "Working directory|First Year|Last Year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First Year|Last Year|Country|States (if USA)"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First Year|Last Year|Country|States (if USA)"
@@ -1103,7 +1103,7 @@ STRINGTABLE
 BEGIN
     IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First Year|Last Year|Update coordinates"
-    IDS_UPDATER_SM_CIPRA_HOURLY_P "Working directory|User Name|Password|First Year|Last Year"
+    IDS_UPDATER_SM_CIPRA_HOURLY_P "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
     IDS_UPDATER_ACIS_HOURLY_P   "User Name|Password|Working directory|First Year|Last Year"

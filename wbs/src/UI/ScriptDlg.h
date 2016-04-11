@@ -11,7 +11,7 @@
 
 
 #include "Simulation/Script.h"
-
+#include "UI/Common/CommonCtrl.h"
 #include "WeatherBasedSimulationUI.h"
 
 
@@ -42,11 +42,14 @@ namespace WBSF
 
 		// Generated message map functions
 		DECLARE_MESSAGE_MAP()
+		afx_msg void OnSciptManager();
 
 		CScript m_script;
 		CExecutablePtr m_pParent;
+		
+		CDefaultComboBox m_listCtrl;
 
-
+		
 	};
 
 }

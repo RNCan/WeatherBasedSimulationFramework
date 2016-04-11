@@ -896,6 +896,9 @@ namespace WBSF
    		CRegistry registry;
 
 		std::string appFilePath = registry.GetAppFilePath(appType);
+		
+		if (GetPath(appFilePath).empty())//if the path is not specified, take the current application path.
+			appFilePath = GetApplicationPath()+appFilePath;
 
 		if( bAddCote )
 			argument = '\"' + argument + '\"';
@@ -942,26 +945,22 @@ namespace WBSF
 	ERMsg WinExecWait(const std::string& command, std::string inputDir, UINT uCmdShow, LPDWORD pExitCode)
 	{
 		ERMsg msg;
-
-		//std::string dir(pInputDir);
-
+		
 		while (IsPathEndOk(inputDir))
 			inputDir = inputDir.substr(0, inputDir.length() - 1);
 
-		STARTUPINFOW si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO) );
-		si.cb = sizeof(STARTUPINFO);
+		STARTUPINFO si = { 0 };
+		si.cb = sizeof(si);
 		si.dwFlags = STARTF_USESHOWWINDOW;
 		si.wShowWindow = uCmdShow;
 
-		PROCESS_INFORMATION pi;
+		PROCESS_INFORMATION pi = { 0 };
 	
 		std::wstring wdir(UTF16(inputDir));
 		std::wstring wcommand = UTF16(command);
 		LPCWSTR pDir = wdir.empty() ? NULL : wdir.c_str();
 	
-		if( ::CreateProcessW(NULL, &(wcommand[0]), NULL, NULL,
-			FALSE, NULL, NULL, pDir, &si, &pi) )
+		if (::CreateProcessW(NULL, &(wcommand[0]), NULL, NULL, FALSE, NULL, NULL, pDir, &si, &pi))
 		{
 			::CloseHandle( pi.hThread);
 			::WaitForSingleObject ( pi.hProcess, INFINITE);

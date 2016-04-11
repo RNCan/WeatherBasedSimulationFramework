@@ -678,22 +678,20 @@ namespace WBSF
 		doc += title[c++] + m_variables.to_string() + "\n\n";
 
 		doc += title[c++];
-		for (int i = 0; i < m_inputList.size(); i++)
+		for (size_t i = 0; i < m_inputList.size(); i++)
 		{
 			if (m_inputList[i].IsAVariable())
-				doc += string(m_inputList[i].GetName() + ":\t" + m_inputList[i].GetDescription() + "\n").c_str();
+				doc += string("\t") + m_inputList[i].GetName() + ":\t" + m_inputList[i].GetDescription() + "\n";
 		}
 
 		doc += "\n";
 		doc += title[c++] + string(m_outputTM.GetTypeName()) + "\n\n";
 
 		doc += title[c++];
-		for (int i = 0; i < m_outputList.size(); i++)
-		{
-			doc += string(m_outputList[i].m_title + ":\t" + m_outputList[i].m_description + "\n").c_str();
-		}
-		doc += "\n";
+		for (size_t i = 0; i < m_outputList.size(); i++)
+			doc += string("\t") + m_outputList[i].m_title + ":\t" + m_outputList[i].m_description + " [" + m_outputList[i].m_units + "]\n";
 
+		doc += "\n";
 		doc += title[c++] + m_credit + "\n\n";
 
 		return doc;

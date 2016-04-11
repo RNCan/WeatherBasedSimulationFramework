@@ -623,7 +623,6 @@ namespace WBSF
 		reserve(size_t(size / 40));
 
 		callback.PushTask("Load locations", size);
-		//callback.SetNbStep(size);
 
 		//begin to read
 		file.seekg(0);

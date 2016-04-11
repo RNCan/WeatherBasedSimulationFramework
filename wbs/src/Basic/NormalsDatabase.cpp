@@ -112,7 +112,6 @@ ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeather
 	if (msg)
 	{
 		callback.PushTask(FormatMsg(IDS_BSC_OPEN_FILE, filePath), size_t(file.length()));
-		//callback.SetNbStep(size_t(file.length()));
 
 		size_t i = 0;
 		for (CSVIterator loop(file); loop != CSVIterator()&&msg; ++loop, i++)
@@ -123,10 +122,6 @@ ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeather
 				if ((*loop).size() == NB_FIELDS + NB_FIXED_COLS)
 				{
 					string stationID = (*loop)[N_STATION_ID];
-					//int testID = stoi((*loop)[N_STATION_NO])-1;
-					//string testDecade = (*loop)[N_PERIOD];
-					//string testMonth = (*loop)[N_MONTH];
-					
 					size_t pos = size_t(i / 12);
 					
 					if (pos < zop.size())
@@ -220,7 +215,6 @@ ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDa
 			
 			for (size_t m = 0; m != me[i].size() && msg; m++)
 			{
-				//file << zop[i].m_ID << ',' << ToString(int(m + 1), 5);
 				string line = FormatA("%s,%02d", zop[i].m_ID.c_str(), int(m + 1));
 				
 
@@ -230,19 +224,11 @@ ERMsg CNormalsDataDeque::SaveAsCSV(const std::string& filePath, const CWeatherDa
 					{
 						string format = "%7." + to_string(GetNormalDataPrecision((int)f)) + "f";
 						string value = FormatA(format.c_str(), me[i][m][f]);
-						//file << ',' << value;
 						line += "," + value;
 					}
 					else
 					{
 						line += ", -999.0";
-						//switch (GetNormalDataPrecision(f))
-						//{
-						//case 1:line += ", -999.0"; break;
-						//case 3:line += ", -999.000"; break;
-						//case 4:line += ", -999.0000"; break;
-						//}
-						//file << ", -999.0";
 					}
 					
 				}
@@ -345,7 +331,7 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 	std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
 	if (FileExists(referencedFilePath) && FileExists(optFilePath))
 	{
-		callback.AddMessage("Open " + GetFileName(optFilePath) + "...");
+		callback.AddMessage(FormatMsg( IDS_MSG_LOAD_OP, GetFileName(optFilePath) ));
 		if (m_zop.Load(optFilePath))
 		{
 			if (m_zop.IsStationDefinitionUpToDate(referencedFilePath))
@@ -368,7 +354,8 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 			
 		if (msg)
 		{
-			callback.AddMessage("Open " + GetFileName(referencedFilePath) + "...");
+			
+			callback.AddMessage(FormatMsg(IDS_MSG_OPEN, GetFileName(referencedFilePath)) );
 			msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag());
 		}
 	}
@@ -384,9 +371,8 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 
 		if (bDataAsChange)
 		{
-			//callback.PushTask("Update " + GetFileName(optFilePath));
-			callback.AddMessage("Update " + GetFileName(optFilePath) + "...");
-			string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
+			callback.AddMessage(FormatMsg(IDS_MSG_UPDATE, GetFileName(optFilePath)) );
+			string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath); 
 			
 			msg = m_data.LoadFromCSV(GetNormalsDataFilePath(referencedFilePath), m_zop, callback);
 			

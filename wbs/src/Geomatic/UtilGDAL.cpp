@@ -1623,7 +1623,7 @@ ERMsg CBaseOptions::ParseOption(int argc, char* argv[])
 	if( m_bNeedIOFileInfo )
 		msg.ajoute( GetIOFileInfo() );
 	
-	int CPU = m_bMulti?omp_get_max_threads():1;
+	int CPU = m_bMulti ? omp_get_num_procs() : 1;
 	m_CPU = min(CPU, max(1, m_CPU>0?m_CPU:CPU+m_CPU) );
 	//if( m_CPU<=0 )
 		//m_CPU=m_bMulti?omp_get_max_threads():1;
@@ -1743,15 +1743,15 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	}   
 	else if( IsEqual(argv[i],"-CPU") )
 	{
-		m_CPU = min( omp_get_max_threads(), atoi(argv[i+1]));i++;
+		m_CPU = min(omp_get_num_procs(), atoi(argv[i + 1])); i++;
 		if( m_CPU <= 0)
-			m_CPU = max(1, omp_get_max_threads()+m_CPU);
+			m_CPU = max(1, omp_get_num_procs() + m_CPU);
 	}   
 	else if( IsEqual(argv[i],"-IOCPU") )
 	{
-		m_IOCPU = /*Min( omp_get_max_threads(),*/ atoi(argv[i+1]);i++;
+		m_IOCPU = atoi(argv[i+1]);i++;
 		if( m_IOCPU <= 0)
-			m_IOCPU = max(1, omp_get_max_threads()+m_IOCPU);
+			m_IOCPU = max(1, omp_get_num_procs() + m_IOCPU);
 	}   
 	else if( IsEqual(argv[i],"-wm") )
 	{

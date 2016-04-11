@@ -97,7 +97,7 @@ namespace WBSF
 
 		command += "\"" + filepath + "\" \"" + dir + filter + "\"";
 
-		callback.PushTask(GetString(IDS_ZIP_FILE), 1);
+		callback.PushTask(GetString(IDS_ZIP_FILE), NOT_INIT);
 		callback.AddMessage(GetString(IDS_ZIP_FILE));
 
 		msg = WinExecWait(command.c_str());
@@ -134,7 +134,7 @@ namespace WBSF
 			{
 				string command = GetApplicationPath() + "External\\7z.exe x \"" + filepath + "\" -aoa -o\"" + dir + "\"";
 
-				callback.PushTask(GetString(IDS_UNZIP_FILE), 1);
+				callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 				callback.AddMessage(GetString(IDS_UNZIP_FILE));
 
 				msg = WinExecWait(command.c_str());

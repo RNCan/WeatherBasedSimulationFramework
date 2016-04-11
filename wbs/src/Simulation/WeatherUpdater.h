@@ -20,7 +20,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TMember{ SCRIPT_TITLE = CExecutable::NB_MEMBERS, NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS };
+		enum TMember{ SCRIPT_TITLE = CExecutable::NB_MEMBERS, SHOW_APP, NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS };
 
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return (i < CExecutable::NB_MEMBERS) ? CExecutable::GetMemberName(i) : MEMBERS_NAME[i - CExecutable::NB_MEMBERS]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
@@ -28,6 +28,7 @@ namespace WBSF
 
 		//public members
 		std::string m_fileTitle;
+		bool m_bShowApp;
 
 		CWeatherUpdate();
 		CWeatherUpdate(const CWeatherUpdate& in);

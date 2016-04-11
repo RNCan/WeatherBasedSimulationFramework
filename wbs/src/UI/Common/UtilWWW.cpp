@@ -488,14 +488,18 @@ namespace UtilWWW
 
 	}
 
-	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const CString& page, CFileInfoVector& fileList, WBSF::CCallback& callback)
+	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList, WBSF::CCallback& callback)
 	{
 		ERMsg msg;
+
+		callback.PushTask(WBSF::FormatMsg(IDS_MSG_SEARCH_FILE, std::string(CStringA(URL))), NOT_INIT);
+		
+
 		// use a file find object to enumerate files
 		CFtpFileFind finder(pConnect.get());
 
 		// start looping
-		BOOL bWorking = finder.FindFile(page);
+		BOOL bWorking = finder.FindFile(URL);
 		DWORD errNum = GetLastError();
 
 		while (bWorking&&msg)
@@ -510,7 +514,7 @@ namespace UtilWWW
 
 			CFileInfo info;
 			
-			GetFileInfo(finder, info, page.FindOneOf(_T("*?")) != -1);
+			GetFileInfo(finder, info, URL.FindOneOf(_T("*?")) != -1);
 			fileList.push_back(info);
 
 			msg += callback.StepIt(0);
@@ -522,6 +526,8 @@ namespace UtilWWW
 			msg = UtilWin::SYGetMessage(e);
 		}
 		
+		callback.PopTask();
+
 		return msg;
 	}
 

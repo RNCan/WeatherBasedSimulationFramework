@@ -384,7 +384,7 @@ ERMsg CInputAnalysis::Execute(const CFileManager& fileManager, CCallback& callba
 			metadata.SetTPeriod(info.m_period);
 			metadata.SetOutputDefinition(info.m_variables);
 
-			callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
+			callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
 			callback.AddMessage(resultDB.GetFilePath(), 1);
 
 
@@ -1400,7 +1400,7 @@ ERMsg CInputAnalysis::LastObservation(const CFileManager& fileManager, CResult& 
 
 	//limit category to basic variable
 
-	callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
+	callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
 	callback.AddMessage(resultDB.GetFilePath(), 1);
 
 	CWVariables variables = WG.GetWGInput().m_variables;
@@ -1504,7 +1504,7 @@ ERMsg CInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherGen
 		pNormalDB.reset(new CNormalsDatabase);
 		msg = pNormalDB->Open(NFilePath, CNormalsDatabase::modeRead, callback);
 		if (msg)
-			msg = pNormalDB->OpenSearchOptimization();//open here to be thread safe
+			msg = pNormalDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 
 	//open daily databse
@@ -1514,7 +1514,7 @@ ERMsg CInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherGen
 		pDailyDB.reset(new CDailyDatabase);
 		msg = pDailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback);
 		if (msg)
-			msg = pDailyDB->OpenSearchOptimization();//open here to be thread safe
+			msg = pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 	
 	CHourlyDatabasePtr pHourlyDB;
@@ -1523,7 +1523,7 @@ ERMsg CInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherGen
 		pHourlyDB.reset(new CHourlyDatabase);
 		msg = pHourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback);
 		if (msg)
-			msg = pHourlyDB->OpenSearchOptimization();//open here to be thread safe
+			msg = pHourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 	
 	if(msg)

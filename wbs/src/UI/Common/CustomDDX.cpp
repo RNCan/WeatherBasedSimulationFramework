@@ -53,3 +53,11 @@ void AFXAPI DDX_Text(CDataExchange* pDX, int nIDC, std::string& value)
 	DDX_Text(pDX, nIDC, str);
 	value = CStringA(str);
 }
+
+void AFXAPI DDX_Text(CDataExchange* pDX, int nIDC, bool& bValue)
+{
+	BOOL b = bValue?TRUE:FALSE;
+	DDX_Text(pDX, nIDC, b);
+	bValue = b?true:false;
+
+}

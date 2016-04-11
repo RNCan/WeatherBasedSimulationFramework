@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
-// 11.0.0:				Integreted with WBSF 
+// 11.0.0: 10/04/2016	Integreted with WBSF 
 //						Add hourly input data  
 //						Version 64 bits and UNICODE
 //						Add WeatherGeneration and ModelExecution
@@ -10,6 +10,7 @@
 //						Update of many user interface 
 //						New loc generation from weather database
 //						Add specific site extraction
+//						Change progression winodw by a dockable pane
 // 10.3.2:				Add Standard deviation (N) and some statistic in Analysis  
 //						Add Copy Export component 
 //						Add direct file transfer from BioSIM to models 
@@ -160,7 +161,7 @@
 // 8.24: 13/07/2005    Ajout du nouveau type de BD de simulation (HomeDB).
 //					   Optimisation dans le calcul des références temporelles.
 //					   Ajout de la relation E2 dans les anal tMean.
-//					   Correction d'un bug dans l.analyse cumulative
+//					   Correction d'un bug dans l.analyse cumulative 
 //					   Ajout de la transformation des grid ESRI
 //					   Par default la langue retourne l'anglais
 // 8.23: 04/07/2005	   Correction d'un bug important dans le nom des BD. les sim et les anal

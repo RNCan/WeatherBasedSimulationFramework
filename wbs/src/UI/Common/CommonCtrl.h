@@ -49,9 +49,11 @@ class CDefaultComboBox : public CCFLComboBox
 {
 public:
 
+	CDefaultComboBox(CString str = CString(WBSF::STRDEFAULT));
+	
 	CString GetWindowText()const
 	{
-		CString tmp;// = UtilWin::STRDEFAULT;
+		CString tmp;
 		if (GetCurSel() > 0)
 			tmp = CCFLComboBox::GetWindowText();
 
@@ -76,7 +78,11 @@ public:
 		return SelectStringExact(nStartAfter, UtilWin::Convert(str), defaultSel);
 	}
 
-	void FillList(const WBSF::StringVector& list);
+	void FillList(const WBSF::StringVector& list, std::string selection = "");
+
+protected:
+
+	CString m_defaultStr;
 
 };
 

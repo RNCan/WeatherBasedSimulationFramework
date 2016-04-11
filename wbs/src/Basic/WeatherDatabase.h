@@ -126,7 +126,7 @@ namespace WBSF
 		CGeoRect GetBoundingBox()const{ ASSERT(IsOpen());	return m_zop.GetBoundingBox(); }
 		CWeatherDatabaseOptimization const& GetOptimization()const{ return m_zop; }
 
-		ERMsg OpenSearchOptimization();
+		ERMsg OpenSearchOptimization(CCallback& callback);
 		void CloseSearchOptimization();
 		ERMsg GetPriority(std::vector<size_t>& priority, CWVariables filter, int year)const;
 

@@ -189,8 +189,8 @@ namespace WBSF
 								callback.AddMessage(msg);
 								msg.asgType(ERMsg::OK);
 
-								callback.PushTask("Waiting 5 seconds for server...", 100);
-								for (size_t i = 0; i < 100 && msg; i++)
+								callback.PushTask("Waiting 2 seconds for server...", 100);
+								for (size_t i = 0; i < 40 && msg; i++)
 								{
 									Sleep(50);//wait 50 milisec
 									msg += callback.StepIt();

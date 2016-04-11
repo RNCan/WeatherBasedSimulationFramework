@@ -128,10 +128,12 @@ namespace WBSF
 	{
 	public:
 
+		//CTM m_TM;
 		size_t m_month;
 		size_t m_day;
+		size_t m_hour;
 
-		CMonthDay(size_t m = UNKNOWN_POS, size_t d = UNKNOWN_POS);
+		CMonthDay(size_t m = NOT_INIT, size_t d = NOT_INIT, size_t h = NOT_INIT);
 		CMonthDay(const std::string& date, const std::string& separator = "-/\\")
 		{
 			Set(date, separator);
@@ -142,7 +144,7 @@ namespace WBSF
 
 		bool IsValid()const;
 		
-		CTRef GetTRef(int year)const{ return CTRef(year, m_month, m_day); }
+		CTRef GetTRef(int year)const{ return CTRef(year, m_month, m_day, m_hour, CTM(m_hour == NOT_INIT ? CTM::DAILY : CTM::HOURLY)); }
 		CTRef GetTRef(const CTRef& TRef)const{ return GetTRef(TRef.GetYear()).Transform(TRef); }
 		bool operator > (const CTRef& TRef)const{ return GetTRef(TRef) > TRef; }
 		bool operator >= (const CTRef& TRef)const{ return GetTRef(TRef) >= TRef; }

@@ -11,7 +11,7 @@
 
 
 #include "Simulation/WeatherUpdater.h"
-
+#include "UI/Common/CommonCtrl.h"
 #include "WeatherBasedSimulationUI.h"
 
 namespace WBSF
@@ -39,10 +39,13 @@ namespace WBSF
 
 		// Generated message map functions
 		DECLARE_MESSAGE_MAP()
+		afx_msg void OnWeatherUpdaterManager();
+
 
 		CWeatherUpdate m_weatherUpdate;
 		CExecutablePtr m_pParent;
 
+		CDefaultComboBox m_listCtrl;
 
 	};
 

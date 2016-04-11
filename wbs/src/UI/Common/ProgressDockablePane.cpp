@@ -142,48 +142,47 @@ BOOL CProgressDockablePane::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDH
 
 void CProgressDockablePane::OnTimer(UINT_PTR nIDEvent)
 {
-	//m_callback.Lock();
-	int nbItem = m_progressCtrl.GetItemCount();
-	if (nbItem < m_callback.GetNbTasks())
+	if (nIDEvent == 1)
 	{
-		while (nbItem < m_callback.GetTasks().size())
+		/*while (m_progressCtrl.GetItemCount() < m_callback.GetNbTasks())
 		{
-			m_progressCtrl.InsertItem(nbItem, CString(m_callback.GetTasks().c[nbItem].m_description.c_str()));
-			//m_progressCtrl.SetItemData(nbItem, NULL);
-			//m_progressCtrl.SetItemText(nbItem, 1, CString(m_callback.GetTasks().c[nbItem].m_description.c_str()));
-			nbItem = m_progressCtrl.GetItemCount();
+			const WBSF::CCallbackTask& task = m_callback.GetTasks().c[m_progressCtrl.GetItemCount()];
+			m_progressCtrl.InsertItem(m_progressCtrl.GetItemCount(), CString(task.m_description.c_str()), task.m_nbSteps > 0);
 		}
 
-
-	}
-	else if (nbItem > m_callback.GetNbTasks())
-	{
-		while (nbItem > m_callback.GetNbTasks())
+		while (m_progressCtrl.GetItemCount() > m_callback.GetNbTasks())
 		{
-			m_progressCtrl.DeleteItem(nbItem-1);
-			nbItem = m_progressCtrl.GetItemCount();
-		}
-	}
-	//m_callback.Unlock();
+			m_progressCtrl.DeleteItem(m_progressCtrl.GetItemCount() - 1);
+		}*/
 
-	if (m_progressCtrl.GetItemCount() > 0)
-	{
-		//get the last progress bar
-		DWORD_PTR pItem = m_progressCtrl.GetItemData(m_progressCtrl.GetItemCount() - 1);
-		if (pItem!=NULL)
+		//m_callback.Unlock();
+
+		if (m_progressCtrl.GetItemCount() > 0)
 		{
-			CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
-			if (pCtrl && pCtrl->GetSafeHwnd())
+			//get the last progress bar
+			DWORD_PTR pItem = m_progressCtrl.GetItemData(m_progressCtrl.GetItemCount() - 1);
+			if (pItem != NULL)
 			{
-				pCtrl->SetPos((int)m_callback.GetCurrentStepPercent());
+				CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
+				if (pCtrl && pCtrl->GetSafeHwnd())
+				{
+					if (m_callback.GetNbStep() > 0)
+						pCtrl->SetPos((int)m_callback.GetCurrentStepPercent());
 
-				CWnd* pMain = ::AfxGetMainWnd();
-				if (m_pTaskbar && pMain)
-					m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+					CWnd* pMain = ::AfxGetMainWnd();
+					if (m_pTaskbar && pMain)
+						m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+				}
 			}
 		}
 	}
-	
+	else if (nIDEvent == 2)
+	{
+		//Update text
+		//for (int i = 0; i < m_progressCtrl.GetItemCount() && i < m_callback.GetNbTasks(); i++)
+			//m_progressCtrl.SetItemText(i, CString(m_callback.GetTasks().c[i].m_description.c_str()));
+	}
+
 	CDockablePane::OnTimer(nIDEvent);
 	
 }
@@ -252,20 +251,39 @@ void CProgressDockablePane::OnPauseResume()
 	//}
 }
 
-LRESULT CProgressDockablePane::OnThreadMessage(WPARAM, LPARAM)
+LRESULT CProgressDockablePane::OnThreadMessage(WPARAM t, LPARAM)
 {
 	const std::string& message = m_callback.GetMessages();
-	if (!message.empty())
+	//m_callback.Lock();
+	if (t == 0)
 	{
-		std::string tmp = message.data();
-		std::remove(tmp.begin(), tmp.end(), '\r');
-		WBSF::ReplaceString(tmp, "\n", "\r\n");
+		if (!message.empty())
+		{
 
-		m_comment += tmp;
-		m_messageCtrl.SetWindowTextW(CString(m_comment.c_str()));
-		m_messageCtrl.SetSel((int)m_comment.length(), -1);
-		m_callback.DeleteMessages();
+			std::string tmp = message.data();
+			std::remove(tmp.begin(), tmp.end(), '\r');
+			WBSF::ReplaceString(tmp, "\n", "\r\n");
+
+			m_comment += tmp;
+			m_messageCtrl.SetWindowTextW(CString(m_comment.c_str()));
+			m_messageCtrl.SetSel((int)m_comment.length(), -1);
+			m_callback.DeleteMessages();
+		}
 	}
+	else if (t == 1)
+	{
+		const WBSF::CCallbackTask& task = m_callback.GetTasks().top();// .c[m_progressCtrl.GetItemCount()];
+		m_progressCtrl.InsertItem(m_progressCtrl.GetItemCount(), CString(task.m_description.c_str()), task.m_nbSteps > 0);
+	}
+	else if (t == 2)
+	{
+		if (m_progressCtrl.GetItemCount() > 0)
+			m_progressCtrl.DeleteItem(m_progressCtrl.GetItemCount() - 1);
+	}
+
+	//update text
+	//m_callback.Unlock();
+	
 
 	return 0;
 }
@@ -288,7 +306,8 @@ ERMsg CProgressDockablePane::Execute(AFX_THREADPROC pfnThreadProc, CProgressStep
 	pParam->m_pCallback = &m_callback;
 	pParam->m_pMsg = &msg;
 
-	SetTimer(0, 50, NULL);
+	SetTimer(1, 200, NULL);
+	SetTimer(2, 2000, NULL);
 
 	//create thread 
 	m_ptrThread = AfxBeginThread(pfnThreadProc, pParam, 0, 0, CREATE_SUSPENDED);
@@ -325,7 +344,8 @@ ERMsg CProgressDockablePane::Execute(AFX_THREADPROC pfnThreadProc, CProgressStep
 	//}
 
 
-	KillTimer(0);
+	KillTimer(1);
+	KillTimer(2);
 
 	//clean callback
 	while (!m_callback.GetTasks().empty())

@@ -277,20 +277,28 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 }
 
 
-ERMsg CWeatherDatabase::OpenSearchOptimization()
+ERMsg CWeatherDatabase::OpenSearchOptimization(CCallback& callback)
 {
 	ERMsg msg;
 
+	
 	if (m_zop.GetDataSection().GetFilePath().empty())
 	{
+		string filePath = GetOptimisationDataFilePath(m_filePath);
+		callback.PushTask(FormatMsg(IDS_MSG_LOAD_OP, GetFileName(filePath)), NOT_INIT);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
-		msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
+		msg = zop.LoadData(filePath);
+		callback.PopTask();
 	}
 
 	if (!m_zop.SearchIsOpen())
 	{
+		callback.PushTask(FormatMsg(IDS_MSG_LOAD_OP, GetFileName(GetOptimisationSearchFilePath1())), NOT_INIT);
 		msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
+		callback.PopTask();
 	}
+
+	
 
 	return msg;
 }
@@ -543,7 +551,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 	double b = log(nbStations) / log(4);
 	size_t c = ceil(a - b);
 
-	callback.PushTask("Generate Well Distributed Station", c);
+	callback.PushTask(GetString(IDS_MSG_GENERATE_LOC), c);
 
 
 	//create a status vector
@@ -558,10 +566,10 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 	while (status.count()>nbStations&&msg)
 	{
 		step++;
-		callback.PushTask("Eliminate points: step" + ToString(step), searchResult.size() * 3);
+		callback.PushTask(FormatMsg(IDS_MSG_ELIMINATE_POINT, ToString(step)), searchResult.size() * 3);
 		//callback.SetNbStep(searchResult.size() * 3);
-
-		callback.AddMessage("Number of station left: " + ToString(status.count()));
+		
+		callback.AddMessage(FormatMsg(IDS_MSG_STATIONS_LEFT, ToString(status.count())) );
 
 		CLocationVector locations(status.count());
 		vector<__int64> positions(status.count());

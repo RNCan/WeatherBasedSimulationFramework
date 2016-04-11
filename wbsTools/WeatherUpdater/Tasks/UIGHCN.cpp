@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 
 #include "UIGHCN.h"
+#include <boost\filesystem.hpp>
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
 #include "Basic/CSV.h"
@@ -10,7 +11,7 @@
 
 #include "CountrySelection.h"
 #include "StateSelection.h"
-//#include "gdal.h"
+
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -56,8 +57,8 @@ const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
 
 //*********************************************************************
 //const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Countries", "States", "Extents", "DEM", "UseDEMElevation", "ShowFTPTransfer", "ExtractWind", "ExtractSnow" };
-const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };//"BoundingBox" 
-const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
+const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Show" };//"BoundingBox" 
+const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_BOOL };
 const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
 
 const char* CUIGHCND::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GHCND";  return THE_CLASS_NAME; }
@@ -100,7 +101,7 @@ std::string CUIGHCND::Default(size_t i)const
 //****************************************************
 
 
-ERMsg CUIGHCND::UpdateStationHistory()
+ERMsg CUIGHCND::UpdateStationHistory(CCallback& callback)
 {
 	ERMsg msg;
 
@@ -115,7 +116,7 @@ ERMsg CUIGHCND::UpdateStationHistory()
 		string path = GetStationFilePath(false);
 
 		CFileInfoVector fileList;
-		msg = FindFiles(pConnection, path, fileList, CCallback::DEFAULT_CALLBACK);	
+		msg = FindFiles(pConnection, path, fileList, callback);
 		
 		pConnection->Close();
 		pSession->Close();
@@ -127,7 +128,7 @@ ERMsg CUIGHCND::UpdateStationHistory()
 			string outputFilePath = GetStationFilePath(true);
 			if( !IsFileUpToDate(fileList[0], outputFilePath) )
 			{
-				msg = FTPDownload(SERVER_NAME, path, outputFilePath);
+				msg = FTPDownload(SERVER_NAME, path, outputFilePath, callback);
 			}
 		}
 	}
@@ -174,31 +175,44 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	return msg;
 }
 
-ERMsg CUIGHCND::FTPDownload(const string& server, const string& inputFilePath, const string& outputFilePath)
+ERMsg CUIGHCND::FTPDownload(const string& server, const string& inputFilePath, const string& outputFilePath, CCallback& callback)
 {
 	ERMsg msg;
+
+	callback.PushTask("FTPTransfer...", NOT_INIT);
 
 	string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
 
+	UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
+
 	DWORD exitCode=0;
-	msg = WinExecWait(command.c_str(), GetTempPath().c_str(), false ? SW_SHOW : SW_HIDE, &exitCode);
+	msg = WinExecWait(command, GetTempPath(), show, &exitCode);
 	if( msg && exitCode!=0)
 		msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)) );
-		
+	
+	callback.PopTask();
+
 	return msg;
 }
 
-ERMsg CUIGHCND::sevenZ(const string& filePathZip, const string& workingDir)
+ERMsg CUIGHCND::sevenZ(const string& filePathZip, const string& workingDir, CCallback& callback)
 {
 	ERMsg msg;
 	
+	callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
+
 	string command = GetApplicationPath() + "External\\7z.exe x \"" + filePathZip+ "\" -y";
+	//UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
 
 	DWORD exitCode=0;
-	msg = WinExecWait(command.c_str(), workingDir.c_str(), SW_HIDE, &exitCode);
+	msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);
 	if( msg && exitCode!=0)
 		msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
 	
+
+	callback.PopTask();
+
+
 	return msg;
 }
 
@@ -220,7 +234,7 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	callback.AddMessage("");
 		
 	
-	msg = UpdateStationHistory();
+	msg = UpdateStationHistory(callback);
 	if(!msg)
 		return msg;
 	
@@ -234,8 +248,6 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	callback.AddMessage("");
 	
 	callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
-	//callback.SetNbStep(fileList.size());
-	//callback.PushLevel();
 
 	int nbRun = 0;
 	size_t curI = 0;
@@ -255,14 +267,20 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 				CreateMultipleDir(GetPath(outputFilePath));
 				callback.AddMessage("Download " + GetFileName(outputFilePath) + " ...");
 
-				msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath.c_str());
+				msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath.c_str(), callback);
 
 				//unzip it
 				if (msg)
 				{
 					callback.AddMessage("Unzip " + GetFileName(outputFilePath) + " ...");
-					msg = sevenZ(outputFilePath.c_str(), GetPath(outputFilePath).c_str());
+					msg = sevenZ(outputFilePath.c_str(), GetPath(outputFilePath).c_str(), callback);
 					RemoveFile(outputFilePath);
+
+					//update time to the time of the .gz file
+					boost::filesystem::path p(outputFilePath);
+					if (boost::filesystem::exists(p))
+						boost::filesystem::last_write_time(p, fileList[i].m_time);
+
 
 					if (msg)
 						curI++;

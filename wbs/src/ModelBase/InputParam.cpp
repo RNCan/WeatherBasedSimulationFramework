@@ -647,10 +647,11 @@ namespace WBSF
 
 
 	//*****************************************************************************************
-	CMonthDay::CMonthDay(size_t m, size_t d)
+	CMonthDay::CMonthDay(size_t m, size_t d, size_t h)
 	{
 		m_month = m;
 		m_day = d;
+		m_hour = h;
 	}
 
 	void CMonthDay::Set(const std::string& date, const std::string& delimiter)
@@ -670,15 +671,23 @@ namespace WBSF
 
 		m_month = UNKNOWN_POS;
 		m_day = UNKNOWN_POS;
+		m_hour = UNKNOWN_POS;
 
 		if (tmp.size() == 2)
 		{
 			m_month = tmp[0] - 1;
 			m_day = tmp[1] - 1;
 		}
+		else if (tmp.size() == 3)
+		{
+			m_month = tmp[0] - 1;
+			m_day = tmp[1] - 1;
+			m_hour = tmp[2];
+		}
 
 		ASSERT(m_month == UNKNOWN_POS || m_month < 12);
-		ASSERT(m_month == UNKNOWN_POS || m_day < 31);
+		ASSERT(m_day == UNKNOWN_POS || m_day < 31);
+		ASSERT(m_hour == UNKNOWN_POS || m_hour < 24);
 	}
 
 	string CMonthDay::Get(const string& delimiter)const
@@ -688,6 +697,8 @@ namespace WBSF
 		std::vector<int> tmp;
 		tmp.push_back(int(m_month) + 1);
 		tmp.push_back(int(m_day) + 1);
+		if (m_hour != NOT_INIT)
+			tmp.push_back(int(m_hour));
 
 		std::stringstream ss;
 		copy(tmp.begin(), tmp.end(), ostream_iterator<int>(ss, delimiter.c_str()));
@@ -697,6 +708,6 @@ namespace WBSF
 
 	bool CMonthDay::IsValid()const
 	{
-		return m_month < 12 && m_day < GetNbDayPerMonth(m_month);
+		return m_month < 12 && m_day < GetNbDayPerMonth(m_month) && (m_hour==NOT_INIT||m_hour<24);
 	}
 }

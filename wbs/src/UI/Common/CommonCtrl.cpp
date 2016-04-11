@@ -111,16 +111,26 @@ void CCFLComboBox::FillList(const WBSF::StringVector& list, std::string selectio
 }
 
 //**************************************************************************
-void CDefaultComboBox::FillList(const WBSF::StringVector& list)
+CDefaultComboBox::CDefaultComboBox(CString str)
 {
-	CString last = GetWindowText();
+	if (str == WBSF::STRDEFAULT)
+		str = UtilWin::GetCString(IDS_STR_DEFAULT);
+
+	m_defaultStr = str;
+}
+
+void CDefaultComboBox::FillList(const WBSF::StringVector& list, std::string selection)
+{
+	if (selection.empty())
+		selection = GetString();
+
 	ResetContent();
 
 	for (size_t i = 0; i<list.size(); i++)
 		AddString(list[i].c_str());
 
-	InsertString(0, UtilWin::GetCString(IDS_STR_DEFAULT));
-	SelectStringExact(0, last);
+	InsertString(0, m_defaultStr);
+	SelectStringExact(0, selection);
 
 	ASSERT(GetCount()>0);
 }

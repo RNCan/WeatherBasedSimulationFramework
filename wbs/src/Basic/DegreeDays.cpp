@@ -656,8 +656,8 @@ namespace WBSF
 		if (weather.IsDaily() && m_aType == AT_HOURLY)
 			weather.ComputeHourlyVariables();
 
-		CTM TM = CTM(m_aType == AT_HOURLY ? CTM::HOURLY : CTM::DAILY);
-		CTPeriod p = weather.GetEntireTPeriod(TM);
+		//CTM TM = CTM(m_aType == AT_HOURLY ? CTM::HOURLY : CTM::DAILY);
+		CTPeriod p = weather.GetEntireTPeriod();// (TM);
 		output.Init(p, NB_OUTPUT, 0, HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)

@@ -529,10 +529,8 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 					metadataOut.SetNbReplications(nbReplications);
 					metadataOut.SetOutputDefinition(model.GetOutputDefinition());
 
-					callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
-					callback.PushTask(GetString(IDS_SIM_CREATE_DATABASE), locations.size()*finalModelInputVector.size()*nbReplications);
-					//callback.SetNbStep(locations.size()*finalModelInputVector.size()*nbReplications);
-//					callback.PushLevel();
+					callback.PushTask(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name), locations.size()*finalModelInputVector.size()*nbReplications);
+					callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
 					callback.AddMessage(model.GetCopyright());
 					callback.AddMessage(filePath);
 					

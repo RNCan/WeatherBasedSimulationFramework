@@ -1,6 +1,8 @@
 //Integrated Surface Data - “Lite”
 #include "stdafx.h"
 #include "UIISDLite.h"
+
+#include <boost\filesystem.hpp>
 #include "Basic/FileStamp.h"
 #include "Basic/DailyDatabase.h"
 #include "UI/Common/SYShowMessage.h"
@@ -444,17 +446,26 @@ namespace WBSF
 						//unzip 
 						if (msgTmp)
 						{
-							msg += callback.StepIt();
+							
 
+							
 							string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
 							msg += WinExecWait(command.c_str());
 							RemoveFile(zipFilePath);
 							//by default, file don't have extension,
 							RenameFile(extractedFilePath, outputFilePath);
+							
+							//update time to the time of the .gz file
+							boost::filesystem::path p(outputFilePath);
+							if (boost::filesystem::exists(p))
+								boost::filesystem::last_write_time(p, fileList[i].m_time);
+
 
 							ASSERT(FileExists(outputFilePath));
 							nbRun = 0;
 							curI++;
+
+							msg += callback.StepIt();
 						}
 					}
 				}

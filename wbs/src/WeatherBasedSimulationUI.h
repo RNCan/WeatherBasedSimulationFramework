@@ -14,8 +14,8 @@
 #define IDR_LOC_TOOLBAR                 944
 #define IDR_PROJECT_TOOLBAR1            945
 #define IDR_PROJECT_TOOLBAR2            946
-#define IDR_CMN_PROGRESS_TOOLBAR		947
-#define IDI_PROGRESS_WND				948
+#define IDR_CMN_PROGRESS_TOOLBAR        947
+#define IDI_PROGRESS_WND                948
 #define IDC_CURSOR_GROUP                1000
 #define IDC_CMN_NEW_YEAR                1000
 #define IDC_USE_EXTENT                  1000
@@ -455,9 +455,12 @@
 #define IDC_CMN_SELECTION               1222
 #define IDC_MAP_LON2                    1223
 #define IDC_GENLOC_FILTER               1223
+#define IDC_SHOW_APP                    1223
 #define IDC_MAP_LON1                    1224
 #define IDC_GENLOC_YEAR                 1224
+#define IDC_WEATHER_UPDATER_MANAGER     1224
 #define IDC_MAP_SET_EXTENT              1225
+#define IDC_SCIPT_MANAGER               1225
 #define IDC_MAP_SET_EXTENT_FROM_MAPINT  1226
 #define IDC_GENLOC_FACTOR               1226
 #define IDC_MAP_CHANGE_RESOLUTION       1227
@@ -839,9 +842,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        203
+#define _APS_NEXT_RESOURCE_VALUE        207
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1223
+#define _APS_NEXT_CONTROL_VALUE         1226
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

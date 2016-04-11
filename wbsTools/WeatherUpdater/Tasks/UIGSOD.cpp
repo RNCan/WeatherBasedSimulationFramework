@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "UIGSOD.h"
 #include <boost\dynamic_bitset.hpp>
+#include <boost\filesystem.hpp>
 
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
@@ -283,11 +284,18 @@ namespace WBSF
 						{
 							ASSERT(FileExists(outputFilePath + ".gz"));
 
-							msg += callback.StepIt();
+							
 							string command = "External\\7z.exe e \"" + outputFilePath + ".gz" + "\" -y -o\"" + outputPath + "\"";
 							msg += WinExecWait(command.c_str());
 							RemoveFile(outputFilePath + ".gz");
+							
+							//update time stamp to the zip file
+							boost::filesystem::path p(outputFilePath);
+							if (boost::filesystem::exists(p))
+								boost::filesystem::last_write_time(p, fileList[i].m_time);//std::time(0)
 
+
+							msg += callback.StepIt();
 
 							nbRun = 0;
 							curI++;

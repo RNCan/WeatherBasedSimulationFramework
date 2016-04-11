@@ -10,11 +10,13 @@
 //****************************************************************************
 #include "stdafx.h"
 
+#include "Basic/Registry.h"
 #include "FileManager/FileManager.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/CustomDDX.h"
 #include "UI/Common/UtilWin.h"
-#include "UI/Common/CommonCtrl.h"
+#include "UI/Common/NewNameDlg.h"
+#include "UI/Common/SYShowMessage.h"
 #include "ScriptDlg.h"
 
 using namespace std;
@@ -34,6 +36,7 @@ namespace WBSF
 	// CScriptDlg dialog
 
 	BEGIN_MESSAGE_MAP(CScriptDlg, CDialog)
+		ON_BN_CLICKED(IDC_SCIPT_MANAGER, &CScriptDlg::OnSciptManager)
 	END_MESSAGE_MAP()
 
 
@@ -51,11 +54,11 @@ namespace WBSF
 
 		if (!pDX->m_bSaveAndValidate)
 		{
+			DDX_Control(pDX, IDC_KIND, m_listCtrl);
 			WBSF::StringVector list = WBSF::GetFM().Script().GetFilesList();
-			CCFLComboBox* pList = (CCFLComboBox*)GetDlgItem(IDC_KIND);
-			pList->FillList(list);
-			pList->SelectStringExact(0, m_script.m_fileTitle);
+			m_listCtrl.FillList(list, m_script.m_fileTitle);
 		}
+
 
 
 		DDX_Text(pDX, IDC_NAME, m_script.m_name);
@@ -66,5 +69,53 @@ namespace WBSF
 	}
 
 
+	void CScriptDlg::OnSciptManager()
+	{
+		ERMsg msg;
+
+		std::string updater = m_listCtrl.GetString();
+
+		while (updater.empty())
+		{
+			CNewNameDlg dlg(this);
+			if (dlg.DoModal() != IDOK)
+				return;
+
+
+			if (!WBSF::GetFM().Script().FileExists(dlg.m_name))
+			{
+				updater = dlg.m_name;
+				ofStream f;
+				string filePath;
+				msg = WBSF::GetFM().Script().GetFilePath(updater, filePath);
+				if (msg)
+				{
+					f << "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>" << endl;
+					f << "<WeatherUpdater version=\"2\">" << endl;
+					f << "</WeatherUpdater>" << endl;
+					f.close();
+				}
+			}
+
+			if (!msg)
+				UtilWin::SYShowMessage(msg, this);
+		}
+
+		ENSURE(!updater.empty());
+
+		string filePath;
+		msg = WBSF::GetFM().Script().GetFilePath(updater, filePath);
+		if (msg)
+			msg = CallApplication(CRegistry::WEATHER_UPDATER, filePath, NULL, SW_SHOW);
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, this);
+	}
+
 
 }
+
+
+
+
+

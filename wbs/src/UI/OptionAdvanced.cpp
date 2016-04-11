@@ -33,7 +33,7 @@ namespace WBSF
 		m_bRunEvenFar = option.GetProfileInt("RunEvenFar", FALSE);
 		m_bRunWithMissingYear = option.GetProfileInt("RunWithMissingYear", FALSE);
 		m_bKeepTmpFile = option.GetProfileInt("KeepTmpOutputFile", FALSE);
-		m_nbMaxThreads = option.GetProfileInt("NbMaxThreads", omp_get_max_threads());
+		m_nbMaxThreads = option.GetProfileInt("NbMaxThreads", omp_get_num_procs());
 		m_bUseHxGrid = option.GetProfileInt("UseHxGrid", FALSE);
 
 	}

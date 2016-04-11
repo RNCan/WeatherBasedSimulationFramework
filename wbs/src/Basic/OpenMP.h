@@ -18,10 +18,10 @@
 typedef void * omp_lock_t;
 typedef void * omp_nest_lock_t;
 inline void omp_set_num_threads(int _Num_threads){}
-inline int omp_get_num_threads(void){ return 0; }
+inline int omp_get_num_threads(void){ return 1; }
 inline int omp_get_max_threads(void){ return 1; }
 inline int omp_get_thread_num(void){ return 0; }
-inline int omp_get_num_procs(void){ return 0; }
+inline int omp_get_num_procs(void){ return 1; }
 inline void omp_set_dynamic(int _Dynamic_threads){}
 inline int omp_get_dynamic(void){ return 0; }
 inline int omp_in_parallel(void){ return 0; }

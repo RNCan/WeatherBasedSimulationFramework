@@ -19,9 +19,7 @@ namespace WBSF
 	{
 	public:
 
-
-		//enum TATTRIBUTE { COUNTRIES, STATES, BOUNDINGBOX, DEM_FILEPATH, USE_DEM, SHOW_FTP_TRANSFER, EXTRACT_WIND, EXTRACT_SNOW, NB_ATTRIBUTES };
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, SHOW_APP, NB_ATTRIBUTES };
 
 		enum TD32x0
 		{
@@ -49,8 +47,9 @@ namespace WBSF
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-		//virtual void UpdateLanguage();
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+		
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -59,7 +58,7 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
+
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
@@ -74,11 +73,11 @@ namespace WBSF
 
 
 		std::string GetStationFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(SERVER_PATH)) + "ghcnd-stations.txt"; }
-		ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir);
-		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath);
+		ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
+		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 
 
-		ERMsg UpdateStationHistory();
+		ERMsg UpdateStationHistory(CCallback& callback);
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;

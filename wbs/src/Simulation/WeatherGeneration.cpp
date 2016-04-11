@@ -198,10 +198,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 
 	size_t nbGetDistance = nbFilter*nbYears;
 
-//	callback.SetCurrentDescription(GetString(IDS_SIM_VERIFY_DISTANCE) );
-	//callback.SetNbStep(nbGetDistance);
 	callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance, 1);
-//	callback.PushLevel();
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);
@@ -821,7 +818,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 	{
 		msg = normalDB->Open(NFilePath, CDailyDatabase::modeRead, callback);
 		if (msg)
-			msg = normalDB->OpenSearchOptimization();//open here to be thread safe
+			msg = normalDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 		
 	
@@ -832,7 +829,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 		dailyDB.reset( new CDailyDatabase );
 		msg = dailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback );
 		if (msg)
-			msg = dailyDB->OpenSearchOptimization();//open here to be thread safe
+			msg = dailyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 	
 
@@ -842,7 +839,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 		hourlyDB.reset(new CHourlyDatabase);
 		msg = hourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback);
 		if (msg)
-			msg = hourlyDB->OpenSearchOptimization();//open here to be thread safe
+			msg = hourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
 
 	CGribsDatabasePtr pGribsDB;
@@ -909,156 +906,152 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
   
 	ERMsg msg;
 
-	CTimer timer(TRUE);
+	
+	std::string outputPath = GetPath(fileManager);//Generate output path
+	std::string DBFilePath = GetDBFilePath(outputPath);//Generate DB file path
 
+	callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
+	callback.AddMessage(DBFilePath, 1);
+	callback.PushTask(GetString(IDS_WG_CREATE_WEATHER), locations.size()*m_nbReplications, 1);
+
+
+	CTimer timer(TRUE);
 
 	bool bUseHxGrid = CTRL.m_bUseHxGrid && m_bUseHxGrid;
 	short language = CRegistry().GetLanguage();
 
-	//Generate output path
-	std::string outputPath = GetPath(fileManager);
-    
-	//Generate DB file path
-	std::string DBFilePath = GetDBFilePath(outputPath);
 	
 	CResult result;
 
 	msg = result.Open(DBFilePath, std::fstream::binary | std::fstream::out | std::fstream::trunc);
-	if( !msg)
-        return msg;
-
-
-	CModelInputVector modelInputVector(1);
-	for (size_t i = 0; i <CWGInput::NB_MEMBERS; i++)
-		modelInputVector[0].push_back(CModelInputParam(WGInput.GetMemberName(i), WGInput[i]));
-
-
-
-	CDBMetadata& metadata = result.GetMetadata();
-	metadata.SetLocations(locations);
-	metadata.SetParameterSet(modelInputVector);
-	metadata.SetNbReplications(m_nbReplications);
-	metadata.SetModelName("WeatherGenerator");
-	metadata.SetOutputDefinition(WGInput.GetOutputDefenition());
-	//metadata.SetWGInput(WGInput);
-
-    callback.AddMessage(GetString(IDS_SIM_CREATE_DATABASE));
-	callback.AddMessage(DBFilePath, 1);
-	//callback.SetCurrentDescription(GetString(IDS_WG_CREATE_WEATHER));
-	//callback.SetNbStep(locations.size()*m_nbReplications);
-	callback.PushTask(GetString(IDS_WG_CREATE_WEATHER), locations.size()*m_nbReplications, 1);
-
-	vector<size_t> locPos;
-	GetLocationIndexGrid(locations, locPos);
-
-	CRandomGenerator rand(WGInput.m_seed);
-	unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
-
-	int nested = omp_get_nested();
-	int dynamic = omp_get_dynamic();
-	omp_set_dynamic(0);
-	omp_set_nested(0);
-	
-	int nbThreadsLoc = min(CTRL.m_nbMaxThreads, (int)locPos.size());//priority over location
-	size_t memoryUsedByOneThread = sizeof(CWeatherYear)*m_nbReplications*WGInput.GetNbYears()/(1024*1024)*120/100;
-	size_t availableMemory = GetTotalSystemMemory() / (1024 * 1024)-6000;
-
-	//callback.AddMessage("Memory for one thres = " + ToString(memoryUsedByOneThread));
-	//callback.AddMessage("Available memory = " + ToString(availableMemory));
-	//callback.AddMessage("max threads = " + ToString(CTRL.m_nbMaxThreads));
-	callback.AddMessage("Num loc threads = " + ToString(nbThreadsLoc));
-	
-	if (nbThreadsLoc>1 && nbThreadsLoc*memoryUsedByOneThread > availableMemory)
+	if (msg)
 	{
-		nbThreadsLoc = max(1, int(availableMemory / memoryUsedByOneThread));
-		callback.AddMessage("The number of threads was limited by available memory. " + ToString(CTRL.m_nbMaxThreads) + " --> " + ToString(nbThreadsLoc) + " threads") ;
-	}
-		
-	
-	bool bTestOK = true;
 
-	//static,1 is to do simulation in the good other. This is best way to optimize weather cache
-#pragma omp parallel for schedule(static, 1) shared(result, msg) num_threads(nbThreadsLoc) if ( !WGInput.UseGribs() ) 
-	for (int ll = 0; ll<(int)locPos.size(); ll++)
-	{
-#pragma omp flush(msg)
-		if (msg)
+
+		CModelInputVector modelInputVector(1);
+		for (size_t i = 0; i < CWGInput::NB_MEMBERS; i++)
+			modelInputVector[0].push_back(CModelInputParam(WGInput.GetMemberName(i), WGInput[i]));
+
+		CDBMetadata& metadata = result.GetMetadata();
+		metadata.SetLocations(locations);
+		metadata.SetParameterSet(modelInputVector);
+		metadata.SetNbReplications(m_nbReplications);
+		metadata.SetModelName("WeatherGenerator");
+		metadata.SetOutputDefinition(WGInput.GetOutputDefenition());
+
+		vector<size_t> locPos;
+		GetLocationIndexGrid(locations, locPos);
+
+		CRandomGenerator rand(WGInput.m_seed);
+		unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+
+		int nested = omp_get_nested();
+		int dynamic = omp_get_dynamic();
+		omp_set_dynamic(0);
+		omp_set_nested(0);
+
+		int nbThreadsLoc = min(CTRL.m_nbMaxThreads, (int)locPos.size());//priority over location
+		size_t memoryUsedByOneThread = sizeof(CWeatherYear)*m_nbReplications*WGInput.GetNbYears() / (1024 * 1024) * 120 / 100;
+		size_t availableMemory = GetTotalSystemMemory() / (1024 * 1024) - 6000;
+
+		//callback.AddMessage("Memory for one thres = " + ToString(memoryUsedByOneThread));
+		//callback.AddMessage("Available memory = " + ToString(availableMemory));
+		//callback.AddMessage("max threads = " + ToString(CTRL.m_nbMaxThreads));
+		callback.AddMessage("Num loc threads = " + ToString(nbThreadsLoc));
+
+		if (nbThreadsLoc > 1 && nbThreadsLoc*memoryUsedByOneThread > availableMemory)
 		{
-			size_t l = locPos[ll];
+			nbThreadsLoc = max(1, int(availableMemory / memoryUsedByOneThread));
+			callback.AddMessage("The number of threads was limited by available memory. " + ToString(CTRL.m_nbMaxThreads) + " --> " + ToString(nbThreadsLoc) + " threads");
+		}
 
-			// init the loc part of WGInput
-			CWeatherGenerator WG;
-			WG.SetSeed(seed);
-			WG.SetNbReplications(m_nbReplications);
-			WG.SetWGInput(WGInput);
-			WG.SetNormalDB(normalDB);
-			WG.SetDailyDB(dailyDB);
-			WG.SetHourlyDB(hourlyDB);
-			WG.SetGribsDB(gribsDB);
-			WG.SetTarget(locations[l]);
-			
-			ERMsg msgTmp = WG.Generate(callback);
-			
+
+		bool bTestOK = true;
+
+		//static,1 is to do simulation in the good other. This is best way to optimize weather cache
+#pragma omp parallel for schedule(static, 1) shared(result, msg) num_threads(nbThreadsLoc) if ( !WGInput.UseGribs() ) 
+		for (int ll = 0; ll < (int)locPos.size(); ll++)
+		{
+#pragma omp flush(msg)
+			if (msg)
+			{
+				size_t l = locPos[ll];
+
+				// init the loc part of WGInput
+				CWeatherGenerator WG;
+				WG.SetSeed(seed);
+				WG.SetNbReplications(m_nbReplications);
+				WG.SetWGInput(WGInput);
+				WG.SetNormalDB(normalDB);
+				WG.SetDailyDB(dailyDB);
+				WG.SetHourlyDB(hourlyDB);
+				WG.SetGribsDB(gribsDB);
+				WG.SetTarget(locations[l]);
+
+				ERMsg msgTmp = WG.Generate(callback);
+
 
 #pragma omp flush(msg)
-			if (msg && !msgTmp)
-			{
-				msg += msgTmp;
-				#pragma omp flush(msg)
-			}
-			
-			for (size_t r = 0; r<m_nbReplications&& msg; r++)
-			{
-				//write info and weather to the stream
-				const CSimulationPoint& weather = WG.GetWeather(r);
-				ERMsg msgTmp = result.SetSection(metadata.GetSectionNo(l, 0, r), weather, callback);
-				#pragma omp flush(msg)
 				if (msg && !msgTmp)
 				{
 					msg += msgTmp;
-					#pragma omp flush(msg)
+#pragma omp flush(msg)
 				}
 
-				#pragma omp flush(msg)
-				if (msg)
+				for (size_t r = 0; r < m_nbReplications&& msg; r++)
 				{
-					msg += callback.StepIt();
-					#pragma omp flush(msg)
-				}
-
-
-				CTPeriod p = weather.GetEntireTPeriod();
-				for (CTRef TRef = p.Begin(); TRef <= p.End() && bTestOK; TRef++)
-				{
-					for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+					//write info and weather to the stream
+					const CSimulationPoint& weather = WG.GetWeather(r);
+					ERMsg msgTmp = result.SetSection(metadata.GetSectionNo(l, 0, r), weather, callback);
+#pragma omp flush(msg)
+					if (msg && !msgTmp)
 					{
-						if (WGInput.m_variables[v])
+						msg += msgTmp;
+#pragma omp flush(msg)
+					}
+
+#pragma omp flush(msg)
+					if (msg)
+					{
+						msg += callback.StepIt();
+#pragma omp flush(msg)
+					}
+
+
+					CTPeriod p = weather.GetEntireTPeriod();
+					for (CTRef TRef = p.Begin(); TRef <= p.End() && bTestOK; TRef++)
+					{
+						for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
 						{
-							if (weather[TRef][v][MEAN]<-100 || weather[TRef][v][MEAN]>100)
-								bTestOK = false;
+							if (WGInput.m_variables[v])
+							{
+								if (weather[TRef][v][MEAN] < -100 || weather[TRef][v][MEAN]>100)
+									bTestOK = false;
+							}
 						}
 					}
-				}
 
 
-				//wait when pause is activated								
-				callback.WaitPause();
-			}   // for replication
-		}			// if (msg)
-	}				// for(loc)
+					//wait when pause is activated								
+					callback.WaitPause();
+				}   // for replication
+			}			// if (msg)
+		}				// for(loc)
 
 
-	timer.Stop();
-	size_t nbGeneration = locations.size()*m_nbReplications*WGInput.GetNbYears();
-	SetExecutionTime("WeatherGenerator", timer.Elapsed() / nbGeneration, WGInput.GetTM(), bUseHxGrid);
+		timer.Stop();
+		size_t nbGeneration = locations.size()*m_nbReplications*WGInput.GetNbYears();
+		SetExecutionTime("WeatherGenerator", timer.Elapsed() / nbGeneration, WGInput.GetTM(), bUseHxGrid);
 
 
-	omp_set_nested(nested);
-	omp_set_dynamic(dynamic);
+		omp_set_nested(nested);
+		omp_set_dynamic(dynamic);
 
-	result.Close();
-	
-	callback.AddMessage(string("Test Validation = ") + (bTestOK?"OK":"Failed") );
+		result.Close();
+
+		callback.AddMessage(string("Test Validation = ") + (bTestOK ? "OK" : "Failed"));
+	}
+
 	callback.PopTask();
 
 	return msg;

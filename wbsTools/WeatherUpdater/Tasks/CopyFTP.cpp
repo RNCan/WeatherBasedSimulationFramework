@@ -88,8 +88,7 @@ namespace WBSF
 		//string password = Decrypt(m_password);
 
 
-		callback.PushTask("FTPTransfer", 1);
-		//callback.SetNbStep(1);
+		callback.PushTask("FTPTransfer", NOT_INIT);
 
 		string command = GetApplicationPath() + "External\\FTPTransfer.exe ";
 		command += "-Server \"" + Get(SERVER) + "\" ";

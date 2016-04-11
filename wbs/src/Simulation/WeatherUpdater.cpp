@@ -22,7 +22,7 @@ namespace WBSF
 {
 	//*******************************************************************************
 	const char* CWeatherUpdate::XML_FLAG = "WeatherUpdater";
-	const char* CWeatherUpdate::MEMBERS_NAME[NB_MEMBERS_EX] = { "Parameters" };
+	const char* CWeatherUpdate::MEMBERS_NAME[NB_MEMBERS_EX] = { "UpdaterFile", "ShowApp" };
 	const int CWeatherUpdate::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWeatherUpdate::GetXMLFlag(), &CWeatherUpdate::CreateObject);
 
 	CWeatherUpdate::CWeatherUpdate()
@@ -48,6 +48,7 @@ namespace WBSF
 	{
 		m_name = "WeatherUpdater";
 		m_fileTitle.clear();
+		m_bShowApp = false;
 	}
 
 	CWeatherUpdate& CWeatherUpdate::operator =(const CWeatherUpdate& in)
@@ -56,6 +57,7 @@ namespace WBSF
 		{
 			CExecutable::operator =(in);
 			m_fileTitle = in.m_fileTitle;
+			m_bShowApp = in.m_bShowApp;
 		}
 
 		ASSERT(*this == in);
@@ -68,6 +70,7 @@ namespace WBSF
 
 		if (CExecutable::operator !=(in))bEqual = false;
 		if (m_fileTitle != in.m_fileTitle)bEqual = false;
+		if (m_bShowApp != in.m_bShowApp)bEqual = false;
 
 		return bEqual;
 	}
@@ -100,6 +103,8 @@ namespace WBSF
 		CExecutable::writeStruc(output);
 		zen::XmlOut out(output);
 		out[GetMemberName(SCRIPT_TITLE)](m_fileTitle);
+		out[GetMemberName(SHOW_APP)](m_bShowApp);
+		
 	}
 
 	bool CWeatherUpdate::readStruc(const zen::XmlElement& input)
@@ -107,6 +112,7 @@ namespace WBSF
 		CExecutable::readStruc(input);
 		zen::XmlIn in(input);
 		in[GetMemberName(SCRIPT_TITLE)](m_fileTitle);
+		in[GetMemberName(SHOW_APP)](m_bShowApp);
 
 		return true;
 	}
@@ -120,10 +126,24 @@ namespace WBSF
 		msg = GetFM().WeatherUpdate().GetFilePath(m_fileTitle, filePath);
 		if (msg)
 		{
-			msg = CallApplication(CRegistry::WEATHER_UPDATER, "\"" + filePath + "\" /EXEC", NULL, SW_SHOW, false, true);
+			//try to open log
+			string logFilePath;
+			SetFileExtension(logFilePath, ".log");
 
-			//copy log into biosim component log
+			callback.PushTask("Call WeatherUpdater...", NOT_INIT);
+			msg = CallApplication(CRegistry::WEATHER_UPDATER, "\"" + filePath + "\" /e /l \"" + logFilePath + (m_bShowApp ? "\" /SHOW" : "\""), NULL, m_bShowApp ? SW_SHOW : SW_HIDE, false, true);
+
+			if (msg)
+			{
+				
+				ifStream log;
+				if (log.open(filePath))
+					callback.AddMessage(log.GetText());
+			}
+
+			callback.PopTask();
 		}
+			
 
 		return msg;
 	}

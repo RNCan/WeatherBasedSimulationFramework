@@ -36,8 +36,8 @@ namespace WBSF
 	const char* CUICIPRA::SERVER_NAME = "horus.mesonet-quebec.org";
 	const char* CUICIPRA::SUB_DIR = "/";
 
-	enum TSource { AGRO_SOURCE, POMME_SOURCE, NB_SOURCE_TYPE };
-	static const char* SOURCE_TYPE_NAME[NB_SOURCE_TYPE] = { "agro", "pommes" };
+	enum TSource { S_ATLANTIQUE, S_ONTARIO, S_POMME, S_QUEBEC, NB_SOURCE_TYPE };
+	static const char* SOURCE_TYPE_NAME[NB_SOURCE_TYPE] = { "atantique", "ontario", "pommes", "quebec" };
 
 
 	CUICIPRA::CUICIPRA(void)
@@ -86,132 +86,149 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		int nbYears = lastYear - firstYear + 1;
 
-
-
-
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
-		//callback.AddTask(nbYears * 2);
-
 		int nbDownload = 0;
 
-		for (size_t t = 0; t < NB_SOURCE_TYPE; t++)
-		{
-			callback.PushTask(string("Download ") + SOURCE_TYPE_NAME[t], nbYears);
+		callback.PushTask("Sources", NB_SOURCE_TYPE);
 
-			for (size_t y = 0; y < nbYears&&msg; y++)
-			{
-				//open a connection on the server
-				CInternetSessionPtr pSession;
-				CFtpConnectionPtr pConnection;
+		//for (size_t t = 0; t < NB_SOURCE_TYPE; t++)
+		//{
+		//	//open a connection on the server
+		//	CInternetSessionPtr pSession;
+		//	CFtpConnectionPtr pConnection;
 
-				//string password = Decrypt(m_password).c_str();
-				msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		//	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
-				if (!msg)
-					return msg;
+		//	if (msg)
+		//	{
+		//		//get houe reference
+		//		CFileInfoVector dirList;
+		//		UtilWWW::FindDirectories(pConnection, SUB_DIR, dirList);
+		//		if (dirList.size()>1)
+		//			callback.PushTask(string("Fuseau horaire "), dirList.size());
+		//		
 
-				int nbDownloadPerYear = 0;
-				
-				int year = firstYear + int(y);
-				string path = string(SOURCE_TYPE_NAME[t]) + "/" + ToString(year) + "/";
-				string ouputPath = workingDir + path;
+		//		for (size_t f = 0; f < dirList.size() && msg; f++)
+		//		{
+		//			string fh = GetLastDirName(dirList[f].m_filePath);
 
-				//Load files list
-				callback.AddMessage(path, 1);
-				callback.AddMessage(GetString(IDS_LOAD_FILE_LIST), 2);
-				CFileInfoVector fileList;
-				msg += UtilWWW::FindFiles(pConnection, "/" + path + "*.BRU", fileList, callback);
+		//			if (!IsEqual(fh, "pec"))
+		//			{
+		//				callback.PushTask(string("Années ") + SOURCE_TYPE_NAME[t], nbYears);
+		//				for (size_t y = 0; y < nbYears&&msg; y++)
+		//				{
+		//					int nbDownloadPerYear = 0;
 
-				pConnection->Close();
-				pSession->Close();
+		//					int year = firstYear + int(y);
+		//					//string path = string(SOURCE_TYPE_NAME[t]) + "/" + ToString(year) + "/";
+		//					string path = dirList[f].m_filePath + "/" + ToString(year) + "/";
+		//					
+		//					string ouputPath = workingDir + path;
 
+		//					//Load files list
+		//					callback.AddMessage(path);
+		//					callback.AddMessage(GetString(IDS_LOAD_FILE_LIST),1);
+		//					CFileInfoVector fileList;
+		//					msg += UtilWWW::FindFiles(pConnection, "/" + path + "*.BRU", fileList, callback);
 
-				if (msg)
-				{
-					callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()), 2);
-
-					//clean files list
-					for (size_t k = 0; k < fileList.size() && msg; k++)
-					{
-						string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
-						if (UtilWWW::IsFileUpToDate(fileList[k], filePath, false))
-							fileList.erase(fileList.begin() + k);
-
-						msg += callback.StepIt(0);
-					}
-
-					callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()), 2);
-
-					//download files
-					callback.PushTask(path, fileList.size());
-					//callback.SetNbStep(fileList.size());
+		//					pConnection->Close();
+		//					pSession->Close();
 
 
+		//					if (msg)
+		//					{
+		//						callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()));
 
-					CreateMultipleDir(ouputPath);
+		//						//clean files list
+		//						for (size_t k = 0; k < fileList.size() && msg; k++)
+		//						{
+		//							string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
+		//							if (UtilWWW::IsFileUpToDate(fileList[k], filePath, false))
+		//								fileList.erase(fileList.begin() + k);
 
-					int nbRun = 0;
-					int curI = 0;
+		//							msg += callback.StepIt(0);
+		//						}
 
-					while (curI < fileList.size() && msg)
-					{
-						nbRun++;
-						//open a connection on the server
-						msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		//						callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()));
 
+		//						//download files
+		//						callback.PushTask(path, fileList.size());
 
-						for (size_t k = curI; k < fileList.size() && msg; k++)
-						{
-							string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
-							msg += CopyFile(pConnection, fileList[k].m_filePath, filePath);
-							if (msg)
-							{
-								curI++;
-								nbDownloadPerYear++;
-							}
+		//						CreateMultipleDir(ouputPath);
 
-							msg += callback.StepIt();
+		//						int nbRun = 0;
+		//						int curI = 0;
 
-						}//for all files 
+		//						while (curI < fileList.size() && msg)
+		//						{
+		//							nbRun++;
+		//							//open a connection on the server
+		//							msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
 
-						//if an error occur: try again
-						if (!msg && !callback.GetUserCancel())
-						{
-							//callback.AddTask(1);//one step more
+		//							for (size_t k = curI; k < fileList.size() && msg; k++)
+		//							{
+		//								string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
+		//								msg += CopyFile(pConnection, fileList[k].m_filePath, filePath);
+		//								if (msg)
+		//								{
+		//									curI++;
+		//									nbDownloadPerYear++;
+		//								}
 
-							if (nbRun < 5)
-							{
-								callback.AddMessage(msg);
-								msg.asgType(ERMsg::OK);
-								Sleep(1000);//wait 1 sec
-							}
-						}
+		//								msg += callback.StepIt();
 
-						//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		//							}//for all files 
 
-						pConnection->Close();
-						pSession->Close();
-					}
 
-					callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloadPerYear), 2);
+		//							//if an error occur: try again
+		//							if (!msg && !callback.GetUserCancel())
+		//							{
+		//								if (nbRun < 5)
+		//								{
+		//									callback.PushTask("Waiting 2 seconds for server...", 100);
+		//									for (size_t i = 0; i < 40 && msg; i++)
+		//									{
+		//										Sleep(50);//wait 50 milisec
+		//										msg += callback.StepIt();
+		//									}
+		//									callback.PopTask();
+		//								}
+		//							}
 
-					nbDownload += nbDownloadPerYear;
+		//							pConnection->Close();
+		//							pSession->Close();
+		//						}
 
-					//callback.PopTask();
-				}//for all files
+		//						callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloadPerYear), 2);
 
-				callback.PopTask();
-			}//for all years
+		//						nbDownload += nbDownloadPerYear;
+		//					}//for all files
 
-			callback.PopTask();
-		}//type: pomme, agro
+		//					callback.PopTask();
+		//				}//for all years
 
+		//				callback.PopTask();
+		//			}
+		//		}//if not pec
+
+		//		callback.StepIt();
+
+		//		if (dirList.size()>1)
+		//			callback.PopTask();
+		//	}//if msg
+		//	else
+		//	{
+
+		//	}
+
+		//	callback.StepIt();
+		//}//type: pomme, agro
+
+		callback.PopTask();
 
 		callback.AddMessage("");
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
-
-
 
 		return msg;
 	}
@@ -227,25 +244,6 @@ namespace WBSF
 	}
 
 
-
-	//ERMsg CUICIPRA::UpdateStationsFile( CFtpConnectionPtr& pConnection, CCallback& callback)
-	//{
-	//	ERMsg msg;
-	//
-	//	string FTPFilePath = string(SUB_DIR)+"stations.xml";
-	//	string localFilePath = GetStationsFilePath();
-	//	
-	//	//if( UtilWWW::IsFileUpToDate(pConnection, string(SUB_DIR)+"stations.*", localFilePath) )
-	//		//return msg;
-	//
-	//	if( UtilWWW::IsFileUpToDate(pConnection, FTPFilePath, localFilePath) )
-	//		return msg;
-	//
-	//	CreateMultipleDir( GetPath(localFilePath) );
-	//	return UtilWWW::CopyFile(pConnection, FTPFilePath, localFilePath, false);
-	//}
-
-	
 	ERMsg CUICIPRA::LoadStations(CCallback& callback)
 	{
 		ERMsg msg;
@@ -367,7 +365,6 @@ namespace WBSF
 		}//for all years (files)
 
 		callback.PushTask(station.m_name, filesize);
-		//callback.SetNbStep(filesize);
 
 		//now extact data
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -386,10 +383,6 @@ namespace WBSF
 		//verify station is valid
 		if (msg && station.HaveData())
 			msg = station.IsValid();
-			//else
-		//	{
-//				msg.ajoute(GetString(IDS_NO_WEATHER) + station.m_name + " [" + station.m_ID + "]");
-	//		}
 
 		callback.PopTask();
 
@@ -492,68 +485,7 @@ namespace WBSF
 
 		return msg;
 	}
-	//
-	//double GetCoord(const string& str)
-	//{
-	//	if(str.find('-')!=string::npos )
-	//	{
-	//		string::size_type pos =0;
-	//		int d = ToInt(Tokenize(str, "-", pos));
-	//		int m = ToInt(Tokenize(str, "-", pos));
-	//		int s = ToInt(Tokenize(str, "-", pos));
-	//		
-	//		return d + m/60.0 + s/3600.0;
-	//	}
-	//	
-	//	return ToDouble(str);
-	//}
-
-
-	//ERMsg ParseStationDataPage(string source, CLocation& location )
-	//{
-	//	ERMsg msg;
-	//
-	//	string::size_type posBegin = source.find( "<TABLE");
-	//	posBegin = source.find( "<TABLE", posBegin+6);
-	//	string::size_type posEnd = 0;
-	//	
-	//	if( posBegin != string::npos ) 
-	//	{
-	//		string tmp;
-	//		ReplaceString(source, "<PRE>", "");
-	//		ReplaceString(source, "</PRE>", "");
-	//		
-	//		//parse string
-	//		string sommaire = FindString(source, "<FONT COLOR=#800000>", "</FONT>", posBegin); 
-	//		string date = FindString(source, "<FONT COLOR=#800000>", "</FONT>", posBegin);
-	//		string fuseauHoraire = FindString(source, "Fuseau horaire:", "</FONT", posBegin);
-	//		string nameID = FindString(source, "<FONT COLOR=#800000>", "</FONT>", posBegin);
-	//		string reseau = FindString(source,  "Réseau:", "</FONT>", posBegin);
-	//		string junk = FindString(source, "<FONT COLOR=#800000>", "</FONT>", posBegin);
-	//		string latitude = FindString(source, "Latitude:", "</FONT>", posBegin);
-	//		string longitude = FindString(source, "Longitude:", "</FONT>", posBegin);
-	//		string elevation = FindString(source, "Élévation:", "m", posBegin);
-	//
-	//		string::size_type pos=0;
-	//		string stationID = FindString(nameID, "(", ")", pos);
-	//		string stationName = nameID.substr(pos+1);
-	//		Trim(stationID);
-	//		Trim(stationName);
-	//
-	//		if( !stationID.empty() && !stationName.empty() )
-	//		{
-	//			double lat = GetCoord(latitude);
-	//			double lon = GetCoord(longitude);
-	//			double elev = ToDouble(elevation);
-	//			location.Init(stationName, stationID, lat, lon, elev);
-	//		}
-	//	}
-	//
-	//	return msg;
-	//}
-
-
-
+	
 	ERMsg CUICIPRA::UpdateStationsFile(CCallback& callback)
 	{
 		ERMsg msg;

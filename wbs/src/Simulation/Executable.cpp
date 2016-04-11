@@ -156,48 +156,6 @@ bool CExecutableVector::operator == (const CExecutableVector& in)const
 	return true;
 }
 
-/*
-void CExecutableVector::GetXML(LPXNode& pRoot)const
-{
-	//LPXNode pNode = pRoot?pRoot->AppendChild( GetXMLFlag() ):XNode::CreateNode(GetXMLFlag());
-	//ASSERT(pNode);
-	XNode* pNode = XAppendChild(*this, pRoot);
-
-	for(size_t i=0; i<size(); i++)
-	{
-		at(i)->GetXML(pRoot);
-	}
-}
-
-
-void CExecutableVector::SetXML(const LPXNode pRoot)
-{
-	ASSERT( pRoot );
-	ASSERT( m_pParent );
-
-	clear();
-
-	const LPXNode pNode = pRoot->Select(GetXMLFlag());
-	if( pNode )
-	{
-		//const XNodes nodes = pRoot->GetChilds(CExecutable::GetXMLFlag());
-		INT_PTR size = pNode->GetChildCount();
-		for(INT_PTR i=0; i<size; i++)
-		{
-			//TODO: Put this method somewhere else and add all type of Executable
-			std::string className = pNode->GetChild(i)->name.c_str();
-			CExecutablePtr pItem = CExecutableFactory::CreateObject(className);
-			if( pItem )
-			{
-				pItem->SetParent(m_pParent);
-				pItem->SetXML(pNode->GetChild(i));
-				push_back(pItem);
-			}
-		}
-	}
-}
-*/
-
 void CExecutableVector::writeStruc(zen::XmlElement& output)const
 {
 	typedef CExecutableVector::const_iterator const_iter;
@@ -273,12 +231,17 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 
 	sort(execList.begin(), execList.end() );
 
-	callback.PushTask("Execute children of " + GetParent()->m_name, execList.size(), 1);
+	
+	if (execList.size()>1)
+		callback.PushTask(FormatMsg(IDS_MSG_PUSH_LEVEL, GetParent()->m_name), execList.size(), 1);
+
 	for (size_t ii = 0; ii<execList.size() && !callback.GetUserCancel(); ii++)
 	{
 		size_t i = execList[ii].second;
 		ERMsg msgTmp = at(i)->ExecuteBasic(fileManager, callback);
-		msg += callback.StepIt();
+		
+		if (execList.size()>1)
+			msg += callback.StepIt();
 
 		msg += msgTmp;
 	    if( msgTmp )
@@ -289,7 +252,8 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 		}	
 	}
 
-	callback.PopTask();
+	if (execList.size()>1)
+		callback.PopTask();
 
 	return msg;
 }
@@ -404,7 +368,7 @@ CExecuteCtrl::CExecuteCtrl()
 	m_listDelimiter=',';
 	m_decimalDelimiter='.';
 	m_bExportAllLines=false;
-	m_nbMaxThreads = omp_get_max_threads();
+	m_nbMaxThreads = omp_get_num_procs();
 }
 
 void CExecuteCtrl::LoadDefaultCtrl()
@@ -417,7 +381,7 @@ void CExecuteCtrl::LoadDefaultCtrl()
 	m_bKeepTmpFile			= registry.GetProfileBool("KeepTmpOutputFile", false);
 	m_bUseHxGrid			= registry.GetProfileBool("UseHxGrid", false);
 	m_bExportAllLines		= registry.GetProfileBool("ExportAllLines", false);
-	m_nbMaxThreads			= min( omp_get_max_threads(), registry.GetProfileInt("NbMaxThreads", omp_get_max_threads() ));
+	m_nbMaxThreads          = min(omp_get_num_procs(), registry.GetProfileInt("NbMaxThreads", omp_get_num_procs()));
 	m_listDelimiter		= registry.GetListDelimiter();
 	m_decimalDelimiter	= registry.GetDecimalDelimiter();
 
@@ -433,8 +397,6 @@ void CExecutable::LoadDefaultCtrl()
 
 //**************************************************************
 //CExecutable
-//const char* CExecutable::XML_FLAG = "Executable";
-//CGraph::GetXMLFlag(), 
 const char* CExecutable::MEMBERS_NAME[NB_MEMBERS] = {"Name", "InternalName", "Description", "Execute", "Export", "GraphArray", "ExecutableArray" };
 CExecuteCtrl CExecutable::CTRL;
 
@@ -503,55 +465,14 @@ bool CExecutable::operator == (const CExecutable& in)const
 }
 
 
-/*
-
-std::string CExecutable::GetMember(int i, LPXNode& pNode)const
-{
-	ASSERT( i>=0 && i<NB_MEMBER);
-
-	std::string str;
-	switch(i)
-	{
-	case EXECUTE: str = ToString(m_bExecute); break;
-	case NAME: str = m_name; break;
-	case INTERNAL_NAME: str = m_internalName; break;
-	case DESCRIPTION: str = m_description; break;
-	case EXPORT_DATA: m_export.GetXML(pNode); break;
-	case GRAPHS: m_graphArray.GetXML(pNode); break;
-	case EXECUTABLES: m_executables.GetXML(pNode); break;
-	default:ASSERT(false);
-	}
-
-	return str;
-}
-
-void CExecutable::SetMember(int i, const std::string& str, const LPXNode pNode)
-{
-	ASSERT( i>=0 && i<NB_MEMBER);
-	switch(i)
-	{
-	case EXECUTE: m_bExecute = ToBool(str); break;
-	case NAME: m_name = str; break;
-	case INTERNAL_NAME: m_internalName=str; break;
-	case DESCRIPTION: m_description = str; break;
-	case EXPORT_DATA: m_export.SetXML(pNode); break;
-	case GRAPHS: m_graphArray.SetXML(pNode); break;
-	case EXECUTABLES: m_executables.SetXML(pNode); break;
-	default:ASSERT(false);
-	}
-}
-*/
-
 
 CExecutablePtr CExecutable::GetParent()
 {
-	//return m_pParent&&m_pParent->m_pParent?m_pParent->m_pParent->FindItem(m_pParent->GetInternalName()):CExecutablePtr(); 
 	return m_pParent?m_pParent->GetExecutablePtr():CExecutablePtr(); 
 }
 
 const CExecutablePtr CExecutable::GetParent()const
 {
-	//return m_pParent&&m_pParent->m_pParent?m_pParent->m_pParent->FindItem(m_pParent->GetInternalName()):CExecutablePtr(); 
 	return m_pParent?m_pParent->GetExecutablePtr():CExecutablePtr(); 
 }
 
@@ -672,15 +593,9 @@ CResultPtr CExecutable::GetResult(const CFileManager& fileManager)const
 	return pDB;
 }
 
-//CExecutable* CExecutable::InsertItem(const XNode& xml)
-//{
-//	ASSERT(false);
-//	return this;
-//}
 
 void CExecutable::InsertItem(CExecutablePtr pItem)
 {
-	//CExecutablePtr pParent(this);
 	pItem->SetParent(this);
 	m_executables.push_back(pItem);
 }
@@ -714,11 +629,8 @@ std::string CExecutable::GetPath(const CFileManager& fileManager)const
 {
 	if( m_pParent==NULL)
 		return fileManager.GetTmpPath();
-		//::AfxThrowInvalidArgException();
 
 	return m_pParent->GetPath(fileManager);
-	
-	//return fileManager.GetTmpPath();//+ m_internalName +"\\";
 }
 
 std::string CExecutable::GetFilePath(const std::string& path, const std::string& ext)const
@@ -729,13 +641,13 @@ std::string CExecutable::GetFilePath(const std::string& path, const std::string&
 std::string CExecutable::GetLogFilePath(const std::string& path)const
 {
 	return GetFilePath(path, ".log");
-	//return path + m_internalName + ".log";
+
 }
 
 std::string CExecutable::GetDBFilePath(const std::string& path)const
 {
 	return GetFilePath(path, ".DBdata");
-	//return path + m_internalName + ".bsimdb";
+
 }
 
 std::string CExecutable::GetOutputMessage(const CFileManager& fileManager)
