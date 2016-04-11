@@ -1,8 +1,11 @@
 
 #include "stdafx.h"
+#include "Basic/Registry.h"
+#include "FileManager/FileManager.h"
+#include "Simulation/Mapping.h"
 #include "Simulation/BioSIMProject.h"
-#include "Simulation/BioSIMProject.h"
-#include "UI/Common\SYShowMessage.h"
+#include "Simulation/WeatherGeneration.h"
+#include "UI/Common/SYShowMessage.h"
 #include "WeatherBasedSimulationUI.h"
 
 #include "mainfrm.h"

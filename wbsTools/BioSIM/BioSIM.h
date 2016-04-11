@@ -8,8 +8,7 @@
 #endif
 
 #include "resource.h"       // main symbols
-#include "FileManager.h"
-//#include "UI/Common/StaticBitmap.h"
+//#include "FileManager.h"
 
 // CBioSIMApp:
 // See BioSIM.cpp for the implementation of this class
@@ -58,11 +57,10 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-	//CStaticBitmap	m_bitmap;
+
 	CStatic m_versionCtrl;
-	//CMFCLinkCtrl m_mailToJacques;
-	//CMFCLinkCtrl m_mailToRemi;
-// Implementation
+
+	// Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
 public:

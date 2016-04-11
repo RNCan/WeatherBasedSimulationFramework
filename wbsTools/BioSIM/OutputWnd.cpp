@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-
+#include "FileManager/FileManager.h"
 #include "OutputWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"

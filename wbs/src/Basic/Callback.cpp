@@ -124,9 +124,15 @@ namespace WBSF
 	}
 
 	ERMsg CCallback::SetCurrentStepPos(double stepPos)
-	{ 
-		if (!GetTasks().empty()) 
+	{
+		if (!GetTasks().empty())
+		{
+			Lock();
 			GetTasks().top().m_stepPos = stepPos;
+			Unlock();
+		}
+	
+	
 
 		return StepIt(0);
 	}
@@ -149,7 +155,11 @@ namespace WBSF
 
 				if (m_threadTasks[0].top().m_stepPos > m_threadTasks[0].top().m_nbSteps)
 					m_threadTasks[0].top().m_stepPos = m_threadTasks[0].top().m_nbSteps;
+			}
+			m_mutex[0].unlock();
 
+			if (!m_threadTasks[0].empty())
+			{
 				if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
 				{
 					//try to limit the number of message sent
@@ -183,7 +193,7 @@ namespace WBSF
 					msg.ajoute(m_userCancelMsg);
 				}
 			}
-			m_mutex[0].unlock();
+			
 		}
 		return msg;
 	}

@@ -4,8 +4,11 @@
 
 #include "stdafx.h"
 
+
 #include "Basic/UtilTime.h"
 #include "Basic/callback.h"
+#include "FileManager/FileManager.h"
+#include "Simulation/WeatherGradient.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"

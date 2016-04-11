@@ -17,7 +17,7 @@
 #include "Basic/Registry.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
-#include "Simulation/WeatherGradient2.h"
+#include "Simulation/WeatherGradient.h"
 #include "StationsListCtrl.h"
 
 #include "WeatherBasedSimulationString.h"

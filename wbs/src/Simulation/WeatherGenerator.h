@@ -22,7 +22,7 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/DailyDatabase.h"
 #include "ModelBase/WGInput.h"
-#include "Simulation/WeatherGradient2.h"
+#include "Simulation/WeatherGradient.h"
 #include "Simulation/WeatherGeneratorKernel.h"
 #include "Simulation/ATM.h"
 

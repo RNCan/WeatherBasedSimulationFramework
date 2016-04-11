@@ -5,6 +5,7 @@
 #include "stdafx.h"
 
 #include "Basic/Registry.h"
+#include "FileManager/FileManager.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "BioSIMDoc.h"
@@ -378,7 +379,7 @@ LRESULT CExportWnd::OnCheckbox(WPARAM wParam, LPARAM lParam)
 	XHTMLTREEMSGDATA *pData = (XHTMLTREEMSGDATA *)wParam;
 	ASSERT(pData);
 
-	BOOL bChecked = lParam;
+	BOOL bChecked = (BOOL)lParam;
 
 	if (pData)
 	{

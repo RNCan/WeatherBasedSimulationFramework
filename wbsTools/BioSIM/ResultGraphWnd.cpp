@@ -16,6 +16,7 @@
 #include "ChartCtrl/ChartCrossHairCursor.h"
 #include "ChartCtrl/ChartDragLineCursor.h"
 
+#include "FileManager/FileManager.h"
 #include "UI/GraphDefineDlg.h"
 #include "UI/Common/ChartTRefAxis.h"
 #include "UI/Common/AppOption.h"

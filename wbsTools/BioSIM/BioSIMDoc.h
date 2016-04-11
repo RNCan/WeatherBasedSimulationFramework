@@ -6,8 +6,8 @@
 #pragma once
 
 
-#include "Simulation.h"
-#include "FileManager.h"
+//#include "Simulation.h"
+//#include "FileManager.h"
 #include "Simulation/BioSIMProject.h"
 //#include "XMLFile.h"
 

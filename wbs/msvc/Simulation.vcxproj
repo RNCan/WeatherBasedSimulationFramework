@@ -196,7 +196,7 @@
     <ClCompile Include="..\src\Simulation\WeatherGeneration.cpp" />
     <ClCompile Include="..\src\Simulation\WeatherGenerator.cpp" />
     <ClCompile Include="..\src\Simulation\WeatherGeneratorKernel.cpp" />
-    <ClCompile Include="..\src\Simulation\WeatherGradient2.cpp" />
+    <ClCompile Include="..\src\Simulation\WeatherGradient.cpp" />
     <ClCompile Include="..\src\Simulation\WeatherUpdater.cpp" />
     <ClCompile Include="stdafx\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -234,7 +234,7 @@
     <ClInclude Include="..\src\Simulation\WeatherGeneration.h" />
     <ClInclude Include="..\src\Simulation\WeatherGenerator.h" />
     <ClInclude Include="..\src\Simulation\WeatherGeneratorKernel.h" />
-    <ClInclude Include="..\src\Simulation\WeatherGradient2.h" />
+    <ClInclude Include="..\src\Simulation\WeatherGradient.h" />
     <ClInclude Include="..\src\Simulation\WeatherUpdater.h" />
     <ClInclude Include="stdafx\stdafx.h" />
   </ItemGroup>

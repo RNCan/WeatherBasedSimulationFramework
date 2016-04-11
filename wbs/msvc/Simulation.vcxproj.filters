@@ -88,9 +88,6 @@
     <ClCompile Include="..\src\Simulation\WeatherGeneratorKernel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Simulation\WeatherGradient2.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Simulation\WeatherUpdater.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -98,6 +95,9 @@
       <Filter>stdafx</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Simulation\ModelParameterization.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Simulation\WeatherGradient.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,9 +183,6 @@
     <ClInclude Include="..\src\Simulation\WeatherGeneratorKernel.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Simulation\WeatherGradient2.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Simulation\WeatherUpdater.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -193,6 +190,9 @@
       <Filter>stdafx</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Simulation\ModelParameterization.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Simulation\WeatherGradient.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

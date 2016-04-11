@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "BioSIM.h"
-
+#include "FileManager/FileManager.h"
 #include "BioSIMDoc.h"
 #include "ResultDataWnd.h"
  
