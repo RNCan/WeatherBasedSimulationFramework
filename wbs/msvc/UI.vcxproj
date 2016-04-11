@@ -354,6 +354,7 @@
     <Image Include="..\src\res\State.bmp" />
     <Image Include="..\src\res\Up-Arrow32.bmp" />
     <Image Include="..\src\res\up.ico" />
+    <Image Include="..\src\res\WeatherUpdater.ico" />
     <Image Include="..\src\res\YearByYearPeriod1.bmp" />
     <Image Include="..\src\res\YearByYearPeriod1Checked.bmp" />
     <Image Include="..\src\res\YearByYearPeriod2.bmp" />

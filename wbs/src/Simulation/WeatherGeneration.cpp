@@ -968,6 +968,8 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 
 		bool bTestOK = true;
 
+		size_t n = 0;//progress
+
 		//static,1 is to do simulation in the good other. This is best way to optimize weather cache
 #pragma omp parallel for schedule(static, 1) shared(result, msg) num_threads(nbThreadsLoc) if ( !WGInput.UseGribs() ) 
 		for (int ll = 0; ll < (int)locPos.size(); ll++)
@@ -1013,7 +1015,11 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 #pragma omp flush(msg)
 					if (msg)
 					{
-						msg += callback.StepIt();
+#pragma omp atomic
+						n++;
+
+						if (omp_get_thread_num()==0)
+							msg += callback.SetCurrentStepPos(n);
 #pragma omp flush(msg)
 					}
 

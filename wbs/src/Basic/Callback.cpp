@@ -148,7 +148,8 @@ namespace WBSF
 		
 		if (!m_threadTasks.empty())
 		{
-			m_mutex[0].lock();
+			//m_mutex[0].lock();
+			Lock();
 			if (!m_threadTasks[0].empty())
 			{
 				m_threadTasks[0].top().m_stepPos += (stepBy == -1) ? m_threadTasks[0].top().m_stepBy : stepBy;
@@ -156,7 +157,8 @@ namespace WBSF
 				if (m_threadTasks[0].top().m_stepPos > m_threadTasks[0].top().m_nbSteps)
 					m_threadTasks[0].top().m_stepPos = m_threadTasks[0].top().m_nbSteps;
 			}
-			m_mutex[0].unlock();
+			Unlock();
+			//m_mutex[0].unlock();
 
 			if (!m_threadTasks[0].empty())
 			{
@@ -197,23 +199,6 @@ namespace WBSF
 		}
 		return msg;
 	}
-
-	//void CCallback::SetNbStep(double nbStep, double stepBy)
-	//{
-	//	PushTask(m_description, nbStep, stepBy);
-	//	//
-
-	//	//m_nbSteps = nbStep;
-	//	//m_stepBy = stepBy;
-	//	//m_stepPos = 0;
-	//	//m_oldPos = -1;
-	//	//m_nCurrentTask++; don't incrément task anymore. It's the responsability od the PrograssBar Dialoge owner
-	//	//if (m_nCurrentTask >= m_nbTask)
-	//	//m_nbTask = m_nCurrentTask + 1;
-
-	//	
-	//}
-
 
 	double CCallback::GetCurrentStepPercent()
 	{ 
