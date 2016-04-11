@@ -148,8 +148,8 @@ namespace WBSF
 		
 		if (!m_threadTasks.empty())
 		{
-			//m_mutex[0].lock();
-			Lock();
+			m_mutex[0].lock();
+			//Lock();
 			if (!m_threadTasks[0].empty())
 			{
 				m_threadTasks[0].top().m_stepPos += (stepBy == -1) ? m_threadTasks[0].top().m_stepBy : stepBy;
@@ -157,8 +157,8 @@ namespace WBSF
 				if (m_threadTasks[0].top().m_stepPos > m_threadTasks[0].top().m_nbSteps)
 					m_threadTasks[0].top().m_stepPos = m_threadTasks[0].top().m_nbSteps;
 			}
-			Unlock();
-			//m_mutex[0].unlock();
+			//Unlock();
+			m_mutex[0].unlock();
 
 			if (!m_threadTasks[0].empty())
 			{

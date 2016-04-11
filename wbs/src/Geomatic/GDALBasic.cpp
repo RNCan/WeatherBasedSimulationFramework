@@ -2176,10 +2176,10 @@ ERMsg CExtractInfo::Execute(CGDALDatasetEx& map, CCallback& callback)
 	m_info[DENSITY].resize(m_nbSub[DENSITY], m_nbSub[DENSITY]);
 
 	callback.PushTask(GetString(IDS_STR_EXTRACT_INFO), m_extents.GetNbPixels());
-	//callback.SetNbStep( m_extents.GetNbPixels() );
 	
 	vector<pair<int,int>> XYindex = m_extents.GetBlockList();
 
+	size_t n = 0;
 	for(int xy=0; xy<(int)XYindex.size(); xy++)//for all blocks
 	{
 		int xBlock=XYindex[xy].first;
@@ -2196,7 +2196,6 @@ ERMsg CExtractInfo::Execute(CGDALDatasetEx& map, CCallback& callback)
 		{
 			for(int x=0; x<blockExtents.m_xSize; x++)
 			{
-				//int pos_xy = y*blockExtents.m_xSize + x;
 				if( input[0]->IsValid(x,y) )
 				{
 					CGridPoint pt;
@@ -2221,8 +2220,6 @@ ERMsg CExtractInfo::Execute(CGDALDatasetEx& map, CCallback& callback)
 	
 
 	m_nbBox = GetNbBox(DENSITY);
-	//map.SeekBegin();
-
 	
 	CClassify classify;
 	for(size_t x=0; x<m_info[DENSITY].size_x(); x++)

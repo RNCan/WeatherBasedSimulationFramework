@@ -507,6 +507,7 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 		
 		//execute over all pixels of the blocks
 		vector<float> output(blockExtents.m_ySize*blockExtents.m_xSize);
+
 #pragma omp parallel for schedule(static, 100) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)
 		for(int y=0; y<blockExtents.m_ySize; y++)
 		{
@@ -1081,19 +1082,12 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 	
 				CGridPointVector blockIn;
 				ReadBlock(bandHolder, xBlock, yBlock, PT, blockIn);
-
-				//apply transformation if any
-				//if( m_prePostTransfo.HaveTransformation() )
-				//{
-				//	for(int j=0; j<blockIn.size(); j++)
-				//		blockIn[j].m_event = m_prePostTransfo.Transform(blockIn[j].m_event, m_options.m_srcNodata);
-				//}
 				
 				CGeoRectIndex rect = extents.GetBlockRect(xBlock, yBlock);
 				IGenericStream* inStream = CreateInterpolationStream(sessionId, rect.m_x, rect.Width(), rect.m_y, rect.Height(), blockIn);
 				inStream->Seek(0);
 
-				IGenericStream* outStream = new TGenericStream(0);//CreateGenericStream();
+				IGenericStream* outStream = new TGenericStream(0);
 				if( RunTaskInterpolation((IAgent*)gSession.m_pGlobalDataStream, sessionId, inStream, outStream) )
 				{
 					outStream->Seek(0);

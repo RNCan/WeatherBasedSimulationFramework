@@ -624,7 +624,7 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 	omp_set_dynamic(0);
 	omp_set_nested(model.GetThreadSafe() && nbThreadsRep>1);
 
-	
+	size_t n = 0;
 #pragma omp parallel for schedule(static, 1) shared(result, totalExec, msg) num_threads(nbThreadsLoc) if ( model.GetThreadSafe() ) 
 	for (__int64 l = 0; l<(int)locations.size(); l++)
 	{
@@ -701,7 +701,9 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 #pragma omp flush(msg)
 										if (msg)
 										{
-											msg += callback.StepIt();
+#pragma omp atomic
+											n++;
+											msg += callback.SetCurrentStepPos(n);
 #pragma omp flush(msg)
 										}
 

@@ -593,7 +593,6 @@ namespace WBSF
 
 
 #pragma omp parallel for schedule(static, 10) num_threads( m_info.m_nbCPU ) if (m_info.m_bMulti)
-//#pragma omp parallel for schedule(static, 10)
 			for (int i = 0; i < m_pPts->size(); i++)
 			{
 				const CGridPoint& pt = m_pPts->at(i);
