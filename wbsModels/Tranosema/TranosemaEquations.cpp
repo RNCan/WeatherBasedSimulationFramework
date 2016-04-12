@@ -129,8 +129,8 @@ namespace WBSF
 		static const double P[2] = { 143, 30 };
 
 		double Pmax = m_randomGenerator.RandNormal(P[0], P[1]);
-		while (Pmax < 43 || Pmax>253)
-			Pmax = m_randomGenerator.RandLogNormal(P[0], P[1]);
+		while (Pmax < 43 || Pmax>243)
+			Pmax = m_randomGenerator.RandNormal(P[0], P[1]);
 
 		ASSERT(Pmax > 0);
 
