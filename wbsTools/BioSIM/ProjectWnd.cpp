@@ -9,7 +9,7 @@
 #include "WeatherBasedSimulationUI.h"
 
 #include "mainfrm.h"
-#include "ProjectView.h"
+#include "ProjectWnd.h"
 #include "Resource.h"
 #include "BioSIMDoc.h"
 
@@ -25,13 +25,13 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-IMPLEMENT_DYNCREATE(CProjectView, CView)
+//IMPLEMENT_DYNCREATE(CProjectWnd, CView)
 
 
 static const UINT ID_TREE_CTRL = 1000;
 
 /////////////////////////////////////////////////////////////////////////////
-// CProjectView
+// CProjectWnd
 static const int ID_INDICATOR_NB_EXECUTE = 0xE711;
 
 static UINT indicators[] =
@@ -40,19 +40,19 @@ static UINT indicators[] =
 	ID_INDICATOR_NB_EXECUTE
 };
 
-CProjectView::CProjectView()
+CProjectWnd::CProjectWnd()
 {
 }
 
-CProjectView::~CProjectView()
+CProjectWnd::~CProjectWnd()
 {
 }
 
-BEGIN_MESSAGE_MAP(CProjectView, CView)
+BEGIN_MESSAGE_MAP(CProjectWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
-	ON_WM_PAINT()
+//	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 
 	ON_COMMAND(ID_EXECUTE_MENU, OnExecute)
@@ -80,52 +80,46 @@ BEGIN_MESSAGE_MAP(CProjectView, CView)
 
 END_MESSAGE_MAP()
 
-LRESULT CProjectView::OnCheckbox(WPARAM wParam, LPARAM lParam)
+LRESULT CProjectWnd::OnCheckbox(WPARAM wParam, LPARAM lParam)
 {
 	return m_projectCtrl.OnCheckbox(wParam, lParam);
 }
 
-LRESULT CProjectView::OnItemExpanded(WPARAM wParam, LPARAM lParam)
+LRESULT CProjectWnd::OnItemExpanded(WPARAM wParam, LPARAM lParam)
 {
 	return m_projectCtrl.OnItemExpanded(wParam, lParam);
 }
 
-LRESULT CProjectView::OnBeginDrag(WPARAM wParam, LPARAM lParam)
+LRESULT CProjectWnd::OnBeginDrag(WPARAM wParam, LPARAM lParam)
 {
 	return m_projectCtrl.OnBeginDrag(wParam, lParam);
 }
 
-LRESULT CProjectView::OnEndDrag(WPARAM wParam, LPARAM lParam)
+LRESULT CProjectWnd::OnEndDrag(WPARAM wParam, LPARAM lParam)
 {
 	return m_projectCtrl.OnEndDrag(wParam, lParam);
 }
 
-LRESULT CProjectView::OnDropHover(WPARAM wParam, LPARAM lParam)
+LRESULT CProjectWnd::OnDropHover(WPARAM wParam, LPARAM lParam)
 {
 	return m_projectCtrl.OnDropHover(wParam, lParam);
 }
 
-void CProjectView::OnDraw(CDC* pDC)
-{
-	//do nothing
-}
 
 /////////////////////////////////////////////////////////////////////////////
 // CWorkspaceBar message handlers
 
-int CProjectView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CProjectWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CView::OnCreate(lpCreateStruct) == -1)
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	//CRect rectDummy;
-	//rectDummy.SetRectEmpty();
-
 	// Create view:
-//	CCreateContext* pContext = ((CCreateContext*)(lpCreateStruct->lpCreateParams));
 	const DWORD dwStyle = TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT |
 		TVS_EDITLABELS | TVS_SHOWSELALWAYS |
-		WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP | WS_BORDER;
+		WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+
+	//| WS_BORDER 
 
 	// Create the list control.  Don't worry about specifying
 	// correct coordinates.  That will be handled in OnSize()
@@ -166,14 +160,14 @@ int CProjectView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 }
 
 
-void CProjectView::OnSize(UINT nType, int cx, int cy)
+void CProjectWnd::OnSize(UINT nType, int cx, int cy)
 {
-	CView::OnSize(nType, cx, cy);
+	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
 
 
-void CProjectView::AdjustLayout()
+void CProjectWnd::AdjustLayout()
 {
 	if (GetSafeHwnd() == NULL)
 	{
@@ -192,7 +186,7 @@ void CProjectView::AdjustLayout()
 	m_wndStatusBar.SetWindowPos(NULL, rectClient.left+1, rectClient.Height()-cyTlb, rectClient.Width()-2, cyTlb-1, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void CProjectView::OnContextMenu(CWnd* pWnd, CPoint point)
+void CProjectWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	if (pWnd == &m_projectCtrl)
 	{
@@ -200,12 +194,12 @@ void CProjectView::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 	else
 	{
-		CView::OnContextMenu(pWnd, point);
+		CDockablePane::OnContextMenu(pWnd, point);
 	}
 
 }
 
-void CProjectView::OnPaint()
+void CProjectWnd::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 
@@ -223,14 +217,14 @@ void CProjectView::OnPaint()
 	dc.Draw3dRect(rectStatus, ::GetSysColor(COLOR_3DSHADOW), ::GetSysColor(COLOR_3DSHADOW));
 }
 
-void CProjectView::OnSetFocus(CWnd* pOldWnd)
+void CProjectWnd::OnSetFocus(CWnd* pOldWnd)
 {
-	CView::OnSetFocus(pOldWnd);
+	CDockablePane::OnSetFocus(pOldWnd);
 
 	m_projectCtrl.SetFocus();
 }
 
-void CProjectView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+void CProjectWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	CBioSIMDoc* pDoc = (CBioSIMDoc*)GetDocument(); ASSERT(pDoc);
 	string iName = pDoc->GetCurSel();
@@ -253,7 +247,7 @@ void CProjectView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 
 
-void CProjectView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
+void CProjectWnd::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	CBioSIMDoc* pDoc = GetDocument();
 
@@ -268,13 +262,13 @@ void CProjectView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 }
 
-void CProjectView::OnExecute()
+void CProjectWnd::OnExecute()
 {
 	AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_EXECUTE);
 }
 
 
-BOOL CProjectView::OnOpenWorkingDir(UINT ID)
+BOOL CProjectWnd::OnOpenWorkingDir(UINT ID)
 {
 	CBioSIMDoc* pDoc = GetDocument();
 	CBioSIMProject& project = pDoc->GetProject();
@@ -300,7 +294,7 @@ BOOL CProjectView::OnOpenWorkingDir(UINT ID)
 	return TRUE;
 }
 
-void CProjectView::OnShowMaps()
+void CProjectWnd::OnShowMaps()
 {
 	CExecutablePtr pItem = m_projectCtrl.GetSelectedExecutable();
 
@@ -345,7 +339,7 @@ void CProjectView::OnShowMaps()
 }
 
 
-void CProjectView::OnShowLoc()
+void CProjectWnd::OnShowLoc()
 {
 	CExecutablePtr pItem = m_projectCtrl.GetSelectedExecutable();
 
@@ -372,7 +366,7 @@ void CProjectView::OnShowLoc()
 	}
 }
 
-void CProjectView::OnMatchStation()
+void CProjectWnd::OnMatchStation()
 {
 	CExecutablePtr pItem = m_projectCtrl.GetSelectedExecutable();
 
@@ -457,7 +451,7 @@ void CProjectView::OnMatchStation()
 }
 
 
-void CProjectView::OnUpdateNbExecute(CCmdUI* pCmdUI)
+void CProjectWnd::OnUpdateNbExecute(CCmdUI* pCmdUI)
 {
 	CBioSIMDoc* pDoc = GetDocument();
 	ENSURE(pDoc);
@@ -482,7 +476,7 @@ void CProjectView::OnUpdateNbExecute(CCmdUI* pCmdUI)
 	}
 }
 
-void CProjectView::OnUpdateToolBar(CCmdUI *pCmdUI)
+void CProjectWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 {
 	CBioSIMDoc* pDoc = (CBioSIMDoc*)GetDocument();
 	ENSURE(pDoc);
@@ -525,36 +519,34 @@ void CProjectView::OnUpdateToolBar(CCmdUI *pCmdUI)
 
 
 
-#ifdef _DEBUG
-void CProjectView::AssertValid() const
+
+CBioSIMDoc* CProjectWnd::GetDocument()
 {
-	CView::AssertValid();
+	CDocument* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = docT->GetNextDoc(pos);
+		}
+	}
+
+	return static_cast<CBioSIMDoc*>(pDoc);
 }
 
-void CProjectView::Dump(CDumpContext& dc) const
-{
-	CView::Dump(dc);
-}
-
-#endif //_DEBUG
-
-
-CBioSIMDoc* CProjectView::GetDocument() const
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CBioSIMDoc)));
-	return (CBioSIMDoc*)m_pDocument;
-}
+//void CProjectWnd::OnInitialUpdate()
+//{
+//	CBioSIMDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//	pDoc->OnInitialUpdate();
+//}
 
 
-void CProjectView::OnInitialUpdate()
-{
-	CBioSIMDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	pDoc->OnInitialUpdate();
-}
-
-
-BOOL CProjectView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+BOOL CProjectWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	//let the trl to route command
 	CWnd* pFocus = GetFocus();
@@ -568,6 +560,6 @@ BOOL CProjectView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINF
 				return TRUE;
 		}
 	}
-	return CView::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+	return CDockablePane::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
 

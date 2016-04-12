@@ -47,8 +47,7 @@ namespace WBSF
 	const char * CRegistry::SPREADSHEET2 = "Spreadsheet2";
 	
 	const char * CRegistry::R_SCRIPT = "RScript";
-
-
+	
 	const char * CRegistry::WEATHER = "WeatherPath";
 	const char * CRegistry::MAPS = "MapsPath";
 	const char * CRegistry::MAPS_EXTENSIONS = "MapsExtensions";
@@ -273,8 +272,22 @@ namespace WBSF
 		if (filePath.empty())
 			filePath = GetProfileString(itemName + " FilePath", "", true);
 
-		//if (filePath.empty())
-			//filePath = itemName + ".exe";
+		if (filePath.empty())
+		{
+			if (itemName == TEXT_EDITOR)
+				filePath = "Notepad.exe";
+			else if (itemName == XML_EDITOR)
+				filePath = "Notepad.exe";
+			else if (itemName == SPREADSHEET1)
+				filePath = "Excel.exe";
+			else if (itemName == SPREADSHEET2)
+				filePath = "Calc.exe";
+			else if (itemName == R_SCRIPT)
+				filePath = "scalc.exe";
+			else 
+				filePath = itemName + ".exe";
+			
+		}
 
 		return filePath;
 	}

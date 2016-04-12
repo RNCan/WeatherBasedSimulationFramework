@@ -245,10 +245,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="OutputView.cpp" />
     <ClCompile Include="MFCPropertyGridDateTimeProperty.cpp" />
-    <ClCompile Include="ParametersWnd.cpp" />
-    <ClCompile Include="ProjectView.cpp" />
+    <ClCompile Include="TaskPropertiesWnd.cpp" />
+    <ClCompile Include="ProjectWnd.cpp" />
     <ClCompile Include="Tasks\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -263,10 +263,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="OutputView.h" />
     <ClInclude Include="MFCPropertyGridDateTimeProperty.h" />
-    <ClInclude Include="ParametersWnd.h" />
-    <ClInclude Include="ProjectView.h" />
+    <ClInclude Include="TaskPropertiesWnd.h" />
+    <ClInclude Include="ProjectWnd.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Tasks\stdafx.h" />
     <ClInclude Include="TaskTreeCtrl.h" />
@@ -288,6 +288,7 @@
     <Image Include="res\OptionIcon.bmp" />
     <Image Include="res\OptionIcon.png" />
     <Image Include="res\output_wnd.ico" />
+    <Image Include="res\project_wnd.ico" />
     <Image Include="res\PropertiesToolBar.png" />
     <Image Include="res\properties_wnd.ico" />
     <Image Include="res\spreadsheet_wnd.ico" />

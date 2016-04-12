@@ -15,10 +15,11 @@ namespace WBSF
 	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "OutputFilePath", "Begin", "End"};
 	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
 	const UINT CCreateGribsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
+	const UINT CCreateGribsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
 
 	const char* CCreateGribsDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateGribs";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateGribsDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCreateGribsDB::CLASS_NAME(), CCreateGribsDB::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateGribsDB::CLASS_NAME(), (createF)CCreateGribsDB::create);
 
 
 	CCreateGribsDB::CCreateGribsDB(void)
@@ -83,7 +84,7 @@ namespace WBSF
 			string outputFilePath = Get(OUTPUT);
 			SetFileExtension(outputFilePath, ".Gribs");
 
-			callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+			callback.AddMessage(GetString(IDS_CREATE_DB));
 			callback.AddMessage(outputFilePath, 1);
 
 			msg = RemoveFile(outputFilePath);

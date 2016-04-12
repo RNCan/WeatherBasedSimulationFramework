@@ -12,9 +12,6 @@
     <ClCompile Include="MainFrm.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="WeatherUpdater.cpp">
       <Filter>Files</Filter>
     </ClCompile>
@@ -27,13 +24,7 @@
     <ClCompile Include="WeatherUpdaterOptionsDlg.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectView.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="TaskTreeCtrl.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParametersWnd.cpp">
       <Filter>Files</Filter>
     </ClCompile>
     <ClCompile Include="MFCPropertyGridDateTimeProperty.cpp">
@@ -42,12 +33,18 @@
     <ClCompile Include="Tasks\stdafx.cpp">
       <Filter>Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskPropertiesWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
-      <Filter>Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OutputWnd.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -68,19 +65,22 @@
     <ClInclude Include="WeatherUpdaterOptionsDlg.h">
       <Filter>Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectView.h">
-      <Filter>Files</Filter>
-    </ClInclude>
     <ClInclude Include="TaskTreeCtrl.h">
-      <Filter>Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParametersWnd.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="MFCPropertyGridDateTimeProperty.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="Tasks\stdafx.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskPropertiesWnd.h">
       <Filter>Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -149,6 +149,9 @@
       <Filter>Resources</Filter>
     </Image>
     <Image Include="res\TaskType.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\project_wnd.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

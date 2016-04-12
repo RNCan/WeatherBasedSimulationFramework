@@ -263,8 +263,8 @@
     <ClCompile Include="FileManagerWnd.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OptionBioSIM.cpp" />
-    <ClCompile Include="OutputWnd.cpp" />
-    <ClCompile Include="ProjectView.cpp" />
+    <ClCompile Include="OutputView.cpp" />
+    <ClCompile Include="ProjectWnd.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
     <ClCompile Include="ResultCtrl.cpp" />
     <ClCompile Include="ResultDataWnd.cpp" />
@@ -284,8 +284,8 @@
     <ClInclude Include="FileManagerWnd.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OptionBioSIM.h" />
-    <ClInclude Include="OutputWnd.h" />
-    <ClInclude Include="ProjectView.h" />
+    <ClInclude Include="OutputView.h" />
+    <ClInclude Include="ProjectWnd.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <CustomBuild Include="Resource.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating map file for help compiler...</Message>

@@ -24,10 +24,11 @@ namespace WBSF
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province" };
 	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE };
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
-	
+	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
+
 	const char* CUIEnvCanHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanHourly::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanHourly::CLASS_NAME(), CUIEnvCanHourly::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanHourly::CLASS_NAME(), (createF)CUIEnvCanHourly::create);
 
 
 	CUIEnvCanHourly::CUIEnvCanHourly(void)

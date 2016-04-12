@@ -173,7 +173,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-	if (!m_propertiesCtrl.Create(WS_CHILD | WS_VISIBLE, CRect(0, 0, 0, 0), this, ID_PROPERTIES_CTRL) )
+	if (!m_propertiesCtrl.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(0, 0, 0, 0), this, ID_PROPERTIES_CTRL))
 	{
 		TRACE0("Failed to create Properties Grid \n");
 		return -1;      // fail to create

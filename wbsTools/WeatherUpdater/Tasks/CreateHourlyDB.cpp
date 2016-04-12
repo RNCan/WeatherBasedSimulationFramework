@@ -23,12 +23,13 @@ namespace WBSF
 	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
 	const size_t CCreateHourlyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_STRING };
 	const UINT CCreateHourlyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_HOURLY_P;
-	
+	const UINT CCreateHourlyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_HOURLY;
+
 
 	const char* CCreateHourlyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateHourlyDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCreateHourlyDB::CLASS_NAME(), CCreateHourlyDB::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("HOURLY_DB_CREATOR", CCreateHourlyDB::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateHourlyDB::CLASS_NAME(), (createF)CCreateHourlyDB::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("HOURLY_DB_CREATOR", (createF)CCreateHourlyDB::create);
 
 	
 
@@ -250,7 +251,7 @@ namespace WBSF
 		msg += CreateMultipleDir(GetPath(hourlyDBFilePath));
 
 
-		callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(hourlyDBFilePath, 1);
 
 		CHourlyDatabase DB;
@@ -299,7 +300,7 @@ namespace WBSF
 				}
 				}
 				*/
-			callback.PushTask(GetString(IDS_CREATE_DATABASE), stationList.size());
+			callback.PushTask(GetString(IDS_CREATE_DB), stationList.size());
 			//callback.AddTask(1);
 			//callback.SetNbStep(stationList.size());
 			callback.AddMessage("Extracting " + ToString(stationList.size()) + " stations");

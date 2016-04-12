@@ -17,7 +17,7 @@ namespace WBSF
 
 	class CWeatherStation;
 	//*********************************************************************
-	enum { T_STRING, T_STRING_BROWSE, T_BOOL, T_COMBO_POSITION, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, NB_TYPE };
+	enum { T_STRING, T_STRING_BROWSE, T_BOOL, T_COMBO_POSITION, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, T_URL, NB_TYPE };
 
 	class CTaskAttribute
 	{
@@ -113,6 +113,7 @@ namespace WBSF
 		virtual const char* ClassName()const = 0;
 		virtual TType ClassType()const = 0;
 		virtual UINT GetTitleStringID()const=0;
+		virtual UINT GetDescriptionStringID()const = 0;
 		virtual bool IsHourly()const{ return false; }
 		virtual bool IsForecast()const{	return false; }
 		virtual bool IsGribs()const{ return false; }

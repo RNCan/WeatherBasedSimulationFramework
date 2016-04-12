@@ -25,10 +25,11 @@ namespace WBSF
 	const char* CConvertDB::ATTRIBUTE_NAME[] = { "Direction", "InputFilepath", "OutputFilepath" };
 	const size_t CConvertDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_FILEPATH };
 	const UINT CConvertDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CONVERT_DB_P;
-	
+	const UINT CConvertDB::DESCRIPTION_TITLE_ID = ID_TASK_CONVERT_DB;
+
 	const char* CConvertDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ConvertDB";  return THE_CLASS_NAME; }
 	CTaskBase::TType CConvertDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CConvertDB::CLASS_NAME(), CConvertDB::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CConvertDB::CLASS_NAME(), (createF)CConvertDB::create);
 
 	CConvertDB::CConvertDB(void)
 	{

@@ -34,10 +34,11 @@ namespace WBSF
 	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };
 	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
 	const UINT CUIGSOD::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GSOD_P;
-	
+	const UINT CUIGSOD::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GSOD;
+
 	const char* CUIGSOD::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GSOD";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIGSOD::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIGSOD::CLASS_NAME(), CUIGSOD::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIGSOD::CLASS_NAME(), (createF)CUIGSOD::create);
 
 
 

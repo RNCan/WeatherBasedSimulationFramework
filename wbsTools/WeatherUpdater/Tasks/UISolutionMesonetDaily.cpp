@@ -1,7 +1,3 @@
-//USER = biosim.stare1
-//PASSWORD = PdwtZJLQHTpV
-
-
 #include "StdAfx.h"
 #include "UISolutionMesonetDaily.h"
 #include "TaskFactory.h"
@@ -9,11 +5,6 @@
 #include "UI/Common/SYShowMessage.h"
 #include <boost\filesystem.hpp>
 #include "../Resource.h"
-
-//#include <string>
-//#include <locale>
-//#include <codecvt>
-
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -28,11 +19,12 @@ namespace WBSF
 	const char* CUISolutionMesonetDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
 	const size_t CUISolutionMesonetDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
 	const UINT CUISolutionMesonetDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_DAILY_P;
+	const UINT CUISolutionMesonetDaily::DESCRIPTION_TITLE_ID = ID_TASK_SM_DAILY;
 
 	const char* CUISolutionMesonetDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SolutionMesonetDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISolutionMesonetDaily::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISolutionMesonetDaily::CLASS_NAME(), CUISolutionMesonetDaily::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("MesonetQuebec", CUISolutionMesonetDaily::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUISolutionMesonetDaily::CLASS_NAME(), (createF)CUISolutionMesonetDaily::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("MesonetQuebec", (createF)CUISolutionMesonetDaily::create);
 	
 
 	const char* CUISolutionMesonetDaily::SERVER_NAME = "horus.mesonet-quebec.org";

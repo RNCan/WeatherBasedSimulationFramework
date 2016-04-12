@@ -91,24 +91,58 @@ public:
 
 
 //*****************************************************************************************************
-class CProjectView : public CView
+//class CProjectWnd : public CView
+//{
+//	DECLARE_DYNCREATE(CProjectWnd)
+//
+//public:
+//
+//	CProjectWnd();
+//	~CProjectWnd();
+//
+//	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+//	virtual void OnDraw(CDC* pDC);
+//	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+//	virtual void OnInitialUpdate();
+//
+//
+//	void AdjustLayout();
+//
+//
+//
+//protected:
+//
+//
+//	CTaskWnd m_wnd1;
+//	CTaskWnd m_wnd2;
+//	CPaneSplitter m_wndSplitter;
+//
+//	DECLARE_MESSAGE_MAP()
+//	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+//	afx_msg void OnSize(UINT nType, int cx, int cy);
+//	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
+//	afx_msg void OnSetFocus(CWnd* pOldWnd);
+//	afx_msg void OnExecute();
+//	afx_msg BOOL OnOpenWorkingDir(UINT ID);
+//
+//};
+//
+
+class CProjectWnd : public CDockablePane
 {
-	DECLARE_DYNCREATE(CProjectView)
+	DECLARE_DYNAMIC(CProjectWnd)
 
 public:
 
-	CProjectView();
-	~CProjectView();
+	CProjectWnd();
+	~CProjectWnd();
 
-	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
-	virtual void OnDraw(CDC* pDC);
-	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	virtual void OnInitialUpdate();
-
+	
 
 	void AdjustLayout();
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
-
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 
 protected:
 

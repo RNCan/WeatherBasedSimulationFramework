@@ -58,13 +58,15 @@
 #include "MainFrm.h"
 
 #include "WeatherUpdaterDoc.h"
-#include "ProjectView.h"
 #include "UI/Common/AboutDlg.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
 #include "WeatherUpdaterCmdLine.h"
 #include "UI/Common/SYShowMessage.h"
+#include "UI/Common/ProgressStepDlg.h"
+
 #include <gdiplus.h>
+#include "OutputView.h"
 
 using namespace Gdiplus;
 using namespace WBSF;
@@ -122,11 +124,7 @@ BOOL CWeatherUpdaterApp::InitInstance()
 		hInst = LoadLibraryW(L"WeatherUpdaterFrc.dll");
 
 		if (hInst != NULL)
-		{
 			AfxSetResourceHandle(hInst);
-			//CTaskFactory::UpdateLanguage();
-		}
-			
 	}
 
 	CDynamicResources::set(AfxGetResourceHandle());
@@ -191,20 +189,14 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	{
 		ERMsg msg;
 
-		//CSCCallBack callback;
 		CProgressStepDlg dlg(m_pMainWnd);
 		if (cmdInfo.Is(CStdCmdLine::SHOW))
 			dlg.Create();
 		
 		CString curDir = UtilWin::GetCurrentDirectory();
 		std::string absolutePath = CStringA(UtilWin::GetAbsolutePath(curDir, cmdInfo.m_strFileName));
-		//CExecutablePtr projectPtr;
+
 		WBSF::CTasksProject project;
-		//pProject->SetMyself(&projectPtr);
-		//projectPtr.reset(pProject);
-
-
-		//projectPtr->LoadDefaultCtrl();
 
 		msg += project.Load(absolutePath);
 		if (msg)
@@ -235,25 +227,30 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	}
 
 
+	InitCommonControls();
+	InitShellManager();
 	InitContextMenuManager();
 	InitKeyboardManager();
-
 	InitTooltipManager();
+
+
 	CMFCToolTipInfo ttParams;
 	ttParams.m_bVislManagerTheme = TRUE;
-	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
-		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
 	// Inscrire les modèles de document de l'application.  Ces modèles
 	//  lient les documents, fenêtres frame et vues entre eux
+	
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CWeatherUpdaterDoc),
 		RUNTIME_CLASS(CMainFrame),       // fenêtre frame SDI principale
-		RUNTIME_CLASS(CProjectView));
+		RUNTIME_CLASS(COutputView));
+	
 	if (!pDocTemplate)
 		return FALSE;
+	
 	AddDocTemplate(pDocTemplate);
 
 

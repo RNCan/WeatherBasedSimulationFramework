@@ -115,10 +115,11 @@ namespace WBSF
 	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "Radar", "FirstDate", "LastDate" };
 	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING_BROWSE, T_DATE, T_DATE };
 	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
-	
+	const UINT CUIEnvCanRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_RADAR;
+
 	const char* CUIEnvCanRadar::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanRadar";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanRadar::CLASS_NAME(), CUIEnvCanRadar::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanRadar::CLASS_NAME(), (createF)CUIEnvCanRadar::create);
 	
 	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca"};
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";

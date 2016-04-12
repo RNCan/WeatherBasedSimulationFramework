@@ -1,7 +1,3 @@
-//USER = biosim.stare1
-//PASSWORD = PdwtZJLQHTpV
-
-
 #include "stdafx.h"
 #include "UISolutionMesonetHourly.h"
 
@@ -25,11 +21,12 @@ namespace WBSF
 	const char* CUISolutionMesonetHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear", "UpdateStationList" };
 	const size_t CUISolutionMesonetHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_BOOL };
 	const UINT CUISolutionMesonetHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_HOURLY_P;
-	
+	const UINT CUISolutionMesonetHourly::DESCRIPTION_TITLE_ID = ID_TASK_SM_HOURLY;
+
 	const char* CUISolutionMesonetHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SolutionMesonetHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISolutionMesonetHourly::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISolutionMesonetHourly::CLASS_NAME(), CUISolutionMesonetHourly::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("MesonetQuebecHourly", CUISolutionMesonetHourly::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUISolutionMesonetHourly::CLASS_NAME(), (createF)CUISolutionMesonetHourly::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("MesonetQuebecHourly", (createF)CUISolutionMesonetHourly::create);
 
 	const char* CUISolutionMesonetHourly::SERVER_NAME = "data.mesonet-quebec.org";
 	const char* CUISolutionMesonetHourly::MTS_SUB_DIR = "text/meteo/quebec/realtime/mts/";
@@ -42,8 +39,6 @@ namespace WBSF
 	CUISolutionMesonetHourly::~CUISolutionMesonetHourly(void)
 	{}
 
-
-
 	std::string CUISolutionMesonetHourly::Default(size_t i)const
 	{
 		string str;
@@ -53,17 +48,6 @@ namespace WBSF
 		{
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		//{
-		//	CTRef TRef = CTRef(CTRef::GetCurrentTRef().GetYear(), FIRST_MONTH, FIRST_DAY);
-		//	str = TRef.GetFormatedString();
-		//	break;
-		//}
-
-		//{
-		//	CTRef TRef = CTRef(CTRef::GetCurrentTRef().GetYear(), LAST_MONTH, LAST_DAY);
-		//	str = TRef.GetFormatedString();
-		//	break;
-		//}
 		case UPDATE_STATION_LIST:	str = "1"; break;
 		};
 		return str;

@@ -16,11 +16,12 @@ namespace WBSF
 	const char* CCopyFTP::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Direction", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive", "ShowProgress" };
 	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_STRING, T_STRING, T_FILEPATH, T_STRING, PASSWORD, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
 	const UINT CCopyFTP::ATTRIBUTE_TITLE_ID = IDS_TOOL_DOWNLOAD_UPLOAD_P;
+	const UINT CCopyFTP::DESCRIPTION_TITLE_ID = ID_TASK_DOWNLOAD_UPLOAD;
 	
 
 	const char* CCopyFTP::CLASS_NAME(){ static const char* THE_CLASS_NAME = "FTPTransfer";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCopyFTP::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCopyFTP::CLASS_NAME(), CCopyFTP::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCopyFTP::CLASS_NAME(), (createF)CCopyFTP::create);
 
 	
 

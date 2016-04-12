@@ -83,7 +83,7 @@ namespace WBSF
 	//}
 
 	
-	size_t CTaskFactory::RegisterClass(const std::string& className, createF createObjectFuntion)
+	size_t CTaskFactory::RegisterTask(const std::string& className, createF createObjectFuntion)
 	{
 		GetInstance().m_classMap[className] = createObjectFuntion;
 		return GetInstance().m_classMap.size();

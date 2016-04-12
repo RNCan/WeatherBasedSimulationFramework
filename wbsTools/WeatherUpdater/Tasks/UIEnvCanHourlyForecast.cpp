@@ -96,10 +96,11 @@ namespace WBSF
 	const char* CUIEnvCanHourlyForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Region" };
 	const size_t CUIEnvCanHourlyForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_BROWSE };
 	const UINT CUIEnvCanHourlyForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_FORECAST_P;
-	
+	const UINT CUIEnvCanHourlyForecast::DESCRIPTION_TITLE_ID = ID_TASK_EC_FORECAST;
+
 	const char* CUIEnvCanHourlyForecast::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanHourlyForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanHourlyForecast::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanHourlyForecast::CLASS_NAME(), CUIEnvCanHourlyForecast::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanHourlyForecast::CLASS_NAME(), (createF)CUIEnvCanHourlyForecast::create);
 
 	
 

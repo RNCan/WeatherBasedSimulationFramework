@@ -7,7 +7,7 @@
 
 class CBioSIMDoc;
 
-class CProjectViewToolBar : public CMFCToolBar
+class CProjectWndToolBar : public CMFCToolBar
 {
 	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
 	{
@@ -21,7 +21,7 @@ class CProjectViewToolBar : public CMFCToolBar
 };
 
 
-class CProjectViewStatusBar : public CStatusBar
+class CProjectWndStatusBar : public CStatusBar
 {
 	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
 	{
@@ -30,33 +30,34 @@ class CProjectViewStatusBar : public CStatusBar
 
 };
 
-class CProjectView : public CView
+
+class CProjectWnd : public CDockablePane
 {
-	DECLARE_DYNCREATE(CProjectView)
+	//DECLARE_DYNCREATE(CProjectWnd)
 
 public:
-	
-	CProjectView();
-	~CProjectView();
+
+	CProjectWnd();
+	~CProjectWnd();
 
 
-	virtual CBioSIMDoc* GetDocument() const;
-	virtual void OnDraw(CDC* pDC);
-	virtual void OnInitialUpdate(); // called first time after construct
-	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	static CBioSIMDoc* GetDocument();
+	//virtual void OnDraw(CDC* pDC);
+	//virtual void OnInitialUpdate(); // called first time after construct
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 
 	void AdjustLayout();
-	
+
 protected:
 
 	WBSF::CExecutableTree	m_projectCtrl;
-	CProjectViewToolBar		m_wndToolBar1;
-	CProjectViewToolBar		m_wndToolBar2;
-	CProjectViewStatusBar	m_wndStatusBar;
-	
+	CProjectWndToolBar		m_wndToolBar1;
+	CProjectWndToolBar		m_wndToolBar2;
+	CProjectWndStatusBar	m_wndStatusBar;
 
-	
+
+
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -71,18 +72,13 @@ protected:
 	afx_msg void OnMatchStation();
 	afx_msg void OnUpdateNbExecute(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateToolBar(CCmdUI *pCmdUI);
-	
+
 	afx_msg LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnItemExpanded(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnBeginDrag(WPARAM, LPARAM);
 	afx_msg LRESULT OnEndDrag(WPARAM, LPARAM);
 	afx_msg LRESULT OnDropHover(WPARAM, LPARAM);
 
-
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
 
 };
 

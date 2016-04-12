@@ -11,8 +11,6 @@
 #include "stdafx.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskTreeCtrl.h"
-//#include "Tasks/TaskFactory.h"
-//#include "ProjectView.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "WeatherBasedSimulationUI.h"

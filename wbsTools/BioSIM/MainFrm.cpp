@@ -16,6 +16,7 @@
 #include "BioSIMOptionDlg.h"
 #include "BioSIM.h"
 #include "BioSIMDoc.h"
+#include "OutputView.h"
 #include "MainFrm.h"
 
 
@@ -31,13 +32,13 @@ using namespace WBSF;
 #define new DEBUG_NEW
 #endif
 
+static const UINT ID_PROJECT_WND        = 500;
+static const UINT ID_SPREADSHEET_WND	= 501;
+static const UINT ID_GRAPH_WND			= 502;
+static const UINT ID_PROPERTIES_WND		= 503;
+static const UINT ID_EXPORT_WND			= 504;
 
-static const UINT ID_SPREADSHEET_WND	= 101;
-static const UINT ID_GRAPH_WND			= 102;
-static const UINT ID_PROPERTIES_WND		= 103;
-static const UINT ID_EXPORT_WND			= 104;
-static const UINT ID_OUTPUT_WND			= 105;
-static const UINT ID_PROGRESS_WND		= 106;
+//static const UINT ID_PROGRESS_WND		= 106;
 
 //static const UINT ID_FILE_MANAGER_WND = 156;
 
@@ -155,15 +156,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Create docking pane
 	VERIFY(CreateDockingWindows());
 
-	//dock pane to the main frame
-	DockPane(&m_exportWnd, AFX_IDW_DOCKBAR_RIGHT);
 
+	DockPane(&m_projectWnd, AFX_IDW_DOCKBAR_LEFT);
+	DockPane(&m_exportWnd, AFX_IDW_DOCKBAR_RIGHT);
 	CDockablePane* pPaneFrame = NULL;
-	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_RIGHT);
+	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_TOP);
 	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0, &pPaneFrame);
-	m_outputWnd.DockToWindow(pPaneFrame, CBRS_ALIGN_BOTTOM);
-	m_progressWnd.AttachToTabWnd(&m_outputWnd, DM_STANDARD, 0);
-	DockPane(&m_propertiesWnd, AFX_IDW_DOCKBAR_BOTTOM);
+	m_propertiesWnd.DockToWindow(&m_projectWnd, CBRS_ALIGN_BOTTOM);
 
 
 	OnApplicationLook(theApp.m_nAppLook);
@@ -176,7 +175,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 BOOL CMainFrame::CreateDockingWindows()
 {
-	// Create properties window
+	// Create dockable pane 
+	VERIFY(m_projectWnd.Create(GetCString(IDS_PROJECT_WND), this, CRect(0, 0, 250, 400), TRUE, ID_PROJECT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI));
+	m_projectWnd.EnableDocking(CBRS_ALIGN_ANY);
+
+
 	VERIFY(m_propertiesWnd.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(0, 0, 250, 400), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI));
 	m_propertiesWnd.EnableDocking(CBRS_ALIGN_ANY);
 
@@ -188,19 +191,6 @@ BOOL CMainFrame::CreateDockingWindows()
 
 	VERIFY(m_exportWnd.Create(GetCString(IDS_EXPORT_WND), this, CRect(0, 0, 250, 400), TRUE, ID_EXPORT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_exportWnd.EnableDocking(CBRS_ALIGN_ANY);
-	
-	// Create file view
-	VERIFY(m_outputWnd.Create(GetCString(IDS_OUTPUT_WND), this, CRect(0, 0, 600, 400), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI));
-	m_outputWnd.EnableDocking(CBRS_ALIGN_ANY);
-
-	VERIFY(m_progressWnd.Create(GetCString(IDS_PROGRESS_WND), this, CRect(0, 0, 600, 400), TRUE, ID_PROGRESS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI));
-	m_progressWnd.EnableDocking(CBRS_ALIGN_ANY);
-
-	//if (!m_fileManagerWnd.Create(_T("FileManager"), this, CRect(),TRUE,  ID_FILE_MANAGER_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE, pContext))
-	//{
-	//	TRACE0("Failed to create FileManager window\n");
-	//	return FALSE; // failed to create
-	//}
 
 	SetDockingWindowIcons();
 	return TRUE;
@@ -209,8 +199,8 @@ BOOL CMainFrame::CreateDockingWindows()
 
 void CMainFrame::SetDockingWindowIcons()
 {
-	HICON hOuptutIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OUTPUT_WND), IMAGE_ICON, 24, 24, 0);
-	m_outputWnd.SetIcon(hOuptutIcon, TRUE);
+	HICON hProjectWnd = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROJECT_WND), IMAGE_ICON, 24, 24, 0);
+	m_projectWnd.SetIcon(hProjectWnd, TRUE);
 
 	HICON hPropertiesIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
 	m_propertiesWnd.SetIcon(hPropertiesIcon, TRUE);
@@ -224,8 +214,8 @@ void CMainFrame::SetDockingWindowIcons()
 	HICON hChartIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_CHARTS_WND), IMAGE_ICON, 24, 24, 0);
 	m_chartWnd.SetIcon(hChartIcon, TRUE);
 
-	HICON hProgressIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROGRESS_WND), IMAGE_ICON, 24, 24, 0);
-	m_progressWnd.SetIcon(hProgressIcon, TRUE);
+	//HICON hProgressIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROGRESS_WND), IMAGE_ICON, 24, 24, 0);
+	//m_progressWnd.SetIcon(hProgressIcon, TRUE);
 
 
 	//HICON hFMIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_CHARTS_WND), IMAGE_ICON, 24, 24, 0);
@@ -481,12 +471,12 @@ void CMainFrame::OnLanguageChange(UINT id)
 		CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 
 		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
-		m_outputWnd.SetWindowText(GetCString(IDS_OUTPUT_WND));
+		m_projectWnd.SetWindowText(GetCString(IDS_PROJECT_WND));
 		m_propertiesWnd.SetWindowText(GetCString(IDS_PROPERTIES_WND));
 		m_spreadsheetWnd.SetWindowText(GetCString(IDS_SPREADSHEET_WND));
 		m_chartWnd.SetWindowText(GetCString(IDS_CHARTS_WND));
 		m_exportWnd.SetWindowText(GetCString(IDS_EXPORT_WND));
-		m_progressWnd.SetWindowText(GetCString(IDS_PROGRESS_WND));
+		//m_progressWnd.SetWindowText(GetCString(IDS_PROGRESS_WND));
 		
 		GetActiveDocument()->UpdateAllViews(NULL, CBioSIMDoc::ID_LAGUAGE_CHANGE);
 		Invalidate();
@@ -515,37 +505,32 @@ void CMainFrame::OnRunApp(UINT id)
 BOOL CMainFrame::OnToolsRunApp(UINT id)
 {
 	CRegistry registry;
-	string fileName;
 	string filePath;
 
 	
 	switch( id )
 	{
-	case ID_TOOLS_TDATE: fileName = "TDate"; filePath = registry.GetAppFilePath(CRegistry::TDATE); break;
-	case ID_TOOLS_MERGEFILES: fileName = "MergeFiles"; filePath = registry.GetAppFilePath(CRegistry::MERGEFILE); break;
-	case ID_HOURLY_EDITOR:fileName = "HourlyEditor"; filePath = registry.GetAppFilePath(CRegistry::HOURLY_EDITOR); break;
-	case ID_DAILY_EDITOR:fileName = "DailyEditor"; filePath = registry.GetAppFilePath(CRegistry::DAILY_EDITOR); break;
-	case ID_NORMALS_EDITOR:fileName = "NormalsEditor"; filePath = registry.GetAppFilePath(CRegistry::NORMAL_EDITOR); break;
-//	case ID_MATCH_STATION:fileName = "MatchStation"; filePath = registry.GetAppFilePath(CRegistry::MATCH_STATION); break;
-	case ID_WEATHER_UPDATER:fileName = "WeatherUpdater"; filePath = registry.GetAppFilePath(CRegistry::WEATHER_UPDATER); break;
-
-
+	case ID_TOOLS_TDATE: filePath = registry.GetAppFilePath(CRegistry::TDATE); break;
+	case ID_TOOLS_MERGEFILES: filePath = registry.GetAppFilePath(CRegistry::MERGEFILE); break;
+	case ID_HOURLY_EDITOR:filePath = registry.GetAppFilePath(CRegistry::HOURLY_EDITOR); break;
+	case ID_DAILY_EDITOR:filePath = registry.GetAppFilePath(CRegistry::DAILY_EDITOR); break;
+	case ID_NORMALS_EDITOR:filePath = registry.GetAppFilePath(CRegistry::NORMAL_EDITOR); break;
+	case ID_MATCH_STATION:filePath = registry.GetAppFilePath(CRegistry::MATCH_STATION); break;
+	case ID_WEATHER_UPDATER:filePath = registry.GetAppFilePath(CRegistry::WEATHER_UPDATER); break;
 	default: ASSERT(false);
 	}
 	
-	
-    CWnd* pWnd = CWnd::FindWindowW(NULL, CStringW(fileName.c_str()));
-    if( pWnd )
-	{
-		pWnd->ShowWindow(SW_SHOW);
-	}
-	else
-    {
-		//if (GetPath(filePath).empty())
-			//filePath = GetApplicationPath()+filePath;
-
-        WinExec( filePath.c_str(), SW_SHOW);
-    }
+	//
+ //   CWnd* pWnd = CWnd::FindWindowW(NULL, CStringW(fileName.c_str()));
+ //   if( pWnd )
+	//{
+	//	pWnd->ShowWindow(SW_SHOW);
+	//}
+	//else
+ //   {
+		
+    WinExec( filePath.c_str(), SW_SHOW);
+    
 
 	return TRUE;
 }
@@ -576,17 +561,67 @@ void CMainFrame::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	if( GetActiveDocument()!=NULL)
 	{
-		m_outputWnd.OnUpdate(pSender, lHint, pHint);
+		m_projectWnd.OnUpdate(pSender, lHint, pHint);
 		m_propertiesWnd.OnUpdate(pSender, lHint, pHint);
 		m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
 		m_chartWnd.OnUpdate(pSender, lHint, pHint);
 		m_exportWnd.OnUpdate(pSender, lHint, pHint);
-		m_progressWnd.OnUpdate(pSender, lHint, pHint);
+		//m_progressWnd.OnUpdate(pSender, lHint, pHint);
 		//m_fileManagerWnd.OnUpdate(pSender, lHint, pHint);
 	}
 }
 
 
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	//
+	// Route to standard command targets first.
+	//
+	if (CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+	//
+	// Route to inactive views second.
+	////
+	//CBioSIMDoc* pDoc = (CBioSIMDoc*)GetActiveDocument();
+	//if (pDoc != NULL) 
+	//{ 
+	//	if (m_projectWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	//		return TRUE;
+
+	//	if (m_propertiesWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	//		return TRUE;
+
+	//	if (m_spreadsheetWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	//		return TRUE;
+
+	//	if (m_chartWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	//		return TRUE;
+
+	//	if (m_exportWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	//		return TRUE;
+	//}
+
+
+	return FALSE;
+}
+//
+//BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
+//{
+//	m_wndSplitter.CreateStatic(this, 2, 1, WS_CHILD | WS_VISIBLE);
+//
+////	CCreateContext *pContext = (CCreateContext*)lpCreateStruct->lpCreateParams;
+//
+//	if (!m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(COutputView), CSize(150, 0), pContext))
+//		return FALSE;
+//	
+//	
+//	if (!m_wndSplitter.AddWindow(1, 0, &m_progressWnd, WC_STATIC, WS_CHILD | WS_VISIBLE, NULL, CSize(100, 100)))
+//		return FALSE;
+//
+//	return TRUE;
+//}
+//
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const

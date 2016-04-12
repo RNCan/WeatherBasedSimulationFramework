@@ -33,6 +33,7 @@
     <ClCompile Include="..\src\UI\Common\CommonCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\CustomDDX.cpp" />
     <ClCompile Include="..\src\UI\Common\DiskObject.cpp" />
+    <ClCompile Include="..\src\UI\Common\EmptyView.cpp" />
     <ClCompile Include="..\src\UI\Common\EnableGroupboxControls.cpp" />
     <ClCompile Include="..\src\UI\Common\FileNameProperty.cpp" />
     <ClCompile Include="..\src\UI\Common\GeoRectCtrl.cpp" />
@@ -61,7 +62,7 @@
     <ClCompile Include="..\src\UI\Common\OneInst.cpp" />
     <ClCompile Include="..\src\UI\Common\OpenDirEditCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\PaletteEditorDlg.cpp" />
-    <ClCompile Include="..\src\UI\Common\ProgressDockablePane.cpp" />
+    <ClCompile Include="..\src\UI\Common\ProgressWnd.cpp" />
     <ClCompile Include="..\src\UI\Common\ProgressStepDlg.cpp" />
     <ClCompile Include="..\src\UI\Common\ProListCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\PropertiesListBox.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="..\src\UI\Common\CommonCtrl.h" />
     <ClInclude Include="..\src\UI\Common\CustomDDX.h" />
     <ClInclude Include="..\src\UI\Common\DiskObject.h" />
+    <ClInclude Include="..\src\UI\Common\EmptyView.h" />
     <ClInclude Include="..\src\UI\Common\EnableGroupboxControls.h" />
     <ClInclude Include="..\src\UI\Common\FileNameProperty.h" />
     <ClInclude Include="..\src\UI\Common\GeoRectCtrl.h" />
@@ -179,7 +181,7 @@
     <ClInclude Include="..\src\UI\Common\OneInst.h" />
     <ClInclude Include="..\src\UI\Common\OpenDirEditCtrl.h" />
     <ClInclude Include="..\src\UI\Common\PaletteEditorDlg.h" />
-    <ClInclude Include="..\src\UI\Common\ProgressDockablePane.h" />
+    <ClInclude Include="..\src\UI\Common\ProgressWnd.h" />
     <ClInclude Include="..\src\UI\Common\ProgressStepDlg.h" />
     <ClInclude Include="..\src\UI\Common\ProListCtrl.h" />
     <ClInclude Include="..\src\UI\Common\PropertiesListBox.h" />

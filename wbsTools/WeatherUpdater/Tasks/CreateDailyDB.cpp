@@ -20,12 +20,13 @@ namespace WBSF
 	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness" };
 	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING };
 	const UINT CCreateDailyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_DAILY_P;
-	
+	const UINT CCreateDailyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_DAILY;
+
 
 	const char* CCreateDailyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateDailyDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCreateDailyDB::CLASS_NAME(), CCreateDailyDB::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("DailyDatabase", CCreateDailyDB::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateDailyDB::CLASS_NAME(), CCreateDailyDB::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("DailyDatabase", (createF)CCreateDailyDB::create);
 	
 
 	CCreateDailyDB::CCreateDailyDB(void)
@@ -116,7 +117,7 @@ namespace WBSF
 		CTimer timerWrite;
 
 		
-		callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 
 		//Get the data for each station
@@ -132,7 +133,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.PushTask(GetString(IDS_CREATE_DATABASE) + outputFilePath, stationList.size());
+			callback.PushTask(GetString(IDS_CREATE_DB) + outputFilePath, stationList.size());
 
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)

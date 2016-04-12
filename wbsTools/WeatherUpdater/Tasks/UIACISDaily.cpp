@@ -26,10 +26,11 @@ namespace WBSF
 	const char* CUIACISDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
 	const size_t CUIACISDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
 	const UINT CUIACISDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ACIS_DAILY_P;
+	const UINT CUIACISDaily::DESCRIPTION_TITLE_ID = ID_TASK_ACIS_DAILY;
 
 	const char* CUIACISDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ACISDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIACISDaily::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIACISDaily::CLASS_NAME(), CUIACISDaily::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIACISDaily::CLASS_NAME(), (createF)CUIACISDaily::create);
 	
 	const char* CUIACISDaily::SERVER_NAME = "www.agric.gov.ab.ca";
 

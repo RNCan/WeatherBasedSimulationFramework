@@ -3,13 +3,12 @@
 //
 
 #pragma once
-#include "OutputWnd.h"
+#include "ProjectWnd.h"
 #include "PropertiesWnd.h"
 #include "ExportWnd.h"
 #include "ResultGraphWnd.h"
 #include "ResultDataWnd.h"
-#include "UI/Common/ProgressDockablePane.h"
-//#include "FileManagerWnd.h"
+#include "UI/Common/ProgressWnd.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -26,18 +25,27 @@ public:
 	void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint);
 	void LoadBasicCommand();
 
-	CProgressDockablePane& GetProgressPane(){ return m_progressWnd; }
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+	//virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
+
+
+	//CProgressWnd& GetProgressWnd(){ return m_progressWnd; }
+
+	CComPtr<ITaskbarList3>& GetTaskBarList() { return m_pTaskbarList; }
 protected:  // control bar embedded members
 	
 	CMFCMenuBar			m_wndMenuBar;
 	CMFCToolBar			m_wndToolBar;
 	CMFCStatusBar		m_wndStatusBar;
-	COutputWnd			m_outputWnd;
+	CProjectWnd			m_projectWnd;
 	CResultDataWnd		m_spreadsheetWnd;
 	CResultGraphWnd		m_chartWnd;
 	CPropertiesWnd		m_propertiesWnd;
 	CExportWnd			m_exportWnd;
-	CProgressDockablePane m_progressWnd;
+
+	//CPaneSplitter		m_wndSplitter;
+	//CProgressWnd		m_progressWnd;
+	//CProgressDockablePane m_progressWnd;
 	//CFileManagerWnd		m_fileManagerWnd;
 	
 // Generated message map functions

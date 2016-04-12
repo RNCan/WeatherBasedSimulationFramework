@@ -56,6 +56,7 @@ namespace WBSF
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{ return ATTRIBUTE_TITLE_ID; }
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		virtual bool IsHourly()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -65,46 +66,27 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
 	protected:
 
 		std::string GetStationListFilePath()const;
-		//ERMsg LoadOptimisation();
-		//std::string GetOptFilePath(const std::string& filePath)const;
-		//ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
 
 		ERMsg ReadData(const std::string& filePath, int timeZone, CWeatherStation& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(CTRef TRef)const;
-		//bool IsFileInclude(const std::string& fileTitle)const;
-		//ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
-		//bool StationExist(const std::string& fileTitle)const;
-		//void GetStationInformation(const std::string& fileTitle, CLocation& station)const;
 
-
-		//ERMsg UpdateStationHistory();
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback)const;
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback)const;
-
-
-//		CIDSLiteStationOptimisation m_optFile;
-
-
-		//Database Creation part
-		//void GetStationHeader(const std::string& stationName, CLocation& station);
-		//ERMsg LoadStationList();
-		//CTRef GetTRef(const StringVector& elem, int timeZone)const;
 
 		CLocationVector m_stationsList;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
+		static const UINT DESCRIPTION_TITLE_ID;
 
 		static const char* SERVER_NAME;
 		static const char* SERVER_PATH;
-//		static const char* LIST_PATH;
 	};
 
 

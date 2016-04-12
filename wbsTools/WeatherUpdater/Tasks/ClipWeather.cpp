@@ -24,11 +24,12 @@ namespace WBSF
 	//*********************************************************************
 	const char* CClipWeather::ATTRIBUTE_NAME[] = { "InputFilepath", "OutputFilepath", "FirstYear", "LastYear", "IncludeID", "ExcludeID", "BoundingBox", "shapefile", "LocFilepath" };
 	const size_t CClipWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_STRING, T_GEORECT, T_FILEPATH, T_FILEPATH };
-	const UINT CClipWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_CROP_DATABASE_P;
-	
+	const UINT CClipWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_CROP_DB_P;
+	const UINT CClipWeather::DESCRIPTION_TITLE_ID = ID_TASK_CROP_DB;
+
 	const char* CClipWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ClipWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CClipWeather::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CClipWeather::CLASS_NAME(), CClipWeather::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CClipWeather::CLASS_NAME(), (createF)CClipWeather::create);
 	
 
 	CClipWeather::CClipWeather(void)
@@ -140,7 +141,7 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		CGeoRect boundingBox;
 
-		callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 		callback.AddMessage("");
 
@@ -248,7 +249,7 @@ namespace WBSF
 		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
 		CGeoRect boundingBox;
 
-		callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 		callback.AddMessage("");
 

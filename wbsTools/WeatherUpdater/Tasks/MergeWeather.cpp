@@ -18,12 +18,13 @@ namespace WBSF
 	//*********************************************************************
 	const char* CMergeWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilepath", "Distance", "DeltaElev", "Type", "PriorityRule" };
 	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_COMBO_POSITION, T_COMBO_POSITION };
-	const UINT CMergeWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_MERGE_DATABASE_P;
-	
+	const UINT CMergeWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_MERGE_DB_P;
+	const UINT CMergeWeather::DESCRIPTION_TITLE_ID = ID_TASK_MERGE_DB;
+
 	
 	const char* CMergeWeather::CLASS_NAME(){ static const char* THE_CLASS_NAME = "MergeWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CMergeWeather::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CMergeWeather::CLASS_NAME(), CMergeWeather::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CMergeWeather::CLASS_NAME(), (createF)CMergeWeather::create);
 
 	CMergeWeather::CMergeWeather(void)
 	{}
@@ -132,7 +133,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+			callback.AddMessage(GetString(IDS_CREATE_DB));
 //			callback.PushLevel();
 
 			callback.AddMessage(outputFilePath);
@@ -158,20 +159,9 @@ namespace WBSF
 					outputDB.Close();
 				}
 			}
-
-			
-			//callback.PopLevel();
 		}
-		/*}
-			CATCH_ALL(e)
-		{
-			msg = SYGetMessage(*e);
-			msg.ajoute(GetString(IDS_INVALID_INPUT_TASK));
-		}
-		END_CATCH_ALL*/
 
-
-			return msg;
+		return msg;
 	}
 
 

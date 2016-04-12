@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "OutputWnd.h"
-#include "ParametersWnd.h"
-#include "UI/Common/ProgressDockablePane.h"
+//#include "OutputWnd.h"
+#include "TaskPropertiesWnd.h"
+#include "ProjectWnd.h"
+//#include "UI/Common/ProgressDockablePane.h"
 
 
 class CMainFrame : public CFrameWndEx
@@ -24,17 +25,18 @@ public:
 	void LoadtBasicCommand();
 
 	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
-	CProgressDockablePane& GetProgressPane(){ return m_progressWnd; }
-	CDockablePane* GetActivePane();
+	//CTaskPropertyWnd& GetProgressPane(){ return m_wndProperties; }
+
+//	CDockablePane* GetNeighborProgressPane();
 
 protected:  // membres incorporés de la barre de contrôle
 
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
-	COutputWnd        m_wndOutput;
-	CTaskPropertyWnd  m_wndProperties;
-	CProgressDockablePane m_progressWnd;
+	CProjectWnd		  m_wndProject;
+	CTaskPropertyWnd        m_wndProperties;
+	//CProgressDockablePane m_progressWnd;
 
 
 	static const UINT m_uTaskbarBtnCreatedMsg;

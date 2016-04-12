@@ -33,9 +33,9 @@ CProgressStepDlg::CProgressStepDlg(CWnd* pParent, bool bShowPause, bool bShowMin
 	m_bShowPause = bShowPause;
 	m_bShowMinimize = bShowMinimize;
 
-	m_nCurrentTask=-1;
-	m_nCurrentNbTasks=-1;
-	m_nCurrentStepPos = 101;
+//	m_nCurrentTask=-1;
+	//m_nCurrentNbTasks=-1;
+	//m_nCurrentStepPos = 101;
 	m_ptrThread=NULL;
 	m_bIsThreadSuspended=false;
 	m_bIsIconic = false;
@@ -50,14 +50,20 @@ void CProgressStepDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CMN_STEP_PROGRESS, m_progressCtrl);
     DDX_Control(pDX, IDC_CMN_STEP_MESSAGE, m_messageCtrl);
-    DDX_Control(pDX, IDC_CMN_STEP_POURCENTAGE, m_pourcentageCtrl);
-    DDX_Control(pDX, IDC_CMN_STEP_DESCRIPTION, m_descriptionCtrl);
-    DDX_Control(pDX, IDC_CMN_STEPNO, m_stepNoCtrl);
+    //DDX_Control(pDX, IDC_CMN_STEP_POURCENTAGE, m_pourcentageCtrl);
+    //DDX_Control(pDX, IDC_CMN_STEP_DESCRIPTION, m_descriptionCtrl);
+    //DDX_Control(pDX, IDC_CMN_STEPNO, m_stepNoCtrl);
    // DDX_Control(pDX, IDC_CMN_STEP_BITMAP, m_bitmap);
 	DDX_Control(pDX, IDCANCEL, m_cancelCtrl);
 	DDX_Control(pDX, IDC_CMN_PAUSE, m_pauseCtrl);
 
-	m_progressCtrl.SetRange(0, 100);
+
+	if (!pDX->m_bSaveAndValidate)
+	{
+		m_progressCtrl.SetMessageCtrl(&m_messageCtrl);
+	}
+
+	//m_progressCtrl.SetRange(0, 100);
 }
 
 
@@ -146,37 +152,37 @@ void CProgressStepDlg::UpdateCtrl()
 	CWnd* pMain = ::AfxGetMainWnd();
 	bool bIsIconic = pMain?pMain->IsIconic()!=0:false;
 
-	if (m_callback.GetCurrentStepPercent() < m_nCurrentStepPos)
-	{
-		//Set m_nCurrentStepPos to be shure to update it
-		m_nCurrentStepPos = -1;
-	}
+	//if (m_callback.GetCurrentStepPercent() < m_nCurrentStepPos)
+	//{
+	//	//Set m_nCurrentStepPos to be shure to update it
+	//	m_nCurrentStepPos = -1;
+	//}
 
-	string stepPourcentage;
-	if (m_callback.GetCurrentStepPercent() != m_nCurrentStepPos ||
-		bIsIconic != m_bIsIconic)
-	{
-		//string stepNo = "?/?";
-		//if (m_callback.GetCurrentTaskNo() != -1)
-			//stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
+	//string stepPourcentage;
+	//if (m_callback.GetCurrentStepPercent() != m_nCurrentStepPos ||
+	//	bIsIconic != m_bIsIconic)
+	//{
+	//	//string stepNo = "?/?";
+	//	//if (m_callback.GetCurrentTaskNo() != -1)
+	//		//stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
 
-		//m_stepNoCtrl.SetWindowTextW(CString(stepNo.c_str()));
+	//	//m_stepNoCtrl.SetWindowTextW(CString(stepNo.c_str()));
 
-		m_bIsIconic = bIsIconic;
-		//get current step pourcent
-		m_nCurrentStepPos = (int)m_callback.GetCurrentStepPercent();
+	//	m_bIsIconic = bIsIconic;
+	//	//get current step pourcent
+	//	m_nCurrentStepPos = (int)m_callback.GetCurrentStepPercent();
 
-		//update progres bar
-		m_progressCtrl.SetPos(m_nCurrentStepPos);
-		//update taskbar progress if available
-		if (m_pTaskbar && pMain)
-			m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), m_nCurrentStepPos, 100);
+	//	//update progres bar
+	//	m_progressCtrl.SetPos(m_nCurrentStepPos);
+	//	//update taskbar progress if available
+	//	if (m_pTaskbar && pMain)
+	//		m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), m_nCurrentStepPos, 100);
 
-		//update pourcent text
-		stepPourcentage = WBSF::FormatA("%3d%%", m_nCurrentStepPos);
-		m_pourcentageCtrl.SetWindowTextW(CString(stepPourcentage.c_str()));
-		UpdateMainWindowText();
-	}
+	//	//update pourcent text
+	//	//stepPourcentage = WBSF::FormatA("%3d%%", m_nCurrentStepPos);
+	//	//m_pourcentageCtrl.SetWindowTextW(CString(stepPourcentage.c_str()));
+	//	//UpdateMainWindowText();
+	//}
 
 	//if (m_nCurrentTask == -1 || m_nCurrentNbTasks == -1 || 
 	//	m_nCurrentTask != m_callback.GetCurrentTaskNo() || m_nCurrentNbTasks != m_callback.GetNbTask())
@@ -210,7 +216,7 @@ void CProgressStepDlg::UpdateMainWindowText()
 		if( m_bIsIconic )
 		{
 			//string stepNo = WBSF::FormatA("%d/%d", m_callback.GetCurrentTaskNo() + 1, m_callback.GetNbTask());
-			string stepPourcentage = WBSF::FormatA("%3d%%", m_nCurrentStepPos);
+			string stepPourcentage = WBSF::FormatA("%3d%%", m_callback.GetCurrentStepPercent());
 			//string str = stepNo + " : " + stepPourcentage;
 			pMain->SetWindowTextW(CString(stepPourcentage.c_str()));
 		}
@@ -416,38 +422,36 @@ void CProgressStepDlg::AdjustLayout()
 	m_messageCtrl.MoveWindow( rect );       
 
 	
-	m_descriptionCtrl.GetWindowRect(rect);
-	ScreenToClient(rect);
-	rect.right = max(rect.left+100, cx-9);
-	m_descriptionCtrl.MoveWindow( rect );       
-	
+	//m_descriptionCtrl.GetWindowRect(rect);
+	//ScreenToClient(rect);
+	//rect.right = max(rect.left+100, cx-9);
+	//m_descriptionCtrl.MoveWindow( rect );       
+	//
 	m_progressCtrl.GetWindowRect(rect);
 	ScreenToClient(rect);
 	rect.right = max(rect.left+100, cx-9);
 	m_progressCtrl.MoveWindow( rect );       
 
-	m_pourcentageCtrl.GetWindowRect(rect);
+	/*m_pourcentageCtrl.GetWindowRect(rect);
 	ScreenToClient(rect);
 	rect.right = max(rect.left+100, cx-9);
 	m_pourcentageCtrl.MoveWindow( rect );       
-
-	CRect stepNoRect;
+*/
+	/*CRect stepNoRect;
 	m_stepNoCtrl.GetWindowRect(stepNoRect);
-	ScreenToClient(stepNoRect);
+	ScreenToClient(stepNoRect);*/
 
-	m_cancelCtrl.GetWindowRect(rect);
+	/*m_cancelCtrl.GetWindowRect(rect);
 	ScreenToClient(rect);
 	int width = rect.Width();
 	rect.left = max(stepNoRect.right+9, cx-width-9);
 	rect.right = rect.left+width;
-	m_cancelCtrl.MoveWindow( rect );       
+	m_cancelCtrl.MoveWindow( rect );    */   
 
-	//m_pauseCtrl.GetWindowRect(rect);
-	//ScreenToClient(rect);
-	//width = rect.Width();
-	rect.left -= width+9;
+
+/*	rect.left -= width+9;
 	rect.right -= width+9;
-	m_pauseCtrl.MoveWindow( rect );       
+	m_pauseCtrl.MoveWindow( rect );    */   
 }
 
 

@@ -23,11 +23,12 @@ namespace WBSF
 	const char* CCreateNormalsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilePath", "OutputFilePath", "FirstYear", "LastYear", "NbYears", "ApplyClimaticChange", "MMGFilepath", "ReferencePeriod", "FuturPeriod", "NbNeighbor", "MaxDistance", "Power" };
 	const size_t CCreateNormalsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_BOOL, T_FILEPATH, T_COMBO_POSITION, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING };
 	const UINT CCreateNormalsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_NORMALS_P;
+	const UINT CCreateNormalsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_NORMALS;
 
 	const char* CCreateNormalsDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateNormals";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateNormalsDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CCreateNormalsDB::CLASS_NAME(), CCreateNormalsDB::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("NormalDBFromDailyDB", CCreateNormalsDB::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateNormalsDB::CLASS_NAME(), (createF)CCreateNormalsDB::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("NormalDBFromDailyDB", (createF)CCreateNormalsDB::create);
 
 
 	CCreateNormalsDB::CCreateNormalsDB(void)
@@ -271,7 +272,7 @@ namespace WBSF
 		string outputFilePath = Get(OUTPUT);
 		SetFileExtension(outputFilePath, CNormalsDatabase::DATABASE_EXT);
 
-		callback.AddMessage(GetString(IDS_CREATE_DATABASE));
+		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 
 		msg = CNormalsDatabase::DeleteDatabase(outputFilePath, callback);

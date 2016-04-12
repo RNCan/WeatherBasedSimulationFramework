@@ -17,6 +17,8 @@
 #include "BioSIM.h"
 #include "BioSIMDoc.h"
 #include "MainFrm.h"
+#include "OutputView.h"
+
 
 using namespace std;
 using namespace WBSF;
@@ -265,13 +267,20 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 {
 	ERMsg msg;
 
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
+
+
+
 	SetIsExecute(true);
+	pView->AdjustLayout();
 	UpdateAllViews(NULL, PROJECT_CHANGE, NULL);
 
 
 	GetProject().LoadDefaultCtrl();
-	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	CProgressDockablePane& progressWnd = pMainFrm->GetProgressPane();
+	
+
+	CProgressWnd& progressWnd = pView->GetProgressWnd();
 	progressWnd.SetTaskbarList(pTaskbarList);
 
 	CProgressStepDlgParam param(m_projectPtr.get(),  &GetFM());
@@ -283,7 +292,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 		if( option.GetProfileBool(_T("SaveAtRun"), false) )
 			GetProject().Save(UtilWin::ToUTF8(m_strPathName));
 		
-		progressWnd.ShowPane(TRUE, FALSE, TRUE);
+		//progressWnd.ShowPane(TRUE, FALSE, TRUE);
 		msg = progressWnd.Execute(CBioSIMDoc::ExecuteTask, &param);
 		m_lastLog = SYGetOutputCString(msg, progressWnd.GetCallback());
 	}
@@ -296,6 +305,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	
 
 	SetIsExecute(false);
+	pView->AdjustLayout();
 	UpdateAllViews(NULL, PROJECT_CHANGE, NULL);
 
 

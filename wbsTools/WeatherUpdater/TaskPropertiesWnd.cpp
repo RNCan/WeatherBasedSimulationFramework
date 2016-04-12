@@ -16,7 +16,7 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/CommonCtrl.h"
 #include "UI/Common/SelectionCtrl.h"
-#include "ParametersWnd.h"
+#include "TaskPropertiesWnd.h"
 #include "WeatherUpdaterDoc.h"
 #include "MFCPropertyGridDateTimeProperty.h"   
 
@@ -29,7 +29,7 @@ using namespace UtilWin;
 using namespace std;
 using namespace WBSF;
 
-IMPLEMENT_DYNAMIC(CTaskPropertyWnd, CDockablePane)
+
 IMPLEMENT_DYNAMIC(CTaskPropertyGridCtrl, CMFCPropertyGridCtrl)
 
 
@@ -51,10 +51,13 @@ public:
 	virtual void OnClickButton(CPoint point)
 	{
 		CString strFolder = GetValue();
+		if (strFolder.IsEmpty())
+			strFolder = CStringA(GetApplicationPath().c_str());
+
 		CString strResult;
 		
 		//m_ulBrowseFolderFlags = BIF_NEWDIALOGSTYLE;
-		if (afxShellManager->BrowseForFolder(strResult, m_pWndList, strFolder, 0, BIF_NEWDIALOGSTYLE))
+		if (afxShellManager->BrowseForFolder(strResult, m_pWndList, strFolder, 0, BIF_USENEWUI ))//BIF_NEWDIALOGSTYLE
 		{
 			if (strResult != strFolder)
 				SetValue(strResult);
@@ -63,144 +66,8 @@ public:
 	}
 
 	std::string m_filter;
-	//virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
-	//{
-	//	CWnd* pWnd = CMFCPropertyGridFileProperty::CreateInPlaceEdit(rectEdit, bDefaultFormat);
-	//	
-	//	/*CEdit* pWndEdit = new CEdit;
-
-	//	DWORD dwStyle = WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL | ES_PASSWORD;
-
-	//	if (!m_bEnabled || !m_bAllowEdit)
-	//		dwStyle |= ES_READONLY;
-
-	//	pWndEdit->Create(dwStyle, rectEdit, m_pWndList, AFX_PROPLIST_ID_INPLACE);
-	//	pWndEdit->SetPasswordChar(_T('*'));
-	//	bDefaultFormat = TRUE;*/
-
-	//	return pWnd;
-	//}
 };
 
-
-//class CMFCPropertyGridDateTimeProperty : public CMFCPropertyGridProperty 
-//{ 
-//	DECLARE_DYNAMIC(CMFCPropertyGridDateTimeProperty) 
-//	BOOL m_style; 
-//	BOOL m_updown; 
-//	CString m_setformat; 
-//	CString m_format; 
-//public: 
-//	CMFCPropertyGridDateTimeProperty(const CString& strName, COleDateTime &nValue, LPCTSTR lpszDescr = NULL, DWORD dwData = 0, BOOL style = TRUE, BOOL updown = FALSE, LPCTSTR setFormat = NULL, LPCTSTR format = NULL); 
-//	virtual BOOL OnUpdateValue(); 
-//	virtual CString FormatProperty(); 
-//	virtual CString FormatOriginalProperty(); 
-//
-//protected: 
-//	virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat); virtual BOOL OnSetCursor() const { return FALSE; /* Use default */ } BOOL IsValueChanged() const; }; -See more at : http ://www.codexpert.ro/articole.php?id=20#sthash.1Pq5mmxc.dpuf
-//#define WM_PG_DATESELCHANGED WM_USER+489
-
-// CPropertyGridDateTimeCtrl
-
-//class CPropertyGridDateTimeCtrl : public CDateTimeCtrl
-//{
-//	DECLARE_DYNAMIC(CPropertyGridDateTimeCtrl)
-//
-//public:
-//	CPropertyGridDateTimeCtrl();
-//	virtual ~CPropertyGridDateTimeCtrl();
-//
-//protected:
-//	DECLARE_MESSAGE_MAP()
-//public:
-//	afx_msg void OnKillFocus(CWnd* pNewWnd);
-//	afx_msg void OnMcnSelect(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg UINT OnGetDlgCode();
-//	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-//};
-//
-//
-//
-//
-//IMPLEMENT_DYNAMIC(CPropertyGridDateTimeCtrl, CDateTimeCtrl)
-//CPropertyGridDateTimeCtrl::CPropertyGridDateTimeCtrl()
-//{
-//}
-//
-//CPropertyGridDateTimeCtrl::~CPropertyGridDateTimeCtrl()
-//{
-//}
-//
-//
-//BEGIN_MESSAGE_MAP(CPropertyGridDateTimeCtrl, CDateTimeCtrl)
-//	ON_WM_KILLFOCUS()
-//	ON_NOTIFY_REFLECT(MCN_SELECT, OnMcnSelect)
-//	ON_WM_GETDLGCODE()
-//	ON_WM_KEYDOWN()
-//END_MESSAGE_MAP()
-//
-//
-//
-//// CPropertyGridDateTimeCtrl message handlers
-//
-//
-//void CPropertyGridDateTimeCtrl::OnKillFocus(CWnd* pNewWnd)
-//{
-//	CDateTimeCtrl::OnKillFocus(pNewWnd);
-//	CWnd* pParent = pNewWnd ? pNewWnd->GetParent() : NULL;
-//	if (pParent != this)
-//		DestroyWindow();
-//}
-//
-//void CPropertyGridDateTimeCtrl::OnMcnSelect(NMHDR *pNMHDR, LRESULT *pResult)
-//{
-//	LPNMSELCHANGE pSelChange = reinterpret_cast<LPNMSELCHANGE>(pNMHDR);
-//	GetOwner()->SendMessage(WM_PG_DATESELCHANGED);
-//	*pResult = 0;
-//}
-//
-//UINT CPropertyGridDateTimeCtrl::OnGetDlgCode()
-//{
-//	return DLGC_WANTALLKEYS;
-//}
-//
-//void CPropertyGridDateTimeCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-//{
-//	if (nChar == VK_ESCAPE)
-//	{
-//		DestroyWindow();
-//		return;
-//	}
-//	else if (nChar == VK_RETURN || nChar == VK_EXECUTE)
-//	{
-//		GetOwner()->SendMessage(WM_PG_DATESELCHANGED);
-//		return;
-//	}
-//
-//	CDateTimeCtrl::OnKeyDown(nChar, nRepCnt, nFlags);
-//}
-
-static CWeatherUpdaterDoc* GetDocument()
-{
-	CWeatherUpdaterDoc* pDoc = NULL;
-	CWinApp* pApp = AfxGetApp();
-	if (pApp)
-	{
-		POSITION  pos = pApp->GetFirstDocTemplatePosition();
-		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
-		if (docT)
-		{
-			pos = docT->GetFirstDocPosition();
-			pDoc = (CWeatherUpdaterDoc*)docT->GetNextDoc(pos);
-		}
-	}
-
-	return pDoc;
-}
-
-
-
-//template<int BASE_INDEX = 0, bool ADD_EMPTY = false>
 class CGridComboPosProperty2 : public CGridComboStringProperty
 {
 
@@ -285,78 +152,8 @@ public:
 	DECLARE_DYNAMIC(CTRefProperty)
 	CTRefProperty(const std::string& name, const std::string& value, const std::string& description, const std::string& options, size_t no) :
 		CMFCPropertyGridDateTimeProperty(CString(name.c_str()), GetOleDatTime(value), CString(description.c_str()), (DWORD)no)
-		//(const CString& strName, COleDateTime &nValue, LPCTSTR lpszDescr = NULL, DWORD dwData = 0, BOOL style = TRUE, BOOL updown = FALSE, LPCTSTR setFormat = NULL, LPCTSTR format = NULL);
-	//{}
-	//CTRefProperty(const std::string& name, const std::string& value, const std::string& description, const std::string& options, size_t no) :
-	//	CMFCPropertyGridProperty(CString(name.c_str()), COleDateTime(), CString(description.c_str()), (DWORD_PTR)no)
 	{
-		//set_string(value);
 	}
-
-	////CTRefProperty(const std::string& strName, CTRef value, const std::string& description, const std::string& options, size_t dwData) :
-	//	//CStdGridProperty(strName, value, description, dwData)
-	////{}
-
-	//virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
-	//{
-	//	CWnd* pWndTest = CMFCPropertyGridProperty::CreateInPlaceEdit(rectEdit, bDefaultFormat);
-	//	
-	//	//COleVariant value = GetValue();
-	//	COleDateTime value = GetValue();
-	//	// create it
-	//	CDateTimeCtrl* pWnd = new CDateTimeCtrl;
-	//	
-	//	
-	//	DWORD dwStyle = WS_VISIBLE | WS_CHILD | DTS_SHORTDATECENTURYFORMAT;
-	//	pWnd->Create(dwStyle, rectEdit, m_pWndList, AFX_PROPLIST_ID_INPLACE);
-	//	//pWnd->CreateEx(0, MONTHCAL_CLASS, NULL, dwStyle, CRect(), m_pWndList, AFX_PROPLIST_ID_INPLACE);
-	//	pWnd->SetTime(value);
-	//	// now position it
-	//	//CRect rc2;
-	//	//pWnd->GetWindowRect(&rc2);
-	//	//rc2.OffsetRect(rectEdit.right - rc2.right, 0);
-	//	//pWnd->SetWindowPos(NULL, rectEdit.left, rectEdit.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
-	//	
-	//	return pWnd;
-	//}
-
-	//virtual BOOL OnKillFocus(CWnd* pNewWnd) 
-	//{ 
-	//	return CMFCPropertyGridProperty::OnKillFocus(pNewWnd);
-	//}
-
-	//virtual BOOL OnEditKillFocus() 
-	//{ 
-	//	return CMFCPropertyGridProperty::OnEditKillFocus();
-	//}
-
-	
-
-	//virtual CString FormatProperty()
-	//{
-	//	COleDateTime value = GetValue();
-	//	CString str = value.Format();
-
-	//	return str;
-	//} 
-
-	//virtual BOOL OnUpdateValue()
-	//{
-	//	return CMFCPropertyGridProperty::OnUpdateValue();
-	//}
-
-
-	//virtual BOOL OnEndEdit()
-	//{
-	//	return CMFCPropertyGridProperty::OnEndEdit();
-	//}
-
-//	virtual BOOL HasButton() const{ return TRUE; }
-	/*virtual void OnClickButton(CPoint point)
-	{
-		CMFCToolBarDateTimeCtrl
-		AfxMessageBox(_T("a faire"));
-	}*/
 
 	virtual std::string get_string()
 	{ 
@@ -433,7 +230,6 @@ public:
 
 	virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
 	{
-	//	CWnd* pWnd = CStdGridProperty::CreateInPlaceEdit(rectEdit, bDefaultFormat);
 		CEdit* pWndEdit = new CEdit;
 
 		DWORD dwStyle = WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL| ES_PASSWORD;
@@ -448,10 +244,6 @@ public:
 		return pWndEdit;
 	}
 
-	
-//	virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(FormatProperty()))); }
-	//virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
-
 	virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
 	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
 
@@ -461,7 +253,7 @@ public:
 		for (int i = 0; i < value.GetLength(); i++)
 			value.SetAt(i, '*');
 		
-		return value;// CStdGridProperty::FormatProperty();
+		return value;
 	}
 
 	virtual BOOL OnUpdateValue()
@@ -474,10 +266,25 @@ public:
 	{
 		return CStdGridProperty::OnEndEdit();
 	}
-
-
-
 };
+
+class CTaskDescriptionProperty : public CStdGridProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CTaskDescriptionProperty(const std::string& value):
+		CStdGridProperty(GetString(IDS_TASK_DESCRIPTION), "", "", -1)
+	{
+		StringVector tmp(value, "\r\n");
+		if (!tmp.empty())
+			set_string(tmp[0]);
+
+		m_bAllowEdit = false;
+	}
+};
+
 class CPossibleValues : public boost::dynamic_bitset<size_t>
 {
 public:
@@ -555,6 +362,24 @@ protected:
 	StringVector m_possibleValues;
 };
 
+
+class CStdGriFilepathProperty2 : public CStdGriInterface, public CMFCPropertyGridFileProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+
+	CStdGriFilepathProperty2(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
+		bool bOpen = TRUE, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ENABLESIZING)
+		:		CMFCPropertyGridFileProperty(CString(name.c_str()), bOpen, CString(fileName.c_str()), NULL, dwFlags, CString(filter.c_str()), CString(description.c_str()), (DWORD_PTR)no)
+	{}
+
+	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+};
+
 class CGridBrowseProperty2 : public CStdGridProperty
 {
 public:
@@ -626,6 +451,7 @@ IMPLEMENT_SERIAL(CPropertiesToolBar, CMFCToolBar, 1)
 
 BEGIN_MESSAGE_MAP(CTaskPropertyGridCtrl, CMFCPropertyGridCtrl)
 	ON_WM_CREATE()
+	ON_WM_SIZE()
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
@@ -655,29 +481,18 @@ int CTaskPropertyGridCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CMFCPropertyGridCtrl::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-//	AdjustLayout();
-
-	//CRect rect;
-	//GetClientRect(rect);
-
-	////add all attribute
-	//CAppOption options;
-	//m_nLeftColumnWidth = options.GetProfileInt(_T("ParametersPropertiesSplitterPos"), rect.Width() / 2);
-	//AdjustLayout();
-
 	return 0;
 }
 
-
-
-
-std::string GetUpdaterList()
+void CTaskPropertyGridCtrl::OnSize(UINT nType, int cx, int cy)
 {
-	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
-	ASSERT(pDoc);
+	//bypass  CMFCPropertyGridCtrl::OnSize(nType, cx, cy);
+	CWnd::OnSize(nType, cx, cy);
 
-	return pDoc->GetUpdaterList();
+	EndEditItem();
+	AdjustLayout();
 }
+
 
 void CTaskPropertyGridCtrl::Update()
 {
@@ -690,8 +505,7 @@ void CTaskPropertyGridCtrl::Update()
 		CTaskAttributes attributes;
 		m_pTask->GetAttributes(attributes);
 		
-		//CMFCPropertyGridProperty* pTaskProp = new CMFCPropertyGridProperty(); 
-
+		AddProperty(new CTaskDescriptionProperty(GetString(m_pTask->GetDescriptionStringID())));
 		for (size_t i = 0; i<attributes.size(); i++)
 		{
 			CMFCPropertyGridProperty* pItem = NULL;
@@ -704,16 +518,16 @@ void CTaskPropertyGridCtrl::Update()
 			case T_COMBO_POSITION:	pItem = new CGridComboPosProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_COMBO_STRING:	pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_PATH:			pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-			case T_FILEPATH:		pItem = new CStdGriFilepathProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_FILEPATH:		pItem = new CStdGriFilepathProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_GEOPOINT:		pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_GEORECT:			pItem = new CGeoRectProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_PASSWORD:		pItem = new CPasswordProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_DATE:			pItem = new CTRefProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_UPDATER:			pItem = new CGridComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;//always relead options
+			case T_URL:			    pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			default: ASSERT(false);
 			}
 
-			//pGeneral->AddSubItem(pItem);
 			AddProperty(pItem);
 		}
 	}
@@ -767,9 +581,6 @@ void CTaskPropertyGridCtrl::OnChangeSelection(CMFCPropertyGridProperty* pNewSel,
 	m_curAttibute = NOT_INIT;
 	if (pNewSel)
 		m_curAttibute = (size_t)pNewSel->GetData();
-	
-	//pDoc->SetCurP(t, p, i)
-
 }
 
 BOOL CTaskPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
@@ -821,51 +632,8 @@ void CTaskPropertyGridCtrl::OnDestroy()
 
 //**************************************************************************************************************
 
-//**********************************************************************************************
-
-
-//
-//void CTaskPropertyWnd::DoDataExchange(CDataExchange* pDX)
-//{
-//	CDockablePane::DoDataExchange(pDX);
-//
-////		DDX_Control(pDX, IDC_SIM_PROPERTIES, m_propertiesCtrl);
-//
-//
-//
-//	//if (pDX->m_bSaveAndValidate)
-//	//{
-//	//	m_dispersal.m_name = m_nameCtrl.GetString();
-//	//	m_dispersal.m_description = m_descriptionCtrl.GetString();
-//	//	m_dispersal.m_parameters = m_propertiesCtrl.Get();
-//	//}
-//	//else
-//	//{
-//	//	m_nameCtrl.SetString(m_dispersal.m_name);
-//	//	m_descriptionCtrl.SetString(m_dispersal.m_description);
-//	//	m_propertiesCtrl.Set(m_dispersal.m_parameters);
-//	//	m_internalNameCtrl.SetString(m_dispersal.m_internalName);
-//
-//	//	//resize window
-//	//	CRect rectClient;
-//	//	GetWindowRect(rectClient);
-//
-//	//	CAppOption option;
-//	//	rectClient = option.GetProfileRect(_T("DispersalDlgRect"), rectClient);
-//	//	UtilWin::EnsureRectangleOnDisplay(rectClient);
-//	//	SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-//	//}
-//
-//
-//
-//}
-
-// CTaskPropertyWnd dialog
-
-//IMPLEMENT_DYNAMIC(CTaskPropertyWnd, CDockablePane)
-
-
 static const UINT PROPERTY_GRID_ID = 1000;
+IMPLEMENT_DYNCREATE(CTaskPropertyWnd, CDockablePane)
 
 BEGIN_MESSAGE_MAP(CTaskPropertyWnd, CDockablePane)
 	ON_WM_CREATE()
@@ -873,11 +641,27 @@ BEGIN_MESSAGE_MAP(CTaskPropertyWnd, CDockablePane)
 	ON_WM_DESTROY()
 	ON_UPDATE_COMMAND_UI(ID_OPEN_PROPERTY, OnUpdateToolBar)
 	ON_COMMAND(ID_OPEN_PROPERTY, OnOpenProperty)
-
-	
 END_MESSAGE_MAP()
 
 
+
+CWeatherUpdaterDoc* CTaskPropertyWnd::GetDocument()
+{
+	CWeatherUpdaterDoc* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CWeatherUpdaterDoc*)docT->GetNextDoc(pos);
+		}
+	}
+
+	return pDoc;
+}
 
 CTaskPropertyWnd::CTaskPropertyWnd() 
 {}
@@ -888,17 +672,15 @@ CTaskPropertyWnd::~CTaskPropertyWnd()
 
 int CTaskPropertyWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CWnd::OnCreate(lpCreateStruct) == -1)
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
 
 	//add all attribute
 	CAppOption options;
 	CStringArrayEx propertyHeader(UtilWin::GetCString(IDS_STR_PROPERTY_HEADER));
 
-	UINT style = WS_CHILD | WS_VISIBLE;
+	UINT style = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	VERIFY(m_propertiesCtrl.Create(style, CRect(), this, PROPERTY_GRID_ID));
-	//m_propertiesCtrl.Init();
 
 	VERIFY(m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, IDR_PROPERTIES_TOOLBAR));
 	VERIFY(m_wndToolBar.LoadToolBar(IDR_PROPERTIES_TOOLBAR, 0, 0, TRUE /* Is locked */));
@@ -933,6 +715,13 @@ void CTaskPropertyWnd::AdjustLayout()
 	m_wndToolBar.SetWindowPos(NULL, 0, 0, rect.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
 	m_propertiesCtrl.SetWindowPos(NULL, rect.left, rect.top + cyTlb, rect.Width(), rect.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
+//
+//void CTaskPropertyWnd::OnInitialUpdate()
+//{
+//	CWeatherUpdaterDoc* pDoc = static_cast<CWeatherUpdaterDoc*>(GetDocument());
+//	ASSERT(pDoc);
+//	pDoc->OnInitialUpdate();
+//}
 
 void CTaskPropertyWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
@@ -962,24 +751,6 @@ void CTaskPropertyWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		m_propertiesCtrl.m_pTask = pDoc->GetTask(t, p);
 		m_propertiesCtrl.Update();
 	}
-	else if (lHint == CWeatherUpdaterDoc::TASK_CHANGE)
-	{
-		////only execute and name can change
-		//size_t p = pDoc->GetCurPos(m_type);
-		//ASSERT(p != NOT_INIT);
-
-		//HTREEITEM hItem = m_taskCtrl.FindItem(p);
-		//CTaskPtr& pTask = pDoc->GetTask(m_type, p);
-		//BOOL bChecked = ToBool(pTask->Get(CTaskBase::EXECUTE));
-		//if (m_taskCtrl.GetCheck(hItem) != bChecked)
-		//	m_taskCtrl.SetCheck(hItem, bChecked);
-
-		//std::string name = pTask->Get(CTaskBase::NAME);
-		//if (m_taskCtrl.GetIte.GetCheck(hItem) != name)
-		//m_taskCtrl.SetCheck(hItem, bChecked);
-
-	}
-
 	
 }
 
@@ -989,7 +760,6 @@ void CTaskPropertyWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 	if (i > 1000 && i<NOT_INIT)
 		i /= 1000;
 
-	//CStdGridProperty* pProp = static_cast<CStdGridProperty*>(m_propertiesCtrl.GetCurSel());
 	bool bEnable = false;
 
 	if (i!=NOT_INIT)
@@ -1011,9 +781,6 @@ void CTaskPropertyWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 
 void CTaskPropertyWnd::OnOpenProperty()
 {
-	//CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
-	//ASSERT(!pDoc);
-
 	CStdGridProperty* pProp = static_cast<CStdGridProperty*>(m_propertiesCtrl.GetCurSel());
 	ENSURE(pProp);
 	
@@ -1042,7 +809,6 @@ BOOL CTaskPropertyWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLE
 	if (pFocus)
 	{
 		CWnd* pParent = pFocus->GetParent();
-		//CWnd* pOwner = pFocus->GetParentOwner();
 
 		if (pFocus == &m_propertiesCtrl || pParent == &m_propertiesCtrl)
 		{

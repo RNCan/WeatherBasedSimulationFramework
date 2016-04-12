@@ -16,8 +16,9 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
-#include "MainFrm.h"
 #include "Tasks/TaskFactory.h"
+#include "MainFrm.h"
+#include "OutputView.h"
 
 
 
@@ -300,11 +301,11 @@ void CWeatherUpdaterDoc::OnExecute()
 		m_bExecute = true;
 
 		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-		
-		CDockablePane* pActivePane = pMainFrm->GetActivePane();
-		CProgressDockablePane& progressWnd = pMainFrm->GetProgressPane();
+		COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
+//		CDockablePane* pActivePane = pMainFrm->GetNeighborProgressPane();
+		CProgressWnd& progressWnd = pView->GetProgressWnd();
 		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
-		progressWnd.ShowPane(true, false, true);
+		//progressWnd.ShowPane(true, false, true);
 
 		CProgressStepDlgParam param(&m_project);
 
@@ -342,8 +343,8 @@ void CWeatherUpdaterDoc::OnExecute()
 		SetFileExtension(filePath, ".txt");
 		msg = zen::SaveXML(filePath, "OutputMessage", "1", m_outputMessage);
 
-		if (pActivePane)
-			pActivePane->ShowPane(true, true, true);
+		//if (pActivePane)
+			//pActivePane->ShowPane(true, true, true);
 
 		UpdateAllViews(NULL, TASK_CHANGE, NULL);
 	}

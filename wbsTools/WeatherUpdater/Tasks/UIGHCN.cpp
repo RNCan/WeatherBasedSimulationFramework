@@ -60,10 +60,11 @@ const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
 const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Show" };//"BoundingBox" 
 const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_BOOL };
 const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
+const UINT CUIGHCND::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GHCND;
 
 const char* CUIGHCND::CLASS_NAME(){ static const char* THE_CLASS_NAME = "GHCND";  return THE_CLASS_NAME; }
 CTaskBase::TType CUIGHCND::ClassType()const { return CTaskBase::UPDATER; }
-static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIGHCND::CLASS_NAME(), CUIGHCND::create);
+static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIGHCND::CLASS_NAME(), (createF)CUIGHCND::create);
 
 
 

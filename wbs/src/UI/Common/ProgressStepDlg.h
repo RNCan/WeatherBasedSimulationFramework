@@ -11,25 +11,8 @@
 #include "basic/ERMsg.h"
 #include "Basic/Callback.h"
 #include "StaticBitmap.h"
+#include "UI/Common/ProgressWnd.h"
 
-
-
-class CProgressStepDlgParam
-{
-public:
-	CProgressStepDlgParam(void* pThis=NULL, void* pExtra=NULL)
-	{
-		m_pThis = pThis;
-		m_pExtra = pExtra;
-		m_pCallback = NULL;
-		m_pMsg = NULL;
-	}
-
-	void* m_pThis;
-	void* m_pExtra;
-	WBSF::CCallback* m_pCallback;
-	ERMsg* m_pMsg;
-};
 
 
 class CProgressStepDlg : public CDialog
@@ -78,9 +61,9 @@ protected:
 	void AdjustLayout();
 
     WBSF::CCallback m_callback;
-	int m_nCurrentTask;
-	int m_nCurrentNbTasks;
-    int m_nCurrentStepPos;
+	//int m_nCurrentTask;
+	//int m_nCurrentNbTasks;
+    //int m_nCurrentStepPos;
 	//std::string m_lastDescription;
     std::string m_comment;
 	std::string m_title;
@@ -95,10 +78,10 @@ protected:
 
 	CComPtr<ITaskbarList3> m_pTaskbar;
 
-   	CStatic	m_stepNoCtrl;
-	CStatic	m_pourcentageCtrl;
-	CStatic	m_descriptionCtrl;
-	CProgressCtrl	m_progressCtrl;
+   	//CStatic	m_stepNoCtrl;
+	//CStatic	m_pourcentageCtrl;
+	//CStatic	m_descriptionCtrl;
+	CProgressWnd	m_progressCtrl;
 	CEdit	m_messageCtrl;
     CStaticBitmap m_bitmap;
 	CButton m_cancelCtrl;

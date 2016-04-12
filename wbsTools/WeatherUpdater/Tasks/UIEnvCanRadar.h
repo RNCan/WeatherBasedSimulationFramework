@@ -36,6 +36,7 @@ namespace WBSF
 		//proptree param
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		//virtual void UpdateLanguage();
 
 
@@ -67,6 +68,7 @@ namespace WBSF
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
+		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME[2];
 		static const char* SERVER_PATH;
 		static const char* TYPE_NAME[NB_TYPE];

@@ -14,21 +14,7 @@
 namespace WBSF
 {
 	typedef CTaskPtr(PASCAL *createF)();
-	
 
-	/*class CParamClassInfo
-	{
-	public:
-
-		std::string m_className;
-		CTaskParametersVector m_paramDefArray;
-
-	};
-*/
-
-	//typedef std::map<std::string, CTaskParametersVector> CClassInfoMap;
-
-	//typedef boost::function< CTaskPtr > a_factory;
 	typedef std::map<std::string, createF> ClassMap;
 	typedef ClassMap::const_iterator ClassIt;
 
@@ -40,32 +26,20 @@ namespace WBSF
 		static CTaskFactory& GetInstance()
 		{
 			static CTaskFactory INSTANCE; // Guaranteed to be destroyed.
-			// Instantiated on first use.
-			return INSTANCE;
+			return INSTANCE;// Instantiated on first use.
 		}
 
 		static ClassIt begin(){ return GetInstance().m_classMap.begin(); }
 		static ClassIt end(){ return GetInstance().m_classMap.end(); }
-		//static size_t size(){ return GetInstance().m_classMap.size(); }
-		//static string ClassName(size_t i){ ClassIt it = GetInstance().m_classMap.cbegin(); for (size_t ii = 0; ii != i; ii++, it++); return it->first; }
-		static size_t RegisterClass(const std::string& className, createF createObjectFuntion);// { GetInstance().m_classMap[className] = createObjectFuntion; }
+		static size_t RegisterTask(const std::string& className, createF createObjectFuntion);
 		static CTaskPtr CreateObject(const std::string& className);
 		static bool IsRegistered(const std::string& className);
-
 		static CTaskPtr CreateFromClipbord();
-		//static void UpdateLanguage();
-		//static CInfoParameters& GetInfoParameters(const std::string& sourceName){ return m_classMap[sourceName].m_paramDefArray; }
-		//static CTaskParametersVector& GetParamClassInfo(const std::string& sourceName){ return m_classMap[sourceName]; }
 
 	private:
 
 		CTaskFactory()
-		{
-			//map["Aa"] = boost::bind(boost::factory< Aa::pointer >, _1);
-			//map["Ab"] = boost::bind(boost::factory< Ab::create >, _1);
-			//[…]
-			//map["Ax"] = boost::bind(boost::factory< Ax::create >, _1);
-		}
+		{}
 
 		CTaskFactory(const CTaskFactory& )
 		{}

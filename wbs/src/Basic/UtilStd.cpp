@@ -832,11 +832,10 @@ namespace WBSF
 		return dirList;
 	}
 
-	std::string OpenFileName(char *filter, HWND owner = NULL)     
+	std::string OpenFileName(const char *filter, HWND owner = NULL)     
 	{
 		OPENFILENAMEW ofn;
-		//wchar_t filter[MAX_PATH] = { 0 };
-		//wchar_t fileName[MAX_PATH] = { 0 };
+
 		std::wstring wfilter = UTF16(filter);
 		std::wstring wfileName; wfileName.resize(MAX_PATH);
 
@@ -869,7 +868,7 @@ namespace WBSF
 
 		if (MessageBoxA(hCaller, question.c_str(), title.c_str(), MB_YESNO) == IDYES)
 		{
-			std::string appFilePath = OpenFileName("Program (*.exe)|*.exe");
+			std::string appFilePath = OpenFileName(GetString(IDS_STR_FILTER_EXECUTABLE).c_str(), hCaller);
 			
 			if (!appFilePath.empty())
 			{
@@ -922,6 +921,11 @@ namespace WBSF
 			msg = AskToFindApplication(appType, appFilePath, hCaller);
 			if( msg )
 			{
+				appFilePath = registry.GetAppFilePath(appType);
+
+				if (GetPath(appFilePath).empty())//if the path is not specified, take the current application path.
+					appFilePath = GetApplicationPath() + appFilePath;
+
 				command = '\"' + appFilePath  + "\" " + argument;
 
 				if( bWait )
@@ -1312,7 +1316,7 @@ namespace WBSF
 			memcpy(day,compilation_date+4,2);
 
 			//CTime time(ToInt(year), month+1, ToInt(day), 12,0,0 );
-			str = FormatTime("%x", ToInt(year), month, ToSizeT(day - 1));
+			str = FormatTime("%x", ToInt(year), month, ToSizeT(day)-1);
 		}
  
 		return str;

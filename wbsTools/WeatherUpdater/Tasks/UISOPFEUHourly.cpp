@@ -45,10 +45,11 @@ namespace WBSF
 	const char* CUISOPFEUHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear"};
 	const size_t CUISOPFEUHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
 	const UINT CUISOPFEUHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SOPFEU_P;
+	const UINT CUISOPFEUHourly::DESCRIPTION_TITLE_ID = ID_TASK_SOPFEU;
 
 	const char* CUISOPFEUHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SOPFEU";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISOPFEUHourly::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISOPFEUHourly::CLASS_NAME(), CUISOPFEUHourly::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUISOPFEUHourly::CLASS_NAME(), (createF)CUISOPFEUHourly::create);
 
 
 

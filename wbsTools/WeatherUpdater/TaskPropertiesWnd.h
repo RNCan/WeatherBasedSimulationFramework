@@ -53,32 +53,30 @@ public:
 
 protected:
 
-	//void Set(const CTaskParameters& in);
-
 	std::string m_lastClassName;
 	size_t m_curAttibute;
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnDestroy();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 
 
 class CTaskPropertyWnd : public CDockablePane
 {
-	DECLARE_DYNAMIC(CTaskPropertyWnd)
+	DECLARE_DYNCREATE(CTaskPropertyWnd)
 public:
 
+	static CWeatherUpdaterDoc* GetDocument();
 
 	CTaskPropertyWnd();
 	~CTaskPropertyWnd();
 
-
-
 	void AdjustLayout();
-	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+	
+	
 
 	void SetVSDotNetLook(BOOL bSet)
 	{
@@ -86,11 +84,12 @@ public:
 		m_propertiesCtrl.SetGroupNameFullWidth(bSet);
 	}
 
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	
 	
 
 protected:
-
-	//virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -107,4 +106,5 @@ protected:
 
 	std::string m_lasClassName;
 };
+
 

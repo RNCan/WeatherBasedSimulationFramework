@@ -272,7 +272,7 @@
 #include "BioSIM.h"
 #include "MainFrm.h"
 #include "BioSIMDoc.h"
-#include "ProjectView.h"
+#include "OutputView.h"
 #include "WeatherBasedSimulationUI.h"
 
 
@@ -497,7 +497,7 @@ BOOL CBioSIMApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CBioSIMDoc),
 		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
-		RUNTIME_CLASS(CProjectView));
+		RUNTIME_CLASS(COutputView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

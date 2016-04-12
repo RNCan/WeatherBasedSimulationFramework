@@ -21,10 +21,11 @@ namespace WBSF
 	const char* CUIEnvCanDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province"};
 	const size_t CUIEnvCanDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE};
 	const UINT CUIEnvCanDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_DAILY_P;
-	
+	const UINT CUIEnvCanDaily::DESCRIPTION_TITLE_ID = ID_TASK_EC_DAILY;
+
 	const char* CUIEnvCanDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanDaily::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUIEnvCanDaily::CLASS_NAME(), CUIEnvCanDaily::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanDaily::CLASS_NAME(), (createF)CUIEnvCanDaily::create);
 
 
 	CUIEnvCanDaily::CUIEnvCanDaily(void)

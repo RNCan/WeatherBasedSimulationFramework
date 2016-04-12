@@ -8,6 +8,8 @@
 #include "FileManager/FileManager.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
+#include "OutputView.h"
+#include "MainFrm.h"
 #include "BioSIMDoc.h"
 #include "ExportWnd.h"
 #include "BioSIM.h"
@@ -130,7 +132,7 @@ int CExportWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar2.SetRouteCommandsViaFrame(FALSE);
 
 
-	DWORD dwStyle = WS_CHILD | WS_VISIBLE | TVS_CHECKBOXES;
+	DWORD dwStyle = WS_CHILD | WS_VISIBLE | TVS_CHECKBOXES | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 	DWORD dwStyleEx = 0;
 	m_wndSplitter.CreateStatic(this, 2, 1);
 	
@@ -266,6 +268,31 @@ void CExportWnd::UpdateExport(CDimension dimension, CExport& theExport)
 	}
 }
 
+
+// CBioSIMDoc commands
+UINT CExportWnd::ExportTask(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CBioSIMProject* pProject = (CBioSIMProject*)pMyParam->m_pThis;
+	CFileManager* pFM = (CFileManager*)pMyParam->m_pExtra;
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		*pMsg = pProject->Export(*pFM, CExecutable::EXPORT_CSV, *pCallback);
+	CATCH_ALL(e)
+		*pMsg = ::SYGetMessage(*e);
+	END_CATCH_ALL
+
+	CoUninitialize();
+
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
 void CExportWnd::OnExport(UINT ID)
 {
 	CBioSIMDoc* pDoc = GetDocument();
@@ -273,24 +300,50 @@ void CExportWnd::OnExport(UINT ID)
 	if (!pDoc->IsInit())
 		return;
 
+	if (pDoc->IsExecute())
+		return;
+
+
+	ERMsg msg;
 
 	CBioSIMProject& project = pDoc->GetProject();
 	string iName = pDoc->GetCurSel();
 	CExecutablePtr pExec = project.FindItem(iName);
 	if (pExec)
 	{
-		//CExport oExport;
-		//GetExportFromInterface(oExport);
-		//pExec->SetExport(oExport);
+		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+		COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
+		CProgressWnd& progressWnd = pView->GetProgressWnd();
 
-		CProgressStepDlg dlg(this);
-		dlg.Create();
 
-		//		if (ID == ID_TO_SPREADSHEET2)
-		//		format = CExecutable::EXPORT_CSV_LOC;
+		pDoc->SetIsExecute(true);
+		pView->AdjustLayout();
 
-		pExec->LoadDefaultCtrl();
-		ERMsg msg = pExec->Export(GetFM(), CExecutable::EXPORT_CSV, dlg.GetCallback());
+		//GetProject().LoadDefaultCtrl();
+		
+		progressWnd.SetTaskbarList(pMainFrm->GetTaskBarList());
+
+		CProgressStepDlgParam param(pExec.get(), &GetFM());
+
+		TRY
+		{
+			pExec->LoadDefaultCtrl();
+			//ERMsg msg = pExec->Export(GetFM(), CExecutable::EXPORT_CSV, progressWnd.GetCallback());
+			
+			//progressWnd.ShowPane(TRUE, FALSE, TRUE);
+			msg = progressWnd.Execute(CExportWnd::ExportTask, &param);
+		}
+		CATCH_ALL(e)
+		{
+			msg = SYGetMessage(*e);
+		}
+		END_CATCH_ALL
+
+
+		pDoc->SetIsExecute(false);
+		pView->AdjustLayout();
+
+
 		if (msg)
 		{
 			if (ID == ID_EXPORT_NOW)
@@ -299,7 +352,7 @@ void CExportWnd::OnExport(UINT ID)
 			}
 			else if (ID == ID_EXPORT_SPREADSHEET1 || ID == ID_EXPORT_SPREADSHEET2)
 			{
-				
+
 				string appName = CRegistry::SPREADSHEET1;
 				if (ID == ID_EXPORT_SPREADSHEET2)
 					appName = CRegistry::SPREADSHEET2;
@@ -312,6 +365,34 @@ void CExportWnd::OnExport(UINT ID)
 		{
 			SYShowMessage(msg, this);
 		}
+
+		//CProgressStepDlg dlg(this);
+		//dlg.Create();
+
+		//
+		//pExec->LoadDefaultCtrl();
+		//ERMsg msg = pExec->Export(GetFM(), CExecutable::EXPORT_CSV, dlg.GetCallback());
+		//if (msg)
+		//{
+		//	if (ID == ID_EXPORT_NOW)
+		//	{
+		//		//do nothing
+		//	}
+		//	else if (ID == ID_EXPORT_SPREADSHEET1 || ID == ID_EXPORT_SPREADSHEET2)
+		//	{
+		//		
+		//		string appName = CRegistry::SPREADSHEET1;
+		//		if (ID == ID_EXPORT_SPREADSHEET2)
+		//			appName = CRegistry::SPREADSHEET2;
+
+		//		string argument = pExec->GetExportFilePath(GetFM());
+		//		CallApplication(appName, argument, GetSafeHwnd(), SW_SHOW);
+		//	}
+		//}
+		//else
+		//{
+		//	SYShowMessage(msg, this);
+		//}
 	}
 }
 

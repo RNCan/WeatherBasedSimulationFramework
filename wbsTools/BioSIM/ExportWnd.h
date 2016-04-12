@@ -91,6 +91,7 @@ protected:
 	//void GetExportFromInterface(WBSF::CExport& oExport);
 	//void SetExportToInterface(const WBSF::CExport& oExport);
 	void ChangeView();
+	static UINT ExportTask(void* pParam);
 
 	bool m_bDesableUpdate;
 };

@@ -1,7 +1,3 @@
-//USER = "cipra.saire1";
-//PASSWORD = "rLGJzcazV7qX";
-
-
 #include "StdAfx.h"
 #include "UICIPRA.h"
 
@@ -27,10 +23,11 @@ namespace WBSF
 	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
 	const size_t CUICIPRA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
 	const UINT CUICIPRA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_CIPRA_HOURLY_P;
-	
+	const UINT CUICIPRA::DESCRIPTION_TITLE_ID = ID_TASK_SM_CIPRA_HOURLY;
+
 	const char* CUICIPRA::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CIPRA";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUICIPRA::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CUICIPRA::CLASS_NAME(), CUICIPRA::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUICIPRA::CLASS_NAME(), (createF)CUICIPRA::create);
 	
 
 	const char* CUICIPRA::SERVER_NAME = "horus.mesonet-quebec.org";

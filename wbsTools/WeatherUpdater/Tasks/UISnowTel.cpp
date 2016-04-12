@@ -30,10 +30,11 @@ static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INT
 const char* CUISnoTel::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "TemporalType", "State", "FirstYear", "LastYear", "UpdateStationList" };
 const size_t CUISnoTel::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING_BROWSE, T_STRING, T_STRING, T_DATE };
 const UINT CUISnoTel::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SNOTEL_P;
+const UINT CUISnoTel::DESCRIPTION_TITLE_ID = ID_TASK_SNOTEL;
 
 const char* CUISnoTel::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SNOTEL";  return THE_CLASS_NAME; }
 CTaskBase::TType CUISnoTel::ClassType()const { return CTaskBase::UPDATER; }
-static size_t CLASS_ID = CTaskFactory::RegisterClass(CUISnoTel::CLASS_NAME(), CUISnoTel::create);
+static size_t CLASS_ID = CTaskFactory::RegisterTask(CUISnoTel::CLASS_NAME(), (createF)CUISnoTel::create);
 
 
 const char* CUISnoTel::SERVER_NAME = "www.wcc.nrcs.usda.gov";

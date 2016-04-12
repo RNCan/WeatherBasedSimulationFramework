@@ -13,11 +13,12 @@ namespace WBSF
 	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory" };
 	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
 	const UINT CZipUnzip::ATTRIBUTE_TITLE_ID = IDS_TOOL_ZIP_UNZIP_P;
-	
+	const UINT CZipUnzip::DESCRIPTION_TITLE_ID = ID_TASK_ZIP_UNZIP;
+
 	const char* CZipUnzip::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ZipUnzip";  return THE_CLASS_NAME; }
 	CTaskBase::TType CZipUnzip::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterClass(CZipUnzip::CLASS_NAME(), CZipUnzip::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterClass("Zip", CZipUnzip::create);
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CZipUnzip::CLASS_NAME(), (createF)CZipUnzip::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("Zip", (createF)CZipUnzip::create);
 	
 
 	CZipUnzip::CZipUnzip(void)

@@ -26,9 +26,6 @@
     <ClCompile Include="OptionBioSIM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,7 +47,10 @@
     <ClCompile Include="ResultDataWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectView.cpp">
+    <ClCompile Include="ProjectWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +68,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OptionBioSIM.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OutputWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="PropertiesWnd.h">
@@ -97,7 +94,10 @@
     <ClInclude Include="ResultDataWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectView.h">
+    <ClInclude Include="ProjectWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
