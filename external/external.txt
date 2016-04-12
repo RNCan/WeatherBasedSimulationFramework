@@ -1,0 +1,5 @@
+Download external component here:
+ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Sources/external.7z
+
+
+And unzip it into this directory
