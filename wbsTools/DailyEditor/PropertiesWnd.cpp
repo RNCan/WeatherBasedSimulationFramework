@@ -27,17 +27,23 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 
+
 static CDailyEditorDoc* GetDocument()
 {
+	CDailyEditorDoc* pDoc = NULL;
 	CWinApp* pApp = AfxGetApp();
 	if (pApp)
 	{
-		CFrameWnd * pFrame = (CFrameWnd *)(pApp->m_pMainWnd);
-		if (pFrame && pFrame->GetSafeHwnd() != NULL )
-			return (CDailyEditorDoc*)(pFrame->GetActiveDocument());
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CDailyEditorDoc*)docT->GetNextDoc(pos);
+		}
 	}
-	return NULL;
 
+	return pDoc;
 }
 
 static CWeatherDatabasePtr GetDatabasePtr()
@@ -414,3 +420,64 @@ LRESULT CPropertiesWnd::OnSetText(WPARAM wParam, LPARAM lParam)
 	//do your stuff
 	return Result;
 }
+
+
+
+// CMorphMenuButton command target
+//
+//class CMorphMenuButton : public CMFCCaptionButton
+//{
+//public:
+//	CMorphMenuButton(UINT nHit);
+//	virtual ~CMorphMenuButton();
+//
+//	virtual CMenuImages::IMAGES_IDS GetIconID(BOOL bHorz, BOOL bMaximized) const;
+//	void ShowMenu(CWnd* pWnd);
+//
+//private:
+//	CMenu m_dockMenu;
+//	CMenu* m_subMenu;
+//};
+//
+//// MorphMenuButton.cpp : implementation file
+////
+//
+//#include "stdafx.h"
+//#include "MorphMenuButton.h"
+//
+//
+//// CMorphMenuButton
+//CMorphMenuButton::CMorphMenuButton(UINT nHit)
+//	: CMFCCaptionButton(nHit)
+//{
+//	SetMiniFrameButton(); // already defaulted?
+//
+//	m_dockMenu.LoadMenu(IDR_DOCKPANE); // resource ID for dock pane menus
+//}
+//
+//CMorphMenuButton::~CMorphMenuButton()
+//{
+//	m_dockMenu.DestroyMenu();
+//}
+//
+//CMenuImages::IMAGES_IDS CMorphMenuButton::GetIconID(BOOL bHorz, BOOL bMaximized) const
+//{
+//	return CMenuImages::IdArrowForward;
+//}
+//
+//void CMorphMenuButton::ShowMenu(CWnd* pWnd)
+//{
+//	CRect windowRect, buttonRect;
+//	pWnd->GetWindowRect(&windowRect);
+//	buttonRect = GetRect();
+//	CPoint menuPos(windowRect.left + buttonRect.right, windowRect.top + buttonRect.bottom);
+//
+//	m_subMenu = m_dockMenu.GetSubMenu(0);
+//	if (!m_subMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, menuPos.x, menuPos.y, pWnd))
+//	{
+//		DWORD id = GetLastError();
+//		wchar_t errMsg[256];
+//		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, id, 0, errMsg, sizeof(errMsg), 0);
+//		MessageBox(0, errMsg, L"Error", MB_OK);
+//	}
+//}

@@ -4,8 +4,9 @@
 #include "UI/Common/CommonCtrl.h"
 #include "UI/Common/ProgressWnd.h"
 
-class CBioSIMDoc;
-
+class CDailyEditorDoc;
+/////////////////////////////////////////////////////////////////////////////
+// COutputWnd window
 
 class COutputView : public CView
 {
@@ -16,7 +17,7 @@ public:
 	COutputView();
 	~COutputView();
 
-	virtual CBioSIMDoc* GetDocument() const;
+	virtual CDailyEditorDoc* GetDocument() const;
 	
 	virtual void OnInitialUpdate(); // called first time after construct
 	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);

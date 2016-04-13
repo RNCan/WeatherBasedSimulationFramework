@@ -24,10 +24,6 @@
 #define ID_SORTING_SORTBYTYPE           147
 #define ID_SORTING_SORTBYACCESS         148
 #define IDR_GRAPH_TOOLBAR               148
-#define ID_SPREADSHEET_WND				150
-#define ID_CHART_WND					151
-#define ID_PROPERTIES_WND				152
-#define ID_OUTPUT_WND					153
 #define IDS_SPREADSHEET_WND				155
 #define IDS_CHART_WND					156
 #define IDS_OUTPUT_WND                  157
@@ -37,6 +33,7 @@
 #define IDI_CHART_WND					161
 #define IDI_OUTPUT_WND                  162
 #define IDI_PROPERTIES_WND              163
+#define IDI_STATION_LIST_WND            164
 #define IDR_POPUP_SORT                  173
 #define IDR_POPUP_EXPLORER              174
 #define IDR_MENU_IMAGES                 179

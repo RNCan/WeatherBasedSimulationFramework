@@ -19,6 +19,7 @@
 #include "Basic/UtilStd.h"
 
 #include "MainFrm.h"
+#include "OutputView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -54,6 +55,7 @@ CDailyEditorDoc::CDailyEditorDoc()
 
 	std::string str = CStringA(options.GetProfileString(_T("Years")));
 	m_years = WBSF::to_object<int, std::set<int>>(str, " ");
+	m_bExecute = false;
 }
 
 CDailyEditorDoc::~CDailyEditorDoc()
@@ -77,11 +79,52 @@ BOOL CDailyEditorDoc::OnNewDocument()
 	return TRUE;
 }
 
-// sérialisation de CDailyEditorDoc
+UINT CDailyEditorDoc::OpenDatabase(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)pMyParam->m_pThis;
+	LPCTSTR lpszPathName = (LPCTSTR)pMyParam->m_pExtra;
+	std::string filePath = CStringA(lpszPathName);
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+	pCallback->PushTask("Open database: " + filePath, NOT_INIT);
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		*pMsg = pDoc->m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, *pCallback);
+	CATCH_ALL(e)
+		*pMsg = UtilWin::SYGetMessage(*e);
+	END_CATCH_ALL
+
+	CoUninitialize();
+
+	pCallback->PopTask();
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
+
 
 BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
+
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	ENSURE(pMainFrm);
+	POSITION posView = GetFirstViewPosition();
+	COutputView* pView = (COutputView*)GetNextView(posView);
+	ENSURE(pView);
+	
+	//COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
+	CProgressWnd& progressWnd = pView->GetProgressWnd();
+
+	m_bExecute = true;
+	pView->AdjustLayout();//open the progress window
+
+	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
+	CProgressStepDlgParam param(this, (void*)lpszPathName);
 
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
@@ -90,14 +133,19 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	m_modifiedStation.clear();
 	m_outputText.clear();
 
-	std::string filePath = CStringA(lpszPathName);
+	//std::string filePath = CStringA(lpszPathName);
 
 	
-	CProgressStepDlg dlg(AfxGetMainWnd() );
-	dlg.Create();
+	//CProgressStepDlg dlg(AfxGetMainWnd() );
+	//dlg.Create();
 
-	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
-	dlg.DestroyWindow();
+	msg = progressWnd.Execute(OpenDatabase, &param);
+	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
+
+	//msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
+
+	
+	//dlg.DestroyWindow();
 
 	
 	if (msg)
@@ -111,6 +159,10 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	{
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
+
+	m_bExecute = false;
+	pView->AdjustLayout();//open the progress window
+	//UpdateAllViews(NULL, OUTPUT_CHANGE, NULL);
 
 	return (bool)msg;
 }
@@ -295,6 +347,10 @@ bool CDailyEditorDoc::CancelDataEdition()
 	return msg;
 }
 
+void CDailyEditorDoc::OnInitialUpdate()
+{
+	UpdateAllViews(NULL, INIT, NULL);
+}
 
 void CDailyEditorDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {

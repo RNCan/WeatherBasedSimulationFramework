@@ -61,7 +61,6 @@ namespace WBSF
 		m_sortDir = UGCT_SORTARROWUP;
 
 		m_bInEdition = false;
-		//m_lastStationIndex=-1;
 	}
 
 
@@ -98,7 +97,7 @@ namespace WBSF
 		// add and set heading's default celltype
 		CUGCell cell;
 		GetHeadingDefault(&cell);
-		cell.SetAlignment(UG_ALIGNCENTER);
+		cell.SetAlignment(UG_ALIGNLEFT);
 		cell.SetBorder(UG_BDR_RTHIN | UG_BDR_BTHIN);
 		cell.SetBackColor(RGB(239, 237, 242));
 		cell.SetHBackColor(RGB(162, 192, 248));
@@ -109,7 +108,7 @@ namespace WBSF
 
 		// create a font and set it as Grid Default
 		GetGridDefault(&cell);
-		cell.SetAlignment(UG_ALIGNCENTER);
+		cell.SetAlignment(UG_ALIGNLEFT);
 		cell.SetFont(&m_font);
 		cell.SetBorderColor(&m_cellBorderPen);
 		cell.SetBorder(UG_BDR_RTHIN | UG_BDR_BTHIN);
@@ -595,7 +594,7 @@ namespace WBSF
 		// add and set heading's default celltype
 		CUGCell cell;
 		GetHeadingDefault(&cell);
-		cell.SetAlignment(UG_ALIGNCENTER);
+		cell.SetAlignment(UG_ALIGNLEFT);
 		cell.SetBorder(UG_BDR_RTHIN | UG_BDR_BTHIN);
 		cell.SetBackColor(RGB(239, 237, 242));
 		cell.SetHBackColor(RGB(162, 192, 248));
@@ -606,7 +605,7 @@ namespace WBSF
 
 		// create a font and set it as Grid Default
 		GetGridDefault(&cell);
-		cell.SetAlignment(UG_ALIGNCENTER);
+		cell.SetAlignment(UG_ALIGNLEFT);
 		cell.SetFont(&m_font);
 		cell.SetBorderColor(&m_cellBorderPen);
 		cell.SetBorder(UG_BDR_RTHIN | UG_BDR_BTHIN);

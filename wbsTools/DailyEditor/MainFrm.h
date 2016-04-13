@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "OutputWnd.h"
+#include "StationsListWnd.h"
 #include "PropertiesWnd.h"
-
 #include "WeatherChartWnd.h"
 #include "WeatherSpreadsheetWnd.h"
 
@@ -30,6 +29,7 @@ public:
 
 	virtual ~CMainFrame();
 
+	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
 
 protected:  // membres incorporés de la barre de contrôle
 
@@ -41,8 +41,11 @@ protected:  // membres incorporés de la barre de contrôle
 	CWeatherSpreadsheetWnd	m_spreadsheetWnd;
 	CWeatherChartWnd	m_chartWnd;
 
-	COutputWnd        m_wndOutput;
+	CStationsListWnd  m_wndStationList;
 	CPropertiesWnd    m_wndProperties;
+
+	static const UINT m_uTaskbarBtnCreatedMsg;
+	CComPtr<ITaskbarList3> m_pTaskbarList;
 
 // Fonctions générées de la table des messages
 protected:
@@ -56,6 +59,7 @@ protected:
 	afx_msg void OnLanguageChange(UINT id);
 	afx_msg void OnLanguageUI(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
+	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);

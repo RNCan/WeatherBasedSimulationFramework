@@ -27,7 +27,7 @@ public:
 
 	static const char* DOCUMENT_XML;
 
-	//bool m_bEditable;
+
 
 
 	void SetCurStationIndex(size_t i, CView* pSender=NULL);
@@ -65,6 +65,11 @@ public:
 
 
 	bool IsStationModified(size_t row)const;
+
+	bool IsExecute()const{ return m_bExecute; }
+	void OnInitialUpdate();
+	
+
 // Opérations
 public:
 
@@ -124,7 +129,7 @@ protected:
 	int m_chartsZoom;
 	int m_currentTab;
 	WBSF::CWVariables m_variables;
-
+	bool m_bExecute;
 
 	size_t m_stationIndex;
 	WBSF::CWeatherStationPtr m_pStation;
@@ -132,4 +137,6 @@ protected:
 	
 
 	std::set<size_t> m_modifiedStation;
+
+	static UINT OpenDatabase(void* pParam);
 };

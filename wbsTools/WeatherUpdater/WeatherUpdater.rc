@@ -192,7 +192,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,1,40
+ FILEVERSION 5,0,1,41
  PRODUCTVERSION 5,0,1,40
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -210,7 +210,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.1.40"
+            VALUE "FileVersion", "5.0.1.41"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -220,7 +220,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.1.40"
+            VALUE "FileVersion", "5.0.1.41"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -377,7 +377,7 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
     "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
+    "#pragma code_page(1252) \r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -540,7 +540,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_STANDARD    "Standard "
     IDS_TOOLBAR_STATUS      "Barre d'état "
 END
 
@@ -1219,7 +1219,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE 9, 1
-#pragma code_page(1252)
+#pragma code_page(1252) 
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

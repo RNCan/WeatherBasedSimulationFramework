@@ -2,7 +2,6 @@
 #pragma once
 
 #include "UI/Common/CommonCtrl.h"
-#include "UI/Common/EmptyView.h"
 #include "UI/Common/ProgressWnd.h"
 
 class CWeatherUpdaterDoc;

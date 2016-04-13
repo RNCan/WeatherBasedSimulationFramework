@@ -8,7 +8,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/WVariablesEdit.h"
 
-#include "StationsListView.h"
+#include "StationsListWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"
 #include "DailyEditor.h"
@@ -84,19 +84,37 @@ static UINT indicators[] =
 	ID_INDICATOR_NB_STATIONS
 };
 
+CDailyEditorDoc* CStationsListWnd::GetDocument()
+{
+	CDailyEditorDoc* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CDailyEditorDoc*)docT->GetNextDoc(pos);
+		}
+	}
 
-CStationsListView::CStationsListView()
+	return pDoc;
+}
+
+
+CStationsListWnd::CStationsListWnd()
 {
 
 }
 
-CStationsListView::~CStationsListView()
+CStationsListWnd::~CStationsListWnd()
 {
 }
 
-IMPLEMENT_DYNCREATE(CStationsListView, CView)
+IMPLEMENT_DYNCREATE(CStationsListWnd, CDockablePane)
 
-BEGIN_MESSAGE_MAP(CStationsListView, CView)
+BEGIN_MESSAGE_MAP(CStationsListWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_SETTINGCHANGE()
@@ -109,18 +127,10 @@ END_MESSAGE_MAP()
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// Gestionnaires de messages de CResourceViewBar
-// CWeatherChartView drawing
-void CStationsListView::OnDraw(CDC* pDC)
-{
-	//do nothing
-}
 
 
 
-
-void CStationsListView::AdjustLayout()
+void CStationsListWnd::AdjustLayout()
 {
 	if (GetSafeHwnd () == NULL || (AfxGetMainWnd() != NULL && AfxGetMainWnd()->IsIconic()))
 	{
@@ -139,9 +149,9 @@ void CStationsListView::AdjustLayout()
 	m_wndStatusBar.SetWindowPos(NULL, rectClient.left, rectClient.Height() - cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-int CStationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CStationsListWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CView::OnCreate(lpCreateStruct) == -1)
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	CRect rectDummy;
@@ -180,25 +190,25 @@ int CStationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-void CStationsListView::OnSize(UINT nType, int cx, int cy)
+void CStationsListWnd::OnSize(UINT nType, int cx, int cy)
 {
-	CView::OnSize(nType, cx, cy);
+	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
 //
-//void CStationsListView::OnSetFocus(CWnd* pOldWnd)
+//void CStationsListWnd::OnSetFocus(CWnd* pOldWnd)
 //{
-//	CView::OnSetFocus(pOldWnd);
+//	CDockablePane::OnSetFocus(pOldWnd);
 //	m_stationsList.SetFocus();
 //}
 
-void CStationsListView::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
+void CStationsListWnd::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
-	CView::OnSettingChange(uFlags, lpszSection);
+	CDockablePane::OnSettingChange(uFlags, lpszSection);
 	SetPropListFont();
 }
 
-void CStationsListView::SetPropListFont()
+void CStationsListWnd::SetPropListFont()
 {
 	::DeleteObject(m_fntPropList.Detach());
 
@@ -220,7 +230,7 @@ void CStationsListView::SetPropListFont()
 }
 
 
-void CStationsListView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	BOOL bEnable = FALSE;
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
@@ -280,7 +290,7 @@ void CStationsListView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 }
 
 
-void CStationsListView::OnUpdateToolbar(CCmdUI *pCmdUI)
+void CStationsListWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 {
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
 	bool bInit = pDoc->GetDatabase()->IsOpen() && !pDoc->GetDataInEdition();
@@ -299,7 +309,7 @@ void CStationsListView::OnUpdateToolbar(CCmdUI *pCmdUI)
 }
 
 
-void CStationsListView::OnToolbarCommand(UINT ID)
+void CStationsListWnd::OnToolbarCommand(UINT ID)
 {
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
 	ASSERT(pDoc);
@@ -365,7 +375,7 @@ void CStationsListView::OnToolbarCommand(UINT ID)
 	}
 }
 
-BOOL CStationsListView::PreTranslateMessage(MSG* pMsg)
+BOOL CStationsListWnd::PreTranslateMessage(MSG* pMsg)
 {
 	//GetAsyncKeyState(VK_RETURN)
 		//GetKeyState
@@ -406,12 +416,12 @@ BOOL CStationsListView::PreTranslateMessage(MSG* pMsg)
 	//	return TRUE; // this doesn't need processing anymore
 	//}
 
-	return CView::PreTranslateMessage(pMsg); // all other cases still need default processing
+	return CDockablePane::PreTranslateMessage(pMsg); // all other cases still need default processing
 }
 
 
 
-void CStationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
+void CStationsListWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 {
 
 	if (pCmdUI->m_nID == ID_INDICATOR_NB_STATIONS)
@@ -435,7 +445,7 @@ void CStationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 }
 
-LRESULT  CStationsListView::OnSelectionChange(WPARAM, LPARAM)
+LRESULT  CStationsListWnd::OnSelectionChange(WPARAM, LPARAM)
 {
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
 	ASSERT(pDoc);

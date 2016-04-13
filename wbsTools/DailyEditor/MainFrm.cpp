@@ -17,8 +17,12 @@ using namespace UtilWin;
 using namespace WBSF;
 
 static const int ID_LAGUAGE_CHANGE = 5;//from document
+const UINT CMainFrame::m_uTaskbarBtnCreatedMsg = RegisterWindowMessage(_T("TaskbarButtonCreated"));
 
-
+static const UINT ID_SPREADSHEET_WND = 501;
+static const UINT ID_CHART_WND = 502;
+static const UINT ID_PROPERTIES_WND = 503;
+static const UINT ID_STATIONLIST_WND = 504;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -36,7 +40,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
 	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
-	
+	ON_REGISTERED_MESSAGE(m_uTaskbarBtnCreatedMsg, OnTaskbarProgress)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -44,6 +48,25 @@ static UINT indicators[] =
 	ID_SEPARATOR           // indicateur de la ligne d'état
 };
 
+
+LRESULT CMainFrame::OnTaskbarProgress(WPARAM wParam, LPARAM lParam)
+{
+	// On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
+	// and broadcast it, so make sure the OS is Win 7 or later before acting on
+	// the message. (This isn't a problem for this app, which won't run on pre-7,
+	// but you should definitely do this check if your app will run on pre-7.)
+	DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+	DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+	// Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
+	if (dwMajor > 6 || (dwMajor == 6 && dwMinor > 0))
+	{
+		m_pTaskbarList.Release();
+		m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
+	}
+
+	return 0;
+}
 // construction ou destruction de CMainFrame
 
 CMainFrame::CMainFrame()
@@ -93,11 +116,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//create docking pane
 	VERIFY(CreateDockingWindows());
 
-	CDockablePane* pPaneFrame = NULL;
-	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_RIGHT);
-	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0, &pPaneFrame);
-	m_wndOutput.DockToWindow(pPaneFrame, CBRS_ALIGN_BOTTOM);
-	DockPane(&m_wndProperties);
+
+	DockPane(&m_wndStationList, AFX_IDW_DOCKBAR_LEFT);
+	m_wndProperties.DockToWindow(&m_wndStationList, CBRS_ALIGN_BOTTOM);
+	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_TOP);
+	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0);
+	
+	
 
 
 	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
@@ -135,13 +160,13 @@ BOOL CMainFrame::CreateDockingWindows()
 	}
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 
-	if (!m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(0, 0, 800, 400), TRUE, ID_OUTPUT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndStationList.Create(GetCString(IDS_STATION_LIST_WND), this, CRect(0, 0, 800, 400), TRUE, ID_STATIONLIST_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Sortie\n");
 		return FALSE; // échec de la création
 	}
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
-
+	m_wndStationList.EnableDocking(CBRS_ALIGN_ANY);
+	
 
 	
 
@@ -159,8 +184,8 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	m_chartWnd.SetIcon(hChartIcon, TRUE);
 
 
-	HICON hOutputIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OUTPUT_WND), IMAGE_ICON, 24, 24, 0);
-	m_wndOutput.SetIcon(hOutputIcon, TRUE);
+	HICON hStationListIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_STATION_LIST_WND), IMAGE_ICON, 24, 24, 0);
+	m_wndStationList.SetIcon(hStationListIcon, TRUE);
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
 	m_wndProperties.SetIcon(hPropertiesBarIcon, TRUE);
@@ -232,7 +257,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 		CDockingManager::SetDockingMode(DT_SMART);
 	}
 
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
 	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
@@ -246,7 +271,7 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 }
 
 void CMainFrame::ActivateFrame(int nCmdShow)
@@ -257,7 +282,7 @@ void CMainFrame::ActivateFrame(int nCmdShow)
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 { 
-	m_wndOutput.OnUpdate(pSender, lHint, pHint);
+	m_wndStationList.OnUpdate(pSender, lHint, pHint);
 	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
 	m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
 	m_chartWnd.OnUpdate(pSender, lHint, pHint);
@@ -298,7 +323,7 @@ void CMainFrame::OnLanguageChange(UINT id)
 		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
 		m_spreadsheetWnd.SetWindowText(GetCString(IDS_SPREADSHEET_WND));
 		m_chartWnd.SetWindowText(GetCString(IDS_CHART_WND));
-		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
+		m_wndStationList.SetWindowText(GetCString(IDS_STATION_LIST_WND));
 		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
 
 		m_wndToolBar.RestoreOriginalState();

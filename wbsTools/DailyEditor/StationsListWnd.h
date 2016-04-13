@@ -12,8 +12,6 @@
 
 class CDailyEditorDoc;
 
-//
-
 
 class CMFCToolBarYearsButton : public CMFCToolBarEditBoxButton
 {
@@ -84,59 +82,19 @@ class CStationsListStatusBar : public CStatusBar
 
 //*************************************************************************************************************
 
-//class CStationsListCtrl : public CUGCtrl
-//{
-//public:
-//
-//	CStationsListCtrl();
-//	
-//	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-//	void EnableStationsList(BOOL bEnable);
-//
-//	virtual void OnSetup();
-//	
-//	virtual void OnCellChange(int oldcol, int newcol, long oldrow, long newrow);
-//	virtual int OnCanSizeCol(int) { return TRUE; }
-//	virtual int OnCanSizeRow(long) { return FALSE; }
-//	virtual int OnCanSizeTopHdg() { return FALSE; }
-//	virtual int OnCanSizeSideHdg() { return TRUE; }
-//	virtual void OnGetCell(int col, long row, CUGCell *cell);
-//	virtual void OnTH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed = 0);
-//	virtual void OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed = 0);
-//	virtual void OnSH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed = 0);
-//	virtual void OnColSized(int col, int *width);
-//	virtual int OnHint(int col, long row, int section, CString *string);
-//	virtual int OnVScrollHint(long row, CString *string);
-//	virtual COLORREF OnGetDefBackColor(int section);
-//	virtual void OnSelectionChanged(int startCol, long startRow, int endCol, long endRow, int blockNum);
-//
-//protected:
-//	
-//	CFont m_font;
-//	CFont m_fontBold;
-//	CPen m_cellBorderPen;
-//
-//	void CreateBoldFont();
-//	void SortInfo(int col, int dir);
-//	std::vector<std::pair<std::string, size_t>> m_sortInfo;
-//	CUGSortArrowType m_sortArrow;
-//	int m_curSortCol;
-//	int m_sortDir;
-//
-//	std::vector<boost::dynamic_bitset<>> m_bDataEdited;
-//
-//	DECLARE_MESSAGE_MAP()
-//};
-//
-
-class CStationsListView : public CView
+class CStationsListWnd : public CDockablePane
 {
-	DECLARE_DYNCREATE(CStationsListView)
+	DECLARE_DYNCREATE(CStationsListWnd)
 
 // Construction
 public:
-	CStationsListView();
-	virtual ~CStationsListView();
+
+
+	static CDailyEditorDoc* GetDocument();
+
+
+	CStationsListWnd();
+	virtual ~CStationsListWnd();
 
 	void AdjustLayout();
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
@@ -152,7 +110,6 @@ protected:
 	CStationsListStatusBar m_wndStatusBar;
 
 
-	virtual void OnDraw(CDC* pDC);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 

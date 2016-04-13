@@ -820,7 +820,8 @@ ERMsg CWeatherDatabase::GetStationList(CSearchResultVector& searchResultArray, C
 		bool bOutside = (!rect.IsRectEmpty() && !rect.PtInRect(station));
 		bool bMissingVariable = ((WVars&filter) != filter);
 
-		if (!bExclude &&
+		if ( WVars.any() &&
+			!bExclude &&
 			!bOutside &&
 			!bMissingVariable)
         {

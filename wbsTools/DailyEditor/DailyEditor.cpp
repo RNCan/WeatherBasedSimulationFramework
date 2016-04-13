@@ -19,7 +19,7 @@
 #include "DailyEditor.h" 
 #include "DailyEditorDoc.h"
 #include "MainFrm.h"
-#include "StationsListView.h"
+#include "OutputView.h"
 
 
 
@@ -122,7 +122,7 @@ BOOL CDailyEditorApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CDailyEditorDoc),
 		RUNTIME_CLASS(CMainFrame),       // fenêtre frame SDI principale
-		RUNTIME_CLASS(CStationsListView));
+		RUNTIME_CLASS(COutputView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

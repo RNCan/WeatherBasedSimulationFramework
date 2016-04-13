@@ -23,9 +23,6 @@
     <ClInclude Include="resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutputWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="DailyEditor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -35,13 +32,16 @@
     <ClInclude Include="DailyEditorOptionsDlg.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="StationsListView.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="WeatherSpreadsheetWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="WeatherChartWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StationsListWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -55,9 +55,6 @@
     <ClCompile Include="PropertiesWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DailyEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,13 +64,16 @@
     <ClCompile Include="DailyEditorOptionsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StationsListView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WeatherSpreadsheetWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WeatherChartWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StationsListWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

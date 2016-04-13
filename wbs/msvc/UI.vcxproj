@@ -33,7 +33,6 @@
     <ClCompile Include="..\src\UI\Common\CommonCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\CustomDDX.cpp" />
     <ClCompile Include="..\src\UI\Common\DiskObject.cpp" />
-    <ClCompile Include="..\src\UI\Common\EmptyView.cpp" />
     <ClCompile Include="..\src\UI\Common\EnableGroupboxControls.cpp" />
     <ClCompile Include="..\src\UI\Common\FileNameProperty.cpp" />
     <ClCompile Include="..\src\UI\Common\GeoRectCtrl.cpp" />
@@ -150,7 +149,6 @@
     <ClInclude Include="..\src\UI\Common\CommonCtrl.h" />
     <ClInclude Include="..\src\UI\Common\CustomDDX.h" />
     <ClInclude Include="..\src\UI\Common\DiskObject.h" />
-    <ClInclude Include="..\src\UI\Common\EmptyView.h" />
     <ClInclude Include="..\src\UI\Common\EnableGroupboxControls.h" />
     <ClInclude Include="..\src\UI\Common\FileNameProperty.h" />
     <ClInclude Include="..\src\UI\Common\GeoRectCtrl.h" />

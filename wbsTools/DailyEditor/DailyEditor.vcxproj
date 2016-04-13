@@ -231,10 +231,10 @@
     <ClInclude Include="DailyEditorDoc.h" />
     <ClInclude Include="DailyEditorOptionsDlg.h" />
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="OutputView.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="StationsListView.h" />
+    <ClInclude Include="StationsListWnd.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="WeatherChartWnd.h" />
     <ClInclude Include="WeatherSpreadsheetWnd.h" />
@@ -244,9 +244,9 @@
     <ClCompile Include="DailyEditorDoc.cpp" />
     <ClCompile Include="DailyEditorOptionsDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="OutputView.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
-    <ClCompile Include="StationsListView.cpp" />
+    <ClCompile Include="StationsListWnd.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

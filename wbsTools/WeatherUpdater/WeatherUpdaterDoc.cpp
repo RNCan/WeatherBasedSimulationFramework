@@ -298,35 +298,37 @@ void CWeatherUpdaterDoc::OnExecute()
 
 	if (!m_bExecute)
 	{
-		m_bExecute = true;
-
 		CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 		COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
-//		CDockablePane* pActivePane = pMainFrm->GetNeighborProgressPane();
 		CProgressWnd& progressWnd = pView->GetProgressWnd();
-		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
-		//progressWnd.ShowPane(true, false, true);
 
+
+		m_bExecute = true;
+		pView->AdjustLayout();//open the progress window
+
+		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 		CProgressStepDlgParam param(&m_project);
 
 
-		TRY
+		/*TRY
 		{
-			msg = progressWnd.Execute(ExecuteTasks, &param);
-			m_lastLog = GetOutputString(msg, progressWnd.GetCallback(), true);
-		}
-		CATCH_ALL(e)
-		{
-			msg = SYGetMessage(*e);
-			m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK, true);
-		}
-		END_CATCH_ALL
+		*/
+		msg = progressWnd.Execute(ExecuteTasks, &param);
+		m_lastLog = GetOutputString(msg, progressWnd.GetCallback(), true);
+		//}
+		//CATCH_ALL(e)
+		//{
+		//msg = SYGetMessage(*e);
+		//m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK, true);
+		//}
+		//END_CATCH_ALL
 
 		
 		ReplaceString(m_lastLog, "\n", "|");
 		ReplaceString(m_lastLog, "\r", "");
 		
 		m_bExecute = false;
+		pView->AdjustLayout();
 	
 		//transfer message 
 		for (size_t t = 0; t < m_project.size(); t++)

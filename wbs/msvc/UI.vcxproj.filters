@@ -346,9 +346,6 @@
     <ClCompile Include="..\src\UI\Common\TextProgressCtrl.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\Common\EmptyView.cpp">
-      <Filter>UI\Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\Common\ProgressWnd.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
@@ -706,9 +703,6 @@
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\Common\TextProgressCtrl.h">
-      <Filter>UI\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\UI\Common\EmptyView.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\Common\ProgressWnd.h">

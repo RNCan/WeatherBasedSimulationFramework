@@ -576,26 +576,6 @@ namespace WBSF
 	StringVector CWeatherDatabaseOptimization::GetDataFiles()const
 	{
 		return GetWeatherDBDataFileList(m_filePath, *this);
-		//StringVector filesList;
-
-		////return GetWeatherDBDataFileList(m_filePath, *this);
-		//string dataPath = GetPath(m_filePath);
-		//if (m_bSubDir)
-		//	dataPath += GetFileTitle(m_filePath) + "\\";
-
-		//if (IsNormalsDB(m_filePath))
-		//{
-
-		//	filesList.push_back(dataPath + at(0).GetDataFileName());
-		//}
-		//else
-		//{
-		//	filesList.resize(size());
-		//	for (size_t i = 0; i<size(); i++)
-		//		filesList[i] = dataPath + at(i).GetDataFileName();
-		//}
-
-		//return filesList;
 	}
 
 	ERMsg CWeatherDatabaseOptimization::GetDataFiles(CFileInfoVector& filesInfo, bool bToUpdateOnly, CCallback& callback)const
