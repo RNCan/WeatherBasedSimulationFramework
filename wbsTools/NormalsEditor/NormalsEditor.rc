@@ -35,6 +35,7 @@ IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
 IDI_CHART_WND           ICON                    "res\\chart_wnd.ico"
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+IDI_STATION_LIST_WND    ICON                    "res\\station_list_wnd.ico"
 IDI_OPTION              ICON                    "res\\Option.ico"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,6 @@ IDI_OPTION              ICON                    "res\\Option.ico"
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
-IDR_STATIONSLIST_TOOLBAR BITMAP                 "res\\StationsListToolbar.bmp"
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
-
+IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
@@ -151,7 +151,7 @@ BEGIN
     BEGIN
         BLOCK "0c0c04b0"
         BEGIN
-            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques normales"
             VALUE "FileVersion", "4.0.1.17"
             VALUE "InternalName", "NormalsEditor.exe"
@@ -161,8 +161,8 @@ BEGIN
         END
         BLOCK "100904b0"
         BEGIN
-            VALUE "CompanyName", "Laurentian Forestry Center"
-            VALUE "FileDescription", "Normals Weather Editor"
+            VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
+            VALUE "FileDescription", "Normals weather data editor"
             VALUE "FileVersion", "4.0.1.17"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
@@ -248,7 +248,7 @@ BEGIN
     END
     POPUP "A&ide"
     BEGIN
-        MENUITEM "À &propos de NormalsEditor...", ID_APP_ABOUT
+        MENUITEM "À &propos de L'ÉditeurNormales...", ID_APP_ABOUT
     END
 END
 
@@ -283,8 +283,6 @@ BEGIN
     BEGIN
         MENUITEM "&Copier",                     ID_EDIT_COPY
         MENUITEM "Effa&cer",                    ID_EDIT_CLEAR
-        MENUITEM SEPARATOR
-        MENUITEM "&Masquer",                    ID_OUTPUT_WND
     END
 END
 
@@ -361,7 +359,6 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
     "LANGUAGE 12, 1\r\n"
-    "#include ""res\\DPT.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -385,16 +382,15 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurQuotidien\n\nNormalsEditor\nBase de données quotidiennes (*.NormalsStations)\n.NormalsStations\n\n"
+    IDR_MAINFRAME           "ÉditeurNormales\n\ÉditeurNormales\nBase de données normales (*.NormalsStations)\n.NormalsStations\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_APP_TITLE       "ÉditeurQuotidien"
+    AFX_IDS_APP_TITLE       "ÉditeurNormales"
     AFX_IDS_IDLEMESSAGE     "Prêt"
 END
-
 
 STRINGTABLE
 BEGIN
@@ -507,7 +503,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS		"Barre d'état"
+    IDS_TOOLBAR_STATUS      "Barre d'état"
 END
 
 STRINGTABLE
@@ -634,7 +630,6 @@ BEGIN
     END
 END
 
-
 IDR_POPUP_EXPLORER MENU
 BEGIN
     POPUP "Explorer"
@@ -656,8 +651,6 @@ BEGIN
     BEGIN
         MENUITEM "&Copy",                       ID_EDIT_COPY
         MENUITEM "&Clear",                      ID_EDIT_CLEAR
-        MENUITEM SEPARATOR
-        MENUITEM "&Hide",                       ID_OUTPUT_WND
     END
 END
 
@@ -711,7 +704,6 @@ BEGIN
     AFX_IDS_APP_TITLE       "NormalsEditor"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
-
 
 STRINGTABLE
 BEGIN
@@ -824,7 +816,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS      "Status Bar"
+    IDS_TOOLBAR_STATUS      "Status Bar"
 END
 
 STRINGTABLE
@@ -890,7 +882,6 @@ LANGUAGE 9, 1
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE 12, 1
-#include "res\DPT.rc2"  // ressources non modifiées par Microsoft Visual C++
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

@@ -10,7 +10,7 @@
 #include "UI/WVariablesEdit.h"
 #include "HourlyEditor.h"
 #include "HourlyEditorDoc.h"
-#include "WeatherTableWnd.h"
+#include "WeatherSpreadSheetWnd.h"
 #include "resource.h"
 
 

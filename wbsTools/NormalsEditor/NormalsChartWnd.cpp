@@ -275,12 +275,9 @@ void CNormalsChartWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)GetDocument();
 	CWeatherDatabasePtr pDB = pDoc->GetDatabase();
-
-	int index = m_wndToolBar.CommandToIndex(ID_GRAPH_ZOOM);
-	CMFCToolBarComboBoxButton* pCtrl = (CMFCToolBarComboBoxButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
 	
 	m_normalsChartsCtrl.m_pStation = pDoc->GetCurStation();
-	m_normalsChartsCtrl.m_zoom = 1;// 1 << pCtrl->GetCurSel();
+	m_normalsChartsCtrl.m_zoom = 1;
 
 	
 	bool bVisible = IsWindowVisible();

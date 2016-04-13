@@ -6,7 +6,7 @@
 #include <propkey.h>
 
 #include "Basic/WeatherDatabaseCreator.h"
-#include "Simulation/WeatherGradient2.h"
+#include "Simulation/WeatherGradient.h"
 #include "geomatic/projection.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
@@ -17,6 +17,8 @@
 #include "MatchStationApp.h"
 #include "MatchStationDoc.h"
 #include "MainFrm.h"
+#include "OutputView.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -80,6 +82,7 @@ CMatchStationDoc::CMatchStationDoc()
 	if (cmdInfo.Have(CMatchStationCmdLine::HOURLY_FILEPATH))
 		m_observationFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::HOURLY_FILEPATH));
 			
+	m_bExecute = false;
 
 }
 
@@ -443,10 +446,10 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				m_gradient.m_target = GetLocation(m_curIndex);
 
 
-				CProgressStepDlg dlg(AfxGetMainWnd());
-				dlg.Create();
+				//CProgressStepDlg dlg(AfxGetMainWnd());
+				//dlg.Create();
 
-				ERMsg msg = m_gradient.CreateGradient(dlg.GetCallback());
+				ERMsg msg = m_gradient.CreateGradient();
 			}
 
 			if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == NORMALS_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
@@ -535,14 +538,61 @@ void CMatchStationDoc::OnValidation()
 
 }
 
+UINT CMatchStationDoc::Execute(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CMatchStationDoc* pDoc = (CMatchStationDoc*)pMyParam->m_pThis;
+	std::string filePath = (char*)pMyParam->m_pFilepath;
+	size_t type = (size_t)pMyParam->m_pExtra;
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+	pCallback->PushTask("Open database: " + filePath, NOT_INIT);
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		switch (type)
+		{
+		case 0:	*pMsg = pDoc->m_pNormalsDB->Open(filePath, CNormalsDatabase::modeRead, *pCallback); break;
+		case 1: *pMsg = pDoc->m_pObservationDB->Open(filePath, CWeatherDatabase::modeRead, *pCallback); break;
+		}
+		
+	CATCH_ALL(e)
+		*pMsg = UtilWin::SYGetMessage(*e);
+	END_CATCH_ALL
+
+		CoUninitialize();
+
+	pCallback->PopTask();
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
+
+
+
 
 void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 {
 
 	ERMsg msg;
-	CProgressStepDlg dlg(AfxGetMainWnd());
-	dlg.Create();
 
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	ENSURE(pMainFrm);
+	//COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
+	//ENSURE(pView);
+	POSITION posView = GetFirstViewPosition();
+	COutputView* pView = (COutputView*)GetNextView(posView);
+	ENSURE(pView);
+
+
+	CProgressWnd& progressWnd = pView->GetProgressWnd();
+
+	m_bExecute = true;
+	pView->AdjustLayout();//open the progress window
+
+	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 
 	if (!m_WGFilePath.empty() && FileExists(m_WGFilePath))
 	{
@@ -551,7 +601,6 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		{
 			m_year = WGInput.m_firstYear;
 			m_nbStations = WGInput.m_nbNormalsStations;
-			//m_variable = 
 		}
 	}
 
@@ -561,9 +610,11 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		m_pNormalsDB.reset();
 		if (!m_normalsFilePath.empty() && FileExists(m_normalsFilePath))
 		{
+			CProgressStepDlgParam param(this, (void*)m_normalsFilePath.c_str(), (void*)0);
+
 			m_pNormalsDB = CreateWeatherDatabase(m_normalsFilePath);
 			if (m_pNormalsDB)
-				msg += m_pNormalsDB->Open(m_normalsFilePath, CNormalsDatabase::modeRead, dlg.GetCallback());
+				msg = progressWnd.Execute(Execute, &param);
 			else
 				msg.ajoute("Invalid Normals file path: " + m_normalsFilePath);
 		}
@@ -575,9 +626,12 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		m_pObservationDB.reset();
 		if (!m_observationFilePath.empty() && FileExists(m_observationFilePath))
 		{
+			CProgressStepDlgParam param(this, (void*)m_observationFilePath.c_str(), (void*)1);
+
 			m_pObservationDB = CreateWeatherDatabase(m_observationFilePath);
 			if (m_pObservationDB.get())//if it's a vlid extention
-				msg = m_pObservationDB->Open(m_observationFilePath, CNormalsDatabase::modeRead, dlg.GetCallback());
+				msg = progressWnd.Execute(Execute, &param);
+				//msg = m_pObservationDB->Open(m_observationFilePath, CNormalsDatabase::modeRead, dlg.GetCallback());
 			else
 				msg.ajoute("Invalid observation file path:" + m_observationFilePath);
 
@@ -591,24 +645,27 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		if (!m_locationFilePath.empty() && FileExists(m_locationFilePath))
 		{
 			m_pLocations = std::make_shared<CLocationVector>();
-			msg += m_pLocations->Load(m_locationFilePath);
+			msg += m_pLocations->Load(m_locationFilePath );
 		}
 	}
+
+	
+
+
 	//	SetNormalsFilePath(normalsFilePath);
-	//SetObservationFilePath(observationFilePath);
-	//SetLocationFilePath(m_locationFilePath);
-
-
-	//if (m_pNormalsDB.get() && m_pNormalsDB->IsOpen())
-	//{
-	//GeoBasic::CProjection prj;
-	//match
-
-	//CNormalsDatabasePtr pNormalsDB = std::dynamic_pointer_cast<CNormalsDatabase>(m_pNormalsDB);
-	//ASSERT(pNormalsDB.get());
-
 	if(CWeatherGradient::GetShore().get()==NULL)
 		msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
+	m_bExecute = false;
+	pView->AdjustLayout();//open the progress window
+
+
+
+	if (!msg)
+		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+
+	
 
 
 	//CWeatherGradient testGradient;
@@ -620,14 +677,6 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 	//testGradient.ExportInput("d:\\Travaux\\WeatherGradients\\Tmax.csv", H_TRNG);
 	//testGradient.ExportInput("d:\\Travaux\\WeatherGradients\\Prcp2.csv", H_PRCP);
 	//testGradient.ExportInput("d:\\Travaux\\WeatherGradients\\Tdew.csv", H_TDEW);
-	dlg.DestroyWindow();
 
-	if (!msg)
-		SYShowMessage(msg, ::AfxGetMainWnd());
 
 }
-
-/*void CMatchStationDoc::InitParam(int yeat, size_t n, size_t v, CString NFP, CString DFP, CString HFP)
-{
-
-}*/

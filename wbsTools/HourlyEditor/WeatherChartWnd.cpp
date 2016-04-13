@@ -6,7 +6,7 @@
 #include "HourlyEditor.h"
 
 #include "HourlyEditorDoc.h"
-#include "WeatherChartsWnd.h"
+#include "WeatherChartWnd.h"
 #include "Basic/Dimension.h"
 #include "Basic/WeatherDefine.h"
 #include "Basic/Registry.h"

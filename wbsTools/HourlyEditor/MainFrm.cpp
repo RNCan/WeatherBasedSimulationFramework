@@ -3,21 +3,26 @@
 //
 
 #include "stdafx.h"
-
+#include "HourlyEditor.h"
+#include "HourlyEditorOptionsDlg.h"
+#include "MainFrm.h"
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
 #include "Basic/Statistic.h"
 #include "UI/Common/UtilWin.h"
 
-#include "HourlyEditorOptionsDlg.h"
-#include "HourlyEditor.h"
-#include "MainFrm.h"
+
 
 using namespace UtilWin;
-
+using namespace WBSF;
 
 static const int ID_LAGUAGE_CHANGE = 5;//from document
+const UINT CMainFrame::m_uTaskbarBtnCreatedMsg = RegisterWindowMessage(_T("TaskbarButtonCreated"));
 
+static const UINT ID_SPREADSHEET_WND = 501;
+static const UINT ID_CHART_WND = 502;
+static const UINT ID_PROPERTIES_WND = 503;
+static const UINT ID_STATIONLIST_WND = 504;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -35,14 +40,33 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
 	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
-	
+	ON_REGISTERED_MESSAGE(m_uTaskbarBtnCreatedMsg, OnTaskbarProgress)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
 {
-	ID_SEPARATOR,           // indicateur de la ligne d'état
+	ID_SEPARATOR           // indicateur de la ligne d'état
 };
 
+
+LRESULT CMainFrame::OnTaskbarProgress(WPARAM wParam, LPARAM lParam)
+{
+	// On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
+	// and broadcast it, so make sure the OS is Win 7 or later before acting on
+	// the message. (This isn't a problem for this app, which won't run on pre-7,
+	// but you should definitely do this check if your app will run on pre-7.)
+	DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+	DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+	// Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
+	if (dwMajor > 6 || (dwMajor == 6 && dwMinor > 0))
+	{
+		m_pTaskbarList.Release();
+		m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
+	}
+
+	return 0;
+}
 // construction ou destruction de CMainFrame
 
 CMainFrame::CMainFrame()
@@ -60,50 +84,52 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	EnableDocking(CBRS_ALIGN_ANY);
 	CDockingManager::SetDockingMode(DT_SMART);
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);
-	EnableDocking(CBRS_ALIGN_ANY);
 
-	//Create menu
+
+	CMFCPopupMenu::SetForceMenuFocus(FALSE);
+	
 	VERIFY(m_wndMenuBar.Create(this));
 	m_wndMenuBar.SetRestoredFromRegistry(false);
 	m_wndMenuBar.SetMenuSizes(CSize(22, 22), CSize(16, 16));
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 	m_wndMenuBar.SetRecentlyUsedMenus(FALSE);
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 	DockPane(&m_wndMenuBar);
 
+
 	
-	//Create Toolbar
+	
 	VERIFY(m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC));
 	VERIFY(m_wndToolBar.LoadToolBar(IDR_MAINFRAME_TOOLBAR, 0, 0, 1));
-	m_wndMenuBar.SetRestoredFromRegistry(false);
 	m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
-	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
+	m_wndToolBar.SetRestoredFromRegistry(false);
 	DockPane(&m_wndToolBar);
-	
 
-	//Create Status 
+
 	VERIFY(m_wndStatusBar.Create(this));
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-	// Create docking
+	//create docking pane
 	VERIFY(CreateDockingWindows());
 
-	CDockablePane* pPaneFrame = NULL;
-	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_RIGHT);
-	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0, &pPaneFrame);
-	m_wndOutput.DockToWindow(pPaneFrame, CBRS_ALIGN_BOTTOM);
 
-	DockPane(&m_wndProperties);
+	DockPane(&m_wndStationList, AFX_IDW_DOCKBAR_LEFT);
+	m_wndProperties.DockToWindow(&m_wndStationList, CBRS_ALIGN_BOTTOM);
+	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_TOP);
+	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0);
+	
+	
 
 
-
+	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 	OnApplicationLook(theApp.m_nAppLook); 
+	
 	EnablePaneMenu(TRUE, ID_VIEW_STATUS_BAR, GetCString(IDS_TOOLBAR_STATUS), ID_VIEW_TOOLBAR);
-	LoadBasicCommand();
+	LoadtBasicCommand();
 
 	return 0;
 }
@@ -111,37 +137,40 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 BOOL CMainFrame::CreateDockingWindows()
 {
-	if (!m_spreadsheetWnd.Create(GetCString(IDS_SPREASHEET_WND), this, CRect(0,0,800,400), TRUE, ID_SPREADSHEET_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+
+	if (!m_spreadsheetWnd.Create(GetCString(IDS_SPREADSHEET_WND), this, CRect(0, 0, 800, 400), TRUE, ID_SPREADSHEET_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Affichage des fichiers\n");
 		return FALSE; // échec de la création
 	}
 	m_spreadsheetWnd.EnableDocking(CBRS_ALIGN_ANY);
 
-	if (!m_chartWnd.Create(GetCString(IDS_CHART_WND), this, CRect(0,0,800,400), TRUE, ID_CHARTS_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+
+	if (!m_chartWnd.Create(GetCString(IDS_CHART_WND), this, CRect(0, 0, 800, 400), TRUE, ID_CHART_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Affichage des fichiers\n");
 		return FALSE; // échec de la création
 	}
 	m_chartWnd.EnableDocking(CBRS_ALIGN_ANY);
 
-	if (!m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(0,0,600,400), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(0, 0, 250, 400), TRUE, ID_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 
-	if (!m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(0,0,800,400), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndStationList.Create(GetCString(IDS_STATION_LIST_WND), this, CRect(0, 0, 800, 400), TRUE, ID_STATIONLIST_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Impossible de créer la fenêtre Sortie\n");
 		return FALSE; // échec de la création
 	}
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndStationList.EnableDocking(CBRS_ALIGN_ANY);
+	
+
+	
 
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
-
-
 	return TRUE;
 }
 
@@ -155,13 +184,13 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	m_chartWnd.SetIcon(hChartIcon, TRUE);
 
 
-	HICON hOutputIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OUTPUT_WND), IMAGE_ICON, 24, 24, 0);
-	m_wndOutput.SetIcon(hOutputIcon, TRUE);
+	HICON hStationListIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_STATION_LIST_WND), IMAGE_ICON, 24, 24, 0);
+	m_wndStationList.SetIcon(hStationListIcon, TRUE);
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
 	m_wndProperties.SetIcon(hPropertiesBarIcon, TRUE);
-}
 
+}
 
 void CMainFrame::OnApplicationLook(UINT id)
 {
@@ -228,7 +257,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 		CDockingManager::SetDockingMode(DT_SMART);
 	}
 
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
 	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
@@ -242,7 +271,7 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 }
 
 void CMainFrame::ActivateFrame(int nCmdShow)
@@ -253,7 +282,7 @@ void CMainFrame::ActivateFrame(int nCmdShow)
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 { 
-	m_wndOutput.OnUpdate(pSender, lHint, pHint);
+	m_wndStationList.OnUpdate(pSender, lHint, pHint);
 	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
 	m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
 	m_chartWnd.OnUpdate(pSender, lHint, pHint);
@@ -264,14 +293,6 @@ int GetLanguage(UINT id)
 {
 	return id - ID_LANGUAGE_FRENCH;
 }
-
-void CMainFrame::OnLanguageUI(CCmdUI* pCmdUI)
-{
-	WBSF::CRegistry registry;
-	pCmdUI->SetRadio(registry.GetLanguage() == GetLanguage(pCmdUI->m_nID));
-
-}
-
 void CMainFrame::OnLanguageChange(UINT id)
 {
 	WBSF::CRegistry registry;
@@ -295,31 +316,30 @@ void CMainFrame::OnLanguageChange(UINT id)
 		//set resources for non MFC get string
 		CDynamicResources::set(AfxGetResourceHandle());
 		
-		WBSF::CStatistic::ReloadString();
-		WBSF::CTM::ReloadString();
-		
+		CStatistic::ReloadString();
+		CTM::ReloadString();
+
+
+		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
+		m_spreadsheetWnd.SetWindowText(GetCString(IDS_SPREADSHEET_WND));
+		m_chartWnd.SetWindowText(GetCString(IDS_CHART_WND));
+		m_wndStationList.SetWindowText(GetCString(IDS_STATION_LIST_WND));
+		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
 
 		m_wndToolBar.RestoreOriginalState();
 		m_wndMenuBar.RestoreOriginalState();
-		
 		//CMFCToolBar::ResetAllImages();
 		CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 
-		m_wndToolBar.SetWindowText(GetCString(IDS_TOOLBAR_STANDARD));
-		m_spreadsheetWnd.SetWindowText(GetCString(IDS_SPREASHEET_WND));
-		m_chartWnd.SetWindowText(GetCString(IDS_CHART_WND));
-		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
-		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
-		
+
 		GetActiveDocument()->UpdateAllViews(NULL, ID_LAGUAGE_CHANGE);
-		RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
-//		Invalidate();
+		Invalidate();
 	}
 	
 
 }
 
-void CMainFrame::LoadBasicCommand()
+void CMainFrame::LoadtBasicCommand()
 {
 	CList<UINT, UINT> lstBasicCommands;
 
@@ -346,7 +366,6 @@ void CMainFrame::LoadBasicCommand()
 	lstBasicCommands.AddTail(ID_SORTING_SORTBYACCESS);
 	lstBasicCommands.AddTail(ID_SORTING_GROUPBYTYPE);
 	lstBasicCommands.AddTail(ID_SENDTO_SHOWMAP);
-	lstBasicCommands.AddTail(ID_SORTPROPERTIES);
 	lstBasicCommands.AddTail(ID_STATION_LIST_YEAR);
 	lstBasicCommands.AddTail(ID_STATION_LIST_FILTER);
 	lstBasicCommands.AddTail(ID_TABLE_MODE_VISUALISATION);
@@ -370,6 +389,13 @@ void CMainFrame::LoadBasicCommand()
 }
 
 
+void CMainFrame::OnLanguageUI(CCmdUI* pCmdUI)
+{
+	WBSF::CRegistry registry;
+	pCmdUI->SetRadio(registry.GetLanguage() == GetLanguage(pCmdUI->m_nID));
+}
+
+
 
 void CMainFrame::OnEditOptions()
 {
@@ -378,7 +404,7 @@ void CMainFrame::OnEditOptions()
 
 }
 
-// diagnostics pour CMainFrame
+
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const

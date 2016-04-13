@@ -44,11 +44,19 @@ IDI_OPTION              ICON                    "res\\Option.ico"
 //
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
-IDR_MAINFRAME_TOOLBAR   BITMAP                  "res\\MainFrameToolbar.bmp"
 IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
-IDR_STATIONSLIST_TOOLBAR BITMAP                  "res\\StationsListToolbar.bmp"
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -117,7 +125,7 @@ BEGIN
     BUTTON      ID_TABLE_MODE_EDITION
     BUTTON      ID_TABLE_SAVE
     BUTTON      ID_TABLE_SENDTO_EXCEL
-	SEPARATOR
+    SEPARATOR
     BUTTON      ID_TABLE_PERIOD_ENABLED
     BUTTON      ID_TABLE_PERIOD_BEGIN
     BUTTON      ID_TABLE_PERIOD_END
@@ -132,7 +140,7 @@ BEGIN
     BUTTON      ID_GRAPH_SAVE
     BUTTON      ID_GRAPH_OPTIONS
     BUTTON      ID_GRAPH_ZOOM
-	SEPARATOR
+    SEPARATOR
     BUTTON      ID_GRAPH_PERIOD_ENABLED
     BUTTON      ID_GRAPH_PERIOD_BEGIN
     BUTTON      ID_GRAPH_PERIOD_END
@@ -175,7 +183,7 @@ BEGIN
     BEGIN
         BLOCK "0c0c04b0"
         BEGIN
-            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
             VALUE "FileVersion", "4.0.4.22"
             VALUE "InternalName", "DailyEditor.exe"
@@ -185,8 +193,8 @@ BEGIN
         END
         BLOCK "100904b0"
         BEGIN
-            VALUE "CompanyName", "Laurentian Forestry Center"
-            VALUE "FileDescription", "Daily Weather Editor"
+            VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
+            VALUE "FileDescription", "Daily weather data editor"
             VALUE "FileVersion", "4.0.4.22"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
@@ -555,7 +563,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS      "Status Bar"
+    IDS_TOOLBAR_STATUS      "Status Bar"
 END
 
 STRINGTABLE
@@ -570,7 +578,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_EDIT_MENU           "Edition"
-	IDS_INDICATOR_NB_STATION      "Stations = "
+    IDS_INDICATOR_NB_STATION "Stations = "
     IDS_PROPERTIES_LOCATION_HEADER 
                             "Localisation|Informations spécifique au site"
     IDS_SAVE_DATA           "Savegarder les données\nSavegarder"
@@ -904,7 +912,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS		"Barre d'état"
+    IDS_TOOLBAR_STATUS      "Barre d'état"
 END
 
 STRINGTABLE
@@ -919,7 +927,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_EDIT_MENU           "Edition"
-	IDS_INDICATOR_NB_STATION      "Stations = "
+    IDS_INDICATOR_NB_STATION "Stations = "
     IDS_PROPERTIES_LOCATION_HEADER "Location|Site Specific Informations"
     IDS_SAVE_DATA           "Save data"
 END

@@ -223,7 +223,7 @@
   <ItemGroup>
     <ClInclude Include="ChartsWnd.h" />
     <ClInclude Include="FilePathWnd.h" />
-    <ClInclude Include="LocationsListView.h" />
+    <ClInclude Include="LocationsListWnd.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MatchStationApp.h" />
     <ClInclude Include="MatchStationCmdLine.h" />
@@ -234,7 +234,7 @@
     <ClInclude Include="NormalsMatchWnd.h" />
     <ClInclude Include="ObservationEstimateWnd.h" />
     <ClInclude Include="ObservationMatchWnd.h" />
-    <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="OutputView.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -242,7 +242,7 @@
   <ItemGroup>
     <ClCompile Include="ChartsWnd.cpp" />
     <ClCompile Include="FilePathWnd.cpp" />
-    <ClCompile Include="LocationsListView.cpp" />
+    <ClCompile Include="LocationsListWnd.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MatchStationApp.cpp" />
     <ClCompile Include="MatchStationCmdLine.cpp" />
@@ -253,7 +253,7 @@
     <ClCompile Include="NormalsMatchWnd.cpp" />
     <ClCompile Include="ObservationEstimateWnd.cpp" />
     <ClCompile Include="ObservationMatchWnd.cpp" />
-    <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="OutputView.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -1,50 +1,54 @@
-
 // MainFrm.h : interface de la classe CMainFrame
 //
 
 #pragma once
-#include "OutputWnd.h"
+
+#include "StationsListWnd.h"
 #include "PropertiesWnd.h"
-#include "WeatherChartsWnd.h"
-#include "WeatherTableWnd.h"
+#include "WeatherChartWnd.h"
+#include "WeatherSpreadsheetWnd.h"
 
-class CMFCToolBar2 : public CMFCToolBar
-{
-	//virtual int GetColumnWidth() const{ return 32; }
 
-};
 
 class CMainFrame : public CFrameWndEx
 {
 	
 protected: // création à partir de la sérialisation uniquement
-	DECLARE_DYNCREATE(CMainFrame)
 	CMainFrame();
 
 
+// Attributs
+public:
+
+// Opérations
 public:
 
 	void ActivateFrame(int nCmdShow);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	void LoadBasicCommand();
+	void LoadtBasicCommand();
 
 	virtual ~CMainFrame();
 
+	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
 
 protected:  // membres incorporés de la barre de contrôle
+
+
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
+	
+	CWeatherSpreadsheetWnd	m_spreadsheetWnd;
+	CWeatherChartWnd	m_chartWnd;
 
-	CWeatherSpreadsheetWnd m_spreadsheetWnd;
-	CWeatherChartWnd  m_chartWnd;
-	COutputWnd        m_wndOutput;
+	CStationsListWnd  m_wndStationList;
 	CPropertiesWnd    m_wndProperties;
+
+	static const UINT m_uTaskbarBtnCreatedMsg;
+	CComPtr<ITaskbarList3> m_pTaskbarList;
 
 // Fonctions générées de la table des messages
 protected:
-
-
 	
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnApplicationLook(UINT id);
@@ -53,13 +57,14 @@ protected:
 	afx_msg void OnLanguageChange(UINT id);
 	afx_msg void OnLanguageUI(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
+	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 
 	
 	DECLARE_MESSAGE_MAP()
-
+	DECLARE_DYNCREATE(CMainFrame)
 
 
 #ifdef _DEBUG

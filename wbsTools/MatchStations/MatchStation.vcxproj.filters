@@ -23,16 +23,10 @@
     <ClInclude Include="resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutputWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="MatchStationDoc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ChartsWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LocationsListView.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="NormalsMatchWnd.h">
@@ -62,6 +56,12 @@
     <ClInclude Include="MatchStationCmdLine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="LocationsListWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -73,16 +73,10 @@
     <ClCompile Include="PropertiesWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MatchStationDoc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ChartsWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LocationsListView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NormalsMatchWnd.cpp">
@@ -110,6 +104,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MatchStationCmdLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LocationsListWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

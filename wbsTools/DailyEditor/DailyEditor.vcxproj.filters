@@ -228,6 +228,9 @@
     <Image Include="res\charts_wnd.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\WeatherStation.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DailyEditor.rc">

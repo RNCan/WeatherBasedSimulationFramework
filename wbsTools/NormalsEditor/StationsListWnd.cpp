@@ -1,19 +1,14 @@
 
 #include "stdafx.h"
 
-
 #include "Resource.h"
-#include "MainFrm.h"
-#include "HourlyEditor.h"
-#include "HourlyEditorDoc.h"
 
-#include "UltimateGrid/ExcelTopHdg.h"
-#include "UltimateGrid/ExcelSideHdg.h"
-#include "Basic/UtilStd.h"
+#include "StationsListWnd.h"
+#include "NormalsEditor.h"
+#include "NormalsEditorDoc.h"
 #include "Basic/Registry.h"
 #include "UI/Common/SYShowMessage.h"
-#include "UI/Common/UtilWin.h"
-#include "StationsListView.h"
+#include "UI/WVariablesEdit.h"
 
 using namespace std;
 using namespace WBSF;
@@ -27,20 +22,16 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 
-CHourlyEditorDoc* CStationsListView::GetDocument()const
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CHourlyEditorDoc)));
-	return (CHourlyEditorDoc*)m_pDocument;
-}
-
 
 //*******************************************************************************************************
+
 BEGIN_MESSAGE_MAP(CStationsListToolBar, CMFCToolBar)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-IMPLEMENT_SERIAL(CMFCToolBarYearsButton, CMFCToolBarEditBoxButton, 1)
+
+//IMPLEMENT_SERIAL(CMFCToolBarYearsButton, CMFCToolBarEditBoxButton, 1)
 IMPLEMENT_SERIAL(CStationsListToolBar, CMFCToolBar, 1)
 
 BOOL CStationsListToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
@@ -49,12 +40,10 @@ BOOL CStationsListToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 		return FALSE;
 
 	
-	CMFCToolBarYearsButton yearCtrl(ID_STATION_LIST_YEAR, 3, 150);
-	CMFCToolBarWVariablesButton filterCtrl(ID_STATION_LIST_FILTER, 4, 150);
-
-	ReplaceButton(ID_STATION_LIST_YEAR, yearCtrl);
-	ReplaceButton(ID_STATION_LIST_FILTER, filterCtrl);
 	
+	CMFCToolBarWVariablesButton filterCtrl(ID_STATION_LIST_FILTER, 3, 150);
+	ReplaceButton(ID_STATION_LIST_FILTER, filterCtrl);
+
 	
 	return TRUE;
 }
@@ -62,6 +51,8 @@ BOOL CStationsListToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 void CStationsListToolBar::OnSize(UINT nType, int cx, int cy)
 {
 	CMFCToolBar::OnSize(nType, cx, cy);
+	
+	//CObList buttons;
 
 	int index = CommandToIndex(ID_STATION_LIST_FILTER);
 	CMFCToolBarEditBoxButton* pCtrl = (CMFCToolBarEditBoxButton*) GetButton(index);
@@ -77,11 +68,7 @@ void CStationsListToolBar::OnSize(UINT nType, int cx, int cy)
 }
 
 //*****************************************************************************************************
-
-IMPLEMENT_DYNCREATE(CStationsListView, CView)
-/////////////////////////////////////////////////////////////////////////////
-// CResourceViewBar
-
+//**********************************************************************************************************
 static const int IDC_STATION_LIST_ID = 1002;
 static const int ID_INDICATOR_NB_STATIONS = 0xE711;
 
@@ -91,43 +78,52 @@ static UINT indicators[] =
 	ID_INDICATOR_NB_STATIONS
 };
 
-
-CStationsListView::CStationsListView()
-{
-
-}
-
-CStationsListView::~CStationsListView()
-{
-}
-
-
-BEGIN_MESSAGE_MAP(CStationsListView, CView)
+IMPLEMENT_DYNCREATE(CStationsListWnd, CDockablePane)
+BEGIN_MESSAGE_MAP(CStationsListWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_SETTINGCHANGE()
 	ON_UPDATE_COMMAND_UI_RANGE(ID_ADD_WEATHER_STATION, ID_STATION_LIST_FILTER, OnUpdateToolbar)
 	ON_COMMAND_RANGE(ID_ADD_WEATHER_STATION, ID_STATION_LIST_FILTER, OnToolbarCommand)
-	ON_CONTROL_RANGE(EN_KILLFOCUS, ID_STATION_LIST_YEAR, ID_STATION_LIST_FILTER, OnToolbarCommand)
+	ON_CONTROL_RANGE(EN_KILLFOCUS, ID_STATION_LIST_FILTER, ID_STATION_LIST_FILTER, OnToolbarCommand)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_STATIONS, OnUpdateStatusBar)
 	ON_MESSAGE(CStationsListCtrl::UWM_SELECTION_CHANGE, OnSelectionChange)
 END_MESSAGE_MAP()
 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Gestionnaires de messages de CResourceViewBar
-
-void CStationsListView::OnDraw(CDC* pDC)
+CNormalsEditorDoc* CStationsListWnd::GetDocument()
 {
-	CHourlyEditorDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
+	CNormalsEditorDoc* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CNormalsEditorDoc*)docT->GetNextDoc(pos);
+		}
+	}
+
+	return pDoc;
 }
 
 
-void CStationsListView::AdjustLayout()
+
+CStationsListWnd::CStationsListWnd()
+{
+
+}
+
+CStationsListWnd::~CStationsListWnd()
+{
+}
+
+
+
+
+
+void CStationsListWnd::AdjustLayout()
 {
 	if (GetSafeHwnd () == NULL || (AfxGetMainWnd() != NULL && AfxGetMainWnd()->IsIconic()))
 	{
@@ -146,9 +142,9 @@ void CStationsListView::AdjustLayout()
 	m_wndStatusBar.SetWindowPos(NULL, rectClient.left, rectClient.Height() - cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-int CStationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CStationsListWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CView::OnCreate(lpCreateStruct) == -1)
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	CRect rectDummy;
@@ -181,36 +177,31 @@ int CStationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 
+
 	AdjustLayout();
 
 	return 0;
 }
 
-void CStationsListView::OnSize(UINT nType, int cx, int cy)
+void CStationsListWnd::OnSize(UINT nType, int cx, int cy)
 {
-	CView::OnSize(nType, cx, cy);
+	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
+//
+//void CStationsListWnd::OnSetFocus(CWnd* pOldWnd)
+//{
+//	CDockablePane::OnSetFocus(pOldWnd);
+//	m_stationsList.SetFocus();
+//}
 
-CWeatherDatabasePtr CStationsListView::GetDatabasePtr()
+void CStationsListWnd::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
-	CWeatherDatabasePtr pDB;
-	CHourlyEditorDoc* pDocument = GetDocument();
-
-	if (pDocument)
-		pDB = pDocument->GetDatabase();
-
-
-	return  pDB;
-}
-
-void CStationsListView::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
-{
-	CView::OnSettingChange(uFlags, lpszSection);
+	CDockablePane::OnSettingChange(uFlags, lpszSection);
 	SetPropListFont();
 }
 
-void CStationsListView::SetPropListFont()
+void CStationsListWnd::SetPropListFont()
 {
 	::DeleteObject(m_fntPropList.Detach());
 
@@ -232,63 +223,54 @@ void CStationsListView::SetPropListFont()
 }
 
 
-void CStationsListView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	BOOL bEnable = FALSE;
-	CHourlyEditorDoc* pDoc = GetDocument();
-	if (pDoc)
+	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)GetDocument();
+	ASSERT(pDoc);
+	bEnable = pDoc->GetDatabase()->IsOpen();
+
+
+	if (lHint == CNormalsEditorDoc::INIT || lHint == CNormalsEditorDoc::STATION_LIST_PROPERTIES_FILTERS_CHANGE)
 	{
-		bEnable = pDoc->GetDatabase()->IsOpen();
+		int index = m_wndToolBar.CommandToIndex(ID_STATION_LIST_FILTER);
+		CMFCToolBarWVariablesButton* pCtrl = (CMFCToolBarWVariablesButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
+		pCtrl->SetVariables(pDoc->GetFilters());
+	
+		CWeatherDatabasePtr pDB = pDoc->GetDatabase();
+		
 
-		if (lHint == CHourlyEditorDoc::INIT || lHint == CHourlyEditorDoc::STATION_LIST_PROPERTIES_YEARS_CHANGE)
-		{
-			int index = m_wndToolBar.CommandToIndex(ID_STATION_LIST_YEAR);
-			CMFCToolBarYearsButton* pCtrl = (CMFCToolBarYearsButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-			pCtrl->SetYears(pDoc->GetYears());
-		}
+		m_stationsList.m_pDB = pDoc->GetDatabase();
+		//m_stationsList.m_stationIndex = pDoc->GetCurStationIndex();
+		m_stationsList.m_filter = pDoc->GetFilters();
 
-		if (lHint == CHourlyEditorDoc::INIT || lHint == CHourlyEditorDoc::STATION_LIST_PROPERTIES_FILTERS_CHANGE)
-		{
-			int index = m_wndToolBar.CommandToIndex(ID_STATION_LIST_FILTER);
-			CMFCToolBarWVariablesButton* pCtrl = (CMFCToolBarWVariablesButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-			pCtrl->SetVariables(pDoc->GetFilters());
-		}
+		m_stationsList.Update();
 
-		if (lHint == CHourlyEditorDoc::INIT || lHint == CHourlyEditorDoc::STATION_LIST_PROPERTIES_YEARS_CHANGE ||
-			lHint == CHourlyEditorDoc::STATION_LIST_PROPERTIES_FILTERS_CHANGE)
-		{
-			CWeatherDatabasePtr pDB = pDoc->GetDatabase();
-
-			m_stationsList.m_pDB = pDoc->GetDatabase();
-			m_stationsList.m_years = pDoc->GetYears();
-			m_stationsList.m_filter = pDoc->GetFilters();
-
-			m_stationsList.Update();
-
-		}
-		else if (lHint == CHourlyEditorDoc::STATION_INDEX_CHANGE)
-		{
-			size_t index = pDoc->GetCurStationIndex();
-			m_stationsList.SetStationIndex(pDoc->GetCurStationIndex());
-		}
-		else if (lHint == CHourlyEditorDoc::LOCATION_CHANGE)
-		{
-			size_t index = pDoc->GetCurStationIndex();
-			m_stationsList.SetStationModified(index, pDoc->IsStationModified(index));
-		}
-		else if (lHint == CHourlyEditorDoc::DATA_PROPERTIES_EDITION_MODE_CHANGE)
-		{
-			m_stationsList.SetEditionMode(pDoc->GetDataInEdition());
-		}
+	}
+	else if (lHint == CNormalsEditorDoc::STATION_INDEX_CHANGE )
+	{
+		size_t index = pDoc->GetCurStationIndex();
+		//m_stationsList.m_stationIndex = index;
+		m_stationsList.SetStationIndex(pDoc->GetCurStationIndex());
+		
 		
 	}
+	else if (lHint == CNormalsEditorDoc::LOCATION_CHANGE)
+	{
+		size_t index = pDoc->GetCurStationIndex();
+		m_stationsList.SetStationModified(index, pDoc->IsStationModified(index));
+	}
+	else if (lHint == CNormalsEditorDoc::DATA_PROPERTIES_EDITION_MODE_CHANGE)
+	{
+		m_stationsList.SetEditionMode(pDoc->GetDataInEdition());
+	}
+	
 }
 
 
-
-void CStationsListView::OnUpdateToolbar(CCmdUI *pCmdUI)
+void CStationsListWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 {
-	CHourlyEditorDoc* pDoc = GetDocument();
+	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)GetDocument();
 	bool bInit = pDoc->GetDatabase()->IsOpen() && !pDoc->GetDataInEdition();
 	
 	switch (pCmdUI->m_nID)
@@ -296,7 +278,6 @@ void CStationsListView::OnUpdateToolbar(CCmdUI *pCmdUI)
 	case ID_ADD_WEATHER_STATION:pCmdUI->Enable(bInit); break;
 	case ID_SENDTO_SHOWMAP:
 	case ID_SENDTO_EXCEL:
-	case ID_STATION_LIST_YEAR:
 	case ID_STATION_LIST_FILTER:pCmdUI->Enable(bInit); break;
 	default: ASSERT(false);
 	}
@@ -305,14 +286,16 @@ void CStationsListView::OnUpdateToolbar(CCmdUI *pCmdUI)
 }
 
 
-void CStationsListView::OnToolbarCommand(UINT ID)
+void CStationsListWnd::OnToolbarCommand(UINT ID)
 {
-	CWeatherDatabasePtr& pDB = GetDatabasePtr();
-	
+	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)GetDocument();
+	ASSERT(pDoc);
+
+	CNormalsDatabasePtr& pDB = pDoc->GetDatabase();
 
 	if (pDB && pDB->IsOpen())
 	{
-		CHourlyEditorDoc* pDoc = GetDocument();
+		
 		ASSERT(pDoc);
 		
 		if (ID == ID_ADD_WEATHER_STATION)
@@ -327,12 +310,13 @@ void CStationsListView::OnToolbarCommand(UINT ID)
 			CSearchResultVector searchResultArray;
 
 			CWVariables filter = pDoc->GetFilters();
-			set<int> years = pDoc->GetYears();
 
 			ERMsg msg;
-			msg = pDB->GetStationList(searchResultArray, filter, years, true, false);
+			msg = pDB->GetStationList(searchResultArray, filter, WBSF::YEAR_NOT_INIT, true, false);
 
 			CLocationVector loc = pDB->GetLocations(searchResultArray);
+			//remove coma in name...
+			loc.TrimData(separator);
 			
 			string filePath = WBSF::GetUserDataPath() + "tmp\\" + WBSF::GetFileTitle(pDB->GetFilePath()) + ".csv";
 			WBSF::CreateMultipleDir(WBSF::GetPath(filePath));
@@ -350,14 +334,6 @@ void CStationsListView::OnToolbarCommand(UINT ID)
 			if (!msg)
 				UtilWin::SYShowMessage(msg, this);
 		}
-		else if (ID == ID_STATION_LIST_YEAR)
-		{
-			int index = m_wndToolBar.CommandToIndex(ID);
-			CMFCToolBarYearsButton* pCtrl = (CMFCToolBarYearsButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-
-			std::set<int> years = pCtrl->GetYears();
-			pDoc->SetYears(years);
-		}
 		else if (ID == ID_STATION_LIST_FILTER)
 		{
 			int index = m_wndToolBar.CommandToIndex(ID);
@@ -367,21 +343,11 @@ void CStationsListView::OnToolbarCommand(UINT ID)
 	}
 }
 
-BOOL CStationsListView::PreTranslateMessage(MSG* pMsg)
+BOOL CStationsListWnd::PreTranslateMessage(MSG* pMsg)
 {
-	//GetAsyncKeyState(VK_RETURN)
-		//GetKeyState
+	//GetKeyState
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN )
 	{
-		int index1 = m_wndToolBar.CommandToIndex(ID_STATION_LIST_YEAR);
-		CMFCToolBarYearsButton* pCtrl1 = (CMFCToolBarYearsButton*)m_wndToolBar.GetButton(index1); ASSERT(pCtrl1);
-		if (pMsg->hwnd == pCtrl1->GetEditBox()->GetSafeHwnd())
-		{
-			// handle return pressed in edit control
-			OnToolbarCommand(ID_STATION_LIST_YEAR);
-			return TRUE; // this doesn't need processing anymore
-		}
-
 		int index2 = m_wndToolBar.CommandToIndex(ID_STATION_LIST_FILTER);
 		CMFCToolBarWVariablesButton* pCtrl2 = (CMFCToolBarWVariablesButton*)m_wndToolBar.GetButton(index2); ASSERT(pCtrl2);
 		if (pMsg->hwnd == pCtrl2->GetEditBox()->GetSafeHwnd())
@@ -393,40 +359,23 @@ BOOL CStationsListView::PreTranslateMessage(MSG* pMsg)
 
 	}
 
-	//if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB)
-	//{
-	//	int index2 = m_wndToolBar.CommandToIndex(ID_STATION_LIST_FILTER);
-	//	CMFCToolBarWVariablesButton* pCtrl2 = (CMFCToolBarWVariablesButton*)m_wndToolBar.GetButton(index2); ASSERT(pCtrl2);
-	//	if (pMsg->hwnd == pCtrl2->GetEditBox()->GetSafeHwnd())
-	//	{
-	//		// handle return pressed in edit control
-	//		OnToolbarCommand(ID_STATION_LIST_FILTER);
-	//		return TRUE; // this doesn't need processing anymore
-	//	}
-	//
-	//	// handle return pressed in edit control
-	//	return TRUE; // this doesn't need processing anymore
-	//}
-
-	return CView::PreTranslateMessage(pMsg); // all other cases still need default processing
+	return CDockablePane::PreTranslateMessage(pMsg); // all other cases still need default processing
 }
 
 
 
-void CStationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
+void CStationsListWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 {
-	
+
 	if (pCmdUI->m_nID == ID_INDICATOR_NB_STATIONS)
 	{
-		CWeatherDatabasePtr pDB = GetDatabasePtr();
 		long nbRows = m_stationsList.GetNumberRows();
-		
-		CString str = UtilWin::GetCString(IDS_INDICATOR_NB_STATIONS);
+
+		CString str = _T("Stations = ");//GetString(IDS_NB_STATION);
 		CString text = str + UtilWin::ToCString(nbRows);
-		
+
 		pCmdUI->SetText(text);
 
-		//resize space of text
 		CDC* pDC = GetDC();
 		if (pDC)
 		{
@@ -440,10 +389,9 @@ void CStationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 }
 
-
-LRESULT  CStationsListView::OnSelectionChange(WPARAM, LPARAM)
+LRESULT  CStationsListWnd::OnSelectionChange(WPARAM, LPARAM)
 {
-	CHourlyEditorDoc* pDoc = GetDocument();
+	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)GetDocument();
 	ASSERT(pDoc);
 
 	size_t	index = m_stationsList.GetStationIndex();
@@ -451,7 +399,4 @@ LRESULT  CStationsListView::OnSelectionChange(WPARAM, LPARAM)
 
 	return 0;
 }
-
-
-
 

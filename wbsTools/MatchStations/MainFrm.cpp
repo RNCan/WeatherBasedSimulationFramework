@@ -22,14 +22,14 @@ static const UINT ID_LAGUAGE_CHANGE			= 5;//from document
 static const UINT ID_VIEW_NORMALS_WND		= 500 + 1;
 static const UINT ID_VIEW_OBSERVATION_WND   = 500 + 2;
 static const UINT ID_VIEW_WEIGHT_CHARTS_WND = 500 + 3;
-static const UINT ID_VIEW_OUTPUTWND         = 500 + 4;
-static const UINT ID_VIEW_PROPERTIESWND     = 500 + 5;
+static const UINT ID_VIEW_LOCATIONS_WND     = 500 + 4;
+static const UINT ID_VIEW_PROPERTIES_WND    = 500 + 5;
 static const UINT ID_VIEW_FILEPATH_WND      = 500 + 6;
 static const UINT ID_VIEW_GRADIENT_WND      = 500 + 7;
 static const UINT ID_VIEW_CORRECTION_WND    = 500 + 8;
 static const UINT ID_VIEW_ESTIMATE_WND		= 500 + 9;
 static const UINT ID_VIEW_OBS_ESTIMATE_WND	= 500 + 10;
-
+const UINT CMainFrame::m_uTaskbarBtnCreatedMsg = RegisterWindowMessage(_T("TaskbarButtonCreated"));
 
 
 #ifdef _DEBUG
@@ -52,10 +52,30 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageChange)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_LANGUAGE_FRENCH, ID_LANGUAGE_ENGLISH, &CMainFrame::OnLanguageUI)
 	ON_COMMAND(ID_OPTIONS, &CMainFrame::OnEditOptions)
-	//ON_REGISTERED_MESSAGE(AFX_WM_RESETTOOLBAR, OnToolbarReset)
+	ON_REGISTERED_MESSAGE(m_uTaskbarBtnCreatedMsg, OnTaskbarProgress)
 
 END_MESSAGE_MAP()
 
+
+
+LRESULT CMainFrame::OnTaskbarProgress(WPARAM wParam, LPARAM lParam)
+{
+	// On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
+	// and broadcast it, so make sure the OS is Win 7 or later before acting on
+	// the message. (This isn't a problem for this app, which won't run on pre-7,
+	// but you should definitely do this check if your app will run on pre-7.)
+	DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+	DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+	// Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
+	if (dwMajor > 6 || (dwMajor == 6 && dwMinor > 0))
+	{
+		m_pTaskbarList.Release();
+		m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
+	}
+
+	return 0;
+}
 
 
 
@@ -134,51 +154,50 @@ BOOL CMainFrame::CreateDockingWindows()
 	}
 
 	// Créer la fenêtre Propriétés
-	if (!m_wndProperties.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_BOTTOM))
+	if (!m_propertiesWnd.Create(GetCString(IDS_PROPERTIES_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_PROPERTIES_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_BOTTOM))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 
-	// Créer la fenêtre Sortie
-	if (!m_wndOutput.Create(GetCString(IDS_OUTPUT_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_BOTTOM))
+	if (!m_locationsWnd.Create(GetCString(IDS_LOCATION_LIST_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_LOCATIONS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_LEFT))
 	{
 		TRACE0("Impossible de créer la fenêtre Sortie\n");
 		return FALSE; // échec de la création
 	}
 
-	if (!m_normalsWnd.Create(GetCString(IDS_NORMALS_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_NORMALS_WND, WS_CHILD | WS_VISIBLE | WS_CAPTION | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_normalsWnd.Create(GetCString(IDS_NORMALS_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_NORMALS_WND, WS_CHILD | WS_VISIBLE | WS_CAPTION | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 
-	if (!m_observationWnd.Create(GetCString(IDS_OBSERVATION_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_OBSERVATION_WND, WS_CHILD | WS_VISIBLE | WS_CAPTION | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_observationWnd.Create(GetCString(IDS_OBSERVATION_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_OBSERVATION_WND, WS_CHILD | WS_VISIBLE | WS_CAPTION | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 
 
-	if (!m_gradientWnd.Create(GetCString(IDS_GRADIENT_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_GRADIENT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_gradientWnd.Create(GetCString(IDS_GRADIENT_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_GRADIENT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 
-	if (!m_correctionWnd.Create(GetCString(IDS_CORRECTION_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_CORRECTION_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_correctionWnd.Create(GetCString(IDS_CORRECTION_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_CORRECTION_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 		
-	if (!m_estimateWnd.Create(GetCString(IDS_ESTIMATE_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_ESTIMATE_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_estimateWnd.Create(GetCString(IDS_ESTIMATE_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_ESTIMATE_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
 	}
 
-	if (!m_obsEstimateWnd.Create(GetCString(IDS_OBS_ESTIMATE_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_OBS_ESTIMATE_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_obsEstimateWnd.Create(GetCString(IDS_OBS_ESTIMATE_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_OBS_ESTIMATE_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Propriétés\n");
 		return FALSE; // échec de la création
@@ -187,7 +206,7 @@ BOOL CMainFrame::CreateDockingWindows()
 		
 
 	// Créer la fenêtre Sortie
-	if (!m_weightChartsWnd.Create(GetCString(IDS_WEIGHT_CHARTS_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_WEIGHT_CHARTS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_RIGHT))
+	if (!m_weightChartsWnd.Create(GetCString(IDS_WEIGHT_CHARTS_WND), this, CRect(100, 100, 400, 400), TRUE, ID_VIEW_WEIGHT_CHARTS_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI | CBRS_TOP))
 	{
 		TRACE0("Impossible de créer la fenêtre Sortie\n");
 		return FALSE; // échec de la création
@@ -198,8 +217,8 @@ BOOL CMainFrame::CreateDockingWindows()
 	m_wndFilePath.EnableDocking(CBRS_ORIENT_HORZ);
 	m_normalsWnd.EnableDocking(CBRS_ALIGN_ANY);
 	m_observationWnd.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+	m_locationsWnd.EnableDocking(CBRS_ALIGN_ANY);
+	m_propertiesWnd.EnableDocking(CBRS_ALIGN_ANY);
 	m_gradientWnd.EnableDocking(CBRS_ALIGN_ANY);
 	m_correctionWnd.EnableDocking(CBRS_ALIGN_ANY);
 	m_estimateWnd.EnableDocking(CBRS_ALIGN_ANY);
@@ -208,10 +227,12 @@ BOOL CMainFrame::CreateDockingWindows()
 
 
 	DockPane(&m_wndFilePath, AFX_IDW_DOCKBAR_TOP);
+	DockPane(&m_locationsWnd, AFX_IDW_DOCKBAR_LEFT);
+	m_propertiesWnd.DockToWindow(&m_locationsWnd, CBRS_ALIGN_BOTTOM);
 	
 	
 	CDockablePane* pPaneFrame = NULL;
-	DockPane(&m_normalsWnd, AFX_IDW_DOCKBAR_RIGHT, CRect(0, 0, 800, 800));
+	DockPane(&m_normalsWnd, AFX_IDW_DOCKBAR_TOP, CRect(0, 0, 800, 800));
 	m_gradientWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0, &pPaneFrame);
 	m_correctionWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0);
 	m_estimateWnd.AttachToTabWnd(&m_normalsWnd, DM_STANDARD, 0);
@@ -220,10 +241,7 @@ BOOL CMainFrame::CreateDockingWindows()
 	m_observationWnd.DockToWindow(pPaneFrame, CBRS_ALIGN_BOTTOM);
 	m_obsEstimateWnd.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
 	m_weightChartsWnd.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
-	m_wndOutput.AttachToTabWnd(&m_observationWnd, DM_STANDARD, 0);
 	
-	
-	DockPane(&m_wndProperties, AFX_IDW_DOCKBAR_BOTTOM);
 	return TRUE;
 }
 
@@ -238,11 +256,11 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	HICON hMatchObservationIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OBSERVATION_WND), IMAGE_ICON, 24, 24, 0);
 	m_observationWnd.SetIcon(hMatchObservationIcon, TRUE);
 
-	HICON hOutputIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_OUTPUT_WND), IMAGE_ICON, 24, 24, 0);
-	m_wndOutput.SetIcon(hOutputIcon, TRUE);
+	HICON hOutputIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME), IMAGE_ICON, 24, 24, 0);
+	m_locationsWnd.SetIcon(hOutputIcon, TRUE);
 
 	HICON hPropertiesIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROPERTIES_WND), IMAGE_ICON, 24, 24, 0);
-	m_wndProperties.SetIcon(hPropertiesIcon, TRUE);
+	m_propertiesWnd.SetIcon(hPropertiesIcon, TRUE);
 
 	HICON hGradientIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRADIENT_WND), IMAGE_ICON, 24, 24, 0);
 	m_gradientWnd.SetIcon(hGradientIcon, TRUE);
@@ -327,7 +345,6 @@ void CMainFrame::OnApplicationLook(UINT id)
 		CDockingManager::SetDockingMode(DT_SMART);
 	}
 
-	m_wndOutput.UpdateFonts();
 	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
 	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
@@ -343,7 +360,6 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
-	m_wndOutput.UpdateFonts();
 }
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -356,8 +372,8 @@ void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	m_correctionWnd.OnUpdate(pSender, lHint, pHint);
 	m_estimateWnd.OnUpdate(pSender, lHint, pHint);
 	m_obsEstimateWnd.OnUpdate(pSender, lHint, pHint);
-	m_wndProperties.OnUpdate(pSender, lHint, pHint);
-	m_wndOutput.OnUpdate(pSender, lHint, pHint);
+	m_propertiesWnd.OnUpdate(pSender, lHint, pHint);
+	m_locationsWnd.OnUpdate(pSender, lHint, pHint);
 }
 
 int GetLanguage(UINT id)
@@ -418,8 +434,8 @@ void CMainFrame::OnLanguageChange(UINT id)
 		m_correctionWnd.SetWindowText(GetCString(IDS_CORRECTION_WND));
 		m_estimateWnd.SetWindowText(GetCString(IDS_ESTIMATE_WND));
 		m_obsEstimateWnd.SetWindowText(GetCString(IDS_OBS_ESTIMATE_WND));
-		m_wndProperties.SetWindowText(GetCString(IDS_PROPERTIES_WND));
-		m_wndOutput.SetWindowText(GetCString(IDS_OUTPUT_WND));
+		m_propertiesWnd.SetWindowText(GetCString(IDS_PROPERTIES_WND));
+		m_locationsWnd.SetWindowText(GetCString(IDS_LOCATION_LIST_WND));
 
 		GetActiveDocument()->UpdateAllViews(NULL, ID_LAGUAGE_CHANGE);
 		Invalidate();

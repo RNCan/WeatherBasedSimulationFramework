@@ -31,12 +31,12 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\HourlyEditor.ico"
-IDR_DPTTYPE             ICON                    "res\\DPTDoc.ico"
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
 IDI_OPTION              ICON                    "res\\Option.ico"
 IDI_CHART_WND           ICON                    "res\\chart_wnd.ico"
 IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
+IDS_STATION_LIST_WND	ICON                    "res\\station_list_wnd.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,11 +44,17 @@ IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
 //
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
-IDR_MAINFRAME_TOOLBAR   BITMAP                  "res\\MainFrameToolbar.bmp"
 IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
-IDR_STATIONSLIST_TOOLBAR BITMAP                  "res\\StationsListToolbar.bmp"
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -175,7 +181,7 @@ BEGIN
     BEGIN
         BLOCK "0c0c04b0"
         BEGIN
-            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
             VALUE "FileVersion", "4.0.3.19"
             VALUE "InternalName", "HourlyEditor.exe"
@@ -185,8 +191,8 @@ BEGIN
         END
         BLOCK "100904b0"
         BEGIN
-            VALUE "CompanyName", "Laurentian Forestry Center"
-            VALUE "FileDescription", "Hourly Weather Editor"
+            VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
+            VALUE "FileDescription", "Hourly weather data editor"
             VALUE "FileVersion", "4.0.3.19"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
@@ -272,7 +278,7 @@ BEGIN
     END
     POPUP "A&ide"
     BEGIN
-        MENUITEM "À &propos de HourlyEditor...", ID_APP_ABOUT
+        MENUITEM "À &propos de l'ÉdtieurHoraire...", ID_APP_ABOUT
     END
 END
 
@@ -396,7 +402,6 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
     "LANGUAGE 12, 1\r\n"
-    "#include ""res\\DPT.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -431,15 +436,6 @@ BEGIN
     AFX_IDS_IDLEMESSAGE     "Prêt"
 END
 
-STRINGTABLE
-BEGIN
-    ID_INDICATOR_EXT        "EXT"
-    ID_INDICATOR_CAPS       "CAP"
-    ID_INDICATOR_NUM        "NUM"
-    ID_INDICATOR_SCRL       "SCRL"
-    ID_INDICATOR_OVR        "OVR"
-    ID_INDICATOR_REC        "REC"
-END
 
 STRINGTABLE
 BEGIN
@@ -558,10 +554,11 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_SPREASHEET_WND      "Tableau"
+    IDS_SPREADSHEET_WND     "Tableau"
     IDS_CHART_WND           "Graphiques"
     IDS_OUTPUT_WND          "Sortie de validation"
     IDS_PROPERTIES_WND      "Propriétés de la station météo"
+	IDS_STATION_LIST_WND	"Liste des stations"
 END
 
 STRINGTABLE
@@ -777,16 +774,6 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_INDICATOR_EXT        "EXT"
-    ID_INDICATOR_CAPS       "CAP"
-    ID_INDICATOR_NUM        "NUM"
-    ID_INDICATOR_SCRL       "SCRL"
-    ID_INDICATOR_OVR        "OVR"
-    ID_INDICATOR_REC        "REC"
-END
-
-STRINGTABLE
-BEGIN
     ID_FILE_NEW             "Create a new database\nNew"
     ID_FILE_OPEN            "Open an existing database\nOpen"
     ID_FILE_CLOSE           "Close the active database\nClose"
@@ -903,10 +890,11 @@ BEGIN
 
 STRINGTABLE
 BEGIN
-    IDS_SPREASHEET_WND      "Spreadsheet"
+    IDS_SPREADSHEET_WND     "Spreadsheet"
     IDS_CHART_WND           "Charts"
     IDS_OUTPUT_WND          "Output"
-    IDS_PROPERTIES_WND      "Weather station properties"
+    IDS_PROPERTIES_WND      "Weather Station Properties"
+	IDS_STATION_LIST_WND	"Stations List"
 END
 
 STRINGTABLE
@@ -970,7 +958,6 @@ LANGUAGE 9, 1
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE 12, 1
-#include "res\DPT.rc2"  // ressources non modifiées par Microsoft Visual C++
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

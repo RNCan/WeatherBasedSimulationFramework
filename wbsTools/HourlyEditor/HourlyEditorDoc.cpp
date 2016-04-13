@@ -18,6 +18,9 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
 
+#include "MainFrm.h"
+#include "OutputView.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -55,6 +58,7 @@ CHourlyEditorDoc::CHourlyEditorDoc()
 
 	std::string str = CStringA(options.GetProfileString(_T("Years")));
 	m_years = WBSF::to_object<int, std::set<int>>(str," ");
+	m_bExecute = false;
 }
 
 CHourlyEditorDoc::~CHourlyEditorDoc()
@@ -80,9 +84,53 @@ BOOL CHourlyEditorDoc::OnNewDocument()
 
 // sérialisation de CHourlyEditorDoc
 
+
+
+UINT CHourlyEditorDoc::OpenDatabase(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CHourlyEditorDoc* pDoc = (CHourlyEditorDoc*)pMyParam->m_pThis;
+	LPCTSTR lpszPathName = (LPCTSTR)pMyParam->m_pFilepath;
+	std::string filePath = CStringA(lpszPathName);
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+	pCallback->PushTask("Open database: " + filePath, NOT_INIT);
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		*pMsg = pDoc->m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, *pCallback);
+	CATCH_ALL(e)
+		*pMsg = UtilWin::SYGetMessage(*e);
+	END_CATCH_ALL
+
+		CoUninitialize();
+
+	pCallback->PopTask();
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
+
+
 BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
+
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	ENSURE(pMainFrm);
+	POSITION posView = GetFirstViewPosition();
+	COutputView* pView = (COutputView*)GetNextView(posView);
+	ENSURE(pView);
+
+	CProgressWnd& progressWnd = pView->GetProgressWnd();
+
+	m_bExecute = true;
+	pView->AdjustLayout();//open the progress window
+
+	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
+	CProgressStepDlgParam param(this, (void*)lpszPathName);
 
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
@@ -91,16 +139,10 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	m_modifiedStation.clear();
 	m_outputText.clear();
 
-	std::string filePath = CStringA(lpszPathName);
+	msg = progressWnd.Execute(OpenDatabase, &param);
+	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 
-	
-	CProgressStepDlg dlg(AfxGetMainWnd() );
-	dlg.Create();
 
-	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
-	dlg.DestroyWindow();
-
-	
 	if (msg)
 	{
 		//not init by default
@@ -113,12 +155,51 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
 
-
-	//UpdateAllViews(NULL, CHourlyEditorDoc::INIT, NULL);
-
+	m_bExecute = false;
+	pView->AdjustLayout();//open the progress window
+	//UpdateAllViews(NULL, OUTPUT_CHANGE, NULL);
 
 	return (bool)msg;
 }
+//BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
+//{
+//	ERMsg msg;
+//
+//	m_bDataInEdition = false;
+//	m_stationIndex = UNKNOWN_POS;
+//	m_pDatabase.reset(new CHourlyDatabase);
+//	m_pStation.reset(new CWeatherStation);
+//	m_modifiedStation.clear();
+//	m_outputText.clear();
+//
+//	std::string filePath = CStringA(lpszPathName);
+//
+//	
+//	CProgressStepDlg dlg(AfxGetMainWnd() );
+//	dlg.Create();
+//
+//	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
+//	dlg.DestroyWindow();
+//
+//	
+//	if (msg)
+//	{
+//		//not init by default
+//		const std::set<int>& years = m_pDatabase->GetYears();
+//		if (!m_period.IsInit() && !years.empty())
+//			m_period = CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY));
+//	}
+//	else
+//	{
+//		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+//	}
+//
+//
+//	//UpdateAllViews(NULL, CHourlyEditorDoc::INIT, NULL);
+//
+//
+//	return (bool)msg;
+//}
 
 BOOL CHourlyEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
@@ -306,7 +387,7 @@ bool CHourlyEditorDoc::CancelDataEdition()
 	return msg;
 }
 
-#include "MainFrm.h"
+
 // commandes pour CHourlyEditorDoc
 void CHourlyEditorDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {
@@ -358,8 +439,8 @@ bool CHourlyEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-void CHourlyEditorDoc::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc, BOOL bMakeVisible)
+void CHourlyEditorDoc::OnInitialUpdate()
 {
-	CMainFrame* pMainFrm = (CMainFrame*)pFrame;
-	pMainFrm->InitialUpdateFrame(pDoc, bMakeVisible);
+	UpdateAllViews(NULL, INIT, NULL);
 }
+

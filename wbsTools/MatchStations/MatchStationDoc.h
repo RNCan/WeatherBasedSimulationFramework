@@ -5,16 +5,14 @@
 
 #include "Basic/HourlyDatabase.h"
 #include "Basic/NormalsDatabase.h"
-#include "Simulation/WeatherGradient2.h"
+#include "Simulation/WeatherGradient.h"
 #include "ModelBase/WGInput.h"
 
 
 
 class CMatchStationDoc : public CDocument
 {
-protected: // création à partir de la sérialisation uniquement
 
-	CMatchStationDoc();
 	DECLARE_DYNCREATE(CMatchStationDoc)
 
 	// Attributs
@@ -32,7 +30,9 @@ public:
 	static const char* DOCUMENT_XML;
 
 
+	CMatchStationDoc();
 	virtual ~CMatchStationDoc();
+
 	virtual BOOL OnNewDocument();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
@@ -71,16 +71,10 @@ public:
 	void SetOutputText(const std::string & in){ if (in != m_outputText){ m_outputText = in; UpdateAllViews(NULL, OUTPUT_CHANGE, NULL); } }
 
 	void OnInitialUpdate();
+	bool IsExecute()const{ return m_bExecute; }
 	const WBSF::CNormalsStation&	GetNormalsEstimate()const{ return m_normalsEstimate; }
 
-	
-
-#ifdef SHARED_HANDLERS
-	virtual void InitializeSearchContent();
-	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
-	void SetSearchContent(const CString& value);
-#endif // SHARED_HANDLERS
-
+protected:
 
 
 	DECLARE_MESSAGE_MAP()
@@ -124,11 +118,22 @@ public:
 	std::string m_lastLocationFilePath;
 	std::string m_lastNormalsFilePath;
 	std::string m_lastObservationFilePath;
+	bool m_bExecute;
+
+
+	static UINT CMatchStationDoc::Execute(void* pParam);
 
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
+
+#ifdef SHARED_HANDLERS
+	virtual void InitializeSearchContent();
+	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
+	void SetSearchContent(const CString& value);
+#endif // SHARED_HANDLERS
+
 
 };
 

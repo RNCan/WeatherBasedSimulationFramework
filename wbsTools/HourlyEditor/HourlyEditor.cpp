@@ -10,7 +10,7 @@
 //#include "..\VisualLeakDetector\include\vld.h" 
 #include "HourlyEditor.h" 
 #include "MainFrm.h"
-#include "StationsListView.h"
+#include "OutputView.h"
 
 #include "HourlyEditorDoc.h"
 #include "UI/Common/AboutDlg.h"
@@ -119,7 +119,7 @@ BOOL CHourlyEditorApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CHourlyEditorDoc),
 		RUNTIME_CLASS(CMainFrame),       // fenêtre frame SDI principale
-		RUNTIME_CLASS(CStationsListView));
+		RUNTIME_CLASS(COutputView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

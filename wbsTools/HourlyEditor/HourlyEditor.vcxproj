@@ -230,30 +230,30 @@
     <ClInclude Include="HourlyEditorDoc.h" />
     <ClInclude Include="HourlyEditorOptionsDlg.h" />
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="OutputView.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="StationsListView.h" />
+    <ClInclude Include="StationsListWnd.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="WeatherChartsWnd.h" />
-    <ClInclude Include="WeatherTableWnd.h" />
+    <ClInclude Include="WeatherChartWnd.h" />
+    <ClInclude Include="WeatherSpreadSheetWnd.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HourlyEditor.cpp" />
     <ClCompile Include="HourlyEditorDoc.cpp" />
     <ClCompile Include="HourlyEditorOptionsDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="OutputView.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
-    <ClCompile Include="StationsListView.cpp" />
+    <ClCompile Include="StationsListWnd.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WeatherChartsWnd.cpp" />
-    <ClCompile Include="WeatherTableWnd.cpp" />
+    <ClCompile Include="WeatherChartWnd.cpp" />
+    <ClCompile Include="WeatherSpreadSheetWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HourlyEditor.rc" />

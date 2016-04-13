@@ -48,7 +48,7 @@ CDailyEditorDoc::CDailyEditorDoc()
 	m_TM = CTM(options.GetProfileInt(_T("DataTMType"), CTM::DAILY));
 	m_filters = CStringA(options.GetProfileString(_T("Filters")));
 	std::string tmp = CStringA(options.GetProfileString(_T("ChartsPeriod")));
-	m_chartsPeriod.FromString(tmp);
+	m_period.FromString(tmp);
 	m_bPeriodEnabled = options.GetProfileInt(_T("ChartsPeriodEnabled"), 0);
 	m_chartsZoom = options.GetProfileInt(_T("ChartsZoom"), 0);
 
@@ -83,7 +83,7 @@ UINT CDailyEditorDoc::OpenDatabase(void* pParam)
 {
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)pMyParam->m_pThis;
-	LPCTSTR lpszPathName = (LPCTSTR)pMyParam->m_pExtra;
+	LPCTSTR lpszPathName = (LPCTSTR)pMyParam->m_pFilepath;
 	std::string filePath = CStringA(lpszPathName);
 
 	ERMsg* pMsg = pMyParam->m_pMsg;
@@ -117,7 +117,6 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	COutputView* pView = (COutputView*)GetNextView(posView);
 	ENSURE(pView);
 	
-	//COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
 	CProgressWnd& progressWnd = pView->GetProgressWnd();
 
 	m_bExecute = true;
@@ -152,8 +151,8 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	{
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();
-		if (!m_chartsPeriod.IsInit() && !years.empty())
-			m_chartsPeriod = CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY));
+		if (!m_period.IsInit() && !years.empty())
+			m_period = CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY));
 	}
 	else
 	{
@@ -200,7 +199,7 @@ void CDailyEditorDoc::OnCloseDocument()
 	options.WriteProfileInt(_T("DataStatistic"), (int)m_statistic);
 	options.WriteProfileString(_T("Years"), CString(WBSF::to_string(m_years, " ").c_str()));
 	options.WriteProfileString(_T("Filters"), CString(m_filters.to_string().c_str()) );
-	options.WriteProfileString(_T("ChartsPeriod"), CString(m_chartsPeriod.ToString().c_str()));
+	options.WriteProfileString(_T("ChartsPeriod"), CString(m_period.ToString().c_str()));
 	options.WriteProfileInt(_T("ChartsPeriodEnabled"), m_bPeriodEnabled);
 	options.WriteProfileInt(_T("ChartsZoom"), m_chartsZoom);
 	
@@ -235,74 +234,7 @@ BOOL CDailyEditorDoc::SaveModified() // return TRUE if ok to continue
 	return bSave;
 }
 
-#ifdef SHARED_HANDLERS
-
-// Prise en charge des miniatures
-void CDailyEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
-{
-	// Modified ce code pour dessiner les données du document
-	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
-
-	CString strText = _T("TODO: implement thumbnail drawing here");
-	LOGFONT lf;
-
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
-	pDefaultGUIFont->GetLogFont(&lf);
-	lf.lfHeight = 36;
-
-	CFont fontDraw;
-	fontDraw.CreateFontIndirect(&lf);
-
-	CFont* pOldFont = dc.SelectObject(&fontDraw);
-	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
-	dc.SelectObject(pOldFont);
-}
-
-// Support pour les gestionnaires de recherche
-void CDailyEditorDoc::InitializeSearchContent()
-{
-	CString strSearchContent;
-	// Définir le contenu de recherche à partir des données du document. 
-	// Les parties du contenu doivent être séparées par ";"
-
-	// Par exemple :  strSearchContent = _T("point;rectangle;circle;ole object;");
-	SetSearchContent(strSearchContent);
-}
-
-void CDailyEditorDoc::SetSearchContent(const CString& value)
-{
-	if (value.IsEmpty())
-	{
-		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
-	}
-	else
-	{
-		CMFCFilterChunkValueImpl *pChunk = NULL;
-		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
-		if (pChunk != NULL)
-		{
-			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
-			SetChunkValue(pChunk);
-		}
-	}
-}
-
-#endif // SHARED_HANDLERS
-
 // diagnostics pour CDailyEditorDoc
-
-#ifdef _DEBUG
-void CDailyEditorDoc::AssertValid() const
-{
-	CDocument::AssertValid();
-}
-
-void CDailyEditorDoc::Dump(CDumpContext& dc) const
-{
-	CDocument::Dump(dc);
-}
-#endif //_DEBUG
-
 
 void CDailyEditorDoc::SetCurStationIndex(size_t i, CView* pSender)
 {
@@ -406,9 +338,70 @@ bool CDailyEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-void CDailyEditorDoc::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc, BOOL bMakeVisible)
+
+#ifdef SHARED_HANDLERS
+
+// Prise en charge des miniatures
+void CDailyEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 {
-	CMainFrame* pMainFrm = (CMainFrame*)pFrame;
-	pMainFrm->InitialUpdateFrame(pDoc, bMakeVisible);
+	// Modified ce code pour dessiner les données du document
+	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
+
+	CString strText = _T("TODO: implement thumbnail drawing here");
+	LOGFONT lf;
+
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
+	pDefaultGUIFont->GetLogFont(&lf);
+	lf.lfHeight = 36;
+
+	CFont fontDraw;
+	fontDraw.CreateFontIndirect(&lf);
+
+	CFont* pOldFont = dc.SelectObject(&fontDraw);
+	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
+	dc.SelectObject(pOldFont);
 }
+
+// Support pour les gestionnaires de recherche
+void CDailyEditorDoc::InitializeSearchContent()
+{
+	CString strSearchContent;
+	// Définir le contenu de recherche à partir des données du document. 
+	// Les parties du contenu doivent être séparées par ";"
+
+	// Par exemple :  strSearchContent = _T("point;rectangle;circle;ole object;");
+	SetSearchContent(strSearchContent);
+}
+
+void CDailyEditorDoc::SetSearchContent(const CString& value)
+{
+	if (value.IsEmpty())
+	{
+		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
+	}
+	else
+	{
+		CMFCFilterChunkValueImpl *pChunk = NULL;
+		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
+		if (pChunk != NULL)
+		{
+			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
+			SetChunkValue(pChunk);
+		}
+	}
+}
+
+#endif // SHARED_HANDLERS
+
+#ifdef _DEBUG
+void CDailyEditorDoc::AssertValid() const
+{
+	CDocument::AssertValid();
+}
+
+void CDailyEditorDoc::Dump(CDumpContext& dc) const
+{
+	CDocument::Dump(dc);
+}
+#endif //_DEBUG
 

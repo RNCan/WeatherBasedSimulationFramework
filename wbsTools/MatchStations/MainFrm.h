@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "OutputWnd.h"
+//#include "OutputWnd.h"
 #include "PropertiesWnd.h"
 #include "UI/Common/MFCEditBrowseCtrlEx.h"
 #include "NormalsMatchWnd.h"
@@ -15,7 +15,7 @@
 #include "NormalsCorrectionWnd.h"
 #include "NormalsEstimateWnd.h"
 #include "ObservationEstimateWnd.h"
-#include "LocationsListView.h"
+#include "LocationsListWnd.h"
 
 
 //**************************************************************************************************************************************
@@ -38,7 +38,7 @@ public:
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	void LoadtBasicCommand();
 
-	
+	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
 
 
 protected:  // membres incorporés de la barre de contrôle
@@ -56,12 +56,13 @@ protected:  // membres incorporés de la barre de contrôle
 	CNormalsEstimateWnd		m_estimateWnd;
 	CObservationEstimateWnd m_obsEstimateWnd;
 
-	COutputWnd        m_wndOutput;
-	CPropertiesWnd    m_wndProperties;
+	CLocationsListWnd		m_locationsWnd;
+	CPropertiesWnd			m_propertiesWnd;
 
-	// Fonctions générées de la table des messages
-protected:
+	static const UINT m_uTaskbarBtnCreatedMsg;
+	CComPtr<ITaskbarList3> m_pTaskbarList;
 
+	
 
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -71,7 +72,7 @@ protected:
 	afx_msg void OnLanguageChange(UINT id);
 	afx_msg void OnLanguageUI(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
-	//afx_msg LRESULT OnToolbarReset(WPARAM wp, LPARAM);
+	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnNbNormalsChange();
 
 

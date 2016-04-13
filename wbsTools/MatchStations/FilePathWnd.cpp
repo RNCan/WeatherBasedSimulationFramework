@@ -61,8 +61,8 @@ void CFilePathDlg::DoDataExchange(CDataExchange* pDX)
 
 	if (!pDX->m_bSaveAndValidate)
 	{
-		m_normalsFilePathCtrl.EnableFileBrowseButton(_T(".NormalsStations"), _T("*.NormalsStations|*.NormalsStations||"));
-		m_observationFilePathCtrl.EnableFileBrowseButton(_T(".DailyStations"), _T("*.DailyStations|*.DailyStations||"));
+		m_normalsFilePathCtrl.EnableFileBrowseButton(_T(".NormalsStations"), _T("Normals|*.NormalsStations||"));
+		m_observationFilePathCtrl.EnableFileBrowseButton(_T(".DailyStations"), _T("Observations|*.HourlyStations;*.DailyStations||"));
 	}
 }
 

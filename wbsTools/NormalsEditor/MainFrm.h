@@ -3,41 +3,22 @@
 
 #pragma once
 
-#include "OutputWnd.h"
+#include "StationsListWnd.h"
 #include "PropertiesWnd.h"
-
 #include "NormalsChartWnd.h"
 #include "NormalsSpreadsheetWnd.h"
-//
-//class CMainFrameMenuBar : public CMFCMenuBar
-//{
-//	public:
-//
-//		DECLARE_SERIAL(CMainFrameMenuBar)
-//		virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-//		virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-//		virtual BOOL AllowShowOnList() const { return FALSE; }
-//
-//};
-//
-//class CMainFrameToolBar : public CMFCToolBar
-//{
-//public:
-//
-//	DECLARE_SERIAL(CMainFrameMenuBar)
-//	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-//	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-//	virtual BOOL AllowShowOnList() const { return FALSE; }
-//
-//};
+
+
 
 class CMainFrame : public CFrameWndEx
 {
 	
 protected: // création à partir de la sérialisation uniquement
-
 	CMainFrame();
 
+
+// Attributs
+public:
 
 // Opérations
 public:
@@ -46,28 +27,27 @@ public:
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	void LoadtBasicCommand();
 
-
-// Implémentation
-public:
 	virtual ~CMainFrame();
+
+	CComPtr<ITaskbarList3>& GetTaskbarList(){ return m_pTaskbarList; }
 
 protected:  // membres incorporés de la barre de contrôle
 
-	CMFCMenuBar m_wndMenuBar;
-	CMFCToolBar m_wndToolBar;
+
+	CMFCMenuBar       m_wndMenuBar;
+	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	
 	CNormalsSpreadsheetWnd	m_spreadsheetWnd;
 	CNormalsChartWnd	m_chartWnd;
 
-	COutputWnd        m_wndOutput;
+	CStationsListWnd  m_wndStationList;
 	CPropertiesWnd    m_wndProperties;
 
-// Fonctions générées de la table des messages
-protected:
+	static const UINT m_uTaskbarBtnCreatedMsg;
+	CComPtr<ITaskbarList3> m_pTaskbarList;
 
 
-	
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
@@ -75,6 +55,7 @@ protected:
 	afx_msg void OnLanguageChange(UINT id);
 	afx_msg void OnLanguageUI(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
+	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
@@ -83,10 +64,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DYNCREATE(CMainFrame)
 
+
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
+
 
 };
 

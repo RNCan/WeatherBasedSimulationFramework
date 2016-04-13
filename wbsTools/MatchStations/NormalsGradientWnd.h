@@ -3,7 +3,7 @@
 
 #include "UI/Common/CommonCtrl.h"
 #include "UI/StationsListCtrl.h"
-#include "Simulation/weatherGradient2.h"
+#include "Simulation/weatherGradient.h"
 
 //**************************************************************************************************************************************
 class CNormalsGradientCtrl : public CUGCtrl

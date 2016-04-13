@@ -9,6 +9,7 @@
 #define IDR_MAINFRAME                   128
 #define ID_SORTPROPERTIES               137
 #define ID_EXPAND_ALL                   138
+
 #define IDS_LOCATION_LIST_WND           141
 #define IDS_NORMALS_WND                 142
 #define IDS_OBSERVATION_WND             143
@@ -21,6 +22,7 @@
 #define IDS_SEARCH_TOOLBAR              150
 #define IDS_ESTIMATE_WND                151
 #define IDS_OBS_ESTIMATE_WND            152
+
 #define IDR_MAINFRAME_TOOLBAR           172
 #define IDR_MENU_IMAGES                 175
 #define IDR_WEIGHT_GRAPH_TOOLBAR        176

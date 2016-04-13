@@ -97,12 +97,12 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 
-	//CStringArrayEx str(IDS_CMN_PROG_HEADER);
+	CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
 //	CStringArrayEx str(CString("Progress|Description"), "|");
-	//m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 250);
-	//m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT, 250);
-	m_progressListCtrl.InsertColumn(0, _T("Progress"), LVCFMT_LEFT, 250);
-	m_progressListCtrl.InsertColumn(1, _T("Description"), LVCFMT_LEFT, 250);
+	m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 250);
+	m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT, 250);
+	//m_progressListCtrl.InsertColumn(0, _T("Progress"), LVCFMT_LEFT, 250);
+	//m_progressListCtrl.InsertColumn(1, _T("Description"), LVCFMT_LEFT, 250);
 
 	
 	

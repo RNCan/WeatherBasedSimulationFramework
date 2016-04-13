@@ -17,6 +17,10 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
 
+#include "OutputView.h"
+#include "MainFrm.h"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -38,19 +42,8 @@ CNormalsEditorDoc::CNormalsEditorDoc()
 
 	m_bDataInEdition = false;
 	m_stationIndex=UNKNOWN_POS; 
-	//m_bForAllYears = false;
+	m_bExecute = false;
 
-	//m_statistic = options.GetProfileInt(_T("DataStatistic"), WBSF::MEAN);
-	//m_TM = CTM(options.GetProfileInt(_T("DataTMType"), CTM::DAILY));
-	//m_filters = CStringA(options.GetProfileString(_T("Filters")));
-	//std::string tmp = CStringA(options.GetProfileString(_T("ChartsPeriod")));
-	//m_chartsPeriod.FromString(tmp);
-	//m_bPeriodEnabled = options.GetProfileInt(_T("ChartsPeriodEnabled"), 0);
-	//m_chartsZoom = options.GetProfileInt(_T("ChartsZoom"), 0);
-
-
-	//std::string str = CStringA(options.GetProfileString(_T("Years")));
-	//m_years = stdString::to_object<int, std::set<int>>(str, " ");
 }
 
 CNormalsEditorDoc::~CNormalsEditorDoc()
@@ -74,11 +67,51 @@ BOOL CNormalsEditorDoc::OnNewDocument()
 	return TRUE;
 }
 
-// sérialisation de CNormalsEditorDoc
+UINT CNormalsEditorDoc::OpenDatabase(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CNormalsEditorDoc* pDoc = (CNormalsEditorDoc*)pMyParam->m_pThis;
+	LPCTSTR lpszPathName = (LPCTSTR)pMyParam->m_pFilepath;
+	std::string filePath = CStringA(lpszPathName);
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+	pCallback->PushTask("Open database: " + filePath, NOT_INIT);
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		*pMsg = pDoc->m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, *pCallback);
+	CATCH_ALL(e)
+		*pMsg = UtilWin::SYGetMessage(*e);
+	END_CATCH_ALL
+
+		CoUninitialize();
+
+	pCallback->PopTask();
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}
+
 
 BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
+
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	ENSURE(pMainFrm);
+	POSITION posView = GetFirstViewPosition();
+	COutputView* pView = (COutputView*)GetNextView(posView);
+	ENSURE(pView);
+
+	CProgressWnd& progressWnd = pView->GetProgressWnd();
+
+	m_bExecute = true;
+	pView->AdjustLayout();//open the progress window
+
+	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
+	CProgressStepDlgParam param(this, (void*)lpszPathName);
 
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
@@ -87,27 +120,18 @@ BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	m_modifiedStation.clear();
 	m_outputText.clear();
 
-	std::string filePath = CStringA(lpszPathName);
+	msg = progressWnd.Execute(OpenDatabase, &param);
+	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 
-	
-	CProgressStepDlg dlg(AfxGetMainWnd() );
-	dlg.Create();
 
-	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
-	dlg.DestroyWindow();
-
-	
-	if (msg)
-	{
-		//not init by default
-		//const std::set<int>& years = m_pDatabase->GetYears();
-		//if (!m_chartsPeriod.IsInit() && !years.empty())
-			//m_chartsPeriod = CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY));
-	}
-	else
+	if (!msg)
 	{
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
+
+	m_bExecute = false;
+	pView->AdjustLayout();//open the progress window
+
 
 	return (bool)msg;
 }
@@ -292,7 +316,7 @@ bool CNormalsEditorDoc::CancelDataEdition()
 	return msg;
 }
 
-#include "MainFrm.h"
+
 void CNormalsEditorDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
@@ -347,9 +371,7 @@ bool CNormalsEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-void CNormalsEditorDoc::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc, BOOL bMakeVisible)
+void CNormalsEditorDoc::OnInitialUpdate()
 {
-	CMainFrame* pMainFrm = (CMainFrame*)pFrame;
-	pMainFrm->InitialUpdateFrame(pDoc, bMakeVisible);
+	UpdateAllViews(NULL, INIT, NULL);
 }
-

@@ -16,7 +16,7 @@
 #include "MatchStationApp.h" 
 #include "MainFrm.h"
 #include "MatchStationDoc.h"
-#include "LocationsListView.h"
+#include "OutputView.h"
 
 using namespace Gdiplus;
 using namespace WBSF;
@@ -114,7 +114,7 @@ BOOL CMatchStationApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CMatchStationDoc),
 		RUNTIME_CLASS(CMainFrame),       // fenêtre frame SDI principale
-		RUNTIME_CLASS(CLocationsListView));
+		RUNTIME_CLASS(COutputView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

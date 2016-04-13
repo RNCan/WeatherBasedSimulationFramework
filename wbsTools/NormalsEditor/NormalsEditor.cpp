@@ -9,7 +9,7 @@
 #include "MainFrm.h"
 
 #include "NormalsEditorDoc.h"
-#include "StationsListView.h"
+#include "OutputView.h"
 #include "UI/Common/AboutDlg.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
@@ -114,7 +114,7 @@ BOOL CNormalsEditorApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CNormalsEditorDoc),
 		RUNTIME_CLASS(CMainFrame),       // fenêtre frame SDI principale
-		RUNTIME_CLASS(CStationsListView));
+		RUNTIME_CLASS(COutputView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

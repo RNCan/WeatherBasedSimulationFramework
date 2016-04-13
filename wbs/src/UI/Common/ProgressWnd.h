@@ -11,15 +11,17 @@
 class CProgressStepDlgParam
 {
 public:
-	CProgressStepDlgParam(void* pThis = NULL, void* pExtra = NULL)
+	CProgressStepDlgParam(void* pThis = NULL, void* pFilepath = NULL, void* pExtra = NULL)
 	{
 		m_pThis = pThis;
+		m_pFilepath = pFilepath;
 		m_pExtra = pExtra;
 		m_pCallback = NULL;
 		m_pMsg = NULL;
 	}
 
 	void* m_pThis;
+	void* m_pFilepath;
 	void* m_pExtra;
 	WBSF::CCallback* m_pCallback;
 	ERMsg* m_pMsg;

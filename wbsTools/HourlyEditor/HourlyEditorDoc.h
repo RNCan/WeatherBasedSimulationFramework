@@ -11,9 +11,6 @@
 
 class CHourlyEditorDoc : public CDocument
 {
-protected: // création à partir de la sérialisation uniquement
-
-	CHourlyEditorDoc();
 	DECLARE_DYNCREATE(CHourlyEditorDoc)
 
 	// Attributs
@@ -33,7 +30,9 @@ public:
 
 	static const char* DOCUMENT_XML;
 
-	//bool m_bEditable;
+	
+	CHourlyEditorDoc();
+	virtual ~CHourlyEditorDoc();
 
 
 	void SetCurStationIndex(size_t i, CView* pSender=NULL);
@@ -68,18 +67,11 @@ public:
 	
 	int GetCurrentTab()const{ return m_currentTab; }
 	void SetCurrentTab(int in){ m_currentTab = in; }
-	//void SetCurrentTab(int in){	if (in != m_currentTab){ m_currentTab = in; UpdateAllViews(NULL, TAB_VIEW_CHANGE); }}
-
-
-
+	
 
 	bool IsStationModified(size_t row)const;
-// Opérations
-public:
 
-// Substitutions
-public:
-	virtual void InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc, BOOL bMakeVisible = TRUE);
+	
 	virtual BOOL OnNewDocument();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
@@ -87,37 +79,17 @@ public:
 	virtual BOOL SaveModified(); // return TRUE if ok to continue
 	virtual BOOL IsModified();
 	virtual void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
-#ifdef SHARED_HANDLERS
-	virtual void InitializeSearchContent();
-	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
-#endif // SHARED_HANDLERS
 
-// Implémentation
-public:
-	virtual ~CHourlyEditorDoc();
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+	bool IsExecute()const{ return m_bExecute; }
+	void OnInitialUpdate();
 
 protected:
 
-// Fonctions générées de la table des messages
-protected:
+
 	DECLARE_MESSAGE_MAP()
-
-#ifdef SHARED_HANDLERS
-	// Fonction d'assistance qui définit le contenu de recherche pour un gestionnaire de recherche
-	void SetSearchContent(const CString& value);
-#endif // SHARED_HANDLERS
-
-
-	
 	afx_msg void OnValidation();
 	afx_msg void OnUpdateToolbar(CCmdUI* pCmdUI);
 
-
-protected:
 
 
 	//properties
@@ -132,6 +104,7 @@ protected:
 	int m_chartsZoom;
 	int m_currentTab;
 	WBSF::CWVariables m_variables;
+	bool m_bExecute;
 
 	size_t m_stationIndex;
 	WBSF::CWeatherStationPtr m_pStation;
@@ -139,4 +112,20 @@ protected:
 	
 
 	std::set<size_t> m_modifiedStation;
+
+	static UINT CHourlyEditorDoc::OpenDatabase(void* pParam);
+
+#ifdef SHARED_HANDLERS
+	// Fonction d'assistance qui définit le contenu de recherche pour un gestionnaire de recherche
+	void SetSearchContent(const CString& value);
+	virtual void InitializeSearchContent();
+	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
+#endif // SHARED_HANDLERS
+
+
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
+
 };

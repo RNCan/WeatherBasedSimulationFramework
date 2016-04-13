@@ -7,10 +7,47 @@
 #include "UltimateGrid/CellTypes/UGCTsarw.h" 
 #include "Basic/WeatherDatabase.h"
 #include "UI/Common/CommonCtrl.h"
+#include "UI/WVariablesEdit.h"
 #include "UI/StationsListCtrl.h"
 
-class CNormalsEditorDoc;
+class CHourlyEditorDoc;
 
+
+class CMFCToolBarYearsButton : public CMFCToolBarEditBoxButton
+{
+public:
+
+	DECLARE_SERIAL(CMFCToolBarYearsButton)
+
+	CMFCToolBarYearsButton(){}
+	CMFCToolBarYearsButton(UINT uiID, UINT uimageID, int iWidth = 0) : CMFCToolBarEditBoxButton(uiID, uimageID, ES_AUTOHSCROLL | ES_WANTRETURN | WS_TABSTOP, iWidth)
+	{
+	}
+
+	void SetYears(const std::set<int>& years)
+	{
+		GetEditBox()->GetWindowText(m_strContents);
+		std::string tmp = WBSF::to_string(years, " ");
+
+		CString newStr(tmp.c_str());
+		if (newStr != m_strContents)
+		{
+			m_strContents = newStr;
+			GetEditBox()->SetWindowText(m_strContents);
+		}
+	}
+
+	std::set<int> GetYears()
+	{
+		CString tmp;
+		if (GetEditBox())
+			GetEditBox()->GetWindowText(tmp);
+
+		std::string str = CStringA(tmp);
+		return WBSF::to_object<int, std::set<int>>(str, " ");
+	}
+	
+};
 
 class CStationsListToolBar : public CMFCToolBar
 {
@@ -43,21 +80,28 @@ class CStationsListStatusBar : public CStatusBar
 	}
 };
 
-//*************************************************************************************************************
 
-class CStationsListView : public CView
+class CStationsListWnd : public CDockablePane
 {
-	DECLARE_DYNCREATE(CStationsListView)
 
+	DECLARE_DYNCREATE(CStationsListWnd)
 // Construction
 public:
-	CStationsListView();
-	virtual ~CStationsListView();
+	
+	static CHourlyEditorDoc* GetDocument();
 
-	void AdjustLayout();
+	CStationsListWnd();
+
+	
+	virtual ~CStationsListWnd();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	
+	
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
-
+	
+	WBSF::CWeatherDatabasePtr GetDatabasePtr();
+	void AdjustLayout();
 
 	
 protected:
@@ -67,11 +111,6 @@ protected:
 	WBSF::CStationsListCtrl m_stationsList;
 	CStationsListStatusBar m_wndStatusBar;
 
-
-	virtual void OnDraw(CDC* pDC);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-
-
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -80,10 +119,10 @@ protected:
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
 	afx_msg void OnToolbarCommand(UINT ID);
 	afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
-	afx_msg LRESULT  OnSelectionChange(WPARAM, LPARAM);
+	afx_msg LRESULT OnSelectionChange(WPARAM, LPARAM);
+	
 
 	void SetPropListFont();
 
-
+	
 };
-

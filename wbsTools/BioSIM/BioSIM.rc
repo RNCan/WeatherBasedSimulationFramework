@@ -9,8 +9,7 @@
 //
 #include "afxres.h"
 #include "WeatherBasedSimulationUI.h"
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -286,7 +285,7 @@ BEGIN
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
             VALUE "FileVersion", "11.0.1.0"
             VALUE "InternalName", "BioSIM.exe"
-            VALUE "LegalCopyright", "Copyright (C) 1995-2015"
+            VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
             VALUE "ProductVersion", "11.0.1.0"
@@ -297,7 +296,7 @@ BEGIN
             VALUE "FileDescription", "Phenology simulator base on weather"
             VALUE "FileVersion", "11.0.1.0"
             VALUE "InternalName", "BioSIM.exe"
-            VALUE "LegalCopyright", "Copyright (C) 1995-2015"
+            VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
             VALUE "ProductVersion", "11.0.1.0"
@@ -400,7 +399,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Enlever",                    ID_REMOVE
         MENUITEM SEPARATOR
-		MENUITEM "&Propriétés...", ID_EDIT
+        MENUITEM "&Propriétés...",              ID_EDIT
     END
     POPUP "&Outils"
     BEGIN
@@ -453,7 +452,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Enlever",                    ID_REMOVE
         MENUITEM SEPARATOR
-		MENUITEM "&Propriétés...", ID_EDIT
+        MENUITEM "&Propriétés...",              ID_EDIT
     END
 END
 
@@ -627,7 +626,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_EXPORT_WND          "Export"
-	IDS_PROGRESS_WND		"Progression"
+    IDS_PROGRESS_WND        "Progression"
 END
 
 STRINGTABLE
@@ -756,7 +755,11 @@ BEGIN
     ID_ITEM_COLLAPSE_ALL    "Réduire tous les enfants d'un élément\nTout réduire"
     ID_EDIT                 "Propriétés de l'élément courrant\nPropriétés"
     ID_REMOVE               "Enlever un élément du projet\nEnlever"
-	ID_CMN_CANCEL			"Annuler l'exécution\nAnnuler"
+END
+
+STRINGTABLE
+BEGIN
+    ID_CMN_CANCEL           "Annuler l'exécution\nAnnuler"
 END
 
 STRINGTABLE
@@ -895,7 +898,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Remove",                     ID_REMOVE
         MENUITEM SEPARATOR
-		MENUITEM "&Properties...", ID_EDIT
+        MENUITEM "&Properties...",              ID_EDIT
     END
     POPUP "&Tools"
     BEGIN
@@ -947,7 +950,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Remove",                     ID_REMOVE
         MENUITEM SEPARATOR
-		MENUITEM "Pr&operties...", ID_EDIT
+        MENUITEM "Pr&operties...",              ID_EDIT
     END
 END
 
@@ -1120,7 +1123,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_EXPORT_WND          "Export"
-	IDS_PROGRESS_WND		"Progress"
+    IDS_PROGRESS_WND        "Progress"
 END
 
 STRINGTABLE
@@ -1246,7 +1249,11 @@ BEGIN
     ID_ITEM_COLLAPSE_ALL    "Collapse all children of a component\nCollapse All"
     ID_EDIT                 "Show properties of the current component\nProperties"
     ID_REMOVE               "Remove current component from the project\nRemove"
-	ID_CMN_CANCEL			"Cancel execution\nCancel"
+END
+
+STRINGTABLE
+BEGIN
+    ID_CMN_CANCEL           "Cancel execution\nCancel"
 END
 
 STRINGTABLE

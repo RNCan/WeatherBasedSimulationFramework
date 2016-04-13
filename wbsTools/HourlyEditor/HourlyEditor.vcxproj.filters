@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MainFrm.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="PropertiesWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -29,27 +26,27 @@
     <ClInclude Include="resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutputWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="HourlyEditorOptionsDlg.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="WeatherChartsWnd.h">
+    <ClInclude Include="OutputView.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="WeatherTableWnd.h">
+    <ClInclude Include="StationsListWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="StationsListView.h">
+    <ClInclude Include="MainFrm.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherSpreadSheetWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherChartWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp">
@@ -61,19 +58,22 @@
     <ClCompile Include="HourlyEditorDoc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HourlyEditorOptionsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WeatherChartsWnd.cpp">
+    <ClCompile Include="OutputView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WeatherTableWnd.cpp">
+    <ClCompile Include="StationsListWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StationsListView.cpp">
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherSpreadSheetWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherChartWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

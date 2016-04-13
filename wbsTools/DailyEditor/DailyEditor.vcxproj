@@ -306,6 +306,7 @@
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\Toolbar32.bmp" />
     <Image Include="res\Toolbar_32.bmp" />
+    <Image Include="res\WeatherStation.ico" />
     <Image Include="UserImages.bmp" />
   </ItemGroup>
   <ItemGroup>

@@ -18,13 +18,7 @@
     <ClCompile Include="NormalsEditorDoc.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutputWnd.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StationsListView.cpp">
       <Filter>Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +36,12 @@
     <ClCompile Include="NormalsSpreadsheetWnd.cpp">
       <Filter>Files</Filter>
     </ClCompile>
+    <ClCompile Include="StationsListWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -53,16 +53,10 @@
     <ClInclude Include="NormalsEditorDoc.h">
       <Filter>Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutputWnd.h">
-      <Filter>Files</Filter>
-    </ClInclude>
     <ClInclude Include="PropertiesWnd.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StationsListView.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -81,6 +75,12 @@
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="NormalsSpreadsheetWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StationsListWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
       <Filter>Files</Filter>
     </ClInclude>
   </ItemGroup>

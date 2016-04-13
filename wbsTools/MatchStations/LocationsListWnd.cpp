@@ -9,7 +9,7 @@
 // Microsoft Foundation Classes product.
 
 #include "stdafx.h"
-#include "LocationsListView.h"
+#include "LocationsListWnd.h"
 #include "Resource.h"
 #include "MatchStationDoc.h"
 
@@ -37,22 +37,6 @@ BOOL CMainToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, B
 	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
 		return FALSE;
 
-
-	//*****************************
-
-	//CMFCToolBarButton periodEnabled(ID_TABLE_PERIOD_ENABLED, 4);
-	//periodEnabled.SetStyle((WS_TABSTOP | TBBS_CHECKBOX) & ~WS_GROUP);
-	//ReplaceButton(ID_TABLE_PERIOD_ENABLED, periodEnabled);
-
-	//*****************************
-	//CMFCToolBarDateTimeCtrl periodBegin(ID_TABLE_PERIOD_BEGIN, 5, WS_TABSTOP | DTS_SHORTDATECENTURYFORMAT);
-	//ReplaceButton(ID_TABLE_PERIOD_BEGIN, periodBegin);
-	//*****************************
-	//CMFCToolBarDateTimeCtrl periodEnd(ID_TABLE_PERIOD_END, 6, WS_TABSTOP | DTS_SHORTDATECENTURYFORMAT);
-	//ReplaceButton(ID_TABLE_PERIOD_END, periodEnd);
-
-	//EnableTextLabels(TRUE);
-
 	//*****************************
 	CMFCToolBarEditBoxButton nbStationsButton(ID_NB_STATIONS, 2, WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL, 100);
 	ReplaceButton(ID_NB_STATIONS, nbStationsButton);
@@ -78,11 +62,18 @@ BOOL CMainToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, B
 	
 
 /////////////////////////////////////////////////////////////////////////////
-// CLocationsListView
+// CLocationsListWnd
 
-IMPLEMENT_DYNCREATE(CLocationsListView, CView)
+static const int ID_INDICATOR_NB_STATIONS = 0xE711;
 
-BEGIN_MESSAGE_MAP(CLocationsListView, CView)
+static UINT indicators[] =
+{
+	ID_SEPARATOR,
+	ID_INDICATOR_NB_STATIONS
+};
+IMPLEMENT_DYNCREATE(CLocationsListWnd, CDockablePane)
+
+BEGIN_MESSAGE_MAP(CLocationsListWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	//ON_WM_CONTEXTMENU()
@@ -96,33 +87,44 @@ BEGIN_MESSAGE_MAP(CLocationsListView, CView)
 
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CLocationsListView construction/destruction
-static const int ID_INDICATOR_NB_STATIONS = 0xE711;
 
-static UINT indicators[] =
+
+CMatchStationDoc* CLocationsListWnd::GetDocument()
 {
-	ID_SEPARATOR,
-	ID_INDICATOR_NB_STATIONS
-};
+	CMatchStationDoc* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = (CMatchStationDoc*)docT->GetNextDoc(pos);
+		}
+	}
 
-CLocationsListView::CLocationsListView()
+	return pDoc;
+}
+
+
+CLocationsListWnd::CLocationsListWnd()
 {}
 
-CLocationsListView::~CLocationsListView()
+CLocationsListWnd::~CLocationsListWnd()
 {}
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CLocationsListView message handlers
-void CLocationsListView::OnContextMenu(CWnd*, CPoint point)
+// CLocationsListWnd message handlers
+void CLocationsListWnd::OnContextMenu(CWnd*, CPoint point)
 {
 	//	theApp.ShowPopupMenu (IDR_CONTEXT_MENU, point, this);
 }
 
-int CLocationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CLocationsListWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CView::OnCreate(lpCreateStruct) == -1)
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	if (!m_locationVectorCtrl.CreateGrid(WS_CHILD | WS_VISIBLE | WS_TABSTOP, CRect(0, 0, 0, 0), this, IDC_STATION_LIST_ID))
@@ -144,24 +146,22 @@ int CLocationsListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-void CLocationsListView::OnDraw(CDC* pDC)
-{}
 
-LRESULT CLocationsListView::OnSetText(WPARAM wParam, LPARAM lParam)
+LRESULT CLocationsListWnd::OnSetText(WPARAM wParam, LPARAM lParam)
 {
 	LRESULT Result = Default(); //let it do the default thing if you want
 
 	return Result;
 }
 
-BOOL CLocationsListView::PreTranslateMessage(MSG* pMsg)
+BOOL CLocationsListWnd::PreTranslateMessage(MSG* pMsg)
 {
 
-	return CView::PreTranslateMessage(pMsg);
+	return CDockablePane::PreTranslateMessage(pMsg);
 }
 
 
-void CLocationsListView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+void CLocationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	BOOL bEnable = FALSE;
 	CMatchStationDoc* pDoc = GetDocument();
@@ -199,15 +199,15 @@ void CLocationsListView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 }
 
-void CLocationsListView::OnSize(UINT nType, int cx, int cy)
+void CLocationsListWnd::OnSize(UINT nType, int cx, int cy)
 {
-	CView::OnSize(nType, cx, cy);
+	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
 
 
 
-void CLocationsListView::AdjustLayout()
+void CLocationsListWnd::AdjustLayout()
 {
 	if (GetSafeHwnd() == NULL || (AfxGetMainWnd() != NULL && AfxGetMainWnd()->IsIconic()))
 	{
@@ -225,7 +225,7 @@ void CLocationsListView::AdjustLayout()
 }
 
 
-void CLocationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
+void CLocationsListWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 {
 
 	if (pCmdUI->m_nID == ID_INDICATOR_NB_LOCATIONS)
@@ -255,7 +255,7 @@ void CLocationsListView::OnUpdateStatusBar(CCmdUI* pCmdUI)
 
 
 
-LRESULT CLocationsListView::OnSelectionChange(WPARAM, LPARAM)
+LRESULT CLocationsListWnd::OnSelectionChange(WPARAM, LPARAM)
 {
 	CMatchStationDoc* pDoc = GetDocument();
 	ASSERT(pDoc);
@@ -267,7 +267,7 @@ LRESULT CLocationsListView::OnSelectionChange(WPARAM, LPARAM)
 }
 
 
-void CLocationsListView::OnSearchPropertyChange(UINT id)
+void CLocationsListWnd::OnSearchPropertyChange(UINT id)
 {
 	CMatchStationDoc* pDoc = GetDocument();
 	ASSERT(pDoc);
@@ -310,7 +310,7 @@ void CLocationsListView::OnSearchPropertyChange(UINT id)
 
 }
 
-void CLocationsListView::OnUpdateSearchProperty(CCmdUI* pCmdUI)
+void CLocationsListWnd::OnUpdateSearchProperty(CCmdUI* pCmdUI)
 {
 
 	CMatchStationDoc* pDoc = GetDocument();
@@ -328,27 +328,3 @@ void CLocationsListView::OnUpdateSearchProperty(CCmdUI* pCmdUI)
 
 	pCmdUI->Enable(TRUE);
 }
-
-void CLocationsListView::OnInitialUpdate()
-{
-	CMatchStationDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	pDoc->OnInitialUpdate();
-	pDoc->UpdateAllViews(NULL, NULL, NULL);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// CLocationsListView diagnostics
-
-#ifdef _DEBUG
-void CLocationsListView::AssertValid() const
-{
-	CView::AssertValid();
-}
-
-void CLocationsListView::Dump(CDumpContext& dc) const
-{
-	CView::Dump(dc);
-}
-
-#endif //_DEBUG

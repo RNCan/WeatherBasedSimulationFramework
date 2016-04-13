@@ -47,24 +47,20 @@ class CStationsListStatusBar : public CStatusBar
 };
 //*************************************************************************************************************
 
-class CLocationsListView : public CView
+class CLocationsListWnd : public CDockablePane
 {
-protected: // create from serialization only
-	CLocationsListView();
-	DECLARE_DYNCREATE(CLocationsListView)
+	DECLARE_DYNCREATE(CLocationsListWnd)
 
 	// Attributes
 public:
-	
-	CMatchStationDoc* GetDocument();
 
-	// Operations
-public:
+	static CMatchStationDoc* GetDocument();
 
-	// Implementation
-public:
-	virtual ~CLocationsListView();
+	CLocationsListWnd();
+	virtual ~CLocationsListWnd();
 
+	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	void AdjustLayout();
 
 protected:
 
@@ -83,23 +79,8 @@ protected:
 
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual void OnInitialUpdate();
+	
 
-	void OnDraw(CDC* pDC);
-	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	void AdjustLayout();
-
-
-
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
 };
 
-
-inline CMatchStationDoc* CLocationsListView::GetDocument()
-{
-	return (CMatchStationDoc*)m_pDocument;
-}
 
