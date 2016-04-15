@@ -3,7 +3,7 @@
 cd %~dp0
 echo %cd%
 
-mkdir "..\NRCan"
+mkdir "..\Install"
 mkdir "..\Install\NRCan"
 mkdir "..\Install\NRCan\External"
 mkdir "..\Install\NRCan\Models"
