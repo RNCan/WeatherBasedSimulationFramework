@@ -27,9 +27,6 @@
     <ClCompile Include="TaskTreeCtrl.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="MFCPropertyGridDateTimeProperty.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tasks\stdafx.cpp">
       <Filter>Files</Filter>
     </ClCompile>
@@ -66,9 +63,6 @@
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="TaskTreeCtrl.h">
-      <Filter>Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MFCPropertyGridDateTimeProperty.h">
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="Tasks\stdafx.h">

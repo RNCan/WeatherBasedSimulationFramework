@@ -27,7 +27,7 @@ using namespace WBSF;
 IMPLEMENT_SERIAL(CResultToolBar, CSplittedToolBar, 1)
 BOOL CResultToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
 {
-	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+	if (!CSplittedToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
 		return FALSE;
 
 	//*****************************
@@ -119,7 +119,7 @@ int CWeatherSpreadsheetWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CreateToolBar();
 
-	m_grid.CreateGrid(WS_CHILD | WS_VISIBLE, CRect(0, 0, 0, 0), this, IDC_GRID_ID);
+	m_grid.CreateGrid(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(0, 0, 0, 0), this, IDC_GRID_ID);
 
 	AdjustLayout();
 

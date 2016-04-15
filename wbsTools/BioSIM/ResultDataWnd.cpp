@@ -18,30 +18,13 @@ using namespace std;
 using namespace WBSF;
 
 
-CBioSIMDoc* CResultDataWnd::GetDocument()
-{
-	CDocument* pDoc = NULL;
-	CWinApp* pApp = AfxGetApp();
-	if (pApp)
-	{
-		POSITION  pos = pApp->GetFirstDocTemplatePosition();
-		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
-		if (docT)
-		{
-			pos = docT->GetFirstDocPosition();
-			pDoc = docT->GetNextDoc(pos);
-		}
-	}
-
-	return static_cast<CBioSIMDoc*>(pDoc);
-}
 
 // CResultDataWnd
 
 IMPLEMENT_SERIAL(CResultToolBar, CSplittedToolBar, 1)
 BOOL CResultToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
 {
-	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+	if (!CSplittedToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
 		return FALSE;
 
 	
@@ -67,8 +50,28 @@ BEGIN_MESSAGE_MAP(CResultDataWnd, CDockablePane)
 	ON_WM_WINDOWPOSCHANGED()
 	ON_UPDATE_COMMAND_UI_RANGE(ID_STATISTIC, ID_STATISTIC, OnUpdateToolbar)
 	ON_COMMAND_RANGE(ID_STATISTIC, ID_STATISTIC, OnToolbarCommand)
+	ON_CONTROL_RANGE(LBN_SELCHANGE, ID_STATISTIC, ID_STATISTIC, OnToolbarCommand)
 
 END_MESSAGE_MAP()
+
+
+CBioSIMDoc* CResultDataWnd::GetDocument()
+{
+	CDocument* pDoc = NULL;
+	CWinApp* pApp = AfxGetApp();
+	if (pApp)
+	{
+		POSITION  pos = pApp->GetFirstDocTemplatePosition();
+		CDocTemplate* docT = pApp->GetNextDocTemplate(pos);
+		if (docT)
+		{
+			pos = docT->GetFirstDocPosition();
+			pDoc = docT->GetNextDoc(pos);
+		}
+	}
+
+	return static_cast<CBioSIMDoc*>(pDoc);
+}
 
 // CResultDataWnd construction/destruction
 
@@ -87,19 +90,38 @@ int CResultDataWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	CreateToolBar();
+
 	m_grid.CreateGrid(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(0, 0, 0, 0), this, IDC_GRID_ID);
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
 	
-	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE|CBRS_SIZE_DYNAMIC, IDR_RESULT_TOOLBAR);
-	m_wndToolBar.LoadToolBar(IDR_RESULT_TOOLBAR, 0, 0, TRUE /* Is locked */);
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-	m_wndToolBar.SetOwner(this);
-	m_wndToolBar.SetRouteCommandsViaFrame(FALSE); 
-	
+	//m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE|CBRS_SIZE_DYNAMIC, IDR_RESULT_TOOLBAR);
+	//m_wndToolBar.LoadToolBar(IDR_RESULT_TOOLBAR, 0, 0, TRUE /* Is locked */);
+	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+	//m_wndToolBar.SetOwner(this);
+	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE); 
+	//
 
 
 	return 0;
+}
+
+void CResultDataWnd::CreateToolBar()
+{
+	if (m_wndToolBar.GetSafeHwnd())
+		m_wndToolBar.DestroyWindow();
+
+	//m_bEnableMessage = false;
+	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, IDR_RESULT_TOOLBAR);
+	m_wndToolBar.LoadToolBar(IDR_RESULT_TOOLBAR, 0, 0, TRUE);
+	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+	m_wndToolBar.SetOwner(this);
+	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
+
+	//m_bEnableMessage = true;
+
 }
 
 void CResultDataWnd::OnSize(UINT nType, int cx, int cy)
@@ -128,6 +150,8 @@ void CResultDataWnd::AdjustLayout()
 
 void CResultDataWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 {
+
+
 	CBioSIMDoc* pDoc = GetDocument();
 	pCmdUI->Enable(pDoc->IsInit());
 	
@@ -152,6 +176,12 @@ void CResultDataWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	CBioSIMDoc* pDoc = (CBioSIMDoc*)GetDocument();
 	CBioSIMProject& project = pDoc->GetProject();
+
+	if (lHint == CBioSIMDoc::ID_LAGUAGE_CHANGE)
+	{
+		CreateToolBar();
+		AdjustLayout();
+	}
 
 
 	string iName = pDoc->GetCurSel();
@@ -194,18 +224,23 @@ BOOL CResultDataWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERI
 	CWnd* pFocus = GetFocus();
 	if (pFocus)
 	{
-
-
 		CWnd* pParent = pFocus->GetParent();
-		CWnd* pOwner = pFocus->GetParentOwner();
 
-
-		if (pFocus == &m_grid || pParent == &m_grid || pOwner == &m_grid)
+		if (pFocus == &m_grid || pParent == &m_grid || pParent == &m_wndToolBar)
 		{
 			if (m_grid.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
 				return TRUE;
 		}
+
+		//if (pFocus == &m_wndToolBar || pParent == &m_wndToolBar)
+		//{
+	
+		//}
+
 	}
 	
+	if (m_wndToolBar.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
 	return CDockablePane::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }

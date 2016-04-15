@@ -571,40 +571,40 @@ void CMainFrame::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 }
 
-
-BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
-{
-	//
-	// Route to standard command targets first.
-	//
-	if (CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
-
-	//
-	// Route to inactive views second.
-	////
-	//CBioSIMDoc* pDoc = (CBioSIMDoc*)GetActiveDocument();
-	//if (pDoc != NULL) 
-	//{ 
-	//	if (m_projectWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-	//		return TRUE;
-
-	//	if (m_propertiesWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-	//		return TRUE;
-
-	//	if (m_spreadsheetWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-	//		return TRUE;
-
-	//	if (m_chartWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-	//		return TRUE;
-
-	//	if (m_exportWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-	//		return TRUE;
-	//}
-
-
-	return FALSE;
-}
+//
+//BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+//{
+//	//
+//	// Route to standard command targets first.
+//	//
+//	if (CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//		return TRUE;
+//
+//	//
+//	// Route to inactive views second.
+//	////
+//	//CBioSIMDoc* pDoc = (CBioSIMDoc*)GetActiveDocument();
+//	//if (pDoc != NULL) 
+//	//{ 
+//	//	if (m_projectWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//	//		return TRUE;
+//
+//	//	if (m_propertiesWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//	//		return TRUE;
+//
+//	//	if (m_spreadsheetWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//	//		return TRUE;
+//
+//	//	if (m_chartWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//	//		return TRUE;
+//
+//	//	if (m_exportWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+//	//		return TRUE;
+//	//}
+//
+//
+//	return FALSE;
+//}
 //
 //BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 //{

@@ -41,8 +41,9 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnExecute();
 	afx_msg void OnUpdateExecute(CCmdUI *pCmdUI);
-
 	
+	
+	void CreateToolBar();
 	void AdjustLayout();
 
 
