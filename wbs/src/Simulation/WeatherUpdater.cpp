@@ -127,17 +127,16 @@ namespace WBSF
 		if (msg)
 		{
 			//try to open log
-			string logFilePath;
+			string logFilePath(filePath);
 			SetFileExtension(logFilePath, ".log");
 
 			callback.PushTask("Call WeatherUpdater...", NOT_INIT);
-			msg = CallApplication(CRegistry::WEATHER_UPDATER, "\"" + filePath + "\" /e /l \"" + logFilePath + (m_bShowApp ? "\" /SHOW" : "\""), NULL, m_bShowApp ? SW_SHOW : SW_HIDE, false, true);
+			msg = CallApplication(CRegistry::WEATHER_UPDATER, "\"" + filePath + "\" -e -l \"" + logFilePath + (m_bShowApp ? "\" -Show" : "\""), NULL, m_bShowApp ? SW_SHOW : SW_HIDE, false, true);
 
 			if (msg)
 			{
-				
 				ifStream log;
-				if (log.open(filePath))
+				if (log.open(logFilePath))
 					callback.AddMessage(log.GetText());
 			}
 
