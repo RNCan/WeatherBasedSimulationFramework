@@ -302,12 +302,12 @@ void CDailyEditorDoc::OnValidation()
 {
 	ERMsg msg;
 
-	CProgressStepDlg dlg(AfxGetMainWnd());
-	dlg.Create();
+	//CProgressStepDlg dlg;
+	//dlg.Create(AfxGetMainWnd());
 
 	//assert(false);//todo
 	//msg = m_pDatabase->Open(UtilWin::ToUTF8(lpszPathName), CWeatherDatabase::modeRead, dlg.GetCallback());
-	dlg.DestroyWindow();
+	//dlg.DestroyWindow();
 
 
 	SetOutputText("La vérification s'affichera ici un jour...");
