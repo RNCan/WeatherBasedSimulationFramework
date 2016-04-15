@@ -145,6 +145,8 @@ namespace WBSF
 
 			if (m_pDB && m_pDB->IsOpen())
 			{
+				m_enableUpdate = FALSE;
+
 				m_lastYears = m_years;
 				m_lastFilter = m_filter;
 
@@ -161,6 +163,8 @@ namespace WBSF
 					int width = AfxGetApp()->GetProfileInt(_T("StationsListCtrl"), _T("ColWidth ") + UtilWin::ToCString(i), 50);
 					SetColWidth(i, width);
 				}
+
+				m_enableUpdate = TRUE;
 
 			}//is open
 			else
@@ -233,7 +237,7 @@ namespace WBSF
 	void CStationsListCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (row >= -1 && col >= -1)
+		if (row >= -1 && col >= -1 && m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -328,8 +332,8 @@ namespace WBSF
 	void CStationsListCtrl::OnCellChange(int oldcol, int newcol, long oldrow, long newrow)
 	{
 		ASSERT(newrow >= -1 && newrow < GetNumberRows());
-
-		GetParent()->SendMessage(UWM_SELECTION_CHANGE);
+		if (m_enableUpdate)
+			GetParent()->SendMessage(UWM_SELECTION_CHANGE);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -645,14 +649,11 @@ namespace WBSF
 		if (filePath != m_lastFilePath ||
 			m_location != m_lastLocation ||
 			m_nearest != m_lastNearest)
-			//m_variable != m_lastVariable || 
-			//m_year != m_lastYear || m_location != m_lastLocation || m_nbStations != m_lastNbStations)
 		{
 			m_curSortCol = -999;
 			m_sortDir = UGCT_SORTARROWUP;
 			m_lastFilePath = filePath;
 			m_lastNearest = m_nearest;
-			//m_lastNbStations = m_nbStations;
 
 			m_weight = m_nearest.GetStationWeight();
 			m_shoreD.resize(m_weight.size());
@@ -671,14 +672,11 @@ namespace WBSF
 
 			if (m_pDB && m_pDB->IsOpen())
 			{
-				//m_lastYear = m_year;
-				//m_lastVariable = m_variable;
+				m_enableUpdate = FALSE;
 				m_lastLocation = m_location;
 
 				SortInfo(AfxGetApp()->GetProfileInt(_T("MatchStationsListCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("MatchStationsListCtrl"), _T("SortDir"), 0));
-
-			//	SetTH_NumberRows(1);
-				//SetSH_NumberCols(1);
+		
 				SetNumberCols(NB_MATCH_STATIONS_COLUMNS, FALSE);
 				SetNumberRows((long)m_sortInfo.size(), FALSE);
 
@@ -688,11 +686,11 @@ namespace WBSF
 					SetColWidth(i, width);
 				}
 
+				m_enableUpdate = TRUE;
+
 			}//is open
 			else
 			{
-				//SetTH_NumberRows(0);
-				//SetSH_NumberCols(0);
 				SetNumberRows(0, FALSE);
 				SetNumberCols(0, FALSE);
 				m_sortInfo.clear();
@@ -712,7 +710,7 @@ namespace WBSF
 	void CMatchStationsCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (row >= -1 && col >= -1)
+		if (row >= -1 && col >= -1 && m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -751,14 +749,6 @@ namespace WBSF
 				}
 				else
 				{
-
-					//size_t v = UNKNOWN_POS;
-					//for (size_t vv = row / m_nbStations; vv > 0; vv--)
-					//if (m_variables[vv])
-					//v++;
-
-
-					//size_t s = row%m_nbStations;
 					if (m_pDB.get() && m_pDB->IsOpen())
 					{
 						textColor = RGB(0, 0, 0);
@@ -808,8 +798,8 @@ namespace WBSF
 	void CMatchStationsCtrl::OnCellChange(int oldcol, int newcol, long oldrow, long newrow)
 	{
 		ASSERT(newrow >= -1 && newrow < GetNumberRows());
-
-		GetParent()->SendMessage(UWM_SELECTION_CHANGE);
+		if (m_enableUpdate)
+			GetParent()->SendMessage(UWM_SELECTION_CHANGE);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

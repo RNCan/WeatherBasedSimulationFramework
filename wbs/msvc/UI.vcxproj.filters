@@ -304,9 +304,6 @@
     <ClCompile Include="..\src\UI\Common\SelectionCtrl.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\Common\SelectionDlg.cpp">
-      <Filter>UI\Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\Common\SplitterControl.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
@@ -347,6 +344,9 @@
       <Filter>UI\Common</Filter>
     </ClCompile>
     <ClCompile Include="..\src\UI\Common\ProgressWnd.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\Common\MFCPropertyGridDateTimeProperty.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -663,9 +663,6 @@
     <ClInclude Include="..\src\UI\Common\SelectionCtrl.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\UI\Common\SelectionDlg.h">
-      <Filter>UI\Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\UI\Common\SplitterControl.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
@@ -706,6 +703,9 @@
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\Common\ProgressWnd.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\Common\MFCPropertyGridDateTimeProperty.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -98,12 +98,8 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
-//	CStringArrayEx str(CString("Progress|Description"), "|");
 	m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 250);
 	m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT, 250);
-	//m_progressListCtrl.InsertColumn(0, _T("Progress"), LVCFMT_LEFT, 250);
-	//m_progressListCtrl.InsertColumn(1, _T("Description"), LVCFMT_LEFT, 250);
-
 	
 	
 	// Load view images:
@@ -115,11 +111,6 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_toolbarCtrl.SetPaneStyle(m_toolbarCtrl.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
 	m_toolbarCtrl.SetOwner(this);
 	m_toolbarCtrl.SetRouteCommandsViaFrame(FALSE);
-
-	//OnChangeVisualStyle();
-	
-	// Fill in some static tree view data (dummy code, nothing magic here)
-	//AdjustLayout();
 
 	return 0;
 }

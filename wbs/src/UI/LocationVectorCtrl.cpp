@@ -145,11 +145,10 @@ namespace WBSF
 
 			if (!filePath.empty())
 			{
+				m_enableUpdate = FALSE;
 				m_stationModified.resize(m_pLocations->size());
 				SortInfo(AfxGetApp()->GetProfileInt(_T("LocationVectorCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("LocationVectorCtrl"), _T("SortDir"), 0));
-
-				//SetTH_NumberRows(1);
-				//SetSH_NumberCols(1);
+				
 				SetNumberCols(NB_LOCATIONS_COLUMNS, FALSE);
 				SetNumberRows((long)m_sortInfo.size(), FALSE);
 
@@ -159,11 +158,11 @@ namespace WBSF
 					SetColWidth(i, width);
 				}
 
+				m_enableUpdate = TRUE;
+
 			}//is open
 			else
 			{
-				//SetTH_NumberRows(0);
-				//SetSH_NumberCols(0);
 				SetNumberRows(0, FALSE);
 				SetNumberCols(0, FALSE);
 				m_sortInfo.clear();
@@ -198,7 +197,7 @@ namespace WBSF
 	void CLocationVectorCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (row >= -1 && col >= -1)
+		if (row >= -1 && col >= -1 && m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -275,8 +274,8 @@ namespace WBSF
 	void CLocationVectorCtrl::OnCellChange(int oldcol, int newcol, long oldrow, long newrow)
 	{
 		ASSERT(newrow >= -1 && newrow < GetNumberRows());
-
-		GetParent()->SendMessage(UWM_SELECTION_CHANGE);
+		if (m_enableUpdate)
+			GetParent()->SendMessage(UWM_SELECTION_CHANGE);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

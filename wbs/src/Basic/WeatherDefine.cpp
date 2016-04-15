@@ -660,7 +660,11 @@ namespace WBSF
 	{
 		clear();
 
-		m_header = variables.GetHeader(TM);
+		//set variables
+		string tmp = CTemporal(TM).GetHeader(",");
+		Set(tmp.c_str());//set temporal SKIP variables
+		
+		//add real variables
 		for (TVarH v = H_FIRST_VAR; v != variables.size(); v++)
 		{
 			if (variables[v])
@@ -686,6 +690,9 @@ namespace WBSF
 
 			}
 		}
+
+		//overide header
+		m_header = variables.GetHeader(TM);
 
 	}
 

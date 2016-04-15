@@ -54,6 +54,7 @@
     <ClCompile Include="..\src\UI\Common\LineStyleCB.cpp" />
     <ClCompile Include="..\src\UI\Common\ListBoxWithHScroll.cpp" />
     <ClCompile Include="..\src\UI\Common\MFCEditBrowseCtrlEx.cpp" />
+    <ClCompile Include="..\src\UI\Common\MFCPropertyGridDateTimeProperty.cpp" />
     <ClCompile Include="..\src\UI\Common\MyPalette.cpp" />
     <ClCompile Include="..\src\UI\Common\MyToolTipCtrl.cpp" />
     <ClCompile Include="..\src\UI\Common\NewNameDlg.cpp" />
@@ -68,7 +69,6 @@
     <ClCompile Include="..\src\UI\Common\PropertySheetSize.cpp" />
     <ClCompile Include="..\src\UI\Common\ScrollHelper.cpp" />
     <ClCompile Include="..\src\UI\Common\SelectionCtrl.cpp" />
-    <ClCompile Include="..\src\UI\Common\SelectionDlg.cpp" />
     <ClCompile Include="..\src\UI\Common\SplitterControl.cpp" />
     <ClCompile Include="..\src\UI\Common\StandardCmdLine.cpp" />
     <ClCompile Include="..\src\UI\Common\StaticBitmap.cpp" />
@@ -172,6 +172,7 @@
     <ClInclude Include="..\src\UI\Common\LineStyleCB.h" />
     <ClInclude Include="..\src\UI\Common\ListBoxWithHScroll.h" />
     <ClInclude Include="..\src\UI\Common\MFCEditBrowseCtrlEx.h" />
+    <ClInclude Include="..\src\UI\Common\MFCPropertyGridDateTimeProperty.h" />
     <ClInclude Include="..\src\UI\Common\MyPalette.h" />
     <ClInclude Include="..\src\UI\Common\MyToolTipCtrl.h" />
     <ClInclude Include="..\src\UI\Common\NewNameDlg.h" />
@@ -186,7 +187,6 @@
     <ClInclude Include="..\src\UI\Common\PropertySheetSize.h" />
     <ClInclude Include="..\src\UI\Common\ScrollHelper.h" />
     <ClInclude Include="..\src\UI\Common\SelectionCtrl.h" />
-    <ClInclude Include="..\src\UI\Common\SelectionDlg.h" />
     <ClInclude Include="..\src\UI\Common\SplitterControl.h" />
     <ClInclude Include="..\src\UI\Common\StandardCmdLine.h" />
     <ClInclude Include="..\src\UI\Common\StaticBitmap.h" />

@@ -8,13 +8,19 @@
 //******************************************************************************
 #pragma once
 
+#include <boost/dynamic_bitset.hpp>
 #include <string>
+
+#include "Basic/UtilTime.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SelectionCtrl.h"
 #include "UI/Common/BioSIMListBox.h"
 #include "UI/Common/OpenDirEditCtrl.h"
 #include "UI/Common/MFCEditBrowseCtrlEx.h"
+#include "UI/Common/MFCPropertyGridDateTimeProperty.h"   
 #include "UI/Common/HtmlTree/XHtmlTree.h"
+
+
 
 class CCFLComboBox : public CComboBox
 {
@@ -487,8 +493,10 @@ public:
 		
 		AllowEdit(FALSE);
 
-		int ijndex = ToInt(strIndex);
-		SetOriginalValue(GetOptionText(int(index) - BASE_INDEX));
+		int index = ToInt(strIndex);
+		CString strValue = GetOptionText(int(index) - BASE_INDEX);
+		SetValue(strValue);
+		SetOriginalValue(strValue);
 	}
 
 	CIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
@@ -501,13 +509,13 @@ public:
 			
 
 		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-		{
 			AddOption(OPTIONS_VALUES[i]);
-		}
 
 		AllowEdit(FALSE);
 
-		SetOriginalValue(GetOptionText(int(index) - BASE_INDEX));
+		CString strValue = GetOptionText(int(index) - BASE_INDEX);
+		SetValue(strValue);
+		SetOriginalValue(strValue);
 	}
 
 	CString GetOptionText(int index)
@@ -542,11 +550,11 @@ public:
 };
 
 
-class CGridBrowseProperty : public CStdGridProperty
+class CStdBrowseProperty : public CStdGridProperty
 {
 public:
 
-	CGridBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
 		CStdGridProperty(strName, value, description, dwData)
 	{
 		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
@@ -564,11 +572,11 @@ public:
 	}
 };
 
-class CGridComboStringProperty : public CStdGridProperty
+class CStdComboStringProperty : public CStdGridProperty
 {
 public:
 
-	CGridComboStringProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+	CStdComboStringProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
 		CStdGridProperty(strName, value, description, dwData)
 	{
 		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
@@ -588,57 +596,68 @@ public:
 	bool m_bAddEmpty;
 };
 
-//template<int BASE_INDEX = 0, bool ADD_EMPTY = false>
-class CGridComboPosProperty : public CGridComboStringProperty
+class CStdComboPosProperty : public CStdComboStringProperty
 {
+
 public:
 
-	
-	//static CStringArrayEx OPTIONS_VALUES;
-	int BaseIndex()const{ return m_bAddEmpty?-1:0; }
-
-	CGridComboPosProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
-		CGridComboStringProperty(strName, "", description, options, dwData)
+	CStdComboPosProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+		CStdComboStringProperty(strName, "", description, options, dwData)
 	{
 		int index = WBSF::ToInt(value);
-		SetOriginalValue(GetOptionText(index - BaseIndex()));
+		CString strValue = GetOptionText(index);
+		SetValue(strValue);
+		SetOriginalValue(strValue);
 	}
 
 
-	CGridComboPosProperty(const std::string& strName, size_t index, const std::string& description, const std::string& options, size_t dwData) :
-		CGridComboStringProperty(strName, "", description, options, dwData)
+	CStdComboPosProperty(const std::string& strName, size_t index, const std::string& description, const std::string& options, size_t dwData) :
+		CStdComboStringProperty(strName, "", description, options, dwData)
 	{
-		SetOriginalValue(GetOptionText(int(index) - BaseIndex()));
+		SetValue(GetOptionText(int(index)));
+		SetOriginalValue(GetOptionText(int(index)));
 	}
 
 	CString GetOptionText(int index)
 	{
-		ASSERT(index >= BaseIndex() && index < m_lstOptions.GetSize());
-		POSITION pos = m_lstOptions.FindIndex(index - BaseIndex());
+		ASSERT(index >= 0 && index < m_lstOptions.GetSize());
+		POSITION pos = m_lstOptions.FindIndex(index);
 		return m_lstOptions.GetAt(pos);
 	}
 
 	int GetIndex()const
 	{
-		int index = m_pWndCombo->GetCurSel();
-		return index + BaseIndex();
+		int index = -1;
+		if (m_pWndCombo)
+		{
+			index = m_pWndCombo->GetCurSel();
+		}
+		else
+		{
+			CString value = GetValue();
+			for (int i = 0; i < GetOptionCount() && index == -1; i++)
+				if (value == GetOption(i))
+					index = i;
+		}
+
+		return index;
 	}
 
 	void SetIndex(int index)
 	{
-		CMFCPropertyGridProperty::SetValue(GetOptionText(index - BaseIndex()));
+		SetValue(GetOptionText(index));
 	}
 
-	virtual std::string get_string(){return WBSF::ToString(GetIndex());}
+	virtual std::string get_string(){ return WBSF::ToString(GetIndex()); }
 
 	virtual void set_string(std::string str)
 	{
 		int index = WBSF::ToInt(str);
-		if (index >= BaseIndex() && index < m_lstOptions.GetSize())
+		if (index >= 0 && index < m_lstOptions.GetSize())
 			SetIndex(index);
 	}
-
 };
+
 
 
 class CStdGriFilepathProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
@@ -675,6 +694,319 @@ public:
 };
 
 
+
+
+class CStdGriFolderProperty2 : public CStdGriInterface, public CMFCPropertyGridFileProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CStdGriFolderProperty2(const std::string& name, const std::string& folderName, const std::string& description, const std::string& filter, size_t no) :
+		CMFCPropertyGridFileProperty(CString(name.c_str()), CString(folderName.c_str()), (DWORD_PTR)no, CString(description.c_str()))
+	{
+		m_filter = filter;
+	}
+
+	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	virtual void OnClickButton(CPoint point);
+
+
+	std::string m_filter;
+};
+
+
+
+class CStdTRefProperty : public CStdGriInterface, public CMFCPropertyGridDateTimeProperty
+{
+	DECLARE_DYNAMIC(CStdTRefProperty)
+
+
+public:
+
+	static COleDateTime GetOleDatTime(std::string str)
+	{
+		COleDateTime v;
+
+		WBSF::CTRef TRef;
+		TRef.FromFormatedString(str, "%Y-%m-%d");
+		if (TRef.IsInit())
+		{
+			TRef.Transform(WBSF::CTM(WBSF::CTM::HOURLY));
+			v = COleDateTime(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0);
+		}
+
+		return v;
+	}
+
+	
+	CStdTRefProperty(const std::string& name, const std::string& value, const std::string& description, const std::string& options, size_t no) :
+		CMFCPropertyGridDateTimeProperty(CString(name.c_str()), GetOleDatTime(value), CString(description.c_str()), (DWORD)no)
+	{
+	}
+
+	virtual std::string get_string()
+	{
+		COleDateTime v = GetValue();
+		WBSF::CTRef TRef(v.GetYear(), v.GetMonth() - 1, v.GetDay() - 1);
+
+		return TRef.GetFormatedString("%Y-%m-%d");
+	}
+
+	virtual void set_string(std::string str)
+	{
+		WBSF::CTRef TRef;
+		TRef.FromFormatedString(str, "%Y-%m-%d");
+		if (TRef.IsInit())
+		{
+			TRef.Transform(WBSF::CTM(WBSF::CTM::HOURLY));
+			COleDateTime v(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0);
+			SetValue(v);
+			SetOriginalValue(v);
+		}
+
+	}
+};
+
+
+
+
+class CStdGeoRectProperty : public CStdGridProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CStdGeoRectProperty(const std::string& name, const std::string& value, const std::string& description, size_t no);
+
+};
+
+
+class CStdPasswordProperty : public CStdGridProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CStdPasswordProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
+		CStdGridProperty(name, value, description, no)
+	{
+	}
+
+	virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
+	{
+		CEdit* pWndEdit = new CEdit;
+
+		DWORD dwStyle = WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL | ES_PASSWORD;
+
+		if (!m_bEnabled || !m_bAllowEdit)
+			dwStyle |= ES_READONLY;
+
+		pWndEdit->Create(dwStyle, rectEdit, m_pWndList, AFX_PROPLIST_ID_INPLACE);
+		pWndEdit->SetPasswordChar(_T('*'));
+		bDefaultFormat = TRUE;
+
+		return pWndEdit;
+	}
+
+	virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	virtual CString FormatProperty()
+	{
+		CString value = GetValue();
+		for (int i = 0; i < value.GetLength(); i++)
+			value.SetAt(i, '*');
+
+		return value;
+	}
+
+	virtual BOOL OnUpdateValue()
+	{
+		return CStdGridProperty::OnUpdateValue();
+	}
+
+
+	virtual BOOL OnEndEdit()
+	{
+		return CStdGridProperty::OnEndEdit();
+	}
+};
+
+class CStdReadOnlyProperty : public CStdGridProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+	
+	CStdReadOnlyProperty(const std::string& name, const std::string& value) :
+		CStdGridProperty(name, value, "", -1)
+	{
+		
+
+		m_bAllowEdit = false;
+	}
+};
+
+class CStdPossibleValues : public boost::dynamic_bitset<size_t>
+{
+public:
+
+	CStdPossibleValues(const std::string& possibleValues, const char* sep = "|;") :
+		m_possibleValues(possibleValues, sep)
+	{
+		resize(m_possibleValues.size(), false);
+	}
+
+	std::string GetSelection(const char sep = '|')const
+	{
+		std::string str;
+		if (!none() && !all())
+		{
+			for (size_type i = 0; i != size(); i++)
+			{
+				if (test(i))
+				{
+					if (!str.empty())
+						str += sep;
+
+					str += m_possibleValues[i];
+				}
+			}
+		}
+
+		return str;
+	}
+
+	void SetSelection(const std::string& str, const char* sep = "|;")
+	{
+		reset();
+
+		if (str.empty())
+		{
+			set();
+		}
+		else
+		{
+			WBSF::StringVector selection(str, sep);
+			for (WBSF::StringVector::const_iterator it = selection.begin(); it != selection.end(); it++)
+			{
+				size_t pos = m_possibleValues.Find(*it, false);
+				if (pos < size())
+				{
+					set(pos);
+				}
+			}
+		}
+	}
+
+
+
+	std::string GetBinary()const
+	{
+		std::string str;
+
+		for (size_type i = size() - 1; i != NOT_INIT; i--)
+			str += test(i) ? '1' : '0';
+
+		return str;
+	}
+
+	void SetBinary(const std::string& str)
+	{
+		reset();
+
+		for (size_type i = std::min(size(), str.length()) - 1; i != NOT_INIT; i--)
+			set(i, str[str.length() - i - 1] != '0');
+	}
+
+protected:
+
+	WBSF::StringVector m_possibleValues;
+};
+
+
+class CStdGriFilepathProperty2 : public CStdGriInterface, public CMFCPropertyGridFileProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+
+	CStdGriFilepathProperty2(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
+		bool bOpen = TRUE, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ENABLESIZING)
+		: CMFCPropertyGridFileProperty(CString(name.c_str()), bOpen, CString(fileName.c_str()), NULL, dwFlags, CString(filter.c_str()), CString(description.c_str()), (DWORD_PTR)no)
+	{}
+
+	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+};
+
+class CStdBrowseProperty2 : public CStdGridProperty
+{
+public:
+
+	CStdBrowseProperty2(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+		CStdGridProperty(strName, value, description, dwData)
+	{
+
+		if (options.find('=') != NOT_INIT)
+		{
+			WBSF::StringVector tmp(options, "|=");
+			ASSERT(tmp.size() % 2 == 0);
+			for (size_t i = 0; i < tmp.size(); i += 2)
+			{
+				m_possibleValues += i != 0 ? "|" : "";
+				m_convertValues += i != 0 ? "|" : "";
+
+				m_possibleValues += tmp[i];
+				m_convertValues += tmp[i + 1];
+			}
+		}
+		else
+		{
+			m_possibleValues = options;
+			m_convertValues = options;
+		}
+
+
+
+		SetValue(CString(value.c_str()));
+		SetOriginalValue(CString(value.c_str()));
+	}
+
+	virtual BOOL HasButton() const{ return TRUE; }
+	virtual void OnClickButton(CPoint point)
+	{
+		CSelectionDlg dlg(m_pWndList);
+		CStdPossibleValues tmp(m_possibleValues);
+		tmp.SetSelection(get_string());
+
+		dlg.m_possibleValues = m_convertValues;
+		dlg.m_selection = tmp.GetBinary();
+
+		if (dlg.DoModal() == IDOK)
+		{
+			tmp.SetBinary(dlg.m_selection);
+			set_string(tmp.GetSelection());
+		}
+
+	}
+
+	std::string SelectionToBinary(std::string str)
+	{
+		std::string m_possibleValues;
+	}
+
+	virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	std::string m_possibleValues;
+	std::string m_convertValues;
+};
 
 //**************************************************************************************************************************************
 //Tab control with icon 24x24

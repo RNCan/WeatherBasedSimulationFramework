@@ -143,6 +143,7 @@ namespace WBSF
 
 			if (m_pStation != NULL && m_pStation->IsInit())
 			{
+				m_enableUpdate = FALSE;
 				WBSF::CRegistry registry("ColumnWidth");
 				int colWidth = registry.GetValue<int>("Month", 90);
 				SetColWidth(-1, colWidth);
@@ -171,6 +172,7 @@ namespace WBSF
 					}
 				}
 
+				m_enableUpdate = TRUE;
 				Invalidate();
 			}
 			else
@@ -209,7 +211,7 @@ namespace WBSF
 	void CNormalsDataGridCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (m_pStation != NULL)
+		if (m_pStation != NULL&&m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();

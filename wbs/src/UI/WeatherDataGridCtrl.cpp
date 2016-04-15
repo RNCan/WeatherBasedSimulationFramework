@@ -195,6 +195,8 @@ namespace WBSF
 						col++;
 					}
 				}
+				
+				m_enableUpdate = TRUE;
 			}
 			else
 			{
@@ -202,7 +204,7 @@ namespace WBSF
 				SetNumberRows(0, FALSE);
 			}
 
-			m_enableUpdate = TRUE;
+			
 			Invalidate();
 
 		}
@@ -574,8 +576,6 @@ namespace WBSF
 				TVarH var = format[m_colMap[col]].m_var;
 				*string = CString(VARIABLES_TOOLTIPS[var].c_str());
 
-				//CTRef TRef = GetTRef(row);
-				//*string = CString(TRef.GetFormatedString().c_str());
 			}
 		}
 

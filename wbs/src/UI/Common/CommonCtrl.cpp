@@ -10,7 +10,7 @@
 //****************************************************************************
 #include "stdafx.h"
 #include "Basic/Statistic.h"
-#include "Basic/UtilTime.h"
+#include "Basic/GeoBasic.h"
 #include "UI/Common/CommonCtrl.h"
 #include "WeatherBasedSimulationString.h"
 #include "WeatherBasedSimulationUI.h"
@@ -1184,6 +1184,55 @@ void CSplittedToolBar::AdjustLocations()
 	UpdateTooltips();
 	RedrawCustomizeButton();
 }
+
+//*********************************************************************************************************
+IMPLEMENT_DYNAMIC(CStdTRefProperty, CMFCPropertyGridProperty)
+
+void CStdGriFolderProperty2::OnClickButton(CPoint point)
+
+{
+	CString strFolder = GetValue();
+	if (strFolder.IsEmpty())
+		strFolder = CStringA(WBSF::GetApplicationPath().c_str());
+
+	CString strResult;
+
+	if (afxShellManager->BrowseForFolder(strResult, m_pWndList, strFolder, 0, BIF_USENEWUI))//BIF_NEWDIALOGSTYLE
+	{
+		if (strResult != strFolder)
+			SetValue(strResult);
+	}
+
+}
+
+CStdGeoRectProperty::CStdGeoRectProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
+CStdGridProperty(name, no, true)
+{
+
+	WBSF::CGeoRect rect(-180, -90, 180, 90, WBSF::PRJ_WGS_84);
+	if (!value.empty())
+	{
+		std::stringstream tmp(value);
+		rect << tmp;
+	}
+
+	CStdGridProperty* pProp = NULL;
+
+	pProp = new CStdGridProperty("Xmin", rect.m_xMin, "Specifies the window's height", m_dwData * 1000 + 1);
+	AddSubItem(pProp);
+
+	pProp = new CStdGridProperty("Xmax", rect.m_xMax, "Specifies the window's width", m_dwData * 1000 + 2);
+	AddSubItem(pProp);
+
+	pProp = new CStdGridProperty("Ymin", rect.m_yMin, "Specifies the window's height", m_dwData * 1000 + 3);
+	AddSubItem(pProp);
+
+	pProp = new CStdGridProperty("Ymax", rect.m_yMax, "Specifies the window's width", m_dwData * 1000 + 4);
+	AddSubItem(pProp);
+}
+
+
+//*********************************************************************************************************
 
 
 //**** pour créer des menu à partir de string  ********
