@@ -432,9 +432,9 @@ BOOL CBioSIMApp::InitInstance()
 		ERMsg msg;
 
 		//CSCCallBack callback;
-		CProgressStepDlg dlg(m_pMainWnd);
+		CProgressStepDlg dlg;
 		if( cmdInfo.Is(CStdCmdLine::SHOW) )
-			dlg.Create();
+			dlg.Create(m_pMainWnd);
 
 		std::string absolutePath = CStringA(UtilWin::GetAbsolutePath( GetCurrentDirectory(), cmdInfo.m_strFileName));
 		CExecutablePtr projectPtr;
@@ -449,7 +449,9 @@ BOOL CBioSIMApp::InitInstance()
 		if( msg)
 		{
 			GetFM().SetProjectPath( GetPath(absolutePath) );
-			msg += projectPtr->Execute(GetFM(), dlg.GetCallback() );
+
+			CProgressStepDlgParam param(pProject, NULL, &GetFM());
+			msg += dlg.Execute(CBioSIMDoc::ExecuteTask, &param);
 		}
 			
 
@@ -537,7 +539,7 @@ void CBioSIMApp::ParseCommandLine(CCommandLineInfo& rCmdInfo)
 		LPCTSTR pszParam = __targv[i];
 		BOOL bFlag = FALSE;
 		BOOL bLast = ((i + 1) == __argc);
-		if (pszParam[0] == '/')
+		if (pszParam[0] == '/' || pszParam[0] == '-')
 		{
 			// remove flag specifier
 			bFlag = TRUE;

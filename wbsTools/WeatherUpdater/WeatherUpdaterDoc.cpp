@@ -263,33 +263,6 @@ std::string CWeatherUpdaterDoc::GetUpdaterList()const
 }
 
 
-// CBioSIMDoc commands
-UINT CWeatherUpdaterDoc::ExecuteTasks(void* pParam)
-{
-	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
-	CTasksProject* pProject = (CTasksProject*)pMyParam->m_pThis;
-
-	ERMsg* pMsg = pMyParam->m_pMsg;
-	CCallback* pCallback = pMyParam->m_pCallback;
-
-	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
-	TRY
-	{
-		*pMsg = pProject->Execute(*pCallback);
-	}
-	CATCH_ALL(e)
-	{
-		*pMsg = SYGetMessage(*e);
-	}
-	END_CATCH_ALL
-
-	CoUninitialize();
-
-	if (*pMsg)
-		return 0;
-
-	return -1;
-}
 
 
 void CWeatherUpdaterDoc::OnExecute()
@@ -309,7 +282,7 @@ void CWeatherUpdaterDoc::OnExecute()
 		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 		CProgressStepDlgParam param(&m_project);
 
-		msg = progressWnd.Execute(ExecuteTasks, &param);
+		msg = progressWnd.Execute(CWeatherUpdaterApp::ExecuteTasks, &param);
 		m_lastLog = GetOutputString(msg, progressWnd.GetCallback(), true);
 
 		

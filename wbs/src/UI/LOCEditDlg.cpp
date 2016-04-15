@@ -612,8 +612,8 @@ namespace WBSF
 			CLocationVector locations;
 			m_grid.GetData(locations);
 
-			CProgressStepDlg progressDlg(this);
-			progressDlg.Create();
+			CProgressStepDlg progressDlg;
+			progressDlg.Create(this);
 			
 			
 			string filePath = CStringA(dlg.m_gridFilePath);

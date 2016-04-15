@@ -960,6 +960,8 @@
     <Image Include="..\src\res\ProgressToolbar.png">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="..\src\res\WeatherUpdater.ico" />
+    <Image Include="..\src\res\WeatherUpdater.ico">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

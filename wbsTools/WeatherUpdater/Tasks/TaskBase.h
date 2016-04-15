@@ -5,8 +5,6 @@
 
 #include "Basic/ERMsg.h"
 #include "Basic/Callback.h"
-//#include "Basic/WeatherStation.h"
-//#include "Basic/UtilStd.h"
 #include "Basic/UtilTime.h"
 
 
@@ -156,6 +154,7 @@ namespace WBSF
 		bool CopyToClipBoard()const;
 		bool PasteFromClipBoard();
 
+		static void SetAppVisible(bool bVisible){ APP_VISIBLE = bVisible; }
 
 	protected:
 
@@ -172,6 +171,8 @@ namespace WBSF
 
 		//last temporary message execution, not part of the class
 		std::string m_lastMsg;
+
+		static bool APP_VISIBLE;
 	};
 
 	//****************************************************************************************************************************

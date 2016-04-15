@@ -18,6 +18,11 @@
 class CWeatherUpdaterApp : public CWinAppEx
 {
 public:
+
+	static UINT ExecuteTasks(void* pParam);
+
+
+
 	CWeatherUpdaterApp();
 
 	virtual BOOL InitInstance();

@@ -629,9 +629,9 @@ void CMatchStationDoc::OnValidation()
 {
 	ERMsg msg;
 
-	CProgressStepDlg dlg(AfxGetMainWnd());
-	dlg.Create();
-	dlg.DestroyWindow();
+	//CProgressStepDlg dlg;
+	//dlg.Create(AfxGetMainWnd());
+	//dlg.DestroyWindow();
 
 	SetOutputText("La vérification s'affichera ici un jour...");
 

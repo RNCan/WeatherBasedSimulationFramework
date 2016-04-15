@@ -11,45 +11,6 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 
-IMPLEMENT_DYNCREATE(CReadOnlyEditView, CEditView)
-BEGIN_MESSAGE_MAP(CReadOnlyEditView, CEditView)
-	ON_WM_CREATE()
-	ON_WM_CTLCOLOR()
-END_MESSAGE_MAP()
-
-CReadOnlyEditView::CReadOnlyEditView()
-{
-	// Paint window white instead of ('readonly window') grey 
-	m_Cbrush.CreateSolidBrush(GetSysColor(COLOR_WINDOW));
-}
-
-
-BOOL CReadOnlyEditView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	cs.style |= ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL;
-	return CEditView::PreCreateWindow(cs); 
-}
-
-HBRUSH CReadOnlyEditView::CtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
-{
-	// Set window background to white instead of ('readonly window') grey 
-	pDC->SetBkColor(GetSysColor(COLOR_WINDOW));
-	return m_Cbrush;
-}
-
-int CReadOnlyEditView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
-	if (CEditView::OnCreate(lpCreateStruct) == -1)
-		return -1;
-
-	m_font.CreateStockObject(DEFAULT_GUI_FONT);
-	SetFont(&m_font);
-	SetTabStops(8);
-
-	return 0;
-}
-
-
 
 //******************************************************************************************************************************
 
@@ -82,8 +43,6 @@ CProgressWnd::~CProgressWnd()
 {
 }
 
-//CEdit& CProgressWnd::GetMessageCtrl(){ return ((CEditView*)m_wndSplitter.GetPane(0, 0))->GetEditCtrl(); }
-
 /////////////////////////////////////////////////////////////////////////////
 // CWorkspaceBar message handlers
 
@@ -98,13 +57,13 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
-	m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 250);
-	m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT, 250);
+	m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 200);
+	m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT);
 	
 	
 	// Load view images:
-	m_toolbarCtrl.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_CMN_PROGRESS_TOOLBAR);
-	m_toolbarCtrl.LoadToolBar(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Is locked */);
+	VERIFY(m_toolbarCtrl.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_CMN_PROGRESS_TOOLBAR));
+	VERIFY(m_toolbarCtrl.LoadToolBar(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Is locked */));
 	m_toolbarCtrl.CleanUpLockedImages();//????
 	m_toolbarCtrl.LoadBitmap(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Locked */);
 	m_toolbarCtrl.SetPaneStyle(m_toolbarCtrl.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
@@ -113,6 +72,32 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_toolbarCtrl.SetRouteCommandsViaFrame(FALSE);
 
 	return 0;
+}
+
+
+void CProgressWnd::PreSubclassWindow()
+{
+	CWnd::PreSubclassWindow();
+
+	_AFX_THREAD_STATE* pThreadState = AfxGetThreadState();
+	if (pThreadState->m_pWndInit == NULL)
+	{
+		VERIFY(m_progressListCtrl.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_NOSORTHEADER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_CTRL));
+
+		CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
+		m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 200);
+		m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT);
+
+		// Load view images:
+		VERIFY(m_toolbarCtrl.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_CMN_PROGRESS_TOOLBAR));
+		VERIFY(m_toolbarCtrl.LoadToolBar(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Is locked */));
+		m_toolbarCtrl.CleanUpLockedImages();//????
+		m_toolbarCtrl.LoadBitmap(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Locked */);
+		m_toolbarCtrl.SetPaneStyle(m_toolbarCtrl.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+		m_toolbarCtrl.SetPaneStyle(m_toolbarCtrl.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+		m_toolbarCtrl.SetOwner(this);
+		m_toolbarCtrl.SetRouteCommandsViaFrame(FALSE);
+	}
 }
 
 void CProgressWnd::OnSize(UINT nType, int cx, int cy)
@@ -125,62 +110,19 @@ void CProgressWnd::OnSize(UINT nType, int cx, int cy)
 
 void CProgressWnd::AdjustLayout()
 {
-	if (GetSafeHwnd() == NULL)
-	{
+	if (GetSafeHwnd() == NULL || m_toolbarCtrl.GetSafeHwnd()==NULL )
 		return;
-	}
 
 	CRect rect;
 	GetClientRect(rect);
 
 	int cyTlb = m_toolbarCtrl.CalcFixedLayout(FALSE, TRUE).cy;
-	
-
+		
 	m_toolbarCtrl.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER );
 	m_progressListCtrl.SetWindowPos(NULL, rect.left, rect.top + cyTlb, rect.Width(), rect.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	m_progressListCtrl.SetColumnWidth(1, rect.Width() - m_progressListCtrl.GetColumnWidth(0));
 
-	//if (m_bExecute)
-	//{
-	//	m_wndSplitter.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-
-	//	int progresssWide = 100;
-	//	//m_wndSplitter.SetColumnInfo(0, 0, 0);
-	//	m_wndSplitter.SetColumnInfo(0, (rectClient.Width() - progresssWide), 25);
-	//	m_wndSplitter.SetColumnInfo(1, progresssWide, 25);
-	//	
-	//	//m_progressCtrl.SetColumnWidth(1, rectClient.Width() - m_progressCtrl.GetColumnWidth(0) - 22);
-	//}
-	//else
-	//{
-	//	m_wndSplitter.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-	//	//m_wndSplitter.SetColumnInfo(0, 0, 0);
-	//	m_wndSplitter.SetColumnInfo(0, rectClient.Width(), 25);
-	//	m_wndSplitter.SetColumnInfo(1, 0, 0);
-	//	
-	//m_progressCtrl.SetColumnWidth(1, rectClient.Width() - m_progressCtrl.GetColumnWidth(0) - 22);
-	//}
-	
 }
-
-
-//
-//
-//void CProgressWnd::OnChangeVisualStyle()
-//{
-//	m_toolbarCtrl.CleanUpLockedImages();
-//	m_toolbarCtrl.LoadBitmap(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Locked */);
-//}
-
-//
-//BOOL CProgressWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
-//{
-//	//if (GetFocus() == m_progressCtrl.GetSafeHwnd())
-////	if (m_progressCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo) )
-//	//	return TRUE;
-//
-//
-//	return CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
-//}
 
 
 void CProgressWnd::OnTimer(UINT_PTR nIDEvent)
@@ -320,7 +262,7 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 
 ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam* pParam)
 {
-	ASSERT(GetSafeHwnd());
+	//ASSERT(GetSafeHwnd());
 
 	ERMsg msg;
 
@@ -335,8 +277,8 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 	pParam->m_pCallback = &m_callback;
 	pParam->m_pMsg = &msg;
 
-	SetTimer(1, 200, NULL);
-	//SetTimer(2, 2000, NULL);
+	if (GetSafeHwnd())
+		SetTimer(1, 200, NULL);
 
 	//create thread 
 	m_ptrThread = AfxBeginThread(pfnThreadProc, pParam, 0, 0, CREATE_SUSPENDED);
@@ -363,22 +305,18 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 			}
 		}
 	} 
-	//}
 
-
-	KillTimer(1);
-//	KillTimer(2);
+	if (GetSafeHwnd())
+		KillTimer(1);
 
 	//clean callback
 	while (!m_callback.GetTasks().empty())
 		m_callback.PopTask();
 	
-	while (m_progressListCtrl.GetItemCount()>0)
+	while (GetSafeHwnd() && m_progressListCtrl.GetItemCount()>0)
 		m_progressListCtrl.DeleteItem(m_progressListCtrl.GetItemCount() - 1);
 		
-	//m_messageCtrl.SetWindowText(NULL);
-	m_progressListCtrl.Invalidate();
-	//m_messageCtrl.Invalidate();
+	//m_progressListCtrl.Invalidate();
 	
 	//clean up memory
 	delete m_ptrThread;

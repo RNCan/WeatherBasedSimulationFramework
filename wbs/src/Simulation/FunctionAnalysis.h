@@ -27,6 +27,7 @@ namespace WBSF
 	class CAnalysisDB;
 	
 	MTFunctionI* CreateGetJDayFct();
+	MTFunctionI* CreateDropYearFct();
 
 	typedef CModelOutputVariableDef CFunctionDef;
 	typedef CModelOutputVariableDefVector CFunctionDefArray;

@@ -129,6 +129,7 @@ namespace WBSF
 		{
 			MTParser parser;
 			parser.defineFunc(CreateGetJDayFct());
+			parser.defineFunc(CreateDropYearFct());
 			parser.defineConst(_T("VMISS"), VMISS);
 			parser.enableAutoVarDefinition(true);
 			parser.compile(UtilWin::Convert(m_functionVector[i].m_equation));
@@ -206,6 +207,7 @@ namespace WBSF
 		{
 			MTParser parser;
 			parser.defineFunc(CreateGetJDayFct());
+			parser.defineFunc(CreateDropYearFct());
 			parser.defineConst(_T("VMISS"), VMISS);
 			parser.enableAutoVarDefinition(true);
 			parser.compile(UtilWin::Convert(functionVector[i].m_equation));

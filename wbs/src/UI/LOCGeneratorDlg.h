@@ -72,7 +72,7 @@ namespace WBSF
 		CString m_dailyDBName;
 		CString m_hourlyDBName;
 		CWVariables m_filter;
-
+		//TGenerationMethod m_method;
 
 		// Generated message map functions
 
@@ -206,7 +206,8 @@ namespace WBSF
 		CGeoRectCtrl m_rectCtrl;
 
 
-
+		static UINT ExecuteGenerateFromDEM(void* pParam);
+		static UINT ExecuteGenerateFromWeather(void* pParam);
 	};
 
 }

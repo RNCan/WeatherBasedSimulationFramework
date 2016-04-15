@@ -1,22 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.Update" -e -show -l "E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.log"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>"E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.Update" -e -show -l "E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.log"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>"E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.Update" -e -show -l "E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.log"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>$(OutDir)..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>"D:\Travaux\Simon Trudeau\Update\TéléchargerCanada2015-2016.Update"  -l "D:\Travaux\Simon Trudeau\Update\TéléchargerCanada2015-2016.log" </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.Update" -e -show -l "E:\Travaux\Install\DemoBioSIM\Update\Météo-a-jour.log"</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

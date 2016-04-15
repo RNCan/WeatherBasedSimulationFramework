@@ -250,6 +250,8 @@ namespace WBSF
 	{
 		MTParser parser;
 		parser.defineFunc(CreateGetJDayFct());
+		parser.defineFunc(CreateDropYearFct());
+		
 		parser.defineConst(_T("VMISS"), VMISS);
 
 		CMTParserInfoDlg dlg(&parser, this);
@@ -274,6 +276,8 @@ namespace WBSF
 			functionDef.m_title = info.m_variables[row].m_title;
 			functionDef.m_units = info.m_variables[row].m_units;
 			functionDef.m_equation = info.m_variables[row].m_name;
+			functionDef.m_climaticVariable = info.m_variables[row].m_climaticVariable;
+			functionDef.m_TM = info.m_variables[row].m_TM;
 
 			m_functionCtrl.Add(functionDef);
 		}

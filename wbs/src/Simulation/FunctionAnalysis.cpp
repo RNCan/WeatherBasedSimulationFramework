@@ -31,59 +31,107 @@ namespace WBSF
 {
 
 
-class GetJDayFct : public MTFunctionI
-{
-
-public:
-
-	GetJDayFct(){}
-
-	//void SetTM( CTM TM){ m_TM = TM; };
-
-protected:
-
-	GetJDayFct(const GetJDayFct& obj){	/*m_TM = obj.m_TM;*/ }
-	virtual const MTCHAR* getSymbol(){ return _T("JDay"); }
-	virtual const MTCHAR* getHelpString(){ return _T("JDay(time reference)"); }
-	virtual const MTCHAR* getDescription()	{ return _T("Return the Julian day of a time reference"); }
-	virtual int getNbArgs(){ return 1; }
-	virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
+	class GetJDayFct : public MTFunctionI
 	{
-		ASSERT(nbArgs == 1);
-		int iArg = (int)pArg[0];
 
-		MTDOUBLE val = 0;
+	public:
 
+		GetJDayFct(){}
 
-		if (iArg < 0 || iArg>365)
+		//void SetTM( CTM TM){ m_TM = TM; };
+
+	protected:
+
+		GetJDayFct(const GetJDayFct& obj){	/*m_TM = obj.m_TM;*/ }
+		virtual const MTCHAR* getSymbol(){ return _T("JDay"); }
+		virtual const MTCHAR* getHelpString(){ return _T("JDay(time reference)"); }
+		virtual const MTCHAR* getDescription()	{ return _T("Return the Julian day of a time reference"); }
+		virtual int getNbArgs(){ return 1; }
+		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
 		{
-			//we assume that JDay is call only on daily values
-			CTRef ref;
-			ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
+			ASSERT(nbArgs == 1);
+			int iArg = (int)pArg[0];
 
-			val = MTDOUBLE(ref.GetJDay() + 1);
-		}
-		else
-		{
-			//we assume daily value in OVERALL_YEAR mode
-			val = iArg;
-		}
+			MTDOUBLE val = 0;
 
-		return val;
-	}
+
+			if (iArg < 0 || iArg>365)
+			{
+				//we assume that JDay is call only on daily values
+				CTRef ref;
+				ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
+
+				val = MTDOUBLE(ref.GetJDay() + 1);
+			}
+			else
+			{
+				//we assume daily value in OVERALL_YEAR mode
+				val = iArg;
+			}
+
+			return val;
+		}
 
 	
-	virtual MTFunctionI* spawn(){ return new GetJDayFct(); }
+		virtual MTFunctionI* spawn(){ return new GetJDayFct; }
 
 
 
-};
-
-
-
+	};
 	
 	MTFunctionI* CreateGetJDayFct(){ return new GetJDayFct; }
 
+
+	class DropYearFct : public MTFunctionI
+	{
+
+	public:
+
+		DropYearFct(){}
+
+		//void SetTM( CTM TM){ m_TM = TM; };
+
+	protected:
+
+		DropYearFct(const DropYearFct& obj){	/*m_TM = obj.m_TM;*/ }
+		virtual const MTCHAR* getSymbol(){ return _T("DropYear"); }
+		virtual const MTCHAR* getHelpString(){ return _T("DropYear(time reference)"); }
+		virtual const MTCHAR* getDescription()	{ return _T("Return time reference without year of a time reference"); }
+		virtual int getNbArgs(){ return 1; }
+		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
+		{
+			ASSERT(nbArgs == 1);
+			//int iArg = (int)pArg[0];
+
+			MTDOUBLE val = 0;
+
+
+			//if (iArg < 0 || iArg>365)
+			//{
+				//we assume that JDay is call only on daily values
+			CTRef ref(pArg[0]);
+			//ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
+			ref.Transform(CTM(ref.GetTM().Type(), CTM::OVERALL_YEARS));
+
+			//ref.operator const double
+			val = (double)ref;//MTDOUBLE(ref.GetJDay() + 1);
+			//}
+			//else
+			//{
+			//	//we assume daily value in OVERALL_YEAR mode
+			//	val = iArg;
+			//}
+
+			return val;
+		}
+
+
+		virtual MTFunctionI* spawn(){ return new DropYearFct; }
+
+	};
+
+	MTFunctionI* CreateDropYearFct(){ return new DropYearFct; }
+	
 
 	class CPredicateVariableDef
 	{
@@ -166,6 +214,7 @@ protected:
 		ERMsg msg;
 		m_pParser->enableAutoVarDefinition(true);
 		m_pParser->defineFunc(new GetJDayFct);
+		m_pParser->defineFunc(new DropYearFct);
 		m_pParser->defineConst(_T("VMISS"), VMISS);
 
 		try

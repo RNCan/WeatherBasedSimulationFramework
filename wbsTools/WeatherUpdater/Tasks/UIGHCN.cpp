@@ -56,8 +56,7 @@ const char* CUIGHCND::SERVER_NAME = "ftp.ncdc.noaa.gov";
 const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
 
 //*********************************************************************
-//const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Countries", "States", "Extents", "DEM", "UseDEMElevation", "ShowFTPTransfer", "ExtractWind", "ExtractSnow" };
-const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Show" };//"BoundingBox" 
+const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "ShowProgress" };
 const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_BOOL };
 const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
 const UINT CUIGHCND::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GHCND;
@@ -184,7 +183,7 @@ ERMsg CUIGHCND::FTPDownload(const string& server, const string& inputFilePath, c
 
 	string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
 
-	UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
+	UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
 
 	DWORD exitCode=0;
 	msg = WinExecWait(command, GetTempPath(), show, &exitCode);

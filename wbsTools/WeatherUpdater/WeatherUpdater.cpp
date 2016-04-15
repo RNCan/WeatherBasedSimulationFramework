@@ -58,10 +58,11 @@
 #include "MainFrm.h"
 
 #include "WeatherUpdaterDoc.h"
-#include "UI/Common/AboutDlg.h"
+
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
 #include "WeatherUpdaterCmdLine.h"
+#include "UI/Common/AboutDlg.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 
@@ -189,19 +190,23 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	{
 		ERMsg msg;
 
-		CProgressStepDlg dlg(m_pMainWnd);
+		CProgressStepDlg dlg;
 		if (cmdInfo.Is(CStdCmdLine::SHOW))
-			dlg.Create();
+			dlg.Create(m_pMainWnd);
+
+		//don't show sub application is this one ise hidden
+		CTaskBase::SetAppVisible(cmdInfo.Is(CStdCmdLine::SHOW));
 		
 		CString curDir = UtilWin::GetCurrentDirectory();
 		std::string absolutePath = CStringA(UtilWin::GetAbsolutePath(curDir, cmdInfo.m_strFileName));
 
 		WBSF::CTasksProject project;
-
 		msg += project.Load(absolutePath);
 		if (msg)
-			msg += project.Execute(dlg.GetCallback());
-
+		{
+			CProgressStepDlgParam param(&project);
+			msg += dlg.Execute(ExecuteTasks, &param);
+		}
 
 		if (cmdInfo.Is(CStdCmdLine::LOG))
 		{
@@ -327,3 +332,27 @@ int CWeatherUpdaterApp::ExitInstance()
 	return CWinAppEx::ExitInstance();
 }
 
+
+// commands
+UINT CWeatherUpdaterApp::ExecuteTasks(void* pParam)
+{
+	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+	CTasksProject* pProject = (CTasksProject*)pMyParam->m_pThis;
+
+	ERMsg* pMsg = pMyParam->m_pMsg;
+	CCallback* pCallback = pMyParam->m_pCallback;
+
+	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+	TRY
+		*pMsg = pProject->Execute(*pCallback);
+	CATCH_ALL(e)
+		*pMsg = UtilWin::SYGetMessage(*e);
+	END_CATCH_ALL
+
+	CoUninitialize();
+
+	if (*pMsg)
+		return 0;
+
+	return -1;
+}

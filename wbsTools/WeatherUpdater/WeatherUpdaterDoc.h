@@ -75,7 +75,7 @@ protected:
 	std::string m_lastLog;
 
 	bool m_bExecute;
-	static UINT ExecuteTasks(void* pParam);
+	
 	
 #ifdef _DEBUG
 	virtual void AssertValid() const;

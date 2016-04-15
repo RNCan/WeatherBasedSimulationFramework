@@ -112,10 +112,10 @@ namespace WBSF
 
 		command += (direction == D_DOWNLOAD ? "-Download" : "-Upload");
 
-
+		UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
 
 		DWORD exitCode;
-		msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), as<bool>(SHOW_PROGRESS)?SW_SHOW:SW_HIDE, &exitCode);
+		msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
 		if (msg && exitCode != 0)
 			msg.ajoute("FTPTransfer as exit with error code " + ToString((int)exitCode));
 

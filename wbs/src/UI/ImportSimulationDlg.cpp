@@ -372,8 +372,8 @@ namespace WBSF
 		GetImportFileFromInterface();
 
 
-		CProgressStepDlg progressDlg(this);
-		progressDlg.Create();
+		CProgressStepDlg progressDlg;
+		progressDlg.Create(this);
 
 		ERMsg msg = m_importSimulation.UpdateData(WBSF::GetFM(), progressDlg.GetCallback());
 

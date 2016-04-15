@@ -162,31 +162,31 @@ namespace WBSF
 
 			if (!m_threadTasks[0].empty())
 			{
-				if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
-				{
-					//try to limit the number of message sent
-					if (int(GetCurrentStepPercent()) != int(m_threadTasks[0].top().m_oldPos))
-					{
-						PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-						m_threadTasks[0].top().m_oldPos = GetCurrentStepPercent();
-					}
+				//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
+				//{
+				//	//try to limit the number of message sent
+				//	if (int(GetCurrentStepPercent()) != int(m_threadTasks[0].top().m_oldPos))
+				//	{
+				//		PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
+				//		m_threadTasks[0].top().m_oldPos = GetCurrentStepPercent();
+				//	}
 
-					MSG winMsg;
-					while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
-					{
-						if ((winMsg.message != WM_QUIT)
-							&& (winMsg.message != WM_CLOSE)
-							&& (winMsg.message != WM_DESTROY)
-							&& (winMsg.message != WM_NCDESTROY)
-							&& (winMsg.message != WM_HSCROLL)
-							&& (winMsg.message != WM_VSCROLL))
-						{
-							TranslateMessage((LPMSG)&winMsg);
-							DispatchMessage((LPMSG)&winMsg);
-						}
-					}
+				//	MSG winMsg;
+				//	while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
+				//	{
+				//		if ((winMsg.message != WM_QUIT)
+				//			&& (winMsg.message != WM_CLOSE)
+				//			&& (winMsg.message != WM_DESTROY)
+				//			&& (winMsg.message != WM_NCDESTROY)
+				//			&& (winMsg.message != WM_HSCROLL)
+				//			&& (winMsg.message != WM_VSCROLL))
+				//		{
+				//			TranslateMessage((LPMSG)&winMsg);
+				//			DispatchMessage((LPMSG)&winMsg);
+				//		}
+				//	}
 
-				}
+				//}
 
 				if (GetUserCancel())//&& !m_bCancelled
 				{

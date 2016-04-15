@@ -3,7 +3,6 @@
 
 #include "Basic/Callback.h"
 #include "UI/Common/ProListCtrl.h"
-//#include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/CommonCtrl.h"
 
 
@@ -40,28 +39,6 @@ class CProgressToolBar : public CMFCToolBar
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
-class CReadOnlyEditView : public CEditView
-{
-
-	DECLARE_DYNCREATE(CReadOnlyEditView)
-
-public:
-
-	CReadOnlyEditView();
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-
-protected:
-
-	
-	CBrush m_Cbrush;
-	CFont m_font;
-
-	DECLARE_MESSAGE_MAP()
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg HBRUSH CtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-};
-
-
 class CProgressWnd : public CWnd
 {
 
@@ -81,6 +58,7 @@ public:
 	WBSF::CCallback& GetCallback(){ return m_callback; }
 	void SetMessageCtrl(CEdit* pEdit){ m_pEdit = pEdit; }
 
+	virtual void PreSubclassWindow();
 
 // Attributes
 protected:
@@ -97,17 +75,13 @@ protected:
 	afx_msg LRESULT OnThreadMessage(WPARAM wParam, LPARAM);
 	afx_msg void OnUpdateToolbar(CCmdUI* pCmdUI);
 
-	//CEdit& GetMessageCtrl();
-
+	
 	CProgressToolBar m_toolbarCtrl;
 	CProListCtrl m_progressListCtrl;
 
-	//CPaneSplitter m_wndSplitter;
-	//CReadOnlyEdit m_messageCtrl;
 	WBSF::CCallback m_callback;
 	std::string m_comment;
 	CEdit* m_pEdit;
-	//bool m_bExecute;
 	
 	CComPtr<ITaskbarList3> m_pTaskbar;
 	CWinThread *m_ptrThread;

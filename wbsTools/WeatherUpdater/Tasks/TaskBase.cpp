@@ -13,6 +13,9 @@ using namespace std;
 namespace WBSF
 {
 
+	bool CTaskBase::APP_VISIBLE = true;
+
+
 	const string CTaskBase::EMPTY_STRING;
 	string CTaskBase::PROJECT_PATH;
 	const char* CTaskBase::TYPE_NAME[NB_TYPES] = {"Updater", "Tools", "MonthlyMeanGrid"};
@@ -535,6 +538,8 @@ namespace WBSF
 
 		return str;
 	}
+
+	
 
 	
 }

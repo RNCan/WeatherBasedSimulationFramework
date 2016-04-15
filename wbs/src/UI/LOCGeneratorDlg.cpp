@@ -113,7 +113,11 @@ namespace WBSF
 		DDX_CBStringExact(pDX, IDC_GENLOC_HOURLY_NAME, m_hourlyDBName);
 		DDX_Check(pDX, IDC_GENLOC_EXTREM, m_bElevExtrem);
 		DDX_Text(pDX, IDC_GENLOC_FACTOR, m_factor);
-
+		
+		/*if (pDX->m_bSaveAndValidate)
+			m_method = GetGenerationMethod();
+		else
+			SetGenerationMethod(m_method);*/
 	}
 
 
@@ -178,6 +182,101 @@ namespace WBSF
 		EndDialog(IDOK);
 	}
 
+	UINT CLOCGeneratorDlg::ExecuteGenerateFromDEM(void* pParam)
+	{
+		CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+		CLOCGeneratorDlg* pDlg = (CLOCGeneratorDlg*)pMyParam->m_pThis;
+		string* pFilePath = (string*)pMyParam->m_pFilepath;
+		//CFileManager* pFM = (CFileManager*)pMyParam->m_pExtra;
+		TGenerationMethod* pMethod = (TGenerationMethod*)pMyParam->m_pExtra;
+
+		ERMsg* pMsg = pMyParam->m_pMsg;
+		CCallback* pCallback = pMyParam->m_pCallback;
+
+		VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+		TRY
+			//*pMsg = pProject->Execute(*pFM, *pCallback);
+			CGDALDatasetEx grid;
+			*pMsg = grid.OpenInputImage(*pFilePath);
+
+			if (*pMsg)
+			{
+				CGridPointVector pointArray;
+				
+				bool bExp = (pDlg->m_exposition == EXPO_FROM_DEM); //generate from DEM
+
+				if (*pMethod == REGULAR)
+					*pMsg = grid.GetRegularCoord(pDlg->m_nbPointLon, pDlg->m_nbPointLat, bExp, pDlg->m_useBoundingBox ? pDlg->m_rect : CGeoRect(), pointArray, *pCallback);
+				else
+					*pMsg = grid.GetRandomCoord(pDlg->m_nbPoint, bExp, pDlg->m_bElevExtrem, pDlg->m_factor / 100, pDlg->m_useBoundingBox ? pDlg->m_rect : CGeoRect(), pointArray, *pCallback);
+
+
+				//on tranfers les pts dans les LOC
+				if (*pMsg)
+				{
+					pCallback->PushTask("Final Computation", pointArray.size());
+
+					CProjectionPtr pPrj = grid.GetPrj();
+					CProjectionTransformation PT(pPrj, CProjectionManager::GetPrj(PRJ_WGS_84));
+					if (!IsGeographic(pointArray.GetPrjID()))
+						pointArray.Reproject(PT);
+
+					for (size_t i = 0; i < pointArray.size() && *pMsg; i++)
+					{
+						CLocation station;
+						string tmp = FormatA("Pt_%06d", i + 1);
+
+						station.m_name = tmp;
+						station.m_ID = ToString(i + 1);
+						station.m_lat = pointArray[i].m_lat;
+						station.m_lon = pointArray[i].m_lon;
+						station.m_alt = pointArray[i].m_alt;
+
+						if (pDlg->m_exposition == EXPO_GENERATE)
+						{
+							int expoFactor = pDlg->m_genType == EXPO_UNIFORM ? 1 : 30;
+
+							ASSERT(expoFactor >= 1 && expoFactor <= 60);
+							WBSF::CStatistic stat;
+
+							for (int j = 0; j < expoFactor; j++)
+								stat += WBSF::Rand(0, 60);
+
+							pointArray[i].m_slope = tan(WBSF::Deg2Rad(stat[WBSF::MEAN])) * 100;
+							pointArray[i].m_aspect = WBSF::Rand(0, 359);
+						}
+
+						if (pDlg->m_exposition != NO_EXPO)
+						{
+							station.SetDefaultSSI(CLocation::SLOPE, ToString(pointArray[i].m_slope));
+							station.SetDefaultSSI(CLocation::ASPECT, ToString(pointArray[i].m_aspect));
+						}
+
+						pDlg->m_locArray.push_back(station);
+						*pMsg += pCallback->StepIt();
+
+					}//for all
+
+					pCallback->PopTask();
+				}//if msg
+			}//if msg
+
+			grid.Close();
+		CATCH_ALL(e)
+			*pMsg = UtilWin::SYGetMessage(*e);
+		END_CATCH_ALL
+
+			CoUninitialize();
+
+		if (*pMsg)
+			return 0;
+
+		return -1;
+	}
+	
+
+	
+	
 	ERMsg CLOCGeneratorDlg::GenerateFromDEM()
 	{
 		ERMsg msg;
@@ -193,71 +292,77 @@ namespace WBSF
 
 				//WBSF::CCallback callBack;
 				CProgressStepDlg progressDlg;
-				progressDlg.Create();
+				progressDlg.Create(this);
 
 				string filePath = WBSF::GetFM().MapInput().GetFilePath(DEMFileName);
 
-				CGDALDatasetEx grid;
-				msg = grid.OpenInputImage(filePath);
-
-				if (msg)
-				{
-					CGridPointVector pointArray;
-
-					TGenerationMethod method = GetGenerationMethod();
-					bool bExp = (m_exposition == EXPO_FROM_DEM); //generate from DEM
-
-					if (method == REGULAR)
-						msg = grid.GetRegularCoord(m_nbPointLon, m_nbPointLat, bExp, m_useBoundingBox ? m_rect : CGeoRect(), pointArray, progressDlg.GetCallback());
-					else
-						msg = grid.GetRandomCoord(m_nbPoint, bExp, m_bElevExtrem, m_factor / 100, m_useBoundingBox ? m_rect : CGeoRect(), pointArray, progressDlg.GetCallback());
+				TGenerationMethod method = GetGenerationMethod();
 
 
-					//on tranfers les pts dans les LOC
-					if (msg)
-					{
-						CProjectionPtr pPrj = grid.GetPrj();
-						CProjectionTransformation PT(pPrj, CProjectionManager::GetPrj(PRJ_WGS_84));
-						if (!IsGeographic(pointArray.GetPrjID()))
-							pointArray.Reproject(PT);
+				CProgressStepDlgParam param(this, &filePath, &method);
+				msg = progressDlg.Execute(ExecuteGenerateFromDEM, &param);
 
-						for (int i = 0; i < pointArray.size(); i++)
-						{
-							CLocation station;
-							string tmp = FormatA("Pt_%06d", i + 1);
+			//	CGDALDatasetEx grid;
+			//	msg = grid.OpenInputImage(filePath);
 
-							station.m_name = tmp;
-							station.m_ID = ToString(i + 1);
-							station.m_lat = pointArray[i].m_lat;
-							station.m_lon = pointArray[i].m_lon;
-							station.m_alt = pointArray[i].m_alt;
+			//	if (msg)
+			//	{
+			//		CGridPointVector pointArray;
 
-							if (m_exposition == EXPO_GENERATE)
-							{
-								int expoFactor = m_genType == EXPO_UNIFORM ? 1 : 30;
+			//		TGenerationMethod method = GetGenerationMethod();
+			//		bool bExp = (m_exposition == EXPO_FROM_DEM); //generate from DEM
 
-								ASSERT(expoFactor >= 1 && expoFactor <= 60);
-								WBSF::CStatistic stat;
+			//		if (method == REGULAR)
+			//			msg = grid.GetRegularCoord(m_nbPointLon, m_nbPointLat, bExp, m_useBoundingBox ? m_rect : CGeoRect(), pointArray, progressDlg.GetCallback());
+			//		else
+			//			msg = grid.GetRandomCoord(m_nbPoint, bExp, m_bElevExtrem, m_factor / 100, m_useBoundingBox ? m_rect : CGeoRect(), pointArray, progressDlg.GetCallback());
 
-								for (int j = 0; j < expoFactor; j++)
-									stat += WBSF::Rand(0, 60);
 
-								pointArray[i].m_slope = tan(WBSF::Deg2Rad(stat[WBSF::MEAN])) * 100;
-								pointArray[i].m_aspect = WBSF::Rand(0, 359);
-							}
+			//		//on tranfers les pts dans les LOC
+			//		if (msg)
+			//		{
+			//			CProjectionPtr pPrj = grid.GetPrj();
+			//			CProjectionTransformation PT(pPrj, CProjectionManager::GetPrj(PRJ_WGS_84));
+			//			if (!IsGeographic(pointArray.GetPrjID()))
+			//				pointArray.Reproject(PT);
 
-							if (m_exposition != NO_EXPO)
-							{
-								station.SetDefaultSSI(CLocation::SLOPE, ToString(pointArray[i].m_slope));
-								station.SetDefaultSSI(CLocation::ASPECT, ToString(pointArray[i].m_aspect));
-							}
+			//			for (int i = 0; i < pointArray.size(); i++)
+			//			{
+			//				CLocation station;
+			//				string tmp = FormatA("Pt_%06d", i + 1);
 
-							m_locArray.push_back(station);
-						}
-					}
-				}
+			//				station.m_name = tmp;
+			//				station.m_ID = ToString(i + 1);
+			//				station.m_lat = pointArray[i].m_lat;
+			//				station.m_lon = pointArray[i].m_lon;
+			//				station.m_alt = pointArray[i].m_alt;
 
-				grid.Close();
+			//				if (m_exposition == EXPO_GENERATE)
+			//				{
+			//					int expoFactor = m_genType == EXPO_UNIFORM ? 1 : 30;
+
+			//					ASSERT(expoFactor >= 1 && expoFactor <= 60);
+			//					WBSF::CStatistic stat;
+
+			//					for (int j = 0; j < expoFactor; j++)
+			//						stat += WBSF::Rand(0, 60);
+
+			//					pointArray[i].m_slope = tan(WBSF::Deg2Rad(stat[WBSF::MEAN])) * 100;
+			//					pointArray[i].m_aspect = WBSF::Rand(0, 359);
+			//				}
+
+			//				if (m_exposition != NO_EXPO)
+			//				{
+			//					station.SetDefaultSSI(CLocation::SLOPE, ToString(pointArray[i].m_slope));
+			//					station.SetDefaultSSI(CLocation::ASPECT, ToString(pointArray[i].m_aspect));
+			//				}
+
+			//				m_locArray.push_back(station);
+			//			}
+			//		}
+			//	}
+
+			//	grid.Close();
 				progressDlg.DestroyWindow();
 
 			}
@@ -543,15 +648,6 @@ namespace WBSF
 			dataPts[i][3] = pointIn[i].m_z * 100;
 		}
 
-		//normalization of data???
-		//for (int i = 0; i<dataPts.getNPts(); i++)
-		//{
-		//	for (int j = 0; j<dataPts.getDim(); j++)
-		//	{
-		//		dataPts[i][j] = (dataPts[i][j] - stats[j][MEAN]) / stats[j][WBSF::STD_DEV];
-		//	}
-		//}
-
 		dataPts.buildKcTree();			// build filtering structure
 
 		KMfilterCenters ctrs(nbCluster, dataPts);		// allocate centers
@@ -623,14 +719,118 @@ namespace WBSF
 
 
 
+	UINT CLOCGeneratorDlg::ExecuteGenerateFromWeather(void* pParam)
+	{
+		CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
+		CLOCGeneratorDlg* pDlg = (CLOCGeneratorDlg*)pMyParam->m_pThis;
+		string* pFilepaht = (string*)pMyParam->m_pFilepath;
+		TWeatherStation* pMethod = (TWeatherStation *)pMyParam->m_pExtra;
+
+		ERMsg* pMsg = pMyParam->m_pMsg;
+		CCallback* pCallback = pMyParam->m_pCallback;
+
+		VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
+		TRY
+
+		CWeatherDatabasePtr pWeatherDB = CreateWeatherDatabase(*pFilepaht);
+		if (pWeatherDB)
+		{
+			*pMsg = pWeatherDB->Open(*pFilepaht, CWeatherDatabase::modeRead, *pCallback);
+			if (*pMsg)
+			{
+				CSearchResultVector searchResult;
+				*pMsg = pWeatherDB->GetStationList(searchResult, pDlg->m_filter, pDlg->m_year, true, pDlg->m_useBoundingBox ? pDlg->m_rect : CGeoRect());
+
+				if (*pMsg)
+				{
+					if (pDlg->m_weatherGenerationMethod == ALL_STATIONS)
+					{
+						pDlg->m_locArray = pWeatherDB->GetLocations(searchResult);
+					}
+					else if (pDlg->m_weatherGenerationMethod == MOST_COMPLETE_STATIONS)
+					{
+						if (searchResult.size() > pDlg->m_nbStations)
+						{
+							vector<size_t> order;
+							*pMsg = pWeatherDB->GetStationOrder(order, pDlg->m_filter);
+
+							for (vector<size_t>::iterator it = order.begin(); it != order.end();)
+							{
+								if (std::find(searchResult.begin(), searchResult.end(), *it) == searchResult.end())
+									it = order.erase(it);
+								else
+									it++;
+							}
+
+
+							//eliminate unselected stations
+							order.resize(pDlg->m_nbStations);
+							pDlg->m_locArray.resize(pDlg->m_nbStations);
+							for (size_t i = 0; i != order.size(); i++)
+								pDlg->m_locArray[i] = pWeatherDB->GetLocation(order[i]);
+						}
+
+					}
+					else if (pDlg->m_weatherGenerationMethod == WELL_DISTRIBUTED_STATIONS)
+					{
+						if (searchResult.size() > pDlg->m_nbStations)
+						{
+							CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
+							GetClusterNode(pWeatherDB, pDlg->m_nbStations, pDlg->m_filter, pDlg->m_year, locIn, pDlg->m_locArray);
+						}
+					}
+					else if (pDlg->m_weatherGenerationMethod == COMPLETE_AND_DISTRIBUTED_STATIONS)
+					{
+						if (searchResult.size() > pDlg->m_nbStations)
+						{
+							vector<size_t> priority;
+							for (CSearchResultVector::iterator it = searchResult.begin(); it != searchResult.end(); it++)
+							{
+								CWVariablesCounter counter = pWeatherDB->GetWVariablesCounter(it->m_index, pDlg->m_year);
+								if (pDlg->m_filter.any())
+								{
+									for (size_t v = 0; v < NB_VAR_H; v++)
+										if (!pDlg->m_filter[v])
+											counter[v] = CCountPeriod();
+								}
+
+								priority.push_back(counter.GetSum());
+							}
+
+							CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
+							//éliminate unselected stations
+							GenerateWellDistributedStation(pDlg->m_nbStations, priority, locIn, pDlg->m_locArray, *pCallback);
+						}
+					}
+
+					pWeatherDB->Close();
+				}
+			}
+		}
+		CATCH_ALL(e)
+		{
+			*pMsg = UtilWin::SYGetMessage(*e);
+		}
+		END_CATCH_ALL
+
+			CoUninitialize();
+
+		if (*pMsg)
+			return 0;
+
+		return -1;
+	}
+
+
 	ERMsg CLOCGeneratorDlg::GenerateFromWeatherStation()
 	{
 		ERMsg msg;
 
 		CProgressStepDlg progressDlg;
-		progressDlg.Create();
+		progressDlg.Create(this);
 
 		TWeatherStation method = GetWeatherStationType();
+		
 
 		string DBName;
 		switch (method)
@@ -648,126 +848,84 @@ namespace WBSF
 		case HOURLY:	DBFilePath = WBSF::GetFM().Hourly().GetFilePath(DBName); break;
 		}
 
-		CWeatherDatabasePtr pWeatherDB = CreateWeatherDatabase(DBFilePath);
+		CProgressStepDlgParam param(this, &DBFilePath, &method);
+		msg = progressDlg.Execute(ExecuteGenerateFromDEM, &param);
 
-		msg = pWeatherDB->Open(DBFilePath, CWeatherDatabase::modeRead, progressDlg.GetCallback());
-		if (msg)
-		{
-			CSearchResultVector searchResult;
-			msg = pWeatherDB->GetStationList(searchResult, m_filter, m_year, true, m_useBoundingBox ? m_rect : CGeoRect());
+		progressDlg.DestroyWindow();
 
-			if (msg)
-			{
-				if (m_weatherGenerationMethod == ALL_STATIONS)
-				{
-					m_locArray = pWeatherDB->GetLocations(searchResult);
-				}
-				else if (m_weatherGenerationMethod == MOST_COMPLETE_STATIONS)
-				{
-					if (searchResult.size() > m_nbStations)
-					{
-						vector<size_t> order;
-						msg = pWeatherDB->GetStationOrder(order, m_filter);
+		//CWeatherDatabasePtr pWeatherDB = CreateWeatherDatabase(DBFilePath);
 
-						for (vector<size_t>::iterator it = order.begin(); it != order.end();)
-						{
-							if (std::find(searchResult.begin(), searchResult.end(), *it) == searchResult.end())
-								it = order.erase(it);
-							else
-								it++;
-						}
+		//msg = pWeatherDB->Open(DBFilePath, CWeatherDatabase::modeRead, progressDlg.GetCallback());
+		//if (msg)
+		//{
+		//	CSearchResultVector searchResult;
+		//	msg = pWeatherDB->GetStationList(searchResult, m_filter, m_year, true, m_useBoundingBox ? m_rect : CGeoRect());
 
+		//	if (msg)
+		//	{
+		//		if (m_weatherGenerationMethod == ALL_STATIONS)
+		//		{
+		//			m_locArray = pWeatherDB->GetLocations(searchResult);
+		//		}
+		//		else if (m_weatherGenerationMethod == MOST_COMPLETE_STATIONS)
+		//		{
+		//			if (searchResult.size() > m_nbStations)
+		//			{
+		//				vector<size_t> order;
+		//				msg = pWeatherDB->GetStationOrder(order, m_filter);
 
-						//eliminate unselected stations
-						order.resize(m_nbStations);
-						m_locArray.resize(m_nbStations);
-						for (size_t i = 0; i != order.size(); i++)
-							m_locArray[i] = pWeatherDB->GetLocation(order[i]);
-					}
-
-				}
-				else if (m_weatherGenerationMethod == WELL_DISTRIBUTED_STATIONS)
-				{
-					if (searchResult.size() > m_nbStations)
-					{
-						CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
-						GetClusterNode(pWeatherDB, m_nbStations, m_filter, m_year, locIn, m_locArray);
-					}
-				}
-				else if (m_weatherGenerationMethod == COMPLETE_AND_DISTRIBUTED_STATIONS)
-				{
-					if (searchResult.size() > m_nbStations)
-					{
-						vector<size_t> priority;
-						for (CSearchResultVector::iterator it = searchResult.begin(); it != searchResult.end(); it++)
-						{
-							CWVariablesCounter counter = pWeatherDB->GetWVariablesCounter(it->m_index, m_year);
-							if (m_filter.any())
-							{
-								for (size_t v = 0; v < NB_VAR_H; v++)
-									if (!m_filter[v])
-										counter[v] = CCountPeriod();
-							}
-
-							priority.push_back(counter.GetSum());
-						}
-
-						CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
-						//éliminate unselected stations
-						GenerateWellDistributedStation(m_nbStations, priority, locIn, m_locArray, progressDlg.GetCallback());
-					}
-				}
-
-				pWeatherDB->Close();
-			}
-		}
+		//				for (vector<size_t>::iterator it = order.begin(); it != order.end();)
+		//				{
+		//					if (std::find(searchResult.begin(), searchResult.end(), *it) == searchResult.end())
+		//						it = order.erase(it);
+		//					else
+		//						it++;
+		//				}
 
 
-		/*
-		if( method == NORMAL )
-		{
-		ASSERT(method == NORMAL);
-		string DBName = GetNormalDBNameCtrl().GetString();
-		string filePath = WBSF::GetFM().Normal().GetFilePath(DBName);
-		CNormalsDatabase DB;
-		msg = DB.Open(filePath, CWeatherDatabase::modeRead, progressDlg.GetCallback());
+		//				//eliminate unselected stations
+		//				order.resize(m_nbStations);
+		//				m_locArray.resize(m_nbStations);
+		//				for (size_t i = 0; i != order.size(); i++)
+		//					m_locArray[i] = pWeatherDB->GetLocation(order[i]);
+		//			}
 
-		if (msg)
-		{
-		msg += DB.GenerateLOC(m_locArray, m_filter, m_year, true, m_useBoundingBox ? m_rect : CGeoRect());
-		DB.Close();
-		}
-		}
-		else if (method == DAILY)
-		{
-		ASSERT(method == NORMAL);
-		string DBName = GetDailyDBNameCtrl().GetString();
-		string filePath = WBSF::GetFM().Daily().GetFilePath(DBName);
-		CDailyDatabase DB;
-		msg = DB.Open(filePath, CWeatherDatabase::modeRead, progressDlg.GetCallback());
+		//		}
+		//		else if (m_weatherGenerationMethod == WELL_DISTRIBUTED_STATIONS)
+		//		{
+		//			if (searchResult.size() > m_nbStations)
+		//			{
+		//				CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
+		//				GetClusterNode(pWeatherDB, m_nbStations, m_filter, m_year, locIn, m_locArray);
+		//			}
+		//		}
+		//		else if (m_weatherGenerationMethod == COMPLETE_AND_DISTRIBUTED_STATIONS)
+		//		{
+		//			if (searchResult.size() > m_nbStations)
+		//			{
+		//				vector<size_t> priority;
+		//				for (CSearchResultVector::iterator it = searchResult.begin(); it != searchResult.end(); it++)
+		//				{
+		//					CWVariablesCounter counter = pWeatherDB->GetWVariablesCounter(it->m_index, m_year);
+		//					if (m_filter.any())
+		//					{
+		//						for (size_t v = 0; v < NB_VAR_H; v++)
+		//							if (!m_filter[v])
+		//								counter[v] = CCountPeriod();
+		//					}
 
-		if (msg)
-		{
-		msg += DB.GenerateLOC(m_locArray, m_filter, m_year, true, m_useBoundingBox ? m_rect : CGeoRect());
-		DB.Close();
-		}
+		//					priority.push_back(counter.GetSum());
+		//				}
 
-		}
-		else
-		{
-		ASSERT(method == HOURLY);
-		string DBName = GetHourlyDBNameCtrl().GetString();
-		string filePath = WBSF::GetFM().Hourly().GetFilePath(DBName);
-		CHourlyDatabase DB;
-		msg = DB.Open(filePath, CWeatherDatabase::modeRead, progressDlg.GetCallback());
+		//				CLocationVector locIn = pWeatherDB->GetLocations(searchResult);
+		//				//éliminate unselected stations
+		//				GenerateWellDistributedStation(m_nbStations, priority, locIn, m_locArray, progressDlg.GetCallback());
+		//			}
+		//		}
 
-		if (msg)
-		{
-		msg += DB.GenerateLOC(m_locArray, m_filter, m_year, true, m_useBoundingBox ? m_rect : CGeoRect());
-		DB.Close();
-		}
-		}*/
-
+		//		pWeatherDB->Close();
+		//	}
+		//}
 
 
 
