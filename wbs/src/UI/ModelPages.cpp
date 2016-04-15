@@ -922,10 +922,12 @@ namespace WBSF
 
 		int pos = (int)m_pWndList->GetItemData(iItem);
 		//for (int i = 0; i<m_pWndProperties->GetPropertyCount(); i++)
-		for (int i = 0; i < CModelOutputVariableDef::NB_MEMBERS; i++)
+		ASSERT(m_pWndProperties->GetPropertyCount() == CModelOutputVariableDef::NB_MEMBERS);
+		for (int i = 0; i < m_pWndProperties->GetPropertyCount(); i++)
 		{
 			CMFCPropertyGridProperty* pPropIn = m_pWndProperties->FindItemByData(i, 0);
 			CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
+			ENSURE(pProp);
 
 			size_t member = (size_t)pProp->GetData();
 			if (member < m_data.size())
@@ -948,7 +950,7 @@ namespace WBSF
 			pos = (int)m_pWndList->GetItemData(iItem);
 
 		//for (int i = 0; i<m_pWndProperties->GetPropertyCount(); i++)
-		for (int i = 0; i < CModelOutputVariableDef::NB_MEMBERS; i++)
+		for (int i = 0; i < /*CModelOutputVariableDef::NB_MEMBERS*/m_pWndProperties->GetPropertyCount(); i++)
 		{
 			CMFCPropertyGridProperty* pPropIn = m_pWndProperties->FindItemByData(i, 0);
 			CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
