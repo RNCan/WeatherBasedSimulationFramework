@@ -129,7 +129,7 @@ void CDataPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			AddProperty(pGroup);
 
 			EnableWindow(true);
-			EnableProperties(!pDoc->GetLocationVector()->GetFilePath().empty());
+			EnableProperties(!pDoc->GetLocations()->GetFilePath().empty());
 		}
 	}
 	//else if (lHint == CMatchStationDoc::PROPERTIES_CHANGE)
@@ -226,34 +226,15 @@ CMatchStationDoc* CPropertiesWnd::GetDocument()
 
 }
 
-CLocationVectorPtr CPropertiesWnd::GetLocationPtr()
-{
-	CLocationVectorPtr pLocation;
-	CMatchStationDoc* pDocument = GetDocument();
-
-	if (pDocument)
-		pLocation = pDocument->GetLocationVector();
-
-
-	return  pLocation;
-}
-
 CPropertiesWnd::CPropertiesWnd()
-{
-	//m_nComboHeight = 0;
-}
+{}
 
 CPropertiesWnd::~CPropertiesWnd()
-{
-}
+{}
 
 BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_COMMAND(ID_EXPAND_ALL, OnExpandAllProperties)
-	ON_UPDATE_COMMAND_UI(ID_EXPAND_ALL, OnUpdateExpandAllProperties)
-	ON_COMMAND(ID_SORTPROPERTIES, OnSortProperties)
-	ON_UPDATE_COMMAND_UI(ID_SORTPROPERTIES, OnUpdateSortProperties)
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
 	ON_MESSAGE(WM_SETTEXT, OnSetText)

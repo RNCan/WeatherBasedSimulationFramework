@@ -17,7 +17,7 @@ using namespace WBSF;
 //**************************************************************************************************************************************
 // CObservationEstimateWnd
 					
-
+/*
 enum TEstimateColumns{ G_TYPE, G_FIRST_MONTH, G_JAN = G_FIRST_MONTH, G_FEB, G_MAR, G_APR, G_MAY, G_JUN, G_JUL, G_AUG, G_SEP, G_OCT, G_NOV, G_DEV, NB_GRADIENT_COLUMNS };
 
 BEGIN_MESSAGE_MAP(CObservationEstimateCtrl, CUGCtrl)
@@ -97,14 +97,14 @@ void CObservationEstimateCtrl::Update()
 		{
 			EnableUpdate(FALSE);
 
-			SortInfo(AfxGetApp()->GetProfileInt(_T("EstimateCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("EstimateCtrl"), _T("SortDir"), 0));
+			SortInfo(AfxGetApp()->GetProfileInt(_T("EstimateOCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("EstimateCtrl"), _T("SortDir"), 0));
 
 			SetNumberCols(NB_GRADIENT_COLUMNS, FALSE);
 			SetNumberRows((long)m_sortInfo.size(), FALSE);
 
 			for (int i = -1; i < NB_GRADIENT_COLUMNS; i++)
 			{
-				int width = AfxGetApp()->GetProfileInt(_T("EstimateCtrl"), _T("ColWidth ") + UtilWin::ToCString(i), 50);
+				int width = AfxGetApp()->GetProfileInt(_T("EstimateOCtrl"), _T("ColWidth ") + UtilWin::ToCString(i), 50);
 				SetColWidth(i, width);
 			}
 
@@ -204,15 +204,15 @@ void CObservationEstimateCtrl::OnGetCell(int col, long row, CUGCell *cell)
 }
 
 
-/***************************************************
-OnCellChange
-Sent whenever the current cell changes
-Params:
-oldcol, oldrow - coordinates of cell that is loosing the focus
-newcol, newrow - coordinates of cell that is gaining the focus
-Return:
-<none>
-****************************************************/
+//***************************************************
+//OnCellChange
+//Sent whenever the current cell changes
+//Params:
+//oldcol, oldrow - coordinates of cell that is loosing the focus
+//newcol, newrow - coordinates of cell that is gaining the focus
+//Return:
+//<none>
+//****************************************************
 void CObservationEstimateCtrl::OnCellChange(int oldcol, int newcol, long oldrow, long newrow)
 {
 	ASSERT(newrow >= -1 && newrow < GetNumberRows());
@@ -317,7 +317,7 @@ string CObservationEstimateCtrl::GetDataText(int col, long row)const
 {
 	string str;
 		
-	size_t f = NORMALS_DATA::V2F(m_variable);
+	size_t v = m_variable;
 	size_t m = col - G_FIRST_MONTH;
 
 	switch (col)
@@ -327,7 +327,7 @@ string CObservationEstimateCtrl::GetDataText(int col, long row)const
 	default:	
 		switch (row)
 		{
-		case STATION_MEAN:		str = ToString(m_mean[m][f], 3); break;
+		case STATION_MEAN:		str = ToString(m_mean[m][v], 3); break;
 		case TOTAL_CORRECTION:	str = ToString((m_variable == H_PRCP) ? m_estimate[m][f]/m_mean[m][f]:(m_estimate[m][f] - m_mean[m][f]), 3); break;
 		case FINAL_ESTIMATE:	str = ToString(m_estimate[m][f], 3); break;
 		default: ASSERT(false);
@@ -381,7 +381,7 @@ void CObservationEstimateCtrl::OnColSized(int col, int *width)
 {
 	AfxGetApp()->WriteProfileInt(_T("EstimateCtrl"), _T("ColWidth ") + UtilWin::ToCString(col), *width);
 }
-
+*/
 //*********************************************************************************
 
 static CMatchStationDoc* GetDocument()
@@ -493,15 +493,31 @@ void CObservationEstimateWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pH
 		AdjustLayout();
 	}
 		
-	m_estimateCtrl.m_mean.Reset();
+	CTM TM(pDoc->GetObservationType() == CMatchStationDoc::T_HOURLY ? CTM::HOURLY : CTM::DAILY);
+
+	m_estimateCtrl.m_pStation.reset(new CWeatherStation);
 	if (pDoc->GetCurIndex()!=NOT_INIT)
 	{
 		const CLocation& target = pDoc->GetLocation(pDoc->GetCurIndex());
-		pDoc->GetNormalsStation().GetInverseDistanceMean(target, pDoc->GetVariable(), m_estimateCtrl.m_mean);
+		((CLocation&)*m_estimateCtrl.m_pStation) = target;
+		pDoc->GetObservationStation().GetInverseDistanceMean(pDoc->GetVariable(), target, *m_estimateCtrl.m_pStation);
+
+		
+		CWVariables variable(m_estimateCtrl.m_pStation->GetVariables());
+
+		CWeatherFormat format(TM, variable);//get default format
+		//const std::string& header= format.GetHeader();
+		//CWeatherFormat format2(header.c_str());//get default format
+		m_estimateCtrl.m_pStation->SetFormat(format);
 	}
 		
-	m_estimateCtrl.m_variable = pDoc->GetVariable();
-	m_estimateCtrl.m_estimate = pDoc->GetNormalsEstimate();
+
+	m_estimateCtrl.m_TM = TM;
+	m_estimateCtrl.m_stat = MEAN;
+	m_estimateCtrl.m_bEditable = false;
+	m_estimateCtrl.m_bPeriodEnabled = false;
+	m_estimateCtrl.m_period = CTPeriod();
+	m_estimateCtrl.m_variables = pDoc->GetVariable();
 
 	bool bVisible = IsWindowVisible();
 	if (bVisible)

@@ -34,7 +34,7 @@ IDR_MAINFRAME           ICON                    "res\\MatchStation.ico"
 IDI_WEIGHT_CHART_WND    ICON                    "res\\weight_chart_wnd.ico"
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
-IDI_FILEPATH_WND        ICON                    "res\\filePath_wnd.ico"
+IDI_INPUT_WND           ICON                    "res\\inputs_wnd.ico"
 IDI_GRADIENT_WND        ICON                    "res\\Gradient_wnd.ico"
 IDI_CORRECTION_WND      ICON                    "res\\Correction_wnd.ico"
 IDI_ESTIMATE_N_WND      ICON                    "res\\estimateN_wnd.ico"
@@ -48,10 +48,16 @@ IDI_NORMAL_WND          ICON                    "res\\Normals_wnd.ico"
 //
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
-IDR_MAINFRAME_TOOLBAR   BITMAP                  "res\\MainFrameToolbar.bmp"
-IDR_WEIGHT_GRAPH_TOOLBAR BITMAP                  "res\\ChartsToolbar.bmp"
-IDR_LOCATION_TOOLBAR    BITMAP                  "res\\LocationToolbar.bmp"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDR_MAINFRAME_TOOLBAR   PNG						"res\\MainFrameToolbar.png"
+IDR_LOCATION_TOOLBAR    PNG						"res\\LocationToolbar.png"
+IDR_WEIGHT_TOOLBAR		PNG						"res\\weightToolbar.png"
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
@@ -95,21 +101,12 @@ BEGIN
     SEPARATOR
     BUTTON      ID_SENDTO_SHOWMAP
     BUTTON      ID_SENDTO_EXCEL
-    BUTTON      ID_NB_STATIONS
-    BUTTON      ID_STATION_VARIABLES
-    BUTTON      ID_STATION_YEAR
-    BUTTON      ID_FLAG_FRENCH
-    BUTTON      ID_FLAG_ENGLISH
 END
 
 IDR_MAINFRAME_TOOLBAR TOOLBAR 32, 32
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
-    SEPARATOR
-    BUTTON      ID_NB_STATIONS
-    BUTTON      ID_STATION_VARIABLES
-    BUTTON      ID_STATION_YEAR
     SEPARATOR
     BUTTON      ID_OPTIONS
     BUTTON      ID_APP_ABOUT
@@ -127,11 +124,9 @@ BEGIN
     BUTTON      ID_TABLE_SENDTO_EXCEL
 END
 
-IDR_WEIGHT_GRAPH_TOOLBAR TOOLBAR 24, 24
+IDR_WEIGHT_TOOLBAR TOOLBAR 24, 24
 BEGIN
-    BUTTON      ID_GRAPH_COPY
     BUTTON      ID_GRAPH_SAVE
-    BUTTON      ID_GRAPH_OPTIONS
     SEPARATOR
     BUTTON      ID_GRAPH_ZOOM
 END
@@ -165,17 +160,17 @@ BEGIN
     BEGIN
         BLOCK "0c0c04b0"
         BEGIN
-            VALUE "CompanyName", "Centre de Foresteries des Laurentides"
+            VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Recherches les stations météo pour une localisation"
             VALUE "FileVersion", "4.0.0.14"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
-            VALUE "ProductName", "MatchStation"
+            VALUE "ProductName", "StationsAvoisinantes"
             VALUE "ProductVersion", "4.0.0.0"
         END
         BLOCK "100904b0"
         BEGIN
-            VALUE "CompanyName", "Laurentian Forestry Center"
+            VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Match weather station for location"
             VALUE "FileVersion", "4.0.0.14"
             VALUE "InternalName", "MatchStation.exe"
@@ -292,7 +287,7 @@ BEGIN
     END
     POPUP "A&ide"
     BEGIN
-        MENUITEM "À &propos de MatchStation...", ID_APP_ABOUT
+        MENUITEM "À &propos de StationsAvoisinantes...", ID_APP_ABOUT
     END
 END
 
@@ -367,7 +362,6 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
     "LANGUAGE 12, 1\r\n"
-    "#include ""res\\MatchStations.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -392,7 +386,10 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "MatchStation\n\nMatchStation\nFichier de localisations (*.csv)\n.csv\n\n"
+    IDR_MAINFRAME           "StationsAvoisinantes\n\nStationsAvoisinantes\nFichier de localisations (*.csv)\n.csv\n\n"
+	IDS_OBSERVATION_TYPE	"Horaire|Quotidiennes"
+	IDS_INPUT_TITLE			"Localisation|Type d'observations|Horaires|Quotidiennes|Normales|Variable|Année|Nb voisins"
+	IDS_INPUT_DESCRIPTION	"Sélection du fichier de localisations à être utiliser comme points sources|Sélection du type d'observation (horaires, quotidiennes) car seulement un type d'observation peut être utilisé à la fois|Sélection de la base de données horaires|Sélection de la base de données quotidiennes|Sélection de la base de données normales|Sélection de la variable à être utilisée pour trouver les stations voisines|Sélection de l'année utilisée pour trouver les stations d'observations voisines|Sélection du nombre de stations voisines"
     IDS_LOCATION_LIST_WND   "Localisation"
     IDS_NORMALS_WND         "Normales"
     IDS_OBSERVATION_WND     "Observation"
@@ -400,7 +397,7 @@ END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_APP_TITLE       "StationAvoisinante"
+    AFX_IDS_APP_TITLE       "StationsAvoisinantes"
     AFX_IDS_IDLEMESSAGE     "Prêt"
 END
 
@@ -536,7 +533,7 @@ BEGIN
     IDS_WEIGHT_CHARTS_WND   "Pondération"
     IDS_OUTPUT_WND          "Message"
     IDS_PROPERTIES_WND      "Propriétés"
-    IDS_FILEPATH_WND        "Base de données"
+	IDS_INPUT_WND			"Intrants"
     IDS_GRADIENT_WND        "Gradient"
     IDS_CORRECTION_WND      "Correction"
     IDS_SEARCH_TOOLBAR      "Recherche"
@@ -548,9 +545,6 @@ STRINGTABLE
 BEGIN
     ID_SENDTO_SHOWMAP       "Envoyer la liste actuelle de la localisation des stations météorologiques dans ShowMap\nEnvoyer vers ShowMap"
     ID_SENDTO_EXCEL         "Envoyer la liste actuelle de la localisation des stations météorologiques dans Excel\nEnvoyer vers Excel"
-    ID_NB_STATIONS          "Nombre de stations de recherche\nNombre de stations"
-    ID_STATION_VARIABLES    "Variable de recherche\nVariables"
-    ID_STATION_YEAR         "Années de recherche\nAnnées"
 END
 
 STRINGTABLE
@@ -684,7 +678,10 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "MatchStation\n\nMatchStation\nLocation file (*.csv)\n.csv\n\n"
-    IDS_LOCATION_LIST_WND   "Locations"
+	IDS_OBSERVATION_TYPE	"Hourly|Daily"
+	IDS_INPUT_TITLE			"Locations|Observation type|Hourly|Daily|Normales|Variable|Year|Nb neighbor"
+	IDS_INPUT_DESCRIPTION	"Select locations file used as targets points|Select the observation (hourly or daily) because only one observation type can be used at a time|Select the hourly database file path|Select the daily database file path|Select the normals database file path|Select the variable used to match station neighbor|Select the year used to match observation station neighbor|Select the number of nearest station"
+	IDS_LOCATION_LIST_WND   "Locations"
     IDS_NORMALS_WND         "Normals"
     IDS_OBSERVATION_WND     "Observation"
 END
@@ -826,7 +823,7 @@ BEGIN
     IDS_WEIGHT_CHARTS_WND   "Weight"
     IDS_OUTPUT_WND          "Output"
     IDS_PROPERTIES_WND      "Properties"
-    IDS_FILEPATH_WND        "Databases"
+	IDS_INPUT_WND			"Inputs"
     IDS_GRADIENT_WND        "Gradient"
     IDS_CORRECTION_WND      "Correction"
     IDS_SEARCH_TOOLBAR      "Search"
@@ -838,9 +835,6 @@ STRINGTABLE
 BEGIN
     ID_SENDTO_SHOWMAP       "Send the actual locations list to ShowMap\nSend To ShowMap"
     ID_SENDTO_EXCEL         "Send the locations list to Excel\nSend To Excel"
-    ID_NB_STATIONS          "Number of stations matched\nNumber stations"
-    ID_STATION_VARIABLES    "Variables matched\nVariable"
-    ID_STATION_YEAR         "Year matched\nYear"
 END
 
 STRINGTABLE
@@ -896,7 +890,6 @@ LANGUAGE 9, 1
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE 12, 1
-#include "res\MatchStations.rc2"  // ressources non modifiées par Microsoft Visual C++
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

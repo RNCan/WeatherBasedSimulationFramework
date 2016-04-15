@@ -7,16 +7,16 @@
 #define IDS_TOOLBAR_STATUS	            121
 #define IDS_PROPERTIES_LOCATION_HEADER  122
 #define IDR_MAINFRAME                   128
-#define ID_SORTPROPERTIES               137
-#define ID_EXPAND_ALL                   138
-
+#define IDS_OBSERVATION_TYPE			135
+#define IDS_INPUT_TITLE					136
+#define IDS_INPUT_DESCRIPTION			137
 #define IDS_LOCATION_LIST_WND           141
 #define IDS_NORMALS_WND                 142
 #define IDS_OBSERVATION_WND             143
 #define IDS_WEIGHT_CHARTS_WND           144
 #define IDS_OUTPUT_WND                  145
 #define IDS_PROPERTIES_WND              146
-#define IDS_FILEPATH_WND                147
+#define IDS_INPUT_WND                   147
 #define IDS_GRADIENT_WND                148
 #define IDS_CORRECTION_WND              149
 #define IDS_SEARCH_TOOLBAR              150
@@ -25,7 +25,7 @@
 
 #define IDR_MAINFRAME_TOOLBAR           172
 #define IDR_MENU_IMAGES                 175
-#define IDR_WEIGHT_GRAPH_TOOLBAR        176
+#define IDR_WEIGHT_TOOLBAR				176
 #define IDR_PROPERTIES                  178
 #define IDR_LOCATION_TOOLBAR            179
 #define IDR_NORMALS_TOOLBAR             180
@@ -49,7 +49,7 @@
 #define IDI_WEIGHT_CHART_WND            333
 #define IDI_OUTPUT_WND                  334
 #define IDI_PROPERTIES_WND              335
-#define IDI_FILEPATH_WND                336
+#define IDI_INPUT_WND                   336
 #define IDI_GRADIENT_WND                337
 #define IDI_CORRECTION_WND              338
 #define IDI_ESTIMATE_N_WND              339
@@ -58,10 +58,6 @@
 #define IDC_OBSERVATION_FILEPATH        1022
 #define ID_SENDTO_SHOWMAP               32773
 #define ID_SENDTO_EXCEL                 32774
-#define ID_NB_STATIONS                  32775
-#define ID_STATION_VARIABLES            32776
-#define ID_STATION_YEAR                 32777
-#define ID_SHOW_EMPTY                   32785
 #define ID_TABLE_MODE_VISUALISATION     32786
 #define ID_TABLE_MODE_EDITION           32787
 #define ID_TABLE_SAVE                   32788

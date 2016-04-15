@@ -45,10 +45,11 @@ public:
 	void AdjustLayout();
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	
-	WBSF::CMatchStationsCtrl m_wndNormalsList;
+	
 
 protected:
 
+	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
@@ -58,6 +59,6 @@ protected:
 	bool m_bMustBeUpdated;
 	void SetPropListFont();
 
-	DECLARE_MESSAGE_MAP()
+	WBSF::CMatchStationsCtrl m_wndNormalsList;
 };
 

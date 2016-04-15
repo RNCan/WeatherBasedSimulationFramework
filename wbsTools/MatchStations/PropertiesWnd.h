@@ -10,18 +10,6 @@
 	class CMatchStationDoc;
 
 
-class CPropertiesToolBar : public CMFCToolBar
-{
-public:
-	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
-	{
-		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
-	}
-
-	virtual BOOL AllowShowOnList() const { return FALSE; }
-};
-
-
 class CCodesListProperty : public CMFCPropertyGridProperty
 {
 	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect);

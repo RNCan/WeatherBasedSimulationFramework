@@ -461,13 +461,7 @@ void CObservationMatchWnd::AdjustLayout()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-
-	//int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-	//int cxTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cx;
-
-	//m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_matchStationCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-	//m_wndStatusBar.SetWindowPos(NULL, rectClient.left, rectClient.Height() - cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 int CObservationMatchWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -502,12 +496,6 @@ void CObservationMatchWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
-//
-//void CStationsListWnd::OnSetFocus(CWnd* pOldWnd)
-//{
-//	CDockablePane::OnSetFocus(pOldWnd);
-//	m_stationsList.SetFocus();
-//}
 
 void CObservationMatchWnd::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
@@ -544,80 +532,18 @@ void CObservationMatchWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint
 	ASSERT(pDoc);
 
 
-
-	//CTPeriod period = pDoc->GetPeriod();
-	//bool bPeriodEnabled = pDoc->GetPeriodEnabled();
-
 	if (lHint == CMatchStationDoc::LANGUAGE_CHANGE)
 	{
-		//	CStationsListCtrl::ReloadString();
-
-		//CreateToolBar();
 		AdjustLayout();
 	}
 
 
-	/*if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::DATA_PROPERTIES_ENABLE_PERIOD_CHANGE)
-	{
-	int index = m_wndToolBar.CommandToIndex(ID_TABLE_PERIOD_ENABLED);
-	CMFCToolBarButton* pCtrl = m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-	pCtrl->SetImage(bPeriodEnabled ? ID_TABLE_PERIOD_ENABLED - ID_TABLE_MODE_VISUALISATION : ID_TABLE_PERIOD_DESABLED - ID_TABLE_MODE_VISUALISATION);
-	pCtrl->SetStyle(bPeriodEnabled ? (pCtrl->m_nStyle | TBBS_CHECKED) : (pCtrl->m_nStyle& ~TBBS_CHECKED));
-	}*/
-
-	/*if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::DATA_PROPERTIES_PERIOD_CHANGE)
-	{
-	COleDateTime oFirstDate;
-	COleDateTime oLastDate;
-	if (period.IsInit())
-	{
-	oFirstDate = COleDateTime(period.Begin().GetYear(), (int)period.Begin().GetMonth() + 1, (int)period.Begin().GetDay() + 1, 0, 0, 0);
-	oLastDate = COleDateTime(period.End().GetYear(), (int)period.End().GetMonth() + 1, (int)period.End().GetDay() + 1, 23, 59, 59);
-	}
-	else
-	{
-	oFirstDate.SetStatus(COleDateTime::null);
-	oLastDate.SetStatus(COleDateTime::null);
-	}
-
-	CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_BEGIN); ASSERT(pCtrl1);
-	CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_END); ASSERT(pCtrl2);
-
-	pCtrl1->SetTime(oFirstDate);
-	pCtrl2->SetTime(oLastDate);
-	}*/
-
-	//if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::PROPERTIES_CHANGE)
-	//{
-	//	//int index = m_wndToolBar.CommandToIndex(ID_TABLE_FILTER);
-	//	CMFCToolBarWVariablesButton* pCtrl = (CMFCToolBarWVariablesButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-	//	pCtrl->SetVariables(pDoc->GetVariables());
-	//}
-
-	/*if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::DATA_PROPERTIES_STAT_CHANGE || lHint == CMatchStationDoc::LANGUAGE_CHANGE)
-	{
-	int index = m_wndToolBar.CommandToIndex(ID_TABLE_STAT);
-	CMFCToolBarComboBoxButton* pCtrl = (CMFCToolBarComboBoxButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-	pCtrl->SelectItem(int(pDoc->GetStatistic()));
-	}
-
-	if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::PROPERTIES_TM_CHANGE || lHint == CMatchStationDoc::LANGUAGE_CHANGE)
-	{
-	int index = m_wndToolBar.CommandToIndex(ID_TABLE_TM_TYPE);
-	CMFCToolBarComboBoxButton* pCtrl = (CMFCToolBarComboBoxButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-	pCtrl->SelectItem(int(pDoc->GetTM().Type()));
-	}*/
-
 
 	m_matchStationCtrl.m_pDB = pDoc->GetObservationDatabase();
-	//m_matchStationCtrl.m_variable = pDoc->GetVariable();
 	m_matchStationCtrl.m_nearest = pDoc->GetObservationsMatch();
-	//m_matchStationCtrl.m_year = pDoc->GetYear();
 
 	if (pDoc->GetCurIndex() != UNKNOWN_POS)
 		m_matchStationCtrl.m_location = pDoc->GetLocation(pDoc->GetCurIndex());
-
-
 
 
 	if (IsWindowVisible())

@@ -221,8 +221,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ChartsWnd.h" />
-    <ClInclude Include="FilePathWnd.h" />
+    <ClInclude Include="WeightWnd.h" />
+    <ClInclude Include="InputWnd.h" />
     <ClInclude Include="LocationsListWnd.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MatchStationApp.h" />
@@ -240,8 +240,8 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChartsWnd.cpp" />
-    <ClCompile Include="FilePathWnd.cpp" />
+    <ClCompile Include="WeightWnd.cpp" />
+    <ClCompile Include="InputWnd.cpp" />
     <ClCompile Include="LocationsListWnd.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MatchStationApp.cpp" />

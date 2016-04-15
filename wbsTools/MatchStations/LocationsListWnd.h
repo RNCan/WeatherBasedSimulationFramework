@@ -21,21 +21,21 @@ class CMatchStationDoc;
 
 
 //**************************************************************************************************************************************
-class CMainToolBar : public CMFCToolBar
-{
-public:
-
-	DECLARE_SERIAL(CMainToolBar)
-
-	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
-	{
-		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
-	}
-//	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-	//virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
-	virtual BOOL AllowShowOnList() const { return TRUE; }
-	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
-};
+//class CMainToolBar : public CMFCToolBar
+//{
+//public:
+//
+//	DECLARE_SERIAL(CMainToolBar)
+//
+//	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+//	{
+//		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+//	}
+////	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
+//	//virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1){ return TRUE; }
+//	virtual BOOL AllowShowOnList() const { return TRUE; }
+//	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+//};
 
 //*************************************************************************************************************
 class CStationsListStatusBar : public CStatusBar
@@ -70,12 +70,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnContextMenu(CWnd*, CPoint point);
-	afx_msg LRESULT OnSetText(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnUpdateStatusBar(CCmdUI* pCmdUI);
 	afx_msg LRESULT  OnSelectionChange(WPARAM, LPARAM);
-	afx_msg void OnSearchPropertyChange(UINT id);
-	afx_msg void OnUpdateSearchProperty(CCmdUI* pCmdUI);
 
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

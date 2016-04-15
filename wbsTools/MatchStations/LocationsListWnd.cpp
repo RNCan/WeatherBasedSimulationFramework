@@ -31,35 +31,35 @@ using namespace HOURLY_DATA;
 
 //***********************************************************************************************************************************
 
-IMPLEMENT_SERIAL(CMainToolBar, CMFCToolBar, 1)
-BOOL CMainToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
-{
-	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
-		return FALSE;
-
-	//*****************************
-	CMFCToolBarEditBoxButton nbStationsButton(ID_NB_STATIONS, 2, WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL, 100);
-	ReplaceButton(ID_NB_STATIONS, nbStationsButton);
-
-	//SetButtonText(0, _T("Nb Station"));
-
-	//*****************************
-	CMFCToolBarComboBoxButton varButton(ID_STATION_VARIABLES, 3, WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST, 200);
-	for (size_t i = 0; i < NB_VAR_H; i++)
-	varButton.AddItem(CString(GetVariableTitle(i)));
-
-	varButton.SelectItem(0, FALSE);
-	ReplaceButton(ID_STATION_VARIABLES, varButton);
-	//SetButtonText(1, _T("Variable"));
-	//*****************************
-	CMFCToolBarEditBoxButton yearButton(ID_STATION_YEAR, 4, WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL, 100);
-	ReplaceButton(ID_STATION_YEAR, yearButton);
-
-	UpdateTooltips();
-
-	return TRUE;
-}
-	
+//IMPLEMENT_SERIAL(CMainToolBar, CMFCToolBar, 1)
+//BOOL CMainToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
+//{
+//	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+//		return FALSE;
+//
+//	//*****************************
+//	CMFCToolBarEditBoxButton nbStationsButton(ID_NB_STATIONS, 2, WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL, 100);
+//	ReplaceButton(ID_NB_STATIONS, nbStationsButton);
+//
+//	//SetButtonText(0, _T("Nb Station"));
+//
+//	//*****************************
+//	CMFCToolBarComboBoxButton varButton(ID_STATION_VARIABLES, 3, WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST, 200);
+//	for (size_t i = 0; i < NB_VAR_H; i++)
+//	varButton.AddItem(CString(GetVariableTitle(i)));
+//
+//	varButton.SelectItem(0, FALSE);
+//	ReplaceButton(ID_STATION_VARIABLES, varButton);
+//	//SetButtonText(1, _T("Variable"));
+//	//*****************************
+//	CMFCToolBarEditBoxButton yearButton(ID_STATION_YEAR, 4, WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL, 100);
+//	ReplaceButton(ID_STATION_YEAR, yearButton);
+//
+//	UpdateTooltips();
+//
+//	return TRUE;
+//}
+//	
 
 /////////////////////////////////////////////////////////////////////////////
 // CLocationsListWnd
@@ -76,15 +76,13 @@ IMPLEMENT_DYNCREATE(CLocationsListWnd, CDockablePane)
 BEGIN_MESSAGE_MAP(CLocationsListWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	//ON_WM_CONTEXTMENU()
-	ON_MESSAGE(WM_SETTEXT, OnSetText)
 	ON_MESSAGE(CLocationVectorCtrl::UWM_SELECTION_CHANGE, OnSelectionChange)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_LOCATIONS, OnUpdateStatusBar)
-	ON_COMMAND_RANGE(ID_NB_STATIONS, ID_STATION_YEAR, OnSearchPropertyChange)
+	/*ON_COMMAND_RANGE(ID_NB_STATIONS, ID_STATION_YEAR, OnSearchPropertyChange)
 	ON_CONTROL_RANGE(CBN_SELCHANGE, ID_NB_STATIONS, ID_STATION_YEAR, OnSearchPropertyChange)
 	ON_CONTROL_RANGE(EN_CHANGE, ID_NB_STATIONS, ID_STATION_YEAR, OnSearchPropertyChange)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_NB_STATIONS, ID_STATION_YEAR, OnUpdateSearchProperty)
-
+*/
 END_MESSAGE_MAP()
 
 
@@ -147,12 +145,6 @@ int CLocationsListWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 }
 
 
-LRESULT CLocationsListWnd::OnSetText(WPARAM wParam, LPARAM lParam)
-{
-	LRESULT Result = Default(); //let it do the default thing if you want
-
-	return Result;
-}
 
 BOOL CLocationsListWnd::PreTranslateMessage(MSG* pMsg)
 {
@@ -167,13 +159,9 @@ void CLocationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	CMatchStationDoc* pDoc = GetDocument();
 	ASSERT(pDoc);
 
-	//if (pDoc && pDoc->GetLocationVector())
-	//{
-	//bEnable = !pDoc->GetLocationVector()->GetFilePath().empty();
-
 	if (lHint == CMatchStationDoc::INIT)
 	{
-		m_locationVectorCtrl.SetLocationVector(GetDocument()->GetLocationVector());
+		m_locationVectorCtrl.SetLocationVector(GetDocument()->GetLocations());
 		m_locationVectorCtrl.Update();
 
 	}
@@ -182,20 +170,6 @@ void CLocationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	{
 		m_locationVectorCtrl.SetCurIndex(pDoc->GetCurIndex());
 	}
-
-
-	if (lHint == CMatchStationDoc::INIT || lHint == CMatchStationDoc::PROPERTIES_CHANGE)
-	{
-
-		CMFCToolBarEditBoxButton::SetContentsAll(ID_NB_STATIONS, UtilWin::ToCString(pDoc->GetNbStation()));
-
-		CMFCToolBarComboBoxButton* pCtrl = CMFCToolBarComboBoxButton::GetByCmd(ID_STATION_VARIABLES); ASSERT(pCtrl);
-		pCtrl->SelectItem((int)pDoc->GetVariable());
-		if (pDoc->GetYear() > -999)
-			CMFCToolBarEditBoxButton::SetContentsAll(ID_STATION_YEAR, UtilWin::ToCString(pDoc->GetYear()));
-	}
-	//}
-
 
 }
 
@@ -266,65 +240,65 @@ LRESULT CLocationsListWnd::OnSelectionChange(WPARAM, LPARAM)
 	return 0;
 }
 
-
-void CLocationsListWnd::OnSearchPropertyChange(UINT id)
-{
-	CMatchStationDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	bool bInit = pDoc->GetCurIndex() != UNKNOWN_POS;
-
-
-	switch (id)
-	{
-	case ID_NB_STATIONS:
-	{
-		//CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_NB_STATIONS); ASSERT(pCtrl);
-		CString text = CMFCToolBarEditBoxButton::GetContentsAll(ID_NB_STATIONS);
-		size_t nbStations = (size_t)UtilWin::ToInt(text);
-		if (nbStations > 0)
-			pDoc->SetNbStation(nbStations);
-
-		break;
-	}
-
-	case ID_STATION_VARIABLES:
-	{
-		CMFCToolBarComboBoxButton* pCtrl = CMFCToolBarComboBoxButton::GetByCmd(ID_STATION_VARIABLES); ASSERT(pCtrl);
-		pDoc->SetVariable(HOURLY_DATA::TVarH(pCtrl->GetCurSel()));
-		break;
-	}
-	case ID_STATION_YEAR:
-	{
-		//CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_STATION_YEAR); ASSERT(pCtrl);
-		CString text = CMFCToolBarEditBoxButton::GetContentsAll(ID_STATION_YEAR);
-		if (text.IsEmpty() || text.GetLength() == 4)
-			pDoc->SetYear(UtilWin::ToInt(text));
-		break;
-	}
-	default: ASSERT(false);
-	}
-
-
-	//size_t	index = m_locationVectorCtrl.GetCurIndex();
-	//pDoc->SetCurIndex(index);
-
-}
-
-void CLocationsListWnd::OnUpdateSearchProperty(CCmdUI* pCmdUI)
-{
-
-	CMatchStationDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-
-
-	/*switch (pCmdUI->m_nID)
-	{
-	case ID_NB_STATIONS:		pCmdUI->SetText(UtilWin::ToCString(pDoc->GetNbStation())); break;
-	case ID_STATION_VARIABLES:	pCmdUI->m_nIndex = pDoc->GetVariable(); break;
-	case ID_STATION_YEAR:		pCmdUI->SetText(UtilWin::ToCString(pDoc->GetYear())); break;
-	default: ASSERT(false);
-	}*/
-
-
-	pCmdUI->Enable(TRUE);
-}
+//
+//void CLocationsListWnd::OnSearchPropertyChange(UINT id)
+//{
+//	CMatchStationDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//	bool bInit = pDoc->GetCurIndex() != UNKNOWN_POS;
+//
+//
+//	switch (id)
+//	{
+//	case ID_NB_STATIONS:
+//	{
+//		//CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_NB_STATIONS); ASSERT(pCtrl);
+//		CString text = CMFCToolBarEditBoxButton::GetContentsAll(ID_NB_STATIONS);
+//		size_t nbStations = (size_t)UtilWin::ToInt(text);
+//		if (nbStations > 0)
+//			pDoc->SetNbStation(nbStations);
+//
+//		break;
+//	}
+//
+//	case ID_STATION_VARIABLES:
+//	{
+//		CMFCToolBarComboBoxButton* pCtrl = CMFCToolBarComboBoxButton::GetByCmd(ID_STATION_VARIABLES); ASSERT(pCtrl);
+//		pDoc->SetVariable(HOURLY_DATA::TVarH(pCtrl->GetCurSel()));
+//		break;
+//	}
+//	case ID_STATION_YEAR:
+//	{
+//		//CMFCToolBarEditBoxButton* pCtrl = CMFCToolBarEditBoxButton::GetByCmd(ID_STATION_YEAR); ASSERT(pCtrl);
+//		CString text = CMFCToolBarEditBoxButton::GetContentsAll(ID_STATION_YEAR);
+//		if (text.IsEmpty() || text.GetLength() == 4)
+//			pDoc->SetYear(UtilWin::ToInt(text));
+//		break;
+//	}
+//	default: ASSERT(false);
+//	}
+//
+//
+//	//size_t	index = m_locationVectorCtrl.GetCurIndex();
+//	//pDoc->SetCurIndex(index);
+//
+//}
+//
+//void CLocationsListWnd::OnUpdateSearchProperty(CCmdUI* pCmdUI)
+//{
+//
+//	CMatchStationDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//
+//
+//	/*switch (pCmdUI->m_nID)
+//	{
+//	case ID_NB_STATIONS:		pCmdUI->SetText(UtilWin::ToCString(pDoc->GetNbStation())); break;
+//	case ID_STATION_VARIABLES:	pCmdUI->m_nIndex = pDoc->GetVariable(); break;
+//	case ID_STATION_YEAR:		pCmdUI->SetText(UtilWin::ToCString(pDoc->GetYear())); break;
+//	default: ASSERT(false);
+//	}*/
+//
+//
+//	pCmdUI->Enable(TRUE);
+//}

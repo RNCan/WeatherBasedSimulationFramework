@@ -48,11 +48,17 @@ CMatchStationDoc::CMatchStationDoc()
 
 	//load last session param
 	m_curIndex = UNKNOWN_POS;
-	m_variable = (TVarH)options.GetProfileInt(_T("Variable"));
-	m_year = options.GetProfileInt(_T("Year"), -999);
+	m_variable = (TVarH)options.GetProfileInt(_T("Variable"), H_TAIR);
+	m_year = options.GetProfileInt(_T("Year"), 2015);
 	m_nbStations = options.GetProfileInt(_T("NbStations"), 4);
+	m_obsType = options.GetProfileInt(_T("ObservationType"), T_DAILY);
+	m_hourlyFilePath = CStringA(options.GetProfileString(_T("HourlyDatabase")));
+	m_dailyFilePath = CStringA(options.GetProfileString(_T("DailyDatabase")));
 	m_normalsFilePath = CStringA(options.GetProfileString(_T("NormalsDatabase")));
-	m_observationFilePath = CStringA(options.GetProfileString(_T("ObservationDatabase")));
+	
+	
+	
+
 
 	//load command line param
 	const CMatchStationCmdLine& cmdInfo = theApp.m_cmdInfo;
@@ -77,12 +83,15 @@ CMatchStationDoc::CMatchStationDoc()
 		m_normalsFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::NORMALS_FILEPATH));
 	
 	if (cmdInfo.Have(CMatchStationCmdLine::DAILY_FILEPATH))
-		m_observationFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::DAILY_FILEPATH));
+		m_dailyFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::DAILY_FILEPATH));
 
 	if (cmdInfo.Have(CMatchStationCmdLine::HOURLY_FILEPATH))
-		m_observationFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::HOURLY_FILEPATH));
+		m_hourlyFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::HOURLY_FILEPATH));
 			
 	m_bExecute = false;
+	
+
+	//fill with empty 
 
 }
 
@@ -123,60 +132,72 @@ BOOL CMatchStationDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	m_outputText.clear();
 
 
-	std::string filePath = CStringA(lpszPathName);
-	std::string ext = GetFileExtension(filePath);
+	std::string filepath = CStringA(lpszPathName);
+	std::string ext = GetFileExtension(filepath);
 	//MakeLower(ext);
 
 	if (IsEqual(ext, ".csv"))
 	{
-		m_locationFilePath = filePath;
+		m_locationFilePath = filepath;
 	}
 	else if (IsEqual(ext, ".NormalsStations"))
 	{
-		m_normalsFilePath = filePath;
+		m_normalsFilePath = filepath;
 	}
 	else if (IsEqual(ext, ".DailyStations"))
 	{
-		m_observationFilePath = filePath;
+		m_dailyFilePath = filepath;
 	}
 	else if (IsEqual(ext, ".HourlyStations"))
 	{
-		m_observationFilePath = filePath;
+		m_hourlyFilePath = filepath;
 	}
-	else if (IsEqual(ext, ".WGInput"))
-	{
-		m_WGFilePath = filePath;
-	}
-
-	//UpdateAllViews(NULL, CMatchStationDoc::INIT, NULL);
-
+	
 
 	return (bool)msg;
 }
 
-void CMatchStationDoc::SetLocationFilePath(LPCTSTR lpszPathName)
+void CMatchStationDoc::SetLocationFilePath(const std::string& filepath)
 {
-	std::string filePath = CStringA(lpszPathName);
+	//std::string filepath = CStringA(lpszPathName);
 
-	if (!IsEqual(filePath, m_locationFilePath))
+	if (!IsEqual(filepath, m_locationFilePath))
 	{
-		if (FileExists(filePath) || filePath.empty())
+		if (FileExists(filepath) || filepath.empty())
 		{
-			m_locationFilePath = filePath;
+			m_locationFilePath = filepath;
 			m_pLocations.reset();
 
-			m_locationFilePath = filePath;
+			m_locationFilePath = filepath;
 			if (!m_locationFilePath.empty())
 			{
 				ERMsg msg;
 
-				CProgressStepDlg dlg(AfxGetMainWnd());
+				
+				/*CProgressStepDlg dlg(AfxGetMainWnd());
 				dlg.Create();
 
 				m_pLocations = std::make_shared<CLocationVector>();
-				msg = m_pLocations->Load(filePath);
+				msg = m_pLocations->Load(filepath);
 
-				dlg.DestroyWindow();
+				dlg.DestroyWindow();*/
+
+				COutputView* pView = GetOutpoutView();
+				CProgressWnd& progressWnd = GetProgressWnd(pView);
+
+				m_bExecute = true;
+				pView->AdjustLayout();//open the progress window
+
+
+				CProgressStepDlgParam param(this, (void*)m_locationFilePath.c_str(), (void*)T_LOCATION);
+
+				m_pLocations = std::make_shared<CLocationVector>();
+				msg = progressWnd.Execute(Execute, &param);
+
+				m_bExecute = false;
+				pView->AdjustLayout();//open the progress window
+
+
 
 				if (!msg)
 					SYShowMessage(msg, AfxGetMainWnd());
@@ -188,13 +209,13 @@ void CMatchStationDoc::SetLocationFilePath(LPCTSTR lpszPathName)
 	}
 }
 
-void CMatchStationDoc::SetNormalsFilePath(LPCTSTR lpszPathName)
+void CMatchStationDoc::SetNormalsFilePath(const std::string& filepath)
 {
-	std::string filePath = CStringA(lpszPathName);
+	//std::string filepath = CStringA(lpszPathName);
 
-	if (!IsEqual(filePath, m_normalsFilePath))
+	if (!IsEqual(filepath, m_normalsFilePath))
 	{
-		if (FileExists(filePath) || filePath.empty())
+		if (FileExists(filepath) || filepath.empty())
 		{
 			if (m_pNormalsDB.get() && m_pNormalsDB->IsOpen())
 				m_pNormalsDB->Close();
@@ -202,12 +223,12 @@ void CMatchStationDoc::SetNormalsFilePath(LPCTSTR lpszPathName)
 
 			m_pNormalsDB.reset();
 
-			m_normalsFilePath = filePath;
+			m_normalsFilePath = filepath;
 			if (!m_normalsFilePath.empty())
 			{
 				ERMsg msg;
 
-				CProgressStepDlg dlg(AfxGetMainWnd());
+				/*CProgressStepDlg dlg(AfxGetMainWnd());
 				dlg.Create();
 
 				m_pNormalsDB = CreateWeatherDatabase(m_normalsFilePath);
@@ -218,6 +239,22 @@ void CMatchStationDoc::SetNormalsFilePath(LPCTSTR lpszPathName)
 
 
 				dlg.DestroyWindow();
+*/
+				COutputView* pView = GetOutpoutView();
+				CProgressWnd& progressWnd = GetProgressWnd(pView);
+				m_bExecute = true;
+				pView->AdjustLayout();//open the progress window
+
+				CProgressStepDlgParam param(this, (void*)m_normalsFilePath.c_str(), (void*)T_NORMALS);
+
+				m_pNormalsDB = CreateWeatherDatabase(m_normalsFilePath);
+				if (m_pNormalsDB)
+					msg = progressWnd.Execute(Execute, &param);
+				else
+					msg.ajoute("Invalid normals file path: " + m_normalsFilePath);
+
+				m_bExecute = false;
+				pView->AdjustLayout();//open the progress window
 
 				if (!msg)
 					SYShowMessage(msg, AfxGetMainWnd());
@@ -229,40 +266,120 @@ void CMatchStationDoc::SetNormalsFilePath(LPCTSTR lpszPathName)
 	}
 }
 
-void CMatchStationDoc::SetObservationFilePath(LPCTSTR lpszPathName)
+void CMatchStationDoc::SetDailyFilePath(const std::string& filepath)
 {
-	std::string filePath = CStringA(lpszPathName);
+	//std::string filepath = CStringA(lpszPathName);
 
 
-	if (!IsEqual(filePath, m_observationFilePath))
+	if (!IsEqual(filepath, m_dailyFilePath))
 	{
-		if (FileExists(filePath) || filePath.empty())
+		if (FileExists(filepath) || filepath.empty())
 		{
-			if (m_pObservationDB.get() && m_pObservationDB->IsOpen())
-				m_pObservationDB->Close();
+			if (m_pDailyDB.get() && m_pDailyDB->IsOpen())
+				m_pDailyDB->Close();
 
-			m_pObservationDB.reset();
+			m_pDailyDB.reset();
 
-			m_observationFilePath = filePath;
-			if (!m_observationFilePath.empty())
+			m_dailyFilePath = filepath;
+			if (!m_dailyFilePath.empty())
 			{
 				ERMsg msg;
-				CProgressStepDlg dlg(AfxGetMainWnd());
-				dlg.Create();
+				m_obsType = T_DAILY;
 
-				m_pObservationDB = CreateWeatherDatabase(filePath);
-				if (m_pObservationDB.get())//if it's a vlid extention
-					msg = m_pObservationDB->Open(filePath, CNormalsDatabase::modeRead, dlg.GetCallback());
+				//CProgressStepDlg dlg(AfxGetMainWnd());
+				//dlg.Create();
+
+				//m_pDailyDB = CreateWeatherDatabase(m_dailyFilePath);
+				//if (m_pDailyDB.get())//if it's a vlid extention
+				//	msg = m_pDailyDB->Open(m_dailyFilePath, CDailyDatabase::modeRead, dlg.GetCallback());
+				//else
+				//	msg.ajoute("Invalid file path");
+
+				//dlg.DestroyWindow();
+				COutputView* pView = GetOutpoutView();
+				CProgressWnd& progressWnd = GetProgressWnd(pView);
+				m_bExecute = true;
+				pView->AdjustLayout();//open the progress window
+
+				CProgressStepDlgParam param(this, (void*)m_dailyFilePath.c_str(), (void*)T_DAILY);
+
+				m_pDailyDB = CreateWeatherDatabase(m_dailyFilePath);
+				if (m_pDailyDB.get())//if it's a valid extention
+					msg = progressWnd.Execute(Execute, &param);
 				else
-					msg.ajoute("Invalid file path");
+					msg.ajoute("Invalid daily file path:" + m_dailyFilePath);
 
-				dlg.DestroyWindow();
+				m_bExecute = false;
+				pView->AdjustLayout();//open the progress window
+
 
 				if (!msg)
 				{
-					m_pObservationDB.reset();
+					m_pDailyDB.reset();
 					SYShowMessage(msg, AfxGetMainWnd());
 				}
+
+				
+			}//path not empty
+
+			UpdateAllViews(NULL, OBSERVATION_DATABASE_CHANGE, NULL);
+		}
+	}
+
+}
+
+void CMatchStationDoc::SetHourlyFilePath(const std::string& filepath)
+{
+	//std::string filepath = CStringA(lpszPathName);
+
+
+	if (!IsEqual(filepath, m_hourlyFilePath))
+	{
+		if (FileExists(filepath) || filepath.empty())
+		{
+			if (m_pHourlyDB.get() && m_pHourlyDB->IsOpen())
+				m_pHourlyDB->Close();
+
+			m_pHourlyDB.reset();
+
+			m_hourlyFilePath = filepath;
+			if (!m_hourlyFilePath.empty())
+			{
+				ERMsg msg;
+				m_obsType = T_HOURLY;
+				//CProgressStepDlg dlg(AfxGetMainWnd());
+				//dlg.Create();
+
+				//m_pHourlyDB = CreateWeatherDatabase(m_hourlyFilePath);
+				//if (m_pHourlyDB.get())//if it's a vlid extention
+				//	msg = m_pHourlyDB->Open(m_hourlyFilePath, CHourlyDatabase::modeRead, dlg.GetCallback());
+				//else
+				//	msg.ajoute("Invalid file path");
+
+				//dlg.DestroyWindow();
+				COutputView* pView = GetOutpoutView();
+				CProgressWnd& progressWnd = GetProgressWnd(pView);
+				CProgressStepDlgParam param(this, (void*)m_hourlyFilePath.c_str(), (void*)T_HOURLY);
+
+				m_bExecute = true;
+				pView->AdjustLayout();//open the progress window
+
+				m_pHourlyDB = CreateWeatherDatabase(m_hourlyFilePath);
+				if (m_pHourlyDB.get())//if it's a valid extention
+					msg = progressWnd.Execute(Execute, &param);
+				else
+					msg.ajoute("Invalid hourly file path:" + m_hourlyFilePath);
+
+				m_bExecute = false;
+				pView->AdjustLayout();//open the progress window
+
+				if (!msg)
+				{
+					m_pHourlyDB.reset();
+					SYShowMessage(msg, AfxGetMainWnd());
+				}
+
+				
 			}//path not empty
 
 			UpdateAllViews(NULL, OBSERVATION_DATABASE_CHANGE, NULL);
@@ -278,10 +395,10 @@ BOOL CMatchStationDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	//	!UtilWin::FileExist(lpszPathName) )
 	//{
 
-	//	std::string filePath = CStringA(lpszPathName);
+	//	std::string filepath = CStringA(lpszPathName);
 	//	
 	//	if ( !m_pDatabase->IsOpen() )//create a new database
-	//		msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit);
+	//		msg = m_pDatabase->Open(filepath, CWeatherDatabase::modeEdit);
 
 	//	if (msg)
 	//		msg = m_pDatabase->Save();
@@ -296,7 +413,7 @@ BOOL CMatchStationDoc::OnSaveDocument(LPCTSTR lpszPathName)
 
 void CMatchStationDoc::OnCloseDocument()
 {
-	UpdateAllViews(NULL, CMatchStationDoc::CLOSE, NULL);
+	//UpdateAllViews(NULL, CMatchStationDoc::CLOSE, NULL);
 
 
 	//Save setting
@@ -304,8 +421,10 @@ void CMatchStationDoc::OnCloseDocument()
 	options.WriteProfileInt(_T("NbStations"), (int)m_nbStations);
 	options.WriteProfileInt(_T("Year"), m_year);
 	options.WriteProfileInt(_T("Variable"), m_variable);
+	options.WriteProfileInt(_T("ObservationType"), (int)m_obsType);
 	options.WriteProfileString(_T("NormalsDatabase"), CString(m_normalsFilePath.c_str()));
-	options.WriteProfileString(_T("ObservationDatabase"), CString(m_observationFilePath.c_str()));
+	options.WriteProfileString(_T("DailyDatabase"), CString(m_dailyFilePath.c_str()));
+	options.WriteProfileString(_T("HourlyDatabase"), CString(m_hourlyFilePath.c_str()));
 
 	m_pLocations = std::make_shared<CLocationVector>();
 
@@ -319,12 +438,7 @@ BOOL CMatchStationDoc::IsModified()
 
 BOOL CMatchStationDoc::SaveModified() // return TRUE if ok to continue
 {
-	//if (m_bDataInEdition)
-	//	return FALSE;
-
 	BOOL bSave = CDocument::SaveModified();
-	//if (bSave)
-	//m_modifiedStation.clear();
 
 	return bSave;
 }
@@ -463,54 +577,39 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 						stationsVector.ApplyCorrections(m_gradient);
 						stationsVector.GetInverseDistanceMean(GetLocation(GetCurIndex()), m_variable, m_normalsEstimate);
 					}
-					//CWGInput WGInput;
-					//WGInput.m_firstYear = m_year;
-					//WGInput.m_lastYear = m_year;
-					//WGInput.m_nbNormalsYears = 1;
-					//WGInput.m_nbNormalsStations = m_nbStation;
-					//WGInput.m_nbDailyStations = m_nbStation;
-					//WGInput.m_nbHourlyStations = m_nbStation;
-
-					//CWeatherGenerator WG;
-					//WG.SetWGInput(WGInput);
-					//WG.SetNormalDB(pNormalsDB);
-
-					//if (m_pObservationDB && m_pObservationDB->IsOpen())
-					//{
-					//	if (IsEqual(m_pObservationDB->GetDatabaseExtension(), ".DailyStations"))
-					//	{
-					//		CDailyDatabasePtr pDailyDB = std::dynamic_pointer_cast<CDailyDatabase>(m_pObservationDB);
-					//		ASSERT(pDailyDB.get());
-					//		WG.SetDailyDB(pDailyDB);
-					//	}
-					//	else if (IsEqual(m_pObservationDB->GetDatabaseExtension(), ".HourlyStations"))
-					//	{
-					//		CHourlyDatabasePtr pHourlyDB = std::dynamic_pointer_cast<CHourlyDatabase>(m_pObservationDB);
-					//		ASSERT(pHourlyDB.get());
-					//		WG.SetHourlyDB(pHourlyDB);
-					//	}
-					//}
-
-					//WG.SetTarget(GetLocation(GetCurIndex()));
-					//WG.Initialize(dlg.GetCallback()); //create gradient (again)...toDo
-
-					//msg = WG.GetNormals(m_normalsEstimate, dlg.GetCallback());
-
+					
 				}
 			}
 		}
 
-
-		if (m_pObservationDB.get() && m_pObservationDB->IsOpen())
+		if (m_obsType == T_DAILY)
 		{
-			std::shared_ptr<CDHDatabaseBase> pObservationDB = std::dynamic_pointer_cast<CDHDatabaseBase>(m_pObservationDB);
-			ASSERT(pObservationDB.get());
-
-			//match
-			if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == OBSERVATION_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
+			if (m_pDailyDB.get() && m_pDailyDB->IsOpen())
 			{
-				pObservationDB->Search(m_observationResult, GetLocation(m_curIndex), m_nbStations, m_variable, m_year);
-				pObservationDB->GetStations(m_observationResult, m_observationStations);
+				std::shared_ptr<CDHDatabaseBase> pDailyDB = std::dynamic_pointer_cast<CDHDatabaseBase>(m_pDailyDB);
+				ASSERT(pDailyDB.get());
+
+				//match
+				if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == OBSERVATION_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
+				{
+					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_variable, m_year);
+					pDailyDB->GetStations(m_dailyResult, m_dailyStations);
+				}
+			}
+		}
+		else
+		{
+			if (m_pHourlyDB.get() && m_pHourlyDB->IsOpen())
+			{
+				std::shared_ptr<CDHDatabaseBase> pHourlyDB = std::dynamic_pointer_cast<CDHDatabaseBase>(m_pHourlyDB);
+				ASSERT(pHourlyDB.get());
+
+				//match
+				if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == OBSERVATION_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
+				{
+					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_variable, m_year);
+					pHourlyDB->GetStations(m_hourlyResult, m_hourlyStations);
+				}
 			}
 		}
 	}
@@ -542,21 +641,23 @@ UINT CMatchStationDoc::Execute(void* pParam)
 {
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CMatchStationDoc* pDoc = (CMatchStationDoc*)pMyParam->m_pThis;
-	std::string filePath = (char*)pMyParam->m_pFilepath;
+	std::string filepath = (char*)pMyParam->m_pFilepath;
 	size_t type = (size_t)pMyParam->m_pExtra;
 
 	ERMsg* pMsg = pMyParam->m_pMsg;
 	CCallback* pCallback = pMyParam->m_pCallback;
-	pCallback->PushTask("Open database: " + filePath, NOT_INIT);
+	pCallback->PushTask("Open database: " + filepath, NOT_INIT);
 
 	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
 	TRY
 		switch (type)
 		{
-		case 0:	*pMsg = pDoc->m_pNormalsDB->Open(filePath, CNormalsDatabase::modeRead, *pCallback); break;
-		case 1: *pMsg = pDoc->m_pObservationDB->Open(filePath, CWeatherDatabase::modeRead, *pCallback); break;
+		case T_HOURLY:	*pMsg = pDoc->m_pHourlyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback); break;
+		case T_DAILY:	*pMsg = pDoc->m_pDailyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback); break;
+		case T_NORMALS:	*pMsg = pDoc->m_pNormalsDB->Open(filepath, CNormalsDatabase::modeRead, *pCallback); break;
+		case T_LOCATION:*pMsg = pDoc->m_pLocations->Load(filepath, ";,", *pCallback); break;
+		default: ASSERT(false);
 		}
-		
 	CATCH_ALL(e)
 		*pMsg = UtilWin::SYGetMessage(*e);
 	END_CATCH_ALL
@@ -571,38 +672,41 @@ UINT CMatchStationDoc::Execute(void* pParam)
 }
 
 
-
-
-void CMatchStationDoc::OnInitialUpdate() // called first time after construct
+COutputView* CMatchStationDoc::GetOutpoutView()
 {
-
-	ERMsg msg;
-
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	ENSURE(pMainFrm);
-	//COutputView* pView = (COutputView*)pMainFrm->GetActiveView();
-	//ENSURE(pView);
+
 	POSITION posView = GetFirstViewPosition();
 	COutputView* pView = (COutputView*)GetNextView(posView);
 	ENSURE(pView);
 
+	COutputView* pOutputView = (COutputView*)pView;
+	return pOutputView;
+}
+
+
+CProgressWnd& CMatchStationDoc::GetProgressWnd(COutputView* pView)
+{
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	ENSURE(pMainFrm);
 
 	CProgressWnd& progressWnd = pView->GetProgressWnd();
-
-	m_bExecute = true;
-	pView->AdjustLayout();//open the progress window
-
 	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 
-	if (!m_WGFilePath.empty() && FileExists(m_WGFilePath))
-	{
-		CWGInput WGInput;
-		if (WGInput.Load(m_WGFilePath))
-		{
-			m_year = WGInput.m_firstYear;
-			m_nbStations = WGInput.m_nbNormalsStations;
-		}
-	}
+	return progressWnd;
+}
+
+
+void CMatchStationDoc::OnInitialUpdate() // called first time after construct
+{
+	ERMsg msg;
+	
+	COutputView* pView = GetOutpoutView();
+	CProgressWnd& progressWnd = GetProgressWnd(pView);
+	
+	m_bExecute = true;
+	pView->AdjustLayout();//open the progress window
 
 	if (m_normalsFilePath != m_lastNormalsFilePath)
 	{
@@ -610,30 +714,46 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		m_pNormalsDB.reset();
 		if (!m_normalsFilePath.empty() && FileExists(m_normalsFilePath))
 		{
-			CProgressStepDlgParam param(this, (void*)m_normalsFilePath.c_str(), (void*)0);
+			CProgressStepDlgParam param(this, (void*)m_normalsFilePath.c_str(), (void*)T_NORMALS);
 
 			m_pNormalsDB = CreateWeatherDatabase(m_normalsFilePath);
 			if (m_pNormalsDB)
 				msg = progressWnd.Execute(Execute, &param);
 			else
-				msg.ajoute("Invalid Normals file path: " + m_normalsFilePath);
+				msg.ajoute("Invalid normals file path: " + m_normalsFilePath);
 		}
 	}
 
-	if (m_observationFilePath != m_lastObservationFilePath)
+	if (m_dailyFilePath != m_lastDailyFilePath)
 	{
-		m_lastObservationFilePath = m_observationFilePath;
-		m_pObservationDB.reset();
-		if (!m_observationFilePath.empty() && FileExists(m_observationFilePath))
+		m_lastDailyFilePath = m_dailyFilePath;
+		m_pDailyDB.reset();
+		if (!m_dailyFilePath.empty() && FileExists(m_dailyFilePath))
 		{
-			CProgressStepDlgParam param(this, (void*)m_observationFilePath.c_str(), (void*)1);
+			CProgressStepDlgParam param(this, (void*)m_dailyFilePath.c_str(), (void*)T_DAILY);
 
-			m_pObservationDB = CreateWeatherDatabase(m_observationFilePath);
-			if (m_pObservationDB.get())//if it's a vlid extention
+			m_pDailyDB = CreateWeatherDatabase(m_dailyFilePath);
+			if (m_pDailyDB.get())//if it's a valid extention
 				msg = progressWnd.Execute(Execute, &param);
-				//msg = m_pObservationDB->Open(m_observationFilePath, CNormalsDatabase::modeRead, dlg.GetCallback());
 			else
-				msg.ajoute("Invalid observation file path:" + m_observationFilePath);
+				msg.ajoute("Invalid daily file path:" + m_dailyFilePath);
+
+		}//path not empty
+	}
+	
+	if (m_hourlyFilePath != m_lastHourlyFilePath)
+	{
+		m_lastHourlyFilePath = m_hourlyFilePath;
+		m_pHourlyDB.reset();
+		if (!m_hourlyFilePath.empty() && FileExists(m_hourlyFilePath))
+		{
+			CProgressStepDlgParam param(this, (void*)m_hourlyFilePath.c_str(), (void*)T_HOURLY);
+
+			m_pHourlyDB = CreateWeatherDatabase(m_hourlyFilePath);
+			if (m_pHourlyDB.get())//if it's a valid extention
+				msg = progressWnd.Execute(Execute, &param);
+			else
+				msg.ajoute("Invalid hourly file path:" + m_hourlyFilePath);
 
 		}//path not empty
 	}
@@ -644,15 +764,16 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		m_pLocations.reset();
 		if (!m_locationFilePath.empty() && FileExists(m_locationFilePath))
 		{
+			CProgressStepDlgParam param(this, (void*)m_locationFilePath.c_str(), (void*)T_LOCATION);
+
 			m_pLocations = std::make_shared<CLocationVector>();
-			msg += m_pLocations->Load(m_locationFilePath );
+			msg = progressWnd.Execute(Execute, &param);
+
+			//msg += m_pLocations->Load(m_locationFilePath );
 		}
 	}
 
-	
 
-
-	//	SetNormalsFilePath(normalsFilePath);
 	if(CWeatherGradient::GetShore().get()==NULL)
 		msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
@@ -660,7 +781,7 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 	m_bExecute = false;
 	pView->AdjustLayout();//open the progress window
 
-
+	
 
 	if (!msg)
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());

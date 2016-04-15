@@ -9,8 +9,8 @@
 #include "UI/Common/MFCEditBrowseCtrlEx.h"
 #include "NormalsMatchWnd.h"
 #include "ObservationMatchWnd.h"
-#include "ChartsWnd.h"
-#include "FilePathWnd.h"
+#include "WeightWnd.h"
+#include "InputWnd.h"
 #include "NormalsGradientWnd.h"
 #include "NormalsCorrectionWnd.h"
 #include "NormalsEstimateWnd.h"
@@ -44,10 +44,12 @@ public:
 protected:  // membres incorporés de la barre de contrôle
 
 	CMFCMenuBar       m_wndMenuBar;
-	CMainToolBar      m_wndToolBar;
-	CFilePathWnd	  m_wndFilePath;
+	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
-
+	
+	CInputWnd				m_inputWnd;
+	CLocationsListWnd		m_locationsWnd;
+	CPropertiesWnd			m_propertiesWnd;
 	CNormalsMatchWnd		m_normalsWnd;
 	CObservationMatchWnd	m_observationWnd;
 	CGradientChartWnd		m_weightChartsWnd;
@@ -55,9 +57,6 @@ protected:  // membres incorporés de la barre de contrôle
 	CNormalsCorrectionWnd	m_correctionWnd;
 	CNormalsEstimateWnd		m_estimateWnd;
 	CObservationEstimateWnd m_obsEstimateWnd;
-
-	CLocationsListWnd		m_locationsWnd;
-	CPropertiesWnd			m_propertiesWnd;
 
 	static const UINT m_uTaskbarBtnCreatedMsg;
 	CComPtr<ITaskbarList3> m_pTaskbarList;

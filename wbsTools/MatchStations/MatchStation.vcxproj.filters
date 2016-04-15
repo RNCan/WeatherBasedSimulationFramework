@@ -26,9 +26,6 @@
     <ClInclude Include="MatchStationDoc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChartsWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="NormalsMatchWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -47,9 +44,6 @@
     <ClInclude Include="NormalsEstimateWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="FilePathWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="ObservationEstimateWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -60,6 +54,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OutputView.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeightWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,9 +74,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MatchStationDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ChartsWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NormalsMatchWnd.cpp">
@@ -97,9 +94,6 @@
     <ClCompile Include="NormalsEstimateWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FilePathWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObservationEstimateWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,6 +104,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OutputView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeightWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
