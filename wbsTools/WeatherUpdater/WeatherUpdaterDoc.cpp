@@ -309,19 +309,8 @@ void CWeatherUpdaterDoc::OnExecute()
 		progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
 		CProgressStepDlgParam param(&m_project);
 
-
-		/*TRY
-		{
-		*/
 		msg = progressWnd.Execute(ExecuteTasks, &param);
 		m_lastLog = GetOutputString(msg, progressWnd.GetCallback(), true);
-		//}
-		//CATCH_ALL(e)
-		//{
-		//msg = SYGetMessage(*e);
-		//m_lastLog = GetOutputString(msg, DEFAULT_CALLBACK, true);
-		//}
-		//END_CATCH_ALL
 
 		
 		ReplaceString(m_lastLog, "\n", "|");

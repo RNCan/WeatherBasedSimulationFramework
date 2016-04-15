@@ -199,7 +199,6 @@ public:
 	virtual ~CReadOnlyEdit();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 
 protected:
 
@@ -207,7 +206,7 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnUpdateToolBar(CCmdUI *pCmdUI);
 	afx_msg BOOL OnToolBarCommand(UINT);
-
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 //*******************************************************************************************
 class CStatisticComboBox : public CComboBox

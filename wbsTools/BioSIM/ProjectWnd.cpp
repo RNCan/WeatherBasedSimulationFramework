@@ -48,6 +48,7 @@ CProjectWnd::~CProjectWnd()
 {
 }
 
+IMPLEMENT_DYNCREATE(CProjectWnd, CDockablePane)
 BEGIN_MESSAGE_MAP(CProjectWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
@@ -549,7 +550,7 @@ CBioSIMDoc* CProjectWnd::GetDocument()
 BOOL CProjectWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	//let the trl to route command
-	CWnd* pFocus = GetFocus();
+	/*CWnd* pFocus = GetFocus();
 	if (pFocus)
 	{
 		CWnd* pParent = pFocus->GetParent();
@@ -560,6 +561,16 @@ BOOL CProjectWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO
 				return TRUE;
 		}
 	}
+
+	if (m_wndToolBar1.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+	if (m_wndToolBar2.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+*/
+	if (m_projectCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
 	return CDockablePane::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
 

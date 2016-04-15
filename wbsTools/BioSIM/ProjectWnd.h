@@ -33,17 +33,18 @@ class CProjectWndStatusBar : public CStatusBar
 
 class CProjectWnd : public CDockablePane
 {
-	//DECLARE_DYNCREATE(CProjectWnd)
+	DECLARE_DYNCREATE(CProjectWnd)
 
 public:
+
+	static CBioSIMDoc* GetDocument();
 
 	CProjectWnd();
 	~CProjectWnd();
 
 
-	static CBioSIMDoc* GetDocument();
-	//virtual void OnDraw(CDC* pDC);
-	//virtual void OnInitialUpdate(); // called first time after construct
+
+
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 

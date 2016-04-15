@@ -323,14 +323,11 @@ void CExportWnd::OnExport(UINT ID)
 		
 		progressWnd.SetTaskbarList(pMainFrm->GetTaskBarList());
 
-		CProgressStepDlgParam param(pExec.get(), &GetFM());
+		CProgressStepDlgParam param(pExec.get(), NULL, &GetFM());
 
 		TRY
 		{
 			pExec->LoadDefaultCtrl();
-			//ERMsg msg = pExec->Export(GetFM(), CExecutable::EXPORT_CSV, progressWnd.GetCallback());
-			
-			//progressWnd.ShowPane(TRUE, FALSE, TRUE);
 			msg = progressWnd.Execute(CExportWnd::ExportTask, &param);
 		}
 		CATCH_ALL(e)

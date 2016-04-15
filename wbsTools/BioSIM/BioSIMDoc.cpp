@@ -283,7 +283,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	CProgressWnd& progressWnd = pView->GetProgressWnd();
 	progressWnd.SetTaskbarList(pTaskbarList);
 
-	CProgressStepDlgParam param(m_projectPtr.get(),  &GetFM());
+	CProgressStepDlgParam param(m_projectPtr.get(), NULL, &GetFM());
 
 	TRY
 	{

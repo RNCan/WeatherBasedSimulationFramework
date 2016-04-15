@@ -30,7 +30,6 @@ protected:
 
 	CProgressWnd	m_progressWnd;
 	CReadOnlyEdit	m_messageWnd;
-	CFont m_font;
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

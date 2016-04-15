@@ -235,89 +235,80 @@ double CFloatEdit::GetFloat()const
 // CReadOnlyEdit
 
 BEGIN_MESSAGE_MAP(CReadOnlyEdit, CEdit)
+	ON_WM_CREATE()
 	ON_WM_CONTEXTMENU()
 	ON_WM_WINDOWPOSCHANGING()
+	
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_CLEAR, OnUpdateToolBar)
 	ON_COMMAND_EX(ID_EDIT_COPY, OnToolBarCommand)
+	ON_COMMAND_EX(ID_EDIT_PASTE, OnToolBarCommand)
 	ON_COMMAND_EX(ID_EDIT_SELECT_ALL, OnToolBarCommand)
 	ON_COMMAND_EX(ID_EDIT_CLEAR, OnToolBarCommand)
 
 END_MESSAGE_MAP()
 
 CReadOnlyEdit::CReadOnlyEdit()
-{
-}
+{}
 
 CReadOnlyEdit::~CReadOnlyEdit()
+{}
+
+int CReadOnlyEdit::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	if (CEdit::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	SetFont(CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT)));
+	SetTabStops(8);
+
+	return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// Gestionnaires de messages de COutputList
-
-//void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
-//{
-//	CEdit::OnContextMenu(pWnd, point);
-//	/*CMenu menu;
-//	menu.LoadMenu(IDR_OUTPUT_POPUP);
-//
-//	CMenu* pSumMenu = menu.GetSubMenu(0);
-//
-//	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-//	{
-//		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
-//
-//		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-//			return;
-//
-//		((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-//		UpdateDialogControls(this, FALSE);
-//	}
-//
-//	SetFocus();*/
-//}
-
-//#define ME_SELECTALL    WM_USER + 0x7000
 
 void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	SetFocus();
+	CMenu menu;
+	menu.LoadMenu(IDR_MENU_EDIT);
+	
+	CMenu* pSumMenu = menu.GetSubMenu(0);
 
-	CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
-	HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
-	if (hMenu != NULL)
+	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CFrameWndEx)))
 	{
-		//pMM->AddMenu(_T("Edit1"), IDR_MENU_EDIT);
+		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
 
+		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
+			return;
 
-		CMenu* pMenu = CMenu::FromHandle(hMenu);
-		ASSERT(pMenu);
-		//menu.LoadMenu(IDR_MENU_EDIT);
-
-		CMenu* pSumMenu = pMenu->GetSubMenu(0);
-		ASSERT(pSumMenu);
-		//pSumMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON, point.x, point.y, this);
-
-		pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, this);
-		//((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pSumMenu);
+		((CFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
+		//UpdateDialogControls(this, FALSE);
 	}
 
-	//
-	//	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-	//	{
-	//		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
-	//
-	//		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-	//			return;
-	//
-	//		((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-	//		UpdateDialogControls(this, FALSE);
-	//	}
-	//
-	//	SetFocus();*/
+	SetFocus();
 
+//
+//	SetFocus();
+//
+//	CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
+//	HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
+//	if (hMenu != NULL)
+//	{
+//		CFrameWnd* pwndFrame = (CFrameWnd*)AfxGetMainWnd();
+//		if (NULL != pwndFrame)
+//			pwndFrame->SendMessage(WM_CONTEXTMENU, WPARAM(hMenu), MAKELPARAM(point.x, point.y));
+//
+//
+//		//CMenu* pMenu = CMenu::FromHandle(hMenu);
+//		//ASSERT(pMenu);
+//
+////		CMenu* pSumMenu = pMenu->GetSubMenu(0);
+//	//	ASSERT(pSumMenu);
+//		//pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, AfxGetMainWnd());
+//
+//		SetFocus();
+//	}
 }
 
 
@@ -346,9 +337,10 @@ void CReadOnlyEdit::OnUpdateToolBar(CCmdUI *pCmdUI)
 
 	switch (pCmdUI->m_nID)
 	{
-	case ID_EDIT_COPY:   pCmdUI->Enable(LOWORD(sel) != HIWORD(sel)); break;
-	case ID_EDIT_SELECT_ALL:   pCmdUI->Enable(len != 0 && !(LOWORD(sel) == 0 && HIWORD(sel) == len)); break;
-	case ID_EDIT_CLEAR:	pCmdUI->Enable(len>0); break;
+	case ID_EDIT_COPY:			pCmdUI->Enable(LOWORD(sel) != HIWORD(sel)); break;
+	case ID_EDIT_PASTE:			pCmdUI->Enable(false); break;
+	case ID_EDIT_SELECT_ALL:	pCmdUI->Enable(len != 0 && !(LOWORD(sel) == 0 && HIWORD(sel) == len)); break;
+	case ID_EDIT_CLEAR:			pCmdUI->Enable(len>0); break;
 	}
 }
 
@@ -359,6 +351,7 @@ BOOL CReadOnlyEdit::OnToolBarCommand(UINT ID)
 	switch (ID)
 	{
 	case ID_EDIT_COPY:			SendMessage(LOWORD(WM_COPY)); break;
+	case ID_EDIT_PASTE:			break;
 	case ID_EDIT_SELECT_ALL:	SendMessage(EM_SETSEL, 0, -1); break;
 	case ID_EDIT_CLEAR:			SetWindowText(_T("")); break;
 	}
@@ -1270,3 +1263,27 @@ CStdGridProperty(name, no, true)
 //
 //	return CEdit::OnCommand(wParam, lParam);
 //}
+
+//void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
+//{
+//	CEdit::OnContextMenu(pWnd, point);
+//	/*CMenu menu;
+//	menu.LoadMenu(IDR_OUTPUT_POPUP);
+//
+//	CMenu* pSumMenu = menu.GetSubMenu(0);
+//
+//	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
+//	{
+//		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
+//
+//		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
+//			return;
+//
+//		((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
+//		UpdateDialogControls(this, FALSE);
+//	}
+//
+//	SetFocus();*/
+//}
+
+//#define ME_SELECTALL    WM_USER + 0x7000

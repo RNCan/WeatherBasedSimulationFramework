@@ -571,57 +571,35 @@ void CMainFrame::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 }
 
-//
-//BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
-//{
-//	//
-//	// Route to standard command targets first.
-//	//
-//	if (CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//		return TRUE;
-//
-//	//
-//	// Route to inactive views second.
-//	////
-//	//CBioSIMDoc* pDoc = (CBioSIMDoc*)GetActiveDocument();
-//	//if (pDoc != NULL) 
-//	//{ 
-//	//	if (m_projectWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//	//		return TRUE;
-//
-//	//	if (m_propertiesWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//	//		return TRUE;
-//
-//	//	if (m_spreadsheetWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//	//		return TRUE;
-//
-//	//	if (m_chartWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//	//		return TRUE;
-//
-//	//	if (m_exportWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-//	//		return TRUE;
-//	//}
-//
-//
-//	return FALSE;
-//}
-//
-//BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
-//{
-//	m_wndSplitter.CreateStatic(this, 2, 1, WS_CHILD | WS_VISIBLE);
-//
-////	CCreateContext *pContext = (CCreateContext*)lpCreateStruct->lpCreateParams;
-//
-//	if (!m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(COutputView), CSize(150, 0), pContext))
-//		return FALSE;
-//	
-//	
-//	if (!m_wndSplitter.AddWindow(1, 0, &m_progressWnd, WC_STATIC, WS_CHILD | WS_VISIBLE, NULL, CSize(100, 100)))
-//		return FALSE;
-//
-//	return TRUE;
-//}
-//
+BOOL CMainFrame::OnCmdMsg(UINT id, int code, void *pExtra, AFX_CMDHANDLERINFO* pHandler)
+{
+
+	//try the focus window first 
+	//let the trl to route command
+	CWnd* pFocus = GetFocus();
+	if (pFocus)
+	{
+		if (pFocus->OnCmdMsg(id, code, pExtra, pHandler))
+			return TRUE;
+	}
+
+
+	//route cmd first to registered dockable pane
+	if (m_projectWnd.GetSafeHwnd() && m_projectWnd.IsVisible() && m_projectWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		return TRUE;
+	if (m_propertiesWnd.GetSafeHwnd() && m_propertiesWnd.IsVisible() && m_propertiesWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		return TRUE;
+	if (m_spreadsheetWnd.GetSafeHwnd() && m_spreadsheetWnd.IsVisible() && m_spreadsheetWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		return TRUE;
+	if (m_chartWnd.GetSafeHwnd() && m_chartWnd.IsVisible() && m_chartWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		return TRUE;
+	if (m_exportWnd.GetSafeHwnd() && m_exportWnd.IsVisible() && m_exportWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		return TRUE;
+		
+
+	return CFrameWndEx::OnCmdMsg(id, code, pExtra, pHandler);
+}
+
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const

@@ -33,9 +33,7 @@ END_MESSAGE_MAP()
 
 
 COutputView::COutputView()
-{
-//	m_outputType=OUTPUT_MESSAGE;
-}
+{}
 
 COutputView::~COutputView()
 {}
@@ -47,19 +45,11 @@ int COutputView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	
-	//GetCString(IDS_PROGRESS_WND)
-	//VERIFY(m_progressWnd.Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(0, 0, 600, 400), this, ID_PROGRESS_WND ));
 
-	//m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(CListCtrlView), CSize(150, 0), pContext);
 	VERIFY(m_messageWnd.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_MESSAGE_WND));
 	VERIFY(m_progressWnd.Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_WND));
 
 	m_progressWnd.SetMessageCtrl(&m_messageWnd);
-	m_font.CreateStockObject(DEFAULT_GUI_FONT);
-	m_messageWnd.SetFont(&m_font);
-	m_messageWnd.SetTabStops(8);
-
 
 	return 0;
 }
@@ -140,7 +130,7 @@ void COutputView::OnDraw(CDC* pDC)
 BOOL COutputView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	//let the trl to route command
-	CWnd* pFocus = GetFocus();
+	/*CWnd* pFocus = GetFocus();
 	if (pFocus)
 	{
 		CWnd* pParent = pFocus->GetParent();
@@ -150,7 +140,15 @@ BOOL COutputView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO
 			if (m_progressWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
 				return TRUE;
 		}
-	}
+	}*/
+
+	
+	if (m_messageWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+	if (m_progressWnd.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
 
 	return CView::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
