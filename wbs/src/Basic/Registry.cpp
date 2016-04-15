@@ -281,9 +281,9 @@ namespace WBSF
 			else if (itemName == SPREADSHEET1)
 				filePath = "Excel.exe";
 			else if (itemName == SPREADSHEET2)
-				filePath = "Calc.exe";
-			else if (itemName == R_SCRIPT)
 				filePath = "scalc.exe";
+			else if (itemName == R_SCRIPT)
+				filePath = "Rscript.exe";
 			else 
 				filePath = itemName + ".exe";
 			
