@@ -132,8 +132,11 @@ protected:
 	std::string m_messageDlgAccumulator;
 
 
-	std::map<int, CCallbackTaskStack> m_threadTasks;
-
+	//std::map<int, CCallbackTaskStack> m_threadTasks;
+	//std::map<int, std::mutex> m_mutex;
+	
+	CCallbackTaskStack m_threadTasks;
+	std::mutex m_mutex;
 	
 	manual_reset_event m_cancelEvent;
 	manual_reset_event m_pauseEvent;
@@ -142,7 +145,7 @@ protected:
 
 	std::string m_userCancelMsg;
 	HWND* m_phWnd;
-	std::map<int, std::mutex> m_mutex;
+	
 };
 
 

@@ -185,18 +185,18 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
 
 	size_t nbFilter = variables.count();
-	size_t nbYears = 0; 
+	size_t nbGetDistance = 0;
 
 	if (pNormalDB && pNormalDB->IsOpen())
-		nbYears += 1;
+		nbGetDistance++;
 
 	if (pDailyDB && pDailyDB->IsOpen())
-		nbYears += WGInput.GetNbYears();
+		nbGetDistance++;
 	
 	if (pHourlyDB && pHourlyDB->IsOpen())
-		nbYears += WGInput.GetNbYears();
+		nbGetDistance++;
 
-	size_t nbGetDistance = nbFilter*nbYears;
+	//size_t nbGetDistance = nbFilter*nbYears;
 
 	callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance, 1);
 	
@@ -222,8 +222,9 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 
 			int nbThreadsYear = min(CTRL.m_nbMaxThreads, (int)nbYears);//priority over years
 			int nbThreadsLoc = min(CTRL.m_nbMaxThreads/nbThreadsYear, (int)locations.size());//priority over location
+			callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbYears, 1);
 
-
+			size_t n = 0;
 #pragma omp parallel for num_threads(nbThreadsYear) shared(msg) 
 			for (int y = 0; y < (int)nbYears; y++)
 			{
@@ -278,12 +279,11 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 
 #pragma omp flush(messageTmp)
 if (messageTmp)
-{
-	messageTmp += callback.StepIt(0);
+											messageTmp += callback.StepIt(0);
 #pragma omp flush(messageTmp)
-}
+//}
 
-#pragma omp flush(messageTmp)
+
 									}
 								}
 							}//for all locations
@@ -326,11 +326,15 @@ if (messageTmp)
 							if (!messageTmp)
 								msg.ajoute(messageTmp);
 
-							msg += callback.StepIt();
+//#pragma omp atomic
+	//						n++;
+							msg += callback.StepIt(n);
 						}//if variable
 					}//for all variables
 				}//if msg
 			}//for all years
+
+			callback.PopTask();
 		}//is database open
 	}//for all database
 
@@ -704,11 +708,6 @@ ERMsg CWeatherGeneration::GetWGInput(const CFileManager& fileManager, CWGInput& 
 		msg = fileManager.WGInput().Get(m_WGInputName, WGInput);
     }
 
-	/*if (WGInput.m_variables[H_RELH] != WGInput.m_variables[H_TDEW])
-	{
-		msg.ajoute(GetString(IDS_WG_HUMIDITY_ERROR));
-	}*/
-
     return msg;
 }
 
@@ -741,7 +740,7 @@ ERMsg CWeatherGeneration::GetParentInfo(const CFileManager& fileManager, CParent
 		info.m_nbReplications = m_nbReplications;
 	}
 
-	if (filter[PARAMETER] || filter[TIME_REF] || filter[VARIABLE]) // || filter[CParentInfo::WG_INPUT]
+	if (filter[PARAMETER] || filter[TIME_REF] || filter[VARIABLE]) 
 	{
 		CWGInput WGInput;
 		msg = GetWGInput(fileManager, WGInput);
@@ -757,24 +756,6 @@ ERMsg CWeatherGeneration::GetParentInfo(const CFileManager& fileManager, CParent
 			{
 				info.m_variables = WGInput.GetOutputDefenition();
 			}
-
-			/*if (filter[CParentInfo::WG_INPUT])
-			{
-				info.m_WGInput = WGInput;
-			}
-*/
-			//if (filter[PARAMETER])
-			//{
-			//	//if (!m_parametersVariationsName.empty())
-			//	//{
-			//	CParametersVariationsDefinition PVD;
-			//	msg = fileManager.PVD(".WG").Get(m_parametersVariationsName, PVD);
-			//	if (msg)
-			//	{
-			//		info.m_parameterset = PVD.GetModelInputVector(WGInput);
-			//	}
-			//	//}
-			//}
 		}
 	}
 

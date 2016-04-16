@@ -50,13 +50,13 @@ namespace WBSF
 		//m_messages.clear();
 		m_messageAccumulator.clear();
 		m_messageDlgAccumulator.clear();
-		m_threadTasks.clear();
-		m_mutex.clear();
+		while (m_threadTasks.size())
+			m_threadTasks.pop();
+		
+		m_mutex.unlock();
 
 		m_phWnd = NULL;
 		m_bPumpMessage = false;
-
-
 		
 	}
 
@@ -69,11 +69,8 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			//m_messages = in.m_messages;
 			m_messageAccumulator = in.m_messageAccumulator;
 			m_messageDlgAccumulator = in.m_messageDlgAccumulator;
-
-
 			m_threadTasks = in.m_threadTasks;
 			m_phWnd = in.m_phWnd;
 		}
@@ -83,19 +80,18 @@ namespace WBSF
 
 	void CCallback::Lock()
 	{ 
-		int n = omp_get_thread_num();
-		m_mutex[n].lock(); 
+		//int n = omp_get_thread_num();
+		m_mutex.lock(); 
 	}
 
 	void CCallback::Unlock()
 	{ 
-		int n = omp_get_thread_num();
-		m_mutex[n].unlock();
+		//int n = omp_get_thread_num();
+		m_mutex.unlock();
 	}
 
 	double CCallback::GetNbStep()
 	{ 
-		
 		return !GetTasks().empty()?GetTasks().top().m_nbSteps:0;
 	}
 
@@ -109,8 +105,8 @@ namespace WBSF
 
 	CCallbackTaskStack& CCallback::GetTasks()
 	{
-		int n = omp_get_thread_num();
-		return m_threadTasks[n];
+		//int n = omp_get_thread_num();
+		return m_threadTasks;
 	}
 
 	std::string CCallback::GetMessages()
@@ -125,16 +121,21 @@ namespace WBSF
 
 	ERMsg CCallback::SetCurrentStepPos(double stepPos)
 	{
-		if (!GetTasks().empty())
+		ERMsg msg;
+		if (omp_get_thread_num() == 0)
 		{
-			Lock();
-			GetTasks().top().m_stepPos = stepPos;
-			Unlock();
+			if (!GetTasks().empty())
+				msg = StepIt(stepPos - GetTasks().top().m_stepPos);
+		//{
+			//if (omp_get_thread_num() == 0)
+			//{
+				
+		//	}
 		}
 	
 	
 
-		return StepIt(0);
+			return msg;
 	}
 	ERMsg CCallback::SetCurrentStepPos(size_t stepPos){ return SetCurrentStepPos((double)stepPos); }
 
@@ -143,60 +144,48 @@ namespace WBSF
 		ASSERT(stepBy==0 || !m_threadTasks.empty());
 		ERMsg msg;
 
-
 		//step it only apply on the first tread for the moment
 		
-		if (!m_threadTasks.empty())
+		//if (!m_threadTasks.empty())
+		//{
+		
+		if (omp_get_thread_num() == 0)
 		{
-			m_mutex[0].lock();
-			//Lock();
-			if (!m_threadTasks[0].empty())
+			if (stepBy == -1)
+				stepBy = GetTasks().top().m_stepBy;
+
+		
+			if (!GetTasks().empty())
 			{
-				m_threadTasks[0].top().m_stepPos += (stepBy == -1) ? m_threadTasks[0].top().m_stepBy : stepBy;
+				double & stepPos = GetTasks().top().m_stepPos;
+				
+#pragma omp atomic
+				stepPos += stepBy;
+				
 
-				if (m_threadTasks[0].top().m_stepPos > m_threadTasks[0].top().m_nbSteps)
-					m_threadTasks[0].top().m_stepPos = m_threadTasks[0].top().m_nbSteps;
-			}
-			//Unlock();
-			m_mutex[0].unlock();
-
-			if (!m_threadTasks[0].empty())
-			{
-				//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
-				//{
-				//	//try to limit the number of message sent
-				//	if (int(GetCurrentStepPercent()) != int(m_threadTasks[0].top().m_oldPos))
-				//	{
-				//		PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-				//		m_threadTasks[0].top().m_oldPos = GetCurrentStepPercent();
-				//	}
-
-				//	MSG winMsg;
-				//	while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
-				//	{
-				//		if ((winMsg.message != WM_QUIT)
-				//			&& (winMsg.message != WM_CLOSE)
-				//			&& (winMsg.message != WM_DESTROY)
-				//			&& (winMsg.message != WM_NCDESTROY)
-				//			&& (winMsg.message != WM_HSCROLL)
-				//			&& (winMsg.message != WM_VSCROLL))
-				//		{
-				//			TranslateMessage((LPMSG)&winMsg);
-				//			DispatchMessage((LPMSG)&winMsg);
-				//		}
-				//	}
-
-				//}
-
-				if (GetUserCancel())//&& !m_bCancelled
+				/*if (GetTasks().top().m_stepPos > GetTasks().top().m_nbSteps)
 				{
-					//m_bCancelled = true;
-					ASSERT(!m_userCancelMsg.empty());
-					msg.ajoute(m_userCancelMsg);
-				}
+					Lock();
+					GetTasks().top().m_stepPos = GetTasks().top().m_nbSteps;
+					Unlock();
+				}*/
+					
 			}
-			
+		
+
+			//Lock();
+
+			if (GetUserCancel())
+			{
+				//m_bCancelled = true;
+				ASSERT(!m_userCancelMsg.empty());
+				msg.ajoute(m_userCancelMsg);
+			}
+
+			//Unlock();
 		}
+		
+
 		return msg;
 	}
 
@@ -274,7 +263,8 @@ namespace WBSF
 
 	void CCallback::PushTask(const std::string& description, double nbStep, double stepBy)
 	{
-		Lock();
+		ASSERT(omp_get_thread_num() == 0);
+		//Lock();
 		if (nbStep == NOT_INIT)
 			nbStep = -1.0;
 		
@@ -283,7 +273,7 @@ namespace WBSF
 		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 			SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
 
-		Unlock();
+		//Unlock();
 		
 		
 		//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
@@ -294,7 +284,8 @@ namespace WBSF
 	{
 		if (!m_threadTasks.empty())
 		{
-			Lock();
+			ASSERT(omp_get_thread_num() == 0);
+			//Lock();
 			//transfer message to parent
 			string messages;
 			if (!GetTasks().empty())
@@ -308,7 +299,7 @@ namespace WBSF
 			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 				SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
 
-			Unlock();
+			//Unlock();
 
 			//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
 			//PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
