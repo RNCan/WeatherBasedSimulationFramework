@@ -26,11 +26,11 @@ namespace WBSF
 {
 
 
-	typedef CIndexProperty < IDS_SIM_DISPERSAL_WT> CWeatherTypeProperty;
-	typedef CIndexProperty < IDS_SIM_SEED_TYPE> CSeedTypeProperty;
-	typedef CIndexProperty < IDS_SIM_LIFTOFF_TYPE> CLiftoffTypeProperty;
-	typedef CIndexProperty < IDS_SIM_DURATION_TYPE> CDurationTypeProperty;
-	typedef CIndexProperty < IDS_SIM_HEIGHT_TYPE> CHeightTypeProperty;
+	typedef CStdIndexProperty < IDS_SIM_DISPERSAL_WT> CWeatherTypeProperty;
+	typedef CStdIndexProperty < IDS_SIM_SEED_TYPE> CSeedTypeProperty;
+	typedef CStdIndexProperty < IDS_SIM_LIFTOFF_TYPE> CLiftoffTypeProperty;
+	typedef CStdIndexProperty < IDS_SIM_DURATION_TYPE> CDurationTypeProperty;
+	typedef CStdIndexProperty < IDS_SIM_HEIGHT_TYPE> CHeightTypeProperty;
 
 
 	//*****************************************************************************************************

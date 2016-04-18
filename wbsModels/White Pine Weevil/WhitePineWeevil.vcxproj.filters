@@ -7,12 +7,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HemlockLooper.cpp">
+    <ClCompile Include="WhitePineWeevil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HemlockLooper.h">
+    <ClInclude Include="WhitePineWeevil.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

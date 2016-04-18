@@ -59,25 +59,25 @@ short CMatchStationCmdLine::GetOptionIndex(LPCTSTR lpszParam)
 void CMatchStationCmdLine::ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL bLast)
 {
 
-	if (!bFlag && m_lastOption==-1 )
-	{
-		CString ext = UtilWin::GetFileExtension(pszParam);
-		short index = -1;
-		if (ext.CompareNoCase(_T(".NormalsStations")) == 0)
-			index = NORMALS_FILEPATH;
-		else if (ext.CompareNoCase(_T(".DailyStations")) == 0)
-			index = DAILY_FILEPATH;
-		else if (ext.CompareNoCase(_T(".HourlyStations")) == 0)
-			index = HOURLY_FILEPATH;
+	//if (!bFlag && m_lastOption==-1 )
+	//{
+	//	CString ext = UtilWin::GetFileExtension(pszParam);
+	//	short index = -1;
+	//	if (ext.CompareNoCase(_T(".NormalsStations")) == 0)
+	//		index = NORMALS_FILEPATH;
+	//	else if (ext.CompareNoCase(_T(".DailyStations")) == 0)
+	//		index = DAILY_FILEPATH;
+	//	else if (ext.CompareNoCase(_T(".HourlyStations")) == 0)
+	//		index = HOURLY_FILEPATH;
 
-		if (index != -1)
-		{
-			m_bParam[index] = true;
-			m_param[index] = pszParam;
-			ParseLast(bLast);
-			return;
-		}
-	}
+	//	if (index != -1)
+	//	{
+	//		m_bParam[index] = true;
+	//		m_param[index] = pszParam;
+	//		ParseLast(bLast);
+	//		return;
+	//	}
+	//}
 
 	return CStdCmdLine::ParseParam(pszParam, bFlag, bLast);
 }

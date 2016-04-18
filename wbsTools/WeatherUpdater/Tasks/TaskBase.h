@@ -146,7 +146,7 @@ namespace WBSF
 		const std::string& GetLastMsg()const{ return m_lastMsg; }
 		void SetLastMsg(const std::string& msg)const{ const_cast<CTaskBase*>(this)->m_lastMsg = msg; }
 
-		std::string GetUpdaterList(bool bHourly = false, bool bForecast = false, bool bGribs = false)const;
+		std::string GetUpdaterList(bool bHourly, bool bDaily, bool bForecast = false, bool bGribs = false)const;
 		const std::string& Title(size_t i)const;
 		void UpdateLanguage(){ ATTRIBUTE_TITLE.clear();  }
 		
@@ -223,7 +223,7 @@ namespace WBSF
 		bool readStruc(const zen::XmlElement& input);
 
 		CTaskPtr GetTask(size_t t, const std::string& name)const;
-		std::string GetUpdaterList(bool bHourly = false, bool bForecast = false, bool bGribs = false)const;
+		std::string GetUpdaterList(bool bHourly, bool bDaily, bool bForecast = false, bool bGribs = false)const;
 	};
 }
 

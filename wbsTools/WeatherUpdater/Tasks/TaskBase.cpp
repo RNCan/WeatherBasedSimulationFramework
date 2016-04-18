@@ -132,10 +132,10 @@ namespace WBSF
 		m_params[i] = value;
 	}
 
-	std::string CTaskBase::GetUpdaterList(bool bHourly, bool bForecast, bool bGrib)const
+	std::string CTaskBase::GetUpdaterList(bool bHourly, bool bDaily, bool bForecast, bool bGrib)const
 	{ 
 		ASSERT(m_pProject); 
-		return m_pProject->GetUpdaterList(bHourly, bForecast, bGrib);
+		return m_pProject->GetUpdaterList(bHourly, bDaily, bForecast, bGrib);
 	}
 
 	const std::string& CTaskBase::Description(size_t i)const
@@ -521,16 +521,17 @@ namespace WBSF
 	}
 
 
-	std::string CTasksProject::GetUpdaterList(bool bHourly, bool bForecast, bool bGribs)const
+	std::string CTasksProject::GetUpdaterList(bool bHourly, bool bDaily, bool bForecast, bool bGribs)const
 	{
 		std::string str;
 		CTasksProjectBase::const_iterator updateIt = begin() + CTaskBase::UPDATER;
 		for (CTaskPtrVector::const_iterator it = updateIt->begin(); it != updateIt->end(); it++)
 		{
 			bool bHourlyTask = (*it)->IsHourly();
+			bool bDailyTask = !(*it)->IsHourly();
 			bool bForecastTask = (*it)->IsForecast();
 			bool bGribsTask = (*it)->IsGribs();
-			if (bHourly == bHourlyTask &&
+			if (((bHourly == bHourlyTask) || (bDailyTask&&bDaily)) &&
 				bForecast == bForecastTask &&
 				bGribs == bGribsTask )
 				str += "|" + (*it)->m_name;//que faire si plusieur fois le mem nom???

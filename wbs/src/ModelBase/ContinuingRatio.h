@@ -32,8 +32,6 @@ namespace WBSF
 		int GetFirstInstar()const{ return firstInstar; }
 
 
-
-
 		size_t m_startJday;
 
 		double m_b_;			//use m_b_ when single variance
@@ -44,8 +42,6 @@ namespace WBSF
 		bool m_bPercent;
 		bool m_bCumul;
 		bool m_bAdjustFinalProportion; //in multiple variance, adjust final proportion to get 100%
-
-		//CLocation m_loc;
 
 	protected:
 
@@ -59,12 +55,6 @@ namespace WBSF
 	template <int nbParams, int firstInstar, int lastInstar, const char* header>
 	CContinuingRatio<nbParams, firstInstar, lastInstar, header>::CContinuingRatio()
 	{
-
-		//m_lowerThreshold=0;
-		//m_upperThreshold=999;
-		//m_cutoffType=CWeatherDay::HORIZONTAL_CUTOFF;
-		//m_DDType = ;// ALLEN_WAVE_DD;
-
 		m_startJday = 0;
 		m_bPercent = false;
 		m_bCumul = false;
@@ -89,7 +79,7 @@ namespace WBSF
 		CTPeriod p = weather.GetEntireTPeriod();
 		//p.Transform(m_TM);
 
-		std::string head = std::string("DD,") + header + "Last,AI";
+		std::string head = std::string("DD,") + header + ",Last,AI";
 		stat.Init(p.GetNbRef(), p.Begin(), nbParams + 3, 0, head);//+3 for DD, death and AI
 
 		for (size_t y = 0; y < weather.size(); y++)
@@ -120,7 +110,14 @@ namespace WBSF
 				if (m_bPercent)
 				{
 					for (int i = O_FIRST_STAGE; i <= O_LAST_STAGE; i++)
+					{
 						stat[TRef][i] *= 100;
+						if (stat[TRef][i] < 0.1)
+							stat[TRef][i] = 0;
+							if (stat[TRef][i]>99.9)
+								stat[TRef][i] = 100;
+					}
+						
 				}
 			}
 		}

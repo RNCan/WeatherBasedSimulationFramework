@@ -671,7 +671,7 @@ namespace WBSF
 		{
 			m_inputParamCtrl.GetData(m_model.m_inputList);
 			m_model.m_windowRect = m_inputParamCtrl.GetFormRect();
-			//m_model.m_TM = CTM(m_outputTypeCtrl.GetCurSel(), m_outputModeCtrl.GetCurSel());
+
 		}
 		else
 		{
@@ -713,107 +713,11 @@ namespace WBSF
 	//*************************************************************************************
 	// CModelOutputPage property page
 
-	class CTimeModePropertyGridProperty : public CStdGridProperty
-	{
-	public:
-
-		//CTimeModePropertyGridProperty(const CString& strName, CTM TM = CTM(CTM::ATEMPORAL), LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) :
-		//	CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-		
-		CTimeModePropertyGridProperty(const std::string& name, CTM TM, const std::string& description, size_t no) :
-			CStdGridProperty(name, WBSF::to_string(TM), description, no)
-		{
-			CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(IDS_STR_TM_TYPE));
-
-			for (int i = 0; i < CTM::NB_REFERENCE; i++)
-				AddOption(OPTIONS_VALUES[i]);
-
-			if (TM.Type() < 0 || TM.Type() > CTM::NB_REFERENCE)
-				TM = CTM(CTM::ATEMPORAL);
-
-			m_bAllowEdit = false;
-			SetOriginalValue(GetOptionText(TM.Type()));
-		}
-
-		CString GetOptionText(size_t index)
-		{
-			ASSERT(index < (size_t)m_lstOptions.GetSize());
-			POSITION pos = m_lstOptions.FindIndex(index);
-			return m_lstOptions.GetAt(pos);
-		}
-
-		CTM GetTM()const
-		{
-			CString str(CMFCPropertyGridProperty::GetValue());
-
-			int index = 0;
-
-			POSITION pos = m_lstOptions.Find(str);
-			POSITION curPos = m_lstOptions.GetHeadPosition();
-			while (pos != curPos)
-			{
-				m_lstOptions.GetNext(curPos);
-				index++;
-			}
-
-			ASSERT(index >= 0 && index < CTM::NB_REFERENCE);
-
-			return CTM(index);
-		}
-
-		void SetTM(CTM TM)
-		{
-			if (TM.Type() < 0 || TM.Type() > CTM::NB_REFERENCE)
-				TM = CTM(CTM::ATEMPORAL);
-
-			CMFCPropertyGridProperty::SetValue(GetOptionText(TM.Type()));
-		}
-
-		virtual const COleVariant& GetValue()const
-		{
-			CTM TM = GetTM();
-			ASSERT(TM.IsValid());
-
-			const_cast<CTimeModePropertyGridProperty*>(this)->m_TM = CString(WBSF::to_string(TM).c_str());
-
-			return m_TM;
-		}
-
-		virtual void SetValue(const COleVariant& varValue)
-		{
-			CStringA str(varValue);
-
-			CTM TM = WBSF::from_string<CTM>((LPCSTR)str);
-			SetTM(TM);
-		}
-
-		//string GetString()const
-		//{
-		//	assert(false);
-		//}
-
-		//void SetString(const string& str)
-		//{
-		//	assert(false);
-		//	//CString str(to_string(TM).c_str());
-		//	//m_varValue = str;
-		//}
-
-		virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
-		virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
-
-	protected:
-
-		//CTM m_TM;
-		COleVariant m_TM;
-	};
-
-
 
 	BEGIN_MESSAGE_MAP(CModelOutputVariableCtrl, CPropertiesListBox)
 	END_MESSAGE_MAP()
 
-	typedef CIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE, -1, true> CWeatherVariableProperty;
+	typedef CStdIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE, -1, true> CStdWeatherVariableProperty;
 
 	CModelOutputVariableCtrl::CModelOutputVariableCtrl() :
 		CPropertiesListBox(150)
@@ -826,14 +730,8 @@ namespace WBSF
 
 		ENSURE_VALID(m_pWndProperties);
 
-		//CStringArrayEx OUTPUT_TYPE_NAME(IDS_STR_TM_TYPE);
-		//CStringArrayEx EXTENDED_TYPE_NAME(IDS_STR_TM_MODE);
-		//CStringArrayEx title(IDS_OUTPUT_VAR_TITLE);
-		//CStringArrayEx description(IDS_OUTPUT_VAR_DESCRIPTION);
 		StringVector title(IDS_OUTPUT_VAR_TITLE, "|;");
 		StringVector description(IDS_OUTPUT_VAR_DESCRIPTION, "|;");
-		
-
 
 		for (size_t i = 0; i < CModelOutputVariableDef::NB_MEMBERS; i++)
 		{
@@ -846,8 +744,8 @@ namespace WBSF
 			case CModelOutputVariableDef::DESCRIPTION:
 			case CModelOutputVariableDef::PRECISION:
 			case CModelOutputVariableDef::EQUATION:		pProp = new CStdGridProperty(title[i], "", description[i], i); break;
-			case CModelOutputVariableDef::TIME_MODE:	pProp = new CTimeModePropertyGridProperty(title[i], CTM(CTM::ATEMPORAL), description[i], i); break;
-			case CModelOutputVariableDef::CLIMATIC_VARIABLE: pProp = new CWeatherVariableProperty(title[i], 0, description[i], i); break;
+			case CModelOutputVariableDef::TIME_MODE:	pProp = new CStdTimeModePropertyGridProperty(title[i], CTM(CTM::ATEMPORAL), description[i], i); break;
+			case CModelOutputVariableDef::CLIMATIC_VARIABLE: pProp = new CStdWeatherVariableProperty(title[i], "", description[i], i); break;
 			default: ASSERT(false);
 			}
 			

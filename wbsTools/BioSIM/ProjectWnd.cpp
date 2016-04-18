@@ -433,13 +433,13 @@ void CProjectWnd::OnMatchStation()
 				string command = "\"" + locFilepath + "\"";
 
 				if (!NormalsFilepath.empty())
-					command += " \"" + NormalsFilepath + "\"";
+					command += " -n \"" + NormalsFilepath + "\"";
 				
 				if (!DailyFilepath.empty())
-					command += " \"" + DailyFilepath + "\"";
+					command += " -d \"" + DailyFilepath + "\"";
 				
 				if (!HourlyFilepath.empty())
-					command += " \"" + HourlyFilepath + "\"";
+					command += " -h \"" + HourlyFilepath + "\"";
 				
 				msg = CallApplication(CRegistry::MATCH_STATION, command, GetSafeHwnd(), SW_SHOW, false);
 			}

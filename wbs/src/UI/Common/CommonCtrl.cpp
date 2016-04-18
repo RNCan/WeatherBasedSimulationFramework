@@ -158,6 +158,23 @@ int CCFLListBox::GetItemDataIndex(int itemData)const
 
 	return pos;
 }
+
+
+CStdTimeModePropertyGridProperty::CStdTimeModePropertyGridProperty(const std::string& name, WBSF::CTM TM, const std::string& description, size_t no) :
+CStdGridProperty(name, WBSF::to_string(TM), description, no)
+{
+	CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(IDS_STR_TM_TYPE));
+
+	for (int i = 0; i < WBSF::CTM::NB_REFERENCE; i++)
+		AddOption(OPTIONS_VALUES[i]);
+
+	if (TM.Type() < 0 || TM.Type() > WBSF::CTM::NB_REFERENCE)
+		TM = WBSF::CTM(WBSF::CTM::ATEMPORAL);
+
+	m_bAllowEdit = false;
+	SetOriginalValue(GetOptionText(TM.Type()));
+}
+
 //**************************************************************************
 //CIntEdit
 

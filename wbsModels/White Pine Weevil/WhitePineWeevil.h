@@ -5,26 +5,26 @@
 
 namespace WBSF
 {
-	enum TParam{ P_EGG_L1, P_L1_L2, P_L2_L3, P_L3_L4, P_L4_PUPA, P_PUPA_ADULT, NB_PARAMS };
+	enum TParam{ S_EGG, S_L1, S_L2, S_L3, S_L4, S_PUPA, S_ADULT, NB_PARAMS };
 
 
-	class CHemlockLooperModel : public CBioSIMModelBase
+	class CWhitePineWeevilModel : public CBioSIMModelBase
 	{
 	public:
 
-		CHemlockLooperModel();
-		virtual ~CHemlockLooperModel();
+		CWhitePineWeevilModel();
+		virtual ~CWhitePineWeevilModel();
 
 
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data);
 		virtual void GetFValueDaily(CStatisticXY& stat);
-		static CBioSIMModelBase* CreateObject(){ return new CHemlockLooperModel; }
+		static CBioSIMModelBase* CreateObject(){ return new CWhitePineWeevilModel; }
 		static void ComputeCumulDiagonal(CModelStatVector& statSim, const CModelStatVector& statSim1);
 
 		void ExecuteDaily(CModelStatVector& output);
-		bool ComputePupation(const CModelStatVector& statSim, std::vector<std::pair<size_t, double>>& obs);
+		//bool ComputePupation(const CModelStatVector& statSim, std::vector<std::pair<size_t, double>>& obs);
 
 	protected:
 

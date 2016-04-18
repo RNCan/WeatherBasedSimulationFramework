@@ -26,7 +26,7 @@ namespace WBSF
 
 	COptionAdvanced::COptionAdvanced() : CMFCPropertyPage(COptionAdvanced::IDD)
 	{
-		WBSF::CRegistry option("ExecuteCtrl", WBSF::CRegistry::BIOSIM);
+		WBSF::CRegistry option("ExecuteCtrl");
 
 		m_maxDistFromLOC = option.GetProfileInt("MaxDistFromLOC", 300);
 		m_maxDistFromPoint = option.GetProfileInt("MaxDistFromPoint", 500);
@@ -71,7 +71,7 @@ namespace WBSF
 		//if page is init
 		if (GetDlgItem(IDC_CMN_OPTION_MAX_DISTANCE1)->GetSafeHwnd() != NULL)
 		{
-			WBSF::CRegistry option("ExecuteCtrl", WBSF::CRegistry::BIOSIM);
+			WBSF::CRegistry option("ExecuteCtrl");
 			option.WriteProfileInt("MaxDistFromLOC", m_maxDistFromLOC);
 			option.WriteProfileInt("MaxDistFromPoint", m_maxDistFromPoint);
 			option.WriteProfileInt("RunEvenFar", m_bRunEvenFar);

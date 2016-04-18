@@ -471,106 +471,6 @@ public:
 	}
 };
 
-
-
-template<UINT RES_STRING_ID, int BASE_INDEX = 0, bool ADD_EMPTY = false>
-class CIndexProperty : public CStdGridProperty
-{
-public:
-
-	CIndexProperty(const std::string& name, const std::string& strIndex, const std::string& description, size_t dwData) :
-		CStdGridProperty(name, "", description, dwData)
-	{
-		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
-		
-		if (ADD_EMPTY)
-			AddOption(_T(""));
-			
-
-		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
-		
-		AllowEdit(FALSE);
-
-		int index = ToInt(strIndex);
-		CString strValue = GetOptionText(int(index) - BASE_INDEX);
-		SetValue(strValue);
-		SetOriginalValue(strValue);
-	}
-
-	CIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
-		CStdGridProperty(strName, "", description, dwData)
-	{
-		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
-
-		if (ADD_EMPTY)
-			AddOption(_T(""));
-			
-
-		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
-
-		AllowEdit(FALSE);
-
-		CString strValue = GetOptionText(int(index) - BASE_INDEX);
-		SetValue(strValue);
-		SetOriginalValue(strValue);
-	}
-
-	CString GetOptionText(int index)
-	{
-		ASSERT(index >= 0 && index < m_lstOptions.GetSize());
-		POSITION pos = m_lstOptions.FindIndex(index);
-		return m_lstOptions.GetAt(pos);
-	}
-
-	int GetIndex()const
-	{
-		int index = m_pWndCombo->GetCurSel();
-		return index + BASE_INDEX;
-	}
-
-	void SetIndex(int index)
-	{
-		CMFCPropertyGridProperty::SetValue(GetOptionText(index - BASE_INDEX));
-	}
-
-	virtual std::string get_string()
-	{
-		return WBSF::ToString(GetIndex());
-	}
-
-	virtual void set_string(std::string str)
-	{
-		int index = WBSF::ToInt(str);
-		if (index >= 0 && index < m_lstOptions.GetSize())
-			SetIndex(index);
-	}
-};
-
-
-class CStdBrowseProperty : public CStdGridProperty
-{
-public:
-
-	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
-		CStdGridProperty(strName, value, description, dwData)
-	{
-		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
-
-		for (INT_PTR i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
-
-		SetOriginalValue(CString(value.c_str()));
-	}
-
-	virtual BOOL HasButton() const{ return TRUE; }
-	virtual void OnClickButton(CPoint point)
-	{
-		AfxMessageBox(_T("a faire"));
-	}
-};
-
 class CStdComboStringProperty : public CStdGridProperty
 {
 public:
@@ -580,7 +480,7 @@ public:
 	{
 		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
 
-		m_bAddEmpty = options.empty() ? true : options[0]=='|';
+		m_bAddEmpty = options.empty() ? true : options[0] == '|';
 		if (m_bAddEmpty)
 			AddOption(_T(""));
 
@@ -594,6 +494,7 @@ public:
 
 	bool m_bAddEmpty;
 };
+
 
 class CStdComboPosProperty : public CStdComboStringProperty
 {
@@ -657,6 +558,107 @@ public:
 	}
 };
 
+template<UINT RES_STRING_ID, int BASE_INDEX = 0, bool ADD_EMPTY = false>
+class CStdIndexProperty : public CStdComboPosProperty
+{
+public:
+
+	CStdIndexProperty(const std::string& name, const std::string& strIndex, const std::string& description, size_t dwData) :
+		CStdComboPosProperty(name, "", description, "", dwData)
+	{
+		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
+		
+		if (ADD_EMPTY)
+			AddOption(_T(""));
+			
+
+		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
+			AddOption(OPTIONS_VALUES[i]);
+		
+		AllowEdit(FALSE);
+
+		int index = WBSF::ToInt(strIndex);
+		CString strValue = GetOptionText(int(index) - BASE_INDEX);
+		SetValue(strValue);
+		SetOriginalValue(strValue);
+	}
+
+	CStdIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
+		CStdComboPosProperty(strName, "", description, "", dwData)
+	{
+		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
+
+		if (ADD_EMPTY)
+			AddOption(_T(""));
+			
+
+		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
+			AddOption(OPTIONS_VALUES[i]);
+
+		AllowEdit(FALSE);
+
+		CString strValue = GetOptionText(int(index) - BASE_INDEX);
+		SetValue(strValue);
+		SetOriginalValue(strValue);
+	}
+
+	//CString GetOptionText(int index)
+	//{
+	//	ASSERT(index >= 0 && index < m_lstOptions.GetSize());
+	//	POSITION pos = m_lstOptions.FindIndex(index);
+	//	return m_lstOptions.GetAt(pos);
+	//}
+
+	int GetIndex()const
+	{
+		
+		//int index = m_pWndCombo->GetCurSel();
+		return CStdComboPosProperty::GetIndex() + BASE_INDEX;
+	}
+
+	void SetIndex(int index)
+	{
+		CMFCPropertyGridProperty::SetValue(GetOptionText(index - BASE_INDEX));
+	}
+
+	/*virtual std::string get_string()
+	{
+		return WBSF::ToString(GetIndex());
+	}
+
+	virtual void set_string(std::string str)
+	{
+		int index = WBSF::ToInt(str);
+		if (index >= 0 && index < m_lstOptions.GetSize())
+			SetIndex(index);
+	}*/
+};
+
+
+class CStdBrowseProperty : public CStdGridProperty
+{
+public:
+
+	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+		CStdGridProperty(strName, value, description, dwData)
+	{
+		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
+
+		for (INT_PTR i = 0; i < OPTIONS_VALUES.GetSize(); i++)
+			AddOption(OPTIONS_VALUES[i]);
+
+		SetOriginalValue(CString(value.c_str()));
+	}
+
+	virtual BOOL HasButton() const{ return TRUE; }
+	virtual void OnClickButton(CPoint point)
+	{
+		AfxMessageBox(_T("a faire"));
+	}
+};
+
+
+
 
 
 class CStdGriFilepathProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
@@ -714,6 +716,75 @@ public:
 
 
 	std::string m_filter;
+};
+
+
+class CStdTimeModePropertyGridProperty : public CStdGridProperty
+{
+public:
+
+	
+	CStdTimeModePropertyGridProperty(const std::string& name, WBSF::CTM TM, const std::string& description, size_t no);
+	
+	CString GetOptionText(size_t index)
+	{
+		ASSERT(index < (size_t)m_lstOptions.GetSize());
+		POSITION pos = m_lstOptions.FindIndex(index);
+		return m_lstOptions.GetAt(pos);
+	}
+
+	WBSF::CTM GetTM()const
+	{
+		CString str(CMFCPropertyGridProperty::GetValue());
+
+		int index = 0;
+
+		POSITION pos = m_lstOptions.Find(str);
+		POSITION curPos = m_lstOptions.GetHeadPosition();
+		while (pos != curPos)
+		{
+			m_lstOptions.GetNext(curPos);
+			index++;
+		}
+
+		ASSERT(index >= 0 && index < WBSF::CTM::NB_REFERENCE);
+
+		return WBSF::CTM(index);
+	}
+
+	void SetTM(WBSF::CTM TM)
+	{
+		if (TM.Type() < 0 || TM.Type() > WBSF::CTM::NB_REFERENCE)
+			TM = WBSF::CTM(WBSF::CTM::ATEMPORAL);
+
+		CMFCPropertyGridProperty::SetValue(GetOptionText(TM.Type()));
+	}
+
+	virtual const COleVariant& GetValue()const
+	{
+		WBSF::CTM TM = GetTM();
+		ASSERT(TM.IsValid());
+
+		const_cast<CStdTimeModePropertyGridProperty*>(this)->m_TM = CString(WBSF::to_string(TM).c_str());
+
+		return m_TM;
+	}
+
+	virtual void SetValue(const COleVariant& varValue)
+	{
+		CStringA str(varValue);
+
+		WBSF::CTM TM = WBSF::from_string<WBSF::CTM>((LPCSTR)str);
+		SetTM(TM);
+	}
+
+	virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
+	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+protected:
+
+
+	COleVariant m_TM;
 };
 
 

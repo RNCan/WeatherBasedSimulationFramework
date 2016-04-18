@@ -85,24 +85,27 @@ void CTaskPropertyGridCtrl::Update()
 
 	if (m_pTask.get() != NULL)
 	{
-		m_pTask->UpdateLanguage();
+		CWeatherUpdaterDoc* pDoc = CTaskPropertyWnd::GetDocument();
+
 		CTaskAttributes attributes;
 		m_pTask->GetAttributes(attributes);
-
-		
 		
 		string description;
 		StringVector tmp(GetString(m_pTask->GetDescriptionStringID()), "\r\n");
 		if (!tmp.empty())
 			description = tmp[0];
-			
-
+		
 
 		AddProperty(new CStdReadOnlyProperty(GetString(IDS_TASK_DESCRIPTION), description));
 		for (size_t i = 0; i<attributes.size(); i++)
 		{
 			CMFCPropertyGridProperty* pItem = NULL;
 			string str = m_pTask->Get(i);
+			
+			
+			if (attributes[i].m_type == T_PATH && str.empty())
+				str = GetPath(pDoc->GetFilePath());
+
 			switch (attributes[i].m_type)
 			{
 			case T_STRING:			pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;

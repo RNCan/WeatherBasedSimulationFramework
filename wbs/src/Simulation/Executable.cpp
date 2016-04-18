@@ -373,7 +373,7 @@ CExecuteCtrl::CExecuteCtrl()
 
 void CExecuteCtrl::LoadDefaultCtrl()
 {
-	CRegistry registry;
+	CRegistry registry("ExecuteCtrl");
 	m_maxDistFromLOC		= registry.GetProfileInt("MaxDistFromLOC", 300);
 	m_maxDistFromPoint		= registry.GetProfileInt("MaxDistFromPoint", 500);
 	m_bRunEvenFar			= registry.GetProfileBool("RunEvenFar", false);
@@ -382,8 +382,10 @@ void CExecuteCtrl::LoadDefaultCtrl()
 	m_bUseHxGrid			= registry.GetProfileBool("UseHxGrid", false);
 	m_bExportAllLines		= registry.GetProfileBool("ExportAllLines", false);
 	m_nbMaxThreads          = min(omp_get_num_procs(), registry.GetProfileInt("NbMaxThreads", omp_get_num_procs()));
-	m_listDelimiter		    = registry.GetListDelimiter();
-	m_decimalDelimiter	    = registry.GetDecimalDelimiter();
+
+	CRegistry registryII;
+	m_listDelimiter		= registryII.GetListDelimiter();
+	m_decimalDelimiter	= registryII.GetDecimalDelimiter();
 
 	m_timeFormat = CTRef::GetFormat();
 	

@@ -53,7 +53,7 @@ namespace WBSF
 		while (m_threadTasks.size())
 			m_threadTasks.pop();
 		
-		m_mutex.unlock();
+		//m_mutex.unlock();
 
 		m_phWnd = NULL;
 		m_bPumpMessage = false;
