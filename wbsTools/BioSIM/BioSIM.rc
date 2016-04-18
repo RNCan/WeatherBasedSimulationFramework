@@ -265,7 +265,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,0,1,0
+ FILEVERSION 11,0,1,1
  PRODUCTVERSION 11,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -283,7 +283,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.0.1.0"
+            VALUE "FileVersion", "11.0.1.1"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
@@ -294,7 +294,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.0.1.0"
+            VALUE "FileVersion", "11.0.1.1"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"

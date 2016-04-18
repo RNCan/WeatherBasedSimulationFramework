@@ -29,15 +29,6 @@ namespace WBSF
 
 
 
-	//void CZipUnzip::Reset()
-	//{
-	//	m_command = UNZIP;
-	//	m_zipFilePath.clear();
-	//	m_directory.clear();
-	//	m_filter = "*.*";
-	//	m_bCopySubDirectory = false;
-	//}
-
 	std::string CZipUnzip::Option(size_t i)const
 	{
 		string str;

@@ -24,7 +24,7 @@ namespace WBSF
 	std::string CTaskBase::GetDir(size_t i)const
 	{
 		string path = Get(i);
-		if (!IsPathEndOk(path))
+		if (!path.empty() && !IsPathEndOk(path))
 			path += "\\";
 
 		return path;
@@ -216,7 +216,7 @@ namespace WBSF
 
 				if (t == T_PATH || t == T_FILEPATH)
 					value = GetAbsoluteFilePath(value);
-				else if (t == T_PASSWORD)
+				else if (t == T_PASSWORD && !value.empty())
 					value = Decrypt(value);
 			}
 

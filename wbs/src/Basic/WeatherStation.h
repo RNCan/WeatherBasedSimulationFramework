@@ -785,7 +785,7 @@ public:
 	inline const CWeatherYear& GetPrevious()const;
 	inline const CWeatherYear& GetNext()const;
 	//void ComputeTRange();
-
+	const CWeatherDay& GetDay(size_t Jday)const{ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
 protected:
 
 	void CompileStat(const CTPeriod& p = CTPeriod())const;

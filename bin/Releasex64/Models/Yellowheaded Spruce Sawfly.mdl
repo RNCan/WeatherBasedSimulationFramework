@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Yellowheaded Spruce Sawfly</Title>
+    <Version>1.0</Version>
+    <ID>.pas</ID>
+    <EXE>Yellowheaded Spruce Sawfly.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 139 330</WindowRect>
+    <SimulatedCategory>T TR</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>CumulFreq</Name>
+            <Caption>Output cumulative frequencies:</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>65 5 85 260</Rect>
+            <SeparatorPos>160</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Longevity</Name>
+            <Caption>Male longevity (days):</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>40 5 60 260</Rect>
+            <SeparatorPos>160</SeparatorPos>
+            <DefaultValue>14</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header1</Name>
+            <Caption>Yellow Headed Spruce Sawfly</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>5 50 25 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD&gt;0 C</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdultEmergence</Name>
+            <Title>Cumul Adult emergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulPheroTrapCatch</Name>
+            <Title>Cumul PheroTrap catch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1</Name>
+            <Title>%L1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>%L2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>%L3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>%L4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L5</Name>
+            <Title>%L5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L6</Name>
+            <Title>%L6</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AverageInstar</Name>
+            <Title>Average Instar</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName>Yellowheaded Spruce Sawfly.pdf</HelpFileName>
+</Model>

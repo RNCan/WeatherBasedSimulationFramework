@@ -115,8 +115,8 @@ void CInputPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		RemoveAll();
 
 		
-		typedef CIndexProperty < IDS_OBSERVATION_TYPE> CObservationTypeProperty;
-		typedef CIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE> CWeatherVariableProperty;
+		typedef CStdIndexProperty < IDS_OBSERVATION_TYPE> CObservationTypeProperty;
+		typedef CStdIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE> CWeatherVariableProperty;
 
 		StringVector title(IDS_INPUT_TITLE, ";|");
 		StringVector description(IDS_INPUT_DESCRIPTION, ";|");

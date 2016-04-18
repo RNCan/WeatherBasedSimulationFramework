@@ -387,6 +387,9 @@ namespace WBSF
 				}
 
 				std::replace(path.begin(), path.end(), '/', '\\');
+
+				if (path.empty())
+					path = ".\\";
 			}
 			else
 			{

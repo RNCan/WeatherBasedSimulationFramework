@@ -401,17 +401,17 @@ void CTaskPropertyWnd::OnDestroy()
 BOOL CTaskPropertyWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	//let the view to route command
-	CWnd* pFocus = GetFocus();
-	if (pFocus)
-	{
-		CWnd* pParent = pFocus->GetParent();
+	//CWnd* pFocus = GetFocus();
+	//if (pFocus)
+	//{
+		//CWnd* pParent = pFocus->GetParent();
 
-		if (pFocus == &m_propertiesCtrl || pParent == &m_propertiesCtrl)
-		{
+		//if (pFocus == &m_propertiesCtrl || pParent == &m_propertiesCtrl)
+		//{
 			if (m_propertiesCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
 				return TRUE;
-		}
-	}
+		//}
+	//}
 
 	return CDockablePane::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }

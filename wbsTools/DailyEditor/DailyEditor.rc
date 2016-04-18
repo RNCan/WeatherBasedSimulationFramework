@@ -167,7 +167,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,4,23
+ FILEVERSION 4,0,4,24
  PRODUCTVERSION 4,0,4,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -185,7 +185,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
-            VALUE "FileVersion", "4.0.4.23"
+            VALUE "FileVersion", "4.0.4.24"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "EditeurQuotidien"
@@ -195,7 +195,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Daily weather data editor"
-            VALUE "FileVersion", "4.0.4.23"
+            VALUE "FileVersion", "4.0.4.24"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "DailyEditor"
