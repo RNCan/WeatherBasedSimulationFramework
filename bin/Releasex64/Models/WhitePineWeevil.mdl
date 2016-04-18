@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>HemlockLooper</Title>
+    <Version>1.0</Version>
+    <ID>.wiw</ID>
+    <EXE>WhitePineWeevil.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model simulates the development of Hemlock Looper.</Description>
+    <WindowRect>0 0 80 250</WindowRect>
+    <SimulatedCategory>T TR</SimulatedCategory>
+    <TransferFileVersion>1</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumulative</Name>
+            <Caption>Cumulative</Caption>
+            <Description>Output of stage will cumulative or not</Description>
+            <Type>0</Type>
+            <Rect>10 10 30 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description>Degree-day accumulation over 7.2°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Unbrooded</Name>
+            <Title>Unbrooded</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg</Name>
+            <Title>Egg</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1</Name>
+            <Title>L1</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult</Name>
+            <Title>Adult</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AverageInstar</Name>
+            <Title>AverageInstar</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Model developed by Remi Saint-Amant with data from Lucie Royer.&#x0A;This model is based on a continuing ratio base model.&#x0A;No validation was done in Quebec yet.</Credit>
+    <HelpFileName/>
+</Model>
