@@ -103,8 +103,8 @@ namespace WBSF
 	typedef CGeneralIndexProperty < IDS_STR_STATISTIC > CStatisticProperty;
 	typedef CGeneralIndexProperty < IDS_WG_GRAPH_SERIE_TYPE_TITLE > CSerieTypeProperty;
 	typedef CGeneralIndexProperty < IDS_STR_LEFT_RIGHT > CYAxisTypeProperty;
-	typedef CGeneralIndexProperty < IDS_WG_GRAPH_FILL_DIRECTION_TITLE > CFillDirectionProperty;
-	typedef CGeneralIndexProperty < IDS_WG_GRAPH_HIST_DIRECTION_TITLE > CHistDirectionProperty;
+	typedef CGeneralIndexProperty < IDS_WG_GRAPH_FILL_DIR_TITLE > CFillDirectionProperty;
+	typedef CGeneralIndexProperty < IDS_WG_GRAPH_HIST_DIR_TITLE > CHistDirectionProperty;
 
 
 }

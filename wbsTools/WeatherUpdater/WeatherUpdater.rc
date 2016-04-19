@@ -9,7 +9,7 @@
 //
 #ifndef APSTUDIO_INVOKED
 #include <SDKDDKVer.h>
-#endif
+#endif 
 #include "afxres.h"
 #include "verrsrc.h"
 
@@ -107,6 +107,7 @@ BEGIN
     BUTTON      ID_TASK_ACIS_HOURLY
     BUTTON      ID_TASK_ACIS_DAILY
     BUTTON      ID_TASK_SOPFEU
+	BUTTON      ID_TASK_BC
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -151,6 +152,7 @@ BEGIN
     BUTTON      ID_TASK_ACIS_HOURLY
     BUTTON      ID_TASK_ACIS_DAILY
     BUTTON      ID_TASK_SOPFEU
+	BUTTON      ID_TASK_BC
     BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -363,7 +365,7 @@ END
 BEGIN
     "#ifndef APSTUDIO_INVOKED\r\n"
     "#include <SDKDDKVer.h>\r\n"
-    "#endif\r\n"
+    "#endif \r\n"
     "#include ""afxres.h""\r\n"
     "#include ""verrsrc.h""\r\n"
     "\0"
@@ -393,7 +395,7 @@ BEGIN
     "#include ""l.FRA\\afxribbon.rc""        // ressources de barre de contrôles et de ruban MFC\r\n"
     "#endif\r\n"
     "#endif\r\n"
-    "\r\n"
+    " \r\n"
     "#include ""WeatherBasedSimulationString.rc""\r\n"
     "#include ""WeatherBasedSimulationUI.rc""\r\n"
     "\r\n"
@@ -649,8 +651,7 @@ BEGIN
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_BC_PAWS     "Télécharger les données données quotidiennes du ministère des transport de la Colombie Britannique"
-    IDS_UPDATER_BC_PAWS_P   "Répertoire de travail"
+    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées"
 END
 
 STRINGTABLE
@@ -720,6 +721,7 @@ BEGIN
     ID_TASK_ACIS_HOURLY     "Télécharger les données agro-climatiques horaire de l'Alberta via ACIS\nACIS horaire"
     ID_TASK_ACIS_DAILY      "Télécharger les données agro-climatiques quotidiennes de l'Alberta via ACIS\nACIS quotidien"
     ID_TASK_SOPFEU          "Télécharger les données horaires de la SOPFEU\nSOPFEU"
+	ID_TASK_BC				"Télécharger les données de la Colombie-Britannique via le ""Pacific Climate Impacts Consortium"" "
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1098,8 +1100,7 @@ BEGIN
                             "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-    IDS_UPDATER_BC_PAWS     "Download BC Ministry of Transport Avalanche Program daily data"
-    IDS_UPDATER_BC_PAWS_P   "Working directory"
+	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates"
 END
 
 STRINGTABLE
@@ -1168,6 +1169,7 @@ BEGIN
     ID_TASK_ACIS_HOURLY     "Download agro-climatic hourly data for Alberta via ACIS\nACIS hourly"
     ID_TASK_ACIS_DAILY      "Download agro-climatic daily data for Alberta via ACIS\nACIS daily"
     ID_TASK_SOPFEU          "Download SOPFEU hourly data\nSOPFEU"
+	ID_TASK_BC			    "Download BC data from ""Pacific Climate Impacts Consortium"" "
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"
@@ -1234,7 +1236,7 @@ LANGUAGE 12, 1
 #include "l.FRA\afxribbon.rc"        // ressources de barre de contrôles et de ruban MFC
 #endif
 #endif
-
+ 
 #include "WeatherBasedSimulationString.rc"
 #include "WeatherBasedSimulationUI.rc"
 

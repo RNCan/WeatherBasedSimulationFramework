@@ -1138,7 +1138,7 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, 
 	for (int l = 1; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 		test.push_back(make_pair(gph, l));
 
 		if (alt < gph)
@@ -1170,7 +1170,7 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)c
 	for (int l = 1; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 
 		if (alt < gph)
 		{
@@ -1185,7 +1185,7 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)c
 double CATMWeather::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
 {
 	size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
-	double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+	double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 
 	return gph;
 }
@@ -1202,7 +1202,7 @@ CGeoPoint3DIndex CATMWeather::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
 	for (size_t l = 0; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz) ;
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz); //geopotential height [m]
 		if (l == 0)//if the point is lower than 15 meters of the surface, we take surface
 			gph += 15;
 
@@ -1302,7 +1302,7 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, size_t U
 					((CGeoPoint&)(*cuboids)[i].m_pt[z][y][x]) = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
 
 					size_t bGph = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, L);
-					double gph = m_p_weather_DS.GetPixel(UTCTRef, bGph, xy2);
+					double gph = m_p_weather_DS.GetPixel(UTCTRef, bGph, xy2); //geopotential height [m]
 					//(*cuboids)[i].m_pt[z][y][x].m_z = gph - groundAlt;
 					(*cuboids)[i].m_pt[z][y][x].m_z = gph - groundAlt;
 

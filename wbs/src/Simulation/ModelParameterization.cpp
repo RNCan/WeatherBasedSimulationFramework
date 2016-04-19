@@ -465,7 +465,7 @@ ERMsg CModelParameterization::Execute(const CFileManager& fileManager, CCallback
 		}
 		else
 		{
-			msg.ajoute(GetString(IDS_CMN_UNABLE_CREATE_HXGRID_USER));
+			msg.ajoute(GetString(IDS_CMN_UNABLE_CREATE_HXGRID));
 		}
 	}
 	else

@@ -812,7 +812,7 @@ else
 	IGridUser* pGridUser = CreateGridUserObject(IGridUser::VERSION);
 	if( pGridUser == NULL)
 	{
-		string error = GetString(IDS_CMN_UNABLE_CREATE_HXGRID_USER);
+		string error = GetString(IDS_CMN_UNABLE_CREATE_HXGRID);
 		msg.ajoute(error);
 		return msg;
 	}
@@ -1118,7 +1118,7 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 
 		if( pGridUser == NULL)
 		{
-			msg.ajoute(GetString(IDS_CMN_UNABLE_CREATE_HXGRID_USER));
+			msg.ajoute(GetString(IDS_CMN_UNABLE_CREATE_HXGRID));
 			return msg;
 		}
 

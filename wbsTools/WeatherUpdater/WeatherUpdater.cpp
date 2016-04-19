@@ -129,7 +129,6 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	}
 
 	CDynamicResources::set(AfxGetResourceHandle());
-
 	
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);

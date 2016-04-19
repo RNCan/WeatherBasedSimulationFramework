@@ -475,12 +475,12 @@ class CStdComboStringProperty : public CStdGridProperty
 {
 public:
 
-	CStdComboStringProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+	CStdComboStringProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, bool bAddEmpty, size_t dwData) :
 		CStdGridProperty(strName, value, description, dwData)
 	{
 		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
 
-		m_bAddEmpty = options.empty() ? true : options[0] == '|';
+		m_bAddEmpty = bAddEmpty;// options.empty() ? true : options[0] == '|';
 		if (m_bAddEmpty)
 			AddOption(_T(""));
 
@@ -501,9 +501,12 @@ class CStdComboPosProperty : public CStdComboStringProperty
 
 public:
 
-	CStdComboPosProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
-		CStdComboStringProperty(strName, "", description, options, dwData)
+	CStdComboPosProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, bool bAddEmpty, size_t dwData) :
+		CStdComboStringProperty(strName, "", description, options, bAddEmpty, dwData)
 	{
+		m_baseIndex = m_bAddEmpty ? -1 : 0;
+
+		AllowEdit(FALSE);
 		int index = WBSF::ToInt(value);
 		CString strValue = GetOptionText(index);
 		SetValue(strValue);
@@ -511,9 +514,12 @@ public:
 	}
 
 
-	CStdComboPosProperty(const std::string& strName, size_t index, const std::string& description, const std::string& options, size_t dwData) :
-		CStdComboStringProperty(strName, "", description, options, dwData)
+	CStdComboPosProperty(const std::string& strName, size_t index, const std::string& description, const std::string& options, bool bAddEmpty, size_t dwData) :
+		CStdComboStringProperty(strName, "", description, options, bAddEmpty, dwData)
 	{
+		m_baseIndex = m_bAddEmpty ? -1 : 0;
+
+		AllowEdit(FALSE);
 		SetValue(GetOptionText(int(index)));
 		SetOriginalValue(GetOptionText(int(index)));
 	}
@@ -543,12 +549,8 @@ public:
 		return index;
 	}
 
-	void SetIndex(int index)
-	{
-		SetValue(GetOptionText(index));
-	}
-
-	virtual std::string get_string(){ return WBSF::ToString(GetIndex()); }
+	void SetIndex(int index){SetValue(GetOptionText(index + m_baseIndex));}
+	virtual std::string get_string(){ return WBSF::ToString(GetIndex() - m_baseIndex); }
 
 	virtual void set_string(std::string str)
 	{
@@ -556,34 +558,42 @@ public:
 		if (index >= 0 && index < m_lstOptions.GetSize())
 			SetIndex(index);
 	}
+
+protected:
+
+	int m_baseIndex;
 };
 
-template<UINT RES_STRING_ID, int BASE_INDEX = 0, bool ADD_EMPTY = false>
+template<UINT RES_STRING_ID, bool ADD_EMPTY = false>
 class CStdIndexProperty : public CStdComboPosProperty
 {
 public:
 
 	CStdIndexProperty(const std::string& name, const std::string& strIndex, const std::string& description, size_t dwData) :
-		CStdComboPosProperty(name, "", description, "", dwData)
+		CStdComboPosProperty(name, strIndex, description, WBSF::GetString(RES_STRING_ID), ADD_EMPTY, dwData)
 	{
-		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
+		//CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
 		
-		if (ADD_EMPTY)
-			AddOption(_T(""));
+		//if (ADD_EMPTY)
+			//AddOption(_T(""));
 			
 
-		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
+		//for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
+			//AddOption(OPTIONS_VALUES[i]);
 		
-		AllowEdit(FALSE);
+		
 
-		int index = WBSF::ToInt(strIndex);
+		/*int index = WBSF::ToInt(strIndex);
 		CString strValue = GetOptionText(int(index) - BASE_INDEX);
 		SetValue(strValue);
-		SetOriginalValue(strValue);
+		SetOriginalValue(strValue);*/
 	}
-
 	CStdIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
+		CStdComboPosProperty(strName, index, description, WBSF::GetString(RES_STRING_ID), ADD_EMPTY, dwData)
+	{}
+
+
+	/*CStdIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
 		CStdComboPosProperty(strName, "", description, "", dwData)
 	{
 		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
@@ -600,7 +610,7 @@ public:
 		CString strValue = GetOptionText(int(index) - BASE_INDEX);
 		SetValue(strValue);
 		SetOriginalValue(strValue);
-	}
+	}*/
 
 	//CString GetOptionText(int index)
 	//{
@@ -609,17 +619,17 @@ public:
 	//	return m_lstOptions.GetAt(pos);
 	//}
 
-	int GetIndex()const
-	{
-		
-		//int index = m_pWndCombo->GetCurSel();
-		return CStdComboPosProperty::GetIndex() + BASE_INDEX;
-	}
+	//int GetIndex()const
+	//{
+	//	
+	//	//int index = m_pWndCombo->GetCurSel();
+	//	return CStdComboPosProperty::GetIndex() + BASE_INDEX;
+	//}
 
-	void SetIndex(int index)
-	{
-		CMFCPropertyGridProperty::SetValue(GetOptionText(index - BASE_INDEX));
-	}
+	//void SetIndex(int index)
+	//{
+	//	CMFCPropertyGridProperty::SetValue(GetOptionText(index - BASE_INDEX));
+	//}
 
 	/*virtual std::string get_string()
 	{

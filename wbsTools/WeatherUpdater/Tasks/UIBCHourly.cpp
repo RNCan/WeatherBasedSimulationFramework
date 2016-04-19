@@ -17,19 +17,37 @@ namespace WBSF
 
 	//*********************************************************************
 
-
+	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
 	const char* CUIBCHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = {"WorkingDir", "FirstYear", "LastYear", "Type", "UpdateStationList" };
 	const size_t CUIBCHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_COMBO_POSITION, T_BOOL };
 	const UINT CUIBCHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_BC_P;
 	const UINT CUIBCHourly::DESCRIPTION_TITLE_ID = ID_TASK_BC;
 
-	const char* CUIBCHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "PacificClimate";  return THE_CLASS_NAME; }
+	const char* CUIBCHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "BCWeather";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIBCHourly::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIBCHourly::CLASS_NAME(), (createF)CUIBCHourly::create);
 
-	const char* CUIBCHourly::SERVER_NAME = "tools.pacificclimate.org/";
-	const char* CUIBCHourly::MTS_SUB_DIR = "dataportal/pcds/map";
 
+	const char* CUIBCHourly::SERVER_NAME = "tools.pacificclimate.org";
+
+	const char* CUIBCHourly::NETWORK_NAME[NB_NETWORKS] = { "AGRI", "ARDA", "BCH", "EC", "EC_raw", "ENV-AQN", "ENV_ASP", "FLNRO-FERN", "FLNRO-WMB", "FRBC", "MoTIe", "MoTIm", "RTA" };
+	const char* CUIBCHourly::TYPE_NAME[NB_TYPES] = { "1-hourly", "daily" /*"12-hourly", "irregular"*/ };
+	const bool CUIBCHourly::AVAILABILITY[NB_NETWORKS][NB_TYPES] =
+	{
+		false, true,//AGR
+		false, true,//ARDA
+		true, true,	//BCH
+		false, true,//EC
+		true, true,	//EC_raw
+		true, false,//ENV-AQN
+		false, true,//ENV_ASP
+		true, false,//FLNRO-FERN
+		true, true, //FLNRO-WMB
+		true, false,//FRBC
+		true, false,//MoTIe
+		false, true,//MoTIm 
+		false, true,//RTA
+	};
 
 
 	CUIBCHourly::CUIBCHourly(void)
@@ -38,15 +56,31 @@ namespace WBSF
 	CUIBCHourly::~CUIBCHourly(void)
 	{}
 
+	bool CUIBCHourly::IsHourly()const
+	{ 
+		return as<size_t>(TEMPORAL_TYPE)==T_HOURLY;
+	}
+	
+
+	std::string CUIBCHourly::Option(size_t i)const
+	{
+		string str;
+		switch (i)
+		{
+		case TEMPORAL_TYPE:	str = "Hourly|Daily"; break;
+		};
+		return str;
+	}
+
 	std::string CUIBCHourly::Default(size_t i)const
 	{
 		string str;
-		
 
 		switch (i)
 		{
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case TEMPORAL_TYPE: str = "1"; break;
 		case UPDATE_STATION_LIST:	str = "1"; break;
 		};
 		return str;
@@ -61,22 +95,6 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage("");
-
-		if (false)
-		{
-			//open a connection on the server
-			CInternetSessionPtr pSession;
-			CFtpConnectionPtr pConnection;
-
-			//string password = Decrypt(Get(PASSWORD));
-			msg = GetFtpConnection("horus.mesonet-quebec.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-			if (msg && as<bool>(UPDATE_STATION_LIST))
-				msg = UpdateStationList(pConnection, callback);
-
-			if (!msg)
-				return msg;
-		}
-
 		
 
 		CTRef today = CTRef::GetCurrentTRef();
@@ -89,6 +107,11 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
+		if (as<bool>(UPDATE_STATION_LIST))
+		{
+			UpdateStationList(pConnection, callback);
+		}
+
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
 		int nbDownload = 0;
 
@@ -96,52 +119,100 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 
+		callback.PushTask(FormatA("%04d"), nbYears);
+		
+
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
 
-			callback.PushTask(FormatA("%04d", year), GetNbDaysPerYear(year));
-
-			for (size_t m = 0; m < 12 && msg; m++)
+			size_t type = as<size_t>(TEMPORAL_TYPE); ASSERT(type < NB_TYPES);
+			callback.PushTask(FormatA("%04d", year), type == T_HOURLY ? 7 : 9);
+			for (size_t n = 0; n < NB_NETWORKS && msg; n++)
 			{
-				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
+				if (AVAILABILITY[n][type])
 				{
-					CTRef TRef(year, m, d);
-					if (TRef < today)
-					{
-						string URL = MTS_SUB_DIR + FormatA("%04d/%02d/%02d/", year, m + 1, d + 1) + "*.mts";
+				
+					static const char* URL_FORMAT =
+						"dataportal/data/pcds/agg/?"
+						"from-date=%4d%%2F01%%2F01&"
+						"to-date=%4d%%2F12%%2F31&"
+						"input-polygon=&"
+						"input-var=&"
+						"network-name=%s&"
+						"input-freq=%s&"
+						"data-format=ascii&"
+						"cliptodate=cliptodate&"
+						"download-timeseries=Timeseries";
 
-						CFileInfoVector fileList;
-						msg += FindFiles(pConnection, URL, fileList);
+					//string URL = "dataportal/data/pcds/agg/?from-date=2015%2F01%2F01&to-date=2015%2F12%2F31&input-polygon=&input-var=&network-name=FLNRO-WMB&input-freq=1-hourly&data-format=ascii&cliptodate=cliptodate&download-timeseries=Timeseries";	
+					//string URL = "dataportal/data/pcds/agg/?from-date=2016%2F01%2F01&to-date=2016%2F12%2F31&input-polygon=&input-var=&network-name=BCH&input-freq=daily&data-format=ascii&cliptodate=cliptodate&download-timeseries=Timeseries
+					string URL = FormatA(URL_FORMAT, year, year, NETWORK_NAME[n], TYPE_NAME[type]);
 
-						string ouputPath = workingDir + FormatA("%04d\\%02d\\%02d\\", year, m + 1, d + 1);
-						CreateMultipleDir(ouputPath);
+					string ouputPath = workingDir + TYPE_NAME[type] + "\\" + ToString(year) + "\\";// +NETWORK_NAME[n] + "\\";
+					CreateMultipleDir(ouputPath);
 
-						for (size_t f = 0; f < fileList.size() && msg; f++)
-						{
-							string filePath = ouputPath + GetFileName(fileList[f].m_filePath);
+					
+					string  filePathZip = ouputPath + "tmp.zip"; 
 
-							if (!IsFileUpToDate(fileList[f], filePath, false))
-							{
-								msg += CopyFile(pConnection, fileList[f].m_filePath, filePath);
-								if (msg)
-									nbDownload++;
-							}
-
-							if (msg)
-								msg += callback.StepIt(0);
-						}// for all files
-					}//if before today
-
+					
+					callback.PushTask("Downloading " + string(NETWORK_NAME[n]) + " " + ToString(year) + "...", NOT_INIT);
+					msg += UtilWWW::CopyFile(pConnection, URL, filePathZip, FLAGS, "", "", callback);
+					callback.PopTask();
 					if (msg)
-						msg += callback.StepIt();
+					{
+						if (FileExists(filePathZip) )
+						{
+							ifStream tmp;
+							tmp.open(filePathZip);
+							size_t length = tmp.length();
+							tmp.close();
+							if (length == 2)
+							{
+								RemoveFile(filePathZip);
+							}
+							else
+							{
+								msg = sevenZ(filePathZip, ouputPath, callback);
 
-				}//for all days
-			}//for all months
+								if (msg)
+								{
+									RemoveFile(filePathZip);
+									nbDownload++;
+								}
+							}
+						}
+
+						msg += callback.StepIt();
+					}
+					else
+					{
+					
+						pConnection->Close();
+						pSession->Close();
+
+						//wait 5 seconds 
+						callback.PushTask("Waiting 5 seconds...", 50);
+						for (size_t s = 0; s < 50 && msg; s++)
+						{
+							Sleep(100);
+							msg += callback.StepIt();
+						}
+						callback.PopTask();
+
+						msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+						
+					}
+					
+					
+				}//if available
+			}//for all networks
 
 			callback.PopTask();
 		}//for all years
 
+
+		callback.PopTask();
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
 
 
@@ -153,29 +224,48 @@ namespace WBSF
 	}
 
 
-	std::string CUIBCHourly::GetStationListFilePath()const
-	{
-		return GetDir(WORKING_DIR) + "stations.xml";
-	}
-
-
-	std::string CUIBCHourly::GetMissingFilePath()const
-	{
-		return GetDir(WORKING_DIR) + "missingStations.csv";
-	}
-
-	ERMsg CUIBCHourly::UpdateStationList(CFtpConnectionPtr& pConnection, CCallback& callback)const
+	ERMsg CUIBCHourly::sevenZ(const string& filePathZip, const string& workingDir, CCallback& callback)
 	{
 		ERMsg msg;
 
-		string FTPFilePath = "/stations.xml";
+		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
+
+		string command = GetApplicationPath() + "External\\7z.exe x \"" + filePathZip + "\" -y";
+
+		DWORD exitCode = 0;
+		msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);
+		if (msg && exitCode != 0)
+			msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
+
+
+		callback.PopTask();
+
+
+		return msg;
+	}
+
+	std::string CUIBCHourly::GetStationListFilePath()const
+	{
+		return GetDir(WORKING_DIR) + "stations.csv";
+	}
+
+
+
+	ERMsg CUIBCHourly::UpdateStationList(CHttpConnectionPtr& pConnection, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		static const char* URL = "geoserver/CRMP/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=CRMP%3Acrmp_network_geoserver&outputFormat=csv&srsname=epsg%3A4326&filter=%3Cogc%3AFilter+xmlns%3Aogc%3D%22http%3A%2F%2Fwww.opengis.net%2Fogc%22%3E%3Cogc%3AAnd%2F%3E%3C%2Fogc%3AFilter%3E";
+		
 		string localFilePath = GetStationListFilePath();
-
-		if (UtilWWW::IsFileUpToDate(pConnection, FTPFilePath.c_str(), localFilePath.c_str()))
-			return msg;
-
 		CreateMultipleDir(GetPath(localFilePath));
-		return UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
+
+		callback.PushTask("Downloading station list", NOT_INIT);
+		msg = UtilWWW::CopyFile(pConnection, URL, localFilePath.c_str(), FLAGS, "", "", callback);
+		callback.PopTask();
+
+
+		return msg;
 
 	}
 
@@ -185,54 +275,45 @@ namespace WBSF
 		ERMsg msg;
 
 		m_stations.clear();
+//		native_id	station_name
 
-		ifStream file;
-		file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<char>()));
-		msg = file.open(GetStationListFilePath());
-		if (msg)
-		{
-			try
-			{
-				string str = file.GetText();
-				std::replace(str.begin(), str.end(), '\'', 'Ã');
+		//ifStream file;
+		//file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<char>()));
+		//msg = file.open(GetStationListFilePath());
+		//if (msg)
+		//{
+		//	try
+		//	{
+		//		string str = file.GetText();
+		//		std::replace(str.begin(), str.end(), '\'', 'Ã');
 
-				zen::XmlDoc doc = zen::parse(str);
+		//		zen::XmlDoc doc = zen::parse(str);
 
-				zen::XmlIn in(doc.root());
-				for (zen::XmlIn child = in["station"]; child; child.next())
-				{
-					CLocation tmp;
-					child.attribute("fullname", tmp.m_name);
-					std::replace(tmp.m_name.begin(), tmp.m_name.end(), 'Ã', '\'');
-					child.attribute("name", tmp.m_ID);
-					child.attribute("lat", tmp.m_lat);
-					child.attribute("lon", tmp.m_lon);
-					child.attribute("elev", tmp.m_elev);
-					m_stations[tmp.m_ID] = tmp;
-				}
+		//		zen::XmlIn in(doc.root());
+		//		for (zen::XmlIn child = in["station"]; child; child.next())
+		//		{
+		//			CLocation tmp;
+		//			child.attribute("fullname", tmp.m_name);
+		//			std::replace(tmp.m_name.begin(), tmp.m_name.end(), 'Ã', '\'');
+		//			child.attribute("name", tmp.m_ID);
+		//			child.attribute("lat", tmp.m_lat);
+		//			child.attribute("lon", tmp.m_lon);
+		//			child.attribute("elev", tmp.m_elev);
+		//			m_stations[tmp.m_ID] = tmp;
+		//		}
 
-			}
-			catch (const zen::XmlFileError& e)
-			{
-				// handle error
-				msg.ajoute(GetErrorDescription(e.lastError));
-			}
-			catch (const zen::XmlParsingError& e)
-			{
-				// handle error
-				msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
-			}
-		}
-
-		CLocationVector missing;
-		if (missing.Load(GetMissingFilePath()))
-		{
-			for (auto it = missing.begin(); it != missing.end(); it++)
-				if (m_stations.find(it->m_ID) == m_stations.end())
-					m_stations[it->m_ID] = *it;
-		}
-
-
+		//	}
+		//	catch (const zen::XmlFileError& e)
+		//	{
+		//		// handle error
+		//		msg.ajoute(GetErrorDescription(e.lastError));
+		//	}
+		//	catch (const zen::XmlParsingError& e)
+		//	{
+		//		// handle error
+		//		msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+		//	}
+		//}
 
 		return msg;
 	}
@@ -254,33 +335,27 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
-
-		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), nbYears * 12);
+		size_t type = as<size_t>(TEMPORAL_TYPE);
+	
+		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), nbYears);
 
 		//find all station available that meet criterious
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
-			for (size_t m = 0; m < 12 && msg; m++)
+			string command = workingDir + TYPE_NAME[type] + "\\" + ToString(year) + "\\*.ascii";
+			
+			//callback.PushTask(GetString(IDS_LOAD_STATION_LIST), NOT_INIT);
+			StringVector fileListTmp = GetFilesList(command, 2, true);
+
+			for (size_t i = 0; i < fileListTmp.size(); i++)
 			{
-				size_t d = 0;//take only the first day of each month
-				CTRef TRef(year, m, d);
-				if (TRef < today)
-				{
-					string inputString = workingDir + FormatA("%4d\\%02d\\%02d\\*.mts", year, m + 1, d + 1);
-					StringVector fileListTmp = GetFilesList(inputString, 2, true);
-
-					for (size_t i = 0; i < fileListTmp.size(); i++)
-					{
-						string fileTitle = Right(GetFileTitle(fileListTmp[i]), 4);
-						MakeLower(fileTitle);
-
-						fileList.insert(fileTitle);
-					}
-				}
-
-				msg += callback.StepIt();
+				string fileTitle = GetFileTitle(fileListTmp[i]);
+				MakeLower(fileTitle);
+				fileList.insert(fileTitle);
 			}
+
+			msg += callback.StepIt();
 		}
 
 		stationList.insert(stationList.begin(), fileList.begin(), fileList.end());
@@ -361,20 +436,7 @@ namespace WBSF
 		return msg;
 	}
 
-	double Convert(size_t v, double value)
-	{
-
-		switch (v)
-		{
-		case H_WNDS: value *= 3600.0 / 1000.0; break;	//m/s -> km/h
-		case H_SNDH: value = max(0.0, value); break;	//éliminate value under zéro???
-		case H_PRES: value = 10 * value; break;			//kPa -> hPa
-		default:;//do nothing
-		}
-
-		return value;
-	}
-
+	
 	ERMsg CUIBCHourly::ReadData(const string& filePath, CTM TM, CYear& data, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -387,8 +449,8 @@ namespace WBSF
 //		size_t nbYears = startDate.GetYear() - endDate.GetYear() + 1;
 
 	//	int nbYear = m_lastYear - m_firstYear + 1;
-		enum { C_STID, C_STNM, C_MINUTES, C_LAT, C_LON, C_ELEV, C_TAIR, C_RELH, C_TDEW, C_WDIR, C_WSPD, C_WMAX, C_TAIR3HR, C_TDEW3HR, C_RAIN1HR, C_RAIN3HR, C_RAIN, C_PRES, C_PMSL, C_PMSL3HR, C_SNOW, C_SRAD, C_TAIRMIN, C_TAIRMAX, C_PT020H, C_PT040H, C_PT050H, NB_INPUT_HOURLY_COLUMN };
-		const int COL_POS[NB_VAR_H] = { C_TAIR, -1, C_RAIN1HR, C_TDEW, C_RELH, C_WSPD, C_WDIR, C_SRAD, /*C_PRES*/C_PMSL, -1, C_SNOW, -1, -1, -1, -1, -1, -1, -1 };
+		//enum { C_STID, C_STNM, C_MINUTES, C_LAT, C_LON, C_ELEV, C_TAIR, C_RELH, C_TDEW, C_WDIR, C_WSPD, C_WMAX, C_TAIR3HR, C_TDEW3HR, C_RAIN1HR, C_RAIN3HR, C_RAIN, C_PRES, C_PMSL, C_PMSL3HR, C_SNOW, C_SRAD, C_TAIRMIN, C_TAIRMAX, C_PT020H, C_PT040H, C_PT050H, NB_INPUT_HOURLY_COLUMN };
+		//const int COL_POS[NB_VAR_H] = { C_TAIR, -1, C_RAIN1HR, C_TDEW, C_RELH, C_WSPD, C_WDIR, C_SRAD, /*C_PRES*/C_PMSL, -1, C_SNOW, -1, -1, -1, -1, -1, -1, -1 };
 
 		//now extact data 
 		ifStream file;
@@ -399,13 +461,18 @@ namespace WBSF
 		{
 			CWeatherAccumulator stat(TM);
 
-			string copyright;
-			getline(file, copyright);
+			string title;
+			getline(file, title);
+			string headerStr;
+			getline(file, headerStr);
+			StringVector header = Tokenize(headerStr, ",", true);
+			//wind_speed, temperature, wind_direction, relative_humidity, time, precipitation
+			//time, ONE_DAY_PRECIPITATION, MAX_TEMP, MIN_TEMP
+			//ONE_DAY_PRECIPITATION, ONE_DAY_RAIN, ONE_DAY_SNOW, time, MIN_TEMP, MAX_TEMP, SNOW_ON_THE_GROUND
+
+
 			string dateTimeStr;
-			getline(file, dateTimeStr);
 			StringVector dateTime = Tokenize(dateTimeStr, " ", true);
-			string header;
-			getline(file, header);
 
 			int year = stoi(dateTime[1]);
 			int month = stoi(dateTime[2]);
@@ -437,28 +504,28 @@ namespace WBSF
 				Trim(line);
 				ASSERT(!line.empty());
 
-				StringVector vars = Tokenize(line, " ", true);
-				ASSERT(vars.size() >= NB_INPUT_HOURLY_COLUMN);
+				StringVector vars = Tokenize(line, ",");
+				//ASSERT(vars.size() >= NB_INPUT_HOURLY_COLUMN);
 
-				int deltaHour = stoi(vars[C_MINUTES]) / 60;
+				//int deltaHour = stoi(vars[C_MINUTES]) / 60;
 
-				CTRef TRef = CTRef(year, month, day, hour) + deltaHour;
+				//CTRef TRef = CTRef(year, month, day, hour) + deltaHour;
 
-				if (stat.TRefIsChanging(TRef) && data.GetEntireTPeriod(CTM(CTM::HOURLY)).IsInside(stat.GetTRef()))
-					data[stat.GetTRef()].SetData(stat);
+				//if (stat.TRefIsChanging(TRef) && data.GetEntireTPeriod(CTM(CTM::HOURLY)).IsInside(stat.GetTRef()))
+				//	data[stat.GetTRef()].SetData(stat);
 
-				bool bValid[NB_VAR_H] = { 0 };
+				//bool bValid[NB_VAR_H] = { 0 };
 
-				for (size_t v = 0; v<NB_VAR_H; v++)
-				{
-					if (COL_POS[v] >= 0)
-					{
-						double value = stod(vars[COL_POS[v]]);
+				//for (size_t v = 0; v<NB_VAR_H; v++)
+				//{
+				//	if (COL_POS[v] >= 0)
+				//	{
+				//		double value = stod(vars[COL_POS[v]]);
 
-						if (value>-996)
-							stat.Add(TRef, v, Convert(v, value));
-					}
-				}
+				//		//if (value>-996)
+				//			//stat.Add(TRef, v, Convert(v, value));
+				//	}
+				//}
 
 				msg += callback.StepIt(0);
 			}//for all line

@@ -274,6 +274,8 @@
 #include "BioSIMDoc.h"
 #include "OutputView.h"
 #include "WeatherBasedSimulationUI.h"
+#include "WeatherBasedSimulationString.h"
+#include "afxres.h"
 
 
 using namespace UtilWin;
@@ -334,6 +336,7 @@ BOOL CBioSIMApp::InitInstance()
 
 	ASSERT(AfxGetResourceHandle());
 	CDynamicResources::set(AfxGetResourceHandle());
+
 
 	//set local to default operating system
 	static std::locale THE_LOCALE(std::locale(".ACP"), std::locale::classic(), std::locale::numeric);

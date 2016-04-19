@@ -20,6 +20,8 @@
 #include "Tasks/UIACISHourly.h"
 #include "Tasks/UIACISDaily.h"
 #include "Tasks/UISOPFEUHourly.h"
+#include "Tasks/UIBCHourly.h"
+
 
 #include "Tasks/CreateHourlyDB.h"
 #include "Tasks/CreateDailyDB.h"
@@ -292,7 +294,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_ACIS_HOURLY:	className = CUIACISHourly::CLASS_NAME(); break;
 	case ID_TASK_ACIS_DAILY:	className = CUIACISDaily::CLASS_NAME(); break;
 	case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
-		//case ID_TASK_BC_PAWS: str = ; break;
+	case ID_TASK_BC:			className = CUIBCHourly::CLASS_NAME(); break;
 		//case ID_TASK_BC_SNOWPILLOW: str = ; break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;

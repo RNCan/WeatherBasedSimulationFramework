@@ -2052,7 +2052,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 			fileterName = " ";
 
 		msg = ERMsg();//reset it and add the new message
-		string error = FormatMsg(IDS_WG_NOTENOUGH_DAILYSTATION, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(year), ToString(nbStation), fileterName);
+		string error = FormatMsg(IDS_WG_NOTENOUGH_DAILY, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(year), ToString(nbStation), fileterName);
 		msg.ajoute(error);
 	}
 

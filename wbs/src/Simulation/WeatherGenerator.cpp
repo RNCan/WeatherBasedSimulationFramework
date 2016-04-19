@@ -1965,7 +1965,7 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 	{
 		int L = m_bUseOnlySurface? 0: get_level(xy, pt.m_alt, UTCRef, z == 0);
 		size_t bGph = m_p_weather_DS.get_band(UTCRef, ATM_HGT, L);
-		mean_alt[z] = m_p_weather_DS.GetPixel(UTCRef, bGph, xy);
+		mean_alt[z] = m_p_weather_DS.GetPixel(UTCRef, bGph, xy); //geopotential height [m]
 
 		size_t b = m_p_weather_DS.get_band(UTCRef, v, L);
 
@@ -2068,7 +2068,7 @@ int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRe
 	for (int l = 1; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 		test.push_back(make_pair(gph,l));
 
 		if (alt < gph)
@@ -2100,7 +2100,7 @@ int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRe
 	for (int l = 1; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 
 		if (alt < gph)
 		{
@@ -2115,7 +2115,7 @@ int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRe
 double CGribsDatabase::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
 {
 	size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
-	double alt = m_p_weather_DS.GetPixel(UTCTRef, b, xy);
+	double alt = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
 
 	return alt;
 }
@@ -2132,7 +2132,7 @@ CGeoPoint3DIndex CGribsDatabase::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)co
 	for (size_t l = 0; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz);
+		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz); //geopotential height [m]
 
 		if (gph > pt.m_alt)
 		{

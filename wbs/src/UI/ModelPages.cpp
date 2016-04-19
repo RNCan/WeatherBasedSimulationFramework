@@ -717,7 +717,7 @@ namespace WBSF
 	BEGIN_MESSAGE_MAP(CModelOutputVariableCtrl, CPropertiesListBox)
 	END_MESSAGE_MAP()
 
-	typedef CStdIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE, -1, true> CStdWeatherVariableProperty;
+	typedef CStdIndexProperty < IDS_STR_WEATHER_VARIABLES_TITLE, true> CStdWeatherVariableProperty;
 
 	CModelOutputVariableCtrl::CModelOutputVariableCtrl() :
 		CPropertiesListBox(150)

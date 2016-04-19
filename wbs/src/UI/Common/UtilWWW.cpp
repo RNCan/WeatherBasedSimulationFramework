@@ -222,7 +222,7 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password )
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, WBSF::CCallback& callback )
 	{
 		ASSERT(	pConnection.get() != NULL);
 
@@ -232,56 +232,42 @@ namespace UtilWWW
 		
 		if( pURLFile != NULL && pURLFile->SendRequest() )
 		{
-			const short MAX_READ_SIZE = 4096;
-			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
-
-			string source;
-			std::string tmp;
-			tmp.resize(MAX_READ_SIZE);
-			UINT charRead = 0;
-			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
-			{
-				//tmp.ReleaseBuffer();
-				source.append(tmp.c_str(), charRead);
-			}
-
-			//CString source;
-			//CArray<char> source2;
-			////if( bBinary )
-			////{
-			//	//ASSERT( source.GetAllocLength() == 0);
-			//	//char buffer[MAX_READ_SIZE]= {0};
-			//	int len = 0;
-			//	CArray<char> tmp;
-			//	tmp.SetSize(MAX_READ_SIZE);
-			//	while ( (len = pURLFile->Read(tmp.GetData(), MAX_READ_SIZE)) > 0)
-			//	{
-			//		tmp.SetSize(len);
-			//		source2.Append(tmp);
-			//	}
-			//}
-			//else
-			//{
-			//	pURLFile->SetReadBufferSize(MAX_READ_SIZE);
-
-			//	CString tmp;
-			//	while (pURLFile->ReadString(tmp))
-			//		source+=tmp+"\n";
-			//}
-
-			//CFileException e;
 			UtilWin::CStdioFileEx file;
 
 			BOOL bBinary = flags & INTERNET_FLAG_TRANSFER_BINARY;
 
-			UINT type = bBinary?CFile::modeWrite|CFile::modeCreate|CFile::typeBinary:CFile::modeWrite|CFile::modeCreate;
-			msg = file.Open( outputFilePath, type);
-			if(msg)
+			UINT type = bBinary ? CFile::modeWrite | CFile::modeCreate | CFile::typeBinary : CFile::modeWrite | CFile::modeCreate;
+			msg = file.Open(outputFilePath, type);
+			if (msg)
 			{
-				if (!source.empty())
-					file.Write(source.data(), (UINT)source.size());
+				const short MAX_READ_SIZE = 4096;
+				pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+				 
+				bool bEmptyFile = true;
+				string source;
+				std::string tmp;
+				tmp.resize(MAX_READ_SIZE);
+				UINT charRead = 0;
+				while (((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0) && msg)
+				{
+					//source.append(tmp.c_str(), charRead);
+					
+					if (charRead > 0)
+					{
+						file.Write(tmp.c_str(), charRead);
+						bEmptyFile = false;
+					}
+						
+						//file.Write(source.data(), (UINT)source.size());
 
+					msg += callback.StepIt(0);
+				}
+			
 				file.Close();
+
+				if (!msg || bEmptyFile)
+					CFile::Remove(outputFilePath);
+
 			}
 			
 
@@ -800,9 +786,9 @@ namespace UtilWWW
 	{
 		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif);
 	}
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password)
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password, WBSF::CCallback& callback)
 	{
-		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, UtilWin::Convert(userName), UtilWin::Convert(password));
+		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, UtilWin::Convert(userName), UtilWin::Convert(password), callback);
 	}
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bFailIfExists)
 	{

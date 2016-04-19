@@ -186,9 +186,6 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#ifndef APSTUDIO_INVOKED\r\n"
-    "#include ""targetver.h""\r\n"
-    "#endif\r\n"
     "#include ""afxres.h""\r\n"
     "#include ""WeatherBasedSimulationUI.h""\r\n"
     "\r\0"
@@ -202,7 +199,7 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
     "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
+    "#pragma code_page(1252) \r\n"
     "#include ""res\\BioSIM.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""         // Standard components\r\n"
@@ -606,7 +603,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_STANDARD    "Standard "
     IDS_TOOLBAR_STATUS      "Barre d'état"
     IDS_PROJECT_WND         "Projet"
     IDS_SPREADSHEET_WND     "Tableur"
@@ -1317,7 +1314,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE 9, 1
-#pragma code_page(1252)
+#pragma code_page(1252) 
 #include "res\BioSIM.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"         // Standard components

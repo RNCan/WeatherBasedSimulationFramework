@@ -81,7 +81,7 @@ void CProgressWnd::PreSubclassWindow()
 
 	_AFX_THREAD_STATE* pThreadState = AfxGetThreadState();
 	if (pThreadState->m_pWndInit == NULL)
-	{
+	{ 
 		VERIFY(m_progressListCtrl.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_NOSORTHEADER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_CTRL));
 
 		CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));

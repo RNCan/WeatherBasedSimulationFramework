@@ -130,7 +130,7 @@ namespace WBSF
 		assert(i < NB_FILL_DIRECTION_TYPE);
 
 		if (FILL_DIRECTION.empty())
-			FILL_DIRECTION.LoadString(IDS_WG_GRAPH_FILL_DIRECTION_TITLE, ";|");
+			FILL_DIRECTION.LoadString(IDS_WG_GRAPH_FILL_DIR_TITLE, ";|");
 
 		assert(FILL_DIRECTION.size() == NB_FILL_DIRECTION_TYPE);
 
@@ -180,7 +180,7 @@ namespace WBSF
 		assert(i >= -1 && i < NB_HIST_DIRECTION_TYPE);
 
 		if (HIST_DIRECTION.empty())
-			HIST_DIRECTION.LoadString(IDS_WG_GRAPH_HIST_DIRECTION_TITLE, ";|");
+			HIST_DIRECTION.LoadString(IDS_WG_GRAPH_HIST_DIR_TITLE, ";|");
 
 		assert(HIST_DIRECTION.size() == NB_HIST_DIRECTION_TYPE);
 
