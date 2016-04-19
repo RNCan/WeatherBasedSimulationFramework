@@ -76,7 +76,7 @@ namespace WBSF
 	//Interface attribute index to attribute index
 	//sample for alberta:
 
-	//http://www.agric.gov.ab.ca/acis/api/v1/legacy/weather-data/timeseries?stations=10540,15219,77444,11799,2058&elements=PRCIP,ATX,ATN,HU,HUAM,WS,WD,WSAM,WDAM&startdate=20151001&enddate=20151031&interval=HOURLY&format=csv&precipunit=mm&inclCompleteness=true&inclSource=false&inclComments=false&session=Ol-9wEJrnJseSEDtllSgoDv
+	//https://www.agric.gov.ab.ca/acis/api/v1/legacy/weather-data/timeseries?stations=10540,15219,77444,11799,2058&elements=PRCIP,ATX,ATN,HU,HUAM,WS,WD,WSAM,WDAM&startdate=20151001&enddate=20151031&interval=HOURLY&format=csv&precipunit=mm&inclCompleteness=true&inclSource=false&inclComments=false&session=Ol-9wEJrnJseSEDtllSgoDv
 	static const char PageDataFormatH[] =
 		"acis/api/v1/legacy/weather-data/timeseries?"
 		"stations=%s&"
@@ -115,7 +115,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS | INTERNET_FLAG_SECURE, Get(USER_NAME), Get(PASSWORD));
 		if (!msg)
 			return msg;
 
@@ -375,7 +375,7 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS | INTERNET_FLAG_SECURE, Get(USER_NAME), Get(PASSWORD));
 		if (!msg)
 			return msg;
 
@@ -419,71 +419,38 @@ namespace WBSF
 										file.close();
 									}
 
-									//callback.PushTask("Waiting", 600);
-									////callback.SetNbStep(600);
-									//for (size_t s = 0; s < 600 && msg; s++)
-									//{
-									//	Sleep(100);
-									//	msg += callback.StepIt();
-									//}
-
-									//callback.PopTask();
+								
 									nbDownload++;
 									currentNbDownload++;
+									msg += callback.StepIt();
 								}
 								else
 								{
 									msg.ajoute(source);
 								}
-
-								if (!msg )//&& currentNbDownload == 8
-								{
-									CString Url = _T("http://www.agric.gov.ab.ca");
-
-
-									/*DWORD bufferSize = 0;
-									CString cookiesData;
-									DWORD error;
-
-									BOOL test = InternetGetCookieEx(Url, _T("JSESSIONID"), NULL, &bufferSize, INTERNET_COOKIE_HTTPONLY, NULL);
-									if (test)
-										InternetGetCookieEx(Url, _T("JSESSIONID"), cookiesData.GetBufferSetLength(bufferSize), &bufferSize, INTERNET_COOKIE_HTTPONLY, NULL);
-									else
-										error = GetLastError();
-
-									InternetSetCookieEx(Url, _T("JSESSIONID"), _T(""), INTERNET_COOKIE_HTTPONLY, NULL);
-
-									test = InternetGetCookieEx(Url, _T("JSESSIONID"), NULL, &bufferSize, INTERNET_COOKIE_HTTPONLY, NULL);
-									if (test)
-										InternetGetCookieEx(Url, _T("JSESSIONID"), cookiesData.GetBufferSetLength(bufferSize), &bufferSize, INTERNET_COOKIE_HTTPONLY, NULL);
-									else
-										error = GetLastError();*/
-
-									pConnection->Close();
-									pSession->Close();
-
-
-
-									//wait 10 minutes
-									callback.PushTask("Waiting 5 seconds...", 5 * 600);
-									for (size_t s = 0; s < 500 && msg; s++)
-									{
-										Sleep(100);
-										msg += callback.StepIt();
-									}
-									callback.PopTask();
-
-									msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-									string olID = sessionID;
-									sessionID = GetSessiosnID(pConnection);
-
-									assert(sessionID != olID);
-									currentNbDownload = 0;
-								}
+									
 							}
+							else
+							{
+								pConnection->Close();
+								pSession->Close();
 
-							if (msg)
-								msg += callback.StepIt();
+								//wait 5 seconds 
+								callback.PushTask("Waiting 5 seconds...", 50);
+								for (size_t s = 0; s < 50 && msg; s++)
+								{
+									Sleep(100);
+									msg += callback.StepIt();
+								}
+								callback.PopTask();
+
+								msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS | INTERNET_FLAG_SECURE, Get(USER_NAME), Get(PASSWORD));
+								string olID = sessionID;
+								sessionID = GetSessiosnID(pConnection);
+
+								assert(sessionID != olID);
+								currentNbDownload = 0;
+							}
 						}
 					}
 				}
