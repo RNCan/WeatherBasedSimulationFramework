@@ -216,7 +216,7 @@ namespace WBSF
 
 				if (t == T_PATH || t == T_FILEPATH)
 					value = GetAbsoluteFilePath(value);
-				else if (t == T_PASSWORD && !value.empty())
+				else if (t == T_PASSWORD )
 					value = Decrypt(value);
 			}
 

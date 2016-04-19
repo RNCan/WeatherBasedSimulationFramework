@@ -419,42 +419,29 @@ namespace WBSF
 										file.close();
 									}
 
-									callback.PushTask("Waiting", 600);
-									//callback.SetNbStep(600);
-									for (size_t s = 0; s < 600 && msg; s++)
-									{
-										Sleep(100);
-										msg += callback.StepIt();
-									}
+									//callback.PushTask("Waiting", 600);
+									////callback.SetNbStep(600);
+									//for (size_t s = 0; s < 600 && msg; s++)
+									//{
+									//	Sleep(100);
+									//	msg += callback.StepIt();
+									//}
 
-									callback.PopTask();
+									//callback.PopTask();
 									nbDownload++;
 									currentNbDownload++;
-
-									//if (nbDownload == 6)
-									//{
-									//	//clean connection
-									//	pConnection->Close();
-									//	pSession->Close();
-
-									//	msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-									//	if (!msg)
-									//		return msg;
-
-									//	sessionID = GetSessiosnID(pConnection);
-									//}
 								}
 								else
 								{
 									msg.ajoute(source);
 								}
 
-								if (msg && currentNbDownload == 8)
+								if (!msg )//&& currentNbDownload == 8
 								{
 									CString Url = _T("http://www.agric.gov.ab.ca");
 
 
-									DWORD bufferSize = 0;
+									/*DWORD bufferSize = 0;
 									CString cookiesData;
 									DWORD error;
 
@@ -470,7 +457,7 @@ namespace WBSF
 									if (test)
 										InternetGetCookieEx(Url, _T("JSESSIONID"), cookiesData.GetBufferSetLength(bufferSize), &bufferSize, INTERNET_COOKIE_HTTPONLY, NULL);
 									else
-										error = GetLastError();
+										error = GetLastError();*/
 
 									pConnection->Close();
 									pSession->Close();
@@ -478,9 +465,8 @@ namespace WBSF
 
 
 									//wait 10 minutes
-									callback.PushTask("Waiting...", 5 * 600);
-									//callback.SetNbStep(5 * 600);
-									for (size_t s = 0; s < 5 * 600 && msg; s++)
+									callback.PushTask("Waiting 5 seconds...", 5 * 600);
+									for (size_t s = 0; s < 500 && msg; s++)
 									{
 										Sleep(100);
 										msg += callback.StepIt();
@@ -506,7 +492,6 @@ namespace WBSF
 
 
 		//clean connection
-		//pConnection->OpenRequest(CHttpConnection::HTTP_VERB_UNLINK, _T("acis/api/v1/legacy/weather-data/timeseries?"));
 		pConnection->Close();
 		pConnection.release();
 		pSession->Close();

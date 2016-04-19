@@ -163,6 +163,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACISDaily.h" />
     <ClInclude Include="UIACISHourly.h" />
+    <ClInclude Include="UIBCHourly.h" />
     <ClInclude Include="UICIPRA.h" />
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
@@ -206,6 +207,7 @@
     </ClCompile>
     <ClCompile Include="UIACISDaily.cpp" />
     <ClCompile Include="UIACISHourly.cpp" />
+    <ClCompile Include="UIBCHourly.cpp" />
     <ClCompile Include="UICIPRA.cpp" />
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
