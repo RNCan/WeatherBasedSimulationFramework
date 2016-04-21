@@ -398,6 +398,9 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 				if (!m_simulationPoints[0].IsComplete(m_tgi.GetMandatoryVariables(), m_tgi.GetTPeriod()))
 				{
 					bCopyReplication = false;
+					for (size_t i = 1; i < m_simulationPoints.size(); i++)
+						m_simulationPoints[i] = m_simulationPoints[0];
+
 
 					if (!m_tgi.IsNormals())
 						m_warning.set(W_DATA_FILLED_WITH_NORMAL);
@@ -441,9 +444,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 	{
 		//copy data for all replications
 		for (size_t i = 1; i < m_simulationPoints.size(); i++)
-		{
 			m_simulationPoints[i] = m_simulationPoints[0];
-		}
 
 		m_warning.set(W_UNEEDED_REPLICATION);
 	}

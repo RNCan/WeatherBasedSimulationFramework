@@ -263,8 +263,11 @@ namespace WBSF
 
 	void CCallback::PushTask(const std::string& description, double nbStep, double stepBy)
 	{
-		ASSERT(omp_get_thread_num() == 0);
-		//Lock();
+		if (omp_get_thread_num() == 0)
+		{
+
+		
+		
 		if (nbStep == NOT_INIT)
 			nbStep = -1.0;
 		
@@ -272,38 +275,30 @@ namespace WBSF
 
 		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 			SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
-
-		//Unlock();
-		
-		
-		//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
-			//PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
+		}
 	}
 
 	void CCallback::PopTask()
 	{
-		if (!m_threadTasks.empty())
+		if (omp_get_thread_num() == 0)
 		{
-			ASSERT(omp_get_thread_num() == 0);
-			//Lock();
-			//transfer message to parent
-			string messages;
-			if (!GetTasks().empty())
-				messages = GetTasks().top().m_messages;
+			if (!m_threadTasks.empty())
+			{
+				ASSERT(omp_get_thread_num() == 0);
+				
+				//transfer message to parent
+				string messages;
+				if (!GetTasks().empty())
+					messages = GetTasks().top().m_messages;
 
-			GetTasks().pop();
+				GetTasks().pop();
 
-			if (!GetTasks().empty())
-				GetTasks().top().m_messages += messages;
+				if (!GetTasks().empty())
+					GetTasks().top().m_messages += messages;
 
-			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
-				SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
-
-			//Unlock();
-
-			//if (m_bPumpMessage && m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))//if single thread, must pump message
-			//PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
-			
+				if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+					SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
+			}
 		}
 	}
 

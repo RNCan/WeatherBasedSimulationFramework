@@ -543,7 +543,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//callback.SetNbStep(NB_SCALE_GRADIENT*m_variables.count()*12);
+		//commflic in multiThread
 		callback.PushTask("Create gradient", NB_SCALE_GRADIENT*m_variables.count() * 12, 1);
 
 		size_t e = NORTH_HEMISPHERE;
