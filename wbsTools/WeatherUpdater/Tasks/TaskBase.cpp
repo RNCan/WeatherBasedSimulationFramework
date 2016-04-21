@@ -533,8 +533,12 @@ namespace WBSF
 			bool bGribsTask = (*it)->IsGribs();
 			if (((bHourly == bHourlyTask) || (bDailyTask&&bDaily)) &&
 				bForecast == bForecastTask &&
-				bGribs == bGribsTask )
-				str += "|" + (*it)->m_name;//que faire si plusieur fois le mem nom???
+				bGribs == bGribsTask)
+			{
+				str += str.empty() ? "" : "|";
+				str += (*it)->m_name;//que faire si plusieur fois le mem nom???
+			}
+				
 		}
 
 		return str;

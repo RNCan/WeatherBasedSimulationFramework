@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
+// 11.0.2: 21/04/2016	Correction of bug in the weather generation with more than 1 replication.
 // 11.0.0: 10/04/2016	Integreted with WBSF 
 //						Add hourly input data  
 //						Version 64 bits and UNICODE

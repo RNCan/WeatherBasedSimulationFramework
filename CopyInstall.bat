@@ -83,7 +83,7 @@ xcopy /Y /S ".\bin\Releasex64\Palette\*.*" "..\Install\NRCan\Palette\*.*"
 
 del "..\Install\BioSIM11_x_x.7z"
 .\bin\Releasex64\External\7z.exe a -r "..\Install\BioSIM11_x_x.7z" "..\Install\NRCan"
-del "..\Install\NRCan.zip"
+del "..\Install\BioSIM11_x_x.zip"
 .\bin\Releasex64\External\7z.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
 
 REM ::xcopy /Y "..\Install\NRCan.7z" "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_x_x.7z"

@@ -111,15 +111,15 @@ void CTaskPropertyGridCtrl::Update()
 			case T_STRING:			pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_STRING_BROWSE:	pItem = new CStdBrowseProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_BOOL:			pItem = new CBoolGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
-			case T_COMBO_POSITION:	pItem = new CStdComboPosProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-			case T_COMBO_STRING:	pItem = new CStdComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
+			case T_COMBO_POSITION:	pItem = new CStdComboPosProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, false, i); break;
+			case T_COMBO_STRING:	pItem = new CStdComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, true, i); break;
 			case T_PATH:			pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_FILEPATH:		pItem = new CStdGriFilepathProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			case T_GEOPOINT:		pItem = new CStdGridProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_GEORECT:			pItem = new CStdGeoRectProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_PASSWORD:		pItem = new CStdPasswordProperty(attributes[i].m_title, str, attributes[i].m_description, i); break;
 			case T_DATE:			pItem = new CStdTRefProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
-			case T_UPDATER:			pItem = new CStdComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;//always relead options
+			case T_UPDATER:			pItem = new CStdComboStringProperty(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, true, i); break;//always relead options
 			case T_URL:			    pItem = new CStdGriFolderProperty2(attributes[i].m_title, str, attributes[i].m_description, attributes[i].m_option, i); break;
 			default: ASSERT(false);
 			}
