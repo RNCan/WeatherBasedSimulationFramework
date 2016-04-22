@@ -53,6 +53,17 @@
 #include "basic/openMP.h"
 
 
+#include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>  
+#include <boost/date_time/local_time/local_time.hpp>     
+
+using namespace boost::posix_time;
+using namespace boost::gregorian;
+
+
+
 using namespace std;
 
 using namespace WBSF::HOURLY_DATA;
@@ -1805,6 +1816,25 @@ void GetWarning()//todo
 
 //DPT:2 m
 //RH
+
+CTRef LocalTRef2UTCTRefII(CTRef TRef, double lon)
+{
+
+	boost::local_time::tz_database tz;
+	tz.load_from_file("/tmp/date_time_zonespec.csv");
+
+	boost::local_time::time_zone_ptr tzp =
+		tz.time_zone_from_region("America/Los_Angeles");
+
+	int year = 2012;
+	boost::posix_time::ptime t1 = tzp->dst_local_start_time(year);
+	boost::posix_time::ptime t2 = tzp->dst_local_end_time(year);
+	std::cout << "DST ran from " << t1 << " to " << t2 << std::endl;
+	std::cout << "DST shortcut " << tzp->dst_zone_abbrev() << std::endl;
+	std::cout << "DST name     " << tzp->dst_zone_name() << std::endl;
+
+	return CTRef;
+}
 
 ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& callback)
 {
