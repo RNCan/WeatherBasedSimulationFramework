@@ -26,6 +26,7 @@
 #include "Geomatic/IWD.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/ProjectionTransformation.h"
+#include "Geomatic/TimeZones.h"
 
 namespace WBSF
 {
@@ -44,7 +45,7 @@ namespace WBSF
 
 	size_t Hourly2ATM(size_t vv);
 	
-	inline size_t CTRef2Time(CTRef TRef)
+	/*inline size_t CTRef2Time(CTRef TRef)
 	{
 		ASSERT(TRef.GetTM().Type() == CTM::HOURLY);
 		return (size_t)TRef.GetRef() * 3600;
@@ -82,7 +83,7 @@ namespace WBSF
 		int delta = int(lon / 15);
 		return TRef + delta;
 	}
-
+*/
 
 	inline size_t GetHourlySeconds(size_t time)
 	{
@@ -392,7 +393,7 @@ namespace WBSF
 		}
 
 		std::array < std::array < std::array < CGeoPoint3D, NB_POINTS_X >, NB_POINTS_Y >, NB_POINTS_Z > m_pt;
-		size_t m_time;
+		__int64 m_time;
 
 		CATMVariables get_weather(const CGeoPoint3D& pt, bool bSpaceInterpol)const;
 	};
@@ -411,7 +412,7 @@ namespace WBSF
 
 		bool m_bUseSpaceInterpolation;
 		bool m_bUseTimeInterpolation;
-		CATMVariables get_weather(const CGeoPoint3D& pt, size_t time)const;
+		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 time)const;
 
 	};
 
@@ -538,10 +539,10 @@ namespace WBSF
 
 
 		ERMsg LoadWeather(CTRef TRef, CCallback& callback);
-		CATMWeatherCuboidsPtr get_cuboids(const CGeoPoint3D& pt, size_t UTCTime)const;
-		CATMVariables get_station_weather(const CGeoPoint3D& pt, size_t UTCTime)const;
+		CATMWeatherCuboidsPtr get_cuboids(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const;
+		CATMVariables get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const;
 		CATMVariables get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef)const;
-		CATMVariables get_weather(const CGeoPoint3D& pt, size_t UTCTime)const;
+		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const;
 		std::string get_image_filepath(CTRef TRef)const;
 
 		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
@@ -592,13 +593,13 @@ namespace WBSF
 	public:
 
 		double m_height;		//flight height [m]
-		size_t m_duration;		//flight duration [s]
+		__int64 m_duration;		//flight duration [s]
 		double m_w_ascent;		//ascent flight speed [m/s]
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
 
-		size_t m_t_liftoff;		//launch time in evening
-		size_t m_t_hunting;		//begginning of hunting host 
+		__int64 m_t_liftoff;		//launch time in evening
+		__int64 m_t_hunting;		//begginning of hunting host 
 
 		CFlightParameters()
 		{
@@ -627,7 +628,7 @@ namespace WBSF
 		size_t m_loc;
 		size_t m_var;
 		double m_scale;
-		CTRef m_TRef;		//Creation date in local time
+		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;
 		CLocation m_newLocation;
 		CGeoPoint3D m_pt;
@@ -636,21 +637,21 @@ namespace WBSF
 
 		void init();
 		void live();
-		void create(size_t UTCTime);
-		void idle_begin(size_t time);
-		void liftoff(size_t UTCTime);
-		void ascent_flight(size_t UTCTime);
-		void horizontal_flight(size_t UTCTime);
-		void descent_flight(size_t UTCTime);
-		void landing(size_t UTCTime);
-		void idle_end(size_t UTCTime);
-		void destroy(size_t UTCTime);
+		void create(CTRef UTCTRef, __int64 UTCTime);
+		void idle_begin(CTRef UTCTRef, __int64 time);
+		void liftoff(CTRef UTCTRef, __int64 UTCTime);
+		void ascent_flight(CTRef UTCTRef, __int64 UTCTime);
+		void horizontal_flight(CTRef UTCTRef, __int64 UTCTime);
+		void descent_flight(CTRef UTCTRef, __int64 UTCTime);
+		void landing(CTRef UTCTRef, __int64 UTCTime);
+		void idle_end(CTRef UTCTRef, __int64 UTCTime);
+		void destroy(CTRef UTCTRef, __int64 UTCTime);
 
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 
-		CATMVariables get_weather(size_t UTCTime)const;
+		CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w)const;
-		CGeoDistance3D get_U(size_t UTCTime)const;
+		CGeoDistance3D get_U(__int64 UTCTime)const;
 
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i)const{ return m_stat[i].IsInit() ? m_stat[i][MEAN] : 0; }
@@ -659,18 +660,20 @@ namespace WBSF
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
 		const CFlightParameters& P()const{ return m_parameters; }
-		CTRef GetUTCTRef()const{ return LocalTRef2UTCTRef(m_TRef, m_location.m_lon); }
-
+		//CTRef GetUTCTRef()const{ return CTimeZones::LocalTRef2UTCTRef(m_TRef, m_location); }
+		//CTRef GetUTCTRef()const{ return m_TRef + int(m_UTCShift); }//always the same shift for optimisation
+		int GetUTCShift()const{ return int(m_UTCShift / 3600); }//in [h]
 
 	protected:
 
-		size_t m_creation_time;//creation time in second since 1 jan 1
+		__int64 m_creation_time;//creation time in second
+		__int64 m_UTCShift;//shift between local time and UTC [s]
+
 		CFlightParameters m_parameters;
 
 		int m_state;		//state of the flyer
 		int m_end_type;		//Terminason of the flyer
 		CATMWorld& m_world;
-		//double m_strongFliyers;
 
 		//statistic of flight
 		std::array<double, NB_FLYER_LOG> m_log;
@@ -838,9 +841,9 @@ namespace WBSF
 		size_t get_time_step()const{ return m_parameters1.get_time_step(); }//[s]
 		size_t get_nb_time_step()const{ return m_parameters1.get_nb_time_step(); }	//number of timeStep per hour
 		CTRef GetUTRef()const{ return m_UTCTRef; }
-		size_t get_UTC_time()const{ return size_t(m_UTCTRef.GetRef()) * 3600; }
-		static size_t get_local_sunset(CTRef TRef, const CLocation& loc);
-		CATMVariables get_weather(const CGeoPoint3D& pt, size_t UTCTime)const{ return m_weather.get_weather(pt, UTCTime); }
+		__int64 get_UTC_time()const { return m_UTCTTime; }
+		static __int64 get_local_sunset(CTRef TRef, const CLocation& loc);
+		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const{ return m_weather.get_weather(pt, UTCTRef, UTCTime); }
 
 		std::vector<CFlyersIt> GetFlyers(CTRef TRef);
 		CTPeriod get_UTC_period(const std::vector<CFlyersIt>& fls);
@@ -884,10 +887,10 @@ namespace WBSF
 		CProjectionTransformation m_GEO2WEA;
 
 
-		size_t get_t_liftoff_offset(double T)const;
-		size_t get_t_hunthing()const;
+		__int64 get_t_liftoff_offset(double T)const;
+		__int64 get_t_hunthing()const;
 		double get_height()const;
-		size_t get_duration()const;
+		__int64 get_duration()const;
 
 		double get_w_ascent()const;
 		double get_w_horizontal()const;
@@ -897,6 +900,7 @@ namespace WBSF
 	protected:
 
 		CTRef m_UTCTRef;
+		__int64 m_UTCTTime;
 		CRandomGenerator m_random;
 
 		//statistic of simulation

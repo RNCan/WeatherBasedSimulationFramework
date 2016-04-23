@@ -13,6 +13,8 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"	
+#include "Geomatic/TimeZones.h"
+
 
 #include "BioSIM.h"
 #include "BioSIMDoc.h"
@@ -331,8 +333,12 @@ void CBioSIMDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 {
 	ERMsg msg = CWeatherGradient::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+
+	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
+
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());
 	
+
 	UpdateAllViews(NULL, INIT, NULL);
 }

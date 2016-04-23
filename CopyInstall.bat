@@ -78,6 +78,7 @@ copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRC
 xcopy /Y /S ".\bin\Releasex64\External\*.*" "..\Install\NRCan\External\*.*"
 xcopy /Y /S ".\bin\Releasex64\Layers\*.*" "..\Install\NRCan\Layers\*.*"
 xcopy /Y /S ".\bin\Releasex64\Palette\*.*" "..\Install\NRCan\Palette\*.*"
+xcopy /Y /S ".\bin\Releasex64\zoneinfo\*.*" "..\Install\NRCan\zoneinfo\*.*"
 
 ::copy /Y ".\bin\Releasex64\External\FTPTransfer.exe" "..\Install\NRCan\External\FTPTransfer.exe"
 

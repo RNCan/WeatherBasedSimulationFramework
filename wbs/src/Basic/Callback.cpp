@@ -149,7 +149,7 @@ namespace WBSF
 		//if (!m_threadTasks.empty())
 		//{
 		
-		if (omp_get_thread_num() == 0)
+		//if (omp_get_thread_num() == 0)
 		{
 			if (stepBy == -1)
 				stepBy = GetTasks().top().m_stepBy;

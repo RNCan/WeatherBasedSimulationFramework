@@ -408,21 +408,18 @@ namespace WBSF
 							{
 								if (section[t][v][MEAN] > m_parameters.m_world.m_eventThreshold)
 								{
-									CTRef TRef = section.GetTRef(t);
-									TRef.Transform(CTM(CTM::HOURLY));
-									TRef.m_hour = 0;
+									CTRef localTRef = section.GetTRef(t);
+									localTRef.Transform(CTM(CTM::HOURLY));
+									localTRef.m_hour = 0;
 
 									CFlyer flyer(world);
 									flyer.m_loc = l;
 									flyer.m_var = v;
 									flyer.m_scale = section[t][v][MEAN];
-									flyer.m_TRef = TRef;
+									flyer.m_localTRef = localTRef;
 									flyer.m_location = locations[l];
 									flyer.m_newLocation = locations[l];
-									//flyer.m_newLocation.m_alt = 5;
 									flyer.m_pt = locations[l];
-									//if (!world.m_GEO2DEM.IsSame())
-									//flyer.m_pt.Reproject(world.m_GEO2DEM);
 
 									flyer.m_pt.m_alt = 5;
 									if (extents.IsInside(flyer.m_pt))

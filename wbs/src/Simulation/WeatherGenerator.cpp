@@ -45,22 +45,15 @@
 
 #include "Basic/WeatherCorrection.h"
 #include "Basic/Callback.h"
+#include "Basic/CSV.h"
+#include "Basic/openMP.h"
 #include "ModelBase/MTClim43.h"
 #include "ModelBase/SnowMelt.h"
 #include "Simulation/WeatherGenerator.h"
-#include "Basic/CSV.h"
+#include "Geomatic/TimeZones.h"
 #include "WeatherBasedSimulationString.h"
-#include "basic/openMP.h"
 
 
-#include <iostream>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>  
-#include <boost/date_time/local_time/local_time.hpp>     
-
-using namespace boost::posix_time;
-using namespace boost::gregorian;
 
 
 
@@ -70,7 +63,6 @@ using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::WEATHER;
 namespace WBSF
 {
-
 
 	//mbar	m
 	//1013	0
@@ -328,6 +320,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 {
 	ERMsg msg;
 	msg = Initialize();// init gradient and seeds
+
 
 	if (!msg)
 		return msg;
@@ -1817,24 +1810,6 @@ void GetWarning()//todo
 //DPT:2 m
 //RH
 
-CTRef LocalTRef2UTCTRefII(CTRef TRef, double lon)
-{
-
-	boost::local_time::tz_database tz;
-	tz.load_from_file("/tmp/date_time_zonespec.csv");
-
-	boost::local_time::time_zone_ptr tzp =
-		tz.time_zone_from_region("America/Los_Angeles");
-
-	int year = 2012;
-	boost::posix_time::ptime t1 = tzp->dst_local_start_time(year);
-	boost::posix_time::ptime t2 = tzp->dst_local_end_time(year);
-	std::cout << "DST ran from " << t1 << " to " << t2 << std::endl;
-	std::cout << "DST shortcut " << tzp->dst_zone_abbrev() << std::endl;
-	std::cout << "DST name     " << tzp->dst_zone_name() << std::endl;
-
-	return CTRef;
-}
 
 ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& callback)
 {
@@ -1870,7 +1845,7 @@ ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& 
 			{
 				for (size_t h = 0; h < 24 && msg; h++)
 				{
-					CTRef UTCRef = LocalTRef2UTCTRef(CTRef(year, m, d, h), m_target.m_lon);
+					CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(CTRef(year, m, d, h), m_target);
 					if (!m_pGribsDB->get_image_filepath(UTCRef).empty())
 					{
 						msg += m_pGribsDB->LoadWeather(UTCRef, callback);

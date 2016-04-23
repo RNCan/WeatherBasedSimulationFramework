@@ -189,6 +189,7 @@
     <ClCompile Include="..\src\Geomatic\SpatialRegression.cpp" />
     <ClCompile Include="..\src\Geomatic\srsinfo.cpp" />
     <ClCompile Include="..\src\Geomatic\ThinPlateSpline.cpp" />
+    <ClCompile Include="..\src\Geomatic\TimeZones.cpp" />
     <ClCompile Include="..\src\Geomatic\UniversalKriging.cpp" />
     <ClCompile Include="..\src\Geomatic\UtilGDAL.cpp" />
     <ClCompile Include="..\src\Geomatic\Variogram.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="..\src\Geomatic\SpatialRegression.h" />
     <ClInclude Include="..\src\Geomatic\srsinfo.h" />
     <ClInclude Include="..\src\Geomatic\ThinPlateSpline.h" />
+    <ClInclude Include="..\src\Geomatic\TimeZones.h" />
     <ClInclude Include="..\src\Geomatic\TPSInterpolate.hpp" />
     <ClInclude Include="..\src\Geomatic\UniversalKriging.h" />
     <ClInclude Include="..\src\Geomatic\UtilGDAL.h" />

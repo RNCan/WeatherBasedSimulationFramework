@@ -86,6 +86,9 @@
     <ClCompile Include="..\src\Geomatic\ProjectionTransformation.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Geomatic\TimeZones.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -170,6 +173,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Geomatic\GDAL.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Geomatic\TimeZones.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

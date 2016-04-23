@@ -279,6 +279,43 @@
 #include "afxres.h"
 
 
+
+//
+//int testTimeZone(void)
+//{
+//	//cctz::TimeZoneInfo::LoadTimeZone(name);
+//
+//	cctz::time_zone syd;
+//	if (!cctz::load_time_zone("Australia/Sydney", &syd)) 
+//		return -1;
+//
+//	// Neil Armstrong first walks on the moon
+//	const auto tp1 = cctz::convert(cctz::civil_second(1969, 7, 21, 12, 56, 0), syd);
+//
+//	std::string s = cctz::format("%x %X", tp1, syd);
+//	//std::cout << s << "\n";
+//
+//	cctz::time_zone nyc;
+//	cctz::load_time_zone("America/New_York", &nyc);
+//
+//	const auto tp2 = cctz::convert(cctz::civil_second(1969, 7, 20, 22, 56, 0), nyc);
+//	s = cctz::format("%x %X", tp2, syd);
+//	
+//
+//	cctz::time_zone lax;
+//	load_time_zone("America/Los_Angeles", &lax);
+//	const auto now = std::chrono::system_clock::now();
+//	const auto day = FloorDay(now, lax);
+//	s = cctz::format("Now: %x %X\n", now, lax);
+//	s = cctz::format("Day: %x %X\n", day, lax);
+//
+//
+//	
+//
+//
+//	return tp2 == tp1 ? 0 : 1;
+//}
+
 using namespace UtilWin;
 using namespace WBSF;
 
@@ -347,7 +384,7 @@ BOOL CBioSIMApp::InitInstance()
 	setlocale(LC_NUMERIC, "English");
 	
 
-	
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
