@@ -18,7 +18,7 @@
 #include "Basic/Statistic.h"
 #include "Geomatic/PrePostTransfo.h"
 
-#ifndef interface 
+#if !defined( interface )
 #define interface struct
 #endif
 

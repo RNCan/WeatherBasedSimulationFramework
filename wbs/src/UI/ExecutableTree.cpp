@@ -321,73 +321,6 @@ namespace WBSF
 
 		return hItem;
 	}
-	//
-	//
-	//void CExecutableTree::GetExpandedState(XNode& root)
-	//{
-	//	CExecutableTree& me = const_cast<CExecutableTree&>(*this);
-	//	//For all element in the tree
-	//	HTREEITEM hItem = GetRootItem();
-	//	while (hItem)
-	//	{
-	//		if( GetChildrenCount(hItem) > 0)
-	//		{
-	//		
-	//			string iName = GetInternalName(hItem);
-	//			bool bExpanded = IsExpanded(hItem)!=0;
-	//		
-	//			root.AppendAttr(iName.c_str(), WBSF::ToString(bExpanded).c_str() );
-	//		}
-	//
-	//		hItem = me.GetNextItem(hItem);
-	//	}
-	//
-	//}
-	//
-	//void CExecutableTree::SetExpandedState(const XNode& root)
-	//{
-	//	//LPXNode pNode = root.Find(CProjectState::GetXmlFlags(CProjectState::EXPANDED));
-	//	//if( pNode )
-	//	//{
-	//	//	//For all element in the tree
-	//	//	HTREEITEM hItem = GetRootItem();
-	//	//	while (hItem)
-	//	//	{
-	//	//		string iName = ToUTF8(GetInternalName(hItem));
-	//	//		LPXNode pItemNode = pNode->GetChild(iName.c_str());
-	//	//		if( pItemNode )
-	//	//		{
-	//	//			if( WBSF::ToBool(pItemNode->value) )
-	//	//				Expand(hItem, TVE_EXPAND);
-	//	//			else Expand(hItem, TVE_COLLAPSE);
-	//	//		}
-	//	//		
-	//	//		hItem = GetNextItem(hItem);
-	//	//	}
-	//	//}
-	//}
-
-	//void CExecutableTree::OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult)
-	//{
-	//	*pResult = TRUE;
-	//}
-	//
-	//void AFXAPI DDX_Selection(CDataExchange* pDX, int ID, CStringArray& data)
-	//{
-	//	CExecutableTree* pCtrl = dynamic_cast<CExecutableTree*>(pDX->m_pDlgWnd->GetDlgItem(ID));
-	//	ASSERT(pCtrl);
-	//
-	//	if (pDX->m_bSaveAndValidate)
-	//	{
-	//		pCtrl->GetData(data);
-	//	}
-	//	else
-	//	{
-	//		pCtrl->SetData(data);
-	//	}
-	//}
-
-
 
 	void CExecutableTree::SetCheckedItem(const WBSF::StringVector& data)
 	{
@@ -438,8 +371,6 @@ namespace WBSF
 
 	void CExecutableTree::SetExpandedItem(const CExpendedItem& data)
 	{
-		//	CollapseAll();
-		//for (int i = 0; i < data.size(); i++)
 		for (CExpendedItem::const_iterator it = data.begin(); it != data.end(); it++)
 		{
 			HTREEITEM hItem = FindItem(*it);
@@ -684,6 +615,14 @@ namespace WBSF
 			deepElemType = GetClassType(hItem);
 		}
 
+		bool bDeepHaveData = 
+			deepElemType != CExecutableTree::UNKNOWN && 
+			deepElemType != CExecutableTree::GROUP && 
+			deepElemType != CExecutableTree::WEATHER_UPDATE && 
+			deepElemType != CExecutableTree::SCRIPT_R && 
+			deepElemType != CExecutableTree::MODEL_PARAMETERIZATION && 
+			deepElemType != CExecutableTree::COPY_EXPORT;
+
 		switch (pCmdUI->m_nID)
 		{
 		case ID_ADD_GROUP:             pCmdUI->Enable(bInit); break;
@@ -695,10 +634,10 @@ namespace WBSF
 		case ID_ADD_DISPERSAL:
 		case ID_ADD_SCRIPT_R:
 		case ID_ADD_MAP:               
-		case ID_ADD_MODEL_PARAMETERIZATION:pCmdUI->Enable(bInit && deepElemType != CExecutableTree::UNKNOWN && deepElemType != CExecutableTree::GROUP); break;
+		case ID_ADD_MODEL_PARAMETERIZATION:pCmdUI->Enable(bInit && bDeepHaveData); break;
 		case ID_ADD_INPUT_ANALYSIS:	   pCmdUI->Enable(bInit && (deepElemType == CExecutableTree::WEATHER_GENERATION)); break;
 		case ID_ADD_MERGE:			   pCmdUI->Enable(bInit); break;
-		case ID_ADD_COPY_EXPORT:	   pCmdUI->Enable(bInit && (elemType != CExecutableTree::UNKNOWN && elemType != CExecutableTree::GROUP)); break;
+		case ID_ADD_COPY_EXPORT:	   pCmdUI->Enable(bInit && bDeepHaveData); break;
 		case ID_EDIT:                  pCmdUI->Enable(bInit && (elemType != CExecutableTree::UNKNOWN && elemType != CExecutableTree::GROUP)); break;
 		case ID_EDIT_COPY:			   pCmdUI->Enable(bInit); break;
 		case ID_EDIT_PASTE:			   pCmdUI->Enable(bInit); break;

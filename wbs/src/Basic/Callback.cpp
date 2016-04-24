@@ -126,11 +126,6 @@ namespace WBSF
 		{
 			if (!GetTasks().empty())
 				msg = StepIt(stepPos - GetTasks().top().m_stepPos);
-		//{
-			//if (omp_get_thread_num() == 0)
-			//{
-				
-		//	}
 		}
 	
 	
@@ -141,50 +136,33 @@ namespace WBSF
 
 	ERMsg CCallback::StepIt(double stepBy)
 	{
-		ASSERT(stepBy==0 || !m_threadTasks.empty());
 		ERMsg msg;
 
-		//step it only apply on the first tread for the moment
-		
-		//if (!m_threadTasks.empty())
-		//{
-		
-		//if (omp_get_thread_num() == 0)
 		{
-			if (stepBy == -1)
-				stepBy = GetTasks().top().m_stepBy;
+			std::lock_guard<std::mutex> lock(m_mutex);
 
-		
 			if (!GetTasks().empty())
 			{
-				double & stepPos = GetTasks().top().m_stepPos;
-				
-#pragma omp atomic
-				stepPos += stepBy;
-				
+				//step it only apply on the first tread for the moment
+				if (stepBy == -1)
+					stepBy = GetTasks().top().m_stepBy;
 
-				/*if (GetTasks().top().m_stepPos > GetTasks().top().m_nbSteps)
-				{
-					Lock();
-					GetTasks().top().m_stepPos = GetTasks().top().m_nbSteps;
-					Unlock();
-				}*/
-					
+				GetTasks().top().m_stepPos += stepBy;
 			}
-		
 
-			//Lock();
+		}
 
+		if (omp_get_thread_num() == 0)
+		{
 			if (GetUserCancel())
 			{
-				//m_bCancelled = true;
 				ASSERT(!m_userCancelMsg.empty());
 				msg.ajoute(m_userCancelMsg);
 			}
-
-			//Unlock();
 		}
-		
+
+			
+
 
 		return msg;
 	}
