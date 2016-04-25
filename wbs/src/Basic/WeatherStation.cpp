@@ -599,13 +599,13 @@ CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
 	case H_TMIN:	stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TRNG)) ? at(H_TAIR) - at(H_TRNG) / 2 : !WEATHER::IsMissing(at(H_TAIR))?at(H_TAIR): WEATHER::MISSING; break;
 	case H_TMAX:	stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TRNG)) ? at(H_TAIR) + at(H_TRNG) / 2 : !WEATHER::IsMissing(at(H_TAIR))?at(H_TAIR): WEATHER::MISSING; break;
 	case H_KELV:	stat = K(); break;	//temperature in kelvin
-	case H_PSYC:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? CASCE_ETsz::GetPsychrometricConstant(at(H_PRES) / 10) : WEATHER::MISSING; break;
+	case H_PSYC:	stat = !WEATHER::IsMissing(at(H_PRES)) ? CASCE_ETsz::GetPsychrometricConstant(at(H_PRES) / 10) : WEATHER::MISSING; break;
 	case H_SSVP:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(at(H_TAIR)) : WEATHER::MISSING; break;
 	case H_LHVW:	stat = GetLatentHeatOfVaporization(); break;	// latent heat of vaporization of water [MJ kg-1]
-	case H_FNCD:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? CASCE_ETsz::GetCloudinessFunction(at(H_SRAD), CHourlyData::GetVarEx(H_CSRA)[SUM]) : WEATHER::MISSING; break;
+	case H_FNCD:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? CASCE_ETsz::GetCloudinessFunction(at(H_SRAD), CHourlyData::GetVarEx(H_CSRA)[SUM]) : WEATHER::MISSING; break;
 	case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(GetExtraterrestrialRadiation(), loc.m_alt); break;
 	case H_EXRA:	stat = GetExtraterrestrialRadiation(); break;
-	case H_SWRA:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? CASCE_ETsz::GetNetShortWaveRadiation(at(H_SRAD)) : WEATHER::MISSING; break;
+	case H_SWRA:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? CASCE_ETsz::GetNetShortWaveRadiation(at(H_SRAD)) : WEATHER::MISSING; break;
 	default:ASSERT(false);
 	}
 	

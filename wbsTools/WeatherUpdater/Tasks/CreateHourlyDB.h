@@ -21,7 +21,7 @@ namespace WBSF
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		//virtual void UpdateLanguage();
 		virtual bool IsCreator()const{ return true; }
 
@@ -45,7 +45,7 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 
 
 		void CleanSparse(CWeatherStation& station)const;
-		ERMsg CreateDatabase(CTaskBase& weatherUpdater, CCallback& callback = DEFAULT_CALLBACK)const;
+		ERMsg CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const;
 	};
 
 }

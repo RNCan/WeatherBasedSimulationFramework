@@ -122,6 +122,9 @@ namespace WBSF
 	double GetPressure(double alt);
 	double GetAltitude(double P);
 
+	double msl2atp(double msl, double elev);//mean sea level to atmospheric pressure (at elevation)
+	double atp2msl(double atp, double elev);//atmospheric pressure (at elevation) to mean sea level 
+
 	double InvLogistic(double y, double k1, double k2);
 	double InvWeibull(double y, double alpha, double beta, double gamma);
 	double Weibull(double t, double tb, double tm, double b1, double b2, double b3, double b4);

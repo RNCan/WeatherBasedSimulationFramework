@@ -651,7 +651,7 @@ BEGIN
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées"
+    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées|Ignoré les données d'Environnement Canada"
 END
 
 STRINGTABLE
@@ -1100,7 +1100,7 @@ BEGIN
                             "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates"
+	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates|Ignor Environnement Canada data"
 END
 
 STRINGTABLE

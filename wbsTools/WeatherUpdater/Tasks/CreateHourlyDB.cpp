@@ -76,21 +76,40 @@ namespace WBSF
 
 		ERMsg msg;
 
-		//load the WeatherUpdater
-		CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
-		
+		string outputFilePath = Get(OUTPUT_FILEPATH);
+		SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
 
-		if (pTask.get() != NULL)
+		msg = CreateMultipleDir(GetPath(outputFilePath));
+		msg += CHourlyDatabase::DeleteDatabase(outputFilePath, callback);
+		if (msg)
 		{
-			string firstYear = pTask->Get("FIRST_YEAR");
-			string lastYear = pTask->Get("LAST_YEAR");
-			msg = CreateDatabase(*pTask, callback);
-			pTask->Set("FIRST_YEAR", firstYear);
-			pTask->Set("LAST_YEAR", lastYear);
-		}
-		else
-		{
-			msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT)));
+			//load the WeatherUpdater
+			CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
+
+
+			if (pTask.get() != NULL)
+			{
+				CTaskPtr pForecastTask;
+				if (!Get(FORECAST).empty())
+					pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
+
+
+				string firstYear = pTask->Get("FirstYear"); ASSERT(!firstYear.empty());
+				string lastYear = pTask->Get("LastYear");
+
+				pTask->Set("FirstYear", Get("FirstYear"));
+				pTask->Set("LastYear", Get("LastYear"));
+
+				msg = CreateDatabase(outputFilePath, pTask, pForecastTask, callback);
+
+				pTask->Set("FirstYear", firstYear);
+				pTask->Set("LastYear", lastYear);
+
+			}
+			else
+			{
+				msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT)));
+			}
 		}
 
 		return msg;
@@ -213,36 +232,13 @@ namespace WBSF
 		return filePath;
 	}
 
-	ERMsg CCreateHourlyDB::CreateDatabase(CTaskBase& task, CCallback& callback)const
+	ERMsg CCreateHourlyDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
 	{
 		ERMsg msg;
 
 		CTimer timer(true);
 		CTimer timerRead;
 		CTimer timerWrite;
-
-
-		/*CTask forecastTask;
-		if (!m_forecastName.empty())
-		{
-
-			msg = forecastTask.LoadFromDoc(m_forecastName);
-
-			if (msg)
-			{
-				CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
-				msg = forecast.PreProcess(callback);
-			}
-
-
-			if (!msg)
-				return msg;
-
-		}*/
-
-		//StringVector includeStation(Get(INCLUDE_STATIONS), ",;|");
-		//StringVector exludeStation(Get(EXCLUDE_STATIONS), ",;|");
-
 
 		string hourlyDBFilePath = GetOutputFilePath(Get(OUTPUT_FILEPATH), CHourlyDatabase::DATABASE_EXT);
 		msg += CHourlyDatabase::DeleteDatabase(hourlyDBFilePath, callback);
@@ -258,60 +254,33 @@ namespace WBSF
 		msg += DB.Open(hourlyDBFilePath, CHourlyDatabase::modeWrite);
 		assert(DirectoryExists(GetPath(hourlyDBFilePath) + GetFileTitle(hourlyDBFilePath) + "\\"));
 
-		/*CLocationVector loc;
-		if (msg && !m_locIncludeStation.empty())
-			msg += loc.Load(m_locIncludeStation);*/
-
 		if (!msg)
 			return msg;
-
 
 
 		CStatistic::SetVMiss(-999);
 		int nbStationAdded = 0;
 
 
-		//callback.SetCurrentDescription("Load stations list", 2);
-		//callback.SetNbStep(2);
-
 
 		//find all station in the directories
 		StringVector stationList;
-		//msg = weatherUpdater.PreProcess(callback);
-		//msg += callback.StepIt();
-		//if (msg)
-		//{
-		msg = task.GetStationList(stationList, callback);
+		
+		msg = pTask->GetStationList(stationList, callback);
 		msg += callback.StepIt();
-		//}
+
 
 		if (msg)
 		{
-
-			/*	if (!loc.empty())
-				{
-				for (StringVector::iterator it = stationList.begin(); it != stationList.end();)
-				{
-				string ID = task.GetStationIDFromName(*it);
-				if (loc.FindByID(ID) == -1)
-				it = stationList.erase(it);
-				else
-				it++;
-				}
-				}
-				*/
 			callback.PushTask(GetString(IDS_CREATE_DB), stationList.size());
-			//callback.AddTask(1);
-			//callback.SetNbStep(stationList.size());
 			callback.AddMessage("Extracting " + ToString(stationList.size()) + " stations");
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
-
 				CWeatherStation station(true);
 
 				timerRead.Start();
-				ERMsg messageTmp = task.GetWeatherStation(stationList[i], CTM(CTM::HOURLY), station, callback);
+				ERMsg messageTmp = pTask->GetWeatherStation(stationList[i], CTM(CTM::HOURLY), station, callback);
 				timerRead.Stop();
 
 				if (messageTmp)
@@ -329,24 +298,14 @@ namespace WBSF
 							station.m_name = newName;
 							station.SetDataFileName("");
 						}
-
-						//if (std::find(exludeStation.begin(), exludeStation.end(), station.m_ID) == exludeStation.end())
-						//{
+						
 						station.UseIt(true);
 
 						//Get forecast
-						//if (!m_forecastName.empty())
-						//{
-						//	CTaskBase& forecast = dynamic_cast<CTaskBase&>(forecastTask.GetP());
-						//	forecast.GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
-						//}
-						/*}
-						else
-						{
-						station.UseIt(false);
-						callback.AddMessage("Station " + station.m_name + " (" + station.m_ID + ") was exclude by user", 1);
-						}
-						*/
+						
+						if (pForecastTask)
+							pForecastTask->GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
+
 						timerWrite.Start();
 						messageTmp += DB.Add(station);
 						timerWrite.Stop();
@@ -359,9 +318,8 @@ namespace WBSF
 
 				if (!messageTmp)
 					callback.AddMessage(messageTmp, 1);
-
-				if (msg)
-					msg += callback.StepIt();
+				
+				msg += callback.StepIt();
 			}//for all station
 
 			DB.Close();

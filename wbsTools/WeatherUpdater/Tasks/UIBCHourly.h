@@ -18,11 +18,11 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, TEMPORAL_TYPE, UPDATE_STATION_LIST, NB_ATTRIBUTES };
-		enum TNetwork { AGRI, ARDA, BCH, EC, EC_RAW, ENV_AQN, ENV_ASP, FLNRO_FERN, FLNRO_WMB, FRBC, MOTIE, MOTIM, RTA, NB_NETWORKS };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, TEMPORAL_TYPE, UPDATE_STATION_LIST, IGNORE_ENV_CAN, NB_ATTRIBUTES };
+		enum TNetwork { AGRI, ARDA, BCH, EC, EC_RAW, ENV_AQN, ENV_ASP, FLNRO_FERN, FLNRO_WMB, FRBC, MoTIe, MoTIm, RTA, NB_NETWORKS };
 		enum TemporalType { T_HOURLY, T_DAILY, NB_TYPES };
 
-
+		static size_t GetNetwork(const std::string& network_name);
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIBCHourly); }
 
@@ -53,9 +53,9 @@ namespace WBSF
 
 		ERMsg LoadStationList(CCallback& callback);
 		ERMsg UpdateStationList(UtilWWW::CHttpConnectionPtr& pConnection, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback)const;
 
-		CLocationMap m_stations;
+		CLocationVector m_stations;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
@@ -68,8 +68,11 @@ namespace WBSF
 		static const char* MCD_SUB_DIR;
 
 		static const char* NETWORK_NAME[NB_NETWORKS];
+		static const char* NETWORK_TILE[NB_NETWORKS];
+		static const size_t NETWOK_ID_TO_ENUM[20];
 		static const char* TYPE_NAME[NB_TYPES];
 		static const bool AVAILABILITY[NB_NETWORKS][NB_TYPES];
+		
 
 	};
 

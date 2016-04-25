@@ -88,14 +88,17 @@ namespace WBSF
 				if (!Get(FORECAST).empty())
 					pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
 
+				
+				string firstYear = pTask->Get("FirstYear"); ASSERT(!firstYear.empty());
+				string lastYear = pTask->Get("LastYear");
 
-				string firstYear = pTask->Get("FIRST_YEAR");
-				string lastYear = pTask->Get("LAST_YEAR");
+				pTask->Set("FirstYear", Get("FirstYear"));
+				pTask->Set("LastYear", Get("LastYear"));
 			
 				msg = CreateDatabase(outputFilePath, pTask, pForecastTask, callback);
 
-				pTask->Set("FIRST_YEAR", firstYear);
-				pTask->Set("LAST_YEAR", lastYear);
+				pTask->Set("FirstYear", firstYear);
+				pTask->Set("LastYear", lastYear);
 			}
 			else
 			{
@@ -220,11 +223,12 @@ namespace WBSF
 
 	void CCreateDailyDB::CleanSparse(CWeatherStation& station)const
 	{
+		if (!station.HaveData())
+			return;
+
 		CWVariables variables = station.GetVariables();
 
-
-
-		if (as<double>(MONTHLY_COMPLETENESS) > 0)
+		if (as<double>(MONTHLY_COMPLETENESS) > 0 )
 		{
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::MONTHLY));
 			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::MONTHLY));

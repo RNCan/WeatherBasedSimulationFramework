@@ -766,6 +766,42 @@ double GetAltitude(double P)
 	return alt;
 }
 
+//mean_sea_level to atmospheric pressure (at elevation)
+//po : mean sea level [kPa]
+double msl2atp(double po, double h)
+{
+	
+
+	//https://en.wikipedia.org/wiki/Atmospheric_pressure
+	static const double M = 28.9644e-3;    // (kg mol-1) molecular weight of air 
+	static const double R = 8.3143;         // (m3 Pa mol-1 K-1) gas law constant 
+	static const double L = 0.0065;    // (K/m) standard temperature lapse rate 
+	static const double g = 9.80665;    // (m s-2) standard gravitational accel.  
+	static const double To = 288.15;		// (K) standard temp at 0.0 m elevation   
+
+	const double a = 1 - (L*h) / To;
+	const double b = (g*M) / (R*L);
+	return po*pow(a, b);
+
+	//return 1013 * pow((293 - 0.0065*elev) / 293, 5.26);//pressure at elevation [hPa] or [mbar]
+}
+
+//p : atmospheric pressure [kPa]
+double atp2msl(double p, double h)
+{//https://en.wikipedia.org/wiki/Atmospheric_pressure
+	static const double M = 28.9644e-3;    // (kg mol-1) molecular weight of air 
+	static const double R = 8.3143;         // (m3 Pa mol-1 K-1) gas law constant 
+	static const double L = 0.0065;    // (K/m) standard temperature lapse rate 
+	static const double g = 9.80665;    // (m s-2) standard gravitational accel.  
+	static const double To = 288.15;		// (K) standard temp at 0.0 m elevation   
+
+	const double a = 1 - (L*h) / To;
+	const double b = (g*M) / (R*L);
+	return p / pow(a, b);
+
+}
+
+
 //Constants:
 //NL = 6.0221415·1023 mol-1		Avogadro constant NIST
 //R  = 8.31447215 J mol-1 K-1	Universal gas constant NIST

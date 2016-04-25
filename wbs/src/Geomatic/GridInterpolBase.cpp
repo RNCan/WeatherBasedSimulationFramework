@@ -11,14 +11,16 @@
 //******************************************************************************
 #include "stdafx.h"
 
+#include "Geomatic/GridInterpolBase.h"
+#undef interface 
+
+
 #include "Basic/Statistic.h"
 #include "Basic/UtilStd.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/Variogram.h"
 #include "hxGrid/Interface/IGenericStream.h"
 #include "hxGrid/interface/IAgent.h"
-#include "Geomatic/GridInterpolBase.h"
-
 
 using namespace std;
 using namespace VITALENGINE;
