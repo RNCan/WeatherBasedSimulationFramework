@@ -220,10 +220,11 @@ void CProgressWnd::OnPauseResume()
 
 LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 {
-	const std::string& message = m_callback.GetMessages();
+	
 	//m_callback.Lock();
 	if (t == 0)
 	{
+		const std::string& message = m_callback.GetMessages();
 		if (!message.empty())
 		{
 
@@ -239,7 +240,7 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 				m_pEdit->SetSel((int)m_comment.length(), -1);
 			}
 				
-			m_callback.DeleteMessages();
+			m_callback.DeleteMessages(false);
 		}
 	}
 	else if (t == 1)

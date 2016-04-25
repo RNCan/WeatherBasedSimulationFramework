@@ -565,16 +565,12 @@
 #define IDI_DBEDIT_MODEL                10202
 #define IDI_LINK                        10203
 #define IDI_LINKED_DATA_EDITOR          10204
-#define IDI_NORMALS_EDITOR              10205
-#define IDI_DAILY_EDITOR                10206
-#define IDI_HOURLY_EDITOR               10207
 #define IDI_DOWN                        10221
 #define IDI_UP                          10222
 #define IDI_NEW                         10223
 #define IDI_DELETE                      10224
 #define IDI_ADD                         10229
 #define IDI_CMN_OPEN                    10230
-#define IDI_RNCAN64                     10231
 #define IDI_RNCAN48                     10232
 #define IDI_WEATHER_UPDATER				10233
 #define IDB_DBEDITOR                    10235

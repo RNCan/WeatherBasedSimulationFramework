@@ -1,4 +1,5 @@
-//5.0.2 10/04/2016	Bug correction in BioSIM 11
+//5.0.2 25/04/2016	Many bugs correction in the daily extractor and the hourly extractor
+//					Add of BC via PCCI
 //5.0.1 10/04/2016	Bug correction on Window 10  
 //5.0.0 01/03/2016	New version with the WBSF and new user interface 
 //4.1.2 13/11/2015	Add use of TRng in weatehr database, Add BC PAWS and Snowtel

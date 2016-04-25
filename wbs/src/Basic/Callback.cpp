@@ -206,15 +206,6 @@ namespace WBSF
 			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 			{
 				PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-				/*if (m_bPumpMessage)
-				{
-				MSG winMsg;
-				while (PeekMessage((LPMSG)&winMsg, NULL, 0, 0, PM_REMOVE))
-				{
-				TranslateMessage((LPMSG)&winMsg);
-				DispatchMessage((LPMSG)&winMsg);
-				}
-				}*/
 			}
 
 			CS.Leave();
@@ -224,7 +215,6 @@ namespace WBSF
 
 	void CCallback::DeleteMessages(bool bAccumulation)
 	{
-		//GetTasks().top().m_messages.clear();
 		if (bAccumulation)
 		{
 			//m_currentLevel = 0;

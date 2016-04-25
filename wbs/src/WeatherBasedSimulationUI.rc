@@ -27,10 +27,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // remains consistent on all systems.
 IDI_PROGRESS_WND        ICON                    "res/Progress.ico"
 IDI_HEART               ICON                    "res/Heart.ico"
-IDI_RNCAN64             ICON                    "res\\NRCan64.ico"
-IDI_NORMALS_EDITOR      ICON                    "res/NormalsEditor.ico"
-IDI_DAILY_EDITOR        ICON                    "res/DailyEditor.ico"
-IDI_HOURLY_EDITOR       ICON                    "res/HourlyEditor.ico"
 IDI_WEATHER_UPDATER     ICON                    "res/WeatherUpdater.ico"
 IDI_LINKED_DATA_EDITOR  ICON                    "res/LinkedDataEditor.ico"
 IDI_DBEDIT_MODEL        ICON                    "res/ladybug.ico"
@@ -41,7 +37,7 @@ IDI_DELETE              ICON                    "res/delete.ico"
 IDI_DOWN                ICON                    "res/down.ico"
 IDI_NEW                 ICON                    "res/new.ico"
 IDI_UP                  ICON                    "res/up.ico"
-IDI_RNCAN48             ICON                    "res\\NRCan48.ico"
+IDI_RNCAN48             ICON                    "res/NRCan48.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

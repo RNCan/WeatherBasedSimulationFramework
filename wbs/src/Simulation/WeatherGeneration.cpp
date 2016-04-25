@@ -185,9 +185,9 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
 
 	size_t nbFilter = variables.count();
-	size_t nbGetDistance = 0;
+	//size_t nbGetDistance = 0;
 
-	if (pNormalDB && pNormalDB->IsOpen())
+	/*if (pNormalDB && pNormalDB->IsOpen())
 		nbGetDistance++;
 
 	if (pDailyDB && pDailyDB->IsOpen())
@@ -195,10 +195,10 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	
 	if (pHourlyDB && pHourlyDB->IsOpen())
 		nbGetDistance++;
-
+*/
 	//size_t nbGetDistance = nbFilter*nbYears;
 
-	callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance, 1);
+	//callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance);
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);
@@ -222,9 +222,9 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 
 			int nbThreadsYear = min(CTRL.m_nbMaxThreads, (int)nbYears);//priority over years
 			int nbThreadsLoc = min(CTRL.m_nbMaxThreads/nbThreadsYear, (int)locations.size());//priority over location
-			callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbYears, 1);
+			callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbYears*variables.count()*locations.size());
 
-			size_t n = 0;
+			
 #pragma omp parallel for num_threads(nbThreadsYear) shared(msg) 
 			for (int y = 0; y < (int)nbYears; y++)
 			{
@@ -279,7 +279,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 
 #pragma omp flush(messageTmp)
 if (messageTmp)
-											messageTmp += callback.StepIt(0);
+											messageTmp += callback.StepIt();
 #pragma omp flush(messageTmp)
 //}
 
@@ -326,9 +326,7 @@ if (messageTmp)
 							if (!messageTmp)
 								msg.ajoute(messageTmp);
 
-//#pragma omp atomic
-	//						n++;
-							msg += callback.StepIt(n);
+							//msg += callback.StepIt(n);
 						}//if variable
 					}//for all variables
 				}//if msg
@@ -336,6 +334,8 @@ if (messageTmp)
 
 			callback.PopTask();
 		}//is database open
+
+		//callback.StepIt();
 	}//for all database
 
 
