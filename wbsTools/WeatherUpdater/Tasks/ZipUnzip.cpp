@@ -11,7 +11,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory" };
-	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
+	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_INDEX, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
 	const UINT CZipUnzip::ATTRIBUTE_TITLE_ID = IDS_TOOL_ZIP_UNZIP_P;
 	const UINT CZipUnzip::DESCRIPTION_TITLE_ID = ID_TASK_ZIP_UNZIP;
 

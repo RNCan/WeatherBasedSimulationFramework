@@ -672,10 +672,8 @@ namespace WBSF
 
 
 
-		//callback.AddTask(stationList.size());
+		callback.PushTask("Download data", stationList.size());
 
-
-		//InitStat();
 
 		int nbRun = 0;
 		int curI = 0;
@@ -700,7 +698,7 @@ namespace WBSF
 						{
 							curI++;
 							nbRun = 0;
-							msg += callback.StepIt(0);
+							msg += callback.StepIt();
 						}
 					}
 				}
@@ -713,8 +711,6 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						///callback.AddTask(1);//one step more
-
 						if (nbRun < 5)
 						{
 							callback.AddMessage(msg);
@@ -729,8 +725,7 @@ namespace WBSF
 			}
 		}
 
-
-		//ReportStat(callback);
+		callback.PopTask();
 		
 
 		return msg;
@@ -738,12 +733,6 @@ namespace WBSF
 
 	//****************************************************************************************************
 
-	/*ERMsg CUIEnvCanDaily::PreProcess(CCallback& callback)
-	{
-		ERMsg msg = m_stations.Load(GetStationListFilePath());
-		return msg;
-	}
-*/
 	string CUIEnvCanDaily::GetOutputFilePath(const string& prov, int year, const string& stationName)const
 	{
 		return GetDir(WORKING_DIR) + prov + "\\" + ToString(year) + "\\" + stationName + ".csv";

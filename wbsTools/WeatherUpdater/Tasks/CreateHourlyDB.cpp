@@ -267,13 +267,14 @@ namespace WBSF
 		StringVector stationList;
 		
 		msg = pTask->GetStationList(stationList, callback);
-		msg += callback.StepIt();
+		
 
 
 		if (msg)
 		{
-			callback.PushTask(GetString(IDS_CREATE_DB), stationList.size());
-			callback.AddMessage("Extracting " + ToString(stationList.size()) + " stations");
+			string comment = GetString(IDS_CREATE_DB) + GetFileName(hourlyDBFilePath) + " (Extracting " + ToString(stationList.size()) + " stations)";
+			callback.PushTask(comment, stationList.size());
+			callback.AddMessage(comment);
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
@@ -285,7 +286,6 @@ namespace WBSF
 
 				if (messageTmp)
 				{
-					//if (m_bClearSparse)
 					CleanSparse(station);
 
 
@@ -314,6 +314,7 @@ namespace WBSF
 							nbStationAdded++;
 					}
 				}//if msg
+				
 
 
 				if (!messageTmp)

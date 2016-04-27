@@ -16,6 +16,9 @@
 #include "Basic/GeoBasic.h"
 #include "Geomatic/SpatialRegression.h"
 
+namespace cctz{ class time_zone; }
+
+
 namespace WBSF
 {
 	class CTimeZones
@@ -46,6 +49,12 @@ namespace WBSF
 		static CTRef LocalTRef2UTCTRef(CTRef TRef, const CGeoPoint& pt);
 		static CTRef UTCTRef2LocalTRef(CTRef TRef, const CGeoPoint& pt);
 	
+		
+		static bool GetZone(const CGeoPoint& pt, cctz::time_zone& zone);//, __int64* pDelta=NULL
+		static CTRef LocalTRef2UTCTRef(CTRef TRef, const cctz::time_zone& zone);
+		static CTRef UTCTRef2LocalTRef(CTRef TRef, const cctz::time_zone& zone);
+
+		//static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone)
 
 		//void Enter()
 		//{

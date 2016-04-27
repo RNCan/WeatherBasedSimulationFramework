@@ -107,19 +107,22 @@
     <ClInclude Include="CreateGribsDB.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIACISHourly.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIACISDaily.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UISOPFEUHourly.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIBCHourly.h">
+    <ClInclude Include="UIACIS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIBC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIMDDELCC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIWunderground.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -220,19 +223,22 @@
     <ClCompile Include="CreateGribsDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIACISHourly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIACISDaily.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UISOPFEUHourly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIBCHourly.cpp">
+    <ClCompile Include="UIACIS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIBC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIMDDELCC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIWunderground.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

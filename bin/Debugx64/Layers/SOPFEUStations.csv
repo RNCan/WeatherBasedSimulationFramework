@@ -1,0 +1,342 @@
+KeyID,NumID,Name,Latitude,Longitude,Elevation
+anfi,1100,Anfield NB,46.9075,-67.4569,250
+bigt,1101,Big Tracadie,47.4114,-65.2664,73
+bost,1102,Boston Brook,47.4497,-67.6164,304
+caah,932,Rivière Ashuanipi,53.2235,-66.2063,520
+cacq,971,Miramichi,47.0094,-65.465,33
+cajt,1115,Stephenville RCS,48.5614,-58.5661,58
+cakc,972,Kouchibouguac,46.7696,-65.0066,34
+cake,929,Kepimits,52.6527,-64.8383,540
+camk,931,Michikimats,54.5637,-64.1193,520
+camn,930,Metchin,53.4394,-63.2592,335
+carp,71634,Red Pines (au8),47.4333,-65.5833,124
+casi,933,Simms,53.7768,-65.8163,490
+cawr,1114,Wreckhouse RCS,47.7117,-59.3083,31.7
+cerm,973,Edmunston,47.4167,-68.3245,154.2
+cgah,73015,La Grande IV,53.75,-73.6833,306.3
+cgbc,991,Baie-Comeau RCS,49.135,-68.2024,21
+cgkl,995,Schefferville,54.8027,-66.8045,517
+cgln,73012,Lac Albanel,51.1186,-73.1256,389.97
+cgmg,73006,Matagami,49.7578,-77.7931,279
+cgrq,73035,Trois-Rivières A,46.3667,-72.6833,62.2
+cgvo,993,Val-d'Or RCS,48.0565,-77.7866,339
+cmaa,564,Assinica,50.8094,-75.7508,320
+cmaf,954,Lac Ste-Anne 2,50.1033,-67.9453,312
+cmai,321,Saint-Aimé-des-Lacs,47.6867,-70.302,205
+cmak,913,Rivière Sakami,53.0848,-72.7656,440
+cmar,952,La Sarcelle 2,52.6689,-76.5943,220
+cmat,73052,Nottaway,50.594517,-77.7094,259
+cmba,944,Barrière - Barrage amont,47.4989,-76.7306,323
+cmbj,73047,Romaine 4 Météo,51.4094,-63.5597,541
+cmbm,943,Bersimis 1 Est,49.6058,-70.1111,406
+cmbs,936,Rivière Betsiamites,49.9766,-69.9135,417
+cmbu,948,Barrage Robert-Bourassa,53.7768,-77.4737,225
+cmcs,945,Caniapiscau Sud,54.1129,-69.9259,541
+cmdv,73053,Lac Chevalier,49.665,-68.933056,278
+cmdw,928,Réservoir Dozois,47.4475,-77.0762,360
+cmdx,73048,Lac Brûlé,52.3253,-64.0061,490
+cmek,1131,Eastmain 1,52.1925,-75.9881,245
+cmen,905,Rivière Eastmain,52.0258,-73.3558,372
+cmep,73044,Rivière Abbé-Huard,51.0939,-63.13,289
+cmeq,73045,Rivière Garneau,51.3564,-63.3756,405
+cmeu,73010,Échouani,47.8328,-75.5958,415
+cmex,73046,Romaine 2 Météo,50.8972,-63.1825,445
+cmfe,922,Fontanges,54.5548,-71.1798,469
+cmff,73017,Nichicun,53.1764,-70.9375,530
+cmfj,7103539,Kuujjuarapik,55.366667,-77.616667,30
+cmfu,775,Fouquet,51.5214,-66.9109,723
+cmfw,73037,Lac Roussy,50.4419,-68.0789,630
+cmfy,73038,Lac Gabrielle,46.4575,-76.1976,280
+cmfz,73056,Lac de la Roche,47.154722,-75.1975,390
+cmgb,55,Granby,45.3728,-72.7739,90
+cmgf,73039,Lac Cabituquimats,49.5734,-69.5137,487
+cmgh,73014,Outardes-3 Météo,49.5739,-68.7285,477
+cmgk,73036,Lac Dan,50.5682,-66.7883,577
+cmgp,906,Gorge Prosper 2,52.1686,-74.593,337
+cmgq,73018,Lac Peppler,52.3469,-67.6447,803
+cmgs,941,Gouin Sud-Ouest,48.4502,-75.3253,404
+cmgx,374,Gaspé,48.9152,-64.9562,502
+cmhc,910,Rivière Misask,52.5657,-72.3803,424
+cmhg,73020,Lac Cauchy,50.7011,-60.6706,286
+cmhj,916,Hart Jaune,51.7846,-67.9042,468
+cmhq,73021,Lac Robertson,51.1906,-59.2211,227
+cmid,994,Piacouadie,51.1835,-70.9169,576
+cmif,73034,Lac Delage,51.5978,-57.8475,328
+cmih,73019,Lac Dufresne,51.2153,-65.6006,871
+cmik,73040,Lac Cutaway,47.2433,-72.9686,265
+cmim,73054,Lac à la Truite,47.597689,-72.870089,378
+cmir,73041,Grand Lac Victoria Hydrométéo,47.7228,-77.4048,330
+cmiy,73055,Lac Cocq,52.25031,-68.18203,610
+cmji,7055122,Mont-Joli,48.60442,-68.19463,55
+cmkb,226,Rivière de la Corneille,46.7502,-76.9319,328
+cmkg,958,Réservoir Baskatong,46.718,-75.9868,338
+cmki,132,Kipawa,47.1564,-78.9339,324
+cmkw,908,Lac Grandjean,54.4562,-74.3345,360
+cmlc,902,Lac Chastrier,53.9911,-69.0775,546
+cmld,909,Lac Falaise,54.2648,-68.2431,551
+cmlq,73013,Lac Bardoux,51.1116,-67.8282,501
+cmlz,667,Lac Louise,50.6612,-68.8234,420
+cmmp,907,Lac Aunaukach,52.6868,-75.4384,313
+cmmw,942,Matawin Barrage amont,46.8618,-73.6591,369
+cmmy,1112,Saint-Michel-des-Saints,46.8156,-74.094,390
+cmmz,911,Lac Madigan,53.3571,-69.8825,593
+cmne,712,Némaska,51.6883,-76.1339,244
+cmnt,992,Natashquan,50.1901,-61.7941,10.7
+cmoa,925,Petit Opinaca 2,52.3693,-76.776,220
+cmop,935,Rivière Opinaca,52.7834,-75.7427,248
+cmos,957,Outardes-4 Sud,50.1031,-68.9875,362
+cmpi,918,Lac Plétipi,51.8197,-70.0665,538
+cmpn,923,Lac Bourinot,52.7079,-70.9562,571
+cmpp,921,Réservoir Pipmuacan,49.3597,-70.9152,537
+cmpu,903,Lac Puisseaux 2,53.6004,-71.1824,488
+cmpw,934,Polaris,53.7235,-72.8608,410
+cmpx,953,Lac Pau,54.8268,-69.9062,580
+cmra,912,Lac Raimbault,53.1953,-68.3569,631
+cmre,926,Rivière aux Eaux Mortes,47.0974,-72.496,301
+cmrk,901,Rivière Kanaaupscow,54.2419,-76.1564,189
+cmrl,669,Ile René Levasseur,51.2508,-68.8463,557
+cmrm,937,Rivière Mouchalagane,52.1365,-69.5079,400
+cmrp,904,De Pontois 2,53.166,-74.4713,329
+cmrr,73042,Rivière Romaine Sud-est,50.6417,-63.1664,103
+cmrs,920,Rapide Sept,47.7974,-78.2963,336
+cmrv,73043,Rivière Romaine PK290,51.9481,-63.7747,459
+cmrw,914,Rivière Windigo,47.9159,-73.3696,306
+cmrx,924,Lac Rossignol,52.6844,-73.7886,405
+cmrz,927,Rivière Rupert,51.5206,-75.4406,290
+cmsi,1111,Saint-Germain-de-Grantham,45.8253,-72.537,85
+cmsm,940,Sainte-Marguerite Campement,50.7816,-66.914,512
+cmsn,917,Rivière Ste-Marguerite,51.8966,-67.051,480
+cmsy,919,Lac Despinolles,52.4928,-69.2525,707
+cmth,960,Thetford Mines,46.0492,-71.2662,430
+cmto,915,Rivière Toulnoustouc,50.7086,-67.7359,332
+cmts,1116,Pépinière Trécesson,48.5752,-78.2553,349
+cmut,951,La Loutre,48.3326,-74.0306,390
+cmvf,7021914,Compton,45.259947,-71.833729,245
+cmvh,7011984,Deschambault SM,46.676783,-71.924858,22
+cmvj,7022248,Dunham,45.096216,-72.813383,217
+cmvk,7022555,Franklin,45.033903,-73.898857,171
+cmvn,949,Barrage Vincelotte,54.3368,-72.512,446
+cmvo,955,Valois,51.6808,-68.9834,650
+cmvs,7022582,Garagona,45.064817,-72.841153,153
+cmvt,7023076,Hemmingford,45.047058,-73.609814,67
+cmvu,7022990,Henryville,45.132856,-73.218749,39
+cmvv,7014000,Lanoraie,46.008755,-73.214689,17
+cmvz,7015740,Oka,45.516214,-74.086885,93
+cmwb,7013280,Sainte-Famille IO,46.971573,-70.956563,95
+cmwq,7026703,Rougemont,45.449921,-73.067298,79
+cmwr,7027000,Saint-Antoine-de-Tilly,46.674617,-71.531112,66
+cmwt,1113,Lac Woollett,51.4422,-73.8779,315
+cmwu,7016910,Saint-Lambert,46.517483,-71.205567,151
+cmww,7026940,Sainte-Cécile-de-Milton,45.480298,-72.744892,121
+cmwx,7027301,Saint-Grégoire,45.348321,-73.156437,49
+cmwy,7027501,Saint-Hilaire,45.532873,-73.160893,96
+cmwz,7017420,Saint-Joseph-du-Lac,45.543389,-74.022502,93
+cmxb,7027441,Saint-Laurent,46.872021,-70.992406,34
+cmxc,7027571,Saint-Narcisse-de-Beaurivage,46.486473,-71.216364,155
+cmxd,7027650,Saint-Paul-d'Abbotsford,45.449529,-72.887286,99
+cmxe,947,LG4  Est,53.9597,-73.0017,378
+cmxg,7028725,Victoriaville,46.036756,-71.918919,149
+cmxi,946,LG3 TA-10,53.9311,-75.3868,277
+cmxt,950,LG3 Taiga,53.5653,-76.1152,251
+cqbf,173,Boffin,46.9544,-71.6075,200
+cqbi,721,Chisasibi,53.7225,-78.5422,61
+cqbt,427,Berthelot,48.4761,-76.2561,400
+cqbw,492,Baldwin,48.5622,-66.1056,620
+cqcd,80,Chute du Diable,48.75,-71.7,174
+cqco,653,Coursay,51.4518,-72.2025,563
+cqcu,412,Capitachouane,47.8272,-76.5972,365
+cqcx,661,Lac-à-la-Croix,51.3292,-70.0806,619
+cqcy,1117,Cygnes,49.8878,-72.9019,411
+cqda,635,Daniel,50.2977,-71.9733,520
+cqdb,542,Dobleau,49.7518,-73.6943,396
+cqdf,175,Dunford,47.0244,-71.6047,404
+cqdl,774,Deux Loutres,51.4933,-62.3864,365
+cqdm,211,Dumoine,47.1142,-78.2222,340
+cqdn,482,Dunière,48.7081,-66.7775,460
+cqdo,224,Domaine,47.0253,-76.5306,368
+cqdu,344,Duchénier,48.115,-68.5928,340
+cqem,713,Eastmain,52.0856,-77.8742,100
+cqeo,322,Escoumins,48.543,-69.4421,650
+cqes,341,Estcourt,47.5558,-69.1281,270
+cqfm,70,Forêt Montmorency,47.3226,-71.1483,672
+cqfo,475,Forestville,49.1956,-69.4128,530
+cqft,573,Frotet,50.838,-74.315,396
+cqga,245,Galifet,47.2572,-73.7381,426
+cqgd,662,Garemand,51.1114,-67.1394,762
+cqgo,531,Gouin,48.8847,-74.2283,488
+cqgt,474,Godbout,49.6472,-67.6267,440
+cqha,411,Harricana,48.8992,-78.1586,300
+cqiq,622,Miquelon,49.8239,-68.5444,490
+cqje,773,Rivière Saint-Jean,50.9144,-64.1689,228
+cqjr,513,Jérémie,50.0533,-78.7786,260
+cqju,685,Jupiter,49.6983,-63.4375,203
+cqla,111,La Pêche,45.6222,-76.0192,200
+cqlb,562,Lac Albert,50.7244,-75.1,345
+cqli,575,Baie Du Poste,50.2717,-73.9183,500
+cqll,631,Lac Libéral,49.8433,-72.6292,335
+cqlm,616,Laflamme,48.9203,-70.2517,594
+cqlo,576,Lac Long,50.5066,-72.9647,468
+cqlp,432,Lac Panache,48.1375,-72.6331,435
+cqma,632,Manouane,50.1939,-70.2758,660
+cqmb,465,Mistassibi 2,49.3731,-71.9408,183
+cqmc,526,Maigasagi,50.0953,-76.1192,348
+cqmd,525,Mont-Daroc,49.2906,-75.8436,416
+cqmi,461,Mistassini,49.3327,-72.6308,320
+cqmk,90,Montagnais,47.8958,-71.8883,497
+cqmo,331,Montmagny,46.9817,-70.3269,340
+cqmq,655,Machisque,50.8906,-71.83,543
+cqmt,515,Mistaouac,49.4456,-78.8669,312
+cqna,772,Nabisibi,50.8389,-62.5122,312
+cqob,491,Observation,48.5686,-65.2025,520
+cqoi,671,Moisie,50.5725,-66.0886,545
+cqou,663,Roquemont,50.7925,-69.6747,674
+cqpa,152,Papineau Labelle,46.2164,-75.1967,260
+cqpk,453,Pikauba,47.8344,-71.2433,790
+cqpm,342,Pépinière St-Modeste,47.8361,-69.39,170
+cqro,156,Rouge-Matawin,46.6581,-74.5128,520
+cqsa,556,Salamandre,50.4439,-76.8222,280
+cqsl,161,Saint-Michel,46.6825,-73.9137,375
+cqst,162,Saint-Maurice,46.9572,-73.0056,370
+cqsu,533,Surprise,49.2492,-74.96,363
+cqtm,651,Temiscamie,51.0581,-72.5722,579
+cqtv,621,Crevet,49.66,-69.3583,396
+cque,512,Quévillon,49.0361,-77.0217,293
+cqva,682,Vaureal,49.3553,-62.4458,120
+cqvg,776,Vigneault,51.155,-61.5964,172
+cqwa,516,Waswanipi,49.6122,-76.7417,410
+cqwe,433,Weymont,47.8497,-73.8119,375
+cqwg,434,Wageguma,48.4883,-73.4594,594
+cqwh,551,Waskaganish,51.3278,-78.3428,120
+cqwj,727,Wemindji,52.9947,-78.5003,100
+cqyc,142,Coulonge,46.085,-76.5514,250
+cqyr,521,Saint-Cyr,48.8703,-75.6244,400
+ctbo,1124,Brockville Climate,44.6353,-75.7483,120.4
+ctbt,1125,Beatrice Climate,45.1403,-79.4028,297.2
+ctkg,1121,Kingston Climate,44.2233,-76.5994,93
+ctms,1122,Timmins Climate,48.5572,-81.3903,294.4
+ctnk,961,Algonquin Park,45.5333,-78.2667,397
+ctpm,71196,Pembroke,45.866667,-77.25,161
+ctsb,71733,Sudbury Climate,46.6333,-80.8,348
+ctxr,1123,Earlton Climate,47.7,-79.85,243.4
+cwba,139,Barrage Témiscamingue,46.7092,-79.1011,180
+cwbe,1126,Killarney,45.9667,-81.4833,196.3
+cwbt,678,Longue Pointe De Mingan,50.2711,-64.2261,10
+cwby,689,Port Menier,49.8389,-64.2933,53
+cwbz,49,Saint-Anicet,45.1161,-74.2831,48
+cwca,7946,Aéroport de Cartwright,53.70830154,-57.03499985,14
+cwda,976,Englee,50.7211,-56.1128,30.3
+cwde,78,Lac Benoit,51.5324,-71.1108,549
+cwdh,977,Daniels Harbor,50.2364,-57.5811,19
+cwdm,16,Chevery,50.4694,-59.6222,6
+cwdp,79,Manouane Est,50.6565,-70.532,496
+cwdq,22,La Tuque,47.4111,-72.7872,167
+cwdt,638,Chute-des-Passes,49.8403,-71.1683,398
+cwdw,978,St-Anthony,51.3833,-56.1,29.3
+cwee,538,Chamouchouane,49.2786,-73.3556,305
+cwef,990,St-Paul Island Ns,47.2328,-60.1444,27
+cweo,779,Lac Éon,51.8672,-63.2836,587
+cwer,23,Ile d'Orléans,46.9961,-70.8081,4
+cwew,12,L'Assomption,45.8161,-73.4331,20
+cwfq,197,Frelighsburg,45.05,-72.8331,151
+cwfw,479,Baie-Comeau,49.2592,-68.145,128
+cwgr,13,Îles-de-la-Madeleine,47.4161,-61.7831,7
+cwhm,24,Varennes,45.7161,-73.3831,20
+cwho,71900,Hopedale (aut),55.45,-60.2167,11.9
+cwhp,808,Heath Point,49.0833,-61.7,4
+cwhq,9,Deschambault,46.69,-71.9711,61
+cwhv,198,Beauceville,46.2,-70.7831,228
+cwip,25,Pointe Noire,50.1622,-66.4342,24
+cwis,329,Charlevoix,47.2842,-70.6372,717
+cwit,15,Sainte-Clotilde,45.1661,-73.6831,52
+cwix,817,Mistook,48.6,-71.7167,112
+cwiy,824,Saint-Léonard,47.15,-67.8333,245
+cwiz,129,L'Acadie,45.3,-73.35,44
+cwjb,26,Sainte-Foy,46.7803,-71.2875,91
+cwjo,318,Jonquière,48.425,-71.1425,135
+cwjt,158,Saint-Jovite,46.08,-74.555,238
+cwkd,658,Bonnard 1,50.7333,-71.0167,497
+cwmi,974,Miscou Island,48.0167,-64.5,4
+cwmj,159,Maniwaki,46.2742,-75.9922,199
+cwne,989,North Cape,47.0581,-63.9986,8
+cwnh,349,Rivière-du-Loup,47.805,-69.5481,146
+cwnq,806,Nicolet,46.2161,-72.65,7
+cwoc,368,New-Carlisle,48.0122,-65.3311,46
+cwod,317,Normandin,48.8411,-72.5461,136
+cwpd,459,Parc des Laurentides,47.5661,-71.2331,790
+cwpk,428,Parent,47.9161,-74.6161,441
+cwqb,21,Québec,46.8036,-71.3817,60
+cwqh,195,Lennoxville,45.3681,-71.8231,180
+cwqp,963,Point Petre,43.8333,-77.15,78.6
+cwrk,964,Bancroft,45.0714,-77.8789,330.7
+cwrz,27,Cap D'Espoir,48.4192,-64.3172,15
+cwsd,988,Summerside,46.4411,-63.8381,13
+cwsf,28,Cap-Madeleine,49.25,-65.3172,28
+cwsg,29,Cap-Chat,49.1092,-66.6542,4
+cwst,338,La Pocatière,47.355,-70.0311,30
+cwta,30,Mctavish,45.505,-73.5792,72
+cwtg,31,Pointe-Des-Monts,49.3161,-67.3811,5
+cwtn,32,Cap-Tourmente,47.0781,-70.78,5
+cwtq,77,Montréal Intl,45.4678,-73.7417,31
+cwty,10,Trois-Rivières,46.3531,-72.5161,5
+cwuk,524,Chapais,49.8222,-74.975,381
+cwux,316,La Baie,48.2978,-70.9192,135
+cwuy,419,Rouyn,48.2461,-79.0342,317
+cwvq,11,Sainte-Anne-de-Bellevue,45.4272,-73.9292,38
+cwvy,189,Lemieux,46.3222,-72.0561,97
+cwxc,468,Onatchiway,48.8942,-71.0317,303
+cwxs,975,Bas Caraquet,47.8,-64.8333,5
+cwyq,33,Pointe-Au-Père,48.5142,-68.4681,4
+cwzb,979,Port Aux Basques,47.5739,-59.1547,39.7
+cwzs,489,Amqui,48.4722,-67.4342,165
+cxbo,34,Beauport,46.8372,-71.1972,10
+cxhf,51,High Falls,45.8394,-75.6482,195
+cxka,965,Kapuskasing,49.4064,-82.4436,218
+cxke,966,Kemptville,45,-75.6333,99.4
+cxki,967,Kirkland Lake,48.15,-80,324
+cxlt,782,Laterrière,48.3072,-71.1292,162
+cxoa,968,Ottawa CDA,45.3833,-75.7167,79.2
+cxrh,980,Rocky Harbor,49.57,-57.8778,67.7
+cxsh,178,Shawinigan,46.5631,-72.7331,110
+cxzc,969,Moosonee Rd,51.2917,-80.6181,9.1
+cxzv,679,Sept-Îles,50.2167,-66.25,52
+cyah,739,LG4,53.7544,-73.6739,308
+cybg,1,Bagotville,48.3331,-71,159
+cybx,17,Blanc-Sablon,51.45,-57.1831,30
+cydf,982,Deer Lake,49.2167,-57.4,21.9
+cygk,970,Kingston,44.2186,-76.5967,92.4
+cygl,802,La Grande Rivière,53.6331,-77.7,195
+cygp,819,Gaspé A,48.7761,-64.4781,35
+cygv,789,Havre-Saint-Pierre,50.28194,-63.61139,37
+cygw,18,Kuujjuarapik A,55.2831,-77.75,23
+cyhu,2,Saint-Hubert,45.5161,-73.4161,25
+cykq,836,Waskaganish A,51.4833,-78.75,23
+cymh,984,Mary's Harbor TN,52.3036,-55.8336,10.6
+cymt,549,Chibougamau-Chapais,49.7661,-74.5331,388
+cymx,812,Mirabel,45.6661,-74.0331,82
+cynd,810,Gatineau A,45.5167,-75.5667,59
+cynm,518,Matagami A,49.7656,-77.805,280
+cyoy,177,Valcartier A,46.9003,-71.5033,169
+cyqb,815,Québec A,46.788861,-71.383806,70
+cyrj,816,Roberval,48.5161,-72.2661,174
+cysb,831,Sudbury,46.625,-80.7989,348.4
+cysc,814,Sherbrooke,45.4331,-71.6831,240
+cyts,833,Timmins,48.5697,-81.3767,294.7
+cyuy,804,Rouyn A,48.245,-79.0342,302
+cywk,35,Wabush TN,52.9167,-66.8694,551.4
+cyxr,832,Earlton,47.695,-79.8489,243.8
+cyyb,830,North-Bay,46.3636,-79.4228,370.3
+cyyr,985,Goose Bay TN,53.3167,-60.4167,48.8
+cyyy,820,Mont-Joli A,48.6,-68.2161,48
+cyzv,822,Sept-Îles A,50.2161,-66.2661,50
+czbf,3,Bathurst,47.6292,-65.7389,58.8
+czcr,823,Charlo,48.0333,-66.4358,42
+czsp,987,St-Peters,46.4503,-62.5758,30
+czum,986,Churchill Falls,53.5619,-64.1064,439.5
+ding,1103,Dingee Brook,46.9811,-67.1275,410
+heat,1104,Heath Steele,47.3036,-66.0356,326
+horn,1105,Hornes Gulch,47.833,-67.91,370
+kago,1106,Kagout Brook,47.2342,-66.5711,650
+lunt,1107,Lunts Brook,47.5075,-68.2139,318
+mcra,1108,McRae Lake,47.6852,-66.2436,404
+mull,1109,Mulligan Gulch,47.5933,-66.6386,432
+robi,1110,Robinson Tower,47.6963,-67.1875,467

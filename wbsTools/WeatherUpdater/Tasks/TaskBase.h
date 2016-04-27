@@ -15,7 +15,7 @@ namespace WBSF
 
 	class CWeatherStation;
 	//*********************************************************************
-	enum { T_STRING, T_STRING_BROWSE, T_BOOL, T_COMBO_POSITION, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, T_URL, NB_TYPE };
+	enum { T_STRING, T_STRING_BROWSE, T_BOOL, T_COMBO_INDEX, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, T_URL, NB_TYPE };
 
 	class CTaskAttribute
 	{

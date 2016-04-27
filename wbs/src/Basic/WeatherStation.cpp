@@ -687,14 +687,17 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 {
 	if (!m_dailyStat.m_bInit || bFoceCompile)
 	{
-		bool bHourlyComputed = GetWeatherStation()->IsHourlyComputed();
-		bool bIsCompilingHourly = GetWeatherStation()->IsCompilingHourly();
-		if (!bHourlyComputed && !bIsCompilingHourly)
-		{
-			CWeatherDay& me = const_cast<CWeatherDay&>(*this);
+		CWeatherDay& me = const_cast<CWeatherDay&>(*this);
 
-			if (IsHourly())
+		if (IsHourly())
+		{
+			bool bHourlyComputed = GetWeatherStation()->IsHourlyComputed();
+			bool bIsCompilingHourly = GetWeatherStation()->IsCompilingHourly();
+			if (!bHourlyComputed && !bIsCompilingHourly)
 			{
+				
+
+
 				//CWeatherAccumulator accumulator(CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
 				//accumulator.m_minimumHours.fill(0);
 				//accumulator.m_minimumDays.fill(0);
@@ -735,13 +738,15 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 				if (m_dailyStat[H_TAIR].IsInit())
 					me.m_dailyStat[H_TRNG] = m_dailyStat[H_TAIR][RANGE];
 			}
-			else
-			{
-				me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
-			}
 
 			me.m_dailyStat.m_bInit = true;
 		}
+		else
+		{
+			me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
+			me.m_dailyStat.m_bInit = true;
+		}
+
 	}
 }
 

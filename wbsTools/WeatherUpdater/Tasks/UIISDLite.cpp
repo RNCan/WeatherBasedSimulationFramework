@@ -10,8 +10,8 @@
 #include "CountrySelection.h"
 #include "StateSelection.h"
 #include "../Resource.h"
-
-
+#include "Geomatic/TimeZones.h"
+#include "cctz/time_zone.h"
 
 using namespace std; 
 using namespace WBSF::HOURLY_DATA;
@@ -21,7 +21,7 @@ namespace WBSF
 {
 
 	const char* CUIISDLite::SERVER_NAME = "ftp.ncdc.noaa.gov";
-	const char* CUIISDLite::SERVER_PATH = "pub/data/noaa/";
+	const char* CUIISDLite::SERVER_PATH = "pub/data/noaa/isd-lite/";
 	const char* CUIISDLite::LIST_PATH = "pub/data/noaa/";
 
 	//*********************************************************************
@@ -90,7 +90,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 		if (msg)
 		{
 			string path = GetHistoryFilePath(false);
@@ -139,14 +139,16 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
 
 				if (toDo[0])
 				{
-					msgTmp = FindDirectories(pConnection, string(SERVER_PATH) + "isd-lite/", dirList);
+					callback.PushTask("Load years list", NOT_INIT);
+					msgTmp = FindDirectories(pConnection, string(SERVER_PATH), dirList);
+					callback.PopTask();
 					if (msgTmp)
 						toDo[0] = false;
 				}
@@ -391,7 +393,7 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH + "isd-lite/", 1);
+		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
 		callback.AddMessage("");
 
 		//load station list
@@ -423,9 +425,10 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
+				
 				TRY
 				{
 					for (int i = curI; i < fileList.size() && msgTmp && msg; i++)
@@ -541,8 +544,10 @@ namespace WBSF
 
 			string strSearch = workingDir + ToString(year) + "\\*.isd";
 
+			callback.PushTask(strSearch, NOT_INIT);
 			StringVector fileListTmp = GetFilesList(strSearch);
 			fileList.insert(fileList.begin(), fileListTmp.begin(), fileListTmp.end());
+			callback.PopTask();
 
 			msg += callback.StepIt();
 		}
@@ -606,22 +611,6 @@ namespace WBSF
 	//19: Dark overcast
 
 
-	StringVector GetElem(string line)
-	{
-		static const int SIZE[12] = { 4, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6 };
-
-		StringVector elem(12);
-
-		for (int i = 0, pos = 0; i < 12; i++)
-		{
-			elem[i] = line.substr(pos, SIZE[i]);
-			pos += SIZE[i];
-		}
-
-		ASSERT(elem.size() == CUIISDLite::NB_ISD_FIELD);
-
-		return elem;
-	}
 
 
 
@@ -633,7 +622,8 @@ namespace WBSF
 		station.m_name = PurgeFileName(station.m_name);
 
 
-		int timeZone = (int)Round(station.m_lon / 15);
+		cctz::time_zone zone;
+		CTimeZones::GetZone(station, zone);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -650,7 +640,7 @@ namespace WBSF
 			string filePath = GetOutputFilePath(stationName, year);
 			if (FileExists(filePath))
 			{
-				ERMsg msgTmp = ReadData(filePath, timeZone, station, accumulator, callback);
+				ERMsg msgTmp = ReadData(filePath, zone, station, accumulator, callback);
 
 				if (msg && !msgTmp)
 				{
@@ -675,10 +665,8 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIISDLite::ReadData(const string& filePath, int timeZone, CWeatherYears& data, CWeatherAccumulator& accumulator, CCallback& callback)const
+	ERMsg CUIISDLite::ReadData(const string& filePath, const cctz::time_zone& zone, CWeatherYears& data, CWeatherAccumulator& accumulator, CCallback& callback)const
 	{
-		ASSERT(timeZone >= -12 && timeZone <= 12);
-
 		ERMsg msg;
 
 		int firstYear = as<int>(FIRST_YEAR);
@@ -689,36 +677,40 @@ namespace WBSF
 		msg = file.open(filePath);
 		if (msg)
 		{
+			
 			CTPeriod period(CTRef(firstYear, 0, 0, 0), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR));
+			array<float, CUIISDLite::NB_ISD_FIELD> e;
+
 
 			string line;
 			while (std::getline(file, line) && msg)
 			{
-				Trim(line);
-				if (!line.empty())
+			//	Trim(line);
+		//		if (!line.empty())
+				if (LoadFields(line, e))
 				{
-					StringVector elem = GetElem(line);
-					CTRef TRef = GetTRef(elem, timeZone);
+					CTRef UTCTRef = GetTRef(e);
+					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
 
 					if (period.IsInside(TRef))
 					{
 						if (accumulator.TRefIsChanging(TRef))
 							data[accumulator.GetTRef()].SetData(accumulator);
 
-						if (ToInt(elem[ISD_T]) != -9999)
-							accumulator.Add(TRef, H_TAIR, ToDouble(elem[ISD_T]) / 10.0);
-						if ( ToInt(elem[ISD_P]) != -9999)
-							accumulator.Add(TRef, H_PRES, ToDouble(elem[ISD_P]) / 10);//in hPa
-						if (ToInt(elem[ISD_PRCP1]) != -9999 && ToInt(elem[ISD_PRCP1]) != -1)
-							accumulator.Add(TRef, H_PRCP, ToDouble(elem[ISD_PRCP1]) / 10);//NOTE: there are a lot of problem before 2006...
-						if (ToInt(elem[ISD_TDEW]) != -9999)
-							accumulator.Add(TRef, H_TDEW, ToDouble(elem[ISD_TDEW]) / 10);
-						if (ToInt(elem[ISD_T]) != -9999 && ToInt(elem[ISD_TDEW]) != -9999)
-							accumulator.Add(TRef, H_RELH, Td2Hr(ToDouble(elem[ISD_T]) / 10.0, ToDouble(elem[ISD_TDEW]) / 10.0));
-						if (ToInt(elem[ISD_WSPD]) != -9999)
-							accumulator.Add(TRef, H_WNDS, (ToDouble(elem[ISD_WSPD]) / 10)*(3600 / 1000));//convert m/s --> km/h
-						if ( ToInt(elem[ISD_WDIR]) != -9999)
-							accumulator.Add(TRef, H_WNDD, ToDouble(elem[ISD_WDIR]));
+						if (e[ISD_T] > -9999)
+							accumulator.Add(TRef, H_TAIR, e[ISD_T] / 10.0);
+						if ( e[ISD_P] > -9999)
+							accumulator.Add(TRef, H_PRES, e[ISD_P] / 10.0);//in hPa
+						if (e[ISD_PRCP1] > -9999 && int(e[ISD_PRCP1]) != -1)
+							accumulator.Add(TRef, H_PRCP, e[ISD_PRCP1] / 10.0);//NOTE: there are a lot of problem before 2006...
+						if (e[ISD_TDEW] > -9999)
+							accumulator.Add(TRef, H_TDEW, e[ISD_TDEW] / 10.0);
+						if (e[ISD_T] > -9999 && e[ISD_TDEW] > -9999)
+							accumulator.Add(TRef, H_RELH, Td2Hr(e[ISD_T] / 10.0, e[ISD_TDEW] / 10.0));
+						if (e[ISD_WSPD] > -9999)
+							accumulator.Add(TRef, H_WNDS, (e[ISD_WSPD] / 10.0)*(3600 / 1000));//convert m/s --> km/h
+						if ( e[ISD_WDIR] > -9999)
+							accumulator.Add(TRef, H_WNDD, e[ISD_WDIR]);
 					}
 				}//not empty
 
@@ -730,26 +722,40 @@ namespace WBSF
 		return msg;
 	}
 
-	CTRef CUIISDLite::GetTRef(const StringVector& elem, int timeZone)const
+	CTRef CUIISDLite::GetTRef(const FieldArray& e)
 	{
-		int firstYear = as<int>(FIRST_YEAR);
-		int lastYear = as<int>(LAST_YEAR);
+		//int firstYear = as<int>(FIRST_YEAR);
+		//int lastYear = as<int>(LAST_YEAR);
 
-		int year = ToInt(elem[ISD_YEAR]);
-		size_t m = ToInt(elem[ISD_MONTH]) - 1;
-		size_t d = ToInt(elem[ISD_DAY]) - 1;
-		size_t h = ToInt(elem[ISD_HOUR]);
+		int year = int(e[ISD_YEAR]);
+		size_t m = size_t(e[ISD_MONTH]) - 1;
+		size_t d = size_t(e[ISD_DAY]) - 1;
+		size_t h = size_t(e[ISD_HOUR]);
 
-		ASSERT(year >= firstYear && year <= lastYear + 1);
+		//ASSERT(year >= firstYear && year <= lastYear + 1);
 		ASSERT(m >= 0 && m < 12);
 		ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
 		ASSERT(h >= 0 && h < 24);
 
 
-		CTRef TRef(year, m, d, h);
-		TRef.Shift(timeZone);//convert UTC time to local time
+		return CTRef(year, m, d, h);
+	//	TRef.Shift(timeZone);//convert UTC time to local time
+	}
 
-		return TRef;
+
+	bool CUIISDLite::LoadFields(const string& line, FieldArray& e)
+	{
+		static const int SIZE[CUIISDLite::NB_ISD_FIELD] = { 4, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6 };
+
+		e.fill(-9999);
+		return sscanf(line.c_str(), "%f %f %f %f %f %f %f %f %f %f %f %f", &(e[0]), &(e[1]), &(e[2]), &(e[3]), &(e[4]), &(e[5]), &(e[6]), &(e[7]), &(e[8]), &(e[9]), &(e[10]), &(e[11])) == CUIISDLite::NB_ISD_FIELD;
+		//for (int i = 0, pos = 0; i < 12; i++)
+		//{
+		//	elem[i] = line.substr(pos, SIZE[i]);
+		//	pos += SIZE[i];
+		//}
+
+		//ASSERT(e.size() == CUIISDLite::NB_ISD_FIELD);
 	}
 
 	//ERMsg CUIISDLite::GetStation(const string& stationName, CDailyStation& station, CCallback& callback)

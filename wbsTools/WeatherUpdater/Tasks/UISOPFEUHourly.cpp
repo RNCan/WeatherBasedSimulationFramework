@@ -10,6 +10,7 @@
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
+#include "Geomatic/TimeZones.h"
 
 #include "../Resource.h"
 
@@ -25,20 +26,20 @@ namespace WBSF
 	const char* CUISOPFEUHourly::SERVER_NAME = "FTP3.sopfeu.qc.ca";
 	const char* CUISOPFEUHourly::SERVER_PATH = "RMCQ/";
 	//const char* CUISOPFEUHourly::LIST_PATH = "pub/data/noaa/";
-	const char * CUISOPFEUHourly::RMCQ_FIELDS_NAME[NB_RMCQ_FIELDS] =
+	const char * CUISOPFEUHourly::FIELDS_NAME[NB_FIELDS] =
 	{ "TAI000H", "TAN000H", "TAX000H", "TAM000H", "PC040H", "PT040H", "PC020H", "PT041H", "HAI000H", "HAN000H", "HAX000H", "NSI000H", "VDI300H", "VVI300H", "VVXI500H", "VDM025B", "VVM025B", "TDI000H", "VB000B" };
 	//{ "TAi000H", "TAn000H", "TAx000H", "TAm000H", "PC040H", "PT040H", "PC020H", "PT041H", "HAi000H", "HAn000H", "HAx000H", "NSi000H", "VDi300H", "VVi300H", "VVxi500H", "VDm025B", "VVm025B", "TDi000H", "VB000B" };
-	const size_t CUISOPFEUHourly::RMCQ_VARIABLE[NB_RMCQ_FIELDS] = { H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
+	const TVarH CUISOPFEUHourly::VARIABLE[NB_FIELDS] = { H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
 
-	size_t CUISOPFEUHourly::GetField(std::string str)
+	TVarH CUISOPFEUHourly::GetVariable(std::string str)
 	{
 		str = MakeUpper(str);
-		size_t f = NOT_INIT;
-		for (size_t i = 0; i < NB_RMCQ_FIELDS&&f == NOT_INIT; i++)
-			if (str == RMCQ_FIELDS_NAME[i])
-				f = i;
+		TVarH v = H_SKIP;
+		for (size_t i = 0; i < NB_FIELDS&&v == NOT_INIT; i++)
+			if (str == FIELDS_NAME[i])
+				v = VARIABLE[i];
 
-		return f;
+		return v;
 	}
 
 	//*********************************************************************
@@ -90,12 +91,12 @@ namespace WBSF
 
 	string CUISOPFEUHourly::GetStationListFilePath()const
 	{
-		return GetDir(WORKING_DIR)  + "StationsList.csv";
+		return GetApplicationPath() + "Layers\\SOPFEUStations.csv";
 	}
 
 	string CUISOPFEUHourly::GetOutputFilePath(CTRef TRef)const
 	{
-		return WBSF::FormatA("%s%d/m%2d%03d%02d.17r", GetDir(WORKING_DIR), TRef.GetYear(), TRef.GetYear() - 2000, TRef.GetJDay() + 1, TRef.GetHour());
+		return WBSF::FormatA("%s%d/m%4d-%02d-%02d-%02d.csv", GetDir(WORKING_DIR).c_str(), TRef.GetYear(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
 	}
 /*
 
@@ -145,7 +146,7 @@ namespace WBSF
 		int nbRun = 0;
 
 		CFileInfoVector dirList;
-		while (nbRun < 20 && msg)
+		while (!bLoaded && nbRun < 20 && msg)
 		{
 			nbRun++;
 
@@ -153,7 +154,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, 0, Get(USER_NAME), Get(PASSWORD) );
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
@@ -237,7 +238,7 @@ namespace WBSF
 		size_t h = WBSF::as<size_t>(fileTitle.substr(6, 2));
 
 		CJDayRef JDay(year, jDay);
-		return CTRef(JDay.GetYear(), JDay.GetMonth(), JDay.GetDay(), JDay.GetHour());
+		return CTRef(JDay.GetYear(), JDay.GetMonth(), JDay.GetDay(), h);
 	}
 
 	ERMsg CUISOPFEUHourly::CleanList(CFileInfoVector& fileList, CCallback& callback)const
@@ -309,7 +310,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CFtpConnectionPtr pConnection;
 
-				ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, 0, Get(USER_NAME), Get(PASSWORD));
+				ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 				if (msgTmp)
 				{
 					TRY
@@ -318,10 +319,12 @@ namespace WBSF
 						{
 							string fileTitle = GetFileTitle(fileList[i].m_filePath);
 
-							string stationID = fileTitle.substr(0, 12);
+							//string stationID = fileTitle.substr(0, 12);
 							CTRef TRef = GetTRef(fileTitle);
 
 							string outputFilePath = GetOutputFilePath(TRef);
+							CreateMultipleDir(GetPath(outputFilePath));
+
 							msgTmp += CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 							
 							if (msgTmp)
@@ -377,109 +380,103 @@ namespace WBSF
 		msg = m_stationsList.Load(GetStationListFilePath());
 		if (msg)
 		{
-			stationList.reserve(m_stationsList.size());
-			for (CLocationVector::const_iterator it = m_stationsList.begin(); it != m_stationsList.end(); it++)
-				stationList.push_back(it->m_ID);
+			msg = LoadWeatherInMemory(callback);
+			if (msg)
+			{
+				stationList.reserve(m_stations.size());
+				for (CWeatherStationMap::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
+					stationList.push_back(it->first);
+			}
 		}
+
+		
 
 		return msg;
 
-		//StringVector fileList;
-		//int firstYear = as<int>(FIRST_YEAR);
-		//int lastYear = as<int>(LAST_YEAR);
-		//size_t nbYears = lastYear - firstYear + 1;
-
-		//callback.PushTask(GetString(IDS_GET_STATION_LIST), nbYears);
-
-		//for (size_t y = 0; y < nbYears&&msg; y++)
-		//{
-		//	int year = firstYear + int(y);
-
-		//	string strSearch = workingDir + ToString(year) + "\\*.17r";
-
-		//	StringVector fileListTmp = GetFilesList(strSearch);
-		//	fileList.insert(fileList.begin(), fileListTmp.begin(), fileListTmp.end());
-
-		//	msg += callback.StepIt();
-		//}
-
-		//callback.PopTask();
-
-		//if (msg)
-		//{
-		//	//remove file 
-		//	//msg = CleanList(fileList, callback);
-
-		//	for (size_t i = 0; i < fileList.size(); i++)
-		//	{
-		//		string fileTitle = GetFileTitle(fileList[i]);
-		//		string stationID = fileTitle.substr(0, 12);
-		//		if (std::find(stationList.begin(), stationList.end(), stationID) == stationList.end())
-		//			stationList.push_back(stationID);
-		//	}
-		//}
-
-
-		//return msg;
+		
 	}
 
-	/*StringVector GetElem(string line)
+	ERMsg CUISOPFEUHourly::LoadWeatherInMemory(CCallback& callback)
 	{
-		static const int SIZE[12] = { 4, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6 };
+		ERMsg msg;
 
-		StringVector elem(12);
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
 
-		for (int i = 0, pos = 0; i < 12; i++)
+		for (size_t y = 0; y < nbYears&& msg; y++)
 		{
-			elem[i] = line.substr(pos, SIZE[i]);
-			pos += SIZE[i];
+			int year = firstYear + int(y);
+
+			//on pourrait optimiser en loadant une seul foisa tout les fichiers
+			StringVector fileList = GetFilesList(GetDir(WORKING_DIR) + to_string(year) + "\\" + "*.csv");
+			callback.PushTask("Load data for year = " + to_string(year), fileList.size());
+
+			for (size_t i = 0; i < fileList.size() && msg; i++)
+			{
+				msg += ReadData(fileList[i], m_stations, callback);
+				msg += callback.StepIt();
+			}
+
+			callback.PopTask();
+
 		}
 
-		ASSERT(elem.size() == CUISOPFEUHourly::NB_ISD_FIELD);
 
-		return elem;
-	}*/
-
-
+		return msg;
+	}
 
 	ERMsg CUISOPFEUHourly::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
-		size_t pos= m_stationsList.FindByID(ID);
+		/*size_t pos= m_stationsList.FindByID(ID);
+		if (pos == NOT_INIT)
+		{
+			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));
+			return msg;
+		}
+
 		((CLocation&)station) = m_stationsList[pos];
-		station.m_name = PurgeFileName(station.m_name);
+
+		if (m_stations.find(ID) != m_stations.end())*/
+		station = m_stations[ID];
+
+		//station.m_name = TraitFileName(station.m_name);
+		//station.m_name = PurgeFileName(station.m_name);
 
 
-		int timeZone = (int)Round(station.m_lon / 15);
-		int firstYear = as<int>(FIRST_YEAR);
-		int lastYear = as<int>(LAST_YEAR);
-		size_t nbYears = lastYear - firstYear + 1;
-		station.CreateYears(firstYear, nbYears);
+		//int timeZone = (int)Round(station.m_lon / 15);
+		//int firstYear = as<int>(FIRST_YEAR);
+	//	int lastYear = as<int>(LAST_YEAR);
+		//size_t nbYears = lastYear - firstYear + 1;
+		//station.CreateYears(firstYear, nbYears);
 
 		//now extact data
-		CWeatherAccumulator accumulator(TM);
-		for (size_t y = 0; y < nbYears + 1 && msg; y++)//+1 to get the first hours of the first day of the next year
-		{
-			int year = firstYear + int(y);
-			
-			//on pourrait optimiser en loadant une seul foisa tout les fichiers
-			StringVector fileList = GetFilesList(GetDir(WORKING_DIR) + "MRCQ\\" + to_string(year)+"\\" + "*.17r");
-			callback.PushTask("Load data for year = " + to_string(year), fileList.size());
-			for (size_t i = 0; i < fileList.size(); i++)
-				msg += ReadData(fileList[i], timeZone, station, accumulator, callback);
+		//CWeatherAccumulator accumulator(TM);
+		//for (size_t y = 0; y < nbYears&& msg; y++)
+		//{
+		//	int year = firstYear + int(y);
+		//	
+		//	//on pourrait optimiser en loadant une seul foisa tout les fichiers
+		//	StringVector fileList = GetFilesList(GetDir(WORKING_DIR) + to_string(year) + "\\" + "*.csv");
+		//	callback.PushTask("Load data for year = " + to_string(year), fileList.size());
+		//	for (size_t i = 0; i < fileList.size(); i++)
+		//		msg += ReadData(fileList[i], timeZone, station, callback);
 
-			callback.PopTask();
-		}
+		//	callback.PopTask();
+		//	
+		//}
 
-		if (accumulator.GetTRef().IsInit())
-		{
-			CTPeriod period(CTRef(firstYear, 0, 0, 0, TM), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR, TM));
-			if (period.IsInside(accumulator.GetTRef()))
-				station[accumulator.GetTRef()].SetData(accumulator);
-		}
+		//if (accumulator.GetTRef().IsInit())
+		//{
+		//	CTPeriod period(CTRef(firstYear, 0, 0, 0, TM), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR, TM));
+		//	if (period.IsInside(accumulator.GetTRef()))
+		//		station[accumulator.GetTRef()].SetData(accumulator);
+		//}
 
-		ASSERT(station.GetEntireTPeriod().GetFirstYear() >= firstYear && station.GetEntireTPeriod().GetLastYear() <= lastYear);
+	//	ASSERT(station.GetEntireTPeriod().GetFirstYear() >= firstYear && station.GetEntireTPeriod().GetLastYear() <= lastYear);
+
 
 		if (msg && station.HaveData())
 			msg = station.IsValid();
@@ -487,92 +484,67 @@ namespace WBSF
 		return msg;
 	}
 
+	
 
-	ERMsg CUISOPFEUHourly::ReadData(const string& filePath, int timeZone, CWeatherStation& station, CWeatherAccumulator& accumulator, CCallback& callback)const
+	ERMsg CUISOPFEUHourly::ReadData(const string& filePath, CWeatherStationMap& stations, CCallback& callback)const
 	{
-		ASSERT(timeZone >= -12 && timeZone <= 12);
-
 		ERMsg msg;
 
-		CTRef UTCRef = GetTRef(GetFileTitle(filePath));
-		//int firstYear = as<int>(FIRST_YEAR);
-		//int lastYear = as<int>(LAST_YEAR);
+		StringVector str(GetFileTitle(filePath), "-");
+		ASSERT(str.size() == 4);
+		ASSERT(str[0][0] == 'm');
+		ASSERT(str[0].size() == 5);
+		str[0].erase(str[0].begin());//remove m
+
+		CTRef UTCRef(ToInt(str[0]), ToSizeT(str[1])-1, ToSizeT(str[2])-1, ToSizeT(str[3]));
 
 		ifStream  file;
-
 		msg = file.open(filePath);
 		if (msg)
 		{
 			enum {PROV, STA_ID, DATE, F_TIME, FIRST_FILED};
-
-			size_t nbVal = 0;
-			size_t i=0;
-			for(CSVIterator loop(file); loop!=CSVIterator(); ++loop, i++)
+			for(CSVIterator loop(file, ";", false); loop!=CSVIterator(); ++loop)
 			{
+				ASSERT(loop->size() >= FIRST_FILED);
 				string ID = (*loop)[STA_ID];
-				if (IsEqual(station.m_ID, ID))
+				MakeLower(ID);
+				//StringVector time((*loop)[F_TIME], "|;");
+				//ASSERT(time.size()==2);
+				
+				size_t pos = m_stationsList.FindByID(ID);
+				if (pos != NOT_INIT)
 				{
-					nbVal++;
-					//int year = stdString::ToInt((*loop)[YEAR]);
-					//int month = stdString::ToInt((*loop)[MONTH]) - 1;
-					//int day = stdString::ToInt((*loop)[DAY]) - 1;
-					//ASSERT(year >= m_firstYear && year <= m_lastYear);
-					//ASSERT(month >= 0 && moBnth < 12);
-					//ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-					//CTRef Tref(year, month, day);
-					
-					StringVector time((*loop)[F_TIME], "|;");
-					ASSERT(time.size()==2);
-
-					size_t hour = ToSizeT(time[0]);
-					CTRef TRef = UTCRef + timeZone + hour - UTCRef.GetHour();//convert UTC time to local time
-
-					for (size_t f = FIRST_FILED; f < loop->size()-2; f+=3)
+					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef, m_stationsList[pos]);
+					for (size_t c = FIRST_FILED; c < loop->size() - 2; c += 3)
 					{
-						size_t ff = GetField((*loop)[f]);
-						string flag = (*loop)[f+1];
-						string val = (*loop)[f + 2];
-						ASSERT(val.empty());
+						TVarH v = GetVariable((*loop)[c]);
+						string flag = (*loop)[c + 1];
+						string val = (*loop)[c + 2];
+						ASSERT(!val.empty());
 
-						if (ff != H_SKIP && flag != "R" && !val.empty())
+						if (v != H_SKIP && flag != "R" && !val.empty())
 						{
 							float value = ToFloat(val);
-							accumulator.Add(TRef, ff, value);
+							if (stations.find(ID) == stations.end())
+							{
+								((CLocation&)stations[ID]) = m_stationsList[pos];
+								stations[ID].SetHourly(true);
+							}
+
+							stations[ID][TRef].SetStat(v,value);
 						}
 					}
-
-					//est-ce qu'on arrête ici???
+				}
+				else
+				{
+					//callback.AddMessage("Undefine ID " + ID);
 				}
 			}//for all line
-
-
-			ASSERT(nbVal == 1);
 		}//if open
 
 
 		return msg;
 	}
 
-	//CTRef CUISOPFEUHourly::GetTRef(const StringVector& elem, int timeZone)const
-	//{
-	//	int firstYear = as<int>(FIRST_YEAR);
-	//	int lastYear = as<int>(LAST_YEAR);
-
-	//	int year = ToInt(elem[ISD_YEAR]);
-	//	size_t m = ToInt(elem[ISD_MONTH]) - 1;
-	//	size_t d = ToInt(elem[ISD_DAY]) - 1;
-	//	size_t h = ToInt(elem[ISD_HOUR]);
-
-	//	ASSERT(year >= firstYear && year <= lastYear + 1);
-	//	ASSERT(m >= 0 && m < 12);
-	//	ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-	//	ASSERT(h >= 0 && h < 24);
-
-
-	//	CTRef TRef(year, m, d, h);
-	//	TRef.Shift(timeZone);//convert UTC time to local time
-
-	//	return TRef;
-	//}
 
 }

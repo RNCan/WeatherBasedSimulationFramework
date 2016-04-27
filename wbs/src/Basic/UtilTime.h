@@ -234,6 +234,8 @@ namespace WBSF
 	public:
 
 
+		
+
 		enum TType{ UNKNOWN = 7, ANNUAL = 0, MONTHLY, DAILY, HOURLY, ATEMPORAL, NB_REFERENCE };
 		enum TMode{ FOR_EACH_YEAR, OVERALL_YEARS, NB_MODE };
 
@@ -466,6 +468,26 @@ namespace WBSF
 		}
 	};
 
+
+	class CTimeRef : public CTRef
+	{
+	public:
+
+		CTimeRef(__time64_t t, CTM TM = CTM(CTM::DAILY))
+		{
+			m_time = t;
+			if (t > 0)
+			{
+				struct tm *theTime = _localtime64(&t);
+				Set(1900 + theTime->tm_year, theTime->tm_mon, theTime->tm_mday - 1, theTime->tm_hour, TM);
+			}
+		}
+
+
+		__time64_t m_time;
+	};
+
+	
 	typedef std::vector<CTRef>CTRefVector;
 
 	//*************************************************************

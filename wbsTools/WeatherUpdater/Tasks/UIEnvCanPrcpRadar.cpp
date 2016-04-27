@@ -22,7 +22,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CUIEnvCanPrcpRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "FirstYear", "LastYear" };
-	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_POSITION, T_STRING, T_STRING };
+	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING };
 	const UINT CUIEnvCanPrcpRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_PRCP_RADAR_P;
 	const UINT CUIEnvCanPrcpRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_PRCP_RADAR;
 

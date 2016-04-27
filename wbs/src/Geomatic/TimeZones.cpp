@@ -32,7 +32,11 @@ namespace WBSF
 	static WBSF::CShapeFileBase TIME_ZONE;
 	ERMsg CTimeZones::Load(std::string& filePath)
 	{
-		return TIME_ZONE.Read(filePath);
+		ERMsg msg = TIME_ZONE.Read(filePath);
+		if (msg)
+			TIME_ZONE.ComputeInternalElimination(100,50);
+
+		return msg;
 	}
 
 	
@@ -42,10 +46,26 @@ namespace WBSF
 		return cctz::convert(cctz::civil_day(cctz::convert(tp, tz)), tz);
 	}
 	
-	static cctz::time_zone GetZone(const CGeoPoint& pt)
+
+	static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone)
 	{
-		cctz::time_zone zone = cctz::utc_time_zone();//just in case...
+		ASSERT(TRef.GetTM().Type() == CTM::HOURLY);
+		cctz::civil_second cs(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0);
+		return cctz::convert(cs, zone);
+	}
+
+	//delta in second
+	bool CTimeZones::GetZone(const CGeoPoint& pt, cctz::time_zone& zone)//, __int64* pDelta
+	{
+		ASSERT(TIME_ZONE.GetNbShape() > 0);//TimeZone must be loaded...
+
+		//cctz::time_zone zone = cctz::utc_time_zone();//just in case...
+		bool bRep = false;
+		//if (pDelta)
+			//*pDelta = __int64(pt.m_lon / 15 * 3600);
+
 		int poly = -1;
+
 		if (TIME_ZONE.IsInside(pt, &poly))
 		{
 			const CDBF3& DBF = TIME_ZONE.GetDBF();
@@ -55,20 +75,24 @@ namespace WBSF
 
 			ASSERT(!str_zone.empty());///some zone is empty.... hummm
 
-			if (!str_zone.empty())
-				cctz::load_time_zone(str_zone, &zone);
+			if (!str_zone.empty() )
+				bRep = cctz::load_time_zone(str_zone, &zone);
+			/*else if (pDelta)
+			{
+				cctz::time_zone::Impl zone2();
+				std::string str_zone = record[7];
+				int z = WBSF::ToInt(str_zone);
+				ASSERT(z >= -12 && z <= 12);
+
+				*pDelta = z * 3600;
+			}*/
+
 		}
 		ASSERT(poly != -1);
-		return zone;
+		ASSERT(bRep);//we assume we foun the zone. Update the Shapefile
+		
+		return bRep;
 	}
-
-	static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone)
-	{
-		ASSERT(TRef.GetTM().Type() == CTM::HOURLY);
-		cctz::civil_second cs(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0);
-		return cctz::convert(cs, zone);
-	}
-
 	//cctz::time_zone GetZone(const CGeoPoint& pt);
 	//static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone);
 
@@ -106,15 +130,9 @@ namespace WBSF
 	
 	CTRef CTimeZones::LocalTime2LocalTRef(__int64 time, const CGeoPoint& pt)
 	{
-		/*cctz::time_zone zone = GetZone(pt);
-		const auto tp = std::chrono::system_clock::from_time_t(time);
-		const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
-		CTRef TRef1(al.cs.year(), al.cs.month() - 1, al.cs.day() - 1, al.cs.hour());*/
-
 		__int64 UTCTime = LocalTime2UTCTime(time, pt);
 		CTRef UTCTRef = UTCTime2UTCTRef(UTCTime);
 		CTRef TRef = UTCTRef2LocalTRef(UTCTRef, pt);
-		//ASSERT(TRef1 == TRef2);
 
 		return TRef;
 		
@@ -123,42 +141,65 @@ namespace WBSF
 
 	__int64 CTimeZones::GetDelta(CTRef TRef, const CGeoPoint& pt)
 	{
-		__int64 delta = __int64(pt.m_lon / 15);
+		__int64 delta = __int64(pt.m_lon / 15 * 3600);
 
-		int poly = -1;
-		if (TIME_ZONE.IsInside(pt, &poly))
+		cctz::time_zone zone;
+		if (GetZone(pt, zone))
 		{
-			const CDBF3& DBF = TIME_ZONE.GetDBF();
-			const CDBFRecord& record = DBF[poly];
-			ASSERT(record.size() >= 14);
-			std::string str_zone = record[13];
-
-			cctz::time_zone zone;
-			if (!str_zone.empty() && cctz::load_time_zone(str_zone, &zone))
-			{
-				
-				const auto tp = cctz::convert(cctz::civil_second(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0), zone);
-				const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
-
-				__int64 delta_s = al.offset;
-				delta = Round(delta_s / 3600);
-			}
-			else
-			{
-				std::string str_zone = record[7];
-				delta = WBSF::ToInt(str_zone);
-				ASSERT(delta >= -12 && delta<=12);
-			}
+			const auto tp = cctz::convert(cctz::civil_second(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0), zone);
+			const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
+			delta = al.offset;
 		}
+
+			//	{
+			//		std::string str_zone = record[7];
+			//		delta = WBSF::ToInt(str_zone);
+			//		ASSERT(delta >= -12 && delta<=12);
+			//	}
+
+
+		//int poly = -1;
+		//if (TIME_ZONE.IsInside(pt, &poly))
+		//{
+		//	const CDBF3& DBF = TIME_ZONE.GetDBF();
+		//	const CDBFRecord& record = DBF[poly];
+		//	ASSERT(record.size() >= 14);
+		//	std::string str_zone = record[13];
+
+		//	cctz::time_zone zone;
+		//	if (!str_zone.empty() && cctz::load_time_zone(str_zone, &zone))
+		//	{
+		//		
+		//		const auto tp = cctz::convert(cctz::civil_second(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0), zone);
+		//		const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
+
+		//		__int64 delta_s = al.offset;
+		//		delta = Round(delta_s / 3600);
+		//	}
+		//	else
+		//	{
+		//		std::string str_zone = record[7];
+		//		delta = WBSF::ToInt(str_zone);
+		//		ASSERT(delta >= -12 && delta<=12);
+		//	}
+		//}
 
 		return delta;
 	}
 
 	__int64 CTimeZones::GetDelta(__int64 time, const CGeoPoint& pt)
 	{
-		__int64 delta = int(pt.m_lon / 15);
+		__int64 delta = __int64(pt.m_lon / 15 * 3600);
+		cctz::time_zone zone;
+		if (GetZone(pt, zone))
+		{
+			const auto tp = std::chrono::system_clock::from_time_t(time);
+			const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
 
-		int poly = -1;
+			delta = al.offset;
+		}
+
+		/*int poly = -1;
 		if (TIME_ZONE.IsInside(pt, &poly))
 		{
 			const CDBF3& DBF = TIME_ZONE.GetDBF();
@@ -168,13 +209,12 @@ namespace WBSF
 
 
 			cctz::time_zone zone;
-			if (!str_zone.empty() && cctz::load_time_zone(str_zone, &zone))
+			if (!str_zone.empty() && cctz::load_time_zone(str_zone, &zone, delta))
 			{
 				const auto tp = std::chrono::system_clock::from_time_t(time);
 				const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
 
-				__int64 delta_s = al.offset;
-				delta = Round(delta_s / 3600);
+				delta = al.offset;
 			}
 			else
 			{
@@ -182,7 +222,7 @@ namespace WBSF
 				delta = WBSF::ToInt(str_zone);
 				ASSERT(delta >= -12 && delta <= 12);
 			}
-		}
+		}*/
 
 		return delta;
 	}
@@ -190,28 +230,43 @@ namespace WBSF
 	__int64 CTimeZones::LocalTime2UTCTime(__int64 time, const CGeoPoint& pt)
 	{
 		__int64 delta = GetDelta(time, pt);
-		return time - delta*3600;
+		return time - delta;
 	}
 	__int64 CTimeZones::UTCTime2LocalTime(__int64 time, const CGeoPoint& pt)
 	{
 		__int64 delta = GetDelta(time, pt);
-		return time + delta*3600;
+		return time + delta;
 	}
 
 	CTRef CTimeZones::LocalTRef2UTCTRef(CTRef TRef, const CGeoPoint& pt)
 	{
 		__int64 delta = GetDelta(TRef, pt);
-		return TRef - int(delta);
+		return TRef - int(delta / 3600);
 	}
 
 	CTRef CTimeZones::UTCTRef2LocalTRef(CTRef TRef, const CGeoPoint& pt)
 	{
 		__int64 delta = GetDelta(TRef, pt);
-		return TRef + int(delta);
+		return TRef + int(delta/3600);
 		
 	}
 
+	CTRef CTimeZones::LocalTRef2UTCTRef(CTRef TRef, const cctz::time_zone& zone)
+	{
+		const auto tp = cctz::convert(cctz::civil_second(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0), zone);
+		const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
+		
+		return TRef - int(al.offset / 3600);
+	}
 
+	CTRef CTimeZones::UTCTRef2LocalTRef(CTRef TRef, const cctz::time_zone& zone)
+	{
+		const auto tp = cctz::convert(cctz::civil_second(TRef.GetYear(), int(TRef.GetMonth() + 1), int(TRef.GetDay() + 1), int(TRef.GetHour()), 0, 0), zone);
+		const cctz::time_zone::absolute_lookup al = zone.lookup(tp);
+
+		return TRef + int(al.offset/3600);
+
+	}
 
 	
 	

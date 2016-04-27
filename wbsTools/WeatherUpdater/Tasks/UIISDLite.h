@@ -7,6 +7,8 @@
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
+namespace cctz{ class time_zone; }
+
 namespace WBSF
 {
 
@@ -16,6 +18,8 @@ namespace WBSF
 	public:
 
 		enum TField{ ISD_YEAR, ISD_MONTH, ISD_DAY, ISD_HOUR, ISD_T, ISD_TDEW, ISD_P, ISD_WDIR, ISD_WSPD, ISD_SKY, ISD_PRCP1, ISD_PRCP6, NB_ISD_FIELD };
+		typedef std::array<float, CUIISDLite::NB_ISD_FIELD> FieldArray;
+
 
 		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
@@ -28,7 +32,7 @@ namespace WBSF
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		virtual bool IsHourly()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -48,7 +52,7 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		ERMsg LoadOptimisation();
 		std::string GetOptFilePath(const std::string& filePath)const;
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, int timeZone, CWeatherYears& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
+		ERMsg ReadData(const std::string& filePath, const cctz::time_zone& zone, CWeatherYears& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".isd")const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
@@ -66,7 +70,9 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		//Database Creation part
 		void GetStationHeader(const std::string& stationName, CLocation& station);
 		ERMsg LoadStationList();
-		CTRef GetTRef(const StringVector& elem, int timeZone)const;
+		
+		static CTRef GetTRef(const FieldArray& e);
+		static bool LoadFields(const std::string& line, FieldArray& e);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

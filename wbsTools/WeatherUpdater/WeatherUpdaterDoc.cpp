@@ -333,6 +333,7 @@ void CWeatherUpdaterDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* p
 
 void CWeatherUpdaterDoc::OnInitialUpdate()
 {
+	
 	UpdateAllViews(NULL, INIT, NULL);
 }
 

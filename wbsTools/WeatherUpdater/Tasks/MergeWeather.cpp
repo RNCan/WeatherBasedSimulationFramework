@@ -17,7 +17,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CMergeWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilepath", "Distance", "DeltaElev", "Type", "PriorityRule" };
-	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_COMBO_POSITION, T_COMBO_POSITION };
+	const size_t CMergeWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_COMBO_INDEX, T_COMBO_INDEX };
 	const UINT CMergeWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_MERGE_DB_P;
 	const UINT CMergeWeather::DESCRIPTION_TITLE_ID = ID_TASK_MERGE_DB;
 

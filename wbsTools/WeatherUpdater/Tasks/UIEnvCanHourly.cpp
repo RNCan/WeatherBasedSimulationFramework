@@ -544,9 +544,8 @@ namespace WBSF
 
 
 
-		//callback.AddTask(stationList.size() * 2);
-
-		callback.AddMessage("Download data...", 1);
+		callback.PushTask("Download data...", stationList.size());
+		callback.AddMessage("Download data...");
 
 		//InitStat();
 
@@ -572,10 +571,11 @@ namespace WBSF
 						{
 							curI++;
 							nbRun = 0;
+							msg += callback.StepIt();
 						}
 					}
 				}
-					CATCH_ALL(e)
+				CATCH_ALL(e)
 				{
 					msg = UtilWin::SYGetMessage(*e);
 				}
@@ -600,9 +600,7 @@ namespace WBSF
 			}
 		}
 
-
-		//ReportStat(callback);
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -619,10 +617,7 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYear = lastYear - firstYear + 1;
-		//size_t nbMonths = m_lastMonth - m_firstMonth + 1;
-
-		//callback.SetCurrentDescription("Get number of files to update for " + station.m_name);
-		//callback.SetNbStep(nbYear * 12);
+		
 		callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
 		vector< array<bool, 12> > bNeedDownload;
@@ -654,7 +649,6 @@ namespace WBSF
 		if (nbFilesToDownload > 0)
 		{
 			callback.PushTask("Update files for " + station.m_name, nbFilesToDownload);
-			//callback.SetNbStep();
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
@@ -669,10 +663,6 @@ namespace WBSF
 						CreateMultipleDir(GetPath(filePath));
 
 						msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
-
-						//if (msg)
-						//AddToStat(year);
-
 						msg += callback.StepIt();
 					}
 				}
@@ -680,11 +670,6 @@ namespace WBSF
 
 			callback.PopTask();
 		}
-		//else
-		//{
-//			callback.SkipTask();
-		//}
-
 
 		return msg;
 	}
@@ -694,8 +679,7 @@ namespace WBSF
 	{
 		bool bDownload = true;
 
-		//if( !m_bForceDownload)
-		//{
+		
 		CFileStamp fileStamp(filePath);
 		CTime lastUpdate = fileStamp.m_time;
 		if (lastUpdate.GetTime() > 0)
@@ -705,8 +689,6 @@ namespace WBSF
 			if (nbDays > 62)//update until 2 months after
 				bDownload = false;
 		}
-		//}
-
 
 		return bDownload;
 	}

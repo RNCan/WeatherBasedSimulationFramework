@@ -14,7 +14,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CCopyFTP::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Direction", "Server", "Remote", "Local", "UserName", "Password", "Connection", "ConnectionTimeout", "Proxy", "Limit", "Ascii", "Passive", "ShowProgress" };
-	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_POSITION, T_STRING, T_STRING, T_FILEPATH, T_STRING, T_PASSWORD, T_COMBO_POSITION, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
+	const size_t CCopyFTP::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_INDEX, T_STRING, T_STRING, T_FILEPATH, T_STRING, T_PASSWORD, T_COMBO_INDEX, T_STRING, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
 	const UINT CCopyFTP::ATTRIBUTE_TITLE_ID = IDS_TOOL_DOWNLOAD_UPLOAD_P;
 	const UINT CCopyFTP::DESCRIPTION_TITLE_ID = ID_TASK_DOWNLOAD_UPLOAD;
 	

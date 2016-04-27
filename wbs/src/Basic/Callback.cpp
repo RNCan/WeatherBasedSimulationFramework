@@ -111,7 +111,7 @@ namespace WBSF
 
 	std::string CCallback::GetMessages()
 	{ 
-		return !GetTasks().empty()?GetTasks().top().m_messages:"";
+		return m_messageAccumulator;// !GetTasks().empty() ? GetTasks().top().m_messages : "";
 	}
 
 	double CCallback::GetCurrentStepPos()
@@ -182,44 +182,52 @@ namespace WBSF
 	{
 		AddMessage(message.c_str(), level);
 	}
+
+	
 	void CCallback::AddMessage(const char* message, int level)
 	{
-		if (!GetTasks().empty())
+		if (omp_get_thread_num() == 0)
 		{
-			static CCriticalSection CS;
-
-			CS.Enter();
-			
-			level = int(GetCurrentLevel()) + std::max(0, level);
-
-			string levelTabs;
-			for (int i = 0; i < level; i++)
-				levelTabs += "\t";
-
-			string t = message;
-			ReplaceString(t, "\n", "\n" + levelTabs);
-
-			GetTasks().top().m_messages += levelTabs + t + "\n";
-			m_messageAccumulator += levelTabs + t + "\n";
-			m_messageDlgAccumulator += levelTabs + t + "\n";
-
-			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+			if (!GetTasks().empty())
 			{
-				PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-			}
+				
+				//static CCriticalSection CS;
+				//CS.Enter();
 
-			CS.Leave();
+				level = int(GetCurrentLevel()) + std::max(0, level);
+
+				string levelTabs;
+				for (int i = 0; i < level; i++)
+					levelTabs += "\t";
+
+				string t = message;
+				ReplaceString(t, "\n", "\n" + levelTabs);
+
+				GetTasks().top().m_messages += levelTabs + t + "\n";
+				m_messageAccumulator += levelTabs + t + "\n";
+				m_messageDlgAccumulator += levelTabs + t + "\n";
+
+				if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+				{
+					//PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
+					SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
+				}
+
+				//CS.Leave();
+			}
 		}
 	}
 
 
 	void CCallback::DeleteMessages(bool bAccumulation)
 	{
+		
+		if( GetTasks().empty() )
+			GetTasks().top().m_messages.clear();
+
 		if (bAccumulation)
-		{
-			//m_currentLevel = 0;
 			m_messageAccumulator.clear();
-		}
+		
 	}
 
 
@@ -233,16 +241,13 @@ namespace WBSF
 	{
 		if (omp_get_thread_num() == 0)
 		{
+			if (nbStep == NOT_INIT)
+				nbStep = -1.0;
 
-		
-		
-		if (nbStep == NOT_INIT)
-			nbStep = -1.0;
-		
-		GetTasks().push(CCallbackTask(description, nbStep, stepBy));
+			GetTasks().push(CCallbackTask(description, nbStep, stepBy));
 
-		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
-			SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
+			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+				SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
 		}
 	}
 

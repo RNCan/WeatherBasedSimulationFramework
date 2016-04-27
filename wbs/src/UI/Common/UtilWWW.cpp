@@ -702,7 +702,7 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password  )
+	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password)
 	{
 		ERMsg msg;
 

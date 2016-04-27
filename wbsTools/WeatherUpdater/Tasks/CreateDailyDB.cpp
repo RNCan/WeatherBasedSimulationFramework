@@ -136,7 +136,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.PushTask(GetString(IDS_CREATE_DB) + outputFilePath, stationList.size());
+			callback.PushTask(GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + ToString(stationList.size()) + " stations)", stationList.size());
 
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)
@@ -176,6 +176,11 @@ namespace WBSF
 						if (messageTmp)
 							nbStationAdded++;
 					}
+				}
+				else
+				{
+					if (callback.GetUserCancel())
+						msg += messageTmp;
 				}
 
 				if (!messageTmp)

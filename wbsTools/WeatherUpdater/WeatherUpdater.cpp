@@ -67,6 +67,7 @@
 #include "UI/Common/AboutDlg.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
+#include "Geomatic/TimeZones.h"
 
 #include <gdiplus.h>
 #include "OutputView.h"
@@ -182,6 +183,7 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	CTRef::SetFormat(format);
 
+	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
 
 
 	CWeatherUpdaterCmdLine cmdInfo;

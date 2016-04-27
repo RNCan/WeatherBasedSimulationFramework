@@ -161,12 +161,12 @@
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateNormalsDB.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UIACISDaily.h" />
-    <ClInclude Include="UIACISHourly.h" />
-    <ClInclude Include="UIBCHourly.h" />
+    <ClInclude Include="UIACIS.h" />
+    <ClInclude Include="UIBC.h" />
     <ClInclude Include="UICIPRA.h" />
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
+    <ClInclude Include="UIMDDELCC.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
     <ClInclude Include="EnvCanLocationMap.h" />
     <ClInclude Include="GSODStationOptimisation.h" />
@@ -187,6 +187,7 @@
     <ClInclude Include="UISolutionMesonetDaily.h" />
     <ClInclude Include="UISolutionMesonetHourly.h" />
     <ClInclude Include="UISOPFEUHourly.h" />
+    <ClInclude Include="UIWunderground.h" />
     <ClInclude Include="ZipUnzip.h" />
   </ItemGroup>
   <ItemGroup>
@@ -205,12 +206,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UIACISDaily.cpp" />
-    <ClCompile Include="UIACISHourly.cpp" />
-    <ClCompile Include="UIBCHourly.cpp" />
+    <ClCompile Include="UIACIS.cpp" />
+    <ClCompile Include="UIBC.cpp" />
     <ClCompile Include="UICIPRA.cpp" />
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
+    <ClCompile Include="UIMDDELCC.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
     <ClCompile Include="EnvCanLocationMap.cpp" />
     <ClCompile Include="GSODStationOptimisation.cpp" />
@@ -231,6 +232,7 @@
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
     <ClCompile Include="UISolutionMesonetHourly.cpp" />
     <ClCompile Include="UISOPFEUHourly.cpp" />
+    <ClCompile Include="UIWunderground.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

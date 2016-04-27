@@ -224,28 +224,25 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 	//m_callback.Lock();
 	if (t == 0)
 	{
-		const std::string& message = m_callback.GetMessages();
+		std::string message = m_callback.GetMessages();
+		//m_callback.DeleteMessages(false);
 		if (!message.empty())
 		{
+			std::remove(message.begin(), message.end(), '\r');
+			WBSF::ReplaceString(message, "\n", "\r\n");
 
-			std::string tmp = message.data();
-			std::remove(tmp.begin(), tmp.end(), '\r');
-			WBSF::ReplaceString(tmp, "\n", "\r\n");
-
-			m_comment += tmp;
+			//m_comment += message;
 			
 			if (m_pEdit)
 			{
-				m_pEdit->SetWindowTextW(CString(m_comment.c_str()));
+				m_pEdit->SetWindowTextW(CString(message.c_str()));
 				m_pEdit->SetSel((int)m_comment.length(), -1);
 			}
-				
-			m_callback.DeleteMessages(false);
 		}
 	}
 	else if (t == 1)
 	{
-		const WBSF::CCallbackTask& task = m_callback.GetTasks().top();// .c[m_progressCtrl.GetItemCount()];
+		const WBSF::CCallbackTask& task = m_callback.GetTasks().top();
 		m_progressListCtrl.InsertItem(m_progressListCtrl.GetItemCount(), CString(task.m_description.c_str()), task.m_nbSteps > 0);
 	}
 	else if (t == 2)

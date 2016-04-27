@@ -104,8 +104,8 @@ BEGIN
     BUTTON      ID_TASK_SM_DAILY
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
     SEPARATOR
-    BUTTON      ID_TASK_ACIS_HOURLY
-    BUTTON      ID_TASK_ACIS_DAILY
+    BUTTON      ID_TASK_ACIS
+	BUTTON      ID_TASK_MDDELCC_DAILY
     BUTTON      ID_TASK_SOPFEU
 	BUTTON      ID_TASK_BC
     SEPARATOR
@@ -149,8 +149,8 @@ BEGIN
     BUTTON      ID_TASK_SM_HOURLY
     BUTTON      ID_TASK_SM_DAILY
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
-    BUTTON      ID_TASK_ACIS_HOURLY
-    BUTTON      ID_TASK_ACIS_DAILY
+    BUTTON      ID_TASK_ACIS
+	BUTTON      ID_TASK_MDDELCC_DAILY
     BUTTON      ID_TASK_SOPFEU
 	BUTTON      ID_TASK_BC
     BUTTON      ID_TASK_OTHER_UPDATER
@@ -644,14 +644,14 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Mise à jours des coordonnées"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_ACIS_HOURLY_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_ACIS_DAILY_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+    IDS_UPDATER_ACIS_P 
+							"Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année"
+    IDS_UPDATER_MDDELCC_DAILY_P 
+							"Répertoire de travail|Première année|Dernière année|Ignoré les stations d'Environnement Canada"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées|Ignoré les données d'Environnement Canada"
+    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
 END
 
 STRINGTABLE
@@ -718,10 +718,10 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_SM_CIPRA_HOURLY "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet\nCipra horaire"
-    ID_TASK_ACIS_HOURLY     "Télécharger les données agro-climatiques horaire de l'Alberta via ACIS\nACIS horaire"
-    ID_TASK_ACIS_DAILY      "Télécharger les données agro-climatiques quotidiennes de l'Alberta via ACIS\nACIS quotidien"
+    ID_TASK_ACIS            "Télécharger les données agro-climatiques de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
+	ID_TASK_MDDELCC_DAILY   "Télécharger les données quotidiennes du MDDELCC (""Ministère du Développement durable, de l’Environnement et de la Lutte contre les changements climatiques"")\nMDDELCC quotidien"
     ID_TASK_SOPFEU          "Télécharger les données horaires de la SOPFEU\nSOPFEU"
-	ID_TASK_BC				"Télécharger les données de la Colombie-Britannique via le ""Pacific Climate Impacts Consortium"" "
+	ID_TASK_BC				"Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1094,13 +1094,13 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First Year|Last Year|Update coordinates"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|First Year|Last Year"
-    IDS_UPDATER_ACIS_HOURLY_P 
-                            "User Name|Password|Working directory|First Year|Last Year"
-    IDS_UPDATER_ACIS_DAILY_P 
-                            "User Name|Password|Working directory|First Year|Last Year"
+    IDS_UPDATER_ACIS_P 
+                            "User Name|Password|Working directory|Data Type|First Year|Last Year"
+	IDS_UPDATER_MDDELCC_DAILY_P
+                            "Working directory|First Year|Last Year|Ignor Environnement Canada stations"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates|Ignor Environnement Canada data"
+	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates|Ignor Environnement Canada stations"
 END
 
 STRINGTABLE
@@ -1166,10 +1166,10 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_SM_CIPRA_HOURLY "Download agro-climatic hourly data via Solutions-Mesonet\nCipra Hourly"
-    ID_TASK_ACIS_HOURLY     "Download agro-climatic hourly data for Alberta via ACIS\nACIS hourly"
-    ID_TASK_ACIS_DAILY      "Download agro-climatic daily data for Alberta via ACIS\nACIS daily"
+    ID_TASK_ACIS			"Download agro-climatic data for Alberta via ACIS (""AgroClimatic Information Service"")\nAlberta Weather"
+	ID_TASK_MDDELCC_DAILY   "Download MDDELCC (""Ministère du Développement durable, de l’Environnement et de la Lutte contre les changements climatiques"") daily data\nMDDELCC Daily"
     ID_TASK_SOPFEU          "Download SOPFEU hourly data\nSOPFEU"
-	ID_TASK_BC			    "Download BC data from ""Pacific Climate Impacts Consortium"" "
+	ID_TASK_BC			    "Download British Comlombia data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish Comlombia Weather"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

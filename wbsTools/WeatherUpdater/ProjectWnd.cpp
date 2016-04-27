@@ -17,10 +17,10 @@
 #include "Tasks/UISolutionMesonetHourly.h"
 #include "Tasks/UISolutionMesonetDaily.h"
 #include "Tasks/UICIPRA.h"
-#include "Tasks/UIACISHourly.h"
-#include "Tasks/UIACISDaily.h"
+#include "Tasks/UIACIS.h"
 #include "Tasks/UISOPFEUHourly.h"
-#include "Tasks/UIBCHourly.h"
+#include "Tasks/UIBC.h"
+#include "Tasks/UIMDDELCC.h"
 
 
 #include "Tasks/CreateHourlyDB.h"
@@ -291,10 +291,10 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
 		//case ID_TASK_OTHER_DOWNLOADER: str = ::CLASS_NAME(); break;
 		//case ID_TASK_EC_GRIB_FORECAST: str = ::CLASS_NAME(); break;
-	case ID_TASK_ACIS_HOURLY:	className = CUIACISHourly::CLASS_NAME(); break;
-	case ID_TASK_ACIS_DAILY:	className = CUIACISDaily::CLASS_NAME(); break;
+	case ID_TASK_ACIS:			className = CUIACIS::CLASS_NAME(); break;
+	case ID_TASK_MDDELCC_DAILY:	className = CUIMDDELCC::CLASS_NAME(); break;
 	case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
-	case ID_TASK_BC:			className = CUIBCHourly::CLASS_NAME(); break;
+	case ID_TASK_BC:			className = CUIBC::CLASS_NAME(); break;
 		//case ID_TASK_BC_SNOWPILLOW: str = ; break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
