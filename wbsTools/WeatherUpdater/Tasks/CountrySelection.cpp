@@ -308,7 +308,7 @@ namespace WBSF
 		string str;
 		for (size_t i = 0; i < NB_COUNTRIES; i++)
 		{
-			str += i!=0 ? "|" : "";
+			str += i != 0 ? "|" : "";
 			if (bAbvr)
 				str += DEFAULT_LIST[i].m_abrv;
 			if (bAbvr && bName)
@@ -331,7 +331,7 @@ namespace WBSF
 		ASSERT(t < 2);
 		return DEFAULT_LIST[i].m_name;
 	}
-	
+
 	string CCountrySelection::ToString()const
 	{
 		string str;
@@ -359,14 +359,6 @@ namespace WBSF
 		StringVector tmp(in, "|;");
 		for (size_t i = 0; i < tmp.size(); i++)
 			msg += set(tmp[i]);
-
-		/*size_t start=0;
-		string tmp = in.Tokenize(";", start);
-		while(!tmp.IsEmpty() )
-		{
-		msg+=SetUsed(tmp);
-		tmp = in.Tokenize(";", start);
-		}*/
 
 		return msg;
 	}
@@ -409,305 +401,394 @@ namespace WBSF
 		return message;
 	}
 
-	//const CCountrySelection::CInfo CCountrySelection::DEFAULT_LIST[NB_TAG] = 
-	//{
-	//	{"  ","_UNKNOWN"},
-	//	{"AA","Aruba"},
-	//	{"AC","Antigua And Barbuda"},
-	//	{"AE", "United Arab Emirates"},
-	//	{"AF","Afghanistan"},
-	//	{"AG","Algeria"},
-	//	{"AI","Ascension ISLAND"},
-	//	{"AJ","Azerbaijan"},
-	//	{"AL","Albania"},
-	//	{"AM","Armenia"},
-	//	{"AN","Andorra"},
-	//	{"AO","Angola"},
-	//	{"AQ","American Samoa"},
-	//	{"AR","Argentina"},
-	//	{"AS","Australia"},
-	//	{"AT","Ashmore And Cartier Islands"},
-	//	{"AU","Austria"},
-	//	{"AV","Anguilla"},
-	//	{"AX","Antigua, St. Kitts, Nevis, Barbuda"},
-	//	{"AY","Antarctica"},
-	//	{"AZ","Azores"},
-	//	{"BA","Bahrain"},
-	//	{"BB","Barbados"},
-	//	{"BC","Botswana"},
-	//	{"BD","Bermuda"},
-	//	{"BE","Belgium"},
-	//	{"BF","Bahamas The"},
-	//	{"BG","Bangladesh"},
-	//	{"BH","Belize"},
-	//	{"BK","Bosnia And Herzegovina"},
-	//	{"BL","Bolivia"},
-	//	{"BM","Burma"},
-	//	{"BN","Benin"},
-	//	{"BO","Belarus"},
-	//	{"BP","Solomon Islands"},
-	//	{"BQ","Navassa Island"},
-	//	{"BR","Brazil"},
-	//	{"BS","Bassas Da India"},
-	//	{"BT","Bhutan"},
-	//	{"BU","Bulgaria"},
-	//	{"BV","Bouvet Island"},
-	//	{"BX","Brunei"},
-	//	{"BY","Burundi"},
-	//	{"BZ","Belgium And Luxembourg"},
-	//	{"CA","Canada"},
-	//	{"CB","Cambodia"},
-	//	{"CC","Ceuta And Melilla"},
-	//	{"CD","Chad"},
-	//	{"CE","Sri Lanka"},
-	//	{"CF","Congo"},
-	//	{"CG","Zaire"},
-	//	{"CH","China"},
-	//	{"CI","Chile"},
-	//	{"CJ","Cayman Islands"},
-	//	{"CK","Cocos (Keeling) Islands"},
-	//	{"CL","Caroline Islands"},
-	//	{"CM","Cameroon"},
-	//	{"CN","Comoros"},
-	//	{"CO","Colombia"},
-	//	{"CP","Canary Islands"},
-	//	{"CQ","Northern Mariana Islands"},
-	//	{"CR","Coral Sea Islands"},
-	//	{"CS","Costa Rica"},
-	//	{"CT","Central African Republic"},
-	//	{"CU","Cuba"},
-	//	{"CV","Cape Verde"},
-	//	{"CW","Cook Islands"},
-	//	{"CY","Cyprus"},
-	//	{"CZ","Canton Island"},
-	//	{"DA","Denmark"},
-	//	{"DJ","DJIBOUTI"},
-	//	{"DO","DOMINICA"},
-	//	{"DQ","JARVIS ISLAND"},
-	//	{"DR","DOMINICAN REPUBLIC"},
-	//	{"DY","DEMOCRATIC YEMEN"},
-	//	{"EC","ECUADOR"},
-	//	{"EG","EGYPT"},
-	//	{"EI","IRELAND"},
-	//	{"EK","EQUATORIAL GUINEA"},
-	//	{"EN","ESTONIA"},
-	//	{"ER","ERITREA"},
-	//	{"ES","EL SALVADOR"},
-	//	{"ET","ETHIOPIA"},
-	//	{"EU","EUROPA ISLAND"},
-	//	{"EZ","CZECH REPUBLIC"},
-	//	{"FG","FRENCH GUIANA"},
-	//	{"FI","FINLAND"},
-	//	{"FJ","FIJI"},
-	//	{"FK","FALKLAND ISLANDS (ISLAS MALVINAS)"},
-	//	{"FM","MICRONESIA, FEDERATED STATES OF"},
-	//	{"FO","FAROE ISLANDS"},
-	//	{"FP","FRENCH POLYNESIA"},
-	//	{"FQ","BAKER ISLAND"},
-	//	{"FR","FRANCE"},
-	//	{"FS","FRENCH SOUTHERN AND ANTARCTIC LANDS"},
-	//	{"GA","GAMBIA  THE"},
-	//	{"GB","GABON"},
-	//	{"GG","GEORGIA"},
-	//	{"GH","GHANA"},
-	//	{"GI","GIBRALTAR"},
-	//	{"GJ","GRENADA"},
-	//	{"GK","GUERNSEY"},
-	//	{"GL","GREENLAND"},
-	//	{"GM","GERMANY"},
-	//	{"GO","GLORIOSO ISLANDS"},
-	//	{"GP","GUADELOUPE"},
-	//	{"GQ","GUAM"},
-	//	{"GR","GREECE"},
-	//	{"GT","GUATEMALA"},
-	//	{"GV","GUINEA"},
-	//	{"GY","GUYANA"},
-	//	{"GZ","GAZA STRIP"},
-	//	{"HA","HAITI"},
-	//	{"HK","HONG KONG"},
-	//	{"HM","HEARD ISLAND AND MCDONALD ISLANDS"},
-	//	{"HO","HONDURAS"},
-	//	{"HQ","HOWLAND ISLAND"},
-	//	{"HR","CROATIA"},
-	//	{"HU","HUNGARY"},
-	//	{"IC","ICELAND"},
-	//	{"ID","INDONESIA"},
-	//	{"IM","MAN  ISLE OF"},
-	//	{"IN","INDIA"},
-	//	{"IO","BRITISH INDIAN OCEAN TERRITORY"},
-	//	{"IP","CLIPPERTON ISLAND"},
-	//	{"IR","IRAN"},
-	//	{"IS","ISRAEL"},
-	//	{"IT","ITALY"},
-	//	{"IV","COTE D'IVOIRE"},
-	//	{"IW","ISRAEL-JORDAN DMZ"},
-	//	{"IZ","IRAQ"},
-	//	{"JA","JAPAN"},
-	//	{"JE","JERSEY"},
-	//	{"JM","JAMAICA"},
-	//	{"JN","JAN MAYEN"},
-	//	{"JO","JORDAN"},
-	//	{"JQ","JOHNSTON ATOLL"},
-	//	{"JU","JUAN DE NOVA ISLAND"},
-	//	{"KE","KENYA"},
-	//	{"KG","KYRGYZSTAN"},
-	//	{"KN","KOREA, NORTH"},
-	//	{"KQ","KINGMAN REEF"},
-	//	{"KR","KIRIBATI"},
-	//	{"KS","KOREA, SOUTH"},
-	//	{"KT","CHRISTMAS ISLAND"},
-	//	{"KU","KUWAIT"},
-	//	{"KZ","KAZAKHSTAN"},
-	//	{"LA","LAOS"},
-	//	{"LC","ST. LUCIA AND ST. VINCENT"},
-	//	{"LE","LEBANON"},
-	//	{"LG","LATVIA"},
-	//	{"LH","LITHUANIA"},
-	//	{"LI","LIBERIA"},
-	//	{"LN","SOUTHERN LINE ISLANDS"},
-	//	{"LO","SLOVAKIA"},
-	//	{"LQ","PALMYRA ATOLL"},
-	//	{"LS","LIECHTENSTEIN"},
-	//	{"LT","LESOTHO"},
-	//	{"LU","LUXEMBOURG"},
-	//	{"LY","LIBYA"},
-	//	{"MA","MADAGASCAR"},
-	//	{"MB","MARTINIQUE"},
-	//	{"MC","MACAU"},
-	//	{"MD","MOLDOVA"},
-	//	{"ME","MADEIRA"},
-	//	{"MF","MAYOTTE"},
-	//	{"MG","MONGOLIA"},
-	//	{"MH","MONTSERRAT"},
-	//	{"MI","MALAWI"},
-	//	{"MK","MACEDONIA"},
-	//	{"ML","MALI"},
-	//	{"MM","BURMA (MYANMAR)"},
-	//	{"MN","MONACO"},
-	//	{"MO","MOROCCO"},
-	//	{"MP","MAURITIUS"},
-	//	{"MQ","MIDWAY ISLANDS"},
-	//	{"MR","MAURITANIA"},
-	//	{"MT","MALTA"},
-	//	{"MU","OMAN"},
-	//	{"MV","MALDIVES"},
-	//	{"MW","MONTENEGRO"},
-	//	{"MX","MEXICO"},
-	//	{"MY","MALAYSIA"},
-	//	{"MZ","MOZAMBIQUE"},
-	//	{"NC","NEW CALEDONIA"},
-	//	{"NE","NIUE"},
-	//	{"NF","NORFOLK ISLAND"},
-	//	{"NG","NIGER"},
-	//	{"NH","VANUATU"},
-	//	{"NI","NIGERIA"},
-	//	{"NL","NETHERLANDS"},
-	//	{"NO","NORWAY"},
-	//	{"NP","NEPAL"},
-	//	{"NR","NAURU"},
-	//	{"NS","SURINAME"},
-	//	{"NT","NETHERLANDS ANTILLES"},
-	//	{"NU","NICARAGUA"},
-	//	{"NZ","NEW ZEALAND"},
-	//	{"OW","OCEAN WEATHER STATIONS"},
-	//	{"PA","PARAGUAY"},
-	//	{"PC","PITCAIRN ISLANDS"},
-	//	{"PE","PERU"},
-	//	{"PF","PARACEL ISLANDS"},
-	//	{"PG","SPRATLY ISLANDS"},
-	//	{"PI","PHOENIX ISLANDS"},
-	//	{"PK","PAKISTAN"},
-	//	{"PL","POLAND"},
-	//	{"PM","PANAMA"},
-	//	{"PN","NORTH PACIFIC ISLANDS"},
-	//	{"PO","PORTUGAL"},
-	//	{"PP","PAPUA NEW GUINEA"},
-	//	{"PS","PALAU - TRUST TERRITORY OF THE PACIFIC ISLANDS"},
-	//	{"PU","GUINEA-BISSAU"},
-	//	{"PZ","SOUTH PACIFIC ISLANDS"},
-	//	{"QA","QATAR"},
-	//	{"RE","REUNION AND ASSOCIATED ISLANDS"},
-	//	{"RM","MARSHALL ISLANDS"},
-	//	{"RO","ROMANIA"},
-	//	{"RP","PHILIPPINES"},
-	//	{"RQ","PUERTO RICO"},
-	//	{"RS","RUSSIA"},
-	//	{"RW","RWANDA"},
-	//	{"SA","SAUDI ARABIA"},
-	//	{"SB","ST. PIERRE AND MIQUELON"},
-	//	{"SC","ST. KITTS AND NEVIS"},
-	//	{"SE","SEYCHELLES"},
-	//	{"SF","SOUTH AFRICA"},
-	//	{"SG","SENEGAL"},
-	//	{"SH","ST. HELENA"},
-	//	{"SI","SLOVENIA"},
-	//	{"SK","SARAWAK AND SABA"},
-	//	{"SL","SIERRA LEONE"},
-	//	{"SM","SAN MARINO"},
-	//	{"SN","SINGAPORE"},
-	//	{"SO","SOMALIA"},
-	//	{"SP","SPAIN"},
-	//	{"SR","SERBIA"},
-	//	{"SS","ST. MAARTEN"},
-	//	{"ST","ST. LUCIA"},
-	//	{"SU","SUDAN"},
-	//	{"SV","SVALBARD"},
-	//	{"SW","SWEDEN"},
-	//	{"SX","SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS"},
-	//	{"SY","SYRIA"},
-	//	{"SZ","SWITZERLAND"},
-	//	{"TC","UNITED ARAB EMIRATES"},
-	//	{"TD","TRINIDAD AND TOBAGO"},
-	//	{"TE","TROMELIN ISLAND"},
-	//	{"TH","THAILAND"},
-	//	{"TI","TAJIKISTAN"},
-	//	{"TK","TURKS AND CAICOS ISLANDS"},
-	//	{"TL","TOKELAU"},
-	//	{"TN","TONGA"},
-	//	{"TO","TOGO"},
-	//	{"TP","SAO TOME AND PRINCIPE"},
-	//	{"TS","TUNISIA"},
-	//	{"TU","TURKEY"},
-	//	{"TV","TUVALU"},
-	//	{"TW","TAIWAN"},
-	//	{"TX","TURKMENISTAN"},
-	//	{"TZ","TANZANIA"},
-	//	{"UA","FORMER USSR (ASIA)"},
-	//	{"UE","FORMER USSR (EUROPE)"},
-	//	{"UG","UGANDA"},
-	//	{"UK","UNITED KINGDOM"},
-	//	{"UP","UKRAINE"},
-	//	{"US","UNITED STATES"},
-	//	{"UV","BURKINA FASO"},
-	//	{"UY","URUGUAY"},
-	//	{"UZ","UZBEKISTAN"},
-	//	{"VC","ST. VINCENT AND THE GRENADINES"},
-	//	{"VE","VENEZUELA"},
-	//	{"VI","VIRGIN ISLANDS (BRITISH)"},
-	//	{"VM","VIETNAM"},
-	//	{"VQ","VIRGIN ISLANDS (U.S.)"},
-	//	{"VT","VATICAN CITY"},
-	//	{"WA","NAMIBIA"},
-	//	{"WE","WEST BANK"},
-	//	{"WF","WALLIS AND FUTUNA"},
-	//	{"WI","WESTERN SAHARA"},
-	//	{"WQ","WAKE ISLAND"},
-	//	{"WS","WESTERN SAMOA"},
-	//	{"WZ","SWAZILAND"},
-	//	{"YM","YEMEN"},
-	//	{"YU","YUGOSLAVIA (& FORMER TERRITORY)"},
-	//	{"YY","ST. MARTEEN, ST. EUSTATIUS, AND SABA"},
-	//	{"ZA","ZAMBIA"},
-	//	{"ZI","ZIMBABWE"},
-	//	{"ZM","SAMOA"},
-	//	{"ZZ","ST. MARTIN AND ST. BARTHOLOMEW"},
-	//	{"RI","Serbia"},
-	//	{"AE","Eritrea(AE)"},
-	//	{"PT","Portugal(PT)"},
-	//	{"TT","Indonesia(TT)"},
-	//	{"SD", "Saudi Arabia(SD)"},
-	//	{"KV", "Kosovo"},
-	//	{"MJ", "Montenegro"},
-	//	{"ALL", "ALL"}
-	//};
+	//****************************************************************************************************************************************
+	const CCountrySelectionWU::CInfo CCountrySelectionWU::DEFAULT_LIST[NB_COUNTRIES_WU] =
+	{
+		{ "AF", "Afghanistan" },
+		{"AL", "Albania"},
+		{"AG", "Algeria"},
+		{"AO", "Angola"},
+		{"AV", "Anguilla"},
+		{"AR", "Argentina"},
+		{"AM", "Armenia"},
+		{"AS", "Australia"},
+		{"AU", "Austria"},
+		{"", "Azerbaijan"},
+		{"", "Bahamas"},
+		{"", "Bahrain"},
+		{"", "Bangladesh"},
+		{"", "Barbados"},
+		{"", "Beijing"},
+		{"", "Belarus"},
+		{"", "Belgium"},
+		{"", "Belize"},
+		{"", "Benin"},
+		{"", "Bermuda"},
+		{"", "Bolivia"},
+		{"", "Bosnia"},
+		{"", "Botswana"},
+		{"", "Bouvet Island"},
+		{"", "Brazil"},
+		{"", "British Columbia"},
+		{"", "British Indian Ocean"},
+		{"", "British Virgin Islands"},
+		{"", "Brunei"},
+		{"", "Bulgaria"},
+		{"", "Burkina Faso"},
+		{"", "Burma / Myanmar"},
+		{"", "Burundi"},
+		{"", "Cambodia"},
+		{"", "Cameroon"},
+		{"CA", "Canada"},
+		{"", "Canary Islands"},
+		{"", "Canton Island"},
+		{"", "Cape Verde"},
+		{"", "Capital Territory"},
+		{"", "Caroline Islands"},
+		{"", "Cayman Island"},
+		{"", "Central African Republic"},
+		{"", "Chad"},
+		{"", "Cheng - Du"},
+		{"", "Chile"},
+		{"", "China"},
+		{"", "Colombia"},
+		{"", "Comoros"},
+		{"", "Congo"},
+		{"", "Cook Islands"},
+		{"", "Costa Rica"},
+		{"", "Croatia"},
+		{"", "Cuba"},
+		{"", "Cyprus"},
+		{"", "Czech Republic"},
+		{"", "Democratic Yemen"},
+		{"", "Denmark"},
+		{"", "Djibouti"},
+		{"", "Dominica"},
+		{"", "Dominican Republic"},
+		{"", "East Timor"},
+		{"", "Ecuador"},
+		{"", "Egypt"},
+		{"", "El Salvador"},
+		{"", "Equatorial Guinea"},
+		{"", "Eritrea"},
+		{"", "Estonia"},
+		{"", "Ethiopia"},
+		{"", "Falkland Islands"},
+		{"", "Fiji"},
+		{"", "Finland"},
+		{"", "France"},
+		{"", "French Guiana"},
+		{"", "French Polynesia"},
+		{"", "Gabon"},
+		{"", "Gambia"},
+		{"", "Germany"},
+		{"", "Ghana"},
+		{"", "Gibraltar"},
+		{"", "Greece"},
+		{"", "Greenland"},
+		{"", "Grenada"},
+		{"", "Guam"},
+		{"", "Guang - Zhou"},
+		{"", "Guatemala"},
+		{"", "Guinea"},
+		{"", "Guinea - Bissau"},
+		{"", "Guyana"},
+		{"", "Haiti"},
+		{"", "Han - Kou"},
+		{"", "Hawaii"},
+		{"", "Honduras"},
+		{"", "Hong Kong"},
+		{"", "Hungary"},
+		{"", "Iceland"},
+		{"", "India"},
+		{"", "Indonesia"},
+		{"", "Iran"},
+		{"", "Iraq"},
+		{"", "Ireland"},
+		{"", "Israel"},
+		{"", "Italy"},
+		{"", "Ivory Coast"},
+		{"", "Jamaica"},
+		{"", "Japan"},
+		{"", "Jordan"},
+		{"", "Kazakhstan"},
+		{"", "Kenya"},
+		{"", "Kiribati"},
+		{"", "Kuwait"},
+		{"", "Kyrgyzstan"},
+		{"", "Lan - Zhou"},
+		{"", "Lao Peoples Republic"},
+		{"", "Latvia"},
+		{"", "Lebanon"},
+		{"", "Lesotho"},
+		{"", "Liberia"},
+		{"", "Libya"},
+		{"", "Luxembourg"},
+		{"", "Macao"},
+		{"", "Macedonia"},
+		{"", "Madagascar"},
+		{"", "Madeira Islands"},
+		{"", "Malawi"},
+		{"", "Malaysia"},
+		{"", "Maldives"},
+		{"", "Mali"},
+		{"", "Malta"},
+		{"", "Manitoba"},
+		{"", "Mariana Islands"},
+		{"", "Marshall Islands"},
+		{"", "Martinique"},
+		{"", "Maryland"},
+		{"", "Mauritania"},
+		{"", "Mauritius"},
+		{"", "Mexico"},
+		{"", "Mongolia"},
+		{"", "Montana"},
+		{"", "Morocco"},
+		{"", "Mozambique"},
+		{"", "Namibia"},
+		{"", "Nauru"},
+		{"", "Nepal"},
+		{"", "Netherlands"},
+		{"", "New Brunswick"},
+		{"", "New Caledonia"},
+		{"", "New South Wales"},
+		{"", "New Zealand"},
+		{"", "Newfoundland"},
+		{"", "Nicaragua"},
+		{"", "Niger"},
+		{"", "Nigeria"},
+		{"", "North Korea"},
+		{"", "North Pacific Islands"},
+		{"", "Norway"},
+		{"", "Nova Scotia"},
+		{"", "Oman"},
+		{"", "Pakistan"},
+		{"", "Panama"},
+		{"", "Papua New Guinea"},
+		{"", "Paraguay"},
+		{"", "Peru"},
+		{"", "Philippines"},
+		{"", "Poland"},
+		{"", "Portugal"},
+		{"", "Puerto Rico"},
+		{"", "Qatar"},
+		{"", "Republic of Moldova"},
+		{"", "Reunion Island"},
+		{"", "Romania"},
+		{"", "Russia"},
+		{"", "Rwanda"},
+		{"", "Saudi Arabia"},
+		{"", "Senegal"},
+		{"", "Seychelles"},
+		{"", "Shang - Hai"},
+		{"", "Shen - Yang"},
+		{"", "Sierra Leone"},
+		{"", "Singapore"},
+		{"", "Slovakia"},
+		{"", "Slovenia"},
+		{"", "Solomon Islands"},
+		{"", "Somalia"},
+		{"", "South Africa"},
+		{"", "South Korea"},
+		{"", "Southern Line Islands"},
+		{"", "Spain"},
+		{"", "Sri Lanka"},
+		{"", "Sudan"},
+		{"", "Suriname"},
+		{"", "Swaziland"},
+		{"", "Sweden"},
+		{"", "Switzerland"},
+		{"", "Syria"},
+		{"", "Taiwan"},
+		{"", "Tajikistan"},
+		{"", "Tanzania"},
+		{"", "Tasmania"},
+		{"", "Thailand"},
+		{"", "Togo"},
+		{"", "Tokelau Island"},
+		{"", "Tonga"},
+		{"", "Trinidad And Tobago"},
+		{"", "Tunisia"},
+		{"", "Turkey"},
+		{"", "Turks Islands"},
+		{"", "Tuvalu"},
+		{"US", "United States"},
+		{"", "Uganda"},
+		{"", "Ukraine"},
+		{"", "United Arab Emirates"},
+		{"UK", "United Kingdom"},
+		{"", "Uruguay"},
+		{"", "Urum - Qui"},
+		{"", "Uzbekistan"},
+		{"VA", "Vanuata"},
+		{"VE", "Venezuela"},
+		{"", "Victoria"},
+		{"", "Viet Nam"},
+		{"", "Virgin Islands"},
+		{"", "Virginia"},
+		{"", "Wake Island"},
+		{"", "Wallis And Futuna Island"},
+		{"", "Western Sahara"},
+		{"", "Western Samoa"},
+		{"YE", "Yemen"},
+		{"YU", "Yugoslavia"},
+		{"ZA", "Zambia"},
+		{"ZI", "Zimbabwe"},
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	std::string CCountrySelectionWU::GetAllPossibleValue(bool bAbvr, bool bName)
+	{
+		string str;
+		for (size_t i = 0; i < NB_COUNTRIES; i++)
+		{
+			str += i != 0 ? "|" : "";
+			if (bAbvr)
+				str += DEFAULT_LIST[i].m_abrv;
+			if (bAbvr && bName)
+				str += "=";
+			if (bName)
+				str += DEFAULT_LIST[i].m_name;
+		}
+
+		return str;
+	}
+
+	CCountrySelectionWU::CCountrySelectionWU(const std::string& in)
+	{
+		FromString(in);
+	}
+
+	string CCountrySelectionWU::GetName(size_t i, size_t t)
+	{
+		ASSERT(i < NB_COUNTRIES);
+		ASSERT(t < 2);
+		return DEFAULT_LIST[i].m_name;
+	}
+
+	string CCountrySelectionWU::ToString()const
+	{
+		string str;
+		if (any())
+		{
+			for (size_t i = 0; i < NB_COUNTRIES; i++)
+			{
+				if (at(i))
+				{
+					str += DEFAULT_LIST[i].m_abrv;
+					str += '|';
+				}
+			}
+		}
+		return str;
+		return str;
+	}
+
+	ERMsg CCountrySelectionWU::FromString(const string& in)
+	{
+		ERMsg msg;
+
+		reset();
+
+		StringVector tmp(in, "|;");
+		for (size_t i = 0; i < tmp.size(); i++)
+			msg += set(tmp[i]);
+
+		return msg;
+	}
+
+	size_t CCountrySelectionWU::GetCountry(const string& in, size_t t)//by abr
+	{
+		size_t country = -1;
+		string tmp(in);
+		if (tmp.length() != 2)
+			Trim(tmp);
+
+		MakeUpper(tmp);
+		for (size_t i = 0; i < NB_COUNTRIES; i++)
+		{
+			if (tmp == DEFAULT_LIST[i].m_abrv)
+			{
+				country = i;
+				break;
+			}
+		}
+
+		return country;
+	}
+
+
+
+	ERMsg CCountrySelectionWU::set(const std::string& country)
+	{
+		ERMsg message;
+		size_t p = GetCountry(country);
+		if (p < size())
+		{
+			set(p);
+		}
+		else
+		{
+			message.ajoute("This country is invalid : %s" + country);
+		}
+
+		return message;
+	}
+
 }
