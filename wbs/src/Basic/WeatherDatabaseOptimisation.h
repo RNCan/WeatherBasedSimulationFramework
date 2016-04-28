@@ -27,6 +27,7 @@ namespace WBSF
 
 	typedef std::map<__int64, std::pair<__int64, ULONGLONG> > CCanalPositionMap;
 	typedef std::deque<CApproximateNearestNeighborPtr> CApproximateNearestNeighborPtrVector;
+	typedef std::map<__int64, CApproximateNearestNeighborPtr> CApproximateNearestNeighborPtrMap;
 
 	class CSearchOptimisation
 	{

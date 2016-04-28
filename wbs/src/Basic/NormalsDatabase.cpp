@@ -601,7 +601,9 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 
 				if (bIncluded)
 				{
-					locations.push_back(*it);
+					CLocation pt = *it;//removel
+					pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+					locations.push_back(pt);
 					positions.push_back(index);
 				}
 			}//use it

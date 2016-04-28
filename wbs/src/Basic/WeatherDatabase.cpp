@@ -40,11 +40,16 @@ ERMsg CWeatherDatabase::ClearSearchOpt(const std::string& filePath)
 	string filePath1 = GetOptimisationSearchFilePath1(filePath);
 	string filePath2 = GetOptimisationSearchFilePath2(filePath);
 
+	__time64_t time = GetFileStamp(filePath);
+	__time64_t time1 = GetFileStamp(filePath1);
+	__time64_t time2 = GetFileStamp(filePath2);
+	bool bRemove = time > time1 || time > time2;
+
 	//Remove Search
-	if (FileExists(filePath1))
+	if (bRemove &&FileExists(filePath1))
 		msg += RemoveFile(filePath1);
 
-	if (FileExists(filePath2))
+	if (bRemove &&FileExists(filePath2) )
 		msg += RemoveFile(filePath2);
 
 	return msg;
@@ -268,9 +273,10 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 		callback.AddMessage(FormatMsg(IDS_BSC_SAVE_FILE, GetFileName(optFilePath)));
 
 		msg += m_zop.Save(optFilePath);
-		msg += ClearSearchOpt(referencedFilePath);
 	}
 
+
+	msg += ClearSearchOpt(referencedFilePath);
 
 	
 	return msg;
@@ -2012,7 +2018,9 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 					if (bIncluded)
 					{
-						locations.push_back(*it);
+						CLocation pt = *it;//removel
+						pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+						locations.push_back(pt);
 						positions.push_back(it - m_zop.begin());
 					}
 				}//File exist

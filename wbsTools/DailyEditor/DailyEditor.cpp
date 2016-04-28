@@ -5,7 +5,7 @@
 // 4.0.0	Rémi Saint-Amant	Initial version     from hourly editor 
  
 #include "stdafx.h"
-//#include "..\VisualLeakDetector\include\vld.h" 
+//#include "..\VisualLeakDetector\include\vld.h"  
 #include <gdiplus.h>
 #include <afxwinappex.h> 
 #include <afxdialogex.h>
@@ -20,8 +20,6 @@
 #include "DailyEditorDoc.h"
 #include "MainFrm.h"
 #include "OutputView.h"
-
-
 
 
 using namespace Gdiplus;

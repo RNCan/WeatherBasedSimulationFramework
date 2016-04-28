@@ -277,7 +277,8 @@
 #include "OutputView.h"
 #include "WeatherBasedSimulationUI.h"
 #include "WeatherBasedSimulationString.h"
-#include "afxres.h"
+//#include "afxres.h"
+
 
 
 

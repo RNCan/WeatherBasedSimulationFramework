@@ -86,31 +86,52 @@ namespace WBSF
 		//bAlreadyOpen = true;
 
 
-		if (!FileExists(filePathIndex))
-		{
-			//ASSERT(!bAlreadyOpen);
-			ASSERT(m_canalPosition.empty() && m_ANNs.empty());
+		//if (!FileExists(filePathIndex))
+		//{
+		//	//ASSERT(!bAlreadyOpen);
+		//	ASSERT(m_canalPosition.empty() && m_ANNs.empty());
 
+		//	//create empty data file
+		//	msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);
+		//	if (msg)
+		//	{
+		//		boost::archive::binary_oarchive ar(m_fileIndex, boost::archive::no_header);
 
-			msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::app, SH_DENYNO);
-			if (msg)
-			{
-				boost::archive::binary_oarchive ar(m_fileIndex, boost::archive::no_header);
+		//		int version = 0;
+		//		ar&VERSION;
+		//		ar&m_canalPosition;
+		//		m_fileIndex.close();
 
-				int version = 0;
-				ar&VERSION;
-				ar&m_canalPosition;
-				m_fileIndex.close();
-			}
-		}
+		//		//create empty file
+		//		msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
+		//		m_fileData.close();
+		//	}
+		//}
 
 		if (msg)
 		{
+			msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYNO
+			if (msg)
+				msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYWR
 
-			msg += m_fileIndex.open(filePathIndex, ios::in | ios::binary, SH_DENYNO);
-			msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);
 			if (msg)
 			{
+				//
+				//if (!msg)//already open
+				//{
+				//	
+				//	msg = m_fileData.open(filePathData, ios::in | ios::binary, SH_DENYNO);
+				//	if (msg)
+				//	{
+				//		std::ios_base::openmode _Mode = ios::in | ios::binary;
+				//		ASSERT(m_fileData.flags() == _Mode);
+				//		ASSERT( (m_fileData.flags()&ios::out)  == false);
+				//	}
+				//}
+
+
+				//				if (msg)
+				//			{
 				try
 				{
 					boost::archive::binary_iarchive ar(m_fileIndex, boost::archive::no_header);
@@ -124,27 +145,43 @@ namespace WBSF
 						m_filePathIndex = filePathIndex;
 						m_filePathData = filePathData;
 
-						//open now for writing
+						//open now for writing only to avoid exception throw in boost
 						m_fileIndex.close();
-						msg = m_fileIndex.open(filePathIndex, ios::out | ios::binary, SH_DENYNO);
+						msg = m_fileIndex.open(filePathIndex, ios::out | ios::binary);
 					}
 				}
 				catch (...)
 				{
-					//if (!bAlreadyOpen)
+					//if (m_fileData.flags()&ios::out)//onpen in ouput
 					//{
+					//the file is corrupted, the format have probably change. erase 
 					m_fileData.close();
 					msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
 
 					m_fileIndex.close();
-					msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc, SH_DENYNO);
+					msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc);
 					//}
 					if (msg)
 					{
 						m_filePathIndex = filePathIndex;
 						m_filePathData = filePathData;
 					}
+					//}
+					//else
+					//{
+					//	//fail even in read only mode... return error
+					//	msg.ajoute("fail to open search optimization in read only mode. Probably the file was saved at the same time");
+					//	msg.ajoute("\tfile:" + filePathData);
+					//
+					//}
+
 				}
+			}
+			else
+			{
+				//close both file and rebuild serch in memory
+				m_fileData.close();
+				m_fileIndex.close();
 			}
 		}
 
@@ -191,7 +228,28 @@ namespace WBSF
 
 	bool CSearchOptimisation::CanalExists(__int64 canal)const
 	{
+		
 		CCanalPositionMap::const_iterator it = m_canalPosition.find(canal);
+		
+		//bool bCanalExist = 
+		//if (bCanalExist && m_fileData.is_open())//enty must also exist in the data file
+		//{
+		//	bCanalExist = false;
+
+		//	const std::pair<__int64, ULONGLONG>& info = it->second;
+		//	if (info.first >= 0 && info.first < __int64(m_ANNs.size()))
+		//	{
+		//		ULONGLONG curPos = 0;
+		//		ULONGLONG length = 0;
+
+		//		CSearchOptimisation& me = const_cast<CSearchOptimisation&>(*this);
+		//		me.m_fileData.seekg(info.second, ios::beg);
+		//		me.m_fileData.read((char*)(&curPos), sizeof(curPos));
+		//		me.m_fileData.read((char*)(&length), sizeof(length));
+		//		bCanalExist = curPos == info.second && length > 0;
+		//	}
+		//}
+
 		return it != m_canalPosition.end();
 	}
 
@@ -200,32 +258,49 @@ namespace WBSF
 		//CMultiAppSync appSync;
 		//appSync.Do(mutexName, DoNothing);
 
-		std::pair<__int64, ULONGLONG> info;
+		//init wiht a default value of zero when the file is not open
+		std::pair<__int64, ULONGLONG> info((__int64)m_ANNs.size(), 0);
 
-		//if (!bAlreadyOpen)
-		//{
-		m_fileData.seekp(0, ios::end);
-		ULONGLONG curPos = m_fileData.tellp().seekpos();
-		info.first = (__int64)m_ANNs.size();
-		info.second = curPos;
+		if ( m_fileData.is_open())//open in output
+		{
+			if (CanalExists(canal))
+			{
+				//if the canal exist, therefor, the search data and index file is corrupted.
+				//the need to erase and begin again
+				m_ANNs.clear();
+				m_canalPosition.clear();
+				m_fileData.seekp(0, ios::beg);
 
-		std::stringstream ss;
-		boost::archive::binary_oarchive ar(ss, boost::archive::no_header);
-		ar << *pANN;
+				m_fileData.close();
+				m_fileData.open(m_filePathData, ios::in | ios::out | ios::binary | ios::trunc);
 
-		ULONGLONG length = ss.str().size();
-		ASSERT(length > 0);
+				m_fileIndex.close();
+				m_fileIndex.open(m_filePathIndex, ios::out | ios::binary | ios::trunc);
 
-		m_fileData.write((char*)(&curPos), sizeof(curPos));
-		m_fileData.write((char*)(&length), sizeof(length));
-		m_fileData << ss.rdbuf();
-		m_fileData.flush();
+			}
 
-		fpos_t test = m_fileData.tellp().seekpos();
-		ASSERT(test == curPos + length + sizeof(curPos) + sizeof(length));
-		//}
+			
+			m_fileData.seekp(0, ios::end);
+			ULONGLONG curPos = m_fileData.tellp().seekpos();
+			info.second = curPos;
 
-		m_ANNs.push_back(pANN);
+			std::stringstream ss;
+			boost::archive::binary_oarchive ar(ss, boost::archive::no_header);
+			ar << *pANN;
+
+			ULONGLONG length = ss.str().size();
+			ASSERT(length > 0);
+
+			m_fileData.write((char*)(&curPos), sizeof(curPos));
+			m_fileData.write((char*)(&length), sizeof(length));
+			m_fileData << ss.rdbuf();
+			m_fileData.flush();
+
+			fpos_t test = m_fileData.tellp().seekpos();
+			ASSERT(test == curPos + length + sizeof(curPos) + sizeof(length));
+		}
+
+		m_ANNs.push_back(pANN);//canal only add in memory
 		m_canalPosition[canal] = info;
 
 		//appSync.Leave();
@@ -238,23 +313,18 @@ namespace WBSF
 	{
 		CSearchOptimisation& me = const_cast<CSearchOptimisation&>(*this);
 
-		CCanalPositionMap::const_iterator it = m_canalPosition.find(canal);
+		CCanalPositionMap::iterator it = me.m_canalPosition.find(canal);
 		ASSERT(it != m_canalPosition.end());
 
 		if (it == m_canalPosition.end())
 			return CApproximateNearestNeighborPtr();
 
 
-
-
 		const std::pair<__int64, ULONGLONG>& info = it->second;
 		ASSERT(info.first >= 0 && info.first < __int64(m_ANNs.size()));
 		if (m_ANNs[info.first].get() == NULL)
 		{
-			ASSERT(m_fileData.is_open());
-
-			//CMultiAppSync appSync;
-			//appSync.Do(mutexName, DoNothing);
+			ASSERT(m_fileData.is_open());//if the file is not open, the canal must be loaded in memory
 
 			me.m_ANNs[info.first].reset(new CApproximateNearestNeighbor);
 
@@ -267,7 +337,6 @@ namespace WBSF
 			ASSERT(length > 0);
 			if (curPos == info.second && length > 0)
 			{
-				//std::vector<char>       buffer(length);
 				string buffer;
 				buffer.resize(length);
 				me.m_fileData.read((char*)(&buffer[0]), length);
@@ -277,7 +346,6 @@ namespace WBSF
 				// * Get the stringbuffer from the stream and set the vector as it source.
 
 				std::stringstream       localStream(buffer);
-				//localStream.rdbuf()->pubsetbuf(&buffer[0],length);
 
 				try
 				{
@@ -288,11 +356,14 @@ namespace WBSF
 				catch (...)
 				{
 					me.m_ANNs[info.first].reset();
-					//???
+					me.m_canalPosition.erase(it);
 				}
 			}
-
-			//appSync.Leave();
+			else
+			{
+				me.m_ANNs[info.first].reset();//
+				me.m_canalPosition.erase(it);
+			}
 		}
 
 
@@ -731,7 +802,7 @@ namespace WBSF
 
 	void CWeatherDatabaseOptimization::AddCanal(__int64 canal, CApproximateNearestNeighborPtr pANN)const
 	{
-		ASSERT(!CanalExists(canal));
+		//ASSERT(!CanalExists(canal));
 
 		CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
 		me.m_ANNs.AddCanal(canal, pANN);

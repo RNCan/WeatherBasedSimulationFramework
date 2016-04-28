@@ -181,6 +181,10 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 {
     ERMsg msg;
 
+
+	StringVector title(IDS_SIM_WEATHER_GROUP_DATAHEAD, ";|");
+	ASSERT(title.size() == 3);
+
 	CWVariables variables = WGInput.m_variables;
 	CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
 
@@ -219,10 +223,10 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 		{
 			int currentYear = CTRef::GetCurrentTRef().GetYear();
 			size_t nbYears = i == 0 ? 1 : WGInput.GetNbYears();
-
+			
 			int nbThreadsYear = min(CTRL.m_nbMaxThreads, (int)nbYears);//priority over years
 			int nbThreadsLoc = min(CTRL.m_nbMaxThreads/nbThreadsYear, (int)locations.size());//priority over location
-			callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbYears*variables.count()*locations.size());
+			callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE) + " (" + title[i]+")", nbYears*variables.count()*locations.size());
 
 			
 #pragma omp parallel for num_threads(nbThreadsYear) shared(msg) 
@@ -341,7 +345,7 @@ if (messageTmp)
 
 	omp_set_nested(nested);
 
-	callback.PopTask();
+	//callback.PopTask();
 
     return msg;
 }
