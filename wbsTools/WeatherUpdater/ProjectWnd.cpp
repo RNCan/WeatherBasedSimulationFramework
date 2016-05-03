@@ -21,6 +21,7 @@
 #include "Tasks/UISOPFEUHourly.h"
 #include "Tasks/UIBC.h"
 #include "Tasks/UIMDDELCC.h"
+#include "Tasks/UIWUnderground.h"
 
 
 #include "Tasks/CreateHourlyDB.h"
@@ -295,7 +296,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_MDDELCC_DAILY:	className = CUIMDDELCC::CLASS_NAME(); break;
 	case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
 	case ID_TASK_BC:			className = CUIBC::CLASS_NAME(); break;
-		//case ID_TASK_BC_SNOWPILLOW: str = ; break;
+	case ID_TASK_WU:			className = CUIWunderground::CLASS_NAME(); break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
@@ -413,9 +414,9 @@ void CTaskWnd::OnAdd(UINT ID)
 		CTaskPtr pTask = CTaskFactory::CreateObject(className);
 		ENSURE(pTask.get());
 
-		pTask->Init();
-		size_t size = pDoc->GetTaskVector(m_type).size();
-		pTask->m_name = /*pTask->GetTypeTitle(m_type)*/ className + to_string(size + 1);
+		pTask->Init(&pDoc->GetProject());
+		//size_t size = pDoc->GetTaskVector(m_type).size();
+		pTask->m_name = /*pTask->GetTypeTitle(m_type)*/ className;// +to_string(size + 1);
 		pTask->m_bExecute = true;
 
 		size_t pp = (p + 1);

@@ -14,7 +14,7 @@ namespace WBSF
 	ERMsg CEnvCanStationMap::Load(const std::string& filePath)
 	{
 		//zen::XmlDoc doc("LocationsList");
-
+		
 		return zen::LoadXML(filePath, "LocationsList", "1", *this );
 		//if (msg)
 			//readStruc(doc.root(), *this);

@@ -696,7 +696,7 @@ namespace WBSF
 	std::string CCountrySelectionWU::GetAllPossibleValue(bool bAbvr, bool bName)
 	{
 		string str;
-		for (size_t i = 0; i < NB_COUNTRIES; i++)
+		for (size_t i = 0; i < NB_COUNTRIES_WU; i++)
 		{
 			str += i != 0 ? "|" : "";
 			if (bAbvr)
@@ -717,7 +717,7 @@ namespace WBSF
 
 	string CCountrySelectionWU::GetName(size_t i, size_t t)
 	{
-		ASSERT(i < NB_COUNTRIES);
+		ASSERT(i < NB_COUNTRIES_WU);
 		ASSERT(t < 2);
 		return DEFAULT_LIST[i].m_name;
 	}
@@ -727,7 +727,7 @@ namespace WBSF
 		string str;
 		if (any())
 		{
-			for (size_t i = 0; i < NB_COUNTRIES; i++)
+			for (size_t i = 0; i < NB_COUNTRIES_WU; i++)
 			{
 				if (at(i))
 				{
@@ -761,7 +761,7 @@ namespace WBSF
 			Trim(tmp);
 
 		MakeUpper(tmp);
-		for (size_t i = 0; i < NB_COUNTRIES; i++)
+		for (size_t i = 0; i < NB_COUNTRIES_WU; i++)
 		{
 			if (tmp == DEFAULT_LIST[i].m_abrv)
 			{

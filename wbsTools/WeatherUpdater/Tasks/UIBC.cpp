@@ -19,8 +19,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
-	const char* CUIBC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = {"WorkingDir", "FirstYear", "LastYear", "Type", "UpdateStationList", "IgnoreEnvCan" };
-	const size_t CUIBC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_COMBO_INDEX, T_BOOL, T_BOOL };
+	const char* CUIBC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "FirstYear", "LastYear", "UpdateStationList", "IgnoreEnvCan" };
+	const size_t CUIBC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL };
 	const UINT CUIBC::ATTRIBUTE_TITLE_ID = IDS_UPDATER_BC_P;
 	const UINT CUIBC::DESCRIPTION_TITLE_ID = ID_TASK_BC;
 
@@ -107,6 +107,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "PCIC\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "1"; break;
@@ -241,13 +242,11 @@ namespace WBSF
 		}//for all years
 
 
-		callback.PopTask();
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
-
-
 		pConnection->Close();
 		pSession->Close();
 
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
+		callback.PopTask();
 
 		return msg;
 	}
@@ -343,6 +342,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		msg = LoadStationList(callback);
 		if (!msg)
 			return msg;

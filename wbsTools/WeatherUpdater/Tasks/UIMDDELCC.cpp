@@ -19,8 +19,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
-	const char* CUIMDDELCC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "IgnoreEnvCan" };
-	const size_t CUIMDDELCC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_BOOL };
+	const char* CUIMDDELCC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "UpdateUntil" };
+	const size_t CUIMDDELCC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING};
 	const UINT CUIMDDELCC::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MDDELCC_DAILY_P;
 	const UINT CUIMDDELCC::DESCRIPTION_TITLE_ID = ID_TASK_MDDELCC_DAILY;
 
@@ -56,15 +56,11 @@ namespace WBSF
 
 
 
-	/*std::string CUIBC::Option(size_t i)const
+	std::string CUIMDDELCC::Option(size_t i)const
 	{
 		string str;
-		switch (i)
-		{
-		case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
-		};
 		return str;
-	}*/
+	}
 
 	std::string CUIMDDELCC::Default(size_t i)const
 	{
@@ -72,9 +68,10 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "MDDELCC\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		case IGNORE_ENV_CAN:	str = "1"; break;
+		case UPDATE_UNTIL: str = "15"; break;
 		};
 		return str;
 	}
@@ -310,7 +307,7 @@ namespace WBSF
 							CTimeRef TRef1(info.m_time);
 							CTRef TRef2(year, m, LAST_DAY);
 
-							bNeedDownload[y][m] = !TRef1.IsInit() || TRef1 - TRef2 < 180; //let 180 days
+							bNeedDownload[y][m] = !TRef1.IsInit() || TRef1 - TRef2 < as<int>(UPDATE_UNTIL); //let UPDATE_UNTIL days
 							nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
 						}
 					}
@@ -444,8 +441,13 @@ namespace WBSF
 			}
 		}
 
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI));
 		callback.PopTask();
 
+
+
+		
 		return msg;
 	}
 
@@ -461,14 +463,20 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		int firstYear = as<int>(FIRST_YEAR);
-		int lastYear = as<int>(LAST_YEAR);
+		msg = m_stations.Load(GetStationListFilePath());
 
-		for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
+		if (msg)
 		{
-			if (!it->m_ID.empty() && it->m_ID[0] != '0')
-				stationList.push_back(it->m_ID);
+			int firstYear = as<int>(FIRST_YEAR);
+			int lastYear = as<int>(LAST_YEAR);
+
+			for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
+			{
+				if (!it->m_ID.empty() && it->m_ID[0] != '0')
+					stationList.push_back(it->m_ID);
+			}
 		}
+
 
 		return msg;
 	}
@@ -540,7 +548,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		enum{ YEAR, MONTH, DAY, MAX_TEMP, MIN_TEMP, TOTAL_RAIN, TOTAL_SNOW, TOTAL_PRECIP, SNOW_ON_GRND, NB_DAILY_COLUMN };
+		enum{ YEAR, MONTH, DAY, MAX_TEMP, MEAN_TEMP, MIN_TEMP, TOTAL_RAIN, TOTAL_SNOW, TOTAL_PRECIP, SNOW_ON_GRND, NB_DAILY_COLUMN };
 
 		//open file
 		ifStream file;
@@ -563,6 +571,7 @@ namespace WBSF
 
 
 				float Tmin = ToFloat((*loop)[MIN_TEMP]);
+				float Tair = ToFloat((*loop)[MEAN_TEMP]);
 				float Tmax = ToFloat((*loop)[MAX_TEMP]);
 
 
@@ -572,6 +581,11 @@ namespace WBSF
 					ASSERT(Tmax >= -70 && Tmax <= 70);
 					dailyData[Tref][H_TAIR] = (Tmin + Tmax) / 2;
 					dailyData[Tref][H_TRNG] = Tmax - Tmin;
+				}
+
+				if (Tair>-999)
+				{ 
+					//dailyData[Tref][H_TAIR] = Tair; a ajouter éventuellement
 				}
 
 				float prcp = ToFloat((*loop)[TOTAL_PRECIP]);

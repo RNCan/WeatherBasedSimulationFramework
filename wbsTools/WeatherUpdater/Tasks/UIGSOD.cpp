@@ -32,7 +32,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };
-	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE };
+	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT };
 	const UINT CUIGSOD::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GSOD_P;
 	const UINT CUIGSOD::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GSOD;
 
@@ -67,6 +67,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "GSOD\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -84,7 +85,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 		if (msg)
 		{
 			string path = GetHistoryFilePath(false);
@@ -139,14 +140,17 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 				if (toDo[0])
 				{
+					callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
 					msgTmp = FindDirectories(pConnection, SERVER_PATH, dirList);
+					callback.PopTask();
+
 					if (msgTmp)
 						toDo[0] = false;
 				}
@@ -196,7 +200,6 @@ namespace WBSF
 					}
 				}
 			}
-
 		}
 
 		callback.PopTask();
@@ -266,7 +269,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msgTmp)
 			{
 				TRY

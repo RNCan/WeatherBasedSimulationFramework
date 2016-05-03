@@ -50,6 +50,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "CIPRA"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -294,6 +295,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		msg = LoadStations(callback);
 		if (!msg)
 			return msg;

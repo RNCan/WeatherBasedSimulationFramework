@@ -69,6 +69,9 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "Geomatic/TimeZones.h"
 
+//#include "tasks/UIWunderground.h"
+
+
 #include <gdiplus.h>
 #include "OutputView.h"
 
@@ -185,6 +188,8 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
 
+	//CUIWunderground wu;
+	//ERMsg msg = wu.Execute(CCallback::DEFAULT_CALLBACK);
 
 	CWeatherUpdaterCmdLine cmdInfo;
 	ParseCommandLine(cmdInfo);

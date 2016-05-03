@@ -14,7 +14,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, DATA_TYPE, UPDATE_STATION_LIST, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, PROVINCE, UPDATE_STATION_LIST, NB_ATTRIBUTES };
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
 
 		static size_t GetNetwork(const std::string& network_name);
@@ -29,7 +29,7 @@ namespace WBSF
 		virtual TType ClassType()const;
 		virtual UINT GetTitleStringID()const{ return ATTRIBUTE_TITLE_ID; }
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
+		virtual bool IsHourly()const{ return false; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -41,12 +41,15 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+
+
 	protected:
 
-		std::string GetStationListFilePath()const;
-		std::string GetOutputFilePath(const std::string& ID, int year);
-
-		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback)const;
+		std::string GetStationListFilePath(const std::string& country)const;
+		std::string GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year);
+		ERMsg LoadStationList(CLocationVector& stationList, CCallback& callback)const;
+		ERMsg ExtractElevation(CLocationVector& stationList, CCallback& callback);
+		ERMsg DownloadStationList(const std::string& country, CLocationVector& stationList, CCallback& callback)const;
 		ERMsg LoadStationList(CCallback& callback);
 		ERMsg UpdateStationList(UtilWWW::CHttpConnectionPtr& pConnection, CCallback& callback)const;
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback)const;

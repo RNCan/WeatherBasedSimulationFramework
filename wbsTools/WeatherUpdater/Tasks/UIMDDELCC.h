@@ -14,7 +14,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, IGNORE_ENV_CAN, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, UPDATE_UNTIL, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMDDELCC); }
@@ -36,7 +36,7 @@ namespace WBSF
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual std::string Option(size_t i)const;
+		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
 	protected:

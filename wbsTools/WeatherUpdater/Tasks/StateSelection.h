@@ -7,8 +7,8 @@ namespace WBSF
 {
 
 	//*********************************************************************
-	enum { NB_STATES = 53 };
-	class CStateSelection : public std::bitset < NB_STATES >
+	enum { NB_USA_STATES = 53 };
+	class CStateSelection : public std::bitset < NB_USA_STATES >
 	{
 	public:
 
@@ -46,7 +46,7 @@ namespace WBSF
 
 		static void UpdateString();
 		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true);
-		static const CInfo DEFAULT_LIST[NB_STATES];
+		static const CInfo DEFAULT_LIST[NB_USA_STATES];
 
 		static size_t GetState(long stateID);
 		static size_t GetState(const std::string& in, size_t t = BY_ABVR);
@@ -57,14 +57,17 @@ namespace WBSF
 		std::string ToString()const;
 		ERMsg FromString(const std::string& in);
 
-		using std::bitset<NB_STATES>::at;
+		using std::bitset<NB_USA_STATES>::at;
 		bool at(const std::string& in)const
 		{
+			if (none())
+				return true;
+
 			size_t p = GetState(in);
 			return p < size() ? at(p) : false;
 		}
 
-		using std::bitset<NB_STATES>::set;
+		using std::bitset<NB_USA_STATES>::set;
 		ERMsg set(const std::string& in);
 
 		

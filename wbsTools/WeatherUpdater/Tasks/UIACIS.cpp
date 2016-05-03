@@ -95,6 +95,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "ACIS\\"; break;
 		case DATA_TYPE: str = "1"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
@@ -327,7 +328,7 @@ namespace WBSF
 		pSession.release();
 
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
 		callback.PopTask();
 
 		return msg;
@@ -608,6 +609,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		msg = m_stations.Load(GetStationListFilePath());
 
 		if (msg)

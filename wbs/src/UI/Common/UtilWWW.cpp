@@ -179,6 +179,7 @@ namespace UtilWWW
 
 				text.resize(newLen);
 				WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, &(text[0]), newLen, 0, 0);
+				text.resize(strlen(text.c_str()));
 			}
 
 			//textOut.ReleaseBuffer();
@@ -735,30 +736,13 @@ namespace UtilWWW
 
 		TRY
 		{
-				
-			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 5000);
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 5000);
+			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 15000);
+			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
 			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
 			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
-				
 
-			//INTERNET_FLAG_RAW_DATA|
-			//pConnection.reset( ISession.GetFtpConnection(serverName, "ftp", "rstamant@RNCan.gc.ca", INTERNET_DEFAULT_FTP_PORT, bPassif) );
-			//pConnection.reset( pSession->GetFtpConnection(serverName, "anonymous", " ", INTERNET_DEFAULT_FTP_PORT, (i%2)?!bPassif:bPassif) );
 			pConnection.reset( pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif) );
-				
-				
-
-			//ISession.SetOption(INTERNET_OPTION_EXTENDED_ERROR, 1);
-				
-			//DWORD value;
-			//pSession->QueryOption(INTERNET_OPTION_READ_BUFFER_SIZE, value);
-			//pSession->QueryOption(INTERNET_OPTION_WRITE_BUFFER_SIZE, value);
-			//pSession->QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, value);
-			//pSession->QueryOption(INTERNET_OPTION_RECEIVE_TIMEOUT, value);
-			//pSession->QueryOption(INTERNET_OPTION_EXTENDED_ERROR, value);
-
 				
 		}
 		CATCH_ALL(e)

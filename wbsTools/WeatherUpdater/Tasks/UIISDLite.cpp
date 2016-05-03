@@ -26,7 +26,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CUIISDLite::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States"};
-	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE};
+	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT};
 	const UINT CUIISDLite::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_ISD_LITE_P;
 	const UINT CUIISDLite::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_ISD_LITE;
 
@@ -63,6 +63,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "ISD-Lite\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};

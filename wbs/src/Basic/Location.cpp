@@ -603,7 +603,7 @@ namespace WBSF
 		{
 			if (msg)
 			{
-				msg = Load(file, separator);
+				msg = Load(file, separator, callback);
 				if (msg)
 					m_filePath = filePath;
 			}
@@ -670,7 +670,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			msg = Save(file, separator);
+			msg = Save(file, separator, callback);
 			if (msg)
 				me.m_filePath = filePath;
 

@@ -75,7 +75,7 @@ namespace WBSF
 			return str;
 		}
 
-		CTRef GetTRef()const;
+		CTRef GetTRef(CTM TM)const;
 
 
 		double operator[](size_t v)const
@@ -96,7 +96,7 @@ namespace WBSF
 
 		bool end()const{ return (*m_loop) == CSVIterator(); }
 
-		bool IsHourly()const{ return m_bHourlyData; }
+		//bool IsHourly()const{ return m_bHourlyData; }
 
 	protected:
 
@@ -104,7 +104,7 @@ namespace WBSF
 		ifStream m_file;
 		std::vector<size_t> m_members;
 		std::map<size_t, size_t> m_pos;
-		bool m_bHourlyData;
+		bool m_bHaveTime;
 
 	};
 
@@ -128,12 +128,14 @@ namespace WBSF
 			NB_SNOTEL_VARIABLES
 		};
 
-		enum TAttributes { WORKING_DIR, TEMPORAL_TYPE, STATES, FIRST_YEAR, LAST_YEAR, UPDATE_STATIONLIST, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, DATA_TYPE, STATES, FIRST_YEAR, LAST_YEAR, UPDATE_UNTIL, UPDATE_STATIONLIST, NB_ATTRIBUTES };
 		static const char* SNOTEL_VAR_NAME[NB_SNOTEL_VARIABLES];
 		static const char* TEMPORAL_TYPE_NAME[NB_TEMPORAL_TYPE];
 		static size_t GetVariable(const std::string& strType);
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUISnoTel); }
+		static bool IsInclude(size_t state);
+		static std::string GetSnoTelPossibleValue();
 
 		CUISnoTel(void);
 		virtual ~CUISnoTel(void);
@@ -141,7 +143,7 @@ namespace WBSF
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);

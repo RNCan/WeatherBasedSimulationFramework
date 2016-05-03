@@ -41,11 +41,12 @@ const char* CUIGHCND::ELEM_CODE[NB_ELEMENT] =
 	"EVAP", "MNPN", "MXPN", "TOBS", "WDMV"
 };
 
-short CUIGHCND::GetElementType(const char* type)
+size_t CUIGHCND::GetElementType(const char* str)
 {
-	short pos = -1;
-    for(int i=0; i<NB_ELEMENT&&pos==-1; i++)
-		if( IsEqualNoCase(type, ELEM_CODE[i]) )
+	//if (var == TMIN || var == TMAX || var == PRCP || var == AWND || var == WESF || var == SNWD || var == WESD)
+	size_t pos = NOT_INIT;
+	for (int i = 0; i<NB_ELEMENT&&pos == NOT_INIT; i++)
+		if( IsEqualNoCase(str, ELEM_CODE[i]) )
             pos = i;
 
     return pos;
@@ -57,7 +58,7 @@ const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
 
 //*********************************************************************
 const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "ShowProgress" };
-const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE, T_STRING_BROWSE, T_BOOL };
+const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
 const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
 const UINT CUIGHCND::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GHCND;
 
@@ -91,6 +92,7 @@ std::string CUIGHCND::Default(size_t i)const
 
 	switch (i)
 	{
+	case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "GHCN\\"; break;
 	case FIRST_YEAR:
 	case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 	};
@@ -110,7 +112,7 @@ ERMsg CUIGHCND::UpdateStationHistory(CCallback& callback)
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 	
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 	if (msg)
 	{
 		string path = GetStationFilePath(false);
@@ -142,19 +144,17 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 
 	fileList.clear();
 
-	///int nbYears = m_lastYear-m_firstYear+1;
-
 	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), 1);
-	//callback.SetNbStep(1);
+	
 
 	//open a connection on the server
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 		
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 	if (msg)
 	{
-		//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
+		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
 		string filter = string(SERVER_PATH) + "by_year/*.gz";
 		msg = FindFiles(pConnection, filter, fileList, callback);	
 
@@ -579,7 +579,7 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 			{
 				double Tmin = (double)dataYear[jd][V_TMIN];
 				double Tmax = (double)dataYear[jd][V_TMAX];
-				assert(Tmin<Tmax);
+				assert(Tmin<=Tmax);
 				if (Tmin > Tmax)
 					Switch(Tmin, Tmax);
 
@@ -846,142 +846,144 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 				const string& date = (*loop)[GHCN_DATE];
 				ASSERT(date.length() == 8);
 
-				int year = ToValue<int>(date.substr(0, 4)); ASSERT(year >= 1800 && year<2020);
-				int month = ToValue<int>(date.substr(4, 2)) - 1; ASSERT(month >= 0 && month<12);
-				int day = ToValue<int>(date.substr(6, 2)) - 1; ASSERT(day >= 0 && day<GetNbDayPerMonth(year, month));
+				int year = ToInt(date.substr(0, 4)); ASSERT(year >= 1800 && year<2020);
+				int month = ToInt(date.substr(4, 2)) - 1; ASSERT(month >= 0 && month<12);
+				int day = ToInt(date.substr(6, 2)) - 1; ASSERT(day >= 0 && day<GetNbDayPerMonth(year, month));
 				ASSERT(day >= 0 && day<GetNbDayPerMonth(year, month));
 
 				if (day >= 0 && day<GetNbDayPerMonth(year, month))
 				{
 					CTRef TRef(year, month, day);
 
-					int type = GetElementType((*loop)[GHCN_ELEMENT].c_str());
-					string strValue = TrimConst((*loop)[GHCN_DATA]);
-					char Mf1 = (*loop)[GHCN_M].empty() ? ' ' : ToValue<char>((*loop)[GHCN_M]);
-					char Qf2 = (*loop)[GHCN_Q].empty() ? ' ' : ToValue<char>((*loop)[GHCN_Q]);
-					char Sf3 = (*loop)[GHCN_S].empty() ? ' ' : ToValue<char>((*loop)[GHCN_S]);
-					
-
-					float value = ToFloat(strValue);
-
-					if (!strValue.empty() && Qf2 == ' ')//is valid
+					size_t var = GetElementType((*loop)[GHCN_ELEMENT].c_str());
+					if (var == TMIN || var == TMAX || var == PRCP || var == AWND || var == WESF || var == SNWD || var == WESD)
 					{
-						switch (type)
+
+						//char Mf1 = (*loop)[GHCN_M].empty() ? ' ' : ToChar((*loop)[GHCN_M]);
+						char Qf2 = (*loop)[GHCN_Q].empty() ? ' ' : ToChar((*loop)[GHCN_Q]);
+						//char Sf3 = (*loop)[GHCN_S].empty() ? ' ' : ToChar((*loop)[GHCN_S]);
+
+						string strValue = TrimConst((*loop)[GHCN_DATA]);
+						if (!strValue.empty() && Qf2 == ' ')//is valid
 						{
-
-						case TMIN:
-							ASSERT(value>-999 && value<999 || value == -9999);
-							if (value > -999 && value < 999)
+							float value = ToFloat((*loop)[GHCN_DATA]);
+							switch (var)
 							{
-								//10e of °C --> °C
-								data[ID][year][TRef.GetJDay()][V_TMIN] = value / 10;
-							}
-							break;
 
-						case TMAX:
-							ASSERT(value > -999 && value < 999 || value == -9999);
-							if (value > -999 && value < 999)
-							{
-								//10e of °C --> °C
-								data[ID][year][TRef.GetJDay()][V_TMAX] = value / 10;
-							}
-							break;
+							case TMIN:
+								ASSERT(value > -999 && value < 999 || value == -9999);
+								if (value > -999 && value < 999)
+								{
+									//10e of °C --> °C
+									data[ID][year][TRef.GetJDay()][V_TMIN] = value / 10;
+								}
+								break;
 
-						
-						case PRCP:
-							ASSERT((int)value >= 0 && value < 9999 || value == -9999);
-							if ((int)value >= 0 && value < 9999)
-							{
-								//10e of mm --> mm
-								data[ID][year][TRef.GetJDay()][V_PRCP] = value / 10;
-							}
-							break;
+							case TMAX:
+								ASSERT(value > -999 && value < 999 || value == -9999);
+								if (value > -999 && value < 999)
+								{
+									//10e of °C --> °C
+									data[ID][year][TRef.GetJDay()][V_TMAX] = value / 10;
+								}
+								break;
 
-						case AWND://Wind speed
-							ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
-							if ((int)value >= 0 && value < 9999)
-							{
-								//10e of m/s --> km/h
-								data[ID][year][TRef.GetJDay()][V_AWND] = (value / 10) * 3600 / 1000;
-							}
-							break;
 
-						case WESF: //Water equivalent of snowfall
-							ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
-							if ((int)value >= 0 && value < 9999)
-							{
-								//10e of mm --> mm
-								data[ID][year][TRef.GetJDay()][V_WESF] = (value / 10);
-							}
-							break;
-						case SNWD://snow depth
-							ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
-							if ((int)value >= 0 && value < 9999)
-							{
-								//mm --> cm
-								data[ID][year][TRef.GetJDay()][V_SNWD] = (value / 10);
-							}
-							break;
+							case PRCP:
+								ASSERT((int)value >= 0 && value < 9999 || value == -9999);
+								if ((int)value >= 0 && value < 9999)
+								{
+									//10e of mm --> mm
+									data[ID][year][TRef.GetJDay()][V_PRCP] = value / 10;
+								}
+								break;
 
-						case WESD://Water equivalent of snow on the ground
-							ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
-							if ((int)value >= 0 && value < 9999)
-							{
-								//10e of mm --> mm
-								data[ID][year][TRef.GetJDay()][V_WESD] = (value / 10);
+							case AWND://Wind speed
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value < 9999)
+								{
+									//10e of m/s --> km/h
+									data[ID][year][TRef.GetJDay()][V_AWND] = (value / 10) * 3600 / 1000;
+								}
+								break;
+
+							case WESF: //Water equivalent of snowfall
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value < 9999)
+								{
+									//10e of mm --> mm
+									data[ID][year][TRef.GetJDay()][V_WESF] = (value / 10);
+								}
+								break;
+							case SNWD://snow depth
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value < 9999)
+								{
+									//mm --> cm
+									data[ID][year][TRef.GetJDay()][V_SNWD] = (value / 10);
+								}
+								break;
+
+							case WESD://Water equivalent of snow on the ground
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value < 9999)
+								{
+									//10e of mm --> mm
+									data[ID][year][TRef.GetJDay()][V_WESD] = (value / 10);
+								}
+								break;
+
+
+
+								//case DPTP:
+								//	ASSERT( value > -999 && value < 999 || value==99999 );
+								//	//ASSERT( unit == "TF");
+								//	if( value > -999 && value < 999 )
+								//	{
+								//		//test
+								//		value = (value/10.0f-32)*5.f/9.f;//10e of Fahrenheit - > °C
+								//		data(year)[month][day].SetData(H_TDEW, value);
+								//	}
+								//	break;
+								//case MNRH:
+								//	ASSERT( (int)value >=0 && (int)value<=100 || value==99999);
+								//	//ASSERT( unit == "P ");
+								//	if( (int)value>=0 && (int)value<=100)
+								//	{
+								//		CStatistic stat = data(year)[month][day].GetData(H_RELH);
+								//		stat += value;
+								//		data(year)[month][day].SetData(H_RELH, stat);
+								//	}
+								//	break;
+								//case MXRH:
+								//	ASSERT( (int)value >=0 && (int)value<=100 || value==99999);
+								//	//ASSERT( unit == "P ");
+								//	if( (int)value>=0 && (int)value<=100)
+								//	{
+								//		CStatistic stat = data(year)[month][day].GetData(H_RELH);
+								//		stat += value;
+								//		data(year)[month][day].SetData(H_RELH, stat);
+								//	}
+								//	break;
+								//case -1:
+								//case SNOW:
+								//case EVAP:
+								//case MNPN:
+								//case MXPN:
+								//case PGTM:
+								//case TOBS:
+								//case WDMV:
+								//case FMTM: break;
+								//default: ASSERT(false);
 							}
-							break;
-
-						
-
-							//case DPTP:
-							//	ASSERT( value > -999 && value < 999 || value==99999 );
-							//	//ASSERT( unit == "TF");
-							//	if( value > -999 && value < 999 )
-							//	{
-							//		//test
-							//		value = (value/10.0f-32)*5.f/9.f;//10e of Fahrenheit - > °C
-							//		data(year)[month][day].SetData(H_TDEW, value);
-							//	}
-							//	break;
-							//case MNRH:
-							//	ASSERT( (int)value >=0 && (int)value<=100 || value==99999);
-							//	//ASSERT( unit == "P ");
-							//	if( (int)value>=0 && (int)value<=100)
-							//	{
-							//		CStatistic stat = data(year)[month][day].GetData(H_RELH);
-							//		stat += value;
-							//		data(year)[month][day].SetData(H_RELH, stat);
-							//	}
-							//	break;
-							//case MXRH:
-							//	ASSERT( (int)value >=0 && (int)value<=100 || value==99999);
-							//	//ASSERT( unit == "P ");
-							//	if( (int)value>=0 && (int)value<=100)
-							//	{
-							//		CStatistic stat = data(year)[month][day].GetData(H_RELH);
-							//		stat += value;
-							//		data(year)[month][day].SetData(H_RELH, stat);
-							//	}
-							//	break;
-						//case -1:
-						//case SNOW:
-						//case EVAP:
-						//case MNPN:
-						//case MXPN:
-						//case PGTM:
-						//case TOBS:
-						//case WDMV:
-						//case FMTM: break;
-						//default: ASSERT(false);
-						}
-					}//end if flag
-					else
-					{
-						int i;
-						i = 0;
-						//return msg;
-					}//data is valid
+						}//end if flag
+						else
+						{
+							int i;
+							i = 0;
+							//return msg;
+						}//data is valid
+					}//it' a good variable
 				}//day is valid
 			}//valid stations
 
@@ -996,3 +998,4 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 
 
 }
+

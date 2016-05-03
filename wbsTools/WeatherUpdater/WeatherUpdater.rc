@@ -108,6 +108,7 @@ BEGIN
 	BUTTON      ID_TASK_MDDELCC_DAILY
     BUTTON      ID_TASK_SOPFEU
 	BUTTON      ID_TASK_BC
+	BUTTON      ID_TASK_WU
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -153,6 +154,7 @@ BEGIN
 	BUTTON      ID_TASK_MDDELCC_DAILY
     BUTTON      ID_TASK_SOPFEU
 	BUTTON      ID_TASK_BC
+	BUTTON		ID_TASK_WU
     BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -500,106 +502,107 @@ BEGIN
     ID_EDIT_CUT             "Coupe la sélection et la place dans le Presse-papiers\nCouper"
     ID_EDIT_FIND            "Recherche le texte spécifié\nRechercher"
     ID_EDIT_PASTE           "Insère le contenu du presse-papiers\nColler"
-    ID_EDIT_REPEAT          "Répète la dernière action\nRépéter"
-    ID_EDIT_REPLACE         "Remplace un texte spécifié par un texte différent\nRemplacer"
-    ID_EDIT_SELECT_ALL      "Sélectionne l'intégralité du document\nSélectionner tout"
-    ID_EDIT_UNDO            "Annule la dernière action\nAnnuler"
-    ID_EDIT_REDO            "Rétablit l'action précédemment annulée\nRétablir"
+ID_EDIT_REPEAT          "Répète la dernière action\nRépéter"
+ID_EDIT_REPLACE         "Remplace un texte spécifié par un texte différent\nRemplacer"
+ID_EDIT_SELECT_ALL      "Sélectionne l'intégralité du document\nSélectionner tout"
+ID_EDIT_UNDO            "Annule la dernière action\nAnnuler"
+ID_EDIT_REDO            "Rétablit l'action précédemment annulée\nRétablir"
 END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_STATUS_BAR      "Affiche ou masque la barre d'état\nBarre d'état"
+ID_VIEW_STATUS_BAR      "Affiche ou masque la barre d'état\nBarre d'état"
 END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_SCSIZE          "Modifie la taille de la fenêtre"
-    AFX_IDS_SCMOVE          "Modifie la position de la fenêtre"
-    AFX_IDS_SCMINIMIZE      "Réduit la fenêtre en icône"
-    AFX_IDS_SCMAXIMIZE      "Affiche la fenêtre en plein écran"
-    AFX_IDS_SCNEXTWINDOW    "Bascule vers la fenêtre de document suivante"
-    AFX_IDS_SCPREVWINDOW    "Bascule vers la fenêtre de document précédente"
-    AFX_IDS_SCCLOSE         "Ferme la fenêtre active et demande si les documents doivent être enregistrés"
+AFX_IDS_SCSIZE          "Modifie la taille de la fenêtre"
+AFX_IDS_SCMOVE          "Modifie la position de la fenêtre"
+AFX_IDS_SCMINIMIZE      "Réduit la fenêtre en icône"
+AFX_IDS_SCMAXIMIZE      "Affiche la fenêtre en plein écran"
+AFX_IDS_SCNEXTWINDOW    "Bascule vers la fenêtre de document suivante"
+AFX_IDS_SCPREVWINDOW    "Bascule vers la fenêtre de document précédente"
+AFX_IDS_SCCLOSE         "Ferme la fenêtre active et demande si les documents doivent être enregistrés"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_NB_SELECTED_TASK    "Sélectionnnées = "
+IDS_NB_SELECTED_TASK    "Sélectionnnées = "
 END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_SCRESTORE       "Restaure la fenêtre à sa taille normale"
-    AFX_IDS_SCTASKLIST      "Active la liste des tâches"
+AFX_IDS_SCRESTORE       "Restaure la fenêtre à sa taille normale"
+AFX_IDS_SCTASKLIST      "Active la liste des tâches"
 END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_PREVIEW_CLOSE   "Fermer"
+AFX_IDS_PREVIEW_CLOSE   "Fermer"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard "
-    IDS_TOOLBAR_STATUS      "Barre d'état "
+IDS_TOOLBAR_STANDARD    "Standard "
+IDS_TOOLBAR_STATUS      "Barre d'état "
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATE_DIR          "Mise a jour du répertoire :"
-    IDS_UPDATE_FROM         "à partir du site : "
-    IDS_NB_STATIONS         "Le nombre de stations trouvés : "
-    IDS_UPDATE_FILE         "Mise à jour des fichiers de données"
-    IDS_UPDATE_END          " : %1/%2 fichier(s) mis à jour"
-    IDS_CREATE_DB           "Création de la base de données : "
-    IDS_FROM_DIR            "à partir des fichiers du répertoire :"
-    IDS_WORD_TASK           "Tâches"
+IDS_UPDATE_DIR          "Mise a jour du répertoire :"
+IDS_UPDATE_FROM         "à partir du site : "
+IDS_NB_STATIONS         "Le nombre de stations trouvés : "
+IDS_UPDATE_FILE         "Mise à jour des fichiers de données"
+IDS_UPDATE_END          " : %1/%2 fichier(s) mis à jour"
+IDS_CREATE_DB           "Création de la base de données : "
+IDS_FROM_DIR            "à partir des fichiers du répertoire :"
+IDS_WORD_TASK           "Tâches"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_TASK_NOT_EXIST      "La tâche %1 n'existe pas. Vérifier l'orthographe et l'existence de cette tâche."
-    IDS_CLEAN_LIST          "Purification de la liste des fichiers..."
-    IDS_LOAD_FILE_LIST      "Chargement de la liste des fichiers..."
-    IDS_SAVE_PROJET         "Vous devez sauvegerder votre projet avant de pouvoir ajouter une tâche."
-    IDS_NB_FILES_CLEARED    "Le nombre de fichiers après nettoyage : "
-    IDS_NB_FILES_DOWNLOADED "Le nombre de fichiers téléchargés : "
-    IDS_LOAD_PAGE           "%1: %2 pages(s) de stations à télécharger"
-    IDS_NB_FILES_FOUND      "Le nombre de fichiers trouvés : "
-    IDS_ZIP_FILE            "Compression des fichiers..."
-    IDS_UNZIP_FILE          "Décompression des fichiers..."
-    IDS_INVALID_PASSWORD    "La combinaison {usagé, mot de passe} est invalide"
-    IDS_INVALID_NOAA_DATFILE 
-                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""DSET"""
-    IDS_INVALID_NOAA_STNFILE 
-                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""COOPID""."
-    IDS_UNKNOWN_TASK        "La tâche ""%1"" a un type inconnu(%2)."
-    IDS_INVALID_INPUT_TASK  "Une tâche de la catégorie téléchargement doit être spécifiée comme tâche de données"
-    IDS_LOAD_STATION_LIST   "Chargement de la liste des stations"
+IDS_TASK_NOT_EXIST      "La tâche %1 n'existe pas. Vérifier l'orthographe et l'existence de cette tâche."
+IDS_CLEAN_LIST          "Purification de la liste des fichiers..."
+IDS_LOAD_FILE_LIST      "Chargement de la liste des fichiers..."
+IDS_SAVE_PROJET         "Vous devez sauvegerder votre projet avant de pouvoir ajouter une tâche."
+IDS_NB_FILES_CLEARED    "Le nombre de fichiers après nettoyage : "
+IDS_NB_FILES_DOWNLOADED "Le nombre de fichiers téléchargés : "
+IDS_LOAD_PAGE           "%1: %2 pages(s) de stations à télécharger"
+IDS_NB_FILES_FOUND      "Le nombre de fichiers trouvés : "
+IDS_ZIP_FILE            "Compression des fichiers..."
+IDS_UNZIP_FILE          "Décompression des fichiers..."
+IDS_INVALID_PASSWORD    "La combinaison {usagé, mot de passe} est invalide"
+IDS_INVALID_NOAA_DATFILE
+"Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""DSET"""
+IDS_INVALID_NOAA_STNFILE
+"Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""COOPID""."
+IDS_UNKNOWN_TASK        "La tâche ""%1"" a un type inconnu(%2)."
+IDS_INVALID_INPUT_TASK  "Une tâche de la catégorie téléchargement doit être spécifiée comme tâche de données"
+IDS_LOAD_STATION_LIST   "Chargement de la liste des stations"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_SERVER_DOWN         "Serveur de base de données en panne, ou erreur pendant l'exécution d'une requête"
-    IDS_NO_WEATHER          "Il n'y pas de données météo utiles pour la station :"
-    IDS_NO_STATION_INFORMATION 
-                            "Il n'y a pas d'information pour la station : %1"
-    IDS_NUMBER_FILES        "Le nombre de fichier à télécharger = "
-    IDS_UNABLE_DOWNLOAD_LIST 
-                            "Impossible de télécharger la liste des fichiers. Réessayer plus tard."
-    IDS_UNABLE_DOWNLOAD_DEFENITION 
-                            "Incapable de trouver le fichier de définition (ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). Le serveur peux être en problème ou votre pare-feu empâche l'application de télécharger l'information."
-    IDS_CLIP_WEATHER        "Rogner une base de données météorologiques"
-    IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
-    IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
-    IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
-    IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
-    IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
-    IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
-    IDS_GET_STATION_LIST    "Recherche de la liste des stations"
-    IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
-    IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+IDS_SERVER_DOWN         "Serveur de base de données en panne, ou erreur pendant l'exécution d'une requête"
+IDS_NO_WEATHER          "Il n'y pas de données météo utiles pour la station :"
+IDS_NO_STATION_INFORMATION
+"Il n'y a pas d'information pour la station : %1"
+IDS_NUMBER_FILES        "Le nombre de fichier à télécharger = "
+IDS_UNABLE_DOWNLOAD_LIST
+"Impossible de télécharger la liste des fichiers. Réessayer plus tard."
+IDS_UNABLE_DOWNLOAD_DEFENITION
+"Incapable de trouver le fichier de définition (ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). Le serveur peux être en problème ou votre pare-feu empâche l'application de télécharger l'information."
+IDS_CLIP_WEATHER        "Rogner une base de données météorologiques"
+IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
+IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
+IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
+IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
+IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
+IDS_GET_STATION_LIST    "Recherche de la liste des stations"
+IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
+IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+IDS_SNOTEL_DATA_TYPE	"Horaire|Quotidien|Mensuel"
 END
 
 STRINGTABLE
@@ -634,7 +637,7 @@ BEGIN
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
-    IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Première année|Dernière année|Type|États|Mettre à jour la liste des stations"
+    IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)"
 END
 
@@ -647,17 +650,17 @@ BEGIN
     IDS_UPDATER_ACIS_P 
 							"Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année"
     IDS_UPDATER_MDDELCC_DAILY_P 
-							"Répertoire de travail|Première année|Dernière année|Ignoré les stations d'Environnement Canada"
+	"Répertoire de travail|Première année|Dernière année|Télécharger pendant x jours"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_BC_P   "Répertoire de travail|Première année|Dernière année|Type|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
+    IDS_UPDATER_BC_P   "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
+	IDS_UPDATER_WU_P   "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)|Mise à jours des coordonnées"
+	
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_BC_SNOWPILLOW 
-                            "Télécharger les données quotidiennes ""Automated Snow Pillow Data"" de la Colombie Britannique"
     IDS_UPDATER_BC_SNOWPILLOW_P "Répertoire de travail"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
@@ -671,7 +674,7 @@ BEGIN
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie"
-    IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations"
+    IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
     IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si compresser)|Include sous-répertoires (si compresser)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
@@ -722,6 +725,7 @@ BEGIN
 	ID_TASK_MDDELCC_DAILY   "Télécharger les données quotidiennes du MDDELCC (""Ministère du Développement durable, de l’Environnement et de la Lutte contre les changements climatiques"")\nMDDELCC quotidien"
     ID_TASK_SOPFEU          "Télécharger les données horaires de la SOPFEU\nSOPFEU"
 	ID_TASK_BC				"Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
+	ID_TASK_WU				"Télécharger les données Weather Uderground\nWeather Underground"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1042,6 +1046,7 @@ BEGIN
     IDS_GET_STATION_LIST    "Looking for stations list"
     IDS_PRIORITY_RULES      "Largest amount of data|Greatest number of years|Oldest data|Newest data"
     IDS_UPLOAD              "Uploading file with FTPTrasnfer...\r\nThis can take several minutes."
+	IDS_SNOTEL_DATA_TYPE	"Hourly|Daily|Monthly"
 END
 
 STRINGTABLE
@@ -1084,7 +1089,7 @@ BEGIN
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First Year|Last Year|Country|States (if USA)"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First Year|Last Year|Country|States (if USA)"
-    IDS_UPDATER_SNOTEL_P    "Working directory|First Year|Last Year|Type|States|Update station list"
+    IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First Year|Last Year|Update until x days|Update station list"
     IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)"
 END
 
@@ -1097,15 +1102,15 @@ BEGIN
     IDS_UPDATER_ACIS_P 
                             "User Name|Password|Working directory|Data Type|First Year|Last Year"
 	IDS_UPDATER_MDDELCC_DAILY_P
-                            "Working directory|First Year|Last Year|Ignor Environnement Canada stations"
+                            "Working directory|First Year|Last Year|Update until x days"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-	IDS_UPDATER_BC_P		"Working directory|First Year|Last Year|type|Update coordinates|Ignor Environnement Canada stations"
+	IDS_UPDATER_BC_P		"Working directory|type|First Year|Last Year|Update coordinates|Ignor Environnement Canada stations"
+	IDS_UPDATER_WU_P		"Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)|Update coordinates"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_BC_SNOWPILLOW "Downlaod BC Snow Pillow daily data"
     IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First Year|Last Year"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
@@ -1119,7 +1124,7 @@ BEGIN
     IDS_TOOL_CREATE_GRIBS_P "Data Task|Output File|First date|Last date"
     IDS_TOOL_MERGE_DB_P     "Input File 1|Input File 2|Output file path|Max Distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input File 1|Input File 2|Output File"
-    IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath"
+    IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
     IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip Filter (if Zip)|Include sub-directory (if zip)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local File|User Name|Password|Connection Type|Connection Timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
@@ -1170,6 +1175,7 @@ BEGIN
 	ID_TASK_MDDELCC_DAILY   "Download MDDELCC (""Ministère du Développement durable, de l’Environnement et de la Lutte contre les changements climatiques"") daily data\nMDDELCC Daily"
     ID_TASK_SOPFEU          "Download SOPFEU hourly data\nSOPFEU"
 	ID_TASK_BC			    "Download British Comlombia data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish Comlombia Weather"
+	ID_TASK_WU			    "Download Weather Underground data\nWeather Underground"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

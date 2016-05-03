@@ -37,7 +37,7 @@ namespace WBSF
 
 		enum TSimpleGHCN{ V_TMIN, V_TMAX, V_PRCP, V_AWND, V_WESF, V_SNWD, V_WESD, NB_VARIABLES };
 		static const int GHCN_VARIABLES[NB_VARIABLES];
-		static short GetElementType(const char* type);
+		static size_t GetElementType(const char* type);
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIGHCND); }
 

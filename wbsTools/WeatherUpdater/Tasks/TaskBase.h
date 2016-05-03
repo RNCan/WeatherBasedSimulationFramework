@@ -15,7 +15,7 @@ namespace WBSF
 
 	class CWeatherStation;
 	//*********************************************************************
-	enum { T_STRING, T_STRING_BROWSE, T_BOOL, T_COMBO_INDEX, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, T_URL, NB_TYPE };
+	enum { T_STRING, T_STRING_SELECT, T_BOOL, T_COMBO_INDEX, T_COMBO_STRING, T_PATH, T_FILEPATH, T_GEOPOINT, T_GEORECT, T_PASSWORD, T_DATE, T_UPDATER, T_URL, NB_TYPE };
 
 	class CTaskAttribute
 	{
@@ -123,7 +123,7 @@ namespace WBSF
 		size_t GetAttributeIDFromName(const std::string& name)const;
 
 		//function
-		virtual void Init();
+		virtual void Init(CTasksProject* pProject);
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK) = 0;
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
@@ -224,6 +224,13 @@ namespace WBSF
 
 		CTaskPtr GetTask(size_t t, const std::string& name)const;
 		std::string GetUpdaterList(bool bHourly, bool bDaily, bool bForecast = false, bool bGribs = false)const;
+
+
+		std::string GetFilePaht()const{ return m_filePaht; }
+
+	protected:
+
+		std::string m_filePaht;
 	};
 }
 

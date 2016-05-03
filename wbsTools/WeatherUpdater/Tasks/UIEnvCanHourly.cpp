@@ -22,7 +22,7 @@ namespace WBSF
 	//*********************************************************************
 
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province" };
-	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_BROWSE };
+	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT };
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
 	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
 
@@ -53,6 +53,7 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Daily\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -728,6 +729,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		msg = m_stations.Load(GetStationListFilePath());
 		if (!msg)
 			return msg;

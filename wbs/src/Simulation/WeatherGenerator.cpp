@@ -795,14 +795,11 @@ ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint&  simulationPoint, CWVaria
 		}
 
 
-		//for (CSimulationPointVector::iterator itR = simulationPoint.begin(); itR != simulationPoint.end(); itR++)//for all replication
-		//{
 		snowMelt.Compute(simulationPoint);
 		const CSnowMeltResultVector& snow = snowMelt.GetResult();
 
 		for (CWeatherYears::iterator itY = simulationPoint.begin(); itY != simulationPoint.end(); itY++)//for all years
 		{
-			//int year = m_tgi.m_firstYear + int(y);
 			for (CWeatherYear::iterator itM = itY->second->begin(); itM != itY->second->end(); itM++)//for all months
 			{
 				for (CMonth::iterator itD = itM->begin(); itD != itM->end(); itD++)//for all days
@@ -821,7 +818,7 @@ ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint&  simulationPoint, CWVaria
 			}
 		}
 	}
-	//}
+
 
 	return msg;
 }

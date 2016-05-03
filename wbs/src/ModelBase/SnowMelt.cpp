@@ -32,7 +32,7 @@ namespace WBSF
 		m_landType = FORESTED;
 		m_snowPropModel = BROWN;
 
-		m_C1 = 0.005;
+		m_C1 = 0.05;
 		m_C2 = 31.747;
 
 		m_Tr = 11.632;
@@ -106,7 +106,7 @@ namespace WBSF
 		m_result[0].m_date = ref;
 		m_result[0].m_hs = smp.hs;//Snow depth (cm)
 		m_result[0].m_rs = smp.rs;//Snow density (kg/m³ or g/cm³)
-		m_result[0].m_SWE = smp.SWE;//snow water equivalent (cm)
+		m_result[0].m_SWE = smp.SWE;//snow water equivalent (mm cm?????)
 
 		int dayIndex = 0;
 		for (size_t y = 0; y < weather.GetNbYears(); y++)//for all years
@@ -258,7 +258,7 @@ namespace WBSF
 	//return effect of rain on melting snow in mm/h
 	double CSnowMelt::GetRainMelt(double T, double rain)const
 	{
-		static const double Cw = 4.184;// J/g/°K == (J/g/°C)
+		static const double Cw = 4.184;// J/g·K == (J/g·°C)
 		static const double Lf = 333;// J/g
 		static const double r_ice = 0.917;// g/cm³
 		static const double r_water = 1; //g/cm³
@@ -270,7 +270,7 @@ namespace WBSF
 	}
 
 	//T: temperature in °C
-	//SWE: snow water equivalent in cm
+	//SWE: snow water equivalent in mm
 	//hs: snow depth in cm
 	//rs: density of snow in kg/m³
 	//timeStep: number of hours for this step in h
@@ -294,10 +294,14 @@ namespace WBSF
 				static const double F = 0.6;
 				for (int h = 0; h < timeStep; h++)
 				{
-					double deltar = 1000 * m_C1*exp(-0.08*(m_Tmelt - T))*F*SWE*exp(-m_C2*rs / 1000); //Brown et al (2003) equ. (7)
+					//SWE convert from mm to cm
+					//rs convert from kg/m³ to g/cm³
+					double deltar = 1000 * m_C1*exp(-0.08*(m_Tmelt - T))*F*(SWE/10)*exp(-m_C2*rs / 1000); //Brown et al (2003) equ. (7)
 					rs = min(700.0, rs + deltar);
 				}
 			}
+
+			
 		}
 		else //If there is no old snow, make sure its depth and density are zero
 		{

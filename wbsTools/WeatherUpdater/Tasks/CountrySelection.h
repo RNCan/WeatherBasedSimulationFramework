@@ -44,6 +44,9 @@ namespace WBSF
 		using std::bitset<NB_COUNTRIES>::at;
 		bool at(const std::string& in)const
 		{
+			if (none())
+				return true;
+
 			size_t p = GetCountry(in);
 			return p < size() ? at(p) : false;
 		}
@@ -91,6 +94,9 @@ namespace WBSF
 		using std::bitset<NB_COUNTRIES_WU>::at;
 		bool at(const std::string& in)const
 		{
+			if (none())
+				return true;
+
 			size_t p = GetCountry(in);
 			return p < size() ? at(p) : false;
 		}

@@ -94,7 +94,7 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CUIEnvCanHourlyForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Region" };
-	const size_t CUIEnvCanHourlyForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_BROWSE };
+	const size_t CUIEnvCanHourlyForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT };
 	const UINT CUIEnvCanHourlyForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_FORECAST_P;
 	const UINT CUIEnvCanHourlyForecast::DESCRIPTION_TITLE_ID = ID_TASK_EC_FORECAST;
 
@@ -136,15 +136,16 @@ namespace WBSF
 		return str;
 	}
 
-	//std::string CUIEnvCanDaily::Default(size_t i)const
-	//{
-	//	std::string str;
-	//	//switch (i)
-	//	//{
-	//	//};
+	std::string CUIEnvCanHourlyForecast::Default(size_t i)const
+	{
+		std::string str;
+		switch (i)
+		{
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Forecast\\"; break;
+		};
 
-	//	return str;
-	//}
+		return str;
+	}
 
 
 	std::string CUIEnvCanHourlyForecast::GetStationListFilePath()const

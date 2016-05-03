@@ -113,7 +113,7 @@ namespace WBSF
 
 //*********************************************************************
 	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "Radar", "FirstDate", "LastDate" };
-	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING_BROWSE, T_DATE, T_DATE };
+	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE };
 	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
 	const UINT CUIEnvCanRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_RADAR;
 
@@ -140,6 +140,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
+
 		//case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
 		case TYPE:		str = "Current|Historical"; break;
 		case PRCP_TYPE:	str = "PRECIP_SNOW|PRECIP_RAIN"; break;
@@ -154,7 +155,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		//case TYPE:	str = ToString(TYPE_06HOURS); break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Radar\\"; break;
 		case TYPE:		str = ToString(CURRENT_RADAR); break;
 		case PRCP_TYPE:	str = ToString(T_SNOW); break;
 		case RADAR:		str = "11111111111111111111111111111111111"; break;

@@ -56,6 +56,10 @@ public:
 	const std::string& GetFilePath()const{return m_filePath; }
 
 	bool IsExecute()const{ return m_bExecute;  }
+
+	WBSF::CTasksProject& GetProject(){ return m_project; }
+
+
 protected:
 
 	DECLARE_MESSAGE_MAP()

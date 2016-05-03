@@ -10,7 +10,7 @@ using namespace std;
 namespace WBSF
 {
 
-	const CStateSelection::CInfo CStateSelection::DEFAULT_LIST[NB_STATES] =
+	const CStateSelection::CInfo CStateSelection::DEFAULT_LIST[NB_USA_STATES] =
 	{
 		{ "AL",  1, "Alabama(AL01)",  "Alabama" },
 		{ "AZ",  2, "Arizona(AZ02)", "Arizona" },
@@ -70,16 +70,16 @@ namespace WBSF
 	void CStateSelection::UpdateString()
 	{
 		const StringVector NAME(IDS_STR_STATES, "|;");
-		ASSERT(NAME.size() == NB_STATES);
+		ASSERT(NAME.size() == NB_USA_STATES);
 
-		for (size_t i = 0; i < NB_STATES; i++)
+		for (size_t i = 0; i < NB_USA_STATES; i++)
 			const_cast<CInfo&>(DEFAULT_LIST[i]).m_title = NAME[i];
 	}
 
 	std::string CStateSelection::GetAllPossibleValue(bool bAbvr, bool bName)
 	{
 		string str;
-		for (size_t i = 0; i < NB_STATES; i++)
+		for (size_t i = 0; i < NB_USA_STATES; i++)
 		{
 			str += i != 0 ? "|" : "";
 			if (bAbvr)
@@ -102,7 +102,7 @@ namespace WBSF
 
 	string CStateSelection::GetName(size_t state, size_t t)
 	{
-		ASSERT(state >= 0 && state < NB_STATES);
+		ASSERT(state >= 0 && state < NB_USA_STATES);
 		return DEFAULT_LIST[state][t];
 	}
 
@@ -111,7 +111,7 @@ namespace WBSF
 		string str;
 		if (!none() && ! all())
 		{
-			for (size_t i = 0; i < NB_STATES; i++)
+			for (size_t i = 0; i < NB_USA_STATES; i++)
 			{
 				if (at(i))
 				{
@@ -144,7 +144,7 @@ namespace WBSF
 		Trim(tmp);
 		MakeUpper(tmp);
 
-		for (size_t i = 0; i < NB_STATES; i++)
+		for (size_t i = 0; i < NB_USA_STATES; i++)
 		{
 			if (tmp == DEFAULT_LIST[i][t])
 			{
@@ -161,7 +161,7 @@ namespace WBSF
 		int no = ToInt(std::to_string(in).substr(0, 2));
 
 		size_t state = size_t(-1);
-		for (size_t i = 0; i < NB_STATES; i++)
+		for (size_t i = 0; i < NB_USA_STATES; i++)
 		{
 			if (no == DEFAULT_LIST[i].m_no)
 			{

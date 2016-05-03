@@ -17,13 +17,16 @@
 
 
 using namespace std;
+using namespace WBSF::HOURLY_DATA;
+
+
 namespace WBSF
 {
 
 
 	//*********************************************************************
-	const char* CClipWeather::ATTRIBUTE_NAME[] = { "InputFilepath", "OutputFilepath", "FirstYear", "LastYear", "IncludeID", "ExcludeID", "BoundingBox", "shapefile", "LocFilepath" };
-	const size_t CClipWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_STRING, T_GEORECT, T_FILEPATH, T_FILEPATH };
+	const char* CClipWeather::ATTRIBUTE_NAME[] = { "InputFilepath", "OutputFilepath", "FirstYear", "LastYear", "IncludeID", "ExcludeID", "BoundingBox", "shapefile", "LocFilepath", "Variables" };
+	const size_t CClipWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_STRING, T_GEORECT, T_FILEPATH, T_FILEPATH, T_STRING_SELECT };
 	const UINT CClipWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_CROP_DB_P;
 	const UINT CClipWeather::DESCRIPTION_TITLE_ID = ID_TASK_CROP_DB;
 
@@ -49,6 +52,13 @@ namespace WBSF
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_WEATHER); break;
 		case LOC_FILEPATH:		str = GetString(IDS_STR_FILTER_LOC); break;
 		case SHAPEFILE:			str = GetString(IDS_STR_FILTER_SHAPEFILE); break;
+		case VARIABLES:
+		{
+			
+			for (TVarH v = H_TAIR; v <NB_VAR_H; v++)
+				str += string("|") + GetVariableAbvr(v) + "=" + GetVariableTitle(v);
+			break;
+		}
 		};
 
 

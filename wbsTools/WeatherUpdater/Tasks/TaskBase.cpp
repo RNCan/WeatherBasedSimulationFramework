@@ -90,6 +90,7 @@ namespace WBSF
 			m_name = in.m_name;
 			m_bExecute = in.m_bExecute;
 			m_params.insert(in.m_params.begin(), in.m_params.end());
+			m_pProject = in.m_pProject;
 
 			//the last msg follow object
 			m_lastMsg = in.m_lastMsg;
@@ -100,8 +101,9 @@ namespace WBSF
 		return *this;
 	}
 
-	void CTaskBase::Init()
+	void CTaskBase::Init(CTasksProject* pProject)
 	{
+		m_pProject = pProject;
 		for (size_t i = 0; i < GetNbAttributes(); i++)
 			m_params.insert( make_pair(Name(i), Default(i)) );
 	}
@@ -349,6 +351,10 @@ namespace WBSF
 			for (size_t ii = 0; ii != at(i).size(); ii++)
 				(at(i).at(ii))->SetProject(this);
 		}
+
+		if (msg)
+			m_filePaht = filePath;
+
 		return msg;
 	}
 
@@ -358,6 +364,9 @@ namespace WBSF
 
 		CTaskBase::SetProjectPath(GetPath(filePath));
 		msg = zen::SaveXML(filePath, "WeatherUpdater", "2", *this);
+
+		if (msg)
+			m_filePaht = filePath;
 
 		return msg;
 	}
