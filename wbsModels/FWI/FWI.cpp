@@ -231,7 +231,7 @@ double CFWI::GetDSR(double fwi)
 }
 
 
-//If there is at lean 75% of the day of january an february that have at least 1cm
+//If there is at lean 75% of the day of January an February that have at least 1cm
 //and there is at least 10 cm then hte first day is 3 days after the snowmelt date
 CTRef CFWI::GetFirstDay(const CWeatherYear& weather)
 {

@@ -206,7 +206,7 @@ namespace WBSF
 			//transfer your parameter here
 			short c = 0;
 			m_firstDay = CMonthDay(parameters[c++].GetString());
-			m_lastDay = CMonthDay(parameters[c++].GetString(());
+			m_lastDay = CMonthDay(parameters[c++].GetString());
 			m_FFMC = parameters[c++].GetReal();
 			m_DMC = parameters[c++].GetReal();
 			m_DC = parameters[c++].GetReal();

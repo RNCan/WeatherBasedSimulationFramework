@@ -176,6 +176,9 @@
     <ClCompile Include="..\src\Basic\hxGrid.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\SnowAnalysis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -389,6 +392,9 @@
       <Filter>Source\xml\zen</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\hxGrid.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\SnowAnalysis.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

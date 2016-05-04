@@ -527,6 +527,7 @@ public:
 	void ComputeHourlyTdew();
 	void ComputeHourlyRelH();
 	void ComputeHourlyWndS();
+	void ComputeHourlyWnd2();
 	void ComputeHourlySRad();
 	void ComputeHourlyPres();
 	void ComputeHourlyVariables(CWVariables variables, std::string options); 

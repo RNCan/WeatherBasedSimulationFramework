@@ -7,7 +7,7 @@
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Tranosema</Description>
     <WindowRect>0 0 225 229</WindowRect>
-    <SimulatedCategory>T TR</SimulatedCategory>
+    <SimulatedCategory>T TR SD SWE</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wtypes.h>
-#include "ERMsg/ERMsg.h"
+#include "Basic/ERMsg/ERMsg.h"
 #include "Basic/WeatherStation.h"
 #include "Basic/modelStat.h"
 #include "ModelBase\InputParam.h"

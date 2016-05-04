@@ -3,13 +3,15 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 22/01/2016	1.1.2	Rémi Saint-Amant	Add snomeld date as strarting date
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 11/12/2015	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
 
 #include "Basic/UtilStd.h"
+#include "Basic/SnowAnalysis.h"
 #include "ModelBase/EntryPoint.h"
-#include "..\SpruceBudworm\SpruceBudworm.h"
+//#include "..\SpruceBudworm\SpruceBudworm.h"
 #include "TranosemaModel.h"
 #include "Tranosema.h"
 
@@ -41,7 +43,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.1.1 (2016)";
+		VERSION = "1.1.2 (2016)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
@@ -159,14 +161,18 @@ namespace WBSF
 	{
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		CSnowAnalysis snowA;
 
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-			//get initial population from spruce budworm L4 instar
-//			CInitialPopulation initialPopulation = SBWStat.GetInitialPopulation(SBW::S_L4, 400, 100, ADULT, NOT_INIT, true, 0, p);
-			CInitialPopulation initialPopulation(p.Begin(), 0, 400, 100, EGG+m_diapauseAge, NOT_INIT, true,0);
+			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
+			if (!TRef.IsInit())
+				TRef = p.Begin(); //no snow 
+
+			//get initial population from snowmelt date
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY)), 2, 400, 100, EGG + m_diapauseAge, NOT_INIT, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);

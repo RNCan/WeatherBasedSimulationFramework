@@ -192,9 +192,6 @@
     <ClInclude Include="FWI.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\external\ERMsg\msvc\ERMsg.vcxproj">
-      <Project>{c77f4444-fb21-406b-abf7-49d42217de5f}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">
       <Project>{31fea106-e963-4f38-b23d-4e227c7200ca}</Project>
     </ProjectReference>

@@ -21,40 +21,9 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	const double MINIMUM_SNOW_DEPTH = 2;//mm
-	const size_t NB_DAY_MIN = 7;		//day
+	const double CSnowAnalysis::MINIMUM_SNOW_DEPTH = 2;//mm
+	const size_t CSnowAnalysis::NB_DAY_MIN = 7;		//day
 
-/*
-	double CGSInfo::GetGST(const CDataInterface& data)const
-	{
-		ASSERT(m_type >= 0 && m_type<NB_TT_TEMPERATURE);
-
-		double T = -999;
-		if (data.IsHourly())
-		{
-			switch (m_type)
-			{
-			case TT_TMIN:	
-			case TT_TMEAN:	
-			case TT_TMAX:	ASSERT(false); break;
-			case TT_TNOON:  T = data[H_TAIR]; break;
-			default: ASSERT(false);
-			}
-		}
-		else
-		{
-			switch (m_type)
-			{
-			case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
-			case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
-			case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
-			case TT_TNOON:  ASSERT(false); break;
-			default: ASSERT(false);
-			}
-		}
-		return T;
-	}
-*/
 	void CSnowAnalysis::Execute(const CWeatherStation& weather, CModelStatVector& output)const
 	{
 		output.Init(weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), 2);
@@ -67,8 +36,6 @@ namespace WBSF
 			output[y][S_FIRST_JDAY] = f.GetRef();
 		}
 	}
-	
-	
 
 	CTRef CSnowAnalysis::GetLastSnowTRef(const CWeatherYear& weather)const
 	{
@@ -79,7 +46,6 @@ namespace WBSF
 
 		CTPeriod period = weather.GetEntireTPeriod();
 		CTRef midSeason(year, JULY, 14, 12, TM);
-		//CTRef TRef(year, JANUARY, FIRST_DAY);
 
 		size_t nbTRefPerDay = weather.IsHourly() ? 24 : 1;
 		size_t nbTRef = 0;

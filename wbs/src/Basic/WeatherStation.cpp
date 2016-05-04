@@ -1382,6 +1382,27 @@ void CWeatherDay::ComputeHourlyWndS()
 
 }
 
+//copy from WndS
+void CWeatherDay::ComputeHourlyWnd2()
+{
+	CWeatherDay& me = *this;
+	CStatistic stats[3] = { GetPrevious()[H_WND2], me[H_WND2], GetNext()[H_WND2] };
+	ASSERT(stats[1].IsInit());
+
+
+	for (size_t h = 0; h<24; h++)
+	{
+		double w1 = h<12 ? stats[0][MEAN] : stats[1][MEAN];
+		double w2 = h<12 ? stats[1][MEAN] : stats[2][MEAN];
+		double moduloW = double((h + 12) % 24);
+		double Wday = w1 + moduloW / 24 * (w2 - w1);
+		double Wh = Wday + GetS(h);
+
+		me[h][H_WND2] = (float)max(0.0, Wh); //in km/h
+
+	}
+
+}
 
 //*****************************************************************************************
 //Solar radiation
@@ -1440,24 +1461,37 @@ void CWeatherDay::ComputeHourlyVariables(CWVariables variables, std::string opti
 			case H_TDEW: ComputeHourlyTdew(); break;
 			case H_RELH: ComputeHourlyRelH();  break;
 			case H_WNDS: ComputeHourlyWndS(); break;
+			case H_WND2: ComputeHourlyWnd2(); break;
 			case H_WNDD: ASSERT(false); break;//to do
 			case H_SRAD: ComputeHourlySRad(); break;
 			case H_PRES: ComputeHourlyPres(); break;
-			case H_SNOW:
+			
+			case H_SNOW://take daily value devide by 24
 				for (size_t h = 0; h<24; h++)
-					at(h)[v] = at(h)[MEAN] / 24;//to do ...
+					at(h)[v] = me[v][MEAN] / 24;//to do ...
 				break;
 
-			case H_SNDH:
+			case H_SNDH://take daily value 
 			case H_SWE:
-			case H_ES:
-			case H_EA:
-			case H_VPD:
-			case H_WND2:
-				
 				for (size_t h = 0; h<24; h++)
-					at(h)[v] = at(h)[MEAN];
+					at(h)[v] = me[v][MEAN];
 				break;
+
+			case H_ES://from hourly temperature
+				for (size_t h = 0; h<24; h++)
+					at(h)[v] = WBSF::e°(at(h)[H_ES]);
+				break;
+
+			case H_EA:
+				for (size_t h = 0; h<24; h++)
+					at(h)[v] = WBSF::e°(at(h)[H_TDEW]);//compute from Tdew
+				break;
+
+			case H_VPD:
+				for (size_t h = 0; h<24; h++)
+					at(h)[v] = at(h)[H_ES] - at(h)[H_EA];
+				break;
+
 			default: assert(false);//other variables to do
 			}
 
