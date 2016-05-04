@@ -752,7 +752,7 @@ namespace WBSF
 				string source;
 				msg = GetPageText(pConnection, URL, source, false, FLAGS);
 
-				if (!source.empty())
+				if (!source.empty() && source.find("An error occurred while processing your request") == string::npos)
 				{
 					if (source[0] == '\n')
 						source.erase(source.begin());
@@ -954,7 +954,8 @@ namespace WBSF
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		bool bNetatmo = WBSF::Find("Netatmo", filePath, false);
+		bool bNetatmo = WBSF::Find("Netatmo", data.GetSSI("StationType"), false);
+		bool bEmptyST = data.GetSSI("StationType").empty();
 
 		//now extact data 
 		ifStream file;
@@ -967,81 +968,80 @@ namespace WBSF
 			//Date,TemperatureHighC,TemperatureAvgC,TemperatureLowC,DewpointHighC,DewpointAvgC,DewpointLowC,HumidityHigh,HumidityAvg,HumidityLow,PressureMaxhPa,PressureMinhPa,WindSpeedMaxKMH,WindSpeedAvgKMH,GustSpeedMaxKMH,PrecipitationSumCM
 			for (CSVIterator loop(file); loop != CSVIterator(); ++loop)
 			{
-				ASSERT(loop->size() == NB_COLUMNS);
-
-				string dateTimeStr = (*loop)[C_DATE];
-				StringVector dateTime(dateTimeStr, " -:");
-
-				int year = stoi(dateTime[0]);
-				size_t month = stoi(dateTime[1]) - 1;
-				size_t day = stoi(dateTime[2]) - 1;
-				//int hour = stoi(dateTime[3]);
-
-				ASSERT(year >= firstYear - 1 && year <= lastYear);
-				ASSERT(month >= 0 && month < 12);
-				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-				//ASSERT(hour >= 0 && hour < 24);
-
-
-				CTRef TRef = CTRef(year, month, day);
-
-				//if (stat.TRefIsChanging(TRef))
-					//data[stat.GetTRef()].SetData(stat);
-
-				double Tmin = -DBL_MAX;
-				double Tmax = -DBL_MAX;
-				double Pmin = -DBL_MAX;
-				double Pmax = -DBL_MAX;
-				for (size_t c = 1; c<loop->size(); c++)
+				if (loop->size() == NB_COLUMNS)
 				{
-					string str = TrimConst((*loop)[c]);
-					if (!str.empty() )
-					{
-						double value = stod(str);
-						//value = Normalize(value, col_pos[c]->first, col_pos[c]->second.units, data.m_z);
+					string dateTimeStr = (*loop)[C_DATE];
+					StringVector dateTime(dateTimeStr, " -:");
+					
+					int year = atoi(dateTime[0].c_str());
+					size_t month = atoi(dateTime[1].c_str()) - 1;
+					size_t day = atoi(dateTime[2].c_str()) - 1;
 
-						switch (c)
+					ASSERT(year >= firstYear - 1 && year <= lastYear);
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+
+					CTRef TRef = CTRef(year, month, day);
+					if (TRef.IsValid())
+					{
+						double Tmin = -DBL_MAX;
+						double Tmax = -DBL_MAX;
+						double Pmin = -DBL_MAX;
+						double Pmax = -DBL_MAX;
+						for (size_t c = 1; c < loop->size(); c++)
 						{
-						case C_TMAX: Tmax = value; break;//data[TRef].SetStat(H_TMAX, value); break;
-						case C_TAIR: break;
-						case C_TMIN: Tmin = value; break;
-						case C_DMAX: break;
-						case C_TDEW: if (value>-60 && value < 50)data[TRef].SetStat(H_TDEW, value);
-						case C_DMIN: break;
-						case C_HMAX: break;
-						case C_RELH: if(value>0 && value <=100)data[TRef].SetStat(H_RELH, value);
-						case C_HMIN: break;
-						case C_PMAX: Pmax = value; break;
-						case C_PMIN: Pmin = value; break;
-						case C_WMAX: break;
-						case C_WNDS: if(!bNetatmo) data[TRef].SetStat(H_WNDS, value); break;
-						case C_GUST: break;
-						case C_PRCP: if(!bNetatmo) data[TRef].SetStat(H_PRCP, value); break;
+							if (c == C_TMAX || c == C_TMIN || c == C_TDEW || c == C_RELH || c == C_PMAX || c == C_PMIN || c == C_WNDS || c == C_PRCP)
+							{
+								string str = TrimConst((*loop)[c]);
+								if (!str.empty() && str != "inf")
+								{
+									//double value = stod(str.c_str());
+									double value = atof(str.c_str());
+
+									switch (c)
+									{
+									case C_TMAX: Tmax = value; break;
+									case C_TAIR: break;
+									case C_TMIN: Tmin = value; break;
+									case C_DMAX: break;
+									case C_TDEW: if (value > -60 && value < 50)data[TRef].SetStat(H_TDEW, value);
+									case C_DMIN: break;
+									case C_HMAX: break;
+									case C_RELH: if (value > 0 && value <= 100)data[TRef].SetStat(H_RELH, value);
+									case C_HMIN: break;
+									case C_PMAX: Pmax = value; break;
+									case C_PMIN: Pmin = value; break;
+									case C_WMAX: break;
+									case C_WNDS: if (!bNetatmo) data[TRef].SetStat(H_WNDS, value); break;
+									case C_GUST: break;
+									case C_PRCP: if (!bNetatmo && !bEmptyST) data[TRef].SetStat(H_PRCP, value); break;
+									}
+								}
+							}
+						}
+
+
+						if (Tmin != -DBL_MAX && Tmax != -DBL_MAX && Tmin > -60 && Tmin < 50 && Tmax > -60 && Tmax < 50)
+						{
+							ASSERT(Tmin > -60 && Tmin < 50);
+							ASSERT(Tmax > -60 && Tmax < 50);
+
+
+							if (Tmin > Tmax)
+								Switch(Tmin, Tmax);
+
+							data[TRef].SetStat(H_TAIR, (Tmin + Tmax) / 2);
+							data[TRef].SetStat(H_TRNG, Tmax - Tmin);
+						}
+
+						if (Pmin != -DBL_MAX && Pmax != -DBL_MAX && Pmin > 800 && Pmin < 1100 && Pmax > 800 && Pmax < 1100)
+						{
+							ASSERT(Pmin > 800 && Pmin < 1100);
+							ASSERT(Pmax > 800 && Pmax < 1100);
+							data[TRef].SetStat(H_PRES, (Pmin + Pmax) / 2);
 						}
 					}
 				}
-
-
-				if (Tmin != -DBL_MAX && Tmax != -DBL_MAX && Tmin > -60 && Tmin < 50 && Tmax > -60 && Tmax < 50)
-				{
-					ASSERT(Tmin > -60 && Tmin < 50);
-					ASSERT(Tmax > -60 && Tmax < 50);
-
-
-					if (Tmin > Tmax)
-						Switch(Tmin, Tmax);
-
-					data[TRef].SetStat(H_TAIR, (Tmin + Tmax) / 2);
-					data[TRef].SetStat(H_TRNG, Tmax - Tmin);
-				}
-
-				if (Pmin != -DBL_MAX && Pmax != -DBL_MAX && Pmin > 800 && Pmin < 1100 && Pmax > 800 && Pmax < 1100)
-				{
-					ASSERT(Pmin > 800 && Pmin < 1100);
-					ASSERT(Pmax > 800 && Pmax < 1100);
-					data[TRef].SetStat(H_PRES, (Pmin + Pmax) / 2);
-				}
-
 
 				msg += callback.StepIt(0);
 			}//for all line
