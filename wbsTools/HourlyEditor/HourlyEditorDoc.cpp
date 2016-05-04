@@ -154,6 +154,8 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
+		else if (!m_pDatabase->empty())
+			SetCurStationIndex(0, NULL, false);
 
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();
@@ -167,49 +169,9 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	m_bExecute = false;
 	pView->AdjustLayout();//open the progress window
-	//UpdateAllViews(NULL, OUTPUT_CHANGE, NULL);
-
+	
 	return (bool)msg;
 }
-//BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
-//{
-//	ERMsg msg;
-//
-//	m_bDataInEdition = false;
-//	m_stationIndex = UNKNOWN_POS;
-//	m_pDatabase.reset(new CHourlyDatabase);
-//	m_pStation.reset(new CWeatherStation);
-//	m_modifiedStation.clear();
-//	m_outputText.clear();
-//
-//	std::string filePath = CStringA(lpszPathName);
-//
-//	
-//	CProgressStepDlg dlg(AfxGetMainWnd() );
-//	dlg.Create();
-//
-//	msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit, dlg.GetCallback());
-//	dlg.DestroyWindow();
-//
-//	
-//	if (msg)
-//	{
-//		//not init by default
-//		const std::set<int>& years = m_pDatabase->GetYears();
-//		if (!m_period.IsInit() && !years.empty())
-//			m_period = CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY));
-//	}
-//	else
-//	{
-//		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-//	}
-//
-//
-//	//UpdateAllViews(NULL, CHourlyEditorDoc::INIT, NULL);
-//
-//
-//	return (bool)msg;
-//}
 
 BOOL CHourlyEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {

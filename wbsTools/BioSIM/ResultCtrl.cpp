@@ -173,6 +173,12 @@ void CResultCtrl::Update()
 				SetNumberRows((int)m_pResult->GetNbRows(), FALSE);
 
 				CleanUpHidenCols();
+				//hide col
+				/*for (size_t d = 0; d < DIMENSION::NB_DIMENSION; d++)
+				{
+					if (d == VARIABLE || dimension[d]==0)
+						HideCol((int)d);
+				}*/
 						
 
 				//dimension col width
@@ -184,7 +190,6 @@ void CResultCtrl::Update()
 						int colWidth = registry.GetValue<int>(name, 80);
 
 						int col = LocateCol((int)d);
-						SetSH_ColWidth(col, colWidth);
 						SetColWidth(col, colWidth);
 					}
 					else
@@ -197,16 +202,14 @@ void CResultCtrl::Update()
 				{
 					string name = modelName + outdef[v].m_name;
 					int colWidth = registry.GetValue<int>(name, 80);
-					
 					int col = LocateCol(DIMENSION::NB_DIMENSION + (int)v); 
 					ASSERT(col >= 0);
 					
-					SetSH_ColWidth(col, colWidth);
 					SetColWidth(col, colWidth);
 				}
 
 				int colWidth = registry.GetValue<int>("SideHeader", 80);
-				SetSH_Width(colWidth);
+				SetColWidth(-1, colWidth);
 
 				m_enableUpdate = TRUE;
 

@@ -157,6 +157,10 @@ namespace WBSF
 					int width = AfxGetApp()->GetProfileInt(_T("LocationVectorCtrl"), _T("ColWidth ") + UtilWin::ToCString(i), 50);
 					SetColWidth(i, width);
 				}
+				
+				//if (newRow >= m_sortInfo.size())
+				//Select(-1, -1);
+//				else GotoRow((long)newRow);
 
 				m_enableUpdate = TRUE;
 
@@ -196,8 +200,8 @@ namespace WBSF
 
 	void CLocationVectorCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
-
-		if (row >= -1 && col >= -1 && m_enableUpdate)
+		//row >= -1 && col >= -1 &&
+		if ( m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -216,12 +220,6 @@ namespace WBSF
 				if (row == -1)
 				{
 					text = CLocation::GetMemberTitle(col);
-
-					if (col == m_curSortCol)
-					{   // set default values to the top heading   
-						cell->SetCellType(m_sortArrow.GetID());
-						cell->SetCellTypeEx(m_sortDir);
-					}
 				}
 				else
 				{
@@ -252,11 +250,18 @@ namespace WBSF
 				}
 			}
 
+
+			if (row == -1 && col == m_curSortCol)
+			{   // set default values to the top heading   
+				cell->SetCellType(m_sortArrow.GetID());
+				cell->SetCellTypeEx(m_sortDir);
+			}
+
 			cell->SetBackColor(backColor);
 			cell->SetTextColor(textColor);
 			cell->SetText(CString(text.c_str()));
 			cell->SetFont(pFont);
-		}
+		}//enable update
 
 		CUGCtrl::OnGetCell(col, row, cell);
 	}
@@ -349,12 +354,15 @@ namespace WBSF
 
 		BeginWaitCursor();
 
-		int curRow = GetCurrentRow();
-		size_t index = curRow >= 0 ? m_sortInfo[curRow].second:NOT_INIT;
+		row = GetCurrentRow();
+		size_t index = row >= 0 ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(col, col != m_curSortCol ? m_sortDir : OtherDir(m_sortDir));
 
 		size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
-		GotoRow((long)newRow);
+		if (newRow < m_sortInfo.size())
+			GotoRow((long)newRow);
+		else
+			Select(-1, -1);
 		//if ( >= m_sortInfo.size())
 			//Select(-1, -1);//force changing
 
@@ -379,28 +387,25 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		int row = GetCurrentRow();
+		size_t index = row >= 0 ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(-1, m_curSortCol != -1 ? m_sortDir : OtherDir(m_sortDir));
+
+
+
+		size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		if (newRow < m_sortInfo.size())
+			GotoRow((long)newRow);
+		else 
+			Select(-1, -1); 
+		
+
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);
-
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow((long)newRow);
 	}
-
-
-
-	void CLocationVectorCtrl::OnSH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed)
-	{
-		if (!updn)
-			return;
-
-		GotoRow(row);
-	}
-
+	
 
 
 	void CLocationVectorCtrl::SortInfo(int col, int dir)
@@ -467,17 +472,17 @@ namespace WBSF
 		AfxGetApp()->WriteProfileInt(_T("LocationVectorCtrl"), _T("ColWidth ") + UtilWin::ToCString(col), *width);
 	}
 
-	int CLocationVectorCtrl::RedrawRow(long index)
-	{
-		long row = (long)std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
-		return CUGCtrl::RedrawRow(row);
-	}
+	//int CLocationVectorCtrl::RedrawRow(long index)
+	//{
+	//	long row = (long)std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+	//	return CUGCtrl::RedrawRow(row);
+	//}
 
 	void	CLocationVectorCtrl::SetCurIndex(size_t index)
 	{
 		long row = (long)std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		GotoRow(row);
-		RedrawRow(row);
+		CUGCtrl::RedrawRow(row);
 	}
 
 	size_t	CLocationVectorCtrl::GetCurIndex()const

@@ -48,7 +48,6 @@ namespace WBSF
 		virtual void OnGetCell(int col, long row, CUGCell *cell);
 		virtual void OnTH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed = 0);
 		virtual void OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed = 0);
-		virtual void OnSH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed = 0);
 		virtual void OnColSized(int col, int *width);
 		virtual int OnHint(int col, long row, int section, CString *string);
 		virtual int OnVScrollHint(long row, CString *string);
@@ -64,7 +63,7 @@ namespace WBSF
 		size_t	GetCurIndex()const;
 
 		void SetStationModified(size_t i, bool bModified){ bModified ? m_stationModified.set(i) : m_stationModified.reset(i); }
-		int RedrawRow(long index);
+		//int RedrawRow(long index);
 		void SetEditionMode(bool bInEdition);
 
 		inline int OtherDir(int dir){ return (dir == UGCT_SORTARROWUP) ? UGCT_SORTARROWDOWN : UGCT_SORTARROWUP; }
