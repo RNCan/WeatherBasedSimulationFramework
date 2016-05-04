@@ -59,6 +59,7 @@ namespace WBSF
 	{
 		m_curSortCol = -999;
 		m_sortDir = UGCT_SORTARROWUP;
+		m_initial_index = NOT_INIT;
 
 		m_bInEdition = false;
 	}
@@ -164,6 +165,12 @@ namespace WBSF
 					SetColWidth(i, width);
 				}
 
+				if (m_initial_index < m_sortInfo.size())
+				{
+					long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(m_initial_index)));
+					GotoRow(row);
+				}
+
 				m_enableUpdate = TRUE;
 
 			}//is open
@@ -178,11 +185,7 @@ namespace WBSF
 
 			Invalidate();
 
-
-			//reload station index if they are change
-			//long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-			//if (GetCurrentRow() != m_lastStationIndex)
-			GetParent()->SendMessage(UWM_SELECTION_CHANGE);
+			//GetParent()->SendMessage(UWM_SELECTION_CHANGE);
 		}
 
 	}
@@ -237,7 +240,7 @@ namespace WBSF
 	void CStationsListCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (row >= -1 && col >= -1 && m_enableUpdate)
+		if (m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -362,7 +365,8 @@ namespace WBSF
 			{
 				if (col >= 0 && row >= 0)
 				{
-					*string = (*m_pDB)[row].GetMember(col).c_str();
+					size_t curRow = m_sortInfo[row].second;
+					*string = (*m_pDB)[curRow].GetMember(col).c_str();
 				}
 			}
 		}
@@ -375,8 +379,11 @@ namespace WBSF
 	{
 		ASSERT(m_pDB.get());
 
-		size_t curRow = row == -1 ? -1 : m_sortInfo[row].second;
-		*string = (*m_pDB)[curRow].m_name.c_str();
+		if (row>=0)
+		{
+			size_t curRow = m_sortInfo[row].second;
+			*string = (*m_pDB)[curRow].m_name.c_str();
+		}
 
 		return  !string->IsEmpty();
 	}
@@ -406,16 +413,17 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		size_t index = (row>0) ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(col, col != m_curSortCol ? m_sortDir : OtherDir(m_sortDir));
+		if (GetCurrentRow() >= m_sortInfo.size())
+			Select(-1, -1);
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);//force changing
 
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow(newRow);
+		//long newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		//GotoRow(newRow);
 	}
 
 	void CStationsListCtrl::OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed)
@@ -429,16 +437,19 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		int row = GetCurrentRow();
+		size_t index = (row>0) ? m_sortInfo[row].second:NOT_INIT;
 		SortInfo(-1, m_curSortCol != -1 ? m_sortDir : OtherDir(m_sortDir));
+		if (GetCurrentRow() >= m_sortInfo.size())
+			Select(-1, -1);
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);
-
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow((long)newRow);
+		
+		
+		//long newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		//GotoRow(newRow);
 	}
 
 
@@ -448,7 +459,7 @@ namespace WBSF
 		if (!updn)
 			return;
 
-		//long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
+		//long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].first);
 		GotoRow(row);
 	}
 
@@ -497,14 +508,14 @@ namespace WBSF
 						default: ASSERT(false);
 						}
 
-						m_sortInfo[pos] = std::make_pair(str, it->m_index);
+						m_sortInfo[pos] = std::make_pair(str, it->m_index );
 					}
 
 
-					if (m_curSortCol == CLocation::ID || m_curSortCol == CLocation::NAME)
-						std::sort(m_sortInfo.begin(), m_sortInfo.end(), CCompareString());
-					else
-						std::sort(m_sortInfo.begin(), m_sortInfo.end(), CompareNumber);
+					//if (m_curSortCol == CLocation::ID || m_curSortCol == CLocation::NAME)
+					//	std::sort(m_sortInfo.begin(), m_sortInfo.end(), CCompareString());
+					//else
+					//	std::sort(m_sortInfo.begin(), m_sortInfo.end(), CompareNumber);
 
 					m_sortDir = UGCT_SORTARROWUP;
 				}
@@ -531,23 +542,23 @@ namespace WBSF
 		AfxGetApp()->WriteProfileInt(_T("StationsListCtrl"), _T("ColWidth ") + UtilWin::ToCString(col), *width);
 	}
 
-	int CStationsListCtrl::RedrawRow(long index)
+	/*int CStationsListCtrl::RedrawRow(long index)
 	{
 		long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		return CUGCtrl::RedrawRow(row);
 	}
-
+*/
 	void	CStationsListCtrl::SetStationIndex(size_t index)
 	{
 		long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
-		GotoRow(row);
-		RedrawRow(row);
+		CUGCtrl::GotoRow(row);
+		CUGCtrl::RedrawRow(row);
 	}
 
 	size_t	CStationsListCtrl::GetStationIndex()const
 	{
 		long row = const_cast<CStationsListCtrl*>(this)->GetCurrentRow();
-		size_t newPos = row >= 0 ? m_sortInfo[row].second : UNKNOWN_POS;
+		size_t newPos = row >= 0 ? m_sortInfo[row].second: UNKNOWN_POS;
 		return newPos;
 	}
 
@@ -629,8 +640,6 @@ namespace WBSF
 		SetHScrollMode(UG_SCROLLTRACKING);
 
 		AddCellType(&m_sortArrow);
-
-
 	}
 
 
@@ -675,7 +684,7 @@ namespace WBSF
 				m_enableUpdate = FALSE;
 				m_lastLocation = m_location;
 
-				SortInfo(AfxGetApp()->GetProfileInt(_T("MatchStationsListCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("MatchStationsListCtrl"), _T("SortDir"), 0));
+				SortInfo(M_WEIGHT, UGCT_SORTARROWDOWN);
 		
 				SetNumberCols(NB_MATCH_STATIONS_COLUMNS, FALSE);
 				SetNumberRows((long)m_sortInfo.size(), FALSE);
@@ -710,7 +719,7 @@ namespace WBSF
 	void CMatchStationsCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (row >= -1 && col >= -1 && m_enableUpdate)
+		if (m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -751,6 +760,9 @@ namespace WBSF
 				{
 					if (m_pDB.get() && m_pDB->IsOpen())
 					{
+						size_t index = m_sortInfo[row].second;
+						//long newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+						//m_nearest.Find()
 						textColor = RGB(0, 0, 0);
 						backColor = (row % 2) ? RGB(235, 235, 255) : RGB(255, 255, 255);
 
@@ -761,17 +773,17 @@ namespace WBSF
 						}
 						
 						if (col == M_SHORE_DISTANCE)
-							text = ToString(m_shoreD[row]/1000, 1);
+							text = ToString(m_shoreD[index] / 1000, 1);
 						else if (col == M_DISTANCE)
-							text = ToString(m_nearest[row].m_distance / 1000, 1);
+							text = ToString(m_nearest[index].m_distance / 1000, 1);
 						else if (col == M_DELTA_ELEVATION)
-							text = ToString(m_nearest[row].m_deltaElev, 0);
+							text = ToString(m_nearest[index].m_deltaElev, 0);
 						else if (col == M_DELTA_SHORE)
-							text = ToString(m_deltaShore[row]/1000, 1);
+							text = ToString(m_deltaShore[index] / 1000, 1);
 						else if (col == M_WEIGHT)
-							text = ToString(m_weight[row] * 100, 1);
+							text = ToString(m_weight[index] * 100, 1);
 						else
-							text = m_nearest[row].m_location.GetMember(col);
+							text = m_nearest[index].m_location.GetMember(col);
 					}
 				}
 			}
@@ -828,7 +840,9 @@ namespace WBSF
 			{
 				if (col >= 0 && row >= 0)
 				{
-					*string = (*m_pDB)[row].GetMember(col).c_str();
+					size_t index = m_sortInfo[row].second;
+					index = m_nearest[index].m_index;
+					*string = (*m_pDB)[index].GetMember(col).c_str();
 				}
 			}
 		}
@@ -841,8 +855,12 @@ namespace WBSF
 	{
 		ASSERT(m_pDB.get());
 
-		size_t curRow = row == -1 ? -1 : m_sortInfo[row].second;
-		*string = (*m_pDB)[curRow].m_name.c_str();
+		if (row >= 0)
+		{
+			size_t index = m_sortInfo[row].second;
+			index = m_nearest[index].m_index;
+			*string = (*m_pDB)[index].m_name.c_str();
+		}
 
 		return  !string->IsEmpty();
 	}
@@ -872,16 +890,18 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		//size_t index = (row>0) ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(col, col != m_curSortCol ? m_sortDir : OtherDir(m_sortDir));
+		if (GetCurrentRow() >= m_sortInfo.size())
+			Select(-1, -1);//force changing
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);//force changing
-
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow(newRow);
+		
+		
+		//long newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		//GotoRow(newRow);
 	}
 
 	void CMatchStationsCtrl::OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed)
@@ -895,16 +915,19 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		//int row = GetCurrentRow();
+		//size_t index = (row>0) ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(-1, m_curSortCol != -1 ? m_sortDir : OtherDir(m_sortDir));
+		if (GetCurrentRow() >= m_sortInfo.size())
+			Select(-1, -1);
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);
-
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow((long)newRow);
+	
+//
+		//long newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		//GotoRow(newRow);
 	}
 
 
@@ -914,6 +937,18 @@ namespace WBSF
 		if (!updn)
 			return;
 
+
+		/*BeginWaitCursor();
+
+
+		size_t index = (row>0) ? m_sortInfo[row].second : NOT_INIT;
+		SortInfo(-1, m_curSortCol != -1 ? m_sortDir : OtherDir(m_sortDir));
+		if (GetCurrentRow() >= m_sortInfo.size())
+			Select(-1, -1);
+
+		RedrawAll();
+		EndWaitCursor();
+*/
 		GotoRow(row);
 	}
 
@@ -955,7 +990,7 @@ namespace WBSF
 					default: ASSERT(false);
 					}
 
-					m_sortInfo[pos] = std::make_pair(str, it->m_index);
+					m_sortInfo[pos] = std::make_pair(str, pos);
 				}
 
 
@@ -990,23 +1025,24 @@ namespace WBSF
 		AfxGetApp()->WriteProfileInt(_T("MatchStationsListCtrl"), _T("ColWidth ") + UtilWin::ToCString(col), *width);
 	}
 
-	int CMatchStationsCtrl::RedrawRow(long index)
+	/*int CMatchStationsCtrl::RedrawRow(long index)
 	{
 		long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		return CUGCtrl::RedrawRow(row);
-	}
+	}*/
 
 	void	CMatchStationsCtrl::SetStationIndex(size_t index)
 	{
 		long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		GotoRow(row);
-		RedrawRow(row);
+		CUGCtrl::RedrawRow(row);
 	}
 
 	size_t	CMatchStationsCtrl::GetStationIndex()const
 	{
+		
 		long row = const_cast<CMatchStationsCtrl*>(this)->GetCurrentRow();
-		size_t newPos = row >= 0 ? m_sortInfo[row].second : UNKNOWN_POS;
+		size_t newPos = row >= 0 ? m_nearest[m_sortInfo[row].second].m_index:UNKNOWN_POS;
 		return newPos;
 	}
 
@@ -1018,12 +1054,13 @@ namespace WBSF
 		if (row >= 0)
 		{
 			size_t index = m_sortInfo[row].second;
+			index = m_nearest[index].m_index;
 			const CLocation& location = m_pDB->GetLocation(index);
 			string filePath = m_pDB->GetFilePath();
 			string ext = GetFileExtension(filePath);
 
 			string editor;
-			if (IsEqual(ext, ".DailyStations"))
+			if (IsEqual(ext, ".NormalsStations"))
 				editor = CRegistry::NORMAL_EDITOR;
 			else if (IsEqual(ext, ".DailyStations"))
 				editor = CRegistry::DAILY_EDITOR;

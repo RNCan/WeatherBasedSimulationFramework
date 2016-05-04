@@ -100,13 +100,13 @@ CNormalsEditorDoc* COutputView::GetDocument() const
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CNormalsEditorDoc)));
 	return (CNormalsEditorDoc*)m_pDocument;
 }
-
-void COutputView::OnInitialUpdate()
-{
-	CNormalsEditorDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	pDoc->OnInitialUpdate();
-}
+//
+//void COutputView::OnInitialUpdate()
+//{
+//	CNormalsEditorDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//	pDoc->OnInitialUpdate();
+//}
 
 
 void COutputView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)

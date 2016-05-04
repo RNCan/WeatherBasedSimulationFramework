@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "NormalsEditor.h"
+#include "NormalsEditorDoc.h"
 #include "NormalsEditorOptionsDlg.h"
 #include "MainFrm.h"
 #include "Basic/Registry.h"
@@ -276,7 +277,10 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::ActivateFrame(int nCmdShow)
 {
-	OnUpdate(NULL, 0, NULL);
+	CNormalsEditorDoc* pDoc = dynamic_cast<CNormalsEditorDoc*>(GetActiveDocument());//UpdateAllViews is not virtual
+	ENSURE(pDoc);
+	pDoc->UpdateAllViews(NULL, 0, NULL);
+
 	CFrameWndEx::ActivateFrame(nCmdShow);
 }
 

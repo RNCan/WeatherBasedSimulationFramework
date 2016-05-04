@@ -190,6 +190,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	std::string Tokenize(const std::string& str, const std::string& delimiter, std::string::size_type& pos, bool bRemoveDuplicate = false, std::string::size_type posEnd = std::string::npos);
 	StringVector Tokenize(const std::string& str, const std::string& delimiter, bool bRemoveDuplicate = true, std::string::size_type pos=0, std::string::size_type posEnd = std::string::npos);
+	bool TokenizeWithQuote(const std::string& str, char sep, StringVector& out);
+	bool TokenizeWithQuote(const std::string& str, char* sep, StringVector& out);
 	
 	std::string FormatA(PCSTR szFormat, ...);
 	std::string FormatV(const char* szFormat, va_list argList);
@@ -991,12 +993,15 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		*/
 	inline bool FileExists(const std::string& filePath)
 	{
+		bool bExists = false;
 		struct stat buf;
 		if (stat(filePath.c_str(), &buf) != -1)
 		{
-			return true;
+			if( !(buf.st_mode & S_IFDIR) )
+				bExists = true;
 		}
-		return false;
+
+		return bExists;
 	}
 
 

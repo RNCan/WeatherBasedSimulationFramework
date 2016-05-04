@@ -349,16 +349,23 @@ namespace WBSF
 
 		BeginWaitCursor();
 
+		int curRow = GetCurrentRow();
+		size_t index = curRow >= 0 ? m_sortInfo[curRow].second:NOT_INIT;
 		SortInfo(col, col != m_curSortCol ? m_sortDir : OtherDir(m_sortDir));
+
+		size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
+		GotoRow((long)newRow);
+		//if ( >= m_sortInfo.size())
+			//Select(-1, -1);//force changing
 
 		RedrawAll();
 		EndWaitCursor();
 
-		if (GetCurrentRow() >= m_sortInfo.size())
-			Select(-1, -1);//force changing
+		
+		
 
-		long newRow = long((GetCurrentRow() == -1) ? -1 : m_sortInfo[GetCurrentRow()].second);
-		GotoRow(newRow);
+		
+		
 	}
 
 	void CLocationVectorCtrl::OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed)

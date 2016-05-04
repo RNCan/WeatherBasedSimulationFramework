@@ -138,10 +138,15 @@ enum TGeoH{ GEOH_0, GEOH_110, GEOH_323, GEOH_540, GEOH_762, GEOH_988, MAX_GEOH=1
 
 extern const char ATM_HEADER[] = "State|X|Y|Latitude|Longitude|Height|Scale|FlightSpeedAscent|FlightSpeedHorizontal|FlightSpeedDecent|FlightDirection|Distance|TotalDistance";
 
+//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
+//12 pa/m
+//double Uw2 = -ω / 12;
+//alt en m et Z en mbar
 
 //p: pressure [Pa]
 //t: temperature [°C]
 //ω: vertical velocity [pa/s]
+//Uw: vertical wind speed [m/s]
 double CATMVariables::get_Uw(double p, double t, double ω)
 {
 	ASSERT(!_isnan(p) && !_isnan(t) && !_isnan(ω));
@@ -153,12 +158,6 @@ double CATMVariables::get_Uw(double p, double t, double ω)
 	double T = t + 273.15;//temperature in Kelvin
 	
 	double Uw = -(ω*R*T) / (M*g*p);
-
-//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
-//12 pa/m
-	//double Uw2 = -ω / 12;
-	//alt en m et Z en mbar
-
 
 	return Uw;
 }

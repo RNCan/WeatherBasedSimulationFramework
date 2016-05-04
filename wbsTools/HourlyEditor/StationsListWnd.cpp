@@ -261,6 +261,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			CWeatherDatabasePtr pDB = pDoc->GetDatabase();
 
 			m_stationsList.m_pDB = pDoc->GetDatabase();
+			m_stationsList.m_initial_index = pDoc->GetCurStationIndex();
 			m_stationsList.m_years = pDoc->GetYears();
 			m_stationsList.m_filter = pDoc->GetFilters();
 

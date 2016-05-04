@@ -241,7 +241,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		
 
 		m_stationsList.m_pDB = pDoc->GetDatabase();
-		//m_stationsList.m_stationIndex = pDoc->GetCurStationIndex();
+		m_stationsList.m_initial_index = pDoc->GetCurStationIndex();
 		m_stationsList.m_filter = pDoc->GetFilters();
 
 		m_stationsList.Update();

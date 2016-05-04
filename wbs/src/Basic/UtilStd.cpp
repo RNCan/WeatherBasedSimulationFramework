@@ -11,6 +11,7 @@
 
 
 #include "stdafx.h"
+#include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -33,6 +34,10 @@
 #include "WeatherBasedSimulationString.h"
 
 using namespace std;
+
+using boost::tokenizer;
+using boost::escaped_list_separator;
+
 
 
 template < >
@@ -1880,6 +1885,44 @@ namespace WBSF
 	}
 
 
+	//est-ce qu'il y a une différence de performence entre les deux
+	typedef tokenizer<escaped_list_separator<char> > so_tokenizer;
+	bool TokenizeWithQuote(const std::string& str, char sep, StringVector& out)
+	{
+		try
+		{
+			out.clear();
+			so_tokenizer tok(str, escaped_list_separator<char>('\\', sep, '\"'));
+			for (so_tokenizer::iterator beg = tok.begin(); beg != tok.end(); ++beg)
+				out.push_back(*beg);
+		}
+		catch (...)
+		{
+			int i;
+			i = 0;
+		}
+
+		return !out.empty();
+	}
+
+	bool TokenizeWithQuote(const std::string& str, char* sep, StringVector& out)
+	{
+
+		try
+		{
+			out.clear();
+			so_tokenizer tok(str, escaped_list_separator<char>("\\", sep, "\""));
+			for (so_tokenizer::iterator beg = tok.begin(); beg != tok.end(); ++beg)
+				out.push_back(*beg);
+		}
+		catch (...)
+		{
+			int i;
+			i = 0;
+		}
+
+		return !out.empty();
+	}
 
 	std::string FormatA(PCSTR szFormat, ...)
 	{

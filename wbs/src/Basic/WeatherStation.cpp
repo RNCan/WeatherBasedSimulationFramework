@@ -2806,7 +2806,7 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 				
 					for (size_t i = 0; i < size(); i++)
 					{
-						assert(me[i].size() == 1);
+						//assert(me[i].size() == 1);
 						if (me[i][TRef][v].IsInit())
 						{
 							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation);
@@ -2909,7 +2909,7 @@ void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const 
 					CStatistic stat;
 					for (size_t i = 0; i < size(); i++)
 					{
-						assert(me[i].size() == 1);
+						//assert(me[i].size() == 1);
 						if (me[i][TRef][v].IsInit())
 						{
 							const CStatistic& value = me[i][TRef][v];

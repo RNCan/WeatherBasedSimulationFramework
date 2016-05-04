@@ -19,7 +19,7 @@ public:
 
 	virtual CDailyEditorDoc* GetDocument() const;
 	
-	virtual void OnInitialUpdate(); // called first time after construct
+	//virtual void OnInitialUpdate(); // called first time after construct
 	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	virtual void OnDraw(CDC* pDC);
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);

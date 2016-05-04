@@ -13,6 +13,8 @@
 #include "StateSelection.h"
 #include "ProvinceSelection.h"
 
+static const bool UPDATE_STATION_LIST = false;
+
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -30,8 +32,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;//| INTERNET_FLAG_TRANSFER_BINARY
-	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province", "UpdateStationList" };
-	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
+	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province" };//"UpdateStationList" 
+	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT};///, T_BOOL 
 	const UINT CUIWunderground::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WU_P;
 	const UINT CUIWunderground::DESCRIPTION_TITLE_ID = ID_TASK_WU;
 
@@ -94,14 +96,14 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "WeatherUnderground\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		case UPDATE_STATION_LIST:	str = "1"; break;
+		//case UPDATE_STATION_LIST:	str = "0"; break;
 		};
 		return str;
 	}
 
 	std::string CUIWunderground::GetStationListFilePath(const string& country)const
 	{ 
-		string filepath = GetApplicationPath() + "Layers\\";//GetDir(WORKING_DIR);
+		string filepath = GetApplicationPath() + "Layers\\";
 		if (country == "US")
 			filepath += "WUStationsListUSA.csv";
 		else if (country == "CA")
@@ -635,7 +637,8 @@ namespace WBSF
 		CProvinceSelection provinces(Get(PROVINCE));
 		
 
-		if (as<bool>(UPDATE_STATION_LIST))
+		//if (as<bool>(UPDATE_STATION_LIST))
+		if (UPDATE_STATION_LIST)
 		{
 			size_t n = 0;
 			if (countries.at("US"))
@@ -667,13 +670,17 @@ namespace WBSF
 
 			if (!msg)
 				return msg;
-			
+		
+			CLocationVector stationList1;
+			LoadStationList(stationList1, callback);
+
+			return ExtractElevation(stationList1, callback);
+
 		}
 
 		CLocationVector stationList1;
 		LoadStationList(stationList1, callback);
 
-		//return ExtractElevation(stationList, callback);
 		
 	
 

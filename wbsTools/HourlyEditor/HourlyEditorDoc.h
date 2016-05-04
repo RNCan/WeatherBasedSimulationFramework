@@ -35,7 +35,7 @@ public:
 	virtual ~CHourlyEditorDoc();
 
 
-	void SetCurStationIndex(size_t i, CView* pSender=NULL);
+	void SetCurStationIndex(size_t i, CView* pSender = NULL, bool bSendUpdate = true);
 	size_t GetCurStationIndex()const {return m_stationIndex;}
 	const WBSF::CWeatherStationPtr& GetCurStation()const{ return m_pStation; }
 	void SetCurStation(WBSF::CLocation& station, CView* pSender = NULL);
@@ -78,10 +78,14 @@ public:
 	virtual void OnCloseDocument();
 	virtual BOOL SaveModified(); // return TRUE if ok to continue
 	virtual BOOL IsModified();
-	virtual void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
+	
+	
+	
+	//UpdateAllViews is not virtual
+	void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
 
 	bool IsExecute()const{ return m_bExecute; }
-	void OnInitialUpdate();
+	//void OnInitialUpdate();
 
 protected:
 

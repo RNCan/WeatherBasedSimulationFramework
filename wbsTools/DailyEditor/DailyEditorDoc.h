@@ -14,7 +14,7 @@ public:
 	//
 	enum TEvent
 	{
-		INIT = 0, STATION_INDEX_CHANGE, LOCATION_CHANGE, OUTPUT_CHANGE, CLOSE, LANGUAGE_CHANGE,
+		INIT = 0, STATION_INDEX_CHANGE, LOCATION_CHANGE, OUTPUT_CHANGE, LANGUAGE_CHANGE,
 		STATION_LIST_PROPERTIES_YEARS_CHANGE, STATION_LIST_PROPERTIES_FILTERS_CHANGE,
 		DATA_PROPERTIES_EDITION_MODE_CHANGE, DATA_PROPERTIES_STAT_CHANGE, 
 		CHARTS_PROPERTIES_ZOOM_CHANGE, DATA_PROPERTIES_ENABLE_PERIOD_CHANGE, DATA_PROPERTIES_PERIOD_CHANGE,
@@ -28,7 +28,7 @@ public:
 	CDailyEditorDoc();
 	virtual ~CDailyEditorDoc();
 
-	void SetCurStationIndex(size_t i, CView* pSender=NULL);
+	void SetCurStationIndex(size_t i, CView* pSender=NULL, bool bSendUpdate=true);
 	size_t GetCurStationIndex()const {return m_stationIndex;}
 	const WBSF::CWeatherStationPtr& GetCurStation()const{ return m_pStation; }
 	void SetCurStation(WBSF::CLocation& station, CView* pSender = NULL);
@@ -40,7 +40,8 @@ public:
 	WBSF::CWVariables GetFilters()const{ return m_filters; }
 	void SetFilters(WBSF::CWVariables in){ if (in != m_filters){ m_filters = in; UpdateAllViews(NULL, STATION_LIST_PROPERTIES_FILTERS_CHANGE); } }
 	bool GetDataInEdition()const{ return m_bDataInEdition; }
-	void SetDataInEdition(bool in){ if (in != m_bDataInEdition){ m_bDataInEdition = in; UpdateAllViews(NULL, DATA_PROPERTIES_EDITION_MODE_CHANGE); } }
+	void SetDataInEdition(bool in);
+	
 	size_t GetStatistic()const{ return m_statistic; }
 	void SetStatistic(size_t in){ if (in != m_statistic){ m_statistic = in; UpdateAllViews(NULL, DATA_PROPERTIES_STAT_CHANGE); } }
 	WBSF::CTM GetTM()const{ return m_TM; }
@@ -65,7 +66,7 @@ public:
 	bool IsStationModified(size_t row)const;
 
 	bool IsExecute()const{ return m_bExecute; }
-	void OnInitialUpdate();
+	//void OnInitialUpdate();
 	
 	
 	virtual BOOL OnNewDocument();
@@ -74,7 +75,10 @@ public:
 	virtual void OnCloseDocument();
 	virtual BOOL SaveModified(); // return TRUE if ok to continue
 	virtual BOOL IsModified();
-	virtual void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
+	
+	
+	//UpdateAllViews is not virtual
+	void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
 
 
 

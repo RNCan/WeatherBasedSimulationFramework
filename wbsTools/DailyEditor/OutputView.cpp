@@ -101,12 +101,12 @@ CDailyEditorDoc* COutputView::GetDocument() const
 	return (CDailyEditorDoc*)m_pDocument;
 }
 
-void COutputView::OnInitialUpdate()
-{
-	CDailyEditorDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	pDoc->OnInitialUpdate();
-}
+//void COutputView::OnInitialUpdate()
+//{
+//	CDailyEditorDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//	pDoc->OnInitialUpdate();
+//}
 
 
 void COutputView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)

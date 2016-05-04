@@ -28,7 +28,7 @@ public:
 
 
 
-	void SetCurStationIndex(size_t i, CView* pSender=NULL);
+	void SetCurStationIndex(size_t i, CView* pSender = NULL, bool bSendUpdate=true);
 	size_t GetCurStationIndex()const {return m_stationIndex;}
 	const WBSF::CNormalsStationPtr& GetCurStation()const{ return m_pStation; }
 	void SetCurStation(WBSF::CLocation& station, CView* pSender = NULL);
@@ -45,7 +45,7 @@ public:
 
 	bool IsStationModified(size_t row)const;
 	bool IsExecute()const{ return m_bExecute; }
-	void OnInitialUpdate();
+	//void OnInitialUpdate();
 
 	
 	virtual BOOL OnNewDocument();
@@ -54,7 +54,9 @@ public:
 	virtual void OnCloseDocument();
 	virtual BOOL SaveModified(); // return TRUE if ok to continue
 	virtual BOOL IsModified();
-	virtual void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
+	
+	//UpdateAllViews is not virtual
+	void UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint=NULL);
 
 	
 protected:

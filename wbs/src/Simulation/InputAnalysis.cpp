@@ -248,7 +248,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 			}
 
 		}
-		else if (m_kind == LAST_OBSERVATION || m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == XVALIDATION_OBSERVATIONS || m_kind == MATCH_STATION_OBSERVATIONS)
+		else if ( m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == XVALIDATION_OBSERVATIONS || m_kind == MATCH_STATION_OBSERVATIONS)
 		{
 			//for all variable in the category
 			for (size_t v = 0; v<NB_VAR_H; v++)
@@ -261,7 +261,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 				}
 			}
 		}
-		else if (m_kind == EXTRACT_NORMALS || m_kind == MISSING_OBSERVATIONS)
+		else if (m_kind == LAST_OBSERVATION || m_kind == EXTRACT_NORMALS || m_kind == MISSING_OBSERVATIONS)
 		{
 			info.m_parameterset.push_back(CModelInput());//no input parameters
 		}
@@ -294,7 +294,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 			CTM TM(CTM::MONTHLY, CTM::OVERALL_YEARS);
 			info.m_period = CTPeriod(CTRef(YEAR_NOT_INIT, JANUARY, 0, 0, TM), CTRef(YEAR_NOT_INIT, DECEMBER, 0, 0, TM));
 		}
-		else if (m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS)
+		else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS)
 		{
 			msg += m_pParent->GetParentInfo(fileManager, info, TIME_REF);
 			
@@ -311,11 +311,12 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 	if (filter[VARIABLE])
 	{
 		info.m_variables.clear();
-		if (m_kind == LAST_OBSERVATION)
-		{
-			info.m_variables.push_back(CModelOutputVariableDef("Date", "Date", "", "Date of the last daily variable", CTM(CTM::DAILY)));
-		}
-		else if (m_kind == MATCH_STATION_NORMALS || m_kind == MATCH_STATION_OBSERVATIONS)
+		//if (m_kind == LAST_OBSERVATION)
+		//{
+			//info.m_variables.push_back(CModelOutputVariableDef("Date", "Date", "", "Date of the last daily variable", CTM(CTM::DAILY)));
+		//}
+		//else 
+		if (m_kind == MATCH_STATION_NORMALS || m_kind == MATCH_STATION_OBSERVATIONS)
 		{
 			info.m_variables.push_back(CModelOutputVariableDef("Station number", "Station number", "", "Station number"));
 			info.m_variables.push_back(CModelOutputVariableDef("Distance", "Distance", "km", "Distance"));
@@ -343,7 +344,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 				info.m_variables.push_back(CModelOutputVariableDef(name, title, units, description));
 			}
 		}
-		else if (m_kind == MISSING_OBSERVATIONS)
+		else if (m_kind == LAST_OBSERVATION || m_kind == MISSING_OBSERVATIONS)
 		{
 			//same as weather generator variables
 			msg += m_pParent->GetParentInfo(fileManager, info, VARIABLE);
@@ -1405,7 +1406,7 @@ ERMsg CInputAnalysis::LastObservation(const CFileManager& fileManager, CResult& 
 
 	CWVariables variables = WG.GetWGInput().m_variables;
 
-	callback.PushTask("Getting last obsevation", locations.size());
+	callback.PushTask("Getting number of obsevations", locations.size());
 	//callback.SetNbStep(locations.size());
 
 	for (size_t l = 0; l<locations.size() && msg; l++)
@@ -1414,29 +1415,28 @@ ERMsg CInputAnalysis::LastObservation(const CFileManager& fileManager, CResult& 
 
 		CSimulationPoint simulationPoint;
 		if (WG.GetWGInput().IsHourly())
-			msg += WG.GetDaily(simulationPoint, callback);
+			msg += WG.GetHourly(simulationPoint, callback); 
 		else
-			msg += WG.GetHourly(simulationPoint, callback);
+			msg += WG.GetDaily(simulationPoint, callback);
 
 
 
 		CTPeriod period = simulationPoint.GetEntireTPeriod();
-		vector<CTM> dataTM = { CTM(), CTM(period.GetTM().Type(), CTRef::OVERALL_YEARS) };
-
-		//Get last day and count of data for this variable
-		CWVariablesCounter count = simulationPoint.GetVariablesCount();
-		for (size_t v = 0; v<NB_VAR_H&&msg; v++)
+		CTRef TRef(simulationPoint.GetFirstYear());
+		CNewSectionData section(simulationPoint.size(), variables.count(), TRef);
+		
+		for (size_t y = 0; y < simulationPoint.size() && msg; y++)
 		{
-			if (variables[v])
+			//Get last day and count of data for this variable
+			CWVariablesCounter count = simulationPoint[y].GetVariablesCount();
+			for (size_t v = 0, vv = 0; v < NB_VAR_H&&msg; v++)
 			{
-				CNewSectionData section(1, 2, CTRef(0, 0, 0, 0, CTM(CTM::ANNUAL, CTM::OVERALL_YEARS)));
-				section.SetDataTM(dataTM);
-				section[0][0] = count[v].first;
-				section[0][1] = count[v].second.End();
+				if (variables[v])
+					section[y][vv++] = count[v].first;//.second.End().GetJDay()
+			}//for all variables
+		}
 
-				resultDB.AddSection(section);
-			}
-		}//for all category
+		resultDB.AddSection(section);
 
 		msg += callback.StepIt();
 	}//for all loc

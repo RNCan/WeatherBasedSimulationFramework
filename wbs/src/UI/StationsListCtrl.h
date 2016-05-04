@@ -39,6 +39,7 @@ namespace WBSF
 
 		std::set<int>	m_years;
 		CWVariables		m_filter;
+		size_t			m_initial_index;
 		//	boost::dynamic_bitset<size_t> m_selection;//specific station selection;
 		//bool			m_bStationModified;
 
@@ -74,7 +75,7 @@ namespace WBSF
 		size_t	GetStationIndex()const;
 
 		void SetStationModified(size_t i, bool bModified){ bModified ? m_stationModified.set(i) : m_stationModified.reset(i); }
-		int RedrawRow(long index);
+		//int RedrawRow(long index);
 		void SetEditionMode(bool bInEdition);
 
 		inline int OtherDir(int dir){ return (dir == UGCT_SORTARROWUP) ? UGCT_SORTARROWDOWN : UGCT_SORTARROWUP; }
@@ -154,7 +155,7 @@ namespace WBSF
 		size_t	GetStationIndex()const;
 
 
-		int RedrawRow(long index);
+		//int RedrawRow(long index);
 		inline int OtherDir(int dir){ return (dir == UGCT_SORTARROWUP) ? UGCT_SORTARROWDOWN : UGCT_SORTARROWUP; }
 
 	protected:

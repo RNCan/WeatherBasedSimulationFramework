@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "HourlyEditor.h"
+#include "HourlyEditorDoc.h"
 #include "HourlyEditorOptionsDlg.h"
 #include "MainFrm.h"
 #include "Basic/Registry.h"
@@ -276,7 +277,10 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::ActivateFrame(int nCmdShow)
 {
-	OnUpdate(NULL, 0, NULL);
+	CHourlyEditorDoc* pDoc = dynamic_cast<CHourlyEditorDoc*>(GetActiveDocument());//UpdateAllViews is not virtual
+	ENSURE(pDoc);
+
+	pDoc->UpdateAllViews(NULL, 0, NULL);//UpdateAllViews is not virtual
 	CFrameWndEx::ActivateFrame(nCmdShow);
 }
 

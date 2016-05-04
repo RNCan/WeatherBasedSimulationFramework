@@ -536,6 +536,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 	//Load database
 	if (m_curIndex != UNKNOWN_POS)
 	{
+		
 		//update result
 		if (m_pNormalsDB.get() && m_pNormalsDB->IsOpen())
 		{
@@ -560,10 +561,27 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				m_gradient.m_target = GetLocation(m_curIndex);
 
 
-				//CProgressStepDlg dlg(AfxGetMainWnd());
-				//dlg.Create();
+				COutputView* pView = GetOutpoutView();
+				CProgressWnd& progressWnd = GetProgressWnd(pView);
 
-				ERMsg msg = m_gradient.CreateGradient();
+				m_bExecute = true;
+				pView->AdjustLayout();//open the progress window
+				CProgressStepDlgParam param(this, NULL, (void*)T_GRADIENT);
+
+				
+				ERMsg msg = progressWnd.Execute(Execute, &param);
+
+
+				m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
+				m_bExecute = false;
+				pView->AdjustLayout();//open the progress window
+
+
+
+				if (!msg)
+					UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+
+
 			}
 
 			if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == NORMALS_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
@@ -641,7 +659,10 @@ UINT CMatchStationDoc::Execute(void* pParam)
 {
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CMatchStationDoc* pDoc = (CMatchStationDoc*)pMyParam->m_pThis;
-	std::string filepath = (char*)pMyParam->m_pFilepath;
+	std::string filepath;
+	if (pMyParam->m_pFilepath!=NULL)
+		filepath = (char*)pMyParam->m_pFilepath;
+
 	size_t type = (size_t)pMyParam->m_pExtra;
 
 	ERMsg* pMsg = pMyParam->m_pMsg;
@@ -656,6 +677,7 @@ UINT CMatchStationDoc::Execute(void* pParam)
 		case T_DAILY:	*pMsg = pDoc->m_pDailyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback); break;
 		case T_NORMALS:	*pMsg = pDoc->m_pNormalsDB->Open(filepath, CNormalsDatabase::modeRead, *pCallback); break;
 		case T_LOCATION:*pMsg = pDoc->m_pLocations->Load(filepath, ";,", *pCallback); break;
+		case T_GRADIENT:*pMsg = pDoc->m_gradient.CreateGradient(*pCallback); break;
 		default: ASSERT(false);
 		}
 	CATCH_ALL(e)

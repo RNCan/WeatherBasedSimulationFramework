@@ -143,6 +143,11 @@ ERMsg CWeatherDatabase::Open(const std::string& filePath, UINT flag, CCallback& 
 			if (!msg)
 				return msg;
 		}
+
+		//create a new file
+		if (!FileExists(filePath))
+			msg = CWeatherDatabaseOptimization().SaveAsXML(filePath, GetSubDir(filePath), GetXMLFlag(), GetVersion());
+
 	}
 
 	msg = OpenOptimizationFile(filePath, callback, flag == modeRead && bSkipVerify);
@@ -215,66 +220,75 @@ ERMsg CWeatherDatabase::Close(bool bSave, CCallback& callback)
 ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePath, CCallback& callback, bool bSkipVerify)
 {
 	ERMsg msg;
-	bool bStationsAsChange=true;
-	bool bDataAsChange=true;
 	
 	
-	std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
-	if (FileExists(referencedFilePath) && FileExists(optFilePath))
+	
+	if (FileExists(referencedFilePath) )
 	{
-		callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(optFilePath) ));
-		msg = m_zop.Load(optFilePath);
-		if(msg)
+		bool bStationsAsChange = true;
+		bool bDataAsChange = true;
+
+		std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
+		if (FileExists(optFilePath))
 		{
-			if(m_zop.IsStationDefinitionUpToDate(referencedFilePath) )
+			callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(optFilePath)));
+			msg = m_zop.Load(optFilePath);
+			if (msg)
 			{
-				bStationsAsChange=false;
+				if (m_zop.IsStationDefinitionUpToDate(referencedFilePath))
+				{
+					bStationsAsChange = false;
+				}
 			}
 		}
-	}
-	
 
-	if( msg && bStationsAsChange )
-	{
-		if (!FileExists(referencedFilePath))
-			msg = CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, GetSubDir(referencedFilePath), GetXMLFlag(), GetVersion());
-		
-		if (msg)
-			msg = VerifyVersion(referencedFilePath);
+
+		if (msg && bStationsAsChange)
+		{
+			//if (!FileExists(referencedFilePath) && m_openMode==modeWrite)//save reference file from this optimization ?????????????hummm
+			//msg = CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, GetSubDir(referencedFilePath), GetXMLFlag(), GetVersion());
+
+			if (msg)
+				msg = VerifyVersion(referencedFilePath);
+
+			if (msg)
+			{
+				callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(referencedFilePath)));
+				msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag());
+			}
+		}
 
 		if (msg)
 		{
-			callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(referencedFilePath)));
-			msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag());
+
+			//Get data file to be updated
+			CFileInfoVector fileInfo;
+
+			if (bStationsAsChange || !bSkipVerify)
+				msg = m_zop.GetDataFiles(fileInfo, true, callback);
+
+			bDataAsChange = !fileInfo.empty();
+
+			if (bDataAsChange)
+			{
+				callback.AddMessage(FormatMsg(IDS_BSC_UPDATE_FILE, GetFileName(optFilePath)));
+				string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
+				msg = m_zop.UpdateDataFilesYearsIndex(dataOptFilePath, fileInfo, callback);
+			}
 		}
-	} 
 
-	if(msg)
-	{
-		
-		//Get data file to be updated
-		CFileInfoVector fileInfo;
-		
-		if (bStationsAsChange || !bSkipVerify)
-			msg = m_zop.GetDataFiles(fileInfo, true, callback);
-
-		bDataAsChange = !fileInfo.empty();
-		
-		if(bDataAsChange)
+		if (msg && (bStationsAsChange || bDataAsChange))
 		{
-			callback.AddMessage(FormatMsg(IDS_BSC_UPDATE_FILE, GetFileName(optFilePath) ));
-			string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
-			msg = m_zop.UpdateDataFilesYearsIndex(dataOptFilePath, fileInfo, callback);
+			callback.AddMessage(FormatMsg(IDS_BSC_SAVE_FILE, GetFileName(optFilePath)));
+
+			msg += m_zop.Save(optFilePath);
 		}
 	}
-
-	if(msg && (bStationsAsChange||bDataAsChange) )
+	else
 	{
-		callback.AddMessage(FormatMsg(IDS_BSC_SAVE_FILE, GetFileName(optFilePath)));
-
-		msg += m_zop.Save(optFilePath);
+		std::string error = FormatMsg(IDS_WG_DB_NOTEXIST, referencedFilePath);
+		msg.ajoute(error);
 	}
-
 
 	msg += ClearSearchOpt(referencedFilePath);
 
@@ -1392,6 +1406,8 @@ ERMsg CDHDatabaseBase::MergeStation(CWeatherDatabase& inputDB1, CWeatherDatabase
 ERMsg CDHDatabaseBase::VerifyVersion(const std::string& filePath)const
 {
 	ERMsg msg;
+
+	
 	if (FileExists(filePath))
 	{
 		if (GetVersion(filePath) != GetVersion())
@@ -1959,11 +1975,11 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 	}
 
 
-	if (year<0)
-		year = 0;
+	//if (year<0)
+		//year = 0;
 
 	m_CS.Enter();
-	__int64 canal = (filter.to_ullong()) * 100000 + year * 10 + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+	__int64 canal = (filter.to_ullong()) * 100000 + max(year,0) * 10 + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
 	if (!m_zop.CanalExists(canal))
 	{
 		CLocationVector locations;

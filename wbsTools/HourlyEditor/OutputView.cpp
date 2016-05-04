@@ -101,12 +101,12 @@ CHourlyEditorDoc* COutputView::GetDocument() const
 	return (CHourlyEditorDoc*)m_pDocument;
 }
 
-void COutputView::OnInitialUpdate()
-{
-	CHourlyEditorDoc* pDoc = GetDocument();
-	ASSERT(pDoc);
-	pDoc->OnInitialUpdate();
-}
+//void COutputView::OnInitialUpdate()
+//{
+//	CHourlyEditorDoc* pDoc = GetDocument();
+//	ASSERT(pDoc);
+//	pDoc->OnInitialUpdate();
+//}
 
 
 void COutputView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)

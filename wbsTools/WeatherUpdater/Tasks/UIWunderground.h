@@ -14,7 +14,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, PROVINCE, UPDATE_STATION_LIST, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, PROVINCE, NB_ATTRIBUTES };//UPDATE_STATION_LIST, 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
 
 		static size_t GetNetwork(const std::string& network_name);

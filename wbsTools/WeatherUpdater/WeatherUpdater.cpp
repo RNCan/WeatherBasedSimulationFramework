@@ -1,3 +1,4 @@
+//5.0.3 03/05/2016	Add MDDELCC and Weather Underground
 //5.0.2 25/04/2016	Many bugs correction in the daily extractor and the hourly extractor
 //					Add of BC via PCCI
 //5.0.1 10/04/2016	Bug correction on Window 10  

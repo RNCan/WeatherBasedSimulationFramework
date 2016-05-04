@@ -28,7 +28,7 @@ public:
 	};
 
 	
-	enum TObservation{ T_HOURLY, T_DAILY, T_NORMALS, T_LOCATION };
+	enum TObservation{ T_HOURLY, T_DAILY, T_NORMALS, T_LOCATION, T_GRADIENT };
 
 
 	static const char* DOCUMENT_XML;

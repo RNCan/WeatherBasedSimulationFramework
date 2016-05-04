@@ -259,7 +259,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		
 
 		m_stationsList.m_pDB = pDoc->GetDatabase();
-		//m_stationsList.m_stationIndex = pDoc->GetCurStationIndex();
+		m_stationsList.m_initial_index = pDoc->GetCurStationIndex();
 		m_stationsList.m_years = pDoc->GetYears();
 		m_stationsList.m_filter = pDoc->GetFilters();
 
@@ -268,11 +268,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 	else if (lHint == CDailyEditorDoc::STATION_INDEX_CHANGE )
 	{
-		size_t index = pDoc->GetCurStationIndex();
-		//m_stationsList.m_stationIndex = index;
 		m_stationsList.SetStationIndex(pDoc->GetCurStationIndex());
-		
-		
 	}
 	else if (lHint == CDailyEditorDoc::LOCATION_CHANGE)
 	{

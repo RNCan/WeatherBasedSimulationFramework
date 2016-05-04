@@ -124,7 +124,19 @@ BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 
 
-	if (!msg)
+	if (msg)
+	{
+		CString str = GetCommandLine();
+		std::string cmd_line = CStringA(str);
+		std::replace(cmd_line.begin(), cmd_line.end(), '\\', '/');
+
+		StringVector cmd;
+		TokenizeWithQuote(cmd_line, ' ', cmd);
+		size_t pos = cmd.Find("-ID", false);
+		if (pos < cmd.size() && pos + 1 < cmd.size())
+			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
+	}
+	else
 	{
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
@@ -273,7 +285,7 @@ void CNormalsEditorDoc::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-void CNormalsEditorDoc::SetCurStationIndex(size_t i, CView* pSender)
+void CNormalsEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUpdate)
 {
 	ERMsg msg;
 
@@ -291,7 +303,8 @@ void CNormalsEditorDoc::SetCurStationIndex(size_t i, CView* pSender)
 			assert(m_pStation->IsInit());
 		}
 		
-		UpdateAllViews(pSender, STATION_INDEX_CHANGE, NULL);
+		if (bSendUpdate)
+			UpdateAllViews(pSender, STATION_INDEX_CHANGE, NULL);
 
 		if (!msg)
 			SetOutputText(GetText(msg));
@@ -371,7 +384,7 @@ bool CNormalsEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-void CNormalsEditorDoc::OnInitialUpdate()
-{
-	UpdateAllViews(NULL, INIT, NULL);
-}
+//void CNormalsEditorDoc::OnInitialUpdate()
+//{
+//	UpdateAllViews(NULL, INIT, NULL);
+//}

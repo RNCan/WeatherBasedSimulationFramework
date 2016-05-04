@@ -196,8 +196,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,2,6
- PRODUCTVERSION 5,0,2,0
+ FILEVERSION 5,0,3,11
+ PRODUCTVERSION 5,0,3,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -214,21 +214,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.2.6"
+            VALUE "FileVersion", "5.0.3.11"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.0.2.0"
+            VALUE "ProductVersion", "5.0.3.7"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.2.6"
+            VALUE "FileVersion", "5.0.3.11"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.0.2.0"
+            VALUE "ProductVersion", "5.0.3.7"
         END
     END
     BLOCK "VarFileInfo"
@@ -655,7 +655,7 @@ BEGIN
     IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
     IDS_UPDATER_BC_P   "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
-	IDS_UPDATER_WU_P   "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)|Mise à jours des coordonnées"
+	IDS_UPDATER_WU_P   "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
 	
 END
 
@@ -1106,7 +1106,7 @@ BEGIN
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
 	IDS_UPDATER_BC_P		"Working directory|type|First Year|Last Year|Update coordinates|Ignor Environnement Canada stations"
-	IDS_UPDATER_WU_P		"Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)|Update coordinates"
+	IDS_UPDATER_WU_P		"Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)"
 END
 
 STRINGTABLE

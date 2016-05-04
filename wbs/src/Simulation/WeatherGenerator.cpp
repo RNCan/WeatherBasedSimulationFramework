@@ -798,13 +798,14 @@ ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint&  simulationPoint, CWVaria
 		snowMelt.Compute(simulationPoint);
 		const CSnowMeltResultVector& snow = snowMelt.GetResult();
 
+		size_t jd = 0;
 		for (CWeatherYears::iterator itY = simulationPoint.begin(); itY != simulationPoint.end(); itY++)//for all years
 		{
 			for (CWeatherYear::iterator itM = itY->second->begin(); itM != itY->second->end(); itM++)//for all months
 			{
-				for (CMonth::iterator itD = itM->begin(); itD != itM->end(); itD++)//for all days
+				for (CMonth::iterator itD = itM->begin(); itD != itM->end(); itD++, jd++)//for all days
 				{
-					size_t jd = itD->GetTRef().GetJDay();
+					//size_t jd = itD->GetTRef().GetJDay();
 
 					if (variables[H_SNOW] && !(*itD)[H_SNOW].IsInit())
 						(*itD)[H_SNOW] = snow[jd].m_newSWE;

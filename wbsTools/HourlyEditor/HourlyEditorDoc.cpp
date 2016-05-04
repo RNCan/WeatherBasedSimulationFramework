@@ -145,6 +145,16 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	if (msg)
 	{
+		CString str = GetCommandLine();
+		std::string cmd_line = CStringA(str);
+		std::replace(cmd_line.begin(), cmd_line.end(), '\\', '/');
+
+		StringVector cmd;
+		TokenizeWithQuote(cmd_line, ' ', cmd);
+		size_t pos = cmd.Find("-ID", false);
+		if (pos < cmd.size() && pos + 1 < cmd.size())
+			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
+
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();
 		if (!m_period.IsInit() && !years.empty())
@@ -341,7 +351,7 @@ void CHourlyEditorDoc::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-void CHourlyEditorDoc::SetCurStationIndex(size_t i, CView* pSender)
+void CHourlyEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUpdate)
 {
 	ERMsg msg;
 
@@ -439,8 +449,8 @@ bool CHourlyEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-void CHourlyEditorDoc::OnInitialUpdate()
-{
-	UpdateAllViews(NULL, INIT, NULL);
-}
+//void CHourlyEditorDoc::OnInitialUpdate()
+//{
+//	UpdateAllViews(NULL, INIT, NULL);
+//}
 

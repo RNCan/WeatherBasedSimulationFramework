@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
 // 11.0.3: 24/04/2016	Add climatic zone to Gribs simulation
+//						Bug correction in snow and Input Weather Generator Analysis
 // 11.0.2: 21/04/2016	Correction of bug in the weather generation with more than 1 replication.
 // 11.0.0: 10/04/2016	Integreted with WBSF 
 //						Add hourly input data   
@@ -242,10 +243,10 @@
 //                     Nouveau point d'entré dans les dll DoSimulation2
 // 6.61 : 18/11/2002 : ???
 // 6.60 : 24/10/2002 : Ajout de la radiation dans tempGen
-// 6.54 : 17/10/2002 : nouvelle version
+// 6.54 : 17/10/2002 : nouvelle version 
 // 6.53 : 06/09/2002 : nouveau CBinaryMap pour prendre les ShortGrids
 //                     Correction d'un bug dans la lecture des msb 
-// 6.53 : 15/08/2002 : Support pour les fichier .prj  
+// 6.53 : 15/08/2002 : Support pour les fichier .prj   
 // 6.52 : Dans TempGen, inverser realMin et realMax si min plus grand que max.
 // 6.51 : Modification de TempGenKernel par Jaques.
 // 6.5  : Ajout du nombre d'année à simuler dans le model. modif de tempgen
