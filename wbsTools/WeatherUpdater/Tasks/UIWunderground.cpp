@@ -13,8 +13,8 @@
 #include "StateSelection.h"
 #include "ProvinceSelection.h"
 
-static const bool UPDATE_STATION_LIST = false;
-
+static const bool UPDATE_STATIONS_LIST = false;
+static const bool UPDATE_STATIONS_INFO = false;
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -638,7 +638,7 @@ namespace WBSF
 		
 
 		//if (as<bool>(UPDATE_STATION_LIST))
-		if (UPDATE_STATION_LIST)
+		if (UPDATE_STATIONS_LIST)
 		{
 			size_t n = 0;
 			if (countries.at("US"))
@@ -670,13 +670,18 @@ namespace WBSF
 
 			if (!msg)
 				return msg;
+		}
+
 		
+
+		if (UPDATE_STATIONS_INFO)
+		{
 			CLocationVector stationList1;
 			LoadStationList(stationList1, callback);
-
 			return ExtractElevation(stationList1, callback);
-
 		}
+			
+
 
 		CLocationVector stationList1;
 		LoadStationList(stationList1, callback);
