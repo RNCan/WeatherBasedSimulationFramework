@@ -97,8 +97,6 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg void OnUpdateToolBar(CCmdUI *pCmdUI);
 	afx_msg void OnOpenProperty();
-	
-
 
 	CFont m_fntPropList;
 	CPropertiesToolBar		m_wndToolBar;

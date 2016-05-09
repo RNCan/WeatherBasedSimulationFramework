@@ -37,6 +37,7 @@ BEGIN_MESSAGE_MAP(CTaskPropertyGridCtrl, CMFCPropertyGridCtrl)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_DESTROY()
+	ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 CTaskPropertyGridCtrl::CTaskPropertyGridCtrl()
@@ -153,8 +154,6 @@ void CTaskPropertyGridCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pPropIn)
 	m_pTask->Set(i, str);
 }
 
-
-
 void CTaskPropertyGridCtrl::EnableProperties(BOOL bEnable)
 {
 	for (int i = 0; i < GetPropertyCount(); i++)
@@ -181,39 +180,40 @@ void CTaskPropertyGridCtrl::OnChangeSelection(CMFCPropertyGridProperty* pNewSel,
 
 BOOL CTaskPropertyGridCtrl::PreTranslateMessage(MSG* pMsg)
 {
+	
+	
+	//if (pMsg->message == WM_KEYDOWN)
+	//{
+	//	BOOL bAlt = GetKeyState(VK_CONTROL) & 0x8000;
+	//	if (pMsg->wParam == VK_RETURN)
+	//	{
+	//		if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
+	//		{
+	//			if (m_pSel->GetOptionCount()>0)
+	//				OnSelectCombo();
 
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		BOOL bAlt = GetKeyState(VK_CONTROL) & 0x8000;
-		if (pMsg->wParam == VK_RETURN)
-		{
-			if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
-			{
-				if (m_pSel->GetOptionCount()>0)
-					OnSelectCombo();
+	//			EndEditItem();
 
-				EndEditItem();
+	//			//select next item
+	//			size_t ID = m_pSel->GetData();
+	//			size_t newID = (ID + 1) % GetPropertyCount();
+	//			CMFCPropertyGridProperty* pNext = FindItemByData(newID);
+	//			if (pNext)
+	//			{
+	//				SetCurSel(pNext);
+	//				EditItem(pNext);
+	//			}
 
-				//select next item
-				size_t ID = m_pSel->GetData();
-				size_t newID = (ID + 1) % GetPropertyCount();
-				CMFCPropertyGridProperty* pNext = FindItemByData(newID);
-				if (pNext)
-				{
-					SetCurSel(pNext);
-					EditItem(pNext);
-				}
+	//			return TRUE; // this doesn't need processing anymore
+	//		}
 
-				return TRUE; // this doesn't need processing anymore
-			}
-
-		}
-		else if (pMsg->wParam == VK_DOWN && bAlt)
-		{
-			m_pSel->OnClickButton(CPoint(-1, -1));
-			return TRUE; // this doesn't need processing anymore
-		}
-	}
+	//	}
+	//	else if (pMsg->wParam == VK_DOWN && bAlt)
+	//	{
+	//		m_pSel->OnClickButton(CPoint(-1, -1));
+	//		return TRUE; // this doesn't need processing anymore
+	//	}
+	//}
 
 	return CMFCPropertyGridCtrl::PreTranslateMessage(pMsg); // all other cases still need default processing;
 }
@@ -235,6 +235,7 @@ BEGIN_MESSAGE_MAP(CTaskPropertyWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_DESTROY()
+	ON_WM_KILLFOCUS()
 	ON_UPDATE_COMMAND_UI(ID_OPEN_PROPERTY, OnUpdateToolBar)
 	ON_COMMAND(ID_OPEN_PROPERTY, OnOpenProperty)
 END_MESSAGE_MAP()
@@ -335,6 +336,7 @@ void CTaskPropertyWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		m_propertiesCtrl.SetPropertyColumnWidth(width);
 	}
 
+
 	if (lHint == CWeatherUpdaterDoc::INIT || lHint == CWeatherUpdaterDoc::SELECTION_CHANGE || 
 		lHint == CWeatherUpdaterDoc::ADD_TASK || lHint == CWeatherUpdaterDoc::REMOVE_TASK ||
 		lHint == CWeatherUpdaterDoc::LANGUAGE_CHANGE)
@@ -346,6 +348,10 @@ void CTaskPropertyWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		
 		m_propertiesCtrl.m_pTask = pDoc->GetTask(t, p);
 		m_propertiesCtrl.Update();
+	}
+	else if (lHint == CWeatherUpdaterDoc::SELECTION_WILL_CHANGE)
+	{
+		m_propertiesCtrl.RemoveAll();//let control to end edit and kill focus
 	}
 	
 }
@@ -401,17 +407,13 @@ void CTaskPropertyWnd::OnDestroy()
 BOOL CTaskPropertyWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	//let the view to route command
-	//CWnd* pFocus = GetFocus();
-	//if (pFocus)
-	//{
-		//CWnd* pParent = pFocus->GetParent();
-
-		//if (pFocus == &m_propertiesCtrl || pParent == &m_propertiesCtrl)
-		//{
-			if (m_propertiesCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-				return TRUE;
-		//}
-	//}
+	CWnd* pFocus = GetFocus();
+	if (pFocus && IsChild(pFocus))
+	{
+		if (m_propertiesCtrl.IsChild(pFocus) && m_propertiesCtrl.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+			return TRUE;
+	}
 
 	return CDockablePane::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
+

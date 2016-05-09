@@ -6,7 +6,7 @@
 
 #include "Tasks/UIEnvCanHourly.h"
 #include "Tasks/UIEnvCanDaily.h"
-#include "Tasks/UIEnvCanHourlyForecast.h"
+#include "Tasks/UIEnvCanForecast.h"
 #include "Tasks/UIEnvCanRadar.h"
 #include "Tasks/UIEnvCanPrcpRadar.h"
 #include "Tasks/UIGHCN.h"
@@ -279,7 +279,7 @@ string CTaskWnd::ClassName(UINT ID)
 	{
 	case ID_TASK_EC_DAILY:		className = CUIEnvCanDaily::CLASS_NAME(); break;
 	case ID_TASK_EC_HOURLY:		className = CUIEnvCanHourly::CLASS_NAME(); break;
-	case ID_TASK_EC_FORECAST:	className = CUIEnvCanHourlyForecast::CLASS_NAME(); break;
+	case ID_TASK_EC_FORECAST:	className = CUIEnvCanForecast::CLASS_NAME(); break;
 	case ID_TASK_EC_RADAR:		className = CUIEnvCanRadar::CLASS_NAME(); break;
 	case ID_TASK_EC_PRCP_RADAR: className = CUIEnvCanPrcpRadar::CLASS_NAME(); break;
 	case ID_TASK_NOAA_GHCND:	className = CUIGHCND::CLASS_NAME(); break;
@@ -648,39 +648,56 @@ LRESULT CTaskWnd::OnDropHover(WPARAM wParam, LPARAM lParam)
 void CTaskWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 
-	CTaskTreeCtrl* pWndTree = (CTaskTreeCtrl*)(this);
-	ASSERT_VALID(pWndTree);
+	//CTaskTreeCtrl* pWndTree = (CTaskTreeCtrl*)(this);
+	//ASSERT_VALID(pWndTree);
 
-	int classType = -1;
-	if (point != CPoint(-1, -1))
+	//int classType = -1;
+	//if (point != CPoint(-1, -1))
+	//{
+	//	// Select clicked item:
+	//	CPoint ptTree = point;
+	//	m_taskCtrl.ScreenToClient(&ptTree);
+
+	//	UINT flags = 0;
+	//	HTREEITEM hTreeItem = m_taskCtrl.HitTest(ptTree, &flags);
+	//	if (hTreeItem != NULL)
+	//	{
+	//		CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
+	//		HMENU hMenu = pMM->GetMenuByName(_T("Edit2"));
+	//		if (hMenu != NULL)
+	//		{
+	//			CMenu* pMenu = CMenu::FromHandle(hMenu);
+	//			ASSERT(pMenu);
+
+	//			CMenu* pSumMenu = pMenu->GetSubMenu(0);
+	//			ASSERT(pSumMenu);
+
+	//			pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, this);
+	//		}
+	//	}
+
+	//	//m_taskCtrl.SelectItem(hTreeItem);
+	//}
+
+	//SetFocus();
+	
+	CMenu menu;
+	menu.LoadMenu(IDR_POPUP_EDIT);
+
+	CMenu* pSumMenu = menu.GetSubMenu(0);
+
+	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CFrameWndEx)))
 	{
-		// Select clicked item:
-		CPoint ptTree = point;
-		pWndTree->ScreenToClient(&ptTree);
+		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
 
-		UINT flags = 0;
-		HTREEITEM hTreeItem = m_taskCtrl.HitTest(ptTree, &flags);
-		if (hTreeItem != NULL)
-		{
-			CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
-			HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
-			if (hMenu != NULL)
-			{
-				CMenu* pMenu = CMenu::FromHandle(hMenu);
-				ASSERT(pMenu);
+		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
+			return;
 
-				CMenu* pSumMenu = pMenu->GetSubMenu(0);
-				ASSERT(pSumMenu);
-
-				pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, this);
-			}
-		}
-
-		m_taskCtrl.SelectItem(hTreeItem);
+		((CFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
+		//UpdateDialogControls(this, FALSE);
 	}
 
-	m_taskCtrl.SetFocus();
-	
+	SetFocus();
 }
 
 
@@ -816,21 +833,21 @@ BOOL CProjectWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO
 {
 	
 	CWnd* pFocus = GetFocus();
-	if (pFocus)
+	if (pFocus&& IsChild(pFocus))
 	{
-		CWnd* pParent = pFocus->GetParent();
+		//CWnd* pParent = pFocus->GetParent();
 
-		if (pFocus == &m_wnd1 || pParent == &m_wnd1)
-		{
-			if (m_wnd1.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-				return TRUE;
-		}
+		//if (pFocus == &m_wnd1 || pParent == &m_wnd1)
+		//{
+		if (m_wnd1.IsChild(pFocus) && m_wnd1.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+			return TRUE;
+		//}
 
-		if(pFocus == &m_wnd2 || pParent == &m_wnd2)
-		{
-			if (m_wnd2.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		//if(pFocus == &m_wnd2 || pParent == &m_wnd2)
+		//{
+		if (m_wnd2.IsChild(pFocus) && m_wnd2.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
 				return TRUE;
-		}
+		//}
 	}
 	
 

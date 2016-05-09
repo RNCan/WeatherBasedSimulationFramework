@@ -260,7 +260,6 @@ void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	{
 		m_wndProject.OnUpdate(pSender, lHint, pHint);
 		m_wndProperties.OnUpdate(pSender, lHint, pHint);
-		//m_progressWnd.OnUpdate(pSender, lHint, pHint);
 	}
 }
 
@@ -369,30 +368,10 @@ void CMainFrame::OnEditOptions()
 
 }
 
-
-//return the active pane of the progress tabble group
-//CDockablePane* CMainFrame::GetNeighborProgressPane()
-//{
-//	CDockablePane* pPane = NULL;
-//	if (!m_progressWnd.IsPaneVisible())
-//	{
-//		HWND hWndTab = NULL;
-//		CMFCBaseTabCtrl* parent = m_progressWnd.GetParentTabWnd(hWndTab);
-//		if (parent)
-//		{
-//			int tab = parent->GetActiveTab();
-//			CWnd* pWnd = parent->GetTabWnd(tab);
-//			pPane = dynamic_cast<CDockablePane*>(pWnd);
-//		}
-//	}
-//
-//	return pPane;
-//}
-
-
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	
+
 	if (GetActiveDocument() == NULL)
 	{
 		CWinApp* pApp = AfxGetApp();
@@ -411,6 +390,13 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 				}
 			}
 		}
+	}
+	else
+	{
+		if (m_wndProject.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+			return TRUE;
+		if (m_wndProperties.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))		
+			return TRUE;
 	}
 
 	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);

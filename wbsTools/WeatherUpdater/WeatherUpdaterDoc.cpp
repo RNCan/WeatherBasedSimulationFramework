@@ -230,7 +230,7 @@ BOOL CWeatherUpdaterDoc::SaveModified() // return TRUE if ok to continue
 // diagnostics pour CWeatherUpdaterDoc
 
 
-void CWeatherUpdaterDoc::SetCurP(size_t t, size_t p)//, size_t a
+void CWeatherUpdaterDoc::SetCurP(size_t t, size_t p)
 {
 	ASSERT(t < CTaskBase::NB_TYPES);
 
@@ -238,6 +238,11 @@ void CWeatherUpdaterDoc::SetCurP(size_t t, size_t p)//, size_t a
 
 	if (t != m_currentType || p != m_currentTask[t] )
 	{
+		//because selection change in the project ctrl on a OnTimer, we need to kill focus
+		//to the current window before processing it
+		UpdateAllViews(NULL, SELECTION_WILL_CHANGE, NULL);
+
+
 		for (size_t tt = 0; tt < m_currentTask.size(); tt++)
 			m_currentTask[tt] = NOT_INIT;
 
@@ -246,8 +251,6 @@ void CWeatherUpdaterDoc::SetCurP(size_t t, size_t p)//, size_t a
 		
 		UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
 	}
-
-//	m_currentAttribute = a;
 }
 
 std::string CWeatherUpdaterDoc::GetUpdaterList()const

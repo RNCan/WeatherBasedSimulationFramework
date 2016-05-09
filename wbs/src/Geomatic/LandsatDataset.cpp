@@ -68,6 +68,7 @@ namespace WBSF
 
 			if ((GetRasterCount() % options.m_scenesSize) == 0)
 			{
+				bool bFindPeriod=false;
 				size_t nbScenes = size_t(GetRasterCount() / options.m_scenesSize);
 				m_scenesPeriod.resize(nbScenes);
 				for (size_t s = 0; s < nbScenes; s++)
@@ -92,14 +93,19 @@ namespace WBSF
 							period.Begin() = options.GetTRef(int(TRefMin));
 							period.End() = options.GetTRef(int(TRefMax));
 						}
-						else
-						{
-							msg.ajoute("ERROR: Unable to get temporal reference from images");
-						}
 					}
 
 					if (period.IsInit())
+					{
+						bFindPeriod = true;
 						m_scenesPeriod[s] = period;
+					}
+						
+				}//for all scenes
+
+				if (!bFindPeriod)
+				{
+					msg.ajoute("ERROR: Unable to get temporal reference from images");
 				}
 			}
 			else

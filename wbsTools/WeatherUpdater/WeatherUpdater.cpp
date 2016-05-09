@@ -69,6 +69,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "Geomatic/TimeZones.h"
+#include "Geomatic/UtilGDAL.h"
 
 //#include "tasks/UIWunderground.h"
 
@@ -188,6 +189,9 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	CTRef::SetFormat(format);
 
 	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
+
+	//init GDAL
+	RegisterGDAL();
 
 	//CUIWunderground wu;
 	//ERMsg msg = wu.Execute(CCallback::DEFAULT_CALLBACK);
@@ -309,6 +313,8 @@ void CWeatherUpdaterApp::OnAppUpdaterReference()
 void CWeatherUpdaterApp::PreLoadState()
 {
 	GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT);
+	GetContextMenuManager()->AddMenu(_T("Edit2"), IDR_POPUP_EDIT);
+	
 }
 
 void CWeatherUpdaterApp::LoadCustomState()

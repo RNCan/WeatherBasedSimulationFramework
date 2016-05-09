@@ -59,9 +59,6 @@
     <ClInclude Include="UIEnvCanHourly.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIEnvCanHourlyForecast.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UIGHCN.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -125,6 +122,15 @@
     <ClInclude Include="UIWunderground.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIEnvCanForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvCanGribForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvCanHourlyForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -173,9 +179,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIEnvCanHourly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIEnvCanHourlyForecast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIGHCN.cpp">
@@ -239,6 +242,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIWunderground.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEnvCanForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnvCanGribForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnvCanHourlyForecast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

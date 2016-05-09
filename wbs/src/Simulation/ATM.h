@@ -33,8 +33,8 @@ namespace WBSF
 
 	class CATMWorld;
 
-	extern const char ATM_HEADER[];
-	enum TATMOuput{ ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_HEIGHT, ATM_SCALE, ATM_W_ASCENT, ATM_W_HORIZONTAL, ATM_W_DESCENT, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, NB_ATM_OUTPUT };
+	extern const char ATM_HEADER[];//ATM_W_ASCENT
+	enum TATMOuput{ ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<ATMOutput>> CATMOutputMatrix;
 
@@ -620,7 +620,7 @@ namespace WBSF
 	public:
 
 		enum TLog{ T_CREATION, T_LIFTOFF, T_HUNTING, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
-		enum TStat{ S_TAIR, S_PRCP, S_DIRECTION_X, S_DIRECTION_Y, S_DISTANCE, S_HEIGHT, S_W_ASCENT, S_W_HORIZONTAL, S_W_DESCENT, NB_FLYER_STAT };
+		enum TStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
 		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, ASCENDING_FLIGHT, HORIZONTAL_FLIGHT, DESCENDING_FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
 		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF, END_BY_RAIN, END_BY_TAIR, END_BY_WNDS, END_OF_TIME_FLIGHT, FIND_HOST, FIND_DISTRACTION, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
@@ -654,7 +654,7 @@ namespace WBSF
 		CGeoDistance3D get_U(__int64 UTCTime)const;
 
 		double GetLog(size_t i)const{ return m_log[i]; }
-		double GetStat(size_t i)const{ return m_stat[i].IsInit() ? m_stat[i][MEAN] : 0; }
+		double GetStat(size_t i, size_t s=MEAN)const{ return m_stat[i].IsInit() ? m_stat[i][s] : 0; }
 		const CStatistic& operator[](size_t i)const{ return m_stat[i]; }
 		void ResetStat(){ m_stat.fill(CStatistic()); }
 		int GetState()const{ return m_state; }
@@ -665,6 +665,9 @@ namespace WBSF
 		int GetUTCShift()const{ return int(m_UTCShift / 3600); }//in [h]
 
 	protected:
+
+		void AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d);
+
 
 		__int64 m_creation_time;//creation time in second
 		__int64 m_UTCShift;//shift between local time and UTC [s]

@@ -164,6 +164,8 @@
     <ClInclude Include="UIACIS.h" />
     <ClInclude Include="UIBC.h" />
     <ClInclude Include="UICIPRA.h" />
+    <ClInclude Include="UIEnvCanForecast.h" />
+    <ClInclude Include="EnvCanGribForecast.h" />
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
     <ClInclude Include="UIMDDELCC.h" />
@@ -179,7 +181,7 @@
     <ClInclude Include="TaskFactory.h" />
     <ClInclude Include="UIEnvCanDaily.h" />
     <ClInclude Include="UIEnvCanHourly.h" />
-    <ClInclude Include="UIEnvCanHourlyForecast.h" />
+    <ClInclude Include="EnvCanHourlyForecast.h" />
     <ClInclude Include="UIGHCN.h" />
     <ClInclude Include="UIGSOD.h" />
     <ClInclude Include="UIISDLite.h" />
@@ -209,6 +211,8 @@
     <ClCompile Include="UIACIS.cpp" />
     <ClCompile Include="UIBC.cpp" />
     <ClCompile Include="UICIPRA.cpp" />
+    <ClCompile Include="UIEnvCanForecast.cpp" />
+    <ClCompile Include="EnvCanGribForecast.cpp" />
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
     <ClCompile Include="UIMDDELCC.cpp" />
@@ -224,7 +228,7 @@
     <ClCompile Include="TaskFactory.cpp" />
     <ClCompile Include="UIEnvCanDaily.cpp" />
     <ClCompile Include="UIEnvCanHourly.cpp" />
-    <ClCompile Include="UIEnvCanHourlyForecast.cpp" />
+    <ClCompile Include="EnvCanHourlyForecast.cpp" />
     <ClCompile Include="UIGHCN.cpp" />
     <ClCompile Include="UIGSOD.cpp" />
     <ClCompile Include="UIISDLite.cpp" />

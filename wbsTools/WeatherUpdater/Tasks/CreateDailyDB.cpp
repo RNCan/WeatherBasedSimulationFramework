@@ -166,7 +166,7 @@ namespace WBSF
 
 						//Get forecast
 						if (pForecastTask)
-							pForecastTask->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
+							msg += pForecastTask->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
 						
 
 						timerWrite.Start();

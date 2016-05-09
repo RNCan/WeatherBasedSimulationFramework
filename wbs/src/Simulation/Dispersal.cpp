@@ -208,11 +208,15 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("Longitude", "Longitude", "°", "Current longitude", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Tair", "Tair", "°C", "Air temperature", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Prcp", "Prcp", "mm", "Precipitation", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("U", "U", "km/h", "mean U wind speed", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("V", "V", "km/h", "mean V wind speed", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("W", "W", "km/h", "mean W wind speed", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Height", "Height", "m", "Mean flight height. Begin at 5 meters and end at 0.", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("DeltaH", "DeltaHeight", "m", "Chnage in height", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Scale", "Scale", "", "Value of the input variable", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("Wa", "Wascent", "km/h", "Mean ascent velocity", CTM(CTM::ATEMPORAL), 5));
+		//outputVar.push_back(CModelOutputVariableDef("Wa", "Wascent", "km/h", "Mean ascent velocity", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Wh", "Whorizontal", "km/h", "Mean horizontal velocity", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("Wd", "Wdecent", "km/h", "Mean decent velocity", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("Wv", "Wvertical", "km/h", "Mean vertical velocity", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("D", "Direction", "°", "Direction", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Distance", "Distance", "m", "Distance", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("DistanceOrigine", "DistanceOrigine", "m", "DistanceOrigine", CTM(CTM::ATEMPORAL), 5));
@@ -435,6 +439,8 @@ namespace WBSF
 				msg += callback.StepIt();
 			}//for all locations
 
+			callback.PopTask();
+
 			CTPeriod outputPeriod = world.get_period(false);
 
 			CATMOutputMatrix output(locations.size());
@@ -458,8 +464,6 @@ namespace WBSF
 					}
 				}
 			}
-
-			callback.PopTask();
 		}//nb replication
 
 
