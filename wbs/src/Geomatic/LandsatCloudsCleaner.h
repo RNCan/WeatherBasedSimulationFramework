@@ -27,9 +27,20 @@ namespace WBSF
 	{
 	public:
 
-		bool IsFirstCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
-		bool IsSecondCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
-		bool IsCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+
+		int GetDTCode(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+		bool IsFirstCloud(int DTCode)const;
+		bool IsSecondCloud(int DTCode)const;
+		bool IsCloud(int DTCode)const;
+
+		ERMsg OpenMosaic(const std::string& filePaht);
+
+	//protected:
+
+		//CLandsatDataset m_mosaicDS;
+		//bool IsFirstCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+		//bool IsSecondCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+		//bool IsCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
 
 	};
 

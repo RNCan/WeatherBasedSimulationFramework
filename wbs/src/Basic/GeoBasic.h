@@ -1548,16 +1548,8 @@ namespace WBSF
 		void SetBlockSize( CGeoSize size ){ m_xBlockSize=size.m_x; m_yBlockSize=size.m_y;}
 	
 	
-		std::vector<std::pair<int,int>> GetBlockList()
-		{
-			std::vector<std::pair<int,int>> XYindex;
-			for(int yBlock=0; yBlock<YNbBlocks(); yBlock++)
-				for(int xBlock=0; xBlock<XNbBlocks(); xBlock++)
-					XYindex.push_back( std::pair<int,int>(xBlock,yBlock));
-
-			return 	XYindex;
-		}
-
+		std::vector<std::pair<int, int>> GetBlockList(size_t max_cons_row = NOT_INIT, size_t max_cons_col = NOT_INIT);
+		
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)

@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 10/05/2016	3.04	Rémi Saint-Amant    Minor change
 // 01/01/2016	3.03	Rémi Saint-Amant    Include in WBSF
 // 12/12/2015   3.02	Rémi Saint-Amant    New Specimen framework based on smart pointer
 // 05/03/2015   3.00	Rémi Saint-Amant    Update for BioSIM11
@@ -42,7 +43,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "3.0.2 (2016)";
+		VERSION = "3.0.4 (2016)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;

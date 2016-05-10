@@ -28,7 +28,7 @@
 #include "Geomatic/Variogram.h" 
 
 #define BOOST_NONCOPYABLE_HPP_INCLUDED
-#include "dlib/dlib/svm.h"
+#include "dlib/svm.h"
 
 
 

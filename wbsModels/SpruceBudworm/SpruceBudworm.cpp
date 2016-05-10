@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
 // 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
 // 27/09/2011	Rémi Saint-Amant	Add precipitation in live
@@ -103,6 +104,11 @@ namespace WBSF
 	{
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
+
+		//For optimization, nothing happens when temperature is under -10
+		if (weather[H_TMIN][MEAN] < -10)
+			return;
+
 
 		CIndividual::Live(weather);
 
@@ -454,9 +460,7 @@ namespace WBSF
 
 	void CSBWTree::Live(const CWeatherDay& weather)
 	{
-		//For optimization, nothing happens when temperature is under -10
-		if (weather[H_TMIN][MEAN] < -10)
-			return;
+	
 
 		CHost::Live(weather);
 
@@ -541,13 +545,12 @@ namespace WBSF
 	//	}
 	//}
 
-	//remove all bugs of generation 0
+	//remove all bugs of generation 0 and all non L2o
 	void CSBWTree::CleanUp()
 	{
-		//for(int i=(int)m_bugs.size()-1; i>=0; i--)
 		for (iterator it = begin(); it != end();)
 		{
-			if ((*it)->GetGeneration() == 0)
+			if ((*it)->GetGeneration() == 0 || (*it)->GetStage()!=L2o)
 				it = erase(it);
 			else
 				it++;

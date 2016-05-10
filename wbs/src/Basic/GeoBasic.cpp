@@ -249,6 +249,34 @@ void CGeoExtents::NormalizeRect()
 	m_yBlockSize = (int)min( m_yBlockSize, m_ySize);
 }
 
+std::vector<std::pair<int, int>> CGeoExtents::GetBlockList(size_t max_cons_row, size_t max_cons_col)
+{
+	std::vector<std::pair<int, int>> XYindex;
+
+	if (max_cons_row == NOT_INIT || max_cons_row>YNbBlocks())
+		max_cons_row = YNbBlocks();
+	
+	if (max_cons_col == NOT_INIT || max_cons_col>XNbBlocks())
+		max_cons_col = XNbBlocks();
+	
+	int nbYpass = ceil(YNbBlocks() / max_cons_row);
+	int nbXpass = ceil(XNbBlocks() / max_cons_col);
+	
+	for (int yPass = 0; yPass<nbYpass; yPass++)
+		for (int xPass = 0; xPass<nbXpass; xPass++)
+			for (int yBlock = 0; yBlock<max_cons_row; yBlock++)
+				for (int xBlock = 0; xBlock < max_cons_col; xBlock++)
+				{
+					int y = int(yPass*max_cons_row) + yBlock;
+					int x = int(xPass*max_cons_col) + xBlock;
+					if (y<YNbBlocks() && x<XNbBlocks())
+						XYindex.push_back(std::pair<int, int>(xBlock, yBlock));
+				}
+					
+
+	return 	XYindex;
+}
+
 void CGeoExtents::GetGeoTransform(CGeoTransform& GT)const
 {
 	GT[GT_X_LEFT] = m_xMin;

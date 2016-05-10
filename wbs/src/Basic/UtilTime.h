@@ -478,8 +478,9 @@ namespace WBSF
 			m_time = t;
 			if (t > 0)
 			{
-				struct tm *theTime = _localtime64(&t);
-				Set(1900 + theTime->tm_year, theTime->tm_mon, theTime->tm_mday - 1, theTime->tm_hour, TM);
+				tm theTime = { 0 };
+				_localtime64_s(&theTime, &t);
+				Set(1900 + theTime.tm_year, theTime.tm_mon, theTime.tm_mday - 1, theTime.tm_hour, TM);
 			}
 		}
 

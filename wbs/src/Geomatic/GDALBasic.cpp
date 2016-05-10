@@ -1669,6 +1669,7 @@ void CBandsHolder::ReleaseBlocks()
 	{
 		m_pMaskBandHolder->ReleaseData();
 	}
+	
 }
 
 //get the real number of band for this bands holder 

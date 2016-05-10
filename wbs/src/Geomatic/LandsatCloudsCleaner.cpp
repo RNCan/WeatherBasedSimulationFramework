@@ -63,9 +63,16 @@ namespace WBSF
 		return block;
 	}
 
-
+	
 	//****************************************************************************************************
-	bool CLandsatCloudCleaner::IsFirstCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+//10 - t1 Cloud
+//11 - t1 Haze
+//12 - t1 Shadow
+//13 - t2 Cloud
+//14 - t2 Haze
+//15 - t2 Shadow
+//20 - t2 Smoke
+	int CLandsatCloudCleaner::GetDTCode(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
 	{
 		int t = omp_get_thread_num();
 		assert(t >= 0 && t < (int)size());
@@ -76,36 +83,66 @@ namespace WBSF
 		ASSERT(predict >= 1 && predict <= at(t).MaxClass);
 		int DTCode = atoi(at(t).ClassName[predict]);
 
-		return DTCode >= 100;
+		return DTCode;
 	}
 
-	bool CLandsatCloudCleaner::IsSecondCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+	bool CLandsatCloudCleaner::IsFirstCloud(int DTCode)const
 	{
-		int t = omp_get_thread_num();
-		assert(t >= 0 && t < (int)size());
+		return DTCode == 10 || DTCode == 11 || DTCode == 12 || DTCode == 19;
+	}
 
-		vector <AttValue> block = GetDataRecord(t, pixel1, pixel2);
+	bool CLandsatCloudCleaner::IsSecondCloud(int DTCode)const
+	{
+		return DTCode == 13 || DTCode == 14 || DTCode == 15 || DTCode == 20;
+	}
 
-		int predict = (int) const_cast<CLandsatCloudCleaner*>(this)->at(t).Classify(block.data());
-		ASSERT(predict >= 1 && predict <= at(t).MaxClass);
-		int DTCode = atoi(at(t).ClassName[predict]);
-
+	bool CLandsatCloudCleaner::IsCloud(int DTCode)const
+	{
 		return (DTCode >= 10 && DTCode <= 20);
 	}
 
-	bool CLandsatCloudCleaner::IsCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
-	{
-		int t = omp_get_thread_num();
-		assert(t >= 0 && t < (int)size());
 
-		vector <AttValue> block = GetDataRecord(t, pixel1, pixel2);
+	//bool CLandsatCloudCleaner::IsFirstCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+	//{
+	//	int t = omp_get_thread_num();
+	//	assert(t >= 0 && t < (int)size());
 
-		int predict = (int) const_cast<CLandsatCloudCleaner*>(this)->at(t).Classify(block.data());
-		ASSERT(predict >= 1 && predict <= at(t).MaxClass);
-		int DTCode = atoi(at(t).ClassName[predict]);
+	//	vector <AttValue> block = GetDataRecord(t, pixel1, pixel2);
 
-		bool bCloud = (DTCode >= 10 && DTCode <= 20) || DTCode > 100;
-		return bCloud;
-	}
+	//	int predict = (int) const_cast<CLandsatCloudCleaner*>(this)->at(t).Classify(block.data());
+	//	ASSERT(predict >= 1 && predict <= at(t).MaxClass);
+	//	int DTCode = atoi(at(t).ClassName[predict]);
+
+	//	return DTCode >= 100;
+	//}
+
+	//bool CLandsatCloudCleaner::IsSecondCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+	//{
+	//	int t = omp_get_thread_num();
+	//	assert(t >= 0 && t < (int)size());
+
+	//	vector <AttValue> block = GetDataRecord(t, pixel1, pixel2);
+
+	//	int predict = (int) const_cast<CLandsatCloudCleaner*>(this)->at(t).Classify(block.data());
+	//	ASSERT(predict >= 1 && predict <= at(t).MaxClass);
+	//	int DTCode = atoi(at(t).ClassName[predict]);
+
+	//	return (DTCode >= 10 && DTCode <= 20);
+	//}
+
+	//bool CLandsatCloudCleaner::IsCloud(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+	//{
+	//	int t = omp_get_thread_num();
+	//	assert(t >= 0 && t < (int)size());
+
+	//	vector <AttValue> block = GetDataRecord(t, pixel1, pixel2);
+
+	//	int predict = (int) const_cast<CLandsatCloudCleaner*>(this)->at(t).Classify(block.data());
+	//	ASSERT(predict >= 1 && predict <= at(t).MaxClass);
+	//	int DTCode = atoi(at(t).ClassName[predict]);
+
+	//	bool bCloud = (DTCode >= 10 && DTCode <= 20) || DTCode > 100;
+	//	return bCloud;
+	//}
 
 }
