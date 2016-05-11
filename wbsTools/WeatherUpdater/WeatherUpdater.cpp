@@ -57,7 +57,7 @@
 #include "stdafx.h"
 //#include "VisualLeakDetector\include\vld.h" 
 #include "afxwinappex.h"  
-#include "afxdialogex.h"
+#include "afxdialogex.h" 
 #include "WeatherUpdater.h" 
 #include "MainFrm.h"
 

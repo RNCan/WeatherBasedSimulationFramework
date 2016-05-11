@@ -1040,7 +1040,7 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 
 		result.Close();
 
-		callback.AddMessage(string("Test Validation = ") + (bTestOK ? "OK" : "Failed"));
+		//callback.AddMessage(string("Test Validation = ") + (bTestOK ? "OK" : "Failed"));
 	}
 
 	callback.PopTask();

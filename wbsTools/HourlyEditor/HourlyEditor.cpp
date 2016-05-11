@@ -3,7 +3,7 @@
 // 
 // 4.0.3	Rémi Saint-Amant	Compile with WBSF 
 // 4.0.2	Rémi Saint-Amant	unordered SSI in location. Bug correction in weather station format.
-// 4.0.1	Rémi Saint-Amant	Change in CLocation.  
+// 4.0.1	Rémi Saint-Amant	Change in CLocation.   
 // 4.0.0	Rémi Saint-Amant	Initial version       
 
 #include "stdafx.h"

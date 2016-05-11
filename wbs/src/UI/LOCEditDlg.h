@@ -59,6 +59,10 @@ namespace WBSF
 		virtual int OnVScrollHint(long row, CString *string);
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 
+		
+		int		AppendRow();
+		int		DeleteRow(long row);
+
 	private:
 
 		void CreateBoldFont();

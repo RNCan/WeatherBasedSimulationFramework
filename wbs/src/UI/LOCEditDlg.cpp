@@ -172,7 +172,7 @@ namespace WBSF
 	void CLOCGridCtrl::OnGetCell(int col, long row, CUGCell *cell)
 	{
 
-		if (!m_locations.empty())
+		if (m_enableUpdate)
 		{
 			string text;
 			COLORREF backColor = cell->GetBackColor();
@@ -196,12 +196,9 @@ namespace WBSF
 				{
 					text = WBSF::ToString(row + 1);
 				}
-				else
+				else //if (row < m_locations.size() )//call before we add a row
 				{
-					//bool bEdit = m_bEditable && var < HOURLY_DATA::H_ADD1;//var != HOURLY_DATA::SKIP 
-
-					textColor = RGB(0, 0, 0);// : RGB(100, 100, 100);
-					//bEdit ? ((row % 2) ? RGB(255, 235, 235) : RGB(250, 250, 250)) : 
+					textColor = RGB(0, 0, 0);
 					backColor = ((row % 2) ? RGB(235, 235, 255) : RGB(255, 255, 255));
 					if (col < CLocation::SITE_SPECIFIC_INFORMATION)
 					{
@@ -304,7 +301,6 @@ namespace WBSF
 			CWnd* pParent = GetParent();
 			if (pParent)
 			{
-				//pParent->GetDlgItem()->GetWindowText
 				AddMenuItem(ID_CONTEXT_MENU_ADD, UtilWin::GetCString(IDS_CMN_AFXBARRES_NEW));
 				AddMenuItem(ID_CONTEXT_MENU_DELETE, UtilWin::GetCString(IDS_CMN_AFXBARRES_DELETE));
 
@@ -312,9 +308,6 @@ namespace WBSF
 				
 				AddMenuItem(ID_CONTEXT_MENU_COPY, UtilWin::GetCString(IDS_CMN_AFXBARRES_COPY));
 				AddMenuItem(ID_CONTEXT_MENU_PASTE, UtilWin::GetCString(IDS_CMN_AFXBARRES_PASTE));
-				//AddMenuItem(2003, _T("Paste"));
-
-				
 			}
 		}
 
@@ -406,6 +399,22 @@ namespace WBSF
 		return TRUE;
 	}
 
+	int	CLOCGridCtrl::AppendRow()
+	{
+		m_locations.push_back(CLocation());
+		m_bDataEdited.push_back(boost::dynamic_bitset<size_t>(m_header.size()));
+
+		return CUGEditCtrl::AppendRow();
+	}
+
+	int	CLOCGridCtrl::DeleteRow(long row)
+	{
+		ASSERT(row >= 0 && row < m_locations.size());
+		m_locations.erase(m_locations.begin()+row);
+		m_bDataEdited.erase(m_bDataEdited.begin() + row);
+
+		return CUGEditCtrl::DeleteRow(row);
+	}
 
 
 
@@ -415,13 +424,10 @@ namespace WBSF
 		m_bEnable = FALSE;
 	}
 
-
 	void CLocDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		CDialog::DoDataExchange(pDX);
 	}
-
-
 
 
 	BEGIN_MESSAGE_MAP(CLocDlg, CDialog)
@@ -522,11 +528,7 @@ namespace WBSF
 			option.SetCurrentProfile(_T("WindowsPosition"));
 
 			CRect rect = option.GetProfileRect(_T("LocDlg"), CRect(455, 30, 1200, 500));
-			//GetClientRect(rect);
-			//rect += CPoint(500, 30);
-
 			UtilWin::EnsureRectangleOnDisplay(rect);
-
 			MoveWindow(rect);
 
 			UpdateCtrl();
@@ -558,14 +560,6 @@ namespace WBSF
 
 	void CLocDlg::OnCancel()
 	{}
-
-	void CLocDlg::OnLocNewLine()
-	{
-		m_grid.AppendRow();
-		m_grid.SetHaveChange(true);
-
-		UpdateCtrl();
-	}
 
 	// generate loc from CGenerateLOCDlg 
 	void CLocDlg::OnLocGenerate()
@@ -644,11 +638,30 @@ namespace WBSF
 	{
 		ASSERT(m_grid.GetNumberRows() > 0);
 
+		std::set<int> lines;
 		int col = -1;	long row = -1;
-		m_grid.EnumFirstSelected(&col, &row);
-		ASSERT(row >= 0 && row < m_grid.GetNumberRows());
+		if (m_grid.EnumFirstSelected(&col, &row) == UG_SUCCESS)
+		{
+			lines.insert(row);
+			while (m_grid.EnumNextSelected(&col, &row) == UG_SUCCESS)
+				lines.insert(row);
 
-		m_grid.DeleteRow(row);
+			for (std::set<int>::reverse_iterator it = lines.rbegin(); it != lines.rend(); ++it)
+			{
+				ASSERT(*it >= 0 && *it < m_grid.GetNumberRows());
+				m_grid.DeleteRow(*it);
+			}
+
+			m_grid.SetHaveChange(true);
+
+			UpdateCtrl();
+		}
+	}
+
+
+	void CLocDlg::OnLocNewLine()
+	{
+		m_grid.AppendRow();
 		m_grid.SetHaveChange(true);
 
 		UpdateCtrl();
@@ -740,12 +753,10 @@ namespace WBSF
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
 		//select current loc input
-
 		m_fileListCtrl.SelectString(m_locName);
 
 		UpdateCtrl();
 		return TRUE;  // return TRUE unless you set the focus to a control
-		// EXCEPTION: OCX Property Pages should return FALSE
 	}
 
 	void CLocEditDlg::UpdateCtrl()
@@ -827,8 +838,7 @@ namespace WBSF
 
 
 
-	CLocListBox::CLocListBox()//:
-		//CBioSIMListBox(new CLOCDirectoryManager(WBSF::GetFM().Loc()))
+	CLocListBox::CLocListBox()
 	{
 		m_pLocDlg = new CLocDlg();
 		m_lastSelection = -1;
@@ -853,7 +863,6 @@ namespace WBSF
 			return FALSE;
 
 		SetStandardButtons(AFX_VSLISTBOX_BTN_NEW | AFX_VSLISTBOX_BTN_DELETE | AFX_VSLISTBOX_BTN_COPY | AFX_VSLISTBOX_BTN_EDIT | AFX_VSLISTBOX_BTN_SHOWMAP | AFX_VSLISTBOX_BTN_EXCEL);
-		//SetBioSIMButtons();
 		OnInitList();
 
 		ENSURE(m_pLocDlg->Create(GetParent()));
@@ -862,23 +871,9 @@ namespace WBSF
 
 		return m_pWndList;
 	}
-
-	//void CLocListBox::OnEndEditLabel(LPCTSTR lpszLabel)
-	//{
-	//CString lable = lpszLabel;
-	//CString ext = GetFileExtension(lpszLabel);
-	//	if( ext.CompareNoCase(".csv") != 0)
-	//	lable+=".csv";
-
-	//CBioSIMListBox::OnEndEditLabel(lable);
-	//}
-
+	
 	void CLocListBox::OnAfterAddItem(int iItem)
 	{
-		//CLOCDirectoryManager* pManager = dynamic_cast<CLOCDirectoryManager*> (m_pManager.get());
-		//ENSURE( pManager );
-
-
 		string locName = ToUTF8(GetItemText(iItem));
 
 		//save an empty loc
@@ -968,19 +963,13 @@ namespace WBSF
 			{
 				CLocationVector loc;
 				msg = LoadLoc(locName, loc);
-				//
-				//{
 				m_pLocDlg->SetLoc(loc);
 				m_pLocDlg->EnableWindow(msg ? TRUE : FALSE);
-				//}
-
 			}
 			else
 			{
 				m_pLocDlg->EnableWindow(FALSE);
 			}
-			//if( !msg )
-			//SYShowMessage( msg, this);
 		}
 		else
 		{
@@ -989,8 +978,6 @@ namespace WBSF
 
 		//call parent
 		CBioSIMListBox::OnSelectionChanged();
-
-
 	}
 
 	ERMsg CLocListBox::LoadLoc(const CString& locName, CLocationVector& loc)
@@ -1069,8 +1056,6 @@ namespace WBSF
 		ERMsg msg;
 
 		callback.PushTask("Extract specific site information", locations.size());
-		//callback.SetNbStep(locations.size());
-
 		CGDALDatasetEx inputDS;
 		
 		msg = inputDS.OpenInputImage(filePath);
@@ -1078,7 +1063,6 @@ namespace WBSF
 		{
 			CGeoExtents extents = inputDS.GetExtents();
 			CProjectionPtr pPrj = inputDS.GetPrj();
-			//string prjName = pPrj.get() ? pPrj->GetName() : "Unknown";
 
 			CBandsHolder bandHolder(3);
 			msg = bandHolder.Load(inputDS, true);
@@ -1110,10 +1094,7 @@ namespace WBSF
 							if (!bMissingOnly || locations[i].m_alt == -999)
 							{
 								if (pWin->IsValid(1, 1))
-								{
-									//locations[i].m_alt = pWin->Interpol(1, 1, interpolationType);
 									locations[i].m_alt = pWin->at(1, 1);
-								}
 							}
 						}
 
@@ -1145,6 +1126,5 @@ namespace WBSF
 
 		return msg;
 	}
-
 
 }
