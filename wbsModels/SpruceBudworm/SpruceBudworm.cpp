@@ -237,7 +237,7 @@ namespace WBSF
 				m_death = MISSING_ENERGY;
 			}
 		}
-		else if (GetStage() != L2o && weather[H_TMIN][LOWEST] < -10)
+		else if (GetStage() != L2o && weather[H_TMIN][LOWEST] < -9)
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
@@ -455,12 +455,24 @@ namespace WBSF
 
 	CSBWTree::CSBWTree(CStand* pStand) : CHost(pStand)
 	{
+		m_bAutumnCleaned = false;
 	}
 
 
 	void CSBWTree::Live(const CWeatherDay& weather)
 	{
-	
+		if (weather[H_TMIN][LOWEST] < -10)
+		{
+			if (weather.GetTRef().GetJDay()>180 && !m_bAutumnCleaned)
+			{
+				m_bAutumnCleaned = true;
+
+				for (iterator it = begin(); it != end(); it++)
+					(*it)->Die(weather);//let the insect to die
+			}
+
+			return;
+		}
 
 		CHost::Live(weather);
 
@@ -481,7 +493,7 @@ namespace WBSF
 	{
 		CStatistic stat;
 
-		//for(size_t i=0; i<size(); i++)
+
 		for (const_iterator it = begin(); it != end(); it++)
 		{
 			ASSERT((*it)->GetGeneration() == 1);
@@ -555,6 +567,8 @@ namespace WBSF
 			else
 				it++;
 		}
+		
+		m_bAutumnCleaned = false;
 	}
 
 

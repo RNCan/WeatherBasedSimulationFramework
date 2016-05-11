@@ -103,7 +103,7 @@ namespace WBSF
 		void CleanUp();
 		bool GetHatchDate(CTRef& ref, double& d)const;
 
-
+		bool m_bAutumnCleaned;
 		//Defoliation
 		//	double m_budDensity;//number of bud by branche
 		//	double GetDefoliation()const{ return 1-m_foliageRatio; }
