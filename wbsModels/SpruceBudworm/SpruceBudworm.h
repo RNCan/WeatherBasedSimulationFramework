@@ -86,7 +86,7 @@ namespace WBSF
 		static double GetEnergyLost(double T);
 	};
 
-	class CSBWTree : public WBSF::CHost
+	class CSBWTree : public CHost
 	{
 	public:
 
@@ -122,7 +122,7 @@ namespace WBSF
 	//*******************************************************************************************************
 	//*******************************************************************************************************
 	// CSBWStand
-	class CSBWStand : public WBSF::CStand
+	class CSBWStand : public CStand
 	{
 	public:
 

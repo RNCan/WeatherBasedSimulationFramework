@@ -1,40 +1,44 @@
 #pragma once
 
-class CWeatherYear;
-
-//***************************************************************************
-//CSpruceBeetle
-
-class CSpruceBeetle
+namespace WBSF
 {
-public:
 
-	enum TAspect {NORTH=0x01,SOUTH=0x02,HIGH=0x04,MEDIUM=0x08,LOW=0x10};
+	class CWeatherYear;
 
-    CSpruceBeetle();
-    ~CSpruceBeetle();
+	//***************************************************************************
+	//CSpruceBeetle
 
-	bool Compute(const CWeatherYear& weatherYear1, const CWeatherYear& weatherYear2);
+	class CSpruceBeetle
+	{
+	public:
 
-	static const double SLOPE;
-	static const double INTERCEPT;
-	static const double NORTH_EFFECT;
-	static const double HIGT_EFFECT;
-	static const double LOW_EFFECT;
+		enum TAspect { NORTH = 0x01, SOUTH = 0x02, HIGH = 0x04, MEDIUM = 0x08, LOW = 0x10 };
 
-	int m_pri15;
-	int m_day15;
-	int m_peak;
-	int m_Hr17;
-	double m_propTree;
+		CSpruceBeetle();
+		~CSpruceBeetle();
+
+		bool Compute(const CWeatherYear& weatherYear1, const CWeatherYear& weatherYear2);
+
+		static const double SLOPE;
+		static const double INTERCEPT;
+		static const double NORTH_EFFECT;
+		static const double HIGT_EFFECT;
+		static const double LOW_EFFECT;
+
+		size_t m_pri15;
+		size_t m_day15;
+		size_t m_peak;
+		size_t m_Hr17;
+		double m_propTree;
 
 
-private:
+	private:
 
-	
 
-	static int GetPri15(const CWeatherYear& weatherYear);
-	static int GetFlightPeak(const CWeatherYear& weatherYear, int day15);
-	static int GetHr17(const CWeatherYear& weatherYear, int peakShifted);
-	static double GetUnivoltineBroodProportion(int Hr17, int mod);
-};
+
+		static size_t GetPri15(const CWeatherYear& weatherYear);
+		static size_t GetFlightPeak(const CWeatherYear& weatherYear, size_t day15);
+		static size_t GetHr17(const CWeatherYear& weatherYear, size_t peakShifted);
+		static double GetUnivoltineBroodProportion(size_t Hr17, int mod);
+	};
+}

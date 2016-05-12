@@ -554,9 +554,17 @@ public:
 
 	virtual void set_string(std::string str)
 	{
-		int index = WBSF::ToInt(str);
-		if (index >= 0 && index < m_lstOptions.GetSize())
-			SetIndex(index);
+		if (!str.empty())
+		{
+			int index = WBSF::ToInt(str);
+			if (index >= 0 && index < m_lstOptions.GetSize())
+				SetIndex(index);
+		}
+		else
+		{
+			ResetOriginalValue();
+		}
+		
 	}
 
 protected:

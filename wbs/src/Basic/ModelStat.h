@@ -208,6 +208,7 @@ namespace WBSF
 		void Init(size_t size = 0, CTRef firstDate = CTRef(), double initValue = 0){ CModelStatVector::Init(size, firstDate, T, initValue, U ? U : ""); }
 		void Init(const CTPeriod& p, double initValue = 0){ CModelStatVector::Init(p, T, initValue, U ? U : ""); }
 
+
 	};
 
 
@@ -251,6 +252,7 @@ namespace WBSF
 			resize_rows(m_period.GetNbRef());
 			resize_cols(nbVars);
 		}
+		
 
 		CTReferencedMatrix(const CTReferencedMatrix& in){ operator=(in); }
 
@@ -300,33 +302,12 @@ namespace WBSF
 		CTStatMatrix(const CModelStatVector& input, const CTM& TM = CTM());
 		CTStatMatrix(const CModelStatVector& input, const CTTransformation& TT);
 
-//		CTStatMatrix(const CTStatMatrix& in, const CTM& TM = CTM());
-	//	CTStatMatrix(const CTStatMatrix& in, const CTTransformation& TT);
-
-		//void Init(const CTStatMatrix& in, const CTM& TM);
-		//void Init(const CTStatMatrix& in, const CTTransformation& TT);
 		void Init(const CModelStatVector& in, const CTM& TM = CTM());
 		void Init(const CModelStatVector& in, const CTTransformation& TT);
-
+		
 		void Transform(const CTM& TM);
 		void Transform(const CTTransformation& TT);
 	};
-	
-
-	/*template <class T, class U, class V>
-	void Transform(const CTM& TM, const U& in, V& out)
-	{
-		if (TM.IsInit() && in.GetTPeriod())
-		{
-			CTPeriod pIn = in.GetTPeriod();
-			CTPeriod pOut = pIn.Transform(TM);
-
-			out = in;
-			out.Transform(CTTransformation(pIn, pOut));
-		}
-	}
-*/
-
 
 
 	struct ModelInterface

@@ -860,12 +860,10 @@ namespace WBSF
 					//int member = pProp->GetData();
 					ASSERT(pos >= 0 && pos < (int)m_data.size());
 					pProp->set_string(m_data[pos].GetMember(i));
-					//pProp->SetValue(CString(m_data[pos].GetMember(i).c_str()));
 				}
 				else
 				{
-					pProp->set_string("");
-					//pProp->SetValue(_T(""));
+					pProp->ResetOriginalValue();
 				}
 			}
 		}

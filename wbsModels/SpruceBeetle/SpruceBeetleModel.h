@@ -1,20 +1,24 @@
 #pragma once
 
-#include "BioSIMModelBase.h"
+#include "ModelBase/BioSIMModelBase.h"
 #include "SpruceBeetle.h"
 
-class CSpruceBeetleModel : public CBioSIMModelBase
+namespace WBSF
 {
-public:
 
-	
-    CSpruceBeetleModel();
-    virtual ~CSpruceBeetleModel();
-
-    virtual ERMsg OnExecuteAnnual();
-    virtual ERMsg ProcessParameter(const CParameterVector& parameters);
-	static CBioSIMModelBase* CreateObject(){ return new CSpruceBeetleModel; }
-    
-};
+	class CSpruceBeetleModel : public CBioSIMModelBase
+	{
+	public:
 
 
+		CSpruceBeetleModel();
+		virtual ~CSpruceBeetleModel();
+
+		virtual ERMsg OnExecuteAnnual();
+		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		static CBioSIMModelBase* CreateObject(){ return new CSpruceBeetleModel; }
+
+	};
+
+
+}
