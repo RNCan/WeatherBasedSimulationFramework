@@ -19,7 +19,8 @@ namespace WBSF
 	namespace Landsat
 	{
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, BQA, BDATE, SCENES_SIZE };
-		enum TIndices{ I_NBR, I_B5, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		enum TIndices{ I_NBR = SCENES_SIZE, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		enum TSolve{ S_OR, S_AND};
 		TIndices GetIndicesType(std::string str);
 	}
 
@@ -57,12 +58,14 @@ namespace WBSF
 	public:
 
 		Landsat::TIndices	m_type;
+		Landsat::TSolve		m_solve;
 		double		m_threshold;
 
 
 		CIndices(Landsat::TIndices	type, double threshold)
 		{
 			m_type = type;
+			m_solve = Landsat::S_AND;
 			m_threshold = threshold;
 		}
 
@@ -76,18 +79,26 @@ namespace WBSF
 
 			switch (m_type)
 			{
+			case Landsat::B1:
+			case Landsat::B2:
+			case Landsat::B3:
+			case Landsat::B4:
+			case Landsat::B5:
+			case Landsat::B6:
+			case Landsat::B7:
+			case Landsat::BQA:
+			case Landsat::BDATE:		
+			{
+				pre = Tm1[m_type];
+				spike = T[m_type];
+				post = Tp1[m_type];
+				break;
+			}
 			case Landsat::I_NBR:
 			{
 				pre = Tm1.NBR();
 				spike = T.NBR();
 				post = Tp1.NBR();
-				break;
-			}
-			case Landsat::I_B5:
-			{
-				pre = Tm1[Landsat::B5];
-				spike = T[Landsat::B5];
-				post = Tp1[Landsat::B5];
 				break;
 			}
 			case Landsat::I_EUCLIDEAN:
@@ -143,8 +154,16 @@ namespace WBSF
 			bool bPass = true;
 			switch (m_type)
 			{
+			case Landsat::B1:
+			case Landsat::B2:
+			case Landsat::B3:
+			case Landsat::B4:
+			case Landsat::B5:
+			case Landsat::B6:
+			case Landsat::B7:
+			case Landsat::BQA:
+			case Landsat::BDATE:		bPass = Tm1[m_type] - Tp1[m_type] >= m_threshold; break;
 			case Landsat::I_NBR:		bPass = Tm1.NBR() - Tp1.NBR() >= m_threshold; break;
-			case Landsat::I_B5:			bPass = Tm1[Landsat::B5] - Tp1[Landsat::B5] >= m_threshold; break;
 			case Landsat::I_EUCLIDEAN:	bPass = Tm1.GetEuclideanDistance(Tp1) >= m_threshold; break;
 			case Landsat::I_NDVI:		bPass = Tm1.NDVI() - Tp1.NDVI() >= m_threshold; break;
 			case Landsat::I_NDMI:		bPass = Tm1.NDMI() - Tp1.NDMI() >= m_threshold; break;
@@ -177,13 +196,14 @@ namespace WBSF
 
 		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)
 		{
-			bool bPass = true;
+			bool bPass = !empty() ? front().m_solve == Landsat::S_AND : true;
 			for (const_iterator it = begin(); it < end(); it++)
 			{
-				if (it->m_type == Landsat::I_B5)
-					bPass = bPass || !it->IsTrigged(Tm1, Tp1);
-				else
+				if (it->m_solve == Landsat::S_AND)
 					bPass = bPass && it->IsTrigged(Tm1, Tp1);
+				else
+					bPass = bPass || !it->IsTrigged(Tm1, Tp1);
+					
 			}
 
 			return bPass;

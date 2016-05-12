@@ -270,7 +270,7 @@ std::vector<std::pair<int, int>> CGeoExtents::GetBlockList(size_t max_cons_row, 
 					int y = int(yPass*max_cons_row) + yBlock;
 					int x = int(xPass*max_cons_col) + xBlock;
 					if (y<YNbBlocks() && x<XNbBlocks())
-						XYindex.push_back(std::pair<int, int>(xBlock, yBlock));
+						XYindex.push_back(std::pair<int, int>(x, y));
 				}
 					
 

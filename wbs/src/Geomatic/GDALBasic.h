@@ -108,8 +108,8 @@ namespace WBSF
 			if (m_pData == NULL)
 				return (DataType)m_noData;
 
-			ASSERT(x >= 0 && x < m_dataRect.Width());
-			ASSERT(y >= 0 && y < m_dataRect.Height());
+			//ASSERT(x >= 0 && x < m_dataRect.Width());
+			//ASSERT(y >= 0 && y < m_dataRect.Height());
 
 			x += m_windowRect.m_x;
 			y += m_windowRect.m_y;
