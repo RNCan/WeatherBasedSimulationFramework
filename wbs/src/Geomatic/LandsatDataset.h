@@ -18,10 +18,11 @@ namespace WBSF
 
 	namespace Landsat
 	{
-		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, BQA, BDATE, SCENES_SIZE };
-		enum TIndices{ I_NBR = SCENES_SIZE, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
-		enum TSolve{ S_OR, S_AND};
-		TIndices GetIndicesType(std::string str);
+		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
+		enum TIndices{ I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		enum TMethod{ M_OR, M_AND};
+		TIndices GetIndicesType(const std::string& str);
+		TMethod GetIndicesMethod(const std::string& str);
 	}
 
 	typedef __int16 LandsatDataType;
@@ -58,15 +59,15 @@ namespace WBSF
 	public:
 
 		Landsat::TIndices	m_type;
-		Landsat::TSolve		m_solve;
-		double		m_threshold;
+		double				m_threshold;
+		Landsat::TMethod	m_method;
 
 
-		CIndices(Landsat::TIndices	type, double threshold)
+		CIndices(Landsat::TIndices	type, double threshold, Landsat::TMethod m )
 		{
 			m_type = type;
-			m_solve = Landsat::S_AND;
 			m_threshold = threshold;
+			m_method = m;
 		}
 
 		bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
@@ -86,8 +87,8 @@ namespace WBSF
 			case Landsat::B5:
 			case Landsat::B6:
 			case Landsat::B7:
-			case Landsat::BQA:
-			case Landsat::BDATE:		
+			case Landsat::QA:
+			case Landsat::JD:		
 			{
 				pre = Tm1[m_type];
 				spike = T[m_type];
@@ -161,12 +162,12 @@ namespace WBSF
 			case Landsat::B5:
 			case Landsat::B6:
 			case Landsat::B7:
-			case Landsat::BQA:
-			case Landsat::BDATE:		bPass = Tm1[m_type] - Tp1[m_type] >= m_threshold; break;
-			case Landsat::I_NBR:		bPass = Tm1.NBR() - Tp1.NBR() >= m_threshold; break;
-			case Landsat::I_EUCLIDEAN:	bPass = Tm1.GetEuclideanDistance(Tp1) >= m_threshold; break;
-			case Landsat::I_NDVI:		bPass = Tm1.NDVI() - Tp1.NDVI() >= m_threshold; break;
-			case Landsat::I_NDMI:		bPass = Tm1.NDMI() - Tp1.NDMI() >= m_threshold; break;
+			case Landsat::QA:
+			case Landsat::JD:			bPass = Tm1[m_type] - Tp1[m_type] < m_threshold; break;
+			case Landsat::I_NBR:		bPass = Tm1.NBR() - Tp1.NBR() < m_threshold; break;
+			case Landsat::I_EUCLIDEAN:	bPass = Tm1.GetEuclideanDistance(Tp1) < m_threshold; break;
+			case Landsat::I_NDVI:		bPass = Tm1.NDVI() - Tp1.NDVI() < m_threshold; break;
+			case Landsat::I_NDMI:		bPass = Tm1.NDMI() - Tp1.NDMI() < m_threshold; break;
 			case Landsat::I_TCB:		bPass = Tm1.TCB() - Tp1.TCB() >= m_threshold; break;
 			case Landsat::I_TCG:		bPass = Tm1.TCG() - Tp1.TCG() >= m_threshold; break;
 			case Landsat::I_TCW:		bPass = Tm1.TCW() - Tp1.TCW() >= m_threshold; break;
@@ -196,10 +197,10 @@ namespace WBSF
 
 		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)
 		{
-			bool bPass = !empty() ? front().m_solve == Landsat::S_AND : true;
+			bool bPass = !empty() ? front().m_method == Landsat::M_AND : true;
 			for (const_iterator it = begin(); it < end(); it++)
 			{
-				if (it->m_solve == Landsat::S_AND)
+				if (it->m_method == Landsat::M_AND)
 					bPass = bPass && it->IsTrigged(Tm1, Tp1);
 				else
 					bPass = bPass || !it->IsTrigged(Tm1, Tp1);

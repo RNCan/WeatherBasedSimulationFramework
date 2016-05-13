@@ -241,6 +241,7 @@ namespace WBSF
 		void AddOption(const char* name);
 		void AddOption(const COptionDef& optionsDef);
 		void AddIOFileInfo(const CIOFileInfoDef& fileDef);
+		void RemoveOption(const char* name);
 
 		ERMsg ParseOptions(int argc, TCHAR* argv[]);
 

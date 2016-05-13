@@ -25,7 +25,7 @@ namespace WBSF
 
 
 
-	const char* CLandsatDataset::SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "date" };
+	const char* CLandsatDataset::SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
 	CTRef GetByName(const string& fielpath)
 	{
@@ -47,15 +47,26 @@ namespace WBSF
 	}
 
 
-	TIndices Landsat::GetIndicesType(string str)
+	TIndices Landsat::GetIndicesType(const std::string& str)
 	{
-		static const char* INDICES_NAME[NB_INDICES] = { "NBR", "B5", "Euclidean", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
+		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "Euclidean", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
 		size_t type = UNKNOWN_POS;
 		for (size_t i = 0; i < NB_INDICES&&type == UNKNOWN_POS; i++)
-			if (IsEqualNoCase(str, INDICES_NAME[i]))
+			if (IsEqualNoCase(str, TYPE_NAME[i]))
 				type = i;
 
 		return (TIndices)type;
+	}
+
+	TMethod Landsat::GetIndicesMethod(const std::string& str)
+	{
+		static const char* MODE_NAME[NB_INDICES] = { "OR", "AND"};
+		size_t type = UNKNOWN_POS;
+		for (size_t i = 0; i < NB_INDICES&&type == UNKNOWN_POS; i++)
+			if (IsEqualNoCase(str, MODE_NAME[i]))
+				type = i;
+
+		return (TMethod)type;
 	}
 
 	ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
@@ -88,7 +99,7 @@ namespace WBSF
 						//try to find by the date layers
 						double TRefMin = 0;
 						double TRefMax = 0;
-						if (GetRasterBand(s * options.m_scenesSize + BDATE)->GetStatistics(true, true, &TRefMin, &TRefMax, NULL, NULL) == CE_None)
+						if (GetRasterBand(s * options.m_scenesSize + JD)->GetStatistics(true, true, &TRefMin, &TRefMax, NULL, NULL) == CE_None)
 						{
 							period.Begin() = options.GetTRef(int(TRefMin));
 							period.End() = options.GetTRef(int(TRefMax));
@@ -213,8 +224,8 @@ namespace WBSF
 	CTRef CLandsatPixel::GetTRef()const
 	{
 		CTRef TRef;
-		if (at(BDATE) != (__int16)WBSF::GetDefaultNoData(GDT_Int16))
-			TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, at(BDATE));
+		if (at(JD) != (__int16)WBSF::GetDefaultNoData(GDT_Int16))
+			TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, at(JD));
 
 		return TRef;
 	}

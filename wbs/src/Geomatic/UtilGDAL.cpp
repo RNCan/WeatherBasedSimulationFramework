@@ -1459,11 +1459,15 @@ void CBaseOptions::AddOption(const char* name)
 	AddOption(OPTIONS_DEF[index]);
 }
 
+void CBaseOptions::RemoveOption(const char* name)
+{
+	m_optionsDef.erase(name);
+}
+
+
 void CBaseOptions::AddOption(const COptionDef& optionsDef)
 {
-	//if( optionsDef.m_name[0] == '-' )
-		//m_optionsDef.push_back(optionsDef);
-	//
+	
 	if (optionsDef.m_name[0] == '-')
 		m_optionsDef[optionsDef.m_name] = optionsDef;
 	else 
