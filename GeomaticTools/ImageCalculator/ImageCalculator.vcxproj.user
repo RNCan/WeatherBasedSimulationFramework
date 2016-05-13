@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-ManageSrcNoData -e "Defol=if(i1b1&gt;0,90,if(i2b1&gt;0,60,if(i3b1&gt;0,30,0)))" -stats -multi -overwrite -co "COMPRESS=LZW" -dstnodata -9999 "D:\Travaux\BioSIM11\MapInput\Defoliation2013SevereLCC.tif" "D:\Travaux\BioSIM11\MapInput\Defoliation2013MoyenneLCC.tif" "D:\Travaux\BioSIM11\MapInput\Defoliation2013LegereLCC.tif" "D:\Travaux\BioSIM11\MapInput\Defoliation2013LCC.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-??</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
