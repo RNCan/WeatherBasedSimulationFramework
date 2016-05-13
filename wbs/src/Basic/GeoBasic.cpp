@@ -259,8 +259,8 @@ std::vector<std::pair<int, int>> CGeoExtents::GetBlockList(size_t max_cons_row, 
 	if (max_cons_col == NOT_INIT || max_cons_col>XNbBlocks())
 		max_cons_col = XNbBlocks();
 	
-	int nbYpass = ceil(YNbBlocks() / max_cons_row);
-	int nbXpass = ceil(XNbBlocks() / max_cons_col);
+	int nbYpass = ceil((double)YNbBlocks() / max_cons_row);
+	int nbXpass = ceil((double)XNbBlocks() / max_cons_col);
 	
 	for (int yPass = 0; yPass<nbYpass; yPass++)
 		for (int xPass = 0; xPass<nbXpass; xPass++)
