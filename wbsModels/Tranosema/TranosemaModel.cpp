@@ -34,7 +34,8 @@ namespace WBSF
 	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
-	enum{ O_A_NB_GENERATION, O_A_GROW_RATE1, O_A_GROW_RATE2, O_A_GROW_RATE3, O_A_GROW_RATE4, O_A_GROW_RATE5, O_A_GROW_RATE6, O_A_GROW_RATE7, O_A_GROW_RATE8, NB_ANNUAL_STAT, NB_MAX_GENERATION = 8 };
+	//	
+	enum{ O_A_NB_GENERATION, O_A_ADULT, O_A_OVIPOSITING_ADULT, O_A_BROOD, O_A_FINAL_PUPA, O_A_GROW_RATE, NB_GEN_ANNUAL = O_A_GROW_RATE - O_A_NB_GENERATION, NB_MAX_GENERATION = 5, NB_ANNUAL_OUTPUT = NB_GEN_ANNUAL*NB_MAX_GENERATION+1 };
 	extern char ANNUAL_HEADER[] = "Gmax,GrowRate1,GrowRate2,GrowRate3,GrowRate4,GrowRate5,GrowRate6,GrowRate7,GrowRate8";
 
 
@@ -42,9 +43,11 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
+<<<<<<< .mine		NB_INPUT_PARAMETER = 5;
 		VERSION = "1.1.3 (2016)";
-
+=======		NB_INPUT_PARAMETER = 6;
+		VERSION = "1.1.3 (2016)";
+>>>>>>> .theirs
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
@@ -227,13 +230,12 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 
-//		GetSpruceBudwormBiology(m_weather, SBWStat);
-
 		vector<CModelStatVector> TranosemaStat;
 		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		m_output.Init(p, NB_ANNUAL_STAT, 0, ANNUAL_HEADER);
+		m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
+		
 
 
 		//now compute annual grow rates
@@ -244,7 +246,7 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
-				m_output[TRef][O_A_NB_GENERATION] = 0;
+				size_t nbGenerations = 0;
 
 				//find the number of complete generation (AI>2.9)
 				for (size_t g = 0; g < maxG; g++)
@@ -252,19 +254,33 @@ namespace WBSF
 					//Get the average instar at the end of the season
 					double AI = TranosemaStat[g][season.End()].GetAverageInstar(EGG, 0, DEAD_ADULT, false);
 					if (AI>2.9)
-						m_output[TRef][O_A_NB_GENERATION] = g + 1;
+						nbGenerations = g + 1;
 				}
 
-				size_t Gmax = min(maxG, size_t(m_output[TRef][O_A_NB_GENERATION]));
+				m_output[TRef][O_A_NB_GENERATION] = nbGenerations;
+				//size_t Gmax = min(maxG, size_t(m_output[TRef][O_A_NB_GENERATION]));
+				size_t Gmax = min(maxG, nbGenerations);
 				if (Gmax > 1)
 				{
 					double nbAdult­¯¹ = 100;
 					for (size_t g = 0; g < Gmax - 1; g++)
 					{
 						CStatistic adultStat = TranosemaStat[g + 1].GetStat(E_ADULT, season);
+						CStatistic ovipStat = TranosemaStat[g + 1].GetStat(E_OVIPOSITING_ADULT, season);
+						CStatistic broodsStat = TranosemaStat[g + 1].GetStat(S_BROOD, season);
+						
 						double nbAdult = adultStat[SUM];
+						double nbOvip = ovipStat[SUM];
+						double nbBroods = broodsStat[SUM];
+						double pupaEnd = TranosemaStat[g + 1][season.End()][S_PUPA];
+						
+						m_output[TRef][O_A_ADULT + g*NB_GEN_ANNUAL] = nbAdult;
+						m_output[TRef][O_A_OVIPOSITING_ADULT + g*NB_GEN_ANNUAL] = nbOvip;
+						m_output[TRef][O_A_BROOD + g*NB_GEN_ANNUAL] = nbBroods;
+						m_output[TRef][O_A_FINAL_PUPA + g*NB_GEN_ANNUAL] = pupaEnd;
+
 						if (nbAdult­¯¹ > 0.01)
-							m_output[TRef][O_A_GROW_RATE1 + g] = nbAdult / nbAdult­¯¹;
+							m_output[TRef][O_A_GROW_RATE + g*NB_GEN_ANNUAL] = nbAdult / nbAdult­¯¹;
 
 						nbAdult­¯¹ = nbAdult;
 					}
