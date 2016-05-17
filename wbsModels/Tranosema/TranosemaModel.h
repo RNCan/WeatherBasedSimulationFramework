@@ -32,6 +32,7 @@ namespace WBSF
 		double m_diapauseAge;
 		double m_lethalTemp;
 		double m_criticalDaylength;
+		int m_startDateShift;
 
 	};
 

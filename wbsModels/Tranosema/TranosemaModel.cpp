@@ -42,8 +42,8 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.1.2 (2016)";
+		NB_INPUT_PARAMETER = 6;
+		VERSION = "1.1.3 (2016)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
@@ -51,6 +51,7 @@ namespace WBSF
 		m_diapauseAge = 0.0;
 		m_lethalTemp = -5.;
 		m_criticalDaylength = 14.;
+		m_startDateShift = 10;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -70,7 +71,7 @@ namespace WBSF
 		m_diapauseAge = parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
-		//m_bFertility = parameters[c++].GetBool();
+		m_startDateShift = parameters[c++].GetInt();
 		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);
 
 		return msg;
@@ -171,8 +172,8 @@ namespace WBSF
 			if (!TRef.IsInit())
 				TRef = p.Begin(); //no snow 
 
-			//get initial population from snowmelt date
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY)), 2, 400, 100, EGG + m_diapauseAge, NOT_INIT, true, 0);
+			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, EGG + m_diapauseAge, NOT_INIT, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);

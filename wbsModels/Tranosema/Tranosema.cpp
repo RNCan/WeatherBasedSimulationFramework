@@ -50,7 +50,7 @@ namespace WBSF
 		m_Pᵗ = E°;
 		m_Eᵗ = E°;
 
-		//Individuals are created as non-diapause eggs
+		//Individuals are created as non-diapause individuals
 		m_diapause = false;
 
 		m_badluck = false;
@@ -105,12 +105,15 @@ namespace WBSF
 			//Relative development rate for time step
 			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
 
-			//Check if egg enters diapause this time step
+			//Check if individual enters diapause this time step
 			if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
 			{
-				//Egg crosses the m_diapauseAge threshold this time step, and end-sumer daylength is shorter than critical daylength
-				if (JDay>173 && DayLength < GetStand()->m_criticalDaylength)
+				//Individual crosses the m_diapauseAge threshold this time step, and end-summer daylength is shorter than critical daylength
+				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				{
 					m_diapause = true;
+					m_age = GetStand()->m_diapauseAge;
+				}
 			}
 
 			if (s == ADULT)
