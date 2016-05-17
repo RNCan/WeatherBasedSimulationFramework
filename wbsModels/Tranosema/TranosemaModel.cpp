@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 17/05/2016	1.1.4	Rémi Saint-Amant	Add annual variables
 // 22/01/2016	1.1.2	Rémi Saint-Amant	Add snomeld date as strarting date
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 11/12/2015	1.0.0	Rémi Saint-Amant	Creation
@@ -43,11 +44,9 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-<<<<<<< .mine		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.1.3 (2016)";
-=======		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.3 (2016)";
->>>>>>> .theirs
+		NB_INPUT_PARAMETER = 6;
+		VERSION = "1.1.4 (2016)";
+
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
