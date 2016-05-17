@@ -13,8 +13,8 @@ namespace WBSF
 	{
 	public:
 
-		double operator[](int s)const{ _ASSERT(s >= 0 && s < NB_STAGES); return m_data[s]; }
-		double& operator[](int s){ _ASSERT(s >= 0 && s < NB_STAGES); return m_data[s]; }
+		double operator[](size_t s)const{ _ASSERT(s < NB_STAGES); return m_data[s]; }
+		double& operator[](size_t s){ _ASSERT(s < NB_STAGES); return m_data[s]; }
 
 	protected:
 
@@ -29,7 +29,7 @@ namespace WBSF
 
 		CMPBDevelopmentVector(const CRandomGenerator& RG);
 		void Init(const CDailyWaveVector& T);
-		int GetNextStageDay(int firstDay, int s, double threshold)const;
+		size_t GetNextStageDay(size_t firstDay, size_t s, double threshold)const;
 		CMPBDevelopmentTable MPB_RATES_TABLE;
 	};
 

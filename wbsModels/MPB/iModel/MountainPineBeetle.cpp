@@ -863,7 +863,7 @@ namespace WBSF
 	//*******************************************************************************************************
 	//*******************************************************************************************************
 	//CMPBStand
-	void CMPBStand::Init(const CWeather& weather)
+	void CMPBStand::Init(const CWeatherStation& weather)
 	{
 		m_coldTolerance.m_bMicroClimate = m_bMicroClimate;
 		if (m_applyColdTolerance)

@@ -19,7 +19,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	CTimer timer(true);
 
 	//Create a mergeImages object
-	WBSF::CLandsatRGB landsatWarp;
+	WBSF::CLandsat2RGB landsatWarp;
 	ERMsg msg = landsatWarp.m_options.ParseOption(argc, argv);
 
 	if (!msg || !landsatWarp.m_options.m_bQuiet)

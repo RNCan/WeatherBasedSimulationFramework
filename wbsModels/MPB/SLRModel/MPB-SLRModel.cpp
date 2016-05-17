@@ -55,7 +55,7 @@ namespace WBSF
 	//This method is called to compute the solution
 	ERMsg CMPBModel::OnExecuteAnnual()
 	{
-		_ASSERTE(m_weather.GetNbYear() >= 2);
+		_ASSERTE(m_weather.GetNbYears() >= 2);
 
 		ERMsg msg;
 
@@ -63,10 +63,10 @@ namespace WBSF
 		model.ProcessParameter(m_parameters);
 		model.Execute(m_weather);
 
-		CAnnualStatVector stat(model.GetNbYear(), CTRef((short)model.GetYear(0)));
+		CAnnualStatVector stat(model.GetNbYears(), CTRef((short)model.GetYear(0)));
 
 		// save result to disk
-		for (int y = 0; y < (int)model.GetNbYear(); y++)
+		for (int y = 0; y < (int)model.GetNbYears(); y++)
 		{
 			for (int i = 0; i < NB_OUTPUT; i++)
 				stat[y][i] = model.GetF(i, y);

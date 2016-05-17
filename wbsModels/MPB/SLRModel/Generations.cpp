@@ -64,21 +64,21 @@ namespace WBSF
 	// Output 
 	//  return 0: unstable seasonality; 1: stable seasonality
 	//*****************************************************
-	bool CGenerationVector::GetStabilityFlag(int minOvipDate, int maxOvipDate)const
+	bool CGenerationVector::GetStabilityFlag(size_t minOvipDate, size_t maxOvipDate)const
 	{
 		_ASSERTE(size() > 1);
-		_ASSERTE(minOvipDate >= 0 && minOvipDate < 366);
-		_ASSERTE(maxOvipDate >= 0 && maxOvipDate < 366);
+		_ASSERTE(minOvipDate < 366);
+		_ASSERTE(maxOvipDate < 366);
 
 		//apply stability criteria
 		bool criteria[3] = { 0 }; //stability criteria
 
-		int lastGen = size() - 1;
+		size_t lastGen = size() - 1;
 
 
 		//if(int(y_p_g(lastGen))==1) (there may be a problem with real-int accuracy here)
 		//if(m_d(lastGen,PEAK_OVIPOSITION)-m_d(lastGen,EGG)==365) 
-		if (int(GetNbDaysPerGeneration(lastGen)) == 365)
+		if (GetNbDaysPerGeneration(lastGen) == 365)
 			criteria[0] = true; //univoltine 
 
 
@@ -87,7 +87,7 @@ namespace WBSF
 
 
 		//median oviposition date (temporary storage)
-		int medOvipDate = (m_d_e(lastGen, OVIPOSITING_ADULT)) % 365;
+		size_t medOvipDate = (m_d_e(lastGen, OVIPOSITING_ADULT)) % 365;
 		_ASSERTE(medOvipDate >= 0 && medOvipDate < 365);
 
 		if (medOvipDate >= minOvipDate && medOvipDate <= maxOvipDate)
@@ -119,9 +119,9 @@ namespace WBSF
 			bRep = true;
 			fprintf(pFile, "StartDay,EggEmerg,L1Emerg,L2Emerg,L3Emerg,L4Emerg,PUPEAEmerg,TeneralEmerg,BeginOviposition,PeakOviposition,Ovip (t-1),Ovip (t),Nb Year\n");
 
-			for (CGenerationVector::size_type n = 0; n < size(); n++)
+			for (size_t n = 0; n < size(); n++)
 			{
-				for (int s = 0; s < NB_GENERATION_STAGES; s++)
+				for (size_t s = 0; s < NB_GENERATION_STAGES; s++)
 					fprintf(pFile, "%3d,", m_d(n, s) + 1);
 
 				fprintf(pFile, "%3d,", m_d(n, EGG) + 1);
@@ -162,7 +162,7 @@ namespace WBSF
 	// p_s(gen, t): phase space for a generation (0 = oviposition year t-1, 1 = year t)
 	// y_p_g(gen): years per generation for a generation 
 	//*****************************************************
-	bool CGenerationVector::SimulateGeneration(int nbGen, int dayStart, const CMPBDevelopmentVector& devRates)
+	bool CGenerationVector::SimulateGeneration(size_t nbGen, size_t dayStart, const CMPBDevelopmentVector& devRates)
 	{
 		_ASSERTE(devRates.size() == 365 || devRates.size() == 366);
 		_ASSERTE(dayStart >= 0 && dayStart < 366);
@@ -171,15 +171,15 @@ namespace WBSF
 		reserve(nbGen);
 		resize(1);
 
-		for (int n = 0; n < nbGen; n++)
+		for (size_t n = 0; n < nbGen; n++)
 		{
 			m_d(n, 0) = (n>0) ? (m_d(n - 1, PEAK_OVIPOSITION) % 365) : dayStart;
 
-			for (int s = 0; s < NB_STAGES; s++)
+			for (size_t s = 0; s < NB_STAGES; s++)
 			{
 				double threshold = (s == OVIPOSITING_ADULT) ? 32 / 92.2 : 1;
-				int nextStageDay = devRates.GetNextStageDay(m_d(n, s), s, threshold);
-				if (nextStageDay == -1)
+				size_t nextStageDay = devRates.GetNextStageDay(m_d(n, s), s, threshold);
+				if (nextStageDay == NOT_INIT)
 					return false;
 
 				m_d(n, s + 1) = nextStageDay;
@@ -244,7 +244,7 @@ namespace WBSF
 
 	//**************************************************************************
 	//CAccumulatorData
-	bool CAccumulatorData::EvaluateP(int model, double meanPpt)const
+	bool CAccumulatorData::EvaluateP(size_t model, double meanPpt)const
 	{
 		bool p = 0;
 
@@ -273,7 +273,7 @@ namespace WBSF
 	//CAccumulator
 
 
-	CAccumulator::CAccumulator(int n)
+	CAccumulator::CAccumulator(size_t n)
 	{
 		m_n = n;
 		Reset();
@@ -303,9 +303,9 @@ namespace WBSF
 		return sqrt(m_Y1*m_Y2);
 	}
 
-	bool CAccumulator::EvaluateP(int model, int y)const
+	bool CAccumulator::EvaluateP(size_t model, size_t y)const
 	{
-		ASSERT(y >= 0 && y < (int)size());
+		ASSERT(y < size());
 
 		bool p = false;
 
@@ -323,13 +323,13 @@ namespace WBSF
 
 
 				//Get the length of zero
-				for (int i = y + 1; i < (int)size() && nbZero < m_n; i++)
+				for (size_t i = y + 1; i < (int)size() && nbZero < m_n; i++)
 				{
 					if (at(i).EvaluateP(model, m_meanP))
 						break;
 					else nbZero++;
 				}
-				for (int i = y - 1; i >= 0 && nbZero < m_n; i--)
+				for (size_t i = y - 1; i < size() && nbZero < m_n; i--)
 				{
 					if (at(i).EvaluateP(model, m_meanP))
 						break;
@@ -347,7 +347,7 @@ namespace WBSF
 		{
 			bool Pm1 = (y>0) ? at(y - 1).EvaluateP(model, m_meanP) : false;
 			bool P = at(y).EvaluateP(model, m_meanP);
-			bool Pp1 = ((y + 1) < (short)size()) ? at(y + 1).EvaluateP(model, m_meanP) : false;
+			bool Pp1 = ((y + 1) < size()) ? at(y + 1).EvaluateP(model, m_meanP) : false;
 
 			p = ((Pm1&&P) || (P&&Pp1));
 
@@ -360,16 +360,16 @@ namespace WBSF
 		return p;
 	}
 
-	double CAccumulator::MeanP(int model, short curY, short runLength)const
+	double CAccumulator::MeanP(size_t model, size_t curY, size_t runLength)const
 	{
 		_ASSERTE(curY > 0);//never ask the first year
 
 		CStatistic s;
 
 		//if it's the first year, we skip it because we don't have CT
-		short y0 = max(1, curY - runLength + 1);
+		size_t y0 = max(size_t(1), curY - runLength + 1);
 
-		for (short y = y0; y <= curY; y++)
+		for (size_t y = y0; y <= curY; y++)
 		{
 			double p = EvaluateP(model, y) ? 1 : 0;
 
@@ -384,9 +384,9 @@ namespace WBSF
 
 
 
-	double CAccumulator::GetPsurv(short curY, short runLength)const
+	double CAccumulator::GetPsurv(size_t curY, size_t runLength)const
 	{
-		short y0 = curY - runLength + 1;
+		size_t y0 = curY - runLength + 1;
 
 		//if it's the first year, we skip it because we don't CT
 		if (y0 == 0)
@@ -394,7 +394,7 @@ namespace WBSF
 
 		CStatistic stat;
 		//skip first year because we don't have Cold Tolerance (CT)
-		for (short i = y0; i <= curY; i++)
+		for (size_t i = y0; i <= curY; i++)
 		{
 			stat += at(i).m_S;
 		}
@@ -405,10 +405,8 @@ namespace WBSF
 	double CAccumulator::ComputeMeanPrecipitation()
 	{
 		double mean = 0;
-		for (short i = 0; i<short(size()); i++)
-		{
+		for (size_t i = 0; i<size(); i++)
 			mean += at(i).m_precAMJ;
-		}
 
 		return mean / size();
 	}
@@ -418,7 +416,7 @@ namespace WBSF
 	{
 		double sum = 0;
 		double sum2 = 0;
-		for (short i = 0; i<short(size()); i++)
+		for (size_t i = 0; i<size(); i++)
 		{
 			sum += at(i).m_precAMJ;
 			sum2 += Square(at(i).m_precAMJ);
@@ -435,7 +433,7 @@ namespace WBSF
 	double CAccumulator::ComputeAverageWaterDefecit()
 	{
 		double mean = 0;
-		for (short i = 0; i < short(size()); i++)
+		for (size_t i = 0; i < size(); i++)
 			mean += at(i).m_waterDeficit;
 
 		mean /= size();
@@ -465,7 +463,7 @@ namespace WBSF
 		return Y2;
 	}
 
-	double CAccumulator::GetProbability(int model, short y0, short runLength)
+	double CAccumulator::GetProbability(size_t model, size_t y0, size_t runLength)
 	{
 		_ASSERTE(size() > 1);
 

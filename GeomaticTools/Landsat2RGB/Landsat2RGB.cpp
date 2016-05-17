@@ -18,10 +18,8 @@
 
 #include "Landsat2RGB.h"
 #include "Basic/OpenMP.h"
-//#include "StdFile.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-#include "Geomatic/LandsatDataset.h"
 #include "Geomatic/LandsatCloudsCleaner.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
@@ -33,19 +31,21 @@ namespace WBSF
 {
 
 
-	const char* CLandsatRGB::VERSION = "1.0.0";
-	const int CLandsatRGB::NB_THREAD_PROCESS = 2;
+	const char* CLandsat2RGB::VERSION = "1.0.0";
+	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
 	//*********************************************************************************************************************
 
-	CLandsatRGBOption::CLandsatRGBOption()
+	CLandsat2RGBOption::CLandsat2RGBOption()
 	{
 
 
 		m_scenesSize = SCENES_SIZE;
 		m_scene = 0;
 		m_dstNodata = 255;
+		//m_bBust = false;
+		m_bust = { { 0, 255 } };
 		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image. All empty images will be removed.";
 
 		//AddOption("-Period");
@@ -53,7 +53,8 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
-			{ "-Scene", 1, "size", false, "Select a scene (1..nbScenes). The first scene is select by default." },//overide scene size defenition
+			{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },//overide scene size defenition
+			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -73,7 +74,7 @@ namespace WBSF
 			AddIOFileInfo(IO_FILE_INFO[i]);
 	}
 
-	ERMsg CLandsatRGBOption::ParseOption(int argc, char* argv[])
+	ERMsg CLandsat2RGBOption::ParseOption(int argc, char* argv[])
 	{
 		ERMsg msg = CBaseOptions::ParseOption(argc, argv);
 
@@ -92,13 +93,20 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLandsatRGBOption::ProcessOption(int& i, int argc, char* argv[])
+	ERMsg CLandsat2RGBOption::ProcessOption(int& i, int argc, char* argv[])
 	{
 		ERMsg msg;
 
 		if (IsEqual(argv[i], "-Scene"))
 		{
-			m_scene = ToInt(argv[i])-1;
+			m_scene = ToInt(argv[++i])-1;
+		}
+		else if (IsEqual(argv[i], "-Bust"))
+		{
+			//m_bBust = true;
+			m_bust[0] = ToInt(argv[++i]);
+			m_bust[1] = ToInt(argv[++i]);
+
 		}
 		else
 		{
@@ -111,14 +119,14 @@ namespace WBSF
 	}
 
 
-	ERMsg CLandsatRGB::Execute()
+	ERMsg CLandsat2RGB::Execute()
 	{
 		ERMsg msg;
 
 		if (!m_options.m_bQuiet)
 		{
-			cout << "Output: " << m_options.m_filesPath[CLandsatRGBOption::OUTPUT_FILE_PATH] << endl;
-			cout << "From:   " << m_options.m_filesPath[CLandsatRGBOption::INPUT_FILE_PATH] << endl;
+			cout << "Output: " << m_options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH] << endl;
+			cout << "From:   " << m_options.m_filesPath[CLandsat2RGBOption::INPUT_FILE_PATH] << endl;
 
 			if (!m_options.m_maskName.empty())
 				cout << "Mask:   " << m_options.m_maskName << endl;
@@ -192,14 +200,14 @@ namespace WBSF
 
 
 
-	ERMsg CLandsatRGB::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS)
+	ERMsg CLandsat2RGB::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS)
 	{
 		ERMsg msg;
 
 		if (!m_options.m_bQuiet)
 			cout << endl << "Open input image..." << endl;
 
-		msg = inputDS.OpenInputImage(m_options.m_filesPath[CLandsatRGBOption::INPUT_FILE_PATH], m_options);
+		msg = inputDS.OpenInputImage(m_options.m_filesPath[CLandsat2RGBOption::INPUT_FILE_PATH], m_options);
 		if (msg)
 			inputDS.UpdateOption(m_options);
 
@@ -238,13 +246,13 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLandsatRGB::OpenOutput(CGDALDatasetEx& outputDS)
+	ERMsg CLandsat2RGB::OpenOutput(CGDALDatasetEx& outputDS)
 	{
 		ERMsg msg;
 
 		if (m_options.m_bCreateImage)
 		{
-			CLandsatRGBOption options(m_options);
+			CLandsat2RGBOption options(m_options);
 			
 			options.m_nbBands = 3;
 			options.m_outputType = GDT_Byte;
@@ -258,7 +266,7 @@ namespace WBSF
 				cout << "    Extents        = X:{" << ToString(options.m_extents.m_xMin) << ", " << ToString(options.m_extents.m_xMax) << "}  Y:{" << ToString(options.m_extents.m_yMin) << ", " << ToString(options.m_extents.m_yMax) << "}" << endl;
 			}
 
-			string filePath = options.m_filesPath[CLandsatRGBOption::OUTPUT_FILE_PATH];
+			string filePath = options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
 			msg += outputDS.CreateImage(filePath, options);
 		}
 
@@ -266,7 +274,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandsatRGB::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
+	void CLandsat2RGB::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
 #pragma omp critical(BlockIO)
 	{
@@ -279,7 +287,7 @@ namespace WBSF
 	}
 	}
 
-	void CLandsatRGB::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
+	void CLandsat2RGB::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
 	{
 
 		CGeoExtents extents = bandHolder.GetExtents();
@@ -332,16 +340,23 @@ namespace WBSF
 				if (window.IsValid(m_options.m_scene, pixel))
 				{
 					bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
+					//bool bIsBust = (pixel[B4] < -150 || pixel[B4] > 6000 || pixel[B5] < -190 || pixel[B5] > 5000 || pixel[B3] < -200 || pixel[B3] > 2500);
+					
 
-					if (!bIsBlack)
+					if (!bIsBlack )
 					{
 						Color8 R = Color8(max(0.0, min(254.0, ((pixel[B4] + 150.0) / 6150.0) * 254.0)));
 						Color8 G = Color8(max(0.0, min(254.0, ((pixel[B5] + 190.0) / 5190.0) * 254.0)));
 						Color8 B = Color8(max(0.0, min(254.0, ((pixel[B3] + 200.0) / 2700.0) * 254.0)));
 
-						outputData[0][y*blockSize.m_x + x] = R;
-						outputData[1][y*blockSize.m_x + x] = G;
-						outputData[2][y*blockSize.m_x + x] = B;
+						bool bIsBust = m_options.IsBusting(R, G, B);
+
+						if (!bIsBust)
+						{
+							outputData[0][y*blockSize.m_x + x] = R;
+							outputData[1][y*blockSize.m_x + x] = G;
+							outputData[2][y*blockSize.m_x + x] = B;
+						}
 					}
 					//"if (([1][1] < -190 ),0, if (([1][1] > 5000 ),254,(( ([1][1]/5192) * 253) + 9.307)))" %inpath%mrg57_%myy%_182 - 244_%myyear%_b5.tif %outpath%b5.tif
 					//"if (( [1][1] < -200 ),0, if (([1][1] > 2500 ),254,(( ([1][1]/2702) * 253) + 18.821)))" %inpath%mrg57_%myy%_182 - 244_%myyear%_b3.tif %outpath%b3.tif
@@ -364,7 +379,7 @@ namespace WBSF
 
 	}
 
-	void CLandsatRGB::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData)
+	void CLandsat2RGB::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData)
 	{
 #pragma omp critical(BlockIO)
 	{
@@ -403,7 +418,7 @@ namespace WBSF
 	}
 	}
 
-	void CLandsatRGB::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
+	void CLandsat2RGB::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
 	{
 		inputDS.Close();
 		maskDS.Close();

@@ -32,19 +32,20 @@ Thoughts:
 // Class: CMPBiModel
 //
 //************** MODIFICATIONS  LOG ********************
-// 22/11/2005		Rémi Saint-Amant    Creation
-// 22/10/2007		Jacques Régnière    Modifications
-// 23/10/2007		Rémi Saint-Amant    sets things straight
-// 29/10/2007		Rémi Saint-Amant    Debugging 
-// 30/10/2007		Remi Saint-Amant    Consolidation of all forms of MPB models
-// 12/11/2007		Jacques Régnière    Commenting/editing
-// 14/12/2007		Rémi Saint-Amant	Integration with the new BioSIM model Base
-// 24/09/2008		Rémi Saint-Amant	Auto ajusting the number of object in the tree
-// 12/11/2008		Rémi Saint-Amant	Use the new MPBi class
-// 26/05/2009		Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
-// 16/07/2012  2.0  Rémi Saint-Amant    Simplified model
-// 17/12/2012  2.1	Rémi Saint-Amant    Add the mode Year by Year adjusted
-// 27/03/2013  2.2  Rémi Saint-Amant    New compilation
+// 22/11/2005			Rémi Saint-Amant    Creation
+// 22/10/2007			Jacques Régnière    Modifications
+// 23/10/2007			Rémi Saint-Amant    sets things straight
+// 29/10/2007			Rémi Saint-Amant    Debugging 
+// 30/10/2007			Remi Saint-Amant    Consolidation of all forms of MPB models
+// 12/11/2007			Jacques Régnière    Commenting/editing
+// 14/12/2007			Rémi Saint-Amant	Integration with the new BioSIM model Base
+// 24/09/2008			Rémi Saint-Amant	Auto ajusting the number of object in the tree
+// 12/11/2008			Rémi Saint-Amant	Use the new MPBi class
+// 26/05/2009			Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
+// 16/07/2012  2.0		Rémi Saint-Amant    Simplified model
+// 17/12/2012  2.1		Rémi Saint-Amant    Add the mode Year by Year adjusted
+// 27/03/2013  2.2		Rémi Saint-Amant    New compilation
+// 27/03/2013  2.3.0	Rémi Saint-Amant    New compilation with WBSF
 //*********************************************************************
 #include "MPBiModel.h"
 #include "Basic/timeStep.h"
@@ -195,10 +196,10 @@ namespace WBSF
 		else //Eggs non fertile
 		{
 			//run model 
-			CAnnualOutputVector output(m_weather.GetNbYears() - 1, CTRef(CTRef::ATEMPORAL, m_weather.GetFirstTRef().GetYear(), 0, 0, 0));
+			CAnnualOutputVector output(m_weather.GetNbYears() - 1, CTRef(CTRef::ATEMPORAL, m_weather.GetFirstYear(), 0, 0, 0));
 
 
-			for (short y = 0; y < m_weather.GetNbYears() - 1; y++)
+			for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 			{
 				CProportionStatVector attacks = m_attacks;
 				attacks.UpdateYear(m_weather[y].GetYear());
@@ -289,7 +290,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CDailyOutputVector output(m_weather.GetNbDay(), m_weather.GetFirstTRef());
+		CDailyOutputVector output(m_weather.GetEntireTPeriod(CTM::DAILY));
 
 		if (m_bFertilEgg)
 		{
@@ -505,12 +506,13 @@ namespace WBSF
 		stand.Init(m_weather);
 
 
-		for (short y = f1; y <= f2; y++)
+		for (size_t y = f1; y <= f2; y++)
 		{
-			for (CTRef d = m_weather[y].GetFirstTRef(); d <= m_weather[y].GetLastTRef(); d++)
+			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM::DAILY);
+			for (CTRef d = p.Begin(); d <= p.End(); d++)
 			{
 				//tree and bugs live for the day
-				stand.Live(d, m_weather[d]);
+				stand.Live(m_weather.GetDay(d));
 
 				if (bAllGeneration)
 				{
@@ -876,7 +878,7 @@ namespace WBSF
 
 	//*****************************************************************************************************
 	//Simulated Annealing
-	void CMPBiModel::AddSAResult(const CStdStringVector& header, const CStdStringVector& data)
+	void CMPBiModel::AddSAResult(const StringVector& header, const StringVector& data)
 	{
 		ASSERT(header.size() == 5);
 		ASSERT(header[0] == "STATION_ID");
@@ -886,11 +888,11 @@ namespace WBSF
 		ASSERT(header[4] == "P");
 
 
-		CTRef ref(data[1].ToShort());
+		CTRef ref(ToInt(data[1]));
 
 		std::vector<double> obs(3);
-		for (int i = 0; i < 3; i++)
-			obs[i] = data[i + 2].ToDouble();
+		for (size_t i = 0; i < 3; i++)
+			obs[i] = ToDouble(data[i + 2]);
 
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}

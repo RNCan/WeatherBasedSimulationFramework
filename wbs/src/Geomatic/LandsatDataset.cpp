@@ -246,14 +246,18 @@ namespace WBSF
 	{
 		return at(B6) != 0 ? (double)at(B1) / at(B6) : 99999;
 	}
+	
+	Color8 CLandsatPixel::R()const{ return Color8(max(0.0, min(254.0, ((at(B4) + 150.0) / 6150.0) * 254.0))); }
+	Color8 CLandsatPixel::G()const{ return Color8(max(0.0, min(254.0, ((at(B5) + 190.0) / 5190.0) * 254.0))); }
+	Color8 CLandsatPixel::B()const{ return Color8(max(0.0, min(254.0, ((at(B3) + 200.0) / 2700.0) * 254.0))); }
 
-	double CLandsatPixel::GetEuclideanDistance(const CLandsatPixel& pixel)const
+	double CLandsatPixel::GetEuclideanDistance(const CLandsatPixel& pixel, bool normalized)const
 	{
-		return sqrt(
-			Square((double)pixel[B3] - at(B3)) +
-			Square((double)pixel[B4] - at(B4)) +
-			Square((double)pixel[B5] - at(B5))
-			);
+		double r = normalized ? R() - pixel.R() : at(B4) - pixel[B4];
+		double g = normalized ? G() - pixel.G() : at(B5) - pixel[B5];
+		double b = normalized ? B() - pixel.B() : at(B3) - pixel[B3];
+
+		return sqrt(r*r + g*g + b*b);
 	}
 
 

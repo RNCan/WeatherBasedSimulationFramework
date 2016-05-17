@@ -48,8 +48,8 @@ namespace WBSF
 	{
 	public:
 
-		bool SimulateGeneration(int nbGen, int dayStartIn, const CMPBDevelopmentVector& devRates);
-		bool GetStabilityFlag(int minOvipDate, int maxOvipDate)const;
+		bool SimulateGeneration(size_t nbGen, size_t dayStartIn, const CMPBDevelopmentVector& devRates);
+		bool GetStabilityFlag(size_t minOvipDate, size_t maxOvipDate)const;
 		double GetMeanGenerationTime()const;
 		bool Save(const char* name);
 
@@ -123,7 +123,7 @@ namespace WBSF
 			m_S = 0; //Cold Tolerance
 		}
 
-		bool EvaluateP(int model, double meanPpt)const;
+		bool EvaluateP(size_t model, double meanPpt)const;
 
 		double m_DDHatch;
 		double m_DDGen;
@@ -157,8 +157,8 @@ namespace WBSF
 		void Reset();
 
 		void ComputeMeanP_Y1_Y2();
-		double GetProbability(int model, short y0, short runLength);
-		double GetPsurv(short curY, short runLength)const;
+		double GetProbability(size_t model, size_t y0, size_t runLength);
+		double GetPsurv(size_t curY, size_t runLength)const;
 
 
 		//	short GetNbYear(){return m_nbYears;}
@@ -171,8 +171,8 @@ namespace WBSF
 
 	private:
 
-		double MeanP(int model, short y, short runLength)const;
-		bool EvaluateP(int model, int y)const;
+		double MeanP(size_t model, size_t y, size_t runLength)const;
+		bool EvaluateP(size_t model, size_t y)const;
 
 		double ComputeMeanPrecipitation();
 		double ComputeCVPrecipitation();

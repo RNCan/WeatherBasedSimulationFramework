@@ -72,7 +72,7 @@ namespace WBSF
 	//************************************************************
 	//CMPBColdTolerance
 
-	class CWeather;
+	
 	class CMPBColdTolerance
 	{
 	public:

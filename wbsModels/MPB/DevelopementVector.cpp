@@ -54,21 +54,21 @@ namespace WBSF
 	// Output 
 	//  return: day of the next stage if sussesfukl. -1 otherwise.
 	//*****************************************************
-	int CMPBDevelopmentVector::GetNextStageDay(int firstDay, int s, double threshold)const
+	size_t CMPBDevelopmentVector::GetNextStageDay(size_t firstDay, size_t s, double threshold)const
 	{
 		_ASSERTE(s >= 0 || s < NB_STAGES);
 
-		int index = -1;
+		size_t index = NOT_INIT;
 
 		//init the accumulation
 		double sum = 0;
 
-		int maxDay = int(size() * 2);//simulate on 2 years max
+		size_t maxDay = size() * 2;//simulate on 2 years max
 
 		//accumulate all values until reach the next stage 
-		for (int d = firstDay; d < maxDay; d++)
+		for (size_t d = firstDay; d < maxDay; d++)
 		{
-			int jd = int(d%size());
+			size_t jd = d%size();
 			sum += at(jd)[s];
 			if (sum >= threshold)
 			{
@@ -77,7 +77,7 @@ namespace WBSF
 			}
 		}
 
-		_ASSERTE(index >= -1 && index < maxDay);
+		_ASSERTE(index == NOT_INIT || index < maxDay);
 
 		return index;
 	}

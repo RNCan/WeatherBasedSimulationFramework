@@ -244,7 +244,7 @@ namespace WBSF
 		void SetTree(CMPBTree* pTree);
 
 
-		void Init(const CWeather& weather);
+		void Init(const CWeatherStation& weather);
 
 		double GetNbTrees()const { return m_forestSize*m_forestDensity; }
 		double GetNbInitialInfestedTrees()const { return m_initialInfestation*m_forestDensity; }
@@ -255,7 +255,7 @@ namespace WBSF
 
 		double GetNbInitialAttack()const{ return GetTree()->GetNbInitialAttack(GetNbInitialInfestedTrees()); }
 
-		virtual void Live(const CTRef& day, const CWeatherDay& weaDay)
+		virtual void Live(const CWeatherDay& weaDay)
 		{
 			ASSERT(m_pTree.get());
 			if (!m_bInit)

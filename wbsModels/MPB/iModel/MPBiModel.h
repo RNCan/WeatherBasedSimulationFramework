@@ -36,9 +36,9 @@ namespace WBSF
 		virtual ERMsg OnExecuteAtemporal();
 		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
 
-		virtual void AddSAResult(const CStdStringVector& header, const CStdStringVector& data);
-		virtual void GetFValueAnnual(CFL::CStatisticXY& stat);
-		virtual void FinalizeStat(CFL::CStatisticXY& stat);
+		virtual void AddSAResult(const StringVector& header, const StringVector& data);
+		virtual void GetFValueAnnual(CStatisticXY& stat);
+		virtual void FinalizeStat(CStatisticXY& stat);
 
 		static CBioSIMModelBase* CreateObject(){ return new CMPBiModel; }
 

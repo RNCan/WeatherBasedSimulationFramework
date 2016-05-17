@@ -15,6 +15,8 @@
 namespace WBSF
 {
 
+	typedef unsigned __int8 Color8;
+
 
 	namespace Landsat
 	{
@@ -36,13 +38,18 @@ namespace WBSF
 		bool IsValid()const;
 
 		double GetCloudRatio()const;
-		double GetEuclideanDistance(const CLandsatPixel& pixel2)const;
+		double GetEuclideanDistance(const CLandsatPixel& pixel, bool normalized=false)const;
 		double NBR()const;
 		double NDVI()const;
 		double NDMI()const;
 		double TCB()const;
 		double TCG()const;
 		double TCW()const;
+		Color8 R()const;
+		Color8 G()const;
+		Color8 B()const;
+
+
 
 		static double GetDespike(double pre, double spike, double post);
 

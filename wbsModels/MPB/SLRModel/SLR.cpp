@@ -4,21 +4,23 @@
 // Class: CSLR
 //
 //************** MODIFICATIONS  LOG ********************
-// 01/09/2003   Rémi Saint-Amant    Creation
-// 29/08/2007   Rémi Saint-Amant    Add Cold tolerance 
-// 31/10/2007	Rémi Saint-Amant    Remove NEWMAT, use AllenWave and tableLookup
+// 11/05/2016   Rémi Saint-Amant    Compile with WBSF
 // 25/09/2012   Rémi Saint-Amant    Compile with new developement table
+// 31/10/2007	Rémi Saint-Amant    Remove NEWMAT, use AllenWave and tableLookup
+// 29/08/2007   Rémi Saint-Amant    Add Cold tolerance 
+// 01/09/2003   Rémi Saint-Amant    Creation
 //*********************************************************************
 
 #include "SLR.h"
+#include "Generations.h"
+#include "../MPBColdTolerance.h"
+#include "../MPBDevRates.h"
+#include "../DevelopementVector.h"
 
 #include "Basic/weatherStation.h"
 #include "Basic/TimeStep.h"
 #include "Basic/Evapotranspiration.h"
-#include "../MPBColdTolerance.h"
-#include "../MPBDevRates.h"
-#include "../DevelopementVector.h"
-#include "Generations.h"
+
 
 namespace WBSF
 {
@@ -59,7 +61,7 @@ namespace WBSF
 
 		CAccumulator accumulator(m_n);
 
-		for (int y = 0; y < weather.GetNbYear(); y++)
+		for (size_t y = 0; y < weather.GetNbYears(); y++)
 		{
 			const CWeatherYear& weatherYear = weather[y];
 			CTPeriod p = weatherYear.GetGrowingSeason();
@@ -80,7 +82,7 @@ namespace WBSF
 			data.m_totalPrecip = weatherYear.GetStat(STAT_PRCP, SUM);
 			//wather deficit was in mm
 
-			CThornthwaitePET TPET(weatherYear, 0, CThornthwaitePET::POTENTIEL_STANDARD);
+			CThornthwaiteET TPET(weatherYear, 0, CThornthwaiteET::POTENTIEL_STANDARD);
 			data.m_waterDeficit = TPET.GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
 
 			data.m_precAMJ = 0;
@@ -101,18 +103,18 @@ namespace WBSF
 
 		//***********************************
 
-		if (m_runLength <= 0 || m_runLength > weather.GetNbYear())
-			m_runLength = weather.GetNbYear();
+		if (m_runLength == 0 || m_runLength > weather.GetNbYears())
+			m_runLength = weather.GetNbYears();
 
 
-		//skip the first year if m_runLength == weather.GetNbYear()-1
-		int s0 = max(1, m_runLength - 1);
+		//skip the first year if m_runLength == weather.GetNbYears()-1
+		size_t  s0 = max(1, m_runLength - 1);
 		m_firstYear = weather.GetFirstYear() + s0;//keep in memory the first year
 
-		for (int i = 0; i < NB_OUTPUT; i++)
+		for (size_t i = 0; i < NB_OUTPUT; i++)
 		{
 			//on doit changer le code si on veux utiliser la notion de runlength
-			for (int y = s0; y < weather.GetNbYear(); y++)
+			for (size_t y = s0; y < weather.GetNbYears(); y++)
 			{
 				m_F[i].push_back(GetProbability(accumulator, i, y, m_runLength));
 			}
@@ -191,7 +193,7 @@ namespace WBSF
 		return bStabilityFlag;
 	}
 
-	double CSLR::GetProbability(CAccumulator& acc, int model, short y0, short runLength)
+	double CSLR::GetProbability(CAccumulator& acc, size_t model, size_t y0, size_t runLength)
 	{
 		_ASSERTE(acc.size() > 1);
 

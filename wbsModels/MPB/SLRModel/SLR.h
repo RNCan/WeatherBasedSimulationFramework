@@ -33,10 +33,6 @@ namespace WBSF
 	{
 	public:
 
-
-
-
-
 		typedef std::vector<double> FVector;
 
 		CSLR();
@@ -45,18 +41,19 @@ namespace WBSF
 		ERMsg Execute(const CWeatherStation& weather);
 		ERMsg ProcessParameter(const CParameterVector& parameters);
 
-		double GetF(short output, long y)
+		double GetF(size_t  output, size_t  y)
 		{
-			_ASSERTE(output >= 0 && output < NB_OUTPUT&&y >= 0 && y < (int)m_F[output].size());
+			_ASSERTE(output < NB_OUTPUT && y < m_F[output].size());
 			return m_F[output][y];
 		}
 
 		size_t GetNbYears()const{ return m_F[0].size(); }
-		int GetYear(short y){ return m_firstYear + y; }
+		int GetYear(size_t  y){ return m_firstYear + int(y); }
+
 	private:
 
 		bool GetStabilityFlag(const CWeatherYear& weatherYear);
-		double GetProbability(CAccumulator& acc, int model, short y0, short runLength);
+		double GetProbability(CAccumulator& acc, size_t model, size_t y0, size_t runLength);
 
 
 		double m_overheat;      // overheating factor
