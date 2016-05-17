@@ -21,7 +21,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	const double CSnowAnalysis::MINIMUM_SNOW_DEPTH = 2;//mm
+	const double CSnowAnalysis::MINIMUM_SNOW_DEPTH = 0.1;//mm
 	const size_t CSnowAnalysis::NB_DAY_MIN = 7;		//day
 
 	void CSnowAnalysis::Execute(const CWeatherStation& weather, CModelStatVector& output)const
@@ -51,7 +51,8 @@ namespace WBSF
 		size_t nbTRef = 0;
 		for (CTRef TRef = midSeason; TRef >= period.Begin() && !lastTRef.IsInit(); TRef--)
 		{
-			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)//more than 2 cm
+//			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)//more than 2 cm
+			if (weather[TRef][H_SWE][MEAN] > m_minimum_snow_depth)//more than 2 mm of water
 			{
 				nbTRef++;
 				if (nbTRef>m_nb_day_min*nbTRefPerDay)
@@ -84,7 +85,8 @@ namespace WBSF
 		size_t nbTRef = 0;
 		for (CTRef TRef = midSeason; TRef >= period.End() && !firstTRef.IsInit(); TRef++)
 		{
-			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)
+//			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)
+			if (weather[TRef][H_SWE][MEAN] > m_minimum_snow_depth)
 			{
 				nbTRef++;
 				if (nbTRef>m_nb_day_min*nbTRefPerDay)
