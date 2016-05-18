@@ -52,9 +52,7 @@ namespace WBSF
 
 		//Individuals are created as non-diapause individuals
 		m_diapause = false;
-
 		m_badluck = false;
-
 	}
 
 
@@ -76,6 +74,7 @@ namespace WBSF
 
 		return *this;
 	}
+
 	// Object destructor
 	CTranosema::~CTranosema(void)
 	{}
@@ -96,6 +95,12 @@ namespace WBSF
 		CTRef TRef = weather.GetTRef();
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
+
+
+		if (TRef.GetJDay()==0)
+			m_diapause = false;
+
+		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{
 			size_t h = step*GetTimeStep();
@@ -112,7 +117,7 @@ namespace WBSF
 				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 				{
 					m_diapause = true;
-					m_age = GetStand()->m_diapauseAge;
+					//m_age = GetStand()->m_diapauseAge; //????????? Rémi
 				}
 			}
 
@@ -167,9 +172,7 @@ namespace WBSF
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, NOT_INIT, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
-
 		}
-
 	}
 
 	// kills by attrition, old age and end of season

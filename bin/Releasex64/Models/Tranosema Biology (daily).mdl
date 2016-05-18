@@ -6,7 +6,7 @@
     <EXE>Tranosema Biology.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Tranosema</Description>
-    <WindowRect>0 0 225 229</WindowRect>
+    <WindowRect>0 0 241 229</WindowRect>
     <SimulatedCategory>T TR SD SWE</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -21,14 +21,14 @@
             <Type>0</Type>
             <Rect>25 10 45 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>-1</MinValue>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Attrition</Name>
-            <Caption>Attrition</Caption>
+            <Name>GenerationAttrition</Name>
+            <Caption>Generation Attrition</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>50 10 75 160</Rect>
@@ -45,9 +45,9 @@
             <Type>2</Type>
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>2</MaxValue>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>2</MinValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -72,6 +72,18 @@
             <DefaultValue>14</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>24</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>StartDateShift</Name>
+            <Caption>StartDateShift</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>165 10 185 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

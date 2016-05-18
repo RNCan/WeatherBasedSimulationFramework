@@ -50,7 +50,7 @@ namespace WBSF
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.10;//10% of Attrition
-		m_diapauseAge = 0.0;
+		m_diapauseAge = PUPA + 0.0;
 		m_lethalTemp = -5.;
 		m_criticalDaylength = 14.;
 		m_startDateShift = 10;
@@ -187,7 +187,7 @@ namespace WBSF
 			pHost->m_nbMinObjects = 100;
 			pHost->m_nbMaxObjects = 1000;
 			pHost->Initialize<CTranosema>(initialPopulation);
-			double nbAlive = pHost->GetNbSpecimenAlive();
+			//double nbAlive = pHost->GetNbSpecimenAlive();
 
 			//Init stand
 			stand.m_bApplyAttrition = m_bHaveAttrition;

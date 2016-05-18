@@ -65,7 +65,8 @@ namespace WBSF
 		double	m_Pmax;			//Potential fecondity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
-		bool m_diapause;
+		bool	m_diapause;
+		
 
 		inline CTranosemaStand* GetStand();
 		inline const CTranosemaStand* GetStand()const;
@@ -73,23 +74,6 @@ namespace WBSF
 	};
 
 
-	//typedef CHostTemplate<CTranosema> CTranosemaHostBase;
-	//class CTranosemaHost: public CTranosemaHostBase
-	//{
-	//public:
-	//
-	//	CTranosemaHost(CStand* pStand=NULL);
-	//
-	//	virtual void Live(const CWeatherDay& weaDay);
-	//	virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
-	//
-	//	void CleanUp();
-	//	bool GetHatchDate(CTRef& ref, double& d)const;
-	//	CTRef GetFirstHatchDate()const;
-	//
-	//};
-	//
-	//typedef CTranosemaHost::CTBugVector CTranosemaBugVector;
 
 	//*******************************************************************************************************
 	//*******************************************************************************************************

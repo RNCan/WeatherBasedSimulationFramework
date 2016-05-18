@@ -222,7 +222,7 @@ namespace WBSF
 	void CCallback::DeleteMessages(bool bAccumulation)
 	{
 		
-		if( GetTasks().empty() )
+		if( !GetTasks().empty() )
 			GetTasks().top().m_messages.clear();
 
 		if (bAccumulation)

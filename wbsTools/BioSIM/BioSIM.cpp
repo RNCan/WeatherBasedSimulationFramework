@@ -3,6 +3,7 @@
 // 11.0.4: 24/04/2016	So;e bug correction in the AT: ;odule
 // 11.0.3: 24/04/2016	Add climatic zone to Gribs simulation
 //						Bug correction in snow and Input Weather Generator Analysis
+//						Bug correction when only one element
 // 11.0.2: 21/04/2016	Correction of bug in the weather generation with more than 1 replication.
 // 11.0.0: 10/04/2016	Integreted with WBSF 
 //						Add hourly input data   
@@ -462,7 +463,6 @@ BOOL CBioSIMApp::InitInstance()
 			format.SetHeader(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[header]", CTRefFormat::GetDefaultHeader(tm)).c_str() );
 			format.SetFormat(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[format]", CTRefFormat::GetDefaultFormat(tm)).c_str());
 			//to correct a old bug
-			
 		}
 	}
 

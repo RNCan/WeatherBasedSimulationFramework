@@ -1068,6 +1068,8 @@ void CWeatherDay::ComputeHourlyTair()
 
 	static const double c = 0.253;//From 10 station in North America 2010
 
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& dn = GetNext();
 
 	CSun sun(loc.m_lat, loc.m_lon);
 	double Tmin[3] = { GetPrevious()[H_TMIN][MEAN], me[H_TMIN][MEAN], GetNext()[H_TMIN][MEAN] };
