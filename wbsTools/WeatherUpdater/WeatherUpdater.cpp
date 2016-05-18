@@ -46,7 +46,7 @@
 //1.6.3 26/01/2009	Correction of a bug in the donwload of Québec weather
 //1.6.2 06/01/2009	Put the FTP actif and not passif. 
 //1.6.1 09/10/2008  Compile with Visual studio 2008.
-//1.6.0 01/02/2008  New NOAA download from FTP site and packDB
+//1.6.0 01/02/2008  New NOAA download from FTP site and packDB 
 //					Correction of a bug in the EnvCan pack DB and the complet flag
 //1.4.1 13/09/2007  New SnowTel download
 //					Correction of a problem with focus window and menu
