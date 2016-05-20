@@ -933,7 +933,7 @@ namespace WBSF
 						{
 							for (int x = 0; x < blockSize.m_x; x++)
 							{
-								if (firstChoice[y][x] != NOT_INIT && selectedChoice[y][x] != NOT_INIT && firstChoice[y][x] != selectedChoice[y][x])
+								if (firstChoice[y][x] != NOT_INIT && firstChoice[y][x] != selectedChoice[y][x])
 								{
 									for (int yy = y - 1; yy <= (y + 1); yy++)
 									{
@@ -943,7 +943,7 @@ namespace WBSF
 											{
 												if (xx >= 0 && xx < blockSize.m_x )
 												{
-													if (firstChoice[yy][xx] != NOT_INIT && selectedChoice[yy][xx] != NOT_INIT && selectedChoice[yy][xx] == firstChoice[yy][xx])
+													if (firstChoice[yy][xx] != NOT_INIT/* && selectedChoice[yy][xx] != NOT_INIT */&& selectedChoice[yy][xx] == firstChoice[yy][xx])
 													{
 														//if (secondBest[yy][xx] != NOT_INIT)
 														//{
@@ -961,10 +961,10 @@ namespace WBSF
 														//CLandsatPixel pixel = GetPixel(window, selectedChoice[y][x], xx, yy);
 														//CLandsatPixel pixel = GetPixel(window, secondBest[y][x], secondBest[yy][xx], xx, yy);
 
-														if (selectedChoice2[yy][xx] != selectedChoice[y][x])//if this pixel already changed
+														if (selectedChoice2[yy][xx]==NOT_INIT || selectedChoice2[yy][xx] != selectedChoice[y][x])//if this pixel already changed
 														{
 															CLandsatPixel pixel;
-															if (window.GetPixel(selectedChoice[y][x], xx, yy, pixel) && !m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
+															if (selectedChoice[y][x]==NOT_INIT || window.GetPixel(selectedChoice[y][x], xx, yy, pixel) && !m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
 																//if (window.IsValid(selectedChoice[y][x], pixel))
 															{
 																selectedChoice2[yy][xx] = selectedChoice[y][x];
@@ -1219,6 +1219,7 @@ namespace WBSF
 		{
 			size_t iz1 = it1->second;
 			CLandsatPixel pixel1 = window.GetPixel(iz1, x, y);
+			ASSERT(pixel1.IsInit());
 			CTRef TRef = m_options.GetTRef(int(pixel1[JD]));
 
 			bool bDoTrigger = true;
@@ -1297,11 +1298,11 @@ namespace WBSF
 #pragma omp atomic
 					m_options.m_nbPixelDT++;
 
-					int DTCode = 100;
+					int DTCode = 99;
 					if (pixel2.IsInit())
 						DTCode = cloudsCleaner.GetDTCode(pixel2, pixel1);
-					else
-						DTCode = cloudsCleaner.GetDTCode(pixel3, pixel1);
+					//else
+					//	DTCode = cloudsCleaner.GetDTCode(pixel3, pixel1);
 
 					if (cloudsCleaner.IsSecondCloud(DTCode))
 					{
@@ -1324,6 +1325,14 @@ namespace WBSF
 
 		}//while not good pixel
 		
+
+		/*if (iz == NOT_INIT)
+		{
+			int g;
+			g = 0;
+		}*/
+
+
 		return iz;
 	}
 
