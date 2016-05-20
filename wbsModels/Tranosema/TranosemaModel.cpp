@@ -24,7 +24,7 @@ using namespace WBSF::Tranosema;
 namespace WBSF
 {
 	static const bool ACTIVATE_PARAMETRIZATION = false;
-	static const size_t NB_GENERATIONS = 5;
+	static const size_t NB_GENERATIONS = 6;
 
 
 

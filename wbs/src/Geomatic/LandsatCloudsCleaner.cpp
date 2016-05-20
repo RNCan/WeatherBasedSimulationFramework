@@ -65,13 +65,11 @@ namespace WBSF
 
 	
 	//****************************************************************************************************
-//10 - t1 Cloud
-//11 - t1 Haze
-//12 - t1 Shadow
-//13 - t2 Cloud
-//14 - t2 Haze
-//15 - t2 Shadow
-//20 - t2 Smoke
+//010 - t1 Cloud
+//012 - t1 Haze and Shadow
+//130 - t2 Cloud
+//150 - t2 Haze and Shadow ans smoke 
+
 	int CLandsatCloudCleaner::GetDTCode(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
 	{
 		int t = omp_get_thread_num();
@@ -88,17 +86,17 @@ namespace WBSF
 
 	bool CLandsatCloudCleaner::IsFirstCloud(int DTCode)const
 	{
-		return DTCode == 10 || DTCode == 11 || DTCode == 12 || DTCode == 19;
+		return DTCode == 10 || DTCode == 11 || DTCode == 12;
 	}
 
 	bool CLandsatCloudCleaner::IsSecondCloud(int DTCode)const
 	{
-		return DTCode == 13 || DTCode == 14 || DTCode == 15 || DTCode == 20;
+		return DTCode > 100;
 	}
 
 	bool CLandsatCloudCleaner::IsCloud(int DTCode)const
 	{
-		return (DTCode >= 10 && DTCode <= 20);
+		return (DTCode >= 10 && DTCode <= 20) || DTCode>100;
 	}
 
 
