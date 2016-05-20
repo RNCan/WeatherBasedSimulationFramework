@@ -108,23 +108,19 @@ namespace WBSF
 			if (m_pData == NULL)
 				return (DataType)m_noData;
 
-			//ASSERT(x >= 0 && x < m_dataRect.Width());
-			//ASSERT(y >= 0 && y < m_dataRect.Height());
-
 			x += m_windowRect.m_x;
 			y += m_windowRect.m_y;
 
 			DataType v = (DataType)m_noData;
 			if (m_dataRect.PtInRect(x, y))
 			{
-				//__int64 pos = ((__int64)m_windowRect.m_yMin-m_dataRect.m_yMin+y)*m_dataRect.Width() + m_windowRect.m_xMin - m_dataRect.m_xMin + x;
 				__int64 pos = ((__int64)y - m_dataRect.m_y)*m_dataRect.Width() + (x - m_dataRect.m_x);
 				ASSERT(pos >= 0 && pos < (__int64)m_pData->size());
 
 				if (pos >= 0 && pos < (__int64)m_pData->size())
 				{
 					v = m_pData->at((size_t)pos);
-					if (m_pMaskWindow.get() && m_pMaskWindow->IsPixelMasked(x, y))
+					if (m_pMaskWindow && (m_pMaskWindow.get() != NULL) && m_pMaskWindow->IsPixelMasked(x, y))
 						v = (DataType)m_noData;
 				}
 			}
@@ -187,7 +183,7 @@ namespace WBSF
 		size_t GetSceneSize()const{ return m_sceneSize; }
 
 		template <class T>
-		bool IsValid(size_t i, const T& pixel)
+		bool IsValid(size_t i, const T& pixel)const
 		{
 			assert(((i + 1)*m_sceneSize - 1) < size());
 			const_iterator it1 = begin() + i*m_sceneSize;
@@ -201,7 +197,7 @@ namespace WBSF
 		}
 
 		template <class T>
-		bool IsValid(size_t i, size_t z, const T& pixel)
+		bool IsValid(size_t i, size_t z, const T& pixel)const
 		{
 			assert((i*m_sceneSize + z) < size());
 			return at(i*m_sceneSize + z)->IsValid(pixel);
@@ -246,7 +242,7 @@ namespace WBSF
 		}
 
 		virtual void Init(int windowSize);
-		void ReleaseData();
+		void FlushCache(double yMax = -9999999999);
 
 
 		bool IsValid(DataType v)const
@@ -479,6 +475,7 @@ namespace WBSF
 		size_t GetPrjID()const{ return m_pProjection ? m_pProjection->GetPrjID() : PRJ_NOT_INIT; }
 
 		const CGeoExtents& GetExtents()const{ return m_extents; }
+		void FlushCache(double yMax=-9999999999);
 
 		void SetVRTBand(size_t i, GDALDataset* pDataset);
 		void CloseVRTBand(size_t i);
@@ -604,7 +601,7 @@ namespace WBSF
 		virtual void LoadBlock(CGeoExtents extents, CTPeriod p = CTPeriod());
 
 		virtual double Evaluate(size_t virtualBandNo, const std::vector<float>& variable){ ASSERT(false); return DBL_MAX; }
-		void ReleaseBlocks();
+		void FlushCache(double yMax = -9999999999);
 
 		CGeoSize ComputeBlockSize(const CGeoExtents& extents, CTPeriod period)const;
 
@@ -827,6 +824,8 @@ namespace WBSF
 
 		const CBandsHolder& operator[](size_t i)const
 		{
+			ASSERT(i <= m_thread.size());
+
 			if (i < m_thread.size())
 				return *(m_thread[i]);
 
@@ -836,6 +835,8 @@ namespace WBSF
 
 		CBandsHolder& operator[](size_t i)
 		{
+			ASSERT(i <= m_thread.size());
+
 			if (i < m_thread.size())
 				return *(m_thread[i]);
 

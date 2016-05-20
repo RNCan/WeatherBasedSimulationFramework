@@ -372,7 +372,7 @@ namespace WBSF
 		m_options.UpdateBar();
 		m_options.m_timerProcess.Stop();
 
-		bandHolder.ReleaseBlocks();
+		bandHolder.FlushCache();
 	}
 
 

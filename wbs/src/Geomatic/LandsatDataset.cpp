@@ -195,10 +195,26 @@ namespace WBSF
 			size_t ii = i*SCENES_SIZE + z;
 			pixel[z] = (LandsatDataType)at(ii)->at(x, y);
 		}
-
-
+		
+		
 
 		return pixel;
+	}
+
+	bool CLandsatWindow::GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const
+	{
+		ASSERT(i<GetNbScenes());
+
+		if (i != NOT_INIT  )
+		{
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+			{
+				size_t ii = i*SCENES_SIZE + z;
+				pixel[z] = (LandsatDataType)at(ii)->at(x, y);
+			}
+		}
+		
+		return i != NOT_INIT && IsValid(i, pixel);
 	}
 
 	//****************************************************************************************************************

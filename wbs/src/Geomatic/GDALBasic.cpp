@@ -688,8 +688,6 @@ void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
 	//get the nearest grid cell
 	if (options.m_bTap)
 		options.m_extents.AlignTo(m_extents);
-
-
 	
 
 	if (options.m_dstNodata == MISSING_NO_DATA)
@@ -1243,6 +1241,14 @@ int CGDALDatasetEx::GetMaxBlockSizeZ(CGeoExtents extents, CTPeriod period, CTM T
 	return nbRasterMax;
 }
 
+void CGDALDatasetEx::FlushCache(double yMax)
+{
+	for (size_t k = 0; k<GetRasterCount(); k++)
+	{
+		if (yMax<m_internalExtents[k].m_yMin)
+			GetRasterBand(k)->FlushCache();
+	}
+}
 //*****************************************************************************************
 //CSingleBandHolder
 /*CPLErr GetHistogram( GDALRasterBand *poBand, float *panHistogram )
@@ -1347,25 +1353,28 @@ CSingleBandHolder::CSingleBandHolder(const CSingleBandHolder& in)
 
 CSingleBandHolder::~CSingleBandHolder()
 {
-	ReleaseData();
+	FlushCache(-9999999999);
 }
 
-void CSingleBandHolder::ReleaseData()
+void CSingleBandHolder::FlushCache(double yMax)
 {
-	DataVector vi;
-	/*push lots of stuff into the vector*/
+	if (yMax<m_extents.m_yMin)
+	{
+		DataVector vi;
 
-	// clean it up in C++03
-	// no need to clear() first
-	m_data.swap(vi);
+		// clean it up in C++03
+		// no need to clear() first
+		m_data.swap(vi);
 
-	// clean it up in C++0x
-	// not a one liner, but much more idiomatic
-	vi.clear();
-	vi.shrink_to_fit();
+		// clean it up in C++0x
+		// not a one liner, but much more idiomatic
+		vi.clear();
+		vi.shrink_to_fit();
 
-	m_dataRect.SetRectEmpty();
-	m_data.clear();
+		m_dataRect.SetRectEmpty();
+		m_data.clear();
+	}
+	
 }
 
 
@@ -1405,11 +1414,21 @@ void CSingleBandHolder::Init(int windowSize)
 			ASSERT(loadRect.m_ySize >= 0 && loadRect.m_ySize <= m_pDataset->GetRasterYSize());
 
 			//m_data.resize(loadRect.Height()*loadRect.Width());
+			//m_data.resize(max(loadRect.m_xSize*loadRect.m_ySize, m_dataRect.Height()*m_dataRect.Width()));
 			m_data.resize(m_dataRect.Height()*m_dataRect.Width());
+			ASSERT(m_data .size() == m_dataRect.Width()*m_dataRect.Height());
+			
+			if( loadRect.m_xSize > m_dataRect.Width())
+				loadRect.m_xSize = m_dataRect.Width();
+			
+			if (loadRect.m_ySize > m_dataRect.Height())
+				loadRect.m_ySize = m_dataRect.Height();
+
+			ASSERT(loadRect.Width() <= m_dataRect.Width());
+			ASSERT(loadRect.Height() <= m_dataRect.Height());
 
 			GDALRasterBand* pBand = m_pDataset->GetRasterBand(int(m_bandNo) + 1);//1 base
 			pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, &(m_data[0]), m_dataRect.m_xSize, m_dataRect.m_ySize, GDT_Float32, NULL, NULL);
-			pBand->FlushCache();
 		}
 		else
 		{
@@ -1656,18 +1675,18 @@ int CBandsHolder::GetBlockSizeZ(int i, int j, CTPeriod p)const
 	return nbRasterMax;
 }
 
-void CBandsHolder::ReleaseBlocks()
+void CBandsHolder::FlushCache(double yMax)
 {
 	//release bands
 	#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
 	for(int i=0; i<(int)m_bandHolder.size(); i++)
 	{	
-		m_bandHolder[i]->ReleaseData();
+		m_bandHolder[i]->FlushCache(yMax);
 	}
 
 	if( m_pMaskBandHolder.get() )
 	{
-		m_pMaskBandHolder->ReleaseData();
+		m_pMaskBandHolder->FlushCache(yMax);
 	}
 	
 }

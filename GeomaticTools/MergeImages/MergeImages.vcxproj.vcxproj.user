@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-te -1202400 8315190 -1199400 8318190 -bust 0 200 -QA 3 100 --config GDAL_CACHEMAX 4096 -IOCPU 2 -multi -of VRT -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -multi -stats -co "compress=LZW" -overwrite "C:\geomatique\1995\1995.vrt" "C:\geomatique\output\1995.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-debug -buffer 3 -clear 2 8 -QA 30 300 -bust 0 200 -te -1232520 8356290 -1231620 8357190  --config GDAL_CACHEMAX 4096 -IOCPU 4 -multi -of VRT -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -stats -co "compress=LZW" -overwrite -Clouds "C:\geomatique\model\DT_HAZE_vL4" -pre "C:\geomatique\mosaic\1994.vrt" -pos "C:\geomatique\mosaic\1996.vrt"  "C:\geomatique\1995\1995.vrt" "C:\geomatique\output\1995.vrt"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-debug -buffer 3 -clear 2 8 -QA 30 300 -bust 0 200 -te -1232520 8356290 -1231620 8357190  --config GDAL_CACHEMAX 4096 -IOCPU 4 -multi -of VRT -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -stats -co "compress=LZW" -overwrite -Clouds "C:\geomatique\model\DT_HAZE_vL4" -pre "C:\geomatique\mosaic\1994.vrt" -pos "C:\geomatique\mosaic\1996.vrt"  "C:\geomatique\1995\1995.vrt" "C:\geomatique\output\1995.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

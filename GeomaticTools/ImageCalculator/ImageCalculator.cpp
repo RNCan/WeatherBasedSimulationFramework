@@ -418,7 +418,7 @@ ERMsg CImageCalculator::Execute()
 		CGeoExtents extents = bandHolder.GetExtents();
 		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
 			
-		vector<pair<int,int>> XYindex = extents.GetBlockList();
+		vector<pair<int,int>> XYindex = extents.GetBlockList(10,10);
 		
 		omp_set_nested(1);//for at leat IOCPU 
 		#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
@@ -436,7 +436,7 @@ ERMsg CImageCalculator::Execute()
 			WriteBlock(xBlock, yBlock, (CBandsHolderCalculator&)bandHolder[threadBlockNo], outputDS, output);
 		}//block xy
 		
-		bandHolder.ReleaseBlocks();//clean memory
+		bandHolder.FlushCache();//clean memory
 		CloseAll(inputDSVector, maskDS, outputDS);
 	}
 

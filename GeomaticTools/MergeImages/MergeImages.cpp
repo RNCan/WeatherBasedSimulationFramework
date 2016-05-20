@@ -38,13 +38,15 @@
 // 1.1.0    21/01/2013	Rémi Saint-Amant	Add maxNDVI and Debug
 // 1.0.0	21/12/2012	Rémi Saint-Amant	Creation
 
+//-1201530 8294610 -1199530 8297610 
+
 //--config GDAL_CACHEMAX 4096  -IOCPU 4 -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -multi -stats -co "compress=LZW" -overwrite -Clouds "C:\Geomatique\model\Clouds" "C:\Geomatique\Input\mosaic_subset.vrt" "C:\geomatique\1996\1996subset.vrt" "C:\geomatique\output\1996_test.tif"
 //-te -1271940 7942380 -1249530 7956540 -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 1024 1024 -multi -Type SecondBest -stats -debug -dstnodata -32768 --config GDAL_CACHEMAX 1024 "U:\GIS1\LANDSAT_SR\LCC\2014\#57_2014_182-244.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test4\Nuage.vrt"
 //-stats -Type BestPixel -te 1358100 6854400 1370300 6865500 -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\MergeImages\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test2\Output\Test.vrt"
 //-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test0\output\Test.vrt"
 
 #include "stdafx.h"
-#include <float.h>
+//#include <float.h>
 #include <math.h>
 #include <array>
 #include <utility>
@@ -75,7 +77,7 @@ namespace WBSF
 
 	const short CMergeImagesOption::BANDS_STATS[NB_STATS] = { LOWEST, MEAN, STD_DEV, HIGHEST };
 	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "MaxNDVI", "Best", "SecondBest", "BestNew" };
-	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "year", "month", "day", "Jday", "nbImages", "Scene" };
+	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "year", "month", "day", "Jday", "nbImages", "Scene", "sort", "Isolated", "Buffer" };
 	const char* CMergeImagesOption::STAT_NAME[NB_STATS] = { "lo", "mn", "sd", "hi" };
 
 	short CMergeImagesOption::GetMergeType(const char* str)
@@ -105,8 +107,8 @@ namespace WBSF
 		m_bExportStats = false;
 		//		m_bNoDefaultTrigger = false;
 		m_bust = { { 0, 255 } };
-		m_clean = { { 0, 0 } };
-		m_ring = 0;
+		m_clear = { { 0, 0 } };
+		m_buffer = 0;
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
 		m_nbPixelDT = 0;
@@ -128,12 +130,13 @@ namespace WBSF
 			{ "-Clouds", 1, "file", false, "Decision tree model file path to remove clouds." },
 			//{ "-NoDefautTrigger", 0, "", false, "Without this option, \"B1 -125\" and \"TCB 750\" is added to trigger to be used with the \"-Clouds\" options." },
 			//{ "-Trigger", 3, "m tt th", true, "Add optimization trigger to execute decision tree when comparing T1 with T2. m is the merge method (can be \"OR\" or \"AND\"), tt is the trigger type and th is the trigger threshold. Supported type are \"B1\"..\"B9\",\"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-			{ "-Mosaic", 1, "file", false, "Extra multi years mosaic image file path to trigger DT when remove clouds." },
-			{ "-Clean", 2, "NbPix  maxCount", false, "Don't replace isolated cloud pixel if the count of cloud pixel around nbPix is less than maxCount." },
-			{ "-Ring", 1, "NbPix ", false, "Grow decision tree cloud by nbPix." },
+			{ "-Pre", 1, "file", false, "first mosaic image file path to trigger DT when remove clouds." },
+			{ "-Pos", 1, "file", false, "second mosaic image file path to trigger DT when remove clouds." },
+			{ "-Clear", 2, "NbPix  maxCount", false, "Don't replace isolated cloud pixel if the count of cloud pixel around (nbPix level) the pixel is equal or lesser than maxCount." },
+			{ "-Buffer", 1, "NbPix ", false, "Grow decision tree cloud by nbPix." },
 			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data." },
 			{ "-QA", 2, "nbPix miss", false, "add nbPix buffer arround the pixel to compute QA and missing QA wille be replace by miss." },
-			{ "-Mean", 1, "Dmax", false, "Compute mean of the 2 first pixels if the normalized visual distance (RGB) is lesser than Dmax" },
+//			{ "-Mean", 1, "Dmax", false, "Compute mean of the 2 first pixels if the normalized visual distance (RGB) is lesser than Dmax" },
 			//{ "-DistanceMin", 1, "d", false, "Minimum spectral distance [T1,T2] to call clouds decision tree. 250 is used by default." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, SD, highest) of all bands" },
@@ -220,18 +223,22 @@ namespace WBSF
 		{
 			m_cloudsCleanerModel = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-Mosaic"))
+		else if (IsEqual(argv[i], "-pre"))
 		{
-			m_mosaicFilePath = argv[++i];
+			m_mosaicFilePath[0] = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-Clean"))
+		else if (IsEqual(argv[i], "-pos"))
 		{
-			m_clean[0] = ToInt(argv[++i]);
-			m_clean[1] = ToInt(argv[++i]);
+			m_mosaicFilePath[1] = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-Ring"))
+		else if (IsEqual(argv[i], "-Clear"))
 		{
-			m_ring = ToInt(argv[++i]);
+			m_clear[0] = ToInt(argv[++i]);
+			m_clear[1] = ToInt(argv[++i]);
+		}
+		else if (IsEqual(argv[i], "-Buffer"))
+		{
+			m_buffer= ToInt(argv[++i]);
 		}
 		else if (IsEqual(argv[i], "-Bust"))
 		{
@@ -306,16 +313,19 @@ namespace WBSF
 
 		CLandsatDataset inputDS;
 		CGDALDatasetEx maskDS;
-		CLandsatDataset mosaicDS;
+		CLandsatDataset mosaicDS1;
+		CLandsatDataset mosaicDS2;
 		CLandsatCloudCleaner cloudsCleaner;//Decision Tree
 		CBandsHolderMT inputBH(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
-		CBandsHolderMT mosaicBH(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT mosaicBH1(1, 0, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT mosaicBH2(1, 0, m_options.m_IOCPU, NB_THREAD_PROCESS);
+	
 
 		CGDALDatasetEx outputDS;
 		CGDALDatasetEx debugDS;
 		CGDALDatasetEx statsDS;
 
-		msg = OpenInput(inputDS, maskDS, mosaicDS);
+		msg = OpenInput(inputDS, maskDS, mosaicDS1, mosaicDS2);
 		if (msg && maskDS.IsOpen())
 			inputBH.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
 
@@ -326,8 +336,11 @@ namespace WBSF
 		if (msg)
 			msg = inputBH.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
 
-		if (msg && mosaicDS.IsOpen())
-			msg = mosaicBH.Load(mosaicDS, m_options.m_bQuiet, m_options.GetExtents(), mosaicDS.GetPeriod());
+		if (msg && mosaicDS1.IsOpen())
+			msg = mosaicBH1.Load(mosaicDS1, true, m_options.GetExtents());
+		
+		if (msg && mosaicDS2.IsOpen())
+			msg = mosaicBH2.Load(mosaicDS2, true, m_options.GetExtents());
 
 		if (msg && !m_options.m_cloudsCleanerModel.empty())
 			cloudsCleaner.Load(m_options.m_cloudsCleanerModel, m_options.m_CPU, m_options.m_IOCPU);
@@ -346,10 +359,10 @@ namespace WBSF
 		omp_set_nested(1);//for IOCPU
 
 		int nbPass = 1;
-		if (!cloudsCleaner.empty() && m_options.m_clean[0] > 0)
+		if (!cloudsCleaner.empty() && m_options.m_clear[0] > 0)
 			nbPass++;
-		if (!cloudsCleaner.empty() && m_options.m_ring > 0)
-			nbPass += m_options.m_ring;
+		if (!cloudsCleaner.empty() && m_options.m_buffer > 0)
+			nbPass += m_options.m_buffer;
 
 		m_options.ResetBar(extents.m_xSize*extents.m_ySize*nbPass);
 
@@ -359,34 +372,45 @@ namespace WBSF
 		for (size_t i = 0; i < NB_THREAD_PROCESS; i++)
 			InitMemory(inputBH.GetSceneSize(), extents.GetBlockSize(), outputData[i], debugData[i], statsData[i]);
 
-
-
-
-		vector<pair<int, int>> XYindex = extents.GetBlockList(3, 3);
+		vector<pair<int, int>> XYindex = extents.GetBlockList(10, 10);
 
 #pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
-			//if (b % 9)//faudrait flusher juste les image qui ne seront plus utiliser
-			//{
-			//	inputDS->FlushCache();
-			//	if (mosaicDS.IsOpen())
-			//		mosaicDS->FlushCache();
-			//}
-
 			int xBlock = XYindex[b].first;
 			int yBlock = XYindex[b].second;
 
+			if ((yBlock % 10)==0 && xBlock==0)//faudrait flusher juste les image qui ne seront plus utiliser
+			{
+				CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
+				inputDS.FlushCache(extents.m_yMax);
+				inputBH.FlushCache(extents.m_yMax);
+					
+				//*for (int i = 0; i < 2; i++)
+				{
+					if (mosaicDS1.IsOpen())
+					{
+						mosaicDS1.FlushCache(extents.m_yMax);
+						mosaicBH1.FlushCache(extents.m_yMax);
+					}
+
+					if (mosaicDS2.IsOpen())
+					{
+						mosaicDS2.FlushCache(extents.m_yMax);
+						mosaicBH2.FlushCache(extents.m_yMax);
+					}
+				}
+			}
+
+		
 			int thNo = ::omp_get_thread_num();
 
-			ReadBlock(xBlock, yBlock, inputBH[thNo], mosaicBH[thNo]);
-			ProcessBlock(xBlock, yBlock, inputBH[thNo], inputDS, mosaicBH[thNo], outputDS, outputData[thNo], debugData[thNo], statsData[thNo], cloudsCleaner);
+			ReadBlock(xBlock, yBlock, inputBH[thNo], mosaicBH1[thNo], mosaicBH2[thNo]);
+			ProcessBlock(xBlock, yBlock, inputBH[thNo], inputDS, mosaicBH1[thNo], mosaicBH2[thNo], outputDS, outputData[thNo], debugData[thNo], statsData[thNo], cloudsCleaner);
 			WriteBlock(xBlock, yBlock, inputBH[thNo], outputDS, debugDS, statsDS, outputData[thNo], debugData[thNo], statsData[thNo]);
-
-
 		}//for all blocks
 
-		CloseAll(inputDS, maskDS, mosaicDS, outputDS, debugDS, statsDS);
+		CloseAll(inputDS, maskDS, mosaicDS1, mosaicDS2, outputDS, debugDS, statsDS);
 
 		return msg;
 	}
@@ -396,7 +420,7 @@ namespace WBSF
 	{
 		if (m_options.m_bCreateImage)
 		{
-			float dstNodata = (float)m_options.m_dstNodata;
+			__int16 dstNodata = (__int16)m_options.m_dstNodata;
 
 			if (outputData.empty())
 				outputData.resize(SCENES_SIZE);
@@ -441,7 +465,7 @@ namespace WBSF
 		if (m_options.m_bExportStats)
 		{
 			//we used no data of int32 instead
-			float dstNodata = (float)WBSF::GetDefaultNoData(GDT_Int32);
+			__int16 dstNodata = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
 			if (statsData.empty())
 				statsData.resize(sceneSize*CMergeImagesOption::NB_STATS);
@@ -463,7 +487,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CMergeImages::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& mosaicDS)
+	ERMsg CMergeImages::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& mosaicDS1, CLandsatDataset& mosaicDS2)
 	{
 		ERMsg msg;
 
@@ -473,18 +497,19 @@ namespace WBSF
 		CMergeImagesOption options(m_options);
 		msg = inputDS.OpenInputImage(m_options.m_filesPath[CMergeImagesOption::INPUT_FILE_PATH], options);
 
-		if (msg && !m_options.m_mosaicFilePath.empty())
+		//for (int i = 0; i < 2; i++)
 		{
-			if (!m_options.m_bQuiet)
-				cout << "Open mosaic..." << endl;
+			if (msg && !m_options.m_mosaicFilePath[0].empty())
+			{
+				CMergeImagesOption options1(m_options);
+				msg += mosaicDS1.OpenInputImage(m_options.m_mosaicFilePath[0], options1);
+			}
 
-			//load only one year before and one year after
-			CMergeImagesOption options(m_options);
-			//CTPeriod p = inputDS.GetPeriod();
-			//CTPeriod period(CTRef(p.Begin().GetYear() - 1, 0, 0), CTRef(p.End().GetYear() + 1, LAST_MONTH, LAST_DAY));
-			//options.m_period = period;
-
-			msg = mosaicDS.OpenInputImage(m_options.m_mosaicFilePath, options);
+			if (msg && !m_options.m_mosaicFilePath[1].empty())
+			{
+				CMergeImagesOption options2(m_options);
+				msg += mosaicDS2.OpenInputImage(m_options.m_mosaicFilePath[1], options2);
+			}
 		}
 
 		if (msg)
@@ -511,27 +536,32 @@ namespace WBSF
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
 
 
-			if (mosaicDS.IsOpen())
-			{
-				cout << "*****   Mosaic images informations   *****" << endl;
+			//for (int i = 0; i < 2; i++)
+			//{
 
-				extents = mosaicDS.GetExtents();
-				pPrj = mosaicDS.GetPrj();
-				prjName = pPrj ? pPrj->GetName() : "Unknown";
+			//	if (mosaicDS[i].IsOpen())
+			//	{
+			//		cout << endl;
+			//		cout << "*****   Mosaic images informations   *****" << endl;
 
-				cout << "    Size           = " << mosaicDS.GetRasterXSize() << " cols x " << mosaicDS.GetRasterYSize() << " rows x " << mosaicDS.GetRasterCount() << " bands" << endl;
-				cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
-				cout << "    Projection     = " << prjName << endl;
-				cout << "    NbBands        = " << mosaicDS.GetRasterCount() << endl;
-				cout << "    Scene size     = " << mosaicDS.GetSceneSize() << endl;
-				cout << "    Nb. scenes     = " << mosaicDS.GetNbScenes() << endl;
-				cout << "    First image    = " << mosaicDS.GetPeriod().Begin().GetFormatedString() << endl;
-				cout << "    Last image     = " << mosaicDS.GetPeriod().End().GetFormatedString() << endl;
-				//cout << "    Input period   = " << mosaicDS.GetPeriod().GetFormatedString() << endl;
+			//		extents = mosaicDS[i].GetExtents();
+			//		pPrj = mosaicDS[i].GetPrj();
+			//		prjName = pPrj ? pPrj->GetName() : "Unknown";
 
-				if (mosaicDS.GetSceneSize() != SCENES_SIZE)
-					cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(mosaicDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
-			}
+			//		cout << "    Size           = " << mosaicDS[i].GetRasterXSize() << " cols x " << mosaicDS[i].GetRasterYSize() << " rows x " << mosaicDS[i].GetRasterCount() << " bands" << endl;
+			//		cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
+			//		cout << "    Projection     = " << prjName << endl;
+			//		cout << "    NbBands        = " << mosaicDS[i].GetRasterCount() << endl;
+			//		cout << "    Scene size     = " << mosaicDS[i].GetSceneSize() << endl;
+			//		cout << "    Nb. scenes     = " << mosaicDS[i].GetNbScenes() << endl;
+			//		cout << "    First image    = " << mosaicDS[i].GetPeriod().Begin().GetFormatedString() << endl;
+			//		cout << "    Last image     = " << mosaicDS[i].GetPeriod().End().GetFormatedString() << endl;
+			//		//cout << "    Input period   = " << mosaicDS.GetPeriod().GetFormatedString() << endl;
+
+			//		if (mosaicDS[i].GetSceneSize() != SCENES_SIZE)
+			//			cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(mosaicDS[i].GetSceneSize()), to_string(SCENES_SIZE)) << endl;
+			//	}
+			//}
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -603,8 +633,8 @@ namespace WBSF
 			CMergeImagesOption options = m_options;
 
 			options.m_nbBands = NB_TOTAL_STATS;
-			options.m_outputType = GDT_Float32;
-			options.m_dstNodata = WBSF::GetDefaultNoData(GDT_Int32);
+			options.m_outputType = GDT_Int16;
+			options.m_dstNodata = WBSF::GetDefaultNoData(GDT_Int16);
 
 			string filePath = options.m_filesPath[CMergeImagesOption::OUTPUT_FILE_PATH];
 			SetFileTitle(filePath, GetFileTitle(filePath) + "_stats");
@@ -624,7 +654,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CMergeImages::ReadBlock(int xBlock, int yBlock, CBandsHolder& inputBH, CBandsHolder& mosaicBH)
+	void CMergeImages::ReadBlock(int xBlock, int yBlock, CBandsHolder& inputBH, CBandsHolder& mosaicBH1, CBandsHolder& mosaicBH2)
 	{
 #pragma omp critical(BlockIO)
 	{
@@ -633,17 +663,17 @@ namespace WBSF
 		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
 		inputBH.LoadBlock(extents, m_options.m_period);
 
-
-		CTPeriod p = m_options.m_period;
-		CTPeriod period(CTRef(p.Begin().GetYear() - 1, FIRST_MONTH, FIRST_DAY), CTRef(p.End().GetYear() + 1, LAST_MONTH, LAST_DAY));
-		//mosaicBH.LoadBlock(extents, period);
-		mosaicBH.LoadBlock(extents);
+		//CTPeriod p = m_options.m_period;
+		//CTPeriod period(CTRef(p.Begin().GetYear() - 1, FIRST_MONTH, FIRST_DAY), CTRef(p.End().GetYear() + 1, LAST_MONTH, LAST_DAY));
+		
+		mosaicBH1.LoadBlock(extents);
+		mosaicBH2.LoadBlock(extents);
 
 		m_options.m_timerRead.Stop();
 	}
 	}
 
-	void CMergeImages::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& inputDS, CBandsHolder& mosaicBH, CGDALDatasetEx& outputDS, OutputData& outputData, DebugData& debugData, OutputData& statsData, CLandsatCloudCleaner& cloudsCleaner)
+	void CMergeImages::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& inputDS, CBandsHolder& mosaicBH1, CBandsHolder& mosaicBH2, CGDALDatasetEx& outputDS, OutputData& outputData, DebugData& debugData, StatData& statsData, CLandsatCloudCleaner& cloudsCleaner)
 	{
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -671,21 +701,25 @@ namespace WBSF
 			//lansat pixel adn DTCode
 			CMatrix<size_t> firstChoice;
 			CMatrix<size_t> selectedChoice;
-			CMatrix<size_t> secondBest(blockSize.m_y, blockSize.m_x);
-			CMatrix<int> DTCode(blockSize.m_y, blockSize.m_x);
+			//CMatrix<size_t> secondBest;
+			//CMatrix<int> DTCode(blockSize.m_y, blockSize.m_x);
 			int nbTriggerUsed = 0;
-			CLandsatWindow mosaicWindow;
+			CLandsatWindow preWindow;
+			CLandsatWindow posWindow;
 
 
-			if (!mosaicBH.IsEmpty())
-				mosaicWindow = static_cast<CLandsatWindow&>(mosaicBH.GetWindow());
+			if (!mosaicBH1.IsEmpty())
+				preWindow = static_cast<CLandsatWindow&>(mosaicBH1.GetWindow());
+			
+			if (!mosaicBH2.IsEmpty())
+				posWindow = static_cast<CLandsatWindow&>(mosaicBH2.GetWindow());
 
 
-			if (!cloudsCleaner.empty() && (m_options.m_clean[0] > 0 || m_options.m_ring > 0))
+			if (!cloudsCleaner.empty() && (m_options.m_clear[0] > 0 || m_options.m_buffer > 0))
 			{
 				firstChoice.resize(blockSize.m_y, blockSize.m_x);
 				selectedChoice.resize(blockSize.m_y, blockSize.m_x);
-			//	secondBest.resize(blockSize.m_y, blockSize.m_x);
+				//secondBest.resize(blockSize.m_y, blockSize.m_x);
 			}
 			
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti ) 
@@ -766,130 +800,28 @@ namespace WBSF
 					if (!imageList.empty())
 						m_options.m_nbImages += (double)imageList.size();
 
+					//find input temporal index
+					size_t iz = get_iz(imageList, m_options.m_mergeType);
 
 					//get first choice before erase
 					if (!firstChoice.empty())
-						firstChoice[y][x] = get_iz(imageList, m_options.m_mergeType);
+						firstChoice[y][x] = iz;
 
 					//clean clouds
 					if (!cloudsCleaner.empty())
 					{
-						//now looking for all other images
-						Test1Vector::iterator it1 = get_it(imageList, m_options.m_mergeType);
-						while (it1 != imageList.end())
-						{
-							size_t iz1 = it1->second;
-							CLandsatPixel pixel1 = window.GetPixel(iz1, x, y);
-							CTRef TRef = m_options.GetTRef(int(pixel1[JD]));
-
-							bool bTrig_B1 = false;
-							bool bTrig_TCB = false;
-
-							//Get pixel
-							CLandsatPixel pixel2;
-							CLandsatPixel pixel3;
-
-							Test1Vector::iterator it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
-							while (it2 != imageList.end())
-							{
-								size_t iz2 = it2->second;
-								CLandsatPixel pixel = window.GetPixel(iz2, x, y);
-								ASSERT(pixel2.IsInit());
-
-								if (IsCloud(cloudsCleaner, pixel1, pixel))
-								{
-									imageList.erase(it2);
-									it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
-								}
-								else
-								{
-									pixel2 = pixel;
-									it2 = imageList.end();
-								}
-							}
-
-
-
-							if (!mosaicBH.IsEmpty())
-							{
-								//for (size_t mz = 0; mz < mosaicWindow.GetNbScenes() && !pixel2.IsInit(); mz++)
-								//Test1Vector::iterator it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
-								//size_t mz = 
-								//while (it2 != imageList.end())
-								//{
-									//inputDS.GetScenePeriod()[mz].Intersect()
-								//CTRef TRef2 = m_options.GetTRef(int(pixelM[JD]));
-								//		if (TRef2.GetYear() == TRef.GetYear() - 1 || (TRef2.GetYear() == TRef.GetYear() + 2 && !pixel2.IsInit()))
-								//pixel2 = pixelM;
-								//	if (TRef2.GetYear() == TRef.GetYear() - 2 || TRef2.GetYear() == TRef.GetYear() + 1)
-								//	pixel_p1 = pixelM;
-								//if (!IsCloud(cloudsCleaner, pixel, pixel2))
-								//we assume there arew no cloud in mosaic
-
-								pixel3 = mosaicWindow.GetPixel(0, x, y);
-								//if (mosaicWindow.IsValid(0, pixel))
-									//pixel3 = pixel;
-							}
-
-
-							if (pixel2.IsInit() && pixel3.IsInit())
-							{
-								bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125) && (pixel3[I_B1] - pixel1[I_B1] < -125);
-								bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750) && (pixel3.TCB() - pixel1.TCB() > 750);
-								nbTriggerUsed = 2;
-							}
-							else if (pixel2.IsInit())
-							{
-								bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125);
-								bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750);
-								nbTriggerUsed = 1;
-							}
-							else if (pixel3.IsInit())
-							{
-								bTrig_B1 = (pixel3[I_B1] - pixel1[I_B1] < -125);
-								bTrig_TCB = (pixel3.TCB() - pixel1.TCB() > 750);
-								nbTriggerUsed = 1;
-							}
-
-
-							if (bTrig_B1 || bTrig_TCB)
-							{
-#pragma omp atomic
-								m_options.m_nbPixelDT++;
-
-								if (pixel2.IsInit())
-									DTCode[y][x] = cloudsCleaner.GetDTCode(pixel2, pixel1);
-								else
-									DTCode[y][x] = cloudsCleaner.GetDTCode(pixel3, pixel1);
-
-								if (cloudsCleaner.IsSecondCloud(DTCode[y][x]))
-								{
-									imageList.erase(it1);
-									it1 = get_it(imageList, m_options.m_mergeType);
-								}
-								else
-								{
-									it1 = imageList.end();
-								}
-							}
-							else
-							{
-								it1 = imageList.end();
-							}
-						}//while not good pixel
+						iz = GetCloudFreeIz(imageList, m_options.m_mergeType, preWindow, window, posWindow, x, y, cloudsCleaner);
 					}//if remove clouds
-
-
-					//find input temporal index
-					size_t iz = get_iz(imageList, m_options.m_mergeType);
-					size_t iz² = get_iz(imageList, CMergeImagesOption::SECOND_BEST);
 
 					//get first choice before erase
 					if (!selectedChoice.empty())
 						selectedChoice[y][x] = iz;//clouds was remove
 
-					if (!secondBest.empty())
-						secondBest[y][x] = iz²;
+					//if (!secondBest.empty())
+					//{
+					//	secondBest[y][x] = iz²;
+					//}
+					//	
 
 					if (iz != NOT_INIT && m_options.m_bDebug)
 					{
@@ -924,16 +856,19 @@ namespace WBSF
 						debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
 						debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
 						debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList.size());
-						debugData[CMergeImagesOption::SCENE][y][x] = (int)iz;
+						debugData[CMergeImagesOption::SCENE][y][x] = (int)iz+1;
 						debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first.GetRef();
-						debugData[CMergeImagesOption::NB_TRIGGERS][y][x] = nbTriggerUsed;
+						//debugData[CMergeImagesOption::NB_TRIGGERS][y][x] = nbTriggerUsed;
 					}
 
-					if (m_options.m_bCreateImage)
+					if (iz != NOT_INIT && m_options.m_bCreateImage)
 					{
-						CLandsatPixel pixel = GetPixel(window, iz, iz², x, y);
-						for (size_t z = 0; z < SCENES_SIZE; z++)
-							outputData[z][y][x] = (float)outputDS.PostTreatment(pixel[z], z);
+						CLandsatPixel pixel;
+						if (window.GetPixel(iz, x, y, pixel) && !m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
+						{
+							for (size_t z = 0; z < SCENES_SIZE; z++)
+								outputData[z][y][x] = (__int16)outputDS.PostTreatment(pixel[z], z);
+						}
 					}//for all landsat bands
 
 					if (m_options.m_bExportStats)
@@ -941,7 +876,7 @@ namespace WBSF
 						for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
 							for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
 								if (stats[z][NB_VALUE]>0)
-									statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = float(stats[z][CMergeImagesOption::BANDS_STATS[ss]]);
+									statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)outputDS.PostTreatment(stats[z][CMergeImagesOption::BANDS_STATS[ss]], z);
 					}//if export stats
 
 #pragma omp atomic 
@@ -955,8 +890,9 @@ namespace WBSF
 			//now, clean isolated pixel and grow ring
 			if (m_options.m_bCreateImage && !cloudsCleaner.empty())
 			{
-				if (m_options.m_clean[0] > 0)
+				if (m_options.m_clear[0] > 0)
 				{
+					CMatrix<size_t> selectedChoice2 = selectedChoice;
 					//first clean pixel
 					for (int y = 0; y < blockSize.m_y; y++)
 					{
@@ -966,24 +902,32 @@ namespace WBSF
 							{
 								if (IsIsolatedPixel(x, y, firstChoice, selectedChoice))
 								{
-									secondBest[y][x] = selectedChoice[y][x];
-									selectedChoice[y][x] = firstChoice[y][x];
-									CLandsatPixel pixel = GetPixel(window, selectedChoice[y][x], secondBest[y][x], x, y);
-									for (size_t z = 0; z < SCENES_SIZE; z++)
-										outputData[z][y][x] = (float)outputDS.PostTreatment(pixel[z], z);
+									CLandsatPixel pixel;
+									if (window.GetPixel(firstChoice[y][x], x, y, pixel) && !m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
+									{
+										selectedChoice2[y][x] = firstChoice[y][x];
+
+										for (size_t z = 0; z < SCENES_SIZE; z++)
+											outputData[z][y][x] = (__int16)outputDS.PostTreatment(pixel[z], z);
+
+										if (m_options.m_bDebug)
+											debugData[CMergeImagesOption::ISOLATED][y][x] = int(firstChoice[y][x]);
+									}
 								}
 							}
 							m_options.m_xx++;
 						}//x
 						m_options.UpdateBar();
 					}//y
+
+					selectedChoice = selectedChoice2;
 				}
 				//second grow pixel ring
-				if (m_options.m_ring > 0)
+				if (m_options.m_buffer > 0)
 				{
 					CMatrix<size_t> selectedChoice2 = selectedChoice;
-					CMatrix<size_t> secondBest2 = secondBest;
-					for (int r = 0; r < m_options.m_ring; r++)
+					//CMatrix<size_t> secondBest2 = secondBest;
+					for (int r = 0; r < m_options.m_buffer; r++)
 					{
 						for (int y = 0; y < blockSize.m_y; y++)
 						{
@@ -991,17 +935,14 @@ namespace WBSF
 							{
 								if (firstChoice[y][x] != NOT_INIT && selectedChoice[y][x] != NOT_INIT && firstChoice[y][x] != selectedChoice[y][x])
 								{
-									//for (int yy = y - m_options.m_ring; yy <= (y + m_options.m_ring); yy++)
 									for (int yy = y - 1; yy <= (y + 1); yy++)
 									{
 										if (yy >= 0 && yy < blockSize.m_y)
 										{
-											//for (int xx = x - m_options.m_ring; xx <= (x + m_options.m_ring); xx++)
 											for (int xx = x - 1; xx <= x + 1; xx++)
 											{
-												if (xx >= 0 && xx < blockSize.m_x && xx != yy)
+												if (xx >= 0 && xx < blockSize.m_x )
 												{
-													//
 													if (firstChoice[yy][xx] != NOT_INIT && selectedChoice[yy][xx] != NOT_INIT && selectedChoice[yy][xx] == firstChoice[yy][xx])
 													{
 														//if (secondBest[yy][xx] != NOT_INIT)
@@ -1012,18 +953,31 @@ namespace WBSF
 
 														//because we can't change selectedChoise, we have to chnage firstChoice instead
 														//firstChoice[yy][xx] = selectedChoice[y][x];
-
-														CLandsatPixel pixel = GetPixel(window, selectedChoice[y][x], secondBest[y][x], xx, yy);
+														//find the second best pixel
+														//iz = GetCloudFreeIz(imageList, SECOND_BEST, preWindow, window, posWindow, x, y, cloudsCleaner);
+														//CLandsatPixel pixel;
+														//GetPixel(imageList, , preWindow, window, posWindow, xx, yy, cloudsCleaner, pixel);
+														
+														//CLandsatPixel pixel = GetPixel(window, selectedChoice[y][x], xx, yy);
 														//CLandsatPixel pixel = GetPixel(window, secondBest[y][x], secondBest[yy][xx], xx, yy);
 
-														if (window.IsValid(selectedChoice[y][x], pixel))
+														if (selectedChoice2[yy][xx] != selectedChoice[y][x])//if this pixel already changed
 														{
-															selectedChoice2[yy][xx] = selectedChoice[y][x];
-															secondBest2[yy][xx] = secondBest[y][x];
+															CLandsatPixel pixel;
+															if (window.GetPixel(selectedChoice[y][x], xx, yy, pixel) && !m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
+																//if (window.IsValid(selectedChoice[y][x], pixel))
+															{
+																selectedChoice2[yy][xx] = selectedChoice[y][x];
+																//secondBest2[yy][xx] = secondBest[y][x];
 
-															for (size_t z = 0; z < SCENES_SIZE; z++)
-																outputData[z][yy][xx] = (float)outputDS.PostTreatment(pixel[z], z);
+																for (size_t z = 0; z < SCENES_SIZE; z++)
+																	outputData[z][yy][xx] = (__int16)outputDS.PostTreatment(pixel[z], z);
+
+																if (m_options.m_bDebug)
+																	debugData[CMergeImagesOption::BUFFER][yy][xx] = int(selectedChoice[y][x]);
+															}
 														}
+														
 													}//for all landsat bands
 												}//if xx
 											}//xx
@@ -1038,19 +992,20 @@ namespace WBSF
 						}//y
 
 						selectedChoice = selectedChoice2;
-						secondBest = secondBest2;
+						//secondBest = secondBest2;
 					}//ring
 				}//if ring
 			}//cloud cleaner
 
 			m_options.m_timerProcess.Stop();
-			bandHolder.ReleaseBlocks();//clean memory ???? 
-			mosaicBH.ReleaseBlocks();//clean memory ???? 
+			bandHolder.FlushCache();//clean memory ???? 
+			mosaicBH1.FlushCache();//clean memory ???? 
+			mosaicBH2.FlushCache();//clean memory ???? 
 		}//critical process
 	}
 
 	
-	void CMergeImages::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, OutputData& statsData)
+	void CMergeImages::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData)
 	{
 #pragma omp critical(BlockIO)
 	{
@@ -1072,91 +1027,82 @@ namespace WBSF
 			ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
 
 
-			//for (size_t s = 0; s < nbSegment; s++)
-			//{
-				for (size_t z = 0; z < SCENES_SIZE; z++)
+		
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+			{
+				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
+				if (!bandHolder.IsEmpty())
 				{
-					GDALRasterBand *pBand = outputDS.GetRasterBand(z);
-					if (!bandHolder.IsEmpty())
-					{
-						ASSERT(outputData.size() == SCENES_SIZE);
+					ASSERT(outputData.size() == SCENES_SIZE);
 						
-						for (int y = 0; y < outputRect.Height(); y++)
-							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(outputData[z][y][0]), outputRect.Width(), 1, GDT_Float32, 0, 0);
-					}
-					else
-					{
-						float noData = (float)outputDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Float32, 0, 0);
-					}
-
-					//pBand->FlushCache();
+					for (int y = 0; y < outputRect.Height(); y++)
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(outputData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
 				}
-			//}
+				else
+				{
+					__int16 noData = (__int16)outputDS.GetNoData(z);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+				}
+			}
 		}
 
 
 		if (m_options.m_bDebug && !debugData.empty())
 		{
-			//for (size_t s = 0; s < nbSegment; s++)
-			//{
-				for (size_t z = 0; z < CMergeImagesOption::NB_DEBUG_BANDS; z++)
+			for (size_t z = 0; z < CMergeImagesOption::NB_DEBUG_BANDS; z++)
+			{
+				GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMergeImagesOption::NB_DEBUG_BANDS + 
+				if (!bandHolder.IsEmpty())
 				{
-					GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMergeImagesOption::NB_DEBUG_BANDS + 
-					if (!bandHolder.IsEmpty())
-					{
-						//for (int y = 0; y < (int)debugData[s][z].size(); y++)
-						for (int y = 0; y < outputRect.Height(); y++)
-							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int32, 0, 0);
-					}
-					else
-					{
-						__int32 noData = (__int32)debugDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int32, 0, 0);
-					}
-
-					//pBand->FlushCache();
+					for (int y = 0; y < outputRect.Height(); y++)
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int32, 0, 0);
 				}
-			//}
+				else
+				{
+					__int32 noData = (__int32)debugDS.GetNoData(z);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int32, 0, 0);
+				}
+
+				//pBand->FlushCache();
+			}
+
 		}
 
 		if (m_options.m_bExportStats && !statsData.empty())
 		{
-//			for (size_t s = 0; s < nbSegment; s++)
-	//		{
-				for (size_t z = 0; z < NB_TOTAL_STATS; z++)
+			for (size_t z = 0; z < NB_TOTAL_STATS; z++)
+			{
+				GDALRasterBand *pBand = statsDS.GetRasterBand(z);
+				if (!bandHolder.IsEmpty())
 				{
-					GDALRasterBand *pBand = statsDS.GetRasterBand(z);
-					if (!bandHolder.IsEmpty())
-					{
-						vector<float> tmp;
-						tmp.reserve(outputRect.Width()*outputRect.Height());
+					vector<__int16> tmp;
+					tmp.reserve(outputRect.Width()*outputRect.Height());
 						
-						for (int y = 0; y < outputRect.Height(); y++)
-							tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
+					for (int y = 0; y < outputRect.Height(); y++)
+						tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
 
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(tmp[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
-					}
-					else
-					{
-						float noData = (float)statsDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Float32, 0, 0);
-					}
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(tmp[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+				}
+				else
+				{
+					__int16 noData = (__int16)statsDS.GetNoData(z);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+				}
 
-					//pBand->FlushCache();
-				}//for all bands in a scene
-		//	}
+				//pBand->FlushCache();
+			}//for all bands in a scene
 		}//stats
 
 		m_options.m_timerWrite.Stop();
 	}
 	}
 
-	void CMergeImages::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& mosaicDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
+	void CMergeImages::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& mosaicDS1, CLandsatDataset& mosaicDS2, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
 	{
 		inputDS.Close();
 		maskDS.Close();
-		mosaicDS.Close();
+		mosaicDS1.Close();
+		mosaicDS2.Close();
 
 		m_options.m_timerWrite.Start();
 
@@ -1252,16 +1198,145 @@ namespace WBSF
 		return iz;
 	}
 
+	size_t CMergeImages::GetCloudFreeIz(Test1Vector& imageList, size_t mergeType, CLandsatWindow& preWindow, CLandsatWindow& window, CLandsatWindow& posWindow, int x, int y, CLandsatCloudCleaner& cloudsCleaner)
+	{
+		size_t iz = NOT_INIT;
+		int nbTriggerUsed = 0;
+
+		//Get pixel
+		CLandsatPixel pixel2;
+		CLandsatPixel pixel3;
+
+		if (!preWindow.empty())
+			preWindow.GetPixel(0, x, y, pixel2);
+
+		if (!posWindow.empty())
+			posWindow.GetPixel(0, x, y, pixel3);
+
+		//now looking for all other images
+		Test1Vector::iterator it1 = get_it(imageList, mergeType);
+		while (it1 != imageList.end())
+		{
+			size_t iz1 = it1->second;
+			CLandsatPixel pixel1 = window.GetPixel(iz1, x, y);
+			CTRef TRef = m_options.GetTRef(int(pixel1[JD]));
+
+			bool bDoTrigger = true;
+			bool bTrig_B1 = false;
+			bool bTrig_TCB = false;
+			
+
+			if (pixel2.IsInit() && pixel3.IsInit())
+			{
+				bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125) && (pixel3[I_B1] - pixel1[I_B1] < -125);
+				bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750) && (pixel3.TCB() - pixel1.TCB() > 750);
+				nbTriggerUsed = 2;
+			}
+			else if (pixel2.IsInit())
+			{
+				bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125);
+				bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750);
+				nbTriggerUsed = 1;
+			}
+			else if (pixel3.IsInit())
+			{
+				bTrig_B1 = (pixel3[I_B1] - pixel1[I_B1] < -125);
+				bTrig_TCB = (pixel3.TCB() - pixel1.TCB() > 750);
+				nbTriggerUsed = 1;
+			}
+			else
+			{
+				Test1Vector::iterator it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
+				while (it2 != imageList.end())
+				{
+					size_t iz2 = it2->second;
+					//size_t iz = get_iz(imageList, m_options.m_mergeType);
+					if (window.GetPixel(iz2, x, y, pixel2))
+					{
+						if ((abs(pixel2[I_B1] - pixel1[I_B1]) < -125) || abs((pixel2.TCB() - pixel1.TCB()) > 750))
+						{
+#pragma omp atomic
+							m_options.m_nbPixelDT++;
+
+							int DTCode = cloudsCleaner.GetDTCode(pixel2, pixel1);
+							if (cloudsCleaner.IsFirstCloud(DTCode))
+							{
+								imageList.erase(it2);
+								it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
+							}
+							else if (cloudsCleaner.IsSecondCloud(DTCode))
+							{
+								bDoTrigger = false;
+								imageList.erase(it1);
+								it1 = get_it(imageList, m_options.m_mergeType);
+								it2 = imageList.end();
+							}
+							else
+							{
+								bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125);
+								bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750);
+								nbTriggerUsed = 1;
+								it2 = imageList.end();
+							}
+						}
+						else
+						{
+							bTrig_B1 = (pixel2[I_B1] - pixel1[I_B1] < -125);
+							bTrig_TCB = (pixel2.TCB() - pixel1.TCB() > 750);
+							nbTriggerUsed = 1;
+							it2 = imageList.end();
+						}
+					}
+				}
+			}
+
+			if (bDoTrigger)
+			{
+				if (bTrig_B1 || bTrig_TCB)
+				{
+#pragma omp atomic
+					m_options.m_nbPixelDT++;
+
+					int DTCode = 100;
+					if (pixel2.IsInit())
+						DTCode = cloudsCleaner.GetDTCode(pixel2, pixel1);
+					else
+						DTCode = cloudsCleaner.GetDTCode(pixel3, pixel1);
+
+					if (cloudsCleaner.IsSecondCloud(DTCode))
+					{
+						imageList.erase(it1);
+						it1 = get_it(imageList, m_options.m_mergeType);
+					}
+					else
+					{
+						iz = iz1;
+						it1 = imageList.end();
+					}
+				}
+				else
+				{
+					iz = iz1;
+					it1 = imageList.end();
+				}
+			}
+
+
+		}//while not good pixel
+		
+		return iz;
+	}
+
 	bool CMergeImages::IsIsolatedPixel(int x, int y, const CMatrix<size_t>& firstChoice, const CMatrix<size_t>& selectedChoice)const
 	{
-		int d = m_options.m_clean[0];
+		int d = m_options.m_clear[0];
 
 		size_t count = 0;
-		for (int yy = y - d; (yy <= y + d) && (count <= m_options.m_clean[1]); yy++)
+		for (int yy = y - d; (yy <= y + d) && (count <= m_options.m_clear[1]); yy++)
 		{
 			if (yy >= 0 && yy < firstChoice.size_y())
 			{
-				for (int xx = (x - d); (xx <= x + d) && (count <= m_options.m_clean[1]); xx++)
+				for (int xx = (x - d); (xx <= x + d) && (count <= m_options.m_clear[1]); xx++)
 				{
 					if (xx >= 0 && xx < firstChoice.size_x())
 					{
@@ -1272,7 +1347,7 @@ namespace WBSF
 			}
 		}
 
-		return count <= m_options.m_clean[1];
+		return count <= m_options.m_clear[1];
 	}
 
 
@@ -1283,18 +1358,24 @@ namespace WBSF
 		int d = m_options.m_QA;
 
 		size_t count = 0;
-		for (int yy = y - d; (yy <= y + d); yy++)
+		//for (int yy = y - d; (yy <= y + d); yy++)
+		for (int dd = -d; (dd <= d); dd++)
 		{
-			for (int xx = (x - d); (xx <= x + d); xx++)
+		//	for (int xx = (x - d); (xx <= x + d); xx++)
 			{
-				//CGeoSize size = window.GetGeoSize();
-				if (xx >= 0 && xx < size.m_x && yy >= 0 && yy < size.m_y)
+				//select only *
+				if (dd==-d||dd==0||dd==d)
 				{
-					CLandsatPixel pixel = window.GetPixel(iz, xx, yy);
-					if (window.IsValid(iz, pixel))
-						sumQA += pixel[QA];
-					else
-						sumQA += m_options.m_QAmiss;//add bad value for missing pixel
+					int xx = x + dd;
+					int yy = y + dd;
+					if (xx >= 0 && xx < size.m_x && yy >= 0 && yy < size.m_y)
+					{
+						CLandsatPixel pixel;
+						if (window.GetPixel(iz, xx, yy, pixel))
+							sumQA += pixel[QA];
+						else
+							sumQA += m_options.m_QAmiss;//add bad value for missing pixel
+					}
 				}
 			}
 		}

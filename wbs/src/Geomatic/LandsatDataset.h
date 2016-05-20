@@ -239,6 +239,7 @@ namespace WBSF
 
 		CLandsatWindow();
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
+		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
 	};
 
 
