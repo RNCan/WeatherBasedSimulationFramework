@@ -223,11 +223,11 @@ namespace WBSF
 		{
 			m_cloudsCleanerModel = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-pre"))
+		else if (IsEqual(argv[i], "-Pre"))
 		{
 			m_mosaicFilePath[0] = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-pos"))
+		else if (IsEqual(argv[i], "-Pos"))
 		{
 			m_mosaicFilePath[1] = argv[++i];
 		}
