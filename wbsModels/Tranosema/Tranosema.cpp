@@ -117,7 +117,7 @@ namespace WBSF
 				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 				{
 					m_diapause = true;
-					//m_age = GetStand()->m_diapauseAge; //????????? Rémi
+					m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
 				}
 			}
 
@@ -170,7 +170,7 @@ namespace WBSF
 
 			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, NOT_INIT, true, m_generation + 1, scaleFactor);
+			CIndividualPtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 		}
 	}

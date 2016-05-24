@@ -47,13 +47,13 @@ namespace WBSF
 		NB_INPUT_PARAMETER = 6;
 		VERSION = "1.1.4 (2016)";
 
-		// initialize your variables here (optional)
+		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
-		m_generationAttrition = 0.10;//10% of Attrition
-		m_diapauseAge = PUPA + 0.0;
+		m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
+		m_diapauseAge = EGG + 0.0;
 		m_lethalTemp = -5.;
-		m_criticalDaylength = 14.;
-		m_startDateShift = 10;
+		m_criticalDaylength = 13.5;
+		m_startDateShift = 15;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -175,7 +175,7 @@ namespace WBSF
 				TRef = p.Begin(); //no snow 
 
 			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, EGG + m_diapauseAge, NOT_INIT, true, 0);
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, EGG + m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);
@@ -236,7 +236,6 @@ namespace WBSF
 		m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
 		
 
-
 		//now compute annual grow rates
 		//Get last complete generation
 		size_t maxG = min(size_t(NB_MAX_GENERATION-1), TranosemaStat.size());
@@ -245,6 +244,7 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
+
 				size_t nbGenerations = 0;
 
 				//find the number of complete generation (AI>2.9)
