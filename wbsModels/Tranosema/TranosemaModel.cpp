@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 25/05/2016	1.1.4	Rémi Saint-Amant	Some correction in annual model
 // 17/05/2016	1.1.4	Rémi Saint-Amant	Add annual variables
 // 22/01/2016	1.1.2	Rémi Saint-Amant	Add snomeld date as strarting date
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
@@ -36,8 +37,8 @@ namespace WBSF
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
 	//	
-	enum{ O_A_NB_GENERATION, O_A_ADULT, O_A_OVIPOSITING_ADULT, O_A_BROOD, O_A_FINAL_PUPA, O_A_GROW_RATE, NB_GEN_ANNUAL = O_A_GROW_RATE - O_A_NB_GENERATION, NB_MAX_GENERATION = 5, NB_ANNUAL_OUTPUT = NB_GEN_ANNUAL*NB_MAX_GENERATION+1 };
-	extern char ANNUAL_HEADER[] = "Gmax,GrowRate1,GrowRate2,GrowRate3,GrowRate4,GrowRate5,GrowRate6,GrowRate7,GrowRate8";
+	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE, NB_ANNUAL_OUTPUT = O_A_ALIVE + NB_GENERATIONS-1 };
+	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration, GrowRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 
 
 	CTranosemaModel::CTranosemaModel()
@@ -45,7 +46,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.4 (2016)";
+		VERSION = "1.1.5 (2016)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -175,7 +176,7 @@ namespace WBSF
 				TRef = p.Begin(); //no snow 
 
 			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, EGG + m_diapauseAge, FEMALE, true, 0);
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);
@@ -238,52 +239,53 @@ namespace WBSF
 
 		//now compute annual grow rates
 		//Get last complete generation
-		size_t maxG = min(size_t(NB_MAX_GENERATION-1), TranosemaStat.size());
+		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
 		if (maxG > 0)
 		{
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
 
-				size_t nbGenerations = 0;
+				//size_t nbGenerations = 0;
 
-				//find the number of complete generation (AI>2.9)
-				for (size_t g = 0; g < maxG; g++)
-				{
-					//Get the average instar at the end of the season
-					double AI = TranosemaStat[g][season.End()].GetAverageInstar(EGG, 0, DEAD_ADULT, false);
-					if (AI>2.9)
-						nbGenerations = g + 1;
-				}
+				////find the number of complete generation (AI>2.9)
+				//for (size_t g = 0; g < maxG; g++)
+				//{
+				//	//Get the average instar at the end of the season
+				//	double AI = TranosemaStat[g][season.End()].GetAverageInstar(EGG, 0, DEAD_ADULT, false);
+				//	if (AI>2.9)
+				//		nbGenerations = g + 1;
+				//}
 
-				m_output[TRef][O_A_NB_GENERATION] = nbGenerations;
+				m_output[TRef][O_A_NB_GENERATION] = maxG;
 				//size_t Gmax = min(maxG, size_t(m_output[TRef][O_A_NB_GENERATION]));
-				size_t Gmax = min(maxG, nbGenerations);
-				if (Gmax > 1)
+				//size_t Gmax = min(maxG, nbGenerations);
+				//if (Gmax > 1)
+				//{
+				CStatistic meanG;
+				CStatistic alive;
+				double pupaBegin = 100;
+				for (size_t g = 1; g < maxG; g++)
 				{
-					double nbAdult­¯¹ = 100;
-					for (size_t g = 0; g < Gmax - 1; g++)
-					{
-						CStatistic adultStat = TranosemaStat[g + 1].GetStat(E_ADULT, season);
-						CStatistic ovipStat = TranosemaStat[g + 1].GetStat(E_OVIPOSITING_ADULT, season);
-						CStatistic broodsStat = TranosemaStat[g + 1].GetStat(S_BROOD, season);
 						
-						double nbAdult = adultStat[SUM];
-						double nbOvip = ovipStat[SUM];
-						double nbBroods = broodsStat[SUM];
-						double pupaEnd = TranosemaStat[g + 1][season.End()][S_PUPA];
+					//CStatistic adultStat = TranosemaStat[g + 1].GetStat(E_ADULT, season);
+					//CStatistic ovipStat = TranosemaStat[g + 1].GetStat(E_OVIPOSITING_ADULT, season);
+					//CStatistic broodsStat = TranosemaStat[g + 1].GetStat(S_BROOD, season);
 						
-						m_output[TRef][O_A_ADULT + g*NB_GEN_ANNUAL] = nbAdult;
-						m_output[TRef][O_A_OVIPOSITING_ADULT + g*NB_GEN_ANNUAL] = nbOvip;
-						m_output[TRef][O_A_BROOD + g*NB_GEN_ANNUAL] = nbBroods;
-						m_output[TRef][O_A_FINAL_PUPA + g*NB_GEN_ANNUAL] = pupaEnd;
-
-						if (nbAdult­¯¹ > 0.01)
-							m_output[TRef][O_A_GROW_RATE + g*NB_GEN_ANNUAL] = nbAdult / nbAdult­¯¹;
-
-						nbAdult­¯¹ = nbAdult;
-					}
+					//double nbAdult = adultStat[SUM];
+					//double nbOvip = ovipStat[SUM];
+					//double nbBroods = broodsStat[SUM];
+					double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
+						
+					alive += pupaEnd;
+					m_output[TRef][O_A_ALIVE + (g-1)] = pupaEnd;
+					meanG += g *pupaEnd;
 				}
+
+				ASSERT(alive.IsInit());
+				m_output[TRef][O_A_GROW_RATE] = alive[SUM] / pupaBegin;
+				m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM]/alive[SUM];
+				//}
 			}
 		}
 
