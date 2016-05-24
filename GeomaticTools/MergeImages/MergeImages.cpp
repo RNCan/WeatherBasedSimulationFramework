@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.1.1	22/05/2016	Rémi Saint-Amant	Add option MaxSkip
 // 2.1.0    09/05/2016  Rémi Saint-Amant	Compile with GDAL 1.11.3 adn WBSF with a new clouds New tree
 // 2.0.1    16/03/2015  Rémi Saint-Amant	Don't flush cache
 // 2.0.0	09/03/2015	Rémi Saint-Amant	Add clouds detection
@@ -46,7 +47,6 @@
 //-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test0\output\Test.vrt"
 
 #include "stdafx.h"
-//#include <float.h>
 #include <math.h>
 #include <array>
 #include <utility>
@@ -66,7 +66,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "2.1.0";
+	const char* CMergeImages::VERSION = "2.1.1";
 	const int CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -116,6 +116,7 @@ namespace WBSF
 		m_QA = 0;
 		m_QAmiss = 100;
 		m_meanDmax=-1;
+		m_maxSkip = NOT_INIT;
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
@@ -128,6 +129,7 @@ namespace WBSF
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
 			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, BestPixel or SecondBest. BestPixel by default." },
 			{ "-Clouds", 1, "file", false, "Decision tree model file path to remove clouds." },
+			{ "-MaxSkip", 1, "nb", false, "Maximum number of skip image when removing clouds." },
 			//{ "-NoDefautTrigger", 0, "", false, "Without this option, \"B1 -125\" and \"TCB 750\" is added to trigger to be used with the \"-Clouds\" options." },
 			//{ "-Trigger", 3, "m tt th", true, "Add optimization trigger to execute decision tree when comparing T1 with T2. m is the merge method (can be \"OR\" or \"AND\"), tt is the trigger type and th is the trigger threshold. Supported type are \"B1\"..\"B9\",\"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-Pre", 1, "file", false, "first mosaic image file path to trigger DT when remove clouds." },
@@ -205,10 +207,10 @@ namespace WBSF
 				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"MaxNDVI\", \"Best\" or \"SecondBest\".");
 			}
 		}
-		//else if (IsEqual(argv[i], "-NoDefautTrigger"))
-		//{
-		//	m_bNoDefaultTrigger = true;
-		//}
+		else if (IsEqual(argv[i], "-MaxSkip"))
+		{
+			m_maxSkip = atoi(argv[++i]);
+		}
 		//else if (IsEqual(argv[i], "-Trigger"))
 		//{
 		//	string str = argv[++i];
@@ -746,11 +748,11 @@ namespace WBSF
 								m_options.m_mergeType == CMergeImagesOption::SECOND_BEST)
 							{
 								bool bAdd = true;
-								if (m_options.m_mergeType == CMergeImagesOption::SECOND_BEST && !imageList.empty())
-								{
-									if (Treference.find(TRef) != Treference.end())
-										bAdd = false;
-								}
+							//	if ((m_options.m_mergeType == CMergeImagesOption::SECOND_BEST || (CMergeImagesOption::BEST_PIXEL&&m_options.m_maxSkip == 1) ) && !imageList.empty())
+								//{
+								if (Treference.find(TRef) != Treference.end())
+									bAdd = false;
+								//}
 
 								bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
 								if (bIsBlack)
@@ -1204,6 +1206,7 @@ namespace WBSF
 		int nbTriggerUsed = 0;
 
 		//Get pixel
+		size_t nbSkip = 0;
 		CLandsatPixel pixel2;
 		CLandsatPixel pixel3;
 
@@ -1215,7 +1218,7 @@ namespace WBSF
 
 		//now looking for all other images
 		Test1Vector::iterator it1 = get_it(imageList, mergeType);
-		while (it1 != imageList.end())
+		while (it1 != imageList.end() && nbSkip < m_options.m_maxSkip)
 		{
 			size_t iz1 = it1->second;
 			CLandsatPixel pixel1 = window.GetPixel(iz1, x, y);
@@ -1248,7 +1251,7 @@ namespace WBSF
 			else
 			{
 				Test1Vector::iterator it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
-				while (it2 != imageList.end())
+				while (it2 != imageList.end() && nbSkip < m_options.m_maxSkip)
 				{
 					size_t iz2 = it2->second;
 					//size_t iz = get_iz(imageList, m_options.m_mergeType);
@@ -1264,6 +1267,7 @@ namespace WBSF
 							{
 								imageList.erase(it2);
 								it2 = get_it(imageList, CMergeImagesOption::SECOND_BEST);
+								nbSkip++;
 							}
 							else if (cloudsCleaner.IsSecondCloud(DTCode))
 							{
@@ -1271,6 +1275,7 @@ namespace WBSF
 								imageList.erase(it1);
 								it1 = get_it(imageList, m_options.m_mergeType);
 								it2 = imageList.end();
+								nbSkip++;
 							}
 							else
 							{
@@ -1291,7 +1296,7 @@ namespace WBSF
 				}
 			}
 
-			if (bDoTrigger)
+			if (bDoTrigger && nbSkip < m_options.m_maxSkip)
 			{
 				if (bTrig_B1 || bTrig_TCB)
 				{
@@ -1308,6 +1313,7 @@ namespace WBSF
 					{
 						imageList.erase(it1);
 						it1 = get_it(imageList, m_options.m_mergeType);
+						nbSkip++;
 					}
 					else
 					{
@@ -1321,10 +1327,13 @@ namespace WBSF
 					it1 = imageList.end();
 				}
 			}
-
-
 		}//while not good pixel
 		
+
+		if (nbSkip == m_options.m_maxSkip && it1 != imageList.end())
+		{
+			iz = it1->second;
+		}
 
 		/*if (iz == NOT_INIT)
 		{

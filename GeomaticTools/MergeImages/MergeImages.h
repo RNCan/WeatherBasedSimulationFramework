@@ -52,6 +52,7 @@ namespace WBSF
 		int m_QA;
 		__int16 m_QAmiss;
 		double m_meanDmax;
+		size_t m_maxSkip;
 		
 
 
