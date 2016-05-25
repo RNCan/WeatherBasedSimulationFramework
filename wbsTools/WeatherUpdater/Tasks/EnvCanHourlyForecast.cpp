@@ -402,10 +402,10 @@ namespace WBSF
 							{
 								if (accumulator.TRefIsChanging(d))
 								{
-									if (station[accumulator.GetTRef()].GetVariablesCount().GetSum() == 0)//don't override observation
-									{
-										station[accumulator.GetTRef()].SetData(accumulator);
-									}
+									CTRef TRef = accumulator.GetTRef();
+									for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+										if (!station[TRef][v].IsInit())
+											station[TRef].SetStat( v, accumulator.GetStat(v));
 								}
 
 								const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
@@ -419,10 +419,10 @@ namespace WBSF
 
 							if (accumulator.GetTRef().IsInit())
 							{
-								if (station[accumulator.GetTRef()].GetVariablesCount().GetSum() == 0)//don't override observation
-								{
-									station[accumulator.GetTRef()].SetData(accumulator);
-								}
+								CTRef TRef = accumulator.GetTRef();
+								for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+									if (!station[TRef][v].IsInit())
+										station[TRef].SetStat(v, accumulator.GetStat(v));
 							}
 						}
 					}

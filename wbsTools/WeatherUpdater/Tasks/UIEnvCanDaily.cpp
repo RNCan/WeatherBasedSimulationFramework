@@ -971,7 +971,7 @@ namespace WBSF
 					accumulator.Add(Tref, H_SNOW, snow);
 				}
 
-				if ((*loop)[SNOW_ON_GRND_FLAG].empty())
+				if ((*loop)[SNOW_ON_GRND_FLAG].empty() && !(*loop)[SNOW_ON_GRND].empty())
 				{
 					float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
 					ASSERT(sndh >= 0 && sndh < 1000);
