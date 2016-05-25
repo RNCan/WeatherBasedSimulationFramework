@@ -15,6 +15,10 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+	//a faire, la liste des station st ici
+
+	//ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/ 
+
 	const char* CUIEnvCanDaily::SERVER_NAME = "climate.weather.gc.ca";
 
 	//*********************************************************************
@@ -137,7 +141,7 @@ namespace WBSF
 		//http://climate.weatheroffice.ec.gc.ca/advanceSearch/searchHistoricDataStations_f.html?timeframe=1&Prov=XX&StationID=99999&Year=2007&Month=10&Day=2&selRowPerPage=ALL&optlimit=yearRange&searchType=stnProv&startYear=2007&endYear=2007&lstProvince=ALTA&startRow=1
 		//                                     /advanceSearch/searchHistoricDataStations_e.html?timeframe=1&lstProvince=PE&optLimit=yearRange&StartYear=1993&EndYear=2014&Year=2014&Month=8&Day=7&selRowPerPage=100&cmdProvSubmit=Search
 		static const char pageFormat[] =
-			"advanceSearch/searchHistoricDataStations_e.html?"
+			"historical_data/search_historic_data_stations_e.html?"
 			"searchType=stnProv&"
 			"timeframe=2&"
 			"lstProvince=%s&"
@@ -148,8 +152,20 @@ namespace WBSF
 			"Month=%d&"
 			"Day=%d&"
 			"selRowPerPage=%d&"
-			"startRow=%d&"
-			"cmdProvSubmit=Search";
+			"startRow=%d&";
+			//"advanceSearch/searchHistoricDataStations_e.html?"
+			//"searchType=stnProv&"
+			//"timeframe=2&"
+			//"lstProvince=%s&"
+			//"optLimit=yearRange&"
+			//"StartYear=%d&"
+			//"EndYear=%d&"
+			//"Year=%d&"
+			//"Month=%d&"
+			//"Day=%d&"
+			//"selRowPerPage=%d&"
+			//"startRow=%d&"
+			//"cmdProvSubmit=Search";
 
 
 		static const short SEL_ROW_PER_PAGE = 100;
@@ -228,8 +244,8 @@ namespace WBSF
 
 			if (posBegin != string::npos)
 			{
-				posBegin -= 25;//return before hte requested number
-				string tmp = FindString(source, "<p>", "locations", posBegin);
+				posBegin -= 8;//return before hte requested number
+				string tmp = FindString(source, ">", "locations match", posBegin);
 				nbStation = ToInt(tmp);
 			}
 		}
@@ -272,6 +288,12 @@ namespace WBSF
 		return CTPeriod(CTRef(v[0], v[1] - 1, v[2] - 1), CTRef(v[3], v[4] - 1, v[5] - 1));
 	}
 
+	static string PurgeQuote(string str)
+	{
+		WBSF::ReplaceString( str, "\"", "");
+		return str;
+	}
+
 	ERMsg CUIEnvCanDaily::ParseStationListPage(const string& source, CLocationVector& stationList)const
 	{
 		ERMsg msg;
@@ -284,10 +306,10 @@ namespace WBSF
 		{
 			CLocation stationInfo;
 
-			string period = FindString(source, "name=\"dlyRange\" value=\"", "\" />", posBegin, posEnd);
-			string internalID = FindString(source, "name=\"StationID\" value=\"", "\" />", posBegin, posEnd);
-			string prov = FindString(source, "name=\"Prov\" value=\"", "\"", posBegin, posEnd);
-			string name = FindString(source, "station  wordWrap\">", "</div>", posBegin, posEnd);
+			string period = PurgeQuote(FindString(source, "name=\"dlyRange\" value=", "/>", posBegin, posEnd));
+			string internalID = PurgeQuote(FindString(source, "name=\"StationID\" value=", "/>", posBegin, posEnd));
+			string prov = PurgeQuote(FindString(source, "name=\"Prov\" value=", "/>", posBegin, posEnd));
+			string name = PurgeQuote(FindString(source, "<div class=\"col-lg-3 col-md-3 col-sm-3 col-xs-3\">", "</div>", posBegin, posEnd));
 
 			//when the station don't have dayly value, the period is "|"
 			if (!period.empty() && period != "N/A" && period != "|")
@@ -363,7 +385,7 @@ namespace WBSF
 	{
 		static const char webPageDataFormat[] =
 		{
-			"climateData/dailydata_e.html?"
+			"climate_data/daily_data_e.html?"
 			"timeframe=2&"
 			"Prov=CA&"
 			"StationID=%ld&"
@@ -444,10 +466,25 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
+	//climate_data/bulk_data_e.html?
+		//hlyRange=%7C&amp;dlyRange=2011-11-25%7C2016-04-29&amp;mlyRange=%7C&amp;
+		//StationID=49771&amp;
+		//Prov=PE&amp;
+		//urlExtension=_e.html&amp;
+		//searchType=stnProv&amp;
+		//optLimit=yearRange&amp;
+		//StartYear=2016&amp;
+		//EndYear=2016&amp;
+		//selRowPerPage=100&amp;
+		//Line=4&amp;
+		//Month=4&amp;
+		//Day=24&amp;
+		//lstProvince=PE&amp;
+		//timeframe=2&amp;
+		//Year=2016
 		static const char pageDataFormat[] =
 		{
-			"climateData/bulkdata_e.html?"
+			"climate_data/bulk_data_e.html?"
 			"format=csv&"
 			"stationID=%d&"
 			"Year=%d&"
@@ -521,9 +558,9 @@ namespace WBSF
 			msg += callback.StepIt(0);
 		}
 
-		//if (nbFilesToDownload)
-		callback.PushTask(info.m_name, nbFilesToDownload);
-		//callback.SetNbStep(nbFilesToDownload);
+		if (nbFilesToDownload>10)
+			callback.PushTask(info.m_name, nbFilesToDownload);
+		
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -541,11 +578,13 @@ namespace WBSF
 				//if (msg)
 					//AddToStat(year);
 
-				msg += callback.StepIt();
+				if (nbFilesToDownload>10)
+					msg += callback.StepIt();
 			}
 		}
 
-		callback.PopTask();
+		if (nbFilesToDownload>10)
+			callback.PopTask();
 
 		return msg;
 	}
@@ -954,3 +993,5 @@ namespace WBSF
 	//Miller (1963); The analysis of fecundity proportion in the unsprayed area.pdf
 
 }
+
+

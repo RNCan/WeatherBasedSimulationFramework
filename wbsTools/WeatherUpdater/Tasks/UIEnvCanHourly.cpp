@@ -138,7 +138,7 @@ namespace WBSF
 		//http://climate.weatheroffice.ec.gc.ca/advanceSearch/searchHistoricDataStations_f.html?timeframe=1&Prov=XX&StationID=99999&Year=2007&Month=10&Day=2&selRowPerPage=ALL&optlimit=yearRange&searchType=stnProv&startYear=2007&endYear=2007&lstProvince=ALTA&startRow=1
 
 		static const char pageFormat[] =
-			"advanceSearch/searchHistoricDataStations_e.html?"
+			"historical_data/search_historic_data_stations_e.html?"
 			"searchType=stnProv&"
 			"timeframe=1&"
 			"lstProvince=%s&"
@@ -149,8 +149,8 @@ namespace WBSF
 			"Month=%d&"
 			"Day=%d&"
 			"selRowPerPage=%d&"
-			"startRow=%d&"
-			"cmdProvSubmit=Search";
+			"startRow=%d&";
+			//"cmdProvSubmit=Search";
 
 		static const short SEL_ROW_PER_PAGE = 100;
 
@@ -224,8 +224,8 @@ namespace WBSF
 
 			if (posBegin != string::npos)
 			{
-				posBegin -= 25;//return before hte requested number
-				string tmp = FindString(source, "<p>", "locations", posBegin);
+				posBegin -= 8;//return before hte requested number
+				string tmp = FindString(source, ">", "locations match", posBegin);
 				nbStation = ToInt(tmp);
 			}
 		}
@@ -269,7 +269,11 @@ namespace WBSF
 		return CTPeriod(CTRef(v[0], v[1] - 1, v[2] - 1), CTRef(v[3], v[4] - 1, v[5] - 1));
 	}
 
-
+	static string PurgeQuote(string str)
+	{
+		WBSF::ReplaceString(str, "\"", "");
+		return str;
+	}
 
 	ERMsg CUIEnvCanHourly::ParseStationListPage(const string& source, CLocationVector& stationList)const
 	{
@@ -282,17 +286,17 @@ namespace WBSF
 		while (posBegin != string::npos)
 		{
 			CLocation stationInfo;
-
-			string period = FindString(source, "name=\"hlyRange\" value=\"", "\" />", posBegin, posEnd);
-			string InternalID = FindString(source, "name=\"StationID\" value=\"", "\" />", posBegin, posEnd);
-			string prov = FindString(source, "name=\"Prov\" value=\"", "\"", posBegin, posEnd);
-			string name = FindString(source, "station  wordWrap\">", "</div>", posBegin, posEnd);
+			
+			string period = PurgeQuote(FindString(source, "name=\"hlyRange\" value=", "/>", posBegin, posEnd));
+			string internalID = PurgeQuote(FindString(source, "name=\"StationID\" value=", "/>", posBegin, posEnd));
+			string prov = PurgeQuote(FindString(source, "name=\"Prov\" value=", "/>", posBegin, posEnd));
+			string name = PurgeQuote(FindString(source, "<div class=\"col-lg-3 col-md-3 col-sm-3 col-xs-3\">", "</div>", posBegin, posEnd));
 
 			//when the station don't have hourly value, the period ios "|"
 			if (!period.empty() && period != "N/A" && period != "|")
 			{
 				stationInfo.m_name = Trim(name);
-				stationInfo.SetSSI("InternalID", InternalID);
+				stationInfo.SetSSI("InternalID", internalID);
 				stationInfo.SetSSI("Province", prov);
 				stationInfo.SetSSI("Period", period);
 
@@ -361,7 +365,7 @@ namespace WBSF
 	{
 		static const char webPageDataFormat[] =
 		{
-			"climateData/hourlydata_e.html?"
+			"climate_data/hourly_data_e.html?"
 			"timeframe=1&"
 			"Prov=CA&"
 			"StationID=%ld&"
@@ -441,7 +445,7 @@ namespace WBSF
 
 		static const char pageDataFormat[] =
 		{
-			"climateData/bulkdata_e.html?"
+			"climate_data/bulk_data_e.html?"
 			"format=csv&"
 			"stationID=%ld&"
 			"Year=%d&"
@@ -649,7 +653,8 @@ namespace WBSF
 		//
 		if (nbFilesToDownload > 0)
 		{
-			callback.PushTask("Update files for " + station.m_name, nbFilesToDownload);
+			if (nbFilesToDownload>12)
+				callback.PushTask("Update files for " + station.m_name, nbFilesToDownload);
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
@@ -664,12 +669,15 @@ namespace WBSF
 						CreateMultipleDir(GetPath(filePath));
 
 						msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
-						msg += callback.StepIt();
+
+						if (nbFilesToDownload>12)
+							msg += callback.StepIt();
 					}
 				}
 			}
 
-			callback.PopTask();
+			if (nbFilesToDownload>12)
+				callback.PopTask();
 		}
 
 		return msg;
