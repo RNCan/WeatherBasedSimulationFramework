@@ -93,13 +93,13 @@ namespace WBSF
 	{
 		string output;
 
-		str = FindString(str, "<td>", "</td>");
+		//str = FindString(str, "<td>", "</td>");
 		ReplaceString(str, "<abbr title=\"degrees\">", "");
 		ReplaceString(str, "<abbr title=\"minute\">", "");
 		ReplaceString(str, "<abbr title=\"second\">", "");
 		ReplaceString(str, "<abbr title=\"North\">", "");
 		ReplaceString(str, "<abbr title=\"West\">", "");
-		ReplaceString(str, "<abbr title=\"meter\">", "");
+		ReplaceString(str, "<abbr title=\"metre\">", "");
 		ReplaceString(str, "</abbr>", "");
 
 
@@ -335,7 +335,7 @@ namespace WBSF
 			string internalID = it->GetSSI("InternalID");
 			__int64 ID = ToInt64(internalID);
 			CEnvCanStationMap::iterator it2 = stationMap.find(ID);
-			if (it2 == m_stations.end())
+			if (it2 == m_stations.end() || it2->second.m_lat == -999)
 			{
 				stationMap[ID] = *it;
 				msg += UpdateCoordinate(pConnection, ID, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stationMap[ID]);
@@ -367,7 +367,6 @@ namespace WBSF
 		{
 			"climate_data/hourly_data_e.html?"
 			"timeframe=1&"
-			"Prov=CA&"
 			"StationID=%ld&"
 			"Year=%d&"
 			"Month=%d&"
@@ -382,35 +381,32 @@ namespace WBSF
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
 		{
-			string::size_type posBegin = source.find("CONTENT BEGINS HERE");
+			string::size_type posBegin = source.find("latitude");
 			string::size_type posEnd = 0;
 
 			if (posBegin != string::npos)
 			{
 				//find latitude						   
-				string latitude = FindString(source, "Latitude</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
 				latitude = CleanString(latitude);
 
 				//find longitude
-				string longitude = FindString(source, "Longitude</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
 				longitude = CleanString(longitude);
 				longitude.insert(longitude.begin(), '-');
 
 				//find elevation
-				string elevation = FindString(source, "Elevation</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
 				elevation = CleanString(elevation);
 
-
-				string ClimateID = FindString(source, "Climate ID</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
 				ClimateID = CleanString(ClimateID);
 
-				string WMOID = FindString(source, "WMO ID</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
 				WMOID = CleanString(WMOID);
 
-				string TCID = FindString(source, "TC ID</a>:", "</td>", posBegin, posEnd) + "</td>";
+				string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
 				TCID = CleanString(TCID);
-
-
 
 				if (!latitude.empty() &&
 					!longitude.empty() &&
@@ -430,7 +426,7 @@ namespace WBSF
 				}
 				else
 				{
-					msg.ajoute("Bad coordinate for station: " + station.m_name + " [" + station.m_ID + "]");
+					msg.ajoute("Bad coordinate");
 				}
 			}
 		}
