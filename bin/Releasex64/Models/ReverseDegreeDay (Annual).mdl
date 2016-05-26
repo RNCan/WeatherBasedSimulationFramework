@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>ReverseDegreeDay</Title>
+    <Version>1.0</Version>
+    <ID>.dd</ID>
+    <EXE>ReverseDegreeDay.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Calculating the Julian day when the summation of degree-days is reaches.</Description>
+    <WindowRect>0 0 309 349</WindowRect>
+    <SimulatedCategory>T</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Method</Name>
+            <Caption>Method</Caption>
+            <Description>Method of degree-day computation.See documentation.</Description>
+            <Type>5</Type>
+            <Rect>20 15 45 305</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>7</MaxValue>
+            <TextValue>Daily Average;Daily Average (limited to thresholds);Single Triangle;Double Triangle;Single Sine;Double Sine;Modified Allen Wave (1976);From Hourly Temperature</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>LowerThreshold</Name>
+            <Caption>Lower Threshold (°C)</Caption>
+            <Description>The temperature below which accumulation stops.</Description>
+            <Type>2</Type>
+            <Rect>100 35 120 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>UpperThreshold</Name>
+            <Caption>Upper Threshold (°C)</Caption>
+            <Description>The temperature above which the rate of growth or development begins to decrease or stop as determined by the cutoff method.</Description>
+            <Type>2</Type>
+            <Rect>125 35 145 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>999</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cutoff</Name>
+            <Caption>Cutoff</Caption>
+            <Description>A modification in relation to the threshold. See documentation.</Description>
+            <Type>5</Type>
+            <Rect>150 35 170 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue>Horizontal;Intermediate;Vertical</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>FirstDate</Name>
+            <Caption>First Date (mm/dd)</Caption>
+            <Description>First date (mm/dd) of accumlation for each years</Description>
+            <Type>3</Type>
+            <Rect>190 35 210 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>01/01</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>LastDate</Name>
+            <Caption>Last Date (mm/dd)</Caption>
+            <Description>Last date (mm/dd) of accumlation for each years</Description>
+            <Type>3</Type>
+            <Rect>215 35 235 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>12/31</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>SummationType</Name>
+            <Caption>Summation Type</Caption>
+            <Description>For compatibility with DD model</Description>
+            <Type>5</Type>
+            <Rect>300 35 320 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>None;Cumulative</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>DDSummation</Name>
+            <Caption>DDSummation</Caption>
+            <Description>Degree-day summation to find</Description>
+            <Type>2</Type>
+            <Rect>240 35 260 300</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line2</Name>
+            <Caption>Line2</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>50 10 75 315</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Head2</Name>
+            <Caption>Options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>70 20 90 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Jday</Name>
+            <Title>Jday</Title>
+            <Units/>
+            <Description>The julian day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName>ReverseDegreeDay.pdf</HelpFileName>
+</Model>
