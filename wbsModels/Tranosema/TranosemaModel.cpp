@@ -176,7 +176,7 @@ namespace WBSF
 				TRef = p.Begin(); //no snow 
 
 			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 400, 100, m_diapauseAge, FEMALE, true, 0);
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);
