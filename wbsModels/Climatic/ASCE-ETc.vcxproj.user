@@ -4,20 +4,20 @@
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>D:\project\bin\Release$(Platform)\BioSIM11.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>..\..\bin\Releasex$(PlatformArchitecture)\BioSIM11.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>D:\project\bin\Release$(Platform)\BioSIM11.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>..\..\bin\Releasex$(PlatformArchitecture)\BioSIM11.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommand>D:\project\bin\Release$(Platform)\BioSIM11.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>..\..\bin\Releasex$(PlatformArchitecture)\BioSIM11.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommand>D:\project\bin\Release$(Platform)\BioSIM11.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>..\..\bin\Releasex$(PlatformArchitecture)\BioSIM11.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

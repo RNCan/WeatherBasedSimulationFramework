@@ -100,8 +100,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Adult_g1</Name>
-            <Title>Adult_g1</Title>
+            <Name>MeanGeneration</Name>
+            <Title>MeanGeneratrion</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -109,8 +109,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Ovip_g1</Name>
-            <Title>Ovip_g1</Title>
+            <Name>GrowRate</Name>
+            <Title>GrowRate</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -118,8 +118,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Broods_g1</Name>
-            <Title>Broods_g1</Title>
+            <Name>Alive_g1</Name>
+            <Title>Alive_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -127,8 +127,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>PupaEnd_g1</Name>
-            <Title>PupaEnd_g1</Title>
+            <Name>Alive_g2</Name>
+            <Title>Alive_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -136,8 +136,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>GrowRate_g1</Name>
-            <Title>GrowRate_g1</Title>
+            <Name>Alive_g3</Name>
+            <Title>Alive_g3</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -145,8 +145,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Adult_g2</Name>
-            <Title>Adult_g2</Title>
+            <Name>Alive_g4</Name>
+            <Title>Alive_g4</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -154,175 +154,13 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Ovip_g2</Name>
-            <Title>Ovip_g2</Title>
+            <Name>Alive_g5</Name>
+            <Title>Alive_g5</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Broods_g2</Name>
-            <Title>Broods_g2</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>PupaEnd_g2</Name>
-            <Title>PupaEnd_g2</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>GrowRate_g2</Name>
-            <Title>GroRate_g2</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Adult_g3</Name>
-            <Title>Adult_g3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Ovip_g1</Name>
-            <Title>Ovip_g1</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Broods_g3</Name>
-            <Title>Broods_g3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>PupaEnd_g3</Name>
-            <Title>PupaEnd_g3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>GrowRate_g3</Name>
-            <Title>GrowRate_g3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Adult_g4</Name>
-            <Title>Adult_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Ovip_g4</Name>
-            <Title>Ovip_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Broods_g4</Name>
-            <Title>Broods_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>PupaEnd_g4</Name>
-            <Title>PupaEnd_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>GrowRate_g4</Name>
-            <Title>GrowRate_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Adult_g5</Name>
-            <Title>Adult_g5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Ovip_g5</Name>
-            <Title>Ovip_g5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Broods_g5</Name>
-            <Title>Broods_g5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>PupaEnd_g5</Name>
-            <Title>PupaEnd_g5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>GrowRate_g5</Name>
-            <Title>GrowRate_g5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

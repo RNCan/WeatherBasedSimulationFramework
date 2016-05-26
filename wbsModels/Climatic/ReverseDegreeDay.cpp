@@ -14,6 +14,7 @@
 // Description: 
 //
 //*****************************************************************************
+// 26/05/2016	2.4.1	Rémi Saint-Amant	Bug correction into annual model
 // 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 04/03/2011			Rémi Saint-Amant	New compile
 //*****************************************************************************
@@ -40,12 +41,8 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 8;
-		VERSION = "2.4.0 (2016)";
-
-		//m_method = CWeatherDay::DAILY_AVERAGE;
-		//m_cutoffType=CWeatherDay::HORIZONTAL_CUTOFF;
-		//m_lowerThreshold=0;
-		//m_upperThreshold=999;
+		VERSION = "2.4.1 (2016)";
+		
 		m_DDSummation = 0;
 
 		CMonthDay m_firstDate = CMonthDay(FIRST_MONTH, FIRST_DAY);
@@ -59,10 +56,6 @@ namespace WBSF
 
 	ERMsg CReverseDegreeDayModel::OnExecuteAnnual()
 	{
-
-		//if( m_method==CWeatherDay::BIOSIM_HOURLY)
-		//m_weather.AjusteMeanForHourlyRequest(m_info.m_loc);
-
 		CTM TM(m_info.m_TM);
 
 		if (TM.Mode() == CTM::OVERALL_YEARS)
@@ -73,9 +66,8 @@ namespace WBSF
 
 	void CReverseDegreeDayModel::ExecuteAnnual(CForEachYearStat& stat)const
 	{
-		//Create an output vector that has the size as the number of input days
-		//and the first time reference (first day)
-		stat.Init(m_weather.GetEntireTPeriod(), -9999);
+		//Create an output vector that has the size as the number of input years
+		stat.Init(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), -9999);
 
 		//for all days
 		for (size_t y = 0; y < m_weather.size(); y++)
@@ -161,7 +153,7 @@ namespace WBSF
 		m_firstDate = parameters[cur++].GetString();
 		m_lastDate = parameters[cur++].GetString();
 		m_summationType = parameters[cur++].GetInt();
-		double jnk = parameters[cur++].GetReal();//for reverse model
+		m_DDSummation = parameters[cur++].GetReal();//for reverse model
 
 		//perform verification
 		if (!m_firstDate.IsValid())
