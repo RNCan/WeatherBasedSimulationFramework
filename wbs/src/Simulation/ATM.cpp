@@ -1421,7 +1421,7 @@ ERMsg CATMWeather::load_hourly(const std::string& filepath, CCallback& callback)
 ERMsg CATMWeather::Load(const std::string& gribsFilepath, const std::string& hourlyDBFilepath, CCallback& callback)
 {
 	ERMsg msg;
-	//return TransformWRF2RUC(callback);
+	return TransformWRF2RUC(callback);
 
 
 	if (hourlyDBFilepath.empty() && gribsFilepath.empty())
@@ -2440,24 +2440,24 @@ size_t CGDALDatasetCached::get_band(size_t v, size_t level )const
 ERMsg TransformWRF2RUC(CCallback& callback)
 {
 	ERMsg msg;
-	static const char* THE_PRJ = "PROJCS[\"unnamed\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Lambert_Conformal_Conic_2SP\"],PARAMETER[\"standard_parallel_1\",40],PARAMETER[\"standard_parallel_2\",60],PARAMETER[\"latitude_of_origin\",30],PARAMETER[\"central_meridian\",-91],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]]";
-	msg += CProjectionManager::CreateProjection(THE_PRJ);
+	//static const char* THE_PRJ = "PROJCS[\"unnamed\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Lambert_Conformal_Conic_2SP\"],PARAMETER[\"standard_parallel_1\",40],PARAMETER[\"standard_parallel_2\",60],PARAMETER[\"latitude_of_origin\",30],PARAMETER[\"central_meridian\",-91],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]]";
+	//msg += CProjectionManager::CreateProjection(THE_PRJ);
 	
-	size_t prjID = CProjectionManager::GetPrjID(THE_PRJ);
-	CProjectionPtr prj = CProjectionManager::GetPrj(prjID);
+	//size_t prjID = CProjectionManager::GetPrjID(THE_PRJ);
+	//CProjectionPtr prj = CProjectionManager::GetPrj(prjID);
 	
-	CProjectionTransformation Geo2LCC(PRJ_WGS_84, prjID);
+	//CProjectionTransformation Geo2LCC(PRJ_WGS_84, prjID);
 	
 
-	std::string elevFilepath = "D:\\Travaux\\Brian Sturtevant\\MapInput\\DEMGrandLake4km.tif";
-	CGDALDatasetEx elevDS;
-	elevDS.OpenInputImage(elevFilepath);
+	//std::string elevFilepath = "D:\\Travaux\\Brian Sturtevant\\MapInput\\DEMGrandLake4km.tif";
+	//CGDALDatasetEx elevDS;
+	//elevDS.OpenInputImage(elevFilepath);
 
-	vector < float > elev(elevDS.GetRasterXSize()* elevDS.GetRasterYSize());
-	ASSERT(elev.size()==7257);
+	//vector < float > elev(elevDS.GetRasterXSize()* elevDS.GetRasterYSize());
+	//ASSERT(elev.size()==7257);
 
-	GDALRasterBand* pBand = elevDS.GetRasterBand(0);
-	pBand->RasterIO(GF_Write, 0, 0, elevDS.GetRasterXSize(), elevDS.GetRasterYSize(), &(elev[0]), elevDS.GetRasterXSize(), elevDS.GetRasterYSize(), GDT_Float32, 0, 0);
+	//GDALRasterBand* pBand = elevDS.GetRasterBand(0);
+	//pBand->RasterIO(GF_Write, 0, 0, elevDS.GetRasterXSize(), elevDS.GetRasterYSize(), &(elev[0]), elevDS.GetRasterXSize(), elevDS.GetRasterYSize(), GDT_Float32, 0, 0);
 
 	//1-pressure(hPa)
 	//2-height(m above ground not above sea-level)
@@ -2476,20 +2476,21 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 	options.m_outputType = GDT_Float32;
 	options.m_createOptions.push_back("COMPRESS=LZW");
 	options.m_dstNodata = -9999;
-	options.m_extents = CGeoExtents(-280642.1,1903575,133144.6,2205765,101,74,101,1,prjID);
-	options.m_prj = THE_PRJ;
+	//options.m_extents = CGeoExtents(-280642.1,1903575,133144.6,2205765,101,74,101,1,prjID);
+	options.m_extents = CGeoExtents(0, -201, 252, 0, 252, 201, 252, 1, PRJ_UNKNOWN);
+	//options.m_prj = "";
 	options.m_bOverwrite = true;
 	
 	
-	static const size_t NB_WRF_HOURS= 193;//193 hours
+	static const size_t NB_WRF_HOURS= 288;//193 hours
 	callback.PushTask("Create gribs", NB_WRF_HOURS);
 	
 	for (size_t h = 0; h < NB_WRF_HOURS&&msg; h++)
 	{
-		CTRef UTCRef(2007, JUNE, 21, 0);
+		CTRef UTCRef(2013, JULY, 13, 0);
 		UTCRef += int(h);
 
-		callback.PushTask(UTCRef.GetFormatedString("%Y-%m-%d-%H"), 7257 * NB_WRF_LEVEL);
+		callback.PushTask(UTCRef.GetFormatedString("%Y-%m-%d-%H"), 50652* NB_WRF_LEVEL);
 		//callback.SetNbStep(7257 * NB_WRF_LEVEL);
 
 		std::string filePathIn = FormatA("D:\\Travaux\\Brian Sturtevant\\Weather\\WRF\\Original\\wrfbud2_%03d.txt", h);

@@ -15,7 +15,8 @@ namespace WBSF
 
 
 		enum TFilePath		{ INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-		enum TDebugBands	{ D_CAPTOR, D_PATH, D_ROW, D_YEAR, D_MONTH, D_DAY, D_JDAY, NB_IMAGES, SCENE, SORT_TEST, ISOLATED, BUFFER, NB_DEBUG_BANDS };
+		enum TDebugBands	{ D_CAPTOR, D_PATH, D_ROW, D_YEAR, D_MONTH, D_DAY, D_JDAY, NB_IMAGES, SCENE, SORT_TEST, ISOLATED, BUFFER, NB_TRIGGERS, NB_SKIPS, NB_DEBUG_BANDS };
+		
 
 		enum TStat			{ S_LOWEST, S_MEAN, S_STD_DEV, S_HIGHEST, NB_STATS };
 		enum TMerge			{ UNKNOWN = -1, OLDEST, NEWEST, MAX_NDVI, BEST_PIXEL, SECOND_BEST, BEST_NEWEST, NB_MERGE_TYPE };
@@ -41,7 +42,7 @@ namespace WBSF
 
 
 		std::string m_cloudsCleanerModel;
-		std::array<std::string, 2> m_mosaicFilePath;
+		std::array<std::string, 3> m_mosaicFilePath;
 		size_t m_mergeType;
 		bool m_bDebug;
 		bool m_bExportStats;
@@ -82,14 +83,14 @@ namespace WBSF
 		std::string GetDescription() { return  std::string("MergeImages version ") + VERSION + " (" + __DATE__ + ")"; }
 		void InitMemory(size_t sceneSize, CGeoSize blockSize, OutputData& outputData, DebugData& debugData, StatData& statsData);
 
-		ERMsg OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& mosaicDS1, CLandsatDataset& mosaicDS2);
+		ERMsg OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, std::array<CLandsatDataset,3>& mosaicDS);
 		ERMsg OpenOutput(CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 		std::string GetBandFileTitle(const std::string& filePath, size_t b);
 
-		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CBandsHolder& mosaicBH1, CBandsHolder& mosaicBH2);
-		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& inputDS, CBandsHolder& mosaicBH1, CBandsHolder& mosaicBH2, CGDALDatasetEx& outputDS, OutputData& outputData, DebugData& debugData, StatData& statsData, CLandsatCloudCleaner& cloudsCleaner);
+		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, std::array<CBandsHolder*, 3>& mosaicBH);
+		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& inputDS, std::array<CBandsHolder*, 3>& mosaicBH, CGDALDatasetEx& outputDS, OutputData& outputData, DebugData& debugData, StatData& statsData, CLandsatCloudCleaner& cloudsCleaner);
 		void WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData);
-		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& mosaicDS1, CLandsatDataset& mosaicDS2, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
+		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, std::array<CLandsatDataset, 3>& mosaicDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 
 		static size_t get_iz(Test1Vector& imageList, size_t type);
 		static Test1Vector::iterator get_it(Test1Vector& imageList, size_t type);
@@ -98,7 +99,7 @@ namespace WBSF
 		bool IsIsolatedPixel(int x, int y, const CMatrix<size_t>& firstChoice, const CMatrix<size_t>& selectedChoice)const;
 		bool IsCloud(CLandsatCloudCleaner& cloudsCleaner, const CLandsatPixel & pixel1, const CLandsatPixel & pixel2);
 		
-		size_t GetCloudFreeIz(Test1Vector& imageList, size_t mergeType, CLandsatWindow& preWindow, CLandsatWindow& window, CLandsatWindow& posWindow, int x, int y, CLandsatCloudCleaner& cloudsCleaner);
+		size_t GetCloudFreeIz(Test1Vector& imageList, size_t mergeType, CLandsatWindow& preWindow, CLandsatWindow& window, CLandsatWindow& posWindow, CLandsatWindow& mosaicWindow, int x, int y, CLandsatCloudCleaner& cloudsCleaner, int& nbTriggerUsed, int& nbSkip);
 		CLandsatPixel GetPixel(CLandsatWindow& window, size_t iz1, size_t iz2, int x, int y);
 		__int16 GetMeanQA(CLandsatWindow& window, CGeoSize size, size_t iz, int x, int y);
 		//bool IsIsolatedPixel(int x, int y, CLandsatCloudCleaner& cloudsCleaner, const CMatrix<int>& DTCode)const;
@@ -106,6 +107,6 @@ namespace WBSF
 		CMergeImagesOption m_options;
 
 		static const char* VERSION;
-		static const int NB_THREAD_PROCESS;
+		static const size_t NB_THREAD_PROCESS;
 	};
 }
