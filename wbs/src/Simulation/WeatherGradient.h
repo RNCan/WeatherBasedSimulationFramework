@@ -45,7 +45,7 @@ namespace WBSF
 		static const double FACTOR_Z;
 
 
-		//bool m_bForceComputeAllScale;
+		bool m_bForceComputeAllScale;
 
 		CWeatherGradient();
 		

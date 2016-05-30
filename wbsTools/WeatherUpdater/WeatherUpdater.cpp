@@ -1,3 +1,4 @@
+//5.0.5	25/05/2016	Make correction for change made by Env Can.
 //5.0.4 09/05/2016	Add HRDPS and RDPS to Env Can forecast
 //5.0.3 03/05/2016	Add MDDELCC and Weather Underground
 //5.0.2 25/04/2016	Many bugs correction in the daily extractor and the hourly extractor

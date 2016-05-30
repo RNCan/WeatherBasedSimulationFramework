@@ -340,14 +340,12 @@ namespace WBSF
 		ASSERT(NB_SPACE_EX == 4);
 
 		CWeatherCorrections::reset();
+		reset_data();
+		m_bForceComputeAllScale = false;
 	}
 
 	void CWeatherGradient::reset_data()
 	{
-
-		//m_bForceComputeAllScale = false;
-		
-
 		for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 		{
 			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
@@ -557,7 +555,7 @@ namespace WBSF
 						for (size_t s = 0; s < nbSpaces; s++)
 							sum += m_factor[zz][g][s] / nbSpaces;
 
-					if (sum<1 )//|| m_bForceComputeAllScale
+					if (sum<1 || m_bForceComputeAllScale)
 					{
 						CSearchResultVector results;
 

@@ -66,6 +66,7 @@ copy /Y ".\bin\Releasex64\Models\Spruce Budworm Grow Rate.mdl" "..\Install\NRCan
 copy /Y ".\bin\Releasex64\Models\Tranosema Biology (daily).mdl" "..\Install\NRCan\Models\Tranosema Biology (daily).mdl"
 copy /Y ".\bin\Releasex64\Models\Tranosema Biology.dll" "..\Install\NRCan\Models\Tranosema Biology.dll"
 copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (annual).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (annual).mdl"
+copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (generation).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (generation).mdl"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm (annual).mdl" "..\Install\NRCan\Models\Western Spruce Budworm (annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.dll" "..\Install\NRCan\Models\Western Spruce Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.mdl" "..\Install\NRCan\Models\Western Spruce Budworm.mdl"

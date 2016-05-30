@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
+// 11.0.5: 24/04/2016	Bug correction in gradients. Activate ppt gradient.
 // 11.0.4: 24/04/2016	Some bug correction in the ATM module
 // 11.0.3: 24/04/2016	Add climatic zone to Gribs simulation
 //						Bug correction in snow and Input Weather Generator Analysis

@@ -403,6 +403,8 @@ void CProjectWnd::OnMatchStation()
 			string NormalsFilepath;
 			string DailyFilepath;
 			string HourlyFilepath;
+			int lastYear=0;
+			size_t k = 1;
 			
 
 			msg += GetFM().Loc().GetFilePath(pWG->m_locationsName, locFilepath);
@@ -422,6 +424,9 @@ void CProjectWnd::OnMatchStation()
 							msg += GetFM().Daily().GetFilePath(WGInput.m_dailyDBName, DailyFilepath);
 						if (!WGInput.m_hourlyDBName.empty())
 							msg += GetFM().Hourly().GetFilePath(WGInput.m_hourlyDBName, HourlyFilepath);
+
+						k = WGInput.m_nbDailyStations;
+						lastYear = WGInput.GetLastYear();
 					}
 				}
 			}
@@ -431,6 +436,10 @@ void CProjectWnd::OnMatchStation()
 				ASSERT(FileExists(locFilepath));
 			
 				string command = "\"" + locFilepath + "\"";
+
+				
+				command += " -k \"" + ToString(k) + "\"";
+				command += " -y \"" + ToString(lastYear) + "\"";
 
 				if (!NormalsFilepath.empty())
 					command += " -n \"" + NormalsFilepath + "\"";

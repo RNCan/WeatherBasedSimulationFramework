@@ -345,7 +345,7 @@ string CNormalsCorrectionCtrl::GetDataText(int col, long row)const
 	}
 	default:
 	{
-		double c = m_gradient.GetCorrection(station, m, g, s);
+		double c = m_gradient.GetCorrectionII(station, m, g, s);
 		str = ToString(c, 3);
 	}
 	}

@@ -141,23 +141,23 @@
         <OutputVariable>
             <Name>Jday</Name>
             <Title>Mean Jday</Title>
-            <Units>days</Units>
+            <Units/>
             <Description>The julian day</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>SD</Name>
-            <Title>Standard deviation</Title>
-            <Units>days</Units>
-            <Description>The standard deviationIf overall years,</Description>
+            <Title>Standard deviation (days)</Title>
+            <Units/>
+            <Description>The standard deviationIf overall years, the </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>NbYears</Name>
-            <Title>NbYears</Title>
-            <Units>years</Units>
+            <Title>NbYears (years)</Title>
+            <Units/>
             <Description>The number of years</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
