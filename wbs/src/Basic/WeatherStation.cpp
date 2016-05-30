@@ -2682,11 +2682,13 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 					{
 						double Tmin = me[TRef][H_TMIN][LOWEST] + correction.GetCorrection(me, TRef, H_TAIR);
 						double Tmax = me[TRef][H_TMAX][HIGHEST] + correction.GetCorrection(me, TRef, H_TRNG);
-						
-						me[TRef][H_TAIR] = (Tmin + Tmax) / 2;
+						double Tair = (Tmin + Tmax) / 2;
+						double Trng = Tmax - Tmin;
+
+						me[TRef].SetStat(H_TAIR, Tair);
 							
 						if (IsDaily() && me[TRef][H_TRNG].IsInit())
-							me[TRef][H_TRNG] = Tmax - Tmin;
+							me[TRef].SetStat(H_TRNG, Trng);
 					
 						
 					}
@@ -2697,7 +2699,8 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 					else if (v == H_PRCP)
 					{
 						double B1 = correction.GetCorrection(me, TRef, H_PRCP);
-						me[TRef][v] = me[TRef][v][SUM] * B1;
+						double prcp = me[TRef][v][SUM] * B1;
+						me[TRef].SetStat(v, prcp);
 					}
 				}
 			}

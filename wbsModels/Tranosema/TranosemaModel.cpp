@@ -37,16 +37,20 @@ namespace WBSF
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
 	//	
-	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE, NB_ANNUAL_OUTPUT = O_A_ALIVE + NB_GENERATIONS-1 };
+	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
 	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration, GrowRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 
+	enum{ O_G_DIAPAUSE, O_G_GROW_RATE, NB_GENERATION_OUTPUT};
+	extern char GENERATION_HEADER[] = "Diapause, GrowRate";
+
+	
 
 	CTranosemaModel::CTranosemaModel()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.5 (2016)";
+		VERSION = "1.1.6 (2016)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -186,7 +190,7 @@ namespace WBSF
 
 			//Init host
 			pHost->m_nbMinObjects = 100;
-			pHost->m_nbMaxObjects = 1000;
+			pHost->m_nbMaxObjects = 2500;
 			pHost->Initialize<CTranosema>(initialPopulation);
 			//double nbAlive = pHost->GetNbSpecimenAlive();
 
@@ -246,46 +250,70 @@ namespace WBSF
 			{
 				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
 
-				//size_t nbGenerations = 0;
-
-				////find the number of complete generation (AI>2.9)
-				//for (size_t g = 0; g < maxG; g++)
-				//{
-				//	//Get the average instar at the end of the season
-				//	double AI = TranosemaStat[g][season.End()].GetAverageInstar(EGG, 0, DEAD_ADULT, false);
-				//	if (AI>2.9)
-				//		nbGenerations = g + 1;
-				//}
-
 				m_output[TRef][O_A_NB_GENERATION] = maxG;
-				//size_t Gmax = min(maxG, size_t(m_output[TRef][O_A_NB_GENERATION]));
-				//size_t Gmax = min(maxG, nbGenerations);
-				//if (Gmax > 1)
-				//{
+
 				CStatistic meanG;
 				CStatistic alive;
 				double pupaBegin = 100;
 				for (size_t g = 1; g < maxG; g++)
 				{
-						
-					//CStatistic adultStat = TranosemaStat[g + 1].GetStat(E_ADULT, season);
-					//CStatistic ovipStat = TranosemaStat[g + 1].GetStat(E_OVIPOSITING_ADULT, season);
-					//CStatistic broodsStat = TranosemaStat[g + 1].GetStat(S_BROOD, season);
-						
-					//double nbAdult = adultStat[SUM];
-					//double nbOvip = ovipStat[SUM];
-					//double nbBroods = broodsStat[SUM];
 					double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
 						
 					alive += pupaEnd;
-					m_output[TRef][O_A_ALIVE + (g-1)] = pupaEnd;
+					m_output[TRef][O_A_ALIVE1 + (g-1)] = pupaEnd;
 					meanG += g *pupaEnd;
 				}
 
 				ASSERT(alive.IsInit());
 				m_output[TRef][O_A_GROW_RATE] = alive[SUM] / pupaBegin;
 				m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM]/alive[SUM];
-				//}
+			}
+		}
+
+
+		return msg;
+	}
+	//************************************************************************************************
+	ERMsg CTranosemaModel::OnExecuteAtemporal()
+	{
+		ERMsg msg;
+
+		if (m_weather.IsDaily())//if daily data, compute sub-daily data
+			m_weather.ComputeHourlyVariables();
+
+		//Init spruce budworm data
+		CModelStatVector SBWStat;
+
+		vector<CModelStatVector> TranosemaStat;
+		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		
+
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+		m_output.Init(p.size()*(NB_GENERATIONS - 1), CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT, 0, GENERATION_HEADER);
+
+
+		//now compute generation grow rates
+		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
+		if (maxG > 0)
+		{
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				double diapauseBegin = 100;
+				for (size_t g = 1; g < maxG; g++)
+				{
+					CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
+
+					CStatistic diapauseStat = TranosemaStat[g].GetStat(E_DIAPAUSE, season);
+					if (diapauseStat.IsInit() && diapauseBegin>0)
+					{
+						size_t y = TRef - p.Begin();
+						size_t gg = y*(NB_GENERATIONS-1) + (g - 1);
+						m_output[gg][O_G_DIAPAUSE] = diapauseStat[SUM];
+						m_output[gg][O_G_GROW_RATE] = diapauseStat[SUM] / diapauseBegin;
+
+						diapauseBegin = diapauseStat[SUM];
+					}
+				}
 			}
 		}
 

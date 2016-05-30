@@ -34,13 +34,9 @@ namespace WBSF
 		void reset();
 		
 		virtual double GetCorrection(const CLocation& pt, CTRef TRef, size_t v)const;
-		//virtual double GetCorrectionB1(const CLocation& pt, CTRef TRef, size_t v)const;
+
 	protected:
 
-		//for optimization
-		//CGeoPoint3D m_lastTarget;
-		//CGeoPoint3D m_lastStation;
-		//double m_lastShore;
 	};
 
 }

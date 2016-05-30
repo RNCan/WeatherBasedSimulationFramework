@@ -82,16 +82,16 @@ namespace WBSF
 	const CGradientS° CWeatherGradient::GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT_EX] =
 	{ 
 		{//Southern
-			{ +16.542, +16.354, +15.253, 13.448, 11.441, +9.698, +9.036, +9.703, 11.273, 13.084, +14.695, +15.897 },
-			{ +30.713, +30.298, +29.127, 26.971, 24.433, 22.343, 21.885, 23.281, 25.308, 27.310, +28.826, +29.981 },
-			{ 151.782, 140.296, 134.342, 98.112, 72.718, 54.398, 47.419, 43.453, 52.628, 75.942, 100.170, 132.733 },
-			{ +16.002, +16.295, +15.324, 13.567, 11.586, +9.838, +8.771, +8.843, 10.040, 11.683, +13.407, +14.906 },
+			{ { +16.542, +16.354, +15.253, 13.448, 11.441, +9.698, +9.036, +9.703, 11.273, 13.084, +14.695, +15.897 } },
+			{ { +30.713, +30.298, +29.127, 26.971, 24.433, 22.343, 21.885, 23.281, 25.308, 27.310, +28.826, +29.981 }},
+			{ { 151.782, 140.296, 134.342, 98.112, 72.718, 54.398, 47.419, 43.453, 52.628, 75.942, 100.170, 132.733 }},
+			{ { +16.002, +16.295, +15.324, 13.567, 11.586, +9.838, +8.771, +8.843, 10.040, 11.683, +13.407, +14.906 }},
 		},
 		{//Northern
-			{ -6.038, -4.805, -0.978, +4.044, +8.912, 12.928, 15.215, 14.522, 10.942, +5.971, +0.127, -4.434 },
-			{ +3.627, +5.579, 10.064, 15.640, 20.794, 24.843, 27.103, 26.310, 22.269, 16.429, +9.681, +4.861 },
-			{ 51.805, 45.060, 51.343, 54.667, 69.800, 82.311, 87.544, 84.614, 77.041, 69.883, 63.566, 57.252 },
-			{ -4.768, -4.020, -0.823, +3.223, +7.819, 11.967, 14.473, 14.160, 10.863, +6.239, +0.975, -3.173 },
+			{ { -6.038, -4.805, -0.978, +4.044, +8.912, 12.928, 15.215, 14.522, 10.942, +5.971, +0.127, -4.434 }},
+			{ { +3.627, +5.579, 10.064, 15.640, 20.794, 24.843, 27.103, 26.310, 22.269, 16.429, +9.681, +4.861 }},
+			{ { 51.805, 45.060, 51.343, 54.667, 69.800, 82.311, 87.544, 84.614, 77.041, 69.883, 63.566, 57.252 }},
+			{ { -4.768, -4.020, -0.823, +3.223, +7.819, 11.967, 14.473, 14.160, 10.863, +6.239, +0.975, -3.173 } },
 		}
 	};
 
@@ -162,19 +162,6 @@ namespace WBSF
 				{ -2.2072, +01.4635, -18.8986, +20.9203 },
 				{ -2.3195, +11.6999, -17.6462, +38.8327 },
 				{ -2.4502, +23.5352, -18.9925, +40.3900 },
-				//{0.9852, 1.4709, 0.8855, 1.2805},
-				//{0.9883, 1.4757, 0.8493, 1.1053},
-				//{0.9734, 1.4776, 0.7614, 0.9491},
-				//{0.9627, 1.4079, 0.5193, 0.7781},
-				//{0.9699, 1.1318, 0.3657, 0.5123},
-				//{0.9796, 0.9265, 0.3685, 0.3382},
-				//{0.9839, 0.8596, 0.3751, 0.2363},
-				//{0.9630, 0.7488, 0.4402, 0.5328},
-				//{0.9541, 0.8107, 0.5651, 1.1056},
-				//{0.9600, 0.9326, 0.7746, 1.8316},
-				//{0.9713, 1.1577, 0.8622, 1.9517},
-				//{0.9806, 1.3785, 0.8812, 1.6007},
-
 			},
 			{//Tdew
 				{ -0.0728, +3.7361, -5.0168, -0.6015 },
@@ -233,19 +220,6 @@ namespace WBSF
 				{ -0.3647, -12.7339, -13.0829, -35.6856 },
 				{ -1.3347, -08.2779, -08.7235, -40.1016 },
 				{ -1.6499, -05.3256, -05.1333, -39.9362 },
-				//{0.9455, 1.0445, 0.8464, 0.3500},
-				//{0.9513, 0.9873, 0.8905, 0.3700},
-				//{0.9594, 0.9268, 0.9029, 0.4810},
-				//{0.9796, 0.8792, 0.8886, 0.6959},
-				//{0.9915, 0.8446, 0.8496, 0.9661},
-				//{1.0063, 0.8783, 0.8255, 1.1060},
-				//{1.0184, 0.9033, 0.8520, 1.1807},
-				//{1.0157, 0.8971, 0.8558, 0.9371},
-				//{0.9964, 0.8703, 0.8122, 0.6842},
-				//{0.9774, 0.9056, 0.7952, 0.5108},
-				//{0.9590, 0.9679, 0.7466, 0.4107},
-				//{0.9456, 1.0191, 0.7672, 0.3802},
-
 			},
 			{ //Tdew
 				{ -0.2935, -5.5482, -3.9213, -8.5562 },
@@ -365,16 +339,33 @@ namespace WBSF
 		ASSERT(NB_GRADIENT_EX == 4);
 		ASSERT(NB_SPACE_EX == 4);
 
-		
-
 		CWeatherCorrections::reset();
-		
-		m_bForceComputeAllScale = false;
+	}
 
-		for (size_t z = 0; z < NB_HEMISPHERE; z++)
+	void CWeatherGradient::reset_data()
+	{
+
+		//m_bForceComputeAllScale = false;
+		
+
+		for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
+		{
 			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+			{
+				m_factor[z][g].fill(0);
+				m_R²[z][g].fill(0);
+				for (size_t m = 0; m < 12; m++)
+					m_S°[z][g][m].clear();
+
 				for (size_t m = 0; m < 12; m++)
 					m_gradient[z][g][m].fill(0);
+			}
+		}
+
+		//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
+		//	for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+		//		for (size_t m = 0; m < 12; m++)
+		//			m_gradient[z][g][m].fill(0);
 
 
 	}
@@ -448,7 +439,6 @@ namespace WBSF
 
 		CLocation L°;
 		results.GetCentroid(L°);
-		//CLocation L°("0", "0", 0, 0, 0);
 		
 
 		CStatisticEx M°;
@@ -466,19 +456,13 @@ namespace WBSF
 		double f = 1 - min(1.0, max(0.0, ff));
 
 		double correction = 1;
-		//if (g == PRCP_GR )//&& s == Z_GR
-		//{
-			//elevation precipitation gradient is invalid if they are ouside in lat lon
-			//alternative
-			//f = min(m_factor[z][g][X_GR], min(m_factor[z][g][Y_GR], f));
+		
 
-			double f1 = F1[z][g];
-			double f2 = F2[z][g];
+		double f1 = F1[z][g];
+		double f2 = F2[z][g];
 			
-			double Dc = m_target.GetDistance(L°, true) / 1000;// take elevation in distance of centroid km
-
-			correction = 1 - min(1.0, max(0.0, Dc - f1) / f2);
-		//}
+		double Dc = m_target.GetDistance(L°, true) / 1000;// take elevation in distance of centroid km
+		correction = 1 - min(1.0, max(0.0, Dc - f1) / f2);
 
 
 		f *= correction;
@@ -498,15 +482,17 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		static const double FACTOR_DISTRIBUTE = 0.25;
+		
+		reset_data();
+		//static const double FACTOR_DISTRIBUTE = 0.25;
 		callback.PushTask("Create Default Gradient", NB_HEMISPHERE*m_variables.count());
 
 
-		for (size_t z = 0; z < NB_HEMISPHERE; z++)
+		for (size_t e = 0; e < NB_HEMISPHERE&&msg; e++)//warning : here we stok hemispohe instead of scale
 		{
 			//DEFAULT_RECT[z] = CGeoRect(-180, -90 + double(z)*(180 / NB_HEMISPHERE), 180, -90 + double(z + 1) * (180 / NB_HEMISPHERE), PRJ_WGS_84);
 
-			for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+			for (TVarH v = H_TAIR; v < NB_VAR_H&&msg; v++)
 			{
 				if (m_variables[v])
 				{
@@ -515,19 +501,19 @@ namespace WBSF
 
 					CSearchResultVector results;
 
-					ERMsg msgTmp = m_pNormalDB->GetStationList(results, v, YEAR_NOT_INIT, true, DEFAULT_RECT[z]);
+					ERMsg msgTmp = m_pNormalDB->GetStationList(results, v, YEAR_NOT_INIT, true, DEFAULT_RECT[e]);
 
 					if (msgTmp)
-						msgTmp = m_pNormalDB->GenerateLOC(results, CWeatherDatabase::WELL_DISTRIBUTED_STATIONS, min(results.size(), NB_S_MAX[z]), v, YEAR_NOT_INIT, true, true, DEFAULT_RECT[z], callback);
+						msgTmp = m_pNormalDB->GenerateLOC(results, CWeatherDatabase::WELL_DISTRIBUTED_STATIONS, min(results.size(), NB_S_MAX[e]), v, YEAR_NOT_INIT, true, true, DEFAULT_RECT[e], callback);
 
 					if (msgTmp)
 					{
 						size_t g = V2G(v);
 
-						msg = ComputeGradient(g, results, m_gradient[z][g], m_R²[z][g], callback);
+						msg = ComputeGradient(g, results, m_gradient[e][g], m_R²[e][g], callback);
 
 						
-						GetS°(g, results, m_S°[z][g]);
+						GetS°(g, results, m_S°[e][g]);
 					}
 				}
 			}
@@ -543,6 +529,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		reset_data();
+
 		//commflic in multiThread
 		callback.PushTask("Create gradient", NB_SCALE_GRADIENT*m_variables.count() * 12, 1);
 
@@ -552,9 +540,9 @@ namespace WBSF
 
 		size_t nbSpaces = GetNbSpaces();
 
-		for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
-				m_factor[z][g].fill(0);
+		//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
+		//	for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+		//		m_factor[z][g].fill(0);
 		
 
 		for (TVarH v = H_TAIR; v < NB_VAR_H&&msg; v++)
@@ -569,7 +557,7 @@ namespace WBSF
 						for (size_t s = 0; s < nbSpaces; s++)
 							sum += m_factor[zz][g][s] / nbSpaces;
 
-					if (sum<1 || m_bForceComputeAllScale)
+					if (sum<1 )//|| m_bForceComputeAllScale
 					{
 						CSearchResultVector results;
 
@@ -601,13 +589,16 @@ namespace WBSF
 						for (size_t s = 0; s < NB_SPACE_EX; s++)
 						{
 							double f = GetFactor(z, g, s, results);
-							//deduce the factor of finer scale
+							
+							double ff = 1;
+							//The factor of this sacle is apply only on the residual of the finer scale
 							for (size_t zz = 0; zz < z; zz++)
-								f -= m_factor[zz][g][s];
+								ff -= m_factor[zz][g][s];
 
-							m_factor[z][g][s] = max(0.0, min(1.0, f));
+							m_factor[z][g][s] = max(0.0, min(1.0, f*ff));
 						}
 					}
+
 
 					msg += callback.StepIt(0);
 				}//for all scale
@@ -648,10 +639,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//callBack.SetCurrentDescription(GetVariableTitle(v));
-		//callback.SetNbStep(12);
-
-
 		size_t f = G2F(g);
 
 		size_t nbSpaces = GetNbSpaces();
@@ -661,11 +648,10 @@ namespace WBSF
 		for (size_t m = 0; m < 12; m++)
 			V[m].ReSize((int)results.size());
 
-		//CLocation L°("0", "0", 0, 0, 0);
 		CLocation L°;
 		results.GetCentroid(L°);
-		CGradientS° S°;
-		GetS°(g, results, S°);
+		//CGradientS° S°;
+		//GetS°(g, results, S°);
 
 		for (int i = 0; i < (int)results.size() && msg; i++)
 		{
@@ -681,11 +667,7 @@ namespace WBSF
 			
 			for (size_t m = 0; m < 12; m++)
 			{
-				//double x = (S°[m][NB_VALUE] * station[m][f] / S°[m][HIGHEST] + 1) / (S°[m][NB_VALUE] + 2);
-				//if (g==PRCP_GR)
-					//V[m][i] = log(x/(1-x));
-				//else 
-					V[m][i] = station[m][f];
+				V[m][i] = station[m][f];
 				ASSERT(!IsMissing(V[m][i]));
 			}
 
@@ -704,11 +686,14 @@ namespace WBSF
 				for (size_t s = 0; s < nbSpaces; s++)
 				{
 					int i = int(s) + 1;
-					
-					//if (g == PRCP_GR)
-						//Gr[m][s] = exp(result[i]);
-					//else
+					if (!_isnan(result[i]) && isfinite(result[i]))
+					{
 						Gr[m][s] = result[i];
+					}
+					else
+					{
+
+					}
 				}
 
 				msg += callback.StepIt();
@@ -720,18 +705,20 @@ namespace WBSF
 
 			if (NEWMAT::Exception::what() != NULL)
 				msg.ajoute(NEWMAT::Exception::what());
+
+			MessageBox(NULL, L"Matric execption", L"Error", MB_OK);
 		}
 
 		return msg;
 	}
 
-	double CWeatherGradient::GetCorrection(const CLocation& station, size_t m, size_t g, size_t s)const
+	double CWeatherGradient::GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s)const
 	{
 		ASSERT((m_factor[0][g][s] + m_factor[1][g][s] + m_factor[2][g][s]) == 1);
 
 		double correction = (g == PRCP_GR) ? 1 : 0;
 
-		double delta = GetDistance(s, m_target, station) / 1000;
+		double delta = GetDistance(s, m_target, station) / 1000; //1000 km or 1000 m
 
 		if (g == TMIN_GR || g == TMAX_GR)
 		{
@@ -745,22 +732,16 @@ namespace WBSF
 
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			{
-				//c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
-				//S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
-
-				//double c = m_factor[z][g][s] * pow(m_gradient[z][g][m][s], delta);// / nbSpaces 
-				//double cc = c*(m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
-
 				c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
 				S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
 			}
+			
+			ASSERT(S° > 0);
 
+			if (S°>0)
+				correction = (S° + c) / S°;
+//			correction = 1;
 
-			//le gradient de précipitation son désactiver pour l'instant...bug étrange???
-			//correction = (S° + c) / S°;
-
-
-			correction = 1;
 			if (correction < 0.1)
 				correction = 0.1;
 			else if (correction > 10)
@@ -776,11 +757,6 @@ namespace WBSF
 		size_t g = V2G(v);
 		size_t m = TRef.GetMonth();
 
-		//array < double, NB_SPACE_EX> delta = { 0 };
-		//for (size_t s = 0; s <NB_SPACE_EX; s++)
-			//delta[s] = GetDistance(s, m_target, station) / 1000;
-
-
 		if (v == H_PRES)
 		{
 			correction = GetPressure(station.m_alt) - GetPressure(m_target.m_alt);
@@ -788,7 +764,7 @@ namespace WBSF
 		else if (v == H_TAIR || v == H_TRNG)
 		{
 			for (size_t s = 0; s < NB_SPACE_EX; s++)
-				correction += GetCorrection(station, m, g, s);
+				correction += GetCorrectionII(station, m, g, s);
 
 			if (TRef.GetType() == CTM::HOURLY)
 			{
@@ -803,154 +779,72 @@ namespace WBSF
 		}
 		else if (v == H_PRCP)
 		{
-			//size_t nbSpaces = GetNbSpaces();
-
-			//double c = 0;
-			//CStatistic S°;
-				
 			for (size_t s = 0; s < NB_SPACE_EX; s++)
-				correction *= GetCorrection(station, m, g, s);
-			//{
-			//	c += delta[s] * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
-				//S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
-			//}
-
-			//double cc = (S°[MEAN]+ c) / S°[MEAN];
-			//correction *= cc;
-			
-
-			
-			/*
-			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-			{
-				double f = 0;
-				for (size_t s = 0; s < nbSpaces; s++)
-					f += m_factor[z][g][s] / nbSpaces;
-
-				S° += (f * m_S°[z][g][m][MEAN]);
-			}
-
-			ASSERT(S°[SUM]>0);
-			correction = max(0.0, (S°[SUM] + correction)) / S°[SUM];*/
+				correction *= GetCorrectionII(station, m, g, s);
 		}
 		
 
 
-		//add default gradient (if any)
-	/*	for (size_t s = 0; s < nbSpaces; s++)
-		{
-			double f = 1;
-			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-				f -= m_factor[z][g][s];
-
-			if (f > 0)
-			{
-				ASSERT(f >= 0 && f <= 1);
-				f = max(0.0, min(1.0, f));
-				f *= delta[s] * DEFAULT_GRADIENTS[e][g][m][s];
-
-				correction += f / PRCP_S°[z][m][MEAN];
-			}
-			
-		}*/
-		
-		
-
 		return correction;
 	}
 
-	//additive correction
-	//double CWeatherGradient::GetCorrectionB0(const CLocation& station, CTRef TRef, size_t v)const
-	//{
-	//	ASSERT(v != SKIP);
-	//	ASSERT(v == H_TAIR || v == H_TRNG || v == H_PRCP || v == H_TDEW || v == H_TMIN || v == H_TMAX);
-	//	ASSERT(TRef.IsInit());
-	//	ASSERT(station.IsInit());
-
-	//	if (v == H_PRCP)
-	//		return 0;//no additive correction for precipitation
-
-	//	return GetCorrection(station, TRef, v);
-	//}
-
-	////multiplicative correction
-	//double CWeatherGradient::GetCorrectionB1(const CLocation& station, CTRef TRef, size_t v)const
-	//{
-	//	ASSERT(v != SKIP);
-	//	ASSERT(v == H_TAIR || v == H_TRNG || v == H_PRCP || v == H_TDEW || v == H_TMIN || v == H_TMAX);
-	//	ASSERT(TRef.IsInit());
-	//	ASSERT(station.IsInit());
-
-
-	//	if (v != H_PRCP)
-	//		return 1;//no multiplicative correction for other variables than precipitation
-
-	//	
-	//	double c = GetCorrection(station, TRef, v);
-
-	//	size_t g = V2G(v);
-	//	size_t m = TRef.GetMonth();
-
-	//	CStatistic S°;
-	//	size_t nbSpaces = GetNbSpace();
-	//	for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-	//	{
-	//		double f = 0;
-	//		for (size_t s = 0; s < nbSpaces; s++)
-	//			f += m_factor[z][g][s] / nbSpaces;
-
-	//		S° += (f * m_prcpS°[z][m][MEAN]);
-	//	}
-	//		
-
-
-	//	return (S°[SUM] + c) / S°[SUM];
-	//}
 
 	ERMsg CWeatherGradient::Save(const string& filePath)const
 	{
 		ERMsg msg;
 
-		ofStream file;
-		msg = file.open(filePath);
+		string filePath1 = GetPath(filePath) + GetFileTitle(filePath) + "_gradient" + GetFileExtension(filePath);
+		string filePath2 = GetPath(filePath) + GetFileTitle(filePath) + "_factor" + GetFileExtension(filePath);
+
+
+		ofStream file1;
+		msg = file1.open(filePath1);
 
 		if (msg)
 		{
-			file.write("zone,var,month,R²,X,Y,Z,S\n");
+			file1.write("scale,gradient,month,R²,S°,X,Y,Z,S\n");
 
-			for (size_t z = 0; z < NB_HEMISPHERE; z++)
+			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			{
 				for (size_t g = 0; g < NB_GRADIENT_EX; g++)
 				{
 					for (size_t m = 0; m < 12; m++)
 					{
-						string line = FormatA("%d,%d,%02d,%lf", z + 1, g + 1, m + 1,m_R²[z][g][m]); 
+						double S° = 0;
+						if (m_S°[z][g][m].IsInit())
+							S° = m_S°[z][g][m][MEAN];
+
+						string line = FormatA("%d,%d,%02d,%0.3lf,%0.3lf", z + 1, g + 1, m + 1, m_R²[z][g][m], S°);
 						for (size_t s = 0; s < NB_SPACE_EX; s++)
-						{
 							line += "," + FormatA("%+07.4lf", m_gradient[z][g][m][s]);
-						}
-							
 
-						file.write(line + "\n");
-					}
-				}
-			}
-
-			for (size_t z = 0; z < NB_HEMISPHERE; z++)
-			{
-				for (size_t g = 0; g < NB_GRADIENT_EX; g++)
-				{
-					for (size_t m = 0; m < 12; m++)
-					{
-						string line = FormatA("%d,%d,%d,", z + 1, g+1, m + 1);
-						line += "," + ToString(m_S°[z][g][m], 3);
-
-						file.write(line + "\n");
+						file1.write(line + "\n");
 					}
 				}
 			}
 		}
 
+		file1.close();
+
+		ofStream file2;
+		msg = file2.open(filePath2);
+
+		if (msg)
+		{
+			file2.write("gradient,space,f1,f2,f3\n");
+
+			
+			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+			{
+				for (size_t s = 0; s < NB_SPACE_EX; s++)
+				{
+					string line = FormatA("%d,%d,%0.3lf,%0.3lf,%0.3lf", g + 1, s + 1, m_factor[0][g][s], m_factor[1][g][s], m_factor[2][g][s]);
+					file2.write(line + "\n");
+				}
+			}
+		}
+
+		file2.close();
 
 		return msg;
 	}

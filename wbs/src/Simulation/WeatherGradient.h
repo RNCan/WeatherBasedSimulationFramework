@@ -45,13 +45,14 @@ namespace WBSF
 		static const double FACTOR_Z;
 
 
-		bool m_bForceComputeAllScale;
+		//bool m_bForceComputeAllScale;
 
 		CWeatherGradient();
 		
 
 
 		void reset();
+		void reset_data();
 		ERMsg Save(const std::string& filePath)const;
 
 		ERMsg CreateGradient(CCallback& callback = DEFAULT_CALLBACK);
@@ -71,8 +72,9 @@ namespace WBSF
 		void SetNormalsDatabase(CNormalsDatabasePtr& pNormalDB){ m_pNormalDB = pNormalDB; }
 		ERMsg ExportInput(const std::string& filePath, size_t v, CSearchResultVector& results = CSearchResultVector());
 
+		
 		virtual double GetCorrection(const CLocation& pt, CTRef TRef, size_t v)const;
-		double GetCorrection(const CLocation& station, size_t m, size_t g, size_t s)const;
+		double GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s)const;
 
 		static ERMsg SetShore(const std::string& filePath);
 		static void SetShore(CApproximateNearestNeighborPtr& pShore){ m_pShore = pShore; }
@@ -96,7 +98,7 @@ namespace WBSF
 		std::array <std::array <CGradientS°, GRADIENT::NB_GRADIENT_EX >, NB_SCALE_GRADIENT> m_S°;
 		
 		//for optimization
-		std::map<CGeoPoint3D, double> m_shoreCache;
+		//std::map<CGeoPoint3D, double> m_shoreCache;
 
 
 

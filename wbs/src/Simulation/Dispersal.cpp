@@ -200,7 +200,7 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 15);
+		ASSERT(NB_ATM_OUTPUT == 18);
 		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of the flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));

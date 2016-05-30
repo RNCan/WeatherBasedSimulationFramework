@@ -186,7 +186,7 @@ ERMsg CWeatherGenerator::Initialize(CCallback& callback)
 	m_gradients.m_target = m_target;
 	
 	m_gradients.CreateGradient(callback);
-	//m_gradients.Save("d:\\NewGradient.txt");
+	//m_gradients.Save("c:\\tmp\\" + m_target.m_name + ".csv");
 
 
     return msg;
@@ -211,6 +211,11 @@ bool CWeatherGenerator::VerifyData(const CSimulationPointVector& simulationPoint
 					
 					ASSERT(simulationPoints[i][TRef][v].IsInit());
 					ASSERT(!_isnan(simulationPoints[i][TRef][v][MEAN]));
+
+					
+					
+					if (!simulationPoints[i][TRef][v].IsInit() || _isnan(simulationPoints[i][TRef][v][MEAN]))
+						bRep = false;
 				}
 			}
 		}
@@ -342,12 +347,13 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 		msg = GetDaily(m_simulationPoints[0], callback);
 	}
 
+	
 	// Get observation
 	if (m_tgi.UseGribs())
 	{
 		CSimulationPoint gribsData;
 		msg = GetGribs(gribsData, callback);
-
+		
 		//replace daily our ourly observation with gribs data
 		CTPeriod p = m_tgi.GetTPeriod();
 		for (CTRef TRef = p.Begin(); TRef <= p.End() && msg; TRef++)
@@ -367,8 +373,10 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 	bool bCopyReplication = true;
 	if (msg)
 	{
+		
 		if (!m_simulationPoints[0].IsComplete(m_tgi.m_variables, m_tgi.GetTPeriod()))
 		{
+			
 			CompleteSimpleVariables(m_simulationPoints[0], m_tgi.m_variables);
 			m_simulationPoints[0].FillGaps();//internal completion
 
@@ -379,6 +387,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 				//if they are missing variables
 				//1- complete the simple mandatory variables
 				CompleteSimpleVariables(m_simulationPoints[0], mVariables);
+				
 
 				//2- if some mandatory variables is complete for some complex variables, complete theses variables
 				bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD];
@@ -1091,8 +1100,6 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 
 					if (msg)
 					{
-						//stationsVector.m_variables = v;
-						//stationsVector.FillGaps();
 						stationsVector.ApplyCorrections(m_gradients);
 						stationsVector.GetInverseDistanceMean(v, m_target, simulationPoint);
 					}
@@ -1168,6 +1175,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 			}//for all variables
 		}
 	}
+	
 	
 
 	return msg;

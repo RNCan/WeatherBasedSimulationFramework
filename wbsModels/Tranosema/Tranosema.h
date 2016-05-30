@@ -24,7 +24,7 @@ namespace WBSF
 		enum TTranosemaStats
 		{
 			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION,
-			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT,
+			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE,
 			NB_STATS
 		};
 
@@ -65,8 +65,11 @@ namespace WBSF
 		double	m_Pmax;			//Potential fecondity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
-		bool	m_diapause;
+		bool	m_bDiapause;
 		
+
+		//process var
+		//bool	m_bLastDiapaused;
 
 		inline CTranosemaStand* GetStand();
 		inline const CTranosemaStand* GetStand()const;

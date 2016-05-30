@@ -51,7 +51,7 @@ namespace WBSF
 		m_Eᵗ = E°;
 
 		//Individuals are created as non-diapause individuals
-		m_diapause = false;
+		m_bDiapause = false;
 		m_badluck = false;
 	}
 
@@ -68,7 +68,7 @@ namespace WBSF
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
 			m_luck = in.m_luck;
-			m_diapause = in.m_diapause;
+			m_bDiapause = in.m_bDiapause;
 			m_badluck = in.m_badluck;
 		}
 
@@ -98,7 +98,7 @@ namespace WBSF
 
 
 		if (TRef.GetJDay()==0)
-			m_diapause = false;
+			m_bDiapause = false;
 
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
@@ -116,7 +116,7 @@ namespace WBSF
 				//Individual crosses the m_diapauseAge threshold this time step, and end-summer daylength is shorter than critical daylength
 				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 				{
-					m_diapause = true;
+					m_bDiapause = true;
 					m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
 				}
 			}
@@ -134,7 +134,7 @@ namespace WBSF
 
 
 			//Adjust age
-			if(!m_diapause)
+			if(!m_bDiapause)
 				m_age += r;
 
 			//compute brooding
@@ -193,7 +193,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (m_generation>0 && weather[H_TMIN][LOWEST] < GetStand()->m_lethalTemp && !m_diapause)
+		else if (m_generation>0 && weather[H_TMIN][LOWEST] < GetStand()->m_lethalTemp && !m_bDiapause)
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
@@ -252,6 +252,8 @@ namespace WBSF
 
 			}
 
+			if (m_lastAge<GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
+				stat[E_DIAPAUSE] += m_scaleFactor;
 		}
 	}
 
@@ -274,7 +276,8 @@ namespace WBSF
 
 	bool CTranosema::CanPack(const CIndividualPtr& in)const
 	{
-		return CIndividual::CanPack(in)&&(GetStage()!=ADULT||GetSex()!=FEMALE);
+		CTranosema* pIn = static_cast<CTranosema*>(in.get());
+		return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_bDiapause == m_bDiapause;
 	}
 
 	void CTranosema::Pack(const CIndividualPtr& pBug)

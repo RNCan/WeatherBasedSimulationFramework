@@ -14,6 +14,7 @@ namespace WBSF
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteAnnual();
+		virtual ERMsg OnExecuteAtemporal();
 
 		static CBioSIMModelBase* CreateObject(){ return new CTranosemaModel; }
 
