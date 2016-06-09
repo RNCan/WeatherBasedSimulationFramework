@@ -1989,7 +1989,12 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				value /= 100; //convert Pa into hPa
 
 			if (v == ATM_PRCP)
+			{
 				value *= 3600; //convert mm/s into mm/h
+				if (value < 0.05)
+					value = 0;
+			}
+				
 
 			if (v == ATM_WNDU)
 			{
@@ -2027,7 +2032,7 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				
 				//value = GetWindDirection(00, 10);
 				//value = GetWindDirection(10, 10);
-				//value = GetWindDirection(10, 00);
+				//value = GetWinBdDirection(10, 00);
 				//value = GetWindDirection(10, -10);
 				//value = GetWindDirection(00, -10);
 				//value = GetWindDirection(-10, -10);
@@ -2051,16 +2056,10 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 		if (weather[z] > -999)
 		{
 			double p = fabs(pt.m_alt - mean_alt[z]) + 1;
-			w += weather[z]*p;
-			d += p;
+			w += weather[z]/p;
+			d += 1.0/p;
 		}
 	}
-
-	//if (weather[0] > -999 && weather[1] > -999)
-	//{
-	//	ASSERT(pt.m_alt >= mean_alt[0] && pt.m_alt <= mean_alt[1]);
-	//}
-	
 
 	return w.IsInit()?w[SUM]/d[SUM]:-999;
 }
@@ -2091,7 +2090,7 @@ int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRe
 	test.push_back(make_pair(grAlt, 0));
 	sort(test.begin(), test.end());
 
-	int L = -1;
+	int L = 0;
 	for (int l = 0; l < (int)test.size(); l++)
 	{
 		if (alt < test[l].first)
@@ -2174,37 +2173,6 @@ ERMsg CGribsDatabase::LoadWeather(CTRef UTCTRef, CCallback& callback)
 		{
 			msg.ajoute("File " + filePath + " is Missing");
 		}
-
-		//if (!msg)
-		//{
-
-		//	//replace image by the nearest image
-		//	CTRef firstGoodImage;
-		//	for (size_t h = 0; h < 12 && !firstGoodImage.IsInit(); h++)
-		//	{
-		//		int i = int(pow(-1, h + 1)*(h + 2) / 2);
-		//		string filePath = get_image_filepath(UTCTRef + i);
-		//		if (!filePath.empty() && m_p_weather_DS.load(UTCTRef, filePath, callback))
-		//		{
-		//			firstGoodImage = UTCTRef + i;
-		//		}
-		//	}
-
-		//	if (firstGoodImage.IsInit())
-		//	{
-		//		callback.AddMessage("WARNING: " + TrimConst(SYGetText(msg)));
-		//		msg = ERMsg();
-		//	}
-		//	else
-		//	{
-		//		UTCTRef.Transform(CTM(CTM::DAILY));
-		//		callback.AddMessage("WARNING: Unable to fing a good starting Gribs weather for " + UTCTRef.GetFormatedString() + " (UTC)");
-		//		m_bSkipDay = true;
-		//		return msg;
-		//	}
-		//}
-
-		//msg += callback.StepIt();
 	}
 	
 

@@ -217,6 +217,8 @@ namespace WBSF
 					}
 					else
 					{
+						ENSURE(row < m_locations.size());
+						ENSURE(col < m_header.size());
 						text = m_locations[row].GetSSI(m_header[col]);
 					}
 

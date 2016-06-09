@@ -212,10 +212,10 @@ namespace WBSF
 			m_duration = 6.25;						//[h]
 			m_duration_σ = 0.25;					//[h]
 			m_height_type = NEW_TYPE;
-			m_height_lo = 10;						//[m]
-			m_height = 5.3;							//mean of the log of the height 
-			m_height_σ = 0.53;						//stadard deviation of the log of the height (0.53)
-			m_height_hi = 1000;						//[m]
+			m_height_lo = 20;						//[m]
+			m_height = 600;							//mean of the height 
+			m_height_σ = 150;						//stadard deviation of the log of the height (0.53)
+			m_height_hi = 1200;						//[m]
 			m_w_ascent = 0.6 * 3600 / 1000;			//[km/h]
 			m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
 			m_w_horizontal = 2.0 * 3600 / 1000;		//[km/h]

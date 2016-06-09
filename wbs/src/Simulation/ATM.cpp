@@ -21,7 +21,7 @@
 #include "Simulation/ATM.h"
 
 #include "WeatherBasedSimulationString.h"
-
+//#include "netcdf\cxx4\netcdf"
 
 using namespace std;
 
@@ -30,10 +30,9 @@ using namespace WBSF::WEATHER;
 
 namespace WBSF
 {
-
 	static const int MAX_NUMBER_IMAGE_LOAD = 18;
-
-	static ERMsg TransformWRF2RUC(CCallback& callback);
+	static ERMsg CreateGribsFromText(CCallback& callback);
+	static ERMsg CreateGribsFromNetCDF(CCallback& callback);
 
 	size_t Hourly2ATM(size_t vv)
 	{
@@ -197,9 +196,16 @@ namespace WBSF
 			double 	liftoff_μ = 0.190575425*T - 4.042102263;// +0.5;//+0.5 ajuted from radar data!
 			double 	liftoff_σ = -0.044029363*T + 1.363107669;
 
-			t_liftoff = m_random.RandNormal(liftoff_μ, liftoff_σ);
-			while (t_liftoff<m_parameters2.m_t_liftoff_begin || t_liftoff>m_parameters2.m_t_liftoff_end)
+			//if (liftoff_μ > m_parameters2.m_t_liftoff_begin && liftoff_μ < m_parameters2.m_t_liftoff_end)
+			//{
 				t_liftoff = m_random.RandNormal(liftoff_μ, liftoff_σ);
+				while (t_liftoff<m_parameters2.m_t_liftoff_begin || t_liftoff>m_parameters2.m_t_liftoff_end)
+					t_liftoff = m_random.RandNormal(liftoff_μ, liftoff_σ);
+			//}
+			//else
+			//{
+				//t_liftoff = liftoff_μ;
+			//}
 
 			//add offset correction
 			t_liftoff += m_parameters2.m_t_liftoff_correction;
@@ -261,9 +267,13 @@ namespace WBSF
 		}
 		else if (m_parameters2.m_height_type == CATMParameters::NEW_TYPE)
 		{
-			height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+			height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
 			while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
-				height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+				height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+
+			//height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+			//while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
+			//	height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
 		}
 
 		return height;
@@ -1145,6 +1155,9 @@ CGeoPointIndex CATMWeather::get_xy(const CGeoPoint& ptIn, CTRef UTCTRef)const
 
 int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const
 {
+	//size_t gribType = m_p_weather_DS.get_band(UTCTRef, ATM_VVEL, 0) != UNKNOWN_POS ? RUC_TYPE : WRF_TYPE;
+	//if (gribType == RUC_TYPE)
+	
 	vector<pair<double, int>> test;
 
 	for (int l = 1; l < NB_LEVELS; l++)
@@ -1157,13 +1170,11 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, 
 			break;
 	}
 
-	
-
 	double grAlt = GetGroundAltitude(xy, UTCTRef);//get the first level over the ground
 	test.push_back(make_pair(grAlt, 0));
 	sort(test.begin(), test.end());
 
-	int L = NB_LEVELS-1;
+	int L = 0;
 	for (int l = 0; l < (int)test.size(); l++)
 	{
 		if (alt < test[l].first)
@@ -1220,7 +1231,6 @@ CGeoPoint3DIndex CATMWeather::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
 		if (l == 0)//if the point is lower than 15 meters of the surface, we take surface
 			gph += 15;
 
-
 		if (pt.m_alt <= gph )
 		{
 			//xyz.m_z = int(b);
@@ -1260,15 +1270,13 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 			(*cuboids)[1] = (*cuboids)[0];
 			return cuboids;
 		}
-			
-		
 
 		const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCTRef);
 		double groundAlt = 0;
 		
-		//RUC is above sea level and WRF is above ground
-		if (gribType == RUC_TYPE)
-			groundAlt = m_world.GetGroundAltitude(ptIn);
+		//RUC is above sea level and WRF must be above sea level
+		//if (gribType == RUC_TYPE)
+		groundAlt = m_world.GetGroundAltitude(ptIn);
 		
 
 		CGeoPoint3D pt(ptIn);
@@ -1423,7 +1431,10 @@ ERMsg CATMWeather::load_hourly(const std::string& filepath, CCallback& callback)
 ERMsg CATMWeather::Load(const std::string& gribsFilepath, const std::string& hourlyDBFilepath, CCallback& callback)
 {
 	ERMsg msg;
-	//return TransformWRF2RUC(callback);
+
+	//CreateGribsFromText(callback);
+	//CreateGribsFromNetCDF(callback);
+	//return ERMsg(ERMsg::ERREUR, "Fin de la transformation");
 
 
 	if (hourlyDBFilepath.empty() && gribsFilepath.empty())
@@ -2354,17 +2365,11 @@ size_t GetLevel(const string& strLevel)
 	}
 	else 
 	{
-		
-
 		bool bValid = strLevel.find('-') == string::npos && !strLevel.empty() && isdigit(strLevel[0]);
 		if (bValid)
 		{
 			level = ToSizeT(strLevel);
-			if (level < 100)
-			{
-				level++;
-			}
-			else if (level >= 100 && level <= 1000)
+			if (level >= 100 && level <= 1000)
 			{
 				//RUC format
 				level = 38 - (level - 100) / 25 - 1;
@@ -2414,8 +2419,6 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 						msg.ajoute("Bad .inv file : " + invFilePath);
 					}
 				}
-
-				
 			}
 		}
 	}
@@ -2425,11 +2428,11 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 		m_bands[ATM_PRCP][j] = m_bands[ATM_PRCP][0];
 	
 	//copy VVEL 1 to surface
-	if (m_bands[ATM_VVEL][1] != UNKNOWN_POS)
+	if (m_bands[ATM_VVEL][1] != UNKNOWN_POS && m_bands[ATM_VVEL][0] == UNKNOWN_POS)
 	{
 		m_bands[ATM_VVEL][0] = m_bands[ATM_VVEL][1];
 	}
-	else
+	/*else
 	{
 		m_bands[ATM_WNDU][0] = m_bands[ATM_WNDU][1];
 		m_bands[ATM_WNDV][0] = m_bands[ATM_WNDV][1];
@@ -2437,7 +2440,7 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 		m_bands[ATM_TAIR][0] = m_bands[ATM_TAIR][1];
 		m_bands[ATM_PRES][0] = m_bands[ATM_PRES][1];
 		m_bands[ATM_HGT][0] = m_bands[ATM_VVEL][1];
-	}
+	}*/
 
 
 	return msg;
@@ -2453,10 +2456,21 @@ size_t CGDALDatasetCached::get_band(size_t v, size_t level )const
 //class CWRFDatabase
 
 
-ERMsg TransformWRF2RUC(CCallback& callback)
+
+ERMsg CreateGribsFromText(CCallback& callback)
 {
 
 	ERMsg msg;
+
+
+	//Cells height [m]
+	CGDALDatasetEx terrain_height;
+	msg += terrain_height.OpenInputImage("E:\\Travaux\\Bureau\\WRF2013\\Terrain Height.tif");
+	
+	array<array<float, 252>, 201> height = { 0 };
+	terrain_height.GetRasterBand(0)->RasterIO(GF_Read, 0, 0, (int)height[0].size(), (int)height.size(), &(height[0][0]), (int)height[0].size(), (int)height.size(), GDT_Float32, 0, 0);
+
+
 	static const char* THE_PRJ = "PROJCS[\"unnamed\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\", 6378137, 298.257223563,AUTHORITY[\"EPSG\", \"7030\"]],AUTHORITY[\"EPSG\", \"6326\"]],PRIMEM[\"Greenwich\", 0],UNIT[\"degree\", 0.0174532925199433],AUTHORITY[\"EPSG\", \"4326\"]],PROJECTION[\"Lambert_Conformal_Conic_2SP\"],PARAMETER[\"standard_parallel_1\", 30],PARAMETER[\"standard_parallel_2\", 60],PARAMETER[\"latitude_of_origin\", 48.000004],PARAMETER[\"central_meridian\", -69],PARAMETER[\"false_easting\", 0],PARAMETER[\"false_northing\", 0],UNIT[\"metre\", 1,AUTHORITY[\"EPSG\", \"9001\"]]]";
 	msg += CProjectionManager::CreateProjection(THE_PRJ);
 	
@@ -2494,17 +2508,17 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 	options.m_createOptions.push_back("COMPRESS=LZW");
 	options.m_dstNodata = -9999;
 	//options.m_extents = CGeoExtents(-280642.1,1903575,133144.6,2205765,101,74,101,1,prjID);
-	options.m_extents = CGeoExtents(-524000, 402000, 488000, -402000, 252, 201, 252, 1, prjID);
+	options.m_extents = CGeoExtents(-524000, 402000, 488000, -402000, 252, 201, 252, 1, prjID);//attention ici il y a 252 pixel, mais dans le .nc il y en a 253!!! donc le x size n'est pas 4000...
 	options.m_prj = THE_PRJ;
 	options.m_bOverwrite = true;
+	array<array<float, 252>, 201> last_prcp = { 0 };
 	
-	
-	static const size_t NB_WRF_HOURS= 288;//193 hours
+	static const size_t NB_WRF_HOURS= 289;//289 hours
 	callback.PushTask("Create gribs", NB_WRF_HOURS);
 	
 	for (size_t h = 0; h < NB_WRF_HOURS&&msg; h++)
 	{
-		CTRef UTCRef(2013, JULY, 13, 0);
+		CTRef UTCRef(2013, JULY, DAY_13, 0);
 		UTCRef += int(h);
 
 		callback.PushTask(UTCRef.GetFormatedString("%Y-%m-%d-%H"), 50652* NB_WRF_LEVEL);
@@ -2513,13 +2527,18 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 		std::string filePathIn = FormatA("E:\\Travaux\\Bureau\\WRF2013\\WRF\\wrfbud_%03d.txt", h);
 		CGDALDatasetEx geotif;
 		
-		
+
+
+
 		string filePathOut = FormatA("E:\\Travaux\\Bureau\\WRF2013\\TIF\\WRF_%4d_%02d_%02d_%02d.tif", UTCRef.GetYear(), UTCRef.GetMonth()+1, UTCRef.GetDay()+1, UTCRef.GetHour());
 		msg += geotif.CreateImage(filePathOut, options);
 		//create .inv file
 		string filePathInvIn = "E:\\Travaux\\Bureau\\WRF2013\\WRF\\template.inv";
 		string filePathInvOut = FormatA("E:\\Travaux\\Bureau\\WRF2013\\TIF\\WRF_%4d_%02d_%02d_%02d.inv", UTCRef.GetYear(), UTCRef.GetMonth()+1, UTCRef.GetDay()+1, UTCRef.GetHour());
 		CopyOneFile(filePathInvIn, filePathInvOut, false);
+
+		
+		
 
 		ifStream file;
 		msg += file.open(filePathIn);
@@ -2530,7 +2549,7 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 			//write header
 			for (size_t j = 0; j < NB_WRF_VARS; j++)
 			{
-				csv_text[j] = "KeyID,Latitude,Longitude";
+				csv_text[j] = "KeyID,Latitude,Longitude,Elevation";
 				for (size_t i = 0; i < NB_WRF_LEVEL; i++)
 					csv_text[j] += "," + FormatA("sounding%02d", i + 1);
 
@@ -2556,10 +2575,10 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 					if (i==38)
 					{
 						StringVector str(line, " ");
-						ASSERT(str.size() == 3);
+						ASSERT(str.size() == 5);
 						
 						for (size_t j = 0; j < NB_WRF_VARS; j++)
-							csv_text[j] += str[2] + "," + str[0] + "," + str[1];
+							csv_text[j] += str[2] + "," + str[0] + "," + str[1] + "," + str[4];
 
 						CGeoPoint lastPoint(ToDouble(str[1]), ToDouble(str[0]), PRJ_WGS_84);
 						msg += lastPoint.Reproject(Geo2LCC);
@@ -2573,21 +2592,29 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 					}
 					else
 					{
-						std::stringstream stream(line);
+						//std::stringstream stream(line);
 						//fixed field length
-						//StringVector str(line, " ");
-						StringVector str;
-						str.reserve(NB_WRF_VARS + 1);
+						StringVector str(line, " ");
+						//StringVector str;
+						//str.reserve(NB_WRF_VARS + 1);
 						//str.resize(NB_WRF_VARS + 1);
-						static const size_t FIELD_LENGTH[NB_WRF_VARS + 1] = { 2, 8, 9, 9, 9, 9, 9, 9, 9 };
-						for (size_t j = 0; j < NB_WRF_VARS+1; j++)
+						//static const size_t FIELD_LENGTH[NB_WRF_VARS + 1] = { 2, 8, 9, 9, 9, 9, 9, 9, 9 };
+						/*for (size_t j = 0; j < NB_WRF_VARS+1; j++)
 						{ 
 							char buffer[10] = { 0 };
 							stream.read(buffer, FIELD_LENGTH[j]);
 							if (strlen(buffer)>0)
 								str.push_back(buffer);
 						}
-						
+						*/
+						if (str.size() == NB_WRF_VARS)
+						{
+							StringVector tmp(str[3], "-");
+							ASSERT(tmp.size()==2);
+
+							str[3] = tmp[0];
+							str.insert(str.begin()+4, tmp[1]);
+						}
 						ASSERT(str.size() == NB_WRF_VARS+1);
 
 						size_t sounding = ((i-1)% NB_WRF_LEVEL);
@@ -2596,30 +2623,44 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 						for (size_t j = 0; j < NB_WRF_VARS; j++)
 						{
 							float v = ToFloat(str[j + 1]);
-							if (j == WRF_TAIR)//tmp
+							if (j == WRF_HGHT)
+							{
+								//add terrain height when WRF
+								v += height[xy.m_y][xy.m_x];
+							}
+							else if (j == WRF_TAIR)//tmp
+							{
 								v -= 273.15f;//convert K to °C
-							else if (j==WRF_PRCP)
-								v /= 3600;//convert mm/h to mm/s
-							else if (j == WRF_VWND)
-								v /= 3600;//convert mixing ratio in relative humidity
+							}
+							else if (j == WRF_PRCP)
+							{
+								if (sounding == 0)//modify souding zero let all other the original value
+									v = max(0.0, (v - last_prcp[xy.m_y][xy.m_x]) / 3600.0);//convert mm/h to mm/s (but, in 2013 version it's cumulative)
+							}
+								
+								//v = max(0.0, v / 3600.0 - last_prcp[xy.m_y][xy.m_x]);//convert mm/h to mm/s (but, in 2013 version it cumulative)
+							//else if (j == WRF_WVMR)
+								//v /= 3600;//convert mixing ratio in relative humidity
 
 							data[j][sounding][xy.m_y][xy.m_x] = v;
 							
 							csv_text[j] += "," + str[j + 1];
 						}
+
+						if (i == 37)//last record
+							for (size_t j = 0; j < NB_WRF_VARS; j++)
+								csv_text[j] += "\n";
+
+						
+
 					}
-
-					if (i%NB_WRF_LEVEL == 0)
-						for (size_t j = 0; j < NB_WRF_VARS; j++)
-							csv_text[j] += "\n";
-
 				
 					i++;//next line
-				}
+				}//for all line
 
 				
 				msg += callback.StepIt();
-			}
+			}//
 
 			ASSERT(i == NB_WRF_LEVEL+1);
 
@@ -2660,7 +2701,16 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 					}
 				}
 			}//for all output file
+
+
+			for (size_t y = 0; y < data[WRF_PRCP][0].size(); y++)
+				for (size_t x = 0; x < data[WRF_PRCP][0][y].size(); x++)
+					last_prcp[y][x] = data[WRF_PRCP][1][y][x];//take sounding 1 because sounding 0 was modified
+
 		}//if msg
+
+		
+
 
 		callback.PopTask();
 
@@ -2672,153 +2722,610 @@ ERMsg TransformWRF2RUC(CCallback& callback)
 	return msg;
 }
 
+//using namespace netCDF;
+//typedef std::unique_ptr < NcFile > NcFilePtr;
+//typedef std::array<NcFilePtr, NB_VARIABLES> NcFilePtrArray;
+
+
+ERMsg CreateGribsFromNetCDF(CCallback& callback)
+{
+	enum TWRFLEvels{ NB_WRF_LEVEL = 38 };
+	enum TWRFVars{ WRF_PRES, WRF_HGHT, WRF_TAIR, WRF_UWND, WRF_VWND, WRF_WWND, WRF_RELH, WRF_PRCP, NB_WRF_VARS };
+
+
+	GDALSetCacheMax64(2000000000);
+
+	ERMsg msg;
+	
+	CGDALDatasetEx terrain_height;
+	msg += terrain_height.OpenInputImage("E:\\Travaux\\Bureau\\WRF2013\\Terrain Height.tif");
+
+	if (!msg)
+		return msg;
+
+	array<array<float, 252>, 201> height = { 0 };
+	terrain_height.GetRasterBand(0)->RasterIO(GF_Read, 0, 0, (int)height[0].size(), (int)height.size(), &(height[0][0]), (int)height[0].size(), (int)height.size(), GDT_Float32, 0, 0);
+
+
+	
+
+	CBaseOptions options;
+	terrain_height.UpdateOption(options);
+	options.m_outputType = GDT_Float32;
+	options.m_createOptions.push_back("COMPRESS=LZW");
+	options.m_dstNodata = -9999;
+	options.m_bOverwrite = true;
+	options.m_nbBands = NB_WRF_LEVEL * (NB_WRF_VARS-1) + 1;//prcp have only one band
+
+	enum { WRF_PHB, WRF_PH, WRF_PB, WRF_P, WRF_T, WRF_U, WRF_V, WRF_W, WRF_QVAPOR, WRF_RAINC, WRF_RAINNC, WRF_PSFC, WRF_T2, WRF_U10, WRF_V10, WRF_Q2, NB_VAR_BASE };
+	static const char* VAR_NAME[NB_VAR_BASE] = { "PHB", "PH", "PB", "P", "T", "U", "V", "W", "QVAPOR", "RAINC", "RAINNC", "PSFC", "T2", "U10", "V10", "Q2" };
+	
+
+	CTRef begin = CTRef(2013, JULY, DAY_13, 0);
+	CTRef end = CTRef(2013, JULY, DAY_25, 0);
+	callback.PushTask("Create gribs", (end - begin + 1)*NB_WRF_LEVEL * NB_WRF_VARS);
+
+	array<array<float, 252>, 201> last_RAIN_C = { 0 };
+	array<array<float, 252>, 201> last_RAIN_NC = { 0 };
+
+	for (CTRef UTCRef = begin; UTCRef <= end&&msg; UTCRef++)
+	{
+		//create .inv file
+		string filePathInvIn = "E:\\Travaux\\Bureau\\WRF2013\\NetCDF\\template.inv";
+		string filePathInvOut = FormatA("E:\\Travaux\\Bureau\\WRF2013\\TIF2\\WRF_%4d_%02d_%02d_%02d.inv", UTCRef.GetYear(), UTCRef.GetMonth() + 1, UTCRef.GetDay() + 1, UTCRef.GetHour());
+		CopyOneFile(filePathInvIn, filePathInvOut, false);
+
+		
+		CGDALDatasetEx geotifOut;
+		string filePathOut = FormatA("E:\\Travaux\\Bureau\\WRF2013\\TIF2\\WRF_%4d_%02d_%02d_%02d.tif", UTCRef.GetYear(), UTCRef.GetMonth() + 1, UTCRef.GetDay() + 1, UTCRef.GetHour());
+		msg += geotifOut.CreateImage(filePathOut, options);
+
+		array<CGDALDatasetEx, NB_VAR_BASE> geotifIn;
+		for (size_t i = 0; i < geotifIn.size()&&msg; i++)
+		{
+			string filePathIn = WBSF::FormatA("E:\\Travaux\\Bureau\\WRF2013\\NETCDF\\wrfout_d02_%d-%02d-%02d_%02d.nc", UTCRef.GetYear(), UTCRef.GetMonth()+1, UTCRef.GetDay()+1, UTCRef.GetHour());
+			string filePathTmp = WBSF::FormatA("E:\\Travaux\\Bureau\\WRF2013\\TIF2\\tmp\\%s.tif", VAR_NAME[i]);
+			string command = WBSF::FormatA("\"C:\\Program Files\\QGIS\\bin\\GDAL_translate.exe\" -co \"COMPRESS=LZW\" -stats -ot Float32 -a_srs \"+proj=lcc +lat_1=30 +lat_2=60 +lat_0=48.000004 +lon_0=-69 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84\" -a_ullr -524000 402000 488000 -402000 NETCDF:\"%s\":%s \"%s\"", filePathIn.c_str(), VAR_NAME[i], filePathTmp.c_str());
+
+			DWORD exist = 0;
+			msg = WinExecWait(command.c_str(), "", SW_HIDE, &exist);
+
+			if (msg)
+				msg += geotifIn[i].OpenInputImage(filePathTmp);
+		}
+
+
+		if (msg)
+		{
+
+			for (int l = 0; l < NB_WRF_LEVEL && msg; l++)
+			{
+				array<array<array<float, 252>, 201>, NB_WRF_VARS> data = { 0 };
+				for (size_t s = 0; s < NB_WRF_VARS&&msg; s++)
+				{
+					switch (s)
+					{
+					case WRF_PRES:
+					{
+						if (l == 0)
+						{
+							GDALRasterBand* pBand = NULL;
+							pBand = geotifIn[WRF_PSFC].GetRasterBand(0);
+							pBand->RasterIO(GF_Read, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+						}
+						else
+						{
+							array<array<float, 252>, 201> pb = { 0 };
+							array<array<float, 252>, 201> p = { 0 };
+							GDALRasterBand* pBand1 = geotifIn[WRF_PB].GetRasterBand(l - 1);
+							GDALRasterBand* pBand2 = geotifIn[WRF_P].GetRasterBand(l - 1);
+							pBand1->RasterIO(GF_Read, 0, 0, (int)pb[0].size(), (int)pb.size(), &(pb[0][0]), (int)pb[0].size(), (int)pb.size(), GDT_Float32, 0, 0);
+							pBand2->RasterIO(GF_Read, 0, 0, (int)p[0].size(), (int)p.size(), &(p[0][0]), (int)p[0].size(), (int)p.size(), GDT_Float32, 0, 0);
+							
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (pb[y][x] + p[y][x]);//add base and perturbation
+						}
+
+						for (size_t y = 0; y < data[s].size(); y++)
+							for (size_t x = 0; x < data[s][y].size(); x++)
+								data[s][y][x] /= 100.0f;//convert Pa into mbar
+
+						break;
+					}
+
+					case WRF_HGHT:
+					{
+						if (l == 0)
+						{
+							array<array<float, 252>, 201> phb = { 0 };
+							array<array<float, 252>, 201> ph = { 0 };
+							GDALRasterBand* pBand1 = geotifIn[WRF_PHB].GetRasterBand(0);
+							GDALRasterBand* pBand2 = geotifIn[WRF_PH].GetRasterBand(0);
+							
+							pBand1->RasterIO(GF_Read, 0, 0, (int)phb[0].size(), (int)phb.size(), &(phb[0][0]), (int)phb[0].size(), (int)phb.size(), GDT_Float32, 0, 0);
+							pBand2->RasterIO(GF_Read, 0, 0, (int)ph[0].size(), (int)ph.size(), &(ph[0][0]), (int)ph[0].size(), (int)ph.size(), GDT_Float32, 0, 0);
+
+
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (phb[y][x] + ph[y][x]) / 9.8;//convert m²/s² into m
+						}
+						else
+						{
+							array<array<float, 252>, 201> phb1 = { 0 };
+							array<array<float, 252>, 201> ph1 = { 0 };
+							array<array<float, 252>, 201> phb2 = { 0 };
+							array<array<float, 252>, 201> ph2 = { 0 };
+							GDALRasterBand* pBand1 = geotifIn[WRF_PHB].GetRasterBand(l - 1);
+							GDALRasterBand* pBand2 = geotifIn[WRF_PH].GetRasterBand(l - 1);
+							GDALRasterBand* pBand3 = geotifIn[WRF_PHB].GetRasterBand(l);
+							GDALRasterBand* pBand4 = geotifIn[WRF_PH].GetRasterBand(l);
+							pBand1->RasterIO(GF_Read, 0, 0, (int)phb1[0].size(), (int)phb1.size(), &(phb1[0][0]), (int)phb1[0].size(), (int)phb1.size(), GDT_Float32, 0, 0);
+							pBand2->RasterIO(GF_Read, 0, 0, (int)ph1[0].size(), (int)ph1.size(), &(ph1[0][0]), (int)ph1[0].size(), (int)ph1.size(), GDT_Float32, 0, 0);
+							pBand3->RasterIO(GF_Read, 0, 0, (int)phb2[0].size(), (int)phb2.size(), &(phb2[0][0]), (int)phb2[0].size(), (int)phb2.size(), GDT_Float32, 0, 0);
+							pBand4->RasterIO(GF_Read, 0, 0, (int)ph2[0].size(), (int)ph2.size(), &(ph2[0][0]), (int)ph2[0].size(), (int)ph2.size(), GDT_Float32, 0, 0);
+
+
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = ((phb1[y][x] + phb2[y][x]) / 2 + (ph1[y][x] + ph2[y][x])/2) / 9.8;//convert m²/s² into m
+						}
+
+						break;
+					}
+					case WRF_TAIR:
+					{
+						if (l == 0)
+						{
+							GDALRasterBand* pBand = geotifIn[WRF_T2].GetRasterBand(0);
+							pBand->RasterIO(GF_Read, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+						}
+						else
+						{
+							array<array<float, 252>, 201> T = { 0 };
+							GDALRasterBand* pBand = geotifIn[WRF_T].GetRasterBand(l - 1);
+							pBand->RasterIO(GF_Read, 0, 0, (int)T[0].size(), (int)T.size(), &(T[0][0]), (int)T[0].size(), (int)T.size(), GDT_Float32, 0, 0);
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (T[y][x] + 300)*pow(data[WRF_PRES][y][x] / 1000, 0.2854);//convert into Kelvin
+						}
+
+						//convert Kelvin to °C
+						for (size_t y = 0; y < data[s].size(); y++)
+							for (size_t x = 0; x < data[s][y].size(); x++)
+								data[s][y][x] -= 273.15f;
+
+						break;
+					}
+
+					case WRF_UWND:
+					{
+						
+						if (l == 0)
+						{
+							GDALRasterBand* pBand = geotifIn[WRF_U10].GetRasterBand(0);
+							pBand->RasterIO(GF_Read, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+						}
+						else
+						{ 
+							array<array<float, 253>, 201> U = { 0 };
+							GDALRasterBand* pBand = geotifIn[WRF_U].GetRasterBand(l - 1);
+							pBand->RasterIO(GF_Read, 0, 0, (int)U[0].size(), (int)U.size(), &(U[0][0]), (int)U[0].size(), (int)U.size(), GDT_Float32, 0, 0);
+
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (U[y][x] + U[y][x + 1]) / 2;
+
+						}
+							
+						break;
+					}
+					case WRF_VWND:
+					{
+						if (l == 0)
+						{
+							GDALRasterBand* pBand = geotifIn[WRF_V10].GetRasterBand(0);
+							pBand->RasterIO(GF_Read, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+						}
+						else
+						{
+							array<array<float, 252>, 202> V = { 0 };
+							GDALRasterBand* pBand = geotifIn[WRF_V].GetRasterBand(l - 1);
+							pBand->RasterIO(GF_Read, 0, 0, (int)V[0].size(), (int)V.size(), &(V[0][0]), (int)V[0].size(), (int)V.size(), GDT_Float32, 0, 0);
+
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (V[y][x] + V[y+1][x]) / 2;
+						}
+
+						break;
+					}
+					case WRF_WWND:
+					{
+						if (l == 0)
+						{
+							GDALRasterBand* pBand = geotifIn[WRF_W].GetRasterBand(0);
+							pBand->RasterIO(GF_Read, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+						}
+						else
+						{
+							array<array<float, 252>, 201> W1 = { 0 };
+							array<array<float, 252>, 201> W2 = { 0 };
+							GDALRasterBand* pBand1 = geotifIn[WRF_W].GetRasterBand(l - 1);
+							GDALRasterBand* pBand2 = geotifIn[WRF_W].GetRasterBand(l);
+							pBand1->RasterIO(GF_Read, 0, 0, (int)W1[0].size(), (int)W1.size(), &(W1[0][0]), (int)W1[0].size(), (int)W1.size(), GDT_Float32, 0, 0);
+							pBand2->RasterIO(GF_Read, 0, 0, (int)W2[0].size(), (int)W2.size(), &(W2[0][0]), (int)W2[0].size(), (int)W2.size(), GDT_Float32, 0, 0);
+
+							for (size_t y = 0; y < data[s].size(); y++)
+								for (size_t x = 0; x < data[s][y].size(); x++)
+									data[s][y][x] = (W1[y][x] + W2[y][x]) / 2;
+						}
+
+						break;
+					}
+
+					case WRF_RELH:
+					{
+						GDALRasterBand* pBand = geotifIn[l == 0 ? WRF_Q2 : WRF_QVAPOR].GetRasterBand(l == 0 ? 0:l-1);
+
+						array<array<float, 252>, 201> W = { 0 };
+						pBand->RasterIO(GF_Read, 0, 0, (int)W[0].size(), (int)W.size(), &(W[0][0]), (int)W[0].size(), (int)W.size(), GDT_Float32, 0, 0);
+						
+						for (size_t y = 0; y < data[s].size(); y++)
+						{
+							for (size_t x = 0; x < data[s][y].size(); x++)
+							{
+								double T = data[WRF_TAIR][y][x];//°C
+								double p = data[WRF_PRES][y][x];//hPa
+								double es = 6.108 * exp(17.27*T / (T + 237.3));//hPa
+								double ws = 0.62197*(es / (p - es));
+								double Hr = max(1.0, min(100.0, (W[y][x] / ws) * 100));
+								data[s][y][x] = Hr;
+							}
+						}
+								
+					
+
+						break;
+					}
+					case WRF_PRCP:
+					{
+
+						GDALRasterBand* pBand1 = NULL;
+						GDALRasterBand* pBand2 = NULL;
+						if (l == 0)
+						{
+							array<array<float, 252>, 201> RAIN_C = { 0 };
+							array<array<float, 252>, 201> RAIN_NC = { 0 };
+
+							pBand1 = geotifIn[WRF_RAINC].GetRasterBand(0);
+							pBand2 = geotifIn[WRF_RAINNC].GetRasterBand(0);
+							pBand1->RasterIO(GF_Read, 0, 0, (int)RAIN_C[0].size(), (int)RAIN_C.size(), &(RAIN_C[0][0]), (int)RAIN_C[0].size(), (int)RAIN_C.size(), GDT_Float32, 0, 0);
+							pBand2->RasterIO(GF_Read, 0, 0, (int)RAIN_NC[0].size(), (int)RAIN_NC.size(), &(RAIN_NC[0][0]), (int)RAIN_NC[0].size(), (int)RAIN_NC.size(), GDT_Float32, 0, 0);
+
+							for (size_t y = 0; y < data[s].size(); y++)
+							{
+								for (size_t x = 0; x < data[s][y].size(); x++)
+								{
+									//precipitation is cumulative over simulation hours. 
+									double prcp = (RAIN_NC[y][x] - last_RAIN_NC[y][x]) + (RAIN_C[y][x] - last_RAIN_C[y][x]);
+									//if (prcp < 0.05)
+										//prcp = 0;
+
+									data[s][y][x] = prcp / 3600;//Convert from mm to mm/s
+									last_RAIN_NC[y][x] = RAIN_NC[y][x];
+									last_RAIN_C[y][x] = RAIN_C[y][x];
+								}
+							}
+						}
+
+						break;
+					}
+					}//switch
+
+					if (l == 0 || s != WRF_PRCP)//save precipitation only once at surface
+					{
+						//size_t b = l == 0 ? s : (l - 1) * (NB_WRF_VARS - 1) + NB_WRF_VARS + s;
+						size_t b = s*NB_WRF_LEVEL + l;
+						GDALRasterBand* pBand = geotifOut.GetRasterBand(b);
+						pBand->RasterIO(GF_Write, 0, 0, (int)data[s][0].size(), (int)data[s].size(), &(data[s][0][0]), (int)data[s][0].size(), (int)data[s].size(), GDT_Float32, 0, 0);
+					}
+
+					msg += callback.StepIt();
+				}//variables
+			}//level
+
+
+			geotifOut.Close();
+
+			for (size_t i = 0; i < geotifIn.size(); i++)
+				geotifIn[i].Close();
+		}//if msg
+		
+	}//for all hours
+
+
+	return msg;
 }
 
 
-//Line 17: 		XLAT : description = "LATITUDE, SOUTH IS NEGATIVE";
-//Line 24: 		XLONG : description = "LONGITUDE, WEST IS NEGATIVE";
-//Line 31: 		LU_INDEX : description = "LAND USE CATEGORY";
-//Line 38: 		ZNU : description = "eta values on half (mass) levels";
-//Line 44: 		ZNW : description = "eta values on full (w) levels";
-//Line 50: 		ZS : description = "DEPTHS OF CENTERS OF SOIL LAYERS";
-//Line 56: 		DZS : description = "THICKNESSES OF SOIL LAYERS";
-//Line 62: 		VAR_SSO : description = "variance of subgrid-scale orography";
-//Line 69: 		LAP_HGT : description = "Laplacian of orography";
-//Line 76: 		U : description = "x-wind component";
-//Line 83: 		V : description = "y-wind component";
-//Line 90: 		W : description = "z-wind component";
-//Line 97: 		PH : description = "perturbation geopotential";
-//Line 104: 		PHB : description = "base-state geopotential";
-//Line 111: 		T : description = "perturbation potential temperature (theta-t0)";
-//Line 118: 		HFX_FORCE : description = "SCM ideal surface sensible heat flux";
-//Line 124: 		LH_FORCE : description = "SCM ideal surface latent heat flux";
-//Line 130: 		TSK_FORCE : description = "SCM ideal surface skin temperature";
-//Line 136: 		HFX_FORCE_TEND : description = "SCM ideal surface sensible heat flux tendency";
-//Line 142: 		LH_FORCE_TEND : description = "SCM ideal surface latent heat flux tendency";
-//Line 148: 		TSK_FORCE_TEND : description = "SCM ideal surface skin temperature tendency";
-//Line 154: 		MU : description = "perturbation dry air mass in column";
-//Line 161: 		MUB : description = "base state dry air mass in column";
-//Line 168: 		NEST_POS : description = "-";
-//Line 175: 		P : description = "perturbation pressure";
-//Line 182: 		PB : description = "BASE STATE PRESSURE";
-//Line 189: 		FNM : description = "upper weight for vertical stretching";
-//Line 195: 		FNP : description = "lower weight for vertical stretching";
-//Line 201: 		RDNW : description = "inverse d(eta) values between full (w) levels";
-//Line 207: 		RDN : description = "inverse d(eta) values between half (mass) levels";
-//Line 213: 		DNW : description = "d(eta) values between full (w) levels";
-//Line 219: 		DN : description = "d(eta) values between half (mass) levels";
-//Line 225: 		CFN : description = "extrapolation constant";
-//Line 231: 		CFN1 : description = "extrapolation constant";
-//Line 237: 		THIS_IS_AN_IDEAL_RUN : description = "T/F flag: this is an ARW ideal simulation";
-//Line 243: 		P_HYD : description = "hydrostatic pressure";
-//Line 250: 		Q2 : description = "QV at 2 M";
-//Line 257: 		T2 : description = "TEMP at 2 M";
-//Line 264: 		TH2 : description = "POT TEMP at 2 M";
-//Line 271: 		PSFC : description = "SFC PRESSURE";
-//Line 278: 		U10 : description = "U at 10 M";
-//Line 285: 		V10 : description = "V at 10 M";
-//Line 292: 		RDX : description = "INVERSE X GRID LENGTH";
-//Line 298: 		RDY : description = "INVERSE Y GRID LENGTH";
-//Line 304: 		RESM : description = "TIME WEIGHT CONSTANT FOR SMALL STEPS";
-//Line 310: 		ZETATOP : description = "ZETA AT MODEL TOP";
-//Line 316: 		CF1 : description = "2nd order extrapolation constant";
-//Line 322: 		CF2 : description = "2nd order extrapolation constant";
-//Line 328: 		CF3 : description = "2nd order extrapolation constant";
-//Line 334: 		ITIMESTEP : description = "";
-//Line 340: 		XTIME : description = "minutes since 2013-07-12 12:00:00";
-//Line 346: 		QVAPOR : description = "Water vapor mixing ratio";
-//Line 353: 		QCLOUD : description = "Cloud water mixing ratio";
-//Line 360: 		QRAIN : description = "Rain water mixing ratio";
-//Line 367: 		QICE : description = "Ice mixing ratio";
-//Line 374: 		QSNOW : description = "Snow mixing ratio";
-//Line 381: 		SHDMAX : description = "ANNUAL MAX VEG FRACTION";
-//Line 388: 		SHDMIN : description = "ANNUAL MIN VEG FRACTION";
-//Line 395: 		SNOALB : description = "ANNUAL MAX SNOW ALBEDO IN FRACTION";
-//Line 402: 		TSLB : description = "SOIL TEMPERATURE";
-//Line 409: 		SMOIS : description = "SOIL MOISTURE";
-//Line 416: 		SH2O : description = "SOIL LIQUID WATER";
-//Line 423: 		SMCREL : description = "RELATIVE SOIL MOISTURE";
-//Line 430: 		SEAICE : description = "SEA ICE FLAG";
-//Line 437: 		XICEM : description = "SEA ICE FLAG (PREVIOUS STEP)";
-//Line 444: 		SFROFF : description = "SURFACE RUNOFF";
-//Line 451: 		UDROFF : description = "UNDERGROUND RUNOFF";
-//Line 458: 		IVGTYP : description = "DOMINANT VEGETATION CATEGORY";
-//Line 465: 		ISLTYP : description = "DOMINANT SOIL CATEGORY";
-//Line 472: 		VEGFRA : description = "VEGETATION FRACTION";
-//Line 479: 		GRDFLX : description = "GROUND HEAT FLUX";
-//Line 486: 		ACGRDFLX : description = "ACCUMULATED GROUND HEAT FLUX";
-//Line 493: 		ACSNOM : description = "ACCUMULATED MELTED SNOW";
-//Line 500: 		SNOW : description = "SNOW WATER EQUIVALENT";
-//Line 507: 		SNOWH : description = "PHYSICAL SNOW DEPTH";
-//Line 514: 		CANWAT : description = "CANOPY WATER";
-//Line 521: 		SSTSK : description = "SKIN SEA SURFACE TEMPERATURE";
-//Line 528: 		COSZEN : description = "COS of SOLAR ZENITH ANGLE";
-//Line 535: 		LAI : description = "LEAF AREA INDEX";
-//Line 542: 		VAR : description = "OROGRAPHIC VARIANCE";
-//Line 549: 		TKE_PBL : description = "TKE from PBL";
-//Line 556: 		EL_PBL : description = "Length scale from PBL";
-//Line 563: 		MAPFAC_M : description = "Map scale factor on mass grid";
-//Line 570: 		MAPFAC_U : description = "Map scale factor on u-grid";
-//Line 577: 		MAPFAC_V : description = "Map scale factor on v-grid";
-//Line 584: 		MAPFAC_MX : description = "Map scale factor on mass grid, x direction";
-//Line 591: 		MAPFAC_MY : description = "Map scale factor on mass grid, y direction";
-//Line 598: 		MAPFAC_UX : description = "Map scale factor on u-grid, x direction";
-//Line 605: 		MAPFAC_UY : description = "Map scale factor on u-grid, y direction";
-//Line 612: 		MAPFAC_VX : description = "Map scale factor on v-grid, x direction";
-//Line 619: 		MF_VX_INV : description = "Inverse map scale factor on v-grid, x direction";
-//Line 626: 		MAPFAC_VY : description = "Map scale factor on v-grid, y direction";
-//Line 633: 		F : description = "Coriolis sine latitude term";
-//Line 640: 		E : description = "Coriolis cosine latitude term";
-//Line 647: 		SINALPHA : description = "Local sine of map rotation";
-//Line 654: 		COSALPHA : description = "Local cosine of map rotation";
-//Line 661: 		HGT : description = "Terrain Height";
-//Line 668: 		TSK : description = "SURFACE SKIN TEMPERATURE";
-//Line 675: 		P_TOP : description = "PRESSURE TOP OF THE MODEL";
-//Line 681: 		T00 : description = "BASE STATE TEMPERATURE";
-//Line 687: 		P00 : description = "BASE STATE PRESURE";
-//Line 693: 		TLP : description = "BASE STATE LAPSE RATE";
-//Line 699: 		TISO : description = "TEMP AT WHICH THE BASE T TURNS CONST";
-//Line 705: 		TLP_STRAT : description = "BASE STATE LAPSE RATE (DT/D(LN(P)) IN STRATOSPHERE";
-//Line 711: 		P_STRAT : description = "BASE STATE PRESSURE AT BOTTOM OF STRATOSPHERE";
-//Line 717: 		MAX_MSTFX : description = "Max map factor in domain";
-//Line 723: 		MAX_MSTFY : description = "Max map factor in domain";
-//Line 729: 		RAINC : description = "ACCUMULATED TOTAL CUMULUS PRECIPITATION";
-//Line 736: 		RAINSH : description = "ACCUMULATED SHALLOW CUMULUS PRECIPITATION";
-//Line 743: 		RAINNC : description = "ACCUMULATED TOTAL GRID SCALE PRECIPITATION";
-//Line 750: 		SNOWNC : description = "ACCUMULATED TOTAL GRID SCALE SNOW AND ICE";
-//Line 757: 		GRAUPELNC : description = "ACCUMULATED TOTAL GRID SCALE GRAUPEL";
-//Line 764: 		HAILNC : description = "ACCUMULATED TOTAL GRID SCALE HAIL";
-//Line 771: 		CLDFRA : description = "CLOUD FRACTION";
-//Line 778: 		SWDOWN : description = "DOWNWARD SHORT WAVE FLUX AT GROUND SURFACE";
-//Line 785: 		GLW : description = "DOWNWARD LONG WAVE FLUX AT GROUND SURFACE";
-//Line 792: 		SWNORM : description = "NORMAL SHORT WAVE FLUX AT GROUND SURFACE (SLOPE-DEPENDENT)";
-//Line 799: 		DIFFUSE_FRAC : description = "DIFFUSE FRACTION OF SURFACE SHORTWAVE IRRADIANCE";
-//Line 806: 		OLR : description = "TOA OUTGOING LONG WAVE";
-//Line 813: 		XLAT_U : description = "LATITUDE, SOUTH IS NEGATIVE";
-//Line 820: 		XLONG_U : description = "LONGITUDE, WEST IS NEGATIVE";
-//Line 827: 		XLAT_V : description = "LATITUDE, SOUTH IS NEGATIVE";
-//Line 834: 		XLONG_V : description = "LONGITUDE, WEST IS NEGATIVE";
-//Line 841: 		ALBEDO : description = "ALBEDO";
-//Line 848: 		CLAT : description = "COMPUTATIONAL GRID LATITUDE, SOUTH IS NEGATIVE";
-//Line 855: 		ALBBCK : description = "BACKGROUND ALBEDO";
-//Line 862: 		EMISS : description = "SURFACE EMISSIVITY";
-//Line 869: 		NOAHRES : description = "RESIDUAL OF THE NOAH SURFACE ENERGY BUDGET";
-//Line 876: 		TMN : description = "SOIL TEMPERATURE AT LOWER BOUNDARY";
-//Line 883: 		XLAND : description = "LAND MASK (1 FOR LAND, 2 FOR WATER)";
-//Line 890: 		UST : description = "U* IN SIMILARITY THEORY";
-//Line 897: 		PBLH : description = "PBL HEIGHT";
-//Line 904: 		HFX : description = "UPWARD HEAT FLUX AT THE SURFACE";
-//Line 911: 		QFX : description = "UPWARD MOISTURE FLUX AT THE SURFACE";
-//Line 918: 		LH : description = "LATENT HEAT FLUX AT THE SURFACE";
-//Line 925: 		ACHFX : description = "ACCUMULATED UPWARD HEAT FLUX AT THE SURFACE";
-//Line 932: 		ACLHF : description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE";
-//Line 939: 		SNOWC : description = "FLAG INDICATING SNOW COVERAGE (1 FOR SNOW COVER)";
-//Line 946: 		SR : description = "fraction of frozen precipitation";
-//Line 953: 		SAVE_TOPO_FROM_REAL : description = "1=original topo from real/0=topo modified by WRF";
-//Line 959: 		ISEEDARR_RAND_PERTURB : description = "Array to hold seed for restart, RAND_PERT";
-//Line 965: 		ISEEDARR_SPPT : description = "Array to hold seed for restart, SPPT";
-//Line 971: 		ISEEDARR_SKEBS : description = "Array to hold seed for restart, SKEBS";
-//Line 977: 		LANDMASK : description = "LAND MASK (1 FOR LAND, 0 FOR WATER)";
-//Line 984: 		LAKEMASK : description = "LAKE MASK (1 FOR LAKE, 0 FOR NON-LAKE)";
-//Line 991: 		SST : description = "SEA SURFACE TEMPERATURE";
-//Line 998: 		SST_INPUT : description = "SEA SURFACE TEMPERATURE FROM WRFLOWINPUT FILE";
+//	//Open input
+//	NcFilePtr ncFile;
+//
+//	try
+//	{
+//		string NCfilePathIn = FormatA("E:\\Travaux\\Bureau\\WRF2013\\NetCDF\\wrfout_d02_%4d-%02d-%02d_%02d.tif", UTCRef.GetYear(), UTCRef.GetMonth() + 1, UTCRef.GetDay() + 1, UTCRef.GetHour());
+//		ncFile = NcFilePtr(new NcFile(NCfilePathIn, NcFile::read));
+//	}
+//	catch (...)
+//	{
+//		msg.ajoute("Unable to open input NetCDF file");
+//		return msg;
+//	}
+//
+//
+//	NcVar& var1 = ncFile1[0]->getVar(VARIABLES_NAMES[0]);
+//	NcVar& var2 = ncFile2[0]->getVar(VARIABLES_NAMES[0]);
+//
+//
+//	size_t d1[NB_DIMS] = { 0 };
+//	size_t d2[NB_DIMS] = { 0 };
+//	for (int i = 0; i<NB_DIMS; i++)
+//	{
+//		d1[i] = var1.getDim(i).getSize();
+//		d2[i] = var2.getDim(i).getSize();
+//	}
+//
+//	ASSERT(d1[DIM_LON] == d2[DIM_LON]);
+//	ASSERT(d1[DIM_LAT] == d2[DIM_LAT]);
+//
+//
+//	//open output
+//	CBaseOptions options;
+//	GetOptions(options);
+//
+//	ASSERT(d1[DIM_LON] == options.m_extents.m_xSize);
+//	ASSERT(d1[DIM_LAT] == options.m_extents.m_ySize);
+//
+//	CGDALDatasetEx grid[NB_FIELDS];
+//	for (int v = 0; v<NB_FIELDS; v++)
+//	{
+//		string filePathOut = MMG.GetFilePath(v);
+//		if (!filePathOut.empty())
+//			msg += grid[v].CreateImage(filePathOut, options);
+//	}
+//
+//	if (!msg)
+//		return msg;
+//
+//
+//	callback.SetCurrentDescription(RCP_NAME[rcp]);
+//	callback.SetNbStep(options.m_nbBands * 5);
+//
+//
+//	//********************************************
+//	CMonthlyVariable output;
+//	for (int v = 0; v < NB_FIELDS; v++)
+//	{
+//		if (grid[v].IsOpen())
+//			output[v].resize(d1[DIM_LAT] * d1[DIM_LON]);
+//	}
+//
+//
+//	for (size_t b = 0; b < options.m_nbBands; b++)
+//		//int b = (2100-1951+1)*12 - 1;
+//	{
+//		size_t* d = (b < d1[DIM_TIME] ? d1 : d2);
+//		size_t base = (b < d1[DIM_TIME] ? 0 : d1[DIM_TIME]);
+//		vector<size_t> startp(NB_DIMS);
+//		vector<size_t> countp(NB_DIMS);
+//
+//		for (size_t j = 0; j < NB_DIMS; j++)
+//		{
+//			startp[j] = (j == DIM_TIME ? b - base : 0);
+//			countp[j] = (j == DIM_TIME ? 1 : d[j]);//j==0 : TIME; only one month at a time
+//		}
+//
+//
+//
+//		//read all data for this month
+//		for (int v = 0, vv = 0; v<NB_FIELDS; v++)
+//		{
+//			if (!output[v].empty())
+//			{
+//
+//				NcVar& var1 = ncFile1[vv]->getVar(VARIABLES_NAMES[vv]);
+//				NcVar& var2 = ncFile2[vv]->getVar(VARIABLES_NAMES[vv]);
+//				NcVar& var = (b < d1[DIM_TIME] ? var1 : var2);
+//
+//				var.getVar(startp, countp, &(output[v][0]));
+//				vv++;
+//
+//				msg += callback.StepIt();
+//			}
+//		}
+//
+//		//convert wind speed and comput dew point temperature
+//		ConvertData(output);
+//
+//		//save data
+//		for (int v = 0; v<NB_FIELDS; v++)
+//		{
+//			if (!output[v].empty())
+//			{
+//				GDALRasterBand* pBand = grid[v]->GetRasterBand(int(b + 1));
+//				//GDALRasterBand* pBand = grid[v]->GetRasterBand(1);
+//				pBand->RasterIO(GF_Write, 0, 0, options.m_extents.m_xSize, options.m_extents.m_ySize, &(output[v][0]), options.m_extents.m_xSize, options.m_extents.m_ySize, GDT_Float32, 0, 0);
+//			}
+//		}
+//
+//
+//	}
+//
+//	for (int v = 0; v < NB_FIELDS; v++)
+//	{
+//		if (grid[v].IsOpen())
+//		{
+//
+//			callback.AddMessage("Close " + grid[v].GetFilePath() + " ...");
+//			//grid[v].ComputeStats(true);
+//			grid[v].Close();
+//		}
+//	}
+//
+//
+//
+//	return msg;
+//}
+
+}
+
+
+//XLAT : description = "LATITUDE, SOUTH IS NEGATIVE";
+//XLONG : description = "LONGITUDE, WEST IS NEGATIVE";
+//LU_INDEX : description = "LAND USE CATEGORY";
+//ZNU : description = "eta values on half (mass) levels";
+//ZNW : description = "eta values on full (w) levels";
+//ZS : description = "DEPTHS OF CENTERS OF SOIL LAYERS";
+//DZS : description = "THICKNESSES OF SOIL LAYERS";
+//VAR_SSO : description = "variance of subgrid-scale orography";
+//LAP_HGT : description = "Laplacian of orography";
+//U : description = "x-wind component";
+//V : description = "y-wind component";
+//W : description = "z-wind component";
+//PH : description = "perturbation geopotential";
+//PHB : description = "base-state geopotential";
+//T : description = "perturbation potential temperature (theta-t0)";
+//HFX_FORCE : description = "SCM ideal surface sensible heat flux";
+//LH_FORCE : description = "SCM ideal surface latent heat flux";
+//TSK_FORCE : description = "SCM ideal surface skin temperature";
+//HFX_FORCE_TEND : description = "SCM ideal surface sensible heat flux tendency";
+//LH_FORCE_TEND : description = "SCM ideal surface latent heat flux tendency";
+//TSK_FORCE_TEND : description = "SCM ideal surface skin temperature tendency";
+//MU : description = "perturbation dry air mass in column";
+//MUB : description = "base state dry air mass in column";
+//NEST_POS : description = "-";
+//P : description = "perturbation pressure";
+//PB : description = "BASE STATE PRESSURE";
+//FNM : description = "upper weight for vertical stretching";
+//FNP : description = "lower weight for vertical stretching";
+//RDNW : description = "inverse d(eta) values between full (w) levels";
+//RDN : description = "inverse d(eta) values between half (mass) levels";
+//DNW : description = "d(eta) values between full (w) levels";
+//DN : description = "d(eta) values between half (mass) levels";
+//CFN : description = "extrapolation constant";
+//CFN1 : description = "extrapolation constant";
+//THIS_IS_AN_IDEAL_RUN : description = "T/F flag: this is an ARW ideal simulation";
+//P_HYD : description = "hydrostatic pressure";
+//Q2 : description = "QV at 2 M";
+//T2 : description = "TEMP at 2 M";
+//TH2 : description = "POT TEMP at 2 M";
+//PSFC : description = "SFC PRESSURE";
+//U10 : description = "U at 10 M";
+//V10 : description = "V at 10 M";
+//RDX : description = "INVERSE X GRID LENGTH";
+//RDY : description = "INVERSE Y GRID LENGTH";
+//RESM : description = "TIME WEIGHT CONSTANT FOR SMALL STEPS";
+//ZETATOP : description = "ZETA AT MODEL TOP";
+//CF1 : description = "2nd order extrapolation constant";
+//CF2 : description = "2nd order extrapolation constant";
+//CF3 : description = "2nd order extrapolation constant";
+//ITIMESTEP : description = "";
+//XTIME : description = "minutes since 2013-07-12 12:00:00";
+//QVAPOR : description = "Water vapor mixing ratio";
+//QCLOUD : description = "Cloud water mixing ratio";
+//QRAIN : description = "Rain water mixing ratio";
+//QICE : description = "Ice mixing ratio";
+//QSNOW : description = "Snow mixing ratio";
+//SHDMAX : description = "ANNUAL MAX VEG FRACTION";
+//SHDMIN : description = "ANNUAL MIN VEG FRACTION";
+//SNOALB : description = "ANNUAL MAX SNOW ALBEDO IN FRACTION";
+//TSLB : description = "SOIL TEMPERATURE";
+//SMOIS : description = "SOIL MOISTURE";
+//SH2O : description = "SOIL LIQUID WATER";
+//SMCREL : description = "RELATIVE SOIL MOISTURE";
+//SEAICE : description = "SEA ICE FLAG";
+//XICEM : description = "SEA ICE FLAG (PREVIOUS STEP)";
+//SFROFF : description = "SURFACE RUNOFF";
+//UDROFF : description = "UNDERGROUND RUNOFF";
+//IVGTYP : description = "DOMINANT VEGETATION CATEGORY";
+//ISLTYP : description = "DOMINANT SOIL CATEGORY";
+//VEGFRA : description = "VEGETATION FRACTION";
+//GRDFLX : description = "GROUND HEAT FLUX";
+//ACGRDFLX : description = "ACCUMULATED GROUND HEAT FLUX";
+//ACSNOM : description = "ACCUMULATED MELTED SNOW";
+//SNOW : description = "SNOW WATER EQUIVALENT";
+//SNOWH : description = "PHYSICAL SNOW DEPTH";
+//CANWAT : description = "CANOPY WATER";
+//SSTSK : description = "SKIN SEA SURFACE TEMPERATURE";
+//COSZEN : description = "COS of SOLAR ZENITH ANGLE";
+//LAI : description = "LEAF AREA INDEX";
+//VAR : description = "OROGRAPHIC VARIANCE";
+//TKE_PBL : description = "TKE from PBL";
+//EL_PBL : description = "Length scale from PBL";
+//MAPFAC_M : description = "Map scale factor on mass grid";
+//MAPFAC_U : description = "Map scale factor on u-grid";
+//MAPFAC_V : description = "Map scale factor on v-grid";
+//MAPFAC_MX : description = "Map scale factor on mass grid, x direction";
+//MAPFAC_MY : description = "Map scale factor on mass grid, y direction";
+//MAPFAC_UX : description = "Map scale factor on u-grid, x direction";
+//MAPFAC_UY : description = "Map scale factor on u-grid, y direction";
+//MAPFAC_VX : description = "Map scale factor on v-grid, x direction";
+//MF_VX_INV : description = "Inverse map scale factor on v-grid, x direction";
+//MAPFAC_VY : description = "Map scale factor on v-grid, y direction";
+//F : description = "Coriolis sine latitude term";
+//E : description = "Coriolis cosine latitude term";
+//SINALPHA : description = "Local sine of map rotation";
+//COSALPHA : description = "Local cosine of map rotation";
+//HGT : description = "Terrain Height";
+//TSK : description = "SURFACE SKIN TEMPERATURE";
+//P_TOP : description = "PRESSURE TOP OF THE MODEL";
+//T00 : description = "BASE STATE TEMPERATURE";
+//P00 : description = "BASE STATE PRESURE";
+//TLP : description = "BASE STATE LAPSE RATE";
+//TISO : description = "TEMP AT WHICH THE BASE T TURNS CONST";
+//TLP_STRAT : description = "BASE STATE LAPSE RATE (DT/D(LN(P)) IN STRATOSPHERE";
+//P_STRAT : description = "BASE STATE PRESSURE AT BOTTOM OF STRATOSPHERE";
+//MAX_MSTFX : description = "Max map factor in domain";
+//MAX_MSTFY : description = "Max map factor in domain";
+//RAINC : description = "ACCUMULATED TOTAL CUMULUS PRECIPITATION";
+//RAINSH : description = "ACCUMULATED SHALLOW CUMULUS PRECIPITATION";
+//RAINNC : description = "ACCUMULATED TOTAL GRID SCALE PRECIPITATION";
+//SNOWNC : description = "ACCUMULATED TOTAL GRID SCALE SNOW AND ICE";
+//GRAUPELNC : description = "ACCUMULATED TOTAL GRID SCALE GRAUPEL";
+//HAILNC : description = "ACCUMULATED TOTAL GRID SCALE HAIL";
+//CLDFRA : description = "CLOUD FRACTION";
+//SWDOWN : description = "DOWNWARD SHORT WAVE FLUX AT GROUND SURFACE";
+//GLW : description = "DOWNWARD LONG WAVE FLUX AT GROUND SURFACE";
+//SWNORM : description = "NORMAL SHORT WAVE FLUX AT GROUND SURFACE (SLOPE-DEPENDENT)";
+//DIFFUSE_FRAC : description = "DIFFUSE FRACTION OF SURFACE SHORTWAVE IRRADIANCE";
+//OLR : description = "TOA OUTGOING LONG WAVE";
+//XLAT_U : description = "LATITUDE, SOUTH IS NEGATIVE";
+//XLONG_U : description = "LONGITUDE, WEST IS NEGATIVE";
+//XLAT_V : description = "LATITUDE, SOUTH IS NEGATIVE";
+//XLONG_V : description = "LONGITUDE, WEST IS NEGATIVE";
+//ALBEDO : description = "ALBEDO";
+//CLAT : description = "COMPUTATIONAL GRID LATITUDE, SOUTH IS NEGATIVE";
+//ALBBCK : description = "BACKGROUND ALBEDO";
+//EMISS : description = "SURFACE EMISSIVITY";
+//NOAHRES : description = "RESIDUAL OF THE NOAH SURFACE ENERGY BUDGET";
+//TMN : description = "SOIL TEMPERATURE AT LOWER BOUNDARY";
+//XLAND : description = "LAND MASK (1 FOR LAND, 2 FOR WATER)";
+//UST : description = "U* IN SIMILARITY THEORY";
+//PBLH : description = "PBL HEIGHT";
+//HFX : description = "UPWARD HEAT FLUX AT THE SURFACE";
+//QFX : description = "UPWARD MOISTURE FLUX AT THE SURFACE";
+//LH : description = "LATENT HEAT FLUX AT THE SURFACE";
+//ACHFX : description = "ACCUMULATED UPWARD HEAT FLUX AT THE SURFACE";
+//ACLHF : description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE";
+//SNOWC : description = "FLAG INDICATING SNOW COVERAGE (1 FOR SNOW COVER)";
+//SR : description = "fraction of frozen precipitation";
+//SAVE_TOPO_FROM_REAL : description = "1=original topo from real/0=topo modified by WRF";
+//ISEEDARR_RAND_PERTURB : description = "Array to hold seed for restart, RAND_PERT";
+//ISEEDARR_SPPT : description = "Array to hold seed for restart, SPPT";
+//ISEEDARR_SKEBS : description = "Array to hold seed for restart, SKEBS";
+//LANDMASK : description = "LAND MASK (1 FOR LAND, 0 FOR WATER)";
+//LAKEMASK : description = "LAKE MASK (1 FOR LAKE, 0 FOR NON-LAKE)";
+//SST : description = "SEA SURFACE TEMPERATURE";
+//SST_INPUT : description = "SEA SURFACE TEMPERATURE FROM WRFLOWINPUT FILE";
