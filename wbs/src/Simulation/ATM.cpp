@@ -1174,7 +1174,7 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, 
 	test.push_back(make_pair(grAlt, 0));
 	sort(test.begin(), test.end());
 
-	int L = 0;
+	int L = NB_LEVELS-1;
 	for (int l = 0; l < (int)test.size(); l++)
 	{
 		if (alt < test[l].first)

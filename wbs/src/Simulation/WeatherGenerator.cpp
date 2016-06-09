@@ -1860,7 +1860,12 @@ ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& 
 							for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
 							{
 								if (m_tgi.m_variables[v])
-									simulationPoint[year][m][d][h][v] = m_pGribsDB->GetWeather(m_target, UTCRef, v);
+								{
+									double value = m_pGribsDB->GetWeather(m_target, UTCRef, v);
+									if (value!=-9999)
+										simulationPoint[year][m][d][h][v] = value;
+								}
+									
 							}//for all variables
 							msg += callback.StepIt();
 						}//if the gribs exist and it's correctly loaded
@@ -1966,7 +1971,8 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 
 	const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCRef);
 
-	ASSERT(extents.IsInside(pt));
+	if (!extents.IsInside(pt))
+		return -9999;
 	
 	CGeoPointIndex xy = get_xy(pt, UTCRef);
 	double mean_alt[2] = { 0, 0 };
@@ -2094,7 +2100,7 @@ int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRe
 	test.push_back(make_pair(grAlt, 0));
 	sort(test.begin(), test.end());
 
-	int L = 0;
+	int L = NB_LEVELS-1;
 	for (int l = 0; l < (int)test.size(); l++)
 	{
 		if (alt < test[l].first)
