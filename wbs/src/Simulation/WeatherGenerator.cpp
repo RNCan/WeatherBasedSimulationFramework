@@ -1993,6 +1993,8 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				value *= 3600; //convert mm/s into mm/h
 				if (value < 0.05)
 					value = 0;
+
+				ASSERT(value >= 0 && value < 40);
 			}
 				
 
@@ -2003,6 +2005,7 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				double v = m_p_weather_DS.GetPixel(UTCRef, b, xy);
 
 				value = sqrt(Square(u) + Square(v))*3600/1000;
+				ASSERT(value >= 0 && value < 300);
 			}
 
 			if (v == ATM_WNDV)
@@ -2011,6 +2014,7 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				double u = m_p_weather_DS.GetPixel(UTCRef, b, xy);
 				double v = value;
 				value = (float)GetWindDirection(u, v);
+				ASSERT(value >= 0 && value <= 360);
 				/*GetWindUV(10, 0, u, v);
 				GetWindUV(10, 45, u, v);
 				GetWindUV(10, 90, u, v);
