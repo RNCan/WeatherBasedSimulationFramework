@@ -1502,7 +1502,8 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 				std::string newDataFilePath1 = outputPath + fileName;
 				std::string newDataFilePath2 = GenerateNewFileName(newDataFilePath1);
 
-				msg += RenameFile(oldDataFilePath, newDataFilePath2);
+				//msg += RenameFile(oldDataFilePath, newDataFilePath2);
+				msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
 
 				if (newDataFilePath1 != newDataFilePath2)
 				{
@@ -1521,7 +1522,8 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 				std::string newDataFilePath1 = outputPath + fileName;
 				std::string newDataFilePath2 = GenerateNewFileName(newDataFilePath1);
 
-				msg += RenameFile(oldDataFilePath, newDataFilePath2);
+				//msg += RenameFile(oldDataFilePath, newDataFilePath2);
+				msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
 
 				if (newDataFilePath1 != newDataFilePath2)
 				{
@@ -1541,12 +1543,12 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 
 			//m_zop.SaveAsXML(inputFilePath2, GetDataPath(inputFilePath2), GetXMLFlag(), GetVersion() );
 
-			if (msg)
-			{
+			//if (msg)
+			//{
 				//remove both database
-				msg += DeleteDatabase(inputFilePath1, callback);
-				msg += DeleteDatabase(inputFilePath2, callback);
-			}
+				//msg += DeleteDatabase(inputFilePath1, callback);
+				//msg += DeleteDatabase(inputFilePath2, callback);
+			//}
 
 			callback.PopTask();
 		}//if msg

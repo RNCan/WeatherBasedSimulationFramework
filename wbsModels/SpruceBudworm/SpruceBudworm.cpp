@@ -124,7 +124,7 @@ namespace WBSF
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
 			double T = weather[h][H_TAIR];
-			if (NeedOverheating())
+			if (NeedOverheating())  
 				T += overheat.GetOverheat(weather, h);
 
 			//Time step development rate
@@ -448,6 +448,11 @@ namespace WBSF
 		CIndividual::Pack(pBug);
 	}
 
+	double CSpruceBudworm::GetInstar(bool includeLast)const
+	{
+		return (IsAlive() || m_death == OLD_AGE) ? std::min(GetStage() <= SBW::L2o ? GetStage() : std::max(size_t(SBW::L2o), GetStage() - 1), size_t(SBW::NB_STAGES) - (includeLast ? 0 : 1)) : WBSF::CBioSIMModelBase::VMISS;
+	}
+
 	//*********************************************************************************************************************
 
 	//*********************************************************************************
@@ -489,6 +494,7 @@ namespace WBSF
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
 	}
 
+	
 	bool CSBWTree::GetHatchDate(CTRef& hatchDate, double& d)const
 	{
 		CStatistic stat;

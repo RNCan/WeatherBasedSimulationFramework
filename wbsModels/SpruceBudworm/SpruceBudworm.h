@@ -44,7 +44,7 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual double GetInstar(bool includeLast)const	{ return (IsAlive() || m_death == OLD_AGE) ? std::min(m_age < SBW::L2o ? m_age : std::max(double(SBW::L2o), m_age - 1), double(SBW::NB_STAGES) - (includeLast ? 0.0 : 1.0)) : WBSF::CBioSIMModelBase::VMISS; }
+		virtual double GetInstar(bool includeLast)const;//	{ return (IsAlive() || m_death == OLD_AGE) ? std::min(m_age < SBW::L2o ? m_age : std::max(double(SBW::L2o), m_age - 1), double(SBW::NB_STAGES) - (includeLast ? 0.0 : 1.0)) : WBSF::CBioSIMModelBase::VMISS; }
 		virtual void FixAI(double delta){ m_age = std::min(double(SBW::ADULT), std::max(double(SBW::L2o), m_age + delta)); }
 		virtual void Pack(const WBSF::CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return SBW::NB_STAGES; }

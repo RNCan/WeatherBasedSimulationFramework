@@ -260,17 +260,21 @@ namespace WBSF
 
 	CTRef CEnvCanGribForecast::GetTRef(const string& fileName)const
 	{
+		CTRef TRef;
 		StringVector tmp(fileName, "_");
 		ASSERT(tmp.size() == 9 || tmp.size() == 8);
+		if (tmp.size() == 9 || tmp.size() == 8)
+		{
+			size_t i = (m_type == GT_HRDPS) ? 7 : 6;
+			ASSERT(tmp[i].length() == 10);
+			int year = WBSF::as<int>(tmp[i].substr(0, 4));
+			size_t m = WBSF::as<size_t >(tmp[i].substr(4, 2)) - 1;
+			size_t d = WBSF::as<size_t >(tmp[i].substr(6, 2)) - 1;
+			size_t h = WBSF::as<size_t >(tmp[i].substr(8, 2));
+			TRef = CTRef(year, m, d, h);
+		}
 
-		size_t i = (m_type == GT_HRDPS) ? 7 : 6;
-		ASSERT(tmp[i].length() == 10);
-		int year = WBSF::as<int>(tmp[i].substr(0, 4));
-		size_t m = WBSF::as<size_t >(tmp[i].substr(4, 2))-1;
-		size_t d = WBSF::as<size_t >(tmp[i].substr(6, 2))-1;
-		size_t h = WBSF::as<size_t >(tmp[i].substr(8, 2));
-
-		return CTRef(year,m,d,h);
+		return TRef;
 
 	}
 
@@ -285,7 +289,7 @@ namespace WBSF
 		StringVector tmp(fileName, "_");
 		ASSERT(tmp.size() == 9 || tmp.size() == 8);
 
-		size_t i = (m_type == GT_HRDPS) ? 8 : 7;
+		size_t i = tmp.size()-1;// (m_type == GT_HRDPS) ? 8 : 7;
 		ASSERT(tmp[i].length() > 4);
 		string str_hhh = tmp[i].substr(1, 3);
 
@@ -304,7 +308,7 @@ namespace WBSF
 		{
 			if (IsEqual(GetFileExtension(*it), ".grib2"))
 			{
-				size_t hhh = Gethhh(*it); ASSERT(hhh <= 48);
+				size_t hhh = Gethhh(*it); ASSERT(hhh <= 52);
 				size_t vv = GetVariable(*it);
 				ASSERT(vv != NOT_INIT);
 
@@ -347,7 +351,8 @@ namespace WBSF
 
 			if (msg)
 			{
-				CTRef UTCRef = GetTRef(GetFileName(m_datasets[0][0].GetFilePath()));
+				string name = GetFileName(m_datasets[0][0].GetFilePath());
+				CTRef UTCRef = GetTRef(name);
 				cctz::time_zone zone;
 				if (CTimeZones::GetZone(station, zone))
 				{

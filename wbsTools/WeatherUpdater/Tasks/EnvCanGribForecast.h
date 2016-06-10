@@ -53,7 +53,7 @@ namespace WBSF
 		size_t GetVariable(const std::string& fileTitle)const;
 		ERMsg OpenDatasets(CCallback& callback);
 
-		std::array<std::array<CGDALDatasetEx, NB_FORECAST_VAR>, 49> m_datasets;
+		std::array<std::array<CGDALDatasetEx, NB_FORECAST_VAR>, 52> m_datasets;
 		CProjectionTransformation m_geo2gribs;
 
 		static const char* SERVER_NAME;

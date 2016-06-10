@@ -1,4 +1,4 @@
-// 4.0.4	Rémi Saint-Amant	Compile with WBSF   
+// 4.0.4	Rémi Saint-Amant	Compile with WBSF    
 // 4.0.3	Rémi Saint-Amant	Put spreadsheet and charts into CDockablePane
 // 4.0.2	Rémi Saint-Amant	unordored SSI and bug correction
 // 4.0.1	Rémi Saint-Amant	Change in CLocation.  

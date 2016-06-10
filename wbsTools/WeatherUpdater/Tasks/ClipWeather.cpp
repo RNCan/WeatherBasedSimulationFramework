@@ -3,11 +3,6 @@
 #include "Basic/DailyDatabase.h"
 #include "Basic/NormalsDatabase.h"
 #include "Basic/HourlyDatabase.h"
-//#include "FileManagerRes.h"
-//#include "SYShowMessage.h"
-//#include "BasicRes.h"
-//#include "CommonRes.h"
-//#include "mappingRes.h"
 
 #include "basic/UtilStd.h"
 #include "Geomatic/ShapefileBase.h"
@@ -212,11 +207,11 @@ namespace WBSF
 
 
 			//CGeoPoint pt(stationHead.m_lon, stationHead.m_lat, PRJ_WGS_84 );
-			bool bRect = boundingBox.IsRectNull() || boundingBox.PtInRect(location);
+			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
 			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
-			bool bLocExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
-			if (bRect&&bShape&&bLocInclude&&!bLocExclude&&years.size() > 0)
+			bool bLocNotExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
+			if (bRect&&bShape&&bLocInclude&&bLocNotExclude&&years.size() > 0)
 			{
 				CWeatherStation station;
 				inputDailyDB.Get(station, i, years);

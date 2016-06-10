@@ -1,4 +1,4 @@
-// 4.0.1	Rémi Saint-Amant	Compile with WBSF 
+// 4.0.1	Rémi Saint-Amant	Compile with WBSF  
 // 4.0.0	Rémi Saint-Amant	Initial version     from Normals editor 
 
 #include "stdafx.h"
