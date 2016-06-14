@@ -1,4 +1,5 @@
 //ImagesCalculator.exe
+// 2.0.1	13/06/2015	Rémi Saint-Amant	Add -hist option
 // 2.0.0    11/03/2015	Rémi Saint-Amant	New Equation form "E=mc²"
 // 1.7.5	05/02/2015	Rémi Saint-Amant	Bug correction in UnionExtent
 // 1.7.4	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
@@ -44,7 +45,7 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-static const char* version = "2.0.0";
+static const char* version = "2.0.1";
 static const int NB_THREAD_PROCESS = 2;
 
 
@@ -563,6 +564,12 @@ void CImageCalculator::CloseAll(CGDALDatasetExVector& inputDSVector, CGDALDatase
 
 	if( !m_options.m_overviewLevels.empty() )
 		outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+
+	if (m_options.m_bComputeHistogram)
+		outputDS.ComputeHistogram( m_options.m_bQuiet);
+
+	
+
 
 	outputDS.Close(m_options.m_bQuiet);
 	

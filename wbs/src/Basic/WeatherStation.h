@@ -660,7 +660,7 @@ public:
 	inline const CWeatherMonth& GetPrevious()const;
 	inline const CWeatherMonth& GetNext()const;
 
-	
+
 
 protected:
 	
@@ -787,6 +787,13 @@ public:
 	inline const CWeatherYear& GetNext()const;
 	//void ComputeTRange();
 	const CWeatherDay& GetDay(size_t Jday)const{ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
+
+
+	ERMsg SaveData(const std::string& filePath, CTM TM = CTM(), char separator = ',')const;
+	ERMsg SaveData(ofStream& file, CTM TM, const CWeatherFormat& format, char separator)const;
+	//ERMsg LoadData(const std::string& filePath, double nodata = -999.0, bool bResetContent = true);
+	//ERMsg Parse(const std::string& str, double nodata);
+
 protected:
 
 	void CompileStat(const CTPeriod& p = CTPeriod())const;

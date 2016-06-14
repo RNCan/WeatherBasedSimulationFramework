@@ -1410,6 +1410,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{"-BlockSize",2,"XSize YSize",false,"Internal processing block size. Can be used instead of -wm."},
 	{"-Overview",1,"{level1,level2,...}",false,"Build overview with this list of integral overview levels to build."},
 	{"-stats",0,"",false,"Build statistics inside output images."},
+	{"-hist", 0, "", false, "Report histogram information for all bands." },
 	{ "-TTF", 1, "type", false, "Temporal type format. Can be \"Jday1970\" or \"YYYYMMDD\". \"YYYYMMDD\" need output in Int32. \"Jday1970\" by default." },
 	{ "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
@@ -1435,7 +1436,7 @@ int CBaseOptions::GetOptionIndex(const char* name)
 }
 
 
-const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-wm","-BlockSize","-NoResult","-Overview","-stats", "-?","-??","-???","-help"};//, "-stats"
+const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-wm","-BlockSize","-NoResult","-Overview","-stats", "-hist", "-?","-??","-???","-help"};//, "-stats"
 static const int NB_DEFAULT_OPTIONS = sizeof(CBaseOptions::DEFAULT_OPTIONS)/sizeof(char*);
 CBaseOptions::CBaseOptions(bool bAddDefaultOption)
 {
@@ -1517,6 +1518,8 @@ void CBaseOptions::Reset()
 	m_jobLogName.empty();
 	m_bCreateImage = true;
 	m_bComputeStats=false;
+	m_bComputeHistogram = false;
+		
 	m_TTF = JDAY1970;
 	m_scenesSize = 0; //number of image per scene
 	m_TM = CTM::DAILY;
@@ -1785,6 +1788,10 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_bComputeStats = true;
 	}   
+	else if (IsEqual(argv[i], "-Hist"))
+	{
+		m_bComputeHistogram = true;
+	}
 	else if( IsEqual(argv[i],"-NoResult") )
 	{
 		m_bCreateImage = false;

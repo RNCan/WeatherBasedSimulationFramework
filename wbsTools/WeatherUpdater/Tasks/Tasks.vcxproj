@@ -168,6 +168,7 @@
     <ClInclude Include="EnvCanGribForecast.h" />
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
+    <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMDDELCC.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
     <ClInclude Include="EnvCanLocationMap.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="EnvCanGribForecast.cpp" />
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
+    <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMDDELCC.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
     <ClCompile Include="EnvCanLocationMap.cpp" />

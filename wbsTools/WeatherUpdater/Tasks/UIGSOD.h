@@ -1,19 +1,11 @@
 #pragma once
 
 #include "GSODStationOptimisation.h"
-//#include "CountrySelection.h"
-//#include "StateSelection.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
 namespace WBSF
 {
-
-
-	//class CWeatherInfoSection;
-//	class CDailyData;
-
-
 	//****************************************************************
 	//Global SOD extractor
 	class CUIGSOD : public CTaskBase
@@ -29,9 +21,10 @@ namespace WBSF
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		//virtual void UpdateLanguage();
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);

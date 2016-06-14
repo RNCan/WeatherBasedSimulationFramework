@@ -1690,6 +1690,202 @@ void CWeatherYear::ReadStream(istream& stream, const CWVariables& variable)
 
 }
 
+ERMsg CWeatherYear::SaveData(const std::string& filePath, CTM TM, char separator)const
+{
+	ERMsg msg;
+
+	if (!TM.IsInit())
+		TM = GetTM();
+
+	ofStream file;
+	msg = file.open(filePath);
+
+
+	if (msg)
+	{
+		CStatistic::SetVMiss(MISSING);
+		CWVariables variable(GetVariables());
+
+		CWeatherFormat format(TM, variable);//get default format
+
+		string header = format.GetHeader() + "\n";
+		file.write(header.c_str(), header.length());
+
+		msg = SaveData(file, TM, format, separator);
+	}
+
+	return msg;
+}
+
+ERMsg CWeatherYear::SaveData(ofStream& file, CTM TM, const CWeatherFormat& format, char separator)const
+{
+	ERMsg msg;
+
+	//write data
+	const CWeatherYear* pYear = this;
+
+	if (TM.Type() != CTM::ANNUAL)
+	{
+		std::string str[12];
+		for (size_t m = 0; m < 12; m++)
+		{
+			CWeatherYear::const_iterator itM = pYear->begin() + m;
+
+			if (TM.Type() != CTM::MONTHLY)
+			{
+				str[m].reserve(TM.Type() == CTM::HOURLY ? 24 * 100 : 100);
+
+
+				for (CWeatherMonth::const_iterator itD = itM->begin(); itD != itM->end(); itD++)
+				{
+					if (TM.Type() == CTM::HOURLY)
+					{
+						for (CWeatherDay::const_iterator itH = itD->begin(); itH != itD->end(); itH++)
+						{
+							if (itH->HaveData())
+							{
+								//Write reference
+								CTRef TRef = itH->GetTRef();
+								str[m] += ToString(TRef.GetYear()) + separator + ToString(TRef.GetMonth() + 1) + separator + ToString(TRef.GetDay() + 1) + separator + ToString(TRef.GetHour());
+
+								//Write variables
+								for (size_t v = 0; v < format.size(); v++)
+								{
+									if (IsVariable(format[v].m_var) && format[v].m_var != H_TRNG)
+									{
+										str[m] += separator;
+										double value = itH->at(format[v].m_var);
+										if (!IsMissing(value))
+											str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", value);
+										else
+											str[m] += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
+									}
+								}
+
+								str[m] += '\n';
+							}
+						}
+					}
+					else if (TM.Type() == CTM::DAILY)
+					{
+						if (itD->HaveData())
+						{
+							//Write reference
+							CTRef TRef = itD->GetTRef();
+							str[m] += ToString(TRef.GetYear()) + separator + ToString(TRef.GetMonth() + 1) + separator + ToString(TRef.GetDay() + 1);
+
+							//Write variables
+							for (size_t v = 0; v < format.size(); v++)
+							{
+								if (IsVariable(format[v].m_var)/* && format[v].m_var != H_TRNG*/)
+								{
+									ASSERT(format[v].m_var != H_TRNG);
+									str[m] += separator;
+
+									CStatistic stat = itD->GetStat(TVarH(format[v].m_var));//Tair and Trng are transformed into Tmin and Tmax
+									if (format[v].m_var == H_TAIR && format[v].m_stat == LOWEST)
+									{
+										ASSERT(!stat.IsInit() || itD->GetStat(H_TRNG).IsInit());//If Tair is init, TRng must be init too
+										CStatistic Trng = itD->GetStat(H_TRNG);
+										if (stat.IsInit() && Trng.IsInit())
+											str[m] += FormatA("%.1lf", stat[MEAN] - Trng[MEAN] / 2);
+										else
+											str[m] += "-999.0";
+									}
+									else if (format[v].m_var == H_TAIR && format[v].m_stat == HIGHEST)
+									{
+										CStatistic Trng = itD->GetStat(H_TRNG);
+										if (stat.IsInit() && Trng.IsInit())
+											str[m] += FormatA("%.1lf", stat[MEAN] + Trng[MEAN] / 2);
+										else
+											str[m] += "-999.0";
+									}
+									else
+									{
+										if (stat.IsInit())
+											str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
+										else
+											str[m] += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
+									}
+								}//id element is a variable
+							}//for all element
+
+							str[m] += '\n';
+						}//have data
+					}//time type : HOURLY or DAILY
+				}//Day
+			}
+			else
+			{
+				//save month stats
+				if (itM->HaveData())
+				{
+					//Write reference
+					CTRef TRef = itM->GetTRef();
+					str[m] += ToString(TRef.GetYear()) + separator + ToString(TRef.GetMonth() + 1);
+
+					//Write variables
+					for (size_t v = 0; v < format.size(); v++)
+					{
+						if (format[v].m_var != H_SKIP)
+						{
+							str[m] += separator;
+
+							CStatistic stat = itM->GetStat(format[v].m_var);
+							if (stat.IsInit())
+								str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
+							else
+								str[m] += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
+
+
+						}//id element is a variable
+					}//for all element
+
+					str[m] += '\n';
+				}//have data
+			}//MONTH format
+		}//month
+
+		for (size_t m = 0; m < 12; m++)
+			if (!str[m].empty())
+				file.write(str[m].c_str(), str[m].length());
+	}
+	else
+	{
+		string str;
+
+		//save month stats
+		if (pYear->HaveData())
+		{
+			//Write reference
+			CTRef TRef = pYear->GetTRef();
+			str += ToString(TRef.GetYear());
+
+			//Write variables
+			for (size_t v = 0; v < format.size(); v++)
+			{
+				if (format[v].m_var != H_SKIP)
+				{
+					str += separator;
+
+					CStatistic stat = pYear->GetStat(format[v].m_var);
+					if (stat.IsInit())
+						str += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
+					else
+						str += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
+
+				}//id element is a variable
+			}//for all element
+
+			str += '\n';
+			file.write(str.c_str(), str.length());
+		}//have data
+	}
+	
+
+	return msg;
+}
+
 
 CStatistic CWeatherYear::GetVarEx(HOURLY_DATA::TVarEx v)const
 {

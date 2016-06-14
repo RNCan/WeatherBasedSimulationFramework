@@ -296,6 +296,8 @@ namespace WBSF
 		bool m_bCreateImage;
 		std::vector<int> m_overviewLevels;
 		bool m_bComputeStats;
+		bool m_bComputeHistogram;
+			
 		int m_TTF; //temporal type format for temporal dataset
 		int m_scenesSize;
 		bool m_bOpenBandAtCreation;

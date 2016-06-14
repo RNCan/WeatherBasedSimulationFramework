@@ -62,6 +62,8 @@ namespace WBSF
 		
 		switch (i)
 		{
+		case FIRST_YEAR:
+		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DAILY_COMPLETENESS:	str = "50"; break;
 		case MONTHLY_COMPLETENESS:	str = "80"; break;
 		case ANNUAL_COMPLETENESS:	str = "25"; break;

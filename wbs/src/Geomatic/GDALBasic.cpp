@@ -755,39 +755,48 @@ void CGDALDatasetEx::BuildOverviews(vector<int>& list, bool bQuiet)
 
 void CGDALDatasetEx::ComputeStats(bool bQuiet)
 {
-	if( IsOpen() )
+	if (IsOpen())
 	{
-		if( !bQuiet )
-			cout << "Compute Stats..." << endl;
+		if (!bQuiet)
+			cout << "Compute stats..." << endl;
 
 
 		double dfMin, dfMax, dfMean, dfStdDev;
-		/*if (m_bMultipleImages)
-		{
-			for (size_t i = 0; i<m_poDatasetVector.size(); i++)
-			{
-				
-				if (m_poDatasetVector[i] && m_poDatasetVector[i]->GetRasterBand(1))
-				{
-					if (!bQuiet)
-						cout << "B" << i + 1 << ": ";
-
-					m_poDatasetVector[i]->GetRasterBand(1)->ComputeStatistics(false, &dfMin, &dfMax, &dfMean, &dfStdDev, (bQuiet) ? GDALDummyProgress : GDALTermProgress, NULL);
-				}
-			}
-		}
-		else
-		{*/
 		for (size_t i = 0; i < GetRasterCount(); i++)
 		{
 			if (!bQuiet)
 				cout << "B" << i + 1 << ": ";
-				
+
 			if (GetRasterBand(i))
 				GetRasterBand(i)->ComputeStatistics(false, &dfMin, &dfMax, &dfMean, &dfStdDev, (bQuiet) ? GDALDummyProgress : GDALTermProgress, NULL);
 		}
-		//}
+
 	}
+}
+
+void CGDALDatasetEx::ComputeHistogram(bool bQuiet)
+{
+	if (IsOpen())
+	{
+		if (!bQuiet)
+			cout << "Compute histogram..." << endl;
+
+
+		for (size_t i = 0; i < GetRasterCount(); i++)
+		{
+			if (!bQuiet)
+				cout << "B" << i + 1 << ": ";
+
+			if (GetRasterBand(i))
+			{
+				int nBucketCount=0, *panHistogram = NULL;
+				double dfMin=0, dfMax=0;
+				GetRasterBand(i)->GetDefaultHistogram(&dfMin, &dfMax, &nBucketCount, &panHistogram, TRUE, (bQuiet) ? GDALDummyProgress : GDALTermProgress, NULL);
+				CPLFree(panHistogram);
+			}
+		}
+	}
+	
 }
 
 //****************************************************************************

@@ -423,6 +423,7 @@ namespace WBSF
 
 		void BuildOverviews(std::vector<int>& list, bool bQuiet);
 		void ComputeStats(bool bQuiet);
+		void ComputeHistogram(bool bQuiet);
 
 		int GetRasterXSize()const;
 		int GetRasterYSize()const;
