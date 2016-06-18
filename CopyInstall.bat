@@ -13,8 +13,6 @@ mkdir "..\Install\NRCan\Palette"
 
 
 copy /Y ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe"
-copy /Y ".\bin\Releasex64\External\BioSIM11Frc.dll" "..\Install\NRCan\External\BioSIM11Frc.dll"
-
 copy /Y ".\bin\Releasex64\HourlyEditor.exe" "..\Install\NRCan\HourlyEditor.exe"
 copy /Y ".\bin\Releasex64\DailyEditor.exe" "..\Install\NRCan\DailyEditor.exe"
 copy /Y ".\bin\Releasex64\NormalsEditor.exe" "..\Install\NRCan\NormalsEditor.exe"
