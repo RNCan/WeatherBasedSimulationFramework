@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.2.2	17/06/2016	Rémi Saint-Amant	negative julian date 1970 is missing
 // 2.2.1	17/06/2016	Rémi Saint-Amant	remove 3e argument from -trigger and -despike
 // 2.2.0	09/05/2016	Rémi Saint-Amant	Add missing value in the tree
 // 2.1.1    08/07/2015	Rémi Saint-Amant	correct bug in load data block
@@ -70,7 +71,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "2.2.1";
+static const char* version = "2.2.2";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
 static const int OTHER_CODE = 100;
