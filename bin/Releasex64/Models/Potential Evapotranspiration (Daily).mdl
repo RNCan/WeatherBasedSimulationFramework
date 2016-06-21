@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Potential Evapotranspiration</Title>
     <Version>1.0</Version>
@@ -128,8 +128,8 @@
     <OutputVariableArray>
         <OutputVariable>
             <Name>PET</Name>
-            <Title>PET (mm)</Title>
-            <Units/>
+            <Title>PET</Title>
+            <Units>mm</Units>
             <Description>Potential Evapotranspiration </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>

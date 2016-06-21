@@ -4,7 +4,7 @@
 // 4.0.1	Rémi Saint-Amant	Change in CLocation.  
 // 4.0.0	Rémi Saint-Amant	Initial version     from hourly editor 
  
-#include "stdafx.h"
+#include "stdafx.h" 
 //#include "..\VisualLeakDetector\include\vld.h"  
 #include <gdiplus.h>
 #include <afxwinappex.h> 

@@ -138,6 +138,8 @@ namespace WBSF
 		ERMsg CreateVariogram(const CGridPointVector& pts, const CPrePostTransfo& transfo, int model, int nLags, float dLag,
 			const CDetrending& detrending = CDetrending(), const CRotationMatrix& rotmat = CRotationMatrix());
 
+		ERMsg Save(std::string filePAth)const;
+
 		int GetModel()const	{ ASSERT(m_model >= SPERICAL && m_model < NB_MODELS);	return m_model; }
 		const char* GetModelName()const{ return GetModelName(m_model); }
 

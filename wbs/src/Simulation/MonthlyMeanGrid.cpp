@@ -17,6 +17,7 @@
 
 #include "Basic/WeatherStation.h"
 #include "Basic/UtilTime.h"
+#include "Basic/UtilZen.h"
 #include "Basic/DailyDatabase.h"
 #include "Basic/NormalsDatabase.h"
 #include "Geomatic/ProjectionTransformation.h"
@@ -32,7 +33,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	static const int FIRST_YEAR_OF_FIRST_PERIOD = 1961;
+	
 
 	const char* CMonthlyMeanGrid::FILE_NAME[NB_FIELDS] = { "Tmin.tif", "Tmax.tif", "TminTmax.tif", "Tmin_SD.tif", "Tmax_SD.tif", "A1.tif", "A2.tif", "B1.tif", "B2.tif", "Prcp.tif", "Prcp_SD.tif", "SpeH.tif", "RelH.tif", "RelH_SD.tif", "WndS.tif", "WndS_SD.tif" };
 
@@ -66,24 +67,17 @@ namespace WBSF
 
 	std::string CMonthlyMeanGrid::GetVariablesUsed()const
 	{
-		//CDailyDatabaseFormat format;
 		std::vector<int> var;
 		for (int i = 0; i < NB_FIELDS; i++)
 		{
 			if (m_supportedVariables[i])
 				var.push_back(i);
 		}
-
-
-		//std::string str = (format.GetString(",", true));
-		//str.Replace("Add1","SpcH");
 		return ToString(var);
 	}
 
 	void CMonthlyMeanGrid::SetVariablesUsed(std::string str)
 	{
-		//str.MakeLower();
-		//str.Replace("spch","add1");
 		for (int i = 0; i < NB_FIELDS; i++)
 			m_supportedVariables[i] = false;
 
@@ -94,19 +88,47 @@ namespace WBSF
 
 	}
 
-	ERMsg CMonthlyMeanGrid::Open(std::string filePath)
+	ERMsg CMonthlyMeanGrid::Load(const std::string& filePath)
+	{ 
+		ERMsg msg;
+		msg = zen::LoadXML(filePath, "MontlyMeanGrids", "1", *this);
+		if (msg)
+			m_filePath = filePath; 
+
+		return msg; 
+	}
+
+	ERMsg CMonthlyMeanGrid::Save(const std::string& filePath)
 	{
 		ERMsg msg;
-		ASSERT(false); //todo
-		//msg = Load(filePath);
+		msg = zen::SaveXML(filePath, "MontlyMeanGrids", "1", *this);
 		if (msg)
+			m_filePath = filePath;
+
+		return msg;
+	}
+
+	ERMsg CMonthlyMeanGrid::Open(const std::string& filePath, CCallback& callback)
+	{
+		ERMsg msg;
+		
+		CPLSetConfigOption("GDAL_CACHEMAX", "2048");
+
+		msg = Load(filePath);
+		if (msg) 
 		{
-			for (int v = 0; v < NB_FIELDS; v++)
+			callback.PushTask("Open MMG", m_supportedVariables.count());
+			for (size_t v = 0; v < NB_FIELDS&&msg; v++)
 			{
 				std::string filePath = GetFilePath(v);
 				if (!filePath.empty())
+				{
 					msg += m_grid[v].OpenInputImage(filePath);
+					msg += callback.StepIt();
+				}
 			}
+
+			callback.PopTask();
 		}
 
 		return msg;
@@ -115,14 +137,14 @@ namespace WBSF
 	void CMonthlyMeanGrid::Close()
 	{
 		ERMsg msg;
-		for (int v = 0; v < NB_FIELDS; v++)
+		for (size_t v = 0; v < NB_FIELDS; v++)
 		{
 			if (m_grid[v].IsOpen())
 				m_grid[v].Close();
 		}
 	}
 
-	std::string CMonthlyMeanGrid::GetFilePath(int v)
+	std::string CMonthlyMeanGrid::GetFilePath(size_t v)
 	{
 		std::string filePath;
 		if (m_supportedVariables[v])
@@ -136,37 +158,38 @@ namespace WBSF
 	}
 
 
-	float CMonthlyMeanGrid::GetMonthlyMean(short v, short year, short m, int nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d)
+	float CMonthlyMeanGrid::GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d)
 	{
 		ASSERT(m_firstYear != -1);
 		ASSERT(pts.size() == d.size());
+		ASSERT(year >= m_firstYear && year <= m_lastYear);
 
 		if (!m_grid[v].IsOpen())
 			return MISSING;
 
 
-		int band = (year - m_firstYear) * 12 + m + 1;
-		return (float)m_grid[v].GetWindowMean(band, nbNeighbor, power, pts, d);
-
-
+		size_t band = (year - m_firstYear) * 12 + m;
+		return (float)m_grid[v].GetWindowMean(band, (int)nbNeighbor, power, pts, d);
 	}
 
 
-	bool CMonthlyMeanGrid::GetMonthlyMean(short firstYear, int nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS])
+	bool CMonthlyMeanGrid::GetMonthlyMean(int firstYear, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS], CCallback& callback)
 	{
 		ASSERT(firstYear >= m_firstYear && firstYear <= m_lastYear);
 
+		ERMsg msg;
 		bool bRep = true;
 		CStatistic MMStat[12][NB_FIELDS];
 
-		for (int y = 0; y < 30; y++)
+		//callback.PushTask("Load MMG data for " + ToString(firstYear) + "-" + ToString(firstYear + 29), 30 * 12 * NB_FIELDS);
+		for (size_t y = 0; y < 30&&msg; y++)
 		{
-			short year = firstYear + y;
-			for (int m = 0; m < 12; m++)
+			int year = firstYear + int(y);
+			for (size_t m = 0; m < 12&&msg; m++)
 			{
-				for (int v = 0; v < NB_FIELDS; v++)
+				for (size_t v = 0; v < NB_FIELDS&&msg; v++)
 				{
-					int vv = v;
+					size_t vv = v;
 					//there are never mmg for PRCP_SD, we use the value of PRCP_TT
 					if (v == PRCP_SD)
 						vv = PRCP_TT;
@@ -174,13 +197,16 @@ namespace WBSF
 					float value = GetMonthlyMean(vv, year, m, nbNeighbor, power, pts, d);
 					if (!IsMissing(value))
 						MMStat[m][v] += value;
+
+					msg += callback.StepIt(0);
 				}
 			}
 		}
+		//callback.PopTask();
 
-		for (int m = 0; m < 12; m++)
+		for (size_t m = 0; m < 12; m++)
 		{
-			for (int v = 0; v < NB_FIELDS; v++)
+			for (size_t v = 0; v < NB_FIELDS; v++)
 			{
 				if (MMStat[m][v][NB_VALUE] >= 10)//Need at least 10 years of data
 				{
@@ -254,7 +280,7 @@ namespace WBSF
 	//}
 
 
-	bool CMonthlyMeanGrid::UpdateData(short firstRefYear, short firstCCYear, short nbNeighbor, int maxDistance, double power, CWeatherStation& station)
+	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, int firstCCYear, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& stationIn, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -262,7 +288,7 @@ namespace WBSF
 		const CMonthlyMeanGrid& me = *this;
 
 
-		CGeoPoint pt(station);
+		CGeoPoint pt(stationIn);
 		if (pt.GetPrjID() != m_grid[TMIN_MN].GetPrjID())
 		{
 			pt.Reproject(CProjectionTransformationManager::Get(pt.GetPrjID(), m_grid[TMIN_MN].GetPrjID()));
@@ -299,45 +325,43 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean))
+		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstCCYear, nbNeighbor, power, pts, d, ccMonthlyMean))
+		if (!GetMonthlyMean(firstCCYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
 		CWeatherStation stationII;
-		((CLocation&)stationII) = station;
-		//stationII.SetFirstYear(firstCCYear);
-		stationII.CreateYears(firstCCYear, station.size());
+		((CLocation&)stationII) = stationIn;
+		stationII.CreateYears(firstCCYear, stationIn.size());
 
-		for (size_t y = 0; y < station.size(); y++)
+		for (size_t y = 0; y < stationIn.size(); y++)
 		{
-			int year = station[y].GetTRef().GetYear();
+			int year = stationIn[y].GetTRef().GetYear();
 
 			for (size_t m = 0; m < 12; m++)
 			{
-				for (size_t d = 0; d < station[y][m].size(); d++)
+				for (size_t d = 0; d < stationIn[y][m].size(); d++)
 				{
 					for (TVarH v = H_TAIR; v<NB_VAR_H; ((int&)v)++)
 					{
 						size_t f = V2F(v);
-						//if (v == H_TDEW)
-						//v = H_RELH;//pass pass: try to convert relative humidity from specific humidity ratio. f is specific humidity
 
-						if (f>-1 && station[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
+						if (f!=-1 && stationIn[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
 						{
 							if (v == HOURLY_DATA::H_TAIR)
 							{
-								const CStatistic& statIn = station[y][m][d][v];
+								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
 								CStatistic statOut;
-								statOut += statIn[LOWEST] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
-								statOut += statIn[HIGHEST] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
-								stationII[y][m][d][v] = statOut;
+								statOut += stationIn[y][m][d][H_TMIN][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
+								statOut += stationIn[y][m][d][H_TMAX][MEAN] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
+								stationII[y][m][d][HOURLY_DATA::H_TAIR] = statOut[MEAN];
+								stationII[y][m][d][HOURLY_DATA::H_TRNG] = statOut[RANGE];
 							}
 							else if (v == HOURLY_DATA::H_PRCP)
 							{
-								double prcp = station[y][m][d][v][SUM];
+								double prcp = stationIn[y][m][d][v][SUM];
 								prcp *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
 								stationII[y][m][d][v] = prcp;
 							}
@@ -346,44 +370,38 @@ namespace WBSF
 								if (IsMissing(refMonthlyMean[m][RELH_MN]))//no relative humidity. then take specific humidity
 								{
 									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specyfic humidity g[H2O]/kg[air]
-									if (station[y][m][d][H_RELH].IsInit() && station[y][m][d][H_TAIR].IsInit())
+									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TAIR].IsInit())
 									{
-										ASSERT(station[y][m][d][H_TAIR][NB_VALUE] >= 2);
+										ASSERT(stationIn[y][m][d][H_TAIR][NB_VALUE] >= 2);
 
 										//convert Hr to Hs with station temperature
-										double Tmin = station[y][m][d][H_TAIR][LOWEST];
-										double Tmax = station[y][m][d][H_TAIR][HIGHEST];
-										double Hr = station[y][m][d][H_RELH][MEAN];
+										double Tmin = stationIn[y][m][d][H_TMIN][MEAN];
+										double Tmax = stationIn[y][m][d][H_TMAX][MEAN];
+										double Hr = stationIn[y][m][d][H_RELH][MEAN];
 										double Hs = Hr2Hs(Tmin, Tmax, Hr);
 										Hs *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);//specific humidity ratio
 
 										//convert back Hs to Hr with the new station temperature
-										double TminII = stationII[y][m][d][H_TAIR][LOWEST];
-										double TmaxII = stationII[y][m][d][H_TAIR][HIGHEST];
+										double TminII = stationII[y][m][d][H_TMIN][MEAN];
+										double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
 										Hr = Hs2Hr(TminII, TmaxII, Hs);
 
 										stationII[y][m][d][H_RELH] = Hr;
 									}
 								}
-
-
-								//	double Tdew = station[y][m][d][v][MEAN];
-								//	Tdew = Min(stationII[y][m][d][H_TAIR][LOWEST], Tdew + (ccMonthlyMean[m][f] - refMonthlyMean[m][f]));
-								//	stationII[y][m][d][v] = Tdew;
-								//}
 							}
 							else if (v == HOURLY_DATA::H_RELH)
 							{
 								ASSERT(refMonthlyMean[m][f] >= 0 && refMonthlyMean[m][f] <= 100);//ccMonthlyMean must be relative humidity [%]
 
 								//convert Hr to Hs with station temperature
-								double Hr = station[y][m][d][H_RELH][MEAN];
+								double Hr = stationIn[y][m][d][H_RELH][MEAN];
 								Hr = max(0.0, min(100.0, (Hr*ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
 								stationII[y][m][d][H_RELH] = Hr;
 							}
 							else if (v == HOURLY_DATA::H_WNDS)
 							{
-								double wndS = station[y][m][d][v][MEAN];
+								double wndS = stationIn[y][m][d][v][MEAN];
 								wndS *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
 								stationII[y][m][d][v] = wndS;
 							}
@@ -410,14 +428,15 @@ namespace WBSF
 			}//for all month
 		}//for all years
 
-		station = stationII;
 		ASSERT(stationII.IsValid());
+		stationIn = stationII;
+		
 
 		return true;
 	}
 
 	//after created the normal station from daily station, update normal standard deviation when they exist
-	bool CMonthlyMeanGrid::UpdateStandardDeviation(short firstRefYear, short firstccYear, short nbNeighbor, int maxDistance, double power, CNormalsStation& station)
+	bool CMonthlyMeanGrid::UpdateStandardDeviation(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -458,17 +477,17 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean))
+		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean))
+		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
 		CNormalsData data = station;
-		for (int m = 0; m < 12; m++)
+		for (size_t m = 0; m < 12; m++)
 		{
-			for (int v = 0; v < NB_FIELDS; v++)
+			for (size_t v = 0; v < NB_FIELDS; v++)
 			{
 				if (!IsMissing(data[m][v]))
 				{
@@ -496,8 +515,8 @@ namespace WBSF
 
 		return true;
 	}
-
-	bool CMonthlyMeanGrid::UpdateData(short firstRefYear, short firstccYear, short nbNeighbor, int maxDistance, double power, CNormalsStation& station)
+	 
+	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -535,17 +554,17 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean))
+		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean))
+		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
 		CNormalsData data = station;
-		for (int m = 0; m < 12; m++)
+		for (size_t m = 0; m < 12; m++)
 		{
-			for (int v = 0; v < NB_FIELDS; v++)
+			for (size_t v = 0; v < NB_FIELDS; v++)
 			{
 				if (!IsMissing(data[m][v]))
 				{
@@ -609,7 +628,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CMonthlyMeanGrid::ExportMonthlyValue(short firstRefYear, short firstCCYear, short nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback)
+	ERMsg CMonthlyMeanGrid::ExportMonthlyValue(int firstRefYear, int firstCCYear, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -733,7 +752,7 @@ namespace WBSF
 	}
 	//**********************************************************************************
 	const char* CNormalFromDaily::XML_FLAG = "Daily2Normal";
-	const char* CNormalFromDaily::MEMBER_NAME[NB_MEMBER] = { "InputFilePath", "FirstYear", "LastYear", "MinimumYears", "nbNeighbor", "OuputFilePath", "ApplyCC", "MMGFilePath", "refPeriodIndex", "CCPeriodIndex", "CreateAll" };
+	const char* CNormalFromDaily::MEMBER_NAME[NB_MEMBER] = { "InputFilePath", "FirstYear", "LastYear", "MinimumYears", "nbNeighbor", "OuputFilePath", "ApplyCC", "MMGFilePath", "refPeriodIndex", "CCPeriodIndex"};//, "CreateAll" 
 
 	CNormalFromDaily::CNormalFromDaily()
 	{
@@ -754,8 +773,9 @@ namespace WBSF
 		m_bApplyCC = false;
 		m_inputMMGFilePath.empty();
 		m_refPeriodIndex = 0;
-		m_CCPeriodIndex = 11;
-		m_bCreateAll = false;
+		for (size_t i = P_1991_2020; i < NB_CC_PERIODS; i++)
+			m_CCPeriodIndex.set(i);
+		//m_bCreateAll = false;
 	}
 
 	std::string CNormalFromDaily::GetMember(size_t i)const
@@ -775,7 +795,7 @@ namespace WBSF
 		case INPUT_MMG: str = GetRelativePath(path, m_inputMMGFilePath.c_str()); break;
 		case REF_PERIOD_INDEX: str = ToString(m_refPeriodIndex); break;
 		case CCPERIOD_INDEX: str = ToString(m_CCPeriodIndex); break;
-		case CREATE_ALL: str = ToString(m_bCreateAll); break;
+		//case CREATE_ALL: str = ToString(m_bCreateAll); break;
 		default: ASSERT(false);
 		}
 
@@ -798,35 +818,57 @@ namespace WBSF
 		case INPUT_MMG: m_inputMMGFilePath = GetAbsolutePath(path, str); break;
 		case REF_PERIOD_INDEX: m_refPeriodIndex = ToInt(str); break;
 		case CCPERIOD_INDEX: m_CCPeriodIndex = ToInt(str); break;
-			//	case FIRST_APPLYED_CCYEAR: m_firstApplyedCCYear = ToInt(str); break;
-		case CREATE_ALL: m_bCreateAll = ToBool(str); break;
+		//case CREATE_ALL: m_bCreateAll = ToBool(str); break;
 		default: ASSERT(false);
 		}
 	}
 
-	int CNormalFromDaily::GetNbDBCreate()
+	size_t CNormalFromDaily::GetNbDBCreate()
 	{
-		return (m_bApplyCC&&m_bCreateAll) ? 12 - m_CCPeriodIndex : 1;
+		//return (m_bApplyCC&&m_bCreateAll) ? 12 - m_CCPeriodIndex : 1;
+		return (m_bApplyCC) ? m_CCPeriodIndex.count() : 1;
 	}
 
-	int CNormalFromDaily::GetFirstYear(int i)
+	size_t CNormalFromDaily::GetCCPeriod(size_t i)
 	{
-		ASSERT(i >= 0 && i < GetNbDBCreate());
-		return m_bApplyCC ? FIRST_YEAR_OF_FIRST_PERIOD + (m_CCPeriodIndex + i) * 10 : m_firstYear;
+		ASSERT(i < GetNbDBCreate());
+
+		size_t II = -1;
+		size_t ii = -1;
+		for (size_t iii = 0; iii < m_CCPeriodIndex.size() && II == -1; iii++)
+		{
+			if (m_CCPeriodIndex[iii])
+				ii++;
+			
+			if (ii==i)
+				II=iii;
+		}
+			
+		ASSERT(II < m_CCPeriodIndex.size());
+		return II;
 	}
 
-	int CNormalFromDaily::GetLastYear(int i)
+	int CNormalFromDaily::GetFirstYear(size_t p)
 	{
-		ASSERT(i >= 0 && i < GetNbDBCreate());
-		return m_bApplyCC ? 1990 + (m_CCPeriodIndex + i) * 10 : m_lastYear;
+		return int(FIRST_YEAR_OF_FIRST_PERIOD + p * 10);
+		//return int(m_bApplyCC ? FIRST_YEAR_OF_FIRST_PERIOD + GetCCPeriod(i)* 10 : m_firstYear);
+
+		//return m_bApplyCC ? FIRST_YEAR_OF_FIRST_PERIOD + (m_CCPeriodIndex + i) * 10 : m_firstYear;
 	}
 
-	std::string CNormalFromDaily::GetOutputFilePath(int i)
+	int CNormalFromDaily::GetLastYear(size_t p)
 	{
-		ASSERT(i >= 0 && i < GetNbDBCreate());
+		return int(LAST_YEAR_OF_FIRST_PERIOD + p * 10);
+		//return int(m_bApplyCC ? LAST_YEAR_OF_FIRST_PERIOD + GetCCPeriod(i) * 10 : m_lastYear);
+	}
+
+	std::string CNormalFromDaily::GetOutputFilePath(size_t p)
+	{
+		//ASSERT(p < GetNbDBCreate());
+		
 		string outputDBFilePath = m_outputDBFilePath;
-		if (m_bCreateAll)
-			outputDBFilePath = FormatA("%s %d-%d%s", GetPath(m_outputDBFilePath) + GetFileTitle(m_outputDBFilePath), GetFirstYear(i), GetLastYear(i), GetFileExtension(m_outputDBFilePath));
+		if (m_bApplyCC)
+			outputDBFilePath = FormatA("%s %d-%d%s", (GetPath(m_outputDBFilePath) + GetFileTitle(m_outputDBFilePath)).c_str(), GetFirstYear(p), GetLastYear(p), GetFileExtension(m_outputDBFilePath).c_str());
 
 		return outputDBFilePath;
 	}
@@ -835,124 +877,121 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		//Open daily(read) 
 		CDailyDatabase inputDB;
 		msg += inputDB.Open(m_inputDBFilePath, CDailyDatabase::modeRead, callback);
 
 		CMonthlyMeanGrid MMG;
 		if (m_bApplyCC)
-			msg += MMG.Open(m_inputMMGFilePath);
+			msg += MMG.Open(m_inputMMGFilePath, callback);
 
 
 		if (!msg)
 			return msg;
 
 
-		callback.PushTask("Create all MMG", GetNbDBCreate());
-		for (int p = 0; p < GetNbDBCreate(); p++)
+		callback.PushTask("Create all Normals Database", GetNbDBCreate());
+		for (size_t pp = 0; pp < GetNbDBCreate() && msg; pp++)
 		{
-			int firstYear = GetFirstYear(p);
-			int lastYear = GetLastYear(p);
+			//int firstYear = GetFirstYear(p);
+			//int lastYear = GetLastYear(p);
+
+			size_t p = GetCCPeriod(pp);
 			std::string outputDBFilePath = GetOutputFilePath(p);
 
 
-			//Open daily(read) and normal(write) database
-
+			//normal(write) database
 			CNormalsDatabase outputDB;
-
-
-			//		outputDB.SetBeginYear(firstYear);
-			//		outputDB.SetEndYear(lastYear);
 			msg += outputDB.Open(outputDBFilePath, CNormalsDatabase::modeEdit);
-
-
-			if (!msg)
-				return msg;
-
-
-			callback.PushTask("Create " + GetFileTitle(outputDBFilePath), inputDB.size());
-			callback.AddMessage("Create " + GetFileTitle(outputDBFilePath));
-			//callback.SetNbStep(inputDB.size());
-
-
-			//for all stations in daily database
-			int nbStationAdded = 0;
-			for (int i = 0; i < inputDB.size() && msg; i++)
-			{
-				CWeatherStation dailyStation;
-
-				msg = inputDB.Get(dailyStation, i);
-
-				if (m_bApplyCC)
-				{
-					//adjust daily data to reflect climatic change
-					msg += ApplyClimaticChange(dailyStation, MMG, callback);
-				}
-
-				if (msg)
-				{
-					//remove years not in the period
-					CleanUpYears(dailyStation, firstYear, lastYear);
-
-					//if the station have enough years
-					if (dailyStation.size() >= m_nbYearMin)
-					{
-						//create normal
-						CAdvancedNormalStation station;
-						//ERMsg messageTmp = station.FromDaily(dailyStation, m_nbYearMin);
-
-						if (station.FromDaily(dailyStation, m_nbYearMin))
-						{
-							if (m_bApplyCC)
-							{
-								//now adjust standard deviation if they are present
-								MMG.UpdateStandardDeviation(FIRST_YEAR_OF_FIRST_PERIOD + m_refPeriodIndex * 10, FIRST_YEAR_OF_FIRST_PERIOD + m_CCPeriodIndex * 10, m_nbNeighbor, m_maxDistance, m_power, station);
-							}
-
-							//add normal to database
-							ERMsg messageTmp = outputDB.Add(station);
-							if (messageTmp)
-							{
-								nbStationAdded++;
-							}
-
-							//TestWG(station);
-
-							//messageTmp = outputDB.Add(station);
-							//if (messageTmp)
-							//{
-							//	nbStationAdded++;
-							//}
-
-							if (!messageTmp)
-								callback.AddMessage(messageTmp, 1);
-						}
-					}
-				}
-
-				msg += callback.StepIt();
-			}
-
-			callback.PopTask();
-			outputDB.Close();
-
 
 
 			if (msg)
 			{
-				callback.AddMessage(FormatMsg("Nb stations added = %1", ToString(nbStationAdded)), 1);
+				callback.PushTask("Create " + GetFileTitle(outputDBFilePath), inputDB.size());
+				callback.AddMessage("Create " + GetFileTitle(outputDBFilePath));
 
-				//open the file to create optimization 
-				msg = outputDB.Open(outputDBFilePath);
 
-				//std::string locFilePath( m_outputFilePath );
-				//UtilWin::SetFileExtension( locFilePath, ".loc");
-				//CLocArray locArray;
-				//CGeoRect bBox(-180, -90, 180, 90, CProjection::GEO);
-				//msg += normalDB.GenerateLOC(bBox, false, 0, locArray, true );
-				//msg += locArray.Save(locFilePath);
-			}
-		}
+				//for all stations in daily database
+				int nbStationAdded = 0;
+				for (int i = 0; i < inputDB.size() && msg; i++)
+				{
+					CWeatherStation dailyStation;
 
+					msg = inputDB.Get(dailyStation, i);
+					//remove years not in the period
+					CleanUpYears(dailyStation, m_firstYear, m_lastYear);
+
+					if (m_bApplyCC)
+					{
+						//adjust daily data to reflect climatic change
+						msg += ApplyClimaticChange(dailyStation, MMG, p, callback);
+					}
+
+					if (msg)
+					{
+						//remove years not in the period
+						//CleanUpYears(dailyStation, firstYear, lastYear);
+
+						//if the station have enough years
+						if (dailyStation.size() >= m_nbYearMin)
+						{
+							//create normal
+							CAdvancedNormalStation station;
+							//ERMsg messageTmp = station.FromDaily(dailyStation, m_nbYearMin);
+
+							if (station.FromDaily(dailyStation, m_nbYearMin))
+							{
+								if (m_bApplyCC)
+								{
+									//now adjust standard deviation if they are present
+									MMG.UpdateStandardDeviation(GetFirstYear(m_refPeriodIndex), GetFirstYear(p), m_nbNeighbor, m_maxDistance, m_power, station, callback);
+								}
+
+								//add normal to database
+								ERMsg messageTmp = outputDB.Add(station);
+								if (messageTmp)
+								{
+									nbStationAdded++;
+								}
+
+								//TestWG(station);
+
+								//messageTmp = outputDB.Add(station);
+								//if (messageTmp)
+								//{
+								//	nbStationAdded++;
+								//}
+
+								if (!messageTmp)
+									callback.AddMessage(messageTmp, 1);
+							}
+						}//if valid stations
+
+						msg += callback.StepIt();
+					}//if msg
+				}//for all station
+				
+
+				callback.PopTask();
+				outputDB.Close();
+
+
+				if (msg)
+				{
+					callback.AddMessage(FormatMsg("Nb stations added = %1", ToString(nbStationAdded)), 1);
+
+					//open the file to create optimization 
+					msg = outputDB.Open(outputDBFilePath);
+
+					//std::string locFilePath( m_outputFilePath );
+					//UtilWin::SetFileExtension( locFilePath, ".loc");
+					//CLocArray locArray;
+					//CGeoRect bBox(-180, -90, 180, 90, CProjection::GEO);
+					//msg += normalDB.GenerateLOC(bBox, false, 0, locArray, true );
+					//msg += locArray.Save(locFilePath);
+				}
+			}//if msg
+		}//for all database
 
 		inputDB.Close();
 		MMG.Close();
@@ -983,19 +1022,23 @@ namespace WBSF
 		}
 	}
 
-	ERMsg CNormalFromDaily::ApplyClimaticChange(CWeatherStation& dailyStation, CMonthlyMeanGrid& mmg, CCallback& callback)
+	ERMsg CNormalFromDaily::ApplyClimaticChange(CWeatherStation& dailyStation, CMonthlyMeanGrid& mmg, size_t p, CCallback& callback)
 	{
 		ERMsg msg;
 
 
-		CleanUpYears(dailyStation, m_firstYear, m_lastYear);
+		//CleanUpYears(dailyStation, m_firstYear, m_lastYear);
 		if (dailyStation.size() >= m_nbYearMin)
 		{
 			//coord of the station
-			if (!mmg.UpdateData(FIRST_YEAR_OF_FIRST_PERIOD + m_refPeriodIndex * 10, FIRST_YEAR_OF_FIRST_PERIOD + m_CCPeriodIndex * 10, m_nbNeighbor, m_maxDistance, m_power, dailyStation))
+			if (!mmg.UpdateData(GetFirstYear(m_refPeriodIndex), GetFirstYear(p), m_nbNeighbor, m_maxDistance, m_power, dailyStation, callback))
 			{
 				dailyStation.Reset();
 			}
+		}
+		else
+		{
+			dailyStation.Reset();
 		}
 
 		return msg;

@@ -453,9 +453,9 @@ namespace WBSF
 		{
 			double Tmean = float(m_dailyStat[H_TAIR][m][MEAN]);
 			double Trange = float(m_dailyStat[H_TRNG][m][MEAN]);
-
 			normals[m][TMIN_MN] = Tmean - Trange / 2;
 			normals[m][TMAX_MN] = Tmean + Trange / 2;
+			
 
 			for (size_t v = 0; v < 2; v++)
 			{

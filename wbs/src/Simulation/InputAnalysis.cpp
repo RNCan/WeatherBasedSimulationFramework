@@ -79,6 +79,7 @@ size_t GetCategory(size_t v)
 	switch (NORMALS_DATA::V2F(v))
 	{
 	case NORMALS_DATA::TMIN_MN: c = 0; break;
+	case NORMALS_DATA::TMAX_MN: c = 0; break;
 	case NORMALS_DATA::PRCP_TT: c = 1; break;
 	case NORMALS_DATA::TDEW_MN:
 	case NORMALS_DATA::RELH_MN: c = 2; break;
@@ -206,24 +207,28 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 			if (category[0])
 			{
 				CModelInput modelInput;
+				modelInput.SetName(GetVariableName(H_TAIR));
 				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_TAIR)));
 				info.m_parameterset.push_back(modelInput);
 			}
 			if (category[1])
 			{
 				CModelInput modelInput;
+				modelInput.SetName(GetVariableName(H_PRCP));
 				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_PRCP)));
 				info.m_parameterset.push_back(modelInput);
 			}
 			if (category[2])
 			{
 				CModelInput modelInput;
+				modelInput.SetName(GetVariableName(H_RELH));
 				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_RELH)));
 				info.m_parameterset.push_back(modelInput);
 			}
 			if (category[3])
 			{
 				CModelInput modelInput;
+				modelInput.SetName(GetVariableName(H_WNDS));
 				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_WNDS)));
 				info.m_parameterset.push_back(modelInput);
 			}
@@ -242,6 +247,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 				if (variables[NORMALS_DATA::F2V(f)])
 				{
 					CModelInput modelInput;
+					modelInput.SetName(NORMALS_DATA::GetFieldHeader(f));
 					modelInput.push_back(CModelInputParam("Field", NORMALS_DATA::GetFieldHeader(f)));
 					info.m_parameterset.push_back(modelInput);
 				}
@@ -256,6 +262,7 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 				if (WGInput.m_variables[v])
 				{
 					CModelInput modelInput;
+					modelInput.SetName(GetVariableName(v));
 					modelInput.push_back(CModelInputParam("Variable", GetVariableName(v)));
 					info.m_parameterset.push_back(modelInput);
 				}

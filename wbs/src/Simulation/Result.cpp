@@ -256,7 +256,8 @@ namespace WBSF
 		switch (nCol)
 		{
 		case LOCATION:		str = GetLocation(sectionNo).m_name.c_str(); break;
-		case PARAMETER:		str = ToString(GetMetadata().GetPno(sectionNo) + 1); break;
+		//case PARAMETER:		str = ToString(GetMetadata().GetPno(sectionNo) + 1); break;
+		case PARAMETER:		str = GetParameterSet(sectionNo).GetName(); break;
 		case REPLICATION:	str = ToString(GetReplication(sectionNo) + 1); break;
 		case TIME_REF:
 		{
@@ -417,14 +418,26 @@ namespace WBSF
 		{
 			LoadSection(sectionNo);
 
-			if (!m_loadedSection->IsTemporalMatrix(field) || IsTemporalStat(stat))
+			if (m_loadedSection->IsTemporalMatrix(field))
 			{
-				value = (*m_loadedSection)[row][field][stat];
+				if (IsTemporalStat(stat))
+				{
+					//return double representation of the event
+					CTRef ref = m_loadedSection->GetTRef(row, field, stat);
+					value = (double)ref;
+					//value = (*m_loadedSection)[row][field][stat];
+					//CTRef TRef(value, m_dataTM[i].Type());
+				}
+				else
+				{
+					ASSERT(false);//quoi faire????
+				}
 			}
 			else
 			{
-				ASSERT(false);//quoi faire????
+				value = (*m_loadedSection)[row][field][stat];
 			}
+			
 		}
 		else
 		{

@@ -386,8 +386,8 @@ double GetWindowMean(GDALRasterBand* pBand, int nbNeighbor, double T, const CGeo
 			W += Wi;
 		}
 	}
-	assert(false);//a remplacer pas MISSING?
-	return W[SUM]>0?float(H[SUM]/W[SUM]):-999;
+	//assert(false);//a remplacer pas MISSING?
+	return W[SUM]>0 ? float(H[SUM] / W[SUM]) : noData;
 }
 
 CGeoExtents GetExtents(GDALDataset* poDataset)

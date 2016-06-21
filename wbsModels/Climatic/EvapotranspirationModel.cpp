@@ -21,7 +21,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.2.0 (2016)";
+		VERSION = "1.2.1 (2016)";
 
 		//Initialization of input parameters(optional)
 		m_ETModelName = "Priestley-Taylor";
@@ -30,6 +30,27 @@ namespace WBSF
 
 	CEvapotranspirationModel::~CEvapotranspirationModel()
 	{}
+
+	//This method is call to load your parameter in your variable
+	ERMsg CEvapotranspirationModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+		size_t c = 0;
+		m_ETModelName = parameters[c++].GetString();
+		if (!CETFactory::IsRegistered(m_ETModelName))
+			msg.ajoute(m_ETModelName + " is an unknown evapotranspiration model name");
+
+		for (size_t i = 0; i < 2; i++)
+		{
+			std::string name = parameters[c++].GetString();
+			std::string value = parameters[c++].GetString();
+			if (!name.empty() && !value.empty())
+				m_options[name] = value;
+		}
+
+		return msg;
+	}
 
 
 
@@ -57,11 +78,7 @@ namespace WBSF
 		msg = pModel->SetOptions(m_options);
 		if (msg)
 		{
-			//CModelStatVector stat;
 			pModel->Execute(m_weather, m_output);
-
-			//CTTransformation TT(stat.GetTPeriod(), CTM(CTM::DAILY));
-			//pModel->Transform(TT, stat, m_output);
 			m_output.Transform(CTM(CTM::DAILY), SUM);
 		}
 
@@ -108,27 +125,7 @@ namespace WBSF
 		return msg;
 	}
 
-	//This method is call to load your parameter in your variable
-	ERMsg CEvapotranspirationModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg msg;
-
-		size_t c = 0;
-		m_ETModelName = parameters[c++].GetString();
-		if (!CETFactory::IsRegistered(m_ETModelName))
-			msg.ajoute(m_ETModelName + " is an unknown evapotranspiration model name");
-
-		for (size_t i = 0; i < 2; i++)
-		{
-			std::string name = parameters[c++].GetString();
-			std::string value = parameters[c++].GetString();
-			if (!name.empty() && !value.empty())
-				m_options[name] = value;
-		}
-
-		return msg;
-	}
-
+	
 
 
 

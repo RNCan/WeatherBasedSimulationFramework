@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TaskBase.h"
+#include "Simulation/MonthlyMeanGrid.h"
 
 namespace WBSF
 {
@@ -33,10 +34,12 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		//virtual const std::string& Title(size_t i)const{ ASSERT(i<NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
-
+		
+		
 
 	protected:
 
+		CNormalFromDaily::CCPeriodBitset GetCCPeriod()const;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

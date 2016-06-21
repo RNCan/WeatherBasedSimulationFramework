@@ -27,6 +27,7 @@ interface IAgent;
 namespace WBSF
 {
 
+	class CVariogram;
 
 	class CGridPointResult
 	{
@@ -293,6 +294,7 @@ namespace WBSF
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const{ return -999; }
 
 		virtual ERMsg GetXValidation(CXValidationVector& XValidation)const;
+		virtual bool GetVariogram(CVariogram& variogram)const;
 		virtual ERMsg Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut)const;
 
 		

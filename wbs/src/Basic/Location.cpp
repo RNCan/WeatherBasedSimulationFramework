@@ -594,6 +594,8 @@ namespace WBSF
 		ERMsg msg;
 
 		m_filePath.clear();
+		//»Est-ce qu'on clear ou on clear pas??????? RSA 2016-06-18
+		clear();
 
 
 		ifStream file;

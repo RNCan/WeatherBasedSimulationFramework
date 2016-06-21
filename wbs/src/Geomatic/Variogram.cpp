@@ -293,15 +293,15 @@ public:
 		default: ASSERT(false);
 		}//switch model
 
-		static const double LO_L = 1.0E-15;
-		static const double HI_L = 1.0E+15;//10000000.0
+		//static const double LO_L = 1.0E-15;
+		//static const double HI_L = 1.0E+15;//10000000.0
 
 		CStatistic statV;
 		CStatistic statD;
 		for (CVariogramPredictorVector::const_iterator it = m_samples.begin(); it != m_samples.end(); it++)
 		{
-			ASSERT(it->m_lagVariance >= LO_L && it->m_lagVariance<=HI_L);
-			ASSERT(it->m_lagDistance >= LO_L && it->m_lagDistance <= HI_L);
+			//ASSERT(it->m_lagVariance >= LO_L && it->m_lagVariance<=HI_L);
+			//ASSERT(it->m_lagDistance >= LO_L && it->m_lagDistance <= HI_L);
 
 			statV += it->m_lagVariance;
 			statD += it->m_lagDistance;
@@ -778,6 +778,24 @@ ERMsg CVariogram::CreateVariogram(const CGridPointVector& pts, const CPrePostTra
 	
     return msg;
 }
+
+ERMsg CVariogram::Save(std::string filePath)const
+{
+	ERMsg msg;
+
+	ofStream file;
+	msg = file.open(filePath);
+	if (msg)
+	{
+		for (size_t i = 0; i < m_predictorVector.size(); i++)
+		{
+			file << m_predictorVector[i].m_lagDistance << "," << m_predictorVector[i].m_np << "," << m_predictorVector[i].m_lagVariance << "," << m_predictorVector[i].m_predictedVariance << endl;
+		}
+	}
+
+	return msg;
+}
+
 /*
 void CVariogram::WriteLog(CStdString& m_logBook)const
 {

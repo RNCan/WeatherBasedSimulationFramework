@@ -165,7 +165,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,3,28
+ FILEVERSION 4,0,3,29
  PRODUCTVERSION 4,0,3,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -183,7 +183,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.0.3.28"
+            VALUE "FileVersion", "4.0.3.29"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "ÉditeurHoraire"
@@ -193,7 +193,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Hourly weather data editor"
-            VALUE "FileVersion", "4.0.3.28"
+            VALUE "FileVersion", "4.0.3.29"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "HourlyEditor"

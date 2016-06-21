@@ -58,7 +58,7 @@ namespace WBSF
 		string extention1 = GetFileExtension(inputFilePath1);
 		string extention2 = GetFileExtension(inputFilePath2);
 
-		if (IsEqualNoCase(extention1, ".NormalsStation") && IsEqualNoCase(extention2, ".NormalsStation"))
+		if (IsEqualNoCase(extention1, ".NormalsStations") && IsEqualNoCase(extention2, ".NormalsStations"))
 		{
 			msg.ajoute("It's not possible to append normals stations");
 			//msg = ExecuteNormal(callback);

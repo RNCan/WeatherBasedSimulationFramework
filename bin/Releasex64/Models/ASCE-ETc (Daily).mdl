@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Standardized Crop Evapotranspiration</Title>
     <Version>1.0</Version>
     <ID>.ETc</ID>
     <EXE>ASCE-ETc.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>ASCE Standardized Reference Evapotranspiration.&#x0A;&#x0A;Evapotranspiration (ET) represents the loss of water from the earth’s surface through the combined processes of evaporation (from soil and plant surfaces) and plant transpiration (i.e., internal evaporation).</Description>
+    <Description>Dual Kc method based on FAO - 56</Description>
     <WindowRect>0 0 195 446</WindowRect>
     <SimulatedCategory>T TR P TD H R Z ES EA WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -14,18 +14,6 @@
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
-        <InputVariable>
-            <Name>PlantdDate</Name>
-            <Caption>Plant Date</Caption>
-            <Description/>
-            <Type>3</Type>
-            <Rect>35 10 60 425</Rect>
-            <SeparatorPos>115</SeparatorPos>
-            <DefaultValue/>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
-            <TextValue>03/15</TextValue>
-        </InputVariable>
         <InputVariable>
             <Name>Crop</Name>
             <Caption>Crop</Caption>
@@ -39,15 +27,27 @@
             <TextValue>Broccoli;Brussels sprouts;Cabbage;Carrots;Cauliflower;Celery;Garlic;Lettuce;Onions dry;Onions green;Onions seed;Spinach;Radishes;Eggplant;Sweet peppers(bell);Tomato;Cantaloupe;Cucumber fresh market;Cucumber machine harvest;Pumpkin winter squash;Squash zucchini;Sweet melons;Watermelon;Beets table;Cassava year 1;Cassava year 2;Parsnip;Potato;Sweet potato;Turnip and rutabaga;Sugar beet;Beans green;Beans dry and pulses;Beans lima large vines;Chick pea;Faba bean(broadbean) fresh;Faba bean(broadbean) dry/seed;Garbanzo;Green  gram and cowpeas freash;Green  gram and cowpeas dry;Groundnut(peanut);Lentil;Peas fresh;Peas dry/seed;Soybeans short;Soybeans tall;Artichokes;Asparagus short;Asparagus tall;Mint short;Mint tall;Strawberries;Cotton short;Cotton tall;Flax;Sisal;Castor bean(Ricinus);Rapeseed canola;Safflower;Sesame;Sunflower;Barley;Oats;Spring wheat;Winter wheat;Maize field(grain)(field corn);Maize sweet(sweet corn);Millet;Sorghum grain short;Sorghum grain tall;Sorghum sweet short;Sorghum sweet tall;Rice;Alfalfa for hay;Alfalfa for seed;Bermuda for hay;Bermuda spring crop for seed;Clover hay berseem;Ryegrass hay;Sudan grass hay(annual);Grazing pasture-rotated grazing short;Grazing pasture-rotated grazing tall;Grazing pasture-extensive grazing;Turf grass cool season;Turf grass warm season;Sugar Cane;Banana 1st year;Banana 2nd year;Cacao;Coffee short;Coffee tall;Date palms;Palm trees;Pineapple short;Pineapple tall;Rubber trees;Tea non-shaded;Tea shaded;Grapes and Berries Berries(bushes);Grapes table or raisin;Grapes wine short;Grapes wine tall;Hops;Almonds;Apples cherries pears;Apricots peaches stone fruit;Avocado;Citrus 70% canopy;Citrus 50% canopy;Citrus 20% canopy;Conifer trees;Kiwi;Olives short(40% to 60% groundcoverage by canopy);Olives tall(40% to 60% groundcoverage by canopy);Pistachios short;Pistachios tall;Walnut orchard short;Walnut orchard tall</TextValue>
         </InputVariable>
         <InputVariable>
+            <Name>PlantDate</Name>
+            <Caption>Plant Date (mm-dd)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>35 10 60 425</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>03-15</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue>03-15</TextValue>
+        </InputVariable>
+        <InputVariable>
             <Name>SoilType</Name>
             <Caption>Soil Type</Caption>
             <Description/>
             <Type>5</Type>
             <Rect>65 10 85 425</Rect>
             <SeparatorPos>115</SeparatorPos>
-            <DefaultValue/>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <DefaultValue>4</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>8</MaxValue>
             <TextValue>Sand;Loamy sand;Sandy loam;Loam;Silt loam;Silt;Silt clay loam;Silty clay;Clay</TextValue>
         </InputVariable>
         <InputVariable>
@@ -57,9 +57,9 @@
             <Type>5</Type>
             <Rect>90 10 110 425</Rect>
             <SeparatorPos>115</SeparatorPos>
-            <DefaultValue/>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
             <TextValue>Coarse;Medium;Fine</TextValue>
         </InputVariable>
         <InputVariable>
@@ -67,7 +67,7 @@
             <Caption>Irrigation</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>115 10 140 420</Rect>
+            <Rect>115 10 140 425</Rect>
             <SeparatorPos>115</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -143,5 +143,5 @@
     </OutputVariableArray>
     <Copyright/>
     <Credit>Equation from THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION&#x0A;http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf</Credit>
-    <HelpFileName>ASCE-ET2005.pdf</HelpFileName>
+    <HelpFileName/>
 </Model>

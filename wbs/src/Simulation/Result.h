@@ -91,7 +91,7 @@ namespace WBSF
 		//CSectionInfo GetSectionInfo(size_t section)const;
 		size_t GetSectionRow(size_t sectionNo, size_t globalRow)const{ ASSERT(globalRow - m_database.GetFirstRow(sectionNo) >= 0); return globalRow - m_database.GetFirstRow(sectionNo); }
 		const CLocation& GetLocation(size_t sectionNo)const{ return GetMetadata().GetLocations().at(GetMetadata().GetLno(sectionNo)); }
-		const CModelInput& GetParameterSet(size_t sectionNo)const{ GetMetadata().GetParameterSet().at(GetMetadata().GetPno(sectionNo)); }
+		const CModelInput& GetParameterSet(size_t sectionNo)const{ return GetMetadata().GetParameterSet().at(GetMetadata().GetPno(sectionNo)); }
 		size_t GetReplication(size_t sectionNo)const{ return GetMetadata().GetRno(sectionNo); }
 
 		size_t GetNbField(size_t dimension)const;

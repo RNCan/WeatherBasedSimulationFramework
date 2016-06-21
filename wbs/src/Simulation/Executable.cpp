@@ -20,6 +20,7 @@
 #include "Simulation/ExecutableFactory.h"
 
 #include "WeatherBasedSimulationString.h"
+#include "Basic/decode_html_entities_utf8.h"
 
 using namespace std;
 using namespace WBSF::DIMENSION;
@@ -834,6 +835,7 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
 		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
+		const CModelInputVector& param = pResult->GetMetadata().GetParameterSet();
 		//Write header
 		{
 			std::string line;
@@ -901,7 +903,7 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 					switch(variables[j].m_dimension)
 					{
 					case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
-					case PARAMETER:	tmp = ToString(pNo+1); break;
+					case PARAMETER:	tmp = param[pNo].GetName(); break;
 					case REPLICATION: tmp = ToString(rNo+1); break;
 					case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
 					default: ASSERT(false);
@@ -909,7 +911,6 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 				} 
 				else
 				{
-			
 					size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
 					if( col < pResult->GetNbCols() )
 					{

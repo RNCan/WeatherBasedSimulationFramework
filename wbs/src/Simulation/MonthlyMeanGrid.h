@@ -38,51 +38,42 @@ namespace WBSF
 		{
 			m_firstYear = -1;
 			m_lastYear = -1;
-			//m_bSpecificHumidity=true;
+
 			for (int i = 0; i < NORMALS_DATA::NB_FIELDS; i++)
 				m_supportedVariables[i] = false;
 		}
 
-		ERMsg Open(const std::string filePath);
+		ERMsg Open(const std::string& filePath, CCallback& callback);
 		void Close();
 
-		//est-ce utiliser???
-		//ERMsg Load(std::string filePath){ m_filePath = filePath; return XLoad(filePath.c_str(), *this); }
-		//ERMsg Save(std::string filePath){ m_filePath = filePath; return XSave(filePath.c_str(), *this); }
+		
+		ERMsg Load(const std::string& filePath);
+		ERMsg Save(const std::string& filePath);
 
-
-
-
-//		void GetXML(LPXNode& pRoot)const{ XGetXML(*this, pRoot); }
-	//	void SetXML(const LPXNode pRoot){ XSetXML(*this, pRoot); }
-		//std::string GetMember(int i, LPXNode& pNode = NULL_ROOT)const;
-		//void SetMember(int i, const std::string& str, const LPXNode pNode = NULL_ROOT);
 		std::string GetMember(size_t i)const;
 		void SetMember(size_t i, const std::string& str);
 
-		virtual std::string GetFilePath(int var);
-		virtual bool UpdateData(short firstRefYear, short firstccYear, short nbNeighbor, int maxDistance, double power, CWeatherStation& station);
-		virtual bool UpdateData(short firstRefYear, short firstccYear, short nbNeighbor, int maxDistance, double power, CNormalsStation& station);
-		bool UpdateStandardDeviation(short firstRefYear, short firstccYear, short nbNeighbor, int maxDistance, double power, CNormalsStation& station);
-		virtual ERMsg ExportMonthlyValue(short firstRefYear, short firstccYear, short nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback);
+		virtual std::string GetFilePath(size_t v);
+		virtual bool UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& station, CCallback& callback);
+		virtual bool UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
+		bool UpdateStandardDeviation(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
+		virtual ERMsg ExportMonthlyValue(int firstRefYear, int firstccYear, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback);
 
 		int m_firstYear;
 		int m_lastYear;
-		bool m_supportedVariables[NORMALS_DATA::NB_FIELDS];
+		std::bitset<NORMALS_DATA::NB_FIELDS> m_supportedVariables;
 
-		//bool m_bSpecificHumidity;
-
-	protected:
-
-		bool GetMonthlyMean(short year, int nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS]);
-		float GetMonthlyMean(short v, short year, short m, int nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d);
 		std::string GetVariablesUsed()const;
 		void SetVariablesUsed(std::string str);
 
+	protected:
+
+		bool GetMonthlyMean(int year, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback);
+		float GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d);
+		
+
 
 		std::string m_filePath;
-
-		//CMapBilFile m_grid[NORMAL_DATA::NB_FIELDS];
 		CGDALDatasetEx m_grid[NORMALS_DATA::NB_FIELDS];
 
 		static const char * FILE_NAME[NORMALS_DATA::NB_FIELDS];
@@ -92,8 +83,6 @@ namespace WBSF
 	};
 
 
-	//typedef std::auto_ptr<CMonthlyMeanGrid> CMonthlyMeanGridPtr;
-
 	class CNormalFromDaily
 	{
 	public:
@@ -101,28 +90,28 @@ namespace WBSF
 		CNormalFromDaily();
 		void Reset();
 
-		enum TMEMBER { INPUT_DB, FIRST_YEAR, LAST_YEAR, MINIMUM_YEARS, NB_NEIGHBOR, OUPUT_DB, APPLY_CC, INPUT_MMG, REF_PERIOD_INDEX, CCPERIOD_INDEX, CREATE_ALL, NB_MEMBER };
+		enum TCCPeriod { P_1961_1990, P_1971_2000, P_1981_2010, P_1991_2020, P_2001_2030, P_2011_2040, P_2021_2050, P_2031_2060, P_2041_2070, P_2051_2080, P_2061_2090, P_2071_2100, NB_CC_PERIODS };
+		enum TMEMBER { INPUT_DB, FIRST_YEAR, LAST_YEAR, MINIMUM_YEARS, NB_NEIGHBOR, OUPUT_DB, APPLY_CC, INPUT_MMG, REF_PERIOD_INDEX, CCPERIOD_INDEX, NB_MEMBER };//CREATE_ALL, 
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
-
-//		ERMsg Load(std::string filePath){ m_filePath = filePath; return XLoad(filePath.c_str(), *this); }
-		//ERMsg Save(std::string filePath){ m_filePath = filePath; return XSave(filePath.c_str(), *this); }
-		//void GetXML(LPXNode& pRoot)const{ XGetXML(*this, pRoot); }
-		//void SetXML(const LPXNode pRoot){ XSetXML(*this, pRoot); }
-		//std::string GetMember(int i, LPXNode& pNode = NULL_ROOT)const;
-		//void SetMember(int i, const std::string& str, const LPXNode pNode = NULL_ROOT);
+		static const int FIRST_YEAR_OF_FIRST_PERIOD = 1961;
+		static const int LAST_YEAR_OF_FIRST_PERIOD = 1990;
+		
+		typedef std::bitset<NB_CC_PERIODS> CCPeriodBitset;
 		std::string GetMember(size_t i)const;
 		void SetMember(size_t i, const std::string& str);
 
 
 
 		ERMsg CreateNormalDatabase(CCallback& callback);
-		ERMsg ApplyClimaticChange(CWeatherStation& dailyStation, CMonthlyMeanGrid& cc, CCallback& callback);
+		ERMsg ApplyClimaticChange(CWeatherStation& dailyStation, CMonthlyMeanGrid& cc, size_t p, CCallback& callback);
 		void CleanUpYears(CWeatherStation& dailyStation, short firstYear, short lastYear);
-		int GetNbDBCreate();
-		int GetFirstYear(int i);
-		int GetLastYear(int i);
-		std::string GetOutputFilePath(int i);
+		
+		size_t GetNbDBCreate();
+		size_t GetCCPeriod(size_t i);
+		int GetFirstYear(size_t i);
+		int GetLastYear(size_t i);
+		std::string GetOutputFilePath(size_t i);
 
 
 		std::string m_inputDBFilePath;
@@ -138,10 +127,9 @@ namespace WBSF
 		//climatic change section
 		bool m_bApplyCC;
 		std::string m_inputMMGFilePath;
-		//int m_firstApplyedCCYear;
 		int m_refPeriodIndex;
-		int m_CCPeriodIndex;
-		bool m_bCreateAll;
+		CCPeriodBitset m_CCPeriodIndex;
+		//bool m_bCreateAll;
 
 
 	protected:
@@ -151,4 +139,41 @@ namespace WBSF
 		static const char* XML_FLAG;
 		static const char* MEMBER_NAME[NB_MEMBER];
 	};
+
+
+
+	
+
+}//WBSF
+
+namespace zen
+{
+
+	template <> inline
+		void writeStruc(const WBSF::CMonthlyMeanGrid& MMG, XmlElement& output)
+	{
+		XmlOut out(output);
+		out[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::FIRST_YEAR)](MMG.m_firstYear);
+		out[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::LAST_YEAR)](MMG.m_lastYear);
+		out[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::VARIABLES_USED)](MMG.GetVariablesUsed());
+
+	}
+
+	template <> inline
+		bool readStruc(const XmlElement& input, WBSF::CMonthlyMeanGrid& MMG)
+	{
+		XmlIn in(input);
+
+		in[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::FIRST_YEAR)](MMG.m_firstYear);
+		in[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::LAST_YEAR)](MMG.m_lastYear);
+		std::string str;
+		in[WBSF::CMonthlyMeanGrid::GetMemberName(WBSF::CMonthlyMeanGrid::VARIABLES_USED)](str);
+		MMG.SetVariablesUsed(str);
+
+		return true;
+	}
 }
+
+
+
+

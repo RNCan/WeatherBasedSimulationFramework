@@ -34,6 +34,246 @@ static char THIS_FILE[] = __FILE__;
 namespace WBSF
 {
 
+	class CStdCTRefTypePropertyGridProperty : public CStdGridProperty
+	{
+	public:
+
+
+		CStdCTRefTypePropertyGridProperty(const std::string& name, size_t type, const std::string& description, size_t no):
+			CStdGridProperty(name, "", description, no)
+		{
+			CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(IDS_STR_TM_TYPE));
+
+			for (size_t i = 0; i < WBSF::CTM::NB_REFERENCE; i++)
+				AddOption(OPTIONS_VALUES[i]);
+
+			if (type < 0 || type> WBSF::CTM::NB_REFERENCE)
+				type = WBSF::CTM::ATEMPORAL;
+
+			m_bAllowEdit = false;
+			SetOriginalValue(GetOptionText(type));
+		}
+
+
+		CString GetOptionText(size_t index)
+		{
+			ASSERT(index < (size_t)m_lstOptions.GetSize());
+			POSITION pos = m_lstOptions.FindIndex(index);
+			return m_lstOptions.GetAt(pos);
+		}
+
+		size_t GetType()const
+		{
+			CString str(CMFCPropertyGridProperty::GetValue());
+
+			size_t index = 0;
+
+			POSITION pos = m_lstOptions.Find(str);
+			POSITION curPos = m_lstOptions.GetHeadPosition();
+			while (pos != curPos)
+			{
+				m_lstOptions.GetNext(curPos);
+				index++;
+			}
+
+			ASSERT(index >= 0 && index < WBSF::CTM::NB_REFERENCE);
+
+			return index;
+		}
+
+		void SetType(size_t type)
+		{
+			if (type > WBSF::CTM::NB_REFERENCE)
+				type = WBSF::CTM::ATEMPORAL;
+
+			CMFCPropertyGridProperty::SetValue(GetOptionText(type));
+		}
+
+		virtual const COleVariant& GetValue()const
+		{
+			size_t type = GetType();
+			const_cast<CStdCTRefTypePropertyGridProperty*>(this)->m_type = UtilWin::ToCString(type);
+
+			return m_type;
+		}
+
+		virtual void SetValue(const COleVariant& varValue)
+		{
+			CString str(varValue);
+
+			//WBSF::CTM TM = WBSF::from_string<WBSF::CTM>((LPCSTR)str);
+			SetType(UtilWin::ToShort(str));
+		}
+
+		virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
+		virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	protected:
+
+
+		COleVariant m_type;
+	};
+
+	class CStdCTRefModePropertyGridProperty : public CStdGridProperty
+	{
+	public:
+
+
+		CStdCTRefModePropertyGridProperty(const std::string& name, size_t mode, const std::string& description, size_t no) :
+			CStdGridProperty(name, "", description, no)
+		{
+			CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(IDS_STR_TM_MODE));
+
+			for (int i = 0; i < WBSF::CTM::NB_MODE; i++)
+				AddOption(OPTIONS_VALUES[i]);
+
+			if (mode < 0 || mode > WBSF::CTM::NB_MODE)
+				mode = WBSF::CTM::OVERALL_YEARS;
+
+			m_bAllowEdit = false;
+			SetOriginalValue(GetOptionText(mode));
+		}
+
+
+		CString GetOptionText(size_t index)
+		{
+			ASSERT(index < (size_t)m_lstOptions.GetSize());
+			POSITION pos = m_lstOptions.FindIndex(index);
+			return m_lstOptions.GetAt(pos);
+		}
+
+		size_t GetMode()const
+		{
+			CString str(CMFCPropertyGridProperty::GetValue());
+
+			size_t index = 0;
+
+			POSITION pos = m_lstOptions.Find(str);
+			POSITION curPos = m_lstOptions.GetHeadPosition();
+			while (pos != curPos)
+			{
+				m_lstOptions.GetNext(curPos);
+				index++;
+			}
+
+			ASSERT(index >= 0 && index < WBSF::CTM::NB_MODE);
+
+			return index;
+		}
+
+		void SetMode(size_t mode)
+		{
+			if (mode > WBSF::CTM::NB_MODE)
+				mode = WBSF::CTM::OVERALL_YEARS;
+
+			CMFCPropertyGridProperty::SetValue(GetOptionText(mode));
+		}
+
+		virtual const COleVariant& GetValue()const
+		{
+			size_t mode = GetMode();
+			const_cast<CStdCTRefModePropertyGridProperty*>(this)->m_mode = UtilWin::ToCString(mode);
+
+			return m_mode;
+		}
+
+		virtual void SetValue(const COleVariant& varValue)
+		{
+			CString str(varValue);
+			SetMode(UtilWin::ToShort(str));
+		}
+
+		virtual std::string get_string(){ return std::string((LPCSTR)CStringA(CString(GetValue()))); }
+		virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	protected:
+
+
+		COleVariant m_mode;
+	};
+
+	class CStdTMPropertyGridProperty : public CStdGridProperty
+	{
+	public:
+
+
+		CStdTMPropertyGridProperty::CStdTMPropertyGridProperty(const std::string& name, string value, const std::string& description, size_t no) :
+			CStdGridProperty(name, no, true)
+		{
+			CStdGridProperty* pProp = NULL;
+
+			WBSF::CTM TM;
+			if (!value.empty())
+			{
+				TM = WBSF::from_string<WBSF::CTM>(value);
+			}
+
+			pProp = new CStdCTRefTypePropertyGridProperty("Type", TM.Type(), "Specifies the temporal type", m_dwData * 1000 + 1);
+			AddSubItem(pProp);
+
+			pProp = new CStdCTRefModePropertyGridProperty("Mode", TM.Mode(), "Specifies the temporal mode", m_dwData * 1000 + 2);
+			AddSubItem(pProp);
+
+			m_bAllowEdit = false;
+		}
+
+
+
+		WBSF::CTM GetTM()const
+		{
+			ASSERT(GetSubItemsCount() == 2);
+
+			size_t t = ((CStdCTRefTypePropertyGridProperty*)GetSubItem(0))->GetType();
+			size_t m = ((CStdCTRefModePropertyGridProperty*)GetSubItem(1))->GetMode();
+			
+			return WBSF::CTM(t,m);
+		}
+
+		void SetTM(WBSF::CTM TM)
+		{
+			((CStdCTRefTypePropertyGridProperty*)GetSubItem(0))->SetType(TM.Type());
+			((CStdCTRefModePropertyGridProperty*)GetSubItem(1))->SetMode(TM.Mode());
+		}
+/*
+		virtual const COleVariant& GetValue()const
+		{
+			WBSF::CTM TM = GetTM();
+			ASSERT(TM.IsValid());
+
+			const_cast<CStdTMPropertyGridProperty*>(this)->m_TM = CString(WBSF::to_string(TM).c_str());
+
+			return m_TM;
+		}
+
+		virtual void SetValue(const COleVariant& varValue)
+		{
+			CStringA str(varValue);
+
+			WBSF::CTM TM = WBSF::from_string<WBSF::CTM>((LPCSTR)str);
+			SetTM(TM);
+		}*/
+
+		virtual std::string get_string()
+		{ 
+			WBSF::CTM TM = GetTM();
+			ASSERT(TM.IsValid());
+
+			return WBSF::to_string(TM);
+		}
+		virtual void set_string(std::string str)
+		{ 
+			WBSF::CTM TM = WBSF::from_string<WBSF::CTM>(str);
+			SetTM(TM);
+		}
+
+	//protected:
+
+
+	//	COleVariant m_TM;
+	};
+
+
+
 
 	//*************************************************************************************
 	// CModelGeneralPage property page
@@ -744,7 +984,7 @@ namespace WBSF
 			case CModelOutputVariableDef::DESCRIPTION:
 			case CModelOutputVariableDef::PRECISION:
 			case CModelOutputVariableDef::EQUATION:		pProp = new CStdGridProperty(title[i], "", description[i], i); break;
-			case CModelOutputVariableDef::TIME_MODE:	pProp = new CStdTimeModePropertyGridProperty(title[i], CTM(CTM::ATEMPORAL), description[i], i); break;
+			case CModelOutputVariableDef::TIME_MODE:	pProp = new CStdTMPropertyGridProperty(title[i], "", description[i], i); break;
 			case CModelOutputVariableDef::CLIMATIC_VARIABLE: pProp = new CStdWeatherVariableProperty(title[i], "", description[i], i); break;
 			default: ASSERT(false);
 			}
@@ -804,6 +1044,11 @@ namespace WBSF
 		{
 			CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
 			size_t member = (size_t)pProp->GetData();
+			if (member > 1000)
+			{
+				pProp = static_cast<CStdGridProperty*>(pProp->GetParent());
+				member = (size_t)pProp->GetData();
+			}
 			ASSERT(member < CModelOutputVariableDef::GetNbMembers());
 			string str = pProp->get_string();
 			CString test1 = pProp->GetValue();

@@ -72,6 +72,7 @@ namespace WBSF
 		virtual std::string GetFeedbackBestParam()const;
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const;
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;
+		virtual bool GetVariogram(CVariogram& variogram)const;
 
 		CParamUK m_p;
 

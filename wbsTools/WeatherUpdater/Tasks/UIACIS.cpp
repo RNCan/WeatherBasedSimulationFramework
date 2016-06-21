@@ -159,7 +159,7 @@ namespace WBSF
 					const zen::XmlElement* pIds = child["station_ids"].get();
 					if (pIds)
 					{
-						auto iterPair = pIds->getChildren();;
+						auto iterPair = pIds->getChildren();
 						for (auto iter = iterPair.first; iter != iterPair.second; ++iter)
 						{
 							string name = iter->getNameAs<string>();
@@ -278,7 +278,7 @@ namespace WBSF
 		int nbDownload = 0;
 		int currentNbDownload = 0;
 
-		callback.PushTask("Download data", nbFilesToDownload);
+		callback.PushTask("Download ACIS data", nbFilesToDownload);
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			for (size_t y = 0; y < nbYears&&msg; y++)
@@ -609,8 +609,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
-		msg = m_stations.Load(GetStationListFilePath());
+		if (m_stations.empty())
+			msg = m_stations.Load(GetStationListFilePath());
 
 		if (msg)
 			msg += m_stations.IsValid();

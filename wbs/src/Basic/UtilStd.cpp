@@ -845,6 +845,7 @@ namespace WBSF
 		OPENFILENAMEW ofn;
 
 		std::wstring wfilter = UTF16(filter);
+		std::replace(wfilter.begin(), wfilter.end(), '|', '\0');
 		std::wstring wfileName; wfileName.resize(MAX_PATH);
 
 		ZeroMemory(&ofn, sizeof(ofn));

@@ -32,7 +32,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.2.0 (2016)";
+		VERSION = "1.2.2 (2016)";
 
 		m_crop = BROCCOLI;
 		m_Jplant = CMonthDay(0,0);
@@ -47,6 +47,29 @@ namespace WBSF
 	{}
 
 
+
+
+	//this method is call to load your parameter in your variable
+	ERMsg CASCE_ETcModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+		//transfer your parameter here
+		size_t c = 0;
+
+		//member
+		m_crop = (TCrop)parameters[c++].GetInt();//crop type
+		m_Jplant = parameters[c++].GetString();//plantation date
+		m_soil = (TSoil)parameters[c++].GetInt();//soil type
+		m_granularity = (TGranularity)parameters[c++].GetInt();//soil granularity
+		m_irrigation = (TWettingEvent)parameters[c++].GetInt();//irregeration type
+
+		if (m_info.m_modelName.find("Ex", 0) != -1)
+			m_bExtended = true;
+
+
+		return msg;
+	}
 	//ERMsg CASCE_ETcModel::OnExecuteHourly()
 	//{
 	//	ERMsg msg;
@@ -99,7 +122,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//compute evapotranpiration of reference
+		//compute evapotranspiration of reference
 		CASCE_ETc ASCE_ETc(m_Jplant, m_crop, m_soil, m_granularity, m_irrigation, m_bExtended);
 		ASCE_ETc.Execute(m_weather, m_output);
 
@@ -113,12 +136,11 @@ namespace WBSF
 		CASCE_ETc ASCE_ETc(m_Jplant, m_crop, m_soil, m_granularity, m_irrigation, m_bExtended);
 
 		CModelStatVector stat;
-		ASCE_ETc.Execute(m_weather, stat);
+		ASCE_ETc.Execute(m_weather, m_output);
+		m_output.Transform(CTM(CTM::MONTHLY), SUM);
 
-
-		CTTransformation TT(stat.GetTPeriod(), CTM(CTM::MONTHLY));
+		//CTTransformation TT(stat.GetTPeriod(), CTM(CTM::MONTHLY));
 		//ASCE_ETc.Transform(TT, stat, m_output);
-
 
 		return msg;
 	}
@@ -130,36 +152,15 @@ namespace WBSF
 		CASCE_ETc ASCE_ETc(m_Jplant, m_crop, m_soil, m_granularity, m_irrigation, m_bExtended);
 
 		CModelStatVector stat;
-		ASCE_ETc.Execute(m_weather, stat);
+		ASCE_ETc.Execute(m_weather, m_output);
+		m_output.Transform(CTM(CTM::ANNUAL), SUM);
 
-		CTTransformation TT(stat.GetTPeriod(), CTM(CTM::ANNUAL));
+		//CTTransformation TT(stat.GetTPeriod(), CTM(CTM::ANNUAL));
 		//ASCE_ETc.Transform(TT, stat, m_output);
 
 		return msg;
 	}
 
 
-
-	//this method is call to load your parameter in your variable
-	ERMsg CASCE_ETcModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg msg;
-
-		//transfer your parameter here
-		size_t c = 0;
-
-		//member
-		m_Jplant = parameters[c++].GetString();//plantation date
-		m_crop = (TCrop)parameters[c++].GetInt();//crop type
-		m_soil = (TSoil)parameters[c++].GetInt();//soil type
-		m_granularity = (TGranularity)parameters[c++].GetInt();//soil granularity
-		m_irrigation = (TWettingEvent)parameters[c++].GetInt();//irregeration type
-		
-		if (m_info.m_modelName.find("Ex", 0) != -1)
-			m_bExtended = true;
-		
-
-		return msg;
-	}
 
 }

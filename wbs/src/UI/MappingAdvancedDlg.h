@@ -50,6 +50,7 @@ namespace WBSF
 		CCFLEdit	m_nbLagsCtrl;
 		CComboBox	m_detrendingCtrl;
 		CComboBox	m_externalDriftCtrl;
+		CButton		m_outputVariogramCtrl;
 
 		CAutoEnableStatic m_regionalLimitCtrl;
 		CCFLEdit	m_regionalLimitSDCtrl;

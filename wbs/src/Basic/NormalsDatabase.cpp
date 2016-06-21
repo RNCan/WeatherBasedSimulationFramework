@@ -344,10 +344,12 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 	if (msg && bStationsAsChange)
 	{
 		if (!FileExists(referencedFilePath))
-		{
 			msg += CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, "", GetXMLFlag(), GetVersion());
-			msg += CNormalsDataDeque().SaveAsCSV(CNormalsDatabase().GetNormalsDataFilePath(referencedFilePath), CWeatherDatabaseOptimization(), DEFAULT_CALLBACK);
-		}
+		
+		string dataFilePath = CNormalsDatabase().GetNormalsDataFilePath(referencedFilePath);
+		if (msg && !FileExists(dataFilePath))
+			msg += CNormalsDataDeque().SaveAsCSV(dataFilePath, CWeatherDatabaseOptimization(), DEFAULT_CALLBACK);
+		
 		
 		if (msg)
 			msg += VerifyVersion(referencedFilePath);
@@ -378,12 +380,8 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 			
 			if (msg)
 			{
-
-				if (msg)
-				{
-					m_zop.UpdateDataFiles(GetNormalsDataFilePath(referencedFilePath));
-					msg = m_data.Save(GetOptimisationDataFilePath(referencedFilePath));
-				}
+				m_zop.UpdateDataFiles(GetNormalsDataFilePath(referencedFilePath));
+				msg = m_data.Save(GetOptimisationDataFilePath(referencedFilePath));
 			}
 		}
 		else

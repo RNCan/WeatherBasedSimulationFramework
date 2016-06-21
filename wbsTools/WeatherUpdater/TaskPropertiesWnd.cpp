@@ -18,6 +18,9 @@
 #include "UI/Common/SelectionCtrl.h"
 #include "TaskPropertiesWnd.h"
 #include "WeatherUpdaterDoc.h"
+#include "Basic/NormalsDataBase.h"
+#include "Basic/DailyDataBase.h"
+#include "Basic/HourlyDataBase.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "resource.h"
@@ -387,7 +390,24 @@ void CTaskPropertyWnd::OnOpenProperty()
 	ENSURE(pProp);
 	
 	std::string str = pProp->get_string();
-	ShellExecuteW(m_hWnd, L"open", CString(str.c_str()), NULL, NULL, SW_SHOW);
+	std::string ext = GetFileExtension(str);
+	if (IsEqual(ext, CNormalsDatabase::DATABASE_EXT))
+	{
+		CallApplication(CRegistry::NORMAL_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+	}
+	else if (IsEqual(ext, CDailyDatabase::DATABASE_EXT))
+	{
+		CallApplication(CRegistry::DAILY_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+	}
+	else if (IsEqual(ext, CHourlyDatabase::DATABASE_EXT))
+	{
+		CallApplication(CRegistry::HOURLY_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+	}
+	else
+	{
+		ShellExecuteW(m_hWnd, L"open", CString(str.c_str()), NULL, NULL, SW_SHOW);
+	}
+	
 }
 
 void CTaskPropertyWnd::OnDestroy()

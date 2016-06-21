@@ -239,7 +239,7 @@ namespace WBSF
 			//create title
 			CStatic* pStatic = (CStatic*) new CStatic;
 			CRect rect = m_variables[i].GetItemRect(0);
-			rect.bottom += 3 * rect.Height();
+			//rect.bottom += 3 * rect.Height();
 
 			pStatic->Create(CString(m_variables[i].m_caption.c_str()), WS_CHILD | WS_VISIBLE, rect, this, IDC_STATIC);
 			pStatic->SetFont(pFont);

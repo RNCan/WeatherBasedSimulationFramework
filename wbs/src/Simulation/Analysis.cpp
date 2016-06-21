@@ -634,6 +634,7 @@ namespace WBSF
 
 			if (filter[PARAMETER])
 			{
+				info.m_parameterset = CleanParameterset(info.m_parameterset);
 			}
 
 			if (filter[REPLICATION])
@@ -887,7 +888,7 @@ namespace WBSF
 			if (msg)
 			{
 				CLocationStat locationStat(extents[dimOut[PARAMETER]][dimOut[REPLICATION]]);
-				for (size_t j = parametersVariation.find_first(), J = 0; j != CVariableSelectionVector::npos; j = parametersVariation.find_next(i), J++)
+				for (size_t j = parametersVariation.find_first(), J = 0; j != CVariableSelectionVector::npos; j = parametersVariation.find_next(j), J++)
 				{
 					for (size_t k = 0; k < dimIn[REPLICATION] && msg; k++)
 					{
@@ -1000,6 +1001,34 @@ namespace WBSF
 		return outputLOC;
 	}
 
+	CModelInputVector CAnalysis::CleanParameterset(const CModelInputVector& in)const
+	{
+		CModelInputVector out;
+
+		if (m_computation.m_bMeanOverParameterSet)
+		{
+			out.resize(1);
+			out[0].SetName("Mean over parameterset");
+		}
+		else if (m_window.m_bSelectParametersVariations)
+		{
+			CVariableSelectionVector selection(m_window.m_parametersVariations);
+			out.resize(selection.count());
+
+			for (size_t i = selection.find_first(), I = 0; i != UNKNOWN_POS; i = selection.find_next(i), I++)
+			{
+				if (i < in.size())
+					out[I] = in[i];
+			}
+		}
+		else
+		{
+			out = in;
+		}
+
+		return out;
+	}
+
 	size_t CAnalysis::CleanReplication(size_t nbRep)const
 	{
 		if (m_computation.m_bMeanOverReplication)
@@ -1073,6 +1102,7 @@ namespace WBSF
 
 		inputInfo = metadata;
 		inputInfo.SetLocations(CleanLocations(metadata.GetLocations()));
+		inputInfo.SetParameterSet(CleanParameterset(metadata.GetParameterSet()));
 		inputInfo.SetNbReplications(CleanReplication(inputInfo.GetNbReplications()));
 		inputInfo.SetOutputDefinition(CleanVariables(TM, metadata.GetOutputDefinition()));
 

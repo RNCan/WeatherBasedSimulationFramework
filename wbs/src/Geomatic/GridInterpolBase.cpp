@@ -610,6 +610,12 @@ namespace WBSF
 
 		return msg;
 	}
+	
+	bool CGridInterpolBase::GetVariogram(CVariogram& variogram)const
+	{
+		//do nothing by default
+		return false;
+	}
 
 	ERMsg CGridInterpolBase::Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut)const
 	{

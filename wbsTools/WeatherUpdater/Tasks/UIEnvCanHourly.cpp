@@ -53,7 +53,7 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Daily\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Hourly\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -735,6 +735,7 @@ namespace WBSF
 
 		
 		msg = m_stations.Load(GetStationListFilePath());
+
 		if (!msg)
 			return msg;
 

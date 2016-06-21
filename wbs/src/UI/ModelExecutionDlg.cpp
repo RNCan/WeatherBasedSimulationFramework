@@ -204,10 +204,13 @@ namespace WBSF
 		if (modelName == m_lastModelLoad)
 			return;
 
+		string lastModelInput = m_modelExecution.m_modelInputName;
+
 		if (!m_lastModelLoad.empty())
 		{
 			//remove all m_modelExecution variation
 			m_modelExecution.m_paramVariationsName.clear();
+			m_modelExecution.m_modelInputName.clear();
 		}
 
 		m_lastModelLoad = modelName;
@@ -228,10 +231,13 @@ namespace WBSF
 				m_modelInputNameCtrl.SetCurSel(0);
 			}
 		}
+		else if (!lastModelInput.empty())
+		{
+			//try to load the same input paramter name event if it's not the same model. 
+			m_modelInputNameCtrl.SelectStringExact(0, m_modelExecution.m_modelInputName, 0);
+		}
 
-		//init LOC comboBox
-		//FillParametersVariations();
-		//OnParametersVariationsChange();
+		//init parameters variations comboBox
 		FillParametersVariations();
 		if (!m_modelExecution.m_paramVariationsName.empty())
 		{

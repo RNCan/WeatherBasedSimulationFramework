@@ -9,12 +9,12 @@
 //The Dual Kc Method : Incorporating Specific Wet Soil Effects
 //The dual Kc method introduced in this section, based on FAO - 56, is applicable to
 //both Kc based on ETo(Kco) and Kc based on ETr(Kcr), with differences only in the
-//value for Kc max.The Ke component describes the evaporation component of ETc.Because
+//value for Kc max. The Ke component describes the evaporation component of ETc. Because
 //the dual Kc method incorporates the effects of specific wetting patterns and frequencies
 //that may be unique to a single field, this method can provide more accurate
 //estimates of evaporation components and total ET on an individual field basis.
 //When the soil surface layer is wet, following rain or irrigation, Ke is at a maximum,
-//and when the soil surface layer is dry, Ke is small, even zero.When the soil is wet,
+//and when the soil surface layer is dry, Ke is small, even zero. When the soil is wet,
 //evaporation occurs at some maximum rate and Kcb + Ke is limited by a maximum
 //******************************************************************************
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
@@ -573,6 +573,8 @@ namespace WBSF
 		CASCE_ETsz ASCE2005;
 		CModelStatVector Etsz;
 		ASCE2005.Execute(weather, Etsz);
+		Etsz.Transform(CTM(CTM::DAILY), SUM);
+
 
 		//Compute DegreeDays 5°C
 		//CDegreeDays DD(m_weather.IsHourly() ? CDegreeDays::AT_HOURLY : CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
@@ -631,6 +633,7 @@ namespace WBSF
 
 			double last_p = 0;//last amout of precipitation
 			double last_i = 0;//last amout of irigation
+			double fw¯¹ = 1;
 
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -641,7 +644,7 @@ namespace WBSF
 					i = 0;
 				}
 				
-				//get weatehr varaible
+				//get weather variables
 				double RHmin = GetRHmin(weather, TRef);//[%]
 				double u2 = weather[TRef][H_WND2][MEAN] * 1000 / 3600; //u2 [m/s]
 				double P = weather[TRef][H_PRCP][SUM]; //[mm]
@@ -658,7 +661,7 @@ namespace WBSF
 				double fc = max(0.01, min(0.99, pow((Kcb - Kc_min) / (Kc_max - Kc_min), 1 + 0.5*h)));
 				//determine effective fw from the last maine event between P and I
 				//double fw = Getfw(last_p > last_i ? I_PRECIPITATION : m_irrigation);
-				double fw = I>0?Getfw(m_irrigation):P>0?1:fw;
+				double fw = I>0 ? Getfw(m_irrigation) : P>0 ? 1 : fw¯¹;
 				double few = min(1.0 - fc, fw); //fraction of the soil that is both exposed to solar radiation and that is wetted
 
 				//compute coeficient
@@ -693,11 +696,12 @@ namespace WBSF
 				Dr_adj = max(0.0, min(TAW, Dr_adj - (P - RO) - I + Kc_adj*ETo + DP));
 
 				//if (P > 0)
-					last_p = P;
+				last_p = P;
 //
 				//if (IRn > 0)
-					last_i = I / fw;
+				last_i = I / fw;
 			
+				fw¯¹ = fw;
 
 				//save output
 				output[TRef][S_ETc] = Kc_adj*ETo;

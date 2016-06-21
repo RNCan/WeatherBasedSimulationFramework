@@ -142,6 +142,14 @@ namespace WBSF
 		return pVariogram;
 	}
 
+	bool CUniversalKriging::GetVariogram(CVariogram& variogram)const
+	{
+		if (m_pVariogram != NULL)
+			variogram = *m_pVariogram;
+		
+		return m_pVariogram!=NULL;
+	}
+
 	ERMsg CUniversalKriging::Initialization()
 	{
 		ERMsg msg = CGridInterpolBase::Initialization();
@@ -157,6 +165,8 @@ namespace WBSF
 		CDetrending detrending(TERM_DEFINE[d][0]);
 		for (int i = 0; i < TERM_DEFINE[d][0]; i++)
 			detrending[i] = TERM_DEFINE[d][i + 1];
+
+		
 
 		msg = m_pVariogram->CreateVariogram(*m_pPts, m_prePostTransfo, m_param.m_variogramModel, m_param.m_nbLags, m_param.m_lagDist, detrending);
 

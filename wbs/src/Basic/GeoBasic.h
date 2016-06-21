@@ -1603,8 +1603,8 @@ namespace WBSF
 		void clear()
 		{
 			CGeoPoint3D::clear();
-			m_slope		= 0;
-			m_aspect	= 0;
+			m_slope		= -999;
+			m_aspect    = -999;
 			m_event		= 0;
 			m_latitudeDeg = -999;
 		}
@@ -1724,7 +1724,7 @@ namespace WBSF
 			bool bExposition=false;
 			for(const_iterator p=begin(); p<end()&&!bExposition; p++)
 			{
-				if( p->m_slope != 0 || p->m_aspect != 0)
+				if( p->m_slope > 0 || p->m_aspect > 0)
 					bExposition=true;
 			}
 

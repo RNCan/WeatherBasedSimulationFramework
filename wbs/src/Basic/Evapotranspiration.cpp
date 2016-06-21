@@ -450,7 +450,9 @@ void CTurcET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 				//{
 				
 				double T = weather[y][m][d][H_TAIR][MEAN];
-				double RH = weather[y][m][d][H_RELH][MEAN];
+				double Ea = weather[y][m][d][H_EA][MEAN];	//vapor pressure [Pa]
+				double Es = weather[y][m][d][H_ES][MEAN];	//vapor pressure [Pa]
+				double RH = max(1.0,min(100.0, Ea / Es * 100.0));//weather[y][m][d][H_RELH][MEAN];
 				double Rg = weather[y][m][d][H_SRAD][SUM];
 				double C = RH>=50?1:1+(50-RH)/70;
 

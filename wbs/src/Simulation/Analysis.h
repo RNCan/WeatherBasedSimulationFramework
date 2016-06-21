@@ -220,10 +220,12 @@ namespace WBSF
 
 		CDimension GetOutputDimension(const CResultPtr& result)const;
 		CLocationVector CleanLocations(const CLocationVector& inputLOC)const;
-		size_t CleanReplication(size_t nbRep)const;
+		CModelInputVector CleanParameterset(const CModelInputVector& in)const;
+		CModelOutputVariableDefVector CleanVariables(CTM dataTM, const CModelOutputVariableDefVector& varListIn)const;
+			size_t CleanReplication(size_t nbRep)const;
 		CTM CleanTimeTM(CTM TM)const;
 		CTPeriod CleanTimePeriod(CTPeriod p)const;
-		CModelOutputVariableDefVector CleanVariables(CTM dataTM, const CModelOutputVariableDefVector& varListIn)const;
+		
 
 		void ClassReset();
 		void GetDBInputInfo(CResultPtr& pResult, CDBMetadata& inputInfo);

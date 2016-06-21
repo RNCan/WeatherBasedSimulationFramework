@@ -67,14 +67,14 @@ namespace WBSF
 
 		Landsat::TIndices	m_type;
 		double				m_threshold;
-		Landsat::TMethod	m_method;
+		//Landsat::TMethod	m_method;
 
 
-		CIndices(Landsat::TIndices	type, double threshold, Landsat::TMethod m )
+		CIndices(Landsat::TIndices	type, double threshold)
 		{
 			m_type = type;
 			m_threshold = threshold;
-			m_method = m;
+			//m_method = m;
 		}
 
 		bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
@@ -170,11 +170,11 @@ namespace WBSF
 			case Landsat::B6:
 			case Landsat::B7:
 			case Landsat::QA:
-			case Landsat::JD:			bPass = Tm1[m_type] - Tp1[m_type] < m_threshold; break;
-			case Landsat::I_NBR:		bPass = Tm1.NBR() - Tp1.NBR() < m_threshold; break;
-			case Landsat::I_EUCLIDEAN:	bPass = Tm1.GetEuclideanDistance(Tp1) < m_threshold; break;
-			case Landsat::I_NDVI:		bPass = Tm1.NDVI() - Tp1.NDVI() < m_threshold; break;
-			case Landsat::I_NDMI:		bPass = Tm1.NDMI() - Tp1.NDMI() < m_threshold; break;
+			case Landsat::JD:			bPass = Tm1[m_type] - Tp1[m_type] >= m_threshold; break;
+			case Landsat::I_NBR:		bPass = Tm1.NBR() - Tp1.NBR() >= m_threshold; break;
+			case Landsat::I_EUCLIDEAN:	bPass = Tm1.GetEuclideanDistance(Tp1) >= m_threshold; break;
+			case Landsat::I_NDVI:		bPass = Tm1.NDVI() - Tp1.NDVI() >= m_threshold; break;
+			case Landsat::I_NDMI:		bPass = Tm1.NDMI() - Tp1.NDMI() >= m_threshold; break;
 			case Landsat::I_TCB:		bPass = Tm1.TCB() - Tp1.TCB() >= m_threshold; break;
 			case Landsat::I_TCG:		bPass = Tm1.TCG() - Tp1.TCG() >= m_threshold; break;
 			case Landsat::I_TCW:		bPass = Tm1.TCW() - Tp1.TCW() >= m_threshold; break;
@@ -204,13 +204,13 @@ namespace WBSF
 
 		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)
 		{
-			bool bPass = !empty() ? front().m_method == Landsat::M_AND : true;
+			bool bPass = true;// !empty() ? front().m_method == Landsat::M_AND : true;
 			for (const_iterator it = begin(); it < end(); it++)
 			{
-				if (it->m_method == Landsat::M_AND)
-					bPass = bPass && it->IsTrigged(Tm1, Tp1);
-				else
-					bPass = bPass || !it->IsTrigged(Tm1, Tp1);
+				//if (it->m_method == Landsat::M_AND)
+				bPass = bPass && it->IsTrigged(Tm1, Tp1);
+				//else
+					//bPass = bPass || !it->IsTrigged(Tm1, Tp1);
 					
 			}
 

@@ -109,6 +109,7 @@ BEGIN
     BUTTON      ID_TASK_BC
     BUTTON      ID_TASK_WU
 	BUTTON      ID_TASK_MANITOBA
+	BUTTON      ID_TASK_NEWBRUNSWICK
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -156,6 +157,7 @@ BEGIN
     BUTTON      ID_TASK_BC
     BUTTON      ID_TASK_WU
 	BUTTON      ID_TASK_MANITOBA
+	BUTTON		ID_TASK_NEWBRUNSWICK
     BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -197,8 +199,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,5,24
- PRODUCTVERSION 5,0,5,19
+ FILEVERSION 5,0,7,28
+ PRODUCTVERSION 5,0,7,26
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -215,21 +217,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.5.24"
+            VALUE "FileVersion", "5.0.7.28"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.0.5.19"
+            VALUE "ProductVersion", "5.0.7.26"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.5.24"
+            VALUE "FileVersion", "5.0.7.28"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.0.5.19"
+            VALUE "ProductVersion", "5.0.7.26"
         END
     END
     BLOCK "VarFileInfo"
@@ -661,6 +663,7 @@ BEGIN
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Répertoire de travail"
 	IDS_UPDATER_MANITOBA_P "Répertoire de travail|Première année|Dernière année|Réseau|Type"
+	IDS_UPDATER_NEWBRUNSWICK_P "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
 END
@@ -726,6 +729,7 @@ BEGIN
     ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
     ID_TASK_WU              "Télécharger les données Weather Uderground\nWeather Underground"
 	ID_TASK_MANITOBA		"Télécharger les données du Manitoba\nManitoba"
+	ID_TASK_NEWBRUNSWICK	"Télécharger les données du Nouveau Brunswick\nNouveau Brunswick"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1107,6 +1111,7 @@ BEGIN
     IDS_UPDATER_WU_P        "Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First Year|Last Year"
 	IDS_UPDATER_MANITOBA_P "Working directory|First Year|Last Year|Network|Type"
+	IDS_UPDATER_NEWBRUNSWICK_P "Working directory|First Year|Last Year|Network"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
 END
@@ -1171,7 +1176,8 @@ BEGIN
     ID_TASK_SOPFEU          "Download SOPFEU hourly data\nSOPFEU"
     ID_TASK_BC              "Download British Comlombia data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish Comlombia Weather"
     ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
-	ID_TASK_MANITOBA		"Download Manitoba Weather data\nManitoba"
+	ID_TASK_MANITOBA		"Download Manitoba weather data\nManitoba"
+	ID_TASK_NEWBRUNSWICK	"Download New Brunswick weather data\nNew Brunswick"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

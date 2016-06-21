@@ -171,10 +171,10 @@ namespace WBSF
 
 		msg = m_pParent->GetParentInfo(fileManager, info, filter);
 
-		if (filter[REPLICATION])
+		/*if (filter[REPLICATION])
 		{
 			info.m_nbReplications = 1;
-		}
+		}*/
 
 		if (filter[VARIABLE])
 		{
@@ -467,21 +467,18 @@ namespace WBSF
 		return fileManager.GetOutputMapFilePath(TEMName, mapExt);
 	}
 
-
+	
 	ERMsg CMapping::InitGridInterpol(const CFileManager& fileManager, CResultPtr& pResult, size_t p, size_t r, size_t t, size_t v, CGridInterpol& mapInput, CCallback& callback)
 	{
 		ERMsg msg;
 
 		const CLocationVector& locArray = pResult->GetMetadata().GetLocations();
-		//CTPeriod period = pResult->GetMetadata().GetTPeriod();
+
 
 		CGridPointVectorPtr pts(new CGridPointVector);
-		//pts->resize(locArray.size());
 		pts->reserve(locArray.size());
-		//	pts->m_bGeographic=true;
 
 		callback.PushTask("Compute event", locArray.size());
-		//callback.SetNbStep(locArray.size());
 
 		bool bHaveData = false;
 		for (size_t i = 0; i < locArray.size() && msg; i++)

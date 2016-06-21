@@ -6,10 +6,9 @@
 #include "Basic/WeatherDatabase.h"
 #include "Basic/WeatherStation.h"
 #include "UI/Common/SYShowMessage.h"
-//#include "Task.h"
 #include "Simulation/AdvancedNormalStation.h"
-#include "Simulation/MonthlyMeanGrid.h"
-//#include "cpl_conv.h"
+
+
 #include "../resource.h"
 #include "WeatherBasedSimulationString.h"
 
@@ -21,7 +20,7 @@ namespace WBSF
 	//*********************************************************************
 
 	const char* CCreateNormalsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilePath", "OutputFilePath", "FirstYear", "LastYear", "NbYears", "ApplyClimaticChange", "MMGFilepath", "ReferencePeriod", "FuturPeriod", "NbNeighbor", "MaxDistance", "Power" };
-	const size_t CCreateNormalsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_BOOL, T_FILEPATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_STRING };
+	const size_t CCreateNormalsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_STRING, T_STRING, T_STRING, T_BOOL, T_FILEPATH, T_COMBO_INDEX, T_STRING_SELECT, T_STRING, T_STRING, T_STRING };
 	const UINT CCreateNormalsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_NORMALS_P;
 	const UINT CCreateNormalsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_NORMALS;
 
@@ -47,12 +46,23 @@ namespace WBSF
 		{
 		case INPUT:			str = GetString(IDS_STR_FILTER_DAILY); break;
 		case OUTPUT:		str = GetString(IDS_STR_FILTER_NORMALS); break;
-		case NORMAL_PERIOD:
-		case FUTUR_PERIOD:
+		case MMG_FILEPATH:	str = GetString(IDS_STR_FILTER_MMG); break;
+		case NORMAL_PERIOD: 
 		{
 			str = " ";
 			for (int i = 0; i < 12; i++)
 				str += FormatA("|%d-%d", 1961 + 10 * i, 1990 + 10 * i);
+			break;
+		}
+		case FUTUR_PERIOD:
+		{
+			for (size_t i = 0; i < CNormalFromDaily::NB_CC_PERIODS; i++)
+			{
+				str += i > 0 ? "|" : "";
+				str += FormatA("%d=%d-%d", i, CNormalFromDaily::FIRST_YEAR_OF_FIRST_PERIOD + 10 * i, (CNormalFromDaily::FIRST_YEAR_OF_FIRST_PERIOD+29) + 10 * i);
+			}
+				
+
 			break;
 		}
 		};
@@ -71,8 +81,8 @@ namespace WBSF
 		case NB_YEARS_MIN:	str = "10"; break;
 		case APPLY_CLIMATIC_CHANGE:	str = "0"; break;
 		case NORMAL_PERIOD:	str = "0"; break;
-		case FUTUR_PERIOD:	str = "0"; break;
-		case NB_NEIGHBOR:	str = "1"; break;
+		case FUTUR_PERIOD:	str = "3|4|5|6|7|8|9|10|11"; break;
+		case NB_NEIGHBOR:	str = "3"; break;
 		case MAX_DISTANCE:	str = "100000"; break;
 		case POWER:			str = "2"; break;
 		};
@@ -270,6 +280,12 @@ namespace WBSF
 		}
 
 		string outputFilePath = Get(OUTPUT);
+		if (outputFilePath.empty())
+		{
+			msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
+			return msg;
+		}
+
 		SetFileExtension(outputFilePath, CNormalsDatabase::DATABASE_EXT);
 
 		callback.AddMessage(GetString(IDS_CREATE_DB));
@@ -278,16 +294,16 @@ namespace WBSF
 		msg = CNormalsDatabase::DeleteDatabase(outputFilePath, callback);
 
 		if (msg)
-		{
+		{ 
 			CNormalFromDaily normalFromDaily;
 			normalFromDaily.m_firstYear = as<int>(FIRST_YEAR);
 			normalFromDaily.m_lastYear = as<int>(LAST_YEAR);
 			normalFromDaily.m_nbYearMin = as<int>(NB_YEARS_MIN);
 			normalFromDaily.m_bApplyCC = as<bool>(APPLY_CLIMATIC_CHANGE);
 			normalFromDaily.m_inputMMGFilePath = Get(MMG_FILEPATH);
-			normalFromDaily.m_bCreateAll = false;
+			//normalFromDaily.m_bCreateAll = false;
 			normalFromDaily.m_refPeriodIndex = as<int>(NORMAL_PERIOD)-1;
-			normalFromDaily.m_CCPeriodIndex = as<int>(FUTUR_PERIOD)-1;
+			normalFromDaily.m_CCPeriodIndex = GetCCPeriod();
 			normalFromDaily.m_inputDBFilePath = Get(INPUT);
 			normalFromDaily.m_outputDBFilePath = outputFilePath;
 			normalFromDaily.m_nbNeighbor = as<double>(NB_NEIGHBOR);
@@ -300,5 +316,16 @@ namespace WBSF
 		return msg;
 	}
 
+	CNormalFromDaily::CCPeriodBitset CCreateNormalsDB::GetCCPeriod()const
+	{
+		CNormalFromDaily::CCPeriodBitset CCPeriod;
+		StringVector index(Get(FUTUR_PERIOD), "|");
+		for (size_t i = 0; i < index.size(); i++)
+			if (ToInt(index[i]) < CCPeriod.size())
+				CCPeriod.set(ToInt(index[i]));
+
+		return CCPeriod;
+	}
+	
 
 }

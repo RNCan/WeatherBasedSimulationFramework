@@ -58,6 +58,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_NBLAGS, m_nbLagsCtrl);
 		DDX_Control(pDX, IDC_MAP_DETRENDING, m_detrendingCtrl);
 		DDX_Control(pDX, IDC_MAP_EXTERNAL_DRIFT, m_externalDriftCtrl);
+		DDX_Control(pDX, IDC_MAP_OUTPUT_VARIOGRAM_INFO, m_outputVariogramCtrl);
+		
 
 		DDX_Control(pDX, IDC_MAP_REGIONAL_LIMIT, m_regionalLimitCtrl);
 		DDX_Control(pDX, IDC_MAP_REGIONAL_LIMIT_SD, m_regionalLimitSDCtrl);
@@ -144,6 +146,7 @@ namespace WBSF
 		m_pParam->m_nbLags = ToInt(m_nbLagsCtrl.GetString());
 		m_pParam->m_detrendingModel = m_detrendingCtrl.GetCurSel() - 1;
 		m_pParam->m_externalDrift = m_externalDriftCtrl.GetCurSel() - 1;
+		m_pParam->m_bOutputVariogramInfo = m_outputVariogramCtrl.GetCheck();
 		m_pParam->m_bRegionalLimit = m_regionalLimitCtrl.GetCheck();
 		m_pParam->m_regionalLimitSD = ToFloat(m_regionalLimitSDCtrl.GetString());
 		m_pParam->m_bRegionalLimitToBound = m_regionalLimitToBoundCtrl.GetCheck();
@@ -177,8 +180,10 @@ namespace WBSF
 		m_lagDistanceCtrl.SetWindowText(ToString(m_pParam->m_lagDist, 6));
 		m_nbLagsCtrl.SetWindowText(ToString(m_pParam->m_nbLags));
 		m_detrendingCtrl.SetCurSel(m_pParam->m_detrendingModel + 1);
-
 		m_externalDriftCtrl.SetCurSel(m_pParam->m_externalDrift + 1);
+		m_outputVariogramCtrl.SetCheck(m_pParam->m_bOutputVariogramInfo);
+
+
 		m_regionalLimitCtrl.SetCheck(m_pParam->m_bRegionalLimit);
 		m_regionalLimitSDCtrl.SetWindowText(ToString(m_pParam->m_regionalLimitSD));
 		m_regionalLimitToBoundCtrl.SetCheck(m_pParam->m_bRegionalLimitToBound);

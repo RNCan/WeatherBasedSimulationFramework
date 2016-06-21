@@ -783,8 +783,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
 		msg = m_stations.Load(GetStationListFilePath());
+
 		if (!msg)
 			return msg;
 

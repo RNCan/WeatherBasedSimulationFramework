@@ -131,28 +131,18 @@ ERMsg CGridInterpol::Initialise(CCallback& callback)
 	{
 		CProjectionTransformation PT(m_pts->GetPrjID(), pPrj->GetPrjID());
 		m_pts->Reproject(PT);
-
-		//apply projection on dataset
-		//for(CGridPointVector::iterator it=m_pts->begin(); it!=m_pts->end(); it++)
-			//it->Reproject(PT);
 	}
 
 	//eliminate vmiss, outside and duplicate(kriging) points
 	if( msg )
 	    msg = TrimDataset(callback);
-    
 	
-	//apply pre/post transfo on dataset
-	//for(CGridPointVector::iterator it=m_pts->begin(); it!=m_pts->end(); it++)
-		//it->m_event = m_prePostTransfo.Transform(it->m_event, VMISS);
 
 	if (m_prePostTransfo.HaveTransformation())
 	{
 		string tmp = FormatMsg(IDS_MAP_PREPOST_TRANSFO, m_prePostTransfo.GetDescription());
 	    callback.AddMessage( tmp );
     }
-
-	
     
     if( msg )
 		m_pGridInterpol = CreateNewGridInterpol();
@@ -365,7 +355,6 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 		string comment = GetString(IDS_MAP_OPTIMISATION );
     
 		callback.PushTask(comment, parameterset.size());
-		//callback.SetNbStep(parameterset.size());
 		
 
 		CTimer timer;
@@ -379,7 +368,6 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 		}
 		else
 		{
-			//CGridInterpolBasePtr pGridInterpol = CreateNewGridInterpol();
 			optimisationR².resize(parameterset.size(),0);
 
 
@@ -415,6 +403,8 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 
 			callback.AddMessage("Optimisation = " + SecondToDHMS(timer.Elapsed()) + " s");
 			callback.AddMessage(m_pGridInterpol->GetFeedbackOnOptimisation(parameterset, optimisationR²));
+
+
 		}
 
 		callback.PopTask();
@@ -428,8 +418,6 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 	if( msg)
 	{
 		//if we have transformation, we have to change the noData values
-		//CGridInterpolParam param(m_param);
-		//param.m_noData = VMISS;// m_prePostTransfo.Transform(VMISS, m_param.m_noData);
 		m_pGridInterpol->SetParam(m_param);
 
 		//Get Xvalidation with good parameter
@@ -438,15 +426,13 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 		//update
 		if( msg )
 		{
-			
-			/*if (m_prePostTransfo.HaveTransformation())
+			if (m_param.m_bOutputVariogramInfo)
 			{
-				for (int i = 0; i < m_XValidation.size(); i++)
-				{
-					m_XValidation[i].m_observed = m_prePostTransfo.InvertTransform(m_XValidation[i].m_observed, VMISS);
-					m_XValidation[i].m_predicted = m_prePostTransfo.InvertTransform(m_XValidation[i].m_predicted, VMISS);
-				}
-			}*/
+				string filePath = GetPath(m_TEMFilePath) + GetFileTitle(m_TEMFilePath) + "_variogram.csv";
+				CVariogram variogram;
+				if( m_pGridInterpol->GetVariogram(variogram) )
+					msg += variogram.Save(filePath);
+			}
 
 			//push back removed point with VMISS data
 			if( !m_trimPosition.empty() )

@@ -63,14 +63,14 @@ IDB_SHAPE_TYPE32        BITMAP                  "res/ShapeType32.bmp"
 IDR_EDIT_TOOLBAR        BITMAP                  "res/EditToolbar.bmp"
 IDR_SHOWMAP_TOOLBAR     BITMAP                  "res/showmap.bmp"
 IDB_CONTINUOUS_PERIOD1  BITMAP                  "res/ContinuousPeriod1.bmp"
-IDB_CONTINUOUS_PERIOD1_CHECKED BITMAP           "res/ContinuousPeriod1Checked.bmp"
+IDB_CONTINUOUS_PERIOD1_CHECKED BITMAP                  "res/ContinuousPeriod1Checked.bmp"
 IDB_CONTINUOUS_PERIOD2  BITMAP                  "res/ContinuousPeriod2.bmp"
-IDB_CONTINUOUS_PERIOD2_CHECKED BITMAP           "res/ContinuousPeriod2Checked.bmp"
+IDB_CONTINUOUS_PERIOD2_CHECKED BITMAP                  "res/ContinuousPeriod2Checked.bmp"
 IDB_DESCRIPTION         BITMAP                  "res/Description.bmp"
 IDB_EDIT_LOCATIONS      BITMAP                  "res/EditLocations.bmp"
 IDB_EDIT_PARAMETERS     BITMAP                  "res/EditParameters.bmp"
-IDB_EDIT_PARAMETERS_VARIATIONS BITMAP           "res/EditParametersVariations.bmp"
-IDB_EDIT_WEATHER_GENERATOR BITMAP               "res/EditWeatherGenerator.bmp"
+IDB_EDIT_PARAMETERS_VARIATIONS BITMAP                  "res/EditParametersVariations.bmp"
+IDB_EDIT_WEATHER_GENERATOR BITMAP                  "res/EditWeatherGenerator.bmp"
 IDB_FOR_EACH_YEARS_A    BITMAP                  "res/ForEachYearsA.bmp"
 IDB_FOR_EACH_YEARS_D    BITMAP                  "res/ForEachYearsD.bmp"
 IDB_FOR_EACH_YEARS_M    BITMAP                  "res/ForEachYearsM.bmp"
@@ -80,11 +80,11 @@ IDB_OVER_ALL_YEARS_A    BITMAP                  "res/over_all.bmp"
 IDB_OVER_ALL_YEARS_D    BITMAP                  "res/OverAllYearsD.bmp"
 IDB_OVER_ALL_YEARS_M    BITMAP                  "res/OverAllYearsM.bmp"
 IDB_SIM_ANALYSIS_PAGES  BITMAP                  "res/AnalysisPages.bmp"
-IDB_SIM_EXECUTABLE_IMAGE BITMAP                 "res/ExecutableImage.bmp"
+IDB_SIM_EXECUTABLE_IMAGE BITMAP                  "res/ExecutableImage.bmp"
 IDB_YEAR_BY_YEAR1       BITMAP                  "res/YearByYearPeriod1.bmp"
-IDB_YEAR_BY_YEAR1_CHECKED BITMAP                "res/YearByYearPeriod1Checked.bmp"
+IDB_YEAR_BY_YEAR1_CHECKED BITMAP                  "res/YearByYearPeriod1Checked.bmp"
 IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp"
-IDB_YEAR_BY_YEAR2_CHECKED BITMAP                "res/OverAllYearsA.bmp"
+IDB_YEAR_BY_YEAR2_CHECKED BITMAP                  "res/OverAllYearsA.bmp"
 IDB_SHAPE_TYPE17        BITMAP                  "res/shape_ty.bmp"
 IDR_PROJECT_TOOLBAR1    BITMAP                  "res/ProjectToolbar1 24.bmp"
 IDR_PROJECT_TOOLBAR2    BITMAP                  "res/ProjectToolbar2 24.bmp"
@@ -1128,8 +1128,8 @@ BEGIN
     COMBOBOX        IDC_MAP_TPS_TYPE,254,220,123,56,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,287,253,50,14
     PUSHBUTTON      "Annuler",IDCANCEL,345,253,50,14
-    CONTROL         "Sortir l'information sur les variograms",IDC_MAP_OUTPUT_VARIOGRAM_INFO,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,218,105,134,10
+    CONTROL         "Sortir l'information du variogramme",IDC_MAP_OUTPUT_VARIOGRAM_INFO,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,218,105,127,10
 END
 
 IDD_MAPCORNER_SELECTOR DIALOG 0, 0, 336, 205
@@ -1407,25 +1407,25 @@ BEGIN
     EDITTEXT        IDC_INTERNAL_NAME,57,294,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
 END
 
-IDD_SIM_FUNCTION_ANALYSIS DIALOGEX 0, 0, 428, 244
+IDD_SIM_FUNCTION_ANALYSIS DIALOGEX 0, 0, 431, 289
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Analyse fonction"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "Nom :",IDC_STATIC,7,9,42,8
-    EDITTEXT        IDC_NAME,56,7,365,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NAME,56,7,368,12,ES_AUTOHSCROLL
     LTEXT           "Description :",IDC_STATIC,7,24,42,8
-    EDITTEXT        IDC_DESCRIPTION,56,22,365,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DESCRIPTION,56,22,368,12,ES_AUTOHSCROLL
     LTEXT           "Variables disponibles :",IDC_STATIC,7,41,76,8
-    LTEXT           "",IDC_VARIABLE_LIST,7,52,98,162,SS_SUNKEN | WS_TABSTOP
+    LTEXT           "",IDC_VARIABLE_LIST,7,52,98,210,SS_SUNKEN | WS_TABSTOP
     LTEXT           "Équation (une équation par variable de sorties)",IDC_STATIC,113,41,164,8
-    LTEXT           "",IDC_FUNCTION_LIST,113,52,308,162,SS_SUNKEN | WS_TABSTOP
-    PUSHBUTTON      "Aide",IDC_FUNCTION_HELP,371,36,50,14
-    LTEXT           "Internal Name:",IDC_STATIC,7,227,50,8
-    EDITTEXT        IDC_INTERNAL_NAME,61,225,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    PUSHBUTTON      "Tester fonction",IDC_TEST,167,223,91,14
-    DEFPUSHBUTTON   "OK",IDOK,314,223,50,14
-    PUSHBUTTON      "Annuler",IDCANCEL,371,223,50,14
+    LTEXT           "",IDC_FUNCTION_LIST,116,52,308,210,SS_SUNKEN | WS_TABSTOP
+    PUSHBUTTON      "Aide",IDC_FUNCTION_HELP,374,36,50,14
+    LTEXT           "Internal Name:",IDC_STATIC,7,272,50,8
+    EDITTEXT        IDC_INTERNAL_NAME,61,270,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "Tester fonction",IDC_TEST,167,268,91,14
+    DEFPUSHBUTTON   "OK",IDOK,314,268,50,14
+    PUSHBUTTON      "Annuler",IDCANCEL,374,268,50,14
 END
 
 IDD_SIM_FUNCTION_TEST DIALOGEX 0, 0, 316, 180
@@ -2499,12 +2499,12 @@ BEGIN
     IDD_SIM_FUNCTION_ANALYSIS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 421
+        RIGHTMARGIN, 424
         VERTGUIDE, 56
         TOPMARGIN, 7
-        BOTTOMMARGIN, 237
+        BOTTOMMARGIN, 282
         HORZGUIDE, 52
-        HORZGUIDE, 214
+        HORZGUIDE, 262
     END
 
     IDD_SIM_FUNCTION_TEST, DIALOG
@@ -4112,7 +4112,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_INPUT_VAR_TITLE     "Nom;Titre;Type;Valeur par défaut;Min;Max;List"
-    IDS_OUTPUT_VAR_TITLE    "Nom;Titre;Unitées;Description;Type;Précision;Équation;Variable climatique"
+    IDS_OUTPUT_VAR_TITLE    "Nom;Titre;Unitées;Description;Temporel;Précision;Équation;Variable climatique"
     IDS_OUTPUT_VAR_TYPE     "Réel;Temporel"
     IDS_OUTPUT_ENTENDED_TYPE "VMISS;Valeurs étendues"
     IDS_OUTPUT_VAR_DESCRIPTION 
@@ -5038,7 +5038,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,253,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,303,253,50,14
     CONTROL         "Output variograms info",IDC_MAP_OUTPUT_VARIOGRAM_INFO,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,196,108,90,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,108,90,10
 END
 
 IDD_MAPCORNER_SELECTOR DIALOG 0, 0, 336, 205
@@ -5314,25 +5314,25 @@ BEGIN
     EDITTEXT        IDC_INTERNAL_NAME,61,257,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
 END
 
-IDD_SIM_FUNCTION_ANALYSIS DIALOGEX 0, 0, 430, 244
+IDD_SIM_FUNCTION_ANALYSIS DIALOGEX 0, 0, 431, 285
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Function Analysis"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "Name:",IDC_STATIC,7,9,42,8
-    EDITTEXT        IDC_NAME,56,7,367,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NAME,56,7,368,12,ES_AUTOHSCROLL
     LTEXT           "Description:",IDC_STATIC,7,24,42,8
-    EDITTEXT        IDC_DESCRIPTION,56,22,367,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DESCRIPTION,56,22,368,12,ES_AUTOHSCROLL
     LTEXT           "Available variables:",IDC_STATIC,7,41,76,8
-    LTEXT           "",IDC_VARIABLE_LIST,7,52,98,165,SS_SUNKEN | WS_TABSTOP
+    LTEXT           "",IDC_VARIABLE_LIST,7,52,98,204,SS_SUNKEN | WS_TABSTOP
     LTEXT           "Equation (one equation per output variable)",IDC_STATIC,113,41,164,8
-    LTEXT           "",IDC_FUNCTION_LIST,112,52,311,165,SS_SUNKEN | WS_TABSTOP
-    PUSHBUTTON      "Help",IDC_FUNCTION_HELP,373,36,50,14
-    LTEXT           "Internal name:",IDC_STATIC,7,227,50,8
-    EDITTEXT        IDC_INTERNAL_NAME,61,225,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    PUSHBUTTON      "Function Test",IDC_TEST,163,223,91,14
-    DEFPUSHBUTTON   "OK",IDOK,312,223,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,373,223,50,14
+    LTEXT           "",IDC_FUNCTION_LIST,113,52,311,204,SS_SUNKEN | WS_TABSTOP
+    PUSHBUTTON      "Help",IDC_FUNCTION_HELP,374,36,50,14
+    LTEXT           "Internal name:",IDC_STATIC,7,267,50,8
+    EDITTEXT        IDC_INTERNAL_NAME,61,266,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "Function Test",IDC_TEST,163,264,91,14
+    DEFPUSHBUTTON   "OK",IDOK,312,264,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,374,264,50,14
 END
 
 IDD_SIM_FUNCTION_TEST DIALOGEX 0, 0, 316, 180
@@ -6416,12 +6416,12 @@ BEGIN
     IDD_SIM_FUNCTION_ANALYSIS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 423
+        RIGHTMARGIN, 424
         VERTGUIDE, 56
         TOPMARGIN, 7
-        BOTTOMMARGIN, 237
+        BOTTOMMARGIN, 278
         HORZGUIDE, 52
-        HORZGUIDE, 217
+        HORZGUIDE, 256
     END
 
     IDD_SIM_FUNCTION_TEST, DIALOG
@@ -8140,7 +8140,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_INPUT_VAR_TITLE     "Name;Caption;Type;Default Value;Min Value;Max Value;List"
-    IDS_OUTPUT_VAR_TITLE    "Name;Title;Units;Description;Type;Precision;Equation;Climatic Variable"
+    IDS_OUTPUT_VAR_TITLE    "Name;Title;Units;Description;Temporal;Precision;Equation;Climatic Variable"
     IDS_OUTPUT_VAR_TYPE     "Real;Temporal"
     IDS_OUTPUT_ENTENDED_TYPE "VMISS;Extend values"
     IDS_OUTPUT_VAR_DESCRIPTION 

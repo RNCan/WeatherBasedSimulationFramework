@@ -74,6 +74,13 @@ namespace WBSF
 
 	
 		string outputFilePath = Get(OUTPUT_FILEPATH);
+		if (outputFilePath.empty())
+		{
+			msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
+			return msg;
+		}
+
+
 		SetFileExtension(outputFilePath, CDailyDatabase::DATABASE_EXT);
 
 		msg = CreateMultipleDir(GetPath(outputFilePath));

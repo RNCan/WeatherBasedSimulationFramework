@@ -50,24 +50,24 @@ namespace WBSF
 		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
 		{
 			ASSERT(nbArgs == 1);
-			int iArg = (int)pArg[0];
+			//int iArg = (int)pArg[0];
 
-			MTDOUBLE val = 0;
+			MTDOUBLE val = -DBL_MAX;
 
 
-			if (iArg < 0 || iArg>365)
-			{
+			//if (iArg < 0 || iArg>365)
+			//{
 				//we assume that JDay is call only on daily values
-				CTRef ref;
-				ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
-
+			CTRef ref(pArg[0]);
+				//ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
+			if (ref.IsInit())
 				val = MTDOUBLE(ref.GetJDay() + 1);
-			}
-			else
-			{
+			//}
+			//else
+			//{
 				//we assume daily value in OVERALL_YEAR mode
-				val = iArg;
-			}
+				//val = iArg;
+			//}
 
 			return val;
 		}
@@ -103,7 +103,7 @@ namespace WBSF
 			ASSERT(nbArgs == 1);
 			//int iArg = (int)pArg[0];
 
-			MTDOUBLE val = 0;
+			MTDOUBLE val = -DBL_MAX;
 
 
 			//if (iArg < 0 || iArg>365)
@@ -132,6 +132,39 @@ namespace WBSF
 
 	MTFunctionI* CreateDropYearFct(){ return new DropYearFct; }
 	
+	class GetMonthFct : public MTFunctionI
+	{
+
+	public:
+
+		GetMonthFct(){}
+
+	protected:
+
+		GetMonthFct(const GetMonthFct& obj){	/*m_TM = obj.m_TM;*/ }
+		virtual const MTCHAR* getSymbol(){ return _T("GetMonth"); }
+		virtual const MTCHAR* getHelpString(){ return _T("GetMonth(time reference)"); }
+		virtual const MTCHAR* getDescription()	{ return _T("Return month (1..12) of a time reference"); }
+		virtual int getNbArgs(){ return 1; }
+		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
+		{
+			ASSERT(nbArgs == 1);
+
+			MTDOUBLE val = -DBL_MAX;
+
+			CTRef TRef(pArg[0]);
+			if (TRef.IsInit())
+				val = TRef.GetMonth() + 1;
+			
+			return val;
+		}
+
+
+		virtual MTFunctionI* spawn(){ return new GetMonthFct; }
+
+	};
+
+	MTFunctionI* CreateGetMonthFct(){ return new GetMonthFct; }
 
 	class CPredicateVariableDef
 	{
@@ -519,9 +552,20 @@ namespace WBSF
 			{
 				for (size_t i = 0; i<parserArray.size(); i++)
 				{
+					
 					double value = parserArray[i].Evaluate(pResult, s, r);
-					if (value > VMISS)
-						section[r][i] = value;
+						
+					if (m_functionArray[i].m_TM.Type() == CTM::ATEMPORAL)
+					{
+						if (value > VMISS)
+							section[r][i] = value;
+					}
+					else
+					{
+						CTRef TRef(value);
+						if (TRef.IsInit())
+							section.AddTRef(r, i, TRef);
+					}
 				}
 
 				msg += callback.StepIt(1.0 / nbRow);
