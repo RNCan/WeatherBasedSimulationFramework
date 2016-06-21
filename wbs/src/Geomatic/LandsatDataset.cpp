@@ -255,6 +255,9 @@ namespace WBSF
 		for (size_t z = 0; z < SCENES_SIZE&&bIsInit; z++)
 			bIsInit = at(z) != noData;
 
+		if (at(JD) < 0)
+			bIsInit = false;
+
 		return bIsInit;
 	}
 
