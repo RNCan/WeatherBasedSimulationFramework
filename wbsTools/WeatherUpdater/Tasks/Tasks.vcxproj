@@ -171,6 +171,7 @@
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMDDELCC.h" />
     <ClInclude Include="UINewBrunswick.h" />
+    <ClInclude Include="UIOntario.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
     <ClInclude Include="EnvCanLocationMap.h" />
     <ClInclude Include="GSODStationOptimisation.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMDDELCC.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
+    <ClCompile Include="UIOntario.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
     <ClCompile Include="EnvCanLocationMap.cpp" />
     <ClCompile Include="GSODStationOptimisation.cpp" />

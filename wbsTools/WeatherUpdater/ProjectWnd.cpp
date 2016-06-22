@@ -24,6 +24,7 @@
 #include "Tasks/UIWUnderground.h"
 #include "Tasks/UIManitoba.h"
 #include "Tasks/UINewBrunswick.h"
+#include "Tasks/UIOntario.h"
 
 
 #include "Tasks/CreateHourlyDB.h"
@@ -301,6 +302,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_WU:			className = CUIWunderground::CLASS_NAME(); break;
 	case ID_TASK_MANITOBA:			className = CUIManitoba::CLASS_NAME(); break;
 	case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
+	case ID_TASK_ONTARIO:	className = CUIOntario::CLASS_NAME(); break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;

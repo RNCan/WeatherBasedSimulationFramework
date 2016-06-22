@@ -29,7 +29,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.0 (2016)";
+		VERSION = "1.1.1 (2016)";
 
 
 		m_Ttype[BEGIN] = CGSInfo::TT_TMIN;
@@ -43,6 +43,26 @@ namespace WBSF
 
 	CGrowingSeasonModel::~CGrowingSeasonModel()
 	{}
+
+	//this method is call to load your parameter in your variable
+	ERMsg CGrowingSeasonModel::ProcessParameter(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+
+		//transfer your parameter here
+		short c = 0;
+
+		m_nbDays[BEGIN] = parameters[c++].GetInt();
+		m_Ttype[BEGIN] = parameters[c++].GetInt();
+		m_threshold[BEGIN] = parameters[c++].GetReal();
+		m_nbDays[END] = parameters[c++].GetInt();
+		m_Ttype[END] = parameters[c++].GetInt();
+		m_threshold[END] = parameters[c++].GetReal();
+
+
+		return msg;
+	}
 
 	//This method is call to compute solution
 	ERMsg CGrowingSeasonModel::OnExecuteAnnual()
@@ -58,8 +78,8 @@ namespace WBSF
 		{
 			CTPeriod p = GS.GetGrowingSeason(m_weather[y]);
 
-			output[y][O_FIRST_DAY] = p.Begin().GetJDay() + 1;//One base
-			output[y][O_LAST_DAY] = p.End().GetJDay() + 1;//One base
+			output[y][O_FIRST_DAY] = p.Begin().Get__int32();// .GetJDay() + 1;//One base
+			output[y][O_LAST_DAY] = p.End().Get__int32(); //.GetJDay() + 1;//One base
 			output[y][O_GS_LENGTH] = p.GetLength();
 		}
 
@@ -148,24 +168,6 @@ namespace WBSF
 	return p;
 	}
 	*/
-	//this method is call to load your parameter in your variable
-	ERMsg CGrowingSeasonModel::ProcessParameter(const CParameterVector& parameters)
-	{
-		ERMsg msg;
 
-
-		//transfer your parameter here
-		short c = 0;
-
-		m_nbDays[BEGIN] = parameters[c++].GetInt();
-		m_Ttype[BEGIN] = parameters[c++].GetInt();
-		m_threshold[BEGIN] = parameters[c++].GetReal();
-		m_nbDays[END] = parameters[c++].GetInt();
-		m_Ttype[END] = parameters[c++].GetInt();
-		m_threshold[END] = parameters[c++].GetReal();
-
-
-		return msg;
-	}
 
 }

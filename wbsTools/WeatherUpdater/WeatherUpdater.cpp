@@ -1,5 +1,5 @@
 
-//5.0.7	14/06/2016  Add New Brunswick source of hourly weather. Many bug correction into the generation of CC normal.
+//5.0.7	22/06/2016  Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal.
 //5.0.6	14/06/2016  Add Manitoba source of hourly/daily weather
 //5.0.5	25/05/2016	Make correction for change made by Env Can.  
 //5.0.4 09/05/2016	Add HRDPS and RDPS to Env Can forecast

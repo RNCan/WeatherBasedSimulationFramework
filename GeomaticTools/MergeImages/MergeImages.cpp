@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.1.3	27/05/2016	Rémi Saint-Amant	use JD -1 as no data
 // 2.1.2	27/05/2016	Rémi Saint-Amant	Add option Mosaic
 // 2.1.1	22/05/2016	Rémi Saint-Amant	Add option MaxSkip
 // 2.1.0    09/05/2016  Rémi Saint-Amant	Compile with GDAL 1.11.3 adn WBSF with a new clouds New tree
@@ -67,7 +68,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "2.1.2";
+	const char* CMergeImages::VERSION = "2.1.3";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -743,7 +744,7 @@ namespace WBSF
 					{
 						//Get pixel
 						CLandsatPixel pixel = window.GetPixel(s, x, y);
-						if (window.IsValid(s, pixel))
+						if (window.IsValid(s, pixel) && int(pixel[JD])>=0)
 						{
 							bool bValid = true;
 

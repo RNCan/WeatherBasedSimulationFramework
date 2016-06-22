@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "UIManitoba.h"
+#include "UIOntario.h"
 #include <boost\dynamic_bitset.hpp>
 #include <boost\filesystem.hpp>
 
@@ -104,58 +104,58 @@ using namespace boost;
 namespace WBSF
 {
 
-	const char* CUIManitoba::SERVER_NAME = "mawpvs.dyndns.org";
-	const char* CUIManitoba::SERVER_PATH = "Tx_DMZ/";
+	const char* CUIOntario::SERVER_NAME = "www.affes.mnr.gov.on.ca";
+	const char* CUIOntario::SERVER_PATH = "Extranet/Bulletin_Boards/WXProducts/";
 
 
 	//*********************************************************************
-	const char* CUIManitoba::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Network", "DataType" };
-	const size_t CUIManitoba::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_COMBO_INDEX };
-	const UINT CUIManitoba::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MANITOBA_P;
-	const UINT CUIManitoba::DESCRIPTION_TITLE_ID = ID_TASK_MANITOBA;
+	const char* CUIOntario::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Network"};
+	const size_t CUIOntario::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT};
+	const UINT CUIOntario::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ONTARIO_P;
+	const UINT CUIOntario::DESCRIPTION_TITLE_ID = ID_TASK_ONTARIO;
 
-	const char* CUIManitoba::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Manitoba";  return THE_CLASS_NAME; }
-	CTaskBase::TType CUIManitoba::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIManitoba::CLASS_NAME(), (createF)CUIManitoba::create);
+	const char* CUIOntario::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Ontario";  return THE_CLASS_NAME; }
+	CTaskBase::TType CUIOntario::ClassType()const { return CTaskBase::UPDATER; }
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIOntario::CLASS_NAME(), (createF)CUIOntario::create);
 
 
 
-	CUIManitoba::CUIManitoba(void)
+	CUIOntario::CUIOntario(void)
 	{}
 
-	CUIManitoba::~CUIManitoba(void)
+	CUIOntario::~CUIOntario(void)
 	{}
 
 
 
-	std::string CUIManitoba::Option(size_t i)const
+	std::string CUIOntario::Option(size_t i)const
 	{
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "Manitoba Agriculture Weather Program"; break;
-		case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
+		case NETWORK:	str = "Ontario Fire Weather Program"; break;
+		//case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
 		};
 		return str;
 	}
 
-	std::string CUIManitoba::Default(size_t i)const
+	std::string CUIOntario::Default(size_t i)const
 	{
 		string str;
 
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Manitoba\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Ontario\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		case DATA_TYPE: str = "0"; break;
+		//case DATA_TYPE: str = "0"; break;
 		};
 
 		return str;
 	}
 
 	//****************************************************
-	ERMsg CUIManitoba::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
+	ERMsg CUIOntario::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -166,14 +166,14 @@ namespace WBSF
 
 		//open a connection on the server
 		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
+		CHttpConnectionPtr pConnection;
 		
-		ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+		ERMsg msgTmp = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 		if (msgTmp)
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-			string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
-			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + command, fileList, callback);
+			//string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
+			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "WxHourly.csv", fileList);
 		}
 		
 
@@ -282,7 +282,7 @@ namespace WBSF
 
 
 
-	ERMsg CUIManitoba::Execute(CCallback& callback)
+	ERMsg CUIOntario::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -317,9 +317,9 @@ namespace WBSF
 		//callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
 		//callback.SetNbStep(fileList.size());
 
-		size_t type = as<size_t>(DATA_TYPE);
-		string fileName = type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
-		string remoteFilePath = "Tx_DMZ/" + fileName;
+		//size_t type = as<size_t>(DATA_TYPE);
+		string fileName = "WxHourly.csv";//type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
+		string remoteFilePath = SERVER_PATH + fileName;
 		string outputFilePath = workingDir + fileName;
 		
 
@@ -331,23 +331,15 @@ namespace WBSF
 			nbRun++;
 
 			CInternetSessionPtr pSession;
-			CFtpConnectionPtr pConnection;
+			CHttpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			ERMsg msgTmp = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 			if (msgTmp)
 			{
 				TRY
 				{
-					//for (int i = curI; i < fileList.size() && msgTmp && msg; i++)
-					//{
-					//msg += callback.StepIt(0);
-					
-					
-					//string outputPath = GetPath(outputFilePath);
-					//CreateMultipleDir(outputPath);
-
 					callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
-					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
 					callback.PopTask();
 
 					//split data in seperate files
@@ -393,21 +385,22 @@ namespace WBSF
 	}
 
 
-	string CUIManitoba::GetOutputFilePath(const string& stationName, int year)const
+	string CUIOntario::GetOutputFilePath(const string& stationName, int year)const
 	{
-		string type = (as<size_t>(DATA_TYPE) == HOURLY_WEATHER) ? "Hourly" : "Daily";
+		string type = "Hourly";// (as<size_t>(DATA_TYPE) == HOURLY_WEATHER) ? "Hourly" : "Daily";
 		return GetDir(WORKING_DIR) + type + "\\" + ToString(year) + "\\" + stationName + ".csv";
 	}
 
-	ERMsg CUIManitoba::SplitStations(const string& outputFilePath, CCallback& callback)
+	ERMsg CUIOntario::SplitStations(const string& outputFilePath, CCallback& callback)
 	{
 		ERMsg msg;
 
-		if (m_stations.empty())
-			msg = m_stations.Load(GetStationListFilePath());
+		//if (m_stations.empty())
+			//msg = m_stations.Load(GetStationListFilePath());
 
-		size_t type = as<size_t>(DATA_TYPE);
-		CTM TM(type == HOURLY_WEATHER?CTM::HOURLY:CTM::DAILY);
+		//size_t type = as<size_t>(DATA_TYPE);
+		//CTM TM(type == HOURLY_WEATHER?CTM::HOURLY:CTM::DAILY);
+		CTM TM(CTM::HOURLY);
 
 		std::map<string, CWeatherYears> data;
 
@@ -420,22 +413,19 @@ namespace WBSF
 			CWeatherAccumulator stat(TM);
 			string lastID;
 
-			enum TCommonyColumns{TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS};
-			enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
-			static const size_t COL_POS_H[NB_COLUMNS_H] = { -1, -1, -1, -1, -1, H_TAIR, H_TAIR, H_TAIR, -1, H_RELH, H_PRCP, -1, -1, -01, H_WND2, H_WNDD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, H_SRAD, -1, H_PRCP, -1 };
-			enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
-			static const size_t COL_POS_D[NB_COLUMNS_D] = { -1, -1, -1, -1, -1, -1,H_TAIR,-1, H_TAIR,-1, H_RELH, H_RELH,-1, H_RELH,-1, H_PRCP,-1,-1, H_WND2, H_WNDD,-1,-1,-1,-1, H_SRAD,-1,-1,-1,-1};
+		
+			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
+			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 			
-			bool b10m = true;
-			for (CSVIterator loop(file, ",", false); loop != CSVIterator()&&msg; ++loop)
+			for (CSVIterator loop(file); loop != CSVIterator()&&msg; ++loop)
 			{
 				if (!loop->empty())
 				{
-					StringVector time((*loop)[TMSTAMP], "\"-: ");
-					ASSERT(time.size() == 6);
+					StringVector time((*loop)[OBSTIME], "-: ");
+					ASSERT(time.size() == 5);
 
 					int year = ToInt(time[0]);
-					size_t month = ToInt(time[1]) - 1;
+					size_t month = WBSF::GetMonthIndex(time[1].c_str());
 					size_t day = ToInt(time[2]) - 1;
 					size_t hour = ToInt(time[3]);
 
@@ -443,23 +433,17 @@ namespace WBSF
 					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 					ASSERT(hour >= 0 && hour < 24);
 
-					CTRef TRef = type == HOURLY_WEATHER ? CTRef(year, month, day, hour) : CTRef(year, month, day);
-					string ID = (*loop)[STNID];
+					CTRef TRef = CTRef(year, month, day, hour);
+					string ID = (*loop)[STATION_CODE];
 					if (lastID.empty())
-					{
 						lastID = ID;
-						size_t it = m_stations.FindByID(ID);
-						if (it != NOT_INIT)
-							b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
-					}
 
 
 					if (stat.TRefIsChanging(TRef) || ID != lastID)
 					{
 						if (data.find(lastID) == data.end())
 						{
-							data[lastID] = CWeatherYears(type == HOURLY_WEATHER);
+							data[lastID] = CWeatherYears(true);
 							//try to load old data before changing it...
 							string filePath = GetOutputFilePath(ID, year);
 							data[lastID].LoadData(filePath, -999, false);//don't erase other years when multiple years
@@ -468,43 +452,22 @@ namespace WBSF
 						//data[lastID].HaveData()
 						data[lastID][stat.GetTRef()].SetData(stat);
 						lastID = ID;
-						size_t it = m_stations.FindByID(ID);
-						if (it != NOT_INIT)
-							b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
 					}
 
 					for (size_t v = 0; v < loop->size(); v++)
 					{
-						size_t cPos = type == HOURLY_WEATHER ? COL_POS_H[v] : COL_POS_D[v];
+						size_t cPos = COL_POS_H[v];
 						if (cPos < NB_VAR_H)
 						{
 							double value = ToDouble((*loop)[v]);
 							if (value > -99)
 							{
-								if (cPos == H_WND2 )
-								{
-									value *= 3600 / 1000;//convert m/s into km/h
-									//some station is at 2 meters and some at 10 meters
-									if (b10m)
-										cPos = H_WNDS;
-								}
-									
-								if (cPos == H_RELH)
-									value = max(1.0, min(100.0, value));
-
-								if (cPos == H_WNDS || cPos == H_WND2)
-								{
-									ASSERT(value < 100);
-								}
-									
-
 								stat.Add(TRef, cPos, value);
-								if (type == HOURLY_WEATHER && cPos == H_RELH)
+								if (cPos == H_RELH)
 								{
-									double T = ToDouble((*loop)[AVGAIR_T_H]);
-									double Hr = value;
-									if (T > -99 && Hr > -99)
+									double T = ToDouble((*loop)[TEMPERATURE]);
+									double Hr = ToDouble((*loop)[RELATIVE_HUMIDITY]);
+									if (T > -99 && Hr)
 										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
 								}
 							}
@@ -542,13 +505,13 @@ namespace WBSF
 		return msg;
 	}
 
-	std::string CUIManitoba::GetStationListFilePath()const
+	std::string CUIOntario::GetStationListFilePath()const
 	{
 		
-		return WBSF::GetApplicationPath() + "Layers\\ManitobaAgStations.csv";
+		return WBSF::GetApplicationPath() + "Layers\\OntarioStations.csv";
 	}
 
-	ERMsg CUIManitoba::GetStationList(StringVector& stationList, CCallback& callback)
+	ERMsg CUIOntario::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -566,7 +529,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIManitoba::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIOntario::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 

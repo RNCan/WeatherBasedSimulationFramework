@@ -286,11 +286,13 @@ void CMainFrame::ActivateFrame(int nCmdShow)
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 { 
-	m_wndStationList.OnUpdate(pSender, lHint, pHint);
-	m_wndProperties.OnUpdate(pSender, lHint, pHint); 
-	m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
-	m_chartWnd.OnUpdate(pSender, lHint, pHint);
-
+	if (GetActiveDocument())
+	{
+		m_wndStationList.OnUpdate(pSender, lHint, pHint);
+		m_wndProperties.OnUpdate(pSender, lHint, pHint);
+		m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
+		m_chartWnd.OnUpdate(pSender, lHint, pHint);
+	}
 }
 
 int GetLanguage(UINT id)

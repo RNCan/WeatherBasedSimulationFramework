@@ -137,6 +137,9 @@
     <ClInclude Include="UINewBrunswick.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIOntario.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -263,6 +266,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UINewBrunswick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIOntario.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
