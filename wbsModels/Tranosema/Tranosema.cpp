@@ -2,7 +2,7 @@
 // Class: CTranosema
 //          
 //
-// Description: Biologie of Tranosema.
+// Description: Biology of Tranosema rostrale
 //*****************************************************************************
 // 22/01/2016	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 11/12/2015   Rémi Saint-Amant    Creation from paper
@@ -29,24 +29,27 @@ namespace WBSF
 	//
 	// Input: See CIndividual creator
 	//
-	// Note: m_relativeDevRate member is init ewith random values.
+	// Note: m_relativeDevRate member is initialized with random values.
 	//*****************************************************************************
 	CTranosema::CTranosema(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
-		// Each individual created gets the following attributes
+		// Each individual created gets the » attributes
 
 		//Individual's "relative" development rate for each life stage
 		//These are independent in successive life stages
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
 			m_δ[s] = Equations().Getδ(s);
+			//Stage-specific survival random draws
 			m_luck[s] = Equations().GetLuck(s);
 		}
 
 		//oviposition
+		//Random values of Pmax and E°
 		m_Pmax = Equations().GetPmax();
 		double E° = Equations().GetE°();
+		//Initial values
 		m_Pᵗ = E°;
 		m_Eᵗ = E°;
 
@@ -91,7 +94,7 @@ namespace WBSF
 
 		CIndividual::Live(weather);
 
-		double DayLength = weather.GetDayLength() / 3600.;
+		double DayLength = weather.GetDayLength() / 3600.; //in hours
 		CTRef TRef = weather.GetTRef();
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
@@ -113,7 +116,7 @@ namespace WBSF
 			//Check if individual enters diapause this time step
 			if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
 			{
-				//Individual crosses the m_diapauseAge threshold this time step, and end-summer daylength is shorter than critical daylength
+				//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
 				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 				{
 					m_bDiapause = true;
@@ -121,7 +124,7 @@ namespace WBSF
 				}
 			}
 
-			if (s == ADULT)
+			if (s == ADULT) //Set maximum longevitys to 150 days
 				r = max(0.00667, r);
 
 			if (GetStand()->m_bApplyAttrition)
