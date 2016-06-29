@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
-// 11.0.6: 17/06/2016	Bug correction in models. Chnage in result. return binary representation.
+// 11.0.7: 28/06/2016	Bug correction in weather generation of hourly data.
+//						Add fillGap into daily and hourly weather data
+// 11.0.6: 17/06/2016	Bug correction in models. Change in result. return binary representation. 
 //						Bug correction in mapping and exposition
 // 11.0.5: 10/06/2016	Bug correction in gradients. Activate ppt gradient. 
 // 11.0.4: 24/05/2016	Some bug correction in the ATM module
@@ -18,7 +20,7 @@
 //						Update of many user interface 
 //						New loc generation from weather database
 //						Add specific site extraction
-//						Change progression winodw by a dockable pane
+//						Change progression window by a dockable pane
 // 10.3.2:				Add Standard deviation (N) and some statistic in Analysis  
 //						Add Copy Export component 
 //						Add direct file transfer from BioSIM to models 

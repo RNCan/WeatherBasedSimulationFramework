@@ -20,6 +20,7 @@
 #include "Basic/WeatherCorrection.h"
 
 #include "WeatherBasedSimulationString.h"
+#include "OpenMP.h"
 
 
 using namespace std;
@@ -516,24 +517,33 @@ CHourlyData& CHourlyData::operator=(const CHourlyData& in)
 
 const CStatistic& CHourlyData::GetData(HOURLY_DATA::TVarH v)const
 {
-	static CStatistic STATISTIC_TMP;
+	static CStatistic STATISTIC_TMP[256];
 
-	STATISTIC_TMP.Reset();
+	STATISTIC_TMP[omp_get_thread_num() % 256].Reset();
 	if (at(v)>WEATHER::MISSING)
-		STATISTIC_TMP = CWeatherVariables::at(v);
+		STATISTIC_TMP[omp_get_thread_num() % 256] = CWeatherVariables::at(v);
 
-	return STATISTIC_TMP;
+	return STATISTIC_TMP[omp_get_thread_num() % 256];
 }
 
 CStatistic& CHourlyData::GetData(HOURLY_DATA::TVarH v)
 {
-	static CStatistic STATISTIC_TMP;
+	static CStatistic STATISTIC_TMP[256];
+	//assert(false);//not thread safe
 
-	STATISTIC_TMP.Reset();
-	if (at(v)>WEATHER::MISSING)
-		STATISTIC_TMP = CWeatherVariables::at(v);
+	STATISTIC_TMP[omp_get_thread_num()%256].Reset();
+	
+	if (!IsMissing(at(v)))
+		STATISTIC_TMP[omp_get_thread_num() % 256] = CWeatherVariables::at(v);
 
-	return STATISTIC_TMP;
+	return STATISTIC_TMP[omp_get_thread_num() % 256];
+}
+
+bool CHourlyData::GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const
+{ 
+	if (!IsMissing(at(v)))
+		stat = at(v);
+	return stat.IsInit(); 
 }
 
 void CHourlyData::SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat)
@@ -674,6 +684,16 @@ bool CWeatherDay::operator==(const CWeatherDay& in)const
 	
 	return bEqual;
 }
+
+bool CWeatherDay::GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const
+{
+	if (HourlyDataExist())
+		CompileDailyStat();
+
+	stat = m_dailyStat[v];
+	return stat.IsInit();
+}
+
 
 void CWeatherDay::SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat)
 { 
@@ -1063,21 +1083,24 @@ void CWeatherDay::ComputeHourlyTair()
 {
 	_ASSERTE(m_pParent);
 
-	CWeatherDay& me = *this;
+	
 	const CLocation& loc = GetLocation();
 
 	static const double c = 0.253;//From 10 station in North America 2010
-
+	
+	CWeatherDay& me = *this;
 	const CWeatherDay& dp = GetPrevious();
 	const CWeatherDay& dn = GetNext();
+	if (!dp[H_TAIR].IsInit() || !me[H_TAIR].IsInit() || !dn[H_TAIR].IsInit() )
+		return;
 
 	CSun sun(loc.m_lat, loc.m_lon);
-	double Tmin[3] = { GetPrevious()[H_TMIN][MEAN], me[H_TMIN][MEAN], GetNext()[H_TMIN][MEAN] };
-	double Tmax[3] = { GetPrevious()[H_TMAX][MEAN], me[H_TMAX][MEAN], GetNext()[H_TMAX][MEAN] };
+	double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+	double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 	
-	ASSERT(Tmin[0]>-999);
-	ASSERT(Tmin[1]>-999);
-	ASSERT(Tmin[2]>-999);
+	ASSERT(Tmin[0]>-999 && Tmax[0]>-999);
+	ASSERT(Tmin[1]>-999 && Tmax[1]>-999);
+	ASSERT(Tmin[2]>-999 && Tmax[2]>-999);
 
 	CTRef TRef = GetTRef();
 	double hourTmax = max(12.0, min(23.0, 1.00258*sun.GetSolarNoon(TRef) + 2.93458));
@@ -1163,7 +1186,12 @@ void CWeatherDay::ComputeHourlyPres()
 void CWeatherDay::ComputeHourlyPrcp()
 {
 	CWeatherDay& me = *this;
-	CStatistic stats[3] = { GetPrevious()[H_PRCP], me[H_PRCP], GetNext()[H_PRCP] };
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& dn = GetNext();
+	if (!dp[H_PRCP].IsInit() || !me[H_PRCP].IsInit() || !dn[H_PRCP].IsInit())
+		return;
+
+	CStatistic stats[3] = { dp[H_PRCP], me[H_PRCP], dn[H_PRCP] };
 
 	if (stats[1][SUM]>0)
 	{
@@ -1262,7 +1290,13 @@ void CWeatherDay::ComputeHourlyPrcp()
 void CWeatherDay::ComputeHourlyTdew()
 {
 	CWeatherDay& me = *this;
-	CStatistic stats[3] = { GetPrevious()[H_TDEW], me[H_TDEW], GetNext()[H_TDEW] };
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& dn = GetNext();
+	if (!dp[H_TDEW].IsInit() || !me[H_TDEW].IsInit() || !dn[H_TDEW].IsInit())
+		return;
+
+
+	CStatistic stats[3] = { dp[H_TDEW], me[H_TDEW], dn[H_TDEW] };
 
 	const CWeatherMonth* pMonth = static_cast<CWeatherMonth*>(GetParent());
 	double SRADmean = pMonth->GetStat(H_SRAD)[MEAN];
@@ -1280,9 +1314,11 @@ void CWeatherDay::ComputeHourlyTdew()
 		double Tdp = 0.761*sin((h - 1.16)*PI / Kr - 3 * PI / 4);
 		double moduloTd = double((h + 12) % 24);
 
-		ASSERT(!IsMissing(me[h][H_TAIR]));
-		double Tdew = min((double)me[h][H_TAIR], Td1 + moduloTd / 24 * (Td2 - Td1) + Tdp);
-		me[h][H_TDEW] = (float)Tdew;
+		if (!IsMissing(me[h][H_TAIR]))
+		{
+			double Tdew = min((double)me[h][H_TAIR], Td1 + moduloTd / 24 * (Td2 - Td1) + Tdp);
+			me[h][H_TDEW] = (float)Tdew;
+		}
 
 		//*****************************************************************************************
 		//RH
@@ -1298,42 +1334,42 @@ void CWeatherDay::ComputeHourlyRelH()
 {
 	CWeatherDay& me = *this;
 	
-	if (me[H_TDEW].IsInit())
+	if (me[H_TAIR].IsInit() && me[H_TDEW].IsInit())
 	{
 		for (size_t h = 0; h < 24; h++)
 		{
 			//*****************************************************************************************
 			//RH
-			ASSERT(!WEATHER::IsMissing(me[h][H_TAIR]));
-			ASSERT(!WEATHER::IsMissing(me[h][H_TDEW]));
-
-			double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
-			me[h][H_RELH] = (float)RH;
+			if (!WEATHER::IsMissing(me[h][H_TAIR]) && !WEATHER::IsMissing(me[h][H_TDEW]))
+			{
+				double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
+				me[h][H_RELH] = (float)RH;
+			}
 		}
 	}
-	else
-	{
-		ASSERT(false);
+	//else
+	//{
+	//	ASSERT(false);
 
-		CWeatherDay& me = *this;
-		
-		CStatistic Tair[3] = { GetPrevious()[H_TAIR], me[H_TAIR], GetNext()[H_TAIR] };
-		CStatistic Trng[3] = { GetPrevious()[H_TRNG], me[H_TRNG], GetNext()[H_TRNG] };
-		double Tmin[3] = { Tair[0][MEAN] - Trng[0][MEAN] / 2, Tair[1][MEAN] - Trng[1][MEAN] / 2, Tair[2][MEAN] - Trng[2][MEAN] / 2 };
-		double Tmax[3] = { Tair[0][MEAN] + Trng[0][MEAN] / 2, Tair[1][MEAN] + Trng[1][MEAN] / 2, Tair[2][MEAN] + Trng[2][MEAN] / 2 };
+	//	CWeatherDay& me = *this;
+	//	
+	//	CStatistic Tair[3] = { GetPrevious()[H_TAIR], me[H_TAIR], GetNext()[H_TAIR] };
+	//	CStatistic Trng[3] = { GetPrevious()[H_TRNG], me[H_TRNG], GetNext()[H_TRNG] };
+	//	double Tmin[3] = { Tair[0][MEAN] - Trng[0][MEAN] / 2, Tair[1][MEAN] - Trng[1][MEAN] / 2, Tair[2][MEAN] - Trng[2][MEAN] / 2 };
+	//	double Tmax[3] = { Tair[0][MEAN] + Trng[0][MEAN] / 2, Tair[1][MEAN] + Trng[1][MEAN] / 2, Tair[2][MEAN] + Trng[2][MEAN] / 2 };
 
-		CStatistic statsRH[3] = { GetPrevious()[H_RELH], me[H_RELH], GetNext()[H_RELH] };
-		CStatistic statsLo[3] = { Hr2Td(Tmin[0], statsRH[0][MEAN]), Hr2Td(Tmin[1], statsRH[1][MEAN]), Hr2Td(Tmin[2], statsRH[2][MEAN]) };
-		CStatistic statsHi[3] = { Hr2Td(Tmax[0], statsRH[0][MEAN]), Hr2Td(Tmax[1], statsRH[1][MEAN]), Hr2Td(Tmax[2], statsRH[2][MEAN]) };
-		
-		for (size_t h = 0; h<24; h++)
-		{
-			//*****************************************************************************************
-			//RH
-			//double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
-			//me[h][H_RELH] = (float)RH;
-		}
-	}
+	//	CStatistic statsRH[3] = { GetPrevious()[H_RELH], me[H_RELH], GetNext()[H_RELH] };
+	//	CStatistic statsLo[3] = { Hr2Td(Tmin[0], statsRH[0][MEAN]), Hr2Td(Tmin[1], statsRH[1][MEAN]), Hr2Td(Tmin[2], statsRH[2][MEAN]) };
+	//	CStatistic statsHi[3] = { Hr2Td(Tmax[0], statsRH[0][MEAN]), Hr2Td(Tmax[1], statsRH[1][MEAN]), Hr2Td(Tmax[2], statsRH[2][MEAN]) };
+	//	
+	//	for (size_t h = 0; h<24; h++)
+	//	{
+	//		//*****************************************************************************************
+	//		//RH
+	//		//double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
+	//		//me[h][H_RELH] = (float)RH;
+	//	}
+	//}
 }
 
 //*****************************************************************************************
@@ -1366,6 +1402,13 @@ double CWeatherDay::GetS(size_t h)
 void CWeatherDay::ComputeHourlyWndS()
 {
 	CWeatherDay& me = *this;
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& dn = GetNext();
+	if (!dp[H_WNDS].IsInit() || !me[H_WNDS].IsInit() || !dn[H_WNDS].IsInit())
+		return;
+
+
+
 	CStatistic stats[3] = { GetPrevious()[H_WNDS], me[H_WNDS], GetNext()[H_WNDS] };
 	ASSERT(stats[1].IsInit());
 
@@ -1388,6 +1431,11 @@ void CWeatherDay::ComputeHourlyWndS()
 void CWeatherDay::ComputeHourlyWnd2()
 {
 	CWeatherDay& me = *this;
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& dn = GetNext();
+	if (!dp[H_WND2].IsInit() || !me[H_WND2].IsInit() || !dn[H_WND2].IsInit())
+		return;
+
 	CStatistic stats[3] = { GetPrevious()[H_WND2], me[H_WND2], GetNext()[H_WND2] };
 	ASSERT(stats[1].IsInit());
 
@@ -1411,9 +1459,11 @@ void CWeatherDay::ComputeHourlyWnd2()
 
 void CWeatherDay::ComputeHourlySRad()
 {
-	const CLocation & loc = GetLocation();
 	CWeatherDay& me = *this;
-	
+	if (!me[H_SRAD].IsInit())
+		return;
+
+	const CLocation & loc = GetLocation();
 
 	array<double, 24> hourlySolarAltitude;
 	double sumSolarAltitude = 0;
@@ -1950,10 +2000,11 @@ CWeatherYears& CWeatherYears::operator=(const CWeatherYears& in)
 		m_format = in.m_format;
 		for (const_iterator it = in.begin(); it != in.end(); it++)
 		{
-			CWeatherYearPtr pYear(new CWeatherYear);
+			CWeatherYear* pYear = new CWeatherYear;
+			//CWeatherYearPtr pYear();
 			pYear->Initialize(it->second->GetTRef(), this);
 			*pYear = *(it->second);
-			insert(make_pair(it->first, pYear));
+			insert(make_pair(it->first, CWeatherYearPtr(pYear) ));
 		}
 
 		//m_bModified = in.m_bModified;
@@ -2654,40 +2705,39 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 	//adjust variables to get the same daily mean
 	CWVariables variableToAdjust("TD H WS Z ES EA VPD WS2");
 	variableToAdjust &= variables;
-	//if (variableToAdjust.any())
+	
+	for (TVarH v = H_TDEW; v < variableToAdjust.size(); v++)
 	{
-		for (TVarH v = H_TDEW; v < variableToAdjust.size(); v++)
+		if (variableToAdjust[v])
 		{
-			if (variableToAdjust[v])
+			for (size_t k = 0; k < 5; k++)
 			{
-				for (size_t k = 0; k < 5; k++)
+				for (size_t y = 0; y < size(); y++)
 				{
-					for (size_t y = 0; y < size(); y++)
+					for (size_t m = 0; m < me[y].size(); m++)
 					{
-						for (size_t m = 0; m < me[y].size(); m++)
+						for (size_t d = 0; d < me[y][m].size(); d++)
 						{
-							for (size_t d = 0; d < me[y][m].size(); d++)
-							{
 						
-								_ASSERTE(me[y][m][d][v].IsInit());
-								CStatistic oldStat = GetDailyStat(v, copy[y][m][d]);
-								_ASSERTE(oldStat);
+							_ASSERTE(me[y][m][d][v].IsInit());
+							CStatistic oldStat = GetDailyStat(v, copy[y][m][d]);
+							_ASSERTE(oldStat);
 
-								copy[y][m][d].ComputeHourlyVariables(v, options);
+							copy[y][m][d].ComputeHourlyVariables(v, options);
 
-								_ASSERTE(me[y][m][d][v].IsInit());
-								CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
-								_ASSERTE(newStat);
+							_ASSERTE(me[y][m][d][v].IsInit());
+							CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
+							_ASSERTE(newStat);
 
-								double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
-								copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
-							}
-						}//v
-					}//d
-				}//m
-			}//y
-		}//k
-	}
+							double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
+							copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
+						}
+					}//v
+				}//d
+			}//m
+		}//y
+	}//k
+
 
 	//Final calculation and copy original daily values
 	SetHourly(true);
@@ -2739,8 +2789,8 @@ void CWeatherStationVector::GetMean( CWeatherStation& station, CTPeriod p, short
 					{
 						const CDataInterface& data = me[i][Tref];
 
-						const CStatistic& stat2 = data.GetData(v);
-						if( stat2.IsInit() )
+						CStatistic stat2;
+						if (data.GetStat(v, stat2))
 						{
 							
 							bool exclude = stat.IsInit() && mergeType == MERGE_FROM_DB1;
@@ -2770,11 +2820,68 @@ void CWeatherStationVector::GetMean( CWeatherStation& station, CTPeriod p, short
 
 void CWeatherStation::FillGaps()
 {
-	CWVariables variable = GetVariables();
+	CWVariables variables = GetVariables();
 
 	if (IsHourly())
 	{
+		CTPeriod p = GetEntireTPeriod();
 
+
+		for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
+		{
+			CHourlyData& wea° = GetHour(TRef);
+
+			if (TRef == CTRef(2016, JANUARY, DAY_12, 21))
+			{
+				int gg;
+				gg = 0;
+			}
+
+			for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+			{
+				if (variables[v])
+				{
+					if (IsMissing(wea°[v]))
+					{
+						const CHourlyData& wea¯¹ = wea°.GetPrevious();
+						if (!IsMissing(wea¯¹[v]))
+						{
+							CHourlyData wea¹;
+
+							CTRef TRef2 = TRef;
+							do
+							{
+								TRef2++;
+								wea¹ = GetHour(TRef2);
+							} while (IsMissing(wea¹[v]) && TRef2 <= TRef + 6 && TRef2 <= p.End());
+
+							if (!IsMissing(wea¹[v]))
+							{
+								ASSERT(TRef2 - TRef > 0);
+
+								switch (v)
+								{
+								case H_PRCP: break;
+								case H_SRAD: break;
+								default:
+									float mean = wea¯¹[v];
+									float range = wea¹[v] - wea¯¹[v];
+
+									for (CTRef TRef3 = TRef; TRef3 < TRef2; TRef3++)
+									{
+										double f = (double)(TRef3 - TRef + 1) / (TRef2 - TRef + 1);
+										ASSERT(f >= 0 && f <= 1);
+
+										CHourlyData& wea° = GetHour(TRef3);
+										wea°.SetStat(v, mean + range*f);
+									}
+								}//switch
+							}//if both exist
+						}
+					}
+				}
+			}
+		}
 	}
 	else
 	{
@@ -2785,74 +2892,41 @@ void CWeatherStation::FillGaps()
 		{
 			CDay& wea° = GetDay(TRef);
 
-
-			//try to fill gap from previous day
-			//begin with temperature
-			if (!wea°[H_TAIR].IsInit())
+			for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
 			{
-				const CDay& wea¯¹ = wea°.GetPrevious();
-				const CDay& wea¹ = wea°.GetNext();
-
-				if (wea¯¹[H_TAIR].IsInit() && wea¹[H_TAIR].IsInit())
+				if (variables[v])
 				{
-					CStatistic Tair = wea¯¹[H_TAIR];
-					Tair += wea¹[H_TAIR];
-					wea°.SetStat(H_TAIR, Tair[MEAN]);
-				}
-			}
+					if (!wea°[v].IsInit())
+					{
+						const CDay& wea¯¹ = wea°.GetPrevious();
+						CDay wea¹ = wea°.GetNext();
 
-			
-			if (!wea°[H_TRNG].IsInit())
-			{
-				const CDay& wea¯¹ = wea°.GetPrevious();
-				const CDay& wea¹ = wea°.GetNext();
+						if (wea¯¹[v].IsInit() && wea¹[v].IsInit())
+						{
+							switch (v)
+							{
+							case H_TAIR:
+							{
+								CStatistic TairMin = wea¯¹[H_TAIR][MEAN] - wea¯¹[H_TRNG][MEAN] / 2;
+								CStatistic TairMax = wea¯¹[H_TAIR][MEAN] + wea¯¹[H_TRNG][MEAN] / 2;
+								TairMin += wea¹[H_TAIR][MEAN] - wea¹[H_TRNG][MEAN] / 2;
+								TairMax += wea¹[H_TAIR][MEAN] + wea¹[H_TRNG][MEAN] / 2;
 
-				if (wea¯¹[H_TRNG].IsInit() && wea¹[H_TRNG].IsInit())
-				{
-					CStatistic Trng = wea¯¹[H_TRNG];
-					Trng += wea¹[H_TRNG];
-					wea°.SetStat(H_TRNG, Trng[MEAN]);
-				}
-			}
-		
+								wea°.SetStat(H_TAIR, (TairMin[MEAN] + TairMax[MEAN]) / 2);
+								wea°.SetStat(H_TRNG, TairMax[MEAN] - TairMin[MEAN]);
+								break;
+							}
+							case H_TRNG: break;
+							case H_PRCP: break;
+							case H_SRAD: break;
+							default:
+								CStatistic stat = wea¯¹[v];
+								stat += wea¹[v];
+								wea°.SetStat(v, stat[MEAN]);
+							}//switch
 
-		//now humidity
-			
-			if (!wea°[H_TDEW].IsInit())
-			{
-				const CDay& wea¯¹ = wea°.GetPrevious();
-				const CDay& wea¹ = wea°.GetNext();
-
-				if (wea¯¹[H_TDEW].IsInit() && wea¹[H_TDEW].IsInit())
-				{
-					CStatistic Tdew = wea¯¹[H_TDEW];
-					Tdew += wea¹[H_TDEW];
-
-
-					CStatistic Tmin = wea°[H_TMIN];
-					if (Tmin.IsInit())
-						Tdew = min(Tdew[MEAN], Tmin[MEAN]);
-
-					wea°.SetStat(H_TDEW, Tdew);
-				}
-			}
-
-			if (!wea°[H_EA].IsInit())
-			{
-				const CDay& wea¯¹ = wea°.GetPrevious();
-				const CDay& wea¹ = wea°.GetNext();
-
-				if (wea¯¹[H_EA].IsInit() && wea¹[H_EA].IsInit())
-				{
-					CStatistic Ea = wea¯¹[H_EA];
-					Ea += wea¹[H_EA];
-					wea°.SetStat(H_EA, Ea[MEAN]);
-
-					//CStatistic Tmin = wea°[H_TMIN];
-					//if (Tmin.IsInit())
-					//Tdew = min(Tdew[MEAN], Tmin[MEAN]);
-
-
+						}//if both exist
+					}
 				}
 			}
 		}
@@ -2876,6 +2950,9 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 				{
 					if (v == H_TAIR)
 					{
+						ASSERT(me[TRef][H_TMIN].IsInit());
+						ASSERT(me[TRef][H_TMAX].IsInit());
+
 						double Tmin = me[TRef][H_TMIN][LOWEST] + correction.GetCorrection(me, TRef, H_TAIR);
 						double Tmax = me[TRef][H_TMAX][HIGHEST] + correction.GetCorrection(me, TRef, H_TRNG);
 						double Tair = (Tmin + Tmax) / 2;
@@ -3003,8 +3080,6 @@ protected:
 
 void CWeatherStationVector::FillGaps()
 {
-	assert(false);
-
 	//first fill gap
 	for (CWeatherStationVector::iterator it = begin(); it != end(); it++)
 		it->FillGaps();
@@ -3041,7 +3116,8 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 				
 					for (size_t i = 0; i < size(); i++)
 					{
-						//assert(me[i].size() == 1);
+						//CStatistic stat;
+						//if (me[i][TRef].GetStat(v, stat))
 						if (me[i][TRef][v].IsInit())
 						{
 							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation);
@@ -3145,10 +3221,11 @@ void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const 
 					for (size_t i = 0; i < size(); i++)
 					{
 						//assert(me[i].size() == 1);
-						if (me[i][TRef][v].IsInit())
+						CStatistic value;
+						if (me[i][TRef].GetStat(v, value))
 						{
-							const CStatistic& value = me[i][TRef][v];
 							assert(value[NB_VALUE] == 1);
+							assert(value[SUM] > -999);
 							stat += value[MEAN]* weight[v][i][TRef];
 
 						}

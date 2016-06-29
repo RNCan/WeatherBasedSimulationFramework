@@ -612,6 +612,10 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 					CDay& wDay = copy[year][m][d];
 					size_t jd = wDay.GetTRef().GetJDay();
 
+					//need temperature to compure hourly Tdew and Hr
+					wDay[H_TAIR] = (data.s_tmin[jd] + data.s_tmax[jd]) / 2;
+					wDay[H_TRNG] = (data.s_tmax[jd] - data.s_tmin[jd]);
+
 					if (variables[H_TDEW])// && !wDay[H_TDEW].IsInit())
 						wDay[H_TDEW] = data.s_tdew[jd];
 
@@ -950,8 +954,7 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 					msg = m_pHourlyDB->GetStations(results, stations);
 					if (msg)
 					{
-						//stations.FillGaps();//internal completion
-						//stations.m_variables = v;
+						stations.FillGaps();//internal completion
 						stations.ApplyCorrections(m_gradients);
 						stations.GetInverseDistanceMean(v, m_target, simulationPoint);
 					}
@@ -1016,9 +1019,8 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 						msg = m_pHourlyDB->GetStations(results, stations);
 						if (msg)
 						{
-							//stations.FillGaps();//internal completion
-							//stations.m_variables = v;
-							stations.ApplyCorrections(m_gradients);
+							stations.FillGaps();//internal completion
+							stations.ApplyCorrections(m_gradients);//apply gradient to weather data
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint);
 						}
 					}
@@ -1100,6 +1102,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 
 					if (msg)
 					{
+						stationsVector.FillGaps();//internal completion
 						stationsVector.ApplyCorrections(m_gradients);
 						stationsVector.GetInverseDistanceMean(v, m_target, simulationPoint);
 					}
@@ -1163,7 +1166,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 						msg = m_pDailyDB->GetStations(results, stations);
 						if (msg)
 						{
-							//stations.FillGaps();//internal completion
+							stations.FillGaps();//internal completion
 							//stations.m_variables = v;
 							stations.ApplyCorrections(m_gradients);
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint);
@@ -1311,9 +1314,11 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 	ERMsg msg;
 
 	//load wanted variable
+	CWVariables mVariables = m_tgi.GetNormalMandatoryVariables();
 	for (TVarH v = H_TAIR; v<NB_VAR_H; v++)
 	{
-		if (m_tgi.m_variables[v] )
+		//if (m_tgi.m_variables[v] )
+		if (mVariables[v])
 		{
 			CSearchResultVector results;
 			// find stations with category
@@ -1343,7 +1348,7 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 
 	if (msg)
 	{
-		//CWVariables mVariables = m_tgi.GetNormalMandatoryVariables();
+		
 		CWVariables mVariables = m_tgi.GetMissingInputVariables();
 		if (mVariables[H_WND2] && !mVariables[H_WNDS])
 			mVariables.set(H_WNDS);

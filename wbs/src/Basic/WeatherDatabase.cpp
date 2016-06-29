@@ -86,7 +86,7 @@ std::set<int> CWeatherDatabase::GetYears(size_t index)const
 CWeatherDatabase::CWeatherDatabase(int cacheSize):
 m_cache(cacheSize)
 {
-	m_bUseCache = cacheSize>0;
+	m_bUseCache = cacheSize > 0;
 	m_openMode=modeNotOpen;
 	m_bModified=false;
 }
@@ -314,6 +314,7 @@ ERMsg CWeatherDatabase::OpenSearchOptimization(CCallback& callback)
 	if (!m_zop.SearchIsOpen())
 	{
 		callback.PushTask(FormatMsg(IDS_MSG_LOAD_OP, GetFileName(GetOptimisationSearchFilePath1())), NOT_INIT);
+		//run even of they are not able to open search optimization
 		msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
 		callback.PopTask();
 	}
@@ -1735,13 +1736,13 @@ ERMsg CDHDatabaseBase::Get(CLocation& station, size_t index, const std::set<int>
 
 	ERMsg msg;
 
+	m_CS.Enter();
+
 	msg = CWeatherDatabase::Get(station, index);
 
 	//try to get the station from the cache
 	if (msg)
 	{
-		m_CS.Enter();
-
 		CDHDatabaseBase& me = const_cast<CDHDatabaseBase&>(*this);
 		CWeatherStation* pStation = dynamic_cast<CWeatherStation*>(&station);
 		assert(pStation);
@@ -1765,8 +1766,12 @@ ERMsg CDHDatabaseBase::Get(CLocation& station, size_t index, const std::set<int>
 			pStation->SetFormat(me.m_cache.get(index).GetFormat());
 			//copy only wanted years
 			for (std::set<int> ::const_iterator it = years.begin(); it != years.end(); it++)
-				(*pStation)[*it] = me.m_cache.get(index)[*it];
-			
+			{
+				int year = *it;
+				pStation->CreateYear(year);
+				CWeatherYear& weatherYear = pStation->at(year);
+				weatherYear = me.m_cache.get(index).at(year);
+			}
 		}
 		else
 		{
@@ -1778,10 +1783,10 @@ ERMsg CDHDatabaseBase::Get(CLocation& station, size_t index, const std::set<int>
 		}
 
 		
-		m_CS.Leave();
+	
 	}
 
-	
+	m_CS.Leave();
 
 	return msg;
 }
@@ -1908,10 +1913,8 @@ ERMsg CDHDatabaseBase::GetStations(const CSearchResultVector& results, CWeatherS
 	stationArray.resize(results.size());
 
 	//Get stations 
-	for (int i = 0; i<results.size() && msg; i++)
-	{
+	for (size_t i = 0; i<results.size() && msg; i++)
 		msg = Get(stationArray[i], results[i].m_index, results.GetYear());
-	}
 
 	return msg;
 }

@@ -191,6 +191,7 @@ void CResultDataWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	if (pItem && !pDoc->IsExecute())
 		result = pItem->GetResult(GetFileManager());
 	
+	m_grid.m_bIsExecute = pDoc->IsExecute();
 	m_grid.SetData(result);
 
 	bool bVisible = IsWindowVisible();

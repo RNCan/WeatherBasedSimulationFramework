@@ -19,7 +19,7 @@
 
 using namespace std;
 using namespace WBSF::WEATHER;
-using namespace WBSF::NORMALS_DATA;
+using namespace WBSF::NORMALS_DATA; 
 using namespace WBSF::HOURLY_DATA;
 using namespace NEWMAT;
 

@@ -189,20 +189,6 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
 
 	size_t nbFilter = variables.count();
-	//size_t nbGetDistance = 0;
-
-	/*if (pNormalDB && pNormalDB->IsOpen())
-		nbGetDistance++;
-
-	if (pDailyDB && pDailyDB->IsOpen())
-		nbGetDistance++;
-	
-	if (pHourlyDB && pHourlyDB->IsOpen())
-		nbGetDistance++;
-*/
-	//size_t nbGetDistance = nbFilter*nbYears;
-
-	//callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE), nbGetDistance);
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);

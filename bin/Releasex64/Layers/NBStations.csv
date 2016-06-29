@@ -1,26 +1,26 @@
-KeyID,Name,Latitude,Longitude,Elevation(m)
-Alward,Alward,46.20255776,-65.4335812,107
-Anfield,Anfield,46.88427116,-67.56725559,267
-Apohaqui,Apohaqui,45.68020594,-65.66967242,70
-Bantalor,Bantalor,46.1759975,-66.43696888,175
-Bayles+Lake,Bayles Lake,46.9757565,-66.39860406,336
-Big+Tracadie,Big Tracadie,47.38301385,-65.30373103,93
-Boston+Brook,Boston Brook,47.44203666,-67.64398524,278
-Brockway,Brockway,45.54740463,-67.04785491,116
-Clearwater,Clearwater,46.72786072,-66.80881255,285
-County+Line,County Line,46.01663593,-67.43445428,182
-Crowe+Brook,Crowe Brook,45.56806261,-65.38636296,367
-Cumberland+Bay,Cumberland Bay,45.98712453,-65.96773759,17
-Dingee+Brook,Dingee Brook,47.11446009,-67.25738587,156
-Dungarvon,Dungarvon,46.74851871,-66.22448679,119
-Florenceville,Florenceville,46.4327467,-67.61742497,52
-Heath+Steele,Heath Steele,47.31808877,-66.05922293,340
-Hornes+Gulch,Hornes Gulch,47.89651225,-67.9863175,492
-Kagout+Brook,Kagout Brook,47.1882386,-66.66420668,641
-Lunts+Brook,Lunts Brook,47.62795849,-68.29028495,390
-McRae+Lake,McRae Lake,47.69288358,-66.11824574,268
-Meadow+Brook,Meadow Brook,46.39733302,-65.82018057,101
-Mulligan+Gulch,Mulligan Gulch,47.50696174,-66.70552264,384
-Quarryville,Quarryville,46.75442099,-65.82018057,26
-Robinson+Tower,Robinson Tower,47.63681191,-67.1570471,378
-St.+Paul,St. Paul,46.32945679,-65.00271473,62
+KeyID,Name,No,Longitude,Latitude,Elev
+Alward,Alward,9301,-65.445,46.2,123
+Anfield,Anfield,9516,-67.45667,46.90833,250
+Apohaqui,Apohaqui,9302,-65.59,45.69667,140
+Bantalor,Bantalor,9423,-66.425,46.21833,165
+Bayles+Lake,Bayles Lake,9213,-66.355,47.08167,518
+Big+Tracadie,Big Tracadie,9109,-65.265,47.41167,73
+Boston+Brook,Boston Brook,9513,-67.625,47.45333,304
+Brockway,Brockway,9419,-67.09833,45.57333,91
+Clearwater,Clearwater,9408,-66.82833,46.715,410
+County+Line,County Line,9418,-67.305,46.13167,199
+Crowe+Brook,Crowe Brook,9316,-65.32333,45.575,292
+Cumberland+Bay,Cumberland Bay,9314,-65.90833,45.995,59
+Dingee+Brook,Dingee Brook,9518,-67.12833,46.98167,410
+Dungarvon,Dungarvon,9215,-66.30667,46.71667,172
+Florenceville,Florenceville,9520,-67.64,46.445,136
+Heath+Steele,Heath Steele,9212,-66.035,47.30333,326
+Hornes+Gulch,Hornes Gulch,9511,-67.91,47.83333,370
+Kagout+Brook,Kagout Brook,9114,-66.57167,47.23333,650
+Lunts+Brook,Lunts Brook,9515,-68.215,47.50833,318
+McRae+Lake,McRae Lake,9113,-66.24333,47.685,404
+Meadow+Brook,Meadow Brook,9313,-65.80333,46.44833,199
+Mulligan+Gulch,Mulligan Gulch,9107,-66.63833,47.59333,432
+Quarryville,Quarryville,9216,-65.77167,46.825,50
+Robinson+Tower,Robinson Tower,9517,-67.18833,47.69667,467
+St.+Paul,St. Paul,9306,-64.97333,46.36,76

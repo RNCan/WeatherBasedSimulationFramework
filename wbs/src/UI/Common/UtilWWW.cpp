@@ -405,24 +405,14 @@ namespace UtilWWW
 		CFtpFileFind finder(pConnect.get());
 
 		// start looping
-		
-		//DWORD errNum = GetLastError();
-
-		//while (bWorking)
 		if( finder.FindFile(filePath) )
 		{
 			finder.FindNextFile();
-			
-
-			//errNum = GetLastError();
 
 			ASSERT( !finder.IsDots() && !finder.IsDirectory() );
-
 			CString test = finder.GetFileURL();
-
-			//CFileInfo info;
 			
-			GetFileInfo(finder, info, filePath.FindOneOf(_T("*?")) != -1);
+			GetFileInfo(finder, info, filePath.FindOneOf(_T("*?")) != -1 && !UtilWin::GetPath(filePath).IsEmpty() ); 
 			bRep = true;
 		}
 
@@ -437,7 +427,7 @@ namespace UtilWWW
 
 		//CString test1 = finder.GetFilePath();
 		//CString test2 = finder.GetFileName();
-		if (bHaveWildcard)
+		if (bHaveWildcard )
 			info.m_filePath = UtilWin::ToUTF8(finder.GetFilePath());
 		else 
 			info.m_filePath = UtilWin::ToUTF8(finder.GetFileName());
@@ -501,7 +491,7 @@ namespace UtilWWW
 
 			CFileInfo info;
 			
-			GetFileInfo(finder, info, URL.FindOneOf(_T("*?")) != -1);
+			GetFileInfo(finder, info, URL.FindOneOf(_T("*?")) != -1 && !UtilWin::GetPath(URL).IsEmpty());
 			fileList.push_back(info);
 
 			msg += callback.StepIt(0);

@@ -108,87 +108,87 @@ namespace WBSF
 		//	}
 		//}
 
+		//if (msg)
+		//{
+		msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYNO
+		if (msg)
+			msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYWR
+
 		if (msg)
 		{
-			msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYNO
-			if (msg)
-				msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYWR
+			//
+			//if (!msg)//already open
+			//{
+			//	
+			//	msg = m_fileData.open(filePathData, ios::in | ios::binary, SH_DENYNO);
+			//	if (msg)
+			//	{
+			//		std::ios_base::openmode _Mode = ios::in | ios::binary;
+			//		ASSERT(m_fileData.flags() == _Mode);
+			//		ASSERT( (m_fileData.flags()&ios::out)  == false);
+			//	}
+			//}
 
-			if (msg)
+
+			//				if (msg)
+			//			{
+			try
 			{
-				//
-				//if (!msg)//already open
+				boost::archive::binary_iarchive ar(m_fileIndex, boost::archive::no_header);
+
+				int version = 0;
+				ar&version;
+				if (version == VERSION)
+				{
+					ar&m_canalPosition;
+					m_ANNs.resize(m_canalPosition.size());
+					m_filePathIndex = filePathIndex;
+					m_filePathData = filePathData;
+
+					//open now for writing only to avoid exception throw in boost
+					m_fileIndex.close();
+					msg = m_fileIndex.open(filePathIndex, ios::out | ios::binary);
+				}
+			}
+			catch (...)
+			{
+				//if (m_fileData.flags()&ios::out)//onpen in ouput
 				//{
-				//	
-				//	msg = m_fileData.open(filePathData, ios::in | ios::binary, SH_DENYNO);
-				//	if (msg)
-				//	{
-				//		std::ios_base::openmode _Mode = ios::in | ios::binary;
-				//		ASSERT(m_fileData.flags() == _Mode);
-				//		ASSERT( (m_fileData.flags()&ios::out)  == false);
-				//	}
+				//the file is corrupted, the format have probably change. erase 
+				m_fileData.close();
+				msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
+
+				m_fileIndex.close();
+				msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc);
+				//}
+				if (msg)
+				{
+					m_filePathIndex = filePathIndex;
+					m_filePathData = filePathData;
+				}
+				//}
+				//else
+				//{
+				//	//fail even in read only mode... return error
+				//	msg.ajoute("fail to open search optimization in read only mode. Probably the file was saved at the same time");
+				//	msg.ajoute("\tfile:" + filePathData);
+				//
 				//}
 
-
-				//				if (msg)
-				//			{
-				try
-				{
-					boost::archive::binary_iarchive ar(m_fileIndex, boost::archive::no_header);
-
-					int version = 0;
-					ar&version;
-					if (version == VERSION)
-					{
-						ar&m_canalPosition;
-						m_ANNs.resize(m_canalPosition.size());
-						m_filePathIndex = filePathIndex;
-						m_filePathData = filePathData;
-
-						//open now for writing only to avoid exception throw in boost
-						m_fileIndex.close();
-						msg = m_fileIndex.open(filePathIndex, ios::out | ios::binary);
-					}
-				}
-				catch (...)
-				{
-					//if (m_fileData.flags()&ios::out)//onpen in ouput
-					//{
-					//the file is corrupted, the format have probably change. erase 
-					m_fileData.close();
-					msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
-
-					m_fileIndex.close();
-					msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc);
-					//}
-					if (msg)
-					{
-						m_filePathIndex = filePathIndex;
-						m_filePathData = filePathData;
-					}
-					//}
-					//else
-					//{
-					//	//fail even in read only mode... return error
-					//	msg.ajoute("fail to open search optimization in read only mode. Probably the file was saved at the same time");
-					//	msg.ajoute("\tfile:" + filePathData);
-					//
-					//}
-
-				}
-			}
-			else
-			{
-				//close both file and rebuild serch in memory
-				m_fileData.close();
-				m_fileIndex.close();
 			}
 		}
+		else
+		{
+			//close both file and rebuild search in memory
+			m_fileData.close();
+			m_fileIndex.close();
+		}
+		//}
 
 		//appSyncOpenClose.Leave();
 
 
-		return msg;
+		return ERMsg();//never return error because, able to work without opt search files
 	}
 
 

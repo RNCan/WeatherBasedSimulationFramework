@@ -193,8 +193,8 @@ namespace WBSF
 
 		for (size_t i = 0; i < vSize; i++)
 		{
-			outputVarOut.push_back(CModelOutputVariableDef(outputVarIn[i].m_name + "Sim", outputVarIn[i].m_title + " -Sim-", outputVarIn[i].m_units, "Variable simulated by the model"));
-			outputVarOut.push_back(CModelOutputVariableDef(outputVarIn[i].m_name + "Map", outputVarIn[i].m_title + " -Map-", outputVarIn[i].m_units, "Variable generate by the spatial interpolation"));
+			outputVarOut.push_back(CModelOutputVariableDef(outputVarIn[i].m_name + "Sim", outputVarIn[i].m_title + " -Sim-", outputVarIn[i].m_units, "Variable simulated by the model", outputVarIn[i].m_TM, outputVarIn[i].m_precision, outputVarIn[i].m_equation, outputVarIn[i].m_climaticVariable));
+			outputVarOut.push_back(CModelOutputVariableDef(outputVarIn[i].m_name + "Map", outputVarIn[i].m_title + " -Map-", outputVarIn[i].m_units, "Variable generate by the spatial interpolation", outputVarIn[i].m_TM, outputVarIn[i].m_precision, outputVarIn[i].m_equation, outputVarIn[i].m_climaticVariable));
 		}
 
 

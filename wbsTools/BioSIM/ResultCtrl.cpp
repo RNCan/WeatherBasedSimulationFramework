@@ -23,6 +23,7 @@ END_MESSAGE_MAP()
 CResultCtrl::CResultCtrl(void)
 {
 	m_statType = MEAN;
+	m_bIsExecute = false;
 }
 
 CResultCtrl::~CResultCtrl(void)
@@ -92,10 +93,8 @@ void CResultCtrl::OnSheetSetup(int ID)
 
 void CResultCtrl::OnGetCell(int index,long row, CUGCell *cell)
 { 
-	if (m_pResult && m_pResult->IsOpen() && m_enableUpdate )
+	if (m_pResult && m_pResult->IsOpen() && m_enableUpdate && !m_bIsExecute)
 	{
-		
-
 		if (row == -1)
 		{
 			if (index == -1)

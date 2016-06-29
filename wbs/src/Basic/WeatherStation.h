@@ -227,6 +227,7 @@ public:
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const = 0;
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v)= 0;
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat) = 0;
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const = 0;
 	virtual CTRef GetTRef()const=0;
 	virtual CWVariables GetVariables()const = 0;
 	virtual CWVariablesCounter GetVariablesCount()const=0;
@@ -323,6 +324,7 @@ public:
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const;
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v);
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat);
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const;
 	virtual inline bool IsYearInit(int year)const;
 	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
@@ -472,7 +474,8 @@ public:
 
 	virtual inline const CDataInterface& Get(CTRef ref)const;
 	virtual inline CDataInterface& Get(CTRef ref);
-	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat);// { m_dailyStat[v] = stat; }
+	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat);
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const;
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const{ if (HourlyDataExist())CompileDailyStat(); return m_dailyStat[v]; }
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v){ if (HourlyDataExist())CompileDailyStat(); return m_dailyStat[v]; }
 	virtual inline bool IsYearInit(int year)const;
@@ -642,6 +645,7 @@ public:
 	virtual CDataInterface& operator[](const CTRef& ref){ return Get(ref); }
 	virtual const CDataInterface& operator[](const CTRef& ref)const{ return Get(ref); }
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat){ m_stat[v] = stat; }
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const{ stat = m_stat[v]; return stat.IsInit();  }
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const;
 	virtual CStatistic GetTimeLength()const{ return CStatistic((double)GetNbDays()*24*60 * 60); }
 	virtual double GetNetRadiation(double& Fcd)const;
@@ -765,6 +769,7 @@ public:
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const{ return GetStat(v); }
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v){ return GetStat(v); }
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat){ m_stat[v] = stat; }
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const{ stat = m_stat[v]; return stat.IsInit(); }
 	virtual inline bool IsYearInit(int year)const;
 	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
@@ -1005,6 +1010,7 @@ public:
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const{ return m_stat[v]; }
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v){ return m_stat[v]; }
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat){m_stat[v] = stat;}
+	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const{ stat = m_stat[v]; return stat.IsInit(); }
 	virtual CTRef GetTRef()const { return CTRef(0, 0, 0, 0, CTM(CTM::ANNUAL, CTM::OVERALL_YEARS)); }
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable);

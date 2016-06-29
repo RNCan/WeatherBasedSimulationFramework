@@ -82,7 +82,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
+		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
 	}

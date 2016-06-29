@@ -15,6 +15,8 @@ public:
 	CResultCtrl();
 	~CResultCtrl();
 
+	bool m_bIsExecute;
+
 	virtual void OnSetup();
 	virtual void OnSheetSetup(int ID);
 	

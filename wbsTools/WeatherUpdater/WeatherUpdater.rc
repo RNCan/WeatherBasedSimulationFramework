@@ -201,7 +201,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,7,30
+ FILEVERSION 5,0,7,32
  PRODUCTVERSION 5,0,7,26
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -219,7 +219,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.7.30"
+            VALUE "FileVersion", "5.0.7.32"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -229,7 +229,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.7.30"
+            VALUE "FileVersion", "5.0.7.32"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -664,8 +664,8 @@ STRINGTABLE
 BEGIN
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Répertoire de travail"
-	IDS_UPDATER_MANITOBA_P "Répertoire de travail|Première année|Dernière année|Réseau|Type"
-	IDS_UPDATER_NEWBRUNSWICK_P "Répertoire de travail|Première année|Dernière année|Réseau"
+	IDS_UPDATER_MANITOBA_P "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
+	IDS_UPDATER_NEWBRUNSWICK_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
 	IDS_UPDATER_ONTARIO_P "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
@@ -1114,8 +1114,8 @@ STRINGTABLE
 BEGIN
     IDS_UPDATER_WU_P        "Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First Year|Last Year"
-	IDS_UPDATER_MANITOBA_P "Working directory|First Year|Last Year|Network|Type"
-	IDS_UPDATER_NEWBRUNSWICK_P "Working directory|First Year|Last Year|Network"
+	IDS_UPDATER_MANITOBA_P "Working directory|First Year|Last Year|Network|Data type"
+	IDS_UPDATER_NEWBRUNSWICK_P "User Name|Password|Working directory|First Year|Last Year|Network|Data type"
 	IDS_UPDATER_ONTARIO_P "Working directory|First Year|Last Year|Network"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"

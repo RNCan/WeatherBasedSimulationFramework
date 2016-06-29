@@ -134,7 +134,7 @@ namespace WBSF
 		switch (i)
 		{
 		case NETWORK:	str = "Manitoba Agriculture Weather Program"; break;
-		case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
+		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
 	}
@@ -415,7 +415,7 @@ namespace WBSF
 		msg = file.open(outputFilePath);
 		if (msg)
 		{
-			callback.PushTask("Split data", file.length());
+			callback.PushTask("Split Manitoba data", file.length());
 
 			CWeatherAccumulator stat(TM);
 			string lastID;
@@ -429,7 +429,10 @@ namespace WBSF
 			bool b10m = true;
 			for (CSVIterator loop(file, ",", false); loop != CSVIterator()&&msg; ++loop)
 			{
-				if (!loop->empty())
+				size_t nbCols = type == HOURLY_WEATHER ? NB_COLUMNS_H : NB_COLUMNS_D;
+				//ASSERT(loop->size() == nbCols || loop->size()==27);
+
+				if (loop->size() == nbCols || loop->size() == 27)
 				{
 					StringVector time((*loop)[TMSTAMP], "\"-: ");
 					ASSERT(time.size() == 6);
@@ -493,9 +496,15 @@ namespace WBSF
 								if (cPos == H_RELH)
 									value = max(1.0, min(100.0, value));
 
+								
 								if (cPos == H_WNDS || cPos == H_WND2)
 								{
 									ASSERT(value < 100);
+								}
+								
+								if (cPos == H_TAIR)
+								{
+									ASSERT(value > -60 && value < 60);
 								}
 									
 
