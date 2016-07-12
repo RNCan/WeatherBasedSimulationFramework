@@ -3,6 +3,8 @@
 //									 
 //***********************************************************************
 // version 
+// 2.2.4	11/07/2016	Rémi Saint-Amant	Add export series
+// 2.2.3	05/07/2016	Rémi Saint-Amant	Bug correction in reading despike and trigger
 // 2.2.2	17/06/2016	Rémi Saint-Amant	negative julian date 1970 is missing
 // 2.2.1	17/06/2016	Rémi Saint-Amant	remove 3e argument from -trigger and -despike
 // 2.2.0	09/05/2016	Rémi Saint-Amant	Add missing value in the tree
@@ -52,6 +54,7 @@
 #include <utility>
 #include <iostream>
 #include <bitset>
+#include <boost/dynamic_bitset.hpp>
 
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
@@ -71,15 +74,17 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "2.2.2";
+static const char* version = "2.2.4";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
-static const int OTHER_CODE = 100;
+//static const int OTHER_CODE = 100;
+static const int SPIKING_CODE = 110;
 static const int NO_DISTERBANCE = 99;
+static const int NOT_TRIGGED_CODE = 100;
 static const int DT_CODE_NOT_INIT = 0;
-static const float NO_IMAGE_NOT_DATA = -99999;
+static const float NO_IMAGE_NO_DATA = -99999;
 
-//-Trigger NBR 0.1 -Trigger B5 -300 -Despike NBR 0.9 - NbDisturbances 3 - FireSeverity - ExportBands
+
 
 //GDALWarp -co "COMPRESS=LZW" -overwrite -te 2122545 7061956 2129235 7068496 "U:\GIS1\LANDSAT_SR\mos\20141219_mergeiexe\step3_cloudfree_v2\mystack9914.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\lansat.tif"
 //GDALWarp -co "COMPRESS=LZW" -overwrite -te 2122545 7061956 2129235 7068496 info.vrt "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\physics.tif"
@@ -112,7 +117,7 @@ enum { DT_SCENES_SIZE = SCENES_SIZE + NB_PHYSICAL_BANDS };
 
 enum TDebug { D_NB_PAIRS, D_NB_DISTURBANCES, D_FIRST_DISTURBANCE, D_F_DATE1, D_F_DATE2, D_LAST_DISTURBANCE, D_L_DATE1, D_L_DATE2, NB_DEBUGS };//, D_MEAN_D, D_MAX1, D_MAX2, D_MAX3
 enum TExportTemporal { E_Tm3, E_Tm2, E_Tm1, E_Tp1, E_Tp2, E_Tp3, NB_EXPORT_TEMPORAL };
-enum TExportBands { E_B1, E_B2, E_B3, E_B4, E_B5, E_B6, E_B7, E_QA, E_JDAY, NB_EXPORT_BANDS };
+enum TExportBands { E_B1, E_B2, E_B3, E_B4, E_B5, E_B6, E_B7, E_QA, E_JD, NB_EXPORT_BANDS };
 static const int EXPORT_BANDS[NB_EXPORT_BANDS] = { B1, B2, B3, B4, B5, B6, B7, QA, JD };
 
 
@@ -137,13 +142,13 @@ public:
 	CDADVector(size_t size = 0) :CLandsatPixelVector(size)
 	{}
 
-	bool IsInit()const { return size()>1; }
+	bool IsInit()const { return size() > 1; }
 
 	size_t GetNbDTCode()const{ return m_DTCode.size(); }
 	size_t GetNbDisturbances()const
 	{
-		size_t n=0;
-		for (size_t z = 0; z<m_DTCode.size(); z++)
+		size_t n = 0;
+		for (size_t z = 0; z < m_DTCode.size(); z++)
 		{
 			if (IsDisturbed(m_DTCode[z]))
 				n++;
@@ -151,38 +156,38 @@ public:
 
 		return n;
 	}
-	
+
 	size_t GetDisturbanceIndex(size_t pos)const
 	{
-		ASSERT(pos<m_DTCode.size());
+		ASSERT(pos < m_DTCode.size());
 
 		size_t index = UNKNOWN_POS;
-		for (size_t z = 0; z<m_DTCode.size() && index >= m_DTCode.size(); z++)
+		for (size_t z = 0; z < m_DTCode.size() && index >= m_DTCode.size(); z++)
 		{
 			//look up for change
 			if (IsDisturbed(m_DTCode[z]))
 			{
-				if( pos==0)
+				if (pos == 0)
 					index = z;
-					
+
 				pos--;
 			}
 		}
 
 		return index;
 	}
-	
+
 	size_t GetIndex(size_t index, int shift)const
 	{
-		ASSERT(index>=0);
+		ASSERT(index >= 0);
 
 		size_t indexShift = (size_t)((int)index + shift);
 		if (indexShift >= size() || !at(indexShift).IsInit())
 			indexShift = -1;
-		
+
 		return indexShift;
 	}
-	
+
 	size_t GetFirstDisturbanceIndex()const
 	{
 		size_t index = UNKNOWN_POS;
@@ -203,78 +208,18 @@ public:
 		{
 			//look up for change
 			if (IsDisturbed(*it))
-				index = m_DTCode.size()-std::distance(m_DTCode.rbegin(), it)-1;
+				index = m_DTCode.size() - std::distance(m_DTCode.rbegin(), it) - 1;
 		}
 
-		ASSERT(index == UNKNOWN_POS || index<size()-1);
+		ASSERT(index == UNKNOWN_POS || index < size() - 1);
 		return index;
 	}
-
-
-	//double GetMeanDisturbanceDistance()const
-	//{
-	//	CStatistic distanceStat;
-	//	const CDisturbanceVector& me = (const CDisturbanceVector&)(*this);
-	//	for(size_t z=0; z<size(); z++)
-	//	{
-	//		if( me[z].IsInit() && me[z].IsDisturbed())
-	//			distanceStat+=me[z].GetDeltaNBR();
-	//	}
-
-	//	double d=::GetDefaultNoData(GDT_Int32);
-	//	if(distanceStat[NB_VALUE]>0 )
-	//		d = distanceStat[MEAN];
-
-	//	return d;
-	//}
-
-	//double GetMeanDistance()const
-	//{
-	//	CStatistic distanceStat;
-	//	//const CDisturbanceVector& me = (const CDisturbanceVector&)(*this);
-	//	for(size_t z=0; z<size(); z++)
-	//	{
-	//		if( at(z).IsInit() )
-	//			distanceStat += at(z).GetDeltaNBR();
-	//	}
-
-	//	double d=::GetDefaultNoData(GDT_Int32);
-	//	if(distanceStat[NB_VALUE]>0 )
-	//		d = distanceStat[MEAN];
-
-	//	return d;
-	//}
-
-	//double GetMaxDistance(int pos)const
-	//{
-	//	ASSERT(pos>=0);
-
-	//	vector<double> distance;
-	//	//const CDisturbanceVector& me = (const CDisturbanceVector&)(*this);
-	//	for(size_t z=0; z<size(); z++)
-	//	{
-	//		if( me[z].IsInit() )
-	//		{
-	//			distance.push_back(me[z].GetDeltaNBR());
-	//		}
-	//	}
-
-	//	std::sort(distance.begin(), distance.end(), std::greater<double>());
-	//	
-	//	double d=::GetDefaultNoData(GDT_Int32);
-	//	if( pos<(int)distance.size())
-	//		d=distance[pos];
-	//	
-	//	return d;
-	//}
 
 	CTRef GetFirstTRef()const
 	{
 		CTRef TRef;
-		//const CDisturbanceVector& me = (CDisturbanceVector&)(*this);
-		//for(size_t z=0; z<size()&&!TRef.IsInit(); z++)
 		for (const_iterator it = begin(); it != end() && !TRef.IsInit(); it++)
-			TRef=it->GetTRef();
+			TRef = it->GetTRef();
 
 		return TRef;
 	}
@@ -287,7 +232,28 @@ public:
 
 		return TRef;
 	}
-	
+
+	size_t FindYear(int year)const
+	{
+		size_t z = NOT_INIT;
+		if (!empty())
+		{
+			size_t zz = begin()->GetTRef().GetYear() - year;
+			if (zz < size() && at(zz).GetTRef().GetYear() == year)
+			{
+				z = zz;
+			}
+			else
+			{
+				//for (const_iterator it = begin(); it != end() && z == NOT_INIT; it++)
+				for (size_t i = 0; i < size() && z == NOT_INIT; i++)
+					if (at(i).GetTRef().GetYear() == year)
+						z = i;
+			}
+		}
+
+		return z;
+	}
 
 	void clear()
 	{
@@ -296,15 +262,15 @@ public:
 	}
 
 
-	static bool IsDisturbed(__int16 DTCode){ return DTCode>DT_CODE_NOT_INIT && DTCode < NO_DISTERBANCE; }
+	static bool IsDisturbed(__int16 DTCode){ return DTCode > DT_CODE_NOT_INIT && DTCode < NO_DISTERBANCE; }
 
-	CDecisionTreeBlock GetDataRecord(size_t z1, size_t z2, CDecisionTreeBaseEx& DT)
+	CDecisionTreeBlock GetDataRecord(size_t z1,/* size_t z2,*/ CDecisionTreeBaseEx& DT)
 	{
-		ASSERT(z1 < size() );
-		ASSERT(z2 < size() );
+		ASSERT(z1 < size());
+		//ASSERT(z2 < size() );
 		ASSERT(IsInit());
 
-		CDecisionTreeBlock block(DT.MaxAtt+1);
+		CDecisionTreeBlock block(DT.MaxAtt + 1);
 
 
 		//fill the data structure for decision tree
@@ -313,18 +279,70 @@ public:
 		DVal(block, c++) = Continuous(DT, 1) ? DT_UNKNOWN : 0;
 		for (size_t i = 0; i < m_physical.size(); i++)
 			CVal(block, c++) = (ContValue)m_physical[i];
-		
-		__int64 first_image = (__int64)z1 - 2;
-		__int64 last_image = (__int64)z2 + 2;
-		
+
+
+		//__int64 first_image = (__int64)z1 - 2;
+		//__int64 last_image = (__int64)z1 + 3;// load 6 pixels for DT
+		//
+		//for (__int64 z = first_image; z <= last_image; z++)
+		//{
+		//	bool bValid = (z >= 0 && z<(__int64)size()) && at(z).IsValid() && at(z).IsInit();
+		//	for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+		//		CVal(block, c++) = (ContValue)(bValid ? at(z).at(j) : NO_IMAGE_NO_DATA);
+		//	
+		//}//for
+
+		ASSERT(at(z1).IsValid() && !IsSpiking(z1));
+
+		__int64 first_image = (__int64)z1;
+		__int64 last_image = (__int64)z1;
+		size_t nbz1 = 0;
+		while (nbz1 != 2)
+		{
+			ASSERT(at(first_image).IsValid());
+
+			first_image--;
+
+			if (first_image < 0 || !IsSpiking(first_image) )
+				nbz1++;
+		}
+
+		size_t nbz2 = 0;
+		while (nbz2 != 3)
+		{
+			ASSERT(at(last_image).IsValid());
+			last_image++;
+
+			if (last_image >= (__int64)size() || !IsSpiking(last_image))
+				nbz2++;
+		}
+
 		for (__int64 z = first_image; z <= last_image; z++)
 		{
-			bool bValid = (z >= 0 && z<(__int64)size()) && at(z).IsValid();
-			for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
-				CVal(block, c++) = (ContValue)(bValid ? at(z).at(j) : NO_IMAGE_NOT_DATA);
-			
+			if (z >= 0 && z < (__int64)size())
+			{
+				bool bValid = at(z).IsValid() && !IsSpiking(z);
+				if (bValid)
+				{
+					for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+						CVal(block, c++) = (ContValue)(at(z).at(j));
+				}
+				else
+				{
+					ASSERT(last_image - first_image>=6);
+					int g;
+					g = 1;
+				}
+			}
+			else
+			{
+				for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+					CVal(block, c++) = (ContValue)(NO_IMAGE_NO_DATA);
+			}
 		}//for
 
+
+		ASSERT(c == (6 * 9 + 3 + 2));
 		//fill virtual bands 
 		for (; c <= DT.MaxAtt; c++)
 		{
@@ -338,22 +356,23 @@ public:
 
 
 	__int16 GetDTCode(size_t z)const{ return m_DTCode[z]; }
-	void SetDTCode(size_t z, __int16 DTCode){ m_DTCode[z]=DTCode; }
+	void SetDTCode(size_t z, __int16 DTCode){ m_DTCode[z] = DTCode; }
 
 	void Despike(const CIndiciesVector& despike)
 	{
 		if (!empty())
 		{
-			for (iterator it = begin(); it != end() && it + 1 != end() && it + 2 != end();)
-			{
-				if (despike.IsSpiking(*it, *(it + 1), *(it + 2)))
-					it = erase(it);
-				else
-					it++;
-			}
+			m_despike.resize(size());
+			m_despike.reset();
+
+			//for (iterator it = begin(); it != end() && it + 1 != end() && it + 2 != end(); it++)
+			for (size_t i = 0; i < size() - 2; i++)
+				m_despike.set(i + 1, despike.IsSpiking(at(i), at(i + 1), at(i + 2)));
 		}
+
+		ASSERT(m_despike.size() == size());
 	}
-	
+
 	void InitDTCode()
 	{
 		m_DTCode.clear();
@@ -361,10 +380,13 @@ public:
 			m_DTCode.insert(m_DTCode.begin(), size() - 1, DT_CODE_NOT_INIT);
 	}
 
+	bool IsSpiking(size_t i)const{ return m_despike[i]; }
+
 protected:
 
-	
+
 	DTCodeVector m_DTCode;
+	boost::dynamic_bitset<size_t> m_despike;
 };
 
 
@@ -376,6 +398,7 @@ public:
 		m_bAllBands=false;
 	
 		m_bExportBands=false;
+		m_bExportTimeSeries = false;
 		m_nbDisturbances=1;
 		m_bDebug=false;
 		m_nbPixel=0;
@@ -383,7 +406,7 @@ public:
 		m_scenesSize = SCENES_SIZE;
 		m_bFireSeverity = false;
 
-		m_appDescription = "This software look up (with a decision tree model) for disturbance in a any number series of images";
+		m_appDescription = "This software look up (with a decision tree model) for disturbance in a any number series of LANDSAT scenes";
 
 		AddOption("-TTF");
 		AddOption("-Period");
@@ -395,10 +418,11 @@ public:
 			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
 			{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
 			{ "-ExportBands",0,"",false,"Export disturbances scenes."},
+			{ "-ExportTimeSeries", 0, "", false, "Export informations over all period." },
 			{ "-Debug",0,"",false,"Output debug information."},
 			{ "DTModel",0,"",false,"Decision tree model file path."},
-			{ "src1file",0,"",false, "LANDSAT image file path."},
-			{ "src2file", 0, "", false, "Geophysical (DD5, DEM,...) input image file path." },
+			{ "src1file",0,"",false, "LANDSAT scenes image file path."},
+			{ "src2file", 0, "", false, "Geophysical (DD5, DEM, slope) input image file path." },
 			{ "dstfile",0,"",false, "Output image file path."}
 		};
 		
@@ -410,10 +434,11 @@ public:
 			{ "Input Model", "DTModel","","","","Decision tree model file generate by See5."},
 			{ "LANDSAT Image", "src1file","","ScenesSize(9)*nbScenes","B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|B9: Date(Julian day 1970 or YYYYMMDD format) and cloud mask(NoData)|... for each scene"},
 			{ "Geophysical Image", "src2file", "", "3", "B1: Degres-day 5°C threshold|B2: Digital Elevation Model (DEM)|B3: Slope (?)" },
-			{ "Ouput Image", "dstfile","One file per perturbation","6","FirstDate: date of the first image analysed|DTCode: disturbance code|D1: disturbace date of the first image|D2: disturbance date of the second image|NbContirm: number of image without disturbance after the disturbance|LastDate: date of the last image analysed"},
-			{ "Optional Ouput Image", "dstfile_fireSeverity","1","3","Ron|Jo|Mean of Ron and Jo"},
-			{ "Optional Ouput Image", "dstfile_exportBands","One file per perturbation","OutputBands(9) x NbTime(8) = 36","T-2: Scenes 2 years preciding T|...|T+5: Scenes 5 years folowing T"},
-			{ "Optional Ouput Image", "dstfile_debug","1","9"," NbPairs: number of \"Pair\", a pair is composed of 2 valid images|NbDisturbances: number of disturbances found in the series.|Disturbance: last diturbance|D1: date of the first image of the last disturbance|D2: date of the second image of the last disturbance|MeanD: mean NBR distance|MaxD1: highest NBR distance|MaxD2: second highest NBR distance|MaxD3: third highest NBR distance"}
+			{ "Output Image", "dstfile","One file per perturbation","6","FirstDate: date of the first image analysed|DTCode: disturbance code|D1: disturbace date of the first image|D2: disturbance date of the second image|NbContirm: number of image without disturbance after the disturbance|LastDate: date of the last image analysed"},
+			{ "Optional Output Image", "dstfile_FireSeverity","1","3","Ron|Jo|Mean of Ron and Jo"},
+			{ "Optional Output Image", "dstfile_ExportBands","One file per perturbation","OutputBands(9) x NbTime(8) = 36","T-2: Scenes 2 years preciding T|...|T+5: Scenes 5 years folowing T"},
+			{ "Optional Output Image", "dstfile_TimeSeries", "One file per input years", "Nb Years", "Y1: first year|...|Yn: last year" },
+			{ "Optional Output Image", "dstfile_debug","1","9"," NbPairs: number of \"Pair\", a pair is composed of 2 valid images|NbDisturbances: number of disturbances found in the series.|Disturbance: last diturbance|D1: date of the first image of the last disturbance|D2: date of the second image of the last disturbance|MeanD: mean NBR distance|MaxD1: highest NBR distance|MaxD2: second highest NBR distance|MaxD3: third highest NBR distance"}
 		};
 
 		for(int i=0; i<sizeof(IO_FILE_INFO)/sizeof(CIOFileInfoDef); i++)
@@ -448,7 +473,7 @@ public:
 			double threshold = atof(argv[++i]);
 			//TMethod  method = GetIndicesMethod(argv[++i]);
 
-			if (type < NB_INDICES)
+			if (type != I_INVALID)
 				m_trigger.push_back(CIndices(type, threshold));
 			else
 				msg.ajoute(str + " is an invalid trigger for -trigger option");
@@ -460,7 +485,7 @@ public:
 			double threshold = atof(argv[++i]);
 			//TMethod  method = GetIndicesMethod(argv[++i]);
 
-			if (type < NB_INDICES)
+			if (type != I_INVALID)
 				m_despike.push_back(CIndices(type, threshold));
 			else
 				msg.ajoute(str + " is an invalid despike for -Despike option");
@@ -477,6 +502,10 @@ public:
 		{
 			m_bExportBands = true;
 		}	
+		else if (IsEqual(argv[i], "-ExportTimeSeries"))
+		{
+			m_bExportTimeSeries = true;
+		}
 		else if (IsEqual(argv[i], "-Debug"))
 		{
 			m_bDebug=true;
@@ -498,6 +527,7 @@ public:
 	CIndiciesVector m_despike;
 
 	bool m_bExportBands;
+	bool m_bExportTimeSeries;
 	bool m_bFireSeverity;
 	bool m_bDebug;
 	int	 m_nbDisturbances;
@@ -520,11 +550,11 @@ public:
 	ERMsg Execute();
 
 
-	ERMsg OpenAll(CGDALDatasetEx& lansatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS);
+	ERMsg OpenAll(CGDALDatasetEx& lansatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS);
 	void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder1, CBandsHolder& bandHolder2);
 	void ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, CDecisionTree& DT, vector< vector< CDADVector >>& disturbances);
-	void WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& disturbances, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS);
-	void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS);
+	void WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& disturbances, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS);
+	void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS);
 
 	void Evaluate( int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
 	void LoadData(const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, vector< vector< CDADVector >>& data);
@@ -560,7 +590,7 @@ ERMsg CBandsAnalyserC5::ReadRules(CDecisionTree& DT)
 }	
 
 
-ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS)
+ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	ERMsg msg;
 	
@@ -653,7 +683,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 			
 
 		CBandsAnalyserC5Option options = m_options;
-		options.m_nbBands = NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL;//T-2 à T+5
+		options.m_nbBands = NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL;//T-2 à T+3
 		options.m_outputType = GDT_Int16;
 		options.m_dstNodata=::GetDefaultNoData(GDT_Int16);
 
@@ -677,6 +707,34 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 			msg += exportBandsDS[i].CreateImage(exportPath, options);
 		}
 	}
+	
+	if (msg && m_options.m_bExportTimeSeries)
+	{
+		if (!m_options.m_bQuiet)
+			cout << "Create export time series images..." << endl;
+
+
+		ASSERT(landsatDS.GetNbScenes() == landsatDS.GetPeriod().GetNbYears());
+		CBandsAnalyserC5Option options = m_options;
+		options.m_nbBands = landsatDS.GetNbScenes() - 1;
+		options.m_outputType = GDT_Byte;
+		options.m_dstNodata = ::GetDefaultNoData(GDT_Byte);
+		
+		string exportPath = options.m_filesPath[OUTPUT_FILE_PATH];
+		SetFileTitle(exportPath, GetFileTitle(exportPath) + "_timeSeries");
+		
+		for (size_t y = 0; y < landsatDS.GetScenePeriod().size()-1; y++)
+		{
+			ASSERT(landsatDS.GetScenePeriod().at(y).Begin().GetYear() == landsatDS.GetScenePeriod().at(y).End().GetYear());
+			int year1 = landsatDS.GetScenePeriod().at(y).Begin().GetYear();
+			//int year2 = landsatDS.GetScenePeriod().at(y+1).Begin().GetYear();
+			options.m_VRTBandsName += GetFileTitle(exportPath) + string("_") + FormatA("%d", year1) + ".tif|";
+		}
+
+		msg += exportTSDS.CreateImage(exportPath, options);
+	}
+
+	
 
 	
 	if( msg && m_options.m_bDebug )
@@ -743,8 +801,9 @@ ERMsg CBandsAnalyserC5::Execute()
 	CGDALDatasetEx fireSeverityDS;
 	vector<CGDALDatasetEx> exportBandsDS;
 	CGDALDatasetEx debugDS;
+	CGDALDatasetEx exportTSDS;
 
-	msg = OpenAll(lansatDS, physicalDS, maskDS, outputDS, fireSeverityDS, exportBandsDS, debugDS);
+	msg = OpenAll(lansatDS, physicalDS, maskDS, outputDS, fireSeverityDS, exportBandsDS, exportTSDS, debugDS);
 	
 	if( msg)
 	{
@@ -785,7 +844,7 @@ ERMsg CBandsAnalyserC5::Execute()
 			vector< vector< CDADVector >> data;
 			ReadBlock(xBlock, yBlock, bandHolder1[threadBlockNo], bandHolder2[threadBlockNo]);
 			ProcessBlock(xBlock, yBlock, bandHolder1[threadBlockNo], bandHolder2[threadBlockNo], DT, data);
-			WriteBlock(xBlock, yBlock, bandHolder1[threadBlockNo], data, outputDS, fireSeverityDS, exportBandsDS, debugDS);
+			WriteBlock(xBlock, yBlock, bandHolder1[threadBlockNo], data, outputDS, fireSeverityDS, exportBandsDS, exportTSDS, debugDS);
 		}//for all blocks
 
 
@@ -793,7 +852,7 @@ ERMsg CBandsAnalyserC5::Execute()
 		DT.FreeMemory();
 
 		//close inputs and outputs
-		CloseAll(lansatDS, physicalDS, maskDS, outputDS, fireSeverityDS, exportBandsDS, debugDS);
+		CloseAll(lansatDS, physicalDS, maskDS, outputDS, fireSeverityDS, exportBandsDS, exportTSDS, debugDS);
 
 	}
 	
@@ -849,32 +908,46 @@ void CBandsAnalyserC5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& 
 			for (int x = 0; x < blockSize.m_x; x++)
 			{
 				int threadNo = ::omp_get_thread_num();
-				//size_t z0 = UNKNOWN_POS;
 
 				if (!data[x][y].empty())
 				{
 					//process all scenes 
 					for (size_t z1 = 0; z1 < data[x][y].GetNbDTCode(); z1++)
 					{
-						size_t z2 = z1 + 1;
-#pragma omp atomic
-						m_options.m_nbPixel++;
+							if (!data[x][y].IsSpiking(z1))
+							{
+								size_t z2 = z1 + 1;
+								while (z2<data[x][y].size() && data[x][y].IsSpiking(z2))
+									z2++;
 
-						if (m_options.m_trigger.IsTrigged(data[x][y][z1], data[x][y][z2]))
-						{
+								if (z2 < data[x][y].size())
+								{
 #pragma omp atomic
-							m_options.m_nbPixelDT++;
+									m_options.m_nbPixel++;
 
-							vector <AttValue> block = data[x][y].GetDataRecord(z1, z2, DT[threadNo]);
-							ASSERT(!block.empty());
-							int predict = (int)DT[threadNo].Classify(block.data());
-							ASSERT(predict >= 1 && predict <= DT[threadNo].MaxClass);
-							data[x][y].SetDTCode(z1, atoi(DT[threadNo].ClassName[predict]));
-						}
-						else //if trigger
-						{
-							data[x][y].SetDTCode(z1, NO_DISTERBANCE);
-						}
+									if (m_options.m_trigger.IsTrigged(data[x][y][z1], data[x][y][z2]))
+									{
+#pragma omp atomic
+										m_options.m_nbPixelDT++;
+
+										vector <AttValue> block = data[x][y].GetDataRecord(z1, DT[threadNo]);//z2, 
+										ASSERT(!block.empty());
+										int predict = (int)DT[threadNo].Classify(block.data());
+										ASSERT(predict >= 1 && predict <= DT[threadNo].MaxClass);
+										data[x][y].SetDTCode(z1, atoi(DT[threadNo].ClassName[predict]));
+									}
+									else //if not trigger
+									{
+										data[x][y].SetDTCode(z1, NOT_TRIGGED_CODE);
+									}
+									//}
+								}
+							}
+							else//z1 spiking
+							{
+								data[x][y].SetDTCode(z1, SPIKING_CODE);
+							}
+						//}//if z1 init
 					}//for z1
 				}
 #pragma omp atomic	
@@ -891,102 +964,102 @@ void CBandsAnalyserC5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& 
 	}
 }
 
-void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& data, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS)
+void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& data, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	if( data.empty() )
 		return;
 
-	#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIO)
 	{
-		
+
 		m_options.m_timerWrite.Start();
 
 
 		size_t nbScenes = data[0][0].size();
-		//size_t sceneSize = data[0][0].m_sceneSize;
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-		CGeoRectIndex outputRect=extents.GetBlockRect(xBlock,yBlock);
-	
+		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+		assert(bandHolder.GetNbScenes() == bandHolder.GetPeriod().GetNbYears());
 
-		ASSERT( outputRect.Width() == blockSize.m_x);
-		ASSERT( outputRect.Height() == blockSize.m_y);
-					
-		if( m_options.m_bCreateImage )
+
+		ASSERT(outputRect.Width() == blockSize.m_x);
+		ASSERT(outputRect.Height() == blockSize.m_y);
+
+		if (m_options.m_bCreateImage)
 		{
 			__int32 noDataOut = (__int32)outputDS[0].GetNoData(0);
-			for(size_t i=0; i<outputDS.size(); i++)
+			for (size_t i = 0; i < outputDS.size(); i++)
 			{
-				ASSERT( data.size() == blockSize.m_x );
+				ASSERT(data.size() == blockSize.m_x);
 				ASSERT(data[0].size() == blockSize.m_y);
-				ASSERT( outputDS[i].GetRasterCount() == NB_OUTPUT_BANDS);
-							
-				for(size_t b=0; b<outputDS[i].GetRasterCount(); b++)
+				ASSERT(outputDS[i].GetRasterCount() == NB_OUTPUT_BANDS);
+
+				for (size_t b = 0; b < outputDS[i].GetRasterCount(); b++)
 				{
 					GDALRasterBand *pBand = outputDS[i].GetRasterBand(b);
 
 					vector<__int32> output(blockSize.m_x*blockSize.m_y, noDataOut);
-					for(int y=0; y<blockSize.m_y; y++)
+					for (int y = 0; y < blockSize.m_y; y++)
 					{
-						for(int x=0; x<blockSize.m_x; x++)
+						for (int x = 0; x < blockSize.m_x; x++)
 						{
-							int xy = int(y*blockSize.m_x+x);
+							int xy = int(y*blockSize.m_x + x);
 							size_t z = data[x][y].GetDisturbanceIndex(i);
-						
-							switch(b)
+
+							switch (b)
 							{
 							case O_FIRST_DATE:	output[xy] = m_options.GetTRefIndex(data[x][y].GetFirstTRef()); break;
-							case O_DISTURBANCE:	if(z != UNKNOWN_POS) output[xy]=data[x][y].GetDTCode(z); break;
+							case O_DISTURBANCE:	if (z != UNKNOWN_POS) output[xy] = data[x][y].GetDTCode(z); break;
 							case O_DATE1:		if (z != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z].GetTRef()); break;
 							case O_DATE2:		if (z != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z + 1].GetTRef()); break;
 							case O_LAST_DATE:	output[xy] = m_options.GetTRefIndex(data[x][y].GetLastTRef()); break;
 							default: ASSERT(FALSE);
 							}
-						
+
 						}//x
 					}//y
-				
-					pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Int32, 0, 0  );
-					pBand->FlushCache();
+
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Int32, 0, 0);
+					//pBand->FlushCache();
 				}//for all output bands
 			}//for all disturbance
 		}//if create image
 
-				
+
 		if (m_options.m_bFireSeverity)
 		{
 			__int16 noDataIn = (__int16)::GetDefaultNoData(GDT_Int16);
 			float noDataOut = (float)::GetDefaultNoData(GDT_Int32);
-		
-			
-			for (size_t b = 0; b<NB_FIRE_SEVERITY; b++)
+
+
+			for (size_t b = 0; b < NB_FIRE_SEVERITY; b++)
 			{
 				GDALRasterBand *pBand = fireSeverityDS.GetRasterBand(b);
 				vector<float> output(blockSize.m_x*blockSize.m_y, noDataOut);
 
-				for(int y=0; y<blockSize.m_y; y++)
+				for (int y = 0; y < blockSize.m_y; y++)
 				{
-					for(int x=0; x<blockSize.m_x; x++)
+					for (int x = 0; x < blockSize.m_x; x++)
 					{
-						if( data[x][y].IsInit() )
+						if (data[x][y].IsInit())
 						{
-							for (size_t z = 0; z<data[x][y].GetNbDTCode(); z++)
+							for (size_t z = 0; z < data[x][y].GetNbDTCode(); z++)
 							{
-							
-								if (data[x][y][z].IsInit() && 
+
+								if (data[x][y][z].IsInit() &&
 									data[x][y].GetDTCode(z) == FIRE_CODE &&
 									data[x][y][z][E_B4] != noDataIn &&
 									data[x][y][z][E_B7] != noDataIn &&
-									data[x][y][z+1][E_B4] != noDataIn &&
-									data[x][y][z+1][E_B7] != noDataIn )
+									data[x][y][z + 1][E_B4] != noDataIn &&
+									data[x][y][z + 1][E_B7] != noDataIn)
 								{
 									static const double _a_[2] = { 0.22, 0.311 };
 									static const double _b_[2] = { 0.09, 0.019 };
 
 									double NBR1 = data[x][y][z].NBR();
 									double NBR2 = data[x][y][z + 1].NBR();
-									double dNBR = NBR1-NBR2;
-								
+									double dNBR = NBR1 - NBR2;
+
 									//Genreal Saturated Growth
 									double CBI_Ron = dNBR / (_a_[FS_RON] * dNBR + _b_[FS_RON]);
 									double CBI_Jo = dNBR / (_a_[FS_JO] * dNBR + _b_[FS_JO]);
@@ -996,47 +1069,47 @@ void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& ba
 									{
 									case FS_RON: fireSeverity = CBI_Ron; break;
 									case FS_JO:	fireSeverity = CBI_Jo; break;
-									case FS_MEAN:	fireSeverity = (CBI_Ron + CBI_Jo)/2; break;
+									case FS_MEAN:	fireSeverity = (CBI_Ron + CBI_Jo) / 2; break;
 									default: ASSERT(false);
 									}
-								
+
 									output[y*blockSize.m_x + x] = (float)fireSeverity;
 								}//il all is presnet????
 							}//for all disterbance
 						}//if disturbance
 					}//x
 				}//y
-				
-				pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0  );
-				pBand->FlushCache();
+
+				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
+				//pBand->FlushCache();
 			}//all model (3)
-		
+
 		}//stats
 
-		if( m_options.m_bExportBands )
+		if (m_options.m_bExportBands)
 		{
 			__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
-			for(size_t i=0; i<exportBandsDS.size(); i++)
+			for (size_t i = 0; i < exportBandsDS.size(); i++)
 			{
-				ASSERT( exportBandsDS[i].GetRasterCount() == NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL);
+				ASSERT(exportBandsDS[i].GetRasterCount() == NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL);
 
-				for (size_t t = 0; t<NB_EXPORT_TEMPORAL; t++)
+				for (size_t t = 0; t < NB_EXPORT_TEMPORAL; t++)
 				{
-					for(size_t b=0; b<NB_EXPORT_BANDS; b++)
+					for (size_t b = 0; b < NB_EXPORT_BANDS; b++)
 					{
-						GDALRasterBand *pBand = exportBandsDS[i].GetRasterBand(t*NB_EXPORT_BANDS+b);
+						GDALRasterBand *pBand = exportBandsDS[i].GetRasterBand(t*NB_EXPORT_BANDS + b);
 
 						vector<__int16> exportBands(blockSize.m_x*blockSize.m_y, noData);
-						for(int y=0; y<blockSize.m_y; y++)
+						for (int y = 0; y < blockSize.m_y; y++)
 						{
-							for(int x=0; x<blockSize.m_x; x++)
+							for (int x = 0; x < blockSize.m_x; x++)
 							{
 								size_t z = data[x][y].GetDisturbanceIndex(i);
-								if (z<data[x][y].size())
+								if (z < data[x][y].size())
 								{
 									int tt = int(t) - 2;
 									size_t Tindex = data[x][y].GetIndex(z, tt);
-									
+
 									if (Tindex < data[x][y].size())
 									{
 										exportBands[y*blockSize.m_x + x] = data[x][y][Tindex][EXPORT_BANDS[b]];
@@ -1045,12 +1118,42 @@ void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& ba
 							}
 						}
 
-						pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(exportBands[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0  );
-						pBand->FlushCache();
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(exportBands[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+						//pBand->FlushCache();
 					}//for all bands in a scene
 				}//for T1 and T2
 			}//for all disturbance
 		}//export bands
+
+
+		if (m_options.m_bExportTimeSeries)
+		{
+			char noDataOut = (char)::GetDefaultNoData(GDT_Byte);
+
+			for (size_t b = 0; b < exportTSDS.GetRasterCount(); b++)
+			{
+				GDALRasterBand *pBand = exportTSDS.GetRasterBand(b);
+				int year = bandHolder.GetPeriod().Begin().GetYear() + int(b);
+
+				vector<byte> output(blockSize.m_x*blockSize.m_y, noDataOut);
+				for (int y = 0; y < blockSize.m_y; y++)
+				{
+					for (int x = 0; x < blockSize.m_x; x++)
+					{
+						size_t z = data[x][y].FindYear(year);
+						if (z != NOT_INIT)
+						{
+							int xy = y*blockSize.m_x + x;
+							output[xy] = (char)data[x][y].GetDTCode(z);
+							if (output[xy] == 0)
+								output[xy] = noDataOut;
+						}
+					}//x
+				}//y
+
+				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Byte, 0, 0);
+			}//for all debug variable
+		}//time series
 
 		if( m_options.m_bDebug )
 		{
@@ -1091,7 +1194,7 @@ void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& ba
 				}//y
 				
 				pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Int32, 0, 0  );
-				pBand->FlushCache();
+				//pBand->FlushCache();
 			}//for all debug variable
 		}//debug
 	}
@@ -1100,14 +1203,14 @@ void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& ba
 	
 }
 
-void CBandsAnalyserC5::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& debugDS)
+void CBandsAnalyserC5::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	if( !m_options.m_bQuiet )		
 		_tprintf("\nClose all files...\n");
 
 	landsatDS.Close();
 	physicalDS.Close();
-	maskDS.Close();
+	maskDS.Close(); 
 
 	//close output
 	m_options.m_timerWrite.Start();
@@ -1134,6 +1237,21 @@ void CBandsAnalyserC5::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 			exportBandsDS[i].BuildOverviews(m_options.m_overviewLevels, true);
 		exportBandsDS[i].Close();
 	}
+
+
+	if (m_options.m_bComputeStats)
+		exportTSDS.ComputeStats(true);
+	if (!m_options.m_overviewLevels.empty())
+		exportTSDS.BuildOverviews(m_options.m_overviewLevels, true);
+	exportTSDS.Close();
+
+	
+	if (m_options.m_bComputeStats)
+		debugDS.ComputeStats(true);
+	if (!m_options.m_overviewLevels.empty())
+		debugDS.BuildOverviews(m_options.m_overviewLevels, true);
+	debugDS.Close();
+	
 
 		
 	m_options.m_timerWrite.Stop();
@@ -1166,14 +1284,13 @@ void CBandsAnalyserC5::LoadData(const CBandsHolder& bandHolder1, const CBandsHol
 				data[x][y].m_physical[z] = physical[z]->at(x, y);
 
 			size_t nbScenes = landsat.GetNbScenes();
-			//data[x][y].resize(nbScenes);
 			data[x][y].reserve(nbScenes);
 			for (size_t z = 0; z < landsat.GetNbScenes(); z++)
 			{
 				CLandsatPixel pixel = ((CLandsatWindow&)landsat).GetPixel(z, x, y);
-				if (pixel.IsInit())
+				//if (pixel.IsInit())
+				if (pixel.IsValid())
 				{
-					//pixel.SetTRef(m_options.GetTRef(pixel[BDATE]));
 					data[x][y].push_back(pixel);
 				}
 			}

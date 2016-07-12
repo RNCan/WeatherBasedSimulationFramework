@@ -27,7 +27,7 @@ namespace WBSF
 		//friend CMergeExecutableDlg;
 
 		enum TMember{
-			APPEND_DIMENSION = CExecutable::NB_MEMBERS, MERGE_ARRAY, NB_MEMBERS,
+			APPEND_DIMENSION = CExecutable::NB_MEMBERS, MERGE_ARRAY, ADD_NAME, NB_MEMBERS,
 			NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -36,7 +36,8 @@ namespace WBSF
 		static CExecutablePtr PASCAL CreateObject(){ return CExecutablePtr(new CMergeExecutable()); }
 
 		//*** public member ***
-		int m_dimensionAppend;//if append mode, on with dimension
+		bool m_bAddName;
+		int m_dimensionAppend;//if append mode, on which dimension
 		StringVector m_mergedArray;
 		//*********************
 

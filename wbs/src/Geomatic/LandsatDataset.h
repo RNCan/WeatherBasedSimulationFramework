@@ -21,10 +21,10 @@ namespace WBSF
 	namespace Landsat
 	{
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
-		enum TIndices{ I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
-		enum TMethod{ M_OR, M_AND};
+		enum TIndices{ I_INVALID=-1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		enum TOperator{ O_INVALID = -1, O_OR, O_AND, NB_OPERATORS };
 		TIndices GetIndicesType(const std::string& str);
-		TMethod GetIndicesMethod(const std::string& str);
+		TOperator GetIndicesOperator(const std::string& str);
 	}
 
 	typedef __int16 LandsatDataType;
@@ -53,12 +53,7 @@ namespace WBSF
 
 		static double GetDespike(double pre, double spike, double post);
 
-		CTRef GetTRef()const;// { return m_TRef; }
-		//void SetTRef(CTRef in){ m_TRef = in; }
-
-	protected:
-
-		//CTRef m_TRef;
+		CTRef GetTRef()const;
 	};
 
 	class CIndices
@@ -67,14 +62,11 @@ namespace WBSF
 
 		Landsat::TIndices	m_type;
 		double				m_threshold;
-		//Landsat::TMethod	m_method;
-
 
 		CIndices(Landsat::TIndices	type, double threshold)
 		{
 			m_type = type;
 			m_threshold = threshold;
-			//m_method = m;
 		}
 
 		bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const

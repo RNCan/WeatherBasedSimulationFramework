@@ -166,19 +166,25 @@ void CResultCtrl::Update()
 				CRegistry registry("ResultColumnWidth");
 
 				m_enableUpdate = FALSE;
+				//unhide col
+				CleanUpHidenCols();
+
 				//ResetAll(true);
 				ASSERT(m_dataTitles.size() == m_pResult->GetNbCols());
 				SetNumberCols((int)m_pResult->GetNbCols(), FALSE);
 				SetNumberRows((int)m_pResult->GetNbRows(), FALSE);
 
-				CleanUpHidenCols();
-				//hide col
-				/*for (size_t d = 0; d < DIMENSION::NB_DIMENSION; d++)
+				for (size_t d = 0; d < DIMENSION::NB_DIMENSION; d++)
 				{
-					if (d == VARIABLE || dimension[d]==0)
+					if (d == VARIABLE || dimension[d]<=1)
+					{
 						HideCol((int)d);
-				}*/
-						
+					}
+				}
+				
+				int colWidth = registry.GetValue<int>("SideHeader", 80);
+				SetSH_ColWidth(0, colWidth);
+				//SetColWidth(-1, colWidth);
 
 				//dimension col width
 				for (size_t d = 0; d < DIMENSION::NB_DIMENSION; d++)
@@ -188,31 +194,28 @@ void CResultCtrl::Update()
 						string name = CDimension::GetDimensionName(d);
 						int colWidth = registry.GetValue<int>(name, 80);
 
-						int col = LocateCol((int)d);
-						SetColWidth(col, colWidth);
+						//int col = LocateCol((int)d);
+						SetColWidth((int)d, colWidth);
 					}
-					else
-					{
-						HideCol((int)d);
-					}
+					//else
+					//{
+						//HideCol((int)d);
+					//}
 				}
 
 				for (size_t v = 0; v < m_pResult->GetNbCols(false); v++)
 				{
 					string name = modelName + outdef[v].m_name;
 					int colWidth = registry.GetValue<int>(name, 80);
-					int col = LocateCol(DIMENSION::NB_DIMENSION + (int)v); 
-					ASSERT(col >= 0);
+					//int col = LocateCol(DIMENSION::NB_DIMENSION + (int)v); 
+					//ASSERT(col >= 0);
 					
-					SetColWidth(col, colWidth);
+					SetColWidth(DIMENSION::NB_DIMENSION + (int)v, colWidth);
 				}
 
-				int colWidth = registry.GetValue<int>("SideHeader", 80);
-				SetColWidth(-1, colWidth);
-
 				m_enableUpdate = TRUE;
-
 				Invalidate();
+
 			}
 		}
 
@@ -252,32 +255,39 @@ void CResultCtrl::OnColSized(int index, int *width)
 {
 	ASSERT(m_pResult && m_pResult->IsOpen());
 
-	int col = GetColTranslation(index);
-	
-	CRegistry registry("ResultColumnWidth");
-	const CModelOutputVariableDefVector& outdef = m_pResult->GetMetadata().GetOutputDefinition();
-
-
-	string modelName = m_pResult->GetMetadata().GetModelName();
-	string name;
-	
-	if (col == -1)
-		name = "SideHeader";
-	else if (col>=0 && col < DIMENSION::NB_DIMENSION)
-		name = CDimension::GetDimensionName(col);
-	else
-		name = modelName + outdef[col - DIMENSION::NB_DIMENSION].m_name;
-
-	registry.SetValue(name, *width);
 	
 
-	return CUGExcel::OnColSized(col, width);
+	if (m_enableUpdate)
+	{
+		CRegistry registry("ResultColumnWidth");
+		const CModelOutputVariableDefVector& outdef = m_pResult->GetMetadata().GetOutputDefinition();
+
+
+		string modelName = m_pResult->GetMetadata().GetModelName();
+		string name;
+
+		int col = GetColTranslation(index);
+		if (col == -1)
+			name = "SideHeader";
+		else if (col >= 0 && col < DIMENSION::NB_DIMENSION)
+			name = CDimension::GetDimensionName(col);
+		else
+			name = modelName + outdef[col - DIMENSION::NB_DIMENSION].m_name;
+
+		registry.SetValue(name, *width);
+	}
+
+	CUGExcel::OnColSized(index, width);
+	
 }
 
 int CResultCtrl::OnSideHdgSized(int *width)
 {
-	CRegistry registry("ResultColumnWidth");
-	registry.SetValue("SideHeader", *width);
+	if (m_enableUpdate)
+	{
+		CRegistry registry("ResultColumnWidth");
+		registry.SetValue("SideHeader", *width);
+	}
 
 	return CUGExcel::OnSideHdgSized(width);
 }

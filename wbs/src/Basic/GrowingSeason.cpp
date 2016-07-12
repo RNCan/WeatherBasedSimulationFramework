@@ -130,8 +130,8 @@ namespace WBSF
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
 		int year = p.Begin().GetYear();
 
-		CTRef TRef1 = CTRef(year, JULY, 14);
-		CTRef TRef2 = CTRef(year, JULY, 14);
+		CTRef TRef1 = CTRef(year, JULY, DAY_15);
+		CTRef TRef2 = CTRef(year, JULY, DAY_15);
 		
 		bool bGetIt1 = false;
 

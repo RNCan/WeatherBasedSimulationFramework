@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -ot Int16 -multi  -dstnodata -32768 -co "compress=LZW" -co "BIGTIFF=YES" --config GDAL_CACHEMAX 2048 -of VRT -Trigger NBR 0.1 -Despike TCB 0.9 -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test5\Model\DTv5" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test5\inputs\VRT_L578_8415.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test5\inputs\physics.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test5\Output\zone.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-Trigger NBR 0.1 -ExportTimeSeries -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -ot Int16 -multi   -dstnodata -32768 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -of VRT -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Model\DT" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\landsat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\physics.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Output\test6_5.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-Trigger NBR 0.1 -Despike TCB 0.9 -Debug -multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Model\DTv4" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Input\landsat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\physics.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Output\zone2.tif"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-ExportTimeSeries -co "tiled=YES" -ot Int16 -multi  -cpu 4 -dstnodata -32768 -blocksize 64 64 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -of VRT -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Model\DT" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\landsat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\physics.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Output\test6_2.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerAttach>false</LocalDebuggerAttach>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommandArguments>-Debug -multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "E:\Travaux\Bureau\Geomatique\Model\V5" "E:\Travaux\Bureau\Geomatique\input\Zone1.tif" "E:\Travaux\Bureau\Geomatique\input\Zone1++.vrt" "E:\Travaux\Bureau\Geomatique\Output\zone1.tif"</LocalDebuggerCommandArguments>

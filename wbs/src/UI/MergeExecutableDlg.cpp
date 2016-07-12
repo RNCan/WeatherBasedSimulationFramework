@@ -82,28 +82,20 @@ namespace WBSF
 		DDX_Text(pDX, IDC_DESCRIPTION, m_merge.m_description);
 		DDX_Selection(pDX, IDC_EXECUTABLE_TREE, m_merge.m_mergedArray);
 		DDX_CBIndex(pDX, IDC_DIMENSION_MERGED, m_merge.m_dimensionAppend);
+		DDX_Check(pDX, IDC_SIM_ADD_NAME, m_merge.m_bAddName);
+		
 
 
 		if (pDX->m_bSaveAndValidate)
 		{
 			m_merge.m_mergedArray.clear();
-			//GetCheck(m_pParent, m_merge);
 			m_executableCtrl.GetCheckedItem(m_merge.m_mergedArray);
 		}
 		else
 		{
-			//SetCheck(m_pParent, m_merge);
-			
-				
-
-
 			m_executableCtrl.SetHideItem(m_merge.GetInternalName());
-			//CProjectStatePtr pProjectState = make_shared<CProjectState>();
-			
-			//pProjectState->m_expendedItems.insert(m_pParent->GetInternalName());
 			m_executableCtrl.SetExecutable(m_pParent, CProjectStatePtr());
 			m_executableCtrl.ExpandAll();
-
 			m_executableCtrl.SetCheckedItem(m_merge.m_mergedArray);
 		}
 

@@ -388,7 +388,7 @@ namespace WBSF
 				stationList.push_back(*it);
 
 
-		callback.PushTask("Download MDDELCC #stations (" + ToString(stationList.size()) + ")", stationList.size());
+		callback.PushTask("Download MDDELCC (" + ToString(stationList.size()) + " stations)", stationList.size());
 
 
 		int nbRun = 0;

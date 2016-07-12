@@ -120,7 +120,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "0=Fire"; break;//|1=Agriculture
+		case NETWORK:	str = "0=Fire|1=Agriculture"; break;//|1=Agriculture
 		case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
@@ -166,21 +166,180 @@ namespace WBSF
 			}
 			else if (n == AGRI)
 			{
-				
-				//				string str;
-				//			msg = UtilWWW::GetPageText(pConnection, "content/gnb/en/departments/natural_resources/ForestsCrownLands/content/FireManagement/FireWeatherLatestObservations.html", str);
-				if (msg)
-				{
-					//static const char* STATIONS[19] = { "47", "49", "62", "42", "45", "51", "55", "36", "37", "59", "41", "67", "68", "70", "66", "65", "53", "73", "69" };
-					//for (int i = 0; i < 19; i++)
-						//fileList.push_back(STATIONS[i]);
-				}
+				ASSERT(false);
 			}
 		}
 
 		return msg;
 	}
 
+	ERMsg CUINewBrunswick::GetFileList(size_t n, StringVector& fileList, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		fileList.clear();
+
+		if (msg)
+		{
+
+			if (n == FIRE)
+			{
+				ASSERT(false);
+			}
+			else if (n == AGRI)
+			{
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+
+				msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+				if (msg)
+				{
+					string str;
+					msg = UtilWWW::GetPageText(pConnection, "010-001/archive.aspx", str);
+					if (msg)
+					{
+						string::size_type pos1 = str.find("<select");
+						string::size_type pos2 = str.find("</select>");
+
+						if (pos1 != string::npos && pos2 != string::npos)
+						{
+							string xml_str = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
+							zen::XmlDoc doc = zen::parse(xml_str);
+
+							zen::XmlIn in(doc.root());
+							for (zen::XmlIn it = in["option"]; it; it.next())
+							{
+								string value;
+								//it(value);
+								it.get()->getAttribute("value", value);
+								fileList.push_back(value);
+							}//for all station
+						}
+						
+						//static const char* STATIONS[19] = { "47", "49", "62", "42", "45", "51", "55", "36", "37", "59", "41", "67", "68", "70", "66", "65", "53", "73", "69" };
+						//for (int i = 0; i < 19; i++)
+						//fileList.push_back(STATIONS[i]);
+					}
+
+					//clean connection
+					pConnection->Close();
+					pSession->Close();
+				}
+			}
+		}
+
+		return msg;
+	}
+	
+	double GetWindDir(string compass)
+	{
+		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+
+		double wd = 0;
+		for (size_t i = 0; i < 16; i++)
+		{
+			if (compass == COMPASS[i])
+			{
+				wd = i*22.5;
+				break;
+			}
+		}
+
+		return wd;
+	}
+
+	ERMsg CUINewBrunswick::SaveStation(const std::string& filePath, std::string str)
+	{
+		ERMsg msg;
+
+		CWeatherYears data(true);
+
+
+		enum THourlyColumns{ C_DATE_TIME, C_TOUTSIDE, C_TMAX, C_TMIN, C_HUMIDITY, C_TDEW, C_WSPD, C_DIR, C_RAIN, C_TSOIL, NB_COLUMNS };
+		static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR, H_SKIP, H_SKIP, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
+
+		try
+		{
+			WBSF::ReplaceString(str, "\t", "");
+
+			zen::XmlDoc doc = zen::parse(str);
+
+			zen::XmlIn in(doc.root());
+			for (zen::XmlIn itTR = in["tr"]; itTR; itTR.next())
+			{
+				StringVector tmp;
+				for (zen::XmlIn itTD = itTR["td"]; itTD; itTD.next())
+				{
+					string value;
+					zen::XmlIn itSpan = itTD["font"]["span"];
+					itSpan(value);
+					if (!value.empty())
+						tmp.push_back(value);
+				}//for all columns
+
+
+				if (tmp.size() == NB_COLUMNS)
+				{
+
+					StringVector date(tmp[C_DATE_TIME], " /-:");
+					ASSERT(date.size() == 7);
+
+					int year = ToInt(date[2]);
+					size_t month = ToInt(date[1]) - 1;
+					size_t day = ToInt(date[0]) - 1;
+					size_t hour = ToInt(date[3]);
+					size_t minute = ToInt(date[4]);
+					
+					
+					if (minute == 0)
+					{
+						ASSERT(month >= 0 && month < 12);
+						ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+						ASSERT(hour >= 0 && hour < 24);
+
+						if (date[6] == "AM" && hour == 12)
+							hour = 0;
+						else if (date[6] == "PM")
+							hour += 12;
+
+						CTRef TRef = CTRef(year, month, day, hour);
+
+						for (size_t i = 0; i < NB_COLUMNS; i++)
+						{
+							if (COL_POS[i] != H_SKIP)
+							{
+								if (COL_POS[i] == H_WNDD)
+									tmp[i] = ToString(GetWindDir(tmp[i]));
+
+								double value = ToDouble(tmp[i]);
+								if (value > -99)
+									data.GetHour(TRef).SetStat(COL_POS[i], value);
+							}
+						}
+					}
+				}
+			}
+
+
+			if (msg)
+			{
+				ASSERT(data.size() == 1);
+				//save data
+				for (auto it1 = data.begin(); it1 != data.end(); it1++)
+				{
+					msg += it1->second->SaveData(filePath);
+				}
+			}//if msg
+		}
+		catch (const zen::XmlParsingError& e)
+		{
+			// handle error
+			msg.ajoute("Error parsing XML file: col=" + WBSF::ToString(e.col) + ", row=" + WBSF::ToString(e.row));
+		}
+
+
+		return msg;
+	}
 
 
 	ERMsg CUINewBrunswick::Execute(CCallback& callback)
@@ -221,258 +380,213 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg PostPageText(CHttpConnectionPtr& pConnection, const std::string& URLIn, const std::string& header, const std::string& data, std::string& text, bool bConvert = false, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE)
-	//{
+	ERMsg DownloadStation(CHttpConnectionPtr& pConnection, const std::string& ID, int year, std::string& text)
+	{
 
-	//	ERMsg msg;
-
-
-	//	//CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded");
-	//	//CString strFormData = _T("__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%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%2Fkx8tP9Qp93CvCxoYUfKz%2B%2F6A%3D%3D&__VIEWSTATEGENERATOR=7FE89812&__EVENTVALIDATION=%2FwEWhAEC6vCn2AwCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf&ctl00%24hfLang=fr-CA&ctl00%24Content1%24ddlWS=47&ctl00%24Content1%24ddlFromDay=1&ctl00%24Content1%24ddlFromMonth=1&ctl00%24Content1%24ddlFromYear=2015&ctl00%24Content1%24hdnFromDate=&ctl00%24Content1%24ddlToDay=2&ctl00%24Content1%24ddlToMonth=1&ctl00%24Content1%24ddlToYear=2015&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit");
-
-	//	CString URL = WBSF::convert(URLIn).c_str();
-	//	CString strHeaders = WBSF::convert(header).c_str();
-	//	CString strFormData = WBSF::convert(data).c_str();
-	//	CHttpFile* pURLFile = pConnection->OpenRequest(_T("POST"), URL, NULL, 1, NULL, NULL, flags);
-
-	//	bool bRep = false;
-
-	//	if (pURLFile != NULL)
-	//	{
-	//		int nbTry = 0;
-	//		while (!bRep && msg)
-	//		{
-	//			TRY
-	//			{
-	//				nbTry++;
-	//				bRep = pURLFile->SendRequest(strHeaders, (LPVOID)(LPCTSTR)strFormData,strFormData.GetLength()) != 0;
-	//			}
-	//			CATCH_ALL(e)
-	//			{
-	//				DWORD errnum = GetLastError();
-	//				if (errnum == 12002 || errnum == 12029)
-	//				{
-	//					if (nbTry >= 10)
-	//					{
-	//						msg = UtilWin::SYGetMessage(*e);
-	//					}
-	//					//try again
-	//				}
-	//				else if (errnum == 12031 || errnum == 12111)
-	//				{
-	//					//throw a exception: server reset
-	//					THROW(new CInternetException(errnum));
-	//				}
-	//				else if (errnum == 12003)
-	//				{
-	//					msg = UtilWin::SYGetMessage(*e);
-
-	//					DWORD size = 255;
-	//					TCHAR cause[256] = { 0 };
-	//					InternetGetLastResponseInfo(&errnum, cause, &size);
-	//					if (_tcslen(cause) > 0)
-	//						msg.ajoute(UtilWin::ToUTF8(cause));
-	//				}
-	//				else
-	//				{
-	//					CInternetException e(errnum);
-	//					msg += UtilWin::SYGetMessage(e);
-	//				}
-	//			}
-	//			END_CATCH_ALL
-	//		}
-	//	}
+		ERMsg msg;
 
 
-	//	if (bRep)
-	//	{
-	//		const short MAX_READ_SIZE = 4096;
-	//		pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+		CString URL = _T("010-001/archive.aspx");
+		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");//\r\nUser-Agent: HttpCall\r\n
 
-	//		std::string tmp;
-	//		tmp.resize(MAX_READ_SIZE);
-	//		UINT charRead = 0;
-	//		while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
-	//		{
-	//			//tmp.ReleaseBuffer();
-	//			text.append(tmp.c_str(), charRead);
-	//		}
+		
+		CStringA strParam = "__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%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%2Fkx8tP9Qp93CvCxoYUfKz%2B%2F6A%3D%3D&__VIEWSTATEGENERATOR=7FE89812&__EVENTVALIDATION=%2FwEWhAEC6vCn2AwCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf&ctl00%24hfLang=fr-CA&";
+		strParam += ("ctl00%24Content1%24ddlWS=" + ID).c_str();
+		strParam += "&ctl00%24Content1%24ddlFromDay=1";
+		strParam += "&ctl00%24Content1%24ddlFromMonth=1";
+		strParam += ("&ctl00%24Content1%24ddlFromYear=" + ToString(year)).c_str();
+		strParam += "&ctl00%24Content1%24hdnFromDate=";
+		strParam += "&ctl00%24Content1%24ddlToDay=31" ;
+		strParam += "&ctl00%24Content1%24ddlToMonth=12";
+		strParam += ("&ctl00%24Content1%24ddlToYear=" + ToString(year)).c_str();
+		strParam += "&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit";
+		
+		
+		DWORD HttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT |INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
+		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, URL, NULL, 1, NULL, NULL, HttpRequestFlags);
+		
+
+		bool bRep = false;
+
+		if (pURLFile != NULL)
+		{
+			int nbTry = 0;
+			while (!bRep && msg)
+			{
+				TRY
+				{
+					nbTry++;
+					pURLFile->AddRequestHeaders(strHeaders);
+					
+					CString strContentL;
+					strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
+					pURLFile->AddRequestHeaders(strContentL);
+
+					// send request
+					bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
+				}
+				CATCH_ALL(e)
+				{
+					DWORD errnum = GetLastError();
+					if (errnum == 12002 || errnum == 12029)
+					{
+						if (nbTry >= 10)
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+						//try again
+					}
+					else if (errnum == 12031 || errnum == 12111)
+					{
+						//throw a exception: server reset
+						THROW(new CInternetException(errnum));
+					}
+					else if (errnum == 12003)
+					{
+						msg = UtilWin::SYGetMessage(*e);
+
+						DWORD size = 255;
+						TCHAR cause[256] = { 0 };
+						InternetGetLastResponseInfo(&errnum, cause, &size);
+						if (_tcslen(cause) > 0)
+							msg.ajoute(UtilWin::ToUTF8(cause));
+					}
+					else
+					{
+						CInternetException e(errnum);
+						msg += UtilWin::SYGetMessage(e);
+					}
+				}
+				END_CATCH_ALL
+			}
+		}
 
 
-	//		//convert UTF8 to UTF16
-	//		//size_t test1 = text.size();
-	//		//size_t test2 = text.length();
-	//		//int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
+		if (bRep)
+		{
+			const short MAX_READ_SIZE = 4096;
+			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
 
-	//		//std::wstring out;
-	//		//out.resize(len);
-	//		////WCHAR *ptr = textOut.GetBufferSetLength(len); ASSERT(ptr);
-	//		//
-	//		//	MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(out[0]), len);
-	//		//
-	//		////Convert UTF16 to ANSI
-	//		//int newLen = WideCharToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
-	//		//text.resize(newLen);
-	//		//WideCharwToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
+			std::string tmp;
+			tmp.resize(MAX_READ_SIZE);
+			UINT charRead = 0;
+			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
+				text.append(tmp.c_str(), charRead);
 
-	//		//Convert UTF16 to ANSI
-	//		//text = WBSF::UTF8(out);
+			pURLFile->Close();
+		}
+		else
+		{
+			CString tmp;
+			tmp.FormatMessage(IDS_CMN_UNABLE_LOAD_PAGE, URL);
+			msg.ajoute(UtilWin::ToUTF8(tmp));
+		}
 
-	//		//decode HTML code
-	//		if (bConvert)
-	//		{
-	//			decode_html_entities_utf8(&(text[0]), NULL);
-
-	//			//Convert UTF8 to UTF16 
-	//			int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
-
-	//			std::wstring w_text;
-	//			w_text.resize(len);
-	//			MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(w_text[0]), len);
-
-	//			//Convert UTF16 to Windows-1252 encoding
-	//			int newLen = WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
-
-	//			text.resize(newLen);
-	//			WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, &(text[0]), newLen, 0, 0);
-	//			text.resize(strlen(text.c_str()));
-	//		}
-
-	//		//textOut.ReleaseBuffer();
-
-	//		//text.Replace(_T("&nbsp;"), _T(""));
-	//		////text.Remove('\r');
-	//		////text.Remove('\n');
-	//		//if( replaceAccent )
-	//		//{
-
-	//		//	//lowercase
-	//		//	text.Replace(_T("&egrave;"), _T("è"));
-	//		//	text.Replace(_T("&eacute;"), _T("é"));
-	//		//	text.Replace(_T("&ocirc;"), _T("ô"));
-	//		//	text.Replace(_T("&icirc;"), _T("î"));
-	//		//	text.Replace(_T("&ecirc;"), _T("ê"));
-	//		//	text.Replace(_T("&euml;"), _T("ë"));
-	//		//	text.Replace(_T("&ccedil;"), _T("ç"));
-	//		//	
-
-	//		//	//uppercase 
-	//		//	text.Replace(_T("&Egrave;"), _T("È"));
-	//		//	text.Replace(_T("&Eacute;"), _T("É"));
-	//		//	text.Replace(_T("&Ocirc;"), _T("Ô"));
-	//		//	text.Replace(_T("&Icirc;"), _T("Î"));
-	//		//	text.Replace(_T("&Ecirc;"), _T("Ê"));
-	//		//	text.Replace(_T("&Euml;"), _T("Ë"));
-	//		//	text.Replace(_T("&Ccedil;"), _T("Ç"));
-	//		//}
-
-	//		pURLFile->Close();
-	//	}
-	//	else
-	//	{
-	//		CString tmp;
-	//		tmp.FormatMessage(IDS_CMN_UNABLE_LOAD_PAGE, URL);
-	//		msg.ajoute(UtilWin::ToUTF8(tmp));
-	//	}
-
-	//	delete pURLFile;
-	//	return msg;
-	//}
+		delete pURLFile;
+		return msg;
+	}
 
 	ERMsg CUINewBrunswick::ExecuteAgriculture(CCallback& callback)
 	{
 		ERMsg msg;
 
-		//string workingDir = GetDir(WORKING_DIR);
-		//msg = CreateMultipleDir(workingDir);
+		string workingDir = GetDir(WORKING_DIR);
+		msg = CreateMultipleDir(workingDir);
+		
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(string(SERVER_NAME[AGRI]), 1);
+		callback.AddMessage("");
 
-		callback.AddMessage("ToDo");
-		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		//callback.AddMessage(workingDir, 1);
-		//callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		//callback.AddMessage(string(SERVER_NAME[AGRI]), 1);
-		//callback.AddMessage("");
-
-
-		//StringVector fileList;
-		//GetFileList(AGRI, fileList, callback);
-
-		//callback.PushTask("Download New Brunswick agriculture data", fileList.size());
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+		CTRef currentTRef = CTRef::GetCurrentTRef();
 
 
-		//size_t curI = 0;
-		//bool bDownloaded = false;
+		StringVector fileList;
+		GetFileList(AGRI, fileList, callback);
 
-		//CInternetSessionPtr pSession;
-		//CHttpConnectionPtr pConnection;
+		callback.PushTask("Download New Brunswick agriculture data", fileList.size());
 
-		//msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
-		//if (msg)
-		//{
-		//	TRY
-		//	{
-		//		for (size_t i = curI; i < fileList.size() && msg; i++)
-		//		{
-		//			//string URL = "/010-001/archive.aspx? HTTP/1.1";
-		//			string URL = "010-001/archive.aspx?";
-		//			string header = "Content-Type: application/x-www-form-urlencoded";
-		//			//string data = "__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUKLTk1NTAxMjAxMA9kFgJmD2QWAgIED2QWAgIFD2QWBAIHDw9kDxAWA2YCAQICFgMWAh4OUGFyYW1ldGVyVmFsdWUFAjQ3FgIfAGUWAh8AZRYDZmZmZGQCCQ9kFhACBQ8QZA8WE2YCAQICAgMCBAIFAgYCBwIIAgkCCgILAgwCDQIOAg8CEAIRAhIWExAFDUFiZXJkZWVuICg0NykFAjQ3ZxAFDEFuZG92ZXIgKDQ5KQUCNDlnEAUNQnJpZ2h0b24gKDYyKQUCNjJnEAUNRHJ1bW1vbmQgKDQyKQUCNDJnEAUNRHJ1bW1vbmQgKDQ1KQUCNDVnEAUNRHJ1bW1vbmQgKDUxKQUCNTFnEAUNRHJ1bW1vbmQgKDU1KQUCNTVnEAULR29yZG9uICgzNikFAjM2ZxAFCUtlbnQgKDM3KQUCMzdnEAUNUmljaG1vbmQgKDU5KQUCNTlnEAUQU2FpbnQtQW5kcmUgKDQxKQUCNDFnEAUQU2FpbnQtQW5kcmUgKDY3KQUCNjdnEAUSU2FpbnQtTGVvbmFyZCAoNjgpBQI2OGcQBQxTaW1vbmRzICg3MCkFAjcwZxAFDldha2VmaWVsZCAoNjYpBQI2NmcQBQxXaWNrbG93ICg2NSkFAjY1ZxAFC1dpbG1vdCAoNTMpBQI1M2cQBQtXaWxtb3QgKDczKQUCNzNnEAUOV29vZHN0b2NrICg2OSkFAjY5Z2RkAgkPEGQPFh9mAgECAgIDAgQCBQIGAgcCCAIJAgoCCwIMAg0CDgIPAhACEQISAhMCFAIVAhYCFwIYAhkCGgIbAhwCHQIeFh8QBQExBQExZxAFATIFATJnEAUBMwUBM2cQBQE0BQE0ZxAFATUFATVnEAUBNgUBNmcQBQE3BQE3ZxAFATgFAThnEAUBOQUBOWcQBQIxMAUCMTBnEAUCMTEFAjExZxAFAjEyBQIxMmcQBQIxMwUCMTNnEAUCMTQFAjE0ZxAFAjE1BQIxNWcQBQIxNgUCMTZnEAUCMTcFAjE3ZxAFAjE4BQIxOGcQBQIxOQUCMTlnEAUCMjAFAjIwZxAFAjIxBQIyMWcQBQIyMgUCMjJnEAUCMjMFAjIzZxAFAjI0BQIyNGcQBQIyNQUCMjVnEAUCMjYFAjI2ZxAFAjI3BQIyN2cQBQIyOAUCMjhnEAUCMjkFAjI5ZxAFAjMwBQIzMGcQBQIzMQUCMzFnZGQCCw8QZA8WDGYCAQICAgMCBAIFAgYCBwIIAgkCCgILFgwQBQExBQExZxAFATIFATJnEAUBMwUBM2cQBQE0BQE0ZxAFATUFATVnEAUBNgUBNmcQBQE3BQE3ZxAFATgFAThnEAUBOQUBOWcQBQIxMAUCMTBnEAUCMTEFAjExZxAFAjEyBQIxMmdkZAINDxBkDxYJZgIBAgICAwIEAgUCBgIHAggWCRAFBDIwMDcFBDIwMDdnEAUEMjAwOAUEMjAwOGcQBQQyMDA5BQQyMDA5ZxAFBDIwMTAFBDIwMTBnEAUEMjAxMQUEMjAxMWcQBQQyMDEyBQQyMDEyZxAFBDIwMTMFBDIwMTNnEAUEMjAxNAUEMjAxNGcQBQQyMDE1BQQyMDE1Z2RkAhMPEGQPFh9mAgECAgIDAgQCBQIGAgcCCAIJAgoCCwIMAg0CDgIPAhACEQISAhMCFAIVAhYCFwIYAhkCGgIbAhwCHQIeFh8QBQExBQExZxAFATIFATJnEAUBMwUBM2cQBQE0BQE0ZxAFATUFATVnEAUBNgUBNmcQBQE3BQE3ZxAFATgFAThnEAUBOQUBOWcQBQIxMAUCMTBnEAUCMTEFAjExZxAFAjEyBQIxMmcQBQIxMwUCMTNnEAUCMTQFAjE0ZxAFAjE1BQIxNWcQBQIxNgUCMTZnEAUCMTcFAjE3ZxAFAjE4BQIxOGcQBQIxOQUCMTlnEAUCMjAFAjIwZxAFAjIxBQIyMWcQBQIyMgUCMjJnEAUCMjMFAjIzZxAFAjI0BQIyNGcQBQIyNQUCMjVnEAUCMjYFAjI2ZxAFAjI3BQIyN2cQBQIyOAUCMjhnEAUCMjkFAjI5ZxAFAjMwBQIzMGcQBQIzMQUCMzFnZGQCFQ8QZA8WDGYCAQICAgMCBAIFAgYCBwIIAgkCCgILFgwQBQExBQExZxAFATIFATJnEAUBMwUBM2cQBQE0BQE0ZxAFATUFATVnEAUBNgUBNmcQBQE3BQE3ZxAFATgFAThnEAUBOQUBOWcQBQIxMAUCMTBnEAUCMTEFAjExZxAFAjEyBQIxMmdkZAIXDxBkDxYJZgIBAgICAwIEAgUCBgIHAggWCRAFBDIwMDcFBDIwMDdnEAUEMjAwOAUEMjAwOGcQBQQyMDA5BQQyMDA5ZxAFBDIwMTAFBDIwMTBnEAUEMjAxMQUEMjAxMWcQBQQyMDEyBQQyMDEyZxAFBDIwMTMFBDIwMTNnEAUEMjAxNAUEMjAxNGcQBQQyMDE1BQQyMDE1Z2RkAh8PPCsADQBkGAEFHGN0bDAwJENvbnRlbnQxJGd2QXJjaGl2ZURhdGEPZ2ToC%2Fkx8tP9Qp93CvCxoYUfKz%2B%2F6A%3D%3D&__VIEWSTATEGENERATOR=7FE89812&__EVENTVALIDATION=%2FwEWhAEC6vCn2AwCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf&ctl00%24hfLang=fr-CA&ctl00%24Content1%24ddlWS=47&ctl00%24Content1%24ddlFromDay=1&ctl00%24Content1%24ddlFromMonth=1&ctl00%24Content1%24ddlFromYear=2015&ctl00%24Content1%24hdnFromDate=&ctl00%24Content1%24ddlToDay=2&ctl00%24Content1%24ddlToMonth=1&ctl00%24Content1%24ddlToYear=2015&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit";
-		//			string data =   "__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%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%2Fkx8tP9Qp93CvCxoYUfKz%2B%2F6A%3D%3D&__VIEWSTATEGENERATOR=7FE89812&__EVENTVALIDATION=%2FwEWhAEC6vCn2AwCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf&ctl00%24hfLang=fr-CA&ctl00%24Content1%24ddlWS=47&ctl00%24Content1%24ddlFromDay=1&ctl00%24Content1%24ddlFromMonth=1&ctl00%24Content1%24ddlFromYear=2015&ctl00%24Content1%24hdnFromDate=&ctl00%24Content1%24ddlToDay=2&ctl00%24Content1%24ddlToMonth=1&ctl00%24Content1%24ddlToYear=2015&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit";
-		//			//string data = "__EVENTTARGET:\r\n"
-		//			//	"__EVENTARGUMENT:\r\n"
-		//			//	"__VIEWSTATE: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\r\n"
-		//			//	"__VIEWSTATEGENERATOR:7FE89812\r\n"
-		//			//	"__EVENTVALIDATION:/wEWhAEC6vCn2AwCjPGn3gECkN/z0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak+6ACAtCk+6ACAtCkz6ACAtek/6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk/6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv/o4MUGAv/o3JgNAv/oyL8EAv/opNIMAv/okOkLAv/ojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6/08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6+08C14iy+gQC1oiy+gQC1Yiy+gQC1Iiy+gQC04iy+gQC0oiy+gQC0Yiy+gQCwIiy+gQCz4iy+gQC14jy+QQC14j++QQC14j6+QQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf\r\n"
-		//			//	"ctl00$hfLang:fr-CA\r\n"
-		//			//	"ctl00$Content1$ddlWS:47\r\n"
-		//			//	"ctl00$Content1$ddlFromDay:1\r\n"
-		//			//	"ctl00$Content1$ddlFromMonth:1\r\n"
-		//			//	"ctl00$Content1$ddlFromYear:2015\r\n"
-		//			//	"ctl00$Content1$hdnFromDate:\r\n"
-		//			//	"ctl00$Content1$ddlToDay:2\r\n"
-		//			//	"ctl00$Content1$ddlToMonth:1\r\n"
-		//			//	"ctl00$Content1$ddlToYear:2015\r\n"
-		//			//	"ctl00$Content1$hdnToDate:\r\n"
-		//			//	"ctl00$Content1$btnGetData:Submit\r\n";
+		int nbRun = 0;
+		size_t curI = 0;
+		while (curI < fileList.size() && msg)
+		{
+			nbRun++;
+
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+
+			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			if (msg)
+			{
+				TRY
+				{
+					for (size_t i = curI; i < fileList.size() && msg; i++)
+					{
+						for (size_t y = 0; y < nbYears&&msg; y++)
+						{
+							int year = firstYear + int(y);
+							//size_t lastMonth = year == currentTRef.GetYear() ? currentTRef.GetMonth() + 1: 12;
+							//for (size_t m = 0; m < lastMonth&&msg; m++)
+							//{
+							string str;
+							msg = DownloadStation(pConnection, fileList[i], year, str);
+
+							//split data in seperate files
+							if (msg)
+							{
+								string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
+								string::size_type pos2 = str.find("</table>", pos1);
+
+								if (pos1 != string::npos && pos2 != string::npos)
+								{
+									string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
 
 
+									string filePath = GetOutputFilePath(AGRI, fileList[i], year);
+									CreateMultipleDir(GetPath(filePath));
+									msg += SaveStation(filePath, tmp);
+								}
 
-		//			//string str;
-		//			//msg = PostPageText(pConnection, URL, header, data, str);
+								curI++;
+								msg += callback.StepIt();
+								//bDownloaded = true;
+							}
+
+							//}//month
+
+						}//year
+					}
+				}
+				CATCH_ALL(e)
+				{
+					msg = UtilWin::SYGetMessage(*e);
+				}
+				END_CATCH_ALL
+
+				//if an error occur: try again
+				if (!msg && !callback.GetUserCancel())
+				{
+					if (nbRun < 5)
+					{
+						callback.AddMessage(msg);
+						msg.asgType(ERMsg::OK);
+						Sleep(1000);//wait 1 sec
+					}
+				}
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
+			}
+		}
 
 
-		//			////split data in seperate files
-		//			//if (msg)
-		//			//{
-		//			//	string::size_type pos1 = str.find("<TABLE");
-		//			//	string::size_type pos2 = str.find("</TABLE>");
-
-		//			//	if (pos1 != string::npos && pos2 != string::npos)
-		//			//	{
-		//			//		string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
-		//			//		msg += SaveStation(fileList[i], tmp);
-		//			//	}
-
-		//			//	curI++;
-		//			//	msg += callback.StepIt();
-		//			//	bDownloaded = true;
-		//			//}
-		//		}
-		//	}
-		//		CATCH_ALL(e)
-		//	{
-		//		msg = UtilWin::SYGetMessage(*e);
-		//	}
-		//	END_CATCH_ALL
-
-		//		//clean connection
-		//		pConnection->Close();
-		//	pSession->Close();
-		//}
-		//
-
-		//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
-		//callback.PopTask();
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+		callback.PopTask();
 
 		return msg;
 	}
@@ -501,15 +615,10 @@ namespace WBSF
 
 
 		size_t curI = 0;
-		//size_t nbRun = 0;
 		bool bDownloaded = false;
 		int year = CTRef::GetCurrentTRef().GetYear();
-		//while (curI<fileList.size() && nbRun < 5 && msg)
-		//{
-		//nbRun++;
 
 		CInternetSessionPtr pSession;
-		//CHttpConnectionPtr pConnection;
 		CFtpConnectionPtr pConnection;
 
 		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
@@ -544,20 +653,6 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 		}
-		//else
-		//{
-		//	if (nbRun > 1 && nbRun < 5)
-		//	{
-		//		callback.PushTask("Waiting 30 seconds for server...", 600);
-		//		for (size_t i = 0; i < 600 && msg; i++)
-		//		{
-		//			Sleep(50);//wait 50 milisec
-		//			msg += callback.StepIt();
-		//		}
-		//		callback.PopTask();
-		//	}
-		//}
-
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
 		callback.PopTask();

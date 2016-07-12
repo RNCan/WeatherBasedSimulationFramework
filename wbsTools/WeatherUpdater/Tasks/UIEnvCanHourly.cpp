@@ -585,8 +585,6 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						//callback.AddTask(2);//one step more
-
 						if (nbRun < 5)
 						{
 							callback.AddMessage(msg);

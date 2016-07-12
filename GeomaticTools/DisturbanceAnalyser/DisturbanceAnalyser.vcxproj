@@ -182,6 +182,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Tools\$(TargetName)$(TargetExt)"</Command>

@@ -23,7 +23,7 @@ namespace WBSF
 
 	//*******************************************************************************
 	const char* CMergeExecutable::XML_FLAG = "MergeExecutable";
-	const char* CMergeExecutable::MEMBERS_NAME[NB_MEMBERS_EX] = { "AppendDimension", "MergedArray" };
+	const char* CMergeExecutable::MEMBERS_NAME[NB_MEMBERS_EX] = { "AppendDimension", "MergedArray", "AddName" };
 	const int CMergeExecutable::CLASS_NUMBER = CExecutableFactory::RegisterClass(CMergeExecutable::GetXMLFlag(), &CMergeExecutable::CreateObject);
 
 	CMergeExecutable::CMergeExecutable()
@@ -50,6 +50,7 @@ namespace WBSF
 		m_name = "Merge";
 		m_mergedArray.clear();
 		m_dimensionAppend = VARIABLE;
+		m_bAddName = true;
 
 	}
 
@@ -60,6 +61,7 @@ namespace WBSF
 			CExecutable::operator =(in);
 			m_mergedArray = in.m_mergedArray;
 			m_dimensionAppend = in.m_dimensionAppend;
+			m_bAddName = in.m_bAddName;
 		}
 
 		ASSERT(*this == in);
@@ -73,6 +75,7 @@ namespace WBSF
 		if (CExecutable::operator !=(in))bEqual = false;
 		if (m_mergedArray != in.m_mergedArray)bEqual = false;
 		if (m_dimensionAppend != in.m_dimensionAppend)bEqual = false;
+		if (m_bAddName != in.m_bAddName)bEqual = false;
 
 		return bEqual;
 	}
@@ -163,16 +166,22 @@ namespace WBSF
 
 				for (size_t j = 0; j < tmp.size(); j++)
 				{
-					tmp[j].m_name += "_" + executable[i]->GetName();
+					if (m_bAddName)
+						tmp[j].m_name += "_" + executable[i]->GetName();
+
 					ReplaceString(tmp[j].m_name, " ", "_");
 
-					std::string::iterator it = tmp[j].m_title.end();
-					string::size_type pos = tmp[j].m_title.find("(");
-					if (pos != string::npos)
-						it = tmp[j].m_title.begin() + pos;// tmp[j].m_title = tmp[j].m_title.substr(pos);
+					if (m_bAddName)
+					{
+						//std::string::iterator it = tmp[j].m_title.end();
+						//string::size_type pos = tmp[j].m_title.find("(");
+						//if (pos != string::npos)
+							//it = tmp[j].m_title.begin() + pos;// tmp[j].m_title = tmp[j].m_title.substr(pos);
 
-					string execName = executable[i]->GetName();
-					tmp[j].m_title.insert(it, execName.begin(), execName.end());
+						//string execName = executable[i]->GetName();
+						tmp[j].m_title += executable[i]->GetName();
+						//tmp[j].m_title.insert(it, execName.begin(), execName.end());
+					}
 					//tmp[j].m_title += " ";
 				}
 
@@ -394,10 +403,10 @@ namespace WBSF
 			filter2.reset();
 			filter2.set(m_dimensionAppend);
 
-			executable.front()->GetParentInfo(fileManager, info, filter);
+			//executable.front()->GetParentInfo(fileManager, info, filter);
 
 			//append other info
-			for (size_t i = 1; i < executable.size() && msg; i++)
+			for (size_t i = 0; i < executable.size() && msg; i++)
 			{
 				CParentInfo info2;
 				msg = executable[i]->GetParentInfo(fileManager, info2, filter2);
@@ -426,19 +435,21 @@ namespace WBSF
 				{
 					for (size_t j = 0; j < info2.m_variables.size(); j++)
 					{
-						std::string name = info2.m_variables[j].m_name + "_" + executable[i]->GetName();
+						std::string name = info2.m_variables[j].m_name;
+						if(m_bAddName)
+							name += "_" + executable[i]->GetName();
+
 						std::replace(name.begin(), name.end(), ' ', '_');
 						info2.m_variables[j].m_name = name;
 
-						std::string::const_iterator it = info2.m_variables[j].m_title.begin();
-						if (info2.m_variables[j].m_title.find("(") != std::string::npos)
-							it += info2.m_variables[j].m_title.find("(");
+						//std::string title = info2.m_variables[j].m_title;
+						if (m_bAddName)
+							info2.m_variables[j].m_title += executable[i]->GetName();
 
-						std::string title = executable[i]->GetName() + " ";
-						info2.m_variables[j].m_title.insert(it, title.begin(), title.end());
-						//info2.m_variables[j].m_title += " ";
+						//info2.m_variables[j].m_title = title;
 					}
 
+					
 					info.m_variables.insert(info.m_variables.end(), info2.m_variables.begin(), info2.m_variables.end());
 				}
 			}
@@ -456,6 +467,7 @@ namespace WBSF
 		zen::XmlOut out(output);
 		out[GetMemberName(APPEND_DIMENSION)](m_dimensionAppend);
 		out[GetMemberName(MERGE_ARRAY)](m_mergedArray.to_string("|"));
+		out[GetMemberName(ADD_NAME)](m_bAddName);
 	}
 
 	bool CMergeExecutable::readStruc(const zen::XmlElement& input)
@@ -465,6 +477,7 @@ namespace WBSF
 
 		in[GetMemberName(APPEND_DIMENSION)](m_dimensionAppend);
 		std::string tmp; in[GetMemberName(MERGE_ARRAY)](tmp); m_mergedArray.Tokenize(tmp, "|");
+		in[GetMemberName(ADD_NAME)](m_bAddName);
 
 		return true;
 	}

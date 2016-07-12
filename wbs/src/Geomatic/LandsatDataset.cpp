@@ -50,23 +50,23 @@ namespace WBSF
 	TIndices Landsat::GetIndicesType(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "Euclidean", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
-		size_t type = UNKNOWN_POS;
-		for (size_t i = 0; i < NB_INDICES&&type == UNKNOWN_POS; i++)
+		TIndices type = I_INVALID;
+		for (size_t i = 0; i < NB_INDICES&&type == I_INVALID; i++)
 			if (IsEqualNoCase(str, TYPE_NAME[i]))
-				type = i;
+				type = (TIndices)i;
 
-		return (TIndices)type;
+		return type;
 	}
 
-	TMethod Landsat::GetIndicesMethod(const std::string& str)
+	TOperator Landsat::GetIndicesOperator(const std::string& str)
 	{
-		static const char* MODE_NAME[NB_INDICES] = { "OR", "AND"};
-		size_t type = UNKNOWN_POS;
-		for (size_t i = 0; i < NB_INDICES&&type == UNKNOWN_POS; i++)
+		static const char* MODE_NAME[NB_OPERATORS] = { "OR", "AND" };
+		TOperator op = O_INVALID;
+		for (size_t i = 0; i < NB_OPERATORS&&op == O_INVALID; i++)
 			if (IsEqualNoCase(str, MODE_NAME[i]))
-				type = i;
+				op = (TOperator)i;
 
-		return (TMethod)type;
+		return op;
 	}
 
 	ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
@@ -316,25 +316,13 @@ namespace WBSF
 
 	double CLandsatPixel::GetDespike(double pre, double spike, double post)
 	{
-		if (spike - ((post + pre) / 2) == 0)
+		double d1 = (post - pre);
+		double d2 = spike - (post + pre) / 2;
+		
+		if (d2 == 0)
 			return 1;
 
-		double diff1 = (post - pre);
-		double diff2 = spike - (post + pre) / 2;
-		return fabs(diff1 / diff2);
-		//return fabs((post.NBR() - pre.NBR()) / (NBR() - ((post.NBR() + pre.NBR())/2)));
+		return fabs(d1 / d2);
 	}
-
-	//double CLandsatPixel::GetDespike(const CLandsatPixel& pre, const CLandsatPixel& post)const
-	//{
-	//	if (NBR() - ((post.NBR() + pre.NBR()) / 2) == 0)
-	//		return 1;
-	//
-	//	double test1 = (post.NBR() - pre.NBR())*1000;
-	//	double test2 = NBR() * 1000;
-	//	double test3 = (post.NBR() + pre.NBR()) / 2 * 1000;
-	//	return fabs(test1 / (test2 - test3));
-	//	//return fabs((post.NBR() - pre.NBR()) / (NBR() - ((post.NBR() + pre.NBR())/2)));
-	//}
 
 }

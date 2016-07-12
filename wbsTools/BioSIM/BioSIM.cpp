@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
+// 11.0.8:				Add "AddName" in MergeExecutable
+//						Bug correction in col width
 // 11.0.7: 28/06/2016	Bug correction in weather generation of hourly data.
 //						Add fillGap into daily and hourly weather data
 // 11.0.6: 17/06/2016	Bug correction in models. Change in result. return binary representation. 

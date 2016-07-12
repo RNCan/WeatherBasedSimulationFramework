@@ -1,4 +1,4 @@
-
+//5.0.8 04/07/2015  Add New-Brunswick agriculture network.
 //5.0.7	22/06/2016  Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal. 
 //5.0.6	14/06/2016  Add Manitoba source of hourly/daily weather
 //5.0.5	25/05/2016	Make correction for change made by Env Can.  
