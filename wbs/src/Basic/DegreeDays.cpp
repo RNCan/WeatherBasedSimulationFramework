@@ -131,12 +131,11 @@ namespace WBSF
 			if (m_aType == AT_DAILY)
 				val /= 24;
 		}
-		else
+		else if (in.GetTRef().GetType() == CTM::DAILY)
 		{
 			ASSERT(m_aType == AT_DAILY);
 			val = GetDD((CWeatherDay&)in);
 		}
-
 
 		return val;
 	}
@@ -202,6 +201,27 @@ namespace WBSF
 		return DD;
 	}
 
+	double CDegreeDays::GetDD(const CWeatherMonth& in, const CTPeriod& p)const
+	{
+		double DD = 0;
+		for (size_t d = 0; d < in.size(); d++)
+		{
+			if (!p.IsInit() || p.IsInside(in[d].GetTRef()))
+				DD += GetDD(in[d]);
+		}
+
+		return DD;
+	}
+
+	double CDegreeDays::GetDD(const CWeatherYear& in, const CTPeriod& p)const
+	{
+		double DD = 0;
+
+		for (size_t m = 0; m < 12; m++)
+			DD += GetDD(in[m], p);
+
+		return DD;
+	}
 
 	double CDegreeDays::GetAverageDD(const CWeatherDay& in)const
 	{

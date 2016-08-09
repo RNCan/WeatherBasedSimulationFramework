@@ -128,7 +128,7 @@ namespace WBSF
 
 
 	//this method is call to load your parameter in your variable
-	ERMsg CMPB_CT_model::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CMPB_CT_model::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 

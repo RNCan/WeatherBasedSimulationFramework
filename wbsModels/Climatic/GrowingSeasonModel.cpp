@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+// 18/07/2016	1.1.1	Rémi Saint-Amant	Using CTRef as output
 // 21/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 07/02/2012	1.0		Rémi Saint-Amant	Creation
 //
@@ -22,7 +23,7 @@ namespace WBSF
 
 	enum TOutput { O_FIRST_DAY, O_LAST_DAY, O_GS_LENGTH, NB_OUTPUT };
 
-	typedef CModelStatVectorTemplate<NB_OUTPUT> CStatVector;
+	//typedef CModelStatVectorTemplate<NB_OUTPUT> CStatVector;
 
 
 	CGrowingSeasonModel::CGrowingSeasonModel()
@@ -45,7 +46,7 @@ namespace WBSF
 	{}
 
 	//this method is call to load your parameter in your variable
-	ERMsg CGrowingSeasonModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CGrowingSeasonModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 
@@ -59,7 +60,7 @@ namespace WBSF
 		m_nbDays[END] = parameters[c++].GetInt();
 		m_Ttype[END] = parameters[c++].GetInt();
 		m_threshold[END] = parameters[c++].GetReal();
-
+		ASSERT(c == NB_INPUT_PARAMETER);
 
 		return msg;
 	}
@@ -69,22 +70,31 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//Create output from result
-		CStatVector output(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)));
+		
 
 		//Init class member
-		CGrowingSeason GS(true, m_Ttype[BEGIN], m_nbDays[BEGIN], m_threshold[BEGIN], m_Ttype[END], m_nbDays[END], m_threshold[END]);
+		CGrowingSeason GS(m_Ttype[BEGIN], m_nbDays[BEGIN], m_threshold[BEGIN], m_Ttype[END], m_nbDays[END], m_threshold[END]);
+		
+		//Create output from result
+		//CModelStatVector output;// (m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)));
+//		GS.Execute(m_weather, output);
+
+
+		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), NB_OUTPUT);
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
-			CTPeriod p = GS.GetGrowingSeason(m_weather[y]);
+			CTPeriod p = GS.GetGrowingSeason(m_weather[y]); 
+			p.Transform(CTM(CTM::DAILY));
 
-			output[y][O_FIRST_DAY] = p.Begin().Get__int32();// .GetJDay() + 1;//One base
-			output[y][O_LAST_DAY] = p.End().Get__int32(); //.GetJDay() + 1;//One base
-			output[y][O_GS_LENGTH] = p.GetLength();
+			m_output[y][O_FIRST_DAY] = p.Begin().GetRef();//p.Begin().Get__int32();
+			m_output[y][O_LAST_DAY] = p.End().GetRef();//p.End().Get__int32(); 
+			m_output[y][O_GS_LENGTH] = p.GetLength();
 		}
 
 		//set output
-		SetOutput(output);
+		//SetOutput(output);
+
+
 		return msg;
 	}
 	/*

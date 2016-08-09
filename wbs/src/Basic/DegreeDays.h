@@ -62,6 +62,9 @@ namespace WBSF
 		double Get(const CDataInterface& in)const;
 		double GetDD(const CHourlyData& in)const;
 		double GetDD(const CWeatherDay& in)const;
+		double GetDD(const CWeatherMonth& in, const CTPeriod& p = CTPeriod())const;
+		double GetDD(const CWeatherYear& in, const CTPeriod& p = CTPeriod())const;
+
 		double GetDH(const CHourlyData& in)const;
 		double GetDH(const CWeatherDay& in)const;
 

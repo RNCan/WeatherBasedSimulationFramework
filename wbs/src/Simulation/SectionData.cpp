@@ -247,6 +247,18 @@ namespace WBSF
 		{
 			me = in;
 			m_dataTM = in.m_dataTM;
+
+			//update TRef if Temporal column
+		/*	for (size_t i = 0; i < in.size(); i++)
+			{
+				for (size_t j = 0; j < in[i].size(); j++)
+				{
+					if (in.IsTemporalMatrix(j))
+						SetTRef(i, j, in.GetTRef(i, j));
+				}
+			}*/
+
+
 			return;
 		}
 
@@ -398,6 +410,7 @@ namespace WBSF
 		double statValue = me[row][col][stat];
 		if (statValue != CStatistic::GetVMiss())
 			t.SetRef(long(statValue), m_dataTM[col]);
+			//t.Set__int32(statValue);
 
 		return t;
 	}
@@ -408,8 +421,11 @@ namespace WBSF
 		{
 			ASSERT(!m_dataTM[col].IsInit() || t.GetTM() == m_dataTM[col]);
 			CNewSectionData& me = *this;
+
 			m_dataTM[col] = t.GetTM();
 			me[row][col] = t.GetRef();
+			//__int32 tmp = t.Get__int32();
+			//me[row][col] = tmp;
 		}
 	}
 
@@ -425,7 +441,8 @@ namespace WBSF
 			if (me[row][col][NB_VALUE] == 0)
 				m_dataTM[col] = t.GetTM();
 
-			me[row][col] += t.GetRef();
+			me[row][col] += t.GetRef();//est-ce qu'on peut additionner des références???
+			//me[row][col] += t.Get__int32();
 		}
 	}
 

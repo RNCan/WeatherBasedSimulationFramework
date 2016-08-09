@@ -83,33 +83,34 @@ namespace WBSF
 	}
 	*/
 
-	double CGSInfo::GetGST(const CDataInterface& data)const
+	double CGSInfo::GetGST(const CWeatherDay& data)const
 	{
 		ASSERT(m_type >= 0 && m_type<NB_TT_TEMPERATURE);
 
 		double T = -999;
-		if (data.IsHourly())
+		//if (data.IsHourly())
+	//	{
+		switch (m_type)
 		{
-			switch (m_type)
-			{
-			case TT_TMIN:	
-			case TT_TMEAN:	
-			case TT_TMAX:	ASSERT(false); break;
-			case TT_TNOON:  T = data[H_TAIR]; break;
-			default: ASSERT(false);
-			}
+		case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
+		case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
+		case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
+		case TT_TNOON:  T = data[12][H_TAIR]; break;
+		default: ASSERT(false);
 		}
-		else
-		{
-			switch (m_type)
-			{
-			case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
-			case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
-			case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
-			case TT_TNOON:  ASSERT(false); break;
-			default: ASSERT(false);
-			}
-		}
+		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
+		//}
+		//else
+		//{
+		//	switch (m_type)
+		//	{
+		//	case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
+		//	case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
+		//	case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
+		//	case TT_TNOON:  ASSERT(false); break; //hourly values must be computed
+		//	default: ASSERT(false);
+		//	}
+		//}
 		return T;
 	}
 
@@ -127,7 +128,9 @@ namespace WBSF
 	
 	CTPeriod CGrowingSeason::GetGrowingSeason(const CWeatherYear& weather)const
 	{
-		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		
+		CTPeriod p = weather.GetEntireTPeriod();
+		CTM TM = p.GetTM();
 		int year = p.Begin().GetYear();
 
 		CTRef TRef1 = CTRef(year, JULY, DAY_15);
@@ -152,7 +155,11 @@ namespace WBSF
 
 
 		if (bGetIt1)
-			p.Begin() = TRef1+1;
+		{
+			p.Begin() = TRef1 + 1;
+			p.Transform(TM);
+		}
+			
 
 
 		bool bGetIt2 = false;
@@ -162,29 +169,28 @@ namespace WBSF
 			TRef2++;
 			bGetIt2 = true;
 			//look for the first occurrence of 3 successive days with frost
-			for (int dd = 0; dd<m_end.m_nbDays&&bGetIt2; dd++)
+			for (size_t dd = 0; dd<m_end.m_nbDays&&bGetIt2; dd++)
 			{
-				ASSERT(TRef2 + dd<=p.End());
+				ASSERT((TRef2 + dd).Transform(p.GetTM())<=p.End());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef2 + dd]);
 				bGetIt2 = m_end.GetGST(wDay) < m_end.m_threshold;
 			}
 		} while (!bGetIt2 && (p.End()-TRef2)>m_end.m_nbDays);
 
-		//if (bGetIt2)
-			
-		
-		if (bGetIt1 && bGetIt2)
+		if (bGetIt2)
 		{
-			p.Begin() = TRef1 + 1;
 			p.End() = TRef2 - 1;
+			p.Transform(TM);
 		}
-		else
+		
+		if (!bGetIt1 && !bGetIt2)
 		{
-			if (m_bAlwaysFillPeriod)
-				p.End() = p.Begin() = CTRef(year, JULY, 14);
-			else
-				p.clear();
+			const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[CTRef(year, JULY, DAY_15)]);
+			if (m_end.GetGST(wDay) < m_end.m_threshold)
+				p.clear();//no growing season
+			//else
+				//p = weather.GetEntireTPeriod(CTM(CTM::DAILY)); //growing season all along the year
 		}
 
 		return p;
@@ -255,12 +261,12 @@ namespace WBSF
 			bGetIt = true;
 			for (size_t dd = 0; dd<m_nbDays&&bGetIt; dd++)
 			{
-				const CDataInterface& data = weather[TRef + dd];
-				//const CWeatherDay& wDay = weather.Get(.GetDay(TRef + dd);
+				//const CDataInterface& data = weather[TRef + dd];
+				const CWeatherDay& wDay = weather.GetDay(TRef + dd);
 				if (sign == '>')
-					bGetIt = GetGST(data) > m_threshold;
+					bGetIt = GetGST(wDay) > m_threshold;
 				else
-					bGetIt = GetGST(data) < m_threshold;
+					bGetIt = GetGST(wDay) < m_threshold;
 			}
 
 			if (bGetIt)
@@ -287,11 +293,12 @@ namespace WBSF
 			for (size_t dd = 0; dd<m_nbDays&&bGetIt; dd--)
 			{
 				//const CWeatherDay& Wday = GetDay(d - dd);
-				const CDataInterface& data = weather[TRef - dd];
+				//const CDataInterface& data = weather[TRef - dd];
+				const CWeatherDay& wDay = weather.GetDay(TRef + dd);
 				if (sign == '>')
-					bGetIt = bGetIt && GetGST(data) > m_threshold;
+					bGetIt = bGetIt && GetGST(wDay) > m_threshold;
 				else
-					bGetIt = bGetIt && GetGST(data) < m_threshold;
+					bGetIt = bGetIt && GetGST(wDay) < m_threshold;
 			}
 
 

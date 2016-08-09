@@ -276,6 +276,7 @@ namespace WBSF
 		}
 		case kMVTitle:
 		case kMVLine:
+		case kMVStaticText:
 		{
 			switch (ItemNo)
 			{

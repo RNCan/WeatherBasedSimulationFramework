@@ -35,7 +35,7 @@ namespace WBSF
 
 		typedef std::vector<double> FVector;
 
-		CSLR();
+		CSLR(const CRandomGenerator& RG);
 		virtual ~CSLR();
 
 		ERMsg Execute(const CWeatherStation& weather);
@@ -54,6 +54,7 @@ namespace WBSF
 
 		bool GetStabilityFlag(const CWeatherYear& weatherYear);
 		double GetProbability(CAccumulator& acc, size_t model, size_t y0, size_t runLength);
+		double GetWaterDeficit(const CWeatherYear& weather)const;
 
 
 		double m_overheat;      // overheating factor
@@ -64,6 +65,7 @@ namespace WBSF
 		size_t m_runLength;		// Number of consecutive weather years to compute m_F
 		size_t m_n;
 		int m_firstYear;
+		const CRandomGenerator& m_RG;
 
 		//result
 		FVector m_F[NB_OUTPUT];

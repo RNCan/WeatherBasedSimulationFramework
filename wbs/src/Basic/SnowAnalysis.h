@@ -25,13 +25,15 @@ namespace WBSF
 		static const double MINIMUM_SNOW_DEPTH;
 		static const size_t NB_DAY_MIN;
 
-
+		HOURLY_DATA::TVarH m_variable;
 		double m_minimum_snow_depth;
 		size_t m_nb_day_min;
 
 		
 		CSnowAnalysis(double minimum_snow_depth = MINIMUM_SNOW_DEPTH, size_t nb_day_min = NB_DAY_MIN)
 		{
+			
+			m_variable = HOURLY_DATA::H_SNDH;
 			m_minimum_snow_depth = minimum_snow_depth;
 			m_nb_day_min = nb_day_min;
 		}

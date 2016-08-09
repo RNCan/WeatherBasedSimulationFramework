@@ -1,16 +1,85 @@
-/*************************************************************************************
-Modifications adopted as "best" from phenology point of view
-	1. Cut off female egg laying after 50% spent (in CMountainPineBeetle::Develop(), line if( m_totalBrood/potentialFecundity >= 0.5) )
-	2. Reduce development variability in immature life stages (in CMountainPineBeetle::AssignRelativeDevRate(), line if(s!=OVIPOSITING_ADULT) sigma=sigma/2.; 
-*************************************************************************************/
+//*************************************************************************************
+//Modifications adopted as "best" from phenology point of view
+//	19-07-2016	Rémi Saint-Amant	New compilation wihth WBSF
+//	1. Cut off female egg laying after 50% spent (in CMountainPineBeetle::Develop(), line if( m_totalBrood/potentialFecundity >= 0.5) )
+//	2. Reduce development variability in immature life stages (in CMountainPineBeetle::AssignRelativeDevRate(), line if(s!=OVIPOSITING_ADULT) sigma=sigma/2.; 
+//*************************************************************************************
 #include <math.h>
+#include <algorithm>
 #include "MountainPineBeetle.h"
 #include "Basic/UtilMath.h"
 #include "Basic/TimeStep.h"
 #include "Basic/WeatherStation.h"
 
+using namespace WBSF::HOURLY_DATA;
+using namespace std;
+
+
 namespace WBSF
 {
+
+	class CMicroClimate 
+	{
+	public:
+
+		CMicroClimate(const CWeatherDay& weather);
+		//virtual void TransformWeather(CWeatherDay& weather, size_t hourTmax=16)const;
+		//virtual double GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax = 16)const;
+		
+		double GetT(size_t h, size_t hourTmax = 16)const;
+
+	protected:
+
+		double m_Tmin;
+		double m_Tmax;
+	};
+
+	//void CPOverheat::TransformWeather(CWeatherDay& weather, size_t hourTmax)const
+	CMicroClimate::CMicroClimate(const CWeatherDay& weather)
+	{
+		//const CWeatherDay& day = (h<hourTmax - 12) ? weather.GetPrevious() : h<hourTmax ? weather : weather.GetNext();
+		double Tmin = weather[H_TMIN][MEAN];
+		double Tmax = weather[H_TMAX][MEAN];
+		double Trange = Tmax - Tmin;
+		double Sin = sin(2 * 3.14159*(weather.GetTRef().GetJDay() / 365. - 0.25));
+
+		//convertion de la température de l'air(station météo) à la température de l'air (sous-bois)
+		//régression à Vienna 
+
+		//convert air temperature to bark temperature
+		m_Tmin = -0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
+		m_Tmax = 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
+
+		if (m_Tmin > m_Tmax)
+			Switch(m_Tmin, m_Tmax);
+
+		//weather.SetStat(H_TAIR, (Tmin2 + Tmax2) / 2);
+		//weather.SetStat(H_TRNG, Tmax2 - Tmin2);
+		
+		//if (weather.IsHourly())
+		//{
+		//	//updater hourly values
+		//	//updater hourly values
+		//	for (size_t h = 0; h < 24; h++)
+		//		weather[h].SetStat(H_TAIR, GetT(weather, h, hourTmax));
+		//}
+	}
+
+	double CMicroClimate::GetT(size_t h, size_t hourTmax)const
+	{
+		double OH = 0;
+
+		double range = m_Tmax - m_Tmin;
+		assert(range >= 0);
+
+		int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
+		double theta = ((int)h - time_factor)*3.14159 / 12.0;
+		double T = (m_Tmin + m_Tmax) / 2 + range / 2 * sin(theta);
+
+		return T;
+	}
+
+
 
 
 	//******************************************************************
@@ -19,7 +88,7 @@ namespace WBSF
 
 
 	// Object creator
-	CMountainPineBeetle::CMountainPineBeetle(CHost* pHost, CTRef creationDay, double age, size_t sex, bool bFertil, int generation, double scaleFactor) :
+	CMountainPineBeetle::CMountainPineBeetle(CHost* pHost, CTRef creationDay, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDay, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Only females are modeled (fecundity is reduced by SEX_RATIO in Develop() )
@@ -37,8 +106,6 @@ namespace WBSF
 		m_bEmerging = false;
 		m_bAttackToday = false;
 		m_bSuccessAttackToday = false;
-
-
 	}
 
 	CMountainPineBeetle::CMountainPineBeetle(const CMountainPineBeetle& in) :CIndividual(in.m_pHost)
@@ -115,11 +182,11 @@ namespace WBSF
 		m_height = RandomGenerator().Rand(0.0, GetStand()->m_heightMax);//position of bugs in the tree above ground, in centimeters (bark inhabited up to 10 m )
 	}
 
-	void CMountainPineBeetle::Live(const CWeatherDay& weaDay)
+	void CMountainPineBeetle::Live(const CWeatherDay& weather)
 	{
-		if (IsCreated(weaDay.GetTRef()))
+		if (IsCreated(weather.GetTRef()))
 		{
-			CIndividual::Live(weaDay);
+			CIndividual::Live(weather);
 			//static const CTRef MyRef(1986, AUGUST, 15);
 
 			//if( T.m_firstTRef == MyRef )
@@ -133,32 +200,40 @@ namespace WBSF
 			m_bAttackToday = false;
 			m_bSuccessAttackToday = false;
 
+			CMicroClimate MC(weather);
 
+
+			CMPBStand* pStand = (CMPBStand*)GetStand();
 			//if this individual is alive, proceed with development, reproduction and attrition
-			for (int h = 0; h < T.size() && IsAlive(); h++)
-				Develop(T.GetFirstTRef(), T[h], weaDay);
-
-			//Attrition and cold-tolerance mortality
-			if (IsAlive())
+			size_t nbSteps = GetTimeStep().NbSteps();
+			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
-				if (IsDeadByAttrition())
-				{
-					m_status = DEAD;
-					m_death = ATTRITION;
-				}
-				else if (IsDeadByFrost(T.GetFirstTRef(), weaDay.GetTMin(), weaDay[DAILY_DATA::SNDH]))//convert mm of snow water equivalent to snow height in cm (1 cm of snow/SWE mm)
-				{
-					m_status = DEAD;
-					m_death = FROZEN;
-				}
+				size_t h = step*GetTimeStep();
+				double T = weather[h][H_TAIR];
+				if (pStand->m_bMicroClimate)
+					T = MC.GetT(h);
+				
+
+				//CMPBStand* pStand = (CMPBStand*)GetStand();
+				//CDailyWaveVector hVector;// hourly temperature array 
+				//if (pStand->m_bMicroClimate)
+				//{
+				//	CPOverheat overheat;
+				//	overheat.TransformWeather(weather);
+				//}
+
+				Develop(weather.GetTRef(), T);
 			}
+
+			//for (int h = 0; h < T.size() && IsAlive(); h++)
+				//Develop(T.GetFirstTRef(), T[h], weaDay);
 		}
 	}
 
 	//Creates an individual's brood (eggs laid that are female and survive attrition), on a daily basis
-	void CMountainPineBeetle::Brood(const CDailyWaveVector& T, const CWeatherDay& weaDay)
+	void CMountainPineBeetle::Brood(const CWeatherDay& weather)
 	{
-		if (m_bFertil && m_brood > 0)
+		if (m_bFertil && m_broods > 0)
 		{
 			//When the bugs are killed by tree at the end of the day, they must not create eggs
 			CMPBTree* pTree = GetTree();
@@ -167,8 +242,8 @@ namespace WBSF
 			//CMountainPineBeetle* pBug = !bugs.empty()?bugs[bugs.size()-1]:NULL;
 
 			//attrition turned off,
-			double scaleFactor = m_brood*SEX_RATIO*pStand->m_survivalRate*m_scaleFactor;
-			double scaleFactorAttrition = m_brood*SEX_RATIO*(1 - pStand->m_survivalRate)*m_scaleFactor;
+			double scaleFactor = m_broods*SEX_RATIO*pStand->m_survivalRate*m_scaleFactor;
+			double scaleFactorAttrition = m_broods*SEX_RATIO*(1 - pStand->m_survivalRate)*m_scaleFactor;
 			//attrition turned on
 			//		double scaleFactor = m_brood*SEX_RATIO*m_scaleFactor;
 
@@ -187,21 +262,41 @@ namespace WBSF
 			//if it's not the case, we create a new egg...
 			//pTree->AddBug( new CMountainPineBeetle(pTree, T.GetFirstTRef(), EGG, pStand->m_bFertilEgg, m_generation+1, scaleFactor) );
 			bool bFertilEgg = pStand->m_nbFertilGeneration == -1 || pStand->m_nbFertilGeneration > m_generation;
-			pTree->AddBug(new CMountainPineBeetle(pTree, T.GetFirstTRef(), EGG, bFertilEgg, m_generation + 1, scaleFactor));
-
+			pTree->push_back(std::make_shared<CMountainPineBeetle>(pTree, weather.GetTRef(), EGG, FEMALE, bFertilEgg, m_generation + 1, scaleFactor));
+			
 
 			if (scaleFactorAttrition > 0)
 			{
-				CMountainPineBeetle* pBug = new CMountainPineBeetle(pTree, T.GetFirstTRef(), EGG, bFertilEgg, m_generation + 1, scaleFactorAttrition);
+				CMountainPineBeetle* pBug = new CMountainPineBeetle(pTree, weather.GetTRef(), EGG, FEMALE, bFertilEgg, m_generation + 1, scaleFactorAttrition);
 				pBug->m_status = DEAD;
 				pBug->m_death = ATTRITION;
-				pTree->AddBug(pBug);
+				pTree->push_back(CIndividualPtr(pBug));
 			}
 			//}
 		}
 	}
 
-	void CMountainPineBeetle::Develop(CTRef date, const double& T, const CWeatherDay& weaDay)
+	// kills by attrition, old age, frost and overwintering
+	// Output:  Individual's state is updated to follow update
+	void CMountainPineBeetle::Die(const CWeatherDay& weather)
+	{
+		//Attrition and cold-tolerance mortality
+		if (IsAlive())
+		{
+			if (IsDeadByAttrition())
+			{
+				m_status = DEAD;
+				m_death = ATTRITION;
+			}
+			else if (IsDeadByFrost(weather.GetTRef(), weather[H_TMIN][MEAN], weather[H_SNDH][MEAN]))//snow depth [cm]
+			{
+				m_status = DEAD;
+				m_death = FROZEN;
+			}
+		}
+	}
+
+	void CMountainPineBeetle::Develop(CTRef date, double T)
 	{
 		//Develops all individuals, including ovipositing adults
 		//Kills by attrition and old age
@@ -217,9 +312,9 @@ namespace WBSF
 		}
 
 		//dt is the number of time steps per day (24h/step duration(h) )
-		double dt = gTimeStep.GetDT();
+		double dt = GetTimeStep().NbSteps();
 
-		int s = GetStage();
+		size_t s = GetStage();
 
 		double r = GetStand()->m_rates.GetRate(s, T) / dt;
 		//double r = RATES_DEBUG.ComputeRate(s,T)/dt;
@@ -227,7 +322,7 @@ namespace WBSF
 		double RR = 0;
 		if (s < OVIPOSITING_ADULT)//all stages except OVIPOSITING_ADULTs
 		{
-			RR = Max(0.0, m_relativeDevRate[s] * r);
+			RR = max(0.0, m_relativeDevRate[s] * r);
 
 			if (GetStand()->m_bArrestDevel && s >= L1 && s <= L4)
 			{
@@ -250,30 +345,30 @@ namespace WBSF
 			if (m_sex == FEMALE)
 			{
 				double potentialFecundity = CMPBDevelopmentTable::POTENTIAL_FECUNDITY*m_relativeDevRate[OVIPOSITING_ADULT];
-				double brood = r*Max(0, potentialFecundity - m_totalBrood); //all available broods
+				double brood = r*max(0.0, potentialFecundity - m_totalBroods); //all available broods
 
 				//to avoid excessive longevity, if a female has laid 95% of her eggs, we force her to lay the remainder
-				if ((m_totalBrood + brood) / potentialFecundity > 0.95)
-					brood = potentialFecundity - m_totalBrood;
+				if ((m_totalBroods + brood) / potentialFecundity > 0.95)
+					brood = potentialFecundity - m_totalBroods;
 
-				m_brood += brood;
-				m_totalBrood += brood;
+				m_broods += brood;
+				m_totalBroods += brood;
 
 				RR = brood / potentialFecundity;
 
 				//because of packing, m_totalBrood and m_age is sometime desynchronized. We force them to die of old age.
 				//			if( m_totalBrood/potentialFecundity >= 1)
-				if (m_totalBrood / potentialFecundity >= 0.5) //This modification made to improve observed/simulated fit of adult emergence patterns 
+				if (m_totalBroods / potentialFecundity >= 0.5) //This modification made to improve observed/simulated fit of adult emergence patterns 
 					RR = DEAD_ADULT - m_age;
 
 			}
 
-			ASSERT(m_brood >= 0);
+			ASSERT(m_broods >= 0);
 			ASSERT(RR >= 0 && RR < 1);
 			ASSERT(RR > 0 || r == 0);
 			ASSERT(!m_bEmerging);
 			ASSERT(m_age >= 7);
-			ASSERT(m_totalBrood < 2.5*CMPBDevelopmentTable::POTENTIAL_FECUNDITY);
+			ASSERT(m_totalBroods < 2.5*CMPBDevelopmentTable::POTENTIAL_FECUNDITY);
 
 		}
 
@@ -289,20 +384,21 @@ namespace WBSF
 				double numberKilled = m_scaleFactor*pMortality;
 				//try to find an object with the same properties
 				CMPBTree* pTree = GetTree(); ASSERT(pTree);
-				CMountainPineBeetle* pBug = (CMountainPineBeetle*)pTree->GetLastObject(m_generation, GetStage(), DEAD, FROZEN, 5);
+				//CMountainPineBeetle* pBug = (CMountainPineBeetle*)pTree->FindObject(m_generation, GetStage(), DEAD, FROZEN, 5).get();
+				CIndividualPtr pBug = pTree->FindObject(m_generation, GetStage(), DEAD, FROZEN, 5);
 
 				if (pBug == NULL)
 				{
 					//if we don't find it, create a new dead object
-					pBug = new CMountainPineBeetle(*this);
-					pBug->m_scaleFactor = 0;
-					pBug->m_status = DEAD;
-					pBug->m_death = FROZEN;
-					pTree->AddBug(pBug);
+					pBug = CreateCopy();//new CMountainPineBeetle(*this);
+					pBug->SetScaleFactor(0);
+					pBug->SetStatus(DEAD);
+					pBug->SetDeath(FROZEN);
+					pTree->push_back(pBug);
 				}
 
 				//update scalefactor
-				pBug->m_scaleFactor += numberKilled;
+				pBug->SetScaleFactor(pBug->GetScaleFactor() + numberKilled);
 				m_scaleFactor -= numberKilled;
 			}
 		}
@@ -336,10 +432,10 @@ namespace WBSF
 		m_bEmerging = true;
 	}
 
-	void CMountainPineBeetle::CompleteEmergence(int death)
+	void CMountainPineBeetle::CompleteEmergence(size_t death)
 	{
 		_ASSERTE(GetStage() == OVIPOSITING_ADULT);
-		_ASSERTE(m_brood == 0 && m_totalBrood == 0);
+		_ASSERTE(m_broods == 0 && m_totalBroods == 0);
 
 		//When all object have been developed, now complete emergence
 		//some objects will be killed and some objects will survive
@@ -347,8 +443,8 @@ namespace WBSF
 			m_bAttackToday = true;
 
 
-		m_bSuccessAttackToday = death == LIVE;
-		if (death == LIVE)
+		m_bSuccessAttackToday = (death == HEALTHY);
+		if (death == HEALTHY)
 		{
 			//update age only if the bug survives
 			m_age = OVIPOSITING_ADULT;
@@ -420,7 +516,7 @@ namespace WBSF
 		bool bSkipCold = GetStand()->m_bSnowProtection && (m_height < snowDepth);
 		if (GetStand()->m_applyColdTolerance && !bSkipCold)
 		{
-			int stage = GetStage();
+			size_t stage = GetStage();
 
 
 			if (stage == EGG) //Reid & Gates 1970. Any exposure < -18 C is death
@@ -489,7 +585,7 @@ namespace WBSF
 
 				double T1 = -18;
 				double T2 = GetStand()->m_pupeTeneralColdT;
-				double pMort = 1 - Min(1, Max(0, (T - T2) / (T1 - T2)));
+				double pMort = 1 - min(1.0, max(0.0, (T - T2) / (T1 - T2)));
 				if (m_PCritical < pMort)
 					bFrost = true;
 
@@ -499,7 +595,7 @@ namespace WBSF
 			{
 				if (GetStand()->m_applyColdToleranceOvipAdult == OA_KILL_COLD)
 				{
-					int t = date.GetJDay();
+					size_t t = date.GetJDay();
 					double SCPa = -20.2 - 6.09*cos(Deg2Rad(2 * PI*pow(t / 365, 1.365)));
 					if (T < SCPa)
 						bFrost = true;
@@ -547,11 +643,11 @@ namespace WBSF
 		if (!IsCreated(d) || m_generation == 0)
 			return;
 
-		short stage = GetStage();
+		size_t stage = GetStage();
 
 		//total and daily brood
-		stat[S_BROOD] += m_totalBrood*m_scaleFactor;
-		stat[E_BROOD] += m_brood*m_scaleFactor;
+		stat[S_BROOD] += m_totalBroods*m_scaleFactor;
+		stat[E_BROOD] += m_broods*m_scaleFactor;
 
 		if (IsAlive())
 		{
@@ -594,7 +690,7 @@ namespace WBSF
 				if (stage >= OVIPOSITING_ADULT && (m_death == FROZEN || m_death == OLD_AGE))
 				{
 					ASSERT(m_death == FROZEN || m_death == OLD_AGE);
-					stat[E_TOTAL_BROOD] += m_scaleFactor*m_totalBrood;
+					stat[E_TOTAL_BROOD] += m_scaleFactor*m_totalBroods;
 					stat[E_TOTAL_FEMALE] += m_scaleFactor;
 					stat[E_LONGIVITY] += m_scaleFactor*(d - m_creationDate);
 				}
@@ -664,7 +760,7 @@ namespace WBSF
 	//CMPBTree
 	//void CMPBTree::Initialise(long numInd, CTRef peakAttackDay, double sigma, double age, bool bFertil, int generation)
 	//{
-	//CMPBTreeBase::Initialise((int)(numInd/**m_treeSize*/), peakAttackDay, sigma, age, bFertil, generation);
+	//CHost::Initialise((int)(numInd/**m_treeSize*/), peakAttackDay, sigma, age, bFertil, generation);
 	//}
 
 
@@ -698,27 +794,28 @@ namespace WBSF
 			double A = m_A0*nbTrees;
 
 			//if there are fewer than A females, they attack defenseless (dying) tree
-			double nbBugsAlive = GetNbBugsAlive();
+			double nbBugsAlive = GetNbSpecimenAlive();
 			bool bUseDefenselessTree = GetStand()->m_bUseDefenselessTree && nbBugsAlive < A;
 
-			for (int i = m_bugs.size() - 1; i >= 0; i--)
+			//for (size_t i = size() - 1; i < size(); i--)
+			for (reverse_iterator it = rbegin(); it !=  rend(); it++)
 			{
-				if (m_bugs[i]->IsEmerging())
+				CMountainPineBeetle* pBug = (CMountainPineBeetle*)it->get();
+				if (pBug->IsEmerging())
 				{
 					//apply density dependence here
-
 					if (GetStand()->GetNbInfestedTrees() < GetStand()->GetNbTrees())
 					{
-						double lostBug = m_bugs[i]->GetScaleFactor()*DDFactor;
+						double lostBug = pBug->GetScaleFactor()*DDFactor;
 						if (lostBug > 0)
 						{
-							ASSERT(lostBug < m_bugs[i]->GetScaleFactor());
-							m_bugs[i]->SetScaleFactor(m_bugs[i]->GetScaleFactor() - lostBug);
+							ASSERT(lostBug < pBug->GetScaleFactor());
+							pBug->SetScaleFactor(pBug->GetScaleFactor() - lostBug);
 
-							CMountainPineBeetle* pBugCopy = new CMountainPineBeetle(*m_bugs[i]);
+							CMountainPineBeetle* pBugCopy = new CMountainPineBeetle(*pBug);
 							pBugCopy->SetScaleFactor(lostBug);
 							pBugCopy->CompleteEmergence(CIndividual::DENSITY_DEPENDENCE);
-							m_bugs.push_back(pBugCopy);
+							push_back(CIndividualPtr(pBugCopy));
 						}
 
 
@@ -727,36 +824,36 @@ namespace WBSF
 							//if we exceed the forest capacity, we kill all others
 							double nbTreeNonInfested = GetStand()->GetNbTrees() - (GetStand()->GetNbInfestedTrees() + GetNbInfestedTreesToday());
 							double nbAttackMax = nbTreeNonInfested*m_Amax;
-							if (m_bugs[i]->GetScaleFactor() - A > nbAttackMax)
-								A = m_bugs[i]->GetScaleFactor() - nbAttackMax;
+							if (pBug->GetScaleFactor() - A > nbAttackMax)
+								A = pBug->GetScaleFactor() - nbAttackMax;
 
 
 							//apply tree mortality
-							if (A > 0 && m_bugs[i]->GetScaleFactor() > A)
+							if (A > 0 && pBug->GetScaleFactor() > A)
 							{
 								//we "unpack" the object to kill only the right number of bugs
-								CMountainPineBeetle* pBugCopy = new CMountainPineBeetle(*m_bugs[i]);
+								CMountainPineBeetle* pBugCopy = new CMountainPineBeetle(*pBug);
 								pBugCopy->SetScaleFactor(A);
 								pBugCopy->CompleteEmergence(CIndividual::TREE_DEFENSE);
 
-								m_bugs[i]->SetScaleFactor(m_bugs[i]->GetScaleFactor() - A);
-								m_bugs.push_back(pBugCopy);
+								pBug->SetScaleFactor(pBug->GetScaleFactor() - A);
+								push_back(CIndividualPtr(pBugCopy));
 								A = 0;
 							}
 
-							ASSERT(m_bugs[i]->GetScaleFactor() > 0);
+							ASSERT(pBug->GetScaleFactor() > 0);
 
 							if (A > 0)
 							{
-								ASSERT(m_bugs[i]->GetScaleFactor() <= A);
-								m_bugs[i]->CompleteEmergence(CIndividual::TREE_DEFENSE);
-								A -= m_bugs[i]->GetScaleFactor();
+								ASSERT(pBug->GetScaleFactor() <= A);
+								pBug->CompleteEmergence(CIndividual::TREE_DEFENSE);
+								A -= pBug->GetScaleFactor();
 							}
 							else
 							{
 								ASSERT(A <= 0);
-								m_bugs[i]->CompleteEmergence(CIndividual::LIVE);
-								m_nbSucessfullAttacksToday += m_bugs[i]->GetScaleFactor();
+								pBug->CompleteEmergence(CIndividual::HEALTHY);
+								m_nbSucessfullAttacksToday += pBug->GetScaleFactor();
 
 
 
@@ -765,98 +862,105 @@ namespace WBSF
 						}
 						else
 						{
-							m_bugs[i]->CompleteEmergence(CIndividual::LIVE);
+							pBug->CompleteEmergence(CIndividual::HEALTHY);
 						}
 					}
 					else
 					{
 						//if the 
-						m_bugs[i]->CompleteEmergence(CIndividual::DENSITY_DEPENDENCE);
+						pBug->CompleteEmergence(CIndividual::DENSITY_DEPENDENCE);
 					}
 				}
 			}
 		}
 	}
 
-	void CMPBTree::GetStat(CTRef date, CModelStat& stat, int generation)
-	{
-		CMPBTreeBase::GetStat(date, stat, generation);
-	}
+	
+	//void CMPBTree::Live(const CTRef& day, const CWeatherDay& weaDay)
+	//{
+	//	CMPBStand* pStand = (CMPBStand*)GetStand();
+	//	CDailyWaveVector hVector;// hourly temperature array 
+	//	if (pStand->m_bMicroClimate)
+	//	{
+	//		CPOverheat overheat;
+	//		weaDay.GetAllenWave(hVector, 16, gTimeStep, overheat);//16 is a factor of 4. Number usually used
+	//	}
+	//	else
+	//	{
+	//		weaDay.GetAllenWave(hVector, 16, gTimeStep);//16 is a factor of 4. Number usually used
+	//	}
+
+	//	Live(hVector, weaDay);
+
+	//}
 
 
-	void CMPBTree::Live(CDailyWaveVector& hVector, const CWeatherDay& weaDay)
+	void CMPBTree::Live(const CWeatherDay& weather)
 	{
 		m_emergingToday = 0;
 		m_nbSucessfullAttacksToday = 0;
 
-		if (m_initialSize == -1)
-			m_initialSize = m_bugs.size();
+		//if (m_initialSize == -1)
+		//	m_initialSize = m_bugs.size();
 
-		for (int i = (int)m_bugs.size() - 1; i >= 0; i--)
-			m_bugs[i]->Live(hVector, weaDay);
+		//for (int i = (int)m_bugs.size() - 1; i >= 0; i--)
+		//	m_bugs[i]->Live(hVector, weaDay);
+
+		//CompleteEmergence();
+
+
+		//for (int i = (int)m_bugs.size() - 1; i >= 0; i--)
+		//	m_bugs[i]->Brood(hVector, weaDay);
+
+	//	CWeatherDay weather = weatherIn;
+
+
+		//CMPBStand* pStand = (CMPBStand*)GetStand();
+		//CDailyWaveVector hVector;// hourly temperature array 
+		//if (pStand->m_bMicroClimate)
+		//{
+		//	CPOverheat overheat;
+		//	overheat.TransformWeather(weather);
+		//}
+
+
+		for (iterator it = begin(); it != end(); it++)
+		{
+			if ((*it)->IsCreated(weather.GetTRef()))
+			{
+				(*it)->NewDay();
+				if ((*it)->IsAlive())
+				{
+					(*it)->Live(weather);
+				}
+			}
+		}
 
 		CompleteEmergence();
 
+		for (iterator it = begin(); it != end(); it++)
+		{
+			if ((*it)->IsCreated(weather.GetTRef()))
+			{
+				if ((*it)->GetSex() == FEMALE)
+					(*it)->Brood(weather);
 
-		for (int i = (int)m_bugs.size() - 1; i >= 0; i--)
-			m_bugs[i]->Brood(hVector, weaDay);
-
-
-
+				(*it)->Die(weather);
+			}
+		}
 	}
 
-	class CPOverheat : public COverheat
+	CIndividualPtr CMPBTree::FindObject(size_t g, size_t stage, size_t status, size_t death, size_t deep)
 	{
-	public:
-
-		virtual void TransformWeather(CWeatherDay& weaDay)const;
-	};
-
-	void CPOverheat::TransformWeather(CWeatherDay& weaDay)const
-	{
-		ASSERT(weaDay[DAILY_DATA::TMIN] > -999 && weaDay[DAILY_DATA::TMAX] > -999);
-
-		double Tmin = weaDay.GetTMin();
-		double Tmax = weaDay.GetTMax();
-		double Trange = weaDay.GetTRange();
-		double Sin = sin(2 * 3.14159*(weaDay.GetJDay() / 365. - 0.25));
-
-		//	weaDay(DAILY_DATA::TMAX)=weaDay.GetTMax()+3.25*((weaDay.GetTMax()-weaDay.GetTMin())/24.4); //Equation [11] (max overheating)
-		//	weaDay(DAILY_DATA::TMIN)=weaDay.GetTMin()+1.8; //Equation [12] (min damping)
-
-
-		//convertion de la température de l'air(station météo) à la température de l'air (sous-bois)
-		//régression à Vienna 
-
-		//Tmin = 0.8722702*Tmin + 3.6607040;//R² = 0.8729454
-		//Tmax = 0.9392273*Tmax + 0.3095136; //R² = 0.9369456
-
-		//convert air temperature to bark temperature
-		weaDay(DAILY_DATA::TMIN) = -0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
-		weaDay(DAILY_DATA::TMAX) = 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
-
-		if (weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX))
-			CFL::Switch(weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX));
-
-
-	}
-
-	void CMPBTree::Live(const CTRef& day, const CWeatherDay& weaDay)
-	{
-		CMPBStand* pStand = (CMPBStand*)GetStand();
-		CDailyWaveVector hVector;// hourly temperature array 
-		if (pStand->m_bMicroClimate)
+		CIndividualPtr pBug;
+		reverse_iterator it = rbegin();
+		for (size_t d = 0; d < deep && it != rend() && !pBug; d++)
 		{
-			CPOverheat overheat;
-			weaDay.GetAllenWave(hVector, 16, gTimeStep, overheat);//16 is a factor of 4. Number usually used
-		}
-		else
-		{
-			weaDay.GetAllenWave(hVector, 16, gTimeStep);//16 is a factor of 4. Number usually used
+			if ((*it)->GetGeneration() == g && (*it)->GetStage() == stage && (*it)->GetStatus() == status && (*it)->GetDeath() == death)
+				pBug = *it;
 		}
 
-		Live(hVector, weaDay);
-
+		return pBug;
 	}
 
 	CMPBStand* CMPBTree::GetStand(){ ASSERT(m_pStand); return (CMPBStand*)m_pStand; }

@@ -16,10 +16,11 @@ namespace WBSF
 		CFWIModel();
 		virtual ~CFWIModel();
 
+		virtual ERMsg OnExecuteHourly();
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteMonthly();
 		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
 		static CBioSIMModelBase* CreateObject(){ return new CFWIModel; }
 
@@ -48,6 +49,7 @@ namespace WBSF
 		//common parameters
 		double m_carryOverFraction;//1.0
 		double m_effectivenessOfWinterPrcp;//0.75
+		size_t m_method;
 
 		static double ComputeIndice(int year, int m, double& DCMo, double Rm, double Tm);
 	};

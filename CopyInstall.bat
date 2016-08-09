@@ -8,7 +8,6 @@ mkdir "..\Install\NRCan"
 mkdir "..\Install\NRCan\External"
 mkdir "..\Install\NRCan\Models"
 mkdir "..\Install\NRCan\Layers"
-::mkdir "..\Install\NRCan\Maps"
 mkdir "..\Install\NRCan\Palette"
 
 
@@ -23,7 +22,8 @@ copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.ma
 copy /Y ".\bin\Releasex64\vcomp120.dll" "..\Install\NRCan\vcomp120.dll"
 copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
 
-
+copy /Y ".\bin\Releasex64\Models\AllenWave.dll" "..\Install\NRCan\Models\AllenWave.dll"
+copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-ET2005.pdf"
 copy /Y ".\bin\Releasex64\Models\ASCE-ETc (Daily).mdl" "..\Install\NRCan\Models\ASCE-ETc (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\ASCE-ETc.dll" "..\Install\NRCan\Models\ASCE-ETc.dll"

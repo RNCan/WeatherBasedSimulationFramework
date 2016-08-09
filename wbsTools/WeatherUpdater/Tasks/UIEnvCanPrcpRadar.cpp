@@ -21,8 +21,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIEnvCanPrcpRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "FirstYear", "LastYear" };
-	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING };
+	const char* CUIEnvCanPrcpRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type"};
+	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX};
 	const UINT CUIEnvCanPrcpRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_PRCP_RADAR_P;
 	const UINT CUIEnvCanPrcpRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_PRCP_RADAR;
 
@@ -60,8 +60,8 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\PrcpRadar\\"; break;
 		case TYPE: str = ToString(TYPE_06HOURS); break;
-		case FIRST_YEAR:
-		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+//		case FIRST_YEAR:
+		//case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 
 		};
 
@@ -120,20 +120,20 @@ namespace WBSF
 		//keep only 10km grid
 		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end();)
 		{
-			string fileTitle = GetFileTitle(it->m_filePath);
-			if (Find(fileTitle, "ps10km"))
-			{
+		//	string fileTitle = GetFileTitle(it->m_filePath);
+//			if (Find(fileTitle, "ps10km"))
+	//		{
+		//		it = fileList.erase(it);
+//			}
+	//		else
+		//	{
+			string fileName = GetFileName(it->m_filePath);
+			string filePath = GetOutputFilePath(fileName);
+			if (!NeedDownload(*it, filePath))
 				it = fileList.erase(it);
-			}
 			else
-			{
-				string fileName = GetFileName(it->m_filePath);
-				string filePath = GetOutputFilePath(fileName);
-				if (!NeedDownload(*it, filePath))
-					it = fileList.erase(it);
-				else
-					it++;
-			}
+				it++;
+			//}
 
 			msg += callback.StepIt(0);
 		}
@@ -153,7 +153,7 @@ namespace WBSF
 
 
 		callback.AddMessage("Number of images to download after clearing: " + ToString(fileList.size()));
-		callback.PushTask("Download images", fileList.size());
+		callback.PushTask("Download precipitation images + (" + ToString(fileList.size() )+ ")", fileList.size());
 		//callback.SetNbStep(fileList.size());
 
 		int nbDownload = 0;

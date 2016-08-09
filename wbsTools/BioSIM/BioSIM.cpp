@@ -1,7 +1,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
-// 11.0.8:				Add "AddName" in MergeExecutable
+// 11.0.8: 25/07/2016	Add "AddName" in MergeExecutable
 //						Bug correction in col width
+//						Some bug correction in the ModelInputDlg
+//						Add new input type: staticText
 // 11.0.7: 28/06/2016	Bug correction in weather generation of hourly data.
 //						Add fillGap into daily and hourly weather data
 // 11.0.6: 17/06/2016	Bug correction in models. Change in result. return binary representation. 
@@ -36,7 +38,7 @@
 //						New simulation init 
 //						New CSV streaming
 //						Correction in CTRef format of the daylight saving zone 
-//						Add wetness Duration and new DD, ReverseDD et ClimaticDLL
+//						Add wetness Duration and new DD, ReverseDD et ClimaticDLL 
 // 10.2.5:15/02/2013	Add % of max of variable in Analysis event 
 //						Bug correction in model load and unload 
 //						Bug correction in Simulated Annealing

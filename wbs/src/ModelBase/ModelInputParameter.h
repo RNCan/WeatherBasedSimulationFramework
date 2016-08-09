@@ -28,7 +28,7 @@ namespace WBSF
 
 
 
-		enum TParameter { kMVBool, kMVInt, kMVReal, kMVString, kMVFile, kMVListByPos, kMVListByString, kMVListByCSV, kMVTitle, kMVLine, kMVNbType };
+		enum TParameter { kMVBool, kMVInt, kMVReal, kMVString, kMVFile, kMVListByPos, kMVListByString, kMVListByCSV, kMVTitle, kMVLine, kMVStaticText, kMVNbType };
 		static short GetType(const std::string& inputString);
 
 		static const int MARGIN_HORZ;
@@ -87,7 +87,7 @@ namespace WBSF
 		void SetBeginSecondField(int val){ m_beginSecondField = val; }
 
 		///***********************///*********************///*****************
-		bool IsAVariable()const{ return m_type != kMVTitle && m_type != kMVLine; }
+		bool IsAVariable()const{ return m_type != kMVTitle && m_type != kMVLine && m_type != kMVStaticText; }
 
 		bool IsExtendedList()const;
 

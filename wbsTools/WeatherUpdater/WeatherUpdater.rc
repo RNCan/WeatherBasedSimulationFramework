@@ -201,7 +201,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,0,8,35
+ FILEVERSION 5,0,8,36
  PRODUCTVERSION 5,0,7,26
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -219,7 +219,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.0.8.35"
+            VALUE "FileVersion", "5.0.8.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -229,7 +229,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.0.8.35"
+            VALUE "FileVersion", "5.0.8.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -633,9 +633,9 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Méthode|Typede Gribs"
-    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Première année|Dernière année|Radar|Type|Periode"
+    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
     IDS_UPDATER_EC_PRCP_RADAR_P 
-                            "Répertoire de travail|Première année|Dernière année|Type"
+                            "Répertoire de travail|Type"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
@@ -1084,8 +1084,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Working directory|Methiod|Gribs type"
-    IDS_UPDATER_EC_RADAR_P  "Working directory|Radar|Type|Begin|End"
+    IDS_UPDATER_EC_FORECAST_P "Working directory|Method|Gribs type"
+    IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Working directory|First Year|Last Year|Country|States (if USA)|Show progression"

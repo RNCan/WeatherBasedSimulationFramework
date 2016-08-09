@@ -73,21 +73,6 @@ namespace WBSF
 	}
 	CProvinceSelection::CProvinceSelection(const std::string& sel)
 	{
-		/*static bool bInit = false;
-		if (!bInit)
-		{
-			StringVector header(IDS_PROVINCES, "|;");
-			ASSERT(header.size() == NB_PROVINCES);
-			bInit = true;
-			for (size_t i = 0; i < header.size(); i++)
-			{
-				CInfo& inf = const_cast<CInfo&>(DEFAULT_LIST[i]);
-				inf.m_name = header[i];
-			}
-		}*/
-
-
-		//Reset();
 		FromString(sel);
 	}
 
@@ -97,15 +82,6 @@ namespace WBSF
 		ASSERT(t >= 0 && t < NB_INFO);
 		return DEFAULT_LIST[prov][t];
 	}
-/*
-	string CProvinceSelection::GetNameBySelectionIndex(size_t index, size_t t)
-	{
-		ASSERT(index >= 0 && index < GetNbSelection());
-
-		size_t prov = index2prov(index);
-
-		return INFO[prov][t];
-	}*/
 
 	string CProvinceSelection::ToString()const
 	{
@@ -152,50 +128,6 @@ namespace WBSF
 
 		return message;
 	}
-	/*
-	void CProvinceSelection::GetXML(CMarkup& xml)
-	{
-	xml.AddElem("PROVINCE_SELECTION");
-	xml.AddAttrib("version", "1");
-	VERIFY(xml.IntoElem());
-
-	if( IsUsedAll() )
-	{
-	xml.AddElem("ITEM", INFO[ALL][0] );
-	}
-	else
-	{
-	for(size_t i=0; i<NB_PROVINCE; i++)
-	{
-	if( IsUsed(i) )
-	{
-	xml.AddElem("ITEM", INFO[i][0] );
-	}
-	}
-	}
-	VERIFY( xml.OutOfElem() );
-
-	ASSERT( xml.IsWellFormed() );
-	}
-
-	ERMsg CProvinceSelection::SetXML(CMarkup& xml)
-	{
-	ERMsg msg;
-
-	Reset();
-	if( xml.FindElem("PROVINCE_SELECTION") )
-	{
-	VERIFY(xml.IntoElem());
-
-	while( xml.FindElem("ITEM") )
-	{
-	msg+=SetUsed(xml.GetData());
-	}
-	}
-
-	return msg;
-	}
-	*/
 
 	//*********************************************************************
 }

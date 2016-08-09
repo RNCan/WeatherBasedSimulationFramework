@@ -133,9 +133,9 @@ namespace WBSF
 		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
 
 
-		double GetI(const CYear& weather);
+		double GetI(const CWeatherYear& weather);
 		double GetAlpha(double I);
-		double GetET(const CMonth& weather, double I);
+		double GetET(const CWeatherMonth& weather, double I);
 
 	protected:
 

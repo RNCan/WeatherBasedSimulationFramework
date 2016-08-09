@@ -13,12 +13,8 @@
 #include <vector>
 #include <array>
 #include <memory>
-//#include <math.h>
-//#include <combaseapi.h>
-//#include <boost\array.hpp>
-//#include <boost\shared_ptr.hpp>
-#include "basic/ERMsg.h"
 
+#include "basic/ERMsg.h"
 #include "Basic/WeatherDefine.h"
 #include "Basic/Location.h"
 #include "Basic/WeatherDataSection.h"
@@ -191,9 +187,15 @@ public:
 		m_overheat = overheat;
 	}
 
-	virtual void TransformWeather(CWeatherDay& weather)const;
+	//virtual void TransformWeather(CWeatherDay& weather, size_t hourTmax=16)const;
 	virtual double GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax=16)const;
 	virtual double GetT(const CWeatherDay& weather, size_t h, size_t hourTmax = 16)const;
+	
+	virtual double GetTmin(const CWeatherDay& weather)const;
+	virtual double GetTmax(const CWeatherDay& weather)const;
+
+	//double GetOverheat(double Tmin, double Tmax, size_t h, size_t hourTmax)const;
+	//double GetAllenT(const CWeatherDay& d1, const CWeatherDay& d2, const CWeatherDay& d3, size_t h, size_t hourTmax)const;
 
 protected:
 
@@ -372,7 +374,7 @@ public:
 		//m_bDailyStatCompiled=true;
 	}
 	
-	CWeatherDay(const CWeatherDay& in)	{operator=(in);	}
+	CWeatherDay(const CWeatherDay& in)	{ m_pParent = NULL; operator=(in); }
 	CWeatherDay& operator=(const CWeatherDay& in);
 	bool operator==(const CWeatherDay& in)const;
 	bool operator!=(const CWeatherDay& in)const{ return !operator==(in); }
@@ -490,6 +492,7 @@ public:
 	//virtual double GetCloudiness(double& Fcd)const;
 	virtual double GetNetRadiation(double& Fcd)const;
 	
+	double GetAllenT(size_t h, size_t hourTmax=15)const;
 
 	void ManageHourlyData()const
 	{
@@ -566,7 +569,7 @@ public:
 		m_pParent=NULL;
 	}
 
-	CWeatherMonth(const CWeatherMonth& in){operator=(in);	}
+	CWeatherMonth(const CWeatherMonth& in){ m_pParent = NULL; operator=(in); }
 	CWeatherMonth& operator=(const CWeatherMonth& in);
 	bool operator==(const CWeatherMonth& in)const;
 	bool operator!=(const CWeatherMonth& in)const{ return !operator==(in); }
@@ -690,13 +693,8 @@ public:
 		Initialize(TRef, pParent);
 	}
 
-	CWeatherYear(const CWeatherYear& in)
-	{
-		m_pParent = NULL;
-		operator=(in);
-	}
-
-	
+	CWeatherYear(const CWeatherYear& in){m_pParent = NULL;operator=(in);}
+		
 	
 	CWeatherYear& operator=(const CWeatherYear& in);
 
@@ -790,8 +788,17 @@ public:
 	inline const CLocation& GetLocation()const;
 	inline const CWeatherYear& GetPrevious()const;
 	inline const CWeatherYear& GetNext()const;
+	
 	//void ComputeTRange();
 	const CWeatherDay& GetDay(size_t Jday)const{ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
+	inline const CHourlyData& GetHour(CTRef ref)const;
+	inline CHourlyData& GetHour(CTRef ref);
+	inline const CWeatherDay& GetDay(CTRef ref)const;
+	inline CWeatherDay& GetDay(CTRef ref);
+	inline const CWeatherMonth& GetMonth(CTRef ref)const;
+	inline CWeatherMonth& GetMonth(CTRef ref);
+
+
 
 
 	ERMsg SaveData(const std::string& filePath, CTM TM = CTM(), char separator = ',')const;
@@ -805,6 +812,14 @@ protected:
 	CWeatherExStatistic m_stat;
 	CWeatherYears* m_pParent;
 };
+
+inline const CHourlyData& CWeatherYear::GetHour(CTRef ref)const{ const CWeatherYear& me = *this; return me[ref.GetMonth()][ref.GetDay()][ref.GetHour()]; }
+inline CHourlyData& CWeatherYear::GetHour(CTRef ref){ CWeatherYear& me = *this; return me[ref.GetMonth()][ref.GetDay()][ref.GetHour()]; }
+inline const CWeatherDay& CWeatherYear::GetDay(CTRef ref)const{ const CWeatherYear& me = *this; return me[ref.GetMonth()][ref.GetDay()]; }
+inline CWeatherDay& CWeatherYear::GetDay(CTRef ref){ CWeatherYear& me = *this; return me[ref.GetMonth()][ref.GetDay()]; }
+inline const CWeatherMonth& CWeatherYear::GetMonth(CTRef ref)const{ const CWeatherYear& me = *this; return me[ref.GetMonth()]; }
+inline CWeatherMonth& CWeatherYear::GetMonth(CTRef ref){ CWeatherYear& me = *this; return me[ref.GetMonth()]; }
+
 
 typedef CWeatherYear CYear;
 typedef std::shared_ptr<CWeatherYear> CWeatherYearPtr;

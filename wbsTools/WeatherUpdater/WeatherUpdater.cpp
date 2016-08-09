@@ -1,4 +1,5 @@
-//5.0.8 04/07/2015  Add New-Brunswick agriculture network.
+//5.0.8 25/07/2016  Add New-Brunswick agriculture network.
+//					Debug Radar and PrcpRadar
 //5.0.7	22/06/2016  Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal. 
 //5.0.6	14/06/2016  Add Manitoba source of hourly/daily weather
 //5.0.5	25/05/2016	Make correction for change made by Env Can.  
@@ -161,7 +162,7 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	// TODO: modifiez cette chaîne avec des informations appropriées,
 	// telles que le nom de votre société ou organisation
 	SetRegistryKey(_T("NRCan"));
-	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
+	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés) 
 
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);

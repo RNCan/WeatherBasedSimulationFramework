@@ -32,20 +32,20 @@ Thoughts:
 // Class: CMPBiModel
 //
 //************** MODIFICATIONS  LOG ********************
-// 22/11/2005			Rémi Saint-Amant    Creation
-// 22/10/2007			Jacques Régnière    Modifications
-// 23/10/2007			Rémi Saint-Amant    sets things straight
-// 29/10/2007			Rémi Saint-Amant    Debugging 
-// 30/10/2007			Remi Saint-Amant    Consolidation of all forms of MPB models
-// 12/11/2007			Jacques Régnière    Commenting/editing
-// 14/12/2007			Rémi Saint-Amant	Integration with the new BioSIM model Base
-// 24/09/2008			Rémi Saint-Amant	Auto ajusting the number of object in the tree
-// 12/11/2008			Rémi Saint-Amant	Use the new MPBi class
-// 26/05/2009			Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
-// 16/07/2012  2.0		Rémi Saint-Amant    Simplified model
-// 17/12/2012  2.1		Rémi Saint-Amant    Add the mode Year by Year adjusted
-// 27/03/2013  2.2		Rémi Saint-Amant    New compilation
 // 27/03/2013  2.3.0	Rémi Saint-Amant    New compilation with WBSF
+// 27/03/2013  2.2		Rémi Saint-Amant    New compilation
+// 17/12/2012  2.1		Rémi Saint-Amant    Add the mode Year by Year adjusted
+// 16/07/2012  2.0		Rémi Saint-Amant    Simplified model 
+// 26/05/2009			Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
+// 12/11/2008			Rémi Saint-Amant	Use the new MPBi class
+// 24/09/2008			Rémi Saint-Amant	Auto ajusting the number of object in the tree
+// 14/12/2007			Rémi Saint-Amant	Integration with the new BioSIM model Base
+// 12/11/2007			Jacques Régnière    Commenting/editing
+// 30/10/2007			Remi Saint-Amant    Consolidation of all forms of MPB models
+// 29/10/2007			Rémi Saint-Amant    Debugging 
+// 23/10/2007			Rémi Saint-Amant    sets things straight
+// 22/10/2007			Jacques Régnière    Modifications
+// 22/11/2005			Rémi Saint-Amant    Creation
 //*********************************************************************
 #include "MPBiModel.h"
 #include "Basic/timeStep.h"
@@ -90,7 +90,7 @@ namespace WBSF
 		m_bUseDefenselessTree = true;       //In low density (total bug < A), beetles can attack these moribund trees to subsist
 		m_initialInfestation = 0;			//initial infestation (km²)
 		m_totalInitialAttack = 0;
-		m_nbObjects = 100;
+		m_nbObjects = 500;
 		m_minObjects = 100;
 		m_maxObjects = 400;
 		m_heightMax = 1000;  // height max in cm
@@ -113,7 +113,7 @@ namespace WBSF
 			//if eggs are fertile, run model as continous
 
 			//create a matrix of output [number of generation estimated]x[number of days]
-			CAnnualOutputVector output(m_weather.GetNbYears(), CTRef(CTRef::ATEMPORAL, 1, 0, 0, 0));
+			CAnnualOutputVector output(m_weather.GetNbYears(), CTRef(1, 0, 0, 0, CTM(CTM::ATEMPORAL)));
 			CMPBStatMatrix stat(output.size());
 
 			//Do simulation
@@ -172,7 +172,7 @@ namespace WBSF
 			output[0][A_INFESTED_KM²_CUMUL] = (m_initialInfestation + output[0][A_INFESTED_KM²]);
 			output[0][A_R] = -9999;
 
-			for (int i = 1; i < output.size(); i++)
+			for (size_t i = 1; i < output.size(); i++)
 			{
 				if (output[i - 1][A_SUCCESS_ATTACK] > 0)
 					output[i][A_R] = output[i][A_SUCCESS_ATTACK] / output[i - 1][A_SUCCESS_ATTACK];
@@ -196,13 +196,13 @@ namespace WBSF
 		else //Eggs non fertile
 		{
 			//run model 
-			CAnnualOutputVector output(m_weather.GetNbYears() - 1, CTRef(CTRef::ATEMPORAL, m_weather.GetFirstYear(), 0, 0, 0));
+			CAnnualOutputVector output(m_weather.GetNbYears() - 1, CTRef(m_weather.GetFirstYear(), 0, 0, 0, CTM(CTM::ATEMPORAL)));
 
 
 			for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 			{
-				CProportionStatVector attacks = m_attacks;
-				attacks.UpdateYear(m_weather[y].GetYear());
+				CInitialPopulation attacks = m_attacks;
+				attacks.UpdateYear(m_weather[y].GetTRef().GetYear());
 
 				CMPBStatVector stat;
 				DoSimulation(stat, attacks, y);
@@ -212,7 +212,7 @@ namespace WBSF
 
 			output[0][A_INFESTED_KM²_CUMUL] = (m_initialInfestation + output[0][A_INFESTED_KM²]);
 
-			for (int i = 1; i < output.size(); i++)
+			for (size_t i = 1; i < output.size(); i++)
 			{
 				if (output[i][A_INFESTED_KM²] >= 0)
 					output[i][A_INFESTED_KM²_CUMUL] = output[i - 1][A_INFESTED_KM²_CUMUL] + output[i][A_INFESTED_KM²];
@@ -244,13 +244,13 @@ namespace WBSF
 		{
 			//else, compute stats year, by running n years at a time
 
-			output.Init(m_weather.GetNbYears() - 1, CTRef(CTRef::ANNUAL, m_weather[1].GetYear(), 0, 0, 0));
+			output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather[(size_t)1].GetTRef().GetYear()));
 
 
-			for (short y = 0; y < m_weather.GetNbYears() - 1; y++)
+			for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 			{
-				CProportionStatVector attacks = m_attacks;
-				attacks.UpdateYear(m_weather[y].GetYear());
+				CInitialPopulation attacks = m_attacks;
+				attacks.UpdateYear(m_weather[y].GetTRef().GetYear());
 
 				CMPBStatVector stat;
 				DoSimulation(stat, attacks, y);//, Min(y+2, m_weather.GetNbYears()-1) );
@@ -262,7 +262,7 @@ namespace WBSF
 		output[0][A_INFESTED_KM²_CUMUL] = (m_initialInfestation + output[0][A_INFESTED_KM²]);
 
 
-		for (int i = 1; i < output.size(); i++)
+		for (size_t i = 1; i < output.size(); i++)
 		{
 			if (output[i][A_INFESTED_KM²] >= 0)
 			{
@@ -290,6 +290,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
 		CDailyOutputVector output(m_weather.GetEntireTPeriod(CTM::DAILY));
 
 		if (m_bFertilEgg)
@@ -300,8 +301,8 @@ namespace WBSF
 		}
 		else
 		{
-			CProportionStatVector attacks = m_attacks;
-			int y = 0;
+			CInitialPopulation attacks = m_attacks;
+			size_t y = 0;
 			//for(short y=0; y<m_weather.GetNbYears()-1; y++)
 			while (y < m_weather.GetNbYears() - 1)
 			{
@@ -309,21 +310,22 @@ namespace WBSF
 				DoSimulation(stat, attacks, y);
 
 				ComputeRegularValue(stat, output);
-				attacks = stat.GetDailyProportionStatVector(m_totalInitialAttack, E_OVIPOSITING_ADULT, m_nbObjects);
+				//attacks = stat.GetDailyProportionStatVector(m_totalInitialAttack, E_OVIPOSITING_ADULT, m_nbObjects);
+				attacks = stat.GetInitialPopulation(E_OVIPOSITING_ADULT, m_nbObjects, m_totalInitialAttack, E_OVIPOSITING_ADULT, FEMALE);
 				if (attacks.empty())
 				{
 					ASSERT(y >= 0 && y < m_weather.GetNbYears());
 					attacks = m_attacks;
-					attacks.UpdateYear(m_weather[y + 1].GetYear());
+					attacks.UpdateYear(m_weather[y + 1].GetTRef().GetYear());
 				}
-				y = attacks[0].m_day.GetYear() - m_weather.GetFirstYear();
+				y = attacks[0].m_creationDate.GetYear() - m_weather.GetFirstYear();
 				ASSERT(y >= 0 && y < m_weather.GetNbYears());
 			}
 		}
 
 		output[0][D_INFESTED_KM²_CUMUL] = (m_initialInfestation + output[0][D_INFESTED_KM²]);
 
-		for (int i = 1; i < output.size(); i++)
+		for (size_t i = 1; i < output.size(); i++)
 		{
 			if (output[i][D_INFESTED_KM²] >= 0)
 				output[i][D_INFESTED_KM²_CUMUL] = output[i - 1][D_INFESTED_KM²_CUMUL] + output[i][D_INFESTED_KM²];
@@ -434,17 +436,17 @@ namespace WBSF
 	}
 	*/
 
-	void CMPBiModel::DoSimulation(CMPBStatVector& stat, const CProportionStatVector& attacks, short f1, short f2)
+	void CMPBiModel::DoSimulation(CMPBStatVector& stat, const CInitialPopulation& attacks, size_t y1, size_t y2)
 	{
 		CMPBStatMatrix tmp(1);
-		DoSimulation(tmp, attacks, f1, f2, true);
+		DoSimulation(tmp, attacks, y1, y2, true);
 		stat = tmp[0];
 	}
 
-	void CMPBiModel::DoSimulation(CMPBStatMatrix& stat, const CProportionStatVector& attacks, short f1, short f2, bool bAllGeneration)
+	void CMPBiModel::DoSimulation(CMPBStatMatrix& stat, const CInitialPopulation& attacks, size_t y1, size_t y2, bool bAllGeneration)
 	{
-		ASSERT(f1 >= -1 && f1 < m_weather.GetNbYears() - 1);
-		ASSERT(f2 >= -1 && f2 <= m_weather.GetNbYears());
+		ASSERT(y1 == NOT_INIT || y1 < m_weather.GetNbYears() - 1);
+		ASSERT(y2 == NOT_INIT || y2 <= m_weather.GetNbYears());
 
 		if (!m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
@@ -457,16 +459,17 @@ namespace WBSF
 
 
 
-		if (f1 <= 0)
-			f1 = 0;
+		if (y1 == NOT_INIT)
+			y1 = 0;
 
-		if (f2 <= 0)
-			f2 = m_weather.GetNbYears() - 1;
+		if (y2 == 0 || y2 == NOT_INIT)
+			y2 = m_weather.GetNbYears() - 1;
 
-
+		CTPeriod p(m_weather[y1].GetEntireTPeriod(CTM::DAILY).Begin(), m_weather[y2].GetEntireTPeriod(CTM::DAILY).End());
 		//Initialize statistics 
 		for (size_t g = 0; g < stat.size(); g++)
-			stat[g].Init(m_weather[f2].GetLastTRef() - m_weather[f1].GetFirstTRef() + 1, m_weather[f1].GetFirstTRef());
+			stat[g].Init(p);
+			//stat[g].Init((m_weather[y2].GetEntireTPeriod().End() - m_weather[y1].GetEntireTPeriod().Begin() + 1, m_weather[y1].GetFirstTRef());
 
 
 		//CTRef peakDate(m_peakDate);
@@ -499,14 +502,15 @@ namespace WBSF
 		pTree->m_Amax = m_Amax;
 		pTree->m_n0 = m_n0;
 		//pTree->Initialise(m_nbObjects, peakDate, m_attackStDev, OVIPOSITING_ADULT, true, 0);
-		pTree->Initialize(attacks, OVIPOSITING_ADULT, true, 0);
+		//pTree->Initialize(attacks, OVIPOSITING_ADULT, true, 0);
+		pTree->Initialize<CMountainPineBeetle>(attacks);
 
 
 		stand.SetTree(pTree);
 		stand.Init(m_weather);
 
 
-		for (size_t y = f1; y <= f2; y++)
+		for (size_t y = y1; y <= y2; y++)
 		{
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM::DAILY);
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
@@ -550,9 +554,9 @@ namespace WBSF
 
 		for (CTRef d = stat.GetFirstTRef(); d <= stat.GetLastTRef(); d++)
 		{
-			int c = 0;//the current output variable
+			size_t c = 0;//the current output variable
 
-			for (int j = S_EGG; j <= S_DEAD_ADULT; j++)
+			for (size_t j = S_EGG; j <= S_DEAD_ADULT; j++)
 				output[d][c++] += stat[d][j];
 
 			output[d][c++] += stat[d][E_BROOD];
@@ -633,22 +637,23 @@ namespace WBSF
 	*/
 	void CMPBiModel::ComputeRegularValue(CMPBStatVector& stat, CAnnualOutputVector& output)
 	{
-		output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather[1].GetYear()));
+		output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather[(size_t)1].GetTRef().GetYear()));
 		if (stat.empty())
 			return;
 
 		double lastAttack = m_totalInitialAttack;
 		double lastAttackKm² = m_initialInfestation;
 
-		for (int y = 0; y < m_weather.GetNbYears() - 1; y++)
+		for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 		{
 			CStatistic outputStat[NB_ANNUAL_OUTPUT];
 			CStatistic totalBrood;
 			CStatistic totalFemale;
 			CStatistic longivity;
 
-			CTRef firstDay = m_weather[y + 1].GetFirstTRef();
-			CTRef lastDay = m_weather[y + 1].GetLastTRef();
+			CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM::DAILY);
+			CTRef firstDay = p.Begin(); // m_weather[y + 1].GetFirstTRef();
+			CTRef lastDay = p.End(); // m_weather[y + 1].GetLastTRef();
 			for (CTRef d = firstDay; d <= lastDay; d++)
 			{
 				if (stat[d][S_NB_OBJECT] > 0)
@@ -813,15 +818,15 @@ namespace WBSF
 
 	//**************************
 	//this method is called to load parameters in variables
-	ERMsg CMPBiModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CMPBiModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 
 		//transfer your parameters here
-		int cur = 0;
+		size_t cur = 0;
 		m_n0 = parameters[cur++].GetInt();//Number of females/m² in the initial attack 
-		short m = parameters[cur++].GetInt();// peak Date of initial attack 
-		short d = parameters[cur++].GetInt() - 1;//and its standard deviation
+		size_t m = parameters[cur++].GetInt();// peak Date of initial attack 
+		size_t d = parameters[cur++].GetInt() - 1;//and its standard deviation
 
 		//CTRef peakDate = CTRef( m_weather.GetFirstYear(), m, d);
 		m_peakDate = CTRef(m_weather.GetFirstYear(), m, d);
@@ -851,7 +856,7 @@ namespace WBSF
 
 		m_minObjects = parameters[cur++].GetInt();                   //Minimum number of objects alive in the simulator
 		m_maxObjects = parameters[cur++].GetInt();                   //Maximum number of objects alive in the simulator
-		m_nbObjects = Min(m_maxObjects, Max(m_minObjects, m_nbObjects));
+		m_nbObjects = min(m_maxObjects, max(m_minObjects, m_nbObjects));
 		//int nbObjects  = Min( m_maxObjects, Max( m_minObjects, m_nbObjects) );
 
 		m_heightMax = parameters[cur++].GetReal();
@@ -866,12 +871,12 @@ namespace WBSF
 		double nbTrees = m_initialInfestation*m_forestDensity;
 		m_totalInitialAttack = CMPBTree::GetNbInitialAttack(nbTrees, m_Amax, m_n0);
 
-		m_attacks.Init(m_totalInitialAttack, m_peakDate, m_attackStDev, m_nbObjects);
+		m_attacks.Initialize(m_peakDate, m_attackStDev, m_nbObjects, m_totalInitialAttack, OVIPOSITING_ADULT, FEMALE);
 
 
 		//Peak initial attack date +- 3.5*attackVariance must be sometime in first year 
-		_ASSERTE((m_peakDate - int(3 * m_attackStDev)) >= m_weather[0].GetFirstTRef());
-		_ASSERTE((m_peakDate + int(3 * m_attackStDev)) <= m_weather[0].GetLastTRef());
+		//_ASSERTE((m_peakDate - int(3 * m_attackStDev)) >= m_weather[0].GetFirstTRef());
+		//_ASSERTE((m_peakDate + int(3 * m_attackStDev)) <= m_weather[0].GetLastTRef());
 
 		return msg;
 	}
@@ -906,7 +911,7 @@ namespace WBSF
 		{
 			OnExecuteAnnual();
 
-			for (int k = 0; k < (int)m_SAResult.size(); k++)
+			for (size_t k = 0; k < m_SAResult.size(); k++)
 			{
 				if (m_output.IsInside(m_SAResult[k].m_ref))
 				{

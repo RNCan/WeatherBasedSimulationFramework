@@ -27,20 +27,31 @@ namespace WBSF
 	void CMPBDevelopmentVector::Init(const CDailyWaveVector& T)
 	{
 		//NOTE: the number of day is truck to the entire day
-		int nbDay = T.m_period.GetNbDay();
+		size_t nbDay = T.m_period.GetNbDay();
 		resize(nbDay);
-		for (size_t d = 0; d < nbDay; d++)
+		for (CTRef TRef = T.m_period.Begin(); TRef != T.m_period.End(); TRef++)
+		{
+			size_t d = TRef.GetDay() - T.m_period.Begin().GetDay();
+			for (size_t s = 0; s < NB_STAGES; s++)
+			{
+				at(d)[s] = 0;
+				at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[TRef]) / 24;
+			}
+		}
+
+
+		/*for (size_t d = 0; d < nbDay; d++)
 		{
 			for (size_t s = 0; s < NB_STAGES; s++)
 			{
 				at(d)[s] = 0;
-				for (size_t h = 0; h < T.NbStep(); h++)
+				for (size_t h = 0; h < T.size(); h++)
 				{
-					size_t i = d*T.NbStep() + h;
-					at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[i]) / T.NbStep();
+					size_t i = d*T.NbSteps() + h;
+					at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[i]) / T.NbSteps();
 				}
 			}
-		}
+		}*/
 	}
 
 	//*****************************************************

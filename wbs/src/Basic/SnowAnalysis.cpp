@@ -45,14 +45,15 @@ namespace WBSF
 		CTM TM = weather.GetTM();
 
 		CTPeriod period = weather.GetEntireTPeriod();
-		CTRef midSeason(year, JULY, 14, 12, TM);
+		CTRef midSeason(year, JULY, DAY_15, 12, TM);
 
 		size_t nbTRefPerDay = weather.IsHourly() ? 24 : 1;
 		size_t nbTRef = 0;
 		for (CTRef TRef = midSeason; TRef >= period.Begin() && !lastTRef.IsInit(); TRef--)
 		{
-//			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)//more than 2 cm
-			if (weather[TRef][H_SWE][MEAN] > m_minimum_snow_depth)//more than 2 mm of water
+			ASSERT(weather[TRef][m_variable].IsInit());
+			if (weather[TRef][m_variable][MEAN] > m_minimum_snow_depth)//more than threshold
+//			if (weather[TRef][H_SWE][MEAN] > m_minimum_snow_depth)//more than 2 mm of water
 			{
 				nbTRef++;
 				if (nbTRef>m_nb_day_min*nbTRefPerDay)
@@ -79,14 +80,14 @@ namespace WBSF
 		CTM TM = weather.GetTM();
 
 		CTPeriod period = weather.GetEntireTPeriod();
-		CTRef midSeason(year, JULY, 14, 12, TM);
+		CTRef midSeason(year, JULY, DAY_15, 12, TM);
 
 		size_t nbTRefPerDay = weather.IsHourly() ? 24 : 1;
 		size_t nbTRef = 0;
-		for (CTRef TRef = midSeason; TRef >= period.End() && !firstTRef.IsInit(); TRef++)
+		for (CTRef TRef = midSeason; TRef <= period.End() && !firstTRef.IsInit(); TRef++)
 		{
-//			if (weather[TRef][H_SNDH][MEAN] > m_minimum_snow_depth)
-			if (weather[TRef][H_SWE][MEAN] > m_minimum_snow_depth)
+			ASSERT(weather[TRef][m_variable].IsInit());
+			if (weather[TRef][m_variable][MEAN] > m_minimum_snow_depth)
 			{
 				nbTRef++;
 				if (nbTRef>m_nb_day_min*nbTRefPerDay)

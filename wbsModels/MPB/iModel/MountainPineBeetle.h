@@ -42,7 +42,7 @@ namespace WBSF
 
 		enum TOvipAdultColdOption { OA_KILL_NONE, OA_KILL_COLD, OA_KILL_DECEMBER_31, OA_KILL_M18, NB_OA_OPTION };
 
-		CMountainPineBeetle(CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, size_t sex=NOT_INIT, bool bFertil = true, int generation = 0, double scaleFactor = 1);
+		CMountainPineBeetle(CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CMountainPineBeetle(const CMountainPineBeetle& in);
 		~CMountainPineBeetle(void);
 
@@ -75,7 +75,7 @@ namespace WBSF
 
 		double GetRelativeDevRate(int s)const { _ASSERTE(s >= 0 && s < NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 
 		bool IsEmerging(){ return m_bEmerging; }
-		void CompleteEmergence(int death);
+		void CompleteEmergence(size_t death);
 
 		bool GetSuccessAttackToday()const{ return m_bSuccessAttackToday; }
 
@@ -84,7 +84,7 @@ namespace WBSF
 		void AssignRelativeDevRate(); //Sets indivivual's relative development rates in each stage, at creation
 		void AssignMortality(); //Sets indivivual's relative cold tolerance (same in all stages), at creation
 
-		void Develop(CTRef date, const double& T, const CWeatherDay& weaDay);
+		void Develop(CTRef date, double T);
 
 		double ComputeBrood(double Ai_1, double Ai);
 		bool IsDeadByAttrition();
@@ -144,10 +144,11 @@ namespace WBSF
 		//void Initialise(long numInd, CTRef peakAttackDay, double sigma, double age=0, bool bFertil=true, int generation=0);
 		//void UpdateScaleFactor(double nbTreeInfested);
 
-		virtual void Live(const CTRef& day, const CWeatherDay& weaDay);
-		virtual void Live(CDailyWaveVector& hVector, const CWeatherDay& weaDay);
+		virtual void Live(const CWeatherDay& weaDay);
+		//virtual void Live(CDailyWaveVector& hVector, const CWeatherDay& weaDay);
 
-		virtual void GetStat(CTRef d, CModelStat& stat, int generation = -1);
+		//virtual void GetStat(CTRef d, CModelStat& stat, int generation = -1);
+		//virtual void GetStat(CTRef d, CModelStat& stat);
 
 		void EmergingBugs(double nbBugs);
 		bool AttackedByBug(CMountainPineBeetle* pBug);
@@ -181,7 +182,7 @@ namespace WBSF
 		void CompleteEmergence();
 		CMPBStand* GetStand();
 
-
+		CIndividualPtr FindObject(size_t g, size_t s, size_t, size_t, size_t);
 
 	protected:
 
@@ -270,7 +271,7 @@ namespace WBSF
 			m_nbInfestedTrees += GetTree()->GetNbInfestedTreesToday();
 		}
 
-		virtual void GetStat(CTRef d, CModelStat& stat, int generation = -1)
+		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT)
 		{
 			m_pTree->GetStat(d, stat, generation);
 		}

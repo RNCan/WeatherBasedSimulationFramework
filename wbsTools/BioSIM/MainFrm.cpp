@@ -576,12 +576,12 @@ BOOL CMainFrame::OnCmdMsg(UINT id, int code, void *pExtra, AFX_CMDHANDLERINFO* p
 
 	//try the focus window first 
 	//let the trl to route command
-	CWnd* pFocus = GetFocus();
-	if (pFocus)
+	/*CWnd* pFocus = GetFocus();
+	if (pFocus && )
 	{
 		if (pFocus->OnCmdMsg(id, code, pExtra, pHandler))
 			return TRUE;
-	}
+	}*/
 
 
 	//route cmd first to registered dockable pane

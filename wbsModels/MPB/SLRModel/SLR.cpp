@@ -17,9 +17,14 @@
 #include "../MPBDevRates.h"
 #include "../DevelopementVector.h"
 
+#include "Basic/GrowingSeason.h"
+#include "Basic/DegreeDays.h"
 #include "Basic/weatherStation.h"
 #include "Basic/TimeStep.h"
 #include "Basic/Evapotranspiration.h"
+
+using namespace std;
+using namespace WBSF::HOURLY_DATA;
 
 
 namespace WBSF
@@ -28,7 +33,8 @@ namespace WBSF
 
 	//*******************************************************
 	//CSafranyikLoganRegniere (CSLR)
-	CSLR::CSLR()
+	CSLR::CSLR(const CRandomGenerator& RG):
+		m_RG(RG)
 	{
 		// initialise your variables here (optionnal)
 		m_nbGeneration = 50;
@@ -58,13 +64,20 @@ namespace WBSF
 
 		//***********************************
 		// fill accumulator
+		
 
 		CAccumulator accumulator(m_n);
 
 		for (size_t y = 0; y < weather.GetNbYears(); y++)
 		{
 			const CWeatherYear& weatherYear = weather[y];
-			CTPeriod p = weatherYear.GetGrowingSeason();
+
+			CGrowingSeason GS(CGSInfo::TT_TMIN, 3, 0, CGSInfo::TT_TMIN, 3, 0);
+			CTPeriod p = GS.GetGrowingSeason(weatherYear);
+			p.Transform(CTM::DAILY);
+
+			//est-ce que c'est la même chose qu'avant???
+//			CTPeriod p = weatherYear.GetGrowingSeason();
 
 			CAccumulatorData data;
 			//Th = 42 F, Aug 1 to end of effective growing season
@@ -72,26 +85,34 @@ namespace WBSF
 			{
 				p.Begin().SetJDay(FIRST_DAY);
 				p.Begin().m_month = AUGUST;
-				data.m_DDHatch = weatherYear.GetDD(5.56, p);
+		
+				CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5.56);
+				data.m_DDHatch = DD.GetDD(weatherYear, p);
+				//data.m_DDHatch = weatherYear.GetDD(5.56, p);
 				//Th = 42 F, whole year
-				data.m_DDGen = weatherYear.GetDD(5.56);
+				//data.m_DDGen = weatherYear.GetDD(5.56);
+				data.m_DDGen = DD.GetDD(weatherYear);
 			}
 
-			data.m_lowestMinimum = weatherYear.GetStat(STAT_TMIN, LOWEST);
-			data.m_meanMaxAugust = weatherYear[AUGUST].GetStat(STAT_TMAX, MEAN);
-			data.m_totalPrecip = weatherYear.GetStat(STAT_PRCP, SUM);
+			data.m_lowestMinimum = weatherYear[H_TMIN][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
+			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX][MEAN];//.GetStat(STAT_TMAX, MEAN);
+			data.m_totalPrecip = weatherYear[H_PRCP][SUM];//GetStat(STAT_PRCP, SUM);
 			//wather deficit was in mm
 
-			CThornthwaiteET TPET(weatherYear, 0, CThornthwaiteET::POTENTIEL_STANDARD);
-			data.m_waterDeficit = TPET.GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
+			//CThornthwaiteET TPET(CThornthwaiteET::POTENTIEL_STANDARD);
+			//CModelStatVector PET;
+			//TPET.GetET(.Execute(PET);
+			//(weatherYear, 0, CThornthwaiteET::POTENTIEL_STANDARD);
+			//data.m_waterDeficit = TPET.GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
+			data.m_waterDeficit = GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
 
 			data.m_precAMJ = 0;
-			data.m_precAMJ += weatherYear[APRIL].GetStat(STAT_PRCP, SUM);
-			data.m_precAMJ += weatherYear[MAY].GetStat(STAT_PRCP, SUM);
-			data.m_precAMJ += weatherYear[JUNE].GetStat(STAT_PRCP, SUM);
+			data.m_precAMJ += weatherYear[APRIL][H_PRCP][SUM];//GetStat(STAT_PRCP, SUM);
+			data.m_precAMJ += weatherYear[MAY][H_PRCP][SUM];	 //GetStat(STAT_PRCP, SUM);
+			data.m_precAMJ += weatherYear[JUNE][H_PRCP][SUM]; //GetStat(STAT_PRCP, SUM);
 			data.m_stabilityFlag = GetStabilityFlag(weatherYear);
 
-			_ASSERTE(CT[y].m_year == weatherYear.GetYear());
+			_ASSERTE(CT[y].m_year == weatherYear.GetTRef().GetYear());
 			//Skip the first year: No Cold Resistance
 			data.m_S = (y > 0) ? CT[y].m_Psurv : 1;
 
@@ -108,8 +129,8 @@ namespace WBSF
 
 
 		//skip the first year if m_runLength == weather.GetNbYears()-1
-		size_t  s0 = max(1, m_runLength - 1);
-		m_firstYear = weather.GetFirstYear() + s0;//keep in memory the first year
+		size_t  s0 = max((size_t)1, m_runLength - 1);
+		m_firstYear = weather.GetFirstYear() + int(s0);//keep in memory the first year
 
 		for (size_t i = 0; i < NB_OUTPUT; i++)
 		{
@@ -125,6 +146,30 @@ namespace WBSF
 	}
 
 
+	double CSLR::GetWaterDeficit(const CWeatherYear& weather)const
+	{
+		CThornthwaiteET TPET(CThornthwaiteET::POTENTIEL_STANDARD);
+		
+		double I = TPET.GetI(weather);
+		//TPET.GetET(.Execute(PET);
+		//(weatherYear, 0, CThornthwaiteET::POTENTIEL_STANDARD);
+		//data.m_waterDeficit = TPET.GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
+
+		double A = 0;
+		for (size_t m = 0; m<12; m++)
+		{
+			if (weather[m][H_TAIR][MEAN] > 0)
+			{
+				double ET = TPET.GetET(weather[m], I);
+				//precipitation in mm
+				double A_tmp = (ET - weather[m][H_PRCP][SUM]);
+				if (A_tmp>0)
+					A += A_tmp;
+			}
+		}
+
+		return A;
+	}
 
 	//********************************************************************
 	// This is the main module of Logan's MPB seasonality model It is passed 
@@ -149,7 +194,7 @@ namespace WBSF
 		CDailyWaveVector t;
 		weatherYear.GetAllenWave(t, 12, 1, m_overheat);
 
-		CMPBDevelopmentVector devRates;
+		CMPBDevelopmentVector devRates(m_RG);
 		devRates.Init(t);
 
 

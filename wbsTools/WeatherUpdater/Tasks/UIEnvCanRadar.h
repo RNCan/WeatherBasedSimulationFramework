@@ -14,7 +14,38 @@ namespace WBSF
 	class CCanadianRadar : public std::bitset<NB_RADAR>
 	{
 	public:
-		static const char* RADARS[NB_RADAR][3];
+
+		enum TInfo{ ABVR, NAME, COORD, NB_INFO };
+
+		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true);
+		static size_t GetRadar(const std::string& in, size_t t = ABVR);
+		static std::string GetName(size_t r, size_t t = ABVR);
+		
+
+		CCanadianRadar(const std::string& sel = "")
+		{
+			FromString(sel);
+		}
+
+		std::string ToString()const;
+		ERMsg FromString(const std::string&);
+
+		using std::bitset<NB_RADAR>::at;
+		bool at(const std::string& in)const
+		{
+			if (none())
+				return true;
+
+			size_t p = GetRadar(in);
+			return p < size() ? at(p) : false;
+		}
+
+		using std::bitset<NB_RADAR>::set;
+		ERMsg set(const std::string& in);
+
+	protected:
+
+		static const char* DEFAULT_LIST[NB_RADAR][NB_INFO];
 	};
 
 
@@ -22,11 +53,12 @@ namespace WBSF
 	{
 	public:
 
-		enum TTypeIII{ CURRENT_RADAR, HISTORICAL_RADAR };
-		enum TTypeI{ TYPE_06HOURS, TYPE_24HOURS };
-		enum TTypeII{ T_SNOW, T_RAIN, NB_TYPE };
+		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR };
+		//enum TTypeI{ TYPE_06HOURS, TYPE_24HOURS };
+		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
+		enum TBackground { B_WHITE, B_BROWN};
 
-		enum TAttributes { WORKING_DIR, TYPE, PRCP_TYPE, RADAR, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, TYPE, PRCP_TYPE, BACKGROUND, RADAR, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanRadar); }
 
@@ -35,19 +67,14 @@ namespace WBSF
 
 		//proptree param
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
-		virtual TType ClassType()const; virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		//virtual void UpdateLanguage();
-
+		virtual TType ClassType()const; 
+		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
-		//virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
-		//virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
-
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
@@ -55,8 +82,6 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 	protected:
 
 
-//		ERMsg DownloadForecast(CCallback& callback);
-	//	std::string GetOutputFilePath(const std::string& fileName)const;
 		ERMsg ExecuteCurrent(CCallback& callback);
 		ERMsg ExecuteHistorical(CCallback& callback);
 		bool NeedDownload(const CFileInfo& info, const std::string& filePath)const;
@@ -64,6 +89,7 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		ERMsg CleanRadarList(StringVector& stationList, CCallback& callback)const;
 		std::string GetOutputFilePath(size_t t, const std::string& fileName)const;
 		CTPeriod GetPeriod()const;
+		static std::string GetRadarID(size_t t, const std::string& URL);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

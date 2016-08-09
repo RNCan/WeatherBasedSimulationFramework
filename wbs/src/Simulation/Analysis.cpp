@@ -188,13 +188,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CNewSectionData& computation = output;
+		//CNewSectionData& computation = output;
 
 		CTTransformation p(input.m_overAllPeriod, m_TM);
 
 		//Resize the computation matrix with the number of cluster: a cluster is a temporal separation
 		//for exemple a monthly OVERALL_YEARS will have 12 cluster
-		computation.resize(p.GetNbCluster(), input.GetCols(), p.GetClusterTRef(0));
+		output.resize(p.GetNbCluster(), input.GetCols(), p.GetClusterTRef(0));
 
 		//for all cluster
 		for (size_t i = 0; i < input.GetRows(); i++)
@@ -210,43 +210,47 @@ namespace WBSF
 				{
 					if (input[i][j][NB_VALUE] > 0)
 					{
-						if (m_previousStatisticType >= 0)
+						//if (m_previousStatisticType >= 0)
+						//{
+						int stat = m_previousStatisticType >= 0 ? m_previousStatisticType : MEAN;
+						if (input.IsTemporalMatrix(j))
 						{
-							if (input.IsTemporalMatrix(j))
-							{
-								CTRef t = input.GetTRef(i, j, m_previousStatisticType);
-								computation.AddTRef(c, j, t);
-							}
-							else
-							{
-								//only valid value must by in statistics
-								ASSERT(input[i][j][m_previousStatisticType] > VMISS);
-								computation[c][j] += input[i][j][m_previousStatisticType];
-							}
+							CTRef t = input.GetTRef(i, j, stat);
+							output.AddTRef(c, j, t);
 						}
 						else
 						{
 							//only valid value must by in statistics
-							ASSERT(input[i][j].IsInit());
-							computation[c][j] += input[i][j];
+							ASSERT(input[i][j][stat] > VMISS);
+							output[c][j] += input[i][j][stat];
 						}
+						//}
+						//else
+						//{
+							//only valid value must by in statistics
+							//ASSERT(input[i][j].IsInit());
+							//output[c][j] += input[i][j];
+						//}
 					}
 				}
 			}
 		}
 
+		
+
 		if (m_statisticType2 >= 0)
 		{
 			//we compute a specific value for a specific statistic
 			//The number of value will be equal to 1
-			for (size_t i = 0; i < computation.GetRows(); i++)
+			for (size_t i = 0; i < output.GetRows(); i++)
 			{
-				for (size_t j = 0; j < computation.GetCols(); j++)
+				for (size_t j = 0; j < output.GetCols(); j++)
 				{
-					if (computation[i][j][NB_VALUE] > 0)
+					if (output[i][j][NB_VALUE] > 0)
 					{
-						double value = computation[i][j][m_statisticType2];
-						computation[i][j] = value;
+						//if (output.IsTemporalMatrix(j))
+						double value = output[i][j][m_statisticType2];
+						output[i][j] = value;
 					}
 				}
 			}

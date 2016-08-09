@@ -49,22 +49,13 @@ namespace WBSF
 		m_thresholdEnd = 5;
 		m_carryOverFraction = 1;
 		m_effectivenessOfWinterPrcp = 0.75;
+		m_method = CFWI::NOON_CALCULATION;
 	}
 
 	CFWIModel::~CFWIModel()
 	{}
 
-	//This method is call to compute solution
-	ERMsg CFWIModel::OnExecuteDaily()
-	{
-		ERMsg msg;
-
-		//Init class member
-		CFWI FWI;
-		msg = ExecuteDaily(FWI, m_output);
-
-		return msg;
-	}
+	
 
 	ERMsg CFWIModel::ExecuteDaily(CFWI& FWI, CModelStatVector& output)
 	{
@@ -73,7 +64,7 @@ namespace WBSF
 		if (!m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
 
-
+		FWI.m_method = (CFWI::TMethod)m_method;
 		FWI.m_bAutoSelect = m_bAutoSelect;
 		FWI.m_nbDaysStart = m_nbDaysStart;
 		FWI.m_TtypeStart = m_TtypeStart;
@@ -98,6 +89,39 @@ namespace WBSF
 		return msg;
 	}
 
+	//This method is call to compute solution
+	ERMsg CFWIModel::OnExecuteHourly()
+	{
+		ERMsg msg;
+
+		if (m_method == CFWI::NOON_CALCULATION)
+		{
+			msg.ajoute("FWI Hourly model can only by use with 24 hours method");
+		}
+
+		//Init class member
+		CFWI FWI;
+		msg = ExecuteDaily(FWI, m_output);
+
+		return msg;
+	}
+
+	//This method is call to compute solution
+	ERMsg CFWIModel::OnExecuteDaily()
+	{
+		ERMsg msg;
+
+		//Init class member
+		CFWI FWI;
+		CFWIMStatVector resultD;
+		ExecuteDaily(FWI, resultD);
+
+		msg = ExecuteDaily(FWI, resultD);
+		CFWIStat::Covert2D(resultD, m_output);
+
+		return msg;
+	}
+
 	ERMsg CFWIModel::OnExecuteMonthly()
 	{
 		ERMsg msg;
@@ -110,7 +134,7 @@ namespace WBSF
 
 
 		CFWIMStatVector resultM;
-		CFWIStat::CovertD2M(resultD, resultM);
+		CFWIStat::Covert2M(resultD, resultM);
 
 		SetOutput(resultM);
 
@@ -130,7 +154,7 @@ namespace WBSF
 		ExecuteDaily(FWI, resultD);
 
 		CFWIAStatVector resultA;
-		CFWIStat::CovertD2A(resultD, resultA);
+		CFWIStat::Covert2A(resultD, resultA);
 
 		for (size_t y = 0; y < resultA.size(); y++)
 		{
@@ -181,16 +205,15 @@ namespace WBSF
 
 
 	//this method is call to load your parameter in your variable
-	ERMsg CFWIModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CFWIModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 
-		if (parameters.size() == 8)
+		if (parameters.size() == 9)
 		{
 			m_bAutoSelect = true;
 
-			short c = 0;
-
+			size_t c = 0;
 			m_nbDaysStart = parameters[c++].GetInt();
 			m_TtypeStart = parameters[c++].GetInt();
 			m_thresholdStart = parameters[c++].GetReal();
@@ -199,12 +222,14 @@ namespace WBSF
 			m_thresholdEnd = parameters[c++].GetReal();
 			m_carryOverFraction = parameters[c++].GetReal();
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+			m_method = parameters[c++].GetInt();
 		}
-		else if (parameters.size() == 7)
+		else if (parameters.size() == 8)
 		{
 			m_bAutoSelect = false;
+			
 			//transfer your parameter here
-			short c = 0;
+			size_t c = 0;
 			m_firstDay = CMonthDay(parameters[c++].GetString());
 			m_lastDay = CMonthDay(parameters[c++].GetString());
 			m_FFMC = parameters[c++].GetReal();
@@ -212,6 +237,7 @@ namespace WBSF
 			m_DC = parameters[c++].GetReal();
 			m_carryOverFraction = parameters[c++].GetReal();
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+			m_method = parameters[c++].GetInt();
 		}
 		else
 		{

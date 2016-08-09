@@ -262,7 +262,8 @@ namespace WBSF
 		{
 			int type = m_inputList[i].GetType();
 			if (type != CModelInputParameterDef::kMVTitle &&
-				type != CModelInputParameterDef::kMVLine)
+				type != CModelInputParameterDef::kMVLine &&
+				type != CModelInputParameterDef::kMVStaticText)
 			{
 				CModelInputParam p;
 				p.m_name = m_inputList[i].m_name;
@@ -279,7 +280,8 @@ namespace WBSF
 		{
 			int type = m_inputList[i].GetType();
 			if (type != CModelInputParameterDef::kMVTitle &&
-				type != CModelInputParameterDef::kMVLine)
+				type != CModelInputParameterDef::kMVLine &&
+				type != CModelInputParameterDef::kMVStaticText)
 			{
 				m_inputList[i].m_name = modelInput[p].m_name;
 				m_inputList[i].m_default = modelInput[p].m_value;

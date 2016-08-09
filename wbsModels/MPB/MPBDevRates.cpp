@@ -4,22 +4,23 @@
 // Class: CDevRates
 //          
 //
-//************** MODIFICATIONS  LOG ********************
-// ?            ?                   Creation
-// 01/09/2003   Rémi Saint-Amant    Replace MatLab code by NEWMAT code
-// 27/10/2003   Rémi Saint-Amant    Reengineering
-// 24/11/2005	Rémi Saint-Amant	Change matrix calculation to one day calculation
-// 02/10/2007   Jacques Régnière    Clean-up, check math
-// 31/10/2007	Remi Saint-Amant	New stage : EMERGED_ADULT
-//									New TableLookup from 2 to 38 °C by step of 0.5°C
-//									New GalleryLn method
-// 17/09/2008   Jacques Régnière    New development rate parameters for teneral adults
+//*********************************************************************
+// 19/07/2016	Rémi Saint-Amant	New compilation with WBSF
+// 25/12/2012   Rémi Saint-Amant	Remove static properties
+// 10/07/2012	Rémi Saint-Amant	New equation from new paper
+// 27/10/2008	Jacques Regniere	New cold tolerance for pupae (same as eggs for now)
 // 13/10/2008	Jacques Régniere	New development rate params and equations for all stages
 //									No longer using GallerLn
 //									New equations for ovipositing females in CMountainPineBeetle::Develop()
-// 27/10/2008	Jacques Regniere	New cold tolerance for pupae (same as eggs for now)
-// 10/07/2012	Rémi Saint-Amant	New equation from new paper
-// 25/12/2012   Rémi Saint-Amant	Remove static properties
+// 17/09/2008   Jacques Régnière    New development rate parameters for teneral adults
+// 31/10/2007	Remi Saint-Amant	New stage : EMERGED_ADULT
+//									New TableLookup from 2 to 38 °C by step of 0.5°C
+//									New GalleryLn method
+// 02/10/2007   Jacques Régnière    Clean-up, check math
+// 24/11/2005	Rémi Saint-Amant	Change matrix calculation to one day calculation
+// 27/10/2003   Rémi Saint-Amant    Reengineering
+// 01/09/2003   Rémi Saint-Amant    Replace MatLab code by NEWMAT code
+
 //*********************************************************************
 #include "MPBDevRates.h" 
 #include "Basic/UtilMath.h"

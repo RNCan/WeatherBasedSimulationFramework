@@ -25,7 +25,7 @@ namespace WBSF
 	//http://www.ncdc.noaa.gov/cdo-web/review
 	//http://gis.ncdc.noaa.gov/map/viewer/#app=cdo&cfg=radar&theme=radar&display=nexrad
 
-	const char* CCanadianRadar::RADARS[NB_RADAR][3] =
+	const char* CCanadianRadar::DEFAULT_LIST[NB_RADAR][3] =
 	{
 		{ "ATL", "Atlantique", "" },
 		{ "ONT", "Ontario", "" },
@@ -65,6 +65,94 @@ namespace WBSF
 		{ "XWL", "Woodlands (Winnipeg)", "-101.1382495 52.1588556519 -94.439735035 48.0025219883" },
 	};
 
+	size_t CCanadianRadar::GetRadar(const std::string& in, size_t t)
+	{
+		size_t r = -1;
+		std::string tmp(in);
+		Trim(tmp);
+		MakeUpper(tmp);
+		for (size_t i = 0; i < NB_RADAR; i++)
+		{
+			if (tmp == DEFAULT_LIST[i][t])
+			{
+				r = i;
+				break;
+			}
+		}
+
+		return r;
+	}
+
+
+	std::string CCanadianRadar::GetAllPossibleValue(bool bAbvr, bool bName)
+	{
+		string str;
+		for (size_t i = 0; i < NB_RADAR; i++)
+		{
+			str += i != 0 ? "|" : "";
+			if (bAbvr)
+				str += DEFAULT_LIST[i][ABVR];
+			if (bAbvr && bName)
+				str += "=";
+			if (bName)
+				str += DEFAULT_LIST[i][NAME];
+		}
+
+		return str;
+	}
+	
+	string CCanadianRadar::GetName(size_t r, size_t t)
+	{
+		ASSERT(r < NB_RADAR);
+		ASSERT(t >= 0 && t < NB_INFO);
+		return DEFAULT_LIST[r][t];
+	}
+
+	string CCanadianRadar::ToString()const
+	{
+		string str;
+		if (!none() && !all())
+		{
+			for (size_t i = 0; i < NB_RADAR; i++)
+			{
+				if (at(i))
+				{
+					str += DEFAULT_LIST[i][ABVR];
+					str += '|';
+				}
+			}
+		}
+		return str;
+	}
+
+	ERMsg CCanadianRadar::FromString(const string& in)
+	{
+		ERMsg msg;
+
+		reset();
+
+		StringVector tmp(in, "|;");
+		for (size_t i = 0; i < tmp.size(); i++)
+			msg += set(tmp[i]);
+
+		return msg;
+	}
+
+	ERMsg CCanadianRadar::set(const std::string& in)
+	{
+		ERMsg message;
+		size_t p = GetRadar(in);
+		if (p < size())
+		{
+			set(p);
+		}
+		else
+		{
+			message.ajoute("This radar is invalid: %s" + in);
+		}
+
+		return message;
+	}
 
 //L'atlantique|Ontario|Les Prairies|Le Pacifique|Québec|Britt (Sudbury)|Montreal River (Sault Ste. Marie)|Carvel (près d'Edmonton)|Jimmy Lake (Cold Lake)|King City (Toronto)|Lac Castor (Saguenay)|McGill (Montréal)|Exeter (London)|Holyrood (St. John's)|Aldergrove (Vancouver)|Villeroy (Trois-Rivières)|Spirit River (Grande Prairie)|Val d'Irène (Mont-Joli)|Bethune (Regina)|Schuler (Medicine Hat)|Dryden|Franktown (près d'Ottawa)|Foxwarren (Brandon)|Halifax|Landrienne (Rouyn-Noranda)|Marion Bridge (Sydney)|Marble Mountain (Corner Brook)|Chipman (Fredericton)|Supérieur Ouest (Thunder Bay)|Prince George|Radisson (Saskatoon)|Victoria|Strathmore (Calgary)|Silver Star Mountain (Vernon)|Nord-est de l'Ontario (Timmins)|Woodlands (Winnipeg)
 
@@ -112,8 +200,8 @@ namespace WBSF
 //Marion Bridge(near Sydney)
 
 //*********************************************************************
-	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "Radar", "FirstDate", "LastDate" };
-	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE };
+	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "PrcpType", "Background", "Radar", "FirstDate", "LastDate" };
+	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE };
 	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
 	const UINT CUIEnvCanRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_RADAR;
 
@@ -124,8 +212,8 @@ namespace WBSF
 	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca"};
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 	
-	const char* CUIEnvCanRadar::TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
-
+	const char* CUIEnvCanRadar::TYPE_NAME[NB_TYPE] = { "PRECIPET_SNOW_WEATHEROFFICE", "PRECIPET_RAIN_WEATHEROFFICE" };
+	
 
 
 	CUIEnvCanRadar::CUIEnvCanRadar(void)
@@ -143,8 +231,10 @@ namespace WBSF
 
 		//case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
 		case TYPE:		str = "Current|Historical"; break;
-		case PRCP_TYPE:	str = "PRECIP_SNOW|PRECIP_RAIN"; break;
-		case RADAR:		str = "L'atlantique|Ontario|Les Prairies|Le Pacifique|Québec|Britt (près de Sudbury)|Montreal River (près de Sault Ste. Marie)|Carvel (près d'Edmonton) | Jimmy Lake(près de Cold Lake) | King City(près de Toronto) | Lac Castor(près de Saguenay) | McGill(près de Montréal) | Exeter(près de London) | Holyrood(près de St.John's)|Aldergrove (près de Vancouver)|Villeroy (près de Trois-Rivières)|Spirit River (près de Grande Prairie)|Val d'Irène(près de Mont - Joli) | Bethune(près de Regina) | Schuler(près de Medicine Hat) | Dryden | Franktown(près d'Ottawa)|Foxwarren (près de Brandon)|Halifax|Landrienne (près de Rouyn-Noranda)|Marion Bridge (près de Sydney)|Marble Mountain (près de Corner Brook)|Chipman (près de Fredericton)|Supérieur Ouest (près de Thunder Bay)|Prince George|Radisson (près de Saskatoon)|Victoria|Strathmore (près de Calgary)|Silver Star Mountain (près de Vernon)|Nord-est de l'Ontario(près de Timmins) | Woodlands(près de Winnipeg)"; break;
+		case PRCP_TYPE:	str = "Snow|Rain"; break;
+		case BACKGROUND:str = "White|Brown"; break;
+		case RADAR:		str = CCanadianRadar::GetAllPossibleValue(); break;
+			//"L'atlantique|Ontario|Les Prairies|Le Pacifique|Québec|Britt (près de Sudbury)|Montreal River (près de Sault Ste. Marie)|Carvel (près d'Edmonton) | Jimmy Lake(près de Cold Lake) | King City(près de Toronto) | Lac Castor(près de Saguenay) | McGill(près de Montréal) | Exeter(près de London) | Holyrood(près de St.John's)|Aldergrove (près de Vancouver)|Villeroy (près de Trois-Rivières)|Spirit River (près de Grande Prairie)|Val d'Irène(près de Mont - Joli) | Bethune(près de Regina) | Schuler(près de Medicine Hat) | Dryden | Franktown(près d'Ottawa)|Foxwarren (près de Brandon)|Halifax|Landrienne (près de Rouyn-Noranda)|Marion Bridge (près de Sydney)|Marble Mountain (près de Corner Brook)|Chipman (près de Fredericton)|Supérieur Ouest (près de Thunder Bay)|Prince George|Radisson (près de Saskatoon)|Victoria|Strathmore (près de Calgary)|Silver Star Mountain (près de Vernon)|Nord-est de l'Ontario(près de Timmins) | Woodlands(près de Winnipeg)"; break;
 		};
 		return str;
 	}
@@ -158,7 +248,8 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Radar\\"; break;
 		case TYPE:		str = ToString(CURRENT_RADAR); break;
 		case PRCP_TYPE:	str = ToString(T_SNOW); break;
-		case RADAR:		str = "11111111111111111111111111111111111"; break;
+		case BACKGROUND:str = ToString(B_BROWN); break;
+		case RADAR:		str = ""; break;
 		case FIRST_DATE:
 		case LAST_DATE:	str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString(); break;
 
@@ -170,6 +261,15 @@ namespace WBSF
 	ERMsg CUIEnvCanRadar::Execute(CCallback& callback)
 	{
 		ERMsg msg;
+
+		switch (as<int>(TYPE))
+		{
+		case CURRENT_RADAR: msg = ExecuteCurrent(callback); break;
+		case HISTORICAL_RADAR: msg = ExecuteHistorical(callback); break;
+		default: ASSERT(false);
+		}
+
+
 		return msg;
 	}
 
@@ -186,6 +286,15 @@ namespace WBSF
 	}
 
 
+	string CUIEnvCanRadar::GetRadarID(size_t t, const string& URL)
+	{
+		//string ID;
+		//size_t pos = (t == CURRENT_RADAR) ? 13 : 64;
+		//ID = URL.substr(pos, 3);
+		return GetLastDirName(URL);
+		//return ID;
+	}
+
 	string CUIEnvCanRadar::GetOutputFilePath(size_t t, const string& URL)const
 	{
 		string path;
@@ -199,17 +308,18 @@ namespace WBSF
 		}
 		else if (t == HISTORICAL_RADAR)
 		{
-			ASSERT(URL.length() == 67);
-			//'/lib/radar/image.php?time=15-JUL-13%2010.20.37.922195%20PM&site=XAM'
+			ASSERT(URL.length() == 63);
+			static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIPET_SNOW", "PRECIPET_RAIN" };
+			
 			string year = "20" + URL.substr(33, 2);
 			size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
 			string month = FormatA("%02d", m + 1);
 			string day = URL.substr(26, 2);
-			string hour = URL.substr(38, 2);
-			string min = URL.substr(41, 2);
-			string region = URL.substr(64, 3);
-			string type = TYPE_NAME[as<size_t>(PRCP_TYPE)];
-			string pm = URL.substr(56, 2);
+			string hour = URL.substr(36, 2);
+			string min = URL.substr(39, 2);
+			string region = URL.substr(60, 3);
+			string type = OLD_TYPE_NAME[as<size_t>(PRCP_TYPE)];
+			string pm = URL.substr(52, 2);
 
 			if (pm == "PM")
 			{
@@ -220,7 +330,8 @@ namespace WBSF
 			{
 				hour = "00";
 			}
-			GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + region + "_" + type + ".gif";
+			
+			path = GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + region + "_" + type + ".gif";
 
 		}
 
@@ -233,42 +344,46 @@ namespace WBSF
 		CTPeriod p;
 		StringVector t1(Get(FIRST_DATE), "-/");
 		StringVector t2(Get(LAST_DATE), "-/");
-		if (t1.size() == 4 && t2.size()==4)
+		if (t1.size() == 3 && t2.size()==3)
+		{
+			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, 0), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, 23));
+		}
+		else if (t1.size() == 4 && t2.size() == 4)
 		{
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, ToSizeT(t1[3])), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, ToSizeT(t2[3])));
 		}
+
 
 		return p;
 	}
 
 	
-	ERMsg CUIEnvCanRadar::GetRadarList(StringVector& stationList, CCallback& callback)const
+	ERMsg CUIEnvCanRadar::GetRadarList(StringVector& radarList, CCallback& callback)const
 	{
 		ERMsg msg;
 
 
 		//Interface attribute index to attribute index
 		//sample for Québec
-		//http://climate.weather.gc.ca/radar/index_e.html?RadarSite=XAM&sYear=2013&sMonth=7&sDay=15&sHour=22&sMin=00&Duration=2&ImageType=PRECIP_SNOW_WEATHEROFFICE&scale=14
+		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=25&hour=13&minute=20&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
+		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&sYear=2013&sMonth=7&sDay=15&sHour=22&sMin=00&Duration=2&ImageType=PRECIP_SNOW_WEATHEROFFICE&scale=14
 
 		static const char pageFormat[] =
 			"radar/index_e.html?"
-			"RadarSite=%s&"
-			"sYear=%d&"
-			"sMonth=%d&"
-			"sDay=%d&"
-			"sHour=%d&"
-			"sMin=00&"
-			"Duration=2&"
-			"ImageType=%s&"
-			"scale=14";
+			"site=%s&"
+			"year=%d&"
+			"month=%d&"
+			"day=%d&"
+			"hour=%d&"
+			"minute=00&"
+			"duration=2&"
+			"image_type=%s";
 
 
-		std::bitset<NB_RADAR> selection(Get(RADAR));
+		CCanadianRadar radar(Get(RADAR));
 		CTPeriod period = GetPeriod();
 
-		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), selection.count() * period.size() / 2);
-		//callback.SetNbStep(selection.count() * period.size() / 2);
+		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), radar.count() * period.size() / 2);
 
 		size_t type = as<size_t>(TYPE);
 		size_t prcpType = as<size_t>(PRCP_TYPE);
@@ -285,28 +400,32 @@ namespace WBSF
 
 		std::set<string> tmpList;
 		//loop each 2 hours
-		for (size_t i = 0; i < selection.size() && msg; i++)
+		for (size_t i = 0; i < radar.size() && msg; i++)
 		{
-			if (selection[i])
+			if (radar.none() || radar[i])
 			{
 				for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef += 2)
 				{
-					string URL = FormatA(pageFormat, CCanadianRadar::RADARS[i][0], TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TYPE_NAME[prcpType]);
+					string URL = FormatA(pageFormat, CCanadianRadar::GetName(i,0).c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TYPE_NAME[prcpType]);
 					URL.resize(strlen(URL.c_str()));
 
 					string source;
 					UtilWWW::GetPageText(pConnection, URL, source, true);
 
 
-					string::size_type posEnd = 0;
-
-					string::size_type posBegin = source.find("<div id=\"radar");
-
-					while (posBegin != string::npos)
+					//string::size_type posEnd = 0;
+					string fileList = FindString(source, "blobArray = [", "]");
+					if (!fileList.empty())
 					{
-						string image = FindString(source, "src='", "'", posBegin);
-						tmpList.insert(image);
-						posBegin = source.find("<div id=\"radar", posBegin);
+						string::size_type posBegin = 0;
+
+						while (posBegin != string::npos)
+						{
+							string image = FindString(fileList, "'", "'", posBegin);
+							if (!image.empty())
+								tmpList.insert(image);
+							posBegin = fileList.find(",", posBegin);
+						}
 					}
 
 					msg += callback.StepIt();
@@ -318,8 +437,8 @@ namespace WBSF
 		pSession->Close();
 
 
-		stationList.insert(stationList.begin(), tmpList.begin(), tmpList.end());
-		callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(stationList.size()));
+		radarList.insert(radarList.end(), tmpList.begin(), tmpList.end());
+		callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(radarList.size()));
 		callback.PopTask();
 
 		return msg;
@@ -354,6 +473,13 @@ namespace WBSF
 		ERMsg msg;
 		string workingDir = GetDir(WORKING_DIR);
 
+		CCanadianRadar radar(Get(RADAR));
+		bool bUseRain = as<size_t>(PRCP_TYPE) == T_RAIN;
+		bool bUseSnow = as<size_t>(PRCP_TYPE) == T_SNOW;
+		bool bUseWhite = as<size_t>(BACKGROUND) == B_WHITE;
+		bool bUseBrown = as<size_t>(BACKGROUND) == B_BROWN;
+		
+
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
@@ -370,58 +496,60 @@ namespace WBSF
 
 		CFileInfoVector dirList;
 		msg = UtilWWW::FindDirectories(pConnection, SERVER_PATH, dirList);
-		callback.PushTask("Find file", dirList.size());
+		callback.PushTask("Find current radar images", dirList.size());
 		//callback.SetNbStep(dirList.size());
 
-		CFileInfoVector clearedList;
+		CFileInfoVector fileList;
+		for (size_t i = 0; i < dirList.size() && msg; i++)
 		{
-			CFileInfoVector fileList;
-			for (size_t i = 0; i < dirList.size() && msg; i++)
+			string ID = GetLastDirName(dirList[i].m_filePath); //GetRadarID(CURRENT_RADAR, dirList[i].m_filePath);
+			if (radar.at(ID))
 			{
 				CFileInfoVector fileListTmp;
 				msg = UtilWWW::FindFiles(pConnection, dirList[i].m_filePath + "/*.gif", fileListTmp);
 				fileList.insert(fileList.begin(), fileListTmp.begin(), fileListTmp.end());
-				msg += callback.StepIt();
 			}
 
-			callback.AddMessage("Number of images found: " + ToString(fileList.size()));
-			callback.PushTask("Clear list", fileList.size());
-			//callback.SetNbStep(fileList.size());
+			msg += callback.StepIt();
+		}
 
+		callback.AddMessage("Number of images found: " + ToString(fileList.size()));
+		callback.PopTask();
 
+		
+		callback.PushTask("Clear list", fileList.size());
+		CFileInfoVector clearedList;
 
-			for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+		{
+			//string fileTitle = GetFileTitle(it->m_filePath);
+			string fileName = GetFileName(it->m_filePath);
+			
+			bool bOk1 = bUseRain && bUseWhite && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
+			bool bOk2 = bUseRain && bUseBrown && Find(fileName, "PRECIPET_RAIN.gif");
+			bool bOk3 = bUseSnow && bUseWhite && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
+			bool bOk4 = bUseSnow && bUseBrown && Find(fileName, "PRECIPET_SNOW.gif");
+
+			if (Find(fileName, "_COMP_PRECIPET_SNOW_A11Y.gif") || Find(fileName, "_COMP_PRECIPET_RAIN_A11Y.gif") ||
+				Find(fileName, "_COMP_PRECIPET_SNOW.gif") || Find(fileName, "_COMP_PRECIPET_RAIN.gif"))
 			{
-				string fileTitle = GetFileTitle(it->m_filePath);
-				if (Find(fileTitle, "_COMP_PRECIPET_SNOW_A11Y") || Find(fileTitle, "_COMP_PRECIPET_RAIN_A11Y") ||
-					Find(fileTitle, "_COMP_PRECIPET_SNOW") || Find(fileTitle, "_COMP_PRECIPET_RAIN"))
-				{
-					//dont use
-				}
-				else if (Find(fileTitle, "PRECIPET_SNOW_A11Y") || Find(fileTitle, "PRECIPET_RAIN_A11Y"))
-				{
-					string fileName = GetFileName(it->m_filePath);
-					string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
-					if (NeedDownload(*it, filePath))
-						clearedList.push_back(*it);
-				}
-				else if (Find(fileTitle, "PRECIPET_SNOW") || Find(fileTitle, "PRECIPET_RAIN"))
-				{
-					string fileName = GetFileName(it->m_filePath);
-					string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
-					if (NeedDownload(*it, filePath))
-						clearedList.push_back(*it);
-				}
-				msg += callback.StepIt();
+				//dont use
 			}
-
-			callback.PopTask();
+			else if (bOk1 || bOk2 || bOk3 || bOk4)
+			{
+				
+				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
+				if (NeedDownload(*it, filePath))
+					clearedList.push_back(*it);
+			}
+			
+			msg += callback.StepIt();
 		}
 
 		callback.PopTask();
 
 		callback.AddMessage("Number of images to download after clearing: " + ToString(clearedList.size()));
-		callback.PushTask("Download images", clearedList.size());
+		callback.PushTask("Download images " + ToString(clearedList.size() )+ " images", clearedList.size());
 		//callback.SetNbStep(clearedList.size());
 
 		int nbDownload = 0;
@@ -481,7 +609,7 @@ namespace WBSF
 			return msg;
 
 
-		callback.PushTask("Download images", imageList.size());
+		callback.PushTask("Download historical radar images (" + ToString(imageList.size())+ ")", imageList.size());
 		//callback.SetNbStep(imageList.size());
 
 

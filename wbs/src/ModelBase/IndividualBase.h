@@ -65,7 +65,9 @@ namespace WBSF
 
 		size_t GetStage()const{ return (size_t)m_age; }					//Reports individual's stage
 		size_t GetStatus()const { return m_status; }                    //Reports individual's status
+		void SetStatus(size_t status){ m_status = status; }                    
 		size_t GetDeath()const{ return m_death; }						//Reason of death (NOT_DEATH for HEALTY individue)
+		void SetDeath(size_t death){ m_death = death; }
 		double GetAge()const { return m_age; }                            //Reports individual's age
 		double GetStageAge()const{ return m_age - GetStage(); }				//Report age into the current stage [0:1]
 
@@ -86,8 +88,8 @@ namespace WBSF
 
 		CTRef GetCreationDate()const{ return m_creationDate; }
 
-		double GetScaleFactor()const{ ASSERT(m_scaleFactor > 0); return m_scaleFactor; }
-		void SetScaleFactor(double scaleFactor){ ASSERT(scaleFactor > 0); m_scaleFactor = scaleFactor; }
+		double GetScaleFactor()const{ return m_scaleFactor; }
+		void SetScaleFactor(double scaleFactor){ m_scaleFactor = scaleFactor; }
 
 		CHost* GetHost(){ return m_pHost; }
 		const CHost* GetHost()const{ return m_pHost; }

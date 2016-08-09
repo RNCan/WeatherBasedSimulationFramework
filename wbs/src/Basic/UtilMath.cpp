@@ -765,6 +765,27 @@ double GetAltitude(double P)
 
 	return alt;
 }
+ 
+//compute AllenWave temperature for one hour
+double GetAllenT(double Tmin1, double Tmax1, double Tmin2, double Tmax2, double Tmin3, double Tmax3, size_t h, size_t hourTmax)
+{
+	int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
+	static const double r_hour = 3.14159 / 12;
+
+	double Tmin[3] = { Tmin1, Tmin2, Tmin3 };
+	double Tmax[3] = { Tmax1, Tmax2, Tmax3 };
+
+	size_t i = h < hourTmax ? 1 : 2;
+	size_t ii = h < hourTmax - 12 ? 0 : 1;
+	double Tmin² = Tmin[i];
+	double Tmax² = Tmax[ii];
+
+	double  mean = (Tmin² + Tmax²) / 2;
+	double range = Tmax² - Tmin²;
+	double theta = ((int)h - time_factor)*r_hour;
+
+	return mean + range / 2 * sin(theta);
+}
 
 //mean_sea_level to atmospheric pressure (at elevation)
 //po : mean sea level [kPa]

@@ -34,16 +34,13 @@ namespace WBSF
 		virtual ~CMPBModel();
 
 		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		static CBioSIMModelBase* CreateObject(){ return new CMPBModel; }
-		//virtual ERMsg GetErrorMessage(int errorID);
 
-
-	private:
+	protected:
 
 		//copy parameters for futur use
 		CParameterVector m_parameters;
-
 
 	};
 

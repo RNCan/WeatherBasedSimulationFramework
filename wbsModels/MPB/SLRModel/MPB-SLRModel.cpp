@@ -59,16 +59,16 @@ namespace WBSF
 
 		ERMsg msg;
 
-		CSLR model;
+		CSLR model(RandomGenerator());
 		model.ProcessParameter(m_parameters);
 		model.Execute(m_weather);
 
 		CAnnualStatVector stat(model.GetNbYears(), CTRef((short)model.GetYear(0)));
 
 		// save result to disk
-		for (int y = 0; y < (int)model.GetNbYears(); y++)
+		for (size_t y = 0; y < model.GetNbYears(); y++)
 		{
-			for (int i = 0; i < NB_OUTPUT; i++)
+			for (size_t i = 0; i < NB_OUTPUT; i++)
 				stat[y][i] = model.GetF(i, y);
 
 			double product1 = model.GetF(LOGAN, y)*model.GetF(SAFRANYIK_P3P4, y)*model.GetF(COLD_TOLERANCE, y);
@@ -103,7 +103,7 @@ namespace WBSF
 
 	//**************************
 	//this method is called to load parameters in your variables
-	ERMsg CMPBModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CMPBModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 

@@ -122,6 +122,8 @@ namespace WBSF
 	double GetPressure(double alt);
 	double GetAltitude(double P);
 
+	double GetAllenT(double Tmin1, double Tmax1, double Tmin2, double Tmax2, double Tmin3, double Tmax3, size_t h, size_t hourTmax);
+
 	double msl2atp(double msl, double elev);//mean sea level to atmospheric pressure (at elevation)
 	double atp2msl(double atp, double elev);//atmospheric pressure (at elevation) to mean sea level 
 

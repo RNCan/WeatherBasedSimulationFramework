@@ -169,9 +169,9 @@ namespace WBSF
 		if (((point.x >= eff) && (point.x <= bsf)))
 		{
 			if (m_param.GetType() != CModelInputParameterDef::kMVLine &&
-				m_param.GetType() != CModelInputParameterDef::kMVTitle)
+				m_param.GetType() != CModelInputParameterDef::kMVTitle &&
+				m_param.GetType() != CModelInputParameterDef::kMVStaticText)
 			{
-
 				m_bBeginSFTrack = true;
 				SetCapture();
 			}
@@ -184,28 +184,21 @@ namespace WBSF
 			m_lastPoint = point;
 			ClientToScreen(&m_lastPoint);
 			GetParent()->ScreenToClient(&m_lastPoint);
-			if (!(nFlags & MK_CONTROL)) GetGridedPoint(m_lastPoint);
+			if (!(nFlags & MK_CONTROL))
+				GetGridedPoint(m_lastPoint);
+
 			TRACE2("m_lastPoint x : %d, y : %d\n", m_lastPoint.x, m_lastPoint.y);
+			
 			if (((point.x >= right - 4) && (point.x <= right + 4)))
 				m_bBeginSize = true;
-			else m_bMoveWnd = true;
+			else 
+				m_bMoveWnd = true;
+
 			Invalidate();
 			SetCapture();
 		}
 
-		//}
-		//else
-		//{
-		//	m_lastPoint = point;
-		//	ClientToScreen(&m_lastPoint);
-		//	GetParent()->ScreenToClient(&m_lastPoint);
-		//	if(!(nFlags & MK_CONTROL)) GetGridedPoint(m_lastPoint);
-		//	m_bMoveWnd = true;
-		//	Invalidate();
-		//	SetCapture();
-		//}
-
-
+		
 
 		CWnd::OnLButtonDown(nFlags, point);
 	}
@@ -254,7 +247,9 @@ namespace WBSF
 		hOldFont = (HFONT)dc.SelectObject(hfnt);
 
 
-		if (m_param.GetType() != CModelInputParameterDef::kMVLine && m_param.GetType() != CModelInputParameterDef::kMVTitle)
+		if (m_param.GetType() != CModelInputParameterDef::kMVLine && 
+			m_param.GetType() != CModelInputParameterDef::kMVTitle &&
+			m_param.GetType() != CModelInputParameterDef::kMVStaticText)
 		{
 
 			CRect rectCaption(rectItem);
@@ -393,6 +388,7 @@ namespace WBSF
 		}
 
 		case CModelInputParameterDef::kMVTitle:
+		case CModelInputParameterDef::kMVStaticText:
 		{
 			CRect rectCaption(rectItem);
 			rectCaption.left += CModelInputParameterDef::MARGIN_HORZ;
@@ -425,9 +421,6 @@ namespace WBSF
 			return true;
 		}
 
-		//if( m_param.GetType() != CModelInputParameterDef::kMVLine &&
-		//m_param.GetType() != CModelInputParameterDef::kMVTitle )
-	{
 		if (nHitTest == HTCLIENT)
 		{
 			DWORD dwPos = GetMessagePos();
@@ -437,16 +430,16 @@ namespace WBSF
 			int eff = m_param.GetEndFirstField();
 			int bsf = m_param.GetBeginSecondField();
 			int right = CRect(m_param.GetRect()).Width();
-			bool bTrack = m_param.GetType() != CModelInputParameterDef::kMVLine && m_param.GetType() != CModelInputParameterDef::kMVTitle && (point.x >= eff) && (point.x <= bsf);
+			bool bTrack = m_param.GetType() != CModelInputParameterDef::kMVLine && m_param.GetType() != CModelInputParameterDef::kMVTitle && m_param.GetType() != CModelInputParameterDef::kMVStaticText && (point.x >= eff) && (point.x <= bsf);
 			bool bSize = (point.x >= right - 4) && (point.x <= right + 4);
 			if (bTrack || bSize)
 				::SetCursor(m_hHorArrow);
-			else ::SetCursor(m_hArrow);
+			else 
+				::SetCursor(m_hArrow);
 
 			return true;
 		}
-	}
-
+	
 	return CWnd::OnSetCursor(pWnd, nHitTest, message);
 
 	}

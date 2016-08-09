@@ -117,7 +117,8 @@ namespace WBSF
 		{
 			int type = def[i].GetType();
 			if (type != CModelInputParameterDef::kMVTitle &&
-				type != CModelInputParameterDef::kMVLine)
+				type != CModelInputParameterDef::kMVLine &&
+				type != CModelInputParameterDef::kMVStaticText)
 			{
 				switch (def[i].GetType())
 				{
@@ -169,7 +170,8 @@ namespace WBSF
 				case CModelInputParameterDef::kMVString:
 				case CModelInputParameterDef::kMVFile:
 				case CModelInputParameterDef::kMVTitle:
-				case CModelInputParameterDef::kMVLine: break;
+				case CModelInputParameterDef::kMVLine: 
+				case CModelInputParameterDef::kMVStaticText:break;
 				default: ASSERT(false);//pas de vérification
 
 				}//end switch

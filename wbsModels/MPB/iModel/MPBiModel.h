@@ -34,7 +34,7 @@ namespace WBSF
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteAnnual();
 		virtual ERMsg OnExecuteAtemporal();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
 		virtual void AddSAResult(const StringVector& header, const StringVector& data);
 		virtual void GetFValueAnnual(CStatisticXY& stat);
@@ -44,8 +44,8 @@ namespace WBSF
 
 	private:
 
-		void DoSimulation(CMPBStatVector& stat, const CProportionStatVector& attacks, short f1 = -1, short f2 = -1);
-		void DoSimulation(CMPBStatMatrix& stat, const CProportionStatVector& attacks, short f1 = -1, short f2 = -1, bool bAllGeneration = false);
+		void DoSimulation(CMPBStatVector& stat, const CInitialPopulation& attacks, size_t y1 = NOT_INIT, size_t y2 = NOT_INIT);
+		void DoSimulation(CMPBStatMatrix& stat, const CInitialPopulation& attacks, size_t y1 = NOT_INIT, size_t y2 = NOT_INIT, bool bAllGeneration = false);
 		CTRef GetInitialPeakAttack(int nbRunMax, int y = 0);
 		//void DoSimulation(const CMountainPineBeetleVector& initialAttack, CMPBStatVector& stat, bool resetStandEachYear);
 
@@ -57,7 +57,7 @@ namespace WBSF
 		//std::vector<CNormalAttack> GetAttacks(const CMPBStatVector& stat);
 
 		//the bugs
-		CProportionStatVector m_attacks;
+		CInitialPopulation m_attacks;
 		CTRef m_peakDate;
 		double m_attackStDev;
 		int m_n0;

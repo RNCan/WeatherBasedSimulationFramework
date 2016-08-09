@@ -13,7 +13,7 @@ namespace WBSF
 	public:
 
 		enum{ TYPE_06HOURS, TYPE_24HOURS };
-		enum TAttributes { WORKING_DIR, TYPE, FIRST_YEAR, LAST_YEAR, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, TYPE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanPrcpRadar); }
 

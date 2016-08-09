@@ -12,10 +12,10 @@ namespace WBSF
 		CMPB_CT_model();
 		virtual ~CMPB_CT_model();
 
-		//    virtual ERMsg Execute();
+		
 		virtual ERMsg OnExecuteAnnual();
 		virtual ERMsg OnExecuteDaily();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		static CBioSIMModelBase* CreateObject(){ return new CMPB_CT_model; }
 
 

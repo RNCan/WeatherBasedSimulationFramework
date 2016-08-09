@@ -725,7 +725,6 @@ namespace WBSF
 			{
 				firstChoice.resize(blockSize.m_y, blockSize.m_x);
 				selectedChoice.resize(blockSize.m_y, blockSize.m_x);
-				//secondBest.resize(blockSize.m_y, blockSize.m_x);
 			}
 			
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti ) 
@@ -1237,7 +1236,6 @@ namespace WBSF
 			{
 				posWindow.GetPixel(0, x, y, pixel3);
 			}
-				//posWindow.GetPixel(0, x, y, pixel3);
 
 			//find the latest valid pixel before TRef
 			if (!mosaicWindow.empty())
@@ -1268,7 +1266,6 @@ namespace WBSF
 			}
 
 			//now looking for all other images
-			//Test1Vector::iterator it1 = get_it(imageList, mergeType);
 			while (it1 != imageList.end() && nbSkip < m_options.m_maxSkip)
 			{
 				size_t iz1 = it1->second;
