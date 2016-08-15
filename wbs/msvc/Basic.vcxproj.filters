@@ -1,0 +1,401 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="stdafx">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source\ERMsg">
+      <UniqueIdentifier>{3b450a00-df0f-4aed-94ef-6e3f331f06fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\xml">
+      <UniqueIdentifier>{f3d0c777-21b2-4240-8f4c-03b8f9ad2449}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\xml\zen">
+      <UniqueIdentifier>{0eb1fde6-e8ac-4f98-aa17-ea139a91b3dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\xml\zenXml">
+      <UniqueIdentifier>{7bf3549c-258f-4d8e-94f1-c8ba259cdc4a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Basic\AmountPpt.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ApproximateNearestNeighbor.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Callback.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\CSV.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\DailyDatabase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Dbf3.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\DegreeDays.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Dimension.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\DynamicRessource.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Evapotranspiration.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Event.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\FileStamp.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\FrequencyTable.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\GeoBasic.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\HourlyDatabase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Location.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ModelStat.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Mtrx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\NormalsData.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\NormalsDatabase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\NormalsStation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Psychrometrics_SI.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Registry.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Rijndael.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\SearchResult.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Statistic.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\Timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\TimeStep.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\UtilMath.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\UtilStd.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\UtilTime.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\UtilZen.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WaterTemperature.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherCorrection.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherDatabase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherDatabaseCreator.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherDatabaseOptimisation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherDataSection.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherDefine.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherStation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\XMLite.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\decode_html_entities_utf8.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <Filter>stdafx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\GrowingSeason.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ASCE_ETc.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ERMsg\Ererreur.cpp">
+      <Filter>Source\ERMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ERMsg\Erexcept.cpp">
+      <Filter>Source\ERMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ERMsg\syenvmsg.cpp">
+      <Filter>Source\ERMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ERMsg\symessag.cpp">
+      <Filter>Source\ERMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\xml\zenxml\static_unit_test.cpp">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\hxGrid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\SnowAnalysis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Basic\AmountPpt.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ApproximateNearestNeighbor.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Callback.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\CSV.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\DailyDatabase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Dbf3.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\DegreeDays.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Dimension.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Duration.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\DynamicRessource.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Evapotranspiration.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Event.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\FileStamp.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\FrequencyTable.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\GeoBasic.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\HourlyDatabase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Location.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\LRUCache.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ModelStat.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Mtrx.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\NormalsData.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\NormalsDatabase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\NormalsStation.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\OpenMP.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Psychrometrics_SI.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Registry.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Rijndael.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\SearchResult.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Statistic.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\Timer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\TimeStep.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\units.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\UtilMath.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\UtilStd.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\UtilTime.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\UtilZen.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WaterTemperature.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherCorrection.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherDatabase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherDatabaseCreator.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherDatabaseOptimisation.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherDataSection.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherDefine.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherStation.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\XMLite.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx\stdafx.h">
+      <Filter>stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\GrowingSeason.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ASCE_ETc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\Ererreur.h">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\Erexcept.h">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\Ermsg.h">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\sycptref.H">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\sycptref.hpp">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\Syenvmsg.h">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ERMsg\symessag.h">
+      <Filter>Source\ERMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\bind.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\cvrt_struc.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\cvrt_text.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\dom.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\error.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\io.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zenxml\parser.h">
+      <Filter>Source\xml\zenXml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\fixed_list.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\scope_guard.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\stl_tools.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\string_tools.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\string_traits.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\type_tools.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\type_traits.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\xml\zen\utf.h">
+      <Filter>Source\xml\zen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\hxGrid.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\SnowAnalysis.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="UI.vcxproj">
+      <Project>{10adf16a-32e2-423c-a953-d04248a0a0ee}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\WeatherBasedSimulationString.h" />
+    <ClInclude Include="..\src\WeatherBasedSimulationUI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\WeatherBasedSimulationString.rc">
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.res</ResourceOutputFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
+    <ResourceCompile Include="..\src\WeatherBasedSimulationUI.rc">
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)2.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)2.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)2.res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)2.res</ResourceOutputFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\src\res\add.ico" />
+    <Image Include="..\src\res\Add32.bmp" />
+    <Image Include="..\src\res\Analysis.ico" />
+    <Image Include="..\src\res\AnalysisPages.bmp" />
+    <Image Include="..\src\res\bmp00001.bmp" />
+    <Image Include="..\src\res\cmn_open.ico" />
+    <Image Include="..\src\res\cmn_rnca.bmp" />
+    <Image Include="..\src\res\ContinuousPeriod1.bmp" />
+    <Image Include="..\src\res\ContinuousPeriod1Checked.bmp" />
+    <Image Include="..\src\res\ContinuousPeriod2.bmp" />
+    <Image Include="..\src\res\ContinuousPeriod2Checked.bmp" />
+    <Image Include="..\src\res\copy32.bmp" />
+    <Image Include="..\src\res\DailyEditor.ico" />
+    <Image Include="..\src\res\DatabaseEditor.bmp" />
+    <Image Include="..\src\res\DatabaseEditor.png" />
+    <Image Include="..\src\res\delete.ico" />
+    <Image Include="..\src\res\Delete32.bmp" />
+    <Image Include="..\src\res\Description.bmp" />
+    <Image Include="..\src\res\Down-Arrow32.bmp" />
+    <Image Include="..\src\res\down.ico" />
+    <Image Include="..\src\res\Edit32.bmp" />
+    <Image Include="..\src\res\EditLocations.bmp" />
+    <Image Include="..\src\res\EditParameters.bmp" />
+    <Image Include="..\src\res\EditParametersVariations.bmp" />
+    <Image Include="..\src\res\EditToolbar.bmp" />
+    <Image Include="..\src\res\EditWeatherGenerator.bmp" />
+    <Image Include="..\src\res\Excel32.bmp" />
+    <Image Include="..\src\res\ExecutableImage.bmp" />
+    <Image Include="..\src\res\ForEachYearsA.bmp" />
+    <Image Include="..\src\res\ForEachYearsD.bmp" />
+    <Image Include="..\src\res\ForEachYearsM.bmp" />
+    <Image Include="..\src\res\Heart.ico" />
+    <Image Include="..\src\res\Help.bmp" />
+    <Image Include="..\src\res\HourlyEditor.ico" />
+    <Image Include="..\src\res\info32.bmp" />
+    <Image Include="..\src\res\ladybug.ico" />
+    <Image Include="..\src\res\Link32.bmp" />
+    <Image Include="..\src\res\LinkedDataEditor.ico" />
+    <Image Include="..\src\res\LocToolbar.bmp" />
+    <Image Include="..\src\res\MatchStations.bmp" />
+    <Image Include="..\src\res\ModelIcon.bmp" />
+    <Image Include="..\src\res\new.bmp" />
+    <Image Include="..\src\res\new.ico" />
+    <Image Include="..\src\res\NormalsEditor.ico" />
+    <Image Include="..\src\res\Open.ico" />
+    <Image Include="..\src\res\option32.bmp" />
+    <Image Include="..\src\res\option32.png" />
+    <Image Include="..\src\res\OverAllYearsA.bmp" />
+    <Image Include="..\src\res\OverAllYearsD.bmp" />
+    <Image Include="..\src\res\OverAllYearsM.bmp" />
+    <Image Include="..\src\res\over_all.bmp" />
+    <Image Include="..\src\res\ProjectToolbar1 24.bmp" />
+    <Image Include="..\src\res\ProjectToolbar2 24.bmp" />
+    <Image Include="..\src\res\RNCan.bmp" />
+    <Image Include="..\src\res\SetAsDefault32.bmp" />
+    <Image Include="..\src\res\ShapeType16.bmp" />
+    <Image Include="..\src\res\ShapeType32.bmp" />
+    <Image Include="..\src\res\shape_ty.bmp" />
+    <Image Include="..\src\res\showmap.bmp" />
+    <Image Include="..\src\res\ShowMap32.bmp" />
+    <Image Include="..\src\res\State.bmp" />
+    <Image Include="..\src\res\Up-Arrow32.bmp" />
+    <Image Include="..\src\res\up.ico" />
+    <Image Include="..\src\res\view_det.ico" />
+    <Image Include="..\src\res\view_ico.ico" />
+    <Image Include="..\src\res\view_lis.ico" />
+    <Image Include="..\src\res\view_sma.ico" />
+    <Image Include="..\src\res\YearByYearPeriod1.bmp" />
+    <Image Include="..\src\res\YearByYearPeriod1Checked.bmp" />
+    <Image Include="..\src\res\YearByYearPeriod2.bmp" />
+    <Image Include="res\DatabaseEditor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\res\Add.cur" />
+    <None Include="..\src\res\cut.cur" />
+    <None Include="..\src\res\Delete.cur" />
+    <None Include="..\src\res\dropcopy.cur" />
+    <None Include="..\src\res\dropmove.cur" />
+    <None Include="..\src\res\Group.cur" />
+    <None Include="..\src\res\Move.cur" />
+    <None Include="..\src\res\nodrop.cur" />
+    <None Include="..\src\res\Split.cur" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{313456D0-924E-44A4-ACE9-71C7A121BA7B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WeatherBasedSimulationFramework</RootNamespace>
+    <ProjectName>wbsUI</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir>bin\$(Configuration)$(Platform)\obj\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib32\$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib64\$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;..\..\external\GDAL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib32\$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../External/zenXml;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib64\$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{31FEA106-E963-4F38-B23D-4E227C7200CA}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WeatherBasedSimulationFramework</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(TargetName)\</IntDir>
+    <IncludePath>D:\project\External\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Basic\AmountPpt.cpp" />
+    <ClCompile Include="..\src\Basic\ApproximateNearestNeighbor.cpp" />
+    <ClCompile Include="..\src\Basic\Callback.cpp" />
+    <ClCompile Include="..\src\Basic\CSV.cpp" />
+    <ClCompile Include="..\src\Basic\DailyDatabase.cpp" />
+    <ClCompile Include="..\src\Basic\Dbf3.cpp" />
+    <ClCompile Include="..\src\Basic\decode_html_entities_utf8.cpp" />
+    <ClCompile Include="..\src\Basic\DegreeDays.cpp" />
+    <ClCompile Include="..\src\Basic\Dimension.cpp" />
+    <ClCompile Include="..\src\Basic\DynamicRessource.cpp" />
+    <ClCompile Include="..\src\Basic\ERMsg\Ererreur.cpp" />
+    <ClCompile Include="..\src\Basic\ERMsg\Erexcept.cpp" />
+    <ClCompile Include="..\src\Basic\ERMsg\syenvmsg.cpp" />
+    <ClCompile Include="..\src\Basic\ERMsg\symessag.cpp" />
+    <ClCompile Include="..\src\Basic\Evapotranspiration.cpp" />
+    <ClCompile Include="..\src\Basic\Event.cpp" />
+    <ClCompile Include="..\src\Basic\FileStamp.cpp" />
+    <ClCompile Include="..\src\Basic\FrequencyTable.cpp" />
+    <ClCompile Include="..\src\Basic\GeoBasic.cpp" />
+    <ClCompile Include="..\src\Basic\GrowingSeason.cpp" />
+    <ClCompile Include="..\src\Basic\HourlyDatabase.cpp" />
+    <ClCompile Include="..\src\Basic\hxGrid.cpp" />
+    <ClCompile Include="..\src\Basic\Location.cpp" />
+    <ClCompile Include="..\src\Basic\ModelStat.cpp" />
+    <ClCompile Include="..\src\Basic\Mtrx.cpp" />
+    <ClCompile Include="..\src\Basic\NormalsData.cpp" />
+    <ClCompile Include="..\src\Basic\NormalsDatabase.cpp" />
+    <ClCompile Include="..\src\Basic\NormalsStation.cpp" />
+    <ClCompile Include="..\src\Basic\Psychrometrics_SI.cpp" />
+    <ClCompile Include="..\src\Basic\Registry.cpp" />
+    <ClCompile Include="..\src\Basic\Rijndael.cpp" />
+    <ClCompile Include="..\src\Basic\SearchResult.cpp" />
+    <ClCompile Include="..\src\Basic\SnowAnalysis.cpp" />
+    <ClCompile Include="..\src\Basic\Statistic.cpp" />
+    <ClCompile Include="..\src\Basic\Timer.cpp" />
+    <ClCompile Include="..\src\Basic\TimeStep.cpp" />
+    <ClCompile Include="..\src\Basic\UtilMath.cpp" />
+    <ClCompile Include="..\src\Basic\UtilStd.cpp" />
+    <ClCompile Include="..\src\Basic\UtilTime.cpp" />
+    <ClCompile Include="..\src\Basic\UtilZen.cpp" />
+    <ClCompile Include="..\src\Basic\ASCE_ETc.cpp" />
+    <ClCompile Include="..\src\Basic\WaterTemperature.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherCorrection.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherDatabase.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherDatabaseCreator.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherDatabaseOptimisation.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherDataSection.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherDefine.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherStation.cpp" />
+    <ClCompile Include="..\src\Basic\XMLite.cpp" />
+    <ClCompile Include="..\src\Basic\xml\zenxml\static_unit_test.cpp" />
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Basic\AmountPpt.h" />
+    <ClInclude Include="..\src\Basic\ApproximateNearestNeighbor.h" />
+    <ClInclude Include="..\src\Basic\Callback.h" />
+    <ClInclude Include="..\src\Basic\CSV.h" />
+    <ClInclude Include="..\src\Basic\DailyDatabase.h" />
+    <ClInclude Include="..\src\Basic\Dbf3.h" />
+    <ClInclude Include="..\src\Basic\DegreeDays.h" />
+    <ClInclude Include="..\src\Basic\Dimension.h" />
+    <ClInclude Include="..\src\Basic\Duration.h" />
+    <ClInclude Include="..\src\Basic\DynamicRessource.h" />
+    <ClInclude Include="..\src\Basic\ERMsg\Ererreur.h" />
+    <ClInclude Include="..\src\Basic\ERMsg\Erexcept.h" />
+    <ClInclude Include="..\src\Basic\ERMsg\Ermsg.h" />
+    <ClInclude Include="..\src\Basic\ERMsg\sycptref.H" />
+    <ClInclude Include="..\src\Basic\ERMsg\sycptref.hpp" />
+    <ClInclude Include="..\src\Basic\ERMsg\Syenvmsg.h" />
+    <ClInclude Include="..\src\Basic\ERMsg\symessag.h" />
+    <ClInclude Include="..\src\Basic\Evapotranspiration.h" />
+    <ClInclude Include="..\src\Basic\Event.h" />
+    <ClInclude Include="..\src\Basic\FileStamp.h" />
+    <ClInclude Include="..\src\Basic\FrequencyTable.h" />
+    <ClInclude Include="..\src\Basic\GeoBasic.h" />
+    <ClInclude Include="..\src\Basic\GrowingSeason.h" />
+    <ClInclude Include="..\src\Basic\HourlyDatabase.h" />
+    <ClInclude Include="..\src\Basic\hxGrid.h" />
+    <ClInclude Include="..\src\Basic\Location.h" />
+    <ClInclude Include="..\src\Basic\LRUCache.h" />
+    <ClInclude Include="..\src\Basic\ModelStat.h" />
+    <ClInclude Include="..\src\Basic\Mtrx.h" />
+    <ClInclude Include="..\src\Basic\NormalsData.h" />
+    <ClInclude Include="..\src\Basic\NormalsDatabase.h" />
+    <ClInclude Include="..\src\Basic\NormalsStation.h" />
+    <ClInclude Include="..\src\Basic\OpenMP.h" />
+    <ClInclude Include="..\src\Basic\Psychrometrics_SI.h" />
+    <ClInclude Include="..\src\Basic\Registry.h" />
+    <ClInclude Include="..\src\Basic\Rijndael.h" />
+    <ClInclude Include="..\src\Basic\SearchResult.h" />
+    <ClInclude Include="..\src\Basic\SnowAnalysis.h" />
+    <ClInclude Include="..\src\Basic\Statistic.h" />
+    <ClInclude Include="..\src\Basic\Timer.h" />
+    <ClInclude Include="..\src\Basic\TimeStep.h" />
+    <ClInclude Include="..\src\Basic\units.hpp" />
+    <ClInclude Include="..\src\Basic\UtilMath.h" />
+    <ClInclude Include="..\src\Basic\UtilStd.h" />
+    <ClInclude Include="..\src\Basic\UtilTime.h" />
+    <ClInclude Include="..\src\Basic\UtilZen.h" />
+    <ClInclude Include="..\src\Basic\ASCE_ETc.h" />
+    <ClInclude Include="..\src\Basic\WaterTemperature.h" />
+    <ClInclude Include="..\src\Basic\WeatherCorrection.h" />
+    <ClInclude Include="..\src\Basic\WeatherDatabase.h" />
+    <ClInclude Include="..\src\Basic\WeatherDatabaseCreator.h" />
+    <ClInclude Include="..\src\Basic\WeatherDatabaseOptimisation.h" />
+    <ClInclude Include="..\src\Basic\WeatherDataSection.h" />
+    <ClInclude Include="..\src\Basic\WeatherDefine.h" />
+    <ClInclude Include="..\src\Basic\WeatherStation.h" />
+    <ClInclude Include="..\src\Basic\XMLite.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\bind.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\cvrt_struc.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\cvrt_text.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\dom.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\error.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\io.h" />
+    <ClInclude Include="..\src\Basic\xml\zenxml\parser.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\fixed_list.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\scope_guard.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\stl_tools.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\string_tools.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\string_traits.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\type_tools.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\type_traits.h" />
+    <ClInclude Include="..\src\Basic\xml\zen\utf.h" />
+    <ClInclude Include="stdafx\stdafx.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
