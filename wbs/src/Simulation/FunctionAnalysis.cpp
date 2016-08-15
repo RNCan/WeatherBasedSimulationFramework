@@ -7,6 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
+// 14-08-2016	Rémi Saint-Amant	Bug correction when compution unknown temporal type
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 #include "stdafx.h"
