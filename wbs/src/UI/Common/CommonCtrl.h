@@ -549,14 +549,16 @@ public:
 		return index;
 	}
 
-	void SetIndex(int index){SetValue(GetOptionText(index + m_baseIndex));}
-	virtual std::string get_string(){ return WBSF::ToString(GetIndex() - m_baseIndex); }
+	//void SetIndex(int index){SetValue(GetOptionText(index + m_baseIndex));}
+	//virtual std::string get_string(){ return WBSF::ToString(GetIndex() - m_baseIndex); }
+	void SetIndex(int index){ SetValue(GetOptionText(index)); }
+	virtual std::string get_string(){ return WBSF::ToString(GetIndex() + m_baseIndex); }
 
 	virtual void set_string(std::string str)
 	{
 		if (!str.empty())
 		{
-			int index = WBSF::ToInt(str);
+			int index = WBSF::ToInt(str) - m_baseIndex;
 			if (index >= 0 && index < m_lstOptions.GetSize())
 				SetIndex(index);
 		}

@@ -555,7 +555,7 @@ namespace WBSF
 					
 					double value = parserArray[i].Evaluate(pResult, s, r);
 						
-					if (m_functionArray[i].m_TM.Type() == CTM::ATEMPORAL)
+					if (!m_functionArray[i].m_TM.IsInit() || m_functionArray[i].m_TM.Type() == CTM::ATEMPORAL)
 					{
 						if (value > VMISS)
 							section[r][i] = value;

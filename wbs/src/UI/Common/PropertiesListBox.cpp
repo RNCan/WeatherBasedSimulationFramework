@@ -399,6 +399,12 @@ void CVSListBoxMS::UpdateTitle()
 	UpdateWindow();
 }
 
+void CVSListBoxMS::OnAfterRemoveItem()
+{
+	Invalidate();
+	UpdateWindow();
+}
+
 //***********************************************************************
 //CPListBox
 

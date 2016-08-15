@@ -32,7 +32,7 @@ public:
 	virtual DWORD GetStyleEx()const;
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual bool CanEditLabel(int i)const;
-	virtual void OnAfterRemoveItem(){}
+	virtual void OnAfterRemoveItem();
 	virtual void UpdateTitle();
 
 	void SelectAll();
