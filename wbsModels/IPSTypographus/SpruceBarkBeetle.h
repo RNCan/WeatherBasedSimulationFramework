@@ -15,7 +15,7 @@
 #include <deque>
 #include "basic/UtilTime.h"
 #include "basic/ModelStat.h"
-#include "modelBase/IndividueBase.h"
+#include "modelBase/IndividualBase.h"
 #include "SBBEquations.h"
 
 namespace WBSF
@@ -33,21 +33,17 @@ namespace WBSF
 		S_ADULT_0, S_DEAD_ADULT_0, S_EMERGENCE_0, S_SWARMING_0_P1, S_SWARMING_0_P2, S_SWARMING_0_P3, S_TOTAL_FEMALE_0, S_BROOD_0_P1, S_BROOD_0_P2, S_BROOD_0_P3, S_TOTAL_BROOD_0, S_DIAPAUSE_0,
 		S_EGG_1, S_L1_1, S_L2_1, S_L3_1, S_PUPAE_1, S_TENERAL_ADULT_1, S_ADULT_1, S_DEAD_ADULT_1, S_SWARMING_1_F1_i, S_SWARMING_1_F1_ii, S_SWARMING_1_F1_iii, S_SWARMING_1_F2_i, S_SWARMING_1_F2_ii, S_SWARMING_1_F2_iii, S_SWARMING_1_F3_i, S_SWARMING_1_F3_ii, S_SWARMING_1_F3_iii, S_TOTAL_FEMALE_1, S_BROOD_1, S_TOTAL_BROOD_1, S_DIAPAUSE_1,
 		S_EGG_2, S_L1_2, S_L2_2, S_L3_2, S_PUPAE2, S_TENERAL_ADULT_2, S_ADULT_2,//, S_DEAD_ADULT_2, S_SWARMING_2_F1, S_SWARMING_2_F2, S_SWARMING_2_F3, S_TOTAL_FEMALE_2, S_BROOD_2, S_TOTAL_BROOD_2, S_DIAPAUSE_2, 
-		//S_EGG_3, S_L1_3, S_L2_3, S_L3_3, S_PUPAE3, S_TENERAL_ADULT_3, S_ADULT_3, 
 		S_DEAD_ATTRITION, S_DEAD_FROZEN, S_DEAD,
 		S_W_STAT, S_DT_STAT, S_DDL_STAT, S_DAY_LENGTH, S_DI50, S_T_MEAN, S_TI50,
 
 		S_SWARMING_0_P2_MALE, S_SWARMING_0_P2_FEMALE,
-		//E_ADULT0, E_DEAD_ADULT0, E_OVIPOSITING_ADULT0, E_BROOD0, E_TOTAL_BROOD0, E_TOTAL_FEMALE0, 
-		//E_EGG1, E_LARVAE1, E_PUPAE1, E_ADULT1, E_DEAD_ADULT1, E_OVIPOSITING_ADULT1, E_BROOD1, E_TOTAL_BROOD1, E_TOTAL_FEMALE1, 
-		//E_EGG2, E_LARVAE2, E_PUPAE2, E_ADULT2, E_DEAD_ADULT2, 
 		NB_STAT
 	};
 
 
 	typedef CModelStatVectorTemplate<NB_STAT> CSpruceBarkBeetleStatVector;
 
-	class CSpruceBarkBeetle : public CIndividue
+	class CSpruceBarkBeetle : public CIndividual
 	{
 	public:
 		CSpruceBarkBeetle(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = ADULT, size_t sex=NOT_INIT, bool bFertil = true, int generation = 0, double scaleFactor = 1);
@@ -62,9 +58,9 @@ namespace WBSF
 		virtual void Die(const CWeatherDay& wDay);
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual size_t GetNbStages(void) const{ return NB_STAGES; }
-		virtual CIndividuePtr CreateCopy()const{ return std::make_shared<CSpruceBarkBeetle>(*this); }
-		virtual bool CanPack(const CIndividuePtr in)const;
-		virtual void Pack(const CIndividuePtr in);
+		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CSpruceBarkBeetle>(*this); }
+		virtual bool CanPack(const CIndividualPtr in)const;
+		virtual void Pack(const CIndividualPtr in);
 
 		double GetRelativeDevRate(int s)const { _ASSERTE(s >= 0 && s < NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 
 		int GetTemperatureType(CTRef date)const{ return GetStage() == ADULT ? T_AIR : m_temperatureType; }
@@ -155,11 +151,11 @@ namespace WBSF
 	public:
 
 		CSpruceBarkBeetleTree(CStand* pStand = NULL);
-		void Reset();
+		void clear();
 
 		virtual void HappyNewYear();
-		virtual void Live(const CTRef& day, const CWeatherDay& weaDay);
-		virtual void GetStat(CTRef d, CModelStat& stat, int generation = -1);
+		virtual void Live(const CWeatherDay& weaDay);
+		//virtual void GetStat(CTRef d, CModelStat& stat, int generation = -1);
 		double GetLast4Days()const;
 
 	protected:

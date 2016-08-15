@@ -38,35 +38,6 @@ static const double TMAX_THRESHOLD_SD = 0.65;
 static const double REEMERGENCE_T = 20.0;
 
 
-//******************************************************************
-//CSpruceBarkBeetleTree class
-
-CSpruceBarkBeetleTree::CSpruceBarkBeetleTree(/*CBioSIMModelBase* pModel,*/ CStand* pStand):
-	CHost(pStand)
-{
-	Reset();
-}
-
-void CSpruceBarkBeetleTree::Reset()
-{
-	CHost::Reset();
-
-	//m_defoliation=0.5;
-	//m_bEnergyLoss=true;
-	//m_ddays=0;
-	//m_probBudMineable=0;
-	//m_ddShoot=0;
-}
-
-void CSpruceBarkBeetleTree::HappyNewYear()
-{
-	CHost::HappyNewYear();
-
-	//m_ddays=0;
-	//m_probBudMineable=0;
-	//m_ddShoot=0;
-}
-
 class CTAir : public COverheat
 {
 public:
@@ -98,22 +69,19 @@ public:
 
 	virtual void TransformWeather(CWeatherDay& weaDay)const
 	{
-		ASSERT( weaDay[DAILY_DATA::TMIN] > -999 && weaDay[DAILY_DATA::TMAX] > -999);
+		//ASSERT(weaDay[H_TMIN].IsInit() && weaDay[H_TMAX].IsInit());
+		//
+		//double Tmin = weaDay[H_TMIN][MEAN];
+		//double Tmax   = weaDay[H_TMAX][MEAN]*(1+weaDay[H_SRAD][SUM]/38)+2;
+		//double Trange = Tmax-Tmin;
+		//double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
 
-		
-		double Tmin   = weaDay.GetTMin();
-		
-		//double Tmax   = weaDay.GetTMean()*(1+weaDay[SRAD]/21)+4;
-		double Tmax   = weaDay.GetTMax()*(1+weaDay[SRAD]/38)+2;
-		double Trange = Tmax-Tmin;//weaDay.GetTRange();
-		double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
+		////convert air temperature to bark temperature
+		//weaDay(H_TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*weaDay.GetTRange() + 0.00000*Tmin*Sin + 0.005741*Tmin*weaDay.GetTRange() + 0.02370*Sin*weaDay.GetTRange();
+		//weaDay(H_TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
-		//convert air temperature to bark temperature
-		weaDay(DAILY_DATA::TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*weaDay.GetTRange() + 0.00000*Tmin*Sin + 0.005741*Tmin*weaDay.GetTRange() + 0.02370*Sin*weaDay.GetTRange();
-		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
-
-		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+		//if( weaDay(H_TMIN) > weaDay(H_TMAX) )
+		//	Switch( weaDay(H_TMIN), weaDay(H_TMAX) );
 	}
 };
 
@@ -128,19 +96,19 @@ public:
 
 	virtual void TransformWeather(CWeatherDay& weaDay)const
 	{
-		ASSERT( weaDay[DAILY_DATA::TMIN] > -999 && weaDay[DAILY_DATA::TMAX] > -999); 
+		//ASSERT( weaDay[H_TMIN] > -999 && weaDay[H_TMAX] > -999); 
 
-		double Tmin   = weaDay.GetTMin();
-		double Tmax   = weaDay.GetTMax()*(1+weaDay[SRAD]/139)+1;
-		double Trange = Tmax-Tmin;
-		double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
+		//double Tmin   = weaDay.GetTMin();
+		//double Tmax   = weaDay.GetTMax()*(1+weaDay[SRAD]/139)+1;
+		//double Trange = Tmax-Tmin;
+		//double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
 
-		//convert air temperature to bark temperature
-		weaDay(DAILY_DATA::TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*weaDay.GetTRange() + 0.00000*Tmin*Sin + 0.005741*Tmin*weaDay.GetTRange() + 0.02370*Sin*weaDay.GetTRange();
-		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
+		////convert air temperature to bark temperature
+		//weaDay(H_TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*weaDay.GetTRange() + 0.00000*Tmin*Sin + 0.005741*Tmin*weaDay.GetTRange() + 0.02370*Sin*weaDay.GetTRange();
+		//weaDay(H_TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
-		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+		//if( weaDay(H_TMIN) > weaDay(H_TMAX) )
+		//	Switch( weaDay(H_TMIN), weaDay(H_TMAX) );
 	}
 };
 
@@ -156,20 +124,20 @@ public:
 
 	virtual void TransformWeather(CWeatherDay& weaDay)const
 	{
-		ASSERT( weaDay[DAILY_DATA::TMIN] > -999 && weaDay[DAILY_DATA::TMAX] > -999);
+		//ASSERT( weaDay[H_TMIN] > -999 && weaDay[H_TMAX] > -999);
 
-		double Tmin   = weaDay.GetTMin()-1;
-		double Tmax   = (3*weaDay.GetTMin()+weaDay.GetTMax())/4;
+		//double Tmin   = weaDay.GetTMin()-1;
+		//double Tmax   = (3*weaDay.GetTMin()+weaDay.GetTMax())/4;
 
-		double Trange = Tmax-Tmin;
-		double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
+		//double Trange = Tmax-Tmin;
+		//double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
 
-		//convert air temperature to bark temperature
-		weaDay(DAILY_DATA::TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
-		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
+		////convert air temperature to bark temperature
+		//weaDay(H_TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
+		//weaDay(H_TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
-		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+		//if( weaDay(H_TMIN) > weaDay(H_TMAX) )
+		//	Switch( weaDay(H_TMIN), weaDay(H_TMAX) );
 	}
 };
 
@@ -185,27 +153,48 @@ public:
 
 	virtual void TransformWeather(CWeatherDay& weaDay)const
 	{
-		ASSERT( weaDay[DAILY_DATA::TMIN] > -999 && weaDay[DAILY_DATA::TMAX] > -999);
+		//ASSERT( weaDay[H_TMIN] > -999 && weaDay[H_TMAX] > -999);
 
-		double Tmin   = weaDay.GetTMin()-1.1;
-		double Tmax   = max(Tmin, weaDay.GetTMean()+1.0);
-		double Trange = Tmax-Tmin;
-		double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
+		//double Tmin   = weaDay.GetTMin()-1.1;
+		//double Tmax   = max(Tmin, weaDay.GetTMean()+1.0);
+		//double Trange = Tmax-Tmin;
+		//double Sin    = sin(2*3.14159*(weaDay.GetJDay()/365. -0.25));
 
-		//convert air temperature to bark temperature
-		weaDay(DAILY_DATA::TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
-		weaDay(DAILY_DATA::TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
+		////convert air temperature to bark temperature
+		//weaDay(H_TMIN)=-0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
+		//weaDay(H_TMAX)= 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
-		if( weaDay(DAILY_DATA::TMIN) > weaDay(DAILY_DATA::TMAX) )
-			Switch( weaDay(DAILY_DATA::TMIN), weaDay(DAILY_DATA::TMAX) );
+		//if( weaDay(H_TMIN) > weaDay(H_TMAX) )
+		//	Switch( weaDay(H_TMIN), weaDay(H_TMAX) );
 	}
 };
 	
 typedef auto_ptr<COverheat> COverheatPtr;
-void CSpruceBarkBeetleTree::Live(const CTRef& day, const CWeatherDay& weaDay)
+
+//******************************************************************
+//CSpruceBarkBeetleTree class
+
+CSpruceBarkBeetleTree::CSpruceBarkBeetleTree(CStand* pStand) :
+CHost(pStand)
+{
+	clear();
+}
+
+void CSpruceBarkBeetleTree::clear()
+{
+	CHost::clear();
+}
+
+void CSpruceBarkBeetleTree::HappyNewYear()
+{
+	CHost::HappyNewYear();
+}
+
+
+void CSpruceBarkBeetleTree::Live(const CWeatherDay& weaDay)
 {
 	//For optimisation, nothing happens when temperature is under -10
-	if( day.GetJDay() != 0 && weaDay.GetTMax() < -10)
+	if (weaDay.GetTRef().GetJDay() != 0 && weaDay.GetTMax() < -10)
 		return;
 
 	m_last4Days.push_back(weaDay);
@@ -260,18 +249,6 @@ double CSpruceBarkBeetleTree::GetLast4Days()const
 	return last4Days[MEAN];
 }
 
-void CSpruceBarkBeetleTree::GetStat(CTRef d, CModelStat& stat, int generation)
-{
-	CSpruceBarkBeetleTreeBase::GetStat(d, stat);
-	
-//	CSpruceBarkBeetleStat& SBStat = (CSpruceBarkBeetleStat& )stat; 
-	//stat[S_AVERAGE_INSTAR] = SBStat.GetAverageInstar();
-//  This line should be restored to work on the L2 synchrony test runs
-	//stat[S_P_MINEABLE] = m_ddays;//m_probBudMineable;
-//  This line should be restored to work on the L6 window test runs
-	//stat[S_SHOOT_DEVEL] = m_ddShoot;
-	
-}
 //******************************************************************
 //CSpruceBarkBeetle class
 
@@ -293,7 +270,7 @@ void CSpruceBarkBeetleTree::GetStat(CTRef d, CModelStat& stat, int generation)
 // Note: m_relativeDevRate member is modified.
 //*****************************************************************************
 CSpruceBarkBeetle::CSpruceBarkBeetle(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, int generation, double scaleFactor) :
-	CIndividue(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
+	CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 {
 //	m_bSwarming=false;
 	m_hibernationDD;
@@ -344,7 +321,7 @@ CSpruceBarkBeetle::~CSpruceBarkBeetle(void)
 {
 }
 
-CSpruceBarkBeetle::CSpruceBarkBeetle(const CSpruceBarkBeetle& in):CBug(in)
+CSpruceBarkBeetle::CSpruceBarkBeetle(const CSpruceBarkBeetle& in):CIndividual(in)
 {
 	operator=(in);
 }
@@ -353,7 +330,7 @@ CSpruceBarkBeetle& CSpruceBarkBeetle::operator=(const CSpruceBarkBeetle& in)
 {
 	if( &in !=this)
 	{
-		CBug::operator=(in);
+		CIndividual::operator=(in);
 		
 		m_relativeDevRate = m_relativeDevRate; 
 		m_relativeOviposition = in.m_relativeOviposition ;
@@ -551,11 +528,11 @@ void CSpruceBarkBeetle::AssignRelativeDevRate()
 //
 // Output: return true if the bug continue to be in the population, false otherwise
 //*****************************************************************************
-void CSpruceBarkBeetle::Live(const CDailyWaveVector& T, const CWeatherDay& wDay)
+void CSpruceBarkBeetle::Live(const CWeatherDay& wDay)
 {
-	if( IsCreated(T.GetFirstTRef()) ) 
+	if (IsCreated(wDay.GetTRef()))
 	{
-		CBug::Live(T, wDay);
+		CIndividual::Live(wDay);
 
 		if(m_lastDayLength==-1)
 			m_lastDayLength= GetModel()->GetInfo().m_loc.GetDayLength(T.GetFirstTRef()-1)/3600;
@@ -579,9 +556,9 @@ void CSpruceBarkBeetle::Live(const CDailyWaveVector& T, const CWeatherDay& wDay)
 	}
 }
 
-void CSpruceBarkBeetle::Brood(CWeatherDay& T)
+void CSpruceBarkBeetle::Brood(const CWeatherDay& wDay)
 {
-	if( m_bFertil && m_brood>0)
+	if( m_bFertil && m_broods>0)
 	{
 		
 		//When the bugs are killed by tree at the end of the day, they must not create eggs
@@ -774,7 +751,7 @@ void CSpruceBarkBeetle::ComputeSwarming(int s, double T, double DL)
 	static const double K0 = 3.94158;
 	static const double K1 = 0.37604;
 		
-	double taf = Max(0, (1 - K0*exp(-K1*w))*S[s]/sumS);
+	double taf = max(0.0, (1.0 - K0*exp(-K1*w))*S[s]/sumS);
 	m_TAFStat += taf;
 	
 	//m_wStat += w*S[s]/sumS;
@@ -1121,7 +1098,7 @@ void CSpruceBarkBeetle::Develop(CTRef date, double T, const CWeatherDay& wDay, s
 						double TmeanLast4days = GetTree()->GetLast4Days();
 						double femaleIndex = ΔΔDLIndex*TmeanLast4days;
 						
-						m_reemergenceDD += Max(0, T-7.5)/nbSteps;
+						m_reemergenceDD += max(0.0, T-7.5)/nbSteps;
 						
 						if( m_reemergenceDD>=m_reemergenceDDRequired[m_curEmergence-1] )
 							
@@ -1346,10 +1323,10 @@ void CSpruceBarkBeetle::GetStat(CTRef d, CModelStat& stat)
 	{
 		//total and daily brood
 		if( m_curEmergence>=1 && m_curEmergence<=3)
-			stat[S_BROOD_0_P1+m_curEmergence-1] += m_brood*m_scaleFactor;
+			stat[S_BROOD_0_P1+m_curEmergence-1] += m_broods*m_scaleFactor;
 
 
-		stat[S_TOTAL_BROOD_0] += m_totalBrood*m_scaleFactor;
+		stat[S_TOTAL_BROOD_0] += m_totalBroods*m_scaleFactor;
 
 		if( IsAlive() )
 		{
@@ -1395,8 +1372,8 @@ void CSpruceBarkBeetle::GetStat(CTRef d, CModelStat& stat)
 	}
 	else if( m_generation==1 )
 	{ 
-		stat[S_BROOD_1] += m_brood*m_scaleFactor;
-		stat[S_TOTAL_BROOD_1] += m_totalBrood*m_scaleFactor;
+		stat[S_BROOD_1] += m_broods*m_scaleFactor;
+		stat[S_TOTAL_BROOD_1] += m_totalBroods*m_scaleFactor;
 
 		if( IsAlive() )
 		{
@@ -1531,20 +1508,20 @@ void CSpruceBarkBeetle::GetStat(CTRef d, CModelStat& stat)
 }
 
 
-bool CSpruceBarkBeetle::CanPack(const CBug* In)const
+bool CSpruceBarkBeetle::CanPack(const CIndividual* In)const
 {
 	const CSpruceBarkBeetle* in = static_cast<const CSpruceBarkBeetle*>(In);
-	return CBug::CanPack(in) && GetStage()<TENERAL_ADULT && m_parentEmergence == in->m_parentEmergence && m_nbEmergence == in->m_nbEmergence && m_curEmergence == in->m_curEmergence;
+	return CIndividual::CanPack(in) && GetStage()<TENERAL_ADULT && m_parentEmergence == in->m_parentEmergence && m_nbEmergence == in->m_nbEmergence && m_curEmergence == in->m_curEmergence;
 }
 
-void CSpruceBarkBeetle::Pack(const CBug* In)
+void CSpruceBarkBeetle::Pack(const CIndividual* In)
 {
 	const CSpruceBarkBeetle* in = static_cast<const CSpruceBarkBeetle*>(In);
 	ASSERT( m_parentEmergence == in->m_parentEmergence );
 
 	m_broodIndex = (m_broodIndex*m_scaleFactor + in->m_broodIndex*in->m_scaleFactor)/(m_scaleFactor + in->m_scaleFactor);
 
-	CBug::Pack(In);
+	CIndividual::Pack(In);
 }
 
 //***************************************************************************************************************
@@ -1628,7 +1605,7 @@ double CSpruceBarkBeetleStand::GetP2AutomnProbability(int sex)
 		{
 			if( (*it)->GetGeneration() == 0)
 			{
-				if( (*it)->GetSex() == CBug::MALE)
+				if( (*it)->GetSex() == CIndividual::MALE)
 				{
 					nbMale+=(*it)->GetScaleFactor();
 					if((*it)->m_curEmergence>=2)
@@ -1652,11 +1629,11 @@ double CSpruceBarkBeetleStand::GetP2AutomnProbability(int sex)
 		double nbAutomnMale = 0.1*nbAutomnFemale;
 		
 
-		m_P2Prob[0] = Max(0, Min(1, nbAutomnMale/(nbMale-nbSummerMale)));
-		m_P2Prob[1] = Max(0, Min(1, nbAutomnFemale/(nbFemale-nbSummerFemale)));
+		m_P2Prob[0] = max(0.0, min(1.0, nbAutomnMale/(nbMale-nbSummerMale)));
+		m_P2Prob[1] = max(0.0, min(1.0, nbAutomnFemale/(nbFemale-nbSummerFemale)));
 	}
 
 
-	return (sex==CBug::MALE)?m_P2Prob[0]:m_P2Prob[1];
+	return (sex==CIndividual::MALE)?m_P2Prob[0]:m_P2Prob[1];
 }
 }

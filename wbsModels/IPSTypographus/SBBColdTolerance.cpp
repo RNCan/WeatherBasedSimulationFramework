@@ -151,9 +151,9 @@ namespace WBSF
 	//Daily version of the model (outputs one line per day)
 	void CSBBColdTolerance::ExecuteDaily(const CWeatherStation& weather, CSBBSuperCoolingPointStat& stat)
 	{
-		_ASSERTE(weather.GetNbYear() > 1);
+		_ASSERTE(weather.GetNbYears() > 1);
 
-		stat.Init(weather.GetEn);
+		stat.Init(weather.GetEntireTPeriod());
 
 		double Psurv = 1;  //100% survival at the onset
 
@@ -191,8 +191,8 @@ namespace WBSF
 				if (m_bMicroClimate)
 				{
 
-					double Trange = T.GetTRange();
-					double Sin = sin(2 * 3.14159*(T.GetJDay() / 365. - 0.25));
+					double Trange = T[H_TRNG][MEAN];
+					double Sin = sin(2 * 3.14159*(T.GetTRef().GetJDay() / 365. - 0.25));
 
 					//convert air temperature to bark temperature
 					Tmin = -0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;

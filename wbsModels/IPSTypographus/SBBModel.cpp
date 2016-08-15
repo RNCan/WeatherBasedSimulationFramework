@@ -480,7 +480,7 @@ void CSBBModel::ComputeRegularStat(CModelStatVector& stat, CModelStatVector& out
 //this method is called to load parameters in variables
 ERMsg CSBBModel::ProcessParameter(const CParameterVector& parameters)
 {
-	ASSERT( m_weather.GetNbYear() > 0);
+	ASSERT( m_weather.GetNbYears() > 0);
 
     ERMsg msg;
 

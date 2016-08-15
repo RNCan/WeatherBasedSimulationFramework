@@ -121,10 +121,6 @@ namespace WBSF
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
-
-		//AddOption("-TTF");
-		//AddOption("-Period");
-
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
@@ -139,7 +135,7 @@ namespace WBSF
 			{ "-Clear", 2, "NbPix  maxCount", false, "Don't replace isolated cloud pixel if the count of cloud pixel around (nbPix level) the pixel is equal or lesser than maxCount." },
 			{ "-Buffer", 1, "NbPix ", false, "Grow decision tree cloud by nbPix." },
 			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data." },
-			{ "-QA", 2, "nbPix miss", false, "add nbPix buffer arround the pixel to compute QA and missing QA wille be replace by miss." },
+			{ "-QA", 2, "nbPix miss", false, "add nbPix buffer arround the pixel to compute QA and missing QA will be replace by miss." },
 //			{ "-Mean", 1, "Dmax", false, "Compute mean of the 2 first pixels if the normalized visual distance (RGB) is lesser than Dmax" },
 			//{ "-DistanceMin", 1, "d", false, "Minimum spectral distance [T1,T2] to call clouds decision tree. 250 is used by default." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
@@ -534,34 +530,6 @@ namespace WBSF
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
-
-
-			//for (int i = 0; i < 2; i++)
-			//{
-
-			//	if (mosaicDS[i].IsOpen())
-			//	{
-			//		cout << endl;
-			//		cout << "*****   Mosaic images informations   *****" << endl;
-
-			//		extents = mosaicDS[i].GetExtents();
-			//		pPrj = mosaicDS[i].GetPrj();
-			//		prjName = pPrj ? pPrj->GetName() : "Unknown";
-
-			//		cout << "    Size           = " << mosaicDS[i].GetRasterXSize() << " cols x " << mosaicDS[i].GetRasterYSize() << " rows x " << mosaicDS[i].GetRasterCount() << " bands" << endl;
-			//		cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
-			//		cout << "    Projection     = " << prjName << endl;
-			//		cout << "    NbBands        = " << mosaicDS[i].GetRasterCount() << endl;
-			//		cout << "    Scene size     = " << mosaicDS[i].GetSceneSize() << endl;
-			//		cout << "    Nb. scenes     = " << mosaicDS[i].GetNbScenes() << endl;
-			//		cout << "    First image    = " << mosaicDS[i].GetPeriod().Begin().GetFormatedString() << endl;
-			//		cout << "    Last image     = " << mosaicDS[i].GetPeriod().End().GetFormatedString() << endl;
-			//		//cout << "    Input period   = " << mosaicDS.GetPeriod().GetFormatedString() << endl;
-
-			//		if (mosaicDS[i].GetSceneSize() != SCENES_SIZE)
-			//			cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(mosaicDS[i].GetSceneSize()), to_string(SCENES_SIZE)) << endl;
-			//	}
-			//}
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -1111,6 +1079,7 @@ namespace WBSF
 	{
 		inputDS.Close();
 		maskDS.Close();
+
 		for (size_t i = 0; i < mosaicDS.size(); i++)
 			mosaicDS[i].Close();
 		

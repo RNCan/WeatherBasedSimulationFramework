@@ -17,9 +17,6 @@
 namespace WBSF
 {
 
-
-	//OVIPOSITING_ADULT
-	//PRE_OVIP_ADULT, OVIP_ADULT
 	enum TStages{ EGG, L1, L2, L3, PUPAE, TENERAL_ADULT, ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT };
 
 	//***********************************************************************************
@@ -32,7 +29,7 @@ namespace WBSF
 		static const double DEFAULT_P[NB_STAGES][NB_PARAMETER];
 		static const double V[NB_STAGES];//variance of relative development rates
 
-		CSBBTableLookup();
+		CSBBTableLookup(const CRandomGenerator& RG);
 
 		virtual double ComputeRate(size_t s, double T)const;
 		static double GetRelativeRate(const CRandomGenerator& RG, int s, int sex);
@@ -43,8 +40,6 @@ namespace WBSF
 	protected:
 
 		double m_p[NB_STAGES][NB_PARAMETER];
-		//double m_rho25Factor[NB_STAGES];
-
 
 	};
 

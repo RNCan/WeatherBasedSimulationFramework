@@ -13,7 +13,7 @@
 
 #include <boost\math\distributions.hpp>
 #include "basic/UtilMath.h"
-#include "ModelBase/IndividueBase.h"
+#include "ModelBase/IndividualBase.h"
 #include "SBBEquations.h"
 
 using namespace std;
@@ -127,8 +127,8 @@ namespace WBSF
 
 
 
-	CSBBTableLookup::CSBBTableLookup() : 
-		CEquationTableLookup(NB_STAGES, 0, 45, 0.25)
+	CSBBTableLookup::CSBBTableLookup(const CRandomGenerator& RG) :
+		CEquationTableLookup(RG, NB_STAGES, 0, 45, 0.25)
 	{
 		for (int i = 0; i < NB_STAGES; i++)
 			for (int j = 0; j < NB_PARAMETER; j++)
