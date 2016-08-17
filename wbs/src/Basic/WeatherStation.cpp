@@ -938,7 +938,7 @@ double CWeatherDay::GetNetRadiation(double& Fcd)const
 CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 {
 	
-
+	ASSERT(m_pParent);
 	const CWeatherDay& me = *this;
 	const CLocation& loc = GetLocation();
 	CTRef TRef = GetTRef();

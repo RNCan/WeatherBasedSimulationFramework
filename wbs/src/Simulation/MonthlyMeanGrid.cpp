@@ -342,7 +342,9 @@ namespace WBSF
 
 			for (size_t m = 0; m < 12; m++)
 			{
-				for (size_t d = 0; d < stationIn[y][m].size(); d++)
+				//for (size_t d = 0; d < stationIn[y][m].size(); d++)
+				//never take into account the leap year. Too much problem to convert unleap an leap year
+				for (size_t d = 0; d < WBSF::GetNbDayPerMonth(m); d++)
 				{
 					for (TVarH v = H_TAIR; v<NB_VAR_H; ((int&)v)++)
 					{
@@ -372,7 +374,7 @@ namespace WBSF
 									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specyfic humidity g[H2O]/kg[air]
 									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TAIR].IsInit())
 									{
-										ASSERT(stationIn[y][m][d][H_TAIR][NB_VALUE] >= 2);
+										ASSERT(stationIn[y][m][d][H_TAIR].IsInit());
 
 										//convert Hr to Hs with station temperature
 										double Tmin = stationIn[y][m][d][H_TMIN][MEAN];
@@ -381,6 +383,7 @@ namespace WBSF
 										double Hs = Hr2Hs(Tmin, Tmax, Hr);
 										Hs *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);//specific humidity ratio
 
+										ASSERT(stationII[y][m][d].GetParent());
 										//convert back Hs to Hr with the new station temperature
 										double TminII = stationII[y][m][d][H_TMIN][MEAN];
 										double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
