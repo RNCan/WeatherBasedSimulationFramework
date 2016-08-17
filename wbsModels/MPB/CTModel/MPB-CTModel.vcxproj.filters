@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{03f0d5f1-bf99-4c38-8aff-7b831fce758a}</UniqueIdentifier>
+      <Extensions>cpp;h;def</Extensions>
+    </Filter>
+    <Filter Include="Source Files\MPBBase">
+      <UniqueIdentifier>{e430e9bc-ed64-426d-b5ea-5b1ebc6f8a2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MPB-CTModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MPBColdTolerance.cpp">
+      <Filter>Source Files\MPBBase</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MPB-CTModel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MPBColdTolerance.h">
+      <Filter>Source Files\MPBBase</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
