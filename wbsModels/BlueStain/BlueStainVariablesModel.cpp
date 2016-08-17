@@ -1,5 +1,5 @@
 //*********************************************************************
-//27/01/2015	Rémi Saint-Amant	Creation
+//27/01/2015	Rémi Saint-Amant	Creation1
 //*********************************************************************
 #include "Basic/WeatherDefine.h"
 #include "ModelBase/EntryPoint.h"
