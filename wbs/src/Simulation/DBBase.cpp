@@ -693,9 +693,14 @@ namespace WBSF
 		{
 			CWVariables variables = section.GetVariables();
 			CTPeriod period = section.GetEntireTPeriod();
-			int type = period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
+			int type = DATA_FLOAT;
+			//rsa ?? EST-CE QUE CA SERT A QUEL;QUE CHOSE D'UTILISER UNE STATISTIQUE POUR LES siMULATIONpOINT???
+			//int type = period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
 			assert(m_type == UNKNOWN || m_type == type);
 			assert(m_nbCols == 0 || m_nbCols == variables.count());
+			assert(sizeof(CStatistic)==40);
+			
+			
 
 			m_type = type;
 			m_nbCols = variables.count();
@@ -853,14 +858,14 @@ namespace WBSF
 		size_t nbRows = m_index[no].GetNbRows();
 		CTPeriod period = m_metadata.GetTPeriod();
 		CWVariables variables = m_metadata.GetOutputDefinition().GetWVariables();
-		int type = period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
+		//int type = DATA_FLOAT;// period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
 		CStatistic junk;
 
 
 
 		if (variables.count() == m_nbCols &&
-			period.GetNbRef() == nbRows &&
-			m_type == type)
+			period.GetNbRef() == nbRows /*&&
+			m_type == type*/)
 		{
 			size_t locPos = m_metadata.GetLno(no);
 			((CLocation&)section) = m_metadata.GetLocations()[locPos];

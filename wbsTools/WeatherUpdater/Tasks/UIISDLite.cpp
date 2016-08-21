@@ -457,6 +457,9 @@ namespace WBSF
 							string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
 							msg += WinExecWait(command.c_str());
 							RemoveFile(zipFilePath);
+
+							//remove old file
+							RemoveFile(outputFilePath);
 							//by default, file don't have extension,
 							RenameFile(extractedFilePath, outputFilePath);
 							

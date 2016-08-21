@@ -1982,7 +1982,8 @@ CTRef CBaseOptions::GetTRef(int type, int index)
 
 	if (type == JDAY1970)
 	{
-		TRef = BASE_1970 + index - 1;
+		if (index>=0)
+			TRef = BASE_1970 + index - 1;
 	}
 	else if (type == YYYYMMDD)
 	{

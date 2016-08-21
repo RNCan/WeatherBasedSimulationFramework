@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM
+// 11.0.9: 18/08/2016   Bug correction in weather database
 // 11.0.8: 14/08/2016	Add "AddName" in MergeExecutable
 //						Bug correction in col width
 //						Some bug correction in the ModelInputDlg

@@ -68,7 +68,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "2.1.3";
+	const char* CMergeImages::VERSION = "2.1.4";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -124,7 +124,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, BestPixel or SecondBest. BestPixel by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best or SecondBest. Best by default." },
 			{ "-Clouds", 1, "file", false, "Decision tree model file path to remove clouds." },
 			{ "-MaxSkip", 1, "nb", false, "Maximum number of skip image when removing clouds." },
 			//{ "-NoDefautTrigger", 0, "", false, "Without this option, \"B1 -125\" and \"TCB 750\" is added to trigger to be used with the \"-Clouds\" options." },
@@ -158,7 +158,7 @@ namespace WBSF
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
 			{ "Output Image", "dstfile", "Number of output periods", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: Date of the selected image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
 			{ "Optional Output Image", "_stats", "Number of output periods", "SceneSize(9) x NbStats(4)", "B1Lowest: lowest value of the input image B1|B1Mean: mean of the input image B1|B1SD: standard deviation of input image B1|B1Highest: highest value of the input image B1|... for each bands of the scene", "" },
-			{ "Optional Output Image", "_debug", "Number of output periods", "9", "Path: path number of satellite|Row: row number of satellite|Year: year|Month: month (1-12)|Day: day (1-31)|JDay: Julian day (1-366)|NbScenes: number of valid scene", "" }
+			{ "Optional Output Image", "_debug", "Number of output periods", "14", "Path: path number of satellite|Row: row number of satellite|Year: year|Month: month (1-12)|Day: day (1-31)|JDay: Julian day (1-366)|NbScenes: number of valid scene|sort:|Isolated:|Buffer:|NbTriggers:|nbSkips:" }
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -311,6 +311,13 @@ namespace WBSF
 
 			if (!m_options.m_cloudsCleanerModel.empty())
 				cout << "Clouds: " << m_options.m_cloudsCleanerModel << endl;
+
+			if (!m_options.m_mosaicFilePath[0].empty())
+				cout << "pre: " << m_options.m_mosaicFilePath[0] << endl;
+			if (!m_options.m_mosaicFilePath[1].empty())
+				cout << "pos: " << m_options.m_mosaicFilePath[1] << endl;
+			if (!m_options.m_mosaicFilePath[2].empty())
+				cout << "mosaic: " << m_options.m_mosaicFilePath[2] << endl;
 		}
 
 		GDALAllRegister();
@@ -505,6 +512,7 @@ namespace WBSF
 			{
 				CMergeImagesOption options(m_options);
 				msg += mosaicDS[i].OpenInputImage(m_options.m_mosaicFilePath[i], options);
+				
 			}
 		}
 
@@ -530,6 +538,24 @@ namespace WBSF
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
+		}
+		
+		if (msg && !m_options.m_bQuiet && mosaicDS[2].IsOpen())
+		{
+			CGeoExtents extents = inputDS.GetExtents();
+			CProjectionPtr pPrj = inputDS.GetPrj();
+			string prjName = pPrj ? pPrj->GetName() : "Unknown";
+
+			cout << "mosaic" << endl;
+			cout << "    Size           = " << mosaicDS[2].GetRasterXSize() << " cols x " << mosaicDS[2].GetRasterYSize() << " rows x " << mosaicDS[2].GetRasterCount() << " bands" << endl;
+			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
+			cout << "    Projection     = " << prjName << endl;
+			cout << "    NbBands        = " << mosaicDS[2].GetRasterCount() << endl;
+			cout << "    Scene size     = " << mosaicDS[2].GetSceneSize() << endl;
+			cout << "    Nb. scenes     = " << mosaicDS[2].GetNbScenes() << endl;
+			cout << "    First image    = " << mosaicDS[2].GetPeriod().Begin().GetFormatedString() << endl;
+			cout << "    Last image     = " << mosaicDS[2].GetPeriod().End().GetFormatedString() << endl;
+
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -798,41 +824,49 @@ namespace WBSF
 					//} 
 					//	
 
-					if (iz != NOT_INIT && m_options.m_bDebug)
+					if (m_options.m_bDebug)
 					{
-						CLandsatPixel pixel = window.GetPixel(iz, x, y);
-						CTRef TRef = m_options.GetTRef(int(pixel[JD]));
-
-						int cap = -1;
-						int col = -1;
-						int row = -1;
-						if (inputDS.IsVRT())
+						
+						if (iz != NOT_INIT)
 						{
-							size_t iiz = iz*bandHolder.GetSceneSize() + JD;
-							std::string name = GetFileTitle(inputDS.GetInternalName(iiz));
-							if (name.size() >= 16)
+							CLandsatPixel pixel = window.GetPixel(iz, x, y);
+
+
+
+							CTRef TRef = m_options.GetTRef(int(pixel[JD]));
+
+							int cap = -1;
+							int col = -1;
+							int row = -1;
+							if (inputDS.IsVRT())
 							{
-								int v = int(name[2] - '0');
-								if (v == 5 || v == 7 || v == 8)
+								size_t iiz = iz*bandHolder.GetSceneSize() + JD;
+								std::string name = GetFileTitle(inputDS.GetInternalName(iiz));
+								if (name.size() >= 16)
 								{
-									cap = v;
-									col = ToInt(name.substr(3, 3));
-									row = ToInt(name.substr(6, 3));
+									int v = int(name[2] - '0');
+									if (v == 5 || v == 7 || v == 8)
+									{
+										cap = v;
+										col = ToInt(name.substr(3, 3));
+										row = ToInt(name.substr(6, 3));
+									}
 								}
 							}
-						}
 
-						Test1Vector::iterator it = get_it(imageList, m_options.m_mergeType);
-						debugData[CMergeImagesOption::D_CAPTOR][y][x] = cap;
-						debugData[CMergeImagesOption::D_PATH][y][x] = col;
-						debugData[CMergeImagesOption::D_ROW][y][x] = row;
-						debugData[CMergeImagesOption::D_YEAR][y][x] = TRef.GetYear();
-						debugData[CMergeImagesOption::D_MONTH][y][x] = int(TRef.GetMonth()) + 1;
-						debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
-						debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
-						debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList.size());
-						debugData[CMergeImagesOption::SCENE][y][x] = (int)iz+1;
-						debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first.GetRef();
+							Test1Vector::iterator it = get_it(imageList, m_options.m_mergeType);
+							debugData[CMergeImagesOption::D_CAPTOR][y][x] = cap;
+							debugData[CMergeImagesOption::D_PATH][y][x] = col;
+							debugData[CMergeImagesOption::D_ROW][y][x] = row;
+							debugData[CMergeImagesOption::D_YEAR][y][x] = TRef.GetYear();
+							debugData[CMergeImagesOption::D_MONTH][y][x] = int(TRef.GetMonth()) + 1;
+							debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
+							debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
+							debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList.size());
+							debugData[CMergeImagesOption::SCENE][y][x] = (int)iz + 1;
+							debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first.GetRef();
+						}
+						
 						debugData[CMergeImagesOption::NB_TRIGGERS][y][x] = nbTriggerUsed;
 						debugData[CMergeImagesOption::NB_SKIPS][y][x] = nbSkip;
 					}
@@ -1214,7 +1248,7 @@ namespace WBSF
 				{
 					size_t b = i*mosaicWindow.GetSceneSize() + JD;
 					CTRef preTRef = m_options.GetTRef(int(mosaicWindow.at(b)->at(x, y)));
-					if (preTRef < TRef - 150)
+					if (preTRef.IsInit() && preTRef.GetYear() < TRef.GetYear())
 						pre_iz = i;
 				}
 
@@ -1226,7 +1260,7 @@ namespace WBSF
 				{
 					size_t b = i*mosaicWindow.GetSceneSize() + JD;
 					CTRef posTRef = m_options.GetTRef(int(mosaicWindow.at(b)->at(x, y)));
-					if (posTRef > TRef + 150)
+					if (posTRef.IsInit() && posTRef.GetYear() > TRef.GetYear())
 						pos_iz = i;
 				}
 

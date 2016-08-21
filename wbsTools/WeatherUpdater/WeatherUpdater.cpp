@@ -1,3 +1,4 @@
+//5.0.9 21/08/2016	Bug correction in the ISD-Lite product
 //5.0.8 25/07/2016  Add New-Brunswick agriculture network.
 //					Debug Radar and PrcpRadar
 //5.0.7	22/06/2016  Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal. 

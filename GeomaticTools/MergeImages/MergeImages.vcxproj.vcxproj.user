@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-debug -buffer 3 -clear 2 8 -QA 30 300 -bust 0 200 -MaxSkip 3 -te -1216500 8344920 -1215600 8345820 --config GDAL_CACHEMAX 4096 -IOCPU 4 -multi -of VRT -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -stats -co "compress=LZW" -overwrite -Clouds "C:\geomatique\model\DT_vL5" -mosaic "C:\Geomatique\mosaic\1994-1996.vrt" "C:\geomatique\1995\1995.vrt" "C:\geomatique\output\out.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-buffer 3 -clear 2 5 -MaxSkip 1 -IOCPU 4 -te 1345285 7143503 1348803 7145729 -clouds U:\GIS\#projets\LAQ\ANALYSE_CA\v8\DTcloud\from_Hugues\DT_VL5_100_fast -mosaic U:\GIS1\LANDSAT_SR\mos\20160527_MergeImages\VRT_L578_8415_local.vrt -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -multi -Type best -Debug -dstnodata -32768 --config GDAL_CACHEMAX 2048  -stats -hist -overwrite G:\LANDSAT_SR\LCC\1998\_578_1998.vrt U:\GIS\#documents\TestCodes\MergeImages\Test6\output\test6.vrt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
