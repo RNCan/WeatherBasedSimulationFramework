@@ -38,6 +38,8 @@
 #include "Tasks/ConvertDB.h"
 #include "Tasks/ZipUnzip.h"
 
+#include "Tasks/HadGEM2-ES.h"
+
 #include "Tasks/TaskFactory.h"
 
 
@@ -317,7 +319,7 @@ string CTaskWnd::ClassName(UINT ID)
 		//case ID_TASK_RCM22:className = ; break;
 		//case ID_TASK_GCM10:className = ; break;
 		//case ID_TASK_GCM4:className = ; break;
-		//case ID_TASK_HADGEM2_10:className = ; break;
+	case ID_TASK_HADGEM2_ES:className = CHadGEM2_ES_MMGCreator::CLASS_NAME(); break;
 		//case ID_TASK_MIROC_10:className = ; break;
 		//case ID_TASK_CESM1_CAM5_10:className = ; break;
 
@@ -718,7 +720,7 @@ END_MESSAGE_MAP()
 
 CProjectWnd::CProjectWnd():
 m_wnd1(CTaskBase::UPDATER, IDR_TASK_TOOLBAR1, IDR_TASK_TOOLBAR2),
-m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR3)
+m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR3, IDR_TASK_TOOLBAR4)
 {
 
 }

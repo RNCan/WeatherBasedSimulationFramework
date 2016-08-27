@@ -543,18 +543,21 @@ namespace WBSF
 
 		for (size_t m = 0; m < 12; m++)
 		{
-			double Tmean = m_dailyStat[H_TAIR][m][MEAN];
-			double Trange = m_dailyStat[H_TRNG][m][MEAN];
-			m_Tmin[m] = Tmean - Trange / 2;
-			m_Tmax[m] = Tmean + Trange / 2;
-			m_minMaxRelation[m] = statMinMax[m][SUM] / sqrt(statMin[m][SUM²] * statMax[m][SUM²]);
-			m_sigmaDelta[m] = statMin[m][STD_DEV];
-			m_sigmaEpsilon[m] = statMax[m][STD_DEV];
-
-			for (size_t v = 0; v < 2; v++)
+			if (m_dailyStat[H_TAIR][m].IsInit())
 			{
-				ERMsg msgTmp = ComputeMatrix(matrix[m][v], m_TCorrelation[m][v][0], m_TCorrelation[m][v][1]);
-				ASSERT(msgTmp);
+				double Tmean = m_dailyStat[H_TAIR][m][MEAN];
+				double Trange = m_dailyStat[H_TRNG][m][MEAN];
+				m_Tmin[m] = Tmean - Trange / 2;
+				m_Tmax[m] = Tmean + Trange / 2;
+				m_minMaxRelation[m] = statMinMax[m][SUM] / sqrt(statMin[m][SUM²] * statMax[m][SUM²]);
+				m_sigmaDelta[m] = statMin[m][STD_DEV];
+				m_sigmaEpsilon[m] = statMax[m][STD_DEV];
+
+				for (size_t v = 0; v < 2; v++)
+				{
+					ERMsg msgTmp = ComputeMatrix(matrix[m][v], m_TCorrelation[m][v][0], m_TCorrelation[m][v][1]);
+					ASSERT(msgTmp);
+				}
 			}
 		}
 

@@ -10,9 +10,10 @@
 #define IDR_TASK_TOOLBAR1               131
 #define IDR_TASK_TOOLBAR2               132
 #define IDR_TASK_TOOLBAR3               133
-#define IDR_TASK                        134
-#define IDR_TASK_TYPE                   135
-#define IDR_PROPERTIES_TOOLBAR          136
+#define IDR_TASK_TOOLBAR4               134
+#define IDR_TASK                        135
+#define IDR_TASK_TYPE                   136
+#define IDR_PROPERTIES_TOOLBAR          137
 #define IDS_OPTION_CAPTION              155
 #define IDS_PROJECT_WND					156
 #define IDS_PROPERTIES_WND              157
@@ -133,8 +134,7 @@
 #define IDS_MMG_GCM10_P                  32781
 #define IDS_MMG_GCM4                     32782
 #define IDS_MMG_GCM4_P                   32783
-#define IDS_MMG_HADGEM2_10               32784
-#define IDS_MMG_HADGEM2_10_P             32785
+#define IDS_MMG_HADGEM2_ES_P             32785
 #define IDS_MMG_MIROC_10                 32786
 #define IDS_MMG_MIROC_10_P               32787
 #define IDS_MMG_CESM1_CAM5_10            32788
@@ -179,7 +179,7 @@
 #define ID_TASK_RCM22					 32933
 #define ID_TASK_GCM10					 32934
 #define ID_TASK_GCM4					 32935
-#define ID_TASK_HADGEM2_10				 32936
+#define ID_TASK_HADGEM2_ES				 32936
 #define ID_TASK_MIROC_10				 32937
 #define ID_TASK_CESM1_CAM5_10			 32938
 #define ID_TASK_OTHER_MMG				 32939

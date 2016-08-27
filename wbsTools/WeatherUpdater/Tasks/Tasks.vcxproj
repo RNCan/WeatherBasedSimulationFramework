@@ -106,7 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -160,6 +160,7 @@
     <ClInclude Include="CreateGribsDB.h" />
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="HadGEM2-ES.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACIS.h" />
     <ClInclude Include="UIBC.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="CreateGribsDB.cpp" />
     <ClCompile Include="CreateHourlyDB.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="HadGEM2-ES.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -242,7 +244,6 @@
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
     <ClCompile Include="UISolutionMesonetHourly.cpp" />
     <ClCompile Include="UISOPFEUHourly.cpp" />
-    <ClCompile Include="UIWunderground.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

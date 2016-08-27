@@ -140,6 +140,9 @@
     <ClInclude Include="UIOntario.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="HadGEM2-ES.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -250,9 +253,6 @@
     <ClCompile Include="UIMDDELCC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIWunderground.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UIEnvCanForecast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -269,6 +269,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIOntario.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HadGEM2-ES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

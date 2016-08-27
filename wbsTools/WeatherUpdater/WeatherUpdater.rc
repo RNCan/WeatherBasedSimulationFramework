@@ -44,6 +44,7 @@ IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
 IDR_TASK_TOOLBAR1       PNG                     "res\\TaskToolbar1.png"
 IDR_TASK_TOOLBAR2       PNG                     "res\\TaskToolbar2.png"
 IDR_TASK_TOOLBAR3       PNG                     "res\\TaskToolbar3.png"
+IDR_TASK_TOOLBAR4       PNG                     "res\\TaskToolbar4.png"
 IDR_TASK                PNG                     "res\\Task.png"
 IDR_TASK_TYPE           PNG                     "res\\TaskType.png"
 IDR_PROPERTIES_TOOLBAR  PNG                     "res\\PropertiesToolBar.png"
@@ -132,6 +133,13 @@ BEGIN
     BUTTON      ID_TASK_DELETE
 END
 
+
+IDR_TASK_TOOLBAR4 TOOLBAR 32, 32
+BEGIN
+BUTTON      ID_TASK_HADGEM2_ES
+END
+
+
 IDR_PROPERTIES_TOOLBAR TOOLBAR 32, 32
 BEGIN
     BUTTON      ID_OPEN_PROPERTY
@@ -177,7 +185,7 @@ BEGIN
     BUTTON      ID_TASK_RCM22
     BUTTON      ID_TASK_GCM10
     BUTTON      ID_TASK_GCM4
-    BUTTON      ID_TASK_HADGEM2_10
+    BUTTON      ID_TASK_HADGEM2_ES
     BUTTON      ID_TASK_MIROC_10
     BUTTON      ID_TASK_CESM1_CAM5_10
     BUTTON      ID_TASK_OTHER_MMG
@@ -699,8 +707,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_MMG_HADGEM2_10      "Créer une matrice mensuelles moyennes (MMG) à partir des données Hadley réinterpolées aux 10 km"
-    IDS_MMG_HADGEM2_10_P    "Répertoire HadGEM2-ES (10km)|Fichier de sortie"
+    IDS_MMG_HADGEM2_ES_P    "Répertoire HadGEM2-ES|Fichier de sortie"
     IDS_MMG_MIROC_10        "Créer une matrice mensuelles moyennes (MMG) à partir des données MIROC réinterpolées aux 10 km"
     IDS_MMG_MIROC_10_P      "Répertoire MIROC (10km)|Fichier de sortie"
     IDS_MMG_CESM1_CAM5_10   "Créer une matrice mensuelles moyennes (MMG) à partir des données du ""Community Earth System Model"" version 1 qui inclut le ""Community Atmospheric Model"" version 5 réinterpolées aux 10 km"
@@ -751,7 +758,7 @@ BEGIN
     ID_TASK_RCM22           "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 RCM4 au 22 km\nRCM22"
     ID_TASK_GCM10           "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km\nGCM10"
     ID_TASK_GCM4            "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km\n?"
-    ID_TASK_HADGEM2_10      "Créer une grille mensuelles moyennes (MMG) à partir des données Hadley réinterpolées aux 10 km\nHadly10"
+    ID_TASK_HADGEM2_ES      "Créer une grille mensuelles moyennes (MMG) à partir des données Hadley GEM2-ES\nHadly GEM2-ES"
     ID_TASK_MIROC_10        "Créer une grille mensuelles moyennes (MMG) à partir des données MIROC réinterpolées aux 10 km\nMiroc10"
     ID_TASK_CESM1_CAM5_10   "Créer une grille mensuelles moyennes (MMG) à partir des données du ""Community Earth System Model"" version 1 qui inclut le ""Community Atmospheric Model"" version 5 réinterpolées aux 10 km\nCESM10"
 END
@@ -1149,8 +1156,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_MMG_HADGEM2_10      "Create monthly mean grid (MMG) from the Hadley Centre Global Environment Model, version 2, which incorporates an earth systems model downscaled at 10km"
-    IDS_MMG_HADGEM2_10_P    "Répertoire HadGEM2-ES (10km)|Fichier de sortie"
+    IDS_MMG_HADGEM2_ES_P	"HadGEM2-ES directory|Output filepath"
     IDS_MMG_MIROC_10        "Create monthly mean grid (MMG) from MIROC model downscaled at 10 km"
     IDS_MMG_MIROC_10_P      "Répertoire MIROC (10km)|Fichier de sortie"
     IDS_MMG_CESM1_CAM5_10   "Create a monthly mean grid (MMG) from the Community Earth System Model version 1 that includes the Community Atmospheric Model version 5  downscaled at 10 km"
@@ -1201,7 +1207,7 @@ BEGIN
     ID_TASK_RCM22           "Create monthly mean grid (MMG) from CCCma ESM2 RCM4 at 22 km\nRCM22"
     ID_TASK_GCM10           "Create monthly mean grid (MMG) from CCCma ESM2 GCM4 downscaled at 10 km\nGCM10"
     ID_TASK_GCM4            "Create monthly mean grid (MMG) from CCCma ESM2 GCM4\nGCM45"
-    ID_TASK_HADGEM2_10      "Create monthly mean grid (MMG) from the Hadley Centre Global Environment Model, version 2, which incorporates an earth systems model downscaled at 10 km\nHadly10"
+    ID_TASK_HADGEM2_ES      "Create monthly mean grid (MMG) from the Hadley Centre GEM2-ES\nHadly GEM2-ES"
     ID_TASK_MIROC_10        "Create monthly mean grid (MMG) from MIROC model downscaled at 10 km\nMiroc10"
     ID_TASK_CESM1_CAM5_10   "Create a monthly mean grid (MMG) from the Community Earth System Model version 1 that includes the Community Atmospheric Model version 5  downscaled at 10 km\nCESM10"
 END
