@@ -107,7 +107,7 @@ namespace WBSF
 
 
 		//	return ExportPoint("D:\\CanRCM4\\Test\\Quebec daily 1950-2100 RCP85.csv", RCP85, CGeoPoint(-71.38, 46.75, PRJ_WGS_84), callback);
-		CPLSetConfigOption("GDAL_CACHEMAX", "500");
+		CPLSetConfigOption("GDAL_CACHEMAX", "1000");
 
 		int firstYear = FIRST_YEAR;
 		int lastYear = LAST_YEAR;
@@ -222,9 +222,11 @@ namespace WBSF
 
 	CGeoExtents CHadGEM2_ES_MMGCreator::GetExtents()
 	{
+		
+		
 		CGeoExtents extents;
-		extents.m_xMin = -0.9375000000000000;
-		extents.m_xMax = 359.0625000000000000;
+		extents.m_xMin = -0.9375000000000000-180;
+		extents.m_xMax = 359.0625000000000000 - 180;
 		extents.m_yMin = -90.6250000000000000;
 		extents.m_yMax = 90.6250000000000000;
 		extents.m_xSize = 192;
@@ -250,8 +252,8 @@ namespace WBSF
 		options.m_format = "GTIFF";
 		options.m_bOverwrite = true;
 		options.m_bComputeStats = true;
-		//options.m_createOptions.push_back(string("COMPRESS=LZW"));
-		options.m_createOptions.push_back(string("BIGTIFF=YES"));
+		options.m_createOptions.push_back(string("COMPRESS=LZW"));
+		//options.m_createOptions.push_back(string("BIGTIFF=YES"));
 	}
 
 	void CHadGEM2_ES_MMGCreator::ConvertData(size_t v, std::vector<float>& data)const
@@ -263,7 +265,7 @@ namespace WBSF
 
 		for (size_t i = 0; i < data.size(); i++)
 		{
-			int x = i%extents.m_xSize;
+			int x = (i + extents.m_xSize/2) % extents.m_xSize;
 			int y = extents.m_ySize - int(i / extents.m_xSize) - 1;
 
 			int ii = y*extents.m_xSize + x;
@@ -275,7 +277,7 @@ namespace WBSF
 				case V_TMIN:	dataII[ii] = (float)Celsius(K(data[i])).get(); break; //K --> °C
 				case V_TMAX:	dataII[ii] = (float)Celsius(K(data[i])).get(); break; //K --> °C
 				case V_PRCP:	dataII[ii] = (float)(data[i] * 60 * 60 * 24); break; //kg/(m²s) --> mm/day 
-				//case V_RELH:	dataII[ii] = data[i];  break;
+				//case V_SPEH:	dataII[ii] = data[i];  break;
 				case V_SPEH:	dataII[ii] = (float)(data[i] * 1000); break; //kg[H2O]/kg[air] --> g[H2O]/kg[air]
 				case V_WNDS:	dataII[ii] = (float)kph(meters_per_second(data[i])).get(); break; //m/s --> km/h
 				default: ASSERT(false);
@@ -291,22 +293,6 @@ namespace WBSF
 		//data.swap(dataII);
 	}
 
-	/*size_t CHadGEM2_ES_MMGCreator::GetRPC(size_t periodType, size_t RPC)
-	{
-		if (periodType == HISTORICAL)
-			return NOT_INIT;
-
-		return RPC;
-	}*/
-
-
-	/*string CHadGEM2_ES_MMGCreator::GetFilePath(size_t RCP, size_t period, size_t var)const
-	{
-		string fileTitle = GetFileTitle(RCP, period, var);
-		string RPCName = (RCP == NOT_INIT) ? "historical" : RCP_NAME[RCP];
-
-		return GetDir(INPUT_PATH) + RPCName + "\\" + fileTitle + ".nc";
-	}*/
 
 	ERMsg CHadGEM2_ES_MMGCreator::GetFileList(size_t rcp, vector<array<string, NB_VARIABLES>>& fileList)const
 	{
@@ -350,7 +336,7 @@ namespace WBSF
 
 	void CHadGEM2_ES_MMGCreator::ComputeMontlyStatistic(size_t i, const COneMonthData& data, CMonthlyVariables& montlhyStat)
 	{
-		//for (size_t i = 0; i < data[d][v].size(); i++)
+
 
 		array < CStatistic, NB_VARIABLES> stat;
 		
@@ -373,33 +359,22 @@ namespace WBSF
 		CStatistic statTmin_max;
 		CStatistic statHr;
 
-		//CStatistic statTmin²;
-		//CStatistic statTmax²;
-		//CStatistic statTmin_max²;
-		
-
 		for (size_t d = 0; d < data.size(); d++)
 		{
-			double Tmin = data[d][V_TMIN][i] - montlhyStat[TMIN_MN][i];
-			double Tmax = data[d][V_TMAX][i] - montlhyStat[TMAX_MN][i];
-			statTmin += Tmin;
-			statTmax += Tmax;
-			statTmin_max += Tmin * Tmax;
+			double deltaTmin = data[d][V_TMIN][i] - montlhyStat[TMIN_MN][i];
+			double deltaTmax = data[d][V_TMAX][i] - montlhyStat[TMAX_MN][i];
+			statTmin += deltaTmin;
+			statTmax += deltaTmax;
+			statTmin_max += deltaTmin * deltaTmax;
 
-			double Hr = Hs2Hr(Tmin, Tmax, data[d][V_SPEH][i]);
+			double Hs = data[d][V_SPEH][i];
+			double Hr = Hs2Hr(data[d][V_TMIN][i], data[d][V_TMAX][i], Hs);
 			ASSERT(Hr >= 0 && Hr <= 100);
-			//double Hs = WBSF::Hr2Hs(data[d][V_TMIN][i], data[d][V_TMAX][i], max(1.0f, min(100.0f, data[d][V_RELH][i])));
-			statHr+=Hr;
 
-/*
-			double Tmin² = data[d][V_TMIN][i];
-			double Tmax² = data[d][V_TMAX][i];
-			statTmin² += Tmin²;
-			statTmax² += Tmax²;
-			statTmin_max² += Tmin² * Tmax²;*/
+			statHr+=Hr;
 		}
 
-		//double test² = statTmin_max²[SUM] / sqrt(statTmin²[SUM²] * statTmax²[SUM²]);
+
 		montlhyStat[TMNMX_R][i] = statTmin_max[SUM] / sqrt(statTmin[SUM²] * statTmax[SUM²]);
 		montlhyStat[DEL_STD][i] = statTmin[STD_DEV];
 		montlhyStat[EPS_STD][i] = statTmax[STD_DEV];
@@ -580,7 +555,7 @@ namespace WBSF
 
 			for (size_t i = 0; i < data.size(); i++)
 			{
-				int x = i%extents.m_xSize;
+				int x = (i + extents.m_xSize / 2 )% extents.m_xSize;
 				int y = extents.m_ySize - int(i / extents.m_xSize) - 1;
 
 				int ii = y*extents.m_xSize + x;

@@ -143,6 +143,9 @@
     <ClInclude Include="HadGEM2-ES.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIGPCP.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -272,6 +275,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HadGEM2-ES.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGPCP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
