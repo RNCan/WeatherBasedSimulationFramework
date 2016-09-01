@@ -1241,6 +1241,59 @@ CStdGridProperty(name, no, true)
 	AddSubItem(pProp);
 }
 
+std::string CStdGeoRectProperty::get_string()
+{
+	CStringA v;
+	if (GetSubItemsCount() == 4)
+	{
+		CString xMin = GetSubItem(0)->GetValue();
+		CString xMax = GetSubItem(1)->GetValue();
+		CString yMin = GetSubItem(2)->GetValue();
+		CString yMax = GetSubItem(3)->GetValue();
+		v = CStringA(xMin + _T(" ") + xMax + _T(" ") + yMin + _T(" ") + yMax);
+	}
+	else
+	{
+		v = GetValue();
+		v.Replace(',',' ');
+	}
+
+	return (LPCSTR)v;
+}
+
+void CStdGeoRectProperty::set_string(std::string str)
+{
+	WBSF::CGeoRect rect(-180, -90, 180, 90, WBSF::PRJ_WGS_84);
+	if (!str.empty())
+	{
+		std::stringstream tmp(str);
+		rect << tmp;
+	}
+	if (GetSubItemsCount() == 4)
+	{
+
+		GetSubItem(0)->SetValue(rect.m_xMin);
+		GetSubItem(1)->SetValue(rect.m_xMax);
+		GetSubItem(2)->SetValue(rect.m_yMin);
+		GetSubItem(3)->SetValue(rect.m_yMax);
+
+		GetSubItem(0)->SetOriginalValue(rect.m_xMin);
+		GetSubItem(1)->SetOriginalValue(rect.m_xMax);
+		GetSubItem(2)->SetOriginalValue(rect.m_yMin);
+		GetSubItem(3)->SetOriginalValue(rect.m_yMax);
+	}
+	else
+	{
+		std::stringstream tmp;
+		tmp << rect;
+		
+		CString value(tmp.str().c_str());
+		value.Replace(' ', ',');
+
+		SetValue(value);
+		SetOriginalValue(value);
+	}
+}
 
 //*********************************************************************************************************
 

@@ -870,7 +870,9 @@ class CStdGeoRectProperty : public CStdGridProperty
 public:
 
 	CStdGeoRectProperty(const std::string& name, const std::string& value, const std::string& description, size_t no);
-
+	virtual std::string get_string();
+	virtual void set_string(std::string str);
+	
 };
 
 

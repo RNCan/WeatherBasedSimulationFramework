@@ -404,7 +404,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	template <typename T> inline
 		T ToValue(const std::string& str)
 	{
-		T t;// = 0; we can't initialize to zero if it's a string value
+		T t = T();// = 0; we can't initialize to zero if it's a string value
 		if (!str.empty())
 		{
 			std::istringstream ss(str);
