@@ -248,6 +248,7 @@
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
     <ClCompile Include="UISolutionMesonetHourly.cpp" />
     <ClCompile Include="UISOPFEUHourly.cpp" />
+    <ClCompile Include="UIWunderground.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

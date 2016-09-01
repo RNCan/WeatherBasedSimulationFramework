@@ -3,6 +3,11 @@
 #include "UIISDLite.h"
 
 #include <boost\filesystem.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
+
 #include "Basic/FileStamp.h"
 #include "Basic/DailyDatabase.h"
 #include "UI/Common/SYShowMessage.h"
@@ -94,6 +99,9 @@ namespace WBSF
 		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 		if (msg)
 		{
+			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+			
+
 			string path = GetHistoryFilePath(false);
 
 			CFileInfoVector fileList;
@@ -144,6 +152,15 @@ namespace WBSF
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
+
+
+				DWORD test1;
+				pSession->QueryOption(INTERNET_OPTION_CONNECT_RETRIES, test1);
+				DWORD test2;
+				pSession->QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, test2);
+				
+				
 
 				if (toDo[0])
 				{
@@ -158,7 +175,7 @@ namespace WBSF
 				{
 					for (int y = 0; y < dirList.size() && msg&&msgTmp; y++)
 					{
-						msg += callback.StepIt(0);
+						//msg += callback.StepIt(0);
 
 						const CFileInfo& info = dirList[y];
 						string path = info.m_filePath;
@@ -214,7 +231,7 @@ namespace WBSF
 				callback.AddMessage(GetString(IDS_SERVER_BUSY));
 
 			callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()));
-			msg = CleanList(fileList, callback);
+			//msg = CleanList(fileList, callback);
 		}
 
 		return msg;
@@ -305,6 +322,12 @@ namespace WBSF
 			string stationID = fileTitle.substr(0, 12);
 			int year = ToInt(Right(fileTitle, 4));
 			string outputFilePath = GetOutputFilePath(stationID, year);
+
+
+			//mesure temporaire
+			string outputFilePathTmp = GetOutputFilePath(stationID, year, "");
+			if (FileExists(outputFilePath) && FileExists(outputFilePathTmp))
+				RemoveFile(outputFilePath);
 
 			if (!IsFileInclude(fileTitle) || IsFileUpToDate(*it, outputFilePath, false))
 				it = fileList.erase(it);
@@ -426,15 +449,18 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp;// = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
 				
+				//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+				
+
 				TRY
 				{
 					for (int i = curI; i < fileList.size() && msgTmp && msg; i++)
 					{
-						msg += callback.StepIt(0);
+						//msg += callback.StepIt(0);
 
 						string fileTitle = GetFileTitle(fileList[i].m_filePath);
 
@@ -446,28 +472,36 @@ namespace WBSF
 						string outputFilePath = GetOutputFilePath(stationID, year);
 						string outputPath = GetPath(outputFilePath);
 						CreateMultipleDir(outputPath);
-						msgTmp += CopyFile(pConnection, fileList[i].m_filePath, zipFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+						//msgTmp += CopyFile(pConnection, fileList[i].m_filePath, zipFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
 						//unzip 
 						if (msgTmp)
 						{
 							
 
-							
-							string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
-							msg += WinExecWait(command.c_str());
-							RemoveFile(zipFilePath);
+							if (FileExists(zipFilePath))
+							{
+								string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
+								msg += WinExecWait(command.c_str());
+								RemoveFile(zipFilePath);
+							}
 
 							//remove old file
-							RemoveFile(outputFilePath);
-							//by default, file don't have extension,
-							RenameFile(extractedFilePath, outputFilePath);
-							
-							//update time to the time of the .gz file
-							boost::filesystem::path p(outputFilePath);
-							if (boost::filesystem::exists(p))
-								boost::filesystem::last_write_time(p, fileList[i].m_time);
+							if (FileExists(extractedFilePath) && FileExists(outputFilePath))
+								RemoveFile(outputFilePath);
 
+
+							if (FileExists(extractedFilePath) )
+							{
+								//rename file. by default, file don't have extension
+								if (RenameFile(extractedFilePath, outputFilePath))
+								{
+									//update time to the time of the .gz file
+									boost::filesystem::path p(outputFilePath);
+									if (boost::filesystem::exists(p))
+										boost::filesystem::last_write_time(p, fileList[i].m_time);
+								}
+							}
 
 							ASSERT(FileExists(outputFilePath));
 							nbRun = 0;
@@ -484,8 +518,8 @@ namespace WBSF
 				END_CATCH_ALL
 
 				//clean connection
-				pConnection->Close();
-				pSession->Close();
+				//pConnection->Close();
+				//pSession->Close();
 
 				if (!msgTmp)
 				{
@@ -676,18 +710,40 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 
+
+		
+
+
 		ifStream  file;
 
 		msg = file.open(filePath);
 		if (msg)
 		{
+
+			std::stringstream outStr;
+			ifstream file("E:\\Travaux\\Bureau\\CC\\010010-99999-1980.gz", ios_base::in | ios_base::binary);
+			try
+			{
+				boost::iostreams::filtering_istreambuf in;
+				in.push(boost::iostreams::gzip_decompressor());
+				in.push(file);
+				boost::iostreams::copy(in, outStr);
+			}
+			catch (const boost::iostreams::gzip_error& exception) 
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error) {
+					//check for all error code    
+				}
+			}
 			
 			CTPeriod period(CTRef(firstYear, 0, 0, 0), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR));
 			array<float, CUIISDLite::NB_ISD_FIELD> e;
 
 
 			string line;
-			while (std::getline(file, line) && msg)
+			//while (std::getline(file, line) && msg)
+			while (std::getline(outStr, line) && msg)
 			{
 			//	Trim(line);
 		//		if (!line.empty())

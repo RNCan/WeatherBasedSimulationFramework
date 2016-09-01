@@ -39,7 +39,6 @@
     <ClCompile Include="TaskPropertiesWnd.cpp">
       <Filter>Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tasks\UIWunderground.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">

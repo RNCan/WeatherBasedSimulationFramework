@@ -294,7 +294,8 @@ namespace WBSF
 			pt.Reproject(CProjectionTransformationManager::Get(pt.GetPrjID(), m_grid[TMIN_MN].GetPrjID()));
 		}
 
-
+		//mesure temporaire
+		//pt.m_lon += 360;
 		CGeoPointIndex index = m_grid[TMIN_MN].GetExtents().CoordToXYPos(pt);
 
 		if (index.m_x < 0 || index.m_x >= m_grid[TMIN_MN]->GetRasterXSize() || index.m_y < 0 || index.m_y >= m_grid[TMIN_MN]->GetRasterYSize())

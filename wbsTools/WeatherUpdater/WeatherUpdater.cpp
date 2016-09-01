@@ -1,3 +1,6 @@
+//5.1.0 29/08/2016  Compile with boost 1.61
+//					Add CPGP
+//					Add CMID5 and CreateMMG
 //5.0.9 21/08/2016	Bug correction in the ISD-Lite product
 //5.0.8 25/07/2016  Add New-Brunswick agriculture network.
 //					Debug Radar and PrcpRadar

@@ -1,7 +1,7 @@
 
 // MatchStation.cpp : Définit les comportements de classe pour l'application.
 //  
-// 4.0.1	Rémi Saint-Amant	Bug correction in gradient
+// 4.0.1	Rémi Saint-Amant	Bug correction in gradient 
 // 4.0.0	Rémi Saint-Amant	Initial version 
 
 #include "stdafx.h"
