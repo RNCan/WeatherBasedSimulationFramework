@@ -49,7 +49,6 @@ namespace WBSF
 		case SHAPEFILE:			str = GetString(IDS_STR_FILTER_SHAPEFILE); break;
 		case VARIABLES:
 		{
-			
 			for (TVarH v = H_TAIR; v <NB_VAR_H; v++)
 				str += string("|") + GetVariableAbvr(v) + "=" + GetVariableTitle(v);
 			break;
@@ -79,8 +78,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CGeoRect boundingBox;
-
+		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
+		
 
 		if (boundingBox.IsRectNormal())
 		{
@@ -144,7 +143,8 @@ namespace WBSF
 		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		CGeoRect boundingBox;
+		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
+		CWVariables vars(Get(VARIABLES));
 
 		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
@@ -187,8 +187,7 @@ namespace WBSF
 		}
 
 
-		callback.PushTask(GetString(IDS_CLIP_WEATHER), inputDailyDB.size());
-		//callback.SetNbStep();
+		callback.PushTask(GetString(IDS_CLIP_WEATHER) +" ("+ ToString(inputDailyDB.size()) + ")", inputDailyDB.size());
 
 
 		int nbStationAdded = 0;
@@ -204,9 +203,7 @@ namespace WBSF
 				else
 					it = years.erase(it);
 			}
-
-
-			//CGeoPoint pt(stationHead.m_lon, stationHead.m_lat, PRJ_WGS_84 );
+			
 			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
 			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
@@ -215,11 +212,16 @@ namespace WBSF
 			{
 				CWeatherStation station;
 				inputDailyDB.Get(station, i, years);
+				
+				if( vars.any() )
+					station.CleanUnusedVariable(vars);
 
-				msg = outputDailyDB.push_back(station);
-				if (msg)
-					nbStationAdded++;
-
+				if (station.HaveData())
+				{
+					msg = outputDailyDB.push_back(station);
+					if (msg)
+						nbStationAdded++;
+				}
 			}
 
 			msg += callback.StepIt();
@@ -252,7 +254,8 @@ namespace WBSF
 		string locFilePath = TrimConst(Get(LOC_FILEPATH));
 		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;");
 		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
-		CGeoRect boundingBox;
+		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
+		CWVariables vars(Get(VARIABLES));
 
 		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);

@@ -184,6 +184,10 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
+		//msg = VerifyUserPass(callback);//to protect user if they have not a good password to be locked
+		//if (!msg)
+			//return msg;
+
 
 		if (FileExists(GetStationListFilePath()))
 		{
@@ -214,6 +218,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 
 		CTRef today = CTRef::GetCurrentTRef();
 		string workingDir = GetDir(WORKING_DIR);
@@ -254,10 +259,12 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+
 		if (!msg)
 			return msg;
 
 		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
 
 		int nbDownload = 0;
 		int currentNbDownload = 0;
@@ -318,6 +325,129 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CUIACIS::VerifyUserPass(CCallback& callback)
+	{
+		ERMsg msg;
+
+		
+
+
+		CString URL = _T("app86/extranet/logon");
+		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");//\r\nUser-Agent: HttpCall\r\n{
+		CStringA strParam = "j_username=biosim&j_password=Stamant74&submit=logon";
+		CString strContentL;
+		strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
+
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+		msg = GetHttpConnection("extranet.agric.gov.ab.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+
+		string source;
+		DWORD HttpRequestFlags = INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
+		msg = GetPageText(pConnection, "app86/extranet/logon?j_username=biosim&j_password=Stamant74", source, false, HttpRequestFlags);
+
+
+
+		//if (!msg)
+			//return msg;
+
+		//DWORD HttpRequestFlags = INTERNET_FLAG_SECURE |INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
+		//CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, URL, NULL, 1, NULL, NULL, HttpRequestFlags);
+		//if (pURLFile != NULL)
+		//{
+		//	TRY
+		//	{
+		//		pURLFile->AddRequestHeaders(strHeaders);
+		//		pURLFile->AddRequestHeaders(strContentL);
+		//		
+		//		
+		//		// send request
+		//		BOOL bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
+		//
+		//		if (bRep)
+		//		{
+		//			string source;
+		//			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+
+
+		//			string source;
+		//			const short MAX_READ_SIZE = 4096;
+		//			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+
+		//			std::string tmp;
+		//			tmp.resize(MAX_READ_SIZE);
+		//			UINT charRead = 0;
+		//			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
+		//				source.append(tmp.c_str(), charRead);
+		//		
+
+		//			if (msg)
+		//			{
+		//				if (source.find("Welcome to the Alberta Agriculture and Forestry Extranet") != string::npos)
+		//				{
+		//					callback.AddMessage("UserName and Password : OK");
+		//				}
+		//				else
+		//				{
+		//					msg.ajoute("Error in validation of the user name and password");
+		//				}
+		//			}
+
+		//		}
+		//		else
+		//		{
+		//			msg.ajoute("Error in validation of the user name and password");
+		//		}
+
+		//		pURLFile->Close();
+		//	}
+		//	CATCH_ALL(e)
+		//	{
+		//		DWORD errnum = GetLastError();
+		//		if (errnum == 12002 || errnum == 12029)
+		//		{
+		//			CInternetException e(errnum);
+		//			msg += UtilWin::SYGetMessage(e);
+		//		}
+		//		else if (errnum == 12031 || errnum == 12111)
+		//		{
+		//			CInternetException e(errnum);
+		//			msg += UtilWin::SYGetMessage(e);
+		//		}
+		//		else if (errnum == 12003)
+		//		{
+		//			msg = UtilWin::SYGetMessage(*e);
+
+		//			DWORD size = 255;
+		//			TCHAR cause[256] = { 0 };
+		//			InternetGetLastResponseInfo(&errnum, cause, &size);
+		//			if (_tcslen(cause) > 0)
+		//				msg.ajoute(UTF8(cause));
+		//		}
+		//		else
+		//		{
+		//			CInternetException e(errnum);
+		//			msg += UtilWin::SYGetMessage(e);
+		//		}
+		//	}
+		//	END_CATCH_ALL
+
+
+		//	delete pURLFile;
+		//}
+		//
+		
+		//clean connection
+		pConnection->Close();
+		pConnection.release();
+		pSession->Close();
+		pSession.release();
+
+		return msg;
+	
+	}
+
 	size_t GetHour(const string& time)
 	{
 		size_t h = 0;
@@ -338,13 +468,14 @@ namespace WBSF
 		if (msg)
 		{
 			size_t type = as <size_t>(DATA_TYPE);
-
+			CTRef TRef = CTRef::GetCurrentTRef();
 
 			CWeatherYears data(type == HOURLY_WEATHER);
 			data.CreateYear(year);
 			
 			callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
-			for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
+			size_t nbDays = (TRef.GetYear() == year&&TRef.GetMonth() == m) ? TRef.GetDay()+1: GetNbDayPerMonth(year, m);
+			for (size_t d = 0; d <nbDays && msg; d++)
 			{
 				string pageURL = FormatA(PageDataFormat, type==HOURLY_WEATHER?"HOURLY":"DAILY", ID.c_str(), year, m + 1, d + 1);
 

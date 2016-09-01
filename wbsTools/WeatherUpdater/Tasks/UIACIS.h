@@ -44,7 +44,8 @@ namespace WBSF
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg DownloadStation(CCallback& callback);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
-		
+		ERMsg VerifyUserPass(CCallback& callback);
+
 		std::string GetStationListFilePath()const;
 		std::string GetOutputFilePath(int year, size_t m, const std::string& stationID)const;
 

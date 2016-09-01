@@ -534,7 +534,7 @@ namespace WBSF
 		reset();
 
 		if (str != NULL)
-			operator=(GetVariables(str, " ,;\t", true));
+			operator=(GetVariables(str, " ,;\t|", true));
 
 		return *this;
 	}
