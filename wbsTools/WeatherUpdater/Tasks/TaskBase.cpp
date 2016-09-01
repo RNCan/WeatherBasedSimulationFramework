@@ -18,7 +18,7 @@ namespace WBSF
 
 	const string CTaskBase::EMPTY_STRING;
 	string CTaskBase::PROJECT_PATH;
-	const char* CTaskBase::TYPE_NAME[NB_TYPES] = {"Updater", "Tools", "MonthlyMeanGrid"};
+	const char* CTaskBase::TYPE_NAME[NB_TYPES] = {"Updater", "Tools"};
 	const std::string& CTaskBase::GetTypeTitle(size_t i){ static const StringVector TYPE_TITLE(GetString(IDS_TASK_TYPE_TITLE), ";|"); ASSERT(i < TYPE_TITLE.size()); return TYPE_TITLE[i]; }
 	
 	std::string CTaskBase::GetDir(size_t i)const
@@ -134,10 +134,10 @@ namespace WBSF
 		m_params[i] = value;
 	}
 
-	std::string CTaskBase::GetUpdaterList(bool bHourly, bool bDaily, bool bForecast, bool bGrib)const
+	std::string CTaskBase::GetUpdaterList(const CUpdaterTypeMask& types)const
 	{ 
 		ASSERT(m_pProject); 
-		return m_pProject->GetUpdaterList(bHourly, bDaily, bForecast, bGrib);
+		return m_pProject->GetUpdaterList(types);
 	}
 
 	const std::string& CTaskBase::Description(size_t i)const
@@ -276,6 +276,10 @@ namespace WBSF
 		return bRep;
 	}
 
+	ERMsg CTaskBase::CreateMMG(string filePathOut, CCallback& callback)
+	{
+		return ERMsg();
+	}
 
 	
 	//****************************************************************************************************************************
@@ -529,20 +533,24 @@ namespace WBSF
 		return true;
 	}
 
-
-	std::string CTasksProject::GetUpdaterList(bool bHourly, bool bDaily, bool bForecast, bool bGribs)const
+	
+	std::string CTasksProject::GetUpdaterList(const CUpdaterTypeMask& types)const
 	{
 		std::string str;
 		CTasksProjectBase::const_iterator updateIt = begin() + CTaskBase::UPDATER;
 		for (CTaskPtrVector::const_iterator it = updateIt->begin(); it != updateIt->end(); it++)
 		{
 			bool bHourlyTask = (*it)->IsHourly();
-			bool bDailyTask = !(*it)->IsHourly();
+			bool bDailyTask = (*it)->IsDaily();
 			bool bForecastTask = (*it)->IsForecast();
+			bool bDatabaseTask = (*it)->IsDatabase();
 			bool bGribsTask = (*it)->IsGribs();
-			if (((bHourly == bHourlyTask) || (bDailyTask&&bDaily)) &&
-				bForecast == bForecastTask &&
-				bGribs == bGribsTask)
+			bool bMMGTask = (*it)->IsMMG();
+			
+			bool bTime = (types[IS_HOURLY] == bHourlyTask) || (types[IS_DAILY] == bDailyTask);
+			bool bForecast = types[IS_FORECAST] == bForecastTask;
+			bool bType = types[IS_DATABASE] == bDatabaseTask || types[IS_GRIBS] == bGribsTask || types[IS_MMG] == bMMGTask;
+			if (bTime && bForecast && bType)
 			{
 				str += str.empty() ? "" : "|";
 				str += (*it)->m_name;//que faire si plusieur fois le mem nom???
@@ -554,7 +562,6 @@ namespace WBSF
 	}
 
 	
-
 	
 }
 

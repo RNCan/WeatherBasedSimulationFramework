@@ -2,6 +2,7 @@
 
 #include <map>
 #include <unordered_map>
+#include <bitset>
 
 #include "Basic/ERMsg.h"
 #include "Basic/Callback.h"
@@ -61,6 +62,24 @@ namespace WBSF
 	typedef std::map<std::string, std::string> CTaskParameters;
 
 	//****************************************************************************************************************
+	//UpdaterType
+	enum TUpdater{ IS_HOURLY, IS_DAILY, IS_FORECAST, IS_DATABASE, IS_GRIBS, IS_MMG, NB_UPDATER_TYPE };
+	class CUpdaterTypeMask : public std::bitset<NB_UPDATER_TYPE>
+	{
+	public:
+
+		CUpdaterTypeMask(bool bIsHourly = false, bool bIsDaily = false, bool bIsForecast = false, bool bIsDatabase=false, bool bIsGribs = false, bool bIsMMG = false)
+		{
+			at(IS_HOURLY) = bIsHourly;
+			at(IS_DAILY) = bIsDaily;
+			at(IS_FORECAST) = bIsForecast;
+			at(IS_DATABASE) = bIsDatabase;
+			at(IS_GRIBS) = bIsGribs;
+			at(IS_MMG) = bIsMMG;
+		}
+	};
+
+	//****************************************************************************************************************
 
 	class CTasksProject;
 	class CTaskBase 
@@ -69,7 +88,7 @@ namespace WBSF
 
 		typedef std::shared_ptr<CTaskBase>    pointer;
 
-		enum TType{ UPDATER, TOOLS, MMG, NB_TYPES };
+		enum TType{ UPDATER, TOOLS, NB_TYPES };
 
 		//static const char* WORKING_DIR_STR;
 		static const char* GetTypeName(size_t i){ ASSERT(i < NB_TYPES); return TYPE_NAME[i]; }
@@ -113,9 +132,14 @@ namespace WBSF
 		virtual UINT GetTitleStringID()const=0;
 		virtual UINT GetDescriptionStringID()const = 0;
 		virtual bool IsHourly()const{ return false; }
+		virtual bool IsDaily()const{ return false; }
 		virtual bool IsForecast()const{	return false; }
+		virtual bool IsDatabase()const{ return false; }
 		virtual bool IsGribs()const{ return false; }
-		virtual bool IsCreator()const{ return false; }
+		virtual bool IsMMG()const{ return false; }
+
+		
+		
 
 		//attribute
 		virtual size_t GetNbAttributes()const{ return 0; }
@@ -127,7 +151,7 @@ namespace WBSF
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK) = 0;
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
-
+		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback);
 
 		void writeStruc(zen::XmlElement& output)const;
 		bool readStruc(const zen::XmlElement& input);
@@ -146,7 +170,8 @@ namespace WBSF
 		const std::string& GetLastMsg()const{ return m_lastMsg; }
 		void SetLastMsg(const std::string& msg)const{ const_cast<CTaskBase*>(this)->m_lastMsg = msg; }
 
-		std::string GetUpdaterList(bool bHourly, bool bDaily, bool bForecast = false, bool bGribs = false)const;
+		
+		std::string GetUpdaterList(const CUpdaterTypeMask& types)const;
 		const std::string& Title(size_t i)const;
 		void UpdateLanguage(){ ATTRIBUTE_TITLE.clear();  }
 		
@@ -223,7 +248,7 @@ namespace WBSF
 		bool readStruc(const zen::XmlElement& input);
 
 		CTaskPtr GetTask(size_t t, const std::string& name)const;
-		std::string GetUpdaterList(bool bHourly, bool bDaily, bool bForecast = false, bool bGribs = false)const;
+		std::string GetUpdaterList(const CUpdaterTypeMask& types)const;
 
 
 		std::string GetFilePaht()const{ return m_filePaht; }

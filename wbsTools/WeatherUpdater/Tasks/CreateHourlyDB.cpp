@@ -43,11 +43,11 @@ namespace WBSF
 	std::string CCreateHourlyDB::Option(size_t i)const
 	{
 		string str;
-
+		
 		switch (i)
 		{
-		case INPUT:				str = GetUpdaterList(true, false, false, false); break;
-		case FORECAST:			str = GetUpdaterList(true, false, true, false); break;
+		case INPUT:				str = GetUpdaterList(CUpdaterTypeMask(true)); break;
+		case FORECAST:			str = GetUpdaterList(CUpdaterTypeMask(true, false, true)); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_HOURLY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;

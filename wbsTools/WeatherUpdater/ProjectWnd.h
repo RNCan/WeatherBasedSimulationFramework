@@ -42,17 +42,19 @@ public:
 
 	static CWeatherUpdaterDoc* GetDocument();
 
-	CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2=-1);
+	CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2 = -1, UINT toolbarID3 = -1);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
 	size_t m_type;
 	UINT m_toolbarID1;
 	UINT m_toolbarID2;
+	UINT m_toolbarID3;
 
 
 	CFont m_fntPropList;
 	CProjectWndToolBar	m_wndToolBar1;
 	CProjectWndToolBar	m_wndToolBar2;
+	CProjectWndToolBar	m_wndToolBar3;
 	CTaskTreeCtrl		m_taskCtrl;
 	CProjectWndStatusBar m_wndStatusBar;
 

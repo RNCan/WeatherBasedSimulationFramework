@@ -49,7 +49,9 @@ namespace WBSF
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
-virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual bool IsDaily()const{ return true; }
+		virtual bool IsDatabase()const{ return true; }
 		
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -98,19 +100,6 @@ virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		bool IsStationInclude(const std::string& ID)const;
-
-
-
-	/*	CCountrySelection m_countries;
-		CStateSelection m_states;
-		CGeoRect m_boundingBox;
-
-		std::string m_DEMFilePath;
-		bool m_bUseDEMStation;
-		bool m_bShowFTPTransfer;
-		bool m_bExtractWind;
-		bool m_bExtractSnow;
-*/
 
 		ERMsg PreProcess(CCallback& callback);
 		//optimisation for GetStations

@@ -29,7 +29,8 @@ namespace WBSF
 		virtual TType ClassType()const;
 		virtual UINT GetTitleStringID()const{ return ATTRIBUTE_TITLE_ID; }
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return false; }
+		virtual bool IsDaily()const{ return true; }
+		virtual bool IsDatabase()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -40,8 +41,6 @@ namespace WBSF
 		virtual const char* Name(size_t i)const{ ASSERT(i<NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
-
-
 
 	protected:
 

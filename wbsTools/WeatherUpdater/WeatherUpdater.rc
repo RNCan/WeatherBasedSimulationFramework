@@ -88,22 +88,18 @@ BEGIN
     BUTTON      ID_TASK_EC_DAILY
     BUTTON      ID_TASK_EC_FORECAST
     SEPARATOR
-    BUTTON      ID_TASK_EC_RADAR
-    BUTTON      ID_TASK_EC_PRCP_RADAR
-    SEPARATOR
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
     BUTTON      ID_TASK_SNOTEL
-	BUTTON      ID_TASK_NOMAD_RUC
+	SEPARATOR
+	BUTTON      ID_TASK_SM_HOURLY
+	BUTTON      ID_TASK_SM_DAILY
+	BUTTON      ID_TASK_SM_CIPRA_HOURLY
 END
 
 IDR_TASK_TOOLBAR2 TOOLBAR 32, 32
 BEGIN
-    BUTTON      ID_TASK_SM_HOURLY
-    BUTTON      ID_TASK_SM_DAILY
-    BUTTON      ID_TASK_SM_CIPRA_HOURLY
-    SEPARATOR
     BUTTON      ID_TASK_ACIS
     BUTTON      ID_TASK_MDDELCC_DAILY
     BUTTON      ID_TASK_SOPFEU
@@ -122,6 +118,7 @@ BEGIN
     BUTTON      ID_TASK_CREATE_DAILY
     BUTTON      ID_TASK_CREATE_NORMALS
     BUTTON      ID_TASK_CREATE_GRIBS
+	BUTTON      ID_TASK_CREATE_MMG
     SEPARATOR
     BUTTON      ID_TASK_MERGE_DB
     BUTTON      ID_TASK_APPEND_DB
@@ -136,7 +133,13 @@ END
 
 IDR_TASK_TOOLBAR4 TOOLBAR 32, 32
 BEGIN
-BUTTON      ID_TASK_HADGEM2_ES
+BUTTON      ID_TASK_EC_RADAR
+BUTTON      ID_TASK_EC_PRCP_RADAR
+SEPARATOR
+BUTTON      ID_TASK_NOMAD_RUC
+SEPARATOR
+BUTTON      ID_TASK_CMIP5
+BUTTON		ID_TASK_GPCP
 END
 
 
@@ -174,6 +177,7 @@ BEGIN
     BUTTON      ID_TASK_CREATE_DAILY
     BUTTON      ID_TASK_CREATE_NORMALS
     BUTTON      ID_TASK_CREATE_GRIBS
+	BUTTON      ID_TASK_CREATE_MMG
     BUTTON      ID_TASK_MERGE_DB
     BUTTON      ID_TASK_APPEND_DB
     BUTTON      ID_TASK_CROP_DB
@@ -182,24 +186,17 @@ BEGIN
     BUTTON      ID_TASK_CONVERT_DB
     BUTTON      ID_TASK_OTHER_TOOLS
     SEPARATOR
-    BUTTON      ID_TASK_RCM22
-    BUTTON      ID_TASK_GCM10
-    BUTTON      ID_TASK_GCM4
-    BUTTON      ID_TASK_HADGEM2_ES
-    BUTTON      ID_TASK_MIROC_10
-    BUTTON      ID_TASK_CESM1_CAM5_10
-    BUTTON      ID_TASK_OTHER_MMG
-    SEPARATOR
-    BUTTON      ID_TASK_UPDATE
-    BUTTON      ID_TASK_TOOLS
-    BUTTON      ID_TASK_MMG
+	BUTTON      ID_TASK_CMIP5
+	BUTTON		ID_TASK_GPCP
+	SEPARATOR
+	BUTTON      ID_TASK_UPDATE
+	BUTTON      ID_TASK_TOOLS
 END
 
 IDR_TASK_TYPE TOOLBAR 16, 16
 BEGIN
     BUTTON      ID_TASK_UPDATE
     BUTTON      ID_TASK_TOOLS
-    BUTTON      ID_TASK_MMG
 END
 
 
@@ -625,7 +622,7 @@ BEGIN
     IDS_FTP_DIRECTION       "Télécharger|Téléverser"
     IDS_FTP_CONNECTION_TYPE "Utilisez les paramètres pré configurés d'Internet Explorer|Utilisez une connexion directe|Utilisez une connexion par le serveur proxy"
     IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
-    IDS_TASK_TYPE_TITLE     "Téléchargement|Outils|Grille mensuelle moyenne"
+    IDS_TASK_TYPE_TITLE     "Téléchargement|Outils"
     IDS_PROPERTY_ROOT       "Propriété"
     IDS_EXECUTE_TASK        "Execution des tâches"
     IDS_TASK_DESCRIPTION    "Description"
@@ -667,7 +664,7 @@ BEGIN
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
     IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
 END
-
+ 
 STRINGTABLE
 BEGIN
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
@@ -675,6 +672,8 @@ BEGIN
 	IDS_UPDATER_MANITOBA_P "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
 	IDS_UPDATER_NEWBRUNSWICK_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
 	IDS_UPDATER_ONTARIO_P "Répertoire de travail|Première année|Dernière année|Réseau"
+	IDS_UPDATER_CMIP5_P    "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
+	IDS_UPDATER_GPCP_P     "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
 END
@@ -685,6 +684,7 @@ BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données|Fichier de sortie|Première date|Dernière date|"
+	IDS_TOOL_CREATE_MMG_P	 "Tâche de données|Fichier de sortie"
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie"
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
@@ -697,26 +697,12 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CONVERT_DB_P   "Direction|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_OTHER_TOOLS_P  "----"
-    IDS_MMG_RCM22           "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 RCM4 au 22 km"
-    IDS_MMG_RCM22_P         "Répertoire RCM4 (22km)|Région|Fichier de sortie"
-    IDS_MMG_GCM10           "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km"
-    IDS_MMG_GCM10_P         "Répertoire GCM4 (10km)|Fichier de sortie"
-    IDS_MMG_GCM4            "Créer une matrice mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km"
-    IDS_MMG_GCM4_P          "Répertoire GCM4 (10km)|Fichier de sortie"
 END
+
 
 STRINGTABLE
 BEGIN
-    IDS_MMG_HADGEM2_ES_P    "Répertoire HadGEM2-ES|Fichier de sortie"
-    IDS_MMG_MIROC_10        "Créer une matrice mensuelles moyennes (MMG) à partir des données MIROC réinterpolées aux 10 km"
-    IDS_MMG_MIROC_10_P      "Répertoire MIROC (10km)|Fichier de sortie"
-    IDS_MMG_CESM1_CAM5_10   "Créer une matrice mensuelles moyennes (MMG) à partir des données du ""Community Earth System Model"" version 1 qui inclut le ""Community Atmospheric Model"" version 5 réinterpolées aux 10 km"
-    IDS_MMG_CESM1_CAM5_10_P "Répertoire CESM1 (10km)|Fichier de sortie"
-END
-
-STRINGTABLE
-BEGIN
-    ID_TASK_EC_DAILY        "Télécharger les données quotidiennes d'Environnement Canada\nCanada quotidien"
+    ID_TASK_EC_DAILY        "Télécharger les données quotidiennes d'Environnement Canada\nCanada quotidien" 
     ID_TASK_EC_HOURLY       "Télécharger les données horaires d'Environnement Canada\nCanada horaire"
     ID_TASK_EC_FORECAST     "Télécharger les prévision d'Environnement Canada\nCanada prévision"
     ID_TASK_EC_RADAR        "Télécharger les images radars d'Environnement Canada (format GIF)\nImages radars"
@@ -726,6 +712,8 @@ BEGIN
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
     ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC)"" via NOMADS (NOAA)\nGrille RUC"
+	ID_TASK_CMIP5			"Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
+	ID_TASK_GPCP			"Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
     ID_TASK_SM_HOURLY       "Télécharger les données horaires du Québec via Solutions-Mesonet\nQuébec horaire"
     ID_TASK_SM_DAILY        "Télécharger les données quotidiennes du Québec via Solutions-Mesonet\nQuébec quotidien"
 END
@@ -745,6 +733,7 @@ BEGIN
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
     ID_TASK_CREATE_GRIBS    "Créer une base de données Gribs\nDB Gribs"
+	ID_TASK_CREATE_MMG		"Créer une grille moyenne mensuelle\nMMG"
     ID_TASK_MERGE_DB        "Fusionner deux bases de données météorologiques\nFusionner"
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
@@ -755,19 +744,12 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
-    ID_TASK_RCM22           "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 RCM4 au 22 km\nRCM22"
-    ID_TASK_GCM10           "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km\nGCM10"
-    ID_TASK_GCM4            "Créer une grille mensuelles moyennes (MMG) à partir des données CCCma ESM2 GCM4 réinterpolées aux 10 km\n?"
-    ID_TASK_HADGEM2_ES      "Créer une grille mensuelles moyennes (MMG) à partir des données Hadley GEM2-ES\nHadly GEM2-ES"
-    ID_TASK_MIROC_10        "Créer une grille mensuelles moyennes (MMG) à partir des données MIROC réinterpolées aux 10 km\nMiroc10"
-    ID_TASK_CESM1_CAM5_10   "Créer une grille mensuelles moyennes (MMG) à partir des données du ""Community Earth System Model"" version 1 qui inclut le ""Community Atmospheric Model"" version 5 réinterpolées aux 10 km\nCESM10"
 END
 
 STRINGTABLE
 BEGIN
-    ID_TASK_UPDATE          "Add a task of type downloader\nDownloader"
-    ID_TASK_TOOLS           "Add a task of type tool\nTool"
-    ID_TASK_MMG             "Add a task of type monthly mean grid\nMMG"
+	ID_TASK_UPDATE          "Ajouter une tâche de type téléchargement\ntéléchargement"
+	ID_TASK_TOOLS           "Ajouter une tâche de type outil\noutil"
     ID_TASK_DELETE          "Enlever une tâche\nEnlever"
 END
 
@@ -1064,7 +1046,7 @@ BEGIN
     IDS_FTP_DIRECTION       "Download|Upload"
     IDS_FTP_CONNECTION_TYPE "Use Preconfigued Internet Explorer Settings|Use Direct Connection|Use Proxy Server Connection"
     IDS_CONVERT_DIRECTION   "To BioSIM 11|To BioSIM 10"
-    IDS_TASK_TYPE_TITLE     "Download|Tools|Monhtly Mean Grid"
+    IDS_TASK_TYPE_TITLE     "Download|Tools"
     IDS_PROPERTY_ROOT       "Property"
     IDS_EXECUTE_TASK        "Execute tasks"
     IDS_TASK_DESCRIPTION    "Description"
@@ -1085,8 +1067,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_DAILY_P  "Working directory|First Year|Last Year|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Working directory|First Year|Last Year|Province(s)"
+    IDS_UPDATER_EC_DAILY_P  "Working directory|First year|Last year|Province(s)"
+    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)"
 END
 
 STRINGTABLE
@@ -1095,35 +1077,37 @@ BEGIN
     IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_NOAA_GHCND_P 
-                            "Working directory|First Year|Last Year|Country|States (if USA)|Show progression"
-    IDS_UPDATER_NOAA_GSOD_P "Working directory|First Year|Last Year|Country|States (if USA)"
+                            "Working directory|First year|Last year|Country|States (if USA)|Show progression"
+    IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Working directory|First Year|Last Year|Country|States (if USA)"
-    IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First Year|Last Year|Update until x days|Update station list"
+                            "Working directory|First year|Last year|Country|States (if USA)"
+    IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
     IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First Year|Last Year"
-    IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First Year|Last Year|Update coordinates"
+    IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First year|Last year"
+    IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First year|Last year|Update coordinates"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "User Name|Password|Working directory|First Year|Last Year"
-    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First Year|Last Year"
+                            "User Name|Password|Working directory|First year|Last year"
+    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year"
     IDS_UPDATER_MDDELCC_DAILY_P 
-                            "Working directory|First Year|Last Year|Update until x days"
-    IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First Year|Last Year"
+                            "Working directory|First year|Last year|Update until x days"
+    IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-    IDS_UPDATER_BC_P        "Working directory|type|First Year|Last Year|Update coordinates|Ignor Environnement Canada stations"
+    IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_WU_P        "Working directory|First Year|Last Year|Country|States (if USA)|Province (if Canada)"
-    IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First Year|Last Year"
-	IDS_UPDATER_MANITOBA_P "Working directory|First Year|Last Year|Network|Data type"
-	IDS_UPDATER_NEWBRUNSWICK_P "User Name|Password|Working directory|First Year|Last Year|Network|Data type"
-	IDS_UPDATER_ONTARIO_P "Working directory|First Year|Last Year|Network"
+    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
+    IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First year|Last year"
+	IDS_UPDATER_MANITOBA_P "Working directory|First year|Last year|Network|Data type"
+	IDS_UPDATER_NEWBRUNSWICK_P "User Name|Password|Working directory|First year|Last year|Network|Data type"
+	IDS_UPDATER_ONTARIO_P "Working directory|First year|Last year|Network"
+	IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
+	IDS_UPDATER_GPCP_P     "Working directory|Type|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
 END
@@ -1134,6 +1118,7 @@ BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply Climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
     IDS_TOOL_CREATE_GRIBS_P "Data Task|Output File|First date|Last date"
+	IDS_TOOL_CREATE_MMG_P "Data Task|Output File"
     IDS_TOOL_MERGE_DB_P     "Input File 1|Input File 2|Output file path|Max Distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input File 1|Input File 2|Output File"
     IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
@@ -1146,22 +1131,8 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CONVERT_DB_P   "Direction|Input File|Output File"
     IDS_TOOL_OTHER_TOOLS_P  "----"
-    IDS_MMG_RCM22           "Create monthly mean grid (MMG) from CCCma ESM2 RCM4 at 22 km"
-    IDS_MMG_RCM22_P         "RCM4 (22km) directory|Region|Output file"
-    IDS_MMG_GCM10           "Create monthly mean grid (MMG) from CCCma ESM2 GCM4 downscaled at 10 km"
-    IDS_MMG_GCM10_P         "GCM4 (10km) directory|Output file"
-    IDS_MMG_GCM4            "Create monthly mean grid (MMG) from CCCma ESM2 GCM4"
-    IDS_MMG_GCM4_P          "GCM4 directory|Output file"
 END
 
-STRINGTABLE
-BEGIN
-    IDS_MMG_HADGEM2_ES_P	"HadGEM2-ES directory|Output filepath"
-    IDS_MMG_MIROC_10        "Create monthly mean grid (MMG) from MIROC model downscaled at 10 km"
-    IDS_MMG_MIROC_10_P      "Répertoire MIROC (10km)|Fichier de sortie"
-    IDS_MMG_CESM1_CAM5_10   "Create a monthly mean grid (MMG) from the Community Earth System Model version 1 that includes the Community Atmospheric Model version 5  downscaled at 10 km"
-    IDS_MMG_CESM1_CAM5_10_P "Répertoire CESM-CAM5 (10km)|Fichier de sortie"
-END
 
 STRINGTABLE
 BEGIN
@@ -1175,6 +1146,8 @@ BEGIN
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
     ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
+	ID_TASK_CMIP5			"Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
+	ID_TASK_GPCP			"Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
     ID_TASK_SM_HOURLY       "Download Québec houry data via Solutions-Mesonet\nQuébec Hourly"
     ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
 END
@@ -1194,6 +1167,7 @@ BEGIN
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"
     ID_TASK_CREATE_GRIBS    "Create Gribs database\nCreate Gribs"
+	ID_TASK_CREATE_MMG		"Create Monthly Mean Grid\nCreate MMG"
     ID_TASK_MERGE_DB        "Merge two weather databases\nMerge"
     ID_TASK_APPEND_DB       "Append one databases into an other database (move files)\nAppend"
     ID_TASK_CROP_DB         "Crop weather database\nCrop"
@@ -1204,19 +1178,12 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvert"
-    ID_TASK_RCM22           "Create monthly mean grid (MMG) from CCCma ESM2 RCM4 at 22 km\nRCM22"
-    ID_TASK_GCM10           "Create monthly mean grid (MMG) from CCCma ESM2 GCM4 downscaled at 10 km\nGCM10"
-    ID_TASK_GCM4            "Create monthly mean grid (MMG) from CCCma ESM2 GCM4\nGCM45"
-    ID_TASK_HADGEM2_ES      "Create monthly mean grid (MMG) from the Hadley Centre GEM2-ES\nHadly GEM2-ES"
-    ID_TASK_MIROC_10        "Create monthly mean grid (MMG) from MIROC model downscaled at 10 km\nMiroc10"
-    ID_TASK_CESM1_CAM5_10   "Create a monthly mean grid (MMG) from the Community Earth System Model version 1 that includes the Community Atmospheric Model version 5  downscaled at 10 km\nCESM10"
 END
 
 STRINGTABLE
 BEGIN
     ID_TASK_UPDATE          "Add a task of type downloader\nDownloader"
     ID_TASK_TOOLS           "Add a task of type tool\nTool"
-    ID_TASK_MMG             "Add a task of type monthly mean grid\nMMG"
     ID_TASK_DELETE          "Remove a task\nRemove"
 END
 

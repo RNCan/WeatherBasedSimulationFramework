@@ -23,7 +23,7 @@ namespace WBSF
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		//virtual void UpdateLanguage();
-		virtual bool IsCreator()const{ return true; }
+		//virtual bool IsCreator()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 

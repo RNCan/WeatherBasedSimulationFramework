@@ -25,20 +25,20 @@
 #include "Tasks/UIManitoba.h"
 #include "Tasks/UINewBrunswick.h"
 #include "Tasks/UIOntario.h"
-
+#include "Tasks/UICMIP5.h"
+#include "Tasks/UIGPCP.h"
 
 #include "Tasks/CreateHourlyDB.h"
 #include "Tasks/CreateDailyDB.h"
 #include "Tasks/CreateNormalsDB.h"
 #include "Tasks/CreateGribsDB.h"
+#include "Tasks/CreateMMG.h"
 #include "Tasks/MergeWeather.h"
 #include "Tasks/AppendWeather.h"
 #include "Tasks/ClipWeather.h"
 #include "Tasks/CopyFTP.h"
 #include "Tasks/ConvertDB.h"
 #include "Tasks/ZipUnzip.h"
-
-#include "Tasks/HadGEM2-ES.h"
 
 #include "Tasks/TaskFactory.h"
 
@@ -107,14 +107,14 @@ BEGIN_MESSAGE_MAP(CTaskWnd, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
 
-	ON_UPDATE_COMMAND_UI_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_OTHER_MMG, OnUpdateToolBar)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_LAST, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DUPLICATE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_TASK_DELETE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_TASK_CHECKED, OnUpdateStatusBar)
 
-	ON_COMMAND_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_OTHER_MMG, OnAdd)
+	ON_COMMAND_RANGE(ID_TASK_FIRST_UPDATER, ID_TASK_LAST, OnAdd)
 	ON_COMMAND(ID_TASK_DELETE, &OnRemove)
 	ON_COMMAND(ID_EDIT_COPY, &OnEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &OnEditPaste)
@@ -151,11 +151,14 @@ CWeatherUpdaterDoc* CTaskWnd::GetDocument()
 }
 
 
-CTaskWnd::CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2)
+CTaskWnd::CTaskWnd(size_t t, UINT toolbarID1, UINT toolbarID2, UINT toolbarID3)
 {
+	
+
 	m_type = t;
 	m_toolbarID1 = toolbarID1;
 	m_toolbarID2 = toolbarID2;
+	m_toolbarID3 = toolbarID3;
 	m_bInUpdate = false;
 }
 
@@ -188,6 +191,18 @@ int CTaskWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndToolBar2.SetRouteCommandsViaFrame(FALSE);
 	}
 
+	 
+	if (m_toolbarID3 != -1)
+	{
+		VERIFY(m_wndToolBar3.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, m_toolbarID3));
+		VERIFY(m_wndToolBar3.LoadToolBar(m_toolbarID3, 0, 0, TRUE /* Is locked */));
+		m_wndToolBar3.SetPaneStyle(m_wndToolBar3.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+		m_wndToolBar3.SetPaneStyle(m_wndToolBar3.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+		m_wndToolBar3.SetOwner(this);//| CBRS_SIZE_DYNAMIC 
+		m_wndToolBar3.SetRouteCommandsViaFrame(FALSE);
+	}
+
+
 	VERIFY(m_wndStatusBar.Create(this));
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 	m_wndStatusBar.SetOwner(this);
@@ -215,11 +230,19 @@ void CTaskWnd::AdjustLayout()
 
 	int cyTlb = m_wndToolBar1.CalcFixedLayout(FALSE, TRUE).cy;
 	int cxTlb = m_wndToolBar1.CalcFixedLayout(FALSE, TRUE).cx;
-	int nbT = m_wndToolBar2.GetSafeHwnd() ? 2:1;
+	int nbT = 1;
+	
+	if(m_wndToolBar2.GetSafeHwnd())
+		nbT++;
+	
+	if (m_wndToolBar3.GetSafeHwnd())
+		nbT++;
 
 	m_wndToolBar1.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	if (m_wndToolBar2.GetSafeHwnd())
 		m_wndToolBar2.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (m_wndToolBar3.GetSafeHwnd())
+		m_wndToolBar3.SetWindowPos(NULL, rectClient.left, rectClient.top + 2*cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 
 	m_taskCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top + nbT*cyTlb, rectClient.Width(), rectClient.Height() - (nbT + 1) * cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndStatusBar.SetWindowPos(NULL, rectClient.left, rectClient.Height() - cyTlb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
@@ -295,35 +318,28 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_SM_HOURLY:		className = CUISolutionMesonetHourly::CLASS_NAME(); break;
 	case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
 	case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
-		//case ID_TASK_OTHER_DOWNLOADER: str = ::CLASS_NAME(); break;
-		//case ID_TASK_EC_GRIB_FORECAST: str = ::CLASS_NAME(); break;
 	case ID_TASK_ACIS:			className = CUIACIS::CLASS_NAME(); break;
 	case ID_TASK_MDDELCC_DAILY:	className = CUIMDDELCC::CLASS_NAME(); break;
 	case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
 	case ID_TASK_BC:			className = CUIBC::CLASS_NAME(); break;
 	case ID_TASK_WU:			className = CUIWunderground::CLASS_NAME(); break;
-	case ID_TASK_MANITOBA:			className = CUIManitoba::CLASS_NAME(); break;
+	case ID_TASK_MANITOBA:		className = CUIManitoba::CLASS_NAME(); break;
 	case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
-	case ID_TASK_ONTARIO:	className = CUIOntario::CLASS_NAME(); break;
+	case ID_TASK_ONTARIO:		className = CUIOntario::CLASS_NAME(); break;
+	case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
+	case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_GRIBS:	className = CCreateGribsDB::CLASS_NAME(); break;
-	case ID_TASK_MERGE_DB:className = CMergeWeather::CLASS_NAME(); break;
-	case ID_TASK_APPEND_DB:className = CAppendWeather::CLASS_NAME(); break;
-	case ID_TASK_CROP_DB:	className = CClipWeather::CLASS_NAME(); break;
+	case ID_TASK_CREATE_MMG:	className = CCreateMMG::CLASS_NAME(); break;
+	case ID_TASK_MERGE_DB:		className = CMergeWeather::CLASS_NAME(); break;
+	case ID_TASK_APPEND_DB:		className = CAppendWeather::CLASS_NAME(); break;
+	case ID_TASK_CROP_DB:		className = CClipWeather::CLASS_NAME(); break;
 	case ID_TASK_ZIP_UNZIP:		className = CZipUnzip::CLASS_NAME(); break;
 	case ID_TASK_DOWNLOAD_UPLOAD:className = CCopyFTP::CLASS_NAME(); break;
 	case ID_TASK_CONVERT_DB:className = CConvertDB::CLASS_NAME(); break;
-		//case ID_TASK_OTHER_TOOLS:className = ; break;
-		//case ID_TASK_RCM22:className = ; break;
-		//case ID_TASK_GCM10:className = ; break;
-		//case ID_TASK_GCM4:className = ; break;
-	case ID_TASK_HADGEM2_ES:className = CHadGEM2_ES_MMGCreator::CLASS_NAME(); break;
-		//case ID_TASK_MIROC_10:className = ; break;
-		//case ID_TASK_CESM1_CAM5_10:className = ; break;
-
-		//default: ASSERT(false);
+	//default: ASSERT(false);
 	}
 
 	return className;
@@ -353,7 +369,7 @@ void CTaskWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	{
 		m_taskCtrl.DeleteAllItems();
 		
-		UINT imageIndex = ID_TASK_FIRST_TYPE - ID_TASK_FIRST + UINT(m_type);
+		UINT imageIndex = ID_TASK_LAST - ID_TASK_FIRST + UINT(m_type);
 		m_taskCtrl.AddRoot(m_type, imageIndex);
 	}
 
@@ -719,8 +735,8 @@ BEGIN_MESSAGE_MAP(CProjectWnd, CDockablePane)
 END_MESSAGE_MAP()
 
 CProjectWnd::CProjectWnd():
-m_wnd1(CTaskBase::UPDATER, IDR_TASK_TOOLBAR1, IDR_TASK_TOOLBAR2),
-m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR3, IDR_TASK_TOOLBAR4)
+m_wnd1(CTaskBase::UPDATER, IDR_TASK_TOOLBAR1, IDR_TASK_TOOLBAR2, IDR_TASK_TOOLBAR4),
+m_wnd2(CTaskBase::TOOLS, IDR_TASK_TOOLBAR3)
 {
 
 }

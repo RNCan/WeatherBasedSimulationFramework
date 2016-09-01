@@ -140,10 +140,13 @@
     <ClInclude Include="UIOntario.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="HadGEM2-ES.h">
+    <ClInclude Include="UIGPCP.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIGPCP.h">
+    <ClInclude Include="CreateMMG.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UICMIP5.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -274,10 +277,13 @@
     <ClCompile Include="UIOntario.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HadGEM2-ES.cpp">
+    <ClCompile Include="UIGPCP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIGPCP.cpp">
+    <ClCompile Include="CreateMMG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UICMIP5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -25,6 +25,7 @@ namespace WBSF
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		virtual bool IsHourly()const{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
+		virtual bool IsDaily()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);

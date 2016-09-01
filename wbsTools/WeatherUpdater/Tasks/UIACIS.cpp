@@ -60,23 +60,6 @@ namespace WBSF
 	CUIACIS::~CUIACIS(void)
 	{}
 
-	/*long CUIACIS::GetNbDay(const CTime& t)
-	{
-		return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1);
-	}
-
-	long CUIACIS::GetNbDay(int y, int m, int d)
-	{
-		ASSERT(m >= 0 && m < 12);
-		ASSERT(d >= 0 && d < 31);
-
-		return long(y * 365 + m*30.42 + d);
-	}*/
-
-	//StringVector typeList("Hourly|Daily", "|");
-
-	
-
 	std::string CUIACIS::Option(size_t i)const
 	{
 		string str;
@@ -240,6 +223,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
 
+		
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
@@ -278,7 +262,7 @@ namespace WBSF
 		int nbDownload = 0;
 		int currentNbDownload = 0;
 
-		callback.PushTask("Download ACIS data", nbFilesToDownload);
+		callback.PushTask("Download ACIS data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			for (size_t y = 0; y < nbYears&&msg; y++)

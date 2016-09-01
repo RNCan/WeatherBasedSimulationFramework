@@ -41,8 +41,8 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:				str = GetUpdaterList(true, true, false, false);	break;
-		case FORECAST:			str = GetUpdaterList(true, true, true, false); break;//forecast is only hourly for the moment
+		case INPUT:				str = GetUpdaterList(CUpdaterTypeMask(false,true,false,true)); break;
+		case FORECAST:			str = GetUpdaterList(CUpdaterTypeMask(false,true,true,true)); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_DAILY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;

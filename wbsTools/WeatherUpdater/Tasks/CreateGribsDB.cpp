@@ -36,7 +36,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:		str = GetUpdaterList(true, false, false, true); break;
+		case INPUT:		str = GetUpdaterList(CUpdaterTypeMask(true,false,false,true)); break;
 		case OUTPUT:	str = GetString(IDS_STR_FILTER_GRIBS); break;
 		};
 
