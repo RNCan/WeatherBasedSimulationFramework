@@ -254,9 +254,9 @@ namespace WBSF
 			size_t rSize = GetNbReplicationIndex(pResult);
 
 			//Xvalidation of all maps 
-			std::vector<CXValidationVector> XValVector(pSize*tSize*vSize);
+			std::vector<CXValidationVector> XValVector(pSize*tSize*vSize*rSize);
 
-
+			callback.PushTask("Create maps (" + ToString(pSize*tSize*vSize*rSize) + ")", pSize*tSize*vSize*rSize);
 			for (size_t p = 0; p < pSize&&msg; p++)
 			{
 				for (size_t r = 0; r < rSize&&msg; r++)
@@ -285,6 +285,7 @@ namespace WBSF
 										msg += gridInterpol.CreateSurface(callback);
 
 									XValVector[index] = gridInterpol.GetXValidation();
+									
 								}
 								else
 								{
@@ -294,12 +295,15 @@ namespace WBSF
 								gridInterpol.Finalize();
 								callback.AddMessage("*********************************************************************");
 								callback.AddMessage("");
+
+								msg += callback.StepIt();
 							}//if msg
 						}//for all variables
 					}//for all temporal steps
 				}//for all replication
 			}//for all parameters
 
+			callback.PopTask();
 			if (msg)
 			{
 				//Save output to file

@@ -363,7 +363,7 @@ protected:
 //CWeatherDay
 
 typedef std::array<CHourlyData, 24> C24Hours;
-typedef std::auto_ptr<C24Hours> C24HoursPtr;
+typedef std::unique_ptr<C24Hours> C24HoursPtr;
 class CWeatherDay: public CDataInterface
 {
 public:

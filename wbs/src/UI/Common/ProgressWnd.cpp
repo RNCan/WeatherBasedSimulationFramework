@@ -4,6 +4,7 @@
 #include "WeatherBasedSimulationUI.h"
 #include "WeatherBasedSimulationString.h"
 
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -148,6 +149,30 @@ void CProgressWnd::OnTimer(UINT_PTR nIDEvent)
 			}
 		}
 	}
+	if (nIDEvent == 2)
+	{
+		for (int i = 0; i< m_progressListCtrl.GetItemCount(); i++)
+		{
+			//get the last progress bar
+			DWORD_PTR pItem = m_progressListCtrl.GetItemData(i);
+			if (pItem != NULL)
+			{
+				CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
+				if (pCtrl && pCtrl->GetSafeHwnd() && i<m_callback.GetTasks().c.size())
+				{
+					const WBSF::CCallbackTask& t = m_callback.GetTasks().c.at(i);
+
+					double pos = t.m_nbSteps != 0 ? std::min(100.0, std::max(0.0, t.m_stepPos*100.0 / t.m_nbSteps)):100;
+					pCtrl->SetPos((int)pos);
+					
+
+					CWnd* pMain = ::AfxGetMainWnd();
+					if (m_pTaskbar && pMain)
+						m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)pos, 100);
+				}
+			}
+		}
+	}
 	
 
 	CWnd::OnTimer(nIDEvent);
@@ -276,7 +301,11 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 	pParam->m_pMsg = &msg;
 
 	if (GetSafeHwnd())
+	{
 		SetTimer(1, 200, NULL);
+		SetTimer(2, 1000, NULL);
+	}
+		
 
 	//create thread 
 	m_ptrThread = AfxBeginThread(pfnThreadProc, pParam, 0, 0, CREATE_SUSPENDED);
@@ -305,7 +334,10 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 	} 
 
 	if (GetSafeHwnd())
+	{
 		KillTimer(1);
+		KillTimer(2);
+	}
 
 	//clean callback
 	while (!m_callback.GetTasks().empty())

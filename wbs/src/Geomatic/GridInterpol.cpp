@@ -306,11 +306,9 @@ ERMsg CGridInterpol::GenerateSurface(CCallback& callback)
 	
 	ERMsg msg;
 
-    string comment = FormatMsg(IDS_MAP_DOMAP, GetFileTitle(m_TEMFilePath), GetFileTitle(m_DEMFilePath) );
-    
-	callback.PushTask(comment, m_inputGrid->GetRasterYSize());
-	//callback.SetNbStep(m_inputGrid->GetRasterYSize());
-    
+	string comment = FormatMsg(IDS_MAP_DOMAP, GetFileTitle(m_TEMFilePath), GetFileTitle(m_DEMFilePath));
+	callback.PushTask(comment, m_inputGrid->GetRasterXSize()*m_inputGrid->GetRasterYSize());
+	
 	CTimer timer;
 	
 	timer.Start();
@@ -479,8 +477,6 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 
 
 	//run over all blocks
-	callback.PushTask("Generate surface", extents.m_xBlockSize*extents.m_ySize);
-	//callback.SetNbStep(extents.m_xBlockSize*extents.m_ySize);
 
 	for(size_t xy=0; xy<XYindex.size(); xy++)//for all blocks
 	{
@@ -535,32 +531,22 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 
 #pragma omp atomic 
 					m_options.m_xx++;
-				}
+				}//x
 
 				if (msg)
 					msg += callback.SetCurrentStepPos(m_options.m_xx);
 
 #pragma omp flush(msg)
-			}
-		}
-		
-		
-			
-		//apply inverse transformation and filter if any
-		//if (m_prePostTransfo.HaveTransformation() )
-		//{
-		//	for (size_t j = 0; j<output.size(); j++)
-		//		output[j] = (float)m_prePostTransfo.InvertTransform(output[j], m_param.m_noData);
-		//}
+			}//if msg
+		}//y
 		
 
 		CGeoRectIndex outputRect=extents.GetBlockRect(xBlock,yBlock);
 		GDALRasterBand *pBand = m_outputGrid.GetRasterBand(0);
 		pBand->RasterIO( GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0  );
-	}
+	}//for all blocks
 
 
-	callback.PopTask();
 
 
 	return msg;
@@ -1083,11 +1069,11 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 				inStream->Release();
 				outStream->Release();
 
-				callback.SetCurrentStepPos( gSession.m_nbTaskCompleted );
+				
 				#pragma omp flush(msg)
 				if(msg)
 				{
-					msg+=callback.StepIt(0);
+					msg += callback.SetCurrentStepPos(gSession.m_nbTaskCompleted);
 					#pragma omp flush(msg)
 				}
 			}
@@ -1149,8 +1135,8 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 			while( msg && pGridUser->RunTask(DLLName.c_str(),"RunTaskInterpolation",inStream,FinalizeInterpolation,&unusedID,false) != S_OK )
 			{
 				//we can't add more task to the queue, then we wait
-				callback.SetCurrentStepPos( gSession.m_nbTaskCompleted );
-				msg+=callback.StepIt(0);
+				msg += callback.SetCurrentStepPos(gSession.m_nbTaskCompleted);
+				
 				if( !gSession.m_msg )
 					msg+=gSession.m_msg;
 
@@ -1160,8 +1146,7 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 		
 			if(msg)
 			{
-				callback.SetCurrentStepPos( gSession.m_nbTaskCompleted );
-				msg+=callback.StepIt(0);
+				msg += callback.SetCurrentStepPos(gSession.m_nbTaskCompleted);
 			}
 		}
 	
@@ -1172,8 +1157,8 @@ ERMsg CGridInterpol::RunHxGridInterpolation(CCallback& callback)
 		{
 			pGridUser->IsComplete(&bComplet);
 		
-			callback.SetCurrentStepPos( gSession.m_nbTaskCompleted );
-			msg+=callback.StepIt(0);
+			msg += callback.SetCurrentStepPos(gSession.m_nbTaskCompleted);
+			
 			if( !gSession.m_msg )
 				msg+=gSession.m_msg;
 		

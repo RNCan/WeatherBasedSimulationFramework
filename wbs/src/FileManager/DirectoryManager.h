@@ -170,7 +170,7 @@ namespace WBSF
 		bool m_simpleExt;
 	};
 
-	typedef std::auto_ptr<CDirectoryManager> CDirectoryManagerPtr;
+	typedef std::unique_ptr<CDirectoryManager> CDirectoryManagerPtr;
 
 }
 

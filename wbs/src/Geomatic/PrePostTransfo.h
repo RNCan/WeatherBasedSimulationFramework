@@ -71,7 +71,7 @@ namespace WBSF
 
 	};
 
-	class CPrePostTransfoPtr : public std::auto_ptr < CPrePostTransfo >
+	class CPrePostTransfoPtr : public std::unique_ptr < CPrePostTransfo >
 	{
 	public:
 

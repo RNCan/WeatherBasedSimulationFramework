@@ -402,6 +402,10 @@ BEGIN
     POPUP "&Outils"
     BEGIN
         MENUITEM "Administrateur de fichiers...", ID_TOOLS_FILE_MANAGER
+		MENUITEM "TéléchargeurMétéo...", ID_WEATHER_UPDATER
+		MENUITEM "ÉditeurHoraire...", ID_HOURLY_EDITOR
+		MENUITEM "ÉditeurQuotidien...", ID_DAILY_EDITOR
+		MENUITEM "ÉditeurNormales...", ID_NORMALS_EDITOR
         MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM "&Fusion de fichiers...",      ID_TOOLS_MERGEFILES
         MENUITEM SEPARATOR
@@ -762,7 +766,11 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_MATCH_STATION        "Affiche les stations appariées pour une simulation\nAfficher stations appariées"
+    ID_MATCH_STATION        "Afficher les stations appariées pour une simulation\nAfficher stations appariées"
+	ID_HOURLY_EDITOR		"Affichier ou éditer des bases de données horaire\nOuvrir ÉditeurHoraire"
+	ID_DAILY_EDITOR			"Affichier ou éditer des bases de données quotidiennes\nOuvrir EditeurQuotidien"
+	ID_NORMALS_EDITOR		"Affichier ou éditer des bases de données normales\nOuvrir EditerurNormales"
+	ID_WEATHER_UPDATER		"Affichier ou éditer des projets du TéléchargeurMétéo\nOuvrir TéléchargeurMétéo"
     ID_STATISTIC            "Statistique affichée dans le volet des résultats\nStatistique"
     ID_EXECUTE              "Exécute tous les éléments cochés\nExécuter cochés"
 END
@@ -900,7 +908,11 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
-        MENUITEM "&Linked Data Manager...",     ID_TOOLS_FILE_MANAGER
+        MENUITEM "&Files Manager...",		 ID_TOOLS_FILE_MANAGER
+		MENUITEM "WeatherUpdater...",		ID_WEATHER_UPDATER
+		MENUITEM "HourlyEditor...",			ID_HOURLY_EDITOR
+		MENUITEM "DailyEditor...",			ID_DAILY_EDITOR
+		MENUITEM "NormalsEditor...",		ID_NORMALS_EDITOR
         MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM "Merge&Files...",              ID_TOOLS_MERGEFILES
         MENUITEM SEPARATOR
@@ -1257,6 +1269,11 @@ END
 STRINGTABLE
 BEGIN
     ID_MATCH_STATION        "Show matched stations for the current simulation\nShow Matched Stations"
+	ID_HOURLY_EDITOR		"Visualize and edit hourly databases\nOpen HourlyEditor"
+	ID_DAILY_EDITOR			"Visualize and edit daily databases\nOpen DailyEditor"
+	ID_NORMALS_EDITOR		"Visualize and edit Normals databases\nOpen NormalsEditor"
+	ID_WEATHER_UPDATER		"Visualize and edit WeatherUpdater project\nOpen WeatherUpdater"
+
     ID_STATISTIC            "Statistic showned in the result pane\nStatistic"
     ID_EXECUTE              "Execute all checked components\nExecute Checked"
 END

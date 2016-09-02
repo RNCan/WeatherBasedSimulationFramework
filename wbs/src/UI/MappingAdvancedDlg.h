@@ -29,7 +29,7 @@ namespace WBSF
 		CMappingAdvancedDlg(CWnd* pParentWnd);   // standard constructor
 
 		int m_method;
-		std::auto_ptr<CGridInterpolParam> m_pParam;
+		std::unique_ptr<CGridInterpolParam> m_pParam;
 
 
 	protected:

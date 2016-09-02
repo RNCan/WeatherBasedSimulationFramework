@@ -42,8 +42,8 @@ namespace WBSF
 
 		std::string m_DEMName;
 		std::string m_TEMName;
-		std::auto_ptr<CPrePostTransfo> m_pPrePostTransfo;
-		std::auto_ptr<CGridInterpolParam> m_pParam;
+		std::unique_ptr<CPrePostTransfo> m_pPrePostTransfo;
+		std::unique_ptr<CGridInterpolParam> m_pParam;
 		bool m_XValOnly;
 		bool m_bUseHxGrid;
 

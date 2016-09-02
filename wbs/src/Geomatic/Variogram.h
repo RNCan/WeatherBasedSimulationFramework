@@ -242,7 +242,7 @@ namespace WBSF
 		}
 	};
 
-	typedef std::unordered_map<CVariogramInput, std::auto_ptr<CVariogram>, CVariogramHash<CVariogramInput> > _CVariogramCache;
+	typedef std::unordered_map<CVariogramInput, std::unique_ptr<CVariogram>, CVariogramHash<CVariogramInput> > _CVariogramCache;
 
 	class CVariogramCache : public _CVariogramCache
 	{

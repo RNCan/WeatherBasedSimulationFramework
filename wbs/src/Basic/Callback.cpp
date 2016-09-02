@@ -122,15 +122,29 @@ namespace WBSF
 	ERMsg CCallback::SetCurrentStepPos(double stepPos)
 	{
 		ERMsg msg;
-		if (omp_get_thread_num() == 0)
+		/*if (omp_get_thread_num() == 0)
 		{
 			if (!GetTasks().empty())
 				msg = StepIt(stepPos - GetTasks().top().m_stepPos);
-		}
+		}*/
 	
-	
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
 
-			return msg;
+			if (!GetTasks().empty())
+				GetTasks().top().m_stepPos = stepPos;
+		}
+
+		if (omp_get_thread_num() == 0)
+		{
+			if (GetUserCancel())
+			{
+				ASSERT(!m_userCancelMsg.empty());
+				msg.ajoute(m_userCancelMsg);
+			}
+		}
+
+		return msg;
 	}
 	ERMsg CCallback::SetCurrentStepPos(size_t stepPos){ return SetCurrentStepPos((double)stepPos); }
 

@@ -736,6 +736,13 @@ ERMsg CWeatherGeneration::GetParentInfo(const CFileManager& fileManager, CParent
 		msg = GetWGInput(fileManager, WGInput);
 		if (msg)
 		{
+			if (filter[PARAMETER])
+			{
+				info.m_parameterset.resize(1);
+				for (size_t i = 0; i < CWGInput::NB_MEMBERS; i++)
+					info.m_parameterset[0].push_back(CModelInputParam(WGInput.GetMemberName(i), WGInput[i]));
+			}
+
 			if (filter[TIME_REF])
 			{
 				CTM TM = WGInput.GetTM();

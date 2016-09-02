@@ -185,7 +185,7 @@ namespace WBSF
 
 	};
 
-	class CGridInterpolParamPtr : public std::auto_ptr < CGridInterpolParam >
+	class CGridInterpolParamPtr : public std::unique_ptr < CGridInterpolParam >
 	{
 	public:
 
@@ -340,7 +340,7 @@ namespace WBSF
 	{
 	};
 
-	typedef std::auto_ptr<CGridInterpolBase> CGridInterpolBasePtr;
+	typedef std::unique_ptr<CGridInterpolBase> CGridInterpolBasePtr;
 
 
 }
