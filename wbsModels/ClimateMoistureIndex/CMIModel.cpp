@@ -35,8 +35,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//Get elevation
-		double elev = m_info.m_loc.m_elev;
+		//Compute DD5
 		CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5);
 		CModelStatVector DD5;
 		DD.Execute(m_weather, DD5);
