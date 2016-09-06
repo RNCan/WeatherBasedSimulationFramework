@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>FWI(annual)</Title>
+    <Version>1.0</Version>
+    <ID>.FWI</ID>
+    <EXE>FWI.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 347 692</WindowRect>
+    <SimulatedCategory>T TR P H WS SD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>NbDaysBegin</Name>
+            <Caption>Otherwise, the FWI season begins after</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>75 35 95 260</Rect>
+            <SeparatorPos>195</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TTypeBegin</Name>
+            <Caption>consecutive days when </Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>75 255 95 445</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin;Tmean;Tmax;Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdBegin</Name>
+            <Caption>is greather than</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 445 95 570</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>12</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TailBegin</Name>
+            <Caption>(°C) in the spring </Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>75 570 95 670</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbDaysEnd</Name>
+            <Caption>Otherwise, the FWI season ends after</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>175 35 195 270</Rect>
+            <SeparatorPos>200</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TTypeEnd</Name>
+            <Caption>consecutive days when </Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>175 270 195 460</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin;Tmean;Tmax;Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdEnd</Name>
+            <Caption>is lower than</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 460 195 570</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TailEnd</Name>
+            <Caption>(°C) in the fall</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>175 565 195 665</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a</Name>
+            <Caption>Carry over fraction (a)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 15 245 310</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b</Name>
+            <Caption>Effectiveness of winter precipitation (b)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 15 270 310</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0.75</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>0.9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Time calculation</Name>
+            <Caption>Line1</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>90 10 110 615</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin1</Name>
+            <Caption>If 75% of the days in January and February have snow and the maximum snow depth is at least 10 cm</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>25 25 50 535</Rect>
+            <SeparatorPos>440</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin2</Name>
+            <Caption>Then the FWI season begins 3 days after snowmelt </Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>50 35 75 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line2</Name>
+            <Caption>Line2</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>190 15 215 620</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Titre</Name>
+            <Caption>If there are at least 7 consecutive days of snow accumulation</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>135 25 155 360</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadEnd2</Name>
+            <Caption>Then the FWI season ends on the first day when snow accumulation started</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>155 35 175 420</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin</Name>
+            <Caption>Beginning of Fire Weather Index season</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>5 10 25 345</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadEnd</Name>
+            <Caption>End of Fire Weather Index season</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>110 10 135 290</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>T</Name>
+            <Title>T</Title>
+            <Units>°C</Units>
+            <Description>Temperature at noon</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RH</Name>
+            <Title>RH</Title>
+            <Units>%</Units>
+            <Description>Relative humidity at noon</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WS</Name>
+            <Title>WS</Title>
+            <Units>km/h</Units>
+            <Description>Wind speed at noon</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Total daily precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FFMC</Name>
+            <Title>FFMC</Title>
+            <Units/>
+            <Description>Fine Fuel Moisture Code, the moisture content of litter and cured fine fuels, 1–2 cm deep.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DMC</Name>
+            <Title>DMC</Title>
+            <Units/>
+            <Description>Duff Moisture Code, the moisture content of loosely compacted, decomposing organic matter, 5–10 cm deep.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DC</Name>
+            <Title>DC</Title>
+            <Units/>
+            <Description>Drought Code, moisture content of the deep layer of compacted organic matter, 10–20 cm deep</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ISI</Name>
+            <Title>ISI</Title>
+            <Units/>
+            <Description>Initial Spread Index, numerical rating of fire spread immediately after ignition without the influence of variable fuel quantity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BUI</Name>
+            <Title>BUI</Title>
+            <Units/>
+            <Description>Build Up Index, total fuel available for combustion.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FWI</Name>
+            <Title>FWI</Title>
+            <Units/>
+            <Description>Fire Weather Index, numerical rating of the intensity of a spreading fire</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ASR</Name>
+            <Title>ASR</Title>
+            <Units/>
+            <Description>Annual Severity Rating</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>n</Name>
+            <Title>n</Title>
+            <Units>days</Units>
+            <Description>Number of days used</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RHmin</Name>
+            <Title>RH min</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WSmin</Name>
+            <Title>WS min</Title>
+            <Units>km/h</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbDayNoPrcp</Name>
+            <Title>NbDay without prcp (cons)</Title>
+            <Units>days</Units>
+            <Description>Maximum number of consecutive days without precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FFMCmin</Name>
+            <Title>FFMC min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DMCmin</Name>
+            <Title>DMC min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DCmin</Name>
+            <Title>DC min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ISImin</Name>
+            <Title>ISI min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BUImin</Name>
+            <Title>BUI min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FWImin</Name>
+            <Title>FWI min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DSRmin</Name>
+            <Title>DSR min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>T max</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RHmax</Name>
+            <Title>RH max</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WSmax</Name>
+            <Title>WS max</Title>
+            <Units>km/h</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbDayNoPrcp</Name>
+            <Title>NbDay without prcp</Title>
+            <Units>days</Units>
+            <Description>The number of days without precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FFMCmax</Name>
+            <Title>FFMC max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DMCmax</Name>
+            <Title>DMC max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DCmax</Name>
+            <Title>DC max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ISImax</Name>
+            <Title>ISI max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BUImax</Name>
+            <Title>BUI max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FWImax</Name>
+            <Title>FWI max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DSRmax</Name>
+            <Title>DSR max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FirstFWIDay</Name>
+            <Title>FirstFWIDay</Title>
+            <Units>Julian day</Units>
+            <Description>First FWI day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LastFWIDay</Name>
+            <Title>LastFWIDay</Title>
+            <Units>Julian day</Units>
+            <Description>Last FWI day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SnowMeltDay</Name>
+            <Title>SnowMeltDay</Title>
+            <Units>Julian day</Units>
+            <Description>First days without snow in spring</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SnowFallDay</Name>
+            <Title>SnowFallDay</Title>
+            <Units>Julian day</Units>
+            <Description>First day with snow in fall</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName>FWI.pdf</HelpFileName>
+</Model>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>FWI(monthly)</Title>
+    <Version>1.0</Version>
+    <ID>.FWI</ID>
+    <EXE>DroughtCode.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 360 702</WindowRect>
+    <SimulatedCategory>T TR P SD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>NbDaysBegin</Name>
+            <Caption>Otherwise, the FWI season begins after</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>75 35 95 260</Rect>
+            <SeparatorPos>195</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TTypeBegin</Name>
+            <Caption>consecutive days when </Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>75 255 95 445</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin;Tmean;Tmax;Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdBegin</Name>
+            <Caption>is greather than</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 445 95 570</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>12</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TailBegin</Name>
+            <Caption>(°C) in the spring </Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>75 570 95 670</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbDaysEnd</Name>
+            <Caption>Otherwise, the FWI season ends after</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>175 35 195 270</Rect>
+            <SeparatorPos>200</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TTypeEnd</Name>
+            <Caption>consecutive days when </Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>175 270 195 460</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin;Tmean;Tmax;Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdEnd</Name>
+            <Caption>is lower than</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 460 195 570</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TailEnd</Name>
+            <Caption>(°C) in the fall</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>175 565 195 665</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a</Name>
+            <Caption>Carry over fraction (a)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 15 245 310</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b</Name>
+            <Caption>Effectiveness of winter precipitation (b)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 15 270 310</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0.75</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>0.9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Time calculation</Name>
+            <Caption>Line1</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>90 10 110 615</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin1</Name>
+            <Caption>If 75% of the days in January and February have snow and the maximum snow depth is at least 10 cm</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>25 25 50 535</Rect>
+            <SeparatorPos>440</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin2</Name>
+            <Caption>Then the FWI season begins 3 days after snowmelt </Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>50 35 75 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line2</Name>
+            <Caption>Line2</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>190 15 215 620</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Titre</Name>
+            <Caption>If there are at least 7 consecutive days of snow accumulation</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>135 25 155 360</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadEnd2</Name>
+            <Caption>Then the FWI season ends on the first day when snow accumulation started</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>155 35 175 420</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadBegin</Name>
+            <Caption>Beginning of Fire Weather Index season</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>5 10 25 345</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeadEnd</Name>
+            <Caption>End of Fire Weather Index season</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>110 10 135 290</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DC</Name>
+            <Title>DC</Title>
+            <Units/>
+            <Description>Monthly mean Drought Code</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>FWI(monthly)</Title>
+    <Version>1.0</Version>
+    <ID>.FDC</ID>
+    <EXE>DroughtCode.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 246 319</WindowRect>
+    <SimulatedCategory>T TR P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>FirstDay</Name>
+            <Caption>First day (mm/dd)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>5 10 25 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>04/01</DefaultValue>
+            <MinValue>01/01</MinValue>
+            <MaxValue>12/31</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>LastDay</Name>
+            <Caption>Last day (mm/dd)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>30 10 50 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>10/31</DefaultValue>
+            <MinValue>01/01</MinValue>
+            <MaxValue>12/31</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FFMC</Name>
+            <Caption>FFMC</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>55 10 75 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>85</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DMC</Name>
+            <Caption>DMC</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 10 100 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>6</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DC</Name>
+            <Caption>DC</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 10 125 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a</Name>
+            <Caption>Carry over fraction (a)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>155 10 175 270</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b</Name>
+            <Caption>Effectiveness of winter precipitation (b)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 10 200 270</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0.75</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>0.9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line1</Name>
+            <Caption>Line1</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>130 10 150 270</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DC</Name>
+            <Title>DC</Title>
+            <Units/>
+            <Description>Monthly mean Drought Code</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
