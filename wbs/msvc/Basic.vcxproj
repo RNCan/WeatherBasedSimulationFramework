@@ -186,7 +186,6 @@
     <ClCompile Include="..\src\Basic\ERMsg\syenvmsg.cpp" />
     <ClCompile Include="..\src\Basic\ERMsg\symessag.cpp" />
     <ClCompile Include="..\src\Basic\Evapotranspiration.cpp" />
-    <ClCompile Include="..\src\Basic\Event.cpp" />
     <ClCompile Include="..\src\Basic\FileStamp.cpp" />
     <ClCompile Include="..\src\Basic\FrequencyTable.cpp" />
     <ClCompile Include="..\src\Basic\GeoBasic.cpp" />

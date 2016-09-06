@@ -53,9 +53,6 @@
     <ClCompile Include="..\src\Basic\Evapotranspiration.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Basic\Event.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Basic\FileStamp.cpp">
       <Filter>Source</Filter>
     </ClCompile>
