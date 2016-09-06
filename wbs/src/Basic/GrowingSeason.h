@@ -36,15 +36,13 @@ namespace WBSF
 	{
 	public:
 		
-		//enum TAccumulationType{ AT_HOURLY, AT_DAILY };
-
+		
 		CGSInfo		m_begin;
 		CGSInfo		m_end;
-		//bool		m_bAlwaysFillPeriod;
-		//bool bAlwaysFillPeriod = true, 
+		
+
 		CGrowingSeason(size_t TtypeBegin = CGSInfo::TT_TMIN, size_t nbDaysBegin = 3, double threasholdBegin = 0, size_t TtypeEnd = CGSInfo::TT_TMIN, size_t nbDaysEnd = 3, double threasholdEnd = 0)
 		{
-			//m_bAlwaysFillPeriod = bAlwaysFillPeriod;
 			m_begin.m_type = TtypeBegin;
 			m_begin.m_nbDays = nbDaysBegin;
 			m_begin.m_threshold = threasholdBegin;
