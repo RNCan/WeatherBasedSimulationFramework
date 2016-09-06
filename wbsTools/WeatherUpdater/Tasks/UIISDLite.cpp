@@ -96,10 +96,11 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 		if (msg)
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
 			
 
 			string path = GetHistoryFilePath(false);
@@ -133,7 +134,6 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), nbYears);
-		//callback.SetNbStep(nbYears);
 
 		vector<bool> toDo(nbYears + 1, true);
 
@@ -148,7 +148,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
@@ -287,7 +287,6 @@ namespace WBSF
 		ERMsg msg;
 
 		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-//		callback.SetNbStep(fileList.size());
 
 
 		for (StringVector::const_iterator it = fileList.begin(); it != fileList.end() && msg;)
@@ -407,8 +406,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//callback.PushLevel();
-		//callback.SetNbStep(3);
 
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
@@ -437,7 +434,6 @@ namespace WBSF
 			return msg;
 
 		callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
-		//callback.SetNbStep(fileList.size());
 
 		int nbRun = 0;
 		int curI = 0;
@@ -449,11 +445,12 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp;// = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
 				
-				//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
+				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
 				
 
 				TRY
@@ -472,36 +469,36 @@ namespace WBSF
 						string outputFilePath = GetOutputFilePath(stationID, year);
 						string outputPath = GetPath(outputFilePath);
 						CreateMultipleDir(outputPath);
-						//msgTmp += CopyFile(pConnection, fileList[i].m_filePath, zipFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+						msgTmp += CopyFile(pConnection, fileList[i].m_filePath, zipFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
 						//unzip 
 						if (msgTmp)
 						{
 							
 
-							if (FileExists(zipFilePath))
-							{
-								string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
-								msg += WinExecWait(command.c_str());
-								RemoveFile(zipFilePath);
-							}
+							//if (FileExists(zipFilePath))
+							//{
+							//	string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
+							//	msg += WinExecWait(command.c_str());
+							//	RemoveFile(zipFilePath);
+							//}
 
-							//remove old file
-							if (FileExists(extractedFilePath) && FileExists(outputFilePath))
-								RemoveFile(outputFilePath);
+							////remove old file
+							//if (FileExists(extractedFilePath) && FileExists(outputFilePath))
+							//	RemoveFile(outputFilePath);
 
 
-							if (FileExists(extractedFilePath) )
-							{
-								//rename file. by default, file don't have extension
-								if (RenameFile(extractedFilePath, outputFilePath))
-								{
-									//update time to the time of the .gz file
-									boost::filesystem::path p(outputFilePath);
-									if (boost::filesystem::exists(p))
-										boost::filesystem::last_write_time(p, fileList[i].m_time);
-								}
-							}
+							//if (FileExists(extractedFilePath) )
+							//{
+							//	//rename file. by default, file don't have extension
+							//	if (RenameFile(extractedFilePath, outputFilePath))
+							//	{
+							//		//update time to the time of the .gz file
+							//		boost::filesystem::path p(outputFilePath);
+							//		if (boost::filesystem::exists(p))
+							//			boost::filesystem::last_write_time(p, fileList[i].m_time);
+							//	}
+							//}
 
 							ASSERT(FileExists(outputFilePath));
 							nbRun = 0;
@@ -518,8 +515,8 @@ namespace WBSF
 				END_CATCH_ALL
 
 				//clean connection
-				//pConnection->Close();
-				//pSession->Close();
+				pConnection->Close();
+				pSession->Close();
 
 				if (!msgTmp)
 				{
@@ -580,7 +577,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string strSearch = workingDir + ToString(year) + "\\*.isd";
+			string strSearch = workingDir + ToString(year) + "\\*.gz";
 
 			callback.PushTask(strSearch, NOT_INIT);
 			StringVector fileListTmp = GetFilesList(strSearch);
@@ -711,71 +708,72 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 
 
-		
-
-
 		ifStream  file;
 
-		msg = file.open(filePath);
+		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
 
-			std::stringstream outStr;
-			ifstream file("E:\\Travaux\\Bureau\\CC\\010010-99999-1980.gz", ios_base::in | ios_base::binary);
+			//std::stringstream outStr;
+			//ifstream file("E:\\Travaux\\Bureau\\WeatherUpdater\\NOAA\\ISD-Lite\\1970\\725720-24127-1970.gz", ios_base::in | ios_base::binary);
 			try
 			{
 				boost::iostreams::filtering_istreambuf in;
 				in.push(boost::iostreams::gzip_decompressor());
 				in.push(file);
-				boost::iostreams::copy(in, outStr);
+				std::istream incoming(&in);
+				//boost::iostreams::copy(in, outStr);
+
+
+				CTPeriod period(CTRef(firstYear, 0, 0, 0), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR));
+				array<float, CUIISDLite::NB_ISD_FIELD> e;
+
+
+				string line;
+				//while (std::getline(file, line) && msg)
+				while (std::getline(incoming, line) && msg)
+				{
+					//	Trim(line);
+					//		if (!line.empty())
+					if (LoadFields(line, e))
+					{
+						CTRef UTCTRef = GetTRef(e);
+						CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
+
+						if (period.IsInside(TRef))
+						{
+							if (accumulator.TRefIsChanging(TRef))
+								data[accumulator.GetTRef()].SetData(accumulator);
+
+							if (e[ISD_T] > -9999)
+								accumulator.Add(TRef, H_TAIR, e[ISD_T] / 10.0);
+							if (e[ISD_P] > -9999)
+								accumulator.Add(TRef, H_PRES, e[ISD_P] / 10.0);//in hPa
+							if (e[ISD_PRCP1] > -9999 && int(e[ISD_PRCP1]) != -1)
+								accumulator.Add(TRef, H_PRCP, e[ISD_PRCP1] / 10.0);//NOTE: there are a lot of problem before 2006...
+							if (e[ISD_TDEW] > -9999)
+								accumulator.Add(TRef, H_TDEW, e[ISD_TDEW] / 10.0);
+							if (e[ISD_T] > -9999 && e[ISD_TDEW] > -9999)
+								accumulator.Add(TRef, H_RELH, Td2Hr(e[ISD_T] / 10.0, e[ISD_TDEW] / 10.0));
+							if (e[ISD_WSPD] > -9999)
+								accumulator.Add(TRef, H_WNDS, (e[ISD_WSPD] / 10.0)*(3600 / 1000));//convert m/s --> km/h
+							if (e[ISD_WDIR] > -9999)
+								accumulator.Add(TRef, H_WNDD, e[ISD_WDIR]);
+						}
+					}//not empty
+
+					msg += callback.StepIt(0);
+				}//while
 			}
-			catch (const boost::iostreams::gzip_error& exception) 
+			catch (const boost::iostreams::gzip_error& exception)
 			{
 				int error = exception.error();
-				if (error == boost::iostreams::gzip::zlib_error) {
+				if (error == boost::iostreams::gzip::zlib_error) 
+				{
 					//check for all error code    
+					msg.ajoute(exception.what());
 				}
 			}
-			
-			CTPeriod period(CTRef(firstYear, 0, 0, 0), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR));
-			array<float, CUIISDLite::NB_ISD_FIELD> e;
-
-
-			string line;
-			//while (std::getline(file, line) && msg)
-			while (std::getline(outStr, line) && msg)
-			{
-			//	Trim(line);
-		//		if (!line.empty())
-				if (LoadFields(line, e))
-				{
-					CTRef UTCTRef = GetTRef(e);
-					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
-
-					if (period.IsInside(TRef))
-					{
-						if (accumulator.TRefIsChanging(TRef))
-							data[accumulator.GetTRef()].SetData(accumulator);
-
-						if (e[ISD_T] > -9999)
-							accumulator.Add(TRef, H_TAIR, e[ISD_T] / 10.0);
-						if ( e[ISD_P] > -9999)
-							accumulator.Add(TRef, H_PRES, e[ISD_P] / 10.0);//in hPa
-						if (e[ISD_PRCP1] > -9999 && int(e[ISD_PRCP1]) != -1)
-							accumulator.Add(TRef, H_PRCP, e[ISD_PRCP1] / 10.0);//NOTE: there are a lot of problem before 2006...
-						if (e[ISD_TDEW] > -9999)
-							accumulator.Add(TRef, H_TDEW, e[ISD_TDEW] / 10.0);
-						if (e[ISD_T] > -9999 && e[ISD_TDEW] > -9999)
-							accumulator.Add(TRef, H_RELH, Td2Hr(e[ISD_T] / 10.0, e[ISD_TDEW] / 10.0));
-						if (e[ISD_WSPD] > -9999)
-							accumulator.Add(TRef, H_WNDS, (e[ISD_WSPD] / 10.0)*(3600 / 1000));//convert m/s --> km/h
-						if ( e[ISD_WDIR] > -9999)
-							accumulator.Add(TRef, H_WNDD, e[ISD_WDIR]);
-					}
-				}//not empty
-
-				msg += callback.StepIt(0);
-			}//while
 		}//if open
 
 

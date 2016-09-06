@@ -118,15 +118,14 @@ namespace WBSF
 			m_lat = ToDouble(line[C_LAT]);
 			m_lon = ToDouble(line[C_LON]);
 			m_elev = ToDouble(line[C_ELEV]);
-			ASSERT(m_lat >= -90 && m_lat < 90);
-			ASSERT(m_lon >= -180 && m_lon < 180);
 
 			if (line[C_USAF] == "716920")//coordinate error over MARTICOT ISLAND
 				m_lon = -54.583;
 			if (line[C_WBAN] == "12848")//coordinate error over Dinner Key NAF
 				m_lon = -80.2333;
-			//if (m_lon < -800)//one station have a bad coordinate
-			//m_lon = m_lon / 10;
+
+			ASSERT(m_lat >= -90 && m_lat < 90);
+			ASSERT(m_lon >= -180 && m_lon < 180);
 
 			if (!line[C_BEGIN].empty() && !line[C_END].empty())
 			{

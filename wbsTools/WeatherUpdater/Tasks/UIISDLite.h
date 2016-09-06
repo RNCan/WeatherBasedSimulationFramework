@@ -55,7 +55,7 @@ namespace WBSF
 		std::string GetOptFilePath(const std::string& filePath)const;
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
 		ERMsg ReadData(const std::string& filePath, const cctz::time_zone& zone, CWeatherYears& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
-		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".isd")const;
+		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".gz")const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
 		bool StationExist(const std::string& fileTitle)const;
