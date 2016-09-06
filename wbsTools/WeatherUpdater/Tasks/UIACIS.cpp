@@ -517,9 +517,9 @@ namespace WBSF
 								else if (var_str == "US" )
 									var = H_WND2;
 								else if (var_str == "PC")
-									var = H_SNOW;
+									var = H_ADD1;
 								else if (var_str == "P1")
-									var = H_SNDH;// en mm d'eau ou en mm de hauteur???
+									var = H_ADD2;
 
 								if (var != H_SKIP)
 								{
@@ -550,8 +550,8 @@ namespace WBSF
 										if (child["value"](str))
 										{
 											float value = value = WBSF::as<float>(str);
-											if (var == H_SNDH)
-												value /= 10;
+											//if (var == H_SNDH)
+												//value /= 10;
 											data[TRef].SetStat(var, value);
 										}
 										
@@ -754,8 +754,19 @@ namespace WBSF
 
 		((CLocation&)station) = m_stations[pos];
 
-		station.m_name = station.m_name;
-		station.m_ID;// += "H";//add a "H" for hourly data
+		station.m_name = WBSF::PurgeFileName(station.m_name);
+		//station.m_ID;// += "H";//add a "H" for hourly data
+
+		for (SiteSpeceficInformationMap::iterator it = station.m_siteSpeceficInformation.begin(); it != station.m_siteSpeceficInformation.end(); it++)
+		{
+			WBSF::ReplaceString(it->second.first, ",", " ");
+			WBSF::ReplaceString(it->second.first, ";", " ");
+			WBSF::ReplaceString(it->second.first, "|", " ");
+			WBSF::ReplaceString(it->second.first, "\t", " ");
+			WBSF::ReplaceString(it->second.first, "\"", "'");
+		}
+			
+
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
@@ -784,6 +795,8 @@ namespace WBSF
 				}
 			}
 		}
+		
+		station.CleanUnusedVariable("T TR P H WS WD W2");
 
 		if (msg)
 		{

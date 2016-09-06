@@ -1,4 +1,4 @@
-//5.1.1 05/09/2016	Direcly open ISD-Lite .gz file
+//5.1.1 05/09/2016	Direcly open ISD-Lite .gz file 
 //5.1.0 29/08/2016  Compile with boost 1.61
 //					Add CPGP
 //					Add CMID5 and CreateMMG

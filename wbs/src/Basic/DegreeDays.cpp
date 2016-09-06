@@ -712,4 +712,47 @@ namespace WBSF
 			}
 		}
 	}*/
+
+
+
+
+	//***********************************************************************************************************************
+	const char CDegreeHours::HEADER[] = "DH";
+	void CDegreeHours::Execute(CWeatherStation& weather, CModelStatVector& output)
+	{
+		ASSERT(weather.IsHourly());
+		
+		
+		CTPeriod p = weather.GetEntireTPeriod();
+		output.Init(p, NB_OUTPUT, 0, HEADER);
+
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			double dh = GetDH(weather.GetHour(TRef));
+			output[TRef][S_DH] = dh;
+			if (m_bCumulative && TRef != p.Begin())
+				output[TRef][S_DH] += output[TRef-1][S_DH];
+		}
+	}
+
+	
+	double CDegreeHours::GetDH(const CHourlyData& in)const
+	{
+		ASSERT(m_lowerThreshold <= m_upperThreshold);
+	
+		double DH = 0;
+		double x1 = max(0.0, min((double)in[H_TAIR], m_upperThreshold) - m_lowerThreshold);
+		double x2 = min(0.0, m_upperThreshold - in[H_TAIR]);
+
+		switch (m_cutoffType)
+		{
+		case HORIZONTAL_CUTOFF: DH = x1; break;
+		case INTERMEDIATE_CUTOFF:DH = max(0.0, x1 + x2); break;
+		case VERTICAL_CUTOFF:DH = in[H_TAIR] <= m_upperThreshold ? x1 : 0; break;
+		default: ASSERT(false);
+		}
+
+		return DH;
+	}
+
 }//namespace WBSF

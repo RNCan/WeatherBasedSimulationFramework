@@ -590,7 +590,7 @@ CTRef& CTRef::Set(int y_or_r, size_t m, size_t d, size_t h, CTM TM)
 
 	ASSERT(m<12 || m==LAST_MONTH);
 	ASSERT(d<31 || d==LAST_DAY || d==DAY_NOT_INIT);
-	ASSERT(h<=24);
+	ASSERT(h==NOT_INIT && h<=24);
 
 	bool bAddRef=false;//faudrait vérifier cela, c'est très bizard...
 	if( h==24 )

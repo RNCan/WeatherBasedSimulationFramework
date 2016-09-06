@@ -96,7 +96,9 @@ namespace WBSF
 			}
 			else
 			{
-				msg = WBSF::RemoveFile(outputFilepath);
+				if (FileExists(outputFilepath))
+					msg = WBSF::RemoveFile(outputFilepath);
+
 				if (msg)
 					msg = CNormalsDatabase::v7_to_v6(inputFilepath, outputFilepath, callback);
 			}

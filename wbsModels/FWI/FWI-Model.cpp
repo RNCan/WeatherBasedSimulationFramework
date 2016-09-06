@@ -55,7 +55,50 @@ namespace WBSF
 	CFWIModel::~CFWIModel()
 	{}
 
-	
+
+	//this method is call to load your parameter in your variable
+	ERMsg CFWIModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+		if (parameters.size() == 8)
+		{
+			m_bAutoSelect = true;
+
+			size_t c = 0;
+			m_nbDaysStart = parameters[c++].GetInt();
+			m_TtypeStart = parameters[c++].GetInt();
+			m_thresholdStart = parameters[c++].GetReal();
+			m_nbDaysEnd = parameters[c++].GetInt();
+			m_TtypeEnd = parameters[c++].GetInt();
+			m_thresholdEnd = parameters[c++].GetReal();
+			m_carryOverFraction = parameters[c++].GetReal();
+			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+			//m_method = parameters[c++].GetInt();
+		}
+		else if (parameters.size() == 7)
+		{
+			m_bAutoSelect = false;
+
+			//transfer your parameter here
+			size_t c = 0;
+			m_firstDay = CMonthDay(parameters[c++].GetString());
+			m_lastDay = CMonthDay(parameters[c++].GetString());
+			m_FFMC = parameters[c++].GetReal();
+			m_DMC = parameters[c++].GetReal();
+			m_DC = parameters[c++].GetReal();
+			m_carryOverFraction = parameters[c++].GetReal();
+			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+			//m_method = parameters[c++].GetInt();
+		}
+		else
+		{
+			msg = GetErrorMessage(ERROR_BAD_NUMBER_PARAMETER);
+		}
+
+		return msg;
+	}
+
 
 	ERMsg CFWIModel::ExecuteDaily(CModelStatVector& output)
 	{
@@ -95,12 +138,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (m_method == CFWI::NOON_CALCULATION)
-		{
-			msg.ajoute("FWI Hourly model can only by use with 24 hours method");
-		}
-
+		
+		
 		//Init class member
+		m_method = CFWI::ALL_HOURS_CALCULATION;
 		msg = ExecuteDaily(m_output);
 
 		return msg;
@@ -200,48 +241,5 @@ namespace WBSF
 		return MDCavg;
 	}
 
-
-	//this method is call to load your parameter in your variable
-	ERMsg CFWIModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg msg;
-
-		if (parameters.size() == 9)
-		{
-			m_bAutoSelect = true;
-
-			size_t c = 0;
-			m_nbDaysStart = parameters[c++].GetInt();
-			m_TtypeStart = parameters[c++].GetInt();
-			m_thresholdStart = parameters[c++].GetReal();
-			m_nbDaysEnd = parameters[c++].GetInt();
-			m_TtypeEnd = parameters[c++].GetInt();
-			m_thresholdEnd = parameters[c++].GetReal();
-			m_carryOverFraction = parameters[c++].GetReal();
-			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
-			m_method = parameters[c++].GetInt();
-		}
-		else if (parameters.size() == 8)
-		{
-			m_bAutoSelect = false;
-			
-			//transfer your parameter here
-			size_t c = 0;
-			m_firstDay = CMonthDay(parameters[c++].GetString());
-			m_lastDay = CMonthDay(parameters[c++].GetString());
-			m_FFMC = parameters[c++].GetReal();
-			m_DMC = parameters[c++].GetReal();
-			m_DC = parameters[c++].GetReal();
-			m_carryOverFraction = parameters[c++].GetReal();
-			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
-			m_method = parameters[c++].GetInt();
-		}
-		else
-		{
-			msg = GetErrorMessage(ERROR_BAD_NUMBER_PARAMETER);
-		}
-
-		return msg;
-	}
 
 }

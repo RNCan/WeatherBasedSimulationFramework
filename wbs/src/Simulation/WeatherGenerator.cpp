@@ -828,6 +828,22 @@ ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint&  simulationPoint, CWVaria
 
 					if (variables[H_SWE] && !(*itD)[H_SWE].IsInit())
 						(*itD)[H_SWE] = snow[jd].m_SWE;
+
+					if (simulationPoint.IsHourly())
+					{
+						//init hourly data
+						for (size_t h = 0; h < 24; h++)
+						{
+							if (variables[H_SNOW] && WEATHER::IsMissing((*itD)[h][H_SNOW]))
+								(*itD)[h][H_SNOW] = snow[jd].m_newSWE/24;
+
+							if (variables[H_SNDH] && WEATHER::IsMissing((*itD)[h][H_SNDH]))//a faire : interplation entre d-1 et d+1
+								(*itD)[h][H_SNDH] = snow[jd].m_hs;
+
+							if (variables[H_SWE] && WEATHER::IsMissing((*itD)[h][H_SWE]))//a faire : interplation entre d-1 et d+1
+								(*itD)[h][H_SWE] = snow[jd].m_SWE;
+						}
+					}
 				}
 			}
 		}

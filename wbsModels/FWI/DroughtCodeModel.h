@@ -17,7 +17,7 @@ namespace WBSF
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteMonthly();
 		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
 		static CBioSIMModelBase* CreateObject(){ return new CDroughtCode; }
 	
@@ -27,8 +27,8 @@ namespace WBSF
 
 		bool m_bAutoSelect;
 		//Fixed season paramns
-		short m_firstDay;//91
-		short m_lastDay;//305
+		CMonthDay  m_firstDay;//91
+		CMonthDay  m_lastDay;//305
 		double m_FFMC;	//85.0
 		double m_DMC;	//6.0
 		double m_DC;	//15.0
@@ -44,8 +44,9 @@ namespace WBSF
 
 		double m_carryOverFraction;//1
 		double m_effectivenessOfWinterPrcp;//0.75
+		size_t m_method;
 
 
-		static double ComputeIndice(int year, int m, double& DCMo, double Rm, double Tm);
+		//static double ComputeIndice(int year, size_t m, double& DCMo, double Rm, double Tm);
 	};
 }

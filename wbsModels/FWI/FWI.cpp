@@ -413,7 +413,7 @@ namespace WBSF
 
 		for (size_t y = 0; y < weather.size(); y++)//for all years
 		{
-			int year = weather.GetFirstYear() + y;
+			int year = weather.GetFirstYear() + int(y);
 
 			if (m_bAutoSelect)//auto init parameter
 			{
@@ -498,16 +498,9 @@ namespace WBSF
 					if (jd >= firstDay && jd <= lastDay)
 					{
 
-						double Tnoon = day[12][H_TAIR];//GetTnoon(16, day.GetTMin(), day.GetTMax());
-						double HRnoon = day[12][H_RELH];//GetHrnoon(day.GetTMin(), day.GetTMax(), Tnoon, day[RELH]);
+						double Tnoon = day[12][H_TAIR];
+						double HRnoon = day[12][H_RELH];
 						double WSnoon = day[12][H_WNDS];
-						//we make a correction on the wind speed because sometime bioSIM 9.52 return strange value
-						//double WSNoon = day[WNDS]>-999?Min(120.0, day.GetWSnoon() ):0;
-						//double WSNoon = day[WNDS]>-999?GetWSnoon( Min(50.0, day[WNDS]) ):0;
-						//day(TMIN) = Tnoon;
-						//day(TMAX) = Tnoon;
-						//day(RELH) = Hrnoon;
-						//day(WNDS) = WSNoon;
 
 						// compute FFMC
 						double FFMC = GetFFMC(oldFFMC, day);
@@ -532,9 +525,6 @@ namespace WBSF
 						double DSR = GetDSR(FWI);
 						ASSERT(DSR < 200);
 
-						//CFWIDay FWIDay( weather[y].GetYear(), d,day, FFMC,DMC,DC,ISI,BUI,FWI,DSR);
-						//m_FWIDayArray.Add(FWIDay);
-
 						//save result
 						output[TRef][CFWIStat::TMEAN_NOON] = Tnoon;
 						output[TRef][CFWIStat::RELH_NOON] = HRnoon;
@@ -557,45 +547,6 @@ namespace WBSF
 		}//for all year 
 	}
 
-
-
-//
-//void CFWI::GetResult(CFWIDStatVector& vector)const
-//{
-//	vector.clear();
-//	if( m_FWIDayArray.GetSize() > 0)
-//	{
-//		//CTRef begin;
-//		//CTRef end;
-//
-//		//begin.SetJDay(m_FWIDayArray.begin()->m_year, m_FWIDayArray.begin()->m_day);
-//		//end.SetJDay(m_FWIDayArray.rbegin()->m_year, m_FWIDayArray.rbegin()->m_day);
-//
-//		CTRef begin(m_FWIDayArray.begin()->m_year, FIRST_MONTH, FIRST_DAY);
-//		CTRef end(m_FWIDayArray.rbegin()->m_year, LAST_MONTH, LAST_DAY);
-//		vector.SetFirstTRef(begin);
-//		vector.resize(end-begin+1, MISSING);
-//		
-//		for(int i=0; i<m_FWIDayArray.GetSize(); i++)
-//		{
-//			CTRef d;
-//			d.SetJDay(m_FWIDayArray[i].m_year, m_FWIDayArray[i].m_day);
-//
-//			vector[d][CFWIStat::TMEAN_NOON] = m_FWIDayArray[i].m_weatherDay.GetTMean();
-//			vector[d][CFWIStat::RELH_NOON] = m_FWIDayArray[i].m_weatherDay[DAILY_DATA::RELH];
-//			vector[d][CFWIStat::WNDS_NOON] = m_FWIDayArray[i].m_weatherDay[DAILY_DATA::WNDS];
-//			_ASSERTE( vector[d][CFWIStat::WNDS_NOON] < 100);
-//			vector[d][CFWIStat::PRCP] = m_FWIDayArray[i].m_weatherDay[DAILY_DATA::PRCP];
-//			vector[d][CFWIStat::FFMC] = m_FWIDayArray[i].m_ffmc;
-//			vector[d][CFWIStat::DMC] = m_FWIDayArray[i].m_dmc;
-//			vector[d][CFWIStat::DC] = m_FWIDayArray[i].m_dc;
-//			vector[d][CFWIStat::ISI] = m_FWIDayArray[i].m_isi;
-//			vector[d][CFWIStat::BUI] = m_FWIDayArray[i].m_bui;
-//			vector[d][CFWIStat::FWI] = m_FWIDayArray[i].m_fwi;
-//			vector[d][CFWIStat::DSR] = m_FWIDayArray[i].m_dsr;
-//		}
-//	}
-//}
 
 //**************************************************************
 	void CFWIStat::Covert2D(const CModelStatVector& result, CModelStatVector& resultD)

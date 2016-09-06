@@ -90,4 +90,40 @@ namespace WBSF
 
 	};
 
+
+
+	class CDegreeHours
+	{
+	public:
+
+		enum TOuput{ S_DH, NB_OUTPUT };
+		static const char HEADER[];
+
+
+		//enum TAccumulationType{ AT_HOURLY, AT_DAILY };
+		//enum THourlyMethod{ DAILY_AVERAGE, DAILY_AVERAGE_ADJUSTED, SINGLE_TRIANGLE, DOUBLE_TRIANGLE, SINGLE_SINE, DOUBLE_SINE, ALLEN_WAVE = DOUBLE_SINE, MODIFIED_ALLEN_WAVE, NB_DAILY_METHOD };
+		//enum THourlyMethod{ BIOSIM_HOURLY, NB_HOURLY_METHOD };
+		enum TCutoff{ HORIZONTAL_CUTOFF, INTERMEDIATE_CUTOFF, VERTICAL_CUTOFF, NB_CUTOFF };
+
+		//size_t m_aType;
+		//size_t m_method;
+		bool m_bCumulative;
+		double m_lowerThreshold;
+		double m_upperThreshold;
+		size_t m_cutoffType;
+
+
+		CDegreeHours(double lowerThreshold = 0, double upperThreshold = 999, bool bCumulative = true, size_t cutoffType = HORIZONTAL_CUTOFF)
+		{
+			m_lowerThreshold = lowerThreshold;
+			m_upperThreshold = upperThreshold;
+			m_bCumulative = bCumulative;
+			m_cutoffType = cutoffType;
+		}
+
+		//General method
+		virtual void Execute(CWeatherStation& station, CModelStatVector& output);
+		double GetDH(const CHourlyData& in)const;
+	};
+
 }

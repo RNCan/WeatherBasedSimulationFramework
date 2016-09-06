@@ -112,7 +112,7 @@ namespace WBSF
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 
-
+		 
 		CModelStatVector stats;
 
 		CTPeriod p = m_weather.GetEntireTPeriod();
