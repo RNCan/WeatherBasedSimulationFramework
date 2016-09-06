@@ -5,7 +5,6 @@
 
 namespace WBSF
 {
-	class CFWI;
 
 	class CDroughtCode : public CBioSIMModelBase
 	{
@@ -24,7 +23,7 @@ namespace WBSF
 	
 	protected:
 
-		ERMsg ExecuteDaily(CFWI& FWI);
+		ERMsg ExecuteDaily(CModelStatVector& output);
 
 		bool m_bAutoSelect;
 		//Fixed season paramns

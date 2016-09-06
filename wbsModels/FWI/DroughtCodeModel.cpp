@@ -4,12 +4,13 @@
 //17/05/2011	1.0		Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "DroughtCodeModel.h"
-#include "FWI\FWI.h"
-#include "WeatherDefine.h"
-#include "EntryPoint.h"
-
+#include "FWI.h"
+#include "Basic/WeatherDefine.h"
+#include "ModelBase/EntryPoint.h"
+#include "Basic/GrowingSeason.h"
 
 using namespace WBSF::HOURLY_DATA; 
+using namespace std;
 
 namespace WBSF
 {
@@ -19,10 +20,10 @@ namespace WBSF
 
 	typedef CModelStatVectorTemplate<1> CDCStatVector;
 
-	CDroughtCode::CDroughtCode() : CBioSIMModelBase(true)//to compute new snow
+	CDroughtCode::CDroughtCode()
 	{
 		// initialise your variable here (optionnal)
-		//NB_INPUT_PARAMETER=8;
+		
 		VERSION = "2.0.0 (2016)";
 
 		m_bAutoSelect = true;
@@ -31,15 +32,16 @@ namespace WBSF
 		m_FFMC = 85.0;
 		m_DMC = 6.0;
 		m_DC = 15.0;
-		//m_startThreshold = 12;
+		
+
 		m_carryOverFraction = 1;
 		m_effectivenessOfWinterPrcp = 0.75;
 
 		m_nbDaysStart = 3;
-		m_TtypeStart = CWeatherYear::TT_TNOON;
+		m_TtypeStart = CGSInfo::TT_TNOON;
 		m_thresholdStart = 12;
 		m_nbDaysEnd = 3;
-		m_TtypeEnd = CWeatherYear::TT_TMAX;
+		m_TtypeEnd = CGSInfo::TT_TMAX;
 		m_thresholdEnd = 5;
 		m_carryOverFraction = 1;
 		m_effectivenessOfWinterPrcp = 0.75;
@@ -54,37 +56,29 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//Init class member
-		//CFWI::SetStartThreshold(m_startThreshold);
-		//CFWI::SetCarryOverFraction(m_carryOverFraction);
-		//CFWI::SetEffectivenessOfWinterPrcp(m_effectivenessOfWinterPrcp );
-
+		
 		//Compute FWI
-		CFWI FWI;
-		ExecuteDaily(FWI);
-		//FWI.Compute(m_weather, m_firstDay, m_lastDay, m_ffmc, m_dmc, m_dc);
-
-		//Get result
-		const CFWIDStatVector& result = FWI.GetResult();
+		CModelStatVector output;
+		ExecuteDaily(output);
+		
 
 		//Create output from result
-		CDCStatVector output(m_weather.GetNbDay(), m_weather.GetFirstTRef());
-		output.resize(m_weather.GetNbDay(), -9999);
-		for (CTRef d = result.GetFirstTRef(); d <= result.GetLastTRef(); d++)
-			output[d][0] = result[d][CFWIStat::DC];
+		m_output.Init(m_weather.GetEntireTPeriod(CTM::DAILY), -9999);
+		
+		for (CTRef d = output.GetFirstTRef(); d <= output.GetLastTRef(); d++)
+			m_output[d][0] = output[d][CFWIStat::DC];
 
-		//set output
-		SetOutput(output);
-
+		
 		return msg;
 	}
 
 
-	ERMsg CDroughtCode::ExecuteDaily(CFWI& FWI)
+	ERMsg CDroughtCode::ExecuteDaily(CModelStatVector& output)
 	{
 		ERMsg msg;
 
 		//manual setting 
+		CFWI FWI;
 		FWI.m_firstDay = m_firstDay;
 		FWI.m_lastDay = m_lastDay;
 		FWI.m_FFMC = m_FFMC;
@@ -102,8 +96,7 @@ namespace WBSF
 		FWI.m_carryOverFraction = m_carryOverFraction;
 		FWI.m_effectivenessOfWinterPrcp = m_effectivenessOfWinterPrcp;
 
-		FWI.Compute(m_weather);
-
+		FWI.Execute(m_weather, output);
 
 		return msg;
 	}
@@ -112,23 +105,15 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//Init class member
-		//CFWI::SetStartThreshold(m_startThreshold);
-		//CFWI::SetCarryOverFraction(m_carryOverFraction);
-		//CFWI::SetEffectivenessOfWinterPrcp(m_effectivenessOfWinterPrcp );
-
-
-		//CFWI FWI;
-		//FWI.Compute(m_weather, m_firstDay, m_lastDay, m_ffmc, m_dmc, m_dc );
-		CFWI FWI;
-		ExecuteDaily(FWI);
+		CFWIDStatVector resultD;
+		ExecuteDaily(resultD);
 
 		CFWIMStatVector resultM;
-		CFWIStat::CovertD2M(FWI.GetResult(), resultM);
+		CFWIStat::Covert2M(resultD, resultM);
 
 		CDCStatVector output(resultM.size(), resultM.GetFirstTRef());
 
-		for (int d = 0; d < output.size(); d++)
+		for (size_t d = 0; d < output.size(); d++)
 			output[d][0] = resultM[d][CFWIStat::DC];
 
 		SetOutput(output);
@@ -141,18 +126,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//CFWI::SetStartThreshold(m_startThreshold);
-		//CFWI::SetCarryOverFraction(m_carryOverFraction);
-		//CFWI::SetEffectivenessOfWinterPrcp(m_effectivenessOfWinterPrcp );
-
-		//CFWI FWI;
-		//FWI.Compute(m_weather, m_firstDay, m_lastDay, m_ffmc, m_dmc, m_dc);
-		CFWI FWI;
-		ExecuteDaily(FWI);
+		CFWIDStatVector resultD;
+		ExecuteDaily(resultD);
 
 
 		CFWIAStatVector resultA;
-		CFWIStat::CovertD2A(FWI.GetResult(), resultA);
+		CFWIStat::Covert2A(resultD, resultA);
 
 		CDCStatVector output(resultA.size(), resultA.GetFirstTRef());
 		for (int d = 0; d < output.size(); d++)
@@ -172,8 +151,8 @@ namespace WBSF
 			Tm = -2.8;
 
 
-		int N = CFL::GetNbDayPerMonth(year, m);
-		double Vm = max(0, N*(0.36*Tm + Lf[m])) / 2;
+		size_t N = GetNbDayPerMonth(year, m);
+		double Vm = max(0.0, N*(0.36*Tm + Lf[m])) / 2;
 
 		double DChalf = DCMo + 0.5*Vm; // add in only half of drying before the rain influence
 

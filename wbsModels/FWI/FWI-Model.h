@@ -6,8 +6,6 @@
 
 namespace WBSF
 {
-	class CFWI;
-
 	class CFWIModel : public CBioSIMModelBase
 	{
 	public:
@@ -26,7 +24,7 @@ namespace WBSF
 
 	private:
 
-		ERMsg ExecuteDaily(CFWI& FWI, CModelStatVector& output);
+		ERMsg ExecuteDaily(CModelStatVector& output);
 
 		bool m_bAutoSelect;
 

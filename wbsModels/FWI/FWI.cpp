@@ -316,55 +316,6 @@ namespace WBSF
 	}
 
 
-	//short CFWI::GetFirstDay3xThreshold(const CWeatherYear& weather)
-	//{
-	//	short firstDay=-1;
-	//	
-	//
-	//	//Beginning of fire weather 
-	//	//look for the first occurrence of 3 successive days Tnoon > T_THRESHOLD
-	//	for(int jd=0; jd<200; jd++)
-	//	{
-	//		double Tnoon0 = weather.GetDay(jd).GetTnoon();//GetTnoon(16, weather.GetDay(jd).GetTMin(), weather.GetDay(jd).GetTMax());
-	//		double Tnoon1 = weather.GetDay(jd+1).GetTnoon();//GetTnoon(16, weather.GetDay(jd+1).GetTMin(), weather.GetDay(jd+1).GetTMax());
-	//		double Tnoon2 = weather.GetDay(jd+2).GetTnoon();//GetTnoon(16, weather.GetDay(jd+2).GetTMin(), weather.GetDay(jd+2).GetTMax());
-	//
-	//		if( Tnoon0 >= m_thresholdStart && 
-	//			Tnoon1 >= m_thresholdStart && 
-	//			Tnoon2 >= m_thresholdStart )
-	//		{
-	//			firstDay=jd+3;//FWI begin after these 3 days
-	//			break;
-	//		}
-	//	}
-	//
-	////	CTPeriod p = weather.GetGrowingSeason(false, m_nbDaysStart, m_TtypeStart, m_thresholdStart);
-	//
-	//	return firstDay;
-	//}
-
-	/*short CFWI::GetFirstDay3x6mean(const CWeather& weather, short y)
-	{
-	short firstDay=-1;
-
-	//Beginning of the growing season
-	//look for the first occurrence of 3 successive days with frost
-	for(int jd=0; jd<200; jd++)
-	{
-	double Tmean0 = weather[y].GetDay(jd).GetTMean();
-	double Tmean1 = weather[y].GetDay(jd+1).GetTMean();
-	double Tmean2 = weather[y].GetDay(jd+2).GetTMean();
-
-	if( Tmean0>=6 && Tmean1>=6 && Tmean2>=6 )
-	{
-	firstDay=jd+3;//it's the tirth day
-	break;
-	}
-	}
-
-	return firstDay;
-	}
-	*/
 	size_t CFWI::GetNbDayLastRain(const CWeatherYear& weather, size_t firstDay)
 	{
 		size_t nbDay = 0;
@@ -380,7 +331,7 @@ namespace WBSF
 		return nbDay;
 	}
 
-	short CFWI::GetInitialValue(const CWeatherStation& weather, size_t y, size_t lastDay, double& FFMC, double& DMC, double& DC)
+	size_t CFWI::GetInitialValue(const CWeatherStation& weather, size_t y, size_t lastDay, double& FFMC, double& DMC, double& DC)
 	{
 		double lastDC = DC;
 

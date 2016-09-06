@@ -57,13 +57,14 @@ namespace WBSF
 
 	
 
-	ERMsg CFWIModel::ExecuteDaily(CFWI& FWI, CModelStatVector& output)
+	ERMsg CFWIModel::ExecuteDaily(CModelStatVector& output)
 	{
 		ERMsg msg;
 
 		if (!m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
 
+		CFWI FWI;
 		FWI.m_method = (CFWI::TMethod)m_method;
 		FWI.m_bAutoSelect = m_bAutoSelect;
 		FWI.m_nbDaysStart = m_nbDaysStart;
@@ -100,8 +101,7 @@ namespace WBSF
 		}
 
 		//Init class member
-		CFWI FWI;
-		msg = ExecuteDaily(FWI, m_output);
+		msg = ExecuteDaily(m_output);
 
 		return msg;
 	}
@@ -112,11 +112,10 @@ namespace WBSF
 		ERMsg msg;
 
 		//Init class member
-		CFWI FWI;
 		CFWIMStatVector resultD;
-		ExecuteDaily(FWI, resultD);
+		ExecuteDaily(resultD);
 
-		msg = ExecuteDaily(FWI, resultD);
+		msg = ExecuteDaily(resultD);
 		CFWIStat::Covert2D(resultD, m_output);
 
 		return msg;
@@ -128,9 +127,8 @@ namespace WBSF
 
 
 		//Init class member
-		CFWI FWI;
 		CFWIMStatVector resultD;
-		ExecuteDaily(FWI, resultD);
+		ExecuteDaily(resultD);
 
 
 		CFWIMStatVector resultM;
@@ -147,11 +145,10 @@ namespace WBSF
 		ERMsg msg;
 
 		//Init class member
-		CFWI FWI;
 		CSnowAnalysis snow;
 
 		CFWIDStatVector resultD;
-		ExecuteDaily(FWI, resultD);
+		ExecuteDaily(resultD);
 
 		CFWIAStatVector resultA;
 		CFWIStat::Covert2A(resultD, resultA);
