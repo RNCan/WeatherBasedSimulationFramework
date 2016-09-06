@@ -1,0 +1,45 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Climate Moisture Index", "CMIModel.vcxproj", "{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\Basic\Basic.vcxproj", "{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BioSIMModelBase", "..\BioSIMModelBase.vcxproj", "{820B2D92-9FBE-4873-BC72-C2913492671C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Debug|Win32.Build.0 = Debug|Win32
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Debug|x64.ActiveCfg = Debug|x64
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Debug|x64.Build.0 = Debug|x64
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Release|Win32.ActiveCfg = Release|Win32
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Release|Win32.Build.0 = Release|Win32
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Release|x64.ActiveCfg = Release|x64
+		{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}.Release|x64.Build.0 = Release|x64
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Debug|Win32.Build.0 = Debug|Win32
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Debug|x64.ActiveCfg = Debug|x64
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Debug|x64.Build.0 = Debug|x64
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Release|Win32.ActiveCfg = Release|Win32
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Release|Win32.Build.0 = Release|Win32
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Release|x64.ActiveCfg = Release|x64
+		{8B85414B-65CD-4BF9-94FB-87F0A5448BF1}.Release|x64.Build.0 = Release|x64
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Debug|Win32.Build.0 = Debug|Win32
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Debug|x64.ActiveCfg = Debug|x64
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Debug|x64.Build.0 = Debug|x64
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Release|Win32.ActiveCfg = Release|Win32
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Release|Win32.Build.0 = Release|Win32
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Release|x64.ActiveCfg = Release|x64
+		{820B2D92-9FBE-4873-BC72-C2913492671C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
