@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DewPeriod", "DewPeriod.vcxproj", "{37FF647E-A608-41F3-A678-CD050F755594}"
 EndProject
@@ -27,6 +27,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GrowingSeason", "GrowingSeason.vcxproj", "{D52E044C-8655-4D44-8229-0B02AA81AF00}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASCE-ETc", "ASCE-ETc.vcxproj", "{6340B5A6-E040-4CA2-BC76-7356A4D442DD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DegreeHour", "DegreeHour.vcxproj", "{4F643939-41DC-4229-9C2F-7A451456A67D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,6 +140,14 @@ Global
 		{6340B5A6-E040-4CA2-BC76-7356A4D442DD}.Release|Win32.Build.0 = Release|Win32
 		{6340B5A6-E040-4CA2-BC76-7356A4D442DD}.Release|x64.ActiveCfg = Release|x64
 		{6340B5A6-E040-4CA2-BC76-7356A4D442DD}.Release|x64.Build.0 = Release|x64
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Debug|Win32.Build.0 = Debug|Win32
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Debug|x64.ActiveCfg = Debug|x64
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Debug|x64.Build.0 = Debug|x64
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Release|Win32.ActiveCfg = Release|Win32
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Release|Win32.Build.0 = Release|Win32
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Release|x64.ActiveCfg = Release|x64
+		{4F643939-41DC-4229-9C2F-7A451456A67D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

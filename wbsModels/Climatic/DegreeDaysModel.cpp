@@ -27,6 +27,7 @@
 //		Degree day summation.
 //
 //*****************************************************************************
+// 06/09/2016	3.0.3	Rémi Saint-Amant	Replace DregreDay (hour) by DegreHour
 // 21/01/2016	3.0.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 08/05/2015			Rémi Saint-Amant	New BioSIM 11 version
 // 12/05/2013			Rémi Saint-Amant	Add hourly DD
@@ -73,6 +74,44 @@ namespace WBSF
 	CDegreeDaysModel::~CDegreeDaysModel()
 	{
 	}
+
+	//**************************
+	//this method is called by the framework to load parameters
+	ERMsg CDegreeDaysModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ASSERT(m_weather.size() > 0);
+
+		ERMsg msg;
+
+		//read the 5 input parameters: must be in the same order than the 
+		//model's interface. 
+
+		int c = 0;
+
+		m_DD.m_method = parameters[c++].GetInt();
+		m_DD.m_lowerThreshold = parameters[c++].GetReal();
+		m_DD.m_upperThreshold = parameters[c++].GetReal();
+		m_DD.m_cutoffType = parameters[c++].GetInt();
+
+		m_firstDate = CMonthDay(parameters[c++].GetString());
+		m_lastDate = CMonthDay(parameters[c++].GetString());
+		m_summationType = parameters[c++].GetInt();
+		double notUse = parameters[c++].GetReal();//for reverse model
+
+		//perform verification
+		if (!m_firstDate.IsValid())
+			return GetErrorMessage(ERROR_BEGINNING_DATE);
+		if (!m_lastDate.IsValid())
+			return GetErrorMessage(ERROR_ENDING_DATE);
+
+
+
+		ASSERT(m_DD.m_cutoffType >= 0 && m_DD.m_cutoffType < CDegreeDays::NB_CUTOFF);
+		ASSERT(m_summationType >= 0 && m_summationType < NB_SUMMATION_TYPE);
+
+		return msg;
+	}
+
 
 
 	void CDegreeDaysModel::ComputeFinal(CTM TM, const CModelStatVector& input, CModelStatVector& output)
@@ -163,43 +202,6 @@ namespace WBSF
 		m_DD.Execute(m_weather, stats);
 		ComputeFinal(CTM(CTM::ANNUAL), stats, m_output);
 
-
-		return msg;
-	}
-
-	//**************************
-	//this method is called by the framework to load parameters
-	ERMsg CDegreeDaysModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ASSERT(m_weather.size() > 0);
-
-		ERMsg msg;
-
-		//read the 5 input parameters: must be in the same order than the 
-		//model's interface. 
-
-		int c = 0;
-
-		m_DD.m_method = parameters[c++].GetInt();
-		m_DD.m_lowerThreshold = parameters[c++].GetReal();
-		m_DD.m_upperThreshold = parameters[c++].GetReal();
-		m_DD.m_cutoffType = parameters[c++].GetInt();
-		 
-		m_firstDate = CMonthDay(parameters[c++].GetString());
-		m_lastDate = CMonthDay(parameters[c++].GetString());
-		m_summationType = parameters[c++].GetInt();
-		double notUse = parameters[c++].GetReal();//for reverse model
-
-		//perform verification
-		if (!m_firstDate.IsValid())
-			return GetErrorMessage(ERROR_BEGINNING_DATE);
-		if (!m_lastDate.IsValid())
-			return GetErrorMessage(ERROR_ENDING_DATE);
-
-		
-
-		ASSERT(m_DD.m_cutoffType >= 0 && m_DD.m_cutoffType < CDegreeDays::NB_CUTOFF);
-		ASSERT(m_summationType >= 0 && m_summationType < NB_SUMMATION_TYPE);
 
 		return msg;
 	}
