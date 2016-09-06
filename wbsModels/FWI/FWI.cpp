@@ -15,6 +15,7 @@
 // 18/05/2011   Rémi Saint-Amant	Change result format( January 1 to December 31), correction of a bug in computing new DC
 //									Add of m_carryOverFraction and EFFECTIVENESS_OF_WINTER as static parameters
 // 06/02/2012	Rémi Saint-Amant	Correction of a bug in the first date. The first date must start 3 days after the snow melt 
+// 05/09/2016	Rémi Saint-Amant	Many modifications to support hourly inputs
 //**********************************************************************
 #include <math.h>
 #include "Basic/GrowingSeason.h"

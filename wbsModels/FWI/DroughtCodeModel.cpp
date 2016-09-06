@@ -1,4 +1,5 @@
 //*********************************************************************
+//08/02/2012    2.0.0   Rémi Saint-Amant	Include inopt WBSF
 //08/02/2012    1.1     Rémi Saint-Amant	Recompile with new interface and new FWI model
 //17/05/2011	1.0		Rémi Saint-Amant	Creation
 //*********************************************************************
@@ -22,7 +23,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		//NB_INPUT_PARAMETER=8;
-		VERSION = "1.1 (2012)";
+		VERSION = "2.0.0 (2016)";
 
 		m_bAutoSelect = true;
 		m_firstDay = 0;

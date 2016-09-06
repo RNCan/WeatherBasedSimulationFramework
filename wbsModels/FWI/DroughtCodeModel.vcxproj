@@ -188,11 +188,11 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     <ClInclude Include="DroughtCodeModel.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Basic\Basic.vcxproj">
-      <Project>{8b85414b-65cd-4bf9-94fb-87f0a5448bf1}</Project>
+    <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">
+      <Project>{31fea106-e963-4f38-b23d-4e227c7200ca}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BioSIMModelBase.vcxproj">
-      <Project>{820b2d92-9fbe-4873-bc72-c2913492671c}</Project>
+    <ProjectReference Include="..\..\wbs\msvc\ModelBase.vcxproj">
+      <Project>{dd3a2586-ef87-438e-9304-33fb8179a04c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
