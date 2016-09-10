@@ -245,6 +245,8 @@ namespace WBSF
 				//it's temperature correction
 				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TAIR);
 				me[m][TMAX_MN] += (float)correction.GetCorrection(me, TRef, H_TRNG);
+				ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
+				ASSERT(me[m][TMAX_MN]>-99 && me[m][TMAX_MN]<99);
 			}
 
 			if (vars[H_PRCP] && correction.m_variables[H_PRCP])

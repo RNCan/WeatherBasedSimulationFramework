@@ -35,22 +35,24 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
+		CTM TM = m_weather.GetTM();
+
 		//Compute DD5
-		CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5);
+		CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
 		CModelStatVector DD5;
 		DD.Execute(m_weather, DD5);
-
 		
 
 		//Create output vector
-		m_output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather[1].GetTRef().GetYear()), NB_A_OUTPUT);
+		m_output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather.GetFirstYear()+1), NB_A_OUTPUT);
 
 		//compute variable for all year except the first one
 		for (size_t y = 1; y < m_weather.GetNbYears(); y++)
 		{
 			int year = m_weather.GetFirstYear() + int(y);
-			CTPeriod p1(year - 1, AUGUST, FIRST_DAY, year, JULY, LAST_DAY);
-			CTPeriod p2(year, JANUARY, FIRST_DAY, year, JULY, LAST_DAY);
+			CTPeriod p1(CTRef(year - 1, AUGUST, FIRST_DAY, FIRST_HOUR, TM), CTRef(year, JULY, LAST_DAY, LAST_HOUR,TM));
+			CTPeriod p2(CTRef(year, JANUARY, FIRST_DAY, FIRST_HOUR,TM), CTRef(year, JULY, LAST_DAY, LAST_HOUR, TM) ); 
 
 			double gddwyr = DD5.GetStat(CDegreeDays::S_DD, p1)[SUM];
 			double gddcum = DD5.GetStat(CDegreeDays::S_DD, p2)[SUM];
@@ -58,8 +60,8 @@ namespace WBSF
 			//float gddwyr = m_weather.GetDD(5, p);
 			
 
-			CTPeriod p3(year, MARCH, FIRST_DAY, year, JUNE, LAST_DAY);
-			double pptSummer = m_weather[y].GetStat(H_PRCP, p3)[SUM] / 10;//in cm
+			CTPeriod p3(CTRef( year, MARCH, FIRST_DAY, FIRST_HOUR,TM), CTRef( year, JUNE, LAST_DAY, LAST_HOUR,TM)); 
+			double pptSummer = m_weather[y](H_PRCP, p3)[SUM] / 10;//in cm
 
 			//conversion from mm to cm
 			double Pwyr = m_weather.GetStat(H_PRCP, p1)[SUM] / 10;
@@ -165,7 +167,8 @@ namespace WBSF
 
 			for (size_t m = 0; m < 12; m++)
 			{
-				if (p.IsInside(CTRef(year, m, 15)))//is this month is used
+				CTPeriod pp = weather[y][m].GetEntireTPeriod();
+				if (p.IsInside(pp) )//is this month is used
 				{
 					double PET = GetSPMPET(weather[y][m]);
 					PETwyr += PET;

@@ -327,6 +327,9 @@ namespace WBSF
 		if (mVariables[H_TRNG] && !mVariables[H_TAIR])
 			mVariables.set(H_TAIR);
 
+		if (mVariables[H_TAIR] && !mVariables[H_TRNG])
+			mVariables.set(H_TRNG);//Tmax
+
 		if (mVariables[H_PRCP] && !mVariables[H_TAIR])
 			mVariables.set(H_TAIR);
 

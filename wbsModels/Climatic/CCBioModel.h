@@ -25,12 +25,13 @@ namespace WBSF
 		double GetTsea(const CWeatherYear& weather);
 		double GetPsea(const CWeatherMonth& weather);
 		double GetPsea(const CWeatherYear& weather);
-		void GetPwv(std::vector<double>& Pwv, std::vector<int>& Pwm);
-		void GetPdv(std::vector<double>& Pdv, std::vector<int>& Pdm);
+		void GetPwv(std::vector<double>& Pwv, std::vector<size_t>& Pwm);
+		void GetPdv(std::vector<double>& Pdv, std::vector<size_t>& Pdm);
 
-		double GetWBALsea(const CWeatherYear& weather, const CHamonPET& HamonPET);
+		double GetWBALsea(const CWeatherYear& weather, const CModelStatVector& HamonPET);
 		double GetMonthlyDifference(const CWeatherYear& weather);
-		double GetPETsea(const CHamonPET& HamonPET);
+		//double GetPETsea(const CModelStatVector& HamonPET);
+		//double GetPETsum(const CModelStatVector& HamonPET);
 		double GetCoolingDD(const CWeatherYear& weather, double threshold);
 		double GetCoolingDD(const CWeatherMonth& weather, double threshold);
 

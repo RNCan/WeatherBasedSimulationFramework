@@ -3016,6 +3016,9 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 
 						double Tmin = me[TRef][H_TMIN][LOWEST] + correction.GetCorrection(me, TRef, H_TAIR);
 						double Tmax = me[TRef][H_TMAX][HIGHEST] + correction.GetCorrection(me, TRef, H_TRNG);
+						ASSERT(Tmin>-99 && Tmin<99);
+						ASSERT(Tmax>-99 && Tmax<99);
+
 						double Tair = (Tmin + Tmax) / 2;
 						double Trng = Tmax - Tmin;
 

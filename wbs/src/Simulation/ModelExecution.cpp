@@ -500,7 +500,7 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 	
 	if(msg)
 	{
-
+		
 		CResultPtr pWeather = GetParent()->GetResult(fileManager);
 		msg = pWeather->Open();
 		if (msg)
@@ -509,7 +509,12 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 			const CLocationVector& locations = metadataIn.GetLocations();
 			size_t nbReplications = m_nbReplications*metadataIn.GetNbReplications();
 			
-			msg = model.VerifyInputs(locations.GetSSIHeader(), metadataIn.GetOutputDefinition().GetWVariables());
+			if (metadataIn.GetTPeriod().GetNbYears() < model.GetNbYearMin() || metadataIn.GetTPeriod().GetNbYears() > model.GetNbYearMax())
+				msg.ajoute(FormatMsg(IDS_BSC_NB_YEAR_INVALID, ToString(metadataIn.GetTPeriod().GetNbYears()), model.GetName(), ToString(model.GetNbYearMin()), ToString(model.GetNbYearMax())));
+
+			if (msg)
+				msg = model.VerifyInputs(locations.GetSSIHeader(), metadataIn.GetOutputDefinition().GetWVariables());
+
 			if (msg)
 			{
 				string filePath = GetDBFilePath(GetPath(fileManager));

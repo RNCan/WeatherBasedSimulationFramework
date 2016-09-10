@@ -151,7 +151,7 @@ namespace WBSF
 			case COEF_VAR:
 				if (!(m_sum² > 0 && m_sum == 0))
 				{
-					value = m_sum > 0 ? me[STD_DEV] / me[MEAN] : 0;
+					value = m_sum != 0 ? me[STD_DEV] / me[MEAN] : 0;//est-ce que doit accepter les valeur négative???
 					break;
 				}
 			case VARIANCE:value = std::max(0.0, (m_sum² - Square(m_sum) / m_nbValues) / (nbVal)); break;

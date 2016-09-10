@@ -180,7 +180,13 @@ ERMsg CWeatherGenerator::Initialize(CCallback& callback)
 	GenerateSeed();
 	
 	m_gradients.SetNormalsDatabase(m_pNormalDB);
-	m_gradients.m_variables = m_tgi.GetMandatoryVariables();
+	//m_gradients.m_variables = m_tgi.GetMandatoryVariables();
+	m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
+	if (m_gradients.m_variables[H_TAIR] || m_gradients.m_variables[H_TRNG])
+	{
+		m_gradients.m_variables.set(H_TAIR);//Tmin
+		m_gradients.m_variables.set(H_TRNG);//Tmax
+	}
 	m_gradients.m_allowDerivedVariables = m_tgi.m_allowedDerivedVariables;
 	m_gradients.m_bXVal = m_tgi.m_bXValidation;
 	m_gradients.m_target = m_target;
@@ -277,7 +283,7 @@ void CWeatherGenerator::CompleteSimpleVariables(CSimulationPoint& simulationPoin
 
 		if (variables[H_ES] && !data[H_ES].IsInit() && data[H_TAIR])
 		{
-			double Es = e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);//this formation work for hourly and daily valuers
+			double Es = e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);//this format work for hourly and daily values
 			data.SetStat(H_ES, Es * 1000);//[Pa]
 		}
 
@@ -400,7 +406,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 				if (msg && bHR && bTPcomplet && (bHRcomplet || bEAcomplete))
 					msg = ComputeHumidityRadiation(m_simulationPoints[0], m_tgi.m_variables);
 
-				if (msg && bSN && m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod()))
+				if (msg && bSN && bTPcomplet)//m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod()))
 					msg = ComputeSnow(m_simulationPoints[0], m_tgi.m_variables);
 
 				//fill wind direction because not integrated yet into the weather generator

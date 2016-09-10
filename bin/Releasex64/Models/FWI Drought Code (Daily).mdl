@@ -3,7 +3,7 @@
     <Title>FWI(monthly)</Title>
     <Version>1.0</Version>
     <ID>.FWI</ID>
-    <EXE>DroughtCode.dll</EXE>
+    <EXE>FWI Drought Code.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 357 712</WindowRect>

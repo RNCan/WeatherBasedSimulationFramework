@@ -327,18 +327,18 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ClimaticFull.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ClimaticFull.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">
       <Project>{31fea106-e963-4f38-b23d-4e227c7200ca}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\wbs\msvc\ModelBase.vcxproj">
       <Project>{dd3a2586-ef87-438e-9304-33fb8179a04c}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Climatic.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Climatic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

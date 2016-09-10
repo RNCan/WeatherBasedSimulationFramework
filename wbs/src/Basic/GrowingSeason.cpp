@@ -146,7 +146,7 @@ namespace WBSF
 			bGetIt1 = true;
 			for (size_t dd = 0; dd<m_begin.m_nbDays&&bGetIt1; dd++)
 			{
-				ASSERT(TRef1 - dd >= p.Begin());
+				ASSERT((TRef1 - dd).Transform(p.GetTM()) >= p.Begin());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef1 - dd]);
 				bGetIt1 = m_begin.GetGST(wDay) < m_begin.m_threshold;
@@ -202,16 +202,16 @@ namespace WBSF
 	{
 		//CTPeriod p = 
 		//int year = p.Begin().GetYear();
-
-		CTPeriod pTmp = weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		CTPeriod period = weather.GetEntireTPeriod();
+		CTPeriod pTmp = period;
 		CTPeriod p;
 		bool notInit = true;
 
-		//size_t nbTRef = pTmp.size();
-		for (CTRef TRef = pTmp.Begin(); TRef<=p.End(); TRef++)
+		
+		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
-			const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef]);
-			double T = wDay[H_TMIN];
+			//const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef]);
+			double T = weather.IsHourly() ? weather[TRef][H_TAIR][MEAN] : weather[TRef][H_TMIN][MEAN];
 
 			if (T>0) //Frost-free period begin or continues
 			{
@@ -234,7 +234,7 @@ namespace WBSF
 				}
 			}
 
-			if (TRef == p.End() && !notInit)
+			if (TRef == pTmp.End() && !notInit)
 			{
 				pTmp.End() = TRef;
 				if (pTmp.GetLength() > p.GetLength())

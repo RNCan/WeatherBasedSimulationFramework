@@ -140,6 +140,8 @@ namespace WBSF
 					//Get today's temperature
 					double tmin = m_normals.Interpole(m, d, TMIN_MN) + e_min[d];
 					double tmax = m_normals.Interpole(m, d, TMAX_MN) + e_max[d];
+					ASSERT(tmin>-99 && tmin<99);
+					ASSERT(tmax>-99 && tmax<99);
 
 					if (tmin > tmax)
 						Switch(tmin, tmax);
@@ -255,7 +257,7 @@ namespace WBSF
 
 		//set the day 365 for leap year : by RSA
 		if (dailyData.GetTRef().IsLeap())
-			dailyData[FEBRUARY][28] = dailyData[FEBRUARY][27];
+			dailyData[FEBRUARY][DAY_29] = dailyData[FEBRUARY][DAY_28];
 	}
 
 

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>GrowingSeason</Title>
+    <Version>1.0</Version>
+    <ID>.gs</ID>
+    <EXE>GrowingSeason.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 211 250</WindowRect>
+    <SimulatedCategory>T TR</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>NbDaysBegin</Name>
+            <Caption>NbDaysBegin</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>10 10 30 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TypeBegin</Name>
+            <Caption>TypeBegin</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>30 10 50 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin|Tmean|Tmax|Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdBegin</Name>
+            <Caption>ThresholdBegin</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbDaysEnd</Name>
+            <Caption>NbDaysEnd</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>75 10 95 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TypeEnd</Name>
+            <Caption>TypeEnd</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>95 10 120 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin|Tmean|Tmax|Tnoon</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdEnd</Name>
+            <Caption>ThresholdEnd</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>120 10 140 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Begin</Name>
+            <Title>Begin</Title>
+            <Units>Date</Units>
+            <Description/>
+            <TimeMode>2 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>End</Name>
+            <Title>End</Title>
+            <Units>Date</Units>
+            <Description/>
+            <TimeMode>2 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Length</Name>
+            <Title>Length</Title>
+            <Units>days</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

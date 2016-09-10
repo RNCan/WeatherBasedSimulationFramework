@@ -627,6 +627,8 @@ public:
 	const CStatistic& GetStat(const HOURLY_DATA::TVarEx& v, const CTPeriod& p = CTPeriod())const{ CompileStat(p); return m_stat[v]; }
 	const CStatistic& operator[](const HOURLY_DATA::TVarH& v)const{ return GetStat(v); }
 	const CStatistic& operator[](const HOURLY_DATA::TVarEx& v)const{ return GetStat(v); }
+	const CStatistic& operator[](const HOURLY_DATA::TVarH& v){ return GetStat(v); }
+	const CStatistic& operator[](const HOURLY_DATA::TVarEx& v){ return GetStat(v); }
 	const CStatistic& operator()(const HOURLY_DATA::TVarH& v, const CTPeriod& p = CTPeriod())const{ return GetStat(v, p); }
 	const CStatistic& operator()(const HOURLY_DATA::TVarEx& v, const CTPeriod& p = CTPeriod())const{ return GetStat(v, p); }
 
@@ -756,6 +758,8 @@ public:
 	const CStatistic& GetStat(const HOURLY_DATA::TVarEx& v, const CTPeriod& p = CTPeriod())const{ CompileStat(p); return m_stat[v]; }
 	const CStatistic& operator[](const HOURLY_DATA::TVarH& v)const{ return GetStat(v); }
 	const CStatistic& operator[](const HOURLY_DATA::TVarEx& v)const{ return GetStat(v); }
+	const CStatistic& operator[](const HOURLY_DATA::TVarH& v){ return GetStat(v); }
+	const CStatistic& operator[](const HOURLY_DATA::TVarEx& v){ return GetStat(v); }
 	const CStatistic& operator()(const HOURLY_DATA::TVarH& v, const CTPeriod& p = CTPeriod())const{ return GetStat(v, p); }
 	const CStatistic& operator()(const HOURLY_DATA::TVarEx& v, const CTPeriod& p = CTPeriod())const{ return GetStat(v, p); }
 	

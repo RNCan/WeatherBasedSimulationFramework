@@ -7,12 +7,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClimaticFull.cpp">
+    <ClCompile Include="Climatic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClimaticFull.h">
+    <ClInclude Include="Climatic.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

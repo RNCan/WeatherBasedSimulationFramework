@@ -774,6 +774,15 @@ void CHamonET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 }
 
 const bool CModifiedHamonET::AUTO_REGISTER = CETFactory::Register("ModifiedHamon", &CHamonET::Create);
+CModifiedHamonET::CModifiedHamonET()
+{}
+
+ERMsg CModifiedHamonET::SetOptions(const CETOptions& options)
+{
+	ERMsg msg;
+	return msg;
+}
+
 void CModifiedHamonET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 {
 	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
