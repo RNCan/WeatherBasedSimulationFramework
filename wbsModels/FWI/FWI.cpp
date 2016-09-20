@@ -68,13 +68,13 @@ namespace WBSF
 
 	double CFWI::GetFFMC(double oldFFMC, const CHourlyData& data)
 	{
-		return GetFFMC(oldFFMC, data[H_TAIR], data[H_RELH], data[H_WNDS], data[H_PRCP]);
+		return GetFFMC(oldFFMC, data[H_TAIR2], data[H_RELH], data[H_WNDS], data[H_PRCP]);
 	}
 
 	double CFWI::GetFFMC(double oldFFMC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetFFMC(oldFFMC, data[12][H_TAIR], data[12][H_RELH], data[12][H_WNDS], data[H_PRCP][SUM]);
+		return GetFFMC(oldFFMC, data[12][H_TAIR2], data[12][H_RELH], data[12][H_WNDS], data[H_PRCP][SUM]);
 	}
 
 	//T: Temperature (°C)
@@ -122,13 +122,13 @@ namespace WBSF
 
 	double CFWI::GetDMC(double oldDMC, const CHourlyData& data)
 	{
-		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[H_TAIR], data[H_RELH], data[H_PRCP]);
+		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[H_TAIR2], data[H_RELH], data[H_PRCP]);
 	}
 
 	double CFWI::GetDMC(double oldDMC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[12][H_TAIR], data[12][H_RELH], data[H_PRCP][SUM]);
+		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[12][H_TAIR2], data[12][H_RELH], data[H_PRCP][SUM]);
 	}
 
 
@@ -167,13 +167,13 @@ namespace WBSF
 
 	double CFWI::GetDC(double oldDC, const CHourlyData& data)
 	{
-		return GetDC(oldDC, data.GetTRef().GetMonth(), data[H_TAIR], data[H_PRCP]);
+		return GetDC(oldDC, data.GetTRef().GetMonth(), data[H_TAIR2], data[H_PRCP]);
 	}
 
 	double CFWI::GetDC(double oldDC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetDC(oldDC, data.GetTRef().GetMonth(), data[12][H_TAIR], data[H_PRCP][SUM]);
+		return GetDC(oldDC, data.GetTRef().GetMonth(), data[12][H_TAIR2], data[H_PRCP][SUM]);
 	}
 
 	double CFWI::GetDC(double oldDC, size_t m, double T, double prcp)
@@ -469,7 +469,7 @@ namespace WBSF
 						ASSERT(DSR < 200);
 
 						//save result
-						output[TRef][CFWIStat::TMEAN_NOON] = hour[H_TAIR];
+						output[TRef][CFWIStat::TMEAN_NOON] = hour[H_TAIR2];
 						output[TRef][CFWIStat::RELH_NOON] = hour[H_RELH];
 						output[TRef][CFWIStat::WNDS_NOON] = hour[H_WNDS];
 						output[TRef][CFWIStat::PRCP] = hour[H_PRCP];
@@ -498,7 +498,7 @@ namespace WBSF
 					if (jd >= firstDay && jd <= lastDay)
 					{
 
-						double Tnoon = day[12][H_TAIR];
+						double Tnoon = day[12][H_TAIR2];
 						double HRnoon = day[12][H_RELH];
 						double WSnoon = day[12][H_WNDS];
 

@@ -67,8 +67,8 @@ namespace WBSF
 			double Pwyr = m_weather.GetStat(H_PRCP, p1)[SUM] / 10;
 			double PETwyr = GetSPMPET(m_weather, p1) / 10;
 
-			double tmaxwyr = m_weather.GetStat(H_TMAX, p1)[MEAN];
-			double tminwyr = m_weather.GetStat(H_TMIN, p1)[MEAN];
+			double tmaxwyr = m_weather.GetStat(H_TMAX2, p1)[MEAN];
+			double tminwyr = m_weather.GetStat(H_TMIN2, p1)[MEAN];
 
 			double CMIwyr = Pwyr - PETwyr;
 
