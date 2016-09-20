@@ -23,8 +23,6 @@
 #endif
 
 
-//using std::cout;
-//using std::string;
 
 using namespace WBSF;
 
