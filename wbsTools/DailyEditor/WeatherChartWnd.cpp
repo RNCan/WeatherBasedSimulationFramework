@@ -67,7 +67,7 @@ BOOL CWeatherChartToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 //*****************************
 	CMFCButton;
 	CMFCToolBarComboBoxButton zoomButton(ID_GRAPH_ZOOM, 3, CBS_DROPDOWNLIST, 75);
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 12; i++)
 	{
 		CString str;
 		str.Format(_T("%dx"), 1 << i);
@@ -236,11 +236,11 @@ void CWeatherChartWnd::OnGraphOptions()
 	variables.fill(1);//emulate full variables
 
 	CChartsProperties dlg;
-	dlg.m_graphics = CWeatherChartsCtrl::GetCharts(variables);
+	dlg.m_graphics = CWeatherChartsCtrl::GetCharts(variables, false);
 
 	if (dlg.DoModal()==IDOK)
 	{
-		string filePath = CWeatherChartsCtrl::GetGraphisFilesPath();
+		string filePath = CWeatherChartsCtrl::GetGraphisFilesPath(false);
 		ERMsg msg = zen::SaveXML(filePath, "Graphics", "1", dlg.m_graphics);
 
 		if (msg)

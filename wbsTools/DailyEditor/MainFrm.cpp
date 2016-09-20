@@ -282,6 +282,7 @@ void CMainFrame::ActivateFrame(int nCmdShow)
 	pDoc->UpdateAllViews(NULL, 0, NULL);
 
 	CFrameWndEx::ActivateFrame(nCmdShow);
+	Invalidate();
 }
 
 void CMainFrame::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
