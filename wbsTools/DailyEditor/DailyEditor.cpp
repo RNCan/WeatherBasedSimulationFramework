@@ -30,7 +30,7 @@ using namespace WBSF;
 #endif
 
  
-// CDailyEditorApp
+// CDailyEditorApp 1
 
 BEGIN_MESSAGE_MAP(CDailyEditorApp, CWinAppEx) 
 	ON_COMMAND(ID_APP_ABOUT, &CDailyEditorApp::OnAppAbout)
