@@ -153,9 +153,7 @@ void CNormalsGradientCtrl::Update()
 size_t CNormalsGradientCtrl::GetNbGradient()const
 {
 	size_t nbGradients = 0;
-	if (m_variable == H_TAIR)
-		nbGradients = 1;
-	else if (m_variable == H_TRNG)
+	if (m_variable == H_TMIN2 || m_variable == H_TAIR2 || m_variable == H_TMAX2)
 		nbGradients = 1;
 	else if (m_variable == H_PRCP)
 		nbGradients = 1;
@@ -385,17 +383,38 @@ string CNormalsGradientCtrl::GetDataText(int col, long row)const
 	string str;
 
 	size_t z = row / NB_SPACE_EX;
-	size_t g = V2G(m_variable);
 	size_t m = col - G_FIRST_MONTH;
 	size_t s = row % NB_SPACE_EX;
 
-	switch (col)
+	if (m_variable == H_TAIR2)
 	{
-	case -1:   str = to_string(row + 1); break;
-	case G_SCALE:	str = GetScaleName(z); break;
-	case G_SPACE:	str = GetSpaceName(s); break;
-	case G_FACTOR:	str = str = ToString(m_gradient.GetFactor(z, g, s) * 100, 1); break;
-	default: str = ToString(m_gradient(z, g, m, s));
+		size_t g1 = TMIN_GR;
+		size_t g2 = TMAX_GR;
+	
+		switch (col)
+		{
+		case -1:   str = to_string(row + 1); break;
+		case G_SCALE:	str = GetScaleName(z); break;
+		case G_SPACE:	str = GetSpaceName(s); break;
+		case G_FACTOR:	str = ToString((m_gradient.GetFactor(z, g1, s) + m_gradient.GetFactor(z, g2, s))*0.5 * 100, 1); break;
+		default: str = ToString((m_gradient(z, g1, m, s) + m_gradient(z, g2, m, s))*0.5);
+		}
+	}
+	else
+	{
+		size_t g = V2G(m_variable);
+
+		if (g != NOT_INIT)
+		{
+			switch (col)
+			{
+			case -1:   str = to_string(row + 1); break;
+			case G_SCALE:	str = GetScaleName(z); break;
+			case G_SPACE:	str = GetSpaceName(s); break;
+			case G_FACTOR:	str = ToString(m_gradient.GetFactor(z, g, s) * 100, 1); break;
+			default: str = ToString(m_gradient(z, g, m, s));
+			}
+		}
 	}
 
 	return str;

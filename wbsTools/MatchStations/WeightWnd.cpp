@@ -339,7 +339,7 @@ void CWeightChartCtrl::Update()
 					pChart->AttachCustomSerie(pSerie, false, it2->m_YAxis != 0);
 
 					//general
-					TChartString varName = convert(GetVariableName(it2->m_variable));
+					TChartString varName = convert(it2->m_name);//convert(GetVariableName(it2->m_variable));
 					pSerie->SetName(varName);
 					pSerie->EnableShadow(it2->m_bEnableShadow);
 					pSerie->SetShadowDepth(it2->m_shadowDepth);

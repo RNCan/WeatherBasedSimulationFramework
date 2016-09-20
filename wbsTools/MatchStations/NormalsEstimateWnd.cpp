@@ -315,7 +315,7 @@ string CNormalsEstimateCtrl::GetDataText(int col, long row)const
 {
 	string str;
 		
-	size_t f = NORMALS_DATA::V2F(m_variable);
+	
 	size_t m = col - G_FIRST_MONTH;
 
 	switch (col)
@@ -323,12 +323,31 @@ string CNormalsEstimateCtrl::GetDataText(int col, long row)const
 	case -1:	str = to_string(row + 1); break;
 	case G_TYPE:str = TYPE_NAME[row]; break;
 	default:	
-		switch (row)
+		if (m_variable == H_TAIR2)
 		{
-		case STATION_MEAN:		str = ToString(m_mean[m][f], 3); break;
-		case TOTAL_CORRECTION:	str = ToString((m_variable == H_PRCP) ? m_estimate[m][f]/m_mean[m][f]:(m_estimate[m][f] - m_mean[m][f]), 3); break;
-		case FINAL_ESTIMATE:	str = ToString(m_estimate[m][f], 3); break;
-		default: ASSERT(false);
+			size_t f1 = NORMALS_DATA::TMIN_MN;
+			size_t f2 = NORMALS_DATA::TMAX_MN;
+			switch (row)
+			{
+			case STATION_MEAN:		str = ToString((m_mean[m][f1] + m_mean[m][f2])/2, 3); break;
+			case TOTAL_CORRECTION:	str = ToString(((m_estimate[m][f1] - m_mean[m][f1]) + (m_estimate[m][f2] - m_mean[m][f2]))/2, 3); break;
+			case FINAL_ESTIMATE:	str = ToString((m_estimate[m][f1] + m_estimate[m][f2])/2, 3); break;
+			default: ASSERT(false);
+			}
+		}
+		else
+		{
+			size_t f = NORMALS_DATA::V2F(m_variable);
+			if (f != NOT_INIT)
+			{
+				switch (row)
+				{
+				case STATION_MEAN:		str = ToString(m_mean[m][f], 3); break;
+				case TOTAL_CORRECTION:	str = ToString((m_variable == H_PRCP) ? m_estimate[m][f] / m_mean[m][f] : (m_estimate[m][f] - m_mean[m][f]), 3); break;
+				case FINAL_ESTIMATE:	str = ToString(m_estimate[m][f], 3); break;
+				default: ASSERT(false);
+				}
+			}
 		}
 	}
 

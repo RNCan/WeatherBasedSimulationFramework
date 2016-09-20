@@ -160,42 +160,41 @@ void CDataPropertyCtrl::EnableProperties(CMFCPropertyGridProperty* pProp, BOOL b
 BOOL CDataPropertyCtrl::PreTranslateMessage(MSG* pMsg)
 {
 
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		BOOL bAlt = GetKeyState(VK_CONTROL) & 0x8000;
-		if (pMsg->wParam == VK_RETURN)
-		{
+	//if (pMsg->message == WM_KEYDOWN)
+	//{
+	//	if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
+	//	{
+	//		BOOL bAlt = GetKeyState(VK_CONTROL) & 0x8000;
+	//		if (pMsg->wParam == VK_RETURN)
+	//		{
 
-			if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
-			{
-				if (m_pSel->GetOptionCount()>0)
-					OnSelectCombo();
 
-				EndEditItem();
+	//			if (m_pSel->GetOptionCount() > 0)
+	//				OnSelectCombo();
 
-				//select next item
-				size_t ID = m_pSel->GetData();
-				size_t newID = (ID + 1) % GetProperty(0)->GetSubItemsCount();
-				CMFCPropertyGridProperty* pNext = FindItemByData(newID);
-				if (pNext)
-				{
-					SetCurSel(pNext);
-					EditItem(pNext);
-				}
+	//			EndEditItem();
 
-				return TRUE; // this doesn't need processing anymore
-			}
+	//			//select next item
+	//			size_t ID = m_pSel->GetData();
+	//			size_t newID = (ID + 1) % GetProperty(0)->GetSubItemsCount();
+	//			CMFCPropertyGridProperty* pNext = FindItemByData(newID);
+	//			if (pNext)
+	//			{
+	//				SetCurSel(pNext);
+	//				EditItem(pNext);
+	//			}
 
-		}
-		else if (pMsg->wParam == VK_DOWN && bAlt)
-		{
-			m_pSel->OnClickButton(CPoint(-1, -1));
-			return TRUE; // this doesn't need processing anymore
-		}
+	//			return TRUE; // this doesn't need processing anymore
 
-		//	//PreTranslateMessage(pMsg);
-		//}
-	}
+
+	//		}
+	//		else if (pMsg->wParam == VK_DOWN && bAlt)
+	//		{
+	//			m_pSel->OnClickButton(CPoint(-1, -1));
+	//			return TRUE; // this doesn't need processing anymore
+	//		}
+	//	}
+	//}
 
 	return CMFCPropertyGridCtrl::PreTranslateMessage(pMsg); // all other cases still need default processing;
 }
