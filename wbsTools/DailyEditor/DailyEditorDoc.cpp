@@ -4,11 +4,6 @@
 
 #include "stdafx.h"
 
-// SHARED_HANDLERS peuvent être définis dans les gestionnaires d'aperçu, de miniature
-// et de recherche d'implémentation de study ATL et permettent la partage de code de document avec ce study.
-#ifndef SHARED_HANDLERS
-#include "DailyEditor.h"
-#endif
 
 #include <string>
 #include <iostream>
