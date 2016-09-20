@@ -184,13 +184,11 @@ namespace WBSF
 
 			size_t v = 0;
 			if (f == TMIN_MN )
-				//v = HOURLY_DATA::H_TMIN;
-				v = HOURLY_DATA::H_TAIR;
+				v = HOURLY_DATA::H_TMIN2;
 			else if (f == TMAX_MN)
-				v = HOURLY_DATA::H_TRNG;
-				//v = HOURLY_DATA::H_TMAX;
+				v = HOURLY_DATA::H_TMAX2;
 			else if (f >= TMNMX_R && f <= TACF_B2 )
-				v = HOURLY_DATA::H_TAIR;
+				v = HOURLY_DATA::H_TAIR2;
 			else if (f >= PRCP_TT && f <= PRCP_SD)
 				v = HOURLY_DATA::H_PRCP;
 			else if (f == TDEW_MN)
@@ -211,24 +209,23 @@ namespace WBSF
 			size_t f = UNKNOWN_POS;
 			switch (v)
 			{
-			case HOURLY_DATA::H_TAIR:
-			case HOURLY_DATA::H_TMIN: f = TMIN_MN; break;
-			case HOURLY_DATA::H_TRNG: 
-			case HOURLY_DATA::H_TMAX: f = TMAX_MN; break;
+			case HOURLY_DATA::H_TMIN2: f = TMIN_MN; break;
+			case HOURLY_DATA::H_TMAX2: f = TMAX_MN; break;
 			case HOURLY_DATA::H_PRCP:
 			case HOURLY_DATA::H_SNOW:
 			case HOURLY_DATA::H_SNDH:
 			case HOURLY_DATA::H_SWE:  f = PRCP_TT; break;
-			case HOURLY_DATA::H_EA:
+	//		case HOURLY_DATA::H_EA:
 			case HOURLY_DATA::H_TDEW: f = TDEW_MN; break;
 			case HOURLY_DATA::H_RELH: f = RELH_MN; break;
 			case HOURLY_DATA::H_WNDS:
 			case HOURLY_DATA::H_WND2: f = WNDS_MN; break;
 			case HOURLY_DATA::H_WNDD:
-			case HOURLY_DATA::H_ES:
-			case HOURLY_DATA::H_VPD:
+		//	case HOURLY_DATA::H_ES:
+//			case HOURLY_DATA::H_VPD:
+			case HOURLY_DATA::H_TAIR2:
 			case HOURLY_DATA::H_PRES:
-			case HOURLY_DATA::H_SRAD: break;
+			case HOURLY_DATA::H_SRAD2: break;
 			default: break;
 			}
 
@@ -241,16 +238,16 @@ namespace WBSF
 	namespace HOURLY_DATA
 	{
 
-		static const char* VARIABLES_UNITS[NB_VAR_H] = { "°C", "°C", "mm", "°C", "%", "km/h", "°", "MJ/m²", "hPa", "mm", "cm", "mm", "km/h", "Pa", "Pa", "Pa", "", "" };
-		static const char* VARIABLES_NAMES[NB_VAR_H] = { "Tair", "Trng", "Prcp", "Tdew", "RelH", "WndS", "WndD", "SRad", "Pres", "Snow", "SnDh", "SWE", "Es", "Ea", "VPD", "Wnd2", "Add1", "Add2" };
-		static const char* VARIABLES_NAMES_U[NB_VAR_H] = { "TAIR", "TRNG", "PRCP", "TDEW", "RELH", "WNDS", "WNDD", "SRAD", "PRES", "SNOW", "SNDH", "SWE", "ES", "EA", "VPD", "WND2", "ADD1", "ADD2" };
-		static const char* VARIABLES_ABVR[NB_VAR_H] = { "T", "TR", "P", "TD", "H", "WS", "WD", "R", "Z", "S", "SD", "SWE", "ES", "EA", "VPD", "WS2", "A1", "A2" };
+		static const char* VARIABLES_UNITS[NB_VAR_H] = { "°C", "°C", "°C", "mm", "°C", "%", "km/h", "°", "W/m²", "hPa", "mm", "cm", "mm", "km/h", "", "" };
+		static const char* VARIABLES_NAMES[NB_VAR_H] = { "Tmin", "Tair", "Tmax", "Prcp", "Tdew", "RelH", "WndS", "WndD", "SRad", "Pres", "Snow", "SnDh", "SWE", "Wnd2", "Add1", "Add2" };
+		static const char* VARIABLES_NAMES_U[NB_VAR_H] = { "TMIN", "TAIR", "TMAX", "PRCP", "TDEW", "RELH", "WNDS", "WNDD", "SRAD", "PRES", "SNOW", "SNDH", "SWE", "WND2", "ADD1", "ADD2" };
+		static const char* VARIABLES_ABVR[NB_VAR_H] = { "TN", "T", "TX", "P", "TD", "H", "WS", "WD", "R", "Z", "S", "SD", "SWE", "WS2", "A1", "A2" };
 
-		//												Tair		Trng		prcp		Tdew			Hr			Ws			Wd			Rad			pressure	      snow		snow depth		SWE			ES				Ea			VPD				add1				add2
-		static const double LIMIT_H[NB_VAR_H][2] = { { -110, 60 }, { 0, 100 }, { 0, 3500 }, { -110, 60 }, { 0, 100 }, { 0, 200 }, { 0, 360 }, { 0, 3500 }, { 200, 1090 }, { 0, 3500 }, { 0, 10000 }, { 0, 3500 }, { 0, 99999 }, { 0, 99999 }, { 0, 99999 }, { -99999, 99999 }, { -99999, 99999 } };
+		//												Tmin          Tair		   Tmax		   prcp	    	Tdew		 Hr			 Ws			 Wd			Rad			pressure	      snow		snow depth		SWE			W2           	add1				add2
+		static const double LIMIT_H[NB_VAR_H][2] = { { -60, 60 }, { -60, 60 }, { -60, 60 }, { 0, 3500 }, { -60, 60 }, { 0, 100 }, { 0, 200 }, { 0, 360 }, { 0, 3500 }, { 200, 1090 }, { 0, 3500 }, { 0, 3500 }, { 0, 3500 }, { 0, 200 }, { -99999, 99999 }, { -99999, 99999 } };
 		double GetLimitH(size_t v, short kind)
 		{
-			_ASSERTE(NB_VAR_H == 18);
+			_ASSERTE(NB_VAR_H == 16);
 			_ASSERTE(v >= 0 && v < NB_VAR_H);
 			_ASSERTE(kind >= 0 && kind <= 1);//0=min, 1=max
 
@@ -318,10 +315,10 @@ namespace WBSF
 
 			if (var == H_SKIP)
 			{
-				if (varName == "TMIN" || varName == "TMAX" ||
-					//varName == "TAIRMIN" || varName == "TAIRMAX" ||
-					varName == "TMINIM" || varName == "TMAXIM")
-					var = H_TAIR;
+				if (varName == "TMIN" || varName == "TMINIM" )
+					var = H_TMIN2;
+				if( varName == "TMAX" || varName == "TMAXIM")
+					var = H_TMAX2;
 				else if (varName == "PRECIP")
 					var = H_PRCP;
 				else if (varName == "TDEWPT")
@@ -407,8 +404,8 @@ namespace WBSF
 			short v = 0;
 			switch (g)
 			{
-			case TMIN_GR: v = HOURLY_DATA::H_TAIR; break;
-			case TMAX_GR: v = HOURLY_DATA::H_TRNG; break;
+			case TMIN_GR: v = HOURLY_DATA::H_TMIN2; break;
+			case TMAX_GR: v = HOURLY_DATA::H_TMAX2; break;
 			case PRCP_GR: v = HOURLY_DATA::H_PRCP; break;
 			case TDEW_GR: v = HOURLY_DATA::H_TDEW; break;
 			default: _ASSERTE(false);
@@ -420,9 +417,9 @@ namespace WBSF
 		size_t V2G(size_t v)
 		{
 			size_t g = NOT_INIT;
-			if (v == HOURLY_DATA::H_TAIR || v == HOURLY_DATA::H_TMIN)
+			if (v == HOURLY_DATA::H_TMIN2)
 				g = TMIN_GR;
-			if (v == HOURLY_DATA::H_TRNG || v == HOURLY_DATA::H_TMAX)
+			if (v == HOURLY_DATA::H_TMAX2)
 				g = TMAX_GR;
 			if (v == HOURLY_DATA::H_PRCP)
 				g = PRCP_GR;
@@ -455,22 +452,22 @@ namespace WBSF
 				if (!format.empty())
 					format += separator;
 
-				if (TM.Type() == CTM::DAILY && v == H_TAIR && at(H_TRNG))
-				{
-					//exception for daily minimum and maximum temperature
-					format += "Tmin";
-					//format += separator;
+				//if (TM.Type() == CTM::DAILY && v == H_TAIR && at(H_TRNG))
+				//{
+				//	//exception for daily minimum and maximum temperature
+				//	format += "Tmin";
+				//	//format += separator;
 
-				}
-				else if (TM.Type() == CTM::DAILY && v == H_TRNG && at(H_TAIR))
-				{
-					//don't add Trng in daily database; use Tmin and Tmax instead
-					format += "Tmax";
-				}
-				else
-				{
+				//}
+				//else if (TM.Type() == CTM::DAILY && v == H_TRNG && at(H_TAIR))
+				//{
+				//	//don't add Trng in daily database; use Tmin and Tmax instead
+				//	format += "Tmax";
+				//}
+				//else
+				//{
 					format += GetVariableName(v);
-				}
+				//}
 			}
 		}
 
@@ -560,7 +557,9 @@ namespace WBSF
 	size_t CWeatherFormat::GetStatFromName(const string& name)
 	{
 		size_t stat = MEAN;
-		if (Find(name, "Minin") || Find(name, "Min") || Find(name, "Lo"))
+		if (IsEqualNoCase(name, "Tmin") || IsEqualNoCase(name, "Tmax"))//exception for Tmin and Tmax
+			stat = MEAN;
+		else if (Find(name, "Minin") || Find(name, "Min") || Find(name, "Lo"))
 			stat = LOWEST;
 		else if (Find(name, "Maxim") || Find(name, "Max") || Find(name, "Hi"))
 			stat = HIGHEST;
@@ -569,7 +568,7 @@ namespace WBSF
 		else if (IsEqualNoCase(name, "Prcp") || IsEqualNoCase(name, "Precip"))
 			stat = SUM;
 		else if (IsEqualNoCase(name, "SRad") || IsEqualNoCase(name, "SolRad"))
-			stat = SUM;
+			stat = MEAN;
 		else if (IsEqualNoCase(name, "Snow"))
 			stat = SUM;
 
@@ -669,7 +668,7 @@ namespace WBSF
 		{
 			if (variables[v])
 			{
-				if (TM.Type() == CTM::DAILY && v == H_TAIR && variables[H_TRNG])
+				/*if (TM.Type() == CTM::DAILY && v == H_TAIR && variables[H_TRNG])
 				{
 					//exception for daily minimum and maximum temperature
 					push_back(CWVarDef(H_TAIR, WBSF::LOWEST));
@@ -679,7 +678,8 @@ namespace WBSF
 					//don't add Trng in daily database; use Tmin and Tmax instead
 					push_back(CWVarDef(H_TAIR, WBSF::HIGHEST));
 				}
-				else if (v == H_PRCP || v == H_SNOW || v == H_SRAD)
+				else */
+				if (v == H_PRCP || v == H_SNOW )//|| v == H_SRAD
 				{
 					push_back(CWVarDef(v, WBSF::SUM));
 				}

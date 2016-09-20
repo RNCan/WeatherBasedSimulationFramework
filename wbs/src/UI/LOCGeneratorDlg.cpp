@@ -849,7 +849,7 @@ namespace WBSF
 		}
 
 		CProgressStepDlgParam param(this, &DBFilePath, &method);
-		msg = progressDlg.Execute(ExecuteGenerateFromDEM, &param);
+		msg = progressDlg.Execute(ExecuteGenerateFromWeather, &param);
 
 		progressDlg.DestroyWindow();
 

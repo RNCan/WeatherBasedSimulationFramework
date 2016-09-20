@@ -153,7 +153,7 @@ ERMsg CWeatherGeneration::GenerateLocationListFromWeatherStation(const CFileMana
 			size_t nbYears = bNormal ? 1 : WGInput.GetNbYears();
 			for (size_t y = 0; y < nbYears && msg; y++)
 			{
-				for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 				{
 					if (WGInput.m_variables[v])
 					{
@@ -222,7 +222,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 				if (msg)
 				{
 					int year = WGInput.GetFirstYear() + int(y);
-					for (TVarH v = H_TAIR; v < NB_VAR_H&&msg; v++)
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 					{
 						if (variables[v])
 						{
@@ -241,7 +241,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 									ERMsg msgTmp = pDB->Search(results, locations[l], 1, v, year);
 									if (messageTmp && !msgTmp)
 									{
-										if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || (i == 2 && v == H_TRNG) || (i == 0 && v == H_WNDD) || v == H_PRES)
+										if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || (i == 2 && v == H_TMIN2) || (i == 2 && v == H_TMAX2) || (i == 0 && v == H_WNDD) || v == H_PRES)
 										{
 											Dmin = 0;
 											Dmax = 0;
@@ -1005,7 +1005,7 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 					CTPeriod p = weather.GetEntireTPeriod();
 					for (CTRef TRef = p.Begin(); TRef <= p.End() && bTestOK; TRef++)
 					{
-						for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 						{
 							if (WGInput.m_variables[v])
 							{

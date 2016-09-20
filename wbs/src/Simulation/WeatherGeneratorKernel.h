@@ -36,7 +36,7 @@ namespace WBSF
 	{
 	public:
 
-		CWeatherGeneratorKernel(CWVariables m_variables = "T P");
+		CWeatherGeneratorKernel(CWVariables m_variables = "TN T TX P");
 		virtual ~CWeatherGeneratorKernel();
 
 		void SetNormals(const CNormalsData& normals);

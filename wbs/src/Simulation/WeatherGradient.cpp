@@ -68,6 +68,7 @@ namespace WBSF
 		return SPACE_NAME[i];
 	}
 
+	//size_t CWeatherGradient::GetNbSpaces(){ return NB_SPACE; }
 	size_t CWeatherGradient::GetNbSpaces(){ return (m_pShore  && !m_pShore->empty()) ? NB_SPACE_EX : NB_SPACE; }
 
 
@@ -102,17 +103,17 @@ namespace WBSF
 	const double CWeatherGradient::A[NB_SCALE_GRADIENT] = { 2, 4, 8 };
 	const double CWeatherGradient::B[NB_SCALE_GRADIENT] = { 4, 8, 16 };
 	const double CWeatherGradient::F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX] =
-	{
-		{ 10, 10, 10, 10},	//local
-		{ 30, 30, 25, 25},	//Regional
-		{ 90, 90, 80, 80},	//continental
+	{// Tmin Tmax prcp Tdew
+		{ 050, 050, 010, 050},	//local
+		{ 150, 150, 035, 150},	//Regional
+		{ 999, 999, 999, 999},	//continental
 	};
 	
 	const double CWeatherGradient::F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX] =
-	{
-		{ 20, 20, 15, 15 },	//local
-		{ 90, 90, 80, 80 },	//Regional
-		{ 99, 99, 99, 99 },	//continental
+	{// Tmin Tmax prcp Tdew
+		{ 050, 050, 025, 050 },	//local
+		{ 300, 300, 075, 300 },	//Regional
+		{ 999, 999, 999, 999 },	//continental
 	};
 
 	
@@ -359,13 +360,6 @@ namespace WBSF
 					m_gradient[z][g][m].fill(0);
 			}
 		}
-
-		//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-		//	for (size_t g = 0; g < NB_GRADIENT_EX; g++)
-		//		for (size_t m = 0; m < 12; m++)
-		//			m_gradient[z][g][m].fill(0);
-
-
 	}
 	
 	double CWeatherGradient::GetShoreDistance(const CLocation& location)
@@ -391,36 +385,7 @@ namespace WBSF
 		case X_GR: d = station.GetDistanceXY(target).m_x / 1000; break;//[km]
 		case Y_GR: d = station.GetDistanceXY(target).m_y / 1000; break;//[km]
 		case Z_GR: d = target.m_z - station.m_z; break; //[m]
-		case S_GR: 
-			//if (m_lastTarget != target || m_lastStation != station)
-			//{
-			//	CWeatherGradient& me = const_cast<CWeatherGradient&>(*this);
-			//	me.m_lastTarget = target;
-			//	me.m_lastStation = station;
-			//	me.m_lastDeltaShore = (GetShoreDistance(target) - GetShoreDistance(station)) / 1000; break;//[km]
-			//}
-			
-			/*std::map<CGeoPoint3D, double>::const_iterator Tit = m_shoreCache.find(target);
-			std::map<CGeoPoint3D, double>::const_iterator Sit = m_shoreCache.find(station);
-			
-			if (Tit == m_shoreCache.end())
-			{
-				me.m_shoreCache.insert(target, GetShoreDistance(target), );
-				Tit = m_shoreCache.find(target);
-			}
-				
-
-			if (Sit == m_shoreCache.end())
-			{
-				me.m_shoreCache.insert(station, GetShoreDistance(station));
-				Sit = m_shoreCache.find(station);
-			}
-				
-
-			double Td = 0;
-			double Sd = 0;	Td = Tit->second;*/
-			d = (GetShoreDistance(target) - GetShoreDistance(station)) / 1000; break;//[km]
-			
+		case S_GR: d = (GetShoreDistance(target) - GetShoreDistance(station)) / 1000; break;//[km]
 		default: ASSERT(false);
 		}
 
@@ -490,7 +455,7 @@ namespace WBSF
 		{
 			//DEFAULT_RECT[z] = CGeoRect(-180, -90 + double(z)*(180 / NB_HEMISPHERE), 180, -90 + double(z + 1) * (180 / NB_HEMISPHERE), PRJ_WGS_84);
 
-			for (TVarH v = H_TAIR; v < NB_VAR_H&&msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 			{
 				if (m_variables[v])
 				{
@@ -543,7 +508,7 @@ namespace WBSF
 		//		m_factor[z][g].fill(0);
 		
 
-		for (TVarH v = H_TAIR; v < NB_VAR_H&&msg; v++)
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
 			size_t g = V2G(v);
 			if (m_variables[v] && g<NB_GRADIENT_EX)
@@ -575,7 +540,7 @@ namespace WBSF
 						else
 						{
 							for (size_t m = 0; m < 12; m++)
-								for (size_t s = 0; s < NB_SPACE_EX; s++)
+								for (size_t s = 0; s < GetNbSpaces(); s++)
 									m_gradient[z][g][m][s] = DEFAULT_GRADIENTS[e][g][m][s];
 
 							
@@ -584,7 +549,7 @@ namespace WBSF
 							
 
 						//compute factor
-						for (size_t s = 0; s < NB_SPACE_EX; s++)
+						for (size_t s = 0; s < GetNbSpaces(); s++)
 						{
 							double f = GetFactor(z, g, s, results);
 							
@@ -601,7 +566,7 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}//for all scale
 
-				for (size_t s = 0; s < NB_SPACE_EX; s++)
+				for (size_t s = 0; s < GetNbSpaces(); s++)
 				{
 					double f = 0;
 					for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
@@ -656,13 +621,22 @@ namespace WBSF
 			CNormalsStation station;
 			m_pNormalDB->Get(station, results[i].m_index);
 
-			M[i][X_GR] = GetDistance(X_GR, station, L°) / 1000;	//1000 km
-			M[i][Y_GR] = GetDistance(Y_GR, station, L°) / 1000;	//1000 km
-			M[i][Z_GR] = GetDistance(Z_GR, station, L°) / 1000;	//1000 m
+
+			//M[i][X_GR] = GetDistance(X_GR, station, L°) / 1000;	//1000 km
+			//M[i][Y_GR] = GetDistance(Y_GR, station, L°) / 1000;	//1000 km
+			//M[i][Z_GR] = GetDistance(Z_GR, station, L°) / 1000;	//1000 m
+			//
+			//if (D_SHORE < nbSpaces)
+			//	M[i][S_GR] = GetDistance(S_GR, station, L°) / 1000;	//1000 km
 			
+			M[i][X_GR] = GetDistance(X_GR, station, m_target) / 1000;	//1000 km
+			M[i][Y_GR] = GetDistance(Y_GR, station, m_target) / 1000;	//1000 km
+			M[i][Z_GR] = GetDistance(Z_GR, station, m_target) / 1000;	//1000 m
+
 			if (D_SHORE < nbSpaces)
-				M[i][S_GR] = GetDistance(S_GR, station, L°) / 1000;	//1000 km
-			
+				M[i][S_GR] = GetDistance(S_GR, station, m_target) / 1000;	//1000 km
+
+
 			for (size_t m = 0; m < 12; m++)
 			{
 				V[m][i] = station[m][f];
@@ -704,7 +678,7 @@ namespace WBSF
 			if (NEWMAT::Exception::what() != NULL)
 				msg.ajoute(NEWMAT::Exception::what());
 
-			MessageBox(NULL, L"Matric execption", L"Error", MB_OK);
+			//MessageBox(NULL, L"Matrix exception", L"Error", MB_OK);
 		}
 
 		return msg;
@@ -712,7 +686,7 @@ namespace WBSF
 
 	double CWeatherGradient::GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s)const
 	{
-		ASSERT((m_factor[0][g][s] + m_factor[1][g][s] + m_factor[2][g][s]) == 1);
+		ASSERT(s>=GetNbSpaces() || (m_factor[0][g][s] + m_factor[1][g][s] + m_factor[2][g][s]) == 1);
 
 		double correction = (g == PRCP_GR) ? 1 : 0;
 
@@ -725,25 +699,25 @@ namespace WBSF
 		}
 		else if (g == PRCP_GR)
 		{
-			double c = 0;
-			double S°= 0;
+			//double c = 0;
+			//double S°= 0;
 
-			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-			{
-				c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
-				S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
-			}
-			
-			ASSERT(S° > 0);
+			//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
+			//{
+			//	c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
+			//	S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
+			//}
+			//
+			//ASSERT(S° > 0);
 
-			if (S°>0)
-				correction = (S° + c) / S°;
-//			correction = 1;
+			//if (S°>0)
+			//	correction = (S° + c) / S°;
+			////correction = 1;//temporaire pour test
 
-			if (correction < 0.1)
-				correction = 0.1;
-			else if (correction > 10)
-				correction = 10;
+			//if (correction < 0.1)
+			//	correction = 0.1;
+			//else if (correction > 10)
+			//	correction = 10;
 		}
 
 		return correction;
@@ -759,25 +733,47 @@ namespace WBSF
 		{
 			correction = GetPressure(station.m_alt) - GetPressure(m_target.m_alt);
 		}
-		else if (v == H_TAIR || v == H_TRNG)
+		else if (v == H_TMIN2 || v == H_TAIR2 || v == H_TMAX2)
 		{
-			for (size_t s = 0; s < NB_SPACE_EX; s++)
-				correction += GetCorrectionII(station, m, g, s);
-
 			if (TRef.GetType() == CTM::HOURLY)
 			{
+				double cTmin = 0;
+				double cTmax = 0;
+
+				for (size_t s = 0; s < GetNbSpaces(); s++)
+				{
+					cTmin += GetCorrectionII(station, m, TMIN_GR, s);
+					cTmax += GetCorrectionII(station, m, TMAX_GR, s);
+				}
+
 				double p = (sin(2 * PI*TRef.GetHour() / 24.0) + 1) / 2;//full Tmin gradient at 6:00 and full Tmax gradient at 18:00
 				assert(p >= 0 && p <= 1);
 
-				if (v == H_TAIR)
-					correction *= p;
-				else if (H_TRNG)
-					correction *= (1 - p);
+				/*if (v == H_TMIN2)
+					correction = cTmin*p;
+				else if (H_TMAX2)
+					correction = cTmax*(1 - p);
+				else */
+				correction = cTmin*p + cTmax*(1 - p);
+
+			}
+			else
+			{
+				if (v == H_TAIR2)
+				{
+					for (size_t s = 0; s < GetNbSpaces(); s++)
+						correction += (GetCorrectionII(station, m, TMIN_GR, s) + GetCorrectionII(station, m, TMAX_GR, s)) / 2;
+				}
+				else
+				{
+					for (size_t s = 0; s < GetNbSpaces(); s++)
+						correction += GetCorrectionII(station, m, g, s);
+				}
 			}
 		}
 		else if (v == H_PRCP)
 		{
-			for (size_t s = 0; s < NB_SPACE_EX; s++)
+			for (size_t s = 0; s < GetNbSpaces(); s++)
 				correction *= GetCorrectionII(station, m, g, s);
 		}
 		

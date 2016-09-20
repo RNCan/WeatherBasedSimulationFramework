@@ -28,41 +28,46 @@ namespace WBSF
 
 	static const CGraphSerie DEFAULT_WEATHER_SERIES[NB_VAR_H] =
 	{
-		{ "Tair", 0, H_TAIR, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Trng", 0, H_TRNG, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tmin", 0, H_TMIN2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tair", 0, H_TAIR2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(145, 45, 170), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tmax", 0, H_TMAX2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "Prcp", 1, H_PRCP, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::HIST_VERTICAL, 6, RGB(000, 192, 255), 1, RGB(0, 0, 0) },
-		{ "Tdew", 5, H_TDEW, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 255, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 255, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "RelH", 5, H_RELH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "WndS", 3, H_WNDS, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "WndD", 3, H_WNDD, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "SRad", 4, H_SRAD, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 192, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 192, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 125) },
-		{ "Pres", 0, H_PRES, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Snow", 2, H_SNOW, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 255, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "SnDh", 2, H_SNDH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(000, 000, 000), CGraphSerie::stRect, 6, 6, RGB(000, 000, 000), true, RGB(000, 255, 255), CGraphSerie::lsNone, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "SWE", 2, H_SWE, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "EA", 5, H_EA, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 050, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "ES", 5, H_ES, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "VPD", 5, H_VPD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Wnd2", 3, H_WND2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Add1", 6, H_ADD1, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stRect, 6, 6, RGB(000, 255, 255), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Add2", 6, H_ADD2, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 000, 200), CGraphSerie::stRect, 6, 6, RGB(255, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tdew", 0, H_TDEW, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 150, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(060, 150, 030), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "RelH", 0, H_RELH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(100, 100, 100), false, CGraphSerie::fsHatchDownDiag, CGraphSerie::FILL_BOTTOM, RGB(215, 215, 215) },
+		{ "WndS", 2, H_WNDS, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(120, 040, 020), false, CGraphSerie::fsHatchUpDiag, CGraphSerie::FILL_BOTTOM, RGB(200, 200, 200) },
+		{ "WndD", 2, H_WNDD, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 4, 4, RGB(000, 000, 255), true, RGB(160, 160, 160), CGraphSerie::lsNone, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "SRad", 3, H_SRAD2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 192, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 192, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 125) },
+		{ "Pres", 3, H_PRES, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(030, 100, 050), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Snow", 1, H_SNOW, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::HIST_VERTICAL, 6, RGB(192, 192, 192), 1, RGB(0, 0, 0) },
+		{ "SnDh", 1, H_SNDH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(000, 000, 000), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(000, 255, 255), CGraphSerie::lsSolid, 1, RGB(120, 120, 245), false, CGraphSerie::fsHatchDiagCross, CGraphSerie::FILL_BOTTOM, RGB(120, 120, 245) },
+		{ "SWE", 1, H_SWE, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stRect, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Wnd2", 2, H_WND2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Add1", 4, H_ADD1, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stRect, 6, 6, RGB(000, 255, 255), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Add2", 4, H_ADD2, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 000, 200), CGraphSerie::stRect, 6, 6, RGB(255, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsNone, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 	};
 
-	enum { NB_CHARTS = 7, NB_VAR_MAX = 5 };
+	enum { NB_CHARTS = 5, NB_VAR_MAX = 5 };
 
 
-	static const int DEFAULT_CHARTS[NB_CHARTS][NB_VAR_MAX] =
+	static const int DEFAULT_HOURLY_CHARTS[NB_CHARTS][NB_VAR_MAX] =
 	{
-		{ H_TAIR, H_TDEW, -1, -1 },
-		{ H_PRCP, H_SNOW, H_PRES, -1, -1 },
-		{ H_SNDH, H_SWE, -1, -1, -1 },
+		{ H_RELH, H_TDEW, H_TAIR2, -1, -1 },//air
+		{ H_SNDH, H_SWE, H_SNOW, H_PRCP, -1 },//ground
 		{ H_WNDS, H_WND2, H_WNDD, -1, -1 },
-		{ H_SRAD, -1, -1, -1, -1 },
-		{ H_RELH, H_EA, H_ES, H_VPD, -1, },
+		{ H_SRAD2, H_PRES, -1, -1, -1 },
 		{ H_ADD1, H_ADD2, -1, -1, -1 },
 	};
 
-	CGraphVector GetDefaultWeatherGraphVector()
+	static const int DEFAULT_DAILY_CHARTS[NB_CHARTS][NB_VAR_MAX] =
+	{
+		{ H_RELH, H_TDEW, H_TMIN2, H_TMAX2, -1 },//air
+		{ H_SNDH, H_SWE, H_SNOW, H_PRCP, -1 },//ground
+		{ H_WNDS, H_WND2, H_WNDD, -1, -1 },
+		{ H_SRAD2, H_PRES, -1, -1, -1 },
+		{ H_ADD1, H_ADD2, -1, -1, -1 },
+	};
+
+	CGraphVector GetDefaultWeatherGraphVector(bool bHourly)
 	{
 		string XAxisTitle = GetString(IDS_WG_WEATHER_XAXIS_TITLE);
 		StringVector graphName(GetString(IDS_WG_WEATHER_GRAPH_TITLE), ";|");
@@ -84,7 +89,7 @@ namespace WBSF
 
 			for (size_t v = 0; v < NB_VAR_MAX; v++)
 			{
-				int vv = DEFAULT_CHARTS[c][v];
+				int vv = bHourly ? DEFAULT_HOURLY_CHARTS[c][v] : DEFAULT_DAILY_CHARTS[c][v];
 				if (vv >= 0)
 					graphics[c].m_series.push_back(DEFAULT_WEATHER_SERIES[vv]);
 			}
@@ -425,7 +430,6 @@ namespace WBSF
 
 	//******************************************************************************************************************************
 	const char* CGraph::XML_FLAG = "Graph";
-	//const char* CGraphVector::XML_FLAG = "GraphArray";
 	const char* CGraph::MEMBER_NAME[NB_MEMBER] = { "Name", "Title", "XTitle", "LeftYTitle", "RightYTitle", "Variable", "ShowLegend", "VariableArray", "FirstLine", "LastLine" };
 
 
@@ -449,7 +453,6 @@ namespace WBSF
 		m_Xtitle.empty();
 		m_Ytitle1.empty();
 		m_Ytitle2.empty();
-		//m_resolutionFactor=1;
 		m_XAxis.Reset();
 		m_bShowLegend = false;
 		m_series.clear();
@@ -461,13 +464,11 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			//m_bAutoExport=in.m_bAutoExport;
 			m_name = in.m_name;
 			m_title = in.m_title;
 			m_Xtitle = in.m_Xtitle;
 			m_Ytitle1 = in.m_Ytitle1;
 			m_Ytitle2 = in.m_Ytitle2;
-			//m_resolutionFactor=in.m_resolutionFactor;
 			m_XAxis = in.m_XAxis;
 			m_bShowLegend = in.m_bShowLegend;
 			m_series = in.m_series;
@@ -483,13 +484,11 @@ namespace WBSF
 	{
 		bool bEqual = true;
 
-		//if( m_bAutoExport != in.m_bAutoExport)bEqual = false;
 		if (m_name != in.m_name) bEqual = false;
 		if (m_title != in.m_title)bEqual = false;
 		if (m_Xtitle != in.m_Xtitle)bEqual = false;
 		if (m_Ytitle1 != in.m_Ytitle1)bEqual = false;
 		if (m_Ytitle2 != in.m_Ytitle2)bEqual = false;
-		//if( m_resolutionFactor != in.m_resolutionFactor)bEqual = false;
 		if (m_XAxis != in.m_XAxis)bEqual = false;
 		if (m_bShowLegend != in.m_bShowLegend)bEqual = false;
 		if (m_series != in.m_series)bEqual = false;
@@ -500,51 +499,5 @@ namespace WBSF
 	}
 
 
-	/*
-	std::string CGraph::GetMember(int i, LPXNode& pNode)const
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-
-	std::string str;
-	switch(i)
-	{
-	//case AUTO_EXPORT:	str = ToString(m_bAutoExport); break;
-	case NAME:			str = m_name; break;
-	case TITLE:			str = m_title; break;
-	case X_TITLE:		str = m_Xtitle; break;
-	case Y_TITLE:		str = m_Ytitle; break;
-	//case RESOLUTION_FACTOR:		str = ToString(m_resolutionFactor); break;
-	case X_AXIS:		m_XAxis.GetXML(pNode); break;
-	case SHOW_LEGEND:   str = ToString(m_bShowLegend); break;
-	case SERIES:		m_series.GetXML(pNode); break;
-	case FIRST_LINE:	str = ToString(m_firstLine); break;
-	case LAST_LINE:		str = ToString(m_lastLine); break;
-	default: ASSERT(false);
-	}
-
-	return str;
-	}
-
-	void CGraph::SetMember(int i, const std::string& str, const LPXNode pNode)
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-	switch(i)
-	{
-	//case AUTO_EXPORT:	m_bAutoExport=ToBool(str); break;
-	case NAME:			m_name = str; break;
-	case TITLE:			m_title=str; break;
-	case X_TITLE:		m_Xtitle=str; break;
-	case Y_TITLE:		m_Ytitle=str; break;
-	//case RESOLUTION_FACTOR:	m_resolutionFactor=ToFloat(str); break;
-	case X_AXIS:		m_XAxis.SetXML(pNode); break;
-	case SHOW_LEGEND:   m_bShowLegend = ToBool(str); break;
-	case SERIES:		m_series.SetXML(pNode);	break;
-	case FIRST_LINE:	m_firstLine = ToInt(str); break;
-	case LAST_LINE:		m_lastLine = ToInt(str); break;
-	default: ASSERT(false);
-	}
-
-	}
-
-	*/
 }
+

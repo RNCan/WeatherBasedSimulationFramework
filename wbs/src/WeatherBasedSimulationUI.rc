@@ -1537,30 +1537,30 @@ CAPTION "Générateur de localisations"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Générer à partir de :",IDC_STATIC,7,9,64,8
-    COMBOBOX        IDC_GENLOC_FROM,89,7,177,107,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GENLOC_FROM,96,7,170,107,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Type de stations météo :",IDC_CMN_STATIC1,7,26,78,8
-    COMBOBOX        IDC_GENLOC_STATION_TYPE,89,24,177,57,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GENLOC_STATION_TYPE,96,24,170,57,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Nom de la BD météo :",IDC_CMN_STATIC2,7,43,70,8
-    COMBOBOX        IDC_GENLOC_DAILY_NAME,89,41,177,59,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_GENLOC_NORMAL_NAME,89,41,177,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Année :",IDC_CMN_STATIC3,7,58,26,8
-    EDITTEXT        IDC_GENLOC_YEAR,89,58,30,12,ES_AUTOHSCROLL
+    COMBOBOX        IDC_GENLOC_DAILY_NAME,96,41,170,59,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GENLOC_NORMAL_NAME,96,41,170,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Année (-999 pour toutes) :",IDC_CMN_STATIC3,7,59,83,8
+    EDITTEXT        IDC_GENLOC_YEAR,96,58,30,12,ES_AUTOHSCROLL
     LTEXT           "Filtre :",IDC_CMN_STATIC4,152,60,20,8
     EDITTEXT        IDC_GENLOC_FILTER,197,58,69,12,ES_AUTOHSCROLL
-    LTEXT           "Méthode de génération :",IDC_CMN_STATIC5,7,79,82,8
-    COMBOBOX        IDC_GENLOC_METHOD,89,77,177,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Méthode de génération :",IDC_CMN_STATIC5,7,79,89,8
+    COMBOBOX        IDC_GENLOC_METHOD,96,77,170,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "DEM :",IDC_CMN_STATIC6,7,98,21,8,NOT WS_GROUP
-    COMBOBOX        IDC_GENLOC_DEM_NAME,89,95,152,103,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GENLOC_DEM_NAME,96,95,152,103,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "···",IDC_GENLOC_SELECTDEM,246,95,20,13
-    LTEXT           "Nombre de localisations :",IDC_CMN_STATIC7,7,117,82,8
-    EDITTEXT        IDC_GENLOC_NBPOINT,89,114,30,12,ES_AUTOHSCROLL
+    LTEXT           "Nombre de localisations :",IDC_CMN_STATIC7,7,117,89,8
+    EDITTEXT        IDC_GENLOC_NBPOINT,96,114,30,12,ES_AUTOHSCROLL
     LTEXT           "X",IDC_CMN_STATIC8,158,115,8,8
     EDITTEXT        IDC_GENLOC_NBPOINT_LON,167,114,30,12,ES_AUTOHSCROLL
     LTEXT           "Y",IDC_CMN_STATIC9,224,116,8,8
     EDITTEXT        IDC_GENLOC_NBPOINT_LAT,236,114,30,12,ES_AUTOHSCROLL
     LTEXT           "Facteur d'agrégation :",IDC_CMN_STATIC10,7,135,70,11
-    EDITTEXT        IDC_GENLOC_FACTOR,89,133,30,12,ES_AUTOHSCROLL
-    LTEXT           " (0-100%)",IDC_CMN_STATIC11,118,134,33,11
+    EDITTEXT        IDC_GENLOC_FACTOR,96,133,30,12,ES_AUTOHSCROLL
+    LTEXT           " (0-100%)",IDC_CMN_STATIC11,130,134,33,11
     CONTROL         "Extraction des extrèmes",IDC_GENLOC_EXTREM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,134,91,10
     GROUPBOX        "Exposition :",IDC_GENLOC_EXPOSURE,7,150,259,50
     CONTROL         "Pas d'exposition",IDC_GENLOC_NO_EXPOSITION,"Button",BS_AUTORADIOBUTTON | WS_GROUP,14,163,67,10
@@ -1572,9 +1572,9 @@ BEGIN
     GROUPBOX        "Délimitation de la sous-région",IDC_GENLOC_BOUNDINGBOX,7,204,259,65,BS_NOTIFY | WS_GROUP | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,136,277,50,14
     PUSHBUTTON      "Annuler",IDCANCEL,216,277,50,14
-    COMBOBOX        IDC_GENLOC_HOURLY_NAME,89,41,177,59,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_GENLOC_METHOD_W,89,77,177,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_GENLOC_NBSTATION,89,114,30,12,ES_AUTOHSCROLL
+    COMBOBOX        IDC_GENLOC_HOURLY_NAME,96,41,170,59,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GENLOC_METHOD_W,96,77,170,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_GENLOC_NBSTATION,96,114,30,12,ES_AUTOHSCROLL
 END
 
 IDD_SIM_LOC_MANAGER DIALOGEX 0, 0, 270, 178
@@ -2567,7 +2567,7 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 266
-        VERTGUIDE, 89
+        VERTGUIDE, 96
         TOPMARGIN, 7
         BOTTOMMARGIN, 291
     END
@@ -4040,7 +4040,7 @@ BEGIN
     IDS_DBEDIT_WEITHERSTR   "Température"
     IDS_DBEDITOR_CAPTION    "Administrateur de fichiers"
     IDS_EXITMODEL           "Sortir sans sauvegarder les changements aux modèles %1."
-    IDS_FORECAST_DATAHEAD   "Date|Min (°C)|Max (°C)|Précipitation (mm)|Point de rosée(°C)|Humidité relative(%)|Vitesse du vent (km/h)|Neige (mm)|Neige au sol(cm)|Radiation Solaire(MJ/m²)"
+    IDS_FORECAST_DATAHEAD   "Date|Min (°C)|Max (°C)|Précipitation (mm)|Point de rosée(°C)|Humidité relative(%)|Vitesse du vent (km/h)|Neige (mm)|Neige au sol(cm)|Radiation Solaire(W/m²)"
     IDS_FORECAST_REP_NOTFOUND 
                             "La base de données  FORECAST.REP n'a pas été trouvée dans le répertoire de température %1."
     IDS_MODEL_NOTVALID      "Le fichier d'intrant du modèle ""%1"" n'est pas valide.\n Entrez un nouvel intrant dans l'éditeur de simulation."
@@ -4071,7 +4071,7 @@ BEGIN
     IDS_NORMAL_DATANOTVALID "Les valeurs de température doivent être entre[-100, 100] et les valeurs de précipitation doivent être entre [0, 3500]\nEntrer une nouvelle valeur."
     IDS_NORMAL_NAMEMISSING  "Une station doit avoir un nom."
     IDS_NORMAL_REP_NOTFOUND "La base de données NORMALES.REP n'a pas été trouvée dans le répertoire de température %1."
-    IDS_REALTIME_DATAHEAD   "Date|Min (°C)|Max (°C)|Précipitation (mm)|Point de rosée (°C)|Humidité relative(%)|Vitesse du vent (km/h)|Neige (mm)|Neige au sol (cm)|Radiation Solaire(MJ/m²)"
+    IDS_REALTIME_DATAHEAD   "Date|Min (°C)|Max (°C)|Précipitation (mm)|Point de rosée (°C)|Humidité relative(%)|Vitesse du vent (km/h)|Neige (mm)|Neige au sol (cm)|Radiation Solaire(W/m²)"
     IDS_REALTIME_REP_NOTFOUND 
                             "La base de données STATIONS.REP n'a pas été trouvée dans le répertoire temps réel %1."
     IDS_RT_CANNOTIMPORT     "BioSIM ne peut importer le fichier %1."
@@ -4120,13 +4120,13 @@ BEGIN
     IDS_DBEDIT_GRAPH_WEATHER 
                             "Propriétées des graphiques météo|Générale|Propriétées de la série|Générale|Symbole|Ligne|Remplissage|Histogramme"
     IDS_DBEDIT_GRAPH_WEATHER_PROPERTIES 
-                            "Titre|Titre axe des X|Titre axe des Y (gauche)|Titre axe des Y (droite)|Afficher la légende|Variable|Statistique|Type|Axe Y|Ombrage|Profondeur d<ombre|Couleur d<ombre||Type|Largeur|Hauteur|Couleur|Remplissage du symbole|Couleur de remplissage du symbole|Style de ligne|Largeur de ligne|Couleur|Ligne lissée|Style de remplissage|Direction replissage|Couleur de remplissage|Direction|Largeur barre|Couleur barre|Largeur bordure|Couleur bordure"
+                            "Titre|Titre axe des X|Titre axe des Y (gauche)|Titre axe des Y (droite)|Afficher la légende|Variable|Statistique|Type|Axe Y|Ombrage|Profondeur d'ombre|Couleur d'ombre|Type|Largeur|Hauteur|Couleur|Remplissage du symbole|Couleur de remplissage du symbole|Style de ligne|Largeur de ligne|Couleur|Ligne lissée|Style de remplissage|Direction replissage|Couleur de remplissage|Direction|Largeur barre|Couleur barre|Largeur bordure|Couleur bordure"
 END
 
 STRINGTABLE
 BEGIN
     IDS_DBEDIT_GRAPH_WEATHER_DESCRIPTION 
-                            "Titre|Titre axe des X|Titre axe des Y (gauche)|Titre axe des Y (droite)|Afficher la légende|Variable|Statistique|Type|Axe Y|Ombrage|Profondeur d<ombre|Couleur d<ombre||Type|Largeur|Hauteur|Couleur|Remplissage du symbole|Couleur de remplissage du symbole|Style de ligne|Largeur de ligne|Couleur|Ligne lissée|Style de remplissage|Direction replissage|Couleur de remplissage|Direction|Largeur barre|Couleur barre|Largeur bordure|Couleur bordure"
+                            "Titre|Titre axe des X|Titre axe des Y (gauche)|Titre axe des Y (droite)|Afficher la légende|Variable|Statistique|Type|Axe Y|Ombrage|Profondeur d'ombre|Couleur d'ombre|Type|Largeur|Hauteur|Couleur|Remplissage du symbole|Couleur de remplissage du symbole|Style de ligne|Largeur de ligne|Couleur|Ligne lissée|Style de remplissage|Direction replissage|Couleur de remplissage|Direction|Largeur barre|Couleur barre|Largeur bordure|Couleur bordure"
     IDS_SIM_PARAMETERS_VARIATIONS_PROPERTIES "Minimum|Maximum|Étape"
     IDS_SIM_PARAMETERS_VARIATIONS_DESCRIPTION 
                             "Valeur minimum|Valeur maximum|Étape"
@@ -5450,7 +5450,7 @@ BEGIN
     LTEXT           "Weather DB:",IDC_CMN_STATIC2,7,43,42,8
     COMBOBOX        IDC_GENLOC_DAILY_NAME,74,41,176,59,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_GENLOC_NORMAL_NAME,74,41,176,59,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Year:",IDC_CMN_STATIC3,7,59,18,8
+    LTEXT           "Year (-999 fo all):",IDC_CMN_STATIC3,7,59,54,8
     EDITTEXT        IDC_GENLOC_YEAR,74,59,30,12,ES_AUTOHSCROLL
     LTEXT           "Filter:",IDC_CMN_STATIC4,106,60,18,8
     EDITTEXT        IDC_GENLOC_FILTER,165,59,85,12,ES_AUTOHSCROLL
@@ -8068,7 +8068,7 @@ BEGIN
     IDS_DBEDIT_WEITHERSTR   "Weather"
     IDS_DBEDITOR_CAPTION    "Linked Data Manager"
     IDS_EXITMODEL           "Exit without saving changes to model %1."
-    IDS_FORECAST_DATAHEAD   "Date|Min(°C)|Max(°C)|Precipitation(mm)|Dew Point(°C)|Relative Humidity(%)|Wind Speed(Km/h)|Snow (mm)|Snow depth (cm)|Solar Radiation(MJ/m²)"
+    IDS_FORECAST_DATAHEAD   "Date|Min(°C)|Max(°C)|Precipitation(mm)|Dew Point(°C)|Relative Humidity(%)|Wind Speed(Km/h)|Snow (mm)|Snow depth (cm)|Solar Radiation(W/m²)"
     IDS_FORECAST_REP_NOTFOUND 
                             "Database FORECAST.REP not found in weather directory %1."
     IDS_MODEL_NOTVALID      "Model input file ""%1"" is not valid.\nPlease enter a new model input in the simulation editor."
@@ -8099,7 +8099,7 @@ BEGIN
     IDS_NORMAL_DATANOTVALID "Temperature must be in the range[-100, 100]and precipitation values must be in the range[0, 3500]\nEnter new value."
     IDS_NORMAL_NAMEMISSING  "A station must have a name."
     IDS_NORMAL_REP_NOTFOUND "Database NORMALES.REP not found in weather directory %1."
-    IDS_REALTIME_DATAHEAD   "Date|Tmin (C°)|Tmax (C°)|Precipitation (mm)|Dew Point(C°)|Relative Humidity(%)|Wind Speed(Km/h)|Snow (mm)|Snow Depth (cm)|Solar Radiation(MJ/m²)"
+    IDS_REALTIME_DATAHEAD   "Date|Tmin (C°)|Tmax (C°)|Precipitation (mm)|Dew Point(C°)|Relative Humidity(%)|Wind Speed(Km/h)|Snow (mm)|Snow Depth (cm)|Solar Radiation(W/m²)"
     IDS_REALTIME_REP_NOTFOUND 
                             "Database STATIONS.REP not found in Real Time directory %1."
     IDS_RT_CANNOTIMPORT     "BioSIM can't import file %1."

@@ -41,7 +41,7 @@ namespace WBSF
 
 	void CWGInput::clear()
 	{
-		m_variables = "T TR P";
+		m_variables = "TN T TX P";
 		m_sourceType = FROM_DISAGGREGATIONS;
 		m_generationType = GENERATE_DAILY;
 		m_nbNormalsYears = 1;
@@ -188,7 +188,7 @@ namespace WBSF
 		}
 		else
 		{
-			m_variables = "T TR P";
+			m_variables = "TN T TX P";
 			m_normalsDBName = "Canada-USA 1981-2010";
 			m_allowedDerivedVariables = "R Z S SD SWE ES EA VPD WS2";
 		}
@@ -270,40 +270,54 @@ namespace WBSF
 		CWVariables dVariables;
 		//if (m_variables[H_TRNG] && m_allowedDerivedVariables[H_TRNG] && !m_variables[H_TAIR])
 		//dVariables.set(H_TAIR);
-		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
+
+		if ((m_variables[H_TMIN2] && !m_variables[H_TAIR2]) || (m_variables[H_TMAX2] && !m_variables[H_TAIR2]))
+			dVariables.set(H_TAIR2);
+		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
 		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
+		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
 		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SRAD] && m_allowedDerivedVariables[H_SRAD] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
-		if (m_variables[H_SRAD] && m_allowedDerivedVariables[H_SRAD] && !m_variables[H_PRCP])
+		if (m_variables[H_SRAD2] && m_allowedDerivedVariables[H_SRAD2] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
+		if (m_variables[H_SRAD2] && m_allowedDerivedVariables[H_SRAD2] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
+		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
 		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
+		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
 		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
+		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_TAIR2])
+			dVariables.set(H_TAIR2);
 		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_EA] && m_allowedDerivedVariables[H_EA] && !m_variables[H_TDEW])
+		/*if (m_variables[H_EA] && m_allowedDerivedVariables[H_EA] && !m_variables[H_TDEW])
 			dVariables.set(H_TDEW);
 		if (m_variables[H_ES] && m_allowedDerivedVariables[H_ES] && !m_variables[H_TAIR])
 			dVariables.set(H_TAIR);
 		if (m_variables[H_VPD] && m_allowedDerivedVariables[H_VPD] && !m_variables[H_TAIR])
-			dVariables.set(H_TAIR);
-		if (m_variables[H_VPD] && m_allowedDerivedVariables[H_VPD] && !m_variables[H_TDEW])
-			dVariables.set(H_TDEW);
+			dVariables.set(H_TAIR);*/
+		//if (m_variables[H_VPD] && m_allowedDerivedVariables[H_VPD] && !m_variables[H_TDEW])
+			//dVariables.set(H_TDEW);
 		if (m_variables[H_WND2] && m_allowedDerivedVariables[H_WND2] && !m_variables[H_WNDS])
 			dVariables.set(H_WNDS);
+
+
+		
+
+		if (m_variables[H_TAIR2] && (!m_variables[H_TMIN2] || !m_variables[H_TMAX2]))
+		{
+			dVariables.set(H_TMIN2);
+			dVariables.set(H_TMAX2);
+		}
+
+
 
 		return dVariables;
 	}
@@ -324,20 +338,31 @@ namespace WBSF
 		CWVariables mVariables(m_variables);
 		mVariables |= GetMissingInputVariables();
 
-		if (mVariables[H_TRNG] && !mVariables[H_TAIR])
-			mVariables.set(H_TAIR);
+		/*if (mVariables[H_TAIR2] && !mVariables[H_TMIN2])
+			mVariables.set(H_TMIN2);
 
-		if (mVariables[H_TAIR] && !mVariables[H_TRNG])
-			mVariables.set(H_TRNG);//Tmax
+		if (mVariables[H_TAIR2] && !mVariables[H_TMAX2])
+			mVariables.set(H_TMAX2);*/
 
-		if (mVariables[H_PRCP] && !mVariables[H_TAIR])
-			mVariables.set(H_TAIR);
+		if (mVariables[H_PRCP] && !mVariables[H_TAIR2])
+		{
+			mVariables.set(H_TMIN2);
+			mVariables.set(H_TAIR2);
+			mVariables.set(H_TMAX2);
+		}
 
 		if (mVariables[H_TDEW] && !mVariables[H_RELH])
 			mVariables.set(H_RELH);
 
-		if (mVariables[H_TDEW] && !mVariables[H_TAIR])
-			mVariables.set(H_TAIR);
+		if (mVariables[H_TDEW] && !mVariables[H_TAIR2])
+		{
+			mVariables.set(H_TMIN2);
+			mVariables.set(H_TAIR2);
+			mVariables.set(H_TMAX2);
+		}
+
+		if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
+			mVariables.set(H_TMAX2);
 
 		if (mVariables[H_WND2] && !mVariables[H_WNDS])
 			mVariables.set(H_WNDS);

@@ -350,7 +350,7 @@ namespace WBSF
 			return weather[TRef][H_RELH][LOWEST];
 
 		double E°Tdew = e°(weather[TRef][H_TDEW][MEAN]) * 1000;
-		double E°Tmax = e°(weather[TRef][H_TMAX][MEAN]) * 1000;
+		double E°Tmax = e°(weather[TRef][H_TMAX2][MEAN]) * 1000;
 		double RHmin = max(1.0, min(100.0, E°Tdew / E°Tmax * 100));
 		return RHmin;
 	}

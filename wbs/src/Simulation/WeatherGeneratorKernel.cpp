@@ -112,12 +112,13 @@ namespace WBSF
 
 		//      Daily Generator Loop
 		//randomization for temperature
-		m_rand.Randomize(m_seed[H_TAIR]);
+		m_rand.Randomize(m_seed[H_TAIR2]);
 
 		//temperature part
-		if (m_variables[H_TAIR] || m_variables[H_TRNG])
+		if (m_variables[H_TMIN2] || m_variables[H_TAIR2] || m_variables[H_TMAX2])
 		{
-			ASSERT(m_normals.GetVariables()[H_TAIR]);
+			ASSERT(m_normals.GetVariables()[H_TMIN2]);
+			ASSERT(m_normals.GetVariables()[H_TMAX2]);
 
 			//If delta and epsilon isn't init, we init it
 			if (!IsDeltaEpsilonInit())
@@ -147,11 +148,16 @@ namespace WBSF
 						Switch(tmin, tmax);
 
 					_ASSERTE(tmin < tmax);
-					if (m_variables[H_TAIR])
-						dailyData[m][d][H_TAIR] = (tmin + tmax) / 2;
+					//if (m_variables[H_TAIR2])
+						dailyData[m][d][H_TMIN2] = tmin;
 
-					if (m_variables[H_TRNG])
-						dailyData[m][d][H_TRNG] = tmax - tmin;
+					//if (m_variables[H_TAIR2])
+						dailyData[m][d][H_TAIR2] = (tmin + tmax) / 2;
+
+					//if (m_variables[H_TMAX2])
+						dailyData[m][d][H_TMAX2] = tmax;
+
+					
 				} // for all days in the month
 			}//for all months
 		}
@@ -192,16 +198,17 @@ namespace WBSF
 
 				for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 				{
-					_ASSERTE(dailyData[m][d][H_TAIR][LOWEST] > MISSING);
-					_ASSERTE(dailyData[m][d][H_TAIR][HIGHEST] > MISSING);
+					_ASSERTE(dailyData[m][d][H_TMIN2].IsInit());
+					_ASSERTE(dailyData[m][d][H_TMAX2].IsInit());
 
 					//NOTE: old beta distribution have a biasis of 1%, the new don't, RSA 28/07/2012
 					double Hr = m_rand.RandBeta(alpha, beta) * 100;
 					ASSERT(Hr >= 0 && Hr <= 100);
+					double Tmean = (dailyData[m][d][H_TMIN2][MEAN] + dailyData[m][d][H_TMAX2][MEAN]) / 2;
 
 
 					dailyData[m][d][H_RELH] = Hr;
-					dailyData[m][d][H_TDEW] = Hr2Td(dailyData[m][d][H_TAIR][MEAN], Hr);
+					dailyData[m][d][H_TDEW] = Hr2Td(Tmean, Hr);
 				}
 			}
 		}
@@ -447,10 +454,11 @@ namespace WBSF
 
 			for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 			{
-				//int date = d0 + j; 
+				ASSERT(dailyData[m][d][H_TMIN2].IsInit());
+				ASSERT(dailyData[m][d][H_TMAX2].IsInit());
 
 				//		Get daily prob of precip given min, max, tot_precip of the month and the Sp
-				double Pprecip = m_AP.GetPprecip(dailyData[m][d][H_TAIR][LOWEST], dailyData[m][d][H_TAIR][HIGHEST], normalTmp[m][PRCP_TT], Sp);
+				double Pprecip = m_AP.GetPprecip(dailyData[m][d][H_TMIN2][MEAN], dailyData[m][d][H_TMAX2][MEAN], normalTmp[m][PRCP_TT], Sp);
 
 				//Find the day when the probability of rain is the highest
 				if (Pprecip > maxPprecip)

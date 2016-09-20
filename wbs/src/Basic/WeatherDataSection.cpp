@@ -209,23 +209,23 @@ namespace WBSF
 				double value = ToDouble(data[i]);
 				if (!WEATHER::IsMissing(value))
 				{
-					if (format[i].m_var == H_TAIR && format[i].m_stat == LOWEST)
+					/*if (format[i].m_var == H_TAIR && format[i].m_stat == LOWEST)
 						bTmin = true;
 					else if (format[i].m_var == H_TAIR && format[i].m_stat == HIGHEST)
 						bTmax = true;
-					else
-						section.m_nbRecords[format[i].m_var] += CCountPeriod(1, CTPeriod(TRef, TRef));
+					else*/
+					section.m_nbRecords[format[i].m_var] += CCountPeriod(1, CTPeriod(TRef, TRef));
 				}
 
 			}
 		}//for all variables
 
-		if (bTmin && bTmax)
+		/*if (bTmin && bTmax)
 		{
 			section.m_nbRecords[H_TAIR] += CCountPeriod(1, CTPeriod(TRef, TRef));
 			section.m_nbRecords[H_TRNG] += CCountPeriod(1, CTPeriod(TRef, TRef));
 
-		}
+		}*/
 	}
 
 

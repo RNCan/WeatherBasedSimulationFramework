@@ -181,7 +181,7 @@ double CThornthwaiteET::GetI(const CYear& weather)
 	double I = 0;
 	for(size_t  m=0; m<12; m++)
 	{
-		double mean = weather[m][H_TAIR][MEAN];
+		double mean = weather[m][H_TAIR2][MEAN];
 		if(mean>0) 
 			I += pow(mean/5.,1.514);
 	}
@@ -203,7 +203,7 @@ double CThornthwaiteET::GetET(const CMonth& weather, double I)
 	double alpha = GetAlpha(I);
 
 	//compute Et for each month and A
-	double mean = weather[H_TAIR][MEAN];
+	double mean = weather[H_TAIR2][MEAN];
 	if(mean>0) 
 	{
 		ET = 16*pow(10.*mean/I, alpha);
@@ -394,7 +394,7 @@ void CBlaneyCriddleET::Execute(const CWeatherStation& weather, CModelStatVector&
 		//compute Et for each month and A
 		for (size_t m = 0; m<12; m++)
 		{
-			double Tmean = weather[y][m][H_TAIR][MEAN];
+			double Tmean = weather[y][m][H_TAIR2][MEAN];
 
 			//get evapotranspiration in mm
 			double F1 = GetCropFactor(m_cropType, m);
@@ -449,11 +449,11 @@ void CTurcET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 				//if (weather.IsHourly())
 				//{
 				
-				double T = weather[y][m][d][H_TAIR][MEAN];
-				double Ea = weather[y][m][d][H_EA][MEAN];	//vapor pressure [Pa]
-				double Es = weather[y][m][d][H_ES][MEAN];	//vapor pressure [Pa]
+				double T = weather[y][m][d][H_TAIR2][MEAN];
+				double Ea = weather[y][m][d][H_EA2][MEAN];	//vapor pressure [Pa]
+				double Es = weather[y][m][d][H_ES2][MEAN];	//vapor pressure [Pa]
 				double RH = max(1.0,min(100.0, Ea / Es * 100.0));//weather[y][m][d][H_RELH][MEAN];
-				double Rg = weather[y][m][d][H_SRAD][SUM];
+				double Rg = weather[y][m][d][H_SRMJ][SUM]; //solar radiation in MJ/m²
 				double C = RH>=50?1:1+(50-RH)/70;
 
 				double dailyET = 0;
@@ -753,7 +753,7 @@ void CHamonET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 				const CDay& wDay = weather[y][m][d];
 				
 				double dailyET = 0;
-				double T = wDay[H_TAIR][MEAN];
+				double T = wDay[H_TAIR2][MEAN];
 				if (T > 0)
 				{
 					double Ld = wDay.GetDayLength() / (60 * 60 * 12);//in multiple of 12 hours
@@ -795,7 +795,7 @@ void CModifiedHamonET::Execute(const CWeatherStation& weather, CModelStatVector&
 			CStatistic D;
 			for (size_t d = 0; d < weather[y][m].size(); d++)
 			{
-				T += weather[y][m][d][H_TAIR][MEAN];
+				T += weather[y][m][d][H_TAIR2][MEAN];
 				D += weather[y][m][d].GetDayLength();
 			}
 
@@ -852,10 +852,10 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 			{
 				static const double C = 0.4082; //Conversion to ET equivalent [m2 mm MJ - 1]
 
-				double Tmin = weather[y][m][d][H_TAIR][LOWEST];
-				double T = weather[y][m][d][H_TAIR][MEAN];
-				double Tmax = weather[y][m][d][H_TAIR][HIGHEST];
-				double Rs = weather[y][m][d][H_SRAD][SUM];
+				double Tmin = weather[y][m][d][H_TMIN2][MEAN];
+				double T = weather[y][m][d][H_TAIR2][MEAN];
+				double Tmax = weather[y][m][d][H_TMAX2][MEAN];
+				double Rs = weather[y][m][d][H_SRMJ][SUM];
 				//double Rs = 0.16*Ra*(Tmax - Tmin) ^ 0.5;
 				double dailyET = 0.0135 * Rs*C*(T + 17.8);
 				
@@ -947,11 +947,11 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 
 		const CDataInterface& data = weather[TRef];
 
-		double T =	data[H_TAIR][MEAN];
+		double T =	data[H_TAIR2][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);//wind speed at 2 meters [m/s]
 		double P =  data[H_PRES][MEAN] / 10; ASSERT(!IsMissing(P));//pressure [kPa]
-		double Ea = data[H_EA][MEAN] / 1000;	//vapor pressure [kPa]
-		double Es = data[H_ES][MEAN] / 1000;	//vapor pressure [kPa]
+		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
+		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
 
 //			double Ra = data.GetExtraterrestrialRadiation();
 //		double Fcd² = WHour.GetCloudiness(Ra);
@@ -1721,12 +1721,12 @@ void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector
 	{
 		const CDataInterface& data = weather[TRef];
 
-		double Tmin = data[H_TAIR][LOWEST];
-		double Tmax = data[H_TAIR][HIGHEST];
-		double T = (data[H_TAIR][LOWEST] + data[H_TAIR][HIGHEST]) / 2;
+		double Tmin = data[H_TMIN2][MEAN];
+		double Tmax = data[H_TMAX2][MEAN];
+		double T = data[H_TAIR2][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);	//Wind speed at 2 meters [m/s]
-		double Ea = data[H_EA][MEAN] / 1000;	//vapor pressure [kPa]
-		double Es = data[H_ES][MEAN] / 1000;	//vapor pressure [kPa]
+		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
+		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
 
 		//double λ = data.GetVarEx(LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
 		//double Δ = data.GetVarEx(SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]

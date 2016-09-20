@@ -63,13 +63,13 @@ namespace WBSF
 				{
 					for (size_t d = 0; d < data[m].size(); d++)
 					{
-						for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 						{
 							if (data[m][d][v].IsInit())
 							{
 								switch (v)
 								{
-								case H_TAIR:
+								case H_TMAX2:
 									/*{
 										double Tmin = data[m][d][H_TMIN][MEAN];
 										double Tmax = data[m][d][H_TMAX][MEAN];
@@ -77,17 +77,17 @@ namespace WBSF
 										at(y)[H_TRNG][m] += Tmax - Tmin;
 										break;
 										}*/
-								case H_TRNG:	//break;
+								case H_TMIN2:	//break;
 								case H_TDEW:
 								case H_RELH:
 								case H_WNDD:
 								case H_SNDH:
 								case H_PRES:
 								case H_SWE:
-								case H_ES:
-								case H_EA:
-								case H_VPD:
-								case H_SRAD:	at(y)[v][m] += data[m][d].GetData(v)[MEAN]; break;
+								//case H_ES:
+								//case H_EA:
+								//case H_VPD:
+								case H_SRAD2:	at(y)[v][m] += data[m][d].GetData(v)[MEAN]; break;
 								case H_PRCP:
 								case H_SNOW:	at(y)[v][m] += data[m][d].GetData(v)[SUM]; break;
 								case H_WNDS:
@@ -268,7 +268,7 @@ namespace WBSF
 			}
 		}
 
-		if (bValid[H_TAIR])
+		if (bValid[H_TMIN2] && bValid[H_TMAX2])
 		{
 			//compute the 9 variables of temperature
 			ComputeTemperature(dailyStation);
@@ -283,7 +283,7 @@ namespace WBSF
 		ASSERT(NB_FIELDS == 16);
 		for (size_t m = 0; m < 12; m++)
 		{
-			if (bValid[H_TAIR])
+			if (bValid[H_TMIN2] && bValid[H_TMAX2])
 			{
 				//data[m][TMIN_MN] = float(m_dailyStat[TMIN][m][MEAN]);
 				//data[m][TMAX_MN] = float(m_dailyStat[TMAX][m][MEAN]);
@@ -451,10 +451,10 @@ namespace WBSF
 		ASSERT(NB_FIELDS == 16);
 		for (size_t m = 0; m < 12; m++)
 		{
-			double Tmean = float(m_dailyStat[H_TAIR][m][MEAN]);
-			double Trange = float(m_dailyStat[H_TRNG][m][MEAN]);
-			normals[m][TMIN_MN] = Tmean - Trange / 2;
-			normals[m][TMAX_MN] = Tmean + Trange / 2;
+			//double Tmean = float(m_dailyStat[H_TAIR][m][MEAN]);
+			//double Trange = float(m_dailyStat[H_TRNG][m][MEAN]);
+			normals[m][TMIN_MN] = m_dailyStat[H_TMIN2][m][MEAN];
+			normals[m][TMAX_MN] = m_dailyStat[H_TMAX2][m][MEAN];
 			
 
 			for (size_t v = 0; v < 2; v++)
@@ -490,9 +490,10 @@ namespace WBSF
 
 					CWVariablesCounter variables = dailyStation[y][m].GetVariablesCount();
 
-					if (variables[H_TAIR].first >= nbDayMin)
+					if (variables[H_TMIN2].first >= nbDayMin && variables[H_TMAX2].first >= nbDayMin)
 					{
-						ASSERT(m_monthStatArray[y][H_TAIR][m][NB_VALUE] >= nbDayMin);
+						ASSERT(m_monthStatArray[y][H_TMIN2][m][NB_VALUE] >= nbDayMin);
+						ASSERT(m_monthStatArray[y][H_TMAX2][m][NB_VALUE] >= nbDayMin);
 
 						for (size_t d = 0; d < dailyStation[y][m].size(); d++)
 						{
@@ -502,7 +503,7 @@ namespace WBSF
 							double TminMonthNormal = normals.Interpole(TRef, TMIN_MN);
 							double TmaxMonthNormal = normals.Interpole(TRef, TMAX_MN);
 
-							if (dailyStation[TRef][H_TAIR].IsInit() && dailyStation[TRef][H_TRNG].IsInit())
+							if (dailyStation[TRef][H_TMIN2].IsInit() && dailyStation[TRef][H_TMAX2].IsInit())
 							{
 								double Tmin[3] = { MISSING, MISSING, MISSING };
 								double Tmax[3] = { MISSING, MISSING, MISSING };
@@ -511,12 +512,12 @@ namespace WBSF
 									CTRef shiftTRef = TRef - dd;
 									if (period.IsInside(shiftTRef) &&
 										dailyStation.IsYearInit(shiftTRef.GetYear()) &&
-										dailyStation[TRef - dd][H_TAIR].IsInit() &&
-										dailyStation[TRef - dd][H_TRNG].IsInit())
+										dailyStation[TRef - dd][H_TMIN2].IsInit() &&
+										dailyStation[TRef - dd][H_TMAX2].IsInit())
 									{
 										//remove interpolated mean
-										Tmin[dd] = dailyStation[shiftTRef][H_TMIN][MEAN] - TminMonthNormal;
-										Tmax[dd] = dailyStation[shiftTRef][H_TMAX][MEAN] - TmaxMonthNormal;
+										Tmin[dd] = dailyStation[shiftTRef][H_TMIN2][MEAN] - TminMonthNormal;
+										Tmax[dd] = dailyStation[shiftTRef][H_TMAX2][MEAN] - TmaxMonthNormal;
 									}
 								}
 
@@ -543,12 +544,12 @@ namespace WBSF
 
 		for (size_t m = 0; m < 12; m++)
 		{
-			if (m_dailyStat[H_TAIR][m].IsInit())
+			if (m_dailyStat[H_TMIN2][m].IsInit() && m_dailyStat[H_TMAX2][m].IsInit())
 			{
-				double Tmean = m_dailyStat[H_TAIR][m][MEAN];
-				double Trange = m_dailyStat[H_TRNG][m][MEAN];
-				m_Tmin[m] = Tmean - Trange / 2;
-				m_Tmax[m] = Tmean + Trange / 2;
+				//double Tmean = m_dailyStat[H_TAIR][m][MEAN];
+				//double Trange = m_dailyStat[H_TRNG][m][MEAN];
+				m_Tmin[m] = m_dailyStat[H_TMIN2][m][MEAN];
+				m_Tmax[m] = m_dailyStat[H_TMAX2][m][MEAN];
 				m_minMaxRelation[m] = statMinMax[m][SUM] / sqrt(statMin[m][SUM²] * statMax[m][SUM²]);
 				m_sigmaDelta[m] = statMin[m][STD_DEV];
 				m_sigmaEpsilon[m] = statMax[m][STD_DEV];

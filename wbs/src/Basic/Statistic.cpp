@@ -778,10 +778,10 @@ namespace WBSF
 		m_xw.insert(x, w);
 		m_yw.insert(y, w);
 		double e = x - y;
-		m_wxy = w*x*y;
-		m_we = w*e;
-		m_wrs = w*e*e;
-		m_wae = w*fabs(e);
+		m_wxy += w*x*y;
+		m_we += w*e;
+		m_wrs += w*e*e;
+		m_wae += w*fabs(e);
 
 		return *this;
 	}
@@ -833,7 +833,7 @@ namespace WBSF
 
 			case BIAS: value = m_we / m_xw.W(SUM); break;
 			case MAE: value = m_wae / m_xw.W(SUM); break;
-			case RMSE: value = sqrt(m_wrs / m_xw.W(SUM)); break;
+			case RMSE: value = sqrt(m_wrs / m_xw.W(SUM)); break;//ici il ya une erreur dans le calcul... a faire
 			case RSS: value = m_wrs / m_xw.W(SUM); break;
 			case COEF_D: value = me[TSS] > 0 ? (1 - me[RSS] / me[TSS]) : STAT_VMISS; break;
 			case COEF_C:

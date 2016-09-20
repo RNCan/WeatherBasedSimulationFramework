@@ -92,10 +92,10 @@ namespace WBSF
 	//	{
 		switch (m_type)
 		{
-		case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
-		case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
-		case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
-		case TT_TNOON:  T = data[12][H_TAIR]; break;
+		case TT_TMIN:	T = data[H_TMIN2][MEAN]; break;
+		case TT_TMEAN:	T = data[H_TAIR2][MEAN]; break;
+		case TT_TMAX:	T = data[H_TMAX2][MEAN]; break;
+		case TT_TNOON:  T = data[12][H_TAIR2]; break;
 		default: ASSERT(false);
 		}
 		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
@@ -211,7 +211,7 @@ namespace WBSF
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
 			//const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef]);
-			double T = weather.IsHourly() ? weather[TRef][H_TAIR][MEAN] : weather[TRef][H_TMIN][MEAN];
+			double T = weather.IsHourly() ? weather[TRef][H_TAIR2][MEAN] : weather[TRef][H_TMIN2][MEAN];
 
 			if (T>0) //Frost-free period begin or continues
 			{

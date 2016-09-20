@@ -52,24 +52,22 @@ namespace WBSF
 		{ "Prcp", 1, PRCP_TT, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "PpSd", 1, PRCP_SD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "Tdew", 0, TDEW_MN, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(000, 255, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 255, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "RelH", 5, RELH_MN, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "HrSd", 5, RELH_SD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "WndS", 3, WNDS_MN, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "WdSd", 3, WNDS_SD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "RelH", 0, RELH_MN, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "HrSd", 0, RELH_SD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "WndS", 2, WNDS_MN, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "WdSd", 2, WNDS_SD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 	};
 
-	enum { NB_CHARTS = 7, NB_VAR_MAX = 5 };
+	enum { NB_CHARTS = 5, NB_VAR_MAX = 5 };
 
 	
 	static const int DEFAULT_CHARTS[NB_CHARTS][NB_VAR_MAX] =
 	{
 
-		{ TMIN_MN, TMAX_MN, TDEW_MN, -1, -1 },//air
-		{ PRCP_TT, -1, -1, -1, -1 },//water
-		{ -1, -1, -1, -1, -1 },//ground
+		{ TMIN_MN, TMAX_MN, TDEW_MN, RELH_MN, -1 },//air
+		{ PRCP_TT, -1, -1, -1, -1 },//ground
 		{ WNDS_MN, -1, -1, -1, -1 },//wind
 		{-1,-1,-1,-1,-1},//sun
-		{ RELH_MN, -1, -1, -1, -1 },//humidity
 		{ TACF_A1, TACF_A2, TACF_B1, TACF_B2, -1 },//other
 	};
 
@@ -348,8 +346,8 @@ namespace WBSF
 							TChartString lable = UtilWin::ToUTF16((it2->m_YAxis == 0) ? it1->m_Ytitle1 : it1->m_Ytitle2);
 							pAxisY->GetLabel()->SetText(lable);
 
-							if (it2->m_YAxis == 1)
-								pAxisY->GetGrid()->SetVisible(false);
+							//if (it2->m_YAxis == 1)
+								//pAxisY->GetGrid()->SetVisible(false);
 						}
 
 						ENSURE(pAxisY);

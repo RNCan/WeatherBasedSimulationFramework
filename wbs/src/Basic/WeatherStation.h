@@ -267,6 +267,8 @@ public:
 	using CWeatherVariables::operator[];
 	const float& operator[](HOURLY_DATA::TVarH v)const { return at(v); }
 	float& operator[](HOURLY_DATA::TVarH v){ return at(v); }
+	float operator[](HOURLY_DATA::TVarEx v)const{ CStatistic stat = GetVarEx(v); return stat.IsInit() ? float(stat[MEAN]) : WEATHER::MISSING; }
+	float operator[](HOURLY_DATA::TVarEx v){ CStatistic stat = GetVarEx(v); return stat.IsInit() ? float(stat[MEAN]) : WEATHER::MISSING; }
 
 
 
@@ -338,7 +340,7 @@ public:
 	//void ComputeTRange();
 
 
-	double K()const{ return (!WEATHER::IsMissing(at(HOURLY_DATA::H_TAIR))) ? at(HOURLY_DATA::H_TAIR) + 273.15 : WEATHER::MISSING; }
+	double K()const{ return (!WEATHER::IsMissing(at(HOURLY_DATA::H_TAIR2))) ? at(HOURLY_DATA::H_TAIR2) + 273.15 : WEATHER::MISSING; }
 	double GetLatentHeatOfVaporization()const;
 	double GetExtraterrestrialRadiation()const;
 	virtual double GetNetRadiation(double& Fcd)const;
@@ -463,7 +465,7 @@ public:
 	
 	//get daylight mean temperature approximation (deg C)
 	double GetTdaylight()const;
-	double K()const{ if (HourlyDataExist())CompileDailyStat(); return (m_dailyStat[HOURLY_DATA::H_TAIR].IsInit())?m_dailyStat[HOURLY_DATA::H_TAIR][MEAN] + 273.15 : WEATHER::MISSING; }
+	double K()const{ if (HourlyDataExist())CompileDailyStat(); return (m_dailyStat[HOURLY_DATA::H_TAIR2].IsInit())?m_dailyStat[HOURLY_DATA::H_TAIR2][MEAN] + 273.15 : WEATHER::MISSING; }
 	double GetDayLength()const;
 	
 	CTM GetTM()const{ return CTM(IsHourly() ? CTM::HOURLY : CTM::DAILY); }
@@ -534,6 +536,7 @@ public:
 	void ComputeHourlyRelH();
 	void ComputeHourlyWndS();
 	void ComputeHourlyWnd2();
+	void ComputeHourlyWndD();
 	void ComputeHourlySRad();
 	void ComputeHourlyPres();
 	void ComputeHourlyVariables(CWVariables variables, std::string options); 

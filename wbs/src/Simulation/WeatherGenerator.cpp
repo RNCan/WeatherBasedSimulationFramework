@@ -19,6 +19,7 @@
 //		in North America north of Mexico. International Journal of Biometeorology. 51:415-430.
 //
 //******************************************************************************
+//13/09/2016	Rémi Saint-Amant	Chnage Tair and Trng by Tmin and Tmax
 //24/02/2016	Rémi Saint-Amant	Add gribs database to the weather generator
 //01/01/2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //05/03/2015	Rémi Saint-Amant	Update with BioSIM11
@@ -83,18 +84,16 @@ static const int NB_STATION_REGRESSION_LOCAL = 24;
 static const int NB_STATION_REGRESSION_REGIONAL = 100;
 static const CWVariables DERIVABLE_VARIABLES[NB_VAR_H] =
 {
-	CWVariables("TDEW RELH SRAD SNOW SNDH SWE ES VPD"), //Tair
-	CWVariables("TDEW RELH SRAD SNOW SNDH SWE ES VPD"),//Trng
+	CWVariables("TDEW RELH SRAD SNOW SNDH SWE"), //Tmin
+	CWVariables("TDEW RELH SRAD SNOW SNDH SWE"), //Tair
+	CWVariables("TDEW RELH SRAD SNOW SNDH SWE"), //Tmax
 	CWVariables("TDEW RELH SRAD SNOW SNDH SWE"), //Prcp
-	CWVariables("EA VPD"),//Tdew
+	CWVariables(""),//Tdew
 	CWVariables(""),
 	CWVariables("WND2"), //WndS
 	CWVariables(""),	//WndD
 	CWVariables(""),	//Srad
 	CWVariables(""),	//pres
-	CWVariables(""),
-	CWVariables(""),
-	CWVariables(""),
 	CWVariables(""),
 	CWVariables(""),
 	CWVariables(""),
@@ -105,21 +104,19 @@ static const CWVariables DERIVABLE_VARIABLES[NB_VAR_H] =
 
 static const CWVariables DERIVABLE_VARIABLES_INPUT[NB_VAR_H] =
 {
-	CWVariables(""), //Tair
-	CWVariables(""),//TRange
-	CWVariables("Tair Trng"), //Prcp
-	CWVariables("Tair Trng Prcp"),//Tdew
-	CWVariables("Tair Trng Prcp"),		//Reltive Humidity
+	CWVariables(""), //Tmin
+	CWVariables("Tmin Tmax"), //Tair
+	CWVariables(""), //Tmax
+	CWVariables("Tair"), //Prcp
+	CWVariables("Tair Prcp"),//Tdew
+	CWVariables("Tair Prcp"),		//Reltive Humidity
 	CWVariables("Wnd2"), //WndS
 	CWVariables(""),	 //WndD
-	CWVariables("Tair Trng Prcp"),//Radiation
+	CWVariables("Tair Prcp"),//Radiation
 	CWVariables(""),//pressure
-	CWVariables("Tair Trng Prcp"),	//snow
-	CWVariables("Tair Trng Prcp"),	//snow depth
-	CWVariables("Tair Trng Prcp"),	//snow water equivalent
-	CWVariables("Tair Trng"),//Es
-	CWVariables("Tdew"),//Ea
-	CWVariables("Tair Trng Tdew"),//VPD
+	CWVariables("Tair Prcp"),	//snow
+	CWVariables("Tair Prcp"),	//snow depth
+	CWVariables("Tair Prcp"),	//snow water equivalent
 	CWVariables("WndS"),//Wnd2
 	CWVariables(""),
 	CWVariables("")
@@ -180,13 +177,15 @@ ERMsg CWeatherGenerator::Initialize(CCallback& callback)
 	GenerateSeed();
 	
 	m_gradients.SetNormalsDatabase(m_pNormalDB);
-	//m_gradients.m_variables = m_tgi.GetMandatoryVariables();
+	
 	m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
-	if (m_gradients.m_variables[H_TAIR] || m_gradients.m_variables[H_TRNG])
+	if (m_gradients.m_variables[H_TMIN2] || m_gradients.m_variables[H_TAIR2] || m_gradients.m_variables[H_TMAX2])
 	{
-		m_gradients.m_variables.set(H_TAIR);//Tmin
-		m_gradients.m_variables.set(H_TRNG);//Tmax
+		m_gradients.m_variables.set(H_TMIN2);
+		m_gradients.m_variables.set(H_TAIR2);
+		m_gradients.m_variables.set(H_TMAX2);
 	}
+
 	m_gradients.m_allowDerivedVariables = m_tgi.m_allowedDerivedVariables;
 	m_gradients.m_bXVal = m_tgi.m_bXValidation;
 	m_gradients.m_target = m_target;
@@ -210,7 +209,7 @@ bool CWeatherGenerator::VerifyData(const CSimulationPointVector& simulationPoint
 			ASSERT(variables1 == variables2);
 			bRep = variables1 == variables2;
 			
-			for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 			{
 				if (variables1[v])
 				{
@@ -244,9 +243,19 @@ void CWeatherGenerator::CompleteSimpleVariables(CSimulationPoint& simulationPoin
 	{
 		CDataInterface& data = simulationPoint[TRef];
 		
-		if (simulationPoint.IsHourly() && variables[H_TRNG] && !data[H_TRNG].IsInit())
+		if (simulationPoint.IsHourly())
 		{
-			data.SetStat(H_TRNG, 0);		//hourly range set to zero
+			//in hourly, Tmin and Tmax is equal to Tair
+			if (variables[H_TMIN2] && !data[H_TMIN2].IsInit() && data[H_TAIR2].IsInit())
+				data.SetStat(H_TMIN2, data[H_TAIR2][MEAN]);
+
+			if (variables[H_TMAX2] && !data[H_TMAX2].IsInit() && data[H_TAIR2].IsInit())
+				data.SetStat(H_TMAX2, data[H_TAIR2][MEAN]);
+		}
+		else
+		{
+			if (variables[H_TAIR2] && !data[H_TAIR2].IsInit() && data[H_TMIN2].IsInit() && data[H_TMAX2].IsInit())
+				data.SetStat(H_TAIR2, (data[H_TMIN2][MEAN] + data[H_TMAX2][MEAN])/2);
 		}
 
 		if (variables[H_PRES] && !data[H_PRES].IsInit() )
@@ -254,15 +263,15 @@ void CWeatherGenerator::CompleteSimpleVariables(CSimulationPoint& simulationPoin
 			data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
 		}
 				
-		if (variables[H_TDEW] && !data[H_TDEW].IsInit() && data[H_RELH].IsInit() && data[H_TAIR].IsInit())
+		if (variables[H_TDEW] && !data[H_TDEW].IsInit() && data[H_RELH].IsInit() && data[H_TAIR2].IsInit())
 		{
-			double Td = Hr2Td(data[H_TAIR][MEAN], data[H_RELH][MEAN]);
+			double Td = Hr2Td(data[H_TAIR2][MEAN], data[H_RELH][MEAN]);
 			data.SetStat(H_TDEW, Td);
 		}
 
-		if (variables[H_RELH] && !data[H_RELH].IsInit() && data[H_TDEW].IsInit() && data[H_TAIR].IsInit())
+		if (variables[H_RELH] && !data[H_RELH].IsInit() && data[H_TDEW].IsInit() && data[H_TAIR2].IsInit())
 		{
-			double Hr = Td2Hr(data[H_TAIR][MEAN], data[H_TDEW][MEAN]);
+			double Hr = Td2Hr(data[H_TAIR2][MEAN], data[H_TDEW][MEAN]);
 			data.SetStat(H_RELH, Hr);
 		}
 
@@ -275,25 +284,25 @@ void CWeatherGenerator::CompleteSimpleVariables(CSimulationPoint& simulationPoin
 			data.SetStat(H_WNDS, U10);
 		}
 
-		if (variables[H_EA] && !data[H_EA].IsInit() && data[H_TDEW].IsInit())
-		{
-			double Ea = e°(data[H_TDEW][MEAN]);
-			data.SetStat(H_EA, Ea * 1000);//[Pa]
-		}
+		//if (variables[H_EA] && !data[H_EA].IsInit() && data[H_TDEW].IsInit())
+		//{
+		//	double Ea = e°(data[H_TDEW][MEAN]);
+		//	data.SetStat(H_EA, Ea * 1000);//[Pa]
+		//}
 
-		if (variables[H_ES] && !data[H_ES].IsInit() && data[H_TAIR])
-		{
-			double Es = e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);//this format work for hourly and daily values
-			data.SetStat(H_ES, Es * 1000);//[Pa]
-		}
+		//if (variables[H_ES] && !data[H_ES].IsInit() && data[H_TAIR])
+		//{
+		//	double Es = e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);//this format work for hourly and daily values
+		//	data.SetStat(H_ES, Es * 1000);//[Pa]
+		//}
 
-		if (variables[H_VPD] && !data[H_VPD].IsInit() && (data[H_EA].IsInit() || data[H_TDEW].IsInit()) && (data[H_ES].IsInit() || data[H_TAIR]))
-		{
-			double Ea = data[H_EA].IsInit() ? data[H_EA][MEAN] : e°(data[H_TDEW][MEAN]);
-			double Es = data[H_ES].IsInit() ? data[H_ES][MEAN] : e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);
+		//if (variables[H_VPD] && !data[H_VPD].IsInit() && (data[H_EA].IsInit() || data[H_TDEW].IsInit()) && (data[H_ES].IsInit() || data[H_TAIR]))
+		//{
+		//	double Ea = data[H_EA].IsInit() ? data[H_EA][MEAN] : e°(data[H_TDEW][MEAN]);
+		//	double Es = data[H_ES].IsInit() ? data[H_ES][MEAN] : e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);
 
-			data.SetStat(H_VPD, (Es - Ea) * 1000);//[Pa]
-		}
+		//	data.SetStat(H_VPD, (Es - Ea) * 1000);//[Pa]
+		//}
 
 		//Wnd2 from WndS 
 		if (variables[H_WND2] && !data[H_WND2].IsInit() && data[H_WNDS].IsInit())
@@ -364,7 +373,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 		CTPeriod p = m_tgi.GetTPeriod();
 		for (CTRef TRef = p.Begin(); TRef <= p.End() && msg; TRef++)
 		{
-			for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
 				if (m_tgi.m_variables[v] && gribsData[TRef][v].IsInit())
 					m_simulationPoints[0][TRef].SetStat(v, gribsData[TRef][v]);
@@ -396,14 +405,14 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 				
 
 				//2- if some mandatory variables is complete for some complex variables, complete theses variables
-				bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD];
+				bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD2];
 				bool bSN = mVariables[H_SNOW] || mVariables[H_SNDH] || mVariables[H_SWE];
 				bool bWD = mVariables[H_WNDD];
 				bool bTPcomplet = m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod());
 				bool bHRcomplet = m_simulationPoints[0].IsComplete("Tdew", m_tgi.GetTPeriod());
-				bool bEAcomplete = m_simulationPoints[0].IsComplete("Ea", m_tgi.GetTPeriod());
+				//bool bEAcomplete = m_simulationPoints[0].IsComplete("Ea", m_tgi.GetTPeriod());
 
-				if (msg && bHR && bTPcomplet && (bHRcomplet || bEAcomplete))
+				if (msg && bHR && bTPcomplet && (bHRcomplet/* || bEAcomplete*/))
 					msg = ComputeHumidityRadiation(m_simulationPoints[0], m_tgi.m_variables);
 
 				if (msg && bSN && bTPcomplet)//m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod()))
@@ -471,7 +480,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 //******************************************************************
 // compute exposition
 
-	if ((m_tgi.m_variables[H_TAIR] || m_tgi.m_variables[H_TRNG]) )
+	if ((m_tgi.m_variables[H_TMIN2] || m_tgi.m_variables[H_TMAX2]) )
 	{
 		
 
@@ -497,15 +506,15 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 							}
 							else
 							{
-								double Tmin = itD->GetVarEx(H_TMIN);
-								double Tmax = itD->GetVarEx(H_TMAX);
+								double Tmin = (*itD)[H_TMIN2][MEAN];
+								double Tmax = (*itD)[H_TMAX2][MEAN];
 								Tmax += float(exposureIndex[m] * (Tmax - Tmin));
 
-								if (m_tgi.m_variables[H_TAIR])
-									itD->SetStat(H_TAIR, (Tmin + Tmax) / 2);
+								if (m_tgi.m_variables[H_TMIN2])
+									itD->SetStat(H_TMIN2, Tmin);
 
-								if (m_tgi.m_variables[H_TRNG])
-									itD->SetStat(H_TRNG, Tmax - Tmin);
+								if (m_tgi.m_variables[H_TMAX2])
+									itD->SetStat(H_TMAX2, Tmax);
 							}
 						}//all days
 					}//all months
@@ -536,7 +545,7 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 
 	if (variables[H_TDEW] && !simulationPoint.IsComplete(CWVariables(H_TDEW)))
 		bTdew = true; 
-	else if (variables[H_SRAD] && !simulationPoint.IsComplete(CWVariables(H_SRAD)))
+	else if (variables[H_SRAD2] && !simulationPoint.IsComplete(CWVariables(H_SRAD2)))
 		bSRad = true;
 
 	if (msg && (bTdew || bSRad))
@@ -570,18 +579,18 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 
 					
 
-					double Ea = day[H_EA].IsInit() ? (241.88 * log(day[H_EA][MEAN] / 610.78)) / (17.558 - log(day[H_EA][MEAN] / 610.78)) : -999;
+					//double Ea = day[H_EA].IsInit() ? (241.88 * log(day[H_EA][MEAN] / 610.78)) / (17.558 - log(day[H_EA][MEAN] / 610.78)) : -999;
 					double Tdew = day[H_TDEW].IsInit() ? day[H_TDEW][MEAN] : -999;
 
-					ASSERT(Ea > -999 || Tdew > -999);// at least one humidity
+					//ASSERT(Ea > -999 || Tdew > -999);// at least one humidity
 					//intput
 					data.yday[jd] = int(jd + 1);
-					data.s_tmin[jd] = day[H_TMIN][MEAN];
-					data.s_tmax[jd] = day[H_TMAX][MEAN];
+					data.s_tmin[jd] = day[H_TMIN2][MEAN];
+					data.s_tmax[jd] = day[H_TMAX2][MEAN];
 					data.s_tday[jd] = day.GetTdaylight();
 					data.s_prcp[jd] = day[H_PRCP][SUM] / 10;	//ppt in cm
 					data.s_swe[jd] = variables[H_SWE] ? day[H_SWE][MEAN] / 10 : 0;	//Snow water equivalent MTClim 4.3 in cm. If not available, will be computed later
-					data.s_tdew[jd] = Ea>-999?Ea:Tdew;
+					data.s_tdew[jd] = Tdew;// Ea > -999 ? Ea : Tdew;
 					_ASSERTE(!_isnan(data.s_tdew[jd]));
 
 					//output
@@ -596,7 +605,7 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 				data.snowpack();
 
 			//si on a le point de rosée alors on peut utiliser cet methode
-			if (simulationPoint.IsComplete(CWVariables(H_TDEW)) || simulationPoint.IsComplete(CWVariables(H_EA)))
+			if (simulationPoint.IsComplete(CWVariables(H_TDEW)))// || simulationPoint.IsComplete(CWVariables(H_EA)
 				MTClim43.calc_srad_humidity(&ctrl, &p, &data);
 			else
 				MTClim43.calc_srad_humidity_iterative(&ctrl, &p, &data);
@@ -619,8 +628,8 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 					size_t jd = wDay.GetTRef().GetJDay();
 
 					//need temperature to compure hourly Tdew and Hr
-					wDay[H_TAIR] = (data.s_tmin[jd] + data.s_tmax[jd]) / 2;
-					wDay[H_TRNG] = (data.s_tmax[jd] - data.s_tmin[jd]);
+					wDay[H_TMIN2] = data.s_tmin[jd];
+					wDay[H_TMAX2] = data.s_tmax[jd];
 
 					if (variables[H_TDEW])// && !wDay[H_TDEW].IsInit())
 						wDay[H_TDEW] = data.s_tdew[jd];
@@ -641,16 +650,17 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 					}
 
 
-					if (variables[H_SRAD])// && !wDay[H_SRAD].IsInit())
+					if (variables[H_SRAD2])// && !wDay[H_SRAD].IsInit())
 					{
 						_ASSERTE(data.s_srad[jd] >= 0);
 						_ASSERTE(data.s_dayl[jd] >= 0);
 						_ASSERTE(!_isnan(data.s_srad[jd]));
 						_ASSERTE(!_isnan(data.s_dayl[jd]));
-						wDay[H_SRAD] = (data.s_srad[jd] * data.s_dayl[jd] / 1000000); // convert W/m² to MJ/m²·day
+						//wDay[H_SRAD2] = (data.s_srad[jd] * data.s_dayl[jd] / 1000000); // convert W/m² to MJ/m²·day
+						wDay[H_SRAD2] = data.s_srad[jd] * 24 * 3600 / data.s_dayl[jd]; // convert W/m² : est-ce que Srad est le moyenne le jour seulement ou 24 heures?
 					}
 
-					_ASSERTE(!variables[H_SRAD] || wDay[H_SRAD].IsInit());
+					_ASSERTE(!variables[H_SRAD2] || wDay[H_SRAD2].IsInit());
 				}//for all days
 			}//for all month
 
@@ -672,8 +682,8 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 				if (variables[H_RELH] && !data[H_RELH].IsInit())
 					data.SetStat(H_RELH, copy[TRef][H_RELH]);
 
-				if (variables[H_SRAD] && !data[H_SRAD].IsInit())
-					data.SetStat(H_SRAD, copy[TRef][H_SRAD]);
+				if (variables[H_SRAD2] && !data[H_SRAD2].IsInit())
+					data.SetStat(H_SRAD2, copy[TRef][H_SRAD2]);
 			}//for all TRef
 		}//for all years
 	
@@ -947,9 +957,9 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 
 
 		//first step: get direct observations variables
-		for (TVarH v = H_TAIR; v<NB_VAR_H && msg; v++)
+		for (TVarH v = H_FIRST_VAR; v<NB_VAR_H && msg; v++)
 		{
-			if (m_tgi.m_variables[v])
+			if (m_tgi.m_variables[v] && (v != H_TMIN2 && v != H_TMAX2))
 			{
 				CSearchResultVector results;
 				msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
@@ -960,8 +970,8 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 				if (year > currentYear)
 					msg.asgType(ERMsg::OK);
 
-				if (!msg && v == H_TRNG)//Trange assume to be zero in hourly data
-					msg.asgType(ERMsg::OK);
+				//if (!msg && (v == H_TMIN2 || v == H_TMAX2))//Tmin and Tmax equal Tair in hourly data
+					//msg.asgType(ERMsg::OK);
 
 				if (!msg )
 				{
@@ -992,7 +1002,7 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 		{
 			CWVariables observationVariables = simulationPoint[year].GetVariables();
 			CWVariables neededVariables;
-			for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
 				if (m_tgi.m_variables[v] && !observationVariables[v] && m_tgi.m_allowedDerivedVariables[v])//!simulationPoint[y].IsComplete(v))
 				{
@@ -1001,9 +1011,9 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 			}
 			neededVariables &= ~observationVariables;//remove observation variables from needed variables
 
-			for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (neededVariables[v])
+				if (neededVariables[v] && (v != H_TMIN2 && v != H_TMAX2))
 				{
 					CSearchResultVector results;
 					msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
@@ -1014,13 +1024,13 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 					if (year > currentYear)
 						msg.asgType(ERMsg::OK);
 
-					if (!msg && v == H_TRNG)//Trange assume to be zero in hourly data
-						msg.asgType(ERMsg::OK);
+					//if (!msg && v == H_TRNG)//Trange assume to be zero in hourly data
+					//	msg.asgType(ERMsg::OK);
 
 					if (!msg)
 					{
 						string vars;
-						for (TVarH vv = H_TAIR; vv < NB_VAR_H; vv++)
+						for (TVarH vv = H_FIRST_VAR; vv < NB_VAR_H; vv++)
 						{
 							if (m_tgi.m_variables[vv] && DERIVABLE_VARIABLES[v][vv])
 							{
@@ -1046,10 +1056,10 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint);
 						}
 					}
-					else if (v == H_TRNG)
+					/*else if (v == H_TRNG)
 					{
 						msg.asgType(ERMsg::OK);
-					}
+					}*/
 
 					msg += callback.StepIt(0);
 				}//is it a needed variables to derivate variables
@@ -1099,7 +1109,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 		//first step, get observations from database
 		for (TVarH v= H_FIRST_VAR; v<NB_VAR_H && msg; v++)
 		{
-			if (m_tgi.m_variables[v])
+			if (m_tgi.m_variables[v] && v != H_TAIR2)
 			{
 				CSearchResultVector results;
 				msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbDailyStations + XVal(), v, year);
@@ -1110,6 +1120,9 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 				if (year > currentYear)
 					msg.asgType(ERMsg::OK);
 				
+				//if (!msg && v == H_TAIR2)//Tair = (Tmin + Tmax)/2 in daily data
+					//msg.asgType(ERMsg::OK);
+
 				if (!msg )
 				{
 					CWVariables missingVariables = DERIVABLE_VARIABLES_INPUT[v];
@@ -1140,7 +1153,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 		{
 			CWVariables observationVariables = simulationPoint[year].GetVariables();
 			CWVariables neededVariables;
-			for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
 				if (m_tgi.m_variables[v] && !observationVariables[v] && m_tgi.m_allowedDerivedVariables[v])//!simulationPoint[y].IsComplete(v))
 				{
@@ -1149,9 +1162,9 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 			}
 			
 			neededVariables &= ~observationVariables;//remove variable already loaded
-			for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (neededVariables[v])
+				if (neededVariables[v] && v != H_TAIR2)
 				{
 					CSearchResultVector results;
 					msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
@@ -1166,7 +1179,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 					{
 						
 						string vars;
-						for (TVarH vv = H_TAIR; vv < NB_VAR_H; vv++)
+						for (TVarH vv = H_FIRST_VAR; vv < NB_VAR_H; vv++)
 						{
 							if (m_tgi.m_variables[vv] && DERIVABLE_VARIABLES[v][vv])
 							{
@@ -1189,7 +1202,6 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 						if (msg)
 						{
 							stations.FillGaps();//internal completion
-							//stations.m_variables = v;
 							stations.ApplyCorrections(m_gradients);
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint);
 						}
@@ -1296,7 +1308,7 @@ ERMsg CWeatherGenerator::GenerateNormals(CSimulationPointVector& simulationPoint
 					{
 						for (size_t d = 0; d < simulationPointVector[r][y][m].size(); d++)
 						{
-							for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 							{
 								if (mVariables[v])
 								{
@@ -1337,7 +1349,7 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 
 	//load wanted variable
 	CWVariables mVariables = m_tgi.GetNormalMandatoryVariables();
-	for (TVarH v = H_TAIR; v<NB_VAR_H; v++)
+	for (TVarH v = H_FIRST_VAR; v<NB_VAR_H; v++)
 	{
 		//if (m_tgi.m_variables[v] )
 		if (mVariables[v])
@@ -1378,17 +1390,23 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 		if (mVariables[H_WNDS] && !mVariables[H_PRCP])
 			mVariables.set(H_PRCP);
 
-		if (mVariables[H_PRCP] && !mVariables[H_TAIR])
-			mVariables.set(H_TAIR);
+		if (mVariables[H_PRCP] && !mVariables[H_TMIN2])
+			mVariables.set(H_TMIN2);
+		
+		if (mVariables[H_PRCP] && !mVariables[H_TMAX2])
+			mVariables.set(H_TMAX2);
 
 		if (mVariables[H_TDEW] && !mVariables[H_RELH])
 			mVariables.set(H_RELH);
 
-		if (mVariables[H_TDEW] && !mVariables[H_TAIR])
-			mVariables.set(H_TAIR);
+		if (mVariables[H_TDEW] && !mVariables[H_TMIN2])
+			mVariables.set(H_TMIN2);
+		
+		if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
+			mVariables.set(H_TMAX2);
 
 		//load derived input missing variables
-		for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 		{
 			if (mVariables[v])
 			{
@@ -1408,7 +1426,7 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 				else
 				{
 					string vars;
-					for (TVarH vv = H_TAIR; vv < NB_VAR_H; vv++)
+					for (TVarH vv = H_FIRST_VAR; vv < NB_VAR_H; vv++)
 					{
 						if (m_tgi.m_variables[vv] && DERIVABLE_VARIABLES[v][vv])
 						{
@@ -1884,7 +1902,7 @@ ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& 
 						msg += m_pGribsDB->LoadWeather(UTCRef, callback);
 						if (msg)
 						{
-							for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)
+							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 							{
 								if (m_tgi.m_variables[v])
 								{
@@ -1986,8 +2004,8 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 	if (!IsLoaded(UTCRef))
 		return -999;
 	
-	if (vv == H_TRNG)
-		return 0;
+	//if (vv == H_TRNG)
+		//return 0;
 
 	size_t v = Hourly2ATM(vv);
 	if (v == NOT_INIT)

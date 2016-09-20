@@ -533,7 +533,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	bool IsEqualNoCase(const std::string& str1, const std::string& str2);
 	
-	inline std::string ToString(COLORREF c){ return ToStringStd(GetRValue(c))+" "+ToStringStd(GetGValue(c))+" "+ToStringStd(GetBValue(c));}
+	inline std::string ToString(COLORREF c){ return FormatA("%d %d %d", (int)GetRValue(c), (int)GetGValue(c), (int)GetBValue(c)); }
 	inline std::string ToString(int val, int size = -1){ return ToStringStd(val, size); }
 	inline std::string ToString(__int64 val, int size = -1){ return ToStringStd(val, size); }
 	inline std::string ToString(float val, int pres=4){ return ToStringStd((double)val, pres);}

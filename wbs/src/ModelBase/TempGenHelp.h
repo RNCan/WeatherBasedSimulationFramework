@@ -81,7 +81,7 @@ namespace WBSF
 		void SetNbReplication(short nbRep);
 		void SetTGInput(short firstYear, short lastYear,
 			short nbNormalStation = 8, short nbDailyStation = 8,
-			short albedoType = CONIFER_CANOPY, const char* category = "T P",
+			short albedoType = CONIFER_CANOPY, const char* category = "TN T TX P",
 			short seedType = RANDOM_SEED, short Xval = 0);
 
 		//execution of the simulator

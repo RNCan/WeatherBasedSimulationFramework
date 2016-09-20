@@ -61,22 +61,20 @@ namespace WBSF
 		{
 			H_SKIP = -1,
 			H_FIRST_VAR = 0,
-			H_TAIR = H_FIRST_VAR,	//air temperature [°C]
-			H_TRNG,					//daily diurnal temperature range [°C] : to compute daily Tmin and Tmax
+			H_TMIN2 = H_FIRST_VAR,	//minimum daily temperature [°C]
+			H_TAIR2 ,				//air temperature [°C]
+			H_TMAX2,				//maximum daily temperature [°C]
 			H_PRCP,					//precipitation accumulation [mm] 
 			H_TDEW,					//Dew point temperature [°C]
 			H_SPEH = H_TDEW,		//specific humidity [kg/kg]
 			H_RELH,					//relatice humidity [%]
 			H_WNDS,					//wind speed at 10 meters [km/h]
 			H_WNDD,					//wind direction [° north]
-			H_SRAD,					//mean solar radiation [watt/m²] or [MJ m-2 d-1] or [MJ m-2 hr-1]??????
+			H_SRAD2,				//mean solar radiation [watt/m²]
 			H_PRES,					//atmospheric pressure [hPa] 
-			H_SNOW,					//snow accumulation [cm]
+			H_SNOW,					//snowfall (equivalent in water) [mm]
 			H_SNDH,					//snow depth [cm]
 			H_SWE,					//snow water equivalent [mm]
-			H_ES,					//saturated vapor pressure [Pa]
-			H_EA,					//actual vapor pressure [Pa]
-			H_VPD,					//vapor pressure deficit [Pa]
 			H_WND2,					//wind speed at 2 meters [km/h]
 			H_ADD1,					//extra variables [unknown]
 			H_ADD2,					//extra variables [unknown]
@@ -85,9 +83,8 @@ namespace WBSF
 
 		enum TVarEx
 		{
-			H_TMIN = NB_VAR_H,	//minimum daily temperature [°C]
-			H_TMAX,				//maximum daily temperature [°C]
-			H_KELV,				//temperature in kelvin [K]
+			H_FIRST_VAR_EX = NB_VAR_H,
+			H_KELV = NB_VAR_H,	//temperature in kelvin [K]
 			H_PSYC,				//Psychrometric Constant [kPa °C-1]
 			H_SSVP,				//slope of the saturation vapor pressure-temperature curve [kPa °C-1]
 			H_LHVW,				//latent heat of vaporization of water [MJ kg-1]
@@ -95,8 +92,13 @@ namespace WBSF
 			H_CSRA,				//clear-sky radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 			H_EXRA,				//extraterrestrial radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 			H_SWRA,				//net short-wave radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
+			H_ES2,				//saturated vapor pressure from Tdew [Pa]
+			H_EA2,				//actual vapor pressure from Tair [Pa]
+			H_VPD2,				//vapor pressure deficit [Pa]
+			H_TRNG2,			//daily diurnal temperature range [°C] : from daily Tmin and Tmax
+			H_SRMJ,				//mean solar radiation  [MJ m-2 d-1] or [MJ m-2 hr-1]
 			NB_VAR_ALL,
-			NB_VAR_EX = NB_VAR_ALL - H_TMIN
+			NB_VAR_EX = NB_VAR_ALL - H_FIRST_VAR_EX
 		};
 
 		inline TVarH& operator++(TVarH& v){ return (v = static_cast<TVarH>(static_cast<int>(v)+1)); }
@@ -137,14 +139,8 @@ namespace WBSF
 		const char* GetFieldTitle(size_t f);
 		const char* GetFieldHeader(size_t f);
 
-		//const char* GetNameN(short f);
-		//size_t N2H(size_t f);
-		//size_t H2N(size_t v);
 		size_t F2V(size_t f);
 		size_t V2F(size_t v);
-
-		//const char* GetNameH(short v){ return GetFormatNameH(v); }//???redondant
-
 	}
 
 

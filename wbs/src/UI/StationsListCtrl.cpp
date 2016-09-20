@@ -35,7 +35,7 @@ static char THIS_FILE[]=__FILE__;
 
 namespace WBSF
 {
-	enum { NB_TOTAL_VARIABLES = CLocation::SITE_SPECIFIC_INFORMATION, COMPLETENESS, NB_STATIONS_COLUMNS };
+	enum { NB_TOTAL_VARIABLES = CLocation::SITE_SPECIFIC_INFORMATION, NB_YEARS, COMPLETENESS, NB_STATIONS_COLUMNS };
 
 	class FindByIndex
 	{
@@ -172,7 +172,7 @@ namespace WBSF
 				}
 				else
 				{
-					Select(-1, -1);
+					//Select(-1, -1);
 				}
 
 				m_enableUpdate = TRUE;
@@ -264,6 +264,8 @@ namespace WBSF
 				{
 					if (col == NB_TOTAL_VARIABLES)
 						text = GetString(IDS_STR_NB_VARIABLES);
+					else if (col == NB_YEARS)
+						text = GetString(IDS_STR_YEARS);
 					else if (col == COMPLETENESS)
 						text = GetString(IDS_STR_COMPLETENESS);
 					else
@@ -297,6 +299,11 @@ namespace WBSF
 						{
 							CWVariables vars = m_pDB->GetWVariables(index);
 							text = ToString(vars.count());
+						}
+						else if (col == NB_YEARS)
+						{
+							std::set<int> years = m_pDB->GetYears(index);
+							text = ToString(years.size());
 						}
 						else if (col == COMPLETENESS)
 						{
@@ -419,14 +426,14 @@ namespace WBSF
 		BeginWaitCursor();
 
 		row = GetCurrentRow();
-		size_t index = (row>0) ? m_sortInfo[row].second : NOT_INIT;
+		size_t index = (row >= 0 && row<m_sortInfo.size()) ? m_sortInfo[row].second : NOT_INIT;
 		SortInfo(col, col != m_curSortCol ? m_sortDir : OtherDir(m_sortDir));
 
 		size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		if (newRow < m_sortInfo.size())
 			GotoRow((long)newRow); 
-		else 
-			Select(-1, -1);
+		//else 
+			//Select(-1, -1);
 
 		RedrawAll();
 		EndWaitCursor();
@@ -454,8 +461,8 @@ namespace WBSF
 		size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		if (newRow < m_sortInfo.size())
 			GotoRow((long)newRow);
-		else
-			Select(-1, -1);
+		//else
+			//Select(-1, -1);
 
 
 		RedrawAll();
@@ -518,6 +525,7 @@ namespace WBSF
 						case CLocation::LON:  str = FormatA("%015.6lf", loc.m_lon); break;
 						case CLocation::ELEV: str = FormatA("%010.3lf", loc.m_elev); break;
 						case NB_TOTAL_VARIABLES:str = FormatA("%d", m_pDB->GetWVariables(it->m_index).count()); break;
+						case NB_YEARS:			str = FormatA("%03d", m_pDB->GetYears(it->m_index).size()); break;
 						case COMPLETENESS:		str = FormatA("%010.3lf", GetCompleteness(m_pDB->GetWVariablesCounter(it->m_index))); break;
 
 						default: ASSERT(false);
@@ -916,7 +924,7 @@ namespace WBSF
 
 		//size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		//if (newRow >= m_sortInfo.size())
-		Select(-1, -1);
+		//Select(-1, -1);
 		//else GotoRow((long)newRow);
 
 		//if (index >= m_sortInfo.size())
@@ -951,7 +959,7 @@ namespace WBSF
 
 		//size_t newRow = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(index)));
 		//if (newRow >= m_sortInfo.size())
-		Select(-1, -1);
+		//Select(-1, -1);
 		//else GotoRow((long)newRow);
 
 		RedrawAll();

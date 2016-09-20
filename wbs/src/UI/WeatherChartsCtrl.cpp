@@ -25,21 +25,6 @@
 #include "ChartsProperties.h"
 #include "WeatherChartsCtrl.h"
 
-//#include "ChartCtrl/ChartCtrl.h"
-//#include "ChartCtrl/ChartPointsSerie.h"
-//#include "ChartCtrl/ChartGrid.h"
-
-//
-//#include "ChartCtrl/ChartAxisLabel.h"
-//#include "ChartCtrl/ChartStandardAxis.h"
-
-//
-//#include "ChartCtrl/ChartCrossHairCursor.h"
-//#include "ChartCtrl/ChartDragLineCursor.h"
-
-
-
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -139,22 +124,22 @@ namespace WBSF
 	}
 
 
-	string CWeatherChartsCtrl::GetGraphisFilesPath()
+	string CWeatherChartsCtrl::GetGraphisFilesPath(bool bHourly)
 	{
 		WBSF::CreateMultipleDir(WBSF::GetUserDataPath() + "WeatherEditor\\");
-		return WBSF::GetUserDataPath() + "WeatherEditor\\WeatherGraphics.xml";
+		return WBSF::GetUserDataPath() + "WeatherEditor\\" + (bHourly ?"Hourly":"Daily") +"WeatherGraphics.xml";
 	}
 
-	CGraphVector CWeatherChartsCtrl::GetCharts(const CWVariablesCounter& variables)
+	CGraphVector CWeatherChartsCtrl::GetCharts(const CWVariablesCounter& variables, bool bHourly)
 	{
 		CGraphVector graphics;
 
-		string filePath = GetGraphisFilesPath();
+		string filePath = GetGraphisFilesPath(bHourly);
 		zen::LoadXML(filePath, "Graphics", "1", graphics);
 
 		if (graphics.empty())
 		{
-			graphics = GetDefaultWeatherGraphVector();
+			graphics = GetDefaultWeatherGraphVector(bHourly);
 		}
 
 
@@ -202,7 +187,7 @@ namespace WBSF
 	{
 		string ID;
 		CWVariablesCounter varCounts;
-		//CWVariables variables = m_variables;
+		bool bHourly = false;
 
 		if (m_pStation)
 		{
@@ -213,11 +198,12 @@ namespace WBSF
 				if (m_variables.any() && !m_variables[i])
 					varCounts[i] = CCountPeriod();
 
+			bHourly = m_pStation->IsHourly();
 		}
 
 
 
-		CGraphVector chartsDefine = GetCharts(varCounts);
+		CGraphVector chartsDefine = GetCharts(varCounts, bHourly);
 		bool bValidPeriod = m_period.Begin() <= m_period.End();
 
 		if (ID != m_lastStationID ||
@@ -347,8 +333,8 @@ namespace WBSF
 							TChartString lable = ToUTF16((it2->m_YAxis == 0) ? it1->m_Ytitle1 : it1->m_Ytitle2);
 							pAxisY->GetLabel()->SetText(lable);
 
-							if (it2->m_YAxis == 1)
-								pAxisY->GetGrid()->SetVisible(false);
+							//if (it2->m_YAxis == 1)
+								//pAxisY->GetGrid()->SetVisible(false);
 						}
 
 						ENSURE(pAxisY);

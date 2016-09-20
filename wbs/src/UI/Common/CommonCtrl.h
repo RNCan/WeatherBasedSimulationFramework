@@ -395,12 +395,12 @@ protected:
 //*****************************************************************************************************
 //
 
-interface CStdGriInterface
+class CStdGriInterface
 {
 public:
 
-	virtual std::string get_string() = 0;
-	virtual void set_string(std::string str) = 0;
+	virtual std::string get_string() { return ""; }
+	virtual void set_string(std::string str) {}
 };
 
 class CStdGridProperty : public CStdGriInterface, public CMFCPropertyGridProperty
@@ -520,8 +520,8 @@ public:
 		m_baseIndex = m_bAddEmpty ? -1 : 0;
 
 		AllowEdit(FALSE);
-		SetValue(GetOptionText(int(index)));
-		SetOriginalValue(GetOptionText(int(index)));
+		SetValue(GetOptionText(int(index - m_baseIndex)));
+		SetOriginalValue(GetOptionText(int(index - m_baseIndex)));
 	}
 
 	CString GetOptionText(int index)
@@ -582,76 +582,12 @@ public:
 	CStdIndexProperty(const std::string& name, const std::string& strIndex, const std::string& description, size_t dwData) :
 		CStdComboPosProperty(name, strIndex, description, WBSF::GetString(RES_STRING_ID), ADD_EMPTY, dwData)
 	{
-		//CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
-		
-		//if (ADD_EMPTY)
-			//AddOption(_T(""));
-			
-
-		//for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			//AddOption(OPTIONS_VALUES[i]);
-		
-		
-
-		/*int index = WBSF::ToInt(strIndex);
-		CString strValue = GetOptionText(int(index) - BASE_INDEX);
-		SetValue(strValue);
-		SetOriginalValue(strValue);*/
 	}
+
 	CStdIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
 		CStdComboPosProperty(strName, index, description, WBSF::GetString(RES_STRING_ID), ADD_EMPTY, dwData)
 	{}
-
-
-	/*CStdIndexProperty(const std::string& strName, size_t index, const std::string& description, size_t dwData) :
-		CStdComboPosProperty(strName, "", description, "", dwData)
-	{
-		CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(RES_STRING_ID));
-
-		if (ADD_EMPTY)
-			AddOption(_T(""));
-			
-
-		for (int i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
-
-		AllowEdit(FALSE);
-
-		CString strValue = GetOptionText(int(index) - BASE_INDEX);
-		SetValue(strValue);
-		SetOriginalValue(strValue);
-	}*/
-
-	//CString GetOptionText(int index)
-	//{
-	//	ASSERT(index >= 0 && index < m_lstOptions.GetSize());
-	//	POSITION pos = m_lstOptions.FindIndex(index);
-	//	return m_lstOptions.GetAt(pos);
-	//}
-
-	//int GetIndex()const
-	//{
-	//	
-	//	//int index = m_pWndCombo->GetCurSel();
-	//	return CStdComboPosProperty::GetIndex() + BASE_INDEX;
-	//}
-
-	//void SetIndex(int index)
-	//{
-	//	CMFCPropertyGridProperty::SetValue(GetOptionText(index - BASE_INDEX));
-	//}
-
-	/*virtual std::string get_string()
-	{
-		return WBSF::ToString(GetIndex());
-	}
-
-	virtual void set_string(std::string str)
-	{
-		int index = WBSF::ToInt(str);
-		if (index >= 0 && index < m_lstOptions.GetSize())
-			SetIndex(index);
-	}*/
+	
 };
 
 
@@ -678,6 +614,31 @@ public:
 };
 
 
+
+class CColorProperty : public CStdGriInterface, public CMFCPropertyGridColorProperty
+{
+public:
+
+	CColorProperty(const std::string& strName, const COLORREF& color, const std::string& description = "", size_t dwData = 0);
+	
+
+	//virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+	//virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+
+	virtual std::string get_string()
+	{
+		COLORREF rgb = GetColor();
+		return WBSF::ToString(rgb);
+	}
+
+	virtual void set_string(std::string str)
+	{
+		//SetValue(CString(str.c_str())); 
+		
+		COLORREF rgb = WBSF::ToCOLORREF(str);
+		SetColor(rgb);
+	}
+};
 
 
 

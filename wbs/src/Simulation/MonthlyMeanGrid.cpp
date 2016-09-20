@@ -347,20 +347,24 @@ namespace WBSF
 				//never take into account the leap year. Too much problem to convert unleap an leap year
 				for (size_t d = 0; d < WBSF::GetNbDayPerMonth(m); d++)
 				{
-					for (TVarH v = H_TAIR; v<NB_VAR_H; ((int&)v)++)
+					for (TVarH v = H_FIRST_VAR; v<NB_VAR_H; ((int&)v)++)
 					{
 						size_t f = V2F(v);
 
 						if (f!=-1 && stationIn[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
 						{
-							if (v == HOURLY_DATA::H_TAIR)
+							if (v == HOURLY_DATA::H_TMIN2)
 							{
 								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
-								CStatistic statOut;
-								statOut += stationIn[y][m][d][H_TMIN][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
-								statOut += stationIn[y][m][d][H_TMAX][MEAN] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
-								stationII[y][m][d][HOURLY_DATA::H_TAIR] = statOut[MEAN];
-								stationII[y][m][d][HOURLY_DATA::H_TRNG] = statOut[RANGE];
+								CStatistic statOut = stationIn[y][m][d][H_TMIN2][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
+								stationII[y][m][d][HOURLY_DATA::H_TMIN2] = statOut[MEAN];
+								
+							}
+							else if (v == HOURLY_DATA::H_TMAX2)
+							{
+								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
+								CStatistic statOut = stationIn[y][m][d][H_TMAX2][MEAN] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
+								stationII[y][m][d][HOURLY_DATA::H_TMAX2] = statOut[MEAN];
 							}
 							else if (v == HOURLY_DATA::H_PRCP)
 							{
@@ -373,21 +377,22 @@ namespace WBSF
 								if (IsMissing(refMonthlyMean[m][RELH_MN]))//no relative humidity. then take specific humidity
 								{
 									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specyfic humidity g[H2O]/kg[air]
-									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TAIR].IsInit())
+									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TMIN2].IsInit() && stationIn[y][m][d][H_TMAX2].IsInit())
 									{
-										ASSERT(stationIn[y][m][d][H_TAIR].IsInit());
+										ASSERT(stationIn[y][m][d][H_TMIN2].IsInit());
+										ASSERT(stationIn[y][m][d][H_TMAX2].IsInit());
 
 										//convert Hr to Hs with station temperature
-										double Tmin = stationIn[y][m][d][H_TMIN][MEAN];
-										double Tmax = stationIn[y][m][d][H_TMAX][MEAN];
+										double Tmin = stationIn[y][m][d][H_TMIN2][MEAN];
+										double Tmax = stationIn[y][m][d][H_TMAX2][MEAN];
 										double Hr = stationIn[y][m][d][H_RELH][MEAN];
 										double Hs = Hr2Hs(Tmin, Tmax, Hr);
 										Hs *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);//specific humidity ratio
 
 										ASSERT(stationII[y][m][d].GetParent());
 										//convert back Hs to Hr with the new station temperature
-										double TminII = stationII[y][m][d][H_TMIN][MEAN];
-										double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
+										double TminII = stationII[y][m][d][H_TMIN2][MEAN];
+										double TmaxII = stationII[y][m][d][H_TMAX2][MEAN];
 										Hr = Hs2Hr(TminII, TmaxII, Hs);
 
 										stationII[y][m][d][H_RELH] = Hr;
@@ -413,18 +418,18 @@ namespace WBSF
 					}//for all fields
 
 					//complete humidity
-					if (stationII[y][m][d][H_TAIR].IsInit())
+					if (stationII[y][m][d][H_TAIR2].IsInit())
 					{
 						if (stationII[y][m][d][H_TDEW].IsInit() &&
 							!stationII[y][m][d][H_RELH].IsInit())
 						{
-							double RH = Td2Hr(stationII[y][m][d][H_TAIR][MEAN], stationII[y][m][d][H_TDEW][MEAN]);
+							double RH = Td2Hr(stationII[y][m][d][H_TAIR2][MEAN], stationII[y][m][d][H_TDEW][MEAN]);
 							stationII[y][m][d][H_RELH] = RH;
 						}
 						else if (stationII[y][m][d][H_RELH].IsInit() &&
 							!stationII[y][m][d][H_TDEW].IsInit())
 						{
-							double TDew = Hr2Td(stationII[y][m][d][H_TAIR][MEAN], stationII[y][m][d][H_RELH][MEAN]);
+							double TDew = Hr2Td(stationII[y][m][d][H_TAIR2][MEAN], stationII[y][m][d][H_RELH][MEAN]);
 							stationII[y][m][d][H_TDEW] = TDew;
 						}
 					}

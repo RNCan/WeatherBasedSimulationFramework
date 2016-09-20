@@ -822,6 +822,8 @@ ERMsg CWeatherDatabase::GetStationList(CSearchResultVector& searchResultArray, C
 		msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
 	}
 
+	if (year <= 0)
+		year = -999;
 
 	CGeoRect rect = rectIn;
 	rect.NormalizeRect();
@@ -939,7 +941,7 @@ ERMsg CWeatherDatabase::GetStationOrder(vector<size_t>& DBOrder, CWVariables fil
 	{
 		CWVariablesCounter counter = GetWVariablesCounter(i);
 		CStatistic stat;
-		for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 		{
 			if (filter[v])
 				stat += counter[v].first;

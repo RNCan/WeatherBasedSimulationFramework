@@ -89,8 +89,8 @@ namespace WBSF
 		ERMsg SaveAsImage(const std::string& strFilename);
 		void CopyToClipboard();
 
-		static CGraphVector GetCharts(const CWVariablesCounter& variables);
-		static std::string GetGraphisFilesPath();
+		static CGraphVector GetCharts(const CWVariablesCounter& variables, bool bHourly);
+		static std::string GetGraphisFilesPath(bool bHourly);
 
 	protected:
 

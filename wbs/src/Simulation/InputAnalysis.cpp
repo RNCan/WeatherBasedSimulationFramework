@@ -113,7 +113,7 @@ CWVariables GetCategoryVariables(size_t c)
 	CWVariables variables;
 	switch (c)
 	{
-	case 0: variables = "T TR"; break;
+	case 0: variables = "TN T TX"; break;
 	case 1: variables = "P"; break;
 	case 2: variables = "TD H"; break;
 	case 3: variables = "WS"; break;
@@ -207,8 +207,8 @@ ERMsg CInputAnalysis::GetParentInfo(const CFileManager& fileManager, CParentInfo
 			if (category[0])
 			{
 				CModelInput modelInput;
-				modelInput.SetName(GetVariableName(H_TAIR));
-				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_TAIR)));
+				modelInput.SetName(GetVariableName(H_TAIR2));
+				modelInput.push_back(CModelInputParam("Variable", GetVariableName(H_TAIR2)));
 				info.m_parameterset.push_back(modelInput);
 			}
 			if (category[1])
@@ -467,7 +467,7 @@ ERMsg CInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& res
 	{
 		if (m_kind == MATCH_STATION_NORMALS)
 		{
-			static const TVarH VARIABLE_FOR_CATEGORY[4] = {H_TAIR, H_PRCP, H_RELH, H_WNDS};
+			static const TVarH VARIABLE_FOR_CATEGORY[4] = {H_TAIR2, H_PRCP, H_RELH, H_WNDS};
 			bitset<4> category = GetCategory(WGInput.m_variables);
 
 			for (size_t c = 0; c < 4; c++)
@@ -588,10 +588,11 @@ ERMsg CInputAnalysis::KernelValidation(const CFileManager& fileManager, CResult&
 	bitset<4> category = GetCategory(variables);
 
 	callback.PushTask("Kernel Validation", category.count()*locations.size());
-	//callback.SetNbStep(category.count()*locations.size());
 	callback.AddMessage("Nb replications = " + ToString(WG.GetNbReplications()));
 	callback.AddMessage("Nb years = " + ToString(WGInput.GetNbYears()));
 	callback.AddMessage(string("Remove nearest station = ") + (WGInput.m_bXValidation ? "yes":"no") );//take the same station
+	if (WGInput.GetNbYears() < 10)
+		callback.AddMessage("WARNING: nb years lesser thant 10");
 
 
 	CStatistic::SetVMiss(VMISS);
@@ -836,7 +837,7 @@ ERMsg CInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResult
 		{
 			std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
 			for(size_t s=0; s<S_NB_STAT; s++)
-				str += "\t" + ToString(overallStat[f][STATISTICS[s]], 3);
+				str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
 			callback.AddMessage(str);
 		}
@@ -887,7 +888,7 @@ ERMsg CInputAnalysis::XValidationObservations(const CFileManager& fileManager, C
 
 		array<CStatisticXY, NB_VAR_H> stationStat;
 
-		for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)//for all category
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all category
 		{
 			if (variables[v])//if this variable is selected
 			{
@@ -963,7 +964,7 @@ ERMsg CInputAnalysis::XValidationObservations(const CFileManager& fileManager, C
 		{
 			std::string str = std::string(GetVariableName(v));
 			for (size_t s = 0; s<S_NB_STAT; s++)
-				str += "\t" + ToString(overallStat[v][STATISTICS[s]], 3);
+				str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 
 			callback.AddMessage(str);
 		}
@@ -1062,6 +1063,7 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 				CNewSectionData  section(1, S_NB_STAT, CTRef(0, 0, 0, 0, TM));
 
 				CStatisticXY allMonths;
+				CStatisticXYW allMonthsW;
 				for (size_t m = 0; m < 12; m++)
 				{
 					double obs = stationStat[m][f][MEAN_Y];
@@ -1075,6 +1077,7 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 				}
 
 				//add only once
+				section[0][S_RMSE] = allMonths[STATISTICS[S_RMSE]];
 				section[0][S_STAT_R²] = allMonths[STATISTICS[S_STAT_R²]];
 
 				//for all statistics
@@ -1094,7 +1097,7 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 		{
 			std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
 			for (size_t s = 0; s<S_NB_STAT; s++)
-				str += "\t" + ToString(overallStat[f][STATISTICS[s]], 3);
+				str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
 			callback.AddMessage(str);
 		}
@@ -1143,7 +1146,7 @@ ERMsg CInputAnalysis::ObservationsError(const CFileManager& fileManager, CResult
 		
 		CTReferencedMatrix<CStatisticXYW> stationStat(WGInput.GetTPeriod(), NB_VAR_H);
 
-		for (TVarH v = H_TAIR; v < NB_VAR_H && msg; v++)//for all category
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all category
 		{
 			if (variables[v])//if this variable is selected
 			{
@@ -1249,7 +1252,7 @@ ERMsg CInputAnalysis::ObservationsError(const CFileManager& fileManager, CResult
 		{
 			std::string str = std::string(GetVariableName(v));
 			for (size_t s = 0; s<S_NB_STAT; s++)
-				str += "\t" + ToString(overallStat[v][STATISTICS[s]], 3);
+				str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 
 			callback.AddMessage(str);
 		}

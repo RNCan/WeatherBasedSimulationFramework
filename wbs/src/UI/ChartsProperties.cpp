@@ -197,101 +197,96 @@ namespace WBSF
 
 	//*****************************************************************************************************
 
-	class CColorProperty : public CMFCPropertyGridColorProperty
-	{
-	public:
 
-		CColorProperty(const CString& strName, const COLORREF& color, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridColorProperty(strName, color, NULL, lpszDescr, dwData)
-		{
-			EnableOtherButton(UtilWin::GetCString(IDS_STR_OTHER));
-		}
-	};
+	//class CSymbolProperty : public CStdComboPosProperty
+	//{
+	//public:
 
+	//	//CString GetOptionText(int i){ return CString(CGraphSerie::GetSyboleTypeTitle(i).c_str()); }
+	//	CSymbolProperty(const std::string& strName, size_t index = -1, const std::string& lpszDescr = "", size_t dwData = 0) : CStdComboPosProperty(strName, index, lpszDescr, GetString(IDS_WG_GRAPH_SYMBOL_TYPE), false, dwData)
+	//	{
+	//		m_bAllowEdit = false;
 
-	class CSymbolProperty : public CMFCPropertyGridProperty
-	{
-	public:
+	//		for (int i = -1; i < CGraphSerie::NB_SYMBOL_TYPE; i++)
+	//			AddOption(GetOptionText(i));
 
-		CString GetOptionText(int i){ return CString(CGraphSerie::GetSyboleTypeTitle(i).c_str()); }
-		CSymbolProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-		{
-			m_bAllowEdit = false;
+	//		AllowEdit(FALSE);
 
-			for (int i = -1; i < CGraphSerie::NB_SYMBOL_TYPE; i++)
-				AddOption(GetOptionText(i));
-
-			AllowEdit(FALSE);
-
-			SetOriginalValue(GetOptionText(index));
-		}
+	//		SetOriginalValue(GetOptionText(index));
+	//	}
 
 
-		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-		{
-			//new CLineStyleCB(;
-			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-		}
+	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+	//	{
+	//		//new CLineStyleCB(;
+	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+	//	}
 
-		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	};
+	//	//int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+	//	//void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	//};
 
-	class CLineStyleProperty : public CMFCPropertyGridProperty
-	{
-	public:
+	//class CLineStyleProperty : public CMFCPropertyGridProperty
+	//{
+	//public:
 
-		CString GetOptionText(int i){ return CString(CGraphSerie::GetLineStyleTitle(i).c_str()); }
-		CLineStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-		{
-			m_bAllowEdit = false;
+		//CString GetOptionText(int i){ return CString(CGraphSerie::GetLineStyleTitle(i).c_str()); }
+	//	CLineStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
+	//	{
+	//		m_bAllowEdit = false;
 
-			for (int i = -1; i < CGraphSerie::NB_LINE_STYLE; i++)
-				AddOption(GetOptionText(i));
+	//		for (int i = -1; i < CGraphSerie::NB_LINE_STYLE; i++)
+	//			AddOption(GetOptionText(i));
 
-			AllowEdit(FALSE);
+	//		AllowEdit(FALSE);
 
-			SetOriginalValue(GetOptionText(index));
-		}
-
-
-		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-		{
-			//new CLineStyleCB(;
-			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-		}
-
-		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	};
+	//		SetOriginalValue(GetOptionText(index));
+	//	}
 
 
-	class CFillStyleProperty : public CMFCPropertyGridProperty
-	{
-	public:
+	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+	//	{
+	//		//new CLineStyleCB(;
+	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+	//	}
 
-		CString GetOptionText(int i){ return CString(CGraphSerie::GetFillStyleTitle(i).c_str()); }
-		CFillStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-		{
-			m_bAllowEdit = false;
-
-			for (int i = -1; i < CGraphSerie::NB_FILL_STYLE; i++)
-				AddOption(GetOptionText(i));
-
-			AllowEdit(FALSE);
-
-			SetOriginalValue(GetOptionText(index));
-		}
+	//	int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+	//	void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	//};
 
 
-		virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-		{
-			//new CLineStyleCB(;
-			return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-		}
+	//class CFillStyleProperty : public CMFCPropertyGridProperty
+	//{
+	//public:
 
-		int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-		void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	};
+		//CString GetOptionText(int i){ return CString(CGraphSerie::GetFillStyleTitle(i).c_str()); }
+	//	CFillStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
+	//	{
+	//		m_bAllowEdit = false;
+
+	//		for (int i = -1; i < CGraphSerie::NB_FILL_STYLE; i++)
+	//			AddOption(GetOptionText(i));
+
+	//		AllowEdit(FALSE);
+
+	//		SetOriginalValue(GetOptionText(index));
+	//	}
+
+
+	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
+	//	{
+	//		//new CLineStyleCB(;
+	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
+	//	}
+
+	//	int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
+	//	void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
+	//};
+
+	typedef CStdIndexProperty < IDS_WG_GRAPH_SYMBOL_TYPE, true > CSymbolProperty;
+	typedef CStdIndexProperty < IDS_WG_GRAPH_LINE_STYLE, true > CLineStyleProperty;
+	typedef CStdIndexProperty < IDS_WG_GRAPH_FILL_STYLE, true > CFillStyleProperty;
+
 	//*****************************************************************************************************
 
 
@@ -326,10 +321,10 @@ namespace WBSF
 
 		RemoveAll();
 
-		static COleVariant Bool((short)VARIANT_FALSE, VT_BOOL);
-		static COleVariant Int(0l, VT_I4);
-		static CString String;
-		static COLORREF Color;
+		//static COleVariant Bool((short)VARIANT_FALSE, VT_BOOL);
+		//static COleVariant Int(0l, VT_I4);
+		//static CString String;
+		//static COLORREF Color;
 
 		CRect rect;
 		GetClientRect(rect);
@@ -354,66 +349,68 @@ namespace WBSF
 
 		//
 		//
-		CStringArrayEx section(IDS_DBEDIT_GRAPH_WEATHER);
-		CStringArrayEx name(IDS_DBEDIT_GRAPH_WEATHER_PROPERTIES);
-		CStringArrayEx description(IDS_DBEDIT_GRAPH_WEATHER_DESCRIPTION);
+		StringVector section(IDS_DBEDIT_GRAPH_WEATHER, ";|");
+		StringVector name(IDS_DBEDIT_GRAPH_WEATHER_PROPERTIES, ";|");
+		StringVector description(IDS_DBEDIT_GRAPH_WEATHER_DESCRIPTION, ";|");
 
 
-		CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(section[0], -1);
-		CMFCPropertyGridProperty* pGraph = new CMFCPropertyGridProperty(section[1], -1);
+		CMFCPropertyGridProperty* pGroup = new CStdGridProperty(section[0]);
+		
 
 
-		ASSERT(name.GetSize() == NB_GRAPH_WEATHER_PROPERTIES);
-		ASSERT(description.GetSize() == NB_GRAPH_WEATHER_PROPERTIES);
+		ASSERT(name.size() == NB_GRAPH_WEATHER_PROPERTIES);
+		ASSERT(description.size() == NB_GRAPH_WEATHER_PROPERTIES);
 
 
-		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[TITLE], String, description[TITLE], TITLE));
-		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[X_AXIS_TITLE], String, description[X_AXIS_TITLE], X_AXIS_TITLE));
-		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[Y_LEFT_AXIS_TITLE], String, description[Y_LEFT_AXIS_TITLE], Y_LEFT_AXIS_TITLE));
-		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[Y_RIGHT_AXIS_TITLE], String, description[Y_RIGHT_AXIS_TITLE], Y_RIGHT_AXIS_TITLE));
-		pGraph->AddSubItem(new CMFCPropertyGridProperty(name[SHOW_LEGEND], Bool, description[SHOW_LEGEND], SHOW_LEGEND));
+		CMFCPropertyGridProperty* pGraph = new CStdGridProperty(section[1]);
+		pGraph->AddSubItem(new CStdGridProperty(name[TITLE], "", description[TITLE], TITLE));
+		pGraph->AddSubItem(new CStdGridProperty(name[X_AXIS_TITLE], "", description[X_AXIS_TITLE], X_AXIS_TITLE));
+		pGraph->AddSubItem(new CStdGridProperty(name[Y_LEFT_AXIS_TITLE], "", description[Y_LEFT_AXIS_TITLE], Y_LEFT_AXIS_TITLE));
+		pGraph->AddSubItem(new CStdGridProperty(name[Y_RIGHT_AXIS_TITLE], "", description[Y_RIGHT_AXIS_TITLE], Y_RIGHT_AXIS_TITLE));
+		pGraph->AddSubItem(new CBoolGridProperty(name[SHOW_LEGEND], true, description[SHOW_LEGEND], SHOW_LEGEND));
 		pGroup->AddSubItem(pGraph);
 
-		CMFCPropertyGridProperty* pSeries = new CMFCPropertyGridProperty(section[2], -1);
 
-		CMFCPropertyGridProperty* pGeneral = new CMFCPropertyGridProperty(section[3], -1);
-		pGeneral->AddSubItem(new CWeatherVariableProperty(name[VARIABLE], H_TAIR, description[VARIABLE], VARIABLE));
+		CMFCPropertyGridProperty* pSeries = new CStdGridProperty(section[2]);
+
+		CMFCPropertyGridProperty* pGeneral = new CStdGridProperty(section[3]);
+		pGeneral->AddSubItem(new CWeatherVariableProperty(name[VARIABLE], size_t(H_TAIR2), description[VARIABLE], VARIABLE));
 		pGeneral->AddSubItem(new CStatisticProperty(name[STATISTIC], WBSF::MEAN, description[STATISTIC], STATISTIC));
 		pGeneral->AddSubItem(new CSerieTypeProperty(name[SERIE_TYPE], WBSF::MEAN, description[SERIE_TYPE], SERIE_TYPE));
 		pGeneral->AddSubItem(new CYAxisTypeProperty(name[Y_AXIS], CGraphSerie::LEFT_AXIS, description[Y_AXIS], Y_AXIS));
-		pGeneral->AddSubItem(new CMFCPropertyGridProperty(name[ENABLE_SHADOW], Bool, description[ENABLE_SHADOW], ENABLE_SHADOW));
-		pGeneral->AddSubItem(new CMFCPropertyGridProperty(name[SHADOW_DEPTH], Int, description[SHADOW_DEPTH], SHADOW_DEPTH));
-		pGeneral->AddSubItem(new CColorProperty(name[SHADOW_COLOR], Color, description[SHADOW_COLOR], SHADOW_COLOR));
+		pGeneral->AddSubItem(new CBoolGridProperty(name[ENABLE_SHADOW], false, description[ENABLE_SHADOW], ENABLE_SHADOW));
+		pGeneral->AddSubItem(new CStdGridProperty(name[SHADOW_DEPTH], 3, description[SHADOW_DEPTH], SHADOW_DEPTH));
+		pGeneral->AddSubItem(new CColorProperty(name[SHADOW_COLOR], RGB(220,220,220), description[SHADOW_COLOR], SHADOW_COLOR));
 		pSeries->AddSubItem(pGeneral);
 
-		CMFCPropertyGridProperty* pSymbol = new CMFCPropertyGridProperty(section[4], -1);
+		CMFCPropertyGridProperty* pSymbol = new CStdGridProperty(section[4]);
 		pSymbol->AddSubItem(new CSymbolProperty(name[SYMBOL_TYPE], 0, description[SYMBOL_TYPE], SYMBOL_TYPE));
-		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_COLOR], Color, description[SYMBOL_COLOR], SYMBOL_COLOR));
-		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_SIZE_X], Int, description[SYMBOL_SIZE_X], SYMBOL_SIZE_X));
-		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_SIZE_Y], Int, description[SYMBOL_SIZE_Y], SYMBOL_SIZE_Y));
-		pSymbol->AddSubItem(new CMFCPropertyGridProperty(name[SYMBOL_FILLED], Bool, description[SYMBOL_FILLED], SYMBOL_FILLED));
-		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_FILL_COLOR], Color, description[SYMBOL_FILL_COLOR], SYMBOL_FILL_COLOR));
+		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_COLOR], RGB(0,0,0), description[SYMBOL_COLOR], SYMBOL_COLOR));
+		pSymbol->AddSubItem(new CStdGridProperty(name[SYMBOL_SIZE_X], 6, description[SYMBOL_SIZE_X], SYMBOL_SIZE_X));
+		pSymbol->AddSubItem(new CStdGridProperty(name[SYMBOL_SIZE_Y], 6, description[SYMBOL_SIZE_Y], SYMBOL_SIZE_Y));
+		pSymbol->AddSubItem(new CBoolGridProperty(name[SYMBOL_FILLED], false, description[SYMBOL_FILLED], SYMBOL_FILLED));
+		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_FILL_COLOR], RGB(255,255,255), description[SYMBOL_FILL_COLOR], SYMBOL_FILL_COLOR));
 		pSeries->AddSubItem(pSymbol);
 
-		CMFCPropertyGridProperty* pLine = new CMFCPropertyGridProperty(section[5], -1);
+		CMFCPropertyGridProperty* pLine = new CStdGridProperty(section[5]);
 		pLine->AddSubItem(new CLineStyleProperty(name[LINE_STYLE], CGraphSerie::lsNone, description[LINE_STYLE], LINE_STYLE));
-		pLine->AddSubItem(new CColorProperty(name[LINE_COLOR], Color, description[LINE_COLOR], LINE_COLOR));
-		pLine->AddSubItem(new CMFCPropertyGridProperty(name[LINE_WIDTH], Int, description[LINE_WIDTH], LINE_WIDTH));
-		pLine->AddSubItem(new CMFCPropertyGridProperty(name[LINE_SMOOTHED], Bool, description[LINE_SMOOTHED], LINE_SMOOTHED));
+		pLine->AddSubItem(new CColorProperty(name[LINE_COLOR], RGB(0,0,0), description[LINE_COLOR], LINE_COLOR));
+		pLine->AddSubItem(new CStdGridProperty(name[LINE_WIDTH], 1, description[LINE_WIDTH], LINE_WIDTH));
+		pLine->AddSubItem(new CBoolGridProperty(name[LINE_SMOOTHED], false, description[LINE_SMOOTHED], LINE_SMOOTHED));
 		pSeries->AddSubItem(pLine);
 
-		CMFCPropertyGridProperty* pFill = new CMFCPropertyGridProperty(section[6], -1);
+		CMFCPropertyGridProperty* pFill = new CStdGridProperty(section[6]);
 		pFill->AddSubItem(new CFillStyleProperty(name[FILL_STYLE], 0, description[FILL_STYLE], FILL_STYLE));
 		pFill->AddSubItem(new CFillDirectionProperty(name[FILL_DIRECTION], CGraphSerie::FILL_BOTTOM, description[FILL_DIRECTION], FILL_DIRECTION));
-		pFill->AddSubItem(new CColorProperty(name[FILL_COLOR], Color, description[FILL_COLOR], FILL_COLOR));
+		pFill->AddSubItem(new CColorProperty(name[FILL_COLOR], RGB(220,220,220), description[FILL_COLOR], FILL_COLOR));
 		pSeries->AddSubItem(pFill);
 
-		CMFCPropertyGridProperty* pHist = new CMFCPropertyGridProperty(section[7], -1);
+		CMFCPropertyGridProperty* pHist = new CStdGridProperty(section[7]);
 		pHist->AddSubItem(new CHistDirectionProperty(name[HIST_DIRECTION], 0, description[HIST_DIRECTION], HIST_DIRECTION));
-		pHist->AddSubItem(new CMFCPropertyGridProperty(name[HIST_BAR_WIDTH], Int, description[HIST_BAR_WIDTH], HIST_BAR_WIDTH));
-		pHist->AddSubItem(new CColorProperty(name[HIST_BAR_COLOR], Color, description[HIST_BAR_COLOR], HIST_BAR_COLOR));
-		pHist->AddSubItem(new CMFCPropertyGridProperty(name[HIST_BORDER_WIDTH], Int, description[HIST_BORDER_WIDTH], HIST_BORDER_WIDTH));
-		pHist->AddSubItem(new CColorProperty(name[HIST_BORDER_COLOR], Color, description[HIST_BORDER_COLOR], HIST_BORDER_COLOR));
+		pHist->AddSubItem(new CStdGridProperty(name[HIST_BAR_WIDTH], 12, description[HIST_BAR_WIDTH], HIST_BAR_WIDTH));
+		pHist->AddSubItem(new CColorProperty(name[HIST_BAR_COLOR], RGB(0,100,255), description[HIST_BAR_COLOR], HIST_BAR_COLOR));
+		pHist->AddSubItem(new CStdGridProperty(name[HIST_BORDER_WIDTH], 1, description[HIST_BORDER_WIDTH], HIST_BORDER_WIDTH));
+		pHist->AddSubItem(new CColorProperty(name[HIST_BORDER_COLOR], RGB(0,0,0), description[HIST_BORDER_COLOR], HIST_BORDER_COLOR));
 		pSeries->AddSubItem(pHist);
 
 		pGroup->AddSubItem(pSeries);
@@ -450,49 +447,53 @@ namespace WBSF
 
 					for (int i = 0; i < NB_GRAPH_WEATHER_PROPERTIES; i++)
 					{
-						CMFCPropertyGridProperty* pProp = FindItemByData(i);
-						ASSERT(pProp);
+						std::string str;
 
 						switch (i)
 						{
-						case TITLE:				pProp->SetValue(CString(graph.m_title.c_str())); break;
-						case X_AXIS_TITLE:		pProp->SetValue(CString(graph.m_Xtitle.c_str())); break;
-						case Y_LEFT_AXIS_TITLE: pProp->SetValue(CString(graph.m_Ytitle1.c_str())); break;
-						case Y_RIGHT_AXIS_TITLE:pProp->SetValue(CString(graph.m_Ytitle2.c_str())); break;
-						case SHOW_LEGEND:		pProp->SetValue(COleVariant((short)graph.m_bShowLegend, VT_BOOL)); break;
-
-						case VARIABLE:			((CWeatherVariableProperty*)pProp)->SetIndex(serie.m_variable); break;
-						case STATISTIC:			((CStatisticProperty*)pProp)->SetIndex(serie.m_statistic); break;
-						case SERIE_TYPE:		((CSerieTypeProperty*)pProp)->SetIndex(serie.m_type); break;
-						case Y_AXIS:			((CYAxisTypeProperty*)pProp)->SetIndex(serie.m_YAxis); break;
-						case ENABLE_SHADOW:		pProp->SetValue(COleVariant((short)serie.m_bEnableShadow, VT_BOOL)); break;
-						case SHADOW_DEPTH:		pProp->SetValue(COleVariant((long)serie.m_shadowDepth, VT_I4)); break;
-						case SHADOW_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_shadowColor); break;
-
-						case SYMBOL_TYPE:		((CSymbolProperty*)pProp)->SetIndex(serie.m_symbolType); break;
-						case SYMBOL_SIZE_X:		pProp->SetValue(COleVariant((long)serie.m_symbolWidth, VT_I4)); break;
-						case SYMBOL_SIZE_Y:		pProp->SetValue(COleVariant((long)serie.m_symbolHeight, VT_I4)); break;
-						case SYMBOL_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_symbolColor); break;
-						case SYMBOL_FILLED:		pProp->SetValue(COleVariant((short)serie.m_bSymbolFilled, VT_BOOL)); break;
-						case SYMBOL_FILL_COLOR: ((CColorProperty*)pProp)->SetColor(serie.m_symbolFillColor); break;
-
-						case LINE_STYLE:		((CLineStyleProperty*)pProp)->SetIndex(serie.m_lineStyle); break;
-						case LINE_WIDTH:		pProp->SetValue(COleVariant((long)serie.m_lineWidth, VT_I4)); break;
-						case LINE_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_lineColor); break;
-						case LINE_SMOOTHED:		pProp->SetValue(COleVariant((short)serie.m_bLineSmoothed, VT_BOOL)); break;
-
-						case FILL_STYLE:		((CFillStyleProperty*)pProp)->SetIndex(serie.m_fillStyle); break;
-						case FILL_DIRECTION:	((CFillDirectionProperty*)pProp)->SetIndex(serie.m_fillDirection); break;
-						case FILL_COLOR:		((CColorProperty*)pProp)->SetColor(serie.m_fillColor); break;
-
-						case HIST_DIRECTION:	((CHistDirectionProperty*)pProp)->SetIndex(serie.m_histDirection); break;
-						case HIST_BAR_WIDTH:	pProp->SetValue(COleVariant((long)serie.m_histBarWidth, VT_I4)); break;
-						case HIST_BAR_COLOR:	((CColorProperty*)pProp)->SetColor(serie.m_histBarColor); break;
-						case HIST_BORDER_WIDTH:	pProp->SetValue(COleVariant((long)serie.m_histBorderWidth, VT_I4)); break;
-						case HIST_BORDER_COLOR:	((CColorProperty*)pProp)->SetColor(serie.m_histBorderColor); break;
+						case TITLE:				str = graph.m_title; break;
+						case X_AXIS_TITLE:		str = graph.m_Xtitle; break;
+						case Y_LEFT_AXIS_TITLE: str = graph.m_Ytitle1; break;
+						case Y_RIGHT_AXIS_TITLE:str = graph.m_Ytitle2; break;
+						case SHOW_LEGEND:		str = ToString(graph.m_bShowLegend); break;
+												
+						case VARIABLE:			str = ToString(serie.m_variable); break;
+						case STATISTIC:			str = ToString(serie.m_statistic); break;
+						case SERIE_TYPE:		str = ToString(serie.m_type); break;
+						case Y_AXIS:			str = ToString(serie.m_YAxis); break;
+						case ENABLE_SHADOW:		str = ToString(serie.m_bEnableShadow); break;
+						case SHADOW_DEPTH:		str = ToString(serie.m_shadowDepth); break;
+						case SHADOW_COLOR:		str = ToString(serie.m_shadowColor); break;
+												
+						case SYMBOL_TYPE:		str = ToString(serie.m_symbolType); break;
+						case SYMBOL_SIZE_X:		str = ToString(serie.m_symbolWidth); break;
+						case SYMBOL_SIZE_Y:		str = ToString(serie.m_symbolHeight); break;
+						case SYMBOL_COLOR:		str = ToString(serie.m_symbolColor); break;
+						case SYMBOL_FILLED:		str = ToString(serie.m_bSymbolFilled); break;
+						case SYMBOL_FILL_COLOR: str = ToString(serie.m_symbolFillColor); break;
+												
+						case LINE_STYLE:		str = ToString(serie.m_lineStyle); break;
+						case LINE_WIDTH:		str = ToString(serie.m_lineWidth); break;
+						case LINE_COLOR:		str = ToString(serie.m_lineColor); break;
+						case LINE_SMOOTHED:		str = ToString(serie.m_bLineSmoothed); break;
+												
+						case FILL_STYLE:		str = ToString(serie.m_fillStyle); break;
+						case FILL_DIRECTION:	str = ToString(serie.m_fillDirection); break;
+						case FILL_COLOR:		str = ToString(serie.m_fillColor); break;
+												
+						case HIST_DIRECTION:	str = ToString(serie.m_histDirection); break;
+						case HIST_BAR_WIDTH:	str = ToString(serie.m_histBarWidth); break;
+						case HIST_BAR_COLOR:	str = ToString(serie.m_histBarColor); break;
+						case HIST_BORDER_WIDTH:	str = ToString(serie.m_histBorderWidth); break;
+						case HIST_BORDER_COLOR:	str = ToString(serie.m_histBorderColor); break;
 						default: ASSERT(false);
 						}
-					}
+
+						CStdGriInterface* pProp = dynamic_cast<CStdGriInterface*>(FindItemByData(i));
+						ASSERT(pProp);
+						pProp->set_string(str);
+
+					}//for all member
 				}
 			}
 
@@ -501,55 +502,57 @@ namespace WBSF
 	}
 
 
-	void CSeriesPropertyGridCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pProp) const
+	void CSeriesPropertyGridCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pPropIn) const
 	{
 		ASSERT(m_chartIndex >= 0 && m_serieIndex >= 0);
 
 		if (m_chartIndex >= 0 && m_serieIndex >= 0)
 		{
+			CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
+
 			CGraph& graph = m_graphics[m_chartIndex];
 			CGraphSerie& serie = graph.m_series[m_serieIndex];
 
-			COleVariant value = pProp->GetValue();
+			std::string value = pProp->get_string();
 
 			int i = (int)pProp->GetData();
 			switch (i)
 			{
-			case TITLE:				graph.m_title = CStringA(value); break;
-			case X_AXIS_TITLE:		graph.m_Xtitle = CStringA(value); break;
-			case Y_LEFT_AXIS_TITLE: graph.m_Ytitle1 = CStringA(value); break;
-			case Y_RIGHT_AXIS_TITLE:graph.m_Ytitle2 = CStringA(value); break;
-			case SHOW_LEGEND:		graph.m_bShowLegend = value.bVal; break;
+			case TITLE:				graph.m_title = value; break;
+			case X_AXIS_TITLE:		graph.m_Xtitle = value; break;
+			case Y_LEFT_AXIS_TITLE: graph.m_Ytitle1 = value; break;
+			case Y_RIGHT_AXIS_TITLE:graph.m_Ytitle2 = value; break;
+			case SHOW_LEGEND:		graph.m_bShowLegend = as<bool>(value); break;
 
-			case VARIABLE:			serie.m_variable = ((CWeatherVariableProperty*)pProp)->GetIndex(); break;
-			case STATISTIC:			serie.m_statistic = ((CStatisticProperty*)pProp)->GetIndex();
-			case SERIE_TYPE:		serie.m_type = ((CSerieTypeProperty*)pProp)->GetIndex(); break;
-			case Y_AXIS:			serie.m_YAxis = ((CYAxisTypeProperty*)pProp)->GetIndex(); break;
-			case ENABLE_SHADOW:		serie.m_bEnableShadow = value.bVal; break;
-			case SHADOW_DEPTH:		serie.m_shadowDepth = value.lVal; break;
-			case SHADOW_COLOR:		serie.m_shadowColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case VARIABLE:			serie.m_variable = as<int>(value); break;
+			case STATISTIC:			serie.m_statistic = as<int>(value);
+			case SERIE_TYPE:		serie.m_type = as<int>(value); break;
+			case Y_AXIS:			serie.m_YAxis = as<int>(value); break;
+			case ENABLE_SHADOW:		serie.m_bEnableShadow = as<bool>(value); break;
+			case SHADOW_DEPTH:		serie.m_shadowDepth = as<int>(value); break;
+			case SHADOW_COLOR:		serie.m_shadowColor = ToCOLORREF(value); break;
 
-			case SYMBOL_TYPE:		serie.m_symbolType = ((CSymbolProperty*)pProp)->GetIndex(); break;
-			case SYMBOL_COLOR:		serie.m_symbolColor = ((CColorProperty*)pProp)->GetColor(); break;
-			case SYMBOL_SIZE_X:		serie.m_symbolWidth = value.lVal; break;
-			case SYMBOL_SIZE_Y:		serie.m_symbolHeight = value.lVal; break;
-			case SYMBOL_FILLED:		serie.m_bSymbolFilled = value.bVal; break;
-			case SYMBOL_FILL_COLOR: serie.m_symbolFillColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case SYMBOL_TYPE:		serie.m_symbolType = as<int>(value); break;
+			case SYMBOL_COLOR:		serie.m_symbolColor = ToCOLORREF(value); break;
+			case SYMBOL_SIZE_X:		serie.m_symbolWidth = as<int>(value); break;
+			case SYMBOL_SIZE_Y:		serie.m_symbolHeight = as<int>(value); break;
+			case SYMBOL_FILLED:		serie.m_bSymbolFilled = as<int>(value); break;
+			case SYMBOL_FILL_COLOR: serie.m_symbolFillColor = ToCOLORREF(value); break;
 
-			case LINE_STYLE:		serie.m_lineStyle = ((CLineStyleProperty*)pProp)->GetIndex(); break;
-			case LINE_WIDTH:		serie.m_lineWidth = value.lVal; break;
-			case LINE_COLOR:		serie.m_lineColor = ((CColorProperty*)pProp)->GetColor(); break;
-			case LINE_SMOOTHED:		serie.m_bLineSmoothed = value.bVal; break;
+			case LINE_STYLE:		serie.m_lineStyle = as<int>(value); break;
+			case LINE_WIDTH:		serie.m_lineWidth = as<int>(value); break;
+			case LINE_COLOR:		serie.m_lineColor = ToCOLORREF(value); break;
+			case LINE_SMOOTHED:		serie.m_bLineSmoothed = as<bool>(value); break;
 
-			case FILL_STYLE:		serie.m_fillStyle = ((CFillStyleProperty*)pProp)->GetIndex(); break;
-			case FILL_DIRECTION:	serie.m_fillDirection = ((CFillDirectionProperty*)pProp)->GetIndex(); break;
-			case FILL_COLOR:		serie.m_fillColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case FILL_STYLE:		serie.m_fillStyle = as<int>(value); break;
+			case FILL_DIRECTION:	serie.m_fillDirection = as<int>(value); break;
+			case FILL_COLOR:		serie.m_fillColor = ToCOLORREF(value); break;
 
-			case HIST_DIRECTION:	serie.m_histDirection = ((CHistDirectionProperty*)pProp)->GetIndex(); break;
-			case HIST_BAR_WIDTH:	serie.m_histBarWidth = value.lVal; break;
-			case HIST_BAR_COLOR:	serie.m_histBarColor = ((CColorProperty*)pProp)->GetColor(); break;
-			case HIST_BORDER_WIDTH:	serie.m_histBorderWidth = value.lVal; break;
-			case HIST_BORDER_COLOR:	serie.m_histBorderColor = ((CColorProperty*)pProp)->GetColor(); break;
+			case HIST_DIRECTION:	serie.m_histDirection = as<int>(value); break;
+			case HIST_BAR_WIDTH:	serie.m_histBarWidth = as<int>(value); break;
+			case HIST_BAR_COLOR:	serie.m_histBarColor = ToCOLORREF(value); break;
+			case HIST_BORDER_WIDTH:	serie.m_histBorderWidth = as<int>(value); break;
+			case HIST_BORDER_COLOR:	serie.m_histBorderColor = ToCOLORREF(value); break;
 
 			default: ASSERT(false);
 			}

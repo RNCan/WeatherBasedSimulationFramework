@@ -304,14 +304,14 @@ namespace WBSF
 
 					CTRef TRef = GetTRef(row);
 					CStatistic weaStat;
-					if (var == H_TAIR && (stat == LOWEST || stat == HIGHEST))
+					/*if (var == H_TAIR && (stat == LOWEST || stat == HIGHEST))
 					{
 						if (stat == LOWEST)
 							weaStat = (*m_pStation)[TRef].GetVarEx(H_TMIN);
 						else 
 							weaStat = (*m_pStation)[TRef].GetVarEx(H_TMAX);
 					}
-					else if (m_pStation->IsHourly() && TRef.GetType() == CTRef::DAILY)
+					else*/ if (m_pStation->IsHourly() && TRef.GetType() == CTRef::DAILY)
 					{
 						const CWeatherDay& day = (*m_pStation).GetDay(TRef);
 						for (size_t h = 0; h < 24; h++)
@@ -393,7 +393,7 @@ namespace WBSF
 					//m_pStation->SetModified(true);
 
 
-					if (var == H_TAIR && (stat == LOWEST || stat == HIGHEST))
+					/*if (var == H_TAIR && (stat == LOWEST || stat == HIGHEST))
 					{
 						ASSERT(TRef.GetType() == CTRef::DAILY);
 						ASSERT((*m_pStation)[TRef][H_TRNG].IsInit());
@@ -408,9 +408,9 @@ namespace WBSF
 						(*m_pStation)[TRef].SetStat(H_TRNG, Tmax - Tmin);
 					}
 					else
-					{
+					{*/
 						(*m_pStation)[TRef].SetStat(var, newValue);
-					}
+					//}
 				}
 			}
 		}

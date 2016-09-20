@@ -240,12 +240,16 @@ namespace WBSF
 		{
 			CTRef TRef(YEAR_NOT_INIT, m);
 
-			if (vars[H_TAIR] && correction.m_variables[H_TAIR])
+			if (vars[H_TMIN2] && correction.m_variables[H_TMIN2])
 			{
 				//it's temperature correction
-				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TAIR);
-				me[m][TMAX_MN] += (float)correction.GetCorrection(me, TRef, H_TRNG);
+				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN2);
 				ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
+			}
+			if (vars[H_TMAX2] && correction.m_variables[H_TMAX2])
+			{
+				//it's temperature correction
+				me[m][TMAX_MN] += (float)correction.GetCorrection(me, TRef, H_TMAX2);
 				ASSERT(me[m][TMAX_MN]>-99 && me[m][TMAX_MN]<99);
 			}
 

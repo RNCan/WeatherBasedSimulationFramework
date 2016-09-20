@@ -154,7 +154,7 @@ namespace WBSF
 
 	typedef std::vector<CGraph> CGraphVector;
 
-	CGraphVector GetDefaultWeatherGraphVector();
+	CGraphVector GetDefaultWeatherGraphVector(bool bHourly);
 }
 
 

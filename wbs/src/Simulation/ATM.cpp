@@ -40,21 +40,22 @@ namespace WBSF
 
 		switch (vv)
 		{
-		case HOURLY_DATA::H_TAIR: v = ATM_TAIR; break;
-		case HOURLY_DATA::H_TRNG: break;
+		case HOURLY_DATA::H_TAIR2: v = ATM_TAIR; break;
+		case HOURLY_DATA::H_TMIN2: break;
+		case HOURLY_DATA::H_TMAX2: break;
 		case HOURLY_DATA::H_PRCP: v = ATM_PRCP; break;
 		case HOURLY_DATA::H_TDEW: break;
 		case HOURLY_DATA::H_RELH: v = ATM_RH;  break;
 		case HOURLY_DATA::H_WNDS: v = ATM_WNDU; break;
 		case HOURLY_DATA::H_WNDD: v = ATM_WNDV; break;
-		case HOURLY_DATA::H_SRAD: break;
+		case HOURLY_DATA::H_SRAD2: break;
 		case HOURLY_DATA::H_PRES: v = ATM_PRES; break;
 		case HOURLY_DATA::H_SNOW: break;
 		case HOURLY_DATA::H_SNDH: break;
 		case HOURLY_DATA::H_SWE:	 break;
-		case HOURLY_DATA::H_ES:	 break;
-		case HOURLY_DATA::H_EA:	 break;
-		case HOURLY_DATA::H_VPD:	 break;
+		//case HOURLY_DATA::H_ES:	 break;
+		//case HOURLY_DATA::H_EA:	 break;
+		//case HOURLY_DATA::H_VPD:	 break;
 		case HOURLY_DATA::H_WND2: break;
 		default: ASSERT(false);
 		}
@@ -1638,7 +1639,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					{
 					case ATM_TAIR:
 					{
-						CStatistic Tair = station[TRef][H_TAIR];
+						CStatistic Tair = station[TRef][H_TAIR2];
 						if (Tair.IsInit())
 							//pts->push_back(CGridPoint(loc.m_x, loc.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, loc.GetPrjID()));
 							pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetPrjID()));
@@ -1695,7 +1696,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					}
 					case ATM_WATER:
 					{
-						CStatistic Tair = station[TRef][H_TAIR];
+						CStatistic Tair = station[TRef][H_TAIR2];
 						if (Tair.IsInit())
 						{
 							double Tw = m_Twater[index].GetTwI(TRef.Transform(CTM(CTM::DAILY)));

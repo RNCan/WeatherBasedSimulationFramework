@@ -91,7 +91,7 @@ namespace WBSF
 					const CDay& day = data[y][m][d];
 					CTRef TRef = day.GetTRef(); TRef.Transform(CTM(CTM::DAILY));
 					double dr = (double)TRef.GetJDay() / TRef.GetNbDaysPerYear();//d between [0, 1[
-					const CStatistic& Tair = day[HOURLY_DATA::H_TAIR];
+					const CStatistic& Tair = day[HOURLY_DATA::H_TAIR2];
 					ASSERT(!Tair.IsInit() || (Tair[MEAN] >= -60 && Tair[MEAN] <= 60));
 
 					Ra[TRef][0] = Tair.IsInit() ? (Tair[MEAN] - GetAnnualCycleTrend(TRef)) : 0;
@@ -149,7 +149,7 @@ namespace WBSF
 						CTRef TRef = itH->GetTRef(); TRef.Transform(CTM(CTM::DAILY));
 						double d = (double)TRef.GetJDay() / TRef.GetNbDaysPerYear();//d between [0, 1[
 
-						double Tair = (*itH)[H_TAIR];
+						double Tair = (*itH)[H_TAIR2];
 						if (!IsMissing(Tair))
 						{
 							A°Stat += 2 * Tair;

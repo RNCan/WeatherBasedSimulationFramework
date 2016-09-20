@@ -926,7 +926,7 @@ ERMsg CNormalsDatabase::SaveAsV6(const string& filePath, CCallback& callback)
 			tmp2 = FormatA("%16.10lf %16.10lf %4.0lf %d", m_zop[i].m_lat, m_zop[i].m_lon, m_zop[i].m_elev, m_zop[i].UseIt()?1:0);
 			line = FormatA(format.c_str(), tmp2.c_str());
 			file << line;
-			tmp2 = FormatA("%d %d %d %d 0 0 0", vars[H_TAIR] ? 1 : 0, vars[H_PRCP] ? 1 : 0, vars[H_RELH] ? 1 : 0, vars[H_WNDS] ? 1 : 0);
+			tmp2 = FormatA("%d %d %d %d 0 0 0", vars[H_TAIR2] ? 1 : 0, vars[H_PRCP] ? 1 : 0, vars[H_RELH] ? 1 : 0, vars[H_WNDS] ? 1 : 0);
 			line = FormatA(format.c_str(), tmp2.c_str());
 			file << line;
 			tmp2 = m_zop[i].m_ID;
