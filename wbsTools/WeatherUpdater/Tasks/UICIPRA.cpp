@@ -422,8 +422,8 @@ namespace WBSF
 		enum TColumns { C_YEAR, C_JDAY, C_HOUR, C_STAION_NO, C_TMAX, C_TMIN, C_TAIR, C_RELH, C_PRCP, C_PRCP_BEGIN, C_SRAD, C_TGROUND, CT_SOIL_5, CT_SOIL_10, C_T_SOIL_20, C_T_SOIL_50, C_WNDS, C_WNDD, C_PRES, C_SWEB, C_SWEB_DURATION, C_UNUSED1, C_UNUSED2, NB_COLUMNS };
 
 		//wind speed at 2 meters
-		const int COL_POS[NB_VAR_H] = { C_TAIR, -1, C_PRCP, -1, C_RELH, -1, C_WNDD, C_SRAD, C_PRES, -1, -1, -1, -1, -1, -1, C_WNDS, -1, -1 };
-		const double FACTOR[NB_VAR_H] = { 1, 0, 1, 0, 1, 0, 1, 0.001, 10, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
+		const int COL_POS[NB_VAR_H] = { C_TMIN, C_TAIR, C_TMAX, C_PRCP, -1, C_RELH, -1, C_WNDD, C_SRAD, C_PRES, -1, -1, -1, C_WNDS, -1, -1 };
+		const double FACTOR[NB_VAR_H] = { 1, 1, 1, 1, 0, 1, 0, 1, 1000.0 / 3600.0, 10, 0, 0, 0, 1, 0, 0 };
 
 		//now extract data 
 		ifStream file;

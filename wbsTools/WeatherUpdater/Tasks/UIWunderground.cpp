@@ -472,7 +472,7 @@ namespace WBSF
 		
 		enum {NB_VARS=7};
 		static const char* VAR_NAME[NB_VARS] = { "Temp.:", "DewPoint:", "Humidity:", "WindSpeed:", "Pressure:", "Precipitation:", "SolarRadiation:" };
-		static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD };
+		static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR2, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD2 };
 		for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
 		{
 			if (IsEqual(str, VAR_NAME[vv]))
@@ -990,6 +990,7 @@ namespace WBSF
 					if (TRef.IsValid())
 					{
 						double Tmin = -DBL_MAX;
+						double Tair = -DBL_MAX;
 						double Tmax = -DBL_MAX;
 						double Pmin = -DBL_MAX;
 						double Pmax = -DBL_MAX;
@@ -1006,7 +1007,7 @@ namespace WBSF
 									switch (c)
 									{
 									case C_TMAX: Tmax = value; break;
-									case C_TAIR: break;
+									case C_TAIR: Tair = value;  break;
 									case C_TMIN: Tmin = value; break;
 									case C_DMAX: break;
 									case C_TDEW: if (value > -60 && value < 50)data[TRef].SetStat(H_TDEW, value);
@@ -1026,6 +1027,13 @@ namespace WBSF
 						}
 
 
+						if (Tair != -DBL_MAX && Tair > -60 && Tair < 50)
+						{
+							ASSERT(Tair > -60 && Tair < 50);
+
+							data[TRef].SetStat(H_TAIR2, Tair);
+						}
+
 						if (Tmin != -DBL_MAX && Tmax != -DBL_MAX && Tmin > -60 && Tmin < 50 && Tmax > -60 && Tmax < 50)
 						{
 							ASSERT(Tmin > -60 && Tmin < 50);
@@ -1035,8 +1043,8 @@ namespace WBSF
 							if (Tmin > Tmax)
 								Switch(Tmin, Tmax);
 
-							data[TRef].SetStat(H_TAIR, (Tmin + Tmax) / 2);
-							data[TRef].SetStat(H_TRNG, Tmax - Tmin);
+							data[TRef].SetStat(H_TMIN2, Tmin);
+							data[TRef].SetStat(H_TMAX2, Tmax);
 						}
 
 						if (Pmin != -DBL_MAX && Pmax != -DBL_MAX && Pmin > 800 && Pmin < 1100 && Pmax > 800 && Pmax < 1100)

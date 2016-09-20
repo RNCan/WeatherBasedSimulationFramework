@@ -390,7 +390,7 @@ namespace WBSF
 
 	//	int nbYear = m_lastYear - m_firstYear + 1;
 		enum { C_STID, C_STNM, C_MINUTES, C_LAT, C_LON, C_ELEV, C_TAIR, C_RELH, C_TDEW, C_WDIR, C_WSPD, C_WMAX, C_TAIR3HR, C_TDEW3HR, C_RAIN1HR, C_RAIN3HR, C_RAIN, C_PRES, C_PMSL, C_PMSL3HR, C_SNOW, C_SRAD, C_TAIRMIN, C_TAIRMAX, C_PT020H, C_PT040H, C_PT050H, NB_INPUT_HOURLY_COLUMN };
-		const int COL_POS[NB_VAR_H] = { C_TAIR, -1, C_RAIN1HR, C_TDEW, C_RELH, C_WSPD, C_WDIR, C_SRAD, /*C_PRES*/C_PMSL, -1, C_SNOW, -1, -1, -1, -1, -1, -1, -1 };
+		const int COL_POS[NB_VAR_H] = { -1, C_TAIR, -1, C_RAIN1HR, C_TDEW, C_RELH, C_WSPD, C_WDIR, C_SRAD, C_PMSL, -1, C_SNOW, -1, -1, -1, -1 };
 
 		//now extact data 
 		ifStream file;

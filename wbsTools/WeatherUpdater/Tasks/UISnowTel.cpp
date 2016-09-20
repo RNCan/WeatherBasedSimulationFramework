@@ -658,13 +658,13 @@ namespace WBSF
 						Tmax >= -70 && Tmax <= 70 &&
 						Tmin <= Tmax)
 					{
-						accumulator.Add(TRef, H_TAIR, Tmin);
-						accumulator.Add(TRef, H_TAIR, Tmax);
+						accumulator.Add(TRef, H_TMIN2, Tmin);
+						accumulator.Add(TRef, H_TMAX2, Tmax);
 					}
 
 					if (!IsMissing(Tavg) && Tavg >= -70 && Tavg <= 70)
 					{
-						accumulator.Add(TRef, H_TAIR, Tavg);
+						accumulator.Add(TRef, H_TAIR2, Tavg);
 					}
 
 					double prcp = file[V_PRCP];
@@ -724,9 +724,7 @@ namespace WBSF
 					if (!IsMissing(R))
 					{
 						ASSERT(R >= 0 && R < 1500);//(watt/m2) 
-						//double f = file.IsHourly() ? 60.0 * 60.0 / 1000000.0 : 60.0 * 60.0 * 24.0 / 1000000.0;
-						////convert (watt/m2) --> (MJ/m2)
-						accumulator.Add(TRef, H_SRAD, R);//dans quel unité travailler???
+						accumulator.Add(TRef, H_SRAD2, R);
 					}
 					else
 					{
@@ -770,19 +768,19 @@ namespace WBSF
 						accumulator.Add(TRef, H_SWE, max(0.0, swe*25.4));//inch --> mm
 					}
 
-					double Ea = file[V_PVPV];
-					if (!IsMissing(Ea))
-					{
-						ASSERT(Ea >= 0 && Ea < 300);//Pa
-						accumulator.Add(TRef, H_EA, Ea);
-					}
+					//double Ea = file[V_PVPV];
+					//if (!IsMissing(Ea))
+					//{
+					//	ASSERT(Ea >= 0 && Ea < 300);//Pa
+					//	accumulator.Add(TRef, H_EA, Ea);
+					//}
 
-					double Es = file[V_SVPV];
+					/*double Es = file[V_SVPV];
 					if (!IsMissing(Es))
 					{
 						ASSERT(Es >= 0 && Es < 300);
 						accumulator.Add(TRef, H_ES, Es);
-					}
+					}*/
 				}
 
 				++file;

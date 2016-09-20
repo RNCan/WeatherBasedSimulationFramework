@@ -393,15 +393,15 @@ void CTaskPropertyWnd::OnOpenProperty()
 	std::string ext = GetFileExtension(str);
 	if (IsEqual(ext, CNormalsDatabase::DATABASE_EXT))
 	{
-		CallApplication(CRegistry::NORMAL_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+		CallApplication(CRegistry::NORMAL_EDITOR, str, NULL, SW_SHOW, true, false);
 	}
 	else if (IsEqual(ext, CDailyDatabase::DATABASE_EXT))
 	{
-		CallApplication(CRegistry::DAILY_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+		CallApplication(CRegistry::DAILY_EDITOR, str, NULL, SW_SHOW, true, false);
 	}
 	else if (IsEqual(ext, CHourlyDatabase::DATABASE_EXT))
 	{
-		CallApplication(CRegistry::HOURLY_EDITOR, str, GetSafeHwnd(), SW_SHOW, true, false);
+		CallApplication(CRegistry::HOURLY_EDITOR, str, NULL, SW_SHOW, true, false);
 	}
 	else
 	{

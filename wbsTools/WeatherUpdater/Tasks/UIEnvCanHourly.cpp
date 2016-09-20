@@ -617,7 +617,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYear = lastYear - firstYear + 1;
 		
-		callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
+		if (nbYear>5)
+			callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
 		vector< array<bool, 12> > bNeedDownload;
 		bNeedDownload.resize(nbYear);
@@ -640,15 +641,16 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 		}
-
-		callback.PopTask();
+		
+		if (nbYear>5)
+			callback.PopTask();
 
 
 		//
 		if (nbFilesToDownload > 0)
 		{
 			if (nbFilesToDownload>12)
-				callback.PushTask("Update files for " + station.m_name, nbFilesToDownload);
+				callback.PushTask("Update files for " + station.m_name + " (" + ToString(nbFilesToDownload)+")", nbFilesToDownload);
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
@@ -890,8 +892,8 @@ namespace WBSF
 
 		enum{ DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, DATA_QUALITY, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
 
-		const int COL_POS[NB_VAR_H] = { TEMPERATURE, -1, -1, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
-		const double FACTOR[NB_VAR_H] = { 1, 0, 0, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
+		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, -1, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
+		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 0, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
 
 
 
@@ -928,25 +930,23 @@ namespace WBSF
 				}
 
 				bool bValid[NB_VAR_H] = { 0 };
-				bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
-				//bValid[H_PRES] = m_bExtractPressure && (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
+				bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
 				bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
 				bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] == "E") && !(*loop)[DEWPOINT].empty();
 				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] == "E" || (*loop)[RELHUM_FLAG] == "T") && !(*loop)[RELHUM].empty();
 				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] == "E") && !(*loop)[WIND_SPEED].empty();
-				//bValid[H_WNDD] = m_bExtractWindDir && ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
 				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
 				//bValid[H_EA] = m_bExtractVaporPressure && bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-				bValid[H_EA] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
+				//bValid[H_EA] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
 				//bValid[H_ES] = m_bExtractVaporPressure && bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-				bValid[H_ES] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
+				//bValid[H_ES] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
 
 				for (int v = 0; v < NB_VAR_H; v++)
 				{
 
 					if (bValid[v])
 					{
-						if (v == H_ES)
+						/*if (v == H_ES)
 						{
 							double Tair = ToDouble((*loop)[COL_POS[H_TAIR]])*FACTOR[H_TAIR];
 							double Es = e°(Tair) * 1000;
@@ -966,10 +966,10 @@ namespace WBSF
 							accumulator.Add(TRef, H_EA, Ea);
 						}
 						else
-						{
+						{*/
 							if (COL_POS[v] >= 0)
 								accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
-						}
+						//}
 					}
 				}
 

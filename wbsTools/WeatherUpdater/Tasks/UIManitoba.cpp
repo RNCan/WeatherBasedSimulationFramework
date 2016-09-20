@@ -422,9 +422,9 @@ namespace WBSF
 
 			enum TCommonyColumns{TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS};
 			enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
-			static const size_t COL_POS_H[NB_COLUMNS_H] = { -1, -1, -1, -1, -1, H_TAIR, H_TAIR, H_TAIR, -1, H_RELH, H_PRCP, -1, -1, -01, H_WND2, H_WNDD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, H_SRAD, -1, H_PRCP, -1 };
+			static const size_t COL_POS_H[NB_COLUMNS_H] = { -1, -1, -1, -1, -1, H_TAIR2, H_TMAX2, H_TMIN2, -1, H_RELH, H_PRCP, -1, -1, -01, H_WND2, H_WNDD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, H_SRAD2, -1, H_PRCP, -1 };
 			enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
-			static const size_t COL_POS_D[NB_COLUMNS_D] = { -1, -1, -1, -1, -1, -1,H_TAIR,-1, H_TAIR,-1, H_RELH, H_RELH,-1, H_RELH,-1, H_PRCP,-1,-1, H_WND2, H_WNDD,-1,-1,-1,-1, H_SRAD,-1,-1,-1,-1};
+			static const size_t COL_POS_D[NB_COLUMNS_D] = { -1, -1, -1, -1, -1, H_TAIR2,H_TMAX2,-1, H_TMIN2,-1, H_RELH, H_RELH,-1, H_RELH,-1, H_PRCP,-1,-1, H_WND2, H_WNDD,-1,-1,-1,-1, H_SRAD2,-1,-1,-1,-1};
 			
 			bool b10m = true;
 			for (CSVIterator loop(file, ",", false); loop != CSVIterator()&&msg; ++loop)
@@ -502,7 +502,7 @@ namespace WBSF
 									ASSERT(value < 100);
 								}
 								
-								if (cPos == H_TAIR)
+								if (cPos == H_TAIR2 || cPos == H_TMIN2 || cPos == H_TMAX2)
 								{
 									ASSERT(value > -60 && value < 60);
 								}

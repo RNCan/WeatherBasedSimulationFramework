@@ -241,8 +241,26 @@ namespace WBSF
 						if (str1.empty())
 							str1 = "-999.0";
 
-						if (str1 == "-" || !str2.empty())
+						if (str1 == "-" )
 							str1 = "-999.0";
+						if (!str2.empty())
+						{
+							switch (str2[0])
+							{
+							case 'I'://Incomplet
+							case 'Q':// Quantité Inconnue
+							case 'D':// Douteux	
+							case 'K': // Estimé(krigeage)	
+								str1 = "-999.0";
+								break;
+							case 'C'://Cumulé
+							case 'E'://Estimé	
+							case 'F':// Forcé
+							case 'T':// Trace
+								break;//keep the value
+							default: ASSERT(false);
+							}
+						}
 
 						file << "," << str1;
 
@@ -579,13 +597,14 @@ namespace WBSF
 				{
 					ASSERT(Tmin >= -70 && Tmin <= 70);
 					ASSERT(Tmax >= -70 && Tmax <= 70);
-					dailyData[Tref][H_TAIR] = (Tmin + Tmax) / 2;
-					dailyData[Tref][H_TRNG] = Tmax - Tmin;
+					dailyData[Tref][H_TMIN2] = Tmin;
+					dailyData[Tref][H_TMAX2] = Tmax;
 				}
 
 				if (Tair>-999)
 				{ 
-					//dailyData[Tref][H_TAIR] = Tair; a ajouter éventuellement
+					ASSERT(Tair >= -70 && Tair <= 70);
+					dailyData[Tref][H_TAIR2] = Tair; 
 				}
 
 				float prcp = ToFloat((*loop)[TOTAL_PRECIP]);

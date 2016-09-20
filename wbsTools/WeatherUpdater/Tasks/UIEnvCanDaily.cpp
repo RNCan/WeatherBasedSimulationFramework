@@ -559,7 +559,7 @@ namespace WBSF
 		}
 
 		if (nbFilesToDownload>10)
-			callback.PushTask(info.m_name, nbFilesToDownload);
+			callback.PushTask(info.m_name + " (" + ToString(nbFilesToDownload )+ ")", nbFilesToDownload);
 		
 
 
@@ -788,14 +788,11 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		//stationList.push_back("6669");
-		//return msg;
-
 
 		CProvinceSelection selection(Get(PROVINCE));
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		//CGeoRect boundingBox;
+		
 
 
 		for (CEnvCanStationMap::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
@@ -811,13 +808,8 @@ namespace WBSF
 
 				if (selection.none() || selection[p])
 				{
-					//if (boundingBox.IsRectEmpty() ||
-					//	boundingBox == DEFAULT_BOUDINGBOX ||
-					//	boundingBox.PtInRect(station))
-					//{
-						string stationStr = station.GetSSI("InternalID");
-						stationList.push_back(stationStr);
-//					}
+					string stationStr = station.GetSSI("InternalID");
+					stationList.push_back(stationStr);
 				}
 			}
 		}
@@ -861,7 +853,7 @@ namespace WBSF
 
 		if (TM.Type() == CTM::HOURLY)
 		{
-			msg.ajoute("Unable to extract hourlky data from daily updater");
+			msg.ajoute("Unable to extract hourly data from daily updater");
 			return msg;
 		}
 
@@ -923,19 +915,26 @@ namespace WBSF
 			size_t i = 0;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop, i++)
 			{
-				CTM TM(CTM::DAILY);
-				CWeatherAccumulator accumulator(TM);
+				//CTM TM(CTM::DAILY);
+				//CWeatherAccumulator accumulator(TM);
 				ENSURE(loop.Header().size() == NB_DAILY_COLUMN);
 
 
 				int year = ToInt((*loop)[YEAR]);
 				int month = ToInt((*loop)[MONTH]) - 1;
 				int day = ToInt((*loop)[DAY]) - 1;
-				//ASSERT(year >= firstYear && year <= lastYear);
+				
 				ASSERT(month >= 0 && month < 12);
 				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 				CTRef Tref(year, month, day);
 
+				if (((*loop)[MEAN_TEMP_FLAG].empty() || (*loop)[MEAN_TEMP_FLAG] == "E" || (*loop)[MEAN_TEMP_FLAG] == "T") && !(*loop)[MEAN_TEMP].empty())
+				{
+					float Tair = ToFloat((*loop)[MEAN_TEMP]);
+					ASSERT(Tair >= -70 && Tair <= 70);
+
+					dailyData[Tref][H_TAIR2] = Tair;
+				}
 
 				if (((*loop)[MIN_TEMP_FLAG].empty() || (*loop)[MIN_TEMP_FLAG] == "E") && !(*loop)[MIN_TEMP].empty() &&
 					((*loop)[MAX_TEMP_FLAG].empty() || (*loop)[MAX_TEMP_FLAG] == "E") && !(*loop)[MAX_TEMP].empty())
@@ -949,48 +948,53 @@ namespace WBSF
 					if (Tmin > Tmax)
 						Switch(Tmin, Tmax);
 
-					//stat.Add(Tref, H_TAIR, Tmin);
-					//stat.Add(Tref, H_TAIR, Tmax);
-					accumulator.Add(Tref, H_TAIR, (Tmin + Tmax) / 2);
-					accumulator.Add(Tref, H_TRNG, Tmax - Tmin);
+					//accumulator.Add(Tref, H_TMIN2, Tmin);
+					//accumulator.Add(Tref, H_TMAX2, Tmax);
+					dailyData[Tref][H_TMIN2] = Tmin;
+					dailyData[Tref][H_TMAX2] = Tmax;
 				}
 
 				if (((*loop)[TOTAL_PRECIP_FLAG].empty() || (*loop)[TOTAL_PRECIP_FLAG] == "E" || (*loop)[TOTAL_PRECIP_FLAG] == "T") && !(*loop)[TOTAL_PRECIP].empty())
 				{
 					float prcp = ToFloat((*loop)[TOTAL_PRECIP]);
 					ASSERT(prcp >= 0 && prcp < 1000);
-					accumulator.Add(Tref, H_PRCP, prcp);
+					//accumulator.Add(Tref, H_PRCP, prcp);
+					dailyData[Tref][H_PRCP] = prcp;
 				}
 
-				//if (m_bExtractSnow)
-				//{
+				
 				if (((*loop)[TOTAL_SNOW_FLAG].empty() || (*loop)[TOTAL_SNOW_FLAG] == "E" || (*loop)[TOTAL_SNOW_FLAG] == "T") && !(*loop)[TOTAL_SNOW].empty())
 				{
 					float snow = ToFloat((*loop)[TOTAL_SNOW]);
 					ASSERT(snow >= 0 && snow < 1000);
-					accumulator.Add(Tref, H_SNOW, snow);
+					//accumulator.Add(Tref, H_SNOW, snow);
+					dailyData[Tref][H_SNOW] = snow;
 				}
 
-				if ((*loop)[SNOW_ON_GRND_FLAG].empty() && !(*loop)[SNOW_ON_GRND].empty())
+				if (((*loop)[SNOW_ON_GRND_FLAG].empty() || (*loop)[SNOW_ON_GRND_FLAG] == "E" || (*loop)[SNOW_ON_GRND_FLAG] == "T") && !(*loop)[SNOW_ON_GRND].empty())
 				{
 					float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
 					ASSERT(sndh >= 0 && sndh < 1000);
-					accumulator.Add(Tref, H_SNDH, sndh);
+					//accumulator.Add(Tref, H_SNDH, sndh);
+					dailyData[Tref][H_SNDH] = sndh;
 				}
-				//}
+				else if ((*loop)[SNOW_ON_GRND_FLAG].empty() && (*loop)[SNOW_ON_GRND].empty() && !(*loop)[TOTAL_PRECIP].empty())
+				{
+					//when both is empty and total precip is init --> zero
+					//accumulator.Add(Tref, H_SNDH, 0);
+					dailyData[Tref][H_SNDH] = 0;
+				}
 
+				a faire : éliminer les neiuge quand seulement zero...
+					regarde de juillet à juillet, si tous zero alor eliminer
 
-				dailyData[Tref].SetData(accumulator);
+					problème aussi avec le DewPoint et le minimum horaire
+				//dailyData[Tref].SetData(accumulator);
 			}//for all line
 		}
 
 		return msg;
 	}
-
-	//Mott (1963); The analysis of the survival of small larvae in the unsprayed area.pdf
-	//Watt (1963); The analysis of the survival of large larvae in the unsprayed area.pdf
-	//Mott (1963); The investigations in the unsprayed area.pdf
-	//Miller (1963); The analysis of fecundity proportion in the unsprayed area.pdf
 
 }
 

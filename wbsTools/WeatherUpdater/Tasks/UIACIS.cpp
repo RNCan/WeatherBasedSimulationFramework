@@ -2,6 +2,11 @@
 #include "UIACIS.h"
 
 
+//#include <boost\filesystem.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
 
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
@@ -12,6 +17,7 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
+//Average Air Temperature							    AT		[°C]
 //Instantaneous Air Temperature							ATA		[°C]
 //Maximum Air Temperature								TX		[°C]
 //Minimum Air Temperature								TN		[°C]
@@ -25,9 +31,10 @@
 //Instantaneous Wind Speed at 2 meter height			US		[km/h]
 //Average Wind Speed at 10 meter height					WSA		[km/h]
 //Instantaneous Wind Speed at 10 meter height			WS		[km/h]
-//Accumulated Precipitation in Gauge(snow ? ? )			P1		[mm]
+//Accumulated Precipitation in Gauge        			P1		[mm]
 //Precipitation											PC		[mm]
 
+//{"AT", "ATA", "TX", "TN", "HUA", "HU", "PR", "IR", "WDA", "WD", "UA", "US", "WSA", "WS", "P1", "PC"};
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -35,6 +42,41 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
+
+	class Gzip 
+	{
+	public:
+		static std::string compress(const std::string& data)
+		{
+			namespace bio = boost::iostreams;
+
+			std::stringstream compressed;
+			std::stringstream origin(data);
+
+			bio::filtering_streambuf<bio::input> out;
+			out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
+			out.push(origin);
+			bio::copy(out, compressed);
+
+			return compressed.str();
+		}
+
+		static std::string decompress(const std::string& data)
+		{
+			namespace bio = boost::iostreams;
+
+			std::stringstream compressed(data);
+			std::stringstream decompressed;
+
+			bio::filtering_streambuf<bio::input> out;
+			out.push(bio::gzip_decompressor());
+			out.push(compressed);
+			bio::copy(out, decompressed);
+
+			return decompressed.str();
+		}
+	};
+
 
 	//*********************************************************************
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
@@ -121,7 +163,7 @@ namespace WBSF
 				{
 					CLocation location;
 					enum TAttributes{ ACIS_STATION_ID, COMMENT, ELEVATION, LATITUDE, LONGITUDE, OPERATOR, OWNER, POSTAL_CODE, STATION_NAME, TYPE, NB_ATTRIBUTES };
-					static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "acis_station_id", "comment", "elevation", "latitude", "longitude", "operator", "owner ", "postal_code ", "station_name", "type" };
+					static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "acis_station_id", "comment", "elevation", "latitude", "longitude", "operator", "owner", "postal_code", "station_name", "type" };
 					for (size_t i = 0; i < NB_ATTRIBUTES; i++)
 					{
 						string str;
@@ -184,9 +226,9 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		//msg = VerifyUserPass(callback);//to protect user if they have not a good password to be locked
-		//if (!msg)
-			//return msg;
+		msg = VerifyUserPass(callback);//to protect user if they have not a good password to be locked
+		if (!msg)
+			return msg;
 
 
 		if (FileExists(GetStationListFilePath()))
@@ -270,6 +312,9 @@ namespace WBSF
 		int currentNbDownload = 0;
 
 		callback.PushTask("Download ACIS data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+		//msg += DownloadMonth(pConnection, 2016, AUGUST, "2154", "c:/tmp/text.csv", callback);
+		//return msg;
+
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			for (size_t y = 0; y < nbYears&&msg; y++)
@@ -329,120 +374,30 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
-
-
-		CString URL = _T("app86/extranet/logon");
-		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");//\r\nUser-Agent: HttpCall\r\n{
-		CStringA strParam = "j_username=biosim&j_password=Stamant74&submit=logon";
-		CString strContentL;
-		strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
-
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection("extranet.agric.gov.ab.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		if (msg)
+		{
+			size_t type = as <size_t>(DATA_TYPE);
+			string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "HOURLY" : "DAILY", "2154", 2016, 1, 1);
 
-		string source;
-		DWORD HttpRequestFlags = INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
-		msg = GetPageText(pConnection, "app86/extranet/logon?j_username=biosim&j_password=Stamant74", source, false, HttpRequestFlags);
+			string source;
+			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
 
-
-
-		//if (!msg)
-			//return msg;
-
-		//DWORD HttpRequestFlags = INTERNET_FLAG_SECURE |INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
-		//CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, URL, NULL, 1, NULL, NULL, HttpRequestFlags);
-		//if (pURLFile != NULL)
-		//{
-		//	TRY
-		//	{
-		//		pURLFile->AddRequestHeaders(strHeaders);
-		//		pURLFile->AddRequestHeaders(strContentL);
-		//		
-		//		
-		//		// send request
-		//		BOOL bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
-		//
-		//		if (bRep)
-		//		{
-		//			string source;
-		//			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+			if (source.empty() || source.find("No Records Were Found") != string::npos || source.find("ACIS Error") != string::npos)
+			{
+				msg.ajoute("Invalid user name/password or server problem");
+			}
 
 
-		//			string source;
-		//			const short MAX_READ_SIZE = 4096;
-		//			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
-
-		//			std::string tmp;
-		//			tmp.resize(MAX_READ_SIZE);
-		//			UINT charRead = 0;
-		//			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
-		//				source.append(tmp.c_str(), charRead);
-		//		
-
-		//			if (msg)
-		//			{
-		//				if (source.find("Welcome to the Alberta Agriculture and Forestry Extranet") != string::npos)
-		//				{
-		//					callback.AddMessage("UserName and Password : OK");
-		//				}
-		//				else
-		//				{
-		//					msg.ajoute("Error in validation of the user name and password");
-		//				}
-		//			}
-
-		//		}
-		//		else
-		//		{
-		//			msg.ajoute("Error in validation of the user name and password");
-		//		}
-
-		//		pURLFile->Close();
-		//	}
-		//	CATCH_ALL(e)
-		//	{
-		//		DWORD errnum = GetLastError();
-		//		if (errnum == 12002 || errnum == 12029)
-		//		{
-		//			CInternetException e(errnum);
-		//			msg += UtilWin::SYGetMessage(e);
-		//		}
-		//		else if (errnum == 12031 || errnum == 12111)
-		//		{
-		//			CInternetException e(errnum);
-		//			msg += UtilWin::SYGetMessage(e);
-		//		}
-		//		else if (errnum == 12003)
-		//		{
-		//			msg = UtilWin::SYGetMessage(*e);
-
-		//			DWORD size = 255;
-		//			TCHAR cause[256] = { 0 };
-		//			InternetGetLastResponseInfo(&errnum, cause, &size);
-		//			if (_tcslen(cause) > 0)
-		//				msg.ajoute(UTF8(cause));
-		//		}
-		//		else
-		//		{
-		//			CInternetException e(errnum);
-		//			msg += UtilWin::SYGetMessage(e);
-		//		}
-		//	}
-		//	END_CATCH_ALL
-
-
-		//	delete pURLFile;
-		//}
-		//
-		
-		//clean connection
-		pConnection->Close();
-		pConnection.release();
-		pSession->Close();
-		pSession.release();
+			//clean connection
+			pConnection->Close();
+			pConnection.release();
+			pSession->Close();
+			pSession.release();
+		}
 
 		return msg;
 	
@@ -460,142 +415,173 @@ namespace WBSF
 		return h;
 	}
 
+	CTRef GetTRef(string str_date, CTM TM)
+	{
+		CTRef TRef;
+
+		StringVector tmp(str_date, ", :");
+		ASSERT(tmp.size() == 8);
+		size_t d = ToSizeT(tmp[1]) - 1;
+		size_t m = WBSF::GetMonthIndex(tmp[2].c_str());
+		int year = ToInt(tmp[3]);
+		size_t h = ToSizeT(tmp[4]);
+
+		return CTRef(year, m, d, h, TM);
+	}
+
 	ERMsg CUIACIS::DownloadMonth(CHttpConnectionPtr& pConnection, int year, size_t m, const string& ID, const string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
 
+		size_t type = as <size_t>(DATA_TYPE);
+		CTRef TRef = CTRef::GetCurrentTRef();
+		
+		//string output_text;
+		std::stringstream stream;
+		if (type == HOURLY_WEATHER)
+			stream << "Year,Month,Day,Hour,Var,Value,Source\r\n";
+		else
+			stream << "Year,Month,Day,Var,Value,Min,Max,Source,Estimated,Manual,Missing,Rejected,Suspect\r\n";
 
-		if (msg)
+		//stream << output_text;
+
+		bool bFind = false;
+		callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
+		size_t nbDays = (TRef.GetYear() == year&&TRef.GetMonth() == m) ? TRef.GetDay() + 1 : GetNbDayPerMonth(year, m);
+		for (size_t d = 0; d < nbDays && msg; d++)
 		{
-			size_t type = as <size_t>(DATA_TYPE);
-			CTRef TRef = CTRef::GetCurrentTRef();
+			string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "HOURLY" : "DAILY", ID.c_str(), year, m + 1, d + 1);
 
-			CWeatherYears data(type == HOURLY_WEATHER);
-			data.CreateYear(year);
-			
-			callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
-			size_t nbDays = (TRef.GetYear() == year&&TRef.GetMonth() == m) ? TRef.GetDay()+1: GetNbDayPerMonth(year, m);
-			for (size_t d = 0; d <nbDays && msg; d++)
+			string source;
+			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+
+			if (!source.empty() && source.find("No Records Were Found") == string::npos && source.find("ACIS Error") == string::npos)
 			{
-				string pageURL = FormatA(PageDataFormat, type==HOURLY_WEATHER?"HOURLY":"DAILY", ID.c_str(), year, m + 1, d + 1);
-
-				string source;
-				msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
-
-				if (!source.empty() && source.find("No Records Were Found") == string::npos && source.find("ACIS Error") == string::npos)
+				try
 				{
-					try
-					{
-						//replace all ' by space
-						WBSF::ReplaceString(source, "'", " ");
-						zen::XmlDoc doc = zen::parse(source);
-						
-						string xml_name = (type == HOURLY_WEATHER) ? "element_value" : "aggregation_value";
+					WBSF::ReplaceString(source, "'", " ");
+					zen::XmlDoc doc = zen::parse(source);
 
-						zen::XmlIn in(doc.root());
-						for (zen::XmlIn child = in[xml_name]; child&&msg; child.next())
+					string xml_name = (type == HOURLY_WEATHER) ? "element_value" : "aggregation_value";
+					zen::XmlIn xml_in(doc.root());
+
+					for (zen::XmlIn child = xml_in[xml_name]; child&&msg; child.next())
+					{
+						string var_str;
+						if (child["element_cd"](var_str))
 						{
-							string var_str;
-							if (child["element_cd"](var_str))
+							if (type == HOURLY_WEATHER)
 							{
-
-								TVarH var = H_SKIP;
-								if (var_str == "AT" || var_str == "ATA")
-									var = H_TAIR;
-								else if (var_str == "TX")
-									var = H_TAIR;
-								else if (var_str == "TN")
-									var = H_TAIR;
-								else if (var_str == "PR")
-									var = H_PRCP;
-								else if (var_str == "HU" || var_str == "HUA")
-									var = H_RELH;
-								else if (var_str == "WS" || var_str == "WSA")
-									var = H_WNDS;
-								else if (var_str == "WD" || var_str == "WDA")
-									var = H_WNDD;
-								else if (var_str == "US" )
-									var = H_WND2;
-								else if (var_str == "PC")
-									var = H_ADD1;
-								else if (var_str == "P1")
-									var = H_ADD2;
-
-								if (var != H_SKIP)
+								string time;
+								if (child["time"](time))
 								{
-									if (type == HOURLY_WEATHER)
+									CTRef TRef = GetTRef(time, CTM::HOURLY);
+
+									string src;
+									child["source"](src);
+
+									string value;
+									if (child[(var_str == "PR") ? "delta" : "value"](value))
 									{
-										string time;
-										if (child["time"](time))
-										{
-											CTRef TRef = CTRef(year, m, d, GetHour(time));
-
-											string str;
-											if (child[(var == H_PRCP) ? "delta" : "value"](str))
-											{
-												float value = value = WBSF::as<float>(str);
-												if (var == H_SNDH)
-													value /= 10;
-
-												data[TRef].SetStat(var, value);
-											}
-
-										}
+										//output_text += FormatA("%4d,%02d,%02d,%02d,%s,%s,%s\r\n", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), var_str.c_str(), value.c_str(), src.c_str());
+										stream << FormatA("%4d,%02d,%02d,%02d,%s,%s,%s\r\n", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), var_str.c_str(), value.c_str(), src.c_str());
 									}
-									else
+									
+								}
+							}
+							else
+							{
+								string date;
+								if (child["aggregation_date"](date))
+								{
+									CTRef TRef = GetTRef(date, CTM::DAILY);
+
+									string value;
+									if (child["value"](value))
 									{
-										CTRef TRef(year, m, d);
 
-										string str;
-										if (child["value"](str))
-										{
-											float value = value = WBSF::as<float>(str);
-											//if (var == H_SNDH)
-												//value /= 10;
-											data[TRef].SetStat(var, value);
-										}
+										//string checked;
+										//child["checked"](checked);
+
+										string actual;
+										child["actual_percent"](actual);
+										string estimated;
+										child["estimated_percent"](estimated);
+										string manual;
+										child["manual_percent"](manual);
+										string missing;
+										child["missing_percent"](missing);
+										string rejected;
+										child["rejected_percent"](rejected);
+										string suspect;
+										child["suspect_percent"](suspect);
+
+										string str_min, str_max;
+										child["min"](str_min);
+										child["max"](str_max);
+
+										if (str_min.empty())
+											str_min = "-999.0";
+
+										if (str_max.empty())
+											str_max = "-999.0";
 										
-										if (var == H_TAIR)
-										{
-											string tmin, tmax;
-											if (child["min"](tmin) && child["max"](tmax))
-											{
-												float Tmin = WBSF::as<float>(tmin);
-												float Tmax = WBSF::as<float>(tmax);
-												ASSERT(Tmin >= -70 && Tmin <= 70);
-												ASSERT(Tmax >= -70 && Tmax <= 70);
-												ASSERT(Tmin <= Tmax);
-
-												data[TRef].SetStat(H_TAIR, (Tmin+Tmax)/2);
-												data[TRef].SetStat(H_TRNG, Tmax-Tmin);
-											}
-										}// if Tair
-									}//if hourly
-								}//if good var
-							}//if element
+										//output_text += FormatA("%4d,%02d,%02d,%s,", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, var_str.c_str());
+										//output_text += FormatA("%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", value.c_str(), str_min.c_str(), str_max.c_str(), actual.c_str(), estimated.c_str(), manual.c_str(), missing.c_str(), rejected.c_str(), suspect.c_str());
+										stream << FormatA("%4d,%02d,%02d,%s,", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, var_str.c_str());
+										stream << FormatA("%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", value.c_str(), str_min.c_str(), str_max.c_str(), actual.c_str(), estimated.c_str(), manual.c_str(), missing.c_str(), rejected.c_str(), suspect.c_str());
+									}
+								}
+							}//if hourly
 						}//for all record of the day
-					}//try
-					catch (const zen::XmlParsingError& e)
-					{
-						// handle error
-						msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
 					}
+				}//try
+				catch (const zen::XmlParsingError& e)
+				{
+					// handle error
+					msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+				}
+			}//if is valid
 
-				}//if is valid
+			msg += callback.StepIt();
+		}//for all day
 
-				msg+= callback.StepIt();
-			}//for all day
-
-			if (data.HaveData())
+		
+		if (msg /*&& !output_text.empty()*/)//always save the file to avoid to download it
+		{
+			ofStream  file;
+			msg = file.open(filePath, ios_base::out | ios_base::binary);
+			if (msg)
 			{
-				msg += data.SaveData(filePath);
-			}
-		}
+
+				try
+				{
+					boost::iostreams::filtering_ostreambuf out;
+					out.push(boost::iostreams::gzip_compressor());
+					out.push(file);
+					boost::iostreams::copy(stream, out);
+
+				}//try
+				catch (const boost::iostreams::gzip_error& exception)
+				{
+					int error = exception.error();
+					if (error == boost::iostreams::gzip::zlib_error)
+					{
+						//check for all error code    
+						msg.ajoute(exception.what());
+					}
+				}
+
+				file.close();
+			}//if msg
+			
+		}//if have data
 
 		callback.PopTask();
 
 		return msg;
 	}
+	
 	//ERMsg CUIACIS::DownloadStationHourly(CCallback& callback)
 	//{
 	////msg += DownlaodFeeds();
@@ -716,7 +702,7 @@ namespace WBSF
 	string CUIACIS::GetOutputFilePath(int year, size_t m, const string& ID)const
 	{
 		size_t type = as<size_t>(DATA_TYPE);
-		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
+		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv.gz";
 	}
 
 
@@ -743,6 +729,13 @@ namespace WBSF
 	ERMsg CUIACIS::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
+
+		size_t type = as <size_t>(DATA_TYPE);
+		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
+		{
+			msg.ajoute("Daily"); 
+			return msg;
+		}
 
 		size_t pos = m_stations.FindByID(ID);
 		if (pos == NOT_INIT)
@@ -772,9 +765,11 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 		station.CreateYears(firstYear, nbYears);
+		station.SetHourly(TM.Type()==CTM::HOURLY);
 
-		//if (nbYears > 10)
-			//callback.PushTask();
+		//now extact data
+		CWeatherAccumulator accumulator(TM);
+
 
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -786,17 +781,20 @@ namespace WBSF
 				string filePath = GetOutputFilePath(year, m, ID);
 				if (FileExists(filePath))
 				{
-					CWeatherYears data;
-					msg = data.LoadData(filePath);
-					if (msg)
-						station[year][m]= data[year][m];
-
+					msg = ReadDataFile(filePath, station, accumulator);
 					msg += callback.StepIt(0);
 				}
 			}
 		}
-		
-		station.CleanUnusedVariable("T TR P H WS WD W2");
+
+		/*if (accumulator.GetTRef().IsInit())
+		{
+			CTPeriod period(CTRef(firstYear, 0, 0, 0, TM), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR, TM));
+			if (period.IsInside(accumulator.GetTRef()))
+				station[accumulator.GetTRef()].SetData(accumulator);
+		}*/
+
+		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
 
 		if (msg)
 		{
@@ -809,5 +807,149 @@ namespace WBSF
 
 		return msg;
 	}
+
+	
+
+	ERMsg CUIACIS::ReadDataFile(const string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator)
+	{
+		ERMsg msg;
+		size_t type = as <size_t>(DATA_TYPE);
+
+
+		ifStream  file;
+
+		msg = file.open(filePath, ios_base::in | ios_base::binary);
+		if (msg)
+		{
+
+			try
+			{
+				boost::iostreams::filtering_istreambuf in;
+				in.push(boost::iostreams::gzip_decompressor());
+				in.push(file);
+				std::istream incoming(&in);
+
+				string line;
+				std::getline(incoming, line);
+				while (std::getline(incoming, line) && msg)
+				{
+					line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+					StringVector columns(line, ",");
+
+					size_t nbColumns = (type == HOURLY_WEATHER) ? 7 : 13;
+					ASSERT(columns.size() == nbColumns);
+					if (columns.size() == nbColumns)
+					{
+						size_t c = 0;
+						int year = ToInt(columns[c++]);
+						size_t m = ToInt(columns[c++]) - 1;
+						size_t d = ToInt(columns[c++]) - 1;
+						size_t h = 0;
+						if (type == HOURLY_WEATHER)
+							h = ToInt(columns[c++]);
+
+						ASSERT(m >= 0 && m < 12);
+						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+
+						CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+						ASSERT(TRef.IsValid());
+						if (TRef.IsValid())//some have invalid TRef
+						{
+							string var_str = columns[c++];
+
+							TVarH var = H_SKIP;
+							if (var_str == "AT" || var_str == "ATA")
+								var = H_TAIR2;
+							else if (var_str == "TX")
+								var = H_TMAX2;
+							else if (var_str == "TN")
+								var = H_TMIN2;
+							else if (var_str == "PR")
+								var = H_PRCP;
+							else if (var_str == "HU" || var_str == "HUA")
+								var = H_RELH;
+							else if (var_str == "WS" || var_str == "WSA")
+								var = H_WNDS;
+							else if (var_str == "WD" || var_str == "WDA")
+								var = H_WNDD;
+							else if (var_str == "US")
+								var = H_WND2;
+							else if (var_str == "IR")
+								var = H_SRAD2;
+							/*else if (var_str == "PC")
+								var = H_ADD1;
+								else if (var_str == "P1")
+								var = H_ADD2;*/
+
+
+							if (var != H_SKIP)
+							{
+								string str = columns[c++];
+								float value = value = WBSF::as<float>(str);
+								if (var == H_SNDH)
+									value /= 10;
+
+								if (type == HOURLY_WEATHER)
+								{
+									//if (accumulator.TRefIsChanging(TRef))
+									//station[accumulator.GetTRef()].SetData(accumulator);
+
+									//accumulator.Add(TRef, var, value);
+
+									station[TRef].SetStat(var, value);
+									if (type == HOURLY_WEATHER && var == H_RELH && station[TRef][H_TAIR2])
+										station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR2], value));
+
+								}
+								else
+								{
+									if (var == H_SRAD2 && type == DAILY_WEATHER)
+										value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
+
+									station[TRef].SetStat(var, value);
+
+									string str_min = columns[c++];
+									string str_max = columns[c++];
+
+									if (var == H_TAIR2)
+									{
+										float Tmin = WBSF::as<float>(str_min);
+										float Tmax = WBSF::as<float>(str_max);
+										if (Tmin > -999 && Tmax > -999)
+										{
+											ASSERT(Tmin >= -70 && Tmin <= 70);
+											ASSERT(Tmax >= -70 && Tmax <= 70);
+											ASSERT(Tmin <= Tmax);
+
+											station[TRef].SetStat(H_TMIN2, Tmin);
+											station[TRef].SetStat(H_TMAX2, Tmax);
+
+										}
+									}
+								}//if daily
+							}//if good vars
+						}//TRef is valid
+					}//good number of column
+				}//for all lines
+			}//try
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+		}//if msg
+
+
+		return msg;
+	}
+
+
+
+
+
 
 }

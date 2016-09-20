@@ -12,7 +12,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIGSOD); }
 
@@ -66,18 +66,15 @@ namespace WBSF
 		//Get stations list part
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		std::string GetOutputFilePath(const std::string& stationName, short year)const;
+		std::string GetOutputFilePath(const std::string& stationName, int year)const;
 		std::string GetOutputFilePath(const CFileInfo& info)const;
 
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		ERMsg ReadData(const std::string& filePath, CYear& dailyData)const;
 
-
-		//CCountrySelection m_countries;
-		//CStateSelection m_states;
-		//CGeoRect m_boundingBox;
-		//short m_type;
+		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
+		ERMsg Uncompress(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 
 		//optimisation for stations
 		CGSODStationOptimisation m_optFile;

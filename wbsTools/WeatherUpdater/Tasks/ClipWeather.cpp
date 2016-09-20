@@ -49,7 +49,7 @@ namespace WBSF
 		case SHAPEFILE:			str = GetString(IDS_STR_FILTER_SHAPEFILE); break;
 		case VARIABLES:
 		{
-			for (TVarH v = H_TAIR; v <NB_VAR_H; v++)
+			for (TVarH v = H_FIRST_VAR; v <NB_VAR_H; v++)
 				str += string("|") + GetVariableAbvr(v) + "=" + GetVariableTitle(v);
 			break;
 		}

@@ -82,15 +82,21 @@ namespace WBSF
 				v = H_WNDS;
 			else if (type == C_RN_1)
 				v = H_PRCP;
-			else if (type == C_TMAX || type == C_TMIN)//type == C_TEMP ||
-				v = H_TAIR;
+			else if (type == C_TEMP )
+				v = H_TAIR2;
+			else if (type == C_TMIN)
+				v = H_TMIN2;
+			else if (type == C_TMAX )
+				v = H_TMAX2;
 		}
 		else
 		{
 			if (type == C_RN24)
 				v = H_PRCP;
-			else if (type == C_TMAX24 || type == C_TMIN24)
-				v = H_TAIR;
+			else if (type == C_TMIN24)
+				v = H_TMIN2;
+			else if (type == C_TMAX24)
+				v = H_TMAX2;
 		}
 
 		return v;
@@ -256,7 +262,7 @@ namespace WBSF
 
 
 		enum THourlyColumns{ C_DATE_TIME, C_TOUTSIDE, C_TMAX, C_TMIN, C_HUMIDITY, C_TDEW, C_WSPD, C_DIR, C_RAIN, C_TSOIL, NB_COLUMNS };
-		static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR, H_SKIP, H_SKIP, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
+		static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
 
 		try
 		{

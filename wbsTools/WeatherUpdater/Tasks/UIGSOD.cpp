@@ -1,7 +1,13 @@
 #include "StdAfx.h"
 #include "UIGSOD.h"
+
 #include <boost\dynamic_bitset.hpp>
-#include <boost\filesystem.hpp>
+//#include <boost\filesystem.hpp>
+//#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+
+
 
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
@@ -31,8 +37,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States" };
-	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT };
+	const char* CUIGSOD::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "ShowProgress" };
+	const size_t CUIGSOD::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
 	const UINT CUIGSOD::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GSOD_P;
 	const UINT CUIGSOD::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GSOD;
 
@@ -96,7 +102,9 @@ namespace WBSF
 			{
 				ASSERT(fileList.size() == 1);
 
-				string outputFilePath = GetOutputFilePath(fileList[0]);
+				string workingDir = GetDir(WORKING_DIR);
+				string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
+				
 				if (!IsFileUpToDate(fileList[0], outputFilePath))
 					msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePath);
 			}
@@ -169,7 +177,8 @@ namespace WBSF
 							int index = year - firstYear + 1;
 							if (toDo[index])
 							{
-								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.op.gz", fileList, callback);
+								//msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.op.gz", fileList, callback);
+								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.tar", fileList, callback);
 								if (msgTmp)
 								{
 									toDo[index] = false;
@@ -219,13 +228,54 @@ namespace WBSF
 	}
 
 
+	ERMsg CUIGSOD::FTPDownload(const string& server, const string& inputFilePath, const string& outputFilePath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		callback.PushTask("FTPTransfer...", NOT_INIT);
+
+		string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
+
+		UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
+
+		DWORD exitCode = 0;
+		msg = WinExecWait(command, GetTempPath(), show, &exitCode);
+		if (msg && exitCode != 0)
+			msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)));
+
+		callback.PopTask();
+
+		return msg;
+	}
+	
+	ERMsg CUIGSOD::Uncompress(const string& filePathZip, const string& outputPath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
+
+		
+	
+		DWORD exitCode = 0;
+		string command = GetApplicationPath() + "External\\7z.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
+		msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
+
+		if (msg && exitCode != 0)
+			msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
+
+
+		callback.PopTask();
+
+
+		return msg;
+	}
 
 	ERMsg CUIGSOD::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 
 		//problème : certain nom dans le fichier history n'est pas le même que dans le non de fichier
-//		callback.SetNbStep(3);
+		//		callback.SetNbStep(3);
 
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
@@ -256,85 +306,29 @@ namespace WBSF
 
 
 		callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
-		//callback.SetNbStep(fileList.size());
 
+		size_t curI = 0;
 
-		int nbRun = 0;
-		int curI = 0;
-
-		while (curI < fileList.size() && nbRun < 20 && msg)
+		for (size_t i = 0; i < fileList.size() && msg; i++)
 		{
-			nbRun++;
+			msg += callback.StepIt(0);
 
-			CInternetSessionPtr pSession;
-			CFtpConnectionPtr pConnection;
+			string outputFilePath = GetOutputFilePath(fileList[i]);
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-			if (msgTmp)
+			string outputPath = GetPath(outputFilePath);
+			CreateMultipleDir(outputPath);
+			msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath, callback);
+			//	msgTmp += CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+
+			//unzip 
+			if (msg)
 			{
-				TRY
-				{
-					for (int i = curI; i < fileList.size() && msgTmp && msg; i++)
-					{
-						msg += callback.StepIt(0);
+				ASSERT(FileExists(outputFilePath));
+				msg = Uncompress(outputFilePath, outputPath, callback);
+				//RemoveFile(outputFilePath);
 
-						string outputFilePath = GetOutputFilePath(fileList[i]);
-						string outputPath = GetPath(outputFilePath);
-						CreateMultipleDir(outputPath);
-						msgTmp += CopyFile(pConnection, fileList[i].m_filePath, outputFilePath + ".gz", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
-						//unzip 
-						if (msgTmp)
-						{
-							ASSERT(FileExists(outputFilePath + ".gz"));
-
-							
-							string command = "External\\7z.exe e \"" + outputFilePath + ".gz" + "\" -y -o\"" + outputPath + "\"";
-							msg += WinExecWait(command.c_str());
-							RemoveFile(outputFilePath + ".gz");
-							
-							//update time stamp to the zip file
-							boost::filesystem::path p(outputFilePath);
-							if (boost::filesystem::exists(p))
-								boost::filesystem::last_write_time(p, fileList[i].m_time);//std::time(0)
-
-
-							msg += callback.StepIt();
-
-							nbRun = 0;
-							curI++;
-
-							ASSERT(FileExists(outputFilePath));
-						}
-					}
-				}
-				CATCH_ALL(e)
-				{
-					msgTmp = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
-
-					//clean connection
-					pConnection->Close();
-				pSession->Close();
-
-				if (!msgTmp)
-				{
-					callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(curI), ToString(fileList.size())));
-				}
-			}
-			else
-			{
-				if (nbRun > 1 && nbRun < 20)
-				{
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (int i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
-				}
+				msg += callback.StepIt();
+				curI++;
 			}
 		}
 
@@ -345,17 +339,17 @@ namespace WBSF
 	}
 
 
-	string CUIGSOD::GetOutputFilePath(const string& stationName, short year)const
+	string CUIGSOD::GetOutputFilePath(const string& stationName, int year)const
 	{
-		return GetDir(WORKING_DIR) + ToString(year) + "\\" + stationName + "-" + ToString(year) + ".op";
+		return GetDir(WORKING_DIR) + ToString(year) + "\\" + stationName + "-" + ToString(year) + ".op.gz";
 	}
 
 	string CUIGSOD::GetOutputFilePath(const CFileInfo& info)const
 	{
-		int pos = int(strlen(SERVER_PATH));
-		string name = info.m_filePath;
+		//int pos = int(strlen(SERVER_PATH));
+		string title = GetFileTitle(info.m_filePath);
 
-		return GetDir(WORKING_DIR) + name.substr(pos, 25);
+		return GetDir(WORKING_DIR) + title.substr(title.length() - 4) + "\\" + GetFileName(info.m_filePath);
 	}
 
 
@@ -437,7 +431,8 @@ namespace WBSF
 			string fileTitle = GetFileTitle(it->m_filePath);
 			string outputFilePath = GetOutputFilePath(*it);
 
-			if (!IsFileInclude(fileTitle) || IsFileUpToDate(*it, outputFilePath, false))
+			//!IsFileInclude(fileTitle) ||
+			if ( IsFileUpToDate(*it, outputFilePath, false))
 				it = fileList.erase(it);
 			else
 				it++;
@@ -548,7 +543,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string strSearch = workingDir + ToString(year) + "\\*.op";
+			string strSearch = workingDir + ToString(year) + "\\*.op.gz";
 
 			StringVector fileListTmp = GetFilesList(strSearch);
 			fileList.insert(fileList.begin(), fileListTmp.begin(), fileListTmp.end());
@@ -615,22 +610,26 @@ namespace WBSF
 		ERMsg msg;
 
 		ifStream file;
-		msg = file.open(filePath, CFile::modeRead);
+		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
+			boost::iostreams::filtering_istreambuf in;
+			in.push(boost::iostreams::gzip_decompressor());
+			in.push(file);
+			std::istream incoming(&in);
+
 			string line;
-			std::getline(file, line);
-			while (std::getline(file, line))
+
+			std::getline(incoming, line);
+			while (std::getline(incoming, line) && msg)
 			{
 				ASSERT(line.length() == 138);
-
-				//CTM TM(CTM::DAILY);
-				//CWeatherAccumulator stat(TM);
-
+				
 				int year = ToInt(line.substr(14, 4));
 				int month = ToInt(line.substr(18, 2)) - 1;
 				int day = ToInt(line.substr(20, 2)) - 1;
-				//ASSERT( year>=m_firstYear && year<=m_lastYear);
+
+
 				ASSERT(month >= 0 && month < 12);
 				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 
@@ -683,7 +682,7 @@ namespace WBSF
 
 
 				char pptFlag = line[123];
-				if (pptFlag != 'I' && line.substr(118, 5) != "99.99")
+				if (pptFlag != 'I' && pptFlag != 'H' &&line.substr(118, 5) != "99.99")
 					ppt = ToDouble(line.substr(118, 5));
 
 				if (line.substr(35, 6) != "9999.9")
@@ -696,6 +695,12 @@ namespace WBSF
 					snowDept = ToDouble(line.substr(125, 5));
 
 
+				if (Tmean > -999 )
+				{
+					double TmeanC = ((Tmean - 32.0)*5.0 / 9.0);
+					data[TRef][H_TAIR2] = TmeanC;
+				}
+
 				if (Tmin > -999 && Tmin < 999 &&
 					Tmax > -999 && Tmax < 999)
 				{
@@ -705,8 +710,8 @@ namespace WBSF
 
 					double TminC = ((Tmin - 32.0)*5.0 / 9.0);
 					double TmaxC = ((Tmax - 32.0)*5.0 / 9.0);
-					data[TRef][H_TAIR] = (TminC + TmaxC) / 2;
-					data[TRef][H_TRNG] = TmaxC - TminC;
+					data[TRef][H_TMIN2] = TminC;
+					data[TRef][H_TMAX2] = TmaxC;
 				}
 
 				if (ppt >= 0)

@@ -21,7 +21,7 @@ namespace WBSF
 	const char* CEnvCanGribForecast::SERVER_NAME = "dd.weather.gc.ca";
 
 	const char* CEnvCanGribForecast::FORECAST_VAR_NAME[NB_FORECAST_VAR] = { "PRES_SFC_0", "TMP_TGL_2", "DPT_TGL_2", "PRATE_SFC_0", "WIND_TGL_10", "WDIR_TGL_10", "DLWRF_SFC_0" };
-	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD};
+	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR2, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD2};
 	//TSOIL_SFC_0 : soil temperaturte
 	//TSOIL_DBLL_100 : deep soil temperature
 
@@ -392,8 +392,8 @@ namespace WBSF
 									if (v == H_PRCP)
 										value *= 3600;//mm/s --> mm for one hours
 
-									if (v == H_SRAD)
-										value /= (1000000);//J/m² --> MJ/m²
+									if (v == H_SRAD2)
+										value *= 3600;//J/m² --> W/m²
 
 									if (v == H_PRES)
 										value /= 100;//Pa --> hPa
@@ -402,7 +402,7 @@ namespace WBSF
 										value *= 3600/1000;//Pa --> hPa
 
 
-									if (v == H_TAIR)
+									if (v == H_TAIR2)
 										Tair = value;
 
 									if (v == H_TDEW)

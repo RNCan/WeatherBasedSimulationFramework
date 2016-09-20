@@ -229,7 +229,7 @@ namespace WBSF
 	static size_t GetDefaultStat(size_t v)
 	{
 		size_t s = MEAN;
-		if (v == H_PRCP || v == H_SNOW || v == H_SRAD)
+		if (v == H_PRCP || v == H_SNOW)
 			s = SUM;
 
 		return s;
@@ -252,7 +252,7 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
@@ -284,7 +284,7 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{

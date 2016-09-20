@@ -583,8 +583,8 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 				if (Tmin > Tmax)
 					Switch(Tmin, Tmax);
 
-				day.SetStat(H_TAIR, (Tmin + Tmax)/2);
-				day.SetStat(H_TRNG, Tmax - Tmin);
+				day.SetStat(H_TMIN2, Tmin);
+				day.SetStat(H_TMAX2, Tmax);
 			}
 			
 			if (dataYear[jd][V_PRCP]>-999 )

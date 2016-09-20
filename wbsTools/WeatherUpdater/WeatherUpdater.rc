@@ -643,7 +643,7 @@ BEGIN
                             "Répertoire de travail|Type"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
-    IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
+    IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
@@ -1078,7 +1078,7 @@ BEGIN
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Working directory|First year|Last year|Country|States (if USA)|Show progression"
-    IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)"
+    IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"

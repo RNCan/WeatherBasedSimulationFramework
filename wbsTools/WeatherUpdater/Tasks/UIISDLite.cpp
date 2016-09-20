@@ -2,11 +2,11 @@
 #include "stdafx.h"
 #include "UIISDLite.h"
 
-#include <boost\filesystem.hpp>
+//#include <boost\filesystem.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/copy.hpp>
+//#include <boost/iostreams/copy.hpp>
 
 #include "Basic/FileStamp.h"
 #include "Basic/DailyDatabase.h"
@@ -713,28 +713,20 @@ namespace WBSF
 		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
-
-			//std::stringstream outStr;
-			//ifstream file("E:\\Travaux\\Bureau\\WeatherUpdater\\NOAA\\ISD-Lite\\1970\\725720-24127-1970.gz", ios_base::in | ios_base::binary);
 			try
 			{
 				boost::iostreams::filtering_istreambuf in;
 				in.push(boost::iostreams::gzip_decompressor());
 				in.push(file);
 				std::istream incoming(&in);
-				//boost::iostreams::copy(in, outStr);
-
 
 				CTPeriod period(CTRef(firstYear, 0, 0, 0), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR));
 				array<float, CUIISDLite::NB_ISD_FIELD> e;
 
 
 				string line;
-				//while (std::getline(file, line) && msg)
 				while (std::getline(incoming, line) && msg)
 				{
-					//	Trim(line);
-					//		if (!line.empty())
 					if (LoadFields(line, e))
 					{
 						CTRef UTCTRef = GetTRef(e);
@@ -746,7 +738,7 @@ namespace WBSF
 								data[accumulator.GetTRef()].SetData(accumulator);
 
 							if (e[ISD_T] > -9999)
-								accumulator.Add(TRef, H_TAIR, e[ISD_T] / 10.0);
+								accumulator.Add(TRef, H_TAIR2, e[ISD_T] / 10.0);
 							if (e[ISD_P] > -9999)
 								accumulator.Add(TRef, H_PRES, e[ISD_P] / 10.0);//in hPa
 							if (e[ISD_PRCP1] > -9999 && int(e[ISD_PRCP1]) != -1)

@@ -403,7 +403,7 @@ namespace WBSF
 								if (accumulator.TRefIsChanging(d))
 								{
 									CTRef TRef = accumulator.GetTRef();
-									for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+									for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 										if (!station[TRef][v].IsInit())
 											station[TRef].SetStat( v, accumulator.GetStat(v));
 								}
@@ -420,7 +420,7 @@ namespace WBSF
 							if (accumulator.GetTRef().IsInit())
 							{
 								CTRef TRef = accumulator.GetTRef();
-								for (TVarH v = H_TAIR; v < NB_VAR_H; v++)
+								for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 									if (!station[TRef][v].IsInit())
 										station[TRef].SetStat(v, accumulator.GetStat(v));
 							}
@@ -452,12 +452,12 @@ namespace WBSF
 
 			int var = -1;
 			if (type == "air")
-				var = H_TAIR;
+				var = H_TAIR2;
 			else if (type == "dew-point")
 				var = H_TDEW;
 
 
-			if (var == H_TAIR || var == H_TDEW)
+			if (var == H_TAIR2 || var == H_TDEW)
 			{
 				for (zen::XmlIn child2 = child["temperature-value"]; child2; child2.next())
 				{
@@ -483,8 +483,8 @@ namespace WBSF
 						CHourlyData& data = station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()];
 						data[var] = (low + hi) / 2;
 
-						if (data[H_TAIR] > -999 && data[H_TDEW] > -999)
-							data[H_RELH] = Td2Hr(data[H_TAIR], data[H_TDEW]);
+						if (data[H_TAIR2] > -999 && data[H_TDEW] > -999)
+							data[H_RELH] = Td2Hr(data[H_TAIR2], data[H_TDEW]);
 					}
 				}
 			}

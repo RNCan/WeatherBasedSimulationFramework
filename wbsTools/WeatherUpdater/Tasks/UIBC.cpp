@@ -480,12 +480,12 @@ namespace WBSF
 			MakeLower(var_name);
 
 			if (var_name == "temperature" || var_name == "air_temperature" || var_name == "current_air_temperature1" || var_name == "current_air_temperature2")
-				v = H_TAIR;
+				v = H_TAIR2;
 				
 			else if (var_name == "minimum_air_temperature" || var_name == "min_temp")
-				v = H_ADD1;
+				v = H_TMIN2;
 			else if (var_name == "maximum_air_temperature" || var_name == "max_temp")
-				v = H_ADD2;
+				v = H_TMAX2;
 			else if (var_name == "precipitation" || var_name == "hourly_precipitation" || var_name == "precipitation_new" || var_name == "one_day_precipitation" || var_name == "one_day_rain")
 				v = H_PRCP;
 			else if (var_name == "dew_point")
@@ -689,8 +689,8 @@ namespace WBSF
 				if (stat.TRefIsChanging(TRef) )
 					data[stat.GetTRef()].SetData(stat);
 
-				double Tmin = -DBL_MAX;
-				double Tmax = -DBL_MAX;
+				//double Tmin = -DBL_MAX;
+				//double Tmax = -DBL_MAX;
 				for (size_t c = 0; c<loop->size(); c++)
 				{
 					if (col_pos[c] != var_map.end())
@@ -703,22 +703,22 @@ namespace WBSF
 
 							if( col_pos[c]->second.v < H_ADD1)
 								stat.Add(TRef, col_pos[c]->second.v, value);
-							else if (col_pos[c]->second.v == H_ADD1)
+							/*else if (col_pos[c]->second.v == H_ADD1)
 								Tmin = value;
 							else if (col_pos[c]->second.v == H_ADD2)
-								Tmax = value;
+								Tmax = value;*/
 						}
 					}
 				}
 				
-				if (Tmin != -DBL_MAX && Tmax != -DBL_MAX)
+				/*if (Tmin != -DBL_MAX && Tmax != -DBL_MAX)
 				{
 					if (Tmin > Tmax)
 						Switch(Tmin, Tmax);
 
-					stat.Add(TRef, H_TAIR, (Tmin + Tmax) / 2);
-					stat.Add(TRef, H_TRNG, Tmax - Tmin);
-				}
+					stat.Add(TRef, H_TMIN2, Tmin);
+					stat.Add(TRef, H_TMAX2, Tmax);
+				}*/
 
 				msg += callback.StepIt(0);
 			}//for all line

@@ -109,7 +109,7 @@ namespace WBSF
 					CFileInfoVector fileList;
 					msg += UtilWWW::FindFiles(pConnection, (yearPage + "/*.zip"), fileList, callback);
 
-					callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()), 2);
+					callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()) + ")", 2);
 					pConnection->Close();
 					pSession->Close();
 
