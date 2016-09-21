@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 27/11/2014			Rémi Saint-Amant	Compiled 64 bits with new framework
 // 05/04/2013			Rémi Saint-Amant	Remove DD and ET from this model
@@ -63,7 +64,7 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 
 
-		VERSION = "3.0.0 (2016)";
+		VERSION = "3.1.0 (2016)";
 
 		m_varType = 0;
 		m_a[0] = -0.9417;
@@ -119,17 +120,17 @@ namespace WBSF
 
 		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
-			double annualMinimum = m_weather[y].GetStat(H_TMIN)[LOWEST];
-			double annualMinMean = m_weather[y].GetStat(H_TMIN)[MEAN];
-			double annualMean = m_weather[y].GetStat(H_TAIR)[MEAN];
-			double annualMaxMean = m_weather[y].GetStat(H_TMAX)[MEAN];
-			double annualMaximum = m_weather[y].GetStat(H_TMAX)[HIGHEST];
-			double annualPpt = m_weather[y].GetStat(H_PRCP)[SUM];
-			double annualSun = m_weather[y].GetStat(H_SRAD)[SUM];
-			double annualSnow = m_weather[y].GetStat(H_SNOW)[SUM];
-			double Tdew = m_weather[y].GetStat(H_TDEW)[MEAN];
-			double relHum = m_weather[y].GetStat(H_RELH)[MEAN];
-			double wnds = m_weather[y].GetStat(H_WNDS)[MEAN];
+			double annualMinimum = m_weather[y][H_TMIN2][LOWEST];
+			double annualMinMean = m_weather[y][H_TMIN2][MEAN];
+			double annualMean = m_weather[y][H_TAIR2][MEAN];
+			double annualMaxMean = m_weather[y][H_TMAX2][MEAN];
+			double annualMaximum = m_weather[y][H_TMAX2][HIGHEST];
+			double annualPpt = m_weather[y][H_PRCP][SUM];
+			double annualSun = m_weather[y][H_SRMJ][SUM];//H_SRAD)[SUM];
+			double annualSnow = m_weather[y][H_SNOW][SUM];
+			double Tdew = m_weather[y][H_TDEW][MEAN];
+			double relHum = m_weather[y][H_RELH][MEAN];
+			double wnds = m_weather[y][H_WNDS][MEAN];
 
 			double frostDay = GetNbFrostDay(m_weather[y]);
 			size_t NBDayWithPrcp = GetNbDayWithPrcp(m_weather[y]);
@@ -165,13 +166,13 @@ namespace WBSF
 			for (size_t m = 0; m<12; m++)
 			{
 
-				double monthlyMinimum = m_weather[y][m].GetStat(H_TMIN)[LOWEST];
-				double monthlyMinMean = m_weather[y][m].GetStat(H_TMIN)[MEAN];
-				double monthlyMean = m_weather[y][m].GetStat(H_TAIR)[MEAN];
-				double monthlyMaxMean = m_weather[y][m].GetStat(H_TMAX)[MEAN];
-				double monthlyMaximum = m_weather[y][m].GetStat(H_TMAX)[HIGHEST];
-				double monthlyPpt = m_weather[y][m].GetStat(H_PRCP)[SUM];
-				double monthlySun = m_weather[y][m].GetStat(H_SRAD)[SUM];
+				double monthlyMinimum = m_weather[y][m][H_TMIN2][LOWEST];
+				double monthlyMinMean = m_weather[y][m][H_TMIN2][MEAN];
+				double monthlyMean = m_weather[y][m][H_TAIR2][MEAN];
+				double monthlyMaxMean = m_weather[y][m][H_TMAX2][MEAN];
+				double monthlyMaximum = m_weather[y][m][H_TMAX2][HIGHEST];
+				double monthlyPpt = m_weather[y][m][H_PRCP][SUM];
+				double monthlySun = m_weather[y][m][H_SRMJ][SUM];
 				double Tdew = m_weather[y][m].GetStat(H_TDEW)[MEAN];
 				double relHum = m_weather[y][m].GetStat(H_RELH)[MEAN];
 				double wnds = m_weather[y][m].GetStat(H_WNDS)[MEAN];
@@ -212,15 +213,15 @@ namespace WBSF
 				{
 					const CWeatherDay& wDay = m_weather[y][m][d];
 
-					double Tmin = wDay[H_TMIN][MEAN];
-					double Tmean = wDay[H_TAIR][MEAN];
-					double Tmax = wDay[H_TMAX][MEAN];
+					double Tmin = wDay[H_TMIN2][MEAN];
+					double Tmean = wDay[H_TAIR2][MEAN];
+					double Tmax = wDay[H_TMAX2][MEAN];
 					double ppt = wDay[H_PRCP][SUM] >= 0.1 ? wDay[H_PRCP][SUM] : 0;
 
 					double Tdew = wDay[H_TDEW][MEAN];
 					double relHum = wDay[H_RELH][MEAN];
 					double wnds = wDay[H_WNDS][MEAN];
-					double srad = wDay[H_SRAD][MEAN];
+					double srad = wDay[H_SRAD2][MEAN];
 
 					CTRef ref = m_weather[y][m][d].GetTRef();
 
@@ -655,7 +656,7 @@ namespace WBSF
 
 	double GetNbFrostDay(const CWeatherDay& weather)
 	{
-		return (weather[H_TMIN][LOWEST] <= 0 ? 1 : 0);
+		return (weather[H_TMIN2][LOWEST] <= 0 ? 1 : 0);
 	}
 
 	

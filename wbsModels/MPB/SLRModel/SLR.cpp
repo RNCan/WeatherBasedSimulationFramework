@@ -86,7 +86,7 @@ namespace WBSF
 				p.Begin().SetJDay(FIRST_DAY);
 				p.Begin().m_month = AUGUST;
 		
-				CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5.56);
+				CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5.56);
 				data.m_DDHatch = DD.GetDD(weatherYear, p);
 				//data.m_DDHatch = weatherYear.GetDD(5.56, p);
 				//Th = 42 F, whole year
@@ -94,8 +94,8 @@ namespace WBSF
 				data.m_DDGen = DD.GetDD(weatherYear);
 			}
 
-			data.m_lowestMinimum = weatherYear[H_TMIN][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
-			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX][MEAN];//.GetStat(STAT_TMAX, MEAN);
+			data.m_lowestMinimum = weatherYear[H_TMIN2][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
+			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX2][MEAN];//.GetStat(STAT_TMAX, MEAN);
 			data.m_totalPrecip = weatherYear[H_PRCP][SUM];//GetStat(STAT_PRCP, SUM);
 			//wather deficit was in mm
 
@@ -158,7 +158,7 @@ namespace WBSF
 		double A = 0;
 		for (size_t m = 0; m<12; m++)
 		{
-			if (weather[m][H_TAIR][MEAN] > 0)
+			if (weather[m][H_TAIR2][MEAN] > 0)
 			{
 				double ET = TPET.GetET(weather[m], I);
 				//precipitation in mm

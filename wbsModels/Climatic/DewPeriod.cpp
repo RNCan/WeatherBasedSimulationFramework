@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 20/09/2016	1.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 14/02/2013			Rémi Saint-Amant	Creation
 // This model is base on :
@@ -27,7 +28,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.4.0 (2016)";
+		VERSION = "1.5.0 (2016)";
 	}
 
 

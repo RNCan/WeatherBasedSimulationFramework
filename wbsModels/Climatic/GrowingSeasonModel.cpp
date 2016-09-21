@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+// 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 18/07/2016	1.1.1	Rémi Saint-Amant	Using CTRef as output
 // 21/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 07/02/2012	1.0		Rémi Saint-Amant	Creation
@@ -30,7 +31,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.1 (2016)";
+		VERSION = "1.2.0 (2016)";
 
 
 		m_Ttype[BEGIN] = CGSInfo::TT_TMIN;

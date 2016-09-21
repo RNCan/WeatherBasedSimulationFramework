@@ -1,7 +1,8 @@
-//************** M O D I F I C A T I O N S   L O G ********************
-//05/09/2016	2.0	Rémi Saint-Amant	Integrated in WBSF
-//20/06/2013	1.1	Rémi Saint-Amant	Update 
-//25/07/2011	1.0	Rémi Saint-Amant	Creation
+//*********************************************************************
+//20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+//05/09/2016	2.0		Rémi Saint-Amant	Integrated in WBSF
+//20/06/2013	1.1		Rémi Saint-Amant	Update 
+//25/07/2011	1.0		Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "SMIModel.h"
 #include "ModelBase/EntryPoint.h"
@@ -24,7 +25,7 @@ namespace WBSF
 	CSMIModel::CSMIModel()
 	{
 		NB_INPUT_PARAMETER = 3;
-		VERSION = "2.0 (2016)";
+		VERSION = "2.1.0 (2016)";
 
 		//The initial SMIstart is default to m_SMIcrit and then after the first calculation SMIstart is set to the previous day's SMI
 		m_SMIcrit = 200.0; //Critical soil moisture (mm)
@@ -49,8 +50,8 @@ namespace WBSF
 					CTRef Tref = m_weather[y][m][d].GetTRef();
 
 					//Input:
-					double Tmin = m_weather[y][m][d][H_TMIN][MEAN]; //Minimum daily temperature (°C)
-					double Tmax = m_weather[y][m][d][H_TMAX][MEAN]; //Maximum daily temperature (°C)
+					double Tmin = m_weather[y][m][d][H_TMIN2][MEAN]; //Minimum daily temperature (°C)
+					double Tmax = m_weather[y][m][d][H_TMAX2][MEAN]; //Maximum daily temperature (°C)
 					double ppt = m_weather[y][m][d][H_PRCP][SUM]; //Precipitation (mm) 
 
 					//Calculate:

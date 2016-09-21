@@ -1,4 +1,5 @@
 //**********************************************************************
+// 20/09/2016	2.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/10/2013	2.3		Rémi Saint-Amant	New compilation (x64)
 // 07/02/2012   2.2		Rémi Saint-Amant	Frost free end period is shifted of one day (bug)
@@ -27,7 +28,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "2.4.0 (2016)";
+		VERSION = "2.5.0 (2016)";
 	}
 
 	CCCBioModel::~CCCBioModel()
@@ -55,7 +56,7 @@ namespace WBSF
 		ET.Transform(CTM::MONTHLY, SUM);
 		//CModelStatVector monthlyET(ET, CTM::MONTHLY, SUM);
 
-		CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
+		CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5);
 		CModelStatVector DD5;
 		DD.Execute(m_weather, DD5);
 		DD5.Transform(CTM::MONTHLY, SUM);
@@ -67,10 +68,9 @@ namespace WBSF
 			{
 				size_t mm = y * 12 + m;
 				
-				TVarEx test = H_TMIN;
-				m_output[mm][O_MONTHLY_TMIN] = m_weather[y][m][H_TMIN][MEAN];
-				m_output[mm][O_MONTHLY_TMAX] = m_weather[y][m][H_TMAX][MEAN];
-				m_output[mm][O_MONTHLY_TAVG] = m_weather[y][m][H_TAIR][MEAN];
+				m_output[mm][O_MONTHLY_TMIN] = m_weather[y][m][H_TMIN2][MEAN];
+				m_output[mm][O_MONTHLY_TMAX] = m_weather[y][m][H_TMAX2][MEAN];
+				m_output[mm][O_MONTHLY_TAVG] = m_weather[y][m][H_TAIR2][MEAN];
 				m_output[mm][O_MONTHLY_PREC] = m_weather[y][m][H_PRCP][SUM];
 				m_output[mm][O_MONTHLY_GDD] = DD5[mm][0];
 				m_output[mm][O_MONTHLY_TSEA] = GetTsea(m_weather[y][m]);
@@ -98,12 +98,12 @@ namespace WBSF
 		ET.Transform(CTM::MONTHLY, SUM);
 		
 
-		CDegreeDays CDD5(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
+		CDegreeDays CDD5(CDegreeDays::DAILY_AVERAGE, 5);
 		CModelStatVector DD5;
 		CDD5.Execute(m_weather, DD5);
 		DD5.Transform(CTM::ANNUAL, SUM);
 
-		CDegreeDays CDD0(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 0);
+		CDegreeDays CDD0(CDegreeDays::DAILY_AVERAGE, 0);
 		CModelStatVector DD0;
 		CDD0.Execute(m_weather, DD0);
 
@@ -130,9 +130,9 @@ namespace WBSF
 			//CTPeriod GSp = m_weather[y].GetGrowingSeason();
 
 			CStatistic ETStat = ET.GetStat(0, p);
-			m_output[y][O_ANNUAL_TMIN] = m_weather[y][H_TMIN][MEAN];
-			m_output[y][O_ANNUAL_TMAX] = m_weather[y][H_TMAX][MEAN];
-			m_output[y][O_ANNUAL_TAVG] = m_weather[y][H_TAIR][MEAN];
+			m_output[y][O_ANNUAL_TMIN] = m_weather[y][H_TMIN2][MEAN];
+			m_output[y][O_ANNUAL_TMAX] = m_weather[y][H_TMAX2][MEAN];
+			m_output[y][O_ANNUAL_TAVG] = m_weather[y][H_TAIR2][MEAN];
 			m_output[y][O_ANNUAL_PREC] = m_weather[y][H_PRCP][SUM];
 			m_output[y][O_ANNUAL_GDD] = DD5[y][0];
 			m_output[y][O_ANNUAL_TSEA] = GetTsea(m_weather[y]);
@@ -175,7 +175,7 @@ namespace WBSF
 		CStatistic stat;
 		for (size_t d = 0; d < weather.GetNbDays(); d++)
 		{
-			stat += weather[d][H_TAIR][MEAN];
+			stat += weather[d][H_TAIR2][MEAN];
 		}
 
 		return stat[COEF_VAR];
@@ -248,8 +248,8 @@ namespace WBSF
 		CStatistic statTmax;
 		for (size_t m = 0; m < 12; m++)
 		{
-			statTmin += weather[m][H_TMIN][MEAN];
-			statTmax += weather[m][H_TMAX][MEAN];
+			statTmin += weather[m][H_TMIN2][MEAN];
+			statTmax += weather[m][H_TMAX2][MEAN];
 		}
 
 		return statTmax[HIGHEST] - statTmin[LOWEST];
@@ -260,7 +260,7 @@ namespace WBSF
 		CStatistic stat;
 		for (size_t m = 0; m < 12; m++)
 		{
-			stat += weather[m][H_TAIR][MEAN];
+			stat += weather[m][H_TAIR2][MEAN];
 		}
 
 		return stat[COEF_VAR];
@@ -305,8 +305,8 @@ namespace WBSF
 		double FDD = 0;
 		for (size_t jd = 0; jd < weather.GetNbDays(); jd++)
 		{
-			if (weather.GetDay(jd)[H_TAIR][MEAN] < 0)
-				FDD += -weather.GetDay(jd)[H_TAIR][MEAN];
+			if (weather.GetDay(jd)[H_TAIR2][MEAN] < 0)
+				FDD += -weather.GetDay(jd)[H_TAIR2][MEAN];
 		}
 
 		return FDD;
@@ -317,8 +317,8 @@ namespace WBSF
 		double FDD = 0;
 		for (size_t d = 0; d < weather.GetNbDays(); d++)
 		{
-			if (weather[d][H_TAIR][MEAN] < 0)
-				FDD += -weather[d][H_TAIR][MEAN];
+			if (weather[d][H_TAIR2][MEAN] < 0)
+				FDD += -weather[d][H_TAIR2][MEAN];
 		}
 
 		return FDD;

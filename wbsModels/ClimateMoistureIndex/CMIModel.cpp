@@ -1,13 +1,12 @@
-//************** M O D I F I C A T I O N S   L O G ********************
-//06/09/2016 Rémi Saint-Amant	Integration with WBSF
-//10/01/2014 Rémi Saint-Amant	New version for BioSIM 10.5
-//22/07/2011 Rémi Saint-Amant	New version for BioSIM 10 and VC 2010
-//15/11/2007 Rémi Saint-Amant	Compile with visual C++ 8
-//10/10/2005 Rémi Saint-Amant	Creation
-
-
-
 //*********************************************************************
+//20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+//06/09/2016			Rémi Saint-Amant	Integration with WBSF
+//10/01/2014			Rémi Saint-Amant	New version for BioSIM 10.5
+//22/07/2011			Rémi Saint-Amant	New version for BioSIM 10 and VC 2010
+//15/11/2007			Rémi Saint-Amant	Compile with visual C++ 8
+//10/10/2005			Rémi Saint-Amant	Creation
+//*********************************************************************
+
 #include "CMIModel.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic/WeatherStation.h"
@@ -27,7 +26,7 @@ namespace WBSF
 	CCMIModel::CCMIModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "2.1.1 (2016)";
+		VERSION = "3.1.0 (2016)";
 	}
 
 
@@ -39,7 +38,7 @@ namespace WBSF
 		CTM TM = m_weather.GetTM();
 
 		//Compute DD5
-		CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
+		CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5);
 		CModelStatVector DD5;
 		DD.Execute(m_weather, DD5);
 		
@@ -102,9 +101,9 @@ namespace WBSF
 		{
 			for (size_t m = 0; m < 12; m++)
 			{
-				double TMaxMean = m_weather[y][m].GetStat(H_TMAX)[MEAN];
-				double TMinMean = m_weather[y][m].GetStat(H_TMIN)[MEAN];
-				double TMeanMean = m_weather[y][m].GetStat(H_TAIR)[MEAN];
+				double TMaxMean = m_weather[y][m][H_TMAX2][MEAN];
+				double TMinMean = m_weather[y][m][H_TMIN2][MEAN];
+				double TMeanMean = m_weather[y][m][H_TAIR2][MEAN];
 
 				double pptSum = m_weather[y][m].GetStat(H_PRCP)[SUM] / 10;//in cm
 				double PETSum = GetSPMPET(m_weather[y][m]) / 10;//in cm
@@ -131,9 +130,9 @@ namespace WBSF
 		ASSERT(elev > -999);
 
 		//input monthly tmax, tmin, prec and calculate tmean
-		double TMax = weather[H_TMAX][MEAN];
-		double TMin = weather[H_TMIN][MEAN];
-		double TMean = weather[H_TAIR][MEAN];
+		double TMax = weather[H_TMAX2][MEAN];
+		double TMin = weather[H_TMIN2][MEAN];
+		double TMean = weather[H_TAIR2][MEAN];
 
 		//First calculate SVP for monthly tmax tmin and tdew (assumed = tmin - 2.5)
 		double SVPtmax = .61078 * exp(17.269 * TMax / (237.3 + TMax));

@@ -932,9 +932,9 @@ namespace WBSF
 				bool bValid[NB_VAR_H] = { 0 };
 				bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
 				bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
-				bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] == "E") && !(*loop)[DEWPOINT].empty();
-				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] == "E" || (*loop)[RELHUM_FLAG] == "T") && !(*loop)[RELHUM].empty();
-				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] == "E") && !(*loop)[WIND_SPEED].empty();
+				bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
+				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M")  && !(*loop)[RELHUM].empty();
+				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
 				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
 				//bValid[H_EA] = m_bExtractVaporPressure && bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
 				//bValid[H_EA] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
@@ -967,11 +967,27 @@ namespace WBSF
 						}
 						else
 						{*/
-							if (COL_POS[v] >= 0)
-								accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
+						if (COL_POS[v] >= 0)
+							accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
 						//}
 					}
 				}
+				
+
+					
+
+				if (bValid[H_TAIR2] && (!bValid[H_TDEW] || !bValid[H_RELH]))
+				{
+					double Tair = ToDouble((*loop)[COL_POS[H_TAIR2]])*FACTOR[H_TAIR2];
+					double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
+					double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
+					if (Hr == -999 && Tdew != -999)
+						accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
+					else if (Tdew == -999 && Hr != -999)
+						accumulator.Add(TRef, H_TDEW, Hr2Td(Tair, Hr));
+				}
+			
+
 
 				msg += callback.StepIt(0);
 			}//for all line

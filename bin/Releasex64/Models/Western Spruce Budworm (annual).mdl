@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Western Spruce Budworm</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>1</Behaviour>
     <Description/>
     <WindowRect>0 0 173 200</WindowRect>
-    <SimulatedCategory>T TR</SimulatedCategory>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>2</NbYearMin>

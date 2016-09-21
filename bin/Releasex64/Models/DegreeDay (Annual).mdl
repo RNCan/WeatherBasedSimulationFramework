@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Degree-Day</Title>
     <Version>2.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Versatile degree-day model</Description>
     <WindowRect>0 0 325 347</WindowRect>
-    <SimulatedCategory>T TR</SimulatedCategory>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -141,6 +141,7 @@
         <OutputVariable>
             <Name>DD</Name>
             <Title>DD (°C·d)</Title>
+            <Units/>
             <Description>Degree-day. See documentation.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>6</Precision>

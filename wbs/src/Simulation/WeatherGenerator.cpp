@@ -19,7 +19,7 @@
 //		in North America north of Mexico. International Journal of Biometeorology. 51:415-430.
 //
 //******************************************************************************
-//13/09/2016	Rémi Saint-Amant	Chnage Tair and Trng by Tmin and Tmax
+//13/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
 //24/02/2016	Rémi Saint-Amant	Add gribs database to the weather generator
 //01/01/2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //05/03/2015	Rémi Saint-Amant	Update with BioSIM11
@@ -657,7 +657,7 @@ ERMsg CWeatherGenerator::ComputeHumidityRadiation(CSimulationPoint& simulationPo
 						_ASSERTE(!_isnan(data.s_srad[jd]));
 						_ASSERTE(!_isnan(data.s_dayl[jd]));
 						//wDay[H_SRAD2] = (data.s_srad[jd] * data.s_dayl[jd] / 1000000); // convert W/m² to MJ/m²·day
-						wDay[H_SRAD2] = data.s_srad[jd] * 24 * 3600 / data.s_dayl[jd]; // convert W/m² : est-ce que Srad est le moyenne le jour seulement ou 24 heures?
+						wDay[H_SRAD2] = data.s_srad[jd] * data.s_dayl[jd] / (24 * 3600); // convert daylight radiation [W/m²] into daily radiation [W/m²]
 					}
 
 					_ASSERTE(!variables[H_SRAD2] || wDay[H_SRAD2].IsInit());

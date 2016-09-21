@@ -1,15 +1,6 @@
 ﻿//**********************************************************************
-// 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
-// 27/11/2014			Rémi Saint-Amant	Compiled 64 bits with new framework
-// 05/04/2013			Rémi Saint-Amant	Remove DD and ET from this model
-// 26/02/2013			Rémi Saint-Amant	Add hourly model
-// 29/06/2010			Rémi Saint-Amant	Compatible with HxGrid. Remove extrem
-// 30/10/2009			Rémi Saint-Amant	Change CPeriod by CTPeriod
-// 03/03/2009			Rémi Saint-Amant	Integrate with new BioSIMModelBase (hxGrid)
-// 19/11/2008			Rémi Saint-Amant	Update with VS9 and new BioSIMModelBase 
-// 27/05/2008			Rémi Saint-Amant	Used of wind speed in the computation of ASC2000 PET
-// 01/12/2002			Rémi Saint-Amant	2 variables was added: Degree-day and % of snow
-// 15/07/2002			Rémi Saint-Amant	Creation
+// 20/09/2016	1.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+// 21/01/2016	1.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 //**********************************************************************
 
 #include <iostream>
@@ -48,7 +39,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.0.0 (2016)";
+		VERSION = "1.1.0 (2016)";
 	}
 
 	CVPDModel::~CVPDModel()
@@ -73,7 +64,7 @@ namespace WBSF
 		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
 			double daylightVPD = GetDaylightVaporPressureDeficit(m_weather[y]); //[Pa]
-			double VPD = m_weather[y].GetStat(H_VPD)[MEAN]; //[Pa]
+			double VPD = m_weather[y][H_VPD2][MEAN]; //[Pa]
 
 			m_output[y][O_DAYLIGHT_VPD] = daylightVPD;
 			m_output[y][O_MEAN_VPD] = VPD;
@@ -162,7 +153,7 @@ namespace WBSF
 						const CHourlyData& wHour = m_weather[y][m][d][h];
 
 						//double daylightVPD = GetDaylightVaporPressureDeficit(wDay); //Pa
-						double VPD = max(0.0f, wHour[H_ES] - wHour[H_EA] );
+						double VPD = max(0.0f, wHour[H_ES2] - wHour[H_EA2] );
 
 						CTRef ref = m_weather[y][m][d][h].GetTRef();
 						size_t sunrise = Round(sun.GetSunrise(ref));
@@ -211,14 +202,14 @@ namespace WBSF
 			size_t sunset = min(23ll, Round(sun.GetSunset(weather.GetTRef())));
 
 			for (size_t h = sunrise; h <= sunset; h++)
-				VPD += max(0.0f, weather[h][H_ES] - weather[h][H_EA]);
+				VPD += max(0.0f, weather[h][H_ES2] - weather[h][H_EA2]);
 				
 		}
 		else
 		{
 			double daylightT = weather.GetTdaylight();
 			double daylightEs = e°(daylightT) * 1000;
-			VPD += max(0.0, daylightEs - weather[H_EA][MEAN]);
+			VPD += max(0.0, daylightEs - weather[H_EA2][MEAN]);
 		}
 
 		return VPD[MEAN];
@@ -249,11 +240,11 @@ namespace WBSF
 		if (weather.IsHourly())
 		{
 			for (size_t h = 0; h < 24; h++)
-				stat += max(0.0f, weather[h][H_ES] - weather[h][H_EA]);
+				stat += max(0.0f, weather[h][H_ES2] - weather[h][H_EA2]);
 		}
 		else
 		{
-			stat += max(0.0, weather[H_ES][MEAN] - weather[H_EA][MEAN]);
+			stat += max(0.0, weather[H_ES2][MEAN] - weather[H_EA2][MEAN]);
 		}
 
 		return stat[MEAN];

@@ -14,6 +14,7 @@
 // Description: 
 //
 //*****************************************************************************
+// 20/09/2016	2.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 26/05/2016	2.4.1	Rémi Saint-Amant	Bug correction into annual model
 // 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 04/03/2011			Rémi Saint-Amant	New compile
@@ -41,7 +42,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 8;
-		VERSION = "2.4.1 (2016)";
+		VERSION = "2.5.0 (2016)";
 		
 		m_DDSummation = 0;
 
@@ -80,13 +81,12 @@ namespace WBSF
 			//Degree-day summation
 			//for the first day of accumulation to the last day of accumulation
 			double DD = 0;
-			for (CTRef d = begin; d <= end&&stat[y][O_JDAY] == -9999; d++)
+			for (CTRef TRef = begin; TRef <= end&&stat[y][O_JDAY] == -9999; TRef++)
 			{
-				const CDataInterface& wDay = m_weather[y][d];
-				DD += m_DD.Get(wDay);
+				DD += m_DD.GetDD(m_weather[y].GetDay(TRef));
 
 				if (DD >= m_DDSummation)
-					stat[y][O_JDAY] = d.GetJDay();
+					stat[y][O_JDAY] = TRef.GetJDay();
 			}
 		}
 	}

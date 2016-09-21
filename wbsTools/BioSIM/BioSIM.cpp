@@ -1,180 +1,181 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM  
-// 11.0.9: 18/08/2016   Bug correction in weather database 
-//						Bug correction in gradient and hourly data
-// 11.0.8: 14/08/2016	Add "AddName" in MergeExecutable
-//						Bug correction in col width
-//						Some bug correction in the ModelInputDlg
-//						Add new input type: staticText
-//						Bug correction in functionAnalysis
-// 11.0.7: 28/06/2016	Bug correction in weather generation of hourly data.
-//						Add fillGap into daily and hourly weather data
-// 11.0.6: 17/06/2016	Bug correction in models. Change in result. return binary representation. 
-//						Bug correction in mapping and exposition
-// 11.0.5: 10/06/2016	Bug correction in gradients. Activate ppt gradient. 
-// 11.0.4: 24/05/2016	Some bug correction in the ATM module
-// 11.0.3: 24/04/2016	Add climatic zone to Gribs simulation
-//						Bug correction in snow and Input Weather Generator Analysis
-//						Bug correction when only one element
-// 11.0.2: 21/04/2016	Correction of bug in the weather generation with more than 1 replication.
-// 11.0.0: 10/04/2016	Integreted with WBSF 
-//						Add hourly input data   
-//						Version 64 bits and UNICODE
-//						Add WeatherGeneration and ModelExecution
-//						replace link of Fortran DLL Powell by bobyQA (dlib)
-//						Compile with GDAL 1.11
-//						Add new component : Dispersal, Export, Parameterization, WeatherUpdater
-//						Update of many user interface 
-//						New loc generation from weather database
-//						Add specific site extraction
-//						Change progression window by a dockable pane
-// 10.3.2:				Add Standard deviation (N) and some statistic in Analysis  
-//						Add Copy Export component 
-//						Add direct file transfer from BioSIM to models 
-//						Add SetStaticData function in simulation and simulatedAnnealing
-//						Bug correction in global limit in spatial interpolation
-//						Add maximum number of CPU
-//						Add cancel in simulation database creation 
-// 10.3.1:16/05/2013    Correction of a bug in the Weather Define 
-// 10.3.0:10/05/2013    Correction of hourly simulation
-//						correction in Simulated Annealing 
-//						New simulation init 
-//						New CSV streaming
-//						Correction in CTRef format of the daylight saving zone 
-//						Add wetness Duration and new DD, ReverseDD et ClimaticDLL 
-// 10.2.5:15/02/2013	Add % of max of variable in Analysis event 
-//						Bug correction in model load and unload 
-//						Bug correction in Simulated Annealing
-//						Bug correction with hxGrid in Simulation
-//						Bug correction in multi-threaded weather optimization file 
-//						Correction in hxGrid simulation
-//						Add kriging local filter
-//						Add mapping global filter
-//						Correction of a bug in CRegistry and leak of handle 
-// 10.2.4:18/09/2012	Correction of bug in Input Analysis
-//						Change in Simulated Annealing  
-//						Add R scrip capability
-//						Add export all line event with missing data
-//						Bug correction in time format before 1970 
-//						Bug correction in CleanUp of the Analysis 
-// 10.2.3:16/07/2012	Add missing value into function analysis  
-//						New wind speed calculation (remove mean adjustment and maximum limit)
-// 10.2.2:02/07/2012	Fix a problem with map without data (month outside selected period)
-// 10.2.1:08/05/2012	Fix a bug in Kriging. Fix problem with PTParser.
-//						Fix a bug into the mode input dialog (input file type)
-// 10.2.0:26/04/2012    New Manual.
-//						Bug correction in Loc generator  
-// 10.1.9:21/03/2012	Correction for BioSIM manual 
-//						Always return default period reference 
-//						Add message in simulation when the TGInput is not good
-//						Correction of initial size of windows
-//						Add JDay in FunctionAnalysis
-// 10.1.8:14/03/2012	New Thin Plate Splines
-//						String correction 
-//						Correction of a bug in sub-region generate loc
-// 10.1.7:01/03/2012	Correction of a bug in location list and ";" separator
-//						GDAL 1.9.0
-//						String correction  
-//						Add compression when creating GeoTiff file
-//						Bug correction in random loc extraction with aggregation and subset
-// 10.1.6:13/02/2012	TempGen to WeatherGenerator (multi-threads)
-//						New random generator (std::tr1) in weatherGenerator
-//						Correction of a bug in multi-analysis 
-// 10.1.5:09/02/2012	Correction of problem with the French version.
-//						multi-Threaded Analyses
-// 10.1.4:19/01/2012	Add cleanup  
-//						Good number of task for mapping 
-//						Add catch exception on task execute 
-//						New snow model into BioSIM. New climatic model and snow compute from BioSIM.
-//						New Analysis HowPage 
-//						Bug correction into cumul % analysis event 
-//						Remove map edit dialog
-//						Correction of bug in command line execution
-//						Text corrections in French and English
-//						Bug correction in event analysis
-// 10.1.3:16/11/2011	Correction de CAutoEnableStatic
-//						Add the real number of task
-//						Correction in simulation to load daily database only once
-//						Add CoCreateInstance on thread
-// 10.1.2:14/11/2011	Add %c in the mapping
-//						Correction of bug in the location list dialog
-//						Add save as image in the graph view
-//						Add openMp in simulation and add thread safe in model
-//						Add new threaded progressDlg
-//						Add taskbar notification
-// 10.1.1:26/10/2011    Add help et download weather database 
-//						Bug correction in Import component
-// 10.1.0:06/10/2011	Look change before closing 
-//						New ModelInput, TGInput and Loc Editor
-//						New loc format and new loc extension
-//						Correction of the bug of floating windows
-//						New graph capability
-//						New Model Input page
-//						Add extract normal
-//						Add weatherLoc and X validation into MatchStationDlg
-//				        New DBEditor and new NormalEditor and new DailyEditor application.
-//						New model input window position
-//						Add text editor options 
-// 10.0.9:30/05/2011	Correction of a bug in mapping name   
-//						Add export as shapefile
-// 10.0.8:18/05/2011	New version with new FWI model
-// 10.0.7:13/05/2011	Add FillNugget in Kriging
-//						Add Lambert_Conformal_Conic in projection for old compatibility
-//						Correct an problem writing projection
-// 10.0.6:01/05/2011	Correction of a bug in mapping cancelation
-//                      Transformation of the no data from the model into the no data of BioSIM
-// 10.0.5:28/04/2011	Correction of a bug in kriging
-//						Add limitation in post treatment mapping
-//						Add writing ESRI grid to GDAL 1.8
-//						Compiled with new new GDAL 1.8
-//						Correction of languages and interfaces
-//						Add Thin Plate Splines in grid interpolation class
-// 10.0.4:13/04/2011	Add compile time in About.
-// 10.0.3:07/04/2011	Correction of crash on window XP of the advanced mapping dialog. 
-//						Correction of a bug in the generate regular grid from DEM
-// 10.0.2:31/03/2011	Add capability of moving element. Correction of a bug in advanced option.
-// 10.0.1:30/03/2011	Correction of a bug under window XP. crash the second time BioSIM is open.
-// 10.0.0:01/03/2011	First exit
-// 10.0.0:15/09/2008	A brand new version 
-// 9.5.2:               Ajout du lien vers BioKriging
-//						
-// 9.5.1: 22/04/2008	Correction d'un bug avec la description des anlayses
-//						Ajout d'un code d'erreur en mode automatique
-// 9.5.0: 09/01/2008	Compilation avec visual studio 2005
-//						Resource en anglais par defaut
-// 9.2.0: 28/10/2007    Nouvelle base de données Normale, Quotidienne.
-//						Utilisation de Ultimate Grid
-//						Recherche en 3D 
-//						Nouveau modèle, modelInput et TGInput en XML
-//						Nouveau TempGenKernel pour tenir compte des nouvelles variables climatiques
-// 9.1.0: 24/09/2007	Nouveau calcul de gradient thermique en 3 couches (local, regional, defaut). 
-//						Generateur de LOC pour les DEM
-//						Correction d'un problème avec la taille des fenêtres initiales.
-//						Ajout du rapport de match
-// 9.0.2: 27/03/2007	Correction d'un bug dans la precipitation des données quotidiennes
-//						Nouveau fichier LOC: version 3
-// 9.0.1: 13/02/2007	Nouveau projet BioSIM incompatible avec BioSIM8. 
-//						Nouvelle analyse Average Output: possibiliter de choisir les stations à exporter
-// 9.0.0: 08/12/2006    Incorporation du nouveau TempGenKernel et des nouvelles bases de données normales.
-//						Nouveau TempGen et élimination des zone climatiques
-// 8.4.0: 02/06/2006    Ajout de l'export de la simulation
-//						Correction d'un bug dans la validation des HomeDB
-//						Correction d'un bug dans l'ajout d'une station forecast
-//						Ajout du path dans les DBEditors
-//						Correction d'un problème dans la progression d'une simulation
-//						TempGen avec des nouveaux paramètres
-// 8.3.9: 01/05/2006	Ajouts des Progress bar dans le chargement des bases de données 
-// 8.3.8: 19/04/2006	Correction d'un bug dans Le match station
-// 8.3.7: 14/03/2006	Correction d'un bug dans le match station quotidien
-// 8.3.6: 08/03/2006	Correction d'un bug dans les path relatif
-// 8.3.5: 20/01/2006	Correction d'un bug dans les analyse de grosse simulation. 
-//						Changement dans UtilWin et UtilMath
-// 8.3.4: 31/10/2005    Enlever la possibiliter de sauvegarder les analyses en ascii
-//						Nouveau fichier d'export pour Biokriging
-// 8.3.3: 28/10/2005	Correction d'un bug dans la lecture des vieux LOC 
-// 8.3.2: 20/10/2005    Correction d'un bug dans les analyses cumulative de date
-// 8.3.1: 11/10/2005    Correction des analyses composé (date) sub et add.
-// 8.3.0: 21/09/2005	Changement de numéro
+// 11.1.0  20/09/2016   Rémi Saint-Amant	Replace Tair and Trng by Tmin and Tmax
+// 11.0.9: 18/08/2016   Rémi Saint-Amant	Bug correction in weather database 
+//						Rémi Saint-Amant	Bug correction in gradient and hourly data
+// 11.0.8: 14/08/2016	Rémi Saint-Amant	Add "AddName" in MergeExecutable
+//						Rémi Saint-Amant	Bug correction in col width
+//						Rémi Saint-Amant	Some bug correction in the ModelInputDlg
+//						Rémi Saint-Amant	Add new input type: staticText
+//						Rémi Saint-Amant	Bug correction in functionAnalysis
+// 11.0.7: 28/06/2016	Rémi Saint-Amant	Bug correction in weather generation of hourly data.
+//						Rémi Saint-Amant	Add fillGap into daily and hourly weather data
+// 11.0.6: 17/06/2016	Rémi Saint-Amant	Bug correction in models. Change in result. return binary representation. 
+//						Rémi Saint-Amant	Bug correction in mapping and exposition
+// 11.0.5: 10/06/2016	Rémi Saint-Amant	Bug correction in gradients. Activate ppt gradient. 
+// 11.0.4: 24/05/2016	Rémi Saint-Amant	Some bug correction in the ATM module
+// 11.0.3: 24/04/2016	Rémi Saint-Amant	Add climatic zone to Gribs simulation
+//						Rémi Saint-Amant	Bug correction in snow and Input Weather Generator Analysis
+//						Rémi Saint-Amant	Bug correction when only one element
+// 11.0.2: 21/04/2016	Rémi Saint-Amant	Correction of bug in the weather generation with more than 1 replication.
+// 11.0.0: 10/04/2016	Rémi Saint-Amant	Integreted with WBSF 
+//						Rémi Saint-Amant	Add hourly input data   
+//						Rémi Saint-Amant	Version 64 bits and UNICODE
+//						Rémi Saint-Amant	Add WeatherGeneration and ModelExecution
+//						Rémi Saint-Amant	replace link of Fortran DLL Powell by bobyQA (dlib)
+//						Rémi Saint-Amant	Compile with GDAL 1.11
+//						Rémi Saint-Amant	Add new component : Dispersal, Export, Parameterization, WeatherUpdater
+//						Rémi Saint-Amant	Update of many user interface 
+//						Rémi Saint-Amant	New loc generation from weather database
+//						Rémi Saint-Amant	Add specific site extraction
+//						Rémi Saint-Amant	Change progression window by a dockable pane
+// 10.3.2:				Rémi Saint-Amant	Add Standard deviation (N) and some statistic in Analysis  
+//						Rémi Saint-Amant	Add Copy Export component 
+//						Rémi Saint-Amant	Add direct file transfer from BioSIM to models 
+//						Rémi Saint-Amant	Add SetStaticData function in simulation and simulatedAnnealing
+//						Rémi Saint-Amant	Bug correction in global limit in spatial interpolation
+//						Rémi Saint-Amant	Add maximum number of CPU
+//						Rémi Saint-Amant	Add cancel in simulation database creation 
+// 10.3.1:16/05/2013    Rémi Saint-Amant	Correction of a bug in the Weather Define 
+// 10.3.0:10/05/2013    Rémi Saint-Amant	Correction of hourly simulation
+//						Rémi Saint-Amant	correction in Simulated Annealing 
+//						Rémi Saint-Amant	New simulation init 
+//						Rémi Saint-Amant	New CSV streaming
+//						Rémi Saint-Amant	Correction in CTRef format of the daylight saving zone 
+//						Rémi Saint-Amant	Add wetness Duration and new DD, ReverseDD et ClimaticDLL 
+// 10.2.5:15/02/2013	Rémi Saint-Amant	Add % of max of variable in Analysis event 
+//						Rémi Saint-Amant	Bug correction in model load and unload 
+//						Rémi Saint-Amant	Bug correction in Simulated Annealing
+//						Rémi Saint-Amant	Bug correction with hxGrid in Simulation
+//						Rémi Saint-Amant	Bug correction in multi-threaded weather optimization file 
+//						Rémi Saint-Amant	Correction in hxGrid simulation
+//						Rémi Saint-Amant	Add kriging local filter
+//						Rémi Saint-Amant	Add mapping global filter
+//						Rémi Saint-Amant	Correction of a bug in CRegistry and leak of handle 
+// 10.2.4:18/09/2012	Rémi Saint-Amant	Correction of bug in Input Analysis
+//						Rémi Saint-Amant	Change in Simulated Annealing  
+//						Rémi Saint-Amant	Add R scrip capability
+//						Rémi Saint-Amant	Add export all line event with missing data
+//						Rémi Saint-Amant	Bug correction in time format before 1970 
+//						Rémi Saint-Amant	Bug correction in CleanUp of the Analysis 
+// 10.2.3:16/07/2012	Rémi Saint-Amant	Add missing value into function analysis  
+//						Rémi Saint-Amant	New wind speed calculation (remove mean adjustment and maximum limit)
+// 10.2.2:02/07/2012	Rémi Saint-Amant	Fix a problem with map without data (month outside selected period)
+// 10.2.1:08/05/2012	Rémi Saint-Amant	Fix a bug in Kriging. Fix problem with PTParser.
+//						Rémi Saint-Amant	Fix a bug into the mode input dialog (input file type)
+// 10.2.0:26/04/2012    Rémi Saint-Amant	New Manual.
+//						Rémi Saint-Amant	Bug correction in Loc generator  
+// 10.1.9:21/03/2012	Rémi Saint-Amant	Correction for BioSIM manual 
+//						Rémi Saint-Amant	Always return default period reference 
+//						Rémi Saint-Amant	Add message in simulation when the TGInput is not good
+//						Rémi Saint-Amant	Correction of initial size of windows
+//						Rémi Saint-Amant	Add JDay in FunctionAnalysis
+// 10.1.8:14/03/2012	Rémi Saint-Amant	New Thin Plate Splines
+//						Rémi Saint-Amant	String correction 
+//						Rémi Saint-Amant	Correction of a bug in sub-region generate loc
+// 10.1.7:01/03/2012	Rémi Saint-Amant	Correction of a bug in location list and ";" separator
+//						Rémi Saint-Amant	GDAL 1.9.0
+//						Rémi Saint-Amant	String correction  
+//						Rémi Saint-Amant	Add compression when creating GeoTiff file
+//						Rémi Saint-Amant	Bug correction in random loc extraction with aggregation and subset
+// 10.1.6:13/02/2012	Rémi Saint-Amant	TempGen to WeatherGenerator (multi-threads)
+//						Rémi Saint-Amant	New random generator (std::tr1) in weatherGenerator
+//						Rémi Saint-Amant	Correction of a bug in multi-analysis 
+// 10.1.5:09/02/2012	Rémi Saint-Amant	Correction of problem with the French version.
+//						Rémi Saint-Amant	multi-Threaded Analyses
+// 10.1.4:19/01/2012	Rémi Saint-Amant	Add cleanup  
+//						Rémi Saint-Amant	Good number of task for mapping 
+//						Rémi Saint-Amant	Add catch exception on task execute 
+//						Rémi Saint-Amant	New snow model into BioSIM. New climatic model and snow compute from BioSIM.
+//						Rémi Saint-Amant	New Analysis HowPage 
+//						Rémi Saint-Amant	Bug correction into cumul % analysis event 
+//						Rémi Saint-Amant	Remove map edit dialog
+//						Rémi Saint-Amant	Correction of bug in command line execution
+//						Rémi Saint-Amant	Text corrections in French and English
+//						Rémi Saint-Amant	Bug correction in event analysis
+// 10.1.3:16/11/2011	Rémi Saint-Amant	Correction de CAutoEnableStatic
+//						Rémi Saint-Amant	Add the real number of task
+//						Rémi Saint-Amant	Correction in simulation to load daily database only once
+//						Rémi Saint-Amant	Add CoCreateInstance on thread
+// 10.1.2:14/11/2011	Rémi Saint-Amant	Add %c in the mapping
+//						Rémi Saint-Amant	Correction of bug in the location list dialog
+//						Rémi Saint-Amant	Add save as image in the graph view
+//						Rémi Saint-Amant	Add openMp in simulation and add thread safe in model
+//						Rémi Saint-Amant	Add new threaded progressDlg
+//						Rémi Saint-Amant	Add taskbar notification
+// 10.1.1:26/10/2011    Rémi Saint-Amant	Add help et download weather database 
+//						Rémi Saint-Amant	Bug correction in Import component
+// 10.1.0:06/10/2011	Rémi Saint-Amant	Look change before closing 
+//						Rémi Saint-Amant	New ModelInput, TGInput and Loc Editor
+//						Rémi Saint-Amant	New loc format and new loc extension
+//						Rémi Saint-Amant	Correction of the bug of floating windows
+//						Rémi Saint-Amant	New graph capability
+//						Rémi Saint-Amant	New Model Input page
+//						Rémi Saint-Amant	Add extract normal
+//						Rémi Saint-Amant	Add weatherLoc and X validation into MatchStationDlg
+//				        Rémi Saint-Amant	New DBEditor and new NormalEditor and new DailyEditor application.
+//						Rémi Saint-Amant	New model input window position
+//						Rémi Saint-Amant	Add text editor options 
+// 10.0.9:30/05/2011	Rémi Saint-Amant	Correction of a bug in mapping name   
+//						Rémi Saint-Amant	Add export as shapefile
+// 10.0.8:18/05/2011	Rémi Saint-Amant	New version with new FWI model
+// 10.0.7:13/05/2011	Rémi Saint-Amant	Add FillNugget in Kriging
+//						Rémi Saint-Amant	Add Lambert_Conformal_Conic in projection for old compatibility
+//						Rémi Saint-Amant	Correct an problem writing projection
+// 10.0.6:01/05/2011	Rémi Saint-Amant	Correction of a bug in mapping cancelation
+//                      Rémi Saint-Amant	Transformation of the no data from the model into the no data of BioSIM
+// 10.0.5:28/04/2011	Rémi Saint-Amant	Correction of a bug in kriging
+//						Rémi Saint-Amant	Add limitation in post treatment mapping
+//						Rémi Saint-Amant	Add writing ESRI grid to GDAL 1.8
+//						Rémi Saint-Amant	Compiled with new new GDAL 1.8
+//						Rémi Saint-Amant	Correction of languages and interfaces
+//						Rémi Saint-Amant	Add Thin Plate Splines in grid interpolation class
+// 10.0.4:13/04/2011	Rémi Saint-Amant	Add compile time in About.
+// 10.0.3:07/04/2011	Rémi Saint-Amant	Correction of crash on window XP of the advanced mapping dialog. 
+//						Rémi Saint-Amant	Correction of a bug in the generate regular grid from DEM
+// 10.0.2:31/03/2011	Rémi Saint-Amant	Add capability of moving element. Correction of a bug in advanced option.
+// 10.0.1:30/03/2011	Rémi Saint-Amant	Correction of a bug under window XP. crash the second time BioSIM is open.
+// 10.0.0:01/03/2011	Rémi Saint-Amant	First exit
+// 10.0.0:15/09/2008	Rémi Saint-Amant	A brand new version 
+// 9.5.2:               Rémi Saint-Amant	Ajout du lien vers BioKriging
+//						Rémi Saint-Amant	
+// 9.5.1: 22/04/2008	Rémi Saint-Amant	Correction d'un bug avec la description des anlayses
+//						Rémi Saint-Amant	Ajout d'un code d'erreur en mode automatique
+// 9.5.0: 09/01/2008	Rémi Saint-Amant	Compilation avec visual studio 2005
+//						Rémi Saint-Amant	Resource en anglais par defaut
+// 9.2.0: 28/10/2007    Rémi Saint-Amant	Nouvelle base de données Normale, Quotidienne.
+//						Rémi Saint-Amant	Utilisation de Ultimate Grid
+//						Rémi Saint-Amant	Recherche en 3D 
+//						Rémi Saint-Amant	Nouveau modèle, modelInput et TGInput en XML
+//						Rémi Saint-Amant	Nouveau TempGenKernel pour tenir compte des nouvelles variables climatiques
+// 9.1.0: 24/09/2007	Rémi Saint-Amant	Nouveau calcul de gradient thermique en 3 couches (local, regional, defaut). 
+//						Rémi Saint-Amant	Generateur de LOC pour les DEM
+//						Rémi Saint-Amant	Correction d'un problème avec la taille des fenêtres initiales.
+//						Rémi Saint-Amant	Ajout du rapport de match
+// 9.0.2: 27/03/2007	Rémi Saint-Amant	Correction d'un bug dans la precipitation des données quotidiennes
+//						Rémi Saint-Amant	Nouveau fichier LOC: version 3
+// 9.0.1: 13/02/2007	Rémi Saint-Amant	Nouveau projet BioSIM incompatible avec BioSIM8. 
+//						Rémi Saint-Amant	Nouvelle analyse Average Output: possibiliter de choisir les stations à exporter
+// 9.0.0: 08/12/2006    Rémi Saint-Amant	Incorporation du nouveau TempGenKernel et des nouvelles bases de données normales.
+//						Rémi Saint-Amant	Nouveau TempGen et élimination des zone climatiques
+// 8.4.0: 02/06/2006    Rémi Saint-Amant	Ajout de l'export de la simulation
+//						Rémi Saint-Amant	Correction d'un bug dans la validation des HomeDB
+//						Rémi Saint-Amant	Correction d'un bug dans l'ajout d'une station forecast
+//						Rémi Saint-Amant	Ajout du path dans les DBEditors
+//						Rémi Saint-Amant	Correction d'un problème dans la progression d'une simulation
+//						Rémi Saint-Amant	TempGen avec des nouveaux paramètres
+// 8.3.9: 01/05/2006	Rémi Saint-Amant	Ajouts des Progress bar dans le chargement des bases de données 
+// 8.3.8: 19/04/2006	Rémi Saint-Amant	Correction d'un bug dans Le match station
+// 8.3.7: 14/03/2006	Rémi Saint-Amant	Correction d'un bug dans le match station quotidien
+// 8.3.6: 08/03/2006	Rémi Saint-Amant	Correction d'un bug dans les path relatif
+// 8.3.5: 20/01/2006	Rémi Saint-Amant	Correction d'un bug dans les analyse de grosse simulation. 
+//						Rémi Saint-Amant	Changement dans UtilWin et UtilMath
+// 8.3.4: 31/10/2005    Rémi Saint-Amant	Enlever la possibiliter de sauvegarder les analyses en ascii
+//						Rémi Saint-Amant	Nouveau fichier d'export pour Biokriging
+// 8.3.3: 28/10/2005	Rémi Saint-Amant	Correction d'un bug dans la lecture des vieux LOC 
+// 8.3.2: 20/10/2005    Rémi Saint-Amant	Correction d'un bug dans les analyses cumulative de date
+// 8.3.1: 11/10/2005    Rémi Saint-Amant	Correction des analyses composé (date) sub et add.
+// 8.3.0: 21/09/2005	Rémi Saint-Amant	Changement de numéro
 // 8.24: 13/07/2005    Ajout du nouveau type de BD de simulation (HomeDB).
 //					   Optimisation dans le calcul des références temporelles.
 //					   Ajout de la relation E2 dans les anal tMean.

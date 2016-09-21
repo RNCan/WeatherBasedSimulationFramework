@@ -46,7 +46,7 @@ namespace WBSF
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
 	CWSpruceBudworm::CWSpruceBudworm(CHost* pHost, CTRef creation, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividue(pHost, creation, age, sex, bFertil, generation, scaleFactor)
+		CIndividual(pHost, creation, age, sex, bFertil, generation, scaleFactor)
 	{
 		//A creation date is assigned to each individual
 		//Individual's "relative" development rate for each life stage
@@ -85,13 +85,13 @@ namespace WBSF
 	//*****************************************************************************
 	void CWSpruceBudworm::Live(const CWeatherDay& weather)
 	{
-		CIndividue::Live(weather);
+		CIndividual::Live(weather);
 
 		double def = GetStand()->m_defoliation; //Defoliation affects distribution of L2o, proportion on bole, buffered
 		double prop_onBole = def > 0.1 ? 0.7 : 0.4;
 
 		bool onBranch = (m_onBole>prop_onBole); //Decision as to where individual overwinters
-		double Tmean = weather[H_TAIR][MEAN];
+		double Tmean = weather[H_TAIR2][MEAN];
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
@@ -101,7 +101,7 @@ namespace WBSF
 
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
-			double T = weather[h][H_TAIR];
+			double T = weather[h][H_TAIR2];
 
 
 			const CWSBTableLookup& equations = Equations();
@@ -135,14 +135,14 @@ namespace WBSF
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
 		
-		CIndividue::Brood(weather);
+		CIndividual::Brood(weather);
 		//Each day t, at temperature T
 		//Females begin oviposition after 1 day out of 15 at 20 C, 1 days out of 30 at 12 C: 6.7% of lifespan
 		if (m_age >= ADULT + 0.067)
 		{
 			_ASSERTE(IsAlive());
 
-			double T = weather[H_TAIR][MEAN];
+			double T = weather[H_TAIR2][MEAN];
 
 			double eggLeft = m_potentialFecundity - m_totalBroods;
 			double broods = eggLeft*CWSBOviposition::GetRate(T, eggLeft);
@@ -160,7 +160,7 @@ namespace WBSF
 				double scaleFactor = m_broods*pStand->m_survivalRate*m_scaleFactor;
 				ASSERT(scaleFactor > 0);
 
-				CIndividuePtr pBug = make_shared<CWSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
+				CIndividualPtr pBug = make_shared<CWSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				GetHost()->push_front(pBug);
 			}
 		}
@@ -192,12 +192,12 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		else if ((GetStage() == EGG && (weather[H_TAIR][LOWEST] < CWSpruceBudworm::EGG_FREEZING_POINT || m_eggAge>30)))
+		else if ((GetStage() == EGG && (weather[H_TMIN2][MEAN] < CWSpruceBudworm::EGG_FREEZING_POINT || m_eggAge>30)))
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		else if ((GetStage() == ADULT && weather[H_TAIR][LOWEST] < CWSpruceBudworm::ADULT_FREEZING_POINT))
+		else if ((GetStage() == ADULT && weather[H_TMIN2][MEAN] < CWSpruceBudworm::ADULT_FREEZING_POINT))
 		{
 			m_age += 1;
 			m_status = DEAD;
@@ -225,7 +225,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = MISSING_ENERGY;
 		}
-		else if (GetStage() != L2o && weather[H_TMIN][LOWEST] < -10)
+		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -10)
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
@@ -471,7 +471,7 @@ namespace WBSF
 	void CWSBTree::Live(const CWeatherDay& weather)
 	{
 		//For optimisation, nothing happens when temperature is under -10
-		if (weather.GetTRef().GetJDay() != 0 && weather[H_TAIR][HIGHEST] < -10)
+		if (weather.GetTRef().GetJDay() != 0 && weather[H_TMAX2][MEAN] < -10)
 			return;
 
 		ComputeMineable(weather);
@@ -512,7 +512,7 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_ddays += max(0.0, (min((double)weather[h][H_TAIR], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 
 			//At end of day, compute proportion of buds mineable
@@ -542,7 +542,7 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 		}
 	}

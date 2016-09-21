@@ -23,7 +23,7 @@ namespace WBSF
 		CDegreeDaysModel();
 		virtual ~CDegreeDaysModel();
 
-		virtual ERMsg OnExecuteHourly();
+		
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteMonthly();
 		virtual ERMsg OnExecuteAnnual();

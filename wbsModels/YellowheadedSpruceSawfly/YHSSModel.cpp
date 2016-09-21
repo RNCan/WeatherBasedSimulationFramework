@@ -18,6 +18,7 @@
 //              seasonal biology. 
 //
 //*****************************************************************************
+// 20/09/2016	2.3.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 22/01/2016	2.2.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 01/03/2011			Rémi Saint-Amant    Integration with new BioSIMModelBase
 // 22/04/2009			Rémi Saint-Amant    Integration with BioSIMModelBase
@@ -44,7 +45,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is use to determine if the dll
 		//use the same number of parameter than the model interface
 		NB_INPUT_PARAMETER = 2;
-		VERSION = "2.2.0 (2016)";
+		VERSION = "2.3.0 (2016)";
 
 		m_bCumulativeOutput = false;
 		m_adultLongevity = 14;
@@ -76,7 +77,7 @@ namespace WBSF
 
 		static const double THRESHOLD = 0;
 
-		CDegreeDays DD(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, THRESHOLD);
+		CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, THRESHOLD);
 		
 
 		CYHSSStatVector stat(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)));
@@ -100,7 +101,7 @@ namespace WBSF
 			{
 				CTRef TRef = p.Begin() + jd;
 				const CWeatherDay& wDay = m_weather.GetDay(TRef);
-				dd += DD.Get(wDay);
+				dd += DD.GetDD(wDay);
 
 				double freq[9] = { 0 };
 				double ai = ComputeStageFrequencies(dd, freq);

@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 20/09/2016	1.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 14/02/2013			Rémi Saint-Amant	Creation
 //**********************************************************************
@@ -50,7 +51,7 @@ CWetnessDurationModel::CWetnessDurationModel()
 {
 	//specify the number of input parameter
 	NB_INPUT_PARAMETER = -1;
-	VERSION = "1.4.0 (2016)";
+	VERSION = "1.5.0 (2016)";
 
 	m_model = DAILY_SINUS;
 //	m_DPType = DP_MN;
@@ -127,10 +128,11 @@ double CWetnessDurationModel::GetWetnessDurationSinus(CWeatherDay& wDay)const
 	static const double a = 17.27;
 	static const double b = 237.7;
 	
-	double Tmin = wDay[H_TAIR][LOWEST];
-	double Tmax = wDay[H_TAIR][HIGHEST];
+	double Tmin = wDay[H_TMIN2][MEAN];
+	double Tmax = wDay[H_TMAX2][MEAN];
+	double Trng = Tmax - Tmin;
 
-	double RH = max(1.0,min(100.0,wDay[H_RELH][MEAN]+K[0]*wDay[H_TAIR][RANGE]));
+	double RH = max(1.0, min(100.0, wDay[H_RELH][MEAN] + K[0] * Trng));
 	double c = (a*Tmax)/(b+Tmax)+log(RH/100);
 	double Tdew = (b*c)/(a-c);
 		
@@ -387,7 +389,7 @@ double CWetnessDurationModel::GetWetnessDurationDPD(CDay& hourlyDay)const
 	{
 		int h=(hh+12)%24;
 		const CDay& hDay = hh<12?hourlyDay:nextHourlyDay;
-		double DPD = max(0.0f, hDay[h][H_TAIR] - hDay[h][H_TDEW]);
+		double DPD = max(0.0f, hDay[h][H_TAIR2] - hDay[h][H_TDEW]);
 		double RH = hDay[h][H_RELH];
 		double sRad = hDay[h][H_SRAD];
 
@@ -439,9 +441,9 @@ double CWetnessDurationModel::GetWetnessDurationCART(CDay& hourlyDay)const
 		int h=(hh+12)%24;
 		const CDay& hDay = hh<12?hourlyDay:nextHourlyDay;
 
-		double T = hDay[h][H_TAIR];
+		double T = hDay[h][H_TAIR2];
 		double RH = hDay[h][H_RELH];
-		double DPD = max(0.0f, hDay[h][H_TAIR] - hDay[h][H_TDEW]);
+		double DPD = max(0.0f, hDay[h][H_TAIR2] - hDay[h][H_TDEW]);
 		double U = hDay[h][H_WND2] * 1000 / 3600;// (m/s)
 		//double ws = hDay[h][H_WND2]*1000/3600;// (m/s)
 		//double U = CASCE_ETsz::GetWindProfileRelationship(ws,10);//convert wind speed at 10 meters to 2 meters
@@ -1745,12 +1747,12 @@ void CDewDuration::Execute(const CWeatherStation& weather, CWetnessDurationStat&
 					//In the model, the onset of dew occurred when LE>0 and the ending occurred when the condensate which
 					//had accumulated during the night evaporated during the morning (Mintah,1977).
 					double c = hDay[h].GetVarEx(H_FNCD);
-					double Tws = hDay[h][H_TAIR];		//[°C]
-					double ews = hDay[h][H_EA]/100;		//[mb]
-					double esaws =hDay[h][H_ES]/100;	//[mb]   
+					double Tws = hDay[h][H_TAIR2];		//[°C]
+					double ews = hDay[h][H_EA2]/100;		//[mb]
+					double esaws =hDay[h][H_ES2]/100;	//[mb]   
 					double Zws = 10;					//[m]
 					double Uws = hDay[h][H_WNDS]*1000/3600;		//km/h --> m/s
-					double Rs1 = hDay[h][H_SRAD]*1000000/3600;	//MJ/(m²·h) --> W/m²;
+					double Rs1 = hDay[h][H_SRAD2]/**1000000/3600*/;	//MJ/(m²·h) --> W/m²;
 					
 					double Rs = Rs1;
 					if( m_exposure==EXPOSED_LEAF)
@@ -1984,7 +1986,7 @@ void CSWEB::Execute(CWeatherStation& weather, CModelStatVector& stat)
 						double δ = CASCE_ETsz::GetPsychrometricConstant(ap)*10;//kPa/°C  --> mbar/°C
 
 						//hourly temperature [°C]
-						double T = hDay[hh][H_TAIR];	
+						double T = hDay[hh][H_TAIR2];	
 						//slope of the saturation vapor pressure-temperature curve [mbar/°C]
 						double Δ = CASCE_ETsz::GetSlopeOfSaturationVaporPressure(T)*10;
 						//latent heat of vaporization [J/g]
@@ -1993,9 +1995,9 @@ void CSWEB::Execute(CWeatherStation& weather, CModelStatVector& stat)
 
 						
 						double Fcd = hDay[hh].GetVarEx(H_FNCD);
-						double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR], hDay[hh][H_EA]/1000, Fcd);
+						double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR2], hDay[hh][H_EA2]/1000, Fcd);
 						double Rn = 0;
-						if( hDay[hh][H_SRAD] > 0)
+						if( hDay[hh][H_SRAD2] > 0)
 						{
 							if(bReset)
 							{
@@ -2076,7 +2078,7 @@ void CSWEB::Execute(CWeatherStation& weather, CModelStatVector& stat)
 						double Uc = GetUc(Uz, Z, Zc);
 
 						//hourly temperature [Kelvin]
-						double Tk = hDay[hh][H_TAIR]+273.15;
+						double Tk = hDay[hh][H_TAIR2]+273.15;
 						//p = density of air [g/cm³]
 						double p=ap/(Rspecific*Tk);//Kpa·Kg/J = g/cm³
 						//Cp = specific heat of air [J/(g·°C)]
@@ -2084,9 +2086,9 @@ void CSWEB::Execute(CWeatherStation& weather, CModelStatVector& stat)
 						//h = transfer coefficient for heat and vapor from the surface to the atmosphere [cm/min]
 						double h=Geth(c, Uc);
 						//water vapor pressure of the atmosphere [mbar]
-						double Ea=hDay[hh][H_EA]/100.0;			//Pa  --> mbar
+						double Ea=hDay[hh][H_EA2]/100.0;			//Pa  --> mbar
 						//saturated water vapor pressure of the atmosphere [mbar]
-						double Es=hDay[hh][H_ES]/100.0;			//Pa  --> mbar
+						double Es=hDay[hh][H_ES2]/100.0;			//Pa  --> mbar
 
 						//potential latent heat flux density (evaporation) [cm³/(cm²·min)]. (potential volume of water loss from a wet surface area)
 						double Ep = GetEp(Δ, λ, δ, p, Cp, h, Ea, Es)*0.5;//add a 0.5 factor to get same result as the Excel file

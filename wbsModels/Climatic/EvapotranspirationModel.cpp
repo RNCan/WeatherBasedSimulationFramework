@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 20/09/2016	1.3.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.2.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 25/05/2013			Rémi Saint-Amant	Creation from old climatic model
 //**********************************************************************
@@ -21,7 +22,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.2.1 (2016)";
+		VERSION = "1.3.0 (2016)";
 
 		//Initialization of input parameters(optional)
 		m_ETModelName = "Priestley-Taylor";

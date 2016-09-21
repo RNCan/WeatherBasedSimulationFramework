@@ -1,68 +1,69 @@
-//5.1.1 05/09/2016	Direcly open ISD-Lite .gz file 
-//5.1.0 29/08/2016  Compile with boost 1.61
-//					Add CPGP
-//					Add CMID5 and CreateMMG
-//5.0.9 21/08/2016	Bug correction in the ISD-Lite product
-//5.0.8 25/07/2016  Add New-Brunswick agriculture network.
-//					Debug Radar and PrcpRadar
-//5.0.7	22/06/2016  Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal. 
-//5.0.6	14/06/2016  Add Manitoba source of hourly/daily weather
-//5.0.5	25/05/2016	Make correction for change made by Env Can.  
-//5.0.4 09/05/2016	Add HRDPS and RDPS to Env Can forecast
-//5.0.3 03/05/2016	Add MDDELCC and Weather Underground
-//5.0.2 25/04/2016	Many bugs correction in the daily extractor and the hourly extractor
-//					Add of BC via PCCI
-//5.0.1 10/04/2016	Bug correction on Window 10  
-//5.0.0 01/03/2016	New version with the WBSF and new user interface 
-//4.1.2 13/11/2015	Add use of TRng in weatehr database, Add BC PAWS and Snowtel
-//4.1.1	21/07/2015	Add historical Radar image download
-//4.1.0	15/07/2015	Add Radar image download
-//4.0.9	24/06/2015	Add Extract loc from weather database and generalyze loc
-//4.0.8 07/05/2015  Add loop in the Mesonet-Quebec updater, use dot by default as decimal séparator
-//					Many bugs correction in the NormalFromDaily algo
-//4.0.6	07/04/2015	Bug correction with oe
-//4.0.5 29/03/2015  Bug correction in weather Québec. Now load more than 1 year.
-//4.0.4 17/03/2015	Many bugs corrections
-//4.0.3 15/01/2015	Bug correction in relative path 
-//4.0.0	15/01/2015	New WeatherStations struct. New name. WeatherUpdater
-//3.0.5 15/10/2014	Bug correction in EnvCan elevation highert than 1000 meters
-//3.0.5 15/10/2014	Bug correction in ISD-Lite and GSOD
-//3.0.4 06/10/2014  New ISD-Lite and GSOD station list
-//3.0.3 08/08/2014	New province abreviation for Canada
-//3.0.2 16/07/2014	Add GCM10km climatic change task. some bug correction.
-//3.0.1 06/06/2014	Add new Env. Can. hourly forecast.  
-//3.0.0 16/03/2014	Completly new version in 64 bits with VS 2013.
-//2.5.4 30/07/2013	Update with New Environment Canada site.
-//2.5.2 22/05/2013	Add date in the forecast info
-//2.5.1 06/05/2013	Add, SMEX et SWEB. New forecast.
-//2.5.0 27/03/2013  Add IDS-Lite 
-//2.4.2 24/07/2012  Add loc extractor 
-//2.4.1 09/07/2012  New CRU TS 3.1 extractor
-//2.4.0 07/06/2012  New MMG file and OURANOS data extraction.
-//2.3.1 07/05/2012  Correction of a bug into the forecast of UIRNQue
-//2.3.0 05/12/2011  New progress bar dialog. Add 20th reanalysis.
-//2.2.1 26/09/2011  Some little change. Add UpdateCoordinate to get accurate coordinate.
-//2.2.0	03/06/2011	New Environment Canada database. Downloading .csv format
-//2.1.4 18/05/2011  Copy MRCQ and SOPFIM file event if the zip exist.
-//2.1.3 17/05/2011  Correcting a problem with EnvCan page. TODO : hourly
-//1.8.2 23/04/2010  Follow change in EnvCan latitude and longitude change
-//1.8.1 07/04/2010	Correction of a bug in NOAA.
-//1.8.0 06/02/2010	Add FAOCLim and GHCND task. New normal merge algo.
-//1.7.3 27/05/2009	Add Europe paleoClimatic task
-//1.7.2 14/05/2009  Add Zipping and copy to FTP server task
-//1.7.1 12/05/2009	Add forecast to MRNF québec weatehr station. Chnage structure of the list file
-//1.7.0 28/04/2009	Add forecast to Environnement Canada. EC HTML Update.
-//1.6.4	24/03/2009	OURANOS Climatic change MRCC
-//1.6.3 26/01/2009	Correction of a bug in the donwload of Québec weather
-//1.6.2 06/01/2009	Put the FTP actif and not passif. 
-//1.6.1 09/10/2008  Compile with Visual studio 2008.
-//1.6.0 01/02/2008  New NOAA download from FTP site and packDB 
-//					Correction of a bug in the EnvCan pack DB and the complet flag
-//1.4.1 13/09/2007  New SnowTel download
-//					Correction of a problem with focus window and menu
-//					Add Copy/Paste functionnality
-//					Solve memory leak problem with vld.h
-//1.3.0	05/04/2007	New LOC file format
+//5.2.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
+//5.1.1 05/09/2016	Rémi Saint-Amant	Direcly open ISD-Lite .gz file 
+//5.1.0 29/08/2016  Rémi Saint-Amant	Compile with boost 1.61
+//										Add CPGP
+//										Add CMID5 and CreateMMG
+//5.0.9 21/08/2016	Rémi Saint-Amant	Bug correction in the ISD-Lite product
+//5.0.8 25/07/2016  Rémi Saint-Amant	Add New-Brunswick agriculture network.
+//										Debug Radar and PrcpRadar
+//5.0.7	22/06/2016  Rémi Saint-Amant	Add New Brunswick and Ontario source of hourly weather. Many bugs correction into the generation of CC normal. 
+//5.0.6	14/06/2016  Rémi Saint-Amant	Add Manitoba source of hourly/daily weather
+//5.0.5	25/05/2016	Rémi Saint-Amant	Make correction for change made by Env Can.  
+//5.0.4 09/05/2016	Rémi Saint-Amant	Add HRDPS and RDPS to Env Can forecast
+//5.0.3 03/05/2016	Rémi Saint-Amant	Add MDDELCC and Weather Underground
+//5.0.2 25/04/2016	Rémi Saint-Amant	Many bugs correction in the daily extractor and the hourly extractor
+//										Add of BC via PCCI
+//5.0.1 10/04/2016	Rémi Saint-Amant	Bug correction on Window 10  
+//5.0.0 01/03/2016	Rémi Saint-Amant	New version with the WBSF and new user interface 
+//4.1.2 13/11/2015	Rémi Saint-Amant	Add use of TRng in weatehr database, Add BC PAWS and Snowtel
+//4.1.1	21/07/2015	Rémi Saint-Amant	Add historical Radar image download
+//4.1.0	15/07/2015	Rémi Saint-Amant	Add Radar image download
+//4.0.9	24/06/2015	Rémi Saint-Amant	Add Extract loc from weather database and generalyze loc
+//4.0.8 07/05/2015  Rémi Saint-Amant	Add loop in the Mesonet-Quebec updater, use dot by default as decimal séparator
+//										Many bugs correction in the NormalFromDaily algo
+//4.0.6	07/04/2015	Rémi Saint-Amant	Bug correction with oe
+//4.0.5 29/03/2015  Rémi Saint-Amant	Bug correction in weather Québec. Now load more than 1 year.
+//4.0.4 17/03/2015	Rémi Saint-Amant	Many bugs corrections
+//4.0.3 15/01/2015	Rémi Saint-Amant	Bug correction in relative path 
+//4.0.0	15/01/2015	Rémi Saint-Amant	New WeatherStations struct. New name. WeatherUpdater
+//3.0.5 15/10/2014	Rémi Saint-Amant	Bug correction in EnvCan elevation highert than 1000 meters
+//3.0.5 15/10/2014	Rémi Saint-Amant	Bug correction in ISD-Lite and GSOD
+//3.0.4 06/10/2014  Rémi Saint-Amant	New ISD-Lite and GSOD station list
+//3.0.3 08/08/2014	Rémi Saint-Amant	New province abreviation for Canada
+//3.0.2 16/07/2014	Rémi Saint-Amant	Add GCM10km climatic change task. some bug correction.
+//3.0.1 06/06/2014	Rémi Saint-Amant	Add new Env. Can. hourly forecast.  
+//3.0.0 16/03/2014	Rémi Saint-Amant	Completly new version in 64 bits with VS 2013.
+//2.5.4 30/07/2013	Rémi Saint-Amant	Update with New Environment Canada site.
+//2.5.2 22/05/2013	Rémi Saint-Amant	Add date in the forecast info
+//2.5.1 06/05/2013	Rémi Saint-Amant	Add, SMEX et SWEB. New forecast.
+//2.5.0 27/03/2013  Rémi Saint-Amant	Add IDS-Lite 
+//2.4.2 24/07/2012  Rémi Saint-Amant	Add loc extractor 
+//2.4.1 09/07/2012  Rémi Saint-Amant	New CRU TS 3.1 extractor
+//2.4.0 07/06/2012  Rémi Saint-Amant	New MMG file and OURANOS data extraction.
+//2.3.1 07/05/2012  Rémi Saint-Amant	Correction of a bug into the forecast of UIRNQue
+//2.3.0 05/12/2011  Rémi Saint-Amant	New progress bar dialog. Add 20th reanalysis.
+//2.2.1 26/09/2011  Rémi Saint-Amant	Some little change. Add UpdateCoordinate to get accurate coordinate.
+//2.2.0	03/06/2011	Rémi Saint-Amant	New Environment Canada database. Downloading .csv format
+//2.1.4 18/05/2011  Rémi Saint-Amant	Copy MRCQ and SOPFIM file event if the zip exist.
+//2.1.3 17/05/2011  Rémi Saint-Amant	Correcting a problem with EnvCan page. TODO : hourly
+//1.8.2 23/04/2010  Rémi Saint-Amant	Follow change in EnvCan latitude and longitude change
+//1.8.1 07/04/2010	Rémi Saint-Amant	Correction of a bug in NOAA.
+//1.8.0 06/02/2010	Rémi Saint-Amant	Add FAOCLim and GHCND task. New normal merge algo.
+//1.7.3 27/05/2009	Rémi Saint-Amant	Add Europe paleoClimatic task
+//1.7.2 14/05/2009  Rémi Saint-Amant	Add Zipping and copy to FTP server task
+//1.7.1 12/05/2009	Rémi Saint-Amant	Add forecast to MRNF québec weatehr station. Chnage structure of the list file
+//1.7.0 28/04/2009	Rémi Saint-Amant	Add forecast to Environnement Canada. EC HTML Update.
+//1.6.4	24/03/2009	Rémi Saint-Amant	OURANOS Climatic change MRCC
+//1.6.3 26/01/2009	Rémi Saint-Amant	Correction of a bug in the donwload of Québec weather
+//1.6.2 06/01/2009	Rémi Saint-Amant	Put the FTP actif and not passif. 
+//1.6.1 09/10/2008  Rémi Saint-Amant	Compile with Visual studio 2008.
+//1.6.0 01/02/2008  Rémi Saint-Amant	New NOAA download from FTP site and packDB 
+//										Correction of a bug in the EnvCan pack DB and the complet flag
+//1.4.1 13/09/2007  Rémi Saint-Amant	New SnowTel download
+//										Correction of a problem with focus window and menu
+//										Add Copy/Paste functionnality
+//										Solve memory leak problem with vld.h
+//1.3.0	05/04/2007	Rémi Saint-Amant	New LOC file format
 
 #include "stdafx.h"
 //#include "VisualLeakDetector\include\vld.h" 

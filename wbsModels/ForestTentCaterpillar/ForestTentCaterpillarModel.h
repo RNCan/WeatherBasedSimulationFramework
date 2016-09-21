@@ -4,25 +4,26 @@
 //   parameters. If not provided, current.cfs in the current
 //   directory is used
 //***********************************************************
-#include "BioSIMModelBase.h"
+#include "ModelBase/BioSIMModelBase.h"
 
-class CForestTentCaterpillarModel : public CBioSIMModelBase
+namespace WBSF
 {
 
-public:
+	class CForestTentCaterpillarModel : public CBioSIMModelBase
+	{
 
-    enum { ORIGINAL, REMI_PARAMETER };
+	public:
 
-    CForestTentCaterpillarModel();
-    virtual ~CForestTentCaterpillarModel();
+		enum { ORIGINAL, REMI_PARAMETER };
 
-	virtual ERMsg OnExecuteAnnual();
-    virtual ERMsg ProcessParameter(const CParameterVector& parameters);
-    static CBioSIMModelBase* CreateObject(){ return new CForestTentCaterpillarModel; }
+		CForestTentCaterpillarModel();
+		virtual ~CForestTentCaterpillarModel();
 
-	int m_type;
-};
+		virtual ERMsg OnExecuteAnnual();
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		static CBioSIMModelBase* CreateObject(){ return new CForestTentCaterpillarModel; }
 
+		int m_type;
+	};
 
-
-
+}

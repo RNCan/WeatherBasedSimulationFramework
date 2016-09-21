@@ -94,9 +94,7 @@ namespace WBSF
 			{
 
 				if (TRef.GetJDay() >= m_startJday)
-				{
-					DD += Get(weather[TRef]);
-				}
+					DD += GetDD(weather.GetDay(TRef));
 
 				ExecuteOneTRef(DD, param, AI);
 

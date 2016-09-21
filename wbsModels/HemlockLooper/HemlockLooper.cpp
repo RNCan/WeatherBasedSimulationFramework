@@ -39,7 +39,7 @@ namespace WBSF
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
 	CHemlockLooper::CHemlockLooper(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividue(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
+		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		m_adultAge = 0;
 		m_Sh = 1;
@@ -102,12 +102,12 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 
 
-		CIndividue::Live(weather);
+		CIndividual::Live(weather);
 
 		for (size_t step = 0; step < nbSteps && GetStage() < DEAD_ADULT; step++)
 		{
 			size_t h = step*GetTimeStep();
-			double T = weather[h][H_TAIR];
+			double T = weather[h][H_TAIR2];
 
 			size_t s = GetStage();
 
@@ -152,7 +152,7 @@ namespace WBSF
 		double lat = stand.GetModel()->m_weather.m_lat;
 		size_t nbSteps = GetTimeStep().NbSteps();
 
-		CIndividue::Brood(weather);
+		CIndividual::Brood(weather);
 
 		if (GetStage() >= ADULT)
 		{
@@ -164,7 +164,7 @@ namespace WBSF
 				if (m_adultAge > PRE_OVIPOSITION)
 				{
 					_ASSERTE(IsAlive());
-					double T = weather[h][H_TAIR];
+					double T = weather[h][H_TAIR2];
 					double Fᵗ = m_potentialFecundity - m_totalBroods;
 					double Eᵗ = stand.m_oviposition.GetRate(T, m_potentialFecundity, Fᵗ) / nbSteps;
 					m_broods += Eᵗ;
@@ -190,7 +190,7 @@ namespace WBSF
 	{
 		assert(IsAlive());
 
-		CIndividue::Die(weather);
+		CIndividual::Die(weather);
 
 		//Mortality: eggs and adults can be killed by cold. Adults die of old age.
 		if (GetStage() == DEAD_ADULT)
@@ -204,7 +204,7 @@ namespace WBSF
 			{
 				//m_hatchSurvival change only once at hatch, 1 by default
 				if (m_hatchSurvival < m_overwinterLuck ||
-					weather[H_TAIR][LOWEST] < CHemlockLooper::FREEZING_POINT)
+					weather[H_TMIN2][MEAN] < CHemlockLooper::FREEZING_POINT)
 				{
 					m_status = DEAD;
 					m_death = FROZEN;

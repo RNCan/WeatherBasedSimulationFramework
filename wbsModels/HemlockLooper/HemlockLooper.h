@@ -16,7 +16,7 @@
 #include "Basic/UtilTime.h"
 #include "Basic/ModelStat.h"
 #include "Basic/WeatherStation.h"
-#include "Modelbase/IndividueBase.h"
+#include "Modelbase/IndividualBase.h"
 #include "HemlockLooperEquations.h"
 
 namespace WBSF
@@ -33,7 +33,7 @@ namespace WBSF
 
 	class CHLTree;
 	class CHLStand;
-	class CHemlockLooper : public CIndividue
+	class CHemlockLooper : public CIndividual
 	{
 	public:
 
@@ -44,7 +44,7 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual CIndividuePtr CreateCopy()const{ return std::make_shared<CHemlockLooper>(*this); }
+		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CHemlockLooper>(*this); }
 		virtual bool NeedOverheating()const{ return GetStage() != HemlockLooper::EGG && GetStage() != HemlockLooper::ADULT; }
 		virtual size_t GetNbStages()const{ return HemlockLooper::NB_STAGES; }
 

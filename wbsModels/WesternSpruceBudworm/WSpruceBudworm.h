@@ -14,7 +14,7 @@
 #include <vector>
 #include "Basic/UtilTime.h"
 #include "Basic/ModelStat.h"
-#include "ModelBase/IndividueBase.h"
+#include "ModelBase/IndividualBase.h"
 #include "WSBEquations.h"
 
 namespace WBSF
@@ -31,7 +31,7 @@ namespace WBSF
 
 	class CWSBTree;
 	class CWSBStand;
-	class CWSpruceBudworm : public CIndividue
+	class CWSpruceBudworm : public CIndividual
 	{
 	public:
 
@@ -44,7 +44,7 @@ namespace WBSF
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual size_t GetNbStages(void) const{ return NB_STAGES; }
 		virtual double GetInstar(bool includeLast)const;
-		virtual CIndividuePtr CreateCopy()const{ return std::make_shared<CWSpruceBudworm>(*this); }
+		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CWSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return GetStage() != L2o && GetStage() != ADULT; }
 
 

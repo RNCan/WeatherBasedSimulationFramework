@@ -798,6 +798,7 @@ public:
 	
 	//void ComputeTRange();
 	const CWeatherDay& GetDay(size_t Jday)const{ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
+	CWeatherDay& GetDay(size_t Jday){ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
 	inline const CHourlyData& GetHour(CTRef ref)const;
 	inline CHourlyData& GetHour(CTRef ref);
 	inline const CWeatherDay& GetDay(CTRef ref)const;

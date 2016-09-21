@@ -1,7 +1,9 @@
-//************** M O D I F I C A T I O N S   L O G ********************
-//05/09/2016	2.0	Rémi Saint-Amant	Integrated in WBSF
-//25/07/2011 Rémi Saint-Amant	Creation
-//30/11/2013 Mike Michaelian SMI_QL (Quadratic-linear model) is a derivation of 
+//*********************************************************************
+//20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+//05/09/2016	2.0		Rémi Saint-Amant	Integrated in WBSF
+//25/07/2011			Rémi Saint-Amant	Integrate in BioSIM
+//30/11/2013			Mike Michaelian		Creation
+//			SMI_QL (Quadratic-linear model) is a derivation of 
 //			the original SMI (Bilinear model). The original model assumes AET=PET when SMI>=SMIcrit
 //			and decreases linearly to zero when SMI<SMIcrit. This QL model assumes AET=PET when 
 //			SMI>=SMIcrit and decreases to zero using a quadratic function when SMI<SMIcrit.
@@ -29,7 +31,7 @@ namespace WBSF
 	CSMI_QL_Model::CSMI_QL_Model()
 	{
 		NB_INPUT_PARAMETER = 2;
-		VERSION = "2.0 (2016)";
+		VERSION = "2.1.0 (2016)";
 
 		//The initial SMIstart is default to 200 and then after the first calculation SMIstart is set to the previous day's SMI
 		m_SMIcrit = 300.0; //Critical soil moisture (mm) 
@@ -55,8 +57,8 @@ namespace WBSF
 					CTRef Tref = m_weather[y][m][d].GetTRef();
 
 					//Input:
-					double Tmin = m_weather[y][m][d][H_TMIN][MEAN]; //Minimum daily temperature (°C)
-					double Tmax = m_weather[y][m][d][H_TMAX][MEAN]; //Maximum daily temperature (°C)
+					double Tmin = m_weather[y][m][d][H_TMIN2][MEAN]; //Minimum daily temperature (°C)
+					double Tmax = m_weather[y][m][d][H_TMAX2][MEAN]; //Maximum daily temperature (°C)
 					double ppt = m_weather[y][m][d][H_PRCP][SUM]; //Precipitation (mm) 
 
 					//Declare Actual Evapotranspriation 

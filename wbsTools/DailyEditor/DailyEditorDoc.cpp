@@ -4,11 +4,8 @@
 
 #include "stdafx.h"
 
-
-#include <string>
-#include <iostream>
-#include <propkey.h>
 #include "DailyEditorDoc.h"
+#include "resource.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"

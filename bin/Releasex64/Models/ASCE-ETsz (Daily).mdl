@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Standardized Evapotranspiration</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>ASCE Standardized Reference Evapotranspiration.&#x0A;&#x0A;Evapotranspiration (ET) represents the loss of water from the earth’s surface through the combined processes of evaporation (from soil and plant surfaces) and plant transpiration (i.e., internal evaporation).</Description>
     <WindowRect>0 0 150 354</WindowRect>
-    <SimulatedCategory>T TR R Z ES EA WS2</SimulatedCategory>
+    <SimulatedCategory>TN T TX TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

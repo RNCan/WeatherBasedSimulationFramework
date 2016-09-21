@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>HemlockLooper</Title>
+    <Title>WhitePineWeevil</Title>
     <Version>1.0</Version>
     <ID>.wiw</ID>
     <EXE>WhitePineWeevil.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model simulates the development of Hemlock Looper.</Description>
     <WindowRect>0 0 80 250</WindowRect>
-    <SimulatedCategory>T TR</SimulatedCategory>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>1</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

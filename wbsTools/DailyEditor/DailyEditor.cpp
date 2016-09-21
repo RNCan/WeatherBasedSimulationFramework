@@ -1,8 +1,9 @@
-// 4.0.4	Rémi Saint-Amant	Compile with WBSF  
-// 4.0.3	Rémi Saint-Amant	Put spreadsheet and charts into CDockablePane
-// 4.0.2	Rémi Saint-Amant	unordored SSI and bug correction
-// 4.0.1	Rémi Saint-Amant	Change in CLocation.  
-// 4.0.0	Rémi Saint-Amant	Initial version     from hourly editor 
+// 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
+// 4.0.4				Rémi Saint-Amant	Compile with WBSF  
+// 4.0.3				Rémi Saint-Amant	Put spreadsheet and charts into CDockablePane
+// 4.0.2				Rémi Saint-Amant	unordored SSI and bug correction
+// 4.0.1				Rémi Saint-Amant	Change in CLocation.  
+// 4.0.0				Rémi Saint-Amant	Initial version     from hourly editor 
  
 #include "stdafx.h" 
 //#include "..\VisualLeakDetector\include\vld.h"  

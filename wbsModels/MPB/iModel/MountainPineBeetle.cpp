@@ -38,8 +38,8 @@ namespace WBSF
 	CMicroClimate::CMicroClimate(const CWeatherDay& weather)
 	{
 		//const CWeatherDay& day = (h<hourTmax - 12) ? weather.GetPrevious() : h<hourTmax ? weather : weather.GetNext();
-		double Tmin = weather[H_TMIN][MEAN];
-		double Tmax = weather[H_TMAX][MEAN];
+		double Tmin = weather[H_TMIN2][MEAN];
+		double Tmax = weather[H_TMAX2][MEAN];
 		double Trange = Tmax - Tmin;
 		double Sin = sin(2 * 3.14159*(weather.GetTRef().GetJDay() / 365. - 0.25));
 
@@ -209,7 +209,7 @@ namespace WBSF
 			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
 				size_t h = step*GetTimeStep();
-				double T = weather[h][H_TAIR];
+				double T = weather[h][H_TAIR2];
 				if (pStand->m_bMicroClimate)
 					T = MC.GetT(h);
 				
@@ -288,7 +288,7 @@ namespace WBSF
 				m_status = DEAD;
 				m_death = ATTRITION;
 			}
-			else if (IsDeadByFrost(weather.GetTRef(), weather[H_TMIN][MEAN], weather[H_SNDH][MEAN]))//snow depth [cm]
+			else if (IsDeadByFrost(weather.GetTRef(), weather[H_TMIN2][MEAN], weather[H_SNDH][MEAN]))//snow depth [cm]
 			{
 				m_status = DEAD;
 				m_death = FROZEN;

@@ -1,6 +1,7 @@
 //*********************************************************************
-//08/02/2012    2.0.0   Rémi Saint-Amant	Include inopt WBSF
-//08/02/2012    1.1     Rémi Saint-Amant	Recompile with new interface and new FWI model
+//20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+//08/02/2016	2.0.0   Rémi Saint-Amant	Include in WBSF
+//08/02/2012	1.1     Rémi Saint-Amant	Recompile with new interface and new FWI model
 //17/05/2011	1.0		Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "DroughtCodeModel.h"
@@ -24,7 +25,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		
-		VERSION = "2.0.0 (2016)";
+		VERSION = "2.1.0 (2016)";
 
 		m_bAutoSelect = true;
 		m_FFMC = 85.0;

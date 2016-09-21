@@ -1,9 +1,10 @@
 //*********************************************************************
-//12/02/2016	v3.0.0	Rémi Saint-Amant	Using WBSF. Hourly model.
-//06/02/2012	v2.3	Rémi Saint-Amant	Correction of a bug in strating date
-//18/05/2011    v2.2    Rémi Saint-Amant	Use of new FWI class
-//11/03/2009	v1.1	Rémi Saint-Amant	Change input order and add startThreshold 
-//05/03/2009	v1.0	Rémi Saint-Amant	Compile with new FWI kernel
+//20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+//12/02/2016	3.0.0	Rémi Saint-Amant	Using WBSF. Hourly model.
+//06/02/2012	2.3		Rémi Saint-Amant	Correction of a bug in strating date
+//18/05/2011    2.2     Rémi Saint-Amant	Use of new FWI class
+//11/03/2009	1.1		Rémi Saint-Amant	Change input order and add startThreshold 
+//05/03/2009	1.0		Rémi Saint-Amant	Compile with new FWI kernel
 //27/02/2009	----	Rémi Saint-Amant	Include new variable for montly model
 //25/11/2008	----	Rémi Saint-Amant	Add Annual model
 //12/12/2007	----	Rémi Saint-Amant	Creation
@@ -33,7 +34,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		//	NB_INPUT_PARAMETER=8;//7 or 8 param
-		VERSION = "3.0.0 (2016)";
+		VERSION = "3.1.0 (2016)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;

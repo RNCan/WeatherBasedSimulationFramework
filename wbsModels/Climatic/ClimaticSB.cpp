@@ -1,4 +1,5 @@
 //**********************************************************************
+// 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/03/2009			Rémi Saint-Amant	Update with new BioSIMModelBase (hxGrid)
 // 20/11/2008			Rémi Saint-Amant	New variable: TMean growing season and July Tmean
@@ -45,7 +46,7 @@ namespace WBSF
 	CClimaticSB::CClimaticSB()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "3.2.0 (2016)";
+		VERSION = "3.1.0 (2016)";
 
 		// initialise your variable here (optionnal)
 		m_threshold = 0;
@@ -90,7 +91,7 @@ namespace WBSF
 	{
 		ERMsg message;
 
-		CDegreeDays DDE(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, m_threshold);
+		CDegreeDays DDE(CDegreeDays::DAILY_AVERAGE, m_threshold);
 		CModelStatVector DD;
 		DDE.Execute(m_weather, DD);
 		DD.Transform(CTM(CTM::ANNUAL), SUM);
@@ -117,9 +118,9 @@ namespace WBSF
 			double dd = DD[y][0];
 			double ppt = m_weather[y].GetStat(H_PRCP)[SUM];
 			double utilPpt = m_weather[y].GetStat(H_PRCP, utilPeriod)[SUM];
-			double Tmin = m_weather[y].GetStat(H_TMIN)[MEAN];
-			double Tmean = m_weather[y].GetStat(H_TAIR)[MEAN];
-			double Tmax = m_weather[y].GetStat(H_TMAX)[MEAN];
+			double Tmin = m_weather[y][H_TMIN2][MEAN];
+			double Tmean = m_weather[y][H_TAIR2][MEAN];
+			double Tmax = m_weather[y][H_TMAX2][MEAN];
 
 			CTPeriod FFPeriod = GS.GetFrostFreePeriod(m_weather[y]);
 			size_t dayWithoutFrost = m_weather[y].GetNbDays() - GetNbFrostDay(m_weather[y]);
@@ -127,9 +128,9 @@ namespace WBSF
 			//ASSERT(GetConsecutiveDayWithoutFrost(m_weather[y], 0) == FFPeriod.GetLength());
 
 			CTPeriod growingSeason = GS.GetGrowingSeason(m_weather[y]);
-			double pptGS = m_weather[y].GetStat(H_PRCP, growingSeason)[SUM];
-			double TmeanGS = m_weather[y].GetStat(H_TAIR, growingSeason)[MEAN];
-			double meanJuly = m_weather[y][JULY].GetStat(H_TAIR)[MEAN];
+			double pptGS = m_weather[y](H_PRCP, growingSeason)[SUM];
+			double TmeanGS = m_weather[y](H_TAIR2, growingSeason)[MEAN];
+			double meanJuly = m_weather[y][JULY][H_TAIR2][MEAN];
 
 			//WARNING: In Climatic Annual, VPS is givent in kPa and are take from database, but here 
 			// humidity is an aproximation from temperature
@@ -149,16 +150,16 @@ namespace WBSF
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				double T = m_weather[TRef].GetData(H_TAIR)[MEAN];
-				double ppt = m_weather[TRef].GetData(H_PRCP)[SUM];
+				double T = m_weather[TRef][H_TAIR2][MEAN];
+				double ppt = m_weather[TRef][H_PRCP][SUM];
 
 				if (T < 0)
 					annualSnow += ppt;
 			}
 
 			double snowRatio = annualSnow / ppt * 100;
-			double rad = m_weather[y].GetStat(H_SRAD)[SUM];
-			double GSRad = m_weather[y].GetStat(H_SRAD, growingSeason)[SUM];
+			double rad = m_weather[y][H_SRMJ][SUM];
+			double GSRad = m_weather[y](H_SRMJ, growingSeason)[SUM];
 
 			stat[y][O_DD_SUM] = dd;
 			stat[y][O_TOTAL_PPT] = ppt;
@@ -223,8 +224,8 @@ namespace WBSF
 		for (int d = 151; d <= 242; d++)
 		{
 			const CWeatherDay& day = (const CWeatherDay&)(weather[TRef + d]);
-			double Tmin = day[H_TMIN][LOWEST];
-			double Tmax = day[H_TMAX][HIGHEST];
+			double Tmin = day[H_TMIN2][LOWEST];
+			double Tmax = day[H_TMAX2][HIGHEST];
 
 			if (Tmin > 0 && Tmax > 0)
 			{
@@ -294,7 +295,7 @@ namespace WBSF
 		double daylightT = weather.GetTdaylight();
 		double daylightEs = e°(daylightT)*1000;//Pa
 
-		return max(0.0, daylightEs - weather[H_EA][MEAN]);
+		return max(0.0, daylightEs - weather[H_EA2][MEAN]);
 	}
 
 	double GetNbDayWithPrcp(const CWeatherYear& weather)
@@ -340,7 +341,7 @@ namespace WBSF
 
 	double GetNbFrostDay(const CWeatherDay& weather)
 	{
-		return (weather[H_TMIN][LOWEST] <= 0 ? 1 : 0);
+		return (weather[H_TMIN2][LOWEST] <= 0 ? 1 : 0);
 	}
 
 

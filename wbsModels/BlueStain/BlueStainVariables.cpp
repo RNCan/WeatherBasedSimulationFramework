@@ -1,4 +1,8 @@
 ﻿//**********************************************************************
+// 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+// 28/05/2015 	Rémi Saint-Amant	Incorporate in BioSIMModelBase
+//**********************************************************************
+//variables :
 //1		annual_temp_mean	Mean annual temperature(°C)
 //2		annual_precip		Total annual precipitation(mm)
 //3		annual_tmax			Maximum annual temperature(°C)
@@ -22,12 +26,8 @@
 //21	Minprep_DM			Total precipitation in the driest month(mm)
 //22	sum_dd_5			Degree day accumulation >5°C between 1 April and 31 August
 
-// 28/05/2015 	Rémi Saint-Amant	Incorporate in BioSIMModelBase
-//**********************************************************************
-
 #include <functional>   // std::greater
 #include <algorithm>    // std::sort
-//#include "Basic/WeatherDefine.h"
 #include "Basic/UtilMath.h"
 #include "Basic/DegreeDays.h"
 #include "Basic/Evapotranspiration.h"
@@ -41,7 +41,7 @@ namespace WBSF
 {
 
 
-	const TVarH CBlueStainVariables::EXTREM_VAR[NB_EXTREM] = { H_PRCP, H_PRCP, H_TAIR, H_TAIR };
+	const TVarH CBlueStainVariables::EXTREM_VAR[NB_EXTREM] = { H_PRCP, H_PRCP, H_TAIR2, H_TAIR2 };
 	const int CBlueStainVariables::EXTREM_STAT[NB_EXTREM] = { HIGHEST, LOWEST, HIGHEST, LOWEST };
 	const double CBlueStainVariables::EXTREM_INIT_VAL[NB_EXTREM] = { -DBL_MAX, DBL_MAX, -DBL_MAX, DBL_MAX };
 	const int CBlueStainVariables::EXTREM_OP[NB_EXTREM] = { CMathEvaluation::GREATER, CMathEvaluation::LOWER, CMathEvaluation::GREATER, CMathEvaluation::LOWER };
@@ -208,7 +208,7 @@ namespace WBSF
 	}
 	void CBlueStainVariables::GetSummerDD5(CWeatherStation& weather, CModelStatVector& ouptut)
 	{
-		CDegreeDays DD5(CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
+		CDegreeDays DD5(CDegreeDays::DAILY_AVERAGE, 5);
 	
 		ouptut.Init(weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), CDegreeDays::NB_OUTPUT, 0, CDegreeDays::HEADER);
 
@@ -331,18 +331,18 @@ namespace WBSF
 			{
 				switch (v)
 				{
-				case V_TMIN_EXT:	output[y][v] = weather[y].GetStat(H_TMIN)[MEAN]; break;
-				case V_TMEAN:		output[y][v] = weather[y].GetStat(H_TAIR)[MEAN]; break;
-				case V_TMAX_EXT:	output[y][v] = weather[y].GetStat(H_TMAX)[MEAN]; break;
-				case V_PRCP:		output[y][v] = weather[y].GetStat(H_PRCP)[SUM]; break;
-				case V_WARMQ_TMEAN:	output[y][v] = weather[y].GetStat(H_TAIR, Q[WARMEST])[MEAN]; break;
-				case V_COLDQ_TMEAN:	output[y][v] = weather[y].GetStat(H_TAIR, Q[COLDEST])[MEAN]; break;
-				case V_WETQ_TMEAN:	output[y][v] = weather[y].GetStat(H_TAIR, Q[WETTEST])[MEAN]; break;
-				case V_DRYQ_TMEAN:	output[y][v] = weather[y].GetStat(H_TAIR, Q[DRIEST])[MEAN]; break;
-				case V_WARMQ_PRCP:	output[y][v] = weather[y].GetStat(H_PRCP, Q[WARMEST])[SUM]; break;
-				case V_COLDQ_PRCP:	output[y][v] = weather[y].GetStat(H_PRCP, Q[COLDEST])[SUM]; break;
-				case V_WETQ_PRCP:	output[y][v] = weather[y].GetStat(H_PRCP, Q[WETTEST])[SUM]; break;
-				case V_DRYQ_PRCP:	output[y][v] = weather[y].GetStat(H_PRCP, Q[DRIEST])[SUM]; break;
+				case V_TMIN_EXT:	output[y][v] = weather[y][H_TMIN2][MEAN]; break;
+				case V_TMEAN:		output[y][v] = weather[y][H_TAIR2][MEAN]; break;
+				case V_TMAX_EXT:	output[y][v] = weather[y][H_TMAX2][MEAN]; break;
+				case V_PRCP:		output[y][v] = weather[y](H_PRCP)[SUM]; break;
+				case V_WARMQ_TMEAN:	output[y][v] = weather[y](H_TAIR2, Q[WARMEST])[MEAN]; break;
+				case V_COLDQ_TMEAN:	output[y][v] = weather[y](H_TAIR2, Q[COLDEST])[MEAN]; break;
+				case V_WETQ_TMEAN:	output[y][v] = weather[y](H_TAIR2, Q[WETTEST])[MEAN]; break;
+				case V_DRYQ_TMEAN:	output[y][v] = weather[y](H_TAIR2, Q[DRIEST])[MEAN]; break;
+				case V_WARMQ_PRCP:	output[y][v] = weather[y](H_PRCP, Q[WARMEST])[SUM]; break;
+				case V_COLDQ_PRCP:	output[y][v] = weather[y](H_PRCP, Q[COLDEST])[SUM]; break;
+				case V_WETQ_PRCP:	output[y][v] = weather[y](H_PRCP, Q[WETTEST])[SUM]; break;
+				case V_DRYQ_PRCP:	output[y][v] = weather[y](H_PRCP, Q[DRIEST])[SUM]; break;
 				case V_AI:			output[y][v] = GetAridity(WD, CTPeriod(CTRef(year, FIRST_MONTH), CTRef(year, LAST_MONTH)), false); break;
 				case V_WARMQ_AI:	output[y][v] = GetAridity(WD, Q[WARMEST], false); break;
 				case V_COLDQ_AI:	output[y][v] = GetAridity(WD, Q[COLDEST], false); break;
@@ -352,8 +352,8 @@ namespace WBSF
 				//case V_COLDQ_AI:	output[y][v] = WD[CTRef(year, M[COLDEST])][0]; break;
 				//case V_WETQ_AI:		output[y][v] = WD[CTRef(year, M[WETTEST])][0]; break;
 				//case V_DRYQ_AI:		output[y][v] = WD[CTRef(year, M[DRIEST])][0]; break;
-				case V_WARMM_TMEAN:	output[y][v] = weather[CTRef(year, M[WARMEST])][H_TAIR][MEAN]; break;
-				case V_COLDM_TMEAN:	output[y][v] = weather[CTRef(year, M[COLDEST])][H_TAIR][MEAN]; break;
+				case V_WARMM_TMEAN:	output[y][v] = weather[CTRef(year, M[WARMEST])][H_TAIR2][MEAN]; break;
+				case V_COLDM_TMEAN:	output[y][v] = weather[CTRef(year, M[COLDEST])][H_TAIR2][MEAN]; break;
 				case V_WETM_PRCP:	output[y][v] = weather[CTRef(year, M[WETTEST])][H_PRCP][SUM]; break;
 				case V_DRYM_PRCP:	output[y][v] = weather[CTRef(year, M[DRIEST])][H_PRCP][SUM]; break;
 				case V_SUMMER_DD5:	output[y][v] = DD5[y][0]; break;

@@ -27,6 +27,7 @@
 //		Degree day summation.
 //
 //*****************************************************************************
+// 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 06/09/2016	3.0.3	Rémi Saint-Amant	Replace DregreDay (hour) by DegreHour
 // 21/01/2016	3.0.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 08/05/2015			Rémi Saint-Amant	New BioSIM 11 version
@@ -62,7 +63,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER and VERSION are 2 framework variable
 		NB_INPUT_PARAMETER = 8; //set the number of parameters for this model
-		VERSION = "3.0.3 (2016)"; //set the version of this model
+		VERSION = "3.1.0 (2016)"; //set the version of this model
 
 		//This model has 8 input parameters 
 		CMonthDay m_firstDate = CMonthDay(FIRST_MONTH, FIRST_DAY);
@@ -118,7 +119,6 @@ namespace WBSF
 	{
 		CTStatMatrix stats(input, TM);
 		
-		double div = m_DD.m_aType = CDegreeDays::AT_HOURLY ? 24 : 1;//compute degree-day from degree-hour
 		output.Init(stats.m_period, CDegreeDays::NB_OUTPUT, CBioSIMModelBase::VMISS, CDegreeDays::HEADER);
 	
 		int year = stats.m_period.GetFirstYear();
@@ -140,41 +140,41 @@ namespace WBSF
 						DDsum += stats(TRef, CDegreeDays::S_DD)[SUM];
 
 					if (DDsum.IsInit())
-						output[TRef][CDegreeDays::S_DD] = DDsum[SUM] / div;
+						output[TRef][CDegreeDays::S_DD] = DDsum[SUM];
 				}
 				else
 				{
 					if (stats(TRef, CDegreeDays::S_DD).IsInit())
-						output[TRef][CDegreeDays::S_DD] = stats(TRef, CDegreeDays::S_DD)[SUM] / div;
+						output[TRef][CDegreeDays::S_DD] = stats(TRef, CDegreeDays::S_DD)[SUM];
 				}
 			}
 		}
 	}
 
-	ERMsg CDegreeDaysModel::OnExecuteHourly()
-	{
-		ASSERT(m_DD.m_method == 0);
+	//ERMsg CDegreeDaysModel::OnExecuteHourly()
+	//{
+	//	ASSERT(m_DD.m_method == 0);
 
-		ERMsg msg;
+	//	ERMsg msg;
 
-		m_firstDate.m_hour = FIRST_HOUR;
-		m_lastDate.m_hour = LAST_HOUR;
+	//	m_firstDate.m_hour = FIRST_HOUR;
+	//	m_lastDate.m_hour = LAST_HOUR;
 
-		CModelStatVector stats;
-		//m_DD.m_aType = CDegreeDays::AT_HOURLY;
-		m_DD.m_method = CDegreeDays::BIOSIM_HOURLY;
-		m_DD.Execute(m_weather, stats);
-		ComputeFinal(CTM(CTM::HOURLY), stats, m_output);
+	//	CModelStatVector stats;
+	//	//m_DD.m_aType = CDegreeDays::AT_HOURLY;
+	//	m_DD.m_method = CDegreeDays::BIOSIM_HOURLY;
+	//	m_DD.Execute(m_weather, stats);
+	//	ComputeFinal(CTM(CTM::HOURLY), stats, m_output);
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 	//Call by the framework to implement daily computation
 	ERMsg CDegreeDaysModel::OnExecuteDaily()
 	{
 		ERMsg msg;//define error message result
 
-		CModelStatVector stats;
+		CModelStatVector stats; 
 		m_DD.Execute(m_weather, stats);
 		ComputeFinal(CTM(CTM::DAILY), stats, m_output);
 
@@ -201,7 +201,7 @@ namespace WBSF
 		CModelStatVector stats;
 		m_DD.Execute(m_weather, stats);
 		ComputeFinal(CTM(CTM::ANNUAL), stats, m_output);
-
+		 
 
 		return msg;
 	}

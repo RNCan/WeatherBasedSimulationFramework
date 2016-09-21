@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Potential Evapotranspiration</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
     <WindowRect>0 0 338 362</WindowRect>
-    <SimulatedCategory>T TR R Z ES EA WS2</SimulatedCategory>
+    <SimulatedCategory>TN T TX TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -129,6 +129,7 @@
         <OutputVariable>
             <Name>PET</Name>
             <Title>PET (mm)</Title>
+            <Units/>
             <Description>Potential Evapotranspiration </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>

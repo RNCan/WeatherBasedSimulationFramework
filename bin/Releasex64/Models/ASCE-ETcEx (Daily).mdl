@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Dual Kc method based on FAO - 56</Description>
     <WindowRect>0 0 195 446</WindowRect>
-    <SimulatedCategory>T TR P TD H R Z ES EA WS2</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

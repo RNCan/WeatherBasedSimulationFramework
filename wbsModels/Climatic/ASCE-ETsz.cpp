@@ -1,5 +1,6 @@
 ﻿//*********************************************************************
-// 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
+// 20/09/2016	1.3.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+// 21/01/2016	1.2.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/02/2012	1.0		Rémi Saint-Amant	Creation
 //
 // Equation from THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION
@@ -33,7 +34,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "1.2.0 (2016)";
+		VERSION = "1.3.0 (2016)";
 
 		m_referenceType = CASCE_ETsz::SHORT_REF;
 		m_extended = false;

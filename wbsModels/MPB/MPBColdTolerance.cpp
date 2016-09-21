@@ -89,14 +89,14 @@ namespace WBSF
 				double L = 0; //Rate of catalysis
 
 				//Microclimate
-				double Tmax = T[H_TMAX][HIGHEST];
-				double Tmin = T[H_TMIN][LOWEST];
+				double Tmax = T[H_TMAX2][MEAN];
+				double Tmin = T[H_TMIN2][MEAN];
 
 				//If phloem temperature is being generated from air temperature
 				if (m_bMicroClimate)
 				{
 
-					double Trange = T[H_TRNG][MEAN];
+					double Trange = Tmax - Tmin;//T[H_TRNG][MEAN];
 					double Sin = sin(2 * 3.14159*(T.GetTRef().GetJDay() / 365. - 0.25));
 
 					//convert air temperature to bark temperature
@@ -197,14 +197,14 @@ namespace WBSF
 				double L = 0; //Rate of catalysis
 
 				//Microclimate
-				double Tmax = T[H_TMAX][HIGHEST];
-				double Tmin = T[H_TMIN][LOWEST];
+				double Tmax = T[H_TMAX2][MEAN];
+				double Tmin = T[H_TMIN2][MEAN];
 
 				//If phloem temperature is being generated from air temperature
 				if (m_bMicroClimate)
 				{
 
-					double Trange = T[H_TRNG][MEAN];
+					double Trange = Tmax - Tmin;//T[H_TRNG][MEAN];
 					double Sin = sin(2 * 3.14159*(T.GetTRef().GetJDay() / 365. - 0.25));
 
 					//convert air temperature to bark temperature
