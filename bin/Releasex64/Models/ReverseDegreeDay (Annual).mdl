@@ -24,7 +24,7 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>7</MaxValue>
-            <TextValue>Daily Average;Daily Average (limited to thresholds);Single Triangle;Double Triangle;Single Sine;Double Sine;Modified Allen Wave (1976);From Hourly Temperature</TextValue>
+            <TextValue>Daily Average;Daily Average (limited to thresholds);Single Triangle;Double Triangle;Single Sine;Double Sine;Modified Allen Wave (1976)</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>LowerThreshold</Name>

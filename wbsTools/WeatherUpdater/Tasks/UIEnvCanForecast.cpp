@@ -51,7 +51,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Forecast\\"; break;
-		case METHOD:	str = "2"; break;
+		case METHOD:	str = "0"; break;
 		case GRIBS_TYPE: str = "0"; break;
 
 		};

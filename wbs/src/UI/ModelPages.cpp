@@ -680,19 +680,20 @@ namespace WBSF
 	void CModelInputParameterCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pPropIn) const
 	{
 		CModelInputParameterCtrl& me = const_cast<CModelInputParameterCtrl&>(*this);
-		CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
+		CCFLPropertyGridProperty* pProp = static_cast<CCFLPropertyGridProperty*>(pPropIn);
 
 		int pos = m_pWndList->GetSelItem();
 		ASSERT(pos >= 0 && pos < m_pWndList->GetCount());
 
 		size_t i = pProp->GetData();
-		string value = pProp->get_string();
+		//string value = pProp->GetValue();
+		CString value = pProp->GetValue();
 		m_data[pos]->SetMember(i, ToUTF8(value));
 
 
 		if (i == CModelInputParameterDef::TYPE)
 			//size_t index =  // ((const CCFLPropertyGridProperty*)pProp)->GetCurSel();
-			me.m_lastType = WBSF::as<short>(value);
+			me.m_lastType = UtilWin::ToShort(value);
 		
 
 		me.m_form.UpdateItem(pos);

@@ -226,14 +226,23 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 
 	typedef pair<int, size_t> PriorityPair;
 	vector< PriorityPair >execList;
-	
+	size_t nbExec = 0;
+
 	for (size_t i = size() - 1; i < size(); i--)
-		execList.push_back(PriorityPair(at(i)->GetPriority(), i));
+	{
+		size_t e = at(i)->GetNbExecute(false);
+		if (e > 0)
+		{
+			execList.push_back(PriorityPair(at(i)->GetPriority(), i));
+			nbExec += e;
+		}
+			
+	}
 
 	sort(execList.begin(), execList.end() );
 
 	
-	if (execList.size()>1)
+	if (!execList.empty())
 		callback.PushTask(FormatMsg(IDS_MSG_PUSH_LEVEL, GetParent()->m_name), execList.size(), 1);
 
 	for (size_t ii = 0; ii<execList.size() && !callback.GetUserCancel(); ii++)
@@ -241,8 +250,8 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 		size_t i = execList[ii].second;
 		ERMsg msgTmp = at(i)->ExecuteBasic(fileManager, callback);
 		
-		if (execList.size()>1)
-			msg += callback.StepIt();
+		if (!execList.empty())
+			msg += callback.StepIt(at(i)->GetNbExecute(false));
 
 		msg += msgTmp;
 	    if( msgTmp )
@@ -253,7 +262,7 @@ ERMsg CExecutableVector::Execute(const CFileManager& fileManager, CCallback& cal
 		}	
 	}
 
-	if (execList.size()>1)
+	if (!execList.empty())
 		callback.PopTask();
 
 	return msg;

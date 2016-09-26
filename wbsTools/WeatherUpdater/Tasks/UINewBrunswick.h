@@ -13,7 +13,10 @@ namespace WBSF
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
 		enum TNetwork { FIRE, AGRI, NB_NETWORKS};
-		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, NB_ATTRIBUTES };
+		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, NB_ATTRIBUTES };//DATA_TYPE, 
+		static size_t GetNetworkFromName(std::string name);
+
+
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINewBrunswick); }
 
@@ -25,7 +28,7 @@ namespace WBSF
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
+		virtual bool IsHourly()const{ return true; }
 		virtual bool IsDaily()const{ return true; }
 		virtual bool IsDatabase()const{ return true; }
 
@@ -48,8 +51,9 @@ namespace WBSF
 		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
 		ERMsg LoadStationList(CCallback& callback);
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		std::bitset<NB_NETWORKS> GetNetWork()const;
 
-		std::string GetStationListFilePath()const;
+		std::string GetStationListFilePath(size_t network)const;
 
 		ERMsg GetFileList(size_t n, CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg GetFileList(size_t n, StringVector& fileList, CCallback& callback)const;
@@ -64,7 +68,7 @@ namespace WBSF
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME[NB_NETWORKS];
-		
+		static const char* NETWORK_NAME[NB_NETWORKS];
 
 	};
 

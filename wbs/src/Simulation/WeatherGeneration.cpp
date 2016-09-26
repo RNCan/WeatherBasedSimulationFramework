@@ -794,7 +794,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 	CNormalsDatabasePtr normalDB( new CNormalsDatabase );
 	if (msg)
 	{
-		msg = normalDB->Open(NFilePath, CDailyDatabase::modeRead, callback);
+		msg = normalDB->Open(NFilePath, CDailyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = normalDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
@@ -805,7 +805,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 	if (msg && WGInput.IsDaily())
 	{
 		dailyDB.reset( new CDailyDatabase );
-		msg = dailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback );
+		msg = dailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = dailyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
@@ -815,7 +815,7 @@ ERMsg CWeatherGeneration::Execute(const CFileManager& fileManager, CCallback& ca
 	if (msg && WGInput.IsHourly())
 	{
 		hourlyDB.reset(new CHourlyDatabase);
-		msg = hourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback);
+		msg = hourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = hourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}

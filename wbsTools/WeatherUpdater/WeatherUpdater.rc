@@ -206,7 +206,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,2,0,0
+ FILEVERSION 5,2,0,3
  PRODUCTVERSION 5,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -224,7 +224,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.2.0.0"
+            VALUE "FileVersion", "5.2.0.3"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -234,7 +234,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.2.0.0"
+            VALUE "FileVersion", "5.2.0.3"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -670,7 +670,7 @@ BEGIN
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Répertoire de travail"
 	IDS_UPDATER_MANITOBA_P "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
-	IDS_UPDATER_NEWBRUNSWICK_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
+	IDS_UPDATER_NEWBRUNSWICK_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
 	IDS_UPDATER_ONTARIO_P "Répertoire de travail|Première année|Dernière année|Réseau"
 	IDS_UPDATER_CMIP5_P    "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
 	IDS_UPDATER_GPCP_P     "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
@@ -1104,7 +1104,7 @@ BEGIN
     IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
     IDS_UPDATER_BC_SNOWPILLOW_P "Working directory|First year|Last year"
 	IDS_UPDATER_MANITOBA_P "Working directory|First year|Last year|Network|Data type"
-	IDS_UPDATER_NEWBRUNSWICK_P "User Name|Password|Working directory|First year|Last year|Network|Data type"
+	IDS_UPDATER_NEWBRUNSWICK_P "User Name|Password|Working directory|First year|Last year|Network"
 	IDS_UPDATER_ONTARIO_P "Working directory|First year|Last year|Network"
 	IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
 	IDS_UPDATER_GPCP_P     "Working directory|Type|First year|Last year|Bounding Box"

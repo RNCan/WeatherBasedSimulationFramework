@@ -31,8 +31,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUINewBrunswick::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network", "DataType"};
-	const size_t CUINewBrunswick::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_COMBO_INDEX };
+	const char* CUINewBrunswick::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network"};//, "DataType"
+	const size_t CUINewBrunswick::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT};//, T_COMBO_INDEX 
 	const UINT CUINewBrunswick::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWBRUNSWICK_P;
 	const UINT CUINewBrunswick::DESCRIPTION_TITLE_ID = ID_TASK_NEWBRUNSWICK;
 
@@ -40,10 +40,26 @@ namespace WBSF
 	CTaskBase::TType CUINewBrunswick::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewBrunswick::CLASS_NAME(), (createF)CUINewBrunswick::create);
 
+	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS] {"Fire", "Agriculture"};
+	
+	size_t CUINewBrunswick::GetNetworkFromName(string name)
+	{
+		size_t n = NOT_INIT;
+		for (size_t i = 0; i < NB_NETWORKS && n == NOT_INIT; i++)
+			if (WBSF::IsEqual(name, NETWORK_NAME[i]))
+				n = i;
+		
+		return n;
+	}
+
+
+
 
 	enum{ C_STATION_NAME, C_YEAR, C_MONTH, C_DAY, C_DATE, C_TIME, C_STATION_ID, C_TEMP, C_RH, C_DIR, C_WSPD, C_MX_SPD, C_RN_1, C_RN_24, C_PG_1HR, C_PG_24, C_HFFMC, C_HISI, C_HFWI, C_RN24, C_PG_24HR, C_FFMC, C_DMC, C_DC, C_ISI, C_BUI, C_FWI, C_DSR, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, NB_COLUMNS };
 	static const char* COLUMN_NAME[NB_COLUMNS] = { "StationName", "Year", "Month", "Day", "Date", "Time", "StationID", "Temp", "Rh", "Dir", "Wspd", "Mx_Spd", "Rn_1", "rn_24", "PG_1hr", "pg_24", "hFFMC", "hISI", "hFWI", "Rn24", "PG_24hr", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR", "TMax", "TMax24", "TMin", "TMin24" };
+
 	
+
 	size_t GetColumn(const string& header)
 	{
 		size_t c = NOT_INIT;
@@ -82,10 +98,10 @@ namespace WBSF
 				v = H_WNDS;
 			else if (type == C_RN_1)
 				v = H_PRCP;
-			else if (type == C_TEMP )
-				v = H_TAIR2;
 			else if (type == C_TMIN)
 				v = H_TMIN2;
+			else if (type == C_TEMP)
+				v = H_TAIR2;
 			else if (type == C_TMAX )
 				v = H_TMAX2;
 		}
@@ -102,13 +118,13 @@ namespace WBSF
 		return v;
 	}
 
-	static vector<size_t>  GetVariables(bool bHourly, vector<size_t> coluns)
+	static vector<size_t>  GetVariables(bool bHourly, const vector<size_t>& columns)
 	{
-		vector<size_t> vars(coluns.size());
+		vector<size_t> vars(columns.size());
 
 
-		for (size_t c = 0; c < coluns.size(); c++)
-			vars[c] = GetVariable(bHourly, coluns[c]);
+		for (size_t c = 0; c < columns.size(); c++)
+			vars[c] = GetVariable(bHourly, columns[c]);
 
 		return vars;
 	}
@@ -127,7 +143,7 @@ namespace WBSF
 		switch (i)
 		{
 		case NETWORK:	str = "0=Fire|1=Agriculture"; break;//|1=Agriculture
-		case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
+		//case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
 	}
@@ -347,12 +363,10 @@ namespace WBSF
 		return msg;
 	}
 
-
-	ERMsg CUINewBrunswick::Execute(CCallback& callback)
+	
+	std::bitset<CUINewBrunswick::NB_NETWORKS> CUINewBrunswick::GetNetWork()const
 	{
-		ERMsg msg;
-
-		std::bitset<NETWORK> network;
+		std::bitset<NB_NETWORKS> network;
 
 		StringVector str(Get(NETWORK), "|");
 		if (str.empty())
@@ -369,6 +383,15 @@ namespace WBSF
 					network.set(n);
 			}
 		}
+
+		return network;
+	}
+
+	ERMsg CUINewBrunswick::Execute(CCallback& callback)
+	{
+		ERMsg msg;
+
+		std::bitset<NB_NETWORKS> network = GetNetWork();
 
 		for (size_t n = 0; n < network.size()&&msg; n++)
 		{
@@ -514,7 +537,7 @@ namespace WBSF
 		StringVector fileList;
 		GetFileList(AGRI, fileList, callback);
 
-		callback.PushTask("Download New Brunswick agriculture data", fileList.size());
+		callback.PushTask("Download New Brunswick agriculture data", fileList.size()*nbYears);
 
 		int nbRun = 0;
 		size_t curI = 0;
@@ -535,9 +558,8 @@ namespace WBSF
 						for (size_t y = 0; y < nbYears&&msg; y++)
 						{
 							int year = firstYear + int(y);
-							//size_t lastMonth = year == currentTRef.GetYear() ? currentTRef.GetMonth() + 1: 12;
-							//for (size_t m = 0; m < lastMonth&&msg; m++)
-							//{
+							
+
 							string str;
 							msg = DownloadStation(pConnection, fileList[i], year, str);
 
@@ -559,11 +581,7 @@ namespace WBSF
 
 								curI++;
 								msg += callback.StepIt();
-								//bDownloaded = true;
 							}
-
-							//}//month
-
 						}//year
 					}
 				}
@@ -610,8 +628,6 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(string(SERVER_NAME[FIRE]), 1);
 		callback.AddMessage("");
-
-
 
 
 		CFileInfoVector fileList;
@@ -669,25 +685,40 @@ namespace WBSF
 
 	string CUINewBrunswick::GetOutputFilePath(size_t n, const string& ID, int year)const
 	{
-		static const char* NETWORK_NAME[NB_NETWORKS] {"Fire", "Agriculture"};
+		
 		return GetDir(WORKING_DIR) + NETWORK_NAME[n] + "\\" + ToString(year) + "\\" + ID + ".csv";
 	}
 
-	std::string CUINewBrunswick::GetStationListFilePath()const
+	std::string CUINewBrunswick::GetStationListFilePath(size_t n)const
 	{
-		
-		return WBSF::GetApplicationPath() + "Layers\\NBStations.csv";
+		ASSERT(n < NETWORK);
+
+		static const char* FILE_NAME[NETWORK] = { "NBStations.csv", "NBAgStations.csv" };
+		return WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[n];
 	}
 
 	ERMsg CUINewBrunswick::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
-		
-		msg = m_stations.Load(GetStationListFilePath());
+		if (m_stations.empty())
+		{
+			std::bitset<NB_NETWORKS> network = GetNetWork();
 
-		if (msg)
-			msg += m_stations.IsValid();
+			for (size_t n = 0; n < network.size() && msg; n++)
+			{
+				if (network[n])
+				{
+					CLocationVector stations;
+					msg = stations.Load(GetStationListFilePath(n));
+					if (msg)
+						m_stations.insert(m_stations.end(), stations.begin(), stations.end());
+				}
+			}
+
+			if (msg)
+				msg += m_stations.IsValid();
+		}
 
 		if (msg)
 		{
@@ -709,10 +740,11 @@ namespace WBSF
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));
 			return msg;
 		}
-		
-		((CLocation&)station) = m_stations[it];
 
-		size_t n = FIRE;//station.GetSSI("NETWORK");
+		((CLocation&)station) = m_stations[it];
+		station.SetHourly(TM.Type()==CTM::HOURLY);
+
+		size_t n = GetNetworkFromName(station.GetSSI("Network"));
 		//station.m_name = TraitFileName(station.m_name);
 
 		int firstYear = as<int>(FIRST_YEAR);
@@ -729,7 +761,12 @@ namespace WBSF
 
 			string filePath = GetOutputFilePath(n, ID, year);
 			if (FileExists(filePath))
-				msg = ReadData(filePath, TM, station[year], callback);
+			{
+				if (n == FIRE)
+					msg = ReadData(filePath, TM, station[year], callback);
+				else
+					msg = station.LoadData(filePath, -999, false);
+			}
 
 			msg += callback.StepIt(0);
 		}
@@ -748,7 +785,7 @@ namespace WBSF
 	{
 		size_t h = 0;
 		StringVector v(time, ":");
-		ASSERT(v.size()==2);
+		ASSERT(v.size() == 2);
 
 		return ToSizeT(v[0]);
 	}
@@ -766,53 +803,65 @@ namespace WBSF
 		{
 			CWeatherAccumulator accumulator(TM);
 			vector<size_t> variables;
+			bool bHourly = true;// IsHourly();
 
-			size_t i = 0;
-			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop, i++)
+
+			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 			{
 				if (variables.empty())
 				{
-					vector<size_t> columns = GetColumns(loop.Header());
-					variables = GetVariables(IsHourly(), columns);
-				}
+					StringVector head = loop.Header();
+					vector<size_t> columns = GetColumns(head);
 					
+					variables = GetVariables(bHourly, columns);
+				}
+
 				ASSERT(loop->size() <= variables.size());
-
-				int year = ToInt((*loop)[C_YEAR]);
-				size_t month = ToInt((*loop)[C_MONTH]) - 1;
-				size_t day = ToInt((*loop)[C_DAY]) - 1;
-				size_t hour = GetHour((*loop)[C_TIME]);
-				
-				ASSERT(month < 12);
-				ASSERT(day < GetNbDayPerMonth(year, month));
-				ASSERT(hour < 24);
-
-				CTRef TRef = IsHourly() ? CTRef(year, month, day, hour) : CTRef(year, month, day);
-
-				if (accumulator.TRefIsChanging(TRef))
+				if (loop->size() >= C_TIME)
 				{
-					data[accumulator.GetTRef()].SetData(accumulator);
-				}
+					int year = ToInt((*loop)[C_YEAR]);
+					size_t month = ToInt((*loop)[C_MONTH]) - 1;
+					size_t day = ToInt((*loop)[C_DAY]) - 1;
+					size_t hour = GetHour((*loop)[C_TIME]);
 
-				for (size_t c = 0; c < loop->size(); c++)
-				{
-					
-					if (variables[c] != NOT_INIT)
+					ASSERT(month < 12);
+					ASSERT(day < GetNbDayPerMonth(year, month));
+					ASSERT(hour < 24);
+
+					CTRef TRef = bHourly ? CTRef(year, month, day, hour) : CTRef(year, month, day);
+
+					if (accumulator.TRefIsChanging(TRef))
 					{
-						string str = (*loop)[c];
-						if (!str.empty())
-						{
-							double value = ToDouble(str);
-							if (value > -999 && value < 999)
-							{
+						data[accumulator.GetTRef()].SetData(accumulator);
+					}
 
-								accumulator.Add(TRef, variables[c], value);
+					for (size_t c = 0; c < loop->size(); c++)
+					{
+
+						if (variables[c] != NOT_INIT)
+						{
+							string str = (*loop)[c];
+							if (!str.empty())
+							{
+								double value = ToDouble(str);
+								if (value > -999 && value < 999)
+									accumulator.Add(TRef, variables[c], value);
+
+								if (c == C_RH && !(*loop)[C_TEMP].empty())
+								{
+									double Tair = ToDouble((*loop)[C_TEMP]);
+									if (Tair > -999 && Tair < 999)
+									{
+										double Tdew = Hr2Td(Tair, value);
+										accumulator.Add(TRef, H_TDEW, Tdew);
+									}
+								}
 							}
 						}
 					}
-				}
 
-				msg += callback.StepIt(0);
+					msg += callback.StepIt(0);
+				}
 			}//for all line
 
 
@@ -824,5 +873,4 @@ namespace WBSF
 		return msg;
 	}
 }
-
 

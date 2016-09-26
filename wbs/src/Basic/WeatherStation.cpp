@@ -398,7 +398,17 @@ void CWeatherAccumulator::ComputeStatistic()const
 				//continue;
 				CStatistic stat = (v == H_TMAX2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT);
 				if (stat.IsInit())
-					me.m_variables[v] = stat[v == H_PRCP ? SUM : MEAN];
+				{
+					switch (v)
+					{
+					case H_TMIN2:	me.m_variables[v] = stat[LOWEST]; break;
+					case H_TMAX2:	me.m_variables[v] = stat[HIGHEST]; break;
+					case H_PRCP:	me.m_variables[v] = stat[SUM]; break;
+					default:		me.m_variables[v] = stat[MEAN];
+					}
+					
+				}
+					
 				
 			}
 				

@@ -135,7 +135,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,1,0,0
+ FILEVERSION 4,1,0,1
  PRODUCTVERSION 4,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -153,7 +153,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques normales"
-            VALUE "FileVersion", "4.1.0.0"
+            VALUE "FileVersion", "4.1.0.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "EditeurNormales"
@@ -163,7 +163,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Normals weather data editor"
-            VALUE "FileVersion", "4.1.0.0"
+            VALUE "FileVersion", "4.1.0.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "NormalsEditor"
