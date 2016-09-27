@@ -146,7 +146,8 @@ namespace WBSF
 		void clear() { m_type = UNKNOWN;	m_mode = FOR_EACH_YEAR; }
 		bool IsInit()const { _ASSERTE(IsValid()); return m_type != UNKNOWN; }
 		bool IsValid()const { return ((m_type == UNKNOWN || m_type == NOT_INIT) || (Type() >= ANNUAL&&Type() < NB_REFERENCE)) && (Mode() == UNKNOWN || Mode() == NOT_INIT || (Mode() >= FOR_EACH_YEAR&&Mode() < NB_MODE)); }
-
+		bool IsHourly()const { return m_type == HOURLY; }
+		bool IsDaily()const { return m_type == DAILY;  }
 		size_t Type()const{ return (size_t)m_type; }
 		size_t Mode()const{ return (size_t)m_mode; }
 

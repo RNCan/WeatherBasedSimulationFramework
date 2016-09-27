@@ -397,16 +397,17 @@ namespace WBSF
 
 		CExecutablePtrVector executable;
 		msg = GetExecutableArray(executable);
-		if (msg)
+		if (msg && !executable.empty())
 		{
 			CParentInfoFilter filter2;
 			filter2.reset();
 			filter2.set(m_dimensionAppend);
 
-			//executable.front()->GetParentInfo(fileManager, info, filter);
+			
+			executable.front()->GetParentInfo(fileManager, info, filter);
 
 			//append other info
-			for (size_t i = 0; i < executable.size() && msg; i++)
+			for (size_t i = 1; i < executable.size() && msg; i++)
 			{
 				CParentInfo info2;
 				msg = executable[i]->GetParentInfo(fileManager, info2, filter2);
@@ -427,7 +428,7 @@ namespace WBSF
 
 				if (filter[TIME_REF] && m_dimensionAppend == TIME_REF)
 				{
-					if (info2.m_period.GetTM() == info2.m_period.GetTM())
+					if (!info.m_period.IsInit() || info.m_period.GetTM() == info2.m_period.GetTM())
 						info.m_period.Inflate(info2.m_period);
 				}
 

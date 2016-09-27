@@ -194,8 +194,6 @@ namespace WBSF
 			m_firstTRef = in.m_firstTRef;
 			m_dataType = in.m_dataType;
 			m_dataTM = in.m_dataTM;
-			//m_bPropagateFirstRow=in.m_bPropagateFirstRow;
-			//m_bPropagateLastRow=in.m_bPropagateLastRow;
 			m_nbCols = in.m_nbCols;
 		}
 	}
@@ -247,18 +245,7 @@ namespace WBSF
 		{
 			me = in;
 			m_dataTM = in.m_dataTM;
-
-			//update TRef if Temporal column
-		/*	for (size_t i = 0; i < in.size(); i++)
-			{
-				for (size_t j = 0; j < in[i].size(); j++)
-				{
-					if (in.IsTemporalMatrix(j))
-						SetTRef(i, j, in.GetTRef(i, j));
-				}
-			}*/
-
-
+			
 			return;
 		}
 
@@ -297,10 +284,12 @@ namespace WBSF
 		ASSERT(empty() || in.empty() || in.size() == size());
 
 		CNewSectionData& me = *this;
+		
 
 		if (GetXSize() == 0)
 		{
 			me = in;
+			m_dataTM = in.m_dataTM;
 		}
 		else
 		{
@@ -317,6 +306,11 @@ namespace WBSF
 			//adjust number of cols
 			if (size() > 0)
 				m_nbCols = me[0].size();
+			
+			m_dataTM.insert(m_dataTM.end(), in.GetDataTM().begin(), in.GetDataTM().end());
+			
+			
+			ASSERT(m_dataTM.size() == m_nbCols);
 		}
 
 		ASSERT(size() == in.size());
