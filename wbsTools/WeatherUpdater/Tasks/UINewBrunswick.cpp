@@ -269,6 +269,18 @@ namespace WBSF
 
 		return wd;
 	}
+	
+	double Convert(TVarH v, double value)
+	{
+		if (v == H_TAIR2 || v == H_TMAX2 || v == H_TMIN2 || v == H_TDEW)
+			value = ((value - 32.0)*5.0 / 9.0);
+		else if(v==H_WNDS)
+			value = value * 1.60934;//mille/hour --> km/hour
+		else if (v == H_PRCP)
+			value = value *25.4;//in --> mm
+
+		return value;
+	}
 
 	ERMsg CUINewBrunswick::SaveStation(const std::string& filePath, std::string str)
 	{
@@ -335,7 +347,11 @@ namespace WBSF
 
 								double value = ToDouble(tmp[i]);
 								if (value > -99)
+								{
+									value = Convert(COL_POS[i], value);
 									data.GetHour(TRef).SetStat(COL_POS[i], value);
+								}
+									
 							}
 						}
 					}

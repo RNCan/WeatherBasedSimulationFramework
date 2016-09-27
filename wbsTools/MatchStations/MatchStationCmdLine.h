@@ -1,4 +1,4 @@
-// MyCommandLineInfo.h: interface for the CMatchStationCmdLine class.
+// MyCommandLineInfo.h: interface for the CMatchStationCmdLine class. 
 //
 //////////////////////////////////////////////////////////////////////
 #pragma once
