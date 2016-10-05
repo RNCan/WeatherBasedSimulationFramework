@@ -173,6 +173,7 @@
     <ClInclude Include="UIGPCP.h" />
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMDDELCC.h" />
+    <ClInclude Include="UINEWA.h" />
     <ClInclude Include="UINewBrunswick.h" />
     <ClInclude Include="UIOntario.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="UIGPCP.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMDDELCC.cpp" />
+    <ClCompile Include="UINEWA.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
     <ClCompile Include="UIOntario.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />

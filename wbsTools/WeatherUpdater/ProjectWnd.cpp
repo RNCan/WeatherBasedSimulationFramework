@@ -25,6 +25,7 @@
 #include "Tasks/UIManitoba.h"
 #include "Tasks/UINewBrunswick.h"
 #include "Tasks/UIOntario.h"
+#include "Tasks/UINEWA.h"
 #include "Tasks/UICMIP5.h"
 #include "Tasks/UIGPCP.h"
 
@@ -326,6 +327,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_MANITOBA:		className = CUIManitoba::CLASS_NAME(); break;
 	case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
 	case ID_TASK_ONTARIO:		className = CUIOntario::CLASS_NAME(); break;
+	case ID_TASK_NEWA:			className = CUINEWA::CLASS_NAME(); break;
 	case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
 	case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;

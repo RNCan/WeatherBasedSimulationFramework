@@ -151,7 +151,9 @@ namespace WBSF
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msgTmp)
 			{
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 55000);
+				pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 55000);
+				
 
 				if (toDo[0])
 				{
@@ -178,7 +180,7 @@ namespace WBSF
 							if (toDo[index])
 							{
 								//msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.op.gz", fileList, callback);
-								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.tar", fileList, callback);
+								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "gsod_" + ToString(year) + ".tar", fileList, callback);
 								if (msgTmp)
 								{
 									toDo[index] = false;

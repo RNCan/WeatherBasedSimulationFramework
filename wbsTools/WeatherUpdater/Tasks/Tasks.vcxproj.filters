@@ -149,6 +149,9 @@
     <ClInclude Include="UICMIP5.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UINEWA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -287,6 +290,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIWunderground.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UINEWA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

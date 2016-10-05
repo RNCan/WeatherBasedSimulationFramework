@@ -99,8 +99,6 @@ namespace WBSF
 		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 		if (msg)
 		{
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
-			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
 			
 
 			string path = GetHistoryFilePath(false);
@@ -151,15 +149,6 @@ namespace WBSF
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msgTmp)
 			{
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
-				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
-
-
-				DWORD test1;
-				pSession->QueryOption(INTERNET_OPTION_CONNECT_RETRIES, test1);
-				DWORD test2;
-				pSession->QueryOption(INTERNET_OPTION_CONNECT_TIMEOUT, test2);
-				
 				
 
 				if (toDo[0])
@@ -231,7 +220,7 @@ namespace WBSF
 				callback.AddMessage(GetString(IDS_SERVER_BUSY));
 
 			callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()));
-			//msg = CleanList(fileList, callback);
+			msg = CleanList(fileList, callback);
 		}
 
 		return msg;
@@ -313,7 +302,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 
 		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-		//callback.SetNbStep(fileList.size());
 
 		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg;)
 		{
@@ -448,10 +436,6 @@ namespace WBSF
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
 			if (msgTmp)
 			{
-				
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 40000);
-				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 40000);
-				
 
 				TRY
 				{
@@ -559,10 +543,6 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		//stationList.push_back("072080-99999");
-		//return msg;
-
-
 		//get all file in the directory
 		StringVector fileList;
 		int firstYear = as<int>(FIRST_YEAR);
@@ -570,7 +550,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_GET_STATION_LIST), nbYears);
-		//callback.SetNbStep(nbYears);
+		
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)

@@ -108,6 +108,7 @@ BEGIN
 	BUTTON      ID_TASK_MANITOBA
 	BUTTON      ID_TASK_NEWBRUNSWICK
 	BUTTON      ID_TASK_ONTARIO
+	BUTTON      ID_TASK_NEWA
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -171,6 +172,7 @@ BEGIN
 	BUTTON      ID_TASK_MANITOBA
 	BUTTON		ID_TASK_NEWBRUNSWICK
 	BUTTON		ID_TASK_ONTARIO
+	BUTTON      ID_TASK_NEWA
     BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -657,6 +659,7 @@ BEGIN
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année"
+	IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Répertoire de travail|Première année|Dernière année|Télécharger pendant x jours"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
@@ -729,6 +732,7 @@ BEGIN
 	ID_TASK_MANITOBA		"Télécharger les données du Manitoba\nManitoba"
 	ID_TASK_NEWBRUNSWICK	"Télécharger les données du Nouveau Brunswick\nNouveau Brunswick"
 	ID_TASK_ONTARIO			"Télécharger les données de l'Ontario\nOntario"
+	ID_TASK_NEWA			"Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nNEWA"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1092,6 +1096,7 @@ BEGIN
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year"
+	IDS_UPDATER_NEWA_P		"Working directory|Data Type|States|First year|Last year|Update until x days|Update station list"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Working directory|First year|Last year|Update until x days"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First year|Last year"
@@ -1163,6 +1168,7 @@ BEGIN
 	ID_TASK_MANITOBA		"Download Manitoba weather data\nManitoba"
 	ID_TASK_NEWBRUNSWICK	"Download New Brunswick weather data\nNew Brunswick"
 	ID_TASK_ONTARIO			"Download Ontario weather data\nOntario"
+	ID_TASK_NEWA			"Download Network for Environment and Weather Applications (NEWA)\nNEWA"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

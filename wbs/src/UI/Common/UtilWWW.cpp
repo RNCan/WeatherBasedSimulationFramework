@@ -476,7 +476,7 @@ namespace UtilWWW
 		CFtpFileFind finder(pConnect.get());
 
 		// start looping
-		BOOL bWorking = finder.FindFile(URL);
+		BOOL bWorking = finder.FindFile(URL, INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD);
 		DWORD errNum = GetLastError();
 
 		while (bWorking&&msg)
@@ -726,8 +726,10 @@ namespace UtilWWW
 
 		TRY
 		{
-			//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 15000);
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 120000);
+			pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 120000);
+			pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
+			pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
 			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
 			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
 			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);

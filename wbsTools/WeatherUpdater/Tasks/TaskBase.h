@@ -236,7 +236,7 @@ namespace WBSF
 		bool operator != (const CTasksProject& in)const{ return !operator == (in); }
 
 		void clear();
-		bool empty()const{ return at(0).empty() && at(1).empty() && at(2).empty(); }
+		bool empty()const{ return at(0).empty() && at(1).empty(); }
 		size_t GetNbExecutes(size_t t=NOT_INIT)const;
 
 		ERMsg Load(const std::string& filePath);
