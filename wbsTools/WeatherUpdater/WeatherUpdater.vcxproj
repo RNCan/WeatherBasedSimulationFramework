@@ -147,7 +147,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;</AdditionalDependencies>
       <DelayLoadDLLs>gdal111.dll;proj.dll;</DelayLoadDLLs>

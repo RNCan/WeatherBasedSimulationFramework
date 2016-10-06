@@ -461,12 +461,7 @@ namespace WBSF
 		size_t member = SSI;
 
 		string header(headerIn);
-
-		//header.Replace("(meters)", "");
-		//header.Replace("(meter)", "");
-		//header.Replace("(m)", "");
-		//header.Replace("(%)", "");
-		//header.Replace("(°)", "");
+		
 		string::size_type pos = header.find('(');
 		if (pos != string::npos)
 			header = Trim(header.substr(0, pos));

@@ -173,7 +173,7 @@
 #define ID_TASK_CONVERT_DB		         32935
 #define ID_TASK_OTHER_TOOLS				 32936
 #define ID_TASK_DELETE					 33937
-#define ID_TASK_LAST    				 32938
+#define ID_TASK_LAST    				 32937
 #define ID_TASK_UPDATE					 32945
 #define ID_TASK_TOOLS					 32946
 #define ID_OPTIONS                       35950

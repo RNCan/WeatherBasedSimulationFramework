@@ -12,13 +12,6 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
-//Network for Environment and Weather Applications
-//http://newa.cornell.edu/index.php?page=weather-station-details&WeatherStation=cns&WSDetail=
-//http://newa.nrcc.cornell.edu/newaLister/rawdat
-
-
-//http://newa.cornell.edu/index.php?page=hourly-weather
-//http://newa.nrcc.cornell.edu/newaLister/hly/cns/2015/11
 
 
 using namespace std;
@@ -43,7 +36,9 @@ namespace WBSF
 	CTaskBase::TType CUINEWA::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINEWA::CLASS_NAME(), (createF)CUINEWA::create);
 
-	const char* CUINEWA::SERVER_NAME = "newa.nrcc.cornell.edu";
+	const char* CUINEWA::SERVER_NAME1 = "newa.cornell.edu";
+	const char* CUINEWA::SERVER_NAME2 = "newa.nrcc.cornell.edu";
+	
 
 	
 	CUINEWA::CUINEWA(void)
@@ -114,113 +109,87 @@ namespace WBSF
 		case DATA_TYPE: str = "1"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case UPDATE_UNTIL: str = "2"; break;
 		};
 
 		return str;
 	}
 
-	//Interface attribute index to attribute index
-	//kged
-	//http://newa.nrcc.cornell.edu/newaLister/dly/kged/2016/1
-	static const char PageDataFormat[] = "newaLister/%s/%s/%d/%d";
 	
 
 	ERMsg CUINEWA::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
-		ERMsg msg;
+		ERMsg msg; 
 
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		
-		msg = GetHttpConnection("newa.cornell.edu", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME1, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 		if (!msg)
 			return msg;
-
-
-		//Get cookie and page list
-
+		
 		string source;
 		msg = GetPageText(pConnection, "index.php?page=station-pages", source);
 		if (msg)
 		{
 			try
 			{
-				//replace all ' by space
-				WBSF::ReplaceString(source, "'"," ");
-				zen::XmlDoc doc = zen::parse(source);
+				size_t pos = source.find(".evenRow");
+				if (pos != string::npos)
+					pos = source.find("<table", pos);
+				if (pos != string::npos)
+					pos = source.find("<table", pos);
 
-				zen::XmlIn in(doc.root());
-				for (zen::XmlIn child = in["station"]; child&&msg; child.next())
+				if (pos != string::npos)
 				{
-				/*	<table cellspacing="0" width="70%" style="margin-left:auto; margin-right:auto; text-align:center;">
-	<tr>
-		<td>
-			<div style="overflow:auto; height : 585px; width:250px;">
-			<table cellspacing="0" class="table" width="100%">
-				<tr>
-					<td class="tableHeader">Weather Stations</td>
-				</tr>
-									<tr class="oddRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=acc">Accord, NY</a></td>
-					</tr>
-									<tr class="evenRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=mn_aft">Afton, MN</a></td>
-					</tr>
-									<tr class="oddRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=kalb">Albany, NY</a></td>
-					</tr>
-									<tr class="evenRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=alb">Albion, NY</a></td>
-					</tr>
-									<tr class="oddRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=mn_alx">Alexandria, MN</a></td>
-					</tr>
-									<tr class="evenRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=kabe">Allentown, PA</a></td>
-					</tr>
-									<tr class="oddRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=alt">Altamont (Indian Ladder), NY</a></td>
-					</tr>
-									<tr class="evenRow">
-						<td><a href="index.php?page=weather-station-page&WeatherStation=kaoo">Altoona, PA</a></td>
-					</tr>
-				*/
-					CLocation location;
-					enum TAttributes{ ACIS_STATION_ID, COMMENT, ELEVATION, LATITUDE, LONGITUDE, OPERATOR, OWNER, POSTAL_CODE, STATION_NAME, TYPE, NB_ATTRIBUTES };
-					static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "acis_station_id", "comment", "elevation", "latitude", "longitude", "operator", "owner", "postal_code", "station_name", "type" };
-					for (size_t i = 0; i < NB_ATTRIBUTES; i++)
+					while (pos != string::npos)
 					{
-						string str;
-						if (child.attribute(ATTRIBUTE_NAME[i], str))
+						string tmp = FindString(source, "<td>", "</td>", pos);
+						if (!tmp.empty())
 						{
-							switch (i)
+							string line = FindString(tmp, "<a href=\"", "</a>", pos);
+							string ID = TrimConst(FindString(line, "&WeatherStation=", "\">"));
+							size_t pos1 = line.find(">");
+							size_t pos2 = line.find(",");
+
+							
+							ASSERT(pos1 != string::npos);
+							ASSERT(pos2 != string::npos);
+							
+
+							string URL = TrimConst(line.substr(0, pos1));
+							string name = TrimConst(line.substr(pos1 + 1, pos2 - pos1));
+							string state = TrimConst(line.substr(pos2+1));
+
+							size_t s = CStateSelection::GetState(state);
+							ASSERT(IsInclude(s));
+							
+							
+							string stationPage;
+							msg = GetPageText(pConnection, URL, stationPage);
+							if (msg)
 							{
-							case ACIS_STATION_ID:	location.m_ID = str; break;
-							case STATION_NAME:		location.m_name = str; break;
-							case LATITUDE:			location.m_lat = ToDouble(str); break;
-							case LONGITUDE:			location.m_lon = ToDouble(str); break;
-							case ELEVATION:			location.m_alt = ToDouble(str); break;
-							default:				location.SetSSI(ATTRIBUTE_NAME[i], str);
+								//Lat/Lon: 41.81/-74.25<br/>             Elevation: 386 ft.
+								string lat_lon = FindString(tmp, "Lat/Lon:", "<br");
+								string elev = FindString(tmp, "Elevation:", "ft.");
+
+								StringVector LatLonV(lat_lon, "/");
+								ASSERT(LatLonV.size() == 2);
+
+								
+								CLocation location(name, ID, ToDouble(LatLonV[0]), ToDouble(LatLonV[1]), WBSF::Feet2Meter(ToDouble(elev)));
+								location.SetSSI("State", state);
+								stationList.push_back(location);
+
 							}
+							
+
 						}
-					}//for all attributes
-
-					const zen::XmlElement* pIds = child["station_ids"].get();
-					if (pIds)
-					{
-						auto iterPair = pIds->getChildren();
-						for (auto iter = iterPair.first; iter != iterPair.second; ++iter)
-						{
-							string name = iter->getNameAs<string>();
-							string value;
-							iter->getValue(value);
-							location.SetSSI(name, value);
-						}//for all stations ID
-					}
-
-					stationList.push_back(location);
-				}//for all stations
+						
+						
+					}//for all stations
+				}
 			}
 			catch (const zen::XmlParsingError& e)
 			{
@@ -241,18 +210,20 @@ namespace WBSF
 
 	ERMsg CUINEWA::Execute(CCallback& callback)
 	{
-		ERMsg msg;
+		ERMsg msg; 
 
-		/*string workingDir = GetDir(WORKING_DIR);
+		string workingDir = GetDir(WORKING_DIR);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
+		callback.AddMessage(SERVER_NAME2, 1);
 		callback.AddMessage("");
 		
 
-		if (FileExists(GetStationListFilePath()))
+		bool bUpdate = as<bool>(UNPDATE_STATION_LIST);
+
+		if (FileExists(GetStationListFilePath()) && !bUpdate)
 		{
 			msg = m_stations.Load(GetStationListFilePath());
 		}
@@ -271,7 +242,7 @@ namespace WBSF
 
 		
 		msg = DownloadStation(callback);
-		*/
+		
 		return msg;
 	}
 
@@ -290,7 +261,7 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
-
+		int nbDays = as<int>(UPDATE_UNTIL);
 		
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
@@ -307,7 +278,7 @@ namespace WBSF
 					CTimeRef TRef1(GetFileStamp(filePath));
 					CTRef TRef2(year, m, LAST_DAY);
 
-					bNeedDownload[i][y][m] = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
+					bNeedDownload[i][y][m] = !TRef1.IsInit() || TRef1 - TRef2 < nbDays; //let nbDays to update the data if it's not the current month
 					nbFilesToDownload += bNeedDownload[i][y][m] ? 1 : 0;
 
 					msg += callback.StepIt();
@@ -321,7 +292,7 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 
 		if (!msg)
 			return msg;
@@ -369,7 +340,7 @@ namespace WBSF
 							}
 							callback.PopTask();
 
-							msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+							msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 							currentNbDownload = 0;
 						}//if msg
 					}//if need download
@@ -426,114 +397,79 @@ namespace WBSF
 		CTRef TRef = CTRef::GetCurrentTRef();
 		
 		//string output_text;
-		std::stringstream stream;
-		if (type == HOURLY_WEATHER)
-			stream << "Year,Month,Day,Hour,Var,Value\r\n";
-		else
-			stream << "Year,Month,Day,Var,Value\r\n";
-
-		//stream << output_text;
-
-		bool bFind = false;
+		//std::stringstream stream;
+		//if (type == HOURLY_WEATHER)
+			//stream << "Year,Month,Day,Hour,Var,Value\r\n";
+		//else
+			//stream << "Year,Month,Day,Var,Value\r\n";
+		
+	
+		bool bFind = false; 
 		callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
 		size_t nbDays = (TRef.GetYear() == year&&TRef.GetMonth() == m) ? TRef.GetDay() + 1 : GetNbDayPerMonth(year, m);
-		//for (size_t d = 0; d < nbDays && msg; d++)
-		//{
-		//	string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "HOURLY" : "DAILY", ID.c_str(), year, m + 1, d + 1);
+		for (size_t d = 0; d < nbDays && msg; d++)
+		{
+			//Interface attribute index to attribute index
+			//kged
+			static const char PageDataFormat[] = "newaLister/%s/%s/%d/%d";
 
-		//	string source;
-		//	msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+			string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "hly" : "dly", ID.c_str(), year, m + 1);
 
-		//	if (!source.empty() && source.find("No Records Were Found") == string::npos && source.find("ACIS Error") == string::npos)
-		//	{
-		//		try
-		//		{
-		//			WBSF::ReplaceString(source, "'", " ");
-		//			zen::XmlDoc doc = zen::parse(source);
+			string source;
+			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
 
-		//			string xml_name = (type == HOURLY_WEATHER) ? "element_value" : "aggregation_value";
-		//			zen::XmlIn xml_in(doc.root());
+			if (!source.empty() && source.find("Unexpected error") == string::npos )
+			{
+				try
+				{
+					size_t begin = source.find("<table");
+					size_t end = source.find("</table>");
+					string tmp = source.substr(begin, end - begin);
+					ReplaceString(tmp, "<br>", "|");
 
-		//			for (zen::XmlIn child = xml_in[xml_name]; child&&msg; child.next())
-		//			{
-		//				string var_str;
-		//				if (child["element_cd"](var_str))
-		//				{
-		//					if (type == HOURLY_WEATHER)
-		//					{
-		//						string time;
-		//						if (child["time"](time))
-		//						{
-		//							CTRef TRef = GetTRef(time, CTM::HOURLY);
+					//WBSF::ReplaceString(source, "'", " ");
+					zen::XmlDoc doc = zen::parse(tmp);
 
-		//							string src;
-		//							child["source"](src);
+					//string xml_name = (type == HOURLY_WEATHER) ? "element_value" : "aggregation_value";
+					zen::XmlIn xml_in(doc.root());
+					zen::XmlIn header = xml_in["thead"]["tr"];
+					
+					StringVector var_names;
+					for (zen::XmlIn child = header["th"]; child&&msg; child.next())
+					{
+						string tmp;
+						if (child.get()->getValue(tmp))
+						{
+							
+							StringVector elem(tmp, "|");
+							var_names.push_back(elem[0]);
+							//ASSERT(elem.size());
+						}
+					}
 
-		//							string value;
-		//							if (child[(var_str == "PR") ? "delta" : "value"](value))
-		//							{
-		//								//output_text += FormatA("%4d,%02d,%02d,%02d,%s,%s,%s\r\n", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), var_str.c_str(), value.c_str(), src.c_str());
-		//								stream << FormatA("%4d,%02d,%02d,%02d,%s,%s,%s\r\n", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), var_str.c_str(), value.c_str(), src.c_str());
-		//							}
-		//							
-		//						}
-		//					}
-		//					else
-		//					{
-		//						string date;
-		//						if (child["aggregation_date"](date))
-		//						{
-		//							CTRef TRef = GetTRef(date, CTM::DAILY);
+					StringVector var_values;
+					zen::XmlIn data = xml_in["tbody"];
+					for (zen::XmlIn child = data["td"]; child&&msg; child.next())
+					{
+						string var_str;
+						if (child.get()->getValue(var_str))
+						{
+							var_values.push_back(var_str);
+						}//for all record of the day
+					}
 
-		//							string value;
-		//							if (child["value"](value))
-		//							{
 
-		//								//string checked;
-		//								//child["checked"](checked);
+					ASSERT(var_names.size() == var_values.size());
+				}//try
+				catch (const zen::XmlParsingError& e)
+				{
+					// handle error
+					msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+				}
+			}//if is valid
 
-		//								string actual;
-		//								child["actual_percent"](actual);
-		//								string estimated;
-		//								child["estimated_percent"](estimated);
-		//								string manual;
-		//								child["manual_percent"](manual);
-		//								string missing;
-		//								child["missing_percent"](missing);
-		//								string rejected;
-		//								child["rejected_percent"](rejected);
-		//								string suspect;
-		//								child["suspect_percent"](suspect);
-
-		//								string str_min, str_max;
-		//								child["min"](str_min);
-		//								child["max"](str_max);
-
-		//								if (str_min.empty())
-		//									str_min = "-999.0";
-
-		//								if (str_max.empty())
-		//									str_max = "-999.0";
-		//								
-		//								//output_text += FormatA("%4d,%02d,%02d,%s,", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, var_str.c_str());
-		//								//output_text += FormatA("%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", value.c_str(), str_min.c_str(), str_max.c_str(), actual.c_str(), estimated.c_str(), manual.c_str(), missing.c_str(), rejected.c_str(), suspect.c_str());
-		//								stream << FormatA("%4d,%02d,%02d,%s,", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, var_str.c_str());
-		//								stream << FormatA("%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", value.c_str(), str_min.c_str(), str_max.c_str(), actual.c_str(), estimated.c_str(), manual.c_str(), missing.c_str(), rejected.c_str(), suspect.c_str());
-		//							}
-		//						}
-		//					}//if hourly
-		//				}//for all record of the day
-		//			}
-		//		}//try
-		//		catch (const zen::XmlParsingError& e)
-		//		{
-		//			// handle error
-		//			msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
-		//		}
-		//	}//if is valid
-
-		//	msg += callback.StepIt();
-		//}//for all day
+			msg += callback.StepIt();
+		}//for all day
 
 		
 		if (msg /*&& !output_text.empty()*/)//always save the file to avoid to download it

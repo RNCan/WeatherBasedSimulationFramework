@@ -15,7 +15,7 @@ namespace WBSF
 		enum TNEWAStates { NB_NEWA_STATES=21};
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, STATES, UPDATE_UNTIL, UNPDATE_STATION_LIST, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, STATES, UPDATE_UNTIL, UNPDATE_STATION_LIST, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINEWA); }
 
@@ -65,7 +65,8 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
+		static const char* SERVER_NAME1;
+		static const char* SERVER_NAME2;
 	};
 
 }

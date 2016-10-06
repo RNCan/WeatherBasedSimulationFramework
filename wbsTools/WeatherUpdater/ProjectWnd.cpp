@@ -204,7 +204,7 @@ int CTaskWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 
-	VERIFY(m_wndStatusBar.Create(this));
+	VERIFY(m_wndStatusBar.Create(this)); 
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 	m_wndStatusBar.SetOwner(this);
 	m_wndStatusBar.SetPaneInfo(0, ID_SEPARATOR, SBPS_STRETCH, 0);
