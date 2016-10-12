@@ -135,7 +135,7 @@ namespace WBSF
 					int curI = 0;
 
 					StringVector tmp(IDS_FTP_DIRECTION, "|;");
-					callback.PushTask(tmp[0] + " " + dirName + "(" + ToString(fileList.size()) + " stations", fileList.size());
+					callback.PushTask(tmp[0] + " " + dirName + " (" + ToString(fileList.size()) + " stations)", fileList.size());
 
 					while (curI < fileList.size() && msg)
 					{

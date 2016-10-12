@@ -1,4 +1,4 @@
-// 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax 
+// 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax  
 // 4.0.4				Rémi Saint-Amant	Compile with WBSF  
 // 4.0.3				Rémi Saint-Amant	Put spreadsheet and charts into CDockablePane
 // 4.0.2				Rémi Saint-Amant	unordored SSI and bug correction

@@ -176,9 +176,6 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
-		//callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
-
-
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
