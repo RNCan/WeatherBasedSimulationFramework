@@ -12,7 +12,7 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
-
+//http://www.ncdc.noaa.gov/qclcd/QCLCD?prior=N
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -103,10 +103,10 @@ namespace WBSF
 	{
 		string str;
 
-		switch (i)
+		switch (i) 
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "NEWA\\"; break;
-		case DATA_TYPE: str = "1"; break;
+		case DATA_TYPE: str = "0"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case UPDATE_UNTIL: str = "2"; break;
@@ -135,11 +135,11 @@ namespace WBSF
 		{
 			try
 			{
-				size_t pos = source.find(".evenRow");
+				size_t pos = source.find(".evenRow"); 
 				if (pos != string::npos)
 					pos = source.find("<table", pos);
 				if (pos != string::npos)
-					pos = source.find("<table", pos);
+					pos = source.find("<table", pos); 
 
 				if (pos != string::npos)
 				{
@@ -210,7 +210,7 @@ namespace WBSF
 
 	ERMsg CUINEWA::Execute(CCallback& callback)
 	{
-		ERMsg msg; 
+		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
 
