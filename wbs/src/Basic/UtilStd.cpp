@@ -79,9 +79,11 @@ namespace WBSF
 	{ 
 		ERMsg msg;
 
-
-		if( remove(filePath.c_str() )!=0 )
-			msg = GetLastErrorMessage();
+		if (FileExists(filePath))
+		{
+			if (remove(filePath.c_str()) != 0)
+				msg = GetLastErrorMessage();
+		}
 
 		return msg;
 	}
@@ -96,10 +98,13 @@ namespace WBSF
 		if( IsPathEndOk(path) )
 			path=path.substr(0,path.size()-1);
 
-		if (!::RemoveDirectoryW(UTF16(path).c_str()))
+		if (DirectoryExists(path))
 		{
-			msg = GetLastErrorMessage();
-			msg.ajoute(pathIn);
+			if (!::RemoveDirectoryW(UTF16(path).c_str()))
+			{
+				msg = GetLastErrorMessage();
+				msg.ajoute(pathIn);
+			}
 		}
 			
 

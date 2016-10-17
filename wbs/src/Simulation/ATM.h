@@ -160,7 +160,7 @@ namespace WBSF
 	public:
 
 		enum TType{ OLD_TYPE, NEW_TYPE };
-		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_TYPE, LIFTOFF_BEGIN, LIFTOFF_END, LIFTOFF_CORRECTION, DURATION_TYPE, DURATION_MEAN, DURATION_SD, HEIGHT_TYPE, HEIGHT_MIN, HEIGHT_MEAN, HEIGHT_SD, HEIGHT_MAX, W_ASCENT, W_ASCENT_SD, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_TYPE, LIFTOFF_BEGIN, LIFTOFF_END, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_TYPE, DURATION_MEAN, DURATION_SD, HEIGHT_TYPE, HEIGHT_MIN, HEIGHT_MEAN, HEIGHT_SD, HEIGHT_MAX, W_ASCENT, W_ASCENT_SD, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 
@@ -171,7 +171,8 @@ namespace WBSF
 		size_t m_t_liftoff_type;	//
 		double m_t_liftoff_begin;	//Earliest observed lift-off relatif to suset
 		double m_t_liftoff_end;		//latest observed lift-off relatif to suset
-		double m_t_liftoff_correction;	//Extra offset correction of lift-off
+		double m_t_liftoff_correction;	//Extra offset correction of liftoff
+		double m_t_liftoff_σ_correction;		//liftoff stadard deviation
 		size_t m_duration_type;		//
 		double m_duration;			//max flight duration [h]
 		double m_duration_σ;		//max flight duration stadard deviation [h]
@@ -208,6 +209,7 @@ namespace WBSF
 			m_t_liftoff_begin = -1.75;				//19.5;	//attention dans la publication c'est marquer 18.5
 			m_t_liftoff_end = 2.25;					//23.5;	
 			m_t_liftoff_correction = 0;				//0
+			m_t_liftoff_σ_correction = 1;
 			m_duration_type = NEW_TYPE;
 			m_duration = 6.25;						//[h]
 			m_duration_σ = 0.25;					//[h]
@@ -241,6 +243,7 @@ namespace WBSF
 				m_t_liftoff_begin = in.m_t_liftoff_begin;
 				m_t_liftoff_end = in.m_t_liftoff_end;
 				m_t_liftoff_correction = in.m_t_liftoff_correction;
+				m_t_liftoff_σ_correction = in.m_t_liftoff_σ_correction;
 				m_duration_type = in.m_duration_type;
 				m_duration = in.m_duration;
 				m_duration_σ = in.m_duration_σ;
@@ -276,6 +279,7 @@ namespace WBSF
 			if (m_t_liftoff_begin != in.m_t_liftoff_begin)bEqual = false;
 			if (m_t_liftoff_end != in.m_t_liftoff_end)bEqual = false;
 			if (m_t_liftoff_correction != in.m_t_liftoff_correction)bEqual = false;
+			if (m_t_liftoff_σ_correction != in.m_t_liftoff_σ_correction)bEqual = false;
 			if (m_duration_type != in.m_duration_type)bEqual = false;
 			if (m_duration != in.m_duration)bEqual = false;
 			if (m_duration_σ != in.m_duration_σ)bEqual = false;
@@ -629,9 +633,9 @@ namespace WBSF
 		size_t m_var;
 		double m_scale;
 		CTRef m_localTRef;		//Creation date in local time
-		CLocation m_location;
-		CLocation m_newLocation;
-		CGeoPoint3D m_pt;
+		CLocation m_location;	//initial position
+		CLocation m_newLocation;//actual position, z is elevation over sea level
+		CGeoPoint3D m_pt;		//same as m_newLocation but with flight height instead of elevation over sea level
 
 		CFlyer(CATMWorld& world);
 
@@ -660,8 +664,6 @@ namespace WBSF
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
 		const CFlightParameters& P()const{ return m_parameters; }
-		//CTRef GetUTCTRef()const{ return CTimeZones::LocalTRef2UTCTRef(m_TRef, m_location); }
-		//CTRef GetUTCTRef()const{ return m_TRef + int(m_UTCShift); }//always the same shift for optimisation
 		int GetUTCShift()const{ return int(m_UTCShift / 3600); }//in [h]
 
 	protected:
@@ -888,6 +890,7 @@ namespace WBSF
 
 		CProjectionTransformation m_GEO2DEM;
 		CProjectionTransformation m_GEO2WEA;
+		CProjectionTransformation m_WEA2GEO;
 
 
 		__int64 get_t_liftoff_offset(double T)const;
@@ -929,6 +932,7 @@ namespace zen
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](in.m_t_liftoff_begin);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](in.m_t_liftoff_end);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_CORRECTION)](in.m_t_liftoff_correction);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_SIGMA)](in.m_t_liftoff_σ_correction);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](in.m_duration_type);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](in.m_duration);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](in.m_duration_σ);
@@ -959,6 +963,7 @@ namespace zen
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](out.m_t_liftoff_begin);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](out.m_t_liftoff_end);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_CORRECTION)](out.m_t_liftoff_correction);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_SIGMA)](out.m_t_liftoff_σ_correction);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](out.m_duration_type);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](out.m_duration);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](out.m_duration_σ);

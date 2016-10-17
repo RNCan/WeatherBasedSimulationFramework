@@ -11,12 +11,15 @@
 
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
+#include "basic/units.hpp"
+
 
 //http://www.ncdc.noaa.gov/qclcd/QCLCD?prior=N
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
+using namespace units::values;
 
 namespace WBSF
 {
@@ -62,7 +65,17 @@ namespace WBSF
 			CStateSelection::$MO,
 			CStateSelection::$NE,
 			CStateSelection::$NH,
-			CStateSelection::$NJ,			CStateSelection::$NY,			CStateSelection::$NC,			CStateSelection::$PA,			CStateSelection::$SC,			CStateSelection::$SD,			CStateSelection::$VA,			CStateSelection::$VT,			CStateSelection::$WV,			CStateSelection::$WI,		};
+			CStateSelection::$NJ,
+			CStateSelection::$NY,
+			CStateSelection::$NC,
+			CStateSelection::$PA,
+			CStateSelection::$SC,
+			CStateSelection::$SD,
+			CStateSelection::$VA,
+			CStateSelection::$VT,
+			CStateSelection::$WV,
+			CStateSelection::$WI,
+		};
 
  
 		bool bInclude = false;
@@ -137,30 +150,38 @@ namespace WBSF
 			{
 				size_t pos = source.find(".evenRow"); 
 				if (pos != string::npos)
-					pos = source.find("<table", pos);
+					pos = source.find("<table", pos+8);
 				if (pos != string::npos)
-					pos = source.find("<table", pos); 
+					pos = source.find("<table", pos+6); 
 
+				
 				if (pos != string::npos)
 				{
-					while (pos != string::npos)
+					size_t pos_begin = pos + 6;
+					size_t pos_end = source.find("</table>", pos_begin);
+					callback.PushTask("Download stations list", pos_end - pos_begin);
+					
+
+
+					while (pos < pos_end && msg)
 					{
-						string tmp = FindString(source, "<td>", "</td>", pos);
-						if (!tmp.empty())
+						string line = FindString(source, "<td>", "</td>", pos);
+						if (!line.empty())
+							line = FindString(line, "<a ", "</a>");
+
+						string ID;
+						if (!line.empty()) 
+							ID = TrimConst(FindString(line, "&WeatherStation=", "\">"));
+						if (!line.empty() && !ID.empty())
 						{
-							string line = FindString(tmp, "<a href=\"", "</a>", pos);
-							string ID = TrimConst(FindString(line, "&WeatherStation=", "\">"));
 							size_t pos1 = line.find(">");
-							size_t pos2 = line.find(",");
-
-							
 							ASSERT(pos1 != string::npos);
-							ASSERT(pos2 != string::npos);
-							
 
-							string URL = TrimConst(line.substr(0, pos1));
-							string name = TrimConst(line.substr(pos1 + 1, pos2 - pos1));
-							string state = TrimConst(line.substr(pos2+1));
+							string URL = FindString(line, "\"", "\"");
+							string name = PurgeFileName(line.substr(pos1 + 1, line.length() - pos1 - 4));
+							string state = TrimConst(line.substr(line.length() -2));
+							if (state == "RI")//Rhode Island
+								state = "PA";
 
 							size_t s = CStateSelection::GetState(state);
 							ASSERT(IsInclude(s));
@@ -171,8 +192,8 @@ namespace WBSF
 							if (msg)
 							{
 								//Lat/Lon: 41.81/-74.25<br/>             Elevation: 386 ft.
-								string lat_lon = FindString(tmp, "Lat/Lon:", "<br");
-								string elev = FindString(tmp, "Elevation:", "ft.");
+								string lat_lon = FindString(stationPage, "Lat/Lon:", "<br");
+								string elev = FindString(stationPage, "Elevation:", "ft.");
 
 								StringVector LatLonV(lat_lon, "/");
 								ASSERT(LatLonV.size() == 2);
@@ -181,15 +202,12 @@ namespace WBSF
 								CLocation location(name, ID, ToDouble(LatLonV[0]), ToDouble(LatLonV[1]), WBSF::Feet2Meter(ToDouble(elev)));
 								location.SetSSI("State", state);
 								stationList.push_back(location);
+							}//if msg
+						}//if line not empty
 
-							}
-							
-
-						}
-						
-						
-					}//for all stations
-				}
+						msg += callback.SetCurrentStepPos(pos - pos_begin);
+					}//for all lines
+				}//if pos not null
 			}
 			catch (const zen::XmlParsingError& e)
 			{
@@ -203,7 +221,7 @@ namespace WBSF
 		pSession->Close();
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-
+		callback.PopTask();
 
 		return msg;
 	}
@@ -262,26 +280,33 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
 		int nbDays = as<int>(UPDATE_UNTIL);
+		CStateSelection states(Get(STATES));
+
 		
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
-			bNeedDownload[i].resize(nbYears);
-			for (size_t y = 0; y < nbYears&&msg; y++)
+			string state = m_stations[i].GetSSI("State");
+			
+			if (states.at(state))
 			{
-				int year = firstYear + int(y);
-
-				size_t nbm = year == today.GetYear() ? today.GetMonth()+1 : 12;
-				for (size_t m = 0; m < nbm && msg; m++)
+				bNeedDownload[i].resize(nbYears);
+				for (size_t y = 0; y < nbYears&&msg; y++)
 				{
-					string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
-					CTimeRef TRef1(GetFileStamp(filePath));
-					CTRef TRef2(year, m, LAST_DAY);
+					int year = firstYear + int(y);
 
-					bNeedDownload[i][y][m] = !TRef1.IsInit() || TRef1 - TRef2 < nbDays; //let nbDays to update the data if it's not the current month
-					nbFilesToDownload += bNeedDownload[i][y][m] ? 1 : 0;
+					size_t nbm = year == today.GetYear() ? today.GetMonth() + 1 : 12;
+					for (size_t m = 0; m < nbm && msg; m++)
+					{
+						string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
+						CTimeRef TRef1(GetFileStamp(filePath));
+						CTRef TRef2(year, m, LAST_DAY);
 
-					msg += callback.StepIt();
+						bNeedDownload[i][y][m] = !TRef1.IsInit() || TRef1 - TRef2 < nbDays; //let nbDays to update the data if it's not the current month
+						nbFilesToDownload += bNeedDownload[i][y][m] ? 1 : 0;
+
+						msg += callback.StepIt();
+					}
 				}
 			}
 		}
@@ -297,22 +322,20 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+		//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 
 		int nbDownload = 0;
 		int currentNbDownload = 0;
 
 		callback.PushTask("Download NEWA data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
-		//msg += DownloadMonth(pConnection, 2016, AUGUST, "2154", "c:/tmp/text.csv", callback);
-		//return msg;
 
-		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		for (size_t i = 0; i < bNeedDownload.size() && msg; i++)
 		{
-			for (size_t y = 0; y < nbYears&&msg; y++)
+			for (size_t y = 0; y < bNeedDownload[i].size()&& msg; y++)
 			{
 				int year = firstYear + int(y);
-				for (size_t m = 0; m < 12 && msg; m++)
+				for (size_t m = 0; m < bNeedDownload[i][y].size() && msg; m++)
 				{
 					if (bNeedDownload[i][y][m])
 					{
@@ -363,127 +386,198 @@ namespace WBSF
 	}
 
 
-	/*size_t GetHour(const string& time)
-	{
-		size_t h = 0;
-
-		StringVector v(time, ", :");
-		ASSERT(v.size() == 8);
-		if (v.size() == 8)
-			h = WBSF::as<size_t>(v[4]);
-	
-		return h;
-	}
-
-	CTRef GetTRef(string str_date, CTM TM)
+	static CTRef GetTRef(string str_date, CTM TM)
 	{
 		CTRef TRef;
 
-		StringVector tmp(str_date, ", :");
-		ASSERT(tmp.size() == 8);
-		size_t d = ToSizeT(tmp[1]) - 1;
-		size_t m = WBSF::GetMonthIndex(tmp[2].c_str());
-		int year = ToInt(tmp[3]);
-		size_t h = ToSizeT(tmp[4]);
+		StringVector tmp(str_date, "/ :");
+		
+		if (tmp.size() >= 3)
+		{
+			size_t m = ToSizeT(tmp[0]) - 1;
+			size_t d = ToSizeT(tmp[1]) - 1;
+			int year = ToInt(tmp[2]);
+			size_t h = 0;
 
-		return CTRef(year, m, d, h, TM);
+			if (tmp.size() >= 4)
+				h = ToSizeT(tmp[3]);
+
+			TRef = CTRef(year, m, d, h, TM);
+		}
+
+
+		return TRef;
 	}
-*/
+
+	static TVarH GetVar(const string& var_name)
+	{
+
+		static const char* VAR_NAME[] = { "temp", "avg", "max", "min", "lw", "rain", "dewpoint", "rh", "rhhrs", "avg wind", "wind spd", "wind dir", "solar rad", "Est LW" };
+		static const TVarH VARIABLES[] = { H_TAIR2, H_TAIR2, H_TMAX2, H_TMIN2, H_ADD1, H_PRCP, H_TDEW, H_RELH, H_SKIP, H_WNDS, H_WNDS, H_WNDD, H_SRAD2, H_ADD1 };
+
+		TVarH var = H_SKIP;
+		for (size_t v = 0; v < sizeof(VAR_NAME) / sizeof(char*) && var == H_SKIP; v++)
+		{
+			if (var_name == VAR_NAME[v])
+				var = VARIABLES[v];
+		}
+
+		return var;
+	}
+
+	static double Convert(TVarH var, double value)
+	{
+		switch (var)
+		{
+		case H_TMIN2: 
+		case H_TAIR2:
+		case H_TMAX2:
+		case H_TDEW: value = (float)Celsius(Fahrenheit(value)).get(); break; //F --> °C; 
+		case H_PRCP: value = (float)mm(inch(value)).get(); break; //inch --> mm
+		case H_WNDS: value = kph(mph(value)).get(); break; //miles/h --> km/h
+		case H_SRAD2: value *= 697.3/60.0; break;// Langley --> W/m²
+		case H_RELH:
+		case H_WNDD:
+		case H_ADD1: break;//leaf wetness (minutes)
+		default:ASSERT(false);
+		}
+
+
+		return value;
+	}
+
 	ERMsg CUINEWA::DownloadMonth(CHttpConnectionPtr& pConnection, int year, size_t m, const string& ID, const string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
 
 		size_t type = as <size_t>(DATA_TYPE);
 		CTRef TRef = CTRef::GetCurrentTRef();
-		
-		//string output_text;
-		//std::stringstream stream;
-		//if (type == HOURLY_WEATHER)
-			//stream << "Year,Month,Day,Hour,Var,Value\r\n";
-		//else
-			//stream << "Year,Month,Day,Var,Value\r\n";
-		
-	
-		bool bFind = false; 
-		callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
-		size_t nbDays = (TRef.GetYear() == year&&TRef.GetMonth() == m) ? TRef.GetDay() + 1 : GetNbDayPerMonth(year, m);
-		for (size_t d = 0; d < nbDays && msg; d++)
+		CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+
+
+		CWeatherStation weather_data(TM.IsHourly());
+
+
+		static const char PageDataFormat[] = "newaLister/%s/%s/%d/%d";
+
+		string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "hly" : "dly", ID.c_str(), year, m + 1);
+
+		string source;
+		msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+
+		size_t begin = source.find("<table");
+		size_t end = source.find("</table>");
+		if (!source.empty() && begin != string::npos && end != string::npos)
 		{
-			//Interface attribute index to attribute index
-			//kged
-			static const char PageDataFormat[] = "newaLister/%s/%s/%d/%d";
-
-			string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "hly" : "dly", ID.c_str(), year, m + 1);
-
-			string source;
-			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
-
-			if (!source.empty() && source.find("Unexpected error") == string::npos )
+			try
 			{
-				try
+				string tmp = source.substr(begin, end - begin + 8);
+				//convert html to xml
+				ReplaceString(tmp, "Total<br>Rain", "Rain<br>");
+				ReplaceString(tmp, "RH<br>Hrs", "RHHrs<br>");
+				
+				ReplaceString(tmp, "<br>", "|");
+				ReplaceString(tmp, "\t", "");
+				ReplaceString(tmp, "\r", "");
+				ReplaceString(tmp, "\n", "");
+
+
+
+				static const char* TO_REMOVE[] = { " class=", " colspan=", " height=" };
+				for (size_t i = 0; i < sizeof(TO_REMOVE) / sizeof(char*); i++)
 				{
-					size_t begin = source.find("<table");
-					size_t end = source.find("</table>");
-					string tmp = source.substr(begin, end - begin);
-					ReplaceString(tmp, "<br>", "|");
-
-					//WBSF::ReplaceString(source, "'", " ");
-					zen::XmlDoc doc = zen::parse(tmp);
-
-					//string xml_name = (type == HOURLY_WEATHER) ? "element_value" : "aggregation_value";
-					zen::XmlIn xml_in(doc.root());
-					zen::XmlIn header = xml_in["thead"]["tr"];
-					
-					StringVector var_names;
-					for (zen::XmlIn child = header["th"]; child&&msg; child.next())
+					size_t pos1 = tmp.find(TO_REMOVE[i]);
+					while (pos1 != string::npos)
 					{
-						string tmp;
-						if (child.get()->getValue(tmp))
-						{
-							
-							StringVector elem(tmp, "|");
-							var_names.push_back(elem[0]);
-							//ASSERT(elem.size());
-						}
+						size_t pos2 = tmp.find(">", pos1 + sizeof(TO_REMOVE[i]));
+						if (pos2 != string::npos)
+							tmp.erase(pos1, pos2 - pos1);
+
+						pos1 = tmp.find(TO_REMOVE[i]);
 					}
+				}
+
+
+				if (type == HOURLY_WEATHER)
+				{
+					//ok seem to have a problem with the header </tr> tag
+					size_t make_cor = tmp.find("<tbody>");
+					if (make_cor != string::npos)
+						make_cor = tmp.find("</th><tr>");
+					if (make_cor != string::npos)
+						tmp.insert(tmp.begin() + make_cor + 6, '/');
+				}
+
+
+				MakeLower(tmp);
+				zen::XmlDoc doc = zen::parse(tmp);
+
+
+				zen::XmlIn xml_in(doc.root());
+				zen::XmlIn header = xml_in["thead"]["tr"];
+
+				StringVector var_names;
+				for (zen::XmlIn child = header["th"]; child&&msg; child.next())
+				{
+					string tmp;
+					if (child.get()->getValue(tmp))
+					{
+						StringVector elem(tmp, "|");
+						var_names.push_back(elem[0]);
+					}
+				}
+				ASSERT(!var_names.empty());
+
+				zen::XmlIn data = xml_in["tbody"];
+				for (zen::XmlIn child1 = data["tr"]; child1&&msg; child1.next())
+				{
 
 					StringVector var_values;
-					zen::XmlIn data = xml_in["tbody"];
-					for (zen::XmlIn child = data["td"]; child&&msg; child.next())
+					for (zen::XmlIn child2 = child1["td"]; child2&&msg; child2.next())
 					{
 						string var_str;
-						if (child.get()->getValue(var_str))
-						{
+						if (child2.get()->getValue(var_str))
 							var_values.push_back(var_str);
-						}//for all record of the day
+					}//for all col
+
+					if (var_names.size() == var_values.size())
+					{
+						ASSERT(var_names[0] == "date" || var_names[0] == "date/time");
+
+						CTRef TRef = GetTRef(var_values[0], TM);
+						if (TRef.IsInit())
+						{
+							for (size_t v = 1; v < var_names.size(); v++)
+							{
+								TVarH var = GetVar(var_names[v]);
+								if (var != H_SKIP)
+								{
+									double value = ToDouble(var_values[v]);
+									weather_data[TRef].SetStat(var, Convert(var, value));
+								}
+							}
+						}
 					}
+				}//for all line
 
 
-					ASSERT(var_names.size() == var_values.size());
-				}//try
-				catch (const zen::XmlParsingError& e)
-				{
-					// handle error
-					msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
-				}
-			}//if is valid
 
-			msg += callback.StepIt();
-		}//for all day
-
-		
-		if (msg /*&& !output_text.empty()*/)//always save the file to avoid to download it
-		{
-			ofStream  file;
-			msg = file.open(filePath, ios_base::out | ios_base::binary);
-			if (msg)
+			}//try
+			catch (const zen::XmlParsingError& e)
 			{
-				file.close();
-			}//if msg
-			
+				// handle error
+				msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+			}
+		}//if is valid
+
+		//msg += callback.StepIt();
+
+		if (msg)//always save the file to avoid to download it again
+		{
+			weather_data.SaveData(filePath);
 		}//if have data
 
-		callback.PopTask();
+		//callback.PopTask();
 
 		return msg;
 	}
@@ -497,7 +591,7 @@ namespace WBSF
 	string CUINEWA::GetOutputFilePath(int year, size_t m, const string& ID)const
 	{
 		size_t type = as<size_t>(DATA_TYPE);
-		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv.gz";
+		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
 	}
 
 
@@ -543,17 +637,6 @@ namespace WBSF
 		((CLocation&)station) = m_stations[pos];
 
 		station.m_name = WBSF::PurgeFileName(station.m_name);
-		//station.m_ID;// += "H";//add a "H" for hourly data
-
-		for (SiteSpeceficInformationMap::iterator it = station.m_siteSpeceficInformation.begin(); it != station.m_siteSpeceficInformation.end(); it++)
-		{
-			WBSF::ReplaceString(it->second.first, ",", " ");
-			WBSF::ReplaceString(it->second.first, ";", " ");
-			WBSF::ReplaceString(it->second.first, "|", " ");
-			WBSF::ReplaceString(it->second.first, "\t", " ");
-			WBSF::ReplaceString(it->second.first, "\"", "'");
-		}
-			
 
 
 		int firstYear = as<int>(FIRST_YEAR);
@@ -561,10 +644,6 @@ namespace WBSF
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 		station.CreateYears(firstYear, nbYears);
 		station.SetHourly(TM.Type()==CTM::HOURLY);
-
-		//now extact data
-		CWeatherAccumulator accumulator(TM);
-
 
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -576,20 +655,11 @@ namespace WBSF
 				string filePath = GetOutputFilePath(year, m, ID);
 				if (FileExists(filePath))
 				{
-					msg = ReadDataFile(filePath, station, accumulator);
+					msg = station.LoadData(filePath, -999, false);
 					msg += callback.StepIt(0);
 				}
 			}
 		}
-
-		/*if (accumulator.GetTRef().IsInit())
-		{
-			CTPeriod period(CTRef(firstYear, 0, 0, 0, TM), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR, TM));
-			if (period.IsInside(accumulator.GetTRef()))
-				station[accumulator.GetTRef()].SetData(accumulator);
-		}*/
-
-		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
 
 		if (msg)
 		{
@@ -602,130 +672,6 @@ namespace WBSF
 
 		return msg;
 	}
-
-	
-
-	ERMsg CUINEWA::ReadDataFile(const string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator)
-	{
-		ERMsg msg;
-		size_t type = as <size_t>(DATA_TYPE);
-
-		ifStream  file;
-
-		msg = file.open(filePath, ios_base::in | ios_base::binary);
-		if (msg)
-		{
-			string line;
-			std::getline(file, line);
-			while (std::getline(file, line) && msg)
-			{
-				line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
-				StringVector columns(line, ",");
-
-				size_t nbColumns = (type == HOURLY_WEATHER) ? 7 : 13;
-				ASSERT(columns.size() == nbColumns);
-				if (columns.size() == nbColumns)
-				{
-					size_t c = 0;
-					int year = ToInt(columns[c++]);
-					size_t m = ToInt(columns[c++]) - 1;
-					size_t d = ToInt(columns[c++]) - 1;
-					size_t h = 0;
-					if (type == HOURLY_WEATHER)
-						h = ToInt(columns[c++]);
-
-					ASSERT(m >= 0 && m < 12);
-					ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-
-					CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
-					ASSERT(TRef.IsValid());
-					if (TRef.IsValid())//some have invalid TRef
-					{
-						string var_str = columns[c++];
-
-						TVarH var = H_SKIP;
-						if (var_str == "AT" || var_str == "ATA")
-							var = H_TAIR2;
-						else if (var_str == "TX")
-							var = H_TMAX2;
-						else if (var_str == "TN")
-							var = H_TMIN2;
-						else if (var_str == "PR")
-							var = H_PRCP;
-						else if (var_str == "HU" || var_str == "HUA")
-							var = H_RELH;
-						else if (var_str == "WS" || var_str == "WSA")
-							var = H_WNDS;
-						else if (var_str == "WD" || var_str == "WDA")
-							var = H_WNDD;
-						else if (var_str == "US")
-							var = H_WND2;
-						else if (var_str == "IR")
-							var = H_SRAD2;
-						/*else if (var_str == "PC")
-							var = H_ADD1;
-							else if (var_str == "P1")
-							var = H_ADD2;*/
-
-
-						if (var != H_SKIP)
-						{
-							string str = columns[c++];
-							float value = value = WBSF::as<float>(str);
-							if (var == H_SNDH)
-								value /= 10;
-
-							if (type == HOURLY_WEATHER)
-							{
-								//if (accumulator.TRefIsChanging(TRef))
-								//station[accumulator.GetTRef()].SetData(accumulator);
-
-								//accumulator.Add(TRef, var, value);
-
-								station[TRef].SetStat(var, value);
-								if (type == HOURLY_WEATHER && var == H_RELH && station[TRef][H_TAIR2])
-									station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR2], value));
-
-							}
-							else
-							{
-								if (var == H_SRAD2 && type == DAILY_WEATHER)
-									value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
-
-								station[TRef].SetStat(var, value);
-
-								string str_min = columns[c++];
-								string str_max = columns[c++];
-
-								if (var == H_TAIR2)
-								{
-									float Tmin = WBSF::as<float>(str_min);
-									float Tmax = WBSF::as<float>(str_max);
-									if (Tmin > -999 && Tmax > -999)
-									{
-										ASSERT(Tmin >= -70 && Tmin <= 70);
-										ASSERT(Tmax >= -70 && Tmax <= 70);
-										ASSERT(Tmin <= Tmax);
-
-										station[TRef].SetStat(H_TMIN2, Tmin);
-										station[TRef].SetStat(H_TMAX2, Tmax);
-
-									}
-								}
-							}//if daily
-						}//if good vars
-					}//TRef is valid
-				}//good number of column
-			}//for all lines
-		}//if msg
-
-
-		return msg;
-	}
-
-
-
-
 
 
 }

@@ -11,6 +11,7 @@
 #include "TaskFactory.h"
 #include "StateSelection.h"
 
+
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::WEATHER;
 using namespace std;
@@ -58,7 +59,8 @@ namespace WBSF
 			CStateSelection::$SD,
 			CStateSelection::$UT,
 			CStateSelection::$WA,
-			CStateSelection::$WY,		};
+			CStateSelection::$WY,
+		};
 
 		bool bInclude = false;
 		for (size_t i = 0; i < NB_SNOTEL_STATES&&!bInclude; i++)

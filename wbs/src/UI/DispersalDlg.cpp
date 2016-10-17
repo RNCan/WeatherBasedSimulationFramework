@@ -40,7 +40,7 @@ namespace WBSF
 		WEATHER_TYPE, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE,
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
-		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_TYPE, LIFTOFF_BEGIN, LIFTOFF_END, LIFTOFF_CORRECTION, DURATION_TYPE, DURATION_MEAN, DURATION_SD,
+		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_TYPE, LIFTOFF_BEGIN, LIFTOFF_END, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_TYPE, DURATION_MEAN, DURATION_SD,
 		HEIGHT_TYPE, HEIGHT_MIN, HEIGHT_MEAN, HEIGHT_SD, HEIGHT_MAX, W_ASCENT, W_ASCENT_SD, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
 	};
 
@@ -58,9 +58,6 @@ namespace WBSF
 
 		RemoveAll();
 
-		//static COleVariant Bool((short)VARIANT_FALSE, VT_BOOL);
-		//static COleVariant Int(0l, VT_I4);
-		//static COleVariant Float(0f, VT_R4);
 		static CString String;
 		static COLORREF Color;
 
@@ -127,6 +124,7 @@ namespace WBSF
 		pTime->AddSubItem(new CStdGridProperty(name[LIFTOFF_BEGIN], "", description[LIFTOFF_BEGIN], LIFTOFF_BEGIN));
 		pTime->AddSubItem(new CStdGridProperty(name[LIFTOFF_END], "", description[LIFTOFF_END], LIFTOFF_END));
 		pTime->AddSubItem(new CStdGridProperty(name[LIFTOFF_CORRECTION], "", description[LIFTOFF_CORRECTION], LIFTOFF_CORRECTION));
+		pTime->AddSubItem(new CStdGridProperty(name[LIFTOFF_SIGMA], "", description[LIFTOFF_SIGMA], LIFTOFF_SIGMA));
 		pTime->AddSubItem(new CDurationTypeProperty(name[DURATION_TYPE], 0, description[DURATION_TYPE], DURATION_TYPE));
 		pTime->AddSubItem(new CStdGridProperty(name[DURATION_MEAN], "", description[DURATION_MEAN], DURATION_MEAN));
 		pTime->AddSubItem(new CStdGridProperty(name[DURATION_SD], "", description[DURATION_SD], DURATION_SD));
@@ -181,7 +179,6 @@ namespace WBSF
 			case HOST:				str = in.m_world.m_host_name; break;
 			case WATER:				str = in.m_world.m_water_name; break;
 			case DISTRACTION:		str = in.m_world.m_distraction_name; break;
-
 			case T_MIN:				str = WBSF::ToString(in.m_ATM.m_Tmin); break;
 			case T_MAX:				str = WBSF::ToString(in.m_ATM.m_Tmax); break;
 			case P_MAX:				str = WBSF::ToString(in.m_ATM.m_Pmax); break;
@@ -190,6 +187,7 @@ namespace WBSF
 			case LIFTOFF_BEGIN:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_begin); break;
 			case LIFTOFF_END:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_end); break;
 			case LIFTOFF_CORRECTION:str = WBSF::ToString(in.m_ATM.m_t_liftoff_correction); break;
+			case LIFTOFF_SIGMA:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_σ_correction); break;
 			case DURATION_TYPE:		str = WBSF::ToString(in.m_ATM.m_duration_type); break;
 			case DURATION_MEAN:		str = WBSF::ToString(in.m_ATM.m_duration); break;
 			case DURATION_SD:		str = WBSF::ToString(in.m_ATM.m_duration_σ); break;
@@ -257,6 +255,7 @@ namespace WBSF
 		case LIFTOFF_BEGIN:		me.m_parameters.m_ATM.m_t_liftoff_begin = WBSF::ToDouble(str); break;
 		case LIFTOFF_END:		me.m_parameters.m_ATM.m_t_liftoff_end = WBSF::ToDouble(str); break;
 		case LIFTOFF_CORRECTION:me.m_parameters.m_ATM.m_t_liftoff_correction = WBSF::ToDouble(str); break;
+		case LIFTOFF_SIGMA:		me.m_parameters.m_ATM.m_t_liftoff_σ_correction = WBSF::ToDouble(str); break;
 		case DURATION_TYPE:		me.m_parameters.m_ATM.m_duration_type = WBSF::ToInt(str); break;
 		case DURATION_MEAN:		me.m_parameters.m_ATM.m_duration = WBSF::ToDouble(str); break;
 		case DURATION_SD:		me.m_parameters.m_ATM.m_duration_σ = WBSF::ToDouble(str); break;

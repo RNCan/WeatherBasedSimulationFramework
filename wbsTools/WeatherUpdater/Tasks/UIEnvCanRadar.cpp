@@ -25,7 +25,8 @@ namespace WBSF
 	//http://www.ncdc.noaa.gov/cdo-web/review
 	//http://gis.ncdc.noaa.gov/map/viewer/#app=cdo&cfg=radar&theme=radar&display=nexrad
 
-	const char* CCanadianRadar::DEFAULT_LIST[NB_RADAR][3] =
+	
+	const char* CCanadianRadar::DEFAULT_LIST[NB_RADAR][NB_INFO] =
 	{
 		{ "ATL", "Atlantique", "" },
 		{ "ONT", "Ontario", "" },
@@ -675,6 +676,9 @@ namespace WBSF
 										file.write(source.GetData(), (UINT)source.GetSize());
 
 									file.close();
+
+									//convert image to GeoTiff
+									//ConvertToGeotiff(filePath, CCanadianRadar(CCanadianRadar::coord));
 								}
 							}
 						}

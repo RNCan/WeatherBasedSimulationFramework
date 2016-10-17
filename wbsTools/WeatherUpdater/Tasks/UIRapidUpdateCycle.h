@@ -50,8 +50,8 @@ namespace WBSF
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib)const;
+		std::string GetInputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
+		std::string GetOutputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
 	
 		CTPeriod GetPeriod()const;
 
@@ -65,6 +65,7 @@ namespace WBSF
 		static const char* INPUT_FORMAT2;
 		static const char* INPUT_FORMAT3;
 		static const char* INPUT_FORMAT4;
+		static const char* NAM_FORMAT;
 
 	};
 

@@ -2054,7 +2054,7 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				size_t b = m_p_weather_DS.get_band(UTCRef, ATM_WNDV, L);
 				double u = value;
 				double v = m_p_weather_DS.GetPixel(UTCRef, b, xy);
-
+				assert(false);//need to convert to thrueNorth
 				value = sqrt(Square(u) + Square(v))*3600/1000;
 				ASSERT(value >= 0 && value < 300);
 			}
@@ -2064,6 +2064,8 @@ double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t 
 				size_t b = m_p_weather_DS.get_band(UTCRef, ATM_WNDU, L);
 				double u = m_p_weather_DS.GetPixel(UTCRef, b, xy);
 				double v = value;
+				
+				assert(false);//need to convert to thrueNorth
 				value = (float)GetWindDirection(u, v);
 				ASSERT(value >= 0 && value <= 360);
 				/*GetWindUV(10, 0, u, v);

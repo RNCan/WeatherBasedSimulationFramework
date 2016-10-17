@@ -87,6 +87,7 @@ namespace WBSF
 			callback.AddMessage(GetString(IDS_CREATE_DB));
 			callback.AddMessage(outputFilePath, 1);
 
+			
 			msg = RemoveFile(outputFilePath);
 
 

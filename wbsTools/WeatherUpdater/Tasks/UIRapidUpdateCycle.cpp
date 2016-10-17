@@ -69,10 +69,11 @@ namespace WBSF
 
 
 	const char* CUIRapidUpdateCycle::SERVER_NAME = "nomads.ncdc.noaa.gov";
-	const char* CUIRapidUpdateCycle::INPUT_FORMAT1 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_252_%4d%02d%02d_%02d00_000%s";
-	const char* CUIRapidUpdateCycle::INPUT_FORMAT2 = "/data/rucanl/%4d%02d/%4d%02d%02d/ruc2anl_130_%4d%02d%02d_%02d00_000%s";
-	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_000%s";
-	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_000%s";
+	const char* CUIRapidUpdateCycle::INPUT_FORMAT1 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_252_%4d%02d%02d_%02d00_%03d%s";
+	const char* CUIRapidUpdateCycle::INPUT_FORMAT2 = "/data/rucanl/%4d%02d/%4d%02d%02d/ruc2anl_130_%4d%02d%02d_%02d00_%03d%s";
+	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
+	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
+	const char* CUIRapidUpdateCycle::NAM_FORMAT =    "/data/nam/%4d%02d/%4d%02d%02d/nam_218_%4d%02d%02d_%02d00_%03d%s";
 
 
 	CUIRapidUpdateCycle::CUIRapidUpdateCycle(void)
@@ -87,7 +88,7 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "RUC\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "RAP\\"; break;
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		};
@@ -100,7 +101,7 @@ namespace WBSF
 	//************************************************************************************************************
 	//Load station definition list section
 
-	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib)const
+	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, int forecastH)const
 	{
 
 
@@ -113,9 +114,9 @@ namespace WBSF
 		if (TRef < CTRef(2012, MAY, 8, 0))
 		{
 			if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
-				path = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, bGrib ? ".grb" : ".inv");
+				path = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb" : ".inv");
 			else
-				path = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, bGrib ? ".grb2" : ".inv");
+				path = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 		}
 		else
 		{
@@ -123,18 +124,18 @@ namespace WBSF
 			//TRefII.Transform(CTM(CTM::DAILY));
 			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
 			if (now - TRef >= 24)
-				path = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, bGrib ? ".grb2" : ".inv");
+				path = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 			else
-				path = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, bGrib ? ".grb2" : ".inv");
+				path = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 		}
 
 
 		return path;
 	}
 
-	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib)const
+	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, int forecastH)const
 	{
-		static const char* OUTPUT_FORMAT = "%s%4d\\%02d\\%02d\\rap_130_%4d%02d%02d_%02d00_000%s";
+		static const char* OUTPUT_FORMAT = "%s%4d\\%02d\\%02d\\rap_130_%4d%02d%02d_%02d00_%03d%s";
 
 		string workingDir = GetDir(WORKING_DIR);// GetAbsoluteFilePath(m_path);
 		int y = TRef.GetYear();
@@ -143,15 +144,15 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 
 
-		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, bGrib ? ".grb2" : ".inv");
+		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
 	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		string inputPath = GetInputFilePath(TRef, bGrib);
-		string outputPath = GetOutputFilePath(TRef, bGrib);
+		string inputPath = GetInputFilePath(TRef, bGrib, 0);
+		string outputPath = GetOutputFilePath(TRef, bGrib, 0);
 		CreateMultipleDir(GetPath(outputPath));
 
 		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
@@ -235,8 +236,8 @@ namespace WBSF
 		{
 			size_t hh = 2 * (h - period.Begin());
 
-			bNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true));
-			bNeedDownload[hh + 1] = NeedDownload(GetOutputFilePath(h, false));
+			bNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, 0));
+			bNeedDownload[hh + 1] = NeedDownload(GetOutputFilePath(h, false, 0));
 			nbFilesToDownload += bNeedDownload[hh] ? 1 : 0;
 			nbFilesToDownload += bNeedDownload[hh + 1] ? 1 : 0;
 

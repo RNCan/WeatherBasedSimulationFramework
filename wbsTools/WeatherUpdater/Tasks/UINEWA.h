@@ -46,14 +46,13 @@ namespace WBSF
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg DownloadStation(CCallback& callback);
 		ERMsg DownloadStationHourly(CCallback& callback);
-		ERMsg ReadDataFile(const std::string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
 
 		std::string GetStationListFilePath()const;
 		std::string GetOutputFilePath(int year, size_t m, const std::string& stationID)const;
 
 		static bool IsInclude(size_t state);
-		static std::string CUINEWA::GetStatesPossibleValue();
+		static std::string GetStatesPossibleValue();
 		
 
 
