@@ -1,3 +1,4 @@
+//5.2.3	25/10/2016	Rémi Saint-Amant	Important bug correction in convertion to version 10. Remove Tair causing many problems
 //5.2.2	16/10/2016	Rémi Saint-Amant	Add NEWA
 //5.2.1	05/10/2016	Rémi Saint-Amant	Bug correction when creating a new project
 //5.2.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax

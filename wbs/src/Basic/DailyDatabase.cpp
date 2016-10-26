@@ -88,26 +88,39 @@ namespace WBSF
 
 
 		//file.WriteString("DailyDatabase 2\n");
-		for (int i = 0; i < info.size() && msg; i++)
+		for (size_t i = 0; i < info.size() && msg; i++)
 		{
-			ifStream fileIn;
-			ofStream fileOut;
+			//ifStream fileIn;
+			//ofStream fileOut;
 
-			msg += fileIn.open(info[i].m_filePath);
-			msg += fileOut.open(outputDataPath + GetFileTitle(info[i].m_filePath) + ".wea");
+			//msg += fileIn.open(info[i].m_filePath);
+			//msg += fileOut.open(outputDataPath + GetFileTitle(info[i].m_filePath) + ".wea");
 
-			if (!msg)
-				return msg;
+			//if (!msg)
+			//	return msg;
 
 
-			//convert data file
-			string text = fileIn.GetText();
-			fileIn.close();
+			////convert data file
+			//string text = fileIn.GetText();
+			//fileIn.close();
 
-			ReplaceString(text, ",", "\t");
-			fileOut.write(text.c_str(), text.length());
-			fileOut.close();
+			//ReplaceString(text, ",", "\t");
+			//fileOut.write(text.c_str(), text.length());
+			//fileOut.close();
 
+			CWeatherYears weather;
+			msg += weather.LoadData(info[i].m_filePath);
+			
+			CWVariables variables = weather.GetVariables();
+			
+			//don't save Tair: problem with BioSIM10
+			variables.reset(HOURLY_DATA::H_TAIR2);
+			variables.reset(HOURLY_DATA::H_SNOW);
+			variables.reset(HOURLY_DATA::H_SWE);
+			variables.reset(HOURLY_DATA::H_SNDH);
+			variables.reset(HOURLY_DATA::H_WNDD);
+			weather.CleanUnusedVariable(variables);
+			weather.SaveData(outputDataPath + GetFileTitle(info[i].m_filePath) + ".wea", CTM(), '\t');
 			msg += callback.StepIt();
 
 		}

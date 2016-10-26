@@ -169,6 +169,9 @@ namespace WBSF
 						string str;
 						if (child.attribute(ATTRIBUTE_NAME[i], str))
 						{
+							std::replace(str.begin(), str.end(), ',', ' ');
+							std::replace(str.begin(), str.end(), ';', ' ');
+
 							switch (i)
 							{
 							case ACIS_STATION_ID:	location.m_ID = str; break;

@@ -2306,6 +2306,7 @@ ERMsg CWeatherYears::SaveData(const std::string& filePath, CTM TM, char separato
 		CWeatherFormat format(TM, variable);//get default format
 		
 		string header = format.GetHeader() + "\n";
+		std::replace(header.begin(), header.end(), ',', separator);
 		file.write(header.c_str(), header.length());
 		
 		//write data
