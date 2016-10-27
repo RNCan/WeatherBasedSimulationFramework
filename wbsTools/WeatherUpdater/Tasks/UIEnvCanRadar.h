@@ -54,7 +54,6 @@ namespace WBSF
 	public:
 
 		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR };
-		//enum TTypeI{ TYPE_06HOURS, TYPE_24HOURS };
 		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
 		enum TBackground { B_WHITE, B_BROWN};
 

@@ -82,8 +82,8 @@ namespace WBSF
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear" };
-	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING };
+	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList" };
+	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
 	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ACIS_P;
 	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ACIS;
 
@@ -124,6 +124,7 @@ namespace WBSF
 		case DATA_TYPE: str = "1"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case UPDATE_STATIONS_LIST: str = "0"; break;
 		};
 
 		return str;
@@ -234,7 +235,8 @@ namespace WBSF
 			return msg;
 
 
-		if (FileExists(GetStationListFilePath()))
+		bool bForeUpdate = as<bool>(UPDATE_STATIONS_LIST);
+		if (FileExists(GetStationListFilePath()) && !bForeUpdate)
 		{
 			msg = m_stations.Load(GetStationListFilePath());
 		}

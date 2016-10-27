@@ -123,6 +123,7 @@ namespace WBSF
 				}
 			}
 		}
+
 		return str;
 	}
 
@@ -154,51 +155,6 @@ namespace WBSF
 
 		return message;
 	}
-
-//L'atlantique|Ontario|Les Prairies|Le Pacifique|Québec|Britt (Sudbury)|Montreal River (Sault Ste. Marie)|Carvel (près d'Edmonton)|Jimmy Lake (Cold Lake)|King City (Toronto)|Lac Castor (Saguenay)|McGill (Montréal)|Exeter (London)|Holyrood (St. John's)|Aldergrove (Vancouver)|Villeroy (Trois-Rivières)|Spirit River (Grande Prairie)|Val d'Irène (Mont-Joli)|Bethune (Regina)|Schuler (Medicine Hat)|Dryden|Franktown (près d'Ottawa)|Foxwarren (Brandon)|Halifax|Landrienne (Rouyn-Noranda)|Marion Bridge (Sydney)|Marble Mountain (Corner Brook)|Chipman (Fredericton)|Supérieur Ouest (Thunder Bay)|Prince George|Radisson (Saskatoon)|Victoria|Strathmore (Calgary)|Silver Star Mountain (Vernon)|Nord-est de l'Ontario (Timmins)|Woodlands (Winnipeg)
-
-//Atlantic Region
-//Ontario Region
-//Pacific Region
-//Quebec Region
-//Prairies Region
-//
-//Aldergrove(near Vancouver)
-//Prince George
-//Silver Star Mountain(near Vernon)
-//Victoria
-//
-//Bethune(near Regina)
-//Carvel(near Edmonton)
-//Foxwarren(near Brandon)
-//Jimmy Lake(near Cold Lake)
-//Radisson(near Saskatoon)
-//Schuler(near Medicine Hat)
-//Spirit River(near Grande Prairie)
-//Strathmore(near Calgary)
-//Woodlands(near Winnipeg)
-//
-//Britt(Near Sudbury)
-//Montreal River(near Sault Ste Marie)
-//Dryden
-//Exeter(near London)
-//Franktown(near Ottawa)
-//King City(near Toronto)
-//
-//Northeast Ontario(near Timmins)
-//Superior West(near Thunder Bay)
-//
-//Lac Castor(near Saguenay)
-//Landrienne(near Rouyn - Noranda)
-//McGill(near Montréal)
-//Val d'Irène (near Mont Joli)
-//Villeroy(near Trois - Rivières)
-//
-//Chipman(near Fredericton)
-//Halifax
-//Holyrood(near St.John's)
-//Marble Mountain
-//Marion Bridge(near Sydney)
 
 //*********************************************************************
 	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "PrcpType", "Background", "Radar", "FirstDate", "LastDate" };
@@ -235,7 +191,6 @@ namespace WBSF
 		case PRCP_TYPE:	str = "Snow|Rain"; break;
 		case BACKGROUND:str = "White|Brown"; break;
 		case RADAR:		str = CCanadianRadar::GetAllPossibleValue(); break;
-			//"L'atlantique|Ontario|Les Prairies|Le Pacifique|Québec|Britt (près de Sudbury)|Montreal River (près de Sault Ste. Marie)|Carvel (près d'Edmonton) | Jimmy Lake(près de Cold Lake) | King City(près de Toronto) | Lac Castor(près de Saguenay) | McGill(près de Montréal) | Exeter(près de London) | Holyrood(près de St.John's)|Aldergrove (près de Vancouver)|Villeroy (près de Trois-Rivières)|Spirit River (près de Grande Prairie)|Val d'Irène(près de Mont - Joli) | Bethune(près de Regina) | Schuler(près de Medicine Hat) | Dryden | Franktown(près d'Ottawa)|Foxwarren (près de Brandon)|Halifax|Landrienne (près de Rouyn-Noranda)|Marion Bridge (près de Sydney)|Marble Mountain (près de Corner Brook)|Chipman (près de Fredericton)|Supérieur Ouest (près de Thunder Bay)|Prince George|Radisson (près de Saskatoon)|Victoria|Strathmore (près de Calgary)|Silver Star Mountain (près de Vernon)|Nord-est de l'Ontario(près de Timmins) | Woodlands(près de Winnipeg)"; break;
 		};
 		return str;
 	}
