@@ -138,6 +138,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		stationList.clear();
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
