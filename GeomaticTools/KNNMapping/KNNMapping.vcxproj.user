@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-k 6 -t 2 -GeoWeight -cca -overwrite "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\Training1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\TestCSV1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Output\TestCSV1_2.csv"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-K 1 -co "COMPRESS=LZW" -multi -overwrite -mask AgeStudyAreaNewAge_30_50.tif -maskValue 1 -Info PlotInfo_0_10.csv StudyAreaVRT.VRT knn_BSE_30_50_NewAge.tif</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>U:\Temporaire-Commun\Remi\Yan\</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-K 3 -T 2 -overwrite "U:\Temporaire-Commun\Rémi\training.csv" "U:\Temporaire-Commun\Rémi\input.csv" "U:\Temporaire-Commun\Rémi\output.csv"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
