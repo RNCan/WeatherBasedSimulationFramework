@@ -1,5 +1,6 @@
 
 // HourlyEditor.cpp : Définit les comportements de classe pour l'application.  
+// 4.1.1	01/11/2016	Rémi Saint-Amant	New databse with .csv file
 // 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
 // 4.0.3				Rémi Saint-Amant	Compile with WBSF 
 // 4.0.2				Rémi Saint-Amant	unordered SSI in location. Bug correction in weather station format.

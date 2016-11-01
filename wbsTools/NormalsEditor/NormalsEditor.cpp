@@ -1,3 +1,4 @@
+// 4.1.1:	01/11-2016	Rémi Saint-Amant	New database with .csv file
 // 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax  
 // 4.0.1				Rémi Saint-Amant	Compile with WBSF   
 // 4.0.0				Rémi Saint-Amant	Initial version     from Normals editor 

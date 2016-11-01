@@ -538,7 +538,8 @@ namespace WBSF
 		msg = load(filePath, doc);
 		if (msg)
 		{
-			if (IsNormalsDB(filePath))
+			
+ 			if (IsNormalsDB(filePath))
 			{
 				string str;
 				if (doc.root().getAttribute("start", str) && !str.empty())
@@ -569,6 +570,15 @@ namespace WBSF
 			{
 				msg.ajoute("Error reading database: " + filePath);
 			}
+
+			//load csv format... remove xml later
+			if (FileExists(CSVFilePath))
+			{
+				string CSVFilePath = filePath;
+				SetFileExtension(CSVFilePath, ".csv");
+				msg = CLocationVector::Load(CSVFilePath);
+			}
+
 		}
 
 
@@ -600,6 +610,11 @@ namespace WBSF
 			CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
 			me.m_filePath = filePath;
 			me.m_bSubDir = !subDir.empty();
+
+			//save also in csv format... remove xml later
+			string CSVFilePath = filePath;
+			SetFileExtension(CSVFilePath, ".csv");
+			msg = CLocationVector::Save(CSVFilePath, ',');
 		}
 
 

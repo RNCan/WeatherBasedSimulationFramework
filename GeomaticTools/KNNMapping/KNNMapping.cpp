@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.6.1    01/11/2016  Rémi Saint-Amant	Bug correction 
 // 2.6.0	11/02/2016	Rémi Saint-Amant	New project structuration. Read data with "".
 // 2.5.2	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
 // 2.5.1    27/01/2015	Rémi Saint-Amant	Compile with GDAL 1.11.1
@@ -75,7 +76,7 @@ using namespace std;
 using namespace WBSF;
 
 
-static const char* version = "2.6.0";
+static const char* version = "2.6.1";
 static const int NB_THREAD_PROCESS = 2;
 
 
