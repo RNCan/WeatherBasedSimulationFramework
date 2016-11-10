@@ -175,15 +175,9 @@ namespace WBSF
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
 		size_t s = GetStage();
-		bool bLookAnynchrony = (s == L2o && m_generation == 0) && IsChangingStage();
+		bool bLookAsynchrony = (s == L2 ) && IsChangingStage();
 		bool bLookWindow = (s == L5) && IsChangingStage();
 		CTRef TRef = weather.GetTRef();
-			
-		if (TRef.GetMonth() == DECEMBER && weather.GetTRef().GetDay() == 29)
-		{
-			int gg;
-			gg=0;
-		}
 		
 		
 		//Mortality
@@ -208,7 +202,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (bLookAnynchrony && IsDeadByAsynchrony())
+		else if (bLookAsynchrony && IsDeadByAsynchrony())
 		{
 			//Bug dies if its synchrony luck is greater than the synchrony survival value at the time of its emergence from ovewintering
 			m_status = DEAD;
