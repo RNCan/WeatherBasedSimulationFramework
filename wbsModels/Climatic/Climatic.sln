@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
+# Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DewPeriod", "DewPeriod.vcxproj", "{37FF647E-A608-41F3-A678-CD050F755594}"
@@ -31,6 +31,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DegreeHour", "DegreeHour.vcxproj", "{4F643939-41DC-4229-9C2F-7A451456A67D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VaporPressureDeficit", "VaporPressureDeficit.vcxproj", "{97564F8B-57D1-436E-94D2-9D01BDA59254}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MagareyInfection", "MagareyInfection.vcxproj", "{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -158,6 +160,14 @@ Global
 		{97564F8B-57D1-436E-94D2-9D01BDA59254}.Release|Win32.Build.0 = Release|Win32
 		{97564F8B-57D1-436E-94D2-9D01BDA59254}.Release|x64.ActiveCfg = Release|x64
 		{97564F8B-57D1-436E-94D2-9D01BDA59254}.Release|x64.Build.0 = Release|x64
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Debug|Win32.Build.0 = Debug|Win32
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Debug|x64.ActiveCfg = Debug|x64
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Debug|x64.Build.0 = Debug|x64
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|Win32.ActiveCfg = Release|Win32
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|Win32.Build.0 = Release|Win32
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|x64.ActiveCfg = Release|x64
+		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

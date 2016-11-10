@@ -1928,11 +1928,8 @@ void CDewDuration::Execute(const CWeatherStation& weather, CWetnessDurationStat&
 //	//	}
 //	//}
 //}
-void CSWEB::Execute(CWeatherStation& weather, CModelStatVector& stat)
+void CSWEB::Execute(const CWeatherStation& weather, CModelStatVector& stat)
 {
-	if (!weather.IsHourly())
-		weather.ComputeHourlyVariables();
-
 	ASSERT(weather.IsHourly());
 
 

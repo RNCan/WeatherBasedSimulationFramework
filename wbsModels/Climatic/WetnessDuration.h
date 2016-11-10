@@ -191,8 +191,7 @@ namespace WBSF
 		}
 
 
-		void Execute(CWeatherStation& weather, CModelStatVector& stat);
-		//void Execute(const CWeatherStation& hourlyData, CWetnessDurationStat& stat);
+		void Execute(const CWeatherStation& weather, CModelStatVector& stat);
 
 		static int GetSW(double Wind);
 		static double GetWind(double S, double C);

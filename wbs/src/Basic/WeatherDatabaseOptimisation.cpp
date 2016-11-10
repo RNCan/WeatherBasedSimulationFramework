@@ -572,12 +572,10 @@ namespace WBSF
 			}
 
 			//load csv format... remove xml later
+			string CSVFilePath = filePath;
+			SetFileExtension(CSVFilePath, ".csv");
 			if (FileExists(CSVFilePath))
-			{
-				string CSVFilePath = filePath;
-				SetFileExtension(CSVFilePath, ".csv");
 				msg = CLocationVector::Load(CSVFilePath);
-			}
 
 		}
 
