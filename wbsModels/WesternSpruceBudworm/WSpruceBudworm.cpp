@@ -223,7 +223,8 @@ namespace WBSF
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
-			m_death = FROZEN;
+			m_death = OTHERS;
+			//			m_death = FROZEN;
 		}
 		else if (weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay()==30)
 		{
@@ -326,7 +327,8 @@ namespace WBSF
 	bool CWSpruceBudworm::IsDeadByAttrition(double T, double r)const
 	{
 		bool bDead = false;
-		if (GetStand()->m_bApplyAttrition && GetStage() >= L2 && GetStage() <= PUPAE)
+/*
+	if (GetStand()->m_bApplyAttrition && GetStage() >= L2 && GetStage() <= PUPAE)
 		{
 			if (!(GetStage() == L2 && m_generation == 1))//???
 			{
@@ -338,7 +340,7 @@ namespace WBSF
 			}
 
 		}
-
+*/
 		return bDead;
 	}
 
