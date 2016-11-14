@@ -415,12 +415,16 @@ namespace WBSF
 
 		//Lognormal survival function
 		double psurv = 0;
-		if (ddShoot > 0.) psurv = (P0 + P1*pow((def + 0.01), P2)) / (B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot) - A) / B, 2));
+		if (ddShoot > 0.) 
+			psurv = (P0 + P1*pow((def + 0.01), P2)) / (B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot) - A) / B, 2));
 		//	if(ddShoot>0.) psurv = (P0+P1*def+P2/(def+0.01))/(B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot)-A)/B,2));
 
 
 		//pupal weight (mg) is correlated with psurv (L6 bioassay relationship)
 		double wt = a_wt + b_wt*psurv + RandomGenerator().RandNormal(0.0, s_wt);
+		//Jacques: wt peut varier de -0.02 à 0.2. Il y a surement un minimum à mettre ici!
+
+		//si wt = 0.2 alors m_potentialFecundity peut varier de 200 à 600... ce qui donne de grosse valeurs
 		while (m_potentialFecundity <= 0)
 			m_potentialFecundity = a_fec + b_fec*wt + RandomGenerator().RandNormal(0.0, s_fec); //Prevent negative fecundities
 
