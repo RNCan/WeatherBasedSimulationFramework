@@ -8,7 +8,7 @@
 
 
 #include "ANN/ANN.h"
-#include "ERMsg/ERMsg.h"
+#include "Basic/ERMsg.h"
 #include "Basic/statistic.h"
 #include "Basic/UtilMath.h"
 #include "Basic/UtilStd.h"
