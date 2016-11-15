@@ -408,10 +408,10 @@ namespace WBSF
 		static const double SQRT2PI = 2.50663; //square root of 2*PI
 		static const double a_wt = 0.04645; //intercept of weight vs survival regression
 		static const double b_wt = 0.09373; //slope of weight vs survival regression
-		static const double s_wt = 0.0166;  //st dev of random term of weight vs survival regression
+		static const double s_wt = 0.0166 / 2;  //st dev of random term of weight vs survival regression, halved
 		static const double a_fec = 0;       //intercept of fecundity vs weigh regression
 		static const double b_fec = 2088.2;  //slope of fecundity vs weight regression
-		static const double s_fec = 91.97 / 2;   //half st dev of random term of fecundity vs weight regression
+		static const double s_fec = 91.97 / 2;   //st dev of random term of fecundity vs weight regression halved
 
 		//Lognormal survival function
 		double psurv = 0;
@@ -420,11 +420,12 @@ namespace WBSF
 		//	if(ddShoot>0.) psurv = (P0+P1*def+P2/(def+0.01))/(B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot)-A)/B,2));
 
 
-		//pupal weight (mg) is correlated with psurv (L6 bioassay relationship)
-		double wt = a_wt + b_wt*psurv + RandomGenerator().RandNormal(0.0, s_wt);
-		//Jacques: wt peut varier de -0.02 à 0.2. Il y a surement un minimum à mettre ici!
+		//pupal weight (mg) is correlated with psurv (L6 bioassay relationship) Régnière at Nealis 2016, Insect Science, P. 7 in text
+		double wt = 0;
+		while(wt <= 0.01)
+			wt = a_wt + b_wt*psurv + RandomGenerator().RandNormal(0.0, s_wt);
 
-		//si wt = 0.2 alors m_potentialFecundity peut varier de 200 à 600... ce qui donne de grosse valeurs
+		//si wt = 0.2 alors m_potentialFecundity peut varier de 200 à 600... ce qui donne de grosse valeurs Régnière at Nealis 2016, Insect Science, P. 7 in text
 		while (m_potentialFecundity <= 0)
 			m_potentialFecundity = a_fec + b_fec*wt + RandomGenerator().RandNormal(0.0, s_fec); //Prevent negative fecundities
 
