@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Gypsy Moth Seasonality(2012)</Title>
+    <Version>1.1</Version>
+    <ID>.GMS</ID>
+    <EXE>Gypsy Moth Seasonality.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>A composite model of Gypsy moth seasonal development&#x0A;&#x0A;This is a collection of submodels of development of the various life stage, and was described in detail by Régnière &amp; Sharov (1997, 1998, 1999). Two of the egg hatch sub-models are as yet unvalidated, although they are based on process-level descriptions of Gypsy moth diapause. Sawyer's model (Sawyer et al. 1993) is based on extensive datasets from literatures. Gray's model is a complex description of the 3 phases hypothesis: pre-diapause, diapause proper, and post-diapause (Gray et al 1991, Gray et al. 1995, Gray et al. In press). &#x0A;</Description>
+    <WindowRect>0 0 191 571</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>EggModel</Name>
+            <Caption>Egg hatch model</Caption>
+            <Description>Model to compute egg hatch. Can be Johnson, Lyons, Sawer or Gray.</Description>
+            <Type>5</Type>
+            <Rect>40 15 60 255</Rect>
+            <SeparatorPos>135</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Johnson;Lyons;Sawyer;Gray</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>OvipDate</Name>
+            <Caption>Oviposition date (Gray, Sawyer)</Caption>
+            <Description>Julian date of oviposition use to initialized the first year. Gray and Sawer model only. </Description>
+            <Type>1</Type>
+            <Rect>40 275 60 535</Rect>
+            <SeparatorPos>175</SeparatorPos>
+            <DefaultValue>190</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>730</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SawyerModel</Name>
+            <Caption>Sawyer model version</Caption>
+            <Description>Specify the Sawer sub-model to use.</Description>
+            <Type>5</Type>
+            <Rect>65 15 85 255</Rect>
+            <SeparatorPos>135</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Kitami;Tauber et al.;</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ApplyMortality</Name>
+            <Caption>Apply Mortality</Caption>
+            <Description>If true, apply mortality over stage.</Description>
+            <Type>0</Type>
+            <Rect>110 15 130 250</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CumulFreq</Name>
+            <Caption>Output result as cumulative</Caption>
+            <Description>Output will be cumulative instead of absolute</Description>
+            <Type>0</Type>
+            <Rect>110 275 130 535</Rect>
+            <SeparatorPos>175</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NextOvipDate</Name>
+            <Caption>Take ovip date of previous year</Caption>
+            <Description>If true, take the oviposition of previous year. If false, always take the initial value.</Description>
+            <Type>0</Type>
+            <Rect>60 275 80 535</Rect>
+            <SeparatorPos>175</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line4</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>20 10 40 535</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line3</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>85 10 105 535</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header1</Name>
+            <Caption>Egg development</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>5 10 25 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
+            <Units/>
+            <Description>% of egg left.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1</Name>
+            <Title>L1</Title>
+            <Units/>
+            <Description>% of L1</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units/>
+            <Description>% of L2</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units/>
+            <Description>% of L3</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units/>
+            <Description>% of L4</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L5</Name>
+            <Title>L5</Title>
+            <Units/>
+            <Description>% of L5</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L6</Name>
+            <Title>L6 (fem)</Title>
+            <Units/>
+            <Description>% of L6. Female only.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
+            <Units/>
+            <Description>% of pupae</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult</Name>
+            <Title>Moths</Title>
+            <Units/>
+            <Description>% of adult</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description>% of dead adult</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleMoths</Name>
+            <Title>Male Moths</Title>
+            <Units/>
+            <Description>% of male moth</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemalesMoths</Name>
+            <Title>Females Moths</Title>
+            <Units/>
+            <Description>% of female moth</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Gray, D.R., J.A. Logan, F.W. Ravlin, J.A. Carlson 1991. Toward a Model of Gypsy Moth Egg Phenology" Using Respiration Rates of Individual Eggs to Determine Temperature-Time Requirements of Prediapause Development. Environ. Entomol. 20: 1645-1652.&#x0A;&#x0A;Gray, D., W.F. Ravlin, J. Régnière &amp; J.A. Logan. 1995. Further advances toward a model of Gypsy moth egg phenology: thermal responses during diapause and age-dependent development rates in post-diapause. J. Ins. Physiol. 41: 247-256.&#x0A;&#x0A;Gray, D., J.A. Braine  &amp; F.W. Ravlin. 2000. Diapause in the gypsy moth: a model of inhibition and development. J. Insect Physiol. (in press),&#x0A;&#x0A;Régnière, J. and A. Sharov. 1997. Forecasting Gypsy moth flight in the northeastern US with BioSIM. p. 99-103 in "Integrating Spatial information technologies for tomorrow". GIS-97 Conference Proceedings. February 18 1997, Vancouver BC.GIS-World Inc. &#x0A;&#x0A;Régnière, J. &amp; A. Sharov. 1998. Phenology of gypsy moth, Lymantria dispar (Lepidoptera : Lymantriidae), flight and the effect of moth dispersal in heterogeneous landscapes. Internat. J. Biometeorology 41: 161-168.&#x0A;&#x0A;Régnière, J. &amp; A. Sharov. 1999. Simulating temperature-dependent processes at the sub-continental scale: Male gypsy moth flight phenology as an example. Internat. J. Biometerol. 42: 146-152.</Credit>
+    <HelpFileName/>
+</Model>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Gypsy Moth Stability (2014)</Title>
+    <Version>1.1</Version>
+    <ID>.GMStability</ID>
+    <EXE>Gypsy Moth Stability.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>A composite model of Gypsy moth seasonal development&#x0A;&#x0A;This is a collection of submodels of development of the various life stage, and was described in detail by Régnière &amp; Sharov (1997, 1998, 1999). Two of the egg hatch sub-models are as yet unvalidated, although they are based on process-level descriptions of Gypsy moth diapause. Sawyer's model (Sawyer et al. 1993) is based on extensive datasets from literatures. Gray's model is a complex description of the 3 phases hypothesis: pre-diapause, diapause proper, and post-diapause (Gray et al 1991, Gray et al. 1995, Gray et al. In press). </Description>
+    <WindowRect>0 0 191 571</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>EggModel</Name>
+            <Caption>Egg hatch model</Caption>
+            <Description>Model to compute egg hatch. Can be Johnson, Lyons, Sawer or Gray.</Description>
+            <Type>5</Type>
+            <Rect>40 20 60 260</Rect>
+            <SeparatorPos>135</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Johnson;Lyons;Sawyer;Gray</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>OvipDate</Name>
+            <Caption>Oviposition date (Gray, Sawyer)</Caption>
+            <Description>Julian date of oviposition use to initialized the first year. Gray and Sawer model only. </Description>
+            <Type>1</Type>
+            <Rect>40 275 60 535</Rect>
+            <SeparatorPos>175</SeparatorPos>
+            <DefaultValue>190</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>730</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SawyerModel</Name>
+            <Caption>Sawyer model version</Caption>
+            <Description>Specify the Sawer sub-model to use.</Description>
+            <Type>5</Type>
+            <Rect>65 20 85 260</Rect>
+            <SeparatorPos>135</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Kitami;Tauber et al.;</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbGeneration</Name>
+            <Caption>Nb. Generation</Caption>
+            <Description>Maximum number of generation for each years to stabilized. If 0, stabilized over all years.</Description>
+            <Type>1</Type>
+            <Rect>110 20 130 255</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line4</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>20 10 40 535</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line3</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>85 10 105 535</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header1</Name>
+            <Caption>Egg development</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>5 10 25 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>-1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Probability</Name>
+            <Title>Viability</Title>
+            <Units/>
+            <Description>Probability of viability base on phenology</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

@@ -101,7 +101,7 @@ namespace WBSF
 		static ERMsg v7_to_v6(const std::string& filePathV7, const std::string& filePathV6, CCallback& callback = DEFAULT_CALLBACK);
 		//static ERMsg Convert(const std::string& filePath, CCallback& callback);
 		static std::string GetNormalsDataFilePath(const std::string& filePath){ return WBSF::GetPath(filePath) + GetNormalsDataFileName(filePath); }
-		static std::string GetNormalsDataFileName(const std::string& filePath){ return GetFileTitle(filePath) + DATA_EXT; }
+		static std::string GetNormalsDataFileName(const std::string& filePath){ return GetFileTitle(filePath) /*+ "N"*/ + DATA_EXT; }
 
 		void SetPeriod(int firstYeat, int lastYear);
 		int GetFirstYear()const{ return (!m_zop.GetYears().empty() ? *m_zop.GetYears().begin() : INVLID_YEAR); }

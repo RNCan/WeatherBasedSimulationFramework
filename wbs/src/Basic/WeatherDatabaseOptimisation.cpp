@@ -572,10 +572,10 @@ namespace WBSF
 			}
 
 			//load csv format... remove xml later
-			string CSVFilePath = filePath;
+			/*string CSVFilePath = filePath;
 			SetFileExtension(CSVFilePath, ".csv");
 			if (FileExists(CSVFilePath))
-				msg = CLocationVector::Load(CSVFilePath);
+				msg = CLocationVector::Load(CSVFilePath);*/
 
 		}
 
@@ -603,17 +603,17 @@ namespace WBSF
 
 		doc.root().setAttribute("subdir", subDir.empty() ? "0" : "1");
 		msg = save(doc, filePath);
-		if (msg)
-		{
-			CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
-			me.m_filePath = filePath;
-			me.m_bSubDir = !subDir.empty();
+		//if (msg)
+		//{
+		//	CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
+		//	me.m_filePath = filePath;
+		//	me.m_bSubDir = !subDir.empty();
 
-			//save also in csv format... remove xml later
-			string CSVFilePath = filePath;
-			SetFileExtension(CSVFilePath, ".csv");
-			msg = CLocationVector::Save(CSVFilePath, ',');
-		}
+		//	//save also in csv format... remove xml later
+		//	string CSVFilePath = filePath;
+		//	SetFileExtension(CSVFilePath, ".csv");
+		//	msg = CLocationVector::Save(CSVFilePath, ',');
+		//}
 
 
 		return msg;
