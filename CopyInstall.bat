@@ -66,6 +66,9 @@ copy /Y ".\bin\Releasex64\Models\FWI Drought Code.dll" "..\Install\NRCan\Models\
 
 copy /Y ".\bin\Releasex64\Models\GrowingSeason.mdl" "..\Install\NRCan\Models\GrowingSeason.mdl"
 copy /Y ".\bin\Releasex64\Models\GrowingSeason.dll" "..\Install\NRCan\Models\GrowingSeason.dll"
+copy /Y ".\bin\Releasex64\Models\Gypsy Moth Seasonality.dll" "..\Install\NRCan\Models\Gypsy Moth Seasonality.dll"
+copy /Y ".\bin\Releasex64\Models\Gypsy Moth Seasonality.mdl" "..\Install\NRCan\Models\Gypsy Moth Seasonality.mdl"
+
 copy /Y ".\bin\Releasex64\Models\HemlockLooper.dll" "..\Install\NRCan\Models\HemlockLooper.dll"
 copy /Y ".\bin\Releasex64\Models\HemlockLooper.mdl" "..\Install\NRCan\Models\HemlockLooper.mdl"
 copy /Y ".\bin\Releasex64\Models\HemlockLooperRemi.dll" "..\Install\NRCan\Models\HemlockLooperRemi.dll"

@@ -122,7 +122,7 @@ namespace WBSF
 
 	std::string CEnvCanHourlyForecast::GetDatabaseFilePath()const
 	{
-		return m_workingDir + "ForecastDB.HourlyStations";
+		return m_workingDir + "ForecastDB" + CHourlyDatabase::DATABASE_EXT;
 	}
 
 

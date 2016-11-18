@@ -78,8 +78,8 @@ namespace WBSF
 
 		ERMsg Load(const std::string& filePath);
 		ERMsg Save(const std::string& filePath);
-		ERMsg LoadFromXML(const std::string& filePath, const std::string& rooName);
-		ERMsg SaveAsXML(const std::string& filePath, const std::string& subDir, const std::string& rootName, short version)const;
+		ERMsg LoadFromXML(const std::string& filePath, const std::string& rooName, const std::string& hdrExt);
+		ERMsg SaveAsXML(const std::string& filePath, const std::string& subDir, const std::string& rootName, short version, const std::string& hdrExt)const;
 		ERMsg LoadData(const std::string& filePath){ return m_filesSection.Load(filePath); }
 		ERMsg SaveData(const std::string& filePath){ return m_filesSection.Save(filePath); }
 
@@ -167,7 +167,7 @@ namespace zen
 	template <> inline
 		void writeStruc(const WBSF::CWeatherDatabaseOptimization& in, XmlElement& output)
 	{
-		writeStruc(((const WBSF::CLocationVector&)in), output);
+		//writeStruc(((const WBSF::CLocationVector&)in), output);
 	}
 
 	template <> inline

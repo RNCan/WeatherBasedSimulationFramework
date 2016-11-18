@@ -49,20 +49,21 @@ namespace WBSF
 	{
 	public:
 
-		//	enum TOpenMode { modeNotOpen=-1, modeReadOnly, modeEdit};
-
 		static const int   VERSION;
 		static const char* XML_FLAG;
 		static const char* DATABASE_EXT;
 		static const char* OPT_EXT;
 		static const char* DATA_EXT;
+		static const char* META_EXT;
 		static const CTM   DATA_TM;
 		virtual int GetVersion()const{ return VERSION; }
 		virtual const char* GetXMLFlag()const{ return XML_FLAG; }
 		virtual const char* GetDatabaseExtension()const{ return DATABASE_EXT; }
 		virtual const char* GetOptimizationExtension()const{ return OPT_EXT; }
 		virtual const char* GetDataExtension()const{ return DATA_EXT; }
-		virtual const CTM	GetDataTM()const{ return DATA_TM; };
+		virtual const char* GetHeaderExtension()const{ return META_EXT; }
+		virtual const CTM	GetDataTM()const{ return DATA_TM; }
+		virtual const char	GetDBType()const{ return 'N'; }
 
 
 
@@ -101,7 +102,8 @@ namespace WBSF
 		static ERMsg v7_to_v6(const std::string& filePathV7, const std::string& filePathV6, CCallback& callback = DEFAULT_CALLBACK);
 		//static ERMsg Convert(const std::string& filePath, CCallback& callback);
 		static std::string GetNormalsDataFilePath(const std::string& filePath){ return WBSF::GetPath(filePath) + GetNormalsDataFileName(filePath); }
-		static std::string GetNormalsDataFileName(const std::string& filePath){ return GetFileTitle(filePath) /*+ "N"*/ + DATA_EXT; }
+		static std::string GetNormalsDataFileName(const std::string& filePath){ return GetFileTitle(filePath)  + DATA_EXT; }
+		static std::string GetNormalsHeaderFileName(const std::string& filePath){ return GetFileTitle(filePath) + META_EXT; }
 
 		void SetPeriod(int firstYeat, int lastYear);
 		int GetFirstYear()const{ return (!m_zop.GetYears().empty() ? *m_zop.GetYears().begin() : INVLID_YEAR); }

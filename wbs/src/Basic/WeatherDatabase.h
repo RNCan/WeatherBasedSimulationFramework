@@ -55,7 +55,9 @@ namespace WBSF
 		virtual const char* GetDatabaseExtension()const = 0;
 		virtual const char* GetOptimizationExtension()const = 0;
 		virtual const char* GetDataExtension()const = 0;
+		virtual const char* GetHeaderExtension()const = 0;
 		virtual const CTM	GetDataTM()const = 0;
+		virtual const char	GetDBType()const = 0;
 
 		virtual ERMsg Open(const std::string& filePath, UINT flag = modeRead, CCallback& callback = DEFAULT_CALLBACK, bool bSkipVerify=false);
 		virtual ERMsg OpenOptimizationFile(const std::string& referencedFilePath, CCallback& callback = DEFAULT_CALLBACK, bool bSkipVerify=false);
@@ -165,7 +167,7 @@ namespace WBSF
 
 		virtual std::string GetSubDir(const std::string& filePath)const{ return GetFileTitle(filePath); }
 		using CWeatherDatabase::GetDataPath;
-		virtual std::string GetDataPath(const std::string& filePath)const{ return WBSF::GetPath(filePath) + GetFileTitle(filePath) + "\\"; }
+		virtual std::string GetDataPath(const std::string& filePath)const{ return WBSF::GetPath(filePath) + GetFileTitle(filePath) + GetDBType() + "\\"; }
 
 		virtual ERMsg VerifyVersion(const std::string& filePath)const;
 		virtual __time64_t GetLastUpdate(const std::string& filePath, bool bVerifyAllFiles = true)const;

@@ -21,9 +21,10 @@ namespace WBSF
 
 	const int CDailyDatabase::VERSION = 4;
 	const char* CDailyDatabase::XML_FLAG = "DailyDatabase";
-	const char* CDailyDatabase::DATABASE_EXT = ".DailyStations";
+	const char* CDailyDatabase::DATABASE_EXT = ".DailyDB";
 	const char* CDailyDatabase::OPT_EXT = ".Dzop";
 	const char* CDailyDatabase::DATA_EXT = ".csv";
+	const char* CDailyDatabase::META_EXT = ".DailyHdr.csv";
 	const CTM CDailyDatabase::DATA_TM = CTM(CTM::DAILY);
 
 	ERMsg CDailyDatabase::CreateDatabase(const std::string& filePath)
@@ -48,13 +49,16 @@ namespace WBSF
 		ERMsg msg;
 
 		string inputDataPath = CDailyDatabase().GetDataPath(inputFilePath);
-		string outputDataPath = CDailyDatabase().GetDataPath(outputFilePath);
+		string headerFilePath = WBSF::GetPath(inputFilePath) + GetFileTitle(inputFilePath) + CDailyDatabase().GetHeaderExtension();
+		string outputDataPath = WBSF::GetPath(outputFilePath) + GetFileTitle(outputFilePath) + "\\";
+		
 
 		//create v3 database
-		ifStream fileIn;
+		//ifStream fileIn;
 		ofStream fileOut;
 
-		msg += fileIn.open(inputFilePath);
+		CLocationVector locations;
+		msg += locations.Load(headerFilePath);
 		if (msg)
 			msg += CreateMultipleDir(outputDataPath);
 
@@ -66,17 +70,43 @@ namespace WBSF
 
 
 
-		//convert header file
-		string text = fileIn.GetText();
-		fileIn.close();
 
-		ReplaceString(text, "version=\"4\"", "version=\"3\"");
-		ReplaceString(text, "<Location>", "<DailyStation>");
-		ReplaceString(text, "</Location>", "</DailyStation>");
-		ReplaceString(text, "<DataFileName>", "<WeaFile>\n\t\t\t<FileTitle>");
-		ReplaceString(text, ".csv</DataFileName>", "</FileTitle>\n\t\t</WeaFile>");
+		try
+		{
+			//convert header file
+			zen::XmlDoc doc("DailyDatabase"); //empty XML document
+			doc.root().setAttribute("version", "3");
+			doc.setEncoding("Windows-1252");
 
-		fileOut.write(text.c_str(), text.length());
+
+			writeStruc(locations, doc.root());
+			string text = zen::serialize(doc, "\n");
+
+			//ReplaceString(text, "version=\"4\"", "version=\"3\"");
+			ReplaceString(text, "<Location>", "<DailyStation>");
+			ReplaceString(text, "</Location>", "</DailyStation>");
+			ReplaceString(text, "<DataFileName>", "<WeaFile>\n\t\t\t<FileTitle>");
+			ReplaceString(text, ".csv</DataFileName>", "</FileTitle>\n\t\t</WeaFile>");
+
+			fileOut.write(text.c_str(), text.length());
+		}
+		catch (const zen::XmlFileError& e)
+		{
+			// handle error
+			msg.ajoute(WBSF::GetErrorDescription(e.lastError));
+		}
+		catch (const ERMsg& e)
+		{
+			// handle error
+			msg = e;
+		}
+
+
+		//string text = fileIn.GetText();
+		//fileIn.close();
+
+
+		
 		fileOut.close();
 
 		//convert data file

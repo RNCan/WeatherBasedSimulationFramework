@@ -17,9 +17,10 @@ namespace WBSF
 
 	const int CHourlyDatabase::VERSION = 1;
 	const char* CHourlyDatabase::XML_FLAG = "HourlyDatabase";
-	const char* CHourlyDatabase::DATABASE_EXT = ".HourlyStations";
+	const char* CHourlyDatabase::DATABASE_EXT = ".HourlyDB";
 	const char* CHourlyDatabase::OPT_EXT = ".Hzop";
 	const char* CHourlyDatabase::DATA_EXT = ".csv";
+	const char* CHourlyDatabase::META_EXT = ".HourlyHdr.csv";
 	const CTM CHourlyDatabase::DATA_TM = CTM(CTM::HOURLY);
 
 	ERMsg CHourlyDatabase::CreateDatabase(const std::string& filePath)

@@ -15,10 +15,15 @@
 #include "UltimateGrid/ExcelTopHdg.h"
 #include "UltimateGrid/ExcelSideHdg.h"
 #include "Basic/Registry.h"
+#include "Basic/HourlyDatabase.h"
+#include "Basic/DailyDatabase.h"
+#include "Basic/NormalsDatabase.h"
+
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
 #include "Simulation/WeatherGradient.h"
 #include "StationsListCtrl.h"
+
 
 #include "WeatherBasedSimulationString.h"
 
@@ -1099,13 +1104,14 @@ namespace WBSF
 			const CLocation& location = m_pDB->GetLocation(index);
 			string filePath = m_pDB->GetFilePath();
 			string ext = GetFileExtension(filePath);
-
+			
+			
 			string editor;
-			if (IsEqual(ext, ".NormalsStations"))
+			if (IsEqual(ext, CNormalsDatabase::DATABASE_EXT))
 				editor = CRegistry::NORMAL_EDITOR;
-			else if (IsEqual(ext, ".DailyStations"))
+			else if (IsEqual(ext, CDailyDatabase::DATABASE_EXT))
 				editor = CRegistry::DAILY_EDITOR;
-			else if (IsEqual(ext, ".HourlyStations"))
+			else if (IsEqual(ext, CHourlyDatabase::DATABASE_EXT))
 				editor = CRegistry::HOURLY_EDITOR;
 
 			if (!editor.empty())

@@ -167,8 +167,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,1,0,6
- PRODUCTVERSION 4,1,0,1
+ FILEVERSION 4,2,0,12
+ PRODUCTVERSION 4,2,0,11
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -185,21 +185,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
-            VALUE "FileVersion", "4.1.0.6"
+            VALUE "FileVersion", "4.2.0.12"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "EditeurQuotidien"
-            VALUE "ProductVersion", "4.1.0.1"
+            VALUE "ProductVersion", "4.2.0.11"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Daily weather data editor"
-            VALUE "FileVersion", "4.1.0.6"
+            VALUE "FileVersion", "4.2.0.12"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "DailyEditor"
-            VALUE "ProductVersion", "4.1.0.1"
+            VALUE "ProductVersion", "4.2.0.11"
         END
     END
     BLOCK "VarFileInfo"
@@ -426,7 +426,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurQuotidien\n\nDailyEditor\nBase de données quotidiennes (*.DailyStations)\n.DailyStations\n\n"
+    IDR_MAINFRAME           "ÉditeurQuotidien\n\nDailyEditor\nBase de données quotidiennes (*.DailyDB)\n.DailyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -775,7 +775,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "DailyEditor\n\nDailyEditor\nDaily Database (*.DailyStations)\n.DailyStations\n\n"
+    IDR_MAINFRAME           "DailyEditor\n\nDailyEditor\nDaily Database (*.DailyDB)\n.DailyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 

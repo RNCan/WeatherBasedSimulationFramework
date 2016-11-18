@@ -146,7 +146,7 @@ ERMsg CWeatherDatabase::Open(const std::string& filePath, UINT flag, CCallback& 
 
 		//create a new file
 		if (!FileExists(filePath))
-			msg = CWeatherDatabaseOptimization().SaveAsXML(filePath, GetSubDir(filePath), GetXMLFlag(), GetVersion());
+			msg = CWeatherDatabaseOptimization().SaveAsXML(filePath, GetSubDir(filePath), GetXMLFlag(), GetVersion(), GetHeaderExtension());
 
 	}
 
@@ -174,7 +174,7 @@ ERMsg CWeatherDatabase::Save()
 
 	if (m_bModified)
 	{
-		msg = m_zop.SaveAsXML(m_filePath, GetSubDir(m_filePath), GetXMLFlag(), GetVersion());
+		msg = m_zop.SaveAsXML(m_filePath, GetSubDir(m_filePath), GetXMLFlag(), GetVersion(), GetHeaderExtension());
 		
 		if (msg)
 		{
@@ -254,7 +254,7 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 			if (msg)
 			{
 				callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(referencedFilePath)));
-				msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag());
+				msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag(), GetHeaderExtension());
 			}
 		}
 
@@ -1489,8 +1489,8 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 
 		CWeatherDatabaseOptimization zop1;
 		CWeatherDatabaseOptimization zop2;
-		msg += zop1.LoadFromXML(inputFilePath1, GetXMLFlag());
-		msg += zop2.LoadFromXML(inputFilePath2, GetXMLFlag());
+		msg += zop1.LoadFromXML(inputFilePath1, GetXMLFlag(), GetHeaderExtension());
+		msg += zop2.LoadFromXML(inputFilePath2, GetXMLFlag(), GetHeaderExtension());
 
 		if (msg)
 		{

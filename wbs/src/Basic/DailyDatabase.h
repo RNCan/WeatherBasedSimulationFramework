@@ -22,13 +22,16 @@ namespace WBSF
 		static const char* DATABASE_EXT;
 		static const char* OPT_EXT;
 		static const char* DATA_EXT;
+		static const char* META_EXT;
 		static const CTM   DATA_TM;
 		virtual int GetVersion()const{ return VERSION; }
 		virtual const char* GetXMLFlag()const{ return XML_FLAG; }
 		virtual const char* GetDatabaseExtension()const{ return DATABASE_EXT; }
 		virtual const char* GetOptimizationExtension()const{ return OPT_EXT; }
 		virtual const char* GetDataExtension()const{ return DATA_EXT; }
-		virtual const CTM	GetDataTM()const{ return DATA_TM; };
+		virtual const char* GetHeaderExtension()const{ return META_EXT; }
+		virtual const CTM	GetDataTM()const{ return DATA_TM; }
+		virtual const char	GetDBType()const{ return 'D'; }
 
 
 		CDailyDatabase(int cacheSize = 200) : CDHDatabaseBase(cacheSize)

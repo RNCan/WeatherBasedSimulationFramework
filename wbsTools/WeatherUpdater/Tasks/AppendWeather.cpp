@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "AppendWeather.h"
+#include "Basic/NormalsDatabase.h"
 #include "Basic/DailyDatabase.h"
 #include "Basic/HourlyDatabase.h"
 #include "basic/UtilStd.h"
@@ -58,14 +59,14 @@ namespace WBSF
 		string extention1 = GetFileExtension(inputFilePath1);
 		string extention2 = GetFileExtension(inputFilePath2);
 
-		if (IsEqualNoCase(extention1, ".NormalsStations") && IsEqualNoCase(extention2, ".NormalsStations"))
+		if (IsEqualNoCase(extention1, CNormalsDatabase::DATABASE_EXT) && IsEqualNoCase(extention2, CNormalsDatabase::DATABASE_EXT))
 		{
 			msg.ajoute("It's not possible to append normals stations");
 			//msg = ExecuteNormal(callback);
 		}
-		else if (IsEqualNoCase(extention1, ".DailyStations") && IsEqualNoCase(extention2, ".DailyStations"))
+		else if (IsEqualNoCase(extention1, CDailyDatabase::DATABASE_EXT) && IsEqualNoCase(extention2, CDailyDatabase::DATABASE_EXT))
 		{
-			SetFileExtension(outputFilePath, ".DailyStations");
+			SetFileExtension(outputFilePath, CDailyDatabase::DATABASE_EXT);
 
 			msg = CDailyDatabase().DeleteDatabase(outputFilePath, callback);
 			if (msg)
@@ -85,9 +86,9 @@ namespace WBSF
 				}
 			}
 		}
-		else if (IsEqualNoCase(extention1, ".HourlyStations") && IsEqualNoCase(extention2, ".HourlyStations"))
+		else if (IsEqualNoCase(extention1, CHourlyDatabase::DATABASE_EXT) && IsEqualNoCase(extention2, CHourlyDatabase::DATABASE_EXT))
 		{
-			SetFileExtension(outputFilePath, ".HourlyStations");
+			SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
 
 			msg = CHourlyDatabase().DeleteDatabase(outputFilePath, callback);
 			if (msg)

@@ -526,7 +526,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CWeatherDatabaseOptimization::LoadFromXML(const std::string& filePath, const string& rooName)
+	ERMsg CWeatherDatabaseOptimization::LoadFromXML(const std::string& filePath, const string& rooName, const std::string& hdrExt)
 	{
 		ASSERT(FileExists(filePath));//save file before first open
 
@@ -572,10 +572,10 @@ namespace WBSF
 			}
 
 			//load csv format... remove xml later
-			/*string CSVFilePath = filePath;
-			SetFileExtension(CSVFilePath, ".csv");
+			string CSVFilePath = filePath;
+			SetFileExtension(CSVFilePath, hdrExt);
 			if (FileExists(CSVFilePath))
-				msg = CLocationVector::Load(CSVFilePath);*/
+				msg = CLocationVector::Load(CSVFilePath);
 
 		}
 
@@ -584,7 +584,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CWeatherDatabaseOptimization::SaveAsXML(const std::string& filePath, const std::string& subDir, const string& rootName, short version)const
+	ERMsg CWeatherDatabaseOptimization::SaveAsXML(const std::string& filePath, const std::string& subDir, const string& rootName, short version, const std::string& hdrExt)const
 	{
 		ERMsg msg;
 
@@ -603,17 +603,17 @@ namespace WBSF
 
 		doc.root().setAttribute("subdir", subDir.empty() ? "0" : "1");
 		msg = save(doc, filePath);
-		//if (msg)
-		//{
-		//	CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
-		//	me.m_filePath = filePath;
-		//	me.m_bSubDir = !subDir.empty();
+		if (msg)
+		{
+			CWeatherDatabaseOptimization& me = const_cast<CWeatherDatabaseOptimization&>(*this);
+			me.m_filePath = filePath;
+			me.m_bSubDir = !subDir.empty();
 
-		//	//save also in csv format... remove xml later
-		//	string CSVFilePath = filePath;
-		//	SetFileExtension(CSVFilePath, ".csv");
-		//	msg = CLocationVector::Save(CSVFilePath, ',');
-		//}
+			//save also in csv format... remove xml later
+			string CSVFilePath = filePath;
+			SetFileExtension(CSVFilePath, hdrExt);
+			msg = CLocationVector::Save(CSVFilePath, ',');
+		}
 
 
 		return msg;

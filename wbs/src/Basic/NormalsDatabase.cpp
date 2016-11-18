@@ -37,10 +37,12 @@ namespace WBSF
 {
 
 const int CNormalsDatabase::VERSION = 7;
-const char* CNormalsDatabase::XML_FLAG = "NormalsStations";
-const char* CNormalsDatabase::DATABASE_EXT = ".NormalsStations";
+const char* CNormalsDatabase::XML_FLAG = "NormalsDatabase";
+const char* CNormalsDatabase::DATABASE_EXT = ".NormalsDB";
 const char* CNormalsDatabase::OPT_EXT = ".Nzop";
-const char* CNormalsDatabase::DATA_EXT = ".csv";
+const char* CNormalsDatabase::DATA_EXT = ".NormalsData.csv";
+const char* CNormalsDatabase::META_EXT = ".NormalsHdr.csv";
+
 const CTM CNormalsDatabase::DATA_TM = CTM(CTM::MONTHLY, CTM::OVERALL_YEARS);
 
 
@@ -300,7 +302,7 @@ ERMsg CNormalsDatabase::Close(bool bSave, CCallback& callback )
 		ASSERT(m_zop.size() == m_data.size());
 		if (m_bModified && bSave)
 		{
-			msg = m_zop.SaveAsXML(m_filePath, "", GetXMLFlag(), GetVersion());
+			msg = m_zop.SaveAsXML(m_filePath, "", GetXMLFlag(), GetVersion(), GetHeaderExtension());
 			if (msg)
 				msg = m_data.SaveAsCSV(GetNormalsDataFilePath(m_filePath), m_zop, callback);
 
@@ -344,7 +346,7 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 	if (msg && bStationsAsChange)
 	{
 		if (!FileExists(referencedFilePath))
-			msg += CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, "", GetXMLFlag(), GetVersion());
+			msg += CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, "", GetXMLFlag(), GetVersion(), GetHeaderExtension());
 		
 		string dataFilePath = CNormalsDatabase().GetNormalsDataFilePath(referencedFilePath);
 		if (msg && !FileExists(dataFilePath))
@@ -358,7 +360,7 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 		{
 			
 			callback.AddMessage(FormatMsg(IDS_MSG_OPEN, GetFileName(referencedFilePath)) );
-			msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag());
+			msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag(), GetHeaderExtension() );
 		}
 	}
 

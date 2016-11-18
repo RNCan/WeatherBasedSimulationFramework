@@ -5,6 +5,8 @@
 #include "ConvertDB.h"
 #include "Basic/NormalsDatabase.h"
 #include "Basic/DailyDatabase.h"
+#include "Basic/HourlyDatabase.h"
+
 #include "Basic/UtilStd.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
@@ -72,8 +74,11 @@ namespace WBSF
 		string outputFilepath = GetAbsoluteFilePath(Get(OUTPUT_FILEPATH));
 		string extention = GetFileExtension(inputFilepath);
 		string extentionOut = GetFileExtension(extention);
-		if (IsEqual(extention, ".NormalsStations") || IsEqual(extention, ".Normals"))
-			extentionOut = (direction == TO_NEW_VERSION) ? ".NormalsStations" : ".Normals";
+		if (IsEqual(extention, CNormalsDatabase::DATABASE_EXT) || IsEqual(extention, ".Normals"))
+			extentionOut = (direction == TO_NEW_VERSION) ? CNormalsDatabase::DATABASE_EXT : ".Normals";
+
+		if (IsEqual(extention, CDailyDatabase::DATABASE_EXT) || IsEqual(extention, ".DailyStations"))
+			extentionOut = (direction == TO_NEW_VERSION) ? CDailyDatabase::DATABASE_EXT : ".DailyStations";
 
 		SetFileExtension(outputFilepath, extentionOut);
 
@@ -86,7 +91,7 @@ namespace WBSF
 
 		CreateMultipleDir(GetPath(outputFilepath));
 
-		if (IsEqualNoCase(extention, ".Normals") || IsEqualNoCase(extention, ".NormalsStations"))
+		if (IsEqualNoCase(extention, ".Normals") || IsEqualNoCase(extention, CNormalsDatabase::DATABASE_EXT))
 		{
 			if (direction == TO_NEW_VERSION)
 			{
@@ -104,7 +109,7 @@ namespace WBSF
 			}
 
 		}
-		else if (IsEqualNoCase(extention, ".DailyStations"))
+		else if (IsEqualNoCase(extention, ".DailyStations") || IsEqualNoCase(extention, CDailyDatabase::DATABASE_EXT) )
 		{
 			msg = CDailyDatabase::DeleteDatabase(outputFilepath, callback);
 			if (msg)
