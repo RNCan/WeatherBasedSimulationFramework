@@ -47,7 +47,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
+		case TYPE:	str = "06|24"; break;
 		};
 		return str;
 	}
@@ -60,9 +60,6 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\PrcpRadar\\"; break;
 		case TYPE: str = ToString(TYPE_06HOURS); break;
-//		case FIRST_YEAR:
-		//case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-
 		};
 
 		return str;
