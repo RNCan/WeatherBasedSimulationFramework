@@ -260,7 +260,7 @@ namespace WBSF
 
 		CHourlyDatabase DB;
 		msg += DB.Open(hourlyDBFilePath, CHourlyDatabase::modeWrite);
-		assert(DirectoryExists(GetPath(hourlyDBFilePath) + GetFileTitle(hourlyDBFilePath) + "\\"));
+		assert(DirectoryExists(DB.GetDataPath(hourlyDBFilePath)));
 
 		if (!msg)
 			return msg;

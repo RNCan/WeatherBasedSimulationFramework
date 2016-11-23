@@ -203,7 +203,8 @@ namespace WBSF
 		CWVariables& operator=(HOURLY_DATA::TVarH v);
 		CWVariables& operator=(const char* str);
 		CWVariables& operator=(const std::string& str){ return operator=(str.c_str()); }
-		std::string to_string(bool bAbvr = true)const;//const char sep=','
+		std::string to_string(bool bAbvr = true, const char sep = ' ')const;
+		std::string GetVariablesName(char sep);
 
 		bool operator==(const CWVariables& in)const{ return std::bitset<HOURLY_DATA::NB_VAR_H>::operator==(in); }
 		bool operator!=(const CWVariables& in)const{ return std::bitset<HOURLY_DATA::NB_VAR_H>::operator!=(in); }

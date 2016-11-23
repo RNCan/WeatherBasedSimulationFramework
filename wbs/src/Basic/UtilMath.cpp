@@ -351,7 +351,7 @@ double GetL(double Tair)
 double Hr2Td(double Tair, double Hr)
 {
 	_ASSERTE(Tair>-999);
-	_ASSERTE(Hr >= 0 && Hr <= 100);
+	_ASSERTE(Hr >= 0 && Hr <= 101);
 	Hr = max(1.0, Hr);//limit to avoid division by zero
 
 	double L = GetL(Tair);	//(J/kg)

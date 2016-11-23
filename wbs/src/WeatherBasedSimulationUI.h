@@ -7,6 +7,7 @@
 #define IDD_SIM_LOC_EXTRACT             200
 #define IDR_MENU1                       202
 #define IDR_MENU_EDIT                   202
+#define IDD_SEARCH_RADIUS               207
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -464,7 +465,9 @@
 #define IDC_MAP_SET_EXTENT_FROM_MAPINT  1226
 #define IDC_GENLOC_FACTOR               1226
 #define IDC_MAP_CHANGE_RESOLUTION       1227
+#define IDC_WG_SEARCH_RADIUS            1227
 #define IDC_MAP_OUTPUT_CELLSIZE         1228
+#define IDC_VARIABLES_RADIUS            1228
 #define IDC_MAP_OUTPUT_CELLSIZE_M       1229
 #define IDC_MAP_INPUT_CELLSIZE          1230
 #define IDC_MAP_INPUT_CELLSIZE_M        1231
@@ -572,7 +575,7 @@
 #define IDI_ADD                         10229
 #define IDI_CMN_OPEN                    10230
 #define IDI_RNCAN48                     10232
-#define IDI_WEATHER_UPDATER				10233
+#define IDI_WEATHER_UPDATER             10233
 #define IDB_DBEDITOR                    10235
 #define IDB_SHAPE_TYPE16                10241
 #define IDB_SHAPE_TYPE32                10242
@@ -838,9 +841,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        207
+#define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1227
+#define _APS_NEXT_CONTROL_VALUE         1229
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

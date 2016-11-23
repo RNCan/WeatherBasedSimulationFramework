@@ -45,45 +45,7 @@ namespace WBSF
 
 	size_t Hourly2ATM(size_t vv);
 	
-	/*inline size_t CTRef2Time(CTRef TRef)
-	{
-		ASSERT(TRef.GetTM().Type() == CTM::HOURLY);
-		return (size_t)TRef.GetRef() * 3600;
-	}
 
-
-	inline CTRef Time2CTRef(size_t time)
-	{
-		CTRef TRef;
-
-		int ref = int(time / 3600);
-		TRef.SetRef(ref, CTM(CTM::HOURLY));
-
-		return TRef;
-	}
-
-	inline size_t LocalTime2UTCTime(size_t time, double lon)
-	{
-		return time - (lon / 15) * 3600;
-	}
-
-	inline size_t UTCTime2LocalTime(size_t time, double lon)
-	{
-		return time + (lon / 15) * 3600;
-	}
-
-	inline CTRef LocalTRef2UTCTRef(CTRef TRef, double lon)
-	{
-		int delta = int(lon / 15);
-		return TRef - delta;
-	}
-
-	inline CTRef UTCTRef2LocalTRef(CTRef TRef, double lon)
-	{
-		int delta = int(lon / 15);
-		return TRef + delta;
-	}
-*/
 
 	inline size_t GetHourlySeconds(size_t time)
 	{
@@ -137,15 +99,15 @@ namespace WBSF
 		static std::string GetWindStabilityName(int stabType);
 
 		//Hellmann exponent
-		static double GetAlpha(int stabType, bool bOverWather)
+		static double GetAlpha(int stabType, bool bOverWater)
 		{
 			double α = 0;
 
 			switch (stabType)
 			{
-			case UNSTABLE: α = bOverWather ? 0.11 : 0.27; break;
-			case NEUTRAL:  α = bOverWather ? 0.16 : 0.34; break;
-			case STABLE:   α = bOverWather ? 0.40 : 0.60; break;
+			case UNSTABLE: α = bOverWater ? 0.11 : 0.27; break;
+			case NEUTRAL:  α = bOverWater ? 0.16 : 0.34; break;
+			case STABLE:   α = bOverWater ? 0.40 : 0.60; break;
 			default: ASSERT(false);
 			}
 

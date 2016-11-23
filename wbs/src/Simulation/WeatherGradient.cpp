@@ -527,7 +527,7 @@ namespace WBSF
 						if (z < CONTINENTAL_GRADIENT)
 						{
 							size_t nbStations = size_t(NB_STATION_REGRESSION_LOCAL*pow(3, z));
-							ERMsg msgTmp = m_pNormalDB->Search(results, m_target, nbStations, v);
+							ERMsg msgTmp = m_pNormalDB->Search(results, m_target, nbStations, -1, v);
 
 							if (msgTmp)
 								msg = ComputeGradient(g, results, m_gradient[z][g], m_R²[z][g], callback);

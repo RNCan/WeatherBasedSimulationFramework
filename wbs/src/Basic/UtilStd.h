@@ -832,13 +832,13 @@ bool map_compare (Map const &lhs, Map const &rhs)
 			beg = 0;
 
 		std::string ext;
-		std::string::size_type pos = str.find('.', beg);
-		if (pos != std::string::npos)
+		std::string::size_type posExt = str.rfind('.');//extension is from the last point
+		if (posExt != std::string::npos && posExt>beg)
 		{
 			if (!bWithDot)
-				pos++;
+				posExt++;
 
-			ext = str.substr(pos);
+			ext = str.substr(posExt);
 		}
 
 		return ext;
@@ -858,15 +858,15 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		else
 			beg = 0;
 
-		std::string::size_type pos = str.find('.', beg);
-		if (pos == std::string::npos)
+		std::string::size_type posExt = str.rfind('.');//extension is from the last point
+		if (posExt == std::string::npos || posExt<beg)
 		{
 			str += newExt;
 		}
 		else
 		{
-			std::string::size_type extLength = str.length() - pos;
-			str.replace(pos, extLength, newExt);
+			std::string::size_type extLength = str.length() - posExt;
+			str.replace(posExt, extLength, newExt);
 		}
 
 		return str;
@@ -908,8 +908,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		else
 			pos = 0;
 
-		std::string::size_type posExt = str.find('.', pos);
-		if (posExt == std::string::npos)
+		std::string::size_type posExt = str.rfind('.');//extension is from the last point
+		if (posExt == std::string::npos || posExt<=pos)
 			posExt = str.length();
 
 		
@@ -925,8 +925,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		else
 			pos = 0;
 
-		std::string::size_type posExt = str.find('.', pos);
-		if (posExt == std::string::npos)
+		std::string::size_type posExt = str.rfind('.');//extension is from the last point
+		if (posExt == std::string::npos || posExt<=pos)
 			posExt = str.length();
 
 		str.replace(pos, posExt - pos, newFileName);

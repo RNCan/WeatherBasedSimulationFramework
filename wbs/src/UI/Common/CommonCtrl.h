@@ -445,17 +445,17 @@ public:
 };
 
 
-class CBoolGridProperty : public CStdGridProperty
+class CStdBoolGridProperty : public CStdGridProperty
 {
 	friend class CMFCPropertyGridCtrl;
 
 public:
 
-	CBoolGridProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
+	CStdBoolGridProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
 		CStdGridProperty(name, COleVariant(WBSF::ToShort(value), VT_BOOL), description, no)
 	{}
 
-	CBoolGridProperty(const std::string& name, bool bValue, const std::string& description, size_t no) :
+	CStdBoolGridProperty(const std::string& name, bool bValue, const std::string& description, size_t no) :
 		CStdGridProperty(name, COleVariant((short)bValue, VT_BOOL), description, no)
 	{}
 
@@ -615,11 +615,11 @@ public:
 
 
 
-class CColorProperty : public CStdGriInterface, public CMFCPropertyGridColorProperty
+class CStdColorProperty : public CStdGriInterface, public CMFCPropertyGridColorProperty
 {
 public:
 
-	CColorProperty(const std::string& strName, const COLORREF& color, const std::string& description = "", size_t dwData = 0);
+	CStdColorProperty(const std::string& strName, const COLORREF& color, const std::string& description = "", size_t dwData = 0);
 	
 
 	//virtual std::string get_string(){ return std::string(CStringA(GetValue())); }

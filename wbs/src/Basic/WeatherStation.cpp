@@ -1075,6 +1075,7 @@ CDailyWaveVector& CWeatherDay::GetAllenWave(CDailyWaveVector& t, size_t hourTmax
 	_ASSERTE(hourTmax >= 12 && hourTmax< 24);
 	_ASSERTE(step>0 && step <= 24);
 	
+	
 	if (!t.IsInit())
 	{
 		t.m_period = CTPeriod(GetTRef(), GetTRef());
@@ -1096,6 +1097,9 @@ CDailyWaveVector& CWeatherDay::GetAllenWave(CDailyWaveVector& t, size_t hourTmax
 	}
 	else
 	{
+		assert(m_dailyStat[H_TMIN2].IsInit());
+		assert(m_dailyStat[H_TMAX2].IsInit());
+
 		int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
 		static const double r_hour = 3.14159 / 12;
 		
@@ -2866,7 +2870,7 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 	return true;
 }
 
-void CWeatherStationVector::GetMean( CWeatherStation& station, CTPeriod p, short mergeType)const 
+void CWeatherStationVector::GetMean( CWeatherStation& station, CTPeriod p, size_t mergeType)const 
 {
 	assert(p.IsAnnual());
 	ASSERT( mergeType==MERGE_FROM_MEAN || size()<=2);
@@ -3123,7 +3127,7 @@ class CByPriorityCriterious
 {
 public:
 	
-	CByPriorityCriterious(short priorityRules) :m_priorityRules(priorityRules)
+	CByPriorityCriterious(size_t priorityRules) :m_priorityRules(priorityRules)
 	{}
 
 	bool operator ()(const PriorityRules& in1, const PriorityRules& in2)const
@@ -3151,7 +3155,7 @@ public:
 protected:
 
 
-	short m_priorityRules;
+	size_t m_priorityRules;
 };
 
 void CWeatherStationVector::FillGaps()
@@ -3330,7 +3334,7 @@ void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const 
 
 
 
-void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, short mergeType, short priorityRules, std::string& log)const
+void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, size_t mergeType, size_t priorityRules, std::string& log)const
 {
 	//if merge type not equal mean, we must have only 2 station
 	ASSERT( mergeType==MERGE_FROM_MEAN || size()<=2);

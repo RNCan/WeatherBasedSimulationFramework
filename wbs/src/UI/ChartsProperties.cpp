@@ -367,7 +367,7 @@ namespace WBSF
 		pGraph->AddSubItem(new CStdGridProperty(name[X_AXIS_TITLE], "", description[X_AXIS_TITLE], X_AXIS_TITLE));
 		pGraph->AddSubItem(new CStdGridProperty(name[Y_LEFT_AXIS_TITLE], "", description[Y_LEFT_AXIS_TITLE], Y_LEFT_AXIS_TITLE));
 		pGraph->AddSubItem(new CStdGridProperty(name[Y_RIGHT_AXIS_TITLE], "", description[Y_RIGHT_AXIS_TITLE], Y_RIGHT_AXIS_TITLE));
-		pGraph->AddSubItem(new CBoolGridProperty(name[SHOW_LEGEND], true, description[SHOW_LEGEND], SHOW_LEGEND));
+		pGraph->AddSubItem(new CStdBoolGridProperty(name[SHOW_LEGEND], true, description[SHOW_LEGEND], SHOW_LEGEND));
 		pGroup->AddSubItem(pGraph);
 
 
@@ -378,39 +378,39 @@ namespace WBSF
 		pGeneral->AddSubItem(new CStatisticProperty(name[STATISTIC], WBSF::MEAN, description[STATISTIC], STATISTIC));
 		pGeneral->AddSubItem(new CSerieTypeProperty(name[SERIE_TYPE], WBSF::MEAN, description[SERIE_TYPE], SERIE_TYPE));
 		pGeneral->AddSubItem(new CYAxisTypeProperty(name[Y_AXIS], CGraphSerie::LEFT_AXIS, description[Y_AXIS], Y_AXIS));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[ENABLE_SHADOW], false, description[ENABLE_SHADOW], ENABLE_SHADOW));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[ENABLE_SHADOW], false, description[ENABLE_SHADOW], ENABLE_SHADOW));
 		pGeneral->AddSubItem(new CStdGridProperty(name[SHADOW_DEPTH], 3, description[SHADOW_DEPTH], SHADOW_DEPTH));
-		pGeneral->AddSubItem(new CColorProperty(name[SHADOW_COLOR], RGB(220,220,220), description[SHADOW_COLOR], SHADOW_COLOR));
+		pGeneral->AddSubItem(new CStdColorProperty(name[SHADOW_COLOR], RGB(220,220,220), description[SHADOW_COLOR], SHADOW_COLOR));
 		pSeries->AddSubItem(pGeneral);
 
 		CMFCPropertyGridProperty* pSymbol = new CStdGridProperty(section[4]);
 		pSymbol->AddSubItem(new CSymbolProperty(name[SYMBOL_TYPE], 0, description[SYMBOL_TYPE], SYMBOL_TYPE));
-		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_COLOR], RGB(0,0,0), description[SYMBOL_COLOR], SYMBOL_COLOR));
+		pSymbol->AddSubItem(new CStdColorProperty(name[SYMBOL_COLOR], RGB(0,0,0), description[SYMBOL_COLOR], SYMBOL_COLOR));
 		pSymbol->AddSubItem(new CStdGridProperty(name[SYMBOL_SIZE_X], 6, description[SYMBOL_SIZE_X], SYMBOL_SIZE_X));
 		pSymbol->AddSubItem(new CStdGridProperty(name[SYMBOL_SIZE_Y], 6, description[SYMBOL_SIZE_Y], SYMBOL_SIZE_Y));
-		pSymbol->AddSubItem(new CBoolGridProperty(name[SYMBOL_FILLED], false, description[SYMBOL_FILLED], SYMBOL_FILLED));
-		pSymbol->AddSubItem(new CColorProperty(name[SYMBOL_FILL_COLOR], RGB(255,255,255), description[SYMBOL_FILL_COLOR], SYMBOL_FILL_COLOR));
+		pSymbol->AddSubItem(new CStdBoolGridProperty(name[SYMBOL_FILLED], false, description[SYMBOL_FILLED], SYMBOL_FILLED));
+		pSymbol->AddSubItem(new CStdColorProperty(name[SYMBOL_FILL_COLOR], RGB(255,255,255), description[SYMBOL_FILL_COLOR], SYMBOL_FILL_COLOR));
 		pSeries->AddSubItem(pSymbol);
 
 		CMFCPropertyGridProperty* pLine = new CStdGridProperty(section[5]);
 		pLine->AddSubItem(new CLineStyleProperty(name[LINE_STYLE], CGraphSerie::lsNone, description[LINE_STYLE], LINE_STYLE));
-		pLine->AddSubItem(new CColorProperty(name[LINE_COLOR], RGB(0,0,0), description[LINE_COLOR], LINE_COLOR));
+		pLine->AddSubItem(new CStdColorProperty(name[LINE_COLOR], RGB(0,0,0), description[LINE_COLOR], LINE_COLOR));
 		pLine->AddSubItem(new CStdGridProperty(name[LINE_WIDTH], 1, description[LINE_WIDTH], LINE_WIDTH));
-		pLine->AddSubItem(new CBoolGridProperty(name[LINE_SMOOTHED], false, description[LINE_SMOOTHED], LINE_SMOOTHED));
+		pLine->AddSubItem(new CStdBoolGridProperty(name[LINE_SMOOTHED], false, description[LINE_SMOOTHED], LINE_SMOOTHED));
 		pSeries->AddSubItem(pLine);
 
 		CMFCPropertyGridProperty* pFill = new CStdGridProperty(section[6]);
 		pFill->AddSubItem(new CFillStyleProperty(name[FILL_STYLE], 0, description[FILL_STYLE], FILL_STYLE));
 		pFill->AddSubItem(new CFillDirectionProperty(name[FILL_DIRECTION], CGraphSerie::FILL_BOTTOM, description[FILL_DIRECTION], FILL_DIRECTION));
-		pFill->AddSubItem(new CColorProperty(name[FILL_COLOR], RGB(220,220,220), description[FILL_COLOR], FILL_COLOR));
+		pFill->AddSubItem(new CStdColorProperty(name[FILL_COLOR], RGB(220,220,220), description[FILL_COLOR], FILL_COLOR));
 		pSeries->AddSubItem(pFill);
 
 		CMFCPropertyGridProperty* pHist = new CStdGridProperty(section[7]);
 		pHist->AddSubItem(new CHistDirectionProperty(name[HIST_DIRECTION], 0, description[HIST_DIRECTION], HIST_DIRECTION));
 		pHist->AddSubItem(new CStdGridProperty(name[HIST_BAR_WIDTH], 12, description[HIST_BAR_WIDTH], HIST_BAR_WIDTH));
-		pHist->AddSubItem(new CColorProperty(name[HIST_BAR_COLOR], RGB(0,100,255), description[HIST_BAR_COLOR], HIST_BAR_COLOR));
+		pHist->AddSubItem(new CStdColorProperty(name[HIST_BAR_COLOR], RGB(0,100,255), description[HIST_BAR_COLOR], HIST_BAR_COLOR));
 		pHist->AddSubItem(new CStdGridProperty(name[HIST_BORDER_WIDTH], 1, description[HIST_BORDER_WIDTH], HIST_BORDER_WIDTH));
-		pHist->AddSubItem(new CColorProperty(name[HIST_BORDER_COLOR], RGB(0,0,0), description[HIST_BORDER_COLOR], HIST_BORDER_COLOR));
+		pHist->AddSubItem(new CStdColorProperty(name[HIST_BORDER_COLOR], RGB(0,0,0), description[HIST_BORDER_COLOR], HIST_BORDER_COLOR));
 		pSeries->AddSubItem(pHist);
 
 		pGroup->AddSubItem(pSeries);

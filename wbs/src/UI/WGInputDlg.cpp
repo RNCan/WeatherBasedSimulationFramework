@@ -15,7 +15,7 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/WGInputDlg.h"
-
+#include "UI/SearchRadiusDlg.h"
 #include "WeatherBasedSimulationString.h"
 
 
@@ -98,6 +98,7 @@ namespace WBSF
 		ON_BN_CLICKED(IDC_WG_DAILY_LINK, &OnDailyLink)
 		ON_BN_CLICKED(IDC_WG_HOURLY_LINK, &OnHourlyLink)
 		ON_BN_CLICKED(IDC_WG_GRIBS_LINK, &OnGribsLink)
+		ON_BN_CLICKED(IDC_WG_SEARCH_RADIUS, &OnSearchRadiusClick)
 		ON_WM_DESTROY()
 		ON_WM_ENABLE()
 	END_MESSAGE_MAP()
@@ -147,9 +148,9 @@ namespace WBSF
 
 	void CWGInputDlg::SetWGInput(const CWGInput& WGInput)
 	{
-		//m_bDefaultModel = bDefault;
-
 		m_variablesCtrl.SetVariables(WGInput.m_variables);
+		m_searchRadius = WGInput.m_searchRadius;
+		
 		m_sourceTypeCtrl.SetCurSel(WGInput.m_sourceType);
 		m_generationTypeCtrl.SetCurSel(WGInput.m_generationType);
 
@@ -245,6 +246,7 @@ namespace WBSF
 	{
 
 		WGInput.m_variables = m_variablesCtrl.GetVariables();
+		WGInput.m_searchRadius = m_searchRadius;
 		WGInput.m_sourceType = m_sourceTypeCtrl.GetCurSel();
 		WGInput.m_generationType = m_generationTypeCtrl.GetCurSel();
 
@@ -552,6 +554,17 @@ namespace WBSF
 	void CWGInputDlg::OnEnable(BOOL bEnable)
 	{
 		UpdateCtrl(bEnable);
+	}
+
+
+	void CWGInputDlg::OnSearchRadiusClick()
+	{
+		CSearchRadiusDlg dlg(this);
+		dlg.m_searchRadius = m_searchRadius;
+		if (dlg.DoModal() == IDOK)
+		{
+			m_searchRadius = dlg.m_searchRadius;
+		}
 	}
 
 }

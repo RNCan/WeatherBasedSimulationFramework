@@ -861,11 +861,11 @@ ERMsg CWeatherDatabase::GetStationList(CSearchResultVector& searchResultArray, C
 void CWeatherDatabase::SearchD(CSearchResultVector& searchResultArray, const CLocation& location, double d, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
 {
 	const size_t NB_MATCH_MAX = 3;
-	Search(searchResultArray, location, NB_MATCH_MAX, filter, year, bExcludeUnused, bUseElevation);
+	Search(searchResultArray, location, NB_MATCH_MAX, -1, filter, year, bExcludeUnused, bUseElevation);
 
 	//if no stations is farther than the distance with try to fin more stations
 	for (size_t f = 2; f<20 && !searchResultArray.empty() && searchResultArray.back().m_distance < d && searchResultArray.size() < size(); f *= 2)
-		Search(searchResultArray, location, f*NB_MATCH_MAX, filter, year, bExcludeUnused, bUseElevation);
+		Search(searchResultArray, location, f*NB_MATCH_MAX, -1, filter, year, bExcludeUnused, bUseElevation);
 
 }
 
@@ -1112,7 +1112,7 @@ ERMsg CDHDatabaseBase::VerifyDB(CCallback& callback)const
 }
 
 
-ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double d, double deltaElev, short mergeType, short priorityRules, std::string& log, CCallback& callback)
+ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double d, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback)
 {
 	ASSERT( m_openMode == modeWrite );
 	ASSERT( IsDailyDB(filePath1) == IsDailyDB(filePath2) );
@@ -1148,7 +1148,7 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 	boost::dynamic_bitset<size_t> addedIndex1(DB1Order.size());
 	boost::dynamic_bitset<size_t> addedIndex2(DB2Order.size());
 
-	callback.PushTask(comment, pDB1->size() + pDB2->size());
+	callback.PushTask(FormatMsg(IDS_CMN_MERGE_DATABASE, GetFileName(m_filePath), GetFileName(filePath1), GetFileName(filePath2)), pDB1->size() + pDB2->size());
 
 	for(size_t _i=0; _i<DB1Order.size()&&msg; _i++)
 	{
@@ -1321,7 +1321,7 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 	return msg;
 }
 
-ERMsg CDHDatabaseBase::MergeStation(CWeatherDatabase& inputDB1, CWeatherDatabase& inputDB2, const CSearchResultVector& results1, const CSearchResultVector& results2, CWeatherStation& station, short mergeType, short priorityRules, string& log)
+ERMsg CDHDatabaseBase::MergeStation(CWeatherDatabase& inputDB1, CWeatherDatabase& inputDB2, const CSearchResultVector& results1, const CSearchResultVector& results2, CWeatherStation& station, size_t mergeType, size_t priorityRules, string& log)
 {
 	ASSERT(results1.size() > 0 || results2.size() > 0);
 	ASSERT(inputDB1.GetDataTM() == inputDB2.GetDataTM());
@@ -1663,6 +1663,14 @@ ERMsg CDHDatabaseBase::DeleteDatabase(const std::string& filePath, CCallback& ca
 		if (FileExists(zopSearchData))
 			msg += RemoveFile(zopSearchData);
 
+		std::string logFilePath = filePath + ".log.csv";
+		if (FileExists(logFilePath))
+			msg += RemoveFile(logFilePath);
+
+		std::string header = GetHeaderFilePath(filePath);
+		if (FileExists(header))
+			msg += RemoveFile(header);
+
 		msg += RemoveFile(filePath);
 
 		callback.PopTask();
@@ -1957,7 +1965,7 @@ void CDHDatabaseBase::GetUnlinkedFile(StringVector& fileList)
 //              Si on ne trouve pas le nombre de stations désirées, on 
 //              relache graduellement les contraintes.
 //****************************************************************************
-ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
+ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
 {
 	ASSERT(IsOpen());
 	ASSERT(m_openMode == modeRead);
@@ -2066,24 +2074,34 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 	searchResultArray.SetFilter(filter);
 
 	msg = m_zop.Search(station, nbStation, searchResultArray, canal);
-	if (searchResultArray.size()<nbStation)
+	
+
+	if (searchResultArray.size() == nbStation)
 	{
-		string fileterName;
-		for (size_t i = 0; i<filter.size(); i++)
+		if (searchRadius >= 0)
 		{
-			if (filter.test(i))
+			for (CSearchResultVector::iterator it = searchResultArray.begin(); it != searchResultArray.end();)
 			{
-				if (!fileterName.empty())
-					fileterName += "+";
-				fileterName += GetVariableName((short)i);
+				if (it->m_distance < searchRadius)//station in the radius not accepted to exclude all station when r=0
+					it++;
+				else
+					it = searchResultArray.erase(it);
+			}
+
+			if (searchResultArray.empty())
+			{
+				string filterName = filter.GetVariablesName('+');
+				string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), GetFileName(m_filePath), ToString(year), filterName);
+				msg.ajoute(error);
 			}
 		}
-
-		if (fileterName.empty())
-			fileterName = " ";
+	}
+	else
+	{
+		string filterName = filter.GetVariablesName('+');
 
 		msg = ERMsg();//reset it and add the new message
-		string error = FormatMsg(IDS_WG_NOTENOUGH_DAILY, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(year), ToString(nbStation), fileterName);
+		string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(year), ToString(nbStation), filterName);
 		msg.ajoute(error);
 	}
 

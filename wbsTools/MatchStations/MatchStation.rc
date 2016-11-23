@@ -388,8 +388,8 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "StationsAvoisinantes\n\nStationsAvoisinantes\nFichier de localisations (*.csv)\n.csv\n\n"
 	IDS_OBSERVATION_TYPE	"Horaire|Quotidiennes"
-	IDS_INPUT_TITLE			"Localisation|Type d'observations|Horaires|Quotidiennes|Normales|Variable|Année|Nb voisins"
-	IDS_INPUT_DESCRIPTION	"Sélection du fichier de localisations à être utiliser comme points sources|Sélection du type d'observation (horaires, quotidiennes) car seulement un type d'observation peut être utilisé à la fois|Sélection de la base de données horaires|Sélection de la base de données quotidiennes|Sélection de la base de données normales|Sélection de la variable à être utilisée pour trouver les stations voisines|Sélection de l'année utilisée pour trouver les stations d'observations voisines|Sélection du nombre de stations voisines"
+	IDS_INPUT_TITLE			"Localisation|Type d'observations|Horaires|Quotidiennes|Normales|Variable|Année|Nb voisins|Rayon de recherche|Sauter vérification"
+	IDS_INPUT_DESCRIPTION	"Sélection du fichier de localisations à être utiliser comme points sources|Sélection du type d'observation (horaires, quotidiennes) car seulement un type d'observation peut être utilisé à la fois|Sélection de la base de données horaires|Sélection de la base de données quotidiennes|Sélection de la base de données normales|Sélection de la variable à être utilisée pour trouver les stations voisines|Sélection de l'année utilisée pour trouver les stations d'observations voisines|Sélection du nombre de stations voisines|Élimine toutes les stations qui sont plus loin que le rayon de recherche|Sauter l'étape de vérification des bases de données. L'usager doit s'assuer que les fihciers d'optimisation sont à jour"
     IDS_LOCATION_LIST_WND   "Localisation"
     IDS_NORMALS_WND         "Normales"
     IDS_OBSERVATION_WND     "Observation"
@@ -679,8 +679,8 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "MatchStation\n\nMatchStation\nLocation file (*.csv)\n.csv\n\n"
 	IDS_OBSERVATION_TYPE	"Hourly|Daily"
-	IDS_INPUT_TITLE			"Locations|Observation type|Hourly|Daily|Normales|Variable|Year|Nb neighbor"
-	IDS_INPUT_DESCRIPTION	"Select locations file used as targets points|Select the observation (hourly or daily) because only one observation type can be used at a time|Select the hourly database file path|Select the daily database file path|Select the normals database file path|Select the variable used to match station neighbor|Select the year used to match observation station neighbor|Select the number of nearest station"
+	IDS_INPUT_TITLE			"Locations|Observation type|Hourly|Daily|Normales|Variable|Year|Nb neighbor|Search Radius|Skip Verify"
+	IDS_INPUT_DESCRIPTION	"Select locations file used as targets points|Select the observation (hourly or daily) because only one observation type can be used at a time|Select the hourly database file path|Select the daily database file path|Select the normals database file path|Select the variable used to match station neighbor|Select the year used to match observation station neighbor|Select the number of nearest station|Remove all stations farther than search radius|Skip database verification. Database optimisation must be up to date"
 	IDS_LOCATION_LIST_WND   "Locations"
     IDS_NORMALS_WND         "Normals"
     IDS_OBSERVATION_WND     "Observation"

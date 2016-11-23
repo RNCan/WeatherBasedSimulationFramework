@@ -545,8 +545,8 @@ namespace WBSF
 
 
 
-		callback.PushTask("Download data...", stationList.size());
-		callback.AddMessage("Download data...");
+		callback.PushTask("Download data (" + ToString(stationList.size()) + " stations)", stationList.size());
+		callback.AddMessage("Download data (" + ToString(stationList.size()) + " stations)");
 
 		//InitStat();
 
@@ -638,7 +638,8 @@ namespace WBSF
 					nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
 				}
 
-				msg += callback.StepIt();
+				if (nbYear>5)
+					msg += callback.StepIt();
 			}
 		}
 		

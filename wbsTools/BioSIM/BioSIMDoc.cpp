@@ -338,7 +338,6 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());
-	
 
 	UpdateAllViews(NULL, INIT, NULL);
 }

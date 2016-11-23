@@ -49,9 +49,11 @@ CMatchStationDoc::CMatchStationDoc()
 	//load last session param
 	m_curIndex = UNKNOWN_POS;
 	m_variable = (TVarH)options.GetProfileInt(_T("Variable"), H_TAIR2);
+	m_searchRadius = options.GetProfileDouble(_T("SearchRadius"), -1);
 	m_year = options.GetProfileInt(_T("Year"), 2015);
 	m_nbStations = options.GetProfileInt(_T("NbStations"), 4);
 	m_obsType = options.GetProfileInt(_T("ObservationType"), T_DAILY);
+	m_bSkipVerify = options.GetProfileInt(_T("SkipVerify"), 0);
 	m_hourlyFilePath = CStringA(options.GetProfileString(_T("HourlyDatabase")));
 	m_dailyFilePath = CStringA(options.GetProfileString(_T("DailyDatabase")));
 	m_normalsFilePath = CStringA(options.GetProfileString(_T("NormalsDatabase")));
@@ -71,16 +73,25 @@ CMatchStationDoc::CMatchStationDoc()
 		if (var < NB_VAR_H)
 			m_variable = (TVarH)var;
 	}
-		
+	
 
+	
 	if (cmdInfo.Have(CMatchStationCmdLine::YEAR))
 		m_year = UtilWin::ToInt(cmdInfo.GetParam(CMatchStationCmdLine::YEAR));
 	
 	if (cmdInfo.Have(CMatchStationCmdLine::NB_STATIONS))
 		m_nbStations = UtilWin::ToInt64(cmdInfo.GetParam(CMatchStationCmdLine::NB_STATIONS));
 
+	if (cmdInfo.Have(CMatchStationCmdLine::SEARCH_RADIUS))
+		m_searchRadius = UtilWin::ToDouble(cmdInfo.GetParam(CMatchStationCmdLine::YEAR));
+
 	if (cmdInfo.Have(CMatchStationCmdLine::OBS_TYPE))
 		m_obsType = UtilWin::ToInt64(cmdInfo.GetParam(CMatchStationCmdLine::OBS_TYPE));
+	
+	if (cmdInfo.Have(CMatchStationCmdLine::SKIP_VERIFY))
+		m_bSkipVerify = UtilWin::ToBool(cmdInfo.GetParam(CMatchStationCmdLine::OBS_TYPE));
+	
+
 
 	if (cmdInfo.Have(CMatchStationCmdLine::NORMALS_FILEPATH))
 		m_normalsFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::NORMALS_FILEPATH));
@@ -405,7 +416,9 @@ void CMatchStationDoc::OnCloseDocument()
 	options.WriteProfileInt(_T("NbStations"), (int)m_nbStations);
 	options.WriteProfileInt(_T("Year"), m_year);
 	options.WriteProfileInt(_T("Variable"), m_variable);
+	options.WriteProfileDouble(_T("SearchRadius"), m_searchRadius);
 	options.WriteProfileInt(_T("ObservationType"), (int)m_obsType);
+	options.WriteProfileInt(_T("SkipVerify"), m_bSkipVerify);
 	options.WriteProfileString(_T("NormalsDatabase"), CString(m_normalsFilePath.c_str()));
 	options.WriteProfileString(_T("DailyDatabase"), CString(m_dailyFilePath.c_str()));
 	options.WriteProfileString(_T("HourlyDatabase"), CString(m_hourlyFilePath.c_str()));
@@ -534,7 +547,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				if (v == H_TAIR2)
 					v = H_TMIN2;
 
-				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_variable, -999);
+				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, m_variable, -999);
 				pNormalsDB->GetStations(m_normalsResult, m_normalsStations);
 			}
 
@@ -601,7 +614,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					TVarH v = m_variable;
 					if (v == H_TAIR2)
 						v = H_TMIN2;
-					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, v, m_year);
+					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
 					pDailyDB->GetStations(m_dailyResult, m_dailyStations);
 				}
 			}
@@ -620,7 +633,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					if (v == H_TMIN2 || v == H_TMAX2)
 						v = H_TAIR2;
 
-					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, v, m_year);
+					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
 					pHourlyDB->GetStations(m_hourlyResult, m_hourlyStations);
 				}
 			}
@@ -668,9 +681,9 @@ UINT CMatchStationDoc::Execute(void* pParam)
 	TRY
 		switch (type)
 		{
-		case T_HOURLY:	*pMsg = pDoc->m_pHourlyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback); break;
-		case T_DAILY:	*pMsg = pDoc->m_pDailyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback); break;
-		case T_NORMALS:	*pMsg = pDoc->m_pNormalsDB->Open(filepath, CNormalsDatabase::modeRead, *pCallback); break;
+		case T_HOURLY:	*pMsg = pDoc->m_pHourlyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback, pDoc->m_bSkipVerify); break;
+		case T_DAILY:	*pMsg = pDoc->m_pDailyDB->Open(filepath, CWeatherDatabase::modeRead, *pCallback, pDoc->m_bSkipVerify); break;
+		case T_NORMALS:	*pMsg = pDoc->m_pNormalsDB->Open(filepath, CNormalsDatabase::modeRead, *pCallback, pDoc->m_bSkipVerify); break;
 		case T_LOCATION:*pMsg = pDoc->m_pLocations->Load(filepath, ";,", *pCallback); break;
 		case T_GRADIENT:*pMsg = pDoc->m_gradient.CreateGradient(*pCallback); break;
 		default: ASSERT(false);

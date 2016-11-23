@@ -85,6 +85,7 @@ namespace WBSF
 
 	void CSnowMelt::Compute(const CWeatherStation& weather, CSnowMeltParam& smp, bool bUpdateBegin)
 	{
+		ASSERT(weather.IsComplete("TN TX P"));
 		//Main source: 
 		//	Brown RD, Brasnett B, Robinson D. 2003. 
 		//	Gridded North American monthly snow depth and snow water equivalent for GCM evaluation. 

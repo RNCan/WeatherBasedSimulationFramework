@@ -294,7 +294,7 @@ namespace WBSF
 			VARIABLES_UNITS_STR.clear();
 		}
 
-
+		
 		TVarH GetVariableFromName(const std::string& name, bool bLookAbrv)
 		{
 
@@ -475,7 +475,7 @@ namespace WBSF
 
 	}
 
-	std::string CWVariables::to_string(bool bAbvr)const
+	std::string CWVariables::to_string(bool bAbvr, const char sep)const
 	{
 		//const char* sep
 		string str;
@@ -484,7 +484,7 @@ namespace WBSF
 			if (at(v))
 			{
 				if (!str.empty())
-					str += ' ';
+					str += sep;
 
 				str += (bAbvr ? VARIABLES_ABVR[v] : VARIABLES_NAMES[v]);
 			}
@@ -492,6 +492,26 @@ namespace WBSF
 
 		return str;
 	}
+
+	std::string CWVariables::GetVariablesName(char sep)
+	{
+		string filterName;
+		for (size_t i = 0; i < size(); i++)
+		{
+			if (test(i))
+			{
+				if (!filterName.empty())
+					filterName += sep;
+				filterName += GetVariableName(i);
+			}
+		}
+
+		assert(!filterName.empty());
+			
+
+		return filterName;
+	}
+
 	//*******************************************************
 	CWVariables CWVariablesCounter::GetVariables()const
 	{

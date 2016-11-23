@@ -37,7 +37,7 @@ using namespace WBSF;
 
 //*****************************************************************************************************
 
-const int CInputPropertyCtrl::INPUT_TYPE[NB_INPUTS] = { IT_FILEPATH, IT_OBS_TYPE, IT_FILEPATH, IT_FILEPATH, IT_FILEPATH, IT_VAR, IT_STRING, IT_STRING };
+const int CInputPropertyCtrl::INPUT_TYPE[NB_INPUTS] = { IT_FILEPATH, IT_OBS_TYPE, IT_FILEPATH, IT_FILEPATH, IT_FILEPATH, IT_VAR, IT_STRING, IT_STRING, IT_STRING, IT_BOOL };
 
 
 BEGIN_MESSAGE_MAP(CInputPropertyCtrl, CMFCPropertyGridCtrl)
@@ -138,6 +138,8 @@ void CInputPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			case VARIABLES:			value = ToString(pDoc->GetVariable()); break; 
 			case YEAR:				value = ToString(pDoc->GetYear()); break;
 			case NB_STATIONS:		value = ToString(pDoc->GetNbStation()); break; 
+			case SEARCH_RADIUS:		value = ToString(pDoc->GetSearchRadius()); break;
+			case SKIP_VERIFY:		value = ToString(pDoc->GetSkipVerify()); break;
 			default: ASSERT(false);
 			}
 			
@@ -148,6 +150,7 @@ void CInputPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			case IT_OBS_TYPE:	pItem = new CObservationTypeProperty(title[i], value, description[i], i); break;
 			case IT_VAR:		pItem = new CWeatherVariableProperty(title[i], value, description[i], i); break;
 			case IT_STRING:		pItem = new CStdGridProperty(title[i], value, description[i], i); break;
+			case IT_BOOL:		pItem = new CStdBoolGridProperty(title[i], as<bool>(value), description[i], i); break;
 			default: ASSERT(false);
 			}
 			
@@ -198,6 +201,8 @@ void CInputPropertyCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pPropIn) co
 	case VARIABLES:			pDoc->SetVariable((HOURLY_DATA::TVarH)ToSizeT(val)); break;
 	case YEAR:				pDoc->SetYear(ToInt(val)); break;
 	case NB_STATIONS:		pDoc->SetNbStation(ToSizeT(val)); break;
+	case SEARCH_RADIUS:		pDoc->SetSearchRadius(ToDouble(val)); break;
+	case SKIP_VERIFY:		pDoc->SetSkipVerify(ToBool(val)); break;
 	default: ASSERT(false);
 	}
 

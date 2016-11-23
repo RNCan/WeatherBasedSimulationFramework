@@ -524,6 +524,16 @@ namespace WBSF
 			mapInput.m_options.m_outputType = 6; // GDT_Float32;
 			mapInput.m_options.m_bMulti = true;
 			mapInput.m_options.m_nbBands = 1;
+			mapInput.m_options.m_bComputeStats = true;
+			mapInput.m_options.m_bComputeHistogram = true;
+			mapInput.m_options.m_overviewLevels.push_back(2);
+			mapInput.m_options.m_overviewLevels.push_back(4);
+			mapInput.m_options.m_overviewLevels.push_back(8);
+			mapInput.m_options.m_overviewLevels.push_back(16);
+			mapInput.m_options.m_createOptions.push_back("COMPRESS=LZW");
+			mapInput.m_options.m_createOptions.push_back("tiled=YES");
+			mapInput.m_options.m_createOptions.push_back("BLOCKXSIZE=512");
+			mapInput.m_options.m_createOptions.push_back("BLOCKYSIZE=512");
 			mapInput.m_options.m_dstNodata = m_pParam->m_noData;
 
 

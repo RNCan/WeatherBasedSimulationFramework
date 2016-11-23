@@ -709,8 +709,8 @@ namespace WBSF
 
 
 
-		callback.PushTask("Download data", stationList.size());
-
+		callback.PushTask("Download data (" + ToString(stationList.size()) + " stations)", stationList.size());
+		callback.AddMessage("Download data (" + ToString(stationList.size()) + " stations)");
 
 		int nbRun = 0;
 		int curI = 0;

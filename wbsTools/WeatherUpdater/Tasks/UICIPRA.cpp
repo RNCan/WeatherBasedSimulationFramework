@@ -7,21 +7,47 @@
 #include "UI/Common/SYShowMessage.h"
 
 #include "../Resource.h"
+#include "Geomatic/TimeZones.h"
+#include "cctz\time_zone.h"
+
+
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
 using namespace UtilWWW;
 
+//autre réseau horaire (basée sur MADIS 2006-present)
+//http://mesonet.agron.iastate.edu/sites/site.php?network=CA_QC_ASOS&station=CYBG	
+//station list
+//http://mesonet.agron.iastate.edu/sites/networks.php?network=_ALL_&format=csv&nohtml=on
+//http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=CMBB&station=CMBR&station=CMCT&station=CMCW&station=CMFM&station=CMGB&station=CMHB&station=CMHN&station=CMHW&station=CMLA&station=CMLI&station=CMPD&station=CMPL&station=CMRG&station=CMRI&station=CMRU&station=CMRY&station=CMSB&station=CMSC&station=CMSX&station=CMWD&station=CMYT&station=CWAF&station=CWBA&station=CWBS&station=CWBT&station=CWBY&station=CWBZ&station=CWDM&station=CWDQ&station=CWDT&station=CWEE&station=CWEO&station=CWER&station=CWEW&station=CWFQ&station=CWGR&station=CWHM&station=CWHP&station=CWHQ&station=CWHV&station=CWHY&station=CWIA&station=CWIG&station=CWIP&station=CWIS&station=CWIT&station=CWIU&station=CWIX&station=CWIZ&station=CWJB&station=CWJO&station=CWJT&station=CWKD&station=CWLU&station=CWMJ&station=CWMN&station=CWMW&station=CWNH&station=CWNQ&station=CWOC&station=CWOD&station=CWPD&station=CWPH&station=CWPK&station=CWPQ&station=CWQG&station=CWQH&station=CWQO&station=CWQR&station=CWQV&station=CWRC&station=CWRZ&station=CWSF&station=CWSG&station=CWST&station=CWTA&station=CWTB&station=CWTG&station=CWTN&station=CWTQ&station=CWTT&station=CWTY&station=CWUK&station=CWUX&station=CWVQ&station=CWVY&station=CWVZ&station=CWXC&station=CWZS&station=CXAM&station=CXBO&station=CXHF&station=CXLT&station=CXSH&station=CXZV&station=CYAD&station=CYAH&station=CYAS&station=CYBC&station=CYBG&station=CYBX&station=CYGL&station=CYGP&station=CYGR&station=CYGV&station=CYGW&station=CYHA&station=CYHH&station=CYHU&station=CYIK&station=CYKG&station=CYKL&station=CYKO&station=CYKQ&station=CYLA&station=CYLU&station=CYML&station=CYMT&station=CYMU&station=CYMX&station=CYNA&station=CYNC&station=CYND&station=CYNM&station=CYOY&station=CYPH&station=CYPX&station=CYQB&station=CYRJ&station=CYRQ&station=CYSC&station=CYTQ&station=CYUL&station=CYUY&station=CYVO&station=CYVP&station=CYYY&station=CYZG&station=CYZV&station=CZEM&data=tmpc&data=dwpc&data=relh&data=drct&data=sknt&data=mslp&data=p01m&data=skyc1&data=skyc2&data=skyc3&data=presentwx&year1=2016&month1=1&day1=1&year2=2016&month2=11&day2=22&tz=Etc%2FUTC&format=comma&latlon=no&direct=no&report_type=1&report_type=2
+
 
 namespace WBSF
 {
 
+	string removeAccented(string str)
+	{
+		//char *p = str;
+		for (string::iterator it = str.begin(); it != str.end(); it++)
+		{
+			static const char*
+				//   "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+				tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnooooo/0uuuuypy";
+			unsigned char ch = *it;
+			if (ch >= 192) 
+				*it = tr[ch - 192];
+			
+			//++p; // http://stackoverflow.com/questions/14094621/
+		}
 
-	
+		return str;
+	}
+
 	//*********************************************************************
 
-	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
-	const size_t CUICIPRA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
+	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "Network", "FirstYear", "LastYear", "Forecast" };
+	const size_t CUICIPRA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING_SELECT, T_STRING, T_STRING, T_BOOL };
 	const UINT CUICIPRA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_CIPRA_HOURLY_P;
 	const UINT CUICIPRA::DESCRIPTION_TITLE_ID = ID_TASK_SM_CIPRA_HOURLY;
 
@@ -33,9 +59,22 @@ namespace WBSF
 	const char* CUICIPRA::SERVER_NAME = "horus.mesonet-quebec.org";
 	const char* CUICIPRA::SUB_DIR = "/";
 
-	enum TSource { S_ATLANTIQUE, S_ONTARIO, S_POMME, S_QUEBEC, NB_SOURCE_TYPE };
-	static const char* SOURCE_TYPE_NAME[NB_SOURCE_TYPE] = { "atantique", "ontario", "pommes", "quebec" };
+	const char* CUICIPRA::NETWORK_NAME[NB_NETWORKS] = { "atantique", "ontario", "pommes", "quebec" };
+	const char* CUICIPRA::NETWORK_TIMEZONE_NAME[NB_NETWORKS] = { "AST", "EST", "HNE", "HNE" };
 
+	size_t CUICIPRA::GetNetworkIndex(const std::string& network_name)
+	{
+		size_t n = NOT_INIT;
+		for (size_t nn = 0; nn < NB_NETWORKS&&n == NOT_INIT; nn++)
+		{
+			if (IsEqual(network_name, NETWORK_NAME[nn]))
+				n = nn;
+		}
+
+		assert(n < NB_NETWORKS);
+
+		return n;
+	}
 
 	CUICIPRA::CUICIPRA(void)
 	{}
@@ -43,6 +82,18 @@ namespace WBSF
 	
 	CUICIPRA::~CUICIPRA(void)
 	{}
+
+
+	std::string CUICIPRA::Option(size_t i)const
+	{
+		string str;
+		switch (i)
+		{
+		case NETWORKS:	str = "Atantique|Ontario|Pommes|Quebec"; break;
+		};
+		return str;
+	}
+
 
 	std::string CUICIPRA::Default(size_t i)const
 	{
@@ -58,6 +109,18 @@ namespace WBSF
 		return str;
 	}
 
+	string CUICIPRA::GetOutputFilePath(string filePath)const
+	{
+		assert(!filePath.empty());
+			
+			
+		filePath.erase(filePath.begin());
+		for (size_t n = 0; n < NB_NETWORKS; n++)
+			ReplaceString(filePath, string("/")+NETWORK_TIMEZONE_NAME[n], "");
+
+		string workingDir = GetDir(WORKING_DIR);
+		return workingDir + filePath;
+	}
 	
 	//*********************************************************************************
 	ERMsg CUICIPRA::Execute(CCallback& callback)
@@ -75,165 +138,159 @@ namespace WBSF
 
 
 		//Pour le moment il n'y a pas de site ou les stations sont listés
-		msg = UpdateStationsFile(callback);
-		if (!msg)
-			return msg;
+		//msg = UpdateStationsFile(callback);
+		//if (!msg)
+			//return msg;
 
-		CTime today = CTime::GetCurrentTime();
+		//CTime today = CTime::GetCurrentTime();
+		
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		int nbYears = lastYear - firstYear + 1;
+		int current_year = CTRef::GetCurrentTRef().GetYear();
+		bool bForecast = as<bool>(FORECAST) && lastYear == current_year;
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
 		int nbDownload = 0;
 
-		callback.PushTask("Sources", NB_SOURCE_TYPE);
-
-		//for (size_t t = 0; t < NB_SOURCE_TYPE; t++)
-		//{
-		//	//open a connection on the server
-		//	CInternetSessionPtr pSession;
-		//	CFtpConnectionPtr pConnection;
-
-		//	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-
-		//	if (msg)
-		//	{
-		//		//get houe reference
-		//		CFileInfoVector dirList;
-		//		UtilWWW::FindDirectories(pConnection, SUB_DIR, dirList);
-		//		if (dirList.size()>1)
-		//			callback.PushTask(string("Fuseau horaire "), dirList.size());
-		//		
-
-		//		for (size_t f = 0; f < dirList.size() && msg; f++)
-		//		{
-		//			string fh = GetLastDirName(dirList[f].m_filePath);
-
-		//			if (!IsEqual(fh, "pec"))
-		//			{
-		//				callback.PushTask(string("Années ") + SOURCE_TYPE_NAME[t], nbYears);
-		//				for (size_t y = 0; y < nbYears&&msg; y++)
-		//				{
-		//					int nbDownloadPerYear = 0;
-
-		//					int year = firstYear + int(y);
-		//					//string path = string(SOURCE_TYPE_NAME[t]) + "/" + ToString(year) + "/";
-		//					string path = dirList[f].m_filePath + "/" + ToString(year) + "/";
-		//					
-		//					string ouputPath = workingDir + path;
-
-		//					//Load files list
-		//					callback.AddMessage(path);
-		//					callback.AddMessage(GetString(IDS_LOAD_FILE_LIST),1);
-		//					CFileInfoVector fileList;
-		//					msg += UtilWWW::FindFiles(pConnection, "/" + path + "*.BRU", fileList, callback);
-
-		//					pConnection->Close();
-		//					pSession->Close();
+		StringVector networks = as<StringVector>(NETWORKS);
 
 
-		//					if (msg)
-		//					{
-		//						callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()));
 
-		//						//clean files list
-		//						for (size_t k = 0; k < fileList.size() && msg; k++)
-		//						{
-		//							string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
-		//							if (UtilWWW::IsFileUpToDate(fileList[k], filePath, false))
-		//								fileList.erase(fileList.begin() + k);
+		//callback.PushTask("Netwoks (" + ToString(networks.size()) + ")", networks.size());
 
-		//							msg += callback.StepIt(0);
-		//						}
+		//open a connection on the server
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
 
-		//						callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()));
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
-		//						//download files
-		//						callback.PushTask(path, fileList.size());
+		if (msg)
+		{
+			
+			CFileInfoVector cleanFileList;
 
-		//						CreateMultipleDir(ouputPath);
+			callback.PushTask(GetString(IDS_LOAD_FILE_LIST) + "(" + ToString(nbYears*networks.size() + (bForecast ? 1 : 0)) + ")", nbYears*networks.size() + (bForecast ? 1 : 0));
 
-		//						int nbRun = 0;
-		//						int curI = 0;
+			size_t nbFileFound = 0;
+			for (size_t n = 0; n < networks.size(); n++)
+			{
+				size_t nn = GetNetworkIndex(networks[n]);
 
-		//						while (curI < fileList.size() && msg)
-		//						{
-		//							nbRun++;
-		//							//open a connection on the server
-		//							msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+				for (size_t y = 0; y < nbYears + (bForecast ? 1 : 0) && msg; y++)
+				{
+					int year = firstYear + int(y);
 
 
-		//							for (size_t k = curI; k < fileList.size() && msg; k++)
-		//							{
-		//								string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
-		//								msg += CopyFile(pConnection, fileList[k].m_filePath, filePath);
-		//								if (msg)
-		//								{
-		//									curI++;
-		//									nbDownloadPerYear++;
-		//								}
+					string subDir = string("/") + NETWORK_NAME[nn] + "/" + (year <= current_year ? (NETWORK_TIMEZONE_NAME[nn] + string("/") + ToString(year) + "/*.BRU") : "pec/*.pec");
+					string path = string(NETWORK_NAME[nn]) + "/" + (year <= current_year ? ToString(year) : "pec") + "/";
+					string ouputPath = workingDir + path;
 
-		//								msg += callback.StepIt();
+					
+					//Load files list
+					CFileInfoVector fileList;
+					msg += UtilWWW::FindFiles(pConnection, subDir, fileList, callback);
+					nbFileFound += fileList.size();
 
-		//							}//for all files 
+					for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+					{
+						string filePath = ouputPath + GetFileName(it->m_filePath);
+						if (!UtilWWW::IsFileUpToDate(*it, filePath, false))
+							cleanFileList.push_back(*it);
+					}
+
+					msg += callback.StepIt();
+				}
+
+				
+			}
+		
+			pConnection->Close();
+			pSession->Close();
+
+			callback.PopTask();
+		
+
+			if (msg)
+			{
+				
+				callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(nbFileFound));
+				callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(cleanFileList.size()));
+						
+
+						//download files
+				callback.PushTask("Download (" + ToString(cleanFileList.size()) + " files)", cleanFileList.size());
+
+				
+
+				int nbRun = 0;
+				int curI = 0;
+
+				while (curI < cleanFileList.size() && msg)
+				{
+					nbRun++;
+					//open a connection on the server
+					msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
 
-		//							//if an error occur: try again
-		//							if (!msg && !callback.GetUserCancel())
-		//							{
-		//								if (nbRun < 5)
-		//								{
-		//									callback.PushTask("Waiting 2 seconds for server...", 100);
-		//									for (size_t i = 0; i < 40 && msg; i++)
-		//									{
-		//										Sleep(50);//wait 50 milisec
-		//										msg += callback.StepIt();
-		//									}
-		//									callback.PopTask();
-		//								}
-		//							}
+					for (size_t k = curI; k < cleanFileList.size() && msg; k++)
+					{
+						string ouputFilePath = GetOutputFilePath(cleanFileList[k].m_filePath);
+						CreateMultipleDir(GetPath(ouputFilePath));
 
-		//							pConnection->Close();
-		//							pSession->Close();
-		//						}
+						//string filePath = ouputPath + GetFileName(fileList[k].m_filePath);
+						msg += CopyFile(pConnection, cleanFileList[k].m_filePath, ouputFilePath);
+						if (msg)
+						{
+							curI++;
+							nbDownload++;
+						}
 
-		//						callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloadPerYear), 2);
+						msg += callback.StepIt();
 
-		//						nbDownload += nbDownloadPerYear;
-		//					}//for all files
+					}//for all files 
 
-		//					callback.PopTask();
-		//				}//for all years
 
-		//				callback.PopTask();
-		//			}
-		//		}//if not pec
+					//if an error occur: try again
+					if (!msg && !callback.GetUserCancel())
+					{
+						if (nbRun < 5)
+						{
+							callback.PushTask("Waiting 2 seconds for server...", 100);
+							for (size_t i = 0; i < 40 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
+						}
+					}
 
-		//		callback.StepIt();
+					pConnection->Close();
+					pSession->Close();
+				}
 
-		//		if (dirList.size()>1)
-		//			callback.PopTask();
-		//	}//if msg
-		//	else
-		//	{
+			}//for all files
 
-		//	}
+			callback.PopTask();
+		}//if msg
+	
 
-		//	callback.StepIt();
-		//}//type: pomme, agro
-
-		callback.PopTask();
+	
 
 		callback.AddMessage("");
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
 
 		return msg;
 	}
 
 	string CUICIPRA::GetStationsFilePath()
 	{
-		return GetDir(WORKING_DIR) + "Stations.csv";
+		string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
+		
+		return srcFilePath;
+		//return GetDir(WORKING_DIR) + "Stations.csv";
+		
 	}
 
 	string CUICIPRA::GetMissingFilePath()
@@ -286,9 +343,9 @@ namespace WBSF
 		return index;
 	}
 
-	string CUICIPRA::GetOutputFilePath(size_t t, int year, const string& name)
+	string CUICIPRA::GetOutputFilePath(const string& network, int year, const string& name)
 	{
-		return GetDir(WORKING_DIR) + SOURCE_TYPE_NAME[t] + "\\" + ToString(year) + "\\" + name;
+		return GetDir(WORKING_DIR) + network + "\\" + ToString(year) + "\\" + name;
 	}
 
 	ERMsg CUICIPRA::GetStationList(StringVector& stationList, CCallback& callback)
@@ -302,95 +359,158 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
+
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		int nbYear = lastYear - firstYear + 1;
+		StringVector networks = as<StringVector>(NETWORKS);
+
+
 		//find all station in the directories
-		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		
+		for (size_t n = 0; n < networks.size(); n++)
 		{
-			for (int t = 0; t < NB_SOURCE_TYPE; t++)
+			size_t nn = GetNetworkIndex(networks[n]);
+
+
+			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
+				int year = firstYear + int(y);
 
-				bool bAdd = false;
-				int firstYear = as<int>(FIRST_YEAR);
-				int lastYear = as<int>(LAST_YEAR);
-				int nbYear = lastYear - firstYear + 1;
-				for (size_t y = 0; y < nbYear&&!bAdd; y++)
+				string path = workingDir + string(NETWORK_NAME[nn]) + "/" + ToString(year) + "/";
+
+				StringVector fileList = GetFilesList(path + "*.BRu");
+				
+				for (size_t i = 0; i < fileList.size() && msg; i++)
 				{
-					int year = firstYear + int(y);
+					string stationName = GetFileTitle(fileList[i]);
 
-					string filePath = GetOutputFilePath(t, year, m_stations[i].GetDataFileName());
 
-					if (FileExists(filePath))
-						bAdd = true;
+					if (WBSF::FindStringExact(stationList, stationName, false) == stationList.end())
+						stationList.push_back(stationName);
 				}
-
-				if (bAdd)
-					stationList.push_back(ToString(t) + "/" + ToString(i));
 
 				msg += callback.StepIt(0);
 			}
 		}
+		
 
 		return msg;
 	}
+
+	class SpecialFindLocationByName
+	{
+	public:
+
+		SpecialFindLocationByName(const std::string& name) :m_name(name)
+		{}
+
+		bool operator ()(const CLocation& in)const
+		{ 
+			string name = in.m_name;
+			std::replace(name.begin(), name.end(), ' ', '_');
+			name = removeAccented(name);
+
+			return name == m_name;
+		}
+
+
+	protected:
+
+		std::string m_name;
+	};
 
 	ERMsg CUICIPRA::GetWeatherStation(const string& stationName, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
 
-		string::size_type pos = 0;
-		int t = ToInt(Tokenize(stationName, "/", pos));
-		int index = ToInt(Tokenize(stationName, "/", pos));
-		((CLocation&)station) = m_stations[index];
+
+		CWeatherDatabaseOptimization::const_iterator it = std::find_if(m_stations.begin(), m_stations.end(), SpecialFindLocationByName(stationName));
+		if (it == m_stations.end())
+		{
+			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, stationName));
+			return msg;
+		}
+
+
+		((CLocation&)station) = *it;
+		
+		string network = station.GetSSI("Network");
+		string fileName = station.m_name;
+		std::replace(fileName.begin(), fileName.end(), ' ', '_');
+		fileName = removeAccented(fileName);
+
 		station.m_name = PurgeFileName(station.m_name);
+		
+
+		cctz::time_zone zone;
+		CTimeZones::GetZone(station, zone);
+		//zone.lookup();
 
 		string workingDir = GetDir(WORKING_DIR);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
+		int current_year = CTRef::GetCurrentTRef().GetYear();
+		bool bForecast = as<bool>(FORECAST) && lastYear == current_year;
+
+
+
 		station.CreateYears(firstYear, nbYears);
 
-		size_t filesize = 0;
-		for (size_t y = 0; y < nbYears&&msg; y++)
-		{
-			int year = firstYear + int(y);
-			string filePath = GetOutputFilePath(t, year, station.GetDataFileName());
+		//size_t filesize = 0;
+		//for (size_t y = 0; y < nbYears&&msg; y++)
+		//{
+		//	int year = firstYear + int(y);
+		//	string filePath = GetOutputFilePath(network, year, fileName+".BRU");
 
-			if (FileExists(filePath))
-			{
-				CFileInfo filesInfo;
-				GetFileInfo(filePath, filesInfo);
-				filesize += filesInfo.m_size;
-			}//if file exists
-		}//for all years (files)
+		//	if (FileExists(filePath))
+		//	{
+		//		CFileInfo filesInfo;
+		//		GetFileInfo(filePath, filesInfo);
+		//		filesize += filesInfo.m_size;
+		//	}//if file exists
+		//}//for all years (files)
 
-		callback.PushTask(station.m_name, filesize);
+		if (nbYears>8)
+			callback.PushTask(station.m_name, nbYears);
 
 		//now extact data
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(t, year, station.GetDataFileName());
+			string filePath = GetOutputFilePath(network, year, fileName + ".BRU");
 
 			if (FileExists(filePath))
-				msg += ReadDataFile(filePath, TM, station, callback);
-
+				msg += ReadDataFile(filePath, zone, TM, station, callback);
 		}//for all years
 
+		if (bForecast)
+		{
+			string filePath = GetDir(WORKING_DIR) + network + "\\" + fileName + ".pre";
 
-		station.SetDataFileName("");//use default file name insted of .BRU
+			if (FileExists(filePath))
+				msg += ReadForecastDataFile(filePath, zone, TM, station, callback);
+
+			msg += callback.StepIt(nbYears>8 ? 1 : 0);
+		}
+
+		
 		//verify station is valid
 		if (msg && station.HaveData())
 			msg = station.IsValid();
 
-		callback.PopTask();
+		if (nbYears>8)
+			callback.PopTask();
 
 
 		return msg;
 	}
 
 
-	ERMsg CUICIPRA::ReadDataFile(const string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const
+	ERMsg CUICIPRA::ReadDataFile(const string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -434,6 +554,7 @@ namespace WBSF
 		{
 			CWeatherAccumulator stat(TM);
 
+			int DLS = 0;
 			for (CSVIterator loop(file, ",", false); loop != CSVIterator(); ++loop)
 			{
 				int year = ToInt((*loop)[C_YEAR]);
@@ -449,6 +570,21 @@ namespace WBSF
 
 				CTRef TRef(year, month, day, hour);
 
+
+				cctz::civil_second cs(year, int(month) + 1, int(day) + 1, int(hour), 0, 0);
+				auto testDLS = zone.lookup(cs);
+				
+				int DLSh = (testDLS.pre.time_since_epoch().count() -testDLS.post.time_since_epoch().count())/3600;
+				if (DLSh == 1)
+				{
+					if (stat.TRefIsChanging(TRef+1))
+						data[stat.GetTRef()].SetData(stat);
+				}
+					
+
+				DLS += DLSh;
+				TRef+=DLS;
+
 				if (stat.TRefIsChanging(TRef))
 				{
 					data[stat.GetTRef()].SetData(stat);
@@ -459,13 +595,13 @@ namespace WBSF
 					if (COL_POS[v] >= 0)
 					{
 						double value = ToDouble((*loop)[COL_POS[v]]);
-						if (value > -991)
+						if (value > -991 )
 						{
 							stat.Add(TRef, v, value*FACTOR[v]);
 							if (COL_POS[v] == C_RELH)
 							{
 								double T = ToDouble((*loop)[C_TAIR]);
-								if (T > -991)
+								if (T > -991 && value <= 100)
 								{
 									stat.Add(TRef, H_TDEW, Hr2Td(T, value));
 								}
@@ -474,7 +610,8 @@ namespace WBSF
 					}
 				}
 
-				msg += callback.StepIt(loop->GetLastLine().length() + 2);
+				//msg += callback.StepIt(loop->GetLastLine().length() + 2);
+				msg += callback.StepIt(0);
 			}//for all line (
 
 			if (stat.GetTRef().IsInit())
@@ -485,6 +622,98 @@ namespace WBSF
 		return msg;
 	}
 	
+	
+	ERMsg CUICIPRA::ReadForecastDataFile(const string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		//LEGENDE = AAAA,MM,JJ,HZ,TMP,OP,POP(0.2),ACC(EQUIV. D EAU),HR,VT
+		
+
+		enum TColumns { C_YEAR, C_MONTH, C_DAY, C_HOUR, C_TAIR, C_UNUSED1, C_UNUSED2, C_PRCP, C_RELH, C_VT, NB_COLUMNS };
+
+		//wind speed at 2 meters
+		const int COL_POS[NB_VAR_H] = { -1, C_TAIR, -1, C_PRCP, -1, C_RELH, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+		//const double FACTOR[NB_VAR_H] = { 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		//now extract data 
+		ifStream file;
+
+		msg = file.open(filePath);
+
+		if (msg)
+		{
+			CWeatherAccumulator stat(TM);
+			CSVIterator loop(file, ",", false);
+			
+			for (size_t i = 0; i < 7 && loop != CSVIterator(); ++loop);//skip 7 line
+				
+			//int DLS = 0;
+			for (; loop != CSVIterator(); ++loop)
+			{
+				int year = ToInt((*loop)[C_YEAR]);
+				size_t month = ToInt((*loop)[C_MONTH]) - 1;
+				size_t day = ToInt((*loop)[C_DAY]) - 1;
+				size_t hour = ToInt((*loop)[C_HOUR]);
+
+				//ASSERT(year >= firstYear && year <= lastYear);
+				ASSERT(month >= 0 && month < 12);
+				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+				ASSERT(hour >= 0 && hour < 24);
+
+				CTRef TRef(year, month, day, hour);
+
+				//est-ce l'heure local????
+				/*cctz::civil_second cs(year, int(month) + 1, int(day) + 1, int(hour), 0, 0);
+				auto testDLS = zone.lookup(cs);
+
+				int DLSh = (testDLS.pre.time_since_epoch().count() - testDLS.post.time_since_epoch().count()) / 3600;
+				if (DLSh == 1)
+				{
+					if (stat.TRefIsChanging(TRef + 1))
+						data[stat.GetTRef()].SetData(stat);
+				}
+
+				DLS += DLSh;
+				TRef += DLS;*/
+
+				if (stat.TRefIsChanging(TRef))
+				{
+					data[stat.GetTRef()].SetData(stat);
+				}
+
+				for (size_t v = 0; v < NB_VAR_H; v++)
+				{
+					if (COL_POS[v] >= 0)
+					{
+						double value = ToDouble((*loop)[COL_POS[v]]);
+						if (value > -991 )
+						{
+							stat.Add(TRef, v, value);
+							if (COL_POS[v] == C_RELH)
+							{
+								double T = ToDouble((*loop)[C_TAIR]);
+								if (T > -991 && value <= 100)
+								{
+									stat.Add(TRef, H_TDEW, Hr2Td(T, value));
+								}
+							}
+						}
+					}
+				}
+
+				
+				msg += callback.StepIt(0);
+			}//for all line (
+
+			if (stat.GetTRef().IsInit())
+				data[stat.GetTRef()].SetData(stat);
+
+		}//if load 
+
+		return msg;
+	}
+
 	ERMsg CUICIPRA::UpdateStationsFile(CCallback& callback)
 	{
 		ERMsg msg;
@@ -492,14 +721,14 @@ namespace WBSF
 		string dstFilePath = GetStationsFilePath();
 
 
-		if (!FileExists(dstFilePath))
-		{
-			string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
+		//if (!FileExists(dstFilePath))
+		//{
+			//string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
 
-			CString src(CStringA(srcFilePath.c_str()));
-			CString dst(CStringA(dstFilePath.c_str()));
-			CopyFile(src, dst, TRUE);
-		}
+			//CString src(CStringA(srcFilePath.c_str()));
+			//CString dst(CStringA(dstFilePath.c_str()));
+			//CopyFile(src, dst, TRUE);
+		//}
 
 
 		return msg;

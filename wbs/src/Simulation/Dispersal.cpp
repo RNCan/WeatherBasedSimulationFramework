@@ -443,6 +443,7 @@ namespace WBSF
 
 			CTPeriod outputPeriod = world.get_period(false);
 
+
 			CATMOutputMatrix output(locations.size());
 			for (size_t i = 0; i < output.size(); i++)
 			{

@@ -78,17 +78,17 @@ namespace WBSF
 		virtual ERMsg Get(CLocation& station, size_t index, int year = YEAR_NOT_INIT)const;
 		virtual ERMsg Set(size_t index, const CLocation& station);
 		virtual ERMsg Remove(size_t index);
-		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
+		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius=-1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
 		virtual CWVariables GetWVariables(size_t i, const std::set<int>& years, bool bForAllYears = false)const;
 		virtual CWVariablesCounter GetWVariablesCounter(size_t i, const std::set<int>& years)const;
 		virtual ERMsg VerifyVersion(const std::string& filePath)const;
 		virtual __time64_t GetLastUpdate(const std::string& filePath, bool bVerifyAllFiles = true)const;
 		virtual ERMsg VerifyDB(CCallback& callBack = DEFAULT_CALLBACK)const;
-		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, short mergeType, short priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
+		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
 
 
 		ERMsg GetStations(const CSearchResultVector& results, CNormalsStationVector& stationArray)const;
-		ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, short mergeType, CCallback& callback);
+		ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, CCallback& callback);
 		ERMsg SaveAsV6(const std::string& filePath, CCallback& callback);
 
 
@@ -113,7 +113,7 @@ namespace WBSF
 
 		void GetStationOrder(std::vector<size_t>& DBOrder)const;
 		CNormalsDataDeque m_data;
-		static ERMsg MergeStation(const CNormalsStationVector& stations1, const CNormalsStationVector & stations2, CNormalsStation& station, short mergeType);
+		static ERMsg MergeStation(const CNormalsStationVector& stations1, const CNormalsStationVector & stations2, CNormalsStation& station, size_t mergeType);
 
 	};
 

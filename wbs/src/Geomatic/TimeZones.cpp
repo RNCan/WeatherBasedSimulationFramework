@@ -32,9 +32,13 @@ namespace WBSF
 	static WBSF::CShapeFileBase TIME_ZONE;
 	ERMsg CTimeZones::Load(std::string& filePath)
 	{
-		ERMsg msg = TIME_ZONE.Read(filePath);
-		if (msg)
-			TIME_ZONE.ComputeInternalElimination(100,50);
+		ERMsg msg;
+		if (TIME_ZONE.GetCount() == 0)
+		{
+			msg = TIME_ZONE.Read(filePath);
+			if (msg)
+				TIME_ZONE.ComputeInternalElimination(100, 50);
+		}
 
 		return msg;
 	}

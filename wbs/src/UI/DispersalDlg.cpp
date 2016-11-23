@@ -90,11 +90,11 @@ namespace WBSF
 		pGeneral->AddSubItem(new CWeatherTypeProperty(name[WEATHER_TYPE], 0, description[WEATHER_TYPE], WEATHER_TYPE));
 		pGeneral->AddSubItem(new CStdGridProperty(name[TIME_STEP], "", description[TIME_STEP], TIME_STEP));
 		pGeneral->AddSubItem(new CSeedTypeProperty(name[SEED_TYPE], 0, description[SEED_TYPE], SEED_TYPE));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[REVERSED], true, description[REVERSED], REVERSED));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[USE_SPATIAL_INTERPOL], true, description[USE_SPATIAL_INTERPOL], USE_SPATIAL_INTERPOL));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[USE_TIME_INTERPOL], true, description[USE_TIME_INTERPOL], USE_TIME_INTERPOL));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[USE_PREDICTOR_CORRECTOR_METHOD], true, description[USE_PREDICTOR_CORRECTOR_METHOD], USE_PREDICTOR_CORRECTOR_METHOD));
-		pGeneral->AddSubItem(new CBoolGridProperty(name[ADD_TURBULENCE], true, description[ADD_TURBULENCE], ADD_TURBULENCE));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[REVERSED], true, description[REVERSED], REVERSED));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_SPATIAL_INTERPOL], true, description[USE_SPATIAL_INTERPOL], USE_SPATIAL_INTERPOL));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_TIME_INTERPOL], true, description[USE_TIME_INTERPOL], USE_TIME_INTERPOL));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_PREDICTOR_CORRECTOR_METHOD], true, description[USE_PREDICTOR_CORRECTOR_METHOD], USE_PREDICTOR_CORRECTOR_METHOD));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[ADD_TURBULENCE], true, description[ADD_TURBULENCE], ADD_TURBULENCE));
 
 		pGeneral->AddSubItem(new CStdGridProperty(name[EVENT_THRESHOLD], "", description[EVENT_THRESHOLD], EVENT_THRESHOLD));
 		pGeneral->AddSubItem(new CStdGridProperty(name[DEFOLIATION_THRESHOLD], "", description[DEFOLIATION_THRESHOLD], DEFOLIATION_THRESHOLD));

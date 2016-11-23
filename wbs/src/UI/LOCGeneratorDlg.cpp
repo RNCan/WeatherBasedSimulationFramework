@@ -708,7 +708,7 @@ namespace WBSF
 
 			//Get nearest station of the center
 			CSearchResultVector result;
-			pWeatherDB->Search(result, loc, 1, filter, year, true);
+			pWeatherDB->Search(result, loc, 1, -1, filter, year, true);
 			pointOut[i] = pWeatherDB->GetLocation(result[0].m_index);
 
 			//ptTmp.SetXY(dataPts[i][0] * stats[0][WBSF::STD_DEV] + stats[0][MEAN], dataPts[i][1] * stats[1][WBSF::STD_DEV] + stats[1][MEAN], dataPts[i][2] * stats[2][WBSF::STD_DEV] + stats[2][MEAN]);

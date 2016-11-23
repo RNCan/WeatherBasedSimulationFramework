@@ -330,7 +330,6 @@ CAPTION "Paramètres du générateur météorologiques (GM)"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Permet de définir de quelle façon le générateur va estimer les données météo aux points de simulation.",IDC_STATIC,301,7,112,27
-    LTEXT           "Source normales génère aléatoirement  des valeurs quotidiennes ou horaires.",IDC_STATIC,301,36,112,26,NOT WS_VISIBLE
     GROUPBOX        "Bases de données météo",IDC_STATIC,7,73,406,164
     LTEXT           "Nom de la base de données",IDC_STATIC,177,90,90,8
     COMBOBOX        IDC_WG_NORMALS_DBNAME,92,104,235,174,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
@@ -352,11 +351,11 @@ BEGIN
     CONTROL         "Utiliser les prévisions",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,203,194,81,12
     LTEXT           "Quand ‘’Utiliser les prévisions’’ est coché, BioSIM utilise les observations qui dépassent la date courante.",IDC_STATIC,301,187,104,34
     LTEXT           "Facteur d'exposition (Albedo) :",IDC_STATIC,7,247,96,8
-    COMBOBOX        IDC_WG_ALBEDO,120,243,207,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_WG_ALBEDO,120,243,293,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Type de générations aléatoires :",IDC_STATIC,7,265,102,8
-    COMBOBOX        IDC_WG_SEED,120,261,207,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_WG_SEED,120,261,293,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Ignorer la station météo la plus près du point de simulation (pour validation X)",IDC_WG_XVALIDATION,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,301,320,10
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,298,406,10
     COMBOBOX        IDC_WG_SOURCE_TYPE,108,7,183,174,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Type de données générées :",IDC_STATIC,7,28,93,10
     LTEXT           "Source des données :",IDC_STATIC,7,9,85,10
@@ -367,15 +366,16 @@ BEGIN
     LTEXT           "Variables générées :",IDC_STATIC,7,49,85,10
     CONTROL         "",IDC_WG_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,108,46,183,14
     LTEXT           "Variable pouvant être dérivé :",IDC_STATIC,7,283,101,10
-    CONTROL         "",IDC_WG_ALLOWED_DERIVED_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,120,281,207,14
+    CONTROL         "",IDC_WG_ALLOWED_DERIVED_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,120,281,293,14
     CONTROL         "Utiliser les précipitations radars",IDC_WG_USE_RADARS_PRCP,
                     "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,14,222,113,12
     CONTROL         "Sauter la vérification des base de données (quand les bases de données ne change jamais)",IDC_WG_SKIP_VERIFY,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,320,10
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,406,10
     COMBOBOX        IDC_WG_GRIBS_DBNAME,92,155,235,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,331,155,17,14
     CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,155,69,12
     CONTROL         "à la surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,352,156,53,12
+    PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
 END
 
 IDD_VARIABLES DIALOGEX 0, 0, 199, 327
@@ -1953,6 +1953,16 @@ BEGIN
     PUSHBUTTON      "Annuler",IDCANCEL,160,225,50,14
 END
 
+IDD_SEARCH_RADIUS DIALOGEX 0, 0, 259, 316
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Rayon de recherche"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,135,294,50,15
+    PUSHBUTTON      "Cancel",IDCANCEL,202,294,50,15
+    CONTROL         "",IDC_VARIABLES_RADIUS,"MfcPropertyGrid",0x100,7,7,245,280
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2701,6 +2711,16 @@ BEGIN
         VERTGUIDE, 12
         TOPMARGIN, 7
         BOTTOMMARGIN, 239
+    END
+
+    IDD_SEARCH_RADIUS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 309
+        HORZGUIDE, 287
+        HORZGUIDE, 294
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -3997,6 +4017,35 @@ BEGIN
     0
 END
 
+IDD_SEARCH_RADIUS DLGINIT
+BEGIN
+    IDC_VARIABLES_RADIUS, 0x37c, 413, 0
+0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 0x6469, 0x485f, 
+0x6165, 0x6564, 0x4372, 0x7274, 0x3e6c, 0x5254, 0x4555, 0x2f3c, 0x464d, 
+0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 0x5f64, 0x6548, 0x6461, 
+0x7265, 0x7443, 0x6c72, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 
+0x4779, 0x6972, 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x416e, 
+0x6572, 0x3e61, 0x5254, 0x4555, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 
+0x7472, 0x4779, 0x6972, 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 
+0x416e, 0x6572, 0x3e61, 0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 
+0x7247, 0x6469, 0x415f, 0x706c, 0x6168, 0x6562, 0x6974, 0x4d63, 0x646f, 
+0x3e65, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 0x7265, 
+0x7974, 0x7247, 0x6469, 0x415f, 0x706c, 0x6168, 0x6562, 0x6974, 0x4d63, 
+0x646f, 0x3e65, 0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 
+0x6469, 0x4d5f, 0x646f, 0x6669, 0x6569, 0x5064, 0x6f72, 0x6570, 0x7472, 
+0x6569, 0x3e73, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x4d5f, 0x646f, 0x6669, 0x6569, 0x5064, 
+0x6f72, 0x6570, 0x7472, 0x6569, 0x3e73, 0x4d3c, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x565f, 0x4453, 0x746f, 0x654e, 0x4c74, 
+0x6f6f, 0x3e6b, 0x5254, 0x4555, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 
+0x7472, 0x4779, 0x6972, 0x5f64, 0x5356, 0x6f44, 0x4e74, 0x7465, 0x6f4c, 
+0x6b6f, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 
+0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x526e, 0x776f, 0x3e73, 
+0x3c33, 0x4d2f, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 0x6469, 
+0x445f, 0x7365, 0x7263, 0x7069, 0x6974, 0x6e6f, 0x6f52, 0x7377, "\076" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4434,11 +4483,11 @@ BEGIN
     CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,15,156,58,12
     LTEXT           "When ‘’Use forecast’’ is checked, BioSIM uses any available observation data beyond the current date (Observation  mode only).",-1,291,188,114,41
     LTEXT           "Exposition factor (Albedo):",-1,7,248,83,8
-    COMBOBOX        IDC_WG_ALBEDO,120,244,210,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_WG_ALBEDO,120,244,293,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Random number type:",-1,7,266,70,8
-    COMBOBOX        IDC_WG_SEED,120,262,210,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_WG_SEED,120,262,293,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Ignore nearest weather station from simulation point (for cross validation)",IDC_WG_XVALIDATION,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,301,323,10
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,301,406,10
     COMBOBOX        IDC_WG_SOURCE_TYPE,108,7,183,174,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Datat type generated:",-1,7,28,93,10
     LTEXT           "Data type sources:",-1,7,9,72,10
@@ -4449,14 +4498,15 @@ BEGIN
     LTEXT           "Generated variables:",-1,7,49,72,10
     CONTROL         "",IDC_WG_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,108,46,183,14
     LTEXT           "Variable that can be derivated:",-1,7,284,101,10
-    CONTROL         "",IDC_WG_ALLOWED_DERIVED_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,120,282,210,14
+    CONTROL         "",IDC_WG_ALLOWED_DERIVED_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,120,282,293,14
     CONTROL         "Use radars precipitation",IDC_WG_USE_RADARS_PRCP,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,14,221,94,12
     COMBOBOX        IDC_WG_GRIBS_DBNAME,79,155,251,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,336,155,17,14
     CONTROL         "Skip database verification (when the database is never updated)",IDC_WG_SKIP_VERIFY,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,323,10
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,406,10
     CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,357,156,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,198,81,12
+    PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
 END
 
 IDD_PARAMETERS_VARIATIONS_MANAGER DIALOG 0, 0, 307, 282
@@ -5867,6 +5917,16 @@ BEGIN
     CONTROL         "",IDC_CMN_SELECTION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,195,232
 END
 
+IDD_SEARCH_RADIUS DIALOGEX 0, 0, 259, 316
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Search Radius"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,135,294,50,15
+    PUSHBUTTON      "Cancel",IDCANCEL,202,294,50,15
+    CONTROL         "",IDC_VARIABLES_RADIUS,"MfcPropertyGrid",0x100,7,7,245,280
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -6626,6 +6686,16 @@ BEGIN
         RIGHTMARGIN, 202
         TOPMARGIN, 7
         BOTTOMMARGIN, 262
+    END
+
+    IDD_SEARCH_RADIUS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 309
+        HORZGUIDE, 287
+        HORZGUIDE, 294
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -8022,6 +8092,35 @@ BEGIN
 0x7475, 0x6f74, 0x5f6e, 0x6d49, 0x6761, 0x4f65, 0x526e, 0x6769, 0x7468, 
 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x4243, 0x7475, 0x6f74, 0x5f6e, 
 0x6d49, 0x6761, 0x4f65, 0x526e, 0x6769, 0x7468, "\076" 
+    0
+END
+
+IDD_SEARCH_RADIUS DLGINIT
+BEGIN
+    IDC_VARIABLES_RADIUS, 0x37c, 413, 0
+0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 0x6469, 0x485f, 
+0x6165, 0x6564, 0x4372, 0x7274, 0x3e6c, 0x5254, 0x4555, 0x2f3c, 0x464d, 
+0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 0x5f64, 0x6548, 0x6461, 
+0x7265, 0x7443, 0x6c72, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 
+0x4779, 0x6972, 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x416e, 
+0x6572, 0x3e61, 0x5254, 0x4555, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 
+0x7472, 0x4779, 0x6972, 0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 
+0x416e, 0x6572, 0x3e61, 0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 
+0x7247, 0x6469, 0x415f, 0x706c, 0x6168, 0x6562, 0x6974, 0x4d63, 0x646f, 
+0x3e65, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 0x7265, 
+0x7974, 0x7247, 0x6469, 0x415f, 0x706c, 0x6168, 0x6562, 0x6974, 0x4d63, 
+0x646f, 0x3e65, 0x4d3c, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 
+0x6469, 0x4d5f, 0x646f, 0x6669, 0x6569, 0x5064, 0x6f72, 0x6570, 0x7472, 
+0x6569, 0x3e73, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x4d5f, 0x646f, 0x6669, 0x6569, 0x5064, 
+0x6f72, 0x6570, 0x7472, 0x6569, 0x3e73, 0x4d3c, 0x4346, 0x7250, 0x706f, 
+0x7265, 0x7974, 0x7247, 0x6469, 0x565f, 0x4453, 0x746f, 0x654e, 0x4c74, 
+0x6f6f, 0x3e6b, 0x5254, 0x4555, 0x2f3c, 0x464d, 0x5043, 0x6f72, 0x6570, 
+0x7472, 0x4779, 0x6972, 0x5f64, 0x5356, 0x6f44, 0x4e74, 0x7465, 0x6f4c, 
+0x6b6f, 0x3c3e, 0x464d, 0x5043, 0x6f72, 0x6570, 0x7472, 0x4779, 0x6972, 
+0x5f64, 0x6544, 0x6373, 0x6972, 0x7470, 0x6f69, 0x526e, 0x776f, 0x3e73, 
+0x3c33, 0x4d2f, 0x4346, 0x7250, 0x706f, 0x7265, 0x7974, 0x7247, 0x6469, 
+0x445f, 0x7365, 0x7263, 0x7069, 0x6974, 0x6e6f, 0x6f52, 0x7377, "\076" 
     0
 END
 

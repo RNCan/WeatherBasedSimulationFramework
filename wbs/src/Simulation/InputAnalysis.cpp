@@ -123,6 +123,21 @@ CWVariables GetCategoryVariables(size_t c)
 	return variables;
 }
 
+TVarH GetLeadCategoryVariable(size_t c)
+{
+	TVarH variable;
+	switch (c)
+	{
+	case 0: variable = H_TAIR2; break;
+	case 1: variable = H_PRCP; break;
+	case 2: variable = H_TDEW; break;
+	case 3: variable = H_WNDS; break;
+	default: ASSERT(false);
+	}
+
+	return variable;
+}
+
 CWVariables GetCategoryVariables(const std::bitset<4>& category)
 {
 	CWVariables variables;
@@ -474,12 +489,13 @@ ERMsg CInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& res
 			{
 				if (category[c])
 				{
+					TVarH v = GetLeadCategoryVariable(c);
 					CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
 					size_t nbStations = WG.GetWGInput().m_nbNormalsStations;
 					CNewSectionData section(1, 4, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
 
 					CSearchResultVector searchResultArray;
-					msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().m_nbNormalsStations, VARIABLE_FOR_CATEGORY[c]);
+					msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().m_nbNormalsStations, WGInput.m_searchRadius[v], VARIABLE_FOR_CATEGORY[c]);
 					//remove error if the variables can be derived
 					if (WG.GetWGInput().m_allowedDerivedVariables[VARIABLE_FOR_CATEGORY[c]])
 						msg = ERMsg();
@@ -523,7 +539,7 @@ ERMsg CInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& res
 						int year = WG.GetWGInput().GetFirstYear() + int(y);
 
 						CSearchResultVector searchResultArray;
-						msg += obsDB.Search(searchResultArray, locations[l], nbStations, v, year);
+						msg += obsDB.Search(searchResultArray, locations[l], nbStations, WGInput.m_searchRadius[v], v, year);
 						//remove error if the variables can be derived
 						if (WG.GetWGInput().m_allowedDerivedVariables[v])
 							msg = ERMsg();
@@ -608,10 +624,11 @@ ERMsg CInputAnalysis::KernelValidation(const CFileManager& fileManager, CResult&
 				CWGInput WGInputTmp(WGInput);
 				WGInputTmp.m_variables = GetCategoryVariables(c);
 				WG.SetWGInput(WGInputTmp);
+				TVarH v = GetLeadCategoryVariable(c);
 				
 				//fin stations for this variables
 				CSearchResultVector weatherStationsI;
-				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_variables);
+				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables);
 
 				if (msg && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 				{
@@ -756,11 +773,11 @@ ERMsg CInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResult
 				WGInputTmp.m_variables = GetCategoryVariables(c);
 				WGInputTmp.m_bXValidation = true;
 				WG.SetWGInput(WGInputTmp);
-				
+				TVarH v = GetLeadCategoryVariable(c);
 
 				//find the nearest station stations for this variable
 				CSearchResultVector weatherStationsI;
-				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_variables);
+				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables);
 
 				//if this stations is nesrest 5km and less than 50 meters (delta elevation)
 				if (msg && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
@@ -894,7 +911,7 @@ ERMsg CInputAnalysis::XValidationObservations(const CFileManager& fileManager, C
 			{
 				//fin stations for this variables
 				CSearchResultVector weatherStationsI;
-				obsDB.Search(weatherStationsI, locations[l], 1, v);
+				obsDB.Search(weatherStationsI, locations[l], 1, -1, v);
 
 				if (!weatherStationsI.empty() && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 				{
@@ -1013,10 +1030,11 @@ ERMsg CInputAnalysis::NormalError(const CFileManager& fileManager, CResult& resu
 				WGInputTmp.m_variables = GetCategoryVariables(c);
 				WGInputTmp.m_bXValidation = true;
 				WG.SetWGInput(WGInputTmp);
+				TVarH v = GetLeadCategoryVariable(c);
 
 				//fin stations for this variables
 				CSearchResultVector weatherStationsI;
-				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], WGInputTmp.m_nbNormalsStations, WGInputTmp.m_variables);
+				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], WGInputTmp.m_nbNormalsStations, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables);
 
 				std::vector<double> weightI = weatherStationsI.GetStationWeight();
 				assert(weightI.size() == weatherStationsI.size());
@@ -1160,7 +1178,7 @@ ERMsg CInputAnalysis::ObservationsError(const CFileManager& fileManager, CResult
 					CSearchResultVector weatherStationsI;
 					
 					//don't process error, just skip it
-					obsDB.Search(weatherStationsI, locations[l], nbStations, v, year);
+					obsDB.Search(weatherStationsI, locations[l], nbStations, WG.GetWGInput().m_searchRadius[v], v, year);
 
 					vector<double> weightI = weatherStationsI.GetStationWeight();
 					for (size_t ll = 0; ll < weatherStationsI.size() && msg; ll++)

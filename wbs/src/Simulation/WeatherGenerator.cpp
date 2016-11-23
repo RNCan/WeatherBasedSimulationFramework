@@ -962,7 +962,7 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 			if (m_tgi.m_variables[v] && (v != H_TMIN2 && v != H_TMAX2))
 			{
 				CSearchResultVector results;
-				msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
+				msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), m_tgi.m_searchRadius[v], v, year);
 				if (!results.empty() && XVal())
 					results.erase(results.begin());
 
@@ -1016,7 +1016,7 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 				if (neededVariables[v] && (v != H_TMIN2 && v != H_TMAX2))
 				{
 					CSearchResultVector results;
-					msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
+					msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), m_tgi.m_searchRadius[v], v, year);
 					if (!results.empty() && XVal())
 						results.erase(results.begin());
 
@@ -1112,7 +1112,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 			if (m_tgi.m_variables[v] && v != H_TAIR2)
 			{
 				CSearchResultVector results;
-				msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbDailyStations + XVal(), v, year);
+				msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbDailyStations + XVal(), m_tgi.m_searchRadius[v], v, year);
 				if (!results.empty() && XVal())
 					results.erase(results.begin());
 				
@@ -1167,7 +1167,7 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 				if (neededVariables[v] && v != H_TAIR2)
 				{
 					CSearchResultVector results;
-					msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), v, year);
+					msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + XVal(), m_tgi.m_searchRadius[v], v, year);
 					if (!results.empty() && XVal())
 						results.erase(results.begin());
 
@@ -1356,7 +1356,7 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 		{
 			CSearchResultVector results;
 			// find stations with category
-			msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + XVal(), v);
+			msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + XVal(), m_tgi.m_searchRadius[v], v);
 			
 			if (!results.empty() && XVal())
 				results.erase(results.begin());
@@ -1412,7 +1412,7 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 			{
 				CSearchResultVector results;
 				// find stations with category
-				msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + XVal(), v);
+				msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + XVal(), m_tgi.m_searchRadius[v], v);
 				if (!results.empty() && XVal())
 					results.erase(results.begin());
 

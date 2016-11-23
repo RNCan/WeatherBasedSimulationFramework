@@ -1158,11 +1158,14 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, 
 	for (int l = 1; l < NB_LEVELS; l++)
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
-		test.push_back(make_pair(gph, l));
+		if (b != NOT_INIT)
+		{
+			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
+			test.push_back(make_pair(gph, l));
 
-		if (alt < gph)
-			break;
+			if (alt < gph)
+				break;
+		}
 	}
 
 	double grAlt = GetGroundAltitude(xy, UTCTRef);//get the first level over the ground
@@ -1596,7 +1599,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				for (auto it = m_world.m_flyers.begin(); it != m_world.m_flyers.end() && msg; it++)
 				{
 					CSearchResultVector result;
-					msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_parameters2.m_nb_weather_stations * 5, CWVariables(FILTER_STR[v]), year);
+					msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_parameters2.m_nb_weather_stations * 5, -1,CWVariables(FILTER_STR[v]), year);
 					for (size_t ss = 0; ss < result.size(); ss++)
 						indexes.insert(result[ss].m_index);
 
@@ -1632,7 +1635,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				for (auto it = m_world.m_flyers.begin(); it != m_world.m_flyers.end() && msg; it++)
 				{
 					CSearchResultVector result;
-					msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_parameters2.m_nb_weather_stations * 5, CWVariables(FILTER_STR[v]), year);
+					msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_parameters2.m_nb_weather_stations * 5, -1, CWVariables(FILTER_STR[v]), year);
 					for (size_t ss = 0; ss < result.size(); ss++)
 						indexes.insert(result[ss].m_index);
 				}
@@ -1898,8 +1901,7 @@ CTPeriod CATMWorld::get_period(bool bUTC, int year)const
 	
 	if (p.IsInit())
 	{
-		
-		p.Begin() += 12;//begin at noon 
+		//p.Begin() += 12;//begin at noon 
 		p.End() += 12 + 23;//finish at 11:00 on day after
 	}
 
@@ -2099,6 +2101,37 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 			//get all flyers for this day
 			vector<CFlyersIt> fls = GetFlyers(*it);
 
+			//for (size_t i = 0; i < fls.size(); i++)
+			//{
+			//	CFlyer& flyer = *(fls[i]);
+			//	CTRef TRef = m_UTCTRef + flyer.GetUTCShift();
+
+			//	if (output[flyer.m_loc][flyer.m_var].IsInside(TRef))
+			//	{
+			//		CGeoPoint3D pt = flyer.m_pt;
+			//		pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
+
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_STATE] = flyer.GetState();
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_X] = pt.m_x;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_Y] = pt.m_y;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_LAT] = flyer.m_newLocation.m_lat;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_LON] = flyer.m_newLocation.m_lon;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_T] = flyer.GetStat(CFlyer::S_TAIR);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_P] = flyer.GetStat(CFlyer::S_PRCP);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_U] = flyer.GetStat(CFlyer::S_U);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_V] = flyer.GetStat(CFlyer::S_V);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W] = flyer.GetStat(CFlyer::S_W);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_SCALE] = flyer.m_scale;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W_HORIZONTAL] = 0;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W_VERTICAL] = 0;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DIRECTION] = 0;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE] = 0;
+			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE_FROM_OIRIGINE] = 0;
+			//	}
+			//}
+
 			//Get all sunset hour for flyers. 
 			set<CTRef> sunsetTRef;
 			for (size_t i = 0; i < fls.size() && !m_weather.SkipDay() && msg; i++)
@@ -2156,7 +2189,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 				
 				for (m_UTCTTime = CTimeZones::UTCTRef2UTCTime(m_UTCTRef = UTC_period.Begin()); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++, m_UTCTTime += 3600)
 				{
-#pragma omp parallel for if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) //est-ce que ça cause encore des problèmes??????
+//#pragma omp parallel for if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) //est-ce que ça cause encore des problèmes??????
 					for (__int64 i = 0; i < (__int64 )fls.size(); i++)
 					{
 #pragma omp flush(msg)
@@ -2165,43 +2198,49 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 							CFlyer& flyer = *(fls[i]);
 							flyer.live();
 							
-							if (flyer.GetState() > CFlyer::IDLE_BEGIN && flyer.GetState() < CFlyer::DESTROYED)
+							if (flyer.GetState() > CFlyer::NOT_CREATED && flyer.GetState() < CFlyer::DESTROYED)
 							{
 								CTRef TRef = m_UTCTRef + flyer.GetUTCShift();
-								CGeoPoint3D pt = flyer.m_pt;
-								pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
+								if (output[flyer.m_loc][flyer.m_var].IsInside(TRef))
+								{
+									CGeoPoint3D pt = flyer.m_pt;
+									pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
 
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_STATE] = (flyer.GetState() == CFlyer::IDLE_END) ? 10 + flyer.GetEnd() : flyer.GetState();
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_X] = pt.m_x;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_Y] = pt.m_y;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_LAT] = flyer.m_newLocation.m_lat;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_LON] = flyer.m_newLocation.m_lon;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_T] = flyer.GetStat(CFlyer::S_TAIR);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_P] = flyer.GetStat(CFlyer::S_PRCP);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_U] = flyer.GetStat(CFlyer::S_U);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_V] = flyer.GetStat(CFlyer::S_V);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_W] = flyer.GetStat(CFlyer::S_W);
-								
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);
-								
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_SCALE] = flyer.m_scale;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_W_HORIZONTAL] = flyer.GetStat(CFlyer::S_W_HORIZONTAL) * 3600 / 1000;
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_W_VERTICAL] = flyer.GetStat(CFlyer::S_W_VERTICAL) * 3600 / 1000;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_STATE] = (flyer.GetState() == CFlyer::IDLE_END) ? 10 + flyer.GetEnd() : flyer.GetState();
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_X] = pt.m_x;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_Y] = pt.m_y;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_LAT] = flyer.m_newLocation.m_lat;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_LON] = flyer.m_newLocation.m_lon;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_T] = flyer.GetStat(CFlyer::S_TAIR);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_P] = flyer.GetStat(CFlyer::S_PRCP);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_U] = flyer.GetStat(CFlyer::S_U);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_V] = flyer.GetStat(CFlyer::S_V);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_W] = flyer.GetStat(CFlyer::S_W);
 
-								double alpha = PI/2;
-								if (flyer.GetStat(CFlyer::S_D_Y) != 0 || flyer.GetStat(CFlyer::S_D_X) != 0)
-									alpha = atan2(flyer.GetStat(CFlyer::S_D_Y), flyer.GetStat(CFlyer::S_D_X));
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);
 
-								
-								double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
-								ASSERT(angle >= 0 && angle <= 360);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_DIRECTION] = angle;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_SCALE] = flyer.m_scale;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_W_HORIZONTAL] = flyer.GetStat(CFlyer::S_W_HORIZONTAL) * 3600 / 1000;
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_W_VERTICAL] = flyer.GetStat(CFlyer::S_W_VERTICAL) * 3600 / 1000;
 
-								double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE] = flyer.GetStat(CFlyer::S_DISTANCE,SUM);
-								output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE_FROM_OIRIGINE] = D°;
+									double alpha = PI / 2;
+									if (flyer.GetStat(CFlyer::S_D_Y) != 0 || flyer.GetStat(CFlyer::S_D_X) != 0)
+										alpha = atan2(flyer.GetStat(CFlyer::S_D_Y), flyer.GetStat(CFlyer::S_D_X));
 
+
+									double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
+									ASSERT(angle >= 0 && angle <= 360);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_DIRECTION] = angle;
+
+									double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE] = flyer.GetStat(CFlyer::S_DISTANCE, SUM);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE_FROM_OIRIGINE] = D°;
+								}
+								else
+								{
+								//	callback.PushTask("Discard weather for " + TRef.GetFormatedString("%Y-%m-%d"), UTC_period.size());
+								}
 							}//if flying
 
 							callback.WaitPause();
@@ -2244,6 +2283,9 @@ CGDALDatasetCached::CGDALDatasetCached()
 double CGDALDatasetCached::GetPixel(const CGeoPoint3DIndex& xyz)const
 {
 	if (!m_extents.IsInside(xyz))
+		return -9999;
+	
+	if (xyz.m_z == -1)
 		return -9999;
 
 	
@@ -2306,6 +2348,9 @@ void CGDALDatasetCached::LoadBlock(const CGeoBlock3DIndex& ijk)
 		GDALDataType type = poBand->GetRasterDataType();
 		CBlockData* pBlockData = new CBlockData(nXBlockSize, nYBlockSize, type);
 		poBand->ReadBlock(ijk.m_x, ijk.m_y, pBlockData->m_ptr);
+		poBand->FlushCache();
+		poBand->FlushBlock();
+
 		m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockData);
 
 		readTime.Stop();
@@ -2596,7 +2641,7 @@ ERMsg CreateGribsFromText(CCallback& callback)
 							StringVector tmp(str[3], "-");
 							ASSERT(tmp.size()==2);
 
-								str[3] = tmp[0];
+							str[3] = tmp[0];
 							str.insert(str.begin()+4, tmp[1]);
 						}
 						ASSERT(str.size() == NB_WRF_VARS+1);

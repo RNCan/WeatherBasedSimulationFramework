@@ -1254,8 +1254,8 @@ public:
 	bool IsComplete(CWVariables variables, CTPeriod period = CTPeriod())const;
 	void CleanUnusedVariable(CWVariables variables);
 
-	void GetMean( CWeatherStation& station, CTPeriod p, short mergeType)const;
-	void MergeStation(CWeatherStation& station, CTM TM, short mergeType, short priorityRules, std::string& log)const;
+	void GetMean( CWeatherStation& station, CTPeriod p, size_t mergeType)const;
+	void MergeStation(CWeatherStation& station, CTM TM, size_t mergeType, size_t priorityRules, std::string& log)const;
 };
 
 

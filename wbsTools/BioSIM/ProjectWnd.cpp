@@ -404,6 +404,7 @@ void CProjectWnd::OnMatchStation()
 			size_t year=0;
 			size_t K=4;
 			size_t T=1;
+			size_t S=0;
 
 			string locFilepath;
 			string NormalsFilepath;
@@ -433,7 +434,7 @@ void CProjectWnd::OnMatchStation()
 
 						K = WGInput.IsNormals() ? WGInput.m_nbNormalsStations : WGInput.IsHourly() ? WGInput.m_nbHourlyStations : WGInput.m_nbDailyStations;
 						T = WGInput.IsHourly()?0:1;
-
+						S = WGInput.m_bSkipVerify ? 1 : 0;
 
 						if (!WGInput.m_normalsDBName.empty())
 							msg += GetFM().Normals().GetFilePath(WGInput.m_normalsDBName, NormalsFilepath);
@@ -457,6 +458,7 @@ void CProjectWnd::OnMatchStation()
 
 				command += " -k " + ToString(K);
 				command += " -t " + ToString(T);
+				command += " -s " + ToString(S);
 
 
 				if (!NormalsFilepath.empty())

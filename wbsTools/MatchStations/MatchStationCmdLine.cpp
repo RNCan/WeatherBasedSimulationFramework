@@ -20,7 +20,7 @@ using namespace UtilWin;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-const char* CMatchStationCmdLine::PARAM_NAME[NB_PARAM]={"V", "Y", "K", "T", "N", "D", "H"};
+const char* CMatchStationCmdLine::PARAM_NAME[NB_PARAM]={"V", "Y", "K", "R", "T", "S", "N", "D", "H"};
 
 
 CMatchStationCmdLine::CMatchStationCmdLine():

@@ -158,7 +158,7 @@ ERMsg CWeatherGeneration::GenerateLocationListFromWeatherStation(const CFileMana
 					if (WGInput.m_variables[v])
 					{
 						CSearchResultVector result;
-						pDB->Search(result, locations[i], nbStations, v, WGInput.GetFirstYear() + int(y));
+						pDB->Search(result, locations[i], nbStations, WGInput.m_searchRadius[v], v, WGInput.GetFirstYear() + int(y));
 						finalResult.insert(finalResult.end(), result.begin(), result.end());
 					}
 				}
@@ -238,7 +238,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 								if (messageTmp)
 								{
 									CSearchResultVector results;
-									ERMsg msgTmp = pDB->Search(results, locations[l], 1, v, year);
+									ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
 									if (messageTmp && !msgTmp)
 									{
 										if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || (i == 2 && v == H_TMIN2) || (i == 2 && v == H_TMAX2) || (i == 0 && v == H_WNDD) || v == H_PRES)

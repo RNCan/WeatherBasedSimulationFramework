@@ -120,6 +120,7 @@
     <ClCompile Include="..\src\UI\StationsListCtrl.cpp" />
     <ClCompile Include="..\src\UI\TransfoDlg.cpp" />
     <ClCompile Include="..\src\UI\VariableSelectionCtrl.cpp" />
+    <ClCompile Include="..\src\UI\SearchRadiusDlg.cpp" />
     <ClCompile Include="..\src\UI\WeaLinkDlg.cpp" />
     <ClCompile Include="..\src\UI\WeatherChartsCtrl.cpp" />
     <ClCompile Include="..\src\UI\WeatherDataGridCtrl.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="..\src\UI\StationsListCtrl.h" />
     <ClInclude Include="..\src\UI\TransfoDlg.h" />
     <ClInclude Include="..\src\UI\VariableSelectionCtrl.h" />
+    <ClInclude Include="..\src\UI\SearchRadiusDlg.h" />
     <ClInclude Include="..\src\UI\WeaLinkDlg.h" />
     <ClInclude Include="..\src\UI\WeatherChartsCtrl.h" />
     <ClInclude Include="..\src\UI\WeatherDataGridCtrl.h" />

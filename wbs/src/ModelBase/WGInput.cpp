@@ -23,7 +23,7 @@ namespace WBSF
 
 	const char* CWGInput::XML_FLAG = "WGInput";
 	const char* CWGInput::MEMBERS_NAME[NB_MEMBERS] = { "Variables", "SourceType", "GenerationType", "NbNormalsYears", "FirstYear", "LastYear", "UseForecast", "UseRadarPrcp", "NormalDBName", "NbNormalsStations",
-		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "GribsDBName", "UseGribs", "AtSurfaceOnly", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify" };
+		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "GribsDBName", "UseGribs", "AtSurfaceOnly", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius" };
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction
@@ -97,6 +97,7 @@ namespace WBSF
 			m_bXValidation = in.m_bXValidation;
 			m_filePath = in.m_filePath;
 			m_bSkipVerify = in.m_bSkipVerify;
+			m_searchRadius = in.m_searchRadius;
 		}
 
 		ASSERT(operator==(in));
@@ -133,7 +134,7 @@ namespace WBSF
 		case ALLOWED_DERIVED_VARIABLES: str = m_allowedDerivedVariables.to_string(); break;
 		case XVALIDATION:		str = ToString(m_bXValidation); break;
 		case SKIP_VERIFY:		str = ToString(m_bSkipVerify); break;
-
+		case SEARCH_RADIUS:		str = to_string(m_searchRadius, "," ); break;
 		default: ASSERT(false);
 		}
 
@@ -167,6 +168,7 @@ namespace WBSF
 		if (m_allowedDerivedVariables != in.m_allowedDerivedVariables)bEqual = false;
 		if (m_bXValidation != in.m_bXValidation)bEqual = false;
 		if (m_bSkipVerify != in.m_bSkipVerify)bEqual = false;
+		if (m_searchRadius != in.m_searchRadius)bEqual = false;
 
 		return bEqual;
 	}
@@ -190,7 +192,7 @@ namespace WBSF
 		{
 			m_variables = "TN T TX P";
 			m_normalsDBName = "Canada-USA 1981-2010";
-			m_allowedDerivedVariables = "R Z S SD SWE ES EA VPD WS2";
+			m_allowedDerivedVariables = "T R Z S SD SWE ES EA VPD WS2";
 		}
 
 		m_filePath = STRDEFAULT;
@@ -311,12 +313,17 @@ namespace WBSF
 
 		
 
-		if (m_variables[H_TAIR2] && (!m_variables[H_TMIN2] || !m_variables[H_TMAX2]))
+		/*if (m_variables[H_TAIR2] && (!m_variables[H_TMIN2] || !m_variables[H_TMAX2]))
+		{
+			dVariables.set(H_TMIN2);
+			dVariables.set(H_TMAX2);
+		}*/
+
+		if (dVariables[H_TAIR2])
 		{
 			dVariables.set(H_TMIN2);
 			dVariables.set(H_TMAX2);
 		}
-
 
 
 		return dVariables;
@@ -344,31 +351,29 @@ namespace WBSF
 		if (mVariables[H_TAIR2] && !mVariables[H_TMAX2])
 			mVariables.set(H_TMAX2);*/
 
-		if (mVariables[H_PRCP] && !mVariables[H_TAIR2])
-		{
-			mVariables.set(H_TMIN2);
+		if (mVariables[H_PRCP] && ! mVariables[H_TAIR2] )
 			mVariables.set(H_TAIR2);
-			mVariables.set(H_TMAX2);
-		}
 
 		if (mVariables[H_TDEW] && !mVariables[H_RELH])
 			mVariables.set(H_RELH);
 
-		if (mVariables[H_TDEW] && !mVariables[H_TAIR2])
-		{
-			mVariables.set(H_TMIN2);
+		if (mVariables[H_TDEW] && mVariables[H_TAIR2] )
 			mVariables.set(H_TAIR2);
-			mVariables.set(H_TMAX2);
-		}
 
-		if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
-			mVariables.set(H_TMAX2);
+		//if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
+			//mVariables.set(H_TMAX2);
 
 		if (mVariables[H_WND2] && !mVariables[H_WNDS])
 			mVariables.set(H_WNDS);
 
 		if (mVariables[H_WNDS] && !mVariables[H_PRCP])
 			mVariables.set(H_PRCP);
+
+		if (mVariables[H_TAIR2])
+		{
+			mVariables.set(H_TMIN2);
+			mVariables.set(H_TMAX2);
+		}
 
 		return mVariables;
 	}

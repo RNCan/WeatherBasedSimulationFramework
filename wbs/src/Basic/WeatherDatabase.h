@@ -48,8 +48,8 @@ namespace WBSF
 		virtual ERMsg VerifyVersion(const std::string& filePath)const = 0;
 		virtual __time64_t GetLastUpdate(const std::string& filePath, bool bVerifyAllFiles = true)const = 0;
 		virtual ERMsg VerifyDB(CCallback& callBack = CCallback::DEFAULT_CALLBACK)const = 0;
-		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, short mergeType, short priorityRules, std::string& log, CCallback& callback = CCallback::DEFAULT_CALLBACK) = 0;
-		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const = 0;
+		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback = CCallback::DEFAULT_CALLBACK) = 0;
+		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius=-1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const = 0;
 		virtual int GetVersion()const = 0;
 		virtual const char* GetXMLFlag()const = 0;
 		virtual const char* GetDatabaseExtension()const = 0;
@@ -76,10 +76,14 @@ namespace WBSF
 		virtual std::string GetDataPath(const std::string& filePath)const{ return WBSF::GetPath(filePath); }
 		std::string GetDataFilePath(const std::string& filePath, const std::string& fileName)const{ return GetDataPath(filePath) + fileName; }
 		std::string GetOptimisationFilePath(const std::string& referencedFilePath)const{ return WBSF::GetPath(referencedFilePath) + WBSF::GetFileTitle(referencedFilePath) + GetOptimizationExtension(); }
+		std::string GetHeaderFilePath(const std::string& referencedFilePath)const{ return WBSF::GetPath(referencedFilePath) + WBSF::GetFileTitle(referencedFilePath) + GetHeaderExtension(); }
+		
+		
 		std::string GetOptimisationDataFilePath(const std::string& referencedFilePath)const{ return  GetOptimisationFilePath(referencedFilePath) + "Data"; }
 		std::string GetOptimisationSearchFilePath1(const std::string& referencedFilePath)const{ return  GetOptimisationFilePath(referencedFilePath) + "SearchIndex"; }
 		std::string GetOptimisationSearchFilePath2(const std::string& referencedFilePath)const{ return  GetOptimisationFilePath(referencedFilePath) + "SearchData"; }
 
+		std::string GetHeaderFilePath()const{ return GetHeaderFilePath(m_filePath); }
 		std::string GetOptimisationFilePath()const{ return GetOptimisationFilePath(m_filePath); }
 		std::string GetOptimisationDataFilePath()const{ return  GetOptimisationDataFilePath(m_filePath); }
 		std::string GetOptimisationSearchFilePath1()const{ return  GetOptimisationSearchFilePath1(m_filePath); }
@@ -172,8 +176,8 @@ namespace WBSF
 		virtual ERMsg VerifyVersion(const std::string& filePath)const;
 		virtual __time64_t GetLastUpdate(const std::string& filePath, bool bVerifyAllFiles = true)const;
 		virtual ERMsg VerifyDB(CCallback& callBack = DEFAULT_CALLBACK)const;
-		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, short mergeType, short priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
-		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
+		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
+		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double radius, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
 
 		using CWeatherDatabase::Get;
 		virtual ERMsg Get(CLocation& station, size_t index, const std::set<int>& years = std::set<int>())const;
@@ -192,7 +196,7 @@ namespace WBSF
 		static int GetVersion(const std::string& filePath);
 		static ERMsg CreateDatabase(const std::string& filePath);
 
-		static ERMsg MergeStation(CWeatherDatabase& inputDB1, CWeatherDatabase& inputDB2, const CSearchResultVector& results1, const CSearchResultVector& results2, CWeatherStation& station, short mergeType, short priorityRules, std::string& log);
+		static ERMsg MergeStation(CWeatherDatabase& inputDB1, CWeatherDatabase& inputDB2, const CSearchResultVector& results1, const CSearchResultVector& results2, CWeatherStation& station, size_t mergeType, size_t priorityRules, std::string& log);
 	};
 
 }

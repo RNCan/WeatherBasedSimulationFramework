@@ -75,9 +75,13 @@ public:
 	void SetNbStation(size_t in){ if (in != m_nbStations){ m_nbStations = in; UpdateAllViews(NULL, PROPERTIES_CHANGE); } }
 	WBSF::HOURLY_DATA::TVarH GetVariable()const{ return m_variable; }
 	void SetVariable(WBSF::HOURLY_DATA::TVarH in){ if (in != m_variable){ m_variable = in; UpdateAllViews(NULL, PROPERTIES_CHANGE); } }
+	double GetSearchRadius()const{ return m_searchRadius; }
+	void SetSearchRadius(double in){ if (in != m_searchRadius){ m_searchRadius = in; UpdateAllViews(NULL, PROPERTIES_CHANGE); } }
+	
 	size_t GetObservationType(){ return m_obsType; }
 	void SetObservationType(size_t in){ if (in != m_obsType){ m_obsType = in; UpdateAllViews(NULL, PROPERTIES_CHANGE); } }
-	
+	bool GetSkipVerify()const{ return m_bSkipVerify; }
+	void SetSkipVerify(bool in){ m_bSkipVerify = in; }
 
 
 	const std::string& GetOutputText()const{ return m_outputText; }
@@ -106,6 +110,8 @@ protected:
 	int m_year;
 	size_t m_nbStations;
 	WBSF::HOURLY_DATA::TVarH m_variable;
+	double m_searchRadius;//[km]
+	bool m_bSkipVerify;
 		
 	std::string m_locationFilePath;
 	std::string m_normalsFilePath;

@@ -557,7 +557,7 @@ namespace WBSF
 		ERMsg msg;
 
 		//event if they have error, we don't take care of
-		if (m_lastSelection > 0)
+		if (m_lastSelection > 0 && !GetItemText(m_lastSelection).IsEmpty())
 		{
 			SaveWGInput(GetItemText(m_lastSelection));
 		}

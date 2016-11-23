@@ -1297,7 +1297,7 @@ void CStdGeoRectProperty::set_string(std::string str)
 
 //*********************************************************************************************************
 
-CColorProperty::CColorProperty(const std::string& strName, const COLORREF& color, const std::string& description, size_t dwData) :
+CStdColorProperty::CStdColorProperty(const std::string& strName, const COLORREF& color, const std::string& description, size_t dwData) :
 	CMFCPropertyGridColorProperty(CString(strName.c_str()), color, NULL, CString(description.c_str()), (DWORD_PTR)dwData)
 {
 	EnableOtherButton(UtilWin::GetCString(IDS_STR_OTHER));

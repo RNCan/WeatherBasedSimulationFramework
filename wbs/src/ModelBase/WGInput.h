@@ -16,6 +16,59 @@
 
 namespace WBSF
 {
+	class CSearchRadius : public std::array< double, HOURLY_DATA::NB_VAR_H>
+	{
+	public:
+
+		CSearchRadius()
+		{
+			fill(-1);//radius in meters
+		}
+
+		bool operator==(const CSearchRadius& in)const
+		{
+			bool bEqual = true;
+
+			for (size_t i = 0; i < size(); i++)
+				bEqual = fabs(at(i) -in[i])<0.1;//1 meters
+
+
+			return bEqual;
+		}
+
+		bool operator!=(const CSearchRadius& in)const { return !operator==(in); }
+
+	};
+}
+
+namespace zen
+{
+	template <> inline
+	void writeStruc(const WBSF::CSearchRadius& in, zen::XmlElement& output)
+	{
+		output.setValue(to_string(in, ","));
+	}
+
+	template <> inline
+	bool readStruc(const zen::XmlElement& input, WBSF::CSearchRadius& out )
+	{
+		std::string str;
+		if (input.getValue(str))
+		{
+			std::vector<double> tmp = WBSF::to_object<double>(str, ",");
+			for (size_t i = 0; i < tmp.size() && i < WBSF::HOURLY_DATA::NB_VAR_H; i++)
+				out[i] = tmp[i];
+		}
+
+
+		return true;
+	}
+}
+
+
+namespace WBSF
+{
+
 	class CWGInput
 	{
 	public:
@@ -28,7 +81,8 @@ namespace WBSF
 
 		enum TMember {
 			VARIABLES, SOURCE_TYPE, GENERATION_TYPE, NB_NORMALS_YEARS, FIRST_YEAR, LAST_YEAR, USE_FORECAST, USE_RADAR_PRCP, NORMAL_DB_NAME, NB_NORMAL_STATION,
-			DAILY_DB_NAME, NB_DAILY_STATION, HOURLY_DB_NAME, NB_HOURLY_STATION, GRIBS_DB_NAME, USE_GRIBS, ATSURFACE_ONLY, ALBEDO, SEED, ALLOWED_DERIVED_VARIABLES, XVALIDATION, SKIP_VERIFY, NB_MEMBERS
+			DAILY_DB_NAME, NB_DAILY_STATION, HOURLY_DB_NAME, NB_HOURLY_STATION, GRIBS_DB_NAME, USE_GRIBS, ATSURFACE_ONLY, ALBEDO, SEED, ALLOWED_DERIVED_VARIABLES, XVALIDATION, 
+			SKIP_VERIFY, SEARCH_RADIUS, NB_MEMBERS
 		};
 
 		static const char* GetMemberName(size_t i){ ASSERT(i < NB_MEMBERS); return MEMBERS_NAME[i]; }
@@ -60,6 +114,7 @@ namespace WBSF
 		CWVariables m_allowedDerivedVariables;
 		bool m_bXValidation;
 		bool m_bSkipVerify;
+		CSearchRadius m_searchRadius;
 
 
 		bool IsNormals()const{ return (m_sourceType == FROM_DISAGGREGATIONS); }
@@ -123,6 +178,7 @@ namespace WBSF
 		{
 			ar & m_variables&m_sourceType&m_generationType&m_nbNormalsYears&m_firstYear&m_lastYear&m_bUseForecast&m_bUseRadarPrcp&m_normalsDBName;
 			ar & m_nbNormalsStations&m_dailyDBName&m_nbDailyStations&m_hourlyDBName&m_nbHourlyStations&m_gribsDBName&m_bUseGribs&m_bAtSurfaceOnly&m_albedo&m_seed&m_allowedDerivedVariables&m_bXValidation&m_bSkipVerify;
+			ar & m_searchRadius;
 		}
 
 
@@ -169,6 +225,8 @@ namespace zen
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALLOWED_DERIVED_VARIABLES)](in.m_allowedDerivedVariables);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::XVALIDATION)](in.m_bXValidation);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SKIP_VERIFY)](in.m_bSkipVerify);
+		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SEARCH_RADIUS)](in.m_searchRadius);
+		
 	}
 
 	template <> inline
@@ -198,7 +256,7 @@ namespace zen
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALLOWED_DERIVED_VARIABLES)](out.m_allowedDerivedVariables);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::XVALIDATION)](out.m_bXValidation);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SKIP_VERIFY)](out.m_bSkipVerify);
-		
+		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SEARCH_RADIUS)](out.m_searchRadius);
 
 		return true;
 	}

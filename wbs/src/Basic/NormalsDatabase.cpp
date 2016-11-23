@@ -557,7 +557,7 @@ CWVariablesCounter CNormalsDatabase::GetWVariablesCounter(size_t i, const set<in
 	return count;
 }
 
-ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
+ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
 {
 	ASSERT(IsOpen());
 	ASSERT(m_openMode == modeRead);
@@ -621,22 +621,33 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 
 
 	msg = m_zop.Search(station, nbStation, searchResultArray, canal);
-	if (searchResultArray.size()<nbStation)
+	if (searchResultArray.size() == nbStation)
 	{
-		string fileterName;
-		for (size_t v = 0; v<filter.size(); v++)
+		if (searchRadius >= 0)
 		{
-			if (filter[v])
+			for (CSearchResultVector::iterator it = searchResultArray.begin(); it != searchResultArray.end();)
 			{
-				if (!fileterName.empty())
-					fileterName += "+";
-				fileterName += GetVariableName(v);
+				if (it->m_distance < searchRadius)//station in the radius not accepted to exclude all station when r=0
+					it++; 
+				else
+					it = searchResultArray.erase(it);
+			}
+
+			if (searchResultArray.empty())
+			{
+				string filterName = filter.GetVariablesName('+');
+				string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), GetFileName(m_filePath), ToString(year), filterName);
+				msg.ajoute(error);
 			}
 		}
+	}
+	else
+	{
+		string filterName = filter.GetVariablesName('+');
 
-		assert(!fileterName.empty());
+		assert(!filterName.empty());
 		msg = ERMsg();//reset msg and add new message
-		string error = FormatMsg(IDS_WG_NOTENOUGH_NORMALSTATION, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(nbStation), fileterName);
+		string error = FormatMsg(IDS_WG_NOTENOUGH_NORMALSTATION, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(nbStation), filterName);
 		msg.ajoute(error);
 	}
 
@@ -994,7 +1005,7 @@ void CNormalsDatabase::GetStationOrder(vector<size_t>& DBOrder)const
 }
 
 
-ERMsg CNormalsDatabase::CreateFromMerge(const string& filePath1, const string& filePath2, double distance, double deltaElev, short mergeType, CCallback& callback)
+ERMsg CNormalsDatabase::CreateFromMerge(const string& filePath1, const string& filePath2, double distance, double deltaElev, size_t mergeType, CCallback& callback)
 {
 	ASSERT( m_openMode == modeEdit );
 
@@ -1266,7 +1277,7 @@ ERMsg CNormalsDatabase::VerifyDB(CCallback& callback)const
 	return msg;
 }
 
-ERMsg CNormalsDatabase::CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double d, double deltaElev, short mergeType, short priorityRules, std::string& log, CCallback& callback)
+ERMsg CNormalsDatabase::CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double d, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback)
 {
 	ERMsg msg;
 

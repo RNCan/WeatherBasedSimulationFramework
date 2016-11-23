@@ -34,7 +34,7 @@ using namespace std;
 namespace WBSF
 {
 
-	static const size_t GRAY_TIME_STEP = 4;
+	static const size_t GRAY_TIME_STEP = 4; //[h]
 
 	const int CGrayModel::number_classes[3] = { N_CLASS1, N_CLASS2, N_CLASS3 };    //number of variability classes in 3 phases
 
@@ -328,8 +328,10 @@ namespace WBSF
 		{
 			T = (double)temp - lower_thresh[0];
 			rate = psiI*(exp(rhoI*T) - exp(rhoI*TmI - (TmI - T) / deltaTI));
-			if (rate > 0)prediapause_table[i] = rate*(double)(GRAY_TIME_STEP / 24.);
-			else prediapause_table[i] = 0;
+			if (rate > 0)
+				prediapause_table[i] = rate*(double)(GRAY_TIME_STEP / 24.0);
+			else 
+				prediapause_table[i] = 0;
 			i++;
 		}
 
@@ -351,8 +353,11 @@ namespace WBSF
 			RP[i] = 1.0 + RP_c*pow(exp(Z), 6.0);
 			rate = max(0.0, exp(PDR_c + PDR_t*(double)temp + PDR_t2*pow((double)temp, 2.0) + PDR_t4*pow((double)temp, 4.0)));
 			RS[i] = RS_c + RS_rp*RP[i];
-			if (rate > 0)PDR[i] = rate;
-			else PDR[i] = 0;
+			
+			if (rate > 0)
+				PDR[i] = rate;
+			else 
+				PDR[i] = 0;
 		}
 
 		//calculate inhib. depletion rates and actual develop. rates (in diapause) for lookup tables
@@ -375,7 +380,8 @@ namespace WBSF
 				rate = max(0.0, (1 - inhibitor_titre*eff_res[i]))*PDR[i];
 				if (rate <= 0)
 					diapause_table[i][j] = 0;
-				else diapause_table[i][j] = rate*pctDay;
+				else 
+					diapause_table[i][j] = rate*pctDay;
 			}
 			d_inhibitor_table[i][inhib_titre_range] = d_inhibitor_table[i][inhib_titre_range - 1];
 			diapause_table[i][inhib_titre_range] = diapause_table[i][inhib_titre_range - 1];
@@ -412,7 +418,8 @@ namespace WBSF
 					postdiapause_table[i][j] = 0;
 				else if (rate >= 1)
 					postdiapause_table[i][j] = 1 * pctDay;
-				else postdiapause_table[i][j] = rate*pctDay;
+				else 
+					postdiapause_table[i][j] = rate*pctDay;
 			}
 
 			postdiapause_table[i][j] = postdiapause_table[i][j - 1];
@@ -470,13 +477,19 @@ namespace WBSF
 
 		if (T<lower_thresh[0] || T>upper_thresh[0])
 		{
-			if (T < lower_thresh[0])TP = 0;
-			else TP = round_off(upper_thresh[0]) - round_off(lower_thresh[0]);
+			if (T < lower_thresh[0])
+				TP = 0;
+			else 
+				TP = round_off(upper_thresh[0]) - round_off(lower_thresh[0]);
 		}
-		else TP = (round_off)(T - lower_thresh[0]);
+		else
+		{
+			TP = (round_off)(T - lower_thresh[0]);
+		}
 
 		fraction = T - (lower_thresh[0] + (double)TP);
 		dev_rate = prediapause_table[TP] + fraction*(prediapause_table[TP + 1] - prediapause_table[TP]);
+
 		return(dev_rate);
 	}
 
@@ -547,8 +560,11 @@ namespace WBSF
 
 		if (T<lower_thresh[2] || T>upper_thresh[2])
 		{
-			if (T < lower_thresh[2])TP = 0;
-			else TP = round_off(upper_thresh[2]) - round_off(lower_thresh[2]);
+			if (T < lower_thresh[2])
+				TP = 0;
+			else 
+				TP = round_off(upper_thresh[2]) - round_off(lower_thresh[2]);
+
 			T_fraction = 0.0;
 		}
 		else

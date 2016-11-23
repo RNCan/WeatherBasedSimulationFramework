@@ -55,6 +55,7 @@ namespace WBSF
 		afx_msg void OnDailyLink();
 		afx_msg void OnHourlyLink();
 		afx_msg void OnGribsLink();
+		afx_msg void OnSearchRadiusClick();
 		afx_msg void OnEnable(BOOL bEnable);
 		afx_msg void UpdateCtrl();
 		
@@ -75,7 +76,7 @@ namespace WBSF
 
 		//bool m_bDefaultModel;
 		CModel m_model;
-
+		CSearchRadius m_searchRadius;
 
 		CWVariablesEdit m_variablesCtrl;
 		CCFLComboBox m_sourceTypeCtrl;

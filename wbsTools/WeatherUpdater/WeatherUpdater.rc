@@ -656,7 +656,7 @@ BEGIN
     IDS_UPDATER_SM_DAILY_P  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_SM_HOURLY_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Mise à jours des coordonnées"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
     IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations"
 	IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MDDELCC_DAILY_P 
@@ -1093,7 +1093,7 @@ BEGIN
     IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First year|Last year"
     IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First year|Last year|Update coordinates"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "User Name|Password|Working directory|First year|Last year"
+                            "User Name|Password|Working directory|Network|First year|Last year|Forecast"
     IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list"
 	IDS_UPDATER_NEWA_P		"Working directory|Data Type|First year|Last year|States|Update until x days|Update stations list"
     IDS_UPDATER_MDDELCC_DAILY_P 

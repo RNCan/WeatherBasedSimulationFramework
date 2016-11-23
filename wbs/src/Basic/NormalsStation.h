@@ -62,8 +62,8 @@ namespace WBSF
 		void GetNormalVector(const CLocation& target, CWVariables variables, CNormalDataVector& normalVector)const;
 		void GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation = true)const;
 		void GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation = true)const;
-		ERMsg MergeStation(CNormalsStation& station, short mergeType)const;
-		void GetMean(short mergeType, CNormalsData& data)const;
+		ERMsg MergeStation(CNormalsStation& station, size_t mergeType)const;
+		void GetMean(size_t mergeType, CNormalsData& data)const;
 
 	};
 

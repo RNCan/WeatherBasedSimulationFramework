@@ -288,7 +288,7 @@ ERMsg CGridInterpol::TrimDataset(CCallback& callback)
 		callback.AddMessage("Samples size = " + ToString(newObs) );
 	}
 
-	if( newObs < m_param.m_nbPoints)
+	if (newObs < m_param.m_nbPoints && m_method != SPATIAL_REGRESSION)
 	{
 		string  error = FormatMsg(IDS_MAP_NOT_ENOUGH_POINT, ToString(newObs), ToString(m_param.m_nbPoints) );
 		msg.ajoute(error);

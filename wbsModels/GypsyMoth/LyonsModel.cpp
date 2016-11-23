@@ -30,7 +30,7 @@ namespace WBSF
 		//int		day	= weather.GetDayIndex(weather.GetNbYear()-1, 89, 0);
 		//int		day	= CJDayRef(p.GetLastYear(), 89) - weather.GetFirstTRef();
 		CTRef day = CJDayRef(p.GetLastYear(), 89);
-		ASSERT(weather.GetTPeriod().IsInside(day));
+		ASSERT(weather.GetEntireTPeriod(CTM::DAILY).IsInside(day));
 
 		for (CTRef i = m_eggState.GetFirstTRef(); i < day; i++)
 			m_eggState[i][DIAPAUSE] = MAXEGGS;
