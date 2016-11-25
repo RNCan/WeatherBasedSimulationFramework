@@ -11,18 +11,18 @@ namespace WBSF
 	enum TClass { NB_CLASS = 50 };
 	enum TModel { THERRIEN, LYSYK };
 
-	class CJackPineModel : public CBioSIMModelBase
+	class CJackpineModel : public CBioSIMModelBase
 	{
 	public:
 
 
-		CJackPineModel();
-		virtual ~CJackPineModel();
+		CJackpineModel();
+		virtual ~CJackpineModel();
 
 
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
-		static CBioSIMModelBase* CreateObject(){ return new CJackPineModel; }
+		static CBioSIMModelBase* CreateObject(){ return new CJackpineModel; }
 
 
 		void Reset();

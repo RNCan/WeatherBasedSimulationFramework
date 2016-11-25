@@ -77,7 +77,7 @@ namespace WBSF
 
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
-		CModelFactory::RegisterModel(CJackPineModel::CreateObject);
+		CModelFactory::RegisterModel(CJackpineModel::CreateObject);
 
 	//must be 1 because the method Devel don't support other time step
 	static const short TIME_STEP = 1;
@@ -86,7 +86,7 @@ namespace WBSF
 	//put your need in the constructor
 	//these flag must be synchronized with the model interface
 	//in order:
-	CJackPineModel::CJackPineModel()
+	CJackpineModel::CJackpineModel()
 	{
 		// initialise your variable here (optionnal)
 		//NB_INPUT_PARAMETER is use to determine if the dll
@@ -95,11 +95,11 @@ namespace WBSF
 		VERSION = "2.3.0 (2016)";
 	}
 
-	CJackPineModel::~CJackPineModel()
+	CJackpineModel::~CJackpineModel()
 	{}
 
 	//this method is call to load your parameter in your variable
-	ERMsg CJackPineModel::ProcessParameters(const CParameterVector& parameters)
+	ERMsg CJackpineModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg message;
 
@@ -111,7 +111,7 @@ namespace WBSF
 		return message;
 	}
 
-	void CJackPineModel::Reset()
+	void CJackpineModel::Reset()
 	{
 		for (int i = 0; i < NB_INSTAR; i++)
 			for (int j = 0; j < NB_CLASS; j++)
@@ -121,7 +121,7 @@ namespace WBSF
 	}
 
 	//This method is call to compute solution
-	ERMsg CJackPineModel::OnExecuteDaily()
+	ERMsg CJackpineModel::OnExecuteDaily()
 	{
 		ERMsg message;
 
@@ -138,7 +138,7 @@ namespace WBSF
 	enum TLysykOutput{ O_NB_OVERWIN_BUGS, O_L2, O_L3, O_L4, O_L5, O_L6, O_L7, O_PUPEA, O_ALDULT, O_AI, NB_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_OUTPUT> CJackPineStatVector;
 
-	void CJackPineModel::ExecuteLysyk()
+	void CJackpineModel::ExecuteLysyk()
 	{
 
 		CJackPineStatVector stat(m_weather.GetEntireTPeriod());
@@ -306,7 +306,7 @@ namespace WBSF
 	//    then life stage frequencies and ai with therrien's      
 	//    parameter values                                        
 	//------------------------------------------------------------
-	void CJackPineModel::ExecuteTherrien()
+	void CJackpineModel::ExecuteTherrien()
 	{
 		//------------------------------------------------------------C
 		//    BASE TEMPERATURE FOR DEGREEDAY CALCULATIONS             C
@@ -345,7 +345,7 @@ namespace WBSF
 
 
 
-	double CJackPineModel::GetLY_AI(const double total[NB_INSTAR])const
+	double CJackpineModel::GetLY_AI(const double total[NB_INSTAR])const
 	{
 		double LY_AI = 0;
 
@@ -375,7 +375,7 @@ namespace WBSF
 	//  are found in regniere, j. 1983. can. entomol. 114: 811-   
 	//  825.                                                      
 	//------------------------------------------------------------
-	/*void CJackPineModel::TCycle(double TMAX[3], double TMIN[3], double TARRAY[24])
+	/*void CJackpineModel::TCycle(double TMAX[3], double TMIN[3], double TARRAY[24])
 	{
 	static const double TCOS[24] =
 	{
@@ -410,7 +410,7 @@ namespace WBSF
 	}
 	*/
 
-	double CJackPineModel::GetRate(double TK, int stage)
+	double CJackpineModel::GetRate(double TK, int stage)
 	{
 		_ASSERTE(stage >= OVERWINDEV && stage <= PUPEA);
 
@@ -456,7 +456,7 @@ namespace WBSF
 	//    correction factor (tbark) can be used to correct for    
 	//    solar effects on overwintering larvae.                  
 	//------------------------------------------------------------
-	void CJackPineModel::Devel(const CDailyWaveVector& T, double& OverWinDev, double stageDev[NB_INSTAR])
+	void CJackpineModel::Devel(const CDailyWaveVector& T, double& OverWinDev, double stageDev[NB_INSTAR])
 	{
 		//t must be hourly because TBUD and TBARK are hourly; 
 		_ASSERTE(T.size() == 24);
@@ -511,7 +511,7 @@ namespace WBSF
 	//    to the next stage, and stores these probabilities in a  
 	//    matrix called trans[i][j].                              
 	//------------------------------------------------------------
-	void CJackPineModel::ComputeTransferProb(const double age[NB_INSTAR][NB_CLASS], double transferProb[NB_INSTAR][NB_CLASS])
+	void CJackpineModel::ComputeTransferProb(const double age[NB_INSTAR][NB_CLASS], double transferProb[NB_INSTAR][NB_CLASS])
 	{
 		//-----------------------------------------------
 		//    TRANSFORMATION PARAMETERS FOR EACH STAGE.  
@@ -560,7 +560,7 @@ namespace WBSF
 	//   for overwintering insects.                               
 	//------------------------------------------------------------
 	//FOLDE is FNEWE of the last day. 
-	double CJackPineModel::GetEmergeProb(double overWinAge)
+	double CJackpineModel::GetEmergeProb(double overWinAge)
 	{
 		static const double ETA = 0.2905;
 		static const double BETA = 1.3115;
@@ -592,7 +592,7 @@ namespace WBSF
 	}
 
 
-	void CJackPineModel::Therrien(double ddays, double p[NB_INSTAR + 1], double& lysykai)
+	void CJackpineModel::Therrien(double ddays, double p[NB_INSTAR + 1], double& lysykai)
 	{
 		static const double insparm[8] =
 		{
@@ -636,7 +636,7 @@ namespace WBSF
 	}
 
 
-	double CJackPineModel::Allen(double TMIN, double TMAX, double BASE)
+	double CJackpineModel::Allen(double TMIN, double TMAX, double BASE)
 	{
 		double DD = 0;
 		double MEAN = (TMIN + TMAX) / 2;

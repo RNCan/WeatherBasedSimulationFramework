@@ -7,12 +7,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="JackPineBudworm.cpp">
+    <ClCompile Include="JackpineBudworm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="JackPineBudworm.h">
+    <ClInclude Include="JackpineBudworm.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

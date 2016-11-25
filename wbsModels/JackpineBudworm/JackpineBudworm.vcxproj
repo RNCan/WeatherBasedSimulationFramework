@@ -308,10 +308,10 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="JackPineBudworm.cpp" />
+    <ClCompile Include="JackpineBudworm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="JackPineBudworm.h" />
+    <ClInclude Include="JackpineBudworm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
