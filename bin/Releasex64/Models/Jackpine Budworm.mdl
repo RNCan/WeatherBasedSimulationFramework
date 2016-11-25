@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Jackpine Budworm</Title>
+    <Version>1.0</Version>
+    <ID>.jps</ID>
+    <EXE>Jackpine Budworm.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 199 297</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Type</Name>
+            <Caption>Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 30 30 260</Rect>
+            <SeparatorPos>110</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue>Therrien|Lysyk</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>LinearFlag</Name>
+            <Caption>Use Lysyk's linear equations:</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>65 30 85 260</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>BudMicro</Name>
+            <Caption>Bud microclimate:</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>95 30 115 260</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>BarkMicro</Name>
+            <Caption>Bark microclimate:</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>125 30 145 260</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Overwintering</Name>
+            <Title>Overwintering</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L5</Name>
+            <Title>L5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L6</Name>
+            <Title>L6</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L7</Name>
+            <Title>L7</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AverageInstar</Name>
+            <Title>Average Instar</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>This is actually two different models of Jack Pine phenology: &#x0A;&#x0A;Lysyk's model was published in:&#x0A;&#x0A;Lysyk, T.J. 1989. A multiple-cohort model for simulating Jack Pine Budworm (Lepidoptera:Torticidae) development under variable temperatures. Can. Entomol. 121: 373-387.&#x0A;&#x0A;Therrien's model (the alternative) has not been published or validated. It was developed from Quebec data by P. Therrien (QMNR).</Credit>
+    <HelpFileName/>
+</Model>
