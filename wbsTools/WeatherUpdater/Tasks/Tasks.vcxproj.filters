@@ -152,6 +152,15 @@
     <ClInclude Include="UINEWA.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIHighResolutionGribs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HRRR.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HRDPS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -293,6 +302,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UINEWA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHighResolutionGribs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HRRR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HRDPS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

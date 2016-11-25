@@ -1591,7 +1591,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 			static const char* FILTER_STR[NB_ATM_VARIABLES] = { "T", "T", "P", "WS WD", "WS WD", "T", "T" };
 			int year = UTCTRef.GetYear();
 			
-			callback.PushTask("Load stations index", NB_ATM_VARIABLES*m_world.m_flyers.size());
+			
 			//search all station used
 			set<size_t> indexes;
 			for (size_t v = 0; v < NB_ATM_VARIABLES&&msg; v++)
@@ -1603,13 +1603,14 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					for (size_t ss = 0; ss < result.size(); ss++)
 						indexes.insert(result[ss].m_index);
 
-					msg += callback.StepIt();
+					msg += callback.StepIt(0);
 				}
 			}
-			callback.PopTask();
+			//callback.PopTask();
 
+			//callback.PushTask("Load weather...", indexes.size() + NB_ATM_VARIABLES*indexes.size());
 			//pre-load weather
-			callback.PushTask("Load stations", indexes.size());
+			//callback.PushTask("Load stations", indexes.size());
 			for (set<size_t>::const_iterator it = indexes.begin(); it != indexes.end() && msg; it++)
 			{
 				size_t index = *it;
@@ -1620,13 +1621,13 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				ASSERT(m_stations.find(index) != m_stations.end());
 
 				m_Twater[index].Compute(station);//compute water temperature
-				msg += callback.StepIt();
+				msg += callback.StepIt(0);
 			}
 
-			callback.PopTask();
+			//callback.PopTask();
 
 			//create IWD object
-			callback.PushTask("Load IWD", NB_ATM_VARIABLES*indexes.size());
+			//callback.PushTask("Load IWD", NB_ATM_VARIABLES*indexes.size());
 			for (size_t v = 0; v < NB_ATM_VARIABLES&&msg; v++)
 			{
 				CGridPointVectorPtr pts(new CGridPointVector);
@@ -1716,7 +1717,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					default:ASSERT(false);
 					}
 
-					msg += callback.StepIt();
+					msg += callback.StepIt(0);
 				}//for all index
 
 				
@@ -1751,7 +1752,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				
 			}//for all variables
 
-			callback.PopTask();
+			//callback.PopTask();
 		}//if not loaded
 
 
@@ -2161,16 +2162,21 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 			if (msg && !m_weather.SkipDay())
 			{
 				//init all flyers
-				for (size_t i = 0; i < fls.size() && !m_weather.SkipDay() && msg; i++)
+				for (size_t i = 0; i < fls.size() && msg; i++)
 				{
 					fls[i]->init();
 				}
 
 				//get simulation hours for this day
 				CTPeriod UTC_period = get_UTC_period(fls);
-				ASSERT(UTC_period.IsInit());
+				ASSERT(UTC_period.IsInit()); 
 				
-				callback.PushTask("Load weather for " + TRef.GetFormatedString("%Y-%m-%d"), UTC_period.GetNbHour());
+				int nbSteps = 0;
+				for (CTRef UTCTRef = UTC_period.Begin(); UTCTRef <= UTC_period.End() && msg; UTCTRef++)
+					if (!m_weather.IsLoaded(UTCTRef))
+						nbSteps++;
+
+				callback.PushTask("Load weather for " + TRef.GetFormatedString("%Y-%m-%d"), nbSteps);
 
 				//pre-Load weather for the day
 				for (CTRef UTCTRef = UTC_period.Begin(); UTCTRef <= UTC_period.End() && msg; UTCTRef++)

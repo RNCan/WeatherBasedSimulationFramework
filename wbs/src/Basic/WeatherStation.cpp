@@ -2681,6 +2681,123 @@ void CWeatherYears::ResetStat()
 		at(i).ResetStat();
 }
 
+
+void CWeatherYears::CompleteSnow()
+{
+	CWeatherYears& me = *this;
+
+	bool bHaveSnowData = false;
+	bool bHaveSnow = false;
+
+	CTPeriod p = GetEntireTPeriod(CTM::DAILY);
+	CTRef beginLastPeriod = p.Begin();
+	//write data
+	for (CTRef d = p.Begin(); d <= p.End(); d++)
+	{
+		if (me[d][H_SNDH].IsInit())
+		{
+			bHaveSnowData = true;
+
+			if (me[d][H_SNDH][SUM]>0)
+				bHaveSnow = true;
+		}
+		
+
+		if (bHaveSnowData && (d.GetJDay() == 171 || d == p.End()) )
+		{
+			
+			if (bHaveSnow)
+			{
+				double lastSnowVal = -999;
+//				CTRef lastSnowDay;
+
+
+				for (CTRef dd = beginLastPeriod; dd < d || dd == p.End(); dd++)
+				{
+					if (me[dd][H_SNDH].IsInit())
+					{
+						if (lastSnowVal > 10 && me[dd][H_SNDH][SUM] == 0 && dd < p.End() &&
+							me[dd + 1][H_SNDH].IsInit() && me[dd + 1][H_SNDH][SUM]>10)
+						{
+							//bad zero zero easted of missing value
+							me[dd][H_SNDH].Reset();
+						}
+
+						lastSnowVal = me[dd][H_SNDH].IsInit() ? me[dd][H_SNDH][SUM] : -999;
+	//					lastSnowDay = dd;
+					}
+					else
+					{
+
+						if (!IsMissing(lastSnowVal))
+						{
+							if (me[dd][H_PRCP][SUM] == 0 || me[dd][H_SNOW][SUM] == 0 ||
+								(lastSnowVal == 0 && me[dd][H_TMIN2].IsInit() && me[dd][H_TMIN2][MEAN] > 6))
+							{
+								me[dd][H_SNDH] = lastSnowVal;
+							}
+							else
+							{
+								lastSnowVal = -999;
+							}
+						}
+
+						//if (me[dd][H_TMIN2].IsInit() && me[dd][H_TMIN2][MEAN] > 6)
+						//{
+						//	ASSERT(!me[dd][H_SNDH].IsInit() || me[dd][H_SNDH][SUM] == 0);
+						//	me[dd][H_SNDH] = 0;
+						//}
+					}
+				}
+
+				//reset last value
+				//lastSnowVal = -999;
+
+				for (CTRef dd = d; dd >= beginLastPeriod; dd--)
+				{
+					if (me[dd][H_SNDH].IsInit())
+					{
+						//if (lastSnowVal > 10 && me[dd][H_SNDH][SUM] == 0 && dd < p.End() &&
+						//	me[dd + 1][H_SNDH].IsInit() && me[dd + 1][H_SNDH][SUM]>10)
+						//{
+						//	//bad zero zero easted of missing value
+						//	me[dd][H_SNDH].Reset();
+						//}
+
+						lastSnowVal = me[dd][H_SNDH][SUM];
+					}
+					else
+					{
+
+						if (!IsMissing(lastSnowVal))
+						{
+							if (me[dd][H_PRCP][SUM] == 0 || me[dd][H_SNOW][SUM] == 0 ||
+								(lastSnowVal==0 && me[dd][H_TMIN2].IsInit() && me[dd][H_TMIN2][MEAN] > 6))
+							{
+								me[dd][H_SNDH] = lastSnowVal;
+							}
+							else
+							{
+								lastSnowVal = -999;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				for (CTRef dd = beginLastPeriod; dd < d || dd == p.End(); dd++)
+					me[d][H_SNDH].Reset();
+			}
+
+			bHaveSnowData = false;
+			bHaveSnow = false;
+			beginLastPeriod = d;
+		}
+	}
+
+	
+}
 //*****************************************************************************************************************
 CTRef CWeatherDay::GetTRef()const
 {

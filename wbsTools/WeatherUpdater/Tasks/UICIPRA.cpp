@@ -176,6 +176,8 @@ namespace WBSF
 			for (size_t n = 0; n < networks.size(); n++)
 			{
 				size_t nn = GetNetworkIndex(networks[n]);
+				if (nn > NB_NETWORKS)
+					continue;
 
 				for (size_t y = 0; y < nbYears + (bForecast ? 1 : 0) && msg; y++)
 				{

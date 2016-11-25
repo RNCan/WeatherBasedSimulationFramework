@@ -1148,7 +1148,8 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 	boost::dynamic_bitset<size_t> addedIndex1(DB1Order.size());
 	boost::dynamic_bitset<size_t> addedIndex2(DB2Order.size());
 
-	callback.PushTask(FormatMsg(IDS_CMN_MERGE_DATABASE, GetFileName(m_filePath), GetFileName(filePath1), GetFileName(filePath2)), pDB1->size() + pDB2->size());
+	//\n\t%2\n\t%3
+	callback.PushTask(FormatMsg(IDS_CMN_MERGE_DATABASE, GetFileName(m_filePath), " \"" + GetFileName(filePath1) + "\", \"", GetFileName(filePath2) + "\""), pDB1->size() + pDB2->size());
 
 	for(size_t _i=0; _i<DB1Order.size()&&msg; _i++)
 	{

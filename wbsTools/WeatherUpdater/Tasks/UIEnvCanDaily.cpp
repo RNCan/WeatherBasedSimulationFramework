@@ -875,6 +875,7 @@ namespace WBSF
 				msg = ReadData(filePath, station[year]);
 		}
 
+		station.CompleteSnow();
 
 		//verify station is valid
 		if (msg && station.HaveData())
@@ -909,7 +910,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			bool bHaveSnow = false;
+			//bool bHaveSnow = false;
 			size_t i = 0;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop, i++)
 			{
@@ -968,18 +969,18 @@ namespace WBSF
 					float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
 					ASSERT(sndh >= 0 && sndh < 1000);
 					dailyData[Tref][H_SNDH] = sndh;
-					if (sndh>0)
-						bHaveSnow = true;
+					//if (sndh>0)
+						//bHaveSnow = true;
 				}
-				else if ((*loop)[SNOW_ON_GRND_FLAG].empty() && (*loop)[SNOW_ON_GRND].empty() && !(*loop)[TOTAL_PRECIP].empty())
-				{
-					//when both is empty and total precip is init --> zero
-					if (bHaveSnow )//if previous day is init
-						dailyData[Tref][H_SNDH] = 0;
-				}
+				//else if ((*loop)[SNOW_ON_GRND_FLAG].empty() && (*loop)[SNOW_ON_GRND].empty() && !(*loop)[TOTAL_PRECIP].empty())
+				//{
+				//	//when both is empty and total precip is init --> zero
+				//	if (bHaveSnow )//if previous day is init
+				//		dailyData[Tref][H_SNDH] = 0;
+				//}
 
-				if (bHaveSnow && Tref.GetJDay() == 182)
-					bHaveSnow = false;
+				//if (bHaveSnow && Tref.GetJDay() == 182)
+				//	bHaveSnow = false;
 
 				//problème aussi avec le DewPoint et le minimum horaire
 			}//for all line

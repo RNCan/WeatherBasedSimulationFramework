@@ -161,6 +161,8 @@
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateMMG.h" />
     <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="HRDPS.h" />
+    <ClInclude Include="HRRR.h" />
     <ClInclude Include="UICMIP5.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACIS.h" />
@@ -171,6 +173,7 @@
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
     <ClInclude Include="UIGPCP.h" />
+    <ClInclude Include="UIHighResolutionGribs.h" />
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMDDELCC.h" />
     <ClInclude Include="UINEWA.h" />
@@ -210,6 +213,8 @@
     <ClCompile Include="CreateHourlyDB.cpp" />
     <ClCompile Include="CreateMMG.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="HRDPS.cpp" />
+    <ClCompile Include="HRRR.cpp" />
     <ClCompile Include="UICMIP5.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -225,6 +230,7 @@
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
     <ClCompile Include="UIGPCP.cpp" />
+    <ClCompile Include="UIHighResolutionGribs.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMDDELCC.cpp" />
     <ClCompile Include="UINEWA.cpp" />

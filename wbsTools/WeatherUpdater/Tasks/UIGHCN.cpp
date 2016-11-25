@@ -12,6 +12,10 @@
 #include "CountrySelection.h"
 #include "StateSelection.h"
 
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -223,9 +227,9 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	string workingDir = GetDir(WORKING_DIR); 
 	CreateMultipleDir( workingDir );
 
-	string tarFilePath = workingDir + "ghcnd_all.tar";
-	string gzFilePath = tarFilePath + ".gz";
-	string InputFilePath = string(SERVER_PATH) + "ghcnd_all.tar.gz";
+	//string tarFilePath = workingDir + "ghcnd_all.tar";
+	//string gzFilePath = tarFilePath + ".gz";
+	//string InputFilePath = string(SERVER_PATH) + "ghcnd_all.tar.gz";
 
 	callback.AddMessage(GetString(IDS_UPDATE_DIR ));
 	callback.AddMessage(workingDir, 1);
@@ -262,28 +266,33 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 			msg += callback.StepIt(0);
 			if (msg)
 			{
-				string outputFilePath = GetOutputFilePath(fileList[i]) + ".gz";
+				//string outputFilePath = GetOutputFilePath(fileList[i]) + ".gz";
+				string fileName = GetFileName(fileList[i].m_filePath);
+				string outputFilePath = GetOutputFilePath(fileName);
 
 				CreateMultipleDir(GetPath(outputFilePath));
-				callback.AddMessage("Download " + GetFileName(outputFilePath) + " ...");
+				callback.AddMessage("Download " + fileName + " ...");
 
 				msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath.c_str(), callback);
 
 				//unzip it
 				if (msg)
 				{
-					callback.AddMessage("Unzip " + GetFileName(outputFilePath) + " ...");
-					msg = sevenZ(outputFilePath.c_str(), GetPath(outputFilePath).c_str(), callback);
-					RemoveFile(outputFilePath);
+					//callback.AddMessage("Unzip " + GetFileName(outputFilePath) + " ...");
+					//msg = sevenZ(outputFilePath.c_str(), GetPath(outputFilePath).c_str(), callback);
+					//RemoveFile(outputFilePath);
 
 					//update time to the time of the .gz file
-					boost::filesystem::path p(outputFilePath);
-					if (boost::filesystem::exists(p))
-						boost::filesystem::last_write_time(p, fileList[i].m_time);
+					//boost::filesystem::path p(outputFilePath);
+					//if (boost::filesystem::exists(p))
+						//boost::filesystem::last_write_time(p, fileList[i].m_time);
 
 
 					if (msg)
+					{
 						curI++;
+						msg += callback.StepIt();
+					}
 				}
 			}
 		}
@@ -294,15 +303,26 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 
 	return msg;
 }
-string CUIGHCND::GetOutputFilePath(const string& fileTitle)const
+
+int CUIGHCND::GetYear(const string& fileName)
 {
-	return GetDir(WORKING_DIR) + "by_year\\" + fileTitle + ".csv";
+	return ToInt(fileName.substr(0, 4));
 }
 
-string CUIGHCND::GetOutputFilePath(const CFileInfo& info)const
+std::string CUIGHCND::GetOutputFilePath(int year)const
 {
-	return GetOutputFilePath( GetFileTitle(info.m_filePath).c_str() );
+	return GetDir(WORKING_DIR) + "by_year\\" +ToString(year)+ ".csv.gz";
 }
+
+string CUIGHCND::GetOutputFilePath(const string& fileName)const
+{
+	return GetDir(WORKING_DIR) + "by_year\\" + fileName;
+}
+
+//string CUIGHCND::GetOutputFilePath(const CFileInfo& info)const
+//{
+//	return GetOutputFilePath( info.m_filePath );
+//}
 
 bool CUIGHCND::IsFileInclude(const string& fileTitle)const
 {
@@ -401,8 +421,8 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 
 	for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end()&&msg; )
 	{
-		int year = ToInt(GetFileTitle(it->m_filePath));
-		string outputFilePath = GetOutputFilePath(*it);
+		int year = GetYear(GetFileName(it->m_filePath));
+		string outputFilePath = GetOutputFilePath(year);
 
 		if (year<firstYear || year>lastYear || IsFileUpToDate(*it, outputFilePath, false))
 			it = fileList.erase(it);
@@ -508,7 +528,7 @@ ERMsg CUIGHCND::PreProcess(CCallback& callback)
 			for (size_t y = 0; y<nbYears&&msg; y++)
 			{
 				int year = firstYear + int(y);
-				string filePath = path + "by_year\\" + ToString(year) + ".csv";
+				string filePath = GetOutputFilePath(year);
 				msg = LoadData(filePath, m_loadedData, callback);
 			}
 		}
@@ -796,7 +816,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 	ERMsg msg;
 
 	ifStream file;
-	msg = file.open(filePath);
+	msg = file.open(filePath, ios_base::in | ios_base::binary);
 
 	if (msg)
 	{
@@ -804,20 +824,20 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 		std::istream::pos_type length = file.tellg();
 		file.seekg(0);
 
-		callback.PushTask("Load in memory " + GetFileName(filePath), length);
-		//callback.SetNbStep(length);
+		boost::iostreams::filtering_istreambuf in;
+		in.push(boost::iostreams::gzip_decompressor());
+		in.push(file);
+		std::istream incoming(&in);
+		
 
-		short year = ToShort(GetFileTitle(filePath));
-		//CWeatherStationMap::iterator it = stations.end();
-		//SimpleDataMap::iterator it = data.end();
+		callback.PushTask("Load in memory " + GetFileName(filePath), length);
+		int year = GetYear(GetFileName(filePath));
 
 		bool bInclude = true;
 		string lastID;
-		for (CSVIterator loop(file); loop != CSVIterator()&&msg; ++loop)
+		for (CSVIterator loop(incoming); loop != CSVIterator() && msg; ++loop)
 		{
 			string ID = (*loop)[GHCN_ID];
-			//StationID ID11 = ID;
-			
 
 			if (ID != lastID)
 			{

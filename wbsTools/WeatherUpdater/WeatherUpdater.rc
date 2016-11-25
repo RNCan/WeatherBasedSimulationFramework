@@ -141,6 +141,7 @@ BUTTON      ID_TASK_NOMAD_RUC
 SEPARATOR
 BUTTON      ID_TASK_CMIP5
 BUTTON		ID_TASK_GPCP
+BUTTON      ID_TASK_HRG
 END
 
 
@@ -175,6 +176,7 @@ BEGIN
 	BUTTON      ID_TASK_NEWA
 	BUTTON      ID_TASK_CMIP5
 	BUTTON		ID_TASK_GPCP
+	BUTTON      ID_TASK_HRG
 	BUTTON      ID_TASK_OTHER_UPDATER
     SEPARATOR
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -676,6 +678,7 @@ BEGIN
 	IDS_UPDATER_ONTARIO_P "Répertoire de travail|Première année|Dernière année|Réseau"
 	IDS_UPDATER_CMIP5_P    "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
 	IDS_UPDATER_GPCP_P     "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
+	IDS_UPDATER_HRG_P		"Répertoire de travail|Sources"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
 END
@@ -713,9 +716,6 @@ BEGIN
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
-    ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC)"" via NOMADS (NOAA)\nGrille RUC"
-	ID_TASK_CMIP5			"Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
-	ID_TASK_GPCP			"Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
     ID_TASK_SM_HOURLY       "Télécharger les données horaires du Québec via Solutions-Mesonet\nQuébec horaire"
     ID_TASK_SM_DAILY        "Télécharger les données quotidiennes du Québec via Solutions-Mesonet\nQuébec quotidien"
 END
@@ -732,6 +732,10 @@ BEGIN
 	ID_TASK_NEWBRUNSWICK	"Télécharger les données du Nouveau Brunswick\nNouveau Brunswick"
 	ID_TASK_ONTARIO			"Télécharger les données de l'Ontario\nOntario"
 	ID_TASK_NEWA			"Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nNEWA"
+	ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille RUC/RAP"
+	ID_TASK_CMIP5			"Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
+	ID_TASK_GPCP			"Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
+	ID_TASK_HRG				"Télécharger les grilles hautes résolutons\nGrilles hautes résolutions"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -1112,6 +1116,7 @@ BEGIN
 	IDS_UPDATER_ONTARIO_P "Working directory|First year|Last year|Network"
 	IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
 	IDS_UPDATER_GPCP_P     "Working directory|Type|First year|Last year|Bounding Box"
+	IDS_UPDATER_HRG_P		"Working directory|Sources"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
 END
@@ -1149,9 +1154,7 @@ BEGIN
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
-    ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
-	ID_TASK_CMIP5			"Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
-	ID_TASK_GPCP			"Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+
     ID_TASK_SM_HOURLY       "Download Québec houry data via Solutions-Mesonet\nQuébec Hourly"
     ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
 END
@@ -1168,6 +1171,10 @@ BEGIN
 	ID_TASK_NEWBRUNSWICK	"Download New Brunswick weather data\nNew Brunswick"
 	ID_TASK_ONTARIO			"Download Ontario weather data\nOntario"
 	ID_TASK_NEWA			"Download Network for Environment and Weather Applications (NEWA)\nNEWA"
+	ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
+	ID_TASK_CMIP5			"Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
+	ID_TASK_GPCP			"Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+	ID_TASK_HRG				"Download high resolution gribs\nHigh Resolution Gribs"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

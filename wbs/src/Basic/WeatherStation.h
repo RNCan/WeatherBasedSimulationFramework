@@ -1044,7 +1044,9 @@ public:
 
 	bool IsCompilingHourly()const{ return m_bCompilingHourly; }
 	void IsCompilingHourly(bool in=true){ m_bCompilingHourly = in; }
-	
+	void CompleteSnow();
+
+
 protected:
 
 	bool m_bHourly;

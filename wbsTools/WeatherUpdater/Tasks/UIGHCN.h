@@ -94,8 +94,11 @@ namespace WBSF
 		//Get stations list part
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		std::string GetOutputFilePath(const CFileInfo& info)const;
-		std::string GetOutputFilePath(const std::string& stationName)const;
+		//std::string GetOutputFilePath(const CFileInfo& info)const;
+		static int GetYear(const std::string& fileName);
+		std::string GetOutputFilePath(const std::string& fileName)const;
+		std::string GetOutputFilePath(int year)const;
+		//std::string GetOutputFilePath(const std::string& stationName)const;
 
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
 		bool IsFileInclude(const std::string& fileTitle)const;
