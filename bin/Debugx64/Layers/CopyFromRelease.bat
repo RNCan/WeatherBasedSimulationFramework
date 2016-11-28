@@ -1,1 +1,1 @@
-xcopy /Y /S "..\..\Releasex64\Models\*.*" ".\*.*"
+xcopy /Y /S "..\..\Releasex64\Layers\*.*" ".\*.*"
