@@ -57,8 +57,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End" };
-	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE };
+	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "UseNAM" };
+	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_BOOL };
 	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOMAD_RUC_P;
 	const UINT CUIRapidUpdateCycle::DESCRIPTION_TITLE_ID = ID_TASK_NOMAD_RUC;
 
@@ -101,7 +101,7 @@ namespace WBSF
 	//************************************************************************************************************
 	//Load station definition list section
 
-	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, int forecastH)const
+	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP)const
 	{
 
 
@@ -110,49 +110,66 @@ namespace WBSF
 		int d = int(TRef.GetDay() + 1);
 		int h = int(TRef.GetHour());
 
-		string path;
-		if (TRef < CTRef(2012, MAY, 8, 0))
+		string filePath;
+		if (bRAP)
 		{
-			if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
-				path = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb" : ".inv");
+			if (TRef < CTRef(2012, MAY, 8, 0))
+			{
+				if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
+					filePath = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb" : ".inv");
+				else
+					filePath = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+			}
 			else
-				path = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
+			{
+				//CTRef TRefII = TRef;
+				//TRefII.Transform(CTM(CTM::DAILY));
+				CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
+				if (now - TRef >= 24)
+					filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+				else
+					filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+			}
 		}
 		else
 		{
-			//CTRef TRefII = TRef;
-			//TRefII.Transform(CTM(CTM::DAILY));
-			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
-			if (now - TRef >= 24)
-				path = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
-			else
-				path = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
+			
+			int forecastH = h % 6;
+			h = int(h / 5) * 6;
+			filePath = FormatA(NAM_FORMAT, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb" : ".inv");
+			
 		}
 
-
-		return path;
+		return filePath;
 	}
 
-	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, int forecastH)const
+	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP)const
 	{
-		static const char* OUTPUT_FORMAT = "%s%4d\\%02d\\%02d\\rap_130_%4d%02d%02d_%02d00_%03d%s";
+		static const char* OUTPUT_FORMAT = "%s%4d\\%02d\\%02d\\%s%4d%02d%02d_%02d00_%03d%s";
 
 		string workingDir = GetDir(WORKING_DIR);// GetAbsoluteFilePath(m_path);
 		int y = TRef.GetYear();
 		int m = int(TRef.GetMonth() + 1);
 		int d = int(TRef.GetDay() + 1);
 		int h = int(TRef.GetHour());
-
-
-		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
+		int forecastH = 0;
+		
+		if (!bRAP)
+		{
+			forecastH = h % 6;
+			h = int(h / 6) * 6;
+		}
+		
+		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, (bRAP ? "rap_130_" : "nam_218_"), y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
+//		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
-	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const
+	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		string inputPath = GetInputFilePath(TRef, bGrib, 0);
-		string outputPath = GetOutputFilePath(TRef, bGrib, 0);
+		string inputPath = GetInputFilePath(TRef, bGrib, bRAP);
+		string outputPath = GetOutputFilePath(TRef, bGrib, bRAP);
 		CreateMultipleDir(GetPath(outputPath));
 
 		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
@@ -216,8 +233,6 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		//callback.AddTask(1);
-
 
 		int nbFilesToDownload = 0;
 		int nbDownloaded = 0;
@@ -229,24 +244,24 @@ namespace WBSF
 			return msg;
 		}
 
-		CArray<bool> bNeedDownload;
-		bNeedDownload.SetSize(period.size() * 2);
+		CArray<bool> bGrbNeedDownload;
+		bGrbNeedDownload.SetSize(period.size());
 
 		for (CTRef h = period.Begin(); h <= period.End(); h++)
 		{
-			size_t hh = 2 * (h - period.Begin());
+			size_t hh = (h - period.Begin());
 
-			bNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, 0));
-			bNeedDownload[hh + 1] = NeedDownload(GetOutputFilePath(h, false, 0));
-			nbFilesToDownload += bNeedDownload[hh] ? 1 : 0;
-			nbFilesToDownload += bNeedDownload[hh + 1] ? 1 : 0;
+			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, true));
+			if (bGrbNeedDownload[hh] && as<bool>(USE_NAM))
+				bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false));
+
+			nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
 
 			msg += callback.StepIt(0);
 		}
 
-		//if (nbFilesToDownload)
-		callback.PushTask("Download grib for period", nbFilesToDownload);
-		//callback.SetNbStep(nbFilesToDownload);
+
+		callback.PushTask("Download gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFilesToDownload) + " gribs)", nbFilesToDownload);
 
 		int nbRun = 0;
 		CTRef curH = period.Begin();
@@ -266,28 +281,45 @@ namespace WBSF
 				{
 					for (CTRef h = curH; h <= period.End() && msg; h++, curH++)
 					{
-						size_t hh = 2 * (h - period.Begin());
-						if (bNeedDownload[hh])
+						size_t hh = (h - period.Begin());
+						if (bGrbNeedDownload[hh])
 						{
-							msg = DownloadGrib(pConnection, h, true, callback);
-							if (msg)
+							//downloiad gribs file
+							msg = DownloadGrib(pConnection, h, true, true, callback);
+
+							if (msg && FileExists(GetOutputFilePath(h, true, true)))
 							{
-								curH = h;
-								nbRun = 0;
-								nbDownloaded++;
-								msg += callback.StepIt();
+								//download inventory
+								msg = DownloadGrib(pConnection, h, false, true, callback);
+								assert(FileExists(GetOutputFilePath(h, false, true)));
+							}
+							else
+							{
+								if (as<bool>(USE_NAM))
+								{
+									//try to download NAM instead
+									msg = DownloadGrib(pConnection, h, true, false, callback);
+									if (msg && FileExists(GetOutputFilePath(h, true, false)))
+									{
+										msg = DownloadGrib(pConnection, h, false, false, callback);
+										if (msg && !FileExists(GetOutputFilePath(h, false, false)))
+										{
+											//if .inv does not exist, remove gribs files
+											//a better solution can mayby done here by copying a valid .inv file???
+											msg += RemoveFile(GetOutputFilePath(h, true, false));
+										}
+									}
+								}
 							}
 						}
-						if (msg && bNeedDownload[hh + 1])
+
+
+						if (msg)
 						{
-							msg = DownloadGrib(pConnection, h, false, callback);
-							if (msg)
-							{
-								curH = h;
-								nbRun = 0;
-								nbDownloaded++;
-								msg += callback.StepIt();
-							}
+							curH = h;
+							nbRun = 0;
+							nbDownloaded++;
+							msg += callback.StepIt();
 						}
 					}
 				}
@@ -300,8 +332,6 @@ namespace WBSF
 					//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
-						//callback.AddTask(1);//one step more
-
 						if (nbRun < 5)
 						{
 							callback.AddMessage(msg);

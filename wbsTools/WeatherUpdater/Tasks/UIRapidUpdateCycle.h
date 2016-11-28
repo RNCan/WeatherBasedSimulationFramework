@@ -18,7 +18,7 @@ namespace WBSF
 
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, USE_NAM, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
@@ -47,11 +47,11 @@ namespace WBSF
 	protected:
 
 
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
+		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP)const;
+		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP)const;
 	
 		CTPeriod GetPeriod()const;
 

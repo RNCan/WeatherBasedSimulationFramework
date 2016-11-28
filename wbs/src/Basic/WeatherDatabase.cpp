@@ -225,69 +225,78 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 	
 	if (FileExists(referencedFilePath) )
 	{
-		bool bStationsAsChange = true;
-		bool bDataAsChange = true;
-
-		std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
-		if (FileExists(optFilePath))
+		string headerFilePath = GetHeaderFilePath(referencedFilePath);
+		if (FileExists(headerFilePath))
 		{
-			callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(optFilePath)));
-			msg = m_zop.Load(optFilePath);
-			if (msg)
+			bool bStationsAsChange = true;
+			bool bDataAsChange = true;
+
+			std::string optFilePath = GetOptimisationFilePath(referencedFilePath);
+			if (FileExists(optFilePath))
 			{
-				if (m_zop.IsStationDefinitionUpToDate(referencedFilePath))
+				callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(optFilePath)));
+				msg = m_zop.Load(optFilePath);
+				if (msg)
 				{
-					bStationsAsChange = false;
+
+					if (m_zop.IsStationDefinitionUpToDate(referencedFilePath) &&
+						m_zop.IsStationDefinitionUpToDate(headerFilePath))
+					{
+						bStationsAsChange = false;
+					}
 				}
 			}
-		}
 
 
-		if (msg && bStationsAsChange)
-		{
-			//if (!FileExists(referencedFilePath) && m_openMode==modeWrite)//save reference file from this optimization ?????????????hummm
-			//msg = CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, GetSubDir(referencedFilePath), GetXMLFlag(), GetVersion());
+			if (msg && bStationsAsChange)
+			{
+				//if (!FileExists(referencedFilePath) && m_openMode==modeWrite)//save reference file from this optimization ?????????????hummm
+				//msg = CWeatherDatabaseOptimization().SaveAsXML(referencedFilePath, GetSubDir(referencedFilePath), GetXMLFlag(), GetVersion());
 
-			if (msg)
-				msg = VerifyVersion(referencedFilePath);
+				if (msg)
+					msg = VerifyVersion(referencedFilePath);
+
+				if (msg)
+				{
+					callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(referencedFilePath)));
+					msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag(), GetHeaderExtension());
+				}
+			}
 
 			if (msg)
 			{
-				callback.AddMessage(FormatMsg(IDS_BSC_OPEN_FILE, GetFileName(referencedFilePath)));
-				msg = m_zop.LoadFromXML(referencedFilePath, GetXMLFlag(), GetHeaderExtension());
+
+				//Get data file to be updated
+				CFileInfoVector fileInfo;
+
+				if (bStationsAsChange || !bSkipVerify)
+					msg = m_zop.GetDataFiles(fileInfo, true, callback);
+
+				bDataAsChange = !fileInfo.empty();
+
+				if (bDataAsChange)
+				{
+					callback.AddMessage(FormatMsg(IDS_BSC_UPDATE_FILE, GetFileName(optFilePath)));
+					string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
+					msg = m_zop.UpdateDataFilesYearsIndex(dataOptFilePath, fileInfo, callback);
+				}
 			}
-		}
 
-		if (msg)
-		{
-
-			//Get data file to be updated
-			CFileInfoVector fileInfo;
-
-			if (bStationsAsChange || !bSkipVerify)
-				msg = m_zop.GetDataFiles(fileInfo, true, callback);
-
-			bDataAsChange = !fileInfo.empty();
-
-			if (bDataAsChange)
+			if (msg && (bStationsAsChange || bDataAsChange))
 			{
-				callback.AddMessage(FormatMsg(IDS_BSC_UPDATE_FILE, GetFileName(optFilePath)));
-				string dataOptFilePath = GetOptimisationDataFilePath(referencedFilePath);
-				msg = m_zop.UpdateDataFilesYearsIndex(dataOptFilePath, fileInfo, callback);
+				callback.AddMessage(FormatMsg(IDS_BSC_SAVE_FILE, GetFileName(optFilePath)));
+
+				msg += m_zop.Save(optFilePath);
 			}
 		}
-
-		if (msg && (bStationsAsChange || bDataAsChange))
+		else
 		{
-			callback.AddMessage(FormatMsg(IDS_BSC_SAVE_FILE, GetFileName(optFilePath)));
-
-			msg += m_zop.Save(optFilePath);
+			msg.ajoute(FormatMsg(IDS_WG_DB_NOTEXIST, headerFilePath));
 		}
 	}
 	else
 	{
-		std::string error = FormatMsg(IDS_WG_DB_NOTEXIST, referencedFilePath);
-		msg.ajoute(error);
+		msg.ajoute(FormatMsg(IDS_WG_DB_NOTEXIST, referencedFilePath));
 	}
 
 	msg += ClearSearchOpt(referencedFilePath);

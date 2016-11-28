@@ -574,8 +574,8 @@ namespace WBSF
 			//load csv format... remove xml later
 			string CSVFilePath = filePath;
 			SetFileExtension(CSVFilePath, hdrExt);
-			if (FileExists(CSVFilePath))
-				msg = CLocationVector::Load(CSVFilePath);
+			//if (FileExists(CSVFilePath))
+			msg = CLocationVector::Load(CSVFilePath);
 
 		}
 

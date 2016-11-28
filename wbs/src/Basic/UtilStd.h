@@ -942,7 +942,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		while (filePath.back() == '/' || filePath.back() == '\\')
 			filePath.pop_back();
 
-		return GetFileTitle(filePath);
+		return GetFileName(filePath);
 	}
 
 

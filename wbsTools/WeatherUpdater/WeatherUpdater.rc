@@ -650,7 +650,7 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)"
+    IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant"
 END
 
 STRINGTABLE
@@ -1089,7 +1089,7 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)"
+    IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Used NAM if RAP is missing"
 END
 
 STRINGTABLE

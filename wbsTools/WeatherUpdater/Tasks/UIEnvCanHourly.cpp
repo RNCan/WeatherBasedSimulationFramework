@@ -545,8 +545,8 @@ namespace WBSF
 
 
 
-		callback.PushTask("Download data (" + ToString(stationList.size()) + " stations)", stationList.size());
-		callback.AddMessage("Download data (" + ToString(stationList.size()) + " stations)");
+		callback.PushTask("Download EnvCan hourly data (" + ToString(stationList.size()) + " stations)", stationList.size());
+		callback.AddMessage("Download EnvCan hourly data (" + ToString(stationList.size()) + " stations)");
 
 		//InitStat();
 
@@ -650,7 +650,7 @@ namespace WBSF
 		//
 		if (nbFilesToDownload > 0)
 		{
-			if (nbFilesToDownload>12)
+			if (nbFilesToDownload>60)
 				callback.PushTask("Update files for " + station.m_name + " (" + ToString(nbFilesToDownload)+")", nbFilesToDownload);
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
@@ -666,14 +666,12 @@ namespace WBSF
 						CreateMultipleDir(GetPath(filePath));
 
 						msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
-
-						if (nbFilesToDownload>12)
-							msg += callback.StepIt();
+						msg += callback.StepIt(nbFilesToDownload>60?1:0);
 					}
 				}
 			}
 
-			if (nbFilesToDownload>12)
+			if (nbFilesToDownload>60)
 				callback.PopTask();
 		}
 

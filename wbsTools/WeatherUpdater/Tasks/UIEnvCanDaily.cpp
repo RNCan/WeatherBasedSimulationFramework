@@ -709,8 +709,8 @@ namespace WBSF
 
 
 
-		callback.PushTask("Download data (" + ToString(stationList.size()) + " stations)", stationList.size());
-		callback.AddMessage("Download data (" + ToString(stationList.size()) + " stations)");
+		callback.PushTask("Download EnvCan daily data (" + ToString(stationList.size()) + " stations)", stationList.size());
+		callback.AddMessage("Download EnvCan daily data (" + ToString(stationList.size()) + " stations)");
 
 		int nbRun = 0;
 		int curI = 0;
@@ -874,7 +874,7 @@ namespace WBSF
 			if (FileExists(filePath))
 				msg = ReadData(filePath, station[year]);
 		}
-
+		 
 		station.CompleteSnow();
 
 		//verify station is valid

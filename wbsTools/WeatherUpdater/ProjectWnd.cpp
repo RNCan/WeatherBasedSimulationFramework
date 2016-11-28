@@ -28,6 +28,7 @@
 #include "Tasks/UINEWA.h"
 #include "Tasks/UICMIP5.h"
 #include "Tasks/UIGPCP.h"
+#include "Tasks/UIHighResolutionGribs.h"
 
 #include "Tasks/CreateHourlyDB.h"
 #include "Tasks/CreateDailyDB.h"
@@ -303,7 +304,9 @@ UINT CTaskWnd::CtrlID(const std::string& className)
 string CTaskWnd::ClassName(UINT ID)
 {
 	string className;
-
+	
+	//a faire...
+	//CTaskFactory::ClassNameFromResourceID();
 	switch (ID)
 	{
 	case ID_TASK_EC_DAILY:		className = CUIEnvCanDaily::CLASS_NAME(); break;
@@ -330,6 +333,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_NEWA:			className = CUINEWA::CLASS_NAME(); break;
 	case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
 	case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
+	case ID_TASK_HRG:			className = CUIHighResolutionGribs::CLASS_NAME(); break;
 	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
 	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;

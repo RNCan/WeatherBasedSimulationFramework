@@ -649,7 +649,11 @@ namespace UtilWWW
 
 		ERMsg msg;
 
+		
+		
 		string URL = WBSF::UTF8((LPCTSTR)_URL);
+		if (!URL.empty() && URL.front() != '/')
+			URL.insert(URL.begin(), '/');
 		//CString path = UtilWin::GetPath(URL);
 		//CString filterName = UtilWin::GetFileName(URL);
 		
@@ -665,8 +669,12 @@ namespace UtilWWW
 
 				if (WBSF::Match("*/", fileName.c_str() ))
 				{
+					string relPath = WBSF::GetRelativePath(URL, fileName);
+
+					
 					if (fileName != "./" && fileName != "../" &&
-						fileName != ".\\" && fileName != "..\\")
+						fileName != ".\\" && fileName != "..\\" &&
+						relPath != "..\\")
 					{
 						std::string filePath = URL + fileName;
 
