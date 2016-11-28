@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Climatic Daily</Title>
+    <Version>2.0</Version>
+    <ID>.null</ID>
+    <EXE>Climatic.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model computes climatic daily variables</Description>
+    <WindowRect>0 0 83 331</WindowRect>
+    <SimulatedCategory>T</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Head</Name>
+            <Caption>No input</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>TMin</Title>
+            <Units>°C</Units>
+            <Description>Daily minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Approximation of mean temperature of the day: (Tmin + Tmax)/2</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>TMax</Title>
+            <Units>°C</Units>
+            <Description>Daily maximum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>TotalPrecipitation</Title>
+            <Units>mm</Units>
+            <Description>Daily total precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit> Version                Date                           Note&#x0A;2.3 (2013)        05/07/2013          Remove GDD and ET&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
