@@ -293,11 +293,11 @@ namespace WBSF
 
 				m_firstYear = (int)years[LOWEST];
 				m_lastYear = (int)years[HIGHEST];
-				while (m_weather.GetNbYear() > 1 && m_weather.GetFirstYear() < m_firstYear)
+				while (m_weather.GetNbYears() > 1 && m_weather.GetFirstYear() < m_firstYear)
 					m_weather.RemoveYear(0);
 
-				while (m_weather.GetNbYear() > 1 && m_weather.GetLastYear() > m_lastYear)
-					m_weather.RemoveYear(m_weather.GetNbYear() - 1);
+				while (m_weather.GetNbYears() > 1 && m_weather.GetLastYear() > m_lastYear)
+					m_weather.RemoveYear(m_weather.GetNbYears() - 1);
 			}
 
 

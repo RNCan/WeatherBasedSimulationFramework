@@ -33,7 +33,7 @@ namespace WBSF
 
 
 	//this method is call to load your parameter in your variable
-	ERMsg CForestTentCaterpillarModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CForestTentCaterpillarModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 

@@ -9,7 +9,7 @@ namespace WBSF
 {
 	enum TInstar{ EGG, L1, L2, L3, L4, L5, L6, PUPA, ADULT, DEAD_ADULT, NB_STAGES };
 	enum TParam{ P_L2_L3, P_L3_L4, P_L4_L5, P_L5_L6, P_L6_PUPA, P_PUPA_ADULT, NB_PARAMS };
-	typedef CContinuingRatio<NB_PARAMS, L2, PUPA> CSBWContinuingRatio;
+	typedef CContinuingRatio<NB_PARAMS, L2, PUPA,> CSBWContinuingRatio;
 
 	class CSBWManitobaModel : public CBioSIMModelBase
 	{
