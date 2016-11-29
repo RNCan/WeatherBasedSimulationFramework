@@ -1,4 +1,4 @@
-// 4.2.0	16/11/2016	Rémi Saint-Amant	Add 'D' at the end of data directory and use .DailyDB 
+// 4.2.0	27/11/2016	Rémi Saint-Amant	Add 'D' at the end of data directory and use .DailyDB 
 // 4.1.1	01/11/2016	Rémi Saint-Amant	save station list in .csv file
 // 4.1.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax   
 // 4.0.4				Rémi Saint-Amant	Compile with WBSF  
