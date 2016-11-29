@@ -15,6 +15,7 @@
 
 #include "stdafx.h"
 #include <locale>
+#include <mutex>
 
 #include "Basic/WeatherStation.h"
 #include "Basic/Evapotranspiration.h"
@@ -28,6 +29,11 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::WEATHER;
 using namespace WBSF::GRADIENT;
+
+
+
+static std::mutex STATISTIC_MUTEX;
+
 
 
 namespace WBSF
@@ -462,6 +468,8 @@ void CWeatherAccumulator::ComputeStatistic()const
 }
 const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 {
+	assert(m_TM.Type() == CTM::DAILY && GTRef().GetTM().Type() == CTM::HOURLY);
+
 	bool bValid = true;
 	//if ( v == H_TMIN2 || v == H_TMAX2 )
 		//v = H_TAIR2;//daily diurne range is base on hourly temperature
@@ -474,12 +482,25 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 			if (m_midnightTRefMatrix[h][v]>0)
 				NbTRef += (int)h;
 
-		if (v == H_TAIR2 || v == H_TMAX2)
+		if (/*v == H_TAIR2 ||*/ v == H_TMAX2)
 		{
 			bValid = false;
 			for (size_t h = 14; h <= 16 && !bValid; h++)
 				if (m_midnightTRefMatrix[h][v]>0)
 					bValid = true;
+
+			if (!bValid)
+			{
+				if (m_noonVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 3; h <= 6 && !bValid; h++)
+						if (m_noonTRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmax
+				}
+			}
 		}
 		//else if( v==HOURLY_DATA::H_WNDD )
 		//{a revoir...
@@ -506,7 +527,7 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 				NbTRef += (int)h;
 
 
-		if (v == H_TAIR2 || v == H_TMIN2)
+		if (/*v == H_TAIR2 || */v == H_TMIN2)
 		{
 			bValid = false;
 			if (m_noonVariables[v][NB_VALUE] >= m_minimumHours[v])
@@ -514,6 +535,21 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 				for (size_t h = 3; h <= 6 && !bValid; h++)
 					if (m_noonTRefMatrix[h][v]>0)
 						bValid = true;
+			}
+
+
+			//try with Tair 
+			if (!bValid)
+			{
+				if (m_noonVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 3; h <= 6 && !bValid; h++)
+						if (m_noonTRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmin
+				}
 			}
 		}
 		else
@@ -525,7 +561,7 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 			}
 		}
 
-		if (bValid)// || (GTRef().GetTM().Type() != CTM::HOURLY)
+		if (bValid)
 			return m_noonVariables[v];
 	}
 
@@ -662,7 +698,8 @@ CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
 	case H_ES2:		stat = !WEATHER::IsMissing(at(H_TAIR2)) ? e°(at(H_TAIR2)) : WEATHER::MISSING; break;
 	case H_EA2:		stat = !WEATHER::IsMissing(at(H_TDEW)) ? e°(at(H_TDEW)) : WEATHER::MISSING; break;
 	case H_VPD2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, e°(at(H_TAIR2)) - e°(at(H_TDEW))) : WEATHER::MISSING; break;
-	case H_TRNG2:	stat = 0; break;
+	case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? at(H_TAIR2) : WEATHER::MISSING; break; //!WEATHER::IsMissing(at(H_TMIN2)) && !WEATHER::IsMissing(at(H_TMAX2)) ? (at(H_TMIN2) + at(H_TMAX2)) / 2 : WEATHER::MISSING; break;
+	case H_TRNG2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? 0 : WEATHER::MISSING; break;
 	case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? at(H_SRAD2)*3600.0/1000000 : WEATHER::MISSING; break;
 	default:ASSERT(false);
 	}
@@ -752,6 +789,7 @@ void CWeatherDay::SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat)
 //does we have to elimininate not enaugh data here ????
 void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 {
+	//STATISTIC_MUTEX.lock();
 	if (!m_dailyStat.m_bInit || bFoceCompile)
 	{
 		CWeatherDay& me = const_cast<CWeatherDay&>(*this);
@@ -772,9 +810,7 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 				{
 					//Compute noon-noon from the previous and current day
 					const CWeatherDay& previousDay = me.GetPrevious();
-					
 					for (size_t h = 12; h<24; h++)
-						//for (size_t v = 0; v<NB_VAR_H; v++)
 						accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
 				}
 
@@ -792,7 +828,12 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 						{
 							if (!IsMissing(me[h][v]))
-								me.m_dailyStat[v] += me[h][v];
+							{
+								accumulator.Add(me[h].GetTRef(), v, me[h][v]);
+
+								if (v != H_TMIN2 && v != H_TMAX2)
+									me.m_dailyStat[v] += me[h][v];
+							}
 						}
 
 						me.m_dailyStat.m_period += me[h].GetTRef();
@@ -814,15 +855,18 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 					//me.m_dailyStat[H_TRNG] = m_dailyStat[H_TAIR][RANGE];
 			}
 
-			me.m_dailyStat.m_bInit = true;
+			
 		}
 		else
 		{
 			me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
-			me.m_dailyStat.m_bInit = true;
 		}
 
+
+		me.m_dailyStat.m_bInit = true;
 	}
+
+	//STATISTIC_MUTEX.unlock();
 }
 
 
@@ -964,7 +1008,8 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 
 	CStatistic stat;
 
-	if (v == H_TRNG2)
+	
+	if (v == H_TNTX || v == H_TRNG2)
 	{
 		//ASSERT(m_dailyStat.m_bInit);
 		const CStatistic& Tmin = GetStat(H_TMIN2);
@@ -973,7 +1018,11 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 		if (Tmin.IsInit() && Tmax.IsInit())
 		{
 			ASSERT(Tmax[MEAN] >= Tmin[MEAN]);
-			stat = Tmax[MEAN] - Tmin[MEAN];
+
+			if (v == H_TNTX)
+				stat = (Tmax[MEAN] + Tmin[MEAN])/2;
+			else if (v == H_TRNG2)			
+				stat = Tmax[MEAN] - Tmin[MEAN];
 		}
 	}
 	else
@@ -1004,8 +1053,9 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 				stat = (Ea.IsInit() && Es.IsInit()) ? max(0.0, Es[MEAN] - Ea[MEAN]) : WEATHER::MISSING; break;
 			}
 			
-			case H_TRNG2:	stat = me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() ? me[H_TMAX2][MEAN] - me[H_TMIN2][MEAN] : WEATHER::MISSING; break;
 			case H_SRMJ:	stat = me[H_SRAD2].IsInit() ? me[H_SRAD2][MEAN]*24*3600/1000000 : WEATHER::MISSING; break;
+			case H_TNTX:	//case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? at(H_TAIR2) : WEATHER::MISSING; break; //!WEATHER::IsMissing(at(H_TMIN2)) && !WEATHER::IsMissing(at(H_TMAX2)) ? (at(H_TMIN2) + at(H_TMAX2)) / 2 : WEATHER::MISSING; break;
+			case H_TRNG2:	//stat = me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() ? me[H_TMAX2][MEAN] - me[H_TMIN2][MEAN] : WEATHER::MISSING; break;
 			default:ASSERT(false);
 			}
 		}

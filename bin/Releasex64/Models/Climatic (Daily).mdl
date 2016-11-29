@@ -28,11 +28,11 @@
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
-    <MissingValue>-9999</MissingValue>
+    <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
             <Name>Tmin</Name>
-            <Title>TMin</Title>
+            <Title>Tmin</Title>
             <Units>°C</Units>
             <Description>Daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
@@ -48,17 +48,9 @@
         </OutputVariable>
         <OutputVariable>
             <Name>Tmax</Name>
-            <Title>TMax</Title>
+            <Title>Tmax</Title>
             <Units>°C</Units>
             <Description>Daily maximum temperature</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Prcp</Name>
-            <Title>TotalPrecipitation</Title>
-            <Units>mm</Units>
-            <Description>Daily total precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>

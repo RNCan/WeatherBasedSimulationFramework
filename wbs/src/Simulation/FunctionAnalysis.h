@@ -112,7 +112,7 @@ namespace WBSF
 		//virtual void SetXML(const LPXNode pRoot){XSetXML(*this, pRoot);}
 
 
-		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_STATISTIC; }
+		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_FLOAT; }
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callBack = DEFAULT_CALLBACK);
 		virtual ERMsg GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter = CParentInfoFilter())const;
 

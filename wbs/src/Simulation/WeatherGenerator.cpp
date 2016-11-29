@@ -510,8 +510,8 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 								double Tmax = (*itD)[H_TMAX2][MEAN];
 								Tmax += float(exposureIndex[m] * (Tmax - Tmin));
 
-								if (m_tgi.m_variables[H_TMIN2])
-									itD->SetStat(H_TMIN2, Tmin);
+								if (m_tgi.m_variables[H_TAIR2])
+									itD->SetStat(H_TAIR2, (Tmin+Tmax)/2);
 
 								if (m_tgi.m_variables[H_TMAX2])
 									itD->SetStat(H_TMAX2, Tmax);
@@ -528,8 +528,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 		m_simulationPoints.CleanUnusedVariable(m_tgi.m_variables);
 	
 	ASSERT(!msg || VerifyData(m_simulationPoints, m_tgi.m_variables));
-
-
+	
 	return msg;
 
 }
@@ -1066,6 +1065,7 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 			}//for all variables
 		}//if msg
 	}//for all years
+
 
 
 	return msg;

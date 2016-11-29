@@ -859,7 +859,7 @@ namespace WBSF
 		CTPeriod period = m_metadata.GetTPeriod();
 		CWVariables variables = m_metadata.GetOutputDefinition().GetWVariables();
 		//int type = DATA_FLOAT;// period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
-		CStatistic junk;
+		
 
 
 
@@ -887,12 +887,14 @@ namespace WBSF
 							if (filter[v])
 								section[period.Begin() + i].SetStat(v, value);
 						}
-						else
+						else 
 						{
+							ASSERT(m_type == DATA_STATISTIC);
+
+							CStatistic value;
+							me.m_file.read_value(value);
 							if (filter[v])
-								me.m_file.read_value(section[TRef][v]);
-							else
-								me.m_file.read_value(junk);
+								section[TRef].SetStat(v, value);
 						}
 					}
 				}

@@ -34,19 +34,19 @@ namespace WBSF
 	static const bool bRegistred = CModelFactory::RegisterModel(CClimaticModel::CreateObject);
 
 	
-	static double GetNbDayWithPrcp(const CWeatherYear& weather);
-	static double GetNbDayWithPrcp(const CWeatherMonth& weather);
-	static double GetNbDayWithPrcp(const CWeatherDay& weather);
+	//static double GetNbDayWithPrcp(const CWeatherYear& weather);
+	//static double GetNbDayWithPrcp(const CWeatherMonth& weather);
+	//static double GetNbDayWithPrcp(const CWeatherDay& weather);
 
-	static double GetNbFrostDay(const CWeatherYear& weather);
-	static double GetNbFrostDay(const CWeatherMonth& weather);
-	static double GetNbFrostDay(const CWeatherDay& weather);
+	//static double GetNbFrostDay(const CWeatherYear& weather);
+	//static double GetNbFrostDay(const CWeatherMonth& weather);
+	//static double GetNbFrostDay(const CWeatherDay& weather);
 
 
-	enum TAnnualStat{ ANNUAL_LOWEST_TMIN, ANNUAL_MEAN_TMIN, ANNUAL_MEAN_TMEAN, ANNUAL_MEAN_TMAX, ANNUAL_HIGHEST_TMAX, ANNUAL_PPT, ANNUAL_MEAN_TDEW, ANNUAL_MEAN_REL_HUM, ANNUAL_MEAN_WNDS, ANNUAL_FROST_DAY, ANNUAL_SUN, NB_ANNUAL_STATS };
-	enum TMonthlyStat{ MONTHLY_LOWEST_TMIN, MONTHLY_MEAN_TMIN, MONTHLY_MEAN_TMEAN, MONTHLY_MEAN_TMAX, MONTHLY_HIGHEST_TMAX, MONTHLY_PPT, MONTHLY_MEAN_TDEW, MONTHLY_MEAN_REL_HUM, MONTHLY_MEAN_WNDS, MONTHLY_FROST_DAY, MONTHLY_SUN, NB_MONTHLY_STATS };
-	enum TDailyStat{ DAILY_TMIN, DAILY_TMEAN, DAILY_TMAX, DAILY_PPT, DAILY_MEAN_TDEW, DAILY_MEAN_REL_HUM, DAILY_MEAN_WNDS, DAILY_SUN, NB_DAILY_STATS };
-	enum THourlyStat{ HOURLY_T, HOURLY_PRCP, HOURLY_TDEW, HOURLY_REL_HUM, HOURLY_WIND_SPEED, HOURLY_SRAD, NB_HOURLY_STATS };
+	//enum TAnnualStat{ ANNUAL_LOWEST_TMIN, ANNUAL_MEAN_TMIN, ANNUAL_MEAN_TMEAN, ANNUAL_MEAN_TMAX, ANNUAL_HIGHEST_TMAX, ANNUAL_PPT, ANNUAL_MEAN_TDEW, ANNUAL_MEAN_REL_HUM, ANNUAL_MEAN_WNDS, ANNUAL_FROST_DAY, ANNUAL_SUN, NB_ANNUAL_STATS };
+	//enum TMonthlyStat{ MONTHLY_LOWEST_TMIN, MONTHLY_MEAN_TMIN, MONTHLY_MEAN_TMEAN, MONTHLY_MEAN_TMAX, MONTHLY_HIGHEST_TMAX, MONTHLY_PPT, MONTHLY_MEAN_TDEW, MONTHLY_MEAN_REL_HUM, MONTHLY_MEAN_WNDS, MONTHLY_FROST_DAY, MONTHLY_SUN, NB_MONTHLY_STATS };
+	enum TDailyStat{ DAILY_TMIN, DAILY_TMEAN, DAILY_TMAX, NB_DAILY_STATS };//DAILY_PPT, DAILY_MEAN_TDEW, DAILY_MEAN_REL_HUM, DAILY_MEAN_WNDS, DAILY_SUN,
+	//enum THourlyStat{ HOURLY_T, HOURLY_PRCP, HOURLY_TDEW, HOURLY_REL_HUM, HOURLY_WIND_SPEED, HOURLY_SRAD, NB_HOURLY_STATS };
 
 
 	//typedef CModelStatVectorTemplate<NB_ANNUAL_STATS> CAnnualStatVector;
@@ -111,50 +111,50 @@ namespace WBSF
 	}
 
 	
-	ERMsg CClimaticModel::OnExecuteAnnual()
-	{
-		ERMsg msg;
+	//ERMsg CClimaticModel::OnExecuteAnnual()
+	//{
+	//	ERMsg msg;
 
-		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		m_output.Init(p, NB_ANNUAL_STATS, -9999);
+	//	CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+	//	m_output.Init(p, NB_ANNUAL_STATS, -9999);
 
-		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
-		{
-			double annualMinimum = m_weather[y][H_TMIN2][LOWEST];
-			double annualMinMean = m_weather[y][H_TMIN2][MEAN];
-			double annualMean = m_weather[y][H_TAIR2][MEAN];
-			double annualMaxMean = m_weather[y][H_TMAX2][MEAN];
-			double annualMaximum = m_weather[y][H_TMAX2][HIGHEST];
-			double annualPpt = m_weather[y][H_PRCP][SUM];
-			double annualSun = m_weather[y][H_SRMJ][SUM];//H_SRAD)[SUM];
-			double annualSnow = m_weather[y][H_SNOW][SUM];
-			double Tdew = m_weather[y][H_TDEW][MEAN];
-			double relHum = m_weather[y][H_RELH][MEAN];
-			double wnds = m_weather[y][H_WNDS][MEAN];
+	//	for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+	//	{
+	//		double annualMinimum = m_weather[y][H_TMIN2][LOWEST];
+	//		double annualMinMean = m_weather[y][H_TMIN2][MEAN];
+	//		double annualMean = m_weather[y][H_TAIR2][MEAN];
+	//		double annualMaxMean = m_weather[y][H_TMAX2][MEAN];
+	//		double annualMaximum = m_weather[y][H_TMAX2][HIGHEST];
+	//		double annualPpt = m_weather[y][H_PRCP][SUM];
+	//		double annualSun = m_weather[y][H_SRMJ][SUM];//H_SRAD)[SUM];
+	//		double annualSnow = m_weather[y][H_SNOW][SUM];
+	//		double Tdew = m_weather[y][H_TDEW][MEAN];
+	//		double relHum = m_weather[y][H_RELH][MEAN];
+	//		double wnds = m_weather[y][H_WNDS][MEAN];
 
-			double frostDay = GetNbFrostDay(m_weather[y]);
-			size_t NBDayWithPrcp = GetNbDayWithPrcp(m_weather[y]);
-			size_t NBDayWithoutPrcp = m_weather[y].size() - NBDayWithPrcp;
+	//		double frostDay = GetNbFrostDay(m_weather[y]);
+	//		size_t NBDayWithPrcp = GetNbDayWithPrcp(m_weather[y]);
+	//		size_t NBDayWithoutPrcp = m_weather[y].size() - NBDayWithPrcp;
 
-			m_output[y][ANNUAL_LOWEST_TMIN] = annualMinimum;
-			m_output[y][ANNUAL_MEAN_TMIN] = annualMinMean;
-			m_output[y][ANNUAL_MEAN_TMEAN] = annualMean;
-			m_output[y][ANNUAL_MEAN_TMAX] = annualMaxMean;
-			m_output[y][ANNUAL_HIGHEST_TMAX] = annualMaximum;
-			m_output[y][ANNUAL_PPT] = annualPpt;
-			m_output[y][ANNUAL_MEAN_TDEW] = Tdew;
-			m_output[y][ANNUAL_MEAN_REL_HUM] = relHum;
-			m_output[y][ANNUAL_MEAN_WNDS] = wnds;
-			m_output[y][ANNUAL_FROST_DAY] = frostDay;
-			m_output[y][ANNUAL_SUN] = annualSun;
-		}
+	//		m_output[y][ANNUAL_LOWEST_TMIN] = annualMinimum;
+	//		m_output[y][ANNUAL_MEAN_TMIN] = annualMinMean;
+	//		m_output[y][ANNUAL_MEAN_TMEAN] = annualMean;
+	//		m_output[y][ANNUAL_MEAN_TMAX] = annualMaxMean;
+	//		m_output[y][ANNUAL_HIGHEST_TMAX] = annualMaximum;
+	//		m_output[y][ANNUAL_PPT] = annualPpt;
+	//		m_output[y][ANNUAL_MEAN_TDEW] = Tdew;
+	//		m_output[y][ANNUAL_MEAN_REL_HUM] = relHum;
+	//		m_output[y][ANNUAL_MEAN_WNDS] = wnds;
+	//		m_output[y][ANNUAL_FROST_DAY] = frostDay;
+	//		m_output[y][ANNUAL_SUN] = annualSun;
+	//	}
 
-	
+	//
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
-	ERMsg CClimaticModel::OnExecuteMonthly()
+	/*ERMsg CClimaticModel::OnExecuteMonthly()
 	{
 		ERMsg msg;
 
@@ -195,7 +195,7 @@ namespace WBSF
 
 
 		return msg;
-	}
+	}*/
 
 
 	ERMsg CClimaticModel::OnExecuteDaily()
@@ -203,7 +203,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		m_output.Init(p, NB_DAILY_STATS, -9999);
+		m_output.Init(p, NB_DAILY_STATS, -999);
 
 		for (size_t y = 0; y<m_weather.size(); y++)
 		{
@@ -213,26 +213,26 @@ namespace WBSF
 				{
 					const CWeatherDay& wDay = m_weather[y][m][d];
 
-					double Tmin = wDay[H_TMIN2][MEAN];
-					double Tmean = wDay[H_TAIR2][MEAN];
-					double Tmax = wDay[H_TMAX2][MEAN];
-					double ppt = wDay[H_PRCP][SUM] >= 0.1 ? wDay[H_PRCP][SUM] : 0;
+					//double Tmin = ;
+					//double Tmean = wDay[H_TAIR2][MEAN];
+					//double Tmax = wDay[H_TMAX2][MEAN];
+					//double ppt = wDay[H_PRCP][SUM] >= 0.1 ? wDay[H_PRCP][SUM] : 0;
 
-					double Tdew = wDay[H_TDEW][MEAN];
+				/*	double Tdew = wDay[H_TDEW][MEAN];
 					double relHum = wDay[H_RELH][MEAN];
 					double wnds = wDay[H_WNDS][MEAN];
 					double srad = wDay[H_SRAD2][MEAN];
+*/
+					CTRef ref = wDay.GetTRef();//m_weather[y][m][d].GetTRef();
 
-					CTRef ref = m_weather[y][m][d].GetTRef();
-
-					m_output[ref][DAILY_TMIN] = Tmin;
-					m_output[ref][DAILY_TMEAN] = Tmean;
-					m_output[ref][DAILY_TMAX] = Tmax;
-					m_output[ref][DAILY_PPT] = ppt;
+					m_output[ref][DAILY_TMIN] = wDay[H_TMIN2][LOWEST];
+					m_output[ref][DAILY_TMEAN] = wDay[H_TAIR2][MEAN];
+					m_output[ref][DAILY_TMAX] = wDay[H_TMAX2][HIGHEST];
+					/*m_output[ref][DAILY_PPT] = ppt;
 					m_output[ref][DAILY_MEAN_TDEW] = Tdew;
 					m_output[ref][DAILY_MEAN_REL_HUM] = relHum;
 					m_output[ref][DAILY_MEAN_WNDS] = wnds;
-					m_output[ref][DAILY_SUN] = srad;
+					m_output[ref][DAILY_SUN] = srad;*/
 				}
 			}
 		}
@@ -613,7 +613,7 @@ namespace WBSF
 	//	return(A);
 	//}
 
-	double GetNbDayWithPrcp(const CWeatherYear& weather)
+	/*double GetNbDayWithPrcp(const CWeatherYear& weather)
 	{
 		CStatistic stat;
 		for (size_t m = 0; m < weather.size(); m++)
@@ -658,6 +658,6 @@ namespace WBSF
 	{
 		return (weather[H_TMIN2][LOWEST] <= 0 ? 1 : 0);
 	}
-
+*/
 	
 }

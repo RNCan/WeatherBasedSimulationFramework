@@ -565,7 +565,7 @@ namespace WBSF
 					{
 						CTRef TRef(value);
 						if (TRef.IsInit())
-							section.AddTRef(r, i, TRef);
+							section.SetTRef(r, i, TRef);
 					}
 				}
 

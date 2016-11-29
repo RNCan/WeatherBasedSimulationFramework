@@ -1,4 +1,5 @@
 //5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header 
+//										Bug correction in hourly to daily conversion
 //5.2.3	28/10/2016	Rémi Saint-Amant	Important bug correction in convertion to version 10. Remove Tair causing many problems
 //										Add save coordinat eof all station into the.csv file
 //5.2.2	16/10/2016	Rémi Saint-Amant	Add NEWA 

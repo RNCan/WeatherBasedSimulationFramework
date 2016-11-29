@@ -95,7 +95,8 @@ namespace WBSF
 			H_ES2,				//saturated vapor pressure from Tdew [Pa]
 			H_EA2,				//actual vapor pressure from Tair [Pa]
 			H_VPD2,				//vapor pressure deficit [Pa]
-			H_TRNG2,			//daily diurnal temperature range [°C] : from daily Tmin and Tmax
+			H_TNTX,				//daily mean temperature [°C] from daily Tmin and Tmax
+			H_TRNG2,			//daily diurnal temperature range [°C] from daily Tmin and Tmax
 			H_SRMJ,				//mean solar radiation  [MJ m-2 d-1] or [MJ m-2 hr-1]
 			NB_VAR_ALL,
 			NB_VAR_EX = NB_VAR_ALL - H_FIRST_VAR_EX

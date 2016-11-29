@@ -121,64 +121,6 @@ namespace WBSF
 	//http://www.ipm.ucdavis.edu/WEATHER/ddroutines.html
 
 
-	//get degree day from weather interface
-	//double CDegreeDays::Get(const CDataInterface& in)const
-	//{
-	///*	double val = 0;
-	//	if (in.GetTRef().GetType() == CTM::HOURLY)
-	//	{
-	//		val = GetDH((CHourlyData&)in);
-	//		if (m_aType == AT_DAILY)
-	//			val /= 24;
-	//	}
-	//	else if (in.GetTRef().GetType() == CTM::DAILY)
-	//	{
-	//		ASSERT(m_aType == AT_DAILY);*/
-	//		double val = GetDD((CWeatherDay&)in);
-	//	//}
-
-	//	return val;
-	//}
-
-	/*double CDegreeDays::GetDH(const CHourlyData& in)const
-	{
-		ASSERT(m_lowerThreshold <= m_upperThreshold);
-		ASSERT(m_method == BIOSIM_HOURLY);
-
-		double DH = 0;
-		double x1 = max(0.0, min((double)in[H_TAIR2], m_upperThreshold) - m_lowerThreshold);
-		double x2 = min(0.0, m_upperThreshold - in[H_TAIR2]);
-
-		switch (m_cutoffType)
-		{
-		case HORIZONTAL_CUTOFF: DH = x1; break;
-		case INTERMEDIATE_CUTOFF:DH = max(0.0, x1 + x2); break;
-		case VERTICAL_CUTOFF:DH = in[H_TAIR2] <= m_upperThreshold ? x1 : 0; break;
-		default: ASSERT(false);
-		}
-
-		return DH;
-	}
-
-	double CDegreeDays::GetDH(const CWeatherDay& in)const
-	{
-		ASSERT(m_method < CDegreeDays::NB_HOURLY_METHOD);
-
-		double DH = 0;
-		ASSERT(in.IsHourly());
-
-		for (int h = 0; h < 24; h++)
-			DH += GetDH(in[h]);
-
-		return DH;
-	}
-*/
-
-	/*double CDegreeDays::GetDD(const CHourlyData& in)const
-	{
-		return GetDH(in) / 24.0;
-	}*/
-
 	double CDegreeDays::GetDD(const CWeatherDay& in)const
 	{
 		ASSERT(m_method < CDegreeDays::NB_DAILY_METHOD);
@@ -229,14 +171,14 @@ namespace WBSF
 		ASSERT(in[H_TAIR2].IsInit() && in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
 		double DD = 0;
-		double x1 = max(0.0, min((double)in[H_TAIR2][MEAN], m_upperThreshold) - m_lowerThreshold);
-		double x2 = min(0.0, m_upperThreshold - in[H_TAIR2][MEAN]);
+		double x1 = max(0.0, min((double)in[H_TNTX][MEAN], m_upperThreshold) - m_lowerThreshold);
+		double x2 = min(0.0, m_upperThreshold - in[H_TNTX][MEAN]);
 
 		switch (m_cutoffType)
 		{
 		case HORIZONTAL_CUTOFF: DD = x1; break;
 		case INTERMEDIATE_CUTOFF:DD = max(0.0, x1 + x2); break;
-		case VERTICAL_CUTOFF:DD = (in[H_TAIR2][MEAN] <= m_upperThreshold) ? x1 : 0; break;
+		case VERTICAL_CUTOFF:DD = (in[H_TNTX][MEAN] <= m_upperThreshold) ? x1 : 0; break;
 		default: ASSERT(false);
 		}
 
@@ -629,54 +571,8 @@ namespace WBSF
 		return ahdd;
 	}
 
-	//
-	//void CDegreeDays::GetHourlyDD(array<double, 24>& DD, const CLocation& loc, double m_lowerThreshold, double m_upperThreshold, int m_cutoffType)const
-	//{
-	//	CDay hDay;
-	//	GetHourlyT(hDay,loc, 0);
-	//
-	//	for(int h=0; h<24; h++)
-	//	{
-	//		double x1 = max(0.0, Min(hDay[h][H_TAIR],m_upperThreshold)-m_lowerThreshold);
-	//		double x2 = Min(0, m_upperThreshold-hDay[h][H_TAIR]);
-	//
-	//		switch(m_cutoffType)
-	//		{
-	//		case HORIZONTAL_CUTOFF: DD[h] = x1; break;
-	//		case INTERMEDIATE_CUTOFF:DD[h] = max(0.0, x1+x2); break;
-	//		case VERTICAL_CUTOFF:DD[h] = hDay[h][H_TAIR]<=m_upperThreshold?x1:0; break;
-	//		default: ASSERT(false);
-	//		}
-	//	}
-	//}
-	//
-	//
-	//
-	//double CDegreeDays::GetHourlyDD(const CLocation& loc, double m_lowerThreshold, double m_upperThreshold, int m_cutoffType)const
-	//{
-	//	ASSERT(m_lowerThreshold<=m_upperThreshold);
-	//	ASSERT(GetTMin()<=GetTMax());
-	//
-	//	double DD=0;
-	//	
-	//	array<double, 24> DDh;
-	//	DDh.fill(0);
-	//	GetHourlyDD(DDh, loc, m_lowerThreshold, m_upperThreshold, m_cutoffType);
-	//
-	//	for(int h=0; h<24; h++)
-	//		DD+=DDh[h]/24;
-	//
-	//	return DD;
-	//}
-	//
-
-
 	void CDegreeDays::Execute(CWeatherStation& weather, CModelStatVector& output)
 	{
-		//if (weather.IsDaily() && m_aType == AT_HOURLY)
-			//weather.ComputeHourlyVariables();
-
-		//CTM TM = CTM(m_aType == AT_HOURLY ? CTM::HOURLY : CTM::DAILY);
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);// (TM);
 		output.Init(p, NB_OUTPUT, 0, HEADER);
 
@@ -687,31 +583,6 @@ namespace WBSF
 		}
 	}
 
-	/*void CDegreeDays::Transform(const CTM& TM, const CModelStatVector& input, CModelStatVector& output)
-	{
-
-	}
-
-	void CDegreeDays::Transform(const CTTransformation& TT, const CModelStatVector& input, CTStatMatrix& output)
-	{
-		CTPeriod pIn = input.GetTPeriod();
-		CTPeriod pOut = TT.GetPeriodOut();
-		output.Init(pOut, NB_OUTPUT);
-
-		for (CTRef TRefIn = pIn.Begin(); TRefIn <= pIn.End(); TRefIn++)
-		{
-			double DD = input[TRefIn][S_DD];
-			ASSERT(DD > -9999);
-
-
-			size_t c = TT.GetCluster(TRefIn);
-			if (c != UNKNOWN_POS)
-			{
-				CTRef TRefOut = TT.GetClusterTRef(c);
-				output(TRefOut, S_DD) += DD;
-			}
-		}
-	}*/
 
 
 
@@ -739,6 +610,7 @@ namespace WBSF
 	double CDegreeHours::GetDH(const CHourlyData& in)const
 	{
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
+		ASSERT(!IsMissing(in[H_TAIR2]));
 	
 		double DH = 0;
 		double x1 = max(0.0, min((double)in[H_TAIR2], m_upperThreshold) - m_lowerThreshold);

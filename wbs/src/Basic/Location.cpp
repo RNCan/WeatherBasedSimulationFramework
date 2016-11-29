@@ -376,7 +376,6 @@ namespace WBSF
 			double slope = ToDouble(it->second.first);
 			if (slope < 0)
 			{
-
 				msg.ajoute(GetString(IDS_BSC_INVALID_SLOPE));
 			}
 		}
@@ -740,8 +739,12 @@ namespace WBSF
 
 	ERMsg CLocationVector::IsValid()const
 	{
-		//ASSERT(false);
-		return ERMsg();
+		ERMsg msg;
+
+		for (CLocationVector::const_iterator it = begin(); it != end(); it++)
+			msg += it->IsValid();
+
+		return msg;
 	}
 
 	size_t CLocationVector::FindByID(const std::string& ID)const

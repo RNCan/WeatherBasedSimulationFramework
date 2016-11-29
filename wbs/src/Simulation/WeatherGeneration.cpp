@@ -192,7 +192,8 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);
-	
+
+	msg = locations.IsValid();
 
 	for (size_t i = 0; i < 3&&msg; i++)
 	{
@@ -324,14 +325,10 @@ if (messageTmp)
 
 			callback.PopTask();
 		}//is database open
-
-		//callback.StepIt();
 	}//for all database
 
 
 	omp_set_nested(nested);
-
-	//callback.PopTask();
 
     return msg;
 }

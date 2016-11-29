@@ -123,14 +123,14 @@ namespace WBSF
 		{
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
-			double T = weather[h][H_TAIR2];
+			double T = weather[h][H_TNTX];
 			if (NeedOverheating())  
 				T += overheat.GetOverheat(weather, h);
 
 			//Time step development rate
 			double r = Equations().GetRate(s, m_sex, T) / nbSteps;
 			//Relative development rate
-			double RR = GetRelativeDevRate(weather[h][H_TAIR2], r);
+			double RR = GetRelativeDevRate(weather[h][H_TNTX], r);
 
 			//development rate for white spruce is accelerated by a factor
 			if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -159,7 +159,7 @@ namespace WBSF
 
 			//adjust overwintering energy
 			if (s == L2o)
-				m_OWEnergy -= GetEnergyLost(weather[h][H_TAIR2]) / nbSteps;
+				m_OWEnergy -= GetEnergyLost(weather[h][H_TNTX]) / nbSteps;
 
 			//Compute defoliation on tree
 			m_eatenFoliage += GetEatenFoliage(RR);
@@ -341,7 +341,7 @@ namespace WBSF
 			//effect of temperature. The amplitude of sumF is independent of size of time step.
 			//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
 			if (prcp >= 0)
-				F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR2])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR2]) / 9.52), 1.3));
+				F = F*0.91*pow(max(0.0, (31. - weather[h][H_TNTX])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TNTX]) / 9.52), 1.3));
 
 			sumF += F / nbSteps;
 		}
