@@ -162,7 +162,7 @@ namespace WBSF
 		void SetSSI(const std::string& name, const std::string& ssi);
 		StringVector GetSSIHeader()const;
 
-		ERMsg IsValid()const;
+		ERMsg IsValid(bool bExludeUnknownElev = true)const;
 		bool IsInit()const;
 
 		void AppendMergeID(const std::string& ID);
@@ -235,7 +235,7 @@ namespace WBSF
 		ERMsg Load(std::istream& filePath, const char* separator = ",;", CCallback& callback = CCallback::DEFAULT_CALLBACK);
 		ERMsg Save(const std::string& filePath, char separator = ',', CCallback& callback = CCallback::DEFAULT_CALLBACK)const;
 		ERMsg Save(std::ostream& filePath, char separator = ',', CCallback& callback = CCallback::DEFAULT_CALLBACK)const;
-		ERMsg IsValid()const;
+		ERMsg IsValid(bool bExludeUnknownElev=true)const;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)

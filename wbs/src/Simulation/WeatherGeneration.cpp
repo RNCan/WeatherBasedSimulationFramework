@@ -192,8 +192,7 @@ ERMsg CWeatherGeneration::CheckLocationsInDatabase(CNormalsDatabasePtr& pNormalD
 	
 	int nested = omp_get_nested();
 	omp_set_nested(1);
-
-	msg = locations.IsValid();
+	
 
 	for (size_t i = 0; i < 3&&msg; i++)
 	{
@@ -675,7 +674,7 @@ ERMsg CWeatherGeneration::GetLocations(const CFileManager& fileManager, CLocatio
 	if(msg)
 	{
 		ASSERT(locations.size() > 0);
-		msg = locations.IsValid();
+		msg = locations.IsValid(false);
 	}
 	
     return msg;

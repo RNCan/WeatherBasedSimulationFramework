@@ -152,6 +152,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		if (stepBy!=0)
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 

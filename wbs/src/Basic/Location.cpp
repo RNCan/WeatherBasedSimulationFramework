@@ -344,7 +344,7 @@ namespace WBSF
 
 
 
-	ERMsg CLocation::IsValid()const
+	ERMsg CLocation::IsValid(bool bExludeUnknownElev)const
 	{
 		ERMsg msg;
 
@@ -367,7 +367,10 @@ namespace WBSF
 		//some stations have under sea level atitude
 		if (m_elev < -450 || m_elev > 9000)
 		{
-			msg.ajoute(GetString(IDS_BSC_INVALID_ELEV));
+			if (m_elev != -999 || !bExludeUnknownElev)
+			{
+				msg.ajoute(GetString(IDS_BSC_INVALID_ELEV));
+			}
 		}
 
 		SiteSpeceficInformationMap::const_iterator it = m_siteSpeceficInformation.find(GetDefaultSSIName(SLOPE));
@@ -737,12 +740,12 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLocationVector::IsValid()const
+	ERMsg CLocationVector::IsValid(bool bExludeUnknownElev)const
 	{
 		ERMsg msg;
 
 		for (CLocationVector::const_iterator it = begin(); it != end(); it++)
-			msg += it->IsValid();
+			msg += it->IsValid(bExludeUnknownElev);
 
 		return msg;
 	}
