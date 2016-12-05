@@ -26,12 +26,10 @@
 //NOT_CREATED			0
 //IDLE_BEGIN			1
 //LIFTOFF				2
-//ASCENDING_FLIGHT		3
-//HORIZONTAL_FLIGHT		4
-//DESCENDING_FLIGHT		5
-//LANDING				6
-//IDLE_END				7
-//DESTROYED				8
+//FLIGHT				3
+//LANDING				4
+//IDLE_END				5
+//DESTROYED				6
 //NO_END_DEFINE			10
 //NO_LIFTOFF			11
 //END_BY_RAIN			12
@@ -42,7 +40,6 @@
 //FIND_DISTRACTION		17
 //OUTSIDE_MAP			18
 //OUTSIDE_TIME_WINDOW	19
-
 
 
 
@@ -182,7 +179,9 @@ namespace WBSF
 	//trouver les RAP de 2012/05 à actuel.
 	//http://soostrc.comet.ucar.edu/data/grib/rap/20130817/hybrid/
 
-	extern const char ATM_HEADER[] = "State|X|Y|Latitude|Longitude|Height|Scale|FlightSpeedAscent|FlightSpeedHorizontal|FlightSpeedDecent|FlightDirection|Distance|TotalDistance";
+	
+
+	extern const char ATM_HEADER[] = "State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|SCALE|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE";
 
 	//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
 	//12 pa/m
@@ -210,13 +209,13 @@ namespace WBSF
 		return Uw;
 
 	}
-
-	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffType", "LiftoffBegin", "LiftoffEnd", "LiftoffOffset", "LiftoffSDCorr", "DurationType", "DurationMean", "DurationSD", "HeightType", "HeightMin", "HeightMean", "HeightSD", "HeightMax", "Wascent", "WascentSD", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	
+	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffOffset", "LiftoffSDCorr", "DurationMax", "DurationAlpha", "DurationBeta", "WLogMean", "WlogSD", "WingBeatExponent", "WingBeatFactor", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 	__int64 CATMWorld::get_t_liftoff_offset(double T)const
 	{
 		double t_liftoff = 0;
-		if (m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
+		/*if (m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
 		{
 			static const double SIGMA_SQ = 6.1;
 			static const double TSTART = 19.5;
@@ -239,7 +238,7 @@ namespace WBSF
 			}
 		}
 		else if (m_parameters2.m_t_liftoff_type == CATMParameters::NEW_TYPE)
-		{
+		{*/
 			double 	liftoff_μ = 0.190575425*T - 4.042102263;// +0.5;//+0.5 ajuted from radar data!
 			double 	liftoff_σ = -0.044029363*T + 1.363107669;
 
@@ -249,98 +248,114 @@ namespace WBSF
 
 			//add offset correction
 			//t_liftoff += ;
-		}
+		//}
 
 		return __int64(t_liftoff * 3600.0);//liftoff offset in seconds
 	}
 
 
-	__int64 CATMWorld::get_t_hunthing()const
-	{
-		double t_hunting = 0;
-		double ran = m_random.Randu(); //random value [0,1];
-		int ran012 = m_random.Rand(2); //random value {0,1,2};
+	//__int64 CATMWorld::get_t_hunthing()const
+	//{
+	//	double t_hunting = 0;
+	//	double ran = m_random.Randu(); //random value [0,1];
+	//	int ran012 = m_random.Rand(2); //random value {0,1,2};
 
-		if (ran012 == 0)
-		{
-			t_hunting = 0.5 + 0.5*ran;//first third hunts from 0.5 - 1.0 hr
-		}
-		else if (ran012 == 1)
-		{
-			t_hunting = 1.0 + 2.0*ran;// second third hunts from 1.0 - 3.0 hr
-		}
-		else
-		{
-			assert(ran012 == 2);
-			t_hunting = 3.0 + 3.0*ran;// third third hunts from 3.0 - 6.0 hr
-		}
+	//	if (ran012 == 0)
+	//	{
+	//		t_hunting = 0.5 + 0.5*ran;//first third hunts from 0.5 - 1.0 hr
+	//	}
+	//	else if (ran012 == 1)
+	//	{
+	//		t_hunting = 1.0 + 2.0*ran;// second third hunts from 1.0 - 3.0 hr
+	//	}
+	//	else
+	//	{
+	//		assert(ran012 == 2);
+	//		t_hunting = 3.0 + 3.0*ran;// third third hunts from 3.0 - 6.0 hr
+	//	}
 
-		return __int64(t_hunting * 3600.0);//time of unting after litfoff
-	}
+	//	return __int64(t_hunting * 3600.0);//time of unting after litfoff
+	//}
 
-	double CATMWorld::get_height()const
-	{
-		double height = 0;
+	//double CATMWorld::get_height()const
+	//{
+	//	double height = 0;
 
-		if (m_parameters2.m_height_type == CATMParameters::OLD_TYPE)
-		{
-			//static const double SIGMA_SQ = 6.1;
-			static const int NFT = 10;
-			static const double HBOT = 0;
-			static const double HTOP = 500;
-			static const double DELTAH = (HTOP - HBOT) / NFT;
-			//cumulative probabilty
-			static const double ft[NFT + 1] = { 0.0 / 836.0, 80.0 / 836.0, 210.0 / 836.0, 410.0 / 836.0, 660.0 / 836.0, 760.0 / 836.0, 815.0 / 836.0, 824.0 / 836.0, 831.0 / 836.0, 836.0 / 836.0, 836 / 836 };
+	//	if (m_parameters2.m_height_type == CATMParameters::OLD_TYPE)
+	//	{
+	//		//static const double SIGMA_SQ = 6.1;
+	//		static const int NFT = 10;
+	//		static const double HBOT = 0;
+	//		static const double HTOP = 500;
+	//		static const double DELTAH = (HTOP - HBOT) / NFT;
+	//		//cumulative probabilty
+	//		static const double ft[NFT + 1] = { 0.0 / 836.0, 80.0 / 836.0, 210.0 / 836.0, 410.0 / 836.0, 660.0 / 836.0, 760.0 / 836.0, 815.0 / 836.0, 824.0 / 836.0, 831.0 / 836.0, 836.0 / 836.0, 836 / 836 };
 
-			double ran = m_random.Randu();
-			size_t index = NFT;
-			for (size_t k = 0; k < NFT; k++)
-			{
-				if (ran >= ft[k] && ran < ft[k + 1])
-				{
-					index = k;
-					break;
-				}
-			}
-			double a1 = (ran - ft[index]) / (ft[index + 1] - ft[index]);
-			height = HBOT + (index + a1) * DELTAH;
-		}
-		else if (m_parameters2.m_height_type == CATMParameters::NEW_TYPE)
-		{
-			height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
-			while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
-				height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+	//		double ran = m_random.Randu();
+	//		size_t index = NFT;
+	//		for (size_t k = 0; k < NFT; k++)
+	//		{
+	//			if (ran >= ft[k] && ran < ft[k + 1])
+	//			{
+	//				index = k;
+	//				break;
+	//			}
+	//		}
+	//		double a1 = (ran - ft[index]) / (ft[index + 1] - ft[index]);
+	//		height = HBOT + (index + a1) * DELTAH;
+	//	}
+	//	else if (m_parameters2.m_height_type == CATMParameters::NEW_TYPE)
+	//	{
+	//		height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+	//		while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
+	//			height = m_random.RandNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
 
-			//height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
-			//while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
-			//	height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
-		}
+	//		//height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+	//		//while (height<m_parameters2.m_height_lo || height>m_parameters2.m_height_hi)
+	//		//	height = m_random.RandLogNormal(m_parameters2.m_height, m_parameters2.m_height_σ);
+	//	}
 
-		return height;
-	}
+	//	return height;
+	//}
 
 	__int64 CATMWorld::get_duration()const
 	{
 		double duration = 0;
-		if (m_parameters2.m_duration_type == CATMParameters::OLD_TYPE)
+		/*if (m_parameters2.m_duration_type == CATMParameters::OLD_TYPE)
 		{
 			duration = m_parameters2.m_duration + (m_random.Randu() - 0.5)*m_parameters2.m_duration_σ;
 		}
 		else if (m_parameters2.m_duration_type == CATMParameters::NEW_TYPE)
 		{
-			duration = m_random.RandNormal(m_parameters2.m_duration, m_parameters2.m_duration_σ);
-		}
+		*/	//duration = m_random.RandNormal(m_parameters2.m_duration, m_parameters2.m_duration_σ);
+		duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
+		//}
 
-		return __int64(duration * 3600.0); //duration in seconds
+		return __int64(duration * 3600.0); //duration in hours
 	}
 
-	double CATMWorld::get_w_ascent()const
-	{
-		double ran = m_random.Rand(-1.0, 1.0);//random value [-1,1];
-		double w = max(0.0, m_parameters2.m_w_ascent + ran*m_parameters2.m_w_ascent_σ);
-		ASSERT(w >= 0);
+	//double CATMWorld::get_w_ascent()const
+	//{
+	//	double ran = m_random.Rand(-1.0, 1.0);//random value [-1,1];
+	//	double w = max(0.0, m_parameters2.m_w_ascent + ran*m_parameters2.m_w_ascent_σ);
+	//	ASSERT(w >= 0);
 
-		return w * 1000 / 3600;//convert from km/h to m/s
+	//	return w * 1000 / 3600;//convert from km/h to m/s
+	//}
+
+	double CATMWorld::get_Wᴸ()const
+	{
+		double Wᴸ = m_random.RandLogNormal(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
+		while (Wᴸ < 0 || Wᴸ>1)
+			Wᴸ = m_random.RandLogNormal(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
+
+
+		//double Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
+		//while (Wᴸ < 0 || Wᴸ>1)
+			//Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
+
+
+		return Wᴸ;
 	}
 
 	double CATMWorld::get_w_horizontal()const
@@ -394,17 +409,18 @@ namespace WBSF
 
 		m_UTCShift = localTime - UTCTime;
 		CATMVariables w = m_world.get_weather(m_pt, UTCSunsetTRef, UTCSunset);
-		if (m_world.m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
-			m_parameters.m_t_liftoff = UTCTime + m_world.get_t_liftoff_offset(w[ATM_TAIR]);
-		else
-			m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(w[ATM_TAIR]);
+	//	if (m_world.m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
+		//	m_parameters.m_t_liftoff = UTCTime + m_world.get_t_liftoff_offset(w[ATM_TAIR]);
+		//else
+		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(w[ATM_TAIR]);
 
-		m_parameters.m_height = m_world.get_height();
-		m_parameters.m_w_ascent = m_world.get_w_ascent();
+		//m_parameters.m_height = m_world.get_height();
+		m_parameters.m_Wᴸ = m_world.get_Wᴸ();
+		//m_parameters.m_w_ascent = m_world.get_w_ascent();
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
 		m_parameters.m_duration = m_world.get_duration();
-		m_parameters.m_t_hunting = min(m_parameters.m_duration, m_world.get_t_hunthing());//attention ce n'est pa comme avant
+		//m_parameters.m_t_hunting = min(m_parameters.m_duration, m_world.get_t_hunthing());//attention ce n'est pa comme avant
 	}
 
 	void CFlyer::live()
@@ -427,9 +443,8 @@ namespace WBSF
 				case NOT_CREATED:		create(UTCTRef, UTCTime); break;
 				case IDLE_BEGIN:		idle_begin(UTCTRef, UTCTime); break;
 				case LIFTOFF:			liftoff(UTCTRef, UTCTime); break;
-				case ASCENDING_FLIGHT:	ascent_flight(UTCTRef, UTCTime); break;
-				case HORIZONTAL_FLIGHT:	horizontal_flight(UTCTRef, UTCTime); break;
-				case DESCENDING_FLIGHT:	descent_flight(UTCTRef, UTCTime); break;
+				//case ASCENDING_FLIGHT:	ascent_flight(UTCTRef, UTCTime); break;
+				case FLIGHT:			flight(UTCTRef, UTCTime); break;
 				case LANDING:			landing(UTCTRef, UTCTime); break;
 				case IDLE_END:			idle_end(UTCTRef, UTCTime);  break;
 				case DESTROYED:			destroy(UTCTRef, UTCTime);  break;
@@ -470,10 +485,13 @@ namespace WBSF
 
 			double ws = w.get_wind_speed(true) * 3600 / 1000;//tranform m/s -> km/h
 			ASSERT(!IsMissing(w[ATM_TAIR]) && !IsMissing(w[ATM_PRCP]) && !IsMissing(w[ATM_WNDU]) && !IsMissing(w[ATM_WNDV]));
+			double Tᴸ = get_Tᴸ(m_parameters.m_Wᴸ);
+
 
 			if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax &&
-				w[ATM_TAIR] > m_world.m_parameters2.m_Tmin &&
-				w[ATM_TAIR] < m_world.m_parameters2.m_Tmax &&
+			//	//w[ATM_TAIR] > m_world.m_parameters2.m_Tmin &&
+			//	w[ATM_TAIR] > Tᴸ &&
+			//	//w[ATM_TAIR] < m_world.m_parameters2.m_Tmax &&
 				ws > m_world.m_parameters2.m_Wmin)
 			{
 				//update liftoff time
@@ -482,15 +500,18 @@ namespace WBSF
 			else
 			{
 				//flight abort
-				m_state = IDLE_END;
+				if (countdown>=m_parameters.m_duration)
+				{
+					m_state = IDLE_END;
 
-				if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
-					m_end_type = END_BY_RAIN;
-				else if (w[ATM_TAIR] <= m_world.m_parameters2.m_Tmin || w[ATM_TAIR] >= m_world.m_parameters2.m_Tmax)
-					m_end_type = END_BY_TAIR;
-				else //(ws > m_world.m_parameters2.m_Wmin)
-					m_end_type = END_BY_WNDS;
-
+					if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
+						m_end_type = END_BY_RAIN;
+					//else if (w[ATM_TAIR] <= m_world.m_parameters2.m_Tmin || w[ATM_TAIR] >= m_world.m_parameters2.m_Tmax)
+					//else if (w[ATM_TAIR] <= Tᴸ )//|| w[ATM_TAIR] >= m_world.m_parameters2.m_Tmax
+						//m_end_type = END_BY_TAIR;
+					else //(ws > m_world.m_parameters2.m_Wmin)
+						m_end_type = END_BY_WNDS;
+				}
 			}
 			
 			m_stat[S_TAIR] += w[ATM_TAIR];
@@ -505,7 +526,7 @@ namespace WBSF
 	void CFlyer::liftoff(CTRef UTCTRef, __int64 UTCTime)
 	{
 		m_log[T_LIFTOFF] = UTCTime;
-		m_state = ASCENDING_FLIGHT;
+		m_state = FLIGHT;
 	}
 
 
@@ -525,12 +546,10 @@ namespace WBSF
 		double Uz = 0;
 
 
-		//
 		switch (m_state)
 		{
-		case ASCENDING_FLIGHT:	Uz += w[ATM_WNDW] + m_parameters.m_w_ascent; break;	//[m/s]
-		case HORIZONTAL_FLIGHT:	Uz = w[ATM_WNDW]; break;							//[m/s]
-		case DESCENDING_FLIGHT:	Uz += w[ATM_WNDW] + m_parameters.m_w_descent; break;	//[m/s]
+		case FLIGHT:	Uz = get_Uz(w[ATM_TAIR]) + w[ATM_WNDW]; break;	//[m/s]
+		case LANDING:	Uz = w[ATM_WNDW] + m_parameters.m_w_descent; break;	//[m/s]
 		default: assert(false);
 		}
 
@@ -553,6 +572,40 @@ namespace WBSF
 
 		return CGeoDistance3D(Ux, Uy, Uz, m_pt.GetPrjID());
 	}
+
+	//double T : tair temperature [°C]
+
+	double CFlyer::get_ω(double T)const
+	{
+		const double Tb = m_world.m_parameters2.m_Tmin;
+		const double Tm = m_world.m_parameters2.m_Tmax;
+		const double Ex = m_world.m_parameters2.m_w_Ex;
+
+		double ω = 1-pow((Tm - max(Tb, min(Tm, T))) / (Tm - Tb), Ex);
+
+		return ω;
+	}
+
+	double CFlyer::get_Tᴸ(double ω)const
+	{
+		const double Tb = m_world.m_parameters2.m_Tmin;
+		const double Tm = m_world.m_parameters2.m_Tmax;
+		const double Ex = m_world.m_parameters2.m_w_Ex;
+
+		double Tᴸ = Tm - pow((1-ω), 1 / Ex)*(Tm - Tb);
+
+		return Tᴸ;
+	}
+
+	double CFlyer::get_Uz(double T)const
+	{
+		double ω = get_ω(T);
+		double ωᴸ = m_parameters.m_Wᴸ;// get_ω(m_parameters.m_Wᴸ, m_world.m_parameters2.m_w_Ex);
+		double Uz = m_world.m_parameters2.m_w_α*(ω - ωᴸ);//Uz can be negative
+
+		return Uz * 1000 / 3600;//km/h --> m/s
+	}
+
 
 	CATMVariables CFlyer::get_weather(CTRef UTCTRef, __int64 UTCTime)const
 	{
@@ -611,102 +664,102 @@ namespace WBSF
 		m_stat[S_HEIGHT] += m_pt.m_z;	//flight height [m]
 	}
 
-void CFlyer::ascent_flight(CTRef UTCTRef, __int64 UTCTime)
+//void CFlyer::ascent_flight(CTRef UTCTRef, __int64 UTCTime)
+//{
+//	ASSERT(UTCTime >= m_parameters.m_t_liftoff);
+//
+//	__int64 duration = UTCTime - m_parameters.m_t_liftoff;
+//	if (duration < m_parameters.m_duration)
+//	{
+//		if (m_world.m_weather.IsLoaded(UTCTRef))
+//		{
+//			if (m_world.IsInside(m_pt) )
+//			{
+//				double dt = m_world.get_time_step(); //[s]
+//				CATMVariables w = get_weather(UTCTRef, UTCTime);
+//				CGeoDistance3D U = get_U(w);
+//				CGeoDistance3D d = U*dt;
+//
+//				if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
+//				{
+//					if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
+//					{
+//						//update coordinate
+//						((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+//						((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+//
+//						if (m_pt.m_z < 10)
+//						{
+//							double delta = 10 - m_pt.m_z;
+//							m_pt.m_z += delta;//hummm???
+//							m_newLocation.m_z += delta;//hummm???
+//						}
+//
+//						
+//
+//						if (duration > m_parameters.m_t_hunting)
+//						{
+//							if (m_log[T_HUNTING] == 0)
+//								m_log[T_HUNTING] = UTCTime;//first time hunting
+//
+//							if (m_world.is_over_host(m_pt))//look to find host
+//							{
+//								m_state = DESCENDING_FLIGHT;
+//								m_end_type = FIND_HOST;
+//							}
+//							else if (m_world.is_over_distraction(m_pt))//look for distraction
+//							{
+//								m_state = DESCENDING_FLIGHT;
+//								m_end_type = FIND_DISTRACTION;
+//							}
+//						}
+//
+//						if (m_end_type == NO_END_DEFINE)
+//						{
+//							if (m_pt.m_z >= m_parameters.m_height)
+//							{
+//								m_state = HORIZONTAL_FLIGHT;
+//							}
+//						}
+//					}
+//					else
+//					{
+//						m_state = DESCENDING_FLIGHT;
+//						m_end_type = END_BY_TAIR;
+//					}
+//				}
+//				else
+//				{
+//					m_state = DESCENDING_FLIGHT;
+//					m_end_type = END_BY_RAIN;
+//				}
+//
+//				AddStat(w, U, d);
+//			}
+//			else
+//			{
+//				m_state = IDLE_END;
+//				m_end_type = OUTSIDE_MAP;
+//			}
+//		}
+//		else
+//		{
+//			m_state = IDLE_END;
+//			m_end_type = OUTSIDE_TIME_WINDOW;
+//		}
+//	}
+//	else
+//	{
+//		m_state = DESCENDING_FLIGHT;
+//		m_end_type = END_OF_TIME_FLIGHT;
+//	}
+//
+//
+//}
+
+void CFlyer::flight(CTRef UTCTRef, __int64 UTCTime)
 {
-	ASSERT(UTCTime >= m_parameters.m_t_liftoff);
-
-	__int64 duration = UTCTime - m_parameters.m_t_liftoff;
-	if (duration < m_parameters.m_duration)
-	{
-		if (m_world.m_weather.IsLoaded(UTCTRef))
-		{
-			if (m_world.IsInside(m_pt) )
-			{
-				double dt = m_world.get_time_step(); //[s]
-				CATMVariables w = get_weather(UTCTRef, UTCTime);
-				CGeoDistance3D U = get_U(w);
-				CGeoDistance3D d = U*dt;
-
-				if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
-				{
-					if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
-					{
-						//update coordinate
-						((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-						((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-
-						if (m_pt.m_z < 10)
-						{
-							double delta = 10 - m_pt.m_z;
-							m_pt.m_z += delta;//hummm???
-							m_newLocation.m_z += delta;//hummm???
-						}
-
-						
-
-						if (duration > m_parameters.m_t_hunting)
-						{
-							if (m_log[T_HUNTING] == 0)
-								m_log[T_HUNTING] = UTCTime;//first time hunting
-
-							if (m_world.is_over_host(m_pt))//look to find host
-							{
-								m_state = DESCENDING_FLIGHT;
-								m_end_type = FIND_HOST;
-							}
-							else if (m_world.is_over_distraction(m_pt))//look for distraction
-							{
-								m_state = DESCENDING_FLIGHT;
-								m_end_type = FIND_DISTRACTION;
-							}
-						}
-
-						if (m_end_type == NO_END_DEFINE)
-						{
-							if (m_pt.m_z >= m_parameters.m_height)
-							{
-								m_state = HORIZONTAL_FLIGHT;
-							}
-						}
-					}
-					else
-					{
-						m_state = DESCENDING_FLIGHT;
-						m_end_type = END_BY_TAIR;
-					}
-				}
-				else
-				{
-					m_state = DESCENDING_FLIGHT;
-					m_end_type = END_BY_RAIN;
-				}
-
-				AddStat(w, U, d);
-			}
-			else
-			{
-				m_state = IDLE_END;
-				m_end_type = OUTSIDE_MAP;
-			}
-		}
-		else
-		{
-			m_state = IDLE_END;
-			m_end_type = OUTSIDE_TIME_WINDOW;
-		}
-	}
-	else
-	{
-		m_state = DESCENDING_FLIGHT;
-		m_end_type = END_OF_TIME_FLIGHT;
-	}
-
-
-}
-
-void CFlyer::horizontal_flight(CTRef UTCTRef, __int64 UTCTime)
-{
-	ASSERT(m_state == HORIZONTAL_FLIGHT);
+	ASSERT(m_state == FLIGHT);
 	ASSERT(m_end_type == NO_END_DEFINE);
 
 
@@ -726,47 +779,50 @@ void CFlyer::horizontal_flight(CTRef UTCTRef, __int64 UTCTime)
 
 				if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 				{
-					if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
+					//if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
+					//{
+					((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+					((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+
+					if (m_pt.m_z < 2)
 					{
-						((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-						((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+						//m_state = IDLE_END;
+						//m_end_type = END_BY_CRASH;
 
-						if (m_pt.m_z < 10)
-						{
-							double delta = 10 - m_pt.m_z;
-							m_pt.m_z += delta;//hummm???
-							m_newLocation.m_z += delta;//hummm???
-						}
+						double delta = 2 - m_pt.m_z;
+						m_pt.m_z += delta;
+						m_newLocation.m_z += delta;
+					}
 
 
-						if (duration > (__int64)m_parameters.m_t_hunting)
-						{
-							if (m_log[T_HUNTING] == 0)
-								m_log[T_HUNTING] = UTCTime;//first time hunting
+						//if (duration > (__int64)m_parameters.m_t_hunting)
+						//{
+						//if (m_log[T_HUNTING] == 0)
+							//m_log[T_HUNTING] = UTCTime;//first time hunting
 
-							if (m_world.is_over_host(m_pt))//look to find host
-							{
-								m_state = DESCENDING_FLIGHT;
-								m_end_type = FIND_HOST;
-							}
-							else if (m_world.is_over_distraction(m_pt))//look for distraction
-							{
-								m_state = DESCENDING_FLIGHT;
-								m_end_type = FIND_DISTRACTION;
-							}
-						}
+						//if (m_world.is_over_host(m_pt))//look to find host
+						//{
+						//m_state = LANDING;
+							//m_end_type = FIND_HOST;
+						//}
+						//else if (m_world.is_over_distraction(m_pt))//look for distraction
+						//{
+							//m_state = DESCENDING_FLIGHT;
+							//m_end_type = FIND_DISTRACTION;
+						//}
+						//}
 						
-					}
-					else
-					{
-						m_state = DESCENDING_FLIGHT;
-						m_end_type = END_BY_TAIR;
-					}
+					//}
+					//else
+					//{
+						//m_state = DESCENDING_FLIGHT;
+						//m_end_type = END_BY_TAIR;
+					//}
 				}
 				else
 				{
-					m_state = DESCENDING_FLIGHT;
-					m_end_type = END_BY_RAIN;
+					m_state = LANDING;
+					//m_end_type = END_BY_RAIN;
 				}
 
 				AddStat(w, U, d);
@@ -785,14 +841,16 @@ void CFlyer::horizontal_flight(CTRef UTCTRef, __int64 UTCTime)
 	}
 	else
 	{
-		m_state = DESCENDING_FLIGHT;
-		m_end_type = END_OF_TIME_FLIGHT;
+		m_state = LANDING;
+		//m_end_type = END_OF_TIME_FLIGHT;
 	}
 }
 
-void CFlyer::descent_flight(CTRef UTCTRef, __int64 UTCTime)
+//void CFlyer::descent_flight(CTRef UTCTRef, __int64 UTCTime)
+void CFlyer::landing(CTRef UTCTRef, __int64 UTCTime)
 {
-	ASSERT(m_state == DESCENDING_FLIGHT);
+
+	ASSERT(m_state == LANDING);
 	ASSERT(m_end_type != NO_END_DEFINE);
 	
 	//CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
@@ -807,46 +865,77 @@ void CFlyer::descent_flight(CTRef UTCTRef, __int64 UTCTime)
 
 			((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
 			((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-
-			if (m_pt.m_z > 0)
+			if (m_pt.m_z <= 0)
 			{
-				__int64 duration = UTCTime - m_parameters.m_t_liftoff;
-				if (duration < m_parameters.m_duration)
-				{
-					if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin &&
-						m_end_type == END_BY_TAIR)
-					{
-						//go to horizontal flight state
-						m_state = HORIZONTAL_FLIGHT;
-						m_end_type = NO_END_DEFINE;
-					}
-				}
+				double delta = 0 - m_pt.m_z;
+				m_pt.m_z += delta;
+				m_newLocation.m_z += delta;
 
-
-				if (duration > m_parameters.m_t_hunting)
-				{
-					if (m_log[T_HUNTING] == 0)
-						m_log[T_HUNTING] = UTCTime;//first time hunting
-
-					if (m_world.is_over_host(m_pt))//look to find host
-					{
-						m_state = DESCENDING_FLIGHT;
-						m_end_type = FIND_HOST;
-					}
-					else if (m_world.is_over_distraction(m_pt))//look for distraction
-					{
-						m_state = DESCENDING_FLIGHT;
-						m_end_type = FIND_DISTRACTION;
-					}
-				}
-
-				AddStat(w, U, d);
+				ASSERT(m_pt.m_z == 0);
 			}
-			else
+			
+			//{
+				//__int64 duration = UTCTime - m_parameters.m_t_liftoff;
+				//if (duration < m_parameters.m_duration)
+				//{
+				//	if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin &&
+				//		m_end_type == END_BY_TAIR)
+				//	{
+				//		//go to horizontal flight state
+				//		m_state = HORIZONTAL_FLIGHT;
+				//		m_end_type = NO_END_DEFINE;
+				//	}
+				//}
+
+
+				//if (duration > m_parameters.m_t_hunting)
+				//{
+				//	if (m_log[T_HUNTING] == 0)
+				//		m_log[T_HUNTING] = UTCTime;//first time hunting
+
+				//	if (m_world.is_over_host(m_pt))//look to find host
+				//	{
+				//		m_state = DESCENDING_FLIGHT;
+				//		m_end_type = FIND_HOST;
+				//	}
+				//	else if (m_world.is_over_distraction(m_pt))//look for distraction
+				//	{
+				//		m_state = DESCENDING_FLIGHT;
+				//		m_end_type = FIND_DISTRACTION;
+				//	}
+				//}
+
+				
+			//}
+			//else
+			//
+			//{
+
+			AddStat(w, U, d);
+				
+			if (m_pt.m_z <= 100)
 			{
-				m_state = LANDING;
+				if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
+					m_end_type = END_BY_RAIN;
+				else if (m_world.is_over_host(m_pt))//look to find host
+					m_end_type = FIND_HOST;
+				else if (m_world.is_over_distraction(m_pt))//look for distraction
+					m_end_type = FIND_DISTRACTION;
+				else if (m_pt.m_z <= 0)
+					m_end_type = END_OF_TIME_FLIGHT;
 			}
 
+			if (m_end_type != NO_END_DEFINE)
+			{
+				m_log[T_LANDING] = UTCTime;
+				m_state = IDLE_END;
+
+				//end at zero
+				double delta = -m_pt.m_z;
+				m_pt.m_z += delta;
+				m_newLocation.m_z += delta;
+
+			}
 		}
 		else
 		{
@@ -859,13 +948,11 @@ void CFlyer::descent_flight(CTRef UTCTRef, __int64 UTCTime)
 		m_state = IDLE_END;
 		m_end_type = OUTSIDE_TIME_WINDOW;
 	}
-}
 
-void CFlyer::landing(CTRef UTCTRef, __int64 UTCTime)
-{
-	m_log[T_LANDING] = UTCTime;
-	m_state = IDLE_END;
-	ASSERT(m_end_type != NO_END_DEFINE);
+
+//	m_log[T_LANDING] = UTCTime;
+	//m_state = IDLE_END;
+	//ASSERT(m_end_type != NO_END_DEFINE);
 }
 
 void CFlyer::idle_end(CTRef UTCTRef, __int64 UTCTime)
@@ -2102,37 +2189,6 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 			//get all flyers for this day
 			vector<CFlyersIt> fls = GetFlyers(*it);
 
-			//for (size_t i = 0; i < fls.size(); i++)
-			//{
-			//	CFlyer& flyer = *(fls[i]);
-			//	CTRef TRef = m_UTCTRef + flyer.GetUTCShift();
-
-			//	if (output[flyer.m_loc][flyer.m_var].IsInside(TRef))
-			//	{
-			//		CGeoPoint3D pt = flyer.m_pt;
-			//		pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
-
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_STATE] = flyer.GetState();
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_X] = pt.m_x;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_Y] = pt.m_y;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_LAT] = flyer.m_newLocation.m_lat;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_LON] = flyer.m_newLocation.m_lon;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_T] = flyer.GetStat(CFlyer::S_TAIR);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_P] = flyer.GetStat(CFlyer::S_PRCP);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_U] = flyer.GetStat(CFlyer::S_U);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_V] = flyer.GetStat(CFlyer::S_V);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W] = flyer.GetStat(CFlyer::S_W);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_SCALE] = flyer.m_scale;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W_HORIZONTAL] = 0;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_W_VERTICAL] = 0;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DIRECTION] = 0;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE] = 0;
-			//		output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE_FROM_OIRIGINE] = 0;
-			//	}
-			//}
-
 			//Get all sunset hour for flyers. 
 			set<CTRef> sunsetTRef;
 			for (size_t i = 0; i < fls.size() && !m_weather.SkipDay() && msg; i++)
@@ -2195,7 +2251,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 				
 				for (m_UTCTTime = CTimeZones::UTCTRef2UTCTime(m_UTCTRef = UTC_period.Begin()); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++, m_UTCTTime += 3600)
 				{
-//#pragma omp parallel for if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) //est-ce que ça cause encore des problèmes??????
+#pragma omp parallel for if (m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS) //est-ce que ça cause encore des problèmes??????
 					for (__int64 i = 0; i < (__int64 )fls.size(); i++)
 					{
 #pragma omp flush(msg)
@@ -2223,8 +2279,10 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_V] = flyer.GetStat(CFlyer::S_V);
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_W] = flyer.GetStat(CFlyer::S_W);
 
-									output[flyer.m_loc][flyer.m_var][TRef][ATM_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_MEAN_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_CURRENT_HEIGHT] = flyer.m_pt.m_z;
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);
+									
 
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_SCALE] = flyer.m_scale;
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_W_HORIZONTAL] = flyer.GetStat(CFlyer::S_W_HORIZONTAL) * 3600 / 1000;
@@ -2242,6 +2300,18 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 									double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE] = flyer.GetStat(CFlyer::S_DISTANCE, SUM);
 									output[flyer.m_loc][flyer.m_var][TRef][ATM_DISTANCE_FROM_OIRIGINE] = D°;
+
+
+									size_t time = 0;
+									if (flyer.GetLog(CFlyer::T_LIFTOFF) > 0)
+									{
+										time = m_UTCTTime + 3600;//time at the end of hour simulation
+										if (flyer.GetLog(CFlyer::T_LANDING) > 0)
+											time = flyer.GetLog(CFlyer::T_LANDING);
+									}
+									output[flyer.m_loc][flyer.m_var][TRef][ATM_FLIGHT_TIME] = (time - flyer.GetLog(CFlyer::T_LIFTOFF)) / 3600;
+
+
 								}
 								else
 								{

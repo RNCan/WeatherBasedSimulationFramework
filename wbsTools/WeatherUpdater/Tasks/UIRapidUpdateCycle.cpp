@@ -375,7 +375,9 @@ namespace WBSF
 		size_t m = WBSF::as<int>(name.substr(12, 2))-1;
 		size_t d = WBSF::as<int>(name.substr(14, 2))-1;
 		size_t h = WBSF::as<int>(name.substr(17, 2));
+		size_t hh = WBSF::as<int>(name.substr(22, 3));
 
-		return CTRef(year,m,d,h);
+
+		return CTRef(year, m, d, h + hh);
 	}
 }

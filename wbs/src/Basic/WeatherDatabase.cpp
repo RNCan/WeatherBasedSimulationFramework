@@ -238,9 +238,7 @@ ERMsg CWeatherDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 				msg = m_zop.Load(optFilePath);
 				if (msg)
 				{
-
-					if (m_zop.IsStationDefinitionUpToDate(referencedFilePath) &&
-						m_zop.IsStationDefinitionUpToDate(headerFilePath))
+					if (m_zop.IsStationDefinitionUpToDate(headerFilePath))
 					{
 						bStationsAsChange = false;
 					}

@@ -336,7 +336,8 @@ ERMsg CNormalsDatabase::OpenOptimizationFile(const std::string& referencedFilePa
 		callback.AddMessage(FormatMsg( IDS_MSG_LOAD_OP, GetFileName(optFilePath) ));
 		if (m_zop.Load(optFilePath))
 		{
-			if (m_zop.IsStationDefinitionUpToDate(referencedFilePath))
+			string headerFilePath = GetHeaderFilePath(referencedFilePath);
+			if (m_zop.IsStationDefinitionUpToDate(headerFilePath))
 			{
 				bStationsAsChange = false;
 			}

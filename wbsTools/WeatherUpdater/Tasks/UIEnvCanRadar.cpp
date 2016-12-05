@@ -169,7 +169,7 @@ namespace WBSF
 	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca"};
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 	
-	const char* CUIEnvCanRadar::TYPE_NAME[NB_TYPE] = { "PRECIPET_SNOW_WEATHEROFFICE", "PRECIPET_RAIN_WEATHEROFFICE" };
+	const char* CUIEnvCanRadar::TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
 	
 
 
@@ -265,7 +265,7 @@ namespace WBSF
 		else if (t == HISTORICAL_RADAR)
 		{
 			ASSERT(URL.length() == 63);
-			static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIPET_SNOW", "PRECIPET_RAIN" };
+			static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
 			
 			string year = "20" + URL.substr(33, 2);
 			size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
@@ -330,7 +330,7 @@ namespace WBSF
 			"year=%d&"
 			"month=%d&"
 			"day=%d&"
-			"hour=%d&"
+			"hour=%02d&"
 			"minute=00&"
 			"duration=2&"
 			"image_type=%s";
@@ -367,8 +367,8 @@ namespace WBSF
 
 					string source;
 					UtilWWW::GetPageText(pConnection, URL, source, true);
-
-
+				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=5&hour=00&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
+				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=6&hour=00&minute=00&duration=2&image_type=PRECIP_SNOW_WEATHEROFFICE
 					//string::size_type posEnd = 0;
 					string fileList = FindString(source, "blobArray = [", "]");
 					if (!fileList.empty())

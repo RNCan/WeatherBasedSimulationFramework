@@ -257,7 +257,7 @@ void CResultCtrl::OnColSized(int index, int *width)
 
 	
 
-	if (m_enableUpdate)
+	if (m_enableUpdate&&m_pResult && m_pResult->IsOpen())
 	{
 		CRegistry registry("ResultColumnWidth");
 		const CModelOutputVariableDefVector& outdef = m_pResult->GetMetadata().GetOutputDefinition();
@@ -283,7 +283,7 @@ void CResultCtrl::OnColSized(int index, int *width)
 
 int CResultCtrl::OnSideHdgSized(int *width)
 {
-	if (m_enableUpdate)
+	if (m_enableUpdate&&m_pResult && m_pResult->IsOpen())
 	{
 		CRegistry registry("ResultColumnWidth");
 		registry.SetValue("SideHeader", *width);

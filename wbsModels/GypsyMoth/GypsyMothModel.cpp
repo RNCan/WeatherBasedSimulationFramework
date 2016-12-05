@@ -317,7 +317,8 @@ namespace WBSF
 				{
 					if (totPop > 0)
 						output[d][j] = 100 * cumFreq[j] / totPop;
-					else output[d][j] = firstDay ? 0 : output[d - 1][j];
+					else 
+						output[d][j] = firstDay ? 0 : output[d - 1][j];
 				}
 
 				////% cumulative catch of male/female moths

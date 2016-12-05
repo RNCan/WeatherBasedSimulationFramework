@@ -564,18 +564,19 @@ namespace WBSF
 				//don't update it now. Update when open next time
 				m_filePath = filePath;
 				m_bSubDir = !subDir.empty() ? stoi(subDir) : false;
-				m_time = GetFileStamp(filePath);
+
+				//load csv format... remove xml later
+				string CSVFilePath = filePath;
+				SetFileExtension(CSVFilePath, hdrExt);
+				msg = CLocationVector::Load(CSVFilePath);
+
+				if (msg)
+					m_time = GetFileStamp(CSVFilePath);
 			}
 			else
 			{
 				msg.ajoute("Error reading database: " + filePath);
 			}
-
-			//load csv format... remove xml later
-			string CSVFilePath = filePath;
-			SetFileExtension(CSVFilePath, hdrExt);
-			//if (FileExists(CSVFilePath))
-			msg = CLocationVector::Load(CSVFilePath);
 
 		}
 

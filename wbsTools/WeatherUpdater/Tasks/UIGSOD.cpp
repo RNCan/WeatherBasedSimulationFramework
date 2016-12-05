@@ -320,14 +320,12 @@ namespace WBSF
 			string outputPath = GetPath(outputFilePath);
 			CreateMultipleDir(outputPath);
 			msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath, callback);
-			//	msgTmp += CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
 			//unzip 
 			if (msg)
 			{
 				ASSERT(FileExists(outputFilePath));
 				msg = Uncompress(outputFilePath, outputPath, callback);
-				//RemoveFile(outputFilePath);
 
 				msg += callback.StepIt();
 				curI++;

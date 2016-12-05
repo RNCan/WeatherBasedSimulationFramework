@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<ATMOutput>> CATMOutputMatrix;
 
@@ -121,8 +121,11 @@ namespace WBSF
 	{
 	public:
 
-		enum TType{ OLD_TYPE, NEW_TYPE };
-		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_TYPE, LIFTOFF_BEGIN, LIFTOFF_END, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_TYPE, DURATION_MEAN, DURATION_SD, HEIGHT_TYPE, HEIGHT_MIN, HEIGHT_MEAN, HEIGHT_SD, HEIGHT_MAX, W_ASCENT, W_ASCENT_SD, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		
+
+
+//		enum TType{ OLD_TYPE, NEW_TYPE };
+		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 
@@ -130,21 +133,27 @@ namespace WBSF
 		double m_Tmax;				//maximum temperature for flight [°C]
 		double m_Pmax;				//maximum precipitation for flight [mm/h]
 		double m_Wmin;				//minimum wind speed for flight [km/h]
-		size_t m_t_liftoff_type;	//
-		double m_t_liftoff_begin;	//Earliest observed lift-off relatif to suset
-		double m_t_liftoff_end;		//latest observed lift-off relatif to suset
+		//size_t m_t_liftoff_type;	//
+		//double m_t_liftoff_begin;	//Earliest observed lift-off relatif to suset
+		//double m_t_liftoff_end;		//latest observed lift-off relatif to suset
 		double m_t_liftoff_correction;	//Extra offset correction of liftoff
 		double m_t_liftoff_σ_correction;		//liftoff stadard deviation
-		size_t m_duration_type;		//
-		double m_duration;			//max flight duration [h]
-		double m_duration_σ;		//max flight duration stadard deviation [h]
-		size_t m_height_type;		//
-		double m_height_lo;			//lower flith height
-		double m_height;			//mean flight height [m]
-		double m_height_σ;			//standard deviation of flight height [m]
-		double m_height_hi;			//highest flith height
-		double m_w_ascent;			//ascent vertical velocity [km/h]
-		double m_w_ascent_σ;		//ascent vertical velocity standard deviation [km/h]
+		//size_t m_duration_type;		//
+		double m_duration_max;		//max flight duration [h]
+		double m_duration_α;		//max flight duration alpha
+		double m_duration_β;		//max flight duration beta
+
+		//size_t m_height_type;		//
+		//double m_height_lo;			//lower flith height
+		//double m_height;			//mean flight height [m]
+		//double m_height_σ;			//standard deviation of flight height [m]
+		//double m_height_hi;			//highest flith height
+//		double m_w_ascent;			//ascent vertical velocity [km/h]
+	//	double m_w_ascent_σ;		//ascent vertical velocity standard deviation [km/h]
+		double m_w_Wᴸ;
+		double m_w_σᴸ;
+		double m_w_Ex;
+		double m_w_α;				//km/h
 		double m_w_horizontal;		//horizontal velocity [km/h]
 		double m_w_horizontal_σ;	//horizontal velocity standard deviation [km/h]
 		double m_w_descent;			//terminal velocity [km/h]
@@ -167,21 +176,26 @@ namespace WBSF
 			m_Pmax = 2.5;				//[mm/h]
 			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
 
-			m_t_liftoff_type = NEW_TYPE;
-			m_t_liftoff_begin = -1.75;				//19.5;	//attention dans la publication c'est marquer 18.5
-			m_t_liftoff_end = 2.25;					//23.5;	
+		//	m_t_liftoff_type = NEW_TYPE;
+			//m_t_liftoff_begin = -1.75;				//19.5;	//attention dans la publication c'est marquer 18.5
+			//m_t_liftoff_end = 2.25;					//23.5;	
 			m_t_liftoff_correction = 0;				//0
 			m_t_liftoff_σ_correction = 1;
-			m_duration_type = NEW_TYPE;
-			m_duration = 6.25;						//[h]
-			m_duration_σ = 0.25;					//[h]
-			m_height_type = NEW_TYPE;
-			m_height_lo = 20;						//[m]
-			m_height = 600;							//mean of the height 
-			m_height_σ = 150;						//stadard deviation of the log of the height (0.53)
-			m_height_hi = 1200;						//[m]
-			m_w_ascent = 0.6 * 3600 / 1000;			//[km/h]
-			m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
+			//m_duration_type = NEW_TYPE;
+			m_duration_max = 8;						//[h]
+			m_duration_α = 0.7;						//alpha
+			m_duration_β = 2;						//beta
+			//m_height_type = NEW_TYPE;
+			//m_height_lo = 20;						//[m]
+			//m_height = 600;							//mean of the height 
+			//m_height_σ = 150;						//stadard deviation of the log of the height (0.53)
+			//m_height_hi = 1200;						//[m]
+			m_w_Wᴸ = 20;
+			m_w_σᴸ = 2;
+			m_w_Ex = 2.5;
+			m_w_α  = 2*3600/1000;					//km/h
+			//m_w_ascent = 0.6 * 3600 / 1000;		//[km/h]
+			//m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
 			m_w_horizontal = 2.0 * 3600 / 1000;		//[km/h]
 			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//[km/h] 
 			m_w_descent = -2.0 * 3600 / 1000;		//[km/h]
@@ -201,21 +215,28 @@ namespace WBSF
 				m_Tmax = in.m_Tmax;
 				m_Pmax = in.m_Pmax;
 				m_Wmin = in.m_Wmin;
-				m_t_liftoff_type = in.m_t_liftoff_type;
-				m_t_liftoff_begin = in.m_t_liftoff_begin;
-				m_t_liftoff_end = in.m_t_liftoff_end;
+				//m_t_liftoff_type = in.m_t_liftoff_type;
+				//m_t_liftoff_begin = in.m_t_liftoff_begin;
+				//m_t_liftoff_end = in.m_t_liftoff_end;
 				m_t_liftoff_correction = in.m_t_liftoff_correction;
 				m_t_liftoff_σ_correction = in.m_t_liftoff_σ_correction;
-				m_duration_type = in.m_duration_type;
-				m_duration = in.m_duration;
-				m_duration_σ = in.m_duration_σ;
-				m_height_type = in.m_height_type;
-				m_height_lo = in.m_height_lo;
-				m_height = in.m_height;
-				m_height_σ = in.m_height_σ;
-				m_height_hi = in.m_height_hi;
-				m_w_ascent = in.m_w_ascent;
-				m_w_ascent_σ = in.m_w_ascent_σ;
+				//m_duration_type = in.m_duration_type;
+				m_duration_max = in.m_duration_max;
+				m_duration_α = in.m_duration_α;
+				m_duration_β = in.m_duration_β;
+				//m_duration = in.m_duration;
+				//m_duration_σ = in.m_duration_σ;
+				//m_height_type = in.m_height_type;
+				//m_height_lo = in.m_height_lo;
+				//m_height = in.m_height;
+				//m_height_σ = in.m_height_σ;
+				//m_height_hi = in.m_height_hi;
+				//m_w_ascent = in.m_w_ascent;
+				//m_w_ascent_σ = in.m_w_ascent_σ;
+				m_w_Wᴸ = in.m_w_Wᴸ;
+				m_w_σᴸ = in.m_w_σᴸ;
+				m_w_Ex = in.m_w_Ex;
+				m_w_α = in.m_w_α;
 				m_w_horizontal = in.m_w_horizontal;
 				m_w_horizontal_σ = in.m_w_horizontal_σ;
 				m_w_descent = in.m_w_descent;
@@ -237,21 +258,29 @@ namespace WBSF
 			if (m_Tmax != in.m_Tmax)bEqual = false;
 			if (m_Pmax != in.m_Pmax)bEqual = false;
 			if (m_Wmin != in.m_Wmin)bEqual = false;
-			if (m_t_liftoff_type != in.m_t_liftoff_type)bEqual = false;
-			if (m_t_liftoff_begin != in.m_t_liftoff_begin)bEqual = false;
-			if (m_t_liftoff_end != in.m_t_liftoff_end)bEqual = false;
+			//if (m_t_liftoff_type != in.m_t_liftoff_type)bEqual = false;
+			//if (m_t_liftoff_begin != in.m_t_liftoff_begin)bEqual = false;
+			//if (m_t_liftoff_end != in.m_t_liftoff_end)bEqual = false;
 			if (m_t_liftoff_correction != in.m_t_liftoff_correction)bEqual = false;
 			if (m_t_liftoff_σ_correction != in.m_t_liftoff_σ_correction)bEqual = false;
-			if (m_duration_type != in.m_duration_type)bEqual = false;
-			if (m_duration != in.m_duration)bEqual = false;
-			if (m_duration_σ != in.m_duration_σ)bEqual = false;
-			if (m_height_type != in.m_height_type)bEqual = false;
-			if (m_height_lo != in.m_height_lo)bEqual = false;
-			if (m_height != in.m_height)bEqual = false;
-			if (m_height_σ != in.m_height_σ)bEqual = false;
-			if (m_height_hi != in.m_height_hi)bEqual = false;
-			if (m_w_ascent != in.m_w_ascent)bEqual = false;
-			if (m_w_ascent_σ != in.m_w_ascent_σ)bEqual = false;
+			//if (m_duration_type != in.m_duration_type)bEqual = false;
+			//if (m_duration != in.m_duration)bEqual = false;
+			//if (m_duration_σ != in.m_duration_σ)bEqual = false;
+			
+			if (m_duration_max != in.m_duration_max)bEqual = false;
+			if (m_duration_α != in.m_duration_α)bEqual = false;
+			if (m_duration_β != in.m_duration_β)bEqual = false;
+			//if (m_height_type != in.m_height_type)bEqual = false;
+			//if (m_height_lo != in.m_height_lo)bEqual = false;
+			//if (m_height != in.m_height)bEqual = false;
+			//if (m_height_σ != in.m_height_σ)bEqual = false;
+			//if (m_height_hi != in.m_height_hi)bEqual = false;
+			//if (m_w_ascent != in.m_w_ascent)bEqual = false;
+			//if (m_w_ascent_σ != in.m_w_ascent_σ)bEqual = false;
+			if (m_w_Wᴸ != in.m_w_Wᴸ)bEqual = false;
+			if (m_w_σᴸ != in.m_w_σᴸ)bEqual = false;
+			if (m_w_Ex != in.m_w_Ex)bEqual = false;
+			if (m_w_α != in.m_w_α)bEqual = false;
 			if (m_w_horizontal != in.m_w_horizontal)bEqual = false;
 			if (m_w_horizontal_σ != in.m_w_horizontal_σ)bEqual = false;
 			if (m_w_descent != in.m_w_descent)bEqual = false;
@@ -558,24 +587,26 @@ namespace WBSF
 	{
 	public:
 
-		double m_height;		//flight height [m]
+		//double m_height;		//flight height [m]
 		__int64 m_duration;		//flight duration [s]
-		double m_w_ascent;		//ascent flight speed [m/s]
+		//double m_w_ascent;		//ascent flight speed [m/s]
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
+		double m_Wᴸ;
 
 		__int64 m_t_liftoff;		//launch time in evening
-		__int64 m_t_hunting;		//begginning of hunting host 
+		//__int64 m_t_hunting;		//begginning of hunting host 
 
 		CFlightParameters()
 		{
-			m_height = 0;
+			//m_height = 0;
+			m_Wᴸ = 0;
 			m_duration = 0;
-			m_w_ascent = 0;
+			//m_w_ascent = 0;
 			m_w_horizontal = 0;
 			m_w_descent = 0;
 			m_t_liftoff = 0;
-			m_t_hunting = 0;
+			//m_t_hunting = 0;
 		}
 
 	};
@@ -585,12 +616,13 @@ namespace WBSF
 	{
 	public:
 
-		enum TLog{ T_CREATION, T_LIFTOFF, T_HUNTING, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
+		//T_HUNTING, 
+		enum TLog{ T_CREATION, T_LIFTOFF, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
 		enum TStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
-		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, ASCENDING_FLIGHT, HORIZONTAL_FLIGHT, DESCENDING_FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
+		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
 		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF, END_BY_RAIN, END_BY_TAIR, END_BY_WNDS, END_OF_TIME_FLIGHT, FIND_HOST, FIND_DISTRACTION, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
-
+		// 
 		size_t m_loc;
 		size_t m_var;
 		double m_scale;
@@ -606,9 +638,9 @@ namespace WBSF
 		void create(CTRef UTCTRef, __int64 UTCTime);
 		void idle_begin(CTRef UTCTRef, __int64 time);
 		void liftoff(CTRef UTCTRef, __int64 UTCTime);
-		void ascent_flight(CTRef UTCTRef, __int64 UTCTime);
-		void horizontal_flight(CTRef UTCTRef, __int64 UTCTime);
-		void descent_flight(CTRef UTCTRef, __int64 UTCTime);
+		//void ascent_flight(CTRef UTCTRef, __int64 UTCTime);
+		void flight(CTRef UTCTRef, __int64 UTCTime);
+		//void descent_flight(CTRef UTCTRef, __int64 UTCTime);
 		void landing(CTRef UTCTRef, __int64 UTCTime);
 		void idle_end(CTRef UTCTRef, __int64 UTCTime);
 		void destroy(CTRef UTCTRef, __int64 UTCTime);
@@ -618,6 +650,10 @@ namespace WBSF
 		CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w)const;
 		CGeoDistance3D get_U(__int64 UTCTime)const;
+		double get_Uz(double T)const; 
+		
+		double get_ω(double T)const;
+		double get_Tᴸ(double ω)const;
 
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i, size_t s=MEAN)const{ return m_stat[i].IsInit() ? m_stat[i][s] : 0; }
@@ -856,11 +892,13 @@ namespace WBSF
 
 
 		__int64 get_t_liftoff_offset(double T)const;
-		__int64 get_t_hunthing()const;
-		double get_height()const;
+//		__int64 get_t_hunthing()const;
+		//double get_height()const;
 		__int64 get_duration()const;
 
-		double get_w_ascent()const;
+		//double get_w_ascent()const;
+		
+		double get_Wᴸ()const;
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;
@@ -890,22 +928,29 @@ namespace zen
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](in.m_Tmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](in.m_Pmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](in.m_Wmin);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_TYPE)](in.m_t_liftoff_type);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](in.m_t_liftoff_begin);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](in.m_t_liftoff_end);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_TYPE)](in.m_t_liftoff_type);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](in.m_t_liftoff_begin);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](in.m_t_liftoff_end);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_CORRECTION)](in.m_t_liftoff_correction);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_SIGMA)](in.m_t_liftoff_σ_correction);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](in.m_duration_type);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](in.m_duration);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](in.m_duration_σ);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](in.m_height_type);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MIN)](in.m_height_lo);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MEAN)](in.m_height);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_SD)](in.m_height_σ);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MAX)](in.m_height_hi);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT)](in.m_w_ascent);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT_SD)](in.m_w_ascent_σ);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](in.m_w_horizontal);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](in.m_duration_type);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](in.m_duration);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](in.m_duration_σ);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](in.m_height_type);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MIN)](in.m_height_lo);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MEAN)](in.m_height);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_SD)](in.m_height_σ);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MAX)](in.m_height_hi);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT)](in.m_w_ascent);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT_SD)](in.m_w_ascent_σ);
+
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](in.m_duration_max);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](in.m_duration_α);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](in.m_duration_β);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](in.m_w_Wᴸ);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](in.m_w_σᴸ);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](in.m_w_Ex);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_ALPHA)](in.m_w_α);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_DESCENT)](in.m_w_descent);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_DESCENT_SD)](in.m_w_descent_σ);
@@ -921,21 +966,28 @@ namespace zen
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](out.m_Tmax);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](out.m_Pmax);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](out.m_Wmin);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_TYPE)](out.m_t_liftoff_type);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](out.m_t_liftoff_begin);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](out.m_t_liftoff_end);
+//		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_TYPE)](out.m_t_liftoff_type);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_BEGIN)](out.m_t_liftoff_begin);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_END)](out.m_t_liftoff_end);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_CORRECTION)](out.m_t_liftoff_correction);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_SIGMA)](out.m_t_liftoff_σ_correction);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](out.m_duration_type);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](out.m_duration);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](out.m_duration_σ);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](out.m_height_type);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MIN)](out.m_height_lo);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MEAN)](out.m_height);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_SD)](out.m_height_σ);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MAX)](out.m_height_hi);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT)](out.m_w_ascent);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT_SD)](out.m_w_ascent_σ);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::LIFTOFF_SIGMA)](out.m_t_liftoff_σ_correction);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_TYPE)](out.m_duration_type);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MEAN)](out.m_duration);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_SD)](out.m_duration_σ);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](out.m_height_type);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MIN)](out.m_height_lo);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MEAN)](out.m_height);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_SD)](out.m_height_σ);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_MAX)](out.m_height_hi);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT)](out.m_w_ascent);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_ASCENT_SD)](out.m_w_ascent_σ);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](out.m_duration_max);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](out.m_duration_α);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](out.m_duration_β);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](out.m_w_Wᴸ);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](out.m_w_σᴸ);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](out.m_w_Ex);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_ALPHA)](out.m_w_α);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](out.m_w_horizontal);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](out.m_w_horizontal_σ);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_DESCENT)](out.m_w_descent);
