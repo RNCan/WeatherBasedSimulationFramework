@@ -317,17 +317,17 @@ namespace WBSF
 			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_host_name, host_filepath);
 		if (!m_parameters.m_world.m_distraction_name.empty())
 			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_distraction_name, distraction_filepath);
+		if (!m_parameters.m_world.m_water_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
 		if (!m_parameters.m_world.m_gribs_name.empty() && m_parameters.m_world.UseGribs())
 			msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
 		if (!m_parameters.m_world.m_hourly_DB_name.empty() && m_parameters.m_world.UseHourlyDB())
 			msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
-		if (!m_parameters.m_world.m_water_name.empty() && m_parameters.m_world.UseHourlyDB())
-			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
 
 
 		CResultPtr pResult = m_pParent->GetResult(fileManager);
 		msg += pResult->Open();
-	
+
 		//open outputDB
 		CResult result;
 		msg += result.Open(DBFilePath, std::fstream::binary | std::fstream::out | std::fstream::trunc);
@@ -345,7 +345,7 @@ namespace WBSF
 		callback.PushTask("Open Dispersal's Input", 6);
 		//callback.SetNbStep(6);
 
-		
+
 
 		if (msg)
 			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
@@ -354,7 +354,7 @@ namespace WBSF
 			return msg;
 
 
-		
+
 		//string DEM_filepath = fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name);
 		//string gribs_filepath = m_parameters.m_world.UseGribs() ? fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name) : "";
 		//string hourly_DB_filepath = m_parameters.m_world.UseHourlyDB() ? fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name) : "";
@@ -390,12 +390,14 @@ namespace WBSF
 
 		callback.PopTask();
 
+		const CLocationVector& locations = metadata.GetLocations();
+		callback.PushTask("Select dispersal insect", metadata.GetNbReplications() *locations.size());//+ ToString(r + 1), locations.size()
+
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
 		for (size_t r = 0; r < metadata.GetNbReplications() && msg; r++)
 		{
-			const CLocationVector& locations = metadata.GetLocations();
-			callback.PushTask("Select dispersal insect for replication " + ToString(r + 1), locations.size());
+
 			//callback.SetNbStep(locations.size());
 
 			for (size_t l = 0; l < locations.size() && msg; l++)
@@ -412,13 +414,16 @@ namespace WBSF
 						{
 							if (section[t][v].IsInit())
 							{
-								if (section[t][v][MEAN] > m_parameters.m_world.m_eventThreshold)
+								//if (section[t][v][MEAN] > m_parameters.m_world.m_eventThreshold)
+								size_t nbMoths = Round(section[t][v][MEAN]);
+								for (size_t i = 0; i < nbMoths; i++)
 								{
 									CTRef localTRef = section.GetTRef(t);
 									localTRef.Transform(CTM(CTM::HOURLY));
 									localTRef.m_hour = 0;
 
 									CFlyer flyer(world);
+									flyer.m_rep = r;
 									flyer.m_loc = l;
 									flyer.m_var = v;
 									flyer.m_scale = section[t][v][MEAN];
@@ -440,34 +445,44 @@ namespace WBSF
 
 				msg += callback.StepIt();
 			}//for all locations
-
-			callback.PopTask();
-
-			CTPeriod outputPeriod = world.get_period(false);
+		}//for all replication
 
 
-			CATMOutputMatrix output(locations.size());
-			for (size_t i = 0; i < output.size(); i++)
+		callback.PopTask();
+
+		CTPeriod outputPeriod = world.get_period(false);
+
+
+		CATMOutputMatrix output(metadata.GetNbReplications());
+		for (size_t i = 0; i < output.size(); i++)
+		{
+			output[i].resize(locations.size());
+			for (size_t j = 0; j < output[i].size(); j++)
 			{
-				output[i].resize(metadata.GetParameterSet().size());//the number of input variables
-				for (size_t j = 0; j < output[i].size(); j++)
-					output[i][j].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
+				output[i][j].resize(metadata.GetParameterSet().size());//the number of input variables
+				for (size_t k = 0; k < output[i][j].size(); k++)
+					output[i][j][k].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
 			}
+		}
 
-			msg = world.Execute(output, callback);
-			if (msg)
+		callback.AddMessage("Execute dispersal with " + ToString(world.m_flyers.size()) + " moths");
+		msg = world.Execute(output, callback);
+		if (msg)
+		{
+			for (size_t r = 0; r < output.size() && msg; r++)
 			{
-				for (size_t l = 0; l < output.size() && msg; l++)
+				for (size_t l = 0; l < output[r].size() && msg; l++)
 				{
-					for (size_t v = 0; v < output[l].size(); v++)
+					for (size_t v = 0; v < output[r][l].size(); v++)
 					{
 						size_t no = result.GetSectionNo(l, v, r);
-						msg += result.SetSection(no, output[l][v]);
+						msg += result.SetSection(no, output[r][l][v]);
 						msg += callback.StepIt(0);
 					}
 				}
 			}
-		}//nb replication
+		}
+
 
 
 		result.Close();

@@ -40,7 +40,7 @@ namespace WBSF
 		WEATHER_TYPE, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE,
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
-		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, 
+		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, HEIGHT_YPE,
 		WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
 	};
 
@@ -125,6 +125,7 @@ namespace WBSF
 		//pTime->AddSubItem(new CStdGridProperty(name[LIFTOFF_END], "", description[LIFTOFF_END], LIFTOFF_END));
 		pHeight->AddSubItem(new CStdGridProperty(name[LIFTOFF_CORRECTION], "", description[LIFTOFF_CORRECTION], LIFTOFF_CORRECTION));
 		pHeight->AddSubItem(new CStdGridProperty(name[LIFTOFF_SIGMA], "", description[LIFTOFF_SIGMA], LIFTOFF_SIGMA));
+		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MIN], 0, description[DURATION_MIN], DURATION_MIN));
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MAX], 0, description[DURATION_MAX], DURATION_MAX));
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_ALPHA], "", description[DURATION_ALPHA], DURATION_ALPHA));
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_BETA], "", description[DURATION_BETA], DURATION_BETA));
@@ -132,6 +133,7 @@ namespace WBSF
 		/*AddProperty(pTime);
 
 		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[4], -1);*/
+		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_YPE], "", description[HEIGHT_YPE], HEIGHT_YPE));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_LOG_MEAN], 0, description[WING_BEAT_LOG_MEAN], WING_BEAT_LOG_MEAN));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_LOG_SD], "", description[WING_BEAT_LOG_SD], WING_BEAT_LOG_SD));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_EX], "", description[WING_BEAT_EX], WING_BEAT_EX));
@@ -188,9 +190,11 @@ namespace WBSF
 			//case LIFTOFF_END:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_end); break;
 			case LIFTOFF_CORRECTION:str = WBSF::ToString(in.m_ATM.m_t_liftoff_correction); break;
 			case LIFTOFF_SIGMA:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_σ_correction); break;
+			case DURATION_MIN:		str = WBSF::ToString(in.m_ATM.m_duration_min); break;
 			case DURATION_MAX:		str = WBSF::ToString(in.m_ATM.m_duration_max); break;
 			case DURATION_ALPHA:	str = WBSF::ToString(in.m_ATM.m_duration_α); break;
 			case DURATION_BETA:		str = WBSF::ToString(in.m_ATM.m_duration_β); break;
+			case HEIGHT_YPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
 			case WING_BEAT_LOG_MEAN:str = WBSF::ToString(in.m_ATM.m_w_Wᴸ); break;
 			case WING_BEAT_LOG_SD:	str = WBSF::ToString(in.m_ATM.m_w_σᴸ); break;
 			case WING_BEAT_EX:		str = WBSF::ToString(in.m_ATM.m_w_Ex); break;
@@ -256,9 +260,11 @@ namespace WBSF
 		//case LIFTOFF_END:		me.m_parameters.m_ATM.m_t_liftoff_end = WBSF::ToDouble(str); break;
 		case LIFTOFF_CORRECTION:me.m_parameters.m_ATM.m_t_liftoff_correction = WBSF::ToDouble(str); break;
 		case LIFTOFF_SIGMA:		me.m_parameters.m_ATM.m_t_liftoff_σ_correction = WBSF::ToDouble(str); break;
+		case DURATION_MIN:		me.m_parameters.m_ATM.m_duration_min = WBSF::ToDouble(str); break;
 		case DURATION_MAX:		me.m_parameters.m_ATM.m_duration_max = WBSF::ToDouble(str); break;
 		case DURATION_ALPHA:	me.m_parameters.m_ATM.m_duration_α = WBSF::ToDouble(str); break;
 		case DURATION_BETA:		me.m_parameters.m_ATM.m_duration_β = WBSF::ToDouble(str); break;
+		case HEIGHT_YPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
 		case WING_BEAT_LOG_MEAN:me.m_parameters.m_ATM.m_w_Wᴸ = WBSF::ToDouble(str); break;
 		case WING_BEAT_LOG_SD:	me.m_parameters.m_ATM.m_w_σᴸ = WBSF::ToDouble(str); break;
 		case WING_BEAT_EX:		me.m_parameters.m_ATM.m_w_Ex = WBSF::ToDouble(str); break;
