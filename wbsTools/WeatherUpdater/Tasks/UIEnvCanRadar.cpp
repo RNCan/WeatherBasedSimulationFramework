@@ -169,7 +169,8 @@ namespace WBSF
 	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca"};
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 	
-	const char* CUIEnvCanRadar::TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
+	const char* CUIEnvCanRadar::TYPE_NAME_OLD[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
+	const char* CUIEnvCanRadar::TYPE_NAME_NEW[NB_TYPE] = { "PRECIPET_SNOW_WEATHEROFFICE", "PRECIPET_RAIN_WEATHEROFFICE" };
 	
 
 
@@ -264,10 +265,10 @@ namespace WBSF
 		}
 		else if (t == HISTORICAL_RADAR)
 		{
-			ASSERT(URL.length() == 63);
-			static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
+//			ASSERT(URL.length() == 63);
+			//static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
 			
-			string year = "20" + URL.substr(33, 2);
+			/*string year = "20" + URL.substr(33, 2);
 			size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
 			string month = FormatA("%02d", m + 1);
 			string day = URL.substr(26, 2);
@@ -285,8 +286,16 @@ namespace WBSF
 			else if (hour == "12")
 			{
 				hour = "00";
-			}
+			}*/
 			
+			string year = URL.substr(0, 4);
+			string month = URL.substr(4, 2);
+			string day = URL.substr(6, 2);
+			string hour = URL.substr(8, 2);
+			string min = URL.substr(10, 2);
+			string region = URL.substr(13, 3);
+			string type = URL.substr(17, URL.find("|")-17);
+
 			path = GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + region + "_" + type + ".gif";
 
 		}
@@ -313,7 +322,32 @@ namespace WBSF
 		return p;
 	}
 
-	
+	string GetDescription(const string& desc)
+	{
+		string out;
+
+		//ReplaceString(desc, "&amp;", "|");
+		//site=XAM|year=2011|month=7|day=10|hour=08|minute=20|duration=2|image_type=PRECIP_SNOW_WEATHEROFFICE|image=1">PRECIP - Snow - 2011-07-10, 04:20 EDT, 1/13
+		//size_t pos = desc.find_last_of(">");
+		//if (pos != string::npos)
+		StringVector test1(desc, ">");
+		StringVector test2(test1[0], "&=");
+		StringVector test3(test1[1], " -:,");
+		if (test2.size() == 18 && test3.size()==9)
+		{
+			int year = ToInt(test3[2]);
+			int month = ToInt(test3[3]);
+			int day = ToInt(test3[4]);
+			int hour = ToInt(test3[5]);
+			int min = ToInt(test3[6]);
+
+			out = WBSF::FormatA("%4d%02d%02d%02d%02d_%s_%s", year, month, day, hour, min, test2[1].c_str(), test2[15].c_str());
+			
+		}
+
+		return out;
+	}
+
 	ERMsg CUIEnvCanRadar::GetRadarList(StringVector& radarList, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -323,6 +357,8 @@ namespace WBSF
 		//sample for Québec
 		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=25&hour=13&minute=20&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
 		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&sYear=2013&sMonth=7&sDay=15&sHour=22&sMin=00&Duration=2&ImageType=PRECIP_SNOW_WEATHEROFFICE&scale=14
+		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=40&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
+		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2012&month=7&day=10&hour=20&minute=40&duration=2&image_type=PRECIP_RAIN_WEATHEROFFICE
 
 		static const char pageFormat[] =
 			"radar/index_e.html?"
@@ -362,28 +398,40 @@ namespace WBSF
 			{
 				for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef += 2)
 				{
-					string URL = FormatA(pageFormat, CCanadianRadar::GetName(i,0).c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TYPE_NAME[prcpType]);
+					string typeName = TRef.GetYear() < 2014 ? TYPE_NAME_OLD[prcpType] : TYPE_NAME_NEW[prcpType];
+					string URL = FormatA(pageFormat, CCanadianRadar::GetName(i, 0).c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), typeName.c_str());
 					URL.resize(strlen(URL.c_str()));
 
 					string source;
 					UtilWWW::GetPageText(pConnection, URL, source, true);
 				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=5&hour=00&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
 				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=6&hour=00&minute=00&duration=2&image_type=PRECIP_SNOW_WEATHEROFFICE
+				//http://climat.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
 					//string::size_type posEnd = 0;
-					string fileList = FindString(source, "blobArray = [", "]");
-					if (!fileList.empty())
+					string fileList1 = FindString(source, "blobArray = [", "]");
+					if (!fileList1.empty())
 					{
-						string::size_type posBegin = 0;
 
-						while (posBegin != string::npos)
+
+						size_t begin = source.find("<p>Please enable JavaScript to view the animation.</p>");
+						string fileList2 = FindString(source, "<ul>", "</ul>", begin);
+						string::size_type posBegin1 = 0;
+						string::size_type posBegin2 = 0;
+
+						while (posBegin1 != string::npos && posBegin2 != string::npos)
 						{
-							string image = FindString(fileList, "'", "'", posBegin);
-							if (!image.empty())
-								tmpList.insert(image);
-							posBegin = fileList.find(",", posBegin);
+							string image = FindString(fileList1, "'", "'", posBegin1);
+							string desc = GetDescription(FindString(fileList2, "<li><a href=\"/radar/index_e.html?", "</a></li>", posBegin2));
+							if (!image.empty() && !desc.empty())
+							{
+								tmpList.insert(desc + "|" + image);
+							}
+								
+							posBegin1 = fileList1.find(",", posBegin1);
+							posBegin2 = fileList2.find("<li><a href=\"/radar/index_e.html?", posBegin2);
+							
 						}
-					}
-
+					}
 					msg += callback.StepIt();
 				}
 			}
@@ -591,10 +639,9 @@ namespace WBSF
 						msg += CreateMultipleDir(GetPath(filePath));
 						//msg += CopyFile(pConnection, imageList[i], filePath, INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC);
 
-						CString URL(imageList[i].c_str());
+						StringVector name(imageList[i], "|"); ASSERT(name.size()==2);
+						CString URL(name[1].c_str());
 						CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC | INTERNET_FLAG_NEED_FILE);
-
-						//CStdioFile* pURLFile = pSession->OpenURL(UtilWin::Convert(imageList[i]), 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT);
 
 						bool bRep = false;
 

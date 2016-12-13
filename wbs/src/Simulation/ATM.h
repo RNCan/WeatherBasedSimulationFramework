@@ -124,8 +124,8 @@ namespace WBSF
 		
 
 
-		enum TType{ WINGBEAT, MAX_SPEED, MAX_TEMPERATURE };
-		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, HEIGHT_TYPE, WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		enum TType{ WING_BEAT, MAX_SPEED, MAX_TEMPERATURE };
+		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 
@@ -143,6 +143,8 @@ namespace WBSF
 		double m_duration_max;		//max flight duration [h]
 		double m_duration_α;		//max flight duration alpha
 		double m_duration_β;		//max flight duration beta
+		double m_cruise_duration;	//cruise duration [h]
+		double m_cruise_height;		//cruise height [m]
 
 		size_t m_height_type;		//
 		//double m_height_lo;			//lower flith height
@@ -187,7 +189,9 @@ namespace WBSF
 			m_duration_max = 6;						//[h]
 			m_duration_α = 0.9;						//alpha
 			m_duration_β = 3;						//beta
-			m_height_type = WINGBEAT;
+			m_cruise_duration = 0.5;				//[h]
+			m_cruise_height = 50;					//[m]
+			m_height_type = WING_BEAT;
 			//m_height_lo = 20;						//[m]
 			//m_height = 600;							//mean of the height 
 			//m_height_σ = 150;						//stadard deviation of the log of the height (0.53)
@@ -226,7 +230,9 @@ namespace WBSF
 				m_duration_min = in.m_duration_min;
 				m_duration_max = in.m_duration_max;
 				m_duration_α = in.m_duration_α;
-				m_duration_β = in.m_duration_β;
+				m_duration_β = in.m_duration_β; 
+				m_cruise_duration = in.m_cruise_duration;
+				m_cruise_height = in.m_cruise_height;
 				//m_duration = in.m_duration;
 				//m_duration_σ = in.m_duration_σ;
 				m_height_type = in.m_height_type;
@@ -274,6 +280,8 @@ namespace WBSF
 			if (m_duration_max != in.m_duration_max)bEqual = false;
 			if (m_duration_α != in.m_duration_α)bEqual = false;
 			if (m_duration_β != in.m_duration_β)bEqual = false;
+			if (m_cruise_duration != in.m_cruise_duration)bEqual = false;
+			if (m_cruise_height != in.m_cruise_height)bEqual = false;
 			if (m_height_type != in.m_height_type)bEqual = false;
 			//if (m_height_lo != in.m_height_lo)bEqual = false;
 			//if (m_height != in.m_height)bEqual = false;
@@ -591,30 +599,27 @@ namespace WBSF
 	{
 	public:
 
-		//double m_height;		//flight height [m]
-		__int64 m_duration;		//flight duration [s]
-		//double m_w_ascent;	//ascent flight speed [m/s]
-		double m_w_horizontal;	//horizontal flight speed [m/s]
-		double m_w_descent;		//descent flight speed [m/s]
-		//double m_Wᴸ;
 		double m_M;				//dry weight [g]
 		double m_A;				//Forewing area [cm²]
 
+		double m_w_horizontal;	//horizontal flight speed [m/s]
+		double m_w_descent;		//descent flight speed [m/s]
+		__int64 m_duration;		//total flight duration [s]
+		__int64 m_cruise_duration;//cruise duration[s]
+		//double m_penetration;	//percent of cruise to look for host [%]
 		__int64 m_t_liftoff;	//launch time in evening
-		//__int64 m_t_hunting;	//begginning of hunting host 
+		
 
 		CFlightParameters()
 		{
-			//m_height = 0;
-			//m_Wᴸ = 0;
 			m_M = 0;
 			m_A = 0;
-			m_duration = 0;
-			//m_w_ascent = 0;
+			
 			m_w_horizontal = 0;
 			m_w_descent = 0;
 			m_t_liftoff = 0;
-			//m_t_hunting = 0;
+			m_duration = 0;
+			m_cruise_duration = 0;
 		}
 
 	};
@@ -625,10 +630,10 @@ namespace WBSF
 	public:
 
 		//T_HUNTING, 
-		enum TLog{ T_CREATION, T_LIFTOFF, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
+		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
 		enum TStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
-		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
+		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, CRUISE, LANDING, IDLE_END, DESTROYED, NB_STATES };
 		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF, END_BY_RAIN, END_BY_TAIR, END_BY_WNDS, END_OF_TIME_FLIGHT, FIND_HOST, FIND_DISTRACTION, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
 		// 
 		size_t m_rep;
@@ -648,6 +653,7 @@ namespace WBSF
 		void idle_begin(CTRef UTCTRef, __int64 time);
 		void liftoff(CTRef UTCTRef, __int64 UTCTime);
 		void flight(CTRef UTCTRef, __int64 UTCTime);
+		void cruise(CTRef UTCTRef, __int64 UTCTime);
 		void landing(CTRef UTCTRef, __int64 UTCTime);
 		void idle_end(CTRef UTCTRef, __int64 UTCTime);
 		void destroy(CTRef UTCTRef, __int64 UTCTime);
@@ -945,6 +951,8 @@ namespace zen
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](in.m_duration_max);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](in.m_duration_α);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](in.m_duration_β);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](in.m_cruise_duration);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](in.m_cruise_height);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](in.m_w_Wᴸ);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](in.m_w_σᴸ);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](in.m_w_Ex);
@@ -971,6 +979,8 @@ namespace zen
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](out.m_duration_max);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](out.m_duration_α);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](out.m_duration_β);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](out.m_cruise_duration);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](out.m_cruise_height);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](out.m_w_Wᴸ);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](out.m_w_σᴸ);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](out.m_w_Ex);

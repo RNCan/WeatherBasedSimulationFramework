@@ -40,8 +40,8 @@ namespace WBSF
 		WEATHER_TYPE, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE,
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
-		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, HEIGHT_YPE,
-		WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
+		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_RATIO, CRUISE_HEIGHT,
+		HEIGHT_YPE,	WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
 	};
 
 	BEGIN_MESSAGE_MAP(CDispersalPropertyGridCtrl, CMFCPropertyGridCtrl)
@@ -127,8 +127,10 @@ namespace WBSF
 		pHeight->AddSubItem(new CStdGridProperty(name[LIFTOFF_SIGMA], "", description[LIFTOFF_SIGMA], LIFTOFF_SIGMA));
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MIN], 0, description[DURATION_MIN], DURATION_MIN));
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MAX], 0, description[DURATION_MAX], DURATION_MAX));
-		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_ALPHA], "", description[DURATION_ALPHA], DURATION_ALPHA));
-		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_BETA], "", description[DURATION_BETA], DURATION_BETA));
+		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_ALPHA], 0, description[DURATION_ALPHA], DURATION_ALPHA));
+		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_BETA], 0, description[DURATION_BETA], DURATION_BETA));
+		pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_RATIO], 0, description[CRUISE_RATIO], CRUISE_RATIO));
+		pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_HEIGHT], 0, description[CRUISE_HEIGHT], CRUISE_HEIGHT));
 		
 		/*AddProperty(pTime);
 
@@ -194,6 +196,8 @@ namespace WBSF
 			case DURATION_MAX:		str = WBSF::ToString(in.m_ATM.m_duration_max); break;
 			case DURATION_ALPHA:	str = WBSF::ToString(in.m_ATM.m_duration_α); break;
 			case DURATION_BETA:		str = WBSF::ToString(in.m_ATM.m_duration_β); break;
+			case CRUISE_RATIO:		str = WBSF::ToString(in.m_ATM.m_cruise_duration); break;
+			case CRUISE_HEIGHT:		str = WBSF::ToString(in.m_ATM.m_cruise_height); break;
 			case HEIGHT_YPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
 			case WING_BEAT_LOG_MEAN:str = WBSF::ToString(in.m_ATM.m_w_Wᴸ); break;
 			case WING_BEAT_LOG_SD:	str = WBSF::ToString(in.m_ATM.m_w_σᴸ); break;
@@ -264,6 +268,8 @@ namespace WBSF
 		case DURATION_MAX:		me.m_parameters.m_ATM.m_duration_max = WBSF::ToDouble(str); break;
 		case DURATION_ALPHA:	me.m_parameters.m_ATM.m_duration_α = WBSF::ToDouble(str); break;
 		case DURATION_BETA:		me.m_parameters.m_ATM.m_duration_β = WBSF::ToDouble(str); break;
+		case CRUISE_RATIO:		me.m_parameters.m_ATM.m_cruise_duration = WBSF::ToDouble(str); break;
+		case CRUISE_HEIGHT:		me.m_parameters.m_ATM.m_cruise_height = WBSF::ToDouble(str); break;
 		case HEIGHT_YPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
 		case WING_BEAT_LOG_MEAN:me.m_parameters.m_ATM.m_w_Wᴸ = WBSF::ToDouble(str); break;
 		case WING_BEAT_LOG_SD:	me.m_parameters.m_ATM.m_w_σᴸ = WBSF::ToDouble(str); break;

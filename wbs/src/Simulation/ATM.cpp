@@ -210,7 +210,7 @@ namespace WBSF
 
 	}
 	
-	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffOffset", "LiftoffSDCorr", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "HeightType", "WLogMean", "WlogSD", "WingBeatExponent", "WingBeatFactor", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffOffset", "LiftoffSDCorr", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseRatio", "CruiseHeight", "HeightType", "WLogMean", "WlogSD", "WingBeatExponent", "WingBeatFactor", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 	__int64 CATMWorld::get_t_liftoff_offset(double T)const
 	{
@@ -476,6 +476,8 @@ namespace WBSF
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
 		m_parameters.m_duration = m_world.get_duration();
+		m_parameters.m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
+		
 		//m_parameters.m_t_hunting = min(m_parameters.m_duration, m_world.get_t_hunthing());//attention ce n'est pa comme avant
 	}
 
@@ -493,19 +495,28 @@ namespace WBSF
 		{
 			for (size_t seconds = 0; seconds < 3600; seconds += m_world.get_time_step())
 			{
+				if (!m_world.m_weather.IsLoaded(UTCTRef))
+					m_state = IDLE_END, m_end_type = OUTSIDE_TIME_WINDOW;
+				
+				if (m_end_type == NO_END_DEFINE && !m_world.IsInside(m_pt))
+					m_state = IDLE_END, m_end_type = OUTSIDE_MAP;
+				
+					
+
 				__int64 UTCTime = m_world.get_UTC_time() + seconds;
 				switch (m_state)
 				{
 				case NOT_CREATED:		create(UTCTRef, UTCTime); break;
 				case IDLE_BEGIN:		idle_begin(UTCTRef, UTCTime); break;
 				case LIFTOFF:			liftoff(UTCTRef, UTCTime); break;
-				//case ASCENDING_FLIGHT:	ascent_flight(UTCTRef, UTCTime); break;
 				case FLIGHT:			flight(UTCTRef, UTCTime); break;
+				case CRUISE:			cruise(UTCTRef, UTCTime); break;
 				case LANDING:			landing(UTCTRef, UTCTime); break;
 				case IDLE_END:			idle_end(UTCTRef, UTCTime);  break;
 				case DESTROYED:			destroy(UTCTRef, UTCTime);  break;
 				default: assert(false);
 				}
+
 			}
 		}
 	}
@@ -547,7 +558,7 @@ namespace WBSF
 		{
 			double Wmin = m_world.m_parameters2.m_Wmin * 1000 / 3600; //km/h -> m/s 
 			double Tmin = m_world.m_parameters2.m_Tmin;
-			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WINGBEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
 			double ws = w.get_wind_speed();
 
 			ASSERT(!IsMissing(w[ATM_TAIR]) && !IsMissing(w[ATM_PRCP]) && !IsMissing(w[ATM_WNDU]) && !IsMissing(w[ATM_WNDV]));
@@ -563,38 +574,14 @@ namespace WBSF
 				{
 					if (countdown > 2 * 3600)//wait 2 hours
 					{
-						if (w[ATM_TAIR] < Tᴸ)
-						{
-							//flight abort
-							m_state = IDLE_END;
+						if (w[ATM_TAIR] < Tᴸ)							//flight abort
 							m_end_type = END_BY_WNDS;
-						}
 						else
-						{
-							m_state = IDLE_END;
 							m_end_type = END_BY_TAIR;
-						}
+
+						m_state = IDLE_END;
 					}
 				}
-
-				//if (w[ATM_TAIR]>Tᴸ)
-				//{
-				//	if (ws >= Wmin)
-				//	{
-				//		m_state = LIFTOFF;
-				//	}
-				//	else //if (countdown >= m_parameters.m_duration)
-				//	{
-				//		//flight abort
-				//		m_state = IDLE_END;
-				//		m_end_type = END_BY_WNDS;
-				//	}
-				//}
-				//else
-				//{
-				//	m_state = IDLE_END;
-				//	m_end_type = END_BY_TAIR;
-				//}
 			}
 			else
 			{
@@ -622,14 +609,21 @@ namespace WBSF
 	{
 		ASSERT(!IsMissing(w[ATM_WNDV]) && !IsMissing(w[ATM_WNDU]));
 
-		double ws = sqrt( Square(w[ATM_WNDV]) + Square(w[ATM_WNDU]));
-
 		double alpha = 0;
 		if (w[ATM_WNDV] != 0 || w[ATM_WNDU] != 0)
 			alpha = atan2(w[ATM_WNDV], w[ATM_WNDU]);
 
 		if (_isnan(alpha) || !_finite(alpha))
 			alpha = 0;
+
+		if (m_state == CRUISE) //random alpha in cruise mode
+		{
+			if( w.get_wind_speed() < 0.7)
+				alpha = m_world.random().Rand(0.0, 2 * PI);
+			else
+				alpha += Deg2Rad(120)*m_world.random().RandNormal(0.0, 1.0)/4.0;
+		}
+			
 
 		double Ux = (w[ATM_WNDU] + cos(alpha)*m_parameters.m_w_horizontal);	//[m/s]
 		double Uy = (w[ATM_WNDV] + sin(alpha)*m_parameters.m_w_horizontal);	//[m/s]
@@ -638,7 +632,8 @@ namespace WBSF
 
 		switch (m_state)
 		{
-		case FLIGHT:	Uz = get_Uz(UTCTime, w) + w[ATM_WNDW]; break;	//[m/s]; 
+		case FLIGHT:	Uz = w[ATM_WNDW] + get_Uz(UTCTime, w); break;	//[m/s]; 
+		case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_parameters.m_w_descent):0; break;	//[m/s]
 		case LANDING:	Uz = w[ATM_WNDW] + m_parameters.m_w_descent; break;	//[m/s]
 		default: assert(false);
 		}
@@ -714,12 +709,13 @@ namespace WBSF
 	//double CFlyer::get_Uz(double T)const
 	double CFlyer::get_Uz(__int64 UTCTime, const CATMVariables& w)const
 	{
+		ASSERT(m_state == FLIGHT);
+
 		double Uz = 0;
 		switch (m_world.m_parameters2.m_height_type)
 		{
-		case CATMParameters::WINGBEAT:
+		case CATMParameters::WING_BEAT:
 		{
-			//static const double K = 0.429 / sqrt(0.01939);
 			const double K = m_world.m_parameters2.m_w_Ex;
 
 			double Vᵀ = get_Vᵀ(w[ATM_TAIR]);
@@ -733,7 +729,7 @@ namespace WBSF
 		{
 			
 			double Tmin = m_world.m_parameters2.m_Tmin;
-			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WINGBEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
 			double v = (m_world.m_parameters2.m_height_type == CATMParameters::MAX_SPEED) ? w.get_wind_speed() : w[ATM_TAIR];
 
 			CTRef UTCTRef = m_world.GetUTRef();
@@ -831,128 +827,39 @@ namespace WBSF
 		m_stat[S_HEIGHT] += m_pt.m_z;	//flight height [m]
 	}
 
-//void CFlyer::ascent_flight(CTRef UTCTRef, __int64 UTCTime)
-//{
-//	ASSERT(UTCTime >= m_parameters.m_t_liftoff);
-//
-//	__int64 duration = UTCTime - m_parameters.m_t_liftoff;
-//	if (duration < m_parameters.m_duration)
-//	{
-//		if (m_world.m_weather.IsLoaded(UTCTRef))
-//		{
-//			if (m_world.IsInside(m_pt) )
-//			{
-//				double dt = m_world.get_time_step(); //[s]
-//				CATMVariables w = get_weather(UTCTRef, UTCTime);
-//				CGeoDistance3D U = get_U(w);
-//				CGeoDistance3D d = U*dt;
-//
-//				if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
-//				{
-//					if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
-//					{
-//						//update coordinate
-//						((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-//						((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-//
-//						if (m_pt.m_z < 10)
-//						{
-//							double delta = 10 - m_pt.m_z;
-//							m_pt.m_z += delta;//hummm???
-//							m_newLocation.m_z += delta;//hummm???
-//						}
-//
-//						
-//
-//						if (duration > m_parameters.m_t_hunting)
-//						{
-//							if (m_log[T_HUNTING] == 0)
-//								m_log[T_HUNTING] = UTCTime;//first time hunting
-//
-//							if (m_world.is_over_host(m_pt))//look to find host
-//							{
-//								m_state = DESCENDING_FLIGHT;
-//								m_end_type = FIND_HOST;
-//							}
-//							else if (m_world.is_over_distraction(m_pt))//look for distraction
-//							{
-//								m_state = DESCENDING_FLIGHT;
-//								m_end_type = FIND_DISTRACTION;
-//							}
-//						}
-//
-//						if (m_end_type == NO_END_DEFINE)
-//						{
-//							if (m_pt.m_z >= m_parameters.m_height)
-//							{
-//								m_state = HORIZONTAL_FLIGHT;
-//							}
-//						}
-//					}
-//					else
-//					{
-//						m_state = DESCENDING_FLIGHT;
-//						m_end_type = END_BY_TAIR;
-//					}
-//				}
-//				else
-//				{
-//					m_state = DESCENDING_FLIGHT;
-//					m_end_type = END_BY_RAIN;
-//				}
-//
-//				AddStat(w, U, d);
-//			}
-//			else
-//			{
-//				m_state = IDLE_END;
-//				m_end_type = OUTSIDE_MAP;
-//			}
-//		}
-//		else
-//		{
-//			m_state = IDLE_END;
-//			m_end_type = OUTSIDE_TIME_WINDOW;
-//		}
-//	}
-//	else
-//	{
-//		m_state = DESCENDING_FLIGHT;
-//		m_end_type = END_OF_TIME_FLIGHT;
-//	}
-//
-//
-//}
 
-void CFlyer::flight(CTRef UTCTRef, __int64 UTCTime)
-{
-	ASSERT(m_state == FLIGHT);
-	ASSERT(m_end_type == NO_END_DEFINE);
-
-
-	if (m_world.m_weather.IsLoaded(UTCTRef))
+	void CFlyer::flight(CTRef UTCTRef, __int64 UTCTime)
 	{
-		if (m_world.IsInside(m_pt))
+		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
+		ASSERT(m_world.IsInside(m_pt));
+		ASSERT(m_state == FLIGHT);
+		ASSERT(m_end_type == NO_END_DEFINE);
+
+
+		CATMVariables w = get_weather(UTCTRef, UTCTime);
+		if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 		{
 			__int64 duration = UTCTime - m_parameters.m_t_liftoff;
-			bool bOverWater = false;
-			if (m_world.m_water_DS.IsOpen() && duration >= (__int64)m_parameters.m_duration)
-			{
-				CGeoPoint pt(m_pt);
-				if (pt.GetPrjID() != m_world.m_water_DS.GetPrjID())
-				{
-					ASSERT(pt.IsGeographic());
-					pt.Reproject(m_world.m_GEO2DEM);
-				}
+			//bool bOverWater = false;
+			//if (m_world.m_water_DS.IsOpen() && duration >= (__int64)m_parameters.m_duration)
+			//{
+			//	CGeoPoint pt(m_pt);
+			//	if (pt.GetPrjID() != m_world.m_water_DS.GetPrjID())
+			//	{
+			//		ASSERT(pt.IsGeographic());
+			//		pt.Reproject(m_world.m_GEO2DEM);
+			//	}
 
-				CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt);
-				bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
-			}
+			//	CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt);
+			//	bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
+			//}
 
-			if (duration < (__int64)m_parameters.m_duration || bOverWater)
+			////|| bOverWater
+			//if (duration < (__int64)m_parameters.m_duration || bOverWater)
+			if (duration < (__int64)m_parameters.m_duration)
 			{
 				double dt = m_world.get_time_step(); //[s]
-				CATMVariables w = get_weather(UTCTRef, UTCTime);
+				
 
 				bool bBoostU = false;
 				if (duration < 120)//the first 2 min, the moth try to go to the wind
@@ -964,7 +871,7 @@ void CFlyer::flight(CTRef UTCTRef, __int64 UTCTime)
 					// 4 m/s -> 0 m
 					//double h = max(0.0, min(60.0, 60.0 - (ws - Wmin) * 60 / (4.0 - Wmin)));
 					//if (m_pt.m_z < h)
-					if (ws >= Wmin && ws<3.0)
+					if (ws >= Wmin && ws < 3.0)
 						bBoostU = true;
 				}
 
@@ -977,131 +884,165 @@ void CFlyer::flight(CTRef UTCTRef, __int64 UTCTime)
 				CGeoDistance3D d = U*dt;
 
 
-				if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
-				{
-					//if (w[ATM_TAIR] > m_world.m_parameters2.m_Tmin)
-					//{
-					((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-					((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
 
-					if (m_pt.m_z < 2)
-					{
-						m_state = LANDING;
+				((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+				((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
 
-						double delta = 2 - m_pt.m_z;
-						m_pt.m_z += delta;
-						m_newLocation.m_z += delta;
-					}
+				//if (m_pt.m_z <= m_world.m_parameters2.m_cruise_height)
+				//{
+					//m_state = CRUISE;
+					//if (m_world.is_over_host(m_pt))//look to find host
+					//m_end_type = FIND_HOST;
+					//else if (m_world.is_over_distraction(m_pt))//look for distraction
+					//m_end_type = FIND_DISTRACTION;
+				//}
 
-					AddStat(w, U, d);
-					
-				}
-				else
+				if (m_pt.m_z <= 5)
 				{
 					m_state = LANDING;
+
+					double delta = 5 - m_pt.m_z;
+					m_pt.m_z += delta;
+					m_newLocation.m_z += delta;
 				}
+
+				AddStat(w, U, d);
 			}
 			else
 			{
-				m_state = LANDING;
+				m_state = CRUISE;
 			}
 		}
 		else
 		{
-			m_state = IDLE_END;
-			m_end_type = OUTSIDE_MAP;
+			m_state = LANDING;
+			m_end_type = END_BY_RAIN;
 		}
-	}
-	else
-	{
-		m_state = IDLE_END;
-		m_end_type = OUTSIDE_TIME_WINDOW;
+
 	}
 
-}
 
-//void CFlyer::descent_flight(CTRef UTCTRef, __int64 UTCTime)
-void CFlyer::landing(CTRef UTCTRef, __int64 UTCTime)
-{
-
-	ASSERT(m_state == LANDING);
-	//ASSERT(m_end_type != NO_END_DEFINE);
-	
-	//CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
-	if (m_world.m_weather.IsLoaded(UTCTRef))
+	void CFlyer::cruise(CTRef UTCTRef, __int64 UTCTime)
 	{
-		if (m_world.IsInside(m_pt) )
+		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
+		ASSERT(m_world.IsInside(m_pt));
+		ASSERT(m_state == CRUISE);
+		ASSERT(m_end_type == NO_END_DEFINE);
+
+		if (m_log[T_CRUISE] == 0)
+			m_log[T_CRUISE] = UTCTime;
+
+		CATMVariables w = get_weather(UTCTRef, UTCTime);
+		if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 		{
-			double dt = m_world.get_time_step(); //[s]
-			CATMVariables w = get_weather(UTCTRef, UTCTime);
-			CGeoDistance3D U = get_U(UTCTime, w);
-			CGeoDistance3D d = U*dt;
-
-			((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-			((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-			/*if (m_pt.m_z <= 0)
-			{
-				double delta = 0 - m_pt.m_z;
-				m_pt.m_z += delta;
-				m_newLocation.m_z += delta;
-
-				ASSERT(m_pt.m_z == 0);
-			}
-*/
 			
-				
-			if (m_pt.m_z <= 150)
+			bool bOverWater = false;
+			if (m_world.m_water_DS.IsOpen() )//&& duration >= (__int64)m_parameters.m_cruise_duration
 			{
-				if (m_world.is_over_host(m_pt))//look to find host
-					m_end_type = FIND_HOST;
-				else if (m_world.is_over_distraction(m_pt))//look for distraction
-					m_end_type = FIND_DISTRACTION;
-			
-				if (m_pt.m_z <= 0)
+				CGeoPoint pt(m_pt);
+				if (pt.GetPrjID() != m_world.m_water_DS.GetPrjID())
 				{
-					//double Tᴸ = get_Tᴸ(m_parameters.m_A, m_parameters.m_M);
-					double Tmin = m_world.m_parameters2.m_Tmin;
-					double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WINGBEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
-
-					if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
-						m_end_type = END_BY_RAIN;
-					else if (w[ATM_TAIR] < Tᴸ)
-						m_end_type = END_BY_TAIR;
-					else
-						m_end_type = END_OF_TIME_FLIGHT;
+					ASSERT(pt.IsGeographic());
+					pt.Reproject(m_world.m_GEO2DEM);
 				}
+
+				CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt);
+				bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
 			}
 
-			if (m_end_type != NO_END_DEFINE)
+			__int64 duration = UTCTime - m_log[T_CRUISE];
+			if (duration < (__int64)(m_parameters.m_cruise_duration) || bOverWater)
 			{
-				m_log[T_LANDING] = UTCTime;
-				m_state = IDLE_END;
+				double dt = m_world.get_time_step(); //[s]
 
-				//end at zero
-				m_newLocation.m_z -= m_pt.m_z;
-				m_pt.m_z -= m_pt.m_z;
+				CGeoDistance3D U = get_U(UTCTime, w);
+				CGeoDistance3D d = U*dt;
+
+
+				((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+				((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+				
+				if (m_world.is_over_distraction(m_pt))//look for distraction
+				{
+					m_state = LANDING;
+					m_end_type = FIND_DISTRACTION;
+				}
+				else if (m_world.is_over_host(m_pt))//look to find host
+				{
+					m_state = LANDING;
+					m_end_type = FIND_HOST;
+				}
+				
+				
+				/*if (m_pt.m_z < 5)
+				{
+					m_state = LANDING;
+
+					double delta = 5 - m_pt.m_z;
+					m_pt.m_z += delta;
+					m_newLocation.m_z += delta;
+				}*/
+
+				AddStat(w, U, d);
+
 			}
+			else
+			{
 
-			ASSERT(m_pt.m_z >= 0);
-			AddStat(w, U, d);
+				m_state = LANDING;
+				m_end_type = END_OF_TIME_FLIGHT;
+			}
 		}
 		else
 		{
-			m_state = IDLE_END;
-			m_end_type = OUTSIDE_MAP;
+			m_state = LANDING;
+			m_end_type = END_BY_RAIN;
 		}
 	}
-	else
+
+
+	void CFlyer::landing(CTRef UTCTRef, __int64 UTCTime)
 	{
-		m_state = IDLE_END;
-		m_end_type = OUTSIDE_TIME_WINDOW;
+		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
+		ASSERT(m_world.IsInside(m_pt));
+
+		ASSERT(m_state == LANDING);
+
+		double dt = m_world.get_time_step(); //[s]
+		CATMVariables w = get_weather(UTCTRef, UTCTime);
+		CGeoDistance3D U = get_U(UTCTime, w);
+		CGeoDistance3D d = U*dt;
+
+		((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+		((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+		
+
+		if (m_pt.m_z <= 0 && m_end_type != NO_END_DEFINE)
+		{
+			double Tmin = m_world.m_parameters2.m_Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
+
+			if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
+				m_end_type = END_BY_RAIN;
+			else if (w[ATM_TAIR] < Tᴸ)
+				m_end_type = END_BY_TAIR;
+			else
+				m_end_type = END_OF_TIME_FLIGHT;
+		}
+
+		if (m_end_type != NO_END_DEFINE)
+		{
+			m_log[T_LANDING] = UTCTime;
+			m_state = IDLE_END;
+
+			//end at zero
+			m_newLocation.m_z -= m_pt.m_z;
+			m_pt.m_z -= m_pt.m_z;
+		}
+
+		ASSERT(m_pt.m_z >= 0);
+		AddStat(w, U, d);
 	}
-
-
-//	m_log[T_LANDING] = UTCTime;
-	//m_state = IDLE_END;
-	//ASSERT(m_end_type != NO_END_DEFINE);
-}
 
 void CFlyer::idle_end(CTRef UTCTRef, __int64 UTCTime)
 {

@@ -96,7 +96,8 @@ namespace WBSF
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME[2];
 		static const char* SERVER_PATH;
-		static const char* TYPE_NAME[NB_TYPE];
+		static const char* TYPE_NAME_OLD[NB_TYPE];
+		static const char* TYPE_NAME_NEW[NB_TYPE];
 	};
 
 }
