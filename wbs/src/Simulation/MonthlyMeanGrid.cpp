@@ -860,24 +860,18 @@ namespace WBSF
 	int CNormalFromDaily::GetFirstYear(size_t p)
 	{
 		return int(FIRST_YEAR_OF_FIRST_PERIOD + p * 10);
-		//return int(m_bApplyCC ? FIRST_YEAR_OF_FIRST_PERIOD + GetCCPeriod(i)* 10 : m_firstYear);
-
-		//return m_bApplyCC ? FIRST_YEAR_OF_FIRST_PERIOD + (m_CCPeriodIndex + i) * 10 : m_firstYear;
 	}
 
 	int CNormalFromDaily::GetLastYear(size_t p)
 	{
 		return int(LAST_YEAR_OF_FIRST_PERIOD + p * 10);
-		//return int(m_bApplyCC ? LAST_YEAR_OF_FIRST_PERIOD + GetCCPeriod(i) * 10 : m_lastYear);
 	}
 
 	std::string CNormalFromDaily::GetOutputFilePath(size_t p)
 	{
-		//ASSERT(p < GetNbDBCreate());
-		
 		string outputDBFilePath = m_outputDBFilePath;
 		if (m_bApplyCC)
-			outputDBFilePath = FormatA("%s %d-%d%s", (GetPath(m_outputDBFilePath) + GetFileTitle(m_outputDBFilePath)).c_str(), GetFirstYear(p), GetLastYear(p), GetFileExtension(m_outputDBFilePath).c_str());
+			outputDBFilePath = FormatA("%s %d-%d %s%s", (GetPath(m_outputDBFilePath) + GetFileTitle(m_outputDBFilePath)).c_str(), GetFirstYear(p), GetLastYear(p), GetFileTitle(m_inputMMGFilePath).c_str(), GetFileExtension(m_outputDBFilePath).c_str());
 
 		return outputDBFilePath;
 	}
