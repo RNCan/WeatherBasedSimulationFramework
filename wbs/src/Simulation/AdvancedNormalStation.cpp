@@ -70,23 +70,13 @@ namespace WBSF
 								switch (v)
 								{
 								case H_TMAX2:
-									/*{
-										double Tmin = data[m][d][H_TMIN][MEAN];
-										double Tmax = data[m][d][H_TMAX][MEAN];
-										at(y)[H_TAIR][m] += (Tmin + Tmax) / 2;
-										at(y)[H_TRNG][m] += Tmax - Tmin;
-										break;
-										}*/
-								case H_TMIN2:	//break;
+								case H_TMIN2:
 								case H_TDEW:
 								case H_RELH:
 								case H_WNDD:
 								case H_SNDH:
 								case H_PRES:
 								case H_SWE:
-								//case H_ES:
-								//case H_EA:
-								//case H_VPD:
 								case H_SRAD2:	at(y)[v][m] += data[m][d].GetData(v)[MEAN]; break;
 								case H_PRCP:
 								case H_SNOW:	at(y)[v][m] += data[m][d].GetData(v)[SUM]; break;

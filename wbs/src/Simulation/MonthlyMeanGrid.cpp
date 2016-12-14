@@ -932,15 +932,11 @@ namespace WBSF
 
 					if (msg)
 					{
-						//remove years not in the period
-						//CleanUpYears(dailyStation, firstYear, lastYear);
-
 						//if the station have enough years
 						if (dailyStation.size() >= m_nbYearMin)
 						{
 							//create normal
 							CAdvancedNormalStation station;
-							//ERMsg messageTmp = station.FromDaily(dailyStation, m_nbYearMin);
 
 							if (station.FromDaily(dailyStation, m_nbYearMin))
 							{
@@ -956,14 +952,6 @@ namespace WBSF
 								{
 									nbStationAdded++;
 								}
-
-								//TestWG(station);
-
-								//messageTmp = outputDB.Add(station);
-								//if (messageTmp)
-								//{
-								//	nbStationAdded++;
-								//}
 
 								if (!messageTmp)
 									callback.AddMessage(messageTmp, 1);
@@ -981,19 +969,13 @@ namespace WBSF
 
 				if (msg)
 				{
-					callback.AddMessage(FormatMsg("Nb stations added = %1", ToString(nbStationAdded)), 1);
-
 					//open the file to create optimization 
+					callback.AddMessage(FormatMsg("Nb stations added = %1", ToString(nbStationAdded)), 1);
 					msg = outputDB.Open(outputDBFilePath);
-
-					//std::string locFilePath( m_outputFilePath );
-					//UtilWin::SetFileExtension( locFilePath, ".loc");
-					//CLocArray locArray;
-					//CGeoRect bBox(-180, -90, 180, 90, CProjection::GEO);
-					//msg += normalDB.GenerateLOC(bBox, false, 0, locArray, true );
-					//msg += locArray.Save(locFilePath);
 				}
 			}//if msg
+
+			msg += callback.StepIt();
 		}//for all database
 
 		inputDB.Close();

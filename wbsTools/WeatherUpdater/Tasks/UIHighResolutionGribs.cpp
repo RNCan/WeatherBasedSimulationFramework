@@ -134,6 +134,8 @@ namespace WBSF
 
 
 		StringVector sources = as<StringVector>(SOURCES);
+		if (sources.empty())
+			sources = StringVector("HRDPS|HRRR","|");
 
 	
 		size_t nbFileFound = 0;

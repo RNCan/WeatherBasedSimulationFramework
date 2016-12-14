@@ -93,7 +93,7 @@ namespace WBSF
 	//*******************************************************************************************************
 
 
-
+	//https://pcmdi.llnl.gov/search/cmip5/
 	const char* CUICMIP5::VARIABLES_NAMES[NB_VARIABLES] = { "tasmin", "tasmax", "pr", "huss", "sfcWind" };
 	const char* CUICMIP5::RCP_NAME[NB_RCP] = { "RCP26", "RCP45", "RCP60", "RCP85" };
 
