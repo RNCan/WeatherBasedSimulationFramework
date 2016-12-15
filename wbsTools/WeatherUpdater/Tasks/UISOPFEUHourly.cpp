@@ -161,7 +161,7 @@ namespace WBSF
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 			
-				msgTmp = FindFiles(pConnection, "RMCQ/*.17r", fileList, callback);
+				msgTmp = FindFiles(pConnection, "RMCQ/*", fileList, callback);
 				if (msgTmp)
 				{
 					msg += callback.StepIt();
