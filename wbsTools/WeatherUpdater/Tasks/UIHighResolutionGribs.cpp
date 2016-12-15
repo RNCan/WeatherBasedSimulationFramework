@@ -128,10 +128,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
-		
-		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		//callback.AddMessage(workingDir, 1);
-
 
 		StringVector sources = as<StringVector>(SOURCES);
 		if (sources.empty())
@@ -147,124 +143,19 @@ namespace WBSF
 				callback.AddMessage("WARNING: Invalid source " + sources[s]);
 				continue;
 			}
-
-			workingDir += string(SOURCES_NAME[ss]) + "\\";
+			
 			if (ss == N_HRDPS)
 			{
-				CHRDPS HRDPS(workingDir );
+				CHRDPS HRDPS(workingDir + string(SOURCES_NAME[ss]) + "\\");
 				msg = HRDPS.Execute(callback);
 				
 			}
 			else if (ss == N_HRRR)
 			{
-				CHRRR HRRR(workingDir);
+				CHRRR HRRR(workingDir + string(SOURCES_NAME[ss]) + "\\");
 				msg = HRRR.Execute(callback);
 			}
-			//callback.AddTask(1);
-
-//			int nbFilesToDownload = 0;
-	//		int nbDownloaded = 0;
-
-
-			/*CArray<bool> bNeedDownload;
-			bNeedDownload.SetSize(period.size() * 2);
-
-			for (CTRef h = period.Begin(); h <= period.End(); h++)
-			{
-				size_t hh = 2 * (h - period.Begin());
-
-				bNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, 0));
-				bNeedDownload[hh + 1] = NeedDownload(GetOutputFilePath(h, false, 0));
-				nbFilesToDownload += bNeedDownload[hh] ? 1 : 0;
-				nbFilesToDownload += bNeedDownload[hh + 1] ? 1 : 0;
-
-				msg += callback.StepIt(0);
-			}
-*/
-			//if (nbFilesToDownload)
-		//	callback.PushTask("Download grib for period", nbFilesToDownload);
-			//callback.SetNbStep(nbFilesToDownload);
-
-			//int nbRun = 0;
-			//CTRef curH = period.Begin();
-
-			//while (curH < period.End() && msg)
-			//{
-			//	nbRun++;
-
-			//	CInternetSessionPtr pSession;
-			//	CHttpConnectionPtr pConnection;
-
-			//	msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-
-			//	if (msg)
-			//	{
-			//		TRY
-			//		{
-			//			for (CTRef h = curH; h <= period.End() && msg; h++, curH++)
-			//			{
-			//				size_t hh = 2 * (h - period.Begin());
-			//				if (bNeedDownload[hh])
-			//				{
-			//					msg = DownloadGrib(pConnection, h, true, callback);
-			//					if (msg)
-			//					{
-			//						curH = h;
-			//						nbRun = 0;
-			//						nbDownloaded++;
-			//						msg += callback.StepIt();
-			//					}
-			//				}
-			//				if (msg && bNeedDownload[hh + 1])
-			//				{
-			//					msg = DownloadGrib(pConnection, h, false, callback);
-			//					if (msg)
-			//					{
-			//						curH = h;
-			//						nbRun = 0;
-			//						nbDownloaded++;
-			//						msg += callback.StepIt();
-			//					}
-			//				}
-			//			}
-			//		}
-			//		CATCH_ALL(e)
-			//		{
-			//			msg = UtilWin::SYGetMessage(*e);
-			//		}
-			//		END_CATCH_ALL
-
-			//			//if an error occur: try again
-			//			if (!msg && !callback.GetUserCancel())
-			//			{
-			//				//callback.AddTask(1);//one step more
-
-			//				if (nbRun < 5)
-			//				{
-			//					callback.AddMessage(msg);
-			//					msg.asgType(ERMsg::OK);
-			//					Sleep(1000);//wait 1 sec
-			//				}
-			//			}
-
-			//		//clean connection
-			//		pConnection->Close();
-			//		pSession->Close();
-			//	}
-			//}
-
-
-
-		
-
-
-		//	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
-			//callback.PopTask();
-
 		}
-
-//		if (method == M_BOTH || method == M_GRIBS)
-	//		m_gribs.Execute(callback);
 
 
 		return msg;

@@ -103,7 +103,7 @@ namespace WBSF
 				}
 			}
 
-
+			callback.PopTask();
 			msg += callback.StepIt();
 		}
 
