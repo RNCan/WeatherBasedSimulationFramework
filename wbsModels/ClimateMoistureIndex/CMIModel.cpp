@@ -103,7 +103,7 @@ namespace WBSF
 			{
 				double TMaxMean = m_weather[y][m][H_TMAX2][MEAN];
 				double TMinMean = m_weather[y][m][H_TMIN2][MEAN];
-				double TMeanMean = m_weather[y][m][H_TAIR2][MEAN];
+				double TMeanMean = m_weather[y][m][H_TNTX][MEAN];
 
 				double pptSum = m_weather[y][m].GetStat(H_PRCP)[SUM] / 10;//in cm
 				double PETSum = GetSPMPET(m_weather[y][m]) / 10;//in cm
@@ -132,7 +132,7 @@ namespace WBSF
 		//input monthly tmax, tmin, prec and calculate tmean
 		double TMax = weather[H_TMAX2][MEAN];
 		double TMin = weather[H_TMIN2][MEAN];
-		double TMean = weather[H_TAIR2][MEAN];
+		double TMean = weather[H_TNTX][MEAN];
 
 		//First calculate SVP for monthly tmax tmin and tdew (assumed = tmin - 2.5)
 		double SVPtmax = .61078 * exp(17.269 * TMax / (237.3 + TMax));

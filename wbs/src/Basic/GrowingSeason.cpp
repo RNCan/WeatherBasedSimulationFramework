@@ -93,7 +93,7 @@ namespace WBSF
 		switch (m_type)
 		{
 		case TT_TMIN:	T = data[H_TMIN2][MEAN]; break;
-		case TT_TMEAN:	T = data[H_TAIR2][MEAN]; break;
+		case TT_TMEAN:	T = data[H_TNTX][MEAN]; break;
 		case TT_TMAX:	T = data[H_TMAX2][MEAN]; break;
 		case TT_TNOON:  T = data[12][H_TAIR2]; break;
 		default: ASSERT(false);

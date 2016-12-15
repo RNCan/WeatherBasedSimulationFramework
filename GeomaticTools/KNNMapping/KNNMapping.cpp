@@ -656,7 +656,7 @@ ERMsg CKNNMapping::ExecuteCSV(CKNearestNeighbor& KNN)
 					tmp+=","+ ToString(X[i].m_x) + "," + ToString(X[i].m_y);
 
 				for(size_t p=0; p<X.GetExtraColumns().size(); p++)
-					tmp+=","+X.GetExtraColumns().at(p).at( batchInfo[ii].m_index );
+					tmp+=","+X.GetExtraColumns().at(p).at( i );
 				
 
 				for(size_t p=0; p<batchInfo[ii].m_predictor.size(); p++)

@@ -1,7 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM  
-// 11.2.0: 23/11-2016	Rémi Saint-Amant	New database format  
-// 11.1.3: 01/11-2016	Rémi Saint-Amant	New database with .csv file 
+// 11.2.1: 09/12/2016	Rémi Saint-Amant	New dispersal module 
+// 11.2.0: 23/11/2016	Rémi Saint-Amant	New database format  
+// 11.1.3: 01/11/2016	Rémi Saint-Amant	New database with .csv file 
 // 11.1.2: 13/10/2016   Rémi Saint-Amant	Change in ATM to accept NAM gribs 
 // 11.1.1: 27/09/2016	Rémi Saint-Amant	Bug correction in merge 
 // 11.1.0: 20/09/2016   Rémi Saint-Amant	Replace Tair and Trng by Tmin and Tmax 

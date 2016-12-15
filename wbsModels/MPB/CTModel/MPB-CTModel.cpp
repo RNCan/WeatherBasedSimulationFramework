@@ -3,7 +3,7 @@
 //Modification: 
 // 11/05/2016   Rémi Saint-Amant    New compilation with WBSF
 // 27/03/2013   Rémi Saint-Amant    New compilation
-// 02/08/2012   Rémi Saint-Amant    Stream compatible
+// 02/08/2012   Rémi Saint-Amant    Stream compatible 
 // 26/05/2009   Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
 //**********************************************************************
 #include "MPB-CTModel.h"

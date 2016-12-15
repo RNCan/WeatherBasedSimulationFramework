@@ -23,7 +23,7 @@ namespace WBSF
 
 
 
-
+	const char SBWM_header[] = "EGG|L1|L2|L3|L4|L5|L6|PUPA|ADULT|DEAD_ADULT";
 	enum TEvaluation { VERTICAL, HORIZONTAL, DIAGONAL };
 	static const TEvaluation EVALUATION = HORIZONTAL;
 
@@ -164,13 +164,13 @@ namespace WBSF
 		m_model = parameters[c++].GetInt();
 		m_subModel = parameters[c++].GetInt();
 		m_continuingRatio.m_bCumul = parameters[c++].GetBool();
-		m_continuingRatio.m_loc = m_info.m_loc;
-		m_continuingRatio.m_startDate = 60 - 1;
+
+		m_continuingRatio.m_startJday = 60 - 1;
 		m_continuingRatio.m_lowerThreshold = 4.5;
 		m_continuingRatio.m_bMultipleVariance = true;
 		m_continuingRatio.m_bPercent = true;
 		m_continuingRatio.m_bAdjustFinalProportion = true;
-		m_continuingRatio.m_DDType = CSBWContinuingRatio::SINGLE_SINE;
+		m_continuingRatio.m_method = CSBWContinuingRatio::SINGLE_SINE;
 
 		for (int i = 0; i < NB_PARAMS; i++)
 		{
@@ -294,10 +294,11 @@ namespace WBSF
 				m_firstYear = (int)years[LOWEST];
 				m_lastYear = (int)years[HIGHEST];
 				while (m_weather.GetNbYears() > 1 && m_weather.GetFirstYear() < m_firstYear)
-					m_weather.RemoveYear(0);
+					m_weather.erase(m_weather.begin());
 
 				while (m_weather.GetNbYears() > 1 && m_weather.GetLastYear() > m_lastYear)
-					m_weather.RemoveYear(m_weather.GetNbYears() - 1);
+					m_weather.erase(--m_weather.end());
+					//m_weather.RemoveYear(m_weather.GetNbYears() - 1);
 			}
 
 

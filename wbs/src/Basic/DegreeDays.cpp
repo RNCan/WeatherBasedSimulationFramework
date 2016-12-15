@@ -168,7 +168,7 @@ namespace WBSF
 	double CDegreeDays::GetAverageDD(const CWeatherDay& in)const
 	{
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
-		ASSERT(in[H_TAIR2].IsInit() && in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
+		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
 		double DD = 0;
 		double x1 = max(0.0, min((double)in[H_TNTX][MEAN], m_upperThreshold) - m_lowerThreshold);

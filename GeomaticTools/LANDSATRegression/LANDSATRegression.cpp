@@ -502,7 +502,8 @@ namespace WBSF
 		if (!trendsAnalyser.m_options.m_bQuiet)
 			cout << endl << "Total time = " << SecondToDHMS(timer.Elapsed()) << endl;
 
-		int nRetCode = 0;
+		return 0;
+
 	}
 
 

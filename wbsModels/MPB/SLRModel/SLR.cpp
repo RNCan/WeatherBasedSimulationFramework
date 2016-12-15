@@ -158,7 +158,7 @@ namespace WBSF
 		double A = 0;
 		for (size_t m = 0; m<12; m++)
 		{
-			if (weather[m][H_TAIR2][MEAN] > 0)
+			if (weather[m][H_TNTX][MEAN] > 0)
 			{
 				double ET = TPET.GetET(weather[m], I);
 				//precipitation in mm

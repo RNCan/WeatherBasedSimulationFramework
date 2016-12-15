@@ -91,7 +91,7 @@ namespace WBSF
 		double prop_onBole = def > 0.1 ? 0.7 : 0.4;
 
 		bool onBranch = (m_onBole>prop_onBole); //Decision as to where individual overwinters
-		double Tmean = weather[H_TAIR2][MEAN];
+		double Tmean = weather[H_TNTX][MEAN];
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
@@ -142,7 +142,7 @@ namespace WBSF
 		{
 			_ASSERTE(IsAlive());
 
-			double T = weather[H_TAIR2][MEAN];
+			double T = weather[H_TNTX][MEAN];
 
 			double eggLeft = m_potentialFecundity - m_totalBroods;
 			double broods = eggLeft*CWSBOviposition::GetRate(T, eggLeft);

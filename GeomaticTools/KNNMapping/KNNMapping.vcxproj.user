@@ -6,7 +6,7 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-k 6 -t 2 -GeoWeight -cca -overwrite "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\Training1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\TestCSV1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Output\TestCSV1_2.csv"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-k 6 -t 2 -cca -overwrite "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\Training1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\TestCSV1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Output\TestCSV1_2.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

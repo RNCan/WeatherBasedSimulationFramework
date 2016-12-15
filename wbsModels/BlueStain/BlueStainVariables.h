@@ -21,10 +21,10 @@ namespace WBSF
 			
 
 	
-		static const HOURLY_DATA::TVarH EXTREM_VAR[NB_EXTREM];
-		static const int EXTREM_STAT[NB_EXTREM];
-		static const double EXTREM_INIT_VAL[NB_EXTREM];
-		static const int EXTREM_OP[NB_EXTREM];
+		//static const HOURLY_DATA::TVarH EXTREM_VAR[NB_EXTREM];
+		//static const int EXTREM_STAT[NB_EXTREM];
+		//static const double EXTREM_INIT_VAL[NB_EXTREM];
+		//static const int EXTREM_OP[NB_EXTREM];
 
 
 		static const char* VAR_NAME[NB_VARIABLES];
@@ -37,7 +37,7 @@ namespace WBSF
 
 
 
-		static CStatistic GetNormalStat(const CWeatherStation& weather, size_t m, HOURLY_DATA::TVarH v);
+		static CStatistic GetNormalStat(const CWeatherStation& weather, size_t m, TExtrem e);
 		static void GetSummerDD5(CWeatherStation& weather, CModelStatVector& ouptut);
 		static void GetWaterDeficit(const CWeatherStation& weather, CModelStatVector& ouptut);
 		static double GetAridity(const CModelStatVector& AR, CTPeriod p = CTPeriod(), bool bLimitToZero = false);

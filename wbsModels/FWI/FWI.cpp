@@ -74,7 +74,7 @@ namespace WBSF
 	double CFWI::GetFFMC(double oldFFMC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetFFMC(oldFFMC, data[12][H_TAIR2], data[12][H_RELH], data[12][H_WNDS], data[H_PRCP][SUM]);
+		return GetFFMC(oldFFMC, data[12][H_TNTX], data[12][H_RELH], data[12][H_WNDS], data[H_PRCP][SUM]);
 	}
 
 	//T: Temperature (°C)
@@ -128,7 +128,7 @@ namespace WBSF
 	double CFWI::GetDMC(double oldDMC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[12][H_TAIR2], data[12][H_RELH], data[H_PRCP][SUM]);
+		return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[12][H_TNTX], data[12][H_RELH], data[H_PRCP][SUM]);
 	}
 
 
@@ -173,7 +173,7 @@ namespace WBSF
 	double CFWI::GetDC(double oldDC, const CWeatherDay& data)
 	{
 		ASSERT(data.IsHourly());
-		return GetDC(oldDC, data.GetTRef().GetMonth(), data[12][H_TAIR2], data[H_PRCP][SUM]);
+		return GetDC(oldDC, data.GetTRef().GetMonth(), data[12][H_TNTX], data[H_PRCP][SUM]);
 	}
 
 	double CFWI::GetDC(double oldDC, size_t m, double T, double prcp)
