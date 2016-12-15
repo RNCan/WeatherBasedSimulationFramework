@@ -155,13 +155,14 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
+			string pass = Get(PASSWORD);
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 			if (msgTmp)
 			{
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 35000);
 
 			
-				msgTmp = FindFiles(pConnection, "RMCQ/*", fileList, callback);
+				msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, callback);
 				if (msgTmp)
 				{
 					msg += callback.StepIt();
@@ -179,6 +180,7 @@ namespace WBSF
 			}
 			else
 			{
+				callback.AddMessage(msgTmp);
 				if (nbRun > 1 && nbRun < 20)
 				{
 					callback.PushTask("Waiting 30 seconds for server...", 600);
