@@ -472,7 +472,7 @@ namespace WBSF
 		static const size_t NB_CLASS = 17;
 		static const double P[NB_CLASS][2] =
 		{
-			{ 0.00, 0.611 },
+			{ 0.00, 0.650 },
 			{ 0.07, 0.499 },
 			{ 0.14, 0.457 },
 			{ 0.21, 0.420 },
@@ -493,12 +493,12 @@ namespace WBSF
 		
 		size_t ii = NOT_INIT;
 		for (size_t i = 0; i < NB_CLASS && ii == NOT_INIT; i++)
-			if (r>=P[i][0])
+			if (r<=P[i][0])
 				ii = i;
 
-		double G = 0.1;
-		if (ii < NB_CLASS-1)
-			G = ((P[ii+1][0] - r)*P[ii][1] + (r - P[ii][0])*P[ii + 1][1]) / (P[ii + 1][0] - P[ii][0]);
+		double G = 0.650;
+		if (ii > 0)
+			G = ((P[ii][0] - r)*P[ii-1][1] + (r - P[ii-1][0])*P[ii][1]) / (P[ii][0] - P[ii-1][0]);
 		
 
 		return G;
@@ -649,7 +649,7 @@ namespace WBSF
 				m_parameters.m_G = m_world.get_G(m_sex);
 				m_parameters.m_A = m_world.get_A(m_sex);
 				m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
-				
+				Tᴸ = get_Tᴸ();
 			}
 		}
 
@@ -1403,7 +1403,7 @@ void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°
 		for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
 		{
 			CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(t);
-			if (m_weather.IsLoaded(UTCTRef))
+			if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
 			{
 				CATMVariables v = m_weather.get_weather(loc, UTCTRef, t);
 				Tᵀ = min(Tᵀ, v[ATM_TAIR]);
