@@ -34,6 +34,11 @@ namespace WBSF
 		//relative developement
 		double RelativeDevRate(size_t s)const;
 
+		double get_A(size_t sex)const;
+		double get_M(size_t sex, double A)const;
+		double get_M(double A, double G)const;
+		double get_p_exodus()const;
+
 	protected:
 
 		enum TEquation{ E_EGG, E_L1, E_L2o, E_L2, E_L3, E_L4, E_L5, E_L6_MALE, E_L6_FEMALE, E_PUPAE_MALE, E_PUPAE_FEMALE, E_ADULT, NB_EQUATION };

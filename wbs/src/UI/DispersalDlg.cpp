@@ -41,7 +41,7 @@ namespace WBSF
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
 		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_RATIO, CRUISE_HEIGHT,
-		HEIGHT_YPE,	WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
+		HEIGHT_YPE,	WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
 	};
 
 	BEGIN_MESSAGE_MAP(CDispersalPropertyGridCtrl, CMFCPropertyGridCtrl)
@@ -136,8 +136,8 @@ namespace WBSF
 
 		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[4], -1);*/
 		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_YPE], "", description[HEIGHT_YPE], HEIGHT_YPE));
-		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_LOG_MEAN], 0, description[WING_BEAT_LOG_MEAN], WING_BEAT_LOG_MEAN));
-		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_LOG_SD], "", description[WING_BEAT_LOG_SD], WING_BEAT_LOG_SD));
+		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_K], 0, description[WING_BEAT_K], WING_BEAT_K));
+		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_VMAX], "", description[WING_BEAT_VMAX], WING_BEAT_VMAX));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_EX], "", description[WING_BEAT_EX], WING_BEAT_EX));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_ALPHA], "", description[WING_BEAT_ALPHA], WING_BEAT_ALPHA));
 		//pHeight->AddSubItem(new CStdGridProperty(name[HEIGHT_MAX], "", description[HEIGHT_MAX], HEIGHT_MAX));
@@ -187,9 +187,6 @@ namespace WBSF
 			case T_MAX:				str = WBSF::ToString(in.m_ATM.m_Tmax); break;
 			case P_MAX:				str = WBSF::ToString(in.m_ATM.m_Pmax); break;
 			case W_MIN:				str = WBSF::ToString(in.m_ATM.m_Wmin); break;
-			//case LIFTOFF_TYPE:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_type); break;
-			//case LIFTOFF_BEGIN:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_begin); break;
-			//case LIFTOFF_END:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_end); break;
 			case LIFTOFF_CORRECTION:str = WBSF::ToString(in.m_ATM.m_t_liftoff_correction); break;
 			case LIFTOFF_SIGMA:		str = WBSF::ToString(in.m_ATM.m_t_liftoff_σ_correction); break;
 			case DURATION_MIN:		str = WBSF::ToString(in.m_ATM.m_duration_min); break;
@@ -199,13 +196,10 @@ namespace WBSF
 			case CRUISE_RATIO:		str = WBSF::ToString(in.m_ATM.m_cruise_duration); break;
 			case CRUISE_HEIGHT:		str = WBSF::ToString(in.m_ATM.m_cruise_height); break;
 			case HEIGHT_YPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
-			case WING_BEAT_LOG_MEAN:str = WBSF::ToString(in.m_ATM.m_w_Wᴸ); break;
-			case WING_BEAT_LOG_SD:	str = WBSF::ToString(in.m_ATM.m_w_σᴸ); break;
+			case WING_BEAT_K:		str = WBSF::ToString(in.m_ATM.m_K); break;
+			case WING_BEAT_VMAX:	str = WBSF::ToString(in.m_ATM.m_Vmax); break;
 			case WING_BEAT_EX:		str = WBSF::ToString(in.m_ATM.m_w_Ex); break;
 			case WING_BEAT_ALPHA:	str = WBSF::ToString(in.m_ATM.m_w_α); break;
-			//case HEIGHT_MAX:		str = WBSF::ToString(in.m_ATM.m_height_hi); break;
-			//case W_ASCENT:			str = WBSF::ToString(in.m_ATM.m_w_ascent); break;
-			//case W_ASCENT_SD:		str = WBSF::ToString(in.m_ATM.m_w_ascent_σ); break;
 			case W_HORZ:			str = WBSF::ToString(in.m_ATM.m_w_horizontal); break;
 			case W_HORZ_SD:			str = WBSF::ToString(in.m_ATM.m_w_horizontal_σ); break;
 			case W_DESCENT:			str = WBSF::ToString(in.m_ATM.m_w_descent); break;
@@ -246,7 +240,6 @@ namespace WBSF
 		case DEFOLIATION_THRESHOLD:	me.m_parameters.m_world.m_defoliationThreshold = WBSF::ToDouble(str); break;
 		case DISTRACTION_THRESHOLD:	me.m_parameters.m_world.m_distractionThreshold = WBSF::ToDouble(str); break;
 		case HOST_THRESHOLD:	me.m_parameters.m_world.m_hostThreshold = WBSF::ToDouble(str); break;
-
 		case DEM:				me.m_parameters.m_world.m_DEM_name = str; break;
 		case GRIBS:				me.m_parameters.m_world.m_gribs_name = str; break;
 		case HOURLY_DB:			me.m_parameters.m_world.m_hourly_DB_name = str; break;
@@ -254,14 +247,10 @@ namespace WBSF
 		case DISTRACTION:		me.m_parameters.m_world.m_distraction_name = str; break;
 		case HOST:				me.m_parameters.m_world.m_host_name = str; break;
 		case WATER:				me.m_parameters.m_world.m_water_name = str; break;
-
 		case T_MIN:				me.m_parameters.m_ATM.m_Tmin = WBSF::ToDouble(str); break;
 		case T_MAX:				me.m_parameters.m_ATM.m_Tmax = WBSF::ToDouble(str); break;
 		case P_MAX:				me.m_parameters.m_ATM.m_Pmax = WBSF::ToDouble(str); break;
 		case W_MIN:				me.m_parameters.m_ATM.m_Wmin = WBSF::ToDouble(str); break;
-		//case LIFTOFF_TYPE:	me.m_parameters.m_ATM.m_t_liftoff_type = WBSF::ToInt(str); break;
-		//case LIFTOFF_BEGIN:	me.m_parameters.m_ATM.m_t_liftoff_begin = WBSF::ToDouble(str); break;
-		//case LIFTOFF_END:		me.m_parameters.m_ATM.m_t_liftoff_end = WBSF::ToDouble(str); break;
 		case LIFTOFF_CORRECTION:me.m_parameters.m_ATM.m_t_liftoff_correction = WBSF::ToDouble(str); break;
 		case LIFTOFF_SIGMA:		me.m_parameters.m_ATM.m_t_liftoff_σ_correction = WBSF::ToDouble(str); break;
 		case DURATION_MIN:		me.m_parameters.m_ATM.m_duration_min = WBSF::ToDouble(str); break;
@@ -271,13 +260,10 @@ namespace WBSF
 		case CRUISE_RATIO:		me.m_parameters.m_ATM.m_cruise_duration = WBSF::ToDouble(str); break;
 		case CRUISE_HEIGHT:		me.m_parameters.m_ATM.m_cruise_height = WBSF::ToDouble(str); break;
 		case HEIGHT_YPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
-		case WING_BEAT_LOG_MEAN:me.m_parameters.m_ATM.m_w_Wᴸ = WBSF::ToDouble(str); break;
-		case WING_BEAT_LOG_SD:	me.m_parameters.m_ATM.m_w_σᴸ = WBSF::ToDouble(str); break;
+		case WING_BEAT_K:		me.m_parameters.m_ATM.m_K = WBSF::ToDouble(str); break;
+		case WING_BEAT_VMAX:	me.m_parameters.m_ATM.m_Vmax = WBSF::ToDouble(str); break;
 		case WING_BEAT_EX:		me.m_parameters.m_ATM.m_w_Ex = WBSF::ToDouble(str); break;
 		case WING_BEAT_ALPHA:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
-		//case HEIGHT_MAX:		me.m_parameters.m_ATM.m_height_hi = WBSF::ToDouble(str); break;
-		//case W_ASCENT:			me.m_parameters.m_ATM.m_w_ascent = WBSF::ToDouble(str); break;
-		//case W_ASCENT_SD:		me.m_parameters.m_ATM.m_w_ascent_σ = WBSF::ToDouble(str); break;
 		case W_HORZ:			me.m_parameters.m_ATM.m_w_horizontal = WBSF::ToDouble(str); break;
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;

@@ -40,7 +40,7 @@ namespace WBSF
 		static __int64 LocalTRef2LocalTime(CTRef TRef, const CGeoPoint& pt);
 		static CTRef LocalTime2LocalTRef(__int64 time, const CGeoPoint& pt);
 		
-
+		static double GetDecimalHour(__int64 time);
 		static __int64 GetDelta(CTRef TRef, const CGeoPoint& pt);
 		static __int64 GetDelta(__int64 time, const CGeoPoint& pt);
 
@@ -49,8 +49,8 @@ namespace WBSF
 		static CTRef LocalTRef2UTCTRef(CTRef TRef, const CGeoPoint& pt);
 		static CTRef UTCTRef2LocalTRef(CTRef TRef, const CGeoPoint& pt);
 	
-		
-		static bool GetZone(const CGeoPoint& pt, cctz::time_zone& zone);//, __int64* pDelta=NULL
+		static std::string CTimeZones::GetZoneName(const CGeoPoint& pt);
+		static bool GetZone(const CGeoPoint& pt, cctz::time_zone& zone);
 		static CTRef LocalTRef2UTCTRef(CTRef TRef, const cctz::time_zone& zone);
 		static CTRef UTCTRef2LocalTRef(CTRef TRef, const cctz::time_zone& zone);
 

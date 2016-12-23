@@ -365,7 +365,7 @@ namespace WBSF
 
 		for (int i = 0; i<matrix.size_y(); i++)
 		{
-			if (matrix[i][0] >-999 &&
+			if (matrix[i][0] > -999 &&
 				matrix[i][1] > -999 &&
 				matrix[i][2] > -999)
 			{

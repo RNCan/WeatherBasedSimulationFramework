@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_SEX, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -122,10 +122,11 @@ namespace WBSF
 	public:
 
 		
-
+		enum TSex{ MALE, FEMALE, NB_SEX};
+		
 
 		enum TType{ WING_BEAT, MAX_SPEED, MAX_TEMPERATURE };
-		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_LOG_MEAN, WING_BEAT_LOG_SD, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 
@@ -153,8 +154,8 @@ namespace WBSF
 		//double m_height_hi;			//highest flith height
 //		double m_w_ascent;			//ascent vertical velocity [km/h]
 	//	double m_w_ascent_σ;		//ascent vertical velocity standard deviation [km/h]
-		double m_w_Wᴸ;
-		double m_w_σᴸ;
+		double m_K;
+		double m_Vmax;
 		double m_w_Ex;
 		double m_w_α;				//km/h
 		double m_w_horizontal;		//horizontal velocity [km/h]
@@ -189,17 +190,17 @@ namespace WBSF
 			m_duration_max = 6;						//[h]
 			m_duration_α = 0.9;						//alpha
 			m_duration_β = 3;						//beta
-			m_cruise_duration = 0.5;				//[h]
+			m_cruise_duration = 0.0;				//[h]
 			m_cruise_height = 50;					//[m]
 			m_height_type = WING_BEAT;
 			//m_height_lo = 20;						//[m]
 			//m_height = 600;							//mean of the height 
 			//m_height_σ = 150;						//stadard deviation of the log of the height (0.53)
 			//m_height_hi = 1200;						//[m]
-			m_w_Wᴸ = 20;
-			m_w_σᴸ = 2;
-			m_w_Ex = 2.5;
-			m_w_α  = 2*3600/1000;					//km/h
+			m_K = 166;
+			m_Vmax = 65;							//Male Vmax
+			m_w_Ex = 1.2;							//Female Vmac multiplication factor
+			m_w_α = 0.6 * 3600 / 1000;				//km/(h Hz)
 			//m_w_ascent = 0.6 * 3600 / 1000;		//[km/h]
 			//m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
 			m_w_horizontal = 2.0 * 3600 / 1000;		//[km/h]
@@ -242,8 +243,8 @@ namespace WBSF
 				//m_height_hi = in.m_height_hi;
 				//m_w_ascent = in.m_w_ascent;
 				//m_w_ascent_σ = in.m_w_ascent_σ;
-				m_w_Wᴸ = in.m_w_Wᴸ;
-				m_w_σᴸ = in.m_w_σᴸ;
+				m_K = in.m_K;
+				m_Vmax = in.m_Vmax;
 				m_w_Ex = in.m_w_Ex;
 				m_w_α = in.m_w_α;
 				m_w_horizontal = in.m_w_horizontal;
@@ -289,8 +290,8 @@ namespace WBSF
 			//if (m_height_hi != in.m_height_hi)bEqual = false;
 			//if (m_w_ascent != in.m_w_ascent)bEqual = false;
 			//if (m_w_ascent_σ != in.m_w_ascent_σ)bEqual = false;
-			if (m_w_Wᴸ != in.m_w_Wᴸ)bEqual = false;
-			if (m_w_σᴸ != in.m_w_σᴸ)bEqual = false;
+			if (m_K != in.m_K)bEqual = false;
+			if (m_Vmax != in.m_Vmax)bEqual = false;
 			if (m_w_Ex != in.m_w_Ex)bEqual = false;
 			if (m_w_α != in.m_w_α)bEqual = false;
 			if (m_w_horizontal != in.m_w_horizontal)bEqual = false;
@@ -599,21 +600,24 @@ namespace WBSF
 	{
 	public:
 
+		double m_G;				//gravid=1, spent=0
 		double m_M;				//dry weight [g]
 		double m_A;				//Forewing area [cm²]
+		double m_p_exodus;		//exodus probability
 
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
 		__int64 m_duration;		//total flight duration [s]
 		__int64 m_cruise_duration;//cruise duration[s]
-		//double m_penetration;	//percent of cruise to look for host [%]
 		__int64 m_t_liftoff;	//launch time in evening
 		
 
 		CFlightParameters()
 		{
-			m_M = 0;
+			m_G = 0;
 			m_A = 0;
+			m_M = 0;
+			m_p_exodus = 0;
 			
 			m_w_horizontal = 0;
 			m_w_descent = 0;
@@ -640,6 +644,7 @@ namespace WBSF
 		size_t m_loc;
 		size_t m_var;
 		double m_scale;
+		size_t m_sex;			//sex (MALE=0, FEMALE=1)
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level
@@ -678,6 +683,7 @@ namespace WBSF
 		int GetEnd()const{ return m_end_type; }
 		const CFlightParameters& P()const{ return m_parameters; }
 		int GetUTCShift()const{ return int(m_UTCShift / 3600); }//in [h]
+		double get_MRatio()const;
 
 	protected:
 
@@ -696,6 +702,12 @@ namespace WBSF
 		//statistic of flight
 		std::array<double, NB_FLYER_LOG> m_log;
 		std::array<CStatistic, NB_FLYER_STAT> m_stat;
+
+
+		
+		static const double b[2];
+		static const double c[2];
+
 	};
 
 
@@ -862,6 +874,7 @@ namespace WBSF
 		__int64 get_UTC_time()const { return m_UTCTTime; }
 		static __int64 get_local_sunset(CTRef TRef, const CLocation& loc);
 		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const{ return m_weather.get_weather(pt, UTCTRef, UTCTime); }
+		__int64 get_Δtᵀ(const CLocation& loc, __int64 UTCTime)const;
 
 		std::vector<CFlyersIt> GetFlyers(CTRef TRef);
 		CTPeriod get_UTC_period(const std::vector<CFlyersIt>& fls);
@@ -906,15 +919,17 @@ namespace WBSF
 		CProjectionTransformation m_WEA2GEO;
 
 
-		__int64 get_t_liftoff_offset(double T)const;
+		__int64 get_t_liftoff_offset(__int64 tᵀ)const;
 //		__int64 get_t_hunthing()const;
 		//double get_height()const;
 		__int64 get_duration()const;
 
 		//double get_w_ascent()const;
 		
-		double CATMWorld::get_A()const;
-		double CATMWorld::get_M(double A)const;
+		size_t get_S()const;
+		double get_A(size_t sex)const;
+		double get_M(size_t sex, double A)const;
+		double get_G()const;
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;
@@ -924,6 +939,10 @@ namespace WBSF
 		CTRef m_UTCTRef;
 		__int64 m_UTCTTime;
 		CRandomGenerator m_random;
+		static const double Δtᶠ;
+		static const double Δtᶳ;
+		static const double T°;
+
 
 		//statistic of simulation
 		std::array<CStatistic, 1 > m_stats;
@@ -953,8 +972,8 @@ namespace zen
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](in.m_duration_β);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](in.m_cruise_duration);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](in.m_cruise_height);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](in.m_w_Wᴸ);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](in.m_w_σᴸ);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](in.m_K);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](in.m_Vmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](in.m_w_Ex);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_ALPHA)](in.m_w_α);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
@@ -981,8 +1000,8 @@ namespace zen
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](out.m_duration_β);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](out.m_cruise_duration);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](out.m_cruise_height);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_MEAN)](out.m_w_Wᴸ);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_LOG_SD)](out.m_w_σᴸ);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](out.m_K);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](out.m_Vmax);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_EX)](out.m_w_Ex);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_ALPHA)](out.m_w_α);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](out.m_w_horizontal);

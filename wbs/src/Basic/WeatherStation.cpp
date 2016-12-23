@@ -161,18 +161,21 @@ double COverheat::GetTmax(const CWeatherDay& weather)const
 
 double COverheat::GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax)const
 { 
-	ASSERT(false);
-
 	double OH = 0;
 	if (weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
 	{
-		const CWeatherDay& d1 = weather.GetPrevious();
-		const CWeatherDay& d2 = weather;
-		const CWeatherDay& d3 = weather.GetNext();
+		if (h >= hourTmax - 6 && h <= hourTmax + 6)
+		{
+			//const CWeatherDay& d1 = weather.GetPrevious();
+			//const CWeatherDay& d2 = weather;
+			//const CWeatherDay& d3 = weather.GetNext();
+			double Fo = cos((double(hourTmax)-h)/12.0*PI);
+			double maxOverheat = weather[H_TRNG2][MEAN] * m_overheat;
+			OH = maxOverheat* Fo;
 
-		double T1 = WBSF::GetAllenT(GetTmin(d1), GetTmax(d1), GetTmin(d2), GetTmax(d2), GetTmin(d3), GetTmax(d3), h, hourTmax);
-		double T2 = WBSF::GetAllenT(d1[H_TMIN2][MEAN], d1[H_TMAX2][MEAN], d2[H_TMIN2][MEAN], d2[H_TMAX2][MEAN], d3[H_TMIN2][MEAN], d3[H_TMAX2][MEAN], h, hourTmax);
-
+			//double T1 = WBSF::GetAllenT(GetTmin(d1), GetTmax(d1), GetTmin(d2), GetTmax(d2), GetTmin(d3), GetTmax(d3), h, hourTmax);
+			//double T2 = WBSF::GetAllenT(d1[H_TMIN2][MEAN], d1[H_TMAX2][MEAN], d2[H_TMIN2][MEAN], d2[H_TMAX2][MEAN], d3[H_TMIN2][MEAN], d3[H_TMAX2][MEAN], h, hourTmax);
+		}
 	}
 
 	return OH;

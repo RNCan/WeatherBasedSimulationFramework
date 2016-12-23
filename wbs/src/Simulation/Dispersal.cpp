@@ -176,6 +176,7 @@ namespace WBSF
 				modelInput.push_back(CModelInputParam("Variable", vars[i].m_name));
 				paramset.push_back(modelInput);
 			}
+
 			paramset.m_pioneer = paramset[0];
 
 			CModelOutputVariableDefVector outputVar;
@@ -184,8 +185,35 @@ namespace WBSF
 
 			info.SetParameterSet(paramset);
 			info.SetLocations(pResult->GetMetadata().GetLocations());
-			info.SetNbReplications(pResult->GetMetadata().GetNbReplications());
+			//info.SetNbReplications(pResult->GetMetadata().GetNbReplications());
 			info.SetOutputDefinition(outputVar);
+			
+			size_t nbReplication = 1;
+			for (size_t l = 0; l < pResult->GetMetadata().GetLocations().size(); l++)
+			{
+				for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size(); p++)
+				{
+					for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications(); r++)
+					{
+						CNewSectionData section;
+						pResult->GetSection(l, p, r, section);
+
+						for (size_t t = 0; t < section.GetRows(); t++)
+						{
+							for (size_t v = 0; v < section.GetCols(); v++)
+							{
+								if (section[t][v].IsInit())
+								{
+									size_t nbMoths = ceil(section[t][v][MEAN]);
+									nbReplication = max(nbReplication, nbMoths);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			info.SetNbReplications(nbReplication);
 		}
 	}
 
@@ -200,7 +228,8 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 20);
+		ASSERT(NB_ATM_OUTPUT == 23);
+		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of the flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of the flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));
@@ -222,6 +251,8 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("Distance", "Distance", "m", "Distance", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("DistanceOrigine", "DistanceOrigine", "m", "DistanceOrigine", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("FlightTime", "FlightTime", "h", "FlightTime", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LiftoffTime", "LiftoffTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LangdingTime", "LandingTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
 
 	}
 
@@ -290,7 +321,7 @@ namespace WBSF
 			return l1.m_lat < l2.m_lat || l1.m_lon < l2.m_lon;
 		}
 	};
-
+	
 
 	ERMsg CDispersal::Execute(const CFileManager& fileManager, CCallback& callback)
 	{
@@ -335,11 +366,16 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
+		if (result.GetMetadata().GetNbReplications() > 1)
+			callback.AddMessage("WARNING: only the first replication will be taken");
 
 		//init output info
 		CDBMetadata& metadata = result.GetMetadata();
 		GetInputDBInfo(pResult, metadata);
-
+		
+		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
+		
+		
 
 		//callback.AddTask(metadata.GetNbReplications()*metadata.GetTPeriod().GetNbYears() + 1);
 		callback.PushTask("Open Dispersal's Input", 6);
@@ -395,14 +431,15 @@ namespace WBSF
 
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
-		for (size_t r = 0; r < metadata.GetNbReplications() && msg; r++)
+		//for (size_t r = 0; r < metadata.GetNbReplications() && msg; r++)
+		size_t r = 0;
 		{
 
 			//callback.SetNbStep(locations.size());
 
 			for (size_t l = 0; l < locations.size() && msg; l++)
 			{
-				for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size(); p++)
+				for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
 				{
 					CNewSectionData section;
 					pResult->GetSection(l, p, r, section);
@@ -414,8 +451,17 @@ namespace WBSF
 						{
 							if (section[t][v].IsInit())
 							{
-								//if (section[t][v][MEAN] > m_parameters.m_world.m_eventThreshold)
-								size_t nbMoths = Round(section[t][v][MEAN]);
+								size_t sex = -1;
+								if (WBSF::Find(vars[v].m_name, "Female"))
+									sex = 1;
+								else if (WBSF::Find(vars[v].m_name, "Male"))
+									sex = 0;
+								
+
+								//if (sex != -1)
+								//{
+									
+								size_t nbMoths = ceil(section[t][v][MEAN]);
 								for (size_t i = 0; i < nbMoths; i++)
 								{
 									CTRef localTRef = section.GetTRef(t);
@@ -423,9 +469,10 @@ namespace WBSF
 									localTRef.m_hour = 0;
 
 									CFlyer flyer(world);
-									flyer.m_rep = r;
+									flyer.m_rep = i;
 									flyer.m_loc = l;
 									flyer.m_var = v;
+									flyer.m_sex = sex;			//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
 									flyer.m_scale = section[t][v][MEAN];
 									flyer.m_localTRef = localTRef;
 									flyer.m_location = locations[l];
@@ -438,6 +485,7 @@ namespace WBSF
 									else
 										callback.AddMessage("WARNING: Simulation point outside elevation map");
 								}//if > eventThreshold
+								//} //if valid variable
 							}//if section init
 						}//for all cols
 					}//for all rows
@@ -454,14 +502,14 @@ namespace WBSF
 
 
 		CATMOutputMatrix output(metadata.GetNbReplications());
-		for (size_t i = 0; i < output.size(); i++)
+		for (size_t r = 0; r < output.size(); r++)
 		{
-			output[i].resize(locations.size());
-			for (size_t j = 0; j < output[i].size(); j++)
+			output[r].resize(locations.size());
+			for (size_t l = 0; l < output[r].size(); l++)
 			{
-				output[i][j].resize(metadata.GetParameterSet().size());//the number of input variables
-				for (size_t k = 0; k < output[i][j].size(); k++)
-					output[i][j][k].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
+				output[r][l].resize(metadata.GetParameterSet().size());//the number of input variables
+				for (size_t v = 0; v < output[r][l].size(); v++)
+					output[r][l][v].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
 			}
 		}
 

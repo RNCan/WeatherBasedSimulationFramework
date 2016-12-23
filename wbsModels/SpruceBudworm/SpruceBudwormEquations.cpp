@@ -213,4 +213,50 @@ namespace WBSF
 
 		return r;
 	}
+
+
+	//sex : MALE (0) or FEMALE (1)
+	//out : forewing surface area [cm²]
+	double CSpruceBudwormEquations::get_A(size_t sex)const
+	{
+		ASSERT(sex < 2);
+
+		static const double A_MEAN[2] = { 0.361, 0.421 };
+		static const double A_SD[2] = { 0.047, 0.063 };
+
+
+		double A = m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
+		while (A < 0.1)
+			m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
+
+
+		return A;
+	}
+
+	//sex : MALE (0) or FEMALE (1)
+	//A : forewing surface area [cm²]
+	//out : weight [g]
+	double CSpruceBudwormEquations::get_M(size_t sex, double A)const
+	{
+		static const double M_A[2] = { -6.756, -6.543};
+		static const double M_B[2] = { 3.790, 3.532};
+		static const double M_E[2] = { 0.206, 0.289 };
+		
+
+		double E = m_randomGenerator.RandLogNormal(0, M_E[sex]);
+		double M = exp(M_A[sex] + M_B[sex] * A)*E;
+		
+		return M*E;
+	}
+
+	double CSpruceBudwormEquations::get_M(double A, double G)const
+	{
+		return exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
+	}
+
+	double CSpruceBudwormEquations::get_p_exodus()const
+	{
+		return 	m_randomGenerator.Randu();
+	}
+
 }

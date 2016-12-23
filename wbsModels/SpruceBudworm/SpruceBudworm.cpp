@@ -1,15 +1,16 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // Class: CSpruceBudworm
 //          
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 10/05/2016	R�mi Saint-Amant	Elimination of th optimization under -10 
-// 05/03/2015	R�mi Saint-Amant	Update for BioSIM11
-// 27/06/2013	R�mi Saint-Amant	New framework, Bug correction in fix AI
-// 27/09/2011	R�mi Saint-Amant	Add precipitation in live
-// 13/06/2010	R�mi Saint-Amant	inherit from CIndividual
-// 23/03/2010   R�mi Saint-Amant    Creation from old code
+// 22/12/2016   Rémi Saint-Amant	Add exodus flight
+// 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
+// 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
+// 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
+// 27/09/2011	Rémi Saint-Amant	Add precipitation in live
+// 13/06/2010	Rémi Saint-Amant	inherit from CIndividual
+// 23/03/2010   Rémi Saint-Amant    Creation from old code
 //*****************************************************************************
 
 #include "SpruceBudwormEquations.h"
@@ -51,7 +52,9 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-
+		m_A = Equations().get_A(m_sex);
+		m_M = Equations().get_M(m_sex, m_A);
+		m_p_exodus = Equations().get_p_exodus();
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
 		static const double ALPHA0 = 2.1571;
@@ -81,6 +84,9 @@ namespace WBSF
 				m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 			m_bKillByAttrition = in.m_bKillByAttrition;
+			m_A = in.m_A;
+			m_M = in.m_M;
+			m_p_exodus = in.m_p_exodus;
 		}
 
 		return *this;
@@ -123,14 +129,14 @@ namespace WBSF
 		{
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
-			double T = weather[h][H_TNTX];
+			double T = weather[h][H_TAIR2];
 			if (NeedOverheating())  
 				T += overheat.GetOverheat(weather, h);
 
 			//Time step development rate
 			double r = Equations().GetRate(s, m_sex, T) / nbSteps;
 			//Relative development rate
-			double RR = GetRelativeDevRate(weather[h][H_TNTX], r);
+			double RR = GetRelativeDevRate(weather[h][H_TAIR2], r);
 
 			//development rate for white spruce is accelerated by a factor
 			if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -159,7 +165,7 @@ namespace WBSF
 
 			//adjust overwintering energy
 			if (s == L2o)
-				m_OWEnergy -= GetEnergyLost(weather[h][H_TNTX]) / nbSteps;
+				m_OWEnergy -= GetEnergyLost(weather[h][H_TAIR2]) / nbSteps;
 
 			//Compute defoliation on tree
 			m_eatenFoliage += GetEatenFoliage(RR);
@@ -177,7 +183,7 @@ namespace WBSF
 		m_age = min(m_age, double(DEAD_ADULT));
 	}
 
-
+	static const double POTENTIAL_FECONDITY = 200;
 	void CSpruceBudworm::Brood(const CWeatherDay& weather)
 	{
 		assert(IsAlive() && m_sex == FEMALE);
@@ -185,7 +191,7 @@ namespace WBSF
 		if (m_age >= ADULT + 0.0666)
 		{
 			//brooding
-			static const double POTENTIAL_FECONDITY = 200;
+			
 			double eggLeft = POTENTIAL_FECONDITY - m_totalBroods;
 			double Tmax = weather[H_TMAX2][MEAN];
 			double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
@@ -198,7 +204,7 @@ namespace WBSF
 
 			ASSERT(m_totalBroods <= POTENTIAL_FECONDITY);
 
-			//Oviposition module after R�gniere 1983
+			//Oviposition module after Régniere 1983
 			if (m_bFertil && m_broods > 0)
 			{
 				CSBWTree* pTree = GetTree();
@@ -239,7 +245,7 @@ namespace WBSF
 		}
 		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -9)
 		{
-			//all non l2o are kill by frost under -10�C
+			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
@@ -303,7 +309,7 @@ namespace WBSF
 		double RR = m_relativeDevRate[s] * r;
 		if (s == L2o && r > 0)
 		{
-			//Equation [5] in R�gniere 1990
+			//Equation [5] in Régniere 1990
 			//Relative dev rate of L2o depend of the age of L2o
 			//Adjust Relative dev rate
 			double dprime = min(1.0, max(0.25, m_age - L2o));
@@ -318,36 +324,134 @@ namespace WBSF
 
 	double CSpruceBudworm::GetFlightActivity(const CWeatherDay& weather)
 	{
-		double prcp = -1;
-		double sumF = 0;
-		double k0 = 10.;
-		double k1 = -8.25;
-		double twoPi = 2 * 3.14159 / 24.;
-		double fourPi = 4 * 3.14159 / 24.;
+		
+		//double prcp = -1;
+		//double sumF = 0;
+		//double k0 = 10.;
+		//double k1 = -8.25;
+		//double twoPi = 2 * 3.14159 / 24.;
+		//double fourPi = 4 * 3.14159 / 24.;
 
-		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps; step++)
+		//size_t nbSteps = GetTimeStep().NbSteps();
+		//for (size_t step = 0; step < nbSteps; step++)
+		//{
+		//	size_t h = step*GetTimeStep();
+
+		//	//effect of time of day
+		//	//double time = nbSteps / 2. + 24 * h / nbSteps;
+
+
+		//	//TRES TRES ETRANGE....
+		//	double time = (double)h + GetTimeStep() / 2.0;
+		//	double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
+
+		//	//effect of temperature. The amplitude of sumF is independent of size of time step.
+		//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
+		//	if (prcp >= 0)
+		//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR2])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR2]) / 9.52), 1.3));
+
+		//	sumF += F / nbSteps;
+		//}
+
+		//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
+		//return sumF*f_ppt;
+
+		//if (!m_bAlreadyFlow)
+
+
+		//__int64 h4 = 4;
+
+		double flight = 0;
+
+		if (m_p_exodus <= 1)
 		{
-			size_t h = step*GetTimeStep();
+			CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
+			double sunset = sun.GetSunset(weather.GetTRef());
 
-			//effect of time of day
-			//double time = nbSteps / 2. + 24 * h / nbSteps;
+			double t° = -4;//substract 4 hours
+			double tᶬ = 4;//add 4 hours
+			double Δtᵀ = 4;
+
+			static const double T° = 24.5;
+			static const double Δt = 0.25;
+
+			for (double t = t°; t < tᶬ && Δtᵀ == 4; t += Δt)
+			{
+				double h = sunset + t;
+				size_t h° = size_t(h);
+				size_t h¹ = h° + 1;
+				size_t hᶬ = 23;
+
+				//temperature interpolation between 2 hours
+				double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+				if (T <= T°)
+					Δtᵀ = t;
+			}
 
 
-			//TRES TRES ETRANGE....
-			double time = (double)h + GetTimeStep() / 2.0;
-			double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
+			if (Δtᵀ < 4)
+			{
+				static const double Δtᶠ = 3;
+				static const double Δtᶳ = -0.5;
+				static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
+				static const double K = 166;
+				static const double b[2] = { 21.35, 24.08 };
+				static const double c[2] = { 2.97, 6.63 };
 
-			//effect of temperature. The amplitude of sumF is independent of size of time step.
-			//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
-			if (prcp >= 0)
-				F = F*0.91*pow(max(0.0, (31. - weather[h][H_TNTX])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TNTX]) / 9.52), 1.3));
 
-			sumF += F / nbSteps;
+				double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
+				double tᶬ = min(4.0, t° + Δtᶠ);
+				double tᶜ = (t° + tᶬ) / 2;
+
+				double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+
+				//double M° = Equations().get_M(m_A, 0);
+				double M¹ = Equations().get_M(m_A, 1);
+				double M = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);
+				double RM = M / M¹;//ratio of the initial weight
+				double Vᴸ = K* sqrt(m_M*RM) / m_A;
+
+
+				for (double t = t°; t < tᶬ && flight == 0; t += Δt)
+				{
+					double tau = (t - tᶜ) / (tᶬ - tᶜ);
+					double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / 2 * C;
+					if (m_sex == MALE)
+						p *= 0.3;//
+
+					double h = sunset + t;
+					size_t h° = size_t(h);
+					size_t h¹ = h° + 1;
+					size_t hᶬ = 23;
+
+					//temperature interpolation between 2 hours
+					double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+					if (T > 0)
+					{
+						double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+						if (Vᵀ > Vᴸ && p > m_p_exodus)
+						{
+							flight = 1;
+							m_p_exodus = 10;
+						}
+
+					}
+				}
+
+
+
+				//double Tᴸ = (Vᴸ < Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
+				//Tᴸ can be NAN
+				//if (isnan(Tᴸ))//no lifth up possible
+				//Tᴸ = 40; //a very high value
+
+				//SSERT(!isnan(Tᴸ));
+
+
+			}
 		}
 
-		double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
-		return sumF*f_ppt;
+		return flight;
 	}
 
 

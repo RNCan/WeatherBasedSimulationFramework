@@ -307,13 +307,15 @@ int CResultCtrl::OnHint(int col,long row,int section,CString *string)
 
 int CResultCtrl::OnVScrollHint(long row,CString *pString)
 {
-	ASSERT( m_pResult && m_pResult->IsOpen() );
-	
-	CString L(m_pResult->GetDataValue(row, LOCATION, -1).c_str());
-	CString R(m_pResult->GetDataValue(row, REPLICATION, -1).c_str());
-	CString T(m_pResult->GetDataValue(row, TIME_REF, -1).c_str());
-	
-	pString->Format(_T("%s [%s] %s"), L, R, T);
+	if (m_enableUpdate&&m_pResult && m_pResult->IsOpen())
+	{
+
+		CString L(m_pResult->GetDataValue(row, LOCATION, -1).c_str());
+		CString R(m_pResult->GetDataValue(row, REPLICATION, -1).c_str());
+		CString T(m_pResult->GetDataValue(row, TIME_REF, -1).c_str());
+
+		pString->Format(_T("%s [%s] %s"), L, R, T);
+	}
 
 	return TRUE;
 }

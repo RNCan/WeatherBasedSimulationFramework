@@ -80,6 +80,10 @@ namespace WBSF
 		double m_OWEnergy;					//survival of overwintering
 		bool m_bMissingEnergyAlreadyApplied;
 		bool m_bKillByAttrition;
+		
+		double m_A;							//forewing area [cm²
+		double m_M;							//dry weight [g]
+		double m_p_exodus;
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];

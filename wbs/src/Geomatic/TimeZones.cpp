@@ -58,16 +58,19 @@ namespace WBSF
 		return cctz::convert(cs, zone);
 	}
 
+	double CTimeZones::GetDecimalHour(__int64 time)
+	{
+		const auto tp = std::chrono::system_clock::from_time_t(time);
+		const cctz::time_zone::absolute_lookup al = cctz::utc_time_zone().lookup(tp);
+		return al.cs.hour() + al.cs.minute() / 60.0 + al.cs.second()/3600.0;
+	}
+
 	//delta in second
-	bool CTimeZones::GetZone(const CGeoPoint& pt, cctz::time_zone& zone)//, __int64* pDelta
+	std::string CTimeZones::GetZoneName(const CGeoPoint& pt)
 	{
 		ASSERT(TIME_ZONE.GetNbShape() > 0);//TimeZone must be loaded...
 
-		//cctz::time_zone zone = cctz::utc_time_zone();//just in case...
-		bool bRep = false;
-		//if (pDelta)
-			//*pDelta = __int64(pt.m_lon / 15 * 3600);
-
+		std::string str_zone;
 		int poly = -1;
 
 		if (TIME_ZONE.IsInside(pt, &poly))
@@ -75,30 +78,41 @@ namespace WBSF
 			const CDBF3& DBF = TIME_ZONE.GetDBF();
 			const CDBFRecord& record = DBF[poly];
 			ASSERT(record.size() >= 14);
-			std::string str_zone = record[13];
+			str_zone = record[13];
 
 			ASSERT(!str_zone.empty());///some zone is empty.... hummm
-
-			if (!str_zone.empty() )
-				bRep = cctz::load_time_zone(str_zone, &zone);
-			/*else if (pDelta)
-			{
-				cctz::time_zone::Impl zone2();
-				std::string str_zone = record[7];
-				int z = WBSF::ToInt(str_zone);
-				ASSERT(z >= -12 && z <= 12);
-
-				*pDelta = z * 3600;
-			}*/
-
 		}
 		ASSERT(poly != -1);
-		ASSERT(bRep);//we assume we foun the zone. Update the Shapefile
-		
+
+
+		return str_zone;
+	}
+
+	bool CTimeZones::GetZone(const CGeoPoint& pt, cctz::time_zone& zone)
+	{
+		//ASSERT(TIME_ZONE.GetNbShape() > 0);//TimeZone must be loaded...
+		//
+		bool bRep = false;
+		//int poly = -1;
+
+		//if (TIME_ZONE.IsInside(pt, &poly))
+		//{
+		//	const CDBF3& DBF = TIME_ZONE.GetDBF();
+		//	const CDBFRecord& record = DBF[poly];
+		//	ASSERT(record.size() >= 14);
+		//	std::string str_zone = record[13];
+
+		//	ASSERT(!str_zone.empty());///some zone is empty.... hummm
+
+		std::string str_zone = GetZoneName(pt);
+		if (!str_zone.empty())
+			bRep = cctz::load_time_zone(str_zone, &zone);
+		//}
+		//ASSERT(poly != -1);
+		//ASSERT(bRep);//we assume we foun the zone. Update the Shapefile
+		//
 		return bRep;
 	}
-	//cctz::time_zone GetZone(const CGeoPoint& pt);
-	//static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone);
 
 
 	__int64 CTimeZones::UTCTRef2UTCTime(CTRef TRef)
