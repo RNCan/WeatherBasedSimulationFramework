@@ -9,6 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 23/12/2016   Rémi Saint-Amant	Add flight activity equations
 // 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict
 // 18/06/2013   Rémi Saint-Amant    new format of table
 // 27/09/2011   Rémi Saint-Amant    add b1Factor multiplication

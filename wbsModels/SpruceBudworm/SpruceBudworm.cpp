@@ -4,7 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 22/12/2016   Rémi Saint-Amant	Add exodus flight
+// 22/12/2016   Rémi Saint-Amant	Chnage flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
 // 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
@@ -320,46 +320,57 @@ namespace WBSF
 
 		return RR;
 	}
+	//double prcp = -1;
+	//double sumF = 0;
+	//double k0 = 10.;
+	//double k1 = -8.25;
+	//double twoPi = 2 * 3.14159 / 24.;
+	//double fourPi = 4 * 3.14159 / 24.;
+
+	//size_t nbSteps = GetTimeStep().NbSteps();
+	//for (size_t step = 0; step < nbSteps; step++)
+	//{
+	//	size_t h = step*GetTimeStep();
+
+	//	//effect of time of day
+	//	//double time = nbSteps / 2. + 24 * h / nbSteps;
+
+
+	//	//TRES TRES ETRANGE....
+	//	double time = (double)h + GetTimeStep() / 2.0;
+	//	double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
+
+	//	//effect of temperature. The amplitude of sumF is independent of size of time step.
+	//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
+	//	if (prcp >= 0)
+	//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR2])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR2]) / 9.52), 1.3));
+
+	//	sumF += F / nbSteps;
+	//}
+
+	//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
+	//return sumF*f_ppt;
+
+	//if (!m_bAlreadyFlow)
+
+
+	//__int64 h4 = 4;
 
 
 	double CSpruceBudworm::GetFlightActivity(const CWeatherDay& weather)
 	{
-		
-		//double prcp = -1;
-		//double sumF = 0;
-		//double k0 = 10.;
-		//double k1 = -8.25;
-		//double twoPi = 2 * 3.14159 / 24.;
-		//double fourPi = 4 * 3.14159 / 24.;
+		static const double Δtᶠ = 3;
+		static const double Δtᶳ = -0.5;//j'ai mis 0.5 ici car j'ai l'impression que mon algo retourne une demi-heure plot tôt : à vérifier
+		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
+		static const double K = 166;
+		static const double b[2] = { 21.35, 24.08 };
+		static const double c[2] = { 2.97, 6.63 };
+		static const double T° = 24.5;
+		static const double Δt = 0.25;
+		static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
 
-		//size_t nbSteps = GetTimeStep().NbSteps();
-		//for (size_t step = 0; step < nbSteps; step++)
-		//{
-		//	size_t h = step*GetTimeStep();
+		const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
 
-		//	//effect of time of day
-		//	//double time = nbSteps / 2. + 24 * h / nbSteps;
-
-
-		//	//TRES TRES ETRANGE....
-		//	double time = (double)h + GetTimeStep() / 2.0;
-		//	double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
-
-		//	//effect of temperature. The amplitude of sumF is independent of size of time step.
-		//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
-		//	if (prcp >= 0)
-		//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR2])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR2]) / 9.52), 1.3));
-
-		//	sumF += F / nbSteps;
-		//}
-
-		//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
-		//return sumF*f_ppt;
-
-		//if (!m_bAlreadyFlow)
-
-
-		//__int64 h4 = 4;
 
 		double flight = 0;
 
@@ -368,19 +379,18 @@ namespace WBSF
 			CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
 			double sunset = sun.GetSunset(weather.GetTRef());
 
-			double t° = -4;//substract 4 hours
+			//first estimate of t° and tᶬ to find Δtᵀ
+			double t° = -4;//subtract 4 hours
 			double tᶬ = 4;//add 4 hours
 			double Δtᵀ = 4;
 
-			static const double T° = 24.5;
-			static const double Δt = 0.25;
-
 			for (double t = t°; t < tᶬ && Δtᵀ == 4; t += Δt)
 			{
+				//sunset hour shifted by t
 				double h = sunset + t;
 				size_t h° = size_t(h);
 				size_t h¹ = h° + 1;
-				size_t hᶬ = 23;
+
 
 				//temperature interpolation between 2 hours
 				double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
@@ -389,40 +399,32 @@ namespace WBSF
 			}
 
 
-			if (Δtᵀ < 4)
+			if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
 			{
-				static const double Δtᶠ = 3;
-				static const double Δtᶳ = -0.5;
-				static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-				static const double K = 166;
-				static const double b[2] = { 21.35, 24.08 };
-				static const double c[2] = { 2.97, 6.63 };
-
-
+				//now calculate the real t°, tᶬ and tᶜ
 				double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
 				double tᶬ = min(4.0, t° + Δtᶠ);
 				double tᶜ = (t° + tᶬ) / 2;
 
-				double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+				//
+				double M° = Equations().get_M(m_A, 1);//initial weight of mean gravid female
+				double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
+				double RM = Mᴬ / M°; //ratio of actual vs initial weight female
+				double M = m_M*RM;	//actual weight is initial weight x ratio
+				double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
 
-				//double M° = Equations().get_M(m_A, 0);
-				double M¹ = Equations().get_M(m_A, 1);
-				double M = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);
-				double RM = M / M¹;//ratio of the initial weight
-				double Vᴸ = K* sqrt(m_M*RM) / m_A;
-
-
+				//now compute tau, p and flight
 				for (double t = t°; t < tᶬ && flight == 0; t += Δt)
 				{
 					double tau = (t - tᶜ) / (tᶬ - tᶜ);
 					double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / 2 * C;
 					if (m_sex == MALE)
-						p *= 0.3;//
+						p *= 0.3 / 0.7;//sex ratio equilibrium
 
 					double h = sunset + t;
 					size_t h° = size_t(h);
 					size_t h¹ = h° + 1;
-					size_t hᶬ = 23;
+
 
 					//temperature interpolation between 2 hours
 					double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
@@ -431,28 +433,17 @@ namespace WBSF
 						double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
 						if (Vᵀ > Vᴸ && p > m_p_exodus)
 						{
-							flight = 1;
-							m_p_exodus = 10;
+							flight = 1;		//this insect is exodus
+							m_p_exodus = 10;//change exodus to ignore this insect for exodus
 						}
-
 					}
 				}
-
-
-
-				//double Tᴸ = (Vᴸ < Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
-				//Tᴸ can be NAN
-				//if (isnan(Tᴸ))//no lifth up possible
-				//Tᴸ = 40; //a very high value
-
-				//SSERT(!isnan(Tᴸ));
-
-
 			}
 		}
 
 		return flight;
 	}
+
 
 
 	//Get the eaten foliage 

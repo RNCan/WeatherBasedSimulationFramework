@@ -3,7 +3,8 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
-// 10/05/2016	3.1.0	Rémi Saint-Amant    Chnage Tair and Trng by Tmin and Tmax
+// 23/12/2016	3.1.1	Rémi Saint-Amant    Change in overheating and flight activity
+// 10/10/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 10/05/2016	3.0.4	Rémi Saint-Amant    Minor change
 // 01/01/2016	3.0.3	Rémi Saint-Amant    Include in WBSF
 // 12/12/2015   3.0.2	Rémi Saint-Amant    New Specimen framework based on smart pointer

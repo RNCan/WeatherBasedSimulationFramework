@@ -219,113 +219,113 @@ namespace WBSF
 
 
 	//Δtᵀ : delta [s]
-	//return liftoff offset realtive to sunset [s]
-	__int64 CATMWorld::get_t_liftoff_offset(__int64 ΔtᵀIn)const
+	//t° : begin of exodus hour [decimal hour]
+	//tᶬ : end of exodus hour [decimal hour]
+
+	//return liftoff offset realtive to sunset [decimal hour]
+	//__int64 CATMWorld::get_t_liftoff_offset(__int64 ΔtᵀIn)const
+	
+	
+
+	__int64  CATMWorld::get_t_liftoff_offset(__int64  t°, __int64 tᴹ)const
 	{
-		//double t_liftoff = 0;
-		/*if (m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
-		{
-			static const double SIGMA_SQ = 6.1;
-			static const double TSTART = 19.5;
-			static const double TEND = 23.5;
-
-			double tp = 12.67 + 0.33*T;
-			if (tp < TSTART)
-			{
-				t_liftoff = TSTART;
-			}
-			else if (tp > TEND)
-			{
-				t_liftoff = TEND;
-			}
-			else
-			{
-				t_liftoff = m_random.RandNormal(tp, sqrt(SIGMA_SQ));
-				while (t_liftoff<TSTART || t_liftoff>TEND)
-					t_liftoff = m_random.RandNormal(tp, sqrt(SIGMA_SQ));
-			}
-		}
-		else if (m_parameters2.m_t_liftoff_type == CATMParameters::NEW_TYPE)
-	{*/
-
-		//
-
-		//double prcp = -1;
-		//double sumF = 0;
-		//double k0 = 10.;
-		//double k1 = -8.25;
-		//double twoPi = 2 * 3.14159 / 24.;
-		//double fourPi = 4 * 3.14159 / 24.;
-
-		//.373 - 0.339*cos(2 * 3.14159 / 24.*(h + -8.25)) - 0.183*sin(2 * 3.14159 / 24.*(h + -8.25)) + 0.157*cos(4 * 3.14159 / 24.*(h + -8.25)) + 0.184*sin(4 * 3.14159 / 24.*(h + -8.25))
-
-		//		
-		//double F = .373 - 0.339*cos(twoPi*(h + k1)) - 0.183*sin(twoPi*(h + k1)) + 0.157*cos(fourPi*(h + k1)) + 0.184*sin(fourPi*(h + k1)); //Simmons and Chen (1975)
-
-		////effect of temperature. The amplitude of sumF is independent of size of time step.
-		////Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
-		////if (prcp >= 0)
-		//=F*0.91*pow(max(0.0, (31. - weather[h][H_TNTX])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TNTX]) / 9.52), 1.3));
-
-		//sumF += F / nbSteps;
-
-
-		//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
-		//return sumF*f_ppt;
-		
-
-		//static const double liftoff_μ = max(-1.2, min (0.8, 0.190575425*T - 4.042102263));
-		//static const double liftoff_σ = max( 0.2, min(0.8 , -0.044029363*T + 1.363107669));
-
-		//double t_liftoff = m_random.RandNormal(liftoff_μ + m_parameters2.m_t_liftoff_correction, liftoff_σ*m_parameters2.m_t_liftoff_σ_correction);
-		//while (t_liftoff<-5 || t_liftoff>5)
-		//	t_liftoff = m_random.RandNormal(liftoff_μ + m_parameters2.m_t_liftoff_correction, liftoff_σ*m_parameters2.m_t_liftoff_σ_correction);
-
-
-		//return __int64(t_liftoff * 3600.0);//liftoff offset in seconds
-		
-		//double tᶳ = localSunset;
-		/*double t° = max(tᶳ + Δtᶳ - 0.5*Δtᶠ, tᶳ + Δtᵀ);
-		double tᶬ = min(tᶳ+Δtᶠ+1, t° + Δtᶠ);
-		double tᶜ = (t° + tᶬ) / 2;
-		double t = t° + (tᶬ - t°)*m_random.RandBeta(4, 4);
-		double teta = max(-1.0, min(1.0, (t - tᶜ) / (tᶬ - tᶜ)));
-		ASSERT(teta >= -1 && teta <= 1);
-		double fᵗ = Square(1 - teta*teta);
-
-		return fᵗ - tᶳ;
-*/
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double Δt = 10.0 / 3600.0;//10 seconds
-
+		//static const double Δt = 10.0 / 3600.0;//10 seconds
 
 		double p_exodus = m_random.Randu();
 
 
-		double Δtᵀ = ΔtᵀIn / 3600.0;//convert seconds to hours
-		double t° = max(Δtᶳ - 0.5*Δtᶠ, Δtᵀ);
-		double tᶬ = min(4.0, t° + Δtᶠ);
-		double tᶜ = (t° + tᶬ) / 2;
+	//	double Δtᵀ = ΔtᵀIn / 3600.0;//convert seconds to hours
+		//double t° = max(Δtᶳ - 0.5*Δtᶠ, Δtᵀ);
+		//double tᶬ = min(4.0, t° + Δtᶠ);
+		__int64 tᶜ = (t° + tᴹ) / 2;
 
-		double tau = tᶬ;
-		for (double t = t°; t < tᶬ && tau == tᶬ; t += Δt)
+		__int64 tᴸ = tᴹ;
+		for (__int64 t = t°; t < tᴹ && tᴸ == tᴹ; t += m_parameters1.m_time_step)
 		{
-			double tau = (t - tᶜ) / (tᶬ - tᶜ);
+			double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / 2 * C;
 			if (p > p_exodus)
 				tau = t;
 		}
 
-		//double t = t° + (tᶬ - t°)*m_random.RandBeta(4, 4);
-		return (tau + m_parameters2.m_t_liftoff_correction) * 3600;//convert hours to seconds
-
-		//double teta = max(-1.0, min(1.0, (t - tᶜ) / (tᶬ - tᶜ)));
-		//ASSERT(teta >= -1 && teta <= 1);
-		//double fᵗ = Square(1 - teta*teta);
-
-		//return fᵗ*3600;//convert hours to seconds
+		return tᴸ + m_parameters2.m_t_liftoff_correction;
+		//return (tau + m_parameters2.m_t_liftoff_correction) * 3600;//convert hours to seconds
 	}
 
+	//double t_liftoff = 0;
+	/*if (m_parameters2.m_t_liftoff_type == CATMParameters::OLD_TYPE)
+	{
+	static const double SIGMA_SQ = 6.1;
+	static const double TSTART = 19.5;
+	static const double TEND = 23.5;
+
+	double tp = 12.67 + 0.33*T;
+	if (tp < TSTART)
+	{
+	t_liftoff = TSTART;
+	}
+	else if (tp > TEND)
+	{
+	t_liftoff = TEND;
+	}
+	else
+	{
+	t_liftoff = m_random.RandNormal(tp, sqrt(SIGMA_SQ));
+	while (t_liftoff<TSTART || t_liftoff>TEND)
+	t_liftoff = m_random.RandNormal(tp, sqrt(SIGMA_SQ));
+	}
+	}
+	else if (m_parameters2.m_t_liftoff_type == CATMParameters::NEW_TYPE)
+	{*/
+
+	//
+
+	//double prcp = -1;
+	//double sumF = 0;
+	//double k0 = 10.;
+	//double k1 = -8.25;
+	//double twoPi = 2 * 3.14159 / 24.;
+	//double fourPi = 4 * 3.14159 / 24.;
+
+	//.373 - 0.339*cos(2 * 3.14159 / 24.*(h + -8.25)) - 0.183*sin(2 * 3.14159 / 24.*(h + -8.25)) + 0.157*cos(4 * 3.14159 / 24.*(h + -8.25)) + 0.184*sin(4 * 3.14159 / 24.*(h + -8.25))
+
+	//		
+	//double F = .373 - 0.339*cos(twoPi*(h + k1)) - 0.183*sin(twoPi*(h + k1)) + 0.157*cos(fourPi*(h + k1)) + 0.184*sin(fourPi*(h + k1)); //Simmons and Chen (1975)
+
+	////effect of temperature. The amplitude of sumF is independent of size of time step.
+	////Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
+	////if (prcp >= 0)
+	//=F*0.91*pow(max(0.0, (31. - weather[h][H_TNTX])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TNTX]) / 9.52), 1.3));
+
+	//sumF += F / nbSteps;
+
+
+	//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
+	//return sumF*f_ppt;
+
+
+	//static const double liftoff_μ = max(-1.2, min (0.8, 0.190575425*T - 4.042102263));
+	//static const double liftoff_σ = max( 0.2, min(0.8 , -0.044029363*T + 1.363107669));
+
+	//double t_liftoff = m_random.RandNormal(liftoff_μ + m_parameters2.m_t_liftoff_correction, liftoff_σ*m_parameters2.m_t_liftoff_σ_correction);
+	//while (t_liftoff<-5 || t_liftoff>5)
+	//	t_liftoff = m_random.RandNormal(liftoff_μ + m_parameters2.m_t_liftoff_correction, liftoff_σ*m_parameters2.m_t_liftoff_σ_correction);
+
+
+	//return __int64(t_liftoff * 3600.0);//liftoff offset in seconds
+
+	//double tᶳ = localSunset;
+	/*double t° = max(tᶳ + Δtᶳ - 0.5*Δtᶠ, tᶳ + Δtᵀ);
+	double tᶬ = min(tᶳ+Δtᶠ+1, t° + Δtᶠ);
+	double tᶜ = (t° + tᶬ) / 2;
+	double t = t° + (tᶬ - t°)*m_random.RandBeta(4, 4);
+	double teta = max(-1.0, min(1.0, (t - tᶜ) / (tᶬ - tᶜ)));
+	ASSERT(teta >= -1 && teta <= 1);
+	double fᵗ = Square(1 - teta*teta);
+
+	return fᵗ - tᶳ;
+	*/
 
 	//__int64 CATMWorld::get_t_hunthing()const
 	//{
@@ -463,8 +463,12 @@ namespace WBSF
 		return A;
 	}
 	
-	double CATMWorld::get_G()const
+	double CATMWorld::get_G(size_t sex)const
 	{
+		if (sex == CATMParameters::MALE)
+			return 0;
+
+
 		static const size_t NB_CLASS = 17;
 		static const double P[NB_CLASS][2] =
 		{
@@ -503,7 +507,7 @@ namespace WBSF
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
 	//out : weight [g]
-	double CATMWorld::get_M(size_t sex, double A)const
+	double CATMWorld::get_M(size_t sex, double A, double G)const
 	{
 		//double M = 0;
 
@@ -540,10 +544,18 @@ namespace WBSF
 
 		double E = m_random.RandLogNormal(0, M_E[sex]);
 		double M = exp(M_A[sex] + M_B[sex] * A)*E;
+		
 
-		
-		
-		return M*E;
+		if (sex == CATMParameters::FEMALE)
+		{
+			//adjust female weight in function of gravidity
+			double M° = exp(-6.465 + 0.974 * 1 + 2.14*A + 1.305 * 1 * A);
+			double Mᴬ = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
+			double R = Mᴬ / M°;
+			M *= R;
+		}
+
+		return M;
 	}
 
 
@@ -604,17 +616,45 @@ namespace WBSF
 
 
 		__int64 UTCSunset = CTimeZones::LocalTime2UTCTime(localSunset, m_location);
-		//CTRef UTCSunsetTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset);
-		__int64 Δtᵀ = m_world.get_Δtᵀ(m_location, UTCSunset);
 		
-		if(m_sex==-1)
+		
+		__int64 t° = 0;
+		__int64 tᴹ = 0;
+		double Tᵀ = 0;
+		
+		m_world.get_exodus(m_location, UTCSunset, t°, tᴹ, Tᵀ);
+		
+		if (m_sex == -1 )
+		{
+			//all population
 			m_sex = m_world.get_S();
-		
+			
+			m_parameters.m_G = m_world.get_G(m_sex);
+			m_parameters.m_A = m_world.get_A(m_sex);
+			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
+			
+		}
+		else
+		{
+			//only flyable moth
+			m_parameters.m_G = m_world.get_G(m_sex);
+			m_parameters.m_A = m_world.get_A(m_sex);
+			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
+			
 
-		m_parameters.m_A = m_world.get_A(m_sex);
-		m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A);
-		m_parameters.m_G = m_world.get_G();
-		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(Δtᵀ);
+			double Tᴸ = get_Tᴸ(); //liftoff temperature for these parameters
+			while (Tᴸ<Tᵀ)
+			{
+				//if no liftoff select new parameters
+				m_parameters.m_G = m_world.get_G(m_sex);
+				m_parameters.m_A = m_world.get_A(m_sex);
+				m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
+				
+			}
+		}
+
+		
+		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(t°, tᴹ);
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
 		m_parameters.m_duration = m_world.get_duration();
@@ -700,7 +740,7 @@ namespace WBSF
 		{
 			double Wmin = m_world.m_parameters2.m_Wmin * 1000 / 3600; //km/h -> m/s 
 			double Tmin = m_world.m_parameters2.m_Tmin;
-			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M*get_MRatio()) : Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
 			double ws = w.get_wind_speed();
 
 			ASSERT(!IsMissing(w[ATM_TAIR]) && !IsMissing(w[ATM_PRCP]) && !IsMissing(w[ATM_WNDU]) && !IsMissing(w[ATM_WNDV]));
@@ -750,16 +790,7 @@ namespace WBSF
 
 	double CFlyer::get_MRatio()const
 	{
-		double R = 1;
-
-		if (m_sex == CATMParameters::FEMALE)
-		{
-			double M° = exp(-6.465 + 0.974 * 1 + 2.14*m_parameters.m_A + 1.305 * 1 * m_parameters.m_A);
-			double M¹ = exp(-6.465 + 0.974*m_parameters.m_G + 2.14*m_parameters.m_A + 1.305*m_parameters.m_G*m_parameters.m_A);
-			R = M¹ / M°;
-		}
-
-		return R;
+		return 0;
 	}
 
 	CGeoDistance3D CFlyer::get_U(__int64 UTCTime, const CATMVariables& w)const
@@ -829,13 +860,15 @@ namespace WBSF
 		return Vᴸ;
 	}
 
-	double CFlyer::get_Tᴸ(double A, double M)const
+	double CFlyer::get_Tᴸ()const
 	{
 		double K = m_world.m_parameters2.m_K;
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
-		double Vl = K* sqrt(M) / A;
+		double A = m_parameters.m_A;
+		double M = m_parameters.m_M;
+		double Vᴸ = K* sqrt(M) / A;
 
-		double Tᴸ = (Vl<Vmax)? b[m_sex] * pow(-log(1 - Vl / Vmax), 1.0 / c[m_sex]):40;
+		double Tᴸ = (Vᴸ<Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
 
 		ASSERT(!isnan(Tᴸ));
 
@@ -854,7 +887,7 @@ namespace WBSF
 			double K = m_world.m_parameters2.m_K;
 
 			double Vᵀ = get_Vᵀ(w[ATM_TAIR]);
-			double Vᴸ = K*sqrt(m_parameters.m_M*get_MRatio()) / m_parameters.m_A;
+			double Vᴸ = K*sqrt(m_parameters.m_M) / m_parameters.m_A;
 			Uz = m_world.m_parameters2.m_w_α*(Vᵀ - Vᴸ) * 1000 / 3600;//Uz can be negative
 
 			break;
@@ -864,7 +897,6 @@ namespace WBSF
 		{
 			
 			double Tmin = m_world.m_parameters2.m_Tmin;
-			//double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M) : Tmin;
 			double v = (m_world.m_parameters2.m_height_type == CATMParameters::MAX_SPEED) ? w.get_wind_speed() : w[ATM_TAIR];
 
 			CTRef UTCTRef = m_world.GetUTRef();
@@ -1156,7 +1188,7 @@ namespace WBSF
 		if (m_pt.m_z <= 0 && m_end_type == NO_END_DEFINE)
 		{
 			double Tmin = m_world.m_parameters2.m_Tmin;
-			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ(m_parameters.m_A, m_parameters.m_M*get_MRatio()) : Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
 
 			if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
 				m_end_type = END_BY_RAIN;
@@ -1338,18 +1370,20 @@ __int64 CATMWorld::get_local_sunset(CTRef TRef, const CLocation& loc)
 	return sunsetTime;
 }
 
-__int64 CATMWorld::get_Δtᵀ(const CLocation& loc, __int64 UTCSunset)const
+//__int64 CATMWorld::get_Δtᵀ(const CLocation& loc, __int64 UTCSunset)const
+//
+void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ, double &Tᵀ)const
 {
 	__int64 h4 = 3600 * 4;
 	__int64 Δtᵀ = h4;
 
-	//__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
-	//UTCp += CTimeZones::UTCTime2UTCTRef(UTCLiftoff);
+	//first estimate of exodus info
+	Tᵀ = T°;
+	t° = UTCSunset - h4;//substract 4 hours
+	tᴹ = UTCSunset + h4;//add 4 hours
 
-	__int64 to = UTCSunset - h4;//substract 4 hours
-	__int64 tm = UTCSunset + h4;//add 4 hours
-
-	for (__int64 t = to; t <= tm && Δtᵀ == h4; t += m_parameters1.m_time_step)
+	
+	for (__int64 t = t°; t <= tᴹ && Δtᵀ == h4; t += m_parameters1.m_time_step)
 	{
 		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(t);
 		if (m_weather.IsLoaded(UTCTRef))
@@ -1361,7 +1395,29 @@ __int64 CATMWorld::get_Δtᵀ(const CLocation& loc, __int64 UTCSunset)const
 		}
 	}
 
-	return Δtᵀ;
+	if (Δtᵀ < h4)
+	{
+		//now look for minimum temperature for the entire exodus period
+		t° = UTCSunset + max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
+		tᴹ = UTCSunset + min(h4, t° + __int64(Δtᶠ * 3600));
+		for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
+		{
+			CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(t);
+			if (m_weather.IsLoaded(UTCTRef))
+			{
+				CATMVariables v = m_weather.get_weather(loc, UTCTRef, t);
+				Tᵀ = min(Tᵀ, v[ATM_TAIR]);
+			}
+		}
+	}
+	//else
+	//{
+	//	Tᵀ = 0;
+	//	t° = 0;
+	//	tᴹ = 0;
+	//}
+
+	
 }
 
 //Ul: wind speed [m/s]

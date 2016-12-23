@@ -673,7 +673,7 @@ namespace WBSF
 		//double get_Uz(double T)const; 
 		
 		double get_Vᵀ(double T)const;
-		double get_Tᴸ(double A, double M)const;
+		double get_Tᴸ()const;
 
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i, size_t s=MEAN)const{ return m_stat[i].IsInit() ? m_stat[i][s] : 0; }
@@ -874,7 +874,7 @@ namespace WBSF
 		__int64 get_UTC_time()const { return m_UTCTTime; }
 		static __int64 get_local_sunset(CTRef TRef, const CLocation& loc);
 		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const{ return m_weather.get_weather(pt, UTCTRef, UTCTime); }
-		__int64 get_Δtᵀ(const CLocation& loc, __int64 UTCTime)const;
+		
 
 		std::vector<CFlyersIt> GetFlyers(CTRef TRef);
 		CTPeriod get_UTC_period(const std::vector<CFlyersIt>& fls);
@@ -919,7 +919,9 @@ namespace WBSF
 		CProjectionTransformation m_WEA2GEO;
 
 
-		__int64 get_t_liftoff_offset(__int64 tᵀ)const;
+		void get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ, double &Tᵀ)const;
+		__int64 get_t_liftoff_offset(__int64 t°, __int64 tᴹ)const;
+		//__int64 get_t_liftoff_offset(__int64 tᵀ)const;
 //		__int64 get_t_hunthing()const;
 		//double get_height()const;
 		__int64 get_duration()const;
@@ -927,9 +929,10 @@ namespace WBSF
 		//double get_w_ascent()const;
 		
 		size_t get_S()const;
+		double get_G(size_t sex)const;
 		double get_A(size_t sex)const;
-		double get_M(size_t sex, double A)const;
-		double get_G()const;
+		double get_M(size_t sex, double A, double G)const;
+		
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;

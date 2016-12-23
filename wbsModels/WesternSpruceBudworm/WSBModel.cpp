@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 23/12/2016	3.1.1	Rémi Saint-Amant    Correctiopn on overheating 
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Update with BioSIM 11.0
 // 19/09/2013	2.10	Rémi Saint-Amant	Add Shoot Devel as output variable
@@ -74,7 +75,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.1.0 (2016)";
+		VERSION = "3.1.1 (2016)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
