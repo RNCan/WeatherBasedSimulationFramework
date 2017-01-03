@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM  
-// 11.2.1: 09/12/2016	Rémi Saint-Amant	New dispersal module
+// 11.2.2: 03/01/2017   Rémi Saint-Amant	New GDAL options in mapping
+// 11.2.1: 09/12/2016	Rémi Saint-Amant	New dispersal module  
 // 11.2.0: 23/11/2016	Rémi Saint-Amant	New database format  
 // 11.1.3: 01/11/2016	Rémi Saint-Amant	New database with .csv file 
 // 11.1.2: 13/10/2016   Rémi Saint-Amant	Change in ATM to accept NAM gribs 

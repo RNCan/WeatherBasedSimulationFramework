@@ -119,6 +119,7 @@ public:
 	explicit StringVector(UINT ID, const std::string& delimiters){ LoadString(ID, delimiters); }
 	void LoadString(UINT ID, const std::string& delimiters);
 	StringVector& Tokenize(const std::string& str, const std::string& delimiters, bool bRemoveDuplicate = true, std::string::size_type pos = 0, std::string::size_type posEnd = std::string::npos);
+	StringVector& TokenizeQuoted(std::string str, const std::string& delimiters);
 
 	//size_t Find(const std::string& lem)const;
 	std::ostream& operator >> (std::ostream& s)const;

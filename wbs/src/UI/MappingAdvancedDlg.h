@@ -40,6 +40,7 @@ namespace WBSF
 		CCFLEdit	m_nbPointCtrl;
 		CCFLEdit	m_noDataCtrl;
 		CCFLEdit	m_maxDistanceCtrl;
+		CCFLEdit	m_GDALOptionsCtrl;
 
 		//Regression
 		//CComboBox	m_regressionModelCtrl;

@@ -51,7 +51,7 @@ namespace WBSF
 	//***************************************************************************
 	const char* CGridInterpolParam::XML_FLAG = "InterpolParam";
 
-	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "IWDUseElev", "TPSType", "OutputVariogramInfo" };
+	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "IWDUseElev", "TPSType", "OutputVariogramInfo" };
 
 	CGridInterpolParam::CGridInterpolParam()
 	{
@@ -64,6 +64,8 @@ namespace WBSF
 		m_nbPoints = 35;
 		m_noData = -999;
 		m_maxDistance = 200000;
+		m_GDALOptions = "-ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -Stats -Hist -Overview \"2,4,8,16\"";
+		//"");
 
 		m_regressionModel.empty();
 		m_regressCriticalR2 = 0.0005;
@@ -104,6 +106,7 @@ namespace WBSF
 		m_nbPoints = in.m_nbPoints;
 		m_noData = in.m_noData;
 		m_maxDistance = in.m_maxDistance;
+		m_GDALOptions = in.m_GDALOptions;
 
 		m_regressionModel = in.m_regressionModel;
 		m_regressCriticalR2 = in.m_regressCriticalR2;
@@ -148,6 +151,7 @@ namespace WBSF
 		case NB_POINTS:				str = ToString(m_nbPoints); break;
 		case OUTPUT_NO_DATA:		str = ToString(m_noData); break;
 		case MAX_DISTANCE:			str = ToString(m_maxDistance); break;
+		case GDAL_OPTIONS:			str = m_GDALOptions; break;
 		case REGIONAL_LIMIT:		str = ToString(m_bRegionalLimit); break;
 		case REGIONAL_SD:			str = ToString(m_regionalLimitSD); break;
 		case REGIONAL_LIMIT_TO_BOUND:str = ToString(m_bRegionalLimitToBound); break;
@@ -220,6 +224,7 @@ namespace WBSF
 		if (m_nbPoints != in.m_nbPoints)bEgual = false;
 		if (m_noData != in.m_noData)bEgual = false;
 		if (m_maxDistance != in.m_maxDistance)bEgual = false;
+		if (m_GDALOptions != in.m_GDALOptions)bEgual = false;
 		if (m_bRegionalLimit != in.m_bRegionalLimit)bEgual = false;
 		if (m_regionalLimitSD != in.m_regionalLimitSD)bEgual = false;
 		if (m_bRegionalLimitToBound != in.m_bRegionalLimitToBound)bEgual = false;

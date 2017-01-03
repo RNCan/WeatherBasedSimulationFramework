@@ -2070,6 +2070,149 @@ StringVector& StringVector::Tokenize(const std::string& str, const std::string& 
 
 }
 
+StringVector& StringVector::TokenizeQuoted(std::string command, const std::string& delimiters)
+{
+	//static const char REPLACEMENT[14] = { 'Ò', 'Ó', 'Õ', 'Ö', 'Ý', 'Ÿ', 'Å', 'ò', 'ó', 'õ', 'ö', 'ý', 'ÿ', 'å' };
+
+	//std::string         copy;
+	//
+	//str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+	//
+	//ASSERT(delimiters.length() < 14);
+
+	////replace separator inside double cote by temparary separator
+	//bool bOpen = false;
+	//for (std::string::iterator it = str.begin(); it != str.end(); ++it)
+	//{
+	//	if (*it == '\"')
+	//	{
+	//		bOpen = !bOpen;
+	//	}
+	//	else if (bOpen)
+	//	{
+	//		char const* q = delimiters.c_str();
+	//		while (*q != NULL)
+	//		{
+	//			if (*it == *q)
+	//			{
+	//				if (copy.empty())
+	//				{
+	//					copy = str;
+	//				}
+
+	//				ASSERT((q - delimiters.c_str()) >= 0 && (q - delimiters.c_str()) < 14);
+	//				*it = REPLACEMENT[q - delimiters.c_str()];
+	//				break;
+	//			}
+	//			q++;
+	//		}
+	//	}
+	//}
+
+
+	//std::stringstream   lineStream(str);
+	//std::string         cell;
+
+
+
+	//if (delimiters.length() == 1)
+	//{
+	//	while (std::getline(lineStream, cell, m_pD[0]))
+	//	{
+	//		push_back(cell);
+	//	}
+	//}
+	//else
+	//{
+	//	Tokenize(m_line, m_pD, m_bDQ);
+	//}
+
+	//if (m_bDQ)
+	//{
+	//	if (!copy.empty())
+	//	{
+	//		m_line = copy;
+	//		for (std::vector<std::string>::iterator it2 = begin(); it2 != end(); ++it2)
+	//		{
+	//			bool bOpen = false;
+	//			for (std::string::iterator it = it2->begin(); it != it2->end(); ++it)
+	//			{
+	//				if (*it == '\"')
+	//				{
+	//					bOpen = !bOpen;
+	//				}
+	//				else if (bOpen)
+	//				{
+	//					char const* q = m_pD;
+	//					while (*q != NULL)
+	//					{
+	//						if (*it == REPLACEMENT[q - m_pD])
+	//						{
+	//							*it = *q;
+	//							break;
+	//						}
+	//						q++;
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	//remove "
+	//	for (std::vector<std::string>::iterator it = begin(); it != end(); it++)
+	//		it->erase(std::remove(it->begin(), it->end(), '"'), it->end());
+	//}
+
+
+	int len = int(command.length());
+	bool qot = false, sqot = false;
+	int arglen;
+	for (int i = 0; i < len; i++)
+	{
+		int start = i;
+		if (command[i] == '\"')
+			qot = true;
+		else if (command[i] == '\'') 
+			sqot = true;
+
+		if (qot)
+		{
+			i++;
+			start++;
+			while (i < len && command[i] != '\"')
+				i++;
+			if (i < len)
+				qot = false;
+			arglen = i - start;
+			i++;
+		}
+		else if (sqot)
+		{
+			i++;
+			while (i < len && command[i] != '\'')
+				i++;
+			if (i < len)
+				sqot = false;
+			arglen = i - start;
+			i++;
+		}
+		else
+		{
+			while (i < len && delimiters.find(command[i])==string::npos)//command[i] != ' ' && command[i] != '-')
+				i++;
+
+			arglen = i - start;
+		}
+
+		push_back(command.substr(start, arglen));
+	}
+
+	//if (qot || sqot) std::cout << "One of the quotes is open\n";
+	ASSERT(!qot && !sqot);
+
+	return *this;
+}
+
 std::string StringVector::to_string(const char* sep)const
 {
 	std::string str;

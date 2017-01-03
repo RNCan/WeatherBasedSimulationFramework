@@ -43,7 +43,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_NBPOINT, m_nbPointCtrl);
 		DDX_Control(pDX, IDC_MAP_NO_DATA, m_noDataCtrl);
 		DDX_Control(pDX, IDC_MAP_MAX_DISTANCE, m_maxDistanceCtrl);
-
+		DDX_Control(pDX, IDC_MAP_OPTIONS, m_GDALOptionsCtrl);
 
 		//Regrssion
 		DDX_Control(pDX, IDC_MAP_ADD_TERM, m_R²Ctrl);
@@ -135,11 +135,10 @@ namespace WBSF
 
 	void CMappingAdvancedDlg::GetFromInterface()
 	{
-		//CStdString tmp;
-
 		m_pParam->m_nbPoints = ToInt(m_nbPointCtrl.GetString());
 		m_pParam->m_noData = ToFloat(m_noDataCtrl.GetString());
 		m_pParam->m_maxDistance = ToFloat(m_maxDistanceCtrl.GetString()) * 1000;
+		m_pParam->m_GDALOptions = m_GDALOptionsCtrl.GetString();
 		m_pParam->m_regressCriticalR2 = ToDouble(m_R²Ctrl.GetString());
 		m_pParam->m_variogramModel = m_variogramModelCtrl.GetCurSel() - 1;
 		m_pParam->m_lagDist = ToDouble(m_lagDistanceCtrl.GetString());
@@ -173,6 +172,7 @@ namespace WBSF
 		m_nbPointCtrl.SetWindowText(ToString(m_pParam->m_nbPoints));
 		m_noDataCtrl.SetWindowText(ToString(m_pParam->m_noData));
 		m_maxDistanceCtrl.SetWindowText(ToString(m_pParam->m_maxDistance / 1000, 0));
+		m_GDALOptionsCtrl.SetWindowText(m_pParam->m_GDALOptions);
 
 		m_R²Ctrl.SetWindowText(ToString(m_pParam->m_regressCriticalR2));
 

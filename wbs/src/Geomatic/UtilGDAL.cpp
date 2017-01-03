@@ -1534,6 +1534,25 @@ void CBaseOptions::Reset()
 	
 }
 
+ERMsg CBaseOptions::ParseOptions(const string& str)
+{
+	StringVector tmp;
+	tmp.TokenizeQuoted(str, " ");
+	tmp.insert(tmp.begin(), "InternalParser");
+
+	int argc = int(tmp.size());
+	boost::scoped_array<char*> args(new char*[argc]());
+
+	for (int i = 0; i < argc; i++)
+	{
+		char * pStr = new char[tmp[i].length() + 1]();
+		strcpy_s(pStr, tmp[i].size() + 1, tmp[i].c_str());
+		args[i] = pStr;
+	}
+
+	return ParseOption(argc, args.get());
+}
+
 ERMsg CBaseOptions::ParseOptions(int argc, TCHAR* argv[])
 {
 	boost::scoped_array<char*> args(new char*[argc]());

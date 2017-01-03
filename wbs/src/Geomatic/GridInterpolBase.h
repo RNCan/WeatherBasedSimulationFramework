@@ -122,7 +122,7 @@ namespace WBSF
 		enum TRegression { BEST_REGRESSION = -1, /*...*/ };
 		enum TTPSType{ TPS_REGIONAL, TPS_GLOBAL, TPS_GLOBAL_WITH_CLUSTER, NB_TPSTYPE };
 
-		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, IWD_USE_ELEV, TPS_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
+		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, GDAL_OPTIONS, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, IWD_USE_ELEV, TPS_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 
@@ -140,6 +140,7 @@ namespace WBSF
 		size_t	m_nbPoints;
 		double	m_noData;
 		double	m_maxDistance;
+		std::string  m_GDALOptions;
 
 		bool m_bRegionalLimit;
 		double m_regionalLimitSD;
@@ -359,6 +360,7 @@ namespace zen
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::NB_POINTS)](in.m_nbPoints);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_NO_DATA)](in.m_noData);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::MAX_DISTANCE)](in.m_maxDistance);
+		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::GDAL_OPTIONS)](in.m_GDALOptions);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_LIMIT)](in.m_bRegionalLimit);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_SD)](in.m_regionalLimitSD);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_LIMIT_TO_BOUND)](in.m_bRegionalLimitToBound);
@@ -393,6 +395,7 @@ namespace zen
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::NB_POINTS)](out.m_nbPoints);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_NO_DATA)](out.m_noData);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::MAX_DISTANCE)](out.m_maxDistance);
+		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::GDAL_OPTIONS)](out.m_GDALOptions);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_LIMIT)](out.m_bRegionalLimit);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_SD)](out.m_regionalLimitSD);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGIONAL_LIMIT_TO_BOUND)](out.m_bRegionalLimitToBound);

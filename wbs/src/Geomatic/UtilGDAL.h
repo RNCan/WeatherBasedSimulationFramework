@@ -244,6 +244,7 @@ namespace WBSF
 		void RemoveOption(const char* name);
 
 		ERMsg ParseOptions(int argc, TCHAR* argv[]);
+		ERMsg ParseOptions(const std::string& str);
 
 		virtual ERMsg ParseOption(int argc, char* argv[]);
 		virtual ERMsg ProcessOption(int& i, int argc, char* argv[]);
