@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_SEX, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_SEX, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -600,7 +600,6 @@ namespace WBSF
 	{
 	public:
 
-		double m_G;				//gravid=1, spent=0
 		double m_M;				//dry weight [g]
 		double m_A;				//Forewing area [cm²]
 		double m_p_exodus;		//exodus probability
@@ -614,7 +613,6 @@ namespace WBSF
 
 		CFlightParameters()
 		{
-			m_G = 0;
 			m_A = 0;
 			m_M = 0;
 			m_p_exodus = 0;
@@ -645,6 +643,7 @@ namespace WBSF
 		size_t m_var;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
+		double m_G;				//gravid=1, spent=0, male=0
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level
@@ -722,11 +721,12 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, EVENT_THRESHOLD, DEFOL_THRESHOLD, DISTRACT_THRESHOLD, HOST_THRESHOLD, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, EVENT_THRESHOLD, DEFOL_THRESHOLD, DISTRACT_THRESHOLD, HOST_THRESHOLD, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
 		int m_weather_type;	//weather type: stations hourly databse or gridded NCEP multi-layer grid
+		CTPeriod m_simulationPeriod;
 		size_t m_time_step;	//time step in [s]
 		size_t m_seed;
 		bool m_bReversed;
@@ -750,6 +750,7 @@ namespace WBSF
 		std::string m_hourly_DB_name;
 		std::string m_DEM_name;
 		std::string m_water_name;
+		
 
 		size_t get_time_step()const{ return m_time_step; }//[s]
 		size_t get_nb_time_step()const{ assert(3600 % m_time_step == 0); return size_t(3600 / m_time_step); }	//number of timeStep per hour
@@ -765,6 +766,7 @@ namespace WBSF
 		void clear()
 		{
 			m_weather_type = FROM_GRIBS;
+			m_simulationPeriod = CTPeriod(CTRef::GetCurrentTRef(), CTRef::GetCurrentTRef());
 			m_time_step = 10; //10 seconds by default
 			m_seed = 0;
 			m_bReversed = false;
@@ -796,6 +798,7 @@ namespace WBSF
 			if (&in != this)
 			{
 				m_weather_type = in.m_weather_type;
+				m_simulationPeriod = in.m_simulationPeriod;
 				m_time_step = in.m_time_step;
 				m_seed = in.m_seed;
 				m_bReversed = in.m_bReversed;
@@ -827,6 +830,7 @@ namespace WBSF
 			bool bEqual = true;
 
 			if (m_weather_type != in.m_weather_type)bEqual = false;
+			if (m_simulationPeriod != in.m_simulationPeriod)bEqual = false;
 			if (m_time_step != in.m_time_step)bEqual = false;
 			if (m_seed != in.m_seed)bEqual = false;
 			if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
@@ -919,14 +923,10 @@ namespace WBSF
 		CProjectionTransformation m_WEA2GEO;
 
 
-		void get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ, double &Tᵀ)const;
+		void get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const;
 		__int64 get_t_liftoff_offset(__int64 t°, __int64 tᴹ)const;
-		//__int64 get_t_liftoff_offset(__int64 tᵀ)const;
-//		__int64 get_t_hunthing()const;
-		//double get_height()const;
 		__int64 get_duration()const;
 
-		//double get_w_ascent()const;
 		
 		size_t get_S()const;
 		double get_G(size_t sex)const;
@@ -1026,6 +1026,7 @@ namespace zen
 		XmlOut out(output);
 
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WEATHER_TYPE)](in.m_weather_type);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](in.m_simulationPeriod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](in.m_time_step);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](in.m_seed);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::REVERSED)](in.m_bReversed);
@@ -1053,6 +1054,7 @@ namespace zen
 		XmlIn in(input);
 
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WEATHER_TYPE)](out.m_weather_type);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](out.m_simulationPeriod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](out.m_time_step);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](out.m_seed);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::REVERSED)](out.m_bReversed);

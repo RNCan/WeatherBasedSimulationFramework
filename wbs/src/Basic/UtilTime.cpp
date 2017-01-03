@@ -988,60 +988,62 @@ void CTRef::FromString(const string& str)
 
 string CTRef::GetFormatedString(string format)const
 {
-	ASSERT(IsInit());
+	
 
 	string str;
 
-	//time_t rawtime;
-
-
-	if (IsTemporal())
+	if (IsInit())
 	{
-		if (format.empty())
-			format = TREF_FORMAT.GetFormat(CTM(m_type, m_mode));
 
-		// get current timeinfo and modify it to the user's choice
-		//time ( &rawtime );
-		//timeinfo = gmtime ( &rawtime );
-		struct tm timeinfo = { 0 };
-		timeinfo.tm_sec = 0;     // seconds after the minute - [0,59] 
-		timeinfo.tm_min = 0;     // minutes after the hour - [0,59] 
-		timeinfo.tm_hour = m_hour;    // hours since midnight - [0,23] 
-		timeinfo.tm_mday = m_day + 1;    // day of the month - [1,31] 
-		timeinfo.tm_wday = (GetRef() + 1) % 7;//day of the week, range 0 to 6, o=sunday
-		timeinfo.tm_yday = (int)GetJDay(m_year, m_month, m_day);			  //Day of year (0 - 365)
-		timeinfo.tm_mon = m_month;     // months since January - [0,11] 
-		timeinfo.tm_isdst = 0;
-
-		if (m_year >= 1970 && m_year < 2038)
+		if (IsTemporal())
 		{
-			timeinfo.tm_year = m_year - 1900;
+			if (format.empty())
+				format = TREF_FORMAT.GetFormat(CTM(m_type, m_mode));
+
+			// get current timeinfo and modify it to the user's choice
+			//time ( &rawtime );
+			//timeinfo = gmtime ( &rawtime );
+			struct tm timeinfo = { 0 };
+			timeinfo.tm_sec = 0;     // seconds after the minute - [0,59] 
+			timeinfo.tm_min = 0;     // minutes after the hour - [0,59] 
+			timeinfo.tm_hour = m_hour;    // hours since midnight - [0,23] 
+			timeinfo.tm_mday = m_day + 1;    // day of the month - [1,31] 
+			timeinfo.tm_wday = (GetRef() + 1) % 7;//day of the week, range 0 to 6, o=sunday
+			timeinfo.tm_yday = (int)GetJDay(m_year, m_month, m_day);			  //Day of year (0 - 365)
+			timeinfo.tm_mon = m_month;     // months since January - [0,11] 
+			timeinfo.tm_isdst = 0;
+
+			if (m_year >= 1970 && m_year < 2038)
+			{
+				timeinfo.tm_year = m_year - 1900;
+			}
+			else
+			{
+				timeinfo.tm_year = WBSF::IsLeap(m_year) ? 96 : 95;//leap/non leap year
+
+				string year = WBSF::ToString(GetYear());
+
+				ReplaceString(format, "%y", "%Y");
+				ReplaceString(format, "%#Y", "%Y");
+				ReplaceString(format, "%Y", year);
+			}
+
+			try
+			{
+				char buffer[256] = { 0 };
+				strftime(buffer, 256, format.c_str(), &timeinfo);
+				str = buffer;
+			}
+			catch (...)
+			{
+			}
 		}
 		else
 		{
-			timeinfo.tm_year = WBSF::IsLeap(m_year) ? 96 : 95;//leap/non leap year
-
-			string year = WBSF::ToString(GetYear());
-
-			ReplaceString(format, "%y", "%Y");
-			ReplaceString(format, "%#Y", "%Y");
-			ReplaceString(format, "%Y", year);
-		}
-
-		try
-		{
-			char buffer[256] = { 0 };
-			strftime(buffer, 256, format.c_str(), &timeinfo);
-			str = buffer;
-		}
-		catch (...)
-		{
+			str = WBSF::ToString(__int32(m_ref));
 		}
 	}
-	else
-	{
-		str = WBSF::ToString(__int32(m_ref));
-	}
+
 	return str;
 }
 
@@ -1069,14 +1071,14 @@ void seconds_from_epoch(const string& s)
 
 void CTRef::FromFormatedString(string str, string format, const char* sep, int base )
 {
-	ASSERT( str.length() >= 2);
-
 	Reset();
 
 	if (str.empty())
 		return;
 
-	
+
+	ASSERT(str.length() >= 2);
+
 	if (str[0] == '-')
 		str[0] = '*';
 	
@@ -1133,7 +1135,7 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 		if (!str.empty())
 		{
 
-			if (format == CTRefFormat::DATE_YMD)
+			if (format == CTRefFormat::DATE_YMD && elems.size()==3)
 			{
 
 				type = DAILY;
@@ -1141,7 +1143,7 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 				m = ToInt(elems[1]);
 				d = ToInt(elems[2]);
 			}
-			else if (format == CTRefFormat::DATE_YMDH || format == CTRefFormat::DATE_YMD_HMS)
+			else if ((format == CTRefFormat::DATE_YMDH || format == CTRefFormat::DATE_YMD_HMS) && elems.size() == 3)
 			{
 				type = DAILY;
 				y_or_r = ToInt(elems[0]);
@@ -1164,28 +1166,6 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 				}
 
 			}
-			//else if ()
-			//{
-				//CTRefFormat::
-				//type = DAILY;
-				//d = ToInt(elems[0]);// str.Tokenize(sep, pos).ToInt();
-				//m = ToInt(elems[1]); //str.Tokenize(sep, pos).ToInt();
-				//y_or_r = ToInt(elems[2]); //str.Tokenize(sep, pos).ToInt();
-				//break;
-
-				//case DATE_MD:
-				//	type = MONTHLY;
-				//	m = ToInt(elems[0]); //str.Tokenize(sep, pos).ToInt();
-				//	d = ToInt(elems[1]); //str.Tokenize(sep, pos).ToInt();
-				//	break;
-
-				//case DATE_DM:
-				//	type = MONTHLY;
-				//	d = ToInt(elems[0]); //str.Tokenize(sep, pos).ToInt();
-				//	m = ToInt(elems[1]); //str.Tokenize(sep, pos).ToInt();
-				//	break;
-
-		
 		}
 	}
 
@@ -1505,26 +1485,33 @@ CTPeriod CTPeriod::GetSegment(size_t i)const
 
 string CTPeriod::GetFormatedString(string periodformat, string TRefFormat)const
 {
-	return FormatMsg(periodformat.c_str(), m_begin.GetFormatedString(TRefFormat), m_end.GetFormatedString(TRefFormat));
+	ReplaceString(periodformat, "%1", "%s");
+	ReplaceString(periodformat, "%2", "%s");
+
+	return FormatA(periodformat.c_str(), m_begin.GetFormatedString(TRefFormat).c_str(), m_end.GetFormatedString(TRefFormat).c_str());
 }
 
 void CTPeriod::FromFormatedString(string str, string periodformat, string TRefFormat, const char* sep, int base)
 {
-	ReplaceString(periodformat, "%1", "%s");
-	ReplaceString(periodformat, "%2", "%s");
+	Reset();
 
-	const char* str1 = NULL;
-	const char* str2 = NULL;
-	if (sscanf(str.c_str(), periodformat.c_str(), &str1, &str2) == 2)
+	if (!str.empty())
 	{
-		CTRef TRef1, TRef2;
-		TRef1.FromFormatedString(str1, TRefFormat, sep, base);
-		TRef2.FromFormatedString(str2, TRefFormat, sep, base);
-		if (TRef1.IsInit() && TRef2.IsInit())
+		ReplaceString(periodformat, "%1", "");
+		ReplaceString(periodformat, "%2", "");
+		StringVector elems(str, periodformat.c_str());
+		
+		if (elems.size() == 2)
 		{
-			m_type = CONTINUOUS;
-			m_begin = TRef1;
-			m_end = TRef2;
+			CTRef TRef1, TRef2;
+			TRef1.FromFormatedString(elems[0], TRefFormat, sep, base);
+			TRef2.FromFormatedString(elems[1], TRefFormat, sep, base);
+			if (TRef1.IsInit() && TRef2.IsInit())
+			{
+				m_type = CONTINUOUS;
+				m_begin = TRef1;
+				m_end = TRef2;
+			}
 		}
 	}
 }

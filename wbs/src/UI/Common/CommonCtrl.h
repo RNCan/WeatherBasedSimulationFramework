@@ -797,7 +797,7 @@ public:
 		CMFCPropertyGridDateTimeProperty(CString(name.c_str()), GetOleDatTime(value), CString(description.c_str()), (DWORD)no)
 	{
 	}
-
+	
 	virtual std::string get_string()
 	{
 		COleDateTime v = GetValue();
@@ -819,6 +819,18 @@ public:
 		}
 
 	}
+};
+
+class CStdTPeriodProperty : public CStdGridProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CStdTPeriodProperty(const std::string& name, const std::string& value, const std::string& description, size_t no);
+	virtual std::string get_string();
+	virtual void set_string(std::string str);
+
 };
 
 

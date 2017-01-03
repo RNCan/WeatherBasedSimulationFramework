@@ -32,12 +32,12 @@ namespace WBSF
 	typedef CStdIndexProperty < IDS_SIM_DURATION_TYPE> CDurationTypeProperty;
 	typedef CStdIndexProperty < IDS_SIM_HEIGHT_TYPE> CHeightTypeProperty;
 
-
+	
 	//*****************************************************************************************************
 
 	enum TDispersalProperties
 	{
-		WEATHER_TYPE, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE,
+		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE,
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
 		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_RATIO, CRUISE_HEIGHT,
@@ -88,6 +88,7 @@ namespace WBSF
 
 		CMFCPropertyGridProperty* pGeneral = new CMFCPropertyGridProperty(section[0], -1);
 		pGeneral->AddSubItem(new CWeatherTypeProperty(name[WEATHER_TYPE], 0, description[WEATHER_TYPE], WEATHER_TYPE));
+		pGeneral->AddSubItem(new CStdTPeriodProperty(name[SIMULATION_PERIOD], "", description[SIMULATION_PERIOD], SIMULATION_PERIOD));
 		pGeneral->AddSubItem(new CStdGridProperty(name[TIME_STEP], "", description[TIME_STEP], TIME_STEP));
 		pGeneral->AddSubItem(new CSeedTypeProperty(name[SEED_TYPE], 0, description[SEED_TYPE], SEED_TYPE));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[REVERSED], true, description[REVERSED], REVERSED));
@@ -165,6 +166,7 @@ namespace WBSF
 			switch (i)
 			{
 			case WEATHER_TYPE:		str = WBSF::ToString(in.m_world.m_weather_type); break;
+			case SIMULATION_PERIOD: str = in.m_world.m_simulationPeriod.GetFormatedString("%1, %2", "%Y-%m-%d"); break;
 			case TIME_STEP:			str = WBSF::ToString(in.m_world.m_time_step); break;
 			case SEED_TYPE:			str = WBSF::ToString(in.m_world.m_seed); break;
 			case REVERSED:			str = WBSF::ToString(in.m_world.m_bReversed); break;
@@ -229,6 +231,9 @@ namespace WBSF
 		switch (i)
 		{
 		case WEATHER_TYPE:		me.m_parameters.m_world.m_weather_type = WBSF::ToInt(str); break;
+		case SIMULATION_PERIOD: me.m_parameters.m_world.m_simulationPeriod.FromFormatedString(str, "%1, %2", "%Y-%m-%d"); break;
+		case 1000 * SIMULATION_PERIOD + 1: me.m_parameters.m_world.m_simulationPeriod.Begin().FromFormatedString(str, "%Y-%m-%d"); break;
+		case 1000 * SIMULATION_PERIOD + 2: me.m_parameters.m_world.m_simulationPeriod.End().FromFormatedString(str, "%Y-%m-%d"); break;
 		case TIME_STEP:			me.m_parameters.m_world.m_time_step = WBSF::ToInt(str); break;
 		case SEED_TYPE:			me.m_parameters.m_world.m_seed = WBSF::ToInt(str); break;
 		case REVERSED:			me.m_parameters.m_world.m_bReversed = WBSF::ToBool(str); break;

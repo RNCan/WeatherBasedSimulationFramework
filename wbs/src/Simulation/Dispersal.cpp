@@ -161,6 +161,18 @@ namespace WBSF
 		return msg;
 	}
 
+	size_t Find(const CModelOutputVariableDefVector& vars, string name)
+	{
+		size_t v = NOT_INIT;
+
+		for (size_t vv = 0; vv < vars.size() && v == NOT_INIT; vv++)
+			if (WBSF::IsEqual(vars[vv].m_name, name))
+				v = vv;
+
+
+		return v;
+	}
+
 
 	void CDispersal::GetInputDBInfo(CResultPtr& pResult, CDBMetadata& info)
 	{
@@ -168,52 +180,42 @@ namespace WBSF
 
 		if (!vars.empty())
 		{
-			CModelInputVector paramset;
-
-			for (size_t i = 0; i < vars.size(); i++)
-			{
-				CModelInput modelInput;
-				modelInput.push_back(CModelInputParam("Variable", vars[i].m_name));
-				paramset.push_back(modelInput);
-			}
-
-			paramset.m_pioneer = paramset[0];
-
 			CModelOutputVariableDefVector outputVar;
 			GetOutputDefinition(outputVar);
 
 
-			info.SetParameterSet(paramset);
 			info.SetLocations(pResult->GetMetadata().GetLocations());
-			//info.SetNbReplications(pResult->GetMetadata().GetNbReplications());
 			info.SetOutputDefinition(outputVar);
-			
-			size_t nbReplication = 1;
-			for (size_t l = 0; l < pResult->GetMetadata().GetLocations().size(); l++)
-			{
-				for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size(); p++)
-				{
-					for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications(); r++)
-					{
-						CNewSectionData section;
-						pResult->GetSection(l, p, r, section);
 
-						for (size_t t = 0; t < section.GetRows(); t++)
+			size_t vMale = Find(vars, "MaleFlightActivity");
+			size_t vFemale = Find(vars, "FemaleFlightActivity");
+			if (vMale != NOT_INIT || vFemale != NOT_INIT )
+			{
+				size_t nbReplication = 1;
+				for (size_t l = 0; l < pResult->GetMetadata().GetLocations().size(); l++)
+				{
+					for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size(); p++)
+					{
+						for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications(); r++)
 						{
-							for (size_t v = 0; v < section.GetCols(); v++)
+							CNewSectionData section;
+							pResult->GetSection(l, p, r, section);
+
+							for (size_t t = 0; t < section.GetRows(); t++)
 							{
-								if (section[t][v].IsInit())
+							//	for (size_t v = 0; v < section.GetCols(); v++)
+								if (section[t][vMale].IsInit() && section[t][vFemale].IsInit())
 								{
-									size_t nbMoths = ceil(section[t][v][MEAN]);
+									size_t nbMoths = ceil(section[t][vMale][MEAN] + section[t][vFemale][MEAN]);
 									nbReplication = max(nbReplication, nbMoths);
 								}
 							}
 						}
 					}
 				}
-			}
 
-			info.SetNbReplications(nbReplication);
+				info.SetNbReplications(nbReplication);
+			}
 		}
 	}
 
@@ -228,9 +230,10 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 23);
-		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of the flyer", CTM(CTM::ATEMPORAL), 0));
-		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of the flyer", CTM(CTM::ATEMPORAL), 0));
+		ASSERT(NB_ATM_OUTPUT == 24);
+		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of flyer", CTM(CTM::ATEMPORAL), 0));
+		outputVar.push_back(CModelOutputVariableDef("G", "G", "", "Gravidity", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Latitude", "Latitude", "°", "Current latitude", CTM(CTM::ATEMPORAL), 5));
@@ -252,7 +255,7 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("DistanceOrigine", "DistanceOrigine", "m", "DistanceOrigine", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("FlightTime", "FlightTime", "h", "FlightTime", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("LiftoffTime", "LiftoffTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("LangdingTime", "LandingTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LandingTime", "LandingTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
 
 	}
 
@@ -322,6 +325,15 @@ namespace WBSF
 		}
 	};
 	
+	
+	double SumBroods(const CNewSectionData& section, size_t vBroods)
+	{
+		double sumBroods = 0;
+		for (size_t t = 0; t < section.GetRows(); t++)
+			sumBroods += section[t][vBroods][MEAN];
+
+		return sumBroods;
+	}
 
 	ERMsg CDispersal::Execute(const CFileManager& fileManager, CCallback& callback)
 	{
@@ -376,11 +388,18 @@ namespace WBSF
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		
 		
+		//size_t vAdult = Find(vars, "Adults");
+		size_t vMale = Find(vars, "MaleFlightActivity");
+		size_t vFemale = Find(vars, "FemaleFlightActivity");
+		size_t vBroods = Find(vars, "Brood");
 
-		//callback.AddTask(metadata.GetNbReplications()*metadata.GetTPeriod().GetNbYears() + 1);
+		if (vMale == NOT_INIT || vFemale == NOT_INIT || vBroods == NOT_INIT)
+		{
+			msg.ajoute("Invalid dispersal variables input. Variable adults and brood must be defined");
+			return msg;
+		}
+
 		callback.PushTask("Open Dispersal's Input", 6);
-		//callback.SetNbStep(6);
-
 
 
 		if (msg)
@@ -388,17 +407,6 @@ namespace WBSF
 
 		if (!msg)
 			return msg;
-
-
-
-		//string DEM_filepath = fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name);
-		//string gribs_filepath = m_parameters.m_world.UseGribs() ? fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name) : "";
-		//string hourly_DB_filepath = m_parameters.m_world.UseHourlyDB() ? fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name) : "";
-		//string defoliation_filepath = fileManager.MapInput().GetFilePath(m_parameters.m_world.m_defoliation_name);
-		//string host_filepath = fileManager.MapInput().GetFilePath(m_parameters.m_world.m_host_name);
-		//string distraction_filepath = fileManager.MapInput().GetFilePath(m_parameters.m_world.m_distraction_name);
-		//string water_filepath = m_parameters.m_world.UseHourlyDB() ? fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name) : "";
-
 
 		//Create projection
 		world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
@@ -427,73 +435,65 @@ namespace WBSF
 		callback.PopTask();
 
 		const CLocationVector& locations = metadata.GetLocations();
-		callback.PushTask("Select dispersal insect", metadata.GetNbReplications() *locations.size());//+ ToString(r + 1), locations.size()
+		callback.PushTask("Init dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
 
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
-		//for (size_t r = 0; r < metadata.GetNbReplications() && msg; r++)
-		size_t r = 0;
+		for (size_t l = 0; l < locations.size() && msg; l++)
 		{
-
-			//callback.SetNbStep(locations.size());
-
-			for (size_t l = 0; l < locations.size() && msg; l++)
+			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
 			{
-				for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
+				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
 				{
+
 					CNewSectionData section;
 					pResult->GetSection(l, p, r, section);
 					assert(section.GetCols() == pResult->GetNbCols(false));
+					
+					double broods = 0;
+					double sumBroods = SumBroods(section, vBroods);
 
 					for (size_t t = 0; t < section.GetRows() && msg; t++)
 					{
-						for (size_t v = 0; v < section.GetCols() && msg; v++)
+						broods += section[t][vBroods][MEAN];
+						CTRef TRef = section.GetTRef(t);
+						TRef.Transform(world.m_parameters1.m_simulationPeriod.GetTM());
+						if (world.m_parameters1.m_simulationPeriod.IsInside(TRef))
 						{
-							if (section[t][v].IsInit())
+							TRef.Transform(CTM(CTM::HOURLY));
+							TRef.m_hour = 0;
+
+							//size_t nbMoths = ceil(section[t][vAdult][MEAN]);
+							size_t nbMales = ceil(section[t][vMale][MEAN]);
+							size_t nbFemales = ceil(section[t][vFemale][MEAN]);
+							size_t nbMoths = nbMales + nbFemales;
+							for (size_t rr = 0; rr < nbMoths; rr++)
 							{
-								size_t sex = -1;
-								if (WBSF::Find(vars[v].m_name, "Female"))
-									sex = 1;
-								else if (WBSF::Find(vars[v].m_name, "Male"))
-									sex = 0;
-								
+								CFlyer flyer(world);
+								flyer.m_rep = rr;
+								flyer.m_loc = l;
+								flyer.m_var = 0;
+								flyer.m_sex = rr < nbMales?0:1;//world.get_S();			//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
+								flyer.m_G = rr < nbMales?0.0:broods / sumBroods;
+								flyer.m_scale = 1;// section[t][vAdult][MEAN];
+								flyer.m_localTRef = TRef;
+								flyer.m_location = locations[l];
+								flyer.m_newLocation = locations[l];
+								flyer.m_pt = locations[l];
 
-								//if (sex != -1)
-								//{
-									
-								size_t nbMoths = ceil(section[t][v][MEAN]);
-								for (size_t i = 0; i < nbMoths; i++)
-								{
-									CTRef localTRef = section.GetTRef(t);
-									localTRef.Transform(CTM(CTM::HOURLY));
-									localTRef.m_hour = 0;
-
-									CFlyer flyer(world);
-									flyer.m_rep = i;
-									flyer.m_loc = l;
-									flyer.m_var = v;
-									flyer.m_sex = sex;			//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
-									flyer.m_scale = section[t][v][MEAN];
-									flyer.m_localTRef = localTRef;
-									flyer.m_location = locations[l];
-									flyer.m_newLocation = locations[l];
-									flyer.m_pt = locations[l];
-
-									flyer.m_pt.m_alt = 5;
-									if (extents.IsInside(flyer.m_pt))
-										world.m_flyers.push_back(flyer);
-									else
-										callback.AddMessage("WARNING: Simulation point outside elevation map");
-								}//if > eventThreshold
-								//} //if valid variable
-							}//if section init
-						}//for all cols
+								flyer.m_pt.m_alt = 5;
+								if (extents.IsInside(flyer.m_pt))
+									world.m_flyers.push_back(flyer);
+								else
+									callback.AddMessage("WARNING: Simulation point outside elevation map");
+							}//for all moths
+						}//is inside simulation period
 					}//for all rows
-				}//for all paramterset
 
-				msg += callback.StepIt();
-			}//for all locations
-		}//for all replication
+					msg += callback.StepIt();
+				}//for all replications
+			}//for all paramterset
+		}//for all locations
 
 
 		callback.PopTask();

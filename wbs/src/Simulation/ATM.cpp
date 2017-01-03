@@ -182,7 +182,7 @@ namespace WBSF
 
 	
 
-	extern const char ATM_HEADER[] = "Sex|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|SCALE|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME";
+	extern const char ATM_HEADER[] = "Sex|G|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|SCALE|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME";
 
 	//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
 	//12 pa/m
@@ -244,12 +244,12 @@ namespace WBSF
 		for (__int64 t = t°; t < tᴹ && tᴸ == tᴹ; t += m_parameters1.m_time_step)
 		{
 			double tau = double(t - tᶜ) / (tᴹ - tᶜ);
-			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / 2 * C;
+			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			if (p > p_exodus)
-				tau = t;
+				tᴸ = t;
 		}
 
-		return tᴸ + m_parameters2.m_t_liftoff_correction;
+		return tᴸ + m_parameters2.m_t_liftoff_correction * 3600;
 		//return (tau + m_parameters2.m_t_liftoff_correction) * 3600;//convert hours to seconds
 	}
 
@@ -457,7 +457,7 @@ namespace WBSF
 		
 		double A = m_random.RandNormal(A_MEAN[sex], A_SD[sex]);
 		while (A < 0.1 )
-			m_random.RandNormal(A_MEAN[sex], A_SD[sex]);
+			A = m_random.RandNormal(A_MEAN[sex], A_SD[sex]);
 
 
 		return A;
@@ -548,11 +548,14 @@ namespace WBSF
 
 		if (sex == CATMParameters::FEMALE)
 		{
+			E = m_random.RandLogNormal(0, 0.1604);
+			M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*E;
+
 			//adjust female weight in function of gravidity
-			double M° = exp(-6.465 + 0.974 * 1 + 2.14*A + 1.305 * 1 * A);
-			double Mᴬ = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
-			double R = Mᴬ / M°;
-			M *= R;
+			//double M° = exp(-6.465 + 0.974 * 1 + 2.14*A + 1.305 * 1 * A);
+			//double Mᴬ = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
+			//double R = Mᴬ / M°;
+			//M *= R;
 		}
 
 		return M;
@@ -610,57 +613,22 @@ namespace WBSF
 		__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, m_location);
 		m_UTCShift = localTime - UTCTime;
 
-
 		__int64 localSunset = m_world.get_local_sunset(m_localTRef, m_location);
 		CTRef TRefSunset = CTimeZones::UTCTime2UTCTRef(localSunset);
-
-
 		__int64 UTCSunset = CTimeZones::LocalTime2UTCTime(localSunset, m_location);
 		
 		
 		__int64 t° = 0;
 		__int64 tᴹ = 0;
-		double Tᵀ = 0;
+		m_world.get_exodus(m_location, UTCSunset, t°, tᴹ);
 		
-		m_world.get_exodus(m_location, UTCSunset, t°, tᴹ, Tᵀ);
-		
-		if (m_sex == -1 )
-		{
-			//all population
-			m_sex = m_world.get_S();
-			
-			m_parameters.m_G = m_world.get_G(m_sex);
-			m_parameters.m_A = m_world.get_A(m_sex);
-			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
-			
-		}
-		else
-		{
-			//only flyable moth
-			m_parameters.m_G = m_world.get_G(m_sex);
-			m_parameters.m_A = m_world.get_A(m_sex);
-			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
-			
-
-			double Tᴸ = get_Tᴸ(); //liftoff temperature for these parameters
-			while (Tᴸ<Tᵀ)
-			{
-				//if no liftoff select new parameters
-				m_parameters.m_G = m_world.get_G(m_sex);
-				m_parameters.m_A = m_world.get_A(m_sex);
-				m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_parameters.m_G);
-				Tᴸ = get_Tᴸ();
-			}
-		}
-
-		
+		m_parameters.m_A = m_world.get_A(m_sex);
+		m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_G);
 		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(t°, tᴹ);
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
 		m_parameters.m_duration = m_world.get_duration();
 		m_parameters.m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
-		
-		//m_parameters.m_t_hunting = min(m_parameters.m_duration, m_world.get_t_hunthing());//attention ce n'est pa comme avant
 	}
 
 	void CFlyer::live()
@@ -847,7 +815,7 @@ namespace WBSF
 	}
 
 	//double T : tair temperature [°C]
-
+	//return forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
@@ -860,6 +828,7 @@ namespace WBSF
 		return Vᴸ;
 	}
 
+	//return forewing frequency [Hz] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
 		double K = m_world.m_parameters2.m_K;
@@ -1372,43 +1341,45 @@ __int64 CATMWorld::get_local_sunset(CTRef TRef, const CLocation& loc)
 
 //__int64 CATMWorld::get_Δtᵀ(const CLocation& loc, __int64 UTCSunset)const
 //
-void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ, double &Tᵀ)const
+void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
 {
+	//, double &Tᵀ
+
 	__int64 h4 = 3600 * 4;
 	__int64 Δtᵀ = h4;
 
 	//first estimate of exodus info
-	Tᵀ = T°;
-	t° = UTCSunset - h4;//substract 4 hours
-	tᴹ = UTCSunset + h4;//add 4 hours
+	//Tᵀ = 0;
+	t° = -h4;//substract 4 hours
+	tᴹ = +h4;//add 4 hours
 
 	
 	for (__int64 t = t°; t <= tᴹ && Δtᵀ == h4; t += m_parameters1.m_time_step)
 	{
-		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(t);
+		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset+t);
 		if (m_weather.IsLoaded(UTCTRef))
 		{
-			CATMVariables v = m_weather.get_weather(loc, UTCTRef, t);
+			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset+t);
 
 			if (v[ATM_TAIR] <= T°)
-				Δtᵀ = t - UTCSunset;
+				Δtᵀ = t;//- UTCSunset
 		}
 	}
 
 	if (Δtᵀ < h4)
 	{
 		//now look for minimum temperature for the entire exodus period
-		t° = UTCSunset + max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
-		tᴹ = UTCSunset + min(h4, t° + __int64(Δtᶠ * 3600));
-		for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
+		t° = -max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
+		tᴹ = +min(h4, t° + __int64(Δtᶠ * 3600));
+		/*for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
 		{
-			CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(t);
+			CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
 			if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
 			{
-				CATMVariables v = m_weather.get_weather(loc, UTCTRef, t);
-				Tᵀ = min(Tᵀ, v[ATM_TAIR]);
+				CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset + t);
+				Tᵀ = max(Tᵀ, v[ATM_TAIR]);
 			}
-		}
+		}*/
 	}
 	//else
 	//{
@@ -2277,7 +2248,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "EventThreshold", "DefoliationThreshold", "DistractionThreshold", "HostThreshold", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Distraction", "Host" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "EventThreshold", "DefoliationThreshold", "DistractionThreshold", "HostThreshold", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Distraction", "Host" };
 
 
 std::set<int> CATMWorld::get_years()const
@@ -2592,6 +2563,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 									pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
 
 									output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_SEX] = flyer.m_sex;
+									output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_G] = flyer.m_G;
 									output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_STATE] = (flyer.GetState() == CFlyer::IDLE_END) ? 10 + flyer.GetEnd() : flyer.GetState();
 									output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_X] = pt.m_x;
 									output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_Y] = pt.m_y;
@@ -2606,12 +2578,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, CCallback& callback)
 
 									//size_t time = 0;
 									if (flyer.GetLog(CFlyer::T_LIFTOFF) > 0)
-									//if (flyer.GetState() > CFlyer::LIFTOFF)
 									{
-										//time = m_UTCTTime + 3600;//time at the end of hour simulation
-										//if (flyer.GetLog(CFlyer::T_LANDING) > 0)
-											
-
 										output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_MEAN_HEIGHT] = flyer.GetStat(CFlyer::S_HEIGHT);
 										output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_CURRENT_HEIGHT] = flyer.m_pt.m_z;
 										output[flyer.m_rep][flyer.m_loc][flyer.m_var][TRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::S_D_Z, SUM);

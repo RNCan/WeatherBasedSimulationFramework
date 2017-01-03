@@ -1215,6 +1215,75 @@ void CStdGriFolderProperty2::OnClickButton(CPoint point)
 
 }
 
+//**************************************************************************************************************
+CStdTPeriodProperty::CStdTPeriodProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
+CStdGridProperty(name, no, true)
+{
+
+	WBSF::CTPeriod p;
+	if (!value.empty())
+		p.FromFormatedString(value);
+
+	CStdTRefProperty* pProp = NULL;
+
+	pProp = new CStdTRefProperty("begin", p.Begin().GetFormatedString(), "Specifies the period's begin", "", m_dwData * 1000 + 1);
+	AddSubItem(pProp);
+
+	pProp = new CStdTRefProperty("end", p.End().GetFormatedString(), "Specifies the period's end", "", m_dwData * 1000 + 2);
+	AddSubItem(pProp);
+	
+}
+
+std::string CStdTPeriodProperty::get_string()
+{
+	CStringA v;
+	if (GetSubItemsCount() == 2)
+	{
+		CString begin = GetSubItem(0)->GetValue();
+		CString end = GetSubItem(1)->GetValue();
+
+		v = CStringA(begin + _T(", ") + end);
+	}
+	else
+	{
+		v = GetValue();
+		//v.Replace(',', '|');
+	}
+
+	return (LPCSTR)v;
+}
+
+void CStdTPeriodProperty::set_string(std::string str)
+{
+	WBSF::CTPeriod p;
+
+	if (!str.empty())
+		p.FromFormatedString(str, "%1, %2");
+
+	if (GetSubItemsCount() == 2)
+	{
+		COleDateTime t1 = CStdTRefProperty::GetOleDatTime(p.Begin().GetFormatedString("%Y-%m-%d"));
+		COleDateTime t2 = CStdTRefProperty::GetOleDatTime(p.End().GetFormatedString("%Y-%m-%d"));
+
+		GetSubItem(0)->SetValue(t1);
+		GetSubItem(1)->SetValue(t2);
+
+		GetSubItem(0)->SetOriginalValue(t1);
+		GetSubItem(1)->SetOriginalValue(t2);
+	}
+	else
+	{
+
+		CString value(p.GetFormatedString("%1, %2").c_str());
+		value.Replace('|', ',');
+
+		SetValue(value);
+		SetOriginalValue(value);
+	}
+}
+
+
+//************************************************************************************************************
 CStdGeoRectProperty::CStdGeoRectProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
 CStdGridProperty(name, no, true)
 {

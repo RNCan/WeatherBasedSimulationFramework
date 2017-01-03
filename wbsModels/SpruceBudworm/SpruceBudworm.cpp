@@ -4,7 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 22/12/2016   Rémi Saint-Amant	Chnage flight activity by exodus flight
+// 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
 // 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
@@ -417,7 +417,7 @@ namespace WBSF
 				for (double t = t°; t < tᶬ && flight == 0; t += Δt)
 				{
 					double tau = (t - tᶜ) / (tᶬ - tᶜ);
-					double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / 2 * C;
+					double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 					if (m_sex == MALE)
 						p *= 0.3 / 0.7;//sex ratio equilibrium
 
