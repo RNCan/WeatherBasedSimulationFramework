@@ -24,7 +24,7 @@
 
 
 #ifdef _DEBUG
-	#define ASSERT_PRJ(x,y) ASSERT((x).GetPrjID()==(y).GetPrjID())
+#define ASSERT_PRJ(x,y) ASSERT((x).GetPrjID()==(y).GetPrjID() || ((x).IsGeographic() && (y).IsGeographic()))
 #else
 	#define ASSERT_PRJ(x,y)
 #endif

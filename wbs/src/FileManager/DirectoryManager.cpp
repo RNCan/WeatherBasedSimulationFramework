@@ -744,7 +744,7 @@ namespace WBSF
 			ext.insert(ext.begin(), '.');
 
 		if (!m_extensions.empty())
-			m_extensions == "|";
+			m_extensions += "|";
 
 		m_extensions += ext;
 	}

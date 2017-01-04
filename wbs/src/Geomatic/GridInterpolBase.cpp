@@ -64,7 +64,7 @@ namespace WBSF
 		m_nbPoints = 35;
 		m_noData = -999;
 		m_maxDistance = 200000;
-		m_GDALOptions = "-of GTIFF -ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -Stats -Hist -Overview \"2,4,8,16\"";
+		m_GDALOptions = "-of GTIFF -ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES -Stats -Hist -Overview \"2,4,8,16\"";
 		
 
 		m_regressionModel.empty();

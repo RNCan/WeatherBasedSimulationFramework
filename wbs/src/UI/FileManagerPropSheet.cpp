@@ -11,7 +11,7 @@
 #include "stdafx.h"
 
 #include "UI/Common/AppOption.h"
-#include "UI/DBEditorPropSheet.h"
+#include "UI/FileManagerPropSheet.h"
 
 
 #ifdef _DEBUG

@@ -37,12 +37,6 @@
     <ClCompile Include="..\src\UI\CopyExportDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\DBEditorPages.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\UI\DBEditorPropSheet.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\DispersalDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -352,6 +346,12 @@
     <ClCompile Include="..\src\UI\SearchRadiusDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\FileManagerPages.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\FileManagerPropSheet.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -367,12 +367,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\CopyExportDlg.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\UI\DBEditorPages.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\UI\DBEditorPropSheet.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\DispersalDlg.h">
@@ -712,6 +706,12 @@
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\SearchRadiusDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\FileManagerPages.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\FileManagerPropSheet.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

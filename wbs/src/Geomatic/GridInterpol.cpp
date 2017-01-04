@@ -307,7 +307,7 @@ ERMsg CGridInterpol::GenerateSurface(CCallback& callback)
 	ERMsg msg;
 
 	string comment = FormatMsg(IDS_MAP_DOMAP, GetFileTitle(m_TEMFilePath), GetFileTitle(m_DEMFilePath));
-	callback.PushTask(comment, m_inputGrid->GetRasterXSize()*m_inputGrid->GetRasterYSize());
+	callback.PushTask(comment, size_t(m_inputGrid->GetRasterXSize())*m_inputGrid->GetRasterYSize());
 	
 	CTimer timer;
 	
@@ -478,7 +478,7 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 
 	//run over all blocks
 
-	for(size_t xy=0; xy<XYindex.size(); xy++)//for all blocks
+	for(size_t xy=0; xy<XYindex.size()&&msg; xy++)//for all blocks
 	{
 		int xBlock=XYindex[xy].first;
 		int yBlock=XYindex[xy].second;

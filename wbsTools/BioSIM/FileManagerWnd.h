@@ -4,7 +4,7 @@
 //#include "ProjectView.h"
 #include "Simulation/Executable.h"
 #include "UI/ExecutableTree.h"
-#include "UI/DBEditorPropSheet.h"
+#include "UI/FileManagerPropSheet.h"
 
 class CBioSIMDoc;
 //

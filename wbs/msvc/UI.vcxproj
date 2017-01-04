@@ -82,8 +82,8 @@
     <ClCompile Include="..\src\UI\Common\UtilWin.cpp" />
     <ClCompile Include="..\src\UI\Common\UtilWWW.cpp" />
     <ClCompile Include="..\src\UI\CopyExportDlg.cpp" />
-    <ClCompile Include="..\src\UI\DBEditorPages.cpp" />
-    <ClCompile Include="..\src\UI\DBEditorPropSheet.cpp" />
+    <ClCompile Include="..\src\UI\FileManagerPages.cpp" />
+    <ClCompile Include="..\src\UI\FileManagerPropSheet.cpp" />
     <ClCompile Include="..\src\UI\DispersalDlg.cpp" />
     <ClCompile Include="..\src\UI\ExecutableTree.cpp" />
     <ClCompile Include="..\src\UI\ExtractSSIDlg.cpp" />
@@ -207,8 +207,8 @@
     <ClInclude Include="..\src\UI\Common\UtilWin.h" />
     <ClInclude Include="..\src\UI\Common\UtilWWW.h" />
     <ClInclude Include="..\src\UI\CopyExportDlg.h" />
-    <ClInclude Include="..\src\UI\DBEditorPages.h" />
-    <ClInclude Include="..\src\UI\DBEditorPropSheet.h" />
+    <ClInclude Include="..\src\UI\FileManagerPages.h" />
+    <ClInclude Include="..\src\UI\FileManagerPropSheet.h" />
     <ClInclude Include="..\src\UI\DispersalDlg.h" />
     <ClInclude Include="..\src\UI\ExecutableTree.h" />
     <ClInclude Include="..\src\UI\ExtractSSIDlg.h" />

@@ -718,6 +718,19 @@ GDALDriver* GetDriverFromExtension(const std::string& extIn, bool bMustSupportCr
 }
 
 
+std::string GetDriverExtension(const std::string& formatName)
+{
+	string GdalDriverExtension;
+
+	GDALDriver* poDriverOut = (GDALDriver*)GDALGetDriverByName(formatName.c_str());
+	if (poDriverOut != NULL)
+	{
+		// file name extension for given driver
+		GdalDriverExtension = string(".") + poDriverOut->GetMetadataItem(GDAL_DMD_EXTENSION);
+	}
+
+	return GdalDriverExtension;
+}
 
 /************************************************************************/
 /*                        GDALInfoReportCorner()                        */

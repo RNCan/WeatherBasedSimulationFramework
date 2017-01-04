@@ -11,7 +11,7 @@
 
 #include "FileManager/FileManager.h"
 #include "UI/Common/PropertySheetSize.h"
-#include "UI/DBEditorPages.h"
+#include "UI/FileManagerPages.h"
 
 
 namespace WBSF

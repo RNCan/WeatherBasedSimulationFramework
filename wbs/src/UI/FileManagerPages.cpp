@@ -21,8 +21,8 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/AskDirectoryDlg.h"
 #include "UI/ModelDlg.h"
-#include "DBEditorPages.h"
-#include "DBEditorPropSheet.h"
+#include "FileManagerPages.h"
+#include "FileManagerPropSheet.h"
 #include "WeatherBasedSimulationString.h"
 
 

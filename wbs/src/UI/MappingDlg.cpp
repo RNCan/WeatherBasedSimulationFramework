@@ -15,7 +15,7 @@
 #include "FileManager/FileManager.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/AppOption.h"
-#include "UI/DBEditorPropSheet.h"
+#include "UI/FileManagerPropSheet.h"
 #include "UI/TransfoDlg.h"
 #include "UI/MappingAdvancedDlg.h"
 

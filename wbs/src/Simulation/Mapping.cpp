@@ -23,7 +23,7 @@
 using namespace WBSF::DIMENSION;
 using namespace std;
 
-
+#include "gdal.h"
 
 namespace WBSF
 {
@@ -109,73 +109,13 @@ namespace WBSF
 
 		return bEqual;
 	}
-	/*
-	string CMapping::GetMember(int i, LPXNode& pNode)const
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-
-	string str;
-	switch(i)
-	{
-	//case VARIABLE_POS:		str = ToString (m_variable); break;
-	//case TIME_POS:			str = ToString (m_time); break;
-	//case PARAMETER_POS:		str = ToString (*m_pParameter); break;
-	//	case STATISTIC:			str = ToString (m_statistic); break;
-	//case OLD_PARAMETER:		m_pParam->GetXML(pNode); break;
-	case METHOD:			str = ToString(m_method ); break;
-	case SI_PARAMETER:			m_pParam->GetXML(pNode); break;
-	case DEM_NAME:			str = m_DEMName; break;
-	case TEM_NAME:			str = m_TEMName; break;
-	case PREPOST_TRANSFO:	m_pPrePostTransfo->GetXML(pNode); break;
-	//	case NODATA:			str = ToString (m_noData); break;
-	//case VALIDITY_MIN:		str = ToString (m_validityMin); break;
-	//case VALIDITY_MAX:		str = ToString (m_validityMax); break;
-	case XVAL_ONLY:			str = ToString(m_XValOnly); break;
-	case USE_HXGRID:		str = ToString(m_bUseHxGrid); break;
-
-	default: str = CExecutable::GetMember(i, pNode);
-	}
-
-	return str;
-	}
-
-	void CMapping::SetMember(int i, const string& str, const LPXNode pNode)
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-	switch(i)
-	{
-	//case VARIABLE_POS:		m_variable= ToInt(str); break;
-	//case TIME_POS:			m_time= ToInt(str); break;
-	//case PARAMETER_POS:		*m_pParameter= ToInt(str); break;
-	//case STATISTIC:			m_statistic = ToInt(str); break;
-	//case OLD_PARAMETER:		m_pParam->SetXML(pNode); break;
-	case METHOD:			m_method = ToInt(str); break;
-	case SI_PARAMETER:		m_pParam->SetXML(pNode); break;
-	case DEM_NAME:			m_DEMName=str; break;
-	case TEM_NAME:			m_TEMName=str; break;
-	case PREPOST_TRANSFO:	m_pPrePostTransfo->SetXML(pNode); break;
-	//case NODATA:			m_noData = ToFloat(str); break;
-	//	case VALIDITY_MIN:		m_validityMin = ToFloat(str); break;
-	//case VALIDITY_MAX:		m_validityMax = ToFloat(str); break;
-	case XVAL_ONLY:			m_XValOnly = ToBool(str); break;
-	case USE_HXGRID:		m_bUseHxGrid = ToBool(str); break;
-	default:				CExecutable::SetMember(i, str, pNode);
-	}
-
-	}
-	*/
-
+	
 	ERMsg CMapping::GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter)const
 	{
 		ERMsg msg;
 
 		msg = m_pParent->GetParentInfo(fileManager, info, filter);
-
-		/*if (filter[REPLICATION])
-		{
-			info.m_nbReplications = 1;
-		}*/
-
+	
 		if (filter[VARIABLE])
 		{
 			info.m_variables = CleanVariables(info.m_variables);
@@ -188,7 +128,6 @@ namespace WBSF
 	{
 		CModelOutputVariableDefVector outputVarOut;
 
-		//int v0 = 0;
 		size_t vSize = GetNbMapVariableIndex(outputVarIn);
 
 		for (size_t i = 0; i < vSize; i++)
@@ -204,12 +143,10 @@ namespace WBSF
 	void CMapping::GetInputDBInfo(CResultPtr& pResult, CDBMetadata& info)const
 	{
 		info = pResult->GetMetadata();
-		//info.SetNbReplications(1);
 
 		const CModelOutputVariableDefVector& inputVar = pResult->GetMetadata().GetOutputDefinition();
 		CModelOutputVariableDefVector outputVarOut = CleanVariables(inputVar);
 		info.SetOutputDefinition(outputVarOut);
-
 	}
 
 
@@ -453,22 +390,28 @@ namespace WBSF
 
 	std::string CMapping::GetTEMFilePath(const CFileManager& fileManager, const std::string& TEMName)const
 	{
-		string DEMName = m_DEMName;
-		string mapExt = GetFileExtension(DEMName);
-		//when using GDAL, for the moment we transform flt to bil
-		MakeLower(mapExt);
+		//string DEMName = m_DEMName;
+		//string mapExt = GetFileExtension(DEMName);
+		////when using GDAL, for the moment we transform flt to bil
+		//MakeLower(mapExt);
 
-		if (mapExt == ".flt")
-			mapExt = ".bil";
+		//if (mapExt == ".flt")
+		//	mapExt = ".bil";
 
-		//if( mapExt== ".aux")
-		//mapExt = "";
-		if (IsEqualNoCase(Right(DEMName, 4), ".aux"))
-			mapExt.clear();
-		else if (IsEqualNoCase(Right(DEMName, 8), ".aux.xml"))
-			mapExt.clear();
+		////if( mapExt== ".aux")
+		////mapExt = "";
+		//if (IsEqualNoCase(Right(DEMName, 4), ".aux"))
+		//	mapExt.clear();
+		//else if (IsEqualNoCase(Right(DEMName, 8), ".aux.xml"))
+		//	mapExt.clear();
 
-		return fileManager.GetOutputMapFilePath(TEMName, mapExt);
+
+
+		string mapExt = GetFileExtension(TEMName);
+		if (mapExt.empty())
+			mapExt = ".tif";//tif by default
+
+		return fileManager.GetOutputMapFilePath(GetFileName(TEMName), mapExt);
 	}
 
 	
@@ -497,8 +440,7 @@ namespace WBSF
 			if (section[t][v][MEAN] > VMISS)
 				bHaveData = true;
 
-			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt,
-				locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetPrjID());
+			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt,locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetPrjID());
 			pts->push_back(pt);
 
 			msg += callback.StepIt();
@@ -508,42 +450,36 @@ namespace WBSF
 		{
 			if (bHaveData)
 				mapInput.m_pts = pts;
-			else mapInput.m_pts.reset(new CGridPointVector);
-
-			mapInput.m_DEMFilePath = fileManager.MapInput().GetFilePath(m_DEMName);
+			else 
+				mapInput.m_pts.reset(new CGridPointVector);
 
 			string TEMName = GetTEMName(pResult, p, r, t, v);
-			mapInput.m_TEMFilePath = GetTEMFilePath(fileManager, TEMName);
 
+
+			mapInput.m_DEMFilePath = fileManager.MapInput().GetFilePath(m_DEMName);
 			mapInput.m_method = m_method;
 			mapInput.m_param = *m_pParam;
 			mapInput.m_prePostTransfo = *m_pPrePostTransfo;
 			mapInput.m_bUseHxGrid = CTRL.m_bUseHxGrid && m_bUseHxGrid;
-			
-			
 			mapInput.m_options.m_format = "GTiff";
 			mapInput.m_options.m_bOverwrite = true;
 			mapInput.m_options.m_CPU = CTRL.m_nbMaxThreads;
 			mapInput.m_options.m_outputType = 6; // GDT_Float32;
 			mapInput.m_options.m_bMulti = true;
 			mapInput.m_options.m_nbBands = 1;
-			
-
+			mapInput.m_options.m_dstNodata = m_pParam->m_noData;
 
 			msg = mapInput.m_options.ParseOptions(m_pParam->m_GDALOptions);
 
-			//mapInput.m_options.m_bComputeStats = true;
-			//mapInput.m_options.m_bComputeHistogram = true;
-			//mapInput.m_options.m_overviewLevels.push_back(2);
-			//mapInput.m_options.m_overviewLevels.push_back(4);
-			//mapInput.m_options.m_overviewLevels.push_back(8);
-			//mapInput.m_options.m_overviewLevels.push_back(16);
-			//mapInput.m_options.m_createOptions.push_back("COMPRESS=LZW");
-			//mapInput.m_options.m_createOptions.push_back("tiled=YES");
-			//mapInput.m_options.m_createOptions.push_back("BLOCKXSIZE=512");
-			//mapInput.m_options.m_createOptions.push_back("BLOCKYSIZE=512");
-			mapInput.m_options.m_dstNodata = m_pParam->m_noData;
-
+			if (msg)
+			{
+				string fileExt = GetFileExtension(TEMName);
+				
+				if (fileExt.empty())
+					fileExt += GetDriverExtension(mapInput.m_options.m_format);
+			}
+			
+			mapInput.m_TEMFilePath = GetTEMFilePath(fileManager, TEMName);
 
 			callback.AddMessage("");
 			callback.AddMessage("Input: " + mapInput.m_DEMFilePath, 1);

@@ -48,6 +48,7 @@ namespace WBSF
 	std::string GetGDALFilter(bool bMustSupportCreate);
 	void GetGDALDriverList(StringVector& GDALList, bool bMustSupportCreate);
 	GDALDriver* GetDriverFromExtension(const std::string& extIn, bool bMustSupportCreate);
+	std::string GetDriverExtension(const std::string& formatName);
 	ERMsg GetGDALInfo(const std::string& filePath, CNewGeoFileInfo& info);
 
 	void Close(GDALDataset* poDS);

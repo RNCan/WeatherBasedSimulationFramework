@@ -25,7 +25,7 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/LOCGeneratorDlg.h"
-#include "UI/DBEditorPropSheet.h"
+#include "UI/FileManagerPropSheet.h"
 #include "WeatherBasedSimulationString.h"
 
 using namespace std;
