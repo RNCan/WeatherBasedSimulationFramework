@@ -1,17 +1,14 @@
-
 // MainFrm.cpp : implementation of the CMainFrame class
 //
-
 #include "stdafx.h"
-
 #include "Basic/Callback.h"
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
-#include "UI/DBEditorPropSheet.h"
+#include "UI/FileManagerPropSheet.h"
 #include "UI/Common/AppOption.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/SYShowMessage.h"
-#include "UI/DBEditorPropSheet.h"
+
 
 #include "BioSIMOptionDlg.h"
 #include "BioSIM.h"
