@@ -189,6 +189,10 @@ namespace WBSF
 
 			size_t vMale = Find(vars, "MaleFlightActivity");
 			size_t vFemale = Find(vars, "FemaleFlightActivity");
+			//size_t vAdult = Find(vars, "Adults");
+			//size_t vOvipositingAdult = Find(vars, "OvipositingAdult");
+			//size_t vBroods = Find(vars, "Brood");
+
 			if (vMale != NOT_INIT || vFemale != NOT_INIT )
 			{
 				size_t nbReplication = 1;
@@ -389,13 +393,15 @@ namespace WBSF
 		
 		
 		//size_t vAdult = Find(vars, "Adults");
+		//size_t vOvipositingAdult = Find(vars, "OvipositingAdult");
 		size_t vMale = Find(vars, "MaleFlightActivity");
 		size_t vFemale = Find(vars, "FemaleFlightActivity");
 		size_t vBroods = Find(vars, "Brood");
 
+		//if (vAdult == NOT_INIT || vOvipositingAdult == NOT_INIT || vBroods == NOT_INIT)
 		if (vMale == NOT_INIT || vFemale == NOT_INIT || vBroods == NOT_INIT)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable adults and brood must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable Adults, MaleFlightActivity and FemaleFlightActivity must be defined");
 			return msg;
 		}
 
@@ -463,10 +469,14 @@ namespace WBSF
 							TRef.Transform(CTM(CTM::HOURLY));
 							TRef.m_hour = 0;
 
-							//size_t nbMoths = ceil(section[t][vAdult][MEAN]);
+							
 							size_t nbMales = ceil(section[t][vMale][MEAN]);
 							size_t nbFemales = ceil(section[t][vFemale][MEAN]);
 							size_t nbMoths = nbMales + nbFemales;
+							
+							//size_t nbMoths = ceil(section[t][vAdult][MEAN]);
+							//size_t nbFemales = ceil(section[t][vOvipositingAdult][MEAN]);
+							//size_t nbMales = nbMoths - nbFemales;
 							for (size_t rr = 0; rr < nbMoths; rr++)
 							{
 								CFlyer flyer(world);
