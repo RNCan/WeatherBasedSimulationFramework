@@ -214,30 +214,19 @@ namespace WBSF
 	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffOffset", "LiftoffSDCorr", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseRatio", "CruiseHeight", "HeightType", "WLogMean", "WlogSD", "WingBeatExponent", "WingBeatFactor", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 	const double CATMWorld::Δtᶠ = 3;
-	const double CATMWorld::Δtᶳ = -0.5;
+	const double CATMWorld::Δtᶳ = -1.0;
 	const double CATMWorld::T° = 24.5;
 
 
-	//Δtᵀ : delta [s]
-	//t° : begin of exodus hour [decimal hour]
-	//tᶬ : end of exodus hour [decimal hour]
-
-	//return liftoff offset realtive to sunset [decimal hour]
-	//__int64 CATMWorld::get_t_liftoff_offset(__int64 ΔtᵀIn)const
 	
-	
-
+	//t° : relative begin of exodus hour [s]
+	//tᴹ : relative end of exodus hour [s]
+	//return liftoff offset realtive to sunset [s]
 	__int64  CATMWorld::get_t_liftoff_offset(__int64  t°, __int64 tᴹ)const
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		//static const double Δt = 10.0 / 3600.0;//10 seconds
-
 		double p_exodus = m_random.Randu();
 
-
-	//	double Δtᵀ = ΔtᵀIn / 3600.0;//convert seconds to hours
-		//double t° = max(Δtᶳ - 0.5*Δtᶠ, Δtᵀ);
-		//double tᶬ = min(4.0, t° + Δtᶠ);
 		__int64 tᶜ = (t° + tᴹ) / 2;
 
 		__int64 tᴸ = tᴹ;
@@ -249,8 +238,7 @@ namespace WBSF
 				tᴸ = t;
 		}
 
-		return tᴸ + m_parameters2.m_t_liftoff_correction * 3600;
-		//return (tau + m_parameters2.m_t_liftoff_correction) * 3600;//convert hours to seconds
+		return tᴸ;
 	}
 
 	//double t_liftoff = 0;
@@ -506,36 +494,10 @@ namespace WBSF
 
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
+	//G : gravidity ratio 
 	//out : weight [g]
 	double CATMWorld::get_M(size_t sex, double A, double G)const
 	{
-		//double M = 0;
-
-		//if (sex == CATMParameters::MALE)
-		//{
-		//	M = exp(-6.756 + 3.790*A );
-
-		//}
-		//else
-		//{
-		//	//exp(M°[sex] + M¹[sex] * A)*;
-		//	//double Mg = 0.06128*A - 0.007697 + m_random.RandLogNormal(0, 0.00246);
-		//	//double Ms = 0.00837*A - 0.000399 + m_random.RandLogNormal(0, 0.00078);
-
-		//	double G = m_random.RandLogNormal(log(33), 0.15) / 100;
-		//	while (G < 0 || G>1)
-		//		G = m_random.RandLogNormal(log(30), 0.15) / 100;
-		//	//double M = (1-G)*(0.00837*A - 0.000399) + G*(0.06128*A - 0.007697);
-
-		//	M = exp(-6.465+0.974*G+2.14*A+1.305*G*A);
-		//	ASSERT(M > 0);
-		//}
-
-		//static const double M_E[CATMParameters::NB_SEX] = { 0.206, 0.289 };
-		//double E = m_random.RandLogNormal(0, M_E[sex]);
-		//double Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
-		//while (Wᴸ < 0 || Wᴸ>1)
-		//Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
 
 		static const double M_A[2] = { -6.756, -6.543 };
 		static const double M_B[2] = { 3.790, 3.532 };
@@ -613,17 +575,25 @@ namespace WBSF
 		__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, m_location);
 		m_UTCShift = localTime - UTCTime;
 
-		__int64 localSunset = m_world.get_local_sunset(m_localTRef, m_location);
-		CTRef TRefSunset = CTimeZones::UTCTime2UTCTRef(localSunset);
+		__int64 localSunset = m_world.get_local_sunset(m_localTRef, m_location) + m_world.m_parameters2.m_t_liftoff_correction * 3600;
+		//CTRef TRefSunset = CTimeZones::UTCTime2UTCTRef(localSunset);
 		__int64 UTCSunset = CTimeZones::LocalTime2UTCTime(localSunset, m_location);
 		
 		
 		__int64 t° = 0;
 		__int64 tᴹ = 0;
-		m_world.get_exodus(m_location, UTCSunset, t°, tᴹ);
+		m_world.get_t(m_location, UTCSunset, t°, tᴹ);
 		
-		m_parameters.m_A = m_world.get_A(m_sex);
-		m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_G);
+		double Tᵀ = m_world.get_Tᵀ(m_location, UTCSunset, t°, tᴹ);
+
+		//let 10 chances to find a good flying insect
+		for (int i = 0; i < 20 && get_Tᴸ() > Tᵀ; i++)
+		{
+			m_parameters.m_A = m_world.get_A(m_sex);
+			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_G);
+		} 
+		
+
 		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(t°, tᴹ);
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
@@ -820,24 +790,44 @@ namespace WBSF
 	{
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
 
+		//double Vᴸ = 0;
+		//if (T > 0)
+			//Vᴸ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+		
+
+		return get_Vᵀ(m_sex, Vmax, T);
+	}
+	
+	double CFlyer::get_Vᵀ(size_t sex, double Vmax, double T)
+	{
 		double Vᴸ = 0;
 		if (T > 0)
-			Vᴸ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
-		
+			Vᴸ = Vmax*(1 - exp(-pow(T / b[sex], c[sex])));
+
 
 		return Vᴸ;
 	}
 
-	//return forewing frequency [Hz] for this insect
+	//return liftoff temperature [°C] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
 		double K = m_world.m_parameters2.m_K;
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
 		double A = m_parameters.m_A;
 		double M = m_parameters.m_M;
-		double Vᴸ = K* sqrt(M) / A;
+		//double Vᴸ = K* sqrt(M) / A;
 
-		double Tᴸ = (Vᴸ<Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
+		//double Tᴸ = (Vᴸ<Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
+
+//		ASSERT(!isnan(Tᴸ));
+
+		return get_Tᴸ(m_sex, K, Vmax, A, M);
+	}
+	
+	double CFlyer::get_Tᴸ(size_t sex, double K, double Vmax, double A, double M)
+	{
+		double Vᴸ = K* sqrt(M) / A;
+		double Tᴸ = (Vᴸ<Vmax) ? b[sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[sex]) : 40;
 
 		ASSERT(!isnan(Tᴸ));
 
@@ -1339,12 +1329,8 @@ __int64 CATMWorld::get_local_sunset(CTRef TRef, const CLocation& loc)
 	return sunsetTime;
 }
 
-//__int64 CATMWorld::get_Δtᵀ(const CLocation& loc, __int64 UTCSunset)const
-//
-void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
+void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
 {
-	//, double &Tᵀ
-
 	__int64 h4 = 3600 * 4;
 	__int64 Δtᵀ = h4;
 
@@ -1369,26 +1355,25 @@ void CATMWorld::get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°
 	if (Δtᵀ < h4)
 	{
 		//now look for minimum temperature for the entire exodus period
-		t° = -max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
-		tᴹ = +min(h4, t° + __int64(Δtᶠ * 3600));
-		/*for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
-		{
-			CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
-			if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
-			{
-				CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset + t);
-				Tᵀ = max(Tᵀ, v[ATM_TAIR]);
-			}
-		}*/
+		t° = max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
+		tᴹ = min(h4, t° + __int64(Δtᶠ * 3600));
 	}
-	//else
-	//{
-	//	Tᵀ = 0;
-	//	t° = 0;
-	//	tᴹ = 0;
-	//}
+}
 
-	
+double CATMWorld::get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 t°, __int64 tᴹ)const
+{
+	CStatistic Tᵀ;
+	for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
+	{
+		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
+		if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
+		{
+			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset + t);
+			Tᵀ += v[ATM_TAIR];
+		}
+	}
+
+	return Tᵀ.IsInit()?Tᵀ[LOWEST]:0;
 }
 
 //Ul: wind speed [m/s]

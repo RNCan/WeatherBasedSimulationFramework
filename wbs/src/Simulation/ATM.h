@@ -674,6 +674,9 @@ namespace WBSF
 		double get_Vᵀ(double T)const;
 		double get_Tᴸ()const;
 
+		static double get_Vᵀ(size_t sex, double Vmax, double T);
+		static double get_Tᴸ(size_t sex, double K, double Vmax, double A, double M);
+
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i, size_t s=MEAN)const{ return m_stat[i].IsInit() ? m_stat[i][s] : 0; }
 		const CStatistic& operator[](size_t i)const{ return m_stat[i]; }
@@ -923,7 +926,8 @@ namespace WBSF
 		CProjectionTransformation m_WEA2GEO;
 
 
-		void get_exodus(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const;
+		void get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const;
+		double get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 t°, __int64 tᴹ)const;
 		__int64 get_t_liftoff_offset(__int64 t°, __int64 tᴹ)const;
 		__int64 get_duration()const;
 
