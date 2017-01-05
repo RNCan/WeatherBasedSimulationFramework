@@ -164,12 +164,13 @@ double COverheat::GetOverheat(const CWeatherDay& weather, size_t h, size_t hourT
 	double OH = 0;
 	if (weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
 	{
-		if (h >= hourTmax - 6 && h <= hourTmax + 6)
+//		if (h >= hourTmax - 6 && h <= hourTmax + 6)
 		{
 			//const CWeatherDay& d1 = weather.GetPrevious();
 			//const CWeatherDay& d2 = weather;
 			//const CWeatherDay& d3 = weather.GetNext();
-			double Fo = cos((double(hourTmax)-h)/12.0*PI);
+//			double Fo = cos((double(hourTmax) - h) / 12.0*PI);
+			double Fo = 0.5*(1 + cos((double(hourTmax) - h) / 12.0*PI));
 			double maxOverheat = weather[H_TRNG2][MEAN] * m_overheat;
 			OH = maxOverheat* Fo;
 
