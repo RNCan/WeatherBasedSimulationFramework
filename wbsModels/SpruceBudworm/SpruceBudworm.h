@@ -40,6 +40,7 @@ namespace WBSF
 		CSpruceBudworm& operator=(const CSpruceBudworm& in);
 		~CSpruceBudworm(void);
 
+		virtual void Live(const CHourlyData& weather, size_t dt = 3600);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
@@ -68,6 +69,7 @@ namespace WBSF
 		bool IsDeadByAttrition(double RR)const;
 		bool IsDeadByMissingEnergy();
 		double GetEatenFoliage(double RR)const;
+		double GetFlightActivity(const CHourlyData& weather, double tau);
 		double GetFlightActivity(const CWeatherDay& weather);
 
 		//member

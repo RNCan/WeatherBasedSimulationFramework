@@ -106,6 +106,91 @@ namespace WBSF
 	// Develops all stages, including adults
 	// Input:	weather: the weather iof the day
 	//*****************************************************************************
+	void CSpruceBudworm::Live(const CHourlyData& weather, size_t dt)
+	{
+		assert(IsAlive());
+		assert(m_status == HEALTHY);
+
+		//For optimization, nothing happens when temperature is under -10
+		if (weather[H_TAIR2] < -10)
+			return;
+
+
+		//CIndividual::Live(weather);
+
+		CSBWTree* pTree = GetTree();
+		CSBWStand* pStand = GetStand();
+
+		static const double OVERHEAT_FACTOR = 0.11;
+		COverheat overheat(OVERHEAT_FACTOR);
+
+		//size_t nbSteps = GetTimeStep().NbSteps();
+		//for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
+		//{
+		size_t h = weather.GetTRef().GetHour();
+		size_t s = GetStage();
+		double T = weather[H_TAIR2];
+		if (NeedOverheating())
+			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h);
+
+		//Time step development rate
+		double r = Equations().GetRate(s, m_sex, T) / (dt / 3600.0);
+		//Relative development rate
+		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
+
+		//development rate for white spruce is accelerated by a factor
+		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
+			RR *= WHITE_SPRUCE_FACTOR[s];
+
+
+		//If we became L2o this year, then we stop
+		//development until the next year  (diapause)
+		if ((s == L2o && m_overwinteringDate.GetYear() == weather.GetTRef().GetYear()))
+			RR = 0;
+
+		//this line avoid to develop L2 of the generation 1
+		if (GetStand()->m_bStopL22 && s == L2 && m_generation == 1)
+			RR = 0;
+
+		//If we became a new L2o, then we note the date(year)
+		if (s == L1 && IsChangingStage(RR))
+			m_overwinteringDate = weather.GetTRef();
+
+		//Emerging 
+		if (s == L2o && IsChangingStage(RR))
+			m_emergingDate = weather.GetTRef();
+
+		//Adjust age
+		m_age += RR;
+
+		//adjust overwintering energy
+		if (s == L2o)
+			m_OWEnergy -= GetEnergyLost(weather[H_TAIR2]) / (dt / 3600.0);
+
+		//Compute defoliation on tree
+		m_eatenFoliage += GetEatenFoliage(RR);
+
+		if (IsDeadByAttrition(RR))
+			m_bKillByAttrition = true;
+
+
+		//flight activity, only in live adults 
+		if (GetStage() == ADULT)
+		{
+			__int64 t° = 0;
+			__int64 tᴹ = 0;
+			get_t(m_location, UTCSunset, t°, tᴹ);
+
+			m_flightActivity = GetFlightActivity(weather);
+		}
+
+		m_age = min(m_age, double(DEAD_ADULT));
+	}
+
+	//*****************************************************************************
+	// Develops all stages, including adults
+	// Input:	weather: the weather iof the day
+	//*****************************************************************************
 	void CSpruceBudworm::Live(const CWeatherDay& weather)
 	{
 		assert(IsAlive());
@@ -357,93 +442,256 @@ namespace WBSF
 	//__int64 h4 = 4;
 
 
-	double CSpruceBudworm::GetFlightActivity(const CWeatherDay& weather)
+	//double CSpruceBudworm::GetFlightActivity(const CWeatherDay& weather)
+	//{
+	//	static const double Δtᶠ = 3;
+	//	static const double Δtᶳ = -0.5;//j'ai mis 0.5 ici car j'ai l'impression que mon algo retourne une demi-heure plot tôt : à vérifier
+	//	static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
+	//	static const double K = 166;
+	//	static const double b[2] = { 21.35, 24.08 };
+	//	static const double c[2] = { 2.97, 6.63 };
+	//	static const double T° = 24.5;
+	//	static const double Δt = 0.25;
+	//	static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
+
+	//	const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+
+
+	//	double flight = 0;
+
+	//	if (m_p_exodus <= 1)
+	//	{
+	//		CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
+	//		double sunset = sun.GetSunset(weather.GetTRef());
+
+	//		//first estimate of t° and tᶬ to find Δtᵀ
+	//		double t° = -4;//subtract 4 hours
+	//		double tᶬ = 4;//add 4 hours
+	//		double Δtᵀ = 4;
+
+	//		for (double t = t°; t < tᶬ && Δtᵀ == 4; t += Δt)
+	//		{
+	//			//sunset hour shifted by t
+	//			double h = sunset + t;
+	//			size_t h° = size_t(h);
+	//			size_t h¹ = h° + 1;
+
+
+	//			//temperature interpolation between 2 hours
+	//			double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//			if (T <= T°)
+	//				Δtᵀ = t;
+	//		}
+
+
+	//		if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
+	//		{
+	//			//now calculate the real t°, tᶬ and tᶜ
+	//			double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
+	//			double tᶬ = min(4.0, t° + Δtᶠ);
+	//			double tᶜ = (t° + tᶬ) / 2;
+
+	//			//
+	//			double M° = Equations().get_M(m_A, 1);//initial weight of mean gravid female
+	//			double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
+	//			double RM = Mᴬ / M°; //ratio of actual vs initial weight female
+	//			double M = m_M*RM;	//actual weight is initial weight x ratio
+	//			double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
+
+	//			//now compute tau, p and flight
+	//			for (double t = t°; t < tᶬ && flight == 0; t += Δt)
+	//			{
+	//				double tau = (t - tᶜ) / (tᶬ - tᶜ);
+	//				double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
+	//				if (m_sex == MALE)
+	//					p *= 0.3 / 0.7;//sex ratio equilibrium
+
+	//				double h = sunset + t;
+	//				size_t h° = size_t(h);
+	//				size_t h¹ = h° + 1;
+
+
+	//				//temperature interpolation between 2 hours
+	//				double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//				if (T > 0)
+	//				{
+	//					double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+	//					if (Vᵀ > Vᴸ && p > m_p_exodus)
+	//					{
+	//						flight = 1;		//this insect is exodus
+	//						m_p_exodus = 10;//change exodus to ignore this insect for exodus
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	return flight;
+	//}
+
+double CSpruceBudworm::GetFlightActivity(const CWeatherDay& w°)
+{
+	static const __int64 Δtᶠ = 3*3600;
+	static const __int64 Δtᶳ = -3600;
+	static const __int64 Δt = 60;
+	static const double T° = 24.5;
+
+	double flight = 0;
+
+	if (m_p_exodus <= 1)
 	{
-		static const double Δtᶠ = 3;
-		static const double Δtᶳ = -0.5;//j'ai mis 0.5 ici car j'ai l'impression que mon algo retourne une demi-heure plot tôt : à vérifier
-		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 166;
-		static const double b[2] = { 21.35, 24.08 };
-		static const double c[2] = { 2.97, 6.63 };
-		static const double T° = 24.5;
-		static const double Δt = 0.25;
-		static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
+		CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon);
+		__int64 sunset = sun.GetSunset(w°.GetTRef()) * 3600;
 
-		const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+		__int64 h4 = 4 * 3600;
+		__int64 t° = -h4;//subtract 4 hours
+		__int64 tᶬ = h4;//add 4 hours
+		__int64 Δtᵀ = h4;
 
 
-		double flight = 0;
-
-		if (m_p_exodus <= 1)
+		const CWeatherDay& w¹ = w°.GetNext();
+		for (__int64 t = t°; t < tᶬ && Δtᵀ == h4; t += Δt)
 		{
-			CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
-			double sunset = sun.GetSunset(weather.GetTRef());
-
-			//first estimate of t° and tᶬ to find Δtᵀ
-			double t° = -4;//subtract 4 hours
-			double tᶬ = 4;//add 4 hours
-			double Δtᵀ = 4;
-
-			for (double t = t°; t < tᶬ && Δtᵀ == 4; t += Δt)
+			//sunset hour shifted by t
+			double h = (sunset + t) / 3600.0;
+			if (h > 0)
 			{
-				//sunset hour shifted by t
-				double h = sunset + t;
-				size_t h° = size_t(h);
-				size_t h¹ = h° + 1;
+				size_t hº = size_t(h);
+				size_t h° = hº % 24;
+				size_t d° = hº / 24;
+				size_t h¹ = (hº + 1) % 24;
+				size_t d¹ = (hº + 1) / 24;
 
+				ASSERT(h° < 24);
+				ASSERT(h¹ < 24);
+				ASSERT(d° < 2);
+				ASSERT(d¹ < 2);
+
+				double T[2] = { d° == 0 ? w°[h°][H_TAIR2] : w¹[h°][H_TAIR2], d¹ == 0 ? w°[h¹][H_TAIR2] : w¹[h¹][H_TAIR2] };
 
 				//temperature interpolation between 2 hours
-				double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
-				if (T <= T°)
+				double T² = (h - hº)*T[h°] + ((hº + 1) - h)*T[h¹];
+				if (T² <= T°)
 					Δtᵀ = t;
-			}
-
-
-			if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
-			{
-				//now calculate the real t°, tᶬ and tᶜ
-				double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
-				double tᶬ = min(4.0, t° + Δtᶠ);
-				double tᶜ = (t° + tᶬ) / 2;
-
-				//
-				double M° = Equations().get_M(m_A, 1);//initial weight of mean gravid female
-				double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
-				double RM = Mᴬ / M°; //ratio of actual vs initial weight female
-				double M = m_M*RM;	//actual weight is initial weight x ratio
-				double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
-
-				//now compute tau, p and flight
-				for (double t = t°; t < tᶬ && flight == 0; t += Δt)
-				{
-					double tau = (t - tᶜ) / (tᶬ - tᶜ);
-					double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
-					if (m_sex == MALE)
-						p *= 0.3 / 0.7;//sex ratio equilibrium
-
-					double h = sunset + t;
-					size_t h° = size_t(h);
-					size_t h¹ = h° + 1;
-
-
-					//temperature interpolation between 2 hours
-					double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
-					if (T > 0)
-					{
-						double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
-						if (Vᵀ > Vᴸ && p > m_p_exodus)
-						{
-							flight = 1;		//this insect is exodus
-							m_p_exodus = 10;//change exodus to ignore this insect for exodus
-						}
-					}
-				}
 			}
 		}
 
-		return flight;
+
+		if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
+		{
+			//now calculate the real t°, tᶬ and tᶜ
+			__int64 t° = max(Δtᶳ - Δtᶠ / 2, Δtᵀ);
+			__int64 tᶬ = min(h4, t° + Δtᶠ);
+			__int64 tᶜ = (t° + tᶬ) / 2;
+
+			//
+			//now compute tau, p and flight
+			for (__int64 t = t°; t <= tᶬ && flight == 0; t += Δt)
+			{
+				double tau = double(t - tᶜ) / (tᶬ - tᶜ);
+
+				size_t hº = (sunset + t) / 3600;
+				size_t h = hº % 24;
+				size_t d = hº / 24;
+
+				flight = GetFlightActivity((d == 0) ? w°[h] : w¹[h], tau);
+			}
+		}
+
 	}
 
+	return flight;
+
+}
+
+void CSpruceBudworm::get_t(__int64 &t°, __int64 &tᴹ)const
+{
+	CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon);
+	__int64 sunset = sun.GetSunset(w°.GetTRef()) * 3600;
+
+	static const __int64 Δt = 60;
+
+	__int64 h4 = 3600 * 4;
+	__int64 Δtᵀ = h4;
+
+	//first estimate of exodus info
+	t° = -h4;//substract 4 hours
+	tᴹ = +h4;//add 4 hours
+
+
+	for (__int64 t = t°; t <= tᴹ && Δtᵀ == h4; t += Δt)
+	{
+		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
+		if (m_weather.IsLoaded(UTCTRef))
+		{
+			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset + t);
+
+			if (v[ATM_TAIR] <= T°)
+				Δtᵀ = t;//- UTCSunset
+		}
+	}
+
+	if (Δtᵀ < h4)
+	{
+		//now look for minimum temperature for the entire exodus period
+		t° = max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
+		tᴹ = min(h4, t° + __int64(Δtᶠ * 3600));
+	}
+}
+
+
+double CSpruceBudworm::GetFlightActivity(const CHourlyData& w°, double tau)
+{
+	//static const double Δtᶠ = 3;
+	//static const double Δtᶳ = -0.5;//j'ai mis 0.5 ici car j'ai l'impression que mon algo retourne une demi-heure plot tôt : à vérifier
+	static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
+	static const double K = 166;
+	static const double b[2] = { 21.35, 24.08 };
+	static const double c[2] = { 2.97, 6.63 };
+
+	if (tau==0)
+		tau = double CSpruceBudworm::GetFlightActivity(const CWeatherDay& w°)
+//	static const double T° = 24.5;
+	//static const double Δt = 60;
+	//static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
+
+	//double t° = -4;//subtract 4 hours
+	//double tᶬ = 4;//add 4 hours
+	//double Δtᵀ = 4;
+	//double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
+	//double tᶬ = min(4.0, t° + Δtᶠ);
+
+	const CHourlyData& w¹ = w°.GetNext();
+	double Tmax = max(w°[H_TAIR2], w¹[H_TAIR2]);
+
+	const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+
+	double flight = 0;
+
+	if (m_p_exodus <= 1)
+	{
+		double M = Equations().get_M(m_sex, m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
+		double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
+
+		double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
+		if (m_sex == MALE)
+			p *= 0.3 / 0.7;//sex ratio equilibrium
+
+			
+		//temperature interpolation between 2 hours
+		if (Tmax > 0)
+		{
+			double Vᵀ = Vmax*(1 - exp(-pow(Tmax / b[m_sex], c[m_sex])));
+			if (Vᵀ > Vᴸ && p > m_p_exodus)
+			{
+				flight = 1;		//this insect is exodus
+				m_p_exodus = 10;//change exodus to ignore this insect for exodus
+			}
+		}
+	}
+
+	return flight;
+}
 
 
 	//Get the eaten foliage 

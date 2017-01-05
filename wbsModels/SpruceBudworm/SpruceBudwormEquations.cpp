@@ -250,9 +250,16 @@ namespace WBSF
 		return M*E;
 	}
 
-	double CSpruceBudwormEquations::get_M(double A, double G)const
+	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
 	{
-		return exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
+		double M = 0;
+
+		if (sex == MALE)
+			M = get_M(sex, A);
+		else
+			M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*m_randomGenerator.RandLogNormal(0, 0.1604);
+
+		return M;
 	}
 
 	double CSpruceBudwormEquations::get_p_exodus()const

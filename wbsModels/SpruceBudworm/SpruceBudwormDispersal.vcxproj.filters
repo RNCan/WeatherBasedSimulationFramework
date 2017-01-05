@@ -7,24 +7,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SpruceBudwormEquations.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SpruceBudworm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpruceBudwormDispersal.cpp">
+    <ClCompile Include="SpruceBudwormModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpruceBudwormEquations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SpruceBudwormEquations.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="SpruceBudworm.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpruceBudwormDispersal.h">
+    <ClInclude Include="SpruceBudwormModel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpruceBudwormEquations.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,12 +1,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Biology", "SpruceBudworm.vcxproj", "{99662559-9103-462D-8C79-EEB25880A8AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Dispersal", "SpruceBudworm.vcxproj", "{99662559-9103-462D-8C79-EEB25880A8AD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Biology", "SpruceBudwormDispersal.vcxproj", "{BC9E743D-27F2-416A-92C5-B6FC109464C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,14 @@ Global
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|Win32.Build.0 = Release|Win32
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.ActiveCfg = Release|x64
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.Build.0 = Release|x64
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Debug|Win32.Build.0 = Debug|Win32
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Debug|x64.ActiveCfg = Debug|x64
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Debug|x64.Build.0 = Debug|x64
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|Win32.ActiveCfg = Release|Win32
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|Win32.Build.0 = Release|Win32
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|x64.ActiveCfg = Release|x64
+		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
