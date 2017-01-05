@@ -586,9 +586,10 @@ namespace WBSF
 		
 		double Tᵀ = m_world.get_Tᵀ(m_location, UTCSunset, t°, tᴹ);
 
-		//let 10 chances to find a good flying insect
-		for (int i = 0; i < 20 && get_Tᴸ() > Tᵀ; i++)
+		//let 50 chances to find a good flying insect
+		for (int i = 0; i < 50 && get_Tᴸ() > Tᵀ; i++, m_G-=0.02)
 		{
+			m_G = max(0.0, m_G);
 			m_parameters.m_A = m_world.get_A(m_sex);
 			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_G);
 		} 
