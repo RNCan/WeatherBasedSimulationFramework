@@ -494,11 +494,9 @@ namespace WBSF
 
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
-	//G : gravidity ratio 
 	//out : weight [g]
-	double CATMWorld::get_M(size_t sex, double A, double G)const
+	double CATMWorld::get_M(size_t sex, double A)const
 	{
-
 		static const double M_A[2] = { -6.756, -6.543 };
 		static const double M_B[2] = { 3.790, 3.532 };
 		static const double M_E[2] = { 0.206, 0.289 };
@@ -506,19 +504,23 @@ namespace WBSF
 
 		double E = m_random.RandLogNormal(0, M_E[sex]);
 		double M = exp(M_A[sex] + M_B[sex] * A)*E;
-		
 
-		if (sex == CATMParameters::FEMALE)
-		{
-			E = m_random.RandLogNormal(0, 0.1604);
-			M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*E;
+		return M*E;
+	}
 
-			//adjust female weight in function of gravidity
-			//double M° = exp(-6.465 + 0.974 * 1 + 2.14*A + 1.305 * 1 * A);
-			//double Mᴬ = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
-			//double R = Mᴬ / M°;
-			//M *= R;
-		}
+
+	//sex : MALE (0) or FEMALE (1)
+	//A : forewing surface area [cm²]
+	//G : gravidity ratio 
+	//out : weight [g]
+	double CATMWorld::get_M(size_t sex, double A, double G)const
+	{
+		double M = 0;
+
+		if (sex == CATMParameters::MALE)
+			M = get_M(sex, A);
+		else
+			M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*m_random.RandLogNormal(0, 0.1604);
 
 		return M;
 	}
