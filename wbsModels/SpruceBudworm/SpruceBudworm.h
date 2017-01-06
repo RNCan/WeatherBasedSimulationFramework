@@ -1,7 +1,7 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // Class: CSpruceBudworm, CSBWTree, CSBWStand
 //
-// Description:	CSpruceBudworm represent a spruce budworm insect or a group of insect with same carract�ristics. 
+// Description:	CSpruceBudworm represent a spruce budworm insect or a group of insect with same carractéristics. 
 //				CSBWTree represent the tree that contain CSpruceBudworm. 
 //				CSBWStand represent the tree that contain CSWBTree. 
 //*****************************************************************************
@@ -40,7 +40,7 @@ namespace WBSF
 		CSpruceBudworm& operator=(const CSpruceBudworm& in);
 		~CSpruceBudworm(void);
 
-		virtual void Live(const CHourlyData& weather, size_t dt = 3600);
+		virtual void Live(const CHourlyData& weather, size_t dt);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
@@ -61,6 +61,12 @@ namespace WBSF
 		inline const CSBWStand* GetStand()const;
 		inline CSpruceBudwormEquations& Equations();
 
+		bool get_t(const CWeatherDay& weather, __int64 &t°, __int64 &tᴹ)const;
+		double get_Tair(const CWeatherDay& weather, double h)const;
+		double GetFlightActivity(const CHourlyData& weather, double tau);
+		double GetFlightActivity(const CWeatherDay& weather);
+
+
 	protected:
 
 		static double GetAttritionRate(size_t s, double Tin);
@@ -69,8 +75,6 @@ namespace WBSF
 		bool IsDeadByAttrition(double RR)const;
 		bool IsDeadByMissingEnergy();
 		double GetEatenFoliage(double RR)const;
-		double GetFlightActivity(const CHourlyData& weather, double tau);
-		double GetFlightActivity(const CWeatherDay& weather);
 
 		//member
 		double m_relativeDevRate[SBW::NB_STAGES]; //Individual's relative development rates in 9 stages
@@ -83,12 +87,13 @@ namespace WBSF
 		bool m_bMissingEnergyAlreadyApplied;
 		bool m_bKillByAttrition;
 		
-		double m_A;							//forewing area [cm�
+		double m_A;							//forewing area [cm²
 		double m_M;							//dry weight [g]
 		double m_p_exodus;
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];
+		static const double POTENTIAL_FECONDITY;
 		static double GetEnergyLost(double T);
 	};
 

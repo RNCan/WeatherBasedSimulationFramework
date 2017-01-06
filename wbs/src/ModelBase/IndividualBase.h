@@ -35,7 +35,7 @@ namespace WBSF
 		static const size_t NOT_DEATH = size_t(-1);
 
 		enum TStatus{ HEALTHY, DEAD, NB_STATUS };//MORIBUND, 
-		enum TDeath{ OLD_AGE, FROZEN, MISSING_ENERGY, ATTRITION, ASYNCHRONY, INTOXICATED, WINDOW, TREE_DEFENSE, DENSITY_DEPENDENCE, OTHERS, NB_DEATHS };
+		enum TDeath{ OLD_AGE, FROZEN, MISSING_ENERGY, ATTRITION, ASYNCHRONY, INTOXICATED, WINDOW, TREE_DEFENSE, DENSITY_DEPENDENCE, EXODUS, OTHERS, NB_DEATHS };
 		enum TFecondity{ UNFERTIL, FERTIL, NB_FECONDITY };
 
 
@@ -46,6 +46,7 @@ namespace WBSF
 		CIndividual& operator=(const CIndividual& in);
 
 		virtual void NewDay();
+		virtual void Live(const CHourlyData& weather, size_t dt);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);

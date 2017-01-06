@@ -1,9 +1,9 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // Class: CSpruceBudwormDispersal
 //
 // Description: CSpruceBudwormDispersal is a BioSIM model for Spruce budworm dispersal
 //*****************************************************************************
-// 05/01/2016	1.0.0	R�mi Saint-Amant    Creation from old code
+// 05/01/2016	1.0.0	Rémi Saint-Amant    Creation from old code
 //*****************************************************************************
 #include "Basic/ModelStat.h"
 #include "Basic/UtilStd.h"
@@ -69,6 +69,7 @@ namespace WBSF
 		{
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
+
 			CSBWStand stand(this);
 			CSBWTreePtr pTree(new CSBWTree(&stand));
 
@@ -86,9 +87,65 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				stand.Live(m_weather.GetDay(TRef));
+//				stand.Live(m_weather.GetHour(TRef));
 				
-				stand.AdjustPopulation();
+				for (CSBWTree::iterator it = pTree->begin(); it != pTree->end(); it++)
+				{
+					CSpruceBudworm& budworm = static_cast<CSpruceBudworm&>(*(*it).get());
+					if (budworm.IsAlive())
+					{
+						const CHourlyData& w = m_weather.GetHour(TRef);
+
+
+						budworm.Live(w, 1);
+
+						//(*it)->Die(weather);
+
+
+						//compute flight activity
+						if (budworm.GetStage() == ADULT)
+						{
+							ASSERT(w.GetParent());
+							const CWeatherDay& day° = (const CWeatherDay&)*w.GetParent();
+
+							if ((*it)->GetSex() == FEMALE)
+								(*it)->Brood(day°);
+
+
+							__int64 t° = 0;
+							__int64 tᴹ = 0;
+
+							if (budworm.get_t(day°, t°, tᴹ))
+							{
+								//calculate tᶜ
+								__int64 tᶜ = (t° + tᴹ) / 2;
+
+								size_t h = w.GetTRef().GetHour();
+
+								//now compute tau, p and flight
+								if (h < 2)
+									h += 24;
+
+								__int64 t = h * 3600;
+								if (t >= t° && t <= tᴹ)//petite perte ici????
+								{
+									double tau = double(t - tᶜ) / (tᴹ - tᶜ);
+
+									const CWeatherDay& day¹ = day°.GetNext();
+									const CHourlyData& w = h < 24 ? day°[h] : day¹[h - 24];
+
+									double flightActivity = budworm.GetFlightActivity(w, tau);
+									if (flightActivity)
+									{
+										budworm.SetStatus(CIndividual::DEAD);
+										budworm.SetDeath(CIndividual::EXODUS);
+									}
+								}
+							}
+						}
+					}
+				}
+				
 				HxGridTestConnection();
 			}
 		}

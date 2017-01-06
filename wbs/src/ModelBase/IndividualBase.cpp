@@ -89,6 +89,10 @@ namespace WBSF
 		m_broods = 0;
 	}
 
+	void CIndividual::Live(const CHourlyData& weather, size_t dt)
+	{
+	}
+
 	void CIndividual::Live(const CWeatherDay& weather)
 	{
 		assert(IsCreated(weather.GetTRef()) && IsAlive());
