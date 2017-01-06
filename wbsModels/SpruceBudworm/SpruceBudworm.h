@@ -63,8 +63,14 @@ namespace WBSF
 
 		bool get_t(const CWeatherDay& weather, __int64 &t°, __int64 &tᴹ)const;
 		double get_Tair(const CWeatherDay& weather, double h)const;
-		double GetFlightActivity(const CHourlyData& weather, double tau);
-		double GetFlightActivity(const CWeatherDay& weather);
+		double get_Prcp(const CWeatherDay& weather, double h)const;
+//		double GetFlightActivity(const CHourlyData& weather, double tau);
+		bool GetExodus(double T, double P, double tau);
+		bool GetExodus(const CWeatherDay& weather);
+
+		double GetA()const{ return m_A; }
+		double GetM()const{ return m_M; }
+		double GetG()const{ return m_sex==FEMALE?1.0 - m_totalBroods / POTENTIAL_FECONDITY:0; }
 
 
 	protected:
@@ -82,7 +88,6 @@ namespace WBSF
 		CTRef m_overwinteringDate;			//When individual pass from Egg to OW, they must stop develop until next spring
 		CTRef m_emergingDate;				//When individual pass from Egg to OW, they must stop develop until next spring
 		double m_eatenFoliage;
-		double m_flightActivity;
 		double m_OWEnergy;					//survival of overwintering
 		bool m_bMissingEnergyAlreadyApplied;
 		bool m_bKillByAttrition;
@@ -90,6 +95,9 @@ namespace WBSF
 		double m_A;							//forewing area [cm²
 		double m_M;							//dry weight [g]
 		double m_p_exodus;
+		bool m_bExodus;
+		bool m_bRemoveExodus;
+		
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];

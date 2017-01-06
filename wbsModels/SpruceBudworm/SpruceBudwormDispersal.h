@@ -18,6 +18,9 @@ namespace WBSF
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		static WBSF::CBioSIMModelBase* CreateObject(){ return new CSpruceBudwormDispersal; }
 
+	protected:
+
+		size_t m_nbMoths;
 	};
 }
 
