@@ -72,15 +72,11 @@ namespace WBSF
 			CSBWTreePtr pTree(new CSBWTree(&stand));
 
 			//Create tree
-			//pTree->m_kind = m_treeKind;
-			//pTree->m_nbMinObjects = 1;
-			//pTree->m_nbMaxObjects = 100000;
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbMoths, m_nbMoths, L2o, NOT_INIT, false, 0));
 
 			//Create stand
 			stand.m_bFertilEgg = false;
 			stand.m_bApplyAttrition = false;
-			//stand.m_bStopL22 = true;
 			stand.m_host.push_front(pTree);
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
