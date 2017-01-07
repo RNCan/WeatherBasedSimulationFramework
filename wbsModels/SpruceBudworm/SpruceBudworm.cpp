@@ -479,7 +479,7 @@ namespace WBSF
 			if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
 			{
 				//now calculate the real t°, tᶬ and tᶜ
-				t° = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ);
+				t° = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ) + 3600;//+ 3600 assume to be in daylight zone
 				tᴹ = min(sunset + h4, t° + Δtᶠ);
 			}
 		}

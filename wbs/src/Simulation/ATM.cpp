@@ -558,6 +558,9 @@ namespace WBSF
 		m_world(world)
 	{
 		m_sex = -1;
+		m_A=0;
+		m_M=0;
+		m_G = 0;
 		m_rep = 0;
 		m_loc = 0;
 		m_var = 0;
@@ -577,27 +580,28 @@ namespace WBSF
 		__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, m_location);
 		m_UTCShift = localTime - UTCTime;
 
-		__int64 localSunset = m_world.get_local_sunset(m_localTRef, m_location) + m_world.m_parameters2.m_t_liftoff_correction * 3600;
+		//__int64 localSunset = m_world.get_local_sunset(m_localTRef, m_location) + m_world.m_parameters2.m_t_liftoff_correction * 3600;
 		//CTRef TRefSunset = CTimeZones::UTCTime2UTCTRef(localSunset);
-		__int64 UTCSunset = CTimeZones::LocalTime2UTCTime(localSunset, m_location);
+		//__int64 UTCSunset = CTimeZones::LocalTime2UTCTime(localSunset, m_location);
 		
 		
-		__int64 t° = 0;
-		__int64 tᴹ = 0;
-		m_world.get_t(m_location, UTCSunset, t°, tᴹ);
+		//__int64 t° = 0;
+		//__int64 tᴹ = 0;
+		//m_world.get_t(m_location, UTCSunset, t°, tᴹ);
 		
-		double Tᵀ = m_world.get_Tᵀ(m_location, UTCSunset, t°, tᴹ);
+		//double Tᵀ = m_world.get_Tᵀ(m_location, UTCSunset, t°, tᴹ);
 
 		//let 50 chances to find a good flying insect
-		for (int i = 0; i < 50 && get_Tᴸ() > Tᵀ; i++, m_G-=0.02)
+		/*for (int i = 0; i < 50 && get_Tᴸ() > Tᵀ; i++, m_G-=0.02)
 		{
 			m_G = max(0.0, m_G);
 			m_parameters.m_A = m_world.get_A(m_sex);
 			m_parameters.m_M = m_world.get_M(m_sex, m_parameters.m_A, m_G);
 		} 
-		
+		*/
 
-		m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(t°, tᴹ);
+		//m_parameters.m_t_liftoff = UTCSunset + m_world.get_t_liftoff_offset(t°, tᴹ);
+		m_parameters.m_t_liftoff = (m_localTRef.GetHour() + m_world.random().Randu())*3600;
 		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
 		m_parameters.m_w_descent = m_world.get_w_descent();
 		m_parameters.m_duration = m_world.get_duration();
@@ -816,15 +820,15 @@ namespace WBSF
 	{
 		double K = m_world.m_parameters2.m_K;
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
-		double A = m_parameters.m_A;
-		double M = m_parameters.m_M;
+//		double A = m_parameters.m_A;
+	//	double M = m_parameters.m_M;
 		//double Vᴸ = K* sqrt(M) / A;
 
 		//double Tᴸ = (Vᴸ<Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
 
 //		ASSERT(!isnan(Tᴸ));
 
-		return get_Tᴸ(m_sex, K, Vmax, A, M);
+		return get_Tᴸ(m_sex, K, Vmax, m_A, m_M);
 	}
 	
 	double CFlyer::get_Tᴸ(size_t sex, double K, double Vmax, double A, double M)
@@ -849,7 +853,7 @@ namespace WBSF
 			double K = m_world.m_parameters2.m_K;
 
 			double Vᵀ = get_Vᵀ(w[ATM_TAIR]);
-			double Vᴸ = K*sqrt(m_parameters.m_M) / m_parameters.m_A;
+			double Vᴸ = K*sqrt(m_M) / m_A;
 			Uz = m_world.m_parameters2.m_w_α*(Vᵀ - Vᴸ) * 1000 / 3600;//Uz can be negative
 
 			break;

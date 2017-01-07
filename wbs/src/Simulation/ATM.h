@@ -600,8 +600,8 @@ namespace WBSF
 	{
 	public:
 
-		double m_M;				//dry weight [g]
-		double m_A;				//Forewing area [cm²]
+		//double m_M;				//dry weight [g]
+		//double m_A;				//Forewing area [cm²]
 		double m_p_exodus;		//exodus probability
 
 		double m_w_horizontal;	//horizontal flight speed [m/s]
@@ -613,8 +613,8 @@ namespace WBSF
 
 		CFlightParameters()
 		{
-			m_A = 0;
-			m_M = 0;
+			//m_A = 0;
+			//m_M = 0;
 			m_p_exodus = 0;
 			
 			m_w_horizontal = 0;
@@ -643,7 +643,10 @@ namespace WBSF
 		size_t m_var;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
+		double m_A;				//Forewing area [cm²]
+		double m_M;				//dry weight [g]
 		double m_G;				//gravid=1, spent=0, male=0
+		double m_liftoffTime;
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level

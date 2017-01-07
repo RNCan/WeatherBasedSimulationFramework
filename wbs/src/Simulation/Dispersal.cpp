@@ -394,14 +394,23 @@ namespace WBSF
 		
 		//size_t vAdult = Find(vars, "Adults");
 		//size_t vOvipositingAdult = Find(vars, "OvipositingAdult");
-		size_t vMale = Find(vars, "MaleFlightActivity");
-		size_t vFemale = Find(vars, "FemaleFlightActivity");
-		size_t vBroods = Find(vars, "Brood");
+		enum TInput { I_NB_MALES, I_NB_FEMALES, I_AM, I_AF, I_MM, I_MF, I_GF, NB_INPUTS};
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "nbMales", "nbFemales", "Am", "Af", "Mm", "Mf", "Gf" };
+
+		bool bMissing = false;
+		std::array<size_t, NB_INPUTS> varsPos;
+		for (size_t i = 0; i < NB_INPUTS; i++)
+		{
+			varsPos[i] = Find(vars, VARIABLE_NAME[i]);
+			bMissing = bMissing && varsPos[i] == NOT_INIT;
+		}
+			
+		
 
 		//if (vAdult == NOT_INIT || vOvipositingAdult == NOT_INIT || vBroods == NOT_INIT)
-		if (vMale == NOT_INIT || vFemale == NOT_INIT || vBroods == NOT_INIT)
+		if (bMissing)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable Adults, MaleFlightActivity and FemaleFlightActivity must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable \"nbMales\", \"nbFemales\", \"Am\", \"Af\", \"Mm\", \"Mf\", \"Gf\" must be defined");
 			return msg;
 		}
 
@@ -456,24 +465,27 @@ namespace WBSF
 					pResult->GetSection(l, p, r, section);
 					assert(section.GetCols() == pResult->GetNbCols(false));
 					
-					double broods = 0;
-					double sumBroods = SumBroods(section, vBroods);
+					//double broods = 0;
+					//double sumBroods = SumBroods(section, vBroods);
 
 					for (size_t t = 0; t < section.GetRows() && msg; t++)
 					{
-						broods += section[t][vBroods][MEAN];
+						//broods += section[t][vBroods][MEAN];
 						CTRef TRef = section.GetTRef(t);
 						TRef.Transform(world.m_parameters1.m_simulationPeriod.GetTM());
 						if (world.m_parameters1.m_simulationPeriod.IsInside(TRef))
 						{
-							TRef.Transform(CTM(CTM::HOURLY));
-							TRef.m_hour = 0;
+							
+							//TRef.Transform(CTM(CTM::HOURLY));
+							//TRef.m_hour = 0;
 
+							TRef = section.GetTRef(t);
+							std::array<double, NB_INPUTS> v;
 							
-							size_t nbMales = ceil(section[t][vMale][MEAN]);
-							size_t nbFemales = ceil(section[t][vFemale][MEAN]);
-							size_t nbMoths = nbMales + nbFemales;
+							for (size_t i = 0; i<varsPos.size(); i++)
+								v[i] = section[t][varsPos[i]][MEAN];
 							
+							size_t nbMoths = v[I_NB_MALES] + v[I_NB_FEMALES];
 							//size_t nbMoths = ceil(section[t][vAdult][MEAN]);
 							//size_t nbFemales = ceil(section[t][vOvipositingAdult][MEAN]);
 							//size_t nbMales = nbMoths - nbFemales;
@@ -483,10 +495,13 @@ namespace WBSF
 								flyer.m_rep = rr;
 								flyer.m_loc = l;
 								flyer.m_var = 0;
-								flyer.m_sex = rr < nbMales?0:1;//world.get_S();			//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
-								flyer.m_G = rr < nbMales?0.0:broods / sumBroods;
+								flyer.m_sex = rr < v[I_NB_MALES] ? 0 : 1;//world.get_S();			//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
+								flyer.m_A = rr < v[I_NB_MALES] ? v[I_AM] : v[I_AF];
+								flyer.m_M = rr < v[I_NB_MALES] ? v[I_MM] : v[I_MF];
+								flyer.m_G = rr < v[I_NB_MALES] ? 0.0 : v[I_GF];
+								//flyer.m_G = rr < v[I_NB_MALES] ? 0.0 : broods / sumBroods;
 								flyer.m_scale = 1;// section[t][vAdult][MEAN];
-								flyer.m_localTRef = TRef;
+								flyer.m_localTRef = TRef;//assume daylignt time
 								flyer.m_location = locations[l];
 								flyer.m_newLocation = locations[l];
 								flyer.m_pt = locations[l];
