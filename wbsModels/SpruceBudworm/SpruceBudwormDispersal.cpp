@@ -161,7 +161,7 @@ namespace WBSF
 							budworm.Die(day°);
 						}//temperature is over -10 °C
 					}//if is alive
-				}//for all insect
+				}//for all insect 
 				
 				HxGridTestConnection();
 			}//for all hours of a year
