@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Spruce Budworm Dispersal</Title>
+    <Version>1.0</Version>
+    <ID>.sbe</ID>
+    <EXE>Spruce Budworm Dispersal.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Hourly model of spruce budworm dispersal</Description>
+    <WindowRect>0 0 249 315</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Number of moths</Name>
+            <Caption>Number of moths</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>32 10 54 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>3 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>MaleExodus</Name>
+            <Title>MaleExodus</Title>
+            <Units>Individuals</Units>
+            <Description>Number of exodus male</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleExodus</Name>
+            <Title>FemaleExodus</Title>
+            <Units>Individuals</Units>
+            <Description>Number of exodus female</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Am</Name>
+            <Title>Am</Title>
+            <Units>cm²</Units>
+            <Description>Mean male forewing surface area</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Af</Name>
+            <Title>Af</Title>
+            <Units>cm²</Units>
+            <Description>Mean female forewing surface area</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mm</Name>
+            <Title>Mm</Title>
+            <Units>g</Units>
+            <Description>Mean male dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mf</Name>
+            <Title>Mf</Title>
+            <Units>g</Units>
+            <Description>Mean female dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Gf</Name>
+            <Title>Gf</Title>
+            <Units/>
+            <Description>Female gravidity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Régnière's process-oriented model of spruce budworm seasonal biology&#x0A;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;This process-oriented model was developed by Régnière (1982). &#x0D;&#x0A;Variability in development rates is handled by the method of Régnière (1984). &#x0D;&#x0A;Oviposition is simulated accoding to Régnière (1983). &#x0D;&#x0A;Additional refinements were made by Régnière (1987, 1990). &#x0D;&#x0A;The feeding and defoliation components were described by Régnière &amp; You (1991). &#x0D;&#x0A;To provide for better fit beween predicted and observed development in the early larval stages, development rates were adjusted (Régnière, unpublished).&#x0A;&#x0A;                                                    &#x0D;&#x0A;&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Régnière, J. 1982. A process-oriented model of spruce budworm phenology (Lepidoptera: Tortricidae). Can. Ent. 114:811-825.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1983. An oviposition model for the spruce budworm, Choristoneura fumiferana (Lepidoptera: Tortricidae). Can. Ent. 115:1371-1382.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1984. A method of describing and using variability in development rates for the simulation of insect phenology. Can. Ent. 116:1367-1376.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1987. Temperature-dependent development of eggs and larvae of Choristoneura fumiferana (Clem.) (Lepidoptera: Tortricidae) and simulation of its seasonal history. Can. Ent. 119: 717-728.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1990. Diapause termination and changes in thermal responses during postdiapause development in larvae of the spruce budworm, Choristoneura fumiferana.. J. Insect Physiol. 36: 727-735.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. and You, M. 1991. A simulation model of spruce budworm (Lepidoptera: Tortricidae) feeding on balsam fir and white spruce.. Ecol. Modelling 54: 277-297.&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
