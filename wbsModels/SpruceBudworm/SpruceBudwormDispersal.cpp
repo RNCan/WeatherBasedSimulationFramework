@@ -28,6 +28,30 @@ namespace WBSF
 	enum Toutput { O_MALES_EXODUS, O_FEMALES_EXODUS, O_LM, O_LF, O_AM, O_AF, O_MM, O_MF, O_GF, NB_OUTPUTS };
 	extern char HOURLY_HEADER[] = "nbMales,nbFemales,Lm,Lf,Am,Af,Mm,Mf,Gf";
 
+	class CBugStat
+	{
+	public:
+		
+
+		CBugStat(size_t sex, size_t L, double A, double M, double G)
+		{
+			m_sex=sex;
+			m_L=L;
+			m_A=A;
+			m_M=M;
+			m_G=sex==FEMALE?G:-999;
+		}
+
+		size_t m_sex;
+		size_t m_L;
+		double m_A;
+		double m_M;
+		double m_G;
+	};
+	
+	typedef vector<CBugStat> CBugStatVector;
+	typedef map<CTRef, CBugStatVector> CBugStatVectorMap;
+
 	CSpruceBudwormDispersal::CSpruceBudwormDispersal()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
@@ -64,7 +88,7 @@ namespace WBSF
 		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
 		CTPeriod overallPeriod;
 
-		map<CTRef, array<CStatistic, NB_OUTPUTS>> flyers;
+		CBugStatVectorMap flyers[2];
 
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
@@ -123,6 +147,7 @@ namespace WBSF
 										double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 
 										double h = t / 3600.0;
+										size_t L = size_t((h - size_t(h)) * 3600);
 										//size_t h° = size_t(h);
 
 										const CWeatherDay& day¹ = day°.GetNext();
@@ -136,7 +161,7 @@ namespace WBSF
 										{
 											size_t sex = budworm.GetSex();
 
-											static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
+											//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
 											//annualStat[TRefTmp][O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
 											//annualStat[TRefTmp][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
@@ -160,26 +185,22 @@ namespace WBSF
 
 											overallPeriod += TRefTmp;
 
-											array<CStatistic, NB_OUTPUTS> tmp;
+											//array<CStatistic, NB_OUTPUTS> tmp;
+											//
+											//tmp[O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
+											//tmp[(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
+											//tmp[O_LM + sex] = (h - size_t(h)) * 3600;
+											//tmp[O_AM + sex] = budworm.GetA();
+											//tmp[O_MM + sex] = budworm.GetM();
+											//tmp[O_GF] = (sex == FEMALE) ? budworm.GetG() : -999;
 											
-											tmp[O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
-											tmp[(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
-											tmp[O_LM + sex] = (h - size_t(h)) * 3600;
-											tmp[O_AM + sex] = budworm.GetA();
-											tmp[O_MM + sex] = budworm.GetM();
-											tmp[O_GF] = (sex == FEMALE) ? budworm.GetG() : -999;
-											
-											if(flyers.find(TRefTmp) == flyers.end())
-												flyers[TRefTmp] = tmp;
-											else if (m_randomGenerator.Randu()>0.5)
-												flyers[TRefTmp] = tmp;
-
+											//if(flyers.find(TRefTmp) == flyers.end())
+											flyers[sex][TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG()));
+											//else if (m_randomGenerator.Randu()>0.5)
+												//flyers[TRefTmp] = tmp;
 
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);
-
-
-
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur
@@ -199,10 +220,29 @@ namespace WBSF
 		m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
 
 		//copy stat to output
-		for (map<CTRef, array<CStatistic, NB_OUTPUTS>>::iterator it = flyers.begin(); it != flyers.end(); it++)
-			for (size_t v = 0; v <NB_OUTPUTS; v++)
-				if (it->second.at(v).IsInit())
-					m_output[it->first][v] = it->second.at(v)[v <= 1 ? SUM : MEAN];
+		for (int sex = 0; sex < 2; sex++)
+		{
+			for (CBugStatVectorMap::iterator it = flyers[sex].begin(); it != flyers[sex].end(); it++)
+			{
+				static const double SEX_RATIO[2] = { 3.0, 7.0 };
+				const CBugStatVector& bugs = it->second;
+				//randomly select an insect
+				size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+
+				CTRef TRef = it->first;
+				m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
+				m_output[TRef][O_LM + sex] = bugs[sel].m_L;
+				m_output[TRef][O_AM + sex] = bugs[sel].m_A;
+				m_output[TRef][O_MM + sex] = bugs[sel].m_M;
+				m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+
+				//set the other sex to zer0 when not init
+				if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
+					m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
+				
+			}
+		}
+			
 
 		return msg;
 	}
