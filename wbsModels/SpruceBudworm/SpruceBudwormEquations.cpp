@@ -237,14 +237,21 @@ namespace WBSF
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
 	//out : weight [g]
-	double CSpruceBudwormEquations::get_M(size_t sex, double A)const
+	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
 	{
-		static const double M_A[2] = { -6.756, -6.543};
-		static const double M_B[2] = { 3.790, 3.532};
-		static const double M_E[2] = { 0.206, 0.289 };
+		//static const double M_A[2] = { -6.756, -6.543};
+		//static const double M_B[2] = { 3.790, 3.532};
+		//static const double M_E[2] = { 0.206, 0.289 };
 
+		static const double M_A[2] = { -6.756, -6.465 };
+		static const double M_B[2] = { 0.000, 0.974 };
+		static const double M_C[2] = { 3.790, 2.140 };
+		static const double M_D[2] = { 0.000, 1.305 };
+		static const double M_E[2] = { 0.206, 0.1604 };
+		
+		
 		double E = m_randomGenerator.RandLogNormal(0, M_E[sex]);
-		double M = exp(M_A[sex] + M_B[sex] * A);
+		double M = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 		
 		return M*E;
 	}

@@ -57,7 +57,7 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		m_A = Equations().get_A(m_sex);
-		m_M° = m_M = Equations().get_M(m_sex, m_A);
+		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
 		m_p_exodus = Equations().get_p_exodus();
 		//m_liftoff_hour = -999;
 		m_bExodus = false;

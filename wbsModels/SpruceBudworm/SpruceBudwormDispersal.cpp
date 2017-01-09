@@ -13,6 +13,7 @@
 
 
 using namespace WBSF::HOURLY_DATA;
+using namespace std;
 
 namespace WBSF
 {
@@ -63,11 +64,13 @@ namespace WBSF
 		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
 		CTPeriod overallPeriod;
 
+		map<CTRef, array<CStatistic, NB_OUTPUTS>> flyers;
+
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
-			CTStatMatrix annualStat(p, NB_OUTPUTS);
+			//CTStatMatrix annualStat(p, NB_OUTPUTS);
 
 			CSBWStand stand(this);
 			CSBWTreePtr pTree(new CSBWTree(&stand));
@@ -135,27 +138,48 @@ namespace WBSF
 
 											static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											annualStat[TRefTmp][O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
-											annualStat[TRefTmp][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
-											//liftoff cannot be mean by hour : create biasis hours... hten onlky take the first one
-											//annualStat[TRefTmp][O_LIFTOFF_MALE + sex] += budworm.GetScaleFactor()*h;
-											//if (!annualStat[TRefTmp][O_LM + sex].IsInit())
-											annualStat[TRefTmp][O_LM + sex] += (h - size_t(h))*3600;
+											//annualStat[TRefTmp][O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
+											//annualStat[TRefTmp][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
+											////liftoff cannot be mean by hour : create biasis hours... hten onlky take the first one
+											////annualStat[TRefTmp][O_LIFTOFF_MALE + sex] += budworm.GetScaleFactor()*h;
+											////if (!annualStat[TRefTmp][O_LM + sex].IsInit())
+											//annualStat[TRefTmp][O_LM + sex] += (h - size_t(h))*3600;
 
-											//if (!annualStat[TRefTmp][O_AM + sex].IsInit())
-											annualStat[TRefTmp][O_AM + sex] = budworm.GetA();
+											////if (!annualStat[TRefTmp][O_AM + sex].IsInit())
+											//annualStat[TRefTmp][O_AM + sex] = budworm.GetA();
+											//
+											////if (!annualStat[TRefTmp][O_MM + sex].IsInit())
+											//annualStat[TRefTmp][O_MM + sex] = budworm.GetM();
+											//
+											//if (sex == FEMALE)
+											//	//if (!annualStat[TRefTmp][O_GF + sex].IsInit())
+											//	annualStat[TRefTmp][O_GF] = budworm.GetG();
+
+											//budworm.SetStatus(CIndividual::DEAD);
+											//budworm.SetDeath(CIndividual::EXODUS);
+
+											overallPeriod += TRefTmp;
+
+											array<CStatistic, NB_OUTPUTS> tmp;
 											
-											//if (!annualStat[TRefTmp][O_MM + sex].IsInit())
-											annualStat[TRefTmp][O_MM + sex] = budworm.GetM();
+											tmp[O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
+											tmp[(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
+											tmp[O_LM + sex] = (h - size_t(h)) * 3600;
+											tmp[O_AM + sex] = budworm.GetA();
+											tmp[O_MM + sex] = budworm.GetM();
+											tmp[O_GF] = (sex == FEMALE) ? budworm.GetG() : -999;
 											
-											if (sex == FEMALE)
-												//if (!annualStat[TRefTmp][O_GF + sex].IsInit())
-												annualStat[TRefTmp][O_GF] = budworm.GetG();
+											if(flyers.find(TRefTmp) == flyers.end())
+												flyers[TRefTmp] = tmp;
+											else if (m_randomGenerator.Randu()>0.5)
+												flyers[TRefTmp] = tmp;
+
 
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);
 
-											overallPeriod += TRefTmp;
+
+
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur
@@ -169,18 +193,16 @@ namespace WBSF
 				
 				HxGridTestConnection();
 			}//for all hours of a year
-
-			//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
-			m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
-
-			//copy stat to output
-			for (CTRef TRef = m_output.GetFirstTRef(); TRef <= m_output.GetLastTRef(); TRef++)
-				for (size_t v = 0; v <NB_OUTPUTS; v++)
-					if (annualStat[TRef][v].IsInit())
-						m_output[TRef][v] = annualStat[TRef][v][v <= 1 ? SUM : MEAN];
 		}//for all years
 
-		
+		//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
+		m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+
+		//copy stat to output
+		for (map<CTRef, array<CStatistic, NB_OUTPUTS>>::iterator it = flyers.begin(); it != flyers.end(); it++)
+			for (size_t v = 0; v <NB_OUTPUTS; v++)
+				if (it->second.at(v).IsInit())
+					m_output[it->first][v] = it->second.at(v)[v <= 1 ? SUM : MEAN];
 
 		return msg;
 	}
