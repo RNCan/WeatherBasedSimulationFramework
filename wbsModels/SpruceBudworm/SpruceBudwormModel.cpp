@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 08/01/2017	3.1.2	Rémi Saint-Amant	Add hourly live
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Change in overheating and flight activity
 // 10/10/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 10/05/2016	3.0.4	Rémi Saint-Amant    Minor change

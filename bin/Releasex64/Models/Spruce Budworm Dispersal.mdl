@@ -6,7 +6,7 @@
     <EXE>Spruce Budworm Dispersal.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Hourly model of spruce budworm dispersal</Description>
-    <WindowRect>0 0 249 315</WindowRect>
+    <WindowRect>0 0 139 315</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -19,11 +19,23 @@
             <Caption>Number of moths</Caption>
             <Description/>
             <Type>1</Type>
-            <Rect>32 10 54 160</Rect>
+            <Rect>5 10 25 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>100</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>20000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Sunset offset</Name>
+            <Caption>Sunset offset</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>32 10 54 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-3</MinValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -43,6 +55,22 @@
             <Title>FemaleExodus</Title>
             <Units>Individuals</Units>
             <Description>Number of exodus female</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Lm</Name>
+            <Title>Lm</Title>
+            <Units>s</Units>
+            <Description>Male liftoff offset from previous hour</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Lf</Name>
+            <Title>Lf</Title>
+            <Units>s</Units>
+            <Description>Female liftoff offset from previous hour</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

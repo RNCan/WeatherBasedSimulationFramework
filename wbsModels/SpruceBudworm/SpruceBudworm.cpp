@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 08/01/2017	Rémi Saint-Amant	Add hourly live
 // 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
@@ -56,8 +57,9 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		m_A = Equations().get_A(m_sex);
-		m_M = Equations().get_M(m_sex, m_A);
+		m_M° = m_M = Equations().get_M(m_sex, m_A);
 		m_p_exodus = Equations().get_p_exodus();
+		//m_liftoff_hour = -999;
 		m_bExodus = false;
 		m_bRemoveExodus = false;
 
@@ -96,6 +98,7 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
+			//m_liftoff_hour = in.m_liftoff_hour;
 		}
 
 		return *this;
@@ -240,6 +243,11 @@ namespace WBSF
 				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
 			}
+
+			//adjust female weight
+			double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
+			double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
+			m_M = m_M° * Mᶜ / M°;
 		}
 	}
 
@@ -305,8 +313,11 @@ namespace WBSF
 				if (stage == ADULT && m_sex == FEMALE)
 					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 
+				
+
+				static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
 				if (m_bExodus)
-					stat[S_MALE_FLIGHT_ACTIVITY + m_sex] += m_scaleFactor;
+					stat[S_MALE_FLIGHT_ACTIVITY + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
 
 			}
 			else
@@ -366,17 +377,20 @@ namespace WBSF
 				double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 
 				double h = t / 3600.0;
-				size_t h° = size_t(h);
+				//size_t h° = size_t(h);
 
 				const CWeatherDay& w¹ = w°.GetNext();
-				const CWeatherDay& w = h° < 24 ? w° : w¹;
-				if (h >= 24)
-					h -= 24;
+				const CWeatherDay& w = h < 24 ? w° : w¹;
+				//if (h >= 24)
+					//h -= 24;
 
-				double T = get_Tair(w, h);
-				double P = get_Prcp(w, h);
+				double T = get_Tair(w, h < 24 ? h : h - 24.0);
+				double P = get_Prcp(w, h < 24 ? h : h - 24.0);
 
+				
 				bExodus = GetExodus(T, P, tau);
+				//if (bExodus)
+					//m_liftoff_hour = h;
 			}
 		}
 
@@ -389,30 +403,23 @@ namespace WBSF
 		static const double K = 166;
 		static const double b[2] = { 21.35, 24.08 };
 		static const double c[2] = { 2.97, 6.63 };
+		static const double VmaxF[2] = { 1.0, 1.2 };
 
 		bool bExodus = false;
 
-		if (T > 0)
+		if (T > 0 && P < 0.2)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
 		{
-			const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
+			
+			const double Vmax = 65 * VmaxF[m_sex];
+			
+			//adjust female weight
+			double Vᴸ = K* sqrt(m_M) / m_A;//compute Vᴸ with actual weight
 
-			if (m_p_exodus <= 1)
-			{
-				double M = Equations().get_M(m_sex, m_A, GetG() );//compute weight from forewinf area and female gravidity
-				double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
-
-				double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
-				if (m_sex == MALE)
-					p *= 0.3 / 0.7;//sex ratio equilibrium
-
-				//No lift-off if hourly precipitation greater than 0.2 mm
-				if (P < 0.2)
-				{
-					double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
-					if (Vᵀ > Vᴸ && p > m_p_exodus)
-						bExodus = true;		//this insect is exodus
-				}
-			}
+			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
+			
+			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+			if (Vᵀ > Vᴸ && p > m_p_exodus)
+				bExodus = true;		//this insect is exodus
 		}
 
 		return bExodus;
@@ -425,6 +432,9 @@ namespace WBSF
 
 		size_t h° = size_t(h);
 		size_t h¹ = h° + 1;
+		ASSERT(h >= h° && h <= h¹);
+		ASSERT((h - h°) >= 0 && (h - h°) <= 1);
+		ASSERT((h¹ - h) >= 0 && (h¹ - h) <= 1);
 
 		//temperature interpolation between 2 hours
 		const CHourlyData& w° = weather[h°];
@@ -446,12 +456,12 @@ namespace WBSF
 	bool CSpruceBudworm::get_t(const CWeatherDay& w°, __int64 &t°, __int64 &tᴹ)const
 	{
 		static const __int64 Δtᶠ = 3 * 3600;
-		static const __int64 Δtᶳ = 0;//ici on travaille avec l'heure normale -3600;
+		static const __int64 Δtᶳ = -3600;
 		static const __int64 Δt = 60;
 		static const double T° = 24.5;
 
 		CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon);
-		__int64 sunset = sun.GetSunset(w°.GetTRef()) * 3600;  //[s]
+		__int64 sunset = (sun.GetSunset(w°.GetTRef()) + 1.0 + GetStand()->m_sunsetOffset) * 3600;//+1 hour : assume to be in daylight zone  //[s]
 
 		//first estimate of exodus info
 		__int64 h4 = 4 * 3600;
@@ -467,11 +477,11 @@ namespace WBSF
 				//sunset hour shifted by t
 				double h = t / 3600.0;
 				const CWeatherDay& w = h < 24 ? w° : w°.GetNext();
-				if (h >= 24)
-					h -= 24;
+				//if (h >= 24)
+					//h -= 24;
 
 				//temperature interpolation between 2 hours
-				double Tair = get_Tair(w, h);
+				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
 				if (Tair <= T°)
 					Δtᵀ = t - sunset;
 			}
@@ -479,7 +489,7 @@ namespace WBSF
 			if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
 			{
 				//now calculate the real t°, tᶬ and tᶜ
-				t° = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ) + 3600;//+ 3600 assume to be in daylight zone
+				t° = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ); 
 				tᴹ = min(sunset + h4, t° + Δtᶠ);
 			}
 		}
@@ -584,6 +594,7 @@ namespace WBSF
 		CSpruceBudworm* in = (CSpruceBudworm*)(pBug.get());
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		//m_liftoff_hour = (m_liftoff_hour*m_scaleFactor + in->m_liftoff_hour*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		//m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
 		CIndividual::Pack(pBug);

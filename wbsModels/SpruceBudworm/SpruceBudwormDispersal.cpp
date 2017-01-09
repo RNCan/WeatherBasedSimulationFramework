@@ -24,14 +24,14 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
-	enum Toutput { O_NB_MALES, O_NB_FEMALES, O_AM, O_AF, O_MM, O_MF, O_GF, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "nbMales,nbFemales,Am,Af,Mm,Mf,Gf";
+	enum Toutput { O_MALES_EXODUS, O_FEMALES_EXODUS, O_LM, O_LF, O_AM, O_AF, O_MM, O_MF, O_GF, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "nbMales,nbFemales,Lm,Lf,Am,Af,Mm,Mf,Gf";
 
 	CSpruceBudwormDispersal::CSpruceBudwormDispersal()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 1;
+		NB_INPUT_PARAMETER = 2;
 		VERSION = "1.0.0 (2017)";
 	}
 
@@ -47,6 +47,7 @@ namespace WBSF
 
 		int c = 0;
 		m_nbMoths = parameters[c++].GetInt();
+		m_sunsetOffset = parameters[c++].GetFloat();
 
 		return msg;
 	}
@@ -59,8 +60,8 @@ namespace WBSF
 			m_weather.ComputeHourlyVariables();
 
 		//This is where the model is actually executed
-		m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
-		
+		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+		CTPeriod overallPeriod;
 
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
@@ -77,6 +78,7 @@ namespace WBSF
 			//Create stand
 			stand.m_bFertilEgg = false;
 			stand.m_bApplyAttrition = false;
+			stand.m_sunsetOffset = m_sunsetOffset;
 			stand.m_host.push_front(pTree);
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -95,63 +97,69 @@ namespace WBSF
 						{
 							budworm.Live(w, 1);
 
-
-							//compute flight activity
-							if (budworm.GetStage() == ADULT)
+							//compute brood and flight activity only once
+							if (budworm.GetStage() == ADULT && w.GetTRef().GetHour() == 18)
 							{
 
-								size_t h = w.GetTRef().GetHour();
-
-								if ((*it)->GetSex() == FEMALE && h == 12)
+								if ((*it)->GetSex() == FEMALE)
 									(*it)->Brood(day°);
 
-								if (h < 2 || h >= 16)
+								__int64 t° = 0;
+								__int64 tᴹ = 0;
+
+								if (budworm.get_t(day°, t°, tᴹ))
 								{
+									//calculate tᶜ
+									__int64 tᶜ = (t° + tᴹ) / 2;
 
-									__int64 t° = 0;
-									__int64 tᴹ = 0;
-
-									if (budworm.get_t(day°, t°, tᴹ))
+									//now compute tau, p and flight
+									bool bExodus = false;
+									static const __int64 Δt = 60;
+									for (__int64 t = t°; t <= tᴹ && !bExodus; t += Δt)
 									{
-										//calculate tᶜ
-										__int64 tᶜ = (t° + tᴹ) / 2;
+										double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 
+										double h = t / 3600.0;
+										//size_t h° = size_t(h);
 
-										//now compute tau, p and flight
-										if (h < 2)
-											h += 24;
+										const CWeatherDay& day¹ = day°.GetNext();
+										const CWeatherDay& w = h < 24 ? day° : day¹;
 
-										__int64 t = h * 3600;
-										if (t >= t° && t <= tᴹ)//petite perte ici????
+										double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
+										double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
+
+										bExodus = budworm.GetExodus(T, P, tau);
+										if (bExodus)
 										{
-											double tau = double(t - tᶜ) / (tᴹ - tᶜ);
+											size_t sex = budworm.GetSex();
 
-											const CWeatherDay& day¹ = day°.GetNext();
-											const CWeatherDay& w = h < 24 ? day° : day¹;
-											if (h >= 24)
-												h -= 24;
+											static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
+											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
+											annualStat[TRefTmp][O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
+											annualStat[TRefTmp][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
+											//liftoff cannot be mean by hour : create biasis hours... hten onlky take the first one
+											//annualStat[TRefTmp][O_LIFTOFF_MALE + sex] += budworm.GetScaleFactor()*h;
+											//if (!annualStat[TRefTmp][O_LM + sex].IsInit())
+											annualStat[TRefTmp][O_LM + sex] += (h - size_t(h))*3600;
 
-											double T = budworm.get_Tair(w, h);
-											double P = budworm.get_Prcp(w, h);
+											//if (!annualStat[TRefTmp][O_AM + sex].IsInit())
+											annualStat[TRefTmp][O_AM + sex] = budworm.GetA();
+											
+											//if (!annualStat[TRefTmp][O_MM + sex].IsInit())
+											annualStat[TRefTmp][O_MM + sex] = budworm.GetM();
+											
+											if (sex == FEMALE)
+												//if (!annualStat[TRefTmp][O_GF + sex].IsInit())
+												annualStat[TRefTmp][O_GF] = budworm.GetG();
 
-											bool bExodus = budworm.GetExodus(T, P, tau);
-											if (bExodus)
-											{
-												size_t sex = budworm.GetSex();
-												
-												annualStat[TRef][O_NB_MALES + sex] += budworm.GetScaleFactor();
-												annualStat[TRef][(sex == MALE)?O_NB_FEMALES : O_NB_MALES] += 0;
-												annualStat[TRef][O_AM + sex] += budworm.GetScaleFactor()*budworm.GetA();
-												annualStat[TRef][O_MM + sex] += budworm.GetScaleFactor()*budworm.GetM();
-												if (sex==FEMALE)
-													annualStat[TRef][O_GF] += budworm.GetScaleFactor()*budworm.GetG();
+											budworm.SetStatus(CIndividual::DEAD);
+											budworm.SetDeath(CIndividual::EXODUS);
 
-												budworm.SetStatus(CIndividual::DEAD);
-												budworm.SetDeath(CIndividual::EXODUS);
-											}
-										}//if t is inside exodus period
-									}//if exodus occur
-								}//if is exodus hour
+											overallPeriod += TRefTmp;
+										}//if exodus occurd
+									}//for t in exodus period
+								}//if exodus occur
+								//}//if is exodus hour
 							}//if adult
 
 							budworm.Die(day°);
@@ -162,11 +170,14 @@ namespace WBSF
 				HxGridTestConnection();
 			}//for all hours of a year
 
+			//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
+			m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+
 			//copy stat to output
-			for (size_t h = 0; h < annualStat.size(); h++)
+			for (CTRef TRef = m_output.GetFirstTRef(); TRef <= m_output.GetLastTRef(); TRef++)
 				for (size_t v = 0; v <NB_OUTPUTS; v++)
-					if (annualStat[h][v].IsInit())
-						m_output[h][v] = annualStat[h][v][v<=1?SUM:MEAN];
+					if (annualStat[TRef][v].IsInit())
+						m_output[TRef][v] = annualStat[TRef][v][v <= 1 ? SUM : MEAN];
 		}//for all years
 
 		

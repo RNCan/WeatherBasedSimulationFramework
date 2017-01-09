@@ -111,7 +111,7 @@ double COverheat::GetTmax(const CWeatherDay& weather)const
 double COverheat::GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax)const
 { 
 	double OH = 0;
-	if (weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
+	if (m_overheat!= 0 && weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
 	{
 		double Fo = 0.5*(1 + cos((double(hourTmax) - h) / 12.0*PI));
 		double maxOverheat = weather[H_TRNG2][MEAN] * m_overheat;

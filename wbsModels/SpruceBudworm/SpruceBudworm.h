@@ -71,7 +71,7 @@ namespace WBSF
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
 		double GetG()const{ return m_sex==FEMALE?1.0 - m_totalBroods / POTENTIAL_FECONDITY:0; }
-
+		//double GetLiftoffHour()const{ return m_liftoff_hour; }
 
 	protected:
 
@@ -92,9 +92,11 @@ namespace WBSF
 		bool m_bMissingEnergyAlreadyApplied;
 		bool m_bKillByAttrition;
 		
-		double m_A;							//forewing area [cm²
-		double m_M;							//dry weight [g]
+		double m_A;							//forewing area [cm²]
+		double m_M°;						//initial dry weight [g]
+		double m_M;							//actual dry weight [g]
 		double m_p_exodus;
+		//double m_liftoff_hour;
 		bool m_bExodus;
 		bool m_bRemoveExodus;
 		
@@ -149,6 +151,7 @@ namespace WBSF
 		bool m_bApplyAttrition;
 		bool m_bFertilEgg;
 		bool m_bStopL22; //stop to L22 stage to get accumulation
+		double m_sunsetOffset; //lifoff sunset offset [h]
 
 		CSBWStand(WBSF::CBioSIMModelBase* pModel) :
 			WBSF::CStand(pModel),

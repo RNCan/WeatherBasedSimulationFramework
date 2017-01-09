@@ -563,7 +563,7 @@ namespace WBSF
 					}
 
 
-					msg += callback.StepIt(0);
+					msg += callback.StepIt();
 				}//for all scale
 
 				for (size_t s = 0; s < GetNbSpaces(); s++)
@@ -668,7 +668,7 @@ namespace WBSF
 					}
 				}
 
-				msg += callback.StepIt();
+				msg += callback.StepIt(0);
 			}
 		}
 		Catch(NEWMAT::Exception)

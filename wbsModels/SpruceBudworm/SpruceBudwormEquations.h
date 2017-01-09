@@ -36,7 +36,8 @@ namespace WBSF
 
 		double get_A(size_t sex)const;
 		double get_M(size_t sex, double A)const;
-		double get_M(size_t sex, double A, double G)const;
+		//double get_M(size_t sex, double A, double G)const;
+		double get_Mf(double A, double G)const;
 		double get_p_exodus()const;
 
 	protected:

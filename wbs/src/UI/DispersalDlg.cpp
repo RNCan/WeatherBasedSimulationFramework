@@ -41,7 +41,7 @@ namespace WBSF
 		EVENT_THRESHOLD, DEFOLIATION_THRESHOLD, DISTRACTION_THRESHOLD, HOST_THRESHOLD,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, WATER,
 		T_MIN, T_MAX, P_MAX, W_MIN, LIFTOFF_CORRECTION, LIFTOFF_SIGMA, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_RATIO, CRUISE_HEIGHT,
-		HEIGHT_YPE,	WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, NB_PROPERTIES
+		HEIGHT_YPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_EX, WING_BEAT_ALPHA, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, NB_PROPERTIES
 	};
 
 	BEGIN_MESSAGE_MAP(CDispersalPropertyGridCtrl, CMFCPropertyGridCtrl)
@@ -132,26 +132,25 @@ namespace WBSF
 		pHeight->AddSubItem(new CStdGridProperty(name[DURATION_BETA], 0, description[DURATION_BETA], DURATION_BETA));
 		pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_RATIO], 0, description[CRUISE_RATIO], CRUISE_RATIO));
 		pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_HEIGHT], 0, description[CRUISE_HEIGHT], CRUISE_HEIGHT));
-		
-		/*AddProperty(pTime);
-
-		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[4], -1);*/
 		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_YPE], "", description[HEIGHT_YPE], HEIGHT_YPE));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_K], 0, description[WING_BEAT_K], WING_BEAT_K));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_VMAX], "", description[WING_BEAT_VMAX], WING_BEAT_VMAX));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_EX], "", description[WING_BEAT_EX], WING_BEAT_EX));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_ALPHA], "", description[WING_BEAT_ALPHA], WING_BEAT_ALPHA));
-		//pHeight->AddSubItem(new CStdGridProperty(name[HEIGHT_MAX], "", description[HEIGHT_MAX], HEIGHT_MAX));
+
 		AddProperty(pHeight);
 
-		CMFCPropertyGridProperty* pVelocity = new CMFCPropertyGridProperty(section[5], -1);
-		//pVelocity->AddSubItem(new CStdGridProperty(name[W_ASCENT], "", description[W_ASCENT], W_ASCENT));
-		//pVelocity->AddSubItem(new CStdGridProperty(name[W_ASCENT_SD], "", description[W_ASCENT_SD], W_ASCENT_SD));
+		CMFCPropertyGridProperty* pVelocity = new CMFCPropertyGridProperty(section[4], -1);
 		pVelocity->AddSubItem(new CStdGridProperty(name[W_HORZ], "", description[W_HORZ], W_HORZ));
 		pVelocity->AddSubItem(new CStdGridProperty(name[W_HORZ_SD], "", description[W_HORZ_SD], W_HORZ_SD));
 		pVelocity->AddSubItem(new CStdGridProperty(name[W_DESCENT], "", description[W_DESCENT], W_DESCENT));
 		pVelocity->AddSubItem(new CStdGridProperty(name[W_DESCENT_SD], "", description[W_DESCENT_SD], W_DESCENT_SD));
 		AddProperty(pVelocity);
+
+		CMFCPropertyGridProperty* pOutput = new CMFCPropertyGridProperty(section[5], -1);
+		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_FILE_TITLE], "", description[OUTPUT_FILE_TITLE], OUTPUT_FILE_TITLE));
+		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_TIME_FREQUENCY], 600, description[OUTPUT_TIME_FREQUENCY], OUTPUT_TIME_FREQUENCY));
+		AddProperty(pOutput);
 
 	}
 
@@ -206,7 +205,8 @@ namespace WBSF
 			case W_HORZ_SD:			str = WBSF::ToString(in.m_ATM.m_w_horizontal_σ); break;
 			case W_DESCENT:			str = WBSF::ToString(in.m_ATM.m_w_descent); break;
 			case W_DESCENT_SD:		str = WBSF::ToString(in.m_ATM.m_w_descent_σ); break;
-
+			case OUTPUT_FILE_TITLE:	str = in.m_world.m_outputFileTitle; break;
+			case OUTPUT_TIME_FREQUENCY:	str = WBSF::ToString(in.m_world.m_outputFrequency); break;
 			default: ASSERT(false);
 			}
 
@@ -273,6 +273,8 @@ namespace WBSF
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;
 		case W_DESCENT_SD:		me.m_parameters.m_ATM.m_w_descent_σ = WBSF::ToDouble(str); break;
+		case OUTPUT_FILE_TITLE:	me.m_parameters.m_world.m_outputFileTitle = str; break;
+		case OUTPUT_TIME_FREQUENCY:	me.m_parameters.m_world.m_outputFrequency = WBSF::ToSizeT(str); break;
 		default: ASSERT(false);
 		}
 	}

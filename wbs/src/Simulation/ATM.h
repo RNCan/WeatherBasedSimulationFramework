@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_SEX, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_SCALE, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -298,6 +298,7 @@ namespace WBSF
 			if (m_w_horizontal_σ != in.m_w_horizontal_σ)bEqual = false;
 			if (m_w_descent != in.m_w_descent)bEqual = false;
 			if (m_w_descent_σ != in.m_w_descent_σ)bEqual = false;
+				
 			if (m_windS_stability_type != in.m_windS_stability_type)bEqual = false;
 			if (m_nb_weather_stations != in.m_nb_weather_stations)bEqual = false;
 			if (m_max_hour_load != in.m_max_hour_load)bEqual = false;
@@ -632,21 +633,22 @@ namespace WBSF
 	public:
 
 		//T_HUNTING, 
+		enum TStat{ HOURLY_STAT, SUB_HOURLY_STAT, NB_STATS};
 		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
-		enum TStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
+		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
 		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, CRUISE, LANDING, IDLE_END, DESTROYED, NB_STATES };
 		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF, END_BY_RAIN, END_BY_TAIR, END_BY_WNDS, END_OF_TIME_FLIGHT, FIND_HOST, FIND_DISTRACTION, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
 		// 
 		size_t m_rep;
 		size_t m_loc;
-		size_t m_var;
+		size_t m_par;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
 		double m_A;				//Forewing area [cm²]
 		double m_M;				//dry weight [g]
 		double m_G;				//gravid=1, spent=0, male=0
-		double m_liftoffTime;
+		double m_liftoffOffset; //liftoff Offset from the localTRef [s]
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level
@@ -655,7 +657,7 @@ namespace WBSF
 		CFlyer(CATMWorld& world);
 
 		void init();
-		void live();
+		void live(CTRef UTCTRef, __int64 UTCTime);
 		void create(CTRef UTCTRef, __int64 UTCTime);
 		void idle_begin(CTRef UTCTRef, __int64 time);
 		void liftoff(CTRef UTCTRef, __int64 UTCTime);
@@ -681,14 +683,14 @@ namespace WBSF
 		static double get_Tᴸ(size_t sex, double K, double Vmax, double A, double M);
 
 		double GetLog(size_t i)const{ return m_log[i]; }
-		double GetStat(size_t i, size_t s=MEAN)const{ return m_stat[i].IsInit() ? m_stat[i][s] : 0; }
-		const CStatistic& operator[](size_t i)const{ return m_stat[i]; }
-		void ResetStat(){ m_stat.fill(CStatistic()); }
+		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
+		//const CStatistic& operator()(size_t i, size_t v)const{ return m_stat[i][v]; }
+		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
 		const CFlightParameters& P()const{ return m_parameters; }
-		int GetUTCShift()const{ return int(m_UTCShift / 3600); }//in [h]
-		double get_MRatio()const;
+		int GetUTCShift()const{ return m_UTCShift; }//in [s]
+		//double get_MRatio()const;
 
 	protected:
 
@@ -706,9 +708,7 @@ namespace WBSF
 
 		//statistic of flight
 		std::array<double, NB_FLYER_LOG> m_log;
-		std::array<CStatistic, NB_FLYER_STAT> m_stat;
-
-
+		std::array<std::array<CStatistic, NB_FLYER_STAT>, 2> m_stat;
 		
 		static const double b[2];
 		static const double c[2];
@@ -727,7 +727,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, EVENT_THRESHOLD, DEFOL_THRESHOLD, DISTRACT_THRESHOLD, HOST_THRESHOLD, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, EVENT_THRESHOLD, DEFOL_THRESHOLD, DISTRACT_THRESHOLD, HOST_THRESHOLD, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, DISTRACTION, HOST, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -756,7 +756,10 @@ namespace WBSF
 		std::string m_hourly_DB_name;
 		std::string m_DEM_name;
 		std::string m_water_name;
-		
+
+		std::string m_outputFileTitle;
+		__int64 m_outputFrequency;
+
 
 		size_t get_time_step()const{ return m_time_step; }//[s]
 		size_t get_nb_time_step()const{ assert(3600 % m_time_step == 0); return size_t(3600 / m_time_step); }	//number of timeStep per hour
@@ -796,6 +799,9 @@ namespace WBSF
 			m_DEM_name.clear();
 			m_water_name.clear();
 
+			m_outputFileTitle.clear();
+			m_outputFrequency = 600;
+
 		}
 
 
@@ -826,6 +832,10 @@ namespace WBSF
 				m_hourly_DB_name = in.m_hourly_DB_name;
 				m_DEM_name = in.m_DEM_name;
 				m_water_name = in.m_water_name;
+
+				m_outputFileTitle = in.m_outputFileTitle;
+				m_outputFrequency = in.m_outputFrequency;
+
 			}
 
 			return *this;
@@ -857,6 +867,10 @@ namespace WBSF
 			if (m_hourly_DB_name != in.m_hourly_DB_name)bEqual = false;
 			if (m_DEM_name != in.m_DEM_name)bEqual = false;
 			if (m_water_name != in.m_water_name)bEqual = false;
+
+			if (m_outputFileTitle != in.m_outputFileTitle)bEqual = false;
+			if (m_outputFrequency != in.m_outputFrequency)bEqual = false;
+
 
 
 			return bEqual;
@@ -908,7 +922,7 @@ namespace WBSF
 		bool is_over_distraction(const CGeoPoint3D& pt)const;
 		bool is_over_host(const CGeoPoint3D& pt)const;
 
-		ERMsg Execute(CATMOutputMatrix& output, CCallback& callback);
+		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
 
 		CATMWorld() :
 			m_weather(*this)//pas sure...
@@ -921,7 +935,7 @@ namespace WBSF
 		CTPeriod get_period(bool bUTC = true, int year = YEAR_NOT_INIT)const;
 		std::set<CTRef> get_TRefs(int year)const;
 
-		const CStatistic& GetStats(size_t i)const{ return  m_stats[i]; }
+		//const CStatistic& GetStats(size_t i)const{ return  m_stats[i]; }
 
 
 		CProjectionTransformation m_GEO2DEM;
@@ -929,17 +943,17 @@ namespace WBSF
 		CProjectionTransformation m_WEA2GEO;
 
 
-		void get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const;
-		double get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 t°, __int64 tᴹ)const;
-		__int64 get_t_liftoff_offset(__int64 t°, __int64 tᴹ)const;
+		//void get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const;
+		//double get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 t°, __int64 tᴹ)const;
+		//__int64 get_t_liftoff_offset(__int64 t°, __int64 tᴹ)const;
 		__int64 get_duration()const;
 
 		
-		size_t get_S()const;
-		double get_G(size_t sex)const;
-		double get_A(size_t sex)const;
-		double get_M(size_t sex, double A)const;
-		double get_M(size_t sex, double A, double G)const;
+		//size_t get_S()const;
+		//double get_G(size_t sex)const;
+		//double get_A(size_t sex)const;
+		//double get_M(size_t sex, double A)const;
+		//double get_M(size_t sex, double A, double G)const;
 		
 		double get_w_horizontal()const;
 		double get_w_descent()const;
@@ -950,13 +964,13 @@ namespace WBSF
 		CTRef m_UTCTRef;
 		__int64 m_UTCTTime;
 		CRandomGenerator m_random;
-		static const double Δtᶠ;
-		static const double Δtᶳ;
-		static const double T°;
+		//static const double Δtᶠ;
+		//static const double Δtᶳ;
+		//static const double T°;
 
 
 		//statistic of simulation
-		std::array<CStatistic, 1 > m_stats;
+		//std::array<CStatistic, 1 > m_stats;
 	};
 
 }
@@ -1054,6 +1068,9 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](in.m_hourly_DB_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](in.m_DEM_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WATER)](in.m_water_name);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FILE_TITLE)](in.m_outputFileTitle);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](in.m_outputFrequency);
+
 	}
 
 	template <> inline
@@ -1082,6 +1099,8 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](out.m_hourly_DB_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](out.m_DEM_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WATER)](out.m_water_name);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FILE_TITLE)](out.m_outputFileTitle);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](out.m_outputFrequency);
 
 		return true;
 	}
