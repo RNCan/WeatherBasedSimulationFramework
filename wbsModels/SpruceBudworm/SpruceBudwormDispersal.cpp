@@ -224,7 +224,7 @@ namespace WBSF
 		{
 			for (CBugStatVectorMap::iterator it = flyers[sex].begin(); it != flyers[sex].end(); it++)
 			{
-				static const double SEX_RATIO[2] = { 3.0, 7.0 };
+				static const double SEX_RATIO[2] = { 1.0, 1.0 };
 				const CBugStatVector& bugs = it->second;
 				//randomly select an insect
 				size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);

@@ -211,7 +211,7 @@ namespace WBSF
 
 	}
 	
-	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "LiftoffOffset", "LiftoffSDCorr", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseRatio", "CruiseHeight", "HeightType", "WLogMean", "WlogSD", "WingBeatExponent", "WingBeatFactor", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VMaxF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 	//const double CATMWorld::Δtᶠ = 3;
 	//const double CATMWorld::Δtᶳ = -1.0;
@@ -928,12 +928,7 @@ namespace WBSF
 	//return forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
-		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
-
-		//double Vᴸ = 0;
-		//if (T > 0)
-			//Vᴸ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
-		
+		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Vᵀ(m_sex, Vmax, T);
 	}
@@ -952,14 +947,7 @@ namespace WBSF
 	double CFlyer::get_Tᴸ()const
 	{
 		double K = m_world.m_parameters2.m_K;
-		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_w_Ex);
-//		double A = m_parameters.m_A;
-	//	double M = m_parameters.m_M;
-		//double Vᴸ = K* sqrt(M) / A;
-
-		//double Tᴸ = (Vᴸ<Vmax) ? b[m_sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[m_sex]) : 40;
-
-//		ASSERT(!isnan(Tᴸ));
+		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Tᴸ(m_sex, K, Vmax, m_A, m_M);
 	}
@@ -2122,7 +2110,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "EventThreshold", "DefoliationThreshold", "DistractionThreshold", "HostThreshold", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Distraction", "Host", "OutputFileTitle", "OutputFrequency" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
 
 
 std::set<int> CATMWorld::get_years()const
