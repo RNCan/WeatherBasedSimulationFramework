@@ -58,8 +58,9 @@ namespace WBSF
 
 		m_A = Equations().get_A(m_sex);
 		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
+		m_fecondity = POTENTIAL_FECONDITY;
+
 		m_p_exodus = Equations().get_p_exodus();
-		//m_liftoff_hour = -999;
 		m_bExodus = false;
 		m_bRemoveExodus = false;
 
@@ -221,17 +222,17 @@ namespace WBSF
 		{
 			//brooding
 
-			double eggLeft = POTENTIAL_FECONDITY - m_totalBroods;
+			double eggLeft = m_fecondity - m_totalBroods;
 			double Tmax = weather[H_TMAX2][MEAN];
 			double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
-			if (m_totalBroods + brood > POTENTIAL_FECONDITY)
-				brood = POTENTIAL_FECONDITY - m_totalBroods;
+			if (m_totalBroods + brood > m_fecondity)
+				brood = m_fecondity - m_totalBroods;
 
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = brood;
 			m_totalBroods += brood;
 
-			ASSERT(m_totalBroods <= POTENTIAL_FECONDITY);
+			ASSERT(m_totalBroods <= m_fecondity);
 
 			//Oviposition module after Régniere 1983
 			if (m_bFertil && m_broods > 0)
@@ -245,9 +246,16 @@ namespace WBSF
 			}
 
 			//adjust female weight
-			double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
-			double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
-			m_M = m_M° * Mᶜ / M°;
+			//double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
+			//double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
+			//m_M = m_M° * Mᶜ / M°;
+			m_M = Equations().get_Mf(m_A, GetG());
+
+
+			//double G1 = GetG();
+			//double G2 = (log(m_M) + 6.465 - 2.14*m_A) / (0.974+1.305*m_A);
+			//int g = 0;
+			//g += 1;
 		}
 	}
 
@@ -400,14 +408,17 @@ namespace WBSF
 	bool CSpruceBudworm::GetExodus(double T, double P, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 166;
-		static const double b[2] = { 21.35, 24.08 };
-		static const double c[2] = { 2.97, 6.63 };
-		static const double VmaxF[2] = { 1.0, 1.2 };
+		static const double K = 166.0;
+		//static const double b[2] = { 21.35, 24.08 };
+		//static const double c[2] = { 2.97, 6.63 };
+		static const double b[2] = { 21.35, 21.35 };
+		static const double c[2] = { 2.97, 2.97 };
+
+		static const double VmaxF[2] = { 1.0, 1.0 };
 
 		bool bExodus = false;
 
-		if (T > 0 && P < 0.2)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
+		if (T > 0 && P < 0.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
 		{
 			
 			const double Vmax = 65 * VmaxF[m_sex];
