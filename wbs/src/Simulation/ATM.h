@@ -171,23 +171,21 @@ namespace WBSF
 			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
 
 			m_duration_min = 0.5;
-			m_duration_max = 9;						//[h]
+			m_duration_max = 9;						//Maximum flight duration [h]
 			m_duration_α = 0.9;						//alpha
 			m_duration_β = 3;						//beta
 			
 			m_cruise_duration = 0.0;				//[h]
 			m_cruise_height = 50;					//[m]
 			m_height_type = WING_BEAT;
-			m_K = 166;
-			m_Vmax = 65;							//Male Vmax
-			m_VmaxF = 1.2;							//Female Vmac multiplication factor
-			m_w_α = 0.6 * 3600 / 1000;				//km/(h Hz)
-			//m_w_ascent = 0.6 * 3600 / 1000;		//[km/h]
-			//m_w_ascent_σ = 0.2 * 3600 / 1000;		//[km/h] attention ici c'est 0.1 dans l'article
-			m_w_horizontal = 2.0 * 3600 / 1000;		//[km/h]
-			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//[km/h] 
-			m_w_descent = -2.0 * 3600 / 1000;		//[km/h]
-			m_w_descent_σ = 1.0 * 3600 / 1000;		//[km/h]
+			m_K = 166;								//Proportionality constant [Hz•cm²/g½]
+			m_Vmax = 65;							//Maximum male wingbeat [Hz]
+			m_VmaxF = 1.2;							//Maximum female wingbeat multiplication factor
+			m_w_α = 0.4;							//scale factor [km/(h•Hz)]
+			m_w_horizontal = 2.0 * 3600 / 1000;		//horizontal mean speed [km/h]
+			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//horizontal speed standard deviation [km/h] 
+			m_w_descent = -2.0 * 3600 / 1000;		//descent mean speed [km/h]
+			m_w_descent_σ = 1.0 * 3600 / 1000;		//descent speed standard deviation [km/h]
 
 			m_windS_stability_type = CWindStability::AUTO_DETECT;
 			m_nb_weather_stations = 3;
@@ -551,62 +549,61 @@ namespace WBSF
 
 
 	//target parameters
-	class CFlightParameters
-	{
-	public:
+	//class CFlightParameters
+	//{
+	//public:
 
-		//double m_M;				//dry weight [g]
-		//double m_A;				//Forewing area [cm²]
-		double m_p_exodus;		//exodus probability
 
-		double m_w_horizontal;	//horizontal flight speed [m/s]
-		double m_w_descent;		//descent flight speed [m/s]
-		__int64 m_duration;		//total flight duration [s]
-		__int64 m_cruise_duration;//cruise duration[s]
-		__int64 m_t_liftoff;	//launch time in evening
-		
+	//	double m_w_horizontal;	//horizontal flight speed [m/s]
+	//	double m_w_descent;		//descent flight speed [m/s]
+	//	__int64 m_UTCLiffoff;		//
+	//	__int64 m_duration;		//total flight duration [s]
+	//	__int64 m_cruise_duration;//cruise duration[s]
 
-		CFlightParameters()
-		{
-			//m_A = 0;
-			//m_M = 0;
-			m_p_exodus = 0;
-			
-			m_w_horizontal = 0;
-			m_w_descent = 0;
-			m_t_liftoff = 0;
-			m_duration = 0;
-			m_cruise_duration = 0;
-		}
+	//	CFlightParameters()
+	//	{
+	//		m_w_horizontal = 0;
+	//		m_w_descent = 0;
+	//		m_duration = 0;
+	//		m_cruise_duration = 0;
+	//	}
 
-	};
+	//};
 
 
 	class CFlyer
 	{
 	public:
 
-		//T_HUNTING, 
+
 		enum TStat{ HOURLY_STAT, SUB_HOURLY_STAT, NB_STATS};
 		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
 		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, CRUISE, LANDING, IDLE_END, DESTROYED, NB_STATES };
-		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF, END_BY_RAIN, END_BY_TAIR, END_BY_WNDS, END_OF_TIME_FLIGHT, FIND_HOST, FIND_DISTRACTION, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
-		// 
+		enum TEnd{ NO_END_DEFINE, NO_LIFTOFF_PRCP, NO_LIFTOFF_TAIR, NO_LIFTOFF_WNDS, END_BY_PRCP, END_BY_TAIR, END_OF_TIME_FLIGHT, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
+
+
+// 
 		size_t m_rep;
 		size_t m_loc;
 		size_t m_par;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
-		double m_A;				//Forewing area [cm²]
+		double m_A;				//Forewing surface area [cm²]
 		double m_M;				//dry weight [g]
-		double m_G;				//gravid=1, spent=0, male=0
+		double m_G;				//gravidity gravid=1, spent=0, male=0
 		double m_liftoffOffset; //liftoff Offset from the localTRef [s]
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level
 		CGeoPoint3D m_pt;		//same as m_newLocation but with flight height instead of elevation over sea level
+		double m_w_horizontal;	//horizontal flight speed [m/s]
+		double m_w_descent;		//descent flight speed [m/s]
+		__int64 m_liffoff_time;	//UTC liftoff time [s]
+		__int64 m_duration;		//total flight duration [s]
+		__int64 m_cruise_duration;//cruise duration[s]
+
 
 		CFlyer(CATMWorld& world);
 
@@ -638,23 +635,22 @@ namespace WBSF
 
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
-		//const CStatistic& operator()(size_t i, size_t v)const{ return m_stat[i][v]; }
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
-		const CFlightParameters& P()const{ return m_parameters; }
+	//	const CFlightParameters& P()const{ return m_parameters; }
 		int GetUTCShift()const{ return m_UTCShift; }//in [s]
-		//double get_MRatio()const;
+
 
 	protected:
 
 		void AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d);
-
+		void AddStat(const CATMVariables& w);
 
 		__int64 m_creation_time;//creation time in second
 		__int64 m_UTCShift;//shift between local time and UTC [s]
 
-		CFlightParameters m_parameters;
+//		CFlightParameters m_parameters;
 
 		int m_state;		//state of the flyer
 		int m_end_type;		//Terminason of the flyer

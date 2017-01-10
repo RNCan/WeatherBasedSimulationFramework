@@ -32,15 +32,14 @@
 //IDLE_END				5
 //DESTROYED				6
 //NO_END_DEFINE			10
-//NO_LIFTOFF			11
-//END_BY_RAIN			12
-//END_BY_TAIR			13
-//END_BY_WNDS			14
-//END_OF_TIME_FLIGHT	15
-//FIND_HOST				16
-//FIND_DISTRACTION		17
-//OUTSIDE_MAP			18
-//OUTSIDE_TIME_WINDOW	19
+//NO_LIFTOFF_PRCP  	    11
+//NO_LIFTOFF_TAIR  	    12
+//NO_LIFTOFF_WNDS  	    13
+//END_BY_PRCP			14
+//END_BY_TAIR			15
+//END_OF_TIME_FLIGHT	16
+//OUTSIDE_MAP			17
+//OUTSIDE_TIME_WINDOW	18
 
 
 
@@ -402,12 +401,6 @@ namespace WBSF
 
 	//***********************************************************************************************
 
-	
-	const double CFlyer::b[2] = { 21.35, 24.08 };
-	const double CFlyer::c[2] = { 2.97, 6.63 };
-
-	
-
 	CFlyer::CFlyer(CATMWorld& world) :
 		m_world(world)
 	{
@@ -423,6 +416,12 @@ namespace WBSF
 		m_end_type = NO_END_DEFINE;
 		m_creation_time = 0;
 		m_liftoffOffset = 0;
+		m_w_horizontal = 0;
+		m_w_descent = 0;
+		m_liffoff_time = 0;
+		m_duration = 0;		
+		m_cruise_duration = 0;
+
 		m_log.fill(0);
 		m_UTCShift = 0;
 	}
@@ -437,11 +436,11 @@ namespace WBSF
 
 		ASSERT(m_liftoffOffset >= 0 && m_liftoffOffset <= 3600);
 		
-		m_parameters.m_t_liftoff = UTCTime + m_liftoffOffset;
-		m_parameters.m_w_horizontal = m_world.get_w_horizontal();
-		m_parameters.m_w_descent = m_world.get_w_descent();
-		m_parameters.m_duration = m_world.get_duration();
-		m_parameters.m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
+		m_liffoff_time = UTCTime + m_liftoffOffset;
+		m_w_horizontal = m_world.get_w_horizontal();
+		m_w_descent = m_world.get_w_descent();
+		m_duration = m_world.get_duration();
+		m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
 	}
 
 	void CFlyer::AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d)
@@ -462,6 +461,18 @@ namespace WBSF
 			m_stat[i][S_W_HORIZONTAL] += sqrt(U.m_x*U.m_x + U.m_y*U.m_y); //horizontal speed [m/s]
 			m_stat[i][S_W_VERTICAL] += U.m_z;	//ascent speed [m/s]
 			m_stat[i][S_HEIGHT] += m_pt.m_z;	//flight height [m]
+		}
+	}
+	
+	void CFlyer::AddStat(const CATMVariables& w)
+	{
+		for (size_t i = 0; i < NB_STATS; i++)
+		{
+			m_stat[i][S_TAIR] += w[ATM_TAIR];
+			m_stat[i][S_PRCP] = w[ATM_PRCP];
+			m_stat[i][S_U] += w[ATM_WNDU];
+			m_stat[i][S_V] += w[ATM_WNDV];
+			m_stat[i][S_W] += w[ATM_WNDW];
 		}
 	}
 
@@ -535,37 +546,21 @@ namespace WBSF
 
 	void CFlyer::create(CTRef UTCTRef, __int64 UTCTime)
 	{
-		__int64 countdown = (__int64)UTCTime - m_parameters.m_t_liftoff;
+		__int64 countdown = (__int64)UTCTime - m_liffoff_time;
 		if (countdown >= 0)
 		{
-
-			//init the object
-			bool bFlight = false;
-			if (m_world.is_over_defoliation(m_pt))
-				bFlight = true;
-
-			if (bFlight)
-			{
-				m_state = IDLE_BEGIN;
-			}
-			else
-			{
-				m_state = IDLE_END;
-				m_end_type = NO_LIFTOFF;
-			}
-
+			m_state = IDLE_BEGIN;
 			m_log[T_CREATION] = m_world.get_UTC_time();
+
+			AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
 		}
 	}
 
 	void CFlyer::idle_begin(CTRef UTCTRef, __int64 UTCTime)
 	{
 		CATMVariables w = m_world.get_weather(m_pt, UTCTRef, UTCTime);
+		AddStat(w);
 
-
-		//__int64 countdown = (__int64)UTCTime - m_parameters.m_t_liftoff;
-		//if (countdown >= 0)
-		//{
 		double Wmin = m_world.m_parameters2.m_Wmin * 1000 / 3600; //km/h -> m/s 
 		double Tmin = m_world.m_parameters2.m_Tmin;
 		double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
@@ -579,27 +574,21 @@ namespace WBSF
 		}
 		else
 		{
-			//__int64 duration = UTCTime - m_parameters.m_t_liftoff;
-			//if (duration > (__int64)m_parameters.m_duration)
-			//{
-			//if (w[ATM_TAIR] < Tᴸ)							//flight abort
-				//m_end_type = END_BY_TAIR;
-			//else
-				//m_end_type = END_BY_WNDS;
-			m_end_type = NO_LIFTOFF;
-			m_state = IDLE_END;
-			//}
-		}
-		//}
+			__int64 duration = UTCTime - m_liffoff_time;
+			if (duration > 2*3600)
+			{
+				//flight abort
+				if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
+					m_end_type = NO_LIFTOFF_PRCP;
+				if (w[ATM_TAIR] < Tᴸ)							
+					m_end_type = NO_LIFTOFF_TAIR;
+				else
+					m_end_type = NO_LIFTOFF_WNDS;
 
-		/*for (size_t i = 0; i < NB_STATS; i++)
-		{
-			m_stat[i][S_TAIR] += w[ATM_TAIR];
-			m_stat[i][S_PRCP] = w[ATM_PRCP];
-			m_stat[i][S_U] += w[ATM_WNDU];
-			m_stat[i][S_V] += w[ATM_WNDV];
-			m_stat[i][S_W] += w[ATM_WNDW];
-		}*/
+				m_state = IDLE_END;
+			}
+		}
+		
 	}
 
 
@@ -608,15 +597,8 @@ namespace WBSF
 		m_log[T_LIFTOFF] = UTCTime;
 		m_state = FLIGHT;
 
-		CATMVariables w = get_weather(UTCTRef, UTCTime);
-		for (size_t i = 0; i < NB_STATS; i++)
-		{
-			m_stat[i][S_TAIR] += w[ATM_TAIR];
-			m_stat[i][S_PRCP] = w[ATM_PRCP];
-			m_stat[i][S_U] += w[ATM_WNDU];
-			m_stat[i][S_V] += w[ATM_WNDV];
-			m_stat[i][S_W] += w[ATM_WNDW];
-		}
+		CATMVariables w = m_world.get_weather(m_pt, UTCTRef, UTCTime);
+		AddStat(w);
 	}
 
 
@@ -631,7 +613,7 @@ namespace WBSF
 		CATMVariables w = get_weather(UTCTRef, UTCTime);
 		if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 		{
-			__int64 duration = UTCTime - m_parameters.m_t_liftoff;
+			__int64 duration = UTCTime - m_liffoff_time;
 			//bool bOverWater = false;
 			//if (m_world.m_water_DS.IsOpen() && duration >= (__int64)m_parameters.m_duration)
 			//{
@@ -648,7 +630,7 @@ namespace WBSF
 
 			////|| bOverWater
 			//if (duration < (__int64)m_parameters.m_duration || bOverWater)
-			if (duration < (__int64)m_parameters.m_duration)
+			if (duration < m_duration)
 			{
 				double dt = m_world.get_time_step(); //[s]
 
@@ -710,7 +692,7 @@ namespace WBSF
 		else
 		{
 			m_state = LANDING;
-			m_end_type = END_BY_RAIN;
+			m_end_type = END_BY_PRCP;
 		}
 
 	}
@@ -817,7 +799,7 @@ namespace WBSF
 			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
 
 			if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
-				m_end_type = END_BY_RAIN;
+				m_end_type = END_BY_PRCP;
 			else if (w[ATM_TAIR] < Tᴸ)
 				m_end_type = END_BY_TAIR;
 			else
@@ -840,24 +822,12 @@ namespace WBSF
 
 	void CFlyer::idle_end(CTRef UTCTRef, __int64 UTCTime)
 	{
+		ASSERT(m_end_type != NO_END_DEFINE);
+
 		if (m_log[T_IDLE_END] == 0)
 			m_log[T_IDLE_END] = UTCTime;
 
-		//CATMVariables w = m_world.get_weather(m_pt, UTCTRef, UTCTime);
-
-		//for (size_t i = 0; i < NB_STATS; i++)
-		//{
-		//	m_stat[i][S_TAIR] += w[ATM_TAIR];
-		//	m_stat[i][S_PRCP] = w[ATM_PRCP];
-		//	m_stat[i][S_U] += w[ATM_WNDU];
-		//	m_stat[i][S_V] += w[ATM_WNDV];
-		//	m_stat[i][S_W] += w[ATM_WNDW];
-		//}
-
-		//if (UTCTime - m_log[T_IDLE_END] > 3600)
-		//m_state = DESTROYED;
-
-		ASSERT(m_end_type != NO_END_DEFINE);
+		AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
 	}
 
 	void CFlyer::destroy(CTRef UTCTRef, __int64 UTCTime)
@@ -865,11 +835,6 @@ namespace WBSF
 		m_log[T_DESTROY] = UTCTime;
 	}
 
-
-	//double CFlyer::get_MRatio()const
-	//{
-	//	return 0;
-	//}
 
 	CGeoDistance3D CFlyer::get_U(__int64 UTCTime, const CATMVariables& w)const
 	{
@@ -891,16 +856,16 @@ namespace WBSF
 		}
 			
 
-		double Ux = (w[ATM_WNDU] + cos(alpha)*m_parameters.m_w_horizontal);	//[m/s]
-		double Uy = (w[ATM_WNDV] + sin(alpha)*m_parameters.m_w_horizontal);	//[m/s]
+		double Ux = (w[ATM_WNDU] + cos(alpha)*m_w_horizontal);	//[m/s]
+		double Uy = (w[ATM_WNDV] + sin(alpha)*m_w_horizontal);	//[m/s]
 		double Uz = 0;
 
 
 		switch (m_state)
 		{
 		case FLIGHT:	Uz = w[ATM_WNDW] + get_Uz(UTCTime, w); break;	//[m/s]; 
-		case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_parameters.m_w_descent):0; break;	//[m/s]
-		case LANDING:	Uz = w[ATM_WNDW] + m_parameters.m_w_descent; break;	//[m/s]
+		case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_w_descent):0; break;	//[m/s]
+		case LANDING:	Uz = w[ATM_WNDW] + m_w_descent; break;	//[m/s]
 		default: assert(false);
 		}
 
@@ -924,34 +889,49 @@ namespace WBSF
 		return CGeoDistance3D(Ux, Uy, Uz, m_pt.GetPrjID());
 	}
 
-	//double T : tair temperature [°C]
-	//return forewing frequency [Hz] for this temperature
+
+	//const double CFlyer::b[2] = { 21.35, 24.08 };
+	//const double CFlyer::c[2] = { 2.97, 6.63 };
+	const double CFlyer::b[2] = { 21.35, 21.35 };
+	const double CFlyer::c[2] = { 2.97, 2.97 };
+
+	//T : air temperature [°C]
+	//out: forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Vᵀ(m_sex, Vmax, T);
 	}
-	
+
+	//sex : male=0, female=1
+	//Vmax: maximum wingbeat [Hz]
+	//T : air temperature [°C]
+	//out: forewing frequency [Hz] 
 	double CFlyer::get_Vᵀ(size_t sex, double Vmax, double T)
 	{
-		double Vᴸ = 0;
+		double Vᵀ = 0;
 		if (T > 0)
-			Vᴸ = Vmax*(1 - exp(-pow(T / b[sex], c[sex])));
+			Vᵀ = Vmax*(1 - exp(-pow(T / b[sex], c[sex])));
 
 
-		return Vᴸ;
+		return Vᵀ;
 	}
 
-	//return liftoff temperature [°C] for this insect
+	//out : liftoff temperature [°C] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
-		double K = m_world.m_parameters2.m_K;
+		double K = m_world.m_parameters2.m_K; 
 		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Tᴸ(m_sex, K, Vmax, m_A, m_M);
 	}
 	
+	//K : constant
+	//Vmax: maximum wingbeat [Hz]
+	//A : forewing surface area [cm²]
+	//M : dry weight [g]
+	//out : liftoff temperature [°C] 
 	double CFlyer::get_Tᴸ(size_t sex, double K, double Vmax, double A, double M)
 	{
 		double Vᴸ = K* sqrt(M) / A;
@@ -2284,8 +2264,8 @@ CTPeriod CATMWorld::get_UTC_period(const vector<CFlyersIt>& fls)
 
 	for (size_t i = 0; i < fls.size(); i++)
 	{
-		__int64  UTCLiftoff = (__int64)floor(fls[i]->P().m_t_liftoff);
-		__int64  UTCLanding = (__int64)ceil(UTCLiftoff + fls[i]->P().m_duration);
+		__int64  UTCLiftoff = (__int64)floor(fls[i]->m_liffoff_time);
+		__int64  UTCLanding = (__int64)ceil(UTCLiftoff + fls[i]->m_duration);
 		UTCp += CTimeZones::UTCTime2UTCTRef(UTCLiftoff);
 		UTCp += CTimeZones::UTCTime2UTCTRef(UTCLanding) + 1 + 1;//add 2 extra hours for landing and cuboid
 	}
@@ -2402,13 +2382,13 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 							//if (localTRef >= flyer.m_localTRef && flyer.GetState() < CFlyer::DESTROYED)
 							//if (countdown>)
 							//{
-							for (size_t seconds = 0; seconds < 3600; seconds += get_time_step())
+							for (size_t seconds = 0; seconds < 3600 && flyer.GetState() < CFlyer::DESTROYED; seconds += get_time_step())
 							{
 								__int64 UTCTTime = m_UTCTTime + seconds;
 								flyer.live(m_UTCTRef, UTCTTime);
 
-								__int64 countdown1 = UTCTTime - flyer.P().m_t_liftoff;
-								__int64 countdown2 = flyer.GetLog(CFlyer::T_LANDING)>0 ? UTCTTime - flyer.GetLog(CFlyer::T_LANDING): 0;
+								__int64 countdown1 = UTCTTime - flyer.m_liffoff_time;
+								__int64 countdown2 = flyer.GetLog(CFlyer::T_IDLE_END)>0 ? UTCTTime - flyer.GetLog(CFlyer::T_IDLE_END) : 0;
 
 								size_t state = (flyer.GetState() == CFlyer::IDLE_END) ? 10 + flyer.GetEnd() : flyer.GetState();
 								
@@ -2421,16 +2401,10 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 								{
 									if (output[flyer.m_loc][flyer.m_par][flyer.m_rep].IsInside(localTRef))
 									{
-										//double angle = -999;
-										//double D° = -999;
-										//if (flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_Y) != -999 || flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_X) != -999)
-										//{
-											//double alpha = PI / 2;
 										double alpha = atan2(flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_X));
 										double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 										ASSERT(angle >= 0 && angle <= 360);
 										double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
-										//}
 
 										size_t liftoffTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LIFTOFF), flyer.m_location);
 										size_t landingTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LANDING), flyer.m_location);
@@ -2682,8 +2656,9 @@ size_t GetLevel(const string& strLevel)
 	}
 	else 
 	{
-		bool bValid = strLevel.find('-') == string::npos && strLevel.length() >= 6 && isdigit(strLevel[0]) && strLevel.substr(strLevel.length()-2)=="mb";
-		if (bValid)
+		bool bValid1 = strLevel.find('-') == string::npos && strLevel.length() >= 6 && isdigit(strLevel[0]) && strLevel.substr(strLevel.length()-2)=="mb";
+		bool bValid2 = strLevel.length() == 1 || strLevel.length() == 2;
+		if (bValid1 || bValid2)
 		{
 			level = ToSizeT(strLevel);
 			if (level >= 100 && level <= 1000)
