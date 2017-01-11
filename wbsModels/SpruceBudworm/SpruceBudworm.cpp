@@ -224,7 +224,9 @@ namespace WBSF
 
 			double eggLeft = m_fecondity - m_totalBroods;
 			double Tmax = weather[H_TMAX2][MEAN];
-			double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
+			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
+			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
+			double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
 			if (m_totalBroods + brood > m_fecondity)
 				brood = m_fecondity - m_totalBroods;
 
@@ -411,10 +413,11 @@ namespace WBSF
 		static const double K = 166.0;
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
+		//static const double VmaxF[2] = { 1.0, 1.2 };
+		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-
-		static const double VmaxF[2] = { 1.0, 1.0 };
+		static const double VmaxF[2] = { 1.0, 0.9 };
 
 		bool bExodus = false;
 
