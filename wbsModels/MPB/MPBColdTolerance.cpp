@@ -17,7 +17,7 @@ using namespace WBSF::HOURLY_DATA;
 namespace WBSF
 {
 
-	//First day of cold-tolerance accumulation: Aug 1. (date, base 0)
+	//First day of cold-tolerance accumulation: Aug 1. (date, base 0) 
 	static const int T_0 = 212; //This is t sub 0 in Equation [7]
 	static const int T_1 = 364; //This is t sub 1 in Equation [7]
 
