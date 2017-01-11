@@ -210,7 +210,7 @@ namespace WBSF
 
 	}
 	
-	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VMaxF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 	//const double CATMWorld::Δtᶠ = 3;
 	//const double CATMWorld::Δtᶳ = -1.0;
