@@ -25,21 +25,25 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
-	enum Toutput { O_MALES_EXODUS, O_FEMALES_EXODUS, O_LM, O_LF, O_AM, O_AF, O_MM, O_MF, O_GF, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "nbMales,nbFemales,Lm,Lf,Am,Af,Mm,Mf,Gf";
+	enum Toutput { O_EM, O_EF, O_LM, O_LF, O_AM, O_AF, O_MM, O_MF, O_GF, O_T, O_P, O_W, O_S, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "T,P,Ws,nbMales,nbFemales,Lm,Lf,Am,Af,Mm,Mf,Gf,sunset";
 
 	class CBugStat
 	{
 	public:
 		
 
-		CBugStat(size_t sex, size_t L, double A, double M, double G)
+		CBugStat(size_t sex, size_t L, double A, double M, double G, double T, double P, double W, double S)
 		{
 			m_sex=sex;
 			m_L=L;
 			m_A=A;
 			m_M=M;
 			m_G=sex==FEMALE?G:-999;
+			m_T = T;
+			m_P = P;
+			m_W = W;
+			m_S = S;
 		}
 
 		size_t m_sex;
@@ -47,6 +51,11 @@ namespace WBSF
 		double m_A;
 		double m_M;
 		double m_G;
+		double m_T;
+		double m_P;
+		double m_W;
+		double m_S;
+
 	};
 	
 	typedef vector<CBugStat> CBugStatVector;
@@ -56,7 +65,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 2;
+		NB_INPUT_PARAMETER = 3;
 		VERSION = "1.0.0 (2017)";
 	}
 
@@ -73,6 +82,7 @@ namespace WBSF
 		int c = 0;
 		m_nbMoths = parameters[c++].GetInt();
 		m_sunsetOffset = parameters[c++].GetFloat();
+		m_defoliation = parameters[c++].GetFloat();
 
 		return msg;
 	}
@@ -84,11 +94,27 @@ namespace WBSF
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 
+		CSun sun(m_weather.GetLocation().m_lat, m_weather.GetLocation().m_lon);
+		
+
 		//This is where the model is actually executed
-		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+		m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+		for (size_t y = 0; y < m_weather.size(); y++)
+		{
+			CTPeriod p = m_weather[y].GetEntireTPeriod();
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+				if (TRef.GetHour()==0)
+					m_output[TRef][O_S] = (sun.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
+			
+		}
+
+		return msg;
+
+
+
 		CTPeriod overallPeriod;
 
-		CBugStatVectorMap flyers[2];
+		CBugStatVectorMap flyers;
 
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
@@ -96,17 +122,22 @@ namespace WBSF
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			//CTStatMatrix annualStat(p, NB_OUTPUTS);
 
+			//Create stand
 			CSBWStand stand(this);
+			stand.m_bFertilEgg = false;
+			stand.m_bApplyAttrition = false;
+			stand.m_sunsetOffset = m_sunsetOffset;
+			stand.m_defoliation = m_defoliation;
+
 			CSBWTreePtr pTree(new CSBWTree(&stand));
+			stand.m_host.push_front(pTree);
+
 
 			//Create tree
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbMoths, m_nbMoths, L2o, NOT_INIT, false, 0));
 
-			//Create stand
-			stand.m_bFertilEgg = false;
-			stand.m_bApplyAttrition = false;
-			stand.m_sunsetOffset = m_sunsetOffset;
-			stand.m_host.push_front(pTree);
+
+
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -155,19 +186,22 @@ namespace WBSF
 
 										double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
 										double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
-										double Tdew = w[h][H_TDEW];
-										double v = w[h][H_WNDS];
+										double WS = w[h][H_WNDS];
 
-										bExodus = budworm.GetExodus(T, P, Tdew, v, tau);
+										bExodus = budworm.GetExodus(T, P, WS, tau);
 										if (bExodus)
 										{
+											CSun sun(day°.GetLocation().m_lat, day°.GetLocation().m_lon);
+											double sunset = (sun.GetSunset(day°.GetTRef()) + 1.0 + m_sunsetOffset);//+1 hour : assume to be in daylight zone  //[s]
+
+
 											size_t sex = budworm.GetSex();
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
 											overallPeriod += TRefTmp;
-											flyers[sex][TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG()));
+											flyers[TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
 
-											budworm.SetStatus(CIndividual::DEAD);
-											budworm.SetDeath(CIndividual::EXODUS);
+											//budworm.SetStatus(CIndividual::DEAD);
+											//budworm.SetDeath(CIndividual::EXODUS);
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur
@@ -178,7 +212,7 @@ namespace WBSF
 						}//temperature is over -10 °C
 					}//if is alive
 				}//for all insect 
-				
+
 				HxGridTestConnection();
 			}//for all hours of a year
 		}//for all years
@@ -186,30 +220,111 @@ namespace WBSF
 		//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
 		m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
 
+		////copy stat to output
+		//for (int sex = 0; sex < 2; sex++)
+		//{
+		//	for (CBugStatVectorMap::iterator it = flyers[sex].begin(); it != flyers[sex].end(); it++)
+		//	{
+		//		static const double SEX_RATIO[2] = { 1.0, 1.0 };
+		//		const CBugStatVector& bugs = it->second;
+		//		//randomly select an insect
+		//		//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+
+		//		//CTRef TRef = it->first;
+		//		//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
+		//		//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
+		//		//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
+		//		//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
+		//		//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+
+		//		array<CStatistic, NB_OUTPUTS> stats;
+		//		//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+		//		for (size_t i = 0; i < bugs.size(); i++)
+		//		{
+		//			stats[O_MALES_EXODUS + sex] += bugs.size()*SEX_RATIO[sex];
+		//			stats[O_LM + sex] += bugs[i].m_L;
+		//			stats[O_AM + sex] += bugs[i].m_A;
+		//			stats[O_MM + sex] += bugs[i].m_M;
+		//			if (sex == FEMALE)
+		//				stats[O_GF] += bugs[i].m_G;
+		//			
+		//			stats[O_T] += bugs[i].m_T;
+		//			stats[O_P] += bugs[i].m_P;
+		//			stats[O_W] += bugs[i].m_W;
+		//			stats[O_SUNSET] += bugs[i].m_S;
+		//		}
+
+		//		CTRef TRef = it->first;
+		//		m_output[TRef][O_MALES_EXODUS + sex] = stats[O_MALES_EXODUS + sex];
+		//		m_output[TRef][O_LM + sex] = stats[;
+		//		m_output[TRef][O_AM + sex] = stats[;
+		//		m_output[TRef][O_MM + sex] = stats[;
+		//		m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+
+		//		
+
+		//		//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
+		//		//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
+		//		//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
+		//		//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
+		//		//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+
+
+		//		//set the other sex to zer0 when not init
+		//		if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
+		//			m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
+		//		
+		//	}
+		//}
+
 		//copy stat to output
-		for (int sex = 0; sex < 2; sex++)
+		for (CBugStatVectorMap::iterator it = flyers.begin(); it != flyers.end(); it++)
 		{
-			for (CBugStatVectorMap::iterator it = flyers[sex].begin(); it != flyers[sex].end(); it++)
+			//for (int sex = 0; sex < 2; sex++)
 			{
+
 				static const double SEX_RATIO[2] = { 1.0, 1.0 };
 				const CBugStatVector& bugs = it->second;
 				//randomly select an insect
-				size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+				//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+
+				//CTRef TRef = it->first;
+				//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
+				//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
+				//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
+				//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
+				//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+
+				array<CStatistic, NB_OUTPUTS> stats;
+				//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
+				for (size_t i = 0; i < bugs.size(); i++)
+				{
+					size_t sex = bugs[i].m_sex;
+					stats[O_EM + sex] += 1;
+					stats[O_EM + (sex ? 1 : 0)] += 0;
+					stats[O_LM + sex] += bugs[i].m_L;
+					stats[O_AM + sex] += bugs[i].m_A;
+					stats[O_MM + sex] += bugs[i].m_M;
+					if (sex == FEMALE)
+						stats[O_GF] += bugs[i].m_G;
+
+					stats[O_T] += bugs[i].m_T;
+					stats[O_P] += bugs[i].m_P;
+					stats[O_W] += bugs[i].m_W;
+					stats[O_S] += bugs[i].m_S;
+				}
 
 				CTRef TRef = it->first;
-				m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
-				m_output[TRef][O_LM + sex] = bugs[sel].m_L;
-				m_output[TRef][O_AM + sex] = bugs[sel].m_A;
-				m_output[TRef][O_MM + sex] = bugs[sel].m_M;
-				m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+				for (size_t i = 0; i < NB_OUTPUTS; i++)
+					m_output[TRef][i] = stats[i][i < 2 ? SUM : MEAN];
 
 				//set the other sex to zer0 when not init
-				if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
-					m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
-				
+				//if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
+				//m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
+
 			}
 		}
-			
+
 
 		return msg;
 	}

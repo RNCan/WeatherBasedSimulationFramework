@@ -22,6 +22,7 @@ namespace WBSF
 
 		size_t m_nbMoths;
 		double m_sunsetOffset;
+		double m_defoliation;
 	};
 }
 

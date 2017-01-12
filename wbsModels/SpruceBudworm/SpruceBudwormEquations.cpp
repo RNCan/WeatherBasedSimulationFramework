@@ -1,4 +1,4 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // File: SpruceBudwormEquations.h
 //
 // Class: CSpruceBudwormEquations
@@ -9,11 +9,11 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
-// 23/12/2016   R�mi Saint-Amant	Add flight activity equations
-// 06/03/2015	R�mi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict
-// 18/06/2013   R�mi Saint-Amant    new format of table
-// 27/09/2011   R�mi Saint-Amant    add b1Factor multiplication
-// 11/03/2010   R�mi Saint-Amant    Creation from new paper
+// 23/12/2016   Rémi Saint-Amant	Add flight activity equations
+// 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict
+// 18/06/2013   Rémi Saint-Amant    new format of table
+// 27/09/2011   Rémi Saint-Amant    add b1Factor multiplication
+// 11/03/2010   Rémi Saint-Amant    Creation from new paper
 //*****************************************************************************
 #include "SpruceBudwormEquations.h"
 
@@ -205,7 +205,8 @@ namespace WBSF
 		return r;
 
 	}
-
+	
+	//sex : MALE (0) or FEMALE (1)
 	double CSpruceBudwormEquations::RelativeDevRate(size_t s)const
 	{
 		double r = RelativeDevRateBase(s);
@@ -215,10 +216,23 @@ namespace WBSF
 		return r;
 	}
 
+	
+	const double CSpruceBudwormEquations::α = 993.2;
+	const double CSpruceBudwormEquations::β = 1.789;
+
+	//A : forewing surface area [cm²]
+	double CSpruceBudwormEquations::GetFecondity(double A)const
+	{
+		
+		double ξ = m_randomGenerator.RandLogNormal(log(1), 0.211);
+		double F = α*pow(A, β);
+		
+		return F*ξ;
+	}
 
 	//sex : MALE (0) or FEMALE (1)
-	//out : forewing surface area [cm�]
-	double CSpruceBudwormEquations::get_A(size_t sex)const
+	//out : forewing surface area [cm²]
+	double CSpruceBudwormEquations::get_A(size_t sex, double defoliation)const
 	{
 		ASSERT(sex < 2);
 
@@ -230,12 +244,14 @@ namespace WBSF
 		while (A < 0.1)
 			m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
 
+		//now conpute factior of defoliation over forewing surface area
+		double Fd = pow(1 - 0.0054*defoliation, 1.0 / β);
 
-		return A;
+		return Fd*A;
 	}
 
 	//sex : MALE (0) or FEMALE (1)
-	//A : forewing surface area [cm�]
+	//A : forewing surface area [cm²]
 	//out : weight [g]
 	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
 	{
@@ -250,10 +266,10 @@ namespace WBSF
 		static const double M_E[2] = { 0.206, 0.1604 };
 		
 		
-		double E = m_randomGenerator.RandLogNormal(0, M_E[sex]);
+		double ξ = m_randomGenerator.RandLogNormal(0, M_E[sex]);
 		double M = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 		
-		return M*E;
+		return M*ξ;
 	}
 
 	//double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const

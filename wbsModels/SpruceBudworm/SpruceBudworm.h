@@ -65,7 +65,7 @@ namespace WBSF
 		double get_Tair(const CWeatherDay& weather, double h)const;
 		double get_Prcp(const CWeatherDay& weather, double h)const;
 //		double GetFlightActivity(const CHourlyData& weather, double tau);
-		bool GetExodus(double T, double P, double Tdew, double V, double tau);
+		bool GetExodus(double T, double P, double W, double tau);
 		bool GetExodus(const CWeatherDay& weather);
 
 		double GetA()const{ return m_A; }
@@ -94,7 +94,7 @@ namespace WBSF
 		bool m_bKillByAttrition;
 		
 		double m_A;							//forewing area [cm²]
-		double m_M°;						//initial dry weight [g]
+		double m_M°;						//Initial dry weight [g]
 		double m_M;							//actual dry weight [g]
 		double m_p_exodus;
 		//double m_liftoff_hour;
@@ -154,6 +154,7 @@ namespace WBSF
 		bool m_bFertilEgg;
 		bool m_bStopL22; //stop to L22 stage to get accumulation
 		double m_sunsetOffset; //lifoff sunset offset [h]
+		double m_defoliation; //defoliation [%]
 
 		CSBWStand(WBSF::CBioSIMModelBase* pModel) :
 			WBSF::CStand(pModel),
@@ -161,6 +162,9 @@ namespace WBSF
 		{
 			m_bApplyAttrition = true;
 			m_bFertilEgg = false;
+			m_bStopL22 = false; //stop to L22 stage to get accumulation
+			m_sunsetOffset=0;
+			m_defoliation=0;
 		}
 
 		CSpruceBudwormEquations m_equations;

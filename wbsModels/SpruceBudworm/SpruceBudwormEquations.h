@@ -1,4 +1,4 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // File: SBDevelopment.h
 //*****************************************************************************
 #pragma once
@@ -34,9 +34,9 @@ namespace WBSF
 		//relative developement
 		double RelativeDevRate(size_t s)const;
 
-		double get_A(size_t sex)const;
+		double GetFecondity(double A)const;
+		double get_A(size_t sex, double defoliation)const;
 		double get_M(size_t sex, double A, double G)const;
-		//double get_M(size_t sex, double A, double G)const;
 		double get_Mf(double A, double G)const;
 		double get_p_exodus()const;
 
@@ -66,6 +66,10 @@ namespace WBSF
 		double RelativeDevRateBase(size_t s)const;
 		double Equation4(const double p[NB_REL_DEV_PARAMETERS])const;
 		double Equation5(const double p[NB_REL_DEV_PARAMETERS])const;
+
+		static const double α;
+		static const double β;
+
 	};
 
 }

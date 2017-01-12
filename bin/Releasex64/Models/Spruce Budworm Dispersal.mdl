@@ -6,8 +6,8 @@
     <EXE>Spruce Budworm Dispersal.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Hourly model of spruce budworm dispersal</Description>
-    <WindowRect>0 0 139 315</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS</SimulatedCategory>
+    <WindowRect>0 0 157 315</WindowRect>
+    <SimulatedCategory>TN T TX P WS</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -21,14 +21,14 @@
             <Type>1</Type>
             <Rect>5 10 25 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>100</DefaultValue>
+            <DefaultValue>10</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>20000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>Sunset offset</Name>
-            <Caption>Sunset offset</Caption>
+            <Caption>Sunset offset (h)</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>32 10 54 160</Rect>
@@ -36,6 +36,18 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>-3</MinValue>
             <MaxValue>3</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation (%)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>60 10 85 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -113,6 +125,38 @@
             <Description>Female gravidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>T</Name>
+            <Title>T</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P</Name>
+            <Title>P</Title>
+            <Units>mm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WS</Name>
+            <Title>WS</Title>
+            <Units>km/h</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Sunset</Name>
+            <Title>Sunset</Title>
+            <Units>h</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

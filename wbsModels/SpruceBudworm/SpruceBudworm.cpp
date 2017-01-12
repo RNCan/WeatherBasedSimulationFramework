@@ -56,9 +56,10 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		m_A = Equations().get_A(m_sex);
+		
+		m_A = Equations().get_A(m_sex, GetStand()->m_defoliation);
 		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
-		m_fecondity = GetStand()->RandomGenerator().RandNormal(164.7, 13.1);//give max of 244
+		m_fecondity = (m_sex==FEMALE)?Equations().GetFecondity(m_A):0;
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
@@ -266,10 +267,10 @@ namespace WBSF
 			}
 
 			//adjust female weight
-			//double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
-			//double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
-			//m_M = m_M° * Mᶜ / M°;
-			m_M = Equations().get_M(m_sex, m_A, GetG());//with variability
+			double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
+			double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
+			m_M = m_M° * Mᶜ / M°;
+			//m_M = Equations().get_M(m_sex, m_A, GetG());//with variability
 			//m_M = Equations().get_Mf(m_A, GetG());
 			
 
@@ -412,38 +413,34 @@ namespace WBSF
 
 				double T = get_Tair(w, h < 24 ? h : h - 24.0);
 				double P = get_Prcp(w, h < 24 ? h : h - 24.0);
-				double Tdew = w[h][H_TDEW];
-				double v = w[h][H_WNDS];
-
+				double W = w[h][H_WNDS];
 				
-				bExodus = GetExodus(T, P, Tdew, v, tau);
-				//if (bExodus)
-					//m_liftoff_hour = h;
+				bExodus = GetExodus(T, P, W, tau);
 			}
 		}
 
 		return bExodus;
 	}
 
-	bool CSpruceBudworm::GetExodus(double T, double P, double Tdew, double V, double tau)
+	bool CSpruceBudworm::GetExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 140;// 166.0;
+		static const double K = 166.0;
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
 		//static const double VmaxF[2] = { 1.0, 2 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-		//static const double VmaxF[2] = { 0.8, 0.8 };
+		static const double VmaxF[2] = { 1.0, 1.0 };
 		
 		bool bExodus = false;
 
 		// && GetStageAge()>=m_exodus_age
-		if (T > 0 && P < 0.2 && V > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.5 mm
+		if (T > 0 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 2.5 mm
 		{
-			//const double Vmax = 65 * VmaxF[m_sex];
-			const double Vmax = 55;
+			const double Vmax = 65 * VmaxF[m_sex];
+			//const double Vmax = 55;
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			
 
