@@ -155,49 +155,16 @@ namespace WBSF
 
 										double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
 										double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
+										double Tdew = w[h][H_TDEW];
+										double v = w[h][H_WNDS];
 
-										bExodus = budworm.GetExodus(T, P, tau);
+										bExodus = budworm.GetExodus(T, P, Tdew, v, tau);
 										if (bExodus)
 										{
 											size_t sex = budworm.GetSex();
-
-											//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											//annualStat[TRefTmp][O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
-											//annualStat[TRefTmp][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
-											////liftoff cannot be mean by hour : create biasis hours... hten onlky take the first one
-											////annualStat[TRefTmp][O_LIFTOFF_MALE + sex] += budworm.GetScaleFactor()*h;
-											////if (!annualStat[TRefTmp][O_LM + sex].IsInit())
-											//annualStat[TRefTmp][O_LM + sex] += (h - size_t(h))*3600;
-
-											////if (!annualStat[TRefTmp][O_AM + sex].IsInit())
-											//annualStat[TRefTmp][O_AM + sex] = budworm.GetA();
-											//
-											////if (!annualStat[TRefTmp][O_MM + sex].IsInit())
-											//annualStat[TRefTmp][O_MM + sex] = budworm.GetM();
-											//
-											//if (sex == FEMALE)
-											//	//if (!annualStat[TRefTmp][O_GF + sex].IsInit())
-											//	annualStat[TRefTmp][O_GF] = budworm.GetG();
-
-											//budworm.SetStatus(CIndividual::DEAD);
-											//budworm.SetDeath(CIndividual::EXODUS);
-
 											overallPeriod += TRefTmp;
-
-											//array<CStatistic, NB_OUTPUTS> tmp;
-											//
-											//tmp[O_MALES_EXODUS + sex] += budworm.GetScaleFactor()*SEX_RATIO[sex];
-											//tmp[(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] += 0;
-											//tmp[O_LM + sex] = (h - size_t(h)) * 3600;
-											//tmp[O_AM + sex] = budworm.GetA();
-											//tmp[O_MM + sex] = budworm.GetM();
-											//tmp[O_GF] = (sex == FEMALE) ? budworm.GetG() : -999;
-											
-											//if(flyers.find(TRefTmp) == flyers.end())
 											flyers[sex][TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG()));
-											//else if (m_randomGenerator.Randu()>0.5)
-												//flyers[TRefTmp] = tmp;
 
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);

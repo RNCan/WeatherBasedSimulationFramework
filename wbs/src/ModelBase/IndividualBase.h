@@ -263,6 +263,8 @@ namespace WBSF
 			return currentPopulation / m_initialPopulation;
 		}
 
+		double GetInitialPopulation()const{ return m_initialPopulation; }
+
 		void AdjustPopulation();
 		size_t GetNbPacked()const{ return m_nbPacked; }
 

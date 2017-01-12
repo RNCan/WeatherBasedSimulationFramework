@@ -65,7 +65,7 @@ namespace WBSF
 		double get_Tair(const CWeatherDay& weather, double h)const;
 		double get_Prcp(const CWeatherDay& weather, double h)const;
 //		double GetFlightActivity(const CHourlyData& weather, double tau);
-		bool GetExodus(double T, double P, double tau);
+		bool GetExodus(double T, double P, double Tdew, double V, double tau);
 		bool GetExodus(const CWeatherDay& weather);
 
 		double GetA()const{ return m_A; }
@@ -100,6 +100,7 @@ namespace WBSF
 		//double m_liftoff_hour;
 		bool m_bExodus;
 		bool m_bRemoveExodus;
+		double m_exodus_age;
 		
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];

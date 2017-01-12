@@ -274,14 +274,14 @@ namespace WBSF
 		CTM GetTM();
 		void SetTM(CTM TM);
 
-		CComboBox m_previousStatisticCtrl;
-		CComboBox m_statisticCtrl;
+		CStatisticComboBox m_previousStatisticCtrl;
+		CButton m_statisticCtrl;
 		CButton m_eventCtrl;
 		CCFLComboBox m_CTTypeCtrl;
 		CCFLComboBox m_CTModeCtrl;
 		CCFLComboBox m_TTTypeCtrl;
 		CCFLComboBox m_TTModeCtrl;
-		CCFLComboBox m_statisticTypeCtrl;
+		CStatisticComboBox  m_statisticTypeCtrl;
 		CCFLComboBox m_eventTypeCtrl;
 		CCFLEdit m_KCtrl;
 		CButton m_bDropYearCtrl;

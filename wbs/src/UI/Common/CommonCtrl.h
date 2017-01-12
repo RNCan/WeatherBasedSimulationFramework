@@ -213,8 +213,14 @@ class CStatisticComboBox : public CComboBox
 {
 public:
 
+	CStatisticComboBox(bool bAddAll=false);
 	void ReloadContent();
 	static CString GetStatisticTitle(int i);
+	
+	int SetCurSel(int sel){ return CComboBox::SetCurSel(sel + (m_bAddAll ? 1 : 0)); }
+	int GetCurSel()const{ return CComboBox::GetCurSel() - (m_bAddAll ? 1 : 0); }
+
+
 
 protected:
 
@@ -222,10 +228,11 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	virtual void PreSubclassWindow();
 
+	
 	void Init();
 	CFont m_font;
-
-	//static CStringArrayEx STATISTIC_TITLE; 
+	bool m_bAddAll;
+	
 };
 
 //*******************************************************************************************

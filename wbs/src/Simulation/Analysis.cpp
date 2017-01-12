@@ -206,31 +206,19 @@ namespace WBSF
 			//compute statistic for all variable
 			for (size_t j = 0; j < input.GetCols(); j++)
 			{
-				if (input[i][j][NB_VALUE] > 0)
+				if (input[i][j].IsInit())
 				{
-					if (input[i][j][NB_VALUE] > 0)
+					int stat = m_previousStatisticType >= 0 ? m_previousStatisticType : MEAN;
+					if (input.IsTemporalMatrix(j))
 					{
-						//if (m_previousStatisticType >= 0)
-						//{
-						int stat = m_previousStatisticType >= 0 ? m_previousStatisticType : MEAN;
-						if (input.IsTemporalMatrix(j))
-						{
-							CTRef t = input.GetTRef(i, j, stat);
-							output.AddTRef(c, j, t);
-						}
-						else
-						{
-							//only valid value must by in statistics
-							ASSERT(input[i][j][stat] > VMISS);
-							output[c][j] += input[i][j][stat];
-						}
-						//}
-						//else
-						//{
-							//only valid value must by in statistics
-							//ASSERT(input[i][j].IsInit());
-							//output[c][j] += input[i][j];
-						//}
+						CTRef t = input.GetTRef(i, j, stat);
+						output.AddTRef(c, j, t);
+					}
+					else
+					{
+						//only valid value must by in statistics
+						ASSERT(input[i][j][stat] > VMISS);
+						output[c][j] += input[i][j][stat];
 					}
 				}
 			}

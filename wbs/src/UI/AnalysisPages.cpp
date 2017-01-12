@@ -617,7 +617,9 @@ namespace WBSF
 
 
 	CAnalysisHowPage::CAnalysisHowPage() :
-		CAnalysisPage(CAnalysisHowPage::IDD)
+		CAnalysisPage(CAnalysisHowPage::IDD),
+		m_previousStatisticCtrl(true),
+		m_statisticTypeCtrl(true)
 	{
 	}
 
@@ -674,13 +676,12 @@ namespace WBSF
 
 		computation.m_bSelectTimeTransformation = m_selectCtrl.GetCheck();
 
-		computation.m_previousStatisticType = m_previousStatisticCtrl.GetCurSel() - 1;
-		//computation.m_bSelectFinalComputation = !m_selectCtrl.GetCheck();
+		computation.m_previousStatisticType = m_previousStatisticCtrl.GetCurSel();
 		computation.m_TM = GetTM();
 
 		computation.m_kind = GetComputationKind();
 
-		computation.m_statisticType2 = m_statisticTypeCtrl.GetCurSel() - 1;
+		computation.m_statisticType2 = m_statisticTypeCtrl.GetCurSel();
 		computation.m_eventType = m_eventTypeCtrl.GetCurSel();
 		computation.m_K = ToFloat(m_KCtrl.GetString());
 		computation.m_bDropYear = m_bDropYearCtrl.GetCheck();
@@ -699,13 +700,7 @@ namespace WBSF
 			m_pParent->GetParentInfo(WBSF::GetFM(), m_info, TIME_REF);
 
 
-		//WBSF::StringVector nameArray;
-		//m_pParent->GetDimensionList(*m_pFileManager, DIMENSION::TIME_REF, nameArray);
-		//ASSERT( nameArray.size() == 2);
-
-		//m_sourceTM = p.GetTM();
 		m_sourceTM = m_info.m_period.GetTM();
-		//SetTM(m_sourceTM);
 		m_CTTypeCtrl.SetCurSel((int)m_sourceTM.Type());
 		m_CTModeCtrl.SetCurSel((int)m_sourceTM.Mode());
 
@@ -713,13 +708,10 @@ namespace WBSF
 		FillMode((int)computation.m_TM.Type());
 		SetTM(computation.m_TM);
 
-
-
 		SetComputationKind(computation.m_kind);
-		//if( computation.m_kind == CAnalysisComputation::STATISTIC)
-		m_previousStatisticCtrl.SetCurSel(computation.m_previousStatisticType + 1);
-		m_statisticTypeCtrl.SetCurSel(computation.m_statisticType2 + 1);
-		//m_statisticTypeCtrl.SetCurSel(computation.m_statisticType);
+
+		m_previousStatisticCtrl.SetCurSel(computation.m_previousStatisticType);
+		m_statisticTypeCtrl.SetCurSel(computation.m_statisticType2);
 		m_eventTypeCtrl.SetCurSel(computation.m_eventType);
 		m_KCtrl.SetWindowText(ToString(computation.m_K));
 		m_bDropYearCtrl.SetCheck(computation.m_bDropYear);

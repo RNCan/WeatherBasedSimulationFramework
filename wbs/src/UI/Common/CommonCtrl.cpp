@@ -381,6 +381,11 @@ BEGIN_MESSAGE_MAP(CStatisticComboBox, CComboBox)
 	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
+CStatisticComboBox::CStatisticComboBox(bool bAddAll) :
+m_bAddAll(bAddAll)
+{
+}
+
 void CStatisticComboBox::PreSubclassWindow()
 {
 	CComboBox::PreSubclassWindow();
@@ -414,6 +419,10 @@ void CStatisticComboBox::Init()
 	SetFont(&m_font, FALSE);
 
 	ResetContent();
+	
+	if (m_bAddAll)
+		AddString(GetCString(IDS_STR_ALL_STAT));
+
 
 	for(int i=0; i<WBSF::NB_STAT_TYPE; i++)
 		AddString(GetStatisticTitle(i));

@@ -58,11 +58,15 @@ namespace WBSF
 
 		m_A = Equations().get_A(m_sex);
 		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
-		m_fecondity = POTENTIAL_FECONDITY;
+		m_fecondity = GetStand()->RandomGenerator().RandNormal(POTENTIAL_FECONDITY, 10.0);//give max of 244
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
 		m_bRemoveExodus = false;
+		
+		
+		//m_exodus_age = ADULT + GetStand()->RandomGenerator().RandBeta( 5, 5);
+		m_exodus_age = GetStand()->RandomGenerator().Randu();
 
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
@@ -99,7 +103,8 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
-			//m_liftoff_hour = in.m_liftoff_hour;
+			m_bRemoveExodus = in.m_bRemoveExodus;
+			m_exodus_age = in.m_exodus_age;
 		}
 
 		return *this;
@@ -219,20 +224,33 @@ namespace WBSF
 		assert(IsAlive() && m_sex == FEMALE);
 
 		if (m_age >= ADULT + 0.0666)
+		//if (m_age >= ADULT + 0.1) ??
 		{
 			//brooding
-
 			double eggLeft = m_fecondity - m_totalBroods;
-			double Tmax = weather[H_TMAX2][MEAN];
+			double broods = 0;
+			
+			size_t nbSteps = GetTimeStep().NbSteps();
+			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
+			{
+				size_t h = step*GetTimeStep();
+				double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 ro 25 °C
+				
+				double b = eggLeft*(0.035*T - 0.32) / nbSteps;
+				broods += b;
+				eggLeft = max(0.0, eggLeft-b);
+			}
+			eggLeft = min(80.0, eggLeft); //limit maximum egg laids by day
+			//double Tmax = weather[H_TMAX2][MEAN];
 			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
-			double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
-			if (m_totalBroods + brood > m_fecondity)
-				brood = m_fecondity - m_totalBroods;
+			//double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
+			if (m_totalBroods + broods > m_fecondity)
+				broods = m_fecondity - m_totalBroods;
 
 			//Don't apply survival here. Survival must be apply in brooding
-			m_broods = brood;
-			m_totalBroods += brood;
+			m_broods = broods;
+			m_totalBroods += broods;
 
 			ASSERT(m_totalBroods <= m_fecondity);
 
@@ -251,7 +269,9 @@ namespace WBSF
 			//double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
 			//double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
 			//m_M = m_M° * Mᶜ / M°;
-			m_M = Equations().get_Mf(m_A, GetG());
+			m_M = Equations().get_M(m_sex, m_A, GetG());//with variability
+			//m_M = Equations().get_Mf(m_A, GetG());
+			
 
 
 			//double G1 = GetG();
@@ -385,20 +405,18 @@ namespace WBSF
 			for (__int64 t = t°; t <= tᴹ && !bExodus; t += Δt)
 			{
 				double tau = double(t - tᶜ) / (tᴹ - tᶜ);
-
 				double h = t / 3600.0;
-				//size_t h° = size_t(h);
 
 				const CWeatherDay& w¹ = w°.GetNext();
 				const CWeatherDay& w = h < 24 ? w° : w¹;
-				//if (h >= 24)
-					//h -= 24;
 
 				double T = get_Tair(w, h < 24 ? h : h - 24.0);
 				double P = get_Prcp(w, h < 24 ? h : h - 24.0);
+				double Tdew = w[h][H_TDEW];
+				double v = w[h][H_WNDS];
 
 				
-				bExodus = GetExodus(T, P, tau);
+				bExodus = GetExodus(T, P, Tdew, v, tau);
 				//if (bExodus)
 					//m_liftoff_hour = h;
 			}
@@ -407,33 +425,37 @@ namespace WBSF
 		return bExodus;
 	}
 
-	bool CSpruceBudworm::GetExodus(double T, double P, double tau)
+	bool CSpruceBudworm::GetExodus(double T, double P, double Tdew, double V, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 166.0;
+		static const double K = 140;// 166.0;
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxF[2] = { 1.0, 1.2 };
+		//static const double VmaxF[2] = { 1.0, 2 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 0.9 };
-
+		static const double VmaxF[2] = { 0.8, 0.8 };
+		
 		bool bExodus = false;
 
-		if (T > 0 && P < 0.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
+		if (T > 0 && P < 0.5 && V > 2.5 && m_age>m_exodus_age)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
 		{
-			
 			const double Vmax = 65 * VmaxF[m_sex];
-			
-			//adjust female weight
-			double Vᴸ = K* sqrt(m_M) / m_A;//compute Vᴸ with actual weight
-
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			
+
+			//adjust female weight
+			double Vᴸ = K* sqrt(m_M) / m_A;//compute Vᴸ with actual weight
 			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+
+			
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
+			{
+
 				bExodus = true;		//this insect is exodus
+			}
+					
 		}
 
 		return bExodus;
@@ -491,9 +513,7 @@ namespace WBSF
 				//sunset hour shifted by t
 				double h = t / 3600.0;
 				const CWeatherDay& w = h < 24 ? w° : w°.GetNext();
-				//if (h >= 24)
-					//h -= 24;
-
+			
 				//temperature interpolation between 2 hours
 				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
 				if (Tair <= T°)
