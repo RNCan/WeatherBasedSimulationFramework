@@ -58,15 +58,15 @@ namespace WBSF
 
 		m_A = Equations().get_A(m_sex);
 		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
-		m_fecondity = GetStand()->RandomGenerator().RandNormal(POTENTIAL_FECONDITY, 10.0);//give max of 244
+		m_fecondity = GetStand()->RandomGenerator().RandNormal(164.7, 13.1);//give max of 244
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
 		m_bRemoveExodus = false;
 		
 		
-		//m_exodus_age = ADULT + GetStand()->RandomGenerator().RandBeta( 5, 5);
-		m_exodus_age = GetStand()->RandomGenerator().Randu();
+		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
+		m_exodus_age = 0;// GetStand()->RandomGenerator().Rand(0.0, 0.6);
 
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
@@ -435,13 +435,15 @@ namespace WBSF
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 0.8, 0.8 };
+		//static const double VmaxF[2] = { 0.8, 0.8 };
 		
 		bool bExodus = false;
 
-		if (T > 0 && P < 0.5 && V > 2.5 && m_age>m_exodus_age)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.2 mm
+		// && GetStageAge()>=m_exodus_age
+		if (T > 0 && P < 0.2 && V > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 0.5 mm
 		{
-			const double Vmax = 65 * VmaxF[m_sex];
+			//const double Vmax = 65 * VmaxF[m_sex];
+			const double Vmax = 55;
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			
 
