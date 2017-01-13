@@ -65,7 +65,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 3;
+		NB_INPUT_PARAMETER = 2;
 		VERSION = "1.0.0 (2017)";
 	}
 
@@ -81,7 +81,6 @@ namespace WBSF
 
 		int c = 0;
 		m_nbMoths = parameters[c++].GetInt();
-		m_sunsetOffset = parameters[c++].GetFloat();
 		m_defoliation = parameters[c++].GetFloat();
 
 		return msg;
@@ -94,21 +93,25 @@ namespace WBSF
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 
-		CSun sun(m_weather.GetLocation().m_lat, m_weather.GetLocation().m_lon);
-		
+		//CSun sun(m_weather.GetLocation().m_lat, m_weather.GetLocation().m_lon, m_weather.GetLocation().GetTimeZone());
+		//
 
-		//This is where the model is actually executed
-		m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
-		for (size_t y = 0; y < m_weather.size(); y++)
-		{
-			CTPeriod p = m_weather[y].GetEntireTPeriod();
-			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-				if (TRef.GetHour()==0)
-					m_output[TRef][O_S] = (sun.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
-			
-		}
+		////This is where the model is actually executed
+		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
+		//for (size_t y = 0; y < m_weather.size(); y++)
+		//{
+		//	CTPeriod p = m_weather[y].GetEntireTPeriod();
+		//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		//		if (TRef.GetHour() == 0)
+		//		{
+		//			m_output[TRef][O_W] = (sun2.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
+		//			m_output[TRef][O_S] = (sun.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
+		//		}
+		//			
+		//	
+		//}
 
-		return msg;
+		//return msg;
 
 
 
@@ -126,7 +129,6 @@ namespace WBSF
 			CSBWStand stand(this);
 			stand.m_bFertilEgg = false;
 			stand.m_bApplyAttrition = false;
-			stand.m_sunsetOffset = m_sunsetOffset;
 			stand.m_defoliation = m_defoliation;
 
 			CSBWTreePtr pTree(new CSBWTree(&stand));
@@ -191,8 +193,8 @@ namespace WBSF
 										bExodus = budworm.GetExodus(T, P, WS, tau);
 										if (bExodus)
 										{
-											CSun sun(day°.GetLocation().m_lat, day°.GetLocation().m_lon);
-											double sunset = (sun.GetSunset(day°.GetTRef()) + 1.0 + m_sunsetOffset);//+1 hour : assume to be in daylight zone  //[s]
+											CSun sun(day°.GetLocation().m_lat, day°.GetLocation().m_lon, day°.GetLocation().GetTimeZone());
+											double sunset = (sun.GetSunset(day°.GetTRef()) + 1.0 );//+1 hour : assume to be in daylight zone  //[s]
 
 
 											size_t sex = budworm.GetSex();

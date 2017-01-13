@@ -33,7 +33,7 @@ namespace WBSF
 	const char* CLocation::MEMBER_NAME[NB_MEMBER] = { "ID", "Name", "Latitude", "Longitude", "Elevation", "SiteSpecificInformation" };
 	const char* CLocation::DEFAULT_SSI_NAME[NB_DEFAULT_SSI] =
 	{
-		"MergedStationIDs", "Slope", "Aspect", "UseIt", "DataFileName", "Categories", "Years", "LitoralDistance1", "LitoralWeight1", "LitoralDistance2", "LitoralWeight2", "Horizon",//WaterHoldingCapacity...
+		"MergedStationIDs", "Slope", "Aspect", "UseIt", "DataFileName", "TimeZone", "Variables", "Years", "LitoralDistance1", "LitoralWeight1", "LitoralDistance2", "LitoralWeight2", "Horizon",//WaterHoldingCapacity...
 	};
 
 	StringVector CLocation::MEMBER_TITLE;
@@ -148,59 +148,7 @@ namespace WBSF
 		return io;
 	}
 
-	//string CLocation::GetMember(int i, LPXNode& pNode)const
-	//{
-	//	_ASSERTE(i < NB_MEMBER);
-
-	//	string str;
-	//	switch (i)
-	//	{
-	//	case ID:   str = m_ID; break;
-	//	case NAME: str = m_name; break;
-	//	case LAT:  str = ToString(m_lat); break;
-	//	case LON:  str = ToString(m_lon); break;
-	//	case ELEV: str = ToString(m_elev); break;
-	//	case SITE_SPECIFIC_INFORMATION:
-	//	{
-	//		for (SiteSpeceficInformationMap::const_iterator it = m_siteSpeceficInformation.begin(); it != m_siteSpeceficInformation.end(); it++)
-	//			str += "{" + it->first + ":" + it->second.first + "}";
-	//		break;
-	//	}
-	//	default: _ASSERTE(false);
-	//	}
-
-	//	return str;
-	//}
-
-
-	//void CLocation::SetMember(int i, const string& str, LPXNode pNode)
-	//{
-	//	_ASSERTE(i < NB_MEMBER);
-
-	//	switch (i)
-	//	{
-	//	case ID:  m_ID = str; break;
-	//	case NAME: m_name = str; break;
-	//	case LAT: m_lat = ToDouble(str); break;
-	//	case LON: m_lon = ToDouble(str); break;
-	//	case ELEV: m_elev = ToDouble(str); break;
-	//	case SSI:
-	//	{
-	//		StringVector SSIs(str.c_str(), "{}");
-	//		for (StringVector::const_iterator it = SSIs.begin(); it != SSIs.end(); it++)
-	//		{
-	//			string::size_type pos = it->find(':', 0);
-	//			if (pos < string::npos)
-	//				SetSSI(it->substr(0, pos), it->substr(pos + 1));
-	//		}
-
-	//		break;
-	//	}
-
-	//	default: _ASSERTE(false);
-	//	}
-	//}
-
+	
 	string CLocation::GetMember(size_t i)const
 	{
 		_ASSERTE(i < NB_MEMBER);
@@ -264,6 +212,18 @@ namespace WBSF
 		return slope;
 	}
 
+	double CLocation::GetSlopeInDegree()const
+	{
+		double slope = GetSlope();
+		if (slope == -999)
+			return -999;
+
+		ASSERT(slope >= 0);
+		ASSERT(atan(GetSlope() / 100) * RAD2DEG >= 0);
+		ASSERT(atan(GetSlope() / 100) * RAD2DEG <= 90);
+		return float(atan(GetSlope() / 100) * RAD2DEG);
+	}
+
 	double CLocation::GetAspect()const
 	{
 		double aspect = -999;
@@ -275,7 +235,7 @@ namespace WBSF
 		return aspect;
 	}
 
-	double CLocation::GetDayLength(short d)const
+	double CLocation::GetDayLength(size_t d)const
 	{
 		return WBSF::GetDayLength(m_lat, d);
 	}
@@ -285,11 +245,18 @@ namespace WBSF
 		return WBSF::GetDayLength(m_lat, d);
 	}
 
-	double CLocation::attPressure()const
+	double CLocation::GetPressure()const{ return WBSF::GetPressure(m_elev); }
+	
+	double CLocation::GetTimeZone()const
 	{
-		assert(false);//normalement le standard serait en hPa et non kPa
-		return 101.3* pow((293 - 0.0065*m_elev) / 293, 5.26);//in kPa
+		double timeZone = Round(m_lon / 15.0);
+		std::string tz = GetDefaultSSI(CLocation::TIME_ZONE);
+		if (!tz.empty())
+			timeZone = ToDouble(tz);
+
+		return timeZone;
 	}
+
 
 	std::string CLocation::GetDefaultSSI(size_t i)const
 	{
@@ -550,21 +517,6 @@ namespace WBSF
 		return v;
 	}
 
-
-	//StringVector CLocation::GetSSIOrder()const
-	//{
-	//	vector<pair<size_t, string>> orderPair;
-	//	for (SiteSpeceficInformationMap::const_iterator it = m_siteSpeceficInformation.begin(); it != m_siteSpeceficInformation.end(); it++)
-	//		orderPair.push_back(make_pair(it->second.second, it->second.first));
-	//	
-	//	std::sort(orderPair.begin(), orderPair.end());
-	//
-	//	StringVector order;
-	//	for (vector<pair<size_t, string>>::const_iterator it = orderPair.begin(); it != orderPair.end(); it++)
-	//		order.push_back(it->second);
-	//		
-	//	return order;
-	//}
 
 
 	//******************************************************************************************************

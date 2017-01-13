@@ -153,7 +153,6 @@ namespace WBSF
 		bool m_bApplyAttrition;
 		bool m_bFertilEgg;
 		bool m_bStopL22; //stop to L22 stage to get accumulation
-		double m_sunsetOffset; //lifoff sunset offset [h]
 		double m_defoliation; //defoliation [%]
 
 		CSBWStand(WBSF::CBioSIMModelBase* pModel) :
@@ -163,7 +162,6 @@ namespace WBSF
 			m_bApplyAttrition = true;
 			m_bFertilEgg = false;
 			m_bStopL22 = false; //stop to L22 stage to get accumulation
-			m_sunsetOffset=0;
 			m_defoliation=0;
 		}
 

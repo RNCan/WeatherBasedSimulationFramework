@@ -66,7 +66,7 @@ namespace WBSF
 		static const char* GetMemberName(size_t i){ _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetMemberTitle(size_t d);
 		static const char* GetXMLFlag(){ return XML_FLAG; }
-		enum TDefaultSSI{ OPTIONAL_ID, SLOPE, ASPECT, USED_IT, DATA_FILE_NAME, VARIABLES, YEARS, LITORAL_DIST1, LITORAL_WEIGHT1, LITORAL_DIST2, LITORAL_WEIGHT2, HORIZON, NB_DEFAULT_SSI };
+		enum TDefaultSSI{ OPTIONAL_ID, SLOPE, ASPECT, USED_IT, DATA_FILE_NAME, TIME_ZONE, VARIABLES, YEARS, LITORAL_DIST1, LITORAL_WEIGHT1, LITORAL_DIST2, LITORAL_WEIGHT2, HORIZON, NB_DEFAULT_SSI };
 
 		static const char* GetDefaultSSIName(size_t i){ ASSERT(i >= 0 && i < NB_DEFAULT_SSI); return DEFAULT_SSI_NAME[i]; }
 		static const char* GetDefaultSSITitle(size_t i);
@@ -110,41 +110,27 @@ namespace WBSF
 		}
 
 		double GetSlope()const;
-		double GetSlopeInDegree()const
-		{
-			double slope = GetSlope();
-			if (slope == -999)
-				return -999;
-
-			ASSERT(slope >= 0);
-			ASSERT(atan(GetSlope() / 100) * RAD2DEG >= 0);
-			ASSERT(atan(GetSlope() / 100) * RAD2DEG <= 90);
-			return float(atan(GetSlope() / 100) * RAD2DEG);
-		}
+		double GetSlopeInDegree()const;
 		double GetAspect()const;
 
 
 		std::string GetDataFileName()const;
 		void SetDataFileName(std::string in){ SetDefaultSSI(CLocation::DATA_FILE_NAME, in); }
 
+		double GetTimeZone()const;
+		void SetTimeZone(double in){ SetDefaultSSI(CLocation::TIME_ZONE, ToString(in)); }
+
 		bool UseIt()const { std::string tmp = GetDefaultSSI(CLocation::USED_IT); return tmp.empty() || tmp != "0"; }
 		void UseIt(bool in){ SetDefaultSSI(CLocation::USED_IT, in ? "1" : "0"); }
 
-		//void SetAspect(float aspect){_ASSERTE( aspect >= 0 && aspect <= 360);m_aspect = aspect ;}
-
-		double GetDayLength(short d)const;
+		double GetDayLength(size_t d)const;
 		double GetDayLength(CTRef d)const;
-		double attPressure()const;//in kPa
+		double GetPressure()const;//Default altitude pressure [hPa]
 		double GetDistance(const CLocation& in, bool bTakeElevation)const;
 		double GetXTemp(const CLocation& station, bool bTakeElevation)const;
 
 		std::string GetMember(size_t i)const;
 		void SetMember(size_t i, const std::string& str);
-
-		//std::string GetMember(int i, LPXNode& pNode = NULL_ROOT)const;
-		//void SetMember(int i, const std::string& str, const LPXNode pNode = NULL_ROOT);
-		//void GetXML(LPXNode& pRoot)const{ XGetXML(*this, pRoot); }
-		//void SetXML(const LPXNode pRoot){ XSetXML(*this, pRoot); }
 
 		// Definition of the template
 		template<class Archive>
@@ -153,6 +139,7 @@ namespace WBSF
 			ar & boost::serialization::base_object<CGeoPoint3D>(*this);
 			ar & m_ID & m_name & m_siteSpeceficInformation;
 		}
+
 		friend boost::serialization::access;
 
 		//set site specific information (SSI)
@@ -167,7 +154,6 @@ namespace WBSF
 
 		void AppendMergeID(const std::string& ID);
 		void AppendMergeID(const CLocation& ID);
-
 
 		double GetGeocentricCoord(size_t i)const;
 

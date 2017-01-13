@@ -6,12 +6,16 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
-// 13-09-2016	Rémi Saint-Amant	Chnage Tair and Trng by Tmin and Tmax
+// 13-09-2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 // 18-11-2015	Rémi Saint-Amant	Change in the daily accumulation
 // 08-12-2014	Rémi Saint-Amant	Integration of CWeather into CWeatherStation
 // 08-04-2013	Rémi Saint-Amant	Initial version from old code
 //****************************************************************************
+
+
+//todo: add the time zone to the computation of hourly value. a delta zone must compoute between 
+//the time zone of the simulation point and the time zone of the weather station
 
 #include "stdafx.h"
 #include <locale>

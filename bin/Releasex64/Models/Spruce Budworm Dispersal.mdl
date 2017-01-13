@@ -6,13 +6,13 @@
     <EXE>Spruce Budworm Dispersal.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Hourly model of spruce budworm dispersal</Description>
-    <WindowRect>0 0 157 315</WindowRect>
+    <WindowRect>0 0 127 315</WindowRect>
     <SimulatedCategory>TN T TX P WS</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
-    <ThreadSafe>true</ThreadSafe>
+    <ThreadSafe>false</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
             <Name>Number of moths</Name>
@@ -27,23 +27,11 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Sunset offset</Name>
-            <Caption>Sunset offset (h)</Caption>
-            <Description/>
-            <Type>2</Type>
-            <Rect>32 10 54 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>-3</MinValue>
-            <MaxValue>3</MaxValue>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
             <Name>Defoliation</Name>
             <Caption>Defoliation (%)</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>60 10 85 160</Rect>
+            <Rect>35 10 60 160</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>

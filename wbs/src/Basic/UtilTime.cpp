@@ -1839,9 +1839,9 @@ void CSun::Compute(double lat, double lon, double tzone, int year, size_t m, siz
 	ASSERT( m < 12);
 	ASSERT( d < 31);
 
-	//_tzset();
+	
 	if( tzone == -999)
-		tzone = lon/15;
+		tzone = Round(lon/15);//If we don't round it, it's the "center" of the default zone. Which one?
 
 // Timezone hours
 	double jd = FNday(year, int(m)+1, int(d)+1, 12);

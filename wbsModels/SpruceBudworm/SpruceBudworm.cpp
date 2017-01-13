@@ -495,8 +495,8 @@ namespace WBSF
 		static const __int64 Δt = 60;
 		static const double T° = 24.5;
 
-		CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon);
-		__int64 sunset = (sun.GetSunset(w°.GetTRef()) + 1.0 + GetStand()->m_sunsetOffset) * 3600;//+1 hour : assume to be in daylight zone  //[s]
+		CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon, w°.GetLocation().GetTimeZone());
+		__int64 sunset = (sun.GetSunset(w°.GetTRef()) + 1.0 ) * 3600;//+1 hour : assume to be in daylight zone  //[s]
 
 		//first estimate of exodus info
 		__int64 h4 = 4 * 3600;
