@@ -188,9 +188,9 @@ namespace WBSF
 
 										double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
 										double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
-										double WS = w[h][H_WNDS];
+										double WS = budworm.get_WndS(w, h < 24 ? h : h - 24.0); 
 
-										bExodus = budworm.GetExodus(T, P, WS, tau);
+										bExodus = budworm.ComputeExodus(T, P, WS, tau);
 										if (bExodus)
 										{
 											CSun sun(day°.GetLocation().m_lat, day°.GetLocation().m_lon, day°.GetLocation().GetTimeZone());

@@ -64,9 +64,11 @@ namespace WBSF
 		bool get_t(const CWeatherDay& weather, __int64 &t°, __int64 &tᴹ)const;
 		double get_Tair(const CWeatherDay& weather, double h)const;
 		double get_Prcp(const CWeatherDay& weather, double h)const;
+		double get_WndS(const CWeatherDay& weather, double h)const;
 //		double GetFlightActivity(const CHourlyData& weather, double tau);
-		bool GetExodus(double T, double P, double W, double tau);
-		bool GetExodus(const CWeatherDay& weather);
+		bool ComputeExodus(double T, double P, double W, double tau);
+		bool ComputeExodus(const CWeatherDay& weather);
+		bool GetExodus()const{ return m_bExodus; }
 
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
@@ -99,7 +101,7 @@ namespace WBSF
 		double m_p_exodus;
 		//double m_liftoff_hour;
 		bool m_bExodus;
-		bool m_bRemoveExodus;
+		bool m_bLastExodus;
 		double m_exodus_age;
 		
 

@@ -63,7 +63,7 @@ namespace WBSF
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
-		m_bRemoveExodus = false;
+		m_bLastExodus = false;
 		
 		
 		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
@@ -93,7 +93,7 @@ namespace WBSF
 
 			m_eatenFoliage = in.m_eatenFoliage;
 			m_bExodus = in.m_bExodus;
-			m_bRemoveExodus = in.m_bRemoveExodus;
+			m_bLastExodus = in.m_bLastExodus;
 			
 
 			//regenerate relative development rate
@@ -104,7 +104,6 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
-			m_bRemoveExodus = in.m_bRemoveExodus;
 			m_exodus_age = in.m_exodus_age;
 		}
 
@@ -207,14 +206,11 @@ namespace WBSF
 			Live(weather[h], GetTimeStep());
 		}
 
+		m_bLastExodus = m_bExodus;
+
 		//flight activity, only in live adults 
-		if (GetStage() == ADULT)
-		{
-			if (!m_bExodus)
-				m_bExodus = GetExodus(weather);
-			else
-				m_bRemoveExodus = true;
-		}
+		if (GetStage() == ADULT && !m_bExodus)
+			m_bExodus = ComputeExodus(weather);
 			
 
 	}
@@ -314,11 +310,11 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		else if (m_bRemoveExodus)
+		/*else if (m_bRemoveExodus)
 		{
 			m_status = DEAD;
 			m_death = EXODUS;
-		}
+		}*/
 
 	}
 
@@ -346,8 +342,9 @@ namespace WBSF
 
 				
 
-				static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };
-				if (m_bExodus)
+				//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };//humm????
+				static const double SEX_RATIO[2] = { 1.0, 1.0 };//humm????
+				if (m_bExodus && m_bLastExodus != m_bExodus)
 					stat[S_MALE_FLIGHT_ACTIVITY + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
 
 			}
@@ -390,7 +387,7 @@ namespace WBSF
 		return RR;
 	}
 
-	bool CSpruceBudworm::GetExodus(const CWeatherDay& w°)
+	bool CSpruceBudworm::ComputeExodus(const CWeatherDay& w°)
 	{
 		bool bExodus = false;
 
@@ -413,16 +410,16 @@ namespace WBSF
 
 				double T = get_Tair(w, h < 24 ? h : h - 24.0);
 				double P = get_Prcp(w, h < 24 ? h : h - 24.0);
-				double W = w[h][H_WNDS];
+				double W = get_WndS(w, h < 24 ? h : h - 24.0);
 				
-				bExodus = GetExodus(T, P, W, tau);
+				bExodus = ComputeExodus(T, P, W, tau);
 			}
 		}
 
 		return bExodus;
 	}
 
-	bool CSpruceBudworm::GetExodus(double T, double P, double W, double tau)
+	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
 		static const double K = 166.0;
@@ -436,7 +433,12 @@ namespace WBSF
 		
 		bool bExodus = false;
 
-		// && GetStageAge()>=m_exodus_age
+		if (P == -999)
+			P = 0;
+		
+		if (W == -999)
+			W = 10;
+
 		if (T > 0 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
@@ -476,6 +478,7 @@ namespace WBSF
 		const CHourlyData& w¹ = w°.GetNext();
 		double Tair = (h - h°)*w¹[H_TAIR2] + (h¹ - h)*w°[H_TAIR2];
 
+		ASSERT(!WEATHER::IsMissing(Tair));
 		return Tair;
 	}
 
@@ -483,10 +486,41 @@ namespace WBSF
 	{
 		ASSERT(h >= 0 && h < 24);
 
+		double prcp = -999;
+
 		size_t h° = size_t(h);
-		return weather[h°][H_PRCP];
+		if (!WEATHER::IsMissing(weather[h°][H_PRCP]))
+			prcp = weather[h°][H_PRCP];
+
+		return prcp;
 	}
 
+	double CSpruceBudworm::get_WndS(const CWeatherDay& weather, double h)const
+	{
+		ASSERT(h >= 0 && h < 24);
+
+		double wind = -999;
+		
+		size_t h° = size_t(h);
+		size_t h¹ = h° + 1;
+		ASSERT(h >= h° && h <= h¹);
+		ASSERT((h - h°) >= 0 && (h - h°) <= 1);
+		ASSERT((h¹ - h) >= 0 && (h¹ - h) <= 1);
+
+		if (!WEATHER::IsMissing(weather[h°][H_WNDS]) && !WEATHER::IsMissing(weather[h°][H_WNDS]))
+		{
+			//temperature interpolation between 2 hours
+			const CHourlyData& w° = weather[h°];
+			const CHourlyData& w¹ = w°.GetNext();
+			wind = (h - h°)*w¹[H_WNDS] + (h¹ - h)*w°[H_WNDS];
+		}
+
+		return wind;
+	}
+
+
+
+	
 
 	bool CSpruceBudworm::get_t(const CWeatherDay& w°, __int64 &t°, __int64 &tᴹ)const
 	{
