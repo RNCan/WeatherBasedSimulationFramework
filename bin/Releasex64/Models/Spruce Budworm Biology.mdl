@@ -109,7 +109,6 @@
             <Description>Percentage of insect in over wintering second larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L2</Name>
@@ -162,7 +161,6 @@
             <Description>Percentage of pupae</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Adults</Name>
@@ -171,7 +169,6 @@
             <Description>Percentage of adults </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>DeathAdult</Name>
@@ -246,22 +243,20 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>MaleFlightActivity</Name>
-            <Title>MaleFlightActivity</Title>
-            <Units/>
+            <Name>MaleFlight</Name>
+            <Title>MaleFlight</Title>
+            <Units>%</Units>
             <Description>Flight activity of male</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>FemaleFlightActivity</Name>
-            <Title>FemaleFlightActivity</Title>
-            <Units/>
+            <Name>FemaleFlight</Name>
+            <Title>FemaleFlight</Title>
+            <Units>%</Units>
             <Description>Flight activity of female</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
