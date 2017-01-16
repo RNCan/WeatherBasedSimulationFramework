@@ -21,7 +21,7 @@ namespace WBSF
 {
 	//*******************************************************************************
 	const char* CScript::XML_FLAG = "Script";
-	const char* CScript::MEMBERS_NAME[NB_MEMBERS_EX] = { "Parameters" };
+	const char* CScript::MEMBERS_NAME[NB_MEMBERS_EX] = { "Script", "Input", "Output" };
 	const int CScript::CLASS_NUMBER = CExecutableFactory::RegisterClass(CScript::GetXMLFlag(), &CScript::CreateObject);
 
 	CScript::CScript()
@@ -46,7 +46,9 @@ namespace WBSF
 	void CScript::ClassReset()
 	{
 		m_name = "Script";
-		m_fileTitle.clear();
+		m_scriptFileName.clear();
+		m_inputFileName.clear();
+		m_outputFileName.clear();
 	}
 
 	CScript& CScript::operator =(const CScript& in)
@@ -54,7 +56,9 @@ namespace WBSF
 		if (&in != this)
 		{
 			CExecutable::operator =(in);
-			m_fileTitle = in.m_fileTitle;
+			m_scriptFileName = in.m_scriptFileName;
+			m_inputFileName = in.m_inputFileName;
+			m_outputFileName = in.m_outputFileName;
 		}
 
 		ASSERT(*this == in);
@@ -66,7 +70,10 @@ namespace WBSF
 		bool bEqual = true;
 
 		if (CExecutable::operator !=(in))bEqual = false;
-		if (m_fileTitle != in.m_fileTitle)bEqual = false;
+		if (m_scriptFileName != in.m_scriptFileName)bEqual = false;
+		if (m_inputFileName != in.m_inputFileName)bEqual = false;
+		if (m_outputFileName != in.m_outputFileName)bEqual = false;
+
 
 		return bEqual;
 	}
@@ -98,14 +105,21 @@ namespace WBSF
 	{
 		CExecutable::writeStruc(output);
 		zen::XmlOut out(output);
-		out[GetMemberName(SCRIPT_TITLE)](m_fileTitle);
+		out[GetMemberName(SCRIPT_NAME)](m_scriptFileName);
+		out[GetMemberName(INPUT)](m_inputFileName);
+		out[GetMemberName(OUTPUT)](m_outputFileName);
+		
 	}
 
 	bool CScript::readStruc(const zen::XmlElement& input)
 	{
 		CExecutable::readStruc(input);
 		zen::XmlIn in(input);
-		in[GetMemberName(SCRIPT_TITLE)](m_fileTitle);
+		
+		in[GetMemberName(SCRIPT_NAME)](m_scriptFileName);
+		in[GetMemberName(INPUT)](m_inputFileName);
+		in[GetMemberName(OUTPUT)](m_outputFileName);
+
 
 		return true;
 	}
@@ -116,10 +130,12 @@ namespace WBSF
 		ERMsg msg;
 
 		string filePath;
-		msg = GetFM().Script().GetFilePath(m_fileTitle, filePath);
+		msg = GetFM().Script().GetFilePath(m_scriptFileName, filePath);
 		if (msg)
 		{
-			msg = CallApplication(CRegistry::R_SCRIPT, "\"" + filePath + "\" /EXEC", NULL, SW_SHOW, false, true);
+			string arg1 = !m_inputFileName.empty() ? "\"" + m_inputFileName+ "\"" : "";
+			string arg2 = !m_outputFileName.empty() ? "\"" + m_outputFileName + "\"" : "";
+			msg = CallApplication(CRegistry::R_SCRIPT, arg1 + " " + arg2, NULL, SW_SHOW, false, true);
 		}
 
 		//CResultPtr pResult = m_pParent->GetResult(fileManager);
