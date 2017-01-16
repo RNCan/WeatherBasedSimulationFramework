@@ -17,7 +17,7 @@
 #include "Basic/Registry.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/ExecutableFactory.h"
-#include "Simulation/ImportSimulation.h"
+#include "Simulation/ImportData.h"
 
 #include "WeatherBasedSimulationString.h"
 

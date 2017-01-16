@@ -18,7 +18,7 @@
 #include "UI/FunctionAnalysisDlg.h"
 #include "UI/MergeExecutableDlg.h"
 #include "UI/MappingDlg.h"
-#include "UI/ImportSimulationDlg.h"
+#include "UI/ImportDataDlg.h"
 #include "UI/WGInputAnalysisDlg.h"
 #include "UI/DispersalDlg.h"
 #include "UI/ScriptDlg.h"

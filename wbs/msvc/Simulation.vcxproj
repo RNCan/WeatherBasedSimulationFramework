@@ -182,7 +182,7 @@
     <ClCompile Include="..\src\Simulation\Export.cpp" />
     <ClCompile Include="..\src\Simulation\FunctionAnalysis.cpp" />
     <ClCompile Include="..\src\Simulation\Graph.cpp" />
-    <ClCompile Include="..\src\Simulation\ImportSimulation.cpp" />
+    <ClCompile Include="..\src\Simulation\ImportData.cpp" />
     <ClCompile Include="..\src\Simulation\WGInputAnalysis.cpp" />
     <ClCompile Include="..\src\Simulation\LoadStaticData.cpp" />
     <ClCompile Include="..\src\Simulation\Mapping.cpp" />
@@ -220,7 +220,7 @@
     <ClInclude Include="..\src\Simulation\ExportDefine.h" />
     <ClInclude Include="..\src\Simulation\FunctionAnalysis.h" />
     <ClInclude Include="..\src\Simulation\Graph.h" />
-    <ClInclude Include="..\src\Simulation\ImportSimulation.h" />
+    <ClInclude Include="..\src\Simulation\ImportData.h" />
     <ClInclude Include="..\src\Simulation\WGInputAnalysis.h" />
     <ClInclude Include="..\src\Simulation\LoadStaticData.h" />
     <ClInclude Include="..\src\Simulation\Mapping.h" />
