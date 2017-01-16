@@ -18,6 +18,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/CustomDDX.h"
+#include "UI/Common/AppOption.h"
 #include "ImportDataDlg.h"
 
 
@@ -49,17 +50,13 @@ namespace WBSF
 
 		CStringArrayEx strTitle(IDS_SIM_IMPORT_VARIABLE_HEAD);
 
-
+		CAppOption option(_T("ImportDataColumnWide"));
 		SetNumberCols(2);
 		SetNumberRows(0);
 		SetDefColWidth(300);
-		SetColWidth(-1, 300);
-
-		for (int i = 0; i < strTitle.GetSize(); i++)
-		{
-			QuickSetText(i - 1, -1, strTitle[i]);
-		}
-
+		SetColWidth(-1, option.GetProfileInt(_T("-1"), 300));
+		SetColWidth(0, option.GetProfileInt(_T("0"), 300));
+		SetColWidth(1, option.GetProfileInt(_T("1"), 300));
 
 
 		//load tooltips	
@@ -93,16 +90,16 @@ namespace WBSF
 
 	CString CImportVariablesCtrl::GetFieldText(size_t dimension, size_t field)const
 	{
-		if (field == NOT_INIT )
-			field = 0;
+		//if (field == NOT_INIT )
+			//field = 0;
 
 		CString str;
 		if (dimension == LOCATION)
-			str = LOC_LABLE[field];
+			str = LOC_LABLE[field == NOT_INIT ? 0 : field];
 		else if (dimension == TIME_REF)
-			str = TIME_LABLE[field];
+			str = TIME_LABLE[field == NOT_INIT ? 0 : field];
 		else if (dimension == VARIABLE)
-			str = VARIABLES_LABLE[field];
+			str = VARIABLES_LABLE[field == NOT_INIT ? 0 : field+1];
 
 		return str;
 	}
@@ -111,19 +108,20 @@ namespace WBSF
 	{
 		int pos = DIMENSION_LABLE.Find(str, false) - 1;
 		ASSERT(pos >= -1 && pos < NB_DIMENSION);
-		return pos;
+		return size_t(pos);
 	}
 
 	size_t CImportVariablesCtrl::GetField(size_t dimension, CString str)const
 	{
 
 		size_t pos = NOT_INIT;
+		
 		if (dimension == LOCATION)
-			pos = CLocation::GetMemberFromName((LPCSTR)CStringA(str));
+			pos = LOC_LABLE.Find(str);
 		else if (dimension == TIME_REF)
 			pos = TIME_LABLE.Find(str);
 		else if (dimension == VARIABLE)
-			pos = VARIABLES_LABLE.Find(str);
+			pos = size_t(VARIABLES_LABLE.Find(str))-1;
 
 
 		return pos;
@@ -132,15 +130,16 @@ namespace WBSF
 
 
 
-	void CImportVariablesCtrl::SetImportHeader(const CString& header)
+	void CImportVariablesCtrl::SetImportHeader(const std::string& header)
 	{
-		CStringArrayEx columnHeader(header);
+		//CStringArrayEx columnHeader(header);
+		StringVector columnHeader(header, ";|,");
 
-		SetNumberRows((long)columnHeader.GetSize());
-		for (int i = 0; i < columnHeader.GetSize(); i++)
+		SetNumberRows((long)columnHeader.size());
+		for (int i = 0; i < columnHeader.size(); i++)
 		{
 
-			QuickSetText(-1, i, columnHeader[i]);
+			QuickSetText(-1, i, CString(columnHeader[i].c_str()));
 			QuickSetCellType(0, i, UGCT_DROPLIST);
 			QuickSetCellType(1, i, UGCT_DROPLIST);
 
@@ -154,6 +153,7 @@ namespace WBSF
 			CUGCell cell;
 			GetCell(0, i, &cell);
 			cell.SetLabelText(DIMENSION_LABLE.ToString(_T("\n"), false) + _T("\n"));
+			int test = int(dimension) + 1;
 			cell.SetText(DIMENSION_LABLE[int(dimension) + 1]);
 			SetCell(0, i, &cell);
 
@@ -180,58 +180,64 @@ namespace WBSF
 
 	}
 
-	//retunr dimentionRef and dimensionField
-	void CImportVariablesCtrl::GetAutoSelect(CString headerIn, size_t& dimension, size_t& field)
+	
+	size_t GetDateFromString(const std::string& header)
 	{
-		std::string header = (LPCSTR)CStringA(headerIn);
+		size_t field = NOT_INIT;
+
+		for (size_t i = 0; i < CTRefFormat::NB_FORMAT&&field == NOT_INIT; i++)
+		{
+			if (IsEqual(header, CTRefFormat::GetFormatName(i)))
+				field = i;
+		}
+
+		return field;
+	}
+	//retunr dimentionRef and dimensionField
+	void CImportVariablesCtrl::GetAutoSelect(const std::string& header, size_t& dimension, size_t& field)
+	{
+		//std::string header = (LPCSTR)CStringA(headerIn);
 		dimension = NOT_INIT;
 		field = NOT_INIT;
 
-		//header.MakeUpper();
-
-		field = CLocation::GetMemberFromName(header);
-		if (dimension != NOT_INIT)
+		if (IsEqual(header, "Parameter") || IsEqual(header, "Paramètre"))
+		{
+			dimension = PARAMETER;
+		}
+		else if (IsEqual(header, "Replication") || IsEqual(header, "Répétition"))
+		{
+			dimension = REPLICATION;
+		}
+		else if (IsEqual(header, "Date"))
+		{
+			dimension = TIME_REF;
+			field = CTRefFormat::NB_FORMAT;
+		}
+		else if (IsEqual(header, (LPCSTR)CStringA(CString("Élévation"))))
+		{
+			field = CLocation::ELEV;
+			dimension = LOCATION;
+		}
+		else if ((field = GetDateFromString(header)) != NOT_INIT)
+		{
+			dimension = TIME_REF;
+		}
+		else if ((field = CLocation::GetMemberFromName(header)) != CLocation::SSI)
 		{
 			dimension = LOCATION;
 		}
 		else
 		{
-			for (size_t i = 0; i < CTRefFormat::NB_FORMAT&&dimension == -1; i++)
-			{
-				if (IsEqual(header, CTRefFormat::GetFormatName(i)))
-				{
-					dimension = TIME_REF;
-					field = i;
-				}
-			}
-
-			if (dimension == -1)
-			{
-				if (IsEqual(header, "Parameter") || IsEqual(header, "Paramètre") )
-				{
-					dimension = PARAMETER;
-				}
-				else if (IsEqual(header, "Replication") || IsEqual(header, "Répétition"))
-				{
-					dimension = REPLICATION;
-				}
-				else if (IsEqual(header, "Date") )
-				{
-					dimension = TIME_REF;
-					field = CTRefFormat::NB_FORMAT;
-				}
-				else
-				{
-					//all other is considered variable
-					dimension = VARIABLE;
-				}
-			}
+			//all other is considered variable
+			dimension = VARIABLE;
+			field = NOT_INIT;
+			//try to indentify weather variables
 		}
 		
 	}
 
 
-	int CImportVariablesCtrl::OnCellTypeNotify(long ID, int col, long row, long msg, long param)
+	int CImportVariablesCtrl::OnCellTypeNotify(long ID, int col, long row, long msg, LONG_PTR param)
 	{
 		if (msg == UGCT_DROPLISTSTART)
 		{
@@ -282,6 +288,22 @@ namespace WBSF
 		RedrawAll();
 	}
 
+
+	void CImportVariablesCtrl::OnColSized(int col, int *width)
+	{
+		CAppOption option(_T("ImportDataColumnWide"));
+		CString name = ToCString(col);
+		option.WriteProfileInt(name, *width);
+	}
+
+	int  CImportVariablesCtrl::OnSideHdgSized(int *width)
+	{
+		CAppOption option(_T("ImportDataColumnWide"));
+		option.WriteProfileInt(_T("-1"), *width);
+
+		return TRUE;
+	}
+
 	//*************************************************************************************************
 
 	// CImportDataDlg dialog
@@ -314,9 +336,9 @@ namespace WBSF
 
 
 	BEGIN_MESSAGE_MAP(CImportDataDlg, CDialog)
-		//ON_EN_CHANGE(IDC_IMPORT_FILEPATH, &CImportDataDlg::OnFilePathChange)
 		ON_CBN_SELCHANGE(IDC_IMPORT_FILENAME, &OnFileNameChange)
 		ON_WM_SIZE()
+		ON_WM_DESTROY()
 	END_MESSAGE_MAP()
 
 
@@ -333,6 +355,16 @@ namespace WBSF
 
 		CString importFilter = UtilWin::GetCString(IDS_STR_FILTER_CSV);
 		FillFileName();
+
+		CAppOption option;
+		
+		CRect rectClient;
+		GetWindowRect(rectClient);
+
+		rectClient = option.GetProfileRect(_T("ImportDataDlgRect"), rectClient);
+		UtilWin::EnsureRectangleOnDisplay(rectClient);
+		SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+
 
 		SetImportFileToInterface();
 
@@ -389,13 +421,19 @@ namespace WBSF
 		//std::string path = WBSF::GetFM().GetInputPath().c_str();
 		std::string filePath = WBSF::GetFM().Input().GetFilePath(m_fileNameCtrl.GetString());
 
-		CString header;
-		CStdioFile file;
+		//CString header;
+		//CStdioFile file;
+		ifStream file;
+		auto myloc = std::locale();
+		file.imbue(myloc);
 
 
-		if (file.Open(Convert(filePath), CFile::modeRead))
+		std::string header;
+
+		if (file.open(filePath))
 		{
-			file.ReadString(header);
+			std::getline(file, header);
+			//file.ReadString(header);
 		}
 
 		m_columnLink.SetImportHeader(header);
@@ -488,12 +526,25 @@ namespace WBSF
 		m_descriptionCtrl.SetWindowPos(NULL, 0, 0, rectDescription.Width(), rectDescription.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
 		m_fileNameCtrl.SetWindowPos(NULL, 0, 0, rectFileName.Width(), rectFileName.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
 		m_columnLink.SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
-		m_defaultDirCtrl.SetWindowPos(NULL, rectPath.right, rectPath.top, rectPath.Width(), rectPath.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+		m_defaultDirCtrl.SetWindowPos(NULL, rectPath.left, rectPath.top, rectPath.Width(), rectPath.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
 		GetDlgItem(IDC_CMN_STATIC1)->SetWindowPos(NULL, rectStatic1.left, rectStatic1.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		GetDlgItem(IDC_CMN_STATIC2)->SetWindowPos(NULL, rectStatic2.left, rectStatic2.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		m_internalNameCtrl.SetWindowPos(NULL, rectInternalName.left, rectInternalName.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		GetDlgItem(IDOK)->SetWindowPos(NULL, rectOK.left, rectOK.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		GetDlgItem(IDCANCEL)->SetWindowPos(NULL, rectCancel.left, rectCancel.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 	}
+
+
+	void CImportDataDlg::OnDestroy()
+	{
+		CRect rectClient;
+		GetWindowRect(rectClient);
+
+		CAppOption option;
+		option.WriteProfileRect(_T("ImportDataDlgRect"), rectClient);
+
+		CDialog::OnDestroy();
+	}
+
 
 }

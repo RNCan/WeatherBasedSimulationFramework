@@ -217,7 +217,7 @@ namespace WBSF
 		{
 			if (at(i).m_dimension == VARIABLE)
 			{
-				def.push_back(CModelOutputVariableDef(at(i).m_name, at(i).m_name, "", "", CTM(CTM::ATEMPORAL), 5));
+				def.push_back(CModelOutputVariableDef(at(i).m_name, at(i).m_name, "", "", CTM(CTM::ATEMPORAL), 5,"",at(i).m_field));
 			}
 		}
 	}
@@ -226,7 +226,7 @@ namespace WBSF
 	//CImportData
 
 	const char* CColumnLink::XML_FLAG = "ColumnLink";
-	const char* CColumnLink::MEMBER_NAME[NB_MEMBER] = { "Name", "DimensionRef", "DimensionField" };
+	const char* CColumnLink::MEMBER_NAME[NB_MEMBER] = { "Name", "Dimension", "Field" };
 	///const char* CArrayEx<CColumnLink>::XML_FLAG = "ColumnLinkArray";
 
 	const char* CImportData::XML_FLAG = "ImportData";
@@ -619,6 +619,8 @@ namespace WBSF
 					//msg += callback.StepIt(0);
 				}
 
+				if (locArray.empty())
+					locArray.push_back(CLocation("default", "0"));
 
 				CModelOutputVariableDefVector outputVariable;
 				m_columnLinkArray.GetOutputDefinition(outputVariable);
@@ -755,75 +757,33 @@ namespace WBSF
 
 	}
 	*/
-
-
-	ERMsg CImportData::GetLocationList(const CFileManager& fileManager, CLocationVector& loc)const
+	
+	ERMsg CImportData::GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter )const
 	{
 		ERMsg msg;
 		msg = UpdateData(fileManager);
 		if (msg)
-		{
 			msg = LoadOptimisation(fileManager);
-			if (msg)
-				loc = m_locArray;
+		
+		if (msg)
+		{
+			if (filter[LOCATION])
+				info.m_locations = m_locArray;
+
+			if (filter[PARAMETER])
+				info.m_parameterset = m_parameterSet;
+
+			if (filter[REPLICATION])
+				info.m_nbReplications = m_nbReplications;
+
+			if (filter[TIME_REF])
+				info.m_period = m_period;
+
+			if (filter[VARIABLE])
+				info.m_variables = m_varDefArray;
 		}
 
 		return msg;
-	}
-	ERMsg CImportData::GetParameterList(const CFileManager& fileManager, CModelInputVector& parameters)const
-	{
-		ERMsg msg;
-		msg = UpdateData(fileManager);
-		if (msg)
-		{
-			msg = LoadOptimisation(fileManager);
-			if (msg)
-				parameters = m_parameterSet;
-		}
-
-		return msg;
-	}
-
-
-	ERMsg CImportData::GetReplication(const CFileManager& fileManager, size_t& nbReplications)const
-	{
-		ERMsg msg;
-		msg = UpdateData(fileManager);
-		if (msg)
-		{
-			msg = LoadOptimisation(fileManager);
-			if (msg)
-				nbReplications = m_nbReplications;
-		}
-
-		return msg;
-	}
-	ERMsg CImportData::GetDefaultPeriod(const CFileManager& fileManager, CTPeriod& period)const
-	{
-		ERMsg msg;
-		msg = UpdateData(fileManager);
-		if (msg)
-		{
-			msg = LoadOptimisation(fileManager);
-			if (msg)
-				period = m_period;
-		}
-
-		return msg;
-	}
-
-	ERMsg CImportData::GetOutputDefinition(const CFileManager& fileManager, CModelOutputVariableDefVector& outputVar)const
-	{
-		ERMsg msg;
-		msg = UpdateData(fileManager);
-		if (msg)
-		{
-			msg = LoadOptimisation(fileManager);
-			if (msg)
-				outputVar = m_varDefArray;
-		}
-
-		return ERMsg();
 	}
 
 	void CImportData::writeStruc(zen::XmlElement& output)const

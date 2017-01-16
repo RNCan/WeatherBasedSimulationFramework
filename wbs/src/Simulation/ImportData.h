@@ -137,20 +137,10 @@ namespace WBSF
 		bool operator == (const CImportData& in)const;
 		bool operator != (const CImportData& in)const{ return !operator==(in); }
 
-		//std::string GetMember(int i, LPXNode& pNode=NULL_ROOT)const;
-		//void SetMember(int i, const std::string& str, const LPXNode pNode=NULL_ROOT);
-		//virtual void GetXML(LPXNode& pRoot)const{XGetXML(*this, pRoot);}
-		//virtual void SetXML(const LPXNode pRoot){XSetXML(*this, pRoot);}
-
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg UpdateData(const CFileManager& fileManager, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		virtual ERMsg GetLocationList(const CFileManager& fileManager, CLocationVector& loc)const;
-		virtual ERMsg GetParameterList(const CFileManager& fileManager, CModelInputVector& parameters)const;
-		virtual ERMsg GetReplication(const CFileManager& fileManager, size_t& nbReplication)const;
-		virtual ERMsg GetDefaultPeriod(const CFileManager& fileManager, CTPeriod& period)const;
-		virtual ERMsg GetOutputDefinition(const CFileManager& fileManager, CModelOutputVariableDefVector& outputVar)const;
-
+		virtual ERMsg GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter = CParentInfoFilter())const;
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_FLOAT; }
 
 	protected:

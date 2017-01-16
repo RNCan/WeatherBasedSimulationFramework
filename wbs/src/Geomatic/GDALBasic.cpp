@@ -2432,7 +2432,7 @@ ERMsg CGeoCoordFile::Load(const string& filePath, const string X, const string Y
 	ERMsg msg;
 
 	ifStream file;
-	auto myloc = locale();
+	auto myloc = std::locale();
 	file.imbue(myloc);
 
 	msg = file.open(filePath);

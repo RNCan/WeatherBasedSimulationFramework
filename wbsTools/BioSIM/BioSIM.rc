@@ -741,8 +741,8 @@ BEGIN
     ID_ADD_MERGE            "Permet de fusionner plusieurs éléments dans la même analyse\nAjouter fusion"
     ID_ADD_MAP              "Permet de cartographier à partir de données ponctuelles\nAjouter cartographie"
     ID_ADD_IMPORT_SIMULATION 
-                            "Permet d'ajouter un fichier externe et l'utiliser comme un composant\nAjouter fichier d'import"
-    ID_ADD_INPUT_ANALYSIS   "Permet d'extraire les intrants d'une génération météorologique\nAjouter intrants météo"
+                            "Permet d'impoter des données à partir d'un fichier CSV dans un composant\nAjouter import de données"
+    ID_ADD_INPUT_ANALYSIS   "Permet d'extraire les intrants d'une génération météorologique\nAjouter analyse d'intrants météo"
     ID_ADD_DISPERSAL        "Permet de simuler la dispersion d'insectes par le vent\nAjouter dispersion"
     ID_ADD_SCRIPT_R         "Permet d'executer un scripte\nAjouter scripte"
 END
@@ -1243,8 +1243,8 @@ BEGIN
     ID_ADD_MERGE            "Use to merge multiple components into single one\nAdd Merge"
     ID_ADD_MAP              "Use to generate surface grid from data points\nAdd Mapping"
     ID_ADD_IMPORT_SIMULATION 
-                            "Use to import file and use it like a component\nAdd Import File"
-    ID_ADD_INPUT_ANALYSIS   "Use to extract weather inputs\nAdd Weather Input"
+                            "Use to import data from CSV file and use it as a component\nAdd Import Data"
+    ID_ADD_INPUT_ANALYSIS   "Use to extract weather inputs\nAdd Weather Input Analysis"
     ID_ADD_DISPERSAL        "Use to simulate the dispersion of insects in the wind\nAdd dispersal"
     ID_ADD_SCRIPT_R         "Use to run a script\nAdd Script"
 END

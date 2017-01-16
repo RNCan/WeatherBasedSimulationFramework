@@ -26,18 +26,21 @@ namespace WBSF
 
 		virtual void OnSetup();
 
-		void SetImportHeader(const CString& header);
+		void SetImportHeader(const std::string& header);
 		void GetData(CColumnLinkVector& data);
 		void SetData(const CColumnLinkVector& data);
 
-		virtual int OnCellTypeNotify(long ID, int col, long row, long msg, long param);
-		static void GetAutoSelect(CString header, size_t& dimensionRef, size_t& dimensionField);
+		virtual int OnCellTypeNotify(long ID, int col, long row, long msg, LONG_PTR param);
+		static void GetAutoSelect(const std::string& header, size_t& dimensionRef, size_t& dimensionField);
 
 
 		void OnDimensionChange(int row, size_t dimensionRef);
 
 		virtual int OnCanSizeRow(long row) { UNREFERENCED_PARAMETER(row); return FALSE; }
 		virtual int OnCanSizeTopHdg() { return FALSE; }
+		virtual void OnColSized(int col, int *width);
+		virtual int  OnSideHdgSized(int *width);
+
 
 	private:
 
@@ -72,6 +75,7 @@ namespace WBSF
 		CImportDataDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
 		virtual ~CImportDataDlg();
 		virtual BOOL OnInitDialog();
+
 
 		virtual void SetExecutable(CExecutablePtr pExecutable){ m_importData = GetImportData(pExecutable); }
 		virtual CExecutablePtr GetExecutable()const{ return m_importData.CopyObject(); }
@@ -111,6 +115,7 @@ namespace WBSF
 		CImportData& GetImportData(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CImportData&>(*pItem); }
 
 		afx_msg void OnFileNameChange();
+		afx_msg void OnDestroy();
 	};
 
 }
