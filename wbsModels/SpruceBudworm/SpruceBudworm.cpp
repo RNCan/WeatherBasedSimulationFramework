@@ -423,9 +423,10 @@ namespace WBSF
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
 		static const double K = 166.0;
+		//static const double K = 100.0;
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxF[2] = { 1.0, 2 };
+		//static const double VmaxF[2] = { 1.0, 1.0 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
@@ -444,18 +445,15 @@ namespace WBSF
 			const double Vmax = 65 * VmaxF[m_sex];
 			//const double Vmax = 55;
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
-			
 
-			//adjust female weight
-			double Vᴸ = K* sqrt(m_M) / m_A;//compute Vᴸ with actual weight
-			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
+			//Compute wingbeat
+			double Vᴸ = K* sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
+			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
 
-			
+			//potential wingbeat is greather than liftoff wingbeat, then exodus 
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
-			{
-
 				bExodus = true;		//this insect is exodus
-			}
+
 					
 		}
 

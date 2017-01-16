@@ -19,7 +19,7 @@
 #include "UI/MergeExecutableDlg.h"
 #include "UI/MappingDlg.h"
 #include "UI/ImportSimulationDlg.h"
-#include "UI/InputAnalysisDlg.h"
+#include "UI/WGInputAnalysisDlg.h"
 #include "UI/DispersalDlg.h"
 #include "UI/ScriptDlg.h"
 #include "UI/CopyExportDlg.h"
@@ -59,8 +59,8 @@ namespace WBSF
 		CFunctionAnalysis::GetXMLFlag(),
 		CMergeExecutable::GetXMLFlag(),
 		CMapping::GetXMLFlag(),
-		CImportSimulation::GetXMLFlag(),
-		CInputAnalysis::GetXMLFlag(),
+		CImportData::GetXMLFlag(),
+		CWGInputAnalysis::GetXMLFlag(),
 		CDispersal::GetXMLFlag(),
 		CScript::GetXMLFlag(),
 		CCopyExport::GetXMLFlag(),
@@ -493,14 +493,14 @@ namespace WBSF
 
 		case CExecutableTree::IMPORT_FILE:
 		{
-			CImportSimulationDlg dlg(pParent, this);
+			CImportDataDlg dlg(pParent, this);
 			bAdd = DoModalDlg(dlg, pItem);
 		}break;
 
 		case CExecutableTree::INPUT_ANALYSIS:
 		{
 			ASSERT(pParent);
-			CInputAnalysisDlg dlg(pParent, this);
+			CWGInputAnalysisDlg dlg(pParent, this);
 			bAdd = DoModalDlg(dlg, pItem);
 		}break;
 
@@ -556,12 +556,11 @@ namespace WBSF
 		case CExecutableTree::FUNCTION_ANALYSIS: pItem.reset(new CFunctionAnalysis); break;
 		case CExecutableTree::MERGE_EXECUTABLE: pItem.reset(new CMergeExecutable); break;
 		case CExecutableTree::MAPPING: pItem.reset(new CMapping); break;
-		case CExecutableTree::IMPORT_FILE: pItem.reset(new CImportSimulation); break;
-		case CExecutableTree::INPUT_ANALYSIS: pItem.reset(new CInputAnalysis); break;
+		case CExecutableTree::IMPORT_FILE: pItem.reset(new CImportData); break;
+		case CExecutableTree::INPUT_ANALYSIS: pItem.reset(new CWGInputAnalysis); break;
 		case CExecutableTree::DISPERSAL: pItem.reset(new CDispersal); break;
 		case CExecutableTree::SCRIPT_R: pItem.reset(new CScript); break;
 		case CExecutableTree::COPY_EXPORT: pItem.reset(new CCopyExport); break;
-			//	case CExecutableTree::SIMULATION: pItem.reset(new CSimulation); break;
 		case CExecutableTree::MODEL_PARAMETERIZATION:pItem.reset(new CModelParameterization); break;
 		default: ASSERT(false);
 		}

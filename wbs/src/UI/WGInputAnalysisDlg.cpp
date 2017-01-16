@@ -12,7 +12,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/CustomDDX.h"
 #include "UI/Common/UtilWin.h"
-#include "InputAnalysisDlg.h"
+#include "WGInputAnalysisDlg.h"
 
 using namespace std;
 using namespace WBSF::DIMENSION;
@@ -29,21 +29,21 @@ namespace WBSF
 
 
 	//*************************************************************************************************
-	// CInputAnalysisDlg dialog
+	// CWGInputAnalysisDlg dialog
 
-	BEGIN_MESSAGE_MAP(CInputAnalysisDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CWGInputAnalysisDlg, CDialog)
 	END_MESSAGE_MAP()
 
 
-	CInputAnalysisDlg::CInputAnalysisDlg(const CExecutablePtr& pParent, CWnd* pParentWnd/*=NULL*/) :
-		CDialog(CInputAnalysisDlg::IDD, pParentWnd),
+	CWGInputAnalysisDlg::CWGInputAnalysisDlg(const CExecutablePtr& pParent, CWnd* pParentWnd/*=NULL*/) :
+		CDialog(CWGInputAnalysisDlg::IDD, pParentWnd),
 		m_pParent(pParent)
 	{
 	}
 
 
 
-	void CInputAnalysisDlg::DoDataExchange(CDataExchange* pDX)
+	void CWGInputAnalysisDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		CDialog::DoDataExchange(pDX);
 

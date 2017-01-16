@@ -15,6 +15,7 @@
 #include "Basic/NormalsDatabase.h"
 #include "Basic/WeatherCorrection.h"
 
+
 namespace WBSF
 {
 	enum TScaleG{ LOCAL_GRADIENT, REGIONAL_GRADIENT, CONTINENTAL_GRADIENT, NB_SCALE_GRADIENT };
@@ -59,7 +60,6 @@ namespace WBSF
 		ERMsg ComputeGradient(size_t v, CSearchResultVector& results, CGradientYear& Gr, CGradientR²& R², CCallback& callBack);
 		ERMsg CreateDefaultGradient(CCallback& callback = DEFAULT_CALLBACK);
 		double GetFactor(size_t z, size_t v, size_t s, const CSearchResultVector& results)const;
-		double GetDistance(size_t s, const CLocation& target, const CLocation& station)const;
 		void GetS°(size_t g, const CSearchResultVector& results, CGradientS°& S°)const;
 
 		const double& operator ()(size_t z, size_t g, size_t m, size_t s)const
@@ -83,6 +83,7 @@ namespace WBSF
 		static ERMsg AddShape(const std::string& filePathIn1, const std::string& filePathIn2, const std::string& filePathOut);
 		static double GetShoreDistance(const CLocation& location);
 		static size_t GetNbSpaces();
+		static double GetDistance(size_t s, const CLocation& target, const CLocation& station);
 
 		double GetS°(size_t z, size_t g, size_t m)const{ return m_S°[z][g][m][MEAN]; }
 		double GetFactor(size_t z, size_t g, size_t s)const{ return m_factor[z][g][s]; }

@@ -54,17 +54,23 @@ namespace WBSF
 
 		if (!pDX->m_bSaveAndValidate)
 		{
-			DDX_Control(pDX, IDC_KIND, m_listCtrl);
-			WBSF::StringVector list = WBSF::GetFM().Script().GetFilesList();
-			m_listCtrl.FillList(list, m_script.m_fileTitle);
+			DDX_Control(pDX, IDC_SCRIPT, m_listCtrl);
+			DDX_Control(pDX, IDC_INPUT, m_inputCtrl);
+			DDX_Control(pDX, IDC_OUTPUT, m_outputCtrl);
+
+			WBSF::StringVector list1 = WBSF::GetFM().Script().GetFilesList();
+			m_listCtrl.FillList(list1, m_script.m_scriptFileName);
+
+			WBSF::StringVector list2 = GetFilesList(WBSF::GetFM().GetOutputPath()+"*.*");
+			m_inputCtrl.FillList(list2, m_script.m_inputFileName);
 		}
-
-
 
 		DDX_Text(pDX, IDC_NAME, m_script.m_name);
 		DDX_Text(pDX, IDC_DESCRIPTION, m_script.m_description);
 		DDX_Text(pDX, IDC_INTERNAL_NAME, m_script.m_internalName);
-		DDX_Text(pDX, IDC_KIND, m_script.m_fileTitle);
+		DDX_Text(pDX, IDC_SCRIPT, m_script.m_scriptFileName);
+		DDX_Text(pDX, IDC_INPUT, m_script.m_inputFileName);
+		DDX_Text(pDX, IDC_OUTPUT, m_script.m_outputFileName);
 
 	}
 

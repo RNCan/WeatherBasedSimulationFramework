@@ -17,7 +17,9 @@
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
+#include "UI/Common/CustomDDX.h"
 #include "ImportSimulationDlg.h"
+
 
 #include "WeatherBasedSimulationString.h"
 
@@ -83,43 +85,44 @@ namespace WBSF
 
 	}
 
-	CString CImportVariablesCtrl::GetDimensionRefText(int dimensionRef)const
+	CString CImportVariablesCtrl::GetDimensionText(size_t dimension)const
 	{
-		ASSERT(dimensionRef >= -1 && dimensionRef < NB_DIMENSION);
-		return DIMENSION_LABLE[dimensionRef + 1];
+		ASSERT(dimension == -1 || dimension < NB_DIMENSION);
+		return DIMENSION_LABLE[int(dimension) + 1];
 	}
 
-	CString CImportVariablesCtrl::GetDimensionFieldText(int dimensionRef, int dimensionField)const
+	CString CImportVariablesCtrl::GetFieldText(size_t dimension, size_t field)const
 	{
-		if (dimensionField < 0)
-			dimensionField = 0;
+		if (field == NOT_INIT )
+			field = 0;
 
 		CString str;
-		if (dimensionRef == LOCATION)
-			str = LOC_LABLE[dimensionField];
-		else if (dimensionRef == TIME_REF)
-			str = TIME_LABLE[dimensionField];
-		else if (dimensionRef == VARIABLE)
-			str = VARIABLES_LABLE[dimensionField];
+		if (dimension == LOCATION)
+			str = LOC_LABLE[field];
+		else if (dimension == TIME_REF)
+			str = TIME_LABLE[field];
+		else if (dimension == VARIABLE)
+			str = VARIABLES_LABLE[field];
 
 		return str;
 	}
 
-	int CImportVariablesCtrl::GetDimensionRef(CString str)const
+	size_t CImportVariablesCtrl::GetDimension(CString str)const
 	{
 		int pos = DIMENSION_LABLE.Find(str, false) - 1;
 		ASSERT(pos >= -1 && pos < NB_DIMENSION);
 		return pos;
 	}
 
-	int CImportVariablesCtrl::GetDimensionField(int dimensionRef, CString str)const
+	size_t CImportVariablesCtrl::GetField(size_t dimension, CString str)const
 	{
-		int pos = 0;
-		if (dimensionRef == LOCATION)
-			pos = LOC_LABLE.Find(str);
-		else if (dimensionRef == TIME_REF)
+
+		size_t pos = NOT_INIT;
+		if (dimension == LOCATION)
+			pos = CLocation::GetMemberFromName((LPCSTR)CStringA(str));
+		else if (dimension == TIME_REF)
 			pos = TIME_LABLE.Find(str);
-		else if (dimensionRef == VARIABLE)
+		else if (dimension == VARIABLE)
 			pos = VARIABLES_LABLE.Find(str);
 
 
@@ -141,32 +144,35 @@ namespace WBSF
 			QuickSetCellType(0, i, UGCT_DROPLIST);
 			QuickSetCellType(1, i, UGCT_DROPLIST);
 
-			short dimensionField = 0;
-			short dimensionRef = GetAutoSelect(columnHeader[i], dimensionField);
-			ASSERT(dimensionRef >= -1 && dimensionRef < NB_DIMENSION);
+			size_t dimension = NOT_INIT;
+			size_t field = NOT_INIT;
+			
+			
+			GetAutoSelect(columnHeader[i], dimension, field);
+			ASSERT(dimension == NOT_INIT || dimension < NB_DIMENSION);
 
 			CUGCell cell;
 			GetCell(0, i, &cell);
 			cell.SetLabelText(DIMENSION_LABLE.ToString(_T("\n"), false) + _T("\n"));
-			cell.SetText(DIMENSION_LABLE[dimensionRef + 1]);
+			cell.SetText(DIMENSION_LABLE[int(dimension) + 1]);
 			SetCell(0, i, &cell);
 
-			OnDimensionChange(i, dimensionRef);
-			QuickSetText(1, i, GetDimensionFieldText(dimensionRef, dimensionField));
+			OnDimensionChange(i, dimension);
+			QuickSetText(1, i, GetFieldText(dimension, field));
 
 			Invalidate();
 		}
 	}
 
-	void CImportVariablesCtrl::OnDimensionChange(int row, int dimensionRef)
+	void CImportVariablesCtrl::OnDimensionChange(int row, size_t dimension)
 	{
 		CString title;
 
-		if (dimensionRef == LOCATION)
+		if (dimension == LOCATION)
 			title = LOC_LABLE.ToString(_T("\n"), false);
-		else if (dimensionRef == TIME_REF)
+		else if (dimension == TIME_REF)
 			title = TIME_LABLE.ToString(_T("\n"), false);
-		else if (dimensionRef == VARIABLE)
+		else if (dimension == VARIABLE)
 			title = VARIABLES_LABLE.ToString(_T("\n"), false);
 
 
@@ -175,82 +181,53 @@ namespace WBSF
 	}
 
 	//retunr dimentionRef and dimensionField
-	short CImportVariablesCtrl::GetAutoSelect(CString header, short& dimensionField)
+	void CImportVariablesCtrl::GetAutoSelect(CString headerIn, size_t& dimension, size_t& field)
 	{
-		short dimensionRef = -1;
-		dimensionField = 0;
+		std::string header = (LPCSTR)CStringA(headerIn);
+		dimension = NOT_INIT;
+		field = NOT_INIT;
 
-		header.MakeUpper();
+		//header.MakeUpper();
 
-
-		if (header == "KEY_ID")
+		field = CLocation::GetMemberFromName(header);
+		if (dimension != NOT_INIT)
 		{
-			dimensionRef = LOCATION;
-			dimensionField = CLocation::ID;
+			dimension = LOCATION;
 		}
-
-
-		if (header == "LAT" || header == "Y")
+		else
 		{
-			dimensionRef = LOCATION;
-			dimensionField = CLocation::LAT;
-		}
-
-		if (header == "LONG" || header == "LON" || header == "X")
-		{
-			dimensionRef = LOCATION;
-			dimensionField = CLocation::LON;
-		}
-		if (header == "ALTITUDE" || header == "ELEV" || header == "Z")
-		{
-			dimensionRef = LOCATION;
-			dimensionField = CLocation::LON;
-		}
-
-
-		//try to find LOC header
-		for (int i = 0; i < CLocation::NB_MEMBER&&dimensionRef == -1; i++)
-		{
-			if (header == CString(CLocation::GetMemberName(i)).MakeUpper())
+			for (size_t i = 0; i < CTRefFormat::NB_FORMAT&&dimension == -1; i++)
 			{
-				dimensionRef = LOCATION;
-				dimensionField = i;
+				if (IsEqual(header, CTRefFormat::GetFormatName(i)))
+				{
+					dimension = TIME_REF;
+					field = i;
+				}
+			}
+
+			if (dimension == -1)
+			{
+				if (IsEqual(header, "Parameter") || IsEqual(header, "Paramètre") )
+				{
+					dimension = PARAMETER;
+				}
+				else if (IsEqual(header, "Replication") || IsEqual(header, "Répétition"))
+				{
+					dimension = REPLICATION;
+				}
+				else if (IsEqual(header, "Date") )
+				{
+					dimension = TIME_REF;
+					field = CTRefFormat::NB_FORMAT;
+				}
+				else
+				{
+					//all other is considered variable
+					dimension = VARIABLE;
+				}
 			}
 		}
-
-		for (int i = 0; i < CTRefFormat::NB_FORMAT&&dimensionRef == -1; i++)
-		{
-			if (header == CString(CTRefFormat::GetFormatName(i)).MakeUpper())
-			{
-				dimensionRef = TIME_REF;
-				dimensionField = i;
-			}
-		}
-
-		if (dimensionRef == -1)
-		{
-			if (header == "PARAMETER")
-			{
-				dimensionRef = PARAMETER;
-			}
-			else if (header == "REPLICATION")
-			{
-				dimensionRef = REPLICATION;
-			}
-			else if (header == "DATE")
-			{
-				dimensionRef = TIME_REF;
-				dimensionField = CTRefFormat::NB_FORMAT;
-			}
-			else
-			{
-				//all other is considered variable
-				dimensionRef = VARIABLE;
-				//dimensionField=CTRef::ATEMPORAL;
-			}
-		}
-
-		return dimensionRef;
+		
 	}
 
 
@@ -265,9 +242,9 @@ namespace WBSF
 
 			if (col == 0 && *pString != QuickGetText(col, row))
 			{
-				int dimensionRef = GetDimensionRef(*pString);
-				OnDimensionChange(row, dimensionRef);
-				QuickSetText(1, row, GetDimensionFieldText(dimensionRef, 0));
+				size_t dimension = GetDimension(*pString);
+				OnDimensionChange(row, dimension);
+				QuickSetText(1, row, GetFieldText(dimension, 0));
 				RedrawCell(1, row);
 			}
 		}
@@ -286,8 +263,8 @@ namespace WBSF
 		for (int i = 0; i < nbRows; i++)
 		{
 			data[i].m_name = ToUTF8(QuickGetText(-1, i));
-			data[i].m_dimensionRef = GetDimensionRef(QuickGetText(0, i));
-			data[i].m_dimensionField = GetDimensionField(data[i].m_dimensionRef, QuickGetText(1, i));
+			data[i].m_dimension = GetDimension(QuickGetText(0, i));
+			data[i].m_field = GetField(data[i].m_dimension, QuickGetText(1, i));
 		}
 	}
 
@@ -297,9 +274,9 @@ namespace WBSF
 		int nbRows = GetNumberRows();
 		for (int i = 0; i < nbRows&&i < data.size(); i++)
 		{
-			QuickSetText(0, i, GetDimensionRefText(data[i].m_dimensionRef));
-			OnDimensionChange(i, data[i].m_dimensionRef);
-			QuickSetText(1, i, GetDimensionFieldText(data[i].m_dimensionRef, data[i].m_dimensionField));
+			QuickSetText(0, i, GetDimensionText(data[i].m_dimension));
+			OnDimensionChange(i, data[i].m_dimension);
+			QuickSetText(1, i, GetFieldText(data[i].m_dimension, data[i].m_field));
 		}
 
 		RedrawAll();
@@ -307,44 +284,51 @@ namespace WBSF
 
 	//*************************************************************************************************
 
-	// CImportSimulationDlg dialog
+	// CImportDataDlg dialog
 
-	IMPLEMENT_DYNAMIC(CImportSimulationDlg, CDialog)
+	IMPLEMENT_DYNAMIC(CImportDataDlg, CDialog)
 
-		CImportSimulationDlg::CImportSimulationDlg(const CExecutablePtr& pParent, CWnd* pParentWnd) :
-		CDialog(CImportSimulationDlg::IDD, pParentWnd)
+		CImportDataDlg::CImportDataDlg(const CExecutablePtr& pParent, CWnd* pParentWnd) :
+		CDialog(CImportDataDlg::IDD, pParentWnd)
 	{
 
 	}
 
-	CImportSimulationDlg::~CImportSimulationDlg()
+	CImportDataDlg::~CImportDataDlg()
 	{
 	}
 
-	void CImportSimulationDlg::DoDataExchange(CDataExchange* pDX)
+	void CImportDataDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		CDialog::DoDataExchange(pDX);
+		
+		DDX_Control(pDX, IDC_NAME, m_nameCtrl);
+		DDX_Control(pDX, IDC_DESCRIPTION, m_descriptionCtrl);
 		DDX_Control(pDX, IDC_IMPORT_FILENAME, m_fileNameCtrl);
-		//DDX_Control(pDX, IDC_IMPORT_TEMPORAL_DATA, m_temporalDataCtrl);
 		DDX_Control(pDX, IDC_IMPORT_DEFAULT_DIR, m_defaultDirCtrl);
-		GetDlgItem(IDC_IMPORT_INTERNAL_NAME)->SetWindowTextW(ToUTF16(m_importSimulation.GetInternalName()));
+		DDX_Control(pDX, IDC_IMPORT_INTERNAL_NAME, m_internalNameCtrl);
+		
+		DDX_Text(pDX, IDC_NAME, m_importData.m_name);
+		DDX_Text(pDX, IDC_DESCRIPTION, m_importData.m_description);
 	}
 
 
-	BEGIN_MESSAGE_MAP(CImportSimulationDlg, CDialog)
-		//ON_EN_CHANGE(IDC_IMPORT_FILEPATH, &CImportSimulationDlg::OnFilePathChange)
+	BEGIN_MESSAGE_MAP(CImportDataDlg, CDialog)
+		//ON_EN_CHANGE(IDC_IMPORT_FILEPATH, &CImportDataDlg::OnFilePathChange)
 		ON_CBN_SELCHANGE(IDC_IMPORT_FILENAME, &OnFileNameChange)
+		ON_WM_SIZE()
 	END_MESSAGE_MAP()
 
 
-	// CImportSimulationDlg message handlers
+	// CImportDataDlg message handlers
 
-	BOOL CImportSimulationDlg::OnInitDialog()
+	BOOL CImportDataDlg::OnInitDialog()
 	{
 		CDialog::OnInitDialog();
 
-
 		m_defaultDirCtrl.SetWindowText(WBSF::GetFM().Input().GetLocalPath().c_str());
+		m_internalNameCtrl.SetWindowText(m_importData.GetInternalName());
+		
 		m_columnLink.AttachGrid(this, IDC_IMPORT_COLUMN_LINK);
 
 		CString importFilter = UtilWin::GetCString(IDS_STR_FILTER_CSV);
@@ -355,7 +339,7 @@ namespace WBSF
 		return TRUE;
 	}
 
-	void CImportSimulationDlg::FillFileName()
+	void CImportDataDlg::FillFileName()
 	{
 		WBSF::StringVector fileList = WBSF::GetFM().Input().GetFilesList();
 
@@ -367,7 +351,7 @@ namespace WBSF
 		m_fileNameCtrl.SetCurSel(curSel);
 	}
 
-	void CImportSimulationDlg::OnOK()
+	void CImportDataDlg::OnOK()
 	{
 		GetImportFileFromInterface();
 
@@ -375,7 +359,7 @@ namespace WBSF
 		CProgressStepDlg progressDlg;
 		progressDlg.Create(this);
 
-		ERMsg msg = m_importSimulation.UpdateData(WBSF::GetFM(), progressDlg.GetCallback());
+		ERMsg msg = m_importData.UpdateData(WBSF::GetFM(), progressDlg.GetCallback());
 
 		progressDlg.DestroyWindow();
 
@@ -384,7 +368,7 @@ namespace WBSF
 		else SYShowMessage(msg, this);
 	}
 
-	/*void CImportSimulationDlg::OnFilePathChange()
+	/*void CImportDataDlg::OnFilePathChange()
 	{
 	CString filePath = m_importFilePathCtrl.GetWindowText();
 
@@ -400,7 +384,7 @@ namespace WBSF
 	m_columnLink.SetImportHeader(header);
 	}
 	*/
-	void CImportSimulationDlg::OnFileNameChange()
+	void CImportDataDlg::OnFileNameChange()
 	{
 		//std::string path = WBSF::GetFM().GetInputPath().c_str();
 		std::string filePath = WBSF::GetFM().Input().GetFilePath(m_fileNameCtrl.GetString());
@@ -417,20 +401,99 @@ namespace WBSF
 		m_columnLink.SetImportHeader(header);
 	}
 
-	void CImportSimulationDlg::GetImportFileFromInterface()
+	void CImportDataDlg::GetImportFileFromInterface()
 	{
-		m_importSimulation.m_fileName = m_fileNameCtrl.GetString();
-		m_columnLink.GetData(m_importSimulation.m_columnLinkArray);
-		//	m_importSimulation.m_bTemporalData = m_temporalDataCtrl.GetCheck();
+		m_importData.m_fileName = m_fileNameCtrl.GetString();
+		m_columnLink.GetData(m_importData.m_columnLinkArray);
+		//	m_importData.m_bTemporalData = m_temporalDataCtrl.GetCheck();
 	}
 
-	void CImportSimulationDlg::SetImportFileToInterface()
+	void CImportDataDlg::SetImportFileToInterface()
 	{
-		//m_fileNameCtrl.SetWindowText(m_importSimulation.m_fileName);	
-		m_fileNameCtrl.SelectString(0, m_importSimulation.m_fileName);
+		//m_fileNameCtrl.SetWindowText(m_importData.m_fileName);	
+		m_fileNameCtrl.SelectString(0, m_importData.m_fileName);
 		OnFileNameChange();
-		m_columnLink.SetData(m_importSimulation.m_columnLinkArray);
-		//m_temporalDataCtrl.SetCheck(m_importSimulation.m_bTemporalData);
+		m_columnLink.SetData(m_importData.m_columnLinkArray);
+		//m_temporalDataCtrl.SetCheck(m_importData.m_bTemporalData);
+	}
+
+	void CImportDataDlg::OnSize(UINT nType, int cx, int cy)
+	{
+		CDialog::OnSize(nType, cx, cy);
+
+		AdjustLayout();
+	}
+
+	void CImportDataDlg::AdjustLayout()
+	{
+		static const int MARGE = 8;
+		if (GetSafeHwnd() == NULL || m_columnLink.GetSafeHwnd() == NULL)
+		{
+			return;
+		}
+
+		CRect rectClient;
+		GetClientRect(rectClient);
+
+		CRect rectOK;
+		GetDlgItem(IDOK)->GetWindowRect(rectOK); ScreenToClient(rectOK);
+
+		rectOK.MoveToX(rectClient.right - 2 * MARGE - 2 * rectOK.Width());
+		rectOK.MoveToY(rectClient.bottom - MARGE - rectOK.Height());
+
+		CRect rectCancel;
+		GetDlgItem(IDCANCEL)->GetWindowRect(rectCancel); ScreenToClient(rectCancel);
+		rectCancel.left = rectClient.right - MARGE - rectCancel.Width();
+		rectCancel.top = rectClient.bottom - MARGE - rectCancel.Height();
+
+		CRect rectName;
+		m_nameCtrl.GetWindowRect(rectName); ScreenToClient(rectName);
+		rectName.right = rectClient.right - MARGE;
+
+		CRect rectDescription;
+		m_descriptionCtrl.GetWindowRect(rectDescription); ScreenToClient(rectDescription);
+		rectDescription.right = rectClient.right - MARGE;
+		
+		CRect rectFileName;
+		m_fileNameCtrl.GetWindowRect(rectFileName); ScreenToClient(rectFileName);
+		rectFileName.right = rectClient.right - MARGE;
+
+
+		CRect rectStatic2;
+		GetDlgItem(IDC_CMN_STATIC2)->GetWindowRect(rectStatic2); ScreenToClient(rectStatic2);
+		rectStatic2.MoveToY(rectClient.bottom - rectStatic2.Height() - MARGE);
+
+		CRect rectPath;
+		m_defaultDirCtrl.GetWindowRect(rectPath); ScreenToClient(rectPath);
+		rectPath.right = rectClient.right - MARGE;
+		rectPath.MoveToY(rectClient.bottom - MARGE - rectOK.Height() - MARGE - rectPath.Height() );
+
+		CRect rectStatic1;
+		GetDlgItem(IDC_CMN_STATIC1)->GetWindowRect(rectStatic1); ScreenToClient(rectStatic1);
+		rectStatic1.MoveToY(rectClient.bottom - MARGE - rectOK.Height() - MARGE - rectStatic1.Height());
+
+		CRect rect;
+		m_columnLink.GetWindowRect(rect); ScreenToClient(rect);
+		rect.right = rectClient.right - MARGE;
+		rect.bottom = rectClient.bottom - MARGE - rectOK.Height() - MARGE - rectPath.Height() - MARGE;
+
+
+		CRect rectInternalName;
+		m_internalNameCtrl.GetWindowRect(rectInternalName); ScreenToClient(rectInternalName);
+		rectInternalName.top = rectClient.bottom - rectDescription.Height() - MARGE;
+		rectInternalName.bottom = rectClient.bottom - MARGE;
+
+
+		m_nameCtrl.SetWindowPos(NULL, 0, 0, rectName.Width(), rectName.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+		m_descriptionCtrl.SetWindowPos(NULL, 0, 0, rectDescription.Width(), rectDescription.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+		m_fileNameCtrl.SetWindowPos(NULL, 0, 0, rectFileName.Width(), rectFileName.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+		m_columnLink.SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+		m_defaultDirCtrl.SetWindowPos(NULL, rectPath.right, rectPath.top, rectPath.Width(), rectPath.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+		GetDlgItem(IDC_CMN_STATIC1)->SetWindowPos(NULL, rectStatic1.left, rectStatic1.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+		GetDlgItem(IDC_CMN_STATIC2)->SetWindowPos(NULL, rectStatic2.left, rectStatic2.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+		m_internalNameCtrl.SetWindowPos(NULL, rectInternalName.left, rectInternalName.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+		GetDlgItem(IDOK)->SetWindowPos(NULL, rectOK.left, rectOK.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+		GetDlgItem(IDCANCEL)->SetWindowPos(NULL, rectCancel.left, rectCancel.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 	}
 
 }

@@ -470,9 +470,13 @@
 #define IDC_VARIABLES_RADIUS            1228
 #define IDC_MAP_OUTPUT_CELLSIZE_M       1229
 #define IDC_MAP_INPUT_CELLSIZE          1230
+#define IDC_INPUT                       1230
 #define IDC_MAP_INPUT_CELLSIZE_M        1231
+#define IDC_OUTPUT                      1231
 #define IDC_MAP_EXTRACT_ELEV            1232
+#define IDC_SCRIPT                      1232
 #define IDC_MAP_EXTRACT_EXPOSITION      1233
+#define IDC_STATIC1                     1233
 #define IDC_MAP_INPUT_FILEPATH2         1234
 #define IDC_MAP_EXTRACT_EXPOSITION2     1234
 #define IDC_MAP_EXTRACT_OTHER           1234
@@ -843,7 +847,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1230
+#define _APS_NEXT_CONTROL_VALUE         1234
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

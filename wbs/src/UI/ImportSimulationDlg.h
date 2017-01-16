@@ -31,8 +31,10 @@ namespace WBSF
 		void SetData(const CColumnLinkVector& data);
 
 		virtual int OnCellTypeNotify(long ID, int col, long row, long msg, long param);
-		static short GetAutoSelect(CString header, short& extra);
-		void OnDimensionChange(int row, int dimensionRef);
+		static void GetAutoSelect(CString header, size_t& dimensionRef, size_t& dimensionField);
+
+
+		void OnDimensionChange(int row, size_t dimensionRef);
 
 		virtual int OnCanSizeRow(long row) { UNREFERENCED_PARAMETER(row); return FALSE; }
 		virtual int OnCanSizeTopHdg() { return FALSE; }
@@ -42,10 +44,10 @@ namespace WBSF
 		void GetImportFileFromInterface();
 		void SetImportFileToInterface();
 
-		CString GetDimensionRefText(int dimensionRef)const;
-		CString GetDimensionFieldText(int dimensionRef, int dimensionField)const;
-		int GetDimensionRef(CString str)const;
-		int GetDimensionField(int dimensionRef, CString str)const;
+		CString GetDimensionText(size_t dimension)const;
+		CString GetFieldText(size_t dimension, size_t field)const;
+		size_t GetDimension(CString str)const;
+		size_t GetField(size_t dimension, CString str)const;
 
 
 		CStringArrayEx DIMENSION_LABLE;
@@ -57,36 +59,46 @@ namespace WBSF
 		//	virtual void OnMenuCommand(int col, long row, int section, int item);
 	};
 
-	// CImportSimulationDlg dialog
+	// CImportDataDlg dialog
 
-	class CImportSimulationDlg : public CDialog
+	class CImportDataDlg : public CDialog
 	{
-		DECLARE_DYNAMIC(CImportSimulationDlg)
+		DECLARE_DYNAMIC(CImportDataDlg)
 
 	public:
 
-		friend CImportSimulation;
+		friend CImportData;
 
-		CImportSimulationDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
-		virtual ~CImportSimulationDlg();
+		CImportDataDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
+		virtual ~CImportDataDlg();
 		virtual BOOL OnInitDialog();
 
-		virtual void SetExecutable(CExecutablePtr pExecutable){ m_importSimulation = GetImportSimulation(pExecutable); }
-		virtual CExecutablePtr GetExecutable()const{ return m_importSimulation.CopyObject(); }
+		virtual void SetExecutable(CExecutablePtr pExecutable){ m_importData = GetImportData(pExecutable); }
+		virtual CExecutablePtr GetExecutable()const{ return m_importData.CopyObject(); }
 
 		// Dialog Data
 		enum { IDD = IDD_SIM_IMPORT_SIMULATION };
 
 	protected:
+
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 		virtual void OnOK();
+		
 
 		DECLARE_MESSAGE_MAP()
 
-		CImportVariablesCtrl m_columnLink;
+		void OnSize(UINT nType, int cx, int cy);
+		void AdjustLayout();
+
+
+		
+		CCFLComboBox m_nameCtrl;
+		CCFLComboBox m_descriptionCtrl;
 		CCFLComboBox m_fileNameCtrl;
+		CImportVariablesCtrl m_columnLink;
+
 		COpenDirEditCtrl	m_defaultDirCtrl;
-		CEdit m_internalNameCtrl;
+		CCFLEdit m_internalNameCtrl;
 
 		void FillFileName();
 
@@ -95,8 +107,8 @@ namespace WBSF
 		void GetImportFileFromInterface();
 		void SetImportFileToInterface();
 
-		CImportSimulation m_importSimulation;
-		CImportSimulation& GetImportSimulation(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CImportSimulation&>(*pItem); }
+		CImportData m_importData;
+		CImportData& GetImportData(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CImportData&>(*pItem); }
 
 		afx_msg void OnFileNameChange();
 	};

@@ -377,7 +377,7 @@ namespace WBSF
 		return d;
 	}
 
-	double CWeatherGradient::GetDistance(size_t s, const CLocation& target, const CLocation& station)const
+	double CWeatherGradient::GetDistance(size_t s, const CLocation& target, const CLocation& station)
 	{
 		double d = 0;
 		switch (s)

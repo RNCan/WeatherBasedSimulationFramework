@@ -10,7 +10,7 @@
 #pragma once
 
 
-#include "Simulation/InputAnalysis.h"
+#include "Simulation/WGInputAnalysis.h"
 #include "WeatherBasedSimulationUI.h"
 
 
@@ -18,17 +18,17 @@ namespace WBSF
 {
 
 	/////////////////////////////////////////////////////////////////////////////
-	// CInputAnalysisDlg dialog
+	// CWGInputAnalysisDlg dialog
 
-	class CInputAnalysisDlg : public CDialog
+	class CWGInputAnalysisDlg : public CDialog
 	{
 		// Construction
 	public:
-		CInputAnalysisDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
+		CWGInputAnalysisDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
 
 		CExecutablePtr GetExecutable()const{ return m_analysis.CopyObject(); }
 		void SetExecutable(CExecutablePtr pExecute){ m_analysis = GetAnalysis(pExecute); }
-		CInputAnalysis & GetAnalysis(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CInputAnalysis&>(*pItem); }
+		CWGInputAnalysis & GetAnalysis(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CWGInputAnalysis&>(*pItem); }
 
 	protected:
 
@@ -40,7 +40,7 @@ namespace WBSF
 		// Generated message map functions
 		DECLARE_MESSAGE_MAP()
 
-		CInputAnalysis m_analysis;
+		CWGInputAnalysis m_analysis;
 		CExecutablePtr m_pParent;
 	};
 

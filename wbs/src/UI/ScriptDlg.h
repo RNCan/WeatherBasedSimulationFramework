@@ -48,6 +48,8 @@ namespace WBSF
 		CExecutablePtr m_pParent;
 		
 		CDefaultComboBox m_listCtrl;
+		CDefaultComboBox m_inputCtrl;
+		CCFLEdit m_outputCtrl;
 
 		
 	};

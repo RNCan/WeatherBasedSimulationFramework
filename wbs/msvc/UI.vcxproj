@@ -92,7 +92,7 @@
     <ClCompile Include="..\src\UI\GraphDefineDlg.cpp" />
     <ClCompile Include="..\src\UI\GraphPropertyDlg.cpp" />
     <ClCompile Include="..\src\UI\ImportSimulationDlg.cpp" />
-    <ClCompile Include="..\src\UI\InputAnalysisDlg.cpp" />
+    <ClCompile Include="..\src\UI\WGInputAnalysisDlg.cpp" />
     <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp" />
     <ClCompile Include="..\src\UI\LOCEditDlg.cpp" />
     <ClCompile Include="..\src\UI\LOCGeneratorDlg.cpp" />
@@ -217,7 +217,7 @@
     <ClInclude Include="..\src\UI\GraphDefineDlg.h" />
     <ClInclude Include="..\src\UI\GraphPropertyDlg.h" />
     <ClInclude Include="..\src\UI\ImportSimulationDlg.h" />
-    <ClInclude Include="..\src\UI\InputAnalysisDlg.h" />
+    <ClInclude Include="..\src\UI\WGInputAnalysisDlg.h" />
     <ClInclude Include="..\src\UI\LocationVectorCtrl.h" />
     <ClInclude Include="..\src\UI\LOCEditDlg.h" />
     <ClInclude Include="..\src\UI\LOCGeneratorDlg.h" />
@@ -537,7 +537,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="\project\wbs\src\WeatherBasedSimulationString.rc" />
+      <UserProperties RESOURCE_FILE="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

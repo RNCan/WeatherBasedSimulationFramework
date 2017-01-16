@@ -58,9 +58,6 @@
     <ClCompile Include="..\src\UI\ImportSimulationDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\InputAnalysisDlg.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -352,6 +349,9 @@
     <ClCompile Include="..\src\UI\FileManagerPropSheet.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\WGInputAnalysisDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -388,9 +388,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\ImportSimulationDlg.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\UI\InputAnalysisDlg.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\LocationVectorCtrl.h">
@@ -712,6 +709,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\FileManagerPropSheet.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\WGInputAnalysisDlg.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
