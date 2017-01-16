@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ModelInput version="1">
+    <Parameter Name="ApplyMortality">1</Parameter>
+    <Parameter Name="CreateEggs">1</Parameter>
+    <Parameter Name="TreeKind">0</Parameter>
+    <Parameter Name="LastSampleDate">0</Parameter>
+    <Parameter Name="ObservedAI">0</Parameter>
+</ModelInput>

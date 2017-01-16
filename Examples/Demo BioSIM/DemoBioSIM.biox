@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<BioSIMProject version="11">
+    <Name>Project</Name>
+    <InternalName>Project</InternalName>
+    <Description/>
+    <Execute>false</Execute>
+    <Export>
+        <FileName/>
+        <ScriptName/>
+        <AutoExport>false</AutoExport>
+        <VariableArray/>
+        <Statistic>00000000000010</Statistic>
+    </Export>
+    <GraphArray/>
+    <ExecutableArray>
+        <WeatherUpdater>
+            <Name>WeatherUpdater</Name>
+            <InternalName>hpeytl</InternalName>
+            <Description/>
+            <Execute>false</Execute>
+            <Export>
+                <FileName/>
+                <ScriptName/>
+                <AutoExport>false</AutoExport>
+                <VariableArray/>
+                <Statistic>00000000000010</Statistic>
+            </Export>
+            <GraphArray/>
+            <ExecutableArray/>
+            <UpdaterFile>test</UpdaterFile>
+            <ShowApp>false</ShowApp>
+        </WeatherUpdater>
+        <Group>
+            <Name>Climatology</Name>
+            <InternalName>saplns</InternalName>
+            <Description/>
+            <Execute>false</Execute>
+            <Export>
+                <FileName/>
+                <ScriptName/>
+                <AutoExport>false</AutoExport>
+                <VariableArray/>
+                <Statistic>00000000000010</Statistic>
+            </Export>
+            <GraphArray/>
+            <ExecutableArray>
+                <WeatherGeneration>
+                    <Name>Exemple 1 (2008-2010)</Name>
+                    <InternalName>fepjcf</InternalName>
+                    <Description/>
+                    <Execute>false</Execute>
+                    <Export>
+                        <FileName/>
+                        <ScriptName/>
+                        <AutoExport>false</AutoExport>
+                        <VariableArray>
+                            <Variable Dimension="3" Field="0"/>
+                            <Variable Dimension="4" Field="0"/>
+                            <Variable Dimension="4" Field="1"/>
+                            <Variable Dimension="4" Field="2"/>
+                        </VariableArray>
+                        <Statistic>00000000000010</Statistic>
+                    </Export>
+                    <GraphArray/>
+                    <ExecutableArray>
+                        <InputAnalysis>
+                            <Name>InputAnalysis</Name>
+                            <InternalName>cqjgry</InternalName>
+                            <Description/>
+                            <Execute>true</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray/>
+                            <Kind>8</Kind>
+                        </InputAnalysis>
+                        <Analysis>
+                            <Name>subset</Name>
+                            <InternalName>iaxeve</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray>
+                                <Analysis>
+                                    <Name>Sum of prcp</Name>
+                                    <InternalName>dkyfsi</InternalName>
+                                    <Description/>
+                                    <Execute>false</Execute>
+                                    <Export>
+                                        <FileName/>
+                                        <ScriptName/>
+                                        <AutoExport>false</AutoExport>
+                                        <VariableArray/>
+                                        <Statistic>00000000000010</Statistic>
+                                    </Export>
+                                    <GraphArray/>
+                                    <ExecutableArray/>
+                                    <AnalysisWindow>
+                                        <SelectLocation>false</SelectLocation>
+                                        <LocationSelection/>
+                                        <SelectTime>false</SelectTime>
+                                        <TimeSelection>(0 07 07)</TimeSelection>
+                                        <UseCurrentDate-First->false</UseCurrentDate-First->
+                                        <Shift-First->0</Shift-First->
+                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                        <Shift-Last->0</Shift-Last->
+                                        <SelectVariable>true</SelectVariable>
+                                        <VariableSelectionArray>10</VariableSelectionArray>
+                                        <SelectParameters>false</SelectParameters>
+                                        <ParametersSelection/>
+                                    </AnalysisWindow>
+                                    <Computation>
+                                        <PreviousStatisticType>2</PreviousStatisticType>
+                                        <SelectTimeTransformation>true</SelectTimeTransformation>
+                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <Kind>0</Kind>
+                                        <StatisticType>-1</StatisticType>
+                                        <EventType>0</EventType>
+                                        <K>0</K>
+                                        <DropYear>false</DropYear>
+                                        <MeanOverReplications>false</MeanOverReplications>
+                                        <MeanOverParameterSet>false</MeanOverParameterSet>
+                                        <MeanOverLocations>false</MeanOverLocations>
+                                    </Computation>
+                                </Analysis>
+                            </ExecutableArray>
+                            <AnalysisWindow>
+                                <SelectLocation>true</SelectLocation>
+                                <LocationSelection>110</LocationSelection>
+                                <SelectTime>true</SelectTime>
+                                <TimeSelection>(1 0220080401 0220090831)</TimeSelection>
+                                <UseCurrentDate-First->false</UseCurrentDate-First->
+                                <Shift-First->0</Shift-First->
+                                <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                <Shift-Last->0</Shift-Last->
+                                <SelectVariable>true</SelectVariable>
+                                <VariableSelectionArray>101</VariableSelectionArray>
+                                <SelectParameters>false</SelectParameters>
+                                <ParametersSelection/>
+                            </AnalysisWindow>
+                            <Computation>
+                                <PreviousStatisticType>-1</PreviousStatisticType>
+                                <SelectTimeTransformation>true</SelectTimeTransformation>
+                                <TemporalTypeMode>1 0</TemporalTypeMode>
+                                <Kind>0</Kind>
+                                <StatisticType>-1</StatisticType>
+                                <EventType>0</EventType>
+                                <K>0</K>
+                                <DropYear>false</DropYear>
+                                <MeanOverReplications>false</MeanOverReplications>
+                                <MeanOverParameterSet>false</MeanOverParameterSet>
+                                <MeanOverLocations>false</MeanOverLocations>
+                            </Computation>
+                        </Analysis>
+                        <ModelGeneration>
+                            <Name>ExecuteModel</Name>
+                            <InternalName>uacwln</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray/>
+                            <ModelName>DegreeDay (Annual)</ModelName>
+                            <ModelInputName>3°C</ModelInputName>
+                            <LocationsName/>
+                            <ParamVariationsName/>
+                            <SeedType>0</SeedType>
+                            <NbReplications>1</NbReplications>
+                            <UseHxGrid>false</UseHxGrid>
+                        </ModelGeneration>
+                    </ExecutableArray>
+                    <WGInputName>2008-2010</WGInputName>
+                    <LocationsName>Specific Locations</LocationsName>
+                    <ParametersVariationsName/>
+                    <NbReplications>1</NbReplications>
+                    <UseHxGrid>false</UseHxGrid>
+                </WeatherGeneration>
+                <WeatherGeneration>
+                    <Name>Exemple 3</Name>
+                    <InternalName>nnnwqw</InternalName>
+                    <Description/>
+                    <Execute>false</Execute>
+                    <Export>
+                        <FileName/>
+                        <ScriptName/>
+                        <AutoExport>false</AutoExport>
+                        <VariableArray>
+                            <Variable Dimension="0" Field="1"/>
+                            <Variable Dimension="3" Field="0"/>
+                            <Variable Dimension="4" Field="0"/>
+                            <Variable Dimension="4" Field="1"/>
+                            <Variable Dimension="4" Field="2"/>
+                        </VariableArray>
+                        <Statistic>00000000000010</Statistic>
+                    </Export>
+                    <GraphArray/>
+                    <ExecutableArray>
+                        <ModelGeneration>
+                            <Name>DD</Name>
+                            <InternalName>jnfmxp</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray>
+                                <Analysis>
+                                    <Name>Average</Name>
+                                    <InternalName>pwnbdm</InternalName>
+                                    <Description/>
+                                    <Execute>false</Execute>
+                                    <Export>
+                                        <FileName/>
+                                        <ScriptName/>
+                                        <AutoExport>false</AutoExport>
+                                        <VariableArray/>
+                                        <Statistic>00000000000010</Statistic>
+                                    </Export>
+                                    <GraphArray/>
+                                    <ExecutableArray>
+                                        <Mapping>
+                                            <Name>Ex3</Name>
+                                            <InternalName>wzpfak</InternalName>
+                                            <Description/>
+                                            <Execute>false</Execute>
+                                            <Export>
+                                                <FileName/>
+                                                <ScriptName/>
+                                                <AutoExport>false</AutoExport>
+                                                <VariableArray/>
+                                                <Statistic>00000000000010</Statistic>
+                                            </Export>
+                                            <GraphArray/>
+                                            <ExecutableArray/>
+                                            <Method>1</Method>
+                                            <DEMName>Quebec30s.tif</DEMName>
+                                            <TEMName>%c(%v)</TEMName>
+                                            <PrePostTransfo>
+                                                <Type>0</Type>
+                                                <LogType>1</LogType>
+                                                <UseXprime>true</UseXprime>
+                                                <n>300</n>
+                                                <InPercent>false</InPercent>
+                                            </PrePostTransfo>
+                                            <XValOnly>false</XValOnly>
+                                            <UseHxGrid>false</UseHxGrid>
+                                            <InterpolParam>
+                                                <NbPoints>35</NbPoints>
+                                                <OutputNoData>-999</OutputNoData>
+                                                <MaxDistance>200000</MaxDistance>
+                                                <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
+                                                <RegionalLimit>false</RegionalLimit>
+                                                <RegionalSD>2</RegionalSD>
+                                                <RegionalLimitToBound>false</RegionalLimitToBound>
+                                                <GlobalLimit>false</GlobalLimit>
+                                                <GlobalSD>2</GlobalSD>
+                                                <GlobalLimitToBound>false</GlobalLimitToBound>
+                                                <GlobalMinMaxLimit>false</GlobalMinMaxLimit>
+                                                <GlobalMinLimit>0</GlobalMinLimit>
+                                                <GlobalMaxLimit>0</GlobalMaxLimit>
+                                                <GlobalMinMaxLimitToBound>false</GlobalMinMaxLimitToBound>
+                                                <RegressionModel>[]</RegressionModel>
+                                                <RegressCriticalR2>0.0005</RegressCriticalR2>
+                                                <VariogramModel>-1</VariogramModel>
+                                                <NbLags>0</NbLags>
+                                                <LagDistance>0</LagDistance>
+                                                <DetrendingModel>0</DetrendingModel>
+                                                <ExternalDrift>3</ExternalDrift>
+                                                <FillNugget>false</FillNugget>
+                                                <OutputVariogramInfo>false</OutputVariogramInfo>
+                                                <IWDModel>-1</IWDModel>
+                                                <IWDPower>0</IWDPower>
+                                                <IWDUseElev>false</IWDUseElev>
+                                                <TPSType>0</TPSType>
+                                            </InterpolParam>
+                                        </Mapping>
+                                    </ExecutableArray>
+                                    <AnalysisWindow>
+                                        <SelectLocation>false</SelectLocation>
+                                        <LocationSelection/>
+                                        <SelectTime>false</SelectTime>
+                                        <TimeSelection>(0 07 07)</TimeSelection>
+                                        <UseCurrentDate-First->false</UseCurrentDate-First->
+                                        <Shift-First->0</Shift-First->
+                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                        <Shift-Last->0</Shift-Last->
+                                        <SelectVariable>false</SelectVariable>
+                                        <VariableSelectionArray/>
+                                        <SelectParameters>false</SelectParameters>
+                                        <ParametersSelection/>
+                                    </AnalysisWindow>
+                                    <Computation>
+                                        <PreviousStatisticType>-1</PreviousStatisticType>
+                                        <SelectTimeTransformation>false</SelectTimeTransformation>
+                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <Kind>0</Kind>
+                                        <StatisticType>-1</StatisticType>
+                                        <EventType>0</EventType>
+                                        <K>0</K>
+                                        <DropYear>false</DropYear>
+                                        <MeanOverReplications>true</MeanOverReplications>
+                                        <MeanOverParameterSet>false</MeanOverParameterSet>
+                                        <MeanOverLocations>false</MeanOverLocations>
+                                    </Computation>
+                                </Analysis>
+                            </ExecutableArray>
+                            <ModelName>DegreeDay (Annual)</ModelName>
+                            <ModelInputName>3°C</ModelInputName>
+                            <LocationsName/>
+                            <ParamVariationsName/>
+                            <SeedType>0</SeedType>
+                            <NbReplications>1</NbReplications>
+                            <UseHxGrid>false</UseHxGrid>
+                        </ModelGeneration>
+                    </ExecutableArray>
+                    <WGInputName/>
+                    <LocationsName>Random Locations</LocationsName>
+                    <ParametersVariationsName/>
+                    <NbReplications>10</NbReplications>
+                    <UseHxGrid>false</UseHxGrid>
+                </WeatherGeneration>
+                <WeatherGeneration>
+                    <Name>Example 4</Name>
+                    <InternalName>grtzpd</InternalName>
+                    <Description/>
+                    <Execute>false</Execute>
+                    <Export>
+                        <FileName/>
+                        <ScriptName/>
+                        <AutoExport>false</AutoExport>
+                        <VariableArray/>
+                        <Statistic>00000000000010</Statistic>
+                    </Export>
+                    <GraphArray/>
+                    <ExecutableArray>
+                        <InputAnalysis>
+                            <Name>MisssingData</Name>
+                            <InternalName>pothrg</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray/>
+                            <Kind>8</Kind>
+                        </InputAnalysis>
+                    </ExecutableArray>
+                    <WGInputName>PEI Hourly 2015</WGInputName>
+                    <LocationsName>PEI</LocationsName>
+                    <ParametersVariationsName/>
+                    <NbReplications>1</NbReplications>
+                    <UseHxGrid>false</UseHxGrid>
+                </WeatherGeneration>
+            </ExecutableArray>
+        </Group>
+        <Group>
+            <Name>Phenology</Name>
+            <InternalName>ekpqbr</InternalName>
+            <Description/>
+            <Execute>false</Execute>
+            <Export>
+                <FileName/>
+                <ScriptName/>
+                <AutoExport>false</AutoExport>
+                <VariableArray/>
+                <Statistic>00000000000010</Statistic>
+            </Export>
+            <GraphArray/>
+            <ExecutableArray>
+                <WeatherGeneration>
+                    <Name>Example 2</Name>
+                    <InternalName>wmthkp</InternalName>
+                    <Description/>
+                    <Execute>false</Execute>
+                    <Export>
+                        <FileName/>
+                        <ScriptName/>
+                        <AutoExport>false</AutoExport>
+                        <VariableArray/>
+                        <Statistic>00000000000010</Statistic>
+                    </Export>
+                    <GraphArray/>
+                    <ExecutableArray>
+                        <ModelGeneration>
+                            <Name>SpruceBudworm</Name>
+                            <InternalName>wqkyxz</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray>
+                                <Analysis>
+                                    <Name>Average Ouput</Name>
+                                    <InternalName>fmvayx</InternalName>
+                                    <Description/>
+                                    <Execute>false</Execute>
+                                    <Export>
+                                        <FileName/>
+                                        <ScriptName/>
+                                        <AutoExport>false</AutoExport>
+                                        <VariableArray>
+                                            <Variable Dimension="0" Field="1"/>
+                                            <Variable Dimension="3" Field="0"/>
+                                            <Variable Dimension="4" Field="0"/>
+                                            <Variable Dimension="4" Field="1"/>
+                                            <Variable Dimension="4" Field="2"/>
+                                            <Variable Dimension="4" Field="3"/>
+                                            <Variable Dimension="4" Field="4"/>
+                                            <Variable Dimension="4" Field="5"/>
+                                            <Variable Dimension="4" Field="6"/>
+                                            <Variable Dimension="4" Field="7"/>
+                                            <Variable Dimension="4" Field="8"/>
+                                            <Variable Dimension="4" Field="9"/>
+                                            <Variable Dimension="4" Field="10"/>
+                                            <Variable Dimension="4" Field="11"/>
+                                            <Variable Dimension="4" Field="12"/>
+                                            <Variable Dimension="4" Field="13"/>
+                                            <Variable Dimension="4" Field="14"/>
+                                            <Variable Dimension="4" Field="15"/>
+                                            <Variable Dimension="4" Field="16"/>
+                                            <Variable Dimension="4" Field="17"/>
+                                        </VariableArray>
+                                        <Statistic>00000000000010</Statistic>
+                                    </Export>
+                                    <GraphArray/>
+                                    <ExecutableArray/>
+                                    <AnalysisWindow>
+                                        <SelectLocation>false</SelectLocation>
+                                        <LocationSelection/>
+                                        <SelectTime>false</SelectTime>
+                                        <TimeSelection>(0 07 07)</TimeSelection>
+                                        <UseCurrentDate-First->false</UseCurrentDate-First->
+                                        <Shift-First->0</Shift-First->
+                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                        <Shift-Last->0</Shift-Last->
+                                        <SelectVariable>false</SelectVariable>
+                                        <VariableSelectionArray/>
+                                        <SelectParameters>false</SelectParameters>
+                                        <ParametersSelection/>
+                                    </AnalysisWindow>
+                                    <Computation>
+                                        <PreviousStatisticType>-1</PreviousStatisticType>
+                                        <SelectTimeTransformation>false</SelectTimeTransformation>
+                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <Kind>0</Kind>
+                                        <StatisticType>-1</StatisticType>
+                                        <EventType>0</EventType>
+                                        <K>0</K>
+                                        <DropYear>false</DropYear>
+                                        <MeanOverReplications>true</MeanOverReplications>
+                                        <MeanOverParameterSet>false</MeanOverParameterSet>
+                                        <MeanOverLocations>false</MeanOverLocations>
+                                    </Computation>
+                                </Analysis>
+                                <Analysis>
+                                    <Name>Date of Peaks</Name>
+                                    <InternalName>wrjxin</InternalName>
+                                    <Description/>
+                                    <Execute>false</Execute>
+                                    <Export>
+                                        <FileName>new</FileName>
+                                        <ScriptName/>
+                                        <AutoExport>false</AutoExport>
+                                        <VariableArray>
+                                            <Variable Dimension="0" Field="1"/>
+                                            <Variable Dimension="3" Field="0"/>
+                                            <Variable Dimension="4" Field="0"/>
+                                            <Variable Dimension="4" Field="1"/>
+                                            <Variable Dimension="4" Field="2"/>
+                                            <Variable Dimension="4" Field="3"/>
+                                        </VariableArray>
+                                        <Statistic>00000000000010</Statistic>
+                                    </Export>
+                                    <GraphArray/>
+                                    <ExecutableArray>
+                                        <FunctionAnalysis>
+                                            <Name>FunctionAnalysis</Name>
+                                            <InternalName>hrmehj</InternalName>
+                                            <Description/>
+                                            <Execute>false</Execute>
+                                            <Export>
+                                                <FileName/>
+                                                <ScriptName/>
+                                                <AutoExport>false</AutoExport>
+                                                <VariableArray/>
+                                                <Statistic>00000000000010</Statistic>
+                                            </Export>
+                                            <GraphArray/>
+                                            <ExecutableArray/>
+                                            <FunctionDefinitionArray>
+                                                <OutputVariable>
+                                                    <Name>L6</Name>
+                                                    <Title>L6(%)</Title>
+                                                    <Units/>
+                                                    <Description/>
+                                                    <TimeMode>2 0</TimeMode>
+                                                    <Precision>4</Precision>
+                                                    <Equation>DropYear(L6)</Equation>
+                                                </OutputVariable>
+                                            </FunctionDefinitionArray>
+                                        </FunctionAnalysis>
+                                    </ExecutableArray>
+                                    <AnalysisWindow>
+                                        <SelectLocation>false</SelectLocation>
+                                        <LocationSelection/>
+                                        <SelectTime>false</SelectTime>
+                                        <TimeSelection>(0 07 07)</TimeSelection>
+                                        <UseCurrentDate-First->false</UseCurrentDate-First->
+                                        <Shift-First->0</Shift-First->
+                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                        <Shift-Last->0</Shift-Last->
+                                        <SelectVariable>true</SelectVariable>
+                                        <VariableSelectionArray>000000000000111100</VariableSelectionArray>
+                                        <SelectParameters>false</SelectParameters>
+                                        <ParametersSelection/>
+                                    </AnalysisWindow>
+                                    <Computation>
+                                        <PreviousStatisticType>-1</PreviousStatisticType>
+                                        <SelectTimeTransformation>true</SelectTimeTransformation>
+                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <Kind>1</Kind>
+                                        <StatisticType>-1</StatisticType>
+                                        <EventType>0</EventType>
+                                        <K>0</K>
+                                        <DropYear>false</DropYear>
+                                        <MeanOverReplications>true</MeanOverReplications>
+                                        <MeanOverParameterSet>false</MeanOverParameterSet>
+                                        <MeanOverLocations>false</MeanOverLocations>
+                                    </Computation>
+                                </Analysis>
+                                <Analysis>
+                                    <Name>Analysis</Name>
+                                    <InternalName>zimcnf</InternalName>
+                                    <Description/>
+                                    <Execute>false</Execute>
+                                    <Export>
+                                        <FileName/>
+                                        <ScriptName/>
+                                        <AutoExport>false</AutoExport>
+                                        <VariableArray/>
+                                        <Statistic>00000000000010</Statistic>
+                                    </Export>
+                                    <GraphArray/>
+                                    <ExecutableArray>
+                                        <Analysis>
+                                            <Name>Analysis</Name>
+                                            <InternalName>ihrxtq</InternalName>
+                                            <Description/>
+                                            <Execute>false</Execute>
+                                            <Export>
+                                                <FileName/>
+                                                <ScriptName/>
+                                                <AutoExport>false</AutoExport>
+                                                <VariableArray/>
+                                                <Statistic>00000000000010</Statistic>
+                                            </Export>
+                                            <GraphArray/>
+                                            <ExecutableArray/>
+                                            <AnalysisWindow>
+                                                <SelectLocation>false</SelectLocation>
+                                                <LocationSelection/>
+                                                <SelectTime>false</SelectTime>
+                                                <TimeSelection>(0 07 07)</TimeSelection>
+                                                <UseCurrentDate-First->false</UseCurrentDate-First->
+                                                <Shift-First->0</Shift-First->
+                                                <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                                <Shift-Last->0</Shift-Last->
+                                                <SelectVariable>false</SelectVariable>
+                                                <VariableSelectionArray/>
+                                                <SelectParameters>false</SelectParameters>
+                                                <ParametersSelection/>
+                                            </AnalysisWindow>
+                                            <Computation>
+                                                <PreviousStatisticType>-1</PreviousStatisticType>
+                                                <SelectTimeTransformation>true</SelectTimeTransformation>
+                                                <TemporalTypeMode>0 1</TemporalTypeMode>
+                                                <Kind>0</Kind>
+                                                <StatisticType>1</StatisticType>
+                                                <EventType>0</EventType>
+                                                <K>0</K>
+                                                <DropYear>false</DropYear>
+                                                <MeanOverReplications>true</MeanOverReplications>
+                                                <MeanOverParameterSet>false</MeanOverParameterSet>
+                                                <MeanOverLocations>false</MeanOverLocations>
+                                            </Computation>
+                                        </Analysis>
+                                    </ExecutableArray>
+                                    <AnalysisWindow>
+                                        <SelectLocation>false</SelectLocation>
+                                        <LocationSelection/>
+                                        <SelectTime>false</SelectTime>
+                                        <TimeSelection>(0 07 07)</TimeSelection>
+                                        <UseCurrentDate-First->false</UseCurrentDate-First->
+                                        <Shift-First->0</Shift-First->
+                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
+                                        <Shift-Last->0</Shift-Last->
+                                        <SelectVariable>true</SelectVariable>
+                                        <VariableSelectionArray>000001000000000000</VariableSelectionArray>
+                                        <SelectParameters>false</SelectParameters>
+                                        <ParametersSelection/>
+                                    </AnalysisWindow>
+                                    <Computation>
+                                        <PreviousStatisticType>-1</PreviousStatisticType>
+                                        <SelectTimeTransformation>true</SelectTimeTransformation>
+                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <Kind>1</Kind>
+                                        <StatisticType>-1</StatisticType>
+                                        <EventType>4</EventType>
+                                        <K>2</K>
+                                        <DropYear>false</DropYear>
+                                        <MeanOverReplications>true</MeanOverReplications>
+                                        <MeanOverParameterSet>false</MeanOverParameterSet>
+                                        <MeanOverLocations>false</MeanOverLocations>
+                                    </Computation>
+                                </Analysis>
+                            </ExecutableArray>
+                            <ModelName>Spruce Budworm Biology</ModelName>
+                            <ModelInputName>CreateEgg</ModelInputName>
+                            <LocationsName/>
+                            <ParamVariationsName/>
+                            <SeedType>0</SeedType>
+                            <NbReplications>10</NbReplications>
+                            <UseHxGrid>false</UseHxGrid>
+                        </ModelGeneration>
+                        <ModelGeneration>
+                            <Name>ExecuteModel</Name>
+                            <InternalName>zbvqih</InternalName>
+                            <Description/>
+                            <Execute>false</Execute>
+                            <Export>
+                                <FileName/>
+                                <ScriptName/>
+                                <AutoExport>false</AutoExport>
+                                <VariableArray/>
+                                <Statistic>00000000000010</Statistic>
+                            </Export>
+                            <GraphArray/>
+                            <ExecutableArray/>
+                            <ModelName>Tranosema Biology (daily)</ModelName>
+                            <ModelInputName/>
+                            <LocationsName/>
+                            <ParamVariationsName/>
+                            <SeedType>0</SeedType>
+                            <NbReplications>1</NbReplications>
+                            <UseHxGrid>false</UseHxGrid>
+                        </ModelGeneration>
+                    </ExecutableArray>
+                    <WGInputName>2008-2010</WGInputName>
+                    <LocationsName>Specific Locations</LocationsName>
+                    <ParametersVariationsName/>
+                    <NbReplications>1</NbReplications>
+                    <UseHxGrid>false</UseHxGrid>
+                </WeatherGeneration>
+            </ExecutableArray>
+        </Group>
+    </ExecutableArray>
+</BioSIMProject>

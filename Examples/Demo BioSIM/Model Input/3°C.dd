@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows - 1252"?>
+<ModelInput version="1">
+    <Parameter Name="Method">0</Parameter>
+    <Parameter Name="LowerThreshold">3</Parameter>
+    <Parameter Name="UpperThreshold">999</Parameter>
+    <Parameter Name="Cutoff">0</Parameter>
+    <Parameter Name="FirstDate">01/01</Parameter>
+    <Parameter Name="LastDate">12/31</Parameter>
+    <Parameter Name="SummationType">1</Parameter>
+    <Parameter Name="DDSummation">0</Parameter>
+</ModelInput>

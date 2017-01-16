@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<WeatherUpdater version="2">
+    <Tasks type="Updater">
+        <Task execute="false" name="EnvCanDaily" type="EnvCanDaily">
+            <Parameters name="FirstYear">2008</Parameters>
+            <Parameters name="LastYear">2010</Parameters>
+            <Parameters name="Province">QC</Parameters>
+            <Parameters name="WorkingDir">D:\Travaux\WeatherUpdater\EnvCan\Daily</Parameters>
+        </Task>
+        <Task execute="false" name="EnvCanHourly" type="EnvCanHourly">
+            <Parameters name="FirstYear">2008</Parameters>
+            <Parameters name="LastYear">2010</Parameters>
+            <Parameters name="Province">QC</Parameters>
+            <Parameters name="WorkingDir">D:\Travaux\WeatherUpdater\EnvCan\Hourly</Parameters>
+        </Task>
+    </Tasks>
+    <Tasks type="Tools">
+        <Task execute="true" name="CreateDaily1" type="CreateDaily">
+            <Parameters name="AnnualCompleteness">25</Parameters>
+            <Parameters name="BoundingBox"/>
+            <Parameters name="FirstYear">2007</Parameters>
+            <Parameters name="Forecast"/>
+            <Parameters name="Input">EnvCanDaily</Parameters>
+            <Parameters name="LastYear">2011</Parameters>
+            <Parameters name="MonthlyCompleteness">80</Parameters>
+            <Parameters name="OutputFilePath">D:\Travaux\Weather\tmp\EC D 2008-2010.DailyDB</Parameters>
+        </Task>
+        <Task execute="true" name="CreateDaily2" type="CreateDaily">
+            <Parameters name="AnnualCompleteness">25</Parameters>
+            <Parameters name="BoundingBox"/>
+            <Parameters name="FirstYear">2007</Parameters>
+            <Parameters name="Forecast"/>
+            <Parameters name="Input">EnvCanHourly</Parameters>
+            <Parameters name="LastYear">2011</Parameters>
+            <Parameters name="MonthlyCompleteness">80</Parameters>
+            <Parameters name="OutputFilePath">D:\Travaux\Weather\tmp\EC H 2008-2010.DailyDB</Parameters>
+        </Task>
+        <Task execute="true" name="MergeWeather" type="MergeWeather">
+            <Parameters name="DeltaElev">50</Parameters>
+            <Parameters name="Distance">5000</Parameters>
+            <Parameters name="InputFilepath1">D:\Travaux\Weather\tmp\EC D 2008-2010.DailyDB</Parameters>
+            <Parameters name="InputFilepath2">D:\Travaux\Weather\tmp\EC H 2008-2010.DailyDB</Parameters>
+            <Parameters name="OutputFilepath">..\Weather\2007-2011.DailyDB</Parameters>
+            <Parameters name="PriorityRule">0</Parameters>
+            <Parameters name="Type">0</Parameters>
+        </Task>
+    </Tasks>
+</WeatherUpdater>

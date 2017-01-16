@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<WGInput version="1">
+    <Variables>TN T TX</Variables>
+    <SourceType>1</SourceType>
+    <GenerationType>1</GenerationType>
+    <NbNormalsYears>1</NbNormalsYears>
+    <FirstYear>2008</FirstYear>
+    <LastYear>2010</LastYear>
+    <UseForecast>false</UseForecast>
+    <UseRadarPrcp>false</UseRadarPrcp>
+    <NbNormalsStations>4</NbNormalsStations>
+    <NormalDBName>Canada-USA 1981-2010</NormalDBName>
+    <NbDailyStations>4</NbDailyStations>
+    <DailyDBName>Demo 2007-2011</DailyDBName>
+    <NbHourlyStations>4</NbHourlyStations>
+    <HourlyDBName/>
+    <GribsDBName/>
+    <UseGribs>false</UseGribs>
+    <AtSurfaceOnly>true</AtSurfaceOnly>
+    <Albedo>1</Albedo>
+    <Seed>0</Seed>
+    <AllowedDerivedVariables>R Z S SD SWE WS2 A1 A2</AllowedDerivedVariables>
+    <Xvalidation>false</Xvalidation>
+    <SkipVerify>false</SkipVerify>
+    <SearchRadius>-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1</SearchRadius>
+</WGInput>
