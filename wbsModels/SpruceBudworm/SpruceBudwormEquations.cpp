@@ -217,22 +217,23 @@ namespace WBSF
 	}
 
 	
-	const double CSpruceBudwormEquations::α = 993.2;
-	const double CSpruceBudwormEquations::β = 1.789;
-
+	
 	//A : forewing surface area [cm²]
 	double CSpruceBudwormEquations::GetFecondity(double A)const
 	{
+		const double α = 1129.2;
+		const double β = 1.760;
 		
-		double ξ = m_randomGenerator.RandLogNormal(log(1), 0.211);
+		double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
 		double F = α*pow(A, β);
 		
 		return F*ξ;
 	}
+	
 
 	//sex : MALE (0) or FEMALE (1)
 	//out : forewing surface area [cm²]
-	double CSpruceBudwormEquations::get_A(size_t sex, double defoliation)const
+	double CSpruceBudwormEquations::get_A(size_t sex)const
 	{
 		ASSERT(sex < 2);
 
@@ -244,33 +245,39 @@ namespace WBSF
 		while (A < 0.1)
 			m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
 
-		//now conpute factior of defoliation over forewing surface area
-		double Fd = pow(1 - 0.0054*defoliation, 1.0 / β);
-
-		return Fd*A;
+		
+		return A;
 	}
 
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
+	//bE: add error term 
 	//out : weight [g]
-	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
+	double CSpruceBudwormEquations::get_M°(size_t sex, double A, double G, bool bE)const
 	{
-		//static const double M_A[2] = { -6.756, -6.543};
-		//static const double M_B[2] = { 3.790, 3.532};
-		//static const double M_E[2] = { 0.206, 0.289 };
-
 		static const double M_A[2] = { -6.756, -6.465 };
-		static const double M_B[2] = { 0.000, 0.974 };
+		static const double M_B[2] = { 0.000, 1.326 };
 		static const double M_C[2] = { 3.790, 2.140 };
 		static const double M_D[2] = { 0.000, 1.305 };
-		static const double M_E[2] = { 0.206, 0.1604 };
+		static const double M_E[2] = { 0.206, 0.160 };
 		
 		
-		double ξ = m_randomGenerator.RandLogNormal(0, M_E[sex]);
+		double ξ = bE?m_randomGenerator.RandLogNormal(0, M_E[sex]):1;
 		double M = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 		
 		return M*ξ;
 	}
+
+
+	double CSpruceBudwormEquations::get_Mᴰ(double M°, double D)const
+	{
+		static const double Mᴱ = 0.00389;
+
+		double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
+
+		return Mᴰ;
+	}
+
 
 	//double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
 	//{
@@ -284,11 +291,6 @@ namespace WBSF
 	//	return M;
 	//}
 
-	double CSpruceBudwormEquations::get_Mf(double A, double G)const
-	{
-		double Mf = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A);
-		return Mf;
-	}
 
 	double CSpruceBudwormEquations::get_p_exodus()const
 	{

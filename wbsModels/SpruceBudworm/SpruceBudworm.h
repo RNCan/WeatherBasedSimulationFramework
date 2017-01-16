@@ -72,7 +72,7 @@ namespace WBSF
 
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
-		double GetG()const{ return m_sex==FEMALE?1.0 - double(m_totalBroods) / m_fecondity:0; }
+		double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_F° : 0; }
 		//double GetLiftoffHour()const{ return m_liftoff_hour; }
 
 	protected:
@@ -86,7 +86,8 @@ namespace WBSF
 
 		//member
 		double m_relativeDevRate[SBW::NB_STAGES]; //Individual's relative development rates in 9 stages
-		double m_fecondity;
+		double m_F°;
+		double m_Fᴰ;
 
 		CTRef m_overwinteringDate;			//When individual pass from Egg to OW, they must stop develop until next spring
 		CTRef m_emergingDate;				//When individual pass from Egg to OW, they must stop develop until next spring

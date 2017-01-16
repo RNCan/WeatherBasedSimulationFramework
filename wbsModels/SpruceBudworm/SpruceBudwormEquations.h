@@ -35,9 +35,10 @@ namespace WBSF
 		double RelativeDevRate(size_t s)const;
 
 		double GetFecondity(double A)const;
-		double get_A(size_t sex, double defoliation)const;
-		double get_M(size_t sex, double A, double G)const;
-		double get_Mf(double A, double G)const;
+		double get_A(size_t sex)const;
+		double get_M°(size_t sex, double A, double G, bool bE=false)const;
+		double get_Mᴰ(double M°, double D)const;
+		
 		double get_p_exodus()const;
 
 	protected:
@@ -50,25 +51,20 @@ namespace WBSF
 		static double GetRate(size_t equation, double T);
 		static size_t GetEquationIndex(size_t stage, size_t sex);
 
-
 		static double Equation1(size_t s, double T);
 		static double Equation2(size_t s, double T);
 		static double Equation3(size_t s, double T);
 		static size_t e2s(size_t e);
 
-
 		static const double P[NB_EQUATION][NB_PARAMETER];
 		static double b1Factor[SBW::NB_STAGES];
 
-		//reltive developement
+		//relative developement
 		enum TRelDevParameters{ A1, A2, NB_REL_DEV_PARAMETERS };
 
 		double RelativeDevRateBase(size_t s)const;
 		double Equation4(const double p[NB_REL_DEV_PARAMETERS])const;
 		double Equation5(const double p[NB_REL_DEV_PARAMETERS])const;
-
-		static const double α;
-		static const double β;
 
 	};
 

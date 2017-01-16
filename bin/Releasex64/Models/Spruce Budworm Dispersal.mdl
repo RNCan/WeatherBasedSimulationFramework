@@ -7,7 +7,7 @@
     <Behaviour>1</Behaviour>
     <Description>Hourly model of spruce budworm dispersal</Description>
     <WindowRect>0 0 127 315</WindowRect>
-    <SimulatedCategory>TN T TX P WS</SimulatedCategory>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

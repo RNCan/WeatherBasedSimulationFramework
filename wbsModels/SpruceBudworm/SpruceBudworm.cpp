@@ -57,9 +57,18 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		
-		m_A = Equations().get_A(m_sex, GetStand()->m_defoliation);
-		m_M° = m_M = Equations().get_M(m_sex, m_A, 1);
-		m_fecondity = (m_sex==FEMALE)?Equations().GetFecondity(m_A):0;
+		m_A = Equations().get_A(m_sex);
+		m_F° = (m_sex == FEMALE) ? Equations().GetFecondity(m_A) : 0;
+		m_Fᴰ = max(0.0, m_F° - 1.17*GetStand()->m_defoliation);// Equations().GetFecondityFactor(GetStand()->m_defoliation);
+
+
+		//double M° = Equations().get_M°(m_sex, m_A, 1, false);
+		//m_M° = m_sex == MALE ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+
+		m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
+		m_M = m_M°;
+
+
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
@@ -224,7 +233,7 @@ namespace WBSF
 		//if (m_age >= ADULT + 0.1) ??
 		{
 			//brooding
-			double eggLeft = m_fecondity - m_totalBroods;
+			double eggLeft = m_Fᴰ - m_totalBroods;
 			double broods = 0;
 			
 			size_t nbSteps = GetTimeStep().NbSteps();
@@ -237,19 +246,20 @@ namespace WBSF
 				broods += b;
 				eggLeft = max(0.0, eggLeft-b);
 			}
+
 			eggLeft = min(80.0, eggLeft); //limit maximum egg laids by day
 			//double Tmax = weather[H_TMAX2][MEAN];
 			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
-			if (m_totalBroods + broods > m_fecondity)
-				broods = m_fecondity - m_totalBroods;
+			if (m_totalBroods + broods > m_Fᴰ)
+				broods = m_Fᴰ - m_totalBroods;
 
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = broods;
 			m_totalBroods += broods;
 
-			ASSERT(m_totalBroods <= m_fecondity);
+			ASSERT(m_totalBroods <= m_Fᴰ);
 
 			//Oviposition module after Régniere 1983
 			if (m_bFertil && m_broods > 0)
@@ -263,10 +273,18 @@ namespace WBSF
 			}
 
 			//adjust female weight
-			double M° = Equations().get_Mf(m_A, 1);//compute weight from forewing area and female gravidity
-			double Mᶜ = Equations().get_Mf(m_A, GetG());//compute weight from forewing area and female gravidity
-			m_M = m_M° * Mᶜ / M°;
-			//m_M = Equations().get_M(m_sex, m_A, GetG());//with variability
+			//double M° = Equations().get_M(FEMALE, m_A, 1);//compute weight from forewing area and female gravidity
+			//double Mᶜ = Equations().get_M(FEMALE, m_A, GetG());//compute weight from forewing area and female gravidity
+			//m_M = m_M° * Mᶜ / M°;
+			//m_M = Equations().get_M°(m_sex, m_A, GetG());//with variability
+
+			//double M° = Equations().get_M°(m_sex, m_A, (m_F°-m_broods)/m_F°, false);
+			//m_M = m_sex==MALE?M°: Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+
+			m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
+			m_M = m_M°;
+			
+
 			//m_M = Equations().get_Mf(m_A, GetG());
 			
 
