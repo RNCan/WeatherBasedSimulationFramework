@@ -57,17 +57,22 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		
-		m_A = Equations().get_A(m_sex);
-		m_F° = (m_sex == FEMALE) ? Equations().GetFecondity(m_A) : 0;
-		m_Fᴰ = max(0.0, m_F° - 1.17*GetStand()->m_defoliation);// Equations().GetFecondityFactor(GetStand()->m_defoliation);
+		m_A = Equations().get_A(m_sex); 
+		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
+		m_Fᴰ = (1 - 0.0054*GetStand()->m_defoliation)*m_F°;
 
 
 		//double M° = Equations().get_M°(m_sex, m_A, 1, false);
-		//m_M° = m_sex == MALE ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+		//double M° = Equations().get_M°(m_sex, m_A, 0);//compute weight from forewing area and female gravidity
+		double M° = Equations().get_M°(m_sex, m_A, 1, true);//compute weight from forewing area and female gravidity
+		//double M = Equations().get_M°(m_sex, m_A, 0);
+		
+		m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
 
-		m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
-		m_M = m_M°;
+//		m_M° = m_sex == MALE ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
 
+		
+		
 
 
 		m_p_exodus = Equations().get_p_exodus();
@@ -247,7 +252,7 @@ namespace WBSF
 				eggLeft = max(0.0, eggLeft-b);
 			}
 
-			eggLeft = min(80.0, eggLeft); //limit maximum egg laids by day
+			//eggLeft = min(80.0, eggLeft); //limit maximum egg laids by day
 			//double Tmax = weather[H_TMAX2][MEAN];
 			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
@@ -273,16 +278,19 @@ namespace WBSF
 			}
 
 			//adjust female weight
-			//double M° = Equations().get_M(FEMALE, m_A, 1);//compute weight from forewing area and female gravidity
+			//double M° = Equations().get_M°(m_sex, m_A, 1);//compute weight from forewing area and female gravidity
+			//double M = Equations().get_M°(m_sex, m_A, 0);//compute weight from forewing area and female gravidity
 			//double Mᶜ = Equations().get_M(FEMALE, m_A, GetG());//compute weight from forewing area and female gravidity
 			//m_M = m_M° * Mᶜ / M°;
 			//m_M = Equations().get_M°(m_sex, m_A, GetG());//with variability
-
-			//double M° = Equations().get_M°(m_sex, m_A, (m_F°-m_broods)/m_F°, false);
+			
+			//double M° = Equations().get_M°(m_sex, m_A, GetG());//compute weight from forewing area and female gravidity
+			//m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+			//double M° = Equations().get_M°(m_sex, m_A, (m_Fᴰ - m_broods) / m_Fᴰ, false);
 			//m_M = m_sex==MALE?M°: Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
 
-			m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
-			m_M = m_M°;
+			//m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
+			//m_M = m_M°;
 			
 
 			//m_M = Equations().get_Mf(m_A, GetG());
@@ -293,6 +301,11 @@ namespace WBSF
 			//double G2 = (log(m_M) + 6.465 - 2.14*m_A) / (0.974+1.305*m_A);
 			//int g = 0;
 			//g += 1;
+
+
+			double M° = Equations().get_M°(m_sex, m_A, 1 - m_totalBroods/m_Fᴰ);//compute weight from forewing area and female gravidity
+			m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+			
 		}
 	}
 
@@ -441,14 +454,14 @@ namespace WBSF
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
 		static const double K = 166.0;
-		//static const double K = 100.0;
+		
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
 		//static const double VmaxF[2] = { 1.0, 1.0 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
-		static const double b[2] = { 21.35, 21.35 };
-		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 1.0 };
+		static const double b[2] = { 24.08, 24.08 };
+		static const double c[2] = { 6.63, 6.63 };
+		static const double VmaxF[2] = { 1.0, 2.0 };
 		
 		bool bExodus = false;
 
@@ -461,15 +474,15 @@ namespace WBSF
 		if (T > 0 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
-			//const double Vmax = 55;
+			//const double Vmax = 55 * VmaxF[m_sex];
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 
 			//Compute wingbeat
 			double Vᴸ = K* sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
 			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
-
+			//double Vᵀ = Vmax*(max(0.0, min(1.0, (T - 15) / 6)));
 			//potential wingbeat is greather than liftoff wingbeat, then exodus 
-			if (Vᵀ > Vᴸ && p > m_p_exodus)
+			//if (Vᵀ > Vᴸ && p > m_p_exodus)
 				bExodus = true;		//this insect is exodus
 
 					

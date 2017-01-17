@@ -219,7 +219,7 @@ namespace WBSF
 	
 	
 	//A : forewing surface area [cm²]
-	double CSpruceBudwormEquations::GetFecondity(double A)const
+	double CSpruceBudwormEquations::get_F°(double A)const
 	{
 		const double α = 1129.2;
 		const double β = 1.760;
@@ -260,7 +260,8 @@ namespace WBSF
 		static const double M_C[2] = { 3.790, 2.140 };
 		static const double M_D[2] = { 0.000, 1.305 };
 		static const double M_E[2] = { 0.206, 0.160 };
-		
+		if (sex == MALE)
+			G = 0;
 		
 		double ξ = bE?m_randomGenerator.RandLogNormal(0, M_E[sex]):1;
 		double M = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
@@ -271,9 +272,10 @@ namespace WBSF
 
 	double CSpruceBudwormEquations::get_Mᴰ(double M°, double D)const
 	{
-		static const double Mᴱ = 0.00389;
+		static const double Mᴱ = 0.00389; 
 
-		double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
+		//double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
+		double Mᴰ = Mᴱ + (1 - 0.0054*D)*(M° - Mᴱ);
 
 		return Mᴰ;
 	}

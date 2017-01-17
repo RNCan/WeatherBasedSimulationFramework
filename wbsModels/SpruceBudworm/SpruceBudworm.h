@@ -97,7 +97,7 @@ namespace WBSF
 		bool m_bKillByAttrition;
 		
 		double m_A;							//forewing area [cm²]
-		double m_M°;						//Initial dry weight [g]
+//		double m_M°;						//Initial dry weight [g]
 		double m_M;							//actual dry weight [g]
 		double m_p_exodus;
 		//double m_liftoff_hour;

@@ -34,7 +34,7 @@ namespace WBSF
 		//relative developement
 		double RelativeDevRate(size_t s)const;
 
-		double GetFecondity(double A)const;
+		double get_F°(double A)const;
 		double get_A(size_t sex)const;
 		double get_M°(size_t sex, double A, double G, bool bE=false)const;
 		double get_Mᴰ(double M°, double D)const;
