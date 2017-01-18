@@ -21,7 +21,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TMember{ SCRIPT_NAME = CExecutable::NB_MEMBERS, INPUT, OUTPUT, NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS };
+		enum TMember{ SCRIPT_NAME = CExecutable::NB_MEMBERS, INPUT, OUTPUT, ARGUMENTS, SHOW_PROGRESS, NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS };
 
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return (i < CExecutable::NB_MEMBERS) ? CExecutable::GetMemberName(i) : MEMBERS_NAME[i - CExecutable::NB_MEMBERS]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
@@ -31,6 +31,8 @@ namespace WBSF
 		std::string m_scriptFileName;
 		std::string m_inputFileName;
 		std::string m_outputFileName;
+		std::string m_arguments;
+		bool m_bShowProgress;
 
 		CScript();
 		CScript(const CScript& in);

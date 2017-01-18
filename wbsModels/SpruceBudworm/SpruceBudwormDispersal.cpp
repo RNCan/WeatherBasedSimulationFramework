@@ -207,7 +207,6 @@ namespace WBSF
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur
-								//}//if is exodus hour
 							}//if adult
 
 							budworm.Die(day°);

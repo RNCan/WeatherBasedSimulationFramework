@@ -61,7 +61,7 @@ namespace WBSF
 			WBSF::StringVector list1 = WBSF::GetFM().Script().GetFilesList();
 			m_listCtrl.FillList(list1, m_script.m_scriptFileName);
 
-			WBSF::StringVector list2 = GetFilesList(WBSF::GetFM().GetOutputPath()+"*.*");
+			WBSF::StringVector list2 = GetFilesList(WBSF::GetFM().GetOutputPath()+"*.*", FILE_NAME);
 			m_inputCtrl.FillList(list2, m_script.m_inputFileName);
 		}
 

@@ -34,7 +34,7 @@ namespace WBSF
 		CModelFactory::RegisterModel(CSpruceBudwormModel::CreateObject);
 
 
-	extern char DAILY_HEADER[] = "L2o,L2,L3,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Egg,L1,L2o2,L22,AverageInstar,MaleFlightActivity,FemaleFlightActivity";
+	extern char DAILY_HEADER[] = "L2o,L2,L3,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Egg,L1,L2o2,L22,AverageInstar,MaleFlight,FemaleFlight,AdultExodus";
 	typedef CModelStatVectorTemplate<NB_STATS, DAILY_HEADER> CDailyOutput;
 
 	enum TOutputAnnual{ O_GROWTH_RATE, NB_ANNUAL_OUTPUT };

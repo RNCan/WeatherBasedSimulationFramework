@@ -60,28 +60,15 @@ namespace WBSF
 		m_A = Equations().get_A(m_sex); 
 		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
 		m_Fᴰ = (1 - 0.0054*GetStand()->m_defoliation)*m_F°;
-
-
-		//double M° = Equations().get_M°(m_sex, m_A, 1, false);
-		//double M° = Equations().get_M°(m_sex, m_A, 0);//compute weight from forewing area and female gravidity
-		double M° = Equations().get_M°(m_sex, m_A, 1, true);//compute weight from forewing area and female gravidity
-		//double M = Equations().get_M°(m_sex, m_A, 0);
-		
-		m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
-
-//		m_M° = m_sex == MALE ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
-
-		
-		
-
+		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
-		m_bLastExodus = false;
+		m_bAlreadyExodus = false;
 		
 		
 		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
-		m_exodus_age = 0;// GetStand()->RandomGenerator().Rand(0.0, 0.6);
+		m_exodus_age = 0;// GetStand()->RandomGenerator().Rand(0.0, 1.0);
 
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
@@ -107,7 +94,7 @@ namespace WBSF
 
 			m_eatenFoliage = in.m_eatenFoliage;
 			m_bExodus = in.m_bExodus;
-			m_bLastExodus = in.m_bLastExodus;
+			m_bAlreadyExodus = in.m_bAlreadyExodus;
 			
 
 			//regenerate relative development rate
@@ -220,13 +207,15 @@ namespace WBSF
 			Live(weather[h], GetTimeStep());
 		}
 
-		m_bLastExodus = m_bExodus;
+		m_bExodus = false;
+		//m_bAlreadyExodus = m_bExodus;
 
 		//flight activity, only in live adults 
-		if (GetStage() == ADULT && !m_bExodus)
+		if (GetStage() == ADULT)// && !m_bAlreadyExodus
 			m_bExodus = ComputeExodus(weather);
 			
-
+		if (m_bExodus)
+			m_bAlreadyExodus = true;
 	}
 
 
@@ -234,8 +223,8 @@ namespace WBSF
 	{
 		assert(IsAlive() && m_sex == FEMALE);
 
-		if (m_age >= ADULT + 0.0666)
-		//if (m_age >= ADULT + 0.1) ??
+		//if (m_age >= ADULT + 0.0666)
+		if (GetStageAge() >= 0.1 ) 
 		{
 			//brooding
 			double eggLeft = m_Fᴰ - m_totalBroods;
@@ -294,7 +283,7 @@ namespace WBSF
 			
 
 			//m_M = Equations().get_Mf(m_A, GetG());
-			
+			//m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
 
 
 			//double G1 = GetG();
@@ -303,8 +292,8 @@ namespace WBSF
 			//g += 1;
 
 
-			double M° = Equations().get_M°(m_sex, m_A, 1 - m_totalBroods/m_Fᴰ);//compute weight from forewing area and female gravidity
-			m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
+			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_F°);//compute weight from forewing area and female gravidity
+			
 			
 		}
 	}
@@ -370,21 +359,21 @@ namespace WBSF
 
 				if (stage == ADULT && m_sex == FEMALE)
 					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
-
 				
 
 				//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };//humm????
 				static const double SEX_RATIO[2] = { 1.0, 1.0 };//humm????
-				if (m_bExodus && m_bLastExodus != m_bExodus)
-					stat[S_MALE_FLIGHT_ACTIVITY + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
+				if (m_bExodus) 
+					stat[S_MALE_FLIGHT + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
+
+				if (m_bAlreadyExodus)
+					stat[S_EMIGRATED_ADULT] += m_scaleFactor*SEX_RATIO[m_sex];
 
 			}
 			else
 			{
-				if (stage == DEAD_ADULT)
+				if (stage == DEAD_ADULT) 
 					stat[S_DEAD_ADULT] += m_scaleFactor;
-
-			
 			}
 		}
 		else if (m_generation == 1)
@@ -422,28 +411,31 @@ namespace WBSF
 	{
 		bool bExodus = false;
 
-		__int64 t° = 0;
-		__int64 tᴹ = 0;
-		if (get_t(w°, t°, tᴹ))
+		if (GetStageAge() > m_exodus_age)
 		{
-			//calculate tᶜ
-			__int64 tᶜ = (t° + tᴹ) / 2;
-
-			//now compute tau, p and flight
-			static const __int64 Δt = 60;
-			for (__int64 t = t°; t <= tᴹ && !bExodus; t += Δt)
+			__int64 t° = 0;
+			__int64 tᴹ = 0;
+			if (get_t(w°, t°, tᴹ))
 			{
-				double tau = double(t - tᶜ) / (tᴹ - tᶜ);
-				double h = t / 3600.0;
+				//calculate tᶜ
+				__int64 tᶜ = (t° + tᴹ) / 2;
 
-				const CWeatherDay& w¹ = w°.GetNext();
-				const CWeatherDay& w = h < 24 ? w° : w¹;
+				//now compute tau, p and flight
+				static const __int64 Δt = 60;
+				for (__int64 t = t°; t <= tᴹ && !bExodus; t += Δt)
+				{
+					double tau = double(t - tᶜ) / (tᴹ - tᶜ);
+					double h = t / 3600.0;
 
-				double T = get_Tair(w, h < 24 ? h : h - 24.0);
-				double P = get_Prcp(w, h < 24 ? h : h - 24.0);
-				double W = get_WndS(w, h < 24 ? h : h - 24.0);
-				
-				bExodus = ComputeExodus(T, P, W, tau);
+					const CWeatherDay& w¹ = w°.GetNext();
+					const CWeatherDay& w = h < 24 ? w° : w¹;
+
+					double T = get_Tair(w, h < 24 ? h : h - 24.0);
+					double P = get_Prcp(w, h < 24 ? h : h - 24.0);
+					double W = get_WndS(w, h < 24 ? h : h - 24.0);
+
+					bExodus = ComputeExodus(T, P, W, tau);
+				}
 			}
 		}
 
@@ -459,9 +451,9 @@ namespace WBSF
 		//static const double c[2] = { 2.97, 6.63 };
 		//static const double VmaxF[2] = { 1.0, 1.0 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
-		static const double b[2] = { 24.08, 24.08 };
-		static const double c[2] = { 6.63, 6.63 };
-		static const double VmaxF[2] = { 1.0, 2.0 };
+		static const double b[2] = { 21.35, 21.35 };
+		static const double c[2] = { 2.97, 2.97 };
+		static const double VmaxF[2] = { 1.0, 1.2 };
 		
 		bool bExodus = false;
 
@@ -482,7 +474,7 @@ namespace WBSF
 			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
 			//double Vᵀ = Vmax*(max(0.0, min(1.0, (T - 15) / 6)));
 			//potential wingbeat is greather than liftoff wingbeat, then exodus 
-			//if (Vᵀ > Vᴸ && p > m_p_exodus)
+			if (Vᵀ > Vᴸ && p > m_p_exodus)
 				bExodus = true;		//this insect is exodus
 
 					

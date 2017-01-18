@@ -253,7 +253,7 @@ namespace WBSF
 	//A : forewing surface area [cm²]
 	//bE: add error term 
 	//out : weight [g]
-	double CSpruceBudwormEquations::get_M°(size_t sex, double A, double G, bool bE)const
+	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G, bool bE)const
 	{
 		static const double M_A[2] = { -6.756, -6.465 };
 		static const double M_B[2] = { 0.000, 1.326 };
@@ -270,15 +270,15 @@ namespace WBSF
 	}
 
 
-	double CSpruceBudwormEquations::get_Mᴰ(double M°, double D)const
-	{
-		static const double Mᴱ = 0.00389; 
+	//double CSpruceBudwormEquations::get_Mᴰ(double M°, double D)const
+	//{
+	//	static const double Mᴱ = 0.00389; 
 
-		//double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
-		double Mᴰ = Mᴱ + (1 - 0.0054*D)*(M° - Mᴱ);
+	//	//double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
+	//	double Mᴰ = Mᴱ + (1 - 0.0054*D)*(M° - Mᴱ);
 
-		return Mᴰ;
-	}
+	//	return Mᴰ;
+	//}
 
 
 	//double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const

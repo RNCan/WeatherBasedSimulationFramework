@@ -119,7 +119,7 @@ namespace WBSF
 		CTRef TRef;
 		TRef.m_mode = CTRef::OVERALL_YEARS;//over all year by default. FOR_EACH_YEAR if year is prensent.
 
-		for (int i = 0; i < size(); i++)
+		for (size_t i = 0; i < size(); i++)
 		{
 			if (at(i).m_dimension == TIME_REF)
 			{
@@ -140,14 +140,14 @@ namespace WBSF
 					switch (at(i).m_field)
 					{
 					case CTRefFormat::HOUR: TRef.m_hour = ToInt(columnList[i]); break;
-					case CTRefFormat::DAY: TRef.m_day = ToInt(columnList[i]); break;
-					case CTRefFormat::MONTH: TRef.m_month = ToInt(columnList[i]); break;
+					case CTRefFormat::DAY: TRef.m_day = ToInt(columnList[i])-1; break;
+					case CTRefFormat::MONTH: TRef.m_month = ToInt(columnList[i])-1; break;
 					case CTRefFormat::YEAR:
 						TRef.m_year = ToInt(columnList[i]);
 						TRef.m_mode = CTRef::FOR_EACH_YEAR;
 						break;
 					case CTRefFormat::REFERENCE: TRef.m_ref = ToInt(columnList[i]); break;
-					case CTRefFormat::JDAY: TRef.SetJDay(TRef.m_year, ToInt(columnList[i])); break;
+					case CTRefFormat::JDAY: TRef.SetJDay(TRef.m_year, ToInt(columnList[i]) - 1); break;
 					default: ASSERT(false);
 					}
 				}
@@ -435,13 +435,13 @@ namespace WBSF
 	{
 		bool bIsUptodate = false;
 
-		std::string refFilePath(fileManager.Input().GetFilePath(m_fileName));
+		/*std::string refFilePath(fileManager.Input().GetFilePath(m_fileName));
 		std::string optFilePath = GetOptFilePath(fileManager);
 
-		if (GetFileStamp(optFilePath) > GetFileStamp(refFilePath))
+		if (GetFileStamp(optFilePath) != GetFileStamp(refFilePath))
 		{
 			bIsUptodate = true;
-		}
+		}*/
 
 		return bIsUptodate;
 	}
@@ -473,7 +473,7 @@ namespace WBSF
 
 		data.Reset();
 		lastLOC.Reset();
-		lastReplication = -1;
+		lastReplication = NOT_INIT;
 
 
 		ios::pos_type pos = file.tellg();
@@ -498,11 +498,11 @@ namespace WBSF
 			size_t replication = 0;
 
 			if (bHaveData[REPLICATION])
-			{
 				replication = m_columnLinkArray.GetReplication(columnList);
-				if (lastReplication == -1)
-					lastReplication = replication;
-			}
+
+
+			if (lastReplication == NOT_INIT)
+				lastReplication = replication;
 
 			if (LOC != lastLOC || replication != lastReplication)
 				break;
@@ -512,6 +512,11 @@ namespace WBSF
 			CTRef TRef(0, 0, 0, 0, TM);
 			if (bHaveData[TIME_REF])
 				TRef = m_columnLinkArray.GetTRef(columnList);
+
+			if (!TRef.IsValid())
+			{
+				msg.ajoute( "Invalid temporal reference at line:\n\t" + line );
+			}
 
 			CModelStat outputVar;
 			m_columnLinkArray.GetVariable(columnList, outputVar);

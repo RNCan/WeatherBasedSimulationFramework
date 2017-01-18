@@ -21,7 +21,7 @@ namespace WBSF
 {
 	//*******************************************************************************
 	const char* CScript::XML_FLAG = "Script";
-	const char* CScript::MEMBERS_NAME[NB_MEMBERS_EX] = { "Script", "Input", "Output" };
+	const char* CScript::MEMBERS_NAME[NB_MEMBERS_EX] = { "Script", "Input", "Output", "Arguments", "ShowProgress" };
 	const int CScript::CLASS_NUMBER = CExecutableFactory::RegisterClass(CScript::GetXMLFlag(), &CScript::CreateObject);
 
 	CScript::CScript()
@@ -49,6 +49,8 @@ namespace WBSF
 		m_scriptFileName.clear();
 		m_inputFileName.clear();
 		m_outputFileName.clear();
+		m_arguments.clear();
+		m_bShowProgress = false;
 	}
 
 	CScript& CScript::operator =(const CScript& in)
@@ -59,6 +61,8 @@ namespace WBSF
 			m_scriptFileName = in.m_scriptFileName;
 			m_inputFileName = in.m_inputFileName;
 			m_outputFileName = in.m_outputFileName;
+			m_arguments = in.m_arguments;
+			m_bShowProgress = in.m_bShowProgress;
 		}
 
 		ASSERT(*this == in);
@@ -73,7 +77,8 @@ namespace WBSF
 		if (m_scriptFileName != in.m_scriptFileName)bEqual = false;
 		if (m_inputFileName != in.m_inputFileName)bEqual = false;
 		if (m_outputFileName != in.m_outputFileName)bEqual = false;
-
+		if (m_arguments != in.m_arguments)bEqual = false;
+		if (m_bShowProgress != in.m_bShowProgress)bEqual = false;
 
 		return bEqual;
 	}
@@ -108,6 +113,8 @@ namespace WBSF
 		out[GetMemberName(SCRIPT_NAME)](m_scriptFileName);
 		out[GetMemberName(INPUT)](m_inputFileName);
 		out[GetMemberName(OUTPUT)](m_outputFileName);
+		out[GetMemberName(ARGUMENTS)](m_arguments);
+		out[GetMemberName(SHOW_PROGRESS)](m_bShowProgress);
 		
 	}
 
@@ -119,7 +126,8 @@ namespace WBSF
 		in[GetMemberName(SCRIPT_NAME)](m_scriptFileName);
 		in[GetMemberName(INPUT)](m_inputFileName);
 		in[GetMemberName(OUTPUT)](m_outputFileName);
-
+		in[GetMemberName(ARGUMENTS)](m_arguments);
+		in[GetMemberName(SHOW_PROGRESS)](m_bShowProgress);
 
 		return true;
 	}
@@ -133,9 +141,9 @@ namespace WBSF
 		msg = GetFM().Script().GetFilePath(m_scriptFileName, filePath);
 		if (msg)
 		{
-			string arg1 = !m_inputFileName.empty() ? "\"" + m_inputFileName+ "\"" : "";
-			string arg2 = !m_outputFileName.empty() ? "\"" + m_outputFileName + "\"" : "";
-			msg = CallApplication(CRegistry::R_SCRIPT, arg1 + " " + arg2, NULL, SW_SHOW, false, true);
+			string arg1 = !m_inputFileName.empty() ? "\"" + fileManager.GetOutputPath() + m_inputFileName + "\"" : "";
+			string arg2 = !m_outputFileName.empty() ? "\"" + fileManager.GetOutputPath() + m_outputFileName + "\"" : "";
+			msg = CallApplication(CRegistry::R_SCRIPT, "\"" + filePath + "\" " + arg1 + " " + arg2 + " " + m_arguments, NULL, m_bShowProgress?SW_SHOW:SW_HIDE, false, true);
 		}
 
 		//CResultPtr pResult = m_pParent->GetResult(fileManager);

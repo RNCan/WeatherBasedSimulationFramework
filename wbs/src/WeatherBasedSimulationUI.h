@@ -477,9 +477,11 @@
 #define IDC_SCRIPT                      1232
 #define IDC_MAP_EXTRACT_EXPOSITION      1233
 #define IDC_STATIC1                     1233
+#define IDC_SCRIPT_ARG                  1233
 #define IDC_MAP_INPUT_FILEPATH2         1234
 #define IDC_MAP_EXTRACT_EXPOSITION2     1234
 #define IDC_MAP_EXTRACT_OTHER           1234
+#define IDC_SHOW_PROGRESS               1234
 #define IDC_MAP_EXTRACT_MISSING         1235
 #define IDC_CRF_TYPE_OUT                1237
 #define IDC_CRF_LONG_NAME_OUT           1238
@@ -847,7 +849,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1234
+#define _APS_NEXT_CONTROL_VALUE         1235
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

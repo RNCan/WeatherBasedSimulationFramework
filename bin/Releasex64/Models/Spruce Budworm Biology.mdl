@@ -258,6 +258,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>AdultsExodus</Name>
+            <Title>AdultsExodus</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
     <Credit>Régnière's process-oriented model of spruce budworm seasonal biology&#x0A;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;This process-oriented model was developed by Régnière (1982). &#x0D;&#x0A;Variability in development rates is handled by the method of Régnière (1984). &#x0D;&#x0A;Oviposition is simulated accoding to Régnière (1983). &#x0D;&#x0A;Additional refinements were made by Régnière (1987, 1990). &#x0D;&#x0A;The feeding and defoliation components were described by Régnière &amp; You (1991). &#x0D;&#x0A;To provide for better fit beween predicted and observed development in the early larval stages, development rates were adjusted (Régnière, unpublished).&#x0A;&#x0A;                                                    &#x0D;&#x0A;&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Régnière, J. 1982. A process-oriented model of spruce budworm phenology (Lepidoptera: Tortricidae). Can. Ent. 114:811-825.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1983. An oviposition model for the spruce budworm, Choristoneura fumiferana (Lepidoptera: Tortricidae). Can. Ent. 115:1371-1382.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1984. A method of describing and using variability in development rates for the simulation of insect phenology. Can. Ent. 116:1367-1376.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1987. Temperature-dependent development of eggs and larvae of Choristoneura fumiferana (Clem.) (Lepidoptera: Tortricidae) and simulation of its seasonal history. Can. Ent. 119: 717-728.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1990. Diapause termination and changes in thermal responses during postdiapause development in larvae of the spruce budworm, Choristoneura fumiferana.. J. Insect Physiol. 36: 727-735.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. and You, M. 1991. A simulation model of spruce budworm (Lepidoptera: Tortricidae) feeding on balsam fir and white spruce.. Ecol. Modelling 54: 277-297.&#x0A;</Credit>
