@@ -68,7 +68,7 @@ namespace WBSF
 		
 		
 		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
-		m_exodus_age = 0;// GetStand()->RandomGenerator().Rand(0.0, 1.0);
+		m_exodus_age = 1;// GetStand()->RandomGenerator().Rand(0.0, 1.0);
 
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
@@ -208,10 +208,9 @@ namespace WBSF
 		}
 
 		m_bExodus = false;
-		//m_bAlreadyExodus = m_bExodus;
 
 		//flight activity, only in live adults 
-		if (GetStage() == ADULT)// && !m_bAlreadyExodus
+		if (GetStage() == ADULT && !m_bAlreadyExodus)
 			m_bExodus = ComputeExodus(weather);
 			
 		if (m_bExodus)
@@ -411,7 +410,7 @@ namespace WBSF
 	{
 		bool bExodus = false;
 
-		if (GetStageAge() > m_exodus_age)
+		if (GetStageAge() < m_exodus_age)
 		{
 			__int64 t° = 0;
 			__int64 tᴹ = 0;
@@ -445,7 +444,8 @@ namespace WBSF
 	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 166.0;
+		//static const double K = 166.0;
+		static const double K = 195.0;//correspond à un range de 25 à 63 Hz
 		
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
@@ -453,7 +453,7 @@ namespace WBSF
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 1.2 };
+		static const double VmaxF[2] = { 1.0, 0.8 };
 		
 		bool bExodus = false;
 
@@ -463,7 +463,7 @@ namespace WBSF
 		if (W == -999)
 			W = 10;
 
-		if (T > 0 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 0 or hourly precipitation greater than 2.5 mm
+		if (GetStageAge() < m_exodus_age && T > 19 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 19 (schaefer) or hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
 			//const double Vmax = 55 * VmaxF[m_sex];
