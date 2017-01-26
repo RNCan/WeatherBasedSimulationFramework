@@ -368,6 +368,11 @@ namespace WBSF
 				if (m_bAlreadyExodus)
 					stat[S_EMIGRATED_ADULT] += m_scaleFactor*SEX_RATIO[m_sex];
 
+				if (stage == ADULT && IsChangingStage() && m_sex == MALE)
+					stat[S_MALE_EMERGENCE] += m_scaleFactor;
+
+				if (stage == ADULT && IsChangingStage() && m_sex == FEMALE)
+					stat[S_FEMALE_EMERGENCE] += m_scaleFactor;
 			}
 			else
 			{

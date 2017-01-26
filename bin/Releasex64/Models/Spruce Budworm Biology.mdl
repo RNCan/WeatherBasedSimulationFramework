@@ -240,7 +240,22 @@
             <Description>Average instar of the current (L2o..adults) year</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleEmergence</Name>
+            <Title>MaleEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleEmergence</Name>
+            <Title>FemaleEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>MaleFlight</Name>
