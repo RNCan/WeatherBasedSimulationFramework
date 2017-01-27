@@ -23,7 +23,7 @@ namespace WBSF
 		enum TSpruceBudwormStats
 		{
 			S_L2o, S_L2, S_L3, S_L4, S_L5, S_L6, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_EGG, S_L1,
-			S_L2o2, S_L22, S_AVERAGE_INSTAR, S_MALE_EMERGENCE, S_FEMALE_EMERGENCE, S_MALE_FLIGHT, S_FEMALE_FLIGHT, S_EMIGRATED_ADULT, NB_STATS
+			S_L2o2, S_L22, S_AVERAGE_INSTAR, S_PUPA_MALE, S_PUPA_FEMALE, S_ADULT_MALE, S_ADULT_FEMALE, S_MALE_EMERGENCE, S_FEMALE_EMERGENCE, S_MALE_FLIGHT, S_FEMALE_FLIGHT, NB_STATS
 		};
 	}
 
@@ -103,7 +103,7 @@ namespace WBSF
 		//double m_liftoff_hour;
 		bool m_bExodus;
 		bool m_bAlreadyExodus;
-		double m_exodus_age;
+		//double m_p_mating;
 		
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];

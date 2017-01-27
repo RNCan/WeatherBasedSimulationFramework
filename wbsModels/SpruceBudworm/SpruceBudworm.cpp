@@ -40,7 +40,11 @@ namespace WBSF
 
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
-
+	/*double GetMatingProbability(double a)
+	{
+		return max(0.0, min(1.0, 0.491*log(a) + 1.110));
+	}
+*/
 	//*****************************************************************************
 	// Object creator
 	//
@@ -68,7 +72,10 @@ namespace WBSF
 		
 		
 		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
-		m_exodus_age = 1;// GetStand()->RandomGenerator().Rand(0.0, 1.0);
+		//m_p_mating = GetStand()->RandomGenerator().Rand(0.0, 1.0);
+		//m_p_mating = GetStand()->RandomGenerator().RandBeta(100, 100);
+		
+
 
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
@@ -105,7 +112,7 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
-			m_exodus_age = in.m_exodus_age;
+			//m_p_mating = in.m_p_mating;
 		}
 
 		return *this;
@@ -223,7 +230,9 @@ namespace WBSF
 		assert(IsAlive() && m_sex == FEMALE);
 
 		//if (m_age >= ADULT + 0.0666)
-		if (GetStageAge() >= 0.1 ) 
+		
+		//double Pmating = GetMatingProbability(GetStageAge());
+		if (GetStageAge() > 0.1)
 		{
 			//brooding
 			double eggLeft = m_Fᴰ - m_totalBroods;
@@ -350,10 +359,10 @@ namespace WBSF
 
 		if (m_generation == 0)
 		{
-			if (IsAlive())
+			if (IsAlive() || stage == DEAD_ADULT)
 			{
 
-				if (stage >= L2o && stage < DEAD_ADULT)
+				if (stage >= L2o && stage <= DEAD_ADULT)
 					stat[S_L2o + stage - L2o] += m_scaleFactor;
 
 				if (stage == ADULT && m_sex == FEMALE)
@@ -362,23 +371,26 @@ namespace WBSF
 
 				//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };//humm????
 				static const double SEX_RATIO[2] = { 1.0, 1.0 };//humm????
+
 				if (m_bExodus) 
 					stat[S_MALE_FLIGHT + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
 
-				if (m_bAlreadyExodus)
-					stat[S_EMIGRATED_ADULT] += m_scaleFactor*SEX_RATIO[m_sex];
+				if (stage == PUPAE )
+					stat[S_PUPA_MALE + m_sex] += m_scaleFactor;
+				if (stage == ADULT)
+					stat[S_ADULT_MALE + m_sex] += m_scaleFactor;
+				if (stage == ADULT && IsChangingStage() )
+					stat[S_MALE_EMERGENCE + m_sex] += m_scaleFactor;
 
-				if (stage == ADULT && IsChangingStage() && m_sex == MALE)
-					stat[S_MALE_EMERGENCE] += m_scaleFactor;
+				//if (m_bAlreadyExodus)
+			}
+			//else
+			//{
+			//	if (stage == DEAD_ADULT) 
+			//		stat[S_DEAD_ADULT] += m_scaleFactor;
+			//}
 
-				if (stage == ADULT && IsChangingStage() && m_sex == FEMALE)
-					stat[S_FEMALE_EMERGENCE] += m_scaleFactor;
-			}
-			else
-			{
-				if (stage == DEAD_ADULT) 
-					stat[S_DEAD_ADULT] += m_scaleFactor;
-			}
+				
 		}
 		else if (m_generation == 1)
 		{
@@ -415,7 +427,8 @@ namespace WBSF
 	{
 		bool bExodus = false;
 
-		if (GetStageAge() < m_exodus_age)
+		//double Pmating = GetMatingProbability(GetStageAge());
+		if (GetStageAge() > 0.1)
 		{
 			__int64 t° = 0;
 			__int64 tᴹ = 0;
@@ -445,20 +458,22 @@ namespace WBSF
 
 		return bExodus;
 	}
+	
+	
 
 	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		//static const double K = 166.0;
-		static const double K = 195.0;//correspond à un range de 25 à 63 Hz
+		static const double K = 166.0;
+		//static const double K = 176.0;//all moth flies between 25 à 63 Hz
 		
-		//static const double b[2] = { 21.35, 24.08 };
-		//static const double c[2] = { 2.97, 6.63 };
+		static const double b[2] = { 21.35, 24.08 };
+		static const double c[2] = { 2.97, 6.63 };
 		//static const double VmaxF[2] = { 1.0, 1.0 };
 		//static const double VmaxF[2] = { 1.0, 1.50 };
-		static const double b[2] = { 21.35, 21.35 };
-		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 0.8 };
+		//static const double b[2] = { 21.35, 21.35 };
+		//static const double c[2] = { 2.97, 2.97 };
+		static const double VmaxF[2] = { 1.0, 1.0 };
 		
 		bool bExodus = false;
 
@@ -468,7 +483,10 @@ namespace WBSF
 		if (W == -999)
 			W = 10;
 
-		if (GetStageAge() < m_exodus_age && T > 19 && P < 2.5 && W > 2.5)//No lift-off if temperature lower than 19 (schaefer) or hourly precipitation greater than 2.5 mm
+		
+		//double Pmating = GetMatingProbability(GetStageAge());
+		
+		if ( GetStageAge() > 0.1 && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
 			//const double Vmax = 55 * VmaxF[m_sex];
@@ -737,6 +755,21 @@ namespace WBSF
 		CHost::GetStat(d, stat, generation);
 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
+
+		CStatistic sum;
+		CStatistic weight;
+		size_t nbStages = (*begin())->GetNbStages();
+		for (const_iterator it = begin(); it != end(); it++)
+		{
+			if ((*it)->GetStage() == ADULT && (*it)->GetSex() == FEMALE &&
+				(*it)->IsAlive() )//|| (*it)->GetStage()==DEAD_ADULT)
+			{
+				sum += (*it)->GetStageAge()*(*it)->GetScaleFactor();
+				weight += (*it)->GetScaleFactor();
+			}
+		}
+		
+		//stat[S_FEMALE_AGE] = (weight.IsInit() && weight[SUM] > 0) ? sum[SUM] / weight[SUM] : CBioSIMModelBase::VMISS;;
 	}
 
 

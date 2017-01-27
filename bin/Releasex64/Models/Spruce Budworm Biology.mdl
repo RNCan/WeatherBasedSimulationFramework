@@ -234,10 +234,42 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Average instar</Name>
+            <Name>AverageInstar</Name>
             <Title>Average instar</Title>
             <Units/>
             <Description>Average instar of the current (L2o..adults) year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MalePupae</Name>
+            <Title>MalePupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemalePupae</Name>
+            <Title>FemalePupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleAdult</Name>
+            <Title>MaleAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleAdult</Name>
+            <Title>FemaleAdult</Title>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -270,14 +302,6 @@
             <Title>FemaleFlight</Title>
             <Units>%</Units>
             <Description>Flight activity of female</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>AdultsExodus</Name>
-            <Title>AdultsExodus</Title>
-            <Units/>
-            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

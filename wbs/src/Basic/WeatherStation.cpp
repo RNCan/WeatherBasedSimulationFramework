@@ -1231,7 +1231,7 @@ void CWeatherDay::ComputeHourlyPres()
 	{
 		//*****************************************************************************************
 		//linear interpolation : it's biased, TODO: need to unbiaise the mean...
-		double f[3] = { max(0, 12 - int(h)) / 12, max(int(h), int(h) - 12) / 12, max(0, int(h) - 12) / 12 };
+		double f[3] = { max(0.0, 12.0 - double(h)) / 12.0, h <= 12 ? (double(h) / 12.0) : ((24.0 - double(h)) / 12.0), max(0.0, double(h) - 12.0) / 12.0 };
 		ASSERT(f[0] + f[1] + f[2] == 1);
 
 		me[h][H_PRES] = f[0] * P[0] + f[1] * P[1] + f[2] * P[2];
@@ -1513,29 +1513,32 @@ void CWeatherDay::ComputeHourlySRad()
 
 	const CLocation & loc = GetLocation();
 
-	array<double, 24> hourlySolarAltitude;
-	double sumSolarAltitude = 0;
+	array<CStatistic, 24> hourlySolarAltitude;
+	
 
 	double δ = 23.45* (PI / 180) * sin(2 * PI*(284 + GetTRef().GetJDay() + 1) / 365);
 	double ϕ = Deg2Rad(loc.m_lat);
 
-	for (size_t h = 0; h<24; h++)
+	for (size_t t = 0; t<3600*24; t+=60)
 	{
-		double w = 2 * PI*(h - 12) / 24;
+		size_t h = size_t(Round(double(t) / 3600.0)) % 24;//take centered on the hour
+		double w = 2 * PI*(double(t)/3600 - 12) / 24;
 		double solarAltitude = max(0.0, sin(ϕ)*sin(δ) + cos(ϕ)*cos(δ)*cos(w));
 
-		hourlySolarAltitude[h] = solarAltitude;
-		sumSolarAltitude += solarAltitude;
+		hourlySolarAltitude[h] += solarAltitude;
 	}
+
+	double sumSolarAltitude = 0;
+	for (size_t h = 0; h<24; h++)
+		sumSolarAltitude += hourlySolarAltitude[h][MEAN];
 
 	for (size_t h = 0; h<24; h++)
 	{
 		me[h][H_SRAD2] = 0;
 		if (sumSolarAltitude>0)
 		{
-			double r = hourlySolarAltitude[h] / sumSolarAltitude;
-			//me[h][H_SRAD2] = (float)(r*me[H_SRAD2][SUM]);
-			me[h][H_SRAD2] = (float)(r*me[H_SRAD2][SUM]);
+			double r = hourlySolarAltitude[h][MEAN] / sumSolarAltitude;
+			me[h][H_SRAD2] = (float)(r*24*me[H_SRAD2][MEAN]);//daily solar radiation is the mean of 24 hours
 		}
 	}
 
@@ -3139,7 +3142,7 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 					{
 						double c = correction.GetCorrection(me, TRef, v);
 						double value = me[TRef][v][MEAN] + c;
-						ASSERT(value>-99 && value<99);
+						ASSERT(value>-99);
 
 						me[TRef].SetStat(v, value);
 					}

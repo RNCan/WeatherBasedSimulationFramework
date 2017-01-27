@@ -64,7 +64,7 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 
 
-		VERSION = "3.1.0 (2016)";
+		VERSION = "3.1.1 (2017)";
 
 		m_varType = 0;
 		m_a[0] = -0.9417;
@@ -240,7 +240,36 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CClimaticModel::OnExecuteHourly()
+	{
+		ERMsg msg;
 
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
+		CTPeriod p = m_weather.GetEntireTPeriod();
+		m_output.Init(p, H_PRES + 1, -999); 
+
+		for (size_t y = 0; y<m_weather.size(); y++)
+		{
+			for (size_t m = 0; m<m_weather[y].size(); m++)
+			{
+				for (size_t d = 0; d<m_weather[y][m].size(); d++)
+				{
+					for (size_t h = 0; h < m_weather[y][m][d].size(); h++)
+					{
+						CTRef TRef(p.GetFirstYear()+int(y),m,d,h);
+						for (size_t v = 0; v < H_PRES+1; v++)
+							m_output[TRef][v] = m_weather[y][m][d][h][v];
+					}
+				}
+			}
+		}
+
+
+
+		return msg;
+	}
 
 	int CClimaticModel::GetFrostDay(int year, const double& th)
 	{

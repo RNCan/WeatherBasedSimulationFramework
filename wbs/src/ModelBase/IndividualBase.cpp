@@ -200,7 +200,7 @@ namespace WBSF
 		return *this;
 	}
 
-	double CHost::GetAI(bool bIncludeLast, size_t generation)const
+	double CHost::GetAI(bool bIncludeLast, size_t generation, size_t sex )const
 	{
 		double AI = CBioSIMModelBase::VMISS;
 
@@ -213,11 +213,14 @@ namespace WBSF
 			{
 				if ((*it)->GetGeneration() == generation)
 				{
-					double instar = (*it)->GetInstar(bIncludeLast);
-					if (instar != CBioSIMModelBase::VMISS)
+					if (sex == NOT_INIT || (*it)->GetSex() == sex)
 					{
-						sum += instar*(*it)->GetScaleFactor();
-						weight += (*it)->GetScaleFactor();
+						double instar = (*it)->GetInstar(bIncludeLast);
+						if (instar != CBioSIMModelBase::VMISS)
+						{
+							sum += instar*(*it)->GetScaleFactor();
+							weight += (*it)->GetScaleFactor();
+						}
 					}
 				}
 			}

@@ -219,6 +219,7 @@ namespace WBSF
 	
 	
 	//A : forewing surface area [cm²]
+	//F°: Initial fecondity in absecen of defoliation [eggs]
 	double CSpruceBudwormEquations::get_F°(double A)const
 	{
 		const double α = 1129.2;

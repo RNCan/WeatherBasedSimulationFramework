@@ -1191,7 +1191,7 @@ namespace WBSF
 		{
 			//m_outputVarCtrl.HideMember(CModelOutputVariableDef::TIME_MODE);
 			m_outputVarCtrl.HideMember(CModelOutputVariableDef::EQUATION);
-			m_outputVarCtrl.HideMember(CModelOutputVariableDef::CLIMATIC_VARIABLE);
+			//m_outputVarCtrl.HideMember(CModelOutputVariableDef::CLIMATIC_VARIABLE);
 			m_outputVarCtrl.SetData(m_model.m_outputList);
 			m_outputTypeCtrl.SetCurSel((int)m_model.m_outputTM.Type());
 			m_outputModeCtrl.SetCurSel((int)m_model.m_outputTM.Mode());

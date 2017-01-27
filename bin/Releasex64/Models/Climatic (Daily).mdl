@@ -37,6 +37,7 @@
             <Description>Daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
+            <Climatic>0</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Tair</Name>
@@ -45,6 +46,7 @@
             <Description>Approximation of mean temperature of the day: (Tmin + Tmax)/2</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
+            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Tmax</Name>
@@ -53,6 +55,7 @@
             <Description>Daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
+            <Climatic>2</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

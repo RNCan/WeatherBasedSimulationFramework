@@ -203,7 +203,7 @@ namespace WBSF
 			return age[MEAN];
 		}
 
-		double GetAI(bool bIncludeLast, size_t generation = 0)const;
+		double GetAI(bool bIncludeLast, size_t generation = 0, size_t sex = NOT_INIT)const;
 
 		size_t GetNbObjectAlive()const
 		{
