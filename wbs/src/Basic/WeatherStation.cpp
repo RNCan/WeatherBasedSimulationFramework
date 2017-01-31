@@ -1220,27 +1220,6 @@ void CWeatherDay::ComputeHourlyTair()
 //	
 //}
 
-void CWeatherDay::ComputeHourlyPres()
-{
-	CWeatherDay& me = *this;
-	ASSERT(me[H_PRES].IsInit());
-
-	double P[3] = { GetPrevious()[H_PRES][MEAN], me[H_PRES][MEAN], GetNext()[H_PRES][MEAN] };
-
-	for (size_t h = 0; h<24; h++)
-	{
-		//*****************************************************************************************
-		//linear interpolation : it's biased, TODO: need to unbiaise the mean...
-		double f[3] = { max(0.0, 12.0 - double(h)) / 12.0, h <= 12 ? (double(h) / 12.0) : ((24.0 - double(h)) / 12.0), max(0.0, double(h) - 12.0) / 12.0 };
-		ASSERT(f[0] + f[1] + f[2] == 1);
-
-		me[h][H_PRES] = f[0] * P[0] + f[1] * P[1] + f[2] * P[2];
-	}
-	
-	//for (size_t h = 0; h<24; h++)
-		//me[h][H_PRES] = me[H_PRES][MEAN];
-}
-
 //*****************************************************************************************
 //Precipitation
 void CWeatherDay::ComputeHourlyPrcp()
@@ -1499,7 +1478,7 @@ void CWeatherDay::ComputeHourlyWndD()
 	ASSERT(me[H_WNDD].IsInit());
 
 	for (size_t h = 0; h < 24; h++)
-		me[h][H_WNDD] = me[H_PRES][MEAN];
+		me[h][H_WNDD] = me[H_WNDD][MEAN];
 
 }
 //*****************************************************************************************
@@ -1542,6 +1521,28 @@ void CWeatherDay::ComputeHourlySRad()
 		}
 	}
 
+}
+
+
+void CWeatherDay::ComputeHourlyPres()
+{
+	CWeatherDay& me = *this;
+	ASSERT(me[H_PRES].IsInit());
+
+	double P[3] = { GetPrevious()[H_PRES][MEAN], me[H_PRES][MEAN], GetNext()[H_PRES][MEAN] };
+
+	for (size_t h = 0; h<24; h++)
+	{
+		//*****************************************************************************************
+		//linear interpolation : it's biased, TODO: need to unbiaise the mean...
+		double f[3] = { max(0.0, 12.0 - double(h)) / 12.0, h <= 12 ? (double(h) / 12.0) : ((24.0 - double(h)) / 12.0), max(0.0, double(h) - 12.0) / 12.0 };
+		ASSERT(f[0] + f[1] + f[2] == 1);
+
+		me[h][H_PRES] = f[0] * P[0] + f[1] * P[1] + f[2] * P[2];
+	}
+
+	//for (size_t h = 0; h<24; h++)
+	//me[h][H_PRES] = me[H_PRES][MEAN];
 }
 
 

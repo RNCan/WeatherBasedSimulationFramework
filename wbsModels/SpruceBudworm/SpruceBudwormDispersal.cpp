@@ -202,8 +202,8 @@ namespace WBSF
 											overallPeriod += TRefTmp;
 											flyers[TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
 
-											budworm.SetStatus(CIndividual::DEAD);
-											budworm.SetDeath(CIndividual::EXODUS);
+											//budworm.SetStatus(CIndividual::DEAD);
+											//budworm.SetDeath(CIndividual::EXODUS);
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur

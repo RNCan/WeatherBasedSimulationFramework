@@ -37,6 +37,8 @@ namespace WBSF
 		1.0, 1.0, 1.0, .79, .73, .62, 0.4, .66, 1.0, .39
 	};
 
+	static const double OVIPOSITING_STAGE_AGE = 0.1;
+
 
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
@@ -217,7 +219,7 @@ namespace WBSF
 		m_bExodus = false;
 
 		//flight activity, only in live adults 
-		if (GetStage() == ADULT && !m_bAlreadyExodus)
+		if (GetStage() == ADULT )//&& !m_bAlreadyExodus
 			m_bExodus = ComputeExodus(weather);
 			
 		if (m_bExodus)
@@ -232,7 +234,7 @@ namespace WBSF
 		//if (m_age >= ADULT + 0.0666)
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
-		if (GetStageAge() > 0.1)
+		if (GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			//brooding
 			double eggLeft = m_Fᴰ - m_totalBroods;
@@ -361,15 +363,12 @@ namespace WBSF
 		{
 			if (IsAlive() || stage == DEAD_ADULT)
 			{
-
 				if (stage >= L2o && stage <= DEAD_ADULT)
 					stat[S_L2o + stage - L2o] += m_scaleFactor;
 
-				if (stage == ADULT && m_sex == FEMALE)
+				if (stage == ADULT && m_sex == FEMALE && GetStageAge() > OVIPOSITING_STAGE_AGE)
 					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 				
-
-				//static const double SEX_RATIO[2] = { 0.3 / 0.7, 1.0 };//humm????
 				static const double SEX_RATIO[2] = { 1.0, 1.0 };//humm????
 
 				if (m_bExodus) 
@@ -428,7 +427,7 @@ namespace WBSF
 		bool bExodus = false;
 
 		//double Pmating = GetMatingProbability(GetStageAge());
-		if (GetStageAge() > 0.1)
+		if (GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			__int64 t° = 0;
 			__int64 tᴹ = 0;
@@ -473,7 +472,7 @@ namespace WBSF
 		//static const double VmaxF[2] = { 1.0, 1.50 };
 		//static const double b[2] = { 21.35, 21.35 };
 		//static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 1.0 };
+		static const double VmaxF[2] = { 1.0, 1.2 };
 		
 		bool bExodus = false;
 
@@ -486,7 +485,7 @@ namespace WBSF
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
 		
-		if ( GetStageAge() > 0.1 && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
+		if (GetStageAge() > OVIPOSITING_STAGE_AGE && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
 			//const double Vmax = 55 * VmaxF[m_sex];
