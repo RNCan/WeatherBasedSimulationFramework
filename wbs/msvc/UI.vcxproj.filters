@@ -55,9 +55,6 @@
     <ClCompile Include="..\src\UI\GraphPropertyDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\LOCEditDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -385,9 +382,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\GraphPropertyDlg.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\UI\LocationVectorCtrl.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\LOCEditDlg.h">

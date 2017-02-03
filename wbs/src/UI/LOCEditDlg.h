@@ -173,13 +173,13 @@ namespace WBSF
 		CFileStamp m_lastFileStamp;
 	};
 
-	class CLocEditDlg : public CDialog
+	class CLocationsFileManagerDlg : public CDialog
 	{
 		// Construction
 	public:
 
-		CLocEditDlg(CWnd* pParent = NULL);   // standard constructor
-		virtual ~CLocEditDlg();
+		CLocationsFileManagerDlg(CWnd* pParent = NULL);   // standard constructor
+		virtual ~CLocationsFileManagerDlg();
 
 
 

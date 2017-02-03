@@ -209,7 +209,7 @@ namespace WBSF
 	void CWeatherGenerationDlg::OnEditLocations()
 	{
 
-		CLocEditDlg	dlg(this);
+		CLocationsFileManagerDlg dlg(this);
 
 		dlg.m_locName = m_locationsNameCtrl.GetWindowText();
 		BOOL bOK = dlg.DoModal() == IDOK;

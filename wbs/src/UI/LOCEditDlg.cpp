@@ -526,9 +526,7 @@ namespace WBSF
 			m_nbStation.Create(_T("0"), WS_CHILD | WS_VISIBLE | WS_EX_TRANSPARENT | SS_LEFT, CRect(), this);
 			m_nbStation.SetFont(GetFont());
 
-			CAppOption option;
-			option.SetCurrentProfile(_T("WindowsPosition"));
-
+			CAppOption option(_T("WindowsPosition"));
 			CRect rect = option.GetProfileRect(_T("LocDlg"), CRect(455, 30, 1200, 500));
 			UtilWin::EnsureRectangleOnDisplay(rect);
 			MoveWindow(rect);
@@ -543,8 +541,7 @@ namespace WBSF
 
 	void CLocDlg::OnDestroy()
 	{
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 
 		CRect curRect;
 		GetWindowRect(curRect);
@@ -714,17 +711,17 @@ namespace WBSF
 	}
 
 	//************************************************************************
-	CLocEditDlg::CLocEditDlg(CWnd* pParent) :
-		CDialog(CLocEditDlg::IDD, pParent)
+	CLocationsFileManagerDlg::CLocationsFileManagerDlg(CWnd* pParent) :
+		CDialog(CLocationsFileManagerDlg::IDD, pParent)
 	{
 	}
 
-	CLocEditDlg::~CLocEditDlg()
+	CLocationsFileManagerDlg::~CLocationsFileManagerDlg()
 	{
 	}
 
 
-	void CLocEditDlg::DoDataExchange(CDataExchange* pDX)
+	void CLocationsFileManagerDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		CDialog::DoDataExchange(pDX);
 		DDX_Control(pDX, IDC_MODELIN_LIST, m_fileListCtrl);
@@ -732,7 +729,7 @@ namespace WBSF
 	}
 
 
-	BEGIN_MESSAGE_MAP(CLocEditDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CLocationsFileManagerDlg, CDialog)
 		ON_MESSAGE(WM_KICKIDLE, OnKickIdle)
 		ON_NOTIFY(ON_BLB_SELCHANGE, IDC_MODELIN_LIST, OnSelChange)
 		ON_NOTIFY(ON_BLB_NAMECHANGE, IDC_MODELIN_LIST, OnSelChange)
@@ -742,17 +739,24 @@ namespace WBSF
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	// CLocEditDlg msg handlers
+	// CLocationsFileManagerDlg msg handlers
 
-	BOOL CLocEditDlg::OnInitDialog()
+	BOOL CLocationsFileManagerDlg::OnInitDialog()
 	{
 		CDialog::OnInitDialog();
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
-		CPoint pt = option.GetProfilePoint(_T("LocEditor"), CPoint(30, 30));
-		UtilWin::EnsurePointOnDisplay(pt);
-		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		CAppOption option(_T("WindowsPosition"));
+		
+		//CPoint pt = option.GetProfilePoint(_T("LocEditor"), CPoint(30, 30));
+		//UtilWin::EnsurePointOnDisplay(pt);
+		//SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		
+		CRect curRect;
+		GetWindowRect(curRect);
+		curRect.MoveToXY(30, 30);
+		CRect rect = option.GetProfileRect(_T("LocFileManager"), curRect);
+		UtilWin::EnsureRectangleOnDisplay(rect);
+		MoveWindow(rect);
 
 		//select current loc input
 		m_fileListCtrl.SelectString(m_locName);
@@ -761,7 +765,7 @@ namespace WBSF
 		return TRUE;  // return TRUE unless you set the focus to a control
 	}
 
-	void CLocEditDlg::UpdateCtrl()
+	void CLocationsFileManagerDlg::UpdateCtrl()
 	{
 
 		BOOL bEnable = m_fileListCtrl.GetSelectedCount() == 1;
@@ -781,12 +785,12 @@ namespace WBSF
 
 	}
 
-	void CLocEditDlg::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
+	void CLocationsFileManagerDlg::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
 	{
 		UpdateCtrl();
 	}
 
-	void CLocEditDlg::OnOK()
+	void CLocationsFileManagerDlg::OnOK()
 	{
 		ERMsg msg;
 
@@ -805,20 +809,24 @@ namespace WBSF
 		CDialog::OnOK();
 	}
 
-	BOOL CLocEditDlg::DestroyWindow()
+	BOOL CLocationsFileManagerDlg::DestroyWindow()
 	{
 		CRect rect;
 		GetWindowRect(rect);
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
-		CPoint pt = rect.TopLeft();
-		option.WriteProfilePoint(_T("LocEditor"), pt);
+		CAppOption option(_T("WindowsPosition"));
+		
+		CRect curRect;
+		GetWindowRect(curRect);
+		option.WriteProfileRect(_T("LocFileManager"), curRect);
+		//CPoint pt = rect.TopLeft();
+		//option.WriteProfilePoint(_T("LocEditor"), pt);
+		
 
 		return CDialog::DestroyWindow();
 	}
 
-	void CLocEditDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)
+	void CLocationsFileManagerDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 	{
 		CDialog::OnActivateApp(bActive, dwThreadID);
 
@@ -827,7 +835,7 @@ namespace WBSF
 
 	}
 
-	LRESULT CLocEditDlg::OnKickIdle(WPARAM w, LPARAM l)
+	LRESULT CLocationsFileManagerDlg::OnKickIdle(WPARAM w, LPARAM l)
 	{
 		return m_fileListCtrl.m_pLocDlg->SendMessage(WM_KICKIDLE, w, l);
 	}
