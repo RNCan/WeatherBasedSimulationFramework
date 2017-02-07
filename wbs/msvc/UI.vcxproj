@@ -92,6 +92,7 @@
     <ClCompile Include="..\src\UI\GraphDefineDlg.cpp" />
     <ClCompile Include="..\src\UI\GraphPropertyDlg.cpp" />
     <ClCompile Include="..\src\UI\ImportDataDlg.cpp" />
+    <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp" />
     <ClCompile Include="..\src\UI\WGInputAnalysisDlg.cpp" />
     <ClCompile Include="..\src\UI\LOCEditDlg.cpp" />
     <ClCompile Include="..\src\UI\LOCGeneratorDlg.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="..\src\UI\GraphDefineDlg.h" />
     <ClInclude Include="..\src\UI\GraphPropertyDlg.h" />
     <ClInclude Include="..\src\UI\ImportDataDlg.h" />
+    <ClInclude Include="..\src\UI\LocationVectorCtrl.h" />
     <ClInclude Include="..\src\UI\WGInputAnalysisDlg.h" />
     <ClInclude Include="..\src\UI\LOCEditDlg.h" />
     <ClInclude Include="..\src\UI\LOCGeneratorDlg.h" />

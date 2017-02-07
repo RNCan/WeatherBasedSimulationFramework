@@ -14,7 +14,8 @@ namespace WBSF
 		CSpruceBudwormDispersal();
 		virtual ~CSpruceBudwormDispersal();
 
-		virtual ERMsg OnExecuteHourly();
+		//virtual ERMsg OnExecuteHourly();
+		virtual ERMsg OnExecuteAtemporal();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		static WBSF::CBioSIMModelBase* CreateObject(){ return new CSpruceBudwormDispersal; }
 

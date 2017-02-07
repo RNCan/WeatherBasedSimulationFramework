@@ -349,6 +349,9 @@
     <ClCompile Include="..\src\UI\ImportDataDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -707,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="..\src\UI\ImportDataDlg.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\LocationVectorCtrl.h">
+      <Filter>UI\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

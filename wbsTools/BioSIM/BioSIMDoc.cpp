@@ -154,12 +154,93 @@ BOOL CBioSIMDoc::OnOpenDocument(LPCTSTR lpszPathName)
 BOOL CBioSIMDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	string filePath = UtilWin::ToUTF8(lpszPathName);
+	bool newProject = !FileExists(filePath);
 	ERMsg msg = GetProject().Save(filePath);
 	if( msg )
 	{
 		m_lastSaveProject=GetProject();
 		GetFileManager().SetProjectPath(GetPath(filePath));
 		GetFileManager().CreateDefaultDirectories();
+		
+		if (newProject)
+		{
+			filePath = GetFileManager().WeatherUpdate().GetFilePath("Download Current Normals Database.Update");
+			if (!FileExists(filePath))
+			{
+				ofStream file;
+				if (file.open(filePath))
+				{
+					file << "<?xml version=\"1.0\" encoding=\"Windows - 1252\"?>" << endl;
+					file << "<WeatherUpdater version=\"2\">" << endl;
+					file << "<Tasks type=\"Tools\">" << endl;
+					file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+					file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+					file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+					file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Local\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
+					file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+					file << "<Parameters name=\"Password\"/>" << endl;
+					file << "<Parameters name=\"Proxy\"/>" << endl;
+					file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Normals/Canada-USA_1981-2010.zip</Parameters>" << endl;
+					file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
+					file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+					file << "<Parameters name=\"UserName\"/>" << endl;
+					file << "</Task>" << endl;
+					file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+					file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+					file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+					file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+					file << "<Parameters name=\"ZipFilepath\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
+					file << "</Task>" << endl;
+					file << "</Tasks>" << endl;
+					file << "</WeatherUpdater>" << endl;
+
+				file.close();
+				}
+			}
+
+			filePath = GetFileManager().WeatherUpdate().GetFilePath("Download Current Daily Database.Update");
+			if (!FileExists(filePath))
+			{
+				ofStream file;
+				if (file.open(filePath))
+				{
+					//
+					file << "<?xml version=\"1.0\" encoding=\"Windows - 1252\"?>" << endl;
+					file << "<WeatherUpdater version=\"2\">" << endl;
+					file << "<Tasks type=\"Tools\">" << endl;
+					file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+					file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+					file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+					file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Local\">tmp\\Canada_2016-2017.zip</Parameters>" << endl;
+					file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+					file << "<Parameters name=\"Password\"/>" << endl;
+					file << "<Parameters name=\"Proxy\"/>" << endl;
+					file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Daily/Canada_2016-2017.zip</Parameters>" << endl;
+					file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
+					file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+					file << "<Parameters name=\"UserName\"/>" << endl;
+					file << "</Task>" << endl;
+					file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+					file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+					file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+					file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+					file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+					file << "<Parameters name=\"ZipFilepath\">tmp\\Canada_2016-2017.zip</Parameters>" << endl;
+					file << "</Task>" << endl;
+					file << "</Tasks>" << endl;
+					file << "</WeatherUpdater>" << endl;
+					file.close();
+				}
+			}
+		}
+		
 		m_bInit = true;
 
 		SaveProjectState(lpszPathName);

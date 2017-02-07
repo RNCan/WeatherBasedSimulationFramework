@@ -25,16 +25,17 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
-	enum Toutput { O_EM, O_EF, O_LM, O_LF, O_AM, O_AF, O_MM, O_MF, O_GF, O_T, O_P, O_W, O_S, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "T,P,Ws,nbMales,nbFemales,Lm,Lf,Am,Af,Mm,Mf,Gf,sunset";
+	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_T, O_P, O_W, O_S, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,sex,L,A,M,G,T,P,W,sunset";
 
 	class CBugStat
 	{
 	public:
 		
 
-		CBugStat(size_t sex, size_t L, double A, double M, double G, double T, double P, double W, double S)
+		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double T, double P, double W, double S)
 		{
+			m_TRef = TRef;
 			m_sex=sex;
 			m_L=L;
 			m_A=A;
@@ -46,6 +47,7 @@ namespace WBSF
 			m_S = S;
 		}
 
+		CTRef m_TRef;
 		size_t m_sex;
 		size_t m_L;
 		double m_A;
@@ -57,7 +59,10 @@ namespace WBSF
 		double m_S;
 
 	};
-	
+
+	static  bool cmp_by_TRef(const CBugStat& i, const CBugStat& j) { return i.m_TRef < j.m_TRef; }
+
+
 	typedef vector<CBugStat> CBugStatVector;
 	typedef map<CTRef, CBugStatVector> CBugStatVectorMap;
 
@@ -86,7 +91,8 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CSpruceBudwormDispersal::OnExecuteHourly()
+	//ERMsg CSpruceBudwormDispersal::OnExecuteHourly()
+	ERMsg CSpruceBudwormDispersal::OnExecuteAtemporal()
 	{
 		ERMsg msg;
 
@@ -115,9 +121,10 @@ namespace WBSF
 
 
 
-		CTPeriod overallPeriod;
+		//CTPeriod overallPeriod;
 
-		CBugStatVectorMap flyers;
+		//CBugStatVectorMap flyers;
+		CBugStatVector flyers;
 
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
@@ -199,11 +206,12 @@ namespace WBSF
 
 											size_t sex = budworm.GetSex();
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											overallPeriod += TRefTmp;
-											flyers[TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
-
-											//budworm.SetStatus(CIndividual::DEAD);
-											//budworm.SetDeath(CIndividual::EXODUS);
+											//overallPeriod += TRefTmp;
+											//flyers[TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
+											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
+											
+											budworm.SetStatus(CIndividual::DEAD);
+											budworm.SetDeath(CIndividual::EXODUS);
 										}//if exodus occurd
 									}//for t in exodus period
 								}//if exodus occur
@@ -219,111 +227,32 @@ namespace WBSF
 		}//for all years
 
 		//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
-		m_output.Init(overallPeriod, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
-
-		////copy stat to output
-		//for (int sex = 0; sex < 2; sex++)
-		//{
-		//	for (CBugStatVectorMap::iterator it = flyers[sex].begin(); it != flyers[sex].end(); it++)
-		//	{
-		//		static const double SEX_RATIO[2] = { 1.0, 1.0 };
-		//		const CBugStatVector& bugs = it->second;
-		//		//randomly select an insect
-		//		//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
-
-		//		//CTRef TRef = it->first;
-		//		//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
-		//		//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
-		//		//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
-		//		//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
-		//		//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
-
-		//		array<CStatistic, NB_OUTPUTS> stats;
-		//		//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
-		//		for (size_t i = 0; i < bugs.size(); i++)
-		//		{
-		//			stats[O_MALES_EXODUS + sex] += bugs.size()*SEX_RATIO[sex];
-		//			stats[O_LM + sex] += bugs[i].m_L;
-		//			stats[O_AM + sex] += bugs[i].m_A;
-		//			stats[O_MM + sex] += bugs[i].m_M;
-		//			if (sex == FEMALE)
-		//				stats[O_GF] += bugs[i].m_G;
-		//			
-		//			stats[O_T] += bugs[i].m_T;
-		//			stats[O_P] += bugs[i].m_P;
-		//			stats[O_W] += bugs[i].m_W;
-		//			stats[O_SUNSET] += bugs[i].m_S;
-		//		}
-
-		//		CTRef TRef = it->first;
-		//		m_output[TRef][O_MALES_EXODUS + sex] = stats[O_MALES_EXODUS + sex];
-		//		m_output[TRef][O_LM + sex] = stats[;
-		//		m_output[TRef][O_AM + sex] = stats[;
-		//		m_output[TRef][O_MM + sex] = stats[;
-		//		m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
-
-		//		
-
-		//		//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
-		//		//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
-		//		//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
-		//		//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
-		//		//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
+		CTPeriod byInsect(CTRef(0, 0, 0, 0, CTM(CTM::ATEMPORAL)), CTRef((int)flyers.size()-1, 0, 0, 0, CTM(CTM::ATEMPORAL)));
+		sort(flyers.begin(), flyers.end(), cmp_by_TRef);
 
 
-		//		//set the other sex to zer0 when not init
-		//		if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
-		//			m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
-		//		
-		//	}
-		//}
+		m_output.Init(byInsect, NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
 
+		
 		//copy stat to output
-		for (CBugStatVectorMap::iterator it = flyers.begin(); it != flyers.end(); it++)
+		for (size_t i = 0; i < flyers.size(); i++)
 		{
-			//for (int sex = 0; sex < 2; sex++)
-			{
-
-				static const double SEX_RATIO[2] = { 1.0, 1.0 };
-				const CBugStatVector& bugs = it->second;
-				//randomly select an insect
-				//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
-
-				//CTRef TRef = it->first;
-				//m_output[TRef][O_MALES_EXODUS + sex] = bugs.size()*SEX_RATIO[sex];
-				//m_output[TRef][O_LM + sex] = bugs[sel].m_L;
-				//m_output[TRef][O_AM + sex] = bugs[sel].m_A;
-				//m_output[TRef][O_MM + sex] = bugs[sel].m_M;
-				//m_output[TRef][O_GF] = (sex == FEMALE) ? bugs[sel].m_G : -999;
-
-				array<CStatistic, NB_OUTPUTS> stats;
-				//size_t sel = m_randomGenerator.Rand(0, int(bugs.size()) - 1);
-				for (size_t i = 0; i < bugs.size(); i++)
-				{
-					size_t sex = bugs[i].m_sex;
-					stats[O_EM + sex] += 1;
-					stats[O_EM + (sex ? 1 : 0)] += 0;
-					stats[O_LM + sex] += bugs[i].m_L;
-					stats[O_AM + sex] += bugs[i].m_A;
-					stats[O_MM + sex] += bugs[i].m_M;
-					if (sex == FEMALE)
-						stats[O_GF] += bugs[i].m_G;
-
-					stats[O_T] += bugs[i].m_T;
-					stats[O_P] += bugs[i].m_P;
-					stats[O_W] += bugs[i].m_W;
-					stats[O_S] += bugs[i].m_S;
-				}
-
-				CTRef TRef = it->first;
-				for (size_t i = 0; i < NB_OUTPUTS; i++)
-					m_output[TRef][i] = stats[i][i < 2 ? SUM : MEAN];
-
-				//set the other sex to zer0 when not init
-				//if (m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] == -999)
-				//m_output[TRef][(sex == MALE) ? O_FEMALES_EXODUS : O_MALES_EXODUS] = 0;
-
-			}
+			CTRef TRef(int(i), 0, 0, 0, CTM(CTM::ATEMPORAL));
+			
+			m_output[TRef][O_YEAR] = flyers[i].m_TRef.GetYear();
+			m_output[TRef][O_MONTH] = flyers[i].m_TRef.GetMonth()+1;
+			m_output[TRef][O_DAY] = flyers[i].m_TRef.GetDay()+1;
+			m_output[TRef][O_HOUR] = flyers[i].m_TRef.GetHour();
+			m_output[TRef][O_MINUTE] = int(flyers[i].m_L/60);
+			m_output[TRef][O_SECOND] = int(flyers[i].m_L - int(flyers[i].m_L / 60)*60);
+			m_output[TRef][O_SEX] = flyers[i].m_sex;
+			m_output[TRef][O_A] = flyers[i].m_A;
+			m_output[TRef][O_M] = flyers[i].m_M;
+			m_output[TRef][O_G] = flyers[i].m_G;
+			m_output[TRef][O_T] = flyers[i].m_T;
+			m_output[TRef][O_P] = flyers[i].m_P;
+			m_output[TRef][O_W] = flyers[i].m_W;
+			m_output[TRef][O_S] = flyers[i].m_S;
 		}
 
 

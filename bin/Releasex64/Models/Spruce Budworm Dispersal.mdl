@@ -39,78 +39,86 @@
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
-    <OutputTypeMode>3 0</OutputTypeMode>
+    <OutputTypeMode>4 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>MaleExodus</Name>
-            <Title>MaleExodus</Title>
-            <Units>Individuals</Units>
-            <Description>Number of exodus male</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>FemaleExodus</Name>
-            <Title>FemaleExodus</Title>
-            <Units>Individuals</Units>
-            <Description>Number of exodus female</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Lm</Name>
-            <Title>Lm</Title>
-            <Units>s</Units>
-            <Description>Male liftoff offset from previous hour</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Lf</Name>
-            <Title>Lf</Title>
-            <Units>s</Units>
-            <Description>Female liftoff offset from previous hour</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Am</Name>
-            <Title>Am</Title>
-            <Units>cm²</Units>
-            <Description>Mean male forewing surface area</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>6</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Af</Name>
-            <Title>Af</Title>
-            <Units>cm²</Units>
-            <Description>Mean female forewing surface area</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>6</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Mm</Name>
-            <Title>Mm</Title>
-            <Units>g</Units>
-            <Description>Mean male dry weight</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>6</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Mf</Name>
-            <Title>Mf</Title>
-            <Units>g</Units>
-            <Description>Mean female dry weight</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>6</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Gf</Name>
-            <Title>Gf</Title>
+            <Name>Year</Name>
+            <Title>Year</Title>
             <Units/>
-            <Description>Female gravidity</Description>
+            <Description>Liftoff year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Month</Name>
+            <Title>Month</Title>
+            <Units/>
+            <Description>Liftoff month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Day</Name>
+            <Title>Day</Title>
+            <Units/>
+            <Description>Liftoff day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Hour</Name>
+            <Title>Hour</Title>
+            <Units/>
+            <Description>Liftoff hour</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Minute</Name>
+            <Title>Minute</Title>
+            <Units/>
+            <Description>Liftoff minutes</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Second</Name>
+            <Title>Second</Title>
+            <Units/>
+            <Description>Liftoff second</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Sex</Name>
+            <Title>Sex</Title>
+            <Units/>
+            <Description>Sex. Male=0, Female=1</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>A</Name>
+            <Title>A</Title>
+            <Units>cm²</Units>
+            <Description>Forewing surface area</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>M</Name>
+            <Title>M</Title>
+            <Units>g</Units>
+            <Description>Dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>G</Name>
+            <Title>G</Title>
+            <Units/>
+            <Description>Gravidity (0=spent, 1=full)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>6</Precision>
         </OutputVariable>
@@ -118,7 +126,7 @@
             <Name>T</Name>
             <Title>T</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Liftoff temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -126,7 +134,7 @@
             <Name>P</Name>
             <Title>P</Title>
             <Units>mm</Units>
-            <Description/>
+            <Description>Liftoff  precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -134,7 +142,7 @@
             <Name>WS</Name>
             <Title>WS</Title>
             <Units>km/h</Units>
-            <Description/>
+            <Description>Liftoff wind speed</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -142,7 +150,7 @@
             <Name>Sunset</Name>
             <Title>Sunset</Title>
             <Units>h</Units>
-            <Description/>
+            <Description>sunset in decimal hour</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
