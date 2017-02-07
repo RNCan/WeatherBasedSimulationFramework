@@ -286,7 +286,7 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		int nbFilesToDownload = 0;
+		
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -294,10 +294,7 @@ namespace WBSF
 		CTRef today = CTRef::GetCurrentTRef();
 
 		vector<array<bool, 12>> bNeedDownload(nbYears);
-
-		//CTPeriod period = String2Period(info.GetSSI("Period"));
-		//if (!period.IsInit())
-			//return msg;
+		size_t nbFilesToDownload = 0;
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
@@ -337,8 +334,9 @@ namespace WBSF
 				}
 			}
 		}
-		
-		callback.PushTask(station.m_name, nbFilesToDownload);
+
+		if (nbFilesToDownload>5)
+			callback.PushTask(station.m_name, nbFilesToDownload);
 
 
 		for (int y = 0; y < nbYears&&msg; y++)
@@ -354,12 +352,15 @@ namespace WBSF
 					CreateMultipleDir(GetPath(filePath));
 
 					msg += CopyStationDataPage(pConnection, station.m_ID, year, m, filePath);
-					msg += callback.StepIt();
+					
+					if (nbFilesToDownload>5)
+						msg += callback.StepIt();
 				}
 			}
 		}
 
-		callback.PopTask();
+		if (nbFilesToDownload>5)
+			callback.PopTask();
 
 
 		return msg;

@@ -425,12 +425,18 @@ namespace UtilWWW
 
 		info.m_size = finder.GetLength();
 
-		//CString test1 = finder.GetFilePath();
-		//CString test2 = finder.GetFileName();
-		if (bHaveWildcard )
-			info.m_filePath = UtilWin::ToUTF8(finder.GetFilePath());
-		else 
-			info.m_filePath = UtilWin::ToUTF8(finder.GetFileName());
+		CString test1 = finder.GetFilePath();
+		CString test2 = finder.GetFileName();
+		if (!UtilWin::GetPath(test1).IsEmpty())
+			info.m_filePath = UtilWin::ToUTF8(test1);
+		else if (!UtilWin::GetPath(test2).IsEmpty())
+			info.m_filePath = UtilWin::ToUTF8(test2);
+		else
+			info.m_filePath = UtilWin::ToUTF8(test1);
+		//if (bHaveWildcard )
+			//info.m_filePath = UtilWin::ToUTF8(finder.GetFilePath());
+		//else 
+			//info.m_filePath = UtilWin::ToUTF8(finder.GetFileName());
 
 
 		info.m_attribute = 0;

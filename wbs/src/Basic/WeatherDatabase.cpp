@@ -1480,7 +1480,7 @@ int CDHDatabaseBase::GetVersion(const std::string& filePath)
 
 
 
-ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback)
+ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, bool bCopy, CCallback& callback)
 {
 	ASSERT(IsOpen());
 
@@ -1512,9 +1512,11 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 				std::string oldDataFilePath = inputPath1 + fileName;
 				std::string newDataFilePath1 = outputPath + fileName;
 				std::string newDataFilePath2 = GenerateNewFileName(newDataFilePath1);
-
-				//msg += RenameFile(oldDataFilePath, newDataFilePath2);
-				msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
+				
+				if (bCopy)
+					msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
+				else
+					msg += RenameFile(oldDataFilePath, newDataFilePath2);
 
 				if (newDataFilePath1 != newDataFilePath2)
 				{
@@ -1534,7 +1536,10 @@ ERMsg CDHDatabaseBase::AppendDatabase(const std::string& inputFilePath1, const s
 				std::string newDataFilePath2 = GenerateNewFileName(newDataFilePath1);
 
 				//msg += RenameFile(oldDataFilePath, newDataFilePath2);
-				msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
+				if (bCopy)
+					msg += CopyOneFile(oldDataFilePath, newDataFilePath2, false);
+				else
+					msg += RenameFile(oldDataFilePath, newDataFilePath2);
 
 				if (newDataFilePath1 != newDataFilePath2)
 				{

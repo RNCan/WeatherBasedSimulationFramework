@@ -246,6 +246,12 @@ namespace WBSF
 				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN2);
 				ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
 			}
+			if (vars[H_TAIR2] && correction.m_variables[H_TAIR2])
+			{
+				//it's temperature correction
+				//me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN2);
+				//ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
+			}
 			if (vars[H_TMAX2] && correction.m_variables[H_TMAX2])
 			{
 				//it's temperature correction
@@ -261,6 +267,11 @@ namespace WBSF
 				//if (me[m][PRCP_TT] < 0)
 				//me[m][PRCP_TT] = 0;
 			}
+
+			//add normal atmospheric pressure, wind direction
+			if (vars[H_PRES] && correction.m_variables[H_PRES])
+			{
+			}
 		}
 	}
 
@@ -272,7 +283,6 @@ namespace WBSF
 
 		for (CNormalsStationVector::iterator it = begin(); it != end(); it++)
 		{
-			//CWeatherCorrection correction = gradients.GetCorrection(target, *it);
 			it->ApplyCorrections(correction);
 		}
 	}
@@ -283,7 +293,6 @@ namespace WBSF
 		{
 			if (variables[v])
 			{
-				//short cat = category.GetCat(c);
 				weight[v].resize(size());
 
 				double distSum = 0;

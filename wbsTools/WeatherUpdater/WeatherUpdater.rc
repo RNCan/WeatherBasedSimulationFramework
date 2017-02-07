@@ -109,6 +109,7 @@ BEGIN
 	BUTTON      ID_TASK_NEWBRUNSWICK
 	BUTTON      ID_TASK_ONTARIO
 	BUTTON      ID_TASK_NEWA
+	BUTTON      ID_UPDATER_MISCELLANEOUS
     SEPARATOR
     BUTTON      ID_TASK_DELETE
 END
@@ -174,6 +175,7 @@ BEGIN
 	BUTTON		ID_TASK_NEWBRUNSWICK
 	BUTTON		ID_TASK_ONTARIO
 	BUTTON      ID_TASK_NEWA
+	BUTTON      ID_UPDATER_MISCELLANEOUS
 	BUTTON      ID_TASK_CMIP5
 	BUTTON		ID_TASK_GPCP
 	BUTTON      ID_TASK_HRG
@@ -640,7 +642,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Méthode|Typede Gribs"
+    IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type"
     IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
     IDS_UPDATER_EC_PRCP_RADAR_P 
                             "Répertoire de travail|Type"
@@ -664,7 +666,7 @@ BEGIN
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Répertoire de travail|Première année|Dernière année|Télécharger pendant x jours"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_OTHER_DOWNLOADER_P "Répertoire de travail"
+	IDS_UPDATER_MISCELLANEOUS_P "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
     IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
 END
@@ -732,6 +734,7 @@ BEGIN
 	ID_TASK_NEWBRUNSWICK	"Télécharger les données du Nouveau Brunswick\nNouveau Brunswick"
 	ID_TASK_ONTARIO			"Télécharger les données de l'Ontario\nOntario"
 	ID_TASK_NEWA			"Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nNEWA"
+	ID_UPDATER_MISCELLANEOUS"Télécharger les données de diverse provenances\nVariés"
 	ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille RUC/RAP"
 	ID_TASK_CMIP5			"Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
 	ID_TASK_GPCP			"Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
@@ -1080,7 +1083,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Working directory|Method|Gribs type"
+    IDS_UPDATER_EC_FORECAST_P "Working directory|Type"
     IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_NOAA_GHCND_P 
@@ -1103,6 +1106,7 @@ BEGIN
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Working directory|First year|Last year|Update until x days"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First year|Last year"
+	IDS_UPDATER_MISCELLANEOUS_P "Working directory|Dataset|First year|Last year|Show progression"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
     IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
 END
@@ -1171,6 +1175,7 @@ BEGIN
 	ID_TASK_NEWBRUNSWICK	"Download New Brunswick weather data\nNew Brunswick"
 	ID_TASK_ONTARIO			"Download Ontario weather data\nOntario"
 	ID_TASK_NEWA			"Download Network for Environment and Weather Applications (NEWA)\nNEWA"
+	ID_UPDATER_MISCELLANEOUS"Download data from miscellaneous sources\nMiscellaneous"
 	ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
 	ID_TASK_CMIP5			"Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
 	ID_TASK_GPCP			"Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"

@@ -8,8 +8,8 @@ namespace WBSF
 	{
 	public:
 
-
-		enum TAttributes { INPUT_FILEPATH_1, INPUT_FILEPATH_2, OUTPUT_FILEPATH, NB_ATTRIBUTES };
+		enum TMoveCopy { COPY, MOVE };
+		enum TAttributes { INPUT_FILEPATH_1, INPUT_FILEPATH_2, OUTPUT_FILEPATH, COPY_MOVE, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CAppendWeather); }

@@ -26,7 +26,7 @@ namespace WBSF
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
 	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_T, O_P, O_W, O_S, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,sex,L,A,M,G,T,P,W,sunset";
+	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,T,P,W,sunset";
 
 	class CBugStat
 	{

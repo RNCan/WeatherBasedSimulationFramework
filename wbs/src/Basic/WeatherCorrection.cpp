@@ -42,14 +42,6 @@ namespace WBSF
 	{
 		return (v == HOURLY_DATA::H_PRCP) ? 1 : 0;
 	}
-	/*double CWeatherCorrections::GetCorrectionB0(const CLocation& pt, CTRef TRef, size_t v)const
-	{
-		return 0;
-	}
 	
-	double CWeatherCorrections::GetCorrectionB1(const CLocation& pt, CTRef TRef, size_t v)const
-	{
-		return 1;
-	}*/
 
 }

@@ -219,7 +219,7 @@ namespace WBSF
 		m_bExodus = false;
 
 		//flight activity, only in live adults 
-		if (GetStage() == ADULT )//&& !m_bAlreadyExodus
+		if (GetStage() == ADULT && !m_bAlreadyExodus)//
 			m_bExodus = ComputeExodus(weather);
 			
 		if (m_bExodus)
@@ -381,15 +381,8 @@ namespace WBSF
 				if (stage == ADULT && IsChangingStage() )
 					stat[S_MALE_EMERGENCE + m_sex] += m_scaleFactor;
 
-				//if (m_bAlreadyExodus)
-			}
-			//else
-			//{
-			//	if (stage == DEAD_ADULT) 
-			//		stat[S_DEAD_ADULT] += m_scaleFactor;
-			//}
-
 				
+			}
 		}
 		else if (m_generation == 1)
 		{
@@ -427,7 +420,7 @@ namespace WBSF
 		bool bExodus = false;
 
 		//double Pmating = GetMatingProbability(GetStageAge());
-		if (GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (m_sex==MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			__int64 t° = 0;
 			__int64 tᴹ = 0;
@@ -485,7 +478,7 @@ namespace WBSF
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
 		
-		if (GetStageAge() > OVIPOSITING_STAGE_AGE && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
+		if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = 65 * VmaxF[m_sex];
 			//const double Vmax = 55 * VmaxF[m_sex];

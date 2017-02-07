@@ -150,8 +150,8 @@ namespace WBSF
 
 	namespace GRADIENT
 	{
-		enum TGradient{ TMIN_GR, TMAX_GR, PRCP_GR, TDEW_GR, NB_GRADIENT };
-		enum TGradientEx{ TAIR_GR_EX, TRNG_GR_EX, PRCP_GR_EX, TDEW_GR_EX, NB_GRADIENT_EX };
+
+		enum TGradient{ TMIN_GR, TAIR_GR, TMAX_GR, PRCP_GR, TDEW_GR, NB_GRADIENT };
 		enum TSpace{ X_GR, Y_GR, Z_GR, NB_SPACE, D_SHORE = NB_SPACE, S_GR = D_SHORE, NB_SPACE_EX };
 
 

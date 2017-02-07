@@ -14,8 +14,9 @@ namespace WBSF
 {
 
 	//*********************************************************************
-	const char* CAppendWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilePath" };
-	const size_t CAppendWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH };
+	
+	const char* CAppendWeather::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "InputFilepath1", "InputFilepath2", "OutputFilePath", "CopyMove" };
+	const size_t CAppendWeather::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_COMBO_INDEX };
 	const UINT CAppendWeather::ATTRIBUTE_TITLE_ID = IDS_TOOL_APPEND_DB_P;
 	const UINT CAppendWeather::DESCRIPTION_TITLE_ID = ID_TASK_APPEND_DB;
 	
@@ -38,6 +39,7 @@ namespace WBSF
 		case INPUT_FILEPATH_1:	
 		case INPUT_FILEPATH_2:	
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_OBSERVATION); break;
+		case COPY_MOVE: str = "Copy|Move";
 		};
 
 
@@ -75,7 +77,7 @@ namespace WBSF
 				msg = DB.Open(outputFilePath, CDailyDatabase::modeWrite, callback);
 				if (msg)
 				{
-					msg = DB.AppendDatabase(inputFilePath1, inputFilePath2, callback);
+					msg = DB.AppendDatabase(inputFilePath1, inputFilePath2, as<int>(COPY_MOVE) == COPY, callback);
 					msg += DB.Close();
 					if (msg)
 					{
@@ -97,7 +99,7 @@ namespace WBSF
 				msg = DB.Open(outputFilePath, CHourlyDatabase::modeWrite, callback);
 				if (msg)
 				{
-					msg = DB.AppendDatabase(inputFilePath1, inputFilePath2, callback);
+					msg = DB.AppendDatabase(inputFilePath1, inputFilePath2, as<int>(COPY_MOVE) == COPY, callback);
 					msg += DB.Close();
 					if (msg)
 					{

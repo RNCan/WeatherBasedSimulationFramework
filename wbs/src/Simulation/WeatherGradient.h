@@ -28,9 +28,9 @@ namespace WBSF
 
 	typedef std::array<double, GRADIENT::NB_SPACE_EX> CGradientSpace;
 	typedef std::array<CGradientSpace, 12> CGradientYear;
-	typedef std::array<CGradientYear, GRADIENT::NB_GRADIENT_EX> CGradientVariables;
+	typedef std::array<CGradientYear, GRADIENT::NB_GRADIENT> CGradientVariables;
 	typedef std::array < CGradientVariables, NB_SCALE_GRADIENT> CScaledGradient;
-	typedef std::array < std::array < CGradientSpace, GRADIENT::NB_GRADIENT_EX >, NB_SCALE_GRADIENT> CGradientFactor;
+	typedef std::array < std::array < CGradientSpace, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> CGradientFactor;
 	typedef std::array < double, 12> CGradientR²;
 	typedef std::array <CStatistic, 12> CGradientS°;
 
@@ -64,7 +64,7 @@ namespace WBSF
 
 		const double& operator ()(size_t z, size_t g, size_t m, size_t s)const
 		{
-			ASSERT(z < NB_SCALE_GRADIENT && m < 12 && g < GRADIENT::NB_GRADIENT_EX && s < GRADIENT::NB_SPACE_EX);
+			ASSERT(z < NB_SCALE_GRADIENT && m < 12 && g < GRADIENT::NB_GRADIENT && s < GRADIENT::NB_SPACE_EX);
 			return m_gradient[z][g][m][s];
 		}
 
@@ -95,8 +95,8 @@ namespace WBSF
 		CNormalsDatabasePtr m_pNormalDB;
 		CScaledGradient m_gradient;
 		CGradientFactor m_factor;
-		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT_EX >, NB_SCALE_GRADIENT> m_R²;
-		std::array <std::array <CGradientS°, GRADIENT::NB_GRADIENT_EX >, NB_SCALE_GRADIENT> m_S°;
+		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_R²;
+		std::array <std::array <CGradientS°, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_S°;
 		
 		//for optimization
 		//std::map<CGeoPoint3D, double> m_shoreCache;
@@ -104,16 +104,16 @@ namespace WBSF
 
 
 		static CApproximateNearestNeighborPtr m_pShore;
-		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT_EX][12][GRADIENT::NB_SPACE_EX];
-		static const CGradientS° GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT_EX];
+		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
+		static const CGradientS° GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
 		static const size_t NB_S_MAX[NB_HEMISPHERE];
 		static const CGeoRect DEFAULT_RECT[NB_HEMISPHERE];
 
 
 		static const double A[NB_SCALE_GRADIENT];
 		static const double B[NB_SCALE_GRADIENT];
-		static const double F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX];
-		static const double F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX];
+		static const double F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT];
+		static const double F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT];
 
 	};
 

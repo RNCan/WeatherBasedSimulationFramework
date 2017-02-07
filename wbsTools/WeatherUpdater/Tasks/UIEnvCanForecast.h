@@ -18,9 +18,9 @@ namespace WBSF
 	{
 	public:
 
-		enum TMethos { M_METEO_CODE, M_GRIBS, M_BOTH, NB_METHODS};
-		enum TGribsType{ GT_HRDPS, GT_RDPS, NB_GRIBS_TYPE};
-		enum TAttributes { WORKING_DIR, METHOD, GRIBS_TYPE, NB_ATTRIBUTES };
+		//	enum TMethos { M_METEO_CODE, M_GRIBS, M_BOTH, NB_METHODS};
+		enum TGribsType{ T_METEO_CODE, T_HRDPS, T_RDPS, NB_GRIBS_TYPE };
+		enum TAttributes { WORKING_DIR, TYPE, NB_ATTRIBUTES };
 
 
 		static const char* CLASS_NAME();

@@ -343,50 +343,6 @@ double GetL(double Tair)
 }
 
 
-//Relative humidity [%] to dew point [°C]
-//Excel formula: =Min( T, (1/(1/(T+273.15) - (461*ln(max(0.0,Min(100,RH))/100))/2.5E6))-273.15)
-
-//Tair:	temperature of dry bulb	[°C]
-//Hr:	relative humidity		[%]
-double Hr2Td(double Tair, double Hr)
-{
-	_ASSERTE(Tair>-999);
-	_ASSERTE(Hr >= 0 && Hr <= 101);
-	Hr = max(1.0, Hr);//limit to avoid division by zero
-
-	double L = GetL(Tair);	//(J/kg)
-
-	//static const double L = 2.453E6;
-	static const double Rv = 461; //constant for moist air (J/kg)
-	
-	double T = Tair+273.15;
-	double Td = 1 / (1 / T - (Rv*log(Hr / 100)) / L);
-
-
-	_ASSERTE( Td-273.15>-99 && Td-273.15 < 99);
-	return min(Tair, Td - 273.15);
-}
-
-//Dew point teprature [°C] to relative humidity [%]
-//Excel formula:   =max(0.0,  Min(100, exp( 2.5E6/461*(1/(T+273.15) - 1/Min(T+273.15, Td+273.15)))*100))
-
-//Tair:	Temperature of dry bulb	[°C]
-//Tdew:	Dew point temperature	[°C]
-double Td2Hr(double Tair, double Tdew)
-{
-	double L = GetL(Tair);			//J/kg
-	//static const double L = 2.453E6;
-	static const double Rv = 461;	//J/kg
-	
-	double T = Tair + 273.15;
-	double Td = min(T, Tdew+273.15);
-	double Hr = exp( L/Rv*(1/T - 1/Td));
-
-	_ASSERTE(Hr>=0 && Hr<=1);
-
-	return Hr*100;
-}
-
 
 void GetWindUV(double windSpeed, double windDir, double& U, double &V, bool from)
 {
@@ -438,61 +394,71 @@ double e°(double Tmin, double Tmax)
 	return (e°(Tmax) + e°(Tmin)) / 2;
 }
 
-//A nice review and evaluation of many of these is given by Gibbins (1990).
-//Alduchov and Eskridge (1996) have evaluated this expression based on contemporary vapor
-//pressure measurements and recommend the following values for the coefficients:
-//A1 = 17.625, B1 =243.04°C, and C1 = 0.61094 kPa. These provide values
-//for es with a relative error of < 0.4% over the range [-40°C,50°C].
-//double GetEs(double t)
-//{
-//	static const double A1 = 17.625;
-//	static const double B1 = 243.04;		//[°C]
-//	static const double C1 = 0.61094;	//[kPa]
-//
-//	return C1*exp((A1*t) / (t + B1));
-//}
+//Relative humidity [%] to dew point [°C]
+//Excel formula: =Min( T, (1/(1/(T+273.15) - (461*ln(max(0.0,Min(100,RH))/100))/2.5E6))-273.15)
+
+//Tair:	temperature of dry bulb	[°C]
+//Hr:	relative humidity		[%]
+double Hr2Td(double Tair, double Hr)
+{
+	_ASSERTE(Tair>-999);
+	_ASSERTE(Hr >= 0 && Hr <= 101);
+	Hr = max(1.0, Hr);//limit to avoid division by zero
+
+	double L = GetL(Tair);	//(J/kg)
+
+	//static const double L = 2.453E6;
+	static const double Rv = 461; //constant for moist air (J/kg)
+
+	double T = Tair + 273.15;
+	double Td = 1 / (1 / T - (Rv*log(Hr / 100)) / L);
 
 
+	_ASSERTE(Td - 273.15>-99 && Td - 273.15 < 99);
+	return min(Tair, Td - 273.15);
+}
 
+//Dew point teprature [°C] to relative humidity [%]
+//Excel formula:   =max(0.0,  Min(100, exp( 2.5E6/461*(1/(T+273.15) - 1/Min(T+273.15, Td+273.15)))*100))
 
+//Tair:	Temperature of dry bulb	[°C]
+//Tdew:	Dew point temperature	[°C]
+double Td2Hr(double Tair, double Tdew)
+{
+	double L = GetL(Tair);			//J/kg
+	static const double Rv = 461;	//J/kg
 
-////Get saturated vapor pressure of water [Pa]
-////http://en.wikipedia.org/wiki/Density_of_air
-////Tair:		Dry bulb temperature	[°C]
-//double GetPsat(double Tair)
-//{
-//	double e =(7.5*(273.18+Tair)-2048.625)/((273.18+Tair)-35.85);
-//	return	pow(10, e);//vapor pressur [pascal]
-//
-//
-////	Vapor pressure of water (hPa)
-////e=a0 + T*(a1 + T*(a2 + T*(a3 + T*(a4 + T*(a5 + T*a6)))))
-////from Lowe, P.R. and J.M. Ficke, 1974: The computation of saturation vapor pressure. Tech.
-////Paper No. 4-74, Environmental Prediction Research Facility, Naval Postgraduate School,
-////Monterey, CA, 27 pp.
-////water					ice
-////a0 6.107799961		6.109177956
-////a1 4.436518521·10-1	5.034698970·10-1
-////a2 1.428945805·10-2	1.886013408·10-2
-////a3 2.650648471·10-4	4.176223716·10-4
-////a4 3.031240396·10-6	5.824720280·10-6
-////a5 2.034080948·10-8	4.838803174·10-8
-////a6 6.136820929·10-11	1.838826904·10-10
-////e = min (ewater, eice) ,-50 C ≤ Τ ≤ 100 C
-//
-//
-//}
-//
-//
+	double T = Tair + 273.15;
+	double Td = min(T, Tdew + 273.15);
+	double Hr = exp(L / Rv*(1 / T - 1 / Td));
 
-static const double Ra = 287.058;// Specific gas constant for dry air J/(kg·K)
-static const double Rw = 461.495;// Specific gas constant for water vapor J/(kg·K)
+	_ASSERTE(Hr >= 0 && Hr <= 1);
+
+	return Hr * 100;
+}
+
+static const double Ra = 287.058; // Specific gas constant for dry air J/(kg·K)
+static const double Rw = 461.495; // Specific gas constant for water vapor J/(kg·K)
 static const double Ma = 0.028964;//Molar mass of dry air,  kg/mol
 static const double Mw = 0.018016;//Molar mass of water vapor,  kg/mol
-static const double R = 8.314;	//Universal gas constant J/(K·mol)
-static const double M = Mw / Ma; // 0.6220135
+static const double R = 8.314;	  //Universal gas constant J/(K·mol)
+static const double M = Mw / Ma;  // 0.6220135
 
+//Td : dew point temperature [°C]
+//Pv : vapor pressure [kPa]
+double Td2Pv(double Td)
+{
+	//return e°(Td) * 1000;
+	//from : http://www.conservationphysics.org/atmcalc/atmoclc2.pdf
+	return 0.61078 * exp(17.2694*Td / (Td + 238.3));
+}
 
+//Pv : vapor pressure [kPa]
+//Td : dew point temperature [°C]
+double Pv2Td(double Pv)
+{
+	//from : http://www.conservationphysics.org/atmcalc/atmoclc2.pdf
+	return (241.88 * log(Pv / 0.61078)) / (17.558 - log(Pv / 0.61078));}
 
 //mixing ratio (  kg[H2O]/kg[dry air] ) to specific humidity ( g[H2O]/kg[air] )
 //MR:  g[H2O]/kg[dry air] 
@@ -573,30 +539,23 @@ double Hr2Hs(double Tmin, double Tmax, double Hr)
 	return Pv2Hs(Pv);
 }
 
-
+//Pv : vapor pressure [Pa]
 double Pv2Hr(double Tair, double Pv)
 {
 	double Psat = e°(Tair) * 1000;
 	double Hr = 100 * Pv / Psat;
 
-	//double Psat = GetPsat(Tair);				//Saturated vapor pressure of water [Pa]
-	//double Hr = 100*Pv / Psat;
-
 	return max(0.0, min(100.0, Hr));
 }
 
+
+//Pv : vapor pressure [Pa]
 double Hr2Pv(double Tair, double Hr)
 {
 	ASSERT(Hr >= 0 && Hr <= 100);
-
 	
 	double Psat = e°(Tair)*1000;
 	double Pv = Hr*Psat / 100;
-	
-
-
-	//double Psat = GetPsat(Tair);				//Saturated vapor pressure of water [Pa]
-	//double Pv = Hr*Psat / 100;
 
 	return Pv;
 }
@@ -678,7 +637,7 @@ double Td2Hs(double Tair, double Td)
 //Wet-Bulb Temperature from Relative Humidity and Air Temperature
 //ROLAND STULL
 //University of British Columbia, Vancouver, British Columbia, Canada
-double GetWetBulbT(double T, double RH)
+double Hr2Twb(double T, double RH)
 {
 	ASSERT( RH>=0 && RH<=100);
 
@@ -689,7 +648,7 @@ double GetWetBulbT(double T, double RH)
 //Relative humidity from temperature and wet bulb temperature
 //Tair: dry bulb temperature of air [°C]
 //Twb : wet bulb temperature [°C]
-double GetHr(double Tair, double Twet)
+double Twb2Hr(double Tair, double Twet)
 {
 	static const double Cp=1.005;	//specific heat of dry air at constant pressure(J/g) ~1.005 J/g
 	static const double Cpv=4.186;	//specific heat of water vapor at constant pressure(J/g) ~4.186 J/g

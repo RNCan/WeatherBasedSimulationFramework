@@ -524,7 +524,8 @@ namespace WBSF
 					}
 					else
 					{
-						return false;
+						//return false;
+						//skip only unknown task type
 					}
 				}
 			}

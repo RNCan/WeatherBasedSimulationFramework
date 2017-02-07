@@ -26,6 +26,7 @@
 #include "Tasks/UINewBrunswick.h"
 #include "Tasks/UIOntario.h"
 #include "Tasks/UINEWA.h"
+#include "Tasks/UIMiscellaneous.h"
 #include "Tasks/UICMIP5.h"
 #include "Tasks/UIGPCP.h"
 #include "Tasks/UIHighResolutionGribs.h"
@@ -331,6 +332,7 @@ string CTaskWnd::ClassName(UINT ID)
 	case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
 	case ID_TASK_ONTARIO:		className = CUIOntario::CLASS_NAME(); break;
 	case ID_TASK_NEWA:			className = CUINEWA::CLASS_NAME(); break;
+	case ID_UPDATER_MISCELLANEOUS:className = CUIMiscellaneous::CLASS_NAME(); break;
 	case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
 	case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
 	case ID_TASK_HRG:			className = CUIHighResolutionGribs::CLASS_NAME(); break;

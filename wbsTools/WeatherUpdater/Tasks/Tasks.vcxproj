@@ -179,6 +179,7 @@
     <ClInclude Include="UINEWA.h" />
     <ClInclude Include="UINewBrunswick.h" />
     <ClInclude Include="UIOntario.h" />
+    <ClInclude Include="UIMiscellaneous.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
     <ClInclude Include="EnvCanLocationMap.h" />
     <ClInclude Include="GSODStationOptimisation.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="UINEWA.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
     <ClCompile Include="UIOntario.cpp" />
+    <ClCompile Include="UIMiscellaneous.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
     <ClCompile Include="EnvCanLocationMap.cpp" />
     <ClCompile Include="GSODStationOptimisation.cpp" />

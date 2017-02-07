@@ -48,7 +48,7 @@ namespace WBSF
 	{
 		ASSERT(i < NB_GRADIENT);
 
-		static const char* GRADIENT_NAME[NB_GRADIENT] = { "Tmin", "Tmax", "Prcp", "Tdew" };
+		static const char* GRADIENT_NAME[NB_GRADIENT] = { "Tmin", "Tair", "Tmax", "Prcp", "Tdew" };
 		return GRADIENT_NAME[i];
 	}
 
@@ -80,16 +80,18 @@ namespace WBSF
 	const double CWeatherGradient::PPT_FACTOR = 1;
 
 	//mean precipitation [mm]
-	const CGradientS° CWeatherGradient::GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT_EX] =
+	const CGradientS° CWeatherGradient::GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT] =
 	{ 
 		{//Southern
 			{ { +16.542, +16.354, +15.253, 13.448, 11.441, +9.698, +9.036, +9.703, 11.273, 13.084, +14.695, +15.897 } },
+			{ { +23.628, +23.326, +22.190, 20.209, 17.937, 16.020, 15.460, 16.492, 18.291, 20.197, 21.7605, +22.939 } },
 			{ { +30.713, +30.298, +29.127, 26.971, 24.433, 22.343, 21.885, 23.281, 25.308, 27.310, +28.826, +29.981 }},
 			{ { 151.782, 140.296, 134.342, 98.112, 72.718, 54.398, 47.419, 43.453, 52.628, 75.942, 100.170, 132.733 }},
 			{ { +16.002, +16.295, +15.324, 13.567, 11.586, +9.838, +8.771, +8.843, 10.040, 11.683, +13.407, +14.906 }},
 		},
 		{//Northern
 			{ { -6.038, -4.805, -0.978, +4.044, +8.912, 12.928, 15.215, 14.522, 10.942, +5.971, +0.127, -4.434 }},
+			{ { -1.206, +0.387, +4.543, +9.842, 14.853, 18.886, 21.159, 20.416, 16.606, 11.200, +4.904, +0.213 } },
 			{ { +3.627, +5.579, 10.064, 15.640, 20.794, 24.843, 27.103, 26.310, 22.269, 16.429, +9.681, +4.861 }},
 			{ { 51.805, 45.060, 51.343, 54.667, 69.800, 82.311, 87.544, 84.614, 77.041, 69.883, 63.566, 57.252 }},
 			{ { -4.768, -4.020, -0.823, +3.223, +7.819, 11.967, 14.473, 14.160, 10.863, +6.239, +0.975, -3.173 } },
@@ -102,24 +104,24 @@ namespace WBSF
 
 	const double CWeatherGradient::A[NB_SCALE_GRADIENT] = { 2, 4, 8 };
 	const double CWeatherGradient::B[NB_SCALE_GRADIENT] = { 4, 8, 16 };
-	const double CWeatherGradient::F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX] =
-	{// Tmin Tmax prcp Tdew
-		{ 050, 050, 010, 050},	//local
-		{ 150, 150, 035, 150},	//Regional
-		{ 999, 999, 999, 999},	//continental
+	const double CWeatherGradient::F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT] =
+	{// Tmin Tair Tmax prcp Tdew
+		{ 050, 050, 050, 010, 050 },	//local
+		{ 150, 150, 150, 035, 150 },	//Regional
+		{ 999, 999, 999, 999, 999 },	//continental
 	};
 	
-	const double CWeatherGradient::F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT_EX] =
-	{// Tmin Tmax prcp Tdew
-		{ 050, 050, 025, 050 },	//local
-		{ 300, 300, 075, 300 },	//Regional
-		{ 999, 999, 999, 999 },	//continental
+	const double CWeatherGradient::F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT] =
+	{// Tmin Tair Tmax prcp Tdew
+		{ 050, 050, 050, 025, 050 },	//local
+		{ 300, 300, 300, 075, 300 },	//Regional
+		{ 999, 999, 999, 999, 999 },	//continental
 	};
 
 	
 
 	//compute from 5000 stations in North Hemisphere and 1000 station in South Hemisphere
-	const double CWeatherGradient::DEFAULT_GRADIENTS[NB_HEMISPHERE][NB_GRADIENT_EX][12][NB_SPACE_EX] =
+	const double CWeatherGradient::DEFAULT_GRADIENTS[NB_HEMISPHERE][NB_GRADIENT][12][NB_SPACE_EX] =
 	{
 		{//Southern
 			{//Tmin
@@ -135,6 +137,20 @@ namespace WBSF
 				{ +0.0667, +4.3891, -4.1228, -0.5486 },
 				{ +0.1088, +3.6354, -4.0136, +0.0820 },
 				{ +0.1297, +2.9928, -3.9880, +0.4030 },
+			},
+			{//Tair
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
 			},
 			{//Tmax
 				{ +0.0369, +3.8202, -4.1570, +7.1764 },
@@ -194,6 +210,21 @@ namespace WBSF
 				{ -0.0923, -5.9076, -3.6701, -5.0017 },
 				{ -0.1329, -6.5246, -3.1865, -7.3437 },
 			},
+			{//Tair
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+				{ +0.0000, +0.0000, +0.0000, +0.0000 },
+			},
+
 			{//Tmax
 				{ -0.2587, -7.8254, -2.3254, -5.4359 },
 				{ -0.2462, -7.8073, -2.5248, -3.6357 },
@@ -337,7 +368,7 @@ namespace WBSF
 	
 	void CWeatherGradient::reset()
 	{
-		ASSERT(NB_GRADIENT_EX == 4);
+		ASSERT(NB_GRADIENT == 5);
 		ASSERT(NB_SPACE_EX == 4);
 
 		CWeatherCorrections::reset();
@@ -349,7 +380,7 @@ namespace WBSF
 	{
 		for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 		{
-			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+			for (size_t g = 0; g < NB_GRADIENT; g++)
 			{
 				m_factor[z][g].fill(0);
 				m_R²[z][g].fill(0);
@@ -503,15 +534,10 @@ namespace WBSF
 
 		size_t nbSpaces = GetNbSpaces();
 
-		//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-		//	for (size_t g = 0; g < NB_GRADIENT_EX; g++)
-		//		m_factor[z][g].fill(0);
-		
-
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
 			size_t g = V2G(v);
-			if (m_variables[v] && g<NB_GRADIENT_EX)
+			if (m_variables[v] && g<NB_GRADIENT && g!=1)
 			{
 				for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
 				{
@@ -692,7 +718,7 @@ namespace WBSF
 
 		double delta = GetDistance(s, m_target, station) / 1000; //1000 km or 1000 m
 
-		if (g == TMIN_GR || g == TMAX_GR)
+		if (g == TMIN_GR || g == TAIR_GR || g == TMAX_GR)
 		{
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 				correction += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
@@ -749,11 +775,6 @@ namespace WBSF
 				double p = (sin(2 * PI*TRef.GetHour() / 24.0) + 1) / 2;//full Tmin gradient at 6:00 and full Tmax gradient at 18:00
 				assert(p >= 0 && p <= 1);
 
-				/*if (v == H_TMIN2)
-					correction = cTmin*p;
-				else if (H_TMAX2)
-					correction = cTmax*(1 - p);
-				else */
 				correction = cTmin*p + cTmax*(1 - p);
 
 			}
@@ -761,6 +782,7 @@ namespace WBSF
 			{
 				if (v == H_TAIR2)
 				{
+					//pour l'instant je laisse les gradients moyen, mais a changer pour le gradient Tair  : ajouter Tair Pres dans normals
 					for (size_t s = 0; s < GetNbSpaces(); s++)
 						correction += (GetCorrectionII(station, m, TMIN_GR, s) + GetCorrectionII(station, m, TMAX_GR, s)) / 2;
 				}
@@ -800,7 +822,7 @@ namespace WBSF
 
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			{
-				for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+				for (size_t g = 0; g < NB_GRADIENT; g++)
 				{
 					for (size_t m = 0; m < 12; m++)
 					{
@@ -828,7 +850,7 @@ namespace WBSF
 			file2.write("gradient,space,f1,f2,f3\n");
 
 			
-			for (size_t g = 0; g < NB_GRADIENT_EX; g++)
+			for (size_t g = 0; g < NB_GRADIENT; g++)
 			{
 				for (size_t s = 0; s < NB_SPACE_EX; s++)
 				{

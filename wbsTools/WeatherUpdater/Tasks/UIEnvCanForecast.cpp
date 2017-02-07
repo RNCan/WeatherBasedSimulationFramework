@@ -16,8 +16,8 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
-	const char* CUIEnvCanForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Method", "GribsType" };
-	const size_t CUIEnvCanForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX };
+	const char* CUIEnvCanForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type" };
+	const size_t CUIEnvCanForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX};
 	const UINT CUIEnvCanForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_FORECAST_P;
 	const UINT CUIEnvCanForecast::DESCRIPTION_TITLE_ID = ID_TASK_EC_FORECAST;
 
@@ -39,8 +39,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case METHOD:	str = "MeteoCode|Gribs|Both"; break;
-		case GRIBS_TYPE: str = "HRDPS (Canada at 2.5 km)|RDPS (North America at 10 km)"; break;
+		case TYPE:	str = "MeteoCode|HRDPS (Canada at 2.5 km)|RDPS (North America at 10 km)"; break;
 		};
 		return str;
 	}
@@ -51,9 +50,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Forecast\\"; break;
-		case METHOD:	str = "0"; break;
-		case GRIBS_TYPE: str = "0"; break;
-
+		case TYPE:	str = "0"; break;
 		};
 
 		return str;
@@ -69,28 +66,22 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t type = as<size_t>(GRIBS_TYPE);
-		m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
-		m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == GT_HRDPS) ? "HRDPS\\" : "RDPS\\");
-		m_gribs.m_type = type;
+		size_t type = as<size_t>(TYPE);
 
 
-		size_t method = as<size_t>(METHOD);
-		if (method==M_BOTH)
-			callback.PushTask("Download Forecast", 2);
 
-		if (method == M_BOTH || method == M_METEO_CODE)
+		if (type == T_METEO_CODE)
+		{
+			m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
 			m_meteoCode.Execute(callback);
-			
-
-		if (method == M_BOTH)
-			msg += callback.StepIt();
-
-		if (method == M_BOTH || method == M_GRIBS)
+		}
+		else
+		{
+			m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == T_HRDPS) ? "HRDPS\\" : "RDPS\\");
+			m_gribs.m_type = (type == T_HRDPS) ? CEnvCanGribForecast::GT_HRDPS : CEnvCanGribForecast::GT_RDPS;
 			m_gribs.Execute(callback);
-
-		if (method == M_BOTH)
-			callback.PopTask();
+		}
+			
 
 		return msg;
 	}
@@ -102,30 +93,21 @@ namespace WBSF
 
 		stationList.clear();
 
-		size_t type = as<size_t>(GRIBS_TYPE);
-		m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
-		m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == GT_HRDPS) ? "HRDPS\\" : "RDPS\\");
-		m_gribs.m_type = type;
+		size_t type = as<size_t>(TYPE);
 
-
-		size_t method = as<size_t>(METHOD);
-		if (method == M_BOTH)
-			callback.PushTask("Download Forecast", 2);
-
-		if (method == M_BOTH || method == M_METEO_CODE)
+		
+		
+		if (type == T_METEO_CODE)
+		{
+			m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
 			msg += m_meteoCode.GetStationList(stationList, callback);
-
-
-		if (method == M_BOTH)
-			msg += callback.StepIt();
-
-		if (msg && (method == M_BOTH || method == M_GRIBS) )
+		}
+		else
+		{
+			m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == T_HRDPS) ? "HRDPS\\" : "RDPS\\");
+			m_gribs.m_type = (type == T_HRDPS) ? CEnvCanGribForecast::GT_HRDPS : CEnvCanGribForecast::GT_RDPS;
 			msg += m_gribs.GetStationList(stationList, callback);
-
-		if (method == M_BOTH)
-			callback.PopTask();
-
-
+		}
 		
 		return msg;
 	}
@@ -137,20 +119,19 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t type = as<size_t>(GRIBS_TYPE);
-		m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
-		m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == GT_HRDPS) ? "HRDPS\\" : "RDPS\\");
-		m_gribs.m_type = type;
+		size_t type = as<size_t>(TYPE);
 
-
-		size_t method = as<size_t>(METHOD);
-
-		if (method == M_BOTH || method == M_METEO_CODE)
+		if (type == T_METEO_CODE)
+		{
+			m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
 			msg += m_meteoCode.GetWeatherStation(ID, TM, station, callback);
-
-		if (msg && (method == M_BOTH || method == M_GRIBS))
+		}
+		else
+		{
+			m_gribs.m_workingDir = GetDir(WORKING_DIR) + ((type == T_HRDPS) ? "HRDPS\\" : "RDPS\\");
+			m_gribs.m_type = (type == T_HRDPS) ? CEnvCanGribForecast::GT_HRDPS : CEnvCanGribForecast::GT_RDPS;
 			msg += m_gribs.GetWeatherStation(ID, TM, station, callback);
-
+		}
 
 
 		return msg;

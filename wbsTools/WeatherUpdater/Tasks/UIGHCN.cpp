@@ -29,21 +29,24 @@ namespace WBSF
 using namespace boost;
 
 
-const int CUIGHCND::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND , WESF, SNWD, WESD };
+const int CUIGHCND::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND, AWDR, WESF, SNWD, WESD, TAVG };
 
 
 //********************************************************************************************
 const char* CUIGHCND::ELEM_CODE[NB_ELEMENT] =
 {
-	"ASMM", "ASSS", "AWND", "CLDG", "DPNT", "DPTP", "DYSW", "DYVC",
+	"ASMM", "ASSS", "AWND", "AWDR", "CLDG", "DPNT", "DPTP", "DYSW", "DYVC",
 	"F2MN", "F5SC", "FMTM", "FRGB", "FRGT", "FRTH", "FSIN", "FSMI",
 	"FSMN", "GAHT", "HTDG", "MNRH", "MNTP", "MXRH", "PGTM", "PKGS",
 	"PRCP", "PRES", "PSUN", "RDIR", "RWND", "SAMM", "SASS", "SCMM",
 	"SCSS", "SGMM", "SGSS", "SLVP", "SMMM", "SMSS", "SNOW", "SNWD",
 	"WESF", "WESD",
-	"STMM", "STSS", "THIC", "TMAX", "TMIN", "TMPW", "TSUN", "WTEQ",
-	"EVAP", "MNPN", "MXPN", "TOBS", "WDMV"
+	"STMM", "STSS", "TAVG", "THIC", "TMAX", "TMIN", "TMPW", "TSUN", "WTEQ",
+	"EVAP", "MNPN", "MXPN", "TOBS", "WDMV", 
 };
+
+//MNPN = Daily minimum temperature of water in an evaporation pan (tenths of degrees C)
+//MXPN = Daily maximum temperature of water in an evaporation pan (tenths of degrees C)
 
 size_t CUIGHCND::GetElementType(const char* str)
 {
@@ -351,27 +354,22 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 		if( !bDEMElev || false )
 		{
 			CCountrySelection countries(Get(COUNTRIES));
-			//CGeoRect boundingBox;
 			size_t country = CCountrySelection::GetCountry(location.GetSSI("Country").c_str());
 			ASSERT( country != NOT_INIT);
 
-			if( countries.none() || countries.at(country) )
+			if( countries.at(country) )
 			{
-				//if( boundingBox.IsRectEmpty() ||
-					//boundingBox.PtInRect( location ) )
-				//{
-					if( IsEqualNoCase( location.GetSSI("Country"), "US") )
-					{
-						CStateSelection states(Get(STATES));
-						size_t state = CStateSelection::GetState(location.GetSSI("State").c_str());
-						if (states.none() || (state<states.size() && states.at(state)))
-							bRep=true;
-					}
-					else 
-					{
+				if( IsEqualNoCase( location.GetSSI("Country"), "US") )
+				{
+					CStateSelection states(Get(STATES));
+					size_t state = CStateSelection::GetState(location.GetSSI("State").c_str());
+					if (states.at(state))
 						bRep=true;
-					}//use this state if USA
-				//}//in the bounding extents
+				}
+				else 
+				{
+					bRep=true;
+				}//use this state if USA
 			}//use this country
 		}//use DEM elevation
 	}//station exist
@@ -523,14 +521,17 @@ ERMsg CUIGHCND::PreProcess(CCallback& callback)
 		if (msg)
 		{
 			size_t nbYears = lastYear - firstYear + 1;
-			//callback.AddTask(nbYears);
+			callback.PushTask("Load year in memory (nb years = " + to_string(nbYears) + ")", nbYears);
 
 			for (size_t y = 0; y<nbYears&&msg; y++)
 			{
 				int year = firstYear + int(y);
 				string filePath = GetOutputFilePath(year);
 				msg = LoadData(filePath, m_loadedData, callback);
+				msg += callback.StepIt();
 			}
+
+			callback.PopTask();
 		}
 	}
 
@@ -594,6 +595,8 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 
 			CDay& day = (CDay&)station[TRef];
 			
+			if (dataYear[jd][V_TAVG]>-999)
+				day.SetStat(H_TAIR2, (double)dataYear[jd][V_TAVG]);
 			 
 			if (dataYear[jd][V_TMIN]>-999 && dataYear[jd][V_TMAX]>-999)
 			{
@@ -606,12 +609,37 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 				day.SetStat(H_TMIN2, Tmin);
 				day.SetStat(H_TMAX2, Tmax);
 			}
+
+			if (dataYear[jd][V_TMIN]>-999 && dataYear[jd][V_TMAX]>-999 &&
+				dataYear[jd][V_MNPN]>-999 && dataYear[jd][V_MXPN]>-999)
+			{
+
+				//from : http://www.fao.org/docrep/X0490E/x0490e07.htm
+				double Tmin_d = (double)dataYear[jd][V_TMIN];
+				double Tmax_d = (double)dataYear[jd][V_TMAX];
+				double Tmin_w = (double)dataYear[jd][V_MNPN];
+				double Tmax_w = (double)dataYear[jd][V_MXPN];
+				
+				
+				double RHmax = WBSF::Twb2Hr(Tmin_d, Tmin_w);
+				double RHmin = WBSF::Twb2Hr(Tmax_d, Tmax_w);
+
+				double Pv = (e°(Tmin_d)*RHmax / 100 + e°(Tmax_d)*RHmin / 100) / 2; //[kPa]
+				//double Es = (e°(Tmin_d) + e°(Tmax_d)) / 2;
+				double Td = Pv2Td(Pv);
+				
+				day.SetStat(H_TDEW, Td);
+				day.SetStat(H_RELH, (RHmin + RHmax)/2);
+			}
 			
 			if (dataYear[jd][V_PRCP]>-999 )
 				day.SetStat(H_PRCP, dataYear[jd][V_PRCP]);
 			
 			if (dataYear[jd][V_AWND]>-999)
 				day.SetStat(H_WNDS, dataYear[jd][V_AWND]);
+			
+			if (dataYear[jd][V_AWDR]>-999)
+				day.SetStat(H_WNDD, dataYear[jd][V_AWDR]);
 
 		}
 	}
@@ -682,6 +710,7 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 //		7 = 180 cm
 //SX*# = Maximum soil temperature (tenths of degrees C) where * corresponds to a code for ground cover and # corresponds to a code for soil depth. See SN*# for ground cover and depth codes. 
 //THIC = Thickness of ice on water (tenths of mm)	
+//TAVG = Average temperature(tenths of degrees C) [Note that TAVG from source 'S' corresponds to an average for the period ending at 2400 UTC rather than local midnight]
 //TOBS = Temperature at the time of observation (tenths of degrees C)
 //TSUN = Daily total sunshine (minutes)
 //WDF1 = Direction of fastest 1-minute wind (degrees)
@@ -876,7 +905,11 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 					CTRef TRef(year, month, day);
 
 					size_t var = GetElementType((*loop)[GHCN_ELEMENT].c_str());
-					if (var == TMIN || var == TMAX || var == PRCP || var == AWND || var == WESF || var == SNWD || var == WESD)
+					bool bGoodVar = false;
+					for (size_t i = 0; i < NB_VARIABLES&&!bGoodVar; i++)
+						bGoodVar = (var == GHCN_VARIABLES[i]);
+
+					if (bGoodVar)
 					{
 
 						//char Mf1 = (*loop)[GHCN_M].empty() ? ' ' : ToChar((*loop)[GHCN_M]);
@@ -899,6 +932,16 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								}
 								break;
 
+							case TAVG:
+								ASSERT(value > -999 && value < 999 || value == -9999);
+								if (value > -999 && value < 999)
+								{
+									//10e of °C --> °C
+									data[ID][year][TRef.GetJDay()][V_TAVG] = value / 10;
+								}
+								break;
+
+
 							case TMAX:
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
@@ -908,7 +951,24 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								}
 								break;
 
-
+							case MNPN://minimum temperature of evaporation pan
+								ASSERT(value > -999 && value < 999 || value == -9999);
+								if (value > -999 && value < 999)
+								{
+									//10e of °C --> °C
+									data[ID][year][TRef.GetJDay()][V_MNPN] = value / 10;
+								}
+								break;
+							
+							case MXPN://maximum temperature of evaporation pan
+								ASSERT(value > -999 && value < 999 || value == -9999);
+								if (value > -999 && value < 999)
+								{
+									//10e of °C --> °C
+									data[ID][year][TRef.GetJDay()][V_MXPN] = value / 10;
+								}
+								break;
+								
 							case PRCP:
 								ASSERT((int)value >= 0 && value < 9999 || value == -9999);
 								if ((int)value >= 0 && value < 9999)
@@ -924,6 +984,15 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								{
 									//10e of m/s --> km/h
 									data[ID][year][TRef.GetJDay()][V_AWND] = (value / 10) * 3600 / 1000;
+								}
+								break;
+
+
+							case AWDR://Wind direction
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value <= 360)
+								{
+									data[ID][year][TRef.GetJDay()][V_AWND] = value;
 								}
 								break;
 
