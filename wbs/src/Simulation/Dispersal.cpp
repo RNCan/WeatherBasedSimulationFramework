@@ -407,8 +407,8 @@ namespace WBSF
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		
 		
-		enum TInput { I_NB_MALES, I_NB_FEMALES, I_LM, I_LF, I_AM, I_AF, I_MM, I_MF, I_GF, NB_INPUTS};
-		static const char* VARIABLE_NAME[NB_INPUTS] = { "MaleExodus", "FemaleExodus", "Lm","Lf","Am", "Af", "Mm", "Mf", "Gf" };
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, NB_INPUTS };
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G" };
 
 		bool bMissing = false;
 		std::array<size_t, NB_INPUTS> varsPos;
@@ -421,7 +421,7 @@ namespace WBSF
 
 		if (bMissing)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable \"MaleExodus\", \"FemaleExodus\", \"Lm\",\"Lf\",\"Am\", \"Af\", \"Mm\", \"Mf\", \"Gf\" must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\" must be defined");
 			return msg;
 		}
 
@@ -466,7 +466,7 @@ namespace WBSF
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
 		CTPeriod period = world.m_parameters1.m_simulationPeriod;
-		period.Transform(pResult->GetTM());
+		period.Transform(CTM(CTM::HOURLY));
 		
 		size_t nbReplications = 0;
 		for (size_t l = 0; l < locations.size() && msg; l++)
@@ -486,57 +486,42 @@ namespace WBSF
 
 					for (size_t t = 0; t < section.GetRows() && msg; t++)
 					{
+						std::array<double, NB_INPUTS> v;
+
+						for (size_t i = 0; i < varsPos.size(); i++)
+							v[i] = section[t][varsPos[i]][MEAN];
+
 						//broods += section[t][vBroods][MEAN];
-						CTRef TRef = section.GetTRef(t);
+						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1, size_t(v[I_HOUR]));
 						//TRef.Transform(world.m_parameters1.m_simulationPeriod.GetTM());
 						if (period.IsInside(TRef))
 						{
+							CFlyer flyer(world);
 
-							//TRef.Transform(CTM(CTM::HOURLY));
-							//TRef.m_hour = 0;
+							flyer.m_loc = l;
+							flyer.m_par = p;
+							flyer.m_rep = rrr;
+							flyer.m_localTRef = TRef;//assume daylignt time
+							flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
+							flyer.m_scale = 1;
+							flyer.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
+							flyer.m_A = v[I_A];
+							flyer.m_M = v[I_M];
+							flyer.m_G = v[I_G];
+							flyer.m_location = locations[l];
+							flyer.m_newLocation = locations[l];
+							flyer.m_pt = locations[l];
 
-							//TRef = section.GetTRef(t);
-							std::array<double, NB_INPUTS> v;
+							flyer.m_pt.m_alt = 5;
+							if (extents.IsInside(flyer.m_pt))
+								world.m_flyers.push_back(flyer);
+							else
+								callback.AddMessage("WARNING: Simulation point outside elevation map");
 
-							for (size_t i = 0; i < varsPos.size(); i++)
-								v[i] = section[t][varsPos[i]][MEAN];
-
-							if (v[I_NB_MALES] >= 0 && v[I_NB_FEMALES]>=0)
-							{
-								v[I_NB_MALES] = ceil(v[I_NB_MALES]);
-								v[I_NB_FEMALES] = ceil(v[I_NB_FEMALES]);
-								size_t nbMoths = v[I_NB_MALES] + v[I_NB_FEMALES];
-								//size_t nbMoths = ceil(section[t][vAdult][MEAN]);
-								//size_t nbFemales = ceil(section[t][vOvipositingAdult][MEAN]);
-								//size_t nbMales = nbMoths - nbFemales;
-								for (size_t rr = 0; rr < nbMoths; rr++, rrr++)
-								{
-									CFlyer flyer(world);
-
-									flyer.m_loc = l;
-									flyer.m_par = p;
-									flyer.m_rep = rrr;
-									flyer.m_localTRef = TRef;//assume daylignt time
-									flyer.m_liftoffOffset = rr < v[I_NB_MALES] ? v[I_LM] : v[I_LF];
-									flyer.m_scale = 1;// section[t][vAdult][MEAN];
-									flyer.m_sex = rr < v[I_NB_MALES] ? 0 : 1;//sex (UNKNOWN=-1, MALE=0, FEMALE=1)
-									flyer.m_A = rr < v[I_NB_MALES] ? v[I_AM] : v[I_AF];
-									flyer.m_M = rr < v[I_NB_MALES] ? v[I_MM] : v[I_MF];
-									flyer.m_G = rr < v[I_NB_MALES] ? 0.0 : v[I_GF];
-									flyer.m_location = locations[l];
-									flyer.m_newLocation = locations[l];
-									flyer.m_pt = locations[l];
-
-									flyer.m_pt.m_alt = 5;
-									if (extents.IsInside(flyer.m_pt))
-										world.m_flyers.push_back(flyer);
-									else
-										callback.AddMessage("WARNING: Simulation point outside elevation map");
-
-									nbReplications = max(nbReplications, rrr+1);
-								}//for all moths
-							}//is inside simulation period
-						}//have moths
+							rrr++;
+							nbReplications = max(nbReplications, rrr+1);
+						
+						}//is inside simulation period
 					}//for all rows
 
 					msg += callback.StepIt();

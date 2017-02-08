@@ -38,7 +38,7 @@ namespace WBSF
 	enum TDispersalProperties
 	{
 		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS,
-		DEM, GRIBS, HOURLY_DB, HOST, WATER,
+		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
 		T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT,
 		HEIGHT_YPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, NB_PROPERTIES
 	};
@@ -95,11 +95,7 @@ namespace WBSF
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_TIME_INTERPOL], true, description[USE_TIME_INTERPOL], USE_TIME_INTERPOL));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_PREDICTOR_CORRECTOR_METHOD], true, description[USE_PREDICTOR_CORRECTOR_METHOD], USE_PREDICTOR_CORRECTOR_METHOD));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[ADD_TURBULENCE], true, description[ADD_TURBULENCE], ADD_TURBULENCE));
-
 		pGeneral->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLYERS], "", description[MAXIMUM_FLYERS], MAXIMUM_FLYERS));
-		//pGeneral->AddSubItem(new CStdGridProperty(name[DEFOLIATION_THRESHOLD], "", description[DEFOLIATION_THRESHOLD], DEFOLIATION_THRESHOLD));
-		//pGeneral->AddSubItem(new CStdGridProperty(name[DISTRACTION_THRESHOLD], "", description[DISTRACTION_THRESHOLD], DISTRACTION_THRESHOLD));
-		//pGeneral->AddSubItem(new CStdGridProperty(name[HOST_THRESHOLD], "", description[HOST_THRESHOLD], HOST_THRESHOLD));
 		AddProperty(pGeneral);
 
 		CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(section[1], -1);
@@ -107,6 +103,7 @@ namespace WBSF
 		pInput->AddSubItem(new CFileNameProperty(name[GRIBS], "", WBSF::GetFM().Gribs(), description[GRIBS], GRIBS));
 		pInput->AddSubItem(new CFileNameProperty(name[HOURLY_DB], "", WBSF::GetFM().Hourly(), description[HOURLY_DB], HOURLY_DB));
 		pInput->AddSubItem(new CFileNameProperty(name[HOST], "", WBSF::GetFM().MapInput(), description[HOST], HOST));
+		pInput->AddSubItem(new CFileNameProperty(name[DEFOLIATION], "", WBSF::GetFM().MapInput(), description[DEFOLIATION], DEFOLIATION));
 		pInput->AddSubItem(new CFileNameProperty(name[WATER], "", WBSF::GetFM().MapInput(), description[WATER], WATER));
 		AddProperty(pInput);
 
@@ -171,6 +168,7 @@ namespace WBSF
 			case HOURLY_DB:			str = in.m_world.m_hourly_DB_name; break;
 			case GRIBS:				str = in.m_world.m_gribs_name; break;
 			case HOST:				str = in.m_world.m_host_name; break;
+			case DEFOLIATION:		str = in.m_world.m_defoliation_name; break;
 			case WATER:				str = in.m_world.m_water_name; break;
 			case T_MIN:				str = WBSF::ToString(in.m_ATM.m_Tmin); break;
 			case T_MAX:				str = WBSF::ToString(in.m_ATM.m_Tmax); break;
@@ -234,9 +232,10 @@ namespace WBSF
 		case DEM:				me.m_parameters.m_world.m_DEM_name = str; break;
 		case GRIBS:				me.m_parameters.m_world.m_gribs_name = str; break;
 		case HOURLY_DB:			me.m_parameters.m_world.m_hourly_DB_name = str; break;
-		//case DEFOLIATION:		me.m_parameters.m_world.m_defoliation_name = str; break;
+		
 		//case DISTRACTION:		me.m_parameters.m_world.m_distraction_name = str; break;
 		case HOST:				me.m_parameters.m_world.m_host_name = str; break;
+		case DEFOLIATION:		me.m_parameters.m_world.m_defoliation_name = str; break;
 		case WATER:				me.m_parameters.m_world.m_water_name = str; break;
 		case T_MIN:				me.m_parameters.m_ATM.m_Tmin = WBSF::ToDouble(str); break;
 		case T_MAX:				me.m_parameters.m_ATM.m_Tmax = WBSF::ToDouble(str); break;

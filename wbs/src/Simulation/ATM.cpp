@@ -1460,7 +1460,7 @@ CGeoPoint3DIndex CATMWeather::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
 
 CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UTCTRef, __int64 UTCTime)const
 {
-	ASSERT(IsLoaded(CTimeZones::UTCTime2UTCTRef(UTCTime)) && IsLoaded(CTimeZones::UTCTime2UTCTRef(UTCTime) + 1));
+	ASSERT(IsLoaded(CTimeZones::UTCTime2UTCTRef(UTCTime)) && IsLoaded(UTCTRef));
 	ASSERT(ptIn.m_z>=0);
 
 	CATMWeatherCuboidsPtr cuboids(new CATMWeatherCuboids);
