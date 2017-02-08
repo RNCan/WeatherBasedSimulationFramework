@@ -161,6 +161,7 @@
     <ClInclude Include="CreateHourlyDB.h" />
     <ClInclude Include="CreateMMG.h" />
     <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="CreateVirtualDB.h" />
     <ClInclude Include="HRDPS.h" />
     <ClInclude Include="HRRR.h" />
     <ClInclude Include="UICMIP5.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="CreateHourlyDB.cpp" />
     <ClCompile Include="CreateMMG.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="CreateVirtualDB.cpp" />
     <ClCompile Include="HRDPS.cpp" />
     <ClCompile Include="HRRR.cpp" />
     <ClCompile Include="UICMIP5.cpp" />

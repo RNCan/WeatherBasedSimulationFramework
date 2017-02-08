@@ -18,6 +18,12 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+	//catalogue de toute les stations:
+	//ftp://ftp.tor.ec.gc.ca/Pub/About_the_data/Station_catalogue/station_data_catalogue.txt
+
+
+
+
 	const char* CUIEnvCanHourly::SERVER_NAME = "climate.weather.gc.ca";
 	//*********************************************************************
 
@@ -451,7 +457,6 @@ namespace WBSF
 			"submit=Download+Data"
 		};
 
-
 		string URL = FormatA(pageDataFormat, ID, year, m + 1);
 
 		string source;
@@ -589,7 +594,15 @@ namespace WBSF
 						{
 							callback.AddMessage(msg);
 							msg.asgType(ERMsg::OK);
-							Sleep(1000);//wait 1 sec
+
+
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (int i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
 						}
 					}
 
@@ -916,7 +929,7 @@ namespace WBSF
 				int month = ToInt((*loop)[H_MONTH]) - 1;
 				int day = ToInt((*loop)[H_DAY]) - 1;
 				int hour = GetHour((*loop)[TIMEVAL]);
-				//ASSERT( year>=m_firstYear && year<=m_lastYear);
+				
 				ASSERT(month >= 0 && month < 12);
 				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 				ASSERT(hour >= 0 && hour < 24);
@@ -935,40 +948,14 @@ namespace WBSF
 				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M")  && !(*loop)[RELHUM].empty();
 				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
 				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
-				//bValid[H_EA] = m_bExtractVaporPressure && bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-				//bValid[H_EA] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-				//bValid[H_ES] = m_bExtractVaporPressure && bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-				//bValid[H_ES] = bValid[H_TAIR] && (bValid[H_TDEW] || bValid[H_RELH]);
-
+				
 				for (int v = 0; v < NB_VAR_H; v++)
 				{
 
 					if (bValid[v])
 					{
-						/*if (v == H_ES)
-						{
-							double Tair = ToDouble((*loop)[COL_POS[H_TAIR]])*FACTOR[H_TAIR];
-							double Es = e°(Tair) * 1000;
-							accumulator.Add(TRef, H_ES, Es);
-						}
-						else if (v == H_EA)
-						{
-							double Tair = ToDouble((*loop)[COL_POS[H_TAIR]])*FACTOR[H_TAIR];
-							double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
-							double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
-							if (Hr == -999 && Tdew != -999)
-								Hr = Td2Hr(Tair, Tdew);
-							else if (Tdew == -999 && Hr != -999)
-								Tdew = Hr2Td(Tair, Hr);
-
-							double Ea = Hr2Pv(Tair, Hr);
-							accumulator.Add(TRef, H_EA, Ea);
-						}
-						else
-						{*/
 						if (COL_POS[v] >= 0)
 							accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
-						//}
 					}
 				}
 				

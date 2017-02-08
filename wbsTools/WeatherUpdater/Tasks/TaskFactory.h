@@ -35,6 +35,7 @@ namespace WBSF
 		static CTaskPtr CreateObject(const std::string& className);
 		static bool IsRegistered(const std::string& className);
 		static CTaskPtr CreateFromClipbord();
+		static std::string ClassNameFromResourceID(UINT ID);
 
 	private:
 
@@ -48,26 +49,5 @@ namespace WBSF
 	};
 
 	
-
-/*
-	class 
-	{
-	public:
-
-
-		static int RegisterClass(const std::string& className, CreateObjectF createObjectFuntion);
-		static CTaskPtr CreateObject(const std::string& className);
-
-	protected:
-
-		static short Find(const std::string& className);
-		static const short MAX_CLASS = 50;
-		static char CLASS_NAME[MAX_CLASS][100];
-		static CreateObjectF CLASS_REGISTRED[MAX_CLASS];
-		static short NB_CLASS_REGISTRED;
-
-	};
-*/
-
 
 }

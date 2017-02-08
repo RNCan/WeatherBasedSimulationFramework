@@ -153,20 +153,7 @@ namespace WBSF
 			"Day=%d&"
 			"selRowPerPage=%d&"
 			"startRow=%d&";
-			//"advanceSearch/searchHistoricDataStations_e.html?"
-			//"searchType=stnProv&"
-			//"timeframe=2&"
-			//"lstProvince=%s&"
-			//"optLimit=yearRange&"
-			//"StartYear=%d&"
-			//"EndYear=%d&"
-			//"Year=%d&"
-			//"Month=%d&"
-			//"Day=%d&"
-			//"selRowPerPage=%d&"
-			//"startRow=%d&"
-			//"cmdProvSubmit=Search";
-
+			
 
 		static const short SEL_ROW_PER_PAGE = 100;
 
@@ -752,7 +739,14 @@ namespace WBSF
 						{
 							callback.AddMessage(msg);
 							msg.asgType(ERMsg::OK);
-							Sleep(1000);//wait 1 sec
+
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (int i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
 						}
 					}
 

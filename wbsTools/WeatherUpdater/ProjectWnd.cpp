@@ -4,45 +4,46 @@
 #include "ProjectWnd.h"
 #include "WeatherUpdaterDoc.h"
 
-#include "Tasks/UIEnvCanHourly.h"
-#include "Tasks/UIEnvCanDaily.h"
-#include "Tasks/UIEnvCanForecast.h"
-#include "Tasks/UIEnvCanRadar.h"
-#include "Tasks/UIEnvCanPrcpRadar.h"
-#include "Tasks/UIGHCN.h"
-#include "Tasks/UIGSOD.h"
-#include "Tasks/UIISDLite.h"
-#include "Tasks/UISnowTel.h"
-#include "Tasks/UIRapidUpdateCycle.h"
-#include "Tasks/UISolutionMesonetHourly.h"
-#include "Tasks/UISolutionMesonetDaily.h"
-#include "Tasks/UICIPRA.h"
-#include "Tasks/UIACIS.h"
-#include "Tasks/UISOPFEUHourly.h"
-#include "Tasks/UIBC.h"
-#include "Tasks/UIMDDELCC.h"
-#include "Tasks/UIWUnderground.h"
-#include "Tasks/UIManitoba.h"
-#include "Tasks/UINewBrunswick.h"
-#include "Tasks/UIOntario.h"
-#include "Tasks/UINEWA.h"
-#include "Tasks/UIMiscellaneous.h"
-#include "Tasks/UICMIP5.h"
-#include "Tasks/UIGPCP.h"
-#include "Tasks/UIHighResolutionGribs.h"
-
-#include "Tasks/CreateHourlyDB.h"
-#include "Tasks/CreateDailyDB.h"
-#include "Tasks/CreateNormalsDB.h"
-#include "Tasks/CreateGribsDB.h"
-#include "Tasks/CreateMMG.h"
-#include "Tasks/MergeWeather.h"
-#include "Tasks/AppendWeather.h"
-#include "Tasks/ClipWeather.h"
-#include "Tasks/CopyFTP.h"
-#include "Tasks/ConvertDB.h"
-#include "Tasks/ZipUnzip.h"
-
+//#include "Tasks/UIEnvCanHourly.h"
+//#include "Tasks/UIEnvCanDaily.h"
+//#include "Tasks/UIEnvCanForecast.h"
+//#include "Tasks/UIEnvCanRadar.h"
+//#include "Tasks/UIEnvCanPrcpRadar.h"
+//#include "Tasks/UIGHCN.h"
+//#include "Tasks/UIGSOD.h"
+//#include "Tasks/UIISDLite.h"
+//#include "Tasks/UISnowTel.h"
+//#include "Tasks/UIRapidUpdateCycle.h"
+//#include "Tasks/UISolutionMesonetHourly.h"
+//#include "Tasks/UISolutionMesonetDaily.h"
+//#include "Tasks/UICIPRA.h"
+//#include "Tasks/UIACIS.h"
+//#include "Tasks/UISOPFEUHourly.h"
+//#include "Tasks/UIBC.h"
+//#include "Tasks/UIMDDELCC.h"
+//#include "Tasks/UIWUnderground.h"
+//#include "Tasks/UIManitoba.h"
+//#include "Tasks/UINewBrunswick.h"
+//#include "Tasks/UIOntario.h"
+//#include "Tasks/UINEWA.h"
+//#include "Tasks/UIMiscellaneous.h"
+//#include "Tasks/UICMIP5.h"
+//#include "Tasks/UIGPCP.h"
+//#include "Tasks/UIHighResolutionGribs.h"
+//
+//#include "Tasks/CreateHourlyDB.h"
+//#include "Tasks/CreateDailyDB.h"
+//#include "Tasks/CreateNormalsDB.h"
+//#include "Tasks/CreateGribsDB.h"
+//#include "Tasks/CreateMMG.h"
+//#include "Tasks/CreateVirtualDB.h"
+//#include "Tasks/MergeWeather.h"
+//#include "Tasks/AppendWeather.h"
+//#include "Tasks/ClipWeather.h"
+//#include "Tasks/CopyFTP.h"
+//#include "Tasks/ConvertDB.h"
+//#include "Tasks/ZipUnzip.h"
+//
 #include "Tasks/TaskFactory.h"
 
 
@@ -304,51 +305,49 @@ UINT CTaskWnd::CtrlID(const std::string& className)
 
 string CTaskWnd::ClassName(UINT ID)
 {
-	string className;
-	
-	//a faire...
-	//CTaskFactory::ClassNameFromResourceID();
-	switch (ID)
-	{
-	case ID_TASK_EC_DAILY:		className = CUIEnvCanDaily::CLASS_NAME(); break;
-	case ID_TASK_EC_HOURLY:		className = CUIEnvCanHourly::CLASS_NAME(); break;
-	case ID_TASK_EC_FORECAST:	className = CUIEnvCanForecast::CLASS_NAME(); break;
-	case ID_TASK_EC_RADAR:		className = CUIEnvCanRadar::CLASS_NAME(); break;
-	case ID_TASK_EC_PRCP_RADAR: className = CUIEnvCanPrcpRadar::CLASS_NAME(); break;
-	case ID_TASK_NOAA_GHCND:	className = CUIGHCND::CLASS_NAME(); break;
-	case ID_TASK_NOAA_GSOD:		className = CUIGSOD::CLASS_NAME(); break;
-	case ID_TASK_NOAA_ISD_LITE: className = CUIISDLite::CLASS_NAME(); break;
-	case ID_TASK_SNOTEL:		className = CUISnoTel::CLASS_NAME(); break;
-	case ID_TASK_NOMAD_RUC:		className = CUIRapidUpdateCycle::CLASS_NAME(); break;
-	case ID_TASK_SM_HOURLY:		className = CUISolutionMesonetHourly::CLASS_NAME(); break;
-	case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
-	case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
-	case ID_TASK_ACIS:			className = CUIACIS::CLASS_NAME(); break;
-	case ID_TASK_MDDELCC_DAILY:	className = CUIMDDELCC::CLASS_NAME(); break;
-	case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
-	case ID_TASK_BC:			className = CUIBC::CLASS_NAME(); break;
-	case ID_TASK_WU:			className = CUIWunderground::CLASS_NAME(); break;
-	case ID_TASK_MANITOBA:		className = CUIManitoba::CLASS_NAME(); break;
-	case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
-	case ID_TASK_ONTARIO:		className = CUIOntario::CLASS_NAME(); break;
-	case ID_TASK_NEWA:			className = CUINEWA::CLASS_NAME(); break;
-	case ID_UPDATER_MISCELLANEOUS:className = CUIMiscellaneous::CLASS_NAME(); break;
-	case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
-	case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
-	case ID_TASK_HRG:			className = CUIHighResolutionGribs::CLASS_NAME(); break;
-	case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
-	case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
-	case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
-	case ID_TASK_CREATE_GRIBS:	className = CCreateGribsDB::CLASS_NAME(); break;
-	case ID_TASK_CREATE_MMG:	className = CCreateMMG::CLASS_NAME(); break;
-	case ID_TASK_MERGE_DB:		className = CMergeWeather::CLASS_NAME(); break;
-	case ID_TASK_APPEND_DB:		className = CAppendWeather::CLASS_NAME(); break;
-	case ID_TASK_CROP_DB:		className = CClipWeather::CLASS_NAME(); break;
-	case ID_TASK_ZIP_UNZIP:		className = CZipUnzip::CLASS_NAME(); break;
-	case ID_TASK_DOWNLOAD_UPLOAD:className = CCopyFTP::CLASS_NAME(); break;
-	case ID_TASK_CONVERT_DB:className = CConvertDB::CLASS_NAME(); break;
-	//default: ASSERT(false);
-	}
+	string className = CTaskFactory::ClassNameFromResourceID(ID);
+	//switch (ID)
+	//{
+	//case ID_TASK_EC_DAILY:		className = CUIEnvCanDaily::CLASS_NAME(); break;
+	//case ID_TASK_EC_HOURLY:		className = CUIEnvCanHourly::CLASS_NAME(); break;
+	//case ID_TASK_EC_FORECAST:	className = CUIEnvCanForecast::CLASS_NAME(); break;
+	//case ID_TASK_EC_RADAR:		className = CUIEnvCanRadar::CLASS_NAME(); break;
+	//case ID_TASK_EC_PRCP_RADAR: className = CUIEnvCanPrcpRadar::CLASS_NAME(); break;
+	//case ID_TASK_NOAA_GHCND:	className = CUIGHCND::CLASS_NAME(); break;
+	//case ID_TASK_NOAA_GSOD:		className = CUIGSOD::CLASS_NAME(); break;
+	//case ID_TASK_NOAA_ISD_LITE: className = CUIISDLite::CLASS_NAME(); break;
+	//case ID_TASK_SNOTEL:		className = CUISnoTel::CLASS_NAME(); break;
+	//case ID_TASK_NOMAD_RUC:		className = CUIRapidUpdateCycle::CLASS_NAME(); break;
+	//case ID_TASK_SM_HOURLY:		className = CUISolutionMesonetHourly::CLASS_NAME(); break;
+	//case ID_TASK_SM_DAILY:		className = CUISolutionMesonetDaily::CLASS_NAME(); break;
+	//case ID_TASK_SM_CIPRA_HOURLY: className = CUICIPRA::CLASS_NAME(); break;
+	//case ID_TASK_ACIS:			className = CUIACIS::CLASS_NAME(); break;
+	//case ID_TASK_MDDELCC_DAILY:	className = CUIMDDELCC::CLASS_NAME(); break;
+	//case ID_TASK_SOPFEU	:		className = CUISOPFEUHourly::CLASS_NAME(); break;
+	//case ID_TASK_BC:			className = CUIBC::CLASS_NAME(); break;
+	//case ID_TASK_WU:			className = CUIWunderground::CLASS_NAME(); break;
+	//case ID_TASK_MANITOBA:		className = CUIManitoba::CLASS_NAME(); break;
+	//case ID_TASK_NEWBRUNSWICK:	className = CUINewBrunswick::CLASS_NAME(); break;
+	//case ID_TASK_ONTARIO:		className = CUIOntario::CLASS_NAME(); break;
+	//case ID_TASK_NEWA:			className = CUINEWA::CLASS_NAME(); break;
+	//case ID_UPDATER_MISCELLANEOUS:className = CUIMiscellaneous::CLASS_NAME(); break;
+	//case ID_TASK_CMIP5:			className = CUICMIP5::CLASS_NAME(); break;
+	//case ID_TASK_GPCP:			className = CUIGPCP::CLASS_NAME(); break;
+	//case ID_TASK_HRG:			className = CUIHighResolutionGribs::CLASS_NAME(); break;
+	//case ID_TASK_CREATE_HOURLY:	className = CCreateHourlyDB::CLASS_NAME(); break;
+	//case ID_TASK_CREATE_DAILY:	className = CCreateDailyDB::CLASS_NAME(); break;
+	//case ID_TASK_CREATE_NORMALS:className = CCreateNormalsDB::CLASS_NAME(); break;
+	//case ID_TASK_CREATE_GRIBS:	className = CCreateGribsDB::CLASS_NAME(); break;
+	//case ID_TASK_CREATE_MMG:	className = CCreateMMG::CLASS_NAME(); break;
+	//	case CreateVirtualDB
+	//case ID_TASK_MERGE_DB:		className = CMergeWeather::CLASS_NAME(); break;
+	//case ID_TASK_APPEND_DB:		className = CAppendWeather::CLASS_NAME(); break;
+	//case ID_TASK_CROP_DB:		className = CClipWeather::CLASS_NAME(); break;
+	//case ID_TASK_ZIP_UNZIP:		className = CZipUnzip::CLASS_NAME(); break;
+	//case ID_TASK_DOWNLOAD_UPLOAD:className = CCopyFTP::CLASS_NAME(); break;
+	//case ID_TASK_CONVERT_DB:className = CConvertDB::CLASS_NAME(); break;
+	////default: ASSERT(false);
+	//}
 
 	return className;
 }
