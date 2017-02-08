@@ -427,10 +427,10 @@ namespace UtilWWW
 
 		CString test1 = finder.GetFilePath();
 		CString test2 = finder.GetFileName();
-		if (!UtilWin::GetPath(test1).IsEmpty())
-			info.m_filePath = UtilWin::ToUTF8(test1);
-		else if (!UtilWin::GetPath(test2).IsEmpty())
+		if (!UtilWin::GetPath(test2).IsEmpty())
 			info.m_filePath = UtilWin::ToUTF8(test2);
+		else if (!UtilWin::GetPath(test1).IsEmpty())
+			info.m_filePath = UtilWin::ToUTF8(test1);
 		else
 			info.m_filePath = UtilWin::ToUTF8(test1);
 		//if (bHaveWildcard )
