@@ -181,7 +181,7 @@ namespace WBSF
 
 	
 
-	extern const char ATM_HEADER[] = "SCALE|Sex|A|M|G|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME";
+	extern const char ATM_HEADER[] = "FLIGH|SCALE|Sex|A|M|G|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME";
 
 	//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
 	//12 pa/m
@@ -411,17 +411,18 @@ namespace WBSF
 		m_loc = 0;
 		m_par = 0;
 		m_rep = 0;
+		m_flightNo = 0;
 		m_scale = 0;
-		m_state = NOT_CREATED;
-		m_end_type = NO_END_DEFINE;
-		m_creation_time = 0;
+
 		m_liftoffOffset = 0;
 		m_w_horizontal = 0;
 		m_w_descent = 0;
 		m_liffoff_time = 0;
-		m_duration = 0;		
-		m_cruise_duration = 0;
+		m_duration = 0;
+//		m_cruise_duration = 0;
 
+		m_state = NOT_CREATED;
+		m_end_type = NO_END_DEFINE;
 		m_log.fill(0);
 		m_UTCShift = 0;
 	}
@@ -436,11 +437,17 @@ namespace WBSF
 
 		ASSERT(m_liftoffOffset >= 0 && m_liftoffOffset <= 3600);
 		
+
+		m_state = NOT_CREATED;
+		m_end_type = NO_END_DEFINE;
+		m_log.fill(0);
+
+		m_flightNo++;//a new flight for thid moth
 		m_liffoff_time = UTCTime + m_liftoffOffset;
 		m_w_horizontal = m_world.get_w_horizontal();
 		m_w_descent = m_world.get_w_descent();
 		m_duration = m_world.get_duration();
-		m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
+		//m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
 	}
 
 	void CFlyer::AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d)
@@ -2090,7 +2097,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "ManyFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
 
 
 std::set<int> CATMWorld::get_years()const
@@ -2167,7 +2174,7 @@ double CATMWorld::GetGroundAltitude(const CGeoPoint3D& pt)const
 
 bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt1)const
 {
-	bool defol = true;
+	bool defol = false;
 	if (m_defoliation_DS.IsOpen())
 	{
 		CGeoPoint pt2(pt1);
@@ -2252,7 +2259,37 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 		CTRef TRef = it->m_localTRef;
 		TRef.Transform(CTM(CTM::DAILY));
 		if (TRef == localTRef)
+		{
 			fls.push_back(it);
+		}
+		else if (m_parameters1.m_bManyFlights)
+		{
+			//add also old moth
+			if (TRef < localTRef)
+			{
+				if (is_over_defoliation(it->m_newLocation))
+				{
+					//Female mush lais egg and lost weight
+					it->m_location = it->m_newLocation;
+					it->m_pt = it->m_newLocation;
+					it->m_pt.m_alt = 5;
+					
+
+					fls.push_back(it);
+				}
+			}
+		}
+	}
+
+
+	if (m_parameters1.m_maxFliyers>0)
+	{
+		while (fls.size() > m_parameters1.m_maxFliyers)
+		{
+			size_t i = this->m_random.Rand(0, int(fls.size()));
+			fls.erase(fls.begin() + i);
+		}
+
 	}
 
 	return fls;
@@ -2311,7 +2348,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 		//write file header
 
 		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-		output_file << "scale,sex,A,M,G,state,x,y,lat,lon,";
+		output_file << "flight,scale,sex,A,M,G,state,x,y,lat,lon,";
 		output_file << "T,P,U,V,W,";
 		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine" << endl;
 	}
@@ -2412,6 +2449,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										CGeoPoint3D pt = flyer.m_pt;
 										pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
 
+										
+										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT] = flyer.m_flightNo;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_SCALE] = flyer.m_scale;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_SEX] = flyer.m_sex;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_A] = flyer.m_A;
@@ -2472,11 +2511,11 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									ASSERT(angle >= 0 && angle <= 360);
 									double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
 									//}
-
+									
 									size_t minutes = size_t(seconds / 60);
 									output_file << flyer.m_loc + 1 << "," << flyer.m_par + 1 << "," << flyer.m_rep + 1 << ",";
 									output_file << localTRef.GetYear() << "," << localTRef.GetMonth() + 1 << "," << localTRef.GetDay() + 1 << "," << localTRef.GetHour() << "," << minutes << "," << seconds - 60 * minutes << ",";
-									output_file << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
+									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_TAIR) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_PRCP) << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_U, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_V, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W, ms2kmh) << ",";
 

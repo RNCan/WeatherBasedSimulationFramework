@@ -241,7 +241,8 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 26);
+		ASSERT(NB_ATM_OUTPUT == 27);
+		outputVar.push_back(CModelOutputVariableDef("FlightNo", "FlightNo", "", "Flight numero for this moth", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Scale", "Scale", "", "Scale factor the moth", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("A", "A", "cm²", "Forewing surface area", CTM(CTM::ATEMPORAL), 5));

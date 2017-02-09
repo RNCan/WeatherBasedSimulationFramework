@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -548,28 +548,6 @@ namespace WBSF
 	};
 
 
-	//target parameters
-	//class CFlightParameters
-	//{
-	//public:
-
-
-	//	double m_w_horizontal;	//horizontal flight speed [m/s]
-	//	double m_w_descent;		//descent flight speed [m/s]
-	//	__int64 m_UTCLiffoff;		//
-	//	__int64 m_duration;		//total flight duration [s]
-	//	__int64 m_cruise_duration;//cruise duration[s]
-
-	//	CFlightParameters()
-	//	{
-	//		m_w_horizontal = 0;
-	//		m_w_descent = 0;
-	//		m_duration = 0;
-	//		m_cruise_duration = 0;
-	//	}
-
-	//};
-
 
 	class CFlyer
 	{
@@ -584,10 +562,11 @@ namespace WBSF
 		enum TEnd{ NO_END_DEFINE=-1, NO_LIFTOFF_PRCP, NO_LIFTOFF_TAIR, NO_LIFTOFF_WNDS, END_BY_PRCP, END_BY_TAIR, END_OF_TIME_FLIGHT, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
 
 
-// 
+
 		size_t m_rep;
 		size_t m_loc;
 		size_t m_par;
+		size_t m_flightNo;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
 		double m_A;				//Forewing surface area [cm²]
@@ -602,7 +581,7 @@ namespace WBSF
 		double m_w_descent;		//descent flight speed [m/s]
 		__int64 m_liffoff_time;	//UTC liftoff time [s]
 		__int64 m_duration;		//total flight duration [s]
-		__int64 m_cruise_duration;//cruise duration[s]
+		//__int64 m_cruise_duration;//cruise duration[s]
 
 
 		CFlyer(CATMWorld& world);
@@ -638,7 +617,6 @@ namespace WBSF
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
-	//	const CFlightParameters& P()const{ return m_parameters; }
 		int GetUTCShift()const{ return m_UTCShift; }//in [s]
 
 
@@ -646,11 +624,8 @@ namespace WBSF
 
 		void AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d);
 		void AddStat(const CATMVariables& w);
-
-		__int64 m_creation_time;//creation time in second
+		
 		__int64 m_UTCShift;//shift between local time and UTC [s]
-
-//		CFlightParameters m_parameters;
 
 		int m_state;		//state of the flyer
 		int m_end_type;		//Terminason of the flyer
@@ -677,7 +652,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAX_FLYERS, DEM, WATER, GRIBS, HOURLY_DB, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAX_FLYERS, MANY_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -691,9 +666,9 @@ namespace WBSF
 		bool m_bUsePredictorCorrectorMethod;
 		bool m_bUseTurbulance;
 		bool m_bUseVerticalVelocity;
+		bool m_bManyFlights;
 
-
-		double m_eventThreshold;
+		double m_maxFliyers;
 		double m_defoliationThreshold;
 		double m_distractionThreshold;
 		double m_hostThreshold;
@@ -735,9 +710,10 @@ namespace WBSF
 			m_bUsePredictorCorrectorMethod = true;
 			m_bUseTurbulance = false;
 			m_bUseVerticalVelocity = true;
+			m_bManyFlights = false;
 
 
-			m_eventThreshold = 0;
+			m_maxFliyers = 0;
 			m_defoliationThreshold = 20;
 			m_distractionThreshold = 90;
 			m_hostThreshold = 40;
@@ -771,8 +747,9 @@ namespace WBSF
 				m_bUsePredictorCorrectorMethod = in.m_bUsePredictorCorrectorMethod;
 				m_bUseTurbulance = in.m_bUseTurbulance;
 				m_bUseVerticalVelocity = in.m_bUseVerticalVelocity;
+				m_bManyFlights = in.m_bManyFlights;
 
-				m_eventThreshold = in.m_eventThreshold;
+				m_maxFliyers = in.m_maxFliyers;
 				m_defoliationThreshold = in.m_defoliationThreshold;
 				m_distractionThreshold = in.m_distractionThreshold;
 				m_hostThreshold = in.m_hostThreshold;
@@ -808,7 +785,9 @@ namespace WBSF
 			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
 			if (m_bUseTurbulance != in.m_bUseTurbulance)bEqual = false;
 			if (m_bUseVerticalVelocity != in.m_bUseVerticalVelocity)bEqual = false;
-			if (m_eventThreshold != in.m_eventThreshold)bEqual = false;
+			if (m_bManyFlights != in.m_bManyFlights)bEqual = false;
+			
+			if (m_maxFliyers != in.m_maxFliyers)bEqual = false;
 			if (m_defoliationThreshold != in.m_defoliationThreshold)bEqual = false;
 			if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
 			if (m_hostThreshold != in.m_hostThreshold)bEqual = false;
@@ -988,7 +967,9 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](in.m_bUsePredictorCorrectorMethod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](in.m_bUseTurbulance);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](in.m_bUseVerticalVelocity);
-		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](in.m_eventThreshold);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](in.m_maxFliyers);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](in.m_bManyFlights);
+		
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](in.m_gribs_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](in.m_host_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](in.m_hourly_DB_name);
@@ -1015,7 +996,8 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](out.m_bUsePredictorCorrectorMethod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](out.m_bUseTurbulance);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](out.m_bUseVerticalVelocity);
-		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](out.m_eventThreshold);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](out.m_maxFliyers);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](out.m_bManyFlights);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](out.m_gribs_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](out.m_host_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](out.m_hourly_DB_name);

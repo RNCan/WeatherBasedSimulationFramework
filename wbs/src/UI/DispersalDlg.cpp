@@ -37,7 +37,7 @@ namespace WBSF
 
 	enum TDispersalProperties
 	{
-		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS,
+		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS, MANY_FLIGHTS,
 		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
 		T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT,
 		HEIGHT_YPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, NB_PROPERTIES
@@ -96,6 +96,8 @@ namespace WBSF
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_PREDICTOR_CORRECTOR_METHOD], true, description[USE_PREDICTOR_CORRECTOR_METHOD], USE_PREDICTOR_CORRECTOR_METHOD));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[ADD_TURBULENCE], true, description[ADD_TURBULENCE], ADD_TURBULENCE));
 		pGeneral->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLYERS], "", description[MAXIMUM_FLYERS], MAXIMUM_FLYERS));
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[MANY_FLIGHTS], false, description[MANY_FLIGHTS], MANY_FLIGHTS));
+		
 		AddProperty(pGeneral);
 
 		CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(section[1], -1);
@@ -163,7 +165,8 @@ namespace WBSF
 			case USE_TIME_INTERPOL:		str = WBSF::ToString(in.m_world.m_bUseTimeInterpolation); break;
 			case USE_PREDICTOR_CORRECTOR_METHOD: str = WBSF::ToString(in.m_world.m_bUsePredictorCorrectorMethod); break;
 			case ADD_TURBULENCE:		str = WBSF::ToString(in.m_world.m_bUseTurbulance); break;
-			case MAXIMUM_FLYERS:	str = WBSF::ToString(in.m_world.m_eventThreshold); break;
+			case MAXIMUM_FLYERS:	str = WBSF::ToString(in.m_world.m_maxFliyers); break;
+			case MANY_FLIGHTS: str = WBSF::ToString(in.m_world.m_bManyFlights); break;
 			case DEM:				str = in.m_world.m_DEM_name; break;
 			case HOURLY_DB:			str = in.m_world.m_hourly_DB_name; break;
 			case GRIBS:				str = in.m_world.m_gribs_name; break;
@@ -225,7 +228,8 @@ namespace WBSF
 		case USE_TIME_INTERPOL:		me.m_parameters.m_world.m_bUseTimeInterpolation = WBSF::ToBool(str); break;
 		case USE_PREDICTOR_CORRECTOR_METHOD: me.m_parameters.m_world.m_bUsePredictorCorrectorMethod = WBSF::ToBool(str); break;
 		case ADD_TURBULENCE:		me.m_parameters.m_world.m_bUseTurbulance = WBSF::ToBool(str); break;
-		case MAXIMUM_FLYERS:	me.m_parameters.m_world.m_eventThreshold = WBSF::ToDouble(str); break;
+		case MAXIMUM_FLYERS:	me.m_parameters.m_world.m_maxFliyers = WBSF::ToDouble(str); break;
+		case MANY_FLIGHTS: me.m_parameters.m_world.m_bManyFlights = WBSF::ToBool(str); break;
 		//case DEFOLIATION_THRESHOLD:	me.m_parameters.m_world.m_defoliationThreshold = WBSF::ToDouble(str); break;
 		//case DISTRACTION_THRESHOLD:	me.m_parameters.m_world.m_distractionThreshold = WBSF::ToDouble(str); break;
 		//case HOST_THRESHOLD:	me.m_parameters.m_world.m_hostThreshold = WBSF::ToDouble(str); break;

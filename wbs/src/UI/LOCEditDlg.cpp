@@ -747,16 +747,16 @@ namespace WBSF
 
 		CAppOption option(_T("WindowsPosition"));
 		
-		//CPoint pt = option.GetProfilePoint(_T("LocEditor"), CPoint(30, 30));
-		//UtilWin::EnsurePointOnDisplay(pt);
-		//SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		CPoint pt = option.GetProfilePoint(_T("LocationsFileManager"), CPoint(30, 30));
+		UtilWin::EnsurePointOnDisplay(pt);
+		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 		
-		CRect curRect;
-		GetWindowRect(curRect);
-		curRect.MoveToXY(30, 30);
-		CRect rect = option.GetProfileRect(_T("LocFileManager"), curRect);
-		UtilWin::EnsureRectangleOnDisplay(rect);
-		MoveWindow(rect);
+		//CRect curRect;
+		//GetWindowRect(curRect);
+		//curRect.MoveToXY(30, 30);
+		//CRect rect = option.GetProfileRect(_T("LocFileManager"), curRect);
+		//UtilWin::EnsureRectangleOnDisplay(rect);
+		//MoveWindow(rect);
 
 		//select current loc input
 		m_fileListCtrl.SelectString(m_locName);
@@ -815,13 +815,8 @@ namespace WBSF
 		GetWindowRect(rect);
 
 		CAppOption option(_T("WindowsPosition"));
-		
-		CRect curRect;
-		GetWindowRect(curRect);
-		option.WriteProfileRect(_T("LocFileManager"), curRect);
-		//CPoint pt = rect.TopLeft();
-		//option.WriteProfilePoint(_T("LocEditor"), pt);
-		
+		CPoint pt = rect.TopLeft();
+		option.WriteProfilePoint(_T("LocationsFileManager"), pt);
 
 		return CDialog::DestroyWindow();
 	}
