@@ -258,7 +258,7 @@ namespace WBSF
 			string line;
 			while (msg && std::getline(file, line))
 			{
-				int res = 0;
+				//int res = 0;
 				//double elevLo = -999;
 				double elev = -999;
 				//double elevHi = -999;

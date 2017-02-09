@@ -297,6 +297,7 @@
     <Image Include="res\TaskToolbar1.png" />
     <Image Include="res\TaskToolbar2.png" />
     <Image Include="res\TaskToolbar3.png" />
+    <Image Include="res\TaskToolbar4.png" />
     <Image Include="res\TaskType.png" />
     <Image Include="res\WeatherUpdater.ico" />
   </ItemGroup>

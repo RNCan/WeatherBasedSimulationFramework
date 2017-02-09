@@ -178,7 +178,7 @@ namespace WBSF
 							ASSERT(pos1 != string::npos);
 
 							string URL = FindString(line, "\"", "\"");
-							string name = PurgeFileName(line.substr(pos1 + 1, line.length() - pos1 - 4));
+							string name = PurgeFileName(line.substr(pos1 + 1, line.length() - pos1 - 5));
 							string state = TrimConst(line.substr(line.length() -2));
 							if (state == "RI")//Rhode Island
 								state = "PA";
@@ -199,7 +199,15 @@ namespace WBSF
 								ASSERT(LatLonV.size() == 2);
 
 								
-								CLocation location(name, ID, ToDouble(LatLonV[0]), ToDouble(LatLonV[1]), WBSF::Feet2Meter(ToDouble(elev)));
+								double lat = ToDouble(LatLonV[0]);
+								double lon = ToDouble(LatLonV[1]);
+								double alt = ToDouble(elev);
+								if (alt > -999)
+									alt = WBSF::Feet2Meter(alt);
+								else
+									alt = -999;
+
+								CLocation location(name, ID, lat, lon, alt);
 								location.SetSSI("State", state);
 								stationList.push_back(location);
 							}//if msg
@@ -608,7 +616,12 @@ namespace WBSF
 		if (msg)
 		{
 			for (size_t i = 0; i < m_stations.size(); i++)
-				stationList.push_back(m_stations[i].m_ID);
+			{
+				if (m_stations[i].m_elev != -999)
+					stationList.push_back(m_stations[i].m_ID);
+				else
+					callback.AddMessage("Station " + m_stations[i].m_name + " (" + m_stations[i].m_ID + ") have unknown elevation");
+			}
 		}
 
 		return msg;
@@ -622,7 +635,7 @@ namespace WBSF
 		size_t type = as <size_t>(DATA_TYPE);
 		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
 		{
-			msg.ajoute("Daily"); 
+			msg.ajoute("Daily database not supported on the hourly data for the moment..."); 
 			return msg;
 		}
 

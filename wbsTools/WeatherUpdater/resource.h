@@ -135,7 +135,6 @@
 #define IDS_UPDATER_NEWA_P				 32770
 #define IDS_TOOL_OTHER_TOOLS_P           32773
 #define ID_TASK_FIRST					 32900
-#define ID_TASK_FIRST_UPDATER			 32900
 #define ID_TASK_EC_DAILY				 32900
 #define ID_TASK_EC_HOURLY				 32901
 #define ID_TASK_EC_FORECAST				 32902
@@ -158,12 +157,10 @@
 #define ID_TASK_NEWBRUNSWICK			 32919
 #define ID_TASK_ONTARIO					 32920
 #define ID_TASK_NEWA					 32921
-#define ID_UPDATER_MISCELLANEOUS		 32922
+#define ID_TASK_MISCELLANEOUS		     32922
 #define ID_TASK_CMIP5    				 32923
 #define ID_TASK_GPCP					 32924
 #define ID_TASK_HRG						 32925
-#define ID_TASK_OTHER_UPDATER			 32926
-#define ID_TASK_FIRST_TOOLS				 32927
 #define ID_TASK_CREATE_HOURLY        	 32927
 #define ID_TASK_CREATE_DAILY        	 32928
 #define ID_TASK_CREATE_NORMALS      	 32929
@@ -176,11 +173,11 @@
 #define ID_TASK_ZIP_UNZIP                32936
 #define ID_TASK_DOWNLOAD_UPLOAD			 32937
 #define ID_TASK_CONVERT_DB		         32938
-#define ID_TASK_OTHER_TOOLS				 32939
-#define ID_TASK_DELETE					 33940
-#define ID_TASK_LAST    				 32940
+#define ID_TASK_LAST    				 32939
 #define ID_TASK_UPDATE					 32945
 #define ID_TASK_TOOLS					 32946
+#define ID_TASK_DELETE_UPDATE			 32947
+#define ID_TASK_DELETE_TOOL				 33948
 #define ID_OPTIONS                       35950
 #define ID_EXECUTE                       35955
 #define ID_OPEN_PROPERTY                 35960

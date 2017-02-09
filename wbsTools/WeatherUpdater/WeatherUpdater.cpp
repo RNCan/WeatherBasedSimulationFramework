@@ -1,11 +1,11 @@
-//5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header   
+//5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header
 //										Bug correction in hourly to daily conversion
 //5.2.3	28/10/2016	Rémi Saint-Amant	Important bug correction in convertion to version 10. Remove Tair causing many problems
 //										Add save coordinat eof all station into the.csv file
 //5.2.2	16/10/2016	Rémi Saint-Amant	Add NEWA 
 //5.2.1	05/10/2016	Rémi Saint-Amant	Bug correction when creating a new project
 //5.2.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
-//5.1.1 05/09/2016	Rémi Saint-Amant	Direcly open ISD-Lite .gz file 
+//5.1.1 05/09/2016	Rémi Saint-Amant	Directly open ISD-Lite .gz file 
 //5.1.0 29/08/2016  Rémi Saint-Amant	Compile with boost 1.61
 //										Add CPGP
 //										Add CMID5 and CreateMMG

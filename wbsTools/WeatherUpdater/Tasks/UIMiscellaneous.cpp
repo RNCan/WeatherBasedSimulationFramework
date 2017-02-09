@@ -35,7 +35,7 @@ namespace WBSF
 	const char* CUIMiscellaneous::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Dataset", "FirstYear", "LastYear", "ShowProgress" };
 	const size_t CUIMiscellaneous::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
 	const UINT CUIMiscellaneous::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MISCELLANEOUS_P;
-	const UINT CUIMiscellaneous::DESCRIPTION_TITLE_ID = ID_UPDATER_MISCELLANEOUS;
+	const UINT CUIMiscellaneous::DESCRIPTION_TITLE_ID = ID_TASK_MISCELLANEOUS;
 
 	const char* CUIMiscellaneous::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Miscellaneous";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIMiscellaneous::ClassType()const { return CTaskBase::UPDATER; }

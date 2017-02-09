@@ -59,7 +59,7 @@ namespace WBSF
 	const char* CUICIPRA::SERVER_NAME = "horus.mesonet-quebec.org";
 	const char* CUICIPRA::SUB_DIR = "/";
 
-	const char* CUICIPRA::NETWORK_NAME[NB_NETWORKS] = { "atantique", "ontario", "pommes", "quebec" };
+	const char* CUICIPRA::NETWORK_NAME[NB_NETWORKS] = { "atantic", "ontario", "pommes", "quebec" };
 	const char* CUICIPRA::NETWORK_TIMEZONE_NAME[NB_NETWORKS] = { "AST", "EST", "HNE", "HNE" };
 
 	size_t CUICIPRA::GetNetworkIndex(const std::string& network_name)
@@ -89,7 +89,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORKS:	str = "Atantique|Ontario|Pommes|Quebec"; break;
+		case NETWORKS:	str = "Atantic|Ontario|Pommes|Quebec"; break;
 		};
 		return str;
 	}
@@ -154,7 +154,8 @@ namespace WBSF
 		int nbDownload = 0;
 
 		StringVector networks = as<StringVector>(NETWORKS);
-
+		if (networks.empty())
+			networks = StringVector("Atantic|Ontario|Pommes|Quebec", "|");
 
 
 		//callback.PushTask("Netwoks (" + ToString(networks.size()) + ")", networks.size());
@@ -170,7 +171,7 @@ namespace WBSF
 			
 			CFileInfoVector cleanFileList;
 
-			callback.PushTask(GetString(IDS_LOAD_FILE_LIST) + "(" + ToString(nbYears*networks.size() + (bForecast ? 1 : 0)) + ")", nbYears*networks.size() + (bForecast ? 1 : 0));
+			callback.PushTask(GetString(IDS_LOAD_FILE_LIST) + "(" + ToString((nbYears + (bForecast ? 1 : 0))*networks.size()) + ")", (nbYears + (bForecast ? 1 : 0))*networks.size());
 
 			size_t nbFileFound = 0;
 			for (size_t n = 0; n < networks.size(); n++)

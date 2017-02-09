@@ -66,7 +66,6 @@ public:
 	afx_msg void OnUpdateToolBar(CCmdUI *pCmdUI);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
-	//afx_msg LRESULT OnItemExpanded(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnBeginDrag(WPARAM, LPARAM);
 	afx_msg LRESULT OnEndDrag(WPARAM, LPARAM);
 	afx_msg LRESULT OnDropHover(WPARAM, LPARAM);
@@ -84,51 +83,12 @@ public:
 
 	void AdjustLayout();
 
-	static UINT CtrlBaseID(UINT ID);
 	static UINT CtrlID(const std::string& className);
 	static std::string ClassName(UINT ID);
 	
 	bool m_bInUpdate;
 };
 
-
-//*****************************************************************************************************
-//class CProjectWnd : public CView
-//{
-//	DECLARE_DYNCREATE(CProjectWnd)
-//
-//public:
-//
-//	CProjectWnd();
-//	~CProjectWnd();
-//
-//	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
-//	virtual void OnDraw(CDC* pDC);
-//	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-//	virtual void OnInitialUpdate();
-//
-//
-//	void AdjustLayout();
-//
-//
-//
-//protected:
-//
-//
-//	CTaskWnd m_wnd1;
-//	CTaskWnd m_wnd2;
-//	CPaneSplitter m_wndSplitter;
-//
-//	DECLARE_MESSAGE_MAP()
-//	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-//	afx_msg void OnSize(UINT nType, int cx, int cy);
-//	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-//	afx_msg void OnSetFocus(CWnd* pOldWnd);
-//	afx_msg void OnExecute();
-//	afx_msg BOOL OnOpenWorkingDir(UINT ID);
-//
-//};
-//
 
 class CProjectWnd : public CDockablePane
 {

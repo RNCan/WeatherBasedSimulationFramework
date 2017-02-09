@@ -148,6 +148,7 @@
     <Image Include="res\project_wnd.ico">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="res\TaskToolbar4.png" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WeatherUpdater.rc">

@@ -138,6 +138,16 @@ ERMsg CUIGHCND::UpdateStationHistory(CCallback& callback)
 			if( !IsFileUpToDate(fileList[0], outputFilePath) )
 			{
 				msg = FTPDownload(SERVER_NAME, path, outputFilePath, callback);
+				if (msg)
+				{
+					CFileInfo info = GetFileInfo(outputFilePath);
+					if (info.m_size < 1000)
+					{
+						callback.AddMessage("WARNING: empty stations list file");
+						callback.AddMessage("Removing " + outputFilePath);
+						msg += WBSF::RemoveFile(outputFilePath);
+					}
+				}
 			}
 		}
 	}
@@ -281,16 +291,6 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 				//unzip it
 				if (msg)
 				{
-					//callback.AddMessage("Unzip " + GetFileName(outputFilePath) + " ...");
-					//msg = sevenZ(outputFilePath.c_str(), GetPath(outputFilePath).c_str(), callback);
-					//RemoveFile(outputFilePath);
-
-					//update time to the time of the .gz file
-					//boost::filesystem::path p(outputFilePath);
-					//if (boost::filesystem::exists(p))
-						//boost::filesystem::last_write_time(p, fileList[i].m_time);
-
-
 					if (msg)
 					{
 						curI++;
@@ -321,11 +321,6 @@ string CUIGHCND::GetOutputFilePath(const string& fileName)const
 {
 	return GetDir(WORKING_DIR) + "by_year\\" + fileName;
 }
-
-//string CUIGHCND::GetOutputFilePath(const CFileInfo& info)const
-//{
-//	return GetOutputFilePath( info.m_filePath );
-//}
 
 bool CUIGHCND::IsFileInclude(const string& fileTitle)const
 {
@@ -410,12 +405,7 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	int firstYear = as<int>(FIRST_YEAR);
 	int lastYear = as<int>(LAST_YEAR);
 
-	//CStdioFile excludedFile;
-	//excludedFile.Open( workingDir + "FileWithoutInfo.txt", CStdFile::modeWrite|CStdFile::modeCreate);
-
 	callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-	//callback.SetNbStep(fileList.size());
-	
 
 	for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end()&&msg; )
 	{
@@ -432,14 +422,6 @@ ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	}			
 	
 	callback.PopTask();
-	//excludedFile.Close();
-	//CStdioFile file("d:\\travail\\anomalie.txt", CStdFile::modeWrite|CStdFile::modeCreate);
-	//for( int i=0; i<missStationArray.size(); i++)
-	//{
-	//	file.WriteString(missStationArray[i]);
-	//	file.WriteString("\n");
-	//}
-	//file.Close();
 
 	return msg;
 }
@@ -482,8 +464,6 @@ void CUIGHCND::GetStationInformation(const string& ID, CLocation& location)const
 ERMsg CUIGHCND::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
 {
     ERMsg msg;
-
-	//CreateMultipleDir(workingDir+ "Opt\\");
 	
 	string refFilePath = GetStationFilePath();
 	string optFilePath = GetOptFilePath();

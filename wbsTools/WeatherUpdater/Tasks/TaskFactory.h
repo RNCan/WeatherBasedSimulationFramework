@@ -16,6 +16,7 @@ namespace WBSF
 	typedef CTaskPtr(PASCAL *createF)();
 
 	typedef std::map<std::string, createF> ClassMap;
+	typedef std::map<UINT, std::string> IDMap;
 	typedef ClassMap::const_iterator ClassIt;
 
 
@@ -46,6 +47,7 @@ namespace WBSF
 		{}
 
 		ClassMap m_classMap;
+		IDMap	m_IDMap;
 	};
 
 	

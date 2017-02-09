@@ -101,7 +101,13 @@ using namespace WBSF;
 		m_taskImages.Create(16, 16, ILC_COLOR32, 0, 0);
 
 		CPngImage image;
-		CBitmap bitmap;
+		CBitmap bitmap; 
+		
+		VERIFY(m_ID2Index.Create(this));//invisible toolbar
+		m_ID2Index.LoadToolBar(IDR_TASK);
+		
+
+
 
 		image.Load(IDR_TASK, AfxGetInstanceHandle());
 		bitmap.Attach(image.Detach());
@@ -123,6 +129,11 @@ using namespace WBSF;
 		SetDropCursors(IDC_CMN_NODROP, IDC_CMN_DROPCOPY, IDC_CMN_DROPMOVE);
 	}
 
+	int CTaskTreeCtrl::ID2ImagesIndex(UINT ID)const
+	{
+		return m_ID2Index.CommandToIndex(ID);
+	}
+	
 	//add root
 	void CTaskTreeCtrl::AddRoot(size_t t, UINT iImageIndex, CString name)
 	{

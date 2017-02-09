@@ -96,13 +96,34 @@ namespace WBSF
 	std::string CTaskFactory::ClassNameFromResourceID(UINT ID)
 	{
 		std::string class_name;
-		for (ClassMap::const_iterator it = GetInstance().begin(); it != GetInstance().end() && class_name.empty(); it++)
+
+		IDMap::const_iterator it = GetInstance().m_IDMap.find(ID);
+		if (it != GetInstance().m_IDMap.end())
 		{
-			CTaskPtr pTask = CTaskFactory::CreateObject(it->first);
-			ASSERT(pTask.get());
-			
-			if (pTask->GetDescriptionStringID() == ID)
-				class_name = it->first;
+			class_name = it->second;
+		}
+		else
+		{
+			//reverse IDMap
+			std::map< string, UINT > classNameMap = converse_map(GetInstance().m_IDMap);
+
+			//Update ID maps
+			for (ClassMap::const_iterator it = GetInstance().begin(); it != GetInstance().end(); it++)
+			{
+				
+				if (classNameMap.find(it->first) == classNameMap.end())
+				{
+					CTaskPtr pTask = CTaskFactory::CreateObject(it->first);
+					ASSERT(pTask.get());
+
+					GetInstance().m_IDMap[pTask->GetDescriptionStringID()] = it->first;
+				}
+			}
+
+			//try to find ID
+			IDMap::const_iterator it = GetInstance().m_IDMap.find(ID);
+			if (it != GetInstance().m_IDMap.end())
+				class_name = it->second;
 		}
 
 		return class_name;

@@ -59,6 +59,8 @@ public:
 	void OnUpdateToolBar(CCmdUI *pCmdUI);
 	WBSF::CTaskPtr GetSelectedTask();
 
+	int ID2ImagesIndex(UINT ID)const;
+	
 
 	void Update(){ Init(); }
 	//void SetParent(CTaskWnd* pParent){ m_pParent = pParent; }
@@ -76,7 +78,7 @@ public:
 	CImageList		m_taskTypeImage;
 	CImageList		m_taskImages;
 	WBSF::CTaskPtr	m_pTask;
-
+	CToolBar		m_ID2Index;//use junk toolbar to compute image ID to index 
 
 	static XHTMLTREEDATA GetExtraData();
 	static TVINSERTSTRUCT GetInsertStruct(CString& name, int imageIndex, HTREEITEM hParent, HTREEITEM hInsertAfter);
