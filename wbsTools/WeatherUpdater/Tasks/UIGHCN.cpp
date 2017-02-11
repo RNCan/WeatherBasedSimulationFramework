@@ -357,7 +357,8 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 				if( IsEqualNoCase( location.GetSSI("Country"), "US") )
 				{
 					CStateSelection states(Get(STATES));
-					size_t state = CStateSelection::GetState(location.GetSSI("State").c_str());
+					//size_t state = CStateSelection::GetState(location.GetSSI("State").c_str());
+					string state = location.GetSSI("State");
 					if (states.at(state))
 						bRep=true;
 				}

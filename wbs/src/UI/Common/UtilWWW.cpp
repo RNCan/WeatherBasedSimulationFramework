@@ -419,7 +419,7 @@ namespace UtilWWW
 		return bRep;
 	}
 
-	void GetFileInfo(const CFtpFileFind& finder, CFileInfo& info, bool bHaveWildcard)
+	void GetFileInfo(const CFtpFileFind& finder, CFileInfo& info, bool bHavePath)
 	{
 		ASSERT( !finder.GetFileURL().IsEmpty() );
 
@@ -427,12 +427,19 @@ namespace UtilWWW
 
 		CString test1 = finder.GetFilePath();
 		CString test2 = finder.GetFileName();
-		if (!UtilWin::GetPath(test2).IsEmpty())
-			info.m_filePath = UtilWin::ToUTF8(test2);
-		else if (!UtilWin::GetPath(test1).IsEmpty())
-			info.m_filePath = UtilWin::ToUTF8(test1);
+		if (bHavePath)
+		{
+			if (!UtilWin::GetPath(test2).IsEmpty())
+				info.m_filePath = UtilWin::ToUTF8(test2);
+			else if (!UtilWin::GetPath(test1).IsEmpty())
+				info.m_filePath = UtilWin::ToUTF8(test1);
+			else
+				info.m_filePath = UtilWin::ToUTF8(test1);
+		}
 		else
-			info.m_filePath = UtilWin::ToUTF8(test1);
+		{
+			info.m_filePath = UtilWin::ToUTF8(test2);
+		}
 		//if (bHaveWildcard )
 			//info.m_filePath = UtilWin::ToUTF8(finder.GetFilePath());
 		//else 
@@ -497,7 +504,7 @@ namespace UtilWWW
 
 			CFileInfo info;
 			
-			GetFileInfo(finder, info, URL.FindOneOf(_T("*?")) != -1 && !UtilWin::GetPath(URL).IsEmpty());
+			GetFileInfo(finder, info, !UtilWin::GetPath(URL).IsEmpty());//URL.FindOneOf(_T("*?")) != -1 && 
 			fileList.push_back(info);
 
 			msg += callback.StepIt(0);

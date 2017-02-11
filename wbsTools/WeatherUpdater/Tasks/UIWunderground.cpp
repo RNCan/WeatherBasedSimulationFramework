@@ -879,9 +879,9 @@ namespace WBSF
 				{
 					if (country == "US" || country == "CA")
 					{
-						string stateStr = it->GetSSI("State");
+						string state = it->GetSSI("State");
 						
-						if (states.at(stateStr))
+						if (states.at(state))
 							bDownload = true;
 					}
 					else

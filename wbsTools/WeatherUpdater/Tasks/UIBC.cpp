@@ -111,7 +111,7 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "1"; break;
-		case UPDATE_STATION_LIST:	str = "1"; break;
+		case UPDATE_STATION_LIST:	str = "0"; break;
 		case IGNORE_ENV_CAN:	str = "1"; break;
 		};
 		return str;

@@ -42,12 +42,6 @@ namespace WBSF
 
 	#define extremVar(e) (e<2?H_PRCP:H_TNTX)
 
-//	const TVarH CBlueStainVariables::EXTREM_VAR[NB_EXTREM] = { H_PRCP, H_PRCP, H_TAIR, H_TAIR };
-	//const int CBlueStainVariables::EXTREM_STAT[NB_EXTREM] = { HIGHEST, LOWEST, HIGHEST, LOWEST };
-	//const double CBlueStainVariables::EXTREM_INIT_VAL[NB_EXTREM] = { -DBL_MAX, DBL_MAX, -DBL_MAX, DBL_MAX };
-	//const int CBlueStainVariables::EXTREM_OP[NB_EXTREM] = { CMathEvaluation::GREATER, CMathEvaluation::LOWER, CMathEvaluation::GREATER, CMathEvaluation::LOWER };
-
-
 	extern const char * pVars = "Mean annual temperature(°C)|Total annual precipitation(mm)|Maximum annual temperature(°C)|Minimum annual temperature(°C)|Warmest *quarter* total precipitation(mm)|Warmest quarter mean temperature(°C)|Coldest quarter total precipitation(mm)|Coldest quarter mean temperature(°C)|Wettest quarter total precipitation(mm)|Wettest quarter mean temperature(°C)|Driest quarter total precipitation(mm)|Driest quarter mean temperature(°C)|Annual aridity index(mm)|Warmest quarter aridity index(mm)|Coldest quarter aridity index(mm)|Wettest quarter aridity index(mm)|Driest quarter aridity index(mm)|Warmest month mean temperature(°C)|Coldest month mean temperature(°C)|Total precipitation in the wettest month(mm)|Total precipitation in the driest month(mm)|Degree day accumulation >5°C between 1 April and 31 August";
 
 	class SortExtrem
@@ -96,52 +90,12 @@ namespace WBSF
 		CStatistic stat;
 		for (size_t y = 0; y < weather.size(); y++)
 			stat += (e < WARMEST ? weather[y][m][H_PRCP] : weather[y][m][H_TNTX]);
-			//	stat += weather[y][m].GetStat(v);
 
 		return stat;
 	}
 
 
 
-	CTPeriod CBlueStainVariables::GetExtremQuarter(const CWeatherStation& weather, TExtrem e, bool bLoop)
-	{
-		int year1 = weather.GetFirstYear();
-		int year2 = weather.GetLastYear();
-		CTM TM = weather.GetTM();
-
-		size_t max_m = bLoop ? 12 : 9;
-		vector<pair<CStatistic, CTPeriod>> quarter(max_m);
-		
-		for (size_t m = 0; m < quarter.size(); m++)
-		{
-			size_t mm = (m + 2) ;
-			//if (bLoop || mm < 12)
-			//{
-				CTPeriod p(CTRef(year1, m, 0, 0, TM), CTRef(year2, mm % 12, 0, 0, TM), CTPeriod::YEAR_BY_YEAR);
-				quarter[m] = make_pair(CStatistic(), p);
-			//}
-		}
-
-		for (size_t y = 0; y<weather.size(); y++)
-		{
-			for (size_t m = 0; m<max_m; m++)
-			{
-				for (size_t i = 0; i < 3; i++)
-				{
-					size_t mm = m + i;
-					CTRef TRef(weather[y].GetTRef().GetYear(), mm % 12);
-
-					if (weather.GetEntireTPeriod(CTM(CTM::MONTHLY)).IsInside(TRef))
-						quarter[m].first += e<WARMEST ? weather[TRef][H_PRCP][MEAN] : weather[TRef][H_TNTX][MEAN];
-				}
-			}
-		}
-
-		sort(quarter.begin(), quarter.end(), SortExtrem(e));
-
-		return quarter.front().second;
-	}
-	
 	CTPeriod CBlueStainVariables::GetExtremQuarter(const CWeatherYear& weather, TExtrem e, bool bLoop)
 	{
 		int year = weather.GetTRef().GetYear();
@@ -198,7 +152,6 @@ namespace WBSF
 		
 		for (size_t m = 0; m < 12; m++)
 			normals[m] = make_pair(e<WARMEST ? weather[m][H_PRCP][MEAN] : weather[m][H_TNTX][MEAN], m);
-			//normals[m] = make_pair(weather[m][e<WARMEST ? weather[m][H_PRCP][MEAN] : weather[m][H_TNTX][MEAN]][MEAN], m);
 		
 		sort(normals.begin(), normals.end(), SortExtrem(e));
 
@@ -295,21 +248,10 @@ namespace WBSF
 		CModelStatVector DD5;
 		CModelStatVector WD;
 
-		//std::array < CTPeriod, NB_EXTREM> Q;	//quarter extrem
-		//std::array < size_t, NB_EXTREM> M;		//monthly extrem
-
-		
 		GetSummerDD5(weather, DD5);
 		GetWaterDeficit(weather, WD);
 
-		
-		//for (size_t e = 0; e < NB_EXTREM; e++)
-			//Q[e] = GetExtremQuarter(weather, TExtrem(e), false);
-			
-		//for (size_t e = 0; e < NB_EXTREM; e++)
-			//M[e] = GetExtremMonth(weather, TExtrem(e));
-
-
+	
 		for (size_t y = 0; y < weather.size(); y++)
 		{
 			array < CTPeriod, NB_EXTREM> Q;	//quarter extrem
@@ -346,10 +288,6 @@ namespace WBSF
 				case V_COLDQ_AI:	output[y][v] = GetAridity(WD, Q[COLDEST], false); break;
 				case V_WETQ_AI:		output[y][v] = GetAridity(WD, Q[WETTEST], false); break;
 				case V_DRYQ_AI:		output[y][v] = GetAridity(WD, Q[DRIEST], false); break;
-				//case V_WARMQ_AI:	output[y][v] = WD[CTRef(year, M[WARMEST])][0]; break;
-				//case V_COLDQ_AI:	output[y][v] = WD[CTRef(year, M[COLDEST])][0]; break;
-				//case V_WETQ_AI:		output[y][v] = WD[CTRef(year, M[WETTEST])][0]; break;
-				//case V_DRYQ_AI:		output[y][v] = WD[CTRef(year, M[DRIEST])][0]; break;
 				case V_WARMM_TMEAN:	output[y][v] = weather[CTRef(year, M[WARMEST])][H_TNTX][MEAN]; break;
 				case V_COLDM_TMEAN:	output[y][v] = weather[CTRef(year, M[COLDEST])][H_TNTX][MEAN]; break;
 				case V_WETM_PRCP:	output[y][v] = weather[CTRef(year, M[WETTEST])][H_PRCP][SUM]; break;
@@ -370,23 +308,5 @@ namespace WBSF
 				set(i);
 		ASSERT(to_ullong()==v);
 	}
-/*
-	static SelectionVar GetSelectedVariables()
-	{
-		SelectionVar vars;
-		vars.set(CBlueStainVariables::V_AI);
-		vars.set(CBlueStainVariables::V_WARMQ_AI);
-		vars.set(CBlueStainVariables::V_WARMQ_TMEAN);
-		vars.set(CBlueStainVariables::V_SUMMER_DD5);
-		vars.set(CBlueStainVariables::V_TMIN_EXT);
-		vars.set(CBlueStainVariables::V_COLDQ_TMEAN);
-		return vars;
-	}
-
-	static SelectionVar GetSelectedVariables(size_t v)
-	{
-
-	}
-*/
 
 }

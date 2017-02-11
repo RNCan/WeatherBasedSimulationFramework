@@ -1,3 +1,6 @@
+//5.3.1 10/02/2016  Rémi Saint-Amant	Add CUIMiscellaneous and virtual station
+//										Change in icon selection of the task
+//										Better TaskFactory. Fing task by ID
 //5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header
 //										Bug correction in hourly to daily conversion
 //5.2.3	28/10/2016	Rémi Saint-Amant	Important bug correction in convertion to version 10. Remove Tair causing many problems
@@ -174,7 +177,7 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	// TODO: modifiez cette chaîne avec des informations appropriées,
 	// telles que le nom de votre société ou organisation
 	SetRegistryKey(_T("NRCan"));
-	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés) 
+	LoadStdProfileSettings(16);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés) 
 
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);

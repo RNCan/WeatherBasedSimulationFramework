@@ -29,7 +29,7 @@ namespace WBSF
 	const char* CCreateHourlyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateHourlyDB::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateHourlyDB::CLASS_NAME(), (createF)CCreateHourlyDB::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("HOURLY_DB_CREATOR", (createF)CCreateHourlyDB::create);
+	//static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("HOURLY_DB_CREATOR", (createF)CCreateHourlyDB::create);
 
 	
 

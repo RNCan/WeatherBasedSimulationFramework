@@ -82,8 +82,8 @@ namespace WBSF
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList" };
-	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
+	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan" };
+	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL };
 	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ACIS_P;
 	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ACIS;
 
@@ -125,6 +125,7 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case UPDATE_STATIONS_LIST: str = "0"; break;
+		case IGNORE_ENV_CAN: str = "1"; break;
 		};
 
 		return str;
@@ -274,6 +275,7 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
+		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
 		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
 
 		
@@ -292,8 +294,17 @@ namespace WBSF
 					CTimeRef TRef1(GetFileStamp(filePath));
 					CTRef TRef2(year, m, LAST_DAY);
 
-					bNeedDownload[i][y][m] = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
-					nbFilesToDownload += bNeedDownload[i][y][m] ? 1 : 0;
+					bool bND = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
+					if (bND && bIgoneEC)
+					{
+						string ID = m_stations[i].GetSSI("EC_id");
+						ID = ID.substr(0, 3);
+						if (!ID.empty() && ID != "999")
+							bND = false;
+					}
+
+					bNeedDownload[i][y][m] = bND;
+					nbFilesToDownload += bND ? 1 : 0;
 
 					msg += callback.StepIt();
 				}
@@ -724,8 +735,23 @@ namespace WBSF
 
 		if (msg)
 		{
+			bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
+
 			for (size_t i = 0; i < m_stations.size(); i++)
-				stationList.push_back(m_stations[i].m_ID);
+			{
+				bool bAdd = true;
+				if (bIgoneEC)
+				{
+					string ID = m_stations[i].GetSSI("EC_id");
+					ID = ID.substr(0, 3);
+					if (!ID.empty() && ID != "999")
+						bAdd = false;
+				}
+
+				if( bAdd )
+					stationList.push_back(m_stations[i].m_ID);
+			}
+
 		}
 
 		return msg;

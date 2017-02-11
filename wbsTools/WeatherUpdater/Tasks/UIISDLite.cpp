@@ -255,8 +255,7 @@ namespace WBSF
 						if (IsEqualNoCase(station.m_country, "US"))
 						{
 							CStateSelection states(Get(STATES));
-							size_t state = CStateSelection::GetState(station.m_state.c_str());
-							if (states.none() || (state < states.size() && states.at(state)))
+							if (states.at(station.m_state))
 								bRep = true;
 						}
 						else

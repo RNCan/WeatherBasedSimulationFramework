@@ -30,7 +30,7 @@ namespace WBSF
 		static const char* VAR_NAME[NB_VARIABLES];
 
 
-		static CTPeriod GetExtremQuarter(const CWeatherStation& weather, TExtrem e, bool bLoop = false);
+		//static CTPeriod GetExtremQuarter(const CWeatherStation& weather, TExtrem e, bool bLoop = false);
 		CTPeriod CBlueStainVariables::GetExtremQuarter(const CWeatherYear& weather, TExtrem e, bool bLoop = false);
 		static size_t GetExtremMonth(const CWeatherStation& weather, TExtrem e);
 		static size_t GetExtremMonth(const CWeatherYear& weather, TExtrem e);

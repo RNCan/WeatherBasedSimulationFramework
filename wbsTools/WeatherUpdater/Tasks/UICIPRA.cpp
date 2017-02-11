@@ -46,7 +46,7 @@ namespace WBSF
 
 	//*********************************************************************
 
-	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "Network", "FirstYear", "LastYear", "Forecast" };
+	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "Network", "FirstYear", "LastYear", "Forecast"  };
 	const size_t CUICIPRA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING_SELECT, T_STRING, T_STRING, T_BOOL };
 	const UINT CUICIPRA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_CIPRA_HOURLY_P;
 	const UINT CUICIPRA::DESCRIPTION_TITLE_ID = ID_TASK_SM_CIPRA_HOURLY;

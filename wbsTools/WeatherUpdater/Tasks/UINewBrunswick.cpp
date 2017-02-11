@@ -553,7 +553,7 @@ namespace WBSF
 		StringVector fileList;
 		GetFileList(AGRI, fileList, callback);
 
-		callback.PushTask("Download New Brunswick agriculture data", fileList.size()*nbYears);
+		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears)+" files)", fileList.size()*nbYears);
 
 		int nbRun = 0;
 		size_t curI = 0;
@@ -649,7 +649,7 @@ namespace WBSF
 		CFileInfoVector fileList;
 		GetFileList(FIRE, fileList, callback);
 
-		callback.PushTask("Download New Brunswick data", fileList.size());
+		callback.PushTask("Download New Brunswick data (" + ToString(fileList.size()) + " files)", fileList.size());
 
 
 		size_t curI = 0;

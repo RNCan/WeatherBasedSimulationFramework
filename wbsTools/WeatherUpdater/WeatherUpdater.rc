@@ -207,8 +207,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,3,0,37
- PRODUCTVERSION 5,3,0,20
+ FILEVERSION 5,3,1,40
+ PRODUCTVERSION 5,3,1,40
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -225,21 +225,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.3.0.37"
+            VALUE "FileVersion", "5.3.1.40"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.3.0.20"
+            VALUE "ProductVersion", "5.3.1.40"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.3.0.37"
+            VALUE "FileVersion", "5.3.1.40"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.3.0.20"
+            VALUE "ProductVersion", "5.3.1.40"
         END
     END
     BLOCK "VarFileInfo"
@@ -656,7 +656,7 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Mise à jours des coordonnées"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
-    IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations"
+    IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Répertoire de travail|Première année|Dernière année|Télécharger pendant x jours"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
@@ -1105,7 +1105,7 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First year|Last year|Update coordinates"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|Network|First year|Last year|Forecast"
-    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list"
+    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Working directory|First year|Last year|Update until x days"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First year|Last year"
