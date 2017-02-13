@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, LIFTOFF_TIME, LANDING_TIME, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_DEFOLIATION, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -490,7 +490,7 @@ namespace WBSF
 		CATMWeather(CATMWorld& world) :
 			m_world(world)
 		{
-			m_bSkipDay = false;
+			//m_bSkipDay = false;
 		}
 
 		ERMsg Load(const std::string& gribsFilepath, const std::string& hourlyDBFilepath, CCallback& callback);
@@ -523,8 +523,8 @@ namespace WBSF
 		static double LandWaterWindFactor(double Ul, double ΔT);
 		static void GetWindProfileRelationship(double& Ur, double& Vr, double z, int stabType, bool bOverWather, double ΔT);
 
-		void ResetSkipDay(){ m_bSkipDay = false; }
-		bool SkipDay()const{ return  m_bSkipDay; }
+		//void ResetSkipDay(){ m_bSkipDay = false; }
+		//bool SkipDay()const{ return  m_bSkipDay; }
 
 		bool HaveGribsWeather()const{ return !m_filePathGribs.empty(); }
 		bool HaveStationWeather()const{ return !m_filePathHDB.empty(); }
@@ -544,7 +544,7 @@ namespace WBSF
 		std::map<size_t, CWaterTemperature> m_Twater;
 		std::map<CTRef, std::array<CIWD, NB_ATM_VARIABLES>> m_iwd;
 		CATMWorld& m_world;
-		bool m_bSkipDay;
+		//bool m_bSkipDay;
 	};
 
 
@@ -652,7 +652,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAX_FLYERS, MANY_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAX_FLYERS, MANY_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -852,6 +852,7 @@ namespace WBSF
 
 		double GetGroundAltitude(const CGeoPoint3D& pt)const;
 		bool is_over_defoliation(const CGeoPoint3D& pt)const;
+		double get_defoliation(const CGeoPoint3D& pt1)const;
 		bool is_over_distraction(const CGeoPoint3D& pt)const;
 		bool is_over_host(const CGeoPoint3D& pt)const;
 
@@ -969,8 +970,8 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](in.m_bUseVerticalVelocity);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](in.m_maxFliyers);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](in.m_bManyFlights);
-		
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](in.m_gribs_name);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](in.m_defoliation_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](in.m_host_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](in.m_hourly_DB_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](in.m_DEM_name);
@@ -999,6 +1000,7 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](out.m_maxFliyers);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](out.m_bManyFlights);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](out.m_gribs_name);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](out.m_defoliation_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](out.m_host_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](out.m_hourly_DB_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](out.m_DEM_name);

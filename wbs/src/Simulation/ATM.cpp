@@ -483,46 +483,6 @@ namespace WBSF
 		}
 	}
 
-	//void CFlyer::live()
-	//{
-	//	ResetStat();
-
-	//	if (m_state == DESTROYED)
-	//		return;
-
-
-	//	CTRef UTCTRef = m_world.GetUTRef();
-	//	CTRef localTRef = UTCTRef + GetUTCShift()/3600;
-	//	if (localTRef >= m_localTRef)
-	//	{
-	//		//for (size_t seconds = 0; seconds < 3600; seconds += m_world.get_time_step())
-	//		{
-	//			if (!m_world.m_weather.IsLoaded(UTCTRef))
-	//				m_state = IDLE_END, m_end_type = OUTSIDE_TIME_WINDOW;
-	//			
-	//			if (m_end_type == NO_END_DEFINE && !m_world.IsInside(m_pt))
-	//				m_state = IDLE_END, m_end_type = OUTSIDE_MAP;
-	//			
-	//				
-
-	//			__int64 UTCTime = m_world.get_UTC_time() + seconds;
-	//			switch (m_state)
-	//			{
-	//			case NOT_CREATED:		create(UTCTRef, UTCTime); break;
-	//			case IDLE_BEGIN:		idle_begin(UTCTRef, UTCTime); break;
-	//			case LIFTOFF:			liftoff(UTCTRef, UTCTime); break;
-	//			case FLIGHT:			flight(UTCTRef, UTCTime); break;
-	//			case CRUISE:			cruise(UTCTRef, UTCTime); break;
-	//			case LANDING:			landing(UTCTRef, UTCTime); break;
-	//			case IDLE_END:			idle_end(UTCTRef, UTCTime);  break;
-	//			case DESTROYED:			destroy(UTCTRef, UTCTime);  break;
-	//			default: assert(false);
-	//			}
-
-	//		}
-	//	}
-	//}
-
 
 	void CFlyer::live(CTRef UTCTRef, __int64 UTCTime)
 	{
@@ -1759,42 +1719,40 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 			}
 			else
 			{
-				msg.ajoute("File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
-			}
+				//msg.ajoute("File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
+				//callback.AddMessage("WARNING: File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
 
-			if (!msg)
-			{
-				
-				//replace image by the nearest image
-				CTRef firstGoodImage;
-				for (size_t h = 0; h < 12 && !firstGoodImage.IsInit(); h++)
+				//if (!msg)
+				//{
+
+					//replace image by the nearest image
+				CTRef nearestImage;
+				for (size_t h = 0; h < 4 && !nearestImage.IsInit(); h++)
 				{
-					int i = int(pow(-1, h+1)*(h+2) / 2);
-					string filePath = get_image_filepath(UTCTRef+i);
+					int i = int(pow(-1, h + 1)*(h + 2) / 2);
+					string filePath = get_image_filepath(UTCTRef + i);
 					if (!filePath.empty() && m_p_weather_DS.load(UTCTRef, filePath, callback))
 					{
-						firstGoodImage = UTCTRef + i;
+						nearestImage = UTCTRef + i;
 					}
 				}
 
-				if (firstGoodImage.IsInit())
+				if (nearestImage.IsInit())
 				{
 					//add a warning and remove error
-					callback.AddMessage("WARNING: " + TrimConst(GetText(msg)));
-					msg = ERMsg();
+					callback.AddMessage("WARNING: File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " (UTC) is Missing. Was replace by " + nearestImage.GetFormatedString("%Y-%m-%d-%H") = + " (UTC)" );
+					//msg = ERMsg();
 
 					//load firstGoodImage into UTCTRef
-					msg = m_p_weather_DS.load(UTCTRef, get_image_filepath(firstGoodImage), callback);
+					msg = m_p_weather_DS.load(UTCTRef, get_image_filepath(nearestImage), callback);
 				}
 				else
 				{
-					//UTCTRef.Transform(CTM(CTM::DAILY));
-					callback.AddMessage("WARNING: Unable to fing a good starting Gribs weather for " + UTCTRef.GetFormatedString("%Y-%m-%d") + " (UTC)");
-					m_bSkipDay = true;
+					msg.ajoute("Skip Day");
 					return msg;
 				}
+
 			}
-			
 			msg += callback.StepIt(0);
 		}
 	}
@@ -2037,7 +1995,7 @@ ERMsg CTRefDatasetMap::Discard(CCallback& callback)
 
 	if (!empty())
 	{
-		callback.PushTask("Discard weather for " + begin()->first.GetFormatedString("%Y-%m-%d"), size());
+		callback.PushTask("Discard weather for " + begin()->first.GetFormatedString("%Y-%m-%d") + +" (nbImages=" + ToString(size()) + ")", size());
 
 		for (iterator it = begin(); it != end() && msg;)
 		{
@@ -2097,7 +2055,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "ManyFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "ManyFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
 
 
 std::set<int> CATMWorld::get_years()const
@@ -2172,28 +2130,32 @@ double CATMWorld::GetGroundAltitude(const CGeoPoint3D& pt)const
 }
 
 
-bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt1)const
+double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 {
-	bool defol = false;
+	double defoliation = 0;
 	if (m_defoliation_DS.IsOpen())
 	{
 		CGeoPoint pt2(pt1);
 		if (pt2.GetPrjID() != m_defoliation_DS.GetPrjID())
 		{
 			ASSERT(pt1.IsGeographic());
-			pt2.Reproject(m_GEO2DEM);
+			pt2.Reproject(CProjectionTransformationManager::Get(pt1.GetPrjID(), m_defoliation_DS.GetPrjID()));
 		}
 
 		CGeoPointIndex xy = m_defoliation_DS.GetExtents().CoordToXYPos(pt2);
-		if(m_defoliation_DS.GetExtents().IsInside(xy))
+		if (m_defoliation_DS.GetExtents().IsInside(xy))
 		{
-			double v = m_defoliation_DS.GetPixel(0, xy);
-			//if (v != m_defoliation_DS.GetNoData(0)) no data is no defoliation
-			defol = v>m_parameters1.m_defoliationThreshold;
+			defoliation = m_defoliation_DS.GetPixel(0, xy);
 		}
 	}
 
-	return defol;
+	return defoliation;
+}
+
+bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt)const
+{
+	double defoliation = get_defoliation(pt);
+	return defoliation>m_parameters1.m_defoliationThreshold;
 }
 
 
@@ -2258,24 +2220,29 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 	{
 		CTRef TRef = it->m_localTRef;
 		TRef.Transform(CTM(CTM::DAILY));
-		if (TRef == localTRef)
+		if (TRef.m_year == localTRef.m_year)
 		{
-			fls.push_back(it);
-		}
-		else if (m_parameters1.m_bManyFlights)
-		{
-			//add also old moth
-			if (TRef < localTRef)
+			if (TRef == localTRef)
 			{
-				if (is_over_defoliation(it->m_newLocation))
+				fls.push_back(it);
+			}
+			else if (m_parameters1.m_bManyFlights && it->m_flightNo > 0 && it->m_flightNo < 3)
+			{
+				//add also old moth
+				if (TRef < localTRef )
 				{
-					//Female mush lais egg and lost weight
-					it->m_location = it->m_newLocation;
-					it->m_pt = it->m_newLocation;
-					it->m_pt.m_alt = 5;
-					
+					if (is_over_defoliation(it->m_newLocation))
+					{
+						//Female mush lais egg and lost weight
+						it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
+						it->m_localTRef.m_day = localTRef.m_day;
+						//it->m_location = it->m_newLocation;
+						//it->m_pt = it->m_newLocation;
+						it->m_pt.m_alt = 5;
 
-					fls.push_back(it);
+
+						fls.push_back(it);
+					}
 				}
 			}
 		}
@@ -2286,10 +2253,9 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 	{
 		while (fls.size() > m_parameters1.m_maxFliyers)
 		{
-			size_t i = this->m_random.Rand(0, int(fls.size()));
+			size_t i = m_random.Rand(0, int(fls.size()-1));
 			fls.erase(fls.begin() + i);
 		}
-
 	}
 
 	return fls;
@@ -2370,7 +2336,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 			//get all flyers for this day
 			vector<CFlyersIt> fls = GetFlyers(*it);
 
-			if (msg && !m_weather.SkipDay())
+			if (msg )
 			{
 				//init all flyers
 				for (size_t i = 0; i < fls.size() && msg; i++)
@@ -2388,21 +2354,34 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 						nbSteps++;
 
 				
-				callback.PushTask("Load weather for period " + UTC_period.GetFormatedString("%1  --->  %2", "%Y-%m-%d-%H") + " (nbImages=" + ToString(nbSteps) + ")", nbSteps);
+				//callback.PushTask("Load weather for " + UTC_period.GetFormatedString("%1", "%Y-%m-%d (UTC) ") + ", nbImages=" + ToString(nbSteps), nbSteps);
+				callback.PushTask("Load weather for " + it->GetFormatedString("%Y-%m-%d") + " (nbImages=" + ToString(nbSteps)+")", nbSteps);
 
+				ERMsg msgLoad;
 				//pre-Load weather for the day
-				for (CTRef UTCTRef = UTC_period.Begin(); UTCTRef <= UTC_period.End() && msg; UTCTRef++)
+				for (CTRef UTCTRef = UTC_period.Begin(); UTCTRef <= UTC_period.End() && msgLoad; UTCTRef++)
 				{
 					if (!m_weather.IsLoaded(UTCTRef))
-						msg += m_weather.LoadWeather(UTCTRef, callback);
+						msgLoad += m_weather.LoadWeather(UTCTRef, callback);
 
-					msg += callback.StepIt();
+					msgLoad += callback.StepIt();
 				}
 
 				callback.PopTask();
 
+				if (!msgLoad)
+				{
+					callback.AddMessage("WARNING: too much Gribs missing. Nigthly flight for " + it->GetFormatedString("%Y - %m - %d") + " was skipped");
+
+					if (callback.GetUserCancel())
+						msg += callback.StepIt(0);
+
+					continue;
+				}
+					
+
 				//Simulate dispersal
-				callback.PushTask("Dispersal for " + it->GetFormatedString("%Y-%m-%d"), UTC_period.size()*fls.size());
+				callback.PushTask("Dispersal for " + it->GetFormatedString("%Y-%m-%d") + " (nb flyers = " + ToString(fls.size()) = ")", UTC_period.size()*fls.size());
 
 
 				for (m_UTCTTime = CTimeZones::UTCTRef2UTCTime(m_UTCTRef = UTC_period.Begin()); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++, m_UTCTTime += 3600)
@@ -2482,9 +2461,11 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 
 											if (flyer.GetLog(CFlyer::T_LANDING) > 0)
 											{
-												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
+												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
-												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
+												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
+												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = get_defoliation(flyer.m_newLocation);
+												
 											}
 										}//log exists
 									}//if output
@@ -2549,7 +2530,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 
 			}//if not skip day
 
-			m_weather.ResetSkipDay();
+//			m_weather.ResetSkipDay();
 		}//for all valid days
 	}//for all years
 
