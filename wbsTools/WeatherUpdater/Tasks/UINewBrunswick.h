@@ -51,6 +51,8 @@ namespace WBSF
 		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
 		ERMsg LoadStationList(CCallback& callback);
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		ERMsg ReadDataHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
+
 		std::bitset<NB_NETWORKS> GetNetWork()const;
 
 		std::string GetStationListFilePath(size_t network)const;

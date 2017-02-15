@@ -55,7 +55,7 @@ namespace WBSF
 
 
 
-	enum{ C_STATION_NAME, C_YEAR, C_MONTH, C_DAY, C_DATE, C_TIME, C_STATION_ID, C_TEMP, C_RH, C_DIR, C_WSPD, C_MX_SPD, C_RN_1, C_RN_24, C_PG_1HR, C_PG_24, C_HFFMC, C_HISI, C_HFWI, C_RN24, C_PG_24HR, C_FFMC, C_DMC, C_DC, C_ISI, C_BUI, C_FWI, C_DSR, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, NB_COLUMNS };
+	enum TFireColumns { C_STATION_NAME, C_YEAR, C_MONTH, C_DAY, C_DATE, C_TIME, C_STATION_ID, C_TEMP, C_RH, C_DIR, C_WSPD, C_MX_SPD, C_RN_1, C_RN_24, C_PG_1HR, C_PG_24, C_HFFMC, C_HISI, C_HFWI, C_RN24, C_PG_24HR, C_FFMC, C_DMC, C_DC, C_ISI, C_BUI, C_FWI, C_DSR, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, NB_COLUMNS };
 	static const char* COLUMN_NAME[NB_COLUMNS] = { "StationName", "Year", "Month", "Day", "Date", "Time", "StationID", "Temp", "Rh", "Dir", "Wspd", "Mx_Spd", "Rn_1", "rn_24", "PG_1hr", "pg_24", "hFFMC", "hISI", "hFWI", "Rn24", "PG_24hr", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR", "TMax", "TMax24", "TMin", "TMin24" };
 
 	
@@ -177,9 +177,6 @@ namespace WBSF
 		
 		if (n == FIRE_HISTORICAL || n == FIRE)
 		{
-			
-
-
 			//open a connection on the server
 			string str;
 			CInternetSessionPtr pSession;
@@ -200,7 +197,7 @@ namespace WBSF
 						for (size_t d = 0; d < dir.size() && msg; d++)
 						{
 							CFileInfoVector tmp;
-							msg = UtilWWW::FindFiles(pConnection, dir[d].m_filePath + "*.txt", tmp, callback);
+							msg = UtilWWW::FindFiles(pConnection, dir[d].m_filePath + "*.txt", tmp);
 
 							for (size_t i = 0; i < tmp.size(); i++)
 							{
@@ -477,18 +474,22 @@ namespace WBSF
 
 		CString URL = _T("010-001/archive.aspx");
 		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");//\r\nUser-Agent: HttpCall\r\n
-
 		
-		CStringA strParam = "__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%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%2Fkx8tP9Qp93CvCxoYUfKz%2B%2F6A%3D%3D&__VIEWSTATEGENERATOR=7FE89812&__EVENTVALIDATION=%2FwEWhAEC6vCn2AwCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtGk16ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQL0x6SlAQKA3uC2A0LNcpbYprj4QvUiSHNkEUzsHvnf&ctl00%24hfLang=fr-CA&";
-		strParam += ("ctl00%24Content1%24ddlWS=" + ID).c_str();
-		strParam += "&ctl00%24Content1%24ddlFromDay=1";
-		strParam += "&ctl00%24Content1%24ddlFromMonth=1";
-		strParam += ("&ctl00%24Content1%24ddlFromYear=" + ToString(year)).c_str();
-		strParam += "&ctl00%24Content1%24hdnFromDate=";
-		strParam += "&ctl00%24Content1%24ddlToDay=31" ;
-		strParam += "&ctl00%24Content1%24ddlToMonth=12";
-		strParam += ("&ctl00%24Content1%24ddlToYear=" + ToString(year)).c_str();
-		strParam += "&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit";
+		CStringA strParam = "__EVENTTARGET=&__EVENTARGUMENT=&";
+		strParam += "__VIEWSTATE=%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%3D%3D&";
+		strParam += "__VIEWSTATEGENERATOR=7FE89812&";
+		strParam += "__EVENTVALIDATION=%2FwEWhwEC4aqNwA8CjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtWk%2B6ACAtCk%2B6ACAtCkz6ACAtek%2F6ACAtekz6ACAtGky6ACAtWky6ACAtekn6MCAtCk%2F6ACAtak16ACAtakk6MCAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAv%2Fo%2BKAJAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQLF7or1AgL0x6SlAQKA3uC2A%2BJPGOIQgIZ1%2BCfpXFjrz%2Fycln%2FX&";
+		strParam += "ctl00%24hfLang=fr-CA&";
+		strParam += ("ctl00%24Content1%24ddlWS=" + ID + "&").c_str();
+		strParam += "ctl00%24Content1%24ddlFromDay=1&";
+		strParam += "ctl00%24Content1%24ddlFromMonth=1&";
+		strParam += ("ctl00%24Content1%24ddlFromYear=" + ToString(year) + "&").c_str();
+		strParam += "ctl00%24Content1%24hdnFromDate=&";
+		strParam += "ctl00%24Content1%24ddlToDay=31&" ;
+		strParam += "ctl00%24Content1%24ddlToMonth=12&";
+		strParam += ("ctl00%24Content1%24ddlToYear=" + ToString(year) + "&").c_str();
+		strParam += "ctl00%24Content1%24hdnToDate=&";
+		strParam += "ctl00%24Content1%24btnGetData=Submit";
 		
 		
 		DWORD HttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT |INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
@@ -769,33 +770,49 @@ namespace WBSF
 					{ 
 						string txt1;
 						std::getline(file, txt1);
-						string ID = txt1.substr(txt1.length() - 6);
-						string name = TrimConst(txt1.substr(0, txt1.length() - 6));
+						Trim(txt1);
+						string::size_type pos = txt1.find_last_of("(");
+						if (pos != string::npos)
+							txt1 = txt1.substr(0, pos-1);
+
+						string ID = TrimConst(txt1.substr(txt1.length() - 5));
+						string name = TrimConst(txt1.substr(0, txt1.length() - 5));
+						name = PurgeFileName(name);
 
 						string txt2;
 						std::getline(file, txt2);
-						StringVector info2(txt2, ", m");
+						StringVector info2(txt2, ",; m");
 
-						if (!ID.empty() && !name.empty() && info2.size() == 8)
+						if (!ID.empty() && !name.empty() && (info2.size() == 8 || info2.size() == 6))
 						{
-							double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 + ToDouble(info2[2]) / 3600.0;
-							double lon = -( -ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
-							double alt = ToDouble(info2[6]);
+							if (info2.size() == 8)
+							{
+								double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 + ToDouble(info2[2]) / 3600.0;
+								double lon = -(-ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
+								double alt = ToDouble(info2[6]);
 
-							locations.push_back( CLocation(name, ID, lat, lon, alt));
+								locations.push_back(CLocation(name, ID, lat, lon, alt));
+							}
+							else if (info2.size() == 6)
+							{
+								double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 ;
+								double lon = -(-ToDouble(info2[2]) + ToDouble(info2[3]) / 60.0);
+								double alt = ToDouble(info2[4]);
+
+								locations.push_back(CLocation(name, ID, lat, lon, alt));
+							}
+							
 						}
 						else
 						{
 							callback.AddMessage("WARNING : invalid station info : " + txt1 + txt2);
 						}
+					}//if msg
+				}//if it's a header file
+			}//for all file
 
-					}
-						
-				}
-
-				string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
-				locations.Save(filePaht);
-			}
+			string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
+			locations.Save(filePaht);
 		}
 		
 
@@ -838,6 +855,7 @@ namespace WBSF
 			bool bData = firstYear!=-999 && lastYear != -999;
 
 			string stationName = bData ? TrimConst(title.substr(0, title.length() - 6)) : title;
+			stationName = PurgeFileName(stationName);
 			string p = bData ? " " + ToString(firstYear) + "-" + ToString(lastYear) : "";
 
 			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\" + ID + " " + stationName + p + ".txt";
@@ -863,24 +881,26 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (m_stations.empty())
+		if (!m_stations.empty())
+			m_stations.clear();
+
+		
+		std::bitset<NB_NETWORKS> network = GetNetWork();
+
+		for (size_t n = 0; n < network.size() && msg; n++)
 		{
-			std::bitset<NB_NETWORKS> network = GetNetWork();
-
-			for (size_t n = 0; n < network.size() && msg; n++)
+			if (network[n])
 			{
-				if (network[n])
-				{
-					CLocationVector stations;
-					msg = stations.Load(GetStationListFilePath(n));
-					if (msg)
-						m_stations.insert(m_stations.end(), stations.begin(), stations.end());
-				}
+				CLocationVector stations;
+				msg = stations.Load(GetStationListFilePath(n));
+				if (msg)
+					m_stations.insert(m_stations.end(), stations.begin(), stations.end());
 			}
-
-			if (msg)
-				msg += m_stations.IsValid();
 		}
+
+		if (msg)
+			msg += m_stations.IsValid();
+		
 
 		if (msg)
 		{
@@ -913,24 +933,38 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		station.CreateYears(firstYear, nbYears);
-
 		station.m_name = PurgeFileName(station.m_name);
 
-		//now extract data 
-		for (size_t y = 0; y < nbYears&&msg; y++)
+
+		if (n == FIRE_HISTORICAL)
 		{
-			int year = firstYear + int(y);
-
-			string filePath = GetOutputFilePath(n, ID, year);
-			if (FileExists(filePath))
+			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\*.txt";
+			CFileInfoVector filesInfo;
+			WBSF::GetFilesInfo(path, false, filesInfo);
+			for (size_t i = 0; i < filesInfo.size() && msg; i++)
 			{
-				if (n == FIRE)
-					msg = ReadData(filePath, TM, station[year], callback);
-				else
-					msg = station.LoadData(filePath, -999, false);
+				if (filesInfo[i].m_size > 500)
+					msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
 			}
+		}
+		else
+		{
+			//now extract data 
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
 
-			msg += callback.StepIt(0);
+				string filePath = GetOutputFilePath(n, ID, year);
+				if (FileExists(filePath))
+				{
+					if (n == FIRE)
+						msg = ReadData(filePath, TM, station[year], callback);
+					else  if (n == AGRI)
+						msg = station.LoadData(filePath, -999, false);
+				}
+
+				msg += callback.StepIt(0);
+			}
 		}
 
 		//verify station is valid
@@ -1023,6 +1057,103 @@ namespace WBSF
 					}
 
 					msg += callback.StepIt(0);
+				}
+			}//for all line
+
+
+			if (accumulator.GetTRef().IsInit())
+				data[accumulator.GetTRef()].SetData(accumulator);
+
+		}//if load 
+
+		return msg;
+	}
+
+	ERMsg CUINewBrunswick::ReadDataHistorical(const string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		enum THistorical { CH_EMPTY, CH_NAME, CH_FILENAME, CH_DATE, CH_JULIAN, CH_TIME, CH_TEMP, CH_RH, CH_DIR, CH_WSPD, CH_MX_SPD, CH_RN_1, CH_RN24, CH_FFMC, CH_DMC, CH_DC, CH_ISI, CH_BUI, CH_FWI, CH_DSR, CH_NB_COLUMNS };
+
+
+
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+
+		//now extact data 
+		ifStream file;
+		msg = file.open(filePath);
+
+		if (msg)
+		{
+			CWeatherAccumulator accumulator(TM);
+			vector<size_t> variables;
+			bool bHourly = true;// IsHourly();
+
+
+			for (CSVIterator loop(file, ",\t", true); loop != CSVIterator() && msg; ++loop)
+			{
+				if (variables.empty())
+				{
+					StringVector head = loop.Header();
+					vector<size_t> columns = GetColumns(head);
+
+					variables = GetVariables(bHourly, columns);
+					//skip units
+					++loop;
+				}
+
+				ASSERT(loop->size() <= variables.size());
+				if (loop->size() == CH_NB_COLUMNS)
+				{
+					int year = ToInt((*loop)[C_YEAR]);
+					size_t month = ToInt((*loop)[C_MONTH]) - 1;
+					size_t day = ToInt((*loop)[C_DAY]) - 1;
+					size_t hour = GetHour((*loop)[C_TIME]);
+
+					ASSERT(month < 12);
+					ASSERT(day < GetNbDayPerMonth(year, month));
+					ASSERT(hour < 24);
+
+					CTRef TRef = bHourly ? CTRef(year, month, day, hour) : CTRef(year, month, day);
+
+					if (accumulator.TRefIsChanging(TRef))
+					{
+						data[accumulator.GetTRef()].SetData(accumulator);
+					}
+
+					for (size_t c = 0; c < loop->size(); c++)
+					{
+
+						if (variables[c] != NOT_INIT)
+						{
+							string str = (*loop)[c];
+							if (!str.empty())
+							{
+								double value = ToDouble(str);
+								if (value > -999 && value < 999)
+									accumulator.Add(TRef, variables[c], value);
+
+								if (c == C_RH && !(*loop)[C_TEMP].empty())
+								{
+									double Tair = ToDouble((*loop)[C_TEMP]);
+									if (Tair > -999 && Tair < 999)
+									{
+										double Tdew = Hr2Td(Tair, value);
+										accumulator.Add(TRef, H_TDEW, Tdew);
+									}
+								}
+							}
+						}
+					}
+
+					msg += callback.StepIt(0);
+				}
+				else
+				{
+					int i;
+					i = 0;
 				}
 			}//for all line
 
