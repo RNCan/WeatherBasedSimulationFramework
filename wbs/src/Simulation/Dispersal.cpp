@@ -482,9 +482,6 @@ namespace WBSF
 					CNewSectionData section;
 					pResult->GetSection(l, p, r, section);
 					assert(section.GetCols() == pResult->GetNbCols(false));
-					
-					//double broods = 0;
-					//double sumBroods = SumBroods(section, vBroods);
 
 					for (size_t t = 0; t < section.GetRows() && msg; t++)
 					{
@@ -492,10 +489,8 @@ namespace WBSF
 
 						for (size_t i = 0; i < varsPos.size(); i++)
 							v[i] = section[t][varsPos[i]][MEAN];
-
-						//broods += section[t][vBroods][MEAN];
+						
 						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1, size_t(v[I_HOUR]));
-						//TRef.Transform(world.m_parameters1.m_simulationPeriod.GetTM());
 						if (period.IsInside(TRef))
 						{
 							CFlyer flyer(world);

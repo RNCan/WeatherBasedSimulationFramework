@@ -2207,33 +2207,36 @@ bool CATMWorld::is_over_host(const CGeoPoint3D& pt1)const
 //TRef is local
 vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 {
-	//ASSERT(localTRef.GetTM().Type() == CTM::DAILY);
+	
 
 	vector<CFlyersIt> fls;
 	for (CFlyersIt it = m_flyers.begin(); it != m_flyers.end(); it++)
 	{
 		CTRef TRef = it->m_localTRef;
 		TRef.Transform(CTM(CTM::DAILY));
-		if (TRef.m_year == localTRef.m_year)
+		//if (TRef.m_year == localTRef.m_year && it->m_flightNo < 3)
+		ASSERT(m_parameters1.m_simulationPeriod.IsInside(TRef);
+		
+		
+		if (TRef == localTRef)
 		{
-			if (TRef == localTRef)
+			ASSERT(it->m_flightNo == 0);
+			fls.push_back(it);
+		}
+		else if(TRef < localTRef )
+		{
+			if (it->m_flightNo < 3))//less than 3 flights
 			{
-				fls.push_back(it);
-			}
-			else if (m_parameters1.m_bManyFlights)
-			{
-				//add also old moth
-				if (TRef < localTRef && it->m_flightNo < 3)
+				//Female mush lais eggs and lost weight
+				
+				if (it->m_flightNo == 0 || (m_parameters1.m_bManyFlights&&is_over_defoliation(it->m_newLocation)))
 				{
-					if (is_over_defoliation(it->m_newLocation))
-					{
-						//Female mush lais egg and lost weight
-						it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
-						it->m_localTRef.m_day = localTRef.m_day;
-						it->m_pt.m_alt = 5;
+					//add also old moth
+					it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
+					it->m_localTRef.m_day = localTRef.m_day;
+					it->m_pt.m_alt = 5;
 
-						fls.push_back(it);
-					}
+					fls.push_back(it);
 				}
 			}
 		}
