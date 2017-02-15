@@ -2214,9 +2214,7 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 	{
 		CTRef TRef = it->m_localTRef;
 		TRef.Transform(CTM(CTM::DAILY));
-		//if (TRef.m_year == localTRef.m_year && it->m_flightNo < 3)
-		ASSERT(m_parameters1.m_simulationPeriod.IsInside(TRef);
-		
+		ASSERT(m_parameters1.m_simulationPeriod.IsInside(TRef));
 		
 		if (TRef == localTRef)
 		{
@@ -2225,7 +2223,7 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 		}
 		else if(TRef < localTRef )
 		{
-			if (it->m_flightNo < 3))//less than 3 flights
+			if (it->m_flightNo < 3)//less than 3 flights
 			{
 				//Female mush lais eggs and lost weight
 				

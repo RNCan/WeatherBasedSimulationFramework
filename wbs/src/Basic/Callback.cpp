@@ -92,6 +92,7 @@ namespace WBSF
 
 	double CCallback::GetNbStep()
 	{ 
+		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty()?GetTasks().top().m_nbSteps:0;
 	}
 
@@ -111,11 +112,12 @@ namespace WBSF
 
 	std::string CCallback::GetMessages()
 	{ 
-		return m_messageAccumulator;// !GetTasks().empty() ? GetTasks().top().m_messages : "";
+		return m_messageAccumulator;
 	}
 
 	double CCallback::GetCurrentStepPos()
 	{ 
+		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty() ? GetTasks().top().m_stepPos:0;
 	}
 
@@ -129,13 +131,22 @@ namespace WBSF
 		}*/
 	
 		{
-			//std::lock_guard<std::mutex> lock(m_mutex);
-			m_mutex.lock();
+			std::lock_guard<std::mutex> lock(m_mutex);
+			//m_mutex.lock();
 
+	
 			if (!GetTasks().empty())
+			{
+//				int p1 = int(GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps);
+	//			int p2 = int(stepPos*100.0 / GetTasks().top().m_nbSteps);
+		//		if (p1 != p2)
+			//	{
+					
 				GetTasks().top().m_stepPos = stepPos;
+				//m_mutex.unlock();
+				//}
+			}
 			
-			m_mutex.unlock();
 		}
 
 		if (omp_get_thread_num() == 0)
@@ -187,6 +198,7 @@ namespace WBSF
 
 	double CCallback::GetCurrentStepPercent()
 	{ 
+		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty() ? (GetTasks().top().m_nbSteps != 0 ? std::min(100.0, std::max(0.0, GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps)) : 100.0) : 0.0;
 	}
 
@@ -206,6 +218,8 @@ namespace WBSF
 	{
 		if (omp_get_thread_num() == 0)
 		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
 			if (!GetTasks().empty())
 			{
 				
@@ -239,7 +253,8 @@ namespace WBSF
 
 	void CCallback::DeleteMessages(bool bAccumulation)
 	{
-		
+		std::lock_guard<std::mutex> lock(m_mutex);
+
 		if( !GetTasks().empty() )
 			GetTasks().top().m_messages.clear();
 
@@ -257,8 +272,10 @@ namespace WBSF
 
 	void CCallback::PushTask(const std::string& description, double nbStep, double stepBy)
 	{
-		if (omp_get_thread_num() == 0)
+		//if (omp_get_thread_num() == 0)
 		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
 			if (nbStep == NOT_INIT)
 				nbStep = -1.0;
 
@@ -271,8 +288,10 @@ namespace WBSF
 
 	void CCallback::PopTask()
 	{
-		if (omp_get_thread_num() == 0)
+		//if (omp_get_thread_num() == 0)
 		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
 			if (!m_threadTasks.empty())
 			{
 				ASSERT(omp_get_thread_num() == 0);
@@ -286,11 +305,12 @@ namespace WBSF
 
 				if (!GetTasks().empty())
 					GetTasks().top().m_messages += messages;
-
-				if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
-					SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
 			}
 		}
+
+		//unlock callback before notify parent
+		if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
+			SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 2, 0);
 	}
 
 }//namespace WBSF
