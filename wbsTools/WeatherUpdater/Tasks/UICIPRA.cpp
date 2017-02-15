@@ -59,7 +59,7 @@ namespace WBSF
 	const char* CUICIPRA::SERVER_NAME = "horus.mesonet-quebec.org";
 	const char* CUICIPRA::SUB_DIR = "/";
 
-	const char* CUICIPRA::NETWORK_NAME[NB_NETWORKS] = { "atantic", "ontario", "pommes", "quebec" };
+	const char* CUICIPRA::NETWORK_NAME[NB_NETWORKS] = { "atlantic", "ontario", "pommes", "quebec" };
 	const char* CUICIPRA::NETWORK_TIMEZONE_NAME[NB_NETWORKS] = { "AST", "EST", "HNE", "HNE" };
 
 	size_t CUICIPRA::GetNetworkIndex(const std::string& network_name)
@@ -89,7 +89,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORKS:	str = "Atantic|Ontario|Pommes|Quebec"; break;
+		case NETWORKS:	str = "Atlantic|Ontario|Pommes|Quebec"; break;
 		};
 		return str;
 	}

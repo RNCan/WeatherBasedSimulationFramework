@@ -27,7 +27,7 @@ using namespace boost;
 namespace WBSF
 {
 
-	const char* CUINewBrunswick::SERVER_NAME[NB_NETWORKS] = { "ftp.gnb.ca", "daafmaapextweb.gnb.ca"};
+	const char* CUINewBrunswick::SERVER_NAME[NB_NETWORKS] = { "ftp.gnb.ca", "ftp.gnb.ca", "daafmaapextweb.gnb.ca" };
 
 
 	//*********************************************************************
@@ -40,7 +40,7 @@ namespace WBSF
 	CTaskBase::TType CUINewBrunswick::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewBrunswick::CLASS_NAME(), (createF)CUINewBrunswick::create);
 
-	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS] {"Fire", "Agriculture"};
+	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS] {"FireHistorical", "Fire", "Agriculture"};
 	
 	size_t CUINewBrunswick::GetNetworkFromName(string name)
 	{
@@ -142,7 +142,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "0=Fire|1=Agriculture"; break;//|1=Agriculture
+		case NETWORK:	str = "0=Fire(Historical)|1=Fire(current)|2=Agriculture"; break;//|1=Agriculture
 		//case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
@@ -154,7 +154,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "NB\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "New-Brunswick\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -169,28 +169,71 @@ namespace WBSF
 
 		fileList.clear();
 
-		if (msg)
-		{
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+		CTRef currentTRef = CTRef::GetCurrentTRef();
 
-			if (n == FIRE)
+		
+		if (n == FIRE_HISTORICAL || n == FIRE)
+		{
+			
+
+
+			//open a connection on the server
+			string str;
+			CInternetSessionPtr pSession;
+			CFtpConnectionPtr pConnection;
+			msg = GetFtpConnection(SERVER_NAME[n], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+			if (msg)
 			{
-				//open a connection on the server
-				string str;
-				CInternetSessionPtr pSession;
-				CFtpConnectionPtr pConnection;
-				msg = GetFtpConnection(SERVER_NAME[n], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-				if (msg)
+
+				//historical data...
+				if (n == FIRE_HISTORICAL)
 				{
-					msg = UtilWWW::FindFiles(pConnection, "yr*.csv", fileList, callback);
-					pConnection->Close();
-					pSession->Close();
+					CFileInfoVector dir;
+					msg = UtilWWW::FindDirectories(pConnection, "/", dir);
+					if (msg)
+					{
+						callback.PushTask("Find files from directories (nb directories = " + ToString(dir.size()) + ")", dir.size());
+						//downlaod all file *.txt
+						for (size_t d = 0; d < dir.size() && msg; d++)
+						{
+							CFileInfoVector tmp;
+							msg = UtilWWW::FindFiles(pConnection, dir[d].m_filePath + "*.txt", tmp, callback);
+
+							for (size_t i = 0; i < tmp.size(); i++)
+							{
+								string filePath = GetOutputFilePath(n, tmp[i].m_filePath, -1);
+								if (!FileExists(filePath))
+									fileList.push_back(tmp[i]);
+							}
+							
+							
+
+							msg += callback.StepIt();
+						}
+
+						callback.PopTask();
+					}
 				}
-			}
-			else if (n == AGRI)
-			{
-				ASSERT(false);
+				else if (n == FIRE)
+				{
+					//current data
+
+					msg = UtilWWW::FindFiles(pConnection, "yr*.csv", fileList, callback);
+				}
+
+
+				pConnection->Close();
+				pSession->Close();
 			}
 		}
+		else if (n == AGRI)
+		{
+			ASSERT(false);
+		}
+	
 
 		return msg;
 	}
@@ -204,7 +247,7 @@ namespace WBSF
 		if (msg)
 		{
 
-			if (n == FIRE)
+			if (n== FIRE_HISTORICAL || n == FIRE )
 			{
 				ASSERT(false);
 			}
@@ -415,7 +458,8 @@ namespace WBSF
 			{
 				switch (n)
 				{
-				case FIRE: msg += ExecuteFire(callback); break;
+				case FIRE_HISTORICAL: msg += ExecuteFire(n, callback); break;
+				case FIRE: msg += ExecuteFire(n, callback); break;
 				case AGRI: msg += ExecuteAgriculture(callback); break;
 				}
 			}
@@ -631,7 +675,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUINewBrunswick::ExecuteFire(CCallback& callback)
+	ERMsg CUINewBrunswick::ExecuteFire(size_t n, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -642,12 +686,12 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(string(SERVER_NAME[FIRE]), 1);
+		callback.AddMessage(string(SERVER_NAME[n]), 1);
 		callback.AddMessage("");
 
 
 		CFileInfoVector fileList;
-		GetFileList(FIRE, fileList, callback);
+		GetFileList(n, fileList, callback);
 
 		callback.PushTask("Download New Brunswick data (" + ToString(fileList.size()) + " files)", fileList.size());
 
@@ -655,6 +699,9 @@ namespace WBSF
 		size_t curI = 0;
 		bool bDownloaded = false;
 		int year = CTRef::GetCurrentTRef().GetYear();
+
+		
+
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
@@ -666,19 +713,29 @@ namespace WBSF
 			{
 				for (size_t i = curI; i < fileList.size() && msg; i++)
 				{
-					string ID = GetFileTitle(fileList[i].m_filePath);
-					string outputFilePath = GetOutputFilePath(FIRE, ID, year);
+					string outputFilePath;
+
+					if (n == FIRE_HISTORICAL)
+					{
+						outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
+
+						
+					}
+					else if (n == FIRE)
+					{
+						string ID = GetFileTitle(fileList[i].m_filePath);
+						outputFilePath = GetOutputFilePath(FIRE, ID, year);
+					}
+
 					WBSF::CreateMultipleDir(GetPath(outputFilePath));
-					
 					msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath);
-
-
-					//split data in seperate files
+					
 					if (msg)
 					{
 						curI++;
 						msg += callback.StepIt();
 					}
+					
 				}
 			}
 			CATCH_ALL(e)
@@ -692,6 +749,57 @@ namespace WBSF
 			pSession->Close();
 		}
 
+		if (n == FIRE_HISTORICAL)
+		{
+			//create stations list coordinate from files
+			
+			CLocationVector locations;
+			//load all station coordinates
+
+			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\*.txt";
+			CFileInfoVector filesInfo;
+			WBSF::GetFilesInfo(path, false, filesInfo);
+			for (size_t i = 0; i < filesInfo.size()&&msg; i++)
+			{
+				if (filesInfo[i].m_size < 100)
+				{
+					ifStream file;
+					msg += file.open(filesInfo[i].m_filePath);
+					if (msg)
+					{ 
+						string txt1;
+						std::getline(file, txt1);
+						string ID = txt1.substr(txt1.length() - 6);
+						string name = TrimConst(txt1.substr(0, txt1.length() - 6));
+
+						string txt2;
+						std::getline(file, txt2);
+						StringVector info2(txt2, ", m");
+
+						if (!ID.empty() && !name.empty() && info2.size() == 8)
+						{
+							double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 + ToDouble(info2[2]) / 3600.0;
+							double lon = -( -ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
+							double alt = ToDouble(info2[6]);
+
+							locations.push_back( CLocation(name, ID, lat, lon, alt));
+						}
+						else
+						{
+							callback.AddMessage("WARNING : invalid station info : " + txt1 + txt2);
+						}
+
+					}
+						
+				}
+
+				string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
+				locations.Save(filePaht);
+			}
+		}
+		
+
+
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
 		callback.PopTask();
 
@@ -699,17 +807,55 @@ namespace WBSF
 	}
 
 
-	string CUINewBrunswick::GetOutputFilePath(size_t n, const string& ID, int year)const
+	string CUINewBrunswick::GetOutputFilePath(size_t n, const string& name, int year)const
 	{
-		
-		return GetDir(WORKING_DIR) + NETWORK_NAME[n] + "\\" + ToString(year) + "\\" + ID + ".csv";
+		if (n == FIRE_HISTORICAL)
+		{
+			string dir = GetLastDirName(GetPath(name));
+			string ID = dir.substr(0, 5);
+			string title = GetFileTitle(name);
+			ReplaceString(title, " to", "-");
+
+			int firstYear = -999;
+			int lastYear = -999;
+			
+			if (title.length() > 6)
+			{
+				StringVector period(title.substr(title.length() - 6), "-");
+				if (period.size() == 2)
+				{
+					firstYear = ToInt(period[0]);
+					lastYear = ToInt(period[1]);
+					firstYear += (firstYear > 50) ? 1900 : 2000;
+					lastYear += (lastYear > 50) ? 1900 : 2000;
+
+					ASSERT(firstYear > 1950 && firstYear <= 2050);
+					ASSERT(lastYear > 1950 && lastYear <= 2050);
+				}
+				
+			}
+			
+			bool bData = firstYear!=-999 && lastYear != -999;
+
+			string stationName = bData ? TrimConst(title.substr(0, title.length() - 6)) : title;
+			string p = bData ? " " + ToString(firstYear) + "-" + ToString(lastYear) : "";
+
+			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\" + ID + " " + stationName + p + ".txt";
+		}
+			
+
+
+		return GetDir(WORKING_DIR) + NETWORK_NAME[n] + "\\" + ToString(year) + "\\" + name + ".csv";
 	}
 
 	std::string CUINewBrunswick::GetStationListFilePath(size_t n)const
 	{
 		ASSERT(n < NETWORK);
 
-		static const char* FILE_NAME[NETWORK] = { "NBStations.csv", "NBAgStations.csv" };
+		static const char* FILE_NAME[NETWORK] = {"HistoricalStations.csv",  "NBFireStations.csv", "NBAgStations.csv" };
+		if (n == FIRE_HISTORICAL)
+			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\" + FILE_NAME[n];
+
 		return WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[n];
 	}
 

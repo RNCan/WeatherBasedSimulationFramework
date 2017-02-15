@@ -1547,7 +1547,7 @@ ERMsg CWGInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherG
 	if (msg)
 	{
 		pNormalDB.reset(new CNormalsDatabase);
-		msg = pNormalDB->Open(NFilePath, CNormalsDatabase::modeRead, callback);
+		msg = pNormalDB->Open(NFilePath, CNormalsDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = pNormalDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
@@ -1557,7 +1557,7 @@ ERMsg CWGInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherG
 	if (msg && WGInput.IsDaily())
 	{
 		pDailyDB.reset(new CDailyDatabase);
-		msg = pDailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback);
+		msg = pDailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}
@@ -1566,7 +1566,7 @@ ERMsg CWGInputAnalysis::InitDefaultWG(const CFileManager& fileManager, CWeatherG
 	if (msg && WGInput.IsHourly())
 	{
 		pHourlyDB.reset(new CHourlyDatabase);
-		msg = pHourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback);
+		msg = pHourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 		if (msg)
 			msg = pHourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
 	}

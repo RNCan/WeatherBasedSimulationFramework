@@ -19,8 +19,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
-	const char* CUIMDDELCC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "UpdateUntil" };
-	const size_t CUIMDDELCC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING};
+	const char* CUIMDDELCC::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "UpdateUntil", "UpdateStationsList" };
+	const size_t CUIMDDELCC::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING, T_BOOL};
 	const UINT CUIMDDELCC::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MDDELCC_DAILY_P;
 	const UINT CUIMDDELCC::DESCRIPTION_TITLE_ID = ID_TASK_MDDELCC_DAILY;
 
@@ -40,22 +40,6 @@ namespace WBSF
 	{}
 
 
-
-	//long CUIMDDELCC::GetNbDay(const CTime& t)
-	//{
-	//	return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1);
-	//}
-
-	//long CUIMDDELCC::GetNbDay(int y, int m, int d)
-	//{
-	//	ASSERT(m >= 0 && m < 12);
-	//	ASSERT(d >= 0 && d < 31);
-
-	//	return long(y * 365 + m*30.42 + d);
-	//}
-
-
-
 	std::string CUIMDDELCC::Option(size_t i)const
 	{
 		string str;
@@ -72,29 +56,13 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case UPDATE_UNTIL: str = "15"; break;
+		case UPDATE_STATIONS_LIST: str = "0"; break;
 		};
 		return str;
 	}
 
 	//************************************************************************************************************
 	//Load station definition list section
-
-	/*CTPeriod String2Period(string period)
-	{
-		CTPeriod p;
-		StringVector str(period, "-|");
-
-		if (str.size() == 6)
-		{
-			int v[6] = { 0 };
-			for (int i = 0; i < 6; i++)
-				v[i] = ToInt(str[i]);
-
-			p = CTPeriod(CTRef(v[0], v[1] - 1, v[2] - 1), CTRef(v[3], v[4] - 1, v[5] - 1));
-		}
-
-		return p;
-	}*/
 
 
 	ERMsg CUIMDDELCC::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
@@ -143,31 +111,6 @@ namespace WBSF
 			}
 		}
 
-		//update first and last avalilable date
-		//msg = GetPageText(pConnection, URL_INDEX, source);
-		//if (msg)
-		//{
-
-		//	//['Station :  Umiujaq',56.5439165,-76.5433171,8,
-		//	string::size_type posBegin = source.find("['Station :");
-
-		//	while (posBegin != string::npos)
-		//	{
-		//		string str = FindString(source, "['Station :", "<p>", posBegin); Trim(str); std::remove(str.begin(), str.end(), '\'');
-		//		StringVector elem(str, ",");
-
-		//		string ID = FindString(source, "<strong>Station : </strong>", "<br />", posBegin); Trim(ID);
-		//		string begin = FindString(source, "permiere_date_disponible=", "&", posBegin); Trim(begin);
-		//		string end = FindString(source, "derniere_date_disponible=", " >", posBegin); Trim(begin);
-
-
-		//		CLocation stationInfo(elem[0], ID, stod(elem[1]), stod(elem[2]), stod(elem[3]));
-		//		stationInfo.SetSSI("Period", begin + "|" + end);
-		//		stationList[ID] = stationInfo;
-
-		//		posBegin = source.find("['Station : ", posBegin);
-		//	}
-		//}
 
 		pConnection->Close();
 		pSession->Close();
@@ -221,7 +164,6 @@ namespace WBSF
 			{
 				file << "Year,Month,Day,Tmax,Tmean,Tmin,Rain,Snow,Prcp,SnwD" << endl;
 				string::size_type posBegin = source.find("<tbody><tr class=", 0);
-				//if(posBegin != string::npos)
 
 
 				while (posBegin != string::npos)
@@ -383,17 +325,18 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
+		bool bForceUpdateList = as<bool>(UPDATE_STATIONS_LIST);
 
 		//Getlocal station list
-		if (FileExists(GetStationListFilePath()))
+		if (!FileExists(GetStationListFilePath()) || bForceUpdateList)
 		{
-			msg = m_stations.Load(GetStationListFilePath());
+			msg = DownloadStationList(m_stations, callback);
+			if (msg)
+				msg = m_stations.Save(GetStationListFilePath());
 		}
 		else
 		{
-			msg = DownloadStationList(m_stations, callback);
-			if(msg)
-				msg = m_stations.Save(GetStationListFilePath());
+			msg = m_stations.Load(GetStationListFilePath());
 		}
 
 		if (!msg)
@@ -428,13 +371,16 @@ namespace WBSF
 				{
 					for (size_t i = curI; i < stationList.size() && msg; i++)
 					{
-						msg = DownloadStation(pConnection, stationList[i], callback);
-						if (msg)
+						ERMsg msgTmp = DownloadStation(pConnection, stationList[i], callback);
+						//if (msgTmp)
 						{
 							curI++;
 							nbRun = 0;
 							msg += callback.StepIt();
 						}
+
+						if (!msgTmp)
+							callback.AddMessage(msgTmp);
 					}
 				}
 				CATCH_ALL(e)

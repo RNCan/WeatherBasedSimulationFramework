@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TNetwork { FIRE, AGRI, NB_NETWORKS};
+		enum TNetwork { FIRE_HISTORICAL, FIRE, AGRI, NB_NETWORKS };
 		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, NB_ATTRIBUTES };//DATA_TYPE, 
 		static size_t GetNetworkFromName(std::string name);
 
@@ -46,7 +46,7 @@ namespace WBSF
 	protected:
 		
 		ERMsg ExecuteAgriculture(CCallback& callback);
-		ERMsg ExecuteFire(CCallback& callback);
+		ERMsg ExecuteFire(size_t n, CCallback& callback);
 
 		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
 		ERMsg LoadStationList(CCallback& callback);

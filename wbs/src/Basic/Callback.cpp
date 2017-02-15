@@ -92,7 +92,6 @@ namespace WBSF
 
 	double CCallback::GetNbStep()
 	{ 
-		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty()?GetTasks().top().m_nbSteps:0;
 	}
 
@@ -117,7 +116,6 @@ namespace WBSF
 
 	double CCallback::GetCurrentStepPos()
 	{ 
-		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty() ? GetTasks().top().m_stepPos:0;
 	}
 
@@ -198,7 +196,6 @@ namespace WBSF
 
 	double CCallback::GetCurrentStepPercent()
 	{ 
-		std::lock_guard<std::mutex> lock(m_mutex);
 		return !GetTasks().empty() ? (GetTasks().top().m_nbSteps != 0 ? std::min(100.0, std::max(0.0, GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps)) : 100.0) : 0.0;
 	}
 

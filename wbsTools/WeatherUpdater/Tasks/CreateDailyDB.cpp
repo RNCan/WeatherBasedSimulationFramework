@@ -26,7 +26,7 @@ namespace WBSF
 	const char* CCreateDailyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateDailyDB::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateDailyDB::CLASS_NAME(), CCreateDailyDB::create);
-	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("DailyDatabase", (createF)CCreateDailyDB::create);
+	//static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("DailyDatabase", (createF)CCreateDailyDB::create);
 	
 
 	CCreateDailyDB::CCreateDailyDB(void)

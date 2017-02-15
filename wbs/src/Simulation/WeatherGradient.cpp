@@ -757,7 +757,7 @@ namespace WBSF
 
 		if (v == H_PRES)
 		{
-			correction = GetPressure(station.m_alt) - GetPressure(m_target.m_alt);
+			correction = (GetPressure(station.m_alt) - GetPressure(m_target.m_alt)) / 100; //correction in [hPa]
 		}
 		else if (v == H_TMIN2 || v == H_TAIR2 || v == H_TMAX2)
 		{

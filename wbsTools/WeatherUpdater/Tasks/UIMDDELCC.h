@@ -14,7 +14,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, UPDATE_UNTIL, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, UPDATE_UNTIL, UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMDDELCC); }

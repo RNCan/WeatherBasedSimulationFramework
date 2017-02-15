@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM 
+// 11.2.4:				Rémi Saint-Amant	Bug correction atmospheric pressure 
 // 11.2.3: 10/01/2017	Rémi Saint-Amant	New dispersal 
 // 11.2.2: 03/01/2017   Rémi Saint-Amant	New GDAL options in mapping 
 // 11.2.1: 09/12/2016	Rémi Saint-Amant	New dispersal module  
