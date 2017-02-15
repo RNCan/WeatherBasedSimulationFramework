@@ -129,10 +129,13 @@ namespace WBSF
 		}*/
 	
 		{
-			std::lock_guard<std::mutex> lock(m_mutex);
+			//std::lock_guard<std::mutex> lock(m_mutex);
+			m_mutex.lock();
 
 			if (!GetTasks().empty())
 				GetTasks().top().m_stepPos = stepPos;
+			
+			m_mutex.unlock();
 		}
 
 		if (omp_get_thread_num() == 0)
