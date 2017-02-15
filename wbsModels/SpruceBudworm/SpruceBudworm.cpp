@@ -244,7 +244,7 @@ namespace WBSF
 			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
 				size_t h = step*GetTimeStep();
-				double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 ro 25 °C
+				double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 to 25 °C
 				
 				double b = eggLeft*(0.035*T - 0.32) / nbSteps;
 				broods += b;

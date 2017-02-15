@@ -441,8 +441,7 @@ namespace WBSF
 		m_state = NOT_CREATED;
 		m_end_type = NO_END_DEFINE;
 		m_log.fill(0);
-
-		m_flightNo++;//a new flight for thid moth
+		
 		m_liffoff_time = UTCTime + m_liftoffOffset;
 		m_w_horizontal = m_world.get_w_horizontal();
 		m_w_descent = m_world.get_w_descent();
@@ -561,6 +560,7 @@ namespace WBSF
 
 	void CFlyer::liftoff(CTRef UTCTRef, __int64 UTCTime)
 	{
+		m_flightNo++;//a new flight for this moth
 		m_log[T_LIFTOFF] = UTCTime;
 		m_state = FLIGHT;
 
@@ -1570,7 +1570,6 @@ ERMsg CATMWeather::load_gribs(const std::string& filepath, CCallback& callback)
 
 		std::ios::pos_type length = file.length();
 		callback.PushTask("Load Gribs", length);
-		//callback.SetNbStep(length);
 
 		for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 		{
@@ -1740,7 +1739,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				if (nearestImage.IsInit())
 				{
 					//add a warning and remove error
-					callback.AddMessage("WARNING: File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " (UTC) is Missing. Was replace by " + nearestImage.GetFormatedString("%Y-%m-%d-%H") = + " (UTC)" );
+					callback.AddMessage("WARNING: File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " (UTC) is Missing. Was replace by " + nearestImage.GetFormatedString("%Y-%m-%d-%H") + " (UTC)" );
 					//msg = ERMsg();
 
 					//load firstGoodImage into UTCTRef
@@ -1782,11 +1781,9 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 					msg += callback.StepIt(0);
 				}
 			}
-			//callback.PopTask();
 
-			//callback.PushTask("Load weather...", indexes.size() + NB_ATM_VARIABLES*indexes.size());
+
 			//pre-load weather
-			//callback.PushTask("Load stations", indexes.size());
 			for (set<size_t>::const_iterator it = indexes.begin(); it != indexes.end() && msg; it++)
 			{
 				size_t index = *it;
@@ -1800,10 +1797,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				msg += callback.StepIt(0);
 			}
 
-			//callback.PopTask();
-
 			//create IWD object
-			//callback.PushTask("Load IWD", NB_ATM_VARIABLES*indexes.size());
 			for (size_t v = 0; v < NB_ATM_VARIABLES&&msg; v++)
 			{
 				CGridPointVectorPtr pts(new CGridPointVector);
@@ -1912,13 +1906,13 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 				{
 					if (v == ATM_PRCP)
 					{
-						callback.AddMessage("WARNING: Not enaught precipitation. replaced by zero.");
+						callback.AddMessage("WARNING: Not enaught stations with precipitation. replaced by zero.");
 						while (pts->size()<m_world.m_parameters2.m_nb_weather_stations)
 							pts->push_back(CGridPoint(0, 0, 10, 0, 0, 0, 45, PRJ_WGS_84));
 					}
 					else
 					{
-						msg.ajoute("Too mush missing value for " + UTCTRef.GetFormatedString("%Y-%m-%d") + " (UTC)");
+						msg.ajoute("Not enaught stations for " + UTCTRef.GetFormatedString("%Y-%m-%d") );
 					}
 				}
 
@@ -1995,7 +1989,7 @@ ERMsg CTRefDatasetMap::Discard(CCallback& callback)
 
 	if (!empty())
 	{
-		callback.PushTask("Discard weather for " + begin()->first.GetFormatedString("%Y-%m-%d") + +" (nbImages=" + ToString(size()) + ")", size());
+		callback.PushTask("Discard weather for " + begin()->first.GetFormatedString("%Y-%m-%d") + " (nbImages=" + ToString(size()) + ")", size());
 
 		for (iterator it = begin(); it != end() && msg;)
 		{
@@ -2226,20 +2220,17 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 			{
 				fls.push_back(it);
 			}
-			else if (m_parameters1.m_bManyFlights && it->m_flightNo > 0 && it->m_flightNo < 3)
+			else if (m_parameters1.m_bManyFlights)
 			{
 				//add also old moth
-				if (TRef < localTRef )
+				if (TRef < localTRef && it->m_flightNo < 3)
 				{
 					if (is_over_defoliation(it->m_newLocation))
 					{
 						//Female mush lais egg and lost weight
 						it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
 						it->m_localTRef.m_day = localTRef.m_day;
-						//it->m_location = it->m_newLocation;
-						//it->m_pt = it->m_newLocation;
 						it->m_pt.m_alt = 5;
-
 
 						fls.push_back(it);
 					}
@@ -2354,7 +2345,6 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 						nbSteps++;
 
 				
-				//callback.PushTask("Load weather for " + UTC_period.GetFormatedString("%1", "%Y-%m-%d (UTC) ") + ", nbImages=" + ToString(nbSteps), nbSteps);
 				callback.PushTask("Load weather for " + it->GetFormatedString("%Y-%m-%d") + " (nbImages=" + ToString(nbSteps)+")", nbSteps);
 
 				ERMsg msgLoad;
@@ -2381,7 +2371,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 					
 
 				//Simulate dispersal
-				callback.PushTask("Dispersal for " + it->GetFormatedString("%Y-%m-%d") + " (nb flyers = " + ToString(fls.size()) = ")", UTC_period.size()*fls.size());
+				callback.PushTask("Dispersal for " + it->GetFormatedString("%Y-%m-%d") + " (nb flyers = " + ToString(fls.size()) + ")", UTC_period.size()*fls.size());
 
 
 				for (m_UTCTTime = CTimeZones::UTCTRef2UTCTime(m_UTCTRef = UTC_period.Begin()); m_UTCTRef <= UTC_period.End() && msg; m_UTCTRef++, m_UTCTTime += 3600)
@@ -2825,7 +2815,6 @@ ERMsg CreateGribsFromText(CCallback& callback)
 		UTCRef += int(h);
 
 		callback.PushTask(UTCRef.GetFormatedString("%Y-%m-%d-%H"), 50652* NB_WRF_LEVEL);
-		//callback.SetNbStep(7257 * NB_WRF_LEVEL);
 
 		std::string filePathIn = FormatA("E:\\Travaux\\Bureau\\WRF2013\\WRF\\wrfbud_%03d.txt", h);
 		CGDALDatasetEx geotif;

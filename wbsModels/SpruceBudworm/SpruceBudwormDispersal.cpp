@@ -91,7 +91,6 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CSpruceBudwormDispersal::OnExecuteHourly()
 	ERMsg CSpruceBudwormDispersal::OnExecuteAtemporal()
 	{
 		ERMsg msg;
@@ -206,8 +205,6 @@ namespace WBSF
 
 											size_t sex = budworm.GetSex();
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											//overallPeriod += TRefTmp;
-											//flyers[TRefTmp].push_back(CBugStat(sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
 											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
 											
 											budworm.SetStatus(CIndividual::DEAD);
