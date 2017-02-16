@@ -31,8 +31,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUINewBrunswick::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network"};//, "DataType"
-	const size_t CUINewBrunswick::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT};//, T_COMBO_INDEX 
+	const char* CUINewBrunswick::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network" };//, "DataType"
+	const size_t CUINewBrunswick::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT };//, T_COMBO_INDEX 
 	const UINT CUINewBrunswick::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWBRUNSWICK_P;
 	const UINT CUINewBrunswick::DESCRIPTION_TITLE_ID = ID_TASK_NEWBRUNSWICK;
 
@@ -41,14 +41,14 @@ namespace WBSF
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewBrunswick::CLASS_NAME(), (createF)CUINewBrunswick::create);
 
 	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS] {"FireHistorical", "Fire", "Agriculture"};
-	
+
 	size_t CUINewBrunswick::GetNetworkFromName(string name)
 	{
 		size_t n = NOT_INIT;
 		for (size_t i = 0; i < NB_NETWORKS && n == NOT_INIT; i++)
 			if (WBSF::IsEqual(name, NETWORK_NAME[i]))
 				n = i;
-		
+
 		return n;
 	}
 
@@ -58,7 +58,7 @@ namespace WBSF
 	enum TFireColumns { C_STATION_NAME, C_YEAR, C_MONTH, C_DAY, C_DATE, C_TIME, C_STATION_ID, C_TEMP, C_RH, C_DIR, C_WSPD, C_MX_SPD, C_RN_1, C_RN_24, C_PG_1HR, C_PG_24, C_HFFMC, C_HISI, C_HFWI, C_RN24, C_PG_24HR, C_FFMC, C_DMC, C_DC, C_ISI, C_BUI, C_FWI, C_DSR, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, NB_COLUMNS };
 	static const char* COLUMN_NAME[NB_COLUMNS] = { "StationName", "Year", "Month", "Day", "Date", "Time", "StationID", "Temp", "Rh", "Dir", "Wspd", "Mx_Spd", "Rn_1", "rn_24", "PG_1hr", "pg_24", "hFFMC", "hISI", "hFWI", "Rn24", "PG_24hr", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR", "TMax", "TMax24", "TMin", "TMin24" };
 
-	
+
 
 	size_t GetColumn(const string& header)
 	{
@@ -75,11 +75,11 @@ namespace WBSF
 	vector<size_t> GetColumns(const StringVector& header)
 	{
 		vector<size_t> columns(header.size());
-		
+
 
 		for (size_t c = 0; c < header.size(); c++)
 			columns[c] = GetColumn(header[c]);
-		
+
 		return columns;
 	}
 
@@ -87,7 +87,7 @@ namespace WBSF
 	static size_t GetVariable(bool bHourly, size_t type)
 	{
 		size_t v = NOT_INIT;
-		
+
 		if (bHourly)
 		{
 			if (type == C_RH)
@@ -102,7 +102,7 @@ namespace WBSF
 				v = H_TMIN2;
 			else if (type == C_TEMP)
 				v = H_TAIR2;
-			else if (type == C_TMAX )
+			else if (type == C_TMAX)
 				v = H_TMAX2;
 		}
 		else
@@ -143,7 +143,7 @@ namespace WBSF
 		switch (i)
 		{
 		case NETWORK:	str = "0=Fire(Historical)|1=Fire(current)|2=Agriculture"; break;//|1=Agriculture
-		//case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
+			//case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
 	}
@@ -174,7 +174,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 		CTRef currentTRef = CTRef::GetCurrentTRef();
 
-		
+
 		if (n == FIRE_HISTORICAL || n == FIRE)
 		{
 			//open a connection on the server
@@ -205,8 +205,8 @@ namespace WBSF
 								if (!FileExists(filePath))
 									fileList.push_back(tmp[i]);
 							}
-							
-							
+
+
 
 							msg += callback.StepIt();
 						}
@@ -230,7 +230,7 @@ namespace WBSF
 		{
 			ASSERT(false);
 		}
-	
+
 
 		return msg;
 	}
@@ -244,7 +244,7 @@ namespace WBSF
 		if (msg)
 		{
 
-			if (n== FIRE_HISTORICAL || n == FIRE )
+			if (n == FIRE_HISTORICAL || n == FIRE)
 			{
 				ASSERT(false);
 			}
@@ -277,7 +277,7 @@ namespace WBSF
 								fileList.push_back(value);
 							}//for all station
 						}
-						
+
 						//static const char* STATIONS[19] = { "47", "49", "62", "42", "45", "51", "55", "36", "37", "59", "41", "67", "68", "70", "66", "65", "53", "73", "69" };
 						//for (int i = 0; i < 19; i++)
 						//fileList.push_back(STATIONS[i]);
@@ -292,10 +292,10 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	double GetWindDir(string compass)
 	{
-		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
 		double wd = 0;
 		for (size_t i = 0; i < 16; i++)
@@ -309,15 +309,23 @@ namespace WBSF
 
 		return wd;
 	}
-	
-	double Convert(TVarH v, double value)
+
+	double Convert(int ID, TVarH v, double value)
 	{
-		if (v == H_TAIR2 || v == H_TMAX2 || v == H_TMIN2 || v == H_TDEW)
-			value = ((value - 32.0)*5.0 / 9.0);
-		else if(v==H_WNDS)
-			value = value * 1.60934;//mille/hour --> km/hour
-		else if (v == H_PRCP)
-			value = value *25.4;//in --> mm
+		//some station are in metric (°C, mm, km/h) and some station are in imperial (°F, po, miles/hour)
+		std::array<int, 11> IMPERIAL_ID = { { 36,47,51,53,55,59,62,65,68,69,70} };
+
+
+		if (find(IMPERIAL_ID.begin(), IMPERIAL_ID.end(), ID) != IMPERIAL_ID.end())
+		{
+			if (v == H_TAIR2 || v == H_TMAX2 || v == H_TMIN2 || v == H_TDEW)
+				value = ((value - 32.0)*5.0 / 9.0); //°F --> °C
+			else if (v == H_WNDS)
+				value = value * 1.60934;//miles/hour --> km/hour
+			else if (v == H_PRCP)
+				value = value *25.4;//in --> mm
+		}
+
 
 		return value;
 	}
@@ -334,6 +342,7 @@ namespace WBSF
 
 		try
 		{
+			int ID = ToInt(GetFileTitle(filePath));
 			WBSF::ReplaceString(str, "\t", "");
 
 			zen::XmlDoc doc = zen::parse(str);
@@ -390,7 +399,7 @@ namespace WBSF
 								double value = ToDouble(tmp[i]);
 								if (value > -99)
 								{
-									value = Convert(COL_POS[i], value);
+									value = Convert(ID, COL_POS[i], value);
 									data.GetHour(TRef).SetStat(COL_POS[i], value);
 								}
 									
@@ -622,28 +631,28 @@ namespace WBSF
 						{
 							int year = firstYear + int(y);
 							
-
-							string str;
-							msg = DownloadStation(pConnection, fileList[i], year, str);
-
-							//split data in seperate files
-							if (msg)
+							string filePath = GetOutputFilePath(AGRI, fileList[i], year);
+							CreateMultipleDir(GetPath(filePath));
+							if (!FileExists(filePath))
 							{
-								string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
-								string::size_type pos2 = str.find("</table>", pos1);
+								string str;
+								msg = DownloadStation(pConnection, fileList[i], year, str);
 
-								if (pos1 != string::npos && pos2 != string::npos)
+								//split data in seperate files
+								if (msg)
 								{
-									string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
+									string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
+									string::size_type pos2 = str.find("</table>", pos1);
 
+									if (pos1 != string::npos && pos2 != string::npos)
+									{
+										string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
+										msg += SaveStation(filePath, tmp);
+									}
 
-									string filePath = GetOutputFilePath(AGRI, fileList[i], year);
-									CreateMultipleDir(GetPath(filePath));
-									msg += SaveStation(filePath, tmp);
+									curI++;
+									msg += callback.StepIt();
 								}
-
-								curI++;
-								msg += callback.StepIt();
 							}
 						}//year
 					}

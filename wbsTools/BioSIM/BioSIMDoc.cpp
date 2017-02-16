@@ -164,7 +164,7 @@ BOOL CBioSIMDoc::OnSaveDocument(LPCTSTR lpszPathName)
 		
 		if (newProject)
 		{
-			filePath = GetFileManager().WeatherUpdate().GetFilePath("Download Current Normals Database.Update");
+			filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Current Normals Database.Update";
 			if (!FileExists(filePath))
 			{
 				ofStream file;
@@ -202,7 +202,7 @@ BOOL CBioSIMDoc::OnSaveDocument(LPCTSTR lpszPathName)
 				}
 			}
 
-			filePath = GetFileManager().WeatherUpdate().GetFilePath("Download Current Daily Database.Update");
+			filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Current Daily Database.Update";
 			if (!FileExists(filePath))
 			{
 				ofStream file;
