@@ -373,6 +373,8 @@ namespace WBSF
 
 						if (date[6] == "AM" && hour == 12)
 							hour = 0;
+						else if (date[6] == "PM" && hour == 12)
+							hour = 12;
 						else if (date[6] == "PM")
 							hour += 12;
 
@@ -791,7 +793,9 @@ namespace WBSF
 								double lon = -(-ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
 								double alt = ToDouble(info2[6]);
 
-								locations.push_back(CLocation(name, ID, lat, lon, alt));
+								CLocation loc(name, ID, lat, lon, alt);
+								loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
+								locations.push_back(loc);
 							}
 							else if (info2.size() == 6)
 							{
@@ -799,7 +803,9 @@ namespace WBSF
 								double lon = -(-ToDouble(info2[2]) + ToDouble(info2[3]) / 60.0);
 								double alt = ToDouble(info2[4]);
 
-								locations.push_back(CLocation(name, ID, lat, lon, alt));
+								CLocation loc(name, ID, lat, lon, alt);
+								loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
+								locations.push_back(loc);
 							}
 							
 						}
@@ -830,15 +836,17 @@ namespace WBSF
 		{
 			string dir = GetLastDirName(GetPath(name));
 			string ID = dir.substr(0, 5);
-			string title = GetFileTitle(name);
+			string title = TrimConst(GetFileTitle(name));
 			ReplaceString(title, " to", "-");
 
 			int firstYear = -999;
 			int lastYear = -999;
-			
-			if (title.length() > 6)
+			string stationName = title;
+
+
+			if (title.length() > 5)
 			{
-				StringVector period(title.substr(title.length() - 6), "-");
+				StringVector period(title.substr(title.length() - 5), "-");
 				if (period.size() == 2)
 				{
 					firstYear = ToInt(period[0]);
@@ -848,13 +856,42 @@ namespace WBSF
 
 					ASSERT(firstYear > 1950 && firstYear <= 2050);
 					ASSERT(lastYear > 1950 && lastYear <= 2050);
+
+					stationName = TrimConst(title.substr(0, title.length() - 5));
+				}
+				else
+				{
+					string test = title.substr(title.length() - 4);
+						
+					if (isdigit(test[0]) && isdigit(test[1]) && isdigit(test[2]) && isdigit(test[3]))
+					{
+						int year = ToInt(test);
+
+						firstYear = year;
+						lastYear = year;
+						stationName = TrimConst(title.substr(0, title.length() - 4)) ;
+					}
+					else
+					{
+						string test = title.substr(title.length() - 2);
+
+						if (isdigit(test[0]) && isdigit(test[1]) )
+						{
+							int year = ToInt(test);
+							year += (year > 50) ? 1900 : 2000;
+
+							firstYear = year;
+							lastYear = year;
+							stationName = TrimConst(title.substr(0, title.length() - 2));
+						}
+					}
 				}
 				
 			}
 			
 			bool bData = firstYear!=-999 && lastYear != -999;
 
-			string stationName = bData ? TrimConst(title.substr(0, title.length() - 6)) : title;
+			
 			stationName = PurgeFileName(stationName);
 			string p = bData ? " " + ToString(firstYear) + "-" + ToString(lastYear) : "";
 
@@ -938,13 +975,26 @@ namespace WBSF
 
 		if (n == FIRE_HISTORICAL)
 		{
-			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\*.txt";
+			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\"+ID+"*.txt";
 			CFileInfoVector filesInfo;
 			WBSF::GetFilesInfo(path, false, filesInfo);
 			for (size_t i = 0; i < filesInfo.size() && msg; i++)
 			{
 				if (filesInfo[i].m_size > 500)
-					msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+				{
+					string fileTitle = GetFileTitle(filesInfo[i].m_filePath);
+					string pStr = fileTitle.substr(fileTitle.length() - 9);
+					StringVector period(pStr, "-");
+					ASSERT(period.size() == 2);
+					int p1 = ToInt(period[0]);
+					int p2 = ToInt(period[1]);
+					
+					if (firstYear<=p2 && lastYear>=p1)
+						msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+				}
+					
+
+				msg += callback.StepIt(0);
 			}
 		}
 		else
@@ -1043,13 +1093,23 @@ namespace WBSF
 								if (value > -999 && value < 999)
 									accumulator.Add(TRef, variables[c], value);
 
-								if (c == C_RH && !(*loop)[C_TEMP].empty())
+								
+								if (variables[c] == H_RELH )
 								{
-									double Tair = ToDouble((*loop)[C_TEMP]);
-									if (Tair > -999 && Tair < 999)
+									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR2);
+									if (it != variables.end())
 									{
-										double Tdew = Hr2Td(Tair, value);
-										accumulator.Add(TRef, H_TDEW, Tdew);
+										string TairStr = (*loop)[std::distance(variables.cbegin(), it)];
+
+										if (!TairStr.empty())
+										{
+											double Tair = ToDouble(TairStr);
+											if (Tair > -999 && Tair < 999)
+											{
+												double Tdew = Hr2Td(Tair, value);
+												accumulator.Add(TRef, H_TDEW, Tdew);
+											}
+										}
 									}
 								}
 							}
@@ -1069,17 +1129,52 @@ namespace WBSF
 		return msg;
 	}
 
+	enum TFireHistorical { CH_NAME, CH_FILENAME, CH_DATE, CH_JULIAN, CH_TIME, CH_TEMP, CH_RH, CH_DIR, CH_WSPD, CH_MX_SPD, CH_RN_1, CH_RN24, CH_FFMC, CH_DMC, CH_DC, CH_ISI, CH_BUI, CH_FWI, CH_DSR, CH_NB_COLUMNS };
+	static const char* COLUMN_NAME_FH[CH_NB_COLUMNS] = { "Name", "Filename", "Date", "Julian", "Time", "Temp", "RH", "Dir", "Wspd", "Mx_Spd", "Rn_1", "Rn24", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR" };
+	static const TVarH VARS[CH_NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_WND2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+
+	size_t GetColumnFH(const string& header)
+	{
+		size_t c = NOT_INIT;
+		for (size_t i = 0; i < CH_NB_COLUMNS&&c == NOT_INIT; i++)
+		{
+			if (IsEqual(header, COLUMN_NAME_FH[i]))
+				c = i;
+		}
+
+		return c;
+	}
+
+	vector<size_t> GetColumnsFH(const StringVector& header)
+	{
+		vector<size_t> columns(header.size());
+
+		for (size_t c = 0; c < header.size(); c++)
+			columns[c] = GetColumnFH(header[c]);
+
+		return columns;
+	}
+
+	static vector<size_t>  GetVariablesFH(const vector<size_t>& columns)
+	{
+		vector<size_t> vars(columns.size());
+
+		for (size_t c = 0; c < columns.size(); c++)
+			vars[c] = columns[c]<CH_NB_COLUMNS ? VARS[columns[c]] : H_SKIP;
+
+		return vars;
+	}
+
+
 	ERMsg CUINewBrunswick::ReadDataHistorical(const string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const
 	{
 		ERMsg msg;
-
-		enum THistorical { CH_EMPTY, CH_NAME, CH_FILENAME, CH_DATE, CH_JULIAN, CH_TIME, CH_TEMP, CH_RH, CH_DIR, CH_WSPD, CH_MX_SPD, CH_RN_1, CH_RN24, CH_FFMC, CH_DMC, CH_DC, CH_ISI, CH_BUI, CH_FWI, CH_DSR, CH_NB_COLUMNS };
 
 
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		size_t nbYears = lastYear - firstYear + 1;
+		//size_t nbYears = lastYear - firstYear + 1;
 
 		//now extact data 
 		ifStream file;
@@ -1088,73 +1183,87 @@ namespace WBSF
 		if (msg)
 		{
 			CWeatherAccumulator accumulator(TM);
+			vector<size_t> columns;
 			vector<size_t> variables;
-			bool bHourly = true;// IsHourly();
 
-
+			bool bTower = filePath.find("Tower") != string::npos;
+			
 			for (CSVIterator loop(file, ",\t", true); loop != CSVIterator() && msg; ++loop)
 			{
 				if (variables.empty())
 				{
 					StringVector head = loop.Header();
-					vector<size_t> columns = GetColumns(head);
-
-					variables = GetVariables(bHourly, columns);
+					columns = GetColumnsFH(head);
+					variables = GetVariablesFH(columns);
 					//skip units
 					++loop;
 				}
 
-				ASSERT(loop->size() <= variables.size());
-				if (loop->size() == CH_NB_COLUMNS)
+				vector<size_t>::const_iterator itDate = find(columns.begin(), columns.end(), CH_DATE); ASSERT(itDate != columns.end());
+				vector<size_t>::const_iterator itTime = find(columns.begin(), columns.end(), CH_TIME); ASSERT(itTime != columns.end());
+				string dateStr = (*loop)[std::distance(columns.cbegin(), itDate)];
+				string timeStr = (*loop)[std::distance(columns.cbegin(), itTime)];
+
+				StringVector date(dateStr, "/-");
+				ASSERT(date.size() == 3);
+				StringVector time(timeStr, " ");
+				ASSERT(time.size() == 2);
+				size_t yi = date[0].length() == 4 ? 0 : 2;
+				size_t di = yi == 0 ? 2 : 0;
+
+				int year = ToInt(date[yi]);
+				if (year >= firstYear && year <= lastYear)
 				{
-					int year = ToInt((*loop)[C_YEAR]);
-					size_t month = ToInt((*loop)[C_MONTH]) - 1;
-					size_t day = ToInt((*loop)[C_DAY]) - 1;
-					size_t hour = GetHour((*loop)[C_TIME]);
+					size_t month = ToInt(date[1]) - 1;
+					size_t day = ToInt(date[di]) - 1;
+					size_t hour = ToInt(time[0]);
+					
+					
 
 					ASSERT(month < 12);
 					ASSERT(day < GetNbDayPerMonth(year, month));
-					ASSERT(hour < 24);
+					ASSERT(hour <= 24);
 
-					CTRef TRef = bHourly ? CTRef(year, month, day, hour) : CTRef(year, month, day);
+					CTRef TRef = CTRef(year, month, day, hour);
+					
 
 					if (accumulator.TRefIsChanging(TRef))
 					{
 						data[accumulator.GetTRef()].SetData(accumulator);
 					}
 
+					ASSERT(loop->size() == variables.size());
 					for (size_t c = 0; c < loop->size(); c++)
 					{
-
-						if (variables[c] != NOT_INIT)
+						if (variables[c] != H_SKIP)
 						{
 							string str = (*loop)[c];
-							if (!str.empty())
+							if (!str.empty() && str != "-")
 							{
 								double value = ToDouble(str);
-								if (value > -999 && value < 999)
-									accumulator.Add(TRef, variables[c], value);
-
-								if (c == C_RH && !(*loop)[C_TEMP].empty())
+								accumulator.Add(TRef, variables[c], value);
+								
+								if (variables[c] == H_RELH )
 								{
-									double Tair = ToDouble((*loop)[C_TEMP]);
-									if (Tair > -999 && Tair < 999)
+									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR2);
+									if (it != variables.end())
 									{
-										double Tdew = Hr2Td(Tair, value);
-										accumulator.Add(TRef, H_TDEW, Tdew);
+										string TairStr = (*loop)[std::distance(variables.cbegin(), it)];
+										if (!TairStr.empty() && TairStr != "-")
+										{
+											double Tair = ToDouble(TairStr);
+											double Tdew = Hr2Td(Tair, value);
+											accumulator.Add(TRef, H_TDEW, Tdew);
+										}
 									}
 								}
 							}
 						}
 					}
+				}
 
-					msg += callback.StepIt(0);
-				}
-				else
-				{
-					int i;
-					i = 0;
-				}
+				msg += callback.StepIt(0);
+				
 			}//for all line
 
 

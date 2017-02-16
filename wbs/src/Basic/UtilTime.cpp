@@ -595,7 +595,7 @@ CTRef& CTRef::Set(int y_or_r, size_t m, size_t d, size_t h, CTM TM)
 	bool bAddRef=false;//faudrait vérifier cela, c'est très bizard...
 	if( h==24 )
 	{
-		h=0;
+		h=23;
 		bAddRef=true;
 	}
 

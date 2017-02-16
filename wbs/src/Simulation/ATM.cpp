@@ -546,9 +546,9 @@ namespace WBSF
 				//flight abort
 				if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
 					m_end_type = NO_LIFTOFF_PRCP;
-				if (w[ATM_TAIR] < Tᴸ)							
+				else if (w[ATM_TAIR] < Tᴸ)							
 					m_end_type = NO_LIFTOFF_TAIR;
-				else
+				else if (ws < Wmin)
 					m_end_type = NO_LIFTOFF_WNDS;
 
 				m_state = IDLE_END;
@@ -651,9 +651,8 @@ namespace WBSF
 			}
 			else
 			{
-				//m_state = CRUISE;
 				m_state = LANDING;
-				//m_end_type = OUTSIDE_TIME_WINDOW;
+				m_end_type = END_OF_TIME_FLIGHT;
 			}
 		}
 		else
@@ -2140,6 +2139,8 @@ double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 		if (m_defoliation_DS.GetExtents().IsInside(xy))
 		{
 			defoliation = m_defoliation_DS.GetPixel(0, xy);
+			if (defoliation < 0)
+				defoliation = 0;
 		}
 	}
 
@@ -2397,7 +2398,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 								__int64 countdown1 = UTCTTime - flyer.m_liffoff_time;
 								__int64 countdown2 = flyer.GetLog(CFlyer::T_IDLE_END)>0 ? UTCTTime - flyer.GetLog(CFlyer::T_IDLE_END) : 0;
 
-								size_t state = (flyer.GetState() == CFlyer::IDLE_END) ? 10 + flyer.GetEnd() : flyer.GetState();
+								size_t state = (flyer.GetState() == CFlyer::IDLE_END) ? flyer.GetEnd() : flyer.GetState();
 								
 								CTRef localTRef = m_UTCTRef + int(flyer.GetUTCShift() / 3600);
 
@@ -2455,7 +2456,22 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
-												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = get_defoliation(flyer.m_newLocation);
+												
+												bool bOverWater = false;
+												if (m_water_DS.IsOpen() )
+												{
+													CGeoPoint pt(flyer.m_newLocation);
+													if (pt.GetPrjID() != m_water_DS.GetPrjID())
+													{
+														ASSERT(pt.IsGeographic());
+														pt.Reproject(m_GEO2DEM);
+													}
+
+													CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt);
+													bOverWater = m_water_DS.ReadPixel(0, xy) != 0;
+												}
+
+												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = bOverWater?-1:get_defoliation(flyer.m_newLocation);
 												
 											}
 										}//log exists

@@ -21,8 +21,7 @@ using namespace UtilWWW;
 //station list
 //http://mesonet.agron.iastate.edu/sites/networks.php?network=_ALL_&format=csv&nohtml=on
 //http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=CMBB&station=CMBR&station=CMCT&station=CMCW&station=CMFM&station=CMGB&station=CMHB&station=CMHN&station=CMHW&station=CMLA&station=CMLI&station=CMPD&station=CMPL&station=CMRG&station=CMRI&station=CMRU&station=CMRY&station=CMSB&station=CMSC&station=CMSX&station=CMWD&station=CMYT&station=CWAF&station=CWBA&station=CWBS&station=CWBT&station=CWBY&station=CWBZ&station=CWDM&station=CWDQ&station=CWDT&station=CWEE&station=CWEO&station=CWER&station=CWEW&station=CWFQ&station=CWGR&station=CWHM&station=CWHP&station=CWHQ&station=CWHV&station=CWHY&station=CWIA&station=CWIG&station=CWIP&station=CWIS&station=CWIT&station=CWIU&station=CWIX&station=CWIZ&station=CWJB&station=CWJO&station=CWJT&station=CWKD&station=CWLU&station=CWMJ&station=CWMN&station=CWMW&station=CWNH&station=CWNQ&station=CWOC&station=CWOD&station=CWPD&station=CWPH&station=CWPK&station=CWPQ&station=CWQG&station=CWQH&station=CWQO&station=CWQR&station=CWQV&station=CWRC&station=CWRZ&station=CWSF&station=CWSG&station=CWST&station=CWTA&station=CWTB&station=CWTG&station=CWTN&station=CWTQ&station=CWTT&station=CWTY&station=CWUK&station=CWUX&station=CWVQ&station=CWVY&station=CWVZ&station=CWXC&station=CWZS&station=CXAM&station=CXBO&station=CXHF&station=CXLT&station=CXSH&station=CXZV&station=CYAD&station=CYAH&station=CYAS&station=CYBC&station=CYBG&station=CYBX&station=CYGL&station=CYGP&station=CYGR&station=CYGV&station=CYGW&station=CYHA&station=CYHH&station=CYHU&station=CYIK&station=CYKG&station=CYKL&station=CYKO&station=CYKQ&station=CYLA&station=CYLU&station=CYML&station=CYMT&station=CYMU&station=CYMX&station=CYNA&station=CYNC&station=CYND&station=CYNM&station=CYOY&station=CYPH&station=CYPX&station=CYQB&station=CYRJ&station=CYRQ&station=CYSC&station=CYTQ&station=CYUL&station=CYUY&station=CYVO&station=CYVP&station=CYYY&station=CYZG&station=CYZV&station=CZEM&data=tmpc&data=dwpc&data=relh&data=drct&data=sknt&data=mslp&data=p01m&data=skyc1&data=skyc2&data=skyc3&data=presentwx&year1=2016&month1=1&day1=1&year2=2016&month2=11&day2=22&tz=Etc%2FUTC&format=comma&latlon=no&direct=no&report_type=1&report_type=2
-
-
+//http://atl.agrometeo.org/indices/mcd/cyqm
 namespace WBSF
 {
 
@@ -137,7 +136,7 @@ namespace WBSF
 		callback.AddMessage("");
 
 
-		//Pour le moment il n'y a pas de site ou les stations sont listés
+		
 		//msg = UpdateStationsFile(callback);
 		//if (!msg)
 			//return msg;
@@ -306,16 +305,16 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		msg = UpdateStationsFile(callback);
-		if (msg)
-		{
-			msg = m_stations.Load(GetStationsFilePath());
+		//msg = UpdateStationsFile(callback);
+		//if (msg)
+		//{
+		msg = m_stations.Load(GetStationsFilePath());
 
-			CLocationVector missing;
-			if (missing.Load(GetMissingFilePath()))
-				m_stations.insert(m_stations.begin(), missing.begin(), missing.end());
+		CLocationVector missing;
+		if (missing.Load(GetMissingFilePath()))
+			m_stations.insert(m_stations.begin(), missing.begin(), missing.end());
 
-		}
+		//}
 		return msg;
 	}
 
@@ -721,7 +720,72 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string dstFilePath = GetStationsFilePath();
+		//http://atl.agrometeo.org/indices/mcd/talw
+		//http://atl.agrometeo.org/indices/display_mcd/awa/2016/07/TALW
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection("atl.agrometeo.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		if (msg)
+		{
+			CLocationVector locations;
+
+			string str;
+			msg = UtilWWW::GetPageText(pConnection, "indices/mcd", str);
+			if (msg)
+			{
+				string::size_type begin = str.find("<select name=\"frame_mcd_stid\"");
+				if (begin != string::npos)
+				{
+					string stationStr = FindString(str, "<option value=", "</option>", begin);
+					while (begin != string::npos)
+					{
+						ReplaceString(stationStr, "\"", "");
+
+						StringVector info(stationStr, ">");
+						if (info.size() == 2)
+							locations.push_back(CLocation(TrimConst(info[1]), TrimConst(info[0])));
+
+						stationStr = FindString(str, "<option value=", "</option>", begin);
+					}
+				}
+
+				callback.PushTask("Load stations information (nb Stations = " + ToString(locations.size())+")", locations.size());
+				for (size_t i = 0; i < locations.size()&&msg; i++)
+				{
+					string str;
+					msg = UtilWWW::GetPageText(pConnection, "indices/display_mcd/awa/2016/07/" + locations[i].m_ID, str);
+					if (msg)
+					{
+						string network = FindString(str, "Network:", "</FONT>");
+						string latitude = FindString(str, "Latitude:", "</FONT>");
+						string longitude = FindString(str, "Longitude:", "</FONT>");
+						string elevation = FindString(str, "Elevation:", "meters");
+
+
+						locations[i].m_lat = ToDouble(latitude);
+						locations[i].m_lon = ToDouble(longitude);
+						locations[i].m_alt = ToDouble(elevation);
+						locations[i].SetSSI("Network", network);
+						
+						msg += callback.StepIt();
+					}
+				}
+
+				callback.PopTask();
+
+				string dstFilePath = GetStationsFilePath();
+				locations.Save(GetDir(WORKING_DIR) + "Stations.csv");
+			}
+
+
+			//clean connection
+			pConnection->Close();
+			pSession->Close();
+		}
+
+		
 
 
 		//if (!FileExists(dstFilePath))

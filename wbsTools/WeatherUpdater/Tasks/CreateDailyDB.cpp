@@ -241,7 +241,10 @@ namespace WBSF
 			return;
 
 		CWVariables variables = station.GetVariables();
-		double factor = station.IsHourly() ? 24:1;
+		array<double, NB_VAR_H> factor;
+		factor.fill( station.IsHourly() ? 24 : 1);
+		factor[H_TMIN2] = 1;//Tmin and Tmax always have only one value event from hourly compilation
+		factor[H_TMAX2] = 1;
 
 		if (as<double>(MONTHLY_COMPLETENESS) > 0 )
 		{
@@ -257,7 +260,7 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDayPerMonth()*factor);
+						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDayPerMonth()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < as<double>(MONTHLY_COMPLETENESS))
 						{
@@ -289,7 +292,7 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDaysPerYear()*factor);
+						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDaysPerYear()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < as<double>(ANNUAL_COMPLETENESS))
 						{

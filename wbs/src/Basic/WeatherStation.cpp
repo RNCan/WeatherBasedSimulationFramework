@@ -722,8 +722,13 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 				{
 					//Compute noon-noon from the previous and current day
 					const CWeatherDay& previousDay = me.GetPrevious();
-					for (size_t h = 12; h<24; h++)
+					for (size_t h = 12; h < 24; h++)
+					{
+						accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
 						accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
+						accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+					}
+						
 				}
 
 				me.m_dailyStat.clear();
@@ -2342,35 +2347,14 @@ ERMsg CWeatherYears::SaveData(const std::string& filePath, CTM TM, char separato
 										{
 											if (IsVariable(format[v].m_var)/* && format[v].m_var != H_TRNG*/)
 											{
-												//ASSERT(format[v].m_var != H_TRNG);
 												str[m] += separator;
 
-												CStatistic stat = itD->GetStat(TVarH(format[v].m_var));//Tair and Trng are transformed into Tmin and Tmax
-												//if (format[v].m_var == H_TAIR && format[v].m_stat==LOWEST)
-												//{
-												//	ASSERT(!stat.IsInit() || itD->GetStat(H_TRNG).IsInit());//If Tair is init, TRng must be init too
-												//	CStatistic Trng = itD->GetStat(H_TRNG);
-												//	if (stat.IsInit() && Trng.IsInit())
-												//		str[m] += FormatA("%.1lf", stat[MEAN] - Trng[MEAN] / 2);
-												//	else
-												//		str[m] += "-999.0";
-												//}
-												//else if (format[v].m_var == H_TAIR && format[v].m_stat == HIGHEST)
-												//{ 
-												//	CStatistic Trng = itD->GetStat(H_TRNG);
-												//	if (stat.IsInit() && Trng.IsInit())
-												//		str[m] += FormatA("%.1lf", stat[MEAN] + Trng[MEAN] / 2);
-												//	else
-												//		str[m] += "-999.0";
-												//}
-												//else
-												//{
+												CStatistic stat = itD->GetStat(TVarH(format[v].m_var));
+												
 												if (stat.IsInit())
 													str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
 												else
 													str[m] += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
-												//}
-
 											}//id element is a variable
 										}//for all element
 
@@ -2400,7 +2384,6 @@ ERMsg CWeatherYears::SaveData(const std::string& filePath, CTM TM, char separato
 											str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
 										else
 											str[m] += format[v].m_var < H_ADD1 ? "-999.0" : "-999.000";
-
 
 									}//id element is a variable
 								}//for all element
@@ -2447,8 +2430,6 @@ ERMsg CWeatherYears::SaveData(const std::string& filePath, CTM TM, char separato
 				}//ANNUAL format
 			}//have data
 		}//for all years
-
-		//const_cast<CWeatherYears*>(this)->m_bModified = false;
 	}//msg
 
 	return msg;
