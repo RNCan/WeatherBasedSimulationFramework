@@ -738,7 +738,8 @@ namespace WBSF
 				string::size_type begin = str.find("<select name=\"frame_mcd_stid\"");
 				if (begin != string::npos)
 				{
-					string stationStr = FindString(str, "<option value=", "</option>", begin);
+
+					string stationStr = FindString(str, "<option value=", "</option>", begin);
 					while (begin != string::npos)
 					{
 						ReplaceString(stationStr, "\"", "");
