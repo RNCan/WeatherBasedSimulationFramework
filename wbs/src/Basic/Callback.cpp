@@ -21,7 +21,7 @@ namespace WBSF
 {
 
 	CCallback CCallback::DEFAULT_CALLBACK;
-
+	static CCriticalSection CS;
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -124,29 +124,18 @@ namespace WBSF
 	ERMsg CCallback::SetCurrentStepPos(double stepPos)
 	{
 		ERMsg msg;
-		/*if (omp_get_thread_num() == 0)
+		
+		if (omp_get_thread_num() == 0)
 		{
-			if (!GetTasks().empty())
-				msg = StepIt(stepPos - GetTasks().top().m_stepPos);
-		}*/
-	
-		{
-			std::unique_lock<std::mutex> lock(m_mutex);
+			//std::unique_lock<std::mutex> lock(m_mutex);
 			//m_mutex.lock();
-
-	
-			if (!GetTasks().empty())
-			{
-//				int p1 = int(GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps);
-	//			int p2 = int(stepPos*100.0 / GetTasks().top().m_nbSteps);
-		//		if (p1 != p2)
-			//	{
-					
-				GetTasks().top().m_stepPos = stepPos;
-				//m_mutex.unlock();
-				//}
-			}
 			
+			CS.Enter();
+
+			if (!GetTasks().empty())
+				GetTasks().top().m_stepPos = stepPos;
+
+			CS.Leave();
 		}
 
 		if (omp_get_thread_num() == 0)
@@ -168,8 +157,8 @@ namespace WBSF
 
 		if (stepBy!=0)
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-
+			//std::unique_lock<std::mutex> lock(m_mutex);
+			CS.Enter();
 			if (!GetTasks().empty())
 			{
 				//step it only apply on the first tread for the moment
@@ -178,7 +167,7 @@ namespace WBSF
 
 				GetTasks().top().m_stepPos += stepBy;
 			}
-
+			CS.Leave();
 		}
 
 		if (omp_get_thread_num() == 0)
@@ -217,13 +206,10 @@ namespace WBSF
 	{
 		if (omp_get_thread_num() == 0)
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-
+			//std::unique_lock<std::mutex> lock(m_mutex);
+			CS.Enter();
 			if (!GetTasks().empty())
 			{
-				
-				//static CCriticalSection CS;
-				//CS.Enter();
 
 				level = int(GetCurrentLevel()) + std::max(0, level);
 
@@ -238,17 +224,15 @@ namespace WBSF
 				m_messageAccumulator += levelTabs + t + "\n";
 				m_messageDlgAccumulator += levelTabs + t + "\n";
 
-				//CS.Leave();
+				
 			}
+			CS.Leave();
 		}
 
 		if (omp_get_thread_num() == 0)
 		{
 			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
-			{
-				//PostMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
 				SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 0, 0);
-			}
 		}
 	}
 
@@ -274,15 +258,18 @@ namespace WBSF
 	{
 		
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
+			CS.Enter();
+			//std::unique_lock<std::mutex> lock(m_mutex);
 
 			if (nbStep == NOT_INIT)
 				nbStep = -1.0;
 
 			GetTasks().push(CCallbackTask(description, nbStep, stepBy));
+			
+			CS.Leave();
 		}
 
-		//if (omp_get_thread_num() == 0)
+		if (omp_get_thread_num() == 0)
 		{
 			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))
 				SendMessage(*m_phWnd, WM_MY_THREAD_MESSAGE, 1, 0);
@@ -293,7 +280,8 @@ namespace WBSF
 	{
 		//if (omp_get_thread_num() == 0)
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
+			CS.Enter();
+			//std::unique_lock<std::mutex> lock(m_mutex);
 
 			if (!m_threadTasks.empty())
 			{
@@ -309,9 +297,11 @@ namespace WBSF
 				if (!GetTasks().empty())
 					GetTasks().top().m_messages += messages;
 			}
+
+			CS.Leave();
 		}
 
-		//if (omp_get_thread_num() == 0)
+		if (omp_get_thread_num() == 0)
 		{
 			//unlock callback before notify parent
 			if (m_phWnd && *m_phWnd && ::IsWindow(*m_phWnd))

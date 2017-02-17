@@ -593,7 +593,7 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
-		
+
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
@@ -609,59 +609,68 @@ namespace WBSF
 		StringVector fileList;
 		GetFileList(AGRI, fileList, callback);
 
-		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears)+" files)", fileList.size()*nbYears);
+		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
 
 		int nbRun = 0;
-		size_t curI = 0;
-		while (curI < fileList.size() && msg)
+		//size_t curI = 0;
+		//while (curI < fileList.size() && msg)
+		//{
+		//nbRun++;
+		int nbFiles = 0;
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		if (msg)
 		{
-			nbRun++;
-
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-
-			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
-			if (msg)
+			TRY
 			{
-				TRY
+				for (size_t i = 0; i < fileList.size() && msg; i++)
 				{
-					for (size_t i = curI; i < fileList.size() && msg; i++)
+					for (size_t y = 0; y < nbYears&&msg; y++)
 					{
-						for (size_t y = 0; y < nbYears&&msg; y++)
+						int year = firstYear + int(y);
+
+						string filePath = GetOutputFilePath(AGRI, fileList[i], year);
+						CreateMultipleDir(GetPath(filePath));
+						if (!FileExists(filePath))
 						{
-							int year = firstYear + int(y);
-							
-							string filePath = GetOutputFilePath(AGRI, fileList[i], year);
-							CreateMultipleDir(GetPath(filePath));
-							if (!FileExists(filePath))
+							string str;
+							msg = DownloadStation(pConnection, fileList[i], year, str);
+
+							//split data in seperate files
+							if (msg)
 							{
-								string str;
-								msg = DownloadStation(pConnection, fileList[i], year, str);
+								string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
+								string::size_type pos2 = str.find("</table>", pos1);
 
-								//split data in seperate files
-								if (msg)
+								if (pos1 != string::npos && pos2 != string::npos)
 								{
-									string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
-									string::size_type pos2 = str.find("</table>", pos1);
-
-									if (pos1 != string::npos && pos2 != string::npos)
-									{
-										string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
-										msg += SaveStation(filePath, tmp);
-									}
-
-									curI++;
-									msg += callback.StepIt();
+									string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
+									msg += SaveStation(filePath, tmp);
+									nbFiles++;
+								}
+								else
+								{
+									ofStream file;
+									file.open(filePath);
+									file.close();
 								}
 							}
-						}//year
-					}
+
+
+							msg += callback.StepIt();
+						}
+
+
+					}//year
 				}
+			}
 				CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
+			{
+				msg = UtilWin::SYGetMessage(*e);
+			}
+			END_CATCH_ALL
 
 				//if an error occur: try again
 				if (!msg && !callback.GetUserCancel())
@@ -674,14 +683,14 @@ namespace WBSF
 					}
 				}
 
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
-			}
+			//clean connection
+			pConnection->Close();
+			pSession->Close();
 		}
+		//}
 
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 		callback.PopTask();
 
 		return msg;
@@ -995,11 +1004,14 @@ namespace WBSF
 					string pStr = fileTitle.substr(fileTitle.length() - 9);
 					StringVector period(pStr, "-");
 					ASSERT(period.size() == 2);
-					int p1 = ToInt(period[0]);
-					int p2 = ToInt(period[1]);
-					
-					if (firstYear<=p2 && lastYear>=p1)
-						msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+					if (period.size() == 2)
+					{
+						int p1 = ToInt(period[0]);
+						int p2 = ToInt(period[1]);
+
+						if (firstYear <= p2 && lastYear >= p1)
+							msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+					}
 				}
 					
 

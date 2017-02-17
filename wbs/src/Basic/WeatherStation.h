@@ -465,7 +465,7 @@ public:
 	
 	//get daylight mean temperature approximation (deg C)
 	double GetTdaylight()const;
-	double K()const{ if (HourlyDataExist())CompileDailyStat(); return (m_dailyStat[HOURLY_DATA::H_TNTX].IsInit()) ? m_dailyStat[HOURLY_DATA::H_TNTX][MEAN] + 273.15 : WEATHER::MISSING; }
+	//double K()const{ if (HourlyDataExist())CompileDailyStat(); return (m_dailyStat[HOURLY_DATA::H_TNTX].IsInit()) ? m_dailyStat[HOURLY_DATA::H_TNTX][MEAN] + 273.15 : WEATHER::MISSING; }
 	double GetDayLength()const;
 	
 	CTM GetTM()const{ return CTM(IsHourly() ? CTM::HOURLY : CTM::DAILY); }
