@@ -12,7 +12,7 @@
     <SSI/>
     <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
-    <ThreadSafe>false</ThreadSafe>
+    <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
             <Name>Number of moths</Name>
