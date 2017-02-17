@@ -43,7 +43,7 @@ namespace WBSF
 	protected:
 
 		std::string GetStationListFilePath()const;
-		std::string GetOutputFilePath(int year, size_t m, const std::string& stationName)const;
+		std::string GetOutputFilePath(int year, size_t m, const std::string& stationName, bool bProhibited=false)const;
 
 
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback)const;

@@ -585,19 +585,22 @@ namespace WBSF
 			if (members.empty())
 				members = CLocation::GetMembers((StringVector&)loop.Header());
 
-			resize(this->size() + 1);
-
-			for (size_t j = 0; j < members.size() && j < (*loop).size(); j++)
+			if (loop->size()>1)//can be empty line or some spaces...
 			{
-				switch (members[j])
+				resize(this->size() + 1);
+
+				for (size_t j = 0; j < members.size() && j < (*loop).size(); j++)
 				{
-				case CLocation::ID: at(i).m_ID = (*loop)[j]; break;
-				case CLocation::NAME: at(i).m_name = (*loop)[j]; break;
-				case CLocation::LAT: at(i).m_lat = ToDouble((*loop)[j]); break;
-				case CLocation::LON: at(i).m_lon = ToDouble((*loop)[j]); break;
-				case CLocation::ELEV: at(i).m_elev = ToDouble((*loop)[j]); break;
-				case CLocation::SSI: at(i).SetSSI(loop.Header()[j], (*loop)[j]); break;
-				default: ASSERT(false);
+					switch (members[j])
+					{
+					case CLocation::ID: at(i).m_ID = (*loop)[j]; break;
+					case CLocation::NAME: at(i).m_name = (*loop)[j]; break;
+					case CLocation::LAT: at(i).m_lat = ToDouble((*loop)[j]); break;
+					case CLocation::LON: at(i).m_lon = ToDouble((*loop)[j]); break;
+					case CLocation::ELEV: at(i).m_elev = ToDouble((*loop)[j]); break;
+					case CLocation::SSI: at(i).SetSSI(loop.Header()[j], (*loop)[j]); break;
+					default: ASSERT(false);
+					}
 				}
 			}
 

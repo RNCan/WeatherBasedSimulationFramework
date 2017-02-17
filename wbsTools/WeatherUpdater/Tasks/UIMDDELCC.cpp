@@ -245,34 +245,37 @@ namespace WBSF
 			size_t monthMax = year < today.m_year ? 12 : today.m_month + 1;
 			for (size_t m = 0; m < monthMax&&msg; m++)
 			{
-				string filePath = GetOutputFilePath(year, m, station.m_ID);
-				if (FileExists(filePath))
+				if (year > 2014 || (year == 2014 && m >= SEPTEMBER))//no data before september 2014
 				{
-					if (year == today.m_year && m == today.m_month)
+					string filePath = GetOutputFilePath(year, m, station.m_ID);
+					if (FileExists(filePath))
 					{
-						bNeedDownload[y][m] = true;
-					}
-					else
-					{
-						CFileInfo info = GetFileInfo(filePath);
-						if (info.m_size == 0)
+						if (year == today.m_year && m == today.m_month)
 						{
-							bNeedDownload[y][m] = false;
+							bNeedDownload[y][m] = true;
 						}
 						else
 						{
-							CTimeRef TRef1(info.m_time);
-							CTRef TRef2(year, m, LAST_DAY);
+							CFileInfo info = GetFileInfo(filePath);
+							if (info.m_size == 0)
+							{
+								bNeedDownload[y][m] = false;
+							}
+							else
+							{
+								CTimeRef TRef1(info.m_time);
+								CTRef TRef2(year, m, LAST_DAY);
 
-							bNeedDownload[y][m] = !TRef1.IsInit() || TRef1 - TRef2 < as<int>(UPDATE_UNTIL); //let UPDATE_UNTIL days
-							nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
+								bNeedDownload[y][m] = !TRef1.IsInit() || TRef1 - TRef2 < as<int>(UPDATE_UNTIL); //let UPDATE_UNTIL days
+								nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
+							}
 						}
 					}
-				}
-				else
-				{
-					bNeedDownload[y][m] = true;
-					nbFilesToDownload++;
+					else
+					{
+						bNeedDownload[y][m] = true;
+						nbFilesToDownload++;
+					}
 				}
 			}
 		}
@@ -290,7 +293,7 @@ namespace WBSF
 			{
 				if (bNeedDownload[y][m])
 				{
-					string filePath = GetOutputFilePath(year, m, station.m_ID);;
+					string filePath = GetOutputFilePath(year, m, station.m_ID);
 					CreateMultipleDir(GetPath(filePath));
 
 					msg += CopyStationDataPage(pConnection, station.m_ID, year, m, filePath);
@@ -418,9 +421,9 @@ namespace WBSF
 
 	//****************************************************************************************************
 
-	string CUIMDDELCC::GetOutputFilePath(int year, size_t m, const string& stationName)const
+	string CUIMDDELCC::GetOutputFilePath(int year, size_t m, const string& stationName, bool bUnpublished)const
 	{
-		return GetDir(WORKING_DIR) + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + stationName + ".csv";
+		return GetDir(WORKING_DIR) + (bUnpublished ? "unpublished\\" : "") + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + stationName + ".csv";
 	}
 
 
@@ -467,6 +470,56 @@ namespace WBSF
 		return name;
 	}
 
+
+	//ERMsg ConvertData(const string& filePath, const string& filePath2)
+	//{
+	//	ERMsg msg;
+
+
+	//	//open file
+	//	ifStream file;
+	//	msg = file.open(filePath);
+
+	//	ofStream file2;
+	//	msg += file2.open(filePath2);
+
+	//	if (msg)
+	//	{
+	//		file2 << "Year,Month,Day,Tmax,Tmean,Tmin,Rain,Snow,Prcp,SnwD" << endl;
+	//		size_t i = 0;
+	//		//for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop, i++)
+	//		string header;
+	//		getline(file, header);
+	//		ASSERT(StringVector(header, ",").size() == 9);
+	//		if (StringVector(header, ",").size() == 9)
+	//		{
+
+	//			string str;
+	//			while (getline(file, str))
+	//			{
+
+	//				string::size_type pos = str.find(",");
+	//				pos = str.find(",", pos + 1);
+	//				pos = str.find(",", pos + 1);
+	//				pos = str.find(",", pos + 1);
+
+	//				string str2 = str.substr(0, pos);
+	//				str2 += ",-999.0";
+	//				str2 += str.substr(pos);
+	//				file2 << str2 << endl;
+
+	//			}//for all line
+
+	//			file.close();
+	//			file2.close();
+	//		}
+	//	}
+
+	//	
+
+	//	return msg;
+	//}
+
 	ERMsg CUIMDDELCC::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
@@ -495,6 +548,22 @@ namespace WBSF
 			size_t nbMonth = year < today.m_year ? 12 : today.m_month + 1;
 			for (size_t m = 0; m < nbMonth&&msg; m++)
 			{
+				if (year >= 2012 && year <= 2014)
+				{
+					//read unpublished data. Get before they remove it from the site 
+					string filePath = GetOutputFilePath(year, m, ID, true);
+					//string filePath = GetDir(WORKING_DIR) + "prohibited2\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
+					CFileInfo info = GetFileInfo(filePath);
+					if (info.m_size > 0)
+					{
+						//string filePath2 = GetDir(WORKING_DIR) + "prohibited\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
+						//CreateMultipleDir(GetPath(filePath2));
+						//msg += ConvertData(filePath, filePath2);
+
+						msg += ReadData(filePath, station[year]);
+					}
+				}
+
 				string filePath = GetOutputFilePath(year, m, ID);
 				CFileInfo info = GetFileInfo(filePath);
 				if (info.m_size>0)
