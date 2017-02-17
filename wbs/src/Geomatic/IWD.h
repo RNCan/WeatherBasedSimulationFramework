@@ -30,7 +30,7 @@ namespace WBSF
 		CIWD();
 		virtual ~CIWD();
 
-		virtual ERMsg Initialization();
+		virtual ERMsg Initialization(CCallback& callback);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;

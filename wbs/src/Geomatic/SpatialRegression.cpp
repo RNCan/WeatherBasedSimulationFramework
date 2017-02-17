@@ -274,9 +274,9 @@ namespace WBSF
 		return bestR²;
 	}
 
-	ERMsg CSpatialRegression::Initialization()
+	ERMsg CSpatialRegression::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization();
+		ERMsg msg = CGridInterpolBase::Initialization(callback);
 		
 		if (!m_bInit)
 		{

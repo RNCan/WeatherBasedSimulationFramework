@@ -136,7 +136,7 @@ namespace WBSF
 		bool operator != (const CVariogram& in)const{ return !operator==(in); }
 
 		ERMsg CreateVariogram(const CGridPointVector& pts, const CPrePostTransfo& transfo, int model, int nLags, float dLag,
-			const CDetrending& detrending = CDetrending(), const CRotationMatrix& rotmat = CRotationMatrix());
+			const CDetrending& detrending = CDetrending(), const CRotationMatrix& rotmat = CRotationMatrix(), CCallback& callback = DEFAULT_CALLBACK);
 
 		ERMsg Save(std::string filePAth)const;
 
@@ -159,7 +159,7 @@ namespace WBSF
 
 	protected:
 
-		ERMsg FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2);
+		ERMsg FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg ComputePredictor(const CGridPointVector& pts, const CPrePostTransfo& transfo, int nLags, float xLag, const CDetrending& detrending, const CRotationMatrix& rotmat, CVariogramPredictorVector& lagVar);
 
 

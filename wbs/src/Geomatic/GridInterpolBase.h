@@ -14,6 +14,7 @@
 //#include <combaseapi.h>
 #include "ANN/ANN.h"
 
+#include "Basic/Callback.h"
 #include "Basic/GeoBasic.h"
 #include "Basic/Statistic.h"
 #include "Geomatic/PrePostTransfo.h"
@@ -285,18 +286,18 @@ namespace WBSF
 
 		static const char* DATA_DESCRIPTOR;
 
-		virtual ERMsg Initialization();
+		virtual ERMsg Initialization(CCallback& callback);
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset){}
-		virtual double GetOptimizedR²()const;
+		virtual double GetOptimizedR²(CCallback& callback)const;
 
 		virtual std::string GetFeedbackBestParam()const{ return std::string(); }
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const{ return std::string(); }
 
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const{ return -999; }
 
-		virtual ERMsg GetXValidation(CXValidationVector& XValidation)const;
+		virtual ERMsg GetXValidation(CXValidationVector& XValidation, CCallback& callback)const;
 		virtual bool GetVariogram(CVariogram& variogram)const;
-		virtual ERMsg Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut)const;
+		virtual ERMsg Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const;
 
 		
 
@@ -322,7 +323,7 @@ namespace WBSF
 
 	protected:
 
-		ERMsg InternalInit()const;
+		ERMsg InternalInit(CCallback& callback)const;
 
 
 		CGridPointVectorPtr m_pPts;

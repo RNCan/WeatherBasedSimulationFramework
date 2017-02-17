@@ -27,8 +27,8 @@ namespace WBSF
 		virtual ~CThinPlateSpline();
 		void Reset();
 
-		virtual ERMsg Initialization();
-		virtual double GetOptimizedR²()const;
+		virtual ERMsg Initialization(CCallback& callback);
+		virtual double GetOptimizedR²(CCallback& callback)const;
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;

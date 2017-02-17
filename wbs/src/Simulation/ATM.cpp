@@ -1917,7 +1917,7 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 
 				m_iwd[UTCTRef][v].SetDataset(pts);
 				m_iwd[UTCTRef][v].SetParam(param);
-				msg += m_iwd[UTCTRef][v].Initialization();
+				msg += m_iwd[UTCTRef][v].Initialization(callback);
 				
 			}//for all variables
 

@@ -150,9 +150,9 @@ namespace WBSF
 		return m_pVariogram!=NULL;
 	}
 
-	ERMsg CUniversalKriging::Initialization()
+	ERMsg CUniversalKriging::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization();
+		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
 		if (!m_bInit)
 			m_pVariogram->Reset(); // force creation of the variogram
@@ -167,8 +167,8 @@ namespace WBSF
 			detrending[i] = TERM_DEFINE[d][i + 1];
 
 		
-
-		msg = m_pVariogram->CreateVariogram(*m_pPts, m_prePostTransfo, m_param.m_variogramModel, m_param.m_nbLags, m_param.m_lagDist, detrending);
+		CRotationMatrix rotmat;
+		msg = m_pVariogram->CreateVariogram(*m_pPts, m_prePostTransfo, m_param.m_variogramModel, m_param.m_nbLags, m_param.m_lagDist, detrending, rotmat, callback);
 
 
 		if (msg)
@@ -589,9 +589,9 @@ namespace WBSF
 	}
 
 
-	double CUniversalKriging::GetOptimizedR²()const
+	double CUniversalKriging::GetOptimizedR²(CCallback& callback)const
 	{
-		double XValR² = CGridInterpolBase::GetOptimizedR²();
+		double XValR² = CGridInterpolBase::GetOptimizedR²(callback);
 		double varioR² = m_pVariogram->GetR2();
 		double R² = XValR² * 3 / 4 + varioR² / 4;
 		return R²;

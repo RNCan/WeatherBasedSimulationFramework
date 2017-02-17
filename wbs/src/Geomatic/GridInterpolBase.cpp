@@ -476,8 +476,9 @@ namespace WBSF
 		is >> lineIn;
 
 		//Do interpolation
+		CCallback callback;
 		CGridLine lineOut;
-		Interpolation(lineIn, lineOut);
+		Interpolation(lineIn, lineOut, callback);
 
 		unsigned __int64 size = (unsigned __int64)lineOut.size();
 		//Write line index and output result
@@ -491,7 +492,7 @@ namespace WBSF
 		os.write((char*)lineOut.data(), lineOut.size()*sizeof(CGridLine::value_type));
 	}
 
-	ERMsg CGridInterpolBase::Initialization()
+	ERMsg CGridInterpolBase::Initialization(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -508,7 +509,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CGridInterpolBase::InternalInit()const
+	ERMsg CGridInterpolBase::InternalInit(CCallback& callback)const
 	{
 		ASSERT(m_pPts.get());
 
@@ -520,7 +521,7 @@ namespace WBSF
 		me.m_CS.Enter();
 
 		
-		msg = me.Initialization();
+		msg = me.Initialization(callback);
 		if (msg)
 		
 
@@ -529,12 +530,12 @@ namespace WBSF
 		return msg;
 	}
 
-	double CGridInterpolBase::GetOptimizedR²()const
+	double CGridInterpolBase::GetOptimizedR²(CCallback& callback)const
 	{
 		double R² = -999;
 
 		CXValidationVector XValidation;
-		if (GetXValidation(XValidation))
+		if (GetXValidation(XValidation, callback))
 		{
 			//Gat statistic for this parameter set
 			CStatisticXY stat;
@@ -575,7 +576,8 @@ namespace WBSF
 		zen::readStruc(doc.root(), m_info);
 
 		//Compute R²
-		double R² = GetOptimizedR²();
+		CCallback callback;
+		double R² = GetOptimizedR²(callback);
 
 		//Save result
 		os << parameterIndex;
@@ -584,7 +586,7 @@ namespace WBSF
 		//LeaveCriticalSection(&me.m_CS);
 	}
 
-	ERMsg CGridInterpolBase::GetXValidation(CXValidationVector& XValidation)const
+	ERMsg CGridInterpolBase::GetXValidation(CXValidationVector& XValidation, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -592,7 +594,7 @@ namespace WBSF
 		XValidation.clear();
 
 
-		msg = InternalInit();
+		msg = InternalInit(callback);
 		if (msg)
 		{
 
@@ -622,11 +624,11 @@ namespace WBSF
 		return false;
 	}
 
-	ERMsg CGridInterpolBase::Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut)const
+	ERMsg CGridInterpolBase::Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		msg = InternalInit();
+		msg = InternalInit(callback);
 		if (!msg)
 			return msg;
 

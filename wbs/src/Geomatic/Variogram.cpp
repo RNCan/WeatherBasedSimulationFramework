@@ -667,7 +667,7 @@ double CVariogram::GetSuggestedLag(const CGridPointVector& pts)
 }
 
 
-ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget,double& final_sill,double& final_range,double& final_r2)
+ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2, CCallback& callback)
 {
 	ASSERT(model>= SPERICAL && model <NB_MODELS);
     ERMsg msg;
@@ -681,7 +681,6 @@ ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector&
 	}
 		
 
-	
 	try
 	{
 
@@ -703,14 +702,14 @@ ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector&
 
 		long npt = x.size() * 2 + 1;
 		double rho_begin = min(x_upper - x_lower) / 10;
-		double rho_end = min(0.001, rho_begin/2);
+		double rho_end = min(0.001, rho_begin / 2);
 		ASSERT(x.size() + 2 <= npt);
 		ASSERT(npt <= (x.size() + 1)*(x.size() + 2) / 2);
 		ASSERT(0 < rho_end);
 		ASSERT(rho_end < rho_begin);
 		ASSERT(min(x_upper - x_lower) > 2 * rho_begin);
 		ASSERT(min(x - x_lower) >= 0 && min(x_upper - x) >= 0);
-			
+
 
 		// Finally, ask BOBYQA to look for the best set of parameters.  Note that we are using the
 		// cross validation function object defined at the top of the file.
@@ -734,10 +733,11 @@ ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector&
 		double TSS = CVO.TSS();
 
 		m_R2 = 1 - RSS / TSS;
+			
 	}
 	catch (exception& e)
 	{
-		msg.ajoute( e.what() );
+		callback.AddMessage(string("WARNING: Variagram (") + GetModelName(model)  + ") " + e.what());
 		m_R2 = -999;
 	}
 
@@ -747,7 +747,7 @@ ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector&
 
 
 ERMsg CVariogram::CreateVariogram(const CGridPointVector& pts, const CPrePostTransfo& transfo, int model, int nLags, float dLag,
-		const CDetrending& detrending, const CRotationMatrix& rotmat )
+	const CDetrending& detrending, const CRotationMatrix& rotmat, CCallback& callback)
 {
     ASSERT(model>=SPERICAL && model < NB_MODELS);
     ASSERT(nLags > 0);
@@ -771,7 +771,7 @@ ERMsg CVariogram::CreateVariogram(const CGridPointVector& pts, const CPrePostTra
 
 		msg = ComputePredictor(pts, transfo, nLags, dLag, detrending, rotmat, m_predictorVector);
 		if (msg)
-			msg = FitVariogramModels(m_model, m_predictorVector, m_nugget,m_sill,m_range,m_R2);
+			msg = FitVariogramModels(m_model, m_predictorVector, m_nugget, m_sill, m_range, m_R2, callback);
 	}
 
 	//m_CS.Leave();

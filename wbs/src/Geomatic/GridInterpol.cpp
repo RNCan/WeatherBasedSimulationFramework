@@ -373,7 +373,7 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			{
 				//initialize with this parameters set
 				m_pGridInterpol->SetParam(parameterset[i]);
-				optimisationR²[i] = m_pGridInterpol->GetOptimizedR²();
+				optimisationR²[i] = m_pGridInterpol->GetOptimizedR²(callback);
 
 				msg += callback.StepIt();
 			}
@@ -419,7 +419,7 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 		m_pGridInterpol->SetParam(m_param);
 
 		//Get Xvalidation with good parameter
-		msg = m_pGridInterpol->GetXValidation(m_XValidation);
+		msg = m_pGridInterpol->GetXValidation(m_XValidation, callback);
 
 		//update
 		if( msg )

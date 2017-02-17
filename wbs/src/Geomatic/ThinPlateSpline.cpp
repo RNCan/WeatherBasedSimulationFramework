@@ -231,9 +231,9 @@ namespace WBSF
 	}
 
 
-	ERMsg CThinPlateSpline::Initialization()
+	ERMsg CThinPlateSpline::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization();
+		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
 		if (m_param.m_TPSType == CGridInterpolParam::TPS_REGIONAL)
 		{
@@ -636,7 +636,7 @@ namespace WBSF
 		return str;
 	}
 
-	double CThinPlateSpline::GetOptimizedR²()const
+	double CThinPlateSpline::GetOptimizedR²(CCallback& callback)const
 	{
 		//	double XValR² = CGridInterpolBase::GetOptimizedR²();
 		//  double varioR² = m_variogram.GetR2();

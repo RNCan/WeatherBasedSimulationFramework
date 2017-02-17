@@ -66,8 +66,8 @@ namespace WBSF
 		virtual ~CUniversalKriging();
 		void Reset();
 
-		virtual ERMsg Initialization();
-		virtual double GetOptimizedR²()const;
+		virtual ERMsg Initialization(CCallback& callback);
+		virtual double GetOptimizedR²(CCallback& callback)const;
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const;

@@ -116,7 +116,7 @@ namespace WBSF
 
 
 
-		virtual ERMsg Initialization();
+		virtual ERMsg Initialization(CCallback& callback);
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		//virtual double GetOptimizedR²()const;
 

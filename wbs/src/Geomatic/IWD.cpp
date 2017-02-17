@@ -34,9 +34,9 @@ namespace WBSF
 	CIWD::~CIWD()
 	{}
 
-	ERMsg CIWD::Initialization()
+	ERMsg CIWD::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization();
+		ERMsg msg = CGridInterpolBase::Initialization(callback);
 		
 		//size_t checkSum = m_pPts->GetCheckSum();
 		//if (checkSum != m_lastCheckSum)
