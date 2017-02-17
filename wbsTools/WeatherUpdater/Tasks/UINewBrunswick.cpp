@@ -22,7 +22,8 @@ using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
 
-
+//donner disponiblke pour le 2 dernier jour ici:
+//http://www1.gnb.ca/0079/FireWeather/FireWeatherHourly-e.asp?stn=Anfield
 
 namespace WBSF
 {
