@@ -1391,6 +1391,23 @@ namespace WBSF
 		return str;
 	}
 
+	std::string RemoveAccented(std::string str)
+	{
+		for (string::iterator it = str.begin(); it != str.end(); it++)
+		{
+			static const char*
+				//   "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+				tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnooooo/0uuuuypy";
+			unsigned char ch = *it;
+			if (ch >= 192)
+				*it = tr[ch - 192];
+
+			//++p; // http://stackoverflow.com/questions/14094621/
+		}
+
+		return str;
+	}
+
 	std::string PurgeFileName(std::string name)
 	{
 		std::replace(name.begin(), name.end(), '\\', '-');

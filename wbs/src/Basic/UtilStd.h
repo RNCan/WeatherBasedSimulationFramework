@@ -175,6 +175,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 //String
 
 	class CCallback;
+	std::string RemoveAccented(std::string str);
 	std::string PurgeFileName(std::string name);
 	std::string& ReplaceString(std::string& str, const std::string& oldStr, const std::string& newStr);
 	std::string GetText(ERMsg msg);

@@ -615,7 +615,7 @@ namespace WBSF
 									CWeatherStation weaterStation(true);
 									((CLocation&)weaterStation) = *itFind;
 									weaterStation.m_name = PurgeFileName(weaterStation.m_name);
-									weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv");
+									weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, RemoveAccented(weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv") );
 									stations.push_back(weaterStation);
 									it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
 								}

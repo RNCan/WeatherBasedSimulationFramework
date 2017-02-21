@@ -304,7 +304,7 @@ namespace WBSF
 	{
 		std::string tmp = GetDefaultSSI(CLocation::DATA_FILE_NAME);
 		if (tmp.empty())
-			tmp = PurgeFileName(m_name + " [" + m_ID + "]") + ".csv";
+			tmp = PurgeFileName(RemoveAccented(m_name) + " [" + m_ID + "]") + ".csv";
 
 		return tmp;
 	}
@@ -548,6 +548,8 @@ namespace WBSF
 
 
 		ifStream file;
+		auto myloc = std::locale();//by RSA 18-02-2017, une bonne chose ou non???
+		file.imbue(myloc);
 		msg = file.open(filePath);
 
 		if (msg)

@@ -4,6 +4,7 @@
 #include "TaskFactory.h"
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
+#include "Basic/UtilStd.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "../Resource.h"
@@ -22,27 +23,18 @@ using namespace UtilWWW;
 //http://mesonet.agron.iastate.edu/sites/networks.php?network=_ALL_&format=csv&nohtml=on
 //http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=CMBB&station=CMBR&station=CMCT&station=CMCW&station=CMFM&station=CMGB&station=CMHB&station=CMHN&station=CMHW&station=CMLA&station=CMLI&station=CMPD&station=CMPL&station=CMRG&station=CMRI&station=CMRU&station=CMRY&station=CMSB&station=CMSC&station=CMSX&station=CMWD&station=CMYT&station=CWAF&station=CWBA&station=CWBS&station=CWBT&station=CWBY&station=CWBZ&station=CWDM&station=CWDQ&station=CWDT&station=CWEE&station=CWEO&station=CWER&station=CWEW&station=CWFQ&station=CWGR&station=CWHM&station=CWHP&station=CWHQ&station=CWHV&station=CWHY&station=CWIA&station=CWIG&station=CWIP&station=CWIS&station=CWIT&station=CWIU&station=CWIX&station=CWIZ&station=CWJB&station=CWJO&station=CWJT&station=CWKD&station=CWLU&station=CWMJ&station=CWMN&station=CWMW&station=CWNH&station=CWNQ&station=CWOC&station=CWOD&station=CWPD&station=CWPH&station=CWPK&station=CWPQ&station=CWQG&station=CWQH&station=CWQO&station=CWQR&station=CWQV&station=CWRC&station=CWRZ&station=CWSF&station=CWSG&station=CWST&station=CWTA&station=CWTB&station=CWTG&station=CWTN&station=CWTQ&station=CWTT&station=CWTY&station=CWUK&station=CWUX&station=CWVQ&station=CWVY&station=CWVZ&station=CWXC&station=CWZS&station=CXAM&station=CXBO&station=CXHF&station=CXLT&station=CXSH&station=CXZV&station=CYAD&station=CYAH&station=CYAS&station=CYBC&station=CYBG&station=CYBX&station=CYGL&station=CYGP&station=CYGR&station=CYGV&station=CYGW&station=CYHA&station=CYHH&station=CYHU&station=CYIK&station=CYKG&station=CYKL&station=CYKO&station=CYKQ&station=CYLA&station=CYLU&station=CYML&station=CYMT&station=CYMU&station=CYMX&station=CYNA&station=CYNC&station=CYND&station=CYNM&station=CYOY&station=CYPH&station=CYPX&station=CYQB&station=CYRJ&station=CYRQ&station=CYSC&station=CYTQ&station=CYUL&station=CYUY&station=CYVO&station=CYVP&station=CYYY&station=CYZG&station=CYZV&station=CZEM&data=tmpc&data=dwpc&data=relh&data=drct&data=sknt&data=mslp&data=p01m&data=skyc1&data=skyc2&data=skyc3&data=presentwx&year1=2016&month1=1&day1=1&year2=2016&month2=11&day2=22&tz=Etc%2FUTC&format=comma&latlon=no&direct=no&report_type=1&report_type=2
 //http://atl.agrometeo.org/indices/mcd/cyqm
+
+//list des stations
+//http://www.agrometeo.org/site/stations/CMWU
+
+//données météo CIPRA
+//http://www.agrometeo.org/indices/mcdPommes
+//http://www.agrometeo.org/indices/mcd/cwqb
+
 namespace WBSF
 {
 
-	string removeAccented(string str)
-	{
-		//char *p = str;
-		for (string::iterator it = str.begin(); it != str.end(); it++)
-		{
-			static const char*
-				//   "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-				tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnooooo/0uuuuypy";
-			unsigned char ch = *it;
-			if (ch >= 192) 
-				*it = tr[ch - 192];
-			
-			//++p; // http://stackoverflow.com/questions/14094621/
-		}
-
-		return str;
-	}
-
+	
 	//*********************************************************************
 
 	const char* CUICIPRA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "Network", "FirstYear", "LastYear", "Forecast"  };
@@ -411,7 +403,7 @@ namespace WBSF
 		{ 
 			string name = in.m_name;
 			std::replace(name.begin(), name.end(), ' ', '_');
-			name = removeAccented(name);
+			name = RemoveAccented(name);
 
 			return name == m_name;
 		}
@@ -441,7 +433,7 @@ namespace WBSF
 		string network = station.GetSSI("Network");
 		string fileName = station.m_name;
 		std::replace(fileName.begin(), fileName.end(), ' ', '_');
-		fileName = removeAccented(fileName);
+		fileName = RemoveAccented(fileName);
 
 		station.m_name = PurgeFileName(station.m_name);
 		
