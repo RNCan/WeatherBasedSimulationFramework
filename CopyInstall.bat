@@ -98,6 +98,8 @@ copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.mdl" "..\Install\NRCan\M
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Grow Rate.mdl" "..\Install\NRCan\Models\Spruce Budworm Grow Rate.mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.dll" "..\Install\NRCan\Models\Spruce Budworm Dispersal.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.mdl" "..\Install\NRCan\Models\Spruce Budworm Dispersal.mdl"
+copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.mdl" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.mdl"
+copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.dll" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.dll"
 copy /Y ".\bin\Releasex64\Models\Tranosema Biology (daily).mdl" "..\Install\NRCan\Models\Tranosema Biology (daily).mdl"
 copy /Y ".\bin\Releasex64\Models\Tranosema Biology.dll" "..\Install\NRCan\Models\Tranosema Biology.dll"
 copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (annual).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (annual).mdl"
