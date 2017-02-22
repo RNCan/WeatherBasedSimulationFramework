@@ -274,7 +274,7 @@ namespace WBSF
 				double scaleFactor = m_broods*m_scaleFactor;
 				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
-			}
+			} 
 
 			//adjust female weight
 			//double M° = Equations().get_M°(m_sex, m_A, 1);//compute weight from forewing area and female gravidity

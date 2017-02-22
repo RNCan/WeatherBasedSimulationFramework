@@ -539,7 +539,7 @@ BOOL CMainFrame::OnHelp(UINT id)
 	
 	switch(id)
 	{
-	case ID_DOWNLOAD_DATA:	name="ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Data/Weather/";break;
+	case ID_DOWNLOAD_DATA:	name="ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Data11/Weather/";break;
 	//case ID_HELP_MANUAL:	name="\"" + GetApplicationPath() + "BioSIM10 Manual.pdf\"";break;
 	//case ID_HELP_TUTORIAL:	name="\"" + GetApplicationPath() + "BioSIM10 Tutorial.pdf\"";break;
 	case ID_HELP_MANUAL:	name = "\"" + GetApplicationPath() + "BioSIM10 Manual.pdf\""; break;

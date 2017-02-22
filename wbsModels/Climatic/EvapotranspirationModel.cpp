@@ -22,7 +22,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.3.0 (2016)";
+		VERSION = "1.3.1 (2017)";
 
 		//Initialization of input parameters(optional)
 		m_ETModelName = "Priestley-Taylor";

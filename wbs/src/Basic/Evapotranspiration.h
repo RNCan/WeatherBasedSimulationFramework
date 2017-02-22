@@ -1,11 +1,11 @@
-﻿//******************************************************************************
+﻿//*********************************************************************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
 //	Programmer:     Rémi Saint-Amant
 // 
 //  It under the terms of the GNU General Public License as published by
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
-//******************************************************************************
+//*********************************************************************************************************************************
 
 #pragma once
 
@@ -21,10 +21,10 @@
 namespace WBSF
 {
 	
-	
+
+	//*********************************************************************************************************************************
+	//CETOptions
 	extern const char ET_HEADER[];
-	
-	
 
 	class CETOptions : public std::map < std::string, std::string >
 	{
@@ -51,6 +51,8 @@ namespace WBSF
 	};
 
 
+	//*********************************************************************************************************************************
+	//ETInterface
 	struct ETInterface
 	{
 	public:
@@ -68,6 +70,9 @@ namespace WBSF
 	typedef std::shared_ptr<ETInterface> CETPtr;
 	typedef ETInterface* (__stdcall *CreateETFn)(void);
 
+
+	//*********************************************************************************************************************************
+	//CETFactory
 	// Factory for creating instances of IET
 	class CETFactory
 	{
@@ -98,25 +103,20 @@ namespace WBSF
 	};
 
 
-
+	//*********************************************************************************************************************************
+	//CETBase
 	class CETBase : public ETInterface
 	{
 	public:
 		
 		virtual ERMsg SetOptions(const CETOptions& options){ return ERMsg(); }//do nothing
-
-		//void Transform(const CTTransformation& TT, const CModelStatVector& input, CModelStatVector& output);
-		
-		//virtual void Transform(const CTTransformation& TT, const CModelStatVector& input, CTStatMatrix& output);
-		//void Transform(const CTM& TM, const CModelStatVector& input, CModelStatVector& output){ WBSF::Transform(*this, TM, input, output);}
-		
-		
 	};
 
 
-	//*************************************************************
+
+	//*********************************************************************************************************************************
 	//CThornthwaiteET : this class computes the Thornthwaite potential evapotranspiration
-	//
+	//Variable need : TAir
 	class CThornthwaiteET : public CETBase
 	{
 	public:
@@ -147,9 +147,9 @@ namespace WBSF
 
 
 
-	//*************************************************************
+	//*********************************************************************************************************************************
 	//CBlaneyCriddleET : this class computes the Blaney-Criddle potential evapotranspiration
-	//
+	//Variable need : TAir
 	class CBlaneyCriddleET : public CETBase
 	{
 	public:
@@ -157,6 +157,7 @@ namespace WBSF
 		enum TCrop { PASTURE_GRASS, ALFALFA, GRAPES, DECIDOUS_ORCHARD, NB_TYPE };
 		static ETInterface* __stdcall Create(){ return new CBlaneyCriddleET; }
 
+		//options
 		TCrop m_cropType;						//type of crop
 
 		CBlaneyCriddleET();
@@ -204,9 +205,79 @@ namespace WBSF
 		static const bool AUTO_REGISTER;
 	};
 
-	//*************************************************************
+
+
+	//*********************************************************************************************************************************
+	//CHamonET : Hamon potential evapotranspiration
+	//Variable need : Tair
+
+
+	class CHamonET : public CETBase
+	{
+	public:
+
+		static const double KPEC;
+		static ETInterface* __stdcall Create(){ return new CHamonET; }
+
+		CHamonET();
+
+
+		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
+
+	protected:
+
+		static const bool AUTO_REGISTER;
+	};
+
+	//*********************************************************************************************************************************
+	//ModifiedHamonET : Modified Hamon potential evapotranspiration
+	//Variable need : Tair
+
+	class CModifiedHamonET : public CETBase
+	{
+	public:
+
+		static const double KPEC;
+		static ETInterface* __stdcall Create(){ return new CModifiedHamonET; }
+
+
+		CModifiedHamonET();
+
+		virtual ERMsg SetOptions(const CETOptions& options);
+		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
+
+	protected:
+
+		static const bool AUTO_REGISTER;
+	};
+
+	//*********************************************************************************************************************************
+	//ModifiedHamonET : Modified Hamon potential evapotranspiration
+	//Variable need : Tair
+
+	class CHargreavesET : public CETBase
+	{
+	public:
+
+		static const double KPEC;
+		static ETInterface* __stdcall Create(){ return new CHargreavesET; }
+
+		CHargreavesET();
+
+
+		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
+
+	protected:
+
+		static const bool AUTO_REGISTER;
+	};
+
+
+
+	//*********************************************************************************************************************************
 	//CTurcET : turk evapotranspiration
-	// not validate
+	// not validated
+	//Variable need : Tair, Humidity, Solar Radiation
 	class CTurcET : public CETBase
 	{
 	public:
@@ -221,10 +292,10 @@ namespace WBSF
 		static const bool AUTO_REGISTER;
 	};
 
-	//*************************************************************
+	//*********************************************************************************************************************************
 	//CPriestleyTaylorET : Priestley-Taylor potential evapotranspiration
 	// 
-
+	//Variable need : Tair, Humidity, Wind Speed, Solar Radiation
 	class CPriestleyTaylorET : public CETBase
 	{
 	public:
@@ -267,15 +338,13 @@ namespace WBSF
 	};
 
 
-	//*************************************************************
+	//*********************************************************************************************************************************
 	//CModifiedPriestleyTaylorET : this class computes the Thornthwaite potential evapotranspiration
-	//
+	//Variable need : Tair, Humidity, Wind Speed, Solar Radiation
 	class CModifiedPriestleyTaylorET : public CETBase
 	{
 
 	public:
-
-
 
 
 		enum TMethod{ HOLTSLAG_VAN_ULDEN, ALPHA_OMEGA, NB_METHOD };
@@ -296,20 +365,16 @@ namespace WBSF
 
 	};
 
-	//*************************************************************
-	//CHamonET : Hamon potential evapotranspiration
-	// 
-
-
-	class CHamonET : public CETBase
+	//*********************************************************************************************************************************
+	//Penman-Monteith
+	//Variable need : Tair, Humidity, Wind Speed, Solar Radiation
+	class CPenmanMonteithET : public CETBase
 	{
 	public:
 
-		static const double KPEC;
-		static ETInterface* __stdcall Create(){ return new CHamonET; }
+		static ETInterface* __stdcall Create(){ return new CPenmanMonteithET; }
 
-		CHamonET();
-
+		CPenmanMonteithET();
 
 		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
 
@@ -317,45 +382,10 @@ namespace WBSF
 
 		static const bool AUTO_REGISTER;
 	};
-
-
-	class CModifiedHamonET : public CETBase
-	{
-	public:
-
-		static const double KPEC;
-		static ETInterface* __stdcall Create(){ return new CModifiedHamonET; }
-
-
-		CModifiedHamonET();
-
-		virtual ERMsg SetOptions(const CETOptions& options);
-		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
-
-	protected:
-
-		static const bool AUTO_REGISTER;
-	};
-
-
-
-	class CHargreavesET : public CETBase
-	{
-	public:
-
-		static const double KPEC;
-		static ETInterface* __stdcall Create(){ return new CHargreavesET; }
-
-		CHargreavesET();
-
-
-		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
-
-	protected:
-
-		static const bool AUTO_REGISTER;
-	};
-
+	
+	//*********************************************************************************************************************************
+	//ASCE_ETsz
+	//Variable need : Tair, Humidity, Wind Speed, Solar Radiation
 	class CASCE_ETsz : public CETBase
 	{
 	public:
@@ -366,9 +396,9 @@ namespace WBSF
 
 		//SHORT_REF is equivalent to grass
 		//LONG_REF is equivalent to alfalfa
-
+		//option
 		TReference m_referenceType;
-		bool m_bExtended;
+		//bool m_bExtended;
 		
 		CASCE_ETsz(size_t referenceType = SHORT_REF, bool extended = false);
 
@@ -437,23 +467,7 @@ namespace WBSF
 		static const bool AUTO_REGISTER;
 	};
 
-	//*********************************************************************************************************************************
-	//Penman-Monteith
-	class CPenmanMonteithET : public CASCE_ETsz
-	{
-	public:
-
-		static ETInterface* __stdcall Create(){ return new CPenmanMonteithET; }
-
-		CPenmanMonteithET();
-
-		virtual ERMsg SetOptions(const CETOptions& options);
-		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
-
-	protected:
-
-		static const bool AUTO_REGISTER;
-	};
+	
 
 	//*********************************************************************************************************************************
 	//From AIMM

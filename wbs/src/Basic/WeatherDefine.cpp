@@ -510,7 +510,10 @@ namespace WBSF
 			}
 		}
 
-		assert(!filterName.empty());
+		if (filterName.empty())
+		{
+			filterName = "----";
+		}
 			
 
 		return filterName;

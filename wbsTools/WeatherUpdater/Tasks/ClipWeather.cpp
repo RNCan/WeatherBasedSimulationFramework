@@ -130,7 +130,114 @@ namespace WBSF
 	ERMsg CClipWeather::ExecuteHourly(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback)
 	{
 		ERMsg msg;
+
+		string shapeFilePath = TrimConst(Get(SHAPEFILE));
+		string locFilePath = TrimConst(Get(LOC_FILEPATH));
+		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;");
+		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
+		CWVariables vars(Get(VARIABLES));
+
+		callback.AddMessage(GetString(IDS_CREATE_DB));
+		callback.AddMessage(outputFilePath, 1);
+		callback.AddMessage("");
+
+
+		//Get the data for each station
+		CHourlyDatabase inputDailyDB;
+		CHourlyDatabase outputDailyDB;
+		CShapeFileBase shapefile;
+		CLocationVector locInclude;
+		CLocationVector locExclude;
+
+		if (msg)
+			msg += inputDailyDB.Open(GetAbsoluteFilePath(inputFilePath), CHourlyDatabase::modeRead, callback);
+
+		if (msg)
+			msg += outputDailyDB.Open(outputFilePath, CHourlyDatabase::modeWrite);
+
+		if (msg && !shapeFilePath.empty())
+			msg += shapefile.Read(GetAbsoluteFilePath(shapeFilePath));
+
+		if (msg && !locFilePath.empty())
+			msg += locInclude.Load(GetAbsoluteFilePath(locFilePath));
+
+		if (!msg)
+			return msg;
+
+		if (!includeIds.empty())
+		{
+			for (size_t i = 0; i < includeIds.size(); i++)
+				locInclude.push_back(CLocation(includeIds[i], includeIds[i], 0, 0, 0));
+		}
+
+
+		if (!excludeIds.empty())
+		{
+			for (size_t i = 0; i < excludeIds.size(); i++)
+				locExclude.push_back(CLocation(excludeIds[i], excludeIds[i], 0, 0, 0));
+		}
+
+
+		callback.PushTask(GetString(IDS_CLIP_WEATHER) + " (" + ToString(inputDailyDB.size()) + ")", inputDailyDB.size());
+
+
+		int nbStationAdded = 0;
+		for (size_t i = 0; i < inputDailyDB.size() && msg; i++)
+		{
+			const CLocation& location = inputDailyDB[i];
+
+			set<int> years = inputDailyDB.GetYears(i);
+			for (set<int>::iterator it = years.begin(); it != years.end();)
+			{
+				if (*it >= firstYear&&*it <= lastYear)
+					it++;
+				else
+					it = years.erase(it);
+			}
+
+			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
+			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
+			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
+			bool bLocNotExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
+			if (bRect&&bShape&&bLocInclude&&bLocNotExclude&&years.size() > 0)
+			{
+				CWeatherStation station;
+				inputDailyDB.Get(station, i, years);
+
+				if (vars.any())
+					station.CleanUnusedVariable(vars);
+
+				if (station.HaveData())
+				{
+					msg = outputDailyDB.push_back(station);
+					if (msg)
+						nbStationAdded++;
+				}
+			}
+
+			msg += callback.StepIt();
+		}
+
+		outputDailyDB.Close();
+		callback.PopTask();
+
+		//Create optimization files
+		if (msg)
+		{
+			msg = outputDailyDB.Open(outputFilePath, CHourlyDatabase::modeRead, callback);
+			if (msg)
+				outputDailyDB.Close();
+		}
+
+		callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
+
+
+
 		return msg;
+		
 	}
 
 	ERMsg CClipWeather::ExecuteDaily(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback)

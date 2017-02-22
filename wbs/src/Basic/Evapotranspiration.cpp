@@ -36,8 +36,8 @@ namespace WBSF
 
 	static const double π = PI;
 
-extern const char ET_HEADER[] = "Evapotranspiration";
-extern const char EXTENDED_ET_HEADER[] = "ETo";
+extern const char ET_HEADER[] = "ETo";
+//extern const char EXTENDED_ET_HEADER[] = "ETo";
 
 CETFactory::CETFactory()
 {
@@ -87,59 +87,7 @@ bool CETFactory::IsRegistered(const std::string &name)
 CETOptions::CETOptions()
 {
 }
-//
-//void CETBase::Transform(const CTM& TM, const CModelStatVector& input, CModelStatVector& output)
-//{
-//
-//}
-//
-//void CETBase::Transform(const CTM& TM, const CModelStatVector& input, CTStatMatrix& output)
-//{
-//	CTPeriod pIn = input.GetTPeriod();
-//	CTPeriod pOut = pIn.Transform(TM);
-//	
-//	Transform(CTTransformation(pIn, pOut), input, output);
-//}
 
-//void CETBase::Transform(const CTTransformation& TT, const CModelStatVector& input, CTStatMatrix& output)
-//{
-//	CTPeriod pIn = TT.GetPeriodIn().IsInit() ? TT.GetPeriodIn() : input.GetTPeriod();
-//	CTPeriod pOut = TT.GetPeriodOut();
-//	output.Init(pOut, input.GetNbStat());
-//
-//	for (CTRef TRefIn = pIn.Begin(); TRefIn <= pIn.End(); TRefIn++)
-//	{
-//		size_t c = TT.GetCluster(TRefIn);
-//		if (c != UNKNOWN_POS)
-//		{
-//			for (size_t v = 0; v < input.GetNbStat(); v++)
-//			{
-//				double var = input[TRefIn][v];
-//				ASSERT(var > -9999);
-//				CTRef TRefOut = TT.GetClusterTRef(c);
-//				output(TRefOut, v) += var;
-//			}
-//		}
-//	}
-//}
-
-
-//void CETBase::Transform(const CTTransformation& TT, const CModelStatVector& input, CModelStatVector& output)
-//{
-//	CTStatMatrix stat;
-//	Transform(TT, input, stat);
-//
-//	CTPeriod p = stat.m_period;
-//	output.Init(p, stat.size_x(), 0);
-//	for (size_t i = 0; i < stat.size(); i++)
-//	{
-//		for (size_t j = 0; j < stat[i].size(); j++)
-//		{
-//			if (stat[i][j].IsInit())
-//				output[i][j] = stat[i][j][SUM];
-//		}
-//	}
-//}
 //*************************************************************
 //CThornthwaiteET
 
@@ -170,8 +118,8 @@ ERMsg CThornthwaiteET::SetOptions(const CETOptions& options)
 {
 	ERMsg msg;
 
-	if (options.OptionExist("Type"))
-		m_type = ToShort(options.GetOption("Type"));
+	if (options.OptionExist("ThornthwaiteType"))
+		m_type = ToShort(options.GetOption("ThornthwaiteType"));
 	
 	return msg;
 }
@@ -302,6 +250,7 @@ void CThornthwaiteET::GetWaterDeficit(const CWeatherYear& weather, double WD[12]
 	//return A;
 }
 */
+
 //*************************************************************
 //CBlaneyCriddleET
 
@@ -380,8 +329,8 @@ ERMsg CBlaneyCriddleET::SetOptions(const CETOptions& options)
 {
 	ERMsg msg;
 
-	if (options.OptionExist("CropType"))
-		m_cropType = (TCrop)ToShort(options.GetOption("CropType"));
+	if (options.OptionExist("BlaneyCriddleCropType"))
+		m_cropType = (TCrop)ToShort(options.GetOption("BlaneyCriddleCropType"));
 
 	return msg;
 }
@@ -437,18 +386,12 @@ void CTurcET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 	
 	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
 	for (size_t y = 0; y<weather.size(); y++)
-	//for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 	{
 		//compute Et for each month 
 		for (size_t m = 0; m<weather[y].size(); m++)
 		{
-			//double Tmean = weather[y][m][H_TAIR][MEAN];
-
 			for (size_t d = 0; d < weather[y][m].size(); d++)
 			{
-				//if (weather.IsHourly())
-				//{
-				
 				double T = weather[y][m][d][H_TNTX][MEAN];
 				double Ea = weather[y][m][d][H_EA2][MEAN];	//vapor pressure [Pa]
 				double Es = weather[y][m][d][H_ES2][MEAN];	//vapor pressure [Pa]
@@ -512,8 +455,8 @@ ERMsg CPriestleyTaylorET::SetOptions(const CETOptions& options)
 {
 	ERMsg msg;
 	
-	if (options.OptionExist("Alpha"))
-		m_α = ToDouble(options.GetOption("Alpha"));
+	if (options.OptionExist("PriestleyTaylorAlpha"))
+		m_α = ToDouble(options.GetOption("PriestleyTaylorAlpha"));
 
 	return msg;
 }
@@ -534,7 +477,7 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 		double Δ = data.GetVarEx(H_SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
 		double ɣ = data.GetVarEx(H_PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
 		double Rn = data.GetNetRadiation(Fcd);		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
-		double U² = data[H_WND2][MEAN] * 1000 / 3600;	//Wind speed at 2 meters [m/s]
+		//double U² = data[H_WND2][MEAN] * 1000 / 3600;	//Wind speed at 2 meters [m/s]
 		double G = WBSF::G(Rn);						// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
 
 		double Eє = (Δ / (Δ + ɣ)) * ((Rn - G) / λ);	// equilibrium evapotranspiration rate [kg m-2 d-1] or [kg m-2 hr-1]
@@ -638,8 +581,8 @@ ERMsg CModifiedPriestleyTaylorET::SetOptions(const CETOptions& options)
 {
 	ERMsg msg;
 	
-	if (options.OptionExist("Method"))
-		m_method = ToSizeT(options.GetOption("Method"));
+	if (options.OptionExist("ModifiedPriestleyTaylorMethod"))
+		m_method = ToSizeT(options.GetOption("ModifiedPriestleyTaylorMethod"));
 
 	return msg;
 }
@@ -747,6 +690,9 @@ void CHamonET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 	}
 }
 
+
+//**************************************************************************************
+
 const bool CModifiedHamonET::AUTO_REGISTER = CETFactory::Register("ModifiedHamon", &CHamonET::Create);
 CModifiedHamonET::CModifiedHamonET()
 {}
@@ -844,6 +790,75 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 	}
 }
 
+
+//*********************************************************************************************************************************
+//Penman-Monteith
+
+const bool CPenmanMonteithET::AUTO_REGISTER = CETFactory::Register("Penman-Monteith", &CPenmanMonteithET::Create);
+CPenmanMonteithET::CPenmanMonteithET()
+{}
+
+void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector& stats)
+{
+	ASSERT(weather.m_lat >= -90 && weather.m_lat <= 90);
+
+	CTPeriod p = weather.GetEntireTPeriod();
+	//stats.Init(p, m_bExtended ? NB_EXTENDED_STATS : NB_ET_STATS, 0, EXTENDED_ET_HEADER);
+	stats.Init(p, NB_ET_STATS, 0, ET_HEADER);
+
+	//altitude in meters
+	double z = weather.m_alt;
+	double Fcd = 0.6;//default value in Excel file
+	double Bᵪ = 101.3*pow((293 - 0.0065*z) / 293, 5.25);
+
+	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+	{
+		const CDataInterface& data = weather[TRef];
+
+		double Tmin = data[H_TMIN2][MEAN];
+		double Tmax = data[H_TMAX2][MEAN];
+		double T = data[H_TNTX][MEAN];
+		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);	//Wind speed at 2 meters [m/s]
+		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
+		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
+
+		//double λ = data.GetVarEx(LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
+		//double Δ = data.GetVarEx(SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
+		//double ɣ = data.GetVarEx(PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
+		//double Rn = data.GetVarEx(NTRA)[SUM];		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
+		//double G = data.GetVarEx(SHFE)[SUM];		// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
+
+		double Rn = data.GetNetRadiation(Fcd);
+		//double Cn = weather.IsHourly() ? CASCE_ETsz::GetCnH(m_referenceType, Rn >= 0) : CASCE_ETsz::GetCn(m_referenceType);
+		//double Cd = weather.IsHourly() ? CASCE_ETsz::GetCdH(m_referenceType, Rn >= 0) : CASCE_ETsz::GetCd(m_referenceType);
+		double G = weather.IsHourly() ? CASCE_ETsz::GetGH(CASCE_ETsz::SHORT_REF, Rn) : 0;
+		double nbSteps = weather.IsHourly() ? 24 : 1;
+
+		double λ = 2.501 - (2.361*0.001)*T;
+		double ɣ = 0.00163*Bᵪ / λ;
+		double Δ = (4099 * Es) / Square(T + 237.3);
+		double Δɣ = Δ + ɣ;
+
+		double Rad = (1 / λ)*Δ*(Rn - G) / Δɣ;
+		double aero = ɣ*( (900/nbSteps) / (T + 273))*U²*(Es - Ea) / Δɣ;
+		double ETsz = Rad + aero;
+		stats[TRef][S_ET] = ETsz;
+
+		//asce
+		//double num = 0.408*Δ*(Rn - G) + γ*(Cn / (T + 273))*u2*(Es - Ea);
+		//double dnom = Δ + γ*(1 + Cd*u2);
+		//double ETsz = num / dnom;
+
+
+
+
+		double LE = 2.45*ETsz;
+		double H = Rn - G - LE;
+
+	}
+
+}
+
 //*************************************************************
 //CASCE_ETsz
 
@@ -870,21 +885,21 @@ const CASCE_ETsz::CCorrectionFactors CASCE_ETsz::CorrectionFactorsH[NB_REF][2] =
 CASCE_ETsz::CASCE_ETsz(size_t referenceType, bool extended )
 {
 	m_referenceType = (TReference)referenceType;
-	m_bExtended = extended;
+	//m_bExtended = extended;
 }
 
 ERMsg CASCE_ETsz::SetOptions(const CETOptions& options)
 {
 	ERMsg msg;
 
-	if (options.OptionExist("Extended"))
-		m_bExtended = ToBool(options.GetOption("Extended"));
+	//if (options.OptionExist("ASCE_Extended"))
+		//m_bExtended = ToBool(options.GetOption("ASCE_Extended"));
 
-	if (options.OptionExist("ReferenceType"))
-		m_referenceType = (TReference)ToShort(options.GetOption("ReferenceType"));
+	if (options.OptionExist("ASCE_ReferenceType"))
+		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ReferenceType"));
 
-	if (options.OptionExist("ETref"))
-		m_referenceType = (TReference)ToShort(options.GetOption("ETref"));
+	if (options.OptionExist("ASCE_ETref"))
+		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ETref"));
 
 	return msg;
 }
@@ -903,22 +918,15 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 	ASSERT(m_referenceType >= 0 && m_referenceType < NB_REF);
 	
 	CTPeriod p = weather.GetEntireTPeriod();
-	stats.Init(p, m_bExtended ? NB_EXTENDED_STATS:NB_ET_STATS, 0, EXTENDED_ET_HEADER);
+	stats.Init(p, NB_ET_STATS, 0, ET_HEADER);
+//	stats.Init(p, m_bExtended ? NB_EXTENDED_STATS:NB_ET_STATS, 0, EXTENDED_ET_HEADER);
 
 	//altitude in meters
 	double z = weather.m_alt;
 	double Fcd = 0.6;//default value in Richard Allen Excel file
 
-	//CTRef July1(2014, 7 - 1, 6 - 1);
 	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 	{
-
-		/*if (TRef == July1)
-		{
-			int j;
-			j = 0;
-		}*/
-
 		const CDataInterface& data = weather[TRef];
 
 		double T = data[H_TNTX][MEAN];
@@ -968,8 +976,8 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 
 
 		//stats[TRef][S_ET2] = ETsz2;
-		if (m_bExtended)
-		{
+		//if (m_bExtended)
+		//{
 			
 			// double Ra = WHour.GetExtraterrestrialRadiation();
 			//	double Fcd² = WHour.GetCloudiness(Ra);
@@ -1020,7 +1028,7 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 			//stats[TRef][S_RNL] = Rnl;
 			//stats[TRef][S_RNS] = Rns;
 			//stats[TRef][S_RN] = Rn;
-		}
+		//}
 		//if (weather.IsHourly())
 		//{
 		//	const CHourlyData& WHour = weather.GetHour(TRef);
@@ -1661,72 +1669,6 @@ void CASCE_ETsz::UnitTest()
 #endif
 
 
-//*********************************************************************************************************************************
-//Penman-Monteith
-
-const bool CPenmanMonteithET::AUTO_REGISTER = CETFactory::Register("Penman-Monteith", &CPenmanMonteithET::Create);
-CPenmanMonteithET::CPenmanMonteithET()
-{}
-
-
-ERMsg CPenmanMonteithET::SetOptions(const CETOptions& options)
-{
-	ERMsg msg;
-
-//	if (options.OptionExist("Type"))
-	//	m_type = ToShort(options.GetOption("Type"));
-
-	return msg;
-}
-
-void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector& stats)
-{
-	ASSERT(weather.m_lat >= -90 && weather.m_lat <= 90);
-
-	CTPeriod p = weather.GetEntireTPeriod();
-	stats.Init(p, m_bExtended ? NB_EXTENDED_STATS : NB_ET_STATS, 0, EXTENDED_ET_HEADER);
-
-	//altitude in meters
-	double z = weather.m_alt;
-	double Fcd = 0.6;//default value in Excel file
-	double Bᵪ = 101.3*pow((293 - 0.0065*z) / 293, 5.25);
-
-	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-	{
-		const CDataInterface& data = weather[TRef];
-
-		double Tmin = data[H_TMIN2][MEAN];
-		double Tmax = data[H_TMAX2][MEAN];
-		double T = data[H_TNTX][MEAN];
-		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);	//Wind speed at 2 meters [m/s]
-		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
-		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
-
-		//double λ = data.GetVarEx(LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
-		//double Δ = data.GetVarEx(SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
-		//double ɣ = data.GetVarEx(PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
-		//double Rn = data.GetVarEx(NTRA)[SUM];		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
-		//double G = data.GetVarEx(SHFE)[SUM];		// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
-
-		double Rn = data.GetNetRadiation(Fcd);
-		double G = weather.IsHourly()?GetGH(m_referenceType, Rn):0;
-
-		double λ = 2.501 - (2.361*0.001)*T;
-		double ɣ = 0.00163*Bᵪ / λ;
-		double Δ = (4099 * Es) / Square(T + 237.3);
-		double Δɣ = Δ + ɣ;
-		
-		double Rad = (1 / λ)*Δ*(Rn - G) / Δɣ;
-		double aero = ɣ*(37 / (T + 273))*U²*(Es - Ea) / Δɣ;
-		double ETsz = Rad + aero;
-		stats[TRef][S_ET] = ETsz;
-
-		double LE = 2.45*ETsz;
-		double H = Rn - G - LE;
-
-	}
-	
-}
 
 //*******************************************************************************************************
 //Crop coeficient from AIMM
@@ -1844,3 +1786,18 @@ const CTest KROP_COEFICIENT2[42] =
 //Alfalfa Hay;Barley;Brome Hay;Canary Seed;Canola;Dry Bean;Dry Peas;Flax; Fresh Corn Sweet;Fresh Peas;Grain Corn; Grass Hay;Green Feed;Hard Red Spring weat;Lentil;Malt Barley;Milk Vetch;Monarda;Mustard;Native Pasture;Oat;Oat Silage;Onions;Potato;Rye;Safflower;Small Fruit;Soft Weat;Sugar Beets;Sunflower;Timothy Hay;Tritical;Turn Sod;Winter Weat
 
 }//namespace WBSF 
+
+
+// class T
+//CThornthwaiteET 
+//CBlaneyCriddleET 
+//CHamonET 
+//CModifiedHamonET 
+//CHargreavesET
+//
+//class THWR
+//CTurcET
+//CPriestleyTaylorET
+//CModifiedPriestleyTaylorET
+//CPenmanMonteithET
+//CASCE_ETsz
