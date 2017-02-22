@@ -478,15 +478,15 @@ const CPriestleyTaylorET::CAlpha CPriestleyTaylorET::PRE_DEFINE_ALHA[NB_ALPHA] =
 {
 	{ 1.57, "Strongly advective conditions", "Jury and Tanner, 1975" },
 	{ 1.29, "Grass (soil at field capacity)", "Mukammal and Neumann, 1977" },
-	{ 1.27, "Irrigated ryegrass", " Davies and Allen, 1973" },
-	{ 1.26, "Saturated surface", " Priestley and Taylor, 1972" },
-	{ 1.26, "Open-water surface", " Priestley and Taylor, 1972" },
+	{ 1.27, "Irrigated ryegrass", "Davies and Allen, 1973" },
+	{ 1.26, "Saturated surface", "Priestley and Taylor, 1972" },
+	{ 1.26, "Open-water surface", "Priestley and Taylor, 1972" },
 	{ 1.26, "Wet meadow", " Stewart and Rouse, 1977" },
-	{ 1.18, "Wet Douglas-fir forest", " McNaughton and Black, 1973" },
+	{ 1.18, "Wet Douglas-fir forest", "McNaughton and Black, 1973" },
 	{ 1.12, "Short grass", " De Bruin and Holtslag, 1982" },
 	{ 1.09, "Boreal broad-leaved", "Komatsu, 2005" },
-	{ 1.05, "Douglas-fir forest", " McNaughton and Black, 1973" },
-	{ 1.04, "Bare soil surface", " Barton, 1979" },
+	{ 1.05, "Douglas-fir forest", "McNaughton and Black, 1973" },
+	{ 1.04, "Bare soil surface", "Barton, 1979" },
 	{ 0.90, "Mixed reforestation (water limited)", "Flint and Childs, 1991" },
 	{ 0.87, "Ponderosa pine (water limited, daytime)", "Fisher, 2005" },
 	{ 0.86, "Tropical broad-leaved", "Komatsu, 2005" },
@@ -547,32 +547,6 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 		}
 		output[TRef][S_ET] = ETo;
 	}
-
-
-	//for (size_t y = 0; y < weather.size(); y++)
-	//{
-	//	for (size_t m = 0; m < weather[y].size(); m++)
-	//	{
-	//		for (size_t d = 0; d < weather[y][m].size(); d++)
-	//		{
-	//			const CWeatherDay& data = weather[y][m][d];
-	//			double Tmax = data[H_TAIR][HIGHEST];
-	//			double Tmin = data[H_TAIR][LOWEST];
-	//			double Tmean = (Tmin + Tmax) / 2;
-	//			double Tdaylight = data.GetTdaylight();
-	//			double prcp = data[H_PRCP][SUM];
-	//			double srad = data[H_SRAD][SUM];
-	//			double pa = data[H_PRES][MEAN] * 100; //pressure (hPa) -> (pa)
-	//			double dayLength = data.GetDayLength();
-	//			double rad = dayLength>0 ? srad * 1000000 / dayLength : 0;//radiation in W/m²
-	//			double dailyET = calc_pet(rad, Tdaylight, pa, dayLength);
-	//			CTPeriod p = weather[y][m][d].GetEntireTPeriod();
-	//			size_t nbTRef = p.size();
-	//			//for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-	//				//output[TRef][S_ET2] = dailyET / nbTRef;
-	//		}
-	//	}
-	//}
 }
 
 
@@ -665,7 +639,7 @@ ERMsg CModifiedPriestleyTaylorET::SetOptions(const CETOptions& options)
 	ERMsg msg;
 	
 	if (options.OptionExist("Method"))
-		m_method = ToDouble(options.GetOption("Method"));
+		m_method = ToSizeT(options.GetOption("Method"));
 
 	return msg;
 }
