@@ -521,13 +521,13 @@ void CHourlyData::SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat)
 		switch(v)
 		{
 		case H_SNOW:
-		case H_PRCP:	at(v) = (float)stat[SUM]; break;
-		default:		at(v) = (float)stat[MEAN];
+		case H_PRCP:	CWeatherVariables::at(v) = (float)stat[SUM]; break;
+		default:		CWeatherVariables::at(v) = (float)stat[MEAN];
 		}
 	}
 	else
 	{
-		at(v) = WEATHER::MISSING;
+		CWeatherVariables::at(v) = WEATHER::MISSING;
 	}
 }
 
@@ -543,18 +543,20 @@ double CHourlyData::GetExtraterrestrialRadiation()const
 //Fcd[In]	: Fcd of current time step	
 double CHourlyData::GetNetRadiation(double& Fcd)const
 {
+	const CHourlyData& me = *this;
+
 	const CLocation& loc = GetLocation();
 	double Ra = CASCE_ETsz::GetExtraterrestrialRadiationH(GetTRef(), loc.m_lat, loc.m_lon, loc.m_alt);
-	if (Ra >= 0)//if daytime update Fcd
+	if (Ra > 0)//if daytime update Fcd
 	{
-		double Rs = at(H_SRMJ);
+		double Rs = me[H_SRMJ];
 		double Rso = CASCE_ETsz::GetClearSkySolarRadiation(Ra, loc.m_alt);
 		Fcd = CASCE_ETsz::GetCloudinessFunction(Rs, Rso);
 	}
 	
 	//compute new Fcd
-	double Rnl = CASCE_ETsz::GetNetLongWaveRadiationH(at(H_TAIR2), at(H_EA2)/1000, Fcd);
-	double Rns = CASCE_ETsz::GetNetShortWaveRadiation(at(H_SRMJ));
+	double Rnl = CASCE_ETsz::GetNetLongWaveRadiationH(me[H_TAIR2], me[H_EA2] / 1000, Fcd);
+	double Rns = CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]);
 
 	return  CASCE_ETsz::GetNetRadiation(Rns, Rnl);// hourly incoming radiation [MJ/(m²·h)]
 }
@@ -563,7 +565,8 @@ double CHourlyData::GetNetRadiation(double& Fcd)const
 //l[out]: latent heat of vaporization of water[MJ kg - 1]
 double CHourlyData::GetLatentHeatOfVaporization()const
 {
-	return 2.5023 - 0.00243054 * at(H_TAIR2);
+	const CHourlyData& me = *this;
+	return 2.5023 - 0.00243054 * me[H_TAIR2];
 }
 
 CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const

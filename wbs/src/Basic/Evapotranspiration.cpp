@@ -396,7 +396,7 @@ void CTurcET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 				double Ea = weather[y][m][d][H_EA2][MEAN];	//vapor pressure [Pa]
 				double Es = weather[y][m][d][H_ES2][MEAN];	//vapor pressure [Pa]
 				double RH = max(1.0,min(100.0, Ea / Es * 100.0));//weather[y][m][d][H_RELH][MEAN];
-				double Rg = weather[y][m][d][H_SRMJ][SUM]; //solar radiation in MJ/m²
+				double Rg = weather[y][m][d][H_SRMJ][SUM]; //solar radiation in MJ/(m²·d)
 				double C = RH>=50?1:1+(50-RH)/70;
 
 				double dailyET = 0;
@@ -529,7 +529,7 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 //CModifiedPriestleyTaylorET
 //after Antonio Steidle Neto (2015)
 
-const bool CPriestleyTaylorHargreavesET::AUTO_REGISTER = CETFactory::Register("Priestley-Taylor(Hargreaves)", &CPriestleyTaylorHargreavesET::Create);
+const bool CPriestleyTaylorHargreavesET::AUTO_REGISTER = CETFactory::Register("Simplified Priestley-Taylor", &CPriestleyTaylorHargreavesET::Create);
 CPriestleyTaylorHargreavesET::CPriestleyTaylorHargreavesET()
 {
 }
@@ -575,8 +575,8 @@ void CPriestleyTaylorHargreavesET::Execute(const CWeatherStation& weather, CMode
 		double dayl = data.GetDayLength();				//[s]
 		double ta = data.GetTdaylight();				//[°C]
 		double pa = WBSF::GetPressure(weather.m_alt);	//air pressure [Pa]
-		double Ra = data.GetVarEx(H_LHVW)[MEAN];		//extraterrestrial radiation  [MJ m-2 d-1]
-		double Rs = RsRa*Ra;							//Solar radiation  [MJ m-2 d-1]
+		double Ra = data.GetVarEx(H_EXRA)[MEAN];		//extraterrestrial radiation  [MJ/(m²·d)]
+		double Rs = RsRa*Ra;							//Solar radiation  [MJ/(m²·d)]
 		double rad = Rs * 1000000 / dayl;				//daylight radiation [W/m²]
 		double ETo = calc_pet(Rs, ta, pa, dayl);
 
@@ -964,8 +964,8 @@ ERMsg CASCE_ETsz::SetOptions(const CETOptions& options)
 	if (options.OptionExist("ASCE_ReferenceType"))
 		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ReferenceType"));
 
-	if (options.OptionExist("ASCE_ETref"))
-		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ETref"));
+	if (options.OptionExist("ASCE ETref"))
+		m_referenceType = (TReference)ToShort(options.GetOption("ASCE ETref"));
 
 	return msg;
 }
@@ -998,8 +998,8 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 		double T = data[H_TNTX][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);//wind speed at 2 meters [m/s]
 		double P =  data[H_PRES][MEAN] / 10; ASSERT(!IsMissing(P));//pressure [kPa]
-		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
-		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
+		double Ea = data[H_EA2][MEAN] / 1000;	ASSERT(!IsMissing(Ea));//vapor pressure [kPa]
+		double Es = data[H_ES2][MEAN] / 1000;	ASSERT(!IsMissing(Es));//vapor pressure [kPa]
 
 //			double Ra = data.GetExtraterrestrialRadiation();
 //		double Fcd² = WHour.GetCloudiness(Ra);
@@ -1153,7 +1153,7 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 		//		stats[TRef][S_RA] = Ra;
 		//		stats[TRef][S_RSO] = WHour.GetClearSkySolarRadiation(stats[TRef][S_RA]);
 		//		stats[TRef][S_FCD] = Fcd;
-		//		stats[TRef][S_RNL] = Rnl;
+		//		stats[TRef][S_RNL] = Rnl; 
 		//		stats[TRef][S_RNS] = Rns;
 		//		stats[TRef][S_RN] = Rn;
 		//	}
@@ -1429,7 +1429,8 @@ double CASCE_ETsz::GetCloudinessFunction (double Rs, double Rso)
 //Ra[Out]: extraterrestrial radiation for 1-Hour Periods [MJ m-2 h-1]
 double CASCE_ETsz::GetExtraterrestrialRadiationH(CTRef TRef, double lat, double lon, double alt)
 {
-	double Ra = -999;
+	//double Ra = -999;
+	double Ra = 0;
 
 	int h = (int)TRef.GetHour();
 

@@ -21,7 +21,7 @@ namespace WBSF
 	CEvapotranspirationModel::CEvapotranspirationModel()
 	{
 		//specify the number of input parameter
-		NB_INPUT_PARAMETER = 5;
+		NB_INPUT_PARAMETER = 4;
 		VERSION = "1.3.1 (2017)";
 
 		//Initialization of input parameters(optional)
@@ -42,10 +42,10 @@ namespace WBSF
 		if (!CETFactory::IsRegistered(m_ETModelName))
 			msg.ajoute(m_ETModelName + " is an unknown evapotranspiration model name");
 
-		for (size_t i = 0; i < 2; i++)
+		for (; c < 4; c++)
 		{
-			std::string name = parameters[c++].GetString();
-			std::string value = parameters[c++].GetString();
+			std::string name = parameters[c].GetName();
+			std::string value = parameters[c].GetString();
 			if (!name.empty() && !value.empty())
 				m_options[name] = value;
 		}

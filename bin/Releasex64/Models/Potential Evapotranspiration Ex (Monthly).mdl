@@ -31,7 +31,7 @@
             <Caption>Priestley-Taylor Alpha</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>95 25 120 490</Rect>
+            <Rect>100 25 120 490</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>3</DefaultValue>
             <MinValue>0</MinValue>
@@ -43,7 +43,7 @@
             <Caption>Modified Priestley-Taylor Method</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>125 25 150 490</Rect>
+            <Rect>125 25 145 490</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -63,7 +63,7 @@
             <TextValue>Short (Grass)|Long (Alfalfa)</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>Short (Grass)|Long (Alfalfa)</Name>
+            <Name>Line</Name>
             <Caption>Line</Caption>
             <Description/>
             <Type>9</Type>

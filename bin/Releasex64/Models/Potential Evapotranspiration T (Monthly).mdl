@@ -6,7 +6,7 @@
     <EXE>Potential Evapotranspiration.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
-    <WindowRect>0 0 226 488</WindowRect>
+    <WindowRect>0 0 200 488</WindowRect>
     <SimulatedCategory>TN T TX TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -51,6 +51,18 @@
             <TextValue>Pasture Grass|Alfalfa|Grapes|Decidous Orchard</TextValue>
         </InputVariable>
         <InputVariable>
+            <Name>Header</Name>
+            <Caption>Options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>55 10 80 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
             <Name>Line</Name>
             <Caption>Line</Caption>
             <Description/>
@@ -63,16 +75,16 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Header</Name>
-            <Caption>Options</Caption>
+            <Name>EmptyParam</Name>
+            <Caption>EmptyParam</Caption>
             <Description/>
-            <Type>8</Type>
-            <Rect>60 10 85 160</Rect>
+            <Type>5</Type>
+            <Rect>210 20 230 170</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue/>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
-            <TextValue/>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>empty</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>1 0</OutputTypeMode>

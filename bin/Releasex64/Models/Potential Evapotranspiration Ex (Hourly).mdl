@@ -6,7 +6,7 @@
     <EXE>Potential Evapotranspiration.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
-    <WindowRect>0 0 338 362</WindowRect>
+    <WindowRect>0 0 232 547</WindowRect>
     <SimulatedCategory>TN T TX TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -21,77 +21,53 @@
             <Type>6</Type>
             <Rect>10 10 30 315</Rect>
             <SeparatorPos>115</SeparatorPos>
-            <DefaultValue>Priestley-Taylor</DefaultValue>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue>ASCE2005|BlaneyCriddle|Hamon|Hargreaves|Priestley-Taylor|Modified Priestley-Taylor|Thornthwaite|Turc|Penman-Monteith</TextValue>
+            <DefaultValue>ASCE2005</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>ASCE2005|Priestley-Taylor|Modified Priestley-Taylor|Penman-Monteith</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>Option1</Name>
-            <Caption>Option1</Caption>
+            <Name>PriestleyTaylorAlpha</Name>
+            <Caption>Priestley-Taylor Alpha</Caption>
             <Description/>
-            <Type>3</Type>
-            <Rect>115 10 140 160</Rect>
-            <SeparatorPos>0</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
+            <Type>5</Type>
+            <Rect>100 25 120 490</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>22</MaxValue>
+            <TextValue>Strongly advective conditions (Jury and Tanner, 1975)|Grass, soil at field capacity (Mukammal and Neumann, 1977)|Irrigated ryegrass (Davies and Allen, 1973)|Saturated surface (Priestley and Taylor, 1972)|Open-water surface (Priestley and Taylor, 1972)|Wet meadow (Stewart and Rouse, 1977)|Wet Douglas-fir forest (McNaughton and Black, 1973)|Short grass (De Bruin and Holtslag, 1982)|Boreal broad-leaved (Komatsu, 2005)|Douglas-fir forest (McNaughton and Black, 1973)|Bare soil surface (Barton, 1979)|Mixed reforestation, water limited(Flint and Childs, 1991)|Ponderosa pine, water limited, daytime (Fisher, 2005)|Tropical broad-leaved (Komatsu, 2005)|Douglas-fir forest, unthinned (Black, 1979)|Broad-leaved (Komatsu, 2005)|Temperate broad-leaved (Komatsu, 2005)|Douglas-fir forest, thinned (Black, 1979)|Douglas-fir forest, daytime (Giles et al., 1984)|Spruce forest, daytime (Shuttleworth and Calder, 1979)|Temperate coniferous (Komatsu, 2005)|Coniferous (Komatsu, 2005)|Boreal coniferous (Komatsu, 2005)</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>Val1</Name>
-            <Caption>Val1</Caption>
+            <Name>ModifiedPriestleyTaylorMethod</Name>
+            <Caption>Modified Priestley-Taylor Method</Caption>
             <Description/>
-            <Type>3</Type>
-            <Rect>115 160 140 310</Rect>
-            <SeparatorPos>0</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
+            <Type>5</Type>
+            <Rect>125 25 145 490</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Holtslag Van Ulden|Alpha Omega</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>Option2</Name>
-            <Caption>Option2</Caption>
+            <Name>ASCE ETref</Name>
+            <Caption>ASCE ET reference</Caption>
             <Description/>
-            <Type>3</Type>
-            <Rect>140 10 165 160</Rect>
-            <SeparatorPos>0</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>Val2</Name>
-            <Caption>Val2</Caption>
-            <Description/>
-            <Type>3</Type>
-            <Rect>140 160 165 310</Rect>
-            <SeparatorPos>0</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>Titre3</Name>
-            <Caption>Options (see documentation)</Caption>
-            <Description/>
-            <Type>8</Type>
-            <Rect>55 10 80 320</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
+            <Type>5</Type>
+            <Rect>150 25 170 490</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Short (Grass)|Long (Alfalfa)</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>Line</Name>
             <Caption>Line</Caption>
             <Description/>
             <Type>9</Type>
-            <Rect>40 10 60 325</Rect>
+            <Rect>40 10 60 455</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue/>
@@ -99,23 +75,11 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Titre1</Name>
-            <Caption>Name</Caption>
+            <Name>Options</Name>
+            <Caption>Options</Caption>
             <Description/>
             <Type>8</Type>
-            <Rect>90 10 115 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>Titre2</Name>
-            <Caption>Value</Caption>
-            <Description/>
-            <Type>8</Type>
-            <Rect>90 160 115 310</Rect>
+            <Rect>55 10 80 80</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue/>

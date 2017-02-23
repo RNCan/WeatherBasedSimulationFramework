@@ -265,12 +265,13 @@ public:
 	CHourlyData& operator=(const CHourlyData& in);
 	
 	using CWeatherVariables::operator[];
-	const float& operator[](HOURLY_DATA::TVarH v)const { return at(v); }
-	float& operator[](HOURLY_DATA::TVarH v){ return at(v); }
+	const float& operator[](HOURLY_DATA::TVarH v)const { return CWeatherVariables::at(v); }
+	float& operator[](HOURLY_DATA::TVarH v){ return CWeatherVariables::at(v); }
 	float operator[](HOURLY_DATA::TVarEx v)const{ CStatistic stat = GetVarEx(v); return stat.IsInit() ? float(stat[MEAN]) : WEATHER::MISSING; }
 	float operator[](HOURLY_DATA::TVarEx v){ CStatistic stat = GetVarEx(v); return stat.IsInit() ? float(stat[MEAN]) : WEATHER::MISSING; }
 
-
+	float at(size_t v)const { return (v<size()) ? CWeatherVariables::at(v) : operator[](HOURLY_DATA::TVarEx(v)); }
+	float at(size_t v){ return (v<size()) ? CWeatherVariables::at(v) : operator[](HOURLY_DATA::TVarEx(v)); }
 
 	void Initialize(CTRef TRef, CWeatherDay* pParent=NULL)
 	{
