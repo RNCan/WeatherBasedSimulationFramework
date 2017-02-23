@@ -456,7 +456,12 @@ ERMsg CPriestleyTaylorET::SetOptions(const CETOptions& options)
 	ERMsg msg;
 	
 	if (options.OptionExist("PriestleyTaylorAlpha"))
-		m_α = ToDouble(options.GetOption("PriestleyTaylorAlpha"));
+	{
+		size_t pos = as<size_t>(options.GetOption("PriestleyTaylorAlpha"));
+		if (pos<NB_ALPHA)
+			m_α = PRE_DEFINE_ALHA[pos].m_α;
+	}
+		
 
 	return msg;
 }
@@ -493,6 +498,93 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 }
 
 
+//
+//// alt: elevation (m)
+//// atm_pres: atmospheric pressure (pa)
+//double CPriestleyTaylorET::atm_pres(double alt)
+//{
+//	ASSERT( alt!=-999);
+//	// daily atmospheric pressure (Pa) as a function of elevation (m) 
+//	// From the discussion on atmospheric statics in:
+//	// Iribane, J.V., and W.L. Godson, 1981. Atmospheric Thermodynamics, 2nd
+//	// Edition. D. Reidel Publishing Company, Dordrecht, The Netherlands. (p. 168)
+//	
+//	const double MA       =28.9644e-3;      // (kg mol-1) molecular weight of air 
+//	const double R        =8.3143;          // (m3 Pa mol-1 K-1) gas law constant 
+//    const double LR_STD   =0.0065;          // (-K m-1) standard temperature lapse rate 
+//	const double G_STD    =9.80665;         // (m s-2) standard gravitational accel.  
+//	const double P_STD    =101325.0;        // (Pa) standard pressure at 0.0 m elevation 
+//	const double T_STD    =288.15;          // (K) standard temp at 0.0 m elevation   
+//
+//	double t1 = 1.0 - (LR_STD * alt)/T_STD;
+//	double t2 = G_STD / (LR_STD * (R / MA));
+//	double pa = P_STD * pow(t1,t2);
+//	
+//	return(pa);
+//}
+
+
+
+//*************************************************************
+//CModifiedPriestleyTaylorET
+//after Antonio Steidle Neto (2015)
+
+const bool CPriestleyTaylorHargreavesET::AUTO_REGISTER = CETFactory::Register("Priestley-Taylor(Hargreaves)", &CPriestleyTaylorHargreavesET::Create);
+CPriestleyTaylorHargreavesET::CPriestleyTaylorHargreavesET()
+{
+}
+
+
+
+
+void CPriestleyTaylorHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& output)
+{
+	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
+
+	CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
+	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+	{
+
+		//const CDataInterface& data = weather[TRef];
+		const CWeatherDay& data = weather.GetDay(TRef);
+
+		double RsRa = 0.16*sqrt(data[H_TMAX2][MEAN] - data[H_TMIN2][MEAN]);					// Hargreaves and 0.16 recommended by Allen et all (1998)
+		//
+		//double Ra = data.GetVarEx(H_LHVW)[MEAN];		//extraterrestrial radiation  [MJ m-2 d-1] or [MJ m-2 h-1]
+		//double Rs = RsRa*Ra; 
+		//
+		//double Rso = data.GetVarEx(H_CSRA)[MEAN];
+		//double Fcd = CASCE_ETsz::GetCloudinessFunction(Rs, Rso);
+		//double Rns = CASCE_ETsz::GetNetShortWaveRadiation(Rs);
+		//double Rnl = CASCE_ETsz::GetNetLongWaveRadiation(data[H_TMIN2][MEAN], data[H_TMAX2][MEAN], Ea, Fcd);
+		//double Rn = CASCE_ETsz::GetNetRadiation(Rns, Rnl);
+
+
+		//double λ = data.GetVarEx(H_LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
+		//double Δ = data.GetVarEx(H_SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
+		//double ɣ = data.GetVarEx(H_PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
+		//double Fcd = data.GetCl;// 0.6;//default value in Exel file
+		//double Rn = data.GetNetRadiation(Fcd);		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
+		//double G = WBSF::G(Rn);						// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
+
+		//double Eє = (Δ / (Δ + ɣ)) * ((Rn - G) / λ);	// equilibrium evapotranspiration rate [kg m-2 d-1] or [kg m-2 hr-1]
+		//double ETo = 1.26*Eє;						// evapotranspiration [kg m-2 day-1] or [kg m-2 h-1]
+
+		//
+
+		double dayl = data.GetDayLength();				//[s]
+		double ta = data.GetTdaylight();				//[°C]
+		double pa = WBSF::GetPressure(weather.m_alt);	//air pressure [Pa]
+		double Ra = data.GetVarEx(H_LHVW)[MEAN];		//extraterrestrial radiation  [MJ m-2 d-1]
+		double Rs = RsRa*Ra;							//Solar radiation  [MJ m-2 d-1]
+		double rad = Rs * 1000000 / dayl;				//daylight radiation [W/m²]
+		double ETo = calc_pet(Rs, ta, pa, dayl);
+
+		output[TRef][S_ET] = ETo;
+	}
+}
+
+
 
 // calc_pet calculates the potential evapotranspiration for aridity
 // corrections in calc_vpd(), according to Kimball et al., 1997 
@@ -500,7 +592,7 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 //ta	:   daylight average air temperature [deg C]
 //pa	:   air pressure [Pa]
 //dayl	:   daylength [s]
-double CPriestleyTaylorET::calc_pet(double rad, double ta, double pa, double dayl)
+double CPriestleyTaylorHargreavesET::calc_pet(double rad, double ta, double pa, double dayl)
 {
 	// calculate absorbed radiation, assuming albedo = 0.2  and ground
 	// heat flux = 10% of absorbed radiation during daylight 
@@ -540,32 +632,6 @@ double CPriestleyTaylorET::calc_pet(double rad, double ta, double pa, double day
 	// to annual total precip, and precip units are centimeters 
 	return ET;
 }
-//
-//// alt: elevation (m)
-//// atm_pres: atmospheric pressure (pa)
-//double CPriestleyTaylorET::atm_pres(double alt)
-//{
-//	ASSERT( alt!=-999);
-//	// daily atmospheric pressure (Pa) as a function of elevation (m) 
-//	// From the discussion on atmospheric statics in:
-//	// Iribane, J.V., and W.L. Godson, 1981. Atmospheric Thermodynamics, 2nd
-//	// Edition. D. Reidel Publishing Company, Dordrecht, The Netherlands. (p. 168)
-//	
-//	const double MA       =28.9644e-3;      // (kg mol-1) molecular weight of air 
-//	const double R        =8.3143;          // (m3 Pa mol-1 K-1) gas law constant 
-//    const double LR_STD   =0.0065;          // (-K m-1) standard temperature lapse rate 
-//	const double G_STD    =9.80665;         // (m s-2) standard gravitational accel.  
-//	const double P_STD    =101325.0;        // (Pa) standard pressure at 0.0 m elevation 
-//	const double T_STD    =288.15;          // (K) standard temp at 0.0 m elevation   
-//
-//	double t1 = 1.0 - (LR_STD * alt)/T_STD;
-//	double t2 = G_STD / (LR_STD * (R / MA));
-//	double pa = P_STD * pow(t1,t2);
-//	
-//	return(pa);
-//}
-
-
 
 //*************************************************************
 //CModifiedPriestleyTaylorET
@@ -1360,7 +1426,7 @@ double CASCE_ETsz::GetCloudinessFunction (double Rs, double Rso)
 	return min(1.0, max(0.05, Fcd));
 }
 
-
+//Ra[Out]: extraterrestrial radiation for 1-Hour Periods [MJ m-2 h-1]
 double CASCE_ETsz::GetExtraterrestrialRadiationH(CTRef TRef, double lat, double lon, double alt)
 {
 	double Ra = -999;
@@ -1787,17 +1853,3 @@ const CTest KROP_COEFICIENT2[42] =
 
 }//namespace WBSF 
 
-
-// class T
-//CThornthwaiteET 
-//CBlaneyCriddleET 
-//CHamonET 
-//CModifiedHamonET 
-//CHargreavesET
-//
-//class THWR
-//CTurcET
-//CPriestleyTaylorET
-//CModifiedPriestleyTaylorET
-//CPenmanMonteithET
-//CASCE_ETsz

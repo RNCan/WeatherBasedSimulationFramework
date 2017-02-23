@@ -330,13 +330,35 @@ namespace WBSF
 
 	protected:
 
-		double calc_pet(double rad, double ta, double pa, double dayl);
+		
 		//double atm_pres(double alt);
 		static const CAlpha PRE_DEFINE_ALHA[NB_ALPHA];
 		static const bool AUTO_REGISTER;
 
 	};
 
+
+	//*********************************************************************************************************************************
+	//CPriestleyTaylorET : Priestley-Taylor potential evapotranspiration without net radiation
+	// 
+	//Variable need : Tair
+	class CPriestleyTaylorHargreavesET : public CETBase
+	{
+	public:
+
+		static ETInterface* __stdcall Create(){ return new CPriestleyTaylorHargreavesET; }
+
+		CPriestleyTaylorHargreavesET();
+		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
+		
+		double calc_pet(double rad, double ta, double pa, double dayl);
+
+
+	protected:
+
+		static const bool AUTO_REGISTER;
+
+	};
 
 	//*********************************************************************************************************************************
 	//CModifiedPriestleyTaylorET : this class computes the Thornthwaite potential evapotranspiration

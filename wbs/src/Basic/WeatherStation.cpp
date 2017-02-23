@@ -531,7 +531,7 @@ void CHourlyData::SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat)
 	}
 }
 
-
+//Ra[Out]: extraterrestrial radiation for 1-Hour Periods [MJ m-2 h-1]
 double CHourlyData::GetExtraterrestrialRadiation()const
 {
 	const CLocation& loc = GetLocation();
@@ -582,8 +582,8 @@ CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
 	case H_SSVP:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(at(H_TAIR2)) : WEATHER::MISSING; break;
 	case H_LHVW:	stat = GetLatentHeatOfVaporization(); break;	// latent heat of vaporization of water [MJ kg-1]
 	case H_FNCD:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ], me[H_CSRA]) : WEATHER::MISSING; break;
-	case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(GetExtraterrestrialRadiation(), loc.m_alt); break;
-	case H_EXRA:	stat = GetExtraterrestrialRadiation(); break;
+	case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(GetExtraterrestrialRadiation(), loc.m_alt); break;//faudrait chnager pour W/m²
+	case H_EXRA:	stat = GetExtraterrestrialRadiation(); break;//faudrait chnager pour W/m²
 	case H_SWRA:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]) : WEATHER::MISSING; break;
 	case H_ES2:		stat = !WEATHER::IsMissing(at(H_TAIR2)) ? e°(at(H_TAIR2)) : WEATHER::MISSING; break;
 	case H_EA2:		stat = !WEATHER::IsMissing(at(H_TDEW)) ? e°(at(H_TDEW)) : WEATHER::MISSING; break;
