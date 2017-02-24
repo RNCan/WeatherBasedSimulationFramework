@@ -546,7 +546,7 @@ void CSimplifiedPriestleyTaylorET::Execute(const CWeatherStation& weather, CMode
 	{
 
 		//const CDataInterface& data = weather[TRef];
-		const CWeatherDay& data = weather.GetDay(TRef);
+		const CWeatherDay& data = weather.GetDay(TRef); 
 
 		double RsRa = 0.16*sqrt(data[H_TMAX2][MEAN] - data[H_TMIN2][MEAN]);					// Hargreaves and 0.16 recommended by Allen et all (1998)
 		double Ra = data.GetVarEx(H_EXRA)[MEAN];		//extraterrestrial radiation  [MJ/(m²·d)]
@@ -804,7 +804,7 @@ void CModifiedHamonET::Execute(const CWeatherStation& weather, CModelStatVector&
 //Rs	:	Solar radiation[MJ m-2 day-1]
 //Ra	:	Extraterrestrial radiation[MJ m-2 day-1]
 //Tmax	:	Maximum temperature of the day[°C]
-//Tmin	:	Minimum temperature of the day[°C]
+//Tmin	:	Minimum temperature of the day[°C] 
 
 
 const bool CHargreavesET::AUTO_REGISTER = CETFactory::Register("Hargreaves", &CHamonET::Create);

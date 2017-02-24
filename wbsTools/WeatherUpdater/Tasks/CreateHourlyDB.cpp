@@ -142,55 +142,35 @@ namespace WBSF
 
 
 		CWVariables variables = station.GetVariables();
+		array<double, NB_VAR_H> factor;
+		factor.fill(24);
+		factor[H_TMIN2] = 1;//Tmin and Tmax always have only one value event from hourly compilation
+		factor[H_TMAX2] = 1;
 
-		CTPeriod p = station.GetEntireTPeriod(CTM(CTM::DAILY));
-		assert(p.GetTM().Type() == CTM::DAILY);
+		double dailyCompleteness = as<double>(DAILY_COMPLETENESS);
+		double monthlyCompleteness = as<double>(MONTHLY_COMPLETENESS);
+		double annualCompleteness = as<double>(ANNUAL_COMPLETENESS);
 
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		if (dailyCompleteness> 0)
 		{
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::DAILY));
+			assert(p.GetTM().Type() == CTM::DAILY);
+
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				//clear variable if not enaugh data
-				if (variables[v])
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
-					double completeness = 100.0 * station[TRef][v][NB_VALUE] / 24;
-					assert(completeness >= 0 && completeness <= 100);
-					if (completeness < as<double>(DAILY_COMPLETENESS))
+					//clear variable if not enaugh data
+					if (variables[v])
 					{
-						//reset daily data
-						int year = TRef.GetYear();
-						size_t m = TRef.GetMonth();
-						size_t d = TRef.GetDay();
-						for (size_t h = 0; h < 24; h++)
-							station[year][m][d][h][v] = WEATHER::MISSING;
-					}
-				}
-			}
-		}
-
-		station.ResetStat();
-
-		p = station.GetEntireTPeriod(CTM(CTM::MONTHLY));
-		CTRef now = CTRef::GetCurrentTRef(CTM(CTM::MONTHLY));
-		assert(p.Begin() <= now);
-		if (p.End() >= now)
-			p.End() = now - 1;
-
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-		{
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-			{
-				if (variables[v])
-				{
-					double completeness = 100.0 * station[TRef][v][NB_VALUE] / (24 * TRef.GetNbDayPerMonth());
-					assert(completeness >= 0 && completeness <= 100);
-					if (completeness < as<double>(MONTHLY_COMPLETENESS))
-					{
-						//reset month
-						int year = TRef.GetYear();
-						size_t m = TRef.GetMonth();
-						for (size_t d = 0; d < TRef.GetNbDayPerMonth(); d++)
+						double completeness = 100.0 * station[TRef][v][NB_VALUE] / factor[v];
+						assert(completeness >= 0 && completeness <= 100);
+						if (completeness < dailyCompleteness)
 						{
+							//reset daily data
+							int year = TRef.GetYear();
+							size_t m = TRef.GetMonth();
+							size_t d = TRef.GetDay();
 							for (size_t h = 0; h < 24; h++)
 								station[year][m][d][h][v] = WEATHER::MISSING;
 						}
@@ -198,30 +178,31 @@ namespace WBSF
 				}
 			}
 		}
+		
 
-		station.ResetStat();
-
-		p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		now = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
-		assert(p.Begin() <= now);
-		if (p.End() >= now)
-			p.End() = now - 1;
-
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		if (monthlyCompleteness> 0)
 		{
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+			
+			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::MONTHLY));
+			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::MONTHLY));
+			assert(p.Begin() <= now);
+			if (p.End() >= now)
+				p.End() = now - 1;
+
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				if (variables[v])
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
-					double completeness = 100.0 * station[TRef][v][NB_VALUE] / (24 * TRef.GetNbDaysPerYear());
-					assert(completeness >= 0 && completeness <= 100);
-					if (completeness < as<double>(ANNUAL_COMPLETENESS))
+					if (variables[v])
 					{
-						//reset month
-						int year = TRef.GetYear();
-						for (size_t m = 0; m < 12; m++)
+						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDayPerMonth());
+						assert(completeness >= 0 && completeness <= 100);
+						if (completeness < monthlyCompleteness)
 						{
-							for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+							//reset month
+							int year = TRef.GetYear();
+							size_t m = TRef.GetMonth();
+							for (size_t d = 0; d < TRef.GetNbDayPerMonth(); d++)
 							{
 								for (size_t h = 0; h < 24; h++)
 									station[year][m][d][h][v] = WEATHER::MISSING;
@@ -230,6 +211,44 @@ namespace WBSF
 					}
 				}
 			}
+
+			station.ResetStat();
+		}
+
+		if (annualCompleteness > 0)
+		{
+			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
+			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
+			assert(p.Begin() <= now);
+			if (p.End() >= now)
+				p.End() = now - 1;
+
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				{
+					if (variables[v])
+					{
+						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDaysPerYear());
+						assert(completeness >= 0 && completeness <= 100);
+						if (completeness < annualCompleteness)
+						{
+							//reset month
+							int year = TRef.GetYear();
+							for (size_t m = 0; m < 12; m++)
+							{
+								for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+								{
+									for (size_t h = 0; h < 24; h++)
+										station[year][m][d][h][v] = WEATHER::MISSING;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			station.ResetStat();
 		}
 
 	}

@@ -19,6 +19,12 @@ using namespace UtilWWW;
 using namespace boost;
 
 
+//plus de donn…es sur:
+//ftp://mawpvs.dyndns.org/Partners/AI/
+//ftp://mawpvs.dyndns.org/DailySummary/
+
+
+
 ////HG - water level
 //TW - water temperature
 //TA - air temperature

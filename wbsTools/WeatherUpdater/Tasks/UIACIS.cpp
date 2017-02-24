@@ -764,7 +764,7 @@ namespace WBSF
 		size_t type = as <size_t>(DATA_TYPE);
 		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
 		{
-			msg.ajoute("Daily"); 
+			msg.ajoute("Daily from hourly is not supported"); 
 			return msg;
 		}
 
@@ -891,7 +891,7 @@ namespace WBSF
 
 						bool bUseIt = true;
 						if (bLagOneMonth)
-							bUseIt = today - TRef.as(CTM::DAILY);
+							bUseIt = today - TRef.as(CTM::DAILY)>30;
 
 						if (TRef.IsValid() && bUseIt)//some data have invalid TRef or we have to make a one month lag
 						{

@@ -246,7 +246,11 @@ namespace WBSF
 		factor[H_TMIN2] = 1;//Tmin and Tmax always have only one value event from hourly compilation
 		factor[H_TMAX2] = 1;
 
-		if (as<double>(MONTHLY_COMPLETENESS) > 0 )
+		double monthlyCompleteness = as<double>(MONTHLY_COMPLETENESS);
+		double annualCompleteness = as<double>(ANNUAL_COMPLETENESS);
+
+
+		if (monthlyCompleteness > 0)
 		{
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::MONTHLY));
 			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::MONTHLY));
@@ -262,7 +266,7 @@ namespace WBSF
 					{
 						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDayPerMonth()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
-						if (completeness < as<double>(MONTHLY_COMPLETENESS))
+						if (completeness < monthlyCompleteness)
 						{
 							//reset month
 							int year = TRef.GetYear();
@@ -277,7 +281,7 @@ namespace WBSF
 			}
 		}
 
-		if (as<double>(ANNUAL_COMPLETENESS) > 0)
+		if (annualCompleteness > 0)
 		{
 			station.ResetStat();
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
@@ -294,7 +298,7 @@ namespace WBSF
 					{
 						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDaysPerYear()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
-						if (completeness < as<double>(ANNUAL_COMPLETENESS))
+						if (completeness < annualCompleteness)
 						{
 							//reset month
 							int year = TRef.GetYear();

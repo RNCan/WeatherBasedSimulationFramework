@@ -21,7 +21,7 @@
             <Type>6</Type>
             <Rect>10 10 30 315</Rect>
             <SeparatorPos>115</SeparatorPos>
-            <DefaultValue>Priestley-Taylor</DefaultValue>
+            <DefaultValue>ASCE2005</DefaultValue>
             <MinValue/>
             <MaxValue/>
             <TextValue>ASCE2005|Priestley-Taylor|Modified Priestley-Taylor|Turc|Penman-Monteith</TextValue>
