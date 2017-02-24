@@ -24,7 +24,7 @@
             <DefaultValue>Thornthwaite</DefaultValue>
             <MinValue/>
             <MaxValue/>
-            <TextValue>Thornthwaite|BlaneyCriddle|Hamon|Hargreaves|Simplified Priestley-Taylor|Hargreaves-Samani</TextValue>
+            <TextValue>Thornthwaite|BlaneyCriddle|Hamon|Hargreaves|Simplified Priestley-Taylor</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>ThornthwaiteType</Name>
@@ -87,7 +87,7 @@
             <TextValue>empty</TextValue>
         </InputVariable>
     </InputVariableArray>
-    <OutputTypeMode>1 0</OutputTypeMode>
+    <OutputTypeMode>2 0</OutputTypeMode>
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>

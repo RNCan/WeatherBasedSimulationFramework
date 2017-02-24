@@ -252,7 +252,7 @@ namespace WBSF
 	};
 
 	//*********************************************************************************************************************************
-	//ModifiedHamonET : Modified Hamon potential evapotranspiration
+	//CHargreavesET : Hargreaves potential evapotranspiration
 	//Variable need : Tair
 
 	class CHargreavesET : public CETBase
@@ -272,6 +272,22 @@ namespace WBSF
 		static const bool AUTO_REGISTER;
 	};
 
+	
+	//*********************************************************************************************************************************
+	//CHargreavesSamaniET : Modified CHargreaves potential evapotranspiration
+	//Variable need : Tair
+
+	class CHargreavesSamaniET : public CETBase
+	{
+	public:
+		
+		static ETInterface* __stdcall Create(){ return new CHargreavesSamaniET; }
+		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
+
+	protected:
+
+		static const bool AUTO_REGISTER;
+	};
 
 
 	//*********************************************************************************************************************************
@@ -337,18 +353,18 @@ namespace WBSF
 
 	};
 
-
+	
 	//*********************************************************************************************************************************
-	//CPriestleyTaylorET : Priestley-Taylor potential evapotranspiration without net radiation
+	//CSimplifiedPriestleyTaylorET: Priestley-Taylor potential evapotranspiration without net radiation
 	// 
 	//Variable need : Tair
-	class CPriestleyTaylorHargreavesET : public CETBase
+	class CSimplifiedPriestleyTaylorET : public CETBase
 	{
 	public:
 
-		static ETInterface* __stdcall Create(){ return new CPriestleyTaylorHargreavesET; }
+		static ETInterface* __stdcall Create(){ return new CSimplifiedPriestleyTaylorET; }
 
-		CPriestleyTaylorHargreavesET();
+		CSimplifiedPriestleyTaylorET();
 		virtual void Execute(const CWeatherStation& weather, CModelStatVector& stats);
 		
 		double calc_pet(double rad, double ta, double pa, double dayl);

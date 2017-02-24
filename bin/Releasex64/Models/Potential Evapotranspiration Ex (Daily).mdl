@@ -6,7 +6,7 @@
     <EXE>Potential Evapotranspiration.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
-    <WindowRect>0 0 232 547</WindowRect>
+    <WindowRect>0 0 239 532</WindowRect>
     <SimulatedCategory>TN T TX TD H R Z WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -21,10 +21,10 @@
             <Type>6</Type>
             <Rect>10 10 30 315</Rect>
             <SeparatorPos>115</SeparatorPos>
-            <DefaultValue>ASCE2005</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>3</MaxValue>
-            <TextValue>ASCE2005|Priestley-Taylor|Modified Priestley-Taylor|Penman-Monteith</TextValue>
+            <DefaultValue>Priestley-Taylor</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue>ASCE2005|Priestley-Taylor|Modified Priestley-Taylor|Turc|Penman-Monteith</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>PriestleyTaylorAlpha</Name>
@@ -79,7 +79,7 @@
             <Caption>Options</Caption>
             <Description/>
             <Type>8</Type>
-            <Rect>55 10 80 80</Rect>
+            <Rect>55 10 80 85</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue/>
@@ -87,19 +87,19 @@
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
-    <OutputTypeMode>3 0</OutputTypeMode>
+    <OutputTypeMode>2 0</OutputTypeMode>
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
             <Name>PET</Name>
-            <Title>PET</Title>
-            <Units>mm</Units>
+            <Title>PET (mm)</Title>
+            <Units/>
             <Description>Potential Evapotranspiration </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Equation from THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION&#x0A;http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf</Credit>
+    <Credit>ASCE2005&#x0D;&#x0A;Equation from THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION&#x0A;http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf&#x0D;&#x0A;&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>

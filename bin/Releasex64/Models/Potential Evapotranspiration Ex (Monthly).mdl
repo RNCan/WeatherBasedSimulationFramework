@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>Potential Evapotranspiration</Title>
     <Version>1.0</Version>
-    <ID>.PET</ID>
+    <ID>.PETex</ID>
     <EXE>Potential Evapotranspiration.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
@@ -51,7 +51,7 @@
             <TextValue>Holtslag Van Ulden|Alpha Omega</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>ASCE ETref</Name>
+            <Name>ASCE_ETref</Name>
             <Caption>ASCE ET reference</Caption>
             <Description/>
             <Type>5</Type>

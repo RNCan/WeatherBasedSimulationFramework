@@ -870,7 +870,7 @@ double CWeatherDay::GetNetRadiation(double& Fcd)const
 	{
 		for (size_t h = 0; h < 24; h++)
 		{
-			Rn += me[h].GetNetRadiation(Fcd);
+			Rn += me[h].GetNetRadiation(Fcd); //MJ/(m²·h)
 		}
 	}
 	else
@@ -879,7 +879,7 @@ double CWeatherDay::GetNetRadiation(double& Fcd)const
 		double Tmin = me[H_TMIN2][MEAN];
 		double Tmax = me[H_TMAX2][MEAN];
 		double Ea = me[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
-		double Rs = me[H_SRMJ][SUM];		//net radiation in MJ/m²
+		double Rs = me[H_SRMJ][SUM];		//net radiation in MJ/(m²·d)
 		int J = int(GetTRef().GetJDay() + 1);
 
 		double Ra = CASCE_ETsz::GetExtraterrestrialRadiation(loc.m_lat, J);
@@ -888,7 +888,7 @@ double CWeatherDay::GetNetRadiation(double& Fcd)const
 		
 		double Rnl = CASCE_ETsz::GetNetLongWaveRadiation(Tmin, Tmax, Ea, Fcd);
 		double Rns = CASCE_ETsz::GetNetShortWaveRadiation(Rs);
-		Rn = CASCE_ETsz::GetNetRadiation(Rns, Rnl);// daily incoming radiation [MJ/(m²·h)]
+		Rn = CASCE_ETsz::GetNetRadiation(Rns, Rnl);// daily incoming radiation [MJ/(m²·d)]
 	}
 
 	return Rn;
@@ -944,8 +944,8 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 			case H_SSVP:	stat = me[H_TAIR2].IsInit() ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(me[H_TAIR2][MEAN]) : WEATHER::MISSING; break;
 			case H_LHVW:	stat = me[H_TAIR2].IsInit() ? 2.5023 - 0.00243054 * me[H_TAIR2][MEAN] : WEATHER::MISSING; break;	// latent heat of vaporization of water [MJ kg-1]
 			case H_FNCD:	stat = me[H_SRAD2].IsInit() ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ][SUM], CWeatherDay::GetVarEx(H_CSRA)[SUM]) : WEATHER::MISSING; break;
-			case H_CSRA:	CASCE_ETsz::GetClearSkySolarRadiation(CWeatherDay::GetVarEx(H_EXRA), loc.m_z); break;
-			case H_EXRA:	CASCE_ETsz::GetExtraterrestrialRadiation(loc.m_lat, int(TRef.GetJDay() + 1)); break;
+			case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(CWeatherDay::GetVarEx(H_EXRA), loc.m_z); break;
+			case H_EXRA:	stat = CASCE_ETsz::GetExtraterrestrialRadiation(loc.m_lat, int(TRef.GetJDay() + 1)); break;
 			case H_SWRA:	stat = me[H_SRAD2].IsInit() ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ][SUM]) : WEATHER::MISSING; break;
 			case H_ES2:		stat = stat = me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() ? e°(me[H_TMIN2], me[H_TMAX2]) : WEATHER::MISSING; break;
 			case H_EA2:		stat = me[H_TDEW].IsInit() ? e°(me[H_TDEW][LOWEST], me[H_TDEW][HIGHEST]) : WEATHER::MISSING; break;
@@ -3102,12 +3102,14 @@ void CWeatherStation::ApplyCorrections(const CWeatherCorrections& correction)
 				{
 					if (v == H_PRCP)
 					{
+						ASSERT(!IsMissing(me[TRef][v][SUM]));
 						double c = correction.GetCorrection(me, TRef, H_PRCP);
 						double prcp = me[TRef][v][SUM] * c;
 						me[TRef].SetStat(v, prcp);
 					}
 					else
 					{
+						ASSERT(!IsMissing(me[TRef][v][MEAN]));
 						double c = correction.GetCorrection(me, TRef, v);
 						double value = me[TRef][v][MEAN] + c;
 						ASSERT(value>-99);

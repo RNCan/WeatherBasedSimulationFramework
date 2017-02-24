@@ -481,7 +481,7 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 		double λ = data.GetVarEx(H_LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
 		double Δ = data.GetVarEx(H_SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
 		double ɣ = data.GetVarEx(H_PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
-		double Rn = data.GetNetRadiation(Fcd);		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
+		double Rn = max(0.0, data.GetNetRadiation(Fcd));		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 		//double U² = data[H_WND2][MEAN] * 1000 / 3600;	//Wind speed at 2 meters [m/s]
 		double G = WBSF::G(Rn);						// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
 
@@ -529,15 +529,15 @@ void CPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVecto
 //CModifiedPriestleyTaylorET
 //after Antonio Steidle Neto (2015)
 
-const bool CPriestleyTaylorHargreavesET::AUTO_REGISTER = CETFactory::Register("Simplified Priestley-Taylor", &CPriestleyTaylorHargreavesET::Create);
-CPriestleyTaylorHargreavesET::CPriestleyTaylorHargreavesET()
+const bool CSimplifiedPriestleyTaylorET::AUTO_REGISTER = CETFactory::Register("Simplified Priestley-Taylor", &CSimplifiedPriestleyTaylorET::Create);
+CSimplifiedPriestleyTaylorET::CSimplifiedPriestleyTaylorET()
 {
 }
 
 
 
 
-void CPriestleyTaylorHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& output)
+void CSimplifiedPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 {
 	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
 
@@ -549,38 +549,20 @@ void CPriestleyTaylorHargreavesET::Execute(const CWeatherStation& weather, CMode
 		const CWeatherDay& data = weather.GetDay(TRef);
 
 		double RsRa = 0.16*sqrt(data[H_TMAX2][MEAN] - data[H_TMIN2][MEAN]);					// Hargreaves and 0.16 recommended by Allen et all (1998)
-		//
-		//double Ra = data.GetVarEx(H_LHVW)[MEAN];		//extraterrestrial radiation  [MJ m-2 d-1] or [MJ m-2 h-1]
-		//double Rs = RsRa*Ra; 
-		//
-		//double Rso = data.GetVarEx(H_CSRA)[MEAN];
-		//double Fcd = CASCE_ETsz::GetCloudinessFunction(Rs, Rso);
-		//double Rns = CASCE_ETsz::GetNetShortWaveRadiation(Rs);
-		//double Rnl = CASCE_ETsz::GetNetLongWaveRadiation(data[H_TMIN2][MEAN], data[H_TMAX2][MEAN], Ea, Fcd);
-		//double Rn = CASCE_ETsz::GetNetRadiation(Rns, Rnl);
-
-
-		//double λ = data.GetVarEx(H_LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
-		//double Δ = data.GetVarEx(H_SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
-		//double ɣ = data.GetVarEx(H_PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
-		//double Fcd = data.GetCl;// 0.6;//default value in Exel file
-		//double Rn = data.GetNetRadiation(Fcd);		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
-		//double G = WBSF::G(Rn);						// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
-
-		//double Eє = (Δ / (Δ + ɣ)) * ((Rn - G) / λ);	// equilibrium evapotranspiration rate [kg m-2 d-1] or [kg m-2 hr-1]
-		//double ETo = 1.26*Eє;						// evapotranspiration [kg m-2 day-1] or [kg m-2 h-1]
-
-		//
+		double Ra = data.GetVarEx(H_EXRA)[MEAN];		//extraterrestrial radiation  [MJ/(m²·d)]
+		double Rs = RsRa*Ra;							//Solar radiation  [MJ/(m²·d)]
+		double rad = Rs * 1000000 / (3600*24);			//daylight radiation [W/m²]
 
 		double dayl = data.GetDayLength();				//[s]
 		double ta = data.GetTdaylight();				//[°C]
 		double pa = WBSF::GetPressure(weather.m_alt);	//air pressure [Pa]
-		double Ra = data.GetVarEx(H_EXRA)[MEAN];		//extraterrestrial radiation  [MJ/(m²·d)]
-		double Rs = RsRa*Ra;							//Solar radiation  [MJ/(m²·d)]
-		double rad = Rs * 1000000 / dayl;				//daylight radiation [W/m²]
-		double ETo = calc_pet(Rs, ta, pa, dayl);
 
-		output[TRef][S_ET] = ETo;
+		double ETo = max(0.0, calc_pet(rad, ta, pa, dayl));
+
+		CTPeriod p = data.GetEntireTPeriod();
+		size_t nbTRef = p.size();
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			output[TRef][S_ET] = ETo / nbTRef;
 	}
 }
 
@@ -592,7 +574,7 @@ void CPriestleyTaylorHargreavesET::Execute(const CWeatherStation& weather, CMode
 //ta	:   daylight average air temperature [deg C]
 //pa	:   air pressure [Pa]
 //dayl	:   daylength [s]
-double CPriestleyTaylorHargreavesET::calc_pet(double rad, double ta, double pa, double dayl)
+double CSimplifiedPriestleyTaylorET::calc_pet(double rad, double ta, double pa, double dayl)
 {
 	// calculate absorbed radiation, assuming albedo = 0.2  and ground
 	// heat flux = 10% of absorbed radiation during daylight 
@@ -674,7 +656,7 @@ void CModifiedPriestleyTaylorET::Execute(const CWeatherStation& weather, CModelS
 		double λ = data.GetVarEx(H_LHVW);		// latent heat of vaporization [MJ kg-1]
 		double Δ = data.GetVarEx(H_SSVP);		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
 		double ɣ = data.GetVarEx(H_PSYC);		// psychrometric constant [kPa °C-1]
-		double Rn = data.GetNetRadiation(Fcd);		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
+		double Rn = max(0.0, data.GetNetRadiation(Fcd));		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 		//double G = data.GetVarEx(SHFE);		// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
 		double G = WBSF::G(Rn);						// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
 		double U² = data[H_WND2][MEAN]*1000/3600;	//Wind speed at 2 meters [m/s]
@@ -722,7 +704,7 @@ CHamonET::CHamonET()
 
 
 //daily evapotranspiration
-// see article: "A comparison of six potential evapotranspiration mwethods", Journal of American water resources Association 2005
+// see article: "A comparison of six potential evapotranspiration methods", Journal of American water resources Association 2005
 void CHamonET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 {
 	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
@@ -813,7 +795,7 @@ void CModifiedHamonET::Execute(const CWeatherStation& weather, CModelStatVector&
 //ET = 0.0135 * Rs*conv*(T+17.8)
 
 //Evapotranspiration after Hargreaves[mm day-1]
-//T	:Mean temperature of the day[°C]
+//T		:	Mean temperature of the day[°C]
 //Rs	:	Solar radiation[MJ m-2 day-1]
 //conv	:	Conversion to ET equivalent (0.4082) [m2 mm MJ-1]
 //
@@ -836,7 +818,7 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 		{
 			for (size_t d = 0; d < weather[y][m].size(); d++)
 			{
-				static const double C = 0.4082; //Conversion to ET equivalent [m2 mm MJ - 1]
+				static const double C = 0.4082; //Conversion to ET equivalent [(m2 mm)/MJ]
 
 				double Tmin = weather[y][m][d][H_TMIN2][MEAN];
 				double T = weather[y][m][d][H_TNTX][MEAN];
@@ -846,7 +828,7 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 				double dailyET = 0.0135 * Rs*C*(T + 17.8);
 				
 				//ET distributed over time
-				CTPeriod p = weather[y][m].GetEntireTPeriod();
+				CTPeriod p = weather[y][m][d].GetEntireTPeriod();
 				size_t nbTRef = p.size();
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 					output[TRef][S_ET] = dailyET / nbTRef;
@@ -856,6 +838,47 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 	}
 }
 
+
+
+//*************************************************************
+//Hargreaves-Samani
+//from : http://www.zohrabsamani.com/research_material/files/Hargreaves-samani.pdf
+
+const bool CHargreavesSamaniET::AUTO_REGISTER = CETFactory::Register("Hargreaves-Samani", &CHargreavesSamaniET::Create);
+void CHargreavesSamaniET::Execute(const CWeatherStation& weather, CModelStatVector& output)
+{
+	output.Init(weather.GetEntireTPeriod(), NB_ET_STATS, 0, ET_HEADER);
+
+	for (size_t y = 0; y < weather.size(); y++)
+	{
+		for (size_t m = 0; m < weather[y].size(); m++)
+		{
+			for (size_t d = 0; d < weather[y][m].size(); d++)
+			{
+				//static const double KT[2] = { 0.162, 0.190 }; //Hargreaves(1994) recommended using KT = 0.162 for "interior" regions and KT = 0.19 for coastal regions.
+				static const double C = 0.4082; //Conversion to ET equivalent [(m²·mm)/MJ]
+				
+				double T = weather[y][m][d][H_TNTX][MEAN];
+				double ΔT = weather[y][m][H_TRNG2][MEAN];//montlhy difference
+				
+				double KT = 0.00185*ΔT*ΔT - 0.0433*ΔT + 0.4023; //[°C-½] R² = 0.70, S.E. = 0.0126
+				double Ra = C * weather[y][m][d][H_EXRA][SUM];	//[mm/d];
+				double Rs = KT * Ra * sqrt(ΔT);
+
+				
+				//double KT = 0.162;
+				double dailyET = max(0.0, 0.0135*Rs*(T + 17.8));
+
+				//ET distributed over time
+				CTPeriod p = weather[y][m][d].GetEntireTPeriod();
+				size_t nbTRef = p.size();
+				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+					output[TRef][S_ET] = dailyET / nbTRef;
+
+			}
+		}
+	}
+}
 
 //*********************************************************************************************************************************
 //Penman-Monteith
@@ -869,7 +892,6 @@ void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector
 	ASSERT(weather.m_lat >= -90 && weather.m_lat <= 90);
 
 	CTPeriod p = weather.GetEntireTPeriod();
-	//stats.Init(p, m_bExtended ? NB_EXTENDED_STATS : NB_ET_STATS, 0, EXTENDED_ET_HEADER);
 	stats.Init(p, NB_ET_STATS, 0, ET_HEADER);
 
 	//altitude in meters
@@ -888,39 +910,23 @@ void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector
 		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
 		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
 
-		//double λ = data.GetVarEx(LHVW)[MEAN];		// latent heat of vaporization [MJ kg-1]
-		//double Δ = data.GetVarEx(SSVP)[MEAN];		// slope of the saturation vapour pressure-temperature relationship [kPa °C-1]
-		//double ɣ = data.GetVarEx(PSYC)[MEAN];		// psychrometric constant [kPa °C-1]
-		//double Rn = data.GetVarEx(NTRA)[SUM];		// net radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
-		//double G = data.GetVarEx(SHFE)[SUM];		// soil heat flux energie [MJ m-2 d-1] or [MJ m-2 hr-1]
-
-		double Rn = data.GetNetRadiation(Fcd);
-		//double Cn = weather.IsHourly() ? CASCE_ETsz::GetCnH(m_referenceType, Rn >= 0) : CASCE_ETsz::GetCn(m_referenceType);
-		//double Cd = weather.IsHourly() ? CASCE_ETsz::GetCdH(m_referenceType, Rn >= 0) : CASCE_ETsz::GetCd(m_referenceType);
+		double Rn = max(0.0, data.GetNetRadiation(Fcd));
 		double G = weather.IsHourly() ? CASCE_ETsz::GetGH(CASCE_ETsz::SHORT_REF, Rn) : 0;
 		double nbSteps = weather.IsHourly() ? 24 : 1;
 
 		double λ = 2.501 - (2.361*0.001)*T;
 		double ɣ = 0.00163*Bᵪ / λ;
-		double Δ = (4099 * Es) / Square(T + 237.3);
-		double Δɣ = Δ + ɣ;
+		//double Δ = (4099 * Es) / Square(T + 237.3);
+		double Δ = data.GetVarEx(H_SSVP);
+		//double Δɣ = Δ + ɣ;
 
-		double Rad = (1 / λ)*Δ*(Rn - G) / Δɣ;
-		double aero = ɣ*( (900/nbSteps) / (T + 273))*U²*(Es - Ea) / Δɣ;
-		double ETsz = Rad + aero;
-		stats[TRef][S_ET] = ETsz;
-
-		//asce
-		//double num = 0.408*Δ*(Rn - G) + γ*(Cn / (T + 273))*u2*(Es - Ea);
-		//double dnom = Δ + γ*(1 + Cd*u2);
-		//double ETsz = num / dnom;
-
-
-
-
-		double LE = 2.45*ETsz;
-		double H = Rn - G - LE;
-
+		//double Rad = (1 / λ)*Δ*(Rn - G) / Δɣ;
+		//double aero = ɣ*( (900/nbSteps) / (T + 273))*U²*(Es - Ea) / Δɣ;
+		//double ETsz = Rad + aero;
+		double num = 0.408*Δ*(Rn - G) + ɣ*((900 / nbSteps) / (T + 273))*U²*(Es - Ea);
+		double dnom = Δ + ɣ*(1 + 0.34*U²);
+		double ETo = num / dnom;
+		stats[TRef][S_ET] = ETo;
 	}
 
 }
@@ -964,8 +970,8 @@ ERMsg CASCE_ETsz::SetOptions(const CETOptions& options)
 	if (options.OptionExist("ASCE_ReferenceType"))
 		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ReferenceType"));
 
-	if (options.OptionExist("ASCE ETref"))
-		m_referenceType = (TReference)ToShort(options.GetOption("ASCE ETref"));
+	if (options.OptionExist("ASCE_ETref"))
+		m_referenceType = (TReference)ToShort(options.GetOption("ASCE_ETref"));
 
 	return msg;
 }
@@ -997,9 +1003,9 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 
 		double T = data[H_TNTX][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);//wind speed at 2 meters [m/s]
-		double P =  data[H_PRES][MEAN] / 10; ASSERT(!IsMissing(P));//pressure [kPa]
-		double Ea = data[H_EA2][MEAN] / 1000;	ASSERT(!IsMissing(Ea));//vapor pressure [kPa]
-		double Es = data[H_ES2][MEAN] / 1000;	ASSERT(!IsMissing(Es));//vapor pressure [kPa]
+		double P = data[H_PRES][MEAN] / 10; ASSERT(!IsMissing(data[H_PRES][MEAN]));//pressure [kPa]
+		double Ea = data[H_EA2][MEAN] / 1000;	ASSERT(!IsMissing(data[H_EA2][MEAN]));//vapor pressure [kPa]
+		double Es = data[H_ES2][MEAN] / 1000;	ASSERT(!IsMissing(data[H_ES2][MEAN]));//vapor pressure [kPa]
 
 //			double Ra = data.GetExtraterrestrialRadiation();
 //		double Fcd² = WHour.GetCloudiness(Ra);
@@ -1008,7 +1014,7 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 
 		//double Rnl = WHour.GetNetLongWaveRadiation(Fcd);
 		//double Rns = WHour.GetNetShortWaveRadiation();
-		double Rn = data.GetNetRadiation(Fcd);
+		double Rn = max(0.0, data.GetNetRadiation(Fcd));
 		double Δ = GetSlopeOfSaturationVaporPressure(T);
 		double ɣ = GetPsychrometricConstant(P);
 

@@ -216,10 +216,9 @@ bool CWeatherGenerator::VerifyData(const CSimulationPointVector& simulationPoint
 					
 					ASSERT(simulationPoints[i][TRef][v].IsInit());
 					ASSERT(!_isnan(simulationPoints[i][TRef][v][MEAN]));
-
+					ASSERT(!IsMissing(simulationPoints[i][TRef][v][MEAN]));
 					
-					
-					if (!simulationPoints[i][TRef][v].IsInit() || _isnan(simulationPoints[i][TRef][v][MEAN]))
+					if (!simulationPoints[i][TRef][v].IsInit() || _isnan(simulationPoints[i][TRef][v][MEAN]) || IsMissing(simulationPoints[i][TRef][v][MEAN]))
 						bRep = false;
 				}
 			}
