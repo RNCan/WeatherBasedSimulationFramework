@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "UIACIS.h"
 
-
-//#include <boost\filesystem.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -82,8 +80,8 @@ namespace WBSF
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan" };
-	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL };
+	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan", "MonthLag" };
+	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
 	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ACIS_P;
 	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ACIS;
 
@@ -126,6 +124,7 @@ namespace WBSF
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case UPDATE_STATIONS_LIST: str = "0"; break;
 		case IGNORE_ENV_CAN: str = "1"; break;
+		case MONTH_LAG: str = "0"; break;
 		};
 
 		return str;
@@ -846,7 +845,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 		size_t type = as <size_t>(DATA_TYPE);
-
+		bool bLagOneMonth = as<bool>(MONTH_LAG);
+		
+		CTRef today = CTRef::GetCurrentTRef();
 
 		ifStream  file;
 
@@ -885,7 +886,14 @@ namespace WBSF
 
 						CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
 						ASSERT(TRef.IsValid());
-						if (TRef.IsValid())//some have invalid TRef
+
+			
+
+						bool bUseIt = true;
+						if (bLagOneMonth)
+							bUseIt = today - TRef.as(CTM::DAILY);
+
+						if (TRef.IsValid() && bUseIt)//some data have invalid TRef or we have to make a one month lag
 						{
 							string var_str = columns[c++];
 

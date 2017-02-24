@@ -656,7 +656,7 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Mise à jours des coordonnées"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
-    IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada"
+    IDS_UPDATER_ACIS_P      "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Répertoire de travail|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_SOPFEU_P    "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
@@ -1105,7 +1105,7 @@ BEGIN
     IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First year|Last year|Update coordinates"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|Network|First year|Last year|Forecast"
-    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada"
+    IDS_UPDATER_ACIS_P      "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
     IDS_UPDATER_MDDELCC_DAILY_P 
                             "Working directory|First year|Last year|Update until x days|Update stations list"
     IDS_UPDATER_SOPFEU_P    "User Name|Password|Working directory|First year|Last year"

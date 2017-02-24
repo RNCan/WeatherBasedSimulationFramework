@@ -18,36 +18,13 @@
 
 namespace UtilWin
 {
-
-	//static const TCHAR STRDEFAULT[]= _T("Default");
-	//static const char DIR_DELIMITER= '\\';
-	//static const float VMISS= (float)WBSF::VMISS;
-	//static const char* STRVMISS= WBSF::STRVMISS;
-
-
-	//static const double EPSILON	= 1.0e-10;
-	//static const double FEET2METER = 0.3048;
-	//static const double METER2FEET = 1/FEET2METER;
-
     typedef CArray <bool > CBoolArray;
     typedef CArray < int > CIntArray; 
     typedef CArray < float > CFloatArray;
     typedef CArray < double > CDoubleArray;
 	
-//	typedef CArrayEx <bool, bool > CBoolArrayEx;
-  //  typedef CArrayEx < int, int > CIntArrayEx; 
-    //typedef CArrayEx < float, float > CFloatArrayEx;
-    //typedef CArrayEx < double, double > CDoubleArrayEx;
-    //typedef CArray<CFloatArray, CFloatArray&> CFloatMatrix;
-    //typedef CArray<CFloatArray*, CFloatArray*> CFloatMatrix2;
-//#ifdef CRect
-  //  typedef CArray<CRect, CRect&> CRectArray;
-//#endif
-
-    //char* strip(char *line);
-    //CString& strip(CString& line);
+    
     int FindStringExact(const CStringArray& nameArray, const CString& nameSearch, bool bCaseSensitive=true);
-//	CString FindString(const CString& source, const char* strBegin, const char* strEnd, int& posBegin, int& posEnd);
     
 	inline CString GetCString(UINT nId)
 	{
@@ -61,9 +38,6 @@ namespace UtilWin
     CString& ReplaceReturnByComa(CString& string);
     CString& ReplaceComaByReturn(CString& string);
     void Purge(CString& cLine);
-	//CString GetApplicationPath();
-	//CString GetUserDataPath();
-	
 
     
     bool IsEndOk(const CString& filePath);
@@ -100,35 +74,7 @@ namespace UtilWin
 	int GetFilesList(CStringArray& fileNameArray, const CString& filePath, int fullPath, bool bSubDirSearch=false);
 	int GetDirList(CStringArray& fileNameArray, const CString& filePath, bool fullPath=false, bool bSubDirSearch=false);
 
-	//ERMsg WinExecWait(const CString& command, CString dir=_T(""), UINT uCmdShow = SW_HIDE, LPDWORD pExitCode=NULL );
-    //ERMsg CallApplication( CString appType, CString argument, CWnd* pCaller, int showMode=SW_HIDE, bool bAddCote = true, bool bWait=false);
-    //ERMsg AskToFindApplication(CString appType, CString& strNamePath, CWnd* pCaller);
-
-    //void SortArray(CStringArray& array);
-
- //   template<class T, class U>
- //   int GetMinPos(T& array)
- //   {
- //       int pos = -1;
- //       int size = array.GetSize();
- //       if( size > 0)
- //       {
- //           pos = 0;
- //           U min = array[0];
- //       
- //           for(int i=1; i<size; i++)
- //           {
- //               if( array[i] < min)
- //               {
- //                   pos = i;
- //                   min = array[i];
- //               }
- //           }
- //       }
-
- //       return pos;
- //   }
-	//
+	
     template<class T, class U>
     int FindInArray( const T& theArray, const U& value)
     {
@@ -141,45 +87,6 @@ namespace UtilWin
 
 	    return nRep;
     }
-
- //   template<class T>
- //   void order(T* p, T* q, bool asd)
- //   {
-	//	if(asd?(*p > *q):(*p < *q))
-	//    {
-	//	    T temp = *p;
-	//	    *p = *q;
-	//	    *q = temp;
-	//    }
- //   }
-
- //   template<class T>
- //   void SortArray(T& theArray, bool asd=true)
- //   {
-	//    INT_PTR size = theArray.GetSize();
- //       
-	//    for(INT_PTR i=0; i<size-1; i++)
-	//		for(INT_PTR j=size-1; i<j; j--)
-	//			order( &theArray[j-1], &theArray[j], asd);
-
- //   }
-
- //   template<class T>
- //   bool IsEqual(const T& array1, const T& array2)
- //   {
- //       bool bRep = true;
-	//    
- //       if( array1.GetSize() == array2.GetSize() )
- //       {
- //           INT_PTR nSize = array1.GetSize();
- //           for(INT_PTR i=0; i<nSize&&bRep; i++)
- //               if( fabs(double(array1[i]) - double(array2[i])) > EPSILON )
- //                   bRep = false;
- //       }
- //       else bRep = false;
-
- //       return bRep;
- //   }
 
     template<class T>
     bool IsExactlyEgal(const T& array1, const T& array2)
@@ -201,41 +108,6 @@ namespace UtilWin
         return bRep;
     }
 
- //   template<class T>
- //   void SwitchEndien(T& idIn)
- //   {
- //       T idOut(0);
- //       unsigned char* pIn = (unsigned char*)&idIn;
- //       unsigned char* pOut = (unsigned char*)&idOut;
- //   
- //       for(int i=0; i<sizeof(T); i++) 
- //           pOut[sizeof(T)-i-1] = pIn[i];
-
- //       idIn = idOut;
- //   }
-
-	//inline void SwitchEndien(CString& str, int nbBits)
- //   {
-	//	ASSERT( str.GetLength()%nbBits==0);
-
-	//	CString tmp(str);
-	//	unsigned char* pIn = (unsigned char*)str.GetBuffer();
-	//	unsigned char* pOut = (unsigned char*)tmp.GetBuffer();
-
-	//	int nbElem = int(str.GetLength()/nbBits);
-	//	for(int i=0; i<nbElem; i++)
-	//	{
-	//		int base = i*nbBits;
- //   
-	//        for(int j=0; j<nbBits; j++) 
-	//	        pOut[base+nbBits-j-1] = pIn[base+j];
-
-	//		//idIn = idOut;
-	//	}
-
-	//	str = tmp;
- //   }
- // 
 	template<class T>
 	void ToSomething(const char* pChar, T& idIn)
 	{
@@ -291,102 +163,12 @@ namespace UtilWin
 
 	}
 
-    //void SortArray(CIntArray& array);
-    //bool SaveArray(CFloatArray& array, const CString& fileName);
-
-    //float FeetToMetre(float fFeet);
-    //inline int FeetToMetre(int nFeet);
-    //float MetreToFeet(float fMetre);
-    //inline int MetreToFeet(int nMetre);
-
-    //void InitRandomize(unsigned rand=0);
-    //double GetRandom(const double& min, const double& max);
-
-    //bool IsLeap(int year);
-	//int GetNbDay(int year);
-	//int GetFirstIndexPerMonth( int month, int year=1999  );
-    //int GetNbDayPerMonth(int month, int year=1999);
     
-    //int GetJDay(int day, int month, int year=1999);
-    //int GetCurrentJulianDay();
-	//int GetCurrentYear();
-    //void GetDayAndMonth(int julienneDay, int& day, int& month);
-    //void GetDayAndMonth(int julienneDay, int year, int& day, int& month);
-    //int GetMonth(int juliennDay, int year=1999);
-	//bool VerifyValidDay(int day, int month, int year);
 	CString GetCurrentTimeString();
-	
-
-    //double GetDistance(const double& lat1, const double& lon1, const double& lat2, const double& lon2) ;
-    //double GetDistanceTotal(double lat1, double lon1, double lat2, double lon2);
-
-    //struct GlobalVar
-    //{
-	   // static short DayPerMonth[12];
-    //};
-
-
- //   inline int FeetToMetre (int nFeet)
- //   {
-	//    return (int)FeetToMetre ( (float)nFeet );
- //   }
-
- //   inline int MetreToFeet(int nMetre)
- //   {
-	//    return (int)MetreToFeet( (float)nMetre );
- //   }
- //
- //   inline double GetDegDec(long degree, long minute, double second=0)
- //   {
- //       ASSERT(degree >= -360 && degree <= 360 );
-	//    ASSERT(minute >= 0 && minute <= 60);
- //       ASSERT(second >= 0 && second <= 60);
-	//	
- //       
- //       int signe = degree<0?-1:1;
-	//    
-	//    double degDec = degree + (minute*signe)/60.0 + (second*signe)/3600.0;
-	//    
-	//    return degDec;
- //   }
-
-	//
-	////template<class T>
-	////int _Signe(const T& a)
-	////{
-	////	return a>= 0?1:-1;
-	////}
-
-	////swes formule sont complexe mais
-	////essais de maintenir le bon min
-	////meme qnad on a des 4.99999
-	//inline long GetDegree(double dec, double mult=1)
-	//{
-	//	long nbSec = long(dec*3600*mult+WBSF::Signe(dec)*0.5);
-	//	return long( nbSec/(3600*mult));
-	//}
-
-	//inline long GetMinute(double dec, double mult=1)
-	//{
-	//	long nbSec = abs(long(dec*3600*mult+WBSF::Signe(dec)*0.5));
-	//	return long( (nbSec-abs(GetDegree(dec, mult))*3600*mult)/(60*mult));
-	//}
-	//inline long GetSecond(double dec)
-	//{
-	//	long nbSec = abs(long(dec*3600+WBSF::Signe(dec)*0.5));
-	//	return long( nbSec-(abs(GetDegree(dec))*3600+GetMinute(dec)*60));
-	//}
-
-	//inline double GetSecond(double dec, double mult)
-	//{
-	//	long nbSec = abs(long(dec*3600*mult+WBSF::Signe(dec)*0.5));
-	//	return (nbSec-(abs(GetDegree(dec, mult))*3600*mult+GetMinute(dec, mult)*60*mult))/mult;
-	//}
 
 	CString CoordToCString(double coord, bool bWithFraction=false);
 	double CStringToCoord(const CString& coordStr);
 
-   // bool IsEntier( double value );
 
     template<class T>
     void Inverce(T& x, T& y)
@@ -402,7 +184,6 @@ namespace UtilWin
     bool GetIntArray(const CString& texte, CIntArray& intArray, int maxPos );
 	
 	CString RealToCString(double val, int pres=4);
-	//CString IntToCString(int val, short n=-1, char c=' ');
 	CString Int64ToCString(__int64 val, short n=-1, char c=' ');
 	
 	
@@ -444,65 +225,10 @@ namespace UtilWin
 	inline CTime ToTime(const CString& str){ return CTime(ToInt64(str)); }
 	COLORREF ToCOLORREF(const CString& str);
 	
-	//template <class TYPE, class ARG_TYPE>
-	//inline void ToArray( const CString& str, CArray<TYPE, ARG_TYPE>& val, const CString& sep=",")
-	//{
-
-	//	#pragma warning(disable : 4244)
-	//	val.RemoveAll();
-
-	//	const type_info& info = typeid(TYPE);
-	//	//if( info == typeid(char) || info == typeid(short) || info == typeid(long) )
-	//	//	tmp = ToString((int)val);
-	//	CString elem;
-	//	int pos = 0;
-	//	while( elem = str.Tokenize(sep, pos) )
-	//	{
-	//		if( info==typeid(char))
-	//			val.Add(ToChar(elem)); 
-	//		else if( info==typeid(short))
-	//			val.Add(ToShort(elem)); 
-	//		else if( info==typeid(int))
-	//			val.Add(ToInt(elem)); 
-	//		else if( info==typeid(long))
-	//			val.Add(ToLong(elem));
-	//		else if( info==typeid(__int64))
-	//			val.Add(ToInt64(elem));
-	//		else if( info==typeid(float))
-	//			val.Add(ToFloat(elem));
-	//		else if( info==typeid(double))
-	//			val.Add(ToDouble(elem)); 
-	//		else ASSERT(false);
-	//	}
-	//}
 
 	CString GetExportImageFilter();
 	CString GetImportImageFilter();
 	CString GetDefaultFilterExt(CString filter, int nFilterIndex);
-	/*template <class T>
-    CString ToString(T val, short prec=4)
-    {
-		CString tmp;
-
-		const type_info& info = typeid(T);
-		if( info == typeid(char) || info == typeid(short) || 
-			info == typeid(long) )
-			tmp = ToString((int)val);
-		
-        return tmp;
-    }*/
-    
-	
-
-	
-	/*template <class T>
-	CString ToString(const T& val, int pres=4)
-	{
-		switch( type_of(T) )
-		{
-		}
-
-	}*/
     
 	CString GetVersionString(const CString& filerPath);
 	CString GetCompilationDateString(char* compilation_date);
@@ -541,31 +267,11 @@ namespace UtilWin
     
     bool StringToInt(const CString& intStr, int& nValue);
 
-    //double ComputeExposition(double lat, float slopePourcent, float aspect);
-    //void ComputeSlopeAndAspect(double lat, double exposition, float& slopePourcent, float& aspect);
-
-
-	//ERMsg OpenFile(CFile& file, LPCTSTR filePath, UINT flag);
-
+    
 	CString GetClipboardText();
 	bool SetClipboardText(const CString& str);
 
-	//class CFileEx: public CFile
-	//{
-
-	//public:
-	//	CFileEx()
-	//	{}
-
-	//	CFileEx(LPCTSTR lpszFileName, UINT nOpenFlags):CFile(lpszFileName, nOpenFlags)
-	//	{}
-
-	//	ERMsg Open(LPCTSTR lpszFileName, UINT nOpenFlags)
-	//	{
-	//		return UtilWin::OpenFile(*this, lpszFileName, nOpenFlags);
-	//	}
-	//};
-
+	
 	
 	//use bGoodSeek to avoid problem when using ReadString, GetPosition and Seek
 	class CStdioFileEx: public CStdioFile

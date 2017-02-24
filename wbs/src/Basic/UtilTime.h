@@ -297,7 +297,7 @@ namespace WBSF
 		CTRef& Transform(const CTM& TM, size_t initType = FIRST_TREF);
 		CTRef& Transform(const CTRef& t, size_t initType = FIRST_TREF){ return Transform(t.GetTM(), initType); }//{ m_type = t.m_type; m_mode = t.m_mode; ResetUnused(); return *this; }
 		static CTRef Transform(CTRef t, CTM TM, size_t initType = FIRST_TREF){ CTRef tt(t); tt.Transform(TM, initType); return tt; }
-
+		CTRef as(const CTM& TM, size_t initType = FIRST_TREF)const{ CTRef tt(*this); tt.Transform(TM, initType); return tt; }
 
 
 		CTRef Disaggregate(const CTM& TM)const;
