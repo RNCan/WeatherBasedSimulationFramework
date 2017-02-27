@@ -430,6 +430,9 @@ namespace WBSF
 		size_t member = SSI;
 
 		string header(headerIn);
+		header.erase(std::remove(header.begin(), header.end(), '"'), header.end());
+		header.erase(std::remove(header.begin(), header.end(), '\''), header.end());
+		
 		
 		string::size_type pos = header.find('(');
 		if (pos != string::npos)

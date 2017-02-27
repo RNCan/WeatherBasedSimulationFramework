@@ -11,8 +11,13 @@ namespace WBSF
 	{
 	public:
 
+		//AGRI_HISTORICAL,
+		enum TNetwork{AGRI,  HAGRI, FIRE, HYDRO, NB_NETWORKS};
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
 		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, NB_ATTRIBUTES };
+		static size_t GetNetwork(const std::string& network);
+
+
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIManitoba); }
 
@@ -41,32 +46,43 @@ namespace WBSF
 	protected:
 		
 
-		ERMsg SplitStations(const std::string& outputFilePath, CCallback& callback);
-		ERMsg LoadStationList(CCallback& callback);
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		ERMsg UpdateStationsFile(CCallback& callback);
 
-		//CLocationMap m_stations;
+		
 
+		std::string GetStationsListFilePath(size_t network)const;
+		ERMsg GetAgriFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
+		std::string GetOutputFilePath(size_t network, size_t type, const std::string& stationName, int year, size_t m = NOT_INIT)const;
+		
+		ERMsg ReadAgriData(const std::string& filePath, CYear& dailyData)const;
+		ERMsg ExecuteAgriculture(CCallback& callback);
+		ERMsg SplitAgriStations(const std::string& outputFilePath, CCallback& callback);
+		ERMsg ReadAgriData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 
-		std::string GetStationListFilePath()const;
+		ERMsg ExecuteHistoricalAgriculture(CCallback& callback);
+		ERMsg GetHistoricalStationList(size_t dataType, StringVector& fileList, CCallback& callback);
+		ERMsg DownloadStationData(UtilWWW::CHttpConnectionPtr& pConnection, size_t type, const std::string& ID, CTRef TRef, std::string& text);
+		ERMsg SaveAgricultureDailyStation(const std::string& filePath, std::string str);
+		ERMsg SaveAgricultureHourlyStation(const std::string& filePath, std::string str);
+		
 
-		//ERMsg UpdateStationHistory();
-		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
-
-		std::string GetOutputFilePath(const std::string& stationName, int year)const;
-
-		ERMsg ReadData(const std::string& filePath, CYear& dailyData)const;
+		ERMsg ExecuteHydro(CCallback& callback);
+		ERMsg UpdateHydroStationsList(CCallback& callback);
+		ERMsg SplitHydroData(const std::string& ID, const StringVector& outputFilePath, CCallback& callback);
 
 		CLocationVector m_stations;
 
+		
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
-		static const char* SERVER_PATH;
+		static const char* SERVER_NAME[NB_NETWORKS];
+		static const char* SERVER_PATH[NB_NETWORKS];
 		
+		static const char* NETWORK_NAME[NB_NETWORKS];
+		static const char* SUBDIR_NAME[NB_NETWORKS];
 
 	};
 

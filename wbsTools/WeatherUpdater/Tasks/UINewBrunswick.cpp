@@ -294,7 +294,7 @@ namespace WBSF
 		return msg;
 	}
 
-	double GetWindDir(string compass)
+	static double GetWindDir(string compass)
 	{
 		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
@@ -613,10 +613,7 @@ namespace WBSF
 		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
 
 		int nbRun = 0;
-		//size_t curI = 0;
-		//while (curI < fileList.size() && msg)
-		//{
-		//nbRun++;
+
 		int nbFiles = 0;
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -634,7 +631,7 @@ namespace WBSF
 
 						string filePath = GetOutputFilePath(AGRI, fileList[i], year);
 						CreateMultipleDir(GetPath(filePath));
-						if (!FileExists(filePath))
+						if (year == currentTRef.GetYear() || !FileExists(filePath))
 						{
 							string str;
 							msg = DownloadStation(pConnection, fileList[i], year, str);
