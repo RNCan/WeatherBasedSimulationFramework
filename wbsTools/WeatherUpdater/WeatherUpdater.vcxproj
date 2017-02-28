@@ -128,7 +128,7 @@
       <AdditionalIncludeDirectories>$(IntDir);..\..\wbs\src</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(OutDir)\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -162,8 +162,7 @@
       <AdditionalIncludeDirectories>$(IntDir);..\..\wbs\src</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(OutDir)\$(TargetName)$(TargetExt)"
-</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -201,7 +200,7 @@
       <AdditionalIncludeDirectories>$(IntDir);..\..\wbs\src</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(OutDir)\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -238,7 +237,7 @@
       <AdditionalIncludeDirectories>$(IntDir);..\..\wbs\src</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(OutDir)\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

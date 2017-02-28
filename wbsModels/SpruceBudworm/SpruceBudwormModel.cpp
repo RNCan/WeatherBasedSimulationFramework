@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 28/02/2017   3.1.3   Rémi Saint-Amant	Bug correction in Fertil mode
 // 08/01/2017	3.1.2	Rémi Saint-Amant	Add hourly live
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Change in overheating and flight activity
 // 10/10/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -46,7 +47,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "3.1.2 (2017)";
+		VERSION = "3.1.3 (2017)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
@@ -142,6 +143,9 @@ namespace WBSF
 			pTree->m_nbMinObjects = 100;
 			pTree->m_nbMaxObjects = 1000;
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, L2o, NOT_INIT, m_bFertility, 0));
+
+			
+			//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, FEMALE, m_bFertility, 0));
 
 			//Create stand
 			stand.m_bFertilEgg = m_bFertility;

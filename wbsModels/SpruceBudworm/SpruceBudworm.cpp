@@ -38,15 +38,9 @@ namespace WBSF
 	};
 
 	static const double OVIPOSITING_STAGE_AGE = 0.1;
-
-
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
-	/*double GetMatingProbability(double a)
-	{
-		return max(0.0, min(1.0, 0.491*log(a) + 1.110));
-	}
-*/
+	
 	//*****************************************************************************
 	// Object creator
 	//
@@ -72,13 +66,7 @@ namespace WBSF
 		m_bExodus = false;
 		m_bAlreadyExodus = false;
 		
-		
-		//m_exodus_age =  GetStand()->RandomGenerator().RandBeta(100, 100);
-		//m_p_mating = GetStand()->RandomGenerator().Rand(0.0, 1.0);
-		//m_p_mating = GetStand()->RandomGenerator().RandBeta(100, 100);
-		
-
-
+	
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
 		static const double ALPHA0 = 2.1571;
@@ -230,11 +218,8 @@ namespace WBSF
 	void CSpruceBudworm::Brood(const CWeatherDay& weather)
 	{
 		assert(IsAlive() && m_sex == FEMALE);
-
-		//if (m_age >= ADULT + 0.0666)
 		
-		//double Pmating = GetMatingProbability(GetStageAge());
-		if (GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (m_age >= ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			//brooding
 			double eggLeft = m_Fᴰ - m_totalBroods;

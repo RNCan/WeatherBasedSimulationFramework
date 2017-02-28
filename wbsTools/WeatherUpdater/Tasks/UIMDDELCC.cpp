@@ -16,6 +16,11 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+
+	//hydro-météo (meteocentre)
+	//http://meteocentre.com/cgi-bin/get_sao_tab?STN=CXSH&LANG=fr&DELT=24
+
+
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
