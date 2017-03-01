@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>MPBiModelAnnual</Title>
+    <Version>1.0</Version>
+    <ID>.MPBi</ID>
+    <EXE>MPB-iModel.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Individual based, object oriented model of Mountain Pine Seasonal BiologyRégnière, Powell, Bentz (in preparation)</Description>
+    <WindowRect>0 0 714 419</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>InitalAttacks</Name>
+            <Caption>Number of inital attacks (successful females/m²):</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>25 25 45 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>60</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Month</Name>
+            <Caption>Peak of initial attacks</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>50 25 70 285</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>6</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>11</MaxValue>
+            <TextValue>January;February;March;April;May;June;July;August;September;October;November;December</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Day</Name>
+            <Caption>Day</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>50 285 70 375</Rect>
+            <SeparatorPos>5</SeparatorPos>
+            <DefaultValue>23</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>31</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>AttackVariance</Name>
+            <Caption>Standard deviation of initial attack date (days):</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 25 95 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbFertilGeneration</Name>
+            <Caption>Nb fertil generation (-1 = all generations)</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>100 25 120 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-1</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>AutoBalanceObject</Name>
+            <Caption>Auto balance objects</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>125 25 145 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SurvivalRate</Name>
+            <Caption>Survival rate (egg to emerging adult) [0.001, 1]</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 25 170 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>0.2</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>A0</Name>
+            <Caption>Effective attack threshold (beetles/m²/day)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 25 195 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>60</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Amax</Name>
+            <Caption>Max attack rate (beetles/m²/day)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>200 25 220 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>60</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ColdMort</Name>
+            <Caption>Apply cold mortality</Caption>
+            <Description>Flag that turns cold mortality on or off</Description>
+            <Type>0</Type>
+            <Rect>225 25 245 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ColdMortOvipAdult</Name>
+            <Caption>Apply cold mortality on ovipositing adults</Caption>
+            <Description>Flag that arrests larval development in Phase II</Description>
+            <Type>5</Type>
+            <Rect>250 25 270 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue>None;Cold mortality;Always kill;Kill below -18</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>EmergingThreshold</Name>
+            <Caption>Emergence Threshold (°C)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>275 25 295 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>18</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MicroClimate</Name>
+            <Caption>Generate micro climate</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>300 25 325 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ForestSize</Name>
+            <Caption>Forest size (km²)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>330 25 350 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>2500</DefaultValue>
+            <MinValue>1850</MinValue>
+            <MaxValue>3000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NbObject</Name>
+            <Caption>NbObject</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>355 25 380 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ForestDensity</Name>
+            <Caption>Number of trees per km² (trees/km²)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>385 25 405 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>100000</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>200000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SnowProtection</Name>
+            <Caption>Snow protection</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>410 25 430 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>UseDefenselessTree</Name>
+            <Caption>Use defenseless tree</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>435 25 460 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>OptimizeOn</Name>
+            <Caption>Optimize on</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>460 25 480 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue>R;log(R);Km²;log(Km²);cumul km²;log(cumul km²)</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>InitialInfestation</Name>
+            <Caption>InitialInfestation (km²)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>485 25 510 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DDAlpha</Name>
+            <Caption>Density Dependence Alpha</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 25 535 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MinObject</Name>
+            <Caption>MinObject</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>540 25 560 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>250</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MaxObjects</Name>
+            <Caption>MaxObjects</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>565 25 590 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1000</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>HeightMax</Name>
+            <Caption>Maximum height (cm)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>595 25 615 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>1000</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PupeTeneralSurvivalT</Name>
+            <Caption>Pupe and teneral minimum survival T (°C)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>620 25 645 375</Rect>
+            <SeparatorPos>265</SeparatorPos>
+            <DefaultValue>-18</DefaultValue>
+            <MinValue>-38</MinValue>
+            <MaxValue>-18</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>4 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>NbAttacks</Name>
+            <Title>NbAttacks</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EffectivesBeetles</Name>
+            <Title>Effectives Beetles</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>R</Name>
+            <Title>R</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg</Name>
+            <Title>Egg</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Larvae</Name>
+            <Title>Larvae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Teneral</Name>
+            <Title>Teneral</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Oviposition</Name>
+            <Title>Oviposition</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggCreated</Name>
+            <Title>EggCreated</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Brood</Name>
+            <Title>Brood</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Fecundity</Name>
+            <Title>Fecundity</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrozen</Name>
+            <Title>Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadOldAge</Name>
+            <Title>Dead Old Age</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadKillByTree</Name>
+            <Title>Killed by Tree</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadDensityDependence</Name>
+            <Title>Kill by Density Dependence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAttrition</Name>
+            <Title>DeadAttrition</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>InfestationKM</Name>
+            <Title>Infestation</Title>
+            <Units>km²</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>cumulInfestation</Name>
+            <Title>cumulative Infestation</Title>
+            <Units>km²</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggDeadFrozen</Name>
+            <Title>Egg Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LarvaDeadFrozen</Name>
+            <Title>Larva Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PupaDeadFrozen</Name>
+            <Title>Pupa Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TeneralDeadFrozen</Name>
+            <Title>Teneral Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositingAdultDeadFrozen</Name>
+            <Title>Ovipositing Adult Dead Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Bivoltin</Name>
+            <Title>Bivoltin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Univoltin</Name>
+            <Title>Univoltin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Semivoltin</Name>
+            <Title>Semivoltin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Trienvoltin</Name>
+            <Title>Trienvoltin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbObjects</Name>
+            <Title>NbObjects</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbPacks</Name>
+            <Title>NbPacks</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DDFactor</Name>
+            <Title>DDFactor</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Longivity</Name>
+            <Title>Longivity</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Year</Name>
+            <Title>Year</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Month</Name>
+            <Title>Month</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Day</Name>
+            <Title>Day</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>YearEnd</Name>
+            <Title>YearEnd</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MonthEnd</Name>
+            <Title>MonthEnd</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DayEnd</Name>
+            <Title>DayEnd</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>Régnière,m Powell, Bentz</Copyright>
+    <Credit>Not written yet</Credit>
+    <HelpFileName/>
+</Model>

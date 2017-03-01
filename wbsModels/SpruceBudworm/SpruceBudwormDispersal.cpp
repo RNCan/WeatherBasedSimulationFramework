@@ -250,7 +250,7 @@ namespace WBSF
 			m_output[TRef][O_P] = flyers[i].m_P;
 			m_output[TRef][O_W] = flyers[i].m_W;
 			m_output[TRef][O_S] = flyers[i].m_S;
-		}
+		} 
 
 
 		return msg;

@@ -90,7 +90,7 @@ namespace WBSF
 		ExecuteDaily(stat, true);
 
 
-		CAnnualOutput stateA(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()+1));
+		CAnnualOutput stateA(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()+1), CBioSIMModelBase::VMISS);
 
 		for (size_t y = 0; y < m_weather.size() - 1; y++)
 		{
@@ -99,8 +99,13 @@ namespace WBSF
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 				statL22 += stat[d][S_L22];
 
-			double gr = statL22[HIGHEST];
-			stateA[y][O_GROWTH_RATE] = gr / 100; //initial population is 100 insect
+			
+			if (statL22.IsInit())
+			{
+				double gr = statL22[HIGHEST];
+				ASSERT(gr >= 0 && gr<30);
+				stateA[y][O_GROWTH_RATE] = gr / 100; //initial population is 100 insect
+			}
 		}
 
 		SetOutput(stateA);

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>MPB Cold Tolerance (Daily)</Title>
+    <Version>1.0</Version>
+    <ID>.CTs</ID>
+    <EXE>MPB-ColdTolerance.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Priviledged personal communication. Model by Régnière &amp; Bentz (MS in preparation).</Description>
+    <WindowRect>0 0 161 448</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>GenerateMicroclimate</Name>
+            <Caption>Generate microclimate:</Caption>
+            <Description>True for air temperature and false for phloem temperature</Description>
+            <Type>0</Type>
+            <Rect>90 10 110 200</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header1</Name>
+            <Caption>Moutain Pine Beetle Cold Tolerance Model</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>5 10 25 275</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header2</Name>
+            <Caption>Régnière, J. and B. Bentz. 2007. Modelling cold tolerance</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>40 10 60 405</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header3</Name>
+            <Caption>in the mountain pine beetle, Dendroctonus ponderosae.</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>60 30 80 405</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Daily minimum temperatures, modified or not for phloem overheating/damping</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Daily maximum temperatures, modified or not for phloem overheating/damping</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P1</Name>
+            <Title>P1</Title>
+            <Units>%</Units>
+            <Description>Proportion in stages I</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P2</Name>
+            <Title>P2</Title>
+            <Units>%</Units>
+            <Description>Proportion in stages II</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P3</Name>
+            <Title>P3</Title>
+            <Units>%</Units>
+            <Description>Proportion in stages III</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Ct</Name>
+            <Title>Ct</Title>
+            <Units/>
+            <Description>State of cryoprotectant "concentration"</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LT50</Name>
+            <Title>LT50</Title>
+            <Units>°C</Units>
+            <Description>Median lethal temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Psurv</Name>
+            <Title>Psurv</Title>
+            <Units>%</Units>
+            <Description>Seasonal survival (cumulative, selective)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pmort</Name>
+            <Title>Pmort</Title>
+            <Units>%</Units>
+            <Description>Daily probability of mortality (Psurv is the sequential minimum of Pmort)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>Régnière &amp; Bentz, 2007</Copyright>
+    <Credit>Priviledged Personal Communication. Régnière &amp; Bentz, 2007. See Model Help.</Credit>
+    <HelpFileName>MPB Cold Tolerance.pdf</HelpFileName>
+</Model>

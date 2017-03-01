@@ -1,3 +1,4 @@
+//5.3.3 28/02/2016  Rémi Saint-Amant	Add historical agriculture and hydro for Manitoba
 //5.3.2 16/02/2016  Rémi Saint-Amant	Historical fire station for new brunswick 
 //										Stations coordinate for CIPRA in atlantic 
 //5.3.1 10/02/2016  Rémi Saint-Amant	Add CUIMiscellaneous and virtual station

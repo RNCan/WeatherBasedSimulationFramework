@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Climatic Annual</Title>
+    <Version>2.0</Version>
+    <ID>.null</ID>
+    <EXE>Climatic.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model computes annual climatic variables</Description>
+    <WindowRect>0 0 82 330</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS R</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Head</Name>
+            <Caption>No input</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>LowestTMin</Name>
+            <Title>Lowest TMin</Title>
+            <Units>°C</Units>
+            <Description>Lowest daily minimum temperature of the year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MeanTMin</Name>
+            <Title>Mean TMin</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MeanTMean</Name>
+            <Title>Mean TMean</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily mean temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MeanTMax</Name>
+            <Title>Mean TMax</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily maximum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HitghestTMax</Name>
+            <Title>HitghestTMax</Title>
+            <Units>°C</Units>
+            <Description>Highest daily maximum temperature of the year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TotalPrecipitation</Name>
+            <Title>Total Precipitation</Title>
+            <Units>mm</Units>
+            <Description>Annual total precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TDew</Name>
+            <Title>DewPoint</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily mean dew point temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RelativeHumidity</Name>
+            <Title>Relative Humidity</Title>
+            <Units>%</Units>
+            <Description>Annual mean of daily mean relative humidity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WindSpeed</Name>
+            <Title>Wind Speed</Title>
+            <Units>km/h</Units>
+            <Description>Mean wind speed at 10 meters (km/h)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frost</Name>
+            <Title>Frost Days</Title>
+            <Units>days</Units>
+            <Description>Number of days in the year when the daily minimum temperature is &lt; 0</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TotalRadiation</Name>
+            <Title>Total Radiation</Title>
+            <Units>MJ/m²</Units>
+            <Description>Annual total radiation computes by MTCLIM. See documentation of MTCLIM 4.3</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit> Version                Date                           Note&#x0A;2.3 (2013)        05/07/2013          Remove GDD and ET&#x0A;</Credit>
+    <HelpFileName/>
+</Model>

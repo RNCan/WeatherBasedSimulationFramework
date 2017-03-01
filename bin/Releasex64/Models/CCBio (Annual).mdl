@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CCBio</Title>
+    <Version>1.0</Version>
+    <ID>.s</ID>
+    <EXE>CCBio.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Modèle créé pour Yanick Gendreau. Version Annuelle</Description>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>no</Name>
+            <Caption>No parametes</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Température minimum moyenne annuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Température maximum moyenne annuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tavg</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Température moyenne annuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prec</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Précipittation total annulelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GDD</Name>
+            <Title>GDD</Title>
+            <Units/>
+            <Description>Degré-jours au dessus de 5°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tsea</Name>
+            <Title>Tsea</Title>
+            <Units/>
+            <Description>Coefficient de variation sur la température moyenne mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Psea</Name>
+            <Title>Psea</Title>
+            <Units/>
+            <Description>Coefficient de variation du la précipitation totale mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pwv</Name>
+            <Title>Pwv</Title>
+            <Units/>
+            <Description>Précipitation totale du mois le plus humide</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pwm</Name>
+            <Title>Pwm</Title>
+            <Units/>
+            <Description>Mois le plus humide</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pdv</Name>
+            <Title>Pdv</Title>
+            <Units/>
+            <Description>Précipitation totale du mois le plus sec (mm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pdm</Name>
+            <Title>Pdm</Title>
+            <Units/>
+            <Description>Mois le plus sec</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Trng</Name>
+            <Title>Trng</Title>
+            <Units/>
+            <Description>Différence entre Tmax du mois le plus chaud et Tmin du mois le plus froid (°C)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Évapotranspiration potentielle de Hamon (mm). Formule mensuelle.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PETsea</Name>
+            <Title>PETsea</Title>
+            <Units/>
+            <Description>Coefficient de variation sur l'évapotranspiration potentiel mensuelle.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WBAL</Name>
+            <Title>WBAL</Title>
+            <Units>mm</Units>
+            <Description>Précipitation totale annuelle - l'évapotranspiration potentiel (mm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WBALsea</Name>
+            <Title>WBALsea</Title>
+            <Units/>
+            <Description>Coefficient de variation de Wbal</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WRAT</Name>
+            <Title>WRAT</Title>
+            <Units/>
+            <Description>Precipitation divide by evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD</Name>
+            <Title>CDD</Title>
+            <Units/>
+            <Description>Degré-jours de gel (Tavg &lt; 0)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FSDAY</Name>
+            <Title>FSDAY</Title>
+            <Units/>
+            <Description>Dernier jour de gel au printemps</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FFDAY</Name>
+            <Title>FFDAY</Title>
+            <Units/>
+            <Description>Premier jour de gel à l'automne</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FPP</Name>
+            <Title>FPP</Title>
+            <Units/>
+            <Description>Durée de la période sans gel (jours)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FDD</Name>
+            <Title>FDD</Title>
+            <Units/>
+            <Description>Degré-jours (0 °C) de croissance de la période sans gel</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GSSDAY</Name>
+            <Title>GSSDAY</Title>
+            <Units/>
+            <Description>Premier jour de la saison de croissance au printemps</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GSFDAY</Name>
+            <Title>GSFDAY</Title>
+            <Units/>
+            <Description>Dernier jour de la saison de croissance à l'automne</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GSPP</Name>
+            <Title>GSPP</Title>
+            <Units/>
+            <Description>Durée de la saison de croissance</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GSDD</Name>
+            <Title>GSDD</Title>
+            <Units/>
+            <Description>Degré-jours (0 °C) de croissance de la saison de croissance</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

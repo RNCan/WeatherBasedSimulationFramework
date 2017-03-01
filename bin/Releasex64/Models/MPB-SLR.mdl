@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>MPB-SLR</Title>
+    <Version>1.0</Version>
+    <ID>.SLRs</ID>
+    <EXE>MPB-SLR.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 319 360</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>NbGeneration</Name>
+            <Caption>Nb Generations (n_gen)</Caption>
+            <Description>Number of generation to acess stability in the Logan model</Description>
+            <Type>1</Type>
+            <Rect>20 25 40 285</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>20</DefaultValue>
+            <MinValue>2</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Overheat</Name>
+            <Caption>Overheating Factor</Caption>
+            <Description>Overheating factor of the maximum temperature</Description>
+            <Type>2</Type>
+            <Rect>45 25 65 285</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DayStart</Name>
+            <Caption>Day Start (O_ini)</Caption>
+            <Description>Date of peak of oviposition</Description>
+            <Type>1</Type>
+            <Rect>95 25 115 285</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>200</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MinOvipDate</Name>
+            <Caption>Minimum Oviposition Date (O_min)</Caption>
+            <Description>Minimum valid oviposition date</Description>
+            <Type>1</Type>
+            <Rect>120 25 140 285</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>160</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MaxOvipDate</Name>
+            <Caption>Maximum Oviposition Date (O_max)</Caption>
+            <Description>Maximum valid oviposition date</Description>
+            <Type>1</Type>
+            <Rect>145 25 165 285</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>273</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>RunLength</Name>
+            <Caption>Run Length (n_max) (-1 = nb years)</Caption>
+            <Description>Length (years) of the each run for all generations. -1 for all weather years.</Description>
+            <Type>1</Type>
+            <Rect>200 25 220 295</Rect>
+            <SeparatorPos>230</SeparatorPos>
+            <DefaultValue>-1</DefaultValue>
+            <MinValue>-1</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Logan_n</Name>
+            <Caption>Number of year for invalid stability (Logan 2b)</Caption>
+            <Description>In the second version of the Logan Model (2b), it is possible to relax the criterias. The Logan 2b is invalid only if the invalid year is in a series of N invalid years</Description>
+            <Type>1</Type>
+            <Rect>225 25 245 295</Rect>
+            <SeparatorPos>230</SeparatorPos>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line1</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>65 5 85 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line2</Name>
+            <Caption/>
+            <Description/>
+            <Type>9</Type>
+            <Rect>170 5 190 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Logan Probability</Name>
+            <Title>Logan Probability</Title>
+            <Units/>
+            <Description>Probability of Logan stability (constant univoltine oviposition date within a user defined date range)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Logan Probability2b</Name>
+            <Title>Logan Probability2b</Title>
+            <Units/>
+            <Description>Probability of relaxed Logan</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Safranyik Probability</Name>
+            <Title>Safranyik Probability</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Safranyik P3 P4 Probability</Name>
+            <Title>Safranyik P3 P4 Probability</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Cold Tolerance Survival</Name>
+            <Title>Cold Tolerance Survival</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Hybrid (CT)</Name>
+            <Title>Hybrid (CT)</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Product(pL*pS*pC)</Name>
+            <Title>Product(pL*pS*pC)</Title>
+            <Units/>
+            <Description>Product of Logan  x Safranyik (P3P4) x Cold Tolerance</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Geometric product(pL2b*pS*pC)</Name>
+            <Title>Geometric product(pL2b*pS*pC)</Title>
+            <Units/>
+            <Description>Geometric product of Logan (2b) x Safranyik (P3P4) x Cold Tolerance</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Geometric product(pL2b*pC)</Name>
+            <Title>Geometric product(pL2b*pC)</Title>
+            <Units/>
+            <Description>Geometric product of Logan (2b) x  Cold Tolerance</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName>SafranyikLogan.pdf</HelpFileName>
+</Model>

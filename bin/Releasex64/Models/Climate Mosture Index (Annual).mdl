@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Climate Mosture Index (Annual)</Title>
+    <Version>1.0</Version>
+    <ID>.ams</ID>
+    <EXE>Climate Moisture Index.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>GddCum</Name>
+            <Title>GddCum</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DggWyr</Name>
+            <Title>DggWyr</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CMI</Name>
+            <Title>CMI</Title>
+            <Units>cm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P</Name>
+            <Title>P</Title>
+            <Units>cm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>cm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TMaxMean</Name>
+            <Title>TMaxMean</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TMinMean</Name>
+            <Title>TMinMean</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>summerPPT</Name>
+            <Title>summerPPT</Title>
+            <Units>cm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

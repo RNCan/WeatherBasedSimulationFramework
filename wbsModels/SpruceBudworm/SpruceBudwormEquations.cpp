@@ -226,6 +226,9 @@ namespace WBSF
 		const double β = 1.760;
 		
 		double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
+		while (ξ<0.8 || ξ > 1.2)
+			ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
+
 		double F = α*pow(A, β);
 		
 		return F*ξ;

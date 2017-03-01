@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Soi Moisture Index (Annual)</Title>
+    <Version>1.0</Version>
+    <ID>.smiQL</ID>
+    <EXE>Soil Moisture Index QL.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Emulate seasonal and long-term variation in actual soil moisture conditions of a "typical" forested site using basic meteorological inputs</Description>
+    <WindowRect>0 0 128 314</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>SMIcrit</Name>
+            <Caption>Critical soil moisture</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 285</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>200</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SMIMax</Name>
+            <Caption>Maximum soil moisture</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>55 10 75 285</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>400</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>SMImin</Name>
+            <Title>SMImin</Title>
+            <Units>%</Units>
+            <Description>Minimum soil moisture index</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SMImean</Name>
+            <Title>SMImean</Title>
+            <Units>%</Units>
+            <Description>Mean soil moisture index</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SMImax</Name>
+            <Title>SMImax</Title>
+            <Units>%</Units>
+            <Description>Maximum soil moisture index</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Mike Michaelian</Credit>
+    <HelpFileName/>
+</Model>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Soi Moisture Index (daily)</Title>
+    <Version>1.1</Version>
+    <ID>.smiQL</ID>
+    <EXE>Soil Moisture Index QL.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Emulate seasonal and long-term variation in actual soil moisture conditions of a "typical" forested site using basic meteorological inputs</Description>
+    <WindowRect>0 0 122 311</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>SMIcrit</Name>
+            <Caption>Critical soil moisture</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 285</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>200</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SMIMax</Name>
+            <Caption>Maximum soil moisture</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>55 10 75 285</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>400</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Maximum daily temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Minimum daily temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Ppt</Name>
+            <Title>Ppt</Title>
+            <Units>mm</Units>
+            <Description>Precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SVPTmax</Name>
+            <Title>SVP Tmax</Title>
+            <Units>kPa</Units>
+            <Description>Saturation vapour pressure for Tmax</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SVPTmin</Name>
+            <Title>SVP Tmin</Title>
+            <Units>kPa</Units>
+            <Description>Saturation vapour pressure for Tmin</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SVPTdew</Name>
+            <Title>SVP Tdew</Title>
+            <Units>kPa</Units>
+            <Description>Saturation vapour pressure for Tdew</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>VPD</Name>
+            <Title>VPD</Title>
+            <Units>kPa</Units>
+            <Description>Daily vapour pressure deficit</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmean</Name>
+            <Title>Tmean</Title>
+            <Units>°C</Units>
+            <Description>Daily mean temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>K_TRF</Name>
+            <Title>K_TRF</Title>
+            <Units/>
+            <Description>Cold temperature reduction factor</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Daily potential evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AET</Name>
+            <Title>AET</Title>
+            <Units>mm</Units>
+            <Description>Daily actual evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Runoff</Name>
+            <Title>Runoff</Title>
+            <Units>mm</Units>
+            <Description>Daily water runoff </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DSMI</Name>
+            <Title>DSMI</Title>
+            <Units>mm</Units>
+            <Description>Soil moisture at end of day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SMI</Name>
+            <Title>SMI</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Code base on Mike Michaelian and Ted Hogg works</Credit>
+    <HelpFileName/>
+</Model>

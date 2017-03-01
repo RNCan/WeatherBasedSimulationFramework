@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Magarey Infection</Title>
+    <Version>1.0</Version>
+    <ID>.MI</ID>
+    <EXE>MagareyInfection.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Model base on article:&#x0A;&#x0A;A Simple Generic Infection Model for Foliar Fungal Plant Pathogens</Description>
+    <WindowRect>0 0 169 655</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS R SD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Name</Name>
+            <Caption>Pathogen Name</Caption>
+            <Description>The name of pathogen</Description>
+            <Type>6</Type>
+            <Rect>10 10 30 440</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue>Albugo occidentalis ( Spinach);Alternaria brassicae ( Oilseed rape );Alternaria cucumis ( Muskmelon );Alternaria mali ( Apple );Alternaria pori ( Onion );Alternaria sp. ( Mineola tangelo );Ascochyta rabiei ( Chick pea );Bipolaris oryzae ( Rice );Botryosphaeria dothidea ( Apple );Botryosphaeria obtusa ( Apple );Botrytis cinerea ( Grapes );Botrytis cinerea ( Strawberry );Botrytis cinerea ( Geranium );Botrytis cinerea ( Grape flower );Botrytis squamosa ( Onion );Bremia lactucae ( Lettuce );Cercospora arachidicola ( Peanut );Cercospora carotae ( Carrot );Cercospora kikuchii ( Soybean );Coccomyces hiemalis ( Prunus sp );Colletotrichum acutatum ( Strawberry fruit );Colletotrichum coccodes ( Tomato );Colletotrichum orbiculare ( Watermelon );Didymella arachidicola ( Peanut );Diplocarpon earlianum ( Strawberry );Elsinoe ampelina ( Grape );Guignardia bidewelli ( Grape );Gymnoporangium juniperi-virginianae ( Apple );Leptosphaeria maculans ( rape );Melampsora medusae ( Poplar );Microcylus ulei ( Rubber );Monilinia fructicola ( Prunus fruit );Mycopshaerella pinodes ( Pea );Mycosphaerella fragariae ( Strawberry );Mycosphaerella graminicola ( Wheat );Phaeoisarpis personata ( Peanut );Phakopsora pachyrhizi ( Soybean );Phytophthora cactorum ( Apple fruit );Phytophthora cactorum ( Strawberry fruit );Phytophthora infestans ( Potato );Plasmopara viticola ( Grape );Psuedoperonospora cubensis ( cucumber );Puccinia arachidis ( Groundnut );Puccinia menthae ( peppermint );Puccinia psidii ( Eucalyptus );Puccinia recondita ( Wheat );Puccinia striiformis ( Wheat );Pyrenopezzia brassicae ( Oilseed rape );Pyrenophora teres ( Barley );Rhizoctonia solani ( Rye grass );Rhynchosporium secalis ( Barley );Sclerotinia sclerotiorum ( Beans );Septoria apiicola ( Celery );Septoria glycines ( Soybean );Uromyces phaseoli ( Bean );Venturia inequalis ( Apple );Venturia pirina ( Pear );Wilsonomyces carpophilus ( Almond )</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>PrcpThreshold</Name>
+            <Caption>Precipitation threshold </Caption>
+            <Description>Precipitation threshold for infection</Description>
+            <Type>2</Type>
+            <Rect>40 10 60 290</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Interruption</Name>
+            <Caption>Interruption</Caption>
+            <Description>The number of dry hours to interupt wetness events from previous day.</Description>
+            <Type>2</Type>
+            <Rect>65 10 90 290</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>BeginningDate</Name>
+            <Caption>Beginning Date (dd/mm)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>95 10 115 290</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>01/01</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Infection</Name>
+            <Title>Infection</Title>
+            <Units/>
+            <Description>This variable calculates infection from Wmin and Wmax and F2.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Cumul Infection</Name>
+            <Title>Cumul Infection</Title>
+            <Units/>
+            <Description>Accumulation of "Infection".</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Rain Infection</Name>
+            <Title>Rain Infection</Title>
+            <Units/>
+            <Description>This infection variable incorporates the splash requirement.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Cumul Rain Infection</Name>
+            <Title>Cumul Rain Infection</Title>
+            <Units/>
+            <Description>Accumulation of "Rain Infection".</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Infection Event</Name>
+            <Title>Infection Event</Title>
+            <Units/>
+            <Description>Major infection events, initated by rain and continue from previous day or with additional rain.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>A Simple Generic Infection Model for Foliar Fungal Plant Pathogens&#x0A;&#x0A;R. D. Magarey, T. B. Sutton, and C. L. Thayer&#x0A;&#x0A;Department of Plant Pathology, North Carolina State University, Raleigh 27696&#x0A;&#x0A;January 2005, Volume 95, Number 1&#x0A;Pages 92-100&#x0A;http://dx.doi.org/10.1094/PHYTO-95-0092</Credit>
+    <HelpFileName/>
+</Model>

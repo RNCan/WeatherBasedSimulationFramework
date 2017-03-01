@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CCBio</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>CCBio.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Modèle créé pour Yanick Gendreau. Version Mensuelle</Description>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>No parameters</Name>
+            <Caption>No parameters</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>15 10 35 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Température minimum moyenne mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Température maximum moyenne mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tavg</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Température moyenne mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prec</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Précipitation total mensuelle</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>GDD</Name>
+            <Title>GDD5</Title>
+            <Units/>
+            <Description>Degré-jours au dessus de 5°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tsea</Name>
+            <Title>Tsea</Title>
+            <Units/>
+            <Description>Coefficient de variation sur la température moyenne journalière</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Psea</Name>
+            <Title>Psea</Title>
+            <Units/>
+            <Description>Coefficient de variation du la précipitation journalière</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Évapotranspiration potentielle de Hamon. Formule mensuelle.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WBAL</Name>
+            <Title>WBAL</Title>
+            <Units>mm</Units>
+            <Description>Précipitation totale annuelle - l'évapotranspiration potentiel (mm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WRAT</Name>
+            <Title>WRAT</Title>
+            <Units/>
+            <Description>Precipitation devide by evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD</Name>
+            <Title>CDD</Title>
+            <Units/>
+            <Description>Degré-jours de gel. Accumulation des degré-jours quand la température moyenne est en dessous de zéro.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

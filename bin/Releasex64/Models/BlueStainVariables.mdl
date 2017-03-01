@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BlueStainVaraibles</Title>
+    <Version>1.0</Version>
+    <ID>.empty</ID>
+    <EXE>BlueStainVariables.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Outpout the 22 bio-climatic variables of the Pathogenic Ceratocystis Polonica (blue-stain fungus).</Description>
+    <WindowRect>0 0 103 263</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>noInput</Name>
+            <Caption>No Input</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Mean of daily minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmean</Name>
+            <Title>Tmean</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily mean temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Annual mean of daily maximum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Total annual precipitation</Title>
+            <Units>mm</Units>
+            <Description>Annual total annual precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WarmQTmean</Name>
+            <Title>Warmest quarter mean temperature</Title>
+            <Units>°C</Units>
+            <Description>Mean of daily temperature of the 3 warmest consecutive months (warmest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdQTmean</Name>
+            <Title>Coldest quarter mean temperature (°C)</Title>
+            <Units>°C</Units>
+            <Description>Mean of daily temperature of the 3 coldest consecutive months (coldest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WetQTmean</Name>
+            <Title>Wettest quarter mean temperature (°C)</Title>
+            <Units>°C</Units>
+            <Description>Mean of daily temperature of the 3 wettest consecutive months (wettest precipitation quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DryQTmean</Name>
+            <Title>Driest quarter mean temperature (°C)</Title>
+            <Units>°C</Units>
+            <Description>Mean of daily temperature of the 3 driest consecutive months (driest precipitation quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WarmQPrep</Name>
+            <Title>Warmest quarter total precipitation</Title>
+            <Units>mm</Units>
+            <Description>Mean total precipitation of the 3 consecutive months (warmest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdQPrcp</Name>
+            <Title>Coldest quarter total precipitation</Title>
+            <Units>mm</Units>
+            <Description>Mean total precipitation of the 3 coldest consecutive months (coldest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WetQPrcp</Name>
+            <Title>Wettest quarter total precipitation</Title>
+            <Units>mm</Units>
+            <Description>Mean total precipitation of the 3 wettest consecutive months (wettest precipitation quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DryQPrcp</Name>
+            <Title>Driest quarter total precipitation</Title>
+            <Units>mm</Units>
+            <Description>Mean total precipitation of the 3 driest consecutive months (driest precipitation quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WaterDeficit</Name>
+            <Title>Annual water deficit</Title>
+            <Units>mm</Units>
+            <Description>Annual water deficit</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WarmQWaterDeficit</Name>
+            <Title>Warmest quarter water deficit</Title>
+            <Units>mm</Units>
+            <Description>Mean water deficit of the 3 warmest consecutive months (warmest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdQWaterDeficit</Name>
+            <Title>Coldest quarter water deficit</Title>
+            <Units>mm</Units>
+            <Description>Mean water deficit of the 3 coldest consecutive months (coldest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WetQWaterDeficit</Name>
+            <Title>Wettest quarter water deficit</Title>
+            <Units>mm</Units>
+            <Description>Mean water deficit of the 3 wettest consecutive months (wettest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DryQWaterDeficit</Name>
+            <Title>Driest quarter water deficit</Title>
+            <Units>mm</Units>
+            <Description>Mean water deficit of the 3 driest consecutive months (driest temperature quarter)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WarmMTmean</Name>
+            <Title>Warmest month mean temperature</Title>
+            <Units>°C</Units>
+            <Description>Warmest month mean temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdMTmean</Name>
+            <Title>Coldest month mean temperature</Title>
+            <Units>°C</Units>
+            <Description>Coldest month mean temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WetMPrcp</Name>
+            <Title>Total precipitation in the wettest month</Title>
+            <Units>mm</Units>
+            <Description>Total precipitation in the wettest month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DryMPrcp</Name>
+            <Title>Total precipitation in the driest month</Title>
+            <Units>mm</Units>
+            <Description>Mean annual temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SummerDD5</Name>
+            <Title>SummerDD5</Title>
+            <Units/>
+            <Description>Degree day accumulation &gt; 5° C between 1 April and 31 August</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

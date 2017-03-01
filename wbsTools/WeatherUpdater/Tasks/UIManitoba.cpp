@@ -218,12 +218,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
+		
 		StringVector network(Get(NETWORK), "|");
+		
 
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
-			if (network.Find(ToString(n)) != NOT_INIT)
+			if (network.empty() || network.Find(ToString(n)) != NOT_INIT)
 			{
 				string workingDir = GetDir(WORKING_DIR) + SUBDIR_NAME[n] + "\\";
 				msg = CreateMultipleDir(workingDir);
@@ -262,7 +263,7 @@ namespace WBSF
 		m_stations.clear();
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
-			if (networks.Find(to_string(n)) != NOT_INIT)
+			if (networks.empty() || networks.Find(to_string(n)) != NOT_INIT)
 			{
 				CLocationVector locations;
 				msg = locations.Load(GetStationsListFilePath(n));
@@ -830,7 +831,8 @@ namespace WBSF
 		CWeatherYears data(false);
 
 		enum THourlyColumns{ C_DATE, C_TMAX, C_TMIN, C_TAVG, C_PPT, C_GDD, C_CHU, NB_COLUMNS };
-		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX2, H_TMIN2, H_TAIR2, H_PRCP, H_SKIP, H_SKIP};
+		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX2, H_TMIN2, H_TAIR2, H_PRCP, H_SKIP, H_SKIP};
+
 		//enum THourlyColumns{ C_HOUR, C_TEMP,C_RH, C_RAIN, C_WIND_SPEED, C_WIND_DIR, C_PEAK_WIND, C_SOIL_TEMP, NB_COLUMNS };
 		//static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
 

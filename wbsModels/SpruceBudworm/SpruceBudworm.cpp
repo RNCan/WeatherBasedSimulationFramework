@@ -59,7 +59,7 @@ namespace WBSF
 		
 		m_A = Equations().get_A(m_sex); 
 		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
-		m_Fᴰ = (1 - 0.0054*GetStand()->m_defoliation)*m_F°;
+		m_Fᴰ = (1.0 - 0.0054*GetStand()->m_defoliation)*m_F°;
 		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
 		m_p_exodus = Equations().get_p_exodus();
@@ -219,30 +219,33 @@ namespace WBSF
 	{
 		assert(IsAlive() && m_sex == FEMALE);
 		
-		if (m_age >= ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			//brooding
-			double eggLeft = m_Fᴰ - m_totalBroods;
+			double eggLeft = max(0.0, m_Fᴰ - m_totalBroods);
 			double broods = 0;
 			
 			size_t nbSteps = GetTimeStep().NbSteps();
 			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
 				size_t h = step*GetTimeStep();
-				double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 to 25 °C
-				
-				double b = eggLeft*(0.035*T - 0.32) / nbSteps;
-				broods += b;
-				eggLeft = max(0.0, eggLeft-b);
+				if (isfinite(weather[h][H_TAIR2]))
+				{
+					double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 to 25 °C
+
+					double b = max(0.0, eggLeft*(0.035*T - 0.32) / nbSteps);
+					broods += b;
+					eggLeft = max(0.0, eggLeft - b);
+				}
 			}
 
-			//eggLeft = min(80.0, eggLeft); //limit maximum egg laids by day
+			broods = min(80.0, broods); //For un knowns reason the number of eggs is very big. limit maximum egg laids by day
 			//double Tmax = weather[H_TMAX2][MEAN];
 			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
 			//double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
-			if (m_totalBroods + broods > m_Fᴰ)
-				broods = m_Fᴰ - m_totalBroods;
+			if ( (m_totalBroods + broods) > m_Fᴰ)
+				broods = max(0.0, m_Fᴰ - m_totalBroods);
 
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = broods;
@@ -251,6 +254,7 @@ namespace WBSF
 			ASSERT(m_totalBroods <= m_Fᴰ);
 
 			//Oviposition module after Régniere 1983
+			// && m_broods<250  && isfinite(m_broods) && isfinite(m_scaleFactor)
 			if (m_bFertil && m_broods > 0)
 			{
 				CSBWTree* pTree = GetTree();
@@ -259,7 +263,7 @@ namespace WBSF
 				double scaleFactor = m_broods*m_scaleFactor;
 				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
-			} 
+			}  
 
 			//adjust female weight
 			//double M° = Equations().get_M°(m_sex, m_A, 1);//compute weight from forewing area and female gravidity
@@ -342,10 +346,12 @@ namespace WBSF
 	void CSpruceBudworm::GetStat(CTRef d, CModelStat& stat)
 	{
 		size_t stage = GetStage();
-		stat[S_BROOD] += m_broods*m_scaleFactor;
 
 		if (m_generation == 0)
 		{
+			
+			stat[S_BROOD] += m_broods*m_scaleFactor;
+
 			if (IsAlive() || stage == DEAD_ADULT)
 			{
 				if (stage >= L2o && stage <= DEAD_ADULT)
@@ -733,18 +739,18 @@ namespace WBSF
 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
 
-		CStatistic sum;
-		CStatistic weight;
-		size_t nbStages = (*begin())->GetNbStages();
-		for (const_iterator it = begin(); it != end(); it++)
-		{
-			if ((*it)->GetStage() == ADULT && (*it)->GetSex() == FEMALE &&
-				(*it)->IsAlive() )//|| (*it)->GetStage()==DEAD_ADULT)
-			{
-				sum += (*it)->GetStageAge()*(*it)->GetScaleFactor();
-				weight += (*it)->GetScaleFactor();
-			}
-		}
+		//CStatistic sum;
+		//CStatistic weight;
+		//size_t nbStages = (*begin())->GetNbStages();
+		//for (const_iterator it = begin(); it != end(); it++)
+		//{
+		//	if ((*it)->GetStage() == ADULT && (*it)->GetSex() == FEMALE &&
+		//		(*it)->IsAlive() )//|| (*it)->GetStage()==DEAD_ADULT)
+		//	{
+		//		sum += (*it)->GetStageAge()*(*it)->GetScaleFactor();
+		//		weight += (*it)->GetScaleFactor();
+		//	}
+		//}
 		
 		//stat[S_FEMALE_AGE] = (weight.IsInit() && weight[SUM] > 0) ? sum[SUM] / weight[SUM] : CBioSIMModelBase::VMISS;;
 	}

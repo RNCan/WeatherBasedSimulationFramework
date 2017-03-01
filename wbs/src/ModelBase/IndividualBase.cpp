@@ -281,17 +281,20 @@ namespace WBSF
 	{
 		size_t nbObjectsAlive = GetNbObjectAlive();
 		double nbBugsAlive = GetNbSpecimenAlive();
-
-		if (nbObjectsAlive > 0 && nbObjectsAlive < m_nbMinObjects && (nbBugsAlive / nbObjectsAlive) >= 2)
+		if (nbObjectsAlive > 0)
 		{
-			UnpackPopulation();
-			m_nbPacked--;
+			if (nbObjectsAlive < m_nbMinObjects && (nbBugsAlive / nbObjectsAlive) >= 2)
+			{
+				UnpackPopulation();
+				m_nbPacked--;
+			}
+			else if (nbObjectsAlive > m_nbMaxObjects)
+			{
+				PackPopulation();
+				m_nbPacked++;
+			}
 		}
-		else if (nbObjectsAlive > m_nbMaxObjects)
-		{
-			PackPopulation();
-			m_nbPacked++;
-		}
+		
 	}
 
 

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Potential Evapotranspiration</Title>
+    <Version>1.0</Version>
+    <ID>.PET</ID>
+    <EXE>Potential Evapotranspiration.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>From Wikipedia: &#x0A;Potential evaporation or potential evapotranspiration (PET) is defined as the amount of evaporation that would occur if a sufficient water source were available. If the actual evapotranspiration is considered the net result of atmospheric demand for moisture from a surface and the ability of the surface to supply moisture, then PET is a measure of the demand side. </Description>
+    <WindowRect>0 0 200 488</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Method</Name>
+            <Caption>Method</Caption>
+            <Description>Method of evapotranspiration</Description>
+            <Type>6</Type>
+            <Rect>10 10 30 315</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>Thornthwaite</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue>Thornthwaite|BlaneyCriddle|Hamon|Hargreaves|Simplified Priestley-Taylor|Hargreaves-Samani</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThornthwaiteType</Name>
+            <Caption>Thornthwaite Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>95 20 120 330</Rect>
+            <SeparatorPos>140</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Potentiel Standard|Adjusted (by latitude)</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>BlaneyCriddleCropType</Name>
+            <Caption>BlaneyCriddleCrop Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>125 20 150 330</Rect>
+            <SeparatorPos>140</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Pasture Grass|Alfalfa|Grapes|Decidous Orchard</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Header</Name>
+            <Caption>Options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>55 10 80 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line</Name>
+            <Caption>Line</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>40 10 60 425</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EmptyParam</Name>
+            <Caption>EmptyParam</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>210 20 230 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>empty</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET (mm)</Title>
+            <Units/>
+            <Description>Potential Evapotranspiration </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>ASCE2005&#x0D;&#x0A;Equation from THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION&#x0A;http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf&#x0D;&#x0A;&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
