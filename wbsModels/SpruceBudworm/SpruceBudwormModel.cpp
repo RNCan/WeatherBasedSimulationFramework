@@ -103,7 +103,7 @@ namespace WBSF
 			if (statL22.IsInit())
 			{
 				double gr = statL22[HIGHEST];
-				ASSERT(gr >= 0 && gr<30);
+				ASSERT(gr >= 0 && gr<3000);
 				stateA[y][O_GROWTH_RATE] = gr / 100; //initial population is 100 insect
 			}
 		}

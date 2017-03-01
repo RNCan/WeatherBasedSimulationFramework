@@ -74,6 +74,9 @@ namespace WBSF
 		m_bMissingEnergyAlreadyApplied = false;
 		m_bKillByAttrition = false;
 		
+		ASSERT(m_F°>=0);
+		ASSERT(m_Fᴰ >= 0);
+		ASSERT(m_M > 0);
 	}
 
 
@@ -102,6 +105,19 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
+			m_F° = in.m_F°;
+			m_Fᴰ = in.m_Fᴰ;
+			m_bExodus = in.m_bExodus;
+			m_bAlreadyExodus = in.m_bAlreadyExodus;
+
+
+			// Each individual created gets the following attributes
+			// Initial energy Level, the same for everyone
+			static const double ALPHA0 = 2.1571;
+			m_OWEnergy = ALPHA0;
+			m_bMissingEnergyAlreadyApplied = false;
+			m_bKillByAttrition = false;
+
 			//m_p_mating = in.m_p_mating;
 		}
 
@@ -219,8 +235,13 @@ namespace WBSF
 	{
 		assert(IsAlive() && m_sex == FEMALE);
 		
+		
 		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
+			assert(m_Fᴰ>=0);
+			assert(m_totalBroods>=0);
+
+
 			//brooding
 			double eggLeft = max(0.0, m_Fᴰ - m_totalBroods);
 			double broods = 0;
@@ -239,11 +260,9 @@ namespace WBSF
 				}
 			}
 
-			broods = min(80.0, broods); //For un knowns reason the number of eggs is very big. limit maximum egg laids by day
-			//double Tmax = weather[H_TMAX2][MEAN];
-			//double brood = eggLeft*max(0.0, min(0.5, (0.035*Tmax - 0.32)));
-			//double brood = max(0.0, min(GetStand()->RandomGenerator().Rand(20.0, 40.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
-			//double brood = max(0.0, min(GetStand()->RandomGenerator().RandNormal(30.0, 5.0), eggLeft*(0.035*Tmax - 0.32)));//bY rsa 10-01-2017 : A REVOIR
+			ASSERT(broods <= eggLeft);
+			broods = GetStand()->RandomGenerator().Rand(broods/2, 1.5*broods); //limit maximum egg laids by day
+
 			if ( (m_totalBroods + broods) > m_Fᴰ)
 				broods = max(0.0, m_Fᴰ - m_totalBroods);
 
@@ -254,7 +273,6 @@ namespace WBSF
 			ASSERT(m_totalBroods <= m_Fᴰ);
 
 			//Oviposition module after Régniere 1983
-			// && m_broods<250  && isfinite(m_broods) && isfinite(m_scaleFactor)
 			if (m_bFertil && m_broods > 0)
 			{
 				CSBWTree* pTree = GetTree();
@@ -265,32 +283,7 @@ namespace WBSF
 				pTree->push_front(object);
 			}  
 
-			//adjust female weight
-			//double M° = Equations().get_M°(m_sex, m_A, 1);//compute weight from forewing area and female gravidity
-			//double M = Equations().get_M°(m_sex, m_A, 0);//compute weight from forewing area and female gravidity
-			//double Mᶜ = Equations().get_M(FEMALE, m_A, GetG());//compute weight from forewing area and female gravidity
-			//m_M = m_M° * Mᶜ / M°;
-			//m_M = Equations().get_M°(m_sex, m_A, GetG());//with variability
 			
-			//double M° = Equations().get_M°(m_sex, m_A, GetG());//compute weight from forewing area and female gravidity
-			//m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
-			//double M° = Equations().get_M°(m_sex, m_A, (m_Fᴰ - m_broods) / m_Fᴰ, false);
-			//m_M = m_sex==MALE?M°: Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
-
-			//m_M° = Equations().get_M°(m_sex, m_A, GetG(), false);
-			//m_M = m_M°;
-			
-
-			//m_M = Equations().get_Mf(m_A, GetG());
-			//m_M = (m_sex == MALE) ? M° : Equations().get_Mᴰ(M°, GetStand()->m_defoliation);
-
-
-			//double G1 = GetG();
-			//double G2 = (log(m_M) + 6.465 - 2.14*m_A) / (0.974+1.305*m_A);
-			//int g = 0;
-			//g += 1;
-
-
 			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_F°);//compute weight from forewing area and female gravidity
 			
 			
@@ -447,17 +440,17 @@ namespace WBSF
 	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		static const double K = 166.0;
-		//static const double K = 176.0;//all moth flies between 25 à 63 Hz
-		
+		/*static const double K = 194.0;
 		static const double b[2] = { 21.35, 24.08 };
 		static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxF[2] = { 1.0, 1.0 };
-		//static const double VmaxF[2] = { 1.0, 1.50 };
-		//static const double b[2] = { 21.35, 21.35 };
-		//static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 1.2 };
+		static const double VmaxF[2] = { 1.0, 2.5 };
+*/
 		
+		static const double K = 166.0;//all moth flies between 25 à 63 Hz
+		static const double b[2] = { 21.35, 21.35 };
+		static const double c[2] = { 2.97, 2.97 };
+		static const double VmaxF[2] = { 1.0, 1.0 };
+		//
 		bool bExodus = false;
 
 		if (P == -999)
@@ -685,6 +678,8 @@ namespace WBSF
 
 	void CSpruceBudworm::Pack(const CIndividualPtr& pBug)
 	{
+		assert(m_sex == pBug->GetSex());
+
 		CSpruceBudworm* in = (CSpruceBudworm*)(pBug.get());
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);

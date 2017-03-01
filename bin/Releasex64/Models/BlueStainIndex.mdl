@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="Windows - 1252"?>
 <Model version="3">
     <Title>BlueStainIndex</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Compute Pathogenic Ceratocystis Polonica (blue-stain fungus) Index from bio-climatic variables.</Description>
     <WindowRect>0 0 143 250</WindowRect>
-    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <SimulatedCategory>T TR P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

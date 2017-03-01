@@ -219,19 +219,27 @@ namespace WBSF
 	
 	
 	//A : forewing surface area [cm²]
-	//F°: Initial fecondity in absecen of defoliation [eggs]
+	//F°: Initial fecundity in absence of defoliation [eggs]
 	double CSpruceBudwormEquations::get_F°(double A)const
 	{
 		const double α = 1129.2;
 		const double β = 1.760;
-		
-		double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
-		while (ξ<0.8 || ξ > 1.2)
-			ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
 
-		double F = α*pow(A, β);
-		
-		return F*ξ;
+		double F° = 0;
+		do
+		{
+			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
+			ASSERT(ξ >= 0.33 && ξ < 3.33);
+
+			double F = α*pow(A, β);
+			F° = F*ξ;
+
+		} while (F°<25 || F° > 500);
+
+
+		ASSERT(F° >= 25 && F° <= 500);
+
+		return F°;
 	}
 	
 
@@ -246,9 +254,9 @@ namespace WBSF
 
 
 		double A = m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
-		while (A < 0.1)
-			m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
-
+		while (A < 0.25 || A>0.6)
+			A=m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
+		 
 		
 		return A;
 	}
