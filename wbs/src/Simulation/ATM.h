@@ -124,29 +124,35 @@ namespace WBSF
 		
 		enum TSex{ MALE, FEMALE, NB_SEX};
 		
-
+		
+		enum Tprcp{ PRCP_WEATHER_STATION, PRCP_3D };
+		enum TBroodT{ BROOD_T_WEATHER_STATION, BROOD_T_3D_20H, BROOD_DONT_USE_T };
 		enum TType{ WING_BEAT, MAX_SPEED, MAX_TEMPERATURE };
-		enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		//enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		enum TMember{ BROOD_T_SOURCE, PRCP_SOURCE, P_MAX, W_MIN, HEIGHT_TYPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 
-		double m_Tmin;				//minimum temperature for flight [°C]
-		double m_Tmax;				//maximum temperature for flight [°C]
+		//double m_Tmin;				//minimum temperature for flight [°C]
+		//double m_Tmax;				//maximum temperature for flight [°C]
+
+		size_t m_broodTSource;
+		size_t m_PSource;
 		double m_Pmax;				//maximum precipitation for flight [mm/h]
 		double m_Wmin;				//minimum wind speed for flight [km/h]
 
-		double m_duration_min;		//min flight duration [h]
-		double m_duration_max;		//max flight duration [h]
-		double m_duration_α;		//max flight duration alpha
-		double m_duration_β;		//max flight duration beta
+		//double m_duration_min;		//min flight duration [h]
+		//double m_duration_max;		//max duration relative to sinrize [h]
+		//double m_duration_α;		//max flight duration alpha
+		//double m_duration_β;		//max flight duration beta
 
-		double m_cruise_duration;	//cruise duration [h]
-		double m_cruise_height;		//cruise height [m]
+		//double m_cruise_duration;	//cruise duration [h]
+		//double m_cruise_height;		//cruise height [m]
 
 		size_t m_height_type;		//
-		double m_K;
-		double m_Vmax;
-		double m_VmaxF;
+		//double m_K;
+		//double m_Vmax;
+		//double m_VmaxF;
 		double m_w_α;				//km/h
 		double m_w_horizontal;		//horizontal velocity [km/h]
 		double m_w_horizontal_σ;	//horizontal velocity standard deviation [km/h]
@@ -165,22 +171,27 @@ namespace WBSF
 		void clear()
 		{
 			//default parameters for spuce budworm
-			m_Tmin = 15.0;				//[°C]
-			m_Tmax = 29.5;				//[°C]
+			//m_Tmin = 15.0;				//[°C]
+			//m_Tmax = 29.5;				//[°C]
+
+			
+			
+			m_broodTSource = BROOD_T_WEATHER_STATION;
+			m_PSource = PRCP_WEATHER_STATION;
 			m_Pmax = 2.5;				//[mm/h]
 			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
-
-			m_duration_min = 0.5;
-			m_duration_max = 9;						//Maximum flight duration [h]
-			m_duration_α = 0.9;						//alpha
-			m_duration_β = 3;						//beta
-			
-			m_cruise_duration = 0.0;				//[h]
-			m_cruise_height = 50;					//[m]
-			m_height_type = WING_BEAT;
-			m_K = 166;								//Proportionality constant [Hz•cm²/g½]
-			m_Vmax = 65;							//Maximum male wingbeat [Hz]
-			m_VmaxF = 1.2;							//Maximum female wingbeat multiplication factor
+			//
+			//m_duration_min = 0.5;
+			//m_duration_max = 9;						//Maximum flight duration [h]
+			//m_duration_α = 0.9;						//alpha
+			//m_duration_β = 3;						//beta
+			//
+			//m_cruise_duration = 0.0;				//[h]
+			//m_cruise_height = 50;					//[m]
+			//m_height_type = WING_BEAT;
+			//m_K = 166;								//Proportionality constant [Hz•cm²/g½]
+			//m_Vmax = 65;							//Maximum male wingbeat [Hz]
+			//m_VmaxF = 1.2;							//Maximum female wingbeat multiplication factor
 			m_w_α = 0.4;							//scale factor [km/(h•Hz)]
 			m_w_horizontal = 2.0 * 3600 / 1000;		//horizontal mean speed [km/h]
 			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//horizontal speed standard deviation [km/h] 
@@ -197,20 +208,22 @@ namespace WBSF
 		{
 			if (&in != this)
 			{
-				m_Tmin = in.m_Tmin;
-				m_Tmax = in.m_Tmax;
+				//m_Tmin = in.m_Tmin;
+				//m_Tmax = in.m_Tmax;
+				m_broodTSource = in.m_broodTSource;
+				m_PSource = in.m_PSource;
 				m_Pmax = in.m_Pmax;
 				m_Wmin = in.m_Wmin;
-				m_duration_min = in.m_duration_min;
-				m_duration_max = in.m_duration_max;
-				m_duration_α = in.m_duration_α;
-				m_duration_β = in.m_duration_β; 
-				m_cruise_duration = in.m_cruise_duration;
-				m_cruise_height = in.m_cruise_height;
+				//m_duration_min = in.m_duration_min;
+				//m_duration_max = in.m_duration_max;
+				//m_duration_α = in.m_duration_α;
+				//m_duration_β = in.m_duration_β; 
+				//m_cruise_duration = in.m_cruise_duration;
+				//m_cruise_height = in.m_cruise_height;
 				m_height_type = in.m_height_type;
-				m_K = in.m_K;
-				m_Vmax = in.m_Vmax;
-				m_VmaxF = in.m_VmaxF;
+				//m_K = in.m_K;
+				//m_Vmax = in.m_Vmax;
+				//m_VmaxF = in.m_VmaxF;
 				m_w_α = in.m_w_α;
 				m_w_horizontal = in.m_w_horizontal;
 				m_w_horizontal_σ = in.m_w_horizontal_σ;
@@ -229,22 +242,26 @@ namespace WBSF
 		{
 			bool bEqual = true;
 
-			if (m_Tmin != in.m_Tmin)bEqual = false;
-			if (m_Tmax != in.m_Tmax)bEqual = false;
+			//if (m_Tmin != in.m_Tmin)bEqual = false;
+			//if (m_Tmax != in.m_Tmax)bEqual = false;
+			if (m_broodTSource != in.m_broodTSource)bEqual = false;
+			if (m_PSource != in.m_PSource)bEqual = false;
 			if (m_Pmax != in.m_Pmax)bEqual = false;
 			if (m_Wmin != in.m_Wmin)bEqual = false;
+			//
+			//if (m_duration_min != in.m_duration_min)bEqual = false;
+			//if (m_duration_max != in.m_duration_max)bEqual = false;
+			//if (m_duration_α != in.m_duration_α)bEqual = false;
+			//if (m_duration_β != in.m_duration_β)bEqual = false;
+			//if (m_cruise_duration != in.m_cruise_duration)bEqual = false;
+			//if (m_cruise_height != in.m_cruise_height)bEqual = false;
 			
-			if (m_duration_min != in.m_duration_min)bEqual = false;
-			if (m_duration_max != in.m_duration_max)bEqual = false;
-			if (m_duration_α != in.m_duration_α)bEqual = false;
-			if (m_duration_β != in.m_duration_β)bEqual = false;
-			if (m_cruise_duration != in.m_cruise_duration)bEqual = false;
-			if (m_cruise_height != in.m_cruise_height)bEqual = false;
 			if (m_height_type != in.m_height_type)bEqual = false;
+			//if (m_K != in.m_K)bEqual = false;
+			//if (m_Vmax != in.m_Vmax)bEqual = false;
+			//if (m_VmaxF != in.m_VmaxF)bEqual = false;
 
-			if (m_K != in.m_K)bEqual = false;
-			if (m_Vmax != in.m_Vmax)bEqual = false;
-			if (m_VmaxF != in.m_VmaxF)bEqual = false;
+			
 			if (m_w_α != in.m_w_α)bEqual = false;
 			if (m_w_horizontal != in.m_w_horizontal)bEqual = false;
 			if (m_w_horizontal_σ != in.m_w_horizontal_σ)bEqual = false;
@@ -558,14 +575,15 @@ namespace WBSF
 		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
-		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, CRUISE, LANDING, IDLE_END, DESTROYED, NB_STATES };
+		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
 		enum TEnd{ NO_END_DEFINE=-1, NO_LIFTOFF_PRCP=10, NO_LIFTOFF_TAIR, NO_LIFTOFF_WNDS, END_BY_PRCP, END_BY_TAIR, END_OF_TIME_FLIGHT, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
 
 
-
-		size_t m_rep;
 		size_t m_loc;
 		size_t m_par;
+		size_t m_rep;
+		//size_t m_no;
+		
 		size_t m_flightNo;
 		double m_scale;
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
@@ -580,7 +598,7 @@ namespace WBSF
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
 		__int64 m_liffoff_time;	//UTC liftoff time [s]
-		__int64 m_duration;		//total flight duration [s]
+		__int64 m_duration;		//maximum flight duration [s]
 		//__int64 m_cruise_duration;//cruise duration[s]
 
 
@@ -592,7 +610,6 @@ namespace WBSF
 		void idle_begin(CTRef UTCTRef, __int64 time);
 		void liftoff(CTRef UTCTRef, __int64 UTCTime);
 		void flight(CTRef UTCTRef, __int64 UTCTime);
-		void cruise(CTRef UTCTRef, __int64 UTCTime);
 		void landing(CTRef UTCTRef, __int64 UTCTime);
 		void idle_end(CTRef UTCTRef, __int64 UTCTime);
 		void destroy(CTRef UTCTRef, __int64 UTCTime);
@@ -618,7 +635,7 @@ namespace WBSF
 		int GetState()const{ return m_state; }
 		int GetEnd()const{ return m_end_type; }
 		int GetUTCShift()const{ return m_UTCShift; }//in [s]
-
+		void Brood(double T);
 
 	protected:
 
@@ -652,7 +669,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAX_FLYERS, MANY_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -666,7 +683,7 @@ namespace WBSF
 		bool m_bUsePredictorCorrectorMethod;
 		bool m_bUseTurbulance;
 		bool m_bUseVerticalVelocity;
-		bool m_bManyFlights;
+		size_t m_maxFlights;
 
 		double m_maxFliyers;
 		double m_defoliationThreshold;
@@ -710,7 +727,7 @@ namespace WBSF
 			m_bUsePredictorCorrectorMethod = true;
 			m_bUseTurbulance = false;
 			m_bUseVerticalVelocity = true;
-			m_bManyFlights = false;
+			m_maxFlights = 3;
 
 
 			m_maxFliyers = 0;
@@ -747,7 +764,7 @@ namespace WBSF
 				m_bUsePredictorCorrectorMethod = in.m_bUsePredictorCorrectorMethod;
 				m_bUseTurbulance = in.m_bUseTurbulance;
 				m_bUseVerticalVelocity = in.m_bUseVerticalVelocity;
-				m_bManyFlights = in.m_bManyFlights;
+				m_maxFlights = in.m_maxFlights;
 
 				m_maxFliyers = in.m_maxFliyers;
 				m_defoliationThreshold = in.m_defoliationThreshold;
@@ -785,7 +802,7 @@ namespace WBSF
 			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
 			if (m_bUseTurbulance != in.m_bUseTurbulance)bEqual = false;
 			if (m_bUseVerticalVelocity != in.m_bUseVerticalVelocity)bEqual = false;
-			if (m_bManyFlights != in.m_bManyFlights)bEqual = false;
+			if (m_maxFlights != in.m_maxFlights)bEqual = false;
 			
 			if (m_maxFliyers != in.m_maxFliyers)bEqual = false;
 			if (m_defoliationThreshold != in.m_defoliationThreshold)bEqual = false;
@@ -829,7 +846,7 @@ namespace WBSF
 		size_t get_nb_time_step()const{ return m_parameters1.get_nb_time_step(); }	//number of timeStep per hour
 		CTRef GetUTRef()const{ return m_UTCTRef; }
 		__int64 get_UTC_time()const { return m_UTCTTime; }
-		static __int64 get_local_sunset(CTRef TRef, const CLocation& loc);
+		static __int64 get_local_sunrize(CTRef TRef, const CLocation& loc);
 		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const{ return m_weather.get_weather(pt, UTCTRef, UTCTime); }
 		
 
@@ -899,20 +916,24 @@ namespace zen
 		void writeStruc(const WBSF::CATMParameters& in, XmlElement& output)
 	{
 		XmlOut out(output);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MIN)](in.m_Tmin);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](in.m_Tmax);
+		
+		
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::PRCP_SOURCE)](in.m_broodTSource);
+		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::BROOD_T_SOURCE)](in.m_PSource);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MIN)](in.m_Tmin);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](in.m_Tmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](in.m_Pmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](in.m_Wmin);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](in.m_height_type);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MIN)](in.m_duration_min);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](in.m_duration_max);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](in.m_duration_α);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](in.m_duration_β);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](in.m_cruise_duration);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](in.m_cruise_height);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](in.m_K);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](in.m_Vmax);
-		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAXF)](in.m_VmaxF);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MIN)](in.m_duration_min);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](in.m_duration_max);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](in.m_duration_α);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](in.m_duration_β);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](in.m_cruise_duration);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](in.m_cruise_height);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](in.m_K);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](in.m_Vmax);
+		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAXF)](in.m_VmaxF);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_SCALE)](in.m_w_α);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_DESCENT)](in.m_w_descent);
@@ -925,20 +946,22 @@ namespace zen
 		bool readStruc(const XmlElement& input, WBSF::CATMParameters& out)
 	{
 		XmlIn in(input);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MIN)](out.m_Tmin);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](out.m_Tmax);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MIN)](out.m_Tmin);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::T_MAX)](out.m_Tmax);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::PRCP_SOURCE)](out.m_broodTSource);
+		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::BROOD_T_SOURCE)](out.m_PSource);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](out.m_Pmax);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](out.m_Wmin);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](out.m_height_type);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MIN)](out.m_duration_min);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](out.m_duration_max);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](out.m_duration_α);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](out.m_duration_β);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](out.m_cruise_duration);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](out.m_cruise_height);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](out.m_K);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](out.m_Vmax);
-		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAXF)](out.m_VmaxF);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MIN)](out.m_duration_min);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_MAX)](out.m_duration_max);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_ALPHA)](out.m_duration_α);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::DURATION_BETA)](out.m_duration_β);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_DURATION)](out.m_cruise_duration);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::CRUISE_HEIGHT)](out.m_cruise_height);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_K)](out.m_K);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAX)](out.m_Vmax);
+		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_VMAXF)](out.m_VmaxF);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_SCALE)](out.m_w_α);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](out.m_w_horizontal);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](out.m_w_horizontal_σ);
@@ -968,8 +991,8 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](in.m_bUsePredictorCorrectorMethod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](in.m_bUseTurbulance);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](in.m_bUseVerticalVelocity);
-		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](in.m_maxFliyers);
-		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](in.m_bManyFlights);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](in.m_maxFliyers);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLIGHTS)](in.m_maxFlights);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](in.m_gribs_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](in.m_defoliation_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](in.m_host_name);
@@ -997,8 +1020,8 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](out.m_bUsePredictorCorrectorMethod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](out.m_bUseTurbulance);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](out.m_bUseVerticalVelocity);
-		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_FLYERS)](out.m_maxFliyers);
-		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MANY_FLIGHTS)](out.m_bManyFlights);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](out.m_maxFliyers);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLIGHTS)](out.m_maxFlights);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](out.m_gribs_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](out.m_defoliation_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](out.m_host_name);

@@ -475,9 +475,13 @@ namespace WBSF
 		{
 			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
 			{
-				size_t rrr = 0;
+				size_t rr = 0;
 				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
 				{
+
+					//size_t insectNo = 0;
+
+
 
 					CNewSectionData section;
 					pResult->GetSection(l, p, r, section);
@@ -497,7 +501,8 @@ namespace WBSF
 
 							flyer.m_loc = l;
 							flyer.m_par = p;
-							flyer.m_rep = rrr;
+							flyer.m_rep = rr;
+							//flyer.m_no = insectNo++;
 							flyer.m_localTRef = TRef;//assume daylignt time
 							flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
 							flyer.m_scale = 1;
@@ -515,8 +520,8 @@ namespace WBSF
 							else
 								callback.AddMessage("WARNING: Simulation point outside elevation map");
 
-							rrr++;
-							nbReplications = max(nbReplications, rrr+1);
+							rr++;
+							nbReplications = max(nbReplications, rr+1);
 						
 						}//is inside simulation period
 					}//for all rows

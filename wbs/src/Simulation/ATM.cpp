@@ -52,6 +52,8 @@ using namespace WBSF::WEATHER;
 
 namespace WBSF
 {
+
+	static const double T_MINIMUM = 15.0;
 	static const int MAX_NUMBER_IMAGE_LOAD = 18;
 	static ERMsg CreateGribsFromText(CCallback& callback);
 	static ERMsg CreateGribsFromNetCDF(CCallback& callback);
@@ -210,51 +212,25 @@ namespace WBSF
 
 	}
 	
-	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
-
-	//const double CATMWorld::Δtᶠ = 3;
-	//const double CATMWorld::Δtᶳ = -1.0;
-	//const double CATMWorld::T° = 24.5;
+	//const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "BroodTSource", "PSource", "Pmax", "Wmin", "HeightModel", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 
-	
-	//t° : relative begin of exodus hour [s]
-	//tᴹ : relative end of exodus hour [s]
-	//return liftoff offset realtive to sunset [s]
-	//__int64  CATMWorld::get_t_liftoff_offset(__int64  t°, __int64 tᴹ)const
+	//__int64 CATMWorld::get_duration()const
 	//{
-	//	static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-	//	double p_exodus = m_random.Randu();
+	//	double duration = 0;
+	//
+	//	duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
+	//	while (duration < m_parameters2.m_duration_min)//under 5 mintute, get a new flight duration
+	//		duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
+	//	
+	//
+	//	//TEST
+	//	duration = m_parameters2.m_duration_max;
 
-	//	__int64 tᶜ = (t° + tᴹ) / 2;
 
-	//	__int64 tᴸ = tᴹ;
-	//	for (__int64 t = t°; t < tᴹ && tᴸ == tᴹ; t += m_parameters1.m_time_step)
-	//	{
-	//		double tau = double(t - tᶜ) / (tᴹ - tᶜ);
-	//		double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
-	//		if (p > p_exodus)
-	//			tᴸ = t;
-	//	}
-
-	//	return tᴸ;
+	//	return __int64(duration * 3600.0); //duration h --> s
 	//}
-
-	__int64 CATMWorld::get_duration()const
-	{
-		double duration = 0;
-	
-		duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
-		while (duration < m_parameters2.m_duration_min)//under 5 mintute, get a new flight duration
-			duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
-		
-	
-		//TEST
-		duration = m_parameters2.m_duration_max;
-
-
-		return __int64(duration * 3600.0); //duration h --> s
-	}
 
 	//double CATMWorld::get_w_ascent()const
 	//{
@@ -433,9 +409,12 @@ namespace WBSF
 		CTRef UTCTRef = CTimeZones::LocalTRef2UTCTRef(m_localTRef, m_location);
 		__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
 		__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, m_location);
+		__int64 sunrizeTime = CATMWorld::get_local_sunrize(CTimeZones::LocalTime2LocalTRef(UTCTime, m_location) + 24, m_location); //sunrize of the nex day
+
 		m_UTCShift = localTime - UTCTime;
 
 		ASSERT(m_liftoffOffset >= 0 && m_liftoffOffset <= 3600);
+		
 		
 
 		m_state = NOT_CREATED;
@@ -445,7 +424,14 @@ namespace WBSF
 		m_liffoff_time = UTCTime + m_liftoffOffset;
 		m_w_horizontal = m_world.get_w_horizontal();
 		m_w_descent = m_world.get_w_descent();
-		m_duration = m_world.get_duration();
+		m_duration = (sunrizeTime - m_liffoff_time) / 3600;
+		ASSERT(m_duration >= 0);
+
+		if (m_flightNo > 0)
+		{
+			Brood(20);
+		}
+
 		//m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
 	}
 
@@ -500,7 +486,6 @@ namespace WBSF
 		case IDLE_BEGIN:		idle_begin(UTCTRef, UTCTime); break;
 		case LIFTOFF:			liftoff(UTCTRef, UTCTime); break;
 		case FLIGHT:			flight(UTCTRef, UTCTime); break;
-		case CRUISE:			cruise(UTCTRef, UTCTime); break;
 		case LANDING:			landing(UTCTRef, UTCTime); break;
 		case IDLE_END:			idle_end(UTCTRef, UTCTime);  break;
 		case DESTROYED:			destroy(UTCTRef, UTCTime);  break;
@@ -528,8 +513,8 @@ namespace WBSF
 		AddStat(w);
 
 		double Wmin = m_world.m_parameters2.m_Wmin * 1000 / 3600; //km/h -> m/s 
-		double Tmin = m_world.m_parameters2.m_Tmin;
-		double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
+		//double Tmin = m_world.m_parameters2.m_Tmin;
+		double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : T_MINIMUM;
 		double ws = w.get_wind_speed();
 
 		ASSERT(!IsMissing(w[ATM_TAIR]) && !IsMissing(w[ATM_PRCP]) && !IsMissing(w[ATM_WNDU]) && !IsMissing(w[ATM_WNDV]));
@@ -663,86 +648,6 @@ namespace WBSF
 
 	}
 
-
-	void CFlyer::cruise(CTRef UTCTRef, __int64 UTCTime)
-	{
-		//ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
-		//ASSERT(m_world.IsInside(m_pt));
-		//ASSERT(m_state == CRUISE);
-		//ASSERT(m_end_type == NO_END_DEFINE);
-
-		//if (m_log[T_CRUISE] == 0)
-		//	m_log[T_CRUISE] = UTCTime;
-
-		//CATMVariables w = get_weather(UTCTRef, UTCTime);
-		//if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
-		//{
-
-		//	bool bOverWater = false;
-		//	if (m_world.m_water_DS.IsOpen())//&& duration >= (__int64)m_parameters.m_cruise_duration
-		//	{
-		//		CGeoPoint pt(m_pt);
-		//		if (pt.GetPrjID() != m_world.m_water_DS.GetPrjID())
-		//		{
-		//			ASSERT(pt.IsGeographic());
-		//			pt.Reproject(m_world.m_GEO2DEM);
-		//		}
-
-		//		CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt);
-		//		bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
-		//	}
-
-		//	__int64 duration = UTCTime - m_log[T_CRUISE];
-		//	if (duration < (__int64)(m_parameters.m_cruise_duration) || bOverWater)
-		//	{
-		//		double dt = m_world.get_time_step(); //[s]
-
-		//		CGeoDistance3D U = get_U(UTCTime, w);
-		//		CGeoDistance3D d = U*dt;
-
-
-		//		((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-		//		((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-
-		//		if (m_world.is_over_distraction(m_pt))//look for distraction
-		//		{
-		//			m_state = LANDING;
-		//			m_end_type = FIND_DISTRACTION;
-		//		}
-		//		else if (m_world.is_over_host(m_pt))//look to find host
-		//		{
-		//			m_state = LANDING;
-		//			m_end_type = FIND_HOST;
-		//		}
-
-
-		//		/*if (m_pt.m_z < 5)
-		//		{
-		//		m_state = LANDING;
-
-		//		double delta = 5 - m_pt.m_z;
-		//		m_pt.m_z += delta;
-		//		m_newLocation.m_z += delta;
-		//		}*/
-
-		//		AddStat(w, U, d);
-
-		//	}
-		//	else
-		//	{
-
-		//		m_state = LANDING;
-		//		m_end_type = END_OF_TIME_FLIGHT;
-		//	}
-		//}
-		//else
-		//{
-		//	m_state = LANDING;
-		//	m_end_type = END_BY_RAIN;
-		//}
-	}
-
-
 	void CFlyer::landing(CTRef UTCTRef, __int64 UTCTime)
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
@@ -761,8 +666,7 @@ namespace WBSF
 
 		if (m_pt.m_z <= 0 && m_end_type == NO_END_DEFINE)
 		{
-			double Tmin = m_world.m_parameters2.m_Tmin;
-			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : Tmin;
+			double Tᴸ = m_world.m_parameters2.m_height_type == CATMParameters::WING_BEAT ? get_Tᴸ() : T_MINIMUM;
 
 			if (w[ATM_PRCP] > m_world.m_parameters2.m_Pmax)
 				m_end_type = END_BY_PRCP;
@@ -813,15 +717,6 @@ namespace WBSF
 		if (_isnan(alpha) || !_finite(alpha))
 			alpha = 0;
 
-		if (m_state == CRUISE) //random alpha in cruise mode
-		{
-			if( w.get_wind_speed() < 0.7)
-				alpha = m_world.random().Rand(0.0, 2 * PI);
-			else
-				alpha += Deg2Rad(120)*m_world.random().RandNormal(0.0, 1.0)/4.0;
-		}
-			
-
 		double Ux = (w[ATM_WNDU] + cos(alpha)*m_w_horizontal);	//[m/s]
 		double Uy = (w[ATM_WNDV] + sin(alpha)*m_w_horizontal);	//[m/s]
 		double Uz = 0;
@@ -830,7 +725,7 @@ namespace WBSF
 		switch (m_state)
 		{
 		case FLIGHT:	Uz = w[ATM_WNDW] + get_Uz(UTCTime, w); break;	//[m/s]; 
-		case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_w_descent):0; break;	//[m/s]
+		//case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_w_descent):0; break;	//[m/s]
 		case LANDING:	Uz = w[ATM_WNDW] + m_w_descent; break;	//[m/s]
 		default: assert(false);
 		}
@@ -865,7 +760,7 @@ namespace WBSF
 	//out: forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
-		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
+		double Vmax = 1.0;// m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Vᵀ(m_sex, Vmax, T);
 	}
@@ -887,8 +782,8 @@ namespace WBSF
 	//out : liftoff temperature [°C] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
-		double K = m_world.m_parameters2.m_K; 
-		double Vmax = m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
+		double K = 166;// m_world.m_parameters2.m_K;
+		double Vmax = 1.0;// m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
 
 		return get_Tᴸ(m_sex, K, Vmax, m_A, m_M);
 	}
@@ -917,7 +812,7 @@ namespace WBSF
 		{
 		case CATMParameters::WING_BEAT:
 		{
-			double K = m_world.m_parameters2.m_K;
+			double K = 166;// m_world.m_parameters2.m_K;
 
 			double Vᵀ = get_Vᵀ(w[ATM_TAIR]);
 			double Vᴸ = K*sqrt(m_M) / m_A;
@@ -929,7 +824,7 @@ namespace WBSF
 		case CATMParameters::MAX_TEMPERATURE:
 		{
 			
-			double Tmin = m_world.m_parameters2.m_Tmin;
+			//double Tmin = m_world.m_parameters2.m_Tmin;
 			double v = (m_world.m_parameters2.m_height_type == CATMParameters::MAX_SPEED) ? w.get_wind_speed() : w[ATM_TAIR];
 
 			CTRef UTCTRef = m_world.GetUTRef();
@@ -947,7 +842,7 @@ namespace WBSF
 				pt¹.m_z += 50;
 				CATMVariables w¹ = m_world.get_weather(pt¹, UTCTRef, UTCTime);
 				double v¹ = (m_world.m_parameters2.m_height_type == CATMParameters::MAX_SPEED) ? w¹.get_wind_speed() : w¹[ATM_TAIR];
-				if (v¹ > v && w¹[ATM_TAIR] > Tmin)
+				if (v¹ > v && w¹[ATM_TAIR] > T_MINIMUM)
 				{
 					Uz = min(0.6, 50.0 / m_world.get_time_step());// [m/s]
 				}
@@ -1008,7 +903,10 @@ namespace WBSF
 		return w;
 	}
 
-	
+	void CFlyer::Brood(double T)
+	{
+
+	}
 	
 //**************************************************************************************************************
 //CATMWeatherCuboid
@@ -1101,9 +999,14 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	ASSERT(pt.m_z >= 0);
 	ASSERT(pt.IsGeographic());
 
+	size_t weather_type = m_world.m_parameters1.m_weather_type;
+	if (m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION )
+		weather_type = CATMWorldParamters::FROM_BOTH;
+
+
 	CATMVariables w1;
-	if (m_world.m_parameters1.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
-		m_world.m_parameters1.m_weather_type == CATMWorldParamters::FROM_BOTH)
+	if (weather_type == CATMWorldParamters::FROM_GRIBS ||
+		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		CGeoPoint3D pt2(pt);
 		if (GetPrjID() == m_world.m_GEO2WEA.GetDst()->GetPrjID())
@@ -1115,13 +1018,17 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		w1 = p_cuboid->get_weather(pt2, UTCTime);
 	}
 	
+
 	CATMVariables w2;
-	if (m_world.m_parameters1.m_weather_type == CATMWorldParamters::FROM_STATIONS ||
-		m_world.m_parameters1.m_weather_type == CATMWorldParamters::FROM_BOTH)
+	if (weather_type == CATMWorldParamters::FROM_STATIONS ||
+		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		w2 = get_station_weather(pt, UTCTRef, UTCTime);
 	}
 
+
+	if (m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION)
+		w1[ATM_PRCP] = w2[ATM_PRCP];
 
 
 	w2[ATM_WNDW] = w1[ATM_WNDW];	//replace station W by Gribs W
@@ -1139,18 +1046,18 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 
 	return weather;
 }
-//
-//__int64 CATMWorld::get_local_sunset(CTRef TRef, const CLocation& loc)
-//{
-//	//Get time at the begin of the day and add sunset
-//	__int64 sunsetTime = CTimeZones::LocalTRef2LocalTime(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 0), loc);
-//	__int64 zone = CTimeZones::GetDelta(TRef, loc)/3600;
-//	
-//	CSun sun(loc.m_lat, loc.m_lon, zone);
-//	sunsetTime += __int64(sun.GetSunset(TRef)*3600);
-//	
-//	return sunsetTime;
-//}
+
+__int64 CATMWorld::get_local_sunrize(CTRef TRef, const CLocation& loc)
+{
+	//Get time at the begin of the day and add sunset
+	__int64 sunsetTime = CTimeZones::LocalTRef2LocalTime(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 0), loc);
+	__int64 zone = CTimeZones::GetDelta(TRef, loc)/3600;
+	
+	CSun sun(loc.m_lat, loc.m_lon, zone);
+	sunsetTime += __int64(sun.GetSunrise(TRef) * 3600);
+	
+	return sunsetTime;
+}
 //
 //void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
 //{
@@ -1494,6 +1401,7 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 
 					for (size_t v = 0; v < ATM_WATER; v++)
 					{
+						
 						bool bConvertVVEL = false;
 						size_t b = m_p_weather_DS.get_band(UTCTRef, v, L);
 
@@ -1504,7 +1412,7 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 							ASSERT(b != NOT_INIT);
 							bConvertVVEL = true;
 						}
-							
+
 
 						if (b != UNKNOWN_POS)
 						{
@@ -1513,7 +1421,7 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 								(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
 
 							if (bConvertVVEL)
-								(*cuboids)[i][z][y][x][v] = CATMVariables::get_Uw((*cuboids)[i][z][y][x][ATM_PRES]*100, (*cuboids)[i][z][y][x][ATM_TAIR], (*cuboids)[i][z][y][x][ATM_WNDW]);//convert VVEL into W
+								(*cuboids)[i][z][y][x][v] = CATMVariables::get_Uw((*cuboids)[i][z][y][x][ATM_PRES] * 100, (*cuboids)[i][z][y][x][ATM_TAIR], (*cuboids)[i][z][y][x][ATM_WNDW]);//convert VVEL into W
 						}
 						else
 						{
@@ -2048,7 +1956,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "ManyFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "MaximumFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
 
 
 std::set<int> CATMWorld::get_years()const
@@ -2224,11 +2132,11 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 		}
 		else if(TRef < localTRef )
 		{
-			if (it->m_flightNo < 3)//less than 3 flights
+			if (it->m_flightNo < m_parameters1.m_maxFlights)//less than 3 flights
 			{
 				//Female mush lais eggs and lost weight
 				
-				if (it->m_flightNo == 0 || (m_parameters1.m_bManyFlights&&is_over_defoliation(it->m_newLocation)))
+				if (it->m_flightNo == 0 || is_over_defoliation(it->m_newLocation))
 				{
 					//add also old moth
 					it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
@@ -2501,7 +2409,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									//}
 									
 									size_t minutes = size_t(seconds / 60);
-									output_file << flyer.m_loc + 1 << "," << flyer.m_par + 1 << "," << flyer.m_rep + 1 << ",";
+									output_file << flyer.m_loc + 1 << "," << flyer.m_par + 1 << "," << flyer.m_rep + 1 << ",";// << flyer.m_no + 1 << ",";
 									output_file << localTRef.GetYear() << "," << localTRef.GetMonth() + 1 << "," << localTRef.GetDay() + 1 << "," << localTRef.GetHour() << "," << minutes << "," << seconds - 60 * minutes << ",";
 									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_TAIR) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_PRCP) << ",";
