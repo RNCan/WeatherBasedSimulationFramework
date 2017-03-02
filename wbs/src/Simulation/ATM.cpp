@@ -216,145 +216,6 @@ namespace WBSF
 	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "BroodTSource", "PSource", "Pmax", "Wmin", "HeightModel", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 
-	//__int64 CATMWorld::get_duration()const
-	//{
-	//	double duration = 0;
-	//
-	//	duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
-	//	while (duration < m_parameters2.m_duration_min)//under 5 mintute, get a new flight duration
-	//		duration = m_random.RandBeta(m_parameters2.m_duration_α, m_parameters2.m_duration_β)*m_parameters2.m_duration_max;
-	//	
-	//
-	//	//TEST
-	//	duration = m_parameters2.m_duration_max;
-
-
-	//	return __int64(duration * 3600.0); //duration h --> s
-	//}
-
-	//double CATMWorld::get_w_ascent()const
-	//{
-	//	double ran = m_random.Rand(-1.0, 1.0);//random value [-1,1];
-	//	double w = max(0.0, m_parameters2.m_w_ascent + ran*m_parameters2.m_w_ascent_σ);
-	//	ASSERT(w >= 0);
-
-	//	return w * 1000 / 3600;//convert from km/h to m/s
-	//}
-
-	//double CATMWorld::get_Wᴸ()const
-	//{
-	//	double Wᴸ = m_random.RandLogNormal(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
-	//	while (Wᴸ < 0 || Wᴸ>1)
-	//		Wᴸ = m_random.RandLogNormal(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
-
-
-	//	//double Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
-	//	//while (Wᴸ < 0 || Wᴸ>1)
-	//		//Wᴸ = m_random.RandBeta(m_parameters2.m_w_Wᴸ, m_parameters2.m_w_σᴸ);
-
-
-	//	return Wᴸ;
-	//}
-	
-	//size_t CATMWorld::get_S()const
-	//{
-	//	double s = m_random.Randu();
-	//	return s<=0.3 ? CATMParameters::MALE : CATMParameters::FEMALE;
-	//}
-	//
-	////sex : MALE (0) or FEMALE (1)
-	////out : forewing surface area [cm²]
-	//double CATMWorld::get_A(size_t sex)const
-	//{
-	//	ASSERT(sex < CATMParameters::NB_SEX);
-
-	//	static const double A_MEAN[CATMParameters::NB_SEX] = { 0.361, 0.421 };
-	//	static const double A_SD[CATMParameters::NB_SEX] = { 0.047, 0.063 };
-
-	//	
-	//	double A = m_random.RandNormal(A_MEAN[sex], A_SD[sex]);
-	//	while (A < 0.1 )
-	//		A = m_random.RandNormal(A_MEAN[sex], A_SD[sex]);
-
-
-	//	return A;
-	//}
-	//
-	//double CATMWorld::get_G(size_t sex)const
-	//{
-	//	if (sex == CATMParameters::MALE)
-	//		return 0;
-
-
-	//	static const size_t NB_CLASS = 17;
-	//	static const double P[NB_CLASS][2] =
-	//	{
-	//		{ 0.00, 0.650 },
-	//		{ 0.07, 0.499 },
-	//		{ 0.14, 0.457 },
-	//		{ 0.21, 0.420 },
-	//		{ 0.29, 0.379 },
-	//		{ 0.37, 0.346 },
-	//		{ 0.44, 0.326 },
-	//		{ 0.53, 0.302 },
-	//		{ 0.66, 0.279 },
-	//		{ 0.76, 0.267 },
-	//		{ 0.85, 0.253 },
-	//		{ 0.92, 0.245 },
-	//		{ 0.96, 0.225 },
-	//		{ 0.97, 0.173 },
-	//		{ 1.00, 0.100 },
-	//	};
-
-	//	double  r = m_random.Randu();
-	//	
-	//	size_t ii = NOT_INIT;
-	//	for (size_t i = 0; i < NB_CLASS && ii == NOT_INIT; i++)
-	//		if (r<=P[i][0])
-	//			ii = i;
-
-	//	double G = 0.650;
-	//	if (ii > 0)
-	//		G = ((P[ii][0] - r)*P[ii-1][1] + (r - P[ii-1][0])*P[ii][1]) / (P[ii][0] - P[ii-1][0]);
-	//	
-
-	//	return G;
-	//}
-
-	////sex : MALE (0) or FEMALE (1)
-	////A : forewing surface area [cm²]
-	////out : weight [g]
-	//double CATMWorld::get_M(size_t sex, double A)const
-	//{
-	//	static const double M_A[2] = { -6.756, -6.543 };
-	//	static const double M_B[2] = { 3.790, 3.532 };
-	//	static const double M_E[2] = { 0.206, 0.289 };
-
-
-	//	double E = m_random.RandLogNormal(0, M_E[sex]);
-	//	double M = exp(M_A[sex] + M_B[sex] * A)*E;
-
-	//	return M*E;
-	//}
-
-
-	////sex : MALE (0) or FEMALE (1)
-	////A : forewing surface area [cm²]
-	////G : gravidity ratio 
-	////out : weight [g]
-	//double CATMWorld::get_M(size_t sex, double A, double G)const
-	//{
-	//	double M = 0;
-
-	//	/*if (sex == CATMParameters::MALE)
-	//		M = get_M(sex, A);
-	//	else
-	//		M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*m_random.RandLogNormal(0, 0.1604);*/
-
-	//	return M;
-	//}
-
-
 	double CATMWorld::get_w_horizontal()const
 	{
 		double ran = m_random.Rand(-1.0, 1.0);//random value [-1,1];
@@ -395,7 +256,6 @@ namespace WBSF
 		m_w_descent = 0;
 		m_liffoff_time = 0;
 		m_duration = 0;
-//		m_cruise_duration = 0;
 
 		m_state = NOT_CREATED;
 		m_end_type = NO_END_DEFINE;
@@ -424,7 +284,7 @@ namespace WBSF
 		m_liffoff_time = UTCTime + m_liftoffOffset;
 		m_w_horizontal = m_world.get_w_horizontal();
 		m_w_descent = m_world.get_w_descent();
-		m_duration = (sunrizeTime - m_liffoff_time) / 3600;
+		m_duration = sunrizeTime - m_liffoff_time;
 		ASSERT(m_duration >= 0);
 
 		if (m_flightNo > 0)
@@ -432,7 +292,6 @@ namespace WBSF
 			Brood(20);
 		}
 
-		//m_cruise_duration = m_world.m_parameters2.m_cruise_duration*3600;//h --> s
 	}
 
 	void CFlyer::AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d)
@@ -1000,7 +859,7 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	ASSERT(pt.IsGeographic());
 
 	size_t weather_type = m_world.m_parameters1.m_weather_type;
-	if (m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION )
+	if (weather_type == CATMWorldParamters::FROM_GRIBS && m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION)
 		weather_type = CATMWorldParamters::FROM_BOTH;
 
 
