@@ -236,32 +236,21 @@ namespace WBSF
 		assert(IsAlive() && m_sex == FEMALE);
 		
 		
-		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE && weather[H_TNTX][MEAN] >= 10)
 		{
 			assert(m_Fᴰ>=0);
 			assert(m_totalBroods>=0);
 
-
 			//brooding
 			double eggLeft = max(0.0, m_Fᴰ - m_totalBroods);
-			double broods = 0;
 			
-			size_t nbSteps = GetTimeStep().NbSteps();
-			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
-			{
-				size_t h = step*GetTimeStep();
-				if (isfinite(weather[h][H_TAIR2]))
-				{
-					double T = max(10.0f, min(25.0f, weather[h][H_TAIR2]));//limit T from 10 to 25 °C
+			double ϵ = GetStand()->RandomGenerator().RandNormal(0, 0.0064);
+			//EEwhile (∆F < -0.15 || ∆F > 0.15)
+				//∆F = GetStand()->RandomGenerator().RandNormal(0, 0.0064);
 
-					double b = max(0.0, eggLeft*(0.035*T - 0.32) / nbSteps);
-					broods += b;
-					eggLeft = max(0.0, eggLeft - b);
-				}
-			}
-
-			ASSERT(broods <= eggLeft);
-			broods = GetStand()->RandomGenerator().Rand(broods/2, 1.5*broods); //limit maximum egg laids by day
+			double T = min(25.0, weather[H_TNTX][MEAN]);//limit T from 10 to 25 °C
+			double P = max(0.0, min(0.6, -0.0429 + (0.0349 + ϵ)*(T-8)));
+			double broods = max(0.0, eggLeft*P);
 
 			if ( (m_totalBroods + broods) > m_Fᴰ)
 				broods = max(0.0, m_Fᴰ - m_totalBroods);
@@ -440,17 +429,19 @@ namespace WBSF
 	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		/*static const double K = 194.0;
-		static const double b[2] = { 21.35, 24.08 };
-		static const double c[2] = { 2.97, 6.63 };
-		static const double VmaxF[2] = { 1.0, 2.5 };
-*/
 		
-		static const double K = 166.0;//all moth flies between 25 à 63 Hz
+		
+		//static const double K = 194.0;//all moth flies between 25 à 63 Hz
+		//static const double b[2] = { 21.35, 24.08 };
+		//static const double c[2] = { 2.97, 6.63 };
+		//static const double VmaxF[2] = { 1.0, 2.5 };
+		
+		static const double K = 166.0;//95% moth flies between 25 à 42 Hz
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
 		static const double VmaxF[2] = { 1.0, 1.0 };
-		//
+
+
 		bool bExodus = false;
 
 		if (P == -999)

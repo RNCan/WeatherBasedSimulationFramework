@@ -10,7 +10,7 @@
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
-    <NbYearMin>1</NbYearMin>
+    <NbYearMin>2</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>

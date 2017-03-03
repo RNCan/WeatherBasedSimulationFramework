@@ -269,7 +269,8 @@ namespace WBSF
 		CTRef UTCTRef = CTimeZones::LocalTRef2UTCTRef(m_localTRef, m_location);
 		__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
 		__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, m_location);
-		__int64 sunrizeTime = CATMWorld::get_local_sunrize(CTimeZones::LocalTime2LocalTRef(UTCTime, m_location) + 24, m_location); //sunrize of the nex day
+		__int64 sunriseTime = CATMWorld::get_local_sunrise(m_localTRef + 24, m_location); //sunrise of the nex day
+		sunriseTime = CTimeZones::LocalTime2UTCTime(sunriseTime, m_location);
 
 		m_UTCShift = localTime - UTCTime;
 
@@ -284,7 +285,7 @@ namespace WBSF
 		m_liffoff_time = UTCTime + m_liftoffOffset;
 		m_w_horizontal = m_world.get_w_horizontal();
 		m_w_descent = m_world.get_w_descent();
-		m_duration = sunrizeTime - m_liffoff_time;
+		m_duration = sunriseTime - m_liffoff_time;
 		ASSERT(m_duration >= 0);
 
 		if (m_flightNo > 0)
@@ -347,7 +348,6 @@ namespace WBSF
 		case FLIGHT:			flight(UTCTRef, UTCTime); break;
 		case LANDING:			landing(UTCTRef, UTCTime); break;
 		case IDLE_END:			idle_end(UTCTRef, UTCTime);  break;
-		case DESTROYED:			destroy(UTCTRef, UTCTime);  break;
 		default: assert(false);
 		}
 
@@ -559,11 +559,15 @@ namespace WBSF
 		AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
 	}
 
-	void CFlyer::destroy(CTRef UTCTRef, __int64 UTCTime)
-	{
-		m_log[T_DESTROY] = UTCTime;
-	}
+	//void CFlyer::destroy(CTRef UTCTRef, __int64 UTCTime)
+	//{
+	//	m_log[T_DESTROY] = UTCTime;
+	//}
 
+	void CFlyer::DestroyByOptimisation()
+	{
+		m_state = DESTROYED_BY_OPTIMIZATION;
+	}
 
 	CGeoDistance3D CFlyer::get_U(__int64 UTCTime, const CATMVariables& w)const
 	{
@@ -584,7 +588,6 @@ namespace WBSF
 		switch (m_state)
 		{
 		case FLIGHT:	Uz = w[ATM_WNDW] + get_Uz(UTCTime, w); break;	//[m/s]; 
-		//case CRUISE:	Uz = m_pt.m_z>m_world.m_parameters2.m_cruise_height ?(w[ATM_WNDW] + m_w_descent):0; break;	//[m/s]
 		case LANDING:	Uz = w[ATM_WNDW] + m_w_descent; break;	//[m/s]
 		default: assert(false);
 		}
@@ -906,16 +909,16 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	return weather;
 }
 
-__int64 CATMWorld::get_local_sunrize(CTRef TRef, const CLocation& loc)
+__int64 CATMWorld::get_local_sunrise(CTRef TRef, const CLocation& loc)
 {
 	//Get time at the begin of the day and add sunset
-	__int64 sunsetTime = CTimeZones::LocalTRef2LocalTime(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 0), loc);
+	__int64 sunriseTime = CTimeZones::LocalTRef2LocalTime(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 0), loc);
 	__int64 zone = CTimeZones::GetDelta(TRef, loc)/3600;
 	
 	CSun sun(loc.m_lat, loc.m_lon, zone);
-	sunsetTime += __int64(sun.GetSunrise(TRef) * 3600);
+	sunriseTime += __int64(sun.GetSunrise(TRef) * 3600);
 	
-	return sunsetTime;
+	return sunriseTime;
 }
 //
 //void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
@@ -1991,18 +1994,21 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 		}
 		else if(TRef < localTRef )
 		{
-			if (it->m_flightNo < m_parameters1.m_maxFlights)//less than 3 flights
+			if (it->GetState() != CFlyer::DESTROYED_BY_OPTIMIZATION)
 			{
-				//Female mush lais eggs and lost weight
-				
-				if (it->m_flightNo == 0 || is_over_defoliation(it->m_newLocation))
+				if (it->m_flightNo < m_parameters1.m_maxFlights)//less than 3 flights
 				{
-					//add also old moth
-					it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
-					it->m_localTRef.m_day = localTRef.m_day;
-					it->m_pt.m_alt = 5;
+					//Female mush lais eggs and lost weight
 
-					fls.push_back(it);
+					if (it->m_flightNo == 0 || is_over_defoliation(it->m_newLocation))
+					{
+						//add also old moth
+						it->m_localTRef.m_month = localTRef.m_month;// update liftoff date
+						it->m_localTRef.m_day = localTRef.m_day;
+						it->m_pt.m_alt = 5;
+
+						fls.push_back(it);
+					}
 				}
 			}
 		}
@@ -2014,6 +2020,7 @@ vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 		while (fls.size() > m_parameters1.m_maxFliyers)
 		{
 			size_t i = m_random.Rand(0, int(fls.size()-1));
+			fls[i]->DestroyByOptimisation();
 			fls.erase(fls.begin() + i);
 		}
 	}
@@ -2157,7 +2164,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 							//if (localTRef >= flyer.m_localTRef && flyer.GetState() < CFlyer::DESTROYED)
 							//if (countdown>)
 							//{
-							for (size_t seconds = 0; seconds < 3600 && flyer.GetState() < CFlyer::DESTROYED; seconds += get_time_step())
+							for (size_t seconds = 0; seconds < 3600 && flyer.GetState() <= CFlyer::IDLE_END; seconds += get_time_step())
 							{
 								__int64 UTCTTime = m_UTCTTime + seconds;
 								flyer.live(m_UTCTRef, UTCTTime);

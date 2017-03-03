@@ -560,24 +560,25 @@ namespace WBSF
 			}
 		}
 
-		
-		msg = world.Execute(output, output_file, callback);
-		if (msg)
+		if (!world.m_flyers.empty())
 		{
-			for (size_t l = 0; l < output.size() && msg; l++)
+			msg = world.Execute(output, output_file, callback);
+			if (msg)
 			{
-				for (size_t p = 0; p < output[l].size() && msg; p++)
+				for (size_t l = 0; l < output.size() && msg; l++)
 				{
-					for (size_t r = 0; r < output[l][p].size(); r++)
+					for (size_t p = 0; p < output[l].size() && msg; p++)
 					{
-						size_t no = result.GetSectionNo(l, p, r);
-						msg += result.SetSection(no, output[l][p][r]);
-						msg += callback.StepIt(0);
+						for (size_t r = 0; r < output[l][p].size(); r++)
+						{
+							size_t no = result.GetSectionNo(l, p, r);
+							msg += result.SetSection(no, output[l][p][r]);
+							msg += callback.StepIt(0);
+						}
 					}
 				}
 			}
 		}
-
 
 
 		result.Close();

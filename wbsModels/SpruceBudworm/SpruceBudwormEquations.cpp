@@ -272,13 +272,23 @@ namespace WBSF
 		static const double M_C[2] = { 3.790, 2.140 };
 		static const double M_D[2] = { 0.000, 1.305 };
 		static const double M_E[2] = { 0.206, 0.160 };
+		static const double LOW[2] = { 0.0015, 0.0024 };
+		static const double HIGH[2] = { 0.015, 0.050};
+
+
 		if (sex == MALE)
 			G = 0;
 		
-		double ξ = bE?m_randomGenerator.RandLogNormal(0, M_E[sex]):1;
-		double M = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
-		
-		return M*ξ;
+		double M = 0;
+		do
+		{
+			double ξ = bE ? m_randomGenerator.RandLogNormal(0, M_E[sex]) : 1;
+			double m = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
+			M = m*ξ;
+		} while (M<LOW[sex] || M>HIGH[sex]);
+
+
+		return M;
 	}
 
 
@@ -310,5 +320,6 @@ namespace WBSF
 	{
 		return 	m_randomGenerator.Randu();
 	}
+
 
 }

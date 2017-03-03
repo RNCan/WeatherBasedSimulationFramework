@@ -570,10 +570,10 @@ namespace WBSF
 
 
 		enum TStat{ HOURLY_STAT, SUB_HOURLY_STAT, NB_STATS};
-		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, T_DESTROY, NB_FLYER_LOG };
+		enum TLog{ T_CREATION, T_LIFTOFF, T_CRUISE, T_LANDING, T_IDLE_END, NB_FLYER_LOG };
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
-		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED, NB_STATES };
+		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED_BY_OPTIMIZATION, NB_STATES };
 		enum TEnd{ NO_END_DEFINE=-1, NO_LIFTOFF_PRCP=10, NO_LIFTOFF_TAIR, NO_LIFTOFF_WNDS, END_BY_PRCP, END_BY_TAIR, END_OF_TIME_FLIGHT, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
 
 
@@ -610,8 +610,10 @@ namespace WBSF
 		void flight(CTRef UTCTRef, __int64 UTCTime);
 		void landing(CTRef UTCTRef, __int64 UTCTime);
 		void idle_end(CTRef UTCTRef, __int64 UTCTime);
-		void destroy(CTRef UTCTRef, __int64 UTCTime);
+		
+		//void destroy(CTRef UTCTRef, __int64 UTCTime);
 
+		void DestroyByOptimisation();
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 
 		CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
@@ -844,7 +846,7 @@ namespace WBSF
 		size_t get_nb_time_step()const{ return m_parameters1.get_nb_time_step(); }	//number of timeStep per hour
 		CTRef GetUTRef()const{ return m_UTCTRef; }
 		__int64 get_UTC_time()const { return m_UTCTTime; }
-		static __int64 get_local_sunrize(CTRef TRef, const CLocation& loc);
+		static __int64 get_local_sunrise(CTRef TRef, const CLocation& loc);
 		CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const{ return m_weather.get_weather(pt, UTCTRef, UTCTime); }
 		
 
