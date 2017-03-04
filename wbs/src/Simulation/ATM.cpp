@@ -2263,9 +2263,12 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
-												
+											}
+											
+											if (flyer.GetLog(CFlyer::T_IDLE_END) > 0)
+											{
 												bool bOverWater = false;
-												if (m_water_DS.IsOpen() )
+												if (m_water_DS.IsOpen())
 												{
 													CGeoPoint pt(flyer.m_newLocation);
 													if (pt.GetPrjID() != m_water_DS.GetPrjID())
@@ -2277,7 +2280,6 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 													CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt);
 													bOverWater = m_water_DS.ReadPixel(0, xy) != 0;
 												}
-
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = bOverWater?-1:get_defoliation(flyer.m_newLocation);
 												
 											}
