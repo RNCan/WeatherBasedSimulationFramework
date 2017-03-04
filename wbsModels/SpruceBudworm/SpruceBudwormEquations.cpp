@@ -9,6 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 03/03/2017	Rémi Saint-Amant	Add eggs laid proportion
 // 23/12/2016   Rémi Saint-Amant	Add flight activity equations
 // 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict
 // 18/06/2013   Rémi Saint-Amant    new format of table
@@ -218,31 +219,6 @@ namespace WBSF
 
 	
 	
-	//A : forewing surface area [cm²]
-	//F°: Initial fecundity in absence of defoliation [eggs]
-	double CSpruceBudwormEquations::get_F°(double A)const
-	{
-		const double α = 1129.2;
-		const double β = 1.760;
-
-		double F° = 0;
-		do
-		{
-			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
-			ASSERT(ξ >= 0.33 && ξ < 3.33);
-
-			double F = α*pow(A, β);
-			F° = F*ξ;
-
-		} while (F°<25 || F° > 500);
-
-
-		ASSERT(F° >= 25 && F° <= 500);
-
-		return F°;
-	}
-	
-
 	//sex : MALE (0) or FEMALE (1)
 	//out : forewing surface area [cm²]
 	double CSpruceBudwormEquations::get_A(size_t sex)const
@@ -272,8 +248,8 @@ namespace WBSF
 		static const double M_C[2] = { 3.790, 2.140 };
 		static const double M_D[2] = { 0.000, 1.305 };
 		static const double M_E[2] = { 0.206, 0.160 };
-		static const double LOW[2] = { 0.0015, 0.0024 };
-		static const double HIGH[2] = { 0.015, 0.050};
+		static const double M_L[2] = { 0.0015, 0.0024 };
+		static const double M_H[2] = { 0.015, 0.050 };
 
 
 		if (sex == MALE)
@@ -285,41 +261,66 @@ namespace WBSF
 			double ξ = bE ? m_randomGenerator.RandLogNormal(0, M_E[sex]) : 1;
 			double m = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 			M = m*ξ;
-		} while (M<LOW[sex] || M>HIGH[sex]);
+		} while (M<M_L[sex] || M>M_H[sex]);
 
 
 		return M;
 	}
 
 
-	//double CSpruceBudwormEquations::get_Mᴰ(double M°, double D)const
-	//{
-	//	static const double Mᴱ = 0.00389; 
-
-	//	//double Mᴰ = M° - 0.0054*D*(M° - Mᴱ);
-	//	double Mᴰ = Mᴱ + (1 - 0.0054*D)*(M° - Mᴱ);
-
-	//	return Mᴰ;
-	//}
-
-
-	//double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
-	//{
-	//	double M = 0;
-
-	//	if (sex == MALE)
-	//		M = get_M(sex, A);
-	//	else
-	//		M = exp(-6.465 + 0.974*G + 2.14*A + 1.305*G*A)*m_randomGenerator.RandLogNormal(0, 0.1604);
-
-	//	return M;
-	//}
-
-
 	double CSpruceBudwormEquations::get_p_exodus()const
 	{
 		return 	m_randomGenerator.Randu();
 	}
+
+
+	//A : forewing surface area [cm²]
+	//F°: Initial fecundity in absence of defoliation [eggs]
+	double CSpruceBudwormEquations::get_F°(double A)const
+	{
+		const double α = 1129.2;
+		const double β = 1.760;
+
+		double F° = 0;
+		do
+		{
+			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
+			ASSERT(ξ >= 0.33 && ξ < 3.33);
+
+			double F = α*pow(A, β);
+			F° = F*ξ;
+
+		} while (F°<25 || F° > 500);
+
+
+		ASSERT(F° >= 25 && F° <= 500);
+
+		return F°;
+	}
+
+
+
+	
+	//T: daily mean temperature
+	//P: egg laid proportion 
+	double CSpruceBudwormEquations::get_P(double T)const
+	{
+		const double α = 0.489;
+		const double β = 15.778;
+		const double c = 2.08;
+
+		double P = 0;
+		do
+		{
+			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.1);
+			double p = α/(1+exp(-(T-β)/c));
+			P = p*ξ;
+
+		} while (P<0 || P > 0.7);
+
+		return P;
+	}
+
 
 
 }

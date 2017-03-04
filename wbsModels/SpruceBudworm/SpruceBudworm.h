@@ -73,6 +73,8 @@ namespace WBSF
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
 		double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_F° : 0; }
+		double GetF°()const{ return m_F°; }
+		double GetFᴰ()const{ return m_Fᴰ; }
 		//double GetLiftoffHour()const{ return m_liftoff_hour; }
 
 	protected:
@@ -104,6 +106,7 @@ namespace WBSF
 		bool m_bExodus;
 		bool m_bAlreadyExodus;
 		//double m_p_mating;
+		//double m_defoliation;
 		
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];

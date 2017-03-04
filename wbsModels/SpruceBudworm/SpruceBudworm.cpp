@@ -56,13 +56,15 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		
+		//double ξ = RandomGenerator().Rand(-20, 20);
+		//m_defoliation = max(0.0, min(100.0, GetStand()->m_defoliation));
+
 		m_A = Equations().get_A(m_sex); 
 		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
 		m_Fᴰ = (1.0 - 0.0054*GetStand()->m_defoliation)*m_F°;
 		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
-		m_p_exodus = Equations().get_p_exodus();
+		m_p_exodus = Equations().get_p_exodus(); 
 		m_bExodus = false;
 		m_bAlreadyExodus = false;
 		
@@ -109,6 +111,7 @@ namespace WBSF
 			m_Fᴰ = in.m_Fᴰ;
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
+			//m_defoliation = in.m_defoliation;
 
 
 			// Each individual created gets the following attributes
@@ -160,6 +163,13 @@ namespace WBSF
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
+		//correction for defoliation (de 1 à .75 entre 50 et 100 %)
+		if (s >= L3 && s <= PUPAE)
+		{
+			double defFactor = max(0.75, 1.0 - max(0.0, GetStand()->m_defoliation - 50.0)*0.005);
+			RR *= defFactor; 
+		}
+			
 
 		//development rate for white spruce is accelerated by a factor
 		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -239,21 +249,16 @@ namespace WBSF
 		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE && weather[H_TNTX][MEAN] >= 10)
 		{
 			assert(m_Fᴰ>=0);
-			assert(m_totalBroods>=0);
+			assert(m_totalBroods >= 0 && m_totalBroods <= m_Fᴰ);
 
 			//brooding
-			double eggLeft = max(0.0, m_Fᴰ - m_totalBroods);
+			double eggLeft = m_Fᴰ - m_totalBroods;
 			
-			double ϵ = GetStand()->RandomGenerator().RandNormal(0, 0.0064);
-			//EEwhile (∆F < -0.15 || ∆F > 0.15)
-				//∆F = GetStand()->RandomGenerator().RandNormal(0, 0.0064);
-
-			double T = min(25.0, weather[H_TNTX][MEAN]);//limit T from 10 to 25 °C
-			double P = max(0.0, min(0.6, -0.0429 + (0.0349 + ϵ)*(T-8)));
-			double broods = max(0.0, eggLeft*P);
+			double P = Equations().get_P(weather[H_TNTX][MEAN]);
+			double broods = eggLeft*P;
 
 			if ( (m_totalBroods + broods) > m_Fᴰ)
-				broods = max(0.0, m_Fᴰ - m_totalBroods);
+				broods = m_Fᴰ - m_totalBroods;
 
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = broods;
@@ -273,7 +278,7 @@ namespace WBSF
 			}  
 
 			
-			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_F°);//compute weight from forewing area and female gravidity
+			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_F°, true);//compute weight from forewing area and female gravidity
 			
 			
 		}
@@ -434,13 +439,14 @@ namespace WBSF
 		//static const double K = 194.0;//all moth flies between 25 à 63 Hz
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxF[2] = { 1.0, 2.5 };
+		//static const double VmaxMF[2] = { 1.0, 2.5 };
+		//static const double VmaxHz = 65;
 		
-		static const double K = 166.0;//95% moth flies between 25 à 42 Hz
+		static const double K = 166.0;//95% moths fly between 25 à 42 Hz
 		static const double b[2] = { 21.35, 21.35 };
 		static const double c[2] = { 2.97, 2.97 };
-		static const double VmaxF[2] = { 1.0, 1.0 };
-
+		static const double VmaxMF[2] = { 1.0, 1.0 };
+		static const double VmaxHz = 65;
 
 		bool bExodus = false;
 
@@ -452,17 +458,17 @@ namespace WBSF
 
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
-		
-		if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
+		//m_sex == MALE || 
+		static const double EXODUS_AGE[2] = { 0.2, OVIPOSITING_STAGE_AGE };
+		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
-			const double Vmax = 65 * VmaxF[m_sex];
-			//const double Vmax = 55 * VmaxF[m_sex];
+			const double Vmax = VmaxHz * VmaxMF[m_sex];
 			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 
 			//Compute wingbeat
 			double Vᴸ = K* sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
 			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
-			//double Vᵀ = Vmax*(max(0.0, min(1.0, (T - 15) / 6)));
+			
 			//potential wingbeat is greather than liftoff wingbeat, then exodus 
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
 				bExodus = true;		//this insect is exodus

@@ -25,15 +25,15 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
-	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_T, O_P, O_W, O_S, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,T,P,W,sunset";
+	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_F0, O_FD, O_E, O_T, O_P, O_W, O_S, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,F°,F,E,T,P,W,sunset";
 
 	class CBugStat
 	{
 	public:
 		
-
-		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double T, double P, double W, double S)
+		
+		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double F°, double Fᴰ, double E, double T, double P, double W, double S)
 		{
 			m_TRef = TRef;
 			m_sex=sex;
@@ -41,6 +41,9 @@ namespace WBSF
 			m_A=A;
 			m_M=M;
 			m_G=sex==FEMALE?G:-999;
+			m_F° = F°;
+			m_Fᴰ = Fᴰ;
+			m_E = E;
 			m_T = T;
 			m_P = P;
 			m_W = W;
@@ -53,6 +56,9 @@ namespace WBSF
 		double m_A;
 		double m_M;
 		double m_G;
+		double m_F°;
+		double m_Fᴰ;
+		double m_E;
 		double m_T;
 		double m_P;
 		double m_W;
@@ -98,38 +104,13 @@ namespace WBSF
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 
-		//CSun sun(m_weather.GetLocation().m_lat, m_weather.GetLocation().m_lon, m_weather.GetLocation().GetTimeZone());
-		//
-
-		////This is where the model is actually executed
-		//m_output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS, -999, HOURLY_HEADER);//hourly output
-		//for (size_t y = 0; y < m_weather.size(); y++)
-		//{
-		//	CTPeriod p = m_weather[y].GetEntireTPeriod();
-		//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-		//		if (TRef.GetHour() == 0)
-		//		{
-		//			m_output[TRef][O_W] = (sun2.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
-		//			m_output[TRef][O_S] = (sun.GetSunset(TRef) + 1.0);//+1 hours : assume to be in daylight zone  //[s]
-		//		}
-		//			
-		//	
-		//}
-
-		//return msg;
-
-
-
-		//CTPeriod overallPeriod;
-
-		//CBugStatVectorMap flyers;
+		
 		CBugStatVector flyers;
 
 		//for all years
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
-			//CTStatMatrix annualStat(p, NB_OUTPUTS);
 
 			//Create stand
 			CSBWStand stand(this);
@@ -143,9 +124,6 @@ namespace WBSF
 
 			//Create tree
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbMoths, m_nbMoths, L2o, NOT_INIT, false, 0));
-
-
-
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -187,7 +165,6 @@ namespace WBSF
 
 										double h = t / 3600.0;
 										size_t L = size_t((h - size_t(h)) * 3600);
-										//size_t h° = size_t(h);
 
 										const CWeatherDay& day¹ = day°.GetNext();
 										const CWeatherDay& w = h < 24 ? day° : day¹;
@@ -205,7 +182,7 @@ namespace WBSF
 
 											size_t sex = budworm.GetSex();
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), T, P, WS, sunset));
+											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetF°(), budworm.GetFᴰ(), budworm.GetFᴰ()-budworm.GetTotalBroods(), T, P, WS, sunset));
 											
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);
@@ -246,10 +223,16 @@ namespace WBSF
 			m_output[TRef][O_A] = flyers[i].m_A;
 			m_output[TRef][O_M] = flyers[i].m_M;
 			m_output[TRef][O_G] = flyers[i].m_G;
+			m_output[TRef][O_F0] = flyers[i].m_F°;
+			m_output[TRef][O_FD] = flyers[i].m_Fᴰ;
+			m_output[TRef][O_E] = flyers[i].m_E;
 			m_output[TRef][O_T] = flyers[i].m_T;
 			m_output[TRef][O_P] = flyers[i].m_P;
 			m_output[TRef][O_W] = flyers[i].m_W;
 			m_output[TRef][O_S] = flyers[i].m_S;
+
+			
+			
 		} 
 
 

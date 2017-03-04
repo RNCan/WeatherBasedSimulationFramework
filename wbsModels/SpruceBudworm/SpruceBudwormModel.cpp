@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 03/03/2017   3.1.4   Rémi Saint-Amant	Add defoliation parameter
 // 28/02/2017   3.1.3   Rémi Saint-Amant	Bug correction in Fertil mode
 // 08/01/2017	3.1.2	Rémi Saint-Amant	Add hourly live
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Change in overheating and flight activity
@@ -46,8 +47,8 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 5;
-		VERSION = "3.1.3 (2017)";
+		NB_INPUT_PARAMETER = 6;
+		VERSION = "3.1.4 (2017)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;
@@ -75,6 +76,7 @@ namespace WBSF
 
 		m_fixDate = parameters[c++].GetTRef();
 		m_fixAI = parameters[c++].GetReal();
+		m_defoliation = parameters[c++].GetReal();
 
 		return msg;
 	}
@@ -155,6 +157,7 @@ namespace WBSF
 			//Create stand
 			stand.m_bFertilEgg = m_bFertility;
 			stand.m_bApplyAttrition = m_bHaveAttrition;
+			stand.m_defoliation = m_defoliation;
 			stand.m_bStopL22 = bStopL22;
 			stand.m_host.push_front(pTree);
 

@@ -245,6 +245,8 @@ namespace WBSF
 		m_A=0;
 		m_M=0;
 		m_G = 0;
+		m_eggsLaid = 0;
+		m_eggsLeft = 0;
 		m_loc = 0;
 		m_par = 0;
 		m_rep = 0;
@@ -287,11 +289,6 @@ namespace WBSF
 		m_w_descent = m_world.get_w_descent();
 		m_duration = sunriseTime - m_liffoff_time;
 		ASSERT(m_duration >= 0);
-
-		if (m_flightNo > 0)
-		{
-			Brood(20);
-		}
 
 	}
 
@@ -554,7 +551,13 @@ namespace WBSF
 		ASSERT(m_end_type != NO_END_DEFINE);
 
 		if (m_log[T_IDLE_END] == 0)
+		{
 			m_log[T_IDLE_END] = UTCTime;
+
+			if (m_sex == CATMParameters::FEMALE)
+				Brood(20);
+		}
+			
 
 		AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
 	}
@@ -617,13 +620,13 @@ namespace WBSF
 	//const double CFlyer::c[2] = { 2.97, 6.63 };
 	const double CFlyer::b[2] = { 21.35, 21.35 };
 	const double CFlyer::c[2] = { 2.97, 2.97 };
+	const double CFlyer::Vmax = 65.0;
+	const double CFlyer::K = 166;
 
 	//T : air temperature [°C]
 	//out: forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
-		double Vmax = 1.0;// m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
-
 		return get_Vᵀ(m_sex, Vmax, T);
 	}
 
@@ -637,16 +640,12 @@ namespace WBSF
 		if (T > 0)
 			Vᵀ = Vmax*(1 - exp(-pow(T / b[sex], c[sex])));
 
-
 		return Vᵀ;
 	}
 
 	//out : liftoff temperature [°C] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
-		double K = 166;// m_world.m_parameters2.m_K;
-		double Vmax = 1.0;// m_world.m_parameters2.m_Vmax * (m_sex == CATMParameters::MALE ? 1 : m_world.m_parameters2.m_VmaxF);
-
 		return get_Tᴸ(m_sex, K, Vmax, m_A, m_M);
 	}
 	
@@ -767,7 +766,42 @@ namespace WBSF
 
 	void CFlyer::Brood(double T)
 	{
+		ASSERT(m_sex == CATMParameters::FEMALE);
 
+		//**************************************************************
+		//compute new G
+		const double α = 0.489;
+		const double β = 15.778;
+		const double c = 2.08;
+
+		double P = 0;
+		do
+		{
+			double ξ = m_world.random().RandLogNormal(log(1), 0.1);
+			double p = α / (1 + exp(-(T - β) / c));
+			P = p*ξ;
+
+		} while (P<0 || P > 0.7);
+
+		
+		m_eggsLaid = m_eggsLeft *P;
+		ASSERT(m_eggsLaid <= m_eggsLeft);
+		m_eggsLeft -= m_eggsLaid;
+
+
+		m_G = m_G / (1 + P);
+
+		
+		//**************************************************************
+		//compute new M
+		static const double ψ = -6.465;
+		static const double λ = 1.326;
+		static const double τ = 2.140;
+		static const double φ = 1.305;
+		
+
+		m_M = exp(ψ + λ * m_G + τ * m_A +  φ * m_G * m_A);
+		
 	}
 	
 //**************************************************************************************************************
@@ -878,6 +912,9 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		
 		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt2, UTCTRef, UTCTime);
 		w1 = p_cuboid->get_weather(pt2, UTCTime);
+
+		if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
+			w1[ATM_PRCP] = 0;
 	}
 	
 
@@ -886,9 +923,11 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		w2 = get_station_weather(pt, UTCTRef, UTCTime);
+		if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
+			w2[ATM_PRCP] = 0;
 	}
 
-
+	
 	if (m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION)
 		w1[ATM_PRCP] = w2[ATM_PRCP];
 
@@ -1920,7 +1959,7 @@ double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt)const
 {
 	double defoliation = get_defoliation(pt);
-	return defoliation>m_parameters1.m_defoliationThreshold;
+	return defoliation > 0; //m_parameters1.m_defoliationThreshold;
 }
 
 
@@ -1978,28 +2017,24 @@ bool CATMWorld::is_over_host(const CGeoPoint3D& pt1)const
 //TRef is local
 vector<CFlyersIt> CATMWorld::GetFlyers(CTRef localTRef)
 {
-	
-
 	vector<CFlyersIt> fls;
 	for (CFlyersIt it = m_flyers.begin(); it != m_flyers.end(); it++)
 	{
-		CTRef TRef = it->m_localTRef;
-		TRef.Transform(CTM(CTM::DAILY));
-		ASSERT(m_parameters1.m_simulationPeriod.IsInside(TRef));
+		CTRef Liftoff = it->m_localTRef;
+		Liftoff.Transform(CTM(CTM::DAILY));
+		ASSERT(m_parameters1.m_simulationPeriod.IsInside(localTRef));
 		
-		if (TRef == localTRef)
+		if (Liftoff == localTRef)
 		{
 			ASSERT(it->m_flightNo == 0);
 			fls.push_back(it);
 		}
-		else if(TRef < localTRef )
+		else if (Liftoff < localTRef)
 		{
 			if (it->GetState() != CFlyer::DESTROYED_BY_OPTIMIZATION)
 			{
 				if (it->m_flightNo < m_parameters1.m_maxFlights)//less than 3 flights
 				{
-					//Female mush lais eggs and lost weight
-
 					if (it->m_flightNo == 0 || is_over_defoliation(it->m_newLocation))
 					{
 						//add also old moth
@@ -2081,7 +2116,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 		//write file header
 
 		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-		output_file << "flight,scale,sex,A,M,G,state,x,y,lat,lon,";
+		output_file << "flight,scale,sex,A,M,G,EggsLaid,EggsLeft,state,x,y,lat,lon,";
 		output_file << "T,P,U,V,W,";
 		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine" << endl;
 	}
@@ -2159,12 +2194,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 						if (msg)
 						{
 							CFlyer& flyer = *(fls[i]);
-							
-							
-							//if (localTRef >= flyer.m_localTRef && flyer.GetState() < CFlyer::DESTROYED)
-							//if (countdown>)
-							//{
-							for (size_t seconds = 0; seconds < 3600 && flyer.GetState() <= CFlyer::IDLE_END; seconds += get_time_step())
+						
+							for (size_t seconds = 0; seconds < 3600; seconds += get_time_step())
 							{
 								__int64 UTCTTime = m_UTCTTime + seconds;
 								flyer.live(m_UTCTRef, UTCTTime);
@@ -2201,6 +2232,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_A] = flyer.m_A;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_M] = flyer.m_M;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_G] = flyer.m_G;
+										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_EGGS_LAID] = ((flyer.m_flightNo== 0 && state == 0) || state >= 10) ? flyer.m_eggsLaid : 0;
+										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_EGGS_LEFT] = flyer.m_eggsLeft;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_STATE] = state;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_X] = pt.m_x;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_Y] = pt.m_y;
@@ -2277,7 +2310,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									size_t minutes = size_t(seconds / 60);
 									output_file << flyer.m_loc + 1 << "," << flyer.m_par + 1 << "," << flyer.m_rep + 1 << ",";// << flyer.m_no + 1 << ",";
 									output_file << localTRef.GetYear() << "," << localTRef.GetMonth() + 1 << "," << localTRef.GetDay() + 1 << "," << localTRef.GetHour() << "," << minutes << "," << seconds - 60 * minutes << ",";
-									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
+									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << flyer.m_eggsLaid << "," << flyer.m_eggsLeft << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_TAIR) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_PRCP) << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_U, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_V, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W, ms2kmh) << ",";
 

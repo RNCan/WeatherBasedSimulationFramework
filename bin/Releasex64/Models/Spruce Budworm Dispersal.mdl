@@ -123,6 +123,30 @@
             <Precision>6</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>F°</Name>
+            <Title>F°</Title>
+            <Units>eggs</Units>
+            <Description>Initial fecondity in abscence of defoliation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>F</Name>
+            <Title>F</Title>
+            <Units>eggs</Units>
+            <Description>Initial fecondity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
+            <Units>eggs</Units>
+            <Description>Eggs left in the female</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>T</Name>
             <Title>T</Title>
             <Units>°C</Units>

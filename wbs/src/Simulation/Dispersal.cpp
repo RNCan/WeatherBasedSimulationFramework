@@ -241,13 +241,15 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 28);
+		ASSERT(NB_ATM_OUTPUT == 29);
 		outputVar.push_back(CModelOutputVariableDef("FlightNo", "FlightNo", "", "Flight numero for this moth", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Scale", "Scale", "", "Scale factor the moth", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("A", "A", "cm²", "Forewing surface area", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("M", "M", "g", "Dry weight", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("G", "G", "", "Gravidity", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("EggsLaid", "EggsLaid", "", "EggsLaid", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("EggsLeft", "EggsLeft", "", "EggsLeft", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));
@@ -409,8 +411,8 @@ namespace WBSF
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		
 		
-		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, NB_INPUTS };
-		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G" };
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, I_F0, I_F, I_E, NB_INPUTS };
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G", "F°", "F", "Eggs" };
 
 		bool bMissing = false;
 		std::array<size_t, NB_INPUTS> varsPos;
@@ -423,7 +425,7 @@ namespace WBSF
 
 		if (bMissing)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\" must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", \"Eggs\" must be defined");
 			return msg;
 		}
 
@@ -443,6 +445,9 @@ namespace WBSF
 		callback.StepIt();
 		if (!defoliation_filepath.empty())
 			msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
+		else if (world.m_parameters1.m_maxFliyers > 1)
+			msg.ajoute("maximum flyers is more than 1 but there is no defoliation map. Reset maximum flyers to 1 or provide defoliation map.");
+		
 
 		callback.StepIt();
 		if (!host_filepath.empty())
@@ -479,10 +484,6 @@ namespace WBSF
 				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
 				{
 
-					//size_t insectNo = 0;
-
-
-
 					CNewSectionData section;
 					pResult->GetSection(l, p, r, section);
 					assert(section.GetCols() == pResult->GetNbCols(false));
@@ -510,6 +511,8 @@ namespace WBSF
 							flyer.m_A = v[I_A];
 							flyer.m_M = v[I_M];
 							flyer.m_G = v[I_G];
+							flyer.m_eggsLaid = v[I_F] - v[I_E];
+							flyer.m_eggsLeft = v[I_E];
 							flyer.m_location = locations[l];
 							flyer.m_newLocation = locations[l];
 							flyer.m_pt = locations[l];

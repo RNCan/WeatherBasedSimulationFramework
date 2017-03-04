@@ -37,6 +37,7 @@ namespace WBSF
 		bool m_bHaveAttrition;
 		bool m_bFertility;
 		short m_treeKind;
+		double m_defoliation;
 
 	};
 }

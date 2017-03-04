@@ -6,7 +6,7 @@
     <EXE>Spruce Budworm Biology.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>
-    <WindowRect>0 0 249 315</WindowRect>
+    <WindowRect>0 0 275 315</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -55,7 +55,7 @@
             <Caption>Last sample date (dd/mm/yyyy):</Caption>
             <Description>The date (dd/mm/yyyy) of the last field observation</Description>
             <Type>3</Type>
-            <Rect>125 10 145 280</Rect>
+            <Rect>170 10 190 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -67,7 +67,7 @@
             <Caption>Observed AI:</Caption>
             <Description>Last field observed average instar</Description>
             <Type>2</Type>
-            <Rect>150 10 170 280</Rect>
+            <Rect>195 10 215 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -75,11 +75,23 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>85 5 110 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
             <Name>Line1</Name>
             <Caption>Line1</Caption>
             <Description/>
             <Type>9</Type>
-            <Rect>80 5 100 275</Rect>
+            <Rect>130 5 150 275</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>-999</MinValue>
@@ -91,7 +103,7 @@
             <Caption>Fixe Average Instar</Caption>
             <Description/>
             <Type>8</Type>
-            <Rect>100 5 120 155</Rect>
+            <Rect>150 5 170 155</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue>-999</MinValue>

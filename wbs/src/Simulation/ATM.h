@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_DEFOLIATION, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_EGGS_LAID, ATM_EGGS_LEFT, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_DEFOLIATION, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -125,8 +125,8 @@ namespace WBSF
 		enum TSex{ MALE, FEMALE, NB_SEX};
 		
 		
-		enum Tprcp{ PRCP_DEFAULT, PRCP_WEATHER_STATION };
-		enum TBroodT{ BROOD_T_DEFAULT, BROOD_T_WEATHER_STATION, BROOD_T_20 };
+		enum Tprcp{ DONT_USE_PRCP, PRCP_SAME_AS_INPUT, PRCP_WEATHER_STATION };
+		enum TBroodT{ BROOD_T_20, BROOD_T_SAME_AS_INPUT, BROOD_T_WEATHER_STATION };
 		enum TType{ WING_BEAT, MAX_SPEED, MAX_TEMPERATURE };
 		//enum TMember{ T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT, HEIGHT_TYPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
 		enum TMember{ BROOD_T_SOURCE, PRCP_SOURCE, P_MAX, W_MIN, HEIGHT_TYPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
@@ -174,8 +174,8 @@ namespace WBSF
 			//m_Tmin = 15.0;				//[°C]
 			//m_Tmax = 29.5;				//[°C]
 			
-			m_broodTSource = BROOD_T_DEFAULT;
-			m_PSource = PRCP_DEFAULT;
+			m_broodTSource = BROOD_T_20;
+			m_PSource = DONT_USE_PRCP;
 			m_Pmax = 2.5;				//[mm/h]
 			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
 			//
@@ -588,6 +588,8 @@ namespace WBSF
 		double m_A;				//Forewing surface area [cm²]
 		double m_M;				//dry weight [g]
 		double m_G;				//gravidity gravid=1, spent=0, male=0
+		double m_eggsLaid;		//eggs laid by the female	
+		double m_eggsLeft;		//eggs moved by the female	
 		double m_liftoffOffset; //liftoff Offset from the localTRef [s]
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
@@ -654,7 +656,8 @@ namespace WBSF
 		
 		static const double b[2];
 		static const double c[2];
-
+		static const double Vmax;
+		static const double K;
 	};
 
 
