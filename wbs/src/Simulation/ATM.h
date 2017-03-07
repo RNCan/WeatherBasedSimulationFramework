@@ -34,7 +34,7 @@ namespace WBSF
 	class CATMWorld;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_EGGS_LAID, ATM_EGGS_LEFT, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_DEFOLIATION, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_FLIGHT, ATM_SCALE, ATM_SEX, ATM_A, ATM_M, ATM_G, ATM_EGGS_LAID, ATM_STATE, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_DEFOLIATION, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
@@ -490,6 +490,10 @@ namespace WBSF
 		bool IsLoaded(CTRef TRef)const;
 		ERMsg Discard(CCallback& callback);
 		size_t get_band(CTRef TRef, size_t v, size_t level)const;
+		size_t GetPrjID(CTRef TRef)const{ return at(TRef)->GetPrjID(); }
+
+
+
 		bool convert_VVEL(CTRef TRef)const;
 	};
 
@@ -530,11 +534,12 @@ namespace WBSF
 
 		bool is_init()const{ return !m_filepath_map.empty() || m_p_hourly_DB != NULL; }
 
-		size_t GetPrjID()const{ return m_extents.GetPrjID(); }
+		size_t GetGribsPrjID()const;
+		
 		CGDALDatasetCachedPtr& Get(CTRef TRef) { return m_p_weather_DS.Get(TRef); }
 		bool IsLoaded(CTRef TRef)const;
 
-		const CGeoExtents& GetExtents()const{ return  m_extents; }
+		//const CGeoExtents& GetExtents()const{ return  m_extents; }
 		static double LandWaterWindFactor(double Ul, double ΔT);
 		static void GetWindProfileRelationship(double& Ur, double& Vr, double z, int stabType, bool bOverWather, double ΔT);
 
@@ -552,7 +557,7 @@ namespace WBSF
 		TRefFilePathMap m_filepath_map;
 		CHourlyDatabasePtr m_p_hourly_DB;
 		CTRefDatasetMap m_p_weather_DS;
-		CGeoExtents m_extents;
+		//CGeoExtents m_extents;
 
 
 		std::map<size_t, CWeatherStation> m_stations;
@@ -588,8 +593,9 @@ namespace WBSF
 		double m_A;				//Forewing surface area [cm²]
 		double m_M;				//dry weight [g]
 		double m_G;				//gravidity gravid=1, spent=0, male=0
-		double m_eggsLaid;		//eggs laid by the female	
-		double m_eggsLeft;		//eggs moved by the female	
+		double m_F°;			//initial fecondity without defoliation
+		double m_broods;		//eggs laid by the female for the current day	
+		double m_eggsLeft;	//total eggs laid  by the female	
 		double m_liftoffOffset; //liftoff Offset from the localTRef [s]
 		CTRef m_localTRef;		//Creation date in local time
 		CLocation m_location;	//initial position
@@ -658,6 +664,7 @@ namespace WBSF
 		static const double c[2];
 		static const double Vmax;
 		static const double K;
+		static const double deltaT[2];
 	};
 
 
@@ -872,9 +879,10 @@ namespace WBSF
 
 		double GetGroundAltitude(const CGeoPoint3D& pt)const;
 		bool is_over_defoliation(const CGeoPoint3D& pt)const;
-		double get_defoliation(const CGeoPoint3D& pt1)const;
+		double get_defoliation(const CGeoPoint3D& pt)const;
 		bool is_over_distraction(const CGeoPoint3D& pt)const;
 		bool is_over_host(const CGeoPoint3D& pt)const;
+		bool is_over_water(const CGeoPoint3D& pt)const;
 
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
 
@@ -893,8 +901,10 @@ namespace WBSF
 
 
 		CProjectionTransformation m_GEO2DEM;
-		CProjectionTransformation m_GEO2WEA;
-		CProjectionTransformation m_WEA2GEO;
+		CProjectionTransformation m_GEO2GRIBS;
+		//CProjectionTransformation m_GRIBS2GEO;
+		CProjectionTransformation m_GEO2WATER;
+		CProjectionTransformation m_GEO2DEFOLIATION;
 
 		__int64 get_duration()const;
 		double get_w_horizontal()const;

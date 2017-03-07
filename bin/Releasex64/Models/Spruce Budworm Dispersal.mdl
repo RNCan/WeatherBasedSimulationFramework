@@ -139,10 +139,18 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>Broods</Name>
+            <Title>Broods</Title>
+            <Units>eggs</Units>
+            <Description>Totla eggs laid be female before exodus</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Eggs</Name>
             <Title>Eggs</Title>
             <Units>eggs</Units>
-            <Description>Eggs left in the female</Description>
+            <Description>Eggs caried by female at exodus</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

@@ -25,15 +25,15 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
-	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_F0, O_FD, O_E, O_T, O_P, O_W, O_S, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,F°,F,E,T,P,W,sunset";
+	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_F0, O_FD, O_B, O_E, O_T, O_P, O_W, O_S, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,F°,F,B,E,T,P,W,sunset";
 
 	class CBugStat
 	{
 	public:
 		
 		
-		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double F°, double Fᴰ, double E, double T, double P, double W, double S)
+		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double F°, double Fᴰ, double B, double E, double T, double P, double W, double S)
 		{
 			m_TRef = TRef;
 			m_sex=sex;
@@ -43,6 +43,7 @@ namespace WBSF
 			m_G=sex==FEMALE?G:-999;
 			m_F° = F°;
 			m_Fᴰ = Fᴰ;
+			m_B = B;
 			m_E = E;
 			m_T = T;
 			m_P = P;
@@ -58,6 +59,7 @@ namespace WBSF
 		double m_G;
 		double m_F°;
 		double m_Fᴰ;
+		double m_B;
 		double m_E;
 		double m_T;
 		double m_P;
@@ -182,7 +184,7 @@ namespace WBSF
 
 											size_t sex = budworm.GetSex();
 											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetF°(), budworm.GetFᴰ(), budworm.GetFᴰ()-budworm.GetTotalBroods(), T, P, WS, sunset));
+											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetF°(), budworm.GetFᴰ(), budworm.GetTotalBroods(), budworm.GetFᴰ() - budworm.GetTotalBroods(), T, P, WS, sunset));
 											
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);
@@ -225,6 +227,7 @@ namespace WBSF
 			m_output[TRef][O_G] = flyers[i].m_G;
 			m_output[TRef][O_F0] = flyers[i].m_F°;
 			m_output[TRef][O_FD] = flyers[i].m_Fᴰ;
+			m_output[TRef][O_B] = flyers[i].m_B;
 			m_output[TRef][O_E] = flyers[i].m_E;
 			m_output[TRef][O_T] = flyers[i].m_T;
 			m_output[TRef][O_P] = flyers[i].m_P;

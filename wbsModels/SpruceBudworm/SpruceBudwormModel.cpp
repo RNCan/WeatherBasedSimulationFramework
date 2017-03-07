@@ -143,22 +143,22 @@ namespace WBSF
 			CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY));
 
 			CSBWStand stand(this);
-			CSBWTreePtr pTree(new CSBWTree(&stand));
+			//Create stand
+			//warning, to not change stand and tree order because insect create used stand defoliation
+			stand.m_bFertilEgg = m_bFertility;
+			stand.m_bApplyAttrition = m_bHaveAttrition;
+			stand.m_defoliation = m_defoliation;
+			stand.m_bStopL22 = bStopL22;
 
 			//Create tree
+			CSBWTreePtr pTree(new CSBWTree(&stand));
+			
 			pTree->m_kind = m_treeKind;
 			pTree->m_nbMinObjects = 100;
 			pTree->m_nbMaxObjects = 1000;
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, L2o, NOT_INIT, m_bFertility, 0));
 
-			
-			//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, FEMALE, m_bFertility, 0));
-
-			//Create stand
-			stand.m_bFertilEgg = m_bFertility;
-			stand.m_bApplyAttrition = m_bHaveAttrition;
-			stand.m_defoliation = m_defoliation;
-			stand.m_bStopL22 = bStopL22;
+			//add tree to stand			
 			stand.m_host.push_front(pTree);
 
 			//if Simulated Annealing, set 

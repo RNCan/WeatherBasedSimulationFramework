@@ -37,7 +37,7 @@ namespace WBSF
 		1.0, 1.0, 1.0, .79, .73, .62, 0.4, .66, 1.0, .39
 	};
 
-	static const double OVIPOSITING_STAGE_AGE = 0.1;
+	static const double OVIPOSITING_STAGE_AGE = 0.05;
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
 	
@@ -57,11 +57,12 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		//double ξ = RandomGenerator().Rand(-20, 20);
-		//m_defoliation = max(0.0, min(100.0, GetStand()->m_defoliation));
+		m_defoliation = Equations().get_defoliation(GetStand()->m_defoliation);
+			
 
 		m_A = Equations().get_A(m_sex); 
 		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
-		m_Fᴰ = (1.0 - 0.0054*GetStand()->m_defoliation)*m_F°;
+		m_Fᴰ = (1.0 - 0.0054*m_defoliation)*m_F°;
 		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
 		m_p_exodus = Equations().get_p_exodus(); 
@@ -111,7 +112,7 @@ namespace WBSF
 			m_Fᴰ = in.m_Fᴰ;
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
-			//m_defoliation = in.m_defoliation;
+			m_defoliation = in.m_defoliation;
 
 
 			// Each individual created gets the following attributes
@@ -164,9 +165,9 @@ namespace WBSF
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
 		//correction for defoliation (de 1 à .75 entre 50 et 100 %)
-		if (s >= L3 && s <= PUPAE)
+		if (s >= L3 && s <= L6)//PUPAE
 		{
-			double defFactor = max(0.75, 1.0 - max(0.0, GetStand()->m_defoliation - 50.0)*0.005);
+			double defFactor = max(0.75, 1.0 - max(0.0, m_defoliation - 50.0)*0.005);
 			RR *= defFactor; 
 		}
 			
@@ -436,17 +437,28 @@ namespace WBSF
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
 		
 		
-		//static const double K = 194.0;//all moth flies between 25 à 63 Hz
+		//static const double K = 166.0;//all moth flies between 25 à 63 Hz
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxMF[2] = { 1.0, 2.5 };
+		//static const double VmaxMF[2] = { 1.0, 1.0 };
 		//static const double VmaxHz = 65;
 		
-		static const double K = 166.0;//95% moths fly between 25 à 42 Hz
-		static const double b[2] = { 21.35, 21.35 };
-		static const double c[2] = { 2.97, 2.97 };
+
+		static const double K = 166.0;//all moth flies between 25 à 63 Hz
+		static const double b[2] = { 21.35, 24.08 };
+		static const double c[2] = { 2.97, 6.63 };
 		static const double VmaxMF[2] = { 1.0, 1.0 };
 		static const double VmaxHz = 65;
+		static const double deltaT[2] = { 0 , 3.5 };
+
+
+
+		//static const double K = 166.0;//95% moths fly between 25 à 42 Hz
+		//static const double b[2] = { 21.35, 21.35 };
+		//static const double c[2] = { 2.97, 2.97 }; 
+		//static const double VmaxMF[2] = { 1.0, 1.0 };
+		//static const double VmaxHz = 65;
+		//static const double deltaT[2] = { 0 };
 
 		bool bExodus = false;
 
@@ -459,7 +471,7 @@ namespace WBSF
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
 		//m_sex == MALE || 
-		static const double EXODUS_AGE[2] = { 0.2, OVIPOSITING_STAGE_AGE };
+		static const double EXODUS_AGE[2] = { 0.5, 0 };// OVIPOSITING_STAGE_AGE
 		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = VmaxHz * VmaxMF[m_sex];
@@ -467,7 +479,7 @@ namespace WBSF
 
 			//Compute wingbeat
 			double Vᴸ = K* sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
-			double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
+			double Vᵀ = Vmax*(1 - exp(-pow((T + deltaT[m_sex]) / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
 			
 			//potential wingbeat is greather than liftoff wingbeat, then exodus 
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
@@ -680,6 +692,9 @@ namespace WBSF
 		CSpruceBudworm* in = (CSpruceBudworm*)(pBug.get());
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		
+		m_defoliation = (m_defoliation*m_scaleFactor + in->m_defoliation*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		 
 		//m_liftoff_hour = (m_liftoff_hour*m_scaleFactor + in->m_liftoff_hour*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		//m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 

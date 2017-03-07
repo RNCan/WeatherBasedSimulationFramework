@@ -41,6 +41,7 @@ namespace WBSF
 		//double get_Mᴰ(double M°, double D)const;
 		
 		double get_p_exodus()const;
+		double get_defoliation(double defoliation)const;
 
 	protected:
 

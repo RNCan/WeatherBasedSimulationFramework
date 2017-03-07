@@ -321,6 +321,24 @@ namespace WBSF
 		return P;
 	}
 
+	double CSpruceBudwormEquations::get_defoliation(double defoliation)const
+	{
+		ASSERT(defoliation >= 0 && defoliation <= 100);
+		if (defoliation > 0)
+		{
+			double d = defoliation / 100;
+			double v = max(0.000623, 0.000623 + 0.1463*d + 0.1544*Square(d) - 0.32*Cube(d));
 
+			double α = d*(d*(1 - d) / v - 1);
+			double β = (1 - d)*(d*(1 - d) / v - 1);
+			defoliation = m_randomGenerator.RandBeta(α, β) * 100;
+
+			while (defoliation < 0 || defoliation>100)
+				defoliation = m_randomGenerator.RandBeta(α, β) * 100;
+
+		}
+		ASSERT(defoliation >= 0 && defoliation <= 100);
+		return defoliation;
+	}
 
 }

@@ -183,7 +183,7 @@ namespace WBSF
 
 	
 
-	extern const char ATM_HEADER[] = "FLIGH|SCALE|Sex|A|M|G|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME";
+	extern const char ATM_HEADER[] = "FLIGH|SCALE|Sex|A|M|G|EGGS_LAID|State|X|Y|Latitude|Longitude|T|P|U|V|W|HEIGHT|DELTA_HEIGHT|CURRENT_HEIGHT|W_HORIZONTAL|W_VERTICAL|DIRECTION|DISTANCE|DISTANCE_FROM_OIRIGINE|LIFTOFF_TIME|LANDING_TIME|DEFOLIATION";
 
 	//At low altitudes above the sea level, the pressure decreases by about 1.2 kPa for every 100 meters.For higher altitudes within the troposphere, the following equation(the barometric formula) relates atmospheric pressure p to altitude h
 	//12 pa/m
@@ -207,12 +207,11 @@ namespace WBSF
 		double Uw = -ω / (rho*g); //vertical wind speed [m/s]
 
 
-
 		return Uw;
 
 	}
 	
-	//const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "Tmin", "Tmax", "Pmax", "Wmin", "DurationMin", "DurationMax", "DurationAlpha", "DurationBeta", "CruiseDuration", "CruiseHeight", "HeightType", "K", "VMax", "VF", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
+	
 	const char* CATMParameters::MEMBERS_NAME[NB_MEMBERS] = { "BroodTSource", "PSource", "Pmax", "Wmin", "HeightModel", "WingBeatScale", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD", "WindStabilityType", "NbWeatherStations" };
 
 
@@ -245,7 +244,8 @@ namespace WBSF
 		m_A=0;
 		m_M=0;
 		m_G = 0;
-		m_eggsLaid = 0;
+		m_F° = 0;
+		m_broods = 0;
 		m_eggsLeft = 0;
 		m_loc = 0;
 		m_par = 0;
@@ -555,7 +555,11 @@ namespace WBSF
 			m_log[T_IDLE_END] = UTCTime;
 
 			if (m_sex == CATMParameters::FEMALE)
-				Brood(20);
+			{
+				if( !m_world.is_over_water(m_newLocation) )
+					Brood(20);
+			}
+				
 		}
 			
 
@@ -618,10 +622,15 @@ namespace WBSF
 
 	//const double CFlyer::b[2] = { 21.35, 24.08 };
 	//const double CFlyer::c[2] = { 2.97, 6.63 };
-	const double CFlyer::b[2] = { 21.35, 21.35 };
-	const double CFlyer::c[2] = { 2.97, 2.97 };
+	//const double CFlyer::b[2] = { 21.35, 21.35 };
+	//const double CFlyer::c[2] = { 2.97, 2.97 };
 	const double CFlyer::Vmax = 65.0;
 	const double CFlyer::K = 166;
+	const double CFlyer::b[2] = { 21.35, 24.08 };
+	const double CFlyer::c[2] = { 2.97, 6.63 };
+	const double CFlyer::deltaT[2] = { 0, 4.0 };
+
+
 
 	//T : air temperature [°C]
 	//out: forewing frequency [Hz] for this temperature
@@ -638,7 +647,7 @@ namespace WBSF
 	{
 		double Vᵀ = 0;
 		if (T > 0)
-			Vᵀ = Vmax*(1 - exp(-pow(T / b[sex], c[sex])));
+			Vᵀ = Vmax*(1 - exp(-pow((T + deltaT[sex]) / b[sex], c[sex])));
 
 		return Vᵀ;
 	}
@@ -657,7 +666,7 @@ namespace WBSF
 	double CFlyer::get_Tᴸ(size_t sex, double K, double Vmax, double A, double M)
 	{
 		double Vᴸ = K* sqrt(M) / A;
-		double Tᴸ = (Vᴸ<Vmax) ? b[sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[sex]) : 40;
+		double Tᴸ = (Vᴸ<Vmax) ? b[sex] * pow(-log(1 - Vᴸ / Vmax), 1.0 / c[sex]) - deltaT[sex] : 40;
 
 		ASSERT(!isnan(Tᴸ));
 
@@ -768,40 +777,50 @@ namespace WBSF
 	{
 		ASSERT(m_sex == CATMParameters::FEMALE);
 
-		//**************************************************************
-		//compute new G
-		const double α = 0.489;
-		const double β = 15.778;
-		const double c = 2.08;
+		static const double END_G = 0.15;
 
 		double P = 0;
-		do
+		//double eggsLeft = m_F° - m_totalBroods;
+
+		if (m_world.get_defoliation(m_newLocation) == 0 && m_G > END_G)
 		{
-			double ξ = m_world.random().RandLogNormal(log(1), 0.1);
-			double p = α / (1 + exp(-(T - β) / c));
-			P = p*ξ;
+			P = 1 - END_G* m_F° / m_eggsLeft;
+			ASSERT(P>=0 && P<=1);
+		}
+		else
+		{
+			//**************************************************************
+			//compute new G
+			const double α = 0.489;
+			const double β = 15.778;
+			const double c = 2.08;
 
-		} while (P<0 || P > 0.7);
+			do
+			{
+				double ξ = m_world.random().RandLogNormal(log(1), 0.1);
+				double p = α / (1 + exp(-(T - β) / c));
+				P = p*ξ;
 
+			} while (P<0 || P > 0.7);
+		}
+
+
+		m_broods = m_eggsLeft *P;
+		m_eggsLeft -= m_broods;
 		
-		m_eggsLaid = m_eggsLeft *P;
-		ASSERT(m_eggsLaid <= m_eggsLeft);
-		m_eggsLeft -= m_eggsLaid;
-
-
-		m_G = m_G / (1 + P);
-
+		m_G = m_eggsLeft / m_F°;
 		
+
 		//**************************************************************
 		//compute new M
 		static const double ψ = -6.465;
 		static const double λ = 1.326;
 		static const double τ = 2.140;
 		static const double φ = 1.305;
-		
 
-		m_M = exp(ψ + λ * m_G + τ * m_A +  φ * m_G * m_A);
-		
+
+		m_M = exp(ψ + λ * m_G + τ * m_A + φ * m_G * m_A);
+
 	}
 	
 //**************************************************************************************************************
@@ -866,24 +885,36 @@ CATMVariables CATMWeatherCuboid::get_weather(const CGeoPoint3D& pt, bool bSpaceI
 //time: time since 1 jan 1 [s]
 CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 time)const
 {
-	ASSERT(at(0).m_time<at(1).m_time);
-	ASSERT(time >= at(0).m_time && time <= at(1).m_time);
-	ASSERT(at(1).m_time - at(0).m_time == 3600);
+	ASSERT(at(0).m_time<=at(1).m_time);
+	ASSERT(time >= at(0).m_time && (at(0).m_time == at(1).m_time || time <= at(1).m_time));
+	ASSERT(at(1).m_time - at(0).m_time == 0 || at(1).m_time - at(0).m_time == 3600);
 
 	const CATMWeatherCuboids& me = *this;
+	CATMVariables w;
 
-	double f° = (double(time) - at(0).m_time) / (at(1).m_time - at(0).m_time); // get fraction of time
-	if (!m_bUseTimeInterpolation)
-		f° = f° >= 0.5 ? 1 : 0;
 
-	double f¹ = (1 - f°);
-	
+	if (at(1).m_time != at(0).m_time)
+	{
+		double f° = (double(time) - at(0).m_time) / (at(1).m_time - at(0).m_time); // get fraction of time
+		if (!m_bUseTimeInterpolation)
+			f° = f° >= 0.5 ? 1 : 0;
 
-	CATMVariables w° = me[0].get_weather(pt, m_bUseSpaceInterpolation);
-	CATMVariables w¹ = me[1].get_weather(pt, m_bUseSpaceInterpolation);
-	
-	ASSERT(f° + f¹ == 1);
-	return w°*f° + w¹*f¹;
+		double f¹ = (1 - f°);
+
+
+		CATMVariables w° = me[0].get_weather(pt, m_bUseSpaceInterpolation);
+		CATMVariables w¹ = me[1].get_weather(pt, m_bUseSpaceInterpolation);
+
+		ASSERT(f° + f¹ == 1);
+		w = w°*f° + w¹*f¹;
+	}
+	else
+	{
+		//last image is missing
+		w = me[0].get_weather(pt, m_bUseSpaceInterpolation);
+	}
+
+	return w;
 }
 
 
@@ -905,10 +936,10 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		CGeoPoint3D pt2(pt);
-		if (GetPrjID() == m_world.m_GEO2WEA.GetDst()->GetPrjID())
-			pt2.Reproject(m_world.m_GEO2WEA);
-		//else
-			//pt2.Reproject(GetReProjection(PRJ_WGS_84, GetPrjID()));
+		//if (GetPrjID() == m_world.m_GEO2WEA.GetDst()->GetPrjID())
+		//if (m_world.m_GEO2WEA.
+		pt2.Reproject(m_world.m_GEO2GRIBS);
+		
 		
 		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt2, UTCTRef, UTCTime);
 		w1 = p_cuboid->get_weather(pt2, UTCTime);
@@ -1090,7 +1121,7 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 
 	CATMVariables weather;
 
-	bool bOverWater = false;
+	/*bool bOverWater = false;
 	if (m_world.m_water_DS.IsOpen())
 	{
 		CGeoPoint pt2(pt);
@@ -1102,7 +1133,9 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 
 		CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt2);
 		bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
-	}
+	}*/
+
+	bool bOverWater = m_world.is_over_water(pt);
 
 	CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
 	
@@ -1242,8 +1275,10 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 	cuboids->m_bUseTimeInterpolation = m_world.m_parameters1.m_bUseTimeInterpolation;
 	
 	
-	if (!IsLoaded(UTCTRef) )
+	ASSERT(IsLoaded(UTCTRef));
+	if (!IsLoaded(UTCTRef))
 		return cuboids;//humm
+		
 
 	ASSERT(m_p_weather_DS.get_band(UTCTRef, ATM_WNDW, 0) != UNKNOWN_POS || m_p_weather_DS.get_band(UTCTRef, ATM_VVEL, 0) != UNKNOWN_POS);
 	//if have VVEL, then it's RUC otherwise it's WRF
@@ -1436,63 +1471,47 @@ ERMsg CATMWeather::Load(const std::string& gribsFilepath, const std::string& hou
 		return msg;
 	}
 
-	m_extents.Reset();
+//	m_extents.Reset();
 
 	if (!gribsFilepath.empty())
 	{
 		msg += load_gribs(gribsFilepath, callback);
 			
-		if (msg)
-		{
-			CTRef TRef = m_filepath_map.begin()->first;
-			msg = m_p_weather_DS.load(TRef, get_image_filepath(TRef), callback);
-			if (msg)
-			{
+		//if (msg)
+		//{
+			
 				//reproject into DEM projection
-				m_extents.ExtendBounds(Get(TRef)->GetExtents());
-				m_world.m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
-				m_world.m_WEA2GEO = GetReProjection(m_extents.GetPrjID(), PRJ_WGS_84);
-				// (m_extents.GetPrjID() != m_world.m_DEM_DS.GetPrjID())
-				//{
-					//m_world.m_WEA2DEM = GetReProjection(m_extents.GetPrjID(), m_world.m_DEM_DS.GetPrjID());
-					//m_extents.Reproject(m_world.m_WEA2DEM);
-					//callback.AddMessage("WARNING: the projection of the DEM is not the same as the projection of the weather gribs. Severe bias in wind direction can be observed.");
-				//}
-			}
-		}
+			//	m_extents.ExtendBounds(Get(TRef)->GetExtents());
+				//m_world.m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
+				//m_world.m_WEA2GEO = GetReProjection(m_extents.GetPrjID(), PRJ_WGS_84);
+			//}
+	//	}
 	}
-	else
+	/*else
 	{
 		m_extents = m_world.m_DEM_DS.GetExtents();
 		m_world.m_GEO2WEA = m_world.m_GEO2DEM;
 		m_world.m_WEA2GEO = GetReProjection(m_world.m_GEO2DEM.GetDst()->GetPrjID(), m_world.m_GEO2DEM.GetSrc()->GetPrjID());
-	}
+	}*/
 
 	if (!hourlyDBFilepath.empty())
 	{
 		if (!m_p_hourly_DB)
 		{
 			msg += load_hourly(hourlyDBFilepath, callback);
-			if (msg)
-			{
-				if (m_world.m_GEO2WEA.GetSrc() == NULL)
+			//if (msg)
+			//{
+	/*			if (m_world.m_GEO2WEA.GetSrc() == NULL)
 				{
 					m_world.m_GEO2WEA = GetReProjection(PRJ_WGS_84, PRJ_WGS_84);
 					m_world.m_WEA2GEO = GetReProjection(PRJ_WGS_84, PRJ_WGS_84);
 				}
-					
-
-				for (size_t i = 0; i < m_p_hourly_DB->size(); i++)
-				{
-					//reproject into Gribs projection if any
-					CLocation loc = m_p_hourly_DB->at(i);
-					loc.Reproject(m_world.m_GEO2WEA);
-					m_extents.ExtendBounds(loc);
-				}
-			}
+	*/			
+			//}
 		}
 	}
-	
+
+
 	
 
 	return msg;
@@ -1754,6 +1773,16 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 	return msg;
 }
 
+size_t CATMWeather::GetGribsPrjID()const
+{ 
+	size_t prjID = NOT_INIT;
+	CTRef TRef = m_filepath_map.begin()->first;
+	
+	if (m_p_weather_DS.load(TRef, get_image_filepath(TRef), CCallback()))
+		prjID = m_p_weather_DS.GetPrjID(TRef);
+	
+	return prjID;
+}
 
 //*********************************************************************************************************
 CTRefDatasetMap::CTRefDatasetMap()
@@ -1937,11 +1966,11 @@ double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 	double defoliation = 0;
 	if (m_defoliation_DS.IsOpen())
 	{
-		CGeoPoint pt2(pt1);
+		CGeoPoint3D pt2(pt1);
 		if (pt2.GetPrjID() != m_defoliation_DS.GetPrjID())
 		{
-			ASSERT(pt1.IsGeographic());
-			pt2.Reproject(CProjectionTransformationManager::Get(pt1.GetPrjID(), m_defoliation_DS.GetPrjID()));
+			ASSERT(pt2.IsGeographic());
+			pt2.Reproject(m_GEO2DEFOLIATION);
 		}
 
 		CGeoPointIndex xy = m_defoliation_DS.GetExtents().CoordToXYPos(pt2);
@@ -1954,6 +1983,26 @@ double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 	}
 
 	return defoliation;
+}
+
+bool CATMWorld::is_over_water(const CGeoPoint3D& pt1)const
+{
+	bool bOverWater = false;
+	if (m_water_DS.IsOpen())
+	{
+		CGeoPoint3D pt2(pt1);
+		if (pt2.GetPrjID() != m_water_DS.GetPrjID())
+		{
+			ASSERT(pt2.IsGeographic());
+			pt2.Reproject(m_GEO2WATER);
+		}
+
+		CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt2);
+		if (m_water_DS.GetExtents().IsInside(xy))
+			bOverWater = m_water_DS.ReadPixel(0, xy) != 0;
+	}
+
+	return bOverWater;
 }
 
 bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt)const
@@ -2089,14 +2138,16 @@ bool CATMWorld::IsInside(const CGeoPoint& pt)const
 		pt2.Reproject(m_GEO2DEM);
 	}
 	
-	CGeoPoint pt3(pt);
-	if (pt.GetPrjID() != m_weather.GetPrjID())
+	//CTRef TRef;
+
+	/*CGeoPoint pt3(pt);
+	if (pt.GetPrjID() != m_weather.Get(TRef)->.GetPrjID())
 	{
 		ASSERT(pt.IsGeographic());
 		pt3.Reproject(m_GEO2WEA);
-	}
+	}*/
 
-	return 	m_DEM_DS.GetExtents().IsInside(pt2) && m_weather.GetExtents().IsInside(pt3);
+	return 	m_DEM_DS.GetExtents().IsInside(pt2);// && m_weather.GetExtents().IsInside(pt3);
 }
 
 ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback)
@@ -2116,7 +2167,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 		//write file header
 
 		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-		output_file << "flight,scale,sex,A,M,G,EggsLaid,EggsLeft,state,x,y,lat,lon,";
+		output_file << "flight,scale,sex,A,M,G,EggsLaid,state,x,y,lat,lon,";
 		output_file << "T,P,U,V,W,";
 		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine" << endl;
 	}
@@ -2143,6 +2194,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 				//init all flyers
 				for (size_t i = 0; i < fls.size() && msg; i++)
 				{
+					//bool bOverWater = is_over_water(fls[i]->m_newLocation);
+
 					fls[i]->init();
 				}
 
@@ -2225,15 +2278,22 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										CGeoPoint3D pt = flyer.m_pt;
 										pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
 
-										
+										bool bOverWater = is_over_water(flyer.m_newLocation);
+										double defoliation = VMISS;
+										if (!bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
+											defoliation = get_defoliation(flyer.m_newLocation);
+										double broods = VMISS;
+										if (flyer.m_sex == CATMParameters::FEMALE && !bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
+											broods = flyer.m_broods;
+
+
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT] = flyer.m_flightNo;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_SCALE] = flyer.m_scale;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_SEX] = flyer.m_sex;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_A] = flyer.m_A;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_M] = flyer.m_M;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_G] = flyer.m_G;
-										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_EGGS_LAID] = ((flyer.m_flightNo== 0 && state == 0) || state >= 10) ? flyer.m_eggsLaid : 0;
-										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_EGGS_LEFT] = flyer.m_eggsLeft;
+										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_EGGS_LAID] = broods;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_STATE] = state;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_X] = pt.m_x;
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_Y] = pt.m_y;
@@ -2244,11 +2304,13 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_U] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_U, ms2kmh);
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_V] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_V, ms2kmh);
 										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_W] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_W, ms2kmh);
-
+										output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = bOverWater ? -1 : defoliation;
 
 										//size_t time = 0;
 										if (flyer.GetLog(CFlyer::T_LIFTOFF) > 0)
 										{
+											
+
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_MEAN_HEIGHT] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_HEIGHT);
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_CURRENT_HEIGHT] = flyer.m_pt.m_z;
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DELTA_HEIGHT] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_Z, 1, SUM);
@@ -2258,31 +2320,14 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DISTANCE] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM);
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DISTANCE_FROM_OIRIGINE] = D°;
 
+											
 											if (flyer.GetLog(CFlyer::T_LANDING) > 0)
 											{
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
 												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
 											}
-											
-											if (flyer.GetLog(CFlyer::T_IDLE_END) > 0)
-											{
-												bool bOverWater = false;
-												if (m_water_DS.IsOpen())
-												{
-													CGeoPoint pt(flyer.m_newLocation);
-													if (pt.GetPrjID() != m_water_DS.GetPrjID())
-													{
-														ASSERT(pt.IsGeographic());
-														pt.Reproject(m_GEO2DEM);
-													}
-
-													CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt);
-													bOverWater = m_water_DS.ReadPixel(0, xy) != 0;
-												}
-												output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DEFOLIATION] = bOverWater?-1:get_defoliation(flyer.m_newLocation);
-												
-											}
+									
 										}//log exists
 									}//if output
 
@@ -2299,20 +2344,29 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									CGeoPoint3D pt = flyer.m_pt;
 									pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
 
-									//double angle = -999;
-									//double D° = -999;
-									//if (flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Y) != -999 || flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_X) != -999)
-									//{
 									double alpha = atan2(flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_X));
 									double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 									ASSERT(angle >= 0 && angle <= 360);
 									double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
-									//}
+
+									double defoliation = -999;
+									double broods = -999;
+									if (flyer.GetLog(CFlyer::T_IDLE_END) > 0)
+									{
+										bool bOverWater = is_over_water(flyer.m_newLocation);
+										defoliation = bOverWater?-1:get_defoliation(flyer.m_newLocation);
+
+										if (flyer.m_sex == CATMParameters::FEMALE &&!bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
+											broods = flyer.m_broods;
+									}
 									
+
+
+
 									size_t minutes = size_t(seconds / 60);
 									output_file << flyer.m_loc + 1 << "," << flyer.m_par + 1 << "," << flyer.m_rep + 1 << ",";// << flyer.m_no + 1 << ",";
 									output_file << localTRef.GetYear() << "," << localTRef.GetMonth() + 1 << "," << localTRef.GetDay() + 1 << "," << localTRef.GetHour() << "," << minutes << "," << seconds - 60 * minutes << ",";
-									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << flyer.m_eggsLaid << "," << flyer.m_eggsLeft << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
+									output_file << flyer.m_flightNo << "," << flyer.m_scale << "," << flyer.m_sex << "," << flyer.m_A << "," << flyer.m_M << "," << flyer.m_G << "," << broods << "," << state << "," << pt.m_x << "," << pt.m_y << "," << flyer.m_newLocation.m_lat << "," << flyer.m_newLocation.m_lon << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_TAIR) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_PRCP) << ",";
 									output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_U, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_V, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W, ms2kmh) << ",";
 
@@ -2321,13 +2375,15 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										//log exists
 										output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_HEIGHT) << "," << flyer.m_pt.m_z << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Z, 1, SUM) << ",";
 										output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W_HORIZONTAL, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W_VERTICAL, ms2kmh) << ",";
-										output_file << angle << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM) << "," << D°;
+										output_file << angle << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM) << "," << D° << ",";
 									}
 									else
 									{
-										output_file << "-999,-999,-999,-999,-999,-999,-999,-999";
+										output_file << "-999,-999,-999,-999,-999,-999,-999,-999,";
 									}
 
+									
+									output_file << defoliation;
 									output_file << endl;
 
 									flyer.ResetStat(CFlyer::SUB_HOURLY_STAT);

@@ -106,7 +106,7 @@ namespace WBSF
 		bool m_bExodus;
 		bool m_bAlreadyExodus;
 		//double m_p_mating;
-		//double m_defoliation;
+		double m_defoliation;
 		
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];

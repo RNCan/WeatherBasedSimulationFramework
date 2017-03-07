@@ -249,7 +249,6 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("M", "M", "g", "Dry weight", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("G", "G", "", "Gravidity", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("EggsLaid", "EggsLaid", "", "EggsLaid", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("EggsLeft", "EggsLeft", "", "EggsLeft", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of flyer", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));
@@ -411,8 +410,8 @@ namespace WBSF
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		
 		
-		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, I_F0, I_F, I_E, NB_INPUTS };
-		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G", "F°", "F", "Eggs" };
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, I_F0, I_F, I_B, I_E, NB_INPUTS };
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G", "F°", "F", "Broods", "Eggs" };
 
 		bool bMissing = false;
 		std::array<size_t, NB_INPUTS> varsPos;
@@ -425,7 +424,7 @@ namespace WBSF
 
 		if (bMissing)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", \"Eggs\" must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", \"Broods\", \"Eggs\" must be defined");
 			return msg;
 		}
 
@@ -433,20 +432,67 @@ namespace WBSF
 
 
 		if (msg)
+		{
 			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
+			if (msg)
+			{
+				world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
+				//world.m_extents = world.m_DEM_DS.GetExtents();
+			}
+			
+		}
+			
 
 		if (!msg)
 			return msg;
 
 		//Create projection
-		world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
+		
 		msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
+		if (msg)
+		{
+			
+
+			//compute extent in the DEM projection
+			//if (!gribs_filepath.empty())
+			//{
+				//world.m_weather.GetExtents();
+			world.m_GEO2GRIBS = GetReProjection(PRJ_WGS_84, world.m_weather.GetGribsPrjID());
+			//world.m_GRIBS2GEO = GetReProjection(world.m_p_weather_DS.GetPrjID(), PRJ_WGS_84);
+
+				//compude extent in the DEM projection
+				
+				//m_extents.Reproject(world.m_WEA2GEO);
+				//m_extents.Reproject(world.m_GEO2DEM);
+			//}
+
+
+			//if (!hourly_DB_filepath.empty())
+			//{
+			//	for (size_t i = 0; i < m_p_hourly_DB->size(); i++)
+			//	{
+			//		//reproject into Gribs projection if any
+			//		CLocation loc = m_p_hourly_DB->at(i);
+			//		loc.Reproject(m_world.m_GEO2DEM);
+			//		m_extents.ExtendBounds(loc);
+			//	}
+			//}
+
+		}
+
 
 		callback.StepIt();
 		if (!defoliation_filepath.empty())
+		{
 			msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
+			if (msg)
+				world.m_GEO2DEFOLIATION = GetReProjection(PRJ_WGS_84, world.m_defoliation_DS.GetPrjID());
+		}
 		else if (world.m_parameters1.m_maxFliyers > 1)
+		{
 			msg.ajoute("maximum flyers is more than 1 but there is no defoliation map. Reset maximum flyers to 1 or provide defoliation map.");
+		}
+			
 		
 
 		callback.StepIt();
@@ -458,8 +504,19 @@ namespace WBSF
 			msg += world.m_distraction_DS.OpenInputImage(distraction_filepath);
 
 		callback.StepIt();
+
+				
+
 		if (!water_filepath.empty())
+		{
 			msg += world.m_water_DS.OpenInputImage(water_filepath);
+			if (msg)
+				world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
+		}
+		else if (world.m_parameters1.m_maxFliyers > 1)
+		{
+			msg.ajoute("maximum flyers is more than 1 but there is no water map. Reset maximum flyers to 1 or provide water map.");
+		}
 
 		callback.StepIt();
 		if (!msg)
@@ -511,7 +568,8 @@ namespace WBSF
 							flyer.m_A = v[I_A];
 							flyer.m_M = v[I_M];
 							flyer.m_G = v[I_G];
-							flyer.m_eggsLaid = v[I_F] - v[I_E];
+							flyer.m_F° = v[I_F0];
+							flyer.m_broods = v[I_B];
 							flyer.m_eggsLeft = v[I_E];
 							flyer.m_location = locations[l];
 							flyer.m_newLocation = locations[l];

@@ -102,9 +102,11 @@ namespace WBSF
 	//************************************************************************************************************
 	//Load station definition list section
 
-	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP)const
+	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const
 	{
-
+		
+		if (bForecast)
+			TRef--;
 
 		int y = TRef.GetYear();
 		int m = int(TRef.GetMonth() + 1);
@@ -117,19 +119,17 @@ namespace WBSF
 			if (TRef < CTRef(2012, MAY, 8, 0))
 			{
 				if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
-					filePath = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb" : ".inv");
+					filePath = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb" : ".inv");
 				else
-					filePath = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+					filePath = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 			}
 			else
 			{
-				//CTRef TRefII = TRef;
-				//TRefII.Transform(CTM(CTM::DAILY));
 				CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
 				if (now - TRef >= 24)
-					filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+					filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 				else
-					filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, 0, bGrib ? ".grb2" : ".inv");
+					filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 			}
 		}
 		else
@@ -144,9 +144,11 @@ namespace WBSF
 		return filePath;
 	}
 
-	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP)const
+	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const
 	{
 		static const char* OUTPUT_FORMAT = "%s%4d\\%02d\\%02d\\%s%4d%02d%02d_%02d00_%03d%s";
+		//if (bForecast)
+			//TRef--;
 
 		string workingDir = GetDir(WORKING_DIR);// GetAbsoluteFilePath(m_path);
 		int y = TRef.GetYear();
@@ -155,7 +157,14 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 		int forecastH = 0;
 		
-		if (!bRAP)
+		if (bRAP)
+		{
+			/*if (bForecast)
+			{
+				forecastH = 1;
+			}*/
+		}
+		else
 		{
 			forecastH = h % 6;
 			h = int(h / 6) * 6;
@@ -165,12 +174,12 @@ namespace WBSF
 //		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
-	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, CCallback& callback)const
+	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, bool bForecast, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		string inputPath = GetInputFilePath(TRef, bGrib, bRAP);
-		string outputPath = GetOutputFilePath(TRef, bGrib, bRAP);
+		string inputPath = GetInputFilePath(TRef, bGrib, bRAP, bForecast);
+		string outputPath = GetOutputFilePath(TRef, bGrib, bRAP, bForecast);
 		CreateMultipleDir(GetPath(outputPath));
 
 		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
@@ -252,9 +261,10 @@ namespace WBSF
 		{
 			size_t hh = (h - period.Begin());
 
-			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, true));
+			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, true, false));
+
 			if (bGrbNeedDownload[hh] && as<bool>(USE_NAM))
-				bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false));
+				bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false, false));
 
 			nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
 
@@ -285,30 +295,44 @@ namespace WBSF
 						size_t hh = (h - period.Begin());
 						if (bGrbNeedDownload[hh])
 						{
-							//downloiad gribs file
-							msg = DownloadGrib(pConnection, h, true, true, callback);
-
-							if (msg && FileExists(GetOutputFilePath(h, true, true)))
+							//download inventory
+							msg = DownloadGrib(pConnection, h, false, true, false, callback);
+							if (FileExists(GetOutputFilePath(h, false, true, false)))
+							{
+								//download gribs file
+								msg = DownloadGrib(pConnection, h, true, true, false, callback);
+								if (msg && !FileExists(GetOutputFilePath(h, true, true, false)))
+									msg += RemoveFile(GetOutputFilePath(h, false, true, false));
+							}
+							
+							//now try with 1 hour forecast
+							if (msg && !FileExists(GetOutputFilePath(h, true, true, false)))
 							{
 								//download inventory
-								msg = DownloadGrib(pConnection, h, false, true, callback);
-								assert(FileExists(GetOutputFilePath(h, false, true)));
-							}
-							else
-							{
-								if (as<bool>(USE_NAM))
+								msg = DownloadGrib(pConnection, h, false, true, true, callback);
+								if (FileExists(GetOutputFilePath(h, false, true, true)))
 								{
-									//try to download NAM instead
-									msg = DownloadGrib(pConnection, h, true, false, callback);
-									if (msg && FileExists(GetOutputFilePath(h, true, false)))
+									//download gribs file
+									msg = DownloadGrib(pConnection, h, true, true, true, callback);
+									if (msg && !FileExists(GetOutputFilePath(h, true, true, true)))
+										msg += RemoveFile(GetOutputFilePath(h, false, true, true));
+								}
+							}
+
+
+							//now try with NAM product
+							if (msg && !FileExists(GetOutputFilePath(h, true, true, false)) && as<bool>(USE_NAM))
+							{
+								msg = DownloadGrib(pConnection, h, false, false, false, callback);
+								if (msg && FileExists(GetOutputFilePath(h, false, false, false)))
+								{
+									msg = DownloadGrib(pConnection, h, true, false, false, callback);
+									if (msg && !FileExists(GetOutputFilePath(h, true, false, false)))
 									{
-										msg = DownloadGrib(pConnection, h, false, false, callback);
-										if (msg && !FileExists(GetOutputFilePath(h, false, false)))
-										{
-											//if .inv does not exist, remove gribs files
-											//a better solution can mayby done here by copying a valid .inv file???
-											msg += RemoveFile(GetOutputFilePath(h, true, false));
-										}
+											
+										//if .gribs does not exist, remove .inv files
+										//a better solution can mayby done here by copying a valid .inv file???
+										msg += RemoveFile(GetOutputFilePath(h, false, false, false));
 									}
 								}
 							}

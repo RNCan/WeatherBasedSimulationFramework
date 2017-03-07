@@ -47,11 +47,11 @@ namespace WBSF
 	protected:
 
 
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, CCallback& callback)const;
+		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, bool bForecast, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP)const;
+		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
+		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
 	
 		CTPeriod GetPeriod()const;
 
