@@ -132,7 +132,7 @@ namespace WBSF
 {
 
 	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Agriculture(historical)", "Fire", "Hydro" };
-	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture", "Manitoba Fire", "Manitoba Hydro" };
+	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture (historical)", "Manitoba Fire", "Manitoba Hydro" };
 	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "mawpvs.dyndns.org", "tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca" };
 	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "Tx_DMZ/", "climate/", "sd/fire/", "hydrologicalData/static/stations" };
 
@@ -219,12 +219,18 @@ namespace WBSF
 		ERMsg msg;
 
 		
-		StringVector network(Get(NETWORK), "|");
-		
+		StringVector networkV(Get(NETWORK), "|");
+		bitset<NETWORK> network;
+		for (size_t n = 0; n < NB_NETWORKS; n++)
+			if (networkV.empty() || networkV.Find(ToString(n)) != NOT_INIT)
+				network.set(n);
+
+
+		callback.PushTask("Download Manitoba Network", network.count());
 
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
-			if (network.empty() || network.Find(ToString(n)) != NOT_INIT)
+			if (network[n])
 			{
 				string workingDir = GetDir(WORKING_DIR) + SUBDIR_NAME[n] + "\\";
 				msg = CreateMultipleDir(workingDir);
@@ -245,10 +251,13 @@ namespace WBSF
 				default: ASSERT(false);
 				}
 
-			}
-			//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
-			//callback.PopTask();
-		}
+				msg += callback.StepIt();
+			}//if selected network
+		}//for all newtwork
+
+
+		callback.PopTask();
+
 
 		return msg;
 	}
@@ -276,39 +285,44 @@ namespace WBSF
 					locations[i].SetSSI("Network", NETWORK_NAME[n]);
 
 				m_stations.insert(m_stations.end(), locations.begin(), locations.end());
+				
+				for (size_t i = 0; i < locations.size(); i++)
+					stationList.push_back(ToString(n)+"/"+locations[i].m_ID);
 			}
 		}
 
 		if (msg)
 		{
-			for (size_t i = 0; i < m_stations.size(); i++)
-				stationList.push_back(m_stations[i].m_ID);
+			
 		}
 
 
 		return msg;
 	}
 
-	ERMsg CUIManitoba::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIManitoba::GetWeatherStation(const std::string& NID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
+		size_t n = ToSizeT(NID.substr(0,1));
+		string ID = NID.substr(2);
+
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
-		if (it == NOT_INIT)
-		{
+		ASSERT(it != NOT_INIT);
+		/*{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));
 			return msg;
-		}
+		}*/
 
 		((CLocation&)station) = m_stations[it];
-		string network = station.GetSSI("Network");
-		size_t n = GetNetwork(network);
-		if (n == NOT_INIT)
+		//string network = station.GetSSI("Network");
+		//size_t n = GetNetwork(network);
+	/*	if (n == NOT_INIT)
 		{
 			msg.ajoute("Invalid network for: " + ID);
 			return msg;
-		}
+		}*/
 		//station.m_name = TraitFileName(station.m_name);
 
 		size_t type = as<size_t>(DATA_TYPE);
