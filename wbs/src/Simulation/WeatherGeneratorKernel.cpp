@@ -241,12 +241,14 @@ namespace WBSF
 					static const double B = 0.1371;
 					static const double C = 0.8853;
 
-					double WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
+					//double WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
+					double WS = m_rand.RandLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
 
 					if (WS > WSMax)
 					{
 						while (WS<exp(windSpeedMean) || WS > WSMax)
-							WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
+							WS = m_rand.RandLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
+							//WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
 					}
 
 					if (WS < 0.1)

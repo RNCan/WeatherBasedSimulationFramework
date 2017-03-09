@@ -271,7 +271,7 @@ namespace WBSF
 //		case WING_BEAT_K:		me.m_parameters.m_ATM.m_K = WBSF::ToDouble(str); break;
 //		case WING_BEAT_VMAX:	me.m_parameters.m_ATM.m_Vmax = WBSF::ToDouble(str); break;
 //		case WING_BEAT_VMAXF:	me.m_parameters.m_ATM.m_VmaxF = WBSF::ToDouble(str); break;
-//		case WING_BEAT_SCALE:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
+		case WING_BEAT_SCALE:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
 		case W_HORZ:			me.m_parameters.m_ATM.m_w_horizontal = WBSF::ToDouble(str); break;
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;

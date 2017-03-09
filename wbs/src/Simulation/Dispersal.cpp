@@ -450,35 +450,7 @@ namespace WBSF
 		
 		msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
 		if (msg)
-		{
-			
-
-			//compute extent in the DEM projection
-			//if (!gribs_filepath.empty())
-			//{
-				//world.m_weather.GetExtents();
 			world.m_GEO2GRIBS = GetReProjection(PRJ_WGS_84, world.m_weather.GetGribsPrjID());
-			//world.m_GRIBS2GEO = GetReProjection(world.m_p_weather_DS.GetPrjID(), PRJ_WGS_84);
-
-				//compude extent in the DEM projection
-				
-				//m_extents.Reproject(world.m_WEA2GEO);
-				//m_extents.Reproject(world.m_GEO2DEM);
-			//}
-
-
-			//if (!hourly_DB_filepath.empty())
-			//{
-			//	for (size_t i = 0; i < m_p_hourly_DB->size(); i++)
-			//	{
-			//		//reproject into Gribs projection if any
-			//		CLocation loc = m_p_hourly_DB->at(i);
-			//		loc.Reproject(m_world.m_GEO2DEM);
-			//		m_extents.ExtendBounds(loc);
-			//	}
-			//}
-
-		}
 
 
 		callback.StepIt();
@@ -575,7 +547,7 @@ namespace WBSF
 							flyer.m_newLocation = locations[l];
 							flyer.m_pt = locations[l];
 
-							flyer.m_pt.m_alt = 5;
+							flyer.m_pt.m_alt = 10;
 							if (extents.IsInside(flyer.m_pt))
 								world.m_flyers.push_back(flyer);
 							else
