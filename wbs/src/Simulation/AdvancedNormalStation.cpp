@@ -84,7 +84,9 @@ namespace WBSF
 								case H_WND2:
 								{
 									_ASSERTE(data[m][d].GetData(v)[MEAN] >= 0);
-									at(y)[v][m] += log(max(0.00000000001, data[m][d][v][MEAN]));//take the log of the wind speed
+									if (data[m][d][v][MEAN]>0)
+										at(y)[v][m] += log(max(0.01, data[m][d][v][MEAN]));//take the log of the wind speed
+
 									break;
 								}
 								case H_ADD1:
