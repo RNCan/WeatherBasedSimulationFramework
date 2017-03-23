@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>BlueStainIndex</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Compute Pathogenic Ceratocystis Polonica (blue-stain fungus) Index from bio-climatic variables.</Description>
     <WindowRect>0 0 143 250</WindowRect>
-    <SimulatedCategory>T TR P</SimulatedCategory>
+    <SimulatedCategory>T P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -15,39 +15,15 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>variables</Name>
-            <Caption>Variables</Caption>
+            <Name>No input</Name>
+            <Caption>No input</Caption>
             <Description/>
-            <Type>1</Type>
-            <Rect>10 10 30 220</Rect>
+            <Type>10</Type>
+            <Rect>10 10 32 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>4194303</DefaultValue>
-            <MinValue>1</MinValue>
-            <MaxValue>4194303</MaxValue>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>lo</Name>
-            <Caption>lo</Caption>
-            <Description/>
-            <Type>2</Type>
-            <Rect>35 10 55 220</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>10</DefaultValue>
-            <MinValue>1</MinValue>
-            <MaxValue>30</MaxValue>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>hi</Name>
-            <Caption>hi</Caption>
-            <Description/>
-            <Type>2</Type>
-            <Rect>60 10 85 220</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>90</DefaultValue>
-            <MinValue>70</MinValue>
-            <MaxValue>99</MaxValue>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

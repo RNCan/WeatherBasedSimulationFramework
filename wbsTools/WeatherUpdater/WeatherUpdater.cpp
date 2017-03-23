@@ -1,7 +1,8 @@
-//5.3.3 28/02/2016  Rémi Saint-Amant	Add historical agriculture and hydro for Manitoba
-//5.3.2 16/02/2016  Rémi Saint-Amant	Historical fire station for new brunswick
+//5.3.4 23/03/2017  Rémi Saint-Amant	Add Saskatchewan, Nova-Scotia and Newfoundland
+//5.3.3 28/02/2017  Rémi Saint-Amant	Add historical agriculture and hydro for Manitoba
+//5.3.2 16/02/2017  Rémi Saint-Amant	Historical fire station for new brunswick
 //										Stations coordinate for CIPRA in atlantic 
-//5.3.1 10/02/2016  Rémi Saint-Amant	Add CUIMiscellaneous and virtual station
+//5.3.1 10/02/2017  Rémi Saint-Amant	Add CUIMiscellaneous and virtual station
 //										Change in icon selection of the task
 //										Better TaskFactory. Fing task by ID
 //5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header

@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+// 23/03/2017	1.2.1	Rémi Saint-Amant    Bug corrected
 // 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 27/01/2015	1.0.0	Rémi Saint-Amant	Creation
@@ -73,7 +74,7 @@ namespace WBSF
 	};
 	 
 
-	CLimits CBlueStainIndexModel::GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v, size_t nbVars, double f)
+	CLimits CBlueStainIndexModel::GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v,  double f)
 	{
 		CLimits out;
 
@@ -97,13 +98,12 @@ namespace WBSF
 
 		
 		ASSERT(F>=0 && F<=100);
-		//return CLimits(F / nbVars, pow(max(1.0, F), 1.0 / nbVars));
-		return CLimits(F / nbVars, pow(F, 1.0 / nbVars));
+		
+		return CLimits(F / CBlueStainVariables::NB_VARIABLES, pow(F, 1.0 / CBlueStainVariables::NB_VARIABLES));
 	}
 
-	CLimits CBlueStainIndexModel::GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], const CSelectionVars& vars, const CModelStatVector& values)
+	CLimits CBlueStainIndexModel::GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], const CModelStatVector& values)
 	{
-
 		CLimits BSI(0, 0);
 
 		CTPeriod p = values.GetTPeriod();
@@ -113,12 +113,9 @@ namespace WBSF
 
 			for (size_t v = 0; v < CBlueStainVariables::NB_VARIABLES; v++)
 			{
-				if (vars[v])
-				{
-					CLimits f = GetF(LIMITS, v, vars.count(), values[TRef][v]);
-					y[ADD] += f[ADD];
-					y[MUL] *= f[MUL];
-				}
+				CLimits f = GetF(LIMITS, v, values[TRef][v]);
+				y[ADD] += f[ADD];
+				y[MUL] *= f[MUL];
 			}
 
 			BSI += y/p.size();
@@ -132,11 +129,11 @@ namespace WBSF
 	CBlueStainIndexModel::CBlueStainIndexModel()
 	{
 		// initialise your variable here (optionnal)
-		NB_INPUT_PARAMETER = 3;
+		NB_INPUT_PARAMETER = 0;
 		VERSION = "1.2.1 (2017)";
 
-		double m_lo = 10;
-		double m_hi = 90;
+		//double m_lo = 10;
+		//double m_hi = 90;
 	}
 
 	CBlueStainIndexModel::~CBlueStainIndexModel()
@@ -151,9 +148,9 @@ namespace WBSF
 
 		//transfer your parameter here
 		size_t c = 0;
-		m_vars = CSelectionVars(parameters[c++].GetSizeT() );
-		m_lo = parameters[c++].GetReal();
-		m_hi = parameters[c++].GetReal();
+		//m_vars = CSelectionVars(parameters[c++].GetSizeT() );
+		//m_lo = parameters[c++].GetReal();
+		//m_hi = parameters[c++].GetReal();
 		
 
 		return msg;
@@ -169,15 +166,15 @@ namespace WBSF
 		CBlueStainVariables blueStainVariables;
 		CModelStatVector values;
 		blueStainVariables.Execute(m_weather, values);
-		CLimits BSIFull = GetBSI(PERCENTILS, m_vars, values);
+		CLimits BSIFull = GetBSI(PERCENTILS, values);
 
 		m_output.Init(1, CTRef(YEAR_NOT_INIT, 0, 0, 0, CTM(CTM::ANNUAL, CTM::OVERALL_YEARS)), NB_OUTPUT, -9999);
 
 		m_output[0][O_BSI_FULL_ADD] = BSIFull[ADD];
 		m_output[0][O_BSI_FULL_MUL] = BSIFull[MUL];
 
-		CSelectionVars test(5);
-		ASSERT(test.to_ullong() == 5);
+		//CSelectionVars test(5);
+		//ASSERT(test.to_ullong() == 5);
 
 
 		return msg;
@@ -252,54 +249,48 @@ namespace WBSF
 			}
 
 
-			ofStream file;
-			file.open("D:/testVars1_all2.csv");
-			file << "K,N,BSI"<< endl;
+			//ofStream file;
+			//file.open("D:/testVars1_all2.csv");
+			//file << "K,N,BSI"<< endl;
 
-			size_t nbVars = 4194304;
-			for (size_t ii = 1; ii <nbVars; ii++)
-			{
-				//execute model with actual parameters
-				m_vars = CSelectionVars(ii);
+			//size_t nbVars = 4194304;
+			//for (size_t ii = 1; ii <nbVars; ii++)
+			//{
+			//	//execute model with actual parameters
+			//	m_vars = CSelectionVars(ii);
 
-				//if (m_vars.count() >= 5 && m_vars.count() <= 10)
-				{
-
-
+			//	//if (m_vars.count() >= 5 && m_vars.count() <= 10)
+			//	{
 
 
-					CStatistic test;
-					for (size_t i = 0; i < m_SAResult.size(); i++)
-					{
-						if (m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES]==1)
-						{
-							CModelStatVector inputs(1, m_SAResult[i].m_ref, CBlueStainVariables::NB_VARIABLES, -999);
-							for (size_t v = 0; v < CBlueStainVariables::NB_VARIABLES; v++)
-								inputs[0][v] = m_SAResult[i].m_obs[v];
-
-							CLimits BSIFull = GetBSI(percentils, m_vars, inputs);
-
-							double obsV = m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES] * 100;
-							double simV = BSIFull[MUL];
-							test += simV;
-
-							stat.Add(simV, obsV);
-						}
-					}
-
-					file << to_string(ii) << "," << m_vars.count() << "," << test[MEAN] << endl;
-				}
-			}
 
 
-			file.close();
-			/*else
-			{
-				stat.Add(999, 0);
-				stat.Add(-999, 999);
-				stat.Add(0, 100);
-				stat.Add(999, -999);
-			}*/
+			//		CStatistic test;
+			//		for (size_t i = 0; i < m_SAResult.size(); i++)
+			//		{
+			//			if (m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES]==1)
+			//			{
+			//				CModelStatVector inputs(1, m_SAResult[i].m_ref, CBlueStainVariables::NB_VARIABLES, -999);
+			//				for (size_t v = 0; v < CBlueStainVariables::NB_VARIABLES; v++)
+			//					inputs[0][v] = m_SAResult[i].m_obs[v];
+
+			//				CLimits BSIFull = GetBSI(percentils, m_vars, inputs);
+
+			//				double obsV = m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES] * 100;
+			//				double simV = BSIFull[MUL];
+			//				test += simV;
+
+			//				stat.Add(simV, obsV);
+			//			}
+			//		}
+
+			//		file << to_string(ii) << "," << m_vars.count() << "," << test[MEAN] << endl;
+			//	}
+			//}
+
+
+			//file.close();
+			
 		}
 	}
 }

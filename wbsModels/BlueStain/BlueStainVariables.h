@@ -47,11 +47,11 @@ namespace WBSF
 	};
 
 
-	class  CSelectionVars : public std::bitset < CBlueStainVariables::NB_VARIABLES >
-	{
-	public:
+	//class  CSelectionVars : public std::bitset < CBlueStainVariables::NB_VARIABLES >
+	//{
+	//public:
 
-		CSelectionVars(size_t v = 0xFFFFFFFFFFFFFFFF);
+	//	CSelectionVars(size_t v = 0xFFFFFFFFFFFFFFFF);
 
-	};
+	//};
 }

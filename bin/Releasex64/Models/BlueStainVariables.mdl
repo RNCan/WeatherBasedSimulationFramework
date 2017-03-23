@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows - 1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>BlueStainVaraibles</Title>
     <Version>1.0</Version>
@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Outpout the 22 bio-climatic variables of the Pathogenic Ceratocystis Polonica (blue-stain fungus).</Description>
     <WindowRect>0 0 103 263</WindowRect>
-    <SimulatedCategory>T TR P</SimulatedCategory>
+    <SimulatedCategory>T P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

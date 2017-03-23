@@ -50,15 +50,9 @@ namespace WBSF
 		static CBioSIMModelBase* CreateObject(){ return new CBlueStainIndexModel; }
 
 		//ERMsg ExecuteAtemporal(CModelStatVector& output);
-		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v, size_t nbVars, double f);
-		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], const CSelectionVars& vars, const CModelStatVector& values);
+		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v, double f);
+		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], const CModelStatVector& values);
 
-
-	protected:
-
-		CSelectionVars m_vars;
-		double m_lo;
-		double m_hi;
 		
 		
 	};

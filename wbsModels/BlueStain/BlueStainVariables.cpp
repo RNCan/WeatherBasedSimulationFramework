@@ -301,12 +301,12 @@ namespace WBSF
 
 
 	//********************************************************************************************************
-	CSelectionVars::CSelectionVars(size_t v)
-	{ 
-		for (size_t i = 0; i < size(); i++)
-			if (v&(1ull<<i))
-				set(i);
-		ASSERT(to_ullong()==v);
-	}
+	//CSelectionVars::CSelectionVars(size_t v)
+	//{ 
+	//	for (size_t i = 0; i < size(); i++)
+	//		if (v&(1ull<<i))
+	//			set(i);
+	//	ASSERT(to_ullong()==v);
+	//}
 
 }
