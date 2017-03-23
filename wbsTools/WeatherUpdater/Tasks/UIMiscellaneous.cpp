@@ -26,6 +26,19 @@ using namespace boost;
 namespace WBSF
 {
 
+	//MesoWest station list 
+	//http://mesowest.utah.edu/cgi-bin/droman/meso_station.cgi
+	
+	//MesoWest station data
+	//http://mesowest.utah.edu/cgi-bin/droman/download_api2.cgi?stn=CYLA&year1=2017&day1=23&month1=3&hour1=0&timetype=LOCAL&unit=1
+
+	//MesoWest bt state
+	//http://mesowest.utah.edu/cgi-bin/droman/stn_state.cgi?state=AB
+	
+	//variable listing
+	//http://mesowest.utah.edu/cgi-bin/droman/variable_download_select.cgi
+
+
 	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov" };
 	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/" };
 	//const char* CUIMiscellaneous::LOCATION_PATH[NB_DATASETS] = { "pub12/russia_daily/" };

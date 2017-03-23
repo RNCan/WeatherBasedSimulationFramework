@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>Outpout the 22 bio-climatic variables of the Pathogenic Ceratocystis Polonica (blue-stain fungus).</Description>
     <WindowRect>0 0 103 263</WindowRect>
-    <SimulatedCategory>T P</SimulatedCategory>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>

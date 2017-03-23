@@ -1,6 +1,6 @@
 ﻿//**********************************************************************
 // 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
-// 28/05/2015 	Rémi Saint-Amant	Incorporate in BioSIMModelBase
+// 28/05/2015 	1.0.0   Rémi Saint-Amant	Incorporate in BioSIMModelBase
 //**********************************************************************
 //variables :
 //1		annual_temp_mean	Mean annual temperature(°C)
