@@ -98,7 +98,7 @@ namespace WBSF
 					pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
 
 				
-				string firstYear = pTask->Get("FirstYear"); ASSERT(!firstYear.empty());
+				string firstYear = pTask->Get("FirstYear");
 				string lastYear = pTask->Get("LastYear");
 
 				pTask->Set("FirstYear", Get("FirstYear"));

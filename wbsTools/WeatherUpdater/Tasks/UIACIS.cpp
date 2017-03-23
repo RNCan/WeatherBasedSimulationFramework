@@ -82,8 +82,8 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan", "MonthLag" };
 	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
-	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ACIS_P;
-	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ACIS;
+	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ALBERTA_P;
+	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ALBERTA;
 
 	const char* CUIACIS::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ACISHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIACIS::ClassType()const { return CTaskBase::UPDATER; }

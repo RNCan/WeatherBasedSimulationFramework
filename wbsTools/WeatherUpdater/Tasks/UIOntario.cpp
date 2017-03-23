@@ -162,8 +162,6 @@ namespace WBSF
 
 		fileList.clear();
 
-	
-
 		//open a connection on the server
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -176,107 +174,6 @@ namespace WBSF
 			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "WxHourly.csv", fileList);
 		}
 		
-
-//		int firstYear = as<int>(FIRST_YEAR);
-//		int lastYear = as<int>(LAST_YEAR);
-//		size_t nbYears = lastYear - firstYear + 1;
-//
-//		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), nbYears);
-////		callback.SetNbStep(nbYears);
-//
-//
-//
-//		dynamic_bitset<size_t> toDo(nbYears + 1);
-//		toDo.set();
-//		//toDo.InsertAt(0, true, nbYears+1);
-//
-//
-//		size_t nbRun = 0;
-//
-//		CFileInfoVector dirList;
-//		while (nbRun < 20 && toDo[nbYears] && msg)
-//		{
-//			nbRun++;
-//
-//			//open a connection on the server
-//			CInternetSessionPtr pSession;
-//			CFtpConnectionPtr pConnection;
-//
-//			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-//			if (msgTmp)
-//			{
-//				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-//
-//				if (toDo[0])
-//				{
-//					callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
-//					msgTmp = FindDirectories(pConnection, SERVER_PATH, dirList);
-//					callback.PopTask();
-//
-//					if (msgTmp)
-//						toDo[0] = false;
-//				}
-//
-//				if (msgTmp)
-//				{
-//					for (size_t y = 0; y < dirList.size() && msg&&msgTmp; y++)
-//					{
-//						msg += callback.StepIt(0);
-//
-//						const CFileInfo& info = dirList[y];
-//						string path = info.m_filePath;
-//						int year = ToInt(path.substr(14, 4));
-//						if (year >= firstYear && year <= lastYear)
-//						{
-//							int index = year - firstYear + 1;
-//							if (toDo[index])
-//							{
-//								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.op.gz", fileList, callback);
-//								if (msgTmp)
-//								{
-//									toDo[index] = false;
-//									msg += callback.StepIt();
-//
-//									nbRun = 0;
-//								}
-//							}
-//						}
-//					}
-//				}
-//
-//				pConnection->Close();
-//				pSession->Close();
-//
-//				if (!msgTmp)
-//					callback.AddMessage(msgTmp);
-//			}
-//			else
-//			{
-//				if (nbRun > 1 && nbRun < 20)
-//				{
-//					callback.AddMessage("Waiting 30 seconds for server...");
-//					for (int i = 0; i < 60 && msg; i++)
-//					{
-//						Sleep(500);//wait 500 milisec
-//						msg += callback.StepIt(0);
-//					}
-//				}
-//			}
-		//}
-//
-//		callback.PopTask();
-//
-//		//remove unwanted file
-//		if (msg)
-//		{
-//			if (toDo[nbYears])
-//				callback.AddMessage(GetString(IDS_SERVER_BUSY));
-//
-//			callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()), 1);
-//
-//			msg = CleanList(fileList, callback);
-//		}
-
 		return msg;
 	}
 
@@ -296,29 +193,7 @@ namespace WBSF
 		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
 		callback.AddMessage("");
 
-
-		//leand station list
-		//CFileInfoVector fileList;
-		//msg = UpdateStationHistory();
-
-		//if (msg)
-			//msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
-
-		//if (msg)
-			//msg = LoadOptimisation();
-
-		//if (msg)
-			//msg = GetFileList(fileList, callback);
-
-		//if (!msg)
-			//return msg;
-
-
-		//callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
-		//callback.SetNbStep(fileList.size());
-
-		//size_t type = as<size_t>(DATA_TYPE);
-		string fileName = "WxHourly.csv";//type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
+		string fileName = "WxHourly.csv";
 		string remoteFilePath = SERVER_PATH + fileName;
 		string outputFilePath = workingDir + fileName;
 		
@@ -395,11 +270,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//if (m_stations.empty())
-			//msg = m_stations.Load(GetStationListFilePath());
-
-		//size_t type = as<size_t>(DATA_TYPE);
-		//CTM TM(type == HOURLY_WEATHER?CTM::HOURLY:CTM::DAILY);
 		CTM TM(CTM::HOURLY);
 
 		std::map<string, CWeatherYears> data;
@@ -479,7 +349,7 @@ namespace WBSF
 			}//for all line (
 
 
-			if (stat.GetTRef().IsInit())
+			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
 				data[lastID][stat.GetTRef()].SetData(stat);
 
 

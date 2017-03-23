@@ -217,16 +217,16 @@ namespace WBSF
 	ERMsg CUIManitoba::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-
 		
+		size_t type = as<size_t>(DATA_TYPE);
 		StringVector networkV(Get(NETWORK), "|");
-		bitset<NETWORK> network;
+		bitset<NB_NETWORKS> network;
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 			if (networkV.empty() || networkV.Find(ToString(n)) != NOT_INIT)
 				network.set(n);
 
-
-		callback.PushTask("Download Manitoba Network", network.count());
+		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
+		callback.PushTask("Download " + tstr + " Manitoba Data (" + ToString(network.count()) + " networks)", network.count());
 
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
@@ -310,21 +310,9 @@ namespace WBSF
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
 		ASSERT(it != NOT_INIT);
-		/*{
-			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));
-			return msg;
-		}*/
-
+	
 		((CLocation&)station) = m_stations[it];
-		//string network = station.GetSSI("Network");
-		//size_t n = GetNetwork(network);
-	/*	if (n == NOT_INIT)
-		{
-			msg.ajoute("Invalid network for: " + ID);
-			return msg;
-		}*/
-		//station.m_name = TraitFileName(station.m_name);
-
+	
 		size_t type = as<size_t>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
@@ -429,7 +417,7 @@ namespace WBSF
 			{
 				TRY
 				{
-					callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
+					callback.PushTask(GetString(IDS_UPDATE_FILE) + " for agriculture network", NOT_INIT);
 					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 					callback.PopTask();
 
@@ -490,7 +478,7 @@ namespace WBSF
 		msg = file.open(outputFilePath);
 		if (msg)
 		{
-			callback.PushTask("Split Manitoba data", file.length());
+			callback.PushTask("Split Manitoba Data", file.length());
 
 			CWeatherAccumulator stat(TM);
 			string lastID;
@@ -600,7 +588,7 @@ namespace WBSF
 			}//for all line (
 
 
-			if (stat.GetTRef().IsInit())
+			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
 				data[lastID][stat.GetTRef()].SetData(stat);
 
 
@@ -692,27 +680,9 @@ namespace WBSF
 				{
 					CString strContentL;
 					strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
-					
-
-					//if (type == HOURLY_WEATHER)
-					//{
-					//	//pURLFile->AddRequestHeaders(CString("Host: tgs.gov.mb.ca"));
-					//	//pURLFile->AddRequestHeaders(CString("Connection: keep-alive"));
-					//	pURLFile->AddRequestHeaders(strContentL);
-					//	//pURLFile->AddRequestHeaders(CString("Cache-Control: max-age=0"));
-					//	//pURLFile->AddRequestHeaders(CString("Origin: http://tgs.gov.mb.ca"));
-					//	//pURLFile->AddRequestHeaders(CString("Upgrade-Insecure-Requests: 1"));
-					//	pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded\r\n"));
-					//	//pURLFile->AddRequestHeaders(CString("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"));
-					//	//pURLFile->AddRequestHeaders(CString("Referer: http://tgs.gov.mb.ca/climate/HourlyReport.aspx\r\n"));
-					//	//pURLFile->AddRequestHeaders(CString("Accept-Encoding: gzip, deflate"));
-					//	//pURLFile->AddRequestHeaders(CString("Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4"));
-					//}
-					//else
-					//{
-						pURLFile->AddRequestHeaders(strContentL);
-						pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded\r\n"));
-					//}
+				
+					pURLFile->AddRequestHeaders(strContentL);
+					pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded\r\n"));
 
 					// send request
 					bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
@@ -720,12 +690,8 @@ namespace WBSF
 					CATCH_ALL(e)
 
 				{
-
-
 					DWORD errnum = GetLastError();
 
-
-					//DWORD errnum = GetLastError();
 					if (errnum == 12002 || errnum == 12029)
 					{
 						msg = UtilWin::SYGetMessage(*e);
@@ -733,7 +699,6 @@ namespace WBSF
 					else if (errnum == 12031 || errnum == 12111)
 					{
 						//throw a exception: server reset
-						//	THROW(new CInternetException(errnum));
 						msg = UtilWin::SYGetMessage(*e);
 					}
 					else if (errnum == 12003)
@@ -1010,8 +975,8 @@ namespace WBSF
 		CTRef currentTRef = CTRef::GetCurrentTRef();
 
 
-		StringVector fileList;
-		GetHistoricalStationList(type, fileList, callback);
+		StringVector stationsList;
+		GetHistoricalStationList(type, stationsList, callback);
 
 	
 		int nbFiles = 0;
@@ -1024,8 +989,8 @@ namespace WBSF
 
 		while (nbRun < 5 && curY<nbYears && msg)
 		{
-			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? fileList.size()*nbYears * 12 : fileList.size()*(nbYears - 1) * 12 + fileList.size()*(currentTRef.GetMonth() + 1);
-			callback.PushTask("Download Manitoba hitorical agriculture data (" + ToString(totalFiles) + " files)", totalFiles);
+			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size()*nbYears * 12 : stationsList.size()*(nbYears - 1) * 12 + stationsList.size()*(currentTRef.GetMonth() + 1);
+			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(stationsList.size()) + " stations)", totalFiles);
 
 			nbRun++;
 			msg = GetHttpConnection(SERVER_NAME[HAGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
@@ -1038,10 +1003,10 @@ namespace WBSF
 
 					for (size_t m = 0; m < nbMonths && msg; m++)
 					{
-						for (size_t i = 0; i < fileList.size() && msg; i++)
+						for (size_t i = 0; i < stationsList.size() && msg; i++)
 						{
 							bool bDownload = true;
-							string filePath = GetOutputFilePath(HAGRI, type, fileList[i], year, m);
+							string filePath = GetOutputFilePath(HAGRI, type, stationsList[i], year, m);
 							CreateMultipleDir(GetPath(filePath));
 
 							CFileStamp fileStamp(filePath);
@@ -1061,7 +1026,7 @@ namespace WBSF
 								{
 									string source;
 									size_t nbDays = year < currentTRef.GetYear() || m < currentTRef.GetMonth() ? GetNbDayPerMonth(year, m) : currentTRef.GetDay() + 1;
-									callback.PushTask("Update station (" + fileList[i] + ") for " + GetMonthTitle(m) + " (" + ToString(nbDays) + " days)", nbDays);
+									callback.PushTask("Update station (ID=" + stationsList[i] + ") for " + GetMonthTitle(m) + " (" + ToString(nbDays) + " days)", nbDays);
 
 
 									for (size_t d = 0; d < nbDays && msg; d++)
@@ -1069,7 +1034,7 @@ namespace WBSF
 										string str;
 
 										CTRef TRef(year, m, d);
-										msg = DownloadStationData(pConnection, type, fileList[i], TRef, str);
+										msg = DownloadStationData(pConnection, type, stationsList[i], TRef, str);
 										string::size_type pos1 = str.find("Hourly Raw Data for");
 
 										if (pos1 < str.size())
@@ -1098,19 +1063,13 @@ namespace WBSF
 										nbFiles++;
 										nbRun = 0;
 									}
-									/*else
-									{
-									ofStream file;
-									file.open(filePath);
-									file.close();
-									}*/
-
+								
 									callback.PopTask();
 								}//if hourly
 								else
 								{
 									string str;
-									msg = DownloadStationData(pConnection, type, fileList[i], CTRef(year, m), str);
+									msg = DownloadStationData(pConnection, type, stationsList[i], CTRef(year, m), str);
 
 									//split data in seperate files
 									if (msg)
@@ -1133,13 +1092,7 @@ namespace WBSF
 											nbFiles++;
 											nbRun = 0;
 										}
-										//else
-										//{
-										//	//save empty file to avoid download it again
-										//	ofStream file;
-										//	file.open(filePath);
-										//	file.close();
-										//}
+										
 									}//if msg
 								}//data type
 							}//need download
@@ -1329,10 +1282,7 @@ namespace WBSF
 									if (FileExists(outputFilePath))
 										msg += RemoveFile(outputFilePath);
 
-									
-									//callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
 									msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY);
-									//callback.PopTask();
 
 									//split data in seperate files
 									if (msgTmp && FileExists(outputFilePath))
@@ -1362,10 +1312,7 @@ namespace WBSF
 													else
 														msg.ajoute("Unable to convert " + GetFileName(outputFilePath) + " to " + GetFileName(tmpFilePath));
 												}
-
 											}
-
-											
 										}//if valid file
 									}//if file exist
 								}//for all variables
@@ -1435,12 +1382,6 @@ namespace WBSF
 		ASSERT(!outputFilePath.empty());
 		ERMsg msg;
 
-		//if (m_stations.empty())
-			//msg = m_stations.Load(GetStationsListFilePath(AGRI));
-
-		
-
-		//GetOutputFilePath(HYDRO, ID, year)
 		size_t type = as<size_t>(DATA_TYPE);
 		CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
 
@@ -1457,8 +1398,6 @@ namespace WBSF
 
 		if (msg)
 		{
-			//callback.PushTask("Split Manitoba hydro data", files.size());
-
 			CWeatherAccumulator stat(TM);
 
 			for (size_t i = 0; i < outputFilePath.size()&&msg; i++)
@@ -1498,8 +1437,6 @@ namespace WBSF
 								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 							}
 
-
-							//data[lastID].HaveData()
 							data[stat.GetTRef()].SetStat( (TVarH)vars[i], stat.GetStat(vars[i]) );
 						}
 
@@ -1537,8 +1474,8 @@ namespace WBSF
 					CTPeriod p = data.GetEntireTPeriod();
 					for (CTRef h = p.Begin(); h <= p.End(); h++)
 					{
-						const CStatistic& T = data[h][H_TAIR2];
-						const CStatistic& Hr = data[h][H_RELH];
+						CStatistic T = data[h][H_TAIR2];
+						CStatistic Hr = data[h][H_RELH];
 						if (T.IsInit() && Hr.IsInit())
 							data[h].SetStat(H_TDEW, Hr2Td(T[MEAN], Hr[MEAN]));
 					}

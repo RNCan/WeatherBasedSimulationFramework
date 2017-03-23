@@ -104,9 +104,6 @@
     <ClInclude Include="CreateGribsDB.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UISOPFEUHourly.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -114,9 +111,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UIBC.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIMDDELCC.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UIWunderground.h">
@@ -165,6 +159,24 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="CreateVirtualDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UISaskatchewan.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UINewfoundland.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UINovaScotia.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIQuebec.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MDDELCC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SOPFEU.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -262,9 +274,6 @@
     <ClCompile Include="CreateGribsDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UISOPFEUHourly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -272,9 +281,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIBC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIMDDELCC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIEnvCanForecast.cpp">
@@ -323,6 +329,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateVirtualDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UISaskatchewan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UINewfoundland.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UINovaScotia.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIQuebec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MDDELCC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SOPFEU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -164,6 +164,8 @@
     <ClInclude Include="CreateVirtualDB.h" />
     <ClInclude Include="HRDPS.h" />
     <ClInclude Include="HRRR.h" />
+    <ClInclude Include="MDDELCC.h" />
+    <ClInclude Include="SOPFEU.h" />
     <ClInclude Include="UICMIP5.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACIS.h" />
@@ -176,9 +178,11 @@
     <ClInclude Include="UIGPCP.h" />
     <ClInclude Include="UIHighResolutionGribs.h" />
     <ClInclude Include="UIManitoba.h" />
-    <ClInclude Include="UIMDDELCC.h" />
+    <ClInclude Include="UIQuebec.h" />
     <ClInclude Include="UINEWA.h" />
     <ClInclude Include="UINewBrunswick.h" />
+    <ClInclude Include="UINewfoundland.h" />
+    <ClInclude Include="UINovaScotia.h" />
     <ClInclude Include="UIOntario.h" />
     <ClInclude Include="UIMiscellaneous.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
@@ -197,10 +201,10 @@
     <ClInclude Include="UIGHCN.h" />
     <ClInclude Include="UIGSOD.h" />
     <ClInclude Include="UIISDLite.h" />
+    <ClInclude Include="UISaskatchewan.h" />
     <ClInclude Include="UISnowTel.h" />
     <ClInclude Include="UISolutionMesonetDaily.h" />
     <ClInclude Include="UISolutionMesonetHourly.h" />
-    <ClInclude Include="UISOPFEUHourly.h" />
     <ClInclude Include="UIWunderground.h" />
     <ClInclude Include="ZipUnzip.h" />
   </ItemGroup>
@@ -218,6 +222,8 @@
     <ClCompile Include="CreateVirtualDB.cpp" />
     <ClCompile Include="HRDPS.cpp" />
     <ClCompile Include="HRRR.cpp" />
+    <ClCompile Include="MDDELCC.cpp" />
+    <ClCompile Include="SOPFEU.cpp" />
     <ClCompile Include="UICMIP5.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -235,9 +241,11 @@
     <ClCompile Include="UIGPCP.cpp" />
     <ClCompile Include="UIHighResolutionGribs.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
-    <ClCompile Include="UIMDDELCC.cpp" />
+    <ClCompile Include="UIQuebec.cpp" />
     <ClCompile Include="UINEWA.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
+    <ClCompile Include="UINewfoundland.cpp" />
+    <ClCompile Include="UINovaScotia.cpp" />
     <ClCompile Include="UIOntario.cpp" />
     <ClCompile Include="UIMiscellaneous.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
@@ -256,10 +264,10 @@
     <ClCompile Include="UIGHCN.cpp" />
     <ClCompile Include="UIGSOD.cpp" />
     <ClCompile Include="UIISDLite.cpp" />
+    <ClCompile Include="UISaskatchewan.cpp" />
     <ClCompile Include="UISnowTel.cpp" />
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
     <ClCompile Include="UISolutionMesonetHourly.cpp" />
-    <ClCompile Include="UISOPFEUHourly.cpp" />
     <ClCompile Include="UIWunderground.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
