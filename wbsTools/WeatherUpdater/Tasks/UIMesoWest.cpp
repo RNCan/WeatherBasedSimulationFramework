@@ -16,9 +16,6 @@
 #include "cctz/time_zone.h"
 using namespace json11;
 
-static const bool UPDATE_STATIONS_LIST = false;
-static const bool UPDATE_STATIONS_INFO = false;
-
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
 using namespace UtilWWW;
@@ -44,8 +41,8 @@ namespace WBSF
 	//http://mesowest.utah.edu/cgi-bin/droman/meso_station.cgi
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
-	const char* CUIMesoWest::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "States", "Province", "ForceUpdateStationsList" };
-	const size_t CUIMesoWest::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
+	const char* CUIMesoWest::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "States", "Province", "AddOther", "ForceUpdateStationsList" };
+	const size_t CUIMesoWest::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL, T_BOOL };
 	const UINT CUIMesoWest::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MESOWEST_P;
 	const UINT CUIMesoWest::DESCRIPTION_TITLE_ID = ID_TASK_MESOWEST;
 
@@ -84,6 +81,7 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case STATES: str = "----"; break;
+		case ADD_OTHER: str = "0"; break;
 		case FORCE_UPDATE_STATIONS_LIST: str = "0"; break;
 		};
 		return str;
@@ -99,7 +97,7 @@ namespace WBSF
 	std::string CUIMesoWest::GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year)
 	{
 		string workingDir = GetDir(WORKING_DIR);
-		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + ID + ".csv";
+		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + ID + ".Json";
 
 		return ouputPath ;
 	}
@@ -360,6 +358,7 @@ namespace WBSF
 
 		callback.PushTask("Clean list (" + ToString(stationList1.size()) + ")", stationList1.size());
 		
+		bool bAddOter = as<bool>(ADD_OTHER);
 
 		CLocationVector stationList;
 		for (auto it = stationList1.begin(); it < stationList1.end() && msg; it++)
@@ -367,8 +366,11 @@ namespace WBSF
 					
 			if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 			{
-				string stateStr = it->GetSSI("State");
-				if (states.at(stateStr) || provinces.at(stateStr))
+				string country = it->GetSSI("Country");
+				string state = it->GetSSI("State");
+				if ((country == "Usa" && states.at(state)) ||
+					(country == "Canada" && provinces.at(state) ||
+					(country == "Other" && bAddOter) ) )
 					stationList.push_back(*it);
 			}
 
@@ -389,7 +391,7 @@ namespace WBSF
 
 
 		int nbDownload = 0;
-		for (size_t i = 0; i < stationList.size(); i++)
+		for (size_t i = 0; i < stationList.size() && msg; i++)
 		{
 			for (size_t y = 0; y < nbYears&&msg; y++)
 			{
@@ -437,6 +439,7 @@ namespace WBSF
 
 		if (msg)
 		{
+			bool bAddOter = as<bool>(ADD_OTHER);
 			CStateSelection states(Get(STATES));
 			CProvinceSelection provinces(Get(PROVINCE));
 
@@ -444,8 +447,12 @@ namespace WBSF
 			{
 				if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 				{
-					string state = it->GetSSI("State");
-					if (states.at(state) || provinces.at(state))
+
+					string countryStr = it->GetSSI("Country");
+					string stateStr = it->GetSSI("State");
+					if ((countryStr == "Usa" && states.at(stateStr)) ||
+						(countryStr == "Canada" && provinces.at(stateStr) ||
+						(countryStr == "Other" && bAddOter)) )
 						stationList.push_back(it->m_ID);
 				}
 			}

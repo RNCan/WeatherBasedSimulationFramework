@@ -647,7 +647,7 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Forcé la mise à jour de la liste des stations"
+    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Forcé la mise à jour de la liste des stations"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
 END
@@ -1094,7 +1094,7 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada|Force update station list)"
+    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Force update station list)"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|Network|First year|Last year|Forecast"
 END

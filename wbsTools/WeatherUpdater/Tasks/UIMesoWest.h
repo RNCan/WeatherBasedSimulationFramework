@@ -16,7 +16,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, PROVINCE, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, PROVINCE, ADD_OTHER, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMesoWest); }
