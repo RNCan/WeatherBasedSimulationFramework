@@ -30,7 +30,7 @@ namespace WBSF
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
 		std::string GetStationListFilePath()const;
-
+		
 
 		std::string m_workingDir;
 		std::string m_password;
@@ -43,8 +43,8 @@ namespace WBSF
 	protected:
 
 
-
 		ERMsg LoadWeatherInMemory(CCallback& callback);
+		
 		ERMsg ReadData(const std::string& filePath, CWeatherStationMap& m_stations, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(CTRef TRef)const;
 		
@@ -57,6 +57,8 @@ namespace WBSF
 		
 		static const char* SERVER_NAME;
 		static const char* SERVER_PATH;
+
+		static bool IsValid(HOURLY_DATA::TVarH v, double value);
 	};
 
 

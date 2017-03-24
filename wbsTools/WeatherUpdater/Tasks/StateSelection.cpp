@@ -109,7 +109,14 @@ namespace WBSF
 	string CStateSelection::ToString()const
 	{
 		string str;
-		if (!none() && ! all())
+		if (all())
+		{
+		}
+		else if (none())
+		{
+			str = "----";
+		}
+		else
 		{
 			for (size_t i = 0; i < NB_USA_STATES; i++)
 			{
@@ -128,10 +135,20 @@ namespace WBSF
 		ERMsg msg;
 
 		reset();
-
-		StringVector tmp(in, "|;");
-		for (size_t i = 0; i < tmp.size(); i++)
-			msg += set(tmp[i]);
+		
+		if (IsEqual(in, "----"))
+		{
+		}
+		else if (in.empty())
+		{
+			set();
+		}
+		else
+		{
+			StringVector tmp(in, "|;");
+			for (size_t i = 0; i < tmp.size(); i++)
+				msg += set(tmp[i]);
+		}
 
 		return msg;
 	}

@@ -753,22 +753,17 @@ namespace WBSF
 
 	CTRef CUIISDLite::GetTRef(const FieldArray& e)
 	{
-		//int firstYear = as<int>(FIRST_YEAR);
-		//int lastYear = as<int>(LAST_YEAR);
-
 		int year = int(e[ISD_YEAR]);
 		size_t m = size_t(e[ISD_MONTH]) - 1;
 		size_t d = size_t(e[ISD_DAY]) - 1;
 		size_t h = size_t(e[ISD_HOUR]);
 
-		//ASSERT(year >= firstYear && year <= lastYear + 1);
 		ASSERT(m >= 0 && m < 12);
 		ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
 		ASSERT(h >= 0 && h < 24);
 
 
 		return CTRef(year, m, d, h);
-	//	TRef.Shift(timeZone);//convert UTC time to local time
 	}
 
 

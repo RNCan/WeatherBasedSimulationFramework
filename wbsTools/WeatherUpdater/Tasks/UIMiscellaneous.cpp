@@ -34,9 +34,12 @@ namespace WBSF
 
 	//MesoWest bt state
 	//http://mesowest.utah.edu/cgi-bin/droman/stn_state.cgi?state=AB
-	
+	//http://gl1.chpc.utah.edu/cgi-bin/droman/stn_state.cgi?state=QC&order=status
+
+
 	//variable listing
 	//http://mesowest.utah.edu/cgi-bin/droman/variable_download_select.cgi
+	//
 
 
 	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov" };

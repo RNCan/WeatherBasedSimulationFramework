@@ -466,7 +466,7 @@ namespace WBSF
 		return msg;
 	}
 
-	TVarH GetVar(const string& str)
+	TVarH CUIWunderground::GetVar(const string& str)
 	{
 		TVarH v=H_SKIP;
 		
@@ -482,7 +482,7 @@ namespace WBSF
 		return v;
 	}
 
-	static WBSF::CWVariables GetVariables(string str)
+	CWVariables CUIWunderground::GetVariables(string str)
 	{
 		//size_t v_count = 0;
 		//size_t e_count = 0;
@@ -526,7 +526,7 @@ namespace WBSF
 	}
 
 
-	static void CleanString(string& str)
+	void CUIWunderground::CleanString(string& str)
 	{
 		string output;
 
@@ -540,7 +540,7 @@ namespace WBSF
 		Trim(str);
 	}
 
-	static double GetCoordinate(string str)
+	double CUIWunderground::GetCoordinate(string str)
 	{
 		CleanString(str);
 

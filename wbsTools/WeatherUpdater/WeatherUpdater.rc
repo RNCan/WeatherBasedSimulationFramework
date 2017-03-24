@@ -93,22 +93,22 @@ BEGIN
     BUTTON      ID_TASK_NOAA_ISD_LITE
     BUTTON      ID_TASK_SNOTEL
     SEPARATOR
-    BUTTON      ID_TASK_SM_HOURLY
-    BUTTON      ID_TASK_SM_DAILY
+    BUTTON      ID_TASK_MESOWEST
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
+    BUTTON      ID_TASK_SM_DAILY
 END
 
 IDR_TASK_TOOLBAR2 TOOLBAR 32, 32
 BEGIN
-	BUTTON      ID_TASK_BC
-	BUTTON      ID_TASK_ALBERTA
-	BUTTON      ID_TASK_SASKATCHEWAN
-	BUTTON      ID_TASK_MANITOBA
-	BUTTON      ID_TASK_ONTARIO
-	BUTTON      ID_TASK_QUEBEC
-	BUTTON      ID_TASK_NEWBRUNSWICK
-	BUTTON      ID_TASK_NOVASCOTIA
-	BUTTON      ID_TASK_NEWFOUNDLAND
+    BUTTON      ID_TASK_BC
+    BUTTON      ID_TASK_ALBERTA
+    BUTTON      ID_TASK_SASKATCHEWAN
+    BUTTON      ID_TASK_MANITOBA
+    BUTTON      ID_TASK_ONTARIO
+    BUTTON      ID_TASK_QUEBEC
+    BUTTON      ID_TASK_NEWBRUNSWICK
+    BUTTON      ID_TASK_NOVASCOTIA
+    BUTTON      ID_TASK_NEWFOUNDLAND
     BUTTON      ID_TASK_WU
     BUTTON      ID_TASK_NEWA
     BUTTON      ID_TASK_MISCELLANEOUS
@@ -157,28 +157,28 @@ BEGIN
     BUTTON      ID_TASK_EC_DAILY
     BUTTON      ID_TASK_EC_HOURLY
     BUTTON      ID_TASK_EC_FORECAST
-    BUTTON      ID_TASK_EC_RADAR
-    BUTTON      ID_TASK_EC_PRCP_RADAR
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
     BUTTON      ID_TASK_SNOTEL
-    BUTTON      ID_TASK_NOMAD_RUC
-    BUTTON      ID_TASK_SM_HOURLY
-    BUTTON      ID_TASK_SM_DAILY
+    BUTTON      ID_TASK_MESOWEST
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
-	BUTTON      ID_TASK_BC
-	BUTTON      ID_TASK_ALBERTA
-	BUTTON      ID_TASK_SASKATCHEWAN
-	BUTTON      ID_TASK_MANITOBA
-	BUTTON      ID_TASK_ONTARIO
-	BUTTON      ID_TASK_QUEBEC
-	BUTTON      ID_TASK_NEWBRUNSWICK
+    BUTTON      ID_TASK_SM_DAILY
+    BUTTON      ID_TASK_BC
+    BUTTON      ID_TASK_ALBERTA
+    BUTTON      ID_TASK_SASKATCHEWAN
+    BUTTON      ID_TASK_MANITOBA
+    BUTTON      ID_TASK_ONTARIO
+    BUTTON      ID_TASK_QUEBEC
+    BUTTON      ID_TASK_NEWBRUNSWICK
     BUTTON      ID_TASK_NOVASCOTIA
-	BUTTON      ID_TASK_NEWFOUNDLAND
+    BUTTON      ID_TASK_NEWFOUNDLAND
     BUTTON      ID_TASK_WU
     BUTTON      ID_TASK_NEWA
     BUTTON      ID_TASK_MISCELLANEOUS
+    BUTTON      ID_TASK_EC_RADAR
+    BUTTON      ID_TASK_EC_PRCP_RADAR
+    BUTTON      ID_TASK_NOMAD_RUC
     BUTTON      ID_TASK_CMIP5
     BUTTON      ID_TASK_GPCP
     BUTTON      ID_TASK_HRG
@@ -463,10 +463,6 @@ END
 STRINGTABLE
 BEGIN
     ID_OPTIONS              "Afficher les options de l'application\nOptions"
-END
-
-STRINGTABLE
-BEGIN
     ID_EXECUTE              "Executer les taches cochées\nExécuter"
     ID_OPEN_PROPERTY        "Essaie d'ouvrir le paramètre sélectionné par l'application qui lui est associer\nOuvrir paramètre"
 END
@@ -558,7 +554,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-    IDS_TOOLBAR_STATUS      "Barre d'état "
+    IDS_TOOLBAR_STATUS      "Barre d'état"
 END
 
 STRINGTABLE
@@ -651,55 +647,45 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant"
+    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Forcé la mise à jour de la liste des stations"
+    IDS_UPDATER_SM_CIPRA_HOURLY_P 
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
 END
 
 STRINGTABLE
 BEGIN
     IDS_UPDATER_SM_DAILY_P  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_SM_HOURLY_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Mise à jours des coordonnées"
-    IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
-	IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
+    IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
     IDS_UPDATER_ALBERTA_P   "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
-	IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
-	IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
-	IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
+    IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
+    IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
+    IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_QUEBEC_P    "Nom d'usager SOPFEU|Mot de passe SOPFEU|Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations"
-	IDS_UPDATER_NEWBRUNSWICK_P
-							"Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
-	IDS_UPDATER_NOVASCOTIA_P
-							"Répertoire de travail"
-	IDS_UPDATER_NEWFOUNDLAND_P
-							"Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
+    IDS_UPDATER_NEWBRUNSWICK_P 
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
+    IDS_UPDATER_NOVASCOTIA_P "Répertoire de travail"
+    IDS_UPDATER_NEWFOUNDLAND_P 
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
+    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
+    IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    
-END
-
-STRINGTABLE
-BEGIN
-    IDS_TOOL_CONVERT_DB_P   "Direction|Fichier d'entrée|Fichier de sortie"
-    IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_TOOL_OTHER_TOOLS_P  "----"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
-    
-    
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_HRG_P       "Répertoire de travail|Sources"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
+    IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données|Fichier de sortie|Première date|Dernière date|"
@@ -712,6 +698,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si compresser)|Include sous-répertoires (si compresser)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
+    IDS_TOOL_CONVERT_DB_P   "Direction|Fichier d'entrée|Fichier de sortie"
 END
 
 STRINGTABLE
@@ -719,41 +706,45 @@ BEGIN
     ID_TASK_EC_DAILY        "Télécharger les données quotidiennes d'Environnement Canada\nCanada quotidien"
     ID_TASK_EC_HOURLY       "Télécharger les données horaires d'Environnement Canada\nCanada horaire"
     ID_TASK_EC_FORECAST     "Télécharger les prévision d'Environnement Canada\nCanada prévision"
-    ID_TASK_EC_RADAR        "Télécharger les images radars d'Environnement Canada (format GIF)\nImages radars"
-    ID_TASK_EC_PRCP_RADAR   "Télécharger les précipitations radars d'Environnement Canada (format grib2)\nPrécipitations radars"
     ID_TASK_NOAA_GHCND      "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN-Daily)"" via NOAA\nGHCN quotidien"
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
     ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille RUC/RAP"
-    ID_TASK_SM_HOURLY       "Télécharger les données horaires du Québec via Solutions-Mesonet\nQuébec horaire"
+    ID_TASK_MESOWEST        "Télécharger les données MesoWest\nMesoWest"
+    ID_TASK_SM_CIPRA_HOURLY "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet\nCipra horaire"
     ID_TASK_SM_DAILY        "Télécharger les données quotidiennes du Québec via Solutions-Mesonet\nQuébec quotidien"
+    ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
 END
 
 STRINGTABLE
 BEGIN
-    ID_TASK_SM_CIPRA_HOURLY "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet\nCipra horaire"
-    
-    ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
-	ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
-	ID_TASK_SASKATCHEWAN	"Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
-	ID_TASK_MANITOBA        "Télécharger les données du Manitoba\nMétéo Manitoba"
-	ID_TASK_ONTARIO         "Télécharger les données de l'Ontario\nMétéo Ontario"
-	ID_TASK_QUEBEC          "Télécharger les données du Québec\nMétéo Québec"
-	ID_TASK_NEWBRUNSWICK    "Télécharger les données du Nouveau-Brunswick\nMétéo Nouveau-Brunswick"
-	ID_TASK_NOVASCOTIA      "Télécharger les données de la Nouvelle-Écosse\nMétéo Nouvelle-Écosse"
-	ID_TASK_NEWFOUNDLAND    "Télécharger les données de Terre-Neuve\nMétéo Terre-Neuve"
-	ID_TASK_WU              "Télécharger les données Weather Underground\nMétéo Weather Underground"
-    ID_TASK_NEWA            "Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nMétéo NEWA"
-    ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
+    ID_TASK_EC_RADAR        "Télécharger les images radars d'Environnement Canada (format GIF)\nImages radars"
+    ID_TASK_EC_PRCP_RADAR   "Télécharger les précipitations radars d'Environnement Canada (format grib2)\nPrécipitations radars"
     ID_TASK_CMIP5           "Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
     ID_TASK_GPCP            "Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
     ID_TASK_HRG             "Télécharger les grilles hautes résolutons\nGrilles hautes résolutions"
-    ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
+    ID_TASK_DELETE_UPDATE   "Enlever une tâche de mise à jour\nEnlever"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
+    ID_TASK_SASKATCHEWAN    "Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
+    ID_TASK_MANITOBA        "Télécharger les données du Manitoba\nMétéo Manitoba"
+    ID_TASK_ONTARIO         "Télécharger les données de l'Ontario\nMétéo Ontario"
+    ID_TASK_QUEBEC          "Télécharger les données du Québec\nMétéo Québec"
+    ID_TASK_NEWBRUNSWICK    "Télécharger les données du Nouveau-Brunswick\nMétéo Nouveau-Brunswick"
+    ID_TASK_NOVASCOTIA      "Télécharger les données de la Nouvelle-Écosse\nMétéo Nouvelle-Écosse"
+    ID_TASK_NEWFOUNDLAND    "Télécharger les données de Terre-Neuve\nMétéo Terre-Neuve"
+    ID_TASK_NEWA            "Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nMétéo NEWA"
+    ID_TASK_WU              "Télécharger les données Weather Underground\nMétéo Weather Underground"
+    ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
     ID_TASK_CREATE_GRIBS    "Créer une base de données Gribs\nDB Gribs"
@@ -763,15 +754,14 @@ BEGIN
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
     ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
-    ID_TASK_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP\nFTP"
-    ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP\nFTP"
+    ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
     ID_TASK_UPDATE          "Ajouter une tâche de type téléchargement\ntéléchargement"
     ID_TASK_TOOLS           "Ajouter une tâche de type outil\noutil"
-    ID_TASK_DELETE_UPDATE   "Enlever une tâche de mise à jour\nEnlever"
 END
 
 STRINGTABLE
@@ -930,10 +920,6 @@ END
 STRINGTABLE
 BEGIN
     ID_OPTIONS              "Show application options\nOptions"
-END
-
-STRINGTABLE
-BEGIN
     ID_EXECUTE              "Execute checked tasks\nExecute"
     ID_OPEN_PROPERTY        "Tries to open the selected parameter by his associated application\nOpen parameter"
 END
@@ -1108,55 +1094,45 @@ BEGIN
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Used NAM if RAP is missing"
+    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada|Force update station list)"
+    IDS_UPDATER_SM_CIPRA_HOURLY_P 
+                            "User Name|Password|Working directory|Network|First year|Last year|Forecast"
 END
 
 STRINGTABLE
 BEGIN
     IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First year|Last year"
-    IDS_UPDATER_SM_HOURLY_P "UserName|Password|Working directory|First year|Last year|Update coordinates"
-    IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "User Name|Password|Working directory|Network|First year|Last year|Forecast"
-	IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
+    IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
     IDS_UPDATER_ALBERTA_P   "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
-	IDS_UPDATER_SASKATCHEWAN_P  "Working directory|Download Archive"
-	IDS_UPDATER_MANITOBA_P  "Working directory|First year|Last year|Network|Data type"
-	IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
-	IDS_UPDATER_QUEBEC_P 
-                            "SOPFEU User Name|SOPFEU Password|Working directory|First year|Last year|Network|Data type|Update until x days|Update stations list"
-	IDS_UPDATER_NEWBRUNSWICK_P
-							"User Name|Password|Working directory|First year|Last year|Network"
-	IDS_UPDATER_NOVASCOTIA_P
-							"Working directory"
-	IDS_UPDATER_NEWFOUNDLAND_P
-							"Working directory|First year|Last year|Network"
+    IDS_UPDATER_SASKATCHEWAN_P "Working directory|Download Archive"
+    IDS_UPDATER_MANITOBA_P  "Working directory|First year|Last year|Network|Data type"
+    IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
+    IDS_UPDATER_QUEBEC_P    "SOPFEU User Name|SOPFEU Password|Working directory|First year|Last year|Network|Data type|Update until x days|Update stations list"
+    IDS_UPDATER_NEWBRUNSWICK_P 
+                            "User Name|Password|Working directory|First year|Last year|Network"
+    IDS_UPDATER_NOVASCOTIA_P "Working directory"
+    IDS_UPDATER_NEWFOUNDLAND_P 
+                            "Working directory|First year|Last year|Network"
+    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UPDATER_NEWA_P      "Working directory|Data Type|First year|Last year|States|Update until x days|Update stations list"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
+    IDS_UPDATER_NOMAD_RUC_P "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Used NAM if RAP is missing"
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
-    
-END
-
-STRINGTABLE
-BEGIN
-    IDS_TOOL_CONVERT_DB_P   "Direction|Input File|Output File"
-    IDS_UPDATER_NEWA_P      "Working directory|Data Type|First year|Last year|States|Update until x days|Update stations list"
-    IDS_TOOL_OTHER_TOOLS_P  "----"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
-    
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_HRG_P       "Working directory|Sources"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
+    IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
     IDS_TOOL_CREATE_GRIBS_P "Data Task|Output File|First date|Last date"
@@ -1169,6 +1145,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip Filter (if Zip)|Include sub-directory (if zip)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local File|User Name|Password|Connection Type|Connection Timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
+    IDS_TOOL_CONVERT_DB_P   "Direction|Input File|Output File"
 END
 
 STRINGTABLE
@@ -1176,40 +1153,45 @@ BEGIN
     ID_TASK_EC_DAILY        "Download daily data from Environment Canada\nCanada Daily"
     ID_TASK_EC_HOURLY       "Download hourly data from Environment Canada\nCanada Hourly"
     ID_TASK_EC_FORECAST     "Downlaod Environment Canada hourly forecast\nCanada Forecast"
-    ID_TASK_EC_RADAR        "Dowload Radar images data from Environment Canada (GIF format)\nRadar Images"
-    ID_TASK_EC_PRCP_RADAR   "Dowload Precipitation Radar data from Environment Canada (gribs format)\nRadar Precipitation"
     ID_TASK_NOAA_GHCND      "Download Global Historical Climatology Network (GHCN) daily data via NOAA\nGHCN Daily"
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
     ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
-    ID_TASK_SM_HOURLY       "Download Québec houry data via Solutions-Mesonet\nQuébec Hourly"
-    ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
-END
-
-STRINGTABLE
-BEGIN 
+    ID_TASK_MESOWEST        "Download MesoWest weather data\nMesoWest weather"
     ID_TASK_SM_CIPRA_HOURLY "Download agro-climatic hourly data via Solutions-Mesonet\nCipra Hourly"
-	ID_TASK_BC              "Download British Comlombia weather data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish-Comlombia Weather"
-	ID_TASK_ALBERTA         "Download agro-climatic data for Alberta via ACIS (""AgroClimatic Information Service"")\nAlberta Weather"
-	ID_TASK_SASKATCHEWAN	"Download Saskatchewan weather data\nSaskatchewan Weather"
-	ID_TASK_MANITOBA        "Download Manitoba weather data\nManitoba Weather"
-	ID_TASK_ONTARIO         "Download Ontario weather data\nOntario Weather"
-	ID_TASK_QUEBEC          "Download Québec weather data\nQuébec Weather"
-	ID_TASK_NEWBRUNSWICK    "Download New Brunswick weather data\nNew-Brunswick Weather"
-	ID_TASK_NOVASCOTIA      "Download Nova-Scotia weather data\nNova-Scotia Weather"
-	ID_TASK_NEWFOUNDLAND    "Download Newfoundland weather data\nNewfoundland Weather"
-	ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
-    ID_TASK_NEWA            "Download Network for Environment and Weather Applications (NEWA)\nNEWA"
-    ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
-    ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
-    ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
-    ID_TASK_HRG             "Download high resolution gribs\nHigh Resolution Gribs"
-    ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
+    ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
+    ID_TASK_BC              "Download British Comlombia weather data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish-Comlombia Weather"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_EC_RADAR        "Dowload Radar images data from Environment Canada (GIF format)\nRadar Images"
+    ID_TASK_EC_PRCP_RADAR   "Dowload Precipitation Radar data from Environment Canada (gribs format)\nRadar Precipitation"
+    ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
+    ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+    ID_TASK_HRG             "Download high resolution gribs\nHigh Resolution Gribs"
+    ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TASK_ALBERTA         "Download agro-climatic data for Alberta via ACIS (""AgroClimatic Information Service"")\nAlberta Weather"
+    ID_TASK_SASKATCHEWAN    "Download Saskatchewan weather data\nSaskatchewan Weather"
+    ID_TASK_MANITOBA        "Download Manitoba weather data\nManitoba Weather"
+    ID_TASK_ONTARIO         "Download Ontario weather data\nOntario Weather"
+    ID_TASK_QUEBEC          "Download Québec weather data\nQuébec Weather"
+    ID_TASK_NEWBRUNSWICK    "Download New Brunswick weather data\nNew-Brunswick Weather"
+    ID_TASK_NOVASCOTIA      "Download Nova-Scotia weather data\nNova-Scotia Weather"
+    ID_TASK_NEWFOUNDLAND    "Download Newfoundland weather data\nNewfoundland Weather"
+    ID_TASK_NEWA            "Download Network for Environment and Weather Applications (NEWA)\nNEWA"
+    ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
+    ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"
     ID_TASK_CREATE_GRIBS    "Create Gribs database\nCreate Gribs"
@@ -1219,15 +1201,14 @@ BEGIN
     ID_TASK_APPEND_DB       "Append one databases into an other database (move files)\nAppend"
     ID_TASK_CROP_DB         "Crop weather database\nCrop"
     ID_TASK_ZIP_UNZIP       "Zip/Unzip files\nZip/Unzip"
-    ID_TASK_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site\nFTP"
-    ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvert"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site\nFTP"
+    ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvert"
     ID_TASK_UPDATE          "Add a task of type downloader\nDownloader"
     ID_TASK_TOOLS           "Add a task of type tool\nTool"
-    ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"
 END
 
 STRINGTABLE

@@ -23,9 +23,6 @@
     <ClInclude Include="UISolutionMesonetDaily.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UISolutionMesonetHourly.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="CreateDailyDB.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -179,6 +176,9 @@
     <ClInclude Include="SOPFEU.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIMesoWest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -191,9 +191,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UISolutionMesonetDaily.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UISolutionMesonetHourly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateDailyDB.cpp">
@@ -347,6 +344,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SOPFEU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIMesoWest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

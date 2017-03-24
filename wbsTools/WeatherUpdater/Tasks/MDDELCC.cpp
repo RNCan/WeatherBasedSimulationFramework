@@ -432,6 +432,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		if (TM.IsDaily())//MDDELCC can only create daily database
+			return msg;
+
 		size_t it = m_stations.FindByID(ID);
 		if (it == NOT_INIT)
 		{

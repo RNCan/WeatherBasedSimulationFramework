@@ -935,7 +935,15 @@ public:
 	std::string GetSelection(const char sep = '|')const
 	{
 		std::string str;
-		if (!none() && !all())
+		if (all())
+		{
+
+		}
+		else if (none())
+		{
+			str = "----";
+		}
+		else
 		{
 			for (size_type i = 0; i != size(); i++)
 			{
@@ -956,7 +964,11 @@ public:
 	{
 		reset();
 
-		if (str.empty())
+		if ( str == "----")
+		{
+			reset();
+		}
+		else if (str.empty())
 		{
 			set();
 		}

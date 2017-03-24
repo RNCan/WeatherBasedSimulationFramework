@@ -373,7 +373,26 @@ namespace WBSF
 		return msg;
 	}
 
-	
+	bool CSOPFEU::IsValid(TVarH v, double value)
+	{
+		bool bValid = true;
+		switch (v)
+		{
+		case H_TMIN2: 
+		case H_TAIR2:
+		case H_TMAX2: 
+		case H_TDEW: bValid = value >= -45 && value <= 40; break;
+		case H_PRCP:
+		case H_SWE:
+		case H_SNDH: bValid = value >= 0; break;
+		case H_RELH: bValid = value >= 1 && value <= 100; break;
+		case H_WNDD: bValid = value >= 0 && value <= 360; break;
+		case H_WNDS:
+		case H_WND2: bValid = value >= 0 && value <= 120; break;
+		}
+
+		return bValid;
+	}
 
 	ERMsg CSOPFEU::ReadData(const string& filePath, CWeatherStationMap& stations, CCallback& callback)const
 	{
@@ -417,8 +436,9 @@ namespace WBSF
 								((CLocation&)stations[ID]) = m_stationsList[pos];
 								stations[ID].SetHourly(true);
 							}
-
-							stations[ID][TRef].SetStat(v,value);
+							
+							if (IsValid(v, value ))
+								stations[ID][TRef].SetStat(v,value);
 						}
 					}
 				}

@@ -8,7 +8,7 @@
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
 #include "Basic\CSV.h"
-#include "json\json11.hpp"
+
 
 #include "TaskFactory.h"
 #include "../Resource.h"
@@ -19,7 +19,7 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
-using namespace json11;
+
 
 namespace WBSF
 {

@@ -3,6 +3,7 @@
 #include "TaskBase.h"
 #include "Basic/Callback.h"
 #include "Basic/WeatherStation.h"
+#include "Basic/WeatherDefine.h"
 #include "UI/Common/UtilWWW.h"
 
 
@@ -54,6 +55,13 @@ namespace WBSF
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback)const;
 
 		CLocationVector m_stations;
+
+		static HOURLY_DATA::TVarH GetVar(const std::string& str);
+		static CWVariables GetVariables(std::string str);
+		static void CleanString(std::string& str);
+		static double GetCoordinate(std::string str);
+
+
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
