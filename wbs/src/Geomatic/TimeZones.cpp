@@ -90,27 +90,12 @@ namespace WBSF
 
 	bool CTimeZones::GetZone(const CGeoPoint& pt, cctz::time_zone& zone)
 	{
-		//ASSERT(TIME_ZONE.GetNbShape() > 0);//TimeZone must be loaded...
-		//
 		bool bRep = false;
-		//int poly = -1;
-
-		//if (TIME_ZONE.IsInside(pt, &poly))
-		//{
-		//	const CDBF3& DBF = TIME_ZONE.GetDBF();
-		//	const CDBFRecord& record = DBF[poly];
-		//	ASSERT(record.size() >= 14);
-		//	std::string str_zone = record[13];
-
-		//	ASSERT(!str_zone.empty());///some zone is empty.... hummm
 
 		std::string str_zone = GetZoneName(pt);
 		if (!str_zone.empty())
 			bRep = cctz::load_time_zone(str_zone, &zone);
-		//}
-		//ASSERT(poly != -1);
-		//ASSERT(bRep);//we assume we foun the zone. Update the Shapefile
-		//
+
 		return bRep;
 	}
 
@@ -137,11 +122,6 @@ namespace WBSF
 		CTRef UTCTRef = LocalTRef2UTCTRef(TRef, pt);
 		__int64 UTCTime = UTCTRef2UTCTime(UTCTRef);
 		__int64 t = UTCTime2LocalTime(UTCTime, pt);
-		
-		/*cctz::time_zone zone = GetZone(pt);
-		cctz::time_point<cctz::sys_seconds> tp = GetTimePoint(TRef, zone);
-		__int64 tt = tp.time_since_epoch().count();
-		ASSERT(t==tt);*/
 
 		return t;
 	}

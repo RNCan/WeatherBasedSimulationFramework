@@ -49,25 +49,12 @@ namespace WBSF
 		static CTRef LocalTRef2UTCTRef(CTRef TRef, const CGeoPoint& pt);
 		static CTRef UTCTRef2LocalTRef(CTRef TRef, const CGeoPoint& pt);
 	
-		static std::string CTimeZones::GetZoneName(const CGeoPoint& pt);
+		static std::string GetZoneName(const CGeoPoint& pt);
 		static bool GetZone(const CGeoPoint& pt, cctz::time_zone& zone);
 		static CTRef LocalTRef2UTCTRef(CTRef TRef, const cctz::time_zone& zone);
 		static CTRef UTCTRef2LocalTRef(CTRef TRef, const cctz::time_zone& zone);
 
-		//static cctz::time_point<cctz::sys_seconds> GetTimePoint(CTRef TRef, const cctz::time_zone& zone)
-
-		//void Enter()
-		//{
-		//	m_CS.Enter();
-		//}
-		//void Leave()
-		//{
-		//	m_CS.Leave();
-		//}
-
 	protected:
-
-		//CCriticalSection m_CS;
 
 	};
 

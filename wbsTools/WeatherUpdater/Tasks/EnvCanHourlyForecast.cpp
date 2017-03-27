@@ -365,16 +365,14 @@ namespace WBSF
 				return msg;
 			
 
-			set<int> years = m_DB.GetYears();
+			CTRef current = CTRef::GetCurrentTRef(TM);
+			CWVariablesCounter counter = station.GetVariablesCount();
+			CTRef TairEnd = counter.GetTPeriod().End();
+			ASSERT(TairEnd <= current);
 
-			bool bInit = false;
 
-			for (set<int>::const_iterator it = years.begin(); it != years.end() && !bInit; it++)
-				if (station.IsYearInit(*it))
-					bInit = true;
-
-			//no forecast are added on old data
-			if (bInit)
+			//station must have data in the last 2 weeks
+			if (current - TairEnd < 14)
 			{
 				int shapeNo = -1;
 

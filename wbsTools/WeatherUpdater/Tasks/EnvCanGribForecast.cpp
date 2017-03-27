@@ -275,7 +275,6 @@ namespace WBSF
 		}
 
 		return TRef;
-
 	}
 
 	size_t CEnvCanGribForecast::GetHH(const string& fileName)const
@@ -295,8 +294,6 @@ namespace WBSF
 
 		return WBSF::as<size_t>(str_hhh);
 	}
-
-	
 
 	ERMsg CEnvCanGribForecast::OpenDatasets(CCallback& callback)
 	{
@@ -340,11 +337,18 @@ namespace WBSF
 		ASSERT(station.m_lat != -999);
 		ASSERT(station.m_lon != -999);
 
-		int year = WBSF::GetCurrentYear();
+		//int year = WBSF::GetCurrentYear();
 		
 
 		//no forecast are added on old data
-		if (station.IsYearInit(year))
+//		if (station.IsYearInit(year))
+		CTRef current = CTRef::GetCurrentTRef(TM);
+		CWVariablesCounter counter = station.GetVariablesCount();
+		CTRef TairEnd = counter.GetTPeriod().End();
+		ASSERT(TairEnd <= current);
+
+		//station must have data in the last 2 weeks
+		if (current - TairEnd < 14)
 		{
 			if (!m_datasets[0][0].IsOpen())
 				msg = OpenDatasets(callback);

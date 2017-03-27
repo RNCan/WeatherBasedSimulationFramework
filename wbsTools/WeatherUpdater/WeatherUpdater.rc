@@ -91,6 +91,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
+	BUTTON      ID_TASK_NOAA_FORECAST
     BUTTON      ID_TASK_SNOTEL
     SEPARATOR
     BUTTON      ID_TASK_MESOWEST
@@ -160,6 +161,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
+	BUTTON      ID_TASK_NOAA_FORECAST
     BUTTON      ID_TASK_SNOTEL
     BUTTON      ID_TASK_MESOWEST
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
@@ -646,6 +648,8 @@ BEGIN
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
+	IDS_UPDATER_NOAA_FORECAST_P
+	"Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Forcé la mise à jour de la liste des stations"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
@@ -709,12 +713,12 @@ BEGIN
     ID_TASK_NOAA_GHCND      "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN-Daily)"" via NOAA\nGHCN quotidien"
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
+	ID_TASK_NOAA_FORECAST	"Télécharger les prévisions NOAA\nPrévision NOAA"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
     ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille RUC/RAP"
     ID_TASK_MESOWEST        "Télécharger les données MesoWest\nMesoWest"
     ID_TASK_SM_CIPRA_HOURLY "Télécharger les données horaires agro-climatique du Québec via Solutions-Mesonet\nCipra horaire"
     ID_TASK_SM_DAILY        "Télécharger les données quotidiennes du Québec via Solutions-Mesonet\nQuébec quotidien"
-    ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
 END
 
 STRINGTABLE
@@ -729,6 +733,7 @@ END
 
 STRINGTABLE
 BEGIN
+	ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
     ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
     ID_TASK_SASKATCHEWAN    "Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
     ID_TASK_MANITOBA        "Télécharger les données du Manitoba\nMétéo Manitoba"
@@ -1092,7 +1097,9 @@ BEGIN
                             "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Working directory|First year|Last year|Country|States (if USA)"
+	                            "Working directory|First year|Last year|Country|States (if USA)"
+	IDS_UPDATER_NOAA_FORECAST_P
+								"Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
     IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Force update station list)"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
@@ -1156,6 +1163,7 @@ BEGIN
     ID_TASK_NOAA_GHCND      "Download Global Historical Climatology Network (GHCN) daily data via NOAA\nGHCN Daily"
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
+	ID_TASK_NOAA_FORECAST	"Downlaod NOAA forecast\nNOAA Forecast"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
     ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
     ID_TASK_MESOWEST        "Download MesoWest weather data\nMesoWest weather"

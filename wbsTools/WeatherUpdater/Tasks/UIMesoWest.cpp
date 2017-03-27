@@ -12,8 +12,8 @@
 #include "WeatherBasedSimulationString.h"
 #include "StateSelection.h"
 #include "ProvinceSelection.h"
-#include "Geomatic/TimeZones.h"
-#include "cctz/time_zone.h"
+//#include "Geomatic/TimeZones.h"
+//#include "cctz/time_zone.h"
 using namespace json11;
 
 using namespace WBSF::HOURLY_DATA;
@@ -94,10 +94,10 @@ namespace WBSF
 	}
 
 
-	std::string CUIMesoWest::GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year)
+	std::string CUIMesoWest::GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year, size_t m)
 	{
 		string workingDir = GetDir(WORKING_DIR);
-		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + ID + ".Json";
+		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + FormatA("%02d", m+1) + "\\"+ ID + ".Json";
 
 		return ouputPath ;
 	}
@@ -398,21 +398,26 @@ namespace WBSF
 				int year = firstYear + int(y);
 
 				size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
-
-				static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%d01010000&end=%d12312359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-				string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, year);
-				string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year);
-				CreateMultipleDir(GetPath(ouputFilePath));
-
-				if (!FileExists(ouputFilePath) || current - CTRef(year, LAST_MONTH, LAST_DAY) < 10)
+				for (size_t m = 0; m < nbMonths&&msg; m++)
 				{
-					msg += CopyFile(pConnection, URL, ouputFilePath);
-					if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
-						nbDownload++;
+					static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
+					string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m+1, year, m+1, GetNbDayPerMonth(year, m) );
+					string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
+					CreateMultipleDir(GetPath(ouputFilePath));
+
+
+					
+					CTimeRef TRef1(GetFileInfo(ouputFilePath).m_time);
+
+					if (!FileExists(ouputFilePath) || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+					{
+						msg += CopyFile(pConnection, URL, ouputFilePath);
+						if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
+							nbDownload++;
+					}
+
+					msg += callback.StepIt();
 				}
-
-				msg += callback.StepIt();
-
 			}
 		}
 
@@ -472,11 +477,10 @@ namespace WBSF
 		((CLocation&)station) = m_stations[pos];
 
 		station.m_name = WBSF::PurgeFileName(station.m_name);
-//		station.m_name = ANSI_2_ASCII(station.m_name);
-		//station.m_ID;// += "H";//add a "H" for hourly data
 
-		cctz::time_zone zone;
-		CTimeZones::GetZone(station, zone);
+
+		//cctz::time_zone zone;
+		//CTimeZones::GetZone(station, zone);
 
 
 		CTRef current = CTRef::GetCurrentTRef();
@@ -492,11 +496,15 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, year);
-			if (FileExists(filePath))
+			size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
+			for (size_t m = 0; m < nbMonths&&msg; m++)
 			{
-				msg = ReadData(filePath, zone, TM, station, callback);
-				msg += callback.StepIt(0);
+				string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, year, m);
+				if (FileExists(filePath))
+				{
+					msg = ReadData(filePath, TM, year, station, callback);
+					msg += callback.StepIt(0);
+				}
 			}
 		}
 
@@ -515,7 +523,7 @@ namespace WBSF
 
 	CTRef CUIMesoWest::GetTRef(const string& str)
 	{
-		StringVector e(str,"-T:");
+		StringVector e(str,"-T:+");
 		ASSERT(e.size() == 7);
 		ASSERT(e[6] != "Z");
 
@@ -536,11 +544,11 @@ namespace WBSF
 
 	}
 	
-	ERMsg CUIMesoWest::ReadData(const string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherStation& data, CCallback& callback)const
+	ERMsg CUIMesoWest::ReadData(const string& filePath, CTM TM, int year, CWeatherStation& data, CCallback& callback)const
 	{
 		ERMsg msg;
 		
-		int year = WBSF::as<int>(GetLastDirName(GetPath(filePath)));
+		//int year = WBSF::as<int>(GetLastDirName(GetPath(filePath)));
 
 		//now extact data 
 		ifStream file;
@@ -609,7 +617,7 @@ namespace WBSF
 
 										if (variables[v] == H_PRCP)
 										{
-											//accumulated precipitation since local midneight
+											//accumulated precipitation since local midnight
 											//need to remove last observation
 											if (last_prcp_ref.as(CTM::DAILY) != TRefs[i].as(CTM::DAILY))
 												last_prcp = 0;//reset on a new day
@@ -631,7 +639,7 @@ namespace WBSF
 							}//for all object
 
 
-							if (i + 1 == TRefs.size() || accumulator.TRefIsChanging(TRefs[i + 1]))
+							if (accumulator.GetTRef().IsInit() && (i + 1 == TRefs.size() || accumulator.TRefIsChanging(TRefs[i + 1])))
 								data[accumulator.GetTRef()].SetData(accumulator);
 						}//if good year
 					}//for all TRef

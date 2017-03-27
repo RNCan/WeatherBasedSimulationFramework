@@ -59,8 +59,9 @@ namespace WBSF
 			CStateSelection::$DE,
 			CStateSelection::$IA,
 			CStateSelection::$IL,
-			CStateSelection::$MD,
 			CStateSelection::$MA,
+			CStateSelection::$MD,
+			CStateSelection::$MI,
 			CStateSelection::$MN,
 			CStateSelection::$MO,
 			CStateSelection::$NE,
@@ -68,6 +69,7 @@ namespace WBSF
 			CStateSelection::$NJ,
 			CStateSelection::$NY,
 			CStateSelection::$NC,
+			CStateSelection::$OH,
 			CStateSelection::$PA,
 			CStateSelection::$SC,
 			CStateSelection::$SD,
@@ -180,8 +182,10 @@ namespace WBSF
 							string URL = FindString(line, "\"", "\"");
 							string name = PurgeFileName(line.substr(pos1 + 1, line.length() - pos1 - 5));
 							string state = TrimConst(line.substr(line.length() -2));
-							if (state == "RI")//Rhode Island
+							if (state == "RI")//replace Rhode Island by pensylvania
 								state = "PA";
+							if (state == "DC")//District of Columbia by Maryland
+								state = "MD";
 
 							size_t s = CStateSelection::GetState(state);
 							ASSERT(IsInclude(s));

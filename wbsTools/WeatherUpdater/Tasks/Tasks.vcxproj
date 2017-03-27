@@ -179,6 +179,7 @@
     <ClInclude Include="UIHighResolutionGribs.h" />
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMesoWest.h" />
+    <ClInclude Include="UINOAAForecast.h" />
     <ClInclude Include="UIQuebec.h" />
     <ClInclude Include="UINEWA.h" />
     <ClInclude Include="UINewBrunswick.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="UISaskatchewan.h" />
     <ClInclude Include="UISnowTel.h" />
     <ClInclude Include="UISolutionMesonetDaily.h" />
+    <ClInclude Include="UIWeatherFarm.h" />
     <ClInclude Include="UIWunderground.h" />
     <ClInclude Include="ZipUnzip.h" />
   </ItemGroup>
@@ -242,6 +244,7 @@
     <ClCompile Include="UIHighResolutionGribs.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMesoWest.cpp" />
+    <ClCompile Include="UINOAAForecast.cpp" />
     <ClCompile Include="UIQuebec.cpp" />
     <ClCompile Include="UINEWA.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
@@ -268,6 +271,7 @@
     <ClCompile Include="UISaskatchewan.cpp" />
     <ClCompile Include="UISnowTel.cpp" />
     <ClCompile Include="UISolutionMesonetDaily.cpp" />
+    <ClCompile Include="UIWeatherFarm.cpp" />
     <ClCompile Include="UIWunderground.cpp" />
     <ClCompile Include="ZipUnzip.cpp" />
   </ItemGroup>
