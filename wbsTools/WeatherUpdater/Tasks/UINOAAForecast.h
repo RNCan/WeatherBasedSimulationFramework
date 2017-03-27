@@ -18,11 +18,19 @@ namespace WBSF
 	{
 	public:
 
+		enum TDataType  { DATA_HOURLY, DATA_DAILY, NB_DATA_TYPE };
+		enum TForecastType  { SHORT_FORECAST, LONG_FORECAST, NB_FORECAST_TYPE };
 		enum TAttributes  { WORKING_DIR, NB_ATTRIBUTES };
-		enum TVars{ V_TAIR, V_TDEW, V_RELH, V_WNDS, V_WNDD, NB_VARS };
+		enum THourlyVars{ V_TAIR, V_TDEW, V_RELH, V_WNDS, V_WNDD, NB_HOURLY_VARS };
+		enum TDailyVars{ V_TMIN, V_TMAX, V_PRCP, V_HRMN, V_HRMX, NB_DAILY_VARS };
+		enum TVars{ NB_VARS_MAX = NB_DAILY_VARS };
 
-		static const char* VAR_FILE_NAME[NB_VARS];
-		static const HOURLY_DATA::TVarH FORECAST_VARIABLES[NB_VARS];
+
+		static const size_t NB_VARS[NB_DATA_TYPE];
+		
+		static const char* VAR_FILE_NAME[NB_DATA_TYPE][NB_VARS_MAX];
+		static const char* FORECAST_TYPE[NB_FORECAST_TYPE];
+		static const HOURLY_DATA::TVarH FORECAST_VARIABLES[NB_DATA_TYPE][NB_VARS_MAX];
 
 
 
@@ -53,12 +61,14 @@ namespace WBSF
 	protected:
 
 		bool m_bOpen;
-		std::array<CGDALDatasetEx, NB_VARS> m_datasets;
+		std::array<std::array<std::array<CGDALDatasetEx, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_datasets;
 		CProjectionTransformation m_geo2gribs;
+		CGeoExtents m_extents;
 
 		ERMsg OpenDatasets(CCallback& callback);
 
-		std::string GetOutputFilePath(const std::string& str);
+		static std::string GetInputFilePath(size_t t, size_t f, size_t v);
+		std::string GetOutputFilePath(size_t t, size_t f, size_t v)const;
 
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
