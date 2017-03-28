@@ -423,8 +423,8 @@ namespace WBSF
 											}
 											
 											lastTRef[t][f][v] = TRef;
-											//station[accumulator.GetTRef()].SetData(accumulator);
-
+											
+											msg += callback.StepIt(0);
 										}
 									}
 
