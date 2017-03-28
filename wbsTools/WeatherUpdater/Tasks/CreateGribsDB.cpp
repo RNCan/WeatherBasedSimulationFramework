@@ -103,20 +103,26 @@ namespace WBSF
 				CTPeriod p = GetPeriod();
 				if (p.IsInit())
 				{
+					ASSERT(pTask->IsGribs());
+
 					string basePath = GetPath(outputFilePath);
 
-					string path = pTask->Get(CUIRapidUpdateCycle::WORKING_DIR);
-					if (!IsPathEndOk(path))
-						path += "\\";
+					//string path = pTask->Get(CUIRapidUpdateCycle::WORKING_DIR);
+					//if (!IsPathEndOk(path))
+//						path += "\\";
 
-					StringVector fileList = GetFilesList(path + "*.grb2", FILE_PATH, true);
-					for (size_t i = 0; i < fileList.size(); i++)
+					std::map<CTRef, std::string> gribsList;
+					msg = pTask->GetGribsList(gribsList, callback);
+					if (msg)
 					{
-						CTRef TRef = CUIRapidUpdateCycle::GetTRef(fileList[i]);
-						if (p.IsInside(TRef) )
+						for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end(); it++)
 						{
-							string relativePath = GetRelativePath(basePath, fileList[i]);
-							file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+							CTRef TRef = it->first;
+							if (p.IsInside(TRef))
+							{
+								string relativePath = GetRelativePath(basePath, it->second);
+								file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+							}
 						}
 					}
 						

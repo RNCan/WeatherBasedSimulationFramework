@@ -272,7 +272,7 @@ namespace WBSF
 		}
 
 
-		callback.PushTask("Download gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFilesToDownload) + " gribs)", nbFilesToDownload);
+		callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFilesToDownload) + " gribs)", nbFilesToDownload);
 
 		int nbRun = 0;
 		CTRef curH = period.Begin();
@@ -382,6 +382,24 @@ namespace WBSF
 	ERMsg CUIRapidUpdateCycle::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
+
+		return msg;
+	}
+
+
+	ERMsg CUIRapidUpdateCycle::GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	{
+		ERMsg msg;
+
+		string workingDir = GetDir(WORKING_DIR);
+
+		StringVector fileList = GetFilesList(workingDir + "*.grb2", FILE_PATH, true);
+		for (size_t i = 0; i < fileList.size(); i++)
+		{
+			CTRef TRef = GetTRef(fileList[i]);
+			gribsList[TRef] = fileList[i];
+		}
+
 
 		return msg;
 	}

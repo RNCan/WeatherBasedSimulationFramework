@@ -82,7 +82,7 @@ namespace WBSF
 	//****************************************************************************************************************
 
 	class CTasksProject;
-	class CTaskBase 
+	class CTaskBase
 	{
 	public:
 
@@ -119,8 +119,8 @@ namespace WBSF
 		void Set(const std::string& i, const std::string& value);
 
 
-		template <typename T> 
-		inline T as(size_t i)const{return ToValue<T>(Get(i));}
+		template <typename T>
+		inline T as(size_t i)const{ return ToValue<T>(Get(i)); }
 
 		std::string GetRelativeFilePath(const std::string& filePath)const;
 		std::string GetAbsoluteFilePath(const std::string& filePath)const;
@@ -129,29 +129,33 @@ namespace WBSF
 		//class description
 		virtual const char* ClassName()const = 0;
 		virtual TType ClassType()const = 0;
-		virtual UINT GetTitleStringID()const=0;
+		virtual UINT GetTitleStringID()const = 0;
 		virtual UINT GetDescriptionStringID()const = 0;
 		virtual bool IsHourly()const{ return false; }
 		virtual bool IsDaily()const{ return false; }
-		virtual bool IsForecast()const{	return false; }
+		virtual bool IsForecast()const{ return false; }
 		virtual bool IsDatabase()const{ return false; }
 		virtual bool IsGribs()const{ return false; }
 		virtual bool IsMMG()const{ return false; }
 
-		
-		
+
+
 
 		//attribute
 		virtual size_t GetNbAttributes()const{ return 0; }
 		void GetAttributes(CTaskAttributes& info)const;
 		size_t GetAttributeIDFromName(const std::string& name)const;
 
-		//function
-		virtual void Init(CTasksProject* pProject);
+		//Downloader
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK) = 0;
+
+		//Tools
+		virtual ERMsg Init(CTasksProject* pProject, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback);
+		virtual ERMsg GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
+		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
 
 		void writeStruc(zen::XmlElement& output)const;
 		bool readStruc(const zen::XmlElement& input);

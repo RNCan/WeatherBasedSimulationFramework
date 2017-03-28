@@ -479,9 +479,6 @@ namespace WBSF
 		station.m_name = WBSF::PurgeFileName(station.m_name);
 
 
-		//cctz::time_zone zone;
-		//CTimeZones::GetZone(station, zone);
-
 
 		CTRef current = CTRef::GetCurrentTRef();
 		int firstYear = as<int>(FIRST_YEAR);
@@ -544,12 +541,28 @@ namespace WBSF
 
 	}
 	
+	bool CUIMesoWest::IsValid(TVarH v, double value)
+	{
+		bool bValid = true;
+		switch (v)
+		{
+		case H_TMIN2: 
+		case H_TAIR2:
+		case H_TMAX2: 
+		case H_TDEW: bValid = value >= -50 && value <= 50; break;
+		case H_PRCP: bValid = value >= 0 && value < 300; break;
+		case H_RELH: bValid = value > 0 && value <= 100; break;//ignore zero values
+		case H_WNDS: bValid = value >= 0 && value <= 110; break;
+		case H_WNDD: bValid = value >= 0 && value <= 360; break;
+		}
+
+		return bValid;
+	}
+
 	ERMsg CUIMesoWest::ReadData(const string& filePath, CTM TM, int year, CWeatherStation& data, CCallback& callback)const
 	{
 		ERMsg msg;
 		
-		//int year = WBSF::as<int>(GetLastDirName(GetPath(filePath)));
-
 		//now extact data 
 		ifStream file;
 
@@ -586,7 +599,6 @@ namespace WBSF
 					{
 						string dateTime = date_time[i].string_value();
 						TRefs[i] = GetTRef(dateTime);
-						//CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
 					}
 
 					const Json::object& values = obs.object_items();
@@ -601,7 +613,6 @@ namespace WBSF
 					{
 						if (TRefs[i].GetYear() == year)
 						{
-							//for (Json::object::const_iterator it = values.begin(); it != values.end(); it++)
 							for (size_t v = 0; v < header.size(); v++)
 							{
 								if (variables[v] != H_SKIP)
@@ -614,26 +625,28 @@ namespace WBSF
 									if (!varValues[i].is_null())
 									{
 										double value = varValues[i].number_value();
-
-										if (variables[v] == H_PRCP)
+										if (IsValid(variables[v], value))
 										{
-											//accumulated precipitation since local midnight
-											//need to remove last observation
-											if (last_prcp_ref.as(CTM::DAILY) != TRefs[i].as(CTM::DAILY))
-												last_prcp = 0;//reset on a new day
+											if (variables[v] == H_PRCP)
+											{
+												//accumulated precipitation since local midnight
+												//need to remove last observation
+												if (last_prcp_ref.as(CTM::DAILY) != TRefs[i].as(CTM::DAILY))
+													last_prcp = 0;//reset on a new day
 
-											double diff = value - last_prcp;
-											ASSERT(diff >= 0);
+												double diff = value - last_prcp;
+												ASSERT(diff >= 0);
 
-											accumulator.Add(TRefs[i], variables[v], diff);
+												accumulator.Add(TRefs[i], variables[v], diff);
 
-											last_prcp_ref = TRefs[i];
-											last_prcp = value;
-										}
-										else
-										{
-											accumulator.Add(TRefs[i], variables[v], value);
-										}
+												last_prcp_ref = TRefs[i];
+												last_prcp = value;
+											}
+											else
+											{
+												accumulator.Add(TRefs[i], variables[v], value);
+											}
+										}//if valid
 									}
 								}//if its a varialbe
 							}//for all object

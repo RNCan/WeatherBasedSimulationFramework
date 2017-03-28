@@ -172,18 +172,70 @@ namespace WBSF
 	ERMsg CUIHighResolutionGribs::GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
+		return msg;
+	}
+
+	ERMsg CUIHighResolutionGribs::GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	{
+		ERMsg msg;
+
+		string workingDir = GetDir(WORKING_DIR);
+
+
+		StringVector sources = as<StringVector>(SOURCES);
+		if (sources.empty())
+			sources = StringVector("HRDPS", "|");
+
+		
+		//for (size_t s = 0; s < sources.size(); s++)
+		
+		size_t ss = GetSourcesIndex(sources.front());//take only the first databaset
+
+		StringVector list;
+		if (ss == N_HRDPS || ss == N_HRRR)
+			list = GetFilesList(workingDir + string(SOURCES_NAME[ss]) + "\\" + "*.grib2", FILE_PATH, true);
+	
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			CTRef TRef = GetTRef(ss, list[i]);
+			gribsList[TRef] = list[i];
+		}
+
+
+
 
 		return msg;
 	}
 
-	CTRef CUIHighResolutionGribs::GetTRef(string filePath)
+	CTRef CUIHighResolutionGribs::GetTRef(size_t source, string filePath)
 	{
-		string name = GetFileTitle(filePath);
-		int year = WBSF::as<int>(name.substr(8, 4));
-		size_t m = WBSF::as<int>(name.substr(12, 2))-1;
-		size_t d = WBSF::as<int>(name.substr(14, 2))-1;
-		size_t h = WBSF::as<int>(name.substr(17, 2));
+		CTRef TRef;
+		if (source == N_HRDPS)
+		{
+			string name = GetFileTitle(filePath);
+			string str = name.substr(name.size() - 19, 15);
+			
+			int year = WBSF::as<int>(str.substr(0, 4));
+			size_t m = WBSF::as<int>(str.substr(4, 2)) - 1;
+			size_t d = WBSF::as<int>(str.substr(6, 2)) - 1;
+			size_t h = WBSF::as<int>(str.substr(8, 2));
+			size_t hh = WBSF::as<int>(str.substr(12, 3));
+			
+			TRef = CTRef(year, m, d, h+hh);
 
-		return CTRef(year,m,d,h);
+		}
+		else if (source == N_HRRR)
+		{
+
+			string name = GetFileTitle(filePath);
+			int year = WBSF::as<int>(name.substr(8, 4));
+			size_t m = WBSF::as<int>(name.substr(12, 2)) - 1;
+			size_t d = WBSF::as<int>(name.substr(14, 2)) - 1;
+			size_t h = WBSF::as<int>(name.substr(5, 2));
+			TRef = CTRef(year, m, d, h);
+		}
+
+
+		return TRef;
 	}
 }

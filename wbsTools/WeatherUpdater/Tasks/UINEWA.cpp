@@ -636,12 +636,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t type = as <size_t>(DATA_TYPE);
+		/*size_t type = as <size_t>(DATA_TYPE);
 		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
 		{
 			msg.ajoute("Daily database not supported on the hourly data for the moment..."); 
 			return msg;
-		}
+		}*/
 
 		size_t pos = m_stations.FindByID(ID);
 		if (pos == NOT_INIT)

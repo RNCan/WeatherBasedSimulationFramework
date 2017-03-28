@@ -101,11 +101,15 @@ namespace WBSF
 		return *this;
 	}
 
-	void CTaskBase::Init(CTasksProject* pProject)
+	ERMsg CTaskBase::Init(CTasksProject* pProject, CCallback& callback)
 	{
+		ERMsg msg;
+
 		m_pProject = pProject;
 		for (size_t i = 0; i < GetNbAttributes(); i++)
 			m_params.insert( make_pair(Name(i), Default(i)) );
+
+		return msg;
 	}
 
 	std::string CTaskBase::GetRelativeFilePath(const std::string& filePath)const

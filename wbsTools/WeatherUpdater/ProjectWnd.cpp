@@ -61,13 +61,13 @@ BEGIN_MESSAGE_MAP(CTaskWnd, CWnd)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DUPLICATE, OnUpdateToolBar)
-	ON_UPDATE_COMMAND_UI(ID_TASK_DELETE_UPDATE, OnUpdateToolBar) 
-	ON_UPDATE_COMMAND_UI(ID_TASK_DELETE_TOOL, OnUpdateToolBar)
+	//ON_UPDATE_COMMAND_UI(ID_TASK_DELETE_UPDATE, OnUpdateToolBar) 
+	//ON_UPDATE_COMMAND_UI(ID_TASK_DELETE_TOOL, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_TASK_CHECKED, OnUpdateStatusBar)
 
-	ON_COMMAND_RANGE(ID_TASK_FIRST, ID_TASK_LAST, OnAdd)
-	ON_COMMAND(ID_TASK_DELETE_UPDATE, &OnRemove)
-	ON_COMMAND(ID_TASK_DELETE_TOOL, &OnRemove)
+	ON_COMMAND_RANGE(ID_TASK_FIRST, ID_TASK_LAST, OnToolBarClick)
+	//ON_COMMAND(ID_TASK_DELETE_UPDATE, &OnToolBarClick)
+	//ON_COMMAND(ID_TASK_DELETE_TOOL, &OnRemove)
 	ON_COMMAND(ID_EDIT_COPY, &OnEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &OnEditPaste)
 	ON_COMMAND(ID_EDIT_DUPLICATE, &OnEditDuplicate)
@@ -243,7 +243,7 @@ UINT CTaskWnd::CtrlID(const std::string& className)
 }
 
 string CTaskWnd::ClassName(UINT ID)
-{
+{ 
 	string className = CTaskFactory::ClassNameFromResourceID(ID);
 	ASSERT(!className.empty());
 	
@@ -330,6 +330,14 @@ void CTaskWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	m_bInUpdate = false;
 }
 
+void CTaskWnd::OnToolBarClick(UINT ID)
+{
+	if (ID == ID_TASK_DELETE_UPDATE || ID == ID_TASK_DELETE_TOOL)
+		OnRemove();
+	else
+		OnAdd(ID);
+}
+
 void CTaskWnd::OnAdd(UINT ID)
 {
 	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument(); ASSERT(pDoc);
@@ -369,7 +377,7 @@ void CTaskWnd::OnRemove()
 {
 	CWeatherUpdaterDoc* pDoc = (CWeatherUpdaterDoc*)GetDocument();
 	ASSERT(pDoc);
-
+	 
 	HTREEITEM hItem = m_taskCtrl.GetSelectedItem();
 	ASSERT(hItem != NULL);
 

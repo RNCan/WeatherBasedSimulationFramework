@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Simulation/Executable.h"
+
 #include "UI/VariableSelectionCtrl.h"
 #include "TaskTreeCtrl.h"
 
@@ -71,6 +71,8 @@ public:
 	afx_msg LRESULT OnDropHover(WPARAM, LPARAM);
 	
 
+	
+	afx_msg void OnToolBarClick(UINT ID);
 	afx_msg void OnAdd(UINT ID);
 	afx_msg void OnRemove();
 	afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);

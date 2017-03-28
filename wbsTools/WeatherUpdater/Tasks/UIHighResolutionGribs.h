@@ -24,7 +24,7 @@ namespace WBSF
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHighResolutionGribs); }
-		static CTRef GetTRef(std::string filePath);
+		static CTRef GetTRef(size_t source, std::string filePath);
 		static size_t GetSourcesIndex(const std::string& name);
 
 		CUIHighResolutionGribs(void);
@@ -41,6 +41,7 @@ namespace WBSF
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		virtual ERMsg GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback = DEFAULT_CALLBACK);
 
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
@@ -53,21 +54,13 @@ namespace WBSF
 
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
-
-		//std::string GetInputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
-		//std::string GetOutputFilePath(CTRef TRef, bool bGrib, int forecastH)const;
 	
 		CTPeriod GetPeriod()const;
-
-
-		
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-//		static const char* SERVER_NAME[NB_SOURCES];
-	//	static const char* INPUT_FORMAT[NB_SOURCES];
 		static const char* SOURCES_NAME[NB_SOURCES];
 		
 	};

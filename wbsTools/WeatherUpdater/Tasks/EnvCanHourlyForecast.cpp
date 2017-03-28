@@ -372,7 +372,7 @@ namespace WBSF
 
 
 			//station must have data in the last 2 weeks
-			if (current - TairEnd < 14)
+			if (current.as(CTM::DAILY) - TairEnd.as(CTM::DAILY) < 14)
 			{
 				int shapeNo = -1;
 

@@ -29,6 +29,7 @@ namespace WBSF
 		virtual TType ClassType()const;
 		virtual UINT GetTitleStringID()const{ return ATTRIBUTE_TITLE_ID; }
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual bool IsHourly()const{ return true; }
 		virtual bool IsDaily()const{ return true; }
 		virtual bool IsDatabase()const{ return true; }
 
@@ -56,7 +57,7 @@ namespace WBSF
 		static std::vector<HOURLY_DATA::TVarH > GetVariables(const StringVector& header);
 		static bool IsUnknownVar(const std::string& str);
 		static CTRef GetTRef(const std::string& str);
-		
+		static bool IsValid(HOURLY_DATA::TVarH v, double value);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

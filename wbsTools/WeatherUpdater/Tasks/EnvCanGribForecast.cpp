@@ -348,7 +348,7 @@ namespace WBSF
 		ASSERT(TairEnd <= current);
 
 		//station must have data in the last 2 weeks
-		if (current - TairEnd < 14)
+		if (current.as(CTM::DAILY) - TairEnd.as(CTM::DAILY) < 14)
 		{
 			if (!m_datasets[0][0].IsOpen())
 				msg = OpenDatasets(callback);
