@@ -357,7 +357,11 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		int nbYear = lastYear - firstYear + 1;
+
 		StringVector networks = as<StringVector>(NETWORKS);
+		if (networks.empty())
+			networks = StringVector("Atantic|Ontario|Pommes|Quebec", "|");
+
 
 
 		//find all station in the directories
