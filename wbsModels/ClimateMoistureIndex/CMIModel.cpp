@@ -1,4 +1,5 @@
 //*********************************************************************
+//27/03/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //06/09/2016			Rémi Saint-Amant	Integration with WBSF
 //10/01/2014			Rémi Saint-Amant	New version for BioSIM 10.5
@@ -26,7 +27,7 @@ namespace WBSF
 	CCMIModel::CCMIModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "3.1.0 (2016)";
+		VERSION = "3.1.1 (2017)";
 	}
 
 

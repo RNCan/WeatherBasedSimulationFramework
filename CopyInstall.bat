@@ -95,7 +95,7 @@ copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index QL(Annual).mdl" ".
 copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index QL(Monthly).mdl" "..\Install\NRCan\Models\Soil Moisture Index QL(Monthly).mdl"
 copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index QL(Daily).mdl" "..\Install\NRCan\Models\Soil Moisture Index QL(Daily).mdl"
 copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index QL.dll" "..\Install\NRCan\Models\Spruce Budworm Biology.dll"
-copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Models\Spruce Budworm Biology.dll"
+copy /Y "D:\project\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Models\Soil Moisture Index.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.dll" "..\Install\NRCan\Models\Spruce Budworm Biology.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.mdl" "..\Install\NRCan\Models\Spruce Budworm Biology.mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Grow Rate.mdl" "..\Install\NRCan\Models\Spruce Budworm Grow Rate.mdl"

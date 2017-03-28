@@ -181,7 +181,7 @@ namespace WBSF
 		size_t nbDownload = 0;
 	
 	
-		callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2);
+		callback.PushTask("Downlaod NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2-1);
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
@@ -246,7 +246,7 @@ namespace WBSF
 		if (!m_bOpen)
 		{
 			GDALSetCacheMax64( GIntBig(1024) * 1024 * 1024 * 6);
-			callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2);
+			callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2) + " gribs files )", ((NB_HOURLY_VARS + NB_DAILY_VARS) * 2-1) * 5);
 			for (size_t t = 0; t < NB_DATA_TYPE&&msg; t++)
 			{
 				for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
@@ -258,31 +258,38 @@ namespace WBSF
 
 						string outputFilePath = GetOutputFilePath(t,f,v);
 						msg = m_datasets[t][f][v].OpenInputImage(outputFilePath);
+						msg += callback.StepIt();
+
 						if (msg)
 						{
 							msg = m_bandHolder[t][f][v].Load(m_datasets[t][f][v], true);
+							msg += callback.StepIt();
 						
 							if (msg)
 							{
 								CGeoExtents extents = m_bandHolder[t][f][v].GetExtents();
 								m_bandHolder[t][f][v].LoadBlock(extents);
-							}
+								msg += callback.StepIt();
 
-							m_UTCTRef[t][f][v].resize(m_datasets[t][f][v].GetRasterCount());
-							for (size_t b = 0; b < m_datasets[t][f][v].GetRasterCount() && msg; b++)
-							{
-								const char* strTime = m_datasets[t][f][v].GetRasterBand(b)->GetMetadataItem("GRIB_VALID_TIME");
-								__int64 UTCTime = WBSF::as<__int64>(strTime);
-								m_UTCTRef[t][f][v][b] = CTimeZones::UTCTime2UTCTRef(UTCTime);
-							}
+								if (msg)
+								{
+									m_UTCTRef[t][f][v].resize(m_datasets[t][f][v].GetRasterCount());
+									for (size_t b = 0; b < m_datasets[t][f][v].GetRasterCount() && msg; b++)
+									{
+										const char* strTime = m_datasets[t][f][v].GetRasterBand(b)->GetMetadataItem("GRIB_VALID_TIME");
+										__int64 UTCTime = WBSF::as<__int64>(strTime);
+										m_UTCTRef[t][f][v][b] = CTimeZones::UTCTime2UTCTRef(UTCTime);
+										msg += callback.StepIt(0);
+									}
 
-							m_datasets[t][f][v].FlushCache();
+									if (msg)
+									{
+										m_datasets[t][f][v].FlushCache();
+										msg += callback.StepIt();
+									}
+								}
+							}
 						}
-
-						msg += callback.StepIt();
-
-						 
-						
 					}
 				}
 			}

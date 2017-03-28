@@ -1,4 +1,5 @@
 //*********************************************************************
+//27/03/2017	2.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //05/09/2016	2.0		Rémi Saint-Amant	Integrated in WBSF
 //25/07/2011			Rémi Saint-Amant	Integrate in BioSIM
@@ -31,7 +32,7 @@ namespace WBSF
 	CSMI_QL_Model::CSMI_QL_Model()
 	{
 		NB_INPUT_PARAMETER = 2;
-		VERSION = "2.1.0 (2016)";
+		VERSION = "2.1.1 (2017)";
 
 		//The initial SMIstart is default to 200 and then after the first calculation SMIstart is set to the previous day's SMI
 		m_SMIcrit = 300.0; //Critical soil moisture (mm) 
