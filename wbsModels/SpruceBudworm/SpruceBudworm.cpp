@@ -4,6 +4,8 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
+// 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0, 0}  from { 0.5, 0]
 // 08/01/2017	Rémi Saint-Amant	Add hourly live
 // 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
@@ -151,7 +153,7 @@ namespace WBSF
 		CSBWTree* pTree = GetTree();
 		CSBWStand* pStand = GetStand();
 
-		static const double OVERHEAT_FACTOR = 0.11;
+		static const double OVERHEAT_FACTOR = 0.04; //was 0.11, but on comparison with earlier (published) model, was reduced JR 2017/03/13
 		COverheat overheat(OVERHEAT_FACTOR);
 
 		size_t h = weather.GetTRef().GetHour();
@@ -471,7 +473,9 @@ namespace WBSF
 		
 		//double Pmating = GetMatingProbability(GetStageAge());
 		//m_sex == MALE || 
-		static const double EXODUS_AGE[2] = { 0.5, 0 };// OVIPOSITING_STAGE_AGE
+
+		static const double EXODUS_AGE[2] = { 0, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
+
 		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			const double Vmax = VmaxHz * VmaxMF[m_sex];
