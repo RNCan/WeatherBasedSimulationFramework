@@ -17,6 +17,8 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+
 	CRegionArray CRegionSelection::REGION_NAME;
 
 	CRegionSelection::CRegionSelection(const string& bits) :std::bitset <NB_REGIONS>(bits)
@@ -367,13 +369,18 @@ namespace WBSF
 
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			CWVariablesCounter counter = station.GetVariablesCount();
-			CTRef TairEnd = counter.GetTPeriod().End();
-			ASSERT(TairEnd <= current);
+			CTRef TRefEnd = counter.GetTPeriod().End();
+			ASSERT(TRefEnd <= current);
 
 
 			//station must have data in the last 2 weeks
-			if (current.as(CTM::DAILY) - TairEnd.as(CTM::DAILY) < 14)
+			if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
 			{
+
+				array<bool, NB_VAR_H> bAddForecast;
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+					bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+
 				int shapeNo = -1;
 
 				if (m_pShapefile->IsInside(station, &shapeNo))//inside a shape
@@ -402,15 +409,18 @@ namespace WBSF
 								{
 									CTRef TRef = accumulator.GetTRef();
 									for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-										if (!station[TRef][v].IsInit())
-											station[TRef].SetStat( v, accumulator.GetStat(v));
+									{
+										if ( !station[TRef][v].IsInit())
+											station[TRef].SetStat(v, accumulator.GetStat(v));
+									}
+										
 								}
 
 								const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
 
 								for (int v = 0; v <NB_VAR_H; v++)
 									if (varInfo[v])
-										if (hourData[v]>-999)
+										if (bAddForecast[v] && hourData[v]>-999)
 											accumulator.Add(d, v, hourData[v]);
 
 							}//for all days

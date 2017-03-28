@@ -75,13 +75,14 @@ namespace WBSF
 	const UINT CUINOAAForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_FORECAST_P;
 	const UINT CUINOAAForecast::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_FORECAST;
 
+	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+
 	const char* CUINOAAForecast::CLASS_NAME(){ static const char* THE_CLASS_NAME = "NOAAForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINOAAForecast::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINOAAForecast::CLASS_NAME(), (createF)CUINOAAForecast::create);
 
 
-	//
-	//, 
+
 	const size_t CUINOAAForecast::NB_VARS[NB_DATA_TYPE] = { NB_HOURLY_VARS, NB_DAILY_VARS };
 
 	const char* CUINOAAForecast::VAR_FILE_NAME[NB_DATA_TYPE][NB_VARS_MAX] =
@@ -180,7 +181,7 @@ namespace WBSF
 		size_t nbDownload = 0;
 	
 	
-		callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2);
+		callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2);
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
@@ -235,6 +236,7 @@ namespace WBSF
 		return msg;
 	}
 
+//	static std::array<std::array<std::array<CRasterWindow, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_window;
 
 	ERMsg CUINOAAForecast::OpenDatasets(CCallback& callback)
 	{
@@ -255,9 +257,32 @@ namespace WBSF
 							continue;
 
 						string outputFilePath = GetOutputFilePath(t,f,v);
-						msg += m_datasets[t][f][v].OpenInputImage(outputFilePath);
+						msg = m_datasets[t][f][v].OpenInputImage(outputFilePath);
+						if (msg)
+						{
+							msg = m_bandHolder[t][f][v].Load(m_datasets[t][f][v], true);
+						
+							if (msg)
+							{
+								CGeoExtents extents = m_bandHolder[t][f][v].GetExtents();
+								m_bandHolder[t][f][v].LoadBlock(extents);
+							}
+
+							m_UTCTRef[t][f][v].resize(m_datasets[t][f][v].GetRasterCount());
+							for (size_t b = 0; b < m_datasets[t][f][v].GetRasterCount() && msg; b++)
+							{
+								const char* strTime = m_datasets[t][f][v].GetRasterBand(b)->GetMetadataItem("GRIB_VALID_TIME");
+								__int64 UTCTime = WBSF::as<__int64>(strTime);
+								m_UTCTRef[t][f][v][b] = CTimeZones::UTCTime2UTCTRef(UTCTime);
+							}
+
+							m_datasets[t][f][v].FlushCache();
+						}
+
 						msg += callback.StepIt();
 
+						 
+						
 					}
 				}
 			}
@@ -269,9 +294,12 @@ namespace WBSF
 
 				m_geo2gribs.Set(PRJ_WGS_84, m_datasets[0][0][0].GetPrjID());
 				m_extents = m_datasets[0][0][0].GetExtents();
-				//CGeoRect rect(-180, 0, 0, 90, PRJ_WGS_84);
-
 			}
+
+			//Load in memory
+			
+
+
 
 
 			m_bOpen = true;
@@ -293,12 +321,17 @@ namespace WBSF
 
 		CTRef current = CTRef::GetCurrentTRef(station.GetTM());
 		CWVariablesCounter counter = station.GetVariablesCount();
-		CTRef TairEnd = counter.GetTPeriod().End();
-		ASSERT(TairEnd <= current);
+		CTRef TRefEnd = counter.GetTPeriod().End();
+		ASSERT(TRefEnd <= current);
 
 		//station must have data in the last 2 weeks
-		if (current.as(CTM::DAILY) - TairEnd.as(CTM::DAILY) < 14)
+		if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
 		{
+			array<bool, NB_VAR_H> bAddForecast;
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+
+
 			cctz::time_zone zone;
 			CTimeZones::GetZone(station, zone);
 
@@ -306,8 +339,6 @@ namespace WBSF
 
 			if (msg)
 			{
-				//string name = GetFileName(m_datasets.front().GetFilePath());
-
 				cctz::time_zone zone;
 				if (CTimeZones::GetZone(station, zone))
 				{
@@ -320,123 +351,75 @@ namespace WBSF
 
 						CGeoPointIndex xy = m_extents.CoordToXYPos(pt);
 
-						//size_t nbLayers = m_datasets.front().GetRasterCount();
-
-						//GDALDataset* pDataset = m_datasets.front().Dataset();
-						//GDALRasterBand * pBand1 = pDataset->GetRasterBand(1);
-						//GDALRasterBand * pBand2 = pDataset->GetRasterBand(nbLayers);
-
-						//const char* strTime1 = pBand1->GetMetadataItem("GRIB_FORECAST_SECONDS");
-						//const char* strTime2 = pBand2->GetMetadataItem("GRIB_FORECAST_SECONDS");
-						//size_t nbHours = WBSF::as<size_t>(strTime2)-WBSF::as<size_t>(strTime1);
-						//size_t timeStep = nbHours / nbLayers;
-
-						//ASSERT(timeStep == 3);
-
-						//CWeatherAccumulator accumulator(TM);
-
-						//size_t nbDataType = TM.IsHourly() ? 1 : 2;
-						//for (size_t t = 0; t < nbDataType&&msg; t++)
 						array<array<array<CTRef, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> lastTRef;
 
 						size_t t = station.IsHourly() ? DATA_HOURLY : DATA_DAILY;
-						
-							for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
+						std::array<std::array<std::array<std::vector<CTRef>, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> TRefs;
+
+						for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
+						{
+							for (size_t v = 0; v < NB_VARS_MAX && msg; v++)
 							{
-								for (size_t v = 0; v < m_datasets[t][f].size() && msg; v++)
+								if (t == 1 && f == 1 && v == V_PRCP)
+									continue;
+
+								if (!bAddForecast[FORECAST_VARIABLES[t][v]])
+									continue;
+
+								
+								if (TRefs[t][f][v].empty())
+									TRefs[t][f][v].resize(m_bandHolder[t][f][v].GetRasterCount());
+
+								for (size_t b = 0; b < m_bandHolder[t][f][v].GetRasterCount() && msg; b++)
 								{
-									if (t == 1 && f == 1 && v == V_PRCP)
-										continue;
-
-									ASSERT(m_datasets[t][f][v].IsOpen());
-
-									for (size_t b = 0; b < m_datasets[t][f][v].GetRasterCount() && msg; b++)
+									if (!TRefs[t][f][v][b].IsInit())
 									{
-										const char* strTime = m_datasets[t][f][v].GetRasterBand(b)->GetMetadataItem("GRIB_VALID_TIME");
-										__int64 UTCTime = WBSF::as<__int64>(strTime);
-										CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
-										CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
+										TRefs[t][f][v][b] = CTimeZones::UTCTRef2LocalTRef(m_UTCTRef[t][f][v][b], zone);
+
 										if (t == DATA_DAILY)
-											TRef.Transform(CTM(CTM::DAILY));
-
-										//strTime = m_datasets[vv].GetRasterBand(b + 1)->GetMetadataItem("GRIB_VALID_TIME");
-										//UTCTime = WBSF::as<__int64>(strTime);
-										//UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
-										//CTRef TRef2 = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
-
-
-										double value = m_datasets[t][f][v].ReadPixel(b, xy);
-										//								double value2 = m_datasets[vv].ReadPixel(b+1, xy);
-
-										if (fabs(m_datasets[t][f][v].GetNoData(b) - value) > 1)
-											//								fabs(m_datasets[vv].GetNoData(b+1) - value2) > 1 )
-										{
-
-											TVarH var = FORECAST_VARIABLES[t][v];
-											if (var == H_WNDS)
-											{
-												value *= 3600 / 1000;//m/s --> km/h
-											}
-
-											//for (size_t i = 0; i < timeStep; i++)
-											//{
-											//accumulator.Add(TRef, FORECAST_VARIABLES[v], value);
-											//}
-
-											
-
-											if (!lastTRef[t][f][v].IsInit())
-												lastTRef[t][f][v] = TRef-1;
-											//for (CTRef TRef = TRef1; TRef <= TRef2; TRef++)
-
-											//
-											if (t == DATA_HOURLY)
-											{
-												for (CTRef h = lastTRef[t][f][v]+1; h <= TRef; h++)
-												{
-													if (!station[TRef][var].IsInit())
-													{
-														double lastValue = value;
-														if (station[lastTRef[t][f][v]][var].IsInit())
-															lastValue = station[lastTRef[t][f][v]][var][MEAN];
-
-														double newValue = ((h - lastTRef[t][f][v])*value + (TRef - h)*lastValue) / (TRef - lastTRef[t][f][v]);
-														station.GetHour(TRef).SetStat(var, newValue);
-													}
-														
-												}
-											}
-											else //DATA_DAILY;
-											{
-												for (CTRef d = lastTRef[t][f][v] + 1; d <= TRef; d++)
-												{
-													if (!station[TRef][var].IsInit())
-													{
-														double lastValue = value;
-														if (station[lastTRef[t][f][v]][var].IsInit())
-															lastValue = station[lastTRef[t][f][v]][var][MEAN];
-
-														double newValue = ((d - lastTRef[t][f][v])*value + (TRef - d)*lastValue) / (TRef - lastTRef[t][f][v]);
-														station.GetDay(TRef).SetStat(var, newValue);
-													}
-												}
-											}
-											
-											lastTRef[t][f][v] = TRef;
-											
-											msg += callback.StepIt(0);
-										}
+											TRefs[t][f][v][b].Transform(CTM(CTM::DAILY));
 									}
+									
+									double value = m_bandHolder[t][f][v].GetPixel(b, xy.m_x, xy.m_y);
+									if (m_bandHolder[t][f][v].IsValid(b, value))
+									{
 
+										TVarH var = FORECAST_VARIABLES[t][v];
+										if (var == H_WNDS)
+										{
+											value *= 3600 / 1000;//m/s --> km/h
+										}
 
-									//if (accumulator.TRefIsChanging(TRef) || b == nbLayers - 1)
-									//{
-									//	if (station[accumulator.GetTRef()].GetVariables().none())//don't override observation
-									//		station[accumulator.GetTRef()].SetData(accumulator);
-									//}
-								}//for all variable
-							}//for all forecast
-						//}//for all type
+										if (!lastTRef[t][f][v].IsInit())
+											lastTRef[t][f][v] = TRefs[t][f][v][b] - 1;
+
+										for (CTRef h = lastTRef[t][f][v] + 1; h <= TRefs[t][f][v][b]; h++)
+										{
+											if (!station[TRefs[t][f][v][b]][var].IsInit())
+											{
+												double lastValue = value;
+												if (station[lastTRef[t][f][v]][var].IsInit())
+													lastValue = station[lastTRef[t][f][v]][var][MEAN];
+
+												double newValue = ((h - lastTRef[t][f][v])*value + (TRefs[t][f][v][b] - h)*lastValue) / (TRefs[t][f][v][b] - lastTRef[t][f][v]);
+												station[TRefs[t][f][v][b]].SetStat(var, newValue);
+											}
+
+										}
+
+										lastTRef[t][f][v] = TRefs[t][f][v][b];
+											
+										msg += callback.StepIt(0);
+									}
+								}
+
+								//if (accumulator.TRefIsChanging(TRef) || b == nbLayers - 1)
+								//{
+								//	if (station[accumulator.GetTRef()].GetVariables().none())//don't override observation
+								//		station[accumulator.GetTRef()].SetData(accumulator);
+								//}
+							}//for all variable
+						}//for all forecast
 					}//if is inside
 				}//if is in zone
 			}//if msg

@@ -22,6 +22,8 @@ namespace WBSF
 
 	const char* CEnvCanGribForecast::FORECAST_VAR_NAME[NB_FORECAST_VAR] = { "PRES_SFC_0", "TMP_TGL_2", "DPT_TGL_2", "PRATE_SFC_0", "WIND_TGL_10", "WDIR_TGL_10", "DLWRF_SFC_0" };
 	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR2, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD2};
+	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+
 	//TSOIL_SFC_0 : soil temperaturte
 	//TSOIL_DBLL_100 : deep soil temperature
 
@@ -344,12 +346,17 @@ namespace WBSF
 //		if (station.IsYearInit(year))
 		CTRef current = CTRef::GetCurrentTRef(TM);
 		CWVariablesCounter counter = station.GetVariablesCount();
-		CTRef TairEnd = counter.GetTPeriod().End();
-		ASSERT(TairEnd <= current);
+		CTRef TRefEnd = counter.GetTPeriod().End();
+		ASSERT(TRefEnd <= current);
 
 		//station must have data in the last 2 weeks
-		if (current.as(CTM::DAILY) - TairEnd.as(CTM::DAILY) < 14)
+		if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < 	NB_MISS_DAY_TO_IGNORE_FORECAST )
 		{
+			array<bool, NB_VAR_H> bAddForecast;
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+
+
 			if (!m_datasets[0][0].IsOpen())
 				msg = OpenDatasets(callback);
 
@@ -388,9 +395,9 @@ namespace WBSF
 							float Tdew = -999;
 							for (size_t vv = 0; vv < NB_FORECAST_VAR&&msg; vv++)
 							{
-								if (m_datasets[h][vv].IsOpen())
+								TVarH v = FORECAST_VARIABLES[vv];
+								if (bAddForecast[v] && m_datasets[h][vv].IsOpen())
 								{
-									TVarH v = FORECAST_VARIABLES[vv];
 									float value = m_datasets[h][vv].ReadPixel(0, xy);
 									
 									if (v == H_PRCP)
@@ -423,7 +430,7 @@ namespace WBSF
 
 						if (accumulator.GetTRef().IsInit())
 						{
-							if (station[accumulator.GetTRef()].GetVariables().none())//don't override observation
+							if (station[accumulator.GetTRef()].GetVariables().none() )//don't override observation
 								station[accumulator.GetTRef()].SetData(accumulator);
 						}
 					}//if is inside

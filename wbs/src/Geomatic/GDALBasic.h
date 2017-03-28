@@ -620,7 +620,7 @@ namespace WBSF
 						return noData;
 				}
 
-				m_bandHolder[layer]->GetPixel(x, y);
+				return m_bandHolder[layer]->GetPixel(x, y);
 			}
 
 			return noData;

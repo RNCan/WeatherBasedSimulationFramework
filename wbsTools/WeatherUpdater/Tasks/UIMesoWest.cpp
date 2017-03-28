@@ -609,11 +609,11 @@ namespace WBSF
 
 					std::vector<HOURLY_DATA::TVarH > variables = GetVariables(header);
 
-					for (size_t i = 0; i < TRefs.size(); i++)
+					for (size_t i = 0; i < TRefs.size() && msg; i++)
 					{
 						if (TRefs[i].GetYear() == year)
 						{
-							for (size_t v = 0; v < header.size(); v++)
+							for (size_t v = 0; v < header.size()&&msg; v++)
 							{
 								if (variables[v] != H_SKIP)
 								{
@@ -649,6 +649,8 @@ namespace WBSF
 										}//if valid
 									}
 								}//if its a varialbe
+								
+								msg += callback.StepIt(0);
 							}//for all object
 
 

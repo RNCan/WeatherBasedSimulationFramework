@@ -62,6 +62,10 @@ namespace WBSF
 
 		bool m_bOpen;
 		std::array<std::array<std::array<CGDALDatasetEx, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_datasets;
+		std::array<std::array<std::array<CBandsHolder, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_bandHolder;
+		std::array<std::array<std::array<std::vector<CTRef>, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_UTCTRef;
+
+
 		CProjectionTransformation m_geo2gribs;
 		CGeoExtents m_extents;
 

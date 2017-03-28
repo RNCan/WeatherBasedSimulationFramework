@@ -38,7 +38,7 @@ namespace WBSF
 			m_CALL = CLocation::GetSSI("ICAO_ID");
 			m_country = CLocation::GetSSI("Country");
 			m_state = CLocation::GetSSI("State");
-			m_period.FromFormatedString("%1 %2", CLocation::GetSSI("Period"));
+			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1 %2");
 		}
 		bool operator>(const CGSODStation& in)const{ return true; }
 		bool operator<(const CGSODStation& in)const{ return !operator>(in); }

@@ -643,6 +643,7 @@ namespace WBSF
 				double Tdew = -999;
 				double windSpeed = -999;
 				double snowDept = -999;
+				double press = -999;
 
 				if (line.substr(24, 6) != "9999.9")
 					Tmean = ToDouble(line.substr(24, 6));
@@ -652,6 +653,9 @@ namespace WBSF
 
 				if (line.substr(102, 6) != "9999.9")
 					Tmax = ToDouble(line.substr(102, 6));
+
+				if (line.substr(57, 6) != "9999.9")
+					press = ToDouble(line.substr(57, 6));
 
 				// A = 1 report of 6-hour precipitation 
 				//     amount.
@@ -695,14 +699,14 @@ namespace WBSF
 					snowDept = ToDouble(line.substr(125, 5));
 
 
-				if (Tmean > -999 )
+				if (Tmean > -60 && Tmean <  40)
 				{
 					double TmeanC = ((Tmean - 32.0)*5.0 / 9.0);
 					data[TRef][H_TAIR2] = TmeanC;
 				}
 
-				if (Tmin > -999 && Tmin < 999 &&
-					Tmax > -999 && Tmax < 999)
+				if (Tmin > -60 && Tmin < 40 &&
+					Tmax > -60 && Tmax < 40)
 				{
 					assert(Tmin<Tmax);
 					if (Tmin > Tmax)
@@ -714,28 +718,33 @@ namespace WBSF
 					data[TRef][H_TMAX2] = TmaxC;
 				}
 
-				if (ppt >= 0)
+				if (ppt >= 0 && ppt<10)
 				{
 					data[TRef][H_PRCP] = (ppt*25.40);
 				}
 
 
-				if (Tdew > -999 && Tdew < 999)
+				if (Tdew > -60 && Tdew < 40)
 				{
 					data[TRef][H_TDEW] = ((Tdew - 32.0)*5.0 / 9.0);
 
 					//here relative humidity is compute from DewPoint and Tmean (important to take Tmean)
 					if (Tmean != -999)
-						data[TRef][H_RELH] = Td2Hr((Tmean - 32.0)*5.0 / 9.0, (Tdew - 32.0)*5.0 / 9.0);
+						data[TRef][H_RELH] = Td2Hr((Tmean - 32.0)*5.0 / 9.0, (Tdew - 32.0)*5.0 / 9.0);//grossiere aproximation?????
 				}
 
 
-				if (windSpeed >= 0)
+				if (windSpeed > 0 && windSpeed < (120.0 / 1.852184256))//does we acceot zero wind speed?
 				{
 					//knot
 					//1 Knot = 1 Nautical Mile per hour
 					//1 Nautical mile = 6076.12 ft. = 1852.184256 (m) = 1.852184256 (km)
 					data[TRef][H_WNDS] = (windSpeed*1.852184256);
+				}
+
+				if (press > 800 && press < 1100)
+				{
+					data[TRef][H_PRES] = (press);
 				}
 
 				if (snowDept >= 0)

@@ -60,6 +60,18 @@ public:
 		m_bInit = false;
 	}
 
+	CWeatherStatisticBase& operator=(const CWeatherStatisticBase& in)
+	{
+		if (&in != this)
+		{
+			std::array<CStatistic, T>::operator=(in);
+			m_bInit = in.m_bInit;
+			m_period = in.m_period;
+		}
+		
+		return *this;
+	}
+
 	CWVariables GetVariables()const
 	{
 		CWVariables variables;
@@ -74,8 +86,11 @@ public:
 		CWVariablesCounter variables;
 		for (size_t v = 0; v < size(); v++)
 		{
-			variables[v].first += size_t((bOneCountPerDay&&at(v).IsInit()) ? 1 : at(v)[NB_VALUE]);
-			variables[v].second += m_period;
+			if (at(v).IsInit())
+			{
+				variables[v].first += size_t(bOneCountPerDay ? 1 : at(v)[NB_VALUE]);
+				variables[v].second += m_period;
+			}
 		}
 		return variables;
 	}
@@ -300,9 +315,6 @@ public:
 				variables[v].second += m_TRef;
 			}
 		}
-		
-		//if (variables.GetSum()>0)
-			//variables.m_period += GetTRef();
 
 		return variables;
 	}
@@ -401,10 +413,18 @@ public:
 		else
 		{
 			variables = m_dailyStat.GetVariables();
-			//By default temperature are save as Tmin and Tmax. it's why if they are not at least 2 values
-			//we don't considerate it valid
-			//if (variables[HOURLY_DATA::H_TAIR])
-				//variables[HOURLY_DATA::H_TAIR] = m_dailyStat[HOURLY_DATA::H_TAIR][NB_VALUE] >= 2;
+
+			/*CWVariablesCounter variables;
+			for (size_t v = 0; v<size(); v++)
+			{
+			if (m_dailyStat[v].IsInit())
+			{
+			variables[v].first += 1;
+			variables[v].second += m_TRef;
+			}
+			}*/
+
+
 		}
 		
 		return variables;
@@ -420,6 +440,18 @@ public:
 		}
 		else
 		{
+			//update period
+			if (!m_dailyStat.m_bInit)
+			{
+				CWeatherDay& me = const_cast<CWeatherDay&>(*this);
+				me.m_dailyStat.m_period.clear();
+				
+				if (m_dailyStat.HaveData())
+					me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
+
+				me.m_dailyStat.m_bInit = true;
+			}
+
 			variables = m_dailyStat.GetVariablesCount(true);
 		}
 		
