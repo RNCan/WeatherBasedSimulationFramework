@@ -1,4 +1,5 @@
 //*********************************************************************
+//29/03/2017	2.1.1	Rémi Saint-Amant    Bug correction in Drought Code
 //20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //08/02/2016	2.0.0   Rémi Saint-Amant	Include in WBSF
 //08/02/2012	1.1     Rémi Saint-Amant	Recompile with new interface and new FWI model
@@ -25,7 +26,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		
-		VERSION = "2.1.0 (2016)";
+		VERSION = "2.1.1 (2017)";
 
 		m_bAutoSelect = true;
 		m_FFMC = 85.0;
@@ -95,6 +96,9 @@ namespace WBSF
 	ERMsg CDroughtCode::ExecuteDaily(CModelStatVector& output)
 	{
 		ERMsg msg;
+
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
 
 		//manual setting 
 		CFWI FWI;

@@ -474,7 +474,7 @@ namespace WBSF
 		//double Pmating = GetMatingProbability(GetStageAge());
 		//m_sex == MALE || 
 
-		static const double EXODUS_AGE[2] = { 0, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
+		static const double EXODUS_AGE[2] = { 0.15, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
 
 		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
