@@ -327,10 +327,8 @@ namespace WBSF
 		int nbDownload = 0;
 		int currentNbDownload = 0;
 
-		callback.PushTask("Download ACIS data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
-		//msg += DownloadMonth(pConnection, 2016, AUGUST, "2154", "c:/tmp/text.csv", callback);
-		//return msg;
-
+		callback.PushTask(string("Download ACIS ") + (HOURLY_WEATHER ? "hourly" : "daily") + " data(" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+		
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			for (size_t y = 0; y < nbYears&&msg; y++)

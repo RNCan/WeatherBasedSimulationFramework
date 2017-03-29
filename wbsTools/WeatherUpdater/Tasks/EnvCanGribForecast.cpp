@@ -378,7 +378,6 @@ namespace WBSF
 					if (extents.IsInside(pt) && rect.IsInside(station))
 					{
 						CGeoPointIndex xy = extents.CoordToXYPos(pt);
-						//size_t type = as<size_t>(TYPE);
 						size_t delta_h = (m_type == GT_HRDPS) ? 1 : 3;
 
 						CWeatherAccumulator accumulator(TM);
@@ -418,7 +417,6 @@ namespace WBSF
 
 									if (v == H_TDEW)
 										Tdew = value;
-									//for (size_t hh = 0; hh < delta_h; hh++)
 
 									accumulator.Add(TRef, v, value);
 								}

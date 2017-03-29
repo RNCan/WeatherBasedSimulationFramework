@@ -62,7 +62,13 @@ namespace WBSF
 
 
 	CUINovaScotia::CUINovaScotia(void)
-	{}
+	{
+		/*string year = ToString(WBSF::GetCurrentYear());
+
+		Set("FirstYear", year);
+		Set("LastYear", year);*/
+
+	}
 
 	CUINovaScotia::~CUINovaScotia(void)
 	{}
@@ -274,55 +280,58 @@ namespace WBSF
 				for (size_t i= 0; i < NB_COLUMNS; i++)
 					it[COLUMN_NAME[i]](values[i]);
 
-				StringVector date(values[C_DATE], "/");
-				ASSERT(date.size() == 3);
-
-				
-				size_t day = ToInt(date[0]) - 1;
-				size_t month = ToInt(date[1]) - 1;
-				int year = ToInt(date[2]);
-				
-
-
-				ASSERT(month >= 0 && month < 12);
-				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-				
-				string ID = values[C_WXSTATION];
-				string filePathH = GetOutputFilePath(FIRE, true, ID, year);
-				string filePathD = GetOutputFilePath(FIRE, false, ID, year);
-
-				if (FileExists(filePathH))
-					msg += dataH.LoadData(filePathH);
-
-				if (FileExists(filePathD))
-					msg += dataD.LoadData(filePathD);
-
-				CTRef TRefH = CTRef(year, month, day, 13);
-				CTRef TRefD = CTRef(year, month, day);
-
-				for (size_t i = 0; i < NB_COLUMNS; i++)
+				if (values[C_DATE] != "NA")
 				{
-					if (FIRE_VAR[i] != H_SKIP && values[i] != "NA")
+					StringVector date(values[C_DATE], "/");
+					ASSERT(date.size() == 3);
+
+
+					size_t day = ToInt(date[0]) - 1;
+					size_t month = ToInt(date[1]) - 1;
+					int year = ToInt(date[2]);
+
+
+
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+
+					string ID = values[C_WXSTATION];
+					string filePathH = GetOutputFilePath(FIRE, true, ID, year);
+					string filePathD = GetOutputFilePath(FIRE, false, ID, year);
+
+					if (FileExists(filePathH))
+						msg += dataH.LoadData(filePathH);
+
+					if (FileExists(filePathD))
+						msg += dataD.LoadData(filePathD);
+
+					CTRef TRefH = CTRef(year, month, day, 13);
+					CTRef TRefD = CTRef(year, month, day);
+
+					for (size_t i = 0; i < NB_COLUMNS; i++)
 					{
-						if (i == C_RN24)
-							dataD.GetDay(TRefD).SetStat(FIRE_VAR[i], ToDouble(values[i]));
-						else
-							dataH.GetHour(TRefH).SetStat(FIRE_VAR[i], ToDouble(values[i]));
+						if (FIRE_VAR[i] != H_SKIP && values[i] != "NA")
+						{
+							if (i == C_RN24)
+								dataD.GetDay(TRefD).SetStat(FIRE_VAR[i], ToDouble(values[i]));
+							else
+								dataH.GetHour(TRefH).SetStat(FIRE_VAR[i], ToDouble(values[i]));
+						}
 					}
+
+					//set Tdew
+					if (dataH[TRefH][H_TAIR2].IsInit() && dataH[TRefH][H_RELH].IsInit())
+						dataH.GetHour(TRefH).SetStat(H_TDEW, WBSF::Hr2Td(dataH[TRefH][H_TAIR2][MEAN], dataH[TRefH][H_RELH][MEAN]));
+
+					//create directory
+					CreateMultipleDir(GetPath(filePathH));
+					CreateMultipleDir(GetPath(filePathD));
+
+					//save data
+					msg += dataH.SaveData(filePathH);
+					msg += dataD.SaveData(filePathD);
+					nbStations++;
 				}
-
-				//set Tdew
-				if (dataH[TRefH][H_TAIR2].IsInit() && dataH[TRefH][H_RELH].IsInit() )
-					dataH.GetHour(TRefH).SetStat(H_TDEW, WBSF::Hr2Td(dataH[TRefH][H_TAIR2][MEAN], dataH[TRefH][H_RELH][MEAN]));
-
-				//create directory
-				CreateMultipleDir(GetPath(filePathH));
-				CreateMultipleDir(GetPath(filePathD));
-
-				//save data
-				msg += dataH.SaveData(filePathH);
-				msg += dataD.SaveData(filePathD);
-				nbStations++;
 			}
 
 		}//if msg

@@ -51,6 +51,8 @@ using namespace json11;
 //http://weatherfarm.com/feeds/historical-data/?station-id=P0484&from-date=03/21/2017&to-date=03/25/2017&report-type=hourly&date-range=last5days
 //http://weatherfarm.com/feeds/get-current-weather-by-geo/?latMin=48&latMax=52&longMin=-117&longMax=-115&callback=station_data
 
+//coordonner en sakatchewan
+//http://environment.gov.sk.ca/saskspills/spills_srch.asp
 
 
 
@@ -84,7 +86,7 @@ namespace WBSF
 	const char* CUIWeatherFarm::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", };
 	const size_t CUIWeatherFarm::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, };
 	const UINT CUIWeatherFarm::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MANITOBA_P;
-	const UINT CUIWeatherFarm::DESCRIPTION_TITLE_ID = ID_TASK_MANITOBA;
+	const UINT CUIWeatherFarm::DESCRIPTION_TITLE_ID = ID_TASK_WEATHER_FARM;
 
 	const char* CUIWeatherFarm::CLASS_NAME(){ static const char* THE_CLASS_NAME = "WeatherFarm";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIWeatherFarm::ClassType()const { return CTaskBase::UPDATER; }

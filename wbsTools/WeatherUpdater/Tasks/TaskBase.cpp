@@ -87,6 +87,8 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
+			m_params.clear();
+
 			m_name = in.m_name;
 			m_bExecute = in.m_bExecute;
 			m_params.insert(in.m_params.begin(), in.m_params.end());

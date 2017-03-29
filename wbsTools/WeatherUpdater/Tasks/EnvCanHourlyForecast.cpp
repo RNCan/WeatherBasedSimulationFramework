@@ -381,6 +381,9 @@ namespace WBSF
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
 
+				//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
+					//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+
 				int shapeNo = -1;
 
 				if (m_pShapefile->IsInside(station, &shapeNo))//inside a shape
@@ -398,8 +401,8 @@ namespace WBSF
 						msg = m_DB.Get(st, index);
 						if (msg)
 						{
-							CWVariablesCounter counter = station.GetVariablesCount();
-							CWVariables varInfo = counter.GetVariables();
+							//CWVariablesCounter counter = station.GetVariablesCount();
+							//CWVariables varInfo = counter.GetVariables();
 							CTPeriod p = st.GetVariablesCount().GetTPeriod();
 
 							CWeatherAccumulator accumulator(TM);
@@ -410,18 +413,16 @@ namespace WBSF
 									CTRef TRef = accumulator.GetTRef();
 									for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 									{
-										if ( !station[TRef][v].IsInit())
+										if (bAddForecast[v] && !station[TRef][v].IsInit())
 											station[TRef].SetStat(v, accumulator.GetStat(v));
 									}
-										
 								}
 
 								const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
 
 								for (int v = 0; v <NB_VAR_H; v++)
-									if (varInfo[v])
-										if (bAddForecast[v] && hourData[v]>-999)
-											accumulator.Add(d, v, hourData[v]);
+									if (hourData[v]>-999)
+										accumulator.Add(d, v, hourData[v]);
 
 							}//for all days
 
@@ -429,7 +430,7 @@ namespace WBSF
 							{
 								CTRef TRef = accumulator.GetTRef();
 								for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-									if (!station[TRef][v].IsInit())
+									if (bAddForecast[v] && !station[TRef][v].IsInit())
 										station[TRef].SetStat(v, accumulator.GetStat(v));
 							}
 						}
@@ -450,7 +451,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void ReadTemperature(const zen::XmlElement& input, CWeatherStation& station)
+	void CEnvCanHourlyForecast::ReadTemperature(const zen::XmlElement& input, CWeatherStation& station)
 	{
 		zen::XmlIn in(input);
 		for (zen::XmlIn child = in["temperature-list"]; child; child.next())
@@ -499,7 +500,7 @@ namespace WBSF
 		}
 	}
 
-	void ReadPrecipitation(const zen::XmlElement& input, CWeatherStation& station)
+	void CEnvCanHourlyForecast::ReadPrecipitation(const zen::XmlElement& input, CWeatherStation& station)
 	{
 		zen::XmlIn child = input.getChild("accum-list");
 		if (child)
@@ -530,7 +531,7 @@ namespace WBSF
 		}
 	}
 
-	void ReadWind(const zen::XmlElement& input, CWeatherStation& station)
+	void CEnvCanHourlyForecast::ReadWind(const zen::XmlElement& input, CWeatherStation& station)
 	{
 		zen::XmlIn child = input.getChild("wind-list");
 		if (child)
@@ -562,7 +563,7 @@ namespace WBSF
 		}
 	}
 
-	void ReadDay(const zen::XmlElement& input, CWeatherStation& station)
+	void CEnvCanHourlyForecast::ReadDay(const zen::XmlElement& input, CWeatherStation& station)
 	{
 		ReadTemperature(input, station);
 		ReadPrecipitation(input, station);

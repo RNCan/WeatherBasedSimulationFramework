@@ -94,6 +94,7 @@ namespace WBSF
 
 		ERMsg LoadStationInformation(const std::string& outputFilePath, CLocation& station);
 
+		
 
 		ERMsg ReadData(const std::string& filePath, CWeatherStationVector& stations, CCallback& callback)const;
 		std::string GetShapefileFilePath()const;
@@ -107,6 +108,12 @@ namespace WBSF
 
 		static const char* SERVER_NAME;
 		static const char* SERVER_PATH;
+
+		static void ReadTemperature(const zen::XmlElement& input, CWeatherStation& station);
+		static void ReadPrecipitation(const zen::XmlElement& input, CWeatherStation& station);
+		static void ReadWind(const zen::XmlElement& input, CWeatherStation& station);
+		static void ReadDay(const zen::XmlElement& input, CWeatherStation& station);
+
 	};
 
 

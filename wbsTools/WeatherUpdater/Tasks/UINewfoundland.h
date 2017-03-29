@@ -7,20 +7,18 @@
 namespace WBSF
 {
 	//****************************************************************
-	class UINewfoundland : public CTaskBase
+	class CUINewfoundland : public CTaskBase
 	{
 	public:
 
-		enum TNetwork{FIRE, NB_NETWORKS};
-		enum TAttributes { WORKING_DIR, DOWNLOAD_ARCHIVE, NB_ATTRIBUTES };
-		static size_t GetNetwork(const std::string& network);
-
+		
+		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, SHOW_PROGRESS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
-		static CTaskPtr create(){ return CTaskPtr(new UINewfoundland); }
+		static CTaskPtr create(){ return CTaskPtr(new CUINewfoundland); }
 
-		UINewfoundland(void);
-		virtual ~UINewfoundland(void);
+		CUINewfoundland(void);
+		virtual ~CUINewfoundland(void);
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
@@ -44,14 +42,19 @@ namespace WBSF
 	protected:
 		
 
-		ERMsg UpdateStationsFile(CCallback& callback);
+		//ERMsg UpdateStationsFile(CCallback& callback);
 
-		std::string GetStationsListFilePath(size_t network)const;
-		std::string GetOutputFilePath(size_t network, const std::string& stationName, int year, size_t m = NOT_INIT)const;
+		std::string GetStationsListFilePath()const;
+		std::string GetOutputFilePath(const std::string& fileTitle, int year)const;
+		std::string GetOutputFilePath(int year)const;
 		
+		ERMsg UpdateStationList(CCallback& callback);
+		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
 
-		ERMsg ExecuteFire(CCallback& callback);
-		ERMsg SplitFireData(const std::string& ID, const std::string& outputFilePath, CCallback& callback);
+		//static ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
+		static ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
+		static CTRef GetTRef(std::string str);
+
 
 		CLocationVector m_stations;
 
@@ -61,11 +64,8 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME[NB_NETWORKS];
-		static const char* SERVER_PATH[NB_NETWORKS];
-		
-		static const char* NETWORK_NAME[NB_NETWORKS];
-		static const char* SUBDIR_NAME[NB_NETWORKS];
+		static const char* SERVER_NAME;
+		static const char* SERVER_PATH;
 
 	};
 

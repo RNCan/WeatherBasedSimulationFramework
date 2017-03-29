@@ -338,6 +338,9 @@ namespace WBSF
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
 
+			//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
+				//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+
 
 			cctz::time_zone zone;
 			CTimeZones::GetZone(station, zone);

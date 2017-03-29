@@ -23,45 +23,33 @@ using namespace boost;
 
 namespace WBSF
 {
-	const char* UINewfoundland::SUBDIR_NAME[NB_NETWORKS] = { "Land" };
-	const char* UINewfoundland::NETWORK_NAME[NB_NETWORKS] = { "Newfounland" };
-	const char* UINewfoundland::SERVER_NAME[NB_NETWORKS] = { "fmfpweb2.serm.gov.sk.ca"};
-	const char* UINewfoundland::SERVER_PATH[NB_NETWORKS] = { "/"};
 
-	size_t UINewfoundland::GetNetwork(const string& network)
-	{
-		size_t n = NOT_INIT;
 
-		for (size_t i = 0; i <NB_NETWORKS && n == NOT_INIT; i++)
-		{
-			if (IsEqualNoCase(network, NETWORK_NAME[i]))
-				n = i;
-		}
+//User : hydromanitoba
+ //Pwd : 72hca@*wzSAJ5 & 4
 
-		return n;
-	}
+	const char* CUINewfoundland::SERVER_NAME = "Ftpque.nrcan.gc.ca";
+	const char* CUINewfoundland::SERVER_PATH = "/";
 
 	//*********************************************************************
-	const char* UINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadArchive"};
-	const size_t UINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL};
-	const UINT UINewfoundland::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWFOUNDLAND_P;
-	const UINT UINewfoundland::DESCRIPTION_TITLE_ID = ID_TASK_NEWFOUNDLAND;
+	const char* CUINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "ShowProgress" };
+	const size_t CUINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_BOOL };
+	const UINT CUINewfoundland::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWFOUNDLAND_P;
+	const UINT CUINewfoundland::DESCRIPTION_TITLE_ID = ID_TASK_NEWFOUNDLAND;
 
-	const char* UINewfoundland::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Newfoundland";  return THE_CLASS_NAME; }
-	CTaskBase::TType UINewfoundland::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterTask(UINewfoundland::CLASS_NAME(), (createF)UINewfoundland::create);
+	const char* CUINewfoundland::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Newfoundland";  return THE_CLASS_NAME; }
+	CTaskBase::TType CUINewfoundland::ClassType()const { return CTaskBase::UPDATER; }
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewfoundland::CLASS_NAME(), (createF)CUINewfoundland::create);
 
 
-
-	UINewfoundland::UINewfoundland(void)
+	CUINewfoundland::CUINewfoundland(void)
 	{}
 
-	UINewfoundland::~UINewfoundland(void)
+	CUINewfoundland::~CUINewfoundland(void)
 	{}
 
 
-
-	std::string UINewfoundland::Option(size_t i)const
+	std::string CUINewfoundland::Option(size_t i)const
 	{
 		string str;
 		//switch (i)
@@ -70,14 +58,15 @@ namespace WBSF
 		return str;
 	}
 
-	std::string UINewfoundland::Default(size_t i)const
+	std::string CUINewfoundland::Default(size_t i)const
 	{
 		string str;
 
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Saskatchewan\\"; break;
-		case DOWNLOAD_ARCHIVE:	str = "1"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Newfoundland\\"; break;
+		case FIRST_YEAR:
+		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
 
 		return str;
@@ -86,86 +75,154 @@ namespace WBSF
 	//****************************************************
 
 
-	std::string UINewfoundland::GetStationsListFilePath(size_t network)const
+	std::string CUINewfoundland::GetStationsListFilePath()const
 	{
-		static const char* FILE_NAME[NB_NETWORKS] = { "SaskatchewanFireStations.csv" };
-
-		string filePath = WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[network];
-		return filePath;
+		return GetDir(WORKING_DIR) + "Station_Metadata.csv";
 	}
 
-	string UINewfoundland::GetOutputFilePath(size_t network, const string& title, int year, size_t m)const
+	string CUINewfoundland::GetOutputFilePath(const string& fileTitle, int year)const
 	{
-		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m+1).c_str() : "") + title + ".csv";
+		return GetDir(WORKING_DIR) + ToString(year) + "\\" + fileTitle +".csv";
+	}
+
+	string CUINewfoundland::GetOutputFilePath(int year)const
+	{
+		return GetDir(WORKING_DIR) + ToString(year) + "\\" + ToString(year) + ".zip";
 	}
 
 
-	ERMsg UINewfoundland::Execute(CCallback& callback)
+	ERMsg CUINewfoundland::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-
 		
-		string workingDir = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\";
+		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(string(SERVER_NAME[FIRE]) + "/" + SERVER_PATH[FIRE], 1);
+		callback.AddMessage(string(SERVER_NAME) + "/", 1);
+		callback.AddMessage("");
+		
+
+		StringVector fileList;
+
+		msg += UpdateStationList(callback);
+
+		if (!msg)
+			return msg;
+
+
+		size_t nbDownloads = 0;
+
+		int firstYear = WBSF::as<int>(Get(FIRST_YEAR));
+		int lastYear = WBSF::as<int>(Get(LAST_YEAR));
+		size_t nbYears = lastYear - firstYear + 1;
+
+		callback.AddMessage(GetString(IDS_NUMBER_FILES) + ToString(nbYears), 1);
 		callback.AddMessage("");
 
-		msg = ExecuteFire(callback);
+		callback.PushTask("Update Newfoundland weather data (" + ToString(nbYears) + " files)", nbYears);
+
+		//open a connection on the server
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
+
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true);
+		if (msg)
+		{
+			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
+
+			//add station list
+			for (size_t y = 0; y < nbYears; y++)
+			{
+				int year = firstYear + int(y);
+
+				string filter = "/hydromanitoba/" + ToString(year) + "/" + ToString(year) + ".zip";
+
+				CFileInfoVector fileList;
+				msg = FindFiles(pConnection, filter, fileList, callback);
+				if (fileList.size() == 1)
+				{
+					string fileName = GetFileName(fileList.front().m_filePath);
+					int year = WBSF::as<int>(fileName);
+
+					string outputFilePath = GetOutputFilePath(year);
+					if (!IsFileUpToDate(fileList.front(), outputFilePath))
+					{
+						CreateMultipleDir(GetPath(outputFilePath));
+						callback.AddMessage("Download Newfoundland file: " + fileName + " ...");
+						msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+
+						if (msg)
+						{
+							msg = sevenZ(outputFilePath, GetPath(outputFilePath), callback);
+							if (msg)
+							{
+								nbDownloads++;
+								msg += callback.StepIt();
+							}
+						}
+					}
+				}
+			}
+
+
+			pConnection->Close();
+			pSession->Close();
+		}
+
+		
+
+		callback.AddMessage("Number of file downloaded:" + ToString(nbDownloads) );
+		callback.PopTask();
 
 		return msg;
 	}
 
 
-	ERMsg UINewfoundland::GetStationList(StringVector& stationList, CCallback& callback)
+	ERMsg CUINewfoundland::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
-	
-		m_stations.clear();
-	
-		CLocationVector locations;
-		msg = locations.Load(GetStationsListFilePath(FIRE));
+		msg = m_stations.Load(GetStationsListFilePath());
 
 		if (msg)
-			msg += locations.IsValid();
+			msg += m_stations.IsValid();
 
 		//Update network
-		for (size_t i = 0; i < locations.size(); i++)
-			locations[i].SetSSI("Network", NETWORK_NAME[FIRE]);
+		//for (size_t i = 0; i < locations.size(); i++)
+			//locations[i].SetSSI("Network", "Newfoundland");
 
-		m_stations.insert(m_stations.end(), locations.begin(), locations.end());
+		//m_stations.insert(m_stations.end(), locations.begin(), locations.end());
 				
-		for (size_t i = 0; i < locations.size(); i++)
-			stationList.push_back(ToString(FIRE)+"/"+locations[i].m_ID);
+		for (size_t i = 0; i < m_stations.size(); i++)
+			stationList.push_back(m_stations[i].m_ID);
 	
 
 		return msg;
 	}
 
-	ERMsg UINewfoundland::GetWeatherStation(const std::string& NID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUINewfoundland::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
-		size_t n = ToSizeT(NID.substr(0,1));
-		string ID = NID.substr(2);
+		//NL_New_Harbour_15_orig.csv
+//		StationName, DateTime, Temp, Rh, Wspd, Dir, Rn24
+	//	New Harbour 15, 2017 / 01 / 01 00:00 : 00, -1.2, 99, 8.6, 276, 0
+
 
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
 		ASSERT(it != NOT_INIT);
 
 		((CLocation&)station) = m_stations[it];
-
-		//size_t type = as<size_t>(DATA_TYPE);
-		int firstYear = WBSF::as<int>(Get("FirstYear"));
-		int lastYear = WBSF::as<int>(Get("LastYear"));
+		int firstYear = WBSF::as<int>(Get(FIRST_YEAR));
+		int lastYear = WBSF::as<int>(Get(LAST_YEAR));
 		size_t nbYears = lastYear - firstYear + 1;
+		
 		station.CreateYears(firstYear, nbYears);
-
 		station.m_name = PurgeFileName(station.m_name);
 
 		//now extract data 
@@ -173,9 +230,9 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(n, ID, year);
+			string filePath = GetOutputFilePath(station.GetSSI("FileTitle"), year);
 			if (FileExists(filePath))
-				msg = station.LoadData(filePath, -999, false);
+				msg = ReadDataFile(filePath, TM, station, callback);
 
 			msg += callback.StepIt(0);
 		}
@@ -193,164 +250,78 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	//TA - air temperature
-	//UD - wind direction
-	//US - wind speed
-	//UG - wind gust
-	//PC - precipitation
-	//XR - relative humidity
-	//PA - atmospheric pressure
-
-	enum TVariables { H_STATION_ID, H_DATE, H_TIME, H_TEMP, H_DEW, H_RELATIVE_HUMIDITY, H_DDIR, H_CDIR, H_WIND_SPEED, H_WIND_GUST, H_PRECIPITATION, H_WIND_DIR, H_MAX_SPEED, NB_VARS };
-	//ffmc_h	isi_h	fwi_h	
-	//date	time	temp	rh	dir	wspd	mx_spd	rn_1	telem	d_cell
-	static const char* FIRE_VAR_NAME[NB_VARS] = { "fmfp_id", "date", "time", "temp", "dew", "rh", "ddir", "cdir", "wspd", "wgst", "rn_1", "dir", "mx_spd" };
-	static const size_t FIRE_VAR[NB_VARS] = { H_SKIP, -3, -2, H_TAIR2, H_TDEW, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP, H_WNDD, H_SKIP};
-	static size_t GetVar(string name)
-	{
-		size_t var = NOT_INIT;
-
-		for (size_t i = 0; i <NB_VARS && var == NOT_INIT; i++)
-		{
-			if (IsEqual(name, FIRE_VAR_NAME[i]) )
-				var = FIRE_VAR[i];
-		}
-
-		return var;
-	}
-
-
-	ERMsg UINewfoundland::ExecuteFire(CCallback& callback)
+	ERMsg CUINewfoundland::UpdateStationList(CCallback& callback)
 	{
 		ERMsg msg;
 
-		CLocationVector locations;
-		msg = locations.Load(GetStationsListFilePath(FIRE));
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
 
-		if (msg)
-			msg += locations.IsValid();
-
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true);
+		
 		if (msg)
 		{
+			string path = "/hydromanitoba/Station_Metadata.csv";
 
-			bool bArchive = as<bool>(DOWNLOAD_ARCHIVE);
+			CFileInfoVector fileList;
+			msg = FindFiles(pConnection, path, fileList, callback);
 
-			callback.PushTask("Update Saskatchewan fire weather data (" + ToString(locations.size()) + " stations)", locations.size() * (bArchive?2:1) );
-			size_t curI = 0;
-			int nbRun = 0;
-			
-			while (curI < locations.size() && nbRun < 5 && msg)
+			pConnection->Close();
+			pSession->Close();
+
+			if (msg)
 			{
-				nbRun++;
+				ASSERT(fileList.size() == 1);
 
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-
-				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
-				if (msgTmp)
-				{
-					TRY
-					{
-						for (size_t i = curI; i < locations.size() && msg; i++)
-						{
-							string ID = locations[i].m_ID;
-
-							if (bArchive)
-							{
-								string remoteFilePath = "exc_hourly_rts.php?station=" + ID + "&nhh=5000";
-								string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\" + ID + "_archive.txt";
-								if (FileExists(outputFilePath))
-									msg += RemoveFile(outputFilePath);
-								
-								msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
-								if (msgTmp && FileExists(outputFilePath))
-								{
-									msg += SplitFireData(locations[i].m_ID, outputFilePath, callback);
-									msg += RemoveFile(outputFilePath);
-									msg += callback.StepIt();
-								}
-									
-							}
-
-							string remoteFilePath = "exc_hourly_stn.php?station=" + ID + "&nhh=10000";
-							string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\" + ID + ".txt";
-
-							if (FileExists(outputFilePath))
-								msg += RemoveFile(outputFilePath);
-
-							msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
-
-							//split data in seperate files
-							if (msgTmp && FileExists(outputFilePath))
-							{
-								msg += SplitFireData(locations[i].m_ID, outputFilePath, callback);
-								if (msg)
-								{
-									curI++;
-									msg += RemoveFile(outputFilePath);
-									msg += callback.StepIt();
-								}
-							}
-
-						}//for all station
-					}
-					CATCH_ALL(e)
-					{
-						msgTmp = UtilWin::SYGetMessage(*e);
-					}
-					END_CATCH_ALL
-
-						//clean connection
-					pConnection->Close();
-					pSession->Close();
-				}
-				else
-				{
-					if (nbRun > 1 && nbRun < 5)
-					{
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (size_t i = 0; i < 600 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
-					}
-				}
+				string outputFilePath = GetStationsListFilePath();
+				if (!IsFileUpToDate(fileList.front(), outputFilePath))
+					msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 			}
-			
-
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(curI), 1);
-			callback.PopTask();
 		}
 
 		return msg;
 	}
-	
+
+	ERMsg CUINewfoundland::sevenZ(const string& filePathZip, const string& workingDir, CCallback& callback)
+	{
+		ERMsg msg;
+
+		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
+
+		string command = GetApplicationPath() + "External\\7z.exe x \"" + filePathZip + "\" -y";
+		//UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
+
+		DWORD exitCode = 0;
+		msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);
+		if (msg && exitCode != 0)
+			msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
 
 
-	static CTRef GetTRef(const vector<size_t>& vars, const CSVIterator& loop)
+		callback.PopTask();
+
+
+		return msg;
+	}
+
+
+	CTRef CUINewfoundland::GetTRef(string str)//const vector<size_t>& vars, const CSVIterator& loop)
 	{
 		CTRef TRef;
-
-		//find -3 (date) and -2 (hour)
-		size_t pos = UNKNOWN_POS;
-		for (size_t i = 0; i < vars.size() && pos == UNKNOWN_POS; i++)
-			if (vars[i] == -3)
-				pos = i;
-
-		ASSERT(pos != UNKNOWN_POS);
-		ASSERT(vars[pos+1] == -2);
-		//21 Mar 2017	19
-
-		StringVector str((*loop)[pos], " ");
-		if (str.size() == 3)//eliminate NULL
+		
+		//2017/01/01 00:00:00
+		StringVector vec(str, " :/");
+		if (vec.size() == 6)
 		{
+			int year = WBSF::as<int>(vec[0]);
+			size_t month = WBSF::as<size_t>(vec[1]) - 1;
+			size_t day = WBSF::as<size_t>(vec[2]) - 1;
+			size_t hour = WBSF::as<size_t>(vec[3]);
 
-			size_t day = WBSF::as<size_t>(str[0]) - 1;
-			size_t month = WBSF::GetMonthIndex(str[1].c_str());
-			int year = WBSF::as<int>(str[2]);
-			size_t hour = WBSF::as<size_t>((*loop)[pos + 1]);
+			ASSERT(month >= 0 && month < 12);
+			ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+			ASSERT(hour >= 0 && hour < 24);
+
+
 			TRef = CTRef(year, month, day, hour);
 		}
 
@@ -358,98 +329,64 @@ namespace WBSF
 		return TRef;
 
 	}
-	
-	ERMsg UINewfoundland::SplitFireData(const string& ID, const std::string& outputFilePath, CCallback& callback)
+
+	ERMsg CUINewfoundland::ReadDataFile(const string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const
 	{
-		ASSERT(!outputFilePath.empty());
 		ERMsg msg;
 
+		enum TColumns { C_NAME, C_DATE_TIME, C_TAIR, C_RELH, C_WNDS, C_WNDD, C_RAIN24, NB_COLUMNS };
+		static const TVarH COL_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP};
 		
-		CTM TM(CTM::HOURLY);
+		//now extract data 
+		ifStream file;
 
-		CWeatherYears data(true);
-
-		
-		ifStream files;
-		msg += files.open(outputFilePath);
+		msg = file.open(filePath);
 
 		if (msg)
 		{
-			vector<size_t> vars;
 			CWeatherAccumulator stat(TM);
+			double lastPrcp = 0;
 
-			for (CSVIterator loop(files,"\t"); loop != CSVIterator() && msg; ++loop)
+			for (CSVIterator loop(file); loop != CSVIterator(); ++loop)
 			{
-				if (vars.empty())
+				CTRef TRef = GetTRef((*loop)[C_DATE_TIME]);
+				if (TRef.IsInit())
 				{
-					vars.resize(loop.Header().size());
-					for (size_t i = 0; i < loop.Header().size(); i++)
-						vars[i] = GetVar(loop.Header()[i]);
-				}
+					if (stat.TRefIsChanging(TRef))
+						data[stat.GetTRef()].SetData(stat);
 
-				if (loop->size() == vars.size())
-				{
-					CTRef TRef = GetTRef(vars, loop);
-					if (TRef.IsInit())
+					for (size_t c = 0; c < loop->size(); c++)
 					{
-						if (stat.TRefIsChanging(TRef))
+						if (COL_VAR[c] != H_SKIP && !(*loop)[c].empty())
 						{
-							if (!data.IsYearInit(TRef.GetYear()))
+							double value = ToDouble((*loop)[c]);
+
+							if (c == C_RAIN24)
 							{
-								//try to load old data before changing it...
-								string filePath = GetOutputFilePath(FIRE, ID, TRef.GetYear());
-								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
+								if (value < lastPrcp)
+									lastPrcp = 0;
+
+								value -= lastPrcp;
+								lastPrcp = ToDouble((*loop)[c]);
 							}
 
-							data[stat.GetTRef()].SetData(stat);
-						}
-
-						for (size_t i = 0; i < vars.size(); i++)
-						{
-							if (vars[i] < NB_VAR_H && (*loop)[i] != "NULL")
+							stat.Add(TRef, COL_VAR[c], value);
+							if (c == C_RELH)
 							{
-								double value = ToDouble((*loop)[i]);
-								ASSERT(value > -99);
-								stat.Add(TRef, vars[i], value);
+								double T = ToDouble((*loop)[C_TAIR]);
+								stat.Add(TRef, H_TDEW, Hr2Td(T, value));
 							}
-						}
-					}
-				}
+						}//if valid value
+					}//for all columns
+				}//TRef is init
 
 				msg += callback.StepIt(0);
-			}//for all line 
-				
+			}//for all line (
+
 			if (stat.GetTRef().IsInit())
 				data[stat.GetTRef()].SetData(stat);
 
-			if (msg)
-			{
-				//Compute Tdew if hourly data
-				CTPeriod p = data.GetEntireTPeriod();
-				for (CTRef h = p.Begin(); h <= p.End(); h++)
-				{
-					CStatistic T = data[h][H_TAIR2];
-					CStatistic Hr = data[h][H_RELH];
-					CStatistic Td = data[h][H_TDEW];
-					if (T.IsInit() && Hr.IsInit())
-					{
-						if(!Td.IsInit())
-							data[h].SetStat(H_TDEW, Hr2Td(T[MEAN], Hr[MEAN]));
-					}
-						
-				}
-
-
-				//save all years 
-				for (auto it = data.begin(); it != data.end(); it++)
-				{
-					string filePath = GetOutputFilePath(FIRE, ID, it->first);
-					string outputPath = GetPath(filePath);
-					CreateMultipleDir(outputPath);
-					it->second->SaveData(filePath, TM);
-				}
-			}//if msg
-		}//if msg
+		}//if load 
 
 		return msg;
 	}

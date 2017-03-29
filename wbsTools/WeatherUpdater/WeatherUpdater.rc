@@ -669,7 +669,7 @@ BEGIN
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_NOVASCOTIA_P "Répertoire de travail"
     IDS_UPDATER_NEWFOUNDLAND_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Afficher Progression"
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
 END
 
@@ -743,7 +743,8 @@ BEGIN
     ID_TASK_NOVASCOTIA      "Télécharger les données de la Nouvelle-Écosse\nMétéo Nouvelle-Écosse"
     ID_TASK_NEWFOUNDLAND    "Télécharger les données de Terre-Neuve\nMétéo Terre-Neuve"
     ID_TASK_NEWA            "Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nMétéo NEWA"
-    ID_TASK_WU              "Télécharger les données Weather Underground\nMétéo Weather Underground"
+    ID_TASK_WU				"Télécharger les données Weather Underground\nMétéo Weather Underground"
+	ID_TASK_WEATHER_FARM	"Télécharger les données WeatherFarm\nMétéo WeatherFarm"
     ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
 END
 
@@ -1119,7 +1120,7 @@ BEGIN
                             "User Name|Password|Working directory|First year|Last year|Network"
     IDS_UPDATER_NOVASCOTIA_P "Working directory"
     IDS_UPDATER_NEWFOUNDLAND_P 
-                            "Working directory|First year|Last year|Network"
+                            "User Name|Password|Working directory|First year|Last year|Show Progress"
     IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
 END
 
@@ -1194,6 +1195,7 @@ BEGIN
     ID_TASK_NEWFOUNDLAND    "Download Newfoundland weather data\nNewfoundland Weather"
     ID_TASK_NEWA            "Download Network for Environment and Weather Applications (NEWA)\nNEWA"
     ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
+	ID_TASK_WEATHER_FARM	"Download WeatherFarm data\nMétéo WeatherFarm"
     ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
 END
 
