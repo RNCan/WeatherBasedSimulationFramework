@@ -23,11 +23,6 @@ using namespace boost;
 
 namespace WBSF
 {
-
-
-//User : hydromanitoba
- //Pwd : 72hca@*wzSAJ5 & 4
-
 	const char* CUINewfoundland::SERVER_NAME = "Ftpque.nrcan.gc.ca";
 	const char* CUINewfoundland::SERVER_PATH = "/";
 
