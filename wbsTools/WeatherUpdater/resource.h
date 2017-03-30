@@ -166,7 +166,6 @@
 #define ID_TASK_CMIP5    				 32945
 #define ID_TASK_GPCP					 32946
 #define ID_TASK_HRG						 32947
-#define ID_TASK_DELETE_UPDATE			 32948
 #define ID_TASK_CREATE_HOURLY        	 32950
 #define ID_TASK_CREATE_DAILY        	 32951
 #define ID_TASK_CREATE_NORMALS      	 32952
@@ -179,8 +178,9 @@
 #define ID_TASK_ZIP_UNZIP                32959
 #define ID_TASK_DOWNLOAD_UPLOAD			 32960
 #define ID_TASK_CONVERT_DB		         32961
-#define ID_TASK_DELETE_TOOL				 33962
 #define ID_TASK_LAST    				 32962
+#define ID_TASK_DELETE_UPDATE			 32965
+#define ID_TASK_DELETE_TOOL				 33966
 
 #define ID_TASK_UPDATE					 32970
 #define ID_TASK_TOOLS					 32971

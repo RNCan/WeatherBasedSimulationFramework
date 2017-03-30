@@ -91,7 +91,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
-	BUTTON      ID_TASK_NOAA_FORECAST
+    BUTTON      ID_TASK_NOAA_FORECAST
     BUTTON      ID_TASK_SNOTEL
     SEPARATOR
     BUTTON      ID_TASK_MESOWEST
@@ -161,7 +161,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GHCND
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
-	BUTTON      ID_TASK_NOAA_FORECAST
+    BUTTON      ID_TASK_NOAA_FORECAST
     BUTTON      ID_TASK_SNOTEL
     BUTTON      ID_TASK_MESOWEST
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
@@ -556,7 +556,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-    IDS_TOOLBAR_STATUS      "Barre d'état"
+    IDS_TOOLBAR_STATUS      "Barre d'état "
 END
 
 STRINGTABLE
@@ -648,8 +648,7 @@ BEGIN
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
-	IDS_UPDATER_NOAA_FORECAST_P
-	"Répertoire de travail"
+    IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Forcé la mise à jour de la liste des stations"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
@@ -713,7 +712,7 @@ BEGIN
     ID_TASK_NOAA_GHCND      "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN-Daily)"" via NOAA\nGHCN quotidien"
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
-	ID_TASK_NOAA_FORECAST	"Télécharger les prévisions NOAA\nPrévision NOAA"
+    ID_TASK_NOAA_FORECAST   "Télécharger les prévisions NOAA\nPrévision NOAA"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
     ID_TASK_NOMAD_RUC       "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille RUC/RAP"
     ID_TASK_MESOWEST        "Télécharger les données MesoWest\nMesoWest"
@@ -723,33 +722,22 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_NOVASCOTIA      "Télécharger les données de la Nouvelle-Écosse\nMétéo Nouvelle-Écosse"
+    ID_TASK_NEWFOUNDLAND    "Télécharger les données de Terre-Neuve\nMétéo Terre-Neuve"
+    ID_TASK_NEWA            "Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nMétéo NEWA"
+    ID_TASK_WU              "Télécharger les données Weather Underground\nMétéo Weather Underground"
+    ID_TASK_WEATHER_FARM    "Télécharger les données WeatherFarm\nMétéo WeatherFarm"
+    ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
     ID_TASK_EC_RADAR        "Télécharger les images radars d'Environnement Canada (format GIF)\nImages radars"
+END
+
+STRINGTABLE
+BEGIN
     ID_TASK_EC_PRCP_RADAR   "Télécharger les précipitations radars d'Environnement Canada (format grib2)\nPrécipitations radars"
     ID_TASK_CMIP5           "Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
     ID_TASK_GPCP            "Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
     ID_TASK_HRG             "Télécharger les grilles hautes résolutons\nGrilles hautes résolutions"
     ID_TASK_DELETE_UPDATE   "Enlever une tâche de mise à jour\nEnlever"
-END
-
-STRINGTABLE
-BEGIN
-	ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
-    ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
-    ID_TASK_SASKATCHEWAN    "Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
-    ID_TASK_MANITOBA        "Télécharger les données du Manitoba\nMétéo Manitoba"
-    ID_TASK_ONTARIO         "Télécharger les données de l'Ontario\nMétéo Ontario"
-    ID_TASK_QUEBEC          "Télécharger les données du Québec\nMétéo Québec"
-    ID_TASK_NEWBRUNSWICK    "Télécharger les données du Nouveau-Brunswick\nMétéo Nouveau-Brunswick"
-    ID_TASK_NOVASCOTIA      "Télécharger les données de la Nouvelle-Écosse\nMétéo Nouvelle-Écosse"
-    ID_TASK_NEWFOUNDLAND    "Télécharger les données de Terre-Neuve\nMétéo Terre-Neuve"
-    ID_TASK_NEWA            "Télécharger les données ""Network for Environment and Weather Applications (NEWA)"" \nMétéo NEWA"
-    ID_TASK_WU				"Télécharger les données Weather Underground\nMétéo Weather Underground"
-	ID_TASK_WEATHER_FARM	"Télécharger les données WeatherFarm\nMétéo WeatherFarm"
-    ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
-END
-
-STRINGTABLE
-BEGIN
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nBD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nBD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nDB normales"
@@ -760,6 +748,17 @@ BEGIN
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
     ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
+    ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
+    ID_TASK_SASKATCHEWAN    "Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
+    ID_TASK_MANITOBA        "Télécharger les données du Manitoba\nMétéo Manitoba"
+    ID_TASK_ONTARIO         "Télécharger les données de l'Ontario\nMétéo Ontario"
+    ID_TASK_QUEBEC          "Télécharger les données du Québec\nMétéo Québec"
+    ID_TASK_NEWBRUNSWICK    "Télécharger les données du Nouveau-Brunswick\nMétéo Nouveau-Brunswick"
 END
 
 STRINGTABLE
@@ -1098,9 +1097,8 @@ BEGIN
                             "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-	                            "Working directory|First year|Last year|Country|States (if USA)"
-	IDS_UPDATER_NOAA_FORECAST_P
-								"Working directory"
+                            "Working directory|First year|Last year|Country|States (if USA)"
+    IDS_UPDATER_NOAA_FORECAST_P "Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
     IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Force update station list)"
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
@@ -1164,43 +1162,43 @@ BEGIN
     ID_TASK_NOAA_GHCND      "Download Global Historical Climatology Network (GHCN) daily data via NOAA\nGHCN Daily"
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
-	ID_TASK_NOAA_FORECAST	"Downlaod NOAA forecast\nNOAA Forecast"
+    ID_TASK_NOAA_FORECAST   "Downlaod NOAA forecast\nNOAA Forecast"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
     ID_TASK_NOMAD_RUC       "Download Rapid Update Cycle (RUC) grids via NOMADS (NOAA)\nRUC Gribs"
     ID_TASK_MESOWEST        "Download MesoWest weather data\nMesoWest weather"
     ID_TASK_SM_CIPRA_HOURLY "Download agro-climatic hourly data via Solutions-Mesonet\nCipra Hourly"
     ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
+END
+
+STRINGTABLE
+BEGIN
     ID_TASK_BC              "Download British Comlombia weather data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish-Comlombia Weather"
-END
-
-STRINGTABLE
-BEGIN
-    ID_TASK_EC_RADAR        "Dowload Radar images data from Environment Canada (GIF format)\nRadar Images"
-    ID_TASK_EC_PRCP_RADAR   "Dowload Precipitation Radar data from Environment Canada (gribs format)\nRadar Precipitation"
-    ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
-    ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
-    ID_TASK_HRG             "Download high resolution gribs\nHigh Resolution Gribs"
-    ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"
-END
-
-STRINGTABLE
-BEGIN
     ID_TASK_ALBERTA         "Download agro-climatic data for Alberta via ACIS (""AgroClimatic Information Service"")\nAlberta Weather"
     ID_TASK_SASKATCHEWAN    "Download Saskatchewan weather data\nSaskatchewan Weather"
     ID_TASK_MANITOBA        "Download Manitoba weather data\nManitoba Weather"
     ID_TASK_ONTARIO         "Download Ontario weather data\nOntario Weather"
     ID_TASK_QUEBEC          "Download Québec weather data\nQuébec Weather"
     ID_TASK_NEWBRUNSWICK    "Download New Brunswick weather data\nNew-Brunswick Weather"
-    ID_TASK_NOVASCOTIA      "Download Nova-Scotia weather data\nNova-Scotia Weather"
-    ID_TASK_NEWFOUNDLAND    "Download Newfoundland weather data\nNewfoundland Weather"
-    ID_TASK_NEWA            "Download Network for Environment and Weather Applications (NEWA)\nNEWA"
-    ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
-	ID_TASK_WEATHER_FARM	"Download WeatherFarm data\nMétéo WeatherFarm"
-    ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_NOVASCOTIA      "Download Nova-Scotia weather data\nNova-Scotia Weather"
+    ID_TASK_NEWFOUNDLAND    "Download Newfoundland weather data\nNewfoundland Weather"
+    ID_TASK_NEWA            "Download Network for Environment and Weather Applications (NEWA)\nNEWA"
+    ID_TASK_WU              "Download Weather Underground data\nWeather Underground"
+    ID_TASK_WEATHER_FARM    "Download WeatherFarm data\nMétéo WeatherFarm"
+    ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
+    ID_TASK_EC_RADAR        "Dowload Radar images data from Environment Canada (GIF format)\nRadar Images"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TASK_EC_PRCP_RADAR   "Dowload Precipitation Radar data from Environment Canada (gribs format)\nRadar Precipitation"
+    ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
+    ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+    ID_TASK_HRG             "Download high resolution gribs\nHigh Resolution Gribs"
+    ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normales DB"

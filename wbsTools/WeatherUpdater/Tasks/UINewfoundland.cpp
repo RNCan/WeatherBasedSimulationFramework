@@ -261,17 +261,22 @@ namespace WBSF
 			CFileInfoVector fileList;
 			msg = FindFiles(pConnection, path, fileList, callback);
 
-			pConnection->Close();
-			pSession->Close();
-
 			if (msg)
 			{
 				ASSERT(fileList.size() == 1);
 
 				string outputFilePath = GetStationsListFilePath();
 				if (!IsFileUpToDate(fileList.front(), outputFilePath))
+				{
+					CreateMultipleDir(GetPath(outputFilePath));
 					msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+				}
+					
 			}
+
+			pConnection->Close();
+			pSession->Close();
+
 		}
 
 		return msg;
