@@ -616,7 +616,7 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	static double GetWindDir(string compass)
+	double CUIManitoba::GetWindDir(string compass)
 	{
 		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 

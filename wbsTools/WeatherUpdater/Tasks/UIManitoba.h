@@ -43,6 +43,7 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+		static double GetWindDir(std::string compass);
 	protected:
 		
 

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "UINewBrunswick.h"
+#include "UIManitoba.h"
 #include <boost\dynamic_bitset.hpp>
 #include <boost\filesystem.hpp>
 
@@ -294,7 +295,7 @@ namespace WBSF
 		return msg;
 	}
 
-	static double GetWindDir(string compass)
+	/*static double GetWindDir(string compass)
 	{
 		static const char* COMPASS[16] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
@@ -309,7 +310,7 @@ namespace WBSF
 		}
 
 		return wd;
-	}
+	}*/
 
 	double Convert(int ID, TVarH v, double value)
 	{
@@ -395,7 +396,7 @@ namespace WBSF
 							if (COL_POS[i] != H_SKIP)
 							{
 								if (COL_POS[i] == H_WNDD)
-									tmp[i] = ToString(GetWindDir(tmp[i]));
+									tmp[i] = ToString(CUIManitoba::GetWindDir(tmp[i]));
 
 								double value = ToDouble(tmp[i]);
 								if (value > -99)
