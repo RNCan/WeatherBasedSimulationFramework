@@ -370,7 +370,7 @@ namespace WBSF
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			CWVariablesCounter counter = station.GetVariablesCount();
 			CTRef TRefEnd = counter.GetTPeriod().End();
-			ASSERT(TRefEnd <= current);
+			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
 
 
 			//station must have data in the last 2 weeks

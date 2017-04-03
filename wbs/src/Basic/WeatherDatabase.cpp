@@ -718,7 +718,8 @@ ERMsg CWeatherDatabase::GenerateLOC(CSearchResultVector& searchResult, size_t me
 
 				for (vector<size_t>::iterator it = order.begin(); it != order.end();)
 				{
-					if (std::find(searchResult.begin(), searchResult.end(), *it) == searchResult.end())
+					CSearchResultVector::const_iterator itFind = std::find(searchResult.begin(), searchResult.end(), *it);
+					if (itFind == searchResult.end() )
 						it = order.erase(it);
 					else
 						it++;
@@ -954,7 +955,7 @@ ERMsg CWeatherDatabase::GetStationOrder(vector<size_t>& DBOrder, CWVariables fil
 				stat += counter[v].first;
 		}
 		
-		if (stat[SUM]>0)
+		//if (stat[SUM]>0) on doit retourner toute lkes station smême si elle soint vide.
 			indexedOrder.push_back(make_pair(size_t(stat[SUM]), i));
 	}
 		

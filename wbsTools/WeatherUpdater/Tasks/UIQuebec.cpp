@@ -182,6 +182,8 @@ namespace WBSF
 	void CUIQuebec::InitSOPFEU(CSOPFEU& obj)const
 	{
 		obj.m_workingDir = GetDir(WORKING_DIR) + "SOPFEU\\";
+		obj.m_userName = Get(USER_NAME);
+		obj.m_password = Get(PASSWORD);
 		obj.m_firstYear = as<int>(FIRST_YEAR);
 		obj.m_lastYear = as<int>(LAST_YEAR);
 	}
@@ -191,6 +193,8 @@ namespace WBSF
 		obj.m_workingDir = GetDir(WORKING_DIR) + "MDDELCC\\";
 		obj.m_firstYear = as<int>(FIRST_YEAR);
 		obj.m_lastYear = as<int>(LAST_YEAR);
+		obj.bForceUpdateList = as<bool>(UPDATE_STATIONS_LIST);
+		obj.m_updateUntil = as<int>(UPDATE_UNTIL);
 	}
 
 	ERMsg CUIQuebec::GetWeatherStation(const string& name, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -200,7 +204,7 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
-		bitset<NB_NETWORKS> network = GetNetwork();
+		//bitset<NB_NETWORKS> network = GetNetwork();
 
 		size_t n = WBSF::as<size_t>(name.substr(0,1));
 		string ID = name.substr(1);
