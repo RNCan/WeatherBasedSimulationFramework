@@ -155,6 +155,9 @@ namespace WBSF
 				CHRRR HRRR(workingDir + string(SOURCES_NAME[ss]) + "\\");
 				msg = HRRR.Execute(callback);
 			}
+
+			if (callback.GetUserCancel())
+				break;
 		}
 
 
