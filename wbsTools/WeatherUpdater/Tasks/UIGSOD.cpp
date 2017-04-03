@@ -307,7 +307,7 @@ namespace WBSF
 			return msg;
 
 
-		callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
+		callback.PushTask(GetString(IDS_UPDATE_FILE) + " GSOD (" + ToString(fileList.size() ) + " files)", fileList.size());
 
 		size_t curI = 0;
 

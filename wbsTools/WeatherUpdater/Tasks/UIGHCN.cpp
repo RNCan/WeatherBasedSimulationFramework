@@ -264,7 +264,7 @@ ERMsg CUIGHCND::Execute(CCallback& callback)
 	callback.AddMessage(GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 	callback.AddMessage("");
 	
-	callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
+	callback.PushTask(GetString(IDS_UPDATE_FILE) + " GHCND (" + ToString(fileList.size()) + " files)", fileList.size());
 
 	int nbRun = 0;
 	size_t curI = 0;

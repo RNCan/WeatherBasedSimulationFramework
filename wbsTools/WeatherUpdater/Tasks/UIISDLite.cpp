@@ -420,7 +420,7 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
+		callback.PushTask(GetString(IDS_UPDATE_FILE) + " ISD-Lite (" + ToString(fileList.size()) + " files)", fileList.size());
 
 		int nbRun = 0;
 		int curI = 0;

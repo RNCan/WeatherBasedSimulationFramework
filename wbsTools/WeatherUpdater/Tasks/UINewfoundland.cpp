@@ -82,7 +82,7 @@ namespace WBSF
 
 	string CUINewfoundland::GetOutputFilePath(int year)const
 	{
-		return GetDir(WORKING_DIR) + ToString(year) + "\\" + ToString(year) + ".zip";
+		return GetDir(WORKING_DIR) + ToString(year) + "\\NL_WeatherStations_" + ToString(year) + ".zip";
 	}
 
 
@@ -134,14 +134,13 @@ namespace WBSF
 			{
 				int year = firstYear + int(y);
 
-				string filter = "/hydromanitoba/" + ToString(year) + "/" + ToString(year) + ".zip";
+				string filter = "/hydromanitoba/" + ToString(year) + "/NL_WeatherStations_" + ToString(year) + ".zip";
 
 				CFileInfoVector fileList;
 				msg = FindFiles(pConnection, filter, fileList, callback);
 				if (fileList.size() == 1)
 				{
 					string fileName = GetFileName(fileList.front().m_filePath);
-					int year = WBSF::as<int>(fileName);
 
 					string outputFilePath = GetOutputFilePath(year);
 					if (!IsFileUpToDate(fileList.front(), outputFilePath))
@@ -170,7 +169,7 @@ namespace WBSF
 
 		
 
-		callback.AddMessage("Number of file downloaded:" + ToString(nbDownloads) );
+		callback.AddMessage("Number of file downloaded: " + ToString(nbDownloads) );
 		callback.PopTask();
 
 		return msg;
