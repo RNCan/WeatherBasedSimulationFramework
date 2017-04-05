@@ -16,7 +16,7 @@ namespace WBSF
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, PROVINCE, ADD_OTHER, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, PROVINCES, ADD_OTHER, IGNORE_COMMON_STATIONS, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMesoWest); }
@@ -58,6 +58,8 @@ namespace WBSF
 		static bool IsUnknownVar(const std::string& str);
 		static CTRef GetTRef(const std::string& str);
 		static bool IsValid(HOURLY_DATA::TVarH v, double value);
+		static CLocationVector GetCommonStations(const CLocationVector& stationListTmp);
+		static bool IsCommonStation(const std::string& network);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

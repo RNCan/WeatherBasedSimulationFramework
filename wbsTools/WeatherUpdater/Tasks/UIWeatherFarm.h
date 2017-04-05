@@ -12,7 +12,12 @@ namespace WBSF
 	public:
 		
 		
-		enum TAttributes { WORKING_DIR, PROVINCE, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum TDateRange { DR_TODAY, DR_YESTERFAY, DR_LAST_2_DAYS, DR_LAST_5_DAYS, NB_DATE_RANGES };
+		//static const char* DATE_RANGE_NAME[NB_DATE_RANGES];
+		
+
+
+		enum TAttributes { WORKING_DIR, PROVINCE, DATE_RANGE_TYPE, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
 		static size_t GetNetwork(const std::string& network);
 
 

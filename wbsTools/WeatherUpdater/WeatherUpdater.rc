@@ -652,9 +652,9 @@ BEGIN
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Forcé la mise à jour de la liste des stations"
+    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
     IDS_UPDATER_WEATHER_FARM_P 
-                            "Répertoire de travail|Province (Canada)|Forcé la mise à jour de la liste des stations"
+                            "Répertoire de travail|Province (Canada)|Type de période|Forcé la mise à jour de la liste des stations"
 END
 
 STRINGTABLE
@@ -1104,9 +1104,9 @@ BEGIN
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_NOAA_FORECAST_P "Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Force update station list)"
+    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Ignore common stations|Force update station list"
     IDS_UPDATER_WEATHER_FARM_P 
-                            "Working directory|Province (Canada)|Force update station list)"
+                            "Working directory|Province (Canada)|Date range type|Force update station list"
 END
 
 STRINGTABLE

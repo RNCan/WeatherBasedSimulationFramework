@@ -607,7 +607,7 @@ namespace WBSF
 				}
 			}//if msg
 
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(data.size()), 1);
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(data.size()), 1);
 			callback.PopTask();
 		}//if msg
 
@@ -1367,7 +1367,7 @@ namespace WBSF
 			}
 
 
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(curI), 1);
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
 			callback.PopTask();
 		}
 

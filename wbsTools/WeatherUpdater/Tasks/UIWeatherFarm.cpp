@@ -55,11 +55,12 @@ namespace WBSF
 
 	const char* CUIWeatherFarm::SERVER_NAME = { "weatherfarm.com", };
 	const char* CUIWeatherFarm::SERVER_PATH = { "historical-data/" };
-	
+
+
 
 	//*********************************************************************
-	const char* CUIWeatherFarm::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Province", "ForceUpdateStationsList" };
-	const size_t CUIWeatherFarm::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_BOOL };
+	const char* CUIWeatherFarm::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Province", "DateRangeType", "ForceUpdateStationsList" };
+	const size_t CUIWeatherFarm::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIWeatherFarm::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WEATHER_FARM_P;
 	const UINT CUIWeatherFarm::DESCRIPTION_TITLE_ID = ID_TASK_WEATHER_FARM; 
 
@@ -84,6 +85,7 @@ namespace WBSF
 		{
 		//case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
 		case PROVINCE:	str = CProvinceSelection::GetAllPossibleValue(); break;
+		case DATE_RANGE_TYPE: str = "Today|Yesterday|Last 2 days|Last 5 days"; break;
 		};
 		return str;
 	}
@@ -97,7 +99,8 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "WeatherFarm\\"; break;
 		//case STATES: str = "----"; break;
 		//case ADD_OTHER: str = "0"; break;
-		case PROVINCE:	str = "BC|AB|SA|MB"; break;
+		case PROVINCE:	str = "BC|AB|SK|MB"; break;
+		case DATE_RANGE_TYPE: str = ToString(DR_YESTERFAY); break;
 		case FORCE_UPDATE_STATIONS_LIST: str = "0"; break;
 
 		};
@@ -125,7 +128,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("Download WeatherFarm Data", 1);
+		
 
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
@@ -136,42 +139,64 @@ namespace WBSF
 		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
 		callback.AddMessage("");
 
+		size_t dateRange = as<size_t>(DATE_RANGE_TYPE);
 
 		//http://weatherfarm.com/feeds/historical-data/?date-range=today&station-id=P1098&from-date=03/29/2017&to-date=03/29/2017&report-type=hourly
 		//http://weatherfarm.com/feeds/historical-data/?date-range=yesterday&station-id=P1098&from-date=03/28/2017&to-date=03/28/2017&report-type=hourly
 		//http://weatherfarm.com/feeds/historical-data/?date-range=last2days&station-id=P1098&from-date=03/28/2017&to-date=03/29/2017&report-type=hourly
-		//http://weatherfarm.com/feeds/historical-data/?date-range=last5days&to-date=03/27/2017&report-type=daily
+		//http://weatherfarm.com/feeds/historical-data/?date-range=last5days&station-id=P1053&from-date=04/01/2017&to-date=04/05/2017&report-type=hourly
 		//
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P0590
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P1098
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P1098
-		//http://weatherfarm.com/feeds/set-current-station?station_id=P0603
+		//http://weatherfarm.com/feeds/set-current-station?station_id=P1053
 
 
-		//CStateSelection states(Get(STATES));
+		int RANGE_SHIFT[NB_DATE_RANGES][2] = { { 0, 0 }, { 1, 1 }, { 0, 2 }, { 0, 5 } };
+
+		CTRef today = CTRef::GetCurrentTRef();
+		
+		CTRef endTRef = today - RANGE_SHIFT[dateRange][0];
+		CTRef startTRef = today - RANGE_SHIFT[dateRange][1];
+		
+		
 		CProvinceSelection provinces(Get(PROVINCE));
-		CLocationVector stationList;
+		CLocationVector stationListTmp;
 
 		if (!FileExists(GetStationsListFilePath()) || as<bool>(FORCE_UPDATE_STATIONS_LIST))
 		{
 
-			msg = DownloadStationsList(stationList, callback);
+			msg = DownloadStationsList(stationListTmp, callback);
 			if (msg)
-				msg = stationList.Save(GetStationsListFilePath(), ',', callback);
+				msg = stationListTmp.Save(GetStationsListFilePath(), ',', callback);
 		}
 		else
 		{
-			msg = stationList.Load(GetStationsListFilePath(), ",", callback);
+			msg = stationListTmp.Load(GetStationsListFilePath(), ",", callback);
 		}
 
 		if (!msg)
 			return msg;
 
+		CLocationVector stationList;
+		stationList.reserve(stationListTmp.size());
+		for (auto it = stationListTmp.begin(); it < stationListTmp.end() && msg; it++)
+		{
+			string state = it->GetSSI("Province");
+
+			if ( provinces.at(state) )
+				stationList.push_back(*it);
+
+		}
+	
+		int nbDownload = 0;
+		callback.PushTask("Download WeatherFarm stations data (" + ToString(stationList.size()) + " stations)", stationList.size());
+
 		
 		enum TColumns { C_DATE_TIME, C_TEMP, C_RAIN, C_RAIN_ACC, C_RH, C_WIND_SPEED, C_WIND_DIR, NB_COLUMNS };
 		static const TVarH VARIABLES[NB_COLUMNS] = {H_SKIP, H_TAIR2, H_PRCP, H_SKIP, H_RELH, H_WNDS, H_WNDD };
 		
-
+		
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -179,63 +204,124 @@ namespace WBSF
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 		if (msg)
 		{
-			string str;
-			msg = UtilWWW::GetPageText(pConnection, "feeds/set-current-station?station_id=P1098", str);
-			if (msg)
+			
+			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
-				string error;
-				Json jsonMetadata = Json::parse(str, error);
-
-				if (error.empty())
+				string str;
+				msg = UtilWWW::GetPageText(pConnection, "feeds/set-current-station?station_id=" + stationList[i].m_ID, str);
+				if (msg)
 				{
-					bool bRollover = jsonMetadata["reporting_from_rollover_station"].bool_value();
-					bool bHaveData = jsonMetadata["data_available"].bool_value();
-					
-					if (!bRollover && bHaveData)
+					string error;
+					Json jsonMetadata = Json::parse(str, error);
+
+					if (error.empty())
 					{
+						bool bRollover = jsonMetadata["reporting_from_rollover_station"].bool_value();
+						bool bHaveData = jsonMetadata["data_available"].bool_value();
 
-						string str;
-						msg = UtilWWW::GetPageText(pConnection, "feeds/historical-data/?date-range=last2days&from-date=03/29/2017&to-date=03/30/2017&report-type=hourly", str);
-						if (msg)
+						if (!bRollover && bHaveData)
 						{
-							string error;
-							Json json = Json::parse(str, error);
+							static const char* DATE_RANGE_NAME[NB_DATE_RANGES] = { "today", "yesterday", "last2days", "last5days" };
 
-							if (error.empty())
+							string start = FormatA("%02d/%02d/%4d", startTRef.GetMonth() + 1, startTRef.GetDay() + 1, startTRef.GetYear());
+							string end = FormatA("%02d/%02d/%4d", endTRef.GetMonth() + 1, endTRef.GetDay() + 1, endTRef.GetYear());
+							string URL = string("feeds/historical-data/?date-range=") + DATE_RANGE_NAME[dateRange] + "&station-id=" + stationList[i].m_ID + "&from-date=" + start + "&to-date=" + end + "&report-type=hourly";
+							
+							string str;
+							msg = UtilWWW::GetPageText(pConnection, URL, str);
+							if (msg)
 							{
-								Json::array records = json["records"].array_items();
+								string error;
+								Json json = Json::parse(str, error);
 
-								for (Json::array::const_iterator it = records.begin(); it != records.end() && msg; it++)
+								if (error.empty() )
 								{
-									Json::array values = it->array_items();
-
-									if (values.size() == NB_COLUMNS)
+									Json::array records = json["records"].array_items();
+									if (!records.empty())
 									{
-										CTRef TRef = GetTRef(values[C_DATE_TIME].string_value());
-										if (TRef.IsInit())
+										nbDownload++;
+										CWeatherYears data(true);
+
+										for (Json::array::const_iterator it = records.begin(); it != records.end() && msg; it++)
 										{
-											//for (size_t c = 0; c < NB_COLUMNS; c++)
-											size_t c = 0;
-											for (Json::array::const_iterator it2 = values.begin(); it2 != values.end() && msg; it2++, c++)
+
+											Json::array values = it->array_items();
+
+											if (values.size() == NB_COLUMNS)
 											{
-												if (VARIABLES[c] != H_SKIP)
+												CTRef TRef = GetTRef(values[C_DATE_TIME].string_value());
+												if (TRef.IsInit())
 												{
-													string v1 = it2->string_value();
-													if (!v1.empty())
+													//try to load old data before changing it...
+													if (!data.IsYearInit(TRef.GetYear()))
 													{
-														double v2 = ToDouble(v1);
+														string filePath = GetOutputFilePath(stationList[i].m_ID, TRef.GetYear());
+														data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 													}
-												}
-											}
+													
+													size_t c = 0;
+													for (Json::array::const_iterator it2 = values.begin(); it2 != values.end() && msg; it2++, c++)
+													{
+														if (VARIABLES[c] != H_SKIP)
+														{
+															string v1 = it2->string_value();
+															if (!v1.empty())
+															{
+																double v2 = ToDouble(v1);
+																if (VARIABLES[c] == H_WNDD)
+																{
+																	v2 = CUIManitoba::GetWindDir(v1);
+																	ASSERT(v2 != -999);
+																}
+																	
+
+																data[TRef].SetStat(VARIABLES[c], v2);
+
+																//compute Tdew
+																if (VARIABLES[c] == H_RELH && !data[TRef][H_TAIR2].empty())
+																	data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(data[TRef][H_TAIR2][MEAN], v2));
+															}
+														}
+													}//for all values
+												}//if TRef is init
+											}//if it's the same number of columns
+										}//for all records
+
+										
+
+										//save all years 
+										for (auto it = data.begin(); it != data.end(); it++)
+										{
+											string filePath = GetOutputFilePath(stationList[i].m_ID, it->first);
+											string outputPath = GetPath(filePath);
+											CreateMultipleDir(outputPath);
+											it->second->SaveData(filePath);
 										}
-									}
+
+									} //record not empty
 								}
-							}
-						}
+								else
+								{
+									msg.ajoute(error);
+								}
+							}//if msg
+						}//if have data
 					}
-				}
-			}
-		}
+					else
+					{
+						msg.ajoute(error);
+					}
+				}//if get text
+
+				msg += callback.StepIt();
+			}//for all station
+
+
+			pConnection->Close();
+			pSession->Close();
+
+		}//if connection
+
 		//		string::size_type pos1 = str.find("<table");
 		//		string::size_type pos2 = NOT_INIT;
 		//		if (pos1 < str.size())
@@ -268,10 +354,11 @@ namespace WBSF
 		//	}
 
 
-			pConnection->Close();
-			pSession->Close();
+			
 
 		//}
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 1);
 		callback.PopTask();
 
 
@@ -390,8 +477,8 @@ namespace WBSF
 								location.m_lat = ToDouble(metadata["latitude"].string_value());
 								location.m_lon = ToDouble(metadata["longitude"].string_value());
 								location.SetSSI("Network", "WeatherFarm");
-								location.SetSSI("city", metadata["city"].string_value());
-								location.SetSSI("province", metadata["province"].string_value());
+								location.SetSSI("City", metadata["city"].string_value());
+								location.SetSSI("Province", metadata["province"].string_value());
 
 								string elevFormat = "/maps/api/elevation/json?locations=" + metadata["latitude"].string_value() + "," + metadata["longitude"].string_value();
 								string strElev;
@@ -453,6 +540,7 @@ namespace WBSF
 			size_t month = WBSF::as<size_t>(vec[0]) - 1;
 			size_t day = WBSF::as<size_t>(vec[1]) - 1;
 			size_t hour = WBSF::as<size_t>(vec[3]);
+			size_t mm = WBSF::as<size_t>(vec[4]);
 
 			ASSERT(month >= 0 && month < 12);
 			ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
@@ -460,6 +548,11 @@ namespace WBSF
 
 
 			TRef = CTRef(year, month, day, hour);
+			if (mm != 0)
+			{
+				if (mm >= 30)
+					TRef++;
+			}
 		}
 
 

@@ -23,7 +23,7 @@ using namespace UtilWWW;
 namespace WBSF
 {
 	//MesoWest
-	
+
 	//Get all network information
 	//https://api.mesowest.net/v2/networks?token=635d9802c84047398d1392062e39c960
 	//Get all station information
@@ -32,7 +32,7 @@ namespace WBSF
 	//https://api.synopticlabs.org/v2/stations/timeseries?stid=D5096&start=201701010000&end=201701012359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960
 	//Get varaible
 	//https://api.synopticlabs.org/v2/variables?token=635d9802c84047398d1392062e39c960
-	
+
 
 
 	//http://gl1.chpc.utah.edu/cgi-bin/droman/stn_state.cgi?state=QC&order=status
@@ -41,8 +41,8 @@ namespace WBSF
 	//http://mesowest.utah.edu/cgi-bin/droman/meso_station.cgi
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
-	const char* CUIMesoWest::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "States", "Province", "AddOther", "ForceUpdateStationsList" };
-	const size_t CUIMesoWest::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL, T_BOOL };
+	const char* CUIMesoWest::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "States", "Provinces", "AddOthers", "IgnoreCommonStations", "ForceUpdateStationsList" };
+	const size_t CUIMesoWest::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL, T_BOOL, T_BOOL };
 	const UINT CUIMesoWest::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MESOWEST_P;
 	const UINT CUIMesoWest::DESCRIPTION_TITLE_ID = ID_TASK_MESOWEST;
 
@@ -66,7 +66,7 @@ namespace WBSF
 		switch (i)
 		{
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
-		case PROVINCE:	str = CProvinceSelection::GetAllPossibleValue(); break;
+		case PROVINCES:	str = CProvinceSelection::GetAllPossibleValue(); break;
 		};
 		return str;
 	}
@@ -82,13 +82,15 @@ namespace WBSF
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case STATES: str = "----"; break;
 		case ADD_OTHER: str = "0"; break;
+		case IGNORE_COMMON_STATIONS: str = "1"; break;
 		case FORCE_UPDATE_STATIONS_LIST: str = "0"; break;
 		};
+
 		return str;
 	}
 
 	std::string CUIMesoWest::GetStationListFilePath()const
-	{ 
+	{
 		string workingDir = GetDir(WORKING_DIR);
 		return workingDir + "StationsList.csv";
 	}
@@ -97,17 +99,16 @@ namespace WBSF
 	std::string CUIMesoWest::GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year, size_t m)
 	{
 		string workingDir = GetDir(WORKING_DIR);
-		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + FormatA("%02d", m+1) + "\\"+ ID + ".Json";
+		string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".Json";
 
-		return ouputPath ;
+		return ouputPath;
 	}
 
 	static string PurgeName(string str)
 	{
-		MakeUpper(str);
-		ReplaceString(str, "ST. ", "St-");
-		//string::size_type pos = str.find("ST.");
-		//if (pos== )
+		string::size_type pos = str.find_last_of(",");
+		
+		str = str.substr(0, pos - 1);
 		ReplaceString(str, ",", "");
 		ReplaceString(str, ";", "");
 		ReplaceString(str, "\"", "");
@@ -119,7 +120,15 @@ namespace WBSF
 		return str;
 	}
 
-	
+	/*CTPeriod  GetPeriod(string str)
+	{
+
+	CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
+	string period = "" : {
+		"start": "1970-01-01T00:00:00Z",
+			"end" : "2017-04-05T14:00:00Z"
+	}*/
+
 	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -128,68 +137,183 @@ namespace WBSF
 		CHttpConnectionPtr pConnection;
 
 		//a faire avec JSON
-		//https://api.mesowest.net/v2/stations/metadata?token=635d9802c84047398d1392062e39c960
-		msg += GetHttpConnection("mesowest.utah.edu", pConnection, pSession);
+		///v2/stations/metadata?token=635d9802c84047398d1392062e39c960
+
+		msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
 		if (msg)
 		{
-			string URL = "cgi-bin/droman/meso_station.cgi";
+			//v2/stations/metadata?complete=1&state=QC&token=635d9802c84047398d1392062e39c960
+			std::map<string, string> networks;
+			{
+
+
+				string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
+
+				string source;
+				msg = GetPageText(pConnection, URL, source);
+				if (msg)
+				{
+					string error;
+					const Json& root = Json::parse(source, error);
+					if (error.empty())
+					{
+						ASSERT(root["MNET"].type() == Json::ARRAY);
+						const std::vector<Json>& nets = root["MNET"].array_items();
+						
+						for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
+							networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
+					}
+				}
+			}
+
+
+			string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
 
 			string source;
 			msg = GetPageText(pConnection, URL, source);
 			if (msg)
 			{
-				string::size_type b = source.find("<PRE>");
-				string::size_type e = source.find("</PRE>");
-				if (b != string::npos && e != string::npos)
+				string error;
+				const Json& root = Json::parse(source, error);
+				if (error.empty())
 				{
-					b += 5;
-					source = source.substr(b, e - b);
-					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", e);
-					callback.SetCurrentStepPos(b);
 
-					string::size_type posBegin = source.find("<A");
-					while (posBegin != string::npos)
+					ASSERT(root["STATION"].type() == Json::ARRAY);
+					const std::vector<Json>& stations = root["STATION"].array_items();
+
+
+					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
+					for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
 					{
-						string ID = FindString(source, ">", "</A>", posBegin);
-						string line = FindString(source, "</A>", "\n", posBegin);
-
-						CLocation loc;
-						loc.m_ID = TrimConst(ID);
-						
-						loc.m_name = UppercaseFirstLetter(PurgeName(line.substr(0, 35)));
-						string state = TrimConst(line.substr(35 + 1, 3));
-						string country;
-						if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
-							country = "Canada";
-						else if (CStateSelection::GetState(state) != UNKNOWN_POS)
-							country = "Usa";
-						else
-							country = "Other";
-
-						loc.SetSSI("Country", country);
-						loc.SetSSI("State", state);
-						loc.m_lat = ToDouble(line.substr(35 + 1 + 3 + 1, 10));
-						loc.m_lon = ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1, 12));
-						loc.m_alt = WBSF::Feet2Meter(ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1, 6)));
-						loc.SetSSI("Network", TrimConst(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1 + 6 + 1 + 3)));
+						CLocation location;
 
 						
 
-						stationList.push_back(loc);
+						location.m_name = PurgeName((*it)["NAME"].string_value());
+						location.m_ID = (*it)["STID"].string_value();
+						location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
+						location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
+						location.m_alt = WBSF::as<double>((*it)["ELEVATION"].string_value());
 						
 
-						posBegin = source.find("<A", posBegin);
-						msg += callback.SetCurrentStepPos(posBegin);
-					}
+						string country = (*it)["COUNTRY"].string_value();
+						string state = (*it)["STATE"].string_value();
+						string time_zone = (*it)["TIMEZONE"].string_value();
+						string id = (*it)["ID"].string_value();
+						string status = (*it)["STATUS"].string_value();
+						string network = (*it)["SHORTNAME"].string_value();
+						string networkID = (*it)["MNET_ID"].string_value();
+						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
+						//CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
+						
+						if (state == "NF")
+							state = "NL";
+
+						if (country.empty())
+						{
+							if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
+								country = "CA";
+							else if (CStateSelection::GetState(state) != UNKNOWN_POS)
+								country = "US";
+							else
+								country = "--";
+						}
+						
+						if (network.empty() && !networkID.empty())
+							network = networks[networkID];
+								
+						location.SetSSI("Status", status);
+						location.SetSSI("Country", country);
+						location.SetSSI("State", state);
+						location.SetSSI("Network", network);
+						location.SetSSI("NetworkID", networkID);
+						location.SetSSI("TimeZone", time_zone);
+						location.SetSSI("Start", start);
+						
+
+						stationList.push_back(location);
+
+						msg += callback.StepIt();
+					}//for all stations
 
 					callback.PopTask();
-				}//while
-			}
+				}//if error
+				else
+				{
+					msg.ajoute(error);
+				}
+			}//if msg
 		}//if msg
-
+	
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-		
-		
+
+
+
+
+		//msg += GetHttpConnection("mesowest.utah.edu", pConnection, pSession);
+		//if (msg)
+		//{
+		//	string URL = "cgi-bin/droman/meso_station.cgi";
+
+		//	string source;
+		//	msg = GetPageText(pConnection, URL, source);
+		//	if (msg)
+		//	{
+		//		string::size_type b = source.find("<PRE>");
+		//		string::size_type e = source.find("</PRE>");
+		//		if (b != string::npos && e != string::npos)
+		//		{
+		//			b += 5;
+		//			source = source.substr(b, e - b);
+		//			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", e);
+		//			callback.SetCurrentStepPos(b);
+
+		//			string::size_type posBegin = source.find("<A");
+		//			while (posBegin != string::npos)
+		//			{
+		//				string ID = FindString(source, ">", "</A>", posBegin);
+		//				string line = FindString(source, "</A>", "\n", posBegin);
+
+		//				CLocation loc;
+		//				loc.m_ID = TrimConst(ID);
+
+		//				loc.m_name = UppercaseFirstLetter(PurgeName(line.substr(0, 35)));
+		//				string state = TrimConst(line.substr(35 + 1, 3));
+		//				if (state == "NF")
+		//					state = "NL";
+
+		//				string country;
+		//				if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
+		//					country = "Canada";
+		//				else if (CStateSelection::GetState(state) != UNKNOWN_POS)
+		//					country = "Usa";
+		//				else
+		//					country = "Other";
+
+		//				loc.SetSSI("Country", country);
+		//				loc.SetSSI("State", state);
+		//				loc.m_lat = ToDouble(line.substr(35 + 1 + 3 + 1, 10));
+		//				loc.m_lon = ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1, 12));
+		//				loc.m_alt = WBSF::Feet2Meter(ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1, 6)));
+		//				loc.SetSSI("Network", TrimConst(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1 + 6 + 1 + 3)));
+
+
+
+		//				stationList.push_back(loc);
+
+
+		//				posBegin = source.find("<A", posBegin);
+		//				msg += callback.SetCurrentStepPos(posBegin);
+		//			}
+
+		//			callback.PopTask();
+		//		}//while
+		//	}
+		//}//if msg
+
+		//callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+
+
 
 		pConnection->Close();
 		pSession->Close();
@@ -278,7 +402,7 @@ namespace WBSF
 
 	bool CUIMesoWest::IsUnknownVar(const string& str)
 	{
-		bool bUnknown=false;
+		bool bUnknown = false;
 
 		string::size_type pos = str.find("_set_");
 		if (pos != string::npos)
@@ -293,28 +417,28 @@ namespace WBSF
 			for (size_t v = 0; v < NB_UNUSEDS&&bUnknown; v++)
 			{
 				if (IsEqual(tmp, VAR_NAME_UNUSED[v]))
-					bUnknown=false;
+					bUnknown = false;
 			}
 		}
 
 		return bUnknown;
 	}
 
-	
+
 	std::vector<HOURLY_DATA::TVarH > CUIMesoWest::GetVariables(const StringVector& header)
 	{
 		std::vector<HOURLY_DATA::TVarH > variables(header.size());
-		
-		for (size_t v=0; v < header.size(); v++)
+
+		for (size_t v = 0; v < header.size(); v++)
 			variables[v] = GetVar(header[v]);
-		
+
 
 		ASSERT(variables.size() == header.size());
-		
+
 		return variables;
 	}
 
-	
+
 	//******************************************************
 	ERMsg CUIMesoWest::Execute(CCallback& callback)
 	{
@@ -322,7 +446,7 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
-		
+
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
@@ -330,57 +454,73 @@ namespace WBSF
 		callback.AddMessage("");
 
 
-		CStateSelection states(Get(STATES));
-		CProvinceSelection provinces(Get(PROVINCE));
-		CLocationVector stationList1;
-
-		if (!FileExists(GetStationListFilePath()) || as<bool>(FORCE_UPDATE_STATIONS_LIST))
-		{
-			
-			msg = DownloadStationList(stationList1, callback);
-			if (msg)
-				msg = stationList1.Save(GetStationListFilePath(), ',', callback);
-		}
-		else
-		{
-			msg = stationList1.Load(GetStationListFilePath(),",",callback);
-		}
-		
-		if (!msg)
-			return msg;
-
-
 		//Get station
+		bool bAddOter = as<bool>(ADD_OTHER);
+		bool bIgnoreCommonStations = as <bool>(IGNORE_COMMON_STATIONS);
+		bool bForceUpdateList = as<bool>(FORCE_UPDATE_STATIONS_LIST);
+
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		CTRef current = CTRef::GetCurrentTRef();
 
-		callback.PushTask("Clean list (" + ToString(stationList1.size()) + ")", stationList1.size());
-		
-		bool bAddOter = as<bool>(ADD_OTHER);
+
+		CStateSelection states(Get(STATES));
+		CProvinceSelection provinces(Get(PROVINCES));
+
+
+		CLocationVector stationListTmp;
+
+		if (!FileExists(GetStationListFilePath()) || bForceUpdateList)
+		{
+
+			msg = DownloadStationList(stationListTmp, callback);
+			if (msg)
+				msg = stationListTmp.Save(GetStationListFilePath(), ',', callback);
+		}
+		else
+		{
+			msg = stationListTmp.Load(GetStationListFilePath(), ",", callback);
+		}
+
+		if (!msg)
+			return msg;
+
+
+
+
+		//clean common stations
 
 		CLocationVector stationList;
-		for (auto it = stationList1.begin(); it < stationList1.end() && msg; it++)
+		stationList.reserve(stationListTmp.size());
+		for (auto it = stationListTmp.begin(); it < stationListTmp.end() && msg; it++)
 		{
-					
+
 			if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 			{
 				string country = it->GetSSI("Country");
 				string state = it->GetSSI("State");
-				if ((country == "Usa" && states.at(state)) ||
-					(country == "Canada" && provinces.at(state) ||
-					(country == "Other" && bAddOter) ) )
-					stationList.push_back(*it);
+				string network = it->GetSSI("Network");
+
+
+				if ((country == "US" && states.at(state)) ||
+					(country == "CA" && provinces.at(state) ||
+					(country == "--" && bAddOter)))
+				{
+					bool bAdd = true;
+					if (bIgnoreCommonStations && IsCommonStation(network))
+						bAdd = false;
+
+					if (bAdd)
+						stationList.push_back(*it);
+				}
 			}
 
-			msg += callback.StepIt();
-		}
+			msg += callback.StepIt(0);
+		}//for all stations
 
-		callback.PopTask();
-
-		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth()+1;
-		callback.PushTask("Download stations data (" + ToString(stationList.size()) + ")", stationList.size()*nbM);
+		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
+		callback.PushTask("Download stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -401,12 +541,12 @@ namespace WBSF
 				for (size_t m = 0; m < nbMonths&&msg; m++)
 				{
 					static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-					string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m+1, year, m+1, GetNbDayPerMonth(year, m) );
+					string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
 					string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
 					CreateMultipleDir(GetPath(ouputFilePath));
 
 
-					
+
 					CTimeRef TRef1(GetFileInfo(ouputFilePath).m_time);
 
 					if (!FileExists(ouputFilePath) || TRef1 - CTRef(year, m, LAST_DAY) < 5)
@@ -427,45 +567,56 @@ namespace WBSF
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
 		callback.PopTask();
-		
+
 
 		return msg;
 	}
 
 
 
-	
+
 	ERMsg CUIMesoWest::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
-		
+
 		msg = m_stations.Load(GetStationListFilePath(), ",", callback);
 
 		if (msg)
 		{
+			bool bIgnoreCommonStations = as <bool>(IGNORE_COMMON_STATIONS);
 			bool bAddOter = as<bool>(ADD_OTHER);
 			CStateSelection states(Get(STATES));
-			CProvinceSelection provinces(Get(PROVINCE));
+			CProvinceSelection provinces(Get(PROVINCES));
 
 			for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 			{
 				if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 				{
 
-					string countryStr = it->GetSSI("Country");
-					string stateStr = it->GetSSI("State");
-					if ((countryStr == "Usa" && states.at(stateStr)) ||
-						(countryStr == "Canada" && provinces.at(stateStr) ||
-						(countryStr == "Other" && bAddOter)) )
-						stationList.push_back(it->m_ID);
+					string country = it->GetSSI("Country");
+					string state = it->GetSSI("State");
+					string network = it->GetSSI("Network");
+
+					if ((country == "US" && states.at(state)) ||
+						(country == "CA" && provinces.at(state) ||
+						(country == "--" && bAddOter)))
+					{
+						bool bAdd = true;
+						if (bIgnoreCommonStations && IsCommonStation(network))
+							bAdd = false;
+
+						if (bAdd)
+							stationList.push_back(it->m_ID);
+					}
+
 				}
 			}
 		}
 
 		return msg;
 	}
-	
+
 
 	ERMsg CUIMesoWest::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
@@ -487,7 +638,7 @@ namespace WBSF
 
 		station.CreateYears(firstYear, nbYears);
 
-	
+
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
@@ -514,10 +665,31 @@ namespace WBSF
 			}
 		}
 
-		
+
 		return msg;
 	}
 
+
+	//*************************************************************************************************************************************
+	bool CUIMesoWest::IsCommonStation(const std::string& network)
+	{
+		return IsEqual( network, "Canada");
+	}
+
+	/*CLocationVector CUIMesoWest::GetCommonStations(const CLocationVector& stationListTmp)
+	{
+		CLocationVector stationList;
+		stationList.reserve(stationListTmp.size());
+		for (CLocationVector::const_iterator it = stationListTmp.begin(); it != stationListTmp.end(); it++)
+		{
+			string network = it->GetSSI("Network");
+			if (!IsCommonStation(network))
+				stationList.push_back(*it);
+		}
+
+		return stationList;
+	}
+*/
 	CTRef CUIMesoWest::GetTRef(const string& str)
 	{
 		StringVector e(str,"-T:+");
