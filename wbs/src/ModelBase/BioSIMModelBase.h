@@ -137,7 +137,7 @@ namespace WBSF
 
 		void HxGridTestConnection();
 
-		const std::string& GetFileData(const std::string& speciesFilePath)const;
+		const std::string& GetFileData(const std::string& filePath)const;
 		const std::string& GetFileData(int index)const;
 
 		//void GetOldWeather(CWeather& weather)const;

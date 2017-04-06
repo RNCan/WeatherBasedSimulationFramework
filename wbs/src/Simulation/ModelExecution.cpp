@@ -25,6 +25,7 @@
 #include "ModelBase/Model.h"
 #include "ModelBase/WGInput.h"
 #include "ModelBase/CommunicationStream.h"
+#include "Simulation/LoadStaticData.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/ExecutableFactory.h"
 #include "ModelBase/WGInput-ModelInput.h"
@@ -380,49 +381,49 @@ ERMsg CModelExecution::GetParentInfo(const CFileManager& fileManager, CParentInf
 
 	return msg;
 }
-
-ERMsg CModelExecution::LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream)
-{
-	ERMsg msg;
-
-
-	StringVector fileList;
-
-	CModelInputParameterDefVector inputDef=model.GetInputDefinition(true);
-
-	for (size_t i = 0; i<inputDef.size(); i++)
-	{
-		if (/*inputDef[i].IsExtendedList() || */inputDef[i].GetType() == CModelInputParameterDef::kMVFile)
-		{
-			string filePath;
-			/*if (inputDef[i].IsExtendedList())
-			{
-				int defPos = ToInt(inputDef[i].m_default);
-				StringVector listOfParam = inputDef[i].GetList(fileManager.GetAppPath(), fileManager.GetProjectPath());
-				filePath = SpecialPath2FilePath(listOfParam[1], );
-
-			}
-			else if (inputDef[i].GetType() == CModelInputParameterDef::kMVFile)
-			{*/
-				filePath = modelInput[i].GetFilePath();
-			//}
-
-			fileList.push_back(filePath);
-		}
-	}
-
-	if (msg && !fileList.empty())
-	{
-		CStaticDataStream staticData;
-		msg = staticData.m_files.Load(fileList);
-		if (msg)
-			msg = staticData.WriteStream(stream);
-	}
-
-
-	return msg;
-
-}
+//
+//ERMsg CModelExecution::LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream)
+//{
+//	ERMsg msg;
+//
+//
+//	StringVector fileList;
+//
+//	CModelInputParameterDefVector inputDef=model.GetInputDefinition(true);
+//
+//	for (size_t i = 0; i<inputDef.size(); i++)
+//	{
+//		if (/*inputDef[i].IsExtendedList() || */inputDef[i].GetType() == CModelInputParameterDef::kMVFile)
+//		{
+//			string filePath;
+//			/*if (inputDef[i].IsExtendedList())
+//			{
+//				int defPos = ToInt(inputDef[i].m_default);
+//				StringVector listOfParam = inputDef[i].GetList(fileManager.GetAppPath(), fileManager.GetProjectPath());
+//				filePath = SpecialPath2FilePath(listOfParam[1], );
+//
+//			}
+//			else if (inputDef[i].GetType() == CModelInputParameterDef::kMVFile)
+//			{*/
+//				filePath = modelInput[i].GetFilePath();
+//			//}
+//
+//			fileList.push_back(filePath);
+//		}
+//	}
+//
+//	if (msg && !fileList.empty())
+//	{
+//		CStaticDataStream staticData;
+//		msg = staticData.m_files.Load(fileList);
+//		if (msg)
+//			msg = staticData.WriteStream(stream);
+//	}
+//
+//
+//	return msg;
+//
+//}
 
 //const CWGInput& WGInput,
 

@@ -18,6 +18,7 @@
 //              seasonal biology. 
 //
 //*****************************************************************************
+// 06/04/2017	1.1.3	Rémi Saint-Amant	Recompile
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 04/03/2015	1.0.1	Rémi Saint-Amant	Update with BioSIM 11
 // 17/04/2014	1.0.0	Jacques Regniere	Start
@@ -53,9 +54,9 @@ namespace WBSF
 	//final output vector
 
 
-	enum TOuput{ O_EGG, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULT, O_DEAD_ADULT, O_AVERAGE_INSTAR, O_BROOD, O_NB_FEMALE, O_DEAD_ATTRITION, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_OUTPUT };
+	enum TOuput{ O_EGG, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULT, O_DEAD_ADULT, O_AVERAGE_INSTAR, O_BROOD, O_NB_FEMALE, O_DEAD_ATTRITION, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_DAILY_OUTPUTS };
 	extern const char DAILY_HEADER[] = "Egg,L1,L2,L3,L4,Pupa,Adult,DeadAdult,AverageInstar,Brood,NbFemale,DeadAttrition,DeadOverwinter,Sw,Se,Sc,Sh";
-	typedef CModelStatVectorTemplate<NB_OUTPUT, DAILY_HEADER> CDailyOutputVector;
+	//typedef CModelStatVectorTemplate<NB_OUTPUT, DAILY_HEADER> CDailyOutputVector;
 
 	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
 	extern const char ANNUAL_HEADER[] = "GrowthRate";
@@ -68,7 +69,7 @@ namespace WBSF
 		//uses the same number of parameters as the model interface
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 19 : 1;
-		VERSION = "1.0.2 (2015) x64";
+		VERSION = "1.0.3 (2017)";
 
 		m_bApplyMortality = true;
 		//m_bFertilEgg=false;	//If female is fertile, eggs will be added to the developement
@@ -128,9 +129,8 @@ namespace WBSF
 		GetDailyStat(stat);
 
 		//fill output result
-		CDailyOutputVector output;
-		ComputeRegularStat(stat, output);
-		m_output.swap(output); //avoid copying data
+		//CDailyOutputVector output;
+		ComputeRegularStat(stat, m_output);
 
 		return msg;
 	}
@@ -280,8 +280,8 @@ namespace WBSF
 
 	void CHLModel::ComputeRegularStat(CModelStatVector& stat, CModelStatVector& output)
 	{
-		output.resize(stat.size());
-		output.SetFirstTRef(stat.GetFirstTRef());
+		output.Init(stat.GetTPeriod(), NB_DAILY_OUTPUTS, 0, DAILY_HEADER);
+		//output.SetFirstTRef(stat.GetFirstTRef());
 
 		for (size_t d = 0; d < stat.size(); d++)
 		{

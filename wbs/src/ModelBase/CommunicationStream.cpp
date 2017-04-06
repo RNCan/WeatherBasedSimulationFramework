@@ -482,6 +482,7 @@ namespace WBSF
 		UINT64 nbSections = read_value<UINT64>(stream);
 		UINT64 sectionsNo = read_value<UINT64>(stream);
 		UINT64 nbFiles = read_value<UINT64>(stream);
+		UINT64 totalSize = read_value<UINT64>(stream);
 		assert(version == 1);
 		assert(nbSections == NB_SECTIONS);
 		assert(sectionsNo == FILES);

@@ -90,7 +90,7 @@ namespace WBSF
 
 
 		static void InitValidationOptimisation();
-		static ERMsg LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream);
+		//static ERMsg LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream);
 
 
 	protected:

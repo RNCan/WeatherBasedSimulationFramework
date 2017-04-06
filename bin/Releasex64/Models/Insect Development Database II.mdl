@@ -6,7 +6,7 @@
     <EXE>Insect Development Database II.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
-    <WindowRect>0 0 107 583</WindowRect>
+    <WindowRect>0 0 115 583</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -21,9 +21,9 @@
             <Type>7</Type>
             <Rect>10 10 30 555</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <DefaultValue>Acrolepiopsis assectella (Leek moth)</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
             <TextValue>[Models Path]\Insect Development Database II.csv;0;0</TextValue>
         </InputVariable>
         <InputVariable>
@@ -38,10 +38,30 @@
             <MaxValue>999</MaxValue>
             <TextValue/>
         </InputVariable>
+        <InputVariable>
+            <Name>InputFile</Name>
+            <Caption>InputFile</Caption>
+            <Description/>
+            <Type>4</Type>
+            <Rect>115 10 140 555</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>[Models Path]\Insect Development Database II.csv</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description>Degres-day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
         <OutputVariable>
             <Name>Egg</Name>
             <Title>Egg</Title>

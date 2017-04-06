@@ -34,7 +34,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		//	NB_INPUT_PARAMETER=8;//7 or 8 param
-		VERSION = "3.1.0 (2016)";
+		VERSION = "3.1.1 (2017)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;

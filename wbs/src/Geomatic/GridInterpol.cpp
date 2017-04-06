@@ -420,6 +420,17 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 
 		//Get Xvalidation with good parameter
 		msg = m_pGridInterpol->GetXValidation(m_XValidation, callback);
+		
+		//replace noData by VMISS
+		for (CXValidationVector::iterator it = m_XValidation.begin(); it != m_XValidation.end(); it++)
+		{
+			if (fabs(it->m_observed - m_param.m_noData) < 0.1)
+				it->m_observed = VMISS;
+
+			if (fabs(it->m_predicted - m_param.m_noData) < 0.1)
+				it->m_predicted = VMISS;
+		}
+			
 
 		//update
 		if( msg )
@@ -435,7 +446,8 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			//push back removed point with VMISS data
 			if( !m_trimPosition.empty() )
 			{
-				CXvalTuple empty(m_param.m_noData, m_param.m_noData);
+				CXvalTuple empty(VMISS, VMISS);
+				
 				for(vector<size_t>::const_reverse_iterator p=m_trimPosition.rbegin(); p!=m_trimPosition.rend(); p++)
 				{
 					m_XValidation.insert(m_XValidation.begin()+*p, empty);
@@ -443,7 +455,7 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			}
 	
 			CStatisticXY stat;
-			m_XValidation.GetStatistic(stat, m_param.m_noData);
+			m_XValidation.GetStatistic(stat, VMISS);
 		
 			string comment = FormatMsg(IDS_MAP_METHOD_CHOOSE, GetMethodName(), ToString(stat[COEF_D], 4).c_str() );
 			callback.AddMessage(comment);

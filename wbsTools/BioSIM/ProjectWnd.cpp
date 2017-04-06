@@ -330,7 +330,7 @@ void CProjectWnd::OnShowMaps()
 						{
 							string fileName = pMapping->GetTEMName(pResult, p, r, t, v);
 							string filePath = pMapping->GetTEMFilePath(GetFM(), fileName);
-							if (FileExists(filePath) || DirectoryExists(filePath))
+							if (WBSF::FileExists(filePath))
 								WBSF::CallApplication(CRegistry::SHOWMAP, filePath, GetSafeHwnd(), SW_SHOW);
 						}
 					}

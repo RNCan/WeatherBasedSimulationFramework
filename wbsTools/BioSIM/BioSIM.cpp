@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // version de BioSIM  
-// 11.2.5: 02/03/2016	Rémi Saint-Amant	Simplification of the ATM module
+// 11.2.6: 05/04/2017	Rémi Saint-Amant	Bug correction in mapping Xvalidation with noData and VMISS
+//											Bug correction model file transfer
+// 11.2.5: 02/03/2016	Rémi Saint-Amant	Simplification of the ATM module 
 // 11.2.4: 16/02/2016	Rémi Saint-Amant	Bug correction atmospheric pressure  
 //											Change in callback  
 // 11.2.3: 10/01/2017	Rémi Saint-Amant	New dispersal 
