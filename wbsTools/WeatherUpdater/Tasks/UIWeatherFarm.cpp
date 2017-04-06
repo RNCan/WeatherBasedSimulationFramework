@@ -144,13 +144,12 @@ namespace WBSF
 		//http://weatherfarm.com/feeds/historical-data/?date-range=today&station-id=P1098&from-date=03/29/2017&to-date=03/29/2017&report-type=hourly
 		//http://weatherfarm.com/feeds/historical-data/?date-range=yesterday&station-id=P1098&from-date=03/28/2017&to-date=03/28/2017&report-type=hourly
 		//http://weatherfarm.com/feeds/historical-data/?date-range=last2days&station-id=P1098&from-date=03/28/2017&to-date=03/29/2017&report-type=hourly
-		//http://weatherfarm.com/feeds/historical-data/?date-range=last5days&station-id=P1053&from-date=04/01/2017&to-date=04/05/2017&report-type=hourly
+		//http://weatherfarm.com/feeds/historical-data/?date-range=last5days&station-id=P0108&from-date=04/01/2017&to-date=04/05/2017&report-type=hourly
 		//
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P0590
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P1098
 		//http://weatherfarm.com/feeds/set-current-station?station_id=P1098
-		//http://weatherfarm.com/feeds/set-current-station?station_id=P1053
-
+		//http://weatherfarm.com/feeds/set-current-station?station_id=P0108
 
 		int RANGE_SHIFT[NB_DATE_RANGES][2] = { { 0, 0 }, { 1, 1 }, { 0, 2 }, { 0, 5 } };
 
@@ -265,7 +264,7 @@ namespace WBSF
 														if (VARIABLES[c] != H_SKIP)
 														{
 															string v1 = it2->string_value();
-															if (!v1.empty())
+															if (!v1.empty() && v1 != "--")
 															{
 																double v2 = ToDouble(v1);
 																if (VARIABLES[c] == H_WNDD)
@@ -275,14 +274,18 @@ namespace WBSF
 																}
 																	
 																if (IsValid(VARIABLES[c], v2))
+																{
 																	data[TRef].SetStat(VARIABLES[c], v2);
 
-																//compute Tdew
-																if (VARIABLES[c] == H_RELH && !data[TRef][H_TAIR2].empty())
-																	data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(data[TRef][H_TAIR2][MEAN], v2));
+																	//compute Tdew
+																	if (VARIABLES[c] == H_RELH && data[TRef][H_TAIR2].IsInit())
+																		data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(data[TRef][H_TAIR2][MEAN], v2));
+																}
 															}
 														}
 													}//for all values
+
+													
 												}//if TRef is init
 											}//if it's the same number of columns
 										}//for all records
