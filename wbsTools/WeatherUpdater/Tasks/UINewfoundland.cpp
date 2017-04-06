@@ -333,8 +333,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		enum TColumns { C_NAME, C_DATE_TIME, C_TAIR, C_RELH, C_WNDS, C_WNDD, C_RAIN24, NB_COLUMNS };
-		static const TVarH COL_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP};
+		enum TColumns { C_NAME, C_DATE_TIME, C_TAIR, CTMIN, C_TMAX, C_RELH, C_WNDS, C_WNDD, C_RAIN24, NB_COLUMNS };
+		static const TVarH COL_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_TAIR2, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 		
 		//now extract data 
 		ifStream file;

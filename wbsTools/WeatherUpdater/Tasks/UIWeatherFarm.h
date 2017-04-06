@@ -54,10 +54,12 @@ namespace WBSF
 		std::string GetStationsListFilePath()const;
 		ERMsg GetAgriFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(const std::string& stationName, int year)const;
-		
-		static CTRef GetTRef(std::string str);
 
 		CLocationVector m_stations;
+
+		static CTRef GetTRef(std::string str);
+		static bool IsValid(HOURLY_DATA::TVarH v, double value);
+
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

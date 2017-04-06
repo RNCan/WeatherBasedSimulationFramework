@@ -274,8 +274,8 @@ namespace WBSF
 																	ASSERT(v2 != -999);
 																}
 																	
-
-																data[TRef].SetStat(VARIABLES[c], v2);
+																if (IsValid(VARIABLES[c], v2))
+																	data[TRef].SetStat(VARIABLES[c], v2);
 
 																//compute Tdew
 																if (VARIABLES[c] == H_RELH && !data[TRef][H_TAIR2].empty())
@@ -560,4 +560,21 @@ namespace WBSF
 
 	}
 
+	bool CUIWeatherFarm::IsValid(TVarH v, double value)
+	{
+		bool bValid = true;
+		switch (v)
+		{
+		case H_TMIN2:
+		case H_TAIR2:
+		case H_TMAX2:
+		case H_TDEW: bValid = value >= -50 && value <= 50; break;
+		case H_PRCP: bValid = value >= 0 && value < 300; break;
+		case H_RELH: bValid = value > 0 && value <= 100; break;//ignore zero values
+		case H_WNDS: bValid = value >= 0 && value <= 110; break;
+		case H_WNDD: bValid = value >= 0 && value <= 360; break;
+		}
+
+		return bValid;
+	}
 }

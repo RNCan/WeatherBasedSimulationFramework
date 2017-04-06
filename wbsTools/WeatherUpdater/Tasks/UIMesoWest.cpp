@@ -104,341 +104,6 @@ namespace WBSF
 		return ouputPath;
 	}
 
-	static string PurgeName(string str)
-	{
-		string::size_type pos = str.find_last_of(",");
-		
-		str = str.substr(0, pos - 1);
-		ReplaceString(str, ",", "");
-		ReplaceString(str, ";", "");
-		ReplaceString(str, "\"", "");
-		ReplaceString(str, ".", "");
-		ReplaceString(str, "?", "");
-
-		Trim(str);
-
-		return str;
-	}
-
-	/*CTPeriod  GetPeriod(string str)
-	{
-
-	CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
-	string period = "" : {
-		"start": "1970-01-01T00:00:00Z",
-			"end" : "2017-04-05T14:00:00Z"
-	}*/
-
-	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
-	{
-		ERMsg msg;
-
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-		//a faire avec JSON
-		///v2/stations/metadata?token=635d9802c84047398d1392062e39c960
-
-		msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
-		if (msg)
-		{
-			//v2/stations/metadata?complete=1&state=QC&token=635d9802c84047398d1392062e39c960
-			std::map<string, string> networks;
-			{
-
-
-				string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
-
-				string source;
-				msg = GetPageText(pConnection, URL, source);
-				if (msg)
-				{
-					string error;
-					const Json& root = Json::parse(source, error);
-					if (error.empty())
-					{
-						ASSERT(root["MNET"].type() == Json::ARRAY);
-						const std::vector<Json>& nets = root["MNET"].array_items();
-						
-						for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
-							networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
-					}
-				}
-			}
-
-
-			string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
-
-			string source;
-			msg = GetPageText(pConnection, URL, source);
-			if (msg)
-			{
-				string error;
-				const Json& root = Json::parse(source, error);
-				if (error.empty())
-				{
-
-					ASSERT(root["STATION"].type() == Json::ARRAY);
-					const std::vector<Json>& stations = root["STATION"].array_items();
-
-
-					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
-					for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
-					{
-						CLocation location;
-
-						
-
-						location.m_name = PurgeName((*it)["NAME"].string_value());
-						location.m_ID = (*it)["STID"].string_value();
-						location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
-						location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
-						location.m_alt = WBSF::as<double>((*it)["ELEVATION"].string_value());
-						
-
-						string country = (*it)["COUNTRY"].string_value();
-						string state = (*it)["STATE"].string_value();
-						string time_zone = (*it)["TIMEZONE"].string_value();
-						string id = (*it)["ID"].string_value();
-						string status = (*it)["STATUS"].string_value();
-						string network = (*it)["SHORTNAME"].string_value();
-						string networkID = (*it)["MNET_ID"].string_value();
-						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
-						//CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
-						
-						if (state == "NF")
-							state = "NL";
-
-						if (country.empty())
-						{
-							if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
-								country = "CA";
-							else if (CStateSelection::GetState(state) != UNKNOWN_POS)
-								country = "US";
-							else
-								country = "--";
-						}
-						
-						if (network.empty() && !networkID.empty())
-							network = networks[networkID];
-								
-						location.SetSSI("Status", status);
-						location.SetSSI("Country", country);
-						location.SetSSI("State", state);
-						location.SetSSI("Network", network);
-						location.SetSSI("NetworkID", networkID);
-						location.SetSSI("TimeZone", time_zone);
-						location.SetSSI("Start", start);
-						
-
-						stationList.push_back(location);
-
-						msg += callback.StepIt();
-					}//for all stations
-
-					callback.PopTask();
-				}//if error
-				else
-				{
-					msg.ajoute(error);
-				}
-			}//if msg
-		}//if msg
-	
-		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-
-
-
-
-		//msg += GetHttpConnection("mesowest.utah.edu", pConnection, pSession);
-		//if (msg)
-		//{
-		//	string URL = "cgi-bin/droman/meso_station.cgi";
-
-		//	string source;
-		//	msg = GetPageText(pConnection, URL, source);
-		//	if (msg)
-		//	{
-		//		string::size_type b = source.find("<PRE>");
-		//		string::size_type e = source.find("</PRE>");
-		//		if (b != string::npos && e != string::npos)
-		//		{
-		//			b += 5;
-		//			source = source.substr(b, e - b);
-		//			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", e);
-		//			callback.SetCurrentStepPos(b);
-
-		//			string::size_type posBegin = source.find("<A");
-		//			while (posBegin != string::npos)
-		//			{
-		//				string ID = FindString(source, ">", "</A>", posBegin);
-		//				string line = FindString(source, "</A>", "\n", posBegin);
-
-		//				CLocation loc;
-		//				loc.m_ID = TrimConst(ID);
-
-		//				loc.m_name = UppercaseFirstLetter(PurgeName(line.substr(0, 35)));
-		//				string state = TrimConst(line.substr(35 + 1, 3));
-		//				if (state == "NF")
-		//					state = "NL";
-
-		//				string country;
-		//				if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
-		//					country = "Canada";
-		//				else if (CStateSelection::GetState(state) != UNKNOWN_POS)
-		//					country = "Usa";
-		//				else
-		//					country = "Other";
-
-		//				loc.SetSSI("Country", country);
-		//				loc.SetSSI("State", state);
-		//				loc.m_lat = ToDouble(line.substr(35 + 1 + 3 + 1, 10));
-		//				loc.m_lon = ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1, 12));
-		//				loc.m_alt = WBSF::Feet2Meter(ToDouble(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1, 6)));
-		//				loc.SetSSI("Network", TrimConst(line.substr(35 + 1 + 3 + 1 + 10 + 1 + 12 + 1 + 6 + 1 + 3)));
-
-
-
-		//				stationList.push_back(loc);
-
-
-		//				posBegin = source.find("<A", posBegin);
-		//				msg += callback.SetCurrentStepPos(posBegin);
-		//			}
-
-		//			callback.PopTask();
-		//		}//while
-		//	}
-		//}//if msg
-
-		//callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-
-
-
-		pConnection->Close();
-		pSession->Close();
-
-
-		return msg;
-	}
-
-
-
-	//Variable	Description	English Units	Metric Units
-	//T10M	Air Temperature at 10 meters	° F	° C
-	//TMPF	Temperature	° F	° C
-	//T2M	Air Temperature at 2 meters	° F	° C
-	//MTMP	Temperature	° F	° C
-	//HI24	24 Hr High Temperature	° F	° C
-	//LO24	24 Hr Low Temperature	° F	° C
-
-	//P01I	Precipitation 1hr	 in	 cm
-	//P01M	Precipitation 1hr manual	 in	 cm
-	//P24I	Precipitation 24hr	 in	 cm
-	//P24M	Precipitation 24hr manual	 in	 cm
-	//PREC	Precipitation accumulated	 in	 cm
-	//PREM	Precipitation manual	 in	 cm
-
-	//DWPF	Dewpoint	° F	° C
-	//MDWP	Dew Point	° F	° C
-	//MRH	Relative Humidity	%	%
-	//RELH	Relative Humidity	%	%
-
-	//MSKT	Wind Speed	 mph	 m/s
-	//SKNT	Wind Speed	 mph	 m/s
-	//DRCT	Wind Direction	°	°
-	//MDIR	Wind Direction	°	°
-	//PDIR	Peak Wind Direction	°	°
-	//PEAK	Peak Wind Speed	 mph	 m/s
-
-	//CSLR	Clear Sky Solar Radiation	 W/m*m	 W/m*m
-	//INLW	Incoming Longwave Radiation	 W/m*m	 W/m*m
-	//NETL	Net Longwave Radiation	 W/m*m	 W/m*m
-	//NETR	Net Radiation	 W/m*m	 W/m*m
-	//NETS	Net Shortwave Radiation	 W/m*m	 W/m*m
-	//OUTL	Outgoing Longwave Radiation	 W/m*m	 W/m*m
-	//OUTS	Outgoing Shortwave Radiation	 W/m*m	 W/m*m
-	//SOLR	Solar Radiation	 W/m*m	 W/m*m
-
-	//ALTI	Altimeter	 in	 mb
-	//MPRS	Pressure	 in ° F	 mb
-	//PMSL	Sea level pressure	 in	 mb
-	//PRES	Pressure	 in	 mb
-
-	//SNOM	Snow manual	 in	 cm
-	//SNOW	Snow depth	 in	 cm
-	//SSTM	Snowfall	 in	 cm
-	//WEQS	Snow water equivalent	 in	 cm
-
-	//MSO2	Soil Moisture 2	%	%
-	//MSOI	Soil Moisture	%	%
-	//VSBY	Visibility	 miles	 km
-
-
-	TVarH CUIMesoWest::GetVar(const string& str)
-	{
-		TVarH v = H_SKIP;
-
-		string::size_type pos = str.find("_set_");
-		if (pos != string::npos)
-		{
-			string tmp = str.substr(0, pos);
-			enum { LO24, T2M, HI24, PMID, MDWP, RELH, MSKT, MDIR, SOLR, PRES, SNOW, WEQS, NB_VARS };
-
-			static const char* VAR_NAME[NB_VARS] = { "air_temp_high_24_hour", "air_temp", "air_temp_low_24_hour", "precip_accum_since_local_midnight", "dew_point_temperature", "relative_humidity", "wind_speed", "wind_direction", "solar_radiation", "pressure", "snow_depth", "snow_water_equivalent" };
-			static const TVarH VAR_TYPE[NB_VARS] = { H_TMIN2, H_TAIR2, H_TMAX2, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD2, H_PRES, H_SNDH, H_SWE };
-
-			for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
-			{
-				if (IsEqual(tmp, VAR_NAME[vv]))
-					v = VAR_TYPE[vv];
-			}
-
-		}
-
-
-		return v;
-	}
-
-	bool CUIMesoWest::IsUnknownVar(const string& str)
-	{
-		bool bUnknown = false;
-
-		string::size_type pos = str.find("_set_");
-		if (pos != string::npos)
-		{
-			bUnknown = true;
-
-			string tmp = str.substr(pos);
-
-			static const char* VAR_NAME_UNUSED[] = { "altimeter", "pressure_tendency", "pressure_change_code", "wind_gust", "peak_wind_speed", "peak_wind_direction", "wind_cardinal_direction", "visibility", "heat_index", "weather_condition", "metar_remark", "metar", "wind_chill" };
-			static const size_t NB_UNUSEDS = sizeof(VAR_NAME_UNUSED) / sizeof(char*);
-
-			for (size_t v = 0; v < NB_UNUSEDS&&bUnknown; v++)
-			{
-				if (IsEqual(tmp, VAR_NAME_UNUSED[v]))
-					bUnknown = false;
-			}
-		}
-
-		return bUnknown;
-	}
-
-
-	std::vector<HOURLY_DATA::TVarH > CUIMesoWest::GetVariables(const StringVector& header)
-	{
-		std::vector<HOURLY_DATA::TVarH > variables(header.size());
-
-		for (size_t v = 0; v < header.size(); v++)
-			variables[v] = GetVar(header[v]);
-
-
-		ASSERT(variables.size() == header.size());
-
-		return variables;
-	}
-
-
 	//******************************************************
 	ERMsg CUIMesoWest::Execute(CCallback& callback)
 	{
@@ -676,20 +341,7 @@ namespace WBSF
 		return IsEqual( network, "Canada");
 	}
 
-	/*CLocationVector CUIMesoWest::GetCommonStations(const CLocationVector& stationListTmp)
-	{
-		CLocationVector stationList;
-		stationList.reserve(stationListTmp.size());
-		for (CLocationVector::const_iterator it = stationListTmp.begin(); it != stationListTmp.end(); it++)
-		{
-			string network = it->GetSSI("Network");
-			if (!IsCommonStation(network))
-				stationList.push_back(*it);
-		}
-
-		return stationList;
-	}
-*/
+	
 	CTRef CUIMesoWest::GetTRef(const string& str)
 	{
 		StringVector e(str,"-T:+");
@@ -859,7 +511,280 @@ namespace WBSF
 		return msg;
 	}
 
-		
+
+
+	static string PurgeName(string str)
+	{
+		string::size_type pos = str.find_last_of(",");
+
+		str = str.substr(0, pos - 1);
+		ReplaceString(str, ",", "");
+		ReplaceString(str, ";", "");
+		ReplaceString(str, "\"", "");
+		ReplaceString(str, ".", "");
+		ReplaceString(str, "?", "");
+
+		Trim(str);
+
+		return str;
+	}
+
+	/*CTPeriod  GetPeriod(string str)
+	{
+
+	CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
+	string period = "" : {
+	"start": "1970-01-01T00:00:00Z",
+	"end" : "2017-04-05T14:00:00Z"
+	}*/
+
+	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		//a faire avec JSON
+		///v2/stations/metadata?token=635d9802c84047398d1392062e39c960
+
+		msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
+		if (msg)
+		{
+			//v2/stations/metadata?complete=1&state=QC&token=635d9802c84047398d1392062e39c960
+			std::map<string, string> networks;
+			{
+
+
+				string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
+
+				string source;
+				msg = GetPageText(pConnection, URL, source);
+				if (msg)
+				{
+					string error;
+					const Json& root = Json::parse(source, error);
+					if (error.empty())
+					{
+						ASSERT(root["MNET"].type() == Json::ARRAY);
+						const std::vector<Json>& nets = root["MNET"].array_items();
+
+						for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
+							networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
+					}
+				}
+			}
+
+
+			string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
+
+			string source;
+			msg = GetPageText(pConnection, URL, source);
+			if (msg)
+			{
+				string error;
+				const Json& root = Json::parse(source, error);
+				if (error.empty())
+				{
+
+					ASSERT(root["STATION"].type() == Json::ARRAY);
+					const std::vector<Json>& stations = root["STATION"].array_items();
+
+
+					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
+					for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+					{
+						CLocation location;
+
+
+
+						location.m_name = PurgeName((*it)["NAME"].string_value());
+						location.m_ID = (*it)["STID"].string_value();
+						location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
+						location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
+						location.m_alt = WBSF::as<double>((*it)["ELEVATION"].string_value());
+
+
+						string country = (*it)["COUNTRY"].string_value();
+						string state = (*it)["STATE"].string_value();
+						string time_zone = (*it)["TIMEZONE"].string_value();
+						string id = (*it)["ID"].string_value();
+						string status = (*it)["STATUS"].string_value();
+						string network = (*it)["SHORTNAME"].string_value();
+						string networkID = (*it)["MNET_ID"].string_value();
+						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
+
+						if (state == "NF")
+							state = "NL";
+
+						if (country.empty())
+						{
+							if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
+								country = "CA";
+							else if (CStateSelection::GetState(state) != UNKNOWN_POS)
+								country = "US";
+							else
+								country = "--";
+						}
+
+						if (network.empty() && !networkID.empty())
+							network = networks[networkID];
+
+						if (location.m_ID == "A1139")//alien station
+						{
+							country = "US";
+							state = "WY";
+						}
+
+						location.SetSSI("Status", status);
+						location.SetSSI("Country", country);
+						location.SetSSI("State", state);
+						location.SetSSI("Network", network);
+						location.SetSSI("NetworkID", networkID);
+						location.SetSSI("TimeZone", time_zone);
+						location.SetSSI("Start", start);
+
+
+						stationList.push_back(location);
+
+						msg += callback.StepIt();
+					}//for all stations
+
+					callback.PopTask();
+				}//if error
+				else
+				{
+					msg.ajoute(error);
+				}
+			}//if msg
+		}//if msg
+
+		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+
+		pConnection->Close();
+		pSession->Close();
+
+
+		return msg;
+	}
+
+
+
+	//Variable	Description	English Units	Metric Units
+	//T10M	Air Temperature at 10 meters	° F	° C
+	//TMPF	Temperature	° F	° C
+	//T2M	Air Temperature at 2 meters	° F	° C
+	//MTMP	Temperature	° F	° C
+	//HI24	24 Hr High Temperature	° F	° C
+	//LO24	24 Hr Low Temperature	° F	° C
+
+	//P01I	Precipitation 1hr	 in	 cm
+	//P01M	Precipitation 1hr manual	 in	 cm
+	//P24I	Precipitation 24hr	 in	 cm
+	//P24M	Precipitation 24hr manual	 in	 cm
+	//PREC	Precipitation accumulated	 in	 cm
+	//PREM	Precipitation manual	 in	 cm
+
+	//DWPF	Dewpoint	° F	° C
+	//MDWP	Dew Point	° F	° C
+	//MRH	Relative Humidity	%	%
+	//RELH	Relative Humidity	%	%
+
+	//MSKT	Wind Speed	 mph	 m/s
+	//SKNT	Wind Speed	 mph	 m/s
+	//DRCT	Wind Direction	°	°
+	//MDIR	Wind Direction	°	°
+	//PDIR	Peak Wind Direction	°	°
+	//PEAK	Peak Wind Speed	 mph	 m/s
+
+	//CSLR	Clear Sky Solar Radiation	 W/m*m	 W/m*m
+	//INLW	Incoming Longwave Radiation	 W/m*m	 W/m*m
+	//NETL	Net Longwave Radiation	 W/m*m	 W/m*m
+	//NETR	Net Radiation	 W/m*m	 W/m*m
+	//NETS	Net Shortwave Radiation	 W/m*m	 W/m*m
+	//OUTL	Outgoing Longwave Radiation	 W/m*m	 W/m*m
+	//OUTS	Outgoing Shortwave Radiation	 W/m*m	 W/m*m
+	//SOLR	Solar Radiation	 W/m*m	 W/m*m
+
+	//ALTI	Altimeter	 in	 mb
+	//MPRS	Pressure	 in ° F	 mb
+	//PMSL	Sea level pressure	 in	 mb
+	//PRES	Pressure	 in	 mb
+
+	//SNOM	Snow manual	 in	 cm
+	//SNOW	Snow depth	 in	 cm
+	//SSTM	Snowfall	 in	 cm
+	//WEQS	Snow water equivalent	 in	 cm
+
+	//MSO2	Soil Moisture 2	%	%
+	//MSOI	Soil Moisture	%	%
+	//VSBY	Visibility	 miles	 km
+
+
+	TVarH CUIMesoWest::GetVar(const string& str)
+	{
+		TVarH v = H_SKIP;
+
+		string::size_type pos = str.find("_set_");
+		if (pos != string::npos)
+		{
+			string tmp = str.substr(0, pos);
+			enum { LO24, T2M, HI24, PMID, MDWP, RELH, MSKT, MDIR, SOLR, PRES, SNOW, WEQS, NB_VARS };
+
+			static const char* VAR_NAME[NB_VARS] = { "air_temp_high_24_hour", "air_temp", "air_temp_low_24_hour", "precip_accum_since_local_midnight", "dew_point_temperature", "relative_humidity", "wind_speed", "wind_direction", "solar_radiation", "pressure", "snow_depth", "snow_water_equivalent" };
+			static const TVarH VAR_TYPE[NB_VARS] = { H_TMIN2, H_TAIR2, H_TMAX2, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD2, H_PRES, H_SNDH, H_SWE };
+
+			for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
+			{
+				if (IsEqual(tmp, VAR_NAME[vv]))
+					v = VAR_TYPE[vv];
+			}
+
+		}
+
+
+		return v;
+	}
+
+	bool CUIMesoWest::IsUnknownVar(const string& str)
+	{
+		bool bUnknown = false;
+
+		string::size_type pos = str.find("_set_");
+		if (pos != string::npos)
+		{
+			bUnknown = true;
+
+			string tmp = str.substr(pos);
+
+			static const char* VAR_NAME_UNUSED[] = { "altimeter", "pressure_tendency", "pressure_change_code", "wind_gust", "peak_wind_speed", "peak_wind_direction", "wind_cardinal_direction", "visibility", "heat_index", "weather_condition", "metar_remark", "metar", "wind_chill" };
+			static const size_t NB_UNUSEDS = sizeof(VAR_NAME_UNUSED) / sizeof(char*);
+
+			for (size_t v = 0; v < NB_UNUSEDS&&bUnknown; v++)
+			{
+				if (IsEqual(tmp, VAR_NAME_UNUSED[v]))
+					bUnknown = false;
+			}
+		}
+
+		return bUnknown;
+	}
+
+
+	std::vector<HOURLY_DATA::TVarH > CUIMesoWest::GetVariables(const StringVector& header)
+	{
+		std::vector<HOURLY_DATA::TVarH > variables(header.size());
+
+		for (size_t v = 0; v < header.size(); v++)
+			variables[v] = GetVar(header[v]);
+
+
+		ASSERT(variables.size() == header.size());
+
+		return variables;
+	}
+
+
 //
 //Air Temperature at 10 meter		°C	T10M
 //Temperature						°C	TMPF
