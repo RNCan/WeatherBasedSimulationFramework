@@ -613,8 +613,6 @@ namespace WBSF
 
 		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
 
-		int nbRun = 0;
-
 		int nbFiles = 0;
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -622,71 +620,50 @@ namespace WBSF
 		msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 		if (msg)
 		{
-			TRY
+			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-				for (size_t i = 0; i < fileList.size() && msg; i++)
+				for (size_t y = 0; y < nbYears&&msg; y++)
 				{
-					for (size_t y = 0; y < nbYears&&msg; y++)
+					int year = firstYear + int(y);
+
+					string filePath = GetOutputFilePath(AGRI, fileList[i], year);
+					CreateMultipleDir(GetPath(filePath));
+					if (year == currentTRef.GetYear() || !FileExists(filePath))
 					{
-						int year = firstYear + int(y);
+						string str;
+						msg = DownloadStation(pConnection, fileList[i], year, str);
 
-						string filePath = GetOutputFilePath(AGRI, fileList[i], year);
-						CreateMultipleDir(GetPath(filePath));
-						if (year == currentTRef.GetYear() || !FileExists(filePath))
+						//split data in seperate files
+						if (msg)
 						{
-							string str;
-							msg = DownloadStation(pConnection, fileList[i], year, str);
+							string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
+							string::size_type pos2 = str.find("</table>", pos1);
 
-							//split data in seperate files
-							if (msg)
+							if (pos1 != string::npos && pos2 != string::npos)
 							{
-								string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
-								string::size_type pos2 = str.find("</table>", pos1);
-
-								if (pos1 != string::npos && pos2 != string::npos)
-								{
-									string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
-									msg += SaveStation(filePath, tmp);
-									nbFiles++;
-								}
-								else
-								{
-									ofStream file;
-									file.open(filePath);
-									file.close();
-								}
+								string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
+								msg += SaveStation(filePath, tmp);
+								nbFiles++;
 							}
-
-
-							msg += callback.StepIt();
+							else
+							{
+								ofStream file;
+								file.open(filePath);
+								file.close();
+							}
 						}
 
 
-					}//year
-				}
-			}
-				CATCH_ALL(e)
-			{
-				msg = UtilWin::SYGetMessage(*e);
-			}
-			END_CATCH_ALL
-
-				//if an error occur: try again
-				if (!msg && !callback.GetUserCancel())
-				{
-					if (nbRun < 5)
-					{
-						callback.AddMessage(msg);
-						msg.asgType(ERMsg::OK);
-						Sleep(1000);//wait 1 sec
-					}
-				}
+						msg += callback.StepIt();
+					}//update only this years
+				}//for all years
+			}//for all files
 
 			//clean connection
 			pConnection->Close();
 			pSession->Close();
-		}
-		//}
+		}//if msg
+
 
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
@@ -716,7 +693,7 @@ namespace WBSF
 		callback.PushTask("Download New Brunswick data (" + ToString(fileList.size()) + " files)", fileList.size());
 
 
-		size_t curI = 0;
+		size_t nbFiles = 0;
 		bool bDownloaded = false;
 		int year = CTRef::GetCurrentTRef().GetYear();
 
@@ -729,50 +706,41 @@ namespace WBSF
 		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 		if (msg)
 		{
-			TRY
+			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-				for (size_t i = curI; i < fileList.size() && msg; i++)
+				string outputFilePath;
+
+				if (n == FIRE_HISTORICAL)
 				{
-					string outputFilePath;
-
-					if (n == FIRE_HISTORICAL)
-					{
-						outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
-
-						
-					}
-					else if (n == FIRE)
-					{
-						string ID = GetFileTitle(fileList[i].m_filePath);
-						outputFilePath = GetOutputFilePath(FIRE, ID, year);
-					}
-
-					WBSF::CreateMultipleDir(GetPath(outputFilePath));
-					msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath);
-					
-					if (msg)
-					{
-						curI++;
-						msg += callback.StepIt();
-					}
-					
+					outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
 				}
+				else if (n == FIRE)
+				{
+					string ID = GetFileTitle(fileList[i].m_filePath);
+					outputFilePath = GetOutputFilePath(FIRE, ID, year);
+				}
+
+				WBSF::CreateMultipleDir(GetPath(outputFilePath));
+				msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath);
+					
+				if (msg)
+				{
+					nbFiles++;
+					msg += callback.StepIt();
+				}
+					
 			}
-			CATCH_ALL(e)
-			{
-				msg = UtilWin::SYGetMessage(*e);
-			}
-			END_CATCH_ALL
 
 			//clean connection
 			pConnection->Close();
 			pSession->Close();
 		}
+		
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
+
 
 		if (n == FIRE_HISTORICAL)
 		{
-			//create stations list coordinate from files
-			
 			CLocationVector locations;
 			//load all station coordinates
 
@@ -835,12 +803,12 @@ namespace WBSF
 			}//for all file
 
 			string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
-			locations.Save(filePaht);
+			msg += locations.Save(filePaht);
 		}
 		
 
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+		
 		callback.PopTask();
 
 		return msg;

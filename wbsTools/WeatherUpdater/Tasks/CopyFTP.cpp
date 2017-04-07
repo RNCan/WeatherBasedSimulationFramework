@@ -86,9 +86,6 @@ namespace WBSF
 		if (direction == D_DOWNLOAD)
 			msg = CreateMultipleDir(GetPath(output));
 
-		//string password = Decrypt(m_password);
-
-
 		callback.PushTask("FTPTransfer", NOT_INIT);
 
 		string command = GetApplicationPath() + "External\\FTPTransfer.exe ";

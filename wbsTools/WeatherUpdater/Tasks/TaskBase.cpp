@@ -195,8 +195,8 @@ namespace WBSF
 				size_t t = Type(i);
 				if (t == T_PATH || t == T_FILEPATH)
 					value = GetRelativeFilePath(value);
-				else if (t== T_PASSWORD)
-					value = Encrypt(value);
+				//else if (t== T_PASSWORD)
+					//value = Encrypt(value);
 
 				p.setValue(value);
 			}
@@ -224,8 +224,8 @@ namespace WBSF
 
 				if (t == T_PATH || t == T_FILEPATH)
 					value = GetAbsoluteFilePath(value);
-				else if (t == T_PASSWORD )
-					value = Decrypt(value);
+				//else if (t == T_PASSWORD )
+					//value = Decrypt(value);
 			}
 
 			m_params[name] = value;
