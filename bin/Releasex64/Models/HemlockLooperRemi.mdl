@@ -39,8 +39,8 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg</Name>
-            <Title>Egg</Title>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -79,16 +79,16 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Pupa</Name>
-            <Title>Pupa</Title>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Adult</Name>
-            <Title>Adult</Title>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

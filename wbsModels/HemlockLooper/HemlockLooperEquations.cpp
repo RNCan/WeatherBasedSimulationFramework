@@ -29,17 +29,19 @@ namespace WBSF
 	//development rate parameters (6 stage, 6 parameters)
 	const double HemlockLooperEquations::DEFAULT_P[NB_STAGES - 1][NB_PARAM] =
 	{
-		//   rho	  Ha      Hl      Tl      Hh	 Th
+	//   rho	  Ha      Hl      Tl      Hh	 Th
 		0.1022, 13.22, -49.60, 279.6, 120.0, 303.8,	//Egg
 		0.2160, 10.37, -70.62, 282.8, 128.4, 303.6,	//L1
-		0.2720, 8.03, -70.79, 284.0, 216.9, 301.6,	//L2
-		0.2610, 6.30, -54.96, 285.4, 110.4, 301.8,	//L3 
+		0.2720, 8.030, -70.79, 284.0, 216.9, 301.6,	//L2
+		0.2610, 6.300, -54.96, 285.4, 110.4, 301.8,	//L3 
 		0.1170, -3.09, -56.98, 287.1, 483.0, 298.1,	//L4 
-		0.0770, 4.77, -56.00, 284.0, 100.0, 302.2,	//Pupa
+		0.0770, 4.770, -56.00, 284.0, 100.0, 302.2,	//Pupa
 	};
 
 
-	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1, 1, 1, 1, 1, 1 };
+	
+	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 };
+	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 	HemlockLooperEquations::HemlockLooperEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
@@ -65,7 +67,7 @@ namespace WBSF
 		static const double b[4] = { 0.00481, 0.0601, 0.02094, 0.0308 };
 
 		static const double L° = 50.633;
-		size_t e = (s == EGG) ? 0 : (s < PUPA) ? 1 : (s < ADULT) ? 2 : 3;
+		size_t e = (s == EGGS) ? 0 : (s < PUPAE) ? 1 : (s < ADULTS) ? 2 : 3;
 
 		//get rate from table lookup and adjust it in function of latitude
 		double r° = CEquationTableLookup::GetRate(s, T);
@@ -85,7 +87,7 @@ namespace WBSF
 
 		double r = 0;
 
-		if (s == ADULT) //Adult longevity
+		if (s == ADULTS) //Adult longevity
 		{
 			//Equation []
 			static const double a = 233.2;
@@ -124,7 +126,7 @@ namespace WBSF
 		ASSERT(sex == MALE || sex == FEMALE);
 
 		//Variability of egg development rate was 0.1172, and was multiplied by 0.5 to reflect the temperature dependence of this variability (smaller at cooler temperature)
-		//										     Egg      L1      L2      L3      L4     Pupa  Adult
+		//						       Egg       L1     L2     L3     L4   Pupae  Adult
 		const double σᵋ[NB_STAGES] = { 0.0586, 0.127, 0.246, 0.172, 0.150, 0.068, 0.314 };
 		const double Δρ[NB_SEX][NB_STAGES] =
 		{

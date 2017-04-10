@@ -17,7 +17,7 @@ namespace WBSF
 
 	namespace HemlockLooper
 	{
-		enum TStages{ EGG, L1, L2, L3, L4, PUPA, ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT };
+		enum TStages{ EGGS, L1, L2, L3, L4, PUPAE, ADULTS, DEAD_ADULTS, NB_STAGES = DEAD_ADULTS };
 	}
 
 

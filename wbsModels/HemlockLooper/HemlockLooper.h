@@ -24,8 +24,8 @@ namespace WBSF
 
 	
 	enum THLStat{
-		S_EGG, S_L1, S_L2, S_L3, S_L4, S_PUPA, S_ADULT, S_DEAD_ADULT, S_BROOD,
-		E_EGG, E_L1, E_L2, E_L3, E_L4, E_PUPA, E_ADULT, E_DEAD_ADULT, E_BROOD, E_FEMALE, E_SWEIGHT, E_SENERGY, E_SCOLD, E_SHATCH, E_NB_HATCH,
+		S_EGGS, S_L1, S_L2, S_L3, S_L4, S_PUPAE, S_ADULTS, S_DEAD_ADULTS, S_BROODS, S_NEW_EGGS, 
+		E_EGGS, E_L1, E_L2, E_L3, E_L4, E_PUPAE, E_ADULTS, E_DEAD_ADULTS, E_FEMALES, E_BROODS, E_NEW_EGGS, E_SWEIGHT, E_SENERGY, E_SCOLD, E_SHATCH, E_NB_HATCH,
 		S_DEAD_ATTRITION, S_DEAD_OVERWINTER, S_DEAD, S_AVERAGE_INSTAR,
 		NB_HL_STAT
 	};
@@ -37,7 +37,7 @@ namespace WBSF
 	{
 	public:
 
-		CHemlockLooper(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = HemlockLooper::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CHemlockLooper(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = HemlockLooper::EGGS, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		virtual ~CHemlockLooper(void){}
 
 		virtual void Live(const CWeatherDay& weather);
@@ -45,7 +45,7 @@ namespace WBSF
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CHemlockLooper>(*this); }
-		virtual bool NeedOverheating()const{ return GetStage() != HemlockLooper::EGG && GetStage() != HemlockLooper::ADULT; }
+		virtual bool NeedOverheating()const{ return GetStage() != HemlockLooper::EGGS && GetStage() != HemlockLooper::ADULTS; }
 		virtual size_t GetNbStages()const{ return HemlockLooper::NB_STAGES; }
 
 		double GetRelativeDevRate(int s)const { _ASSERTE(s >= 0 && s < HemlockLooper::NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 

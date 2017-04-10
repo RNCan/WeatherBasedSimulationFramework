@@ -104,7 +104,7 @@ namespace WBSF
 
 		CIndividual::Live(weather);
 
-		for (size_t step = 0; step < nbSteps && GetStage() < DEAD_ADULT; step++)
+		for (size_t step = 0; step < nbSteps && GetStage() < DEAD_ADULTS; step++)
 		{
 			size_t h = step*GetTimeStep();
 			double T = weather[h][H_TAIR2];
@@ -115,7 +115,7 @@ namespace WBSF
 			double r = m_relativeDevRate[s] * stand.m_development.GetRate(s, lat, T) / nbSteps;
 			_ASSERTE(r >= 0);
 
-			if (s == EGG)
+			if (s == EGGS)
 			{
 				// Question pour Remi: Est-ce que ceci signifie que les oeufs initiaux sont créés le 1 janvier de la première année et sont soumis à la perte d'énergie à partir du 1 janvier? Je ne comprends pas comment la simulation commence...
 				// Réponse : Ça dépend si on est la première année ou non. voir ligne 92. On ne s'attend pas a avoir de la mortalité la première année. Seulement les années subséquantes.
@@ -154,7 +154,7 @@ namespace WBSF
 
 		CIndividual::Brood(weather);
 
-		if (GetStage() >= ADULT)
+		if (GetStage() >= ADULTS)
 		{
 			for (size_t h = 0; h < 24 && IsAlive(); h += GetTimeStep())
 			{
@@ -180,7 +180,7 @@ namespace WBSF
 				double scaleFactor = m_broods*m_scaleFactor;
 				ASSERT(scaleFactor > 0);
 
-				m_pHost->push_front(make_shared<CHemlockLooper>(m_pHost, weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor));
+				m_pHost->push_front(make_shared<CHemlockLooper>(m_pHost, weather.GetTRef(), EGGS, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor));
 			}
 		}
 	}
@@ -193,12 +193,12 @@ namespace WBSF
 		CIndividual::Die(weather);
 
 		//Mortality: eggs and adults can be killed by cold. Adults die of old age.
-		if (GetStage() == DEAD_ADULT)
+		if (GetStage() == DEAD_ADULTS)
 		{
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		else if (GetStage() > EGG)
+		else if (GetStage() > EGGS)
 		{
 			if (GetStand()->m_bApplyMortality)
 			{
@@ -239,24 +239,23 @@ namespace WBSF
 		size_t stage = GetStage();
 
 		//total and daily brood
-		stat[S_BROOD] += m_totalBroods*m_scaleFactor;
-		stat[E_BROOD] += m_broods*m_scaleFactor;
+		stat[S_BROODS] += m_totalBroods*m_scaleFactor;
+		stat[E_BROODS] += m_broods*m_scaleFactor;
 
-		if (IsAlive())
+		if (stage <= DEAD_ADULTS)
 		{
-			stat[S_EGG + stage] += m_scaleFactor;
+			if (m_generation == 0)
+				stat[S_EGGS + stage] += m_scaleFactor;
+			else 
+				stat[S_NEW_EGGS + stage] += m_scaleFactor;
 		}
-		else
-		{
-			if (stage == DEAD_ADULT)
-				stat[S_DEAD_ADULT] += m_scaleFactor;
-		}
+		
 
 		if (stage != oldStage)
 		{
-			stat[E_EGG + stage] += m_scaleFactor;
-			if (stage == ADULT && m_sex == FEMALE)
-				stat[E_FEMALE] += m_scaleFactor;
+			stat[E_EGGS + stage] += m_scaleFactor;
+			if (stage == ADULTS && m_sex == FEMALE)
+				stat[E_FEMALES] += m_scaleFactor;
 		}
 
 		if (d == m_hatchTRef)

@@ -54,8 +54,8 @@ namespace WBSF
 	//final output vector
 
 
-	enum TOuput{ O_EGG, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULT, O_DEAD_ADULT, O_AVERAGE_INSTAR, O_BROOD, O_NB_FEMALE, O_DEAD_ATTRITION, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_DAILY_OUTPUTS };
-	extern const char DAILY_HEADER[] = "Egg,L1,L2,L3,L4,Pupa,Adult,DeadAdult,AverageInstar,Brood,NbFemale,DeadAttrition,DeadOverwinter,Sw,Se,Sc,Sh";
+	enum TOuput{ O_EGGS, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULTS, O_DEAD_ADULTS, O_AVERAGE_INSTAR, O_NB_FEMALES, O_BROODS, O_NEW_EGG, O_DEAD_ATTRITION, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_DAILY_OUTPUTS };
+	extern const char DAILY_HEADER[] = "Eggs,L1,L2,L3,L4,Pupa,Adults,DeadAdults,AverageInstar,NbFemale,Broods,NewEggs,DeadAttrition,DeadOverwinter,Sw,Se,Sc,Sh";
 	//typedef CModelStatVectorTemplate<NB_OUTPUT, DAILY_HEADER> CDailyOutputVector;
 
 	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
@@ -234,7 +234,7 @@ namespace WBSF
 				stand.HappyNewYear();
 			}
 
-			oviposition = stat.GetInitialPopulation(E_BROOD, m_nbObjects, m_initialPopulation);
+			oviposition = stat.GetInitialPopulation(E_BROODS, m_nbObjects, m_initialPopulation);
 			if (oviposition.empty())
 				oviposition.Initialize(CTRef(year - 1, FIRST_MONTH, FIRST_DAY));
 		}
@@ -243,7 +243,7 @@ namespace WBSF
 	CInitialPopulation CHLModel::GetFirstOviposition()
 	{
 		int year = m_weather.GetFirstYear();
-		CInitialPopulation inititialPopulation(CTRef(year - 1, FIRST_MONTH, FIRST_DAY), 0, m_nbObjects, m_initialPopulation, EGG, NOT_INIT, false);
+		CInitialPopulation inititialPopulation(CTRef(year - 1, FIRST_MONTH, FIRST_DAY), 0, m_nbObjects, m_initialPopulation, EGGS, NOT_INIT, false);
 
 
 		//Create stand
@@ -275,7 +275,7 @@ namespace WBSF
 			}
 		}
 
-		return stat.GetInitialPopulation(E_BROOD, m_nbObjects, m_initialPopulation);
+		return stat.GetInitialPopulation(E_BROODS, m_nbObjects, m_initialPopulation);
 	}
 
 	void CHLModel::ComputeRegularStat(CModelStatVector& stat, CModelStatVector& output)
@@ -285,12 +285,12 @@ namespace WBSF
 
 		for (size_t d = 0; d < stat.size(); d++)
 		{
-			for (size_t i = 0; i <= O_DEAD_ADULT; i++)
-				output[d][O_EGG + i] = stat[d][S_EGG + i];
+			for (size_t i = 0; i <= O_DEAD_ADULTS; i++)
+				output[d][O_EGGS + i] = stat[d][S_EGGS + i];
 
 			output[d][O_AVERAGE_INSTAR] = stat[d][S_AVERAGE_INSTAR];
-			output[d][O_BROOD] = stat[d][E_BROOD];
-			output[d][O_NB_FEMALE] = stat[d][E_FEMALE];
+			output[d][O_BROODS] = stat[d][E_BROODS];
+			output[d][O_NB_FEMALES] = stat[d][E_FEMALES];
 			output[d][O_DEAD_ATTRITION] = stat[d][S_DEAD_ATTRITION];
 			output[d][O_DEAD_OVERWINTER] = stat[d][S_DEAD_OVERWINTER];
 			if (stat[d][E_NB_HATCH] > 0)
@@ -493,7 +493,7 @@ namespace WBSF
 				double obs = m_SAResult[i].m_obs[OA_AI];
 
 				CModelStat& dayStat = statSim[m_SAResult[i].m_ref];
-				double sim = dayStat.GetAverageInstar(S_EGG, S_DEAD_ADULT, EGG, true);
+				double sim = dayStat.GetAverageInstar(S_EGGS, S_DEAD_ADULTS, EGGS, true);
 				ASSERT(sim = -999 || (sim >= 2 && sim <= 8));
 
 				//some obs 0 or 100 were set to -999 

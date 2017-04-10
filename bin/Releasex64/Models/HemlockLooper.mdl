@@ -31,20 +31,19 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Egg</Name>
-            <Title>Egg</Title>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L1</Name>
             <Title>L1</Title>
             <Units/>
             <Description/>
-            <TimeMode>7 0</TimeMode>
+            <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
@@ -72,19 +71,19 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Pupa</Name>
-            <Title>Pupa</Title>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Adult</Name>
-            <Title>Adult</Title>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
             <Units/>
             <Description/>
-            <TimeMode>7 0</TimeMode>
+            <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
@@ -104,6 +103,14 @@
             <Precision>2</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>Females</Name>
+            <Title>Females</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Broods</Name>
             <Title>Broods</Title>
             <Units/>
@@ -112,8 +119,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Females</Name>
-            <Title>Females</Title>
+            <Name>NewEggs</Name>
+            <Title>NewEggs</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

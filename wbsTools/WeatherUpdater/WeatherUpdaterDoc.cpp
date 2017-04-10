@@ -214,7 +214,7 @@ void CWeatherUpdaterDoc::OnCloseDocument()
 
 BOOL CWeatherUpdaterDoc::IsModified()
 {
-	
+	CDocument::UpdateAllViews(NULL, SELECTION_CHANGE, NULL);
 	return m_project != m_lastProject;
 }
 
