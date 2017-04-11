@@ -144,7 +144,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,2,0,17
+ FILEVERSION 4,2,0,18
  PRODUCTVERSION 4,2,0,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -162,7 +162,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Recherches les stations météo pour une localisation"
-            VALUE "FileVersion", "4.2.0.17"
+            VALUE "FileVersion", "4.2.0.18"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "StationsAvoisinantes"
@@ -172,7 +172,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Match weather station for location"
-            VALUE "FileVersion", "4.2.0.17"
+            VALUE "FileVersion", "4.2.0.18"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"

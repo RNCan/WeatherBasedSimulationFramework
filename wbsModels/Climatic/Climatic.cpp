@@ -46,7 +46,7 @@ namespace WBSF
 	//enum TAnnualStat{ ANNUAL_LOWEST_TMIN, ANNUAL_MEAN_TMIN, ANNUAL_MEAN_TMEAN, ANNUAL_MEAN_TMAX, ANNUAL_HIGHEST_TMAX, ANNUAL_PPT, ANNUAL_MEAN_TDEW, ANNUAL_MEAN_REL_HUM, ANNUAL_MEAN_WNDS, ANNUAL_FROST_DAY, ANNUAL_SUN, NB_ANNUAL_STATS };
 	//enum TMonthlyStat{ MONTHLY_LOWEST_TMIN, MONTHLY_MEAN_TMIN, MONTHLY_MEAN_TMEAN, MONTHLY_MEAN_TMAX, MONTHLY_HIGHEST_TMAX, MONTHLY_PPT, MONTHLY_MEAN_TDEW, MONTHLY_MEAN_REL_HUM, MONTHLY_MEAN_WNDS, MONTHLY_FROST_DAY, MONTHLY_SUN, NB_MONTHLY_STATS };
 	enum TDailyStat{ DAILY_TMIN, DAILY_TMEAN, DAILY_TMAX, NB_DAILY_STATS };//DAILY_PPT, DAILY_MEAN_TDEW, DAILY_MEAN_REL_HUM, DAILY_MEAN_WNDS, DAILY_SUN,
-	//enum THourlyStat{ HOURLY_T, HOURLY_PRCP, HOURLY_TDEW, HOURLY_REL_HUM, HOURLY_WIND_SPEED, HOURLY_SRAD, NB_HOURLY_STATS };
+	enum THourlyStat{ HOULRY_TMIN, HOURLY_TAIR, HOULRY_TMAX, HOURLY_PRCP, HOURLY_TDEW, HOURLY_RELH, HOURLY_WNDS, HOURLY_WNDD, HOURLY_SRAD, HOURLY_PRES, NB_HOURLY_OUTPUTS };
 
 
 	//typedef CModelStatVectorTemplate<NB_ANNUAL_STATS> CAnnualStatVector;
@@ -248,7 +248,7 @@ namespace WBSF
 			m_weather.ComputeHourlyVariables();
 
 		CTPeriod p = m_weather.GetEntireTPeriod();
-		m_output.Init(p, H_PRES + 1, -999); 
+		m_output.Init(p, NB_HOURLY_OUTPUTS, -999);
 
 		for (size_t y = 0; y<m_weather.size(); y++)
 		{
@@ -259,7 +259,7 @@ namespace WBSF
 					for (size_t h = 0; h < m_weather[y][m][d].size(); h++)
 					{
 						CTRef TRef(p.GetFirstYear()+int(y),m,d,h);
-						for (size_t v = 0; v < H_PRES+1; v++)
+						for (size_t v = 0; v < NB_HOURLY_OUTPUTS; v++)
 							m_output[TRef][v] = m_weather[y][m][d][h][v];
 					}
 				}

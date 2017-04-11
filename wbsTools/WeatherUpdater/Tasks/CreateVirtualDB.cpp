@@ -12,7 +12,7 @@
 #include "../resource.h"
 #include "WeatherBasedSimulationString.h"
 
-#include "..\GeomaticTools\PointsExtractor\PointsExtractor.cpp"
+//#include "..\GeomaticTools\PointsExtractor\PointsExtractor.cpp"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -246,11 +246,11 @@ namespace WBSF
 	ERMsg CCreateVirtualDB::ExtractPoint(const std::string& outputFilePath, CWeatherStationVector& stations, CCallback& callback)
 	{
 		ERMsg msg;
-		CPointsExtractor pointsExtractor;
+		//CPointsExtractor pointsExtractor;
 //		ERMsg msg = pointsExtractor.m_options.ParseOptions(argc, argv);
 
 		
-		msg = pointsExtractor.Execute();
+		//msg = pointsExtractor.Execute();
 
 		return msg;
 	}
