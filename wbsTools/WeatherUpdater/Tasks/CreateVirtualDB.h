@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TaskBase.h"
+#include "basic/weatherStation.h"
 
 namespace WBSF
 {
@@ -40,6 +41,8 @@ namespace WBSF
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 
+		static ERMsg load_gribs(const std::string& filepath, std::map<CTRef, std::string>& gribs);
+		static ERMsg ExtractPoint(const std::string& outputFilePath, CWeatherStationVector& stations, CCallback& callback);
 
 		void CleanSparse(CWeatherStation& station)const;
 		ERMsg CreateDatabase(const std::string& outputFilepath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback = DEFAULT_CALLBACK)const;

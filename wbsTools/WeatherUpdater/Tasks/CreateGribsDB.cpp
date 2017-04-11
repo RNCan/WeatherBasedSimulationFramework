@@ -98,6 +98,7 @@ namespace WBSF
 
 			if (msg)
 			{
+				size_t nbGrib = 0;
 				file << "TRef,path"<<endl;
 
 				CTPeriod p = GetPeriod();
@@ -106,10 +107,6 @@ namespace WBSF
 					ASSERT(pTask->IsGribs());
 
 					string basePath = GetPath(outputFilePath);
-
-					//string path = pTask->Get(CUIRapidUpdateCycle::WORKING_DIR);
-					//if (!IsPathEndOk(path))
-//						path += "\\";
 
 					std::map<CTRef, std::string> gribsList;
 					msg = pTask->GetGribsList(gribsList, callback);
@@ -122,10 +119,12 @@ namespace WBSF
 							{
 								string relativePath = GetRelativePath(basePath, it->second);
 								file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+								nbGrib++;
 							}
 						}
 					}
-						
+				
+					callback.AddMessage("Nb grib added: " + ToString(nbGrib));
 				}
 				else
 				{

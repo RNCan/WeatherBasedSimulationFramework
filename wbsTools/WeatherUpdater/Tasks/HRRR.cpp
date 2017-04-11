@@ -65,9 +65,20 @@ namespace WBSF
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
 				string outputFilePath = GetOutputFilePath(it->m_filePath);
+				CFileInfo info;
 
-				if (!FileExists(outputFilePath))
+
+				if (!WBSF::GetFileInfo(outputFilePath, info))
+				{
 					fileList.push_back(*it);
+				}
+				else
+				{
+					if (info.m_size < 550 * 1024 * 1024 )
+					{
+						fileList.push_back(*it);
+					}
+				}
 			}
 
 			msg += callback.StepIt();

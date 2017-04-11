@@ -229,11 +229,21 @@ namespace WBSF
 		}
 		else if (source == N_HRRR)
 		{
-
 			string name = GetFileTitle(filePath);
-			int year = WBSF::as<int>(name.substr(8, 4));
-			size_t m = WBSF::as<int>(name.substr(12, 2)) - 1;
-			size_t d = WBSF::as<int>(name.substr(14, 2)) - 1;
+			filePath = GetPath(filePath);
+			string dir1 = WBSF::GetLastDirName(filePath);
+			while (WBSF::IsPathEndOk(filePath))
+				filePath = filePath.substr(0, filePath.length() - 1);
+			filePath = GetPath(filePath);
+			string dir2 = WBSF::GetLastDirName(filePath);
+			while (WBSF::IsPathEndOk(filePath))
+				filePath = filePath.substr(0, filePath.length() - 1);
+			filePath = GetPath(filePath);
+			string dir3 = WBSF::GetLastDirName(filePath);
+			
+			int year = WBSF::as<int>(dir3);
+			size_t m = WBSF::as<int>(dir2) - 1;
+			size_t d = WBSF::as<int>(dir1) - 1;
 			size_t h = WBSF::as<int>(name.substr(5, 2));
 			TRef = CTRef(year, m, d, h);
 		}

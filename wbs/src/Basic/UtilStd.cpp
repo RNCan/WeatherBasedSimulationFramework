@@ -682,7 +682,8 @@ namespace WBSF
 						//ASSERT(findDir.IsDots() == (findDir.GetFileName() == "." || findDir.GetFileName() == ".."));
 						if (!(fileName == "." || fileName == ".."))
 						{
-							std::string newFilePath = path + "\\" + fileName + "\\" + GetFileName(filter);
+							//std::string newFilePath = path + "\\" + fileName + "\\" + GetFileName(filter);
+							std::string newFilePath = path + fileName + "\\" + GetFileName(filter);
 							GetFilesInfo(newFilePath, bSubDirSearch, filesInfo);
 						}
 

@@ -5,12 +5,14 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/WeatherDatabaseCreator.h"
 #include "Basic/Timer.h"
+#include "Basic/CSV.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "TaskFactory.h"
 #include "../resource.h"
 #include "WeatherBasedSimulationString.h"
 
+#include "..\GeomaticTools\PointsExtractor\PointsExtractor.cpp"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -72,12 +74,22 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		string inputFilePath = Get(INPUT_FILEPATH);
+		if (inputFilePath.empty())
+		{
+			msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
+			return msg;
+		}
+
 		string outputFilePath = Get(OUTPUT_FILEPATH);
 		if (outputFilePath.empty())
 		{
 			msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
 			return msg;
 		}
+
+		std::map<CTRef, std::string> gribs;
+		msg += load_gribs(inputFilePath, gribs);
 
 		size_t outputType = as<size_t>(OUTPUT_TYPE);
 		SetFileExtension(outputFilePath, (outputType == OT_HOURLY) ? CHourlyDatabase::DATABASE_EXT : CDailyDatabase::DATABASE_EXT);
@@ -148,47 +160,49 @@ namespace WBSF
 			callback.PushTask(GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + ToString(locations.size()) + " virtual stations)", locations.size());
 
 
-			for (size_t i = 0; i < locations.size() && msg; i++)
+			CWeatherStationVector stations;
+
+			for (std::map<CTRef, std::string>::const_iterator it = gribs.begin(); it != gribs.end(); it++)
 			{
-				CWeatherStation station;
-
+				CTRef TRef = it->first;
+				//if (p.IsInside(TRef))
+				//{
 				timerRead.Start();
-				ERMsg messageTmp;// = pTask->GetWeatherStation(stationList[i], CTM(CTM::DAILY), station, callback);
+				msg = ExtractPoint(it->second, stations, callback);
 				timerRead.Stop();
+				//}
+			}
 
-				if (messageTmp)
+			for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end(); it++)
+			{
+				if (msg)
 				{
-					if (station.HaveData())
+					if (it->HaveData())
 					{
-						string newName = pDB->GetUniqueName(station.m_name);
-						if (newName != station.m_name)
+						string newName = pDB->GetUniqueName(it->m_name);
+						if (newName != it->m_name)
 						{
-							station.m_name = newName;
-							station.SetDataFileName("");
+							it->m_name = newName;
+							it->SetDataFileName("");
 						}
 
 						//Force write file name in the file
-						station.SetDataFileName(station.GetDataFileName());
-						station.UseIt(true);
+						it->SetDataFileName(it->GetDataFileName());
+						it->UseIt(true);
 
 
 						timerWrite.Start();
-						messageTmp = pDB->Add(station);
+						msg = pDB->Add(*it);
 						timerWrite.Stop();
 
-						if (messageTmp)
+						if (msg)
 							nbStationAdded++;
 					}
 				}
-				else
-				{
-					if (callback.GetUserCancel())
-						msg += messageTmp;
-				}
 
-				if (!messageTmp)
-					callback.AddMessage(messageTmp, 1);
-
+				//if (!msg)
+		//			callback.AddMessage(messageTmp, 1);
+//
 				msg += callback.StepIt();
 
 			}
@@ -229,7 +243,17 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CCreateVirtualDB::ExtractPoint(const std::string& outputFilePath, CWeatherStationVector& stations, CCallback& callback)
+	{
+		ERMsg msg;
+		CPointsExtractor pointsExtractor;
+//		ERMsg msg = pointsExtractor.m_options.ParseOptions(argc, argv);
 
+		
+		msg = pointsExtractor.Execute();
+
+		return msg;
+	}
 	//ERMsg CCreateVirtualDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
 	//{
 	//	ERMsg msg;
@@ -420,4 +444,28 @@ namespace WBSF
 	//}
 	//
 
+	ERMsg CCreateVirtualDB::load_gribs(const std::string& filepath, std::map<CTRef, std::string>& gribs)
+	{
+		ERMsg msg;
+
+		ifStream file;
+		msg = file.open(filepath);
+		if (msg)
+		{
+			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
+			{
+				if ((*loop).size() == 2)
+				{
+					CTRef TRef;
+					TRef.FromFormatedString((*loop)[0], "", "-", 1);
+					assert(TRef.IsValid());
+
+					gribs[TRef] = (*loop)[1];
+				}
+			}
+		}
+
+		return msg;
+
+	}
 }

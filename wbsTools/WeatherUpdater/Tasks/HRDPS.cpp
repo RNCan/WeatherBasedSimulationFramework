@@ -143,10 +143,26 @@ namespace WBSF
 					{
 						string fileName = GetFileName(it->m_filePath);
 						string outputFilePath = GetOutputFilePath(fileName);
-
-
-						if (!FileExists(outputFilePath))
+						//CFileInfo info;
+						
+						ifStream stream;
+						if (!stream.open(outputFilePath))
+						{
 							fileList.push_back(*it);
+						}
+						else
+						{
+							//verify if the file finish with 7777
+							char test[5] = { 0 };
+							stream.seekg(-4, ifstream::end);
+							stream.read(&(test[0]), 4);
+
+							if (string(test) != "7777")
+							{
+								fileList.push_back(*it);
+							}
+						}
+							
 					}
 
 					msg += callback.StepIt();
