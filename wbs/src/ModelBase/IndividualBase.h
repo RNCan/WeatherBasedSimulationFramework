@@ -39,7 +39,7 @@ namespace WBSF
 		enum TFecondity{ UNFERTIL, FERTIL, NB_FECONDITY };
 
 
-		CIndividual(CHost* pHost, CTRef creation = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CIndividual(CHost* pHost, CTRef creation = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0, double scaleFactor = 1);
 		CIndividual(const CIndividual& in){ operator=(in); }
 		virtual ~CIndividual(void);
 
@@ -51,6 +51,7 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat) = 0;
+		virtual void HappyNewYear();
 
 		virtual bool NeedOverheating()const{ return false; }
 		virtual void FixAI(double delta){ m_age = std::max(0.0, m_age + delta); }

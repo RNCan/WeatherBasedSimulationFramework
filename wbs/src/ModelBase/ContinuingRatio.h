@@ -76,8 +76,7 @@ namespace WBSF
 	template <int nbParams, int firstInstar, int lastInstar, const char* header>
 	void CContinuingRatio<nbParams, firstInstar, lastInstar, header>::Execute(const CWeatherStation& weather, CModelStatVector& stat)
 	{
-		CTPeriod p = weather.GetEntireTPeriod();
-		//p.Transform(m_TM);
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 
 		std::string head = std::string("DD,") + header + ",Last,AI";
 		stat.Init(p.GetNbRef(), p.Begin(), nbParams + 3, 0, head);//+3 for DD, death and AI
@@ -87,8 +86,7 @@ namespace WBSF
 			double DD = 0.0;
 			std::vector<double> param(nbParams + 1);
 			double AI = firstInstar;
-			p = weather[y].GetEntireTPeriod();
-			//p.Transform(m_TM);
+			p = weather[y].GetEntireTPeriod(CTM::DAILY);
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -115,7 +113,6 @@ namespace WBSF
 							if (stat[TRef][i]>99.9)
 								stat[TRef][i] = 100;
 					}
-						
 				}
 			}
 		}

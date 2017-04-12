@@ -22,7 +22,7 @@ namespace WBSF
 	class CIndividualInfo
 	{
 	public:
-		CIndividualInfo(CTRef creationDate = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 0)
+		CIndividualInfo(CTRef creationDate = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0, double scaleFactor = 0)
 		{
 			m_creationDate = creationDate;
 			m_age = age;
@@ -45,9 +45,9 @@ namespace WBSF
 	{
 	public:
 
-		CInitialPopulation(CTRef peakDay = CTRef(), double sigma = 0, size_t nbObjects = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0);
+		CInitialPopulation(CTRef peakDay = CTRef(), double sigma = 0, size_t nbObjects = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0);
 
-		void Initialize(CTRef peakDay, double sigma = 0, size_t nbObjects = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0);
+		void Initialize(CTRef peakDay, double sigma = 0, size_t nbObjects = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0);
 
 
 		void UpdateYear(int year)
@@ -180,7 +180,8 @@ namespace WBSF
 
 		void ConvertValue(float value1, float value2);
 		size_t GetNbStat()const{ return m_nbStat; }
-		CInitialPopulation GetInitialPopulation(size_t var, size_t nbObject = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, CTPeriod p = CTPeriod())const;
+		CInitialPopulation GetInitialPopulation(size_t var, size_t nbObject = 400, double initialPopulation = 100, double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0, CTPeriod p = CTPeriod())const;
+		CInitialPopulation GetInitialPopulation(size_t var, CTPeriod p)const{ return GetInitialPopulation(var, 400, 100, 0, NOT_INIT, false, 0, p); }
 		void Transform(const CTM& TM, size_t s);//= WBSF::MEAN
 		void Transform(const CTTransformation& TT, size_t s );//= WBSF::MEAN
 		

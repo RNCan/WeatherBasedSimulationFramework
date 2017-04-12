@@ -16,8 +16,8 @@ namespace WBSF
 
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
-		//virtual ERMsg OnExecuteAnnual();
-		//virtual ERMsg OnExecuteMonthly();
+		virtual ERMsg OnExecuteAnnual();
+		virtual ERMsg OnExecuteMonthly();
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteHourly();
 		

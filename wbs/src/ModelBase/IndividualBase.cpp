@@ -147,6 +147,10 @@ namespace WBSF
 		return CreateCopy();
 	}
 
+	void CIndividual::HappyNewYear()
+	{
+	}
+
 	//***********************************************************************************
 	CHostPtr CStand::GetNearestHost(CHost* pHost)
 	{
@@ -270,6 +274,7 @@ namespace WBSF
 		//clean up dead
 		for (iterator it = begin(); it != end();)
 		{
+			(*it)->HappyNewYear();
 			if ((*it)->IsAlive())
 				it++;
 			else

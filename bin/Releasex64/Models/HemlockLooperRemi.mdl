@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>HemlockLooper</Title>
     <Version>1.0</Version>
-    <ID>.hl</ID>
+    <ID>.HLR</ID>
     <EXE>HemlockLooperRemi.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model simulates the development of Hemlock Looper.</Description>

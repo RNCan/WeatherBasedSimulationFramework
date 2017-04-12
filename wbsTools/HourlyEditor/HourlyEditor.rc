@@ -425,7 +425,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurHoraire\n\nHourlyEditor\nBase de données horaires (*.HourlyStations)\n.HourlyStations\n\n"
+    IDR_MAINFRAME           "ÉditeurHoraire\n\nHourlyEditor\nBase de données horaires (*.HourlyDB)\n.HourlyDB\n\n"
 	IDS_INDICATOR_NB_STATIONS "Stations = "
     IDS_OPTION_CAPTION      "Options"
 END
@@ -761,7 +761,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "HourlyEditor\n\nHourlyEditor\nHourly Database (*.HourlyStations)\n.HourlyStations\n\n"
+    IDR_MAINFRAME           "HourlyEditor\n\nHourlyEditor\nHourly Database (*.HourlyDB)\n.HourlyDB\n\n"
 	IDS_INDICATOR_NB_STATIONS "Stations = "
     IDS_OPTION_CAPTION      "Options"
 END

@@ -48,7 +48,9 @@ namespace WBSF
 		m_Tmin = 999;
 
 		//no pre-diapause for insects created on January first
-		m_preDiapause = creationDate.GetJDay() == 0 ? 1 : 0;
+		//m_preDiapause = creationDate.GetJDay() == 0 ? 1 : 0;
+		//first year insect are set at September 15
+		m_preDiapause = 0;
 
 		//A creation date is assigned to each individual
 		//Individual's "relative" development rate for each life stage
@@ -97,6 +99,7 @@ namespace WBSF
 	void CHemlockLooper::Live(const CWeatherDay& weather)
 	{
 		ASSERT(GetStand());
+
 		const CHLStand& stand = *GetStand();
 		double lat = stand.GetModel()->m_weather.m_lat;
 		size_t nbSteps = GetTimeStep().NbSteps();
@@ -121,7 +124,7 @@ namespace WBSF
 				// Réponse : Ça dépend si on est la première année ou non. voir ligne 92. On ne s'attend pas a avoir de la mortalité la première année. Seulement les années subséquantes.
 
 				if (m_preDiapause<1)
-					m_preDiapause += stand.m_development.GetPreDiapauseRate(T)*m_preDiapauseRelativeDevRate;
+					m_preDiapause += stand.m_development.GetPreDiapauseRate(T)*m_preDiapauseRelativeDevRate / nbSteps;
 				else
 					m_ʃT += stand.m_survival.SenergyʃT(T) / nbSteps;
 
@@ -198,30 +201,47 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		else if (GetStage() > EGGS)
+		else 
 		{
 			if (GetStand()->m_bApplyMortality)
 			{
-				//m_hatchSurvival change only once at hatch, 1 by default
-				if (m_hatchSurvival < m_overwinterLuck ||
-					weather[H_TMIN2][MEAN] < CHemlockLooper::FREEZING_POINT)
+				if (GetStage() > EGGS)
 				{
-					m_status = DEAD;
-					m_death = FROZEN;
-				}
-				else
-				{
+					if (GetStage() == L1 && IsChangingStage())
+					{
+						//m_hatchSurvival change only once at hatch, 1 by default
+						if (m_hatchSurvival < m_overwinterLuck)
+						{
+							m_status = DEAD;
+							m_death = MISSING_ENERGY;
+						}
+					}
+
 					double attrition = RandomGenerator().Randu();
 					if (attrition>GetStand()->m_survival.GetAttrition())
 					{
 						m_status = DEAD;
 						m_death = ATTRITION;
 					}
+				
+					if( weather[H_TMIN2][MEAN] < CHemlockLooper::FREEZING_POINT)
+					{
+						m_status = DEAD;
+						m_death = FROZEN;
+					}
 				}
 			}
 		}
 	}
 
+	void CHemlockLooper::HappyNewYear()
+	{
+		if (GetStage() != EGGS)
+		{
+			m_status = DEAD;
+			m_death = FROZEN;
+		}
+	}
 
 	//*****************************************************************************
 	// GetStat: GetStat is called daily to get the state of the object
@@ -242,12 +262,10 @@ namespace WBSF
 		stat[S_BROODS] += m_totalBroods*m_scaleFactor;
 		stat[E_BROODS] += m_broods*m_scaleFactor;
 
-		if (stage <= DEAD_ADULTS)
+		if (IsAlive() || stage == DEAD_ADULTS)
 		{
-			if (m_generation == 0)
-				stat[S_EGGS + stage] += m_scaleFactor;
-			else 
-				stat[S_NEW_EGGS + stage] += m_scaleFactor;
+			ASSERT(m_generation == 0);
+			stat[S_EGGS + stage] += m_scaleFactor;
 		}
 		
 
@@ -276,8 +294,11 @@ namespace WBSF
 
 			if (m_death == ATTRITION)
 				stat[S_DEAD_ATTRITION] += m_scaleFactor;
-			else if (m_death == FROZEN)
+			else if (m_death == MISSING_ENERGY)
 				stat[S_DEAD_OVERWINTER] += m_scaleFactor;
+			else if (m_death == FROZEN)
+				stat[S_DEAD_FROZEN] += m_scaleFactor;
+			
 
 		}
 	}
@@ -302,15 +323,8 @@ namespace WBSF
 	void CHLTree::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CHost::GetStat(d, stat, generation);
-
-		//CHLStat& SBStat = (CHLStat& )stat; 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
 
 	}
 
-	//void CHLStand::SetTree(CHLTree* pTree)
-	//{
-	//	m_pTree.reset(pTree); 
-	//	m_pTree->SetStand(this);
-	//}
 }

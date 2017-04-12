@@ -54,9 +54,8 @@ namespace WBSF
 	//final output vector
 
 
-	enum TOuput{ O_EGGS, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULTS, O_DEAD_ADULTS, O_AVERAGE_INSTAR, O_NB_FEMALES, O_BROODS, O_NEW_EGG, O_DEAD_ATTRITION, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_DAILY_OUTPUTS };
-	extern const char DAILY_HEADER[] = "Eggs,L1,L2,L3,L4,Pupa,Adults,DeadAdults,AverageInstar,NbFemale,Broods,NewEggs,DeadAttrition,DeadOverwinter,Sw,Se,Sc,Sh";
-	//typedef CModelStatVectorTemplate<NB_OUTPUT, DAILY_HEADER> CDailyOutputVector;
+	enum TOuput{ O_EGGS, O_L1, O_L2, O_L3, O_L4, O_PUPA, O_ADULTS, O_DEAD_ADULTS, O_AVERAGE_INSTAR, O_NB_FEMALES, O_BROODS, O_DEAD_ATTRITION, O_DEAD_FROZEN, O_DEAD_OVERWINTER, O_S_WEIGHT, O_S_ENERGY, O_S_COLD, O_S_HATCH, NB_DAILY_OUTPUTS };
+	extern const char DAILY_HEADER[] = "Eggs,L1,L2,L3,L4,Pupa,Adults,DeadAdults,AverageInstar,NbFemale,Broods,DeadAttrition,DeadFrozen,DeadOverwinter,Sw,Se,Sc,Sh";
 
 	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
 	extern const char ANNUAL_HEADER[] = "GrowthRate";
@@ -72,17 +71,11 @@ namespace WBSF
 		VERSION = "1.0.3 (2017)";
 
 		m_bApplyMortality = true;
-		//m_bFertilEgg=false;	//If female is fertile, eggs will be added to the developement
 
 		//developer parameters
-		m_initialPopulation = 100;
 		m_bApplyAttrition = true;
 
-		m_nbObjects = 400;       //Number of individuals in the initial population
-		m_nbMinObjects = 100;
-		m_nbMaxObjects = 1000;
 		memset(m_rho25Factor, 0, (NB_STAGES - 1)*sizeof(m_rho25Factor[0]));
-		m_bCumulatif = false;
 
 		//Simulated Annealing data type
 		m_dataType = DATA_UNKNOWN;
@@ -105,17 +98,15 @@ namespace WBSF
 		m_bApplyMortality = parameters[c++].GetBool();
 		//m_bFertilEgg = parameters[c++].GetBool();
 
-		if (ACTIVATE_PARAMETRIZATION)
-		{
-			m_initialPopulation = parameters[c++].GetInt();
-			m_bApplyAttrition = parameters[c++].GetBool();
-			m_nbMinObjects = parameters[c++].GetInt();
-			m_nbMaxObjects = parameters[c++].GetInt();
-			m_nbObjects = parameters[c++].GetInt();
-			//m_bAutoBalanceObject = parameters[c++].GetBool();
-			for (int s = 0; s < NB_STAGES - 1; s++)
-				m_rho25Factor[s] = parameters[c++].GetReal();
-		}
+		//if (ACTIVATE_PARAMETRIZATION)
+		//{
+		//	m_nbMinObjects = parameters[c++].GetInt();
+		//	m_nbMaxObjects = parameters[c++].GetInt();
+		//	m_nbObjects = parameters[c++].GetInt();
+		//	//m_bAutoBalanceObject = parameters[c++].GetBool();
+		//	for (int s = 0; s < NB_STAGES - 1; s++)
+		//		m_rho25Factor[s] = parameters[c++].GetReal();
+		//}
 
 		return msg;
 	}
@@ -174,19 +165,16 @@ namespace WBSF
 		if (!m_weather.IsHourly())
 		{
 			//Generate hourly values
-			m_weather.ComputeHourlyVariables();
+			m_weather.ComputeHourlyVariables(); 
 		}
 
-		CTPeriod p = m_weather.GetEntireTPeriod();
-		p.Transform(CTM(CTM::DAILY));
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM::DAILY);
 		p.Begin().m_year++;//skip the first year (initialization)
 
 		//This is where the model is actually executed
 		stat.Init(p, NB_HL_STAT);
 
-		CInitialPopulation oviposition = GetFirstOviposition();
-		if (oviposition.empty())
-			oviposition.Initialize(CTRef(m_weather.GetFirstYear(), FIRST_MONTH, FIRST_DAY));
+		CInitialPopulation inititialPopulation = GetFirstOviposition();
 
 		for (size_t y1 = 0; y1 < m_weather.size() - 1; y1++)
 		{
@@ -197,20 +185,19 @@ namespace WBSF
 			stand.m_bApplyMortality = m_bApplyMortality;
 			stand.m_bFertilEgg = false;
 
-			//Create the initial population
+			//always add trees in stand first
 			CHLTreePtr pTree = make_shared<CHLTree>(&stand);
-			pTree->m_nbMinObjects = m_nbMinObjects;
-			pTree->m_nbMaxObjects = m_nbMaxObjects;
-			pTree->Initialize<CHemlockLooper>(oviposition);
-			//pTree->Initialize<CHL>(oviposition, EGG, CIndividue::AT_RANDOM, stand.m_bFertilEgg);
-
 			stand.m_host.push_front(pTree);
+
+
+			//Create the initial population
+			pTree->Initialize<CHemlockLooper>(inititialPopulation);
 
 			//if Simulated Annealing, set 
 			if (ACTIVATE_PARAMETRIZATION)
 			{
 				stand.m_development.SetRho25(m_rho25Factor);
-				//stand.m_rates.Save("D:\\Rates.csv");
+				//stand.m_rates.Save("D:\\Rates.csv"); 
 			}
 
 
@@ -220,11 +207,14 @@ namespace WBSF
 				for (size_t m = 0; m < m_weather[yy].size(); m++)
 				{
 					for (size_t d = 0; d < m_weather[yy][m].size(); d++)
-					{
+					{ 
 						CTRef TRef = m_weather[yy][m][d].GetTRef();
 						stand.Live(m_weather[yy][m][d]);
 						if (stat.IsInside(TRef) && y2 == 1)
-							stand.GetStat(TRef, stat[TRef]);
+							stand.GetStat(TRef, stat[TRef]); 
+						//	stat[TRef][E_FEMALES] = stand.GetNbObjectAlive();
+						//	stat[TRef][S_DEAD_ATTRITION] = stand.GetFirstHost()->size();
+						//}
 
 						stand.AdjustPopulation();
 						HxGridTestConnection();
@@ -234,16 +224,17 @@ namespace WBSF
 				stand.HappyNewYear();
 			}
 
-			oviposition = stat.GetInitialPopulation(E_BROODS, m_nbObjects, m_initialPopulation);
-			if (oviposition.empty())
-				oviposition.Initialize(CTRef(year - 1, FIRST_MONTH, FIRST_DAY));
+			
+			inititialPopulation = stat.GetInitialPopulation(E_BROODS, m_weather[y1 + 1].GetEntireTPeriod(CTM::DAILY));
+			if (inititialPopulation.empty())
+				inititialPopulation.Initialize(CTRef(year + 1, SEPTEMBER, DAY_15), 5);
 		}
 	}
 
 	CInitialPopulation CHLModel::GetFirstOviposition()
 	{
 		int year = m_weather.GetFirstYear();
-		CInitialPopulation inititialPopulation(CTRef(year - 1, FIRST_MONTH, FIRST_DAY), 0, m_nbObjects, m_initialPopulation, EGGS, NOT_INIT, false);
+		CInitialPopulation inititialPopulation(CTRef(year, SEPTEMBER, DAY_15), 5);
 
 
 		//Create stand
@@ -251,31 +242,42 @@ namespace WBSF
 		stand.m_bApplyMortality = false;
 		stand.m_bFertilEgg = false;
 
-		//Create the initial population
+		//Create and add the tree first
 		CHLTreePtr pTree = make_shared<CHLTree>(&stand);
-		pTree->m_nbMinObjects = m_nbMinObjects;
-		pTree->m_nbMaxObjects = m_nbMaxObjects;
-
-		pTree->Initialize<CHemlockLooper>(inititialPopulation);
-
 		stand.m_host.push_front(pTree);
 
 
-		size_t y = 0ull;
-		CHLStatVector stat(366, m_weather[y][FIRST_MONTH][FIRST_DAY].GetTRef());
-		for (size_t m = 0; m < m_weather[y].size(); m++)
-		{
-			for (size_t d = 0; d < m_weather[y][m].size(); d++)
-			{
-				CTRef TRef = m_weather[y][m][d].GetTRef();
-				stand.Live(m_weather[y][m][d]);
-				stand.GetStat(TRef, stat[TRef]);
+		//Create the initial population
+		pTree->Initialize<CHemlockLooper>(inititialPopulation);
 
-				HxGridTestConnection();
+
+		//size_t y = 0ull;
+		CHLStatVector stat(366, m_weather[size_t(1)][FIRST_MONTH][FIRST_DAY].GetTRef());
+
+		for (size_t y = 0; y < 2; y++)
+		{
+			for (size_t m = 0; m < m_weather[y].size(); m++)
+			{
+				for (size_t d = 0; d < m_weather[y][m].size(); d++)
+				{
+					CTRef TRef = m_weather[y][m][d].GetTRef();
+					stand.Live(m_weather[y][m][d]);
+					if (y==1)
+						stand.GetStat(TRef, stat[TRef]);
+
+					HxGridTestConnection();
+				}
 			}
 		}
 
-		return stat.GetInitialPopulation(E_BROODS, m_nbObjects, m_initialPopulation);
+		inititialPopulation = stat.GetInitialPopulation(E_BROODS);
+		inititialPopulation.UpdateYear(year);
+
+
+		if (inititialPopulation.empty())
+			inititialPopulation.Initialize(CTRef(year, SEPTEMBER, DAY_15), 5);
+
+		return inititialPopulation;
 	}
 
 	void CHLModel::ComputeRegularStat(CModelStatVector& stat, CModelStatVector& output)
@@ -292,6 +294,7 @@ namespace WBSF
 			output[d][O_BROODS] = stat[d][E_BROODS];
 			output[d][O_NB_FEMALES] = stat[d][E_FEMALES];
 			output[d][O_DEAD_ATTRITION] = stat[d][S_DEAD_ATTRITION];
+			output[d][O_DEAD_FROZEN] = stat[d][S_DEAD_FROZEN];
 			output[d][O_DEAD_OVERWINTER] = stat[d][S_DEAD_OVERWINTER];
 			if (stat[d][E_NB_HATCH] > 0)
 			{

@@ -103,12 +103,36 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Frost</Name>
+            <Name>FrostDay</Name>
             <Title>Frost Days</Title>
             <Units>days</Units>
             <Description>Number of days in the year when the daily minimum temperature is &lt; 0</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FrostFreeDay</Name>
+            <Title>FrostFreeDay</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WetDay</Name>
+            <Title>WetDay</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DryDay</Name>
+            <Title>DryDay</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalRadiation</Name>

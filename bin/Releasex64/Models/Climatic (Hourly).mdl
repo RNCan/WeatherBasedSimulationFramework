@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>This model computes climatic daily variables</Description>
     <WindowRect>0 0 83 331</WindowRect>
-    <SimulatedCategory>T P</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H WS WD R Z</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -27,7 +27,7 @@
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
-    <OutputTypeMode>2 0</OutputTypeMode>
+    <OutputTypeMode>3 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
@@ -60,6 +60,54 @@
         <OutputVariable>
             <Name>Prcp</Name>
             <Title>Prcp</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tdew</Name>
+            <Title>Tdew</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RelH</Name>
+            <Title>Hr</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WndS</Name>
+            <Title>WindSpeed</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WndD</Name>
+            <Title>WindDir</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SRad</Name>
+            <Title>SRad</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pres</Name>
+            <Title>AtmPressure</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

@@ -39,12 +39,7 @@ namespace WBSF
 		bool m_bApplyMortality;
 
 		//Developer model
-		bool m_bCumulatif;
-		int m_initialPopulation;
 		bool m_bApplyAttrition;
-		int m_nbMinObjects;
-		int m_nbMaxObjects;
-		int m_nbObjects;
 
 		double m_rho25Factor[HemlockLooper::NB_STAGES - 1];
 

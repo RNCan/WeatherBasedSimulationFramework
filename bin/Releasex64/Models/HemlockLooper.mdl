@@ -119,16 +119,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>NewEggs</Name>
-            <Title>NewEggs</Title>
+            <Name>DeadAttrition</Name>
+            <Title>DeadAttrition</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DeadAttrition</Name>
-            <Title>DeadAttrition</Title>
+            <Name>DeadFrozen</Name>
+            <Title>DeadFrozen</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

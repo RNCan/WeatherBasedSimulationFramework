@@ -69,55 +69,6 @@ namespace WBSF
 	CHemlockLooperModel::~CHemlockLooperModel()
 	{}
 
-
-	ERMsg CHemlockLooperModel::OnExecuteDaily()
-	{
-		ERMsg msg;
-
-		//Excute model on a daily basis
-		ExecuteDaily(m_output);
-
-		return msg;
-	}
-
-	void CHemlockLooperModel::ExecuteDaily(CModelStatVector& output)
-	{
-		//execute daily using continuing ratio structure
-		CHemlockLooperCR CR;
-		CR.m_startJday = m_startJday;
-		CR.m_lowerThreshold = m_threshold;
-		CR.m_method = CDegreeDays::DAILY_AVERAGE;
-		CR.m_bPercent = true;
-		CR.m_bCumul = m_bCumulative;
-		CR.m_bMultipleVariance = true;
-		CR.m_bAdjustFinalProportion = true;
-
-		for (size_t i = 0; i < NB_PARAMS; i++)
-		{
-			CR.m_a[i] = m_a[i];
-			CR.m_b[i] = m_b[i];
-		}
-
-		CR.Execute(m_weather, output);
-
-		//kill adult when temperature under -5°C
-		for (CTRef TRef = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
-		{
-			if (m_weather[TRef][H_TMIN2][MEAN] < -5)
-			{
-				for (CTRef TRef2 = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
-				{
-
-				}
-
-				break;
-			}
-		}
-
-	}
-
-
-
 	//this method is called to load the generic parameters vector into the specific class member
 	ERMsg CHemlockLooperModel::ProcessParameters(const CParameterVector& parameters)
 	{
@@ -140,6 +91,63 @@ namespace WBSF
 
 		return msg;
 	}
+
+	ERMsg CHemlockLooperModel::OnExecuteDaily()
+	{
+		ERMsg msg;
+
+		//Excute model on a daily basis
+		ExecuteDaily(m_output);
+
+		return msg;
+	}
+
+	void CHemlockLooperModel::ExecuteDaily(CModelStatVector& output)
+	{
+		//for (size_t y = 0; y < m_weather.size(); y++)
+			//m_weather[y][H_TAIR2];
+
+		//m_weather.SetHourly(false);
+
+
+		//execute daily using continuing ratio structure
+		CHemlockLooperCR CR;
+		CR.m_startJday = m_startJday;
+		CR.m_lowerThreshold = m_threshold;
+		CR.m_method = CDegreeDays::DAILY_AVERAGE;
+		CR.m_bPercent = true;
+		CR.m_bCumul = m_bCumulative;
+		CR.m_bMultipleVariance = true;
+		CR.m_bAdjustFinalProportion = true;
+
+		for (size_t i = 0; i < NB_PARAMS; i++)
+		{
+			CR.m_a[i] = m_a[i];
+			CR.m_b[i] = m_b[i];
+		}
+		
+		
+		CR.Execute(m_weather, output);
+
+		//kill adult when temperature under -5°C
+		for (CTRef TRef = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
+		{
+			if (m_weather[TRef][H_TMIN2][MEAN] < -5)
+			{
+				for (CTRef TRef2 = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
+				{
+
+				}
+
+				break;
+			}
+		}
+
+	}
+
+
+
+	
 
 	//*****************************************************************************************************************
 	//Next 4 methods are for Simulated Annealing

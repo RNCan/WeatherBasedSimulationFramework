@@ -49,14 +49,14 @@ namespace WBSF
 			{
 				cumulCreated += sigma>0 ? nbObjects / (sigma*pow((2 * PI), 0.5)) * exp(-0.5*Square((TRef - peakDay) / sigma)) : nbObjects;
 
-				size_t nbObjectToCreate = max(size_t(0), Round<size_t>(cumulCreated - nbCreated));
+				size_t nbObjectToCreate = size_t(max(0, Round<int>(cumulCreated - nbCreated)));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
 					push_back(CIndividualInfo(TRef, age, sex, bFertil, generation, scaleFactor));
 
 				nbCreated += nbObjectToCreate;
 			}
 
-			ASSERT(size() == nbObjects);
+			ASSERT( abs( int(size()) - int(nbObjects) ) <= 1);
 
 			while (size() < nbObjects)
 				push_back(CIndividualInfo(peakDay, age, sex, bFertil, generation, scaleFactor));
@@ -497,10 +497,10 @@ namespace WBSF
 
 		CStatistic stat = GetStat(var, p);
 
-		if (stat[SUM] > 0)
+		if (stat[SUM] > 100)//nead at least 100 eggs, if there is not enought eggs, the period of lais is not longer enought to hafe to objects
 		{
 			//Get nbDay with activity
-			double nbIndividuPerObject = initialPopulation / nbObjects;
+			double scaleFactor = initialPopulation / nbObjects;
 
 			size_t nbCreated = 0;
 			double cumulCreated = 0;
@@ -511,14 +511,20 @@ namespace WBSF
 			{
 				cumulCreated += nbObjects*at(TRef).at(var) / stat[SUM];
 
-				size_t nbObjectToCreate = max(size_t(0), Round<size_t>(cumulCreated - nbCreated));
+				size_t nbObjectToCreate = size_t(max(0, Round<int>(cumulCreated - nbCreated)));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
-					population.push_back(CIndividualInfo(TRef, age, sex, bFertil, generation, nbIndividuPerObject));
+					population.push_back(CIndividualInfo(TRef, age, sex, bFertil, generation, scaleFactor));
 
 				nbCreated += nbObjectToCreate;
 			}
 
 			ASSERT(population.size() == nbObjects);
+
+			double ipTest = 0;
+			for (size_t i = 0; i < population.size(); i++)
+				ipTest += population[i].m_scaleFactor;
+
+			ASSERT(fabs(ipTest - initialPopulation) < 0.001);
 			//for(size_t i=size(); i<nbObjects; i++)
 			//proportionVector.push_back( CProportionStat(peak, nbIndividuPerObject) );
 		}
@@ -549,7 +555,7 @@ namespace WBSF
 		//		}
 		//	}
 		//}
-
+	
 
 
 		//CModelStatVector& me = *this;

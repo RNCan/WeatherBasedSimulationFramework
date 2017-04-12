@@ -40,8 +40,8 @@ namespace WBSF
 
 
 	
-	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 10-04-2017
-	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 10-04-2017
+	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 	HemlockLooperEquations::HemlockLooperEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
