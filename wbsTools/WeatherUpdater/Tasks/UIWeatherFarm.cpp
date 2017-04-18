@@ -476,7 +476,7 @@ namespace WBSF
 							if (it->first.front() == 'P')
 							{
 								location.m_ID = metadata["id"].string_value();
-								location.m_name = metadata["name"].string_value();
+								location.m_name = WBSF::PurgeFileName(metadata["name"].string_value());
 								location.m_lat = ToDouble(metadata["latitude"].string_value());
 								location.m_lon = ToDouble(metadata["longitude"].string_value());
 								location.SetSSI("Network", "WeatherFarm");
