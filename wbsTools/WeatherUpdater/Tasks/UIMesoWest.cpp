@@ -292,7 +292,7 @@ namespace WBSF
 
 		((CLocation&)station) = m_stations[pos];
 
-		station.m_name = WBSF::PurgeFileName(station.m_name);
+		station.m_name = WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(station.m_name));
 
 
 
@@ -525,8 +525,8 @@ namespace WBSF
 		ReplaceString(str, "?", "");
 
 		Trim(str);
-
-		return str;
+		
+		return WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(str));
 	}
 
 	/*CTPeriod  GetPeriod(string str)

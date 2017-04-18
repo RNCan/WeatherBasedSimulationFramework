@@ -990,7 +990,7 @@ namespace WBSF
 		while (nbRun < 5 && curY<nbYears && msg)
 		{
 			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size()*nbYears * 12 : stationsList.size()*(nbYears - 1) * 12 + stationsList.size()*(currentTRef.GetMonth() + 1);
-			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(stationsList.size()) + " stations)", totalFiles);
+			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
 
 			nbRun++;
 			msg = GetHttpConnection(SERVER_NAME[HAGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
@@ -1026,7 +1026,7 @@ namespace WBSF
 								{
 									string source;
 									size_t nbDays = year < currentTRef.GetYear() || m < currentTRef.GetMonth() ? GetNbDayPerMonth(year, m) : currentTRef.GetDay() + 1;
-									callback.PushTask("Update station (ID=" + stationsList[i] + ") for " + GetMonthTitle(m) + " (" + ToString(nbDays) + " days)", nbDays);
+									callback.PushTask("Update station (ID=" + stationsList[i] + ") for " + GetMonthTitle(m) + " "+ ToString(year)+ " (" +  ToString(nbDays) + " days)", nbDays);
 
 
 									for (size_t d = 0; d < nbDays && msg; d++)

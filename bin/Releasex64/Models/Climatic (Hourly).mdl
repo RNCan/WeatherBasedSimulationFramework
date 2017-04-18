@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>Climatic Daily</Title>
+    <Title>Climatic Hourly</Title>
     <Version>2.0</Version>
     <ID>.null</ID>
     <EXE>Climatic.dll</EXE>
@@ -60,58 +60,65 @@
         <OutputVariable>
             <Name>Prcp</Name>
             <Title>Prcp</Title>
-            <Units/>
+            <Units>mm</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>3</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Tdew</Name>
             <Title>Tdew</Title>
-            <Units/>
+            <Units>°C</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>4</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>RelH</Name>
-            <Title>Hr</Title>
-            <Units/>
+            <Title>RelH</Title>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>5</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>WndS</Name>
-            <Title>WindSpeed</Title>
-            <Units/>
+            <Title>WndS</Title>
+            <Units>km/h</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>6</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>WndD</Name>
-            <Title>WindDir</Title>
-            <Units/>
+            <Title>WndD</Title>
+            <Units>°</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>7</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>SRad</Name>
-            <Title>SRad</Title>
-            <Units/>
+            <Name>Srad</Name>
+            <Title>Srad</Title>
+            <Units>Watt/m²</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>8</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Pres</Name>
-            <Title>AtmPressure</Title>
-            <Units/>
+            <Name>Z</Name>
+            <Title>P</Title>
+            <Units>hPa</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>9</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
