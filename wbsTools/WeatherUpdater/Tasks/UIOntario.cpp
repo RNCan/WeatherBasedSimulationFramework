@@ -19,20 +19,6 @@ using namespace UtilWWW;
 using namespace boost;
 
 
-////HG - water level
-//TW - water temperature
-//TA - air temperature
-//UD - wind direction
-//US - wind speed
-//UG - wind gust
-//PC - precipitation
-//XR - relative humidity
-//PA - atmospheric pressure
-//https://www.hydro.mb.ca/hydrologicalData/static/stations/05KL701/Parameter/TA/DayMeanYear.html
-//https://www.hydro.mb.ca/hydrologicalData/static/data/graph.json?v=20160613054508
-//view-source:https://www.hydro.mb.ca/hydrologicalData/static/stations/05KL701/station.html?v=20160513054508
-//https://www.hydro.mb.ca/hydrologicalData/static/
-
 //Table60ElementPos	Table60ElementName	Table60ElementDesc	Table60ElementUnits
 //1	TMSTAMP	time stamp of record at interval completion	CDST "yyyy-mm-dd hh:mm"
 //2	RECNBR	seq table record number from prog change / start	int
@@ -103,7 +89,7 @@ using namespace boost;
 
 namespace WBSF
 {
-
+	//www.affes.mnr.gov.on.ca/Extranet/Bulletin_Boards/WXProducts/WxHourly.csv
 	const char* CUIOntario::SERVER_NAME = "www.affes.mnr.gov.on.ca";
 	const char* CUIOntario::SERVER_PATH = "Extranet/Bulletin_Boards/WXProducts/";
 

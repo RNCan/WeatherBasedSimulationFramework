@@ -48,9 +48,9 @@ namespace WBSF
 		m_Tmin = 999;
 
 		//no pre-diapause for insects created on January first
-		//m_preDiapause = creationDate.GetJDay() == 0 ? 1 : 0;
+		m_preDiapause = creationDate.GetJDay() == 0 ? 1 : 0;
 		//first year insect are set at September 15
-		m_preDiapause = 0;
+		//m_preDiapause = 0;
 
 		//A creation date is assigned to each individual
 		//Individual's "relative" development rate for each life stage
@@ -140,7 +140,8 @@ namespace WBSF
 				}
 			}
 
-			if (weather.GetTRef().GetYear() > m_creationDate.GetYear())//aging starts January first of the next year
+			if (m_creationDate.GetJDay() == 0 ||
+				weather.GetTRef().GetYear() > m_creationDate.GetYear())//aging starts January first of the next year
 				m_age += r;
 		}
 
@@ -278,14 +279,17 @@ namespace WBSF
 
 		if (d == m_hatchTRef)
 		{
-			const CHLStand& stand = *GetStand();
-			double L = stand.GetModel()->m_weather.m_lat;
+			if (m_creationDate.GetJDay() == 0)
+			{
+				const CHLStand& stand = *GetStand();
+				double L = stand.GetModel()->m_weather.m_lat;
 
-			stat[E_SWEIGHT] += stand.m_survival.Sweight(L)*m_scaleFactor;
-			stat[E_SENERGY] += stand.m_survival.Senergy(m_ʃT)*m_scaleFactor;
-			stat[E_SCOLD] += stand.m_survival.Scold(m_Tmin)*m_scaleFactor;
-			stat[E_SHATCH] += m_Sh*m_scaleFactor;
-			stat[E_NB_HATCH] += m_scaleFactor;
+				stat[E_SWEIGHT] += stand.m_survival.Sweight(L)*m_scaleFactor;
+				stat[E_SENERGY] += stand.m_survival.Senergy(m_ʃT)*m_scaleFactor;
+				stat[E_SCOLD] += stand.m_survival.Scold(m_Tmin)*m_scaleFactor;
+				stat[E_SHATCH] += m_Sh*m_scaleFactor;
+				stat[E_NB_HATCH] += m_scaleFactor;
+			}
 		}
 
 		if (!IsAlive())

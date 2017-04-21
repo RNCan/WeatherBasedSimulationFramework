@@ -40,8 +40,10 @@ namespace WBSF
 
 
 	
-	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 10-04-2017
-	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 10-04-2017
+	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
+	
 
 	HemlockLooperEquations::HemlockLooperEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
@@ -52,6 +54,11 @@ namespace WBSF
 
 		for (size_t i = 0; i < NB_STAGES - 1; i++)
 			m_rho25Factor[i] = RHO25_FACTOR[i];
+
+		for (size_t i = 0; i < NB_PARAM; i++)
+			m_eggsParam[i] = DEFAULT_P[EGGS][i];
+		
+		
 
 		Init();
 	}
@@ -95,19 +102,37 @@ namespace WBSF
 			if (T>0)
 				r = 1.0 / (a * pow(T, b));
 		}
+		else if (s == EGGS) //Eggs
+		{
+			enum{ rho, Hᴬ, Hᴸ, Tᴸ, Hᴴ, Tᴴ };
+			static const double R = 1.987E-3;
+
+			if (T > 3.35)
+			{
+				double K = T + 273.0;
+				double rho25 = m_rho25Factor[EGGS] * m_eggsParam[rho];
+				double num = rho25*K / 298.0*exp(m_eggsParam[Hᴬ] / R*(1 / 298.0 - 1.0 / K));
+				double den1 = exp(m_eggsParam[Hᴸ] / R*(1 / m_eggsParam[Tᴸ] - 1 / K));
+				double den2 = exp(m_eggsParam[Hᴴ] / R*(1 / m_eggsParam[Tᴴ] - 1 / K));
+
+				r = num / (1 + den1 + den2);
+			}
+		}
 		else
 		{
 			enum{ rho, Hᴬ, Hᴸ, Tᴸ, Hᴴ, Tᴴ };
 			static const double R = 1.987E-3;
 
+			if (T > 3.35)
+			{
+				double K = T + 273.0;
+				double rho25 = m_rho25Factor[s] * m_p[s][rho];
+				double num = rho25*K / 298.0*exp(m_p[s][Hᴬ] / R*(1 / 298.0 - 1.0 / K));
+				double den1 = exp(m_p[s][Hᴸ] / R*(1 / m_p[s][Tᴸ] - 1 / K));
+				double den2 = exp(m_p[s][Hᴴ] / R*(1 / m_p[s][Tᴴ] - 1 / K));
 
-			double K = T + 273.0;
-			double rho25 = m_rho25Factor[s] * m_p[s][rho];
-			double num = rho25*K / 298.0*exp(m_p[s][Hᴬ] / R*(1 / 298.0 - 1.0 / K));
-			double den1 = exp(m_p[s][Hᴸ] / R*(1 / m_p[s][Tᴸ] - 1 / K));
-			double den2 = exp(m_p[s][Hᴴ] / R*(1 / m_p[s][Tᴴ] - 1 / K));
-
-			r = num / (1 + den1 + den2);
+				r = num / (1 + den1 + den2);
+			}
 		}
 
 		assert(isfinite(r));
@@ -127,7 +152,7 @@ namespace WBSF
 
 		//Variability of egg development rate was 0.1172, and was multiplied by 0.5 to reflect the temperature dependence of this variability (smaller at cooler temperature)
 		//						       Egg       L1     L2     L3     L4   Pupae  Adult
-		const double σᵋ[NB_STAGES] = { 0.0586, 0.127, 0.246, 0.172, 0.150, 0.068, 0.314 };
+		const double σᵋ[NB_STAGES] = { 0.0469, 0.127, 0.246, 0.172, 0.150, 0.068, 0.314 };
 		const double Δρ[NB_SEX][NB_STAGES] =
 		{
 			{ 0, 0, 0, 0, 0, 0, 0 },//no adjustement for male

@@ -48,6 +48,22 @@ namespace WBSF
 				Init(true);
 		}
 
+		void SetEggParam(double eggsParam[NB_PARAM])
+		{
+			bool bHaveChange = false;
+			for (size_t s = 0; s < NB_PARAM; s++)
+			{
+				if (fabs(eggsParam[s] - m_eggsParam[s]) > 0.0000001)
+				{
+					bHaveChange = true;
+					m_eggsParam[s] = eggsParam[s];
+				}
+			}
+
+			if (bHaveChange)
+				Init(true);
+		}
+
 		double GetRate(size_t s, double L, double T)const;
 
 		double GetRelativeRate(size_t s, size_t sex)const;
@@ -59,11 +75,14 @@ namespace WBSF
 
 		double m_p[HemlockLooper::NB_STAGES - 1][NB_PARAM];
 		double m_rho25Factor[HemlockLooper::NB_STAGES - 1];
+		double m_eggsParam[NB_PARAM];
+		
 
 		virtual double ComputeRate(size_t s, double T)const;
 
 		static const double DEFAULT_P[HemlockLooper::NB_STAGES - 1][NB_PARAM];
 		static const double RHO25_FACTOR[HemlockLooper::NB_STAGES - 1];
+		
 	};
 
 

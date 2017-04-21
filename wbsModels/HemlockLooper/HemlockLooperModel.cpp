@@ -67,8 +67,11 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters as the model interface
 
-		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 19 : 1;
-		VERSION = "1.0.3 (2017)";
+		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 8 : 2;
+		VERSION = "1.0.4 (2017)";
+
+		m_timeStep = 4;
+
 
 		m_bApplyMortality = true;
 
@@ -76,6 +79,8 @@ namespace WBSF
 		m_bApplyAttrition = true;
 
 		memset(m_rho25Factor, 0, (NB_STAGES - 1)*sizeof(m_rho25Factor[0]));
+		memset(m_eggsParam, 0, (HemlockLooperEquations::NB_PARAM)*sizeof(m_eggsParam[0]));
+
 
 		//Simulated Annealing data type
 		m_dataType = DATA_UNKNOWN;
@@ -96,17 +101,13 @@ namespace WBSF
 		int c = 0;
 
 		m_bApplyMortality = parameters[c++].GetBool();
-		//m_bFertilEgg = parameters[c++].GetBool();
+		m_bComputeWinterMortality = parameters[c++].GetBool();
 
-		//if (ACTIVATE_PARAMETRIZATION)
-		//{
-		//	m_nbMinObjects = parameters[c++].GetInt();
-		//	m_nbMaxObjects = parameters[c++].GetInt();
-		//	m_nbObjects = parameters[c++].GetInt();
-		//	//m_bAutoBalanceObject = parameters[c++].GetBool();
-		//	for (int s = 0; s < NB_STAGES - 1; s++)
-		//		m_rho25Factor[s] = parameters[c++].GetReal();
-		//}
+		if (ACTIVATE_PARAMETRIZATION)
+		{
+			for (int s = 0; s < HemlockLooperEquations::NB_PARAM; s++)
+				m_eggsParam[s] = parameters[c++].GetReal();
+		}
 
 		return msg;
 	}
@@ -160,7 +161,7 @@ namespace WBSF
 
 	void CHLModel::GetDailyStat(CModelStatVector& stat)
 	{
-		ASSERT(m_weather.GetNbYears() > 1);
+		//ASSERT(m_weather.GetNbYears() > 1);
 
 		if (!m_weather.IsHourly())
 		{
@@ -168,18 +169,30 @@ namespace WBSF
 			m_weather.ComputeHourlyVariables(); 
 		}
 
+		
+
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM::DAILY);
-		p.Begin().m_year++;//skip the first year (initialization)
+		//p.Begin().m_year++;//skip the first year (initialization)
 
 		//This is where the model is actually executed
 		stat.Init(p, NB_HL_STAT);
 
-		CInitialPopulation inititialPopulation = GetFirstOviposition();
+		//CInitialPopulation inititialPopulation = GetFirstOviposition();
+		//CInitialPopulation inititialPopulation(CTRef(m_weather.GetFirstYear(), SEPTEMBER, DAY_15), 5);
+		
+		CInitialPopulation inititialPopulation;
 
-		for (size_t y1 = 0; y1 < m_weather.size() - 1; y1++)
+		//for (size_t y1 = 0; y1 < m_weather.size() - 1; y1++)
+		for (size_t y = 0; y < m_weather.size(); y++)
 		{
+			
+
 			//Create stand
-			int year = m_weather[y1].GetTRef().GetYear();
+			int year = m_weather[y].GetTRef().GetYear();
+			if (!m_bComputeWinterMortality || y==0)
+				inititialPopulation = CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0);
+			
+
 			CHLStand stand(this);
 
 			stand.m_bApplyMortality = m_bApplyMortality;
@@ -188,6 +201,7 @@ namespace WBSF
 			//always add trees in stand first
 			CHLTreePtr pTree = make_shared<CHLTree>(&stand);
 			stand.m_host.push_front(pTree);
+			
 
 
 			//Create the initial population
@@ -196,38 +210,59 @@ namespace WBSF
 			//if Simulated Annealing, set 
 			if (ACTIVATE_PARAMETRIZATION)
 			{
-				stand.m_development.SetRho25(m_rho25Factor);
+				stand.m_development.SetEggParam(m_eggsParam);
+				//stand.m_development.SetRho25(m_rho25Factor);
 				//stand.m_rates.Save("D:\\Rates.csv"); 
 			}
 
 
-			for (size_t y2 = 0; y2 < 2; y2++)
+			
+			if (m_bComputeWinterMortality && y>0)
 			{
-				size_t yy = y1 + y2;
-				for (size_t m = 0; m < m_weather[yy].size(); m++)
+				for (size_t yy = y; yy < y+2; yy++)
 				{
-					for (size_t d = 0; d < m_weather[yy][m].size(); d++)
-					{ 
-						CTRef TRef = m_weather[yy][m][d].GetTRef();
-						stand.Live(m_weather[yy][m][d]);
-						if (stat.IsInside(TRef) && y2 == 1)
-							stand.GetStat(TRef, stat[TRef]); 
-						//	stat[TRef][E_FEMALES] = stand.GetNbObjectAlive();
-						//	stat[TRef][S_DEAD_ATTRITION] = stand.GetFirstHost()->size();
-						//}
+					for (size_t m = 0; m < m_weather[yy].size(); m++)
+					{
+						for (size_t d = 0; d < m_weather[yy][m].size(); d++)
+						{ 
+							CTRef TRef = m_weather[yy][m][d].GetTRef();
+							stand.Live(m_weather[yy][m][d]);
+							if (stat.IsInside(TRef) && yy == y+1)
+								stand.GetStat(TRef, stat[TRef]); 
+							//	stat[TRef][E_FEMALES] = stand.GetNbObjectAlive();
+							//	stat[TRef][S_DEAD_ATTRITION] = stand.GetFirstHost()->size();
+							//}
+
+							stand.AdjustPopulation();
+							HxGridTestConnection();
+						}
+					}
+
+					stand.HappyNewYear();
+				}
+			}
+			else
+			{
+				for (size_t m = 0; m < m_weather[y].size(); m++)
+				{
+					for (size_t d = 0; d < m_weather[y][m].size(); d++)
+					{
+						CTRef TRef = m_weather[y][m][d].GetTRef();
+						stand.Live(m_weather[y][m][d]);
+						stand.GetStat(TRef, stat[TRef]);
 
 						stand.AdjustPopulation();
 						HxGridTestConnection();
 					}
 				}
-
-				stand.HappyNewYear();
 			}
-
 			
-			inititialPopulation = stat.GetInitialPopulation(E_BROODS, m_weather[y1 + 1].GetEntireTPeriod(CTM::DAILY));
-			if (inititialPopulation.empty())
-				inititialPopulation.Initialize(CTRef(year + 1, SEPTEMBER, DAY_15), 5);
+			if (m_bComputeWinterMortality)
+			{
+				inititialPopulation = stat.GetInitialPopulation(E_BROODS, m_weather[y + 1].GetEntireTPeriod(CTM::DAILY));
+				if (inititialPopulation.empty())
+					inititialPopulation.Initialize(CTRef(year + 1, JANUARY, DAY_01), 5);
+			}
 		}
 	}
 
@@ -313,23 +348,22 @@ namespace WBSF
 	//simulated annaling 
 	void CHLModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		if (header.size() == NB_DATA_EMERGENCE)
+		if (header.size() == NB_DATA_ECLOSION)
 		{
 			ASSERT(header[DE_YEAR] == "Year");
 			ASSERT(header[DE_MONTH] == "Month");
 			ASSERT(header[DE_DAY] == "Day");
 			ASSERT(header[DE_JDAY] == "Jday");
-			ASSERT(header[DE_L1] == "L1_(%)");
-			ASSERT(header[DE_N] == "n");
+			ASSERT(header[DE_ECLOSION_CUMUL] == "Eclosion Cumul(%)");
 
-			m_dataType = OPT_EMERGENCE;
+			m_dataType = OPT_ECLOSION;
 			CTRef ref(ToInt(data[DE_YEAR]), ToSizeT(data[DE_MONTH]) - 1, ToSizeT(data[DE_DAY]) - 1);
 
 			std::vector<double> obs;
-			obs.push_back(ToDouble(data[DE_L1]));
-			obs.push_back(ToDouble(data[DE_N]));
+			obs.push_back(ToDouble(data[DE_ECLOSION_CUMUL]));
+			//obs.push_back(ToDouble(data[DE_N]));
 
-			ASSERT(obs.size() == NB_OBS_EMERGENCE);
+			ASSERT(obs.size() == NB_OBS_ECLOSION);
 			m_SAResult.push_back(CSAResult(ref, obs));
 		}
 		else if (header.size() == NB_DATA_STAGE)
@@ -416,7 +450,7 @@ namespace WBSF
 
 			switch (m_dataType)
 			{
-			case OPT_EMERGENCE: GetFValueDailyEmergence(stat); break;
+			case OPT_ECLOSION: GetFValueDailyEclosion(stat); break;
 			case OPT_STAGE: GetFValueDailyStage(stat); break;
 			case OPT_AI: GetFValueDailyAI(stat); break;
 			default: ASSERT(false);
@@ -424,7 +458,7 @@ namespace WBSF
 		}
 	}
 
-	void CHLModel::GetFValueDailyEmergence(CStatisticXY& stat)
+	void CHLModel::GetFValueDailyEclosion(CStatisticXY& stat)
 	{
 
 		CHLStatVector statSim;
@@ -434,16 +468,15 @@ namespace WBSF
 		{
 			if (statSim.IsInside(m_SAResult[i].m_ref))
 			{
-				ASSERT(m_SAResult[i].m_obs.size() == NB_OBS_EMERGENCE);
+				ASSERT(m_SAResult[i].m_obs.size() == NB_OBS_ECLOSION);
 
-				double obsPropL2 = m_SAResult[i].m_obs[OE_L1];
-				double simPropL2 = statSim[m_SAResult[i].m_ref][S_L1];
+				double obs = m_SAResult[i].m_obs[OE_ECLOSION];
+				double sim = 100 - statSim[m_SAResult[i].m_ref][S_EGGS];
 
-				ASSERT(obsPropL2 >= 0 && obsPropL2 <= 100);
-				double n = (double)Round(sqrt(m_SAResult[i].m_obs[OE_N]));
-				for (int j = 0; j < n; j++)
-					stat.Add(simPropL2, obsPropL2);
-
+				//ASSERT(obsPropL2 >= 0 && obsPropL2 <= 100);
+				//double n = (double)Round(sqrt(m_SAResult[i].m_obs[OE_N]));
+				//for (int j = 0; j < n; j++)
+				stat.Add(sim, obs);
 			}
 		}
 	}

@@ -6,11 +6,11 @@
     <EXE>HemlockLooper.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>This model simulates the development of Hemlock Looper.</Description>
-    <WindowRect>0 0 78 284</WindowRect>
+    <WindowRect>0 0 131 284</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
-    <NbYearMin>2</NbYearMin>
+    <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
@@ -20,8 +20,20 @@
             <Description/>
             <Type>0</Type>
             <Rect>10 10 30 225</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <SeparatorPos>140</SeparatorPos>
             <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CopmputeWinterMortality</Name>
+            <Caption>Copmpute Winter Mortality</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>35 10 55 225</Rect>
+            <SeparatorPos>140</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
