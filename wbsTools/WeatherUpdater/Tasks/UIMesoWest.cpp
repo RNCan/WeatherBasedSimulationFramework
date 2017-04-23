@@ -602,7 +602,7 @@ namespace WBSF
 						location.m_ID = (*it)["STID"].string_value();
 						location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
 						location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
-						location.m_alt = WBSF::as<double>((*it)["ELEVATION"].string_value());
+						location.m_alt = WBSF::Feet2Meter(WBSF::as<double>((*it)["ELEVATION"].string_value()));
 
 
 						string country = (*it)["COUNTRY"].string_value();
