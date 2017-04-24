@@ -48,7 +48,7 @@ namespace WBSF
 				Init(true);
 		}
 
-		void SetEggParam(double eggsParam[NB_PARAM])
+		void SetEggParam(double Tlo, double eggsParam[NB_PARAM])
 		{
 			bool bHaveChange = false;
 			for (size_t s = 0; s < NB_PARAM; s++)
@@ -58,6 +58,12 @@ namespace WBSF
 					bHaveChange = true;
 					m_eggsParam[s] = eggsParam[s];
 				}
+			}
+
+			if (Tlo != m_Tlo)
+			{
+				bHaveChange = true;
+				m_Tlo = Tlo;
 			}
 
 			if (bHaveChange)
@@ -76,7 +82,7 @@ namespace WBSF
 		double m_p[HemlockLooper::NB_STAGES - 1][NB_PARAM];
 		double m_rho25Factor[HemlockLooper::NB_STAGES - 1];
 		double m_eggsParam[NB_PARAM];
-		
+		double m_Tlo;
 
 		virtual double ComputeRate(size_t s, double T)const;
 

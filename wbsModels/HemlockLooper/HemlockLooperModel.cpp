@@ -67,7 +67,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters as the model interface
 
-		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 8 : 2;
+		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 9 : 2;
 		VERSION = "1.0.4 (2017)";
 
 		m_timeStep = 4;
@@ -80,7 +80,7 @@ namespace WBSF
 
 		memset(m_rho25Factor, 0, (NB_STAGES - 1)*sizeof(m_rho25Factor[0]));
 		memset(m_eggsParam, 0, (HemlockLooperEquations::NB_PARAM)*sizeof(m_eggsParam[0]));
-
+		m_Tmin = 0;
 
 		//Simulated Annealing data type
 		m_dataType = DATA_UNKNOWN;
@@ -107,6 +107,9 @@ namespace WBSF
 		{
 			for (int s = 0; s < HemlockLooperEquations::NB_PARAM; s++)
 				m_eggsParam[s] = parameters[c++].GetReal();
+
+
+			m_Tmin = parameters[c++].GetReal();
 		}
 
 		return msg;
@@ -210,7 +213,7 @@ namespace WBSF
 			//if Simulated Annealing, set 
 			if (ACTIVATE_PARAMETRIZATION)
 			{
-				stand.m_development.SetEggParam(m_eggsParam);
+				stand.m_development.SetEggParam(m_Tmin, m_eggsParam);
 				//stand.m_development.SetRho25(m_rho25Factor);
 				//stand.m_rates.Save("D:\\Rates.csv"); 
 			}

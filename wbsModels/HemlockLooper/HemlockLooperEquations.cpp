@@ -30,7 +30,8 @@ namespace WBSF
 	const double HemlockLooperEquations::DEFAULT_P[NB_STAGES - 1][NB_PARAM] =
 	{
 	//   rho	  Ha      Hl      Tl      Hh	 Th
-		0.1022, 13.22, -49.60, 279.6, 120.0, 303.8,	//Egg
+		0.1022, 13.12, -44.36, 279.6, 37.01, 305.5, //SA HOBO
+		//0.1022, 13.22, -49.60, 279.6, 120.0, 303.8,	//Egg
 		0.2160, 10.37, -70.62, 282.8, 128.4, 303.6,	//L1
 		0.2720, 8.030, -70.79, 284.0, 216.9, 301.6,	//L2
 		0.2610, 6.300, -54.96, 285.4, 110.4, 301.8,	//L3 
@@ -38,10 +39,20 @@ namespace WBSF
 		0.0770, 4.770, -56.00, 284.0, 100.0, 302.2,	//Pupa
 	};
 
+	//HOBO all
+	//NbVal = 733	Bias = 0.14632	MAE = 9.98915	RMSE = 19.08965	CD = 0.77579	R² = 0.78558
+	//rho = 0.10223  HA = 13.12449  HL = -44.35833  TL = 279.60077  HH = 37.01095  TH = 305.53867  Tmin = 2.36056
 
+	//Weather stations hourly
+	//NbVal = 310	Bias = 1.18581	MAE = 9.72516	RMSE = 18.21809	CD = 0.79174	R² = 0.80992
+	//rho = 0.10215,HA = 13.19008 ,HL = -53.95094,TL = 279.59975,HH = 33.73600,TH = 303.56537
+
+	//Weather stations daily
+	//NbVal=   310	Bias= 0.78258	MAE=10.50323	RMSE=20.80570	CD= 0.72838	R²= 0.75146
+	//rho = 0.10157  HA = 14.19774  HL = -162.36868  TL = 279.37969  HH = 33.55626  TH = 300.08384
 	
-	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 0.8, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 10-04-2017
-	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+	const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 0.9, 0.9, 0.9, 0.9, 0.9 }; //BY RSA 22-04-2017
+	//const double HemlockLooperEquations::RHO25_FACTOR[NB_STAGES - 1] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 	
 
@@ -59,6 +70,8 @@ namespace WBSF
 			m_eggsParam[i] = DEFAULT_P[EGGS][i];
 		
 		
+		m_Tlo = 2.36;// 3.35;//m_Tmin already exist in base class
+		//m_Tlo = 3.35;//m_Tmin already exist in base class
 
 		Init();
 	}
@@ -107,7 +120,7 @@ namespace WBSF
 			enum{ rho, Hᴬ, Hᴸ, Tᴸ, Hᴴ, Tᴴ };
 			static const double R = 1.987E-3;
 
-			if (T > 3.35)
+			if (T > m_Tlo)
 			{
 				double K = T + 273.0;
 				double rho25 = m_rho25Factor[EGGS] * m_eggsParam[rho];

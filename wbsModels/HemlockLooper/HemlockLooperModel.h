@@ -44,6 +44,7 @@ namespace WBSF
 
 		double m_rho25Factor[HemlockLooper::NB_STAGES - 1];
 		double m_eggsParam[HemlockLooperEquations::NB_PARAM];
+		double m_Tmin;
 		
 
 		//for optimisation
