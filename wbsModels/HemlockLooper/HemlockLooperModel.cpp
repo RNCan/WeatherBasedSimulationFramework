@@ -70,9 +70,6 @@ namespace WBSF
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 9 : 2;
 		VERSION = "1.0.4 (2017)";
 
-		m_timeStep = 4;
-
-
 		m_bApplyMortality = true;
 
 		//developer parameters
@@ -164,14 +161,15 @@ namespace WBSF
 
 	void CHLModel::GetDailyStat(CModelStatVector& stat)
 	{
-		//ASSERT(m_weather.GetNbYears() > 1);
+		//m_timeStep = 1;
 
-		if (!m_weather.IsHourly())
+
+		if (!m_weather.IsHourly())//Generate hourly values if daily
 		{
-			//Generate hourly values
-			m_weather.ComputeHourlyVariables(); 
+			string options;// = "Tmethod=" + ToString(HG_SINE_POWER);
+			m_weather.ComputeHourlyVariables(m_weather.GetVariables(), options);
 		}
-
+			
 		
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM::DAILY);

@@ -458,7 +458,8 @@ double Td2Pv(double Td)
 double Pv2Td(double Pv)
 {
 	//from : http://www.conservationphysics.org/atmcalc/atmoclc2.pdf
-	return (241.88 * log(Pv / 0.61078)) / (17.558 - log(Pv / 0.61078));}
+	return (241.88 * log(Pv / 0.61078)) / (17.558 - log(Pv / 0.61078));
+}
 
 //mixing ratio (  kg[H2O]/kg[dry air] ) to specific humidity ( g[H2O]/kg[air] )
 //MR:  g[H2O]/kg[dry air] 
@@ -725,25 +726,253 @@ double GetAltitude(double P)
 	return alt;
 }
  
-//compute AllenWave temperature for one hour
-double GetAllenT(double Tmin1, double Tmax1, double Tmin2, double Tmax2, double Tmin3, double Tmax3, size_t h, size_t hourTmax)
+
+
+double GetPolarInterpol(double T0, double T1, double T2, double h)
 {
-	int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
-	static const double r_hour = 3.14159 / 12;
+	double Tair = 0;
 
-	double Tmin[3] = { Tmin1, Tmin2, Tmin3 };
-	double Tmax[3] = { Tmax1, Tmax2, Tmax3 };
+	if (h < 12)
+	{
+		Tair = T0 + h*(T1 - T0) / 11.0;
+	}
+	else
+	{
+		Tair = T1 + (h - 12)*(T2 - T1) / 11.0;
+	}
 
-	size_t i = h < hourTmax ? 1 : 2;
-	size_t ii = h < hourTmax - 12 ? 0 : 1;
+	return Round(Tair, 1);
+}
+
+
+
+double GetPolarSummer(double Tmin[3], double Tmax[3], double h)
+{
+	return WBSF::GetDoubleSine(Tmin, Tmax, h, 05, 16);
+}
+
+double GetPolarWinter(double Tmin[3], double Tmax[3], double h)
+{
+	double Tair[3] = { (Tmin[0] + Tmax[0]) / 2, (Tmin[1] + Tmax[1]) / 2, (Tmin[2] + Tmax[2]) / 2 };
+	double T[3] =
+	{
+		(Tair[0] < Tair[1]) ? Tmin[1] : Tmax[1],
+		(Tair[0] < Tair[1]) ? Tmax[1] : Tmin[1],
+		(Tair[1] < Tair[2]) ? Tmin[2] : Tmax[2],
+	};
+
+	return GetPolarInterpol(T[0], T[1], T[2], h);
+}
+
+
+// original from Parton (1981), corrected by Brandsma (2006)
+//from : Application of nearest-neighbor resampling for homogenizing temperature records on a daily to sub - daily level
+//Brandsma (2006)
+double GetSineExponential(double Tmin[3], double Tmax[3], double t, double Tsr, double Tss, size_t method)
+{
+	ASSERT(method<NB_SINE_EXP);
+
+	double Tair = 0;
+	double D = Tss - Tsr;
+
+	if (D>22)
+	{
+		//because of the correction, SineExponential can be use when day is 24 hour
+		//we used Ebrs instead
+		Tair = WBSF::GetSinePower(Tmin, Tmax, t, Tsr, Tss);
+	}
+	else
+	{
+		
+		//Tsr = ceil(Tsr);
+		//Tss = floor(Tss);
+		//Tsr = floor(Tsr);
+		//Tss = ceil(Tss);
+		//Tsr = Round(Tsr);
+		//Tss = Round(Tss);
+		//D = Tss - Tsr;
+		static const double ALPHA[NB_SINE_EXP] = { 2.59, 1.86 };
+		static const double BETA[NB_SINE_EXP]  = { 1.55, 0.00 };
+		static const double GAMMA[NB_SINE_EXP] = { 2.20, 2.20 };
+		
+		double alpha = ALPHA[method];
+		double beta = BETA[method];
+		double gamma = GAMMA[method];
+		
+		//double Tn = Tsr;// +beta;
+		
+		
+		if (t < Tsr)
+		{
+			//compute temperature at nightime before midnight
+			//double fs = D / (D + 2 * a);
+			double fs = (Tss - Tsr - beta) / (D + 2 * (alpha - beta));
+			assert(sin(PI*fs) >= 0);
+			double Tsun = float(Tmin[0] + (Tmax[0] - Tmin[0])*sin(PI*fs));
+
+			double f = min(0.0, -gamma*(t + 24 - Tss) / (24 - D + beta));
+			double f° = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
+			//double f = min(0.0, -b*(t + 24 - Tss) / (24 - D));
+			//double f° = min(0.0, -b*(Tsr + 24 - Tss) / (24 - D));
+			double rho = (Tmin[1] - Tsun*exp(f°)) / (1 - exp(f°));
+			Tair = rho + (Tsun - rho)*exp(f);
+
+			ASSERT(Tair >= rho || Tair >= Tsun);
+			ASSERT(f <= 0);
+			ASSERT(f <= 0);
+		}
+		else if (t <= Tss)
+		{
+			//compute daylight (equation 3a)
+			double f = max(0.0, (t - Tsr - beta) / (D + 2 * (alpha - beta)));
+			//double f = (t - Tsr) / (D + 2 * a);
+			assert(sin(PI*f) >= 0);
+
+			Tair = Tmin[1] + (Tmax[1] - Tmin[1])*sin(PI*f);
+			ASSERT(Tair >= Tmin[1]);
+		}
+		else //compute nightime (equation 1)
+		{
+			
+			double fs = (Tss - Tsr - beta) / (D + 2 * (alpha - beta));
+			//double fs = D / (D + 2 * a);
+			assert(sin(PI*fs) >= 0);
+
+			double Tsun = Tmin[1] + (Tmax[1] - Tmin[1])*sin(PI*fs);
+			
+			double f = min(0.0, -gamma*(t - Tss) / (24 - D + beta));
+			double f° = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
+			//double f = min(0.0, -b*(t - Tss) / (24 - D));
+			//double f° = min(0.0, -b*(Tsr + 24 - Tss) / (24 - D));
+			ASSERT(f <= 0 && f°<= 0);
+			
+			double rho = (Tmin[2] - Tsun*exp(f°)) / (1 - exp(f°));
+			Tair = rho + (Tsun - rho)*exp(f);
+
+			ASSERT(Tair >= rho || Tair >= Tsun);
+		}
+	}
+
+	return Round(Tair, 1);
+}
+
+double GetErbs(double Tmin[3], double Tmax[3], double t)
+{
+	size_t i = t < 14 ? 1 : 2;
+	size_t ii = t < 05 ? 0 : 1;
 	double Tmin² = Tmin[i];
 	double Tmax² = Tmax[ii];
-
-	double  mean = (Tmin² + Tmax²) / 2;
+	double mean = (Tmin² + Tmax²) / 2;
 	double range = Tmax² - Tmin²;
-	double theta = ((int)h - time_factor)*r_hour;
 
-	return mean + range / 2 * sin(theta);
+	double a = 2 * PI*t / 24;
+	double c = 0.4632*cos(a - 3.805) + 0.0984*cos(2 * a - 0.36) + 0.0168*cos(3 * a - 0.822) + 0.0138*cos(4 * a - 3.513);
+	double Tair = mean + range * c;
+
+
+	return Round(Tair, 1);
+}
+
+double GetSinePower(double Tmin[3], double Tmax[3], double t, double Tsr, double Tss)
+{
+	double Tair = 0;
+
+	double D = Tss - Tsr;
+
+	//Tsr = Round(Tsr);
+	//Tss = Round(Tss);
+
+	//Tsr = ceil(Tsr);
+	//Tss = floor(Tss);
+	//D = Tss - Tsr;
+
+	static const double a = 1.86;//savage2015
+	static const double b = 1.0/2.0;
+
+	//compute nightime (modified equation 1)
+	if (t < Tsr || t > Tss)
+	{
+		size_t i = t < Tsr ? 0 : 1;
+		size_t ii = t < Tsr ? 1 : 2;
+
+		double fs = D / (D + 2 * a);
+		assert(sin(PI*fs) >= 0);
+		double Tsun = float(Tmin[i] + (Tmax[i] - Tmin[i])*sin(PI*fs));
+
+		if (t < Tsr)
+			t += 24;
+
+		double f = max(0.0, (t - Tss) / (24 - D));
+		Tair = Tsun + (Tmin[ii] - Tsun)*pow(f, b);
+		ASSERT(Tair >= Tmin[ii] || Tair >= Tsun);
+	}
+	else
+	{
+		double f = (t - Tsr) / (D + 2 * a);
+		assert(sin(PI*f) >= 0);
+
+		Tair = Tmin[1] + (Tmax[1] - Tmin[1])*sin(PI*f);
+		ASSERT(Tair >= Tmin[1]);
+	}
+	//else //compute nightime (equation 1)
+	//{
+	//	double fs = D / (D + 2 * a);
+	//	assert(sin(PI*fs) >= 0);
+	//	double Tsun = Tmin[1] + (Tmax[1] - Tmin[1])*sin(PI*fs);
+
+	//	double f = max(0.0, (t - Tss) / (24 - D));
+	//	Tair = Tsun + (Tmin[2] - Tsun)*pow(f, 1.0 / 2);
+	//	ASSERT(Tair >= Tmin[2] || Tair >= Tsun);
+	//}
+	//}
+
+	return Round(Tair, 1);
+}
+//compute AllenWave temperature for one hour
+double GetDoubleSine(double Tmin[3], double Tmax[3], double h, double hourTmin, double hourTmax)
+{
+	_ASSERTE(hourTmin < hourTmax);
+
+	//force to arrive on extrem
+	if (fabs(h - hourTmin) <= 0.5)
+		h = hourTmin;
+
+	if (fabs(h - hourTmax) <= 0.5)
+		h = hourTmax;
+
+	size_t i = h < hourTmin ? 0 : 1;
+	size_t ii = h <= hourTmax ? 1 : 2;
+	
+	double Tmax² = Tmax[i];
+	double Tmin² = Tmin[ii];
+	
+
+	double mean = (Tmin² + Tmax²) / 2;
+	double range = Tmax² - Tmin²;
+	//double theta = ((int)h - time_factor)*r_hour;
+	double theta = 0;
+	if (h >= hourTmin && h <= hourTmax)
+	{
+		//from Tmin to Tmax
+		//size_t hh = (24 + h - hourTmin) % 24;
+		double  hh = h - hourTmin;
+		double nbh = hourTmax - hourTmin;
+		theta = PI*(-0.5 + hh / nbh);
+	}
+	else
+	{
+		//From Tmax to Tmin
+		//size_t hh = (24 + h - hourTmax) % 24;
+		if (h < hourTmax)
+			h += 24;
+
+		double  hh = h - hourTmax;
+		double nbh = 24 - (hourTmax - hourTmin);
+		theta = PI*(0.5 - hh / nbh);
+	}
+
+	//round at .1
+	return  Round(mean + range / 2 * sin(theta), 1);
 }
 
 //mean_sea_level to atmospheric pressure (at elevation)

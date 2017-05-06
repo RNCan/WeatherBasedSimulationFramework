@@ -120,7 +120,7 @@ namespace WBSF
 
 					short timeStep = 4;
 					CDailyWaveVector t;
-					wDay.GetAllenWave(t, 15, timeStep);
+					wDay.GetHourlyGeneration(t, HG_ALLEN_WAVE, timeStep);
 					double prcp = wDay[H_PRCP][SUM] / t.size();//in mm/h
 
 					double newSWESum = 0;

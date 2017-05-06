@@ -1890,6 +1890,7 @@ void CSun::Compute(double lat, double lon, double tzone, int year, size_t m, siz
 	double twam = riset - twx;      // morning twilight begin
 	double twpm = settm + twx;      // evening twilight end
 	if (riset > 24.0) riset-= 24.0;
+	if (riset < 0.0) riset = 0;
 	if (settm > 24.0) settm-= 24.0;
 	if (noont>24.0)   noont-= 24.0;
 	if( daylen>=24){riset=0;settm=24.0;}

@@ -1,5 +1,6 @@
 //**********************************************************************
 //
+// 04/05/2017   2.0.1   Rémi Saint-Amant    New hourly generation 
 // 20/09/2016	2.0.0	Rémi Saint-Amant    Compile with WBSF
 // 30/05/2013			Rémi Saint-Amant	Revision of parameter. Add Cumulative mode and Provicial location (NE, SE)
 // 08/04/2011			Rémi Saint-Amant	Create specific  SBW to Manitoba
@@ -97,7 +98,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters as the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "2.0.0 (2016)";
+		VERSION = "2.0.1 (2017)";
 
 
 		m_firstYear = -999;

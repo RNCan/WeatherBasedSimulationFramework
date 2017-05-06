@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 		enum TNetwork{FIRE, NB_NETWORKS};
-		enum TAttributes { WORKING_DIR, NB_ATTRIBUTES };
+		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NB_ATTRIBUTES };
 		static size_t GetNetwork(const std::string& network);
 
 
@@ -47,11 +47,15 @@ namespace WBSF
 		ERMsg UpdateStationsFile(CCallback& callback);
 
 		std::string GetStationsListFilePath(size_t network)const;
-		std::string GetOutputFilePath(size_t network, bool nHourly, const std::string& ID, int year)const;
-		
+		std::string GetOutputFilePath(int year, const std::string& ID)const;
+		ERMsg UpdateStationList(CCallback& callback);
 
-		ERMsg ExecuteFire(CCallback& callback);
-		ERMsg SplitFireData(const std::string& outputFilePath, CCallback& callback);
+		static CTRef GetTRef(std::string str);
+		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
+		//ERMsg ExecuteFire(CCallback& callback);
+		//ERMsg SplitFireData(const std::string& outputFilePath, CCallback& callback);
+
+
 
 		CLocationVector m_stations;
 

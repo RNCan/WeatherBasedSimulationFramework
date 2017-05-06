@@ -1,20 +1,19 @@
 //*********************************************************************
-// File: SafranyikModel.cpp
+// File: MPB-SLRModel.cpp
 //
 // Class: CMPBModel
 //
 //************** MODIFICATIONS  LOG ********************
-// 11/05/2016	Rémi Saint-Amant    New compile with WBSF
-// 17/03/2012   Rémi Saint-Amant    Build with new BioSIMModelBase. varaible by memory.
-// 31/03/2010	Rémi Saint-Amant    Add original Safranyik computation
-// 26/05/2009   Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
-// 03/02/2009   Rémi Saint-Amant    Add gProduct3: Logan2b and cold tolerance
-// 01/09/2006   Rémi Saint-Amant    Creation
-
-
-
-
+// 04/05/2017	2.3.1   Rémi Saint-Amant    New compile 
+// 11/05/2016	        Rémi Saint-Amant    New compile with WBSF
+// 17/03/2012           Rémi Saint-Amant    Build with new BioSIMModelBase. varaible by memory.
+// 31/03/2010	        Rémi Saint-Amant    Add original Safranyik computation
+// 26/05/2009           Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
+// 03/02/2009           Rémi Saint-Amant    Add gProduct3: Logan2b and cold tolerance
+// 01/09/2006           Rémi Saint-Amant    Creation
 //*********************************************************************
+
+
 #include "MPB-SLRModel.h"
 #include "SLR.h"
 #include "ModelBase/EntryPoint.h"
@@ -39,7 +38,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 7;
-		VERSION = "2.3.0 (2016)";
+		VERSION = "2.3.1 (2017)";
 	}
 
 	CMPBModel::~CMPBModel()

@@ -1,10 +1,12 @@
 //************** M O D I F I C A T I O N S   L O G ********************
-//Creation: 2005 by Jacques Régnière and Rémi Saint-Amant
 //Modification: 
-// 11/05/2016   Rémi Saint-Amant    New compilation with WBSF
-// 27/03/2013   Rémi Saint-Amant    New compilation
-// 02/08/2012   Rémi Saint-Amant    Stream compatible 
-// 26/05/2009   Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
+// 04/05/2017   2.3.1   Rémi Saint-Amant    New compile
+// 11/05/2016		    Rémi Saint-Amant    New compilation with WBSF
+// 27/03/2013		    Rémi Saint-Amant    New compilation
+// 02/08/2012		    Rémi Saint-Amant    Stream compatible 
+// 26/05/2009		    Rémi Saint-Amant    Compile with the new BioSIMModelBase (Compatible with hxGrid)
+// 01/01/2005           Jacques Régnière 
+//					    Rémi Saint-Amant    Creation
 //**********************************************************************
 #include "MPB-CTModel.h"
 #include "../MPBColdTolerance.h"
@@ -41,7 +43,7 @@ namespace WBSF
 	CMPB_CT_model::CMPB_CT_model()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "2.3.0 (2016)";
+		VERSION = "2.3.1 (2017)";
 
 		//	Model parameters
 		//m_RhoG=0.311;

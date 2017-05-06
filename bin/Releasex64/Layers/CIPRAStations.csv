@@ -452,4 +452,80 @@ YamaskaNord,Yamaska Nord,47.995,-72.923,7,quebec,MDDELCC
 7020572,Bécancour (Aréna),46.3499984741,-72.4333343506,18,quebec,MDDELCC
 steja,Sainte-Jeanne-d'Arc,49.096,-72.023,213,quebec,MDDELCC
 50012,Cloutier,48.0119,-79.1328,273,quebec,MDDELCC
-
+Caus,Causapscal,49.6292,-67.2233,233,quebec,MDDELCC
+LacM,Lac Megantic,46.4153,-70.8872,489,quebec,MDDELCC
+71581,Algonquin Park,45.53,-78.27,397,ontario,EC
+71294,Bancroft,45.07,-77.87,331,ontario,EC
+71314,Barrie-oro,44.48,-79.55,289,ontario,EC
+71694,Beatrice Climate,45.13,-79.4,297,ontario,EC
+71161,Brockville Climate,44.63,-75.73,121,ontario,EC
+71431,Cobourg (AUT),43.95,-78.17,78,ontario,EC
+71270,Collingwood,44.5,-80.22,180,ontario,EC
+71465,Erieau,42.25,-81.9,178,ontario,EC
+71261,Goderich,43.77,-81.72,214,ontario,EC
+71297,Hamilton_Rbg_Cs,43.28,-79.9,102,ontario,EC
+71300,Kemptville,45,-75.63,99,ontario,EC
+71460,Killarney,45.97,-81.48,196,ontario,EC
+71820,Kingston Climate,44.22,-76.58,93,ontario,EC
+71631,Mount Forest (AUT),43.98,-80.75,415,ontario,EC
+71731,North Bay,46.35,-79.42,370,ontario,EC
+71063,Ottawa Cda,45.38,-75.72,79,ontario,EC
+71672,Peterborough Trent U,44.35,-78.3,217,ontario,EC
+71430,Point Petre,43.83,-77.15,79,ontario,EC
+71746,Sarnia,43,-82.3,181,ontario,EC
+71193,Timmins Climate,48.55,-81.38,294,ontario,EC
+71767,Tobermory_Rcs,45.23,-81.63,214,ontario,EC
+71171,Vineland Station RCS,43.18,-79.4,79,ontario,EC
+71752,Welland-Pelham,42.97,-79.33,180,ontario,EC
+CYZR,Aeroport Chris Hadfield de Sarnia,43,-82.31667,181,ontario,EC
+CYAT,Attawapiskat Airport,52.9275,-82.4319,9,ontario,EC
+CYBN,BFC Borden,44.25,-79.91667,223,ontario,EC
+CYTR,BFC Trenton,44.11667,-77.53333,85,ontario,EC
+CWWB,Burlington Piers (aut),43.3,-79.8,77,ontario,EC
+CXCA,Cameron Falls (aut),49.15,-88.35,233,ontario,EC
+Earlton,Earlton,47.68,-79.83,243,ontario,EC
+CYXR,Earlton,47.69745,-79.85332,244,ontario,EC
+CZEL,Elora Rcs,43.65,-80.42,376,ontario,EC
+CTAG,Fort_Frances_Rcs,48.65111,-93.43889,342,ontario,EC
+CXDI,Delhi Cs,42.8667,-80.55,232,ontario,EC
+CYZE,Gore Bay Climate,45.88333,-82.56667,193,ontario,EC
+CTGT,Guelph Turfgrass,43.55,-80.21667,330,ontario,EC
+CXHA,Harrow_Cda_Auto,42.03,-82.9,191,ontario,EC
+CYGK,Kingston,44.21667,-76.6,93,ontario,EC
+CWGL,Lagoon City,44.53333,-79.21667,221,ontario,EC
+CWSN,London_Cs,43.03,-81.15,278,ontario,EC
+CXPC,Parry_Sound_Ccg,45.35,-80.05,176,ontario,EC
+CTPM,Pembroke,45.86028,-77.25222,155,ontario,EC
+CXPT,Point_Pelee_Cs,41.95,-82.52,177,ontario,EC
+CWWZ,Port Weller,43.25,-79.21667,79,ontario,EC
+CXRG,Ridgetown_Rcs,42.45,-81.88,206,ontario,EC
+CWNB,Southeast Shoal (aut),41.83333,-82.46667,195,ontario,EC
+CYSB,Sudbury,46.61667,-80.8,348,ontario,EC
+CYTS,Timmins,48.56667,-81.36667,295,ontario,EC
+CTUX,Uxbridge,44.09833,-79.16362,315,ontario,EC
+CXVN,Vineland_Station_Rcs,43.18,-79.4,79,ontario,EC
+CYKF,Waterloo Well,43.46667,-80.38333,317,ontario,EC
+CYXZ,Wawa,47.96667,-84.78333,287,ontario,EC
+CWEC,Welcome Island,48.36667,-89.11667,209,ontario,EC
+CTWL,Welland-pelham,42.96667,-79.33333,175,ontario,EC
+CWMZ,Western Island Meteorological Aeronautical Presentation System,45.03333,-80.36667,191,ontario,EC
+CYVV,Aeroport_de_Wiarton,44.75,-81.1,222,ontario,EC
+CYQG,Aeroport_de_Windsor,42.26667,-82.96667,190,ontario,EC
+CYYZ,Aeroport_int._Pearson_de_Toronto,43.66667,-79.63333,173,ontario,EC
+CYSN,Aeroport_de_St._Catharines,43.2,-79.16667,98,ontario,EC
+CYAM,Aeroport_de_Sault_Ste._Marie,46.48333,-84.5,187,ontario,EC
+CXTO,Toronto_City,43.67,-79.4,113,ontario,EC
+CYKZ,Aeroport_municipal_de_Toronto_Buttonville,43.86667,-79.36667,198,ontario,EC
+CYPQ,Aeroport municipal de Peterborough,44.23333,-78.36667,191,ontario,EC
+CZTB,Aeroport_de_Thunder_Bay,48.3667,-89.3167,199,ontario,EC
+CYZE,Aeroport_de_Gore_Bay-Manitoulin,45.88333,-82.56667,193,ontario,EC
+CYQA,Aeroport_de_Muskoka,44.96667,-79.3,280,ontario,EC
+CWSN,Aeroport_int._de_London,43.03,-81.15,278,ontario,EC
+CYOO,Aeroport_municipal_d'Oshawa,43.92216,-78.89527,138,ontario,EC
+CYHD,Aeroport_de_Dryden,49.83333,-92.75,413,ontario,EC
+CYHM,Aeroport_int._Munro_de_Hamilton,43.16667,-79.93333,237,ontario,EC
+CWNC,Cobourg_(aut),43.95,-78.16667,78,ontario,EC
+CXET,Egbert Cs,44.23,-79.78,251,ontario,EC
+CXOA,Ottawa Cda Rcs,45.38,-75.72,79,ontario,EC
+CWLS,Mount_Forest_(aut),43.98333,-80.75,415,ontario,EC
+CYYB,North-Bay,46.35,-79.43333,358,ontario,EC

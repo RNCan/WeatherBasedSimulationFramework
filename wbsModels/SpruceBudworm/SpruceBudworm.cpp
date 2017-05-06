@@ -160,7 +160,7 @@ namespace WBSF
 		size_t s = GetStage();
 		double T = weather[H_TAIR2];
 		if (NeedOverheating())
-			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h);
+			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
 
 		//Time step development rate
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);

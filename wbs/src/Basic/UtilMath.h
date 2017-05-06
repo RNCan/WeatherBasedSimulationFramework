@@ -63,9 +63,17 @@ namespace WBSF
 	T Quart(const T&  x){ return x*x*x*x; }
 
 	template<class T = __int64, class U>
-	T Round(const U& a)
+	T Round(const U& a) 
 	{
-		return T(a + 0.5*Signe(a));
+		return T(__int64(a + 0.5*Signe(a)));
+	}
+
+	inline double Round(double a, size_t digit)
+	{
+		a *= pow(10, digit);
+		a = double(Round(a));
+		a /= pow(10, digit);
+		return a;
 	}
 
 
@@ -122,7 +130,16 @@ namespace WBSF
 	double GetPressure(double alt);
 	double GetAltitude(double P);
 
-	double GetAllenT(double Tmin1, double Tmax1, double Tmin2, double Tmax2, double Tmin3, double Tmax3, size_t h, size_t hourTmax);
+	enum THourlyGenration { HG_DOUBLE_SINE, HG_SINE_EXP_BRANDSMA, HG_SINE_EXP_SAVAGE, HG_SINE_POWER, HG_ERBS, HG_ALLEN_WAVE, HG_POLAR, NB_HOURLY_GENERATION };
+	enum TSineExponential { SE_BRANDSMA, SE_SAVAGE, NB_SINE_EXP };
+
+	double GetPolarWinter(double Tmin[3], double Tmax[3], double h);
+	double GetPolarSummer(double Tmin[3], double Tmax[3], double h);
+	double GetSineExponential(double Tmin[3], double Tmax[3], double  h, double Tr, double Ts, size_t method = SE_SAVAGE);
+	double GetSinePower(double Tmin[3], double Tmax[3], double t, double Tsr, double Tss);
+	double GetErbs(double Tmin[3], double Tmax[3], double t);
+	double GetDoubleSine(double Tmin[3], double Tmax[3], double h, double hourTmin, double hourTmax);
+		
 
 	double msl2atp(double msl, double elev);//mean sea level to atmospheric pressure (at elevation)
 	double atp2msl(double atp, double elev);//atmospheric pressure (at elevation) to mean sea level 

@@ -128,7 +128,7 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		CTRef current = CTRef::GetCurrentTRef();
-
+		CTPeriod downloadPeriod(CTRef(firstYear, JANUARY), CTRef(lastYear, DECEMBER));
 
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCES));
@@ -151,33 +151,40 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-
-
-
 		//clean common stations
-
 		CLocationVector stationList;
 		stationList.reserve(stationListTmp.size());
 		for (auto it = stationListTmp.begin(); it < stationListTmp.end() && msg; it++)
 		{
-
 			if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 			{
 				string country = it->GetSSI("Country");
 				string state = it->GetSSI("State");
 				string network = it->GetSSI("Network");
-
-
-				if ((country == "US" && states.at(state)) ||
-					(country == "CA" && provinces.at(state) ||
-					(country == "--" && bAddOter)))
+				string start = it->GetSSI("Start");
+				string end = it->GetSSI("End");
+				if (!start.empty())
 				{
-					bool bAdd = true;
-					if (bIgnoreCommonStations && IsCommonStation(network))
-						bAdd = false;
+					//empty start period seem to don't have data 
+					CTRef startTRef = GetTRef(start);
+					CTRef endTRef = !end.empty() ? GetTRef(end) : current;
+					CTPeriod activePeriod(startTRef, endTRef);
+					activePeriod.Transform(CTM::MONTHLY);
 
-					if (bAdd)
-						stationList.push_back(*it);
+					if (activePeriod.IsIntersect(downloadPeriod))
+					{
+						if ((country == "US" && states.at(state)) ||
+							(country == "CA" && provinces.at(state) ||
+							(country == "--" && bAddOter)))
+						{
+							bool bAdd = true;
+							if (bIgnoreCommonStations && IsCommonStation(network))
+								bAdd = false;
+
+							if (bAdd)
+								stationList.push_back(*it);
+						}
+					}
 				}
 			}
 
@@ -198,33 +205,49 @@ namespace WBSF
 		int nbDownload = 0;
 		for (size_t i = 0; i < stationList.size() && msg; i++)
 		{
+			string start = stationList[i].GetSSI("Start");
+			string end = stationList[i].GetSSI("End");
+			ASSERT(!start.empty());
+
+
+			CTRef startTRef = GetTRef(start);
+			CTRef endTRef = !end.empty() ? GetTRef(end) : current;
+
+			CTPeriod activePeriod(startTRef, endTRef);
+			activePeriod.Transform(CTM::MONTHLY);
+
 			for (size_t y = 0; y < nbYears&&msg; y++)
 			{
 				int year = firstYear + int(y);
 
-				size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
-				for (size_t m = 0; m < nbMonths&&msg; m++)
+				if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
 				{
-					static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-					string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
-					string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
-					CreateMultipleDir(GetPath(ouputFilePath));
-
-
-
-					CTimeRef TRef1(GetFileInfo(ouputFilePath).m_time);
-
-					if (!FileExists(ouputFilePath) || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+					size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
+					for (size_t m = 0; m < nbMonths&&msg; m++)
 					{
-						msg += CopyFile(pConnection, URL, ouputFilePath);
-						if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
-							nbDownload++;
-					}
+						if (activePeriod.IsInside(CTRef(year, m)))
+						{
+							static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
+							string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
+							string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
+							CreateMultipleDir(GetPath(ouputFilePath));
 
-					msg += callback.StepIt();
-				}
-			}
-		}
+							CFileInfo info = GetFileInfo(ouputFilePath);
+							CTimeRef TRef1(info.m_time);
+							if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+							{
+								msg += CopyFile(pConnection, URL, ouputFilePath);
+								if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
+									nbDownload++;
+							}
+
+						}
+
+						msg += callback.StepIt();
+					}//for all months
+				}//active station only for current year
+			}//for all years
+		}//for all stations
 
 		pConnection->Close();
 		pSession->Close();
@@ -249,6 +272,11 @@ namespace WBSF
 
 		if (msg)
 		{
+			int firstYear = as<int>(FIRST_YEAR);
+			int lastYear = as<int>(LAST_YEAR);
+			CTPeriod downloadPeriod(CTRef(firstYear, JANUARY), CTRef(lastYear, DECEMBER));
+
+			CTRef current = CTRef::GetCurrentTRef();
 			bool bIgnoreCommonStations = as <bool>(IGNORE_COMMON_STATIONS);
 			bool bAddOter = as<bool>(ADD_OTHER);
 			CStateSelection states(Get(STATES));
@@ -262,22 +290,34 @@ namespace WBSF
 					string country = it->GetSSI("Country");
 					string state = it->GetSSI("State");
 					string network = it->GetSSI("Network");
-
-					if ((country == "US" && states.at(state)) ||
-						(country == "CA" && provinces.at(state) ||
-						(country == "--" && bAddOter)))
+					string start = it->GetSSI("Start");
+					string end = it->GetSSI("End");
+			
+					if (!start.empty())
 					{
-						bool bAdd = true;
-						if (bIgnoreCommonStations && IsCommonStation(network))
-							bAdd = false;
+						CTRef startTRef = GetTRef(start);
+						CTRef endTRef = !end.empty() ? GetTRef(end) : current;
+						CTPeriod activePeriod(startTRef, endTRef);
+						activePeriod.Transform(CTM::MONTHLY);
 
-						if (bAdd)
-							stationList.push_back(it->m_ID);
+						if (activePeriod.IsIntersect(downloadPeriod))
+						{
+							if ((country == "US" && states.at(state)) ||
+								(country == "CA" && provinces.at(state) ||
+								(country == "--" && bAddOter)))
+							{
+								bool bAdd = true;
+								if (bIgnoreCommonStations && IsCommonStation(network))
+									bAdd = false;
+
+								if (bAdd)
+									stationList.push_back(it->m_ID);
+							}
+						}//is in period
 					}
-
-				}
-			}
-		}
+				}//ID without ?
+			}//for all stations
+		}//if msg
 
 		return msg;
 	}
@@ -303,6 +343,14 @@ namespace WBSF
 
 		station.CreateYears(firstYear, nbYears);
 
+		//load previous hours
+		string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, firstYear - 1, DECEMBER);
+		CFileInfo info = GetFileInfo(filePath);
+		if (info.m_size > 200)//under 200 it's only an empty file
+		{
+			msg = ReadData(filePath, TM, firstYear, station, callback);
+			msg += callback.StepIt(0);
+		}
 
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -313,13 +361,24 @@ namespace WBSF
 			for (size_t m = 0; m < nbMonths&&msg; m++)
 			{
 				string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, year, m);
-				if (FileExists(filePath))
+				CFileInfo info = GetFileInfo(filePath);
+				if (info.m_size > 200)//under 200 it's only an empty file
 				{
 					msg = ReadData(filePath, TM, year, station, callback);
 					msg += callback.StepIt(0);
 				}
 			}
 		}
+
+		//load the latest hours
+		filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, lastYear+1, JANUARY);
+		info = GetFileInfo(filePath);
+		if (info.m_size > 200)//under 200 it's only an empty file
+		{
+			msg = ReadData(filePath, TM, lastYear, station, callback);
+			msg += callback.StepIt(0);
+		}
+		 
 
 		if (msg)
 		{
@@ -344,9 +403,9 @@ namespace WBSF
 	
 	CTRef CUIMesoWest::GetTRef(const string& str)
 	{
-		StringVector e(str,"-T:+");
-		ASSERT(e.size() == 7);
-		ASSERT(e[6] != "Z");
+		StringVector e(str,"-T:+Z");
+		ASSERT(e.size() == 6 || e.size() == 7);
+		
 
 		int year = WBSF::as<int>(e[0]);
 		size_t m = WBSF::as<size_t>(e[1]) - 1;
@@ -432,6 +491,20 @@ namespace WBSF
 						header.push_back(it->first);
 
 					std::vector<HOURLY_DATA::TVarH > variables = GetVariables(header);
+					
+					//remove daily Tmin and Tmax when hourly and Tair when daily
+					for (size_t v = 0; v < header.size() && msg; v++)
+					{
+						if (variables[v] == H_TMIN2 && TM.IsHourly())
+							variables[v] = H_SKIP;
+					
+						if (variables[v] == H_TAIR2 && TM.IsDaily())
+							variables[v] = H_SKIP;
+
+						if (variables[v] == H_TMAX2 && TM.IsHourly())
+							variables[v] = H_SKIP;
+					}
+					
 
 					for (size_t i = 0; i < TRefs.size() && msg; i++)
 					{
@@ -487,26 +560,9 @@ namespace WBSF
 			else
 			{
 				msg.ajoute(error);
+				msg.ajoute("JSON error : " + filePath);
 			}
 		}//if msg
-		//	const Json& item4 = item2[j]["geometry"];
-		//	//:{"x":-96.101388888889, "y" : 56.086388888889}
-		//	string test = item3["station_latitude"].string_value();
-
-
-		//	string name = item3["station_name"].string_value();
-		//	string ID = item3["station_no"].string_value();
-		//	double lat = item4["y"].number_value();
-		//	double lon = item4["x"].number_value();
-		//	CLocation location(name, ID, lat, lon, -999);
-		//	location.SetSSI("Network", NETWORK_NAME[HYDRO]);
-		//	location.SetSSI("StationNo", item3["station_id"].string_value());
-		//	location.SetSSI("RiverName", item3["river_name"].string_value());
-		//	location.SetSSI("InstallDate", item3["gen.shelterinstall"].string_value());
-		//	locations.push_back(location);
-
-		//	msg += callback.StepIt();
-
 
 		return msg;
 	}
@@ -529,18 +585,12 @@ namespace WBSF
 		return WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(str));
 	}
 
-	/*CTPeriod  GetPeriod(string str)
-	{
-
-	CTPeriod period = GetPeriod((*it)["PERIOD_OF_RECORD"].string_value());
-	string period = "" : {
-	"start": "1970-01-01T00:00:00Z",
-	"end" : "2017-04-05T14:00:00Z"
-	}*/
-
+	
 	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
 		ERMsg msg;
+
+		CTRef current = CTRef::GetCurrentTRef();
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -554,8 +604,6 @@ namespace WBSF
 			//v2/stations/metadata?complete=1&state=QC&token=635d9802c84047398d1392062e39c960
 			std::map<string, string> networks;
 			{
-
-
 				string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
 
 				string source;
@@ -613,6 +661,12 @@ namespace WBSF
 						string network = (*it)["SHORTNAME"].string_value();
 						string networkID = (*it)["MNET_ID"].string_value();
 						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
+						string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
+						CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
+						
+						//if the station is still active or seem to be still active, we don't set end date 
+						if (status == "ACTIVE" || TRef.GetYear() >= current.GetYear() - 1)
+							end.clear();
 
 						if (state == "NF")
 							state = "NL";
@@ -643,6 +697,7 @@ namespace WBSF
 						location.SetSSI("NetworkID", networkID);
 						location.SetSSI("TimeZone", time_zone);
 						location.SetSSI("Start", start);
+						location.SetSSI("End", end);
 
 
 						stationList.push_back(location);

@@ -6,8 +6,8 @@
     <EXE>AllenWave.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
-    <WindowRect>0 0 79 250</WindowRect>
-    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <WindowRect>0 0 142 290</WindowRect>
+    <SimulatedCategory>TN TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -15,16 +15,28 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>PeakHour</Name>
-            <Caption>PeakHour</Caption>
+            <Name>TminHour</Name>
+            <Caption>TminHour</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>10 10 30 205</Rect>
+            <Rect>30 10 50 220</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>15</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>23</MaxValue>
-            <TextValue>0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23</TextValue>
+            <MaxValue>24</MaxValue>
+            <TextValue>Sunrise|0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>TmaxHour</Name>
+            <Caption>TmaxHour</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>55 10 75 220</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
+            <TextValue>Noon + 2 hours|0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>3 0</OutputTypeMode>
@@ -37,6 +49,7 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
+            <Climatic>1</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

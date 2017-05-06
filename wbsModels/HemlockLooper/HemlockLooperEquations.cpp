@@ -30,8 +30,8 @@ namespace WBSF
 	const double HemlockLooperEquations::DEFAULT_P[NB_STAGES - 1][NB_PARAM] =
 	{
 	//   rho	  Ha      Hl      Tl      Hh	 Th
-		0.1022, 13.12, -44.36, 279.6, 37.01, 305.5, //SA HOBO
-		//0.1022, 13.22, -49.60, 279.6, 120.0, 303.8,	//Egg
+		//0.1022, 13.12, -44.36, 279.6, 37.01, 305.5, //SA HOBO
+		0.1022, 13.22, -49.60, 279.6, 120.0, 303.8,	//Egg
 		0.2160, 10.37, -70.62, 282.8, 128.4, 303.6,	//L1
 		0.2720, 8.030, -70.79, 284.0, 216.9, 301.6,	//L2
 		0.2610, 6.300, -54.96, 285.4, 110.4, 301.8,	//L3 
@@ -70,8 +70,7 @@ namespace WBSF
 			m_eggsParam[i] = DEFAULT_P[EGGS][i];
 		
 		
-		m_Tlo = 2.36;// 3.35;//m_Tmin already exist in base class
-		//m_Tlo = 3.35;//m_Tmin already exist in base class
+		m_Tlo = 3.35;//m_Tmin already exist in base class
 
 		Init();
 	}

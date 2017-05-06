@@ -91,7 +91,9 @@ namespace WBSF
 {
 	//www.affes.mnr.gov.on.ca/Extranet/Bulletin_Boards/WXProducts/WxHourly.csv
 	const char* CUIOntario::SERVER_NAME = "www.affes.mnr.gov.on.ca";
-	const char* CUIOntario::SERVER_PATH = "Extranet/Bulletin_Boards/WXProducts/";
+	//const char* CUIOntario::SERVER_PATH = "Extranet/Bulletin_Boards/WXProducts/";
+	const char* CUIOntario::SERVER_PATH = "Maps/WX/";
+	
 
 
 	//*********************************************************************
@@ -156,8 +158,8 @@ namespace WBSF
 		if (msgTmp)
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-			//string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
-			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "WxHourly.csv", fileList);
+			//msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "WxHourly.csv", fileList);
+			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "wxhourly.xml", fileList);
 		}
 		
 		return msg;
@@ -179,7 +181,8 @@ namespace WBSF
 		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
 		callback.AddMessage("");
 
-		string fileName = "WxHourly.csv";
+		//string fileName = "WxHourly.csv";
+		string fileName = "wxhourly.xml";
 		string remoteFilePath = SERVER_PATH + fileName;
 		string outputFilePath = workingDir + fileName;
 		
@@ -207,7 +210,7 @@ namespace WBSF
 					if (msgTmp)
 					{
 						ASSERT(FileExists(outputFilePath));
-						SplitStations(outputFilePath, callback);
+						SplitStationsXML(outputFilePath, callback);
 						RemoveFile(outputFilePath);
 							
 						msg += callback.StepIt();
@@ -252,114 +255,143 @@ namespace WBSF
 		return GetDir(WORKING_DIR) + type + "\\" + ToString(year) + "\\" + stationName + ".csv";
 	}
 
-	ERMsg CUIOntario::SplitStations(const string& outputFilePath, CCallback& callback)
+	ERMsg CUIOntario::SplitStationsXML(const string& outputFilePath, CCallback& callback)
 	{
 		ERMsg msg;
 
-		CTM TM(CTM::HOURLY);
-
-		std::map<string, CWeatherYears> data;
+		
+		size_t nbStationsAdded = 0;
+		//std::map<string, CWeatherYears> data;
 
 		ifStream file;
 		msg = file.open(outputFilePath);
+		string source;
+		if (msg)
+			source = file.GetText();
+
 		if (msg)
 		{
-			callback.PushTask("Split data", file.length());
-
-			CWeatherAccumulator stat(TM);
-			string lastID;
-
-		
-			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
-			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 			
-			for (CSVIterator loop(file); loop != CSVIterator()&&msg; ++loop)
+
+			
+
+			enum THourlyColumns{ STATION_CODE, OBSDATE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, RAINFALL, WIND_DIRECTION, NB_COLUMNS };
+			static const char* COL_NAME[NB_COLUMNS] = { "WSTNCODE", "Date", "Time", "temp", "RH", "speed", "precip", "WindDir" };
+			static const TVarH  COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_PRCP, H_WNDD };
+
+			try
 			{
-				if (!loop->empty())
+
+
+				zen::XmlDoc doc = zen::parse(source);
+
+				zen::XmlIn in(doc.root());
+
+				size_t nbStations = std::distance(in.get()->getChildren().first, in.get()->getChildren().second);
+				callback.PushTask("Split Ontario data file", nbStations);
+
+				for (zen::XmlIn marker = in["marker"]; marker&&msg; marker.next())
 				{
-					StringVector time((*loop)[OBSTIME], "-: ");
-					ASSERT(time.size() == 5);
-
-					int year = ToInt(time[0]);
-					size_t month = WBSF::GetMonthIndex(time[1].c_str());
-					size_t day = ToInt(time[2]) - 1;
-					size_t hour = ToInt(time[3]);
-
-					ASSERT(month >= 0 && month < 12);
-					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-					ASSERT(hour >= 0 && hour < 24);
-
-					CTRef TRef = CTRef(year, month, day, hour);
-					string ID = (*loop)[STATION_CODE];
-					if (lastID.empty())
-						lastID = ID;
+					string oldID;
+					marker.attribute("label", oldID);
+					oldID = oldID.substr(0, 3);
 
 
-					if (stat.TRefIsChanging(TRef) || ID != lastID)
+
+					string ID;
+					CWeatherYears data(true);
+					for (zen::XmlIn obs = marker["obs"]; obs&&msg; obs.next())
 					{
-						if (data.find(lastID) == data.end())
+						string str;
+						obs.attribute(COL_NAME[OBSDATE], str);
+						StringVector date(str, "-");
+						obs.attribute(COL_NAME[OBSTIME], str);
+						StringVector time(str, ":");
+
+						ASSERT(date.size() == 3);
+						ASSERT(time.size() == 2);
+
+						int year = ToInt(date[0]);
+						size_t m = ToInt(date[1]) - 1;
+						size_t d = ToInt(date[2]) - 1;
+						size_t h = ToInt(time[0]);
+
+						ASSERT(m >= 0 && m < 12);
+						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+						ASSERT(h >= 0 && h < 24);
+
+						//CTRef TRef = CTRef(year, m, d, h);
+						obs.attribute(COL_NAME[STATION_CODE], ID);
+						if (ID[0] == '4')//strang thiink with lable begging with 4
+							ID = oldID;
+						
+						if (!data.IsYearInit(year))
 						{
-							data[lastID] = CWeatherYears(true);
+							//data.CreateYear(year);
 							//try to load old data before changing it...
 							string filePath = GetOutputFilePath(ID, year);
-							data[lastID].LoadData(filePath, -999, false);//don't erase other years when multiple years
-
+							data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 						}
-						//data[lastID].HaveData()
-						data[lastID][stat.GetTRef()].SetData(stat);
-						lastID = ID;
-					}
 
-					for (size_t v = 0; v < loop->size(); v++)
-					{
-						size_t cPos = COL_POS_H[v];
-						if (cPos < NB_VAR_H)
+						for (size_t vv = TEMPERATURE; vv < NB_COLUMNS; vv++)
 						{
-							double value = ToDouble((*loop)[v]);
-							if (value > -99)
+							TVarH v = COL_POS_H[vv];
+							ASSERT(v < NB_VAR_H);
+
+
+							string str;
+							obs.attribute(COL_NAME[vv], str);
+							double value = ToDouble(str);
+							if (!str.empty() && value > -99)
 							{
-								stat.Add(TRef, cPos, value);
-								if (cPos == H_RELH)
+								data[year][m][d][h][v] = value;
+								if (v == H_RELH)
 								{
-									double T = ToDouble((*loop)[TEMPERATURE]);
-									double Hr = ToDouble((*loop)[RELATIVE_HUMIDITY]);
-									if (T > -99 && Hr)
-										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
+									double T = data[year][m][d][h][H_TAIR2];
+									if (!WEATHER::IsMissing(T))
+										data[year][m][d][h][H_TDEW] = Hr2Td(T, value);
 								}
 							}
-						}
-					}
-				}//empty
+						}//for all variables 
+						
 
-				msg += callback.StepIt(loop->GetLastLine().length() + 2);
-			}//for all line (
+					
+						msg += callback.StepIt(0);
+					}//for all observations
+
+					//if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
+					
+					//data[lastID][stat.GetTRef()].SetData(stat);
 
 
-			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
-				data[lastID][stat.GetTRef()].SetData(stat);
-
-
-			if (msg)
-			{
-				//save data
-				for (auto it1 = data.begin(); it1 != data.end(); it1++)
-				{
-					for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
+					//save data
+					for (auto it = data.begin(); it != data.end(); it++)
 					{
-						string filePath = GetOutputFilePath(it1->first, it2->first);
+						ASSERT(!ID.empty());
+						string filePath = GetOutputFilePath(ID, it->first);
 						string outputPath = GetPath(filePath);
 						CreateMultipleDir(outputPath);
-						it2->second->SaveData(filePath, TM);
+						it->second->SaveData(filePath, CTM::HOURLY);
 					}
-				}
-			}//if msg
 
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(data.size()), 1);
-			callback.PopTask();
-		}//if msg
+
+					msg += callback.StepIt();
+					nbStationsAdded++;
+				}//for all stations
+			}
+			catch (const zen::XmlParsingError& e)
+			{
+				// handle error
+				msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+			}
+		}//if open file
+
+		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(nbStationsAdded), 1);
+		callback.PopTask();
 
 		return msg;
 	}
+	
 
 	std::string CUIOntario::GetStationListFilePath()const
 	{
@@ -428,6 +460,123 @@ namespace WBSF
 
 		return msg;
 	}
+
+
+
+
+	ERMsg CUIOntario::SplitStationsCSV(const string& outputFilePath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CTM TM(CTM::HOURLY);
+
+		std::map<string, CWeatherYears> data;
+
+		ifStream file;
+		msg = file.open(outputFilePath);
+		if (msg)
+		{
+			callback.PushTask("Split data", file.length());
+
+			CWeatherAccumulator stat(TM);
+			string lastID;
+
+
+			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
+			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
+
+			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
+			{
+				if (!loop->empty())
+				{
+					StringVector time((*loop)[OBSTIME], "-: ");
+					ASSERT(time.size() == 5);
+
+					int year = ToInt(time[0]);
+					size_t month = WBSF::GetMonthIndex(time[1].c_str());
+					size_t day = ToInt(time[2]) - 1;
+					size_t hour = ToInt(time[3]);
+
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+					ASSERT(hour >= 0 && hour < 24);
+
+					CTRef TRef = CTRef(year, month, day, hour);
+					string ID = (*loop)[STATION_CODE];
+					if (lastID.empty())
+						lastID = ID;
+
+
+					if (ID != lastID)
+					{
+						if (data.find(ID) == data.end())
+						{
+							data[ID] = CWeatherYears(true);
+							//try to load old data before changing it...
+							string filePath = GetOutputFilePath(ID, year);
+							data[ID].LoadData(filePath, -999, false);//don't erase other years when multiple years
+						}
+						
+						lastID = ID;
+					}
+
+					if (stat.TRefIsChanging(TRef))
+					{
+						data[lastID][stat.GetTRef()].SetData(stat);
+					}
+
+
+					for (size_t v = 0; v < loop->size(); v++)
+					{
+						size_t cPos = COL_POS_H[v];
+						if (cPos < NB_VAR_H)
+						{
+							double value = ToDouble((*loop)[v]);
+							if (value > -99)
+							{
+								stat.Add(TRef, cPos, value);
+								if (cPos == H_RELH)
+								{
+									double T = ToDouble((*loop)[TEMPERATURE]);
+									double Hr = ToDouble((*loop)[RELATIVE_HUMIDITY]);
+									if (T > -99 && Hr)
+										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
+								}
+							}
+						}
+					}
+				}//empty
+
+				msg += callback.StepIt(loop->GetLastLine().length() + 2);
+			}//for all line (
+
+
+			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
+				data[lastID][stat.GetTRef()].SetData(stat);
+
+
+			if (msg)
+			{
+				//save data
+				for (auto it1 = data.begin(); it1 != data.end(); it1++)
+				{
+					for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
+					{
+						string filePath = GetOutputFilePath(it1->first, it2->first);
+						string outputPath = GetPath(filePath);
+						CreateMultipleDir(outputPath);
+						it2->second->SaveData(filePath, TM);
+					}
+				}
+			}//if msg
+
+			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(data.size()), 1);
+			callback.PopTask();
+		}//if msg
+
+		return msg;
+	}
+
 }
 
 

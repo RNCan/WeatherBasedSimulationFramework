@@ -24,7 +24,7 @@ using namespace boost;
 namespace WBSF
 {
 	const char* CUINewfoundland::SERVER_NAME = "Ftpque.nrcan.gc.ca";
-	const char* CUINewfoundland::SERVER_PATH = "/";
+	const char* CUINewfoundland::SERVER_PATH = "/NLWeather/";
 
 	//*********************************************************************
 	const char* CUINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear" };
@@ -134,7 +134,7 @@ namespace WBSF
 			{
 				int year = firstYear + int(y);
 
-				string filter = "/hydromanitoba/" + ToString(year) + "/NL_WeatherStations_" + ToString(year) + ".zip";
+				string filter = "/hydromanitoba/NLWeather/" + ToString(year) + "/NL_WeatherStations_" + ToString(year) + ".zip";
 
 				CFileInfoVector fileList;
 				msg = FindFiles(pConnection, filter, fileList, callback);
@@ -255,7 +255,7 @@ namespace WBSF
 		
 		if (msg)
 		{
-			string path = "/hydromanitoba/Station_Metadata.csv";
+			string path = "/hydromanitoba/NLWeather/Station_Metadata.csv";
 
 			CFileInfoVector fileList;
 			msg = FindFiles(pConnection, path, fileList, callback);

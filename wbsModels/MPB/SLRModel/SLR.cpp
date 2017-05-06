@@ -4,6 +4,7 @@
 // Class: CSLR
 //
 //************** MODIFICATIONS  LOG ********************
+// 04/05/2017	Rémi Saint-Amant    New compile
 // 11/05/2016   Rémi Saint-Amant    Compile with WBSF
 // 25/09/2012   Rémi Saint-Amant    Compile with new developement table
 // 31/10/2007	Rémi Saint-Amant    Remove NEWMAT, use AllenWave and tableLookup
@@ -192,7 +193,7 @@ namespace WBSF
 
 		//init the CMPBDevelopmentVector
 		CDailyWaveVector t;
-		weatherYear.GetAllenWave(t, 12, 1, m_overheat);
+		weatherYear.GetHourlyGeneration(t, HG_DOUBLE_SINE, 1, 3, m_overheat);
 
 		CMPBDevelopmentVector devRates(m_RG);
 		devRates.Init(t);

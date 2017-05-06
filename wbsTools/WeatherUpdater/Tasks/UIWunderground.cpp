@@ -14,7 +14,7 @@
 #include "ProvinceSelection.h"
 
 static const bool UPDATE_STATIONS_LIST = false;
-static const bool UPDATE_STATIONS_INFO = false;
+static const bool UPDATE_STATIONS_INFO = false; 
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;

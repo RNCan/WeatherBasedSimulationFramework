@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormDispersal is a BioSIM model for Spruce budworm dispersal
 //*****************************************************************************
+// 04/05/2017   1.0.1   Rémi Saint-Amant	Update with new hourly generation
 // 05/01/2016	1.0.0	Rémi Saint-Amant    Creation from old code
 //*****************************************************************************
 #include "Basic/ModelStat.h"
@@ -79,7 +80,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 2;
-		VERSION = "1.0.0 (2017)";
+		VERSION = "1.0.1 (2017)";
 	}
 
 	CSpruceBudwormDispersal::~CSpruceBudwormDispersal()

@@ -43,7 +43,7 @@ namespace WBSF
 
 			double sum = 0.0;
 			CDailyWaveVector t;
-			weather.GetDay(day).GetAllenWave(t, 12, 1);
+			weather.GetDay(day).GetHourlyGeneration(t, HG_DOUBLE_SINE, 1);
 			_ASSERTE(t.size() == 24);
 
 			for (int j = 0; j < 24; j++)
@@ -72,7 +72,7 @@ namespace WBSF
 				day++;
 				double sum = 0.0;
 				CDailyWaveVector t;
-				weather.GetDay(day).GetAllenWave(t, 12, 1);
+				weather.GetDay(day).GetHourlyGeneration(t, HG_DOUBLE_SINE, 1);
 				_ASSERTE(t.size() == 24);
 
 				for (int j = 0; j < 24; j++)

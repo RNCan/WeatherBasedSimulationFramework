@@ -1,4 +1,5 @@
 //**************************************************************************************************************
+// 04/05/2017	2.2.1	Rémi Saint-Amant    New hourly generation
 // 20/09/2016	2.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 22/01/2016	2.0.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 04/03/2015			Rémi Saint-Amant	Update to BioSIM11
@@ -53,7 +54,7 @@ namespace WBSF
 	CWhitePineWeevilModel::CWhitePineWeevilModel()
 	{
 		NB_INPUT_PARAMETER = PARAMETRIZE?17:1;
-		VERSION = "2.2.0 (2016)";
+		VERSION = "2.2.1 (2017)";
 
 		m_bCumulative = false;
 		m_startJday = FISRT_HL_JDAY;

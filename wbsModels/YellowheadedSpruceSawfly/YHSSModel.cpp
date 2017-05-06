@@ -18,6 +18,7 @@
 //              seasonal biology. 
 //
 //*****************************************************************************
+// 04/05/2017	2.3.1	Rémi Saint-Amant    New hourly generation
 // 20/09/2016	2.3.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 22/01/2016	2.2.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 01/03/2011			Rémi Saint-Amant    Integration with new BioSIMModelBase
@@ -45,7 +46,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is use to determine if the dll
 		//use the same number of parameter than the model interface
 		NB_INPUT_PARAMETER = 2;
-		VERSION = "2.3.0 (2016)";
+		VERSION = "2.3.1 (2017)";
 
 		m_bCumulativeOutput = false;
 		m_adultLongevity = 14;

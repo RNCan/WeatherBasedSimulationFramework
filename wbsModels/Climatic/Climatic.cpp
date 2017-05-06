@@ -43,7 +43,7 @@ namespace WBSF
 
 	enum TAnnualStat{ ANNUAL_LOWEST_TMIN, ANNUAL_MEAN_TMIN, ANNUAL_MEAN_TMEAN, ANNUAL_MEAN_TMAX, ANNUAL_HIGHEST_TMAX, ANNUAL_PPT, ANNUAL_MEAN_TDEW, ANNUAL_MEAN_REL_HUM, ANNUAL_MEAN_WNDS, ANNUAL_FROST_DAY, ANNUAL_FROSTFREE_DAY, ANNUAL_WET_DAY, ANNUAL_DRY_DAY, ANNUAL_SUN, NB_ANNUAL_STATS };
 	enum TMonthlyStat{ MONTHLY_LOWEST_TMIN, MONTHLY_MEAN_TMIN, MONTHLY_MEAN_TMEAN, MONTHLY_MEAN_TMAX, MONTHLY_HIGHEST_TMAX, MONTHLY_PPT, MONTHLY_MEAN_TDEW, MONTHLY_MEAN_REL_HUM, MONTHLY_MEAN_WNDS, MONTHLY_FROST_DAY, MONTHLY_FROSTFREE_DAY, MONTHLY_WET_DAY, MONTHLY_DRY_DAY, MONTHLY_SUN, NB_MONTHLY_STATS };
-	enum TDailyStat{ DAILY_TMIN, DAILY_TMEAN, DAILY_TMAX, DAILY_PPT, NB_DAILY_STATS };//DAILY_MEAN_TDEW, DAILY_MEAN_REL_HUM, DAILY_MEAN_WNDS, DAILY_SUN,
+	enum TDailyStat{ DAILY_TMIN, DAILY_TAIR, DAILY_TMAX, DAILY_PRCP, DAILY_TDEW, DAILY_RELH, DAILY_WNDS, DAILY_SRAD, NB_DAILY_STATS };
 	enum THourlyStat{ HOULRY_TMIN, HOURLY_TAIR, HOULRY_TMAX, HOURLY_PRCP, HOURLY_TDEW, HOURLY_RELH, HOURLY_WNDS, HOURLY_WNDD, HOURLY_SRAD, HOURLY_PRES, NB_HOURLY_OUTPUTS };
 
 
@@ -117,32 +117,32 @@ namespace WBSF
 			double annualMaxMean = m_weather[y][H_TMAX2][MEAN];
 			double annualMaximum = m_weather[y][H_TMAX2][HIGHEST];
 			double annualPpt = m_weather[y][H_PRCP][SUM];
-			double annualSun = m_weather[y][H_SRMJ][SUM];
-			double annualSnow = m_weather[y][H_SNOW][SUM];
 			double Tdew = m_weather[y][H_TDEW][MEAN];
 			double relHum = m_weather[y][H_RELH][MEAN];
 			double wnds = m_weather[y][H_WNDS][MEAN];
+			double annualSun = m_weather[y][H_SRMJ][SUM];
+			double annualSnow = m_weather[y][H_SNOW][SUM];
+			
 
 			size_t frostDay = GetNbFrostDay(m_weather[y]);
 			size_t frostFreeDay = m_weather[y].GetNbDays() - frostDay;
 			size_t nbWetDay = GetNbDayWithPrcp(m_weather[y]);
 			size_t nbDryDay = m_weather[y].GetNbDays() - nbWetDay;
 
-			m_output[y][ANNUAL_LOWEST_TMIN] = annualMinimum;
-			m_output[y][ANNUAL_MEAN_TMIN] = annualMinMean;
-			m_output[y][ANNUAL_MEAN_TMEAN] = annualMean;
-			m_output[y][ANNUAL_MEAN_TMAX] = annualMaxMean;
-			m_output[y][ANNUAL_HIGHEST_TMAX] = annualMaximum;
-			m_output[y][ANNUAL_PPT] = annualPpt;
-			m_output[y][ANNUAL_MEAN_TDEW] = Tdew;
-			m_output[y][ANNUAL_MEAN_REL_HUM] = relHum;
-			m_output[y][ANNUAL_MEAN_WNDS] = wnds;
+			m_output[y][ANNUAL_LOWEST_TMIN] = Round(annualMinimum, 1);
+			m_output[y][ANNUAL_MEAN_TMIN] = Round(annualMinMean, 1);
+			m_output[y][ANNUAL_MEAN_TMEAN] = Round(annualMean, 1);
+			m_output[y][ANNUAL_MEAN_TMAX] = Round(annualMaxMean, 1);
+			m_output[y][ANNUAL_HIGHEST_TMAX] = Round(annualMaximum, 1);
+			m_output[y][ANNUAL_PPT] = Round(annualPpt, 1);
+			m_output[y][ANNUAL_MEAN_TDEW] = Round(Tdew, 1);
+			m_output[y][ANNUAL_MEAN_REL_HUM] = Round(relHum, 1);
+			m_output[y][ANNUAL_MEAN_WNDS] = Round(wnds, 1);
 			m_output[y][ANNUAL_FROST_DAY] = frostDay;
 			m_output[y][ANNUAL_FROSTFREE_DAY] = frostFreeDay;
 			m_output[y][ANNUAL_WET_DAY] = nbWetDay;
 			m_output[y][ANNUAL_DRY_DAY] = nbDryDay;
-			
-			m_output[y][ANNUAL_SUN] = annualSun;
+			m_output[y][ANNUAL_SUN] = Round(annualSun, 1);
 		}
 
 	
@@ -167,31 +167,31 @@ namespace WBSF
 				double monthlyMean = m_weather[y][m][H_TAIR2][MEAN];
 				double monthlyMaxMean = m_weather[y][m][H_TMAX2][MEAN];
 				double monthlyMaximum = m_weather[y][m][H_TMAX2][HIGHEST];
-				double monthlyPpt = m_weather[y][m][H_PRCP][SUM];
-				double monthlySun = m_weather[y][m][H_SRMJ][SUM];
 				double Tdew = m_weather[y][m].GetStat(H_TDEW)[MEAN];
 				double relHum = m_weather[y][m].GetStat(H_RELH)[MEAN];
 				double wnds = m_weather[y][m].GetStat(H_WNDS)[MEAN];
+				double monthlyPpt = m_weather[y][m][H_PRCP][SUM];
+				double monthlySun = m_weather[y][m][H_SRMJ][SUM];
 				size_t frostDay = GetNbFrostDay(m_weather[y][m]);
 				size_t frostFreeDay = m_weather[y][m].GetNbDays() - frostDay;
 				size_t nbWetDay = GetNbDayWithPrcp(m_weather[y][m]);
 				size_t nbDryDay = m_weather[y][m].GetNbDays() - nbWetDay;
 
 
-				m_output[y * 12 + m][MONTHLY_LOWEST_TMIN] = monthlyMinimum;
-				m_output[y * 12 + m][MONTHLY_MEAN_TMIN] = monthlyMinMean;
-				m_output[y * 12 + m][MONTHLY_MEAN_TMEAN] = monthlyMean;
-				m_output[y * 12 + m][MONTHLY_MEAN_TMAX] = monthlyMaxMean;
-				m_output[y * 12 + m][MONTHLY_HIGHEST_TMAX] = monthlyMaximum;
-				m_output[y * 12 + m][MONTHLY_PPT] = monthlyPpt;
-				m_output[y * 12 + m][MONTHLY_MEAN_TDEW] = Tdew;
-				m_output[y * 12 + m][MONTHLY_MEAN_REL_HUM] = relHum;
-				m_output[y * 12 + m][MONTHLY_MEAN_WNDS] = wnds;
+				m_output[y * 12 + m][MONTHLY_LOWEST_TMIN] = Round(monthlyMinimum,1);
+				m_output[y * 12 + m][MONTHLY_MEAN_TMIN] = Round(monthlyMinMean, 1);
+				m_output[y * 12 + m][MONTHLY_MEAN_TMEAN] = Round(monthlyMean, 1);
+				m_output[y * 12 + m][MONTHLY_MEAN_TMAX] = Round(monthlyMaxMean, 1);
+				m_output[y * 12 + m][MONTHLY_HIGHEST_TMAX] = Round(monthlyMaximum, 1);
+				m_output[y * 12 + m][MONTHLY_PPT] = Round(monthlyPpt, 1);
+				m_output[y * 12 + m][MONTHLY_MEAN_TDEW] = Round(Tdew, 1);
+				m_output[y * 12 + m][MONTHLY_MEAN_REL_HUM] = Round(relHum, 1);
+				m_output[y * 12 + m][MONTHLY_MEAN_WNDS] = Round(wnds, 1);
 				m_output[y * 12 + m][MONTHLY_FROST_DAY] = frostDay;
 				m_output[y * 12 + m][MONTHLY_FROSTFREE_DAY] = frostFreeDay;
 				m_output[y * 12 + m][MONTHLY_WET_DAY] = nbWetDay;
 				m_output[y * 12 + m][MONTHLY_DRY_DAY] = nbDryDay;
-				m_output[y * 12 + m][MONTHLY_SUN] = monthlySun;
+				m_output[y * 12 + m][MONTHLY_SUN] = Round(monthlySun, 1);
 			}
 		}
 
@@ -205,7 +205,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		m_output.Init(p, NB_DAILY_STATS, -999);
+		m_output.Init(p, NB_DAILY_STATS, -9999);
 
 		for (size_t y = 0; y<m_weather.size(); y++)
 		{
@@ -214,27 +214,16 @@ namespace WBSF
 				for (size_t d = 0; d<m_weather[y][m].size(); d++)
 				{
 					const CWeatherDay& wDay = m_weather[y][m][d];
+					CTRef ref = wDay.GetTRef();
 
-					//double Tmin = ;
-					//double Tmean = wDay[H_TAIR2][MEAN];
-					//double Tmax = wDay[H_TMAX2][MEAN];
-					//double ppt = wDay[H_PRCP][SUM] >= 0.1 ? wDay[H_PRCP][SUM] : 0;
-
-				/*	double Tdew = wDay[H_TDEW][MEAN];
-					double relHum = wDay[H_RELH][MEAN];
-					double wnds = wDay[H_WNDS][MEAN];
-					double srad = wDay[H_SRAD2][MEAN];
-*/
-					CTRef ref = wDay.GetTRef();//m_weather[y][m][d].GetTRef();
-
-					m_output[ref][DAILY_TMIN] = wDay[H_TMIN2][LOWEST];
-					m_output[ref][DAILY_TMEAN] = wDay[H_TAIR2][MEAN];
-					m_output[ref][DAILY_TMAX] = wDay[H_TMAX2][HIGHEST];
-					m_output[ref][DAILY_PPT] = wDay[H_PRCP][SUM];
-					/*m_output[ref][DAILY_MEAN_TDEW] = Tdew;
-					m_output[ref][DAILY_MEAN_REL_HUM] = relHum;
-					m_output[ref][DAILY_MEAN_WNDS] = wnds;
-					m_output[ref][DAILY_SUN] = srad;*/
+					m_output[ref][DAILY_TMIN] = Round(wDay[H_TMIN2][LOWEST], 1);
+					m_output[ref][DAILY_TAIR] = Round(wDay[H_TAIR2][MEAN], 1);
+					m_output[ref][DAILY_TMAX] = Round(wDay[H_TMAX2][HIGHEST], 1);
+					m_output[ref][DAILY_PRCP] = Round(wDay[H_PRCP][SUM], 1);
+					m_output[ref][DAILY_TDEW] = Round(wDay[H_TDEW][MEAN], 1);
+					m_output[ref][DAILY_RELH] = Round(wDay[H_RELH][MEAN], 1);
+					m_output[ref][DAILY_WNDS] = Round(wDay[H_WNDS][MEAN], 1);
+					m_output[ref][DAILY_SRAD] = Round(wDay[H_SRAD2][MEAN], 1);
 				}
 			}
 		}

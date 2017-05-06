@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 04/05/2017	3.1.2	Rémi Saint-Amant    New hourly generation
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Correctiopn on overheating 
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Update with BioSIM 11.0
@@ -29,12 +30,6 @@
 // 29/06/2011			Rémi Saint-Amant	New simulated annealing
 // 27/01/2011			Rémi Saint-Amant	Update with new BioSIM Model Base
 // 23/01/2009			Rémi Saint-Amant    Creation
-
-
-
-
-
-
 //*****************************************************************************
 
 #include "Basic/timeStep.h"
@@ -62,11 +57,6 @@ namespace WBSF
 	enum TOuput{ O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
 	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
 
-	//typedef CModelStatVectorTemplate<NB_OUTPUT_D> CDailyOutputVector;
-
-	
-//	typedef CModelStatVectorTemplate<NB_OUTPUT_A> CAnnualOutputVector;
-
 	CWSBModel::CWSBModel()
 	{
 		//**************************
@@ -75,7 +65,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.1.1 (2016)";
+		VERSION = "3.1.2 (2017)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement

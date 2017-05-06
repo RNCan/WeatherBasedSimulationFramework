@@ -14,7 +14,7 @@
 // 08-04-2013	Rémi Saint-Amant	Initial version from old code
 //****************************************************************************
 
-
+//= MOYENNE(L:L) - MOYENNE(J:J)
 //todo: add the time zone to the computation of hourly value. a delta zone must compoute between 
 //the time zone of the simulation point and the time zone of the weather station
 
@@ -39,6 +39,8 @@ using namespace WBSF::GRADIENT;
 
 static std::mutex STATISTIC_MUTEX;
 
+enum TAgregation { ACCUMUL_12_00, ACCUMUL_18_00, ACCUMUL_18_18, ACCUMUL_22_22, ACCUMUL_00_00 };
+static const size_t DAILY_AGREGATION = ACCUMUL_00_00;
 
 
 namespace WBSF
@@ -79,20 +81,35 @@ namespace WBSF
 CStatistic GetDailyStat(size_t v, CWeatherDay& weather)
 {
 	ASSERT(weather.IsHourly());
+	ASSERT(v >= H_PRCP);
 	
 	CWeatherAccumulator accumulator(CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
-	if (weather.GetParent() != NULL)
-	{
-		//Compute noon-noon from the previous and current day
-		const CWeatherDay& previousDay = weather.GetPrevious();
+	//if (weather.GetParent() != NULL)
+	//{
+	//	//Compute noon-noon, 06-06, 18-18 from the previous and current day
+	//	const CWeatherDay& previousDay = weather.GetPrevious();
 
-		for (size_t h = 12; h<24; h++)
-			accumulator.Add(previousDay[h].GetTRef(), v, previousDay[h][v]);
+	//	//for (size_t h = 12; h<24; h++)
+	//	for (size_t h = 18; h<24; h++)
+	//		accumulator.Add(previousDay[h].GetTRef(), v, previousDay[h][v]);
 
-	}
+	//}
 
 	for (size_t h = 0; h<24; h++)
 		accumulator.Add(weather[h].GetTRef(), v, weather[h][v]);
+
+	//flush data
+	accumulator.ResetMidnight();
+	//if (weather.GetParent() != NULL)
+	//{
+	//	//Compute noon-noon, 06-06, 18-18 from the previous and current day
+	//	const CWeatherDay& nextDay = weather.GetNext();
+
+	//	//for (size_t h = 12; h<24; h++)
+	//	for (size_t h = 0; h<06; h++)//<=06 to fluch the data
+	//		accumulator.Add(nextDay[h].GetTRef(), v, nextDay[h][v]);
+
+	//}
 
 	return accumulator[v];
 }
@@ -128,13 +145,20 @@ double COverheat::GetOverheat(const CWeatherDay& weather, size_t h, size_t hourT
 
 double COverheat::GetT(const CWeatherDay& weather, size_t h, size_t hourTmax)const
 {
+	ASSERT(hourTmax < 24);
+
+
 	double T = -999;
 	if (weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
 	{
 		const CWeatherDay& d1 = weather.GetPrevious();
 		const CWeatherDay& d2 = weather;
 		const CWeatherDay& d3 = weather.GetNext();
-		T = WBSF::GetAllenT(GetTmin(d1), GetTmax(d1), GetTmin(d2), GetTmax(d2), GetTmin(d3), GetTmax(d3), h, hourTmax);
+
+		double Tmin[3] = { GetTmin(d1), GetTmin(d2), GetTmin(d3) };
+		double Tmax[3] = { GetTmax(d1), GetTmax(d2), GetTmax(d3) };
+
+		T = WBSF::GetDoubleSine(Tmin, Tmax, h, hourTmax-12, hourTmax);
 	}
 
 	return T;
@@ -155,14 +179,41 @@ CWeatherAccumulator::CWeatherAccumulator(const CTM& TM)
 	m_minimumHours[HOURLY_DATA::H_SWE] = 1;
 	m_minimumDays.fill(22);
 
+	//m_midnightVariables.fill(CStatistic());
+	//for (size_t h = 0; h<m_midnightTRefMatrix.size(); h++)
+	//	m_midnightTRefMatrix[h].fill(0);
+
+	//m_midnightVariablesTmp.fill(CStatistic());
+	//for (size_t h = 0; h<m_midnightTRefMatrixTmp.size(); h++)
+	//	m_midnightTRefMatrixTmp[h].fill(0);
+
 	m_noonVariablesTmp.fill(CStatistic());
 	for (size_t h = 0; h<m_noonTRefMatrixTmp.size(); h++)
 		m_noonTRefMatrixTmp[h].fill(0);
 
+	m_06VariablesTmp.fill(CStatistic());
+	for (size_t h = 0; h<m_06TRefMatrixTmp.size(); h++)
+		m_06TRefMatrixTmp[h].fill(0);
+
+	m_18VariablesTmp.fill(CStatistic());
+	for (size_t h = 0; h<m_18TRefMatrixTmp.size(); h++)
+		m_18TRefMatrixTmp[h].fill(0);
+
+
+	m_22VariablesTmp.fill(CStatistic());
+	for (size_t h = 0; h<m_22TRefMatrixTmp.size(); h++)
+		m_22TRefMatrixTmp[h].fill(0);
+
+
 	ResetStat();
 	ResetMidnight();
 	ResetNoon();
+	Reset06();
+	Reset18();
+	Reset22();
 }
+
+
 ERMsg CWeatherAccumulator::Add(const StringVector& data, const CWeatherFormat& format)
 {
 	ERMsg msg;
@@ -182,45 +233,30 @@ ERMsg CWeatherAccumulator::Add(const StringVector& data, const CWeatherFormat& f
 	{
 		if (IsVariable(format[i].m_var))
 		{
+			CStatistic stat;
 			if (!data[i].empty())
 			{
 				double value = ToDouble(data[i]);
-
-				CStatistic stat;
 				if (value > format.GetNoData())
 					stat += value;
-				
-				//if (format[i].m_var == H_TAIR2 && format[i].m_stat == LOWEST)
-				//{
-				//	Tair += stat;
-				//	//Add(Tref, H_TMIN, stat);//always add stat to reset day
-				//}
-				//else if (format[i].m_var == H_TAIR2 && format[i].m_stat == HIGHEST)
-				//{
-				//	Tair += stat;
-				//	//Add(Tref, H_TMAX, stat);//always add stat to reset day
-				//}
-				//else
-				//{
-				Add(Tref, format[i].m_var, stat);//always add stat to reset day
-				//}
 			}//element is an non empty variable
+
+			Add(Tref, format[i].m_var, stat);//always add stat to reset day
 		}
 	}//for all element
 
-	/*if (Tair.IsInit()  )
-	{
-		Add(Tref, H_TAIR, Tair[MEAN]);
-		Add(Tref, H_TRNG, Tair[RANGE]);
-	}
-	else
-	{
-		Add(Tref, H_TAIR, Tair);
-		Add(Tref, H_TRNG, Tair);
-	}
-*/
+
 	return msg;
 }
+
+//static bool TRefIsChanging(CTM m_TM, CTRef m_lastTRef, CTRef Tref, int shift = 0)
+//{ 
+//	bool bIsInit = m_lastTRef.IsInit();
+//	CTRef T1 = bIsInit ? (Tref - shift).Transform(m_TM) : CTRef();
+//	CTRef T2 = bIsInit ? (m_lastTRef - shift).Transform(m_TM) : CTRef();
+//
+//	return bIsInit && T1 != T2;
+//}
 
 void CWeatherAccumulator::Add(CTRef Tref, size_t v, const CStatistic& value)
 {
@@ -231,26 +267,55 @@ void CWeatherAccumulator::Add(CTRef Tref, size_t v, const CStatistic& value)
 		if (m_bStatComputed)
 			ResetStat();
 
-		if (TRefIsChanging(Tref))//, MIDNIGHT_MIDNIGHT))
-			ResetMidnight();
-
-		if (TRefIsChanging(Tref,12))//, NOON_NOON))
+		//transfer data after added
+		if (TRefIsChanging(Tref, -12))
 			ResetNoon();
 
-		//if (v == H_TMIN || v == H_TMAX)
-			//v = H_TAIR;
+		if (TRefIsChanging(Tref, -06))
+			Reset18();
 
-		m_midnightTRefMatrix[Tref.GetHour()][v] += (int)value[NB_VALUE];
-		m_midnightVariables.m_bInit = true;
-		m_midnightVariables[v] += value;
-		m_midnightVariables.m_period += Tref;
+		if (TRefIsChanging(Tref, -02))
+			Reset22();
 
+		if (TRefIsChanging(Tref, 00))
+			ResetMidnight();
 
-		
-		m_noonTRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
-		m_noonVariablesTmp.m_bInit = true;
-		m_noonVariablesTmp[v] += value;
-		m_noonVariablesTmp.m_period += Tref;
+		if (TRefIsChanging(Tref, 06))
+			Reset06();
+
+		if (value.IsInit())
+		{
+			m_midnightTRefMatrix[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			m_midnightVariables.m_bInit = true;
+			m_midnightVariables[v] += value;
+			m_midnightVariables.m_period += Tref;
+
+			//m_midnightTRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			//m_midnightVariablesTmp.m_bInit = true;
+			//m_midnightVariablesTmp[v] += value;
+			//m_midnightVariablesTmp.m_period += Tref;
+
+			m_noonTRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			m_noonVariablesTmp.m_bInit = true;
+			m_noonVariablesTmp[v] += value;
+			m_noonVariablesTmp.m_period += Tref;
+
+			m_06TRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			m_06VariablesTmp.m_bInit = true;
+			m_06VariablesTmp[v] += value;
+			m_06VariablesTmp.m_period += Tref;
+
+			m_18TRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			m_18VariablesTmp.m_bInit = true;
+			m_18VariablesTmp[v] += value;
+			m_18VariablesTmp.m_period += Tref;
+
+			m_22TRefMatrixTmp[Tref.GetHour()][v] += (int)value[NB_VALUE];
+			m_22VariablesTmp.m_bInit = true;
+			m_22VariablesTmp[v] += value;
+			m_22VariablesTmp.m_period += Tref;
+		}
+
 		m_lastTRef = Tref;
 	}
 	else if (Tref.GetTM().Type() == CTM::DAILY)
@@ -260,31 +325,22 @@ void CWeatherAccumulator::Add(CTRef Tref, size_t v, const CStatistic& value)
 		if (TRefIsChanging(Tref))
 		{
 			ResetStat();
-			ResetMidnight();
+			
+			Reset06();
+			Reset18();
+			Reset22();
 			ResetNoon();
+			ResetMidnight();
+		}
+	
+		if (value.IsInit())
+		{
+			m_variables.m_bInit = true;
+			m_variables[v] += value;
+			m_variables.m_period += Tref;
 		}
 
-		//if (v == H_TMIN)
-		//{
-		//	assert(false);// a faire
-		//	m_noonVariablesTmp.m_bInit = true;
-		//	m_noonVariablesTmp[H_TAIR] += value;
-		//	m_noonVariablesTmp.m_period += Tref;
-		//}
-		//else if (v == H_TMAX)
-		//{
-		//	assert(false);// a faire
-		//	m_midnightVariables.m_bInit = true;
-		//	m_midnightVariables[H_TAIR] += value;
-		//	m_midnightVariables.m_period += Tref;
-		//}
-		//else
-		//{
-		m_variables.m_bInit = true;
-		m_variables[v] += value;
-		m_variables.m_period += Tref;
 		m_lastTRef = Tref;
-		//}
 	}
 }
 
@@ -314,8 +370,28 @@ void CWeatherAccumulator::ComputeStatistic()const
 			{
 				me.m_variables[v].clear();//reset var
 					
-				//continue;
-				CStatistic stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT);
+				//CStatistic stat = GetStat(v, MIDNIGHT_MIDNIGHT);
+				//CStatistic stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT);
+
+				//CStatistic stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT) ;
+				
+				CStatistic stat;
+				switch (DAILY_AGREGATION)
+				{
+				case ACCUMUL_12_00: stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+				case ACCUMUL_18_00:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+				case ACCUMUL_18_18:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P18_18); break;
+				case ACCUMUL_22_22: stat = (v == H_TMIN2) ? GetStat(v, P22_22) : GetStat(v, P22_22); break;
+				case ACCUMUL_00_00:	stat = (v == H_TMIN2) ? GetStat(v, MIDNIGHT_MIDNIGHT) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+				//case ACCUMUL_18_06:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P06_06); break;
+				default: ASSERT(false);
+				}
+
+				//CStatistic stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P06_06);
+				//CStatistic stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT);
+				//if (!stat.IsInit() && v == H_TMAX2)
+					//stat = GetStat(v, MIDNIGHT_MIDNIGHT);
+
 				if (stat.IsInit())
 				{
 					switch (v)
@@ -327,34 +403,24 @@ void CWeatherAccumulator::ComputeStatistic()const
 					}
 					
 				}
-					
-				
-			}
-				
-			//est-ce qu'on a besoinde ce bout de code et dans quel corcnstance????
+			}//for all variables
+			
 			if (!me.m_variables[H_TMIN2].IsInit() || !me.m_variables[H_TMAX2].IsInit())
 			{
 				me.m_variables[H_TMIN2].clear();//reset var
 				me.m_variables[H_TMAX2].clear();//reset var
-
-			//	CStatistic midnight = GetStat(H_TAIR2, MIDNIGHT_MIDNIGHT);//compute midnight-midnight statistics
-			//	CStatistic noon = GetStat(H_TAIR2, NOON_NOON);//compute noon-noon statistics
-			//	if (midnight.IsInit() && noon.IsInit())
-			//	{
-			//		me.m_variables[H_TMIN2] = noon[LOWEST];
-			//		me.m_variables[H_TMAX2] = midnight[HIGHEST];
-
-			//		ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
-			//	}
 			}
 			else
 			{
+				ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
+
 				//in some case noon-noon minimum can be greather than midnight-midnight max
+				//a vérifier: quoi faire dans ce cas ???
 				if (me.m_variables[H_TMAX2][MEAN] < me.m_variables[H_TMIN2][MEAN])
 					Switch(me.m_variables[H_TMAX2], me.m_variables[H_TMIN2]);
 			}
 			
-			ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
+//			ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
 		}//for all variable	
 		
 		me.m_variables.m_bInit = true;
@@ -370,25 +436,42 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 
 	if (sourcePeriod == MIDNIGHT_MIDNIGHT)
 	{
+		//in case of the last TRef is in the night, we take the current accumulation 
 		ASSERT(m_midnightTRefMatrix.size() == 24);
-		CStatistic NbTRef;
-		for (size_t h = 0; h<m_midnightTRefMatrix.size(); h++)
-			if (m_midnightTRefMatrix[h][v]>0)
-				NbTRef += (int)h;
-
+		
 		if (v == H_TMAX2)
 		{
 			bValid = false;
 			for (size_t h = 14; h <= 16 && !bValid; h++)
-				if (m_midnightTRefMatrix[h][v]>0)
+				if (m_midnightTRefMatrix[h][v] > 0)
 					bValid = true;
 
 			if (!bValid)
 			{
-				if (m_noonVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				if (m_midnightVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 14; h <= 16 && !bValid; h++)
+						if (m_midnightTRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmax
+				}
+			}
+		}
+		else if (v == H_TMIN2)
+		{
+			bValid = false;
+			for (size_t h = 3; h <= 6 && !bValid; h++)
+				if (m_midnightTRefMatrix[h][v] > 0)
+					bValid = true;
+
+			if (!bValid)
+			{
+				if (m_midnightVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
 				{
 					for (size_t h = 3; h <= 6 && !bValid; h++)
-						if (m_noonTRefMatrix[h][H_TAIR2] > 0)
+						if (m_midnightTRefMatrix[h][H_TAIR2] > 0)
 							bValid = true;
 
 					if (bValid)
@@ -398,6 +481,11 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 		}
 		else
 		{
+			CStatistic NbTRef;
+			for (size_t h = 0; h < m_midnightTRefMatrix.size(); h++)
+				if (m_midnightTRefMatrix[h][v]>0)
+					NbTRef += (int)h;
+
 			if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
 				m_midnightVariables[v][NB_VALUE] < m_minimumHours[v])
 			{
@@ -405,18 +493,53 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 			}
 		}
 
-		if (bValid )//|| (GTRef().GetTM().Type() != CTM::HOURLY)
+		if (bValid)
 			return m_midnightVariables[v];
+		//}
+		//else
+		//{
+		//	ASSERT(m_midnightTRefMatrix2.size() == 24);
+		//	CStatistic NbTRef;
+		//	for (size_t h = 0; h < m_midnightTRefMatrix2.size(); h++)
+		//		if (m_midnightTRefMatrix2[h][v]>0)
+		//			NbTRef += (int)h;
+
+		//	if (v == H_TMAX2)
+		//	{
+		//		bValid = false;
+		//		for (size_t h = 14; h <= 16 && !bValid; h++)
+		//			if (m_midnightTRefMatrix2[h][v] > 0)
+		//				bValid = true;
+
+		//		if (!bValid)
+		//		{
+		//			if (m_midnightVariables2[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+		//			{
+		//				for (size_t h = 14; h <= 16 && !bValid; h++)
+		//					if (m_midnightTRefMatrix2[h][H_TAIR2] > 0)
+		//						bValid = true;
+
+		//				if (bValid)
+		//					v = H_TAIR2; //use Tair stat instead of Tmax
+		//			}
+		//		}
+		//	}
+		//	else
+		//	{
+		//		if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
+		//			m_midnightVariables2[v][NB_VALUE] < m_minimumHours[v])
+		//		{
+		//			bValid = false;
+		//		}
+		//	}
+
+		//	if (bValid)//|| (GTRef().GetTM().Type() != CTM::HOURLY)
+		//		return m_midnightVariables2[v];
+		//}
 	}
-	else
+	else if (sourcePeriod == NOON_NOON)
 	{
 		ASSERT(m_noonTRefMatrix.size() == 24);
-
-		CStatistic NbTRef;
-		for (size_t h = 0; h<m_noonTRefMatrix.size(); h++)
-			if (m_noonTRefMatrix[h][v]>0)
-				NbTRef += (int)h;
-
 
 		if (v == H_TMIN2)
 		{
@@ -445,6 +568,11 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 		}
 		else
 		{
+			CStatistic NbTRef;
+			for (size_t h = 0; h<m_noonTRefMatrix.size(); h++)
+				if (m_noonTRefMatrix[h][v]>0)
+					NbTRef += (int)h;
+
 			if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
 				m_noonVariables[v][NB_VALUE] < m_minimumHours[v])
 			{
@@ -454,6 +582,179 @@ const CStatistic& CWeatherAccumulator::GetStat(size_t v, int sourcePeriod)const
 
 		if (bValid)
 			return m_noonVariables[v];
+	}
+	else if (sourcePeriod == P06_06)
+	{
+		ASSERT(m_06TRefMatrix.size() == 24);
+		
+		if (v == H_TMAX2)
+		{
+			bValid = false;
+			for (size_t h = 14; h <= 16 && !bValid; h++)
+				if (m_06TRefMatrix[h][v]>0)
+					bValid = true;
+
+			if (!bValid)
+			{
+				if (m_06Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 14; h <= 16 && !bValid; h++)
+						if (m_06TRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmax
+				}
+			}
+		}
+		else
+		{
+			CStatistic NbTRef;
+			for (size_t h = 0; h<m_06TRefMatrix.size(); h++)
+				if (m_06TRefMatrix[h][v]>0)
+					NbTRef += (int)h;
+
+			if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
+				m_06Variables[v][NB_VALUE] < m_minimumHours[v])
+			{
+				bValid = false;
+			}
+		}
+
+		if (bValid)
+			return m_06Variables[v];
+	}
+	else if (sourcePeriod == P18_18)
+	{
+		ASSERT(m_18TRefMatrix.size() == 24);
+
+		if (v == H_TMAX2)
+		{
+			bValid = false;
+			for (size_t h = 14; h <= 16 && !bValid; h++)
+				if (m_18TRefMatrix[h][v]>0)
+					bValid = true;
+
+			if (!bValid)
+			{
+				if (m_18Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 14; h <= 16 && !bValid; h++)
+						if (m_18TRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmax
+				}
+			}
+		}
+		else if (v == H_TMIN2)
+		{
+			bValid = false;
+			if (m_18Variables[v][NB_VALUE] >= m_minimumHours[v])
+			{
+				for (size_t h = 3; h <= 6 && !bValid; h++)
+					if (m_18TRefMatrix[h][v] > 0)
+						bValid = true;
+			}
+
+
+			//try with Tair 
+			if (!bValid)
+			{
+				if (m_18Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 3; h <= 6 && !bValid; h++)
+						if (m_18TRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmin
+				}
+			}
+		}
+		else
+		{
+			CStatistic NbTRef;
+			for (size_t h = 0; h < m_18TRefMatrix.size(); h++)
+				if (m_18TRefMatrix[h][v]>0)
+					NbTRef += (int)h;
+
+			if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
+				m_18Variables[v][NB_VALUE] < m_minimumHours[v])
+			{
+				bValid = false;
+			}
+		}
+
+		if (bValid)
+			return m_18Variables[v];
+	}
+	else if (sourcePeriod == P22_22)
+	{
+		ASSERT(m_22TRefMatrix.size() == 24);
+
+		if (v == H_TMAX2)
+		{
+			bValid = false;
+			for (size_t h = 14; h <= 16 && !bValid; h++)
+				if (m_22TRefMatrix[h][v] > 0)
+					bValid = true;
+
+			if (!bValid)
+			{
+				if (m_22Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 14; h <= 16 && !bValid; h++)
+						if (m_22TRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmax
+				}
+			}
+		}
+		else if (v == H_TMIN2)
+		{
+			bValid = false;
+			if (m_22Variables[v][NB_VALUE] >= m_minimumHours[v])
+			{
+				for (size_t h = 3; h <= 6 && !bValid; h++)
+					if (m_22TRefMatrix[h][v] > 0)
+						bValid = true;
+			}
+
+
+			//try with Tair 
+			if (!bValid)
+			{
+				if (m_22Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+				{
+					for (size_t h = 3; h <= 6 && !bValid; h++)
+						if (m_22TRefMatrix[h][H_TAIR2] > 0)
+							bValid = true;
+
+					if (bValid)
+						v = H_TAIR2; //use Tair stat instead of Tmin
+				}
+			}
+		}
+		else
+		{
+			CStatistic NbTRef;
+			for (size_t h = 0; h < m_22TRefMatrix.size(); h++)
+				if (m_22TRefMatrix[h][v]>0)
+					NbTRef += (int)h;
+
+			if (NbTRef[HIGHEST] - NbTRef[LOWEST] < m_deltaHourMin ||
+				m_22Variables[v][NB_VALUE] < m_minimumHours[v])
+			{
+				bValid = false;
+			}
+		}
+
+		if (bValid)
+			return m_22Variables[v];
 	}
 
 
@@ -604,7 +905,7 @@ CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
 
 
 
-CDailyWaveVector& CHourlyData::GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const
+CDailyWaveVector& CHourlyData::GetHourlyGeneration(CDailyWaveVector& t, size_t method, size_t step, double PolarDayLength, const COverheat& overheat) const
 {
 	assert(false);
 	//don't call GetAllenWave on hourly data
@@ -694,28 +995,50 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 			bool bIsCompilingHourly = GetWeatherStation()->IsCompilingHourly();
 			if (!bHourlyComputed && !bIsCompilingHourly)
 			{
-
-
 				CWeatherAccumulator accumulator(CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
 				accumulator.m_minimumHours.fill(0);
 				accumulator.m_minimumDays.fill(0);
 
-				if( m_pParent != NULL)
+				//if (DAILY_AGREGATION == ACCUMUL_22_22)
+				//{
+				//	if (m_pParent != NULL && IsYearInit((GetTRef() - 1).GetYear()))
+				//	{
+				//		//Compute noon-noon from the previous and current day
+				//		const CWeatherDay& previousDay = me.GetPrevious();
+				//		for (size_t h = 22; h < 24; h++)
+				//		{
+				//			accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
+				//			accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
+				//			accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+				//		}
+				//	}
+				//}
+				//else 
+				if (DAILY_AGREGATION != ACCUMUL_00_00)
 				{
-					//Compute noon-noon from the previous and current day
-					const CWeatherDay& previousDay = me.GetPrevious();
-					for (size_t h = 12; h < 24; h++)
+					if (m_pParent != NULL && IsYearInit((GetTRef() - 1).GetYear()))
 					{
-						accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
-						accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
-						accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+						//Compute noon-noon from the previous and current day
+						const CWeatherDay& previousDay = me.GetPrevious();
+						for (size_t h = 12; h < 24; h++)
+						{
+							accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
+							accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
+							accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+						}
+
 					}
-						
 				}
+				
 
 				me.m_dailyStat.clear();
 				for (size_t h = 0; h < 24; h++)
 				{
+					//always add var to update flush
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+						accumulator.Add(me[h].GetTRef(), v, me[h][v]);
+
+
 					if (me[h].HaveData())
 					{
 						if (IsMissing(me[h][H_RELH]) && !IsMissing(me[h][H_TAIR2]) && !IsMissing(me[h][H_TDEW]))
@@ -728,7 +1051,7 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 						{
 							if (!IsMissing(me[h][v]))
 							{
-								accumulator.Add(me[h].GetTRef(), v, me[h][v]);
+								//accumulator.Add(me[h].GetTRef(), v, me[h][v]);
 
 								if (v != H_TMIN2 && v != H_TMAX2)
 									me.m_dailyStat[v] += me[h][v];
@@ -737,7 +1060,25 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 
 						me.m_dailyStat.m_period += me[h].GetTRef();
 					}
+
+					
 				}
+
+				//if (DAILY_AGREGATION == ACCUMUL_18_06)
+				//{
+				//	if (m_pParent != NULL && IsYearInit((GetTRef() + 1).GetYear()))
+				//	{
+				//		//Compute 06-06 of the next day
+				//		const CWeatherDay& nextDay = GetNext();
+				//		for (size_t h = 0; h < 12; h++)//<= 06 flush de data
+				//		{
+				//			accumulator.Add(nextDay[h].GetTRef(), H_TMIN2, nextDay[h][H_TMIN2]);
+				//			accumulator.Add(nextDay[h].GetTRef(), H_TAIR2, nextDay[h][H_TAIR2]);
+				//			accumulator.Add(nextDay[h].GetTRef(), H_TMAX2, nextDay[h][H_TMAX2]);
+				//		}
+
+				//	}
+				//}
 
 				ASSERT(!m_dailyStat[H_TAIR2].IsInit() || (m_dailyStat[H_TAIR2][MEAN] >= -90 && m_dailyStat[H_TAIR2][MEAN] < 90));
 				ASSERT(!m_dailyStat[H_TMIN2].IsInit() || (m_dailyStat[H_TMIN2][MEAN] >= -90 && m_dailyStat[H_TMIN2][MEAN] < 90));
@@ -910,7 +1251,6 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 	
 	if (v == H_TNTX || v == H_TRNG2)
 	{
-		//ASSERT(m_dailyStat.m_bInit);
 		const CStatistic& Tmin = GetStat(H_TMIN2);
 		const CStatistic& Tmax = GetStat(H_TMAX2);
 		
@@ -968,68 +1308,246 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 	return stat;
 }
 
-//h : hour
-//double CWeatherDay::GetOverheat(const COverheat& overheat)const
-//{
-//	_ASSERTE(m_pParent);
-//	assert(fmod(24.0, step) == 0);
-//	
-//	//_ASSERTE(hourTmax >= 12 && hourTmax< 24);
-//	//_ASSERTE(step>0 && step <= 24);
-//
-//	if (IsHourly())
-//	{
-//		size_t nbStep = size_t(24.0 / step);
-//		for (size_t s = 0; s<nbStep; s++)
-//		{
-//			size_t h = size_t(s*step);
-//			double t = at(h).at(H_TAIR) + overheat.GetValue(h);
-//			t.push_back(t);
-//		}
-//	}
-//	else
-//	{
-//		static const int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
-//		static const double r_hour = 3.14159 / 12;
-//
-//
-//		CWeatherDay days[3] = { GetPrevious(), *this, GetNext() };
-//
-//		for (int d = 0; d < 3; d++)
-//			overheat.TransformWeather(days[d]);
-//
-//		int nbStep = int(24.0 / step);
-//		for (int s = 0; s<nbStep; s++)
-//		{
-//			double h = double(s*step);
-//			double  mean = h<hourTmax - 12 ? days[0][H_TAIR][MEAN] : h<hourTmax ? days[1][H_TAIR][MEAN] : days[2][H_TAIR][MEAN];
-//			double range = h < hourTmax - 12 ? days[0][H_TAIR][RANGE] : h < hourTmax ? days[1][H_TAIR][RANGE] : days[2][H_TAIR][RANGE];
-//
-//			double theta = (h - time_factor)*r_hour;
-//			t.push_back(float(mean + range / 2 * sin(theta)));
-//		}
-//	}
-//
-//	return t;
-//}
-
-double CWeatherDay::GetAllenT(size_t h, size_t hourTmax)const
+double CWeatherDay::GetDoubleSine(double h, double PolarDayLength)const
 {
-	const CWeatherDay& d1 = GetPrevious();
-	const CWeatherDay& d2 = *this;
-	const CWeatherDay& d3 = GetNext();
+	double Tair = WEATHER::MISSING;
 
-	return WBSF::GetAllenT(d1[H_TMIN2][MEAN], d1[H_TMAX2][MEAN], d2[H_TMIN2][MEAN], d2[H_TMAX2][MEAN], d3[H_TMIN2][MEAN], d3[H_TMAX2][MEAN], h, hourTmax);
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& me = *this;
+	const CWeatherDay& dn = GetNext();
+
+	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	{
+
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+		//int sunrise = Round(sun.GetSunrise(GetTRef()));
+		//int noon = Round(sun.GetSolarNoon(GetTRef()));
+		double sunrise = sun.GetSunrise(GetTRef());
+		double noon = sun.GetSolarNoon(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
+
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+		if (D < PolarDayLength)
+		{
+			Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D >(24 - PolarDayLength))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+		}
+		else
+		{
+			Tair = WBSF::GetDoubleSine(Tmin, Tmax, h, sunrise, noon + 2);
+		}
+	}
+
+	return Tair;
 }
 
-CDailyWaveVector& CWeatherDay::GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const
+
+double CWeatherDay::GetAllenT(double h, size_t hourTmin, size_t hourTmax, double PolarDayLength)const
+{
+	ASSERT(hourTmin < hourTmax);
+	ASSERT(hourTmax >= 12 && hourTmax < 24);
+
+	double Tair = WEATHER::MISSING;
+	
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& me = *this;
+	const CWeatherDay& dn = GetNext();
+
+	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	{
+
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+		//int sunrise = Round(sun.GetSunrise(GetTRef()));
+		//int noon = Round(sun.GetSolarNoon(GetTRef()));
+		//double sunrise = sun.GetSunrise(GetTRef());
+		//double noon = sun.GetSolarNoon(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
+
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+		if (D < PolarDayLength)
+		{
+			Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D >(24 - PolarDayLength))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+		}
+		else
+		{
+			Tair = WBSF::GetDoubleSine(Tmin, Tmax, h, hourTmin, hourTmax);
+		}
+	}
+
+	return Tair;
+}
+
+
+//sine-exponential method
+//Evaluation and calibration of three models for daily cycle of air temperature
+//Wann 1984
+//Brandsma (2006)
+double CWeatherDay::GetSineExponential(double h, size_t method, double PolarDayLength)const
+{
+	double Tair = WEATHER::MISSING;
+
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& me = *this;
+	const CWeatherDay& dn = GetNext();
+
+	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	{
+
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+		double Tsr = sun.GetSunrise(GetTRef());
+		double Tss = sun.GetSunset(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
+
+		if (D < PolarDayLength)
+		{
+			Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D >(24 - PolarDayLength))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+		}
+		else
+		{
+			Tair = WBSF::GetSineExponential(Tmin, Tmax, h, Tsr, Tss, method);
+		}
+	}
+
+	return Tair;
+}
+
+double CWeatherDay::GetSinePower(double h, double PolarDayLength)const
+{
+	double Tair = WEATHER::MISSING;
+
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& me = *this;
+	const CWeatherDay& dn = GetNext();
+
+	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	{
+
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+		double Tsr = sun.GetSunrise(GetTRef());
+		double Tss = sun.GetSunset(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
+
+		if (D < PolarDayLength)
+		{
+			Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D >(24 - PolarDayLength))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+		}
+		else
+		{
+			Tair = WBSF::GetSinePower(Tmin, Tmax, h, Tsr, Tss);
+		}
+	}
+
+	return Tair;
+}
+
+
+
+double CWeatherDay::GetErbs(double h, double PolarDayLength)const
+{
+	double Tair = WEATHER::MISSING;
+
+	const CWeatherDay& dp = GetPrevious();
+	const CWeatherDay& me = *this;
+	const CWeatherDay& dn = GetNext();
+
+	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	{
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+		//int sunrise = Round(sun.GetSunrise(GetTRef()));
+		//int noon = Round(sun.GetSolarNoon(GetTRef()));
+		double sunrise = sun.GetSunrise(GetTRef());
+		double noon = sun.GetSolarNoon(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
+
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+		if (D < PolarDayLength)
+		{
+			Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D >(24 - PolarDayLength))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+		}
+		else
+		{
+			Tair = WBSF::GetErbs(Tmin, Tmax, h);
+		}
+	}
+
+	return Tair;
+}
+
+
+
+//
+//double CWeatherDay::GetPolarInterpol(size_t h)const
+//{
+//	double Tair = WEATHER::MISSING;
+//
+//	const CWeatherDay& dp = GetPrevious();
+//	const CWeatherDay& me = *this;
+//	const CWeatherDay& dn = GetNext();
+//
+//	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
+//		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+//	{
+//		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+//		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+//
+//		Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+//	}
+//
+//	return Tair;
+//}
+//An improved model for determining degree-day values from daily temperature data
+//Allen Wave Allen, 1976 J.C. Allen
+//A modified sine wave method for calculating degree-days Environ. Entomol., 5 (1976), pp. 388–396
+CDailyWaveVector& CWeatherDay::GetHourlyGeneration(CDailyWaveVector& t, size_t method, size_t step, double PolarDayLength, const COverheat& overheat) const
 {
 	_ASSERTE(m_pParent);
-	assert(fmod(24.0, step) == 0);
-	_ASSERTE(hourTmax >= 12 && hourTmax< 24);
+	_ASSERTE(fmod(24.0, step) == 0);
+	_ASSERTE(method<NB_HOURLY_GENERATION);
 	_ASSERTE(step>0 && step <= 24);
 	
-	
+
 	if (!t.IsInit())
 	{
 		t.m_period = CTPeriod(GetTRef(), GetTRef());
@@ -1039,42 +1557,70 @@ CDailyWaveVector& CWeatherDay::GetAllenWave(CDailyWaveVector& t, size_t hourTmax
 		t.m_period.End() = GetTRef();
 	}
 
-	if (IsHourly())
+	
+	if(IsHourly())
 	{
 		size_t nbStep = size_t(24.0 / step);
 		for (size_t s = 0; s<nbStep; s++)
 		{
 			size_t h = size_t(s*step);
-			double T = overheat.GetT(*this, h, hourTmax);
+			double T = overheat.GetT(*this, h, 13); 
 			t.push_back((float)T);
 		}
 	}
 	else
 	{
-		assert(m_dailyStat[H_TMIN2].IsInit());
-		assert(m_dailyStat[H_TMAX2].IsInit());
 
-		int time_factor = (int)hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
-		static const double r_hour = 3.14159 / 12;
 		
-		double Tmin[3] = { overheat.GetTmin(GetPrevious()), overheat.GetTmin(*this), overheat.GetTmin(GetNext()) };
-		double Tmax[3] = { overheat.GetTmax(GetPrevious()), overheat.GetTmax(*this), overheat.GetTmax(GetNext()) };
+		const CWeatherDay& dp = GetPrevious();
+		const CWeatherDay& me = *this;
+		const CWeatherDay& dn = GetNext();
+		ASSERT(dp[H_TMIN2].IsInit() && me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit());
+		ASSERT(dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit() && dn[H_TMAX2].IsInit());
+		
+		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+
+		//double-sine method
+		const CLocation& loc = GetLocation();
+		CSun sun(loc.m_lat, loc.m_lon);
+
+		double Tsr = sun.GetSunrise(GetTRef());
+		double Tsn= sun.GetSolarNoon(GetTRef());
+		double Tss = sun.GetSunset(GetTRef());
+		double D = sun.GetDayLength(GetTRef());
 
 		int nbStep = int(24.0 / step);
-		for (int s = 0; s<nbStep; s++)
+		for (int s = 0; s < nbStep; s++)
 		{
-			double h = double(s*step);
-			size_t i = h<hourTmax ? 1 : 2;
-			size_t ii = h<hourTmax - 12 ? 0 : 1;
-			double Tmin² = Tmin[i];
-			double Tmax² = Tmax[ii];
+			int h = int(s*step);
+			
+			double Tair = -999;
+			if (D<3)
+			{
+				Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
+			}
+			else if (D>(24-3))
+			{
+				Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
+			}
+			else
+			{
+				switch (method)
+				{
+				case HG_DOUBLE_SINE: Tair = WBSF::GetDoubleSine(Tmin, Tmax, h, Tsr, Tsn + 2); break;
+				case HG_SINE_EXP_BRANDSMA: Tair = WBSF::GetSineExponential(Tmin, Tmax, h, Tsr, Tss, SE_BRANDSMA); break;
+				case HG_SINE_EXP_SAVAGE: Tair = WBSF::GetSineExponential(Tmin, Tmax, h, Tsr, Tss, SE_SAVAGE); break;
+				case HG_SINE_POWER: Tair = WBSF::GetSinePower(Tmin, Tmax, h, Tsr, Tss); break;
+				case HG_ERBS: Tair = WBSF::GetErbs(Tmin, Tmax, h); break;
+				case HG_ALLEN_WAVE: Tair = WBSF::GetDoubleSine(Tmin, Tmax, h, 3, 15); break;
+				case HG_POLAR: Tair = WBSF::GetPolarWinter(Tmin, Tmax, h); break;
+				default: ASSERT(false);
+				}
+			}
 
-			double  mean = (Tmin² + Tmax²) / 2;
-			double range = Tmax² - Tmin²;
-
-			double theta = (h - time_factor)*r_hour;
-			t.push_back( float(mean + range / 2 * sin(theta)));
-		}
+			t.push_back(Tair);
+		}//for all hours
 	}
 
 	return t;
@@ -1110,14 +1656,10 @@ void CWeatherDay::ReadStream(istream& stream, const CWVariables& variable)
 
 //*****************************************************************************************
 //Temperature
-//Carla Cesaraccio · Donatella Spano · Pierpaolo Duce Richard L. Snyder
-//An improved model for determining degree-day values from daily temperature data
-//Allen Wave Allen, 1976 J.C. Allen
-//A modified sine wave method for calculating degree-days Environ. Entomol., 5 (1976), pp. 388–396
-void CWeatherDay::ComputeHourlyTair()
+
+void CWeatherDay::ComputeHourlyTair(size_t method)
 {
 	_ASSERTE(m_pParent);
-	_ASSERTE(!IsHourly());
 
 	CWeatherDay& me = *this;
 	const CWeatherDay& dp = GetPrevious();
@@ -1126,112 +1668,53 @@ void CWeatherDay::ComputeHourlyTair()
 		!dp[H_TMAX2].IsInit() || !me[H_TMAX2].IsInit() || !dn[H_TMAX2].IsInit())
 		return;
 
-
-	static const int HOUR_TMAX = 15;
-	int time_factor = (int)HOUR_TMAX - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
-	static const double r_hour = 3.14159 / 12;
-
 	double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
 	double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
 
-		
-	for (int h = 0; h<24; h++)
-	{
-		size_t i = h<HOUR_TMAX ? 1 : 2;
-		size_t ii = h<HOUR_TMAX - 12 ? 0 : 1;
-		double Tmin² = Tmin[i];
-		double Tmax² = Tmax[ii];
-
-		double  mean = (Tmin² + Tmax²) / 2;
-		double range = Tmax² - Tmin²;
-
-		double theta = (h - time_factor)*r_hour;
-		me[h][H_TAIR2] = float(mean + range / 2 * sin(theta));
-	}
-	
-
-	/*
+	//double-sine method
 	const CLocation& loc = GetLocation();
-
-	static const double c = 0.253;//From 10 station in North America 2010
-	
-	CWeatherDay& me = *this;
-	const CWeatherDay& dp = GetPrevious();
-	const CWeatherDay& dn = GetNext();
-	if (!dp[H_TMIN2].IsInit() || !me[H_TMIN2].IsInit() || !dn[H_TMIN2].IsInit() ||
-		!dp[H_TMAX2].IsInit() || !me[H_TMAX2].IsInit() || !dn[H_TMAX2].IsInit())
-		return;
-
 	CSun sun(loc.m_lat, loc.m_lon);
-	double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-	double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+	//int sunrise = Round(sun.GetSunrise(GetTRef()));
+	//int noon = Round(sun.GetSolarNoon(GetTRef()));
 	
-	ASSERT(Tmin[0]>-999 && Tmax[0]>-999);
-	ASSERT(Tmin[1]>-999 && Tmax[1]>-999);
-	ASSERT(Tmin[2]>-999 && Tmax[2]>-999);
 
-	CTRef TRef = GetTRef();
-	double hourTmax = max(12.0, min(23.0, 1.00258*sun.GetSolarNoon(TRef) + 2.93458));
+	double Tsr = sun.GetSunrise(GetTRef());
+	double Tsn = sun.GetSolarNoon(GetTRef());
+	double Tss = sun.GetSunset(GetTRef());
+	double D = sun.GetDayLength(GetTRef());
 
-	int Hn = (int)Round(sun.GetSunrise(TRef));
-	int Hp = Hn + 24;
-	int Ho = (int)Round(sun.GetSunset(TRef));
-	int Hx = Ho - 4;
-
-	double Tn1 = Tmin[0];
-	double Tx1 = Tmax[0];
-	double Tp1 = Tmin[1];
-	double To1 = Tx1 - c*(Tx1 - Tp1);
-
-	double b1 = (Tp1 - To1) / sqrt((double)Hp - Ho);
-
-	double Tn2 = Tmin[1];
-	double Tx2 = Tmax[1];
-	double Tp2 = Tmin[2];
-	double To2 = Tx2 - c*(Tx2 - Tp2);
-
-	double α = Tx2 - Tn2;
-	double R = Tx2 - To2;
-	double b2 = (Tp2 - To2) / sqrt((double)Hp - Ho);
-
-
-	double time_factor = hourTmax - 6;  //  "rotates" the radian clock to put the hourTmax at the top  
-	static const double r_hour = 3.14159 / 12;
-
-
-	Tmin[0] = Tp1;
-	Tmax[2] = Tx1;
-
-	for (size_t h = 0; h<24; h++)
+	//From MELODIST
+	//bool bPolars = sun.GetDayLength(GetTRef()) < 3;
+	for (int h = 0; h < 24; h++)
 	{
-		//temperature
-		double T = MISSING;
-		if ((Ho - Hn) <= 8 || (Ho - Hn) >= 15)
+		double Tair = -999;
+		if (D<3)
 		{
-			size_t i = h<hourTmax - 12 ? 0 : h<hourTmax ? 1 : 2;
-			
-			double mean = (Tmin[i] + Tmax[i])/2;
-			double range = Tmax[i] - Tmin[i];
-			double theta = (h - time_factor)*r_hour;
-			T = mean + range / 2 * sin(theta);
+			Tair  = WBSF::GetPolarWinter(Tmin, Tmax, h);
+		}
+		else if (D>(24 - 3))
+		{
+			Tair = WBSF::GetPolarSummer(Tmin, Tmax, h);
 		}
 		else
 		{
-			if (h <= Hn)
-				T = To1 + b1*sqrt((double)h + (24 - Ho));
-			else if (h <= Hx)
-				T = Tn2 + α*sin(((double)h - Hn) / (Hx - Hn)*PI / 2);
-			else if (h <= Ho)
-				T = To2 + R*sin(PI / 2 + (((double)h - Hx) / 4)*PI / 2);
-			else
-				T = To2 + b2*sqrt((double)h - Ho);
+			switch (method)
+			{
+			case HG_DOUBLE_SINE: Tair  = WBSF::GetDoubleSine(Tmin, Tmax, h, Tsr, Tsn + 2); break;
+			case HG_SINE_EXP_BRANDSMA: Tair  = WBSF::GetSineExponential(Tmin, Tmax, h, Tsr, Tss, SE_BRANDSMA); break;
+			case HG_SINE_EXP_SAVAGE: Tair  = WBSF::GetSineExponential(Tmin, Tmax, h, Tsr, Tss, SE_SAVAGE); break;
+			case HG_SINE_POWER: Tair  = WBSF::GetSinePower(Tmin, Tmax, h, Tsr, Tss); break;
+			case HG_ERBS: Tair  = WBSF::GetErbs(Tmin, Tmax, h); break;
+			case HG_ALLEN_WAVE: Tair  = WBSF::GetDoubleSine(Tmin, Tmax, h, 3, 15); break;
+			case HG_POLAR: Tair  = WBSF::GetPolarWinter(Tmin, Tmax, h); break;
+			default: ASSERT(false);
+			}
 		}
 
-		ASSERT(T>MISSING);
-
-		me[h][H_TAIR2] = (float)T;
+		me[h][H_TAIR2] = float(Tair);
 	}
-	*/
+
+	
 }
 
 
@@ -1574,6 +2057,20 @@ void CWeatherDay::ComputeHourlyVariables(CWVariables variables, std::string opti
 {
 	ManageHourlyData();
 	
+	/*StringVector op(options, ",;|");
+
+	map<string, string> ops;
+	for (size_t i = 0; i < op.size(); i ++)
+	{
+		StringVector pair(options, "=:");
+		ASSERT(pair.size() == 2);
+		ops[pair[0]] = pair[1];
+	}*/
+		
+
+	//size_t Tmethod = !ops["Tmethod"].empty() ? as<size_t>(ops["Tmethod"]) : HG_DOUBLE_SINE;// HG_SINE_EXP_SAVAGE;
+	size_t Tmethod = HG_DOUBLE_SINE;
+
 	CWeatherDay& me = *this;
 	for (TVarH v = H_FIRST_VAR; v<variables.size(); v++)
 	{
@@ -1584,9 +2081,8 @@ void CWeatherDay::ComputeHourlyVariables(CWVariables variables, std::string opti
 			switch (v)
 			{
 			case H_TMIN2: break;
-			case H_TAIR2: ComputeHourlyTair(); break;
+			case H_TAIR2: ComputeHourlyTair(Tmethod); break;
 			case H_TMAX2: break;
-			//case H_TRNG: ComputeHourlyTrng(me); break;
 			case H_PRCP: ComputeHourlyPrcp(); break;
 			case H_TDEW: ComputeHourlyTdew(); break;
 			case H_RELH: ComputeHourlyRelH();  break;
@@ -1687,10 +2183,10 @@ void CWeatherMonth::CompileStat(const CTPeriod& p )const
 
 
 
-CDailyWaveVector& CWeatherMonth::GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const
+CDailyWaveVector& CWeatherMonth::GetHourlyGeneration(CDailyWaveVector& t, size_t method, size_t step, double PolarDayLength, const COverheat& overheat) const
 {
 	for (const_iterator it = begin(); it != end(); it++)
-		it->GetAllenWave(t, hourTmax, step, overheat);
+		it->GetHourlyGeneration(t, method, step, PolarDayLength, overheat);
 
 	return t;
 }
@@ -1794,10 +2290,10 @@ bool CWeatherYear::IsComplete(CWVariables variables)const
 	return bCompte;
 }
 
-CDailyWaveVector& CWeatherYear::GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const
+CDailyWaveVector& CWeatherYear::GetHourlyGeneration(CDailyWaveVector& t, size_t method, size_t step, double PolarDayLength, const COverheat& overheat) const
 {
 	for (const_iterator it = begin(); it != end(); it++)
-		it->GetAllenWave(t, hourTmax, step, overheat);
+		it->GetHourlyGeneration(t, method, step, PolarDayLength, overheat);
 
 	return t;
 }
@@ -2060,6 +2556,7 @@ CWeatherYears::CWeatherYears(bool bIsHourly)
 	m_pParent = NULL;
 	m_bHourly = bIsHourly;
 	m_bCompilingHourly = false;
+//	m_hourlyGenerationMethod = HG_SINE_EXP_SAVAGE;
 }
 
 CWeatherYears::CWeatherYears(const CWeatherYears& in)
@@ -2859,9 +3356,13 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 {
 	CWeatherStation& me = *this;
 
-	variables &= GetVariables();
+	CWVariables vAvail = GetVariables();
+	if (vAvail[H_TMIN2] && vAvail[H_TMAX2])
+		vAvail.set(H_TAIR2);
 
-	if (!variables[H_TDEW] && variables[H_TAIR2] && variables[H_RELH])
+	variables &= vAvail;
+
+	if (!variables[H_TDEW] && variables[H_TMIN2] && variables[H_TMAX2] && variables[H_RELH])
 	{
 		variables.set(H_TDEW);
 		for (size_t y = 0; y < size(); y++)
@@ -2870,8 +3371,8 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 			{
 				for (size_t d = 0; d < me[y][m].size(); d++)
 				{
-					if (!me[y][m][d][H_TDEW].IsInit() && me[y][m][d][H_TAIR2].IsInit() && me[y][m][d][H_RELH].IsInit())
-						me[y][m][d].SetStat(H_TDEW, Hr2Td(me[y][m][d][H_TAIR2][MEAN], me[y][m][d][H_RELH][MEAN]));
+					if (!me[y][m][d][H_TDEW].IsInit() && me[y][m][d][H_TNTX].IsInit() && me[y][m][d][H_RELH].IsInit())
+						me[y][m][d].SetStat(H_TDEW, Hr2Td(me[y][m][d][H_TNTX][MEAN], me[y][m][d][H_RELH][MEAN]));
 				}
 			}
 		}
@@ -3533,10 +4034,10 @@ void CWeatherStationVector::CleanUnusedVariable(CWVariables variables)
 		it->CleanUnusedVariable(variables);
 }
 
-CDailyWaveVector& CWeatherYears::GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const
+CDailyWaveVector& CWeatherYears::GetHourlyGeneration(CDailyWaveVector& t, size_t method, size_t step, double PolarDayLength, const COverheat& overheat) const
 {
 	for (const_iterator it = begin(); it != end(); it++)
-		it->second->GetAllenWave(t, hourTmax, step, overheat);
+		it->second->GetHourlyGeneration(t, method, step, PolarDayLength, overheat);
 	
 	return t;
 }

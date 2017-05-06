@@ -105,7 +105,7 @@ namespace WBSF
 				sumDD = 222.2;
 				break;//orginal
 			case REMI_PARAMETER:
-				begin = CTRef(year, NOVEMBER, DAY_6);
+				begin = CTRef(year, NOVEMBER, DAY_06);
 				threshold = 3.6;
 				sumDD = 99.14;
 				break;

@@ -122,7 +122,7 @@ public:
 	std::array<int, HOURLY_DATA::NB_VAR_H> m_minimumHours;
 	std::array<int, HOURLY_DATA::NB_VAR_H> m_minimumDays;
 
-	bool TRefIsChanging(CTRef Tref, int shift=0)const{ return GTRef().IsInit() && (Tref + shift).Transform(m_TM) != (m_lastTRef+shift).Transform(m_TM); }
+	bool TRefIsChanging(CTRef Tref, int shift=0)const{ return GTRef().IsInit() && (Tref -shift).Transform(m_TM) != (m_lastTRef-shift).Transform(m_TM); }
 	CTRef GetTRef()const{ return GTRef().Transform(m_TM); }
 	CTM GetTM()const{ return m_TM; }
 
@@ -137,9 +137,18 @@ public:
 
 	void ResetMidnight()
 	{
+
 		m_midnightVariables.clear();
 		for (size_t h = 0; h<m_midnightTRefMatrix.size(); h++)
 			m_midnightTRefMatrix[h].fill(0);
+
+		//Reset next day stat
+		//m_midnightVariables2 = m_midnightVariablesTmp;
+		//m_midnightTRefMatrix2 = m_midnightTRefMatrixTmp;
+
+		//m_midnightVariablesTmp.clear();
+		//for (size_t h = 0; h<m_midnightTRefMatrixTmp.size(); h++)
+		//	m_midnightTRefMatrixTmp[h].fill(0);
 	}
 
 	void ResetNoon()
@@ -152,6 +161,42 @@ public:
 		m_noonVariablesTmp.clear();
 		for (size_t h = 0; h<m_noonTRefMatrixTmp.size(); h++)
 			m_noonTRefMatrixTmp[h].fill(0);
+	}
+
+	void Reset06()
+	{
+		//fill current day stat with from the stat last day
+		m_06Variables = m_06VariablesTmp;
+		m_06TRefMatrix = m_06TRefMatrixTmp;
+
+		//Reset next day stat
+		m_06VariablesTmp.clear();
+		for (size_t h = 0; h<m_06TRefMatrixTmp.size(); h++)
+			m_06TRefMatrixTmp[h].fill(0);
+	}
+
+	void Reset18()
+	{
+		//fill current day stat with from the stat last day
+		m_18Variables = m_18VariablesTmp;
+		m_18TRefMatrix = m_18TRefMatrixTmp;
+
+		//Reset next day stat
+		m_18VariablesTmp.clear();
+		for (size_t h = 0; h<m_18TRefMatrixTmp.size(); h++)
+			m_18TRefMatrixTmp[h].fill(0);
+	}
+
+	void Reset22()
+	{
+		//fill current day stat with from the stat last day
+		m_22Variables = m_22VariablesTmp;
+		m_22TRefMatrix = m_22TRefMatrixTmp;
+
+		//Reset next day stat
+		m_22VariablesTmp.clear();
+		for (size_t h = 0; h<m_22TRefMatrixTmp.size(); h++)
+			m_22TRefMatrixTmp[h].fill(0);
 	}
 
 
@@ -178,11 +223,37 @@ protected:
 	CWeatherStatistic m_midnightVariables;
 	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_midnightTRefMatrix;
 
+	//CWeatherStatistic m_midnightVariablesTmp;
+	//std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_midnightTRefMatrixTmp;
+
+
 	CWeatherStatistic m_noonVariables;
 	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_noonTRefMatrix;
 
 	CWeatherStatistic m_noonVariablesTmp;
 	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_noonTRefMatrixTmp;
+
+
+	CWeatherStatistic m_06Variables;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_06TRefMatrix;
+
+	CWeatherStatistic m_06VariablesTmp;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_06TRefMatrixTmp;
+
+
+
+	CWeatherStatistic m_18Variables;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_18TRefMatrix;
+
+	CWeatherStatistic m_18VariablesTmp;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_18TRefMatrixTmp;
+
+	CWeatherStatistic m_22Variables;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_22TRefMatrix;
+
+	CWeatherStatistic m_22VariablesTmp;
+	std::array<std::array<size_t, HOURLY_DATA::NB_VAR_H>, 24> m_22TRefMatrixTmp;
+
 
 
 	bool m_bStatComputed;
@@ -201,16 +272,12 @@ public:
 	{
 		m_overheat = overheat;
 	}
-
-	//virtual void TransformWeather(CWeatherDay& weather, size_t hourTmax=16)const;
-	virtual double GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax=16)const;
-	virtual double GetT(const CWeatherDay& weather, size_t h, size_t hourTmax = 16)const;
+	
+	virtual double GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax = 15)const;
+	virtual double GetT(const CWeatherDay& weather, size_t h, size_t hourTmax = 15)const;
 	
 	virtual double GetTmin(const CWeatherDay& weather)const;
 	virtual double GetTmax(const CWeatherDay& weather)const;
-
-	//double GetOverheat(double Tmin, double Tmax, size_t h, size_t hourTmax)const;
-	//double GetAllenT(const CWeatherDay& d1, const CWeatherDay& d2, const CWeatherDay& d3, size_t h, size_t hourTmax)const;
 
 protected:
 
@@ -225,9 +292,11 @@ class CDailyWaveVector : public CTReferencedVector<float> //: public CTReference
 public:
 };
 
+
 class CWeatherStation;
 //**************************************************************************************************************
 //CDataInterface
+
 
 struct CDataInterface
 {
@@ -248,7 +317,7 @@ public:
 	virtual CTRef GetTRef()const=0;
 	virtual CWVariables GetVariables()const = 0;
 	virtual CWVariablesCounter GetVariablesCount()const=0;
-	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const = 0;
+	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const = 0;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const = 0;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable)= 0;
 	virtual inline const CDataInterface* GetParent()const=0;
@@ -256,6 +325,8 @@ public:
 	virtual inline CWeatherStation* GetWeatherStation(){return GetParent()->GetWeatherStation();}
 	virtual inline const CWeatherStation* GetWeatherStation()const{ return GetParent()->GetWeatherStation(); }
 	virtual inline bool IsHourly()const = 0;
+
+	
 
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const=0;
 	virtual CStatistic GetTimeLength()const = 0;					//return time length [s]
@@ -343,7 +414,7 @@ public:
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat);
 	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const;
 	virtual inline bool IsYearInit(int year)const;
-	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
+	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable);
 	virtual CTRef GetTRef()const{ return m_TRef; }
@@ -383,10 +454,10 @@ class CWeatherDay: public CDataInterface
 {
 public:
 
+	
 	CWeatherDay()
 	{
 		m_pParent=NULL;
-		//m_bDailyStatCompiled=true;
 	}
 	
 	CWeatherDay(const CWeatherDay& in)	{ m_pParent = NULL; operator=(in); }
@@ -413,18 +484,6 @@ public:
 		else
 		{
 			variables = m_dailyStat.GetVariables();
-
-			/*CWVariablesCounter variables;
-			for (size_t v = 0; v<size(); v++)
-			{
-			if (m_dailyStat[v].IsInit())
-			{
-			variables[v].first += 1;
-			variables[v].second += m_TRef;
-			}
-			}*/
-
-
 		}
 		
 		return variables;
@@ -516,7 +575,7 @@ public:
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const{ if (HourlyDataExist())CompileDailyStat(); return m_dailyStat[v]; }
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v){ if (HourlyDataExist())CompileDailyStat(); return m_dailyStat[v]; }
 	virtual inline bool IsYearInit(int year)const;
-	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
+	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable);
 	virtual CTRef GetTRef()const;
@@ -527,11 +586,15 @@ public:
 	//virtual double GetCloudiness(double& Fcd)const;
 	virtual double GetNetRadiation(double& Fcd)const;
 	
-	double GetAllenT(size_t h, size_t hourTmax=15)const;
+	double GetAllenT(double h, size_t hourTmin = 3, size_t hourTmax = 15, double PolarDayLength = 3)const;
+	double GetDoubleSine(double h, double PolarDayLength = 3)const;
+	double GetSineExponential(double h, size_t method = SE_SAVAGE, double PolarDayLength = 3)const;
+	double GetSinePower(double h, double PolarDayLength = 3)const;
+	double GetErbs(double h, double PolarDayLength = 3)const;
+	//double GetPolarInterpol(double h)const;
 
 	void ManageHourlyData()const
 	{
-//		ASSERT(IsHourly());
 		CWeatherDay* pMe = const_cast<CWeatherDay*>(this);
 		if (pMe->IsHourly())
 		{
@@ -550,20 +613,17 @@ public:
 			pMe->m_pHourlyData.reset();//reset hourly memory
 		}
 	}
-
-	//size_t GetNbHour()const{return 24; }
-
+	
 	virtual inline bool IsHourly()const;
+	//virtual inline size_t GetHourlyGenerationMethod()const;
 	virtual inline const CDataInterface* GetParent()const;
 	virtual inline CDataInterface* GetParent();
-	//virtual inline CWeatherStation* GetWeatherStation();
-	//virtual inline const CWeatherStation* GetWeatherStation()const;
 	inline const CLocation& GetLocation()const;
 	inline const CWeatherDay& GetPrevious()const;
 	inline const CWeatherDay& GetNext()const;
 
 
-	void ComputeHourlyTair();
+	void ComputeHourlyTair(size_t method);
 	void ComputeHourlyPrcp();
 	void ComputeHourlyTdew();
 	void ComputeHourlyRelH();
@@ -577,7 +637,7 @@ public:
 	static double GetSn(size_t n, size_t h);
 	static double GetS(size_t h);
 
-	//double GetOverheat(const COverheat& overheat)const;
+	
 protected:
 	
 	virtual bool HourlyDataExist()const{ return m_pHourlyData.get() != NULL; }
@@ -679,7 +739,7 @@ public:
 	virtual inline bool IsYearInit(int year)const;
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const{ return GetStat(v); }
 	virtual CStatistic& GetData(HOURLY_DATA::TVarH v){ return GetStat(v); }
-	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
+	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable);
 	virtual CTRef GetTRef()const;
@@ -809,7 +869,7 @@ public:
 	virtual void SetStat(HOURLY_DATA::TVarH v, const CStatistic& stat){ m_stat[v] = stat; }
 	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const{ stat = m_stat[v]; return stat.IsInit(); }
 	virtual inline bool IsYearInit(int year)const;
-	virtual CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax = 15, size_t step = 4, const COverheat& overheat = COverheat()) const;
+	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable);
 	virtual CTRef GetTRef()const;
@@ -1015,6 +1075,8 @@ public:
 	CTPeriod GetEntireTPeriod(CTM TM)const{ return empty() ? CTPeriod():CTPeriod(CTRef(GetFirstYear(), FIRST_MONTH, FIRST_DAY, FIRST_HOUR, TM), CTRef(GetLastYear(), LAST_MONTH, LAST_DAY, LAST_HOUR, TM)); }
 	void SetHourly(bool bHourly){ m_bHourly = bHourly; ManageHourlyData(); }
 	virtual bool IsHourly()const{ return m_bHourly; }
+	//void SetHourlyGenerationMethod(size_t method){ m_hourlyGenerationMethod = method; }
+	//size_t GetHourlyGenerationMethod()const{ return m_hourlyGenerationMethod;  }
 	bool IsDaily()const{ return !m_bHourly; }
 
 	void ManageHourlyData()
@@ -1031,7 +1093,7 @@ public:
 	ERMsg SaveData(const std::string& filePath, CTM TM=CTM(), char separator = ',')const;
 	ERMsg LoadData(const std::string& filePath, double nodata = -999.0, bool bResetContent = true, const CWeatherYearSectionMap& sectionToLoad = CWeatherYearSectionMap());
 	ERMsg Parse(const std::string& str,  double nodata=-999.0);
-	CDailyWaveVector& GetAllenWave(CDailyWaveVector& t, size_t hourTmax, size_t step, const COverheat& overheat) const;
+	CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
 	
 	int I2Year(const size_t& y)const{ assert(y < size());  return std::next(begin(), y)->first; }
 	std::set<int> GetYears()const; 
@@ -1092,6 +1154,7 @@ protected:
 
 	CWeatherStation* m_pParent;
 	CWeatherFormat m_format;
+	//size_t m_hourlyGenerationMethod;
 };
 
 
@@ -1315,6 +1378,13 @@ inline const CWeatherStation* CWeatherYears::GetWeatherStation()const{ return m_
 inline bool CWeatherDay::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherMonth::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherYear::IsHourly()const{ return m_pParent->IsHourly(); }
+
+//inline size_t CHourlyData::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
+//inline size_t CWeatherDay::GetHourlyGenerationMethod()const{ return ((CWeatherYears*)m_pParent->GetParent()->GetParent())->GetHourlyGenerationMethod(); }
+//inline size_t CWeatherMonth::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
+//inline size_t CWeatherYear::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
+
+
 }//namespace WBSF
 
 

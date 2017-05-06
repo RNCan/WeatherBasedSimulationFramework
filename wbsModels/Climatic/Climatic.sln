@@ -34,6 +34,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VaporPressureDeficit", "Vap
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MagareyInfection", "MagareyInfection.vcxproj", "{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TminTairTmax", "TminTairTmax.vcxproj", "{5E7B52D6-0EF4-42D5-8473-5894D59CD629}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -168,6 +170,14 @@ Global
 		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|Win32.Build.0 = Release|Win32
 		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|x64.ActiveCfg = Release|x64
 		{F6071F82-48B5-4DDB-B407-A4CA236A5C5A}.Release|x64.Build.0 = Release|x64
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Debug|Win32.Build.0 = Debug|Win32
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Debug|x64.ActiveCfg = Debug|x64
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Debug|x64.Build.0 = Debug|x64
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|Win32.ActiveCfg = Release|Win32
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|Win32.Build.0 = Release|Win32
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|x64.ActiveCfg = Release|x64
+		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,3 +1,4 @@
+//5.4.0 04/05/2017  Rémi Saint-Amant	Important change to compute Tmin from 12:00-12:00 to 00:00 - 00:00 because ENv Can use 00-00
 //5.3.5 04/04/2017  Rémi Saint-Amant	Bug correction on Windows 10 with delay load of netCDF.dll
 //5.3.4 23/03/2017  Rémi Saint-Amant	Add Saskatchewan, Nova-Scotia and Newfoundland and MesoWest and WeatehrFarm, regroup Quebec into one component
 //										Add NOAA forecast 

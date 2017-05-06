@@ -32,6 +32,7 @@ Thoughts:
 // Class: CMPBiModel
 //
 //************** MODIFICATIONS  LOG ********************
+// 04/05/2017  2.3.1	Rémi Saint-Amant    New compile
 // 27/03/2013  2.3.0	Rémi Saint-Amant    New compilation with WBSF
 // 27/03/2013  2.2		Rémi Saint-Amant    New compilation
 // 17/12/2012  2.1		Rémi Saint-Amant    Add the mode Year by Year adjusted
@@ -67,7 +68,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters as the model interface
 		NB_INPUT_PARAMETER = 25;
-		VERSION = "2.3.0 (2016)";
+		VERSION = "2.3.1 (2017)";
 
 		//input parameters of MPBiMOD
 		m_n0 = 60;             //Number of females/m² in the initial attack 
