@@ -366,9 +366,9 @@ namespace WBSF
 		const CWeatherYear& weather = weatherIn.GetPrevious();
 
 		size_t cnt=0;
-		for (size_t m = 0; m < 12; m++)
+		for (size_t m = DECEMBER; m < 12; m--)
 		{
-			for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
+			for (size_t d = GetNbDayPerMonth(m) - 1; d <GetNbDayPerMonth(m); d--)
 			{
 				bool bTest = bWet ? weather[m][d][H_PRCP][SUM] >= 0.1 : weather[m][d][H_PRCP][SUM] < 0.1;
 
