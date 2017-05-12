@@ -8193,56 +8193,6 @@ END
 /////////////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////////////////////////////////////////////////////////
-// English (Caribbean) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENB)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CARIBBEAN
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_CMN_SELECTION DIALOGEX 0, 0, 312, 148
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Selection"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,193,127,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,255,127,50,14
-    LTEXT           "Unselected",IDC_CMN_STATIC1,9,7,101,8
-    LISTBOX         IDC_CMN_SELECT_UNUSED,7,19,138,97,LBS_SORT | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
-    PUSHBUTTON      "&>>",IDC_CMN_SELECT_ADD,150,49,17,14
-    PUSHBUTTON      "&<<",IDC_CMN_SELECT_REMOVE,150,70,17,14
-    LISTBOX         IDC_CMN_SELECT_USED,172,19,133,97,LBS_SORT | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
-    LTEXT           "Selected",IDC_CMN_STATIC2,177,8,51,8
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_CMN_SELECTION, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 305
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 141
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // English (Caribbean) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

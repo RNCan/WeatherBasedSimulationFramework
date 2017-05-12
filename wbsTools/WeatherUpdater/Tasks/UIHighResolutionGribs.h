@@ -20,7 +20,7 @@ namespace WBSF
 	public:
 
 		enum TNeytwork{ N_HRDPS, N_HRRR, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, HRDPS_VARS, BUILD_HRDPS_VRT, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHighResolutionGribs); }
@@ -51,7 +51,7 @@ namespace WBSF
 
 	protected:
 
-
+		static std::string GetHRDPSSelectionString();
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 	

@@ -586,109 +586,110 @@ BEGIN
     IDS_ZIP_FILE            "Compression des fichiers..."
     IDS_UNZIP_FILE          "Décompression des fichiers..."
     IDS_INVALID_PASSWORD    "La combinaison {usagé, mot de passe} est invalide"
-    IDS_INVALID_NOAA_DATFILE 
-                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""DSET"""
-    IDS_INVALID_NOAA_STNFILE 
-                            "Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""COOPID""."
-    IDS_UNKNOWN_TASK        "La tâche ""%1"" a un type inconnu(%2)."
-    IDS_INVALID_INPUT_TASK  "Une tâche de la catégorie téléchargement doit être spécifiée comme tâche de données"
-    IDS_LOAD_STATION_LIST   "Chargement de la liste des stations"
+IDS_INVALID_NOAA_DATFILE
+"Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""DSET"""
+IDS_INVALID_NOAA_STNFILE
+"Fichier de données invalide. Le fichier ""%1"" ne commence pas par ""COOPID""."
+IDS_UNKNOWN_TASK        "La tâche ""%1"" a un type inconnu(%2)."
+IDS_INVALID_INPUT_TASK  "Une tâche de la catégorie téléchargement doit être spécifiée comme tâche de données"
+IDS_LOAD_STATION_LIST   "Chargement de la liste des stations"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_SERVER_DOWN         "Serveur de base de données en panne, ou erreur pendant l'exécution d'une requête"
-    IDS_NO_WEATHER          "Il n'y pas de données météo utiles pour la station :"
-    IDS_NO_STATION_INFORMATION 
-                            "Il n'y a pas d'information pour la station : %1"
-    IDS_NUMBER_FILES        "Le nombre de fichier à télécharger = "
-    IDS_UNABLE_DOWNLOAD_LIST 
-                            "Impossible de télécharger la liste des fichiers. Réessayer plus tard."
-    IDS_UNABLE_DOWNLOAD_DEFENITION 
-                            "Incapable de trouver le fichier de définition (ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). Le serveur peux être en problème ou votre pare-feu empâche l'application de télécharger l'information."
-    IDS_CLIP_WEATHER        "Rogner une base de données météorologiques"
-    IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
-    IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
-    IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
-    IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
-    IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
-    IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
-    IDS_GET_STATION_LIST    "Recherche de la liste des stations"
-    IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
-    IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+IDS_SERVER_DOWN         "Serveur de base de données en panne, ou erreur pendant l'exécution d'une requête"
+IDS_NO_WEATHER          "Il n'y pas de données météo utiles pour la station :"
+IDS_NO_STATION_INFORMATION
+"Il n'y a pas d'information pour la station : %1"
+IDS_NUMBER_FILES        "Le nombre de fichier à télécharger = "
+IDS_UNABLE_DOWNLOAD_LIST
+"Impossible de télécharger la liste des fichiers. Réessayer plus tard."
+IDS_UNABLE_DOWNLOAD_DEFENITION
+"Incapable de trouver le fichier de définition (ftp.ncdc.noaa.gov/pub/data/inventories/COOP.TXT). Le serveur peux être en problème ou votre pare-feu empâche l'application de télécharger l'information."
+IDS_CLIP_WEATHER        "Rogner une base de données météorologiques"
+IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
+IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
+IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
+IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
+IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
+IDS_GET_STATION_LIST    "Recherche de la liste des stations"
+IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
+IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
 END
 
 STRINGTABLE
 BEGIN
-    IDS_CATEGORY_NAME       "Télécharger des données météorologiques|Manipulation de données météorologiques|Création de grille mensuelle de données climatique"
-    IDS_STATION_ADDED       "Stations ajoutées : "
-    IDS_BOUNDINGBOX_PROPERTY "X minimum|X maximum|Y minimum|Y maximum"
-    IDS_REGION_NAME         "Nouveau-Brunswick, Nouvelle-Écosse, Île-du-Prince-Édouard, Terre-Neuve-et-Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Territoires du Nord-Ouest, Nunavut|Colombie-Britannique, Yukon|Québec"
-    IDS_FTP_DIRECTION       "Télécharger|Téléverser"
-    IDS_FTP_CONNECTION_TYPE "Utilisez les paramètres pré configurés d'Internet Explorer|Utilisez une connexion directe|Utilisez une connexion par le serveur proxy"
-    IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
-    IDS_TASK_TYPE_TITLE     "Téléchargement|Outils"
-    IDS_PROPERTY_ROOT       "Propriété"
-    IDS_EXECUTE_TASK        "Execution des tâches"
-    IDS_TASK_DESCRIPTION    "Description"
-    IDS_SNOTEL_DATA_TYPE    "Horaire|Quotidien|Mensuel"
+IDS_CATEGORY_NAME       "Télécharger des données météorologiques|Manipulation de données météorologiques|Création de grille mensuelle de données climatique"
+IDS_STATION_ADDED       "Stations ajoutées : "
+IDS_BOUNDINGBOX_PROPERTY "X minimum|X maximum|Y minimum|Y maximum"
+IDS_REGION_NAME         "Nouveau-Brunswick, Nouvelle-Écosse, Île-du-Prince-Édouard, Terre-Neuve-et-Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Territoires du Nord-Ouest, Nunavut|Colombie-Britannique, Yukon|Québec"
+IDS_FTP_DIRECTION       "Télécharger|Téléverser"
+IDS_FTP_CONNECTION_TYPE "Utilisez les paramètres pré configurés d'Internet Explorer|Utilisez une connexion directe|Utilisez une connexion par le serveur proxy"
+IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
+IDS_TASK_TYPE_TITLE     "Téléchargement|Outils"
+IDS_PROPERTY_ROOT       "Propriété"
+IDS_EXECUTE_TASK        "Execution des tâches"
+IDS_TASK_DESCRIPTION    "Description"
+IDS_SNOTEL_DATA_TYPE    "Horaire|Quotidien|Mensuel"
+IDS_HRDPS_VAR			"Surface lifting indices|Albedo|Précipitation totale|downward long wave rad.flux|downward short wave rad.flux|Hauteur géopotentielle|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_DAILY_P  "Répertoire de travail|Première année|Dernière année|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)"
+IDS_UPDATER_EC_DAILY_P  "Répertoire de travail|Première année|Dernière année|Province(s)"
+IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
-    IDS_UPDATER_EC_PRCP_RADAR_P "Répertoire de travail|Type"
-    IDS_UPDATER_NOAA_GHCND_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
-    IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
-    IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
-    IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
-    IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
-    IDS_UPDATER_WEATHER_FARM_P 
-                            "Répertoire de travail|Province (Canada)|Type de période|Forcé la mise à jour de la liste des stations"
+IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type"
+IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
+IDS_UPDATER_EC_PRCP_RADAR_P "Répertoire de travail|Type"
+IDS_UPDATER_NOAA_GHCND_P
+"Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
+IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
+IDS_UPDATER_NOAA_ISD_LITE_P
+"Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
+IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
+IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
+IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
+IDS_UPDATER_WEATHER_FARM_P
+"Répertoire de travail|Province (Canada)|Type de période|Forcé la mise à jour de la liste des stations"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_SM_CIPRA_HOURLY_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
-    IDS_UPDATER_SM_DAILY_P  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
-    IDS_UPDATER_ALBERTA_P   "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
-    IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
-    IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
-    IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
-    IDS_UPDATER_QUEBEC_P    "Nom d'usager SOPFEU|Mot de passe SOPFEU|Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_NEWBRUNSWICK_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
-    IDS_UPDATER_NOVASCOTIA_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_NEWFOUNDLAND_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
+IDS_UPDATER_SM_CIPRA_HOURLY_P
+"Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
+IDS_UPDATER_SM_DAILY_P  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
+IDS_UPDATER_ALBERTA_P   "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
+IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
+IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
+IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
+IDS_UPDATER_QUEBEC_P    "Nom d'usager SOPFEU|Mot de passe SOPFEU|Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations"
+IDS_UPDATER_NEWBRUNSWICK_P
+"Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
+IDS_UPDATER_NOVASCOTIA_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+IDS_UPDATER_NEWFOUNDLAND_P
+"Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MISCELLANEOUS_P 
-                            "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
-    IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant"
-    IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
-    IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
-    IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
-    IDS_UPDATER_HRG_P       "Répertoire de travail|Sources"
-    IDS_TOOL_CREATE_HOURLY_P 
-                            "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
-    IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
+IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
+IDS_UPDATER_MISCELLANEOUS_P
+"Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
+IDS_UPDATER_NOMAD_RUC_P "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant"
+IDS_UPDATER_EC_GRIB_FORECAST_P "Répertoire de travail|Type"
+IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
+IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
+IDS_UPDATER_HRG_P       "Répertoire de travail|Sources|Variables HRDPS|Contruire la couche virtuelle (VRT) HRDPS"
+IDS_TOOL_CREATE_HOURLY_P 
+                        "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
+IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
 END
 
 STRINGTABLE
@@ -1072,6 +1073,7 @@ BEGIN
     IDS_EXECUTE_TASK        "Execute tasks"
     IDS_TASK_DESCRIPTION    "Description"
     IDS_SNOTEL_DATA_TYPE    "Hourly|Daily|Monthly"
+	IDS_HRDPS_VAR			"surface lifting indices|Albedo|Total precipitation|downward long wave rad.flux|downward short wave rad.flux|Geopotential height|Ice cover(ice : 1, no ice : 0)|Land cover(land : 1, sea : 0)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
 END
 
 STRINGTABLE
@@ -1137,7 +1139,7 @@ BEGIN
     IDS_UPDATER_EC_GRIB_FORECAST_P "Working directory|Type"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
-    IDS_UPDATER_HRG_P       "Working directory|Sources"
+    IDS_UPDATER_HRG_P       "Working directory|Sources|HRDPS Variables|Build HRDPS virtual layer (VRT)"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"

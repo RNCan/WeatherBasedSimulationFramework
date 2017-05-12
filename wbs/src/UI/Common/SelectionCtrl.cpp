@@ -11,8 +11,9 @@
 #include "stdafx.h"
 #include <boost/dynamic_bitset.hpp>
 #include "Basic/UtilStd.h"
-#include "Basic/Registry.h"
+#include "UI/Common/AppOption.h"
 #include "UI/Common/SelectionCtrl.h"
+#include "UI/Common/UtilWin.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "WeatherBasedSimulationUI.h"
@@ -218,6 +219,7 @@ void AFXAPI DDX_Selection(CDataExchange* pDX, int ID, std::string& selection)
 BEGIN_MESSAGE_MAP(CSelectionDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_GETMINMAXINFO()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -230,6 +232,37 @@ CSelectionDlg::~CSelectionDlg()
 {
 }
 
+
+BOOL CSelectionDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+	
+	
+
+
+	CAppOption option(_T("WindowsPosition"));
+	CRect rect = option.GetProfileRect(_T("SelectionDlg"), CRect());
+	if (rect.IsRectEmpty())
+		GetWindowRect(rect);
+
+	UtilWin::EnsureRectangleOnDisplay(rect);
+	MoveWindow(rect);
+	//SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER);
+
+	return TRUE;
+}
+
+void CSelectionDlg::OnDestroy()
+{
+	CRect rect;
+	GetWindowRect(rect);
+
+	CAppOption option(_T("WindowsPosition"));
+	//CPoint pt = rect.TopLeft();
+	option.WriteProfileRect(_T("SelectionDlg"), rect);
+
+	CDialog::OnDestroy();
+}
 
 void CSelectionDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -275,8 +308,8 @@ void CSelectionDlg::OnSize(UINT nType, int cx, int cy)
 		GetDlgItem(IDOK)->GetWindowRect(rectOK); ScreenToClient(rectOK);
 		rectOK.top = rect.bottom - MARGE - rectOK.Height();
 		rectOK.bottom = rect.bottom - MARGE;
-		rectOK.left = rect.right - 2 * MARGE - rectOK.Width();
-		rectOK.right = rect.right - MARGE;
+		rectOK.left = rect.right - MARGE - rectCancel.Width() - MARGE - rectOK.Width();
+		rectOK.right = rect.right - MARGE - rectCancel.Width() - MARGE;
 		
 		
 		m_selectionCtrl.SetWindowPos(NULL, 0, 0, rect.Width()-2*MARGE, rect.Height() - rectOK.Height()-3*MARGE, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);

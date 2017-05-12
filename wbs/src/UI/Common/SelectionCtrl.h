@@ -56,20 +56,17 @@ public:
 	std::string m_possibleValues;
 	std::string m_selection;
 
-	// Dialog Data
-	//enum { IDD = IDD_VARIABLES };
-
-
-	// Overrides
+	
 protected:
 
+	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
-
-	//void SetSelection();
+	afx_msg void OnDestroy();
+	
 
 	CSelectionCtrl m_selectionCtrl;
 	

@@ -33,7 +33,9 @@ namespace WBSF
 
 	CHRDPS::CHRDPS(const std::string& workingDir):
 		m_workingDir(workingDir)
-	{}
+	{
+		m_variables.set();
+	}
 	
 	CHRDPS::~CHRDPS(void)
 	{}
@@ -58,16 +60,20 @@ namespace WBSF
 		return FormatA("%s%d\\%02d\\%02d\\%02d\\%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), fileName.c_str());
 	}
 
-	size_t CHRDPS::GetVariable(const string& fileName)const
+	size_t CHRDPS::GetVariable(const string& fileName)
 	{
-		size_t  vv = NOT_INIT;
-		/*for (size_t v = 0; v < NB_FORECAST_VAR&&vv == NOT_INIT; v++)
-		{
-			if (Find(fileName, FORECAST_VAR_NAME[v]))
-				vv = v;
-		}*/
-
-		return vv;
+		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
+		StringVector parts(fileName, "_");
+		ASSERT(parts.size()==9);
+		return CHRDPSVariables::GetVariable(parts[3] + "_" + parts[4]);
+	}
+	
+	size_t CHRDPS::GetLevel(const string& fileName)
+	{
+		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
+		StringVector parts(fileName, "_");
+		ASSERT(parts.size() == 9);
+		return CHRDPSVariables::GetLevel(parts[5]);
 	}
 
 	size_t CHRDPS::GetLatestHH(CHttpConnectionPtr& pConnection)const
@@ -134,8 +140,8 @@ namespace WBSF
 			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
 			{
 				size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-				//size_t hhh = Gethhh(fileName);
-				if (hhh < 6)
+				
+				if (hhh < 6 )
 				{
 					CFileInfoVector fileListTmp;
 					msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
@@ -143,32 +149,35 @@ namespace WBSF
 					{
 						string fileName = GetFileName(it->m_filePath);
 						string outputFilePath = GetOutputFilePath(fileName);
-						//CFileInfo info;
-						
-						ifStream stream;
-						if (!stream.open(outputFilePath))
-						{
-							fileList.push_back(*it);
-						}
-						else
-						{
-							//verify if the file finish with 7777
-							char test[5] = { 0 };
-							stream.seekg(-4, ifstream::end);
-							stream.read(&(test[0]), 4);
+						size_t var = GetVariable(fileName);
 
-							if (string(test) != "7777")
+						if (m_variables.test(var))
+						{
+
+							ifStream stream;
+							if (!stream.open(outputFilePath))
 							{
 								fileList.push_back(*it);
 							}
-						}
-							
-					}
+							else
+							{
+								//verify if the file finish with 7777
+								char test[5] = { 0 };
+								stream.seekg(-4, ifstream::end);
+								stream.read(&(test[0]), 4);
+
+								if (string(test) != "7777")
+								{
+									fileList.push_back(*it);
+								}
+							}
+						}//if wanted variable
+					}//for all files
 
 					msg += callback.StepIt();
-				}
-			}
-		}
+				}//take only 6 first hours
+			}//for all hours
+		}//for all directory
 	
 
 		callback.PopTask();
@@ -187,6 +196,7 @@ namespace WBSF
 			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 			if (msg)
 				nbDownload++;
+			
 
 			msg += callback.StepIt();
 		}
@@ -198,6 +208,62 @@ namespace WBSF
 		callback.AddMessage("Number of HRDPS gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
 
+
+		//now, create .vrt and index file
+		if (msg && m_bCreateVRT)
+			msg = CreateVRT();
+
+
+		return msg;
+	}
+
+
+	ERMsg CHRDPS::CreateVRT(CCallback& callback)
+	{
+		ERMsg msg;
+
+		
+		StringVector years = WBSF::GetDirectoriesList(m_workingDir);
+		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		{
+			string year = GetLastDirName(*it1);
+			StringVector months = WBSF::GetDirectoriesList(*it1);
+			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+			{
+				string month = GetLastDirName(*it2);
+				StringVector days = WBSF::GetDirectoriesList(*it2);
+				for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+				{
+					string day = GetLastDirName(*it3);
+					//StringVector hours = WBSF::GetDirectoriesList(*it3);
+					//for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
+					//{
+
+					for (size_t h = 0; h < 24; h++)
+					{
+						size_t h1 = 24 / 6;
+						size_t h2 = 24 % 6;
+						//*2017010106_P005-00.grib2
+						string filter = FormatA("*%s%s%s%02d_P%03d-00.grib2", year.c_str(), month.c_str(), day.c_str(), h1, h2);
+						StringVector fileList = WBSF::GetFilesList(filter, 2, true);
+						
+						//create VRT
+						string VRTFilePath = FormatA("HRDPS_%s%s%s%02d.vrt", year.c_str(), month.c_str(), day.c_str(), h);
+						msg += BuildVRT(VRTFilePath, fileList, true);
+
+						//create index file
+						string indexFilePath = FormatA("HRDPS_%s%s%s%02d.vrt.idx", year.c_str(), month.c_str(), day.c_str(), h);
+						for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
+						{
+							string fileName = GetFileName(*it4);
+							size_t var = GetVariable(fileName);
+							
+						}
+
+					}//for all hours
+				}//for all days
+			}//for all months
+		}//for all years
 
 		return msg;
 	}
@@ -394,4 +460,83 @@ namespace WBSF
 		return msg;
 	}
 
+	//******************************************************************************************************************
+	const char* CHRDPSVariables::NAME[NB_HRDPS_VARIABLES] = 
+	{ 
+		"4LFTX_SFC", "ALBDO_SFC", "APCP_SFC", "DLWRF_SFC", "DSWRF_SFC", "HGT_SFC", "ICEC_SFC", "LAND_SFC", "LHTFL_SFC", "NLWRS_SFC", "NSWRS_SFC", "PRATE_SFC",
+		"PRES_SFC", "SHOWA_SFC", "SHTFL_SFC", "SNOD_SFC", "SPFH_SFC", "TCDC_SFC", "TSOIL_SFC", "WEAFR_SFC", "WEAPE_SFC", "WEARN_SFC", "WEASN_SFC", "WTMP_SFC",
+		"DEN_TGL", "DEPR_TGL", "DPT_TGL", "RH_TGL", "SPFH_TGL", "TMP_TGL", "UGRD_TGL", "VGRD_TGL", "WDIR_TGL", "WIND_TGL", 
+		"ABSV_ISBL", "DEPR_ISBL", "HGT_ISBL", "RH_ISBL", "SPFH_ISBL", "TMP_ISBL", "UGRD_ISBL", "VGRD_ISBL", "VVEL_ISBL", "WDIR_ISBL", "WIND_ISBL", 
+		"CAPE_ETAL", "CWAT_EATM", "DSWRF_NTAT", "HGT_ISBY", "HLCY_ETAL", "PRMSL_MSL", "SOILW_DBLY", "TSOIL_DBLL", "ULWRF_NTAT", "USWRF_NTAT"
+	};
+
+	
+	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ETAL", "EATM", "NTAT", "ISBY", "MSL", "DBLY", "DBLL" };
+	StringVector CHRDPSVariables::DESCRIPTION;
+
+
+	void CHRDPSVariables::LoadDescription()
+	{
+		if (DESCRIPTION.empty())
+			DESCRIPTION.LoadString(IDS_HRDPS_VAR, "|");
+	}
+
+	size_t CHRDPSVariables::GetVariable(const std::string& in)
+	{
+		string& name = TrimConst(in);
+		size_t vv = NOT_INIT;
+		for (size_t v = 0; v < NB_HRDPS_VARIABLES&&vv == NOT_INIT; v++)
+		{
+			if (WBSF::IsEqual(name, NAME[v]))
+				vv = v;
+		}
+
+		return vv;
+	}
+
+	size_t CHRDPSVariables::GetCategory(const std::string& name)
+	{
+		size_t vv = NOT_INIT;
+		for (size_t v = 0; v < NB_HRDPS_CATEGORY&&vv == NOT_INIT; v++)
+		{
+			if (WBSF::IsEqual(name, CATEGORY[v]))
+				vv = v;
+		}
+
+		return vv;
+	}
+
+	size_t CHRDPSVariables::GetLevel(const std::string& name)
+	{
+		//some time is a range??
+		return as<int>(name);
+	}
+
+	CHRDPSVariables& CHRDPSVariables::operator = (std::string in)
+	{
+		Trim(in);
+		if (in == "----")
+		{
+			reset();
+		}
+		else if (in.empty())
+		{
+			set();
+		}
+		else
+		{
+			reset();
+
+			StringVector str(in, ",;|");
+
+			for (size_t i = 0; i < str.size(); i++)
+			{
+				size_t v = GetVariable(str[i]);
+				if (v != NOT_INIT)
+					set(v);
+			}
+		}
+
+		return *this;
+	}
 }

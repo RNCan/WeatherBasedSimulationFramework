@@ -23,6 +23,9 @@ namespace WBSF
 	//static const CGeoRect DEFAULT_BOUDINGBOX(-180, -90, 180, 90, PRJ_WGS_84);
 
 
+
+
+
 	
 	
 	//canada
@@ -33,8 +36,8 @@ namespace WBSF
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/
 
 	//*********************************************************************
-	const char* CUIHighResolutionGribs::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources" };
-	const size_t CUIHighResolutionGribs::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT };
+	const char* CUIHighResolutionGribs::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "HRDPSVars" , "BuildHRDPSVRT"};
+	const size_t CUIHighResolutionGribs::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
 	const UINT CUIHighResolutionGribs::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRG_P;
 	const UINT CUIHighResolutionGribs::DESCRIPTION_TITLE_ID = ID_TASK_HRG;
 
@@ -79,12 +82,22 @@ namespace WBSF
 	CUIHighResolutionGribs::~CUIHighResolutionGribs(void)
 	{}
 
+	string CUIHighResolutionGribs::GetHRDPSSelectionString()
+	{
+		string select;
+		for (size_t i = 0; i < NB_HRDPS_VARIABLES; i++)
+			select += string(CHRDPSVariables::GetName(i)) + "=" + string(CHRDPSVariables::GetName(i)) + ":" + CHRDPSVariables::GetDescription(i) + "|";
+		
+		return select;
+	}
+
 	std::string CUIHighResolutionGribs::Option(size_t i)const
 	{
 		string str;
 		switch (i)
 		{
 		case SOURCES:	str = "HRDPS=HRDPS (canada)|HRRR=HRRR (USA)"; break;
+		case HRDPS_VARS: str = GetHRDPSSelectionString(); break;
 		};
 		return str;
 	}
@@ -95,6 +108,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRG\\"; break;
+		case HRDPS_VARS: str = ""; break;
 		};
 
 		return str;
@@ -146,7 +160,10 @@ namespace WBSF
 			
 			if (ss == N_HRDPS)
 			{
+				//StringVector variables = as<StringVector>
+
 				CHRDPS HRDPS(workingDir + string(SOURCES_NAME[ss]) + "\\");
+				HRDPS.m_variables = Get(HRDPS_VARS);
 				msg = HRDPS.Execute(callback);
 				
 			}
@@ -200,7 +217,7 @@ namespace WBSF
 	
 		for (size_t i = 0; i < list.size(); i++)
 		{
-			CTRef TRef = GetTRef(ss, list[i]);
+			CTRef TRef = GetTRef(ss, list[i]); 
 			gribsList[TRef] = list[i];
 		}
 
