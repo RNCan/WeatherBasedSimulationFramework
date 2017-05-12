@@ -1348,74 +1348,81 @@ ERMsg CWGInputAnalysis::ExtractNormal(const CFileManager& fileManager, CResult& 
 	return msg;
 }
 
+
 ERMsg CWGInputAnalysis::GetNbMissingObservations(const CFileManager& fileManager, CResult& resultDB, CCallback& callback)
 {
 	ERMsg msg;
 
-	//ASSERT( m_pParent );
-	//ASSERT( dynamic_cast<const CWeatherGeneration*>(m_pParent) != NULL);
-	
-	
-	CWeatherGenerator WG;
+	CWeatherGenerator WGBase;
 	if (msg)
-		msg = InitDefaultWG(fileManager, WG, callback);
+		msg = InitDefaultWG(fileManager, WGBase, callback);
 	
-	if (msg && WG.GetWGInput().IsNormals())
+	if (msg && WGBase.GetWGInput().IsNormals())
 		msg.ajoute("The input weather generation don't use observations");
 
 	if(!msg)
 		return msg;
 
 	const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
-	
+	ASSERT(resultDB.GetNbSection() == locations.size());
 	callback.PushTask("Get number of missing observations", locations.size());
-	//callback.SetNbStep(locations.size());
+
+	vector<size_t> locPos;
+	CWeatherGeneration::GetLocationIndexGrid(locations, locPos);
 
 
+	CWVariables variables = WGBase.GetWGInput().m_variables;
 
-	CWVariables variables = WG.GetWGInput().m_variables;
-	
-
-	for (size_t l = 0; l<locations.size() && msg; l++)
+#pragma omp parallel for schedule(static, 1) shared(resultDB, msg) 
+	for (__int64 ll = 0; ll<(__int64)locPos.size(); ll++)
 	{
-		WG.SetTarget(locations[l]);
-		msg = WG.Initialize();
+#pragma omp flush(msg)
 		if (msg)
 		{
-			CSimulationPoint simulationPoint;
-			if (WG.GetWGInput().IsHourly())
-			{
-				msg += WG.GetHourly(simulationPoint, callback);
-			}
-			else
-			{
-				ASSERT(WG.GetWGInput().IsDaily());
-				msg += WG.GetDaily(simulationPoint, callback);
-			}
+			size_t l = locPos[ll];
+			CWeatherGenerator WG = WGBase;
+			WG.SetTarget(locations[l]);
+			msg = WG.Initialize();
 			if (msg)
 			{
-				CTRef TRef(simulationPoint.GetFirstYear());
-				CNewSectionData section(simulationPoint.size(), variables.count(), TRef);
-
-				for (size_t y = 0; y < simulationPoint.size(); y++)
+				CSimulationPoint simulationPoint;
+				if (WG.GetWGInput().IsHourly())
 				{
-					//Get last day and count of data for this variable
-					size_t nbRefs = simulationPoint[y].GetEntireTPeriod().size();
-					CWVariablesCounter count = simulationPoint[y].GetVariablesCount();
-					for (size_t v = 0, vv = 0; v < NB_VAR_H&&msg; v++)
-					{
-						ASSERT(nbRefs - count[v].first >= 0);
-
-						if (variables[v])
-							section[y][vv++] = nbRefs - count[v].first;
-					}//for all variables
+					msg += WG.GetHourly(simulationPoint, callback);
+				}
+				else
+				{
+					ASSERT(WG.GetWGInput().IsDaily());
+					msg += WG.GetDaily(simulationPoint, callback);
 				}
 
-				resultDB.AddSection(section);
+				if (msg)
+				{
+					CTRef TRef(simulationPoint.GetFirstYear());
+					CNewSectionData section(simulationPoint.size(), variables.count(), TRef);
 
-				msg += callback.StepIt();
-			}
-		}
+					for (size_t y = 0; y < simulationPoint.size(); y++)
+					{
+						//Get last day and count of data for this variable
+						size_t nbRefs = simulationPoint[y].GetEntireTPeriod().size();
+						CWVariablesCounter count = simulationPoint[y].GetVariablesCount();
+						for (size_t v = 0, vv = 0; v < NB_VAR_H&&msg; v++)
+						{
+							ASSERT(nbRefs - count[v].first >= 0);
+
+							if (variables[v])
+								section[y][vv++] = nbRefs - count[v].first;
+						}//for all variables
+					}
+
+					//resultDB.AddSection(section);
+					resultDB.SetSection(l, section);
+
+					msg += callback.StepIt();
+#pragma omp flush(msg)
+				}//if msg
+			}//if msg
+		}//if msg
 	}//for all loc
 
 	callback.PopTask();
