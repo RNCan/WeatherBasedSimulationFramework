@@ -749,6 +749,13 @@ std::string CExecutable::GetExportFilePath(const CFileManager& fileManager, int 
 	if( fileName.empty() )
 		fileName = "Export ("+ m_name + ")";
 
+	if (fileName.find("%d"))
+	{
+		CTRef TRef = CTRef::GetCurrentTRef();
+		ReplaceString(fileName, "%d", TRef.GetFormatedString("%Y-%m-%d"));
+	}
+		
+
 	if( GetFileExtension(fileName).empty() )
 	{
 		switch( format )
