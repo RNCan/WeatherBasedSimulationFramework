@@ -211,17 +211,15 @@ namespace WBSF
 
 		size_t cnt = 0;
 
-		//CTPeriod period = weather.GetPrevious().GetEntireTPeriod(CTM::DAILY);
-		//CTRef TRef = period.End();
-
-		//size_t m = DECEMBER;
 		for (size_t d = 0; d < 6; d++)
 		{
+			const CWeatherDay& wDay = weather[DECEMBER][DAY_31 - d];
+
 			double f = p == P10 ? -1 : 1;
 			double threshold = N.GetTThreshold(365 - d - 1, vv, p);
 			
-			bool bTest = f*weather[DECEMBER][DAY_31 - d][v][MEAN] > f*threshold;
-			if (weather[DECEMBER][DAY_31 - d][v].IsInit() && bTest)
+			bool bTest = f*wDay[v][MEAN] > f*threshold;
+			if (wDay[v].IsInit() && bTest)
 				cnt++;
 			else
 				d=6;//finish here
@@ -268,39 +266,6 @@ namespace WBSF
 		return sdiSum;
 	}
 
-	//size_t CClimdexVariables::GetPreviousRx5(const CWeatherYear& weather)
-	//{
-	//	int year = weather.GetTRef().GetYear();
-
-	//	const CWeatherYears* pParent = static_cast<const CWeatherYears*>(weather.GetParent());
-	//	ASSERT(pParent);
-
-	//	if (!pParent->IsYearInit(year - 1))
-	//		return 0;
-
-
-	//	size_t cnt = 0;
-
-	//	CTPeriod period = weather.GetPrevious().GetEntireTPeriod(CTM::DAILY);
-	//	CTRef TRef = period.End();
-
-	//	size_t m = DECEMBER;
-	//	for (size_t d = 0; d < 6; d++, TRef--)
-	//	{
-	//		double f = p == P10 ? -1 : 1;
-	//		double threshold = N.GetThreshold(365 - d - 1, vv, p);
-
-	//		bool bTest = f*weather[TRef][v][MEAN] > f*threshold;
-	//		if (weather[TRef][v].IsInit() && bTest)
-	//			cnt++;
-	//		else
-	//			d = 6;//finish here
-	//	}// day
-
-
-	//	return cnt;
-
-	//}
 	double CClimdexVariables::GetRX5DAY(const CWeatherMonth& weather)
 	{
 		double Rx5 = -999;
@@ -313,8 +278,6 @@ namespace WBSF
 		if (period.Begin() > pParent->GetEntireTPeriod(CTM::DAILY).Begin())
 			period.Begin() -= 4;
 
-//		size_t m = weather.GetTRef().GetMonth();
-	//	for (size_t d = 0; d < GetNbDayPerMonth(m); d++, TRef++)
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
 			if (weather[TRef][H_PRCP].IsInit() && weather[TRef][H_PRCP][SUM] >= 0.1)
@@ -366,13 +329,14 @@ namespace WBSF
 		const CWeatherYear& weather = weatherIn.GetPrevious();
 
 		size_t cnt=0;
-		for (size_t m = DECEMBER; m < 12; m--)
+		for (size_t m = 0; m < 12; m++)
 		{
-			for (size_t d = GetNbDayPerMonth(m) - 1; d <GetNbDayPerMonth(m); d--)
+			for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 			{
-				bool bTest = bWet ? weather[m][d][H_PRCP][SUM] >= 0.1 : weather[m][d][H_PRCP][SUM] < 0.1;
+				const CWeatherDay& wDay = weather[DECEMBER - m][GetNbDayPerMonth(m) - d - 1];
+				bool bTest = bWet ? wDay[H_PRCP][SUM] >= 0.1 : wDay[H_PRCP][SUM] < 0.1;
 
-				if (weather[m][d][H_PRCP].IsInit() && bTest)
+				if (wDay[H_PRCP].IsInit() && bTest)
 				{
 					cnt++;
 				}
@@ -380,8 +344,8 @@ namespace WBSF
 				{
 					return cnt;
 				}
-			}
-		}// day
+			}//day
+		}//month
 
 
 		//no event find for this years...???
