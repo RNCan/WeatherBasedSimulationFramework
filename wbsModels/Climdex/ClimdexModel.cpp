@@ -23,7 +23,7 @@ namespace WBSF
 	CClimdexModel::CClimdexModel()
 	{
 		// initialise your variable here (optionnal)
-		NB_INPUT_PARAMETER = 2;
+		NB_INPUT_PARAMETER = 3;
 		VERSION = "1.0.0 (2017)";
 	}
 
@@ -45,15 +45,18 @@ namespace WBSF
 
 	ERMsg CClimdexModel::OnExecuteMonthly()
 	{
-		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), CClimdexVariables::NB_VARIABLES, -999);
+		ERMsg msg;
+
+		m_weather.SetHourly(false);//force to became daily
 
 		CClimdexVariables climdex;
 		climdex.m_basePeriod = m_basePeriod;
 		climdex.m_nn = m_nn;
 		climdex.m_bUseBootstrap = m_bUseBootstrap;
-		climdex.Execute(CTM::MONTHLY, m_weather, m_output);
+		msg = climdex.Execute(CTM::MONTHLY, m_weather, m_output);
+		
 
-		return ERMsg();
+		return msg;
 	}
 
 
@@ -63,13 +66,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		m_weather.SetHourly(false);//force to became daily
 
 		CClimdexVariables climdex;
 		climdex.m_basePeriod = m_basePeriod;
 		climdex.m_nn = m_nn;
 		climdex.m_bUseBootstrap = m_bUseBootstrap;
-		climdex.Execute(CTM::ANNUAL, m_weather, m_output);
-			
+		msg = climdex.Execute(CTM::ANNUAL, m_weather, m_output);
 
 		return msg;
 	}
