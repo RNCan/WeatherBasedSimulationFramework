@@ -77,7 +77,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_SEED, m_seedTypeCtrl);
 		DDX_Control(pDX, IDC_WG_ALLOWED_DERIVED_VARIABLES, m_allowedDerivedVariablesCtrl);
 		DDX_Control(pDX, IDC_WG_XVALIDATION, m_XValidationCtrl);
-		DDX_Control(pDX, IDC_WG_SKIP_VERIFY, m_SkipVerifyCtrl);
+		DDX_Control(pDX, IDC_WG_SKIP_VERIFY, m_skipVerifyCtrl);
+		DDX_Control(pDX, IDC_WG_NO_FILL_MISSING, m_noFillMissingCtrl);
 
 		if (!pDX->m_bSaveAndValidate)
 		{
@@ -236,7 +237,8 @@ namespace WBSF
 		m_seedTypeCtrl.SetCurSel((int)WGInput.m_seed);
 		m_allowedDerivedVariablesCtrl.SetVariables(WGInput.m_allowedDerivedVariables);
 		m_XValidationCtrl.SetCheck(WGInput.m_bXValidation);
-		m_SkipVerifyCtrl.SetCheck(WGInput.m_bSkipVerify);
+		m_skipVerifyCtrl.SetCheck(WGInput.m_bSkipVerify);
+		m_noFillMissingCtrl.SetCheck(WGInput.m_bNoFillMissing);
 
 		//EnableWindow(!bDefault);
 		//UpdateCtrl();
@@ -270,7 +272,9 @@ namespace WBSF
 		WGInput.m_seed = m_seedTypeCtrl.GetCurSel();
 		WGInput.m_allowedDerivedVariables = m_allowedDerivedVariablesCtrl.GetVariables();
 		WGInput.m_bXValidation = m_XValidationCtrl.GetCheck();
-		WGInput.m_bSkipVerify = m_SkipVerifyCtrl.GetCheck();
+		WGInput.m_bSkipVerify = m_skipVerifyCtrl.GetCheck();
+		WGInput.m_bNoFillMissing = m_noFillMissingCtrl.GetCheck();
+		
 	}
 
 	

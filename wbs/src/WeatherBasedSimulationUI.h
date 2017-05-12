@@ -447,6 +447,7 @@
 #define IDC_MAP_INPUT_HEIGHT            1219
 #define IDC_WG_AT_SURFACE               1219
 #define IDC_MAP_INPUT_WIDTH             1220
+#define IDC_WG_NO_FILL_MISSING          1220
 #define IDC_MAP_LAT1                    1221
 #define IDC_GENLOC_STATION_TYPE         1221
 #define IDC_MFCPROPERTYGRID1            1221

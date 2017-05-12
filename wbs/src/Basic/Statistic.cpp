@@ -368,7 +368,7 @@ namespace WBSF
 	double CStatisticEx::percentil(double p)const
 	{
 		ASSERT(p >= 0 && p <= 100);
-		sort();
+		sort();//create sorted array
 		
 		double value = STAT_VMISS;
 

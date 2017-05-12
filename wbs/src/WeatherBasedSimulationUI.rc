@@ -324,7 +324,7 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 // Dialog
 //
 
-IDD_WG_INPUT DIALOGEX 0, 0, 419, 330
+IDD_WG_INPUT DIALOGEX 0, 0, 419, 349
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Paramètres du générateur météorologiques (GM)"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -355,7 +355,7 @@ BEGIN
     LTEXT           "Type de générations aléatoires :",IDC_STATIC,7,265,102,8
     COMBOBOX        IDC_WG_SEED,120,261,293,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Ignorer la station météo la plus près du point de simulation (pour validation X)",IDC_WG_XVALIDATION,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,298,406,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,298,406,10
     COMBOBOX        IDC_WG_SOURCE_TYPE,108,7,183,174,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Type de données générées :",IDC_STATIC,7,28,93,10
     LTEXT           "Source des données :",IDC_STATIC,7,9,85,10
@@ -370,12 +370,14 @@ BEGIN
     CONTROL         "Utiliser les précipitations radars",IDC_WG_USE_RADARS_PRCP,
                     "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,14,222,113,12
     CONTROL         "Sauter la vérification des base de données (quand les bases de données ne change jamais)",IDC_WG_SKIP_VERIFY,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,406,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,311,406,10
     COMBOBOX        IDC_WG_GRIBS_DBNAME,92,155,235,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,331,155,17,14
-    CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,155,69,12
+    CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,156,69,12
     CONTROL         "à la surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,352,156,53,12
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
+	CONTROL         "Ne pas compléter les valeur manquantes avec les normales", IDC_WG_NO_FILL_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
 END
 
 IDD_VARIABLES DIALOGEX 0, 0, 199, 327
@@ -1999,7 +2001,7 @@ BEGIN
         VERTGUIDE, 352
         VERTGUIDE, 405
         TOPMARGIN, 7
-        BOTTOMMARGIN, 323
+        BOTTOMMARGIN, 342
     END
 
     IDD_VARIABLES, DIALOG
@@ -4406,7 +4408,7 @@ BEGIN
                     "MfcMenuButton",WS_TABSTOP,7,7,185,23
 END
 
-IDD_WG_INPUT DIALOGEX 0, 0, 419, 330
+IDD_WG_INPUT DIALOGEX 0, 0, 419, 349
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Weather Generator (WG) Parameters "
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -4437,7 +4439,7 @@ BEGIN
     LTEXT           "Random number type:",-1,7,266,70,8
     COMBOBOX        IDC_WG_SEED,120,262,293,164,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Ignore nearest weather station from simulation point (for cross validation)",IDC_WG_XVALIDATION,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,301,406,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,301,406,10
     COMBOBOX        IDC_WG_SOURCE_TYPE,108,7,183,174,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Datat type generated:",-1,7,28,93,10
     LTEXT           "Data type sources:",-1,7,9,72,10
@@ -4453,10 +4455,12 @@ BEGIN
     COMBOBOX        IDC_WG_GRIBS_DBNAME,79,155,251,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,336,155,17,14
     CONTROL         "Skip database verification (when the database is never updated)",IDC_WG_SKIP_VERIFY,
-                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,313,406,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,314,406,10
     CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,357,156,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,198,81,12
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
+	CONTROL         "Don't fill missing values with Normals", IDC_WG_NO_FILL_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
 END
 
 IDD_PARAMETERS_VARIATIONS_MANAGER DIALOG 0, 0, 307, 282
@@ -6057,7 +6061,7 @@ BEGIN
         VERTGUIDE, 357
         VERTGUIDE, 405
         TOPMARGIN, 7
-        BOTTOMMARGIN, 323
+        BOTTOMMARGIN, 342
     END
 
     IDD_PARAMETERS_VARIATIONS_MANAGER, DIALOG

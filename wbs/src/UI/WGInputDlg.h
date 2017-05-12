@@ -109,7 +109,8 @@ namespace WBSF
 		CCFLComboBox m_seedTypeCtrl;
 		CWVariablesEdit m_allowedDerivedVariablesCtrl;
 		CButton m_XValidationCtrl;
-		CButton m_SkipVerifyCtrl;
+		CButton m_skipVerifyCtrl;
+		CButton m_noFillMissingCtrl;
 
 		//CXInfoTip m_testToolTips;
 		CMyToolTipCtrl m_testToolTips;

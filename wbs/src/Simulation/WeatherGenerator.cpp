@@ -429,11 +429,14 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 						m_simulationPoints[i] = m_simulationPoints[0];
 
 
-					if (!m_tgi.IsNormals())
-						m_warning.set(W_DATA_FILLED_WITH_NORMAL);
+					if (!m_tgi.m_bNoFillMissing)
+					{
+						if (!m_tgi.IsNormals())
+							m_warning.set(W_DATA_FILLED_WITH_NORMAL);
 
-					msg = GenerateNormals(m_simulationPoints, callback);
-
+						msg = GenerateNormals(m_simulationPoints, callback);
+					}
+					
 					if (msg)
 					{
 						for (size_t r = 0; r < m_simulationPoints.size() && msg; r++)
@@ -451,7 +454,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 								msg = ComputeWindDirection(m_simulationPoints[r], m_tgi.m_variables);
 						}
 					}
-
+					
 					//do nothing for the moment, will be activated laters
 					//if (msg && bWD)
 					//msg = ComputeWindDirection(m_simulationPoints[0], m_tgi.m_variables);

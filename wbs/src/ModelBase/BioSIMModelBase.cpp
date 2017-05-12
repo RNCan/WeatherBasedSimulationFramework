@@ -216,8 +216,8 @@ namespace WBSF
 	{
 		CTransferInfoOut info = FromTransferInfoIn();
 		info.m_msg = msg;
-
-		CCommunicationStream::WriteOutputStream(info, m_output, outStream);
+		if (msg)
+			CCommunicationStream::WriteOutputStream(info, m_output, outStream);
 	}
 
 	ERMsg CBioSIMModelBase::OpenInputInfoFile(const std::string& filePath)

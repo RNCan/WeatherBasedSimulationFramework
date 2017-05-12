@@ -6,7 +6,7 @@
     <EXE>Climdex.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model computes annual climatic variables</Description>
-    <WindowRect>0 0 113 330</WindowRect>
+    <WindowRect>0 0 137 330</WindowRect>
     <SimulatedCategory>TN TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -31,11 +31,23 @@
             <Caption>nn</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>30 10 50 270</Rect>
+            <Rect>35 10 55 270</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>15</DefaultValue>
             <MinValue>0.1</MinValue>
             <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Boolean</Name>
+            <Caption>UseBootTrap</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>60 10 85 270</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
