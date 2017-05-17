@@ -451,19 +451,21 @@ namespace WBSF
 		{
 			double threshold = N.GetPThreshold(m, p);
 			if (weather[d][H_PRCP].IsInit() && weather[d][H_PRCP][SUM] >= 0.1)//take only wet day
-				Rp += (weather[d][H_PRCP][SUM] > threshold) ? 100 : 0;
+				if (weather[d][H_PRCP][SUM] > threshold)
+					Rp += weather[d][H_PRCP][SUM];
+				//Rp += (weather[d][H_PRCP][SUM] > threshold) ? 100 : 0;
 
 		}// day
 		
 
-		return Rp.IsInit()?Rp[MEAN]:-999;
+		return Rp.IsInit()?Rp[SUM]:-999;
 	}
-
+	 
 	double CClimdexVariables::Get(size_t v, const CWeatherYear& weather)
 	{
 		double value=-999;
 		
-		std::array<size_t, 12> junk;
+		std::array<size_t, 12> junk; 
 		switch (v)
 		{
 		case GSL: value = GetGSL(weather, junk); break;
@@ -491,7 +493,7 @@ namespace WBSF
 			}
 
 			size_t s = SUM;
-			if (v == TN10 || v == TX10 || v==TN90 || v==TX90 || v==SDII || v==R95P || v== R99P)
+			if (v == TN10 || v == TX10 || v==TN90 || v==TX90 || v==SDII )
 				s = MEAN;
 			else if(v == RX5D) 
 				s = HIGHEST;

@@ -1,4 +1,5 @@
 //*********************************************************************
+//17/-5/2017	3.1.2	Rémi Saint-Amant    Bug correction when more than 2 years
 //27/03/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //06/09/2016			Rémi Saint-Amant	Integration with WBSF
@@ -56,9 +57,6 @@ namespace WBSF
 
 			double gddwyr = DD5.GetStat(CDegreeDays::S_DD, p1)[SUM];
 			double gddcum = DD5.GetStat(CDegreeDays::S_DD, p2)[SUM];
-			//float gddcum = m_weather.GetDD(5, CTPeriod(year, JANUARY, FIRST_DAY, year, JULY, LAST_DAY));
-			//float gddwyr = m_weather.GetDD(5, p);
-			
 
 			CTPeriod p3(CTRef( year, MARCH, FIRST_DAY, FIRST_HOUR,TM), CTRef( year, JUNE, LAST_DAY, LAST_HOUR,TM)); 
 			double pptSummer = m_weather[y](H_PRCP, p3)[SUM] / 10;//in cm
