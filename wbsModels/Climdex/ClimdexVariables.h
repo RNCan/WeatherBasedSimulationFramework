@@ -114,6 +114,8 @@ namespace WBSF
 		static double GetPRCP(const CWeatherYear& weather);
 
 
+		static double GetRX5DAY_old(const CWeatherYear& weather);
+
 	protected:
 
 		CClimdexNormals m_N;

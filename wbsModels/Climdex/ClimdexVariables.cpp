@@ -300,7 +300,84 @@ namespace WBSF
 		return Rx5;
 	}
 	
-	
+	double CClimdexVariables::GetRX5DAY_old(const CWeatherYear& weather)
+	{
+
+
+		//const CWeatherYear* pParent = (const CWeatherYear*)weather.GetParent();
+		//CTPeriod period = weather.GetEntireTPeriod(CTM::DAILY);
+
+		//if (period.Begin() > weather.GetEntireTPeriod(CTM::DAILY).Begin())
+		//period.Begin() -= 4;
+
+		int year = weather.GetTRef().GetYear();
+		const CWeatherYears* pParent = static_cast<const CWeatherYears*>(weather.GetParent());
+		ASSERT(pParent);
+
+		
+		double Rx5 = -999;
+		size_t cnt = 0;
+		CStatistic stat;
+
+		/*if (pParent->IsYearInit(year - 1))
+		{
+			for (size_t d = 0; d < 4; d++)
+			{
+				const CWeatherDay& wDay = weather[DECEMBER][DAY_31 - 1];
+				if (wDay[H_PRCP].IsInit() && wDay[H_PRCP][SUM] >= 0.1)
+				{
+					cnt++;
+					stat += wDay[H_PRCP][SUM];
+				}
+				else
+				{
+					cnt = 0;
+					stat.Reset();
+				}
+			}
+		}*/
+
+		for (size_t m = 0; m < 12; m++)
+		{
+			size_t cnt = 0;
+			for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
+			{
+				//const CWeatherDay& wDay = weather[m][d];
+
+				cnt = cnt + 1;
+				// get Rx5day
+				if (cnt >= 5)   // corrected by Imke, original was 'cnt .gt. 5'  -- 2012.7.9
+				{
+					double r5prcp = 0;
+					for (size_t dd = 0; dd < 5; dd++)
+					{
+						const CWeatherDay& wDay = weather.GetDay(weather[m][d].GetTRef() - dd);
+						if (wDay[H_PRCP].IsInit())
+							r5prcp += wDay[H_PRCP][SUM];
+					}
+
+					stat += r5prcp;
+				}
+				
+
+			}  // loop for day
+		}     // loop for month
+
+		// check if annual PRCP is MISSING
+		// if yes, set annual index=MISSING
+		if (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] > 15)
+		{
+			Rx5 = stat[HIGHEST];
+		}
+		else
+		{
+			Rx5 = -999;
+		}
+
+
+		return Rx5;
+	}
+
 	CStatistic CClimdexVariables::GetRnnmm(const CWeatherMonth& weather, double nn)
 	{
 		CStatistic stat;
