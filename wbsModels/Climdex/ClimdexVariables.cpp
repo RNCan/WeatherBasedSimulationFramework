@@ -158,16 +158,16 @@ namespace WBSF
 	double CClimdexVariables::GetTXN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE]<6)? weather[H_TMAX2][LOWEST] : -999; }
 	double CClimdexVariables::GetTNN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE]<6)? weather[H_TMIN2][LOWEST] : -999; }
 	double CClimdexVariables::GetDTR(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TRNG2][NB_VALUE]<6) ? weather[H_TRNG2][MEAN] : -999; }
-	double CClimdexVariables::GetRX1DAY(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] == 0) ? weather[H_PRCP][HIGHEST] : -999; }
-	double CClimdexVariables::GetPRCP(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] == 0) ? weather[H_PRCP][SUM] : -999; }
+	double CClimdexVariables::GetRX1DAY(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= 3) ? weather[H_PRCP][HIGHEST] : -999; }
+	double CClimdexVariables::GetPRCP(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= 3) ? weather[H_PRCP][SUM] : -999; }
 
 	double CClimdexVariables::GetTXX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE]<6) ? weather[H_TMAX2][HIGHEST] : -999; }
 	double CClimdexVariables::GetTNX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE]<6) ? weather[H_TMIN2][HIGHEST] : -999; }
 	double CClimdexVariables::GetTXN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE]<6) ? weather[H_TMAX2][LOWEST] : -999; }
 	double CClimdexVariables::GetTNN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE]<6) ? weather[H_TMIN2][LOWEST] : -999; }
 	double CClimdexVariables::GetDTR(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TRNG2][NB_VALUE]<6) ? weather[H_TRNG2][MEAN] : -999; }
-	double CClimdexVariables::GetRX1DAY(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] == 0) ? weather[H_PRCP][HIGHEST] : -999; }
-	double CClimdexVariables::GetPRCP(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] == 0) ? weather[H_PRCP][SUM] : -999; }
+	double CClimdexVariables::GetRX1DAY(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= 15) ? weather[H_PRCP][HIGHEST] : -999; }
+	double CClimdexVariables::GetPRCP(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= 15) ? weather[H_PRCP][SUM] : -999; }
 
 
 	double CClimdexVariables::GetTP(const CWeatherMonth& weather, const CClimdexNormals& N, TPecentilVar v, TTPecentil p)
@@ -270,33 +270,36 @@ namespace WBSF
 	{
 		double Rx5 = -999;
 		size_t cnt = 0;
-		CStatistic stat;
-				
-		const CWeatherYear* pParent = (const CWeatherYear*)weather.GetParent();
-		CTPeriod period = weather.GetEntireTPeriod(CTM::DAILY);
-
-		if (period.Begin() > pParent->GetEntireTPeriod(CTM::DAILY).Begin())
-			period.Begin() -= 4;
-
-		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+		
+		if (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] > 3)//more than 3 missing
 		{
-			if (weather[TRef][H_PRCP].IsInit() && weather[TRef][H_PRCP][SUM] >= 0.1)
-			{
-				cnt++;
-				stat += weather[TRef][H_PRCP][SUM];
-			}
-			else
-			{
-				cnt = 0;
-				stat.Reset();
-			}
+			const CWeatherYear* pParent = (const CWeatherYear*)weather.GetParent();
+			CTPeriod period = weather.GetEntireTPeriod(CTM::DAILY);
 
-			if (cnt >= 5 && stat[SUM] > Rx5)
+			if (period.Begin() > pParent->GetEntireTPeriod(CTM::DAILY).Begin())
+				period.Begin() -= 4;
+
+			for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 			{
-				Rx5 = stat[SUM];
-			}
-		}//loop for day
-	
+				CStatistic stat;
+				for (size_t dd = 0; dd < 5; dd++)
+				{
+					if (weather[TRef + dd][H_PRCP].IsInit())//&& weather[TRef][H_PRCP][SUM] >= 0.1
+					{
+						//cnt++;
+						stat += weather[TRef][H_PRCP][SUM];
+					}
+				}
+
+				if (stat.IsInit() && stat[SUM] > Rx5)
+				{
+					Rx5 = stat[SUM];
+				}
+			}//loop for day
+
+			Rx5 = -999;
+		}
+
 		return Rx5;
 	}
 	
@@ -324,7 +327,7 @@ namespace WBSF
 			for (size_t d = 0; d < 4; d++)
 			{
 				const CWeatherDay& wDay = weather[DECEMBER][DAY_31 - 1];
-				if (wDay[H_PRCP].IsInit() && wDay[H_PRCP][SUM] >= 0.1)
+				if (wDay[H_PRCP].IsInit() )
 				{
 					cnt++;
 					stat += wDay[H_PRCP][SUM];
@@ -339,17 +342,14 @@ namespace WBSF
 
 		for (size_t m = 0; m < 12; m++)
 		{
-			size_t cnt = 0;
-			for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
+			for (size_t d = 0; d < GetNbDayPerMonth(m); d++, cnt++)
 			{
 				//const CWeatherDay& wDay = weather[m][d];
-
-				cnt = cnt + 1;
 				// get Rx5day
 				if (cnt >= 5)   // corrected by Imke, original was 'cnt .gt. 5'  -- 2012.7.9
 				{
 					double r5prcp = 0;
-					for (size_t dd = 0; dd < 5; dd++)
+					for (size_t dd = cnt-4; dd <= cnt; dd++)
 					{
 						const CWeatherDay& wDay = weather.GetDay(weather[m][d].GetTRef() - dd);
 						if (wDay[H_PRCP].IsInit())
@@ -358,8 +358,6 @@ namespace WBSF
 
 					stat += r5prcp;
 				}
-				
-
 			}  // loop for day
 		}     // loop for month
 
@@ -578,6 +576,10 @@ namespace WBSF
 			value = stat[s];
 		}
 		}
+
+		if (v == RX5D && weather.GetNbDays() - weather[H_PRCP][NB_VALUE] > 15)//more than 15 missing
+			value = -999;
+
 
 		return value;
 	}
