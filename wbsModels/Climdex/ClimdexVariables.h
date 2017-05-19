@@ -12,7 +12,9 @@ namespace WBSF
 	enum TPPecentil{ P95, P99, NB_P_PERCENTILS };
 	enum TPecentilVar{ PVAR_TMIN, PVAR_TMAX, NB_PERCENTILS_VAR };
 	typedef std::array<std::array<std::array<double, NB_T_PERCENTILS>, NB_PERCENTILS_VAR>, 365> CTPercentil;
-	typedef std::array<std::array<double, NB_P_PERCENTILS>, 12>  CPPercentil;
+	typedef std::array<double, NB_P_PERCENTILS>  CPPercentil;
+	typedef std::array<CPPercentil, 12>  CPPercentilM;
+	
 	
 
 	class CClimdexNormals
@@ -31,17 +33,20 @@ namespace WBSF
 		
 		double GetEventPercent(const CWeatherDay& day, TPecentilVar v, TTPecentil p)const;
 		double GetTThreshold(size_t jd, TPecentilVar v, TTPecentil p)const{ return m_Tpercentil[0][0][jd][v][p];}
-		double GetPThreshold(size_t m, TPPecentil p)const{ return m_Ppercentil[m][p]; }
+		double GetPThreshold(size_t m, TPPecentil p)const{ return m_PpercentilM[m][p]; }
+		double GetPThreshold(TPPecentil p)const{ return m_PpercentilA[p]; }
 
 	protected:
 
 		
 		static void Tthreshold(const CWeatherYears& weather, CTPeriod period, bool bUseBootstrap, std::vector<std::vector<CTPercentil>>& Tpercentil);
-		static void Pthreshold(const CWeatherYears& weather, CTPeriod period, CPPercentil& percentil);
+		static void Pthreshold(const CWeatherYears& weather, CTPeriod period, CPPercentil& percentilA, CPPercentilM& percentilM);
 
 		
 		std::vector<std::vector<CTPercentil>> m_Tpercentil;
-		CPPercentil m_Ppercentil;
+		CPPercentil m_PpercentilA;
+		CPPercentilM m_PpercentilM;
+		
 	};
 
 	class CClimdexVariables
@@ -59,15 +64,17 @@ namespace WBSF
 		bool m_bUseBootstrap;
 
 		ERMsg Execute(CTM TM, const CWeatherStation& weather, CModelStatVector& output);
-		double Get(size_t v, const CWeatherYear& weather);
-		double Get(size_t v, const CWeatherMonth& weather);
+		double Get(size_t v, const CWeatherYear& weather, bool bForce = false);
+		double Get(size_t v, const CWeatherMonth& weather, bool bForce = false);
 
 
-		static size_t GetNumber(const CWeatherMonth& weather, size_t index);
+		static double GetNumber(const CWeatherDay& weather, size_t index);
+		static double GetNumber(const CWeatherMonth& weather, size_t index);
 		static double GetTXX(const CWeatherMonth& weather);
 		static double GetTNX(const CWeatherMonth& weather);
 		static double GetTXN(const CWeatherMonth& weather);
 		static double GetTNN(const CWeatherMonth& weather);
+		
 		
 		
 		
@@ -77,31 +84,35 @@ namespace WBSF
 		static double GetTN90p(const CWeatherMonth& weather, const CClimdexNormals& N){ return GetTP(weather, N, PVAR_TMIN, P90); }
 		static double GetTX90p(const CWeatherMonth& weather, const CClimdexNormals& N){ return GetTP(weather, N, PVAR_TMAX, P90); }
 		static double GetDTR(const CWeatherMonth& weather);
+		static double GetGSL(const CWeatherYear& weather, std::array<double, 12> &gsl);
+
+		
 		static double GetRX1DAY(const CWeatherMonth& weather);
 		static double GetRX5DAY(const CWeatherMonth& weather);
-
 		static CStatistic GetRnnmm(const CWeatherMonth& weather, double nn);
-		static double GetSDII(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 0.1)[MEAN];  return stat.IsInit() ? stat[MEAN] : -999; }
-		static double GetR10mm(const CWeatherMonth& weather){ return GetRnnmm(weather, 10)[NB_VALUE]; }
-		static double GetR20mm(const CWeatherMonth& weather){ return GetRnnmm(weather, 20)[NB_VALUE]; }
+		static double GetSDII(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 1.0);  return stat.IsInit() ? stat[MEAN] : -999; }
+		static double GetR10mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 10);  return stat.IsInit() ? stat[NB_VALUE] : -999;  }
+		static double GetR20mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 20);  return stat.IsInit() ? stat[NB_VALUE] : -999;  }
 
 		static double GetRp(const CWeatherMonth& weather, const CClimdexNormals& N, TPPecentil p);
 		static double GetR95p(const CWeatherMonth& weather, const CClimdexNormals& N){ return GetRp(weather, N, P95); }
 		static double GetR99p(const CWeatherMonth& weather, const CClimdexNormals& N){ return GetRp(weather, N, P99); }
+		static double GetRp(const CWeatherYear& weather, const CClimdexNormals& N, TPPecentil p);
+		static double GetR95p(const CWeatherYear& weather, const CClimdexNormals& N){ return GetRp(weather, N, P95); }
+		static double GetR99p(const CWeatherYear& weather, const CClimdexNormals& N){ return GetRp(weather, N, P99); }
 		static double GetPRCP(const CWeatherMonth& weather);
+		
 
-
-		static size_t GetGSL(const CWeatherYear& weather, std::array<size_t, 12> &gsl);
 		static size_t GetPreviousCnt(const CWeatherYear& weather, const CClimdexNormals& N, TPecentilVar vv, TTPecentil p);
-		static size_t GetSDI(const CWeatherYear& weather, const CClimdexNormals& N, TPecentilVar v, TTPecentil p, std::array<size_t, 12> &sdi);
-		static size_t GetWSDI(const CWeatherYear& weather, const CClimdexNormals& N, std::array<size_t, 12> &sdi){ return GetSDI(weather, N, PVAR_TMAX, P90, sdi); }
-		static size_t GetCSDI(const CWeatherYear& weather, const CClimdexNormals& N, std::array<size_t, 12> &sdi){ return GetSDI(weather, N, PVAR_TMIN, P10, sdi); }
+		static double GetSDI(const CWeatherYear& weather, const CClimdexNormals& N, TPecentilVar v, TTPecentil p, std::array<double, 12> &sdi);
+		static double GetWSDI(const CWeatherYear& weather, const CClimdexNormals& N, std::array<double, 12> &sdi){ return GetSDI(weather, N, PVAR_TMAX, P90, sdi); }
+		static double GetCSDI(const CWeatherYear& weather, const CClimdexNormals& N, std::array<double, 12> &sdi){ return GetSDI(weather, N, PVAR_TMIN, P10, sdi); }
 
 		static size_t GetPreviousCD(const CWeatherYear& weather, bool bWet);
 		static size_t GetNextCD(const CWeatherYear& weatherIn, bool bWet, size_t cnt);
-		static size_t GetCD(const CWeatherYear& weather, bool bWet, std::array<size_t, 12> &cd);
-		static size_t GetCDD(const CWeatherYear& weather, std::array<size_t, 12> &cd){ return GetCD(weather, false, cd); }
-		static size_t GetCWD(const CWeatherYear& weather, std::array<size_t, 12> &cd){ return GetCD(weather, true, cd); }
+		static double GetCD(const CWeatherYear& weather, bool bWet, std::array<double, 12> &cd);
+		static double GetCDD(const CWeatherYear& weather, std::array<double, 12> &cd){ return GetCD(weather, false, cd); }
+		static double GetCWD(const CWeatherYear& weather, std::array<double, 12> &cd){ return GetCD(weather, true, cd); }
 
 
 
