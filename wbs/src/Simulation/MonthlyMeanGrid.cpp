@@ -396,6 +396,12 @@ namespace WBSF
 										Hr = Hs2Hr(TminII, TmaxII, Hs);
 
 										stationII[y][m][d][H_RELH] = Hr;
+
+										
+										//we compute the best Tdew as we can. A vérifier... 
+										double Pv = Hr2Pv(TminII, TmaxII, Hr);
+										double Td = WBSF::Pv2Td(Pv/1000);
+										stationII[y][m][d][H_TDEW] = Td;
 									}
 								}
 							}
@@ -407,6 +413,13 @@ namespace WBSF
 								double Hr = stationIn[y][m][d][H_RELH][MEAN];
 								Hr = max(0.0, min(100.0, (Hr*ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
 								stationII[y][m][d][H_RELH] = Hr;
+
+								//we compute the best Tdew as we can. A vérifier... 
+								double TminII = stationII[y][m][d][H_TMIN2][MEAN];
+								double TmaxII = stationII[y][m][d][H_TMAX2][MEAN];
+								double Pv = Hr2Pv(TminII, TmaxII, Hr);
+								double Td = WBSF::Pv2Td(Pv / 1000);
+								stationII[y][m][d][H_TDEW] = Td;
 							}
 							else if (v == HOURLY_DATA::H_WNDS)
 							{

@@ -75,14 +75,13 @@ namespace WBSF
 
 		CWVariables variables1 = weather.GetVariables();
 
+		CWVariables variables2;
 		CTPeriod p = weather.GetEntireTPeriod();
 		for (CTRef TRef = p.Begin(); TRef <= p.End() && bRep; TRef++)
-		{
-			CWVariables variables2 = weather[TRef].GetVariables();
-			bRep = variables1 == variables2;
-			ASSERT(bRep);
-		}
+			variables2 |= weather[TRef].GetVariables();
 
+		bRep = variables1 == variables2;
+		ASSERT(bRep);
 
 		return bRep;
 	}

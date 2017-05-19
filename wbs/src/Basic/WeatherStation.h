@@ -325,13 +325,27 @@ public:
 	virtual inline CWeatherStation* GetWeatherStation(){return GetParent()->GetWeatherStation();}
 	virtual inline const CWeatherStation* GetWeatherStation()const{ return GetParent()->GetWeatherStation(); }
 	virtual inline bool IsHourly()const = 0;
-
-	
-
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const=0;
 	virtual CStatistic GetTimeLength()const = 0;					//return time length [s]
 	virtual double GetNetRadiation(double& Fcd)const = 0;
+
+	inline bool HavePrevious()const;
+	inline bool HaveNext()const;
+
+	template<class T>
+	inline const T& GetPreviousI()const
+	{
+		return static_cast<const T&>(HavePrevious() ? Get(GetTRef() - 1): *this);
+	}
+
+	template<class T>
+	inline const T& GetNextI()const
+	{
+		return static_cast<const T&>(HaveNext() ? Get(GetTRef() + 1) : *this);
+	}
+
 };
+
 
 
 //**************************************************************************************************************
@@ -434,9 +448,11 @@ public:
 	virtual inline CDataInterface* GetParent();
 
 	inline const CLocation& GetLocation()const;
-	inline const CHourlyData& GetPrevious()const;
-	inline const CHourlyData& GetNext()const;
+	//inline const CHourlyData& GetPrevious()const;
+	//inline const CHourlyData& GetNext()const;
 	
+	inline const CHourlyData& GetPrevious()const { return GetPreviousI<CHourlyData>(); }
+	inline const CHourlyData& GetNext()const{ return GetNextI<CHourlyData>(); }
 
 protected:
 
@@ -615,12 +631,13 @@ public:
 	}
 	
 	virtual inline bool IsHourly()const;
-	//virtual inline size_t GetHourlyGenerationMethod()const;
 	virtual inline const CDataInterface* GetParent()const;
 	virtual inline CDataInterface* GetParent();
 	inline const CLocation& GetLocation()const;
-	inline const CWeatherDay& GetPrevious()const;
-	inline const CWeatherDay& GetNext()const;
+	//inline const CWeatherDay& GetPrevious()const;
+	//inline const CWeatherDay& GetNext()const;
+	inline const CWeatherDay& GetPrevious()const { return GetPreviousI<CWeatherDay>(); }
+	inline const CWeatherDay& GetNext()const{ return GetNextI<CWeatherDay>(); }
 
 
 	void ComputeHourlyTair(size_t method);
@@ -762,8 +779,11 @@ public:
 	virtual inline const CDataInterface* GetParent()const;
 	virtual inline CDataInterface* GetParent();
 	inline const CLocation& GetLocation()const;
-	inline const CWeatherMonth& GetPrevious()const;
-	inline const CWeatherMonth& GetNext()const;
+	//inline const CWeatherMonth& GetPrevious()const;
+	//inline const CWeatherMonth& GetNext()const;
+	inline const CWeatherMonth& GetPrevious()const { return GetPreviousI<CWeatherMonth>(); }
+	inline const CWeatherMonth& GetNext()const{ return GetNextI<CWeatherMonth>(); }
+
 
 
 
@@ -886,8 +906,11 @@ public:
 	virtual inline const CDataInterface* GetParent()const;
 	virtual inline CDataInterface* GetParent();
 	inline const CLocation& GetLocation()const;
-	inline const CWeatherYear& GetPrevious()const;
-	inline const CWeatherYear& GetNext()const;
+	//inline const CWeatherYear& GetPrevious()const;
+	//inline const CWeatherYear& GetNext()const;
+	inline const CWeatherYear& GetPrevious()const { return GetPreviousI<CWeatherYear>(); }
+	inline const CWeatherYear& GetNext()const{ return GetNextI<CWeatherYear>(); }
+
 	
 	//void ComputeTRange();
 	const CWeatherDay& GetDay(size_t Jday)const{ CJDayRef TRef(GetTRef().GetYear(), Jday); return at(TRef.GetMonth()).at(TRef.GetDay()); }
@@ -1065,8 +1088,8 @@ public:
 	bool IsComplete(CWVariables variables, CTPeriod period = CTPeriod() )const;
 	void CleanUnusedVariable(CWVariables variables);
 
-	inline const CWeatherYear& GetPrevious(CTRef ref)const;
-	const CWeatherYear& GetNext(CTRef ref)const;
+	//inline const CWeatherYear& GetPrevious(CTRef ref)const;
+	//inline const CWeatherYear& GetNext(CTRef ref)const;
 	
 	CTM GetTM()const{return CTM(IsHourly() ? CTM::HOURLY : CTM::DAILY);}
 	int GetFirstYear()const{ return empty() ? YEAR_NOT_INIT : begin()->first; }
@@ -1075,8 +1098,6 @@ public:
 	CTPeriod GetEntireTPeriod(CTM TM)const{ return empty() ? CTPeriod():CTPeriod(CTRef(GetFirstYear(), FIRST_MONTH, FIRST_DAY, FIRST_HOUR, TM), CTRef(GetLastYear(), LAST_MONTH, LAST_DAY, LAST_HOUR, TM)); }
 	void SetHourly(bool bHourly){ m_bHourly = bHourly; ManageHourlyData(); }
 	virtual bool IsHourly()const{ return m_bHourly; }
-	//void SetHourlyGenerationMethod(size_t method){ m_hourlyGenerationMethod = method; }
-	//size_t GetHourlyGenerationMethod()const{ return m_hourlyGenerationMethod;  }
 	bool IsDaily()const{ return !m_bHourly; }
 
 	void ManageHourlyData()
@@ -1101,9 +1122,6 @@ public:
 	
 	const CWeatherFormat& GetFormat()const{ return m_format; }
 	void SetFormat(const CWeatherFormat& in){ m_format = in; }
-
-	//bool GetModified()const{ return m_bModified; }
-	//void SetModified(bool in){ m_bModified = in; }
 
 	inline const CDataInterface& Get(CTRef ref)const;
 	inline CDataInterface& Get(CTRef ref);
@@ -1241,62 +1259,49 @@ inline const CLocation& CWeatherYear::GetLocation()const{ return m_pParent->GetL
 inline const CLocation& CWeatherYears::GetLocation()const{ assert(m_pParent); return *m_pParent; }
 
 
-inline const CHourlyData& CHourlyData::GetPrevious()const
-{
-	CTRef TRef = GetTRef() - 1;
-	return IsYearInit(TRef.GetYear()) ? (const CHourlyData&)Get(TRef) : *this;// (*CWeatherYears::EMPTY_YEAR)[0][0][0];
-}
 
-inline const CHourlyData& CHourlyData::GetNext()const
-{
-	CTRef TRef = GetTRef() + 1;
-	return IsYearInit(TRef.GetYear()) ? (const CHourlyData&)Get(TRef) : *this;// (*CWeatherYears::EMPTY_YEAR)[0][0][0];
-}
-
-
-
-inline const CWeatherDay& CWeatherDay::GetPrevious()const
-{
-	//static CWeatherDay REPLICATE_FIRST;
-	CTRef TRef = GetTRef() - 1;
-	bool bIsNotFirst = IsYearInit(TRef.GetYear());
-	return bIsNotFirst ? (const CWeatherDay&)Get(TRef) : *this;// (REPLICATE_FIRST = *this);// (*CWeatherYears::EMPTY_YEAR)[0][0];
-}
-
-
-inline const CWeatherDay& CWeatherDay::GetNext()const
-{
-	//static CWeatherDay REPLICATE_LAST;
-	CTRef TRef = GetTRef() + 1;
-	bool bIsNotLast = IsYearInit(TRef.GetYear());
-	return bIsNotLast ? (const CWeatherDay&)Get(TRef) : *this;// (REPLICATE_LAST = *this);//*CWeatherYears::EMPTY_YEAR)[0][0];
-}
-
-inline const CWeatherMonth& CWeatherMonth::GetPrevious()const
-{
-	CTRef TRef = GetTRef() - 1;
-	return IsYearInit(TRef.GetYear()) ? (const CWeatherMonth&)Get(TRef) : *this;// (*CWeatherYears::EMPTY_YEAR)[0];
-}
-
-inline const CWeatherMonth& CWeatherMonth::GetNext()const
-{
-	CTRef TRef = GetTRef() + 1;
-	return (IsYearInit(TRef.GetYear())) ? (const CWeatherMonth&)Get(TRef) : *this;// (*CWeatherYears::EMPTY_YEAR)[0];
-}
-
-
-inline const CWeatherYear& CWeatherYear::GetPrevious()const
-{
-	CTRef TRef = GetTRef() - 1;
-	return (m_pParent->IsYearInit(TRef.GetYear()))? (const CWeatherYear&)Get(TRef): *this;
-}
-
-inline const CWeatherYear& CWeatherYear::GetNext()const
-{
-	CTRef TRef = GetTRef() + 1;
-	return (m_pParent->IsYearInit(TRef.GetYear())) ? (const CWeatherYear&)Get(TRef) : *this;
-}
-
+//inline const CWeatherDay& CWeatherDay::GetPrevious()const
+//{
+//	//static CWeatherDay REPLICATE_FIRST;
+//	CTRef TRef = GetTRef() - 1;
+//	bool bIsNotFirst = IsYearInit(TRef.GetYear());
+//	return bIsNotFirst ? (const CWeatherDay&)Get(TRef) : *this;
+//}
+//
+//
+//inline const CWeatherDay& CWeatherDay::GetNext()const
+//{
+//	//static CWeatherDay REPLICATE_LAST;
+//	CTRef TRef = GetTRef() + 1;
+//	bool bIsNotLast = IsYearInit(TRef.GetYear());
+//	return bIsNotLast ? (const CWeatherDay&)Get(TRef) : *this;
+//}
+//
+//inline const CWeatherMonth& CWeatherMonth::GetPrevious()const
+//{
+//	CTRef TRef = GetTRef() - 1;
+//	return IsYearInit(TRef.GetYear()) ? (const CWeatherMonth&)Get(TRef) : *this;
+//}
+//
+//inline const CWeatherMonth& CWeatherMonth::GetNext()const
+//{
+//	CTRef TRef = GetTRef() + 1;
+//	return (IsYearInit(TRef.GetYear())) ? (const CWeatherMonth&)Get(TRef) : *this;
+//}
+//
+//
+//inline const CWeatherYear& CWeatherYear::GetPrevious()const
+//{
+//	CTRef TRef = GetTRef() - 1;
+//	return (m_pParent->IsYearInit(TRef.GetYear()))? (const CWeatherYear&)Get(TRef): *this;
+//}
+//
+//inline const CWeatherYear& CWeatherYear::GetNext()const
+//{
+//	CTRef TRef = GetTRef() + 1;
+//	return (m_pParent->IsYearInit(TRef.GetYear())) ? (const CWeatherYear&)Get(TRef) : *this;
+//}
+//
 
 	
 
@@ -1379,11 +1384,8 @@ inline bool CWeatherDay::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherMonth::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherYear::IsHourly()const{ return m_pParent->IsHourly(); }
 
-//inline size_t CHourlyData::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
-//inline size_t CWeatherDay::GetHourlyGenerationMethod()const{ return ((CWeatherYears*)m_pParent->GetParent()->GetParent())->GetHourlyGenerationMethod(); }
-//inline size_t CWeatherMonth::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
-//inline size_t CWeatherYear::GetHourlyGenerationMethod()const{ return m_pParent->GetHourlyGenerationMethod(); }
-
+inline bool CDataInterface::HavePrevious()const	{ return GetWeatherStation()->IsYearInit((GetTRef() - 1).GetYear()); }
+inline bool CDataInterface::HaveNext()const{ return GetWeatherStation()->IsYearInit((GetTRef() + 1).GetYear()); }
 
 }//namespace WBSF
 

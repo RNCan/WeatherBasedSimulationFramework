@@ -116,6 +116,51 @@ namespace WBSF
 		if (msg && exitCode != 0)
 			msg.ajoute("FTPTransfer as exit with error code " + ToString((int)exitCode));
 
+		if (msg)
+		{
+			callback.AddMessage("FTP Verification");
+
+			//verify date and size on the FTP side
+			CInternetSessionPtr pSession;
+			CFtpConnectionPtr pConnection;
+
+			string server = Get(SERVER);
+			string remote = Get(REMOTE);
+			string local = Get(LOCAL);
+
+			msg = GetFtpConnection(server, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			if (msg)
+			{
+				CFileInfoVector fileList;
+				msg = FindFiles(pConnection, remote, fileList, callback);
+				if (fileList.size() == 1)
+				{
+					CFileInfo info;
+					if (GetFileInfo(local, info))
+					{
+						__int64 diffSize = __int64(info.m_size) - fileList.front().m_size;
+						__int64 diffTime = __int64(info.m_time) - fileList.front().m_time;
+
+						callback.AddMessage("diff size (Ko):" + ToString(diffSize / 1024.0, 1));
+						callback.AddMessage("diff time (h):" + ToString(diffTime / 3600.0, 1));
+						/*if (direction == D_DOWNLOAD)
+						{
+						}
+						else
+						{
+						}*/
+					}
+					else
+					{
+						msg.ajoute("ERROR: Locale file not find : " + local);
+					}
+				}
+				else
+				{
+					msg.ajoute("ERROR: Remote file not find: " + remote);
+				}
+			}//msg
+		}
 
 		msg += callback.StepIt();
 		callback.PopTask();

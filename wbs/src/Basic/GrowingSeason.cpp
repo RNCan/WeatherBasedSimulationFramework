@@ -99,18 +99,7 @@ namespace WBSF
 		default: ASSERT(false);
 		}
 		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
-		//}
-		//else
-		//{
-		//	switch (m_type)
-		//	{
-		//	case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
-		//	case TT_TMEAN:	T = data[H_TAIR][MEAN]; break;
-		//	case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
-		//	case TT_TNOON:  ASSERT(false); break; //hourly values must be computed
-		//	default: ASSERT(false);
-		//	}
-		//}
+		
 		return T;
 	}
 
@@ -129,12 +118,27 @@ namespace WBSF
 	CTPeriod CGrowingSeason::GetGrowingSeason(const CWeatherYear& weather)const
 	{
 		
-		CTPeriod p = weather.GetEntireTPeriod();
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 		CTM TM = p.GetTM();
 		int year = p.Begin().GetYear();
 
-		CTRef TRef1 = CTRef(year, JULY, DAY_15);
-		CTRef TRef2 = CTRef(year, JULY, DAY_15);
+		CTRef TRef1 = CTRef(year, JULY, DAY_01);
+		CTRef TRef2 = CTRef(year, JULY, DAY_01);
+
+
+
+		if (weather.GetLocation().m_lat < 0)
+		{
+			if (!weather.HavePrevious())
+				return CTPeriod();//no growing season the first year of southern hemisphere
+
+			p.Begin() = CTRef(year - 1, JULY, FIRST_DAY, FIRST_HOUR, weather.GetTM()); 
+			p.End() = CTRef(year, JUNE, LAST_DAY, LAST_HOUR, weather.GetTM());
+
+			TRef1 = CTRef(year, JANUARY, DAY_01);
+			TRef2 = CTRef(year, JANUARY, DAY_01);
+		}
+
 		
 		bool bGetIt1 = false;
 
@@ -149,7 +153,8 @@ namespace WBSF
 				ASSERT((TRef1 - dd).Transform(p.GetTM()) >= p.Begin());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef1 - dd]);
-				bGetIt1 = m_begin.GetGST(wDay) < m_begin.m_threshold;
+				if (wDay[H_TMIN2].IsInit() && wDay[H_TMAX2].IsInit())
+					bGetIt1 = m_begin.GetGST(wDay) < m_begin.m_threshold;
 			}
 		} while (!bGetIt1 && (TRef1 - p.Begin())>m_begin.m_nbDays);
 
@@ -174,7 +179,8 @@ namespace WBSF
 				ASSERT((TRef2 + dd).Transform(p.GetTM())<=p.End());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef2 + dd]);
-				bGetIt2 = m_end.GetGST(wDay) < m_end.m_threshold;
+				if (wDay[H_TMIN2].IsInit() && wDay[H_TMAX2].IsInit())
+					bGetIt2 = m_end.GetGST(wDay) < m_end.m_threshold;
 			}
 		} while (!bGetIt2 && (p.End()-TRef2)>m_end.m_nbDays);
 
@@ -186,7 +192,10 @@ namespace WBSF
 		
 		if (!bGetIt1 && !bGetIt2)
 		{
-			const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[CTRef(year, JULY, DAY_15)]);
+
+			CTRef TRef = (weather.GetLocation().m_lat < 0) ? CTRef(year, DECEMBER, DAY_01) : CTRef(year, JULY, DAY_01);
+			
+			const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef]);
 			if (m_end.GetGST(wDay) < m_end.m_threshold)
 				p.clear();//no growing season
 			//else

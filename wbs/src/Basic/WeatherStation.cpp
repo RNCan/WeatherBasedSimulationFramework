@@ -1256,7 +1256,7 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 		
 		if (Tmin.IsInit() && Tmax.IsInit())
 		{
-			ASSERT(Tmax[MEAN] >= Tmin[MEAN]);
+			//ASSERT(Tmax[MEAN] >= Tmin[MEAN]);
 
 			if (v == H_TNTX)
 				stat = (Tmax[MEAN] + Tmin[MEAN])/2;
@@ -1645,11 +1645,11 @@ void CWeatherDay::ReadStream(istream& stream, const CWVariables& variable)
 		if (variable[v])
 			read_value(stream, m_dailyStat[v]), u++;
 
-	if (variable[H_TMIN2] && variable[H_TMAX2])
+	/*if (variable[H_TMIN2] && variable[H_TMAX2])
 	{
 		ASSERT(m_dailyStat[H_TMIN2].IsInit());
 		ASSERT(m_dailyStat[H_TMAX2].IsInit());
-	}
+	}*/
 }
 
 
@@ -2673,29 +2673,28 @@ void CWeatherYears::CompileStat(const CTPeriod& p)const
 		{
 			for (const_iterator it = begin(); it != end(); it++)
 			{
-				switch (v)
+				if (it->second->GetStat(v, p).IsInit())
 				{
-				case H_TMIN2:
-				case H_TAIR2:
-				case H_TMAX2:
-				//case H_TRNG:
-				case H_TDEW:
-				case H_RELH:
-				case H_WNDS:
-				case H_WNDD:
-				case H_PRES:
-				case H_SNDH:
-				case H_SWE:
-				case H_WND2:
-				//case H_EA:
-				//case H_ES:
-				//case H_VPD:
-				case H_SRAD2:
-				case H_ADD1:
-				case H_ADD2:me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; break;
-				case H_PRCP:
-				case H_SNOW: me.m_stat[v] += it->second->GetStat(v, p)[SUM]; break;
-				default: _ASSERTE(false);
+					switch (v)
+					{
+					case H_TMIN2:
+					case H_TAIR2:
+					case H_TMAX2:
+					case H_TDEW:
+					case H_RELH:
+					case H_WNDS:
+					case H_WNDD:
+					case H_PRES:
+					case H_SNDH:
+					case H_SWE:
+					case H_WND2:
+					case H_SRAD2:
+					case H_ADD1:
+					case H_ADD2: me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; break;
+					case H_PRCP:
+					case H_SNOW: me.m_stat[v] += it->second->GetStat(v, p)[SUM]; break;
+					default: _ASSERTE(false);
+					}
 				}
 			}
 		}
@@ -2704,21 +2703,8 @@ void CWeatherYears::CompileStat(const CTPeriod& p)const
 		{
 			for (const_iterator it = begin(); it != end(); it++)
 			{
-				/*switch (v)
-				{
-				case H_TMIN:
-				case H_TMAX:
-				case H_KELV:
-				case H_PSYC:
-				case H_SSVP:
-				case H_LHVW:
-				case H_FNCD:
-				case H_CSRA:
-				case H_EXRA:
-				case H_SWRA: me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; break;
-				}*/
-
-				me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; 
+				if (it->second->GetStat(v, p).IsInit())
+					me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; 
 			}
 		}
 
@@ -2732,35 +2718,6 @@ CWeatherYears& CWeatherYears::append(const CWeatherYears& in)
 	if( &in != this && !in.empty() )
 	{
 		insert(in.begin(), in.end());
-		/*if( empty() )
-		{
-			operator=(in);
-		}
-		else*/
-		//{
-			//CWeatherYears& me = *this;
-			//merge both array. If data is already in, replace it
-			/*ASSERT( m_firstYear>0 );
-			CWeatherYears tmp = *this;
-			clear();
-			m_firstYear=std::min(m_firstYear, in.m_firstYear);
-				
-			for(size_t i=0; i<tmp.size(); i++)
-			{
-				if( tmp.HaveData(i) )
-				{
-					me(int(tmp.m_firstYear+i)) = tmp(int(tmp.m_firstYear+i));
-				}
-			}
-
-			for(size_t i=0; i<in.size(); i++)
-			{
-				if( in.HaveData(i) )
-				{
-					me(int(tmp.m_firstYear+i)) = tmp(int(tmp.m_firstYear+i));
-				}
-			}*/
-		//}
 	}
 
 	return *this;

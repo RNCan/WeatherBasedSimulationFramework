@@ -42,10 +42,12 @@ copy /Y ".\bin\Releasex64\Models\Climatic (Daily).mdl"  "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\Climatic (Monthly).mdl" "..\Install\NRCan\Models\Climatic (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic (Annual).mdl" "..\Install\NRCan\Models\Climatic (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic.dll"           "..\Install\NRCan\Models\Climatic.dll"
+copy /Y ".\bin\Releasex64\Models\Climdex (Annual).mdl"           "..\Install\NRCan\Models\Climdex (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\Climdex (Monthly).mdl"           "..\Install\NRCan\Models\Climdex (Monthly).mdl"
+copy /Y ".\bin\Releasex64\Models\Climdex.dll"           "..\Install\NRCan\Models\Climdex.dll"
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index (Monthly).mdl" "..\Install\NRCan\Models\Climate Moisture Index (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\Climate Mosture Index (Annual).mdl" "..\Install\NRCan\Models\Climate Mosture Index (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index.dll" "..\Install\NRCan\Models\Climate Moisture Index.dll"
-
 
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl" "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Monthly).mdl" "..\Install\NRCan\Models\DegreeDay (Monthly).mdl"

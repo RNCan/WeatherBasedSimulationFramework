@@ -52,7 +52,7 @@
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>0 0</OutputTypeMode>
-    <MissingValue>-9999</MissingValue>
+    <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
             <Name>FD</Name>
@@ -263,8 +263,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Prcp</Name>
-            <Title>Prcp</Title>
+            <Name>PrcpTot</Name>
+            <Title>PrcpTot</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

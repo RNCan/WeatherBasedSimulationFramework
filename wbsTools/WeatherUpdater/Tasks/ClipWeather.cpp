@@ -302,34 +302,37 @@ namespace WBSF
 		{
 			const CLocation& location = inputDailyDB[i];
 
-			set<int> years = inputDailyDB.GetYears(i);
-			for (set<int>::iterator it = years.begin(); it != years.end();)
-			{
-				if (*it >= firstYear&&*it <= lastYear)
-					it++;
-				else
-					it = years.erase(it);
-			}
-			
 			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
 			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
 			bool bLocNotExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
-			if (bRect&&bShape&&bLocInclude&&bLocNotExclude&&years.size() > 0)
+			if (bRect&&bShape&&bLocInclude&&bLocNotExclude)
 			{
-				CWeatherStation station;
-				inputDailyDB.Get(station, i, years);
-				
-				if( vars.any() )
-					station.CleanUnusedVariable(vars);
-
-				if (station.HaveData())
+				set<int> years = inputDailyDB.GetYears(i);
+				for (set<int>::iterator it = years.begin(); it != years.end();)
 				{
-					msg = outputDailyDB.push_back(station);
-					if (msg)
-						nbStationAdded++;
+					if (*it >= firstYear&&*it <= lastYear)
+						it++;
+					else
+						it = years.erase(it);
 				}
-			}
+
+				if (years.size() > 0)
+				{
+					CWeatherStation station;
+					inputDailyDB.Get(station, i, years);
+
+					if (vars.any())
+						station.CleanUnusedVariable(vars);
+
+					if (station.HaveData())
+					{
+						msg = outputDailyDB.push_back(station);
+						if (msg)
+							nbStationAdded++;
+					}
+				}
+			}//if include
 
 			msg += callback.StepIt();
 		}

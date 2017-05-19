@@ -90,6 +90,7 @@ namespace WBSF
 	}
 
 	size_t GetJDay(int year, size_t m, size_t d);
+	size_t GetJDay(size_t m, size_t d);
 	size_t GetDayOfTheMonth(int year, size_t jd);
 	inline size_t GetDayOfTheMonth(size_t jd){ return GetDayOfTheMonth(0, jd); }
 	size_t GetMonthIndex(int year, size_t jd);
@@ -407,6 +408,7 @@ namespace WBSF
 		static size_t GetFirstJdayForMonth(int year, size_t m){ return WBSF::GetFirstJdayForMonth(year, m); }
 		static size_t GetFirstJdayForMonth(size_t m){ return WBSF::GetFirstJdayForMonth(m); }
 		static size_t GetJDay(int year, size_t m, size_t d){ return WBSF::GetJDay(year, m, d); }
+		static size_t GetJDay(size_t m, size_t d){ return WBSF::GetJDay(m, d); }
 		static size_t GetDayOfTheMonth(int year, size_t jd){ return WBSF::GetDayOfTheMonth(year, jd); }
 		static size_t GetDayOfTheMonth(size_t jd){ return WBSF::GetDayOfTheMonth(jd); }
 		static size_t GetMonthIndex(int year, size_t jd){ return WBSF::GetMonthIndex(year, jd); }

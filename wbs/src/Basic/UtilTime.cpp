@@ -91,7 +91,7 @@ size_t GetMonthIndex(const char* month)
 	return index;
 }
 
-
+size_t GetJDay(size_t m, size_t d){ return GetJDay(1999, m, d); }
 size_t GetJDay(int year, size_t m, size_t d)
 {
 	_ASSERTE( year >= YEAR_NOT_INIT && year <= 2100);

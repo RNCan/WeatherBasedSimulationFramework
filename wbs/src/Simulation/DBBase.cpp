@@ -716,7 +716,7 @@ namespace WBSF
 					if (variables[v])
 					{
 						if (m_type == DATA_FLOAT)
-							m_file.write_value(float(section[TRef][v][MEAN]));
+							m_file.write_value(float(section[TRef][v].IsInit()?section[TRef][v][MEAN]:-999));
 						else
 							m_file.write_value(section[TRef][v]);
 
@@ -858,14 +858,10 @@ namespace WBSF
 		size_t nbRows = m_index[no].GetNbRows();
 		CTPeriod period = m_metadata.GetTPeriod();
 		CWVariables variables = m_metadata.GetOutputDefinition().GetWVariables();
-		//int type = DATA_FLOAT;// period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
-		
-
 
 
 		if (variables.count() == m_nbCols &&
-			period.GetNbRef() == nbRows /*&&
-			m_type == type*/)
+			period.GetNbRef() == nbRows )
 		{
 			size_t locPos = m_metadata.GetLno(no);
 			((CLocation&)section) = m_metadata.GetLocations()[locPos];
@@ -884,7 +880,7 @@ namespace WBSF
 						{
 							float value = 0;
 							me.m_file.read_value(value);
-							if (filter[v])
+							if (filter[v] && !WEATHER::IsMissing(value))
 								section[period.Begin() + i].SetStat(v, value);
 						}
 						else 
@@ -896,10 +892,10 @@ namespace WBSF
 							if (filter[v])
 								section[TRef].SetStat(v, value);
 						}
-					}
-				}
-			}
-		}
+					}//if used variables
+				}//for all variables
+			}//for all rows
+		}//if valid
 
 		m_CS.Leave();
 	}

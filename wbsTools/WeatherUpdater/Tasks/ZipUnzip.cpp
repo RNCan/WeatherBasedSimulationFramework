@@ -96,7 +96,8 @@ namespace WBSF
 
 		if (msg)
 		{
-			if (FileExists(filepath))
+			CFileInfo info;
+			if (GetFileInfo(filepath, info) && info.m_size> 100)
 			{
 				callback.AddMessage(FormatMsg(IDS_BSC_FILE_CREATE_SUCCESS, filepath));
 			}
