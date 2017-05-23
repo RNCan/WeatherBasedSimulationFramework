@@ -1,5 +1,5 @@
 //*********************************************************************
-//27/01/2015	Rémi Saint-Amant	Creation
+//22/05/2017	Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "Basic/WeatherDefine.h"
 #include "ModelBase/EntryPoint.h"
@@ -33,14 +33,20 @@ namespace WBSF
 
 	ERMsg CClimdexModel::ProcessParameters(const CParameterVector& parameters)
 	{
+		ERMsg msg;
+
 		StringVector str(parameters[0].GetString(), "-");
 		m_nn = parameters[1].GetReal();
 		m_bUseBootstrap = parameters[2].GetBool();
 
 		ASSERT(str.size() == 2);
 		m_basePeriod = CTPeriod(CTRef(as<int>(str[0]), JANUARY, DAY_01), CTRef(as<int>(str[1]), DECEMBER, DAY_31));
-		
-		return ERMsg();
+		CTPeriod simulationP = m_weather.GetEntireTPeriod(CTM::DAILY);
+		if (!simulationP.IsInside(m_basePeriod))
+			msg.ajoute("The base period " + m_basePeriod.GetFormatedString() + " is not inside the simulation period " + simulationP.GetFormatedString());
+			
+
+		return msg;
 	}
 
 	ERMsg CClimdexModel::OnExecuteMonthly()

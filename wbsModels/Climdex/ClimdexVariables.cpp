@@ -44,15 +44,12 @@ namespace WBSF
 			m_N.m_bUseBootstrap = m_bUseBootstrap;
 			m_N.Compute(weather);
 
-
 			if (TM.Type() == CTM::MONTHLY)
 			{
 				for (size_t y = 0; y < weather.size(); y++)
 				{
 					for (size_t v = 0; v < CClimdexVariables::NB_VARIABLES; v++)
 					{
-						
-
 						if (v == GSL || v == WSDI || v == CSDI || v == CDD || v == CWD)
 						{
 							TVarH vv = TVarH((v < RX1D) ? H_TNTX : H_PRCP);
@@ -777,11 +774,14 @@ namespace WBSF
 						if (TRef.GetMonth()==FEBRUARY && TRef.GetDay() == DAY_29)
 							TRef++;
 					
-						for (size_t vv = 0; vv < NB_PERCENTILS_VAR; vv++)
+						if (weather.IsYearInit(TRef.GetYear()))
 						{
-							TVarH v = VARIABLES[vv];
-							buffer[jd][y][dd][vv] = (weather[TRef][v].IsInit())?weather[TRef][v][MEAN]:-999;
-						}//for all variables
+							for (size_t vv = 0; vv < NB_PERCENTILS_VAR; vv++)
+							{
+								TVarH v = VARIABLES[vv];
+								buffer[jd][y][dd][vv] = (weather[TRef][v].IsInit()) ? weather[TRef][v][MEAN] : -999;
+							}//for all variables
+						}
 					}//take consecutive 5 days
 				}//for all years
 			}//for all days

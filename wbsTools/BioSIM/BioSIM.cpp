@@ -15,7 +15,7 @@
 // 11.1.2: 13/10/2016   Rémi Saint-Amant	Change in ATM to accept NAM gribs 
 // 11.1.1: 27/09/2016	Rémi Saint-Amant	Bug correction in merge 
 // 11.1.0: 20/09/2016   Rémi Saint-Amant	Replace Tair and Trng by Tmin and Tmax 
-// 11.0.9: 18/08/2016   Rémi Saint-Amant	Bug correction in weather database 
+// 11.0.9: 18/08/2016   Rémi Saint-Amant	Bug correction in weather database
 //						Rémi Saint-Amant	Bug correction in gradient and hourly data
 // 11.0.8: 14/08/2016	Rémi Saint-Amant	Add "AddName" in MergeExecutable
 //						Rémi Saint-Amant	Bug correction in col width
