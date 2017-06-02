@@ -789,7 +789,8 @@ void CGDALDatasetEx::ComputeHistogram(bool bQuiet)
 
 			if (GetRasterBand(i))
 			{
-				int nBucketCount=0, *panHistogram = NULL;
+				int nBucketCount = 0;
+				GUIntBig *panHistogram = NULL;
 				double dfMin=0, dfMax=0;
 				GetRasterBand(i)->GetDefaultHistogram(&dfMin, &dfMax, &nBucketCount, &panHistogram, TRUE, (bQuiet) ? GDALDummyProgress : GDALTermProgress, NULL);
 				CPLFree(panHistogram);

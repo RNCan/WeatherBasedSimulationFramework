@@ -33,7 +33,25 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		m_poDS = OGRSFDriverRegistrar::Open(pszName, bUpdate);
+		
+		GDALAllRegister();
+		//OGRRegisterAll();
+		//GDALDriverManager driverRegistrar;
+		//GDALDriver* pDriver = driverRegistrar.GetDriverByName(pszName);
+
+		m_poDS = (GDALDataset*)GDALOpenEx(pszName, GDAL_OF_VECTOR, NULL, NULL, NULL);
+
+		//OGRSFDriverRegistrar driverRegistrar;
+		//GDALDriver* pDriver = driverRegistrar.GetDriverByName(pszName);
+		/*if (pDriver)
+		{
+			GDALOpenInfo*;
+			m_poDS = pDriver->pfnOpen(GDALOpenInfo* poOpenInfo);
+		}*/
+			
+
+		//m_poDS = 
+		//, bUpdate
 		if (m_poDS == NULL)
 		{
 			const char* pError = CPLGetLastErrorMsg();
@@ -51,7 +69,7 @@ namespace WBSF
 	{
 		if (m_poDS)
 		{
-			OGRDataSource::DestroyDataSource(m_poDS);
+			GDALClose(m_poDS);
 			m_poDS = NULL;
 		}
 

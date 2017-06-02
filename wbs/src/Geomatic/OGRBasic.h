@@ -43,7 +43,7 @@ namespace WBSF
 		void Close();
 		bool IsOpen()const{ return m_poDS != NULL; }
 
-		OGRDataSource       *m_poDS;
+		GDALDataset         *m_poDS;
 
 		static bool FileExist(const char * filePathOut);
 		
