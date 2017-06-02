@@ -1,6 +1,6 @@
-//******************************************************************************
+ï»¿//******************************************************************************
 //  project:		Weather-based simulation framework (WBSF)
-//	Programmer:     Rémi Saint-Amant
+//	Programmer:     RÃ©mi Saint-Amant
 // 
 //  It under the terms of the GNU General Public License as published by
 //     the Free Software Foundation
@@ -100,8 +100,8 @@ namespace WBSF
 	}
 
 
-	double e°(double Tair);//hourly vapor pressure
-	double e°(double Tmin, double Tmax);//daily vapor pressure
+	double eáµ’(double Tair);//hourly vapor pressure
+	double eáµ’(double Tmin, double Tmax);//daily vapor pressure
 
 	double Pv2Hs(double Pv);
 	double Pv2Hr(double Tair, double Pv); //hourly algo
@@ -174,7 +174,7 @@ namespace WBSF
 	enum TSchoolfieldParameters{ SF_PRHO25, SF_PHA, SF_PHL, SF_PTL, SF_PHH, SF_PTH, NB_SCHOOLFIELD_PARAMETERS };
 	double Schoolfield(const double p[NB_SCHOOLFIELD_PARAMETERS], double T);
 
-	//compute exposition from latitude, slope(%) and orienttion(°)
+	//compute exposition from latitude, slope(%) and orienttion(Â°)
 	double GetExposition(double lat, double slopePourcent, double orientation);
 	void ComputeSlopeAndAspect(double lat, double exposition, double& slopePourcent, double& aspect);
 
@@ -319,7 +319,7 @@ namespace WBSF
 	{
 	public:
 
-		//attention j'ai inversé random et fixe
+		//attention j'ai inversÃ© random et fixe
 		enum TSeed { RANDOM_SEED, FIXE_SEED };
 		static const int RAND_MAX_INT = 2147483600;//2147483647;
 

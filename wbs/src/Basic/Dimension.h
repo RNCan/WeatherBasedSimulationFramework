@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/array.hpp>
-#include <boost/assert.hpp>
+//#include <boost/array.hpp>
+//#include <boost/assert.hpp>
 #include "Basic/UtilStd.h"
 
 namespace WBSF
@@ -58,7 +58,7 @@ namespace WBSF
 
 	protected:
 
-		boost::array<size_t, NB_DIMENSION> m_dimension;
+		std::array<size_t, NB_DIMENSION> m_dimension;
 
 		static const char* DIMENSION_NAME[NB_DIMENSION];
 		static StringVector DIMENSION_TITLE;

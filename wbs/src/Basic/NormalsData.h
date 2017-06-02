@@ -13,11 +13,11 @@
 //***************************************************************************
 #pragma once
 
-#include <boost\array.hpp>
-#include <vector>
-#include <array>
+//#include <boost\array.hpp>
+//#include <boost\container\vector.hpp>
+//#include <vector>
+//#include <array>
 #include "basic/ERMsg.h"
-
 #include "Basic/WeatherDefine.h"
 
 namespace WBSF
@@ -31,7 +31,7 @@ namespace WBSF
 	//***********************************************************************************
 	//CNormalsMonth
 
-	typedef public boost::array<float, NORMALS_DATA::NB_FIELDS> CNormalMonthBase;
+	typedef public std::array<float, NORMALS_DATA::NB_FIELDS> CNormalMonthBase;
 	class CNormalsMonth : public CNormalMonthBase
 	{
 	public:
@@ -42,13 +42,14 @@ namespace WBSF
 		void Reset(){ Init(WEATHER::MISSING); }
 		void Init(float v){ fill(v); }
 		ERMsg FromString(const std::string& str);
-		std::string ToString()const;
+		//std::string ToString()const;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & boost::serialization::base_object<CNormalMonthBase>(*this);
 		}
+		friend class boost::serialization::access;
 
 		double GetP()const{ double junk; return GetP(junk, junk); }
 		double GetP(double& sigma_gamma, double& sigma_zeta)const;
@@ -69,7 +70,7 @@ namespace WBSF
 
 	class CNormalsData;
 	typedef std::vector<CNormalsData> CNormalDataVector;
-	typedef boost::array<CNormalsMonth, 12> CNormalsDataBase;
+	typedef std::array<CNormalsMonth, 12> CNormalsDataBase;
 
 	class CNormalsData : public CNormalsDataBase
 	{
@@ -94,6 +95,8 @@ namespace WBSF
 		//std::istream& operator >> ( std::istream& stream);
 		//friend std::ostream& operator << ( std::ostream& stream, CNormalsData& data){	return data << stream;}
 		//friend std::istream& operator >> ( std::istream& stream, CNormalsData& data){	return data >> stream;}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)

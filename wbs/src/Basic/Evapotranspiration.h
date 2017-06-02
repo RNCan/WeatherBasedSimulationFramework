@@ -193,9 +193,6 @@ namespace WBSF
 		public:
 
 			char* m_name;
-			size_t m_begin;
-			size_t m_end;
-			size_t m_length;
 			double m_cf[12];		//correction factor
 		};
 
@@ -448,7 +445,7 @@ namespace WBSF
 		static double GetAtmosphericPressure(double z);
 		static double GetPsychrometricConstant(double P);
 		static double GetSlopeOfSaturationVaporPressure(double T);
-		static double e°(double T);
+		static double Pv(double T);
 		static double GetSaturationVaporPressure(double Tmin, double Tmax);
 		static double GetActualVaporPressure(double Tdew);
 		static double GetActualVaporPressure(double RHmean, double Tmin, double Tmax);

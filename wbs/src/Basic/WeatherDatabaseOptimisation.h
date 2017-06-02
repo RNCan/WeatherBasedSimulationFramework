@@ -10,8 +10,8 @@
 #pragma once
 
 #include <deque>
-#include <boost\serialization\access.hpp>
-#include <boost\array.hpp>
+//#include <boost\serialization\access.hpp>
+//#include <boost\array.hpp>
 #include "basic/zenXml.h"
 
 #include "Basic/WeatherDefine.h"

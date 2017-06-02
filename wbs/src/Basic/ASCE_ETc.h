@@ -22,13 +22,13 @@ namespace WBSF
 	enum TSoil { SAND, LOAMY_SAND, SANDY_LOAM, LOAM, SILT_LOAM, SILT, SILTY_CLAY_LOAM, SILTY_CLAY, CLAY, NB_SOIL };
 	enum TGranularity { FROM_SOIL=-1, COARSE, MEDIUM, FINE, NB_GRANULARITY };
 
-	//afer Allen 2005 Table1 TEWmax[low]*10
+	//after Allen 2005 Table1 TEWmax[low]*10
 	struct SSoilInfo
 	{
 		char* name;
 		double θFC[2];		//volumetric soil water content at field capacity
 		double θWP[2];		//volumetric soil water content at wilting point
-		double θFC–θWP[2];	//
+		double θFC_θWP[2];	//
 		double REW[2];
 	};
 
@@ -54,7 +54,7 @@ namespace WBSF
 	//rooting depth.The smaller values for Zr may be used for irrigation scheduling and the larger values
 	//for modeling soil water stress or for rainfed conditions.
 	//[2] The tabled values for p apply for ETc ≈ 5 mm / day.The value for p can be adjusted for different ETc
-	//according to p = p + 0.04 (5 – ETc) where p is expressed as a fraction and ETc as mm / day.
+	//according to p = p + 0.04 (5 _ ETc) where p is expressed as a fraction and ETc as mm / day.
 
 	enum TKInfo{ K_INI, K_MID, K_END, NB_K };
 	struct SCropInfo

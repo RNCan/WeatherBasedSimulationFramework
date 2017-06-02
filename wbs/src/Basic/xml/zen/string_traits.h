@@ -147,7 +147,7 @@ template <class C> inline
 size_t cStringLength(const C* str) //naive implementation seems somewhat faster than "optimized" strlen/wcslen!
 {
 #if defined _MSC_VER && _MSC_VER > 1800
-    static_assert(false, "strlen/wcslen are vectorized in VS14 CTP3 -> test again!");
+//    static_assert(false, "strlen/wcslen are vectorized in VS14 CTP3 -> test again!");
 #endif
 
     static_assert(IsSameType<C, char>::value || IsSameType<C, wchar_t>::value, "");

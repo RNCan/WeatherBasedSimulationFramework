@@ -13,7 +13,7 @@
 #include <array>
 #include <crtdbg.h> 
 #include <bitset>
-#include <boost\array.hpp>
+//#include <boost\array.hpp>
 #include <boost\serialization\array.hpp>
 #include <boost\serialization\bitset.hpp>
 #include "basic/ERMsg.h"
@@ -266,7 +266,7 @@ namespace WBSF
 		}
 	};
 
-	typedef boost::array<CCountPeriod, HOURLY_DATA::NB_VAR_H> CWVariablesCounterBase;
+	typedef std::array<CCountPeriod, HOURLY_DATA::NB_VAR_H> CWVariablesCounterBase;
 	class CWVariablesCounter : public CWVariablesCounterBase
 	{
 	public:

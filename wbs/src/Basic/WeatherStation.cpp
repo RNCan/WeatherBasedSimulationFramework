@@ -890,9 +890,9 @@ CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
 	case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(GetExtraterrestrialRadiation(), loc.m_alt); break;//faudrait chnager pour W/m²
 	case H_EXRA:	stat = GetExtraterrestrialRadiation(); break;//faudrait chnager pour W/m²
 	case H_SWRA:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]) : WEATHER::MISSING; break;
-	case H_ES2:		stat = !WEATHER::IsMissing(at(H_TAIR2)) ? e°(at(H_TAIR2)) : WEATHER::MISSING; break;
-	case H_EA2:		stat = !WEATHER::IsMissing(at(H_TDEW)) ? e°(at(H_TDEW)) : WEATHER::MISSING; break;
-	case H_VPD2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, e°(at(H_TAIR2)) - e°(at(H_TDEW))) : WEATHER::MISSING; break;
+	case H_ES2:		stat = !WEATHER::IsMissing(at(H_TAIR2)) ? eᵒ(at(H_TAIR2)) : WEATHER::MISSING; break;
+	case H_EA2:		stat = !WEATHER::IsMissing(at(H_TDEW)) ? eᵒ(at(H_TDEW)) : WEATHER::MISSING; break;
+	case H_VPD2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, eᵒ(at(H_TAIR2)) - eᵒ(at(H_TDEW))) : WEATHER::MISSING; break;
 	case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? at(H_TAIR2) : WEATHER::MISSING; break; //!WEATHER::IsMissing(at(H_TMIN2)) && !WEATHER::IsMissing(at(H_TMAX2)) ? (at(H_TMIN2) + at(H_TMAX2)) / 2 : WEATHER::MISSING; break;
 	case H_TRNG2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? 0 : WEATHER::MISSING; break;
 	case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? at(H_SRAD2)*3600.0/1000000 : WEATHER::MISSING; break;
@@ -1288,8 +1288,8 @@ CStatistic CWeatherDay::GetVarEx(HOURLY_DATA::TVarEx v)const
 			case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(CWeatherDay::GetVarEx(H_EXRA), loc.m_z); break;
 			case H_EXRA:	stat = CASCE_ETsz::GetExtraterrestrialRadiation(loc.m_lat, int(TRef.GetJDay() + 1)); break;
 			case H_SWRA:	stat = me[H_SRAD2].IsInit() ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ][SUM]) : WEATHER::MISSING; break;
-			case H_ES2:		stat = stat = me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() ? e°(me[H_TMIN2], me[H_TMAX2]) : WEATHER::MISSING; break;
-			case H_EA2:		stat = me[H_TDEW].IsInit() ? e°(me[H_TDEW][LOWEST], me[H_TDEW][HIGHEST]) : WEATHER::MISSING; break;
+			case H_ES2:		stat = stat = me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() ? eᵒ(me[H_TMIN2], me[H_TMAX2]) : WEATHER::MISSING; break;
+			case H_EA2:		stat = me[H_TDEW].IsInit() ? eᵒ(me[H_TDEW][LOWEST], me[H_TDEW][HIGHEST]) : WEATHER::MISSING; break;
 			case H_VPD2:	
 			{
 				CStatistic Ea = me[H_EA2];
@@ -2105,12 +2105,12 @@ void CWeatherDay::ComputeHourlyVariables(CWVariables variables, std::string opti
 
 			//case H_ES2://from hourly temperature
 			//	for (size_t h = 0; h<24; h++)
-			//		at(h)[v] = WBSF::e°(at(h)[H_ES2]);
+			//		at(h)[v] = WBSF::eᵒ(at(h)[H_ES2]);
 			//	break;
 
 			//case H_EA2:
 			//	for (size_t h = 0; h<24; h++)
-			//		at(h)[v] = WBSF::e°(at(h)[H_TDEW]);//compute from Tdew
+			//		at(h)[v] = WBSF::eᵒ(at(h)[H_TDEW]);//compute from Tdew
 			//	break;
 
 			//case H_VPD2:
@@ -3483,7 +3483,7 @@ void CWeatherStation::FillGaps()
 
 		for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
 		{
-			CHourlyData& wea° = GetHour(TRef);
+			CHourlyData& weaᵒ = GetHour(TRef);
 
 			if (TRef == CTRef(2016, JANUARY, DAY_12, 21))
 			{
@@ -3495,9 +3495,9 @@ void CWeatherStation::FillGaps()
 			{
 				if (variables[v])
 				{
-					if (IsMissing(wea°[v]))
+					if (IsMissing(weaᵒ[v]))
 					{
-						const CHourlyData& wea¯¹ = wea°.GetPrevious();
+						const CHourlyData& wea¯¹ = weaᵒ.GetPrevious();
 						if (!IsMissing(wea¯¹[v]))
 						{
 							CHourlyData wea¹;
@@ -3526,8 +3526,8 @@ void CWeatherStation::FillGaps()
 										double f = (double)(TRef3 - TRef + 1) / (TRef2 - TRef + 1);
 										ASSERT(f >= 0 && f <= 1);
 
-										CHourlyData& wea° = GetHour(TRef3);
-										wea°.SetStat(v, mean + range*f);
+										CHourlyData& weaᵒ = GetHour(TRef3);
+										weaᵒ.SetStat(v, mean + range*f);
 									}
 								}//switch
 							}//if both exist
@@ -3544,16 +3544,16 @@ void CWeatherStation::FillGaps()
 
 		for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
 		{
-			CDay& wea° = GetDay(TRef);
+			CDay& weaᵒ = GetDay(TRef);
 
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 			{
 				if (variables[v])
 				{
-					if (!wea°[v].IsInit())
+					if (!weaᵒ[v].IsInit())
 					{
-						const CDay& wea¯¹ = wea°.GetPrevious();
-						CDay wea¹ = wea°.GetNext();
+						const CDay& wea¯¹ = weaᵒ.GetPrevious();
+						CDay wea¹ = weaᵒ.GetNext();
 
 						if (wea¯¹[v].IsInit() && wea¹[v].IsInit())
 						{
@@ -3564,7 +3564,7 @@ void CWeatherStation::FillGaps()
 							default:
 								CStatistic stat = wea¯¹[v];
 								stat += wea¹[v];
-								wea°.SetStat(v, stat[MEAN]);
+								weaᵒ.SetStat(v, stat[MEAN]);
 							}//switch
 
 						}//if both exist

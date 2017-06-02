@@ -53,13 +53,13 @@ namespace WBSF
 		{
 			double dr = (double)TRef.GetJDay() / TRef.GetNbDaysPerYear();
 			assert(dr >= 0 && dr < 1);
-			assert((A° / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr)) >= -60);
-			assert((A° / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr)) <= 60);
-			return (A° / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr));
+			assert((Aᵒ / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr)) >= -60);
+			assert((Aᵒ / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr)) <= 60);
+			return (Aᵒ / 2) + (A¹*cos(2 * PI*dr)) + (B¹*sin(2 * PI*dr));
 		}
 
 
-		double A°;
+		double Aᵒ;
 		double A¹;
 		double B¹;
 		double θ;

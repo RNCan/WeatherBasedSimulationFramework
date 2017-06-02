@@ -281,10 +281,10 @@ const CBlaneyCriddleET::CCorrectionFactorsMonth CBlaneyCriddleET::CorrectionFact
 //PERENNIALS
 const CBlaneyCriddleET::CCropFactorsMonth CBlaneyCriddleET::CropFactors[] = 
 {
-	{"Pasture Grass",	  7, 7, -999, 0.49, 0.57, 0.73, 0.85, 0.90, 0.92, 0.92, 0.91, 0.87, 0.79, 0.67, 0.55},
-	{"Alfalfa",			 10,-2, -999, 0.63, 0.73, 0.86, 0.99, 1.08, 1.13, 1.11, 1.06, 0.99, 0.91, 0.78, 0.64},
-	{"Grapes",			 13,10, -999, 0.20, 0.24, 0.33, 0.50, 0.71, 0.80, 0.80, 0.76, 0.61, 0.50, 0.35, 0.23},
-	{"Deciduous Orchard",10, 7, -999, 0.17, 0.25, 0.40, 0.63, 0.88, 0.96, 0.95, 0.82, 0.54, 0.30, 0.19, 0.15}
+	{"Pasture Grass",	  0.49, 0.57, 0.73, 0.85, 0.90, 0.92, 0.92, 0.91, 0.87, 0.79, 0.67, 0.55},
+	{"Alfalfa",			  0.63, 0.73, 0.86, 0.99, 1.08, 1.13, 1.11, 1.06, 0.99, 0.91, 0.78, 0.64},
+	{"Grapes",			  0.20, 0.24, 0.33, 0.50, 0.71, 0.80, 0.80, 0.76, 0.61, 0.50, 0.35, 0.23},
+	{"Deciduous Orchard", 0.17, 0.25, 0.40, 0.63, 0.88, 0.96, 0.95, 0.82, 0.54, 0.30, 0.19, 0.15}
 };
 
 //PERCENT of GROWING SEASON
@@ -1293,7 +1293,7 @@ double CASCE_ETsz::GetSlopeOfSaturationVaporPressure(double T)
 
 //	T [In]: air temperature [°C].
 //	e° [Out]: saturation vapor pressure function [kPa]
-double CASCE_ETsz::e°(double T)
+double CASCE_ETsz::Pv(double T)
 {
 	//[6]: The saturation vapor pressure6 (es) represents the capacity of the air to hold water vapor.
 	return 0.6108 * exp( 17.27*T/(T + 237.3));
@@ -1307,7 +1307,7 @@ double CASCE_ETsz::GetSaturationVaporPressure( double Tmin, double Tmax)
 	//[7]: The saturation vapor pressure [Jensen et al. (1990) and Tetens (1930)] (es) represents 
 	//the capacity of the air to hold water vapor. 
 
-	double Es = (e°(Tmax)+e°(Tmin))/2;
+	double Es = (Pv(Tmax)+Pv(Tmin))/2;
 	return Es;
 }
 
@@ -1318,7 +1318,7 @@ double CASCE_ETsz::GetActualVaporPressure(double Tdew)
 	//[8]: The dew point temperature (Tdew) is the temperature to which the air must cool to reach a state of saturation. 
 	//For daily calculation time steps, average dew point temperature can be computed by averaging over hourly periods.
 
-	double Ea = e°(Tdew);
+	double Ea = Pv(Tdew);
 	return Ea;
 }
 
@@ -1331,7 +1331,7 @@ double CASCE_ETsz::GetActualVaporPressure(double RHmean, double Tmin, double Tma
 	//[8]: The dew point temperature (Tdew) is the temperature to which the air must cool to reach a state of saturation. 
 	//For daily calculation time steps, average dew point temperature can be computed by averaging over hourly periods.
 
-	double Ea = (RHmean/100)*(e°(Tmin)+e°(Tmax))/2;
+	double Ea = (RHmean/100)*(Pv(Tmin)+Pv(Tmax))/2;
 	return Ea;
 }
 

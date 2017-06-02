@@ -49,30 +49,32 @@ namespace WBSF
 
 	void CTemporal::SetTM(CTM TM)
 	{
-		at(T_HOUR) = TM.Type() >= CTM::HOURLY;
-		at(T_DAY) = TM.Type() >= CTM::DAILY;
-		at(T_MONTH) = TM.Type() >= CTM::MONTHLY;
-		at(T_YEAR) = TM.Type() >= CTM::ANNUAL;
+		CTemporal& me = *this;
+		me[T_HOUR] = TM.Type() >= CTM::HOURLY;
+		me[T_DAY] = TM.Type() >= CTM::DAILY;
+		me[T_MONTH] = TM.Type() >= CTM::MONTHLY;
+		me[T_YEAR] = TM.Type() >= CTM::ANNUAL;
 	}
 
 	CTM CTemporal::GetTM()const
 	{
+		const CTemporal& me = *this;
 		short type = CTM::UNKNOWN;
-		short mode = at(T_YEAR) ? CTM::FOR_EACH_YEAR : CTM::OVERALL_YEARS;
+		short mode = me[T_YEAR] ? CTM::FOR_EACH_YEAR : CTM::OVERALL_YEARS;
 
-		if (at(T_HOUR) && at(T_DAY) && at(T_MONTH))
+		if (me[T_HOUR] && me[T_DAY] && me[T_MONTH])
 			type = CTM::HOURLY;
-		else if (at(T_HOUR) && at(T_JDAY))
+		else if (me[T_HOUR] && me[T_JDAY])
 			type = CTM::HOURLY;
-		else if (at(T_DAY) && at(T_MONTH))
+		else if (me[T_DAY] && me[T_MONTH])
 			type = CTM::DAILY;
-		else if (at(T_JDAY))
+		else if (me[T_JDAY])
 			type = CTM::DAILY;
-		else if (at(T_MONTH))
+		else if (me[T_MONTH])
 			type = CTM::MONTHLY;
-		else if (at(T_YEAR))
+		else if (me[T_YEAR])
 			type = CTM::ANNUAL;
-		else if (at(T_REFERENCE))
+		else if (me[T_REFERENCE])
 			type = CTM::ATEMPORAL;
 
 		return CTM(type, mode);
@@ -96,13 +98,14 @@ namespace WBSF
 
 	std::string CTemporal::GetHeader(const char* separator)const
 	{
+		const CTemporal& me = *this;
+
 		std::string format;
-		//CTM TM = GetTM();
 
 		//begin with time reference
 		for (size_t t = T_YEAR; t < NB_TEMPORAL; t++)
 		{
-			if (at(t))
+			if (me[t])
 			{
 				if (!format.empty())
 					format += separator;
@@ -443,6 +446,7 @@ namespace WBSF
 	
 	std::string CWVariables::GetHeader(CTM TM, const char* separator)const
 	{
+		const CWVariables& me = *this;
 		std::string format;
 
 		CTemporal temporalRef(TM);
@@ -451,7 +455,7 @@ namespace WBSF
 		//add variables
 		for (size_t v = 0; v != NB_VAR_H; v++)
 		{
-			if (at(v))
+			if (me[v])
 			{
 				if (!format.empty())
 					format += separator;
@@ -481,11 +485,11 @@ namespace WBSF
 
 	std::string CWVariables::to_string(bool bAbvr, const char sep)const
 	{
-		//const char* sep
+		const CWVariables& me = *this;
 		string str;
 		for (size_t v = 0; v < size(); v++)
 		{
-			if (at(v))
+			if (me[v])
 			{
 				if (!str.empty())
 					str += sep;

@@ -10,6 +10,10 @@
 //******************************************************************************
 #include "stdafx.h"
 
+
+
+
+
 #include <time.h>
 #include <float.h>
 #include <limits>
@@ -383,15 +387,15 @@ double GetWindDirection(double u, double v, bool from)
 //hourly vapor pressure
 //T : temperature [°C]
 //e°: saturation vapor pressure function [kPa]
-double e°(double T)
+double eᵒ(double T)
 {
 	return 0.6108 * exp(17.27*T/ (T+ 237.3));//Same as CASCE_ETsz
 }
 
 //daily vapor pressure
-double e°(double Tmin, double Tmax)
+double eᵒ(double Tmin, double Tmax)
 {
-	return (e°(Tmax) + e°(Tmin)) / 2;
+	return (eᵒ(Tmax) + eᵒ(Tmin)) / 2;
 }
 
 //Relative humidity [%] to dew point [°C]
@@ -448,7 +452,7 @@ static const double M = Mw / Ma;  // 0.6220135
 //Pv : vapor pressure [kPa]
 double Td2Pv(double Td)
 {
-	//return e°(Td) * 1000;
+	//return Pv(Td) * 1000;
 	//from : http://www.conservationphysics.org/atmcalc/atmoclc2.pdf
 	return 0.61078 * exp(17.2694*Td / (Td + 238.3));
 }
@@ -543,7 +547,7 @@ double Hr2Hs(double Tmin, double Tmax, double Hr)
 //Pv : vapor pressure [Pa]
 double Pv2Hr(double Tair, double Pv)
 {
-	double Psat = e°(Tair) * 1000;
+	double Psat = eᵒ(Tair) * 1000;
 	double Hr = 100 * Pv / Psat;
 
 	return max(0.0, min(100.0, Hr));
@@ -555,26 +559,26 @@ double Hr2Pv(double Tair, double Hr)
 {
 	ASSERT(Hr >= 0 && Hr <= 100);
 	
-	double Psat = e°(Tair)*1000;
+	double Psat = eᵒ(Tair)*1000;
 	double Pv = Hr*Psat / 100;
 
 	return Pv;
 }
 
 
-double Pv2Hr(double Tmin, double Tmax, double Pv)
+double Pv2Hr(double Tmin, double Tmax, double P)
 {
-	double Psat = e°(Tmin,Tmax) * 1000;
-	double Hr = 100 * Pv / Psat;
+	double Psat = eᵒ(Tmin,Tmax) * 1000;
+	double Hr = 100 * P / Psat;
 
 	return max(0.0, min(100.0, Hr));
 }
 
 double Hr2Pv(double Tmin, double Tmax, double Hr)
 {
-	ASSERT(Hr >= 0 && Hr <= 100);
+	ASSERT(Hr >= 0 && Hr <= 100); 
 
-	double Psat = e°(Tmin, Tmax) * 1000;
+	double Psat = eᵒ(Tmin, Tmax) * 1000;
 	double Pv = Hr*Psat / 100;
 
 

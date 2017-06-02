@@ -21,6 +21,14 @@
 #include <boost\dynamic_bitset.hpp>
 #include <boost\serialization\array.hpp>
 #include <boost\serialization\deque.hpp>
+#include <boost\serialization\vector.hpp>
+
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/serialization.hpp>
+
+
+
 
 #include "Basic/NormalsDatabase.h"
 #include "Basic/GeoBasic.h"

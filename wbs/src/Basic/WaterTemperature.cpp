@@ -34,7 +34,7 @@ namespace WBSF
 	const double CWaterTemperature::b3 = 0.608;
 
 	CWaterTemperature::CWaterTemperature(const CWeatherYears& data) :
-		A°(0), A¹(0), B¹(0)
+		Aᵒ(0), A¹(0), B¹(0)
 	{
 		if (!data.empty())
 			Compute(data);
@@ -57,7 +57,7 @@ namespace WBSF
 
 			double angle = 2 * PI*dr - (θ + θ1);
 			double cosA = cos(angle);
-			Twtr = max(0.0, (α1*A° / 2) + (α2*sqrt(A¹*A¹ + B¹*B¹) * cosA) + β1*Ra1 + β2*Ra2 + β3*Ra3);
+			Twtr = max(0.0, (α1*Aᵒ / 2) + (α2*sqrt(A¹*A¹ + B¹*B¹) * cosA) + β1*Ra1 + β2*Ra2 + β3*Ra3);
 		}
 
 		ASSERT(Twtr >= 0 && Twtr <= 30);
@@ -134,7 +134,7 @@ namespace WBSF
 
 	void CWaterTemperature::ComputeParams(const CWeatherYears& data)
 	{
-		CStatistic A°Stat;
+		CStatistic AᵒStat;
 		CStatistic A¹Stat;
 		CStatistic B¹Stat;
 
@@ -152,7 +152,7 @@ namespace WBSF
 						double Tair = (*itH)[H_TAIR2];
 						if (!IsMissing(Tair))
 						{
-							A°Stat += 2 * Tair;
+							AᵒStat += 2 * Tair;
 							A¹Stat += 2 * Tair*cos(2 * PI*d);
 							B¹Stat += 2 * Tair*sin(2 * PI*d);
 						}
@@ -162,7 +162,7 @@ namespace WBSF
 		}
 
 
-		A° = A°Stat[MEAN];
+		Aᵒ = AᵒStat[MEAN];
 		A¹ = A¹Stat[MEAN];
 		B¹ = B¹Stat[MEAN];
 		θ = atan2(B¹, A¹);

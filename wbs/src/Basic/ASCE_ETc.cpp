@@ -90,7 +90,7 @@ namespace WBSF
 
 	double CSoil::GetTAW(TSoil s, double Zr)
 	{
-		double TAW = 1000 * SOIL_INFO[s].θFC–θWP[1] * Zr;	//total available water in the root zone [mm]
+		double TAW = 1000 * SOIL_INFO[s].θFC_θWP[1] * Zr;	//total available water in the root zone [mm]
 		return TAW;
 	}
 
@@ -349,9 +349,9 @@ namespace WBSF
 		if (weather.IsHourly())
 			return weather[TRef][H_RELH][LOWEST];
 
-		double E°Tdew = e°(weather[TRef][H_TDEW][MEAN]) * 1000;
-		double E°Tmax = e°(weather[TRef][H_TMAX2][MEAN]) * 1000;
-		double RHmin = max(1.0, min(100.0, E°Tdew / E°Tmax * 100));
+		double EᵒTdew = eᵒ(weather[TRef][H_TDEW][MEAN]) * 1000;
+		double EᵒTmax = eᵒ(weather[TRef][H_TMAX2][MEAN]) * 1000;
+		double RHmin = max(1.0, min(100.0, EᵒTdew / EᵒTmax * 100));
 		return RHmin;
 	}
 
@@ -576,7 +576,7 @@ namespace WBSF
 		Etsz.Transform(CTM(CTM::DAILY), SUM);
 
 
-		//Compute DegreeDays 5°C
+		//Compute DegreeDays 5ᵒC
 		//CDegreeDays DD(m_weather.IsHourly() ? CDegreeDays::AT_HOURLY : CDegreeDays::AT_DAILY, CDegreeDays::DAILY_AVERAGE, 5);
 		//CModelStatVector DD5;
 		//DD.Execute(m_weather, DD5);
