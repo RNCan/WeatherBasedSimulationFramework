@@ -120,7 +120,7 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < NB_USA_STATES; i++)
 			{
-				if (at(i))
+				if (test(i))
 				{
 					str += DEFAULT_LIST[i].m_abrv;
 					str += '|';

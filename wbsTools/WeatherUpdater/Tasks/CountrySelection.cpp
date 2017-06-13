@@ -339,7 +339,7 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < NB_COUNTRIES; i++)
 			{
-				if (at(i))
+				if (test(i))
 				{
 					str += DEFAULT_LIST[i].m_abrv;
 					str += '|';
@@ -729,7 +729,7 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < NB_COUNTRIES_WU; i++)
 			{
-				if (at(i))
+				if (test(i))
 				{
 					str += DEFAULT_LIST[i].m_abrv;
 					str += '|';

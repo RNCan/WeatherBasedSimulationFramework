@@ -44,7 +44,7 @@ namespace WBSF
 
 	
 
-		using std::bitset<NB_PROVINCES>::at;
+		//using std::bitset<NB_PROVINCES>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
@@ -55,7 +55,7 @@ namespace WBSF
 
 
 			size_t p = GetProvince(in);
-			return p < size() ? at(p) : false;
+			return p < size() ? test(p) : false;
 		}
 
 		using std::bitset<NB_PROVINCES>::set;

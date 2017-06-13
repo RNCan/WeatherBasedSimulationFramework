@@ -30,14 +30,14 @@ namespace WBSF
 		std::string ToString()const;
 		ERMsg FromString(const std::string&);
 
-		using std::bitset<NB_RADAR>::at;
+//		using std::bitset<NB_RADAR>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
 				return true;
-
+			
 			size_t p = GetRadar(in);
-			return p < size() ? at(p) : false;
+			return p < size() ? test(p) : false;
 		}
 
 		using std::bitset<NB_RADAR>::set;

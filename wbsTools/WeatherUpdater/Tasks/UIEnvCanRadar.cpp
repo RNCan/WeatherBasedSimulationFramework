@@ -116,7 +116,7 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < NB_RADAR; i++)
 			{
-				if (at(i))
+				if (test(i))
 				{
 					str += DEFAULT_LIST[i][ABVR];
 					str += '|';
@@ -415,7 +415,8 @@ namespace WBSF
 
 						size_t begin = source.find("<p>Please enable JavaScript to view the animation.</p>");
 						string fileList2 = FindString(source, "<ul>", "</ul>", begin);
-						string::size_type posBegin1 = 0;
+
+						string::size_type posBegin1 = 0;
 						string::size_type posBegin2 = 0;
 
 						while (posBegin1 != string::npos && posBegin2 != string::npos)
@@ -431,7 +432,8 @@ namespace WBSF
 							posBegin2 = fileList2.find("<li><a href=\"/radar/index_e.html?", posBegin2);
 							
 						}
-					}
+					}
+
 					msg += callback.StepIt();
 				}
 			}

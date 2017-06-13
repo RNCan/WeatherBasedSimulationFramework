@@ -38,7 +38,7 @@ namespace WBSF
 		string str;
 		for (size_t i = 0; i < size(); i++)
 		{
-			if (at(i))
+			if (test(i))
 			{
 				if (!str.empty())
 					str += ";";
@@ -59,7 +59,7 @@ namespace WBSF
 		{
 			size_t pos = GetRegion(*it, true);
 			if (pos != UNKNOWN_POS)
-				at(pos) = true;
+				set(pos);
 		}
 
 	}

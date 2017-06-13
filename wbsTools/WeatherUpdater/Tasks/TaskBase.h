@@ -70,12 +70,14 @@ namespace WBSF
 
 		CUpdaterTypeMask(bool bIsHourly = false, bool bIsDaily = false, bool bIsForecast = false, bool bIsDatabase=false, bool bIsGribs = false, bool bIsMMG = false)
 		{
-			at(IS_HOURLY) = bIsHourly;
-			at(IS_DAILY) = bIsDaily;
-			at(IS_FORECAST) = bIsForecast;
-			at(IS_DATABASE) = bIsDatabase;
-			at(IS_GRIBS) = bIsGribs;
-			at(IS_MMG) = bIsMMG;
+			CUpdaterTypeMask& me = *this;
+
+			me[IS_HOURLY] = bIsHourly;
+			me[IS_DAILY] = bIsDaily;
+			me[IS_FORECAST] = bIsForecast;
+			me[IS_DATABASE] = bIsDatabase;
+			me[IS_GRIBS] = bIsGribs;
+			me[IS_MMG] = bIsMMG;
 		}
 	};
 
@@ -89,8 +91,7 @@ namespace WBSF
 		typedef std::shared_ptr<CTaskBase>    pointer;
 
 		enum TType{ UPDATER, TOOLS, NB_TYPES };
-
-		//static const char* WORKING_DIR_STR;
+		
 		static const char* GetTypeName(size_t i){ ASSERT(i < NB_TYPES); return TYPE_NAME[i]; }
 		static const std::string& GetTypeTitle(size_t i);
 		static size_t GetTypeFromName(const std::string& name);

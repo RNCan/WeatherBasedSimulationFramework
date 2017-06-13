@@ -57,7 +57,7 @@ namespace WBSF
 		std::string ToString()const;
 		ERMsg FromString(const std::string& in);
 
-		using std::bitset<NB_USA_STATES>::at;
+		//using std::bitset<NB_USA_STATES>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
@@ -67,7 +67,7 @@ namespace WBSF
 				return true;
 
 			size_t p = GetState(in);
-			return p < size() ? at(p) : false;
+			return p < size() ? test(p) : false;
 		}
 
 		using std::bitset<NB_USA_STATES>::set;

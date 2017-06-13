@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 
 #include "UIGHCN.h"
 #include <boost\filesystem.hpp>
@@ -352,7 +352,7 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 			size_t country = CCountrySelection::GetCountry(location.GetSSI("Country").c_str());
 			ASSERT( country != NOT_INIT);
 
-			if( countries.at(country) )
+			if( countries.test(country) )
 			{
 				if( IsEqualNoCase( location.GetSSI("Country"), "US") )
 				{
@@ -548,7 +548,7 @@ static std::string TraitFileName(std::string name)
 
 	ReplaceString(name, "&amp;", "&");
 	std::replace(name.begin(), name.end(), ',', '-');
-	std::replace(name.begin(), name.end(), '.', '·');
+	std::replace(name.begin(), name.end(), '.', 'Â·');
 	
 	//std::replace(name.begin(), name.end(), ',', '-');
 	
@@ -604,9 +604,8 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 				
 				double RHmax = WBSF::Twb2Hr(Tmin_d, Tmin_w);
 				double RHmin = WBSF::Twb2Hr(Tmax_d, Tmax_w);
-
-				double Pv = (e°(Tmin_d)*RHmax / 100 + e°(Tmax_d)*RHmin / 100) / 2; //[kPa]
-				//double Es = (e°(Tmin_d) + e°(Tmax_d)) / 2;
+				double Pv = (eáµ’(Tmin_d)*RHmax / 100 + eáµ’(Tmax_d)*RHmin / 100) / 2; //[kPa]
+				//double Es = (eáµ’(Tmin_d) + eáµ’(Tmax_d)) / 2;
 				double Td = Pv2Td(Pv);
 				
 				day.SetStat(H_TDEW, Td);
@@ -908,7 +907,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
 								{
-									//10e of °C --> °C
+									//10e of Â°C --> Â°C
 									data[ID][year][TRef.GetJDay()][V_TMIN] = value / 10;
 								}
 								break;
@@ -917,7 +916,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
 								{
-									//10e of °C --> °C
+									//10e of Â°C --> Â°C
 									data[ID][year][TRef.GetJDay()][V_TAVG] = value / 10;
 								}
 								break;
@@ -927,7 +926,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
 								{
-									//10e of °C --> °C
+									//10e of Â°C --> Â°C
 									data[ID][year][TRef.GetJDay()][V_TMAX] = value / 10;
 								}
 								break;
@@ -936,7 +935,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
 								{
-									//10e of °C --> °C
+									//10e of Â°C --> Â°C
 									data[ID][year][TRef.GetJDay()][V_MNPN] = value / 10;
 								}
 								break;
@@ -945,7 +944,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								ASSERT(value > -999 && value < 999 || value == -9999);
 								if (value > -999 && value < 999)
 								{
-									//10e of °C --> °C
+									//10e of Â°C --> Â°C
 									data[ID][year][TRef.GetJDay()][V_MXPN] = value / 10;
 								}
 								break;
@@ -1011,7 +1010,7 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								//	if( value > -999 && value < 999 )
 								//	{
 								//		//test
-								//		value = (value/10.0f-32)*5.f/9.f;//10e of Fahrenheit - > °C
+								//		value = (value/10.0f-32)*5.f/9.f;//10e of Fahrenheit - > Â°C
 								//		data(year)[month][day].SetData(H_TDEW, value);
 								//	}
 								//	break;

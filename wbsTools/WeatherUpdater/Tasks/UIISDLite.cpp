@@ -248,7 +248,7 @@ namespace WBSF
 			//{
 				size_t country = CCountrySelection::GetCountry(station.m_country.c_str());
 
-				if (country != -1 && (countries.none() || countries.at(country)))
+				if (country != -1 && (countries.none() || countries.test(country)))
 				{
 					if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(station))
 					{

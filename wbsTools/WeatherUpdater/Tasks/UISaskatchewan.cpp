@@ -207,7 +207,7 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	//TA - air temperature
+	//TA - air temperature 
 	//UD - wind direction
 	//US - wind speed
 	//UG - wind gust
@@ -219,7 +219,7 @@ namespace WBSF
 	//ffmc_h	isi_h	fwi_h	
 	//date	time	temp	rh	dir	wspd	mx_spd	rn_1	telem	d_cell
 	static const char* FIRE_VAR_NAME[NB_VARS] = { "fmfp_id", "date", "time", "temp", "dew", "rh", "ddir", "cdir", "wspd", "wgst", "rn_1", "dir", "mx_spd" };
-	static const size_t FIRE_VAR[NB_VARS] = { H_SKIP, -3, -2, H_TAIR2, H_TDEW, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP, H_WNDD, H_SKIP};
+	static const TVarH FIRE_VAR[NB_VARS] = { H_SKIP, TVarH(-3), TVarH(-2), H_TAIR2, H_TDEW, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP, H_WNDD, H_SKIP};
 	static size_t GetVar(string name)
 	{
 		size_t var = NOT_INIT;

@@ -41,14 +41,14 @@ namespace WBSF
 
 		static std::string GetName(size_t i, size_t t = BY_ABVR);
 
-		using std::bitset<NB_COUNTRIES>::at;
+//		using std::bitset<NB_COUNTRIES>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
 				return true;
 
 			size_t p = GetCountry(in);
-			return p < size() ? at(p) : false;
+			return p < size() ? test(p) : false;
 		}
 
 		using std::bitset<NB_COUNTRIES>::set;
@@ -91,14 +91,14 @@ namespace WBSF
 
 		static std::string GetName(size_t i, size_t t = BY_ABVR);
 
-		using std::bitset<NB_COUNTRIES_WU>::at;
+//		using std::bitset<NB_COUNTRIES_WU>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
 				return true;
 
 			size_t p = GetCountry(in);
-			return p < size() ? at(p) : false;
+			return p < size() ? test(p) : false;
 		}
 
 		using std::bitset<NB_COUNTRIES_WU>::set;
