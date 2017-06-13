@@ -815,10 +815,10 @@ double GetSineExponential(double Tmin[3], double Tmax[3], double t, double Tsr, 
 			double Tsun = float(Tmin[0] + (Tmax[0] - Tmin[0])*sin(PI*fs));
 
 			double f = min(0.0, -gamma*(t + 24 - Tss) / (24 - D + beta));
-			double f° = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
+			double fo = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
 			//double f = min(0.0, -b*(t + 24 - Tss) / (24 - D));
 			//double f° = min(0.0, -b*(Tsr + 24 - Tss) / (24 - D));
-			double rho = (Tmin[1] - Tsun*exp(f°)) / (1 - exp(f°));
+			double rho = (Tmin[1] - Tsun*exp(fo)) / (1 - exp(fo));
 			Tair = rho + (Tsun - rho)*exp(f);
 
 			ASSERT(Tair >= rho || Tair >= Tsun);
@@ -845,12 +845,12 @@ double GetSineExponential(double Tmin[3], double Tmax[3], double t, double Tsr, 
 			double Tsun = Tmin[1] + (Tmax[1] - Tmin[1])*sin(PI*fs);
 			
 			double f = min(0.0, -gamma*(t - Tss) / (24 - D + beta));
-			double f° = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
+			double fo = min(0.0, -gamma*(Tsr + 24 - Tss) / (24 - D + beta));
 			//double f = min(0.0, -b*(t - Tss) / (24 - D));
 			//double f° = min(0.0, -b*(Tsr + 24 - Tss) / (24 - D));
-			ASSERT(f <= 0 && f°<= 0);
+			ASSERT(f <= 0 && fo<= 0);
 			
-			double rho = (Tmin[2] - Tsun*exp(f°)) / (1 - exp(f°));
+			double rho = (Tmin[2] - Tsun*exp(fo)) / (1 - exp(fo));
 			Tair = rho + (Tsun - rho)*exp(f);
 
 			ASSERT(Tair >= rho || Tair >= Tsun);

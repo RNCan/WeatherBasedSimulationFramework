@@ -38,7 +38,7 @@ namespace WBSF
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 
-	//                     °C        hPa      kg/m²     m/s        m/s      m/s        °C
+	//                     ᵒC        hPa      kg/m²     m/s        m/s      m/s        ᵒC
 	enum TATMVariable { ATM_TAIR, ATM_PRES, ATM_PRCP, ATM_WNDU, ATM_WNDV, ATM_WNDW, ATM_WATER, NB_ATM_VARIABLES };
 	//extra gribs variable             Pa/s               m        %
 	enum TExtraVariable { ATM_VVEL = NB_ATM_VARIABLES, ATM_HGT, ATM_RH, NB_ATM_VARIABLES_EX };
@@ -133,8 +133,8 @@ namespace WBSF
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_ATM_MEMBERS); return MEMBERS_NAME[i]; }
 
 
-		//double m_Tmin;				//minimum temperature for flight [°C]
-		//double m_Tmax;				//maximum temperature for flight [°C]
+		//double m_Tmin;				//minimum temperature for flight [ᵒC]
+		//double m_Tmax;				//maximum temperature for flight [ᵒC]
 
 		size_t m_broodTSource;
 		size_t m_PSource;
@@ -171,8 +171,8 @@ namespace WBSF
 		void clear()
 		{
 			//default parameters for spuce budworm
-			//m_Tmin = 15.0;				//[°C]
-			//m_Tmax = 29.5;				//[°C]
+			//m_Tmin = 15.0;				//[ᵒC]
+			//m_Tmax = 29.5;				//[ᵒC]
 			
 			m_broodTSource = BROOD_T_20;
 			m_PSource = DONT_USE_PRCP;
@@ -566,7 +566,7 @@ namespace WBSF
 		double m_A;				//Forewing surface area [cm²]
 		double m_M;				//dry weight [g]
 		double m_G;				//gravidity gravid=1, spent=0, male=0
-		double m_F°;			//initial fecondity without defoliation
+		double m_Fᵒ;			//initial fecondity without defoliation
 		double m_broods;		//eggs laid by the female for the current day	
 		double m_eggsLeft;		//current fecondity
 		double m_liftoffOffset; //liftoff Offset from the localTRef [s]

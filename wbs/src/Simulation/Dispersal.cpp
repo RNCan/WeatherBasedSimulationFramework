@@ -540,7 +540,7 @@ namespace WBSF
 							flyer.m_A = v[I_A];
 							flyer.m_M = v[I_M];
 							flyer.m_G = v[I_G];
-							flyer.m_F° = v[I_F0];
+							flyer.m_Fᵒ = v[I_F0];
 							flyer.m_broods = v[I_B];
 							flyer.m_eggsLeft = v[I_E];
 							flyer.m_location = locations[l];

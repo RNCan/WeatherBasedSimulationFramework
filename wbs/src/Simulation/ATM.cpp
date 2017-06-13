@@ -97,7 +97,7 @@ namespace WBSF
 	*
 	* @example
 	*     var p1 = new LatLon(51.127, 1.338);
-	*     var p2 = p1.rhumbDestinationPoint(40300, 116.7); // p2.toString(): 50.9642°N, 001.8530°E
+	*     var p2 = p1.rhumbDestinationPoint(40300, 116.7); // p2.toString(): 50.9642ᵒN, 001.8530ᵒE
 	*/
 	CGeoPoint RhumbDestinationPoint(CGeoPoint pt, double distance, double bearing, double radius = 6371000)
 	{
@@ -118,7 +118,7 @@ namespace WBSF
 		double Δλ = δ*sin(θ) / q;
 		double λ2 = λ1 + Δλ;
 
-		λ2 = fmod(λ2 + 3 * PI, 2 * PI) - PI; // normalise to -180..+180°
+		λ2 = fmod(λ2 + 3 * PI, 2 * PI) - PI; // normalise to -180..+180ᵒ
 
 		return CGeoPoint(Rad2Deg(λ2), Rad2Deg(φ2), pt.GetPrjID());
 	};
@@ -192,7 +192,7 @@ namespace WBSF
 
 	//http://www.ncl.ucar.edu/Document/Functions/Contributed/omega_to_w.shtml
 	//p: pressure [Pa]
-	//t: temperature [°C]
+	//t: temperature [ᵒC]
 	//ω: vertical velocity [pa/s]
 	//Uw: vertical wind speed [m/s]
 	double CATMVariables::get_Uw(double p, double t, double ω)
@@ -244,7 +244,7 @@ namespace WBSF
 		m_A=0;
 		m_M=0;
 		m_G = 0;
-		m_F° = 0;
+		m_Fᵒ = 0;
 		m_broods = 0;
 		m_eggsLeft = 0;
 		m_loc = 0;
@@ -572,7 +572,7 @@ namespace WBSF
 
 
 
-	//T : air temperature [°C]
+	//T : air temperature [ᵒC]
 	//out: forewing frequency [Hz] for this temperature
 	double CFlyer::get_Vᵀ(double T)const
 	{
@@ -581,7 +581,7 @@ namespace WBSF
 
 	//sex : male=0, female=1
 	//Vmax: maximum wingbeat [Hz]
-	//T : air temperature [°C]
+	//T : air temperature [ᵒC]
 	//out: forewing frequency [Hz] 
 	double CFlyer::get_Vᵀ(size_t sex, double T)
 	{
@@ -592,7 +592,7 @@ namespace WBSF
 		return Vᵀ;
 	}
 
-	//out : liftoff temperature [°C] for this insect
+	//out : liftoff temperature [ᵒC] for this insect
 	double CFlyer::get_Tᴸ()const
 	{
 		return get_Tᴸ(m_sex, m_A, m_M);
@@ -602,7 +602,7 @@ namespace WBSF
 	//Vmax: maximum wingbeat [Hz]
 	//A : forewing surface area [cm²]
 	//M : dry weight [g]
-	//out : liftoff temperature [°C] 
+	//out : liftoff temperature [ᵒC] 
 	double CFlyer::get_Tᴸ(size_t sex, double A, double M)
 	{
 		double Vᴸ = K* sqrt(M) / A;
@@ -682,12 +682,12 @@ namespace WBSF
 
 		CATMVariables w;
 
-		CGeoPoint3D pt° = m_pt;
-		CATMVariables w° = m_world.get_weather(pt°, UTCTRef, UTCTime);
-		CGeoDistance3D U° = get_U(UTCTime, w°);
+		CGeoPoint3D ptᵒ = m_pt;
+		CATMVariables wᵒ = m_world.get_weather(ptᵒ, UTCTRef, UTCTime);
+		CGeoDistance3D Uᵒ = get_U(UTCTime, wᵒ);
 
 		double dt = m_world.get_time_step(); //[s]
-		CGeoPoint3D pt¹ = UpdateCoordinate(m_pt, U°*dt);
+		CGeoPoint3D pt¹ = UpdateCoordinate(m_pt, Uᵒ*dt);
 
 
 		if (m_world.m_parameters1.m_bUsePredictorCorrectorMethod &&
@@ -696,11 +696,11 @@ namespace WBSF
 			pt¹.m_z > 0)
 		{
 			CATMVariables w¹ = m_world.get_weather(pt¹, UTCTRef + int(dt / 3600), UTCTime + dt);
-			w = (w° + w¹) / 2;
+			w = (wᵒ + w¹) / 2;
 		}
 		else
 		{
-			w = w°;
+			w = wᵒ;
 		}
 
 		if (m_world.m_parameters1.m_bUseTurbulance)
@@ -720,11 +720,11 @@ namespace WBSF
 		static const double END_G = 0.15;
 
 		double P = 0;
-		//double eggsLeft = m_F° - m_totalBroods;
+		//double eggsLeft = m_Fᵒ - m_totalBroods;
 
 		/*if (m_world.get_defoliation(m_newLocation) == 0 && m_G > END_G)
 		{
-			P = 1 - END_G* m_F° / m_eggsLeft;
+			P = 1 - END_G* m_Fᵒ / m_eggsLeft;
 			ASSERT(P>=0 && P<=1);
 		}
 		else
@@ -748,7 +748,7 @@ namespace WBSF
 		m_broods = m_eggsLeft *P;
 		m_eggsLeft = max(0.0, m_eggsLeft-m_broods);
 		
-		m_G = max(0.0, min(1.0, m_eggsLeft / m_F°));
+		m_G = max(0.0, min(1.0, m_eggsLeft / m_Fᵒ));
 		
 
 		//**************************************************************
@@ -835,18 +835,18 @@ CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 tim
 
 	if (at(1).m_time != at(0).m_time)
 	{
-		double f° = (double(time) - at(0).m_time) / (at(1).m_time - at(0).m_time); // get fraction of time
+		double fᵒ = (double(time) - at(0).m_time) / (at(1).m_time - at(0).m_time); // get fraction of time
 		if (!m_bUseTimeInterpolation)
-			f° = f° >= 0.5 ? 1 : 0;
+			fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
-		double f¹ = (1 - f°);
+		double f¹ = (1 - fᵒ);
 
 
-		CATMVariables w° = me[0].get_weather(pt, m_bUseSpaceInterpolation);
+		CATMVariables wᵒ = me[0].get_weather(pt, m_bUseSpaceInterpolation);
 		CATMVariables w¹ = me[1].get_weather(pt, m_bUseSpaceInterpolation);
 
-		ASSERT(f° + f¹ == 1);
-		w = w°*f° + w¹*f¹;
+		ASSERT(fᵒ + f¹ == 1);
+		w = wᵒ*fᵒ + w¹*f¹;
 	}
 	else
 	{
@@ -931,25 +931,25 @@ __int64 CATMWorld::get_local_sunrise(CTRef TRef, const CLocation& loc)
 	return sunriseTime;
 }
 //
-//void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &t°, __int64 &tᴹ)const
+//void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &tᵒ, __int64 &tᴹ)const
 //{
 //	__int64 h4 = 3600 * 4;
 //	__int64 Δtᵀ = h4;
 //
 //	//first estimate of exodus info
 //	//Tᵀ = 0;
-//	t° = -h4;//substract 4 hours
+//	tᵒ = -h4;//substract 4 hours
 //	tᴹ = +h4;//add 4 hours
 //
 //	
-//	for (__int64 t = t°; t <= tᴹ && Δtᵀ == h4; t += m_parameters1.m_time_step)
+//	for (__int64 t = tᵒ; t <= tᴹ && Δtᵀ == h4; t += m_parameters1.m_time_step)
 //	{
 //		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset+t);
 //		if (m_weather.IsLoaded(UTCTRef))
 //		{
 //			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset+t);
 //
-//			if (v[ATM_TAIR] <= T°)
+//			if (v[ATM_TAIR] <= Tᵒ)
 //				Δtᵀ = t;//- UTCSunset
 //		}
 //	}
@@ -957,15 +957,15 @@ __int64 CATMWorld::get_local_sunrise(CTRef TRef, const CLocation& loc)
 //	if (Δtᵀ < h4)
 //	{
 //		//now look for minimum temperature for the entire exodus period
-//		t° = max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
-//		tᴹ = min(h4, t° + __int64(Δtᶠ * 3600));
+//		tᵒ = max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
+//		tᴹ = min(h4, tᵒ + __int64(Δtᶠ * 3600));
 //	}
 //}
 
-//double CATMWorld::get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 t°, __int64 tᴹ)const
+//double CATMWorld::get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 tᵒ, __int64 tᴹ)const
 //{
 //	CStatistic Tᵀ;
-//	for (__int64 t = t°; t <= tᴹ; t += m_parameters1.m_time_step)
+//	for (__int64 t = tᵒ; t <= tᴹ; t += m_parameters1.m_time_step)
 //	{
 //		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
 //		if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
@@ -979,7 +979,7 @@ __int64 CATMWorld::get_local_sunrise(CTRef TRef, const CLocation& loc)
 //}
 
 //Ul: wind speed [m/s]
-//ΔT: difference between air temperature and water temperature [°C]
+//ΔT: difference between air temperature and water temperature [ᵒC]
 double CATMWeather::LandWaterWindFactor(double Ul, double ΔT)
 {
 	double F = 0;
@@ -1037,18 +1037,18 @@ void CATMWeather::GetWindProfileRelationship(double& Ur, double& Vr, double z, i
 CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64  UTCTime)const
 {
 	//CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
-	CATMVariables w° = get_station_weather(pt, UTCTRef);
+	CATMVariables wᵒ = get_station_weather(pt, UTCTRef);
 	CATMVariables w¹ = get_station_weather(pt, UTCTRef + 1);
 	ASSERT(GetHourlySeconds(UTCTime) >= 0 && GetHourlySeconds(UTCTime) <= 3600);
 	
 
-	double f° = GetHourlySeconds(UTCTime) / 3600.0;
+	double fᵒ = GetHourlySeconds(UTCTime) / 3600.0;
 	if (!m_world.m_parameters1.m_bUseTimeInterpolation)
-		f° = f° >= 0.5 ? 1 : 0;
+		fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
-	double f¹ = (1 - f°);
+	double f¹ = (1 - fᵒ);
 
-	return w°*f° + w¹*f¹;
+	return wᵒ*fᵒ + w¹*f¹;
 }
 
 CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef)const
@@ -1085,13 +1085,13 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 	for (size_t v = 0; v <NB_ATM_VARIABLES; v++)
 		weather[v] = m_iwd.at(UTCTRef)[v].Evaluate(gpt);
 	
-	double Tw = weather[ATM_WATER];		//water temperature [°C]
+	double Tw = weather[ATM_WATER];		//water temperature [ᵒC]
 	double ΔT = weather[ATM_TAIR] - Tw;	//difference between air and water temperature
 	
 	GetWindProfileRelationship(weather[ATM_WNDU], weather[ATM_WNDV], pt.m_z, m_world.m_parameters2.m_windS_stability_type, bOverWater, ΔT);
 
 
-	//adjust air temperature with flight height with a default gradient of 0.65°C/100m
+	//adjust air temperature with flight height with a default gradient of 0.65ᵒC/100m
 	weather[ATM_TAIR] += -0.0065*pt.m_z;//flight height temperature correction
 
 
@@ -2212,7 +2212,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										double alpha = atan2(flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_X));
 										double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 										ASSERT(angle >= 0 && angle <= 360);
-										double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
+										double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false);
 
 										size_t liftoffTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LIFTOFF), flyer.m_location);
 										size_t landingTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LANDING), flyer.m_location);
@@ -2260,7 +2260,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_W_VERTICAL] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_W_VERTICAL, ms2kmh);
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DIRECTION] = angle;
 											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DISTANCE] = flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM);
-											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DISTANCE_FROM_OIRIGINE] = D°;
+											output[flyer.m_loc][flyer.m_par][flyer.m_rep][localTRef][ATM_DISTANCE_FROM_OIRIGINE] = Dᵒ;
 
 											
 											if (flyer.GetLog(CFlyer::T_LANDING) > 0)
@@ -2289,7 +2289,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									double alpha = atan2(flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_X));
 									double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 									ASSERT(angle >= 0 && angle <= 360);
-									double D° = flyer.m_newLocation.GetDistance(flyer.m_location, false);
+									double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false);
 
 									double defoliation = -999;
 									double broods = -999;
@@ -2317,7 +2317,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										//log exists
 										output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_HEIGHT) << "," << flyer.m_pt.m_z << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Z, 1, SUM) << ",";
 										output_file << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W_HORIZONTAL, ms2kmh) << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_W_VERTICAL, ms2kmh) << ",";
-										output_file << angle << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM) << "," << D° << ",";
+										output_file << angle << "," << flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_DISTANCE, 1, SUM) << "," << Dᵒ << ",";
 									}
 									else
 									{
@@ -2441,7 +2441,7 @@ void CGDALDatasetCached::LoadBlock(const CGeoBlock3DIndex& ijk)
 		CBlockData* pBlockData = new CBlockData(nXBlockSize, nYBlockSize, type);
 		poBand->ReadBlock(ijk.m_x, ijk.m_y, pBlockData->m_ptr);
 		poBand->FlushCache();
-		poBand->FlushBlock();
+		//poBand->FlushBlock();
 
 		m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockData);
 
@@ -2751,7 +2751,7 @@ ERMsg CreateGribsFromText(CCallback& callback)
 							}
 							else if (j == WRF_TAIR)//tmp
 							{
-								v -= 273.15f;//convert K to °C
+								v -= 273.15f;//convert K to ᵒC
 							}
 							else if (j == WRF_PRCP)
 							{
@@ -3012,7 +3012,7 @@ ERMsg CreateGribsFromNetCDF(CCallback& callback)
 									data[s][y][x] = (T[y][x] + 300)*pow(data[WRF_PRES][y][x] / 1000, 0.2854);//convert into Kelvin
 						}
 
-						//convert Kelvin to °C
+						//convert Kelvin to ᵒC
 						for (size_t y = 0; y < data[s].size(); y++)
 							for (size_t x = 0; x < data[s][y].size(); x++)
 								data[s][y][x] -= 273.15f;
@@ -3097,7 +3097,7 @@ ERMsg CreateGribsFromNetCDF(CCallback& callback)
 						{
 							for (size_t x = 0; x < data[s][y].size(); x++)
 							{
-								double T = data[WRF_TAIR][y][x];//°C
+								double T = data[WRF_TAIR][y][x];//ᵒC
 								double p = data[WRF_PRES][y][x];//hPa
 								double es = 6.108 * exp(17.27*T / (T + 237.3));//hPa
 								double ws = 0.62197*(es / (p - es));

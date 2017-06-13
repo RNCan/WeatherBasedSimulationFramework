@@ -1,6 +1,6 @@
-//******************************************************************************
+ï»¿//******************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
-//	Programmer:     Rémi Saint-Amant
+//	Programmer:     RÃ©mi Saint-Amant
 // 
 //  It under the terms of the GNU General Public License as published by
 //     the Free Software Foundation
@@ -31,8 +31,8 @@ namespace WBSF
 	typedef std::array<CGradientYear, GRADIENT::NB_GRADIENT> CGradientVariables;
 	typedef std::array < CGradientVariables, NB_SCALE_GRADIENT> CScaledGradient;
 	typedef std::array < std::array < CGradientSpace, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> CGradientFactor;
-	typedef std::array < double, 12> CGradientR²;
-	typedef std::array <CStatistic, 12> CGradientS°;
+	typedef std::array < double, 12> CGradientRÂ²;
+	typedef std::array <CStatistic, 12> CGradientSáµ’;
 
 	//***************************************************************************************
 	class CWeatherGradient : public CWeatherCorrections
@@ -57,10 +57,10 @@ namespace WBSF
 		ERMsg Save(const std::string& filePath)const;
 
 		ERMsg CreateGradient(CCallback& callback = DEFAULT_CALLBACK);
-		ERMsg ComputeGradient(size_t v, CSearchResultVector& results, CGradientYear& Gr, CGradientR²& R², CCallback& callBack);
+		ERMsg ComputeGradient(size_t v, CSearchResultVector& results, CGradientYear& Gr, CGradientRÂ²& RÂ², CCallback& callBack);
 		ERMsg CreateDefaultGradient(CCallback& callback = DEFAULT_CALLBACK);
 		double GetFactor(size_t z, size_t v, size_t s, const CSearchResultVector& results)const;
-		void GetS°(size_t g, const CSearchResultVector& results, CGradientS°& S°)const;
+		void GetSáµ’(size_t g, const CSearchResultVector& results, CGradientSáµ’& Sáµ’)const;
 
 		const double& operator ()(size_t z, size_t g, size_t m, size_t s)const
 		{
@@ -85,9 +85,9 @@ namespace WBSF
 		static size_t GetNbSpaces();
 		static double GetDistance(size_t s, const CLocation& target, const CLocation& station);
 
-		double GetS°(size_t z, size_t g, size_t m)const{ return m_S°[z][g][m][MEAN]; }
+		double GetSáµ’(size_t z, size_t g, size_t m)const{ return m_Sáµ’[z][g][m][MEAN]; }
 		double GetFactor(size_t z, size_t g, size_t s)const{ return m_factor[z][g][s]; }
-		double GetR²(size_t s, size_t g, size_t m)const{ return m_R²[s][g][m]; }
+		double GetRÂ²(size_t s, size_t g, size_t m)const{ return m_RÂ²[s][g][m]; }
 
 	protected:
 		
@@ -95,8 +95,8 @@ namespace WBSF
 		CNormalsDatabasePtr m_pNormalDB;
 		CScaledGradient m_gradient;
 		CGradientFactor m_factor;
-		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_R²;
-		std::array <std::array <CGradientS°, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_S°;
+		std::array < std::array < CGradientRÂ², GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_RÂ²;
+		std::array <std::array <CGradientSáµ’, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_Sáµ’;
 		
 		//for optimization
 		//std::map<CGeoPoint3D, double> m_shoreCache;
@@ -105,7 +105,7 @@ namespace WBSF
 
 		static CApproximateNearestNeighborPtr m_pShore;
 		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
-		static const CGradientS° GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
+		static const CGradientSáµ’ GLOBAL_Sáµ’[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
 		static const size_t NB_S_MAX[NB_HEMISPHERE];
 		static const CGeoRect DEFAULT_RECT[NB_HEMISPHERE];
 

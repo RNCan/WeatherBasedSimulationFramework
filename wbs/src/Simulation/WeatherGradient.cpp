@@ -80,7 +80,7 @@ namespace WBSF
 	const double CWeatherGradient::PPT_FACTOR = 1;
 
 	//mean precipitation [mm]
-	const CGradientS° CWeatherGradient::GLOBAL_S°[NB_HEMISPHERE][GRADIENT::NB_GRADIENT] =
+	const CGradientSᵒ CWeatherGradient::GLOBAL_Sᵒ[NB_HEMISPHERE][GRADIENT::NB_GRADIENT] =
 	{ 
 		{//Southern
 			{ { +16.542, +16.354, +15.253, 13.448, 11.441, +9.698, +9.036, +9.703, 11.273, 13.084, +14.695, +15.897 } },
@@ -385,7 +385,7 @@ namespace WBSF
 				m_factor[z][g].fill(0);
 				m_R²[z][g].fill(0);
 				for (size_t m = 0; m < 12; m++)
-					m_S°[z][g][m].clear();
+					m_Sᵒ[z][g][m].clear();
 
 				for (size_t m = 0; m < 12; m++)
 					m_gradient[z][g][m].fill(0);
@@ -431,19 +431,19 @@ namespace WBSF
 		if (s == S_GR && !(m_pShore&&!m_pShore->empty()))
 			return 1;
 
-		CLocation L°;
-		results.GetCentroid(L°);
+		CLocation Lᵒ;
+		results.GetCentroid(Lᵒ);
 		
 
-		CStatisticEx M°;
+		CStatisticEx Mᵒ;
 		for (size_t i = 0; i<results.size(); i++)
 		{
 			const CLocation& st = m_pNormalDB->at(results[i].m_index);
-			M° += GetDistance(s, st, L°);
+			Mᵒ += GetDistance(s, st, Lᵒ);
 		}
 
-		double mean = GetDistance(s, m_target, L°);
-		double mad = M°[MAD];
+		double mean = GetDistance(s, m_target, Lᵒ);
+		double mad = Mᵒ[MAD];
 
 		//if mad == 0 take half regional and local gradient 
 		double ff = mad>0 ? (mean - A[z]*mad) / (B[z]*mad) : 0.5;
@@ -455,7 +455,7 @@ namespace WBSF
 		double f1 = F1[z][g];
 		double f2 = F2[z][g];
 			
-		double Dc = m_target.GetDistance(L°, true) / 1000;// take elevation in distance of centroid km
+		double Dc = m_target.GetDistance(Lᵒ, true) / 1000;// take elevation in distance of centroid km
 		correction = 1 - min(1.0, max(0.0, Dc - f1) / f2);
 
 
@@ -507,7 +507,7 @@ namespace WBSF
 						msg = ComputeGradient(g, results, m_gradient[e][g], m_R²[e][g], callback);
 
 						
-						GetS°(g, results, m_S°[e][g]);
+						GetSᵒ(g, results, m_Sᵒ[e][g]);
 					}
 				}
 			}
@@ -561,7 +561,7 @@ namespace WBSF
 								msg += msgTmp;
 							
 							
-							GetS°(g, results, m_S°[z][g]);
+							GetSᵒ(g, results, m_Sᵒ[z][g]);
 						}
 						else
 						{
@@ -570,7 +570,7 @@ namespace WBSF
 									m_gradient[z][g][m][s] = DEFAULT_GRADIENTS[e][g][m][s];
 
 							
-							m_S°[z][g] = GLOBAL_S°[e][g];
+							m_Sᵒ[z][g] = GLOBAL_Sᵒ[e][g];
 						}
 							
 
@@ -608,7 +608,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CWeatherGradient::GetS°(size_t g, const CSearchResultVector& results, CGradientS°& S°)const
+	void CWeatherGradient::GetSᵒ(size_t g, const CSearchResultVector& results, CGradientSᵒ& Sᵒ)const
 	{
 		size_t f = G2F(g);
 		for (size_t i = 0; i < results.size(); i++)
@@ -619,7 +619,7 @@ namespace WBSF
 			for (size_t m = 0; m < 12; m++)
 			{
 				ASSERT(!IsMissing(station[m][f]));
-				S°[m] += station[m][f];
+				Sᵒ[m] += station[m][f];
 			}
 		}
 	}
@@ -637,10 +637,10 @@ namespace WBSF
 		for (size_t m = 0; m < 12; m++)
 			V[m].ReSize((int)results.size());
 
-		CLocation L°;
-		results.GetCentroid(L°);
-		//CGradientS° S°;
-		//GetS°(g, results, S°);
+		CLocation Lᵒ;
+		results.GetCentroid(Lᵒ);
+		//CGradientSᵒ Sᵒ;
+		//GetSᵒ(g, results, Sᵒ);
 
 		for (int i = 0; i < (int)results.size() && msg; i++)
 		{
@@ -648,12 +648,12 @@ namespace WBSF
 			m_pNormalDB->Get(station, results[i].m_index);
 
 
-			//M[i][X_GR] = GetDistance(X_GR, station, L°) / 1000;	//1000 km
-			//M[i][Y_GR] = GetDistance(Y_GR, station, L°) / 1000;	//1000 km
-			//M[i][Z_GR] = GetDistance(Z_GR, station, L°) / 1000;	//1000 m
+			//M[i][X_GR] = GetDistance(X_GR, station, Lᵒ) / 1000;	//1000 km
+			//M[i][Y_GR] = GetDistance(Y_GR, station, Lᵒ) / 1000;	//1000 km
+			//M[i][Z_GR] = GetDistance(Z_GR, station, Lᵒ) / 1000;	//1000 m
 			//
 			//if (D_SHORE < nbSpaces)
-			//	M[i][S_GR] = GetDistance(S_GR, station, L°) / 1000;	//1000 km
+			//	M[i][S_GR] = GetDistance(S_GR, station, Lᵒ) / 1000;	//1000 km
 			
 			M[i][X_GR] = GetDistance(X_GR, station, m_target) / 1000;	//1000 km
 			M[i][Y_GR] = GetDistance(Y_GR, station, m_target) / 1000;	//1000 km
@@ -726,18 +726,18 @@ namespace WBSF
 		else if (g == PRCP_GR)
 		{
 			//double c = 0;
-			//double S°= 0;
+			//double Sᵒ= 0;
 
 			//for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			//{
 			//	c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
-			//	S° += (m_factor[z][g][s] * m_S°[z][g][m][MEAN]);/// nbSpaces 
+			//	Sᵒ += (m_factor[z][g][s] * m_Sᵒ[z][g][m][MEAN]);/// nbSpaces 
 			//}
 			//
-			//ASSERT(S° > 0);
+			//ASSERT(Sᵒ > 0);
 
-			//if (S°>0)
-			//	correction = (S° + c) / S°;
+			//if (Sᵒ>0)
+			//	correction = (Sᵒ + c) / Sᵒ;
 			////correction = 1;//temporaire pour test
 
 			//if (correction < 0.1)
@@ -826,11 +826,11 @@ namespace WBSF
 				{
 					for (size_t m = 0; m < 12; m++)
 					{
-						double S° = 0;
-						if (m_S°[z][g][m].IsInit())
-							S° = m_S°[z][g][m][MEAN];
+						double Sᵒ = 0;
+						if (m_Sᵒ[z][g][m].IsInit())
+							Sᵒ = m_Sᵒ[z][g][m][MEAN];
 
-						string line = FormatA("%d,%d,%02d,%0.3lf,%0.3lf", z + 1, g + 1, m + 1, m_R²[z][g][m], S°);
+						string line = FormatA("%d,%d,%02d,%0.3lf,%0.3lf", z + 1, g + 1, m + 1, m_R²[z][g][m], Sᵒ);
 						for (size_t s = 0; s < NB_SPACE_EX; s++)
 							line += "," + FormatA("%+07.4lf", m_gradient[z][g][m][s]);
 
@@ -912,7 +912,7 @@ namespace WBSF
 				for (size_t m = 0; m < 12; m++)
 				{
 					//double a1 = data[m][f];
-					//double a2 = GLOBAL_S°[e][PRCP_GR][m];
+					//double a2 = GLOBAL_Sᵒ[e][PRCP_GR][m];
 					line += FormatA(",%.1lf", data[m][f]);
 				}
 					
