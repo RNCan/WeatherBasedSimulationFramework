@@ -56,7 +56,7 @@ namespace WBSF
 	inline bool IsGeographic(size_t ID)	{return ID<PRJ_GEOCENTRIC_BASE; }
 	inline bool IsGeocentric(size_t ID)	{ return ID >= PRJ_GEOCENTRIC_BASE && ID<PRJ_PROJECTED_BASE; }
 	inline bool IsProjected(size_t ID)	{ return ID >= PRJ_PROJECTED_BASE && ID < PRJ_PROJECTED_END; }
-	ERMsg BuildVRT(std::string filePath, StringVector fileList, bool bQuiet);
+	ERMsg BuildVRT(std::string filePath, StringVector fileList, bool bQuiet, std::string EXEPath="");
 
 //*****************************************************************************************************
 //CProjectionNameManager

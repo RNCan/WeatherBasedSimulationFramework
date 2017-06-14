@@ -65,7 +65,7 @@ namespace WBSF
 		afx_msg void OnEditWGInput();
 		afx_msg void OnEditLocations();
 		afx_msg void OnLocationsChange();
-		afx_msg void OnParametersVariationsChange();
+		//afx_msg void OnParametersVariationsChange();
 
 
 		DECLARE_MESSAGE_MAP()
@@ -76,7 +76,7 @@ namespace WBSF
 		void FillWGInput(void);
 		void FillLocations(void);
 		void UpdateNbLocations();
-		void UpdateNbParametersVariations();
+		//void UpdateNbParametersVariations();
 		void GetWGFromInterface();
 		void SetWGToInterface();
 

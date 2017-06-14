@@ -280,7 +280,6 @@ namespace WBSF
 
 		void clear();
 
-		//std::string m_expendedItems;
 		CExpendedItem m_expendedItems;
 
 	protected:
@@ -343,7 +342,6 @@ namespace zen
 		void writeStruc(const WBSF::CProjectState& in, XmlElement& output)
 	{
 		XmlOut out(output);
-	//	std::string tmp = WBSF::to_string(in.m_expendedItems, ",");
 		out[WBSF::CProjectState::GetMemberName(WBSF::CProjectState::EXPANDED)](in.m_expendedItems);
 
 	}
@@ -352,10 +350,9 @@ namespace zen
 		bool readStruc(const XmlElement& input, WBSF::CProjectState& out)
 	{
 		XmlIn in(input);
-		//std::string tmp;
+	
 		in[WBSF::CProjectState::GetMemberName(WBSF::CProjectState::EXPANDED)](out.m_expendedItems);
-		//out.m_expendedItems = WBSF::to_object<string, set<string>>(tmp, ",");
-
+	
 		return true;
 	}
 }

@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>The SPEI is based on precipitation and temperature data, and it has the advantage of combining multiscalar character with the capacity to include the effects of temperature variability on drought assessment.The procedure to calculate the index is detailed and involves a climatic water balance, the accumulation of deficit/surplus at different time scales, and adjustment to a log-logistic probability distribution.</Description>
     <WindowRect>0 0 107 301</WindowRect>
-    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H R WS2</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>2</NbYearMin>
@@ -35,8 +35,8 @@
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <TextValue>Thornthwaite|Hargreaves-Samani</TextValue>
+            <MaxValue>2</MaxValue>
+            <TextValue>Thornthwaite|Hargreaves-Samani|Penman-Monteith</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>1 0</OutputTypeMode>

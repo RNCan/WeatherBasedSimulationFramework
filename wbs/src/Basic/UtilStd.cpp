@@ -820,6 +820,10 @@ namespace WBSF
 	StringVector GetDirectoriesList(const std::string& filter)
 	{
 
+		//std::string filter = filterIn;
+		//while (IsPathEndOk(filter))
+			//filter = filter.substr(0, filter.length() - 1);
+
 		StringVector dirList;
 
 		WIN32_FIND_DATA ffd;
@@ -829,11 +833,11 @@ namespace WBSF
 		{
 			do
 			{
+				string tmp = UTF8(ffd.cFileName);
 				bool bDirectory = (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
-				ASSERT(bDirectory);
 				
-				if( bDirectory )
-					dirList.push_back(UTF8(ffd.cFileName));
+				if (bDirectory && tmp != "." && tmp != "..")
+					dirList.push_back(tmp);
 
 			}
 			while (FindNextFile(hFind, &ffd) != 0);
@@ -2074,14 +2078,17 @@ std::istream& StringVector::operator << ( std::istream& stream)
 
 StringVector& StringVector::Tokenize(const std::string& str, const std::string& delimiters, bool bRemoveDuplicate, std::string::size_type pos, std::string::size_type posEnd)
 {
-	if (!empty())
-		clear();
-		
-	while (pos != std::string::npos)
+	
+	clear();
+	
+	if (!str.empty())
 	{
-		std::string str2 = WBSF::Tokenize(str, delimiters, pos, bRemoveDuplicate, posEnd);
-		if (!bRemoveDuplicate || !str2.empty())
-			push_back(str2);
+		while (pos != std::string::npos)
+		{
+			std::string str2 = WBSF::Tokenize(str, delimiters, pos, bRemoveDuplicate, posEnd);
+			if (!bRemoveDuplicate || !str2.empty())
+				push_back(str2);
+		}
 	}
 
 	return *this;

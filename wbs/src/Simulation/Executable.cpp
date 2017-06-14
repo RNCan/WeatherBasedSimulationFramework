@@ -1329,27 +1329,30 @@ void CExecutable::SetExecutionTime(const std::string& name, double timePerUnit, 
 CExecutablePtr CExecutable::CopyFromClipBoard()
 {
 	CExecutablePtr pItem;
-	std::string str = GetClipboardText();
 
-	zen::XmlDoc doc = zen::parse(str);
-	zen::XmlElement& root = doc.root();// .getChild("BioSIMComponent");
-	
-
-	//if( pRoot->getChildren().second -  )
+	try
 	{
+		std::string str = GetClipboardText();
+
+		zen::XmlDoc doc = zen::parse(str);
+		zen::XmlElement& root = doc.root();
+
+
 		std::string className;
-		if (root.getAttribute("ClassName", className) )
+		if (root.getAttribute("ClassName", className))
 		{
 			pItem = CExecutableFactory::CreateObject(className);
-			if( pItem )
+			if (pItem)
 			{
 				//add if compatible ...
 				pItem->SetParent(this);
-				//pItem->readStruc(*(pRoot->getChildren().first));
 				pItem->readStruc(root);
 				pItem->UpdateInternalName();
 			}
 		}
+	}
+	catch (...)
+	{
 	}
 
 	return pItem;

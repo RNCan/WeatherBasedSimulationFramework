@@ -174,7 +174,7 @@ namespace WBSF
 		CSVIterator& ReadHeader()               { if (m_str) { (*m_str) >> m_header; m_str = m_str->good() ? m_str : NULL; }return *this; }
 
 		// Pre Increment
-		CSVIterator& operator++()               { if (m_str) { (*m_str) >> m_row; m_str = m_str->good() ? m_str : NULL; }return *this; }
+		CSVIterator& operator++()               { m_row.clear(); if (m_str) { (*m_str) >> m_row; m_str = (!m_row.empty() || m_str->good()) ? m_str : NULL; }return *this; }
 		// Post increment
 		CSVIterator operator++(int)             { CSVIterator tmp(*this); ++(*this); return tmp; }
 		CSVRow const& operator*()   const       { return m_row; }

@@ -44,7 +44,6 @@ namespace WBSF
 
 		// Generated message map functions
 		DECLARE_MESSAGE_MAP()
-		afx_msg void OnDblClk(NMHDR *pNMHDR, LRESULT *pResult);
 		afx_msg LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
 
 		CMergeExecutable m_merge;

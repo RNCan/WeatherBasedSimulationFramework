@@ -19,15 +19,6 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
-
-	//static const CGeoRect DEFAULT_BOUDINGBOX(-180, -90, 180, 90, PRJ_WGS_84);
-
-
-
-
-
-	
-	
 	//canada
 	//http://www.nco.ncep.noaa.gov/pmb/products/cmcens/cmc_gep01.t00z.pgrb2af00.shtml
 
@@ -160,8 +151,6 @@ namespace WBSF
 			
 			if (ss == N_HRDPS)
 			{
-				//StringVector variables = as<StringVector>
-
 				CHRDPS HRDPS(workingDir + string(SOURCES_NAME[ss]) + "\\");
 				HRDPS.m_variables = Get(HRDPS_VARS);
 				msg = HRDPS.Execute(callback);
@@ -195,7 +184,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIHighResolutionGribs::GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CUIHighResolutionGribs::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -207,20 +196,32 @@ namespace WBSF
 			sources = StringVector("HRDPS", "|");
 
 		
-		//for (size_t s = 0; s < sources.size(); s++)
-		
+		int firstYear = p.Begin().GetYear();
+		int lastYear = p.End().GetYear();
+		size_t nbYears = lastYear - firstYear + 1;
 		size_t ss = GetSourcesIndex(sources.front());//take only the first databaset
 
-		StringVector list;
-		if (ss == N_HRDPS || ss == N_HRRR)
-			list = GetFilesList(workingDir + string(SOURCES_NAME[ss]) + "\\" + "*.grib2", FILE_PATH, true);
-	
-		for (size_t i = 0; i < list.size(); i++)
-		{
-			CTRef TRef = GetTRef(ss, list[i]); 
-			gribsList[TRef] = list[i];
-		}
 
+		
+		for (size_t y = 0; y < nbYears; y++)
+		{
+			int year = firstYear + int(y);
+
+
+			StringVector list;
+			if (ss == N_HRDPS)
+				list = GetFilesList(workingDir + string(SOURCES_NAME[ss]) + "\\" + ToString(year) + "\\*.vrt", FILE_PATH, true);
+			else if ( ss == N_HRRR)
+				list = GetFilesList(workingDir + string(SOURCES_NAME[ss]) + "\\" + ToString(year) + "\\*.grib2", FILE_PATH, true);
+
+			
+			for (size_t i = 0; i < list.size(); i++)
+			{
+				CTRef TRef = GetTRef(ss, list[i]);
+				if (p.IsInside(TRef))
+					gribsList[TRef] = list[i];
+			}
+		}
 
 
 
@@ -261,7 +262,7 @@ namespace WBSF
 			int year = WBSF::as<int>(dir3);
 			size_t m = WBSF::as<int>(dir2) - 1;
 			size_t d = WBSF::as<int>(dir1) - 1;
-			size_t h = WBSF::as<int>(name.substr(5, 2));
+			size_t h = WBSF::as<int>(name.substr(6, 2));
 			TRef = CTRef(year, m, d, h);
 		}
 

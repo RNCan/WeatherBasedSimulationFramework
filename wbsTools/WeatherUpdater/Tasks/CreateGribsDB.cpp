@@ -4,6 +4,7 @@
 
 #include "TaskFactory.h"
 #include "../resource.h"
+#include "boost\dynamic_bitset.hpp"
 #include "WeatherBasedSimulationString.h"
 
 using namespace std; 
@@ -101,7 +102,11 @@ namespace WBSF
 				size_t nbGrib = 0;
 				file << "TRef,path"<<endl;
 
+				CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 				CTPeriod p = GetPeriod();
+				boost::dynamic_bitset<size_t> presence(p.size());
+				
+
 				if (p.IsInit())
 				{
 					ASSERT(pTask->IsGribs());
@@ -109,19 +114,38 @@ namespace WBSF
 					string basePath = GetPath(outputFilePath);
 
 					std::map<CTRef, std::string> gribsList;
-					msg = pTask->GetGribsList(gribsList, callback);
+					msg = pTask->GetGribsList(p, gribsList, callback);
 					if (msg)
 					{
 						for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end(); it++)
 						{
 							CTRef TRef = it->first;
-							if (p.IsInside(TRef))
-							{
-								string relativePath = GetRelativePath(basePath, it->second);
-								file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
-								nbGrib++;
-							}
+							string relativePath = GetRelativePath(basePath, it->second);
+							file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+							nbGrib++;
+
+							ASSERT(p.IsInside(TRef));
+							size_t pos = TRef - p.Begin();
+						//Put warning when gribs missing	
+							presence.set(pos);
 						}
+
+						//CTRef nextTRef = p.Begin();
+						for (size_t pos = 0; pos != presence.size(); pos++)
+						{
+							CTRef TRef = p.Begin() + pos;
+							//if (TRef <= now)
+							//{
+								//if (TRef - nextTRef == 1)
+							if (!presence.test(pos))
+								callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
+								//else if (TRef - nextTRef > 1)
+									//callback.AddMessage("WARNING: from " + nextTRef.GetFormatedString("%Y-%m-%d-%H") + " to " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
+							//}
+
+							//nextTRef = TRef + 1;
+						}
+
 					}
 				
 					callback.AddMessage("Nb grib added: " + ToString(nbGrib));

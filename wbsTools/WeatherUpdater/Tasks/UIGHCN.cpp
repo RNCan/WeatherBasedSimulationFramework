@@ -352,7 +352,6 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 			size_t country = CCountrySelection::GetCountry(location.GetSSI("Country").c_str());
 			ASSERT( country != NOT_INIT);
 
-			if( countries.test(country) )
 			{
 				if( IsEqualNoCase( location.GetSSI("Country"), "US") )
 				{
@@ -604,8 +603,9 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 				
 				double RHmax = WBSF::Twb2Hr(Tmin_d, Tmin_w);
 				double RHmin = WBSF::Twb2Hr(Tmax_d, Tmax_w);
+
 				double Pv = (eᵒ(Tmin_d)*RHmax / 100 + eᵒ(Tmax_d)*RHmin / 100) / 2; //[kPa]
-				//double Es = (eᵒ(Tmin_d) + eᵒ(Tmax_d)) / 2;
+				//double Es = (e°(Tmin_d) + e°(Tmax_d)) / 2;
 				double Td = Pv2Td(Pv);
 				
 				day.SetStat(H_TDEW, Td);

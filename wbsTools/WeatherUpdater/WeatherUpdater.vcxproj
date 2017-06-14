@@ -115,7 +115,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;</AdditionalDependencies>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal201.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -150,7 +150,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;</AdditionalDependencies>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -187,7 +187,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs.lib;wbsUI.lib;external.lib;</AdditionalDependencies>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal201.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -225,7 +225,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs.lib;wbsUI.lib;external.lib;</AdditionalDependencies>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

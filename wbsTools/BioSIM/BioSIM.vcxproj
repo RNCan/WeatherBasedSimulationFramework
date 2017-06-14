@@ -163,7 +163,7 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreEmbeddedIDL>false</IgnoreEmbeddedIDL>
       <StackReserveSize>50000000</StackReserveSize>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;vcomp120.dll;netCDF.lib;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;vcomp120.dll;netCDF.lib;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
@@ -249,7 +249,7 @@
       <AdditionalLibraryDirectories>..\..\external\gdal\lib$(PlatformArchitecture);..\..\external\lib$(PlatformArchitecture);..\..\external\VisualLeakDetector\lib\Win$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <StackReserveSize>50000000</StackReserveSize>
-      <DelayLoadDLLs>gdal111.dll;proj.dll;vcomp120.dll;netCDF.lib%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;vcomp120.dll;netCDF.lib%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>

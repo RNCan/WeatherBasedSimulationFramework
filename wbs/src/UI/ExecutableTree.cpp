@@ -101,8 +101,10 @@ namespace WBSF
 	END_MESSAGE_MAP()
 
 
-	CExecutableTree::CExecutableTree()
-	{}
+	CExecutableTree::CExecutableTree(bool bCanEdit)
+	{
+		m_bCanEdit = bCanEdit;
+	}
 
 	CExecutableTree::~CExecutableTree()
 	{}
@@ -241,6 +243,9 @@ namespace WBSF
 			bool bExecute = pItem->GetExecute();
 			bool bExpand = m_pProjectState?m_pProjectState->m_expendedItems.find(iName) != m_pProjectState->m_expendedItems.end():false;
 
+			//if (hParent == TVI_ROOT)
+				//bExpand = true;//if it's root
+
 			TVINSERTSTRUCT tvis = GetInsertStruct(name, imageIndex, hParent, hInsertAfter);
 			XHTMLTREEDATA xhtd;
 			xhtd.bExpanded = bExpand;
@@ -250,7 +255,6 @@ namespace WBSF
 			HTREEITEM hItem = InsertItem(&tvis, &xhtd);
 
 			//add internal name
-			//unique_ptr<string> pIName = std::make_unique<string>(iName);
 			m_internalName.insert(iName);
 			SetItemData(hItem, (UINT_PTR)(m_internalName.find(iName)->c_str()));
 
@@ -309,7 +313,7 @@ namespace WBSF
 	HTREEITEM CExecutableTree::FindItem(const string& internalName)const
 	{
 		CExecutableTree& me = const_cast<CExecutableTree&>(*this);
-		//int pos = std::find(m_internalName.begin(), m_internalName.end(), internalName) - m_internalName.begin();
+
 		HTREEITEM hItem = GetRootItem();
 		while (hItem)
 		{
@@ -326,11 +330,14 @@ namespace WBSF
 	{
 		ASSERT(GetSafeHwnd());
 
-		for (int i = 0; i < data.size(); i++)
+		//set checked item and also uncheck all other items
+		HTREEITEM hItem = GetRootItem();
+		while (hItem)
 		{
-			HTREEITEM hItem = FindItem(data[i]);
-			if (hItem)
-				SetCheck(hItem, TRUE);
+			string iName = GetInternalName(hItem);
+			BOOL bCheck = data.Find(iName)!= NOT_INIT;
+			SetCheck(hItem, bCheck);
+			hItem = GetNextItem(hItem);
 		}
 	}
 
@@ -588,7 +595,6 @@ namespace WBSF
 		case ID_ADD_DISPERSAL: classType = CExecutableTree::DISPERSAL; break;
 		case ID_ADD_SCRIPT_R: classType = CExecutableTree::SCRIPT_R; break;
 		case ID_ADD_COPY_EXPORT: classType = CExecutableTree::COPY_EXPORT; break;
-			//case ID_ADD_SIMULATION:classType = CExecutableTree::SIMULATION; break;
 		case ID_ADD_MODEL_PARAMETERIZATION:classType = CExecutableTree::MODEL_PARAMETERIZATION; break;
 		default: ASSERT(false);
 		}
@@ -691,8 +697,13 @@ namespace WBSF
 		{
 			InsertItem(pItem, hParent, TVI_LAST, true);
 			pParent->InsertItem(pItem);
-			//a faire
-			//pDoc->UpdateAllViews(this, CBioSIMDoc::PROJECT_CHANGE);
+
+			//expand parent when we add children
+			if (m_pProjectState)
+			{
+				m_pProjectState->m_expendedItems.insert(pItem->GetInternalName());
+				Expand(hParent, TVE_EXPAND);
+			}
 
 			Invalidate();
 		}
@@ -700,7 +711,9 @@ namespace WBSF
 
 	void CExecutableTree::OnDblClick(NMHDR*, LRESULT* pResult)
 	{
-		OnEdit();
+		if (m_bCanEdit)
+			OnEdit();
+
 		*pResult = TRUE;
 	}
 

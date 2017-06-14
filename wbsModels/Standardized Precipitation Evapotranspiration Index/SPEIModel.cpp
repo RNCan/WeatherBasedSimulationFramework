@@ -3,6 +3,7 @@
 //*********************************************************************
 
 #include "Basic/WeatherDefine.h"
+#include "Basic/Evapotranspiration.h"
 #include "ModelBase/EntryPoint.h"
 #include "SPEIModel.h"
 
@@ -25,10 +26,11 @@ namespace WBSF
 	CSPEIModel::CSPEIModel() 
 	{
 		// initialise your variable here (optionnal)
-		NB_INPUT_PARAMETER=1;
+		NB_INPUT_PARAMETER=2;
 		VERSION = "1.0.1 (2017)";
 
 		m_k = 1;
+		m_ETType = THORNTHWAITE;
 	}
 
 	CSPEIModel::~CSPEIModel()
@@ -41,6 +43,8 @@ namespace WBSF
 		ERMsg msg;
 
 		m_k = parameters[0].GetInt();
+		m_ETType = parameters[1].GetInt();
+
 		return msg;
 	}
 
@@ -64,7 +68,12 @@ namespace WBSF
 		}
 		
 		vector<double> ETP(Tair.size());
-		Thornthwaite(Tair.data(), Prcp.size(), m_info.m_loc.m_lat, ETP.data());
+		switch (m_ETType)
+		{
+		case THORNTHWAITE:		Thornthwaite(Tair.data(), Prcp.size(), m_info.m_loc.m_lat, ETP.data()); break;
+		case HARGREAVES_SAMANI: HargreavesSamani(m_weather, ETP.data()); break;
+		case PENMAN_MONTEITH:	PenmanMonteith(m_weather, ETP.data()); break;
+		}
 
 		vector<double> balance(ETP.size());
 		for (size_t i = 0; i<ETP.size(); i++)
@@ -102,5 +111,31 @@ namespace WBSF
 		return msg;
 	}
 
+	
+	void CSPEIModel::HargreavesSamani(const CWeatherStation& weather, double etpSeries[])
+	{
+		CHargreavesSamaniET ET;
+		CModelStatVector stats;
+		ET.Execute(weather, stats);
+
+		stats.Transform(CTM(CTM::MONTHLY), SUM);
+
+		for (size_t n = 0; n < stats.size(); n++)
+			etpSeries[n] = max(0.0, stats[n][ETInterface::S_ET]);
+	}
+
+	void CSPEIModel::PenmanMonteith(const CWeatherStation& weather, double etpSeries[])
+	{
+		CPenmanMonteithET ET;
+		CModelStatVector stats;
+		ET.Execute(weather, stats);
+
+		stats.Transform(CTM(CTM::MONTHLY), SUM);
+
+		for (size_t n = 0; n < stats.size(); n++)
+			etpSeries[n] = max(0.0, stats[n][ETInterface::S_ET]);;
+	}
+
+	
 
 }

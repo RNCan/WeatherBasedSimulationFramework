@@ -34,42 +34,17 @@ namespace WBSF
 	// CMergeExecutableDlg dialog
 
 	BEGIN_MESSAGE_MAP(CMergeExecutableDlg, CDialog)
-		ON_NOTIFY(NM_DBLCLK, IDC_EXECUTABLE_TREE, OnDblClk)
 		ON_REGISTERED_MESSAGE(WM_XHTMLTREE_CHECKBOX_CLICKED, OnCheckbox)
 	END_MESSAGE_MAP()
 
 
 	CMergeExecutableDlg::CMergeExecutableDlg(const CExecutablePtr& pParent, CWnd* pParentWnd) :
 		CDialog(CMergeExecutableDlg::IDD, pParentWnd),
-		m_pParent(pParent->CopyObject())
+		m_pParent(pParent->CopyObject()),
+		m_executableCtrl(false)
 	{
 	}
 
-	void SetCheck(CExecutablePtr& pItem, CMergeExecutable& merge)
-	{
-		for (int i = 0; i < pItem->GetNbItem(); i++)
-		{
-			CExecutablePtr pItem = pItem->GetItemAt(i);
-			string iName = pItem->GetInternalName();
-			bool bCheck = merge.m_mergedArray.Find(iName) != UNKNOWN_POS;
-			pItem->SetExecute(bCheck);
-			SetCheck(pItem, merge);
-		}
-	}
-	
-	void GetCheck(CExecutablePtr& pItem, CMergeExecutable& merge)
-	{
-		for (int i = 0; i < pItem->GetNbItem(); i++)
-		{
-			CExecutablePtr pItem = pItem->GetItemAt(i);
-			string iName = pItem->GetInternalName();
-			if (pItem->GetExecute())
-				merge.m_mergedArray.push_back(iName);
-			
-			
-			GetCheck(pItem, merge);
-		}
-	}
 
 	void CMergeExecutableDlg::DoDataExchange(CDataExchange* pDX)
 	{
@@ -101,37 +76,10 @@ namespace WBSF
 
 	}
 
-	void CMergeExecutableDlg::OnDblClk(NMHDR *pNMHDR, LRESULT *pResult)
-	{
-		*pResult = TRUE;
-		//do nothing
-	}
-
+	
 	LRESULT CMergeExecutableDlg::OnCheckbox(WPARAM wParam, LPARAM lParam)
 	{
-		//m_merge
-		/*XHTMLTREEMSGDATA *pData = (XHTMLTREEMSGDATA *)wParam;
-		ASSERT(pData);
-
-		BOOL bChecked = lParam;
-
-		if (pData)
-		{
-			HTREEITEM hItem = pData->hItem;
-
-			if (hItem)
-			{
-				string iName = m_executableCtrl.GetInternalName(hItem);
-
-				CExecutablePtr pItem = (iName == m_pParent->GetInternalName()) ? m_pRoot : m_pRoot->FindItem(iName);
-				ASSERT(pItem);
-				pItem->SetExecute(bChecked);
-
-			}
-		}*/
-
 		return 0;
-		//return m_executableCtrl.OnCheckbox(wParam, lParam);
 	}
 
 }

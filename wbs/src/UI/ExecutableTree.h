@@ -33,7 +33,7 @@ namespace WBSF
 		static int GetClassFromName(const std::string& className);
 		static int GetClassType(UINT ID);
 
-		CExecutableTree();
+		CExecutableTree(bool bCanEdit=true);
 		virtual ~CExecutableTree();
 
 
@@ -133,7 +133,7 @@ namespace WBSF
 		//CBioSIMProject*	m_pProject;
 		CProjectStatePtr	m_pProjectState;
 		std::string		m_hideItem;
-
+		bool			m_bCanEdit;
 		//void InitTree();
 
 		static const char* CLASS_NAME[NB_CLASS];

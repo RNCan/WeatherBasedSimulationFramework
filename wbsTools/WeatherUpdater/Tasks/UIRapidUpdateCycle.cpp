@@ -387,17 +387,27 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIRapidUpdateCycle::GetGribsList(std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CUIRapidUpdateCycle::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		StringVector fileList = GetFilesList(workingDir + "*.grb2", FILE_PATH, true);
-		for (size_t i = 0; i < fileList.size(); i++)
+		int firstYear = p.Begin().GetYear();
+		int lastYear = p.End().GetYear();
+		size_t nbYears = lastYear - firstYear + 1;
+		
+		
+		for (size_t y = 0; y < nbYears; y++)
 		{
-			CTRef TRef = GetTRef(fileList[i]);
-			gribsList[TRef] = fileList[i];
+			int year = firstYear + int(y);
+			StringVector fileList = GetFilesList(workingDir + ToString(year) + "\\*.grb2", FILE_PATH, true);
+			for (size_t i = 0; i < fileList.size(); i++)
+			{
+				CTRef TRef = GetTRef(fileList[i]);
+				if (p.IsInside(TRef))
+					gribsList[TRef] = fileList[i];
+			}
 		}
 
 

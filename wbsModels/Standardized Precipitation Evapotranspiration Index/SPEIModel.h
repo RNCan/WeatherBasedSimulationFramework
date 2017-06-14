@@ -10,7 +10,7 @@ namespace WBSF
 	{
 	public:
 
-
+		enum TET { THORNTHWAITE, HARGREAVES_SAMANI, PENMAN_MONTEITH };
 		CSPEIModel();
 		virtual ~CSPEIModel();
 
@@ -21,6 +21,12 @@ namespace WBSF
 
 	protected:
 
+
+		void HargreavesSamani(const CWeatherStation& weather, double etpSeries[]);
+		void PenmanMonteith(const CWeatherStation& weather, double etpSeries[]);
+		
+
 		size_t m_k;
+		size_t m_ETType;
 	};
 }

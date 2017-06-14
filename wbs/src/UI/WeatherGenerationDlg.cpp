@@ -107,7 +107,7 @@ namespace WBSF
 		CDialog::OnInitDialog();
 
 		UpdateNbLocations();
-		UpdateNbParametersVariations();
+		//UpdateNbParametersVariations();
 		UpdateCtrl();
 
 		return TRUE;  // return TRUE unless you set the focus to a control
@@ -180,11 +180,11 @@ namespace WBSF
 		UpdateCtrl();
 	}
 
-	void CWeatherGenerationDlg::OnParametersVariationsChange()
-	{
-		UpdateNbParametersVariations();
-		UpdateCtrl();
-	}
+	//void CWeatherGenerationDlg::OnParametersVariationsChange()
+	//{
+	//	//UpdateNbParametersVariations();
+	//	UpdateCtrl();
+	//}
 
 
 
@@ -247,16 +247,16 @@ namespace WBSF
 
 	}
 
-	void CWeatherGenerationDlg::UpdateNbParametersVariations()
+	/*void CWeatherGenerationDlg::UpdateNbParametersVariations()
 	{
 		string name = m_locationsNameCtrl.GetString();
 
-		CLocationVector locations;
-		WBSF::GetFM().Loc().Get(name, locations);
-		m_nbLocation = locations.size();
+		CParametersVariationsDefinition PVD;
+		WBSF::GetFM().PVD().Get(name, PVD);
+		m_nbLocation = PVD.GetNbVariation();
 
 	}
-
+*/
 
 
 

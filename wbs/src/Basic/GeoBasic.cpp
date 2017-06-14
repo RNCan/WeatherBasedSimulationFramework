@@ -537,7 +537,7 @@ void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoP
 		return s;
 	}
 
-	ERMsg BuildVRT(string filePath, StringVector fileList, bool bQuiet)
+	ERMsg BuildVRT(string filePath, StringVector fileList, bool bQuiet, std::string EXEPath )
 	{
 		ERMsg msg;
 
@@ -558,8 +558,13 @@ void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoP
 			file.close();
 		}
 
-		string command = "GDALBuildVRT.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + filePath + "\"";
+		string command = EXEPath + "GDALBuildVRT.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + filePath + "\"";
 		msg = WinExecWait(command);
+
+
+		//remove temporary file list
+		WBSF::RemoveFile(listFilePath);
+
 		return msg;
 	}
 

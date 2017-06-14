@@ -2440,8 +2440,7 @@ void CGDALDatasetCached::LoadBlock(const CGeoBlock3DIndex& ijk)
 		GDALDataType type = poBand->GetRasterDataType();
 		CBlockData* pBlockData = new CBlockData(nXBlockSize, nYBlockSize, type);
 		poBand->ReadBlock(ijk.m_x, ijk.m_y, pBlockData->m_ptr);
-		poBand->FlushCache();
-		//poBand->FlushBlock();
+		poBand->FlushBlock(ijk.m_x, ijk.m_y);
 
 		m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockData);
 
