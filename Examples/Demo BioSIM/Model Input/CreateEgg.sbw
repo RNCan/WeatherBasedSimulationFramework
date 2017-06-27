@@ -5,4 +5,5 @@
     <Parameter Name="TreeKind">0</Parameter>
     <Parameter Name="LastSampleDate">0</Parameter>
     <Parameter Name="ObservedAI">0</Parameter>
+    <Parameter Name="Defoliation">0</Parameter>
 </ModelInput>
