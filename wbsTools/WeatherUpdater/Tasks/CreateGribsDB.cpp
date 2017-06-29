@@ -13,8 +13,8 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "OutputFilePath", "Begin", "End"};
-	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
+	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilePath", "Begin", "End"};
+	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
 	const UINT CCreateGribsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
 	const UINT CCreateGribsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
 
@@ -37,7 +37,8 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:		str = GetUpdaterList(CUpdaterTypeMask(true,false,false,true)); break;
+		case INPUT:		str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
+		case FORECAST:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
 		case OUTPUT:	str = GetString(IDS_STR_FILTER_GRIBS); break;
 		};
 
@@ -76,92 +77,108 @@ namespace WBSF
 		
 		ERMsg msg;
 
-		//load the WeatherUpdater
-		CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
 
 
-		if (pTask.get() != NULL)
+		string outputFilePath = Get(OUTPUT);
+		SetFileExtension(outputFilePath, ".Gribs");
+		string basePath = GetPath(outputFilePath);
+
+		callback.AddMessage(GetString(IDS_CREATE_DB));
+		callback.AddMessage(outputFilePath, 1);
+
+		
+		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		CTPeriod p = GetPeriod();
+		boost::dynamic_bitset<size_t> presence(p.size());
+		std::map<CTRef, std::string> gribsList;
+		
+
+		msg = RemoveFile(outputFilePath);
+
+		//Get forecast if any
+		
+		if (msg && !Get(FORECAST).empty())
 		{
-			string outputFilePath = Get(OUTPUT);
-			SetFileExtension(outputFilePath, ".Gribs");
-
-			callback.AddMessage(GetString(IDS_CREATE_DB));
-			callback.AddMessage(outputFilePath, 1);
-
-			
-			msg = RemoveFile(outputFilePath);
-
-
-			ofStream file;
-			if (msg)
-				msg = file.open(outputFilePath);
-
-
-			if (msg)
-			{
-				size_t nbGrib = 0;
-				file << "TRef,path"<<endl;
-
-				CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
-				CTPeriod p = GetPeriod();
-				boost::dynamic_bitset<size_t> presence(p.size());
-				
-
-				if (p.IsInit())
-				{
-					ASSERT(pTask->IsGribs());
-
-					string basePath = GetPath(outputFilePath);
-
-					std::map<CTRef, std::string> gribsList;
-					msg = pTask->GetGribsList(p, gribsList, callback);
-					if (msg)
-					{
-						for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end(); it++)
-						{
-							CTRef TRef = it->first;
-							string relativePath = GetRelativePath(basePath, it->second);
-							file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
-							nbGrib++;
-
-							ASSERT(p.IsInside(TRef));
-							size_t pos = TRef - p.Begin();
-						//Put warning when gribs missing	
-							presence.set(pos);
-						}
-
-						//CTRef nextTRef = p.Begin();
-						for (size_t pos = 0; pos != presence.size(); pos++)
-						{
-							CTRef TRef = p.Begin() + pos;
-							//if (TRef <= now)
-							//{
-								//if (TRef - nextTRef == 1)
-							if (!presence.test(pos))
-								callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
-								//else if (TRef - nextTRef > 1)
-									//callback.AddMessage("WARNING: from " + nextTRef.GetFormatedString("%Y-%m-%d-%H") + " to " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
-							//}
-
-							//nextTRef = TRef + 1;
-						}
-
-					}
-				
-					callback.AddMessage("Nb grib added: " + ToString(nbGrib));
-				}
-				else
-				{
-					msg.ajoute("Invalid period");
-					msg.ajoute(p.GetFormatedString());
-				}
-
-				file.close();
-			}
+			CTaskPtr pForecastTask;
+			pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
+			if (pForecastTask)
+				msg = pForecastTask->GetGribsList(p, gribsList, callback);
+			else 
+				msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(FORECAST)));
 		}
-		else
+			
+
+		if (msg)
 		{
-			msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT)));
+			//load the WeatherUpdater
+			CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
+
+
+			if (pTask.get() != NULL)
+			{
+				ofStream file;
+				if (msg)
+					msg = file.open(outputFilePath);
+
+
+				if (msg)
+				{
+					size_t nbGrib = 0;
+					file << "TRef,path" << endl;
+
+					if (p.IsInit())
+					{
+						ASSERT(pTask->IsGribs());
+
+
+						msg = pTask->GetGribsList(p, gribsList, callback);
+
+						if (msg)
+						{
+							for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
+							{
+								CTRef TRef = it->first;
+								string relativePath = GetRelativePath(basePath, it->second);
+								file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+								nbGrib++;
+
+								ASSERT(p.IsInside(TRef));
+								size_t pos = TRef - p.Begin();
+
+								//Put warning when gribs missing	
+								presence.set(pos);
+
+								msg += callback.StepIt(0);
+							}
+
+
+							for (size_t pos = 0; pos != presence.size() && msg; pos++)
+							{
+								CTRef TRef = p.Begin() + pos;
+
+								if (!presence.test(pos))
+									callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
+
+								msg += callback.StepIt(0);
+							}
+
+						}
+
+						callback.AddMessage("Nb grib added: " + ToString(nbGrib));
+					}
+					else
+					{
+						msg.ajoute("Invalid period");
+						msg.ajoute(p.GetFormatedString());
+					}
+
+					file.close();
+				}
+			}
+			else
+			{
+				msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT)));
+			}
 		}
 		
 

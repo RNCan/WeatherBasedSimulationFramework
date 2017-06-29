@@ -1,4 +1,5 @@
 //*********************************************************************
+//10/05/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //12/02/2016	3.0.0	Rémi Saint-Amant	Using WBSF. Hourly model.
 //06/02/2012	2.3		Rémi Saint-Amant	Correction of a bug in strating date

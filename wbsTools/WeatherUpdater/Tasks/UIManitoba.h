@@ -31,6 +31,7 @@ namespace WBSF
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		virtual bool IsHourly()const{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
 		virtual bool IsDaily()const{ return true; }
+		virtual bool IsDatabase()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -66,6 +67,9 @@ namespace WBSF
 		ERMsg SaveAgricultureDailyStation(const std::string& filePath, std::string str);
 		ERMsg SaveAgricultureHourlyStation(const std::string& filePath, std::string str);
 		
+		ERMsg ExecuteFire(CCallback& callback);
+		ERMsg SplitFireData(const std::string& outputFilePath, CCallback& callback);
+		ERMsg UpdateFireStationsList(CLocationVector& locations, CCallback& callback);
 
 		ERMsg ExecuteHydro(CCallback& callback);
 		ERMsg UpdateHydroStationsList(CCallback& callback);

@@ -6,7 +6,7 @@
 namespace WBSF
 {
 
-	class CEnvCanStationMap : public std::map < __int64, CLocation >
+	class CEnvCanStationMap : public std::map < std::string, CLocation >
 	{
 	public:
 
@@ -35,7 +35,9 @@ namespace zen
 		{
 			WBSF::CLocation loc;
 			readStruc(*it, loc);
-			out[WBSF::ToValue<__int64>(loc.GetSSI("InternalID"))] = loc;
+			out[loc.m_ID] = loc;
+			//out[loc.GetSSI("InternalID")] = loc;
+			//WBSF::ToValue<__int64>(
 		}
 
 		return true;

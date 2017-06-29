@@ -342,8 +342,8 @@ namespace WBSF
 				//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
 
 
-			cctz::time_zone zone;
-			CTimeZones::GetZone(station, zone);
+			//cctz::time_zone zone;
+			//CTimeZones::GetZone(station, zone);
 
 			msg = OpenDatasets(callback);
 

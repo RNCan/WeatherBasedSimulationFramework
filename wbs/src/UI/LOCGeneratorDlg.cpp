@@ -28,6 +28,10 @@
 #include "UI/FileManagerPropSheet.h"
 #include "WeatherBasedSimulationString.h"
 
+
+#include "Geomatic/GDAL.h"
+
+
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 
@@ -199,6 +203,8 @@ namespace WBSF
 			CGDALDatasetEx grid;
 			*pMsg = grid.OpenInputImage(*pFilePath);
 
+
+
 			if (*pMsg)
 			{
 				CGridPointVector pointArray;
@@ -289,8 +295,27 @@ namespace WBSF
 
 			if (!DEMFileName.empty())
 			{
+				/*string filePathTest = WBSF::GetFM().MapInput().GetFilePath(DEMFileName);
 
-				//WBSF::CCallback callBack;
+				GDALDataset* pTest = (GDALDataset *) GDALOpenEx(filePathTest.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+
+				
+				GDALRasterBand* const pBand = pTest->GetRasterBand(1);
+
+				int bGotNodata = FALSE;
+				double dfMinStat = 0.0;
+				double dfMaxStat = 0.0;
+				double dfMean = 0.0;
+				double dfStdDev = 0.0;
+				CPLErr eErr = pBand->GetStatistics(TRUE, FALSE, &dfMinStat, &dfMaxStat, &dfMean, &dfStdDev);
+				const double dfNoData = pBand->GetNoDataValue(&bGotNodata);
+				*/
+
+
+
+
+
+				
 				CProgressStepDlg progressDlg;
 				progressDlg.Create(this);
 

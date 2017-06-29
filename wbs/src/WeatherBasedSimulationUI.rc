@@ -376,7 +376,7 @@ BEGIN
     CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,156,69,12
     CONTROL         "à la surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,352,156,53,12
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
-	CONTROL         "Ne pas compléter les valeur manquantes avec les normales", IDC_WG_NO_FILL_MISSING,
+    CONTROL         "Ne pas compléter les valeur manquantes avec les normales",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
 END
 
@@ -1260,80 +1260,74 @@ BEGIN
     PUSHBUTTON      "Annuler",IDCANCEL,273,235,50,14
 END
 
-IDD_SIM_ANALYSIS_GENERAL DIALOGEX 0, 0, 360, 210
+IDD_SIM_ANALYSIS_GENERAL DIALOGEX 0, 0, 361, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Général"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Nom :",IDC_STATIC,7,9,42,8
-    EDITTEXT        IDC_NAME,99,7,254,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NAME,100,7,254,12,ES_AUTOHSCROLL
     LTEXT           "Description :",IDC_STATIC,7,25,42,8
-    EDITTEXT        IDC_DESCRIPTION,99,22,254,12,ES_AUTOHSCROLL
-    LTEXT           "Nom interne :",IDC_STATIC,7,192,50,8
-    EDITTEXT        IDC_INTERNAL_NAME,61,190,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    LTEXT           "L’analyse est une fonction clé de BioSIM. Chacun des 4 panneaux est conçu pour extraire un type d’information spécifique à partir des résultats.",IDC_STATIC,7,42,346,18
-    LTEXT           "OÙ : Sélection d’un point ou de plusieurs points de simulation.",IDC_STATIC,18,62,335,9
-    LTEXT           "QUAND : Sélection d’une période à l’intérieur de la période du parent. Par exemple, il est possible d’extraire une information pour un jour spécifique, ou calculer la moyenne pour un mois en particulier.",IDC_STATIC,18,77,335,25
-    LTEXT           "QUOI : Sélection des variables de sortie sur lesquelles vont porter l’analyse. ",IDC_STATIC,18,100,335,10
-    LTEXT           "COMMENT : Cet onglet offre 3 fonctions différentes :",IDC_STATIC,18,114,335,10
-    LTEXT           "1- Statistique d’intrant : utilisé lorsqu’une analyse doit être effectuée sur les résultats d’une analyse parente. ",IDC_STATIC,32,126,321,18
-    LTEXT           "2- Transformation temporelle : utilisé pour calculer des statistiques sur un pas temporel plus long que celui du parent (ex : moyennes mensuelles à partir de données quotidiennes).",IDC_STATIC,32,146,321,18
-    LTEXT           "3- Moyenne (calcul final) : utilisé pour calculer les moyennes sur les répétitions, les ensembles de paramètres ou les localisations. ",IDC_STATIC,32,166,321,16
+    EDITTEXT        IDC_DESCRIPTION,100,22,254,12,ES_AUTOHSCROLL
+    LTEXT           "Nom interne :",IDC_STATIC,7,207,50,8
+    EDITTEXT        IDC_INTERNAL_NAME,61,205,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "L’analyse est une fonction clé de BioSIM. Chacun des 4 panneaux est conçu pour extraire un type d’information spécifique à partir des résultats.",IDC_STATIC,7,42,347,18
+    LTEXT           "OÙ : Sélection d’un point ou de plusieurs points de simulation.",IDC_STATIC,18,62,336,9
+    LTEXT           "QUAND : Sélection d’une période à l’intérieur de la période du parent. Par exemple, il est possible d’extraire une information pour un jour spécifique, ou calculer la moyenne pour un mois en particulier.",IDC_STATIC,18,77,336,25
+    LTEXT           "QUELLE : Sélection des variables de sortie sur lesquelles vont porter l’analyse. ",IDC_STATIC,18,118,336,10
+    LTEXT           "COMMENT : Cet onglet offre 3 fonctions différentes :",IDC_STATIC,18,132,336,10
+    LTEXT           "1- Statistique d’intrant : utilisé lorsqu’une analyse doit être effectuée sur les résultats d’une analyse parente. ",IDC_STATIC,32,144,322,18
+    LTEXT           "2- Transformation temporelle : utilisé pour calculer des statistiques sur un pas temporel plus long que celui du parent (ex : moyennes mensuelles à partir de données quotidiennes).",IDC_STATIC,32,164,322,18
+    LTEXT           "3- Moyenne (calcul final) : utilisé pour calculer les moyennes sur les répétitions, les ensembles de paramètres ou les localisations. ",IDC_STATIC,32,184,322,16
+    LTEXT           "QUOI : Sélection les ensembles de paramètres sur lesquelles vont porter l’analyse. ",IDC_STATIC,18,102,336,10
 END
 
-IDD_SIM_ANALYSIS_HOW DIALOGEX 0, 0, 360, 210
+IDD_SIM_ANALYSIS_HOW DIALOGEX 0, 0, 361, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Comment"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Statistique sur laquelle porte l’analyse (résultat d’un élément précédent) :",IDC_STATIC,7,9,234,8
-    COMBOBOX        IDC_PREVIOUS_STATISTIC_TYPE,246,7,107,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Définir une transformation temporelle",IDC_SELECT_TIME_TRANSFORMATION,7,25,346,144
-    CONTROL         "Define time transformation",IDC_TIME_TRANSFORMATION_RADIO,
-                    "Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,256,192,97,10
-    GROUPBOX        "Moyenne (calcul final)",IDC_STATIC,7,174,346,28
-    CONTROL         "Final computation",IDC_FINAL_COMPUTATION_RADIO,"Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,282,192,71,10
+    COMBOBOX        IDC_PREVIOUS_STATISTIC_TYPE,247,7,107,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Définir une transformation temporelle",IDC_SELECT_TIME_TRANSFORMATION,7,25,347,156
+    GROUPBOX        "Moyenne (calcul final)",IDC_STATIC,7,187,347,30
     CONTROL         "Statistique :",IDC_STATISTIC,"Button",BS_AUTORADIOBUTTON | WS_GROUP,14,38,57,10
     CONTROL         "Évènement :",IDC_EVENT,"Button",BS_AUTORADIOBUTTON,14,54,57,10
     EDITTEXT        IDC_K,289,51,57,14,ES_AUTOHSCROLL
-    CONTROL         "Dans la référence temporelle, laisser tomber l’année (pour la cartographie).",IDC_DROP_YEAR,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,87,69,249,10
     LTEXT           "Transformation temporelle du type :",IDC_CMN_STATIC1,14,89,111,8
     COMBOBOX        IDC_CT_TYPE,133,86,100,103,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "-->",IDC_CMN_STATIC2,236,88,12,8
+    LTEXT           "-->",IDC_CMN_STATIC2,236,88,8,8
     COMBOBOX        IDC_TT_TYPE,246,86,100,103,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_CT_MODE,133,102,100,103,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "-->",IDC_CMN_STATIC4,236,104,8,8
     COMBOBOX        IDC_TT_MODE,246,102,100,103,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_MODE_IMAGE,201,121,145,42,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Sur les répétitions",IDC_MEAN_OVER_REPLICATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,187,71,10
-    CONTROL         "Sur les paramètres",IDC_MEAN_OVER_PARAMETERSET,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,92,187,73,10
-    CONTROL         "Sur les localisations",IDC_MEAN_OVER_LOCATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,169,187,77,10
-    CONTROL         "Statistique d'intrant (losque basée sur une analyse) :",IDC_SELECT_STATISTIC,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,301,192,45,10
+    CONTROL         "Sur les répétitions",IDC_MEAN_OVER_REPLICATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,200,71,10
+    CONTROL         "Sur les paramètres",IDC_MEAN_OVER_PARAMETERSET,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,92,200,73,10
+    CONTROL         "Sur les localisations",IDC_MEAN_OVER_LOCATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,169,200,77,10
     LTEXT           "Transformation temporelle du mode :",IDC_CMN_STATIC3,14,105,115,8
     LTEXT           "Cette image illustre la transformation temporelle (compte tenu des options choisies pour le type et le mode). En tant qu’exemple, les flèches rouges représentent l’évènement ""Moment où les variables sont à leur maximum"". ",IDC_STATIC,14,125,180,39
     COMBOBOX        IDC_STATISTIC_TYPE,78,36,205,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_EVENT_TYPE,78,52,205,161,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
-IDD_SIM_ANALYSIS_WHAT DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_WHAT DIALOGEX 0, 0, 317, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Quoi"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,302,195
+    GROUPBOX        "",IDC_STATIC,7,7,303,211
     CONTROL         "Selection d'ensembles de paramètres (tous les ensembles par défaut)",IDC_SELECT_VARIABLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,232,10
-    CONTROL         "",IDC_VARIABLE,"SysTreeView32",WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,288,176
+    CONTROL         "",IDC_VARIABLE,"SysTreeView32",WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,288,191
 END
 
-IDD_SIM_ANALYSIS_WHEN DIALOGEX 0, 0, 360, 210
+IDD_SIM_ANALYSIS_WHEN DIALOGEX 0, 0, 361, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Quand"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,346,195
+    GROUPBOX        "",IDC_STATIC,7,7,347,210
     CONTROL         "Sélectionner une période (par défaut, la période entière sera utilisée)",IDC_SELECT_PERIOD,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,229,10
     LTEXT           "Début :",IDC_CMN_STATIC1,14,30,24,8
@@ -1352,26 +1346,26 @@ BEGIN
     LTEXT           "La période ‘’Année par année’’ est définie annuellement entre les dates de début et de fin spécifiées. Quand la date de début > la date de fin, la période commence à la date de fin d’une année et se termine à la date de début de l’année suivante.",IDC_CMN_STATIC4,176,106,170,45
 END
 
-IDD_SIM_ANALYSIS_WHERE DIALOGEX 0, 0, 360, 210
+IDD_SIM_ANALYSIS_WHERE DIALOGEX 0, 0, 361, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Où"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,346,195
+    GROUPBOX        "",IDC_STATIC,7,7,347,211
     CONTROL         "Sélectionner un sous-ensemble de localisations (par défaut, toutes les localisations sont utilisées)",IDC_SELECT_LOCATION,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,318,10
-    CONTROL         "",IDC_LOCATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,332,176
+    CONTROL         "",IDC_LOCATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,23,332,188
 END
 
-IDD_SIM_ANALYSIS_WHICH DIALOGEX 0, 0, 360, 210
+IDD_SIM_ANALYSIS_WHICH DIALOGEX 0, 0, 361, 225
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Quelle"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,346,195
+    GROUPBOX        "",IDC_STATIC,7,7,347,211
     CONTROL         "Sélectionner les variables (par défaut, toutes les variables sont utilisées)",IDC_SELECT_VARIABLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,240,10
-    CONTROL         "",IDC_VARIABLE,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,332,176
+    CONTROL         "",IDC_VARIABLE,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,332,191
 END
 
 IDD_SIM_COPY_EXPORT DIALOGEX 0, 0, 372, 135
@@ -1632,8 +1626,6 @@ BEGIN
     LTEXT           "( params x réplications x temps x variables = total)",IDC_STATIC,106,50,176,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Nom interne :",IDC_STATIC,7,259,50,8
     EDITTEXT        IDC_MAP_INTERNAL_NAME,106,257,90,12,ES_AUTOHSCROLL | ES_READONLY
-    CONTROL         "Laisser tomber l’année dans la référence temporelle",IDC_DROP_YEAR,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,8,235,197,10
     EDITTEXT        IDC_MAP_OPTIONS,106,182,176,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
     LTEXT           "Options de création :",IDC_STATIC,7,185,82,8,NOT WS_VISIBLE
 END
@@ -2434,41 +2426,41 @@ BEGIN
     IDD_SIM_ANALYSIS_GENERAL, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 354
         VERTGUIDE, 18
         VERTGUIDE, 32
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 217
     END
 
     IDD_SIM_ANALYSIS_HOW, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 354
         VERTGUIDE, 14
         VERTGUIDE, 78
         VERTGUIDE, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
-        HORZGUIDE, 187
+        BOTTOMMARGIN, 217
+        HORZGUIDE, 200
     END
 
     IDD_SIM_ANALYSIS_WHAT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 218
         HORZGUIDE, 20
-        HORZGUIDE, 196
+        HORZGUIDE, 211
     END
 
     IDD_SIM_ANALYSIS_WHEN, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 354
         VERTGUIDE, 14
         VERTGUIDE, 52
         VERTGUIDE, 92
@@ -2476,30 +2468,30 @@ BEGIN
         VERTGUIDE, 176
         VERTGUIDE, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 217
     END
 
     IDD_SIM_ANALYSIS_WHERE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 354
         VERTGUIDE, 14
         VERTGUIDE, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
-        HORZGUIDE, 196
+        BOTTOMMARGIN, 218
+        HORZGUIDE, 211
     END
 
     IDD_SIM_ANALYSIS_WHICH, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 354
         VERTGUIDE, 14
         VERTGUIDE, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 218
         HORZGUIDE, 20
-        HORZGUIDE, 196
+        HORZGUIDE, 211
     END
 
     IDD_SIM_COPY_EXPORT, DIALOG
@@ -4459,7 +4451,7 @@ BEGIN
     CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,357,156,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,198,81,12
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
-	CONTROL         "Don't fill missing values with Normals", IDC_WG_NO_FILL_MISSING,
+    CONTROL         "Don't fill missing values with Normals",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
 END
 
@@ -5170,46 +5162,42 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,273,235,50,14
 END
 
-IDD_SIM_ANALYSIS_GENERAL DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_GENERAL DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "General"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Name:",IDC_STATIC,7,9,42,8
-    EDITTEXT        IDC_NAME,55,7,254,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NAME,56,7,254,12,ES_AUTOHSCROLL
     LTEXT           "Description:",IDC_STATIC,7,24,42,8
-    EDITTEXT        IDC_DESCRIPTION,55,22,254,12,ES_AUTOHSCROLL
-    LTEXT           "Internal name:",IDC_STATIC,7,192,50,8
-    EDITTEXT        IDC_INTERNAL_NAME,61,190,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    LTEXT           "Analysis is a key function of BioSIM. Each of the 4 tabs is designed to extract a specific type of information from parent results: ",IDC_STATIC,7,42,302,18
-    LTEXT           "WHERE: Selection of one or more simulation points.",IDC_STATIC,18,64,291,9
-    LTEXT           "WHEN: Selection of a period within the parent period. For example, you may extract information for a specific day, or calculate a mean over a specific month.",IDC_STATIC,18,78,291,17
-    LTEXT           "WHAT: Selection of output variables on which to conduct the analysis. For example, a single output variable can be used for mapping.",IDC_STATIC,18,102,291,19
-    LTEXT           "HOW: This tab serves 3 different purposes depending on the context:",IDC_STATIC,18,124,268,10
-    LTEXT           "1- Statistic to work on: used when an analysis is to be performed on the results of a parent component.",IDC_STATIC,32,135,277,18
-    LTEXT           "2- Time transformation: used to compute statistics over at a time step coarser than the parent’s (e.g. monthly means from daily values).",IDC_STATIC,32,153,277,18
-    LTEXT           "3- Mean (final computation): used to compute means over replicates, parameter sets or locations. ",IDC_STATIC,32,172,277,18
+    EDITTEXT        IDC_DESCRIPTION,56,22,254,12,ES_AUTOHSCROLL
+    LTEXT           "Internal name:",IDC_STATIC,7,204,50,8
+    EDITTEXT        IDC_INTERNAL_NAME,61,203,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Analysis is a key function of BioSIM. Each of the 4 tabs is designed to extract a specific type of information from parent results: ",IDC_STATIC,7,39,303,18
+    LTEXT           "WHERE: Selection of one or more simulation points.",IDC_STATIC,18,61,292,9
+    LTEXT           "WHEN: Selection of a period within the parent period. For example, you may extract information for a specific day, or calculate a mean over a specific month.",IDC_STATIC,18,74,292,17
+    LTEXT           "WHICH: Selection of output variables on which to conduct the analysis. For example, a single output variable can be used for mapping.",IDC_STATIC,18,111,292,19
+    LTEXT           "HOW: This tab serves 3 different purposes depending on the context:",IDC_STATIC,18,133,268,10
+    LTEXT           "1- Statistic to work on: used when an analysis is to be performed on the results of a parent component.",IDC_STATIC,32,144,278,18
+    LTEXT           "2- Time transformation: used to compute statistics over at a time step coarser than the parent’s (e.g. monthly means from daily values).",IDC_STATIC,32,162,278,18
+    LTEXT           "3- Mean (final computation): used to compute means over replicates, parameter sets or locations. ",IDC_STATIC,32,181,278,18
+    LTEXT           "WHAT: Selection of parameters set on which to conduct the analysis. ",IDC_STATIC,18,97,292,14
 END
 
-IDD_SIM_ANALYSIS_HOW DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_HOW DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "How"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Statistic to work on (analysing the results of a prior component):",IDC_STATIC,7,9,199,8
-    COMBOBOX        IDC_PREVIOUS_STATISTIC_TYPE,210,7,99,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Define time transformation",IDC_SELECT_TIME_TRANSFORMATION,7,25,302,144
-    CONTROL         "Define time transformation",IDC_TIME_TRANSFORMATION_RADIO,
-                    "Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,212,192,97,10
-    GROUPBOX        "Mean (final computation)",IDC_STATIC,7,174,302,28
-    CONTROL         "Final computation",IDC_FINAL_COMPUTATION_RADIO,"Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,238,192,71,10
+    COMBOBOX        IDC_PREVIOUS_STATISTIC_TYPE,211,7,99,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Define time transformation",IDC_SELECT_TIME_TRANSFORMATION,7,25,303,152
+    GROUPBOX        "Mean (final computation)",IDC_STATIC,7,185,303,30
     CONTROL         "Statistic:",IDC_STATISTIC,"Button",BS_AUTORADIOBUTTON | WS_GROUP,14,38,57,10
     COMBOBOX        IDC_STATISTIC_TYPE,78,36,161,179,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Event:",IDC_EVENT,"Button",BS_AUTORADIOBUTTON,14,54,57,10
     COMBOBOX        IDC_EVENT_TYPE,78,52,161,161,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_K,245,51,57,14,ES_AUTOHSCROLL
-    CONTROL         "Drop annual part of the temporal reference (for mapping)",IDC_DROP_YEAR,
-                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,91,69,192,10
     LTEXT           "Temporal transformation of type:",IDC_CMN_STATIC1,14,88,102,8
     COMBOBOX        IDC_CT_TYPE,128,86,80,103,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "-->",IDC_CMN_STATIC2,211,88,12,8
@@ -5218,31 +5206,30 @@ BEGIN
     LTEXT           "-->",IDC_CMN_STATIC4,211,104,8,8
     COMBOBOX        IDC_TT_MODE,222,102,80,103,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_MODE_IMAGE,157,121,145,42,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "Over replications",IDC_MEAN_OVER_REPLICATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,187,69,10
-    CONTROL         "Over parameters",IDC_MEAN_OVER_PARAMETERSET,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,92,187,73,10
-    CONTROL         "Over locations",IDC_MEAN_OVER_LOCATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,169,187,61,10
-    CONTROL         "Define time transformation",IDC_SELECT_STATISTIC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,295,192,14,10
+    CONTROL         "Over replications",IDC_MEAN_OVER_REPLICATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,198,69,10
+    CONTROL         "Over parameters",IDC_MEAN_OVER_PARAMETERSET,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,92,198,73,10
+    CONTROL         "Over locations",IDC_MEAN_OVER_LOCATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,169,198,61,10
     LTEXT           "Temporal transformation of mode:",IDC_CMN_STATIC3,14,104,106,8
     LTEXT           "This image illustrates the time transformation (according to the options selected for the type and mode). As an example, the red arrows represent the event ""Time when variables are maximum"".",IDC_STATIC,14,122,138,44
 END
 
-IDD_SIM_ANALYSIS_WHAT DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_WHAT DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "What"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,302,195
+    GROUPBOX        "",IDC_STATIC,7,7,303,208
     CONTROL         "Select parameters set (by default all parameters set are selected)",IDC_SELECT_VARIABLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,218,10
-    CONTROL         "",IDC_VARIABLE,"SysTreeView32",WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,288,176
+    CONTROL         "",IDC_VARIABLE,"SysTreeView32",WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,20,288,188
 END
 
-IDD_SIM_ANALYSIS_WHEN DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_WHEN DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "When"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,302,195
+    GROUPBOX        "",IDC_STATIC,7,7,303,208
     CONTROL         "Select a period (by default, the entire period is used)",IDC_SELECT_PERIOD,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,179,10
     LTEXT           "Beginning:",IDC_CMN_STATIC1,14,29,34,8
@@ -5261,26 +5248,26 @@ BEGIN
     LTEXT           "The ""Year-by-year"" period is defined annually between the specified beginning and end dates. When Beginning > End date, the period starts at the end date of one year and stops at the beginning date of the following year.",IDC_CMN_STATIC4,176,108,126,50
 END
 
-IDD_SIM_ANALYSIS_WHERE DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_WHERE DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Where"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,302,195
+    GROUPBOX        "",IDC_STATIC,7,7,303,208
     CONTROL         "Select a subset of locations (by default all locations are used)",IDC_SELECT_LOCATION,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,207,10
-    CONTROL         "",IDC_LOCATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,14,20,288,176,WS_EX_CLIENTEDGE
+    CONTROL         "",IDC_LOCATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,14,32,288,176,WS_EX_CLIENTEDGE
 END
 
-IDD_SIM_ANALYSIS_WHICH DIALOGEX 0, 0, 316, 210
+IDD_SIM_ANALYSIS_WHICH DIALOGEX 0, 0, 317, 222
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Which"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,7,302,195
+    GROUPBOX        "",IDC_STATIC,7,7,303,208
     CONTROL         "Select variables (by default all variables are selected)",IDC_SELECT_VARIABLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,7,182,10
-    CONTROL         "",IDC_VARIABLE,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,14,20,288,176,WS_EX_CLIENTEDGE
+    CONTROL         "",IDC_VARIABLE,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,14,20,288,188,WS_EX_CLIENTEDGE
 END
 
 IDD_SIM_COPY_EXPORT DIALOGEX 0, 0, 372, 135
@@ -5539,8 +5526,6 @@ BEGIN
     LTEXT           "(parameters  x replications x times x variables = total)",IDC_STATIC,86,47,217,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Internal name:",IDC_STATIC,7,252,50,8
     EDITTEXT        IDC_MAP_INTERNAL_NAME,86,250,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    CONTROL         "Drop annual part of the temporal reference",IDC_DROP_YEAR,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,235,192,10
 END
 
 IDD_SIM_MERGE_EXECUTABLE DIALOGEX 0, 0, 293, 272
@@ -6353,42 +6338,42 @@ BEGIN
     IDD_SIM_ANALYSIS_GENERAL, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 18
         VERTGUIDE, 32
         VERTGUIDE, 298
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 215
     END
 
     IDD_SIM_ANALYSIS_HOW, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 78
         VERTGUIDE, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
-        HORZGUIDE, 187
+        BOTTOMMARGIN, 215
+        BOTTOMMARGIN, 210
     END
 
     IDD_SIM_ANALYSIS_WHAT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 215
         HORZGUIDE, 20
-        HORZGUIDE, 196
+        HORZGUIDE, 208
     END
 
     IDD_SIM_ANALYSIS_WHEN, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 38
         VERTGUIDE, 92
@@ -6396,30 +6381,30 @@ BEGIN
         VERTGUIDE, 176
         VERTGUIDE, 298
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 215
     END
 
     IDD_SIM_ANALYSIS_WHERE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
-        HORZGUIDE, 196
+        BOTTOMMARGIN, 215
+        HORZGUIDE, 208
     END
 
     IDD_SIM_ANALYSIS_WHICH, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 310
         VERTGUIDE, 14
         VERTGUIDE, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 215
         HORZGUIDE, 20
-        HORZGUIDE, 196
+        HORZGUIDE, 208
     END
 
     IDD_SIM_COPY_EXPORT, DIALOG

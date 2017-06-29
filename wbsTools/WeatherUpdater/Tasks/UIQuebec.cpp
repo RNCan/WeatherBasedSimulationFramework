@@ -33,8 +33,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY;
-	const char* CUIQuebec::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network", "DataType", "UpdateUntil", "UpdateStationsList" };
-	const size_t CUIQuebec::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_COMBO_INDEX, T_STRING, T_BOOL };
+	const char* CUIQuebec::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Network", "DataType", "UpdateUntil", "UpdateStationsList", "UserNameSOPFEU", "PasswordSOPFEU", "UserNameMFFP", "PasswordMFFP" };
+	const size_t CUIQuebec::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_COMBO_INDEX, T_STRING, T_BOOL, T_STRING, T_PASSWORD, T_STRING, T_PASSWORD};
 	const UINT CUIQuebec::ATTRIBUTE_TITLE_ID = IDS_UPDATER_QUEBEC_P;
 	const UINT CUIQuebec::DESCRIPTION_TITLE_ID = ID_TASK_QUEBEC;
 
@@ -44,7 +44,7 @@ namespace WBSF
 
 	
 	//SOPFEU, MDDELCC, HYDRO, MFFP, ALCAN, AGRI, METEO_CENTRE, NB_NETWORKS};
-	const char* CUIQuebec::SERVER_NAME[NB_NETWORKS] = { "FTP3.sopfeu.qc.ca", "www.mddelcc.gouv.qc.ca", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org"};//, "meteocentre.com" 
+	const char* CUIQuebec::SERVER_NAME[NB_NETWORKS] = { "FTP3.sopfeu.qc.ca", "www.mddelcc.gouv.qc.ca", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org"};
 	const char* CUIQuebec::NETWORK_NAME[NB_NETWORKS] = { "SOPFEU", "MDDELCC", "HYDRO", "MFFP", "ALCAN", "FADQ"};//, "METEO_CENTRE" 
 
 	//size_t CUIQuebec::GetNetwork(const string& network)
@@ -116,6 +116,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
+
+
+
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 		
@@ -131,7 +135,7 @@ namespace WBSF
 				case SOPFEU:  InitSOPFEU(m_SOPFEU); msg += m_SOPFEU.Execute(callback); break;
 				case MDDELCC: InitMDDELCC(m_MDDELCC); msg += m_MDDELCC.Execute(callback); break;
 				case HYDRO:
-				case MFFP:
+				case MFFP:	InitMFFP(m_MFFP); msg += m_MFFP.Execute(callback); break;
 				case ALCAN:
 				case FADQ:break;
 				}
@@ -161,7 +165,7 @@ namespace WBSF
 				case SOPFEU: InitSOPFEU(m_SOPFEU); msg += m_SOPFEU.GetStationList(station, callback); break;
 				case MDDELCC:InitMDDELCC(m_MDDELCC);  msg += m_MDDELCC.GetStationList(station, callback); break;
 				case HYDRO:
-				case MFFP:
+				case MFFP:	InitMFFP(m_MFFP);  msg += m_MFFP.GetStationList(station, callback); break;
 				case ALCAN:
 				case FADQ:break;
 				}
@@ -182,8 +186,8 @@ namespace WBSF
 	void CUIQuebec::InitSOPFEU(CSOPFEU& obj)const
 	{
 		obj.m_workingDir = GetDir(WORKING_DIR) + "SOPFEU\\";
-		obj.m_userName = Get(USER_NAME);
-		obj.m_password = Get(PASSWORD);
+		obj.m_userName = Get(USER_NAME_SOPFEU);
+		obj.m_password = Get(PASSWORD_SOPFEU);
 		obj.m_firstYear = as<int>(FIRST_YEAR);
 		obj.m_lastYear = as<int>(LAST_YEAR);
 	}
@@ -195,6 +199,15 @@ namespace WBSF
 		obj.m_lastYear = as<int>(LAST_YEAR);
 		obj.bForceUpdateList = as<bool>(UPDATE_STATIONS_LIST);
 		obj.m_updateUntil = as<int>(UPDATE_UNTIL);
+	}
+
+	void CUIQuebec::InitMFFP(CMFFP& obj)const
+	{
+		obj.m_workingDir = GetDir(WORKING_DIR) + "MFFP\\";
+		obj.m_userName = Get(USER_NAME_MFFP);
+		obj.m_password = Get(PASSWORD_MFFP);
+		obj.m_firstYear = as<int>(FIRST_YEAR);
+		obj.m_lastYear = as<int>(LAST_YEAR);
 	}
 
 	ERMsg CUIQuebec::GetWeatherStation(const string& name, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -214,7 +227,7 @@ namespace WBSF
 		case SOPFEU: msg += m_SOPFEU.GetWeatherStation(ID, TM, station, callback); break;
 		case MDDELCC:  msg += m_MDDELCC.GetWeatherStation(ID, TM, station, callback); break;
 		case HYDRO:
-		case MFFP:
+		case MFFP:	msg += m_MFFP.GetWeatherStation(ID, TM, station, callback); break;
 		case ALCAN:
 		case FADQ:  break;
 		}

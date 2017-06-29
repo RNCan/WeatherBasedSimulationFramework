@@ -99,7 +99,7 @@ CStatistic GetDailyStat(size_t v, CWeatherDay& weather)
 		accumulator.Add(weather[h].GetTRef(), v, weather[h][v]);
 
 	//flush data
-	accumulator.ResetMidnight();
+	//accumulator.ResetMidnight();
 	//if (weather.GetParent() != NULL)
 	//{
 	//	//Compute noon-noon, 06-06, 18-18 from the previous and current day

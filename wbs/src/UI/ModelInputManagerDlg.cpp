@@ -697,7 +697,7 @@ namespace WBSF
 	{
 		string name = ToUTF8(GetItemText(iItem));
 
-		const CModelInputParameterDefVector& varDef = m_model.GetInputDefinition();
+		const CModelInputParameterDefVector& varDef = m_model.GetInputDefinition(true);
 		CParametersVariationsDefinition PVD = varDef.GetParametersVariations();
 		ERMsg msg = GetFM().PVD(m_model.GetExtension()).Set(name, PVD);
 
@@ -767,7 +767,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		const CModelInputParameterDefVector& varDef = m_model.GetInputDefinition();
+		const CModelInputParameterDefVector& varDef = m_model.GetInputDefinition(true);
 		if (!curName.IsEmpty() && curName != STRDEFAULT)
 			msg = GetFM().PVD(m_model.GetExtension()).Get(ToUTF8(curName), PVD);
 		

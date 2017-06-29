@@ -108,8 +108,7 @@ namespace WBSF
 	ERMsg CHRDPS::Execute( CCallback& callback)
 	{
 		ERMsg msg;
-		//string outputPath = GetDir(WORKING_DIR);
-
+		
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(m_workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));

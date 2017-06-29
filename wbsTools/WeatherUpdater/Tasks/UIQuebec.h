@@ -6,6 +6,7 @@
 #include "UI/Common/UtilWWW.h"
 #include "SOPFEU.h"
 #include "MDDELCC.h"
+#include "MFFP.h"
 
 namespace WBSF
 {
@@ -16,8 +17,8 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TNetwork{ SOPFEU, MDDELCC, HYDRO, MFFP, ALCAN, FADQ, NB_NETWORKS };//METEO_CENTRE, 
-		enum Tattributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, UPDATE_UNTIL, UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum TNetwork{ SOPFEU, MDDELCC, HYDRO, MFFP, ALCAN, FADQ, NB_NETWORKS };
+		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, UPDATE_UNTIL, UPDATE_STATIONS_LIST, USER_NAME_SOPFEU, PASSWORD_SOPFEU, USER_NAME_MFFP, PASSWORD_MFFP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIQuebec); }
@@ -46,21 +47,19 @@ namespace WBSF
 
 	protected:
 
-		//size_t GetNetwork(const string& network)const;
+		
 		std::bitset<NB_NETWORKS> GetNetwork()const;
-	//	std::string GetStationListFilePath(size_t n);
+	
 
 		void InitSOPFEU(CSOPFEU& obj)const;
 		void InitMDDELCC(CMDDELCC& obj)const;
-
-//		CSOPFEU GetSOPFEU()const;
-	//	CMDDELCC GetMDDELCC()const;
+		void CUIQuebec::InitMFFP(CMFFP& obj)const;
 
 		CSOPFEU m_SOPFEU;
 		CMDDELCC m_MDDELCC;
+		CMFFP m_MFFP;
 
 
-//		CLocationVector m_stations;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

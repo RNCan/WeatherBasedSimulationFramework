@@ -53,7 +53,7 @@ namespace WBSF
 						if (v == GSL || v == WSDI || v == CSDI || v == CDD || v == CWD)
 						{
 							TVarH vv = TVarH((v < RX1D) ? H_TNTX : H_PRCP);
-							if (weather.GetNbDays() - weather[vv][NB_VALUE] <= NB_MISSING_A)
+							if (weather[y].GetNbDays() - weather[y][vv][NB_VALUE] <= NB_MISSING_A)
 							{
 
 								array<double, 12> value = { 0 };
@@ -568,8 +568,10 @@ namespace WBSF
 		{
 			double threshold = N.GetPThreshold(m, p);
 			if (weather[d][H_PRCP].IsInit() && weather[d][H_PRCP][SUM] >= 1.0)//take only wet day
+			{
 				if (weather[d][H_PRCP][SUM] > threshold)
 					stat += weather[d][H_PRCP][SUM];
+			}
 		}// day
 
 		if( stat.IsInit() )

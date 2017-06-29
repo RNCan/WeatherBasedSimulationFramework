@@ -235,13 +235,15 @@ namespace WBSF
 //***************************************************************************************************************************************
 
 	BEGIN_MESSAGE_MAP(CParametersVariationsDlg, CDialog)
-		ON_CBN_SELCHANGE(IDC_PV_GENERATION_TYPE, UpdateCtrl)
+		ON_CBN_SELCHANGE(IDC_PV_GENERATION_TYPE, OnGeneratioTypeChange)
+		ON_EN_CHANGE(IDC_PV_NB_VARIATIONS, OnNbVariationChange)
 		ON_NOTIFY(TVN_SELCHANGED, IDC_PV_PARAMETERS, OnSelectionChange)
 		ON_REGISTERED_MESSAGE(WM_XHTMLTREE_CHECKBOX_CLICKED, OnCheckbox)
 		ON_WM_DESTROY()
 		ON_WM_ENABLE()
 	END_MESSAGE_MAP()
 
+	
 	
 	CParametersVariationsDlg::CParametersVariationsDlg(CWnd* pParent /*=NULL*/, bool bShowVariationType)
 		: CDialog(CParametersVariationsDlg::IDD, pParent),
@@ -262,25 +264,19 @@ namespace WBSF
 
 		if (pDX->m_bSaveAndValidate)
 		{
-			m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
-			m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
+			m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
+			m_parametersVariations.m_nbVariation = ToInt( m_nbVariationsCtrl.GetString());
 		}
 		else
 		{
 			m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
 			m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
-
-			/*if (m_parametersVariations.size() != m_parametersDefinition.size())
-			{
-			m_parametersVariations = m_parametersDefinition.GetParametersVariations();
-			}*/
-
+			
 			//Fill parameters
 			FillParameters();
 			//select parameters
 			SelectParameters();
 		}
-
 
 	}
 
@@ -381,6 +377,17 @@ namespace WBSF
 		}
 		return 0;
 	}
+
+	void CParametersVariationsDlg::OnGeneratioTypeChange()
+	{
+		m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
+	}
+
+	void CParametersVariationsDlg::OnNbVariationChange()
+	{
+		m_parametersVariations.m_nbVariation = ToInt(m_nbVariationsCtrl.GetString());
+	}
+	
 
 	void CParametersVariationsDlg::UpdateCtrl(void)
 	{

@@ -6,15 +6,21 @@
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
+namespace cctz{ class time_zone; }
+
+
 namespace WBSF
 {
 
+	
 	//**************************************************************
 	class CUIEnvCanHourly : public CTaskBase
 	{
 	public:
 		
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NB_ATTRIBUTES };
+		enum TSWOBVar{ NB_SWOB_VARIABLES = 22 };
+		enum TNetwork{ N_HISTORICAL, N_SWOB, NB_NETWORKS };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NETWORK, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanHourly); }
 
@@ -43,8 +49,13 @@ namespace WBSF
 
 	protected:
 
-		std::string GetOutputFilePath(const std::string& prov, int year, size_t m, const std::string& stationName)const;
-		void GetStationInformation(__int64 ID, CLocation& station)const;
+		typedef std::array<std::string, NB_SWOB_VARIABLES * 2 + 4> SWOBDataHour;
+		typedef std::array< std::array< SWOBDataHour, 24>, 31> SWOBData;
+
+
+		ERMsg ExecuteHistorical(CCallback& callback);
+		std::string GetOutputFilePath(size_t n, const std::string& prov, int year, size_t m, const std::string& stationName)const;
+		std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetStationInformation(const std::string& ID, CLocation& station)const;
 
 
 		//Update station list part
@@ -56,31 +67,54 @@ namespace WBSF
 
 		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
-		ERMsg UpdateStationList(CLocationVector& stationList, CEnvCanStationMap& stationMap, CCallback& callback)const;
-
+		ERMsg UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback)const;
+		std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetNetWork()const;
 
 		//Update data part
 		ERMsg DownloadStation(UtilWWW::CHttpConnectionPtr& pConnection, const CLocation& info, CCallback& callback);
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback = DEFAULT_CALLBACK)const;
 
-	
+		ERMsg ExecuteSWOB(CCallback& callback);
+		std::string GetSWOBStationsListFilePath()const;
+		ERMsg UpdateSWOBLocations(CCallback& callback);
+		ERMsg GetSWOBLocation(const std::string& filePath, CLocation& location);
+		ERMsg GetSWOBList(const CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
+		ERMsg UpdateMissingLocation(CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
+		ERMsg DownloadSWOB(const CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
+		ERMsg ReadSWOBData(const std::string& filePath, CTM TM, const cctz::time_zone& zone, CWeatherStation& data, CCallback& callback);
+		ERMsg ParseSWOB(CTRef TRef, const std::string& source, SWOBDataHour& data, CCallback& callback);
+		ERMsg UpdateLastUpdate(const std::map<std::string, CTRef>& lastUpdate);
+
+		ERMsg ReadSWOB(const std::string& filePath, SWOBData& data);
+		ERMsg SaveSWOB(const std::string& filePath, const SWOBData& data);
+		
+		//ERMsg ReadSWOB_XML(const std::string& source, CHourlyData& data, CCallback& callback);
+		//ERMsg SaveSWOB(CTRef TRef, const std::string& source, const std::string& filePath, CCallback& callback);
+		
+		
 
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int year, size_t m)const;
 		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page);
 
-		CEnvCanStationMap m_stations;
+		//CEnvCanStationMap m_stations;
+		CLocationMap m_stations;
+		CLocationVector m_SWOBstations;
 
 		static CTPeriod String2Period(std::string period);
 		static void UpdatePeriod(CLocation& location, int year);
 		static long GetNbDay(const CTime& t);
 		static long GetNbDay(int y, size_t m, size_t d);
+		static CTRef GetSWOBTRef(const std::string & fileName);
+		static std::string GetProvinceFormID(const std::string& ID);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME;
-
+		static const char* SWOB_VARIABLE_NAME[NB_SWOB_VARIABLES];
+		static const char* DEFAULT_UNIT[NB_SWOB_VARIABLES];
+		static const HOURLY_DATA::TVarH VARIABLE_TYPE[NB_SWOB_VARIABLES];
 	};
 
 }

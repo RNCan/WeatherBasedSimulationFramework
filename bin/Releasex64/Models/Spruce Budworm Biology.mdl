@@ -129,7 +129,6 @@
             <Description>Percentage of insect in feeding second larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L3</Name>
@@ -138,7 +137,6 @@
             <Description>Percentage of insect in third larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L4</Name>
@@ -147,7 +145,6 @@
             <Description>Percentage of insect in fourth larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L5</Name>
@@ -156,12 +153,11 @@
             <Description>Percentage of insect in fifth larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L6</Name>
-            <Title>L6(%)</Title>
-            <Units/>
+            <Title>L6</Title>
+            <Units>%</Units>
             <Description>Percentage of insect in sixth larval stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -189,7 +185,6 @@
             <Description>Percentage of naturel dead adult</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>OvipositingAdult</Name>
@@ -198,7 +193,6 @@
             <Description>Percentage of ovipositing adult (female)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Brood</Name>
@@ -207,7 +201,6 @@
             <Description>Number of eggs brood by day</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Eggs_g2</Name>
@@ -216,7 +209,6 @@
             <Description>Percentage of eggs of the new generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L1_g2</Name>
@@ -225,7 +217,6 @@
             <Description>Percentage of first stage of the new generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L2o_g2</Name>
@@ -234,7 +225,6 @@
             <Description>Percentage of overwintering second stage of the new generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L2_g2</Name>
@@ -243,7 +233,6 @@
             <Description>Percentage of feeding second stage of the new generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>AverageInstar</Name>
@@ -256,7 +245,7 @@
         <OutputVariable>
             <Name>MalePupae</Name>
             <Title>MalePupae</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -264,7 +253,7 @@
         <OutputVariable>
             <Name>FemalePupae</Name>
             <Title>FemalePupae</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -272,7 +261,7 @@
         <OutputVariable>
             <Name>MaleAdult</Name>
             <Title>MaleAdult</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -280,7 +269,7 @@
         <OutputVariable>
             <Name>FemaleAdult</Name>
             <Title>FemaleAdult</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -288,7 +277,7 @@
         <OutputVariable>
             <Name>MaleEmergence</Name>
             <Title>MaleEmergence</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -296,7 +285,7 @@
         <OutputVariable>
             <Name>FemaleEmergence</Name>
             <Title>FemaleEmergence</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>

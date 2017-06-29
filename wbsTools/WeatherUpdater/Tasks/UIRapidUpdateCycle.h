@@ -18,7 +18,7 @@ namespace WBSF
 
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, USE_NAM, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, USE_NAM, USE_FORECAST, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }

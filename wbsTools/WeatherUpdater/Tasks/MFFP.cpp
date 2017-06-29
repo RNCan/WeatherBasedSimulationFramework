@@ -2,7 +2,7 @@
 //PW: LeSoleilBrille
 
 #include "StdAfx.h"
-#include "SOPFEU.h"
+#include "MFFP.h"
 
 
 #include "Basic/HourlyDatabase.h"
@@ -15,32 +15,6 @@
 #include "../Resource.h"
 
 
-//FE	Émetteur Sopfeu
-//Identifiant	Station
-//Date
-//Heure	Temps universel coordonné(ou UTC)
-
-//00. TAi000H	Température horaire(°C)
-//01. TAn000H	Température minimale horaire(°C)
-//02. TAx000H	Température maximale horaire(°C)
-//03. TAm000H	Température moyenne horaire(°C)
-//04. PC040H	Précipitation liquide horaire cumulée(mm) : se remet à 0.0 au jour julien 90
-//05. PT040H	Précipitation liquide horaire(mm)
-//06. PC020H	Précipitation totale horaire cumulée(mm)
-//07. PT041H	Poids total en mm
-//08. HAi000H	Humidité relative horaire(%)
-//09. HAn000H	Humidité relative minimale horaire(%)
-//10. HAx000H	Humidité relative maximale horaire(%)
-//11. NSi000H	Épaisseur de la neige au sol horaire(cm)
-//12. VDi300H	Direction du vent instantanée horaire(°degrés)
-//13. VVi300H	Vitesse du vent instantanée horaire(km/h)
-//14. VVxi500H	Vitesse de la pointe de vent horaire(km/h)
-//15. VDm025B	Direction du vent instantanée horaire à 2,5 mètres(°degrés)
-//16. VVm025B	Vitesse du vent instantanée horaire à 2,5 mètres(km / h)
-//17. TDi000H	Température du point de rosée horaire(°C)
-//18. VB000B	Voltage batterie
-//
-
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
@@ -48,49 +22,85 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
-	const char* CSOPFEU::SERVER_NAME = "FTP3.sopfeu.qc.ca";
-	const char* CSOPFEU::SERVER_PATH = "RMCQ/";
+	const char* CMFFP::SERVER_NAME = "horus.mesonet-quebec.org";
+	const char* CMFFP::SERVER_PATH = "/";
 
-	const char * CSOPFEU::FIELDS_NAME[NB_FIELDS] =
-	{ "TAI000H", "TAN000H", "TAX000H", "TAM000H", "PC040H", "PT040H", "PC020H", "PT041H", "HAI000H", "HAN000H", "HAX000H", "NSI000H", "VDI300H", "VVI300H", "VVXI500H", "VDM025B", "VVM025B", "TDI000H", "VB000B" };
+	const char * CMFFP::FIELDS_NAME[NB_FIELDS] =
+	{ "TAI000H", "TAN000H", "TAX000H", "TAM000H", "PC040H", "PT040H", "PC020H", "PT020H", "PT041H", "HAI000H", "HAN000H", "HAX000H", "NSI000H", "VDM400H", "VVM400H", "VDXI500H", "VVXI500H", "VDXI500HT", "VDM425H", "VVM425H", "VDXI525H", "VVXI525H", "VDXI525HT", "TDI000H", "TDN000H", "TDX000H", "VB000B" };
+	//TAm000H
+	//TAi000H
+	//TAn000H
+	//TAx000H
+	//HAi000H
+	//HAn000H
+	//HAx000H
+	//TDi000H
+	//TDn000H
+	//TDx000H
+	//VDm400H	:wind direction 
+	//VVm400H	:wind speed 
+	//VDxi500H	:wind direction 
+	//VVxi500H	:wind speed
+	//VDxi500HT	:wind direction 
+	//VDm425H	:wind direction 
+	//VVm425H	:wind speed
+	//VDxi525H	:wind direction 
+	//VVxi525H	:wind speed
+	//VDxi525HT	:wind direction 
+	//PC020H
+	//PC040H
+	//PT020H
+	//PT040H
+	//PT041H
+	//NSi000H
 	
-	const TVarH CSOPFEU::VARIABLE[NB_FIELDS] = { H_TAIR2, H_TMIN2, H_TMAX2, H_TAIR2, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
+	
+	const TVarH CMFFP::VARIABLE[NB_FIELDS] = { H_TAIR2, H_TMIN2, H_TMAX2, H_TAIR2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_SKIP, H_SKIP, H_SKIP, H_TDEW, H_SKIP, H_SKIP, H_SKIP };
 
-	TVarH CSOPFEU::GetVariable(std::string str)
+	TVarH CMFFP::GetVariable(std::string str)
 	{
 		str = MakeUpper(str);
 		TVarH v = H_SKIP;
+		bool find = false;
 		for (size_t i = 0; i < NB_FIELDS&&v == NOT_INIT; i++)
+		{
 			if (str == FIELDS_NAME[i])
+			{
+				find = true;
 				v = VARIABLE[i];
+				break;
+			}
+		}
+
+		ASSERT(find);
 
 		return v;
 	}
 
 	//*********************************************************************
 
-	CSOPFEU::CSOPFEU(void)
+	CMFFP::CMFFP(void)
 	{
 		m_firstYear=0;
 		m_lastYear=0;
 	}
 
-	CSOPFEU::~CSOPFEU(void)
+	CMFFP::~CMFFP(void)
 	{}
 
 	//*****************************************************************************
 
-	string CSOPFEU::GetStationListFilePath()const
+	string CMFFP::GetStationListFilePath()const
 	{
 		return GetApplicationPath() + "Layers\\QuebecStations.csv";
 	}
 
-	string CSOPFEU::GetOutputFilePath(CTRef TRef)const
+	string CMFFP::GetOutputFilePath(CTRef TRef)const
 	{
 		return WBSF::FormatA("%s%d/m%4d-%02d-%02d-%02d.csv", m_workingDir.c_str(), TRef.GetYear(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
 	}
 
-	ERMsg CSOPFEU::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
+	ERMsg CMFFP::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -178,7 +188,7 @@ namespace WBSF
 		return CTRef(JDay.GetYear(), JDay.GetMonth(), JDay.GetDay(), h);
 	}
 
-	ERMsg CSOPFEU::CleanList(CFileInfoVector& fileList, CCallback& callback)const
+	ERMsg CMFFP::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -210,9 +220,26 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CSOPFEU::Execute(CCallback& callback)
+	ERMsg CMFFP::Execute(CCallback& callback)
 	{
 		ERMsg msg;
+		
+		/*{
+
+			StringVector fileList = WBSF::GetFilesList("G:\\Quebec\\MFFP\\2017(old)\\*.*");
+			for (size_t i = 0; i < fileList.size(); i++)
+			{
+				string fileTitle = GetFileTitle(fileList[i]);
+				CTRef TRef = GetTRef(fileTitle);
+
+				string outputFilePath = GetOutputFilePath(TRef);
+				CreateMultipleDir(GetPath(outputFilePath));
+
+				WBSF::CopyOneFile(fileList[i], outputFilePath);
+			}
+
+		}*/
+
 
 		string workingDir = m_workingDir;
 		msg = CreateMultipleDir(workingDir);
@@ -309,7 +336,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CSOPFEU::GetStationList(StringVector& stationList, CCallback& callback)
+	ERMsg CMFFP::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 		
@@ -333,7 +360,7 @@ namespace WBSF
 		
 	}
 
-	ERMsg CSOPFEU::LoadWeatherInMemory(CCallback& callback)
+	ERMsg CMFFP::LoadWeatherInMemory(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -345,7 +372,7 @@ namespace WBSF
 
 			//on pourrait optimiser en loadant une seul fois tout les fichiers
 			StringVector fileList = GetFilesList(m_workingDir + to_string(year) + "\\" + "*.csv");
-			callback.PushTask("Load SOPFEU data for year = " + to_string(year), fileList.size());
+			callback.PushTask("Load MFFP data for year = " + to_string(year), fileList.size());
 
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
@@ -361,7 +388,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CSOPFEU::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CMFFP::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 	
@@ -373,7 +400,7 @@ namespace WBSF
 		return msg;
 	}
 
-	bool CSOPFEU::IsValid(TVarH v, double value)
+	bool CMFFP::IsValid(TVarH v, double value)
 	{
 		bool bValid = true;
 		switch (v)
@@ -394,7 +421,7 @@ namespace WBSF
 		return bValid;
 	}
 
-	ERMsg CSOPFEU::ReadData(const string& filePath, CWeatherStationMap& stations, CCallback& callback)const
+	ERMsg CMFFP::ReadData(const string& filePath, CWeatherStationMap& stations, CCallback& callback)const
 	{
 		ERMsg msg;
 

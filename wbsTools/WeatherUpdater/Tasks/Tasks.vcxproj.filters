@@ -143,9 +143,6 @@
     <ClInclude Include="UINEWA.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIHighResolutionGribs.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="HRRR.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -183,6 +180,21 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UINOAAForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGribForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIHRDPS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIHRRR.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIHIRESW.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MFFP.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -319,9 +331,6 @@
     <ClCompile Include="UINEWA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIHighResolutionGribs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HRRR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -359,6 +368,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UINOAAForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGribForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHRDPS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHRRR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHIRESW.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MFFP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

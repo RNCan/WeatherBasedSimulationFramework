@@ -279,27 +279,27 @@ namespace WBSF
 	void CCallback::PopTask()
 	{
 		//if (omp_get_thread_num() == 0)
+		//{
+		CS.Enter();
+		//std::unique_lock<std::mutex> lock(m_mutex);
+
+		if (!m_threadTasks.empty())
 		{
-			CS.Enter();
-			//std::unique_lock<std::mutex> lock(m_mutex);
-
-			if (!m_threadTasks.empty())
-			{
-				ASSERT(omp_get_thread_num() == 0);
+			//ASSERT(omp_get_thread_num() == 0);
 				
-				//transfer message to parent
-				string messages;
-				if (!GetTasks().empty())
-					messages = GetTasks().top().m_messages;
+			//transfer message to parent
+			string messages;
+			if (!GetTasks().empty())
+				messages = GetTasks().top().m_messages;
 
-				GetTasks().pop();
+			GetTasks().pop();
 
-				if (!GetTasks().empty())
-					GetTasks().top().m_messages += messages;
-			}
-
-			CS.Leave();
+			if (!GetTasks().empty())
+				GetTasks().top().m_messages += messages;
 		}
+
+		CS.Leave();
+		//}
 
 		if (omp_get_thread_num() == 0)
 		{

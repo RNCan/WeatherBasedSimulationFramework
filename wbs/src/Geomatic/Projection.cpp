@@ -399,7 +399,7 @@ namespace WBSF
 
 				if (!msg)
 				{
-					pProjection.reset(new CProjection(prjStr, PRJ_UNKNOWN, NULL, NULL));
+					pProjection.reset(new CProjection(prjStr, PRJ_UNKNOWN, OGRSpatialReference(), NULL));
 				}
 
 

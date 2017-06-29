@@ -165,6 +165,7 @@
     <ClInclude Include="HRDPS.h" />
     <ClInclude Include="HRRR.h" />
     <ClInclude Include="MDDELCC.h" />
+    <ClInclude Include="MFFP.h" />
     <ClInclude Include="SOPFEU.h" />
     <ClInclude Include="UICMIP5.h" />
     <ClInclude Include="stdafx.h" />
@@ -176,7 +177,10 @@
     <ClInclude Include="UIEnvCanPrcpRadar.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
     <ClInclude Include="UIGPCP.h" />
-    <ClInclude Include="UIHighResolutionGribs.h" />
+    <ClInclude Include="UIGribForecast.h" />
+    <ClInclude Include="UIHIRESW.h" />
+    <ClInclude Include="UIHRDPS.h" />
+    <ClInclude Include="UIHRRR.h" />
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMesoWest.h" />
     <ClInclude Include="UINOAAForecast.h" />
@@ -225,6 +229,7 @@
     <ClCompile Include="HRDPS.cpp" />
     <ClCompile Include="HRRR.cpp" />
     <ClCompile Include="MDDELCC.cpp" />
+    <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="SOPFEU.cpp" />
     <ClCompile Include="UICMIP5.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -241,7 +246,10 @@
     <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
     <ClCompile Include="UIGPCP.cpp" />
-    <ClCompile Include="UIHighResolutionGribs.cpp" />
+    <ClCompile Include="UIGribForecast.cpp" />
+    <ClCompile Include="UIHIRESW.cpp" />
+    <ClCompile Include="UIHRDPS.cpp" />
+    <ClCompile Include="UIHRRR.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMesoWest.cpp" />
     <ClCompile Include="UINOAAForecast.cpp" />

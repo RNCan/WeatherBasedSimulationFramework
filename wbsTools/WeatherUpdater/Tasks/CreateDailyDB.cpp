@@ -158,6 +158,13 @@ namespace WBSF
 
 				if (messageTmp)
 				{
+					if (station.IsHourly())
+					{
+						//transform hourly data to daily data
+						station.GetStat(H_TAIR2);//compute daily stat
+						station.SetHourly(false);//remove hourly values
+					}
+
 					CleanSparse(station);
 
 					if (station.HaveData())
@@ -258,13 +265,18 @@ namespace WBSF
 			if (p.End() >= now)
 				p.End() = now - 1;
 
+		
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
+				CWVariablesCounter count = station[TRef].GetVariablesCount();
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDayPerMonth()*factor[v]);
+						
+						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDayPerMonth()*factor[v]);
+						double completeness = 100.0 * count[v].first / (TRef.GetNbDayPerMonth()*factor[v]);
+						
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < monthlyCompleteness)
 						{

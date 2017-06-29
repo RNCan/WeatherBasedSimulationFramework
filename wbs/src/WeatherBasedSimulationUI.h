@@ -220,7 +220,6 @@
 #define IDC_MERGE_FILEPATH_OUT          1071
 #define IDC_RT_LINKED                   1072
 #define IDC_MERGE_FILEPATH_OUT_BROWSE   1072
-#define IDC_DROP_YEAR                   1072
 #define IDC_MERGE_CELLESIZE_TYPE        1073
 #define IDC_IMPORT_TEMPORAL_DATA        1073
 #define IDC_MERGE_ADD                   1074

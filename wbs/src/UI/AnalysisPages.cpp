@@ -645,7 +645,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_STATISTIC_TYPE, m_statisticTypeCtrl);
 		DDX_Control(pDX, IDC_EVENT_TYPE, m_eventTypeCtrl);
 		DDX_Control(pDX, IDC_K, m_KCtrl);
-		DDX_Control(pDX, IDC_DROP_YEAR, m_bDropYearCtrl);
+		
 		DDX_Control(pDX, IDC_MEAN_OVER_REPLICATION, m_meanOverReplicationCtrl);
 		DDX_Control(pDX, IDC_MEAN_OVER_PARAMETERSET, m_meanOverParameterSetCtrl);
 		DDX_Control(pDX, IDC_MEAN_OVER_LOCATION, m_meanOverLocationCtrl);
@@ -684,7 +684,7 @@ namespace WBSF
 		computation.m_statisticType2 = m_statisticTypeCtrl.GetCurSel();
 		computation.m_eventType = m_eventTypeCtrl.GetCurSel();
 		computation.m_K = ToFloat(m_KCtrl.GetString());
-		computation.m_bDropYear = m_bDropYearCtrl.GetCheck();
+		
 
 		computation.m_bMeanOverReplication = m_meanOverReplicationCtrl.GetCheck();
 		computation.m_bMeanOverParameterSet = m_meanOverParameterSetCtrl.GetCheck();
@@ -714,7 +714,7 @@ namespace WBSF
 		m_statisticTypeCtrl.SetCurSel(computation.m_statisticType2);
 		m_eventTypeCtrl.SetCurSel(computation.m_eventType);
 		m_KCtrl.SetWindowText(ToString(computation.m_K));
-		m_bDropYearCtrl.SetCheck(computation.m_bDropYear);
+		
 
 		m_meanOverReplicationCtrl.SetCheck(computation.m_bMeanOverReplication);
 		m_meanOverParameterSetCtrl.SetCheck(computation.m_bMeanOverParameterSet);
@@ -815,7 +815,7 @@ namespace WBSF
 		m_eventCtrl.EnableWindow(bEnable);
 		m_eventTypeCtrl.EnableWindow(bEnableEvent);
 		m_KCtrl.EnableWindow(bEnableK);
-		m_bDropYearCtrl.EnableWindow(bEnableEvent);
+		
 
 		for (int i = 0; i < NB_STATIC; i++)
 			GetStatic(i).EnableWindow(bEnable);

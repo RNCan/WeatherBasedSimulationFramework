@@ -91,8 +91,8 @@ namespace WBSF
 		static double GetRX5DAY(const CWeatherMonth& weather);
 		static CStatistic GetRnnmm(const CWeatherMonth& weather, double nn);
 		static double GetSDII(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 1.0);  return stat.IsInit() ? stat[MEAN] : -999; }
-		static double GetR10mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 10);  return stat.IsInit() ? stat[NB_VALUE] : -999;  }
-		static double GetR20mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 20);  return stat.IsInit() ? stat[NB_VALUE] : -999;  }
+		static double GetR10mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 10);  return stat[NB_VALUE]; }
+		static double GetR20mm(const CWeatherMonth& weather){ CStatistic stat = GetRnnmm(weather, 20);  return stat[NB_VALUE]; }
 
 		static double GetRp(const CWeatherMonth& weather, const CClimdexNormals& N, TPPecentil p);
 		static double GetR95p(const CWeatherMonth& weather, const CClimdexNormals& N){ return GetRp(weather, N, P95); }

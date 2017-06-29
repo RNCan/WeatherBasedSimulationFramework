@@ -53,7 +53,7 @@ namespace WBSF
 		std::string GetOutputFilePath(const std::string& prov, int year, const std::string& stationName)const;
 
 		ERMsg ReadData(const std::string& filePath, CWeatherYear& dailyData)const;
-		void GetStationInformation(__int64, CLocation& station)const;
+		void GetStationInformation(const std::string& ID, CLocation& station)const;
 
 
 		//Update station list part
@@ -64,7 +64,7 @@ namespace WBSF
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback);
 		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
-		static ERMsg UpdateStationList(CLocationVector& stationList, CEnvCanStationMap& stationMap, CCallback& callback);
+		static ERMsg UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback);
 		static ERMsg UpdateCoordinate(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, size_t m, CLocation& station);
 
 
@@ -90,10 +90,11 @@ namespace WBSF
 		//void AddToStat(short year);
 		//void ReportStat(CCallback& callback);
 
-		CEnvCanStationMap m_stations;
+		//CEnvCanStationMap m_stations;
 		//int m_nbDownload;
 		//std::vector<int> m_stat;
 
+		CLocationMap m_stations;
 
 
 		static long GetNbDay(const CTime& t);

@@ -162,7 +162,6 @@ namespace WBSF
 	ERMsg CEnvCanGribForecast::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-		//string outputPath = GetDir(WORKING_DIR);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(m_workingDir, 1);
@@ -175,18 +174,14 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-
-
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-
 
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
 		if (!msg)
 			return msg;
 		
 
-		//size_t type = as<size_t>(TYPE);
 		size_t delta_h = m_type == GT_HRDPS ? 1 : 3;
 		callback.PushTask("Download gribs list", (MAX_FORECAST_HOURS / delta_h) );
 

@@ -716,6 +716,12 @@ namespace WBSF
 		return (it == end()) ? UNKNOWN_POS : it - begin();
 	}
 
+	CLocationVector::const_iterator CLocationVector::FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const
+	{ 
+		return std::find_if(begin(), end(), FindLocationBySSI(SSI, value, bCase));
+	}
+
+
 	void CLocationVector::TrimData(char separator)
 	{
 		for (iterator it = begin(); it != end(); it++)

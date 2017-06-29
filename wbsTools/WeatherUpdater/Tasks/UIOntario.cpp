@@ -503,8 +503,8 @@ namespace WBSF
 
 					CTRef TRef = CTRef(year, month, day, hour);
 					string ID = (*loop)[STATION_CODE];
-					if (lastID.empty())
-						lastID = ID;
+					//if (lastID.empty())
+						//lastID = ID;
 
 
 					if (ID != lastID)
@@ -539,7 +539,7 @@ namespace WBSF
 								{
 									double T = ToDouble((*loop)[TEMPERATURE]);
 									double Hr = ToDouble((*loop)[RELATIVE_HUMIDITY]);
-									if (T > -99 && Hr)
+									if (T > -99 && Hr > 0)
 										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
 								}
 							}

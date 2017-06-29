@@ -207,6 +207,21 @@ namespace WBSF
 		std::string m_dataFileName;
 	};
 
+	class FindLocationBySSI
+	{
+	public:
+
+		FindLocationBySSI(const std::string& SSI, const std::string& value, bool bCase = true) :m_SSI(SSI), m_value(value), m_bCase(bCase)
+		{}
+
+		bool operator ()(const CLocation& in)const{ return WBSF::IsEqual(in.GetSSI(m_SSI), m_value, m_bCase); }
+
+	protected:
+
+		bool m_bCase;
+		std::string m_SSI;
+		std::string m_value;
+	};
 	
 
 	typedef std::vector<CLocation> CLocationVectorBase;
@@ -247,7 +262,9 @@ namespace WBSF
 
 		StringVector GetSSIHeader()const{ return empty() ? StringVector() : front().GetSSIHeader(); }
 
-		size_t FindByID(const std::string& ID)const;
+		size_t FindByID(const std::string& ID)const; 
+		CLocationVector::const_iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const;
+		
 
 		StringVector GetHeaderFromData()const;
 

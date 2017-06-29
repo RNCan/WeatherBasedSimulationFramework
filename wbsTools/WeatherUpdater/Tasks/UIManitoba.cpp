@@ -134,7 +134,7 @@ namespace WBSF
 	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Agriculture(historical)", "Fire", "Hydro" };
 	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture (historical)", "Manitoba Fire", "Manitoba Hydro" };
 	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "mawpvs.dyndns.org", "tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca" };
-	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "Tx_DMZ/", "climate/", "sd/fire/", "hydrologicalData/static/stations" };
+	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "Tx_DMZ/", "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations" };
 
 	size_t CUIManitoba::GetNetwork(const string& network)
 	{
@@ -203,7 +203,9 @@ namespace WBSF
 	{
 		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv" };
 
-		string filePath = WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[network];// ManitobaAgStations.csv";
+		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "Layers\\";
+		string filePath = path + FILE_NAME[network];
+
 		return filePath;
 	}
 
@@ -246,7 +248,7 @@ namespace WBSF
 				{
 				case AGRI: msg = ExecuteAgriculture(callback); break;
 				case HAGRI: msg = ExecuteHistoricalAgriculture(callback); break;
-				case FIRE:
+				case FIRE: msg = ExecuteFire(callback); break;
 				case HYDRO:	msg = ExecuteHydro(callback); break;
 				default: ASSERT(false);
 				}
@@ -1135,6 +1137,331 @@ namespace WBSF
 
 		return msg;
 	}
+
+
+
+	//******************************************************************************************************
+	//Manitoba fire
+	
+	ERMsg CUIManitoba::ExecuteFire(CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		size_t type = as<size_t>(DATA_TYPE);
+		if (type == DAILY_WEATHER)
+			return msg;
+
+
+		if (!FileExists(GetStationsListFilePath(FIRE)) )//|| as<bool>(FORCE_UPDATE_STATIONS_LIST)
+		{
+			CLocationVector stationListTmp;
+			msg = UpdateFireStationsList(stationListTmp, callback);
+			if (msg)
+				msg = stationListTmp.Save(GetStationsListFilePath(FIRE), ',', callback);
+		}
+		//else
+		//{
+			//msg = stationListTmp.Load(GetStationsListFilePath(FIRE), ",", callback);
+		//}
+
+		if (!msg)
+			return msg;
+
+
+
+
+		string workingDir = GetDir(WORKING_DIR);
+		msg = CreateMultipleDir(workingDir);
+
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(string(SERVER_NAME[FIRE]) + "/" + SERVER_PATH[FIRE], 1);
+		callback.AddMessage("");
+
+		string fileName = "wx_last48.csv";
+		string remoteFilePath = SERVER_PATH[FIRE] + fileName;
+		string outputFilePath = workingDir + fileName;
+
+
+		int nbRun = 0;
+		bool bDownloaded = false;
+
+		while (!bDownloaded && nbRun < 5 && msg)
+		{
+			nbRun++;
+
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+
+			ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			if (msgTmp)
+			{
+				TRY
+				{
+					//callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
+					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
+					//callback.PopTask();
+
+					//split data in seperate files
+					if (msgTmp)
+					{
+						ASSERT(FileExists(outputFilePath));
+						msg = SplitFireData(outputFilePath, callback);
+						RemoveFile(outputFilePath);
+
+						msg += callback.StepIt();
+						bDownloaded = true;
+					}
+				}
+				CATCH_ALL(e)
+				{
+					msgTmp = UtilWin::SYGetMessage(*e);
+				}
+				END_CATCH_ALL
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
+			}
+			else
+			{
+				if (nbRun > 1 && nbRun < 5)
+				{
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
+				}
+			}
+		}
+
+		//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+		//callback.PopTask();
+
+		return msg;
+	}
+
+	ERMsg CUIManitoba::SplitFireData(const string& outputFilePath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CTM TM(CTM::HOURLY);
+
+		std::map<string, CWeatherYears> data;
+
+		ifStream file;
+		msg = file.open(outputFilePath);
+		if (msg)
+		{
+			callback.PushTask("Split data", file.length());
+
+			CWeatherAccumulator stat(TM);
+			string lastID;
+
+			//station	datetime	tmp	rh	wd	cwd	ws	wsmax	rn_1
+			enum THourlyColumns{ C_STATION, C_DATETIME, C_TMP, C_RH, C_WD, C_CWD, C_WS, C_WSMAX, C_RN_1, NB_COLUMNS };
+			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR2, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
+
+			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
+			{
+				if (!loop->empty())
+				{
+					StringVector time((*loop)[C_DATETIME], "-: T");
+					ASSERT(time.size() == 8);
+
+					int year = ToInt(time[0]);
+					size_t month = ToInt(time[1]) - 1;
+					size_t day = ToInt(time[2]) - 1;
+					size_t hour = ToInt(time[3]);
+
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+					ASSERT(hour >= 0 && hour < 24);
+
+					CTRef TRef = CTRef(year, month, day, hour);
+					string ID = (*loop)[C_STATION];
+					//if (lastID.empty())
+						//lastID = ID;
+
+
+					if (ID != lastID)
+					{
+						if (data.find(ID) == data.end())
+						{
+							data[ID] = CWeatherYears(true);
+							//try to load old data before changing it...
+							string filePath = GetOutputFilePath(FIRE, HOURLY_WEATHER, ID, year);
+							data[ID].LoadData(filePath, -999, false);//don't erase other years when multiple years
+						}
+
+						lastID = ID;
+					}
+
+					if (stat.TRefIsChanging(TRef))
+					{
+						data[lastID][stat.GetTRef()].SetData(stat);
+					}
+
+
+					for (size_t v = 0; v < loop->size(); v++)
+					{
+						size_t cPos = COL_POS_H[v];
+						if (cPos < NB_VAR_H && (*loop)[v] != "NULL")
+						{
+							double value = ToDouble((*loop)[v]);
+							if (value > -99)
+							{
+								stat.Add(TRef, cPos, value);
+								if (cPos == H_RELH && (*loop)[C_TMP] != "NULL")
+								{
+									double T = ToDouble((*loop)[C_TMP]);
+									double Hr = ToDouble((*loop)[C_RH]);
+									stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
+								}
+							}
+						}
+					}
+				}//empty
+
+				msg += callback.StepIt(loop->GetLastLine().length() + 2);
+			}//for all line (
+
+
+			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
+				data[lastID][stat.GetTRef()].SetData(stat);
+
+
+			if (msg)
+			{
+				//save data
+				for (auto it1 = data.begin(); it1 != data.end(); it1++)
+				{
+					for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
+					{
+						string filePath = GetOutputFilePath(FIRE, HOURLY_WEATHER, it1->first, it2->first);
+						string outputPath = GetPath(filePath);
+						CreateMultipleDir(outputPath);
+						it2->second->SaveData(filePath, TM);
+					}
+				}
+			}//if msg
+
+			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(data.size()), 1);
+			callback.PopTask();
+		}//if msg
+
+		return msg;
+	}
+
+	ERMsg CUIManitoba::UpdateFireStationsList(CLocationVector& locations, CCallback& callback)
+	{
+		ERMsg msg;
+
+		
+
+		size_t nbDownload = 0;
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		CInternetSessionPtr pGoogleSession;
+		CHttpConnectionPtr pGoogleConnection;
+
+		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		if (msg)
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+
+		if (msg)
+		{
+
+			//http://www.gov.mb.ca/sd/fire/Wx-Display/weatherview/stns_geojson.js
+			string str;
+			msg = UtilWWW::GetPageText(pConnection, "sd/fire/Wx-Display/weatherview/stns_geojson.js", str);
+			if (msg)
+			{
+				str = str.substr(13, str.size() - 14 - 1);
+
+				string error;
+				Json jsonfeatures = Json::parse(str, error);
+
+				if (error.empty())
+				{
+					Json::array stations = jsonfeatures["features"].array_items();
+					callback.PushTask("Update fire stations list", stations.size());
+
+					for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+					{
+						Json::object metadata = it->object_items();
+
+						CLocation location;
+							
+						location.m_ID = metadata["properties"]["Stn_ID"].string_value();
+						location.m_name = WBSF::PurgeFileName(metadata["properties"]["Stn_Name"].string_value());
+						location.m_lat = metadata["geometry"]["coordinates"][1].number_value();
+						location.m_lon = metadata["geometry"]["coordinates"][0].number_value();
+
+						location.SetSSI("Owner", metadata["properties"]["OWNER"].string_value());
+						location.SetSSI("Region", metadata["properties"]["REGION"].string_value());
+						location.SetSSI("Zone", metadata["properties"]["I_A_ZONE"].string_value());
+
+						string elevFormat = "/maps/api/elevation/json?locations=" + ToString(location.m_lat) + "," + ToString(location.m_lon);
+						string strElev;
+						msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+						if (msg)
+						{
+							//extract elevation from google
+							string error;
+							Json jsonElev = Json::parse(strElev, error);
+							ASSERT(jsonElev.is_object());
+
+							if (error.empty() && jsonElev["status"] == "OK")
+							{
+								ASSERT(jsonElev["results"].is_array());
+								Json::array result = jsonElev["results"].array_items();
+								ASSERT(result.size() == 1);
+
+								location.m_elev = result[0]["elevation"].number_value();
+							}
+						}//if msg
+
+						locations.push_back(location);
+
+						msg += callback.StepIt();
+					}//for all stations
+
+
+					msg += callback.StepIt();
+					nbDownload++;
+				}
+				else
+				{
+					msg.ajoute(error);
+				}
+			}//if msg
+		}//if msg
+
+		pConnection->Close();
+		pSession->Close();
+
+		pGoogleConnection->Close();
+		pGoogleSession->Close();
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.PopTask();
+
+
+		return msg;
+	}
+
+
+
+
 
 
 	//******************************************************************************************************

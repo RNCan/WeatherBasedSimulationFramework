@@ -284,7 +284,6 @@ namespace WBSF
 		CStatisticComboBox  m_statisticTypeCtrl;
 		CCFLComboBox m_eventTypeCtrl;
 		CCFLEdit m_KCtrl;
-		CButton m_bDropYearCtrl;
 		CAutoEnableStatic m_selectCtrl;
 
 		CButton m_meanOverReplicationCtrl;

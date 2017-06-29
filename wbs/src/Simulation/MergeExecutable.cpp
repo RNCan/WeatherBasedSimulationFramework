@@ -172,17 +172,7 @@ namespace WBSF
 					ReplaceString(tmp[j].m_name, " ", "_");
 
 					if (m_bAddName)
-					{
-						//std::string::iterator it = tmp[j].m_title.end();
-						//string::size_type pos = tmp[j].m_title.find("(");
-						//if (pos != string::npos)
-							//it = tmp[j].m_title.begin() + pos;// tmp[j].m_title = tmp[j].m_title.substr(pos);
-
-						//string execName = executable[i]->GetName();
 						tmp[j].m_title += executable[i]->GetName();
-						//tmp[j].m_title.insert(it, execName.begin(), execName.end());
-					}
-					//tmp[j].m_title += " ";
 				}
 
 				variable.insert(variable.end(), tmp.begin(), tmp.end());
@@ -405,6 +395,22 @@ namespace WBSF
 
 			
 			executable.front()->GetParentInfo(fileManager, info, filter);
+			if (filter[VARIABLE] && m_dimensionAppend == VARIABLE)
+			{
+				for (size_t j = 0; j < info.m_variables.size(); j++)
+				{
+					std::string name = info.m_variables[j].m_name;
+					if (m_bAddName)
+						name += "_" + executable[0]->GetName();
+
+					std::replace(name.begin(), name.end(), ' ', '_');
+					info.m_variables[j].m_name = name;
+
+					if (m_bAddName)
+						info.m_variables[j].m_title += executable[0]->GetName();
+				}
+			}
+
 
 			//append other info
 			for (size_t i = 1; i < executable.size() && msg; i++)
@@ -443,13 +449,9 @@ namespace WBSF
 						std::replace(name.begin(), name.end(), ' ', '_');
 						info2.m_variables[j].m_name = name;
 
-						//std::string title = info2.m_variables[j].m_title;
 						if (m_bAddName)
 							info2.m_variables[j].m_title += executable[i]->GetName();
-
-						//info2.m_variables[j].m_title = title;
 					}
-
 					
 					info.m_variables.insert(info.m_variables.end(), info2.m_variables.begin(), info2.m_variables.end());
 				}

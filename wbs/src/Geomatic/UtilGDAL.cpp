@@ -43,7 +43,8 @@ ERMsg OpenInputImage(const string& filePath, GDALDataset** poInputDS, double src
 {
 	ERMsg msg;
 	
-	*poInputDS = (GDALDataset *) GDALOpen( filePath.c_str(), GA_ReadOnly );
+	*poInputDS = (GDALDataset *)GDALOpenEx(filePath.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+	//*poInputDS = (GDALDataset *) GDALOpen( filePath.c_str(), GA_ReadOnly );
 
 	if( *poInputDS == NULL)
 		msg.ajoute(CPLGetLastErrorMsg());
@@ -808,7 +809,8 @@ ERMsg GetGDALInfo(const std::string& filePath, CNewGeoFileInfo& info)
 	/* -------------------------------------------------------------------- */
 	/*      Open dataset.                                                   */
 	/* -------------------------------------------------------------------- */
-	GDALDatasetH hDataset = GDALOpen(filePath.c_str(), GA_ReadOnly);
+	GDALDatasetH hDataset = GDALOpenEx(filePath.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+	//GDALDatasetH hDataset = GDALOpen(filePath.c_str(), GA_ReadOnly);
 
 	if (hDataset == NULL)
 	{

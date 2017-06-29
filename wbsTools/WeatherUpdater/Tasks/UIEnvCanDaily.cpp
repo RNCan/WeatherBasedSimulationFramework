@@ -313,7 +313,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIEnvCanDaily::UpdateStationList(CLocationVector& stationList, CEnvCanStationMap& stationMap, CCallback& callback)
+	ERMsg CUIEnvCanDaily::UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -336,13 +336,16 @@ namespace WBSF
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 			//if (period.IsInit())
 			//{
-			string internalID = it->GetSSI("InternalID");
-			__int64 ID = ToInt64(internalID);
-			CEnvCanStationMap::iterator it2 = stationMap.find(ID);
+			//string internalID = it->GetSSI("InternalID");
+			//__int64 ID = ToInt64(internalID);
+			string ID = it->m_ID;
+			CLocationMap::iterator it2 = stationMap.find(ID);
 			if (it2 == stationMap.end() || it2->second.m_lat==-999)
 			{
+				__int64 internalID = ToInt64(it->GetSSI("InternalID"));
+
 				stationMap[ID] = *it;
-				msg += UpdateCoordinate(pConnection, ID, period.End().GetYear(), period.End().GetMonth(), stationMap[ID]);
+				msg += UpdateCoordinate(pConnection, internalID, period.End().GetYear(), period.End().GetMonth(), stationMap[ID]);
 			}
 			else
 			{
@@ -786,7 +789,7 @@ namespace WBSF
 		
 
 
-		for (CEnvCanStationMap::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
+		for (CLocationMap::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 		{
 			//const CEnvCanStation& station = (const CEnvCanStation&)it->second;
 			const CLocation& station = it->second;
@@ -799,7 +802,7 @@ namespace WBSF
 
 				if (selection.none() || selection[p])
 				{
-					string stationStr = station.GetSSI("InternalID");
+					string stationStr = station.m_ID;//.GetSSI("InternalID");
 					stationList.push_back(stationStr);
 				}
 			}
@@ -809,10 +812,10 @@ namespace WBSF
 	}
 
 
-	void CUIEnvCanDaily::GetStationInformation(__int64 ID, CLocation& station)const
+	void CUIEnvCanDaily::GetStationInformation(const std::string& ID, CLocation& station)const
 	{
 
-		CEnvCanStationMap::const_iterator it = m_stations.find(ID);
+		CLocationMap::const_iterator it = m_stations.find(ID);
 		if (it != m_stations.end())
 			station = it->second;
 	}
@@ -837,7 +840,7 @@ namespace WBSF
 		return name;
 	}
 
-	ERMsg CUIEnvCanDaily::GetWeatherStation(const string& stationID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIEnvCanDaily::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	//ERMsg CUIEnvCanDaily::GetStation(const string& stationID, CDailyStation& station, CCallback& callback)
 	{
 		ERMsg msg;
@@ -848,9 +851,10 @@ namespace WBSF
 			return msg;
 		}
 
-		__int64 ID = ToValue<__int64>(stationID);
+		//__int64 ID = ToValue<__int64>(stationID);
 		GetStationInformation(ID, station);
 
+		string internalID = station.GetSSI("InternalID");
 		string prov = station.GetSSI("Province");
 		station.m_name = TraitFileName(station.m_name) + " (" + prov + ")";
 		station.m_ID += "D";//add a "D" for daily data
@@ -864,7 +868,7 @@ namespace WBSF
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
-			string filePath = GetOutputFilePath(prov, year, stationID);
+			string filePath = GetOutputFilePath(prov, year, internalID);
 			if (FileExists(filePath))
 				msg = ReadData(filePath, station[year]);
 		}

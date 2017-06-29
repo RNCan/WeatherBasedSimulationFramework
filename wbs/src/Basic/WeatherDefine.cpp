@@ -324,9 +324,9 @@ namespace WBSF
 					var = H_TMAX2;
 				else if (varName == "PRECIP")
 					var = H_PRCP;
-				else if (varName == "TDEWPT")
+				else if (varName == "TDEWPT" || varName == "TDEWMIN" || varName == "TDEWMAX")
 					var = H_TDEW;
-				else if (varName == "RELHUM")
+				else if (varName == "RELHUM" || varName == "RELHMIN" || varName == "RELHMAX") 
 					var = H_RELH;
 				else if (varName == "WNDSPD")
 					var = H_WNDS;

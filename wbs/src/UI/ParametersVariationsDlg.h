@@ -88,11 +88,11 @@ namespace WBSF
 		LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);
 
 		DECLARE_MESSAGE_MAP()
-		afx_msg void OnChangeNbVariation();
 		afx_msg void UpdateCtrl(void);
 		afx_msg void OnDestroy();
 		afx_msg void OnEnable(BOOL bEnable);
-
+		afx_msg void OnGeneratioTypeChange();
+		afx_msg void OnNbVariationChange();
 	};
 
 
