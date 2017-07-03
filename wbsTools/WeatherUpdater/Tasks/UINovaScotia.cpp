@@ -341,10 +341,10 @@ namespace WBSF
 
 
 
-	enum TColumns{ C_STATIONNAME, C_DATE_TIME, C_RH, C_RHMAX, C_RHMAX24, C_RHMIN, C_RHMIN24, C_RN24, C_RNTOTAL, C_RN_1, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, C_TEMP, C_WSPD, C_MAX_SPD, C_MAX_DIR, C_DIR, NB_COLUMNS };
+	enum TColumns{ C_STATIONNAME, C_DATE_TIME, C_RH, C_RHMAX, C_RHMAX24, C_RHMIN, C_RHMIN24, C_RNTOTAL, C_RN_1, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, C_TEMP, C_WSPD, C_MAX_SPD, C_MAX_DIR, C_DIR, NB_COLUMNS };
 	//static const char* COLUMN_NAME[NB_COLUMNS] = { "wxStation", "Date", "Temp", "Rh", "Wspd", "Max_Spd", "Dir", "Rn1", "Rn24", "FFMC", "hFFMC", "DMC", "DC", "ISI", "hISI", "BUI", "FWI" };
-	static const char* COLUMN_NAME[NB_COLUMNS] = { "StationName", "DateTime", "Rh", "RhMax", "RhMax24", "RhMin", "RhMin24", "Rn24", "RnTotal", "Rn_1", "TMax", "TMax24", "TMin", "TMin24", "Temp", "Wspd", "Max_Spd", "Max_Dir", "Dir" };
-	static const TVarH FIRE_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_TMAX2, H_SKIP, H_TAIR2, H_SKIP, H_TMIN2, H_WNDS, H_SKIP, H_SKIP, H_WNDD };
+	static const char* COLUMN_NAME[NB_COLUMNS] = { "StationName", "DateTime", "Rh", "RhMax", "RhMax24", "RhMin", "RhMin24", "RnTotal", "Rn_1", "TMax", "TMax24", "TMin", "TMin24", "Temp", "Wspd", "Max_Spd", "Max_Dir", "Dir" };
+	static const TVarH FIRE_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_SKIP, H_PRCP, H_TMAX2, H_SKIP, H_TAIR2, H_SKIP, H_TMIN2, H_WNDS, H_SKIP, H_SKIP, H_WNDD };
 	//Rn24, RHMin24, RHMax24, TMIN24 and TMAX24 is valid only at noon and is NOON to NOON computed
 
 	
@@ -398,7 +398,7 @@ namespace WBSF
 
 					for (size_t c = 0; c < loop->size(); c++)
 					{
-						if (FIRE_VAR[c] != H_SKIP && !(*loop)[c].empty())
+						if (c<NB_COLUMNS && FIRE_VAR[c] != H_SKIP && !(*loop)[c].empty())
 						{
 							double value = ToDouble((*loop)[c]);
 

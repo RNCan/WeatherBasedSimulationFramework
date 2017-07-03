@@ -1689,7 +1689,7 @@ ERMsg CDHDatabaseBase::DeleteDatabase(const std::string& filePath, CCallback& ca
 		
 
 		//wait one second to let the system to clean is memeory
-		//this avoid a prblem accessing file
+		//this avoid a problem accessing file
 		for (size_t i = 0; i < 20 && msg; i++)
 		{
 			Sleep(50);//wait 50 milisec

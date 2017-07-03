@@ -106,8 +106,8 @@
             <Rect>240 35 260 300</Rect>
             <SeparatorPos>150</SeparatorPos>
             <DefaultValue>0</DefaultValue>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <MinValue>0</MinValue>
+            <MaxValue>9999</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>

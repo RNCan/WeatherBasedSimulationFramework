@@ -11,7 +11,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TATTRIBUTE { INPUT, FORECAST, OUTPUT, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
+		enum TATTRIBUTE { INPUT1, INPUT2, INPUT3, FORECAST1, FORECAST2, FORECAST3, OUTPUT, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
 		
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CCreateGribsDB); }

@@ -81,8 +81,9 @@ namespace WBSF
 
 		if (FileExists(filePath))
 		{
-			if (remove(filePath.c_str()) != 0)
-				msg = GetLastErrorMessage();
+			remove(filePath.c_str());
+			if (FileExists(filePath))
+				msg.ajoute("Error deleting file: " + filePath);// GetLastErrorMessage();
 		}
 
 		return msg;

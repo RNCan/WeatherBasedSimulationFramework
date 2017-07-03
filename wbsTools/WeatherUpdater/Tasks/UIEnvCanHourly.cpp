@@ -961,7 +961,7 @@ namespace WBSF
 		station.SetSSI("FirstYear", "");
 		station.SetSSI("LastYear", "");
 
-
+		station.SetHourly(true);
 		station.CreateYears(firstYear, nbYears);
 
 		if (network[N_HISTORICAL])
@@ -996,7 +996,9 @@ namespace WBSF
 
 				for (size_t m = 0; m < 12 && msg; m++)
 				{
-
+					size_t size1 = sizeof(string);
+					size_t size2 = sizeof(SWOBDataHour);
+					size_t size3 = sizeof(SWOBData);
 					string filePath = GetOutputFilePath(N_SWOB, station.GetSSI("Province"), year, m, ICAO_ID);
 					if (FileExists(filePath))
 						msg = ReadSWOBData(filePath, TM, zone, station, callback);
@@ -1056,7 +1058,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			CWeatherAccumulator accumulator(TM);
+			//CWeatherAccumulator accumulator(TM);
 
 			size_t i = 0;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop, i++)
@@ -1074,10 +1076,10 @@ namespace WBSF
 
 				CTRef TRef(year, month, day, hour);
 
-				if (accumulator.TRefIsChanging(TRef))
-				{
-					data[accumulator.GetTRef()].SetData(accumulator);
-				}
+				//if (accumulator.TRefIsChanging(TRef))
+				//{
+					//data[accumulator.GetTRef()].SetData(accumulator);
+				//}
 
 				bool bValid[NB_VAR_H] = { 0 };
 				bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
@@ -1087,13 +1089,16 @@ namespace WBSF
 				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
 				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
 				
-				for (int v = 0; v < NB_VAR_H; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
-
 					if (bValid[v])
 					{
 						if (COL_POS[v] >= 0)
-							accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
+						{
+							double value = ToDouble((*loop)[COL_POS[v]])*FACTOR[v];
+							data[TRef].SetStat(v, value);
+						}
+							//accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
 					}
 				}
 				
@@ -1106,9 +1111,11 @@ namespace WBSF
 					double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
 					double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
 					if (Hr == -999 && Tdew != -999)
-					accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
+					//accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
+						data[TRef].SetStat(H_RELH, Td2Hr(Tair, Tdew));
 					else if (Tdew == -999 && Hr != -999)
-					accumulator.Add(TRef, H_TDEW, Hr2Td(Tair, Hr));
+						data[TRef].SetStat(H_TDEW, Hr2Td(Tair, Hr));
+					//accumulator.Add(TRef, H_TDEW, Hr2Td(Tair, Hr));
 				}
 
 
@@ -1117,8 +1124,8 @@ namespace WBSF
 			}//for all line
 
 
-			if (accumulator.GetTRef().IsInit())
-				data[accumulator.GetTRef()].SetData(accumulator);
+			//if (accumulator.GetTRef().IsInit())
+				//data[accumulator.GetTRef()].SetData(accumulator);
 
 		}//if load 
 
@@ -1148,7 +1155,7 @@ namespace WBSF
 	{
 		H_PRES, H_SKIP, H_SKIP, H_SKIP, H_SKIP,
 		H_SKIP, H_WNDS, H_WNDD, H_TAIR2,
-		H_TMAX2, H_SKIP, H_TMIN2, H_SKIP, H_PRCP,
+		H_TMAX2, H_ADD2, H_TMIN2, H_ADD1, H_PRCP,
 		H_SNDH, H_SKIP, H_SKIP, H_TDEW, H_SRAD2,
 		H_SKIP, H_SKIP, H_SKIP
 	};
@@ -1744,80 +1751,87 @@ namespace WBSF
 
 		ERMsg msg;
 		
-		try
+		if (source.find("<om:ObservationCollection") != NOT_INIT)
 		{
-			static set<string> variables;
-			zen::XmlDoc doc = zen::parse(source);
-
-			//CStatistic RelH;
-			zen::XmlIn in(doc.root());
-			for (zen::XmlIn child = in["om:member"]["om:Observation"]["om:result"]["elements"]["element"]; child&&msg; child.next())
+			try
 			{
-				string name;
-				string value;
-				string unit;
-				
-				if (child.attribute("name", name) && child.attribute("value", value) && child.attribute("uom", unit) )
+				static set<string> variables;
+				zen::XmlDoc doc = zen::parse(source);
+
+				//CStatistic RelH;
+				zen::XmlIn in(doc.root());
+				for (zen::XmlIn child = in["om:member"]["om:Observation"]["om:result"]["elements"]["element"]; child&&msg; child.next())
 				{
-					unit = UTF8_ANSI(unit);
+					string name;
+					string value;
+					string unit;
 
-					zen::XmlIn QA = child["qualifier"];//some element like Tdew don't have qualifier
-					string QAStr;
-					QA.attribute("value", QAStr);
-					
-					size_t type = NOT_INIT;
-					for (size_t i = 0; i < NB_SWOB_VARIABLES && type == NOT_INIT; i++)
-						if (name == SWOB_VARIABLE_NAME[i])
-							type = i;
-
-					if (type != NOT_INIT)
+					if (child.attribute("name", name) && child.attribute("value", value) && child.attribute("uom", unit))
 					{
-						data[0] = ToString(TRef.GetYear());
-						data[1] = ToString(TRef.GetMonth()+1);
-						data[2] = ToString(TRef.GetDay()+1);
-						data[3] = ToString(TRef.GetHour());
-						data[type * 2 + 4] = value;
-						data[type * 2 + 1 + 4] = QAStr;
+						unit = UTF8_ANSI(unit);
 
-						if (name == "tot_globl_solr_radn_pst1hr")
+						zen::XmlIn QA = child["qualifier"];//some element like Tdew don't have qualifier
+						string QAStr;
+						QA.attribute("value", QAStr);
+
+						size_t type = NOT_INIT;
+						for (size_t i = 0; i < NB_SWOB_VARIABLES && type == NOT_INIT; i++)
+							if (name == SWOB_VARIABLE_NAME[i])
+								type = i;
+
+						if (type != NOT_INIT)
 						{
-							
-							if (unit == "W/m²")
+							data[0] = ToString(TRef.GetYear());
+							data[1] = ToString(TRef.GetMonth() + 1);
+							data[2] = ToString(TRef.GetDay() + 1);
+							data[3] = ToString(TRef.GetHour());
+							data[type * 2 + 4] = value;
+							data[type * 2 + 1 + 4] = QAStr;
+
+							if (name == "tot_globl_solr_radn_pst1hr")
 							{
-								//do nothing
-							}
-							else if (unit == "kJ/m²")
-							{
-								float val = WBSF::as<float>(value);
-								val *= 1000.0f / 3600.0f;//convert KJ/m² --> W/m²
-								data[type * 2 + 4] = value;
+
+								if (unit == "W/m²")
+								{
+									//do nothing
+								}
+								else if (unit == "kJ/m²")
+								{
+									float val = WBSF::as<float>(value);
+									val *= 1000.0f / 3600.0f;//convert KJ/m² --> W/m²
+									data[type * 2 + 4] = ToString(val);
+								}
+								else
+								{
+									callback.AddMessage("Other solar unit: " + unit);
+								}
+
 							}
 							else
 							{
-								callback.AddMessage("Other solar unit: " + unit);
+								if (unit != DEFAULT_UNIT[type])
+								{
+									callback.AddMessage("Other unit (" + unit + ") for variable: " + name);
+								}
 							}
-							
+
 						}
-						else
-						{
-							if (unit != DEFAULT_UNIT[type])
-							{
-								callback.AddMessage("Other unit (" + unit + ") for variable: " + name);
-							}
-						}
-						
 					}
-				}
-			}//for all attributes
+				}//for all attributes
 
+			}
+			catch (const zen::XmlParsingError& e)
+			{
+				// handle error
+				callback.AddMessage("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+				callback.AddMessage(source);
+			}
 		}
-		catch (const zen::XmlParsingError& e)
+		else
 		{
-			// handle error
-			callback.AddMessage("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
-			callback.AddMessage(source);
+			callback.AddMessage("Page not found");
+			//skip and continue
 		}
-
 
 		return msg;
 
@@ -1854,10 +1868,14 @@ namespace WBSF
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
+		bool bFredericton = station.GetSSI("ICAO") == "CAFC";
 		//CSun sun(station.m_lat, station.m_lon);
 		
 
-		SWOBData swob;
+		unique_ptr<SWOBData> pSwob( new SWOBData);
+		SWOBData& swob = *pSwob;
+
+
 		msg = ReadSWOB(filePath, swob);
 		for (size_t i = 0; i < 31; i++)
 		{
@@ -1880,17 +1898,38 @@ namespace WBSF
 							TVarH v = VARIABLE_TYPE[vv];
 							if (v != H_SKIP)
 							{
-								if (swob[d][h][vv * 2 + 4] != "MSNG")
+								if (!swob[d][h][vv * 2 + 4].empty() && swob[d][h][vv * 2 + 4] != "MSNG")
 								{
 									int QAValue = WBSF::as<int>(swob[d][h][vv * 2 + 1 + 4]);
-									if (QAValue >= 0)
+									if (QAValue > 0 || (v == H_SRAD2 && QAValue == 0))
 									{
 										float value = WBSF::as<float>(swob[i][j][vv * 2 + 4]);
+										if (v == H_SRAD2 && value < 0)
+											value = 0;
+
+										if (v == H_SRAD2 && bFredericton)//fredericton have data 10 *????
+											value /= 10;
+
 										station[TRef].SetStat(v, value);
-									}
-								}
-							}
+									}//if valid value
+								}//if not missing
+							}//if it's a valid var
 						}//for all variables
+
+						if (station[TRef][H_ADD1].IsInit() && station[TRef][H_ADD2].IsInit())
+						{
+							CStatistic RH = station[TRef][H_ADD1] + station[TRef][H_ADD2];
+							station[TRef].SetStat(H_RELH, RH[MEAN]);
+						}
+
+						station[TRef].SetStat(H_ADD1, CStatistic());
+						station[TRef].SetStat(H_ADD1, CStatistic());
+
+						if (station[TRef][H_TMIN2].IsInit() && station[TRef][H_TMAX2].IsInit() && !station[TRef][H_TAIR2].IsInit())
+						{
+							CStatistic Tair = station[TRef][H_TMIN2] + station[TRef][H_TMAX2];
+							station[TRef].SetStat(H_TAIR2, Tair[MEAN]);
+						}
 					}//if in year
 				}//if init
 			}//for all hours

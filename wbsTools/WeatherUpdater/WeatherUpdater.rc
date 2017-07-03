@@ -223,7 +223,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,4,0,4
+ FILEVERSION 5,4,0,5
  PRODUCTVERSION 5,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -241,7 +241,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.4.0.4"
+            VALUE "FileVersion", "5.4.0.5"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
@@ -251,7 +251,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.4.0.4"
+            VALUE "FileVersion", "5.4.0.5"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
@@ -691,7 +691,7 @@ IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année
 IDS_UPDATER_MISCELLANEOUS_P
 "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
 IDS_UPDATER_HIRESW_P	"Répertoire de travail"
-IDS_UPDATER_RAP_NAM_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Utiliser NAM si RAP manquant|Utiliser prévision"
+IDS_UPDATER_RAP_NAM_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit"
 IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Contruire la couche virtuelle (VRT)"
 IDS_UPDATER_HRRR_P      "Répertoire de travail"
 IDS_UPDATER_GRIB_FORECAST_P "Répertoire de travail|Type"
@@ -707,7 +707,7 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
-    IDS_TOOL_CREATE_GRIBS_P "Tâche de données|Tâche de prévision|Fichier de sortie|Première date|Dernière date|"
+    IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_VIRTUAL_P 
                             "Fichier Gribs|Fichier de sortie|Fichier de localisations|Type de sortie|Première année|Dernière année|Incrémental"
@@ -1150,7 +1150,7 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
 	IDS_UPDATER_HIRESW_P	"Working directory"
-	IDS_UPDATER_RAP_NAM_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Used NAM if RAP is missing|Use forecast"
+	IDS_UPDATER_RAP_NAM_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit"
 	IDS_UPDATER_HRDPS_P     "Working directory|Variables|Build virtual layer (VRT)"
 	IDS_UPDATER_HRRR_P      "Working directory"
 	IDS_UPDATER_GRIB_FORECAST_P "Working directory|Type"
@@ -1165,7 +1165,7 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
-    IDS_TOOL_CREATE_GRIBS_P "Data task|Forecast task|Output File|First date|Last date"
+    IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_VIRTUAL_P 
                             "Gribs file|Output file|Locations file|Output type|First year|Last year|Incremental"

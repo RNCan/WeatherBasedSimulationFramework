@@ -12,13 +12,14 @@
 #include "CountrySelection.h"
 #include "StateSelection.h"
 #include "ProvinceSelection.h"
+#include "json\json11.hpp"
 
 static const bool UPDATE_STATIONS_LIST = false;
-static const bool UPDATE_STATIONS_INFO = false; 
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
 using namespace UtilWWW;
+using namespace json11;
 
 namespace WBSF
 {
@@ -63,6 +64,25 @@ namespace WBSF
 		"format=1"
 	};
 
+
+	string ANSI_2_ASCII(string str)
+	{
+		int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+
+		std::wstring w_text;
+		w_text.resize(len);
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &(w_text[0]), len);
+
+		//Convert UTF16 to ASCII encoding
+		static const UINT US_ASCII = 20127;
+		int newLen = WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
+
+		str.resize(newLen);
+		WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, &(str[0]), newLen, 0, 0);
+		str.resize(strlen(str.c_str()));
+
+		return str;
+	}
 
 
 
@@ -195,273 +215,184 @@ namespace WBSF
 	}
 
 	
-	ERMsg CUIWunderground::DownloadStationList(const string& country, CLocationVector& stationList, CCallback& callback)const
+	ERMsg CUIWunderground::DownloadStationList(const string& country, CLocationVector& stationList2, CCallback& callback)const
 	{
 		ERMsg msg;
+
+		CLocationVector stationList1;
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		//msg = stationList.Load(GetStationListFilePath());
-		msg += GetHttpConnection("i.wund.com", pConnection, pSession);
+		msg += GetHttpConnection("www.wunderground.com", pConnection, pSession);
 
+		CInternetSessionPtr pGoogleSession;
+		CHttpConnectionPtr pGoogleConnection;
 
-		if (country == "US")
+		if (msg)
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+
+		if (msg)
 		{
-			//Download USA
-			//http://i.wund.com/weatherstation/ListStations.asp?selectedState=CO&selectedCountry=United+States
-
-			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (USA)", NB_USA_STATES);
 			string lastName = "Unknown1";
+			string URL = "/weatherstation/ListStations.asp?selectedCountry=" + country;
 
-			for (size_t i = 0; i < NB_USA_STATES&&msg; i++)
+			string source;
+			msg = GetPageText(pConnection, URL, source,false,NULL);
+			if (msg)
 			{
-				string state = CStateSelection::GetName(i, CStateSelection::BY_ABVR).c_str();
-				string URL = FormatA("weatherstation/ListStations.asp?selectedState=%s&selectedCountry=United+States", state.c_str());
 
-				string source;
-				msg = GetPageText(pConnection, URL, source);
-				if (msg)
+				string::size_type b = source.find("<tbody>");
+				string::size_type e = source.find("</tbody>");
+				callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada)", e);
+				callback.SetCurrentStepPos(b);
+
+				string::size_type posBegin = source.find("<tr>", b);
+				while (posBegin != string::npos)
 				{
-
-					string::size_type posBegin = source.find("Search Results");
+					CLocation loc;
+					loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
+					if (posBegin != string::npos)
+						loc.m_name = UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin))));
 
 					if (posBegin != string::npos)
-						posBegin = source.find("<tbody>");
+						loc.SetSSI("City", UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin)))));
 
 					if (posBegin != string::npos)
-						posBegin = source.find("<tr>", posBegin);
+						loc.SetSSI("StationType", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"station-type\">", "&nbsp;", posBegin))));
+
+					if (loc.GetSSI("StationType") != "Netatmo" && stationList2.FindByID(loc.m_ID)==NOT_INIT)
+						stationList1.push_back(loc);
 
 
-					while (posBegin != string::npos)
-					{
-						CLocation loc;
-						loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
-						loc.m_name = UppercaseFirstLetter(Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						loc.SetSSI("City", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin))));
-						loc.SetSSI("State", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						loc.SetSSI("Country", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						StringVector latLonStr(FindString(source, "\">", "&nbsp;", posBegin), ",");
-						loc.SetSSI("StationType", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						ASSERT(latLonStr.size() == 2);
+					posBegin = source.find("<tr>", posBegin);
+					msg += callback.SetCurrentStepPos(posBegin);
+				}
 
-						if (latLonStr.size() == 2)
-						{
-							if (loc.m_name.empty())
-								loc.m_name = loc.GetSSI("City");
-
-							if (loc.m_name.empty())
-							{
-								loc.m_name = WBSF::GenerateNewName(lastName);
-								lastName = loc.m_name;
-							}
-
-							loc.m_lat = ToDouble(latLonStr[0]);
-							loc.m_lon = ToDouble(latLonStr[1]);
-							stationList.push_back(loc);
-						}
-
-						posBegin = source.find("<tr>", posBegin);
-					}
-				}//if msg
+				callback.PopTask();
 
 
-				msg += callback.StepIt();
-			}//for all states
-
-			callback.PopTask();
-		}
-		else if (country == "CA")
-		{
-
-			//Download Canada
-			//de start=11680 à start=15800, il faut laisser tomber les US
-			
-			string lastName = "Unknown1";
-
-			static const char* CA_NAME[2] = { "CA", "CANADA" };
-			for (size_t i = 0; i < 2 && msg; i++)
-			{
-				string URL = FormatA("weatherstation/ListStations.asp?selectedCountry=%s", CA_NAME[i]);
-
-				string source;
-				msg = GetPageText(pConnection, URL, source);
-				if (msg)
+				//get station information
+				callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList1.size()) + " stations", stationList1.size());
+				for (size_t i = 0; i < stationList1.size() && msg; i++)
 				{
-					
-					string::size_type b = source.find("<tbody>");
-					string::size_type e = source.find("</tbody>");
-					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada)", e);
-					callback.SetCurrentStepPos(b);
+					CLocation station = stationList1[i];
 
-					string::size_type posBegin = source.find("Search Results");
-
-					if (posBegin != string::npos)
-						posBegin = source.find("<tbody>", posBegin);
-
-					if (posBegin != string::npos)
-						posBegin = source.find("<tr>", posBegin);
-
-
-					while (posBegin != string::npos)
+					URL = "/personal-weather-station/dashboard?ID=" + station.m_ID;
+					string source;
+					msg = GetPageText(pConnection, URL, source, false, NULL);
+					if (msg)
 					{
-						CLocation loc;
-						loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
-						if (posBegin != string::npos)
-							loc.m_name = UppercaseFirstLetter(Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						if (posBegin != string::npos)
-							loc.SetSSI("City", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin))));
+						bool bGoldStart = source.find("pws-goldstar-27x21.png") != string::npos;
+
+						string::size_type posBegin = source.find("id=\"forecast-link\">");
 						if (posBegin != string::npos)
 						{
-							string tmp = FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin);
-							MakeUpper(tmp);
+							string str = FindString(source, "</a><span class=\"subheading\">", "</span>", posBegin);
+							StringVector v(str, "> ");
+							ASSERT(v.size() >= 3);
 
-							tmp = PurgeProvince(tmp);
-							loc.SetSSI("State", tmp);
-						}
-
-						if (posBegin != string::npos)
-							loc.SetSSI("Country", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-
-						StringVector latLonStr;
-						if (posBegin != string::npos)
-							latLonStr.Tokenize(FindString(source, "\">", "&nbsp;", posBegin), ",");
-
-						if (posBegin != string::npos)
-							loc.SetSSI("StationType", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-						ASSERT(latLonStr.size() == 2);
-
-						//if (loc.GetSSI("Country") == "US")
-							//break;//US station is also return fior this kind of request... hummm
-
-						//if (loc.GetSSI("Country") == "CANADA")
-							//loc.SetSSI("Country", "CA");
-
-
-						if (latLonStr.size() == 2 && loc.GetSSI("Country") == "CA")
-						{
-							if (loc.m_name.empty())
-								loc.m_name = loc.GetSSI("City");
-
-							if (loc.m_name.empty())
+							if (v.size() >= 3)
 							{
-								loc.m_name = WBSF::GenerateNewName(lastName);
-								lastName = loc.m_name;
-							}
+								station.m_lat = WBSF::as<double>(v[0]);
+								station.m_lon = WBSF::as<double>(v[1]);
+
+								if (v.size() == 4 && v[2] != "-999")
+								{
+									if (v[3] == "m")
+										station.m_elev = WBSF::as<double>(v[2]);
+									else if (v[3] == "ft")
+										station.m_elev = WBSF::Feet2Meter(WBSF::as<double>(v[2]));
+								}
+
+								if (v.size() >= 2 || station.m_elev==-999)
+								{
+									string elevFormat = "/maps/api/elevation/json?locations=" + v[0] + "," + v[1];
+									string strElev;
+									msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+									if (msg)
+									{
+										//extract elevation from google
+										string error;
+										Json jsonElev = Json::parse(strElev, error);
+										ASSERT(jsonElev.is_object());
+
+										if (error.empty() && jsonElev["status"] == "OK")
+										{
+											ASSERT(jsonElev["results"].is_array());
+											Json::array result = jsonElev["results"].array_items();
+											ASSERT(result.size() == 1);
+
+											station.m_elev = result[0]["elevation"].number_value();
+										}
+									}//if msg
+								}
+
+								station.SetSSI("GoldStar", bGoldStart ? "1" : "0");
+
+								//
+								string geoFormat = "/maps/api/geocode/json?latlng=" + v[0] + "," + v[1];
+								string strGeo;
+								
+								
+								msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
+								if (msg)
+								{
+									//extract elevation from google
+									string error;
+									Json jsonGeo = Json::parse(strGeo, error);
+									ASSERT(jsonGeo.is_object());
+
+									if (error.empty() && jsonGeo["status"] == "OK")
+									{
+										ASSERT(jsonGeo["results"].is_array());
+										Json::array result1 = jsonGeo["results"].array_items();
+										if (!result1.empty())
+										{
+											Json::array result2 = result1[0]["address_components"].array_items();
+											for (int j = 0; j < result2.size(); j++)
+											{
+												Json::array result3 = result2[j]["types"].array_items();
+												if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
+												{
+													string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+													WBSF::ReplaceString( str, ",", " ");
+													station.SetSSI("County", str);
+												}
+
+												if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
+													station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+												if (result3.size() == 2 && result3[0] == "country")
+													station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+											}
+										}
+									}
+								}//if msg
 
 
-							loc.m_lat = ToDouble(latLonStr[0]);
-							loc.m_lon = ToDouble(latLonStr[1]);
-							stationList.push_back(loc);
-						}
+								stationList2.push_back(station);
+							}//if msg
+						}//if have data
 
-						posBegin = source.find("<tr>", posBegin);
-						msg += callback.SetCurrentStepPos(posBegin);
-					}
+					}//if msg
 
-					callback.PopTask();
-				}//if msg
+					callback.StepIt();
+				}//for all station
 
 
-				
-			}//for all pages
+				callback.PopTask();
+			}//if msg
 
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-			
-		}
-		else
-		{
-			//Download Canada
-			//de start=11680 à start=15800, il faut laisser tomber les US
-			//callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada)", size_t(15800 - 11680), 20);
-			//string lastName = "Unknown1";
+			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList1.size()));
 
-			//for (int start = 15800; start <= 15800 && msg; start += 20)
-			//{
-			//	string URL = FormatA("weatherstation/ListStations.asp?start=%d", start);
+			pConnection->Close();
+			pSession->Close();
 
-			//	string source;
-			//	msg = GetPageText(pConnection, URL, source);
-			//	if (msg)
-			//	{
-			//		string::size_type posBegin = source.find("Search Results");
-
-			//		if (posBegin != string::npos)
-			//			posBegin = source.find("<tbody>", posBegin);
-
-			//		if (posBegin != string::npos)
-			//			posBegin = source.find("<tr>", posBegin);
-
-
-			//		while (posBegin != string::npos)
-			//		{
-			//			CLocation loc;
-			//			loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
-			//			if (posBegin != string::npos)
-			//				loc.m_name = Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin));
-			//			if (posBegin != string::npos)
-			//				loc.SetSSI("City", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-			//			if (posBegin != string::npos)
-			//			{
-			//				string tmp = FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin);
-			//				MakeUpper(tmp);
-
-			//				tmp = PurgeProvince(tmp);
-			//				loc.SetSSI("State", tmp);
-			//			}
-
-			//			if (posBegin != string::npos)
-			//				loc.SetSSI("Country", Purge(MakeUpper(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin))));
-
-			//			StringVector latLonStr;
-			//			if (posBegin != string::npos)
-			//				latLonStr.Tokenize(FindString(source, "\">", "&nbsp;", posBegin), ",");
-
-			//			if (posBegin != string::npos)
-			//				loc.SetSSI("StationType", Purge(FindString(source, "<td class=\"sortC\">", "&nbsp;", posBegin)));
-			//			ASSERT(latLonStr.size() == 2);
-
-			//			if (loc.GetSSI("Country") == "US")
-			//				break;//US station is also return fior this kind of request... hummm
-
-			//			if (loc.GetSSI("Country") == "CANADA")
-			//				loc.SetSSI("Country", "CA");
-
-
-			//			if (latLonStr.size() == 2 && loc.GetSSI("Country") == "CA")
-			//			{
-			//				if (loc.m_name.empty())
-			//					loc.m_name = loc.GetSSI("City");
-
-			//				if (loc.m_name.empty())
-			//				{
-			//					loc.m_name = WBSF::GenerateNewName(lastName);
-			//					lastName = loc.m_name;
-			//				}
-
-
-			//				loc.m_lat = ToDouble(latLonStr[0]);
-			//				loc.m_lon = ToDouble(latLonStr[1]);
-			//				stationList.push_back(loc);
-			//			}
-
-			//			posBegin = source.find("<tr>", posBegin);
-			//		}
-			//	}//if msg
-
-
-			//	msg += callback.StepIt();
-			//}//for all pages
-
-			//callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-			//callback.PopTask();
-		}
-
-		
-
-		pConnection->Close();
-		pSession->Close();
-
+			pGoogleConnection->Close();
+			pGoogleSession->Close();
+		}//if msg
 
 		return msg;
 	}
@@ -644,6 +575,9 @@ namespace WBSF
 			if (countries.at("US"))
 			{
 				CLocationVector tmp;
+				if (FileExists(GetStationListFilePath("US")))
+					msg = tmp.Load(GetStationListFilePath("US"));
+
 				msg = DownloadStationList("US", tmp, callback);
 				if (msg)
 					msg = tmp.Save(GetStationListFilePath("US"), ',', callback);
@@ -653,6 +587,9 @@ namespace WBSF
 			if (msg && countries.at("CA"))
 			{
 				CLocationVector tmp;
+				if(FileExists(GetStationListFilePath("CA")))
+					msg = tmp.Load(GetStationListFilePath("CA"));
+
 				msg = DownloadStationList("CA", tmp, callback);
 				if (msg)
 					msg = tmp.Save(GetStationListFilePath("CA"), ',', callback);
@@ -674,17 +611,17 @@ namespace WBSF
 
 		
 
-		if (UPDATE_STATIONS_INFO)
+		/*if (UPDATE_STATIONS_INFO)
 		{
 			CLocationVector stationList1;
 			LoadStationList(stationList1, callback);
 			return ExtractElevation(stationList1, callback);
 		}
-			
+		*/	
 
 
 		CLocationVector stationList1;
-		LoadStationList(stationList1, callback);
+		msg = LoadStationList(stationList1, callback);
 
 		
 	
@@ -711,7 +648,10 @@ namespace WBSF
 				{
 					string stateStr = it->GetSSI("State");
 					
-					if (states.at(stateStr))
+					if (countryStr == "US" && states.at(stateStr))
+						bDownload = true;
+					
+					if (countryStr == "CA" && provinces.at(stateStr))
 						bDownload = true;
 				}
 				else
@@ -793,27 +733,7 @@ namespace WBSF
 	}
 
 
-	string ANSI_2_ASCII(string str)
-	{
-		int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-
-		std::wstring w_text;
-		w_text.resize(len);
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &(w_text[0]), len);
-
-		//Convert UTF16 to ASCII encoding
-		static const UINT US_ASCII = 20127;
-		int newLen = WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
-
-		
-		str.resize(newLen);
-		WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, &(str[0]), newLen, 0, 0);
-		str.resize(strlen(str.c_str()));
-		
-		return str;
-	}
-
-
+	
 
 	ERMsg CUIWunderground::LoadStationList(CLocationVector& stationList, CCallback& callback)const
 	{

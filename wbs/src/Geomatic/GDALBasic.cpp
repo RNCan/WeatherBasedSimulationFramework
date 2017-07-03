@@ -800,6 +800,40 @@ void CGDALDatasetEx::ComputeHistogram(bool bQuiet)
 	
 }
 
+
+void CGDALDatasetEx::GetBandsMetaData(BandsMetaData& meta_data)const
+{
+	meta_data.resize(GetRasterCount());
+	/* ==================================================================== */
+	/*      Loop over bands.                                                */
+	/* ==================================================================== */
+	for (size_t b = 0; b < GetRasterCount(); b++)
+	{
+		const GDALRasterBand* pBand = GetRasterBand(b);
+
+		if (pBand->GetDescription() != NULL
+			&& strlen(pBand->GetDescription()) > 0)
+		{
+			meta_data[b]["description"] = pBand->GetDescription();
+
+			char **papszMetadata = const_cast<GDALRasterBand*>(pBand)->GetMetadata();
+			if (papszMetadata != NULL && *papszMetadata != NULL)
+			{
+				for (int i = 0; papszMetadata[i] != NULL; i++)
+				{
+					char *pszKey = NULL;
+					const char *pszValue = CPLParseNameValue(papszMetadata[i], &pszKey);
+					if (pszKey)
+					{
+						meta_data[b][pszKey] = pszValue;
+						CPLFree(pszKey);
+					}
+				}
+			}
+		}
+	}
+		
+}
 //****************************************************************************
 //  section pour Créer des LOCs à partir de DEM.
 

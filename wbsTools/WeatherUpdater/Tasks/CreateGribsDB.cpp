@@ -13,8 +13,8 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilePath", "Begin", "End"};
-	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
+	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
+	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
 	const UINT CCreateGribsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
 	const UINT CCreateGribsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
 
@@ -37,8 +37,12 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:		str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
-		case FORECAST:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
+		case INPUT1:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
+		case INPUT2:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
+		case INPUT3:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
+		case FORECAST1:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
+		case FORECAST2:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
+		case FORECAST3:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
 		case OUTPUT:	str = GetString(IDS_STR_FILTER_GRIBS); break;
 		};
 
@@ -80,6 +84,12 @@ namespace WBSF
 
 
 		string outputFilePath = Get(OUTPUT);
+		if (outputFilePath.empty())
+		{
+			msg.ajoute("Invalid output gribs file path");
+			return msg;
+		}
+
 		SetFileExtension(outputFilePath, ".Gribs");
 		string basePath = GetPath(outputFilePath);
 
@@ -89,6 +99,13 @@ namespace WBSF
 		
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 		CTPeriod p = GetPeriod();
+		if (!p.IsInit())
+		{
+			msg.ajoute("Invalid period");
+			msg.ajoute(p.GetFormatedString()); 
+			return msg;
+		}
+
 		boost::dynamic_bitset<size_t> presence(p.size());
 		std::map<CTRef, std::string> gribsList;
 		
@@ -96,90 +113,87 @@ namespace WBSF
 		msg = RemoveFile(outputFilePath);
 
 		//Get forecast if any
-		
-		if (msg && !Get(FORECAST).empty())
+		for (int i = 2; i >= 0&&msg; i--)
 		{
-			CTaskPtr pForecastTask;
-			pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
-			if (pForecastTask)
-				msg = pForecastTask->GetGribsList(p, gribsList, callback);
-			else 
-				msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(FORECAST)));
+			if (!Get(FORECAST1+i).empty())
+			{
+				CTaskPtr pForecastTask;
+				pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST1 + i));
+				if (pForecastTask)
+					msg = pForecastTask->GetGribsList(p, gribsList, callback);
+				else
+					msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(FORECAST1 + i)));
+			}
 		}
 			
 
-		if (msg)
+		for (int i = 2; i >= 0&&msg; i--)
 		{
-			//load the WeatherUpdater
-			CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT));
-
-
-			if (pTask.get() != NULL)
+			if (!Get(INPUT1 + i).empty())
 			{
-				ofStream file;
-				if (msg)
-					msg = file.open(outputFilePath);
+				//load the WeatherUpdater
+				CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT1 + i));
 
 
-				if (msg)
+				if (pTask.get() != NULL)
 				{
-					size_t nbGrib = 0;
-					file << "TRef,path" << endl;
-
-					if (p.IsInit())
-					{
-						ASSERT(pTask->IsGribs());
-
-
-						msg = pTask->GetGribsList(p, gribsList, callback);
-
-						if (msg)
-						{
-							for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
-							{
-								CTRef TRef = it->first;
-								string relativePath = GetRelativePath(basePath, it->second);
-								file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
-								nbGrib++;
-
-								ASSERT(p.IsInside(TRef));
-								size_t pos = TRef - p.Begin();
-
-								//Put warning when gribs missing	
-								presence.set(pos);
-
-								msg += callback.StepIt(0);
-							}
-
-
-							for (size_t pos = 0; pos != presence.size() && msg; pos++)
-							{
-								CTRef TRef = p.Begin() + pos;
-
-								if (!presence.test(pos))
-									callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
-
-								msg += callback.StepIt(0);
-							}
-
-						}
-
-						callback.AddMessage("Nb grib added: " + ToString(nbGrib));
-					}
-					else
-					{
-						msg.ajoute("Invalid period");
-						msg.ajoute(p.GetFormatedString());
-					}
-
-					file.close();
+					ASSERT(pTask->IsGribs());
+					msg = pTask->GetGribsList(p, gribsList, callback);
+				}
+				else
+				{
+					msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT1 + i)));
 				}
 			}
 			else
 			{
-				msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT)));
+				if (i==0)
+					msg.ajoute("Main task must to be defined");
 			}
 		}
+
+		ofStream file;
+		if (msg)
+			msg = file.open(outputFilePath);
+
+		if (msg)
+		{
+			size_t nbGrib = 0;
+			file << "TRef,path" << endl;
+			for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
+			{
+				CTRef TRef = it->first;
+				string relativePath = GetRelativePath(basePath, it->second);
+				file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+				nbGrib++;
+
+				ASSERT(p.IsInside(TRef));
+				size_t pos = TRef - p.Begin();
+
+				//Put warning when gribs missing	
+				presence.set(pos);
+
+				msg += callback.StepIt(0);
+			}
+
+
+			for (size_t pos = 0; pos != presence.size() && msg; pos++)
+			{
+				CTRef TRef = p.Begin() + pos;
+
+				if (TRef>now && !presence.test(pos))
+					callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
+
+				msg += callback.StepIt(0);
+			}
+
+			callback.AddMessage("Nb grib added: " + ToString(nbGrib));
+			file.close();
+		}
+		
+		
+	
+				
 		
 
 		return msg;

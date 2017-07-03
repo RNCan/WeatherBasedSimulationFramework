@@ -42,6 +42,7 @@ namespace WBSF
 	typedef std::shared_ptr<CDataWindow> CDataWindowPtr;
 	typedef std::map<std::string, std::string> MetaData;
 	typedef std::vector<MetaData> MetaDataVector;
+	typedef std::vector<std::map<std::string, std::string>> BandsMetaData;
 
 
 	class CDataWindow
@@ -480,7 +481,7 @@ namespace WBSF
 
 		void SetVRTBand(size_t i, GDALDataset* pDataset);
 		void CloseVRTBand(size_t i);
-
+		void GetBandsMetaData(BandsMetaData& meta_data)const;
 
 		//temporal section
 		size_t GetSceneSize()const{ return m_scenesPeriod.size()>0 ? GetRasterCount() / m_scenesPeriod.size() : GetRasterCount(); }

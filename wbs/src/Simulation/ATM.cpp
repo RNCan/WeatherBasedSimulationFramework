@@ -2524,29 +2524,64 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 		{
 			string invFilePath(filePath);
 			SetFileExtension(invFilePath, ".inv");
-			ifStream file;
-			msg = file.open(invFilePath);
-			if (msg)
+			if (FileExists(invFilePath))
 			{
-				size_t i = 0;
-				for (CSVIterator loop(file, ":", false); loop != CSVIterator() && msg; ++loop, i++)
+				ifStream file;
+				msg = file.open(invFilePath);
+				if (msg)
 				{
-					ASSERT(loop->size() >= 6);
-					if (loop->size() >= 6)
+					size_t i = 0;
+					for (CSVIterator loop(file, ":", false); loop != CSVIterator() && msg; ++loop, i++)
 					{
-						string strVar = (*loop)[3];
-						string strLevel = (*loop)[4];
-						size_t var = GetVar(strVar);
-						size_t level = var != UNKNOWN_POS ? GetLevel(strLevel) : UNKNOWN_POS;
-						
-						if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
+						ASSERT(loop->size() >= 6);
+						if (loop->size() >= 6)
 						{
-							m_bands[var][level] = i;
+							string strVar = (*loop)[3];
+							string strLevel = (*loop)[4];
+							size_t var = GetVar(strVar);
+							size_t level = var != UNKNOWN_POS ? GetLevel(strLevel) : UNKNOWN_POS;
+
+							if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
+							{
+								m_bands[var][level] = i;
+							}
+						}
+						else
+						{
+							msg.ajoute("Bad .inv file : " + invFilePath);
 						}
 					}
-					else
+				}
+			}
+			else
+			{
+				//get info from metadata
+				BandsMetaData meta_data;
+				GetBandsMetaData(meta_data);
+				ASSERT(meta_data.size() == GetRasterCount());
+
+				for (size_t i = 0; i < meta_data.size(); i++)
+				{
+					
+					string strVar = meta_data[i]["GRIB_ELEMENT"];
+					StringVector description(meta_data[i]["description"], " =[]\"");
+					if (!description.empty() && description[0].find('-') != NOT_INIT)
+						description.empty();
+					
+					size_t var = GetVar(strVar);
+					size_t level = !description.empty() ? as<size_t>(description[0]) : UNKNOWN_POS;
+					if (level <= 10)
+						level = 0;
+					else if (level >= 10000 && level <= 100000)
 					{
-						msg.ajoute("Bad .inv file : " + invFilePath);
+						level = 38 - (level/100 - 100) / 25 - 1;
+						ASSERT(level < NB_LEVELS);
+					}
+						
+
+					if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
+					{
+						m_bands[var][level] = i;
 					}
 				}
 			}

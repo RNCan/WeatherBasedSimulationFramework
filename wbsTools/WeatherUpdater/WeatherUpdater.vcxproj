@@ -151,6 +151,7 @@
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;</AdditionalDependencies>
       <DelayLoadDLLs>gdal202.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
+      <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -226,6 +227,7 @@
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs.lib;wbsUI.lib;external.lib;</AdditionalDependencies>
       <DelayLoadDLLs>gdal202.dll;proj.dll;netCDF.dll</DelayLoadDLLs>
+      <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
