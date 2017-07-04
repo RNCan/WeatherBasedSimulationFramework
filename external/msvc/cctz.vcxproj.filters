@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{bed4fbaf-145c-41f3-8f84-d5498638c654}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cctz\cctz.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\civil_time_detail.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_if.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_impl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_info.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_libc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_posix.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\tzfile.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cctz\time_tool.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_format.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_if.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_impl.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_info.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_libc.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_lookup.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_posix.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

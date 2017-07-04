@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{95bffd9c-c56c-4de4-8565-40091ccee72c}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Newmat\bandmat.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\cholesky.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\evalue.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\fft.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\hholder.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\jacobi.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newfft.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat1.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat3.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat4.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat5.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat6.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat7.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat8.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmat9.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmatex.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmatnl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\newmatrm.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\nm_misc.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\Regression.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\solution.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\sort.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\submat.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\svd.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Newmat\myexcept.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Newmat\controlw.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\include.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\myexcept.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmat.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmatap.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmatio.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmatnl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmatrc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\newmatrm.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\precisio.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\Regression.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Newmat\solution.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Newmat\readme.txt">
+      <Filter>Source</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

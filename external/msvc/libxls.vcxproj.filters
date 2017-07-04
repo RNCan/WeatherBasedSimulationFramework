@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{bed4fbaf-145c-41f3-8f84-d5498638c654}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\libxls\src\endian.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libxls\src\ole.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libxls\src\xls.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libxls\src\xlstool.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\libxls\include\libxls\endian.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libxls\include\libxls\ole.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libxls\include\libxls\xls.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libxls\include\libxls\xlsstruct.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libxls\include\libxls\xlstool.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libxls\include\libxls\xlstypes.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

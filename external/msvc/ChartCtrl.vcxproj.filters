@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source\Tooltip">
+      <UniqueIdentifier>{47c0184b-67e4-4c2a-9d44-68352cf09782}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\stdafx">
+      <UniqueIdentifier>{04ecfb93-4a62-4533-8914-cb4275c13bed}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ChartCtrl\Tooltip\CeXDib.cpp">
+      <Filter>Source\Tooltip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\Tooltip\PPDrawManager.cpp">
+      <Filter>Source\Tooltip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\Tooltip\PPHtmlDrawer.cpp">
+      <Filter>Source\Tooltip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\Tooltip\PPHtmlStatic.cpp">
+      <Filter>Source\Tooltip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\Tooltip\PPTooltip.cpp">
+      <Filter>Source\Tooltip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartAxis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartAxisLabel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartBarSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartCandlestickSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartCrossHairCursor.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartCtrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartCursor.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartDateTimeAxis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartDragLineCursor.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartFont.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartGanttSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartGradient.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartGrid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartLegend.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartLineSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartLogarithmicAxis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartPointsExSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartPointsSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartScrollBar.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartStandardAxis.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartSurfaceSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartTitle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChartCtrl\ChartXYSerie.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <Filter>Source\stdafx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ChartCtrl\Tooltip\CeXDib.h">
+      <Filter>Source\Tooltip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\Tooltip\PPDrawManager.h">
+      <Filter>Source\Tooltip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\Tooltip\PPHtmlDrawer.h">
+      <Filter>Source\Tooltip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\Tooltip\PPHtmlStatic.h">
+      <Filter>Source\Tooltip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\Tooltip\PPTooltip.h">
+      <Filter>Source\Tooltip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartAxis.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartAxisLabel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartBalloonLabel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartBarSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartCandlestickSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartCrossHairCursor.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartCtrl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartCursor.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartDateTimeAxis.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartDragLineCursor.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartFont.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartGanttSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartGradient.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartGrid.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartLabel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartLegend.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartLineSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartLogarithmicAxis.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartMouseListener.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartPointsArray.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartPointsExSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartPointsSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartScrollBar.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartSerieBase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartSeriesMouseListener.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartStandardAxis.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartString.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartSurfaceSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartTitle.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\ChartXYSerie.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChartCtrl\PointsOrdering.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx\stdafx.h">
+      <Filter>Source\stdafx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ChartCtrl\ChartBalloonLabel.inl">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\ChartCtrl\ChartLabel.inl">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\ChartCtrl\ChartPointsArray.inl">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\ChartCtrl\ChartSerieBase.inl">
+      <Filter>Source</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ChartCtrl\ReadMe.txt">
+      <Filter>Source</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\MTParser\MTGlobalString.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParser.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParserCompiler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParserExcepStrEng.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParserInfoDlg.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParserMacroFunc.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTParserRegistrar.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTSearchFile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTTools.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTParser\MTUnicodeANSIDefs.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\MTParser\MTException.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTGlobalString.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParser.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserCompiler.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserDefFuncs.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserDefOps.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserExcepStrEng.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserException.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserInfoDlg.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserMacroFunc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserPrivate.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserPublic.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserRegistrar.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTParserRes.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTSearchFile.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTTools.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MTParser\MTUnicodeANSIDefs.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{460eaae5-fc6d-4410-9180-5e1a3abaa7e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\MTParser\MTParserRes.rc">
+      <Filter>Source</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

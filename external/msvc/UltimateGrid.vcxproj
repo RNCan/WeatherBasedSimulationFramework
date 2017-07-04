@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTafnt.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTAutoSize.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTbutn.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTDropGrid.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTdtp.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\ugctelps.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTExpand.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTLabeled.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTMail.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTMailSort.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTMarquee.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTmfnt.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTNote.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\ugctnotewnd.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTOutlookHeader.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTpie.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTpro1.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTprog.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTRado.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTsarw.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTsldr.cpp" />
+    <ClCompile Include="..\UltimateGrid\CellTypes\UGCTSpin.cpp" />
+    <ClCompile Include="..\UltimateGrid\ExcelSideHdg.cpp" />
+    <ClCompile Include="..\UltimateGrid\ExcelTopHdg.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCBType.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCell.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCelTyp.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCnrBtn.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCTarrw.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGCtrl.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGDLType.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGDrgDrp.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGDrwHnt.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGDtaSrc.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGEdit.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGEditBase.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGExcel.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugformat.cpp" />
+    <ClCompile Include="..\UltimateGrid\uggdinfo.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGGrid.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGHint.cpp" />
+    <ClCompile Include="..\UltimateGrid\ughscrol.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugLstBox.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGMEdit.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGMemMan.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGMultiS.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugprint.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugptrlst.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugsidehd.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGStrOp.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugtab.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGTopHdg.cpp" />
+    <ClCompile Include="..\UltimateGrid\ugvscrol.cpp" />
+    <ClCompile Include="..\UltimateGrid\UGXPThemes.cpp" />
+    <ClCompile Include="..\UltimateGrid\UTEdit.cpp" />
+    <ClCompile Include="..\UltimateGrid\UTMaskedEdit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTafnt.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTAutoSize.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTbutn.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTDropGrid.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTdtp.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\ugctelps.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTExpand.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTLabeled.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTMail.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTMailSort.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTMarquee.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTmfnt.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTNote.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\ugctnotewnd.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTOutlookHeader.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTpie.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTpro1.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTprog.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTRado.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTsarw.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTsldr.h" />
+    <ClInclude Include="..\UltimateGrid\CellTypes\UGCTSpin.h" />
+    <ClInclude Include="..\UltimateGrid\ExcelSideHdg.h" />
+    <ClInclude Include="..\UltimateGrid\ExcelTopHdg.h" />
+    <ClInclude Include="..\UltimateGrid\UG64Bit.h" />
+    <ClInclude Include="..\UltimateGrid\UGCBType.h" />
+    <ClInclude Include="..\UltimateGrid\UGCell.h" />
+    <ClInclude Include="..\UltimateGrid\ugceltyp.h" />
+    <ClInclude Include="..\UltimateGrid\UGCnrBtn.h" />
+    <ClInclude Include="..\UltimateGrid\UGCTarrw.h" />
+    <ClInclude Include="..\UltimateGrid\UGCtrl.h" />
+    <ClInclude Include="..\UltimateGrid\UGCtrlDDX.h" />
+    <ClInclude Include="..\UltimateGrid\ugdefine.h" />
+    <ClInclude Include="..\UltimateGrid\UGDLType.h" />
+    <ClInclude Include="..\UltimateGrid\UGDrgDrp.h" />
+    <ClInclude Include="..\UltimateGrid\UGDrwHnt.h" />
+    <ClInclude Include="..\UltimateGrid\UGDtaSrc.h" />
+    <ClInclude Include="..\UltimateGrid\UGEdit.h" />
+    <ClInclude Include="..\UltimateGrid\UGEditBase.h" />
+    <ClInclude Include="..\UltimateGrid\UGExcel.h" />
+    <ClInclude Include="..\UltimateGrid\ugformat.h" />
+    <ClInclude Include="..\UltimateGrid\uggdinfo.h" />
+    <ClInclude Include="..\UltimateGrid\UGGrid.h" />
+    <ClInclude Include="..\UltimateGrid\UGHint.h" />
+    <ClInclude Include="..\UltimateGrid\ughscrol.h" />
+    <ClInclude Include="..\UltimateGrid\uglstbox.h" />
+    <ClInclude Include="..\UltimateGrid\UGMEdit.h" />
+    <ClInclude Include="..\UltimateGrid\UGMemMan.h" />
+    <ClInclude Include="..\UltimateGrid\UGMultiS.h" />
+    <ClInclude Include="..\UltimateGrid\ugprint.h" />
+    <ClInclude Include="..\UltimateGrid\ugptrlst.h" />
+    <ClInclude Include="..\UltimateGrid\ugsidehd.h" />
+    <ClInclude Include="..\UltimateGrid\UGStrOp.h" />
+    <ClInclude Include="..\UltimateGrid\ugstruct.h" />
+    <ClInclude Include="..\UltimateGrid\ugtab.h" />
+    <ClInclude Include="..\UltimateGrid\UGTopHdg.h" />
+    <ClInclude Include="..\UltimateGrid\ugvscrol.h" />
+    <ClInclude Include="..\UltimateGrid\ugxpthemes.h" />
+    <ClInclude Include="..\UltimateGrid\UTEdit.h" />
+    <ClInclude Include="..\UltimateGrid\UTMaskedEdit.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C117EC47-0709-46C5-90AF-12C27F41B083}</ProjectGuid>
+    <RootNamespace>MTParserLib</RootNamespace>
+    <ProjectName>UltimateGrid</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Configuration)$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(Configuration)$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Configuration)$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)_d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
+    <ExcludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\project\boost;$(ExcludePath)</ExcludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;UG_OLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c0c</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN64;_DEBUG;_LIB;UG_OLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c0c</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalIncludeDirectories>stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;UG_OLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c0c</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalIncludeDirectories>stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN64;NDEBUG;_LIB;UG_OLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c0c</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
