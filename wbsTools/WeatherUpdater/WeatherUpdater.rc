@@ -123,7 +123,8 @@ BEGIN
     SEPARATOR
 	BUTTON      ID_TASK_HIRESW
 	SEPARATOR
-    BUTTON      ID_TASK_RAP_NAM
+    BUTTON      ID_TASK_RAP
+	BUTTON      ID_TASK_NAM
 	BUTTON      ID_TASK_HRDPS
 	BUTTON      ID_TASK_HRRR
 	BUTTON      ID_TASK_GRIB_FORECAST
@@ -188,7 +189,8 @@ BEGIN
     BUTTON      ID_TASK_EC_RADAR
     BUTTON      ID_TASK_EC_PRCP_RADAR
 	BUTTON      ID_TASK_HIRESW
-	BUTTON      ID_TASK_RAP_NAM
+	BUTTON      ID_TASK_RAP
+	BUTTON      ID_TASK_NAM
 	BUTTON      ID_TASK_HRDPS
 	BUTTON      ID_TASK_HRRR
 	BUTTON      ID_TASK_GRIB_FORECAST
@@ -682,7 +684,7 @@ IDS_UPDATER_NEWBRUNSWICK_P
 IDS_UPDATER_NOVASCOTIA_P "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
 IDS_UPDATER_NEWFOUNDLAND_P
 "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)"
+IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)|Utiliser seulement les stations GoldStar"
 END
 
 STRINGTABLE
@@ -691,7 +693,8 @@ IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année
 IDS_UPDATER_MISCELLANEOUS_P
 "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
 IDS_UPDATER_HIRESW_P	"Répertoire de travail"
-IDS_UPDATER_RAP_NAM_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit"
+IDS_UPDATER_RAP_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit"
+IDS_UPDATER_NAM_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit"
 IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Contruire la couche virtuelle (VRT)"
 IDS_UPDATER_HRRR_P      "Répertoire de travail"
 IDS_UPDATER_GRIB_FORECAST_P "Répertoire de travail|Type"
@@ -761,7 +764,8 @@ STRINGTABLE
 BEGIN
     ID_TASK_EC_PRCP_RADAR   "Télécharger les précipitations radars d'Environnement Canada (format grib2)\nPrécipitations radars"
 	ID_TASK_HIRESW			"Télécharger les grilles (surface) ""High-Resolution Window"" (HIRESW) via NCEP\nGrille de surface HIRESW"
-	ID_TASK_RAP_NAM         "Télécharger les grilles de données ""Rapid Update Cycle (RUC/RAP)"" via NOMADS (NOAA)\nGrille 3D RUC/RAP"
+	ID_TASK_RAP             "Télécharger les grilles de données ""Rapid Update Cycle (RAP)"" via NOMADS (NOAA)\nGrille 3D RAP"
+	ID_TASK_NAM				"Télécharger les grilles de données ""North American Mesoscale Forecast System (NAM)"" via NOMADS (NOAA)\nGrille 3D NAM"
 	ID_TASK_HRDPS           "Télécharger les grilles hautes résolutons HRDPS (Canada)\nGrilles 3D HRDPS (Canada)"
 	ID_TASK_HRRR            "Télécharger les grilles hautes résolutons HRRR (État-Unis)\nGrilles 3D HRRR (États-Unis)"
 	ID_TASK_GRIB_FORECAST   "Télécharger les grilles prévisionnelles 3D\nGrilles prévisionnelles 3D"
@@ -1141,7 +1145,7 @@ BEGIN
     IDS_UPDATER_NOVASCOTIA_P "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 
                             "User Name|Password|Working directory|First year|Last year"
-    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)"
+    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)|Use only GoldStar stations"
 END
 
 STRINGTABLE
@@ -1150,7 +1154,8 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
 	IDS_UPDATER_HIRESW_P	"Working directory"
-	IDS_UPDATER_RAP_NAM_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit"
+	IDS_UPDATER_RAP_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit"
+	IDS_UPDATER_NAM_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit"
 	IDS_UPDATER_HRDPS_P     "Working directory|Variables|Build virtual layer (VRT)"
 	IDS_UPDATER_HRRR_P      "Working directory"
 	IDS_UPDATER_GRIB_FORECAST_P "Working directory|Type"
@@ -1219,7 +1224,8 @@ STRINGTABLE
 BEGIN
     ID_TASK_EC_PRCP_RADAR   "Download Precipitation Radar data from Environment Canada (gribs format)\nRadar Precipitation"
 	ID_TASK_HIRESW			"Download High-Resolution Window (HIRESW) via NCEP\nGrille de surface HIRESW\nHIRESW surface grid"
-	ID_TASK_RAP_NAM         "Download Rapid Update Cycle (RAP) and NAM 3D grids via NOMADS (NOAA)\nRAP/NAM 3D Gribs"
+	ID_TASK_RAP             "Download Rapid Update Cycle (RAP) 3D grids via NOMADS (NOAA)\nRAP 3D Gribs"
+	ID_TASK_NAM             "Download North American Mesoscale Forecast System (NAM) 3D grids via NOMADS (NOAA)\nNAM 3D Gribs"
 	ID_TASK_HRDPS           "Download high resolution HRDPS (Canda) 3D gribs\nHRDPS 3D Gribs"
 	ID_TASK_HRRR            "Download high resolution HRRR (USA) 3D gribs\nHRRR 3D Gribs"
 	ID_TASK_GRIB_FORECAST   "Download 3D gribs forecast\n3D Gribs Forecast"

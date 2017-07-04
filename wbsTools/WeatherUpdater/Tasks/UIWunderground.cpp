@@ -33,8 +33,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;//| INTERNET_FLAG_TRANSFER_BINARY
-	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province" };//"UpdateStationList" 
-	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT };///, T_BOOL 
+	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province", "GoldStar" };//"UpdateStationList" 
+	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };/// 
 	const UINT CUIWunderground::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WU_P;
 	const UINT CUIWunderground::DESCRIPTION_TITLE_ID = ID_TASK_WU;
 
@@ -116,6 +116,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "WeatherUnderground\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case GOLD_STAR: str = "0"; break;
 			//case UPDATE_STATION_LIST:	str = "0"; break;
 		};
 		return str;
@@ -261,7 +262,8 @@ namespace WBSF
 					if (posBegin != string::npos)
 						loc.SetSSI("StationType", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"station-type\">", "&nbsp;", posBegin))));
 
-					if (loc.GetSSI("StationType") != "Netatmo" && stationList2.FindByID(loc.m_ID)==NOT_INIT)
+					bool bNetatmo = WBSF::Find("Netatmo", loc.GetSSI("StationType"), false);
+					if (!bNetatmo && stationList2.FindByID(loc.m_ID) == NOT_INIT)
 						stationList1.push_back(loc);
 
 
@@ -673,7 +675,7 @@ namespace WBSF
 		CCountrySelection countries(Get(COUNTRIES));
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCE));
-		
+		bool bUseGoldStarOnly = as<bool>(GOLD_STAR);
 
 		//if (as<bool>(UPDATE_STATION_LIST))
 		if (UPDATE_STATIONS_LIST)
@@ -745,33 +747,36 @@ namespace WBSF
 		stationList.reserve(stationList1.size());
 		for (auto it = stationList1.begin(); it < stationList1.end() && msg; it++)
 		{
-			string countryStr = it->GetSSI("Country");
-			//size_t country = CCountrySelection::GetCountry(countryStr.c_str());
+			bool bGoldStart = WBSF::as<bool>(it->GetSSI("GoldStar"));
 
-			bool bDownload = false;
-			if (countries.at(countryStr))
+			if (!bUseGoldStarOnly || bGoldStart)
 			{
-				if (countryStr == "US" || countryStr == "CA")
-				{
-					string stateStr = it->GetSSI("State");
-					
-					if (countryStr == "US" && states.at(stateStr))
-						bDownload = true;
-					
-					if (countryStr == "CA" && provinces.at(stateStr))
-						bDownload = true;
-				}
-				else
-				{
-					bDownload = true;
-				}//use this state if USA
-			}//if country selection
+				string country = it->GetSSI("Country");
 
-			if (bDownload)
-				stationList.insert(stationList.end(), *it);
-				//it++;
-			//else
-				//it = stationList.erase(it);
+				bool bDownload = false;
+				if (countries.at(country))
+				{
+					string state = it->GetSSI("State");
+					if (country == "US")
+					{
+						if(states.at(state))
+							bDownload = true;
+					}
+					else if (country == "CA")
+					{
+						if( provinces.at(state) )
+							bDownload = true;
+					}
+					else
+					{
+						bDownload = true;
+					}
+						
+				}//if country selection
+
+				if (bDownload)
+					stationList.insert(stationList.end(), *it);
+			}
 
 			msg += callback.StepIt();
 		}
@@ -779,7 +784,8 @@ namespace WBSF
 		callback.PopTask();
 
 		
-		callback.PushTask("Download stations data (" + ToString(stationList.size()) + ")", stationList.size()*nbYears);
+		callback.AddMessage("Download WeatherUnderground stations data (" + ToString(stationList.size()) + ")");
+		callback.PushTask("Download WeatherUnderground stations data (" + ToString(stationList.size()) + ")", stationList.size()*nbYears);
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -891,34 +897,43 @@ namespace WBSF
 			CCountrySelection countries(Get(COUNTRIES));
 			CStateSelection states(Get(STATES));
 			CProvinceSelection provinces(Get(PROVINCE));
+			bool bUseGoldStarOnly = as<bool>(GOLD_STAR);
 
-
-
-			//t firstYear = as<int>(FIRST_YEAR);
-			//int lastYear = as<int>(LAST_YEAR);
 
 			for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 			{
-				string country = it->GetSSI("Country");
-
-				bool bDownload = false;
-				if (countries.at(country))
+				bool bGoldStart = WBSF::as<bool>(it->GetSSI("GoldStar"));
+				
+				if (!bUseGoldStarOnly || bGoldStart)
 				{
-					if (country == "US" || country == "CA")
+					string country = it->GetSSI("Country");
+
+					bool bDownload = false;
+					if (countries.at(country))
 					{
 						string state = it->GetSSI("State");
-						
-						if (states.at(state))
-							bDownload = true;
-					}
-					else
-					{
-						bDownload = true;
-					}//use this state if USA
-				}//if country selection
 
-				if (bDownload)
-					stationList.push_back(it->m_ID);
+						if (country == "US")
+						{
+							if (states.at(state))
+								bDownload = true;
+						}
+						else if (country == "CA")
+						{
+							if (provinces.at(state))
+								bDownload = true;
+						}
+						else
+						{
+							bDownload = true;
+						}
+
+						
+					}//if country selection
+
+					if (bDownload)
+						stationList.push_back(it->m_ID);
+				}
 			}
 		}
 
@@ -942,7 +957,7 @@ namespace WBSF
 		((CLocation&)station) = m_stations[pos];
 
 		station.m_name = WBSF::PurgeFileName(station.m_name);
-		station.m_name = ANSI_2_ASCII(station.m_name);
+		//station.m_name = ANSI_2_ASCII(station.m_name);
 		//station.m_ID;// += "H";//add a "H" for hourly data
 
 		int firstYear = as<int>(FIRST_YEAR);
