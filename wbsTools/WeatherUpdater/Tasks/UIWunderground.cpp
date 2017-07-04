@@ -25,8 +25,8 @@ namespace WBSF
 {
 	//to update data in csv file
 	//https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=IQUEBECS44&day=1&month=1&year=2015&dayend=31&monthend=12&yearend=2015&graphspan=custom&format=1
-	
-	
+
+
 
 	//pour la liste des stations actives:
 	//http://www.wunderground.com/weatherstation/ListStations.asp?showall=&start=20&selectedState=
@@ -34,7 +34,7 @@ namespace WBSF
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;//| INTERNET_FLAG_TRANSFER_BINARY
 	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province" };//"UpdateStationList" 
-	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT};///, T_BOOL 
+	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT };///, T_BOOL 
 	const UINT CUIWunderground::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WU_P;
 	const UINT CUIWunderground::DESCRIPTION_TITLE_ID = ID_TASK_WU;
 
@@ -116,19 +116,19 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "WeatherUnderground\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		//case UPDATE_STATION_LIST:	str = "0"; break;
+			//case UPDATE_STATION_LIST:	str = "0"; break;
 		};
 		return str;
 	}
 
 	std::string CUIWunderground::GetStationListFilePath(const string& country)const
-	{ 
+	{
 		string filepath = GetApplicationPath() + "Layers\\";
 		if (country == "US")
 			filepath += "WUStationsListUSA.csv";
 		else if (country == "CA")
 			filepath += "WUStationsListCanada.csv";
-		else 
+		else
 			filepath += "WUStationsListWorld.csv";
 
 
@@ -143,7 +143,7 @@ namespace WBSF
 
 
 		if (country == "US")
-			ouputPath += "USA\\" + states +"\\";
+			ouputPath += "USA\\" + states + "\\";
 		else if (country == "CA")
 			ouputPath += "Canada\\" + states + "\\";
 		else
@@ -151,7 +151,7 @@ namespace WBSF
 
 
 
-		
+
 		return ouputPath + ID + ".csv";
 	}
 
@@ -172,7 +172,7 @@ namespace WBSF
 		enum{ NB_NAMES = 32 };
 		static const char* MAP_NAME[NB_NAMES][2] =
 		{
-			{"AL", "AB"},
+			{ "AL", "AB" },
 			{ "ALBERTA", "AB" },
 			{ "AB, CANADA.", "AB" },
 			{ "B.C.", "BC" },
@@ -214,7 +214,7 @@ namespace WBSF
 		return str;
 	}
 
-	
+
 	ERMsg CUIWunderground::DownloadStationList(const string& country, CLocationVector& stationList2, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -226,11 +226,11 @@ namespace WBSF
 
 		msg += GetHttpConnection("www.wunderground.com", pConnection, pSession);
 
-		CInternetSessionPtr pGoogleSession;
-		CHttpConnectionPtr pGoogleConnection;
+		//CInternetSessionPtr pGoogleSession;
+		//CHttpConnectionPtr pGoogleConnection;
 
-		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+		//if (msg)
+			//msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
 
 		if (msg)
 		{
@@ -284,6 +284,7 @@ namespace WBSF
 					if (msg)
 					{
 						bool bGoldStart = source.find("pws-goldstar-27x21.png") != string::npos;
+						station.SetSSI("GoldStar", bGoldStart ? "1" : "0");
 
 						string::size_type posBegin = source.find("id=\"forecast-link\">");
 						if (posBegin != string::npos)
@@ -305,71 +306,71 @@ namespace WBSF
 										station.m_elev = WBSF::Feet2Meter(WBSF::as<double>(v[2]));
 								}
 
-								if (v.size() >= 2 || station.m_elev==-999)
-								{
-									string elevFormat = "/maps/api/elevation/json?locations=" + v[0] + "," + v[1];
-									string strElev;
-									msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
-									if (msg)
-									{
-										//extract elevation from google
-										string error;
-										Json jsonElev = Json::parse(strElev, error);
-										ASSERT(jsonElev.is_object());
+								//if (v.size() >= 2 || station.m_elev==-999)
+								//{
+								//	string elevFormat = "/maps/api/elevation/json?locations=" + v[0] + "," + v[1];
+								//	string strElev;
+								//	msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+								//	if (msg)
+								//	{
+								//		//extract elevation from google
+								//		string error;
+								//		Json jsonElev = Json::parse(strElev, error);
+								//		ASSERT(jsonElev.is_object());
 
-										if (error.empty() && jsonElev["status"] == "OK")
-										{
-											ASSERT(jsonElev["results"].is_array());
-											Json::array result = jsonElev["results"].array_items();
-											ASSERT(result.size() == 1);
+								//		if (error.empty() && jsonElev["status"] == "OK")
+								//		{
+								//			ASSERT(jsonElev["results"].is_array());
+								//			Json::array result = jsonElev["results"].array_items();
+								//			ASSERT(result.size() == 1);
 
-											station.m_elev = result[0]["elevation"].number_value();
-										}
-									}//if msg
-								}
+								//			station.m_elev = result[0]["elevation"].number_value();
+								//		}
+								//	}//if msg
+								//}
 
-								station.SetSSI("GoldStar", bGoldStart ? "1" : "0");
+								
 
 								//
-								string geoFormat = "/maps/api/geocode/json?latlng=" + v[0] + "," + v[1];
-								string strGeo;
-								
-								
-								msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
-								if (msg)
-								{
-									//extract elevation from google
-									string error;
-									Json jsonGeo = Json::parse(strGeo, error);
-									ASSERT(jsonGeo.is_object());
+								//string geoFormat = "/maps/api/geocode/json?latlng=" + v[0] + "," + v[1];
+								//string strGeo;
+								//
+								//
+								//msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
+								//if (msg)
+								//{
+								//	//extract elevation from google
+								//	string error;
+								//	Json jsonGeo = Json::parse(strGeo, error);
+								//	ASSERT(jsonGeo.is_object());
 
-									if (error.empty() && jsonGeo["status"] == "OK")
-									{
-										ASSERT(jsonGeo["results"].is_array());
-										Json::array result1 = jsonGeo["results"].array_items();
-										if (!result1.empty())
-										{
-											Json::array result2 = result1[0]["address_components"].array_items();
-											for (int j = 0; j < result2.size(); j++)
-											{
-												Json::array result3 = result2[j]["types"].array_items();
-												if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
-												{
-													string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
-													WBSF::ReplaceString( str, ",", " ");
-													station.SetSSI("County", str);
-												}
+								//	if (error.empty() && jsonGeo["status"] == "OK")
+								//	{
+								//		ASSERT(jsonGeo["results"].is_array());
+								//		Json::array result1 = jsonGeo["results"].array_items();
+								//		if (!result1.empty())
+								//		{
+								//			Json::array result2 = result1[0]["address_components"].array_items();
+								//			for (int j = 0; j < result2.size(); j++)
+								//			{
+								//				Json::array result3 = result2[j]["types"].array_items();
+								//				if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
+								//				{
+								//					string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+								//					WBSF::ReplaceString( str, ",", " ");
+								//					station.SetSSI("County", str);
+								//				}
 
-												if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
-													station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+								//				if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
+								//					station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
 
-												if (result3.size() == 2 && result3[0] == "country")
-													station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+								//				if (result3.size() == 2 && result3[0] == "country")
+								//					station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
 
-											}
-										}
-									}
-								}//if msg
+								//			}
+								//		}
+								//	}
+								//}//if msg
 
 
 								stationList2.push_back(station);
@@ -390,12 +391,118 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 
-			pGoogleConnection->Close();
-			pGoogleSession->Close();
+			//pGoogleConnection->Close();
+			//pGoogleSession->Close();
 		}//if msg
 
 		return msg;
 	}
+
+	ERMsg CUIWunderground::CompleteStationList(CLocationVector& stationList2, CCallback& callback)const
+	{
+		ERMsg msg;
+
+
+		CInternetSessionPtr pGoogleSession;
+		CHttpConnectionPtr pGoogleConnection;
+
+		if (msg)
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+
+		if (msg)
+		{
+			//get station information
+			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList2.size()) + " stations", stationList2.size());
+			for (size_t i = 0; i < stationList2.size() && msg; i++)
+			{
+				CLocation& station = stationList2[i];
+
+				if (station.m_elev == -999)
+				{
+					string elevFormat = "/maps/api/elevation/json?locations=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
+					string strElev;
+					msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+					if (msg)
+					{
+						//extract elevation from google
+						string error;
+						Json jsonElev = Json::parse(strElev, error);
+						ASSERT(jsonElev.is_object());
+
+						if (error.empty() && jsonElev["status"] == "OK")
+						{
+							ASSERT(jsonElev["results"].is_array());
+							Json::array result = jsonElev["results"].array_items();
+							ASSERT(result.size() == 1);
+
+							station.m_elev = result[0]["elevation"].number_value();
+						}
+					}//if msg
+				}
+
+
+
+				//
+				if (station.GetSSI("Country").empty())
+				{
+					string geoFormat = "/maps/api/geocode/json?latlng=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
+					string strGeo;
+
+
+					msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
+					if (msg)
+					{
+						//extract elevation from google
+						string error;
+						Json jsonGeo = Json::parse(strGeo, error);
+						ASSERT(jsonGeo.is_object());
+
+						if (error.empty() && jsonGeo["status"] == "OK")
+						{
+							ASSERT(jsonGeo["results"].is_array());
+							Json::array result1 = jsonGeo["results"].array_items();
+							if (!result1.empty())
+							{
+								Json::array result2 = result1[0]["address_components"].array_items();
+								for (int j = 0; j < result2.size(); j++)
+								{
+									Json::array result3 = result2[j]["types"].array_items();
+									if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
+									{
+										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+										WBSF::ReplaceString(str, ",", " ");
+										station.SetSSI("County", str);
+									}
+
+									if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
+										station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+									if (result3.size() == 2 && result3[0] == "country")
+										station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+								}
+							}
+						}
+					}//if msg
+				}
+				
+				msg += callback.StepIt();
+			}//for all station
+			
+		}//if open connection
+
+
+		callback.PopTask();
+
+		pGoogleConnection->Close();
+		pGoogleSession->Close();
+
+
+		return msg;
+
+	}
+
+
 
 	TVarH CUIWunderground::GetVar(const string& str)
 	{

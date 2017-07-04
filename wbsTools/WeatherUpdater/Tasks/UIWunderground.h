@@ -50,6 +50,7 @@ namespace WBSF
 		ERMsg LoadStationList(CLocationVector& stationList, CCallback& callback)const;
 		ERMsg ExtractElevation(CLocationVector& stationList, CCallback& callback);
 		ERMsg DownloadStationList(const std::string& country, CLocationVector& stationList, CCallback& callback)const;
+		ERMsg CompleteStationList(CLocationVector& stationList2, CCallback& callback)const;
 		ERMsg LoadStationList(CCallback& callback);
 		ERMsg UpdateStationList(UtilWWW::CHttpConnectionPtr& pConnection, CCallback& callback)const;
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback)const;
