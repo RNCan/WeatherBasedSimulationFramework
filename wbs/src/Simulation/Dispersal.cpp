@@ -434,11 +434,11 @@ namespace WBSF
 		if (msg)
 		{
 			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
-			if (msg)
-			{
-				world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
+			//if (msg)
+			//{
+				//world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
 				//world.m_extents = world.m_DEM_DS.GetExtents();
-			}
+			//}
 			
 		}
 			
@@ -449,16 +449,16 @@ namespace WBSF
 		//Create projection
 		
 		msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
-		if (msg)
-			world.m_GEO2GRIBS = GetReProjection(PRJ_WGS_84, world.m_weather.GetGribsPrjID());
+		//if (msg)
+			//world.m_GEO2GRIBS = GetReProjection(PRJ_WGS_84, world.m_weather.GetGribsPrjID());
 
 
 		callback.StepIt();
 		if (!defoliation_filepath.empty())
 		{
 			msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
-			if (msg)
-				world.m_GEO2DEFOLIATION = GetReProjection(PRJ_WGS_84, world.m_defoliation_DS.GetPrjID());
+			//if (msg)
+				//world.m_GEO2DEFOLIATION = GetReProjection(PRJ_WGS_84, world.m_defoliation_DS.GetPrjID());
 		}
 		else if (world.m_parameters1.m_maxFliyers > 1)
 		{
@@ -482,8 +482,8 @@ namespace WBSF
 		if (!water_filepath.empty())
 		{
 			msg += world.m_water_DS.OpenInputImage(water_filepath);
-			if (msg)
-				world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
+			//if (msg)
+				//world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
 		}
 		else if (world.m_parameters1.m_maxFliyers > 1)
 		{

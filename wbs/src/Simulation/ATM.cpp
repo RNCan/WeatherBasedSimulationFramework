@@ -499,17 +499,12 @@ namespace WBSF
 				if( !m_world.is_over_water(m_newLocation) )
 					Brood(17);
 			}
-				
-		}
-			
 
-		AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
+			AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
+		}
 	}
 
-	//void CFlyer::destroy(CTRef UTCTRef, __int64 UTCTime)
-	//{
-	//	m_log[T_DESTROY] = UTCTime;
-	//}
+	
 
 	void CFlyer::DestroyByOptimisation()
 	{
@@ -678,7 +673,7 @@ namespace WBSF
 	CATMVariables CFlyer::get_weather(CTRef UTCTRef, __int64 UTCTime)const
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
-		ASSERT(m_pt.m_z >= 0);
+		//ASSERT(m_pt.m_z >= 0);
 
 		CATMVariables w;
 
@@ -863,7 +858,7 @@ CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 tim
 
 CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const
 {
-	ASSERT(pt.m_z >= 0);
+//	ASSERT(pt.m_z >= 0);
 	ASSERT(pt.IsGeographic());
 
 	size_t weather_type = m_world.m_parameters1.m_weather_type;
@@ -876,9 +871,10 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		CGeoPoint3D pt2(pt);
-		//if (GetPrjID() == m_world.m_GEO2WEA.GetDst()->GetPrjID())
-		//if (m_world.m_GEO2WEA.
-		pt2.Reproject(m_world.m_GEO2GRIBS);
+		
+		size_t prjID = m_p_weather_DS.GetPrjID(UTCTRef);
+		ASSERT(prjID!=NOT_INIT);
+		pt2.Reproject(m_world.m_GEO2.at(prjID));
 		
 		
 		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt2, UTCTRef, UTCTime);
@@ -1060,27 +1056,9 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 	ASSERT(pt.IsGeographic());
 
 	CATMVariables weather;
-
-	/*bool bOverWater = false;
-	if (m_world.m_water_DS.IsOpen())
-	{
-		CGeoPoint pt2(pt);
-		if (pt2.GetPrjID() != m_world.m_water_DS.GetPrjID())
-		{
-			ASSERT(pt.IsGeographic());
-			pt2.Reproject(m_world.m_GEO2DEM);
-		}
-
-		CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt2);
-		bOverWater = m_world.m_water_DS.GetPixel(0, xy) != 0;
-	}*/
-
 	bool bOverWater = m_world.is_over_water(pt);
 
 	CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
-	
-	//if(m_iwd.find(UTCTRef) == m_iwd.end())
-		//LoadWeather(UTCTRef, callback);
 
 	for (size_t v = 0; v <NB_ATM_VARIABLES; v++)
 		weather[v] = m_iwd.at(UTCTRef)[v].Evaluate(gpt);
@@ -1093,8 +1071,6 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 
 	//adjust air temperature with flight height with a default gradient of 0.65ᵒC/100m
 	weather[ATM_TAIR] += -0.0065*pt.m_z;//flight height temperature correction
-
-
 
 	return weather;
 }
@@ -1208,7 +1184,7 @@ CGeoPoint3DIndex CATMWeather::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
 CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UTCTRef, __int64 UTCTime)const
 {
 	ASSERT(IsLoaded(CTimeZones::UTCTime2UTCTRef(UTCTime)) && IsLoaded(UTCTRef));
-	ASSERT(ptIn.m_z>=0);
+	//ASSERT(ptIn.m_z>=0);
 
 	CATMWeatherCuboidsPtr cuboids(new CATMWeatherCuboids);
 	cuboids->m_bUseSpaceInterpolation = m_world.m_parameters1.m_bUseSpaceInterpolation;
@@ -1244,6 +1220,7 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 		
 
 		CGeoPoint3D pt(ptIn);
+		pt.m_z = max(0.0, pt.m_z);
 		pt.m_z += groundAlt;
 
 		
@@ -1411,47 +1388,18 @@ ERMsg CATMWeather::Load(const std::string& gribsFilepath, const std::string& hou
 		return msg;
 	}
 
-//	m_extents.Reset();
-
 	if (!gribsFilepath.empty())
 	{
 		msg += load_gribs(gribsFilepath, callback);
-			
-		//if (msg)
-		//{
-			
-				//reproject into DEM projection
-			//	m_extents.ExtendBounds(Get(TRef)->GetExtents());
-				//m_world.m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
-				//m_world.m_WEA2GEO = GetReProjection(m_extents.GetPrjID(), PRJ_WGS_84);
-			//}
-	//	}
 	}
-	/*else
-	{
-		m_extents = m_world.m_DEM_DS.GetExtents();
-		m_world.m_GEO2WEA = m_world.m_GEO2DEM;
-		m_world.m_WEA2GEO = GetReProjection(m_world.m_GEO2DEM.GetDst()->GetPrjID(), m_world.m_GEO2DEM.GetSrc()->GetPrjID());
-	}*/
 
 	if (!hourlyDBFilepath.empty())
 	{
 		if (!m_p_hourly_DB)
 		{
 			msg += load_hourly(hourlyDBFilepath, callback);
-			//if (msg)
-			//{
-	/*			if (m_world.m_GEO2WEA.GetSrc() == NULL)
-				{
-					m_world.m_GEO2WEA = GetReProjection(PRJ_WGS_84, PRJ_WGS_84);
-					m_world.m_WEA2GEO = GetReProjection(PRJ_WGS_84, PRJ_WGS_84);
-				}
-	*/			
-			//}
 		}
 	}
-
-
 	
 
 	return msg;
@@ -1713,13 +1661,14 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 	return msg;
 }
 
-size_t CATMWeather::GetGribsPrjID()const
+size_t CATMWeather::GetGribsPrjID(CTRef TRef)const
 { 
 	size_t prjID = NOT_INIT;
-	CTRef TRef = m_filepath_map.begin()->first;
 	
-	if (m_p_weather_DS.load(TRef, get_image_filepath(TRef), CCallback()))
-		prjID = m_p_weather_DS.GetPrjID(TRef);
+	if (!m_p_weather_DS.IsLoaded(TRef))
+		m_p_weather_DS.load(TRef, get_image_filepath(TRef), CCallback());
+	
+	prjID = m_p_weather_DS.GetPrjID(TRef);
 	
 	return prjID;
 }
@@ -1903,14 +1852,18 @@ double CATMWorld::GetGroundAltitude(const CGeoPoint3D& pt)const
 
 double CATMWorld::get_defoliation(const CGeoPoint3D& pt1)const
 {
+	
+
 	double defoliation = 0;
 	if (m_defoliation_DS.IsOpen())
 	{
 		CGeoPoint3D pt2(pt1);
 		if (pt2.GetPrjID() != m_defoliation_DS.GetPrjID())
 		{
+			size_t prjID = m_defoliation_DS.GetPrjID();
+			
 			ASSERT(pt2.IsGeographic());
-			pt2.Reproject(m_GEO2DEFOLIATION);
+			pt2.Reproject(m_GEO2.at(prjID));
 		}
 
 		CGeoPointIndex xy = m_defoliation_DS.GetExtents().CoordToXYPos(pt2);
@@ -1933,8 +1886,9 @@ bool CATMWorld::is_over_water(const CGeoPoint3D& pt1)const
 		CGeoPoint3D pt2(pt1);
 		if (pt2.GetPrjID() != m_water_DS.GetPrjID())
 		{
+			size_t prjID = m_water_DS.GetPrjID();
 			ASSERT(pt2.IsGeographic());
-			pt2.Reproject(m_GEO2WATER);
+			pt2.Reproject(m_GEO2.at(prjID));
 		}
 
 		CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt2);
@@ -1961,7 +1915,9 @@ bool CATMWorld::is_over_distraction(const CGeoPoint3D& pt1)const
 		if (pt2.GetPrjID() != m_distraction_DS.GetPrjID())
 		{
 			ASSERT(pt1.IsGeographic());
-			pt2.Reproject(m_GEO2DEM);
+
+			size_t prjID = m_DEM_DS.GetPrjID();
+			pt2.Reproject(m_GEO2.at(prjID));
 		}
 
 
@@ -1987,7 +1943,9 @@ bool CATMWorld::is_over_host(const CGeoPoint3D& pt1)const
 		if (pt2.GetPrjID() != m_distraction_DS.GetPrjID())
 		{
 			ASSERT(pt1.IsGeographic());
-			pt2.Reproject(m_GEO2DEM);
+
+			size_t prjID = m_host_DS.GetPrjID();
+			pt2.Reproject(m_GEO2.at(prjID));
 		}
 
 
@@ -2075,28 +2033,47 @@ bool CATMWorld::IsInside(const CGeoPoint& pt)const
 	if (pt.GetPrjID() != m_DEM_DS.GetPrjID())
 	{
 		ASSERT(pt.IsGeographic());
-		pt2.Reproject(m_GEO2DEM);
+		size_t prjID = m_DEM_DS.GetPrjID();
+		pt2.Reproject(m_GEO2.at(prjID));
 	}
 	
-	//CTRef TRef;
 
-	/*CGeoPoint pt3(pt);
-	if (pt.GetPrjID() != m_weather.Get(TRef)->.GetPrjID())
-	{
-		ASSERT(pt.IsGeographic());
-		pt3.Reproject(m_GEO2WEA);
-	}*/
-
-	return 	m_DEM_DS.GetExtents().IsInside(pt2);// && m_weather.GetExtents().IsInside(pt3);
+	return 	m_DEM_DS.GetExtents().IsInside(pt2);
 }
 
 ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback)
 {
+	ASSERT(m_DEM_DS.IsOpen());
 	assert(m_weather.is_init());
 	assert(!m_flyers.empty());
-
-
 	ERMsg msg;
+
+	//register projection
+	if (m_water_DS.IsOpen())
+	{
+		size_t prjID = m_water_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
+		if (m_GEO2.find(prjID) == m_GEO2.end())
+			const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+	}
+
+	if (m_defoliation_DS.IsOpen())
+	{
+		size_t prjID = m_defoliation_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
+		if (m_GEO2.find(prjID) == m_GEO2.end())
+			const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+	}
+
+	if (m_host_DS.IsOpen())
+	{
+		size_t prjID = m_host_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
+		if (m_GEO2.find(prjID) == m_GEO2.end())
+			const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+	}
+	
+	size_t prjID = m_DEM_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
+	if (m_GEO2.find(prjID) == m_GEO2.end())
+		const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+
 
 	random().Randomize(m_parameters1.m_seed);
 
@@ -2161,6 +2138,11 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 						msgLoad += m_weather.LoadWeather(UTCTRef, callback);
 
 					msgLoad += callback.StepIt();
+
+					size_t prjID = m_weather.GetGribsPrjID(UTCTRef); ASSERT(prjID != NOT_INIT);
+					if (m_GEO2.find(prjID) == m_GEO2.end())
+						m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+
 				}
 
 				callback.PopTask();
@@ -2218,7 +2200,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 										size_t landingTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LANDING), flyer.m_location);
 
 										CGeoPoint3D pt = flyer.m_pt;
-										pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
+									
+										pt.Reproject(m_GEO2.at(prjID));//convert from GEO to DEM projection
 
 										bool bOverWater = is_over_water(flyer.m_newLocation);
 										double defoliation = VMISS;
@@ -2284,7 +2267,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									countdown2 <= m_parameters1.m_outputFrequency)//|| flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_TAIR) != -999)
 								{
 									CGeoPoint3D pt = flyer.m_pt;
-									pt.Reproject(m_GEO2DEM);//convert from GEO to DEM projection
+									
+									pt.Reproject(m_GEO2.at(prjID));//convert from GEO to DEM projection
 
 									double alpha = atan2(flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_X));
 									double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
@@ -2296,7 +2280,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 									if (flyer.GetLog(CFlyer::T_IDLE_END) > 0)
 									{
 										bool bOverWater = is_over_water(flyer.m_newLocation);
-										defoliation = bOverWater?-1:get_defoliation(flyer.m_newLocation);
+										//defoliation = bOverWater?-1:get_defoliation(flyer.m_newLocation);
 
 										if (flyer.m_sex == CATMParameters::FEMALE &&!bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
 											broods = flyer.m_broods;
@@ -2362,8 +2346,12 @@ ERMsg CATMWorld::CreateEggDepositionMap(const string& outputFilePath, CATMOutput
 
 	ERMsg msg;
 
+	CBaseOptions options;
+	m_DEM_DS.UpdateOption(options);
+
 	CTPeriod period;
 	CStatistic seasonStat;
+	CGeoExtents extents;
 
 	for (size_t l = 0; l < output.size() && msg; l++)
 	{
@@ -2378,79 +2366,89 @@ ERMsg CATMWorld::CreateEggDepositionMap(const string& outputFilePath, CATMOutput
 						seasonStat += output[l][p][r][t][ATM_EGGS_LAID];
 						CTRef TRef = output[l][p][r].GetFirstTRef() + t;
 						period.Inflate(TRef);
+						CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], options.m_extents.GetPrjID());
+						extents.ExtendBounds(pt);
 					}
 				}
 			}
 		}
 	}
+
 	period.Transform(CTM::DAILY);
 
 	//Get input info
-	CBaseOptions options;
-	m_DEM_DS.UpdateOption(options);
-	options.m_bOverwrite = true;
-	options.m_nbBands = period.size() + 1;//+1 for the season
-	options.m_outputType = GDT_Float32;
-	options.m_dstNodata = -9999;
-	options.m_createOptions.push_back("-co COMPRESS=LZW");
-	options.m_bComputeStats = true;
-	options.m_overviewLevels = { { 2, 4, 8, 16 } };
-
-	//GetPeriodW
-
-	//Open input image
-	
-	CGDALDatasetEx outputDS;
-	msg += outputDS.CreateImage(outputFilePath, options);
-	
-
-	if (msg)
+	if (!extents.IsRectEmpty())
 	{
-		vector<float> season(m_DEM_DS.GetRasterYSize()*m_DEM_DS.GetRasterXSize());
+		extents.AlignTo(options.m_extents);
+		extents.SetXRes(options.m_extents.XRes());
+		extents.SetYRes(options.m_extents.YRes());
+
+		options.m_bOverwrite = true;
+		options.m_extents = extents;
+		options.m_nbBands = 1; // period.size() + 1;//+1 for the season
+		options.m_outputType = GDT_Float32;
+		options.m_dstNodata = -9999;
+		options.m_createOptions.push_back("-co COMPRESS=LZW");
+		options.m_bComputeStats = true;
+		options.m_overviewLevels = { { 2, 4, 8, 16 } };
+
+		//GetPeriodW
+
+		//Open input image
+
+		CGDALDatasetEx outputDS;
+		msg += outputDS.CreateImage(outputFilePath, options);
 
 
-		for (size_t d = 0; d < period.size() && msg; d++)
+		if (msg)
 		{
-			vector<float> day(m_DEM_DS.GetRasterYSize()*m_DEM_DS.GetRasterXSize());
-			CTRef TRef1 = period.Begin() + d;
+			vector<float> season(extents.m_ySize*extents.m_xSize);
 
-			for (size_t l = 0; l < output.size() && msg; l++)
+
+			for (size_t d = 0; d < period.size() && msg; d++)
 			{
-				for (size_t p = 0; p < output[l].size() && msg; p++)
-				{
-					for (size_t r = 0; r < output[l][p].size(); r++)
-					{
-						for (size_t t = 0; t < output[l][p][r].size(); t++)
-						{
-							if (output[l][p][r][t][ATM_EGGS_LAID]>0)
-							{
-								CTRef TRef2 = output[l][p][r].GetFirstTRef() + t;
-								if (TRef2.as(CTM::DAILY) == TRef1)
-								{
-									CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], options.m_extents.GetPrjID());
-									ASSERT(options.m_extents.IsInside(pt));
+				//vector<float> day(extents.m_ySize*extents.m_xSize);
+				CTRef TRef1 = period.Begin() + d;
 
-									CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
-									size_t pos = xy.m_y*m_DEM_DS.GetRasterXSize() + xy.m_x;
-									day[pos] += output[l][p][r][t][ATM_EGGS_LAID];
-									season[pos] += output[l][p][r][t][ATM_EGGS_LAID];
+				for (size_t l = 0; l < output.size() && msg; l++)
+				{
+					for (size_t p = 0; p < output[l].size() && msg; p++)
+					{
+						for (size_t r = 0; r < output[l][p].size(); r++)
+						{
+							for (size_t t = 0; t < output[l][p][r].size(); t++)
+							{
+								if (output[l][p][r][t][ATM_EGGS_LAID]>0)
+								{
+									CTRef TRef2 = output[l][p][r].GetFirstTRef() + t;
+									if (TRef2.as(CTM::DAILY) == TRef1)
+									{
+										CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], extents.GetPrjID());
+										ASSERT(extents.IsInside(pt));
+
+										CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
+										size_t pos = xy.m_y*extents.m_xSize + xy.m_x;
+										//day[pos] += output[l][p][r][t][ATM_EGGS_LAID];
+										season[pos] += output[l][p][r][t][ATM_EGGS_LAID];
+									}
 								}
 							}
 						}
 					}
 				}
+
+				//GDALRasterBand* pBandOut = outputDS.GetRasterBand(d + 1);//first band keep for the seanson
+				//pBandOut->RasterIO(GF_Write, 0, 0, extents.m_xSize, extents.m_ySize, &(day[0]), extents.m_xSize, extents.m_ySize, GDT_Float32, 0, 0);
+
 			}
 
-			GDALRasterBand* pBandOut = outputDS.GetRasterBand(d + 1);//first band keep for the seanson
-			pBandOut->RasterIO(GF_Write, 0, 0, m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), &(day[0]), m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), GDT_Float32, 0, 0);
+			GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the seanson
+			pBandOut->RasterIO(GF_Write, 0, 0, extents.m_xSize, extents.m_ySize, &(season[0]), extents.m_xSize, extents.m_ySize, GDT_Float32, 0, 0);
 
+			outputDS.Close();
 		}
-
-		GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the seanson
-		pBandOut->RasterIO(GF_Write, 0, 0, m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), &(season[0]), m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), GDT_Float32, 0, 0);
-
-		outputDS.Close();
 	}
+
 
 	return msg;
 }

@@ -464,7 +464,7 @@ namespace WBSF
 		ERMsg Discard(CCallback& callback);
 		size_t get_band(CTRef TRef, size_t v, size_t level)const;
 		size_t GetPrjID(CTRef TRef)const{ return at(TRef)->GetPrjID(); }
-
+		//CGDALDatasetCachedPtr operator[](CTRef TRef)const{ return at(TRef); }
 
 
 		bool convert_VVEL(CTRef TRef)const;
@@ -507,7 +507,7 @@ namespace WBSF
 
 		bool is_init()const{ return !m_filepath_map.empty() || m_p_hourly_DB != NULL; }
 
-		size_t GetGribsPrjID()const;
+		size_t GetGribsPrjID(CTRef TRef)const;
 		
 		CGDALDatasetCachedPtr& Get(CTRef TRef) { return m_p_weather_DS.Get(TRef); }
 		bool IsLoaded(CTRef TRef)const;
@@ -530,14 +530,12 @@ namespace WBSF
 		TRefFilePathMap m_filepath_map;
 		CHourlyDatabasePtr m_p_hourly_DB;
 		CTRefDatasetMap m_p_weather_DS;
-		//CGeoExtents m_extents;
 
 
 		std::map<size_t, CWeatherStation> m_stations;
 		std::map<size_t, CWaterTemperature> m_Twater;
 		std::map<CTRef, std::array<CIWD, NB_ATM_VARIABLES>> m_iwd;
 		CATMWorld& m_world;
-		//bool m_bSkipDay;
 	};
 
 
@@ -882,11 +880,11 @@ namespace WBSF
 		CTPeriod get_period(bool bUTC = true, int year = YEAR_NOT_INIT)const;
 		std::set<CTRef> get_TRefs(int year)const;
 
-
-		CProjectionTransformation m_GEO2DEM;
-		CProjectionTransformation m_GEO2GRIBS;
-		CProjectionTransformation m_GEO2WATER;
-		CProjectionTransformation m_GEO2DEFOLIATION;
+		//Reproject();
+		//CProjectionTransformation m_GEO2DEM;
+		std::map<size_t, CProjectionTransformation> m_GEO2;
+		//CProjectionTransformation m_GEO2WATER;
+		//CProjectionTransformation m_GEO2DEFOLIATION;
 
 		__int64 get_duration()const;
 		double get_w_horizontal()const;
