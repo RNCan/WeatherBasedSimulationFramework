@@ -493,7 +493,7 @@ namespace WBSF
 					std::vector<HOURLY_DATA::TVarH > variables = GetVariables(header);
 					
 					//remove daily Tmin and Tmax when hourly and Tair when daily
-					for (size_t v = 0; v < header.size() && msg; v++)
+					/*for (size_t v = 0; v < header.size() && msg; v++)
 					{
 						if (variables[v] == H_TMIN2 && TM.IsHourly())
 							variables[v] = H_SKIP;
@@ -503,7 +503,7 @@ namespace WBSF
 
 						if (variables[v] == H_TMAX2 && TM.IsHourly())
 							variables[v] = H_SKIP;
-					}
+					}*/
 					
 
 					for (size_t i = 0; i < TRefs.size() && msg; i++)

@@ -197,6 +197,9 @@
     <ClInclude Include="MFFP.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UINAM.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -383,6 +386,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MFFP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UINAM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

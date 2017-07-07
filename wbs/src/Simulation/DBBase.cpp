@@ -903,7 +903,7 @@ namespace WBSF
 	ULONGLONG CBioSIMDatabase::GetFilePos(size_t no, size_t row, size_t col)const
 	{
 		ASSERT(m_index[no].IsInit());
-		ASSERT(row < m_index[no].GetNbRows());
+		ASSERT(row < m_index[no].GetNbRows() || m_index[no].GetNbRows()==0);
 		ASSERT(col < m_nbCols);
 
 		return  m_index[no].GetBeginPos() + (row*m_nbCols + col)*GetTypeSize();

@@ -207,7 +207,7 @@ namespace WBSF
 
 			for (int d = 0; d < NB_DIMENSION; d++)
 			{
-				if (d != m_dimensionAppend)//exclute appenned dimension 
+				if (d != m_dimensionAppend && d != TIME_REF)//exclute appenned dimension and tiem dimention
 				{
 					CDimension dim = resultArray[i]->GetDimension();
 					if (dim[d] != dim0[d])

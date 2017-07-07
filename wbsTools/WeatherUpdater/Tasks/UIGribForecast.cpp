@@ -283,20 +283,25 @@ namespace WBSF
 		return  filePath;
 	}
 
-	string CUIGribForecast::GetLocaleFilePath(size_t source, const string& remote)const
+	string CUIGribForecast::GetLocaleFilePath(size_t s, const string& remote)const
 	{
 		string workingDir = GetDir(WORKING_DIR);
-		string filePath = workingDir;
+		
 
-		switch (source)
+		//CTRef TRef = GetTRef(source, remote);
+		//string filePath = FormatA("%s%d%02d%02d\\%s", workingDir, TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), GetFileName(remote).c_str());
+		string filePath = workingDir + SOURCES_NAME[s] + "\\";
+		switch (s)
 		{
 		case N_HRDPS:	break;
 		default:
 		{
 			string dir = WBSF::GetLastDirName(GetPath(remote));
-			std::replace(dir.begin(), dir.end(), '.', '\\');
+			//std::replace(dir.begin(), dir.end(), '.', '\\');
+			size_t pos = dir.find(".");
+			string date = dir.substr(pos + 1);
 			string fileName = GetFileName(remote);
-			filePath += dir + "\\" + fileName;
+			filePath += date + "\\" + fileName;
 		}
 		
 		}
@@ -304,21 +309,6 @@ namespace WBSF
 		return  filePath;
 	}
 
-	/*string CUIGribForecast::GetLocaleFilePath(size_t source, CTRef TRef, size_t HH)const
-	{
-		string workingDir = GetDir(WORKING_DIR);
-		string filePath = workingDir;
-
-		switch (source)
-		{
-		case N_HRDPS:	filePath += FormatA("%02d/%02d/", TRef.GetHour(), HH); break;
-		case N_HRRR:	filePath += FormatA("hrrr.%4d%02d%02d/hrrr.t%02z.wrfnatf%02.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
-		case N_RAP:		filePath += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf%02.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
-		case N_NAM:		filePath += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys%02.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
-		}
-
-		return  filePath;
-	}*/
 
 	CTRef CUIGribForecast::GetLatestTRef(size_t source, CFtpConnectionPtr& pConnection)const
 	{
@@ -485,12 +475,13 @@ namespace WBSF
 			size_t h = WBSF::as<int>(str.substr(8, 2));
 			size_t hh = WBSF::as<int>(str.substr(12, 3));
 			
-			TRef = CTRef(year, m, d, h+hh);
+			TRef = CTRef(year, m, d, h) + hh;
 
 		}
 		else 
 		{
-			static const size_t POS_HOUR[NB_SOURCES] = { 0, 17, 20, 20, 20 };
+			static const size_t POS_HOUR1[NB_SOURCES] = { 0, 6, 5, 5, 5 };
+			static const size_t POS_HOUR2[NB_SOURCES] = { 0, 17, 20, 20, 15 };
 
 			string name = GetFileTitle(filePath);
 			string dir1 = WBSF::GetLastDirName(GetPath(filePath));
@@ -498,9 +489,10 @@ namespace WBSF
 			int year = WBSF::as<int>(dir1.substr(0, 4));
 			size_t m = WBSF::as<int>(dir1.substr(4, 2)) - 1;
 			size_t d = WBSF::as<int>(dir1.substr(6, 2)) - 1;
-			size_t h = WBSF::as<int>(name.substr(POS_HOUR[source], 2));
+			size_t h = WBSF::as<int>(name.substr(POS_HOUR1[source], 2));
+			size_t hh = WBSF::as<int>(name.substr(POS_HOUR2[source], 2));
 
-			TRef = CTRef(year, m, d, h);
+			TRef = CTRef(year, m, d, h)+hh;
 		}
 
 

@@ -59,8 +59,8 @@ namespace WBSF
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/
 
 	//*********************************************************************
-	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product" };
-	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX };
+	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product", "Showwinscp" };
+	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_RAP_P; 
 	const UINT CUIRapidUpdateCycle::DESCRIPTION_TITLE_ID = ID_TASK_RAP;
 
@@ -86,7 +86,7 @@ namespace WBSF
 	{}
 
 	
-	std::string CUIRapidUpdateCycle::Option(size_t i)const
+	std::string CUIRapidUpdateCycle:: Option(size_t i)const
 	{
 		string str;
 		switch (i)
@@ -105,6 +105,7 @@ namespace WBSF
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		case PRODUCT:	str = "0"; break;
+		case SHOW_WINSCP: str = "0"; break;
 		};
 
 		return str;
@@ -412,95 +413,187 @@ namespace WBSF
 		return msg;
 	}
 
+	//ERMsg CUIRapidUpdateCycle::ExecuteFTP(CTPeriod period, CCallback& callback)
+	//{
+	//	ERMsg msg;
+	//	
+	//	int nbDownloaded = 0;
+
+	//	
+	//	CFileInfoVector fileList[2];
+	//	for (size_t s = 0; s < 2; s++)
+	//	{
+	//		msg = GetFilesToDownload(s, period, fileList[s], callback);
+	//		CleanList(s, fileList[s]);
+	//	}
+
+	//	size_t nbFileToDownload = fileList[0].size() + fileList[1].size();
+	//	callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFileToDownload) + " gribs)", nbFileToDownload);
+
+	//	for (size_t s = 0; s < 2; s++)
+	//	{
+	//		int nbRun = 0;
+	//		size_t curH = 0;
+
+	//		while (curH < fileList[s].size() && msg)
+	//		{
+	//			nbRun++;
+
+	//			CInternetSessionPtr pSession;
+	//			CFtpConnectionPtr pConnection;
+
+	//			msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession);
+
+	//			if (msg)
+	//			{
+	//				TRY
+	//				{
+	//					for (; curH < fileList[s].size() && msg; curH++)
+	//					{
+	//						CTRef TRef = GetTRef(s, fileList[s][curH].m_filePath);
+	//						//download inventory
+	//						string outputFilePaht = GetOutputFilePath(TRef, true, true, false);
+	//						CreateMultipleDir(GetPath(outputFilePaht));
+
+	//						msg = CopyFile(pConnection, fileList[s][curH].m_filePath, outputFilePaht, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+
+	//						if (msg)
+	//						{
+	//							nbRun = 0;
+	//							nbDownloaded++;
+	//							msg += callback.StepIt();
+	//						}
+	//					}
+	//				}
+	//				CATCH_ALL(e)
+	//				{
+	//					msg = UtilWin::SYGetMessage(*e);
+	//				}
+	//				END_CATCH_ALL
+
+	//				//clean connection
+	//				pConnection->Close();
+	//				pSession->Close();
+
+	//				//if an error occur: try again
+	//				if (!msg && !callback.GetUserCancel())
+	//				{
+	//					if (nbRun < 5)
+	//					{
+	//						callback.AddMessage(msg);
+	//						msg = ERMsg();
+
+	//						callback.PushTask("Waiting 30 seconds for server...", 600);
+	//						for (int i = 0; i < 600 && msg; i++)
+	//						{
+	//							Sleep(50);//wait 50 milisec
+	//							msg += callback.StepIt();
+	//						}
+	//						callback.PopTask();
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFileToDownload)));
+	//	callback.PopTask();
+
+
+	//	return msg;
+	//}
 	ERMsg CUIRapidUpdateCycle::ExecuteFTP(CTPeriod period, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		int nbDownloaded = 0;
 
-		
-		CFileInfoVector fileList[2];
+		callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " gribs)", 2);
 		for (size_t s = 0; s < 2; s++)
 		{
-			msg = GetFilesToDownload(s, period, fileList[s], callback);
-			CleanList(s, fileList[s]);
-		}
+			CFileInfoVector fileList;
+			msg = GetFilesToDownload(s, period, fileList, callback);
+			CleanList(s, fileList);
 
-		size_t nbFileToDownload = fileList[0].size() + fileList[1].size();
-		callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFileToDownload) + " gribs)", nbFileToDownload);
+			size_t nbFileToDownload = fileList.size();
+			static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
 
-		for (size_t s = 0; s < 2; s++)
-		{
-			int nbRun = 0;
-			size_t curH = 0;
+			callback.PushTask(string("Download RAP gribs from ") + NAME_NET[s] + ": " + ToString(nbFileToDownload) + " files", nbFileToDownload);
 
-			while (curH < fileList[s].size() && msg)
+
+			string workingDir = GetDir(WORKING_DIR);
+			string scriptFilePath = workingDir + "script.txt";
+			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-				nbRun++;
-
-				CInternetSessionPtr pSession;
-				CFtpConnectionPtr pConnection;
-
-				msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession);
-
+				ofStream stript;
+				msg = stript.open(scriptFilePath);
 				if (msg)
 				{
-					TRY
+					CTRef TRef = GetTRef(s, fileList[i].m_filePath);
+					string outputFilePaht = GetOutputFilePath(TRef, true, true, false);
+					string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
+					CreateMultipleDir(GetPath(outputFilePaht));
+
+					stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[s] << endl;
+					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
+					stript << "lcd " << GetPath(tmpFilePaht) << endl;
+					stript << "get " << GetFileName(tmpFilePaht) << endl;
+					stript << "exit" << endl;
+					stript.close();
+
+					bool bShow = as<bool>(SHOW_WINSCP);
+					//# Execute the script using a command like:
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "/log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					DWORD exit_code;
+					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+					if (msg)
 					{
-						for (; curH < fileList[s].size() && msg; curH++)
+						//verify if the file finish with 7777
+
+						if (exit_code == 0 && FileExists(tmpFilePaht))
 						{
-							CTRef TRef = GetTRef(s, fileList[s][curH].m_filePath);
-							//download inventory
-							string outputFilePaht = GetOutputFilePath(TRef, true, true, false);
-							CreateMultipleDir(GetPath(outputFilePaht));
-
-							msg = CopyFile(pConnection, fileList[s][curH].m_filePath, outputFilePaht, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
-							if (msg)
+							ifStream stream;
+							if (stream.open(tmpFilePaht))
 							{
-								nbRun = 0;
-								nbDownloaded++;
-								msg += callback.StepIt();
+								char test[5] = { 0 };
+								stream.seekg(-4, ifstream::end);
+								stream.read(&(test[0]), 4);
+								stream.close();
+
+								if (string(test) == "7777")
+								{
+									nbDownloaded++;
+									msg = RenameFile(tmpFilePaht, outputFilePaht);
+								}
+								else
+								{
+									msg = WBSF::RemoveFile(tmpFilePaht);
+								}
 							}
+
+						}
+						else
+						{
+							msg.ajoute("Error in WinCSV");
 						}
 					}
-					CATCH_ALL(e)
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
-					END_CATCH_ALL
 
-					//clean connection
-					pConnection->Close();
-					pSession->Close();
-
-					//if an error occur: try again
-					if (!msg && !callback.GetUserCancel())
-					{
-						if (nbRun < 5)
-						{
-							callback.AddMessage(msg);
-							msg = ERMsg();
-
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (int i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-						}
-					}
 				}
+
+				msg += callback.StepIt();
 			}
-		}
 
-		callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFileToDownload)));
+			callback.PopTask();
+			msg += callback.StepIt();
+		}//for 2 sources
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded), 2);
 		callback.PopTask();
-
 
 		return msg;
 	}
+
+
 
 	CTRef CUIRapidUpdateCycle::GetTRef(size_t s, const string& remote)
 	{
@@ -714,6 +807,6 @@ namespace WBSF
 		size_t hh = WBSF::as<int>(name.substr(22, 3));
 
 
-		return CTRef(year, m, d, h + hh);
+		return CTRef(year, m, d, h) + hh;
 	}
 }

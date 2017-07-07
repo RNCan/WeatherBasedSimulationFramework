@@ -774,7 +774,7 @@ IABBRUDE2,Bruderheim,53.8,-112.928,628,Bruderheim,Alberta Environmental Monitori
 IABCALGA8,Hidden Hills,51.15,-114.13,1156,Calgary,Wmr968,0,Division No. 6,AB,CA
 IABCALGA38,Martindale,51.112,-113.956,1095,Calgary,Davis Vantage Pro2 (Wireless),1,Division No. 6,AB,CA
 IABCALGA19,Bowmont Park Silver Springs,51.1,-114.19,1120,Calgary,Davis Vantage Pro 2,1,Division No. 6,AB,CA
-IABCALGA20,,51.138,-114.251,1202,Calgary,265 Nc,0,Division No. 6,AB,CA
+IABCALGA20,Calgary,51.138,-114.251,1202,Calgary,265 Nc,0,Division No. 6,AB,CA
 IABCALGA34,Inglewood Calgary 8 Ave Se,51.033,-114.013,1037,Calgary,Davis Vantagepro 2,1,Division No. 6,AB,CA
 IABCALGA25,Ramsey / East Of Stampede,51.035,-114.039,1044,Calgary,Custom And Davis Vantage Pro 2 Plu,0,Division No. 6,AB,CA
 IABCALGA36,Mckenzie Towne,50.922,-113.972,1035,Calgary,Acurite Pro Weather Center,1,Division No. 6,AB,CA
@@ -801,7 +801,7 @@ IABMUNDA2,Hwy 16 East,53.579,-112.461,687,Hillbilly,Davis Vantage Pro 2,1,Divisi
 IABJAMES2,Caroline,51.95,-114.7,1136,James River Bridge,Alberta Environmental Monitoring And Reporting Agency (Aemera),0,Division No. 9,AB,CA
 IABKANAN2,Canmore Nordic Centre,51.091,-115.385,1428,Kananaskis,Rainwise Mk-Iii,1,Division No. 15,AB,CA
 IABLEGAC5,16ws,50.841,-114.005,1050,Legacy,Lacrosse,1,Division No. 6,AB,CA
-IABLETHB2,,49.665,-112.883,913,Lethbridge,Davis Vantage Pro 2,0,Division No. 2,AB,CA
+IABLETHB2,Lethbridge,49.665,-112.883,913,Lethbridge,Davis Vantage Pro 2,0,Division No. 2,AB,CA
 IABLETHB3,Lethbridge Alberta,49.699,-112.95,934,Lethbridge,Davis Vantage Pro 2,0,Division No. 2,AB,CA
 IABLETHB4,Lethbridge,49.716,-112.801,917,Lethbridge,Alberta Environmental Monitoring And Reporting Agency (Aemera),0,Division No. 2,AB,CA
 IALBERTA72,Sequoia Park,49.672,-112.787,914,Lethbridge (South),Davis Vantage Vue,1,Division No. 2,AB,CA
@@ -966,7 +966,7 @@ IALBERTA466,Southfort Kn,53.689,-113.221,623,Fort Saskatchewan,Acurite Pro Weath
 IALBERTA436,Sunset Beach,53.622,-114.724,727,Gainford,Acurite Pro Weather Center,0,Division No. 11,AB,CA
 IALBERTA361,One Mile East Of Glendon,54.255,-111.129,580,Glendon,Acurite Pro Weather Center,1,Division No. 12,AB,CA
 IALBERTA543,Glenevis,53.803,-114.518,736,Glenevis,Acurite Pro Weather Center,1,Division No. 13,AB,CA
-IALBERTA156,,52.997,-114.086,844,Grandview,Davis Vantage Pro 2,0,Division No. 11,AB,CA
+IALBERTA156,Grandview,52.997,-114.086,844,Grandview,Davis Vantage Pro 2,0,Division No. 11,AB,CA
 IALBERTA330,Special Areas #2/Hanna Wx,51.625,-111.988,811,Hanna,Davis Vantage Pro2 (Wireless),1,Division No. 4,AB,CA
 IALBERTA373,Ponderosa,52.638,-112.254,722,Heisler,Acurite Pro Weather Center,1,Division No. 7,AB,CA
 IALBERTA578,High Level Ab Canada,58.517,-117.136,328,High Level,Acurite Pro Weather Center,1,Division No. 17,AB,CA
@@ -1051,7 +1051,7 @@ IBCNORTH3,Indian River - Deep Cove,49.324,-122.958,107,North Vancouver,Davis Van
 IBCOSOYO1,Anarchist Mountain Observatory,49.028,-119.401,800,Osoyoos,Davis Vantage Pro Ii,1,Okanagan-Similkameen,BC,CA
 I90580963,Home Of Oliver The Dog,49.7,-123.135,131,Squamish,Ws-2310,1,Squamish-Lillooet,BC,CA
 IBCVERNO1,Mission Hill,50.255,-119.292,387,Vernon,Davis Vantage Pro,0,North Okanagan,BC,CA
-IBCWESTK2,,49.847,-119.559,426,West Kelowna,Davis Vantage Pro 2,0,Central Okanagan,BC,CA
+IBCWESTK2,West Kelowna,49.847,-119.559,426,West Kelowna,Davis Vantage Pro 2,0,Central Okanagan,BC,CA
 IBCABBOT7,Abbotsford Centre,49.064,-122.316,62,Abbotsford,Davis Vantage Vue,0,Fraser Valley,BC,CA
 IBCABBOT2,West Abbotsford (Aberdeen),49.075,-122.443,115,Abbotsford,Wmr 968,1,Fraser Valley,BC,CA
 IBCABBOT8,Abbotsford,49.043,-122.31,50,Abbotsford,Greater Vancouver Regional District,0,Fraser Valley,BC,CA
@@ -1082,7 +1082,7 @@ IBCDELTA10,North Delta,49.158,-122.902,112,Delta,Greater Vancouver Regional Dist
 IBCGARDE2,Farrington Cove,49.633,-124.045,10,Garden Bay,Davis Advantage Vue,0,Sunshine Coast,BC,CA
 IBCGOLDB2,Gun Lake,50.853,-122.905,899,Gold Bridge,Rainwise Mk-Iii,1,Squamish-Lillooet,BC,CA
 IBCGRAND3,Grand Forks City Hall,49.031,-118.439,519,Grand Forks,British Columbia Ministry Of Environment,0,Kootenay Boundary,BC,CA
-IBCGRAND2,,49.029,-118.45,513,Grand Forks,Vantage Vue,1,Kootenay Boundary,BC,CA
+IBCGRAND2,Grand Forks,49.029,-118.45,513,Grand Forks,Vantage Vue,1,Kootenay Boundary,BC,CA
 IBCHARRI2,Harrison Lake,49.311,-121.775,0,Harrison Hot Springs,Weatherflow,0,Fraser Valley,BC,CA
 IBCSUNSH3,Sunshine Valley,49.284,-121.238,705,Hope,,1,Fraser Valley,BC,CA
 IBCHOPE2,Hope,49.37,-121.499,59,Hope,Greater Vancouver Regional District,0,Fraser Valley,BC,CA
@@ -1096,12 +1096,12 @@ IBCLACLE1,Lac Le Jeune,50.485,-120.469,1280,Lac Le Jeune,Wm918,1,Thompson-Nicola
 IBCLADNE1,Delta British Columbia,49.094,-123.061,1,Ladner,Davis Vantage Pro2 Plus (Wireless),1,Greater Vancouver,BC,CA
 IBCLANGL3,South Langley,49.045,-122.565,120,Langley,Davis Vue,1,Greater Vancouver,BC,CA
 IBCLANGL5,Langley,49.096,-122.567,86,Langley,Greater Vancouver Regional District,0,Greater Vancouver,BC,CA
-IBCLIKEL3,,52.544,-121.632,1107,Likely,,1,Cariboo,BC,CA
-IBCLUMBY2,,50.244,-118.975,519,Lumby,Davis Vantage Pro2 Plus,1,North Okanagan,BC,CA
+IBCLIKEL3,Likely,52.544,-121.632,1107,Likely,,1,Cariboo,BC,CA
+IBCLUMBY2,Lumby,50.244,-118.975,519,Lumby,Davis Vantage Pro2 Plus,1,North Okanagan,BC,CA
 IBCMADEI1,Francis Peninsula,49.604,-124.046,39,Madeira Park,Other,0,Sunshine Coast,BC,CA
 IBCMAPLE6,Maple Ridge,49.215,-122.582,49,Maple Ridge,Greater Vancouver Regional District,0,Greater Vancouver,BC,CA
 IBCVICTO15,Mill Bay,48.642,-123.586,108,Mill Bay,Ultimeter 2100,0,Cowichan Valley,BC,CA
-IBCMILLB1,,48.639,-123.543,35,Mill Bay,Davis Wireless Vantage Pro,1,Cowichan Valley,BC,CA
+IBCMILLB1,Mill Bay,48.639,-123.543,35,Mill Bay,Davis Wireless Vantage Pro,1,Cowichan Valley,BC,CA
 IBCMISSI3,Norrish Creek,49.228,-122.138,237,Mission,Davis Vantage Pro2 Plus,1,Fraser Valley,BC,CA
 IBCMISSI2,Cedar Valley,49.161,-122.316,141,Mission,Davis Vantage Pro Plus,1,Fraser Valley,BC,CA
 IBCTOBAI3,Montrose Intake,50.619,-124.189,53,Montrose Creek,Davis Vantage Pro 2 Plus,1,Powell River,BC,CA
@@ -1404,7 +1404,7 @@ IMANITOB148,Rosenfeld Mb,49.221,-97.438,238,Rosenfeld,Acurite Pro Weather Center
 IMANITOB76,St Jean Baptiste Mb,49.268,-97.344,235,Saint Jean Baptiste,Acurite Pro Weather Center,1,Division No. 3,MB,CA
 IMANITOB134,Shilo/Sprucewoods,49.819,-99.647,335,Shilo,Acurite Pro Weather Center,0,Division No. 7,MB,CA
 IMANITOB28,Woodlands Municipality,50.208,-97.658,249,Town Of Woodlands,Davis Vantage Pro 2,1,Division No. 14,MB,CA
-IMANITOB51,,51.582,-99.568,243,Vanilla Oaks,Davis Vantage 2,1,Division No. 19,MB,CA
+IMANITOB51,Vanilla Oaks,51.582,-99.568,243,Vanilla Oaks,Davis Vantage 2,1,Division No. 19,MB,CA
 IMANITOB133,Virden,49.854,-100.92,441,Virden,Other,1,Division No. 6,MB,CA
 IMANITOB146,Bridgwater Forest,49.802,-97.19,235,Winnipeg,Acurite Pro Weather Center,1,Division No. 11,MB,CA
 IMANITOB24,Fort Richmond,49.793,-97.142,231,Winnipeg,Davis Weather Monitor Ll,1,Division No. 11,MB,CA
@@ -1422,11 +1422,11 @@ IMANITOB92,Southdale Brookhaven,49.851,-97.078,91,Winnipeg,Other,0,Division No. 
 IMANITOB129,Ebby Wentworth,49.859,-97.153,238,Winnipeg,Acurite Pro Weather Center,0,Division No. 11,MB,CA
 IMANITOB142,Maples,49.948,-97.167,231,Winnipeg,Netatmo Weather Station,0,Division No. 11,MB,CA
 IMANITOB126,Glenwood,49.87,-97.105,231,Winnipeg,Davis Vantage Pro2 (Wireless),1,Division No. 11,MB,CA
-IMANITOB66,,50.492,-96.953,214,Winnipeg Beach,,1,Division No. 18,MB,CA
+IMANITOB66,Winnipeg Beach,50.492,-96.953,214,Winnipeg Beach,,1,Division No. 18,MB,CA
 IMBANOLA2,Anola,49.912,-96.598,252,Anola,Vantage Pro2,1,Division No. 12,MB,CA
 IMBBRAND3,Brandon,49.842,-99.919,388,Brandon,Manitoba Conservation Air Quality Section,0,Division No. 7,MB,CA
 IMBDOGSK2,Dogskin Lake Lodge,51.702,-95.217,304,Dogskin Lake,Bloomsky2 + Storm,1,,MB,CA
-IMBWINNI22,,49.831,-97.067,232,Island Lakes Winnipeg,Davis Vantage Pro,1,Division No. 11,MB,CA
+IMBWINNI22,Island Lakes Winnipeg,49.831,-97.067,232,Island Lakes Winnipeg,Davis Vantage Pro,1,Division No. 11,MB,CA
 IMBMINIT2,Minitonas (North),52.219,-100.988,277,Minitonas,Davis,1,Division No. 20,MB,CA
 IMBOAKBA2,Winnipeg_Scotia,49.932,-96.863,241,Oakbank,Manitoba Conservation Air Quality Section,0,Division No. 12,MB,CA
 I90578939,Pinawa Town,50.147,-95.89,277,Pinawa,Davis Vantage Pro,1,Division No. 1,MB,CA
@@ -1434,7 +1434,7 @@ IMBROSSE2,Winnipeg_Ellens,49.949,-97.396,239,Rosser,Manitoba Conservation Air Qu
 IMBSANFO3,Meadowbrook,49.677,-97.436,240,Sanford,Davis Vantage Pro2,1,Division No. 10,MB,CA
 IMBSELKI1,South Interlake Bm-Sl,50.149,-96.889,223,Selkirk,Peet 2100,1,Division No. 13,MB,CA
 IMANITOB47,Birds Hill Park,50.048,-96.851,238,Springfield,Davis Vantage Vue,1,Division No. 12,MB,CA
-IMBWARRE2,,50.132,-97.54,248,Warren,Acurite 1035,0,Division No. 14,MB,CA
+IMBWARRE2,Warren,50.132,-97.54,248,Warren,Acurite 1035,0,Division No. 14,MB,CA
 IMBWAVER2,South Point Winnipeg Manitoba,49.788,-97.179,233,Waverley West,Weatherflow,1,Division No. 11,MB,CA
 IMBWINKL4,La Home,49.17,-97.945,271,Winkler,Lacrosse,1,Division No. 3,MB,CA
 IMBWINNI3,Winnipeg Charleswood,49.85,-97.27,236,Winnipeg,Davis Vantage Pro,1,Division No. 11,MB,CA
@@ -1447,7 +1447,7 @@ IMBWINNI7,Fortwhyte Alive,49.819,-97.225,238,Winnipeg,Davis Vantage Pro 2,0,Divi
 KMIDETRO6,Dossin Museum - Belle Isle On The Detroit River,42.334,-82.985,174,Detroit,Davis Vantage Pro Wired,1,Wayne County,MI,US
 INBBATHU2,Bathurst,47.609,-65.633,13,Bathurst,Environment Canada,0,Gloucester County,NB,CA
 INBBEAVE2,Beaver Harbour,45.07,-66.74,0,Beaver Harbour,,1,Charlotte County,NB,CA
-INBCOLPI2,,45.984,-64.974,42,Colpitts Settlement,Davis Provantage 2,1,Albert County,NB,CA
+INBCOLPI2,Colpitts Settlement,45.984,-64.974,42,Colpitts Settlement,Davis Provantage 2,1,Albert County,NB,CA
 INBEDMUN3,Rene,47.425,-68.394,156,Edmundston,Lacrosse,1,Comte de Madawaska,NB,CA
 INBEDMUN2,Madawaska Psb,47.355,-68.321,175,Edmundston,Maine Dept. Of Environmental Protection,0,Aroostook County,ME,US
 INBFLOWE2,Grand Lake,46.03,-66.038,6,Flowers Cove,Vantage Pro 2 With Solar And Uv,0,Queens County,NB,CA
@@ -1498,7 +1498,7 @@ INEWFOUN44,Goulds,47.459,-52.783,113,Goulds,Vantage Pro 2,1,Division No. 1,NL,CA
 INEWFOUN111,Memorial Ave Gfw,48.934,-55.654,88,Grand Falls-Windsor,Acurite Pro Weather Center,1,Division No. 6,NL,CA
 INEWFOUN114,Ham Radio Weather Station,48.929,-55.639,56,Grand Falls-Windsor,Davis Vantage Pro2 (Cabled),1,Division No. 6,NL,CA
 INEWFOUN61,Rodgers Cove,49.37,-54.504,5,Horwood,Acurite Pro Weather Center,1,Division No. 8,NL,CA
-INEWFOUN49,,51.52,-56.837,28,L'Anse Au Loup,Davis Vp2 With Fars,1,Division No. 10,NL,CA
+INEWFOUN49,L'Anse Au Loup,51.52,-56.837,28,L'Anse Au Loup,Davis Vp2 With Fars,1,Division No. 10,NL,CA
 INEWFOUN53,Red Cliff Area,47.627,-52.671,48,Logy Bay,Davis Vantage Pro2 (Wireless),0,Division No. 1,NL,CA
 INEWFOUN74,Clarke'S Beach,47.533,-53.289,20,Makinsons,Davis Vantage Pro2 (Wireless),0,Division No. 1,NL,CA
 INEWFOUN116,Creston North,47.154,-55.192,11,Marystown,Rainwise Mk-Iii-Lr,1,Division No. 2,NL,CA
@@ -1516,12 +1516,12 @@ INEWFOUN56,Penney Crescent,47.603,-52.724,113,St- Johns,Davis Vantage Vue (Wirel
 INEWFOUN72,Higgins Line/St- John'S Northeast,47.594,-52.729,99,St- Johns,Davis Vantage Vue (Wireless),1,Division No. 1,NL,CA
 INEWFOUN101,Cornwall Heights,47.546,-52.734,77,St- Johns,Acurite Pro Weather Center,0,Division No. 1,NL,CA
 INEWFOUN115,Quidi Vidi Lake - St- John'S Regatta,47.578,-52.699,14,St- Johns,Davis Vantage Pro2 (Wireless),0,Division No. 1,NL,CA
-INEWFOUN47,,46.916,-53.583,21,St- Mary'S,Vantage Vue,1,Division No. 1,NL,CA
-INLBAYRO2,,47.583,-53.285,32,Bay Roberts,Davis 6250m,0,Division No. 1,NL,CA
+INEWFOUN47,St- Mary'S,46.916,-53.583,21,St- Mary'S,Vantage Vue,1,Division No. 1,NL,CA
+INLBAYRO2,Bay Roberts,47.583,-53.285,32,Bay Roberts,Davis 6250m,0,Division No. 1,NL,CA
 INLBISHO2,Bishops Cove,47.639,-53.223,59,Bishop'S Cove,Vantage Pro2,1,Division No. 1,NL,CA
 INLCAPOS3,Grand Falls Windsor,49.019,-55.803,197,Capostal A2a,Newfoundland & Labrador Dec,0,Division No. 6,NL,CA
-INLGANDE3,,48.979,-54.616,110,Gander,Davis Vantage Pro 2,1,Division No. 6,NL,CA
-INLGREEN2,,47.626,-53.506,10,Green'S Harbour,National Geographic 265nc,1,Division No. 1,NL,CA
+INLGANDE3,Gander,48.979,-54.616,110,Gander,Davis Vantage Pro 2,1,Division No. 6,NL,CA
+INLGREEN2,Green'S Harbour,47.626,-53.506,10,Green'S Harbour,National Geographic 265nc,1,Division No. 1,NL,CA
 INLHAPPY2,Goose Bay,53.305,-60.364,35,Happy Valley-Goose Bay,Canadian Air And Precipitation Monitoring Network,0,Division No. 10,NL,CA
 INLLEMAN2,Hell Hill,47.14,-52.9,91,Lemanche,,1,Division No. 1,NL,CA
 INLPARAD2,Donovan Terrace,47.537,-52.859,198,Paradise,Davis Vantage Pro2 (Wireless),0,Division No. 1,NL,CA
@@ -1629,7 +1629,7 @@ INOVASCO8,1015 The Hawk,45.615,-61.356,46,Port Hawkesbury,Davis Vantage Pro2,1,I
 INOVASCO29,Port Williams,45.097,-64.414,28,Port Williams,Davis Vantage Pro2 Plus (Wireless),0,Kings County,NS,CA
 INSSYDNE7,Sydney,46.143,-60.173,23,Sydney,Environment Canada,0,Cape Breton Regional Municipality,NS,CA
 INOVASCO30,Sydney Mines,46.249,-60.252,1,Sydney Mines,Davis Vantage Pro2,1,Cape Breton Regional Municipality,NS,CA
-INSWENTW2,,45.609,-63.568,89,Wentworth Valley,Oww,0,Cumberland County,NS,CA
+INSWENTW2,Wentworth Valley,45.609,-63.568,89,Wentworth Valley,Oww,0,Cumberland County,NS,CA
 INSWESTH2,Windsor Nova Scotia,44.991,-64.124,48,Windsor,Davis Vantage Pro2 (Wireless),0,Hants County,NS,CA
 INOVASCO20,West Brooklyn Mtn,45.08,-64.271,99,Wolfville,Davis Vantage Pro 2,1,Kings County,NS,CA
 INSYARMO2,Yarmouth,43.771,-66.112,21,Yarmouth,Weatherlink Pro,0,Yarmouth County,NS,CA
@@ -1637,7 +1637,7 @@ INSYARMO3,Dayton,43.833,-66.083,30,Yarmouth,Environment Canada,0,Yarmouth County
 IONACTON1,Rural,43.642,-80.075,396,Acton,Wx200,0,Wellington County,ON,CA
 IONACTON2,Mike'S Weather,45.01,-75.75,82,Actons Corners,Lacrosse,0,Ottawa Division,ON,CA
 IONALLIS2,Alliston,44.161,-79.845,207,Alliston,Vantage Pro,0,Simcoe County,ON,CA
-IONNEWTE2,,44.156,-79.87,230,Alliston,Weather Monitor 2,0,Simcoe County,ON,CA
+IONNEWTE2,Alliston,44.156,-79.87,230,Alliston,Weather Monitor 2,0,Simcoe County,ON,CA
 IONARMBR2,Wigle Weather Station,43.671,-79.753,0,Armbro Heights,Lacrosse,1,Peel Regional Municipality,ON,CA
 IONAUROR3,Aurora Ontario,43.995,-79.464,274,Aurora,Davis Vantagepro,1,York Regional Municipality,ON,CA
 IONBARRI11,Minet'S Point,44.393,-79.649,235,Barrie,Weatherflow,0,Simcoe County,ON,CA
@@ -1700,9 +1700,9 @@ IONOTTAW25,Orleans - Convent Glen,45.469,-75.533,68,Ottawa,Vantage Pro 2,1,Ottaw
 IONOTTAW15,Kanata Katimavik,45.306,-75.888,116,Ottawa,Thermor 265nc,1,Ottawa Division,ON,CA
 IONOTTAW31,Ottawa,45.432,-75.676,73,Ottawa,Ontario Ministry Of The Environment,0,Ottawa Division,ON,CA
 IONTARIO47,Emerald Meadows,45.279,-75.851,109,Ottawa,Davis Vanatage Pro 2,0,Ottawa Division,ON,CA
-IONOWENS2,,44.552,-80.938,179,Owen Sound,Davis Vantage Ii Pro Plus,1,Grey County,ON,CA
+IONOWENS2,Owen Sound,44.552,-80.938,179,Owen Sound,Davis Vantage Ii Pro Plus,1,Grey County,ON,CA
 IONPARRY2,Parry Sound,45.338,-80.038,177,Parry Sound,Ontario Ministry Of The Environment,0,Parry Sound District,ON,CA
-IONPEMBR2,,45.697,-77.08,147,Pembroke,Davis Vantage Pro 2,0,Renfrew County,ON,CA
+IONPEMBR2,Pembroke,45.697,-77.08,147,Pembroke,Davis Vantage Pro 2,0,Renfrew County,ON,CA
 IONPETER3,Peterborough,44.3,-78.35,238,Peterborough,Ontario Ministry Of The Environment,0,Peterborough County,ON,CA
 IONPOINT4,Lawnmen,43.01,-82.428,0,Point Edward,Lacrosse,1,St Clair County,MI,US
 IONRAWSO2,Experimental Lakes,49.664,-93.721,388,Rawson Lake (Aut),Canadian Air And Precipitation Monitoring Network,0,Kenora District,ON,CA
@@ -1712,10 +1712,10 @@ IONSAUBL2,Sauble Beach,44.63,-81.27,179,Sauble Beach,Weatherflow,0,Bruce County,
 IONSAULT3,Sault Ste Marie,46.533,-84.309,240,Sault Ste. Marie,Ontario Ministry Of The Environment,0,Algoma District,ON,CA
 IONSAUTS2,West St-,46.52,-84.359,181,Saut Ste. Marie,Davis Vantage Pro 2,0,Algoma District,ON,CA
 IONNEWTE4,Schomberg,44.008,-79.685,237,Schomberg,Acurite Pro Weather Center,0,York Regional Municipality,ON,CA
-IONSHERK2,,42.885,-79.124,188,Sherkston,Acu-Rite,0,Niagara Regional Municipality,ON,CA
+IONSHERK2,Sherkston,42.885,-79.124,188,Sherkston,Acu-Rite,0,Niagara Regional Municipality,ON,CA
 IONSOUTH3,Grand Bend,43.331,-81.743,188,South Huron,Ontario Ministry Of The Environment,0,Huron County,ON,CA
 IONSTCAT2,St- Catharines,43.158,-79.235,102,St- Catharines,Ontario Ministry Of The Environment,0,Niagara Regional Municipality,ON,CA
-IONCLEAR2,,44.414,-80.096,220,Stayner,Davis Vantage Pro2,1,Simcoe County,ON,CA
+IONCLEAR2,Stayner,44.414,-80.096,220,Stayner,Davis Vantage Pro2,1,Simcoe County,ON,CA
 IONSTITT1,Stittsville,45.258,-75.928,117,Stittsville,Davis Vantage Pro2,0,Ottawa Division,ON,CA
 IONSUDBU4,Hwy 69 @ Richard Lake,46.432,-80.929,237,Sudbury,Other,1,Greater Sudbury Division,ON,CA
 IONTHUND1,Greengate Circle,48.324,-89.364,235,Thunder Bay,Ambient Ws-1080,0,Thunder Bay District,ON,CA
@@ -1749,7 +1749,7 @@ IONTARIO962,Thorncity Agriculture,43.083,-81.186,287,Arva,Other,0,Middlesex Coun
 IONTARIO526,Downtown Arva,43.05,-81.295,274,Arva,Davis Vantage Vue® (Wireless)),1,Middlesex County,ON,CA
 IONTARIO961,Ayr,43.3,-80.474,384,Ayr,Ambient Weather Ws-1400-Ip (Wireless),0,Waterloo Regional Municipality,ON,CA
 IONTARIO895,Bainsville Ontario. Canada,45.18,-74.412,50,Bainsville,Ambient Weather Ws-1001-Wifi (Wireless),1,Stormont  Dundas and Glengarry United Counties,ON,CA
-IONTARIO287,,46.44,-84.008,227,Bar River,,1,Algoma District,ON,CA
+IONTARIO287,Bar River,46.44,-84.008,227,Bar River,,1,Algoma District,ON,CA
 IONTARIO661,Barrie North,44.404,-79.673,264,Barrie,Acurite Pro Weather Center,0,Simcoe County,ON,CA
 IONTARIO175,Barrie Weather,44.399,-79.658,262,Barrie,Davis Vantage Pro2 Plus (Wireless),1,Simcoe County,ON,CA
 IONTARIO1150,Holly,44.324,-79.726,295,Barrie,Other,1,Simcoe County,ON,CA
@@ -1811,7 +1811,7 @@ IONTARIO261,Cherry Valley,43.934,-77.162,81,Cherry Valley,Wmr200,0,Prince Edward
 IONTARIO941,Hammond,45.436,-75.256,71,Clarence-Rockland,Davis Vantage Vue (Wireless),0,Prescott and Russell United Counties,ON,CA
 IONTARIO177,Stayner,44.421,-80.078,213,Clearview,Peet Ultimeter 2100,1,Simcoe County,ON,CA
 IONTARIO1206,Dalewood Golf Club Turf Department,43.996,-78.256,78,Cobourg,Davis Vantage Pro2 (Cabled),0,Northumberland County,ON,CA
-IONTARIO224,,44.497,-80.224,181,Collingwood,Os Wmr-968,0,Simcoe County,ON,CA
+IONTARIO224,Collingwood,44.497,-80.224,181,Collingwood,Os Wmr-968,0,Simcoe County,ON,CA
 IONTARIO913,Pearson Farm'S - Flat Open,42.205,-82.529,185,Comber,Ambient Weather Ws-1001-Wifi (Wireless),1,Essex County,ON,CA
 IONTARIO453,Hayes Computer Solutions,42.131,-82.749,195,Cottam,Acurite Pro Weather Center,0,Essex County,ON,CA
 IONTARIO707,South Courtice,43.889,-78.8,104,Courtice,Acurite Pro Weather Center,0,Durham Regional Municipality,ON,CA
@@ -1869,7 +1869,7 @@ IONTARIO405,Harrow Ontario,42.048,-82.991,192,Harrow,Davis 06153 Wireless Vantag
 IONTARIO470,South Frontenac,44.397,-76.605,120,Harrowsmith,Acu-Rite,0,Frontenac County,ON,CA
 IONTARIO953,Belmont Lake,44.516,-77.812,177,Havelock,Davis Vantage Pro2 Plus (Wireless),1,Peterborough County,ON,CA
 IONTARIO1250,Hubbs Creek Vineyard,43.968,-77.372,96,Hillier,Acurite Pro Weather Center,1,Prince Edward County,ON,CA
-IONTARIO426,,46.254,-83.9,232,Hilton Beach,Davis Monitor Ii,1,Algoma District,ON,CA
+IONTARIO426,Hilton Beach,46.254,-83.9,232,Hilton Beach,Davis Monitor Ii,1,Algoma District,ON,CA
 IONTARIO1281,Holland Centre,44.431,-80.818,334,Holland Centre,Ambient Weather Ws-1001-Wifi (Wireless),1,Grey County,ON,CA
 IONTARIO753,Go Home Bay,44.993,-79.943,183,Honey Harbour,Davis Vantage Vue (Wireless),1,Muskoka District Municipality,ON,CA
 IONTARIO1252,Noxon Weather,43.032,-80.874,289,Ingersoll,Acurite Pro Weather Center,0,Oxford County,ON,CA
@@ -1886,7 +1886,7 @@ IONTARIO1300,Bobcaygeon,44.54,-78.547,250,Kawartha Lakes,Ambient Weather Ws-1400
 IONTARIO950,Bethany,44.199,-78.665,299,Kawartha Lakes,Acurite Pro Weather Center,1,Kawartha Lakes Division,ON,CA
 IONTARIO911,Hiawatha,44.161,-78.235,195,Keene,Netatmo Weather Station,0,Peterborough County,ON,CA
 IONTARIO624,Shady Acres Park,44.214,-78.161,196,Keene,Acurite Pro Weather Center,0,Peterborough County,ON,CA
-IONTARIO275,,45.017,-75.633,92,Kemptville,265 Nc,0,Leeds and Grenville United Counties,ON,CA
+IONTARIO275,Kemptville,45.017,-75.633,92,Kemptville,265 Nc,0,Leeds and Grenville United Counties,ON,CA
 IONTARIO848,East End Of Echo Bay On Lake Of The Woods Ontario Canada,49.658,-94.857,325,Kenora,Ambient Weather Ws-2090 (Wireless),0,Kenora District,ON,CA
 IONTARIO839,Grassy Lake,49.901,-94.382,298,Kenora,Lacrosse Weather Pro Center 1600 Series,1,Kenora District,ON,CA
 IONTARIO479,Bonnechere Provincial Park Ontario,45.658,-77.58,176,Killaloe,Davis Vantage Pro Ii Plus,1,Renfrew County,ON,CA
@@ -1934,7 +1934,7 @@ IONTARIO437,Jones Falls,44.518,-76.234,100,Lyndhurst,Davis Vantage Vue,1,Leeds a
 IONTARIO787,North Go Home Bay,44.996,-79.958,174,Mactier,Other,0,Muskoka District Municipality,ON,CA
 IONTARIO514,Manitoulin Island,45.785,-81.838,178,Manitowaning,Davis Vantage Pro2 Plus,1,Manitoulin District,ON,CA
 IONTARIO289,Maple,43.864,-79.532,233,Maple,Acurite Pro Weather Center,1,York Regional Municipality,ON,CA
-IONTARIO221,,48.722,-86.379,217,Marathon,Davis Vpro2,1,Thunder Bay District,ON,CA
+IONTARIO221,Marathon,48.722,-86.379,217,Marathon,Davis Vpro2,1,Thunder Bay District,ON,CA
 IONTARIO722,Nsg Markham Station 2,43.833,-79.31,228,Markham,Davis Vantage Vue (Wireless),1,York Regional Municipality,ON,CA
 IONTARIO971,German Mills,43.811,-79.365,182,Markham,Acurite Pro Weather Center,0,York Regional Municipality,ON,CA
 IONTARIO644,Watson Lake Maynooth Ontario,45.289,-77.938,395,Maynooth,Acurite Pro Weather Center,1,Hastings County,ON,CA
@@ -1954,7 +1954,7 @@ IONTARIO1128,Sherwood Forrest,43.533,-79.652,111,Mississauga,Netatmo Weather Sta
 IONTARIO1049,Mineola,43.566,-79.586,136,Mississauga,Acurite Pro Weather Center,0,Peel Regional Municipality,ON,CA
 IONTARIO1184,Sheridan Park,43.533,-79.668,0,Mississauga,Bloomsky,1,Peel Regional Municipality,ON,CA
 IONTARIO833,'New England' Almonte,45.222,-76.206,123,Mississippi Mills,Ambient Weather Ws-1000 (Wireless),1,Lanark County,ON,CA
-IONTARIO254,,47.671,-80.666,337,Mnr Lost Lake Davis Weather Station,,1,Timiskaming District,ON,CA
+IONTARIO254,Mnr Lost Lake Davis Weather Station,47.671,-80.666,337,Mnr Lost Lake Davis Weather Station,,1,Timiskaming District,ON,CA
 IONTARIO1044,Medonte Hills Moonstone,44.644,-79.667,295,Moonstone,Acurite Pro Weather Center,1,Simcoe County,ON,CA
 IONTARIO732,Ckd Accu-Yard,44.893,-75.187,77,Morrisburg,Acurite Pro Weather Center,0,Stormont  Dundas and Glengarry United Counties,ON,CA
 IONTARIO1104,Mount Brydges Ontario,42.906,-81.484,229,Mount Brydges,Acurite Pro Weather Center,0,Middlesex County,ON,CA
@@ -1967,8 +1967,8 @@ IONTARIO273,Nestor Falls,49.117,-93.928,320,Nestor Falls,Davis Vantage Vue (Wire
 IONTARIO1199,Neustadt,44.076,-81,294,Neustadt,Davis Vantage Pro2 Plus (Wireless),1,Grey County,ON,CA
 IONTARIO1320,Tottenham Airfield,43.992,-79.778,298,New Tecumseth,Davis Vantage Pro2 (Wireless),1,,ON,CA
 IONTARIO631,Beeton,44.075,-79.81,227,New Tecumseth,Davis Vantage Vue® (Wireless)),1,Simcoe County,ON,CA
-IONTARIO560,,45.112,-74.983,98,Newington,Vantage Pro 2,1,Stormont  Dundas and Glengarry United Counties,ON,CA
-IONTARIO122,,44.928,-75.758,117,Newmanville,Davis Vantage Pro 2,0,Leeds and Grenville United Counties,ON,CA
+IONTARIO560,Newington,45.112,-74.983,98,Newington,Vantage Pro 2,1,Stormont  Dundas and Glengarry United Counties,ON,CA
+IONTARIO122,Newmanville,44.928,-75.758,117,Newmanville,Davis Vantage Pro 2,0,Leeds and Grenville United Counties,ON,CA
 IONTARIO1080,Sharon Ontario,44.08,-79.398,274,Newmarket,Acurite Pro Weather Center,0,York Regional Municipality,ON,CA
 IONTARIO1129,Upper Canada Mall (Vicinity Of),44.068,-79.464,260,Newmarket,Acurite Pro Weather Center,1,York Regional Municipality,ON,CA
 IONTARIO1253,Leslie Valley,44.079,-79.438,266,Newmarket,Acurite Pro Weather Center,1,York Regional Municipality,ON,CA
@@ -2044,7 +2044,7 @@ IONTARIO1160,Fonthill Ontario,43.031,-79.297,184,Pelham,Ambient Weather Ws-1400-
 IONTARIO1314,Srb Technologies,45.805,-77.119,130,Pembroke,Other,0,Renfrew County,ON,CA
 IONTARIO1290,North Perth,44.912,-76.254,143,Perth,Acurite Pro Weather Center,0,Lanark County,ON,CA
 IONTARIO703,Petawawa On Close To The Petawawa River,45.898,-77.289,139,Petawawa,Acurite Pro Weather Center,1,Renfrew County,ON,CA
-IONTARIO300,,45.894,-77.283,143,Petawawa,Davis Vantage Pro,1,Renfrew County,ON,CA
+IONTARIO300,Petawawa,45.894,-77.283,143,Petawawa,Davis Vantage Pro,1,Renfrew County,ON,CA
 IONTARIO1021,Peterborough Lift Lock,44.307,-78.286,195,Peterborough,Acurite Pro Weather Center,0,Peterborough County,ON,CA
 IONTARIO161,Lakefield,44.411,-78.273,246,Peterborough,Davis Vantage Pro,1,Peterborough County,ON,CA
 IONTARIO278,Woodland Acres,44.358,-78.311,213,Peterborough,Davis Vantage Pro Ii,1,Peterborough County,ON,CA
@@ -2052,7 +2052,7 @@ IONTARIO903,Top,42.878,-82.149,198,Petrolia,Acurite Pro Weather Center,1,Lambton
 IONTARIO356,Pickering - Fieldstone,43.848,-79.101,100,Pickering,Acurite 10350,1,Durham Regional Municipality,ON,CA
 IONTARIO232,Pickering Weather,43.83,-79.13,120,Pickering,Oregon Scientific Wmr200a,1,Durham Regional Municipality,ON,CA
 IONTARIO217,Downtown Picton,44.009,-77.149,96,Picton,Davis Vantage Pro2 (Cabled),1,Prince Edward County,ON,CA
-IONTARIO282,,43.25,-81.849,187,Pinery Provincial Park,Vantage Pro2 Plus,1,Lambton County,ON,CA
+IONTARIO282,Pinery Provincial Park,43.25,-81.849,187,Pinery Provincial Park,Vantage Pro2 Plus,1,Lambton County,ON,CA
 IONTARIO570,Frink,44.273,-77.349,117,Plainfield,265nc,1,Hastings County,ON,CA
 IONTARIO603,Pointe Au Baril Islands,45.556,-80.475,174,Pointe Au Baril,Davis Vantage Pro 2,1,Parry Sound District,ON,CA
 IONTARIO1000,Port Carling,45.125,-79.575,242,Port Carling,Ambient Weather Ws-1001-Wifi (Wireless),1,Muskoka District Municipality,ON,CA
@@ -2068,7 +2068,7 @@ IONTARIO209,Ve3gsi,44.346,-77.214,140,Read,Davis Vantage Pro 2,1,Hastings County
 IONTARIO1174,Renfrew,45.471,-76.678,135,Renfrew,Acurite Pro Weather Center,0,Renfrew County,ON,CA
 IONTARIO337,King St Richmond,45.195,-75.832,95,Richmond,Acurite Vn1txca1 With 9150trx,0,Ottawa Division,ON,CA
 IONTARIO200,Ennisclare Woods,43.571,-80.062,363,Rockwood,Davis Vantage Vue (Wireless),1,Halton Regional Municipality,ON,CA
-IONTARIO281,,42.282,-81.844,174,Rondeau Provincial Park,Davis Vantage Pro2 Plus,0,Chatham-Kent Division,ON,CA
+IONTARIO281,Rondeau Provincial Park,42.282,-81.844,174,Rondeau Provincial Park,Davis Vantage Pro2 Plus,0,Chatham-Kent Division,ON,CA
 IONTARIO1155,Ve3nsg Rosemont On,44.125,-79.989,312,Rosemont,Ambient Weather Ws-1001-Wifi (Wireless),1,Simcoe County,ON,CA
 IONTARIO1291,Lakeshore St- Catharines,43.184,-79.317,82,Saint Catharines,Acurite Pro Weather Center,0,Niagara Regional Municipality,ON,CA
 IONTARIO1304,Woolwich,43.536,-80.555,339,Saint Jacobs,Acurite Pro Weather Center,0,Waterloo Regional Municipality,ON,CA
@@ -2109,7 +2109,7 @@ IONTARIO1255,Silver Harbor,48.513,-88.958,60,Thunder Bay,Acurite Pro Weather Cen
 IONTARIO1213,Lakehead University,48.423,-89.26,201,Thunder Bay,Onset Hobo U30-Nrc Weather Station Starter Kit,0,Thunder Bay District,ON,CA
 IONTARIO1139,Tillsonburg,42.868,-80.741,231,Tillsonburg,Acurite Pro Weather Center,1,Oxford County,ON,CA
 IONTARIO117,Lorne Beach,44.259,-81.6,185,Tiverton,Davis Vantage Pro2 (Wireless),0,Bruce County,ON,CA
-IONTARIO580,,44.354,-81.5,221,Tiverton,Weatherlink,0,Bruce County,ON,CA
+IONTARIO580,Tiverton,44.354,-81.5,221,Tiverton,Weatherlink,0,Bruce County,ON,CA
 IONTARIO401,County Rd 20 Tiverton Ontario,44.286,-81.481,253,Tiverton,Acurite,0,Bruce County,ON,CA
 IONTARIO1229,Dunks Bay,45.254,-81.645,174,Tobermory,Acurite Pro Weather Center,1,Bruce County,ON,CA
 IONTARIO321,Cockburn Island,45.959,-83.318,180,Tolsmaville,,1,Manitoulin District,ON,CA
@@ -2172,7 +2172,7 @@ IONTARIO883,Woodstock Ont,43.152,-80.731,301,Woodstock,Acurite Pro Weather Cente
 IONTARIO999,Zurich Ontario,43.437,-81.654,232,Zurich,Acurite Pro Weather Center,1,Huron County,ON,CA
 IPEBORDE2,Borden-Carleton Canada,46.248,-63.687,7,Borden-Carleton,Davis Vantage Pro2,0,Prince County,PE,CA
 IPECHARL2,Charlottetown,46.241,-63.131,14,Charlottetown,Environment Canada,0,Queens County,PE,CA
-IPEKENSI2,,46.48,-63.597,3,Kensington Rr2,Acurite 1035,0,Prince County,PE,CA
+IPEKENSI2,Kensington Rr2,46.48,-63.597,3,Kensington Rr2,Acurite 1035,0,Prince County,PE,CA
 IPESAINT2,Southampton,46.386,-62.583,35,Saint Peters Bay,Environment Canada,0,Kings County,PE,CA
 IPEWELLI2,Wellington,46.478,-63.987,15,Wellington,Environment Canada,0,Prince County,PE,CA
 IPEIELMW2,Elmwood,46.251,-63.334,71,Elmwood,Davis Vantage Pro,1,Queens County,PE,CA
@@ -2198,17 +2198,17 @@ IPRINCEE14,Orwell Cove,46.131,-62.867,27,Vernon Bridge,Davis Vantage Pro2 Plus (
 IPRINCEE11,Winsloe Road,46.299,-63.177,60,Winsloe South,Davis Vantage Pro2 Plus (Wireless),1,Queens County,PE,CA
 IQUEBECA3,Saguenay - Lac- St-Jean,48.546,-71.671,117,Alma,Oregon Scientific Wmr200a,1,Lac-Saint-Jean-Est,QC,CA
 IQCANGUS2,Molson,45.543,-73.572,52,Angus,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
-IQCBARNS2,,45.131,-71.979,299,Barnston-Ouest,Davis Vantage Pro,0,Coaticook,QC,CA
+IQCBARNS2,Barnston-Ouest,45.131,-71.979,299,Barnston-Ouest,Davis Vantage Pro,0,Coaticook,QC,CA
 IQCBCANC2,B?Cancour (Ar?Na),46.35,-72.433,7,Becancour,Meteorological Service Of Canada,0,Becancour,QC,CA
 IQCBEACO5,Pointe-Claire,45.425,-73.826,0,Beaconsfield,Weatherflow,0,Communaute-Urbaine-de-Montreal,QC,CA
-IQCBEAUP2,,46.9,-71.207,124,Beauport,Davis Vantage Pro2,0,Communaute-Urbaine-de-Quebec,QC,CA
+IQCBEAUP2,Beauport,46.9,-71.207,124,Beauport,Davis Vantage Pro2,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQCBROSS3,Brossard,45.443,-73.469,15,Brossard,Meteorological Service Of Canada,0,Champlain,QC,CA
 IQCCAPOS2,P?Monca,48.818,-72.743,255,Capostal G0w 1p0,Meteorological Service Of Canada,0,Le Domaine-du-Roy,QC,CA
 IQCCAPOS4,?Douard,47.647,-72.291,366,Capostal G0x 3n0,Meteorological Service Of Canada,0,Le Haut-Saint-Maurice,QC,CA
 IQCCAPOS3,Hilaire,45.816,-70.86,531,Capostal G0y 1m0,Meteorological Service Of Canada,0,Beauce-Sartigan,QC,CA
 IQCCHARE2,Charette,46.443,-72.893,120,Charette,Meteorological Service Of Canada,0,Le Centre-de-la-Mauricie,QC,CA
 IQCCHTEA2,Montreal,45.361,-73.733,22,Chateauguay,,1,Roussillon,QC,CA
-IQCCHICO2,,48.431,-71.025,35,Chicoutimi,Davis Vp2,0,Le Fjord-du-Saguenay,QC,CA
+IQCCHICO2,Chicoutimi,48.431,-71.025,35,Chicoutimi,Davis Vp2,0,Le Fjord-du-Saguenay,QC,CA
 IQCFERME2,Mont-Saint-Michel,46.769,-75.432,266,Ferme-Neuve Quebec,Meteorological Service Of Canada,0,Antoine-Labelle Regional County Municipality,QC,CA
 IQCFRELI2,Frelighsburg,45.052,-72.862,170,Frelighsburg,Canadian Air And Precipitation Monitoring Network,0,Brome-Missisquoi,QC,CA
 IQCGATIN7,Hw50/V??Rendryeo,45.492,-75.727,60,Gatineau,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-l'Outaouais,QC,CA
@@ -2224,7 +2224,7 @@ IQCLEGAR2,Repentigny,45.771,-73.467,13,Le Gardeur,Vantage Pro2,1,L'Assomption,QC
 IQCLONGU2,Bourassa,45.523,-73.494,25,Longueuil,Meteorological Service Of Canada,0,Champlain,QC,CA
 IQCMCGIL4,St-Dominique,45.512,-73.567,33,Mcgill Ghetto,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCMCGIL5,York-Roberval,45.512,-73.567,33,Mcgill Ghetto,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
-IQUBECMO3,,47.446,-69.85,181,Mont-Carmel (Kamouraska),,1,Kamouraska,QC,CA
+IQUBECMO3,Mont-Carmel (Kamouraska),47.446,-69.85,181,Mont-Carmel (Kamouraska),,1,Kamouraska,QC,CA
 IQCMONTR7,Melrose - Ndg,45.472,-73.621,49,Montreal,Wmr200a,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQUEBECM21,Montreal - Villeray,45.543,-73.623,60,Montreal,Lacrosse Weather Pro Center Remote Monitoring 2800 Series,1,Communaute-Urbaine-de-Montreal,QC,CA
 IQCNOTRE15,Chenier,45.602,-73.542,34,Notre-Dame-D'Anjou,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
@@ -2247,7 +2247,7 @@ IQCSAINT11,Jardins De Napierville,45.213,-73.451,62,Saint-Jacques-Le-Mineur,Davi
 IQCSAINT32,Levis Secteur St-Jean-Chrysostome,46.717,-71.205,88,Saint-Jean-Chrysostome,Davis Vantage Vue,1,Levis,QC,CA
 IQCSAINT275,Duncan,45.503,-73.664,40,Saint-Laurent,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQUEBECS19,Meteo Haut-Richelieu,45.349,-73.303,36,Saint-Luc,Davis Monitor Ii,1,Le Haut-Richelieu,QC,CA
-IQCSAINT14,,47.533,-69.803,62,Saint-Pascal-De-Kamouraska,Davis Vantage Pro2,1,Kamouraska,QC,CA
+IQCSAINT14,Saint-Pascal-De-Kamouraska,47.533,-69.803,62,Saint-Pascal-De-Kamouraska,Davis Vantage Pro2,1,Kamouraska,QC,CA
 IQCSAINT74,Baie-Des-Brises,45.206,-74.162,0,Saint-Stanislas-De-Kostka,Weatherflow,0,Beauharnois-Salaberry,QC,CA
 IQCSAINT276,Caserne 17,45.593,-73.637,32,Saint-Vincent-Marie-Strambi,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCSAINT36,Z?Phirin,46.042,-72.66,53,Saint-Zephirin-De-Courval,Meteorological Service Of Canada,0,Nicolet-Yamaska,QC,CA
@@ -2256,10 +2256,10 @@ IQCSAINT38,La P?Che,45.622,-76.018,194,Sainte-Cecile-De-Masham,Meteorological Se
 IQCSAINT30,Ile D'Orleans,46.932,-71.013,66,Sainte-Famille,Wmr100,0,L'Ile-d'Orleans,QC,CA
 IQCSAINT16,Levis Secteur Breakeyville,46.681,-71.224,99,Sainte-Helene-De-Breakeyville,Davis Vantage Pro 2 Plus Ventilation Diurne,1,Levis,QC,CA
 IQCSHERB5,Parc Cambron,45.412,-71.874,204,Sherbrooke,Meteorological Service Of Canada,0,La Region-Sherbrookoise,QC,CA
-IQCSTEPE2,,47.065,-69.935,396,Ste-Perpetue,,1,L'Islet,QC,CA
+IQCSTEPE2,Ste-Perpetue,47.065,-69.935,396,Ste-Perpetue,,1,L'Islet,QC,CA
 IQCSTEAN3,Sainte-Anne-De-Bellevue,45.427,-73.929,30,Ste.-Anne-De-Bellevue,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCTINGW2,Tingwick,45.908,-71.949,254,Tingwick,Meteorological Service Of Canada,0,Arthabaska,QC,CA
-IQCSTJEA3,,45.278,-73.267,36,Ve2dbe St-Jean-Sur-Richelieu,Davis Vantage Vue,1,Le Haut-Richelieu,QC,CA
+IQCSTJEA3,Ve2dbe St-Jean-Sur-Richelieu,45.278,-73.267,36,Ve2dbe St-Jean-Sur-Richelieu,Davis Vantage Vue,1,Le Haut-Richelieu,QC,CA
 IQCVENDE2,Mt-Tremblant Laurentians St-Jovite,46.107,-74.888,249,Vendee,Oregon Wmr968,1,Les Laurentides,QC,CA
 IQUBECBA3,Chez Plam,49.217,-68.14,15,Baie-Comeau,Ambient Weather Ws-1001-Wifi (Wireless),0,Manicouagan,QC,CA
 IQUBECBA6,Berny420,48.692,-67.879,141,Baie-Des-Sables,Davis Vantage Pro2 (Cabled),0,Matane,QC,CA
@@ -2370,8 +2370,8 @@ IQUBECVI12,St-Roch1,46.816,-71.229,9,Ville De Quebec,Netatmo Weather Station,0,C
 IQUBECWE3,Lake Louisa,45.774,-74.397,268,Wentworth,Netatmo Weather Station,0,Argenteuil,QC,CA
 IQUBECWE2,Elmo Rooftop Terrace Westmount,45.482,-73.591,45,Westmount,Acurite Pro Weather Center,1,Communaute-Urbaine-de-Montreal,QC,CA
 IQUEBECA4,Amos,48.598,-78.146,320,Amos,Davis Vantage Pro 2,0,Abitibi,QC,CA
-IQUBECBA2,,47.442,-70.511,14,Baie-Saint-Paul,Ventage Pro,0,Charlevoix,QC,CA
-IQUEBECB5,,47.391,-70.653,485,Baie-Saint-Paul,Ventage Pro,1,Charlevoix,QC,CA
+IQUBECBA2,Baie-Saint-Paul,47.442,-70.511,14,Baie-Saint-Paul,Ventage Pro,0,Charlevoix,QC,CA
+IQUEBECB5,Baie-Saint-Paul,47.391,-70.653,485,Baie-Saint-Paul,Ventage Pro,1,Charlevoix,QC,CA
 IQUEBECB4,Village De Beaurepaire Village,45.423,-73.882,28,Beaconsfield,Davis Vantage Pro2 Plus (Wireless),1,Communaute-Urbaine-de-Montreal,QC,CA
 IQUBECBE2,Beaconsfield Meteobridge Wmr100n,45.43,-73.859,35,Beaconsfield,Wmr100,1,Montreal,QC,CA
 IQUEBECB7,Secteur B,45.465,-73.453,19,Brossard,Davis Vantage Pro2 (Wireless),1,Champlain,QC,CA
@@ -2382,10 +2382,10 @@ IQUEBECG3,Aylmer,45.406,-75.799,100,Gatineau,Proweatherstation%U2122 Tp1080wc,1,
 IQUEBECG5,Erabliere,45.5,-75.753,82,Gatineau,National Geopgraphic 265nc,0,Communaute-Urbaine-de-l'Outaouais,QC,CA
 IQUBECGR2,Hawkesbury,45.642,-74.686,91,Grenville,Davis Vantage Pro2 (Wireless),1,Argenteuil,QC,CA
 IQUBECHO2,Riverfield,45.158,-73.825,41,Howick,Vantagevue With Weatherlinkip,0,Le Haut-Saint-Laurent Regional County Municipality,QC,CA
-IQUBECJO2,,45.329,-71.756,239,Johnville,,0,Le Haut-Saint-Francois,QC,CA
-IQUBECLA4,,48.343,-70.879,4,La Baie,Vantagepro,1,Le Fjord-du-Saguenay,QC,CA
+IQUBECJO2,Johnville,45.329,-71.756,239,Johnville,,0,Le Haut-Saint-Francois,QC,CA
+IQUBECLA4,La Baie,48.343,-70.879,4,La Baie,Vantagepro,1,Le Fjord-du-Saguenay,QC,CA
 IQUBECLA5,Ste-Dorothee,45.523,-73.837,24,Laval,Other,0,Laval,QC,CA
-IQUEBECL20,,48.326,-69.419,59,Les Escoumins,,1,La Haute-Cote-Nord,QC,CA
+IQUEBECL20,Les Escoumins,48.326,-69.419,59,Les Escoumins,,1,La Haute-Cote-Nord,QC,CA
 IQUEBECL22,Rue Maisonneuve Saint-Hubert,45.506,-73.406,27,Longueuil,Acurite Pro Weather Center,1,Champlain,QC,CA
 IQUEBECL29,Lorraine,45.67,-73.796,49,Lorraine,,1,Therese-De Blainville,QC,CA
 IQUEBECM32,Mascouche Seigneurie Du Chene,45.728,-73.626,39,Mascouche,Davis Vantage Pro2,1,Les Moulins,QC,CA
@@ -2406,18 +2406,18 @@ IQCPINTE2,Pintendre,46.768,-71.13,68,Pintendre,Zephyr,1,Levis,QC,CA
 IQUEBECP6,Ve2ylc 101 41ieme Pointe-Calumet,45.495,-73.968,24,Pointe-Calumet,Acurite 5 In 1 Multi-Sensor,1,Deux-Montagnes,QC,CA
 IQUBECQU3,Charlesbourg,46.893,-71.291,163,Quebec,Davis Vantage Pro2,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ19,Ve2dew / Lacolle Qc,45.08,-73.375,46,Quebec,Davis Vantage Pro2 (Wireless),1,Le Haut-Richelieu,QC,CA
-IQUBECQU6,,46.783,-71.234,0,Quebec,Vantage Pro 2,1,Communaute-Urbaine-de-Quebec,QC,CA
+IQUBECQU6,Quebec,46.783,-71.234,0,Quebec,Vantage Pro 2,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ15,Lac-Saint-Charles,46.91,-71.383,170,Quebec,Acurite Pro Weather Center,0,Communaute-Urbaine-de-Quebec,QC,CA
-IQUBECQU7,,46.895,-71.198,115,Quebec,Davis Vue,0,Communaute-Urbaine-de-Quebec,QC,CA
+IQUBECQU7,Quebec,46.895,-71.198,115,Quebec,Davis Vue,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUBECQU4,Quebec,46.871,-71.221,74,Qu?Bec,Other,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECL8,Lac St-Charles,46.8,-71.4,60,Quebec City,Vantage Pro-Davis,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ20,Quartier Laurentien,46.77,-71.435,49,Quebec City,Davis Vantage Pro2 (Wireless),0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ16,West Quebec,45.573,-76.238,120,Quyon,Acurite Pro Weather Center,1,Les Collines-de-l'Outaouais,QC,CA
-IQUEBECS44,,46.736,-71.45,59,Saint-Augustin-De-Desmaures,Vantage Pro 2,1,Communaute-Urbaine-de-Quebec,QC,CA
-IQUEBECS64,,47.49,-69.786,177,Saint-Bruno-De-Kamouraska,Vantage Vue,1,Kamouraska,QC,CA
+IQUEBECS44,Saint-Augustin-De-Desmaures,46.736,-71.45,59,Saint-Augustin-De-Desmaures,Vantage Pro 2,1,Communaute-Urbaine-de-Quebec,QC,CA
+IQUEBECS64,Saint-Bruno-De-Kamouraska,47.49,-69.786,177,Saint-Bruno-De-Kamouraska,Vantage Vue,1,Kamouraska,QC,CA
 IQUEBECS76,Saint-Colomban,45.759,-74.059,159,Saint-Colomban,Davis Vantage Pro2 (Wireless),1,La Riviere-du-Nord,QC,CA
 IQUEBECS75,Saint-Sylvestre,46.387,-71.192,263,Saint-Pierre-De-Broughton,Davis Vantage Pro2 (Wireless),1,Lotbiniere,QC,CA
-IQUEBECS55,,45.207,-73.661,53,Saint-Remi,Davis Vantage Pro2 Plus Weatherlinkip,1,Les Jardins-de-Napierville,QC,CA
+IQUEBECS55,Saint-Remi,45.207,-73.661,53,Saint-Remi,Davis Vantage Pro2 Plus Weatherlinkip,1,Les Jardins-de-Napierville,QC,CA
 IQUEBECS60,Domaine Dubois,45.394,-73.107,45,Sainte-Angele-De-Monnoir,Davis Vantage Pro2 Plus,0,Rouville,QC,CA
 IQUEBECQ10,Station A John,46.784,-71.36,28,Sainte-Foy Quebec,Davis Vantage Vue (Wireless),0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECS58,Iquebecs58,48.189,-65.626,151,St-Alphonse-Caplan,Davis Vantage Pro2 Plus (Wireless),1,Bonaventure,QC,CA
@@ -2426,17 +2426,17 @@ IQUBECST20,St-Apollinaire,46.615,-71.503,113,St-Apollinaire,Davis Vantage Pro 2,
 IQUEBECS65,St-Augustin Qc,46.74,-71.448,77,St-Augustin,Wmr200,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECS15,Ville De Saint-Hyacinthe,45.617,-72.954,32,St-Hyacinthe,Davis Vantage Pro2 (Cabled),1,Les Maskoutains,QC,CA
 IQUEBECJ2,Rick981 Qc Storm Watch,46.468,-71.737,100,St-Janvier De Joly,Davis Vantage Vue 6250m,0,Lotbiniere,QC,CA
-IQUBECST8,,45.888,-73.148,14,St-Ours,National Geographic 265nc,0,Le Bas-Richelieu,QC,CA
-IQUBECST15,,46.882,-71.075,99,St-Pierre-De-L'Ile-D'Orleans,National Geographic 265nc,0,L'Ile-d'Orleans,QC,CA
-IQUEBECS45,,47.209,-70.158,157,St- Aubert,Davis Vantage Pro 2 Plus,1,L'Islet,QC,CA
-IQUBECST13,,46.053,-74.249,376,Ste-Agathe-Des-Monts,Vantage Pro 2,1,Les Laurentides Regional County Municipality,QC,CA
+IQUBECST8,St-Ours,45.888,-73.148,14,St-Ours,National Geographic 265nc,0,Le Bas-Richelieu,QC,CA
+IQUBECST15,St-Pierre-De-L'Ile-D'Orleans,46.882,-71.075,99,St-Pierre-De-L'Ile-D'Orleans,National Geographic 265nc,0,L'Ile-d'Orleans,QC,CA
+IQUEBECS45,St- Aubert,47.209,-70.158,157,St- Aubert,Davis Vantage Pro 2 Plus,1,L'Islet,QC,CA
+IQUBECST13,Ste-Agathe-Des-Monts,46.053,-74.249,376,Ste-Agathe-Des-Monts,Vantage Pro 2,1,Les Laurentides Regional County Municipality,QC,CA
 IQUEBECS49,Ste-Elisabeth,46.092,-73.356,50,Ste-Elisabeth,Davis Vantage Vue%Ufffd (Wireless)),0,D'Autray,QC,CA
 IQUBECST7,Plessisville,46.185,-71.703,207,Ste-Sophie D'Halifax,Ambient Weather Ws-2080,1,L'Erable,QC,CA
-IQUBECST17,,46.951,-71.388,149,Stoneham,Davis Vantage Pro 2,1,La Jacques-Cartier Regional County Municipality,QC,CA
+IQUBECST17,Stoneham,46.951,-71.388,149,Stoneham,Davis Vantage Pro 2,1,La Jacques-Cartier Regional County Municipality,QC,CA
 IQCMONTR8,40-640 Terrebonne,45.717,-73.496,17,Terrebonne,Davis Vantage Pro2 Plus (Cabled),1,Les Moulins,QC,CA
 IQUBECTH2,Meteotm.Net,46.099,-71.29,317,Thetford Mines,Davis Vantage Pro2,1,L'Amiante,QC,CA
 IQUBECVA2,Lac Matapedia / Val-Brillant,48.535,-67.547,155,Val-Brillant,Davis Vantage Pro2 (Wireless),0,La Matapedia,QC,CA
-IQUBECVI2,,46.05,-71.991,127,Victoriaville,Vantage Vue,1,Arthabaska,QC,CA
+IQUBECVI2,Victoriaville,46.05,-71.991,127,Victoriaville,Vantage Vue,1,Arthabaska,QC,CA
 IQUEBECV4,Montchatel,46.856,-71.389,195,Ville De Quebec,Davis Vantage Pro2,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUBECMO6,Tetreaultville,45.61,-73.52,23,Montr??Al,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-Montreal,QC,CA
 IQUBECRI3,Ferme Michaud,48.41,-68.632,74,Rimouski,Other,1,Rimouski-Neigette,QC,CA
@@ -2476,7 +2476,7 @@ ISKSASKA12,Silverwood,52.185,-106.625,499,Saskatoon,Acu-Rite,0,Division No. 11,S
 ISASKATC81,Lakeview,52.097,-106.59,498,Saskatoon,Davis Vantage Pro2 Plus (Wireless),1,Division No. 11,SK,CA
 ISASKATC115,River Gardens,52.035,-106.722,477,Saskatoon,Acurite Pro Weather Center,0,Division No. 11,SK,CA
 ISASKATC58,Ailsby Beach Lac Pelletier Sk,50.007,-107.941,837,Simmie,Davis Vantage Pro2 (Cabled),1,Division No. 4,SK,CA
-ISASKATC39,,52.853,-105.246,477,Struthers Lake,Wmr968,1,Division No. 15,SK,CA
+ISASKATC39,Struthers Lake,52.853,-105.246,477,Struthers Lake,Wmr968,1,Division No. 15,SK,CA
 ISASKATC74,Tompkins Farms,49.93,-108.826,833,Tompkins,Davis Vantage Pro2 (Wireless),1,Division No. 4,SK,CA
 ISASKATC110,Vanscoy,51.963,-106.951,527,Vanscoy,Acurite Pro Weather Center,0,Division No. 12,SK,CA
 ISASKATC73,Weyburn Saskatchewan,49.665,-103.826,572,Weyburn,Netatmo Weather Station,0,Division No. 2,SK,CA
@@ -2511,673 +2511,673 @@ KWAPOINT6,Tsawwassen,49.01,-123.082,60,Point Roberts,Greater Vancouver Regional 
 IYTWHITE4,Yukon Wildlife Preserve / Cmos,60.878,-135.334,729,Whitehorse,Davis Vantage Vue (Wireless),1,Yukon,YT,CA
 IYUKONTE2,Riverdale (Adjacent To Green Belt),60.701,-135.016,647,Whitehorse,Other,0,Yukon,YT,CA
 IYUKONTE8,Copper Ridge,60.699,-135.104,779,Whitehorse,Acurite Pro Weather Center,1,Yukon,YT,CA
-MGLNQ1,,53.833,-114.539,0,Barrhead Cs,,0,Division No. 13,AB,CA
-MAV256,,43.133,-80.25,247,Brantford,,0,Brantford,ON,CA
-MCGBN,,46.8,-71.2,0,Levis,,0,Communaute-Urbaine-de-Quebec,QC,CA
-M44651,,44.7,-63.59,58.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-M44652,,44.7,-63.59,58.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-M44660,,44.699,-63.592,49.5,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-MVOCC,,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-MAXYS,,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-MCG302P,,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
-MDEWQ1,,53.659,-110.588,0,Tulliby Lake Agcm,,0,Division No. 10,AB,CA
-MACAQ1,,51.066,-110.317,742,Acadia Valley,,0,Division No. 4,AB,CA
-MATLQ1,,50.81,-111.006,788.7,Atlee,,0,Division No. 4,AB,CA
-MCXBW,,49.8,-112.3,823,Barnwell Agdm,,0,Division No. 2,AB,CA
+MGLNQ1,Barrhead Cs,53.833,-114.539,0,Barrhead Cs,,0,Division No. 13,AB,CA
+MAV256,Brantford,43.133,-80.25,247,Brantford,,0,Brantford,ON,CA
+MCGBN,Levis,46.8,-71.2,0,Levis,,0,Communaute-Urbaine-de-Quebec,QC,CA
+M44651,Shearwater Rcs,44.7,-63.59,58.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+M44652,Shearwater Rcs,44.7,-63.59,58.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+M44660,Shearwater Rcs,44.699,-63.592,49.5,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+MVOCC,Shearwater Rcs,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+MAXYS,Shearwater Rcs,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+MCG302P,Shearwater Rcs,44.7,-63.6,24.1,Shearwater Rcs,,0,Halifax Regional Municipality,NS,CA
+MDEWQ1,Tulliby Lake Agcm,53.659,-110.588,0,Tulliby Lake Agcm,,0,Division No. 10,AB,CA
+MACAQ1,Acadia Valley,51.066,-110.317,742,Acadia Valley,,0,Division No. 4,AB,CA
+MATLQ1,Atlee,50.81,-111.006,788.7,Atlee,,0,Division No. 4,AB,CA
+MCXBW,Barnwell Agdm,49.8,-112.3,823,Barnwell Agdm,,0,Division No. 2,AB,CA
 MLGLQR,La Glace - Agcm Ab Cn,55.422,-119.255,747,Beaverlodge,,0,Division No. 19,AB,CA
-MPNTQ1,,54.781,-119.396,0,Beaverlodge,,0,Division No. 18,AB,CA
+MPNTQ1,Beaverlodge,54.781,-119.396,0,Beaverlodge,,0,Division No. 18,AB,CA
 MD2657,Grassy Lake Ab Ca,49.671,-111.663,833,Bow Island,,0,Division No. 2,AB,CA
-MBRKS1,,50.367,-112.101,767,Brooks,,0,Division No. 2,AB,CA
+MBRKS1,Brooks,50.367,-112.101,767,Brooks,,0,Division No. 2,AB,CA
 MAP075,Calgary Ab Ca,51.018,-113.995,1050.6,Calgary,,0,Division No. 6,AB,CA
 MC9075,Calgary Ab Ca,51.15,-114.13,1149.1,Calgary,,0,Division No. 6,AB,CA
 MC5934,Crossfield Ab Us,51.433,-114.026,1109,Calgary,,0,Division No. 6,AB,CA
-ME1224,,51.054,-114.003,1087.4,Calgary,,0,Division No. 6,AB,CA
-ME2194,,50.982,-114.039,1022.5,Calgary,,0,Division No. 6,AB,CA
-ME7132,,50.916,-113.778,1022,Calgary,,0,Division No. 6,AB,CA
+ME1224,Calgary,51.054,-114.003,1087.4,Calgary,,0,Division No. 6,AB,CA
+ME2194,Calgary,50.982,-114.039,1022.5,Calgary,,0,Division No. 6,AB,CA
+ME7132,Calgary,50.916,-113.778,1022,Calgary,,0,Division No. 6,AB,CA
 MC3294,Cochrane Ab Ca,51.375,-114.667,1361,Calgary Springbank,,0,Division No. 6,AB,CA
 MD2490,Calgary Ab Ca,51.057,-114.354,1168.1,Calgary Springbank,,0,Division No. 6,AB,CA
-MD4846,,50.933,-114.562,1364,Calgary Springbank,,0,Division No. 6,AB,CA
-MD5495,,51.033,-114.457,999,Calgary Springbank,,0,Division No. 6,AB,CA
-MWRV,,53.04,-112.82,739,Camrose,,0,Division No. 10,AB,CA
-M45631,,53.25,-112.9,765,Camrose,,0,Division No. 10,AB,CA
-MFERQ1,,52.744,-112.858,772,Camrose,,0,Division No. 10,AB,CA
-ME3765,,52.8,-113.1,744,Camrose,,0,Division No. 11,AB,CA
-MCRSQ1,,49.334,-113.524,0,Cardston,,0,Division No. 3,AB,CA
-MSMRQ1,,49.361,-113.11,0,Cardston,,0,Division No. 3,AB,CA
-MBCRQ1,,49.295,-113.359,0,Cardston,,0,Division No. 3,AB,CA
-MP0691,,56.044,-119.412,709,Cleardale Agdm,,0,Division No. 19,AB,CA
-MSAVQR,,56.076,-119.345,0,Cleardale Agdm,,0,Division No. 19,AB,CA
-MWDU,,51.09,-114.22,1200,Cop Upper,,0,Division No. 6,AB,CA
+MD4846,Calgary Springbank,50.933,-114.562,1364,Calgary Springbank,,0,Division No. 6,AB,CA
+MD5495,Calgary Springbank,51.033,-114.457,999,Calgary Springbank,,0,Division No. 6,AB,CA
+MWRV,Camrose,53.04,-112.82,739,Camrose,,0,Division No. 10,AB,CA
+M45631,Camrose,53.25,-112.9,765,Camrose,,0,Division No. 10,AB,CA
+MFERQ1,Camrose,52.744,-112.858,772,Camrose,,0,Division No. 10,AB,CA
+ME3765,Camrose,52.8,-113.1,744,Camrose,,0,Division No. 11,AB,CA
+MCRSQ1,Cardston,49.334,-113.524,0,Cardston,,0,Division No. 3,AB,CA
+MSMRQ1,Cardston,49.361,-113.11,0,Cardston,,0,Division No. 3,AB,CA
+MBCRQ1,Cardston,49.295,-113.359,0,Cardston,,0,Division No. 3,AB,CA
+MP0691,Cleardale Agdm,56.044,-119.412,709,Cleardale Agdm,,0,Division No. 19,AB,CA
+MSAVQR,Cleardale Agdm,56.076,-119.345,0,Cleardale Agdm,,0,Division No. 19,AB,CA
+MWDU,Cop Upper,51.09,-114.22,1200,Cop Upper,,0,Division No. 6,AB,CA
 MC9594,Ghost Lake Ab Ca,51.2,-114.233,1191.1,Cop Upper,,0,Division No. 6,AB,CA
 MD5263,Calgary Ab Ca,51.088,-114.122,1102.3,Cop Upper,,0,Division No. 6,AB,CA
 MD4146,Calgary Ab Ca,51.138,-114.251,1204.4,Cop Upper,,0,Division No. 6,AB,CA
 MD8273,Calgary Ca,51.131,-114.172,1241.7,Cop Upper,,0,Division No. 6,AB,CA
-ME1159,,51.146,-114.21,1047,Cop Upper,,0,Division No. 6,AB,CA
-ME2196,,51.073,-114.262,1276.5,Cop Upper,,0,Division No. 6,AB,CA
-MPRIQ1,,50.869,-114.291,1273,Cop Upper,,0,Division No. 6,AB,CA
-MTAWQ1,,54.3,-113.52,0,Dapp Agdm,,0,Division No. 13,AB,CA
-MP1169,,54.065,-113.681,663,Dapp Agdm,,0,Division No. 13,AB,CA
-MNMCM8,,48.971,-113.056,1349,Del Bonita Agdm,,0,Glacier County,MT,US
+ME1159,Cop Upper,51.146,-114.21,1047,Cop Upper,,0,Division No. 6,AB,CA
+ME2196,Cop Upper,51.073,-114.262,1276.5,Cop Upper,,0,Division No. 6,AB,CA
+MPRIQ1,Cop Upper,50.869,-114.291,1273,Cop Upper,,0,Division No. 6,AB,CA
+MTAWQ1,Dapp Agdm,54.3,-113.52,0,Dapp Agdm,,0,Division No. 13,AB,CA
+MP1169,Dapp Agdm,54.065,-113.681,663,Dapp Agdm,,0,Division No. 13,AB,CA
+MNMCM8,Del Bonita Agdm,48.971,-113.056,1349,Del Bonita Agdm,,0,Glacier County,MT,US
 MD1703,Leduc Ab Ca,53.244,-113.535,741,Edmonton,,0,Division No. 11,AB,CA
-MWETQ1,,52.981,-113.444,765,Edmonton,,0,Division No. 11,AB,CA
-MNSAQ1,,53.263,-113.165,0,Edmonton,,0,Division No. 11,AB,CA
-MTHOQ1,,53.217,-113.895,0,Edmonton International,,0,Division No. 11,AB,CA
-MBRHQ1,,52.931,-114.195,0,Edmonton International,,0,Division No. 11,AB,CA
+MWETQ1,Edmonton,52.981,-113.444,765,Edmonton,,0,Division No. 11,AB,CA
+MNSAQ1,Edmonton,53.263,-113.165,0,Edmonton,,0,Division No. 11,AB,CA
+MTHOQ1,Edmonton International,53.217,-113.895,0,Edmonton International,,0,Division No. 11,AB,CA
+MBRHQ1,Edmonton International,52.931,-114.195,0,Edmonton International,,0,Division No. 11,AB,CA
 MAR880,Edmonton Ca,53.552,-113.602,675.7,Edmonton Municipal,,0,Division No. 11,AB,CA
-MAR815,,53.53,-113.446,668.3,Edmonton Municipal,,0,Division No. 11,AB,CA
+MAR815,Edmonton Municipal,53.53,-113.446,668.3,Edmonton Municipal,,0,Division No. 11,AB,CA
 MAR896,Edmonton Ab Ca,53.546,-113.918,701.7,Edmonton Municipal,,0,Division No. 11,AB,CA
 MD3351,Edmonton Ab Ca,53.47,-113.463,685.7,Edmonton Municipal,,0,Division No. 11,AB,CA
-MAU867,,53.528,-113.431,660,Edmonton Municipal,,0,Division No. 11,AB,CA
-MEDMNT,,53.636,-113.479,683.9,Edmonton Namao,,0,Division No. 11,AB,CA
-MWFE,,53.69,-112.87,716,Elk Island Park,,0,Division No. 10,AB,CA
-MCPEH,,50.17,-112.42,810,Enchant Agdm,,0,Division No. 2,AB,CA
+MAU867,Edmonton Municipal,53.528,-113.431,660,Edmonton Municipal,,0,Division No. 11,AB,CA
+MEDMNT,Edmonton Namao,53.636,-113.479,683.9,Edmonton Namao,,0,Division No. 11,AB,CA
+MWFE,Elk Island Park,53.69,-112.87,716,Elk Island Park,,0,Division No. 10,AB,CA
+MCPEH,Enchant Agdm,50.17,-112.42,810,Enchant Agdm,,0,Division No. 2,AB,CA
 MD2338,Taber Ab Ca,49.794,-112.15,809,Fincastle Agdm,,0,Division No. 2,AB,CA
-MGRAQ1,,49.874,-111.733,0,Fincastle Agdm,,0,Division No. 2,AB,CA
-MFTAQ1,,54.411,-114.769,0,Fort Assiniboine,,0,Division No. 13,AB,CA
-MGORQ1,,56.618,-110.494,0,Fort Mcmurray,,0,Division No. 16,AB,CA
-MHDNQ1,,53.783,-118.433,1452.8,Henderickson,,0,,AB,CA
-MP0182,,53.404,-114.154,758,Highvale,,0,Division No. 11,AB,CA
-MVIKQ1,,53.182,-111.732,0,Holden Agdm,,0,Division No. 10,AB,CA
-MSHNQ1,,53.333,-112.539,678,Holden Agdm,,0,Division No. 10,AB,CA
-MD2809,,52.834,-119.268,785,Jasper,,0,Fraser-Fort George,BC,CA
-MJSPRS,,52.85,-118.124,1298.2,Jasper,,0,Division No. 15,AB,CA
-MYHDQ2,,52.907,-118.548,0,Jasper,,0,Fraser-Fort George,BC,CA
-MLUSQ1,,53.057,-117.334,0,Jasper,,0,Division No. 14,AB,CA
-MSTHQ1,,52.671,-117.209,2203.5,Jasper,,0,Division No. 15,AB,CA
-MBELQ1,,52.583,-111.466,707,Kessler,,0,Division No. 7,AB,CA
-MFSBQR,,52.549,-112.123,715,Killiam Agdm,,0,Division No. 7,AB,CA
-MWQQ,,52.46,-113.75,874,Lacombe,,0,Division No. 8,AB,CA
-MP1028,,49.784,-113.003,933,Lethbridge,,0,Division No. 2,AB,CA
-MAGTQ1,,49.647,-112.762,913,Lethbridge Airport,,0,Division No. 2,AB,CA
+MGRAQ1,Fincastle Agdm,49.874,-111.733,0,Fincastle Agdm,,0,Division No. 2,AB,CA
+MFTAQ1,Fort Assiniboine,54.411,-114.769,0,Fort Assiniboine,,0,Division No. 13,AB,CA
+MGORQ1,Fort Mcmurray,56.618,-110.494,0,Fort Mcmurray,,0,Division No. 16,AB,CA
+MHDNQ1,Henderickson,53.783,-118.433,1452.8,Henderickson,,0,,AB,CA
+MP0182,Highvale,53.404,-114.154,758,Highvale,,0,Division No. 11,AB,CA
+MVIKQ1,Holden Agdm,53.182,-111.732,0,Holden Agdm,,0,Division No. 10,AB,CA
+MSHNQ1,Holden Agdm,53.333,-112.539,678,Holden Agdm,,0,Division No. 10,AB,CA
+MD2809,Jasper,52.834,-119.268,785,Jasper,,0,Fraser-Fort George,BC,CA
+MJSPRS,Jasper,52.85,-118.124,1298.2,Jasper,,0,Division No. 15,AB,CA
+MYHDQ2,Jasper,52.907,-118.548,0,Jasper,,0,Fraser-Fort George,BC,CA
+MLUSQ1,Jasper,53.057,-117.334,0,Jasper,,0,Division No. 14,AB,CA
+MSTHQ1,Jasper,52.671,-117.209,2203.5,Jasper,,0,Division No. 15,AB,CA
+MBELQ1,Kessler,52.583,-111.466,707,Kessler,,0,Division No. 7,AB,CA
+MFSBQR,Killiam Agdm,52.549,-112.123,715,Killiam Agdm,,0,Division No. 7,AB,CA
+MWQQ,Lacombe,52.46,-113.75,874,Lacombe,,0,Division No. 8,AB,CA
+MP1028,Lethbridge,49.784,-113.003,933,Lethbridge,,0,Division No. 2,AB,CA
+MAGTQ1,Lethbridge Airport,49.647,-112.762,913,Lethbridge Airport,,0,Division No. 2,AB,CA
 MCXMN,Masinasin Agdm Ab,49.12,-111.65,945,Masinasin Agdm,,0,Division No. 2,AB,CA
-MMASQ1,,49.137,-111.652,0,Masinasin Agdm,,0,Division No. 2,AB,CA
+MMASQ1,Masinasin Agdm,49.137,-111.652,0,Masinasin Agdm,,0,Division No. 2,AB,CA
 MD5988,Hanna Ab Ca,51.646,-111.919,820,Morrin Agdm,,0,Division No. 4,AB,CA
-MWNR,,50.96,-115.19,2543,Nakiska Ridgetop,,0,Division No. 15,AB,CA
-MTILQ1,,50.631,-115.279,2164,Nakiska Ridgetop,,0,,AB,CA
-MAU544,,51.481,-114.24,1159,Olds Agdm,,0,Division No. 6,AB,CA
+MWNR,Nakiska Ridgetop,50.96,-115.19,2543,Nakiska Ridgetop,,0,Division No. 15,AB,CA
+MTILQ1,Nakiska Ridgetop,50.631,-115.279,2164,Nakiska Ridgetop,,0,,AB,CA
+MAU544,Olds Agdm,51.481,-114.24,1159,Olds Agdm,,0,Division No. 6,AB,CA
 MD3059,Fort Saskatchewan Ab Ca,53.681,-113.222,628,Oliver Agdm,,0,Division No. 11,AB,CA
-MERNM8,,48.975,-110.422,767,Onefour,,0,Hill County,MT,US
-MMCLQ8,,49.1,-109.817,862,Onefour,,0,Division No. 4,SK,CA
-MMCSQ1,,49.425,-110.052,1032,Onefour,,0,Division No. 1,AB,CA
-MECCM8,,48.975,-110.422,809,Onefour,,0,Hill County,MT,US
-MP1018,,51.444,-110.917,772,Oyen Agdm,,0,Division No. 4,AB,CA
-MJNCQR,,55.913,-117.12,634,Peace River,,0,Division No. 19,AB,CA
-MPCRCL,,56.255,-117.29,319.2,Peace River,,0,Division No. 19,AB,CA
-MD7164,,55.722,-118.034,604,Peoria Agdm,,0,Division No. 19,AB,CA
-MRYCQR,,55.777,-118.668,0,Peoria Agdm,,0,Division No. 19,AB,CA
-MTEEQR,,55.353,-118.408,0,Peoria Agdm,,0,Division No. 19,AB,CA
-MEGLQR,,55.808,-117.887,564.5,Peoria Agdm,,0,Division No. 19,AB,CA
-ME4654,,49.479,-114.146,1256,Pincher Creek,,0,Division No. 3,AB,CA
+MERNM8,Onefour,48.975,-110.422,767,Onefour,,0,Hill County,MT,US
+MMCLQ8,Onefour,49.1,-109.817,862,Onefour,,0,Division No. 4,SK,CA
+MMCSQ1,Onefour,49.425,-110.052,1032,Onefour,,0,Division No. 1,AB,CA
+MECCM8,Onefour,48.975,-110.422,809,Onefour,,0,Hill County,MT,US
+MP1018,Oyen Agdm,51.444,-110.917,772,Oyen Agdm,,0,Division No. 4,AB,CA
+MJNCQR,Peace River,55.913,-117.12,634,Peace River,,0,Division No. 19,AB,CA
+MPCRCL,Peace River,56.255,-117.29,319.2,Peace River,,0,Division No. 19,AB,CA
+MD7164,Peoria Agdm,55.722,-118.034,604,Peoria Agdm,,0,Division No. 19,AB,CA
+MRYCQR,Peoria Agdm,55.777,-118.668,0,Peoria Agdm,,0,Division No. 19,AB,CA
+MTEEQR,Peoria Agdm,55.353,-118.408,0,Peoria Agdm,,0,Division No. 19,AB,CA
+MEGLQR,Peoria Agdm,55.808,-117.887,564.5,Peoria Agdm,,0,Division No. 19,AB,CA
+ME4654,Pincher Creek,49.479,-114.146,1256,Pincher Creek,,0,Division No. 3,AB,CA
 MCXPV,Prairie River/Alta,58.62,-111.67,209,Prairie River,,0,Division No. 16,AB,CA
-MMGLQ1,,52.615,-113.41,0,Prentiss,,0,Division No. 8,AB,CA
-MCWIQ,,54.75,-110.05,701,Primrose Lake,,0,Division No. 12,AB,CA
+MMGLQ1,Prentiss,52.615,-113.41,0,Prentiss,,0,Division No. 8,AB,CA
+MCWIQ,Primrose Lake,54.75,-110.05,701,Primrose Lake,,0,Division No. 12,AB,CA
 MD5153,Cayley Ab Ca,50.442,-113.678,1041,Rampart River,,0,Division No. 6,AB,CA
-MBLDQ1,,50.707,-114.152,1147.6,Rampart River,,0,Division No. 6,AB,CA
-MMRRQ1,,49.284,-112.538,0,Raymond Agdm,,0,Division No. 2,AB,CA
-ME2645,,52.268,-113.811,910,Red Deer,,0,Division No. 8,AB,CA
-MWRD,,56.54,-115.27,546,Red Earth,,0,Division No. 17,AB,CA
-MRUSQ1,,49.713,-110.658,1081.4,Seven Persons,,0,Division No. 1,AB,CA
-MHALQ1,,52.117,-112.164,839,Stettler Agdm,,0,Division No. 7,AB,CA
-ME2195,,51.04,-113.39,971,Strathmore Agdm,,0,Division No. 5,AB,CA
-MC8540,,51.534,-114.674,1382,Sundre,,0,Division No. 6,AB,CA
+MBLDQ1,Rampart River,50.707,-114.152,1147.6,Rampart River,,0,Division No. 6,AB,CA
+MMRRQ1,Raymond Agdm,49.284,-112.538,0,Raymond Agdm,,0,Division No. 2,AB,CA
+ME2645,Red Deer,52.268,-113.811,910,Red Deer,,0,Division No. 8,AB,CA
+MWRD,Red Earth,56.54,-115.27,546,Red Earth,,0,Division No. 17,AB,CA
+MRUSQ1,Seven Persons,49.713,-110.658,1081.4,Seven Persons,,0,Division No. 1,AB,CA
+MHALQ1,Stettler Agdm,52.117,-112.164,839,Stettler Agdm,,0,Division No. 7,AB,CA
+ME2195,Strathmore Agdm,51.04,-113.39,971,Strathmore Agdm,,0,Division No. 5,AB,CA
+MC8540,Sundre,51.534,-114.674,1382,Sundre,,0,Division No. 6,AB,CA
 MCWHI,Three Hills Ab,51.7,-113.22,908,Three Hills,,0,Division No. 5,AB,CA
-MBVAQ1,,51.998,-112.803,0,Three Hills,,0,Division No. 7,AB,CA
-MWVO,,50.05,-112.14,779,Vauxhall,,0,Division No. 2,AB,CA
-MCPGE,,53.07,-110.62,647,Vermilion Agdm,,0,Division No. 7,AB,CA
-MVILQ1,,54.13,-111.921,0,Vilna Agcm,,0,Division No. 12,AB,CA
-MGTOM8,,48.957,-113.89,1316.3,Waterton Park Gate,,0,Glacier County,MT,US
-MWWO,,53.39,-118.34,1402,Willow Creek,,0,Division No. 14,AB,CA
-MD1341,,49.111,-122.508,93,Abbotsford,,0,Greater Vancouver,BC,CA
+MBVAQ1,Three Hills,51.998,-112.803,0,Three Hills,,0,Division No. 7,AB,CA
+MWVO,Vauxhall,50.05,-112.14,779,Vauxhall,,0,Division No. 2,AB,CA
+MCPGE,Vermilion Agdm,53.07,-110.62,647,Vermilion Agdm,,0,Division No. 7,AB,CA
+MVILQ1,Vilna Agcm,54.13,-111.921,0,Vilna Agcm,,0,Division No. 12,AB,CA
+MGTOM8,Waterton Park Gate,48.957,-113.89,1316.3,Waterton Park Gate,,0,Glacier County,MT,US
+MWWO,Willow Creek,53.39,-118.34,1402,Willow Creek,,0,Division No. 14,AB,CA
+MD1341,Abbotsford,49.111,-122.508,93,Abbotsford,,0,Greater Vancouver,BC,CA
 MD5324,Calvert Island Bc Ca,51.654,-128.13,1.4,Addenbroke Island,,0,Central Coast,BC,CA
 MBHWAH,Wahleach Jones Res. Bc Cn Bchydro,49.232,-121.619,642.4,Agassiz,,0,Fraser Valley,BC,CA
-MXHRN,,49.311,-121.775,11,Agassiz,,0,Fraser Valley,BC,CA
-MBHLJU,,50.859,-123.184,1873.6,Big Creek,,0,Squamish-Lillooet,BC,CA
+MXHRN,Agassiz,49.311,-121.775,11,Agassiz,,0,Fraser Valley,BC,CA
+MBHLJU,Big Creek,50.859,-123.184,1873.6,Big Creek,,0,Squamish-Lillooet,BC,CA
 MBHBRI,Bridge R. Blw Glacier Bc Cn Bchydro,50.856,-123.45,1377,Big Creek,,0,Squamish-Lillooet,BC,CA
-MNSTQ2,,51.242,-124.458,0,Big Creek,,0,Cariboo,BC,CA
-MMTCQ2,,52.183,-119.321,0,Blue River,,0,Thompson-Nicola,BC,CA
-M46183,,53.6,-131.1,0,Bonilla Island,,0,Skeena-Queen Charlotte,BC,CA
-MWYL4908,,53.1,-129.6,-21.2,Bonilla Island,,0,Kitimat-Stikine,BC,CA
-MLULQ2,,54.196,-126.305,0,Burns Lake,,0,Bulkley-Nechako,BC,CA
+MNSTQ2,Big Creek,51.242,-124.458,0,Big Creek,,0,Cariboo,BC,CA
+MMTCQ2,Blue River,52.183,-119.321,0,Blue River,,0,Thompson-Nicola,BC,CA
+M46183,Bonilla Island,53.6,-131.1,0,Bonilla Island,,0,Skeena-Queen Charlotte,BC,CA
+MWYL4908,Bonilla Island,53.1,-129.6,-21.2,Bonilla Island,,0,Kitimat-Stikine,BC,CA
+MLULQ2,Burns Lake,54.196,-126.305,0,Burns Lake,,0,Bulkley-Nechako,BC,CA
 MBHSCA,Strathcona Dam Bc Cn Bchydro,49.973,-125.586,225.1,Campbell River,,0,Strathcona,BC,CA
 MBHQIN,Quinsam R. At Argonaut Brg Bc Cn Bchydro,49.93,-125.509,291.7,Campbell River,,0,Strathcona,BC,CA
-M46131,,49.9,-125,0,Cape Mudge,,0,Strathcona,BC,CA
+M46131,Cape Mudge,49.9,-125,0,Cape Mudge,,0,Strathcona,BC,CA
 MQUAD,Quadra Island Bc,50.132,-125.331,0.1,Cape Mudge,,0,Strathcona,BC,CA
-MAS240,,49.192,-117.299,679,Castlegar,,0,Central Kootenay,BC,CA
+MAS240,Castlegar,49.192,-117.299,679,Castlegar,,0,Central Kootenay,BC,CA
 MC6486,Comox Bc Ca,49.717,-124.9,23,Comox,,0,Comox Valley,BC,CA
 MBHCOX,Comox Lake At Courtenay Bc Cn,49.64,-125.08,156.8,Comox,,0,Comox Valley,BC,CA
 ME1897,Creston Ca,49.1,-116.5,655.7,Creston,,0,Central Kootenay,BC,CA
-MR33MX,,59.395,-130.967,1435,Dease Lake,,0,Stikine Region,BC,CA
-MCWDL,,58.42,-130,786.3,Dease Lake Cs,,0,Stikine Region,BC,CA
-MWYL6686,,51.4,-127.9,-53.4,Egg Island,,0,Central Coast,BC,CA
-M46146,,49.3,-123.7,0,Entrance,,0,Nanaimo,BC,CA
+MR33MX,Dease Lake,59.395,-130.967,1435,Dease Lake,,0,Stikine Region,BC,CA
+MCWDL,Dease Lake Cs,58.42,-130,786.3,Dease Lake Cs,,0,Stikine Region,BC,CA
+MWYL6686,Egg Island,51.4,-127.9,-53.4,Egg Island,,0,Central Coast,BC,CA
+M46146,Entrance,49.3,-123.7,0,Entrance,,0,Nanaimo,BC,CA
 MC9420,Gabriola Bc Ca,49.2,-123.82,28.6,Entrance,,0,Nanaimo,BC,CA
-MLAJV48,,49.2,-123.9,-16.2,Entrance,,0,Nanaimo,BC,CA
-MLADB28,,49.2,-123.9,-16.2,Entrance,,0,Nanaimo,BC,CA
+MLAJV48,Entrance,49.2,-123.9,-16.2,Entrance,,0,Nanaimo,BC,CA
+MLADB28,Entrance,49.2,-123.9,-16.2,Entrance,,0,Nanaimo,BC,CA
 MC0870,Victoria Bc Ca,48.469,-123.39,22.9,Esquimalt Harbour,,0,Capital,BC,CA
-MC4635,,48.42,-123.479,51,Esquimalt Harbour,,0,Capital,BC,CA
-MCGDP58,,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
-MPHCM,,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
-MCGJK65,,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
-MNWS0027,,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
+MC4635,Esquimalt Harbour,48.42,-123.479,51,Esquimalt Harbour,,0,Capital,BC,CA
+MCGDP58,Esquimalt Harbour,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
+MPHCM,Esquimalt Harbour,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
+MCGJK65,Esquimalt Harbour,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
+MNWS0027,Esquimalt Harbour,48.4,-123.4,-7.9,Esquimalt Harbour,,0,Capital,BC,CA
 MD3984,Saanich Bc Ca,48.451,-123.414,6.5,Esquimalt Harbour,,0,Capital,BC,CA
 MD1023,Fort Saint John Bc Ca,56.253,-120.852,699.2,Fort Saint John,,0,Peace River,BC,CA
 MBHGRP,Glacier Nr Rogers Pass Bc Cn,51.27,-117.509,1181.6,Golden,,0,Columbia-Shuswap,BC,CA
-MWDC6817,,50.9,-127.3,0,Herbert Island,,0,Mount Waddington,BC,CA
-MHZOW1,,48.98,-121.08,501,Hope Slide,,0,,WA,US
-MBRTW1,,48.93,-121.2,1776,Hope Slide,,0,Whatcom County,WA,US
-MHZCW1,,48.981,-121.078,486,Hope Slide,,0,,WA,US
-MCWKV,,49.28,-121.23,731.2,Hope Slide,,0,Fraser Valley,BC,CA
-MWAS,,49.49,-123.3,-42.8,Howe Sound,,0,Sunshine Coast,BC,CA
-MISKQ2,,56.739,-131.674,17,Iskut River,,0,Kitimat-Stikine,BC,CA
-MD9787,,50.903,-119.911,1850,Kamloops,,0,Thompson-Nicola,BC,CA
-ME6782,,51.111,-120.08,663.3,Kamloops,,0,,,
-MAR284,Crystal Mt Base Bc Ca,49.882,-119.71,1181.8,Kelowna,,0,,,
-MAU449,Crystal Mt Top Bc Ca,49.892,-119.71,1375.3,Kelowna,,0,,,
+MWDC6817,Herbert Island,50.9,-127.3,0,Herbert Island,,0,Mount Waddington,BC,CA
+MHZOW1,Hope Slide,48.98,-121.08,501,Hope Slide,,0,,WA,US
+MBRTW1,Hope Slide,48.93,-121.2,1776,Hope Slide,,0,Whatcom County,WA,US
+MHZCW1,Hope Slide,48.981,-121.078,486,Hope Slide,,0,,WA,US
+MCWKV,Hope Slide,49.28,-121.23,731.2,Hope Slide,,0,Fraser Valley,BC,CA
+MWAS,Howe Sound,49.49,-123.3,-42.8,Howe Sound,,0,Sunshine Coast,BC,CA
+MISKQ2,Iskut River,56.739,-131.674,17,Iskut River,,0,Kitimat-Stikine,BC,CA
+MD9787,Kamloops,50.903,-119.911,1850,Kamloops,,0,Thompson-Nicola,BC,CA
+ME6782,Kamloops,51.111,-120.08,663.3,Kamloops,,0,Thompson-Nicola,BC,CA
+MAR284,Crystal Mt Base Bc Ca,49.882,-119.71,1181.8,Kelowna,,0,Central Okanagan,BC,CA
+MAU449,Crystal Mt Top Bc Ca,49.892,-119.71,1375.3,Kelowna,,0,Central Okanagan,BC,CA
 MTS902,Nps English Camp Wa Us,48.588,-123.148,19.4,Kelp Reefs,,0,San Juan County,WA,US
-MD7441,,48.55,-123.164,10,Kelp Reefs,,0,San Juan County,WA,US
+MD7441,Kelp Reefs,48.55,-123.164,10,Kelp Reefs,,0,San Juan County,WA,US
 MENCX1,Nps English Camp Wa Us,48.588,-123.149,16.9,Kelp Reefs,,0,San Juan County,WA,US
-MNSJW1,,48.588,-123.149,17,Kelp Reefs,,0,San Juan County,WA,US
-M46208,,52.5,-132.7,0,Kindakun Rocks,,0,Skeena-Queen Charlotte,BC,CA
-M46145,,54.4,-132.4,0,Langara,,0,,,
-M46695,,54.09,-132.7,133,Langara,,0,,,
+MNSJW1,Kelp Reefs,48.588,-123.149,17,Kelp Reefs,,0,San Juan County,WA,US
+M46208,Kindakun Rocks,52.5,-132.7,0,Kindakun Rocks,,0,Skeena-Queen Charlotte,BC,CA
+M46145,Langara,54.4,-132.4,0,Langara,,0,Skeena-Queen Charlotte,BC,CA
+M46695,Langara,54.09,-132.7,133,Langara,,0,Skeena-Queen Charlotte,BC,CA
 MC4376,Askom Valley Bc Ca,50.494,-121.704,393.9,Lytton,,0,Thompson-Nicola,BC,CA
 MD1184,Lytton Bc Ca,50.255,-121.611,241.8,Lytton,,0,Thompson-Nicola,BC,CA
 MBHLST,Williston At Lost Cabin Ck Bc Cn,56.051,-123.747,694.5,Mackenzie,,0,Peace River,BC,CA
 MBHPYN,Pine Pass Bc Cn,55.353,-122.637,1384.7,Mackenzie,,0,Fraser-Fort George,BC,CA
-MOMNQ2,,55.917,-124.567,0,Mackenzie,,0,Bulkley-Nechako,BC,CA
+MOMNQ2,Mackenzie,55.917,-124.567,0,Mackenzie,,0,Bulkley-Nechako,BC,CA
 MC6007,Shawnigan Lake Bc Ca,48.648,-123.64,117,Malahat,,0,Cowichan Valley,BC,CA
-M46134,,48.6,-123.5,-0.1,Malahat,,0,Capital,BC,CA
-MD1177,,49.642,-124.06,51,Merry Island,,0,Sunshine Coast,BC,CA
-MCWWQ,,58.93,-125.77,838.9,Muncho Lake,,0,Northern Rockies,BC,CA
+M46134,Malahat,48.6,-123.5,-0.1,Malahat,,0,Capital,BC,CA
+MD1177,Merry Island,49.642,-124.06,51,Merry Island,,0,Sunshine Coast,BC,CA
+MCWWQ,Muncho Lake,58.93,-125.77,838.9,Muncho Lake,,0,Northern Rockies,BC,CA
 MSC04,Chemainus Bc Can,48.923,-123.704,30,Nanaimo,,0,Cowichan Valley,BC,CA
-MJUMQ2,,48.969,-124.276,767,Nanaimo,,0,Cowichan Valley,BC,CA
-MC7763,,49.437,-117.155,1998,Nelson,,0,Central Kootenay,BC,CA
+MJUMQ2,Nanaimo,48.969,-124.276,767,Nanaimo,,0,Cowichan Valley,BC,CA
+MC7763,Nelson,49.437,-117.155,1998,Nelson,,0,Central Kootenay,BC,CA
 MBHQBY,Queens Bay Elevation Bc Cn,49.654,-116.93,540.4,Nelson,,0,Central Kootenay,BC,CA
-MREDQ2,,49.69,-117.086,2078.9,Nelson,,0,Central Kootenay,BC,CA
+MREDQ2,Nelson,49.69,-117.086,2078.9,Nelson,,0,Central Kootenay,BC,CA
 MBHGLD,Gold R. Nr Ucona R. Bc Cn,49.706,-126.106,31.7,Nootka Lightstation,,0,Strathcona,BC,CA
 MBHHEB,Heber R. Nr Gold R. Bc Cn Bchydro,49.815,-125.986,199.4,Nootka Lightstation,,0,Strathcona,BC,CA
 MD4841,Osoyoos Bc Ca,49.028,-119.4,843.6,Osoyoos,,0,Okanagan-Similkameen,BC,CA
 MCYPS,Pemberton (Autob Bc,50.3,-122.73,210,Pemberton,,0,Squamish-Lillooet,BC,CA
-MTENQ2,,50.536,-122.929,1652,Pemberton,,0,Squamish-Lillooet,BC,CA
+MTENQ2,Pemberton,50.536,-122.929,1652,Pemberton,,0,Squamish-Lillooet,BC,CA
 MBHSON,Shalalth Bc Cn Bchydro,50.728,-122.243,252.2,Pemberton,,0,Squamish-Lillooet,BC,CA
 MC6247,Surrey Ca,49.167,-122.864,73,Pitt Meadows,,0,Greater Vancouver,BC,CA
 MC8863,Surrey Bc Ca,49.174,-122.863,85,Pitt Meadows,,0,Greater Vancouver,BC,CA
 MC9050,Delta Bc Ca,49.174,-122.896,101.6,Pitt Meadows,,0,Greater Vancouver,BC,CA
-MC2820,,49.166,-122.623,36,Pitt Meadows,,0,Greater Vancouver,BC,CA
-MD2689,,49.172,-122.804,99,Pitt Meadows,,0,Greater Vancouver,BC,CA
-MBHALU,Alouette Lake Forebay Bc Cn,49.287,-122.486,127.2,Pitt Meadows,,0,,,
-MD9694,,49.228,-122.826,7.5,Pitt Meadows,,0,Greater Vancouver,BC,CA
+MC2820,Pitt Meadows,49.166,-122.623,36,Pitt Meadows,,0,Greater Vancouver,BC,CA
+MD2689,Pitt Meadows,49.172,-122.804,99,Pitt Meadows,,0,Greater Vancouver,BC,CA
+MBHALU,Alouette Lake Forebay Bc Cn,49.287,-122.486,127.2,Pitt Meadows,,0,Greater Vancouver,BC,CA
+MD9694,Pitt Meadows,49.228,-122.826,7.5,Pitt Meadows,,0,Greater Vancouver,BC,CA
 MBHSTV,Stave R. Upper Bc Cn Bchydro,49.624,-122.402,1060.2,Pitt Meadows,,0,Fraser Valley,BC,CA
-ME1175,,49.246,-122.828,151,Pitt Meadows,,0,Greater Vancouver,BC,CA
+ME1175,Pitt Meadows,49.246,-122.828,151,Pitt Meadows,,0,Greater Vancouver,BC,CA
 MPTAL,Port Alberni Bc,49.256,-124.861,103,Port Alberni,,0,Alberni-Clayoquot,BC,CA
 MD6294,Port Alberni Bc Ca,49.235,-124.816,6.3,Port Alberni,,0,Alberni-Clayoquot,BC,CA
-MFIHV,,50.6,-127.2,72.9,Port Hardy,,0,Mount Waddington,BC,CA
+MFIHV,Port Hardy,50.6,-127.2,72.9,Port Hardy,,0,Mount Waddington,BC,CA
 MCVOP,Powell River Bc,49.83,-124.48,113.8,Powell River,,0,Powell River,BC,CA
 MD5879,Keremeos Bc Ca,49.4,-120.6,1000.4,Princeton,,0,Okanagan-Similkameen,BC,CA
-MUMCQ2,,51.778,-124.621,0,Puntzi Mountain,,0,Cariboo,BC,CA
-MYNKQ2,,52.832,-121.355,0,Quesnel,,0,Cariboo,BC,CA
-MCELQ2,,51.404,-118.985,0,Revelstoke,,0,Thompson-Nicola,BC,CA
-ME8074,,50.931,-119.241,339,Salmon Arm,,0,Columbia-Shuswap,BC,CA
-MP1033,,50.6,-119.4,940,Salmon Arm,,0,Columbia-Shuswap,BC,CA
-MCGJK4,,49.1,-123.3,-4.7,Sand Heads,,0,Greater Vancouver,BC,CA
-M46207,,50.9,-129.9,0,Sartine Island,,0,Central Coast,BC,CA
-M46204,,51.4,-128.8,0,Sartine Island,,0,Central Coast,BC,CA
-M46147,,51.8,-131.2,0,Scudder Point,,0,Skeena-Queen Charlotte,BC,CA
+MUMCQ2,Puntzi Mountain,51.778,-124.621,0,Puntzi Mountain,,0,Cariboo,BC,CA
+MYNKQ2,Quesnel,52.832,-121.355,0,Quesnel,,0,Cariboo,BC,CA
+MCELQ2,Revelstoke,51.404,-118.985,0,Revelstoke,,0,Thompson-Nicola,BC,CA
+ME8074,Salmon Arm,50.931,-119.241,339,Salmon Arm,,0,Columbia-Shuswap,BC,CA
+MP1033,Salmon Arm,50.6,-119.4,940,Salmon Arm,,0,Columbia-Shuswap,BC,CA
+MCGJK4,Sand Heads,49.1,-123.3,-4.7,Sand Heads,,0,Greater Vancouver,BC,CA
+M46207,Sartine Island,50.9,-129.9,0,Sartine Island,,0,Central Coast,BC,CA
+M46204,Sartine Island,51.4,-128.8,0,Sartine Island,,0,Central Coast,BC,CA
+M46147,Scudder Point,51.8,-131.2,0,Scudder Point,,0,Skeena-Queen Charlotte,BC,CA
 MBHBCK,Bear Ck Res. Bc Cn,48.503,-123.914,413,Sheringham Point,,0,Capital,BC,CA
-ME8250,,48.382,-123.874,29,Sheringham Point,,0,Capital,BC,CA
-MHARQ2,,48.72,-124.227,281,Sheringham Point,,0,Cowichan Valley,BC,CA
-MCWKS,,57.25,-122.72,924.7,Sikanni Chief,,0,Peace River,BC,CA
+ME8250,Sheringham Point,48.382,-123.874,29,Sheringham Point,,0,Capital,BC,CA
+MHARQ2,Sheringham Point,48.72,-124.227,281,Sheringham Point,,0,Cowichan Valley,BC,CA
+MCWKS,Sikanni Chief,57.25,-122.72,924.7,Sikanni Chief,,0,Peace River,BC,CA
 MBHPNK,Pink Mtn. Bc Cn,57.002,-122.354,1134,Sikanni Chief,,0,Peace River,BC,CA
-MAKIQ2,,57.188,-124.896,0,Sikanni Chief,,0,Peace River,BC,CA
+MAKIQ2,Sikanni Chief,57.188,-124.896,0,Sikanni Chief,,0,Peace River,BC,CA
 MAT978,Bulkley-Nechako A Bc Ca,54.514,-126.797,697.1,Smithers,,0,Bulkley-Nechako,BC,CA
-MTSAQ2,,54.646,-127.675,0,Smithers,,0,,,
-MSHDQ2,,55.862,-127.698,0,Smithers,,0,,,
-M46132,,49.7,-127.9,0,Solander Island,,0,,,
-M46661,,50.08,-127.44,392,Solander Island,,0,Strathcona,BC,CA
+MTSAQ2,Smithers,54.646,-127.675,0,Smithers,,0,Bulkley-Nechako,BC,CA
+MSHDQ2,Smithers,55.862,-127.698,0,Smithers,,0,Bulkley-Nechako,BC,CA
+M46132,Solander Island,49.7,-127.9,0,Solander Island,,0,Strathcona,BC,CA
+M46661,Solander Island,50.08,-127.44,392,Solander Island,,0,Strathcona,BC,CA
 MC7554,Fernie Bc Ca,49.55,-115.03,1041.4,Sparwood,,0,East Kootenay,BC,CA
-MMORQ2,,49.447,-114.975,1866,Sparwood,,0,East Kootenay,BC,CA
+MMORQ2,Sparwood,49.447,-114.975,1866,Sparwood,,0,East Kootenay,BC,CA
 MAS516,Squamish Bc Ca,49.7,-123.135,27.6,Squamish,,0,Squamish-Lillooet,BC,CA
 MCYSE,Squamish Arpt Bc,49.79,-123.17,30.8,Squamish,,0,Squamish-Lillooet,BC,CA
-MD8782,,49.696,-123.159,5,Squamish,,0,Squamish-Lillooet,BC,CA
-MXSQU,,49.685,-123.172,11.2,Squamish,,0,Squamish-Lillooet,BC,CA
-MSOUA2,,55.833,-130.182,139.2,Stewart,,0,Prince of Wales-Hyder Census Area,AK,US
-M46181,,53.8,-128.8,0,Terrace,,0,Kitimat-Stikine,BC,CA
-MC9120,,54.05,-128.666,8,Terrace,,0,Kitimat-Stikine,BC,CA
-MSKNQ2,,54.631,-128.432,85,Terrace,,0,Kitimat-Stikine,BC,CA
-MCWTH,,58.65,-124.23,800,Tetsa River,,0,Northern Rockies,BC,CA
-M46206,,48.8,-126,0,Tofino,,0,Alberni-Clayoquot,BC,CA
+MD8782,Squamish,49.696,-123.159,5,Squamish,,0,Squamish-Lillooet,BC,CA
+MXSQU,Squamish,49.685,-123.172,11.2,Squamish,,0,Squamish-Lillooet,BC,CA
+MSOUA2,Stewart,55.833,-130.182,139.2,Stewart,,0,Prince of Wales-Hyder Census Area,AK,US
+M46181,Terrace,53.8,-128.8,0,Terrace,,0,Kitimat-Stikine,BC,CA
+MC9120,Terrace,54.05,-128.666,8,Terrace,,0,Kitimat-Stikine,BC,CA
+MSKNQ2,Terrace,54.631,-128.432,85,Terrace,,0,Kitimat-Stikine,BC,CA
+MCWTH,Tetsa River,58.65,-124.23,800,Tetsa River,,0,Northern Rockies,BC,CA
+M46206,Tofino,48.8,-126,0,Tofino,,0,Alberni-Clayoquot,BC,CA
 MUCLU,Ucluelet Bc,48.926,-125.542,23.6,Tofino,,0,Alberni-Clayoquot,BC,CA
-M46700,,54.38,-130.85,-3.3,Triple,,0,Skeena-Queen Charlotte,BC,CA
-MVRCQ7,,54.2,-131,-67.5,Triple,,0,Skeena-Queen Charlotte,BC,CA
-MCGJK6,,49.3,-123.1,0,Vancouver Harbour,,0,Greater Vancouver,BC,CA
+M46700,Triple,54.38,-130.85,-3.3,Triple,,0,Skeena-Queen Charlotte,BC,CA
+MVRCQ7,Triple,54.2,-131,-67.5,Triple,,0,Skeena-Queen Charlotte,BC,CA
+MCGJK6,Vancouver Harbour,49.3,-123.1,0,Vancouver Harbour,,0,Greater Vancouver,BC,CA
 MD0899,Vancouver Bc Ca,49.273,-123.125,10,Vancouver Harbour,,0,Greater Vancouver,BC,CA
-MD5735,,50.234,-119.364,349,Vernon,,0,North Okanagan,BC,CA
-MCGJK58,,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
-MCG2965,,48.7,-123.5,0,Victoria,,0,Capital,BC,CA
-MCGDP,,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
-MCGBY58,,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
-MVOPP,,48.7,-123.4,2.2,Victoria,,0,,,
-MCGBR58,,48.7,-123.5,-0.1,Victoria,,0,,,
-MVOSTEST,,48.7,-123.4,2.2,Victoria,,0,,,
-MPGC5,Sidney Bc,48.648,-123.451,22.1,Victoria,,0,,,
-MVI00770,,48.7,-123.4,2.2,Victoria,,0,,,
-MAVI00770,,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
-MAVI00500,,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
-M46088,,48.3,-123.2,0,Victoria Gonzales,,0,Capital,BC,CA
+MD5735,Vernon,50.234,-119.364,349,Vernon,,0,North Okanagan,BC,CA
+MCGJK58,Victoria,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
+MCG2965,Victoria,48.7,-123.5,0,Victoria,,0,Capital,BC,CA
+MCGDP,Victoria,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
+MCGBY58,Victoria,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
+MVOPP,Victoria,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
+MCGBR58,Victoria,48.7,-123.5,-0.1,Victoria,,0,Capital,BC,CA
+MVOSTEST,Victoria,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
+MPGC5,Sidney Bc,48.648,-123.451,22.1,Victoria,,0,Capital,BC,CA
+MVI00770,Victoria,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
+MAVI00770,Victoria,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
+MAVI00500,Victoria,48.7,-123.4,2.2,Victoria,,0,Capital,BC,CA
+M46088,Victoria Gonzales,48.3,-123.2,0,Victoria Gonzales,,0,Capital,BC,CA
 MAS446,Victoria Bc Ca,48.421,-123.328,19.3,Victoria Harbour,,0,Capital,BC,CA
-MCWVV,,48.53,-123.47,229.8,Victoria Hartland,,0,Capital,BC,CA
-MAP473,,48.458,-123.554,61,Victoria Hartland,,0,Capital,BC,CA
+MCWVV,Victoria Hartland,48.53,-123.47,229.8,Victoria Hartland,,0,Capital,BC,CA
+MAP473,Victoria Hartland,48.458,-123.554,61,Victoria Hartland,,0,Capital,BC,CA
 MD6296,Saanichton Bc Ca,48.572,-123.367,2.5,Victoria Hartland,,0,Capital,BC,CA
-MAV097,,48.573,-123.39,38,Victoria Hartland,,0,Capital,BC,CA
+MAV097,Victoria Hartland,48.573,-123.39,38,Victoria Hartland,,0,Capital,BC,CA
 MD7044,Vancouver Bc Ca,49.344,-123.191,105.9,West Vancouver,,0,Greater Vancouver,BC,CA
-MCVOC,,50.12,-122.95,663.8,Whistler,,0,Squamish-Lillooet,BC,CA
-MBHCMU,Upper Cheakamus Bc Cn Bchydro,50.122,-123.133,790,Whistler,,0,,,
-MBHCMS,Daisy Lake Dam Bc Cn Bchydro,49.975,-123.135,393,Whistler,,0,,,
-MDLDQ2,,49.985,-123.136,0,Whistler,,0,,,
-MAR283,,49.107,-122.745,10,White Rock,,0,Greater Vancouver,BC,CA
-MSCCQ1,,51.835,-115.821,0,Yoho Park,,0,Division No. 9,AB,CA
-ME8501,,51.582,-116.568,2589,Yoho Park,,0,Columbia-Shuswap,BC,CA
+MCVOC,Whistler,50.12,-122.95,663.8,Whistler,,0,Squamish-Lillooet,BC,CA
+MBHCMU,Upper Cheakamus Bc Cn Bchydro,50.122,-123.133,790,Whistler,,0,Squamish-Lillooet,BC,CA
+MBHCMS,Daisy Lake Dam Bc Cn Bchydro,49.975,-123.135,393,Whistler,,0,Squamish-Lillooet,BC,CA
+MDLDQ2,Whistler,49.985,-123.136,0,Whistler,,0,Squamish-Lillooet,BC,CA
+MAR283,White Rock,49.107,-122.745,10,White Rock,,0,Greater Vancouver,BC,CA
+MSCCQ1,Yoho Park,51.835,-115.821,0,Yoho Park,,0,Division No. 9,AB,CA
+ME8501,Yoho Park,51.582,-116.568,2589,Yoho Park,,0,Columbia-Shuswap,BC,CA
 MCWBL,Bachelors Island Mar,51.75,-99.9,252,Bachelors Island Marine,,0,Division No. 17,MB,CA
-MSDYQ6,,53.055,-93.337,0,Island Lake,,0,Kenora District,ON,CA
-MQRWQ8,,50.491,-101.558,395,Shoal Lake,,0,Division No. 5,SK,CA
-MAVOM5,,48.979,-95.555,324,Sprague,,0,Roseau County,MN,US
-MBURQ3,,55.754,-97.833,186,Thompson,,0,Division No. 22,MB,CA
-MWUSQ3,,55.548,-98.604,231,Thompson,,0,Division No. 22,MB,CA
-M45145,,51.9,-97,218,Berens River,,0,Division No. 19,MB,CA
-MWDW,,51.11,-100.05,305,Dauphin,,0,,,
-MWFO,,54.69,-101.7,5,Flin Flon,,0,,,
-MWEI,,49.29,-100.99,446,Melita,,0,,,
-MWEA,,50.19,-96.07,268,Pinawa,,0,,,
-MC6359,Strathclair Mb Ca,50.404,-100.397,580,Shoal Lake,,0,,,
-MWUT,,50.46,-100.6,561,Shoal Lake,,0,,,
-MWSU,,49.02,-95.6,330,Sprague,,0,,,
-MWBJ,,51.04,-95.67,290.9,Victoria Beach,,0,,,
-M45140,,50.8,-96.7,218,Victoria Beach,,0,Division No. 1,MB,CA
-MWWP,,50.66,-99.94,626,Wasagaming,,0,,MB,CA
+MSDYQ6,Island Lake,53.055,-93.337,0,Island Lake,,0,Kenora District,ON,CA
+MQRWQ8,Shoal Lake,50.491,-101.558,395,Shoal Lake,,0,Division No. 5,SK,CA
+MAVOM5,Sprague,48.979,-95.555,324,Sprague,,0,Roseau County,MN,US
+MBURQ3,Thompson,55.754,-97.833,186,Thompson,,0,Division No. 22,MB,CA
+MWUSQ3,Thompson,55.548,-98.604,231,Thompson,,0,Division No. 22,MB,CA
+M45145,Berens River,51.9,-97,218,Berens River,,0,Division No. 19,MB,CA
+MWDW,Dauphin,51.11,-100.05,305,Dauphin,,0,Division No. 17,MB,CA
+MWFO,Flin Flon,54.69,-101.7,5,Flin Flon,,0,Division No. 21,MB,CA
+MWEI,Melita,49.29,-100.99,446,Melita,,0,Division No. 5,MB,CA
+MWEA,Pinawa,50.19,-96.07,268,Pinawa,,0,Division No. 1,MB,CA
+MC6359,Strathclair Mb Ca,50.404,-100.397,580,Shoal Lake,,0,Division No. 15,MB,CA
+MWUT,Shoal Lake,50.46,-100.6,561,Shoal Lake,,0,Division No. 15,MB,CA
+MWSU,Sprague,49.02,-95.6,330,Sprague,,0,Division No. 1,MB,CA
+MWBJ,Victoria Beach,51.04,-95.67,290.9,Victoria Beach,,0,Division No. 19,MB,CA
+M45140,Victoria Beach,50.8,-96.7,218,Victoria Beach,,0,Division No. 1,MB,CA
+MWWP,Wasagaming,50.66,-99.94,626,Wasagaming,,0,,MB,CA
 MAS037,Winnipeg Mb Ca,49.884,-97.228,234.2,Winnipeg,,0,Division No. 11,MB,CA
 MC8306,Winnipeg Mb Ca,49.791,-97.146,234.7,Winnipeg Forks,,0,Division No. 11,MB,CA
 MH0094,Gorilla Weather Winnipeg Mb,49.78,-97.2,233.4,Winnipeg Forks,,0,Division No. 11,MB,CA
-MAS443,,49.673,-96.581,265.5,Winnipeg Forks,,0,Division No. 2,MB,CA
-MD5143,,49.941,-97.077,237,Winnipeg Forks,,0,Division No. 11,MB,CA
-MWXS,,47.8,-64.84,9.8,Bas Caraquet,,0,Comte de Gloucester,NB,CA
+MAS443,Winnipeg Forks,49.673,-96.581,265.5,Winnipeg Forks,,0,Division No. 2,MB,CA
+MD5143,Winnipeg Forks,49.941,-97.077,237,Winnipeg Forks,,0,Division No. 11,MB,CA
+MWXS,Bas Caraquet,47.8,-64.84,9.8,Bas Caraquet,,0,Comte de Gloucester,NB,CA
 MD0298,Colpitts Settlement Nb Ca,46,-65,38.8,Moncton,,0,Albert County,NB,CA
-MVGDT,,44.9,-65.9,-84.2,Saint John,,0,Digby County,NS,CA
-MAS965,New Harbour Nf Ca,47.583,-53.545,20.2,Argentia,,0,,,
-MWVW,,48.17,-52.94,28.9,Bonavista,,0,,,
-M44251,,46.4,-53.4,0,Cape Race,,0,Division No. 1,NL,CA
+MVGDT,Saint John,44.9,-65.9,-84.2,Saint John,,0,Digby County,NS,CA
+MAS965,New Harbour Nf Ca,47.583,-53.545,20.2,Argentia,,0,Division No. 1,NL,CA
+MWVW,Bonavista,48.17,-52.94,28.9,Bonavista,,0,Division No. 1,NL,CA
+M44251,Cape Race,46.4,-53.4,0,Cape Race,,0,Division No. 1,NL,CA
 MC7962,Lewisporte Nf Ca,49.2,-55.1,51,Gander,,0,Division No. 8,NL,CA
 MD2106,Norris Arm Nf Ca,49.083,-55.25,68.1,Gander,,0,Division No. 6,NL,CA
-MWFP,,56.55,-61.71,7,Nain,,0,Division No. 10,NL,CA
-MD9716,,47.618,-52.839,129,Saint John'S,,0,Division No. 1,NL,CA
-MD9569,,48.041,-52.985,55.2,Saint John'S,,0,Division No. 1,NL,CA
-MC3179,,47.596,-52.873,115,St- John'S,,0,Division No. 1,NL,CA
+MWFP,Nain,56.55,-61.71,7,Nain,,0,Division No. 10,NL,CA
+MD9716,Saint John'S,47.618,-52.839,129,Saint John'S,,0,Division No. 1,NL,CA
+MD9569,Saint John'S,48.041,-52.985,55.2,Saint John'S,,0,Division No. 1,NL,CA
+MC3179,St- John'S,47.596,-52.873,115,St- John'S,,0,Division No. 1,NL,CA
 MAS147,St- John'S Nf Ca,47.591,-52.707,63,St- John'S,,0,Division No. 1,NL,CA
 MD1976,St Johns Nf Ca,47.606,-52.735,129,St- John'S,,0,Division No. 1,NL,CA
-MCGCX29,,47.6,-52.7,61,St- John'S,,0,Division No. 1,NL,CA
+MCGCX29,St- John'S,47.6,-52.7,61,St- John'S,,0,Division No. 1,NL,CA
 MD3545,St Johns Nf Ca,47.616,-52.708,99,St- John'S,,0,Division No. 1,NL,CA
-MD6880,,47.612,-52.824,159,St- John'S,,0,Division No. 1,NL,CA
+MD6880,St- John'S,47.612,-52.824,159,St- John'S,,0,Division No. 1,NL,CA
 MCXSW,St- John'S West Cda,47.52,-52.78,83.8,St- John'S West,,0,Division No. 1,NL,CA
 MC5964,Mount Pearl Nf Ca,47.516,-52.814,144,St- John'S West,,0,Division No. 1,NL,CA
-M44909,,44.412,-51.682,-70.2,St- John'S West,,0,,,
-M44657,,55,-57.84,-72.1,Tukialik Bay,,0,Division No. 10,NL,CA
-M44654,,54.99,-57.87,-42.2,Tukialik Bay,,0,Division No. 10,NL,CA
-MWAG,,49.92,-55.67,189.9,Twillingate,,0,Division No. 8,NL,CA
-ME3441,Holyrood Ca,47.4,-53.1,100.1,Long Pond,,0,,,
-MWLG,,47.88,-55.85,35,Sagona Island,,0,,,
-MCWDW,,51.38,-56.1,18.2,Saint Anthony,,0,Division No. 9,NL,CA
-MCGAH,,47.6,-52.7,61,Saint John'S,,0,Division No. 1,NL,CA
-MA88BZ6,,43.5,-51.3,-76.9,Saint John'S West,,0,,,
-MYJUF7,,47.1,-55.1,51.8,Saint Lawrence,,0,Division No. 2,NL,CA
-MSFIR,,43.6,-62,-92.1,Beaver Island,,0,Halifax Regional Municipality,NS,CA
+M44909,St- John'S West,44.412,-51.682,-70.2,St- John'S West,,0,,,
+M44657,Tukialik Bay,55,-57.84,-72.1,Tukialik Bay,,0,Division No. 10,NL,CA
+M44654,Tukialik Bay,54.99,-57.87,-42.2,Tukialik Bay,,0,Division No. 10,NL,CA
+MWAG,Twillingate,49.92,-55.67,189.9,Twillingate,,0,Division No. 8,NL,CA
+ME3441,Holyrood Ca,47.4,-53.1,100.1,Long Pond,,0,Division No. 1,NL,CA
+MWLG,Sagona Island,47.88,-55.85,35,Sagona Island,,0,Division No. 3,NL,CA
+MCWDW,Saint Anthony,51.38,-56.1,18.2,Saint Anthony,,0,Division No. 9,NL,CA
+MCGAH,Saint John'S,47.6,-52.7,61,Saint John'S,,0,Division No. 1,NL,CA
+MA88BZ6,Saint John'S West,43.5,-51.3,-76.9,Saint John'S West,,0,,,
+MYJUF7,Saint Lawrence,47.1,-55.1,51.8,Saint Lawrence,,0,Division No. 2,NL,CA
+MSFIR,Beaver Island,43.6,-62,-92.1,Beaver Island,,0,Halifax Regional Municipality,NS,CA
 MD1059,New Glasgow Ns Ca,45.588,-62.656,30.7,Caribou Point,,0,Pictou County,NS,CA
 MD2865,New Glasgow Ns Ca,45.584,-62.64,27,Caribou Point,,0,Pictou County,NS,CA
-MC5766,,44.8,-63.6,81,Halifax,,0,Halifax Regional Municipality,NS,CA
-MAU791,,44.989,-63.945,89,Halifax,,0,Hants County,NS,CA
-ME7195,,45.05,-63.14,59,Halifax,,0,,,
-MD5176,Smelt Brook Ns Ca,46.87,-60.387,33.1,Ingonish Beach,,0,,,
+MC5766,Halifax,44.8,-63.6,81,Halifax,,0,Halifax Regional Municipality,NS,CA
+MAU791,Halifax,44.989,-63.945,89,Halifax,,0,Hants County,NS,CA
+ME7195,Halifax,45.05,-63.14,59,Halifax,,0,Halifax Regional Municipality,NS,CA
+MD5176,Smelt Brook Ns Ca,46.87,-60.387,33.1,Ingonish Beach,,0,Victoria County,NS,CA
 MC6995,Annapolis Royal Ns Ca,44.746,-65.519,5,Kejimkujik,,0,Annapolis County,NS,CA
-MC1604,,44.745,-65.519,5,Kejimkujik,,0,Annapolis County,NS,CA
-MD9480,,44.253,-64.478,47.6,Lunenburg,,0,Lunenburg County,NS,CA
-M44258,,44.5,-63.4,-51.9,Mcnabs Island,,0,Halifax Regional Municipality,NS,CA
+MC1604,Kejimkujik,44.745,-65.519,5,Kejimkujik,,0,Annapolis County,NS,CA
+MD9480,Lunenburg,44.253,-64.478,47.6,Lunenburg,,0,Lunenburg County,NS,CA
+M44258,Mcnabs Island,44.5,-63.4,-51.9,Mcnabs Island,,0,Halifax Regional Municipality,NS,CA
 MD6312,Bayside Ns Ca,44.536,-63.792,4,Mcnabs Island,,0,Halifax Regional Municipality,NS,CA
-M44172,,44.5,-63.4,-51.9,Mcnabs Island,,0,Halifax Regional Municipality,NS,CA
+M44172,Mcnabs Island,44.5,-63.4,-51.9,Mcnabs Island,,0,Halifax Regional Municipality,NS,CA
 MAT824,Cumberland Ns Ca,45.611,-64.09,154,Nappan (Auto),,0,Cumberland County,NS,CA
-MCFO383,,43.9,-60.2,-89.9,Sable Island,,0,Guysborough County,NS,CA
-MFO383,,43.9,-60.2,-89.9,Sable Island,,0,Guysborough County,NS,CA
-M383,,43.9,-60.2,4,Sable Island,,0,Guysborough County,NS,CA
-MWAW,,44.63,-63.5,32.6,Shearwater,,0,Halifax Regional Municipality,NS,CA
+MCFO383,Sable Island,43.9,-60.2,-89.9,Sable Island,,0,Guysborough County,NS,CA
+MFO383,Sable Island,43.9,-60.2,-89.9,Sable Island,,0,Guysborough County,NS,CA
+M383,Sable Island,43.9,-60.2,4,Sable Island,,0,Guysborough County,NS,CA
+MWAW,Shearwater,44.63,-63.5,32.6,Shearwater,,0,Halifax Regional Municipality,NS,CA
 MC8232,Halifax Ns Ca,44.736,-63.652,36.8,Shearwater,,0,Halifax Regional Municipality,NS,CA
-MCGUM29,,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
-M8PVK,,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
-MCGBN29,,44.7,-63.6,24.1,Shearwater,,0,,,
-MCGDG29,,44.7,-63.6,24.1,Shearwater,,0,,,
-M8PSH29,,44.7,-63.6,24.1,Shearwater,,0,,,
-MCGTEST,,46.1,-60.2,62,Sydney,,0,,,
-MVOCZ,,46.2,-60.2,21.1,Sydney,,0,,,
-MVOCJ29,,46.2,-60.2,21.1,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MVAAPST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGUMST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGBNST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MVAAP29,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGTEST0,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MVOCZ29,,46.2,-60.2,21.1,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-M8PSHST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGTMST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGTAST,,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
-MCGUAST,,46.1,-60.2,62,Sydney,,0,,,
-MC2140,Drum Head Ns Ca,45.154,-61.619,18.3,Tracadie,,0,,,
-MC6674,Port Hawkesbury Ns Ca,45.616,-61.359,46.4,Tracadie,,0,,,
-MVOFG,,45.6,-61.4,0,Tracadie,,0,,,
-MD8121,Truro Ca,45.327,-63.362,129.6,Truro,,0,,,
-MAU506,,45.343,-63.313,91,Truro,,0,,,
-MWCP,,43.46,-65.47,43,Yarmouth,,0,Shelburne County,NS,CA
+MCGUM29,Shearwater,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
+M8PVK,Shearwater,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
+MCGBN29,Shearwater,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
+MCGDG29,Shearwater,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
+M8PSH29,Shearwater,44.7,-63.6,24.1,Shearwater,,0,Halifax Regional Municipality,NS,CA
+MCGTEST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MVOCZ,Sydney,46.2,-60.2,21.1,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MVOCJ29,Sydney,46.2,-60.2,21.1,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MVAAPST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGUMST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGBNST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MVAAP29,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGTEST0,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MVOCZ29,Sydney,46.2,-60.2,21.1,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+M8PSHST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGTMST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGTAST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MCGUAST,Sydney,46.1,-60.2,62,Sydney,,0,Cape Breton Regional Municipality,NS,CA
+MC2140,Drum Head Ns Ca,45.154,-61.619,18.3,Tracadie,,0,Guysborough County,NS,CA
+MC6674,Port Hawkesbury Ns Ca,45.616,-61.359,46.4,Tracadie,,0,Inverness County,NS,CA
+MVOFG,Tracadie,45.6,-61.4,0,Tracadie,,0,Guysborough County,NS,CA
+MD8121,Truro Ca,45.327,-63.362,129.6,Truro,,0,Colchester County,NS,CA
+MAU506,Truro,45.343,-63.313,91,Truro,,0,Colchester County,NS,CA
+MWCP,Yarmouth,43.46,-65.47,43,Yarmouth,,0,Shelburne County,NS,CA
 M44038,Scotian Shelf,43.6,-66.6,-96.7,Yarmouth,,0,Yarmouth County,NS,CA
-M44920,,41.96,-66.85,-59.8,Yarmouth,,0,Shelburne County,NS,CA
-MWFX,,67.04,-126.09,246.1,Colville Lake,,0,Inuvik Region,NT,CA
-MWJL,,60.24,-123.47,213.3,Fort Liard,,0,Fort Smith Region,NT,CA
-MF31MX,,67.441,-133.742,54,Fort Mcpherson,,0,Inuvik Region,NT,CA
-MWQY,,63.59,-105.16,317,Hanbury River,,0,,,
-M45141,,61.2,-115.3,156,Hay River,,0,Fort Smith Region,NT,CA
-M45150,,62,-114.1,163,Inner Whalebacks,,0,Fort Smith Region,NT,CA
-MVC6750,,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
-MCZ3695,,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
-MVC6749,,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
-M48021,,70.4,-133,-38.2,Liverpool Bay,,0,Inuvik Region,NT,CA
-MWFZ,,62.72,-109.19,168,Lutsel,,0,Fort Smith Region,NT,CA
-MCG2522,,64.9,-126.1,148,Norman Wells,,0,,,
-MBVRQ9,,65.227,-128.567,329,Norman Wells,,0,,,
-MC36MX,,69.348,-124.07,8,Paulatuk,,0,,,
-MCG2464,,70.7,-135.3,-77.9,Pelly Island,,0,,,
-MWND,,69.64,-135.44,5,Pelly Island,,0,Inuvik Region,NT,CA
+M44920,Yarmouth,41.96,-66.85,-59.8,Yarmouth,,0,Shelburne County,NS,CA
+MWFX,Colville Lake,67.04,-126.09,246.1,Colville Lake,,0,Inuvik Region,NT,CA
+MWJL,Fort Liard,60.24,-123.47,213.3,Fort Liard,,0,Fort Smith Region,NT,CA
+MF31MX,Fort Mcpherson,67.441,-133.742,54,Fort Mcpherson,,0,Inuvik Region,NT,CA
+MWQY,Hanbury River,63.59,-105.16,317,Hanbury River,,0,Fort Smith Region,NT,CA
+M45141,Hay River,61.2,-115.3,156,Hay River,,0,Fort Smith Region,NT,CA
+M45150,Inner Whalebacks,62,-114.1,163,Inner Whalebacks,,0,Fort Smith Region,NT,CA
+MVC6750,Inuvik,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
+MCZ3695,Inuvik,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
+MVC6749,Inuvik,68.4,-133.8,3,Inuvik,,0,Inuvik Region,NT,CA
+M48021,Liverpool Bay,70.4,-133,-38.2,Liverpool Bay,,0,Inuvik Region,NT,CA
+MWFZ,Lutsel,62.72,-109.19,168,Lutsel,,0,Fort Smith Region,NT,CA
+MCG2522,Norman Wells,64.9,-126.1,148,Norman Wells,,0,Inuvik Region,NT,CA
+MBVRQ9,Norman Wells,65.227,-128.567,329,Norman Wells,,0,Inuvik Region,NT,CA
+MC36MX,Paulatuk,69.348,-124.07,8,Paulatuk,,0,Inuvik Region,NT,CA
+MCG2464,Pelly Island,70.7,-135.3,-77.9,Pelly Island,,0,,,
+MWND,Pelly Island,69.64,-135.44,5,Pelly Island,,0,Inuvik Region,NT,CA
 MCWYH,Rae Lakes Nt,64.12,-117.37,217,Rae Lakes,,0,Fort Smith Region,NT,CA
-MWSY,,72,-125.27,86,Sachs Harbour,,0,Inuvik Region,NT,CA
+MWSY,Sachs Harbour,72,-125.27,86,Sachs Harbour,,0,Inuvik Region,NT,CA
 MCXQA,Qavvik Lake Nt,68.25,-122.1,519.6,Tuktut Nogait Natl. Park,,0,Inuvik Region,NT,CA
-MAS633,,62.453,-114.418,200,Yellowknife,,0,Fort Smith Region,NT,CA
-ME2228,,62.449,-114.365,181,Yellowknife,,0,Fort Smith Region,NT,CA
-M47566,,82.51,-62.33,43.1,Alert,,0,Baffin Region,NU,CA
-M44653,,70.75,-72.25,0,Dewar Lakes,,0,Baffin Region,NU,CA
-MCYSR,,72.98,-84.62,622.1,Grise Fiord,,0,Baffin Region,NU,CA
-M47536,,75.9,-102.25,0,Isachsen,,0,,NU,CA
-M47533,,62.88,-70.98,2.8,Kimmirut,,0,Baffin Region,NU,CA
-M48592,,67.832,-115.152,-6,Kugluktuk,,0,Kitikmeot Region,NU,CA
-MWXP,,66.16,-65.74,23,Pangnirtung,,0,Baffin Region,NU,CA
-MCFN6556,,62.7,-92.1,-31.2,Rankin Inlet,,0,Keewatin Region,NU,CA
-MOGIQ6,,50.767,-87.858,0,Armstrong,,0,Thunder Bay District,ON,CA
-MATIQ6,,48.707,-91.472,444,Atikokan,,0,,,
-MGRYQ6,,49.033,-92.131,0,Atikokan,,0,Kenora District,ON,CA
-MD6017,,44.913,-78.374,344.2,Bancroft,,0,Haliburton County,ON,CA
+MAS633,Yellowknife,62.453,-114.418,200,Yellowknife,,0,Fort Smith Region,NT,CA
+ME2228,Yellowknife,62.449,-114.365,181,Yellowknife,,0,Fort Smith Region,NT,CA
+M47566,Alert,82.51,-62.33,43.1,Alert,,0,Baffin Region,NU,CA
+M44653,Dewar Lakes,70.75,-72.25,0,Dewar Lakes,,0,Baffin Region,NU,CA
+MCYSR,Grise Fiord,72.98,-84.62,622.1,Grise Fiord,,0,Baffin Region,NU,CA
+M47536,Isachsen,75.9,-102.25,0,Isachsen,,0,,NU,CA
+M47533,Kimmirut,62.88,-70.98,2.8,Kimmirut,,0,Baffin Region,NU,CA
+M48592,Kugluktuk,67.832,-115.152,-6,Kugluktuk,,0,Kitikmeot Region,NU,CA
+MWXP,Pangnirtung,66.16,-65.74,23,Pangnirtung,,0,Baffin Region,NU,CA
+MCFN6556,Rankin Inlet,62.7,-92.1,-31.2,Rankin Inlet,,0,Keewatin Region,NU,CA
+MOGIQ6,Armstrong,50.767,-87.858,0,Armstrong,,0,Thunder Bay District,ON,CA
+MATIQ6,Atikokan,48.707,-91.472,444,Atikokan,,0,Rainy River District,ON,CA
+MGRYQ6,Atikokan,49.033,-92.131,0,Atikokan,,0,Kenora District,ON,CA
+MD6017,Bancroft,44.913,-78.374,344.2,Bancroft,,0,Haliburton County,ON,CA
 ME2859,Whitney Ca,45.584,-78.358,452,Bancroft,,0,Nipissing District,ON,CA
-MAS211,,44.377,-79.729,240.7,Barrie,,0,Simcoe County,ON,CA
-ME2730,,44.744,-80.051,235,Beausoleil,,0,Simcoe County,ON,CA
-ME2729,,44.758,-79.875,179,Beausoleil,,0,Simcoe County,ON,CA
-MLSCM4,,42.4,-82.7,168.7,Belle River,,0,St Clair County,MI,US
-M45147,,42.4,-82.7,168.7,Belle River,,0,St Clair County,MI,US
+MAS211,Barrie,44.377,-79.729,240.7,Barrie,,0,Simcoe County,ON,CA
+ME2730,Beausoleil,44.744,-80.051,235,Beausoleil,,0,Simcoe County,ON,CA
+ME2729,Beausoleil,44.758,-79.875,179,Beausoleil,,0,Simcoe County,ON,CA
+MLSCM4,Belle River,42.4,-82.7,168.7,Belle River,,0,St Clair County,MI,US
+M45147,Belle River,42.4,-82.7,168.7,Belle River,,0,St Clair County,MI,US
 MAR467,Oakville On Ca,43.437,-79.683,91.9,Burlington Piers,,0,Halton Regional Municipality,ON,CA
-MVCDT50,,43.3,-79.8,78,Burlington Piers,,0,Halton Regional Municipality,ON,CA
-ME5954,,43.522,-79.888,199.3,Burlington Piers,,0,,,
-MCGDS50,,43.3,-79.8,78,Burlington Piers,,0,,,
-MVCBZ,,43.3,-79.8,78,Burlington Piers,,0,,,
-MNONQ6,,49.19,-88.704,0,Cameron Falls,,0,,,
-M45004,,47.6,-86.6,-54.3,Caribou Island,,0,Alger County,MI,US
-MVGNB,,47.2,-86.8,-59.1,Caribou Island,,0,Alger County,MI,US
-M3806,,47.2,-86.2,16.3,Caribou Island,,0,Alger County,MI,US
-MWXE4539,,47.1,-86.3,4.3,Caribou Island,,0,Alger County,MI,US
-MWQZ7701,,47.3,-86.8,-58.6,Caribou Island,,0,Alger County,MI,US
-MWDD2879,,47.3,-86.5,-67.9,Caribou Island,,0,Alger County,MI,US
-MAQ35521,,47.2,-86.4,14.4,Caribou Island,,0,Alger County,MI,US
-MWDD2874,,47.3,-86.8,-58.6,Caribou Island,,0,Alger County,MI,US
-MVPCX,,47.2,-86.4,14.4,Caribou Island,,0,Alger County,MI,US
-MQWZ9670,,47.8,-86.2,-16.3,Caribou Island,,0,Thunder Bay District,ON,CA
-MCKF9698,,47.2,-86,133.6,Caribou Island,,0,Alger County,MI,US
-MWZP,,47,-86,21.5,Caribou Island,,0,Alger County,MI,US
-MWY4356,,47,-85.4,58.2,Caribou Island,,0,Luce County,MI,US
-MGYGR,,47.1,-85.7,46.3,Caribou Island,,0,Luce County,MI,US
-MWDD2976,,47.4,-86.8,-88.5,Caribou Island,,0,Alger County,MI,US
-ME2420,,44.151,-78.024,109,Cobourg,,0,Northumberland County,ON,CA
+MVCDT50,Burlington Piers,43.3,-79.8,78,Burlington Piers,,0,Halton Regional Municipality,ON,CA
+ME5954,Burlington Piers,43.522,-79.888,199.3,Burlington Piers,,0,Halton Regional Municipality,ON,CA
+MCGDS50,Burlington Piers,43.3,-79.8,78,Burlington Piers,,0,Halton Regional Municipality,ON,CA
+MVCBZ,Burlington Piers,43.3,-79.8,78,Burlington Piers,,0,,ON,CA
+MNONQ6,Cameron Falls,49.19,-88.704,0,Cameron Falls,,0,Thunder Bay District,ON,CA
+M45004,Caribou Island,47.6,-86.6,-54.3,Caribou Island,,0,Alger County,MI,US
+MVGNB,Caribou Island,47.2,-86.8,-59.1,Caribou Island,,0,Alger County,MI,US
+M3806,Caribou Island,47.2,-86.2,16.3,Caribou Island,,0,Alger County,MI,US
+MWXE4539,Caribou Island,47.1,-86.3,4.3,Caribou Island,,0,Alger County,MI,US
+MWQZ7701,Caribou Island,47.3,-86.8,-58.6,Caribou Island,,0,Alger County,MI,US
+MWDD2879,Caribou Island,47.3,-86.5,-67.9,Caribou Island,,0,Alger County,MI,US
+MAQ35521,Caribou Island,47.2,-86.4,14.4,Caribou Island,,0,Alger County,MI,US
+MWDD2874,Caribou Island,47.3,-86.8,-58.6,Caribou Island,,0,Alger County,MI,US
+MVPCX,Caribou Island,47.2,-86.4,14.4,Caribou Island,,0,Alger County,MI,US
+MQWZ9670,Caribou Island,47.8,-86.2,-16.3,Caribou Island,,0,Thunder Bay District,ON,CA
+MCKF9698,Caribou Island,47.2,-86,133.6,Caribou Island,,0,Alger County,MI,US
+MWZP,Caribou Island,47,-86,21.5,Caribou Island,,0,Alger County,MI,US
+MWY4356,Caribou Island,47,-85.4,58.2,Caribou Island,,0,Luce County,MI,US
+MGYGR,Caribou Island,47.1,-85.7,46.3,Caribou Island,,0,Luce County,MI,US
+MWDD2976,Caribou Island,47.4,-86.8,-88.5,Caribou Island,,0,Alger County,MI,US
+ME2420,Cobourg,44.151,-78.024,109,Cobourg,,0,Northumberland County,ON,CA
 MC6585,Kimberley On Ca,44.433,-80.521,243.2,Collingwood,,0,Grey County,ON,CA
-MD3238,,44.499,-80.048,179,Collingwood,,0,Simcoe County,ON,CA
+MD3238,Collingwood,44.499,-80.048,179,Collingwood,,0,Simcoe County,ON,CA
 MAP812,Stayner On Ca,44.421,-80.078,214,Collingwood,,0,Simcoe County,ON,CA
-ME2418,,44.511,-80.015,39,Collingwood,,0,Simcoe County,ON,CA
+ME2418,Collingwood,44.511,-80.015,39,Collingwood,,0,Simcoe County,ON,CA
 MCXCY,Cyprus Lake Cs On,45.2,-81.45,215,Cyprus Lake,,0,Bruce County,ON,CA
-M45137,,45.5,-81,176,Cyprus Lake,,0,Parry Sound District,ON,CA
+M45137,Cyprus Lake,45.5,-81,176,Cyprus Lake,,0,Parry Sound District,ON,CA
 MAP320,Nanticoke On Ca,42.994,-80.317,247.2,Delhi,,0,Norfolk County,ON,CA
-MD5060,,49.773,-92.838,395,Dryden,,0,Kenora District,ON,CA
-MMAYQ6,,50.367,-93.92,0,Ear Falls,,0,Kenora District,ON,CA
-MLACQ6,,50.68,-93.121,0,Ear Falls,,0,Kenora District,ON,CA
-MSOUQ6,,51.115,-92.682,0,Ear Falls,,0,Kenora District,ON,CA
-ME1832,,44.15,-79.877,217,Egbert,,0,Simcoe County,ON,CA
-ME2419,,44.158,-79.899,228,Egbert,,0,Simcoe County,ON,CA
-ME6316,,44.257,-79.77,344,Egbert,,0,,,
-MCYEL,,46.35,-82.55,318.2,Elliot Lake,,0,,,
-MWYR441,,47.2,-83.2,475,Elliot Lake,,0,,,
-MMEAQ6,,47.044,-82.899,445,Elliot Lake,,0,,,
-MQRKQ6,,46.496,-82.611,389,Elliot Lake,,0,,,
-MLBCQ6,,46.864,-82.201,512,Elliot Lake,,0,,,
-MD3402,Chatham On Ca,42.4,-82.2,181.7,Erieau,,0,,,
-MWCD2465,,42.2,-82.2,191,Erieau,,0,Chatham-Kent Division,ON,CA
-MWDB6891,,42.4,-81.2,153.3,Erieau,,0,Elgin County,ON,CA
+MD5060,Dryden,49.773,-92.838,395,Dryden,,0,Kenora District,ON,CA
+MMAYQ6,Ear Falls,50.367,-93.92,0,Ear Falls,,0,Kenora District,ON,CA
+MLACQ6,Ear Falls,50.68,-93.121,0,Ear Falls,,0,Kenora District,ON,CA
+MSOUQ6,Ear Falls,51.115,-92.682,0,Ear Falls,,0,Kenora District,ON,CA
+ME1832,Egbert,44.15,-79.877,217,Egbert,,0,Simcoe County,ON,CA
+ME2419,Egbert,44.158,-79.899,228,Egbert,,0,Simcoe County,ON,CA
+ME6316,Egbert,44.257,-79.77,344,Egbert,,0,Simcoe County,ON,CA
+MCYEL,Elliot Lake,46.35,-82.55,318.2,Elliot Lake,,0,Algoma District,ON,CA
+MWYR441,Elliot Lake,47.2,-83.2,475,Elliot Lake,,0,Algoma District,ON,CA
+MMEAQ6,Elliot Lake,47.044,-82.899,445,Elliot Lake,,0,Algoma District,ON,CA
+MQRKQ6,Elliot Lake,46.496,-82.611,389,Elliot Lake,,0,Algoma District,ON,CA
+MLBCQ6,Elliot Lake,46.864,-82.201,512,Elliot Lake,,0,Algoma District,ON,CA
+MD3402,Chatham On Ca,42.4,-82.2,181.7,Erieau,,0,Chatham-Kent Division,ON,CA
+MWCD2465,Erieau,42.2,-82.2,191,Erieau,,0,Chatham-Kent Division,ON,CA
+MWDB6891,Erieau,42.4,-81.2,153.3,Erieau,,0,Elgin County,ON,CA
 MA1067,Sterling Hts - Freedom Hill Mi Midnre,42.094,-82.164,153.6,Erieau,,0,Chatham-Kent Division,ON,CA
-MANAQ6,,50.639,-86.938,0,Geraldton,,0,Thunder Bay District,ON,CA
-MAR279,,44.189,-81.637,197,Goderich,,0,Bruce County,ON,CA
+MANAQ6,Geraldton,50.639,-86.938,0,Geraldton,,0,Thunder Bay District,ON,CA
+MAR279,Goderich,44.189,-81.637,197,Goderich,,0,Bruce County,ON,CA
 MAR280,Kincardine On Ca,44.079,-81.704,205,Goderich,,0,Bruce County,ON,CA
 MC9864,Kincardine On Ca,44.2,-81.6,235.8,Goderich,,0,Bruce County,ON,CA
 MD2013,Wingham On Ca,43.883,-81.308,335.6,Goderich,,0,Huron County,ON,CA
 MD7966,Wingham Ca,43.891,-81.305,318,Goderich,,0,Huron County,ON,CA
-M45154,,46.1,-82.6,137.8,Gore Bay,,0,Algoma District,ON,CA
-M45003,,45.4,-82.8,176,Great Duck Island,,0,,,
-MVDRF,,45.5,-83.2,52.5,Great Duck Island,,0,,,
-MWDB3861,,45.3,-83,33.3,Great Duck Island,,0,Presque Isle County,MI,US
-MWP8657,,45.6,-83.3,51,Great Duck Island,,0,Presque Isle County,MI,US
-MNRUR,,45.5,-82.5,62.8,Great Duck Island,,0,Manitoulin District,ON,CA
-MCFK5152,,45.7,-83.3,89.3,Great Duck Island,,0,Manitoulin District,ON,CA
-ME3591,,43.214,-79.892,217,Hamilton Airport,,0,Hamilton Division,ON,CA
-MVOSL,,41.9,-83,165,Harrow,,0,Essex County,ON,CA
-MBNRQ6,,48.416,-83.121,347,Kapuskasing Cda,,0,Sudbury District,ON,CA
-MRUFQ6,,49.093,-82.994,0,Kapuskasing Cda,,0,Algoma District,ON,CA
-MILFQ6,,49.578,-81.379,0,Kapuskasing Cda,,0,Cochrane District,ON,CA
-MOKEQ6,,48.958,-81.968,294,Kapuskasing Cda,,0,Cochrane District,ON,CA
-MKABQ6,,49.599,-89.18,0,Katatota Island,,0,,,
-MAP818,Ashton On Ca,45.087,-76.004,131.6,Kemptville,,0,,,
+M45154,Gore Bay,46.1,-82.6,137.8,Gore Bay,,0,Algoma District,ON,CA
+M45003,Great Duck Island,45.4,-82.8,176,Great Duck Island,,0,Presque Isle County,MI,US
+MVDRF,Great Duck Island,45.5,-83.2,52.5,Great Duck Island,,0,Presque Isle County,MI,US
+MWDB3861,Great Duck Island,45.3,-83,33.3,Great Duck Island,,0,Presque Isle County,MI,US
+MWP8657,Great Duck Island,45.6,-83.3,51,Great Duck Island,,0,Presque Isle County,MI,US
+MNRUR,Great Duck Island,45.5,-82.5,62.8,Great Duck Island,,0,Manitoulin District,ON,CA
+MCFK5152,Great Duck Island,45.7,-83.3,89.3,Great Duck Island,,0,Manitoulin District,ON,CA
+ME3591,Hamilton Airport,43.214,-79.892,217,Hamilton Airport,,0,Hamilton Division,ON,CA
+MVOSL,Harrow,41.9,-83,165,Harrow,,0,Essex County,ON,CA
+MBNRQ6,Kapuskasing Cda,48.416,-83.121,347,Kapuskasing Cda,,0,Sudbury District,ON,CA
+MRUFQ6,Kapuskasing Cda,49.093,-82.994,0,Kapuskasing Cda,,0,Algoma District,ON,CA
+MILFQ6,Kapuskasing Cda,49.578,-81.379,0,Kapuskasing Cda,,0,Cochrane District,ON,CA
+MOKEQ6,Kapuskasing Cda,48.958,-81.968,294,Kapuskasing Cda,,0,Cochrane District,ON,CA
+MKABQ6,Katatota Island,49.599,-89.18,0,Katatota Island,,0,Thunder Bay District,ON,CA
+MAP818,Ashton On Ca,45.087,-76.004,131.6,Kemptville,,0,Lanark County,ON,CA
 MAT054,Sioux Narrows On Ca,49.423,-94.083,353,Kenora,,0,Kenora District,ON,CA
-ME2448,,50.26,-94.96,299,Kenora,,0,Kenora District,ON,CA
-ME2440,,49.421,-94.084,222,Kenora,,0,Kenora District,ON,CA
-MAV122,,44.332,-76.789,159,Kingston,,0,Lennox and Addington County,ON,CA
+ME2448,Kenora,50.26,-94.96,299,Kenora,,0,Kenora District,ON,CA
+ME2440,Kenora,49.421,-94.084,222,Kenora,,0,Kenora District,ON,CA
+MAV122,Kingston,44.332,-76.789,159,Kingston,,0,Lennox and Addington County,ON,CA
 MD5114,Kingston On Ca,44.3,-76.521,121.6,Kingston Climate,,0,Frontenac County,ON,CA
-MMTCQ6,,48.017,-80.848,319,Kirkland Lake,,0,Timiskaming District,ON,CA
-M45151,,44.5,-79.4,219,Lagoon City,,0,Simcoe County,ON,CA
+MMTCQ6,Kirkland Lake,48.017,-80.848,319,Kirkland Lake,,0,Timiskaming District,ON,CA
+M45151,Lagoon City,44.5,-79.4,219,Lagoon City,,0,Simcoe County,ON,CA
 MC9155,Markham On Ca,44.484,-79.489,254.1,Lagoon City,,0,Simcoe County,ON,CA
-ME2431,,44.6,-79.05,250.8,Lagoon City,,0,Kawartha Lakes Division,ON,CA
-MFTHQ6,,51.558,-87.904,0,Lansdowne House,,0,Kenora District,ON,CA
-MWEBQ6,,52.961,-87.376,0,Lansdowne House,,0,,,
-MNIBQ6,,52.704,-88.55,0,Lansdowne House,,0,,,
-MKNGQ6,,53.01,-89.855,0,Lansdowne House,,0,,,
-MOGPQ6,,51.659,-85.901,0,Lansdowne House,,0,,,
-MAS442,,42.937,-81.241,270,London,,0,,,
-ME3728,,43.005,-81.275,248.9,London,,0,,,
-M45132,,42.5,-81.2,154.4,London,,0,,,
+ME2431,Lagoon City,44.6,-79.05,250.8,Lagoon City,,0,Kawartha Lakes Division,ON,CA
+MFTHQ6,Lansdowne House,51.558,-87.904,0,Lansdowne House,,0,Kenora District,ON,CA
+MWEBQ6,Lansdowne House,52.961,-87.376,0,Lansdowne House,,0,Kenora District,ON,CA
+MNIBQ6,Lansdowne House,52.704,-88.55,0,Lansdowne House,,0,,ON,CA
+MKNGQ6,Lansdowne House,53.01,-89.855,0,Lansdowne House,,0,Kenora District,ON,CA
+MOGPQ6,Lansdowne House,51.659,-85.901,0,Lansdowne House,,0,,ON,CA
+MAS442,London,42.937,-81.241,270,London,,0,Middlesex County,ON,CA
+ME3728,London,43.005,-81.275,248.9,London,,0,Middlesex County,ON,CA
+M45132,London,42.5,-81.2,154.4,London,,0,Elgin County,ON,CA
 MAT026,Dorchester On Ca,42.993,-81.051,262.9,London,,0,Middlesex County,ON,CA
-MD4653,,43.173,-80.745,314,London,,0,Oxford County,ON,CA
+MD4653,London,43.173,-80.745,314,London,,0,Oxford County,ON,CA
 MD6063,London On Ca,42.967,-81.248,253.1,London,,0,Middlesex County,ON,CA
 ME1368,Sparta Ca,42.705,-81.082,223.8,London,,0,Elgin County,ON,CA
-MCG8049,,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
-MVX5808,,42.6,-80.3,173,Long Point,,0,Norfolk County,ON,CA
-MCG8047,,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
-MVOMP,,42.6,-80.2,165.9,Long Point,,0,Norfolk County,ON,CA
-MWWD2826,,42.8,-80,174,Long Point,,0,Haldimand County,ON,CA
-MCG8048,,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
-MCG8079,,42.8,-80.2,190.8,Long Point,,0,,,
-MTESTCA7,,43.8,-79.5,200.1,Markham,,0,,,
-M45159,,43.8,-79,74,Markham,,0,,,
+MCG8049,Long Point,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
+MVX5808,Long Point,42.6,-80.3,173,Long Point,,0,Norfolk County,ON,CA
+MCG8047,Long Point,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
+MVOMP,Long Point,42.6,-80.2,165.9,Long Point,,0,Norfolk County,ON,CA
+MWWD2826,Long Point,42.8,-80,174,Long Point,,0,Haldimand County,ON,CA
+MCG8048,Long Point,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
+MCG8079,Long Point,42.8,-80.2,190.8,Long Point,,0,Norfolk County,ON,CA
+MTESTCA7,Markham,43.8,-79.5,200.1,Markham,,0,York Regional Municipality,ON,CA
+M45159,Markham,43.8,-79,74,Markham,,0,Durham Regional Municipality,ON,CA
 MD3314,Uxbridge On Ca,44.133,-79.022,290,Markham,,0,Durham Regional Municipality,ON,CA
-MAU023,,43.995,-79.464,273,Markham,,0,York Regional Municipality,ON,CA
+MAU023,Markham,43.995,-79.464,273,Markham,,0,York Regional Municipality,ON,CA
 MD9359,Pickering Ca,43.848,-79.102,105.1,Markham,,0,Durham Regional Municipality,ON,CA
-ME0314,,43.838,-79.081,84,Markham,,0,Durham Regional Municipality,ON,CA
-ME4783,,43.903,-78.79,130,Markham,,0,Durham Regional Municipality,ON,CA
-MVICQ6,,52.877,-83.036,0,Moosonee,,0,,ON,CA
-MSTGQ6,,50.189,-80.865,0,Moosonee,,0,Cochrane District,ON,CA
-MATPQ6,,52.921,-82.431,0,Moosonee,,0,Kenora District,ON,CA
-MD5903,,44.1,-81.1,275,Mount Forest,,0,Bruce County,ON,CA
-ME0563,,43.848,-80.251,462,Mount Forest,,0,Dufferin County,ON,CA
-ME6771,,45.442,-78.82,319,Muskoka,,0,,,
-MD7785,Thunder Bay Ca,48.444,-89.276,247.4,N Ontario Portable Eme,,0,,,
-MHIKQ6,,48.845,-89.117,475,N Ontario Portable Eme,,0,,,
-MOBAQ6,,49.056,-84.095,0,Nagagami,,0,,,
-MHSTQ6,,49.451,-85.546,0,Nagagami,,0,,,
-M45152,,46.2,-79.7,201,North Bay,,0,,,
-MAT935,,45.84,-79.389,357,North Bay,,0,,,
-ME2423,,45.832,-79.481,199,North Bay,,0,,,
-MAR878,,45.277,-76.093,141,Ottawa,,0,,,
+ME0314,Markham,43.838,-79.081,84,Markham,,0,Durham Regional Municipality,ON,CA
+ME4783,Markham,43.903,-78.79,130,Markham,,0,Durham Regional Municipality,ON,CA
+MVICQ6,Moosonee,52.877,-83.036,0,Moosonee,,0,,ON,CA
+MSTGQ6,Moosonee,50.189,-80.865,0,Moosonee,,0,Cochrane District,ON,CA
+MATPQ6,Moosonee,52.921,-82.431,0,Moosonee,,0,Kenora District,ON,CA
+MD5903,Mount Forest,44.1,-81.1,275,Mount Forest,,0,Bruce County,ON,CA
+ME0563,Mount Forest,43.848,-80.251,462,Mount Forest,,0,Dufferin County,ON,CA
+ME6771,Muskoka,45.442,-78.82,319,Muskoka,,0,Nipissing District,ON,CA
+MD7785,Thunder Bay Ca,48.444,-89.276,247.4,N Ontario Portable Eme,,0,Thunder Bay District,ON,CA
+MHIKQ6,N Ontario Portable Eme,48.845,-89.117,475,N Ontario Portable Eme,,0,Thunder Bay District,ON,CA
+MOBAQ6,Nagagami,49.056,-84.095,0,Nagagami,,0,Algoma District,ON,CA
+MHSTQ6,Nagagami,49.451,-85.546,0,Nagagami,,0,Thunder Bay District,ON,CA
+M45152,North Bay,46.2,-79.7,201,North Bay,,0,Parry Sound District,ON,CA
+MAT935,North Bay,45.84,-79.389,357,North Bay,,0,Parry Sound District,ON,CA
+ME2423,North Bay,45.832,-79.481,199,North Bay,,0,Parry Sound District,ON,CA
+MAR878,Ottawa,45.277,-76.093,141,Ottawa,,0,Ottawa Division,ON,CA
 MAP819,Ottawa On Ca,45.317,-75.667,112.5,Ottawa,,0,Ottawa Division,ON,CA
 MC1765,Cw1765 Ottawa On Ca,45.3,-75.85,123.7,Ottawa,,0,Ottawa Division,ON,CA
 MC9379,Ottawa On Ca,45.409,-75.697,68.5,Ottawa,,0,Ottawa Division,ON,CA
 MC8292,Ottawa On Ca,45.366,-75.738,99.3,Ottawa,,0,Ottawa Division,ON,CA
-ME8006,,45.391,-75.685,61,Ottawa,,0,Ottawa Division,ON,CA
-MWWN,,55.23,-85.12,52,Peawanuck,,0,Kenora District,ON,CA
-MFSVQ6,,56.018,-87.68,0,Peawanuck,,0,Kenora District,ON,CA
-MPEAQ6,,54.989,-85.439,0,Peawanuck,,0,Kenora District,ON,CA
-MTRAQ6,,45.954,-78.072,242,Petawawa,,0,Nipissing District,ON,CA
-MAT204,,44.58,-78.098,251,Peterborough,,0,Peterborough County,ON,CA
+ME8006,Ottawa,45.391,-75.685,61,Ottawa,,0,Ottawa Division,ON,CA
+MWWN,Peawanuck,55.23,-85.12,52,Peawanuck,,0,Kenora District,ON,CA
+MFSVQ6,Peawanuck,56.018,-87.68,0,Peawanuck,,0,Kenora District,ON,CA
+MPEAQ6,Peawanuck,54.989,-85.439,0,Peawanuck,,0,Kenora District,ON,CA
+MTRAQ6,Petawawa,45.954,-78.072,242,Petawawa,,0,Nipissing District,ON,CA
+MAT204,Peterborough,44.58,-78.098,251,Peterborough,,0,Peterborough County,ON,CA
 MD3127,Omemee On Ca,44.376,-78.498,260.4,Peterborough,,0,Kawartha Lakes Division,ON,CA
-ME2421,,44.626,-78.048,124,Peterborough,,0,Peterborough County,ON,CA
-MWPL,,51.48,-90.2,373,Pickle Lake,,0,Kenora District,ON,CA
-MWBNQ6,,52.213,-90.475,0,Pickle Lake,,0,Kenora District,ON,CA
-MCATQ6,,51.727,-91.822,0,Pickle Lake,,0,Kenora District,ON,CA
-MWEAQ6,,52.944,-91.312,0,Pickle Lake,,0,Kenora District,ON,CA
-MMSKQ6,,53.436,-91.766,0,Pickle Lake,,0,Kenora District,ON,CA
-MVCTX,,43.8,-77.2,29.1,Point Petre,,0,,,
-M45135,,43.8,-76.9,74,Point Petre,,0,,,
-M45012,,43.6,-77.4,74,Point Petre,,0,,,
-MD1768,Adolphustown On Ca,44.067,-77.001,81.7,Point Petre,,0,,,
-MD2768,Cherry Valley On Ca,43.915,-77.187,88.5,Point Petre,,0,,,
-MCFN4612,,43.7,-77.1,-18.2,Point Petre,,0,Prince Edward County,ON,CA
-M45142,,42.7,-79.3,151.3,Port Colborne,,0,Niagara Regional Municipality,ON,CA
-MVCDT60,,42.9,-79.2,181,Port Colborne,,0,Niagara Regional Municipality,ON,CA
-MWEY9870,,48.3,-86.6,3.8,Pukaskwa,,0,Thunder Bay District,ON,CA
-MLURQ6,,48.446,-85.835,364,Pukaskwa,,0,Thunder Bay District,ON,CA
-MPOPQ6,,52.114,-94.258,0,Red Lake,,0,Kenora District,ON,CA
-MBUNQ6,,50.8,-94.475,0,Red Lake,,0,Kenora District,ON,CA
-MJOBQ6,,51.51,-94.681,372,Red Lake,,0,,ON,CA
-MBAKQ6,,51.738,-93.657,352,Red Lake,,0,Kenora District,ON,CA
-ME2846,,43.177,-79.134,100,Saint Catharines,,0,Niagara Regional Municipality,ON,CA
-MTEST,,42.8,-82.1,201.7,Sarnia,,0,,,
-MCLETEST,,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
-MVCQL,,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
-MTEST2,,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
-MWDF7994,,43.1,-82.3,163.3,Sarnia,,0,Lambton County,ON,CA
-MX8U2L5,,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
-ME1160,,43.066,-82.15,181,Sarnia,,0,Lambton County,ON,CA
-MPTIM4,,46.485,-84.632,185,Sault Ste Marie,,0,Chippewa County,MI,US
-MWL2972,,46.5,-84.6,173.1,Sault Ste Marie,,0,Chippewa County,MI,US
-MSTUQ6,,49.801,-91.187,0,Sioux Lookout,,0,Kenora District,ON,CA
-MSVBQ6,,50.287,-90.657,0,Sioux Lookout,,0,Thunder Bay District,ON,CA
-MSOCQ6,,50.779,-91.793,0,Sioux Lookout,,0,,,
-M45005,,41.7,-82.4,173,Southeast Shoal,,0,,,
-MVCYP,,41.9,-82,152,Southeast Shoal,,0,,,
-MVCFW,,41.8,-82.4,161.4,Southeast Shoal,,0,Essex County,ON,CA
-MVGJC,,41.8,-82.2,155,Southeast Shoal,,0,Chatham-Kent Division,ON,CA
-MZCLX,,41.9,-82.7,163.2,Southeast Shoal,,0,Essex County,ON,CA
-MDA46449,,41.8,-82.1,153.4,Southeast Shoal,,0,Lorain County,OH,US
-MWDA6831,,41.8,-82.5,163,Southeast Shoal,,0,Essex County,ON,CA
-MCFN6357,,41.8,-82.4,161.4,Southeast Shoal,,0,Essex County,ON,CA
-MAS672,,43.219,-79.151,89,St- Catharines,,0,Niagara Regional Municipality,ON,CA
-MVCDT,,43.2,-79.2,93,St- Catharines,,0,Niagara Regional Municipality,ON,CA
-MCGDS60,,43.2,-79.2,93,St- Catharines,,0,Niagara Regional Municipality,ON,CA
-MC6803,,46.653,-81.026,299,Sudbury,,0,Greater Sudbury Division,ON,CA
-MD3136,,46.5,-80.993,282,Sudbury,,0,,,
-MTWIQ6,,47.166,-80.433,362,Sudbury,,0,,,
-M45136,,48.5,-87,0,Terrace Bay,,0,Thunder Bay District,ON,CA
-MTRIQ6,,49.229,-87.229,0,Terrace Bay,,0,Thunder Bay District,ON,CA
-MPTLQ6,,49.069,-86.659,307,Terrace Bay,,0,Thunder Bay District,ON,CA
+ME2421,Peterborough,44.626,-78.048,124,Peterborough,,0,Peterborough County,ON,CA
+MWPL,Pickle Lake,51.48,-90.2,373,Pickle Lake,,0,Kenora District,ON,CA
+MWBNQ6,Pickle Lake,52.213,-90.475,0,Pickle Lake,,0,Kenora District,ON,CA
+MCATQ6,Pickle Lake,51.727,-91.822,0,Pickle Lake,,0,Kenora District,ON,CA
+MWEAQ6,Pickle Lake,52.944,-91.312,0,Pickle Lake,,0,Kenora District,ON,CA
+MMSKQ6,Pickle Lake,53.436,-91.766,0,Pickle Lake,,0,Kenora District,ON,CA
+MVCTX,Point Petre,43.8,-77.2,29.1,Point Petre,,0,Prince Edward County,ON,CA
+M45135,Point Petre,43.8,-76.9,74,Point Petre,,0,Prince Edward County,ON,CA
+M45012,Point Petre,43.6,-77.4,74,Point Petre,,0,Monroe County,NY,US
+MD1768,Adolphustown On Ca,44.067,-77.001,81.7,Point Petre,,0,Lennox and Addington County,ON,CA
+MD2768,Cherry Valley On Ca,43.915,-77.187,88.5,Point Petre,,0,Prince Edward County,ON,CA
+MCFN4612,Point Petre,43.7,-77.1,-18.2,Point Petre,,0,Prince Edward County,ON,CA
+M45142,Port Colborne,42.7,-79.3,151.3,Port Colborne,,0,Niagara Regional Municipality,ON,CA
+MVCDT60,Port Colborne,42.9,-79.2,181,Port Colborne,,0,Niagara Regional Municipality,ON,CA
+MWEY9870,Pukaskwa,48.3,-86.6,3.8,Pukaskwa,,0,Thunder Bay District,ON,CA
+MLURQ6,Pukaskwa,48.446,-85.835,364,Pukaskwa,,0,Thunder Bay District,ON,CA
+MPOPQ6,Red Lake,52.114,-94.258,0,Red Lake,,0,Kenora District,ON,CA
+MBUNQ6,Red Lake,50.8,-94.475,0,Red Lake,,0,Kenora District,ON,CA
+MJOBQ6,Red Lake,51.51,-94.681,372,Red Lake,,0,,ON,CA
+MBAKQ6,Red Lake,51.738,-93.657,352,Red Lake,,0,Kenora District,ON,CA
+ME2846,Saint Catharines,43.177,-79.134,100,Saint Catharines,,0,Niagara Regional Municipality,ON,CA
+MTEST,Sarnia,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
+MCLETEST,Sarnia,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
+MVCQL,Sarnia,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
+MTEST2,Sarnia,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
+MWDF7994,Sarnia,43.1,-82.3,163.3,Sarnia,,0,Lambton County,ON,CA
+MX8U2L5,Sarnia,42.8,-82.1,201.7,Sarnia,,0,Lambton County,ON,CA
+ME1160,Sarnia,43.066,-82.15,181,Sarnia,,0,Lambton County,ON,CA
+MPTIM4,Sault Ste Marie,46.485,-84.632,185,Sault Ste Marie,,0,Chippewa County,MI,US
+MWL2972,Sault Ste Marie,46.5,-84.6,173.1,Sault Ste Marie,,0,Chippewa County,MI,US
+MSTUQ6,Sioux Lookout,49.801,-91.187,0,Sioux Lookout,,0,Kenora District,ON,CA
+MSVBQ6,Sioux Lookout,50.287,-90.657,0,Sioux Lookout,,0,Thunder Bay District,ON,CA
+MSOCQ6,Sioux Lookout,50.779,-91.793,0,Sioux Lookout,,0,Kenora District,ON,CA
+M45005,Southeast Shoal,41.7,-82.4,173,Southeast Shoal,,0,Chatham-Kent Division,ON,CA
+MVCYP,Southeast Shoal,41.9,-82,152,Southeast Shoal,,0,Chatham-Kent Division,ON,CA
+MVCFW,Southeast Shoal,41.8,-82.4,161.4,Southeast Shoal,,0,Essex County,ON,CA
+MVGJC,Southeast Shoal,41.8,-82.2,155,Southeast Shoal,,0,Chatham-Kent Division,ON,CA
+MZCLX,Southeast Shoal,41.9,-82.7,163.2,Southeast Shoal,,0,Essex County,ON,CA
+MDA46449,Southeast Shoal,41.8,-82.1,153.4,Southeast Shoal,,0,Lorain County,OH,US
+MWDA6831,Southeast Shoal,41.8,-82.5,163,Southeast Shoal,,0,Essex County,ON,CA
+MCFN6357,Southeast Shoal,41.8,-82.4,161.4,Southeast Shoal,,0,Essex County,ON,CA
+MAS672,St- Catharines,43.219,-79.151,89,St- Catharines,,0,Niagara Regional Municipality,ON,CA
+MVCDT,St- Catharines,43.2,-79.2,93,St- Catharines,,0,Niagara Regional Municipality,ON,CA
+MCGDS60,St- Catharines,43.2,-79.2,93,St- Catharines,,0,Niagara Regional Municipality,ON,CA
+MC6803,Sudbury,46.653,-81.026,299,Sudbury,,0,Greater Sudbury Division,ON,CA
+MD3136,Sudbury,46.5,-80.993,282,Sudbury,,0,Greater Sudbury Division,ON,CA
+MTWIQ6,Sudbury,47.166,-80.433,362,Sudbury,,0,Sudbury District,ON,CA
+M45136,Terrace Bay,48.5,-87,0,Terrace Bay,,0,Thunder Bay District,ON,CA
+MTRIQ6,Terrace Bay,49.229,-87.229,0,Terrace Bay,,0,Thunder Bay District,ON,CA
+MPTLQ6,Terrace Bay,49.069,-86.659,307,Terrace Bay,,0,Thunder Bay District,ON,CA
 MAT557,Kakabeka Falls On Ca,48.354,-89.712,298.7,Thunder Bay,,0,Thunder Bay District,ON,CA
-ME2438,,48.404,-89.626,99,Thunder Bay,,0,Thunder Bay District,ON,CA
+ME2438,Thunder Bay,48.404,-89.626,99,Thunder Bay,,0,Thunder Bay District,ON,CA
 MD6917,Timmins On Ca,48.474,-81.323,318,Timmins,,0,Cochrane District,ON,CA
-MAUDQ6,,48.526,-82.576,349,Timmins,,0,Cochrane District,ON,CA
-M45155,,43.6,-79.4,28.8,Toronto,,0,Toronto Division,ON,CA
-MC4885,,43.758,-79.431,491,Toronto City,,0,Toronto Division,ON,CA
+MAUDQ6,Timmins,48.526,-82.576,349,Timmins,,0,Cochrane District,ON,CA
+M45155,Toronto,43.6,-79.4,28.8,Toronto,,0,Toronto Division,ON,CA
+MC4885,Toronto City,43.758,-79.431,491,Toronto City,,0,Toronto Division,ON,CA
 MC9675,Toronto On Ca,43.656,-79.464,112,Toronto City,,0,Toronto Division,ON,CA
-MD0132,,43.714,-79.356,133,Toronto City,,0,,,
-MC5396,Toronto On Ca,43.656,-79.464,112,Toronto City,,0,,,
-MD1077,Toronto On Ca,43.679,-79.34,113,Toronto City,,0,,,
-MD3247,Toronto On Ca,43.687,-79.289,130,Toronto City,,0,,,
-MD4530,Toronto Ca,43.7,-79.5,125,Toronto City,,0,,,
-ME1575,,43.729,-79.272,139,Toronto City,,0,Toronto Division,ON,CA
+MD0132,Toronto City,43.714,-79.356,133,Toronto City,,0,Toronto Division,ON,CA
+MC5396,Toronto On Ca,43.656,-79.464,112,Toronto City,,0,Toronto Division,ON,CA
+MD1077,Toronto On Ca,43.679,-79.34,113,Toronto City,,0,Toronto Division,ON,CA
+MD3247,Toronto On Ca,43.687,-79.289,130,Toronto City,,0,Toronto Division,ON,CA
+MD4530,Toronto Ca,43.7,-79.5,125,Toronto City,,0,Toronto Division,ON,CA
+ME1575,Toronto City,43.729,-79.272,139,Toronto City,,0,Toronto Division,ON,CA
 MAP556,Mississauga On Ca,43.552,-79.674,133,Toronto Pearson,,0,Peel Regional Municipality,ON,CA
-MAS441,,43.562,-79.766,192,Toronto Pearson,,0,Peel Regional Municipality,ON,CA
+MAS441,Toronto Pearson,43.562,-79.766,192,Toronto Pearson,,0,Peel Regional Municipality,ON,CA
 MAP814,Erin On Ca,43.767,-80.053,391.9,Toronto Pearson,,0,Wellington County,ON,CA
 MAS842,Belleville On Ca,44.236,-77.416,103.9,Trenton,,0,Hastings County,ON,CA
 MD0817,Trenton On Ca,44.099,-77.601,115.1,Trenton,,0,Hastings County,ON,CA
-MMYRQ6,,48.453,-90.709,491,Upsala,,0,Thunder Bay District,ON,CA
-MKRNQ6,,49.491,-89.995,0,Upsala,,0,Thunder Bay District,ON,CA
-M45139,,43.3,-79.5,-3.1,Vineland (Au8),,0,Niagara Regional Municipality,ON,CA
-ME2219,,43.103,-79.42,181,Vineland (Au8),,0,Niagara Regional Municipality,ON,CA
-MC6725,Waterloo Ca,43.512,-80.516,333.5,Waterloo Wellington,,0,,,
-MH0005,Acton On,43.643,-80.076,383.5,Waterloo Wellington,,0,,,
-MAP321,,43.404,-80.633,379,Waterloo Wellington,,0,,,
+MMYRQ6,Upsala,48.453,-90.709,491,Upsala,,0,Thunder Bay District,ON,CA
+MKRNQ6,Upsala,49.491,-89.995,0,Upsala,,0,Thunder Bay District,ON,CA
+M45139,Vineland (Au8),43.3,-79.5,-3.1,Vineland (Au8),,0,Niagara Regional Municipality,ON,CA
+ME2219,Vineland (Au8),43.103,-79.42,181,Vineland (Au8),,0,Niagara Regional Municipality,ON,CA
+MC6725,Waterloo Ca,43.512,-80.516,333.5,Waterloo Wellington,,0,Waterloo Regional Municipality,ON,CA
+MH0005,Acton On,43.643,-80.076,383.5,Waterloo Wellington,,0,Halton Regional Municipality,ON,CA
+MAP321,Waterloo Wellington,43.404,-80.633,379,Waterloo Wellington,,0,Waterloo Regional Municipality,ON,CA
 MC9910,Ayr On Ca,43.289,-80.384,298,Waterloo Wellington,,0,Waterloo Regional Municipality,ON,CA
 ME3577,Waterloo Ca,43.494,-80.516,342.2,Waterloo Wellington,,0,Waterloo Regional Municipality,ON,CA
-MWXZ,,47.97,-84.8,254,Wawa,,0,Algoma District,ON,CA
+MWXZ,Wawa,47.97,-84.8,254,Wawa,,0,Algoma District,ON,CA
 MD8987,Wawa Ca,47.937,-84.824,202.3,Wawa,,0,Algoma District,ON,CA
-MDALQ6,,48.154,-84.035,369,Wawa,,0,Algoma District,ON,CA
-MBUDQ6,,47.55,-84.156,489,Wawa,,0,,ON,CA
-MDUBQ6,,48.571,-84.677,427,Wawa,,0,Algoma District,ON,CA
-MOJIM4,,48.109,-88.607,342.9,Welcome Island,,0,Keweenaw County,MI,US
-MPILM4,,48.22,-88.37,194,Welcome Island,,0,Keweenaw County,MI,US
-MWEC,,48.37,-89.12,209,Welcome Island,,0,Thunder Bay District,ON,CA
-MWZE3549,,48.3,-88.6,3.2,Welcome Island,,0,,,
-MWDD2975,,48.4,-88.2,21.1,Welcome Island,,0,,,
-M45143,,44.9,-80.6,126.7,Western Island,,0,Grey County,ON,CA
-MLAT65,,44.5,-81.6,120.1,Wiarton,,0,Bruce County,ON,CA
-MD7232,,44.58,-80.97,306,Wiarton,,0,Grey County,ON,CA
-ME2417,,44.586,-80.835,54,Wiarton,,0,Grey County,ON,CA
-ME4749,,42.251,-82.971,190,Windsor,,0,Essex County,ON,CA
-MCGTF29,,46.2,-63.1,30,Charlottetown,,0,Queens County,PE,CA
-MC6UM,,46.3,-63.7,40,Confederation Bridge,,0,Prince County,PE,CA
-MVODB,,46.1,-61.5,-6,East Point,,0,Inverness County,NS,CA
-MCGUM031,,46.7,-62,-63.5,East Point,,0,Kings County,PE,CA
-MSPREP,,46.3,-62.3,-22.6,Saint Peters,,0,Kings County,PE,CA
-MCGCC031,,48.8,-67.6,42.7,Amqui,,0,Matane,QC,CA
-MD9619,,48.402,-71.076,116,Bagotville,,0,Le Fjord-du-Saguenay,QC,CA
+MDALQ6,Wawa,48.154,-84.035,369,Wawa,,0,Algoma District,ON,CA
+MBUDQ6,Wawa,47.55,-84.156,489,Wawa,,0,,ON,CA
+MDUBQ6,Wawa,48.571,-84.677,427,Wawa,,0,Algoma District,ON,CA
+MOJIM4,Welcome Island,48.109,-88.607,342.9,Welcome Island,,0,Keweenaw County,MI,US
+MPILM4,Welcome Island,48.22,-88.37,194,Welcome Island,,0,Keweenaw County,MI,US
+MWEC,Welcome Island,48.37,-89.12,209,Welcome Island,,0,Thunder Bay District,ON,CA
+MWZE3549,Welcome Island,48.3,-88.6,3.2,Welcome Island,,0,Thunder Bay District,ON,CA
+MWDD2975,Welcome Island,48.4,-88.2,21.1,Welcome Island,,0,Thunder Bay District,ON,CA
+M45143,Western Island,44.9,-80.6,126.7,Western Island,,0,Grey County,ON,CA
+MLAT65,Wiarton,44.5,-81.6,120.1,Wiarton,,0,Bruce County,ON,CA
+MD7232,Wiarton,44.58,-80.97,306,Wiarton,,0,Grey County,ON,CA
+ME2417,Wiarton,44.586,-80.835,54,Wiarton,,0,Grey County,ON,CA
+ME4749,Windsor,42.251,-82.971,190,Windsor,,0,Essex County,ON,CA
+MCGTF29,Charlottetown,46.2,-63.1,30,Charlottetown,,0,Queens County,PE,CA
+MC6UM,Confederation Bridge,46.3,-63.7,40,Confederation Bridge,,0,Prince County,PE,CA
+MVODB,East Point,46.1,-61.5,-6,East Point,,0,Inverness County,NS,CA
+MCGUM031,East Point,46.7,-62,-63.5,East Point,,0,Kings County,PE,CA
+MSPREP,Saint Peters,46.3,-62.3,-22.6,Saint Peters,,0,Kings County,PE,CA
+MCGCC031,Amqui,48.8,-67.6,42.7,Amqui,,0,Matane,QC,CA
+MD9619,Bagotville,48.402,-71.076,116,Bagotville,,0,Le Fjord-du-Saguenay,QC,CA
 MSTAM1,St- Aurelie Nr Jackman 41n Nws,46.2,-70.283,408.4,Beauceville,,0,Les Etchemins,QC,CA
-MSTZM1,,46.094,-70.288,547,Beauceville,,0,Somerset County,ME,US
+MSTZM1,Beauceville,46.094,-70.288,547,Beauceville,,0,Somerset County,ME,US
 MD7084,Quebec Pq Ca,46.103,-71.324,347.4,Beauceville,,0,L'Amiante,QC,CA
-MVCLM031,,46.8,-71.2,1,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
-MCGDX031,,46.8,-71.2,1,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
+MVCLM031,Beauport,46.8,-71.2,1,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
+MCGDX031,Beauport,46.8,-71.2,1,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
 MD9652,Quebec Ca,46.808,-71.236,11.9,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
-MWQM,,48.39,-70.54,185.5,Cap Rouge,,0,Le Fjord-du-Saguenay,QC,CA
-MC5282,Chandler Ca,48.354,-64.685,30,Cap-D'Espoir,,0,,,
-MWQW,,50.17,-60.07,7,Cape Whittle,,0,,,
-MC8488,Saint Casimir Pq Ca,46.657,-72.143,27.3,Deschambaults,,0,,,
+MWQM,Cap Rouge,48.39,-70.54,185.5,Cap Rouge,,0,Le Fjord-du-Saguenay,QC,CA
+MC5282,Chandler Ca,48.354,-64.685,30,Cap-D'Espoir,,0,Le Rocher-Perce Regional County Municipality,QC,CA
+MWQW,Cape Whittle,50.17,-60.07,7,Cape Whittle,,0,Minganie--Basse-Cote-Nord,QC,CA
+MC8488,Saint Casimir Pq Ca,46.657,-72.143,27.3,Deschambaults,,0,Portneuf,QC,CA
 MAS798,Ste-Martine Pq Ca,45.243,-73.805,39,Howick,,0,Beauharnois-Salaberry,QC,CA
-MVRY03,,48.5,-68.8,-38.1,Ile Bicquette,,0,Rimouski-Neigette,QC,CA
+MVRY03,Ile Bicquette,48.5,-68.8,-38.1,Ile Bicquette,,0,Rimouski-Neigette,QC,CA
 MCWVZ,Ile Charron Que.,45.58,-73.5,6,Ile Charron,,0,,QC,CA
-MAVOUK00,,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MVCDTK00,,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MVCLMK00,,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MVRO3,,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MAVOUK00,Ile Charron,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MVCDTK00,Ile Charron,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MVCLMK00,Ile Charron,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MVRO3,Ile Charron,45.6,-73.5,6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
 MC4138,Les Bergeronnes Ca,48.243,-69.543,40,Ile Rouge,,0,La Haute-Cote-Nord,QC,CA
-MCGBN031,,47.1,-61.7,-24.2,Iles De La Madeleine,,0,,,
-MVCRG031,,47.4,-61.9,32,Iles-De-La-Madeleine,,0,,,
-MCGTF031,,47.1,-61.8,-20.9,Iles-De-La-Madeleine,,0,Magdalen Islands,QC,CA
+MCGBN031,Iles De La Madeleine,47.1,-61.7,-24.2,Iles De La Madeleine,,0,Magdalen Islands,QC,CA
+MVCRG031,Iles-De-La-Madeleine,47.4,-61.9,32,Iles-De-La-Madeleine,,0,Les Iles-de-la-Madeleine,QC,CA
+MCGTF031,Iles-De-La-Madeleine,47.1,-61.8,-20.9,Iles-De-La-Madeleine,,0,Magdalen Islands,QC,CA
 MAS707,St-Jean-Sur-Richelieu Pq Ca,45.349,-73.303,39.6,L'Acadie,,0,Le Haut-Richelieu,QC,CA
-MVRWM,,45.8,-73.3,18.4,L'Assomption,,0,Lajemmerais,QC,CA
+MVRWM,L'Assomption,45.8,-73.3,18.4,L'Assomption,,0,Lajemmerais,QC,CA
 MD1588,Sainte-Ursule Pq Ca,46.287,-73.033,45.5,Lac Saint-Pierre,,0,Maskinonge,QC,CA
 MCWLU,Lauzon Que.,46.83,-71.17,1,Lauzon,,0,Levis,QC,CA
 MC9172,Levis Pq Ca,46.799,-71.176,83.7,Lauzon,,0,Levis,QC,CA
 MC4554,Cw4554 Sherbrooke Qc Ca,45.385,-71.913,246.3,Lennoxville,,0,La Region-Sherbrookoise,QC,CA
 MAP243,Varennes Qc Ca,45.508,-73.562,22.5,Mctavish,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MAS947,,45.554,-73.67,39,Mctavish,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MVOPP031,,45.5,-73.5,22.7,Mctavish,,0,Champlain,QC,CA
+MAS947,Mctavish,45.554,-73.67,39,Mctavish,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MVOPP031,Mctavish,45.5,-73.5,22.7,Mctavish,,0,Champlain,QC,CA
 MD1747,St-Denis De Brompton Pq Ca,45.454,-72.075,260,Mont-Orford,,0,Le Val-Saint-Francois,QC,CA
 MAS780,Laval Pq Ca,45.521,-73.801,29.5,Montreal,,0,Laval,QC,CA
 MCWPQ,Montreal-Est Qb,45.6,-73.6,34.6,Montreal Est,,0,Communaute-Urbaine-de-Montreal,QC,CA
 MD4083,Saint-Colomban Pq Ca,45.771,-74.087,162.5,Montreal Mirabel,,0,La Riviere-du-Nord,QC,CA
-MWYI,,50.19,-61.82,11,Natashquan,,0,Minganie--Basse-Cote-Nord,QC,CA
-MD9012,,50.208,-66.385,4,Pointe Noires Cs,,0,Sept-Rivieres--Caniapiscau,QC,CA
-MVCKD,,49.6,-67.3,266.9,Pointe-Des-Monts,,0,,QC,CA
+MWYI,Natashquan,50.19,-61.82,11,Natashquan,,0,Minganie--Basse-Cote-Nord,QC,CA
+MD9012,Pointe Noires Cs,50.208,-66.385,4,Pointe Noires Cs,,0,Sept-Rivieres--Caniapiscau,QC,CA
+MVCKD,Pointe-Des-Monts,49.6,-67.3,266.9,Pointe-Des-Monts,,0,,QC,CA
 MC8985,St-Nicolas Pq Ca,46.733,-71.296,36,Quebec,,0,Levis,QC,CA
 MC9844,Quebec Pq Ca,46.864,-71.326,107.1,Quebec,,0,Communaute-Urbaine-de-Quebec,QC,CA
 MC5108,St-Felicien Qc Ca,48.64,-72.472,128,Roberval,,0,Le Domaine-du-Roy,QC,CA
-MWUY,,48.26,-79.04,318,Rouyn,,0,,,
+MWUY,Rouyn,48.26,-79.04,318,Rouyn,,0,Rouyn-Noranda,QC,CA
 MAT756,Drummondville Pq Ca,46.002,-72.337,83,Saint Celestin,,0,Drummond,QC,CA
 MC8679,Montreal Pq Ca,45.375,-73.55,28,Saint Constant,,0,Roussillon,QC,CA
 MAT492,Montreal Pq Ca,45.375,-73.55,28,Saint Constant,,0,Roussillon,QC,CA
@@ -3189,78 +3189,132 @@ MD8233,Trois-Riviares Ca,46.558,-72.463,117,Shawinigan,,0,Francheville Regional 
 MSA29,Ste-Anne De Bellevue Can,45.409,-73.936,32.6,Ste.-Anne-De-Bellevue,,0,Communaute-Urbaine-de-Montreal,QC,CA
 MAS039,Stoneham Qc Ca,47.002,-71.343,256.9,Valcartier,,0,La Jacques-Cartier,QC,CA
 MAS440,St-Hyacinthe Pq Ca,45.613,-72.949,29,Varennes,,0,Les Maskoutains,QC,CA
-MAU770,,46.308,-78.678,195,Barrage Temiscamingue,,0,Nipissing District,ON,CA
-MVCYL,,46.8,-71.2,0,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
-MD4558,,47.12,-70.9,157,Cap-Tourmente,,0,La Cote-de-Beaupre,QC,CA
-ME2709,,46.757,-72.065,79.7,Deschambaults,,0,Portneuf,QC,CA
-MXJAC,,47.1,-70.6,-3.7,Ile Aux Grues,,0,Montmagny,QC,CA
+MAU770,Barrage Temiscamingue,46.308,-78.678,195,Barrage Temiscamingue,,0,Nipissing District,ON,CA
+MVCYL,Beauport,46.8,-71.2,0,Beauport,,0,Communaute-Urbaine-de-Quebec,QC,CA
+MD4558,Cap-Tourmente,47.12,-70.9,157,Cap-Tourmente,,0,La Cote-de-Beaupre,QC,CA
+ME2709,Deschambaults,46.757,-72.065,79.7,Deschambaults,,0,Portneuf,QC,CA
+MXJAC,Ile Aux Grues,47.1,-70.6,-3.7,Ile Aux Grues,,0,Montmagny,QC,CA
 ME1285,Rimouski Ca,48.443,-68.55,23,Ile Bicquette,,0,Rimouski-Neigette,QC,CA
-ME2991,,48.743,-69.083,88,Ile Bicquette,,0,La Haute-Cote-Nord,QC,CA
-ME9246,,45.57,-73.579,50.6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MPFQE,,58.2,-68.2,43,Kuujjuaq,,0,Nord-du-Quebec,QC,CA
-ME9916,,45.308,-73.275,132,L'Acadie,,0,Le Haut-Richelieu,QC,CA
-ME8769,,45.9,-71.9,889,Lemieux,,0,Arthabaska,QC,CA
-MAU565,,45.459,-71.856,205,Lennoxville,,0,Le Val-Saint-Francois,QC,CA
-ME2847,,49.054,-76.975,299,Matagami,,0,Nord-du-Quebec,QC,CA
-MVCWS,,45.5,-73.5,0,Mctavish Ars,,0,Champlain,QC,CA
-MC7533,,45.648,-73.509,10,Montreal Est,,0,Communaute-Urbaine-de-Montreal,QC,CA
-MC3442,,45.765,-73.694,63,Montreal Est,,0,Les Moulins Regional County Municipality,QC,CA
-MKS077,,48.3,-70.3,268.8,Pointe Claveau,,0,Le Fjord-du-Saguenay,QC,CA
-MCFN,,49.3,-67.3,5,Pointe-Des-Monts,,0,Manicouagan,QC,CA
-MKESQ6,,49.797,-80.228,0,Roquemaure,,0,Cochrane District,ON,CA
-MPINQ6,,49.11,-79.914,0,Roquemaure,,0,Cochrane District,ON,CA
-MABLQ6,,48.664,-80.134,314,Roquemaure,,0,Cochrane District,ON,CA
-ME9284,,45.2,-73.5,60.6,Saint Michel-De-Napierville,,0,Les Jardins-de-Napierville,QC,CA
-ME2616,,45.041,-74.274,53,Saint-Anicet,,0,Le Haut-Saint-Laurent,QC,CA
-MWLJ,,54.14,-108.54,480,Meadow Lake,,0,Division No. 17,SK,CA
+ME2991,Ile Bicquette,48.743,-69.083,88,Ile Bicquette,,0,La Haute-Cote-Nord,QC,CA
+ME9246,Ile Charron,45.57,-73.579,50.6,Ile Charron,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MPFQE,Kuujjuaq,58.2,-68.2,43,Kuujjuaq,,0,Nord-du-Quebec,QC,CA
+ME9916,L'Acadie,45.308,-73.275,132,L'Acadie,,0,Le Haut-Richelieu,QC,CA
+ME8769,Lemieux,45.9,-71.9,889,Lemieux,,0,Arthabaska,QC,CA
+MAU565,Lennoxville,45.459,-71.856,205,Lennoxville,,0,Le Val-Saint-Francois,QC,CA
+ME2847,Matagami,49.054,-76.975,299,Matagami,,0,Nord-du-Quebec,QC,CA
+MVCWS,Mctavish Ars,45.5,-73.5,0,Mctavish Ars,,0,Champlain,QC,CA
+MC7533,Montreal Est,45.648,-73.509,10,Montreal Est,,0,Communaute-Urbaine-de-Montreal,QC,CA
+MC3442,Montreal Est,45.765,-73.694,63,Montreal Est,,0,Les Moulins Regional County Municipality,QC,CA
+MKS077,Pointe Claveau,48.3,-70.3,268.8,Pointe Claveau,,0,Le Fjord-du-Saguenay,QC,CA
+MCFN,Pointe-Des-Monts,49.3,-67.3,5,Pointe-Des-Monts,,0,Manicouagan,QC,CA
+MKESQ6,Roquemaure,49.797,-80.228,0,Roquemaure,,0,Cochrane District,ON,CA
+MPINQ6,Roquemaure,49.11,-79.914,0,Roquemaure,,0,Cochrane District,ON,CA
+MABLQ6,Roquemaure,48.664,-80.134,314,Roquemaure,,0,Cochrane District,ON,CA
+ME9284,Saint Michel-De-Napierville,45.2,-73.5,60.6,Saint Michel-De-Napierville,,0,Les Jardins-de-Napierville,QC,CA
+ME2616,Saint-Anicet,45.041,-74.274,53,Saint-Anicet,,0,Le Haut-Saint-Laurent,QC,CA
+MWLJ,Meadow Lake,54.14,-108.54,480,Meadow Lake,,0,Division No. 17,SK,CA
 MC8445,Moose Jaw Sk Ca,50.34,-105.552,571,Moose Jaw,,0,Division No. 7,SK,CA
-MD1097,Regina Sk Ca,50.435,-104.532,578,Regina University,,0,,,
-MD1364,Saskatoon Sk Ca,52.119,-106.599,517,Saskatoon Kernen Farm,,0,,,
-MWLV,,53.92,-106.07,569,Waskesiu Lake,,0,Division No. 16,SK,CA
-MCUTQ8,,50.591,-101.743,443.9,Broadview,,0,Division No. 5,SK,CA
-MBCWQ8,,49.45,-109.644,976,Cypress Hills Park,,0,Division No. 4,SK,CA
-MCWDQ8,,49.474,-109.611,976,Cypress Hills Park,,0,Division No. 4,SK,CA
-ME3057,,50.797,-106.507,624,Elbow,,0,Division No. 7,SK,CA
-MSBRQ8,,49.143,-103.082,0,Estevan,,0,Division No. 1,SK,CA
-ME9857,,50.799,-103.254,480,Indian Head,,0,Division No. 5,SK,CA
-MCHLQ1,,55.625,-110.772,556,Jimmy Lake,,0,Division No. 16,AB,CA
-MAV091,,51.171,-107.188,737,Lucky Lake,,0,Division No. 7,SK,CA
-MWSCQ8,,50.636,-104.91,499.9,Regina University,,0,Division No. 6,SK,CA
-ME3856,,50.413,-104.616,575,Regina University,,0,,,
-ME2532,,53.319,-106.913,525,Spiritwood West,,0,Division No. 16,SK,CA
-MCKEQ8,,49.352,-103.613,0,Weyburn,,0,Division No. 2,SK,CA
-MYLWQ8,,49.786,-104.038,565,Weyburn,,0,Division No. 2,SK,CA
-MMOSQ8,,49.494,-103.629,0,Weyburn,,0,Division No. 2,SK,CA
-MJEWQ8,,49.386,-103.712,574,Weyburn,,0,Division No. 2,SK,CA
-MALCA2,,62.62,-141.008,601,Beaver Creek,,0,Southeast Fairbanks,AK,US
-MCREA2,,62.124,-141.845,1596,Beaver Creek,,0,Valdez-Cordova,AK,US
-MWON,,64.05,-139.16,369,Dawson,,0,Yukon,YT,CA
-MWJN,,69.57,-138.92,1,Herschel Island,,0,Yukon,YT,CA
-MWRR,,66.95,-136.27,583.8,Rock River,,0,Yukon,YT,CA
-MTS591,,62.419,-141.318,1142.7,Beaver Creek,,0,Southeast Fairbanks,AK,US
-MYWRQ9,,63.083,-139.498,398,Beaver Creek,,0,Yukon,YT,CA
-MTNWA2,,62.737,-141.208,608,Beaver Creek,,0,Southeast Fairbanks,AK,US
-MNIRQ9,,62.208,-139.049,619,Beaver Creek,,0,Yukon,YT,CA
-MWHRQ9,,61.988,-140.559,718,Beaver Creek,,0,Yukon,YT,CA
-MM27KX,,62.358,-141.878,1534,Beaver Creek,,0,Southeast Fairbanks,AK,US
-MBGMQ9,,62.569,-137.016,479,Carmacks,,0,Yukon,YT,CA
-MM29MX,,62.444,-138.462,1295,Carmacks,,0,Yukon,YT,CA
-MSRMQ9,,63.282,-139.254,338,Dawson,,0,Yukon,YT,CA
-MYDAQ9,,64.07,-139.426,320,Dawson,,0,,,
-MK29MX,,63.843,-137.52,1365,Dawson,,0,,,
-ML29MX,,63.109,-138.129,825,Dawson,,0,,,
-MN30MX,,61.459,-137.089,939,Haines Junction,,0,,,
-MTATQ9,,60.118,-137.087,598,Haines Junction,,0,,,
-MALSQ9,,60.119,-137.974,458,Haines Junction,,0,,,
-MALWQ9,,61.197,-137,921,Haines Junction,,0,,,
-MO28MX,,60.772,-140.191,2620,Haines Junction,,0,,,
-MO29MX,,60.302,-138.576,1421,Haines Junction,,0,,,
-MIVVQ9,,69.164,-140.154,0,Ivvavik Park,,0,,,
-MSMTA2,,66.81,-141.648,672,Old Crow,,0,,,
-MPRBQ9,,67.424,-140.891,242.4,Old Crow,,0,,,
-MG27KX,,66.809,-141.655,684,Old Crow,,0,Yukon-Koyukuk,AK,US
-ME27KX,,68.186,-141.595,652,Old Crow,,0,Yukon-Koyukuk,AK,US
-MEPYKX,,66.37,-136.719,715,Rock River,,0,Yukon,YT,CA
-MG30MX,,66.981,-136.222,737,Rock River,,0,Yukon,YT,CA
-MCG2992,,69.4,-133,5.5,Storm Hills,,0,Inuvik Region,NT,CA
-MAV046,,60.494,-134.861,830,Whitehorse,,0,Yukon,YT,CA
+MD1097,Regina Sk Ca,50.435,-104.532,578,Regina University,,0,Division No. 6,SK,CA
+MD1364,Saskatoon Sk Ca,52.119,-106.599,517,Saskatoon Kernen Farm,,0,Division No. 11,SK,CA
+MWLV,Waskesiu Lake,53.92,-106.07,569,Waskesiu Lake,,0,Division No. 16,SK,CA
+MCUTQ8,Broadview,50.591,-101.743,443.9,Broadview,,0,Division No. 5,SK,CA
+MBCWQ8,Cypress Hills Park,49.45,-109.644,976,Cypress Hills Park,,0,Division No. 4,SK,CA
+MCWDQ8,Cypress Hills Park,49.474,-109.611,976,Cypress Hills Park,,0,Division No. 4,SK,CA
+ME3057,Elbow,50.797,-106.507,624,Elbow,,0,Division No. 7,SK,CA
+MSBRQ8,Estevan,49.143,-103.082,0,Estevan,,0,Division No. 1,SK,CA
+ME9857,Indian Head,50.799,-103.254,480,Indian Head,,0,Division No. 5,SK,CA
+MCHLQ1,Jimmy Lake,55.625,-110.772,556,Jimmy Lake,,0,Division No. 16,AB,CA
+MAV091,Lucky Lake,51.171,-107.188,737,Lucky Lake,,0,Division No. 7,SK,CA
+MWSCQ8,Regina University,50.636,-104.91,499.9,Regina University,,0,Division No. 6,SK,CA
+ME3856,Regina University,50.413,-104.616,575,Regina University,,0,Division No. 6,SK,CA
+ME2532,Spiritwood West,53.319,-106.913,525,Spiritwood West,,0,Division No. 16,SK,CA
+MCKEQ8,Weyburn,49.352,-103.613,0,Weyburn,,0,Division No. 2,SK,CA
+MYLWQ8,Weyburn,49.786,-104.038,565,Weyburn,,0,Division No. 2,SK,CA
+MMOSQ8,Weyburn,49.494,-103.629,0,Weyburn,,0,Division No. 2,SK,CA
+MJEWQ8,Weyburn,49.386,-103.712,574,Weyburn,,0,Division No. 2,SK,CA
+MALCA2,Beaver Creek,62.62,-141.008,601,Beaver Creek,,0,Southeast Fairbanks,AK,US
+MCREA2,Beaver Creek,62.124,-141.845,1596,Beaver Creek,,0,Valdez-Cordova,AK,US
+MWON,Dawson,64.05,-139.16,369,Dawson,,0,Yukon,YT,CA
+MWJN,Herschel Island,69.57,-138.92,1,Herschel Island,,0,Yukon,YT,CA
+MWRR,Rock River,66.95,-136.27,583.8,Rock River,,0,Yukon,YT,CA
+MTS591,Beaver Creek,62.419,-141.318,1142.7,Beaver Creek,,0,Southeast Fairbanks,AK,US
+MYWRQ9,Beaver Creek,63.083,-139.498,398,Beaver Creek,,0,Yukon,YT,CA
+MTNWA2,Beaver Creek,62.737,-141.208,608,Beaver Creek,,0,Southeast Fairbanks,AK,US
+MNIRQ9,Beaver Creek,62.208,-139.049,619,Beaver Creek,,0,Yukon,YT,CA
+MWHRQ9,Beaver Creek,61.988,-140.559,718,Beaver Creek,,0,Yukon,YT,CA
+MM27KX,Beaver Creek,62.358,-141.878,1534,Beaver Creek,,0,Southeast Fairbanks,AK,US
+MBGMQ9,Carmacks,62.569,-137.016,479,Carmacks,,0,Yukon,YT,CA
+MM29MX,Carmacks,62.444,-138.462,1295,Carmacks,,0,Yukon,YT,CA
+MSRMQ9,Dawson,63.282,-139.254,338,Dawson,,0,Yukon,YT,CA
+MYDAQ9,Dawson,64.07,-139.426,320,Dawson,,0,Yukon,YT,CA
+MK29MX,Dawson,63.843,-137.52,1365,Dawson,,0,Yukon,YT,CA
+ML29MX,Dawson,63.109,-138.129,825,Dawson,,0,Yukon,YT,CA
+MN30MX,Haines Junction,61.459,-137.089,939,Haines Junction,,0,Yukon,YT,CA
+MTATQ9,Haines Junction,60.118,-137.087,598,Haines Junction,,0,Yukon,YT,CA
+MALSQ9,Haines Junction,60.119,-137.974,458,Haines Junction,,0,Yukon,YT,CA
+MALWQ9,Haines Junction,61.197,-137,921,Haines Junction,,0,Yukon,YT,CA
+MO28MX,Haines Junction,60.772,-140.191,2620,Haines Junction,,0,Yukon,YT,CA
+MO29MX,Haines Junction,60.302,-138.576,1421,Haines Junction,,0,Yukon,YT,CA
+MIVVQ9,Ivvavik Park,69.164,-140.154,0,Ivvavik Park,,0,Yukon,YT,CA
+MSMTA2,Old Crow,66.81,-141.648,672,Old Crow,,0,Yukon-Koyukuk,AK,US
+MPRBQ9,Old Crow,67.424,-140.891,242.4,Old Crow,,0,Yukon,YT,CA
+MG27KX,Old Crow,66.809,-141.655,684,Old Crow,,0,Yukon-Koyukuk,AK,US
+ME27KX,Old Crow,68.186,-141.595,652,Old Crow,,0,Yukon-Koyukuk,AK,US
+MEPYKX,Rock River,66.37,-136.719,715,Rock River,,0,Yukon,YT,CA
+MG30MX,Rock River,66.981,-136.222,737,Rock River,,0,Yukon,YT,CA
+MCG2992,Storm Hills,69.4,-133,5.5,Storm Hills,,0,Inuvik Region,NT,CA
+MAV046,Whitehorse,60.494,-134.861,830,Whitehorse,,0,Yukon,YT,CA
+IBAYVIEW2,Lynch'S Mountain,44.663,-65.772,28,Bay View,Acurite Pro Weather Center,0,Digby County,NS,CA
+IBONFIEL2,Talon Area,46.292,-79.096,273,Bonfield,Other,1,Nipissing District,ON,CA
+ICALGARY74,Brentwood Calgary Ab Canada,51.092,-114.129,1106,Calgary,Acurite Pro Weather Center,0,Division No. 6,AB,CA
+ICALGARY16,Varsity,51.09,-114.158,1110,Calgary,Ambient Weather Ws-2090 (Wireless),0,Division No. 6,AB,CA
+ICAVANMO2,Devil'S Elbow,44.231,-78.571,321,Cavan??Monaghan,Other,0,Peterborough County,ON,CA
+ICOCHRAN4,Foothills Of Rocky Mountains,51.183,-114.469,1145,Cochrane,Acurite Pro Weather Center,0,Division No. 6,AB,CA
+IFOOTHIL15,North Cayley,50.453,-113.846,1060,Foothills No. 31,Acurite Pro Weather Center,1,Division No. 6,AB,CA
+IGREYHIG4,Epping,44.456,-80.561,427,Grey Highlands,Acurite Pro Weather Center,1,Grey County,ON,CA
+IMOUNTAI3,Vater Valley - Winchell Lake,51.51,-114.6,1044,Mountain View County,Other,1,Division No. 6,AB,CA
+IQUEBECC30,Trois-Saults Quebec,46.919,-71.186,152,Quebec City,Acurite Pro Weather Center,0,Communaute-Urbaine-de-Quebec,QC,CA
+IRHINELA11,Se 20-2-1-W,49.133,-97.556,353,Rhineland,Davis Vantage Pro2 Plus (Wireless),1,Division No. 3,MB,CA
+ISAINTDA23,Ferme Poirier 2017,45.543,-72.991,1,Saint-Damase,Acurite Pro Weather Center,0,Les Maskoutains,QC,CA
+ISAINTRM74,Chhouse,45.266,-73.612,62,Saint-Remi,Davis Vantage Pro2 (Wireless),0,Les Jardins-de-Napierville,QC,CA
+ISTTHOMA24,Orchard Park,42.761,-81.158,116,St- Thomas,Acurite Pro Weather Center,0,Elgin County,ON,CA
+ITHUNDER4,Fort William,48.391,-89.244,199,Thunder Bay,Other,0,Thunder Bay District,ON,CA
+ITORONTO269,Davisville Avenue,43.699,-79.388,152,Toronto,Acurite Pro Weather Center,0,Toronto Division,ON,CA
+IWHITBY6,Pringle Creek,43.899,-78.934,114,Whitby,Acurite Pro Weather Center,0,Durham Regional Municipality,ON,CA
+IWHITESL2,White'S Lake,44.529,-63.759,30,Whites Lake,Acurite Pro Weather Center,0,Halifax Regional Municipality,NS,CA
+IALBERTA267,Town,53.226,-114.967,848,Drayton Valley,Davis Vantage Pro2 (Wireless),0,Division No. 11,AB,CA
+IALBERTA569,Arlington Meadows,53.623,-113.6,687,St- Albert,Davis Vantage Pro2 (Cabled),0,Division No. 11,AB,CA
+IALBERTA536,Tofield Guardian Pharmacy,53.37,-112.667,698,Tofield,Acurite Pro Weather Center,0,Division No. 10,AB,CA
+IALBERTA430,Trochu Ab,51.849,-113.385,890,Trochu,Acurite Pro Weather Center,1,Division No. 5,AB,CA
+IBCSATUR2,Saturna,48.783,-123.133,104,Saturna,Canadian Air And Precipitation Monitoring Network,0,Capital,BC,CA
+IBRITISH66,Salt Spring Island Bc,48.735,-123.476,499,Salt Spring Island,,1,Capital,BC,CA
+IMANITOB48,Ne Transcona,49.908,-96.969,229,Winnipeg,Davis Vantage Pro 2 Plus,0,Division No. 11,MB,CA
+INEWFOUN50,Blackhead Conception Bay,47.843,-53.093,24,Blackhead Cbn,Davis Vantage Vue (Wireless),0,Division No. 1,NL,CA
+IONESSEX2,Narrow Acres,42.111,-82.828,192,Essex,Acurite Pro Weather Center,0,Essex County,ON,CA
+IONTARIO24,Rainy Lake,48.612,-93.414,347,Fort Frances,Davis Vantage Pro2,0,Rainy River District,ON,CA
+IONSHARO2,Whitebirch Lane,44.093,-79.447,266,Sharon,Wmr200,0,York Regional Municipality,ON,CA
+IONTARIO901,Tyandaga-Kerns,43.335,-79.845,76,Burlington,Acurite Pro Weather Center,0,Halton Regional Municipality,ON,CA
+IONTARIO511,Temiskaming Shores,47.581,-79.654,238,New Liskeard,Davis Vantage Pro 2,1,Timiskaming District,ON,CA
+IONTARIO837,Station Z - Newmarket On. Ca.,44.035,-79.435,266,Newmarket,Davis Vantage Pro2 (Wireless),0,York Regional Municipality,ON,CA
+IONTARIO245,Soho Queen West,43.651,-79.393,85,Toronto,,0,Toronto Division,ON,CA
+IPRINCEE15,Peat Bog,46.732,-64.018,7,Alberton,Davis Vantage Pro2 Plus (Wireless),0,Prince County,PE,CA
+IQCBAIEJ2,Chapais,49.822,-74.976,364,Baie-James,Canadian Air And Precipitation Monitoring Network,0,Nord-du-Quebec,QC,CA
+IQCDESCH2,Deschambault,46.682,-71.968,48,Deschambault,Meteorological Service Of Canada,0,Portneuf,QC,CA
+IQUMONTR2,A?Roport De Montr?Al 1,45.468,-73.741,28,Montreal/Pierre Elliott T,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
+IQUEBECL40,Ste-Dorothee Laval,45.522,-73.821,91,Laval,Other,1,Laval,QC,CA
+IYUKONCR2,Crag Lake,60.243,-134.51,787,Crag Lake,,1,Yukon,YT,CA
+IYUKONTE3,Arkell,60.707,-135.116,701,Whitehorse,Acurite Pro Weather Center,1,Yukon,YT,CA
+MSZKQ2,Hope,49.661,-121.659,1203,Hope,,0,Fraser Valley,BC,CA
+MBMNQ2,Summerland,49.868,-119.989,0,Summerland,,0,Central Okanagan,BC,CA
+MCEDQ2,Terrace,55.154,-128.716,0,Terrace,,0,Kitimat-Stikine,BC,CA
+MD8044,Greenwood,44.936,-65.234,161,Greenwood,,0,Annapolis County,NS,CA
+ME4828,Halifax,44.978,-64.105,47,Halifax,,0,Hants County,NS,CA
+MCFL24,Sable Island,43.8,-60.6,0,Sable Island,,0,Guysborough County,NS,CA
+MDVLQ6,Cameron Falls,49.199,-87.764,0,Cameron Falls,,0,Thunder Bay District,ON,CA
+MRKRQ6,Cameron Falls,49.193,-89.437,0,Cameron Falls,,0,Thunder Bay District,ON,CA
+MDEEQ6,Kenora,49.715,-94.783,368,Kenora,,0,Kenora District,ON,CA
+MTHUQ6,Thunder Bay,48.368,-89.404,235,Thunder Bay,,0,Thunder Bay District,ON,CA
+MC8209,Wiarton,44.322,-81.522,233,Wiarton,,0,Bruce County,ON,CA
+MPPRM8,Coronach,48.99,-105.696,748,Coronach,,0,Division No. 3,SK,CA
+MARAQ9,Haines Junction,61.185,-136.992,908,Haines Junction,,0,Yukon,YT,CA
+MGICQ9,Haines Junction,61.195,-136.982,928,Haines Junction,,0,Yukon,YT,CA

@@ -235,7 +235,8 @@ namespace WBSF
 
 		if (msg)
 		{
-			string lastName = "Unknown1";
+			
+			//string lastName = "Unknown1";
 			string URL = "/weatherstation/ListStations.asp?selectedCountry=" + country;
 
 			string source;
@@ -261,6 +262,12 @@ namespace WBSF
 
 					if (posBegin != string::npos)
 						loc.SetSSI("StationType", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"station-type\">", "&nbsp;", posBegin))));
+
+					if(loc.m_name.empty())
+						loc.m_name = loc.GetSSI("City");
+
+					if (loc.m_name.empty())
+						loc.m_name = loc.m_ID;
 
 					bool bNetatmo = WBSF::Find("Netatmo", loc.GetSSI("StationType"), false);
 					if (!bNetatmo && stationList2.FindByID(loc.m_ID) == NOT_INIT)
@@ -308,74 +315,8 @@ namespace WBSF
 										station.m_elev = WBSF::Feet2Meter(WBSF::as<double>(v[2]));
 								}
 
-								//if (v.size() >= 2 || station.m_elev==-999)
-								//{
-								//	string elevFormat = "/maps/api/elevation/json?locations=" + v[0] + "," + v[1];
-								//	string strElev;
-								//	msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
-								//	if (msg)
-								//	{
-								//		//extract elevation from google
-								//		string error;
-								//		Json jsonElev = Json::parse(strElev, error);
-								//		ASSERT(jsonElev.is_object());
-
-								//		if (error.empty() && jsonElev["status"] == "OK")
-								//		{
-								//			ASSERT(jsonElev["results"].is_array());
-								//			Json::array result = jsonElev["results"].array_items();
-								//			ASSERT(result.size() == 1);
-
-								//			station.m_elev = result[0]["elevation"].number_value();
-								//		}
-								//	}//if msg
-								//}
-
-								
-
-								//
-								//string geoFormat = "/maps/api/geocode/json?latlng=" + v[0] + "," + v[1];
-								//string strGeo;
-								//
-								//
-								//msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
-								//if (msg)
-								//{
-								//	//extract elevation from google
-								//	string error;
-								//	Json jsonGeo = Json::parse(strGeo, error);
-								//	ASSERT(jsonGeo.is_object());
-
-								//	if (error.empty() && jsonGeo["status"] == "OK")
-								//	{
-								//		ASSERT(jsonGeo["results"].is_array());
-								//		Json::array result1 = jsonGeo["results"].array_items();
-								//		if (!result1.empty())
-								//		{
-								//			Json::array result2 = result1[0]["address_components"].array_items();
-								//			for (int j = 0; j < result2.size(); j++)
-								//			{
-								//				Json::array result3 = result2[j]["types"].array_items();
-								//				if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
-								//				{
-								//					string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
-								//					WBSF::ReplaceString( str, ",", " ");
-								//					station.SetSSI("County", str);
-								//				}
-
-								//				if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
-								//					station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
-
-								//				if (result3.size() == 2 && result3[0] == "country")
-								//					station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
-
-								//			}
-								//		}
-								//	}
-								//}//if msg
-
-
-								stationList2.push_back(station);
+								if (station.m_elev>=-1000)//station with strange elevation are usually bad
+									stationList2.push_back(station);
 							}//if msg
 						}//if have data
 
@@ -680,54 +621,35 @@ namespace WBSF
 		//if (as<bool>(UPDATE_STATION_LIST))
 		if (UPDATE_STATIONS_LIST)
 		{
-			size_t n = 0;
-			if (countries.at("US"))
-			{
-				CLocationVector tmp;
-				if (FileExists(GetStationListFilePath("US")))
-					msg = tmp.Load(GetStationListFilePath("US"));
+			callback.PushTask("Update stations list (" + ToString(countries.count()) + " countries)", countries.count());
 
-				msg = DownloadStationList("US", tmp, callback);
-				if (msg)
-					msg = tmp.Save(GetStationListFilePath("US"), ',', callback);
-				n++;
+			for (size_t i = 0; i < countries.size()&&msg; i++)
+			{
+				if (countries[i])
+				{
+					string ID = CCountrySelection::GetName(i);
+
+					CLocationVector stationList;
+					if (FileExists(GetStationListFilePath(ID)))
+						msg = stationList.Load(GetStationListFilePath(ID));
+
+					msg = DownloadStationList(ID, stationList, callback);
+
+					if (msg)
+						msg = CompleteStationList(stationList, callback);
+					
+					if (msg)
+						msg = stationList.Save(GetStationListFilePath(ID), ',', callback);
+
+					msg += callback.StepIt();
+				}
 			}
 
-			if (msg && countries.at("CA"))
-			{
-				CLocationVector tmp;
-				if(FileExists(GetStationListFilePath("CA")))
-					msg = tmp.Load(GetStationListFilePath("CA"));
-
-				msg = DownloadStationList("CA", tmp, callback);
-				if (msg)
-					msg = tmp.Save(GetStationListFilePath("CA"), ',', callback);
-				n++;
-			}
-
-			if (msg && countries.count()>n)//other country than US and CA
-			{
-				CLocationVector tmp;
-				msg = DownloadStationList("", tmp, callback);
-				if (msg)
-					msg = tmp.Save(GetStationListFilePath(""), ',', callback);
-				n++;
-			}
+			callback.PopTask();
 
 			if (!msg)
 				return msg;
 		}
-
-		
-
-		/*if (UPDATE_STATIONS_INFO)
-		{
-			CLocationVector stationList1;
-			LoadStationList(stationList1, callback);
-			return ExtractElevation(stationList1, callback);
-		}
-		*/	
-
 
 		CLocationVector stationList1;
 		msg = LoadStationList(stationList1, callback);
@@ -739,6 +661,7 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
+		int currentYear = GetCurrentYear();
 
 
 		callback.PushTask("Clean list (" + ToString(stationList1.size()) + ")", stationList1.size());
@@ -807,27 +730,29 @@ namespace WBSF
 				string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year);
 				CreateMultipleDir(GetPath(ouputFilePath));
 
-				string source;
-				msg = GetPageText(pConnection, URL, source, false, FLAGS);
-
-				if (!source.empty() && source.find("An error occurred while processing your request") == string::npos)
+				if (year == currentYear || !FileExists(ouputFilePath))
 				{
-					if (source[0] == '\n')
-						source.erase(source.begin());
+					string source;
+					msg = GetPageText(pConnection, URL, source, false, FLAGS);
 
-					ReplaceString(source, "\n<br>", "");
-					ReplaceString(source, "<br>", "");
-
-					ofStream file;
-					msg = file.open(ouputFilePath);
-					if (msg)
+					if (!source.empty() && source.find("An error occurred while processing your request") == string::npos)
 					{
-						file << source;
-						file.close();
-						nbDownload++;
+						if (source[0] == '\n')
+							source.erase(source.begin());
+
+						ReplaceString(source, "\n<br>", "");
+						ReplaceString(source, "<br>", "");
+
+						ofStream file;
+						msg = file.open(ouputFilePath);
+						if (msg)
+						{
+							file << source;
+							file.close();
+							nbDownload++;
+						}
 					}
 				}
-
 				msg += callback.StepIt();
 			}
 		}
@@ -933,6 +858,7 @@ namespace WBSF
 
 					if (bDownload)
 						stationList.push_back(it->m_ID);
+						
 				}
 			}
 		}
@@ -955,6 +881,8 @@ namespace WBSF
 
 
 		((CLocation&)station) = m_stations[pos];
+		if (station.m_name.empty())
+			station.m_name = station.GetSSI("City");
 
 		station.m_name = WBSF::PurgeFileName(station.m_name);
 		//station.m_name = ANSI_2_ASCII(station.m_name);

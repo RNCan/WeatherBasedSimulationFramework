@@ -181,13 +181,13 @@ namespace WBSF
 			{
 				CTRef TRef = p.Begin() + pos;
 
-				if (TRef>now && !presence.test(pos))
+				if (TRef<now && !presence.test(pos))
 					callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
 
 				msg += callback.StepIt(0);
 			}
 
-			callback.AddMessage("Nb grib added: " + ToString(nbGrib));
+			callback.AddMessage("Nb gribs added: " + ToString(nbGrib));
 			file.close();
 		}
 		

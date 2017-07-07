@@ -1072,7 +1072,7 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 		}
 
 		CGeoPointIndex xy = m_world.m_water_DS.GetExtents().CoordToXYPos(pt2);
-		bOverWater = m_world.m_water_DS.ReadPixel(0, xy) != 0;
+		bOverWater = m_world.m_water_DS.GetPixel(0, xy) != 0;
 	}*/
 
 	bool bOverWater = m_world.is_over_water(pt);
@@ -1826,7 +1826,7 @@ size_t CTRefDatasetMap::get_band(CTRef TRef, size_t v, size_t level)const
 }
 
 //******************************************************************************************************
-const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "MaximumFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency" };
+const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "Reversed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseTurbulance", "UseVerticalVelocity", "MaximumFlyers", "MaximumFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "Host", "OutputSubHourly", "OutputFileTitle", "OutputFrequency", "CreateEggsMap", "EggsMapTitle" };
 
 
 std::set<int> CATMWorld::get_years()const
@@ -1939,7 +1939,7 @@ bool CATMWorld::is_over_water(const CGeoPoint3D& pt1)const
 
 		CGeoPointIndex xy = m_water_DS.GetExtents().CoordToXYPos(pt2);
 		if (m_water_DS.GetExtents().IsInside(xy))
-			bOverWater = m_water_DS.ReadPixel(0, xy) != 0;
+			bOverWater = m_water_DS.GetPixel(0, xy) != 0;
 	}
 
 	return bOverWater;
@@ -2353,6 +2353,105 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 
 
 	
+	return msg;
+}
+
+ERMsg CATMWorld::CreateEggDepositionMap(const string& outputFilePath, CATMOutputMatrix& output, CCallback& callback)
+{
+	ASSERT(m_DEM_DS.IsOpen());
+
+	ERMsg msg;
+
+	CTPeriod period;
+	CStatistic seasonStat;
+
+	for (size_t l = 0; l < output.size() && msg; l++)
+	{
+		for (size_t p = 0; p < output[l].size() && msg; p++)
+		{
+			for (size_t r = 0; r < output[l][p].size(); r++)
+			{
+				for (size_t t = 0; t < output[l][p][r].size(); t++)
+				{
+					if (output[l][p][r][t][ATM_EGGS_LAID]>0)
+					{
+						seasonStat += output[l][p][r][t][ATM_EGGS_LAID];
+						CTRef TRef = output[l][p][r].GetFirstTRef() + t;
+						period.Inflate(TRef);
+					}
+				}
+			}
+		}
+	}
+	period.Transform(CTM::DAILY);
+
+	//Get input info
+	CBaseOptions options;
+	m_DEM_DS.UpdateOption(options);
+	options.m_bOverwrite = true;
+	options.m_nbBands = period.size() + 1;//+1 for the season
+	options.m_outputType = GDT_Float32;
+	options.m_dstNodata = -9999;
+	options.m_createOptions.push_back("-co COMPRESS=LZW");
+	options.m_bComputeStats = true;
+	options.m_overviewLevels = { { 2, 4, 8, 16 } };
+
+	//GetPeriodW
+
+	//Open input image
+	
+	CGDALDatasetEx outputDS;
+	msg += outputDS.CreateImage(outputFilePath, options);
+	
+
+	if (msg)
+	{
+		vector<float> season(m_DEM_DS.GetRasterYSize()*m_DEM_DS.GetRasterXSize());
+
+
+		for (size_t d = 0; d < period.size() && msg; d++)
+		{
+			vector<float> day(m_DEM_DS.GetRasterYSize()*m_DEM_DS.GetRasterXSize());
+			CTRef TRef1 = period.Begin() + d;
+
+			for (size_t l = 0; l < output.size() && msg; l++)
+			{
+				for (size_t p = 0; p < output[l].size() && msg; p++)
+				{
+					for (size_t r = 0; r < output[l][p].size(); r++)
+					{
+						for (size_t t = 0; t < output[l][p][r].size(); t++)
+						{
+							if (output[l][p][r][t][ATM_EGGS_LAID]>0)
+							{
+								CTRef TRef2 = output[l][p][r].GetFirstTRef() + t;
+								if (TRef2.as(CTM::DAILY) == TRef1)
+								{
+									CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], options.m_extents.GetPrjID());
+									ASSERT(options.m_extents.IsInside(pt));
+
+									CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
+									size_t pos = xy.m_y*m_DEM_DS.GetRasterXSize() + xy.m_x;
+									day[pos] += output[l][p][r][t][ATM_EGGS_LAID];
+									season[pos] += output[l][p][r][t][ATM_EGGS_LAID];
+								}
+							}
+						}
+					}
+				}
+			}
+
+			GDALRasterBand* pBandOut = outputDS.GetRasterBand(d + 1);//first band keep for the seanson
+			pBandOut->RasterIO(GF_Write, 0, 0, m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), &(day[0]), m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), GDT_Float32, 0, 0);
+
+		}
+
+		GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the seanson
+		pBandOut->RasterIO(GF_Write, 0, 0, m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), &(season[0]), m_DEM_DS.GetRasterXSize(), m_DEM_DS.GetRasterYSize(), GDT_Float32, 0, 0);
+
+		outputDS.Close();
+	}
+
 	return msg;
 }
 
@@ -3201,6 +3300,9 @@ ERMsg CreateGribsFromNetCDF(CCallback& callback)
 
 	return msg;
 }
+
+
+
 
 
 //	//Open input

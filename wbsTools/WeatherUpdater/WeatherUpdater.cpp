@@ -1,9 +1,9 @@
 //5.4.0 04/05/2017  Rémi Saint-Amant	Important change to compute Tmin from 12:00-12:00 to 00:00 - 00:00 because ENv Can use 00-00
-//										Compile with GDAL 2.02 and Boost 1.64 
-//										Add Manitoba wildfire, SWOB-XML and Hourly MFFP
+//										Compile with GDAL 2.02 and Boost 1.64  
+//										Add Manitoba wildfire, SWOB-XML, NAM, Forecast gribs and Hourly MFFP
 //										Bug correction in forecast
 //5.3.5 04/04/2017  Rémi Saint-Amant	Bug correction on Windows 10 with delay load of netCDF.dll
-//5.3.4 23/03/2017  Rémi Saint-Amant	Add Saskatchewan, Nova-Scotia and Newfoundland and MesoWest and WeatehrFarm, regroup Quebec into one component
+//5.3.4 23/03/2017  Rémi Saint-Amant	Add Saskatchewan, Nova-Scotia, Newfoundland, MesoWest and WeatehrFarm, regroup Quebec into one component
 //										Add NOAA forecast 
 //5.3.3 28/02/2017  Rémi Saint-Amant	Add historical agriculture and hydro for Manitoba
 //5.3.2 16/02/2017  Rémi Saint-Amant	Historical fire station for new brunswick

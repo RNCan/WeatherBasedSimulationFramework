@@ -652,7 +652,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -685,6 +685,9 @@ namespace WBSF
 		bool m_bOutputSubHourly;
 		std::string m_outputFileTitle;
 		__int64 m_outputFrequency;
+
+		bool m_bCreateEggMaps;
+		std::string m_eggMapsTitle;
 
 
 		size_t get_time_step()const{ return m_time_step; }//[s]
@@ -727,8 +730,11 @@ namespace WBSF
 			m_water_name.clear();
 
 			m_bOutputSubHourly = false;
-			m_outputFileTitle.clear();
+			m_outputFileTitle = "SubHourlyOutput";
 			m_outputFrequency = 600;
+
+			m_bCreateEggMaps = false;
+			m_eggMapsTitle = "EggDensity";
 
 		}
 
@@ -765,6 +771,9 @@ namespace WBSF
 				m_bOutputSubHourly = in.m_bOutputSubHourly;
 				m_outputFileTitle = in.m_outputFileTitle;
 				m_outputFrequency = in.m_outputFrequency;
+
+				m_bCreateEggMaps = in.m_bCreateEggMaps;
+				m_eggMapsTitle = in.m_eggMapsTitle;
 
 			}
 
@@ -803,7 +812,9 @@ namespace WBSF
 			if (m_bOutputSubHourly != in.m_bOutputSubHourly)bEqual = false;
 			if (m_outputFileTitle != in.m_outputFileTitle)bEqual = false;
 			if (m_outputFrequency != in.m_outputFrequency)bEqual = false;
-
+			
+			if (m_bCreateEggMaps != in.m_bCreateEggMaps)bEqual = false;
+			if (m_eggMapsTitle != in.m_eggMapsTitle)bEqual = false;
 
 
 			return bEqual;
@@ -858,6 +869,7 @@ namespace WBSF
 		bool is_over_water(const CGeoPoint3D& pt)const;
 
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
+		ERMsg CreateEggDepositionMap(const std::string& outputFilePath, CATMOutputMatrix& output, CCallback& callback);
 
 		CATMWorld() :
 			m_weather(*this)//pas sure...
@@ -965,6 +977,9 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_SUB_HOURLY)](in.m_bOutputSubHourly);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FILE_TITLE)](in.m_outputFileTitle);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](in.m_outputFrequency);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::CREATE_EGG_MAPS)](in.m_bCreateEggMaps);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_TITLE)](in.m_eggMapsTitle);
+		
 
 	}
 
@@ -994,6 +1009,8 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_SUB_HOURLY)](out.m_bOutputSubHourly);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FILE_TITLE)](out.m_outputFileTitle);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](out.m_outputFrequency);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::CREATE_EGG_MAPS)](out.m_bCreateEggMaps);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_TITLE)](out.m_eggMapsTitle);
 
 		return true;
 	}

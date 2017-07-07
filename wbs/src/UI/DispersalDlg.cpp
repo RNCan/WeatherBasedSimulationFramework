@@ -36,21 +36,14 @@ namespace WBSF
 
 	
 	//*****************************************************************************************************
-
-	/*enum TDispersalProperties
-	{
-		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS, MANY_FLIGHTS,
-		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
-		T_MIN, T_MAX, P_MAX, W_MIN, DURATION_MIN, DURATION_MAX, DURATION_ALPHA, DURATION_BETA, CRUISE_DURATION, CRUISE_HEIGHT,
-		HEIGHT_YPE, WING_BEAT_K, WING_BEAT_VMAX, WING_BEAT_VMAXF, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, NB_PROPERTIES
-	};*/
-
+	
 	enum TDispersalProperties
 	{
 		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS,
 		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
 		T_BROOD, P_TYPE, P_MAX, W_MIN, 
-		HEIGHT_YPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, NB_PROPERTIES
+		HEIGHT_YPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, 
+		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, NB_PROPERTIES
 	};
 
 	BEGIN_MESSAGE_MAP(CDispersalPropertyGridCtrl, CMFCPropertyGridCtrl)
@@ -157,6 +150,14 @@ namespace WBSF
 		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_TIME_FREQUENCY], 600, description[OUTPUT_TIME_FREQUENCY], OUTPUT_TIME_FREQUENCY));
 		AddProperty(pOutput);
 
+		CMFCPropertyGridProperty* pEggs = new CMFCPropertyGridProperty(section[6], -1);
+		pEggs->AddSubItem(new CStdBoolGridProperty(name[CREATE_EGG_MAPS], false, description[CREATE_EGG_MAPS], CREATE_EGG_MAPS));
+		pEggs->AddSubItem(new CStdGridProperty(name[EGG_MAP_TITLE], "", description[EGG_MAP_TITLE], EGG_MAP_TITLE));
+		
+		AddProperty(pEggs);
+
+		
+
 	}
 
 	void CDispersalPropertyGridCtrl::Set(const CDispersalParamters& in)
@@ -209,6 +210,8 @@ namespace WBSF
 			case OUTPUT_SUB_HOURLY: str = WBSF::ToString(in.m_world.m_bOutputSubHourly); break;
 			case OUTPUT_FILE_TITLE:	str = in.m_world.m_outputFileTitle; break;
 			case OUTPUT_TIME_FREQUENCY:	str = WBSF::ToString(in.m_world.m_outputFrequency); break;
+			case CREATE_EGG_MAPS:	str = WBSF::ToString(in.m_world.m_bCreateEggMaps); break;
+			case EGG_MAP_TITLE:		str = in.m_world.m_eggMapsTitle; break;
 			default: ASSERT(false);
 			}
 
@@ -276,9 +279,12 @@ namespace WBSF
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;
 		case W_DESCENT_SD:		me.m_parameters.m_ATM.m_w_descent_σ = WBSF::ToDouble(str); break;
-		case OUTPUT_SUB_HOURLY:
+		case OUTPUT_SUB_HOURLY: me.m_parameters.m_world.m_bOutputSubHourly = WBSF::ToBool(str); break;
 		case OUTPUT_FILE_TITLE:	me.m_parameters.m_world.m_outputFileTitle = str; break;
 		case OUTPUT_TIME_FREQUENCY:	me.m_parameters.m_world.m_outputFrequency = WBSF::ToSizeT(str); break;
+		case CREATE_EGG_MAPS:	me.m_parameters.m_world.m_bCreateEggMaps = WBSF::ToBool(str); break;
+		case EGG_MAP_TITLE:		me.m_parameters.m_world.m_eggMapsTitle = str; break;
+
 		default: ASSERT(false);
 		}
 	}

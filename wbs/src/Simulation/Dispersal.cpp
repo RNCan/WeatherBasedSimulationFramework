@@ -532,7 +532,6 @@ namespace WBSF
 							flyer.m_loc = l;
 							flyer.m_par = p;
 							flyer.m_rep = rr;
-							//flyer.m_no = insectNo++;
 							flyer.m_localTRef = TRef;//assume daylignt time
 							flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
 							flyer.m_scale = 1;
@@ -609,6 +608,13 @@ namespace WBSF
 							msg += callback.StepIt(0);
 						}
 					}
+				}
+
+
+				if (m_parameters.m_world.m_bCreateEggMaps)
+				{
+					string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
+					msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
 				}
 			}
 		}

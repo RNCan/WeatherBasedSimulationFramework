@@ -329,7 +329,7 @@ namespace WBSF
 	{
 		ASSERT(i < NB_COUNTRIES);
 		ASSERT(t < 2);
-		return DEFAULT_LIST[i].m_name;
+		return DEFAULT_LIST[i][t];
 	}
 
 	string CCountrySelection::ToString()const

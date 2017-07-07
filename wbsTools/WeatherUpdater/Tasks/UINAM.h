@@ -13,19 +13,19 @@ namespace WBSF
 
 
 	//**************************************************************
-	class CUIRapidUpdateCycle : public CTaskBase
+	class CUINAM : public CTaskBase
 	{
 
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, PRODUCT, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
-		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
+		static CTaskPtr create(){ return CTaskPtr(new CUINAM); }
 		static CTRef GetTRef(std::string filePath);
 
-		CUIRapidUpdateCycle(void);
-		virtual ~CUIRapidUpdateCycle(void);
+		CUINAM(void);
+		virtual ~CUINAM(void);
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
@@ -53,13 +53,14 @@ namespace WBSF
 
 		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
 		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, bool bForecast, CCallback& callback)const;
+		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 		void CleanList(size_t s, CFileInfoVector& fileList);
 		CTRef GetTRef(size_t s, const std::string& fileList);
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
+		std::string GetInputFilePath(CTRef TRef, bool bGrib)const;
+		std::string GetOutputFilePath(CTRef TRef, bool bGrib)const;
+		//string GetOutputFilePath(const string& fielPath)const;
 	
 		CTPeriod GetPeriod()const;
 

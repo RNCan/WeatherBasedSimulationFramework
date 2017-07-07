@@ -183,6 +183,7 @@
     <ClInclude Include="UIHRRR.h" />
     <ClInclude Include="UIManitoba.h" />
     <ClInclude Include="UIMesoWest.h" />
+    <ClInclude Include="UINAM.h" />
     <ClInclude Include="UINOAAForecast.h" />
     <ClInclude Include="UIQuebec.h" />
     <ClInclude Include="UINEWA.h" />
@@ -252,6 +253,7 @@
     <ClCompile Include="UIHRRR.cpp" />
     <ClCompile Include="UIManitoba.cpp" />
     <ClCompile Include="UIMesoWest.cpp" />
+    <ClCompile Include="UINAM.cpp" />
     <ClCompile Include="UINOAAForecast.cpp" />
     <ClCompile Include="UIQuebec.cpp" />
     <ClCompile Include="UINEWA.cpp" />
