@@ -36,6 +36,18 @@ namespace WBSF
 
 void RegisterGDAL()
 {
+	char test[255] = { 0 };
+	const char* pTest = CPLGetConfigOption("GDAL_DRIVER_PATH", test);
+	
+	const char* pTest2 = CPLGetConfigOption("GDAL_DATA", test);
+
+
+	string path = GetApplicationPath() + "External";
+	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
+
+	path += "\\gdal-data";
+	CPLSetConfigOption("GDAL_DATA", path.c_str());
+
 	GDALAllRegister();
 }
 
@@ -726,8 +738,10 @@ std::string GetDriverExtension(const std::string& formatName)
 	GDALDriver* poDriverOut = (GDALDriver*)GDALGetDriverByName(formatName.c_str());
 	if (poDriverOut != NULL)
 	{
+		const char* pExt = poDriverOut->GetMetadataItem(GDAL_DMD_EXTENSION);
 		// file name extension for given driver
-		GdalDriverExtension = string(".") + poDriverOut->GetMetadataItem(GDAL_DMD_EXTENSION);
+		if (pExt!=NULL)
+			GdalDriverExtension = string(".") + pExt;
 	}
 
 	return GdalDriverExtension;
@@ -1552,7 +1566,7 @@ void CBaseOptions::Reset()
 ERMsg CBaseOptions::ParseOptions(const string& str)
 {
 	StringVector tmp;
-	tmp.TokenizeQuoted(str, " ");
+	tmp.TokenizeQuoted(str, " \t");
 	tmp.insert(tmp.begin(), "InternalParser");
 
 	int argc = int(tmp.size());

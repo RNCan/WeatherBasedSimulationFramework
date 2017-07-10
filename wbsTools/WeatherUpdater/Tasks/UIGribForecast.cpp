@@ -144,30 +144,14 @@ namespace WBSF
 						callback.PopTask();
 					}
 
-					msg += callback.StepIt();
+					
 					if (msg && FileExists(outputFilePath))
 					{
 						nbDownload++;
 						nbRun = 0;
 						curI++;
-						////now copy index file
-						//callback.PushTask("Download forecast gribs index:" + outputFilePath + ".idx", NOT_INIT);
-						//msg = CopyFile(pConnection, fileList[i].m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
-						//callback.PopTask();
-						//if (FileExists(outputFilePath + ".idx"))
-						//{
-						//	curI++;
-						//}
-						//else
-						//{
-						//	//if .idx does not exist
-						//	msg += RemoveFile(outputFilePath);
-						//}
+						msg += callback.StepIt();
 					}
-
-
-					msg += callback.StepIt();
 				}
 
 				pConnection->Close();

@@ -399,8 +399,8 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		if (result.GetMetadata().GetNbReplications() > 1)
-			callback.AddMessage("WARNING: only the first replication will be taken");
+		//if (result.GetMetadata().GetNbReplications() > 1)
+			//callback.AddMessage("WARNING: only the first replication will be taken");
 
 		
 		//init output info
@@ -570,8 +570,8 @@ namespace WBSF
 
 		CTPeriod outputPeriod = world.get_period(false);
 		callback.AddMessage("Execute dispersal with " + ToString(world.m_flyers.size()) + " moths");
-		callback.AddMessage("Output period " + outputPeriod.GetFormatedString());
-		callback.AddMessage("Output replications " + ToString(nbReplications));
+		callback.AddMessage("Output period: " + outputPeriod.GetFormatedString());
+		callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
 		
 
 
