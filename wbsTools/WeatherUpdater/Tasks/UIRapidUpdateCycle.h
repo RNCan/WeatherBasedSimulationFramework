@@ -53,13 +53,13 @@ namespace WBSF
 
 		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
 		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, bool bForecast, CCallback& callback)const;
+		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bForecast, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
 		void CleanList(size_t s, CFileInfoVector& fileList);
 		CTRef GetTRef(size_t s, const std::string& fileList);
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const;
+		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;
+		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;
 	
 		CTPeriod GetPeriod()const;
 
@@ -73,7 +73,6 @@ namespace WBSF
 		static const char* INPUT_FORMAT2;
 		static const char* INPUT_FORMAT3;
 		static const char* INPUT_FORMAT4;
-		static const char* NAM_FORMAT;
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
 	};
 

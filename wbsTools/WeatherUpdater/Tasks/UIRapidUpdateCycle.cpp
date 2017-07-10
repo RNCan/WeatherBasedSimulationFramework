@@ -75,7 +75,6 @@ namespace WBSF
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT2 = "/data/rucanl/%4d%02d/%4d%02d%02d/ruc2anl_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
-	const char* CUIRapidUpdateCycle::NAM_FORMAT =    "/data/nam/%4d%02d/%4d%02d%02d/nam_218_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
 	static char* PRODUCT_NAME[2] = { "pgrb", "bgrb" };
 
@@ -116,7 +115,7 @@ namespace WBSF
 	//************************************************************************************************************
 	//Load station definition list section
 
-	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const
+	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bForecast)const
 	{
 		
 		if (bForecast)
@@ -128,37 +127,27 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 
 		string filePath;
-		if (bRAP)
+		
+		if (TRef < CTRef(2012, MAY, 8, 0))
 		{
-			if (TRef < CTRef(2012, MAY, 8, 0))
-			{
-				if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
-					filePath = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb" : ".inv");
-				else
-					filePath = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
-			}
+			if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
+				filePath = FormatA(INPUT_FORMAT1, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb" : ".inv");
 			else
-			{
-				CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
-				if (now - TRef >= 24)
-					filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
-				else
-					filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
-			}
+				filePath = FormatA(INPUT_FORMAT2, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 		}
 		else
 		{
-			
-			int forecastH = h % 6;
-			h = int(h / 5) * 6;
-			filePath = FormatA(NAM_FORMAT, y, m, y, m, d, y, m, d, h, forecastH, bGrib ? ".grb" : ".inv");
-			
+			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
+			if (now - TRef >= 24)
+				filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
+			else
+				filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 		}
-
+		
 		return filePath;
 	}
 
-	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bRAP, bool bForecast)const
+	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bForecast)const
 	{
 		static const char* OUTPUT_FORMAT = "%s%s\\%4d\\%02d\\%02d\\%s%4d%02d%02d_%02d00_%03d%s";
 		
@@ -173,29 +162,15 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 		int forecastH = 0;
 		
-		if (bRAP)
-		{
-			/*if (bForecast)
-			{
-				forecastH = 1;
-			}*/
-		}
-		else
-		{
-			forecastH = h % 6;
-			h = int(h / 6) * 6;
-		}
-		
-		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), PRODUCT_NAME[prod], y, m, d, (bRAP ? "rap_130_" : "nam_218_"), y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
-//		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
+		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), PRODUCT_NAME[prod], y, m, d, "rap_130_", y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
-	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bRAP, bool bForecast, CCallback& callback)const
+	ERMsg CUIRapidUpdateCycle::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bForecast, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		string inputPath = GetInputFilePath(TRef, bGrib, bRAP, bForecast);
-		string outputPath = GetOutputFilePath(TRef, bGrib, bRAP, bForecast);
+		string inputPath = GetInputFilePath(TRef, bGrib, bForecast);
+		string outputPath = GetOutputFilePath(TRef, bGrib, bForecast);
 		CreateMultipleDir(GetPath(outputPath));
 
 		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
@@ -296,7 +271,7 @@ namespace WBSF
 		{
 			size_t hh = (h - period.Begin());
 
-			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, true, false));
+			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false));
 
 //			if (bGrbNeedDownload[hh] && as<bool>(USE_NAM))
 				//bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false, false));
@@ -331,46 +306,28 @@ namespace WBSF
 						if (bGrbNeedDownload[hh])
 						{
 							//download inventory
-							msg = DownloadGrib(pConnection, h, false, true, false, callback);
-							if (FileExists(GetOutputFilePath(h, false, true, false)))
+							msg = DownloadGrib(pConnection, h, false, false, callback);
+							if (FileExists(GetOutputFilePath(h, false, false)))
 							{
 								//download gribs file
-								msg = DownloadGrib(pConnection, h, true, true, false, callback);
-								if (msg && !FileExists(GetOutputFilePath(h, true, true, false)))
-									msg += RemoveFile(GetOutputFilePath(h, false, true, false));
+								msg = DownloadGrib(pConnection, h, true, false, callback);
+								if (msg && !FileExists(GetOutputFilePath(h, true, false)))
+									msg += RemoveFile(GetOutputFilePath(h, false, false));
 							}
 							
 							//now try with 1 hour forecast
-							if (msg && !FileExists(GetOutputFilePath(h, true, true, false)))
+							if (msg && !FileExists(GetOutputFilePath(h, true,  false)))
 							{
 								//download inventory
-								msg = DownloadGrib(pConnection, h, false, true, true, callback);
-								if (FileExists(GetOutputFilePath(h, false, true, true)))
+								msg = DownloadGrib(pConnection, h, false, true, callback);
+								if (FileExists(GetOutputFilePath(h, false, true)))
 								{
 									//download gribs file
-									msg = DownloadGrib(pConnection, h, true, true, true, callback);
-									if (msg && !FileExists(GetOutputFilePath(h, true, true, true)))
-										msg += RemoveFile(GetOutputFilePath(h, false, true, true));
+									msg = DownloadGrib(pConnection, h, true, true, callback);
+									if (msg && !FileExists(GetOutputFilePath(h, true, true)))
+										msg += RemoveFile(GetOutputFilePath(h, false, true));
 								}
 							}
-
-
-							//now try with NAM product
-							//if (msg && !FileExists(GetOutputFilePath(h, true, true, false)) && as<bool>(USE_NAM))
-							//{
-							//	msg = DownloadGrib(pConnection, h, false, false, false, callback);
-							//	if (msg && FileExists(GetOutputFilePath(h, false, false, false)))
-							//	{
-							//		msg = DownloadGrib(pConnection, h, true, false, false, callback);
-							//		if (msg && !FileExists(GetOutputFilePath(h, true, false, false)))
-							//		{
-							//				
-							//			//if .gribs does not exist, remove .inv files
-							//			//a better solution can mayby done here by copying a valid .inv file???
-							//			msg += RemoveFile(GetOutputFilePath(h, false, false, false));
-							//		}
-							//	}
-							//}
 						}
 
 
@@ -530,7 +487,7 @@ namespace WBSF
 				if (msg)
 				{
 					CTRef TRef = GetTRef(s, fileList[i].m_filePath);
-					string outputFilePaht = GetOutputFilePath(TRef, true, true, false);
+					string outputFilePaht = GetOutputFilePath(TRef, true, false);
 					string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePaht));
 
@@ -634,7 +591,7 @@ namespace WBSF
 		{
 			CTRef TRef = GetTRef(s, fileList1[i].m_filePath);
 			
-			string filePath = GetOutputFilePath(TRef, true, true, false);
+			string filePath = GetOutputFilePath(TRef, true, false);
 			CFileStamp fileStamp(filePath);
 			//CTime lastUpdate = ;
 			if (fileList1[i].m_time > fileStamp.m_time)
@@ -807,6 +764,6 @@ namespace WBSF
 		size_t hh = WBSF::as<int>(name.substr(22, 3));
 
 
-		return CTRef(year, m, d, h) + hh;
+		return CTRef(year, m, d, h + hh);
 	}
 }

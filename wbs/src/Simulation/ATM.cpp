@@ -2661,6 +2661,7 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 				{
 					
 					string strVar = meta_data[i]["GRIB_ELEMENT"];
+					string strName = meta_data[i]["GRIB_SHORT_NAME"];
 					StringVector description(meta_data[i]["description"], " =[]\"");
 					if (!description.empty() && description[0].find('-') != NOT_INIT)
 						description.empty();

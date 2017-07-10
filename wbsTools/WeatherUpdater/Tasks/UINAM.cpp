@@ -34,7 +34,7 @@ namespace WBSF
 
 	
 	const char* CUINAM::SERVER_NAME = "nomads.ncdc.noaa.gov";
-	const char* CUINAM::NAM_FORMAT = "/data/nam/%4d%02d/%4d%02d%02d/nam_218_%4d%02d%02d_%02d00_%03d%s";
+	const char* CUINAM::NAM_FORMAT = "/data/namanl/%4d%02d/%4d%02d%02d/namanl_218_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUINAM::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
 	
 
@@ -87,21 +87,6 @@ namespace WBSF
 
 		return filePath;
 	}
-
-	//string CUINAM::GetOutputFilePath(const string& filePath)const
-	//{
-	//	static const char* OUTPUT_FORMAT = "%s\\%4d\\%02d\\%02d\\%s%4d%02d%02d_%02d00_%03d%s";
-	//	string workingDir = GetDir(WORKING_DIR);
-
-	//	int y = TRef.GetYear();
-	//	int m = int(TRef.GetMonth() + 1);
-	//	int d = int(TRef.GetDay() + 1);
-	//	int h = int(TRef.GetHour());
-	//	int forecastH = h % 6;
-	//	h = int(h / 6) * 6;
-	//	
-	//	return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, "nam_218_", y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
-	//}
 
 	string CUINAM::GetOutputFilePath(CTRef TRef, bool bGrib)const
 	{
@@ -255,18 +240,9 @@ namespace WBSF
 						if (bGrbNeedDownload[hh])
 						{
 							//now try with NAM product
-							msg = DownloadGrib(pConnection, h, false, callback);
-							if (msg && FileExists(GetOutputFilePath(h, false)))
-							{
-								msg = DownloadGrib(pConnection, h, true, callback);
-								//if (msg && !FileExists(GetOutputFilePath(h, true)))
-								//{
-											
-									//if .gribs does not exist, remove .inv files
-									//a better solution can mayby done here by copying a valid .inv file???
-									//msg += RemoveFile(GetOutputFilePath(h, false));
-								//}
-							}
+							msg = DownloadGrib(pConnection, h, true, callback);
+							if (msg && FileExists(GetOutputFilePath(h, true)))
+								msg = DownloadGrib(pConnection, h, false, callback);
 						}
 
 
@@ -604,7 +580,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			StringVector fileList = GetFilesList(workingDir + "\\" + ToString(year) + "\\*.grb2", FILE_PATH, true);
+			StringVector fileList = GetFilesList(workingDir + ToString(year) + "\\*.grb2", FILE_PATH, true);
 			for (size_t i = 0; i < fileList.size(); i++)
 			{
 				CTRef TRef = GetTRef(fileList[i]);
