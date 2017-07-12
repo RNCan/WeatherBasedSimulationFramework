@@ -291,7 +291,7 @@ namespace WBSF
 		
 		int nbDownloaded = 0;
 	
-		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString() + " gribs)", 2);
+		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString(), 2);
 		for (size_t s = 0; s < 2; s++)
 		{
 			CFileInfoVector fileList;
@@ -351,6 +351,7 @@ namespace WBSF
 								}
 								else
 								{
+									callback.AddMessage("corrupt file, remove: " + tmpFilePaht);
 									msg = WBSF::RemoveFile(tmpFilePaht);
 								}
 							}
@@ -421,10 +422,23 @@ namespace WBSF
 			CTRef TRef = GetTRef(s, fileList1[i].m_filePath);
 			
 			string filePath = GetOutputFilePath(TRef, true);
-			CFileStamp fileStamp(filePath);
-			//CTime lastUpdate = ;
-			if (fileList1[i].m_time > fileStamp.m_time)
+			//CFileStamp fileStamp(filePath);
+			
+			ifStream stream;
+			if (stream.open(filePath))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+
+				if (string(test) != "7777")
+					fileList2.push_back(fileList1[i]);
+			}
+			else
+			{
 				fileList2.push_back(fileList1[i]);
+			}
 		}
 
 		fileList1 = fileList2;

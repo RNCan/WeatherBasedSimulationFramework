@@ -112,6 +112,7 @@ namespace WBSF
 
 		CFileInfoVector fileList;
 		msg = GetFilesToDownload(source, fileList, callback);
+		CleanList(source, fileList);
 
 		callback.AddMessage("Number of forecast gribs to download: " + ToString(fileList.size()));
 		callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
@@ -137,12 +138,12 @@ namespace WBSF
 				{
 					string outputFilePath = GetLocaleFilePath(source, fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePath));
-					if (!FileExists(outputFilePath))
-					{
-						callback.PushTask("Download forecast gribs:" + outputFilePath, NOT_INIT);
-						msg = CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-						callback.PopTask();
-					}
+					//if (!FileExists(outputFilePath))
+					//{
+					callback.PushTask("Download forecast gribs:" + outputFilePath, NOT_INIT);
+					msg = CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+					callback.PopTask();
+					//}
 
 					
 					if (msg && FileExists(outputFilePath))
@@ -179,6 +180,35 @@ namespace WBSF
 
 
 		return msg;
+	}
+
+	void CUIGribForecast::CleanList(size_t s, CFileInfoVector& fileList1)
+	{
+
+		CFileInfoVector fileList2;
+		fileList2.reserve(fileList1.size());
+		for (size_t i = 0; i < fileList1.size(); i++)
+		{
+			string filePath = GetLocaleFilePath(s, fileList1[i].m_filePath);
+
+			ifStream stream;
+			if (stream.open(filePath))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+
+				if (string(test) != "7777")
+					fileList2.push_back(fileList1[i]);
+			}
+			else
+			{
+				fileList2.push_back(fileList1[i]);
+			}
+		}
+
+		fileList1 = fileList2;
 	}
 
 	ERMsg CUIGribForecast::GetFilesToDownload(size_t source, CFileInfoVector& fileList, CCallback& callback)

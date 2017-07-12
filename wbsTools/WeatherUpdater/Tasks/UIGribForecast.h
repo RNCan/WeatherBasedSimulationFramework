@@ -62,6 +62,7 @@ namespace WBSF
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH);
 		
 		ERMsg Clean(size_t source);
+		void CleanList(size_t s, CFileInfoVector& fileList1);
 		ERMsg GetFilesToDownload(size_t source, CFileInfoVector& fileList, CCallback& callback);
 		std::string GetLocaleFilePath(size_t source, const std::string& remote)const;
 		//std::string GetLocaleFilePath(size_t source, CTRef TRef, size_t HH)const;

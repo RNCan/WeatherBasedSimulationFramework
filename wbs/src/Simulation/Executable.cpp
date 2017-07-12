@@ -831,7 +831,6 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 			variables.push_back(CVariableDefine(LOCATION, CLocation::ELEV));
 	}
 
-	//CTRefFormat timeFormat = CTRef::GetFormat();
 	
 	//Open export file
 	ofStream file;
@@ -847,7 +846,6 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 	{
 		callback.AddMessage(FormatMsg(IDS_SIM_EXPORT, GetExportFilePath(fileManager, EXPORT_CSV)));
 		callback.PushTask("Export", pResult->GetNbRows());
-	    //callback.SetNbStep(pResult->GetNbRows());
 
 		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
 		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
@@ -965,6 +963,180 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 	return msg;
 }
+
+//ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCallback& callback)
+//{
+//	ERMsg msg;
+//
+//	char listDelimiter = CTRL.m_listDelimiter;
+//	char decimalDelimiter = CTRL.m_decimalDelimiter;
+//	CTRefFormat timeFormat = CTRL.m_timeFormat;
+//
+//	CVariableDefineVector variables = m_export.m_variables;
+//
+//	//Open export file
+//	ofStream file;
+//	msg = file.open(GetExportFilePath(fileManager, EXPORT_CSV));
+//	if (!msg)
+//		return msg;
+//
+//	CVariableSelectionVector statistic(m_export.m_statistic);
+//
+//	//Open database
+//	CResultPtr pResult = GetResult(fileManager);
+//	if (pResult && pResult->Open())
+//	{
+//		callback.AddMessage(FormatMsg(IDS_SIM_EXPORT, GetExportFilePath(fileManager, EXPORT_CSV)));
+//		callback.PushTask("Export", pResult->GetNbRows());
+//		
+//
+//		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
+//		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
+//		const CModelInputVector& param = pResult->GetMetadata().GetParameterSet();
+//		//Write header
+//		{
+//			std::string line;
+//			for (size_t j = 0; j<variables.size(); j++)
+//			{
+//				if (j>0)
+//					line += listDelimiter;
+//
+//				if (variables[j].m_dimension == LOCATION)
+//				{
+//					string tmp = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
+//					std::replace(tmp.begin(), tmp.end(), ',', listDelimiter);
+//
+//					line += tmp;
+//				}
+//				else if (variables[j].m_dimension == TIME_REF)
+//				{
+//					line += timeFormat.GetHeader(pResult->GetTM());
+//				}
+//				else if (variables[j].m_dimension < VARIABLE)
+//				{
+//					line += pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
+//				}
+//				else
+//				{
+//					std::string title;
+//					size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
+//					if (col != UNKNOWN_POS)
+//					{
+//						for (size_t s = statistic.find_first(), S = 0; s != UNKNOWN_POS; s = statistic.find_next(s), S++)
+//						{
+//							title = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, s);
+//
+//							if (S>0)
+//								line += listDelimiter;
+//
+//							line += title;
+//
+//						}
+//					}
+//				}
+//			}
+//
+//			file.write(line + "\n");
+//		}
+//
+//		//Write data
+//		static const size_t MAX_BLOCK_SIZE = 2000;
+//		size_t nbBlocks = ceil( (float)pResult->GetNbRows() / MAX_BLOCK_SIZE);
+//		for (size_t b = 0; b < nbBlocks && msg; b++)
+//		{
+//			array<string, MAX_BLOCK_SIZE> blocks;
+//			array<bool, MAX_BLOCK_SIZE> bHaveData;
+//			bHaveData.fill(false);
+//
+//			size_t i0 = b * MAX_BLOCK_SIZE;
+//			size_t i1 = min(MAX_BLOCK_SIZE, pResult->GetNbRows() - i0);
+//			
+//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads)
+//			for (int ii = 0; ii < i1; ii++)
+//			{
+//#pragma omp flush(msg)
+//				if (msg)
+//				{
+//
+//					size_t i = i0 + ii;
+//					size_t sectionNo = pResult->GetSectionNo(i);
+//					size_t lNo = pResult->GetMetadata().GetLno(sectionNo);
+//					size_t pNo = pResult->GetMetadata().GetPno(sectionNo);
+//					size_t rNo = pResult->GetMetadata().GetRno(sectionNo);
+//
+//					//std::string line;
+//					for (size_t j = 0; j < variables.size(); j++)
+//					{
+//						if (j > 0)
+//							blocks[ii] += listDelimiter;
+//
+//						std::string tmp;
+//						if (variables[j].m_dimension < VARIABLE)
+//						{
+//							switch (variables[j].m_dimension)
+//							{
+//							case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
+//							case PARAMETER:	tmp = param[pNo].GetName(); break;
+//							case REPLICATION: tmp = ToString(rNo + 1); break;
+//							case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
+//							default: ASSERT(false);
+//							}
+//						}
+//						else
+//						{
+//							size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
+//							if (col < pResult->GetNbCols())
+//							{
+//								bHaveData[ii] = bHaveData[ii] || pResult->GetData(i, col)[NB_VALUE]>0;
+//
+//								for (size_t s = statistic.find_first(), S = 0; s != UNKNOWN_POS; s = statistic.find_next(s), S++)
+//								{
+//									if (S > 0)
+//										tmp += listDelimiter;
+//
+//									string tmp2 = pResult->GetDataValue(i, col, s);
+//									//if value contain list delimiter (like time format), remove it
+//									std::replace(tmp2.begin(), tmp2.end(), listDelimiter, listDelimiter != '-' ? '-' : '/');
+//
+//									tmp += tmp2;
+//								}
+//							}
+//						}
+//
+//						blocks[ii] += tmp.empty() ? " " : tmp;
+//					}//for all variable
+//
+//					std::replace(blocks[ii].begin(), blocks[ii].end(), '.', decimalDelimiter);
+//
+////#pragma omp critical(stepIt)
+//	//				{
+////#pragma omp flush(msg)
+////					if (msg)
+//					msg += callback.StepIt();
+////#pragma omp flush(msg)
+//	//				}
+//
+//				}//if msg
+//			}//for all rows
+//
+//			
+//			for (size_t ii = 0; ii < i1&& msg; ii++)
+//			{
+//				if (CTRL.m_bExportAllLines || bHaveData[ii])
+//					file << blocks[ii] << endl;
+//			}
+//
+//
+//			
+//		}//for all blocks
+//
+//		callback.PopTask();
+//	}//if open
+//
+//	file.close();
+//
+//	return msg;
+//}
 
 ERMsg CExecutable::ExportAsShapefile(const CFileManager& fileManager, CCallback& callback)
 {

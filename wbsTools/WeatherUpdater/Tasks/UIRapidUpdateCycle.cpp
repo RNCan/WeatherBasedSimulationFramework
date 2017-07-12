@@ -592,10 +592,25 @@ namespace WBSF
 			CTRef TRef = GetTRef(s, fileList1[i].m_filePath);
 			
 			string filePath = GetOutputFilePath(TRef, true, false);
-			CFileStamp fileStamp(filePath);
-			//CTime lastUpdate = ;
-			if (fileList1[i].m_time > fileStamp.m_time)
+			ifStream stream;
+			if (stream.open(filePath))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+
+				if (string(test) != "7777")
+					fileList2.push_back(fileList1[i]);
+			}
+			else
+			{
 				fileList2.push_back(fileList1[i]);
+			}
+			//CFileStamp fileStamp(filePath);
+			//CTime lastUpdate = ;
+			//if (fileList1[i].m_time > fileStamp.m_time)
+				//fileList2.push_back(fileList1[i]);
 		}
 
 		fileList1 = fileList2;
