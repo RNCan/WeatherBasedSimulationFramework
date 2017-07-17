@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
-// 11.3.3: 06/06/2017 	Rémi Saint-Amant	Add egg density mapping in dispersal 
+// 11.3.3: 06/06/2017 	Rémi Saint-Amant	Add egg density mapping in dispersal  
 //											
 // 11.3.2: 06/05/2017 	Rémi Saint-Amant	Update of the hourly temperature generation
 //											Compile with GDAL 2.02 

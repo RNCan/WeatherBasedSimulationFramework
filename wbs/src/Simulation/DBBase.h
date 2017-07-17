@@ -99,7 +99,7 @@ namespace WBSF
 
 		static const size_t SIZE;
 
-		CDBSectionIndex(ULONGLONG beginPos = UNKNOWN_POS, size_t firstRow = 0, size_t nbRows = 0, CTRef TRef = CTRef());
+		CDBSectionIndex(ULONGLONG beginPos = UNKNOWN_POS, size_t firstRow = 0, size_t nbRows = 0, CTRef TRef = CTRef(), bool bHaveData=true);
 		CDBSectionIndex(const CDBSectionIndex& in);
 		~CDBSectionIndex();
 
@@ -114,7 +114,7 @@ namespace WBSF
 		size_t GetNbRows()const { return (size_t)m_nbRows; }
 		void SetNbRows(size_t nbRows){ m_nbRows = nbRows; }
 		void AddRows(){ m_nbRows++; }
-
+		bool HaveData()const{return m_bHaveData;}
 		const ULONGLONG& GetBeginPos()const { return m_beginPos; }
 		void SetBeginPos(const ULONGLONG& pos){ m_beginPos = pos; }
 
@@ -129,6 +129,8 @@ namespace WBSF
 			WBSF::read_value(s, m_nbRows);
 			WBSF::read_value(s, m_beginPos);
 			int v = 0; WBSF::read_value(s, v); m_TRef.Set__int32(v);
+			WBSF::read_value(s, m_bHaveData);
+			
 			return s;
 		}
 		std::ostream& operator >> (std::ostream& s)const
@@ -137,6 +139,7 @@ namespace WBSF
 			WBSF::write_value(s, m_nbRows);
 			WBSF::write_value(s, m_beginPos);
 			WBSF::write_value(s, m_TRef.Get__int32());
+			WBSF::write_value(s, m_bHaveData);
 			return s;
 		}
 		friend std::istream& operator >>(std::istream& s, CDBSectionIndex& p){ p << s; return s; }
@@ -145,7 +148,7 @@ namespace WBSF
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & m_firstRow & m_nbRows & m_beginPos & m_TRef;
+			ar & m_firstRow & m_nbRows & m_beginPos & m_TRef & m_bHaveData;
 		}
 
 		bool IsInit()const{ return m_beginPos != UNKNOWN_POS; }
@@ -157,6 +160,7 @@ namespace WBSF
 		unsigned __int64 m_nbRows;
 		ULONGLONG m_beginPos;
 		CTRef m_TRef;
+		bool m_bHaveData;
 	};
 
 

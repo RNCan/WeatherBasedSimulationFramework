@@ -896,62 +896,71 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 			file.write(line+"\n");
 		}
 
+
+		const CDBSectionIndexVector& index = pResult->GetDatabase().GetIndex();
+
+
 		//Write data
-		for(int i=0; i<pResult->GetNbRows()&&msg; i++)
+		for (int i = 0; i < pResult->GetNbRows() && msg; i++)
 		{
-			bool bHaveData = false;
+			
 			size_t sectionNo = pResult->GetSectionNo(i);
 			size_t lNo = pResult->GetMetadata().GetLno(sectionNo);
 			size_t pNo = pResult->GetMetadata().GetPno(sectionNo);
 			size_t rNo = pResult->GetMetadata().GetRno(sectionNo);
-
-			std::string line;
-			for(size_t j=0; j<variables.size(); j++)
+			bool bHaveData = index[sectionNo].HaveData();;
+			
+			if (CTRL.m_bExportAllLines || bHaveData)//elimination by section
 			{
-				if( j>0 )
-					line += listDelimiter;
-				
-				std::string tmp;
-				if( variables[j].m_dimension < VARIABLE )
-				{
-					switch(variables[j].m_dimension)
-					{
-					case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
-					case PARAMETER:	tmp = param[pNo].GetName(); break;
-					case REPLICATION: tmp = ToString(rNo+1); break;
-					case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
-					default: ASSERT(false);
-					}
-				} 
-				else
-				{
-					size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
-					if( col < pResult->GetNbCols() )
-					{
-						bHaveData = bHaveData || pResult->GetData(i, col)[NB_VALUE]>0;
+				bHaveData = false;
 
-						for (size_t s = statistic.find_first(),S=0; s != UNKNOWN_POS; s = statistic.find_next(s),S++)
+				std::string line;
+				for (size_t j = 0; j < variables.size(); j++)
+				{
+					if (j > 0)
+						line += listDelimiter;
+
+					std::string tmp;
+					if (variables[j].m_dimension < VARIABLE)
+					{
+						switch (variables[j].m_dimension)
 						{
-							if( S>0)
-								tmp += listDelimiter;
-					
-							string tmp2 = pResult->GetDataValue(i, col, s);
-							//if value contain list delimiter (like time format), remove it
-							std::replace(tmp2.begin(), tmp2.end(), listDelimiter, listDelimiter != '-' ? '-' : '/');
-
-							tmp += tmp2;
+						case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
+						case PARAMETER:	tmp = param[pNo].GetName(); break;
+						case REPLICATION: tmp = ToString(rNo + 1); break;
+						case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
+						default: ASSERT(false);
 						}
 					}
-				}
+					else
+					{
+						size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
+						if (col < pResult->GetNbCols())
+						{
+							bHaveData = bHaveData || pResult->GetData(i, col)[NB_VALUE]>0;
 
-				line += tmp.empty()?" ":tmp; 
-			}//for all variable
+							for (size_t s = statistic.find_first(), S = 0; s != UNKNOWN_POS; s = statistic.find_next(s), S++)
+							{
+								if (S > 0)
+									tmp += listDelimiter;
 
-			std::replace(line.begin(), line.end(), '.', decimalDelimiter);
+								string tmp2 = pResult->GetDataValue(i, col, s);
+								//if value contain list delimiter (like time format), remove it
+								std::replace(tmp2.begin(), tmp2.end(), listDelimiter, listDelimiter != '-' ? '-' : '/');
 
-			if( CTRL.m_bExportAllLines || bHaveData )
-				file.write(line+ '\n' );
+								tmp += tmp2;
+							}
+						}
+					}
 
+					line += tmp.empty() ? " " : tmp;
+				}//for all variable
+
+				std::replace(line.begin(), line.end(), '.', decimalDelimiter);
+
+				if( CTRL.m_bExportAllLines || bHaveData )//elimnation by line
+					file.write(line + '\n');
+			}
 
 			msg += callback.StepIt();
 		}//for all rows

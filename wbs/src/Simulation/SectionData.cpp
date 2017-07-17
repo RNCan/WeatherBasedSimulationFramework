@@ -330,16 +330,28 @@ namespace WBSF
 
 	bool CNewSectionData::HaveData(size_t i)const
 	{
-		bool bHaveData = false;
-
-		const CNewSectionData& me = *this;
-
 		ASSERT(i >= 0 && i < GetYSize());
+
+		bool bHaveData = false;
+		const CNewSectionData& me = *this;
+		
 		for (size_t i = 0; i < GetYSize() && !bHaveData; i++)
 		{
 			if (me[i][0][NB_VALUE] > 0)
 				bHaveData = true;
 		}
+
+		return bHaveData;
+	}
+
+	bool CNewSectionData::HaveData()const
+	{
+		bool bHaveData = false;
+
+		const CNewSectionData& me = *this;
+		for (size_t i = 0; i < GetXSize() && !bHaveData; i++)
+			if (HaveData(i))
+				bHaveData = true;
 
 		return bHaveData;
 	}

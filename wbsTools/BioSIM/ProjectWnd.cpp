@@ -3,6 +3,7 @@
 #include "Basic/Registry.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/Mapping.h"
+#include "Simulation/Dispersal.h"
 #include "Simulation/BioSIMProject.h"
 #include "Simulation/WeatherGeneration.h"
 #include "UI/Common/SYShowMessage.h"
@@ -298,51 +299,69 @@ BOOL CProjectWnd::OnOpenWorkingDir(UINT ID)
 
 void CProjectWnd::OnShowMaps()
 {
+	HTREEITEM hItem = m_projectCtrl.GetSelectedItem();
 	CExecutablePtr pItem = m_projectCtrl.GetSelectedExecutable();
 
 	if (pItem)
 	{
-		CMapping* pMapping = dynamic_cast<CMapping*>(pItem.get());
+		short elemType = m_projectCtrl.GetClassType(hItem);
 
-		CExecutablePtr pParent;
-		if (pMapping)
-			pParent = pMapping->GetParent();
 
-		CResultPtr pResult;
-		if (pParent)
-			pResult = pParent->GetResult(GetFM());
-
-		if (pResult && pResult->Open())
+		if (elemType == CExecutableTree::MAPPING)
 		{
-			size_t pSize = pMapping->GetNbMapParameterIndex(pResult);
-			size_t rSize = pMapping->GetNbReplicationIndex(pResult);
-			size_t tSize = pMapping->GetNbMapTimeIndex(pResult);
-			size_t vSize = pMapping->GetNbMapVariableIndex(pResult);
 
+			CMapping* pMapping = dynamic_cast<CMapping*>(pItem.get());
 
-			for (size_t p = 0; p<pSize; p++)
+			CExecutablePtr pParent;
+			if (pMapping)
+				pParent = pMapping->GetParent();
+
+			CResultPtr pResult;
+			if (pParent)
+				pResult = pParent->GetResult(GetFM());
+
+			if (pResult && pResult->Open())
 			{
-				for (size_t r = 0; p < rSize; p++)
+				size_t pSize = pMapping->GetNbMapParameterIndex(pResult);
+				size_t rSize = pMapping->GetNbReplicationIndex(pResult);
+				size_t tSize = pMapping->GetNbMapTimeIndex(pResult);
+				size_t vSize = pMapping->GetNbMapVariableIndex(pResult);
+
+
+				for (size_t p = 0; p < pSize; p++)
 				{
-					for (size_t t = 0; t < tSize; t++)
+					for (size_t r = 0; p < rSize; p++)
 					{
-						for (size_t v = 0; v < vSize; v++)
+						for (size_t t = 0; t < tSize; t++)
 						{
-							string fileName = pMapping->GetTEMName(pResult, p, r, t, v);
-							string filePath = pMapping->GetTEMFilePath(GetFM(), fileName);
-							if (WBSF::FileExists(filePath))
-								WBSF::CallApplication(CRegistry::SHOWMAP, filePath, GetSafeHwnd(), SW_SHOW);
+							for (size_t v = 0; v < vSize; v++)
+							{
+								string fileName = pMapping->GetTEMName(pResult, p, r, t, v);
+								string filePath = pMapping->GetTEMFilePath(GetFM(), fileName);
+								if (WBSF::FileExists(filePath))
+									WBSF::CallApplication(CRegistry::SHOWMAP, filePath, GetSafeHwnd(), SW_SHOW);
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+		else if (elemType == CExecutableTree::DISPERSAL)
+		{
+			
+			CDispersal* pDispersal = dynamic_cast<CDispersal*>(pItem.get());
+			string filePath = GetFileManager().GetOutputMapFilePath(pDispersal->m_parameters.m_world.m_eggMapsTitle, ".tif");
+			if (!filePath.empty())
+				WBSF::CallApplication(CRegistry::SHOWMAP, filePath, GetSafeHwnd(), SW_SHOW);
+		}
+	}//if pItem
+	
 }
 
 
 void CProjectWnd::OnShowLoc()
 {
+	
 	CExecutablePtr pItem = m_projectCtrl.GetSelectedExecutable();
 
 	if (pItem)
@@ -536,8 +555,8 @@ void CProjectWnd::OnUpdateToolBar(CCmdUI *pCmdUI)
 		case ID_MATCH_STATION:		   pCmdUI->Enable(pDoc->IsInit() && elemType != CExecutableTree::UNKNOWN); break;
 		case ID_PROPERTIES:			   pCmdUI->Enable(pDoc->IsInit() && elemType != CExecutableTree::UNKNOWN); break;
 		case ID_OPEN_WORKING_DIR:	   pCmdUI->Enable(pDoc->IsInit()); break;
-		case ID_OPEN_OUTPUT_MAP_DIR:   pCmdUI->Enable(pDoc->IsInit() && elemType == CExecutableTree::MAPPING); break;
-		case ID_SHOWMAPS:              pCmdUI->Enable(pDoc->IsInit() && elemType == CExecutableTree::MAPPING); break;
+		case ID_OPEN_OUTPUT_MAP_DIR:   pCmdUI->Enable(pDoc->IsInit() && elemType == CExecutableTree::MAPPING || elemType == CExecutableTree::DISPERSAL); break;
+		case ID_SHOWMAPS:              pCmdUI->Enable(pDoc->IsInit() && (elemType == CExecutableTree::MAPPING || elemType == CExecutableTree::DISPERSAL) ); break;
 		case ID_SHOWLOC:               pCmdUI->Enable(pDoc->IsInit() && elemType != CExecutableTree::UNKNOWN); break;
 		case ID_ITEM_EXPAND_ALL:       pCmdUI->Enable(pDoc->IsInit() && elemType != CExecutableTree::UNKNOWN); break;
 		case ID_ITEM_COLLAPSE_ALL:     pCmdUI->Enable(pDoc->IsInit() && elemType != CExecutableTree::UNKNOWN); break;

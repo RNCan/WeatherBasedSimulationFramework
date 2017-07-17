@@ -3,7 +3,7 @@
 
 #include "Basic/UtilStd.h"
 #include "Basic/WeatherStation.h"
-#include "EnvCanLocationMap.h"
+//#include "EnvCanLocationMap.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
@@ -64,7 +64,8 @@ namespace WBSF
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback);
 		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
-		static ERMsg UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback);
+		//ERMsg UpdateAllStationList(CCallback& callback);
+		static ERMsg UpdateStationList(CLocationVector& stationList, CLocationVector& stations, CCallback& callback);
 		static ERMsg UpdateCoordinate(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, size_t m, CLocation& station);
 
 
@@ -75,27 +76,11 @@ namespace WBSF
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int y)const;
 		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, const std::string& page);
 		//std::string GetForecastListFilePath()const{ return GetApplicationPath() + "ForecastLinkEnvCan.csv"; }
-		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "DailyStationsList.xml"; }
+		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "DailyStationsList.csv"; }
 		ERMsg DownloadStation(UtilWWW::CHttpConnectionPtr& pConnection, const CLocation& info, CCallback& callback);
 		ERMsg CleanStationList(CLocationVector& stationList, CCallback& callback)const;
 
-
-		//CProvinceSelection m_selection;
-		//CGeoRect m_boundingBox;
-		//short m_bForceDownload;
-		//bool m_bExtractSnow;
-
-		//stat
-		//void InitStat();
-		//void AddToStat(short year);
-		//void ReportStat(CCallback& callback);
-
-		//CEnvCanStationMap m_stations;
-		//int m_nbDownload;
-		//std::vector<int> m_stat;
-
-		CLocationMap m_stations;
-
+		CLocationVector m_stations;
 
 		static long GetNbDay(const CTime& t);
 		static long GetNbDay(int y, size_t m, size_t d);

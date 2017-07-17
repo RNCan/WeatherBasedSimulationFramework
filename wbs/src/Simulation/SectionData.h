@@ -108,6 +108,7 @@ namespace WBSF
 		CTRef GetEndTRef()const{ return m_firstTRef.IsInit() ? m_firstTRef + GetYSize() : CTRef(); }//end Tref is +1 after the last element
 		CTRef GetTRef(size_t i)const{ return m_firstTRef + i; }
 		CTRef GetTRef(size_t row, size_t col, size_t stat = MEAN)const;
+		
 		void SetTRef(size_t row, size_t col, CTRef t);
 		void AddTRef(size_t row, size_t col, CTRef t);
 		CTPeriod GetTPeriod()const{ return CTPeriod(GetFirstTRef(), GetLastTRef()); }
@@ -118,6 +119,7 @@ namespace WBSF
 		void SetDataTM(const std::vector<CTM>& TM){ m_dataTM = TM; }
 
 		bool IsInside(CTRef r)const{ size_t i = r - m_firstTRef; return i >= 0 && i < GetYSize(); }
+		bool HaveData()const;
 		bool HaveData(size_t i)const;
 		bool HaveData(CTRef r)const{ return HaveData(size_t(r - m_firstTRef)); }
 

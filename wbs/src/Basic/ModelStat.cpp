@@ -141,6 +141,19 @@ namespace WBSF
 
 		return *this;
 	}
+
+
+	bool CModelStatVector::HaveData()const
+	{
+		bool bHaveData = false;
+		for (size_t i = 0; i < size() && !bHaveData; i++)
+			for (size_t j = 0; j < at(i).size() && !bHaveData; j++)
+				bHaveData = at(i).at(j)>m_missingValue;
+
+
+		return bHaveData;
+	}
+
 	__int32 CModelStatVector::GetFirstIndex(size_t s, double threshold, int nbDayBefore, const CTPeriod& pIn)const
 	{
 		const CModelStatVector& me = *this;

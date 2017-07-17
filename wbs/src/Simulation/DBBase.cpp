@@ -270,14 +270,15 @@ namespace WBSF
 
 	//****************************************************************************************************
 	//CDBS	ectionIndex
-	const size_t CDBSectionIndex::SIZE = sizeof(__int64) * 2 + sizeof(LONGLONG) + sizeof(CTRef);
+	const size_t CDBSectionIndex::SIZE = sizeof(__int64) * 2 + sizeof(LONGLONG) + sizeof(CTRef) + sizeof(bool);
 
-	CDBSectionIndex::CDBSectionIndex(ULONGLONG beginPos, size_t firstRow, size_t rows, CTRef TRef)
+	CDBSectionIndex::CDBSectionIndex(ULONGLONG beginPos, size_t firstRow, size_t rows, CTRef TRef, bool bHaveData)
 	{
 		m_beginPos = beginPos;
 		m_firstRow = firstRow;
 		m_nbRows = rows;
 		m_TRef = TRef;
+		m_bHaveData = bHaveData;
 	}
 
 	CDBSectionIndex::CDBSectionIndex(const CDBSectionIndex& in)
@@ -293,6 +294,7 @@ namespace WBSF
 			m_nbRows = in.m_nbRows;
 			m_beginPos = in.m_beginPos;
 			m_TRef = in.m_TRef;
+			m_bHaveData = in.m_bHaveData;
 		}
 
 		return *this;
@@ -308,6 +310,7 @@ namespace WBSF
 		m_nbRows = 0;
 		m_beginPos = UNKNOWN_POS;
 		m_TRef.Reset();
+		m_bHaveData = false;
 	}
 
 
@@ -620,7 +623,7 @@ namespace WBSF
 			m_type = type;
 
 			m_metadata.AddSection(section);
-			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS/*m_nbRows*/, section.GetRows(), section.GetFirstTRef()));
+			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData() ));
 
 			for (size_t i = 0; i < section.GetRows() && msg; i++)
 			{
@@ -656,7 +659,7 @@ namespace WBSF
 			m_nbCols = section.GetCols();
 			m_nbRows += section.GetRows();
 			m_metadata.AddSection(section);
-			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef()));
+			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
 			//save data
 			CStatistic STAT_EMPTY;
@@ -707,7 +710,7 @@ namespace WBSF
 			m_nbRows += period.size();
 
 			m_metadata.AddSection(section);
-			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin()));
+			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin(), section.HaveData()));
 
 			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
 			{
@@ -747,7 +750,7 @@ namespace WBSF
 			m_nbRows += section.GetRows();
 
 			m_metadata.AddSection(section);
-			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef()));
+			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
 			for (size_t i = 0; i < section.GetRows() && msg; i++)
 			{
@@ -783,7 +786,7 @@ namespace WBSF
 			m_type = type;
 			m_nbRows += section.GetRows();
 			m_metadata.AddSection(section);
-			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.size(), section.GetFirstTRef()));
+			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.size(), section.GetFirstTRef(), section.HaveData()));
 
 			for (size_t i = 0; i < section.GetRows() && msg; i++)
 			{
@@ -819,24 +822,29 @@ namespace WBSF
 		const CDBSectionIndex& index = m_index[no];
 		ASSERT(index.IsInit());
 
+
 		size_t nbRows = index.GetNbRows();
 		section.resize(nbRows, m_nbCols, m_index[no].GetTRef());
-		me.m_file.seekg(GetFilePos(no, 0, 0));
 
-		for (size_t i = 0; i < nbRows; i++)
+		if (index.HaveData())
 		{
-			for (size_t j = 0; j<section.GetCols(); j++)
+			me.m_file.seekg(GetFilePos(no, 0, 0));
+
+			for (size_t i = 0; i < nbRows; i++)
 			{
-				if (m_type == DATA_FLOAT)
+				for (size_t j = 0; j < section.GetCols(); j++)
 				{
-					float value = 0;
-					me.m_file.read_value(value);
-					if (value > VMISS)
-						section[i][j] = value;
-				}
-				else
-				{
-					me.m_file.read_value(section[i][j]);
+					if (m_type == DATA_FLOAT)
+					{
+						float value = 0;
+						me.m_file.read_value(value);
+						if (value > VMISS)
+							section[i][j] = value;
+					}
+					else
+					{
+						me.m_file.read_value(section[i][j]);
+					}
 				}
 			}
 		}

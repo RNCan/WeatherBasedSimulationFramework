@@ -325,7 +325,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIEnvCanHourly::UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback)const
+	ERMsg CUIEnvCanHourly::UpdateStationList(CLocationVector& stationList, CLocationVector & stations, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -345,26 +345,44 @@ namespace WBSF
 		for (CLocationVector::iterator it = stationList.begin(); it != stationList.end(); it++)
 		{
 			//this station doesn't exist, we add it
-			CTPeriod period = String2Period(it->GetSSI("Period"));
-			//if (period.IsInit())
+			//CTPeriod period = String2Period(it->GetSSI("Period"));
+			//
+			//string ID = it->m_ID;
+			////string internalID = it->GetSSI("InternalID");
+			////__int64 ID = ToInt64(internalID);
+			//CLocationMap::iterator it2 = stationMap.find(ID);
+			//if (it2 == m_stations.end() || it2->second.m_lat == -999)
 			//{
-			string ID = it->m_ID;
-			//string internalID = it->GetSSI("InternalID");
-			//__int64 ID = ToInt64(internalID);
-			CLocationMap::iterator it2 = stationMap.find(ID);
-			if (it2 == m_stations.end() || it2->second.m_lat == -999)
+			//	stationMap[ID] = *it;
+			//	__int64 internalID = WBSF::as<__int64>(it->GetSSI("InternalID"));
+			//	msg += UpdateCoordinate(pConnection, internalID, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stationMap[ID]);
+			//}
+			//else
+			//{
+			//	stationMap[ID].SetSSI("Period", it->GetSSI("Period"));
+			//}
+
+			////now: update coordinate for stationList station
+			//*it = stationMap[ID];
+			
+			CTPeriod period = String2Period(it->GetSSI("Period"));
+			string internalID = it->GetSSI("InternalID");
+			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
+			if (it2 == stations.end() || it2->m_lat == -999)
 			{
-				stationMap[ID] = *it;
-				__int64 internalID = WBSF::as<__int64>(it->GetSSI("InternalID"));
-				msg += UpdateCoordinate(pConnection, internalID, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stationMap[ID]);
+				__int64 internalID64 = ToInt64(internalID);
+
+				stations.push_back(*it);
+				msg += UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stations.back());
+				it2 = stations.FindBySSI("InternalID", internalID, false);
 			}
 			else
 			{
-				stationMap[ID].SetSSI("Period", it->GetSSI("Period"));
+				it2->SetSSI("Period", it->GetSSI("Period"));
 			}
 
-			//now: update coordinate for stationList station
-			*it = stationMap[ID];
+			//now: update coordinate for station that are not init
+			*it = *it2;
 
 			msg += callback.StepIt();
 		}
@@ -590,7 +608,15 @@ namespace WBSF
 		CLocationVector stationList;
 		//local station list
 		if (FileExists(GetStationListFilePath()))
+		{
 			msg = m_stations.Load(GetStationListFilePath());
+			/*CLocationVector stations;
+			for (auto it = m_stations.begin(); it != m_stations.end(); it++)
+				stations.push_back(it->second);
+
+			return stations.Save(GetStationListFilePath()+".csv");*/
+		}
+			
 
 		//remote station list
 		if (msg)
@@ -831,9 +857,9 @@ namespace WBSF
 				case N_HISTORICAL:
 				{
 					msg += m_stations.Load(GetStationListFilePath());
-					for (CLocationMap::const_iterator it = m_stations.begin(); it != m_stations.end() && msg; it++)
+					for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end() && msg; it++)
 					{
-						const CLocation& station = it->second;
+						const CLocation& station = *it;
 						CTPeriod p = String2Period(station.GetSSI("Period"));
 						if (p.Begin().GetYear() <= lastYear && p.End().GetYear() >= firstYear) //Bug correction: By RSA 02/2012
 						{
@@ -895,9 +921,10 @@ namespace WBSF
 
 		if (network[N_HISTORICAL])
 		{
-			CLocationMap::const_iterator it = m_stations.find(ID);
-			if (it != m_stations.end())
-				station = it->second;
+			//CLocationMap::const_iterator it = m_stations.find(ID);
+			size_t i = m_stations.FindByID(ID);
+			if (i < m_stations.size())
+				station = m_stations[i];
 			else
 				network.reset(N_HISTORICAL);
 		}
@@ -1291,7 +1318,7 @@ namespace WBSF
 						std::copy(name.begin(), name.end(), ostream_iterator<string>(s, " "));
 
 						//Regina Upgrade - May 2008 
-						location.m_name = WBSF::TrimConst(WBSF::UppercaseFirstLetter(s.str()));
+						location.m_name = WBSF::PurgeFileName(WBSF::TrimConst(WBSF::UppercaseFirstLetter(s.str())));
 						break;
 					}
 					case C_LATITUDE: location.m_lat = WBSF::as<double>((*loop)[C_LATITUDE]); break;

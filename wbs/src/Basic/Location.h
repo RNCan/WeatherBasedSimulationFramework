@@ -264,6 +264,7 @@ namespace WBSF
 
 		size_t FindByID(const std::string& ID)const; 
 		CLocationVector::const_iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const;
+		CLocationVector::iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase);
 		
 
 		StringVector GetHeaderFromData()const;

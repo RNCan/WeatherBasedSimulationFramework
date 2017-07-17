@@ -379,10 +379,22 @@ namespace WBSF
 			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_distraction_name, distraction_filepath);
 		if (!m_parameters.m_world.m_water_name.empty())
 			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
-		if (!m_parameters.m_world.m_gribs_name.empty() && m_parameters.m_world.UseGribs())
-			msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
-		if (!m_parameters.m_world.m_hourly_DB_name.empty() && m_parameters.m_world.UseHourlyDB())
-			msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
+		if (m_parameters.m_world.UseGribs())
+		{
+			if (!m_parameters.m_world.m_gribs_name.empty())
+				msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
+			else
+				msg.ajoute("Gribs file is not defined");
+		}
+			
+		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_ATM.m_PSource == CATMParameters::PRCP_WEATHER_STATION || m_parameters.m_ATM.m_broodTSource == CATMParameters::BROOD_T_WEATHER_STATION))
+		{
+			if (!m_parameters.m_world.m_hourly_DB_name.empty())
+				msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
+			else
+				msg.ajoute("Hourly database is not defined");
+		}
+			
 		if (!outputFilePath.empty())
 			msg += output_file.open(outputFilePath);
 				

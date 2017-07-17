@@ -150,6 +150,7 @@ namespace WBSF
 		CModelStatVector& operator=(const CModelStatVector& in);
 		CModelStatVector& swap(CModelStatVector& in);
 
+		bool HaveData()const;
 		__int32 GetFirstIndex(size_t stat, double threshold, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const;
 		__int32 GetLastIndex(size_t stat, double threshold, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const;
 		CTRef GetFirstTRef(size_t v, double threshold = 0, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const{ int i = GetFirstIndex(v, threshold, nbDayBefore, p); return i == -1 ? CTRef() : m_firstTRef + i; }

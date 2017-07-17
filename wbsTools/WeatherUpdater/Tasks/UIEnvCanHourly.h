@@ -2,7 +2,7 @@
 
 #include "ProvinceSelection.h"
 #include "Basic/WeatherStation.h"
-#include "EnvCanLocationMap.h"
+//#include "EnvCanLocationMap.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
@@ -63,11 +63,11 @@ namespace WBSF
 		ERMsg CleanStationList(CLocationVector& stationList, CCallback& callback)const;
 		int GetNbStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page)const;
 		ERMsg UpdateCoordinate(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, size_t d, CLocation& station)const;
-		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "HourlyStationsList.xml"; }
+		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "HourlyStationsList.csv"; }
 
 		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
-		ERMsg UpdateStationList(CLocationVector& stationList, CLocationMap& stationMap, CCallback& callback)const;
+		ERMsg UpdateStationList(CLocationVector& stationList, CLocationVector & stations, CCallback& callback)const;
 		std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetNetWork()const;
 
 		//Update data part
@@ -96,8 +96,8 @@ namespace WBSF
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int year, size_t m)const;
 		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page);
 
-		//CEnvCanStationMap m_stations;
-		CLocationMap m_stations;
+		
+		CLocationVector m_stations;
 		CLocationVector m_SWOBstations;
 
 		static CTPeriod String2Period(std::string period);

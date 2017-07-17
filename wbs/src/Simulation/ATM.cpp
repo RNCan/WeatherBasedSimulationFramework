@@ -37,7 +37,7 @@
 //NO_LIFTOFF_WNDS  	    12
 //END_BY_PRCP			13
 //END_BY_TAIR			14
-//END_OF_TIME_FLIGHT	15
+//END_BY_SUNRISE		15
 //OUTSIDE_MAP			16
 //OUTSIDE_TIME_WINDOW	17
 
@@ -496,8 +496,24 @@ namespace WBSF
 
 			if (m_sex == CATMParameters::FEMALE)
 			{
-				if( !m_world.is_over_water(m_newLocation) )
-					Brood(17);
+				if (!m_world.is_over_water(m_newLocation))
+				{
+					double T = 0;
+					switch (m_world.m_parameters2.m_broodTSource)
+					{
+					case CATMParameters::BROOD_T_17: T = 17; break;
+					case CATMParameters::BROOD_T_SAME_AS_INPUT:
+					{
+						CATMVariables w = get_weather(UTCTRef, UTCTime);
+						T = w[ATM_TAIR]; break;
+					}
+					case CATMParameters::BROOD_T_WEATHER_STATION:	
+						; break;
+					}
+					
+
+					Brood(T);
+				}
 			}
 
 			AddStat(m_world.get_weather(m_pt, UTCTRef, UTCTime));
@@ -862,7 +878,8 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	ASSERT(pt.IsGeographic());
 
 	size_t weather_type = m_world.m_parameters1.m_weather_type;
-	if (weather_type == CATMWorldParamters::FROM_GRIBS && m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION)
+	if (weather_type == CATMWorldParamters::FROM_GRIBS && 
+		(m_world.m_parameters2.m_PSource == CATMParameters::PRCP_WEATHER_STATION) )
 		weather_type = CATMWorldParamters::FROM_BOTH;
 
 
@@ -879,9 +896,6 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		
 		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt2, UTCTRef, UTCTime);
 		w1 = p_cuboid->get_weather(pt2, UTCTime);
-
-		if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
-			w1[ATM_PRCP] = 0;
 	}
 	
 
@@ -890,8 +904,6 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 		weather_type == CATMWorldParamters::FROM_BOTH)
 	{
 		w2 = get_station_weather(pt, UTCTRef, UTCTime);
-		if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
-			w2[ATM_PRCP] = 0;
 	}
 
 	
@@ -911,6 +923,8 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	default: ASSERT(false);
 	}
 	
+	if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
+		weather[ATM_PRCP] = 0;
 
 	return weather;
 }
@@ -1377,17 +1391,7 @@ ERMsg CATMWeather::Load(const std::string& gribsFilepath, const std::string& hou
 {
 	ERMsg msg;
 
-	//CreateGribsFromText(callback);
-	//CreateGribsFromNetCDF(callback);
-	//return ERMsg(ERMsg::ERREUR, "Fin de la transformation");
-
-
-	if (hourlyDBFilepath.empty() && gribsFilepath.empty())
-	{
-		msg.ajoute(GetString(IDS_WG_NO_WEATHER));
-		return msg;
-	}
-
+	
 	if (!gribsFilepath.empty())
 	{
 		msg += load_gribs(gribsFilepath, callback);
@@ -2663,23 +2667,33 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 					string strVar = meta_data[i]["GRIB_ELEMENT"];
 					string strName = meta_data[i]["GRIB_SHORT_NAME"];
 					StringVector description(meta_data[i]["description"], " =[]\"");
-					if (!description.empty() && description[0].find('-') != NOT_INIT)
-						description.empty();
-					
-					size_t var = GetVar(strVar);
-					size_t level = !description.empty() ? as<size_t>(description[0]) : UNKNOWN_POS;
-					if (level <= 10)
-						level = 0;
-					else if (level >= 10000 && level <= 100000)
+					if (description.size() > 3 && (description[2] == "ISBL" || description[2] == "SFC" || description[2] == "HTGL"))
 					{
-						level = 38 - (level/100 - 100) / 25 - 1;
-						ASSERT(level < NB_LEVELS);
-					}
-						
+						if (!description.empty() && description[0].find('-') != NOT_INIT)
+							description.empty();
 
-					if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
-					{
-						m_bands[var][level] = i;
+						description.empty();
+
+						size_t var = GetVar(strVar);
+						size_t level = !description.empty() ? as<size_t>(description[0]) : UNKNOWN_POS;
+						if (level <= 10)
+							level = 0;
+
+						else if (level >= 10000 && level <= 100000)
+						{
+							level = 38 - (level / 100 - 100) / 25 - 1;
+							ASSERT(level < NB_LEVELS);
+						}
+
+						if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
+						{
+							m_bands[var][level] = i;
+							if (var == ATM_TAIR)
+							{
+								int j;
+								j = 0;
+							}
+						}
 					}
 				}
 			}
