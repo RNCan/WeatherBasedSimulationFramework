@@ -697,7 +697,7 @@ IDS_UPDATER_RAP_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|P
 IDS_UPDATER_NAM_P   "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Afficher WinSCP"
 IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Contruire la couche virtuelle (VRT)"
 IDS_UPDATER_HRRR_P      "Répertoire de travail"
-IDS_UPDATER_GRIB_FORECAST_P "Répertoire de travail|Type"
+IDS_UPDATER_GRIB_FORECAST_P "Répertoire de travail|Type|Afficher WinSCP"
 IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
 IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
 
@@ -1158,7 +1158,7 @@ BEGIN
 	IDS_UPDATER_NAM_P	"Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Show WinSCP"
 	IDS_UPDATER_HRDPS_P     "Working directory|Variables|Build virtual layer (VRT)"
 	IDS_UPDATER_HRRR_P      "Working directory"
-	IDS_UPDATER_GRIB_FORECAST_P "Working directory|Type"
+	IDS_UPDATER_GRIB_FORECAST_P "Working directory|Type|Show WinSCP"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 
@@ -1226,7 +1226,7 @@ BEGIN
 	ID_TASK_HIRESW			"Download High-Resolution Window (HIRESW) via NCEP\nGrille de surface HIRESW\nHIRESW surface grid"
 	ID_TASK_RAP             "Download Rapid Update Cycle (RAP) 3D grids via NOMADS (NOAA)\nRAP 3D Gribs"
 	ID_TASK_NAM             "Download North American Mesoscale Forecast System (NAM) 3D grids via NOMADS (NOAA)\nNAM 3D Gribs"
-	ID_TASK_HRDPS           "Download high resolution HRDPS (Canda) 3D gribs\nHRDPS 3D Gribs"
+	ID_TASK_HRDPS           "Download high resolution HRDPS (Canada) 3D gribs\nHRDPS 3D Gribs"
 	ID_TASK_HRRR            "Download high resolution HRRR (USA) 3D gribs\nHRRR 3D Gribs"
 	ID_TASK_GRIB_FORECAST   "Download 3D gribs forecast\n3D Gribs Forecast"
 	ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"

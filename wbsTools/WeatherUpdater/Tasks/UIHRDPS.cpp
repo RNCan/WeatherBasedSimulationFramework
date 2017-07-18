@@ -28,7 +28,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Variables" , "BuildVRT"};
 	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_BOOL };
-	const UINT CUIHRDPS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRDPS_P;
+	const UINT CUIHRDPS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRDPS_P; 
 	const UINT CUIHRDPS::DESCRIPTION_TITLE_ID = ID_TASK_HRDPS;
 
 	const char* CUIHRDPS::CLASS_NAME(){ static const char* THE_CLASS_NAME = "HRDPS";  return THE_CLASS_NAME; }

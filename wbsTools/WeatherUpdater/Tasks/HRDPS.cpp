@@ -115,6 +115,9 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
+		CreateVRT(callback);
+
+
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -221,57 +224,123 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string EXEPath = WBSF::GetApplicationPath() + "External\\";
+		//string EXEPath = WBSF::GetApplicationPath() + "External\\";
 
-		StringVector years ("2017","|");// = WBSF::GetDirectoriesList(m_workingDir+"*");
+		StringVector filePaths;
+		StringVector years = WBSF::GetDirectoriesList(m_workingDir+"*");
 		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
 		{
 			string year = *it1;// GetLastDirName(*it1);
-			StringVector months("01", "|");// = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+			StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
 			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
 			{
 				string month = *it2; // GetLastDirName(m_workingDir + *it1 + "\\" + *it2);
-				StringVector days ("01", "|");// = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+				StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
 				for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
 				{
-					string day = *it3; 
-					//StringVector hours = WBSF::GetDirectoriesList(*it3);
-					//for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
+					string day = *it3;
+					
+					//for (size_t h = 0; h < 24 && msg; h++)
 					//{
-
-					for (size_t h = 0; h < 24&&msg; h++)
+					StringVector hours = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\" + *it3 + "\\*");
+					for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
 					{
-						size_t h1 = h / 6;
-						size_t h2 = h % 6;
-						
-						//create VRT
-						string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
-
-						if (!WBSF::FileExists(VRTFilePath))
+						string hour = *it4;
+						size_t h1 = WBSF::as<size_t>(hour);
+						for (size_t h2 = 0; h2 < 6; h2++)
 						{
-							string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-							StringVector fileList = WBSF::GetFilesList(filter, 2, true);
-							sort(fileList.begin(), fileList.end());
+							size_t h = h1 + h2;
+							string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
 
-							//very long to bild vrt (~12 min???)
-							callback.PushTask("Create VRT file (" + VRTFilePath + ")", NOT_INIT);
-							msg += BuildVRT(VRTFilePath, fileList, true, EXEPath);
-							callback.PopTask();
-
-							//create index file
-							/*string indexFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt.idx", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
-							for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
+							if (!WBSF::FileExists(VRTFilePath))
 							{
-								string fileName = GetFileName(*it4);
-								size_t var = GetVariable(fileName);
+								//string tmp = FormatA("%s%s%s%s", year.c_str(), month.c_str(), day.c_str(), hour.c_str());
+								filePaths.push_back(VRTFilePath);
+							}
 
-							}*/
+							msg+=callback.StepIt(0);
+
 						}
 					}//for all hours
 				}//for all days
 			}//for all months
 		}//for all years
 
+
+		callback.PushTask("Create VRT: " + ToString(filePaths.size()) + " files", filePaths.size());
+
+					
+		for (StringVector::const_iterator it = filePaths.begin(); it != filePaths.end() && msg; it++)
+		{
+			string title = GetFileTitle(*it);
+			string year = title.substr(6, 4);
+			string month = title.substr(10, 2);
+			string day = title.substr(12, 2);
+			size_t h = WBSF::as<size_t>(title.substr(14, 2));
+			size_t h1 = (h / 6) * 6;
+			size_t h2 = (h % 6);
+			//for (size_t h2 = 0; h2 < 6; h2++)
+			//{
+			//	size_t h = h1 + h2;
+
+			//create VRT
+
+
+			string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+			string HH = FormatA("%02d", h1);
+
+			StringVector fileList = WBSF::GetFilesList(filter, 2, true);
+			sort(fileList.begin(), fileList.end());
+
+			if (fileList.size() > 300)
+			{
+				//very long to bild vrt (~12 min???)
+				//msg += BuildVRT(VRTFilePath, fileList, true, EXEPath);
+
+				ofStream oFile;
+				msg = oFile.open(*it);
+				if (msg)
+				{
+					oFile << "<VRTDataset rasterXSize=\"2576\" rasterYSize=\"1456\">" << endl;
+					oFile << "  <SRS>PROJCS[\"unnamed\",GEOGCS[\"Coordinate System imported from GRIB file\",DATUM[\"unknown\",SPHEROID[\"Sphere\",6371229,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",60],PARAMETER[\"central_meridian\",252],PARAMETER[\"scale_factor\",90],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0]]</SRS>" << endl;
+					oFile << "  <GeoTransform>-2.0991274944969425e+006, 2.5000000000000000e+003, 0.0000000000000000e+000,-2.0993885214996245e+006, 0.0000000000000000e+000,-2.5000000000000000e+003</GeoTransform>" << endl;
+
+					int b = 1;
+					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++, b++)
+					{
+						string fileName = GetFileName(*it4);
+						//size_t var = GetVariable(fileName);
+
+
+						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
+						oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
+						oFile << "    <ComplexSource>" << endl;
+						oFile << "      <SourceFilename relativeToVRT=\"1\">" << HH << "\\" << fileName << "</SourceFilename>" << endl;
+						oFile << "      <SourceBand>1</SourceBand>" << endl;
+						oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
+						oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+						oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+						oFile << "      <NODATA>9999</NODATA>" << endl;
+						oFile << "</ComplexSource>" << endl;
+						oFile << "  </VRTRasterBand>" << endl;
+
+
+					}
+
+					oFile << "</VRTDataset>" << endl;
+					oFile.close();
+
+
+				}
+
+
+			}//if valid layer
+
+			msg += callback.StepIt();
+
+		}//for all files
+		
+		callback.PopTask();
 		return msg;
 	}
 

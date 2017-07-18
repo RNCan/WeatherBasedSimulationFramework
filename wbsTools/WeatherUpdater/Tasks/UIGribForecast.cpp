@@ -48,8 +48,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources" };
-	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX };
+	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ShowWinSCP" };
+	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIGribForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_GRIB_FORECAST_P;
 	const UINT CUIGribForecast::DESCRIPTION_TITLE_ID = ID_TASK_GRIB_FORECAST;
 
@@ -146,7 +146,7 @@ namespace WBSF
 					stript << "exit" << endl;
 					stript.close();
 
-					bool bShow = true;// as<bool>(SHOW_WINSCP);
+					bool bShow = as<bool>(SHOW_WINSCP);
 					//# Execute the script using a command like:
 					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "/log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
@@ -309,9 +309,9 @@ namespace WBSF
 					switch (source)
 					{
 					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf??.*", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.*", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.*", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.*", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					default: ASSERT(false);
 					}
 
