@@ -354,6 +354,15 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		GIntBig test = GDALGetCacheMax64();
+		GDALSetCacheMax64(128*1024*1024);
+		
+
+		//char test[100] = { 0 };
+		//CPLGetConfigOption("GDAL_CACHEMAX", test);
+		//CPLSetConfigOption("GDAL_CACHEMAX", "64");//limit the size of the cache for each layers
+
+
 		CATMWorld world;
 		world.m_parameters1 = m_parameters.m_world;
 		world.m_parameters2 = m_parameters.m_ATM;

@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
+// 11.3.4: 18/07/2017	Rémi Saint-Amant	Bug coreection in memory allocation in the dispersal component
+//											Add optimization when only missing data into the DBBase
 // 11.3.3: 06/06/2017 	Rémi Saint-Amant	Add egg density mapping in dispersal  
-//											
 // 11.3.2: 06/05/2017 	Rémi Saint-Amant	Update of the hourly temperature generation
 //											Compile with GDAL 2.02 
 //											Bug correction in merge name and title

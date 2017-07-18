@@ -106,7 +106,7 @@ namespace WBSF
 		CreateMultipleDir(workingDir);
 
 		size_t source = as<size_t>(SOURCES);
-		//size_t nbFileFound = 0;
+		string scriptFilePath = workingDir + "script.txt";
 		
 		Clean(source);
 
@@ -118,51 +118,110 @@ namespace WBSF
 		callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
 
 		int nbDownload = 0;
-		size_t curI = 0;
-		size_t nbRun = 0;
-		while (msg && curI < fileList.size() && nbRun < 5)
+		//size_t curI = 0;
+		//size_t nbRun = 0;
+		//while (msg && curI < fileList.size() && nbRun < 5)
+		for (size_t i = 0; i < fileList.size() && msg; i++)
 		{
-			nbRun++;
+			//nbRun++;
 			if (source == N_HRDPS)
 			{
 			}
 			else
 			{
-				CInternetSessionPtr pSession;
-				CFtpConnectionPtr pConnection;
-
-				msg = GetFtpConnection(SERVER_NAME[source], pConnection, pSession);
-
-				
-				for (size_t i = curI; i != fileList.size() && msg; i++)
+				ofStream stript;
+				msg = stript.open(scriptFilePath);
+				if (msg)
 				{
+					//CTRef TRef = GetTRef(s, fileList[i].m_filePath);
 					string outputFilePath = GetLocaleFilePath(source, fileList[i].m_filePath);
+					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePath));
-					//if (!FileExists(outputFilePath))
-					//{
-					callback.PushTask("Download forecast gribs:" + outputFilePath, NOT_INIT);
-					msg = CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-					callback.PopTask();
-					//}
 
-					
-					if (msg && FileExists(outputFilePath))
+					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[source] << endl;
+
+					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
+					stript << "lcd " << GetPath(tmpFilePaht) << endl;
+					stript << "get " << GetFileName(tmpFilePaht) << endl;
+					stript << "exit" << endl;
+					stript.close();
+
+					bool bShow = true;// as<bool>(SHOW_WINSCP);
+					//# Execute the script using a command like:
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "/log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					DWORD exit_code;
+					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+					if (msg)
 					{
-						nbDownload++;
-						nbRun = 0;
-						curI++;
-						msg += callback.StepIt();
+						//verify if the file finish with 7777
+
+						if (exit_code == 0 && FileExists(tmpFilePaht))
+						{
+							ifStream stream;
+							if (stream.open(tmpFilePaht))
+							{
+								char test[5] = { 0 };
+								stream.seekg(-4, ifstream::end);
+								stream.read(&(test[0]), 4);
+								stream.close();
+
+								if (string(test) == "7777")
+								{
+									nbDownload++;
+									msg = RenameFile(tmpFilePaht, outputFilePath);
+								}
+								else
+								{
+									callback.AddMessage("corrupt file, remove: " + tmpFilePaht);
+									msg = WBSF::RemoveFile(tmpFilePaht);
+								}
+							}
+
+						}
+						else
+						{
+							msg.ajoute("Error in WinCSV");
+						}
 					}
+
 				}
 
-				pConnection->Close();
-				pSession->Close();
+				msg += callback.StepIt();
+				//CInternetSessionPtr pSession;
+				//CFtpConnectionPtr pConnection;
 
-				if (!msg && !callback.GetUserCancel())
-				{
-					callback.AddMessage(msg);
-					msg = ERMsg();
-				}
+				//msg = GetFtpConnection(SERVER_NAME[source], pConnection, pSession);
+
+				//
+				//for (size_t i = curI; i != fileList.size() && msg; i++)
+				//{
+				//	string outputFilePath = GetLocaleFilePath(source, fileList[i].m_filePath);
+				//	CreateMultipleDir(GetPath(outputFilePath));
+				//	//if (!FileExists(outputFilePath))
+				//	//{
+				//	callback.PushTask("Download forecast gribs:" + outputFilePath, NOT_INIT);
+				//	msg = CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+				//	callback.PopTask();
+				//	//}
+
+				//	
+				//	if (msg && FileExists(outputFilePath))
+				//	{
+				//		nbDownload++;
+				//		nbRun = 0;
+				//		curI++;
+				//		msg += callback.StepIt();
+				//	}
+				//}
+
+				//pConnection->Close();
+				//pSession->Close();
+
+				//if (!msg && !callback.GetUserCancel())
+				//{
+				//	callback.AddMessage(msg);
+				//	msg = ERMsg();
+				//}
 			}
 		}
 

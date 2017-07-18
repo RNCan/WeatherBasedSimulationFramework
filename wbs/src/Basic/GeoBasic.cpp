@@ -29,8 +29,8 @@ namespace WBSF
 			CGeoRectIndex index;
 			index.m_x = max(m_x, rect.m_x);
 			index.m_y = max(m_y, rect.m_y);
-			index.m_xSize = min(m_x + m_xSize, rect.m_x + rect.m_xSize) - m_x;
-			index.m_ySize = min(m_y + m_ySize, rect.m_y + rect.m_ySize) - m_y;
+			index.m_xSize = min(m_x + m_xSize, rect.m_x + rect.m_xSize) - index.m_x;
+			index.m_ySize = min(m_y + m_ySize, rect.m_y + rect.m_ySize) - index.m_y;
 
 			operator=(index);
 		}
@@ -47,8 +47,8 @@ namespace WBSF
 			CGeoRectIndex index;
 			index.m_x = min(m_x, rect.m_x);
 			index.m_y = min(m_y, rect.m_y);
-			index.m_xSize = max(m_x + m_xSize, rect.m_x + rect.m_xSize) - m_x;
-			index.m_ySize = max(m_y + m_ySize, rect.m_y + rect.m_ySize) - m_y;
+			index.m_xSize = max(m_x + m_xSize, rect.m_x + rect.m_xSize) - index.m_x;
+			index.m_ySize = max(m_y + m_ySize, rect.m_y + rect.m_ySize) - index.m_y;
 
 			operator=(index);
 		}

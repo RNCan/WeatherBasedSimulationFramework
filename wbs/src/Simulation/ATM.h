@@ -382,7 +382,11 @@ namespace WBSF
 		}
 
 
-		double GetValue(int x, int y);
+		double GetValue(int x, int y)const;
+		void SetValue(int x, int y, double value);
+
+		double GetValue(size_t pos)const;
+		void SetValue(size_t pos, double value);
 
 		void* m_ptr;
 		int m_xBlockSize;
@@ -400,26 +404,21 @@ namespace WBSF
 		CGDALDatasetCached();
 		ERMsg OpenInputImage(const std::string& filePath, bool bOpenInv = false);
 
+
+//		CGeoRect m_clipRect;
+
 		double GetPixel(const CGeoPoint3DIndex& index)const;
 		double GetPixel(size_t b, const CGeoPointIndex& xy)const{ return GetPixel(CGeoPoint3DIndex(xy.m_x, xy.m_y, (int)b)); }
 		bool IsCached(const CGeoBlock3DIndex& ijk)const{ assert(IsBlockInside(ijk));  return m_data[ijk.m_z][ijk.m_y][ijk.m_x] != NULL; }
 		bool IsCached(size_t b, const CGeoBlockIndex& xy)const{ return IsCached(CGeoPoint3DIndex(xy.m_x, xy.m_y, (int)b)); }
 
 		size_t get_band(size_t v, size_t level)const;
-		//bool CGDALDatasetCached::convert_VVEL()const;
+		
 		//RasterIO
 	protected:
 
 
-		void InitCache()const
-		{
-			assert(IsOpen());
-			if (!IsCacheInit())
-			{
-				const_cast<CGDALDatasetCached*>(this)->m_data.resize(boost::extents[GetRasterCount()][GetRasterYSize()][GetRasterXSize()]);
-			}
-		}
-
+		void InitCache()const;
 		bool IsCacheInit()const{ return !m_data.empty(); }
 		void LoadBlock(size_t b, const CGeoBlockIndex& xy){ LoadBlock(CGeoBlock3DIndex(xy.m_x, xy.m_y, (int)b)); }
 		void LoadBlock(const CGeoBlock3DIndex& index);
@@ -436,11 +435,11 @@ namespace WBSF
 
 		//statistic of simulation
 		std::array<CStatistic, 1 > m_stats;
-
-		//bool m_bConverVVEL_into_WNDW;
-
 		std::array<std::array<size_t, NB_LEVELS>, NB_ATM_VARIABLES_EX> m_bands;
-		//std::array<double, NB_LEVELS> m_pressure;
+
+		//CGeoExtents m_extentsSub;
+		//CGeoRectIndex m_indexSub;
+	
 	};
 
 	//*****************************************************************************************************************
@@ -452,6 +451,7 @@ namespace WBSF
 	public:
 
 		int m_max_hour_load;
+		CGeoRect m_clipRect;
 
 		CTRefDatasetMap();
 

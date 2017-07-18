@@ -1340,7 +1340,9 @@ ERMsg CATMWeather::load_gribs(const std::string& filepath, CCallback& callback)
 	{
 		//init max image to load at the sime time
 		m_p_weather_DS.m_max_hour_load = m_world.m_parameters2.m_max_hour_load;
-
+		m_p_weather_DS.m_clipRect = CGeoRect(-84,40,-56,56,PRJ_WGS_84);// m_world.m_parameters2.m_clipRect;
+		
+		
 
 		std::ios::pos_type length = file.length();
 		callback.PushTask("Load Gribs", length);
@@ -1689,6 +1691,8 @@ ERMsg CTRefDatasetMap::load(CTRef TRef, const string& filePath, CCallback& callb
 	CTRefDatasetMap& me = const_cast<CTRefDatasetMap&>(*this);
 	
 	me[TRef].reset(new CGDALDatasetCached);
+	//me[TRef]->m_clipRect = m_clipRect;
+
 	msg = me[TRef]->OpenInputImage(filePath, true);
 
 	//remove old maps (h-24)
@@ -2506,9 +2510,14 @@ CBlockData::CBlockData(int nXBlockSize, int nYBlockSize, int dataType)
 	m_dataType = dataType;
 }
 
-double CBlockData::GetValue(int x, int y)
+double CBlockData::GetValue(int x, int y)const
 {
 	size_t pos = size_t(y) * m_xBlockSize + x;
+	return GetValue(pos);
+}
+
+double CBlockData::GetValue(size_t pos)const
+{
 	double value = 0;
 	switch (m_dataType)
 	{
@@ -2524,33 +2533,24 @@ double CBlockData::GetValue(int x, int y)
 	return value;
 }
 
-void CGDALDatasetCached::LoadBlock(const CGeoBlock3DIndex& ijk)
+void CBlockData::SetValue(int x, int y, double value)
 {
-	
-	
-	m_mutex.lock();
-	if (!IsCached(ijk))
+	size_t pos = size_t(y) * m_xBlockSize + x;
+	SetValue(pos, value);
+}
+
+void CBlockData::SetValue(size_t pos, double value)
+{
+	switch (m_dataType)
 	{
-		assert(m_data[ijk.m_z][ijk.m_y][ijk.m_x] == NULL);
-		CTimer readTime(TRUE);
-
-		GDALRasterBand* poBand = m_poDataset->GetRasterBand(ijk.m_z + 1);
-		int nXBlockSize, nYBlockSize;
-		poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
-
-		GDALDataType type = poBand->GetRasterDataType();
-		CBlockData* pBlockData = new CBlockData(nXBlockSize, nYBlockSize, type);
-		poBand->ReadBlock(ijk.m_x, ijk.m_y, pBlockData->m_ptr);
-		poBand->FlushBlock(ijk.m_x, ijk.m_y);
-
-		m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockData);
-
-		readTime.Stop();
-		m_stats[0] += readTime.Elapsed();
+	case GDT_Byte:		((char*)m_ptr)[pos] = (char)value; break;
+	case GDT_UInt16:	((unsigned __int16*)m_ptr)[pos] = (unsigned __int16)value; break;
+	case GDT_Int16:		((__int16*)m_ptr)[pos] = (__int16)value; break;
+	case GDT_UInt32:	((unsigned __int32*)m_ptr)[pos] = (unsigned __int32)value; break;
+	case GDT_Int32:		((__int32*)m_ptr)[pos] = (__int32)value; break;
+	case GDT_Float32:	((float*)m_ptr)[pos] = (float)value; break;
+	case GDT_Float64:	((double*)m_ptr)[pos] = (double)value; break;
 	}
-	m_mutex.unlock();
-
-	ASSERT(IsCached(ijk));
 }
 
 
@@ -2615,9 +2615,51 @@ size_t GetLevel(const string& strLevel)
 ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpenInv)
 {
 	ERMsg msg;
+
+	
+	
 	msg = CGDALDatasetEx::OpenInputImage(filePath);
 	if (msg)
 	{
+		
+	/*	GDALDriver *poDriver = (GDALDriver *)GDALGetDriverByName("VRT");
+		GDALDataset * poVRTDS = poDriver->CreateCopy("", Dataset(), FALSE, NULL, NULL, NULL);
+		poVRTDS->set
+		for (nBand = 1; nBand <= poVRTDS->GetRasterCount(); nBand++)
+		{
+			char szFilterSourceXML[10000];
+			GDALRasterBand *poBand = poVRTDS->GetRasterBand(nBand);
+			sprintf(szFilterSourceXML,
+				"<KernelFilteredSource>"
+				"  <SourceFilename>%s</SourceFilename><SourceBand>%d</SourceBand>"
+				"  <Kernel>"
+				"    <Size>3</Size>"
+				"    <Coefs>0.111 0.111 0.111 0.111 0.111 0.111 0.111 0.111 0.111</Coefs>"
+				"  </Kernel>"
+				"</KernelFilteredSource>",
+				pszSourceFilename, nBand);
+			poBand->SetMetadataItem("source_0", szFilterSourceXML, "vrt_sources");
+		}
+*/
+
+
+		//m_extentsSub = GetExtents();
+		//if (m_clipRect.IsInit())
+		//{
+		//	size_t prjID = GetExtents().GetPrjID();
+		//	ASSERT(prjID != NOT_INIT);
+		//	CProjectionTransformation TT(m_clipRect.GetPrjID(), prjID);
+		//	m_clipRect.Reproject(TT);
+
+		//	m_extentsSub.IntersectRect(m_clipRect);
+		//	m_extentsSub.AlignTo(GetExtents());
+		//	//m_clipRect
+		//}
+		//
+		//m_indexSub = GetExtents().CoordToXYPos(m_extentsSub);
+		
+
+
 		InitCache();
 
 		//Load band positions (not the same for all images
@@ -2667,31 +2709,39 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 					string strVar = meta_data[i]["GRIB_ELEMENT"];
 					string strName = meta_data[i]["GRIB_SHORT_NAME"];
 					StringVector description(meta_data[i]["description"], " =[]\"");
-					if (description.size() > 3 && (description[2] == "ISBL" || description[2] == "SFC" || description[2] == "HTGL"))
+					if (description.size() > 3 && (description[2] == "ISBL" || description[2] == "SFC" || description[2] == "HTGL" || description[2] == "HYBL"))
 					{
 						if (!description.empty() && description[0].find('-') != NOT_INIT)
-							description.empty();
+							description.clear();
 
-						description.empty();
+						//description.empty();
 
 						size_t var = GetVar(strVar);
-						size_t level = !description.empty() ? as<size_t>(description[0]) : UNKNOWN_POS;
-						if (level <= 10)
-							level = 0;
-
-						else if (level >= 10000 && level <= 100000)
+						if (var < NB_ATM_VARIABLES_EX && !description.empty())
 						{
-							level = 38 - (level / 100 - 100) / 25 - 1;
-							ASSERT(level < NB_LEVELS);
-						}
+							size_t level = as<size_t>(description[0]);
 
-						if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
-						{
-							m_bands[var][level] = i;
-							if (var == ATM_TAIR)
+							if (description[2] != "HYBL")
 							{
-								int j;
-								j = 0;
+								if (level <= 10)
+								{
+									level = 0;
+								}
+								else if (level >= 10000 && level <= 100000)
+								{
+									level = 38 - (level / 100 - 100) / 25 - 1;
+									ASSERT(level < NB_LEVELS);
+								}
+							}
+
+							if ( level < m_bands[var].size())
+							{
+								m_bands[var][level] = i;
+								if (var == ATM_TAIR)
+								{
+									int j;
+									j = 0;
+								}
 							}
 						}
 					}
@@ -2712,6 +2762,90 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 
 
 	return msg;
+}
+
+void CGDALDatasetCached::InitCache()const
+{
+	assert(IsOpen());
+	if (!IsCacheInit())
+	{
+		CGDALDatasetCached& me = const_cast<CGDALDatasetCached&>(*this);
+		me.m_data.resize(boost::extents[GetRasterCount()][m_extents.YNbBlocks()][m_extents.XNbBlocks()]);
+	}
+}
+
+void CGDALDatasetCached::LoadBlock(const CGeoBlock3DIndex& ijk)
+{
+
+
+	m_mutex.lock();
+	if (!IsCached(ijk))
+	{
+		assert(m_data[ijk.m_z][ijk.m_y][ijk.m_x] == NULL);
+		CTimer readTime(TRUE);
+
+		//copy part of the date
+		CGeoExtents ext = GetExtents().GetBlockExtents(ijk.m_x, ijk.m_y);
+		CGeoRectIndex ind = GetExtents().CoordToXYPos(ext);
+		//if (m_indexSub.IsRectIntersect(ind))
+		{
+			GDALRasterBand* poBand = m_poDataset->GetRasterBand(ijk.m_z + 1);
+			int nXBlockSize, nYBlockSize;
+			poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
+
+			GDALDataType type = poBand->GetRasterDataType();
+			CBlockData* pBlockTmp = new CBlockData(nXBlockSize, nYBlockSize, type);
+			poBand->ReadBlock(ijk.m_x, ijk.m_y, pBlockTmp->m_ptr);
+			poBand->FlushBlock(ijk.m_x, ijk.m_y);
+
+			/*if (m_clipRect.IsInit())
+			{
+				CGeoRectIndex ind2 = CGeoRectIndex::IntersectRect(m_indexSub, ind);
+				size_t fx = max(0, m_indexSub.m_x - ind.m_x);
+				size_t fy = max(0, m_indexSub.m_y - ind.m_y);
+				if (type == GDT_Float64)
+					type = GDT_Float32;
+
+				CBlockData* pBlockData = new CBlockData(ind2.m_xSize, ind2.m_ySize, type);
+				for (size_t y = 0; y < ind2.m_ySize; y++)
+				{
+					for (size_t x = 0; x < ind2.m_xSize; x++)
+					{
+						size_t pos1 = y*ind2.m_xSize + x;
+						size_t pos2 = (fy + y)*ind.m_xSize + (fx + x);
+						ASSERT(pos1 < ind2.m_xSize*ind2.m_ySize);
+						ASSERT(pos2 < ind.m_xSize*ind.m_ySize);
+						pBlockData->SetValue(pos1, pBlockTmp->GetValue(pos2));
+					}
+				}
+
+
+				m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockData);
+				
+				delete pBlockTmp;
+			}
+			else
+			{*/
+			if (type == GDT_Float64)
+			{
+				CBlockData* pBlockData = new CBlockData(nXBlockSize, nYBlockSize, GDT_Float32);
+				for (size_t pos = 0; pos < nXBlockSize*nYBlockSize; pos++)
+					pBlockData->SetValue(pos, pBlockTmp->GetValue(pos));
+
+				delete pBlockTmp;
+				pBlockTmp = pBlockData;
+			}
+				
+			m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockTmp);
+			//}
+		}
+
+		readTime.Stop();
+		m_stats[0] += readTime.Elapsed();
+	}
+	m_mutex.unlock();
+
+	ASSERT(IsCached(ijk));
 }
 
 size_t CGDALDatasetCached::get_band(size_t v, size_t level )const

@@ -112,6 +112,12 @@ namespace WBSF
 
 		msg = RemoveFile(outputFilePath);
 
+		size_t nbTask = 0;
+		for (int i = INPUT1; i < 6 && msg; i++)
+			if (!Get(FORECAST1 + i).empty())
+				nbTask++;
+
+		callback.PushTask("Gather gribs list (" +ToString(nbTask) + " sources)", nbTask);
 		//Get forecast if any
 		for (int i = 2; i >= 0&&msg; i--)
 		{
@@ -123,6 +129,8 @@ namespace WBSF
 					msg = pForecastTask->GetGribsList(p, gribsList, callback);
 				else
 					msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(FORECAST1 + i)));
+
+				msg += callback.StepIt();
 			}
 		}
 			
@@ -134,7 +142,6 @@ namespace WBSF
 				//load the WeatherUpdater
 				CTaskPtr pTask = m_pProject->GetTask(UPDATER, Get(INPUT1 + i));
 
-
 				if (pTask.get() != NULL)
 				{
 					ASSERT(pTask->IsGribs());
@@ -144,6 +151,8 @@ namespace WBSF
 				{
 					msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(INPUT1 + i)));
 				}
+
+				msg += callback.StepIt();
 			}
 			else
 			{
@@ -151,6 +160,8 @@ namespace WBSF
 					msg.ajoute("Main task must to be defined");
 			}
 		}
+
+		callback.PopTask();
 
 		ofStream file;
 		if (msg)
@@ -188,6 +199,8 @@ namespace WBSF
 			}
 
 			callback.AddMessage("Nb gribs added: " + ToString(nbGrib));
+
+
 			file.close();
 		}
 		

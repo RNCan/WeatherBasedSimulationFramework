@@ -160,21 +160,21 @@ namespace WBSF
 
 			StringVector list1;
 			list1 = GetFilesList(workingDir + ToString(year) + "\\*.grib2", FILE_PATH, true);
-			StringVector list2;
-			list2 = GetFilesList(workingDir + ToString(year) + "\\*.grib2.idx", FILE_PATH, true);
+			//StringVector list2;
+			//list2 = GetFilesList(workingDir + ToString(year) + "\\*.grib2.idx", FILE_PATH, true);
 
 
-			std::set<CTRef> TRef2;
-			for (size_t i = 0; i < list2.size(); i++)
-			{
-				CTRef TRef = GetTRef(list2[i]);
-				TRef2.insert(TRef);
-			}
+			//std::set<CTRef> TRef2;
+			//for (size_t i = 0; i < list2.size(); i++)
+			//{
+				//CTRef TRef = GetTRef(list2[i]);
+				//TRef2.insert(TRef);
+			//}
 
 			for (size_t i = 0; i < list1.size(); i++)
 			{
 				CTRef TRef = GetTRef(list1[i]);
-				if (p.IsInside(TRef) && TRef2.find(TRef) != TRef2.end())
+				if (p.IsInside(TRef) )//&& TRef2.find(TRef) != TRef2.end())
 					gribsList[TRef] = list1[i];
 			}
 			
