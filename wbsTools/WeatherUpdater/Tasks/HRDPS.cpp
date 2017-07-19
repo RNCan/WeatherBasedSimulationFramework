@@ -115,7 +115,7 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		CreateVRT(callback);
+		//CreateVRT(callback);
 
 
 
