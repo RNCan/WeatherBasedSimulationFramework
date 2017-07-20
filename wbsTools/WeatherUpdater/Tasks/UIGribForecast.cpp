@@ -7,7 +7,7 @@
 #include "TaskFactory.h"
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
-
+#include "HRDPS.h"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -27,8 +27,8 @@ namespace WBSF
 	//ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/nam/prod/
 	//ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/rap/prod/
 	//ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/
-	
-	
+
+
 	//ftp nomads
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/201705/20170531/
 	//pour estimation de surface, c'est très bien et beaucoup plus petit que HRRR
@@ -106,29 +106,35 @@ namespace WBSF
 		CreateMultipleDir(workingDir);
 
 		size_t source = as<size_t>(SOURCES);
-		string scriptFilePath = workingDir + "script.txt";
-		
-		Clean(source);
 
-		CFileInfoVector fileList;
-		msg = GetFilesToDownload(source, fileList, callback);
-		CleanList(source, fileList);
-
-		callback.AddMessage("Number of forecast gribs to download: " + ToString(fileList.size()));
-		callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
-
-		int nbDownload = 0;
-		//size_t curI = 0;
-		//size_t nbRun = 0;
-		//while (msg && curI < fileList.size() && nbRun < 5)
-		for (size_t i = 0; i < fileList.size() && msg; i++)
+		//nbRun++;
+		if (source == N_HRDPS)
 		{
-			//nbRun++;
-			if (source == N_HRDPS)
+			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS]);
+			//HRDPS.m_variables = Get(HRDPS_VARS);
+			msg = HRDPS.Execute(callback);
+
+		}
+		else
+		{
+			string scriptFilePath = workingDir + "script.txt";
+
+			Clean(source);
+
+			CFileInfoVector fileList;
+			msg = GetFilesToDownload(source, fileList, callback);
+			CleanList(source, fileList);
+
+			callback.AddMessage("Number of forecast gribs to download: " + ToString(fileList.size()));
+			callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
+
+			int nbDownload = 0;
+			//size_t curI = 0;
+			//size_t nbRun = 0;
+			//while (msg && curI < fileList.size() && nbRun < 5)
+			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-			}
-			else
-			{
+
 				ofStream stript;
 				msg = stript.open(scriptFilePath);
 				if (msg)
@@ -224,8 +230,6 @@ namespace WBSF
 				//}
 			}
 		}
-
-
 		callback.AddMessage("Number of forecast gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
 
@@ -308,7 +312,7 @@ namespace WBSF
 					string URL = SERVER_PATH[source];
 					switch (source)
 					{
-					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf??.*", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;

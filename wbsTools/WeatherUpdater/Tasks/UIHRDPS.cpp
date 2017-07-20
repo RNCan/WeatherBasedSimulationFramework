@@ -89,7 +89,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 	
-		size_t nbFileFound = 0;
 		CHRDPS HRDPS(workingDir);
 		HRDPS.m_variables = Get(HRDPS_VARS);
 		msg = HRDPS.Execute(callback);

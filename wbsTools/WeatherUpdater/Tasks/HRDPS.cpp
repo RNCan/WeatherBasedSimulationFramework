@@ -20,14 +20,6 @@ namespace WBSF
 	//*********************************************************************
 	const char* CHRDPS::SERVER_NAME = "dd.weather.gc.ca";
 	const char* CHRDPS::SERVER_PATH = "/model_hrdps/continental/grib2/";
-	//const char* CHRDPS::FORECAST_VAR_NAME[NB_FORECAST_VAR] = { "PRES_SFC_0", "TMP_TGL_2", "DPT_TGL_2", "PRATE_SFC_0", "WIND_TGL_10", "WDIR_TGL_10", "DLWRF_SFC_0" };
-	//const TVarH CHRDPS::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR2, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD2};
-	//TSOIL_SFC_0 : soil temperaturte
-	//TSOIL_DBLL_100 : deep soil temperature
-
-	//WTMP_SFC_0   water temperture
-	//RH_SFC_0		relative humidity 
-	
 	static const size_t MAX_FORECAST_HOURS = 48;
 
 
