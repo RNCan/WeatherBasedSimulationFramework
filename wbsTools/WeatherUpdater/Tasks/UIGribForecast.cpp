@@ -48,8 +48,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ShowWinSCP" };
-	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_BOOL };
+	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ShowWinSCP", "Variables" };
+	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_BOOL, T_STRING_SELECT };
 	const UINT CUIGribForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_GRIB_FORECAST_P;
 	const UINT CUIGribForecast::DESCRIPTION_TITLE_ID = ID_TASK_GRIB_FORECAST;
 
@@ -73,6 +73,7 @@ namespace WBSF
 		switch (i)
 		{
 		case SOURCES:	str = "HRDPS (canada)|HRRR (USA)|RAP P (Canada/USA)|RAP B (Canada/USA)|NAM (Canada/USA)"; break;
+		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
 		};
 		return str;
 	}
@@ -84,6 +85,7 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Forecast\\"; break;
 		case SOURCES: str = "0"; break;
+		case HRDPS_VARS: str = ""; break;
 		};
 
 		return str;
@@ -105,13 +107,13 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
+		int nbDownload = 0;
 		size_t source = as<size_t>(SOURCES);
 
-		//nbRun++;
 		if (source == N_HRDPS)
 		{
 			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS]);
-			//HRDPS.m_variables = Get(HRDPS_VARS);
+			HRDPS.m_variables = Get(HRDPS_VARS);
 			msg = HRDPS.Execute(callback);
 
 		}
@@ -128,10 +130,8 @@ namespace WBSF
 			callback.AddMessage("Number of forecast gribs to download: " + ToString(fileList.size()));
 			callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
 
-			int nbDownload = 0;
-			//size_t curI = 0;
-			//size_t nbRun = 0;
-			//while (msg && curI < fileList.size() && nbRun < 5)
+			
+			
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
 

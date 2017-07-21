@@ -42,6 +42,7 @@ namespace WBSF
 		static size_t GetCategory(const std::string& name);
 		static size_t GetLevel(const std::string& name);
 		
+		static std::string GetHRDPSSelectionString();
 
 	protected:
 
@@ -65,6 +66,7 @@ namespace WBSF
 
 		bool m_bCreateVRT;
 		CHRDPSVariables m_variables;
+		bool m_bForecast;
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
@@ -72,6 +74,8 @@ namespace WBSF
 
 		ERMsg CreateVRT(CCallback& callback = DEFAULT_CALLBACK);
 		std::string GetVRTFilePath(CTRef TRef);
+
+		
 
 	protected:
 

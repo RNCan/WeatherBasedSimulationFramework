@@ -17,14 +17,26 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+	string CHRDPSVariables::GetHRDPSSelectionString()
+	{
+		string select;
+		for (size_t i = 0; i < NB_HRDPS_VARIABLES; i++)
+			select += string(CHRDPSVariables::GetName(i)) + "=" + string(CHRDPSVariables::GetName(i)) + ":" + CHRDPSVariables::GetDescription(i) + "|";
+
+		return select;
+	}
+
+
 	//*********************************************************************
 	const char* CHRDPS::SERVER_NAME = "dd.weather.gc.ca";
 	const char* CHRDPS::SERVER_PATH = "/model_hrdps/continental/grib2/";
 	static const size_t MAX_FORECAST_HOURS = 48;
 
 
-	CHRDPS::CHRDPS(const std::string& workingDir):
-		m_workingDir(workingDir)
+	CHRDPS::CHRDPS(const std::string& workingDir) :
+		m_workingDir(workingDir),
+		m_bCreateVRT(true),
+		m_bForecast(false)
 	{
 		m_variables.set();
 	}
@@ -36,6 +48,8 @@ namespace WBSF
 	
 //*********************************************************************
 	
+	
+
 	string CHRDPS::GetRemoteFilePath(size_t HH, size_t hhh, const string& fileName)const
 	{
 		string str_hhh = FormatA("%03d", hhh);
@@ -118,7 +132,7 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-
+		size_t lastestHH = GetLatestHH(pConnection);
 
 		callback.PushTask(string("Get files list from: ") + SERVER_PATH, 6 * 4);
 		CFileInfoVector fileList;
@@ -134,8 +148,10 @@ namespace WBSF
 			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
 			{
 				size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+				size_t HH = GetHH(GetFileTitle(it2->m_filePath) );
 				
-				if (hhh < 6 )
+				bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6) : hhh < 6;
+				if (bDownload)
 				{
 					CFileInfoVector fileListTmp;
 					msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
@@ -336,9 +352,11 @@ namespace WBSF
 		return msg;
 	}
 
+	
+
 	//****************************************************************************************************
 
-	//ERMsg CHRDPS::GetStationList(StringVector& stationList, CCallback& callback)
+	
 	ERMsg CHRDPS::GetStationList(CLocationVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
@@ -376,10 +394,10 @@ namespace WBSF
 		return CTRef.GetHour();
 	}
 
-	size_t CHRDPS::Gethhh(const string& fileName)const
+	size_t CHRDPS::Gethhh(const string& title)const
 	{
 		size_t hhh = NOT_INIT;
-		StringVector tmp(fileName, "_");
+		StringVector tmp(title, "_");
 		if (tmp.size() == 9)
 		{
 			size_t i = tmp.size() - 1;

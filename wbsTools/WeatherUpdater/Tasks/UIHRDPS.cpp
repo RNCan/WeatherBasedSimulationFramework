@@ -26,8 +26,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Variables" , "BuildVRT"};
-	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_BOOL };
+	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Variables" };
+	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT};
 	const UINT CUIHRDPS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRDPS_P; 
 	const UINT CUIHRDPS::DESCRIPTION_TITLE_ID = ID_TASK_HRDPS;
 
@@ -42,21 +42,14 @@ namespace WBSF
 	CUIHRDPS::~CUIHRDPS(void)
 	{}
 
-	string CUIHRDPS::GetHRDPSSelectionString()
-	{
-		string select;
-		for (size_t i = 0; i < NB_HRDPS_VARIABLES; i++)
-			select += string(CHRDPSVariables::GetName(i)) + "=" + string(CHRDPSVariables::GetName(i)) + ":" + CHRDPSVariables::GetDescription(i) + "|";
-		
-		return select;
-	}
+	
 
 	std::string CUIHRDPS::Option(size_t i)const
 	{
 		string str;
 		switch (i)
 		{
-		case HRDPS_VARS: str = GetHRDPSSelectionString(); break;
+		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
 		};
 		return str;
 	}

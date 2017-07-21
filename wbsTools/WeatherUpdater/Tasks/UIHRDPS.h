@@ -19,8 +19,8 @@ namespace WBSF
 
 	public:
 
-		//enum TNeytwork{ N_HRDPS, N_HRRR, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, HRDPS_VARS, BUILD_HRDPS_VRT, NB_ATTRIBUTES };
+
+		enum TAttributes { WORKING_DIR, HRDPS_VARS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRDPS); }
@@ -51,18 +51,14 @@ namespace WBSF
 
 	protected:
 
-		static std::string GetHRDPSSelectionString();
+
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const;
-	
-		//CTPeriod GetPeriod()const;
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		//static const char* SOURCES_NAME;
-		
 	};
 
 }

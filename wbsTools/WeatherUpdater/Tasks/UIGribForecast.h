@@ -20,7 +20,7 @@ namespace WBSF
 	public:
 
 		enum TNeytwork{ N_HRDPS, N_HRRR, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, SHOW_WINSCP, HRDPS_VARS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIGribForecast); }
