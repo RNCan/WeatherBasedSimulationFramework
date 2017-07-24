@@ -72,7 +72,8 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 		
-
+		//verify that all data file have an entry
+		LoadStationList(callback);
 
 		//open a connection on the server
 		CInternetSessionPtr pSession;
@@ -147,10 +148,13 @@ namespace WBSF
 						msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 						for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 						{
+							
 							string fileTitle = GetFileTitle(it->m_filePath);
 							string filePathZip = outputPath + fileTitle + ".zip";
 							string filePathWea = outputPath + fileTitle + ".wea";
 							string stationPage = yearPage + "/" + fileTitle + ".zip";
+							if (m_stations.find(fileTitle) == m_stations.end())
+								callback.AddMessage("data file without metadata : " + fileTitle);
 
 							msg = UtilWWW::CopyFile(pConnection, stationPage.c_str(), filePathZip.c_str(), INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 							if (msg)
@@ -223,11 +227,27 @@ namespace WBSF
 		string FTPFilePath = string(SUB_DIR) + "stations.xml";
 		string localFilePath = GetStationListFilePath();
 
-		if (UtilWWW::IsFileUpToDate(pConnection, FTPFilePath.c_str(), localFilePath.c_str()))
-			return msg;
+		if (!UtilWWW::IsFileUpToDate(pConnection, FTPFilePath.c_str(), localFilePath.c_str()))
+		{
 
-		CreateMultipleDir(GetPath(localFilePath));
-		return UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
+			CreateMultipleDir(GetPath(localFilePath));
+			msg = UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
+		}
+
+
+		if (msg)
+		{
+			msg = LoadStationList(callback);
+			CLocationVector stations;
+			stations.reserve(m_stations.size());
+			for (auto it = m_stations.begin(); it != m_stations.end(); it++)
+				stations.push_back(it->second);
+
+			WBSF::SetFileExtension(localFilePath, ".csv");
+			msg = stations.Save(localFilePath);
+		}
+
+		return msg;
 	}
 
 	ERMsg CUISolutionMesonetDaily::LoadStationList(CCallback& callback)
@@ -276,9 +296,19 @@ namespace WBSF
 			}
 		}
 
+		//string otherStations = GetApplicationPath() + "Layers\\QuebecStations.csv";
+		//CLocationVector stations;
+		//msg = stations.Load(otherStations);
+		//for (auto it = stations.begin(); it != stations.end(); it++)
+		//{
+		//	it->m_ID = WBSF::MakeLower(it->m_ID);
+		//	if (m_stations.find(it->m_ID) == m_stations.end())
+		//		m_stations[it->m_ID] = *it;
+		//}
+
 		return msg;
 	}
-
+	
 	//ERMsg CUISolutionMesonetDaily::LoadDesactivatedFile(const string& aliasFilePath, std::set<std::string>& aliasMap)
 	//{
 	//	ERMsg msg;

@@ -177,7 +177,7 @@ namespace WBSF
 		CTPeriod period = GetPeriod();
 		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
 		{
-			if (today - period.Begin() > 360)
+			if (today - period.Begin() > 360*24)
 			{
 				msg = ExecuteHTTP(period, callback);
 			}

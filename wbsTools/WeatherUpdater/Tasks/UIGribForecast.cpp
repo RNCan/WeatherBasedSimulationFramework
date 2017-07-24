@@ -107,12 +107,15 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
+
 		int nbDownload = 0;
 		size_t source = as<size_t>(SOURCES);
 
+
 		if (source == N_HRDPS)
 		{
-			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS]);
+			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS] + "\\");
+			HRDPS.m_bForecast = true;
 			HRDPS.m_variables = Get(HRDPS_VARS);
 			msg = HRDPS.Execute(callback);
 
@@ -120,9 +123,6 @@ namespace WBSF
 		else
 		{
 			string scriptFilePath = workingDir + "script.txt";
-
-			Clean(source);
-
 			CFileInfoVector fileList;
 			msg = GetFilesToDownload(source, fileList, callback);
 			CleanList(source, fileList);
@@ -230,6 +230,11 @@ namespace WBSF
 				//}
 			}
 		}
+
+
+		//delete old files
+		Clean(source);
+
 		callback.AddMessage("Number of forecast gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
 

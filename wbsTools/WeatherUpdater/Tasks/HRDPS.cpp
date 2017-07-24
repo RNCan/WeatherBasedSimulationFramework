@@ -142,13 +142,16 @@ namespace WBSF
 		msg = FindDirectories(pConnection, SERVER_PATH, dir1);// 00, 06, 12, 18
 		for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 		{
+			size_t HH = as<size_t>(GetLastDirName(it1->m_filePath));
+
+
 			CFileInfoVector dir2;
 			msg = FindDirectories(pConnection, it1->m_filePath, dir2);//000 to ~048
 
 			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
 			{
 				size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-				size_t HH = GetHH(GetFileTitle(it2->m_filePath) );
+				
 				
 				bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6) : hhh < 6;
 				if (bDownload)

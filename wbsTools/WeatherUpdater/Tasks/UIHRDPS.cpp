@@ -105,7 +105,7 @@ namespace WBSF
 	}
 
 	ERMsg CUIHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
-	{
+	{ 
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
