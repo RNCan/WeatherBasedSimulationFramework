@@ -500,7 +500,7 @@ namespace WBSF
 
 					bool bShow = as<bool>(SHOW_WINSCP);
 					//# Execute the script using a command like:
-					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "/log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
 					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 					if (msg)
@@ -637,44 +637,71 @@ namespace WBSF
 				msg = FindDirectories(pConnection, "/33/ruc13/*", dir1);
 				if (msg)
 				{
-					callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s], dir1.size());
+					StringVector paths1;
 					for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
 					{
 						string name = WBSF::GetLastDirName(dir1[d1].m_filePath);
 						int year = WBSF::as<int>(name.substr(0, 4));
 						size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
 						CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
-
 						if (period.IsIntersect(p2))
-						{
+							paths1.push_back(dir1[d1].m_filePath );
+					}
+						
+
+					callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths1.size()) + " directories)", paths1.size());
+					//for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
+					for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
+					{
+						string name = WBSF::GetLastDirName(paths1[d1]);
+						//int year = WBSF::as<int>(name.substr(0, 4));
+						//size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
+						//CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
+
+//						if (period.IsIntersect(p2))
+	//					{
 							CFileInfoVector dir2;
-							msg = FindDirectories(pConnection, dir1[d1].m_filePath + "*", dir2);
+							msg = FindDirectories(pConnection, paths1[d1] + "*", dir2);
 							if (msg)
 							{
-								callback.PushTask(string("Get files list from: ") + name, dir2.size());
+								vector<pair<string,CTRef>> paths2;
 								for (size_t d2 = 0; d2 != dir2.size() && msg; d2++)
 								{
 									string name = WBSF::GetLastDirName(dir2[d2].m_filePath);
+									int year = WBSF::as<int>(name.substr(0, 4));
+									size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
 									size_t d = WBSF::as<int>(name.substr(6, 2)) - 1;
 									CTRef TRef(year, m, d, FIRST_HOUR);
 
 									if (period.IsInside(TRef))
-									{
-										string URL = dir2[d2].m_filePath + "/";
-										URL += FormatA("rap_130_%d%02d%02d_??00_000.grb2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-										CFileInfoVector fileListTmp;
-										msg = FindFiles(pConnection, URL, fileListTmp);
-										fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
-									}
+										paths2.push_back(make_pair(dir2[d2].m_filePath, TRef));
+								}
+
+								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size());
+								for (size_t d2 = 0; d2 != paths2.size() && msg; d2++)
+								{
+									//string name = WBSF::GetLastDirName(dir2[d2].m_filePath);
+									//size_t d = WBSF::as<int>(name.substr(6, 2)) - 1;
+									//CTRef TRef(year, m, d, FIRST_HOUR);
+
+									//if (period.IsInside(TRef))
+									//{
+									string URL = paths2[d2].first + "/";
+									CTRef TRef = paths2[d2].second;
+									URL += FormatA("rap_130_%d%02d%02d_??00_000.grb2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+									CFileInfoVector fileListTmp;
+									msg = FindFiles(pConnection, URL, fileListTmp);
+									fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
+									//}
 
 									msg += callback.StepIt();
 								}//for all dir2
 
 								callback.PopTask();
 							}//if msg
-						}//if is inside
 
-						msg += callback.StepIt();
+							msg += callback.StepIt();
+						//}//if is inside
 					}//for all dir1
 
 					callback.PopTask();
