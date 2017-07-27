@@ -296,15 +296,16 @@ namespace WBSF
 			}
 		}
 
-		//string otherStations = GetApplicationPath() + "Layers\\QuebecStations.csv";
-		//CLocationVector stations;
-		//msg = stations.Load(otherStations);
-		//for (auto it = stations.begin(); it != stations.end(); it++)
-		//{
-		//	it->m_ID = WBSF::MakeLower(it->m_ID);
-		//	if (m_stations.find(it->m_ID) == m_stations.end())
-		//		m_stations[it->m_ID] = *it;
-		//}
+		//add other stations for historical load
+		string otherStations = GetApplicationPath() + "Layers\\QuebecStations.csv";
+		CLocationVector stations;
+		msg = stations.Load(otherStations);
+		for (auto it = stations.begin(); it != stations.end(); it++)
+		{
+			it->m_ID = WBSF::MakeLower(it->m_ID);
+			if (m_stations.find(it->m_ID) == m_stations.end())
+				m_stations[it->m_ID] = *it;
+		}
 
 		return msg;
 	}

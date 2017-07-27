@@ -123,17 +123,21 @@ namespace WBSF
 		else
 		{
 			string scriptFilePath = workingDir + "script.txt";
+			WBSF::RemoveFile(scriptFilePath + ".log");
+
+
 			CFileInfoVector fileList;
 			msg = GetFilesToDownload(source, fileList, callback);
 			CleanList(source, fileList);
 
-			callback.AddMessage("Number of forecast gribs to download: " + ToString(fileList.size()));
-			callback.PushTask("Download forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
+			callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs to download : " + ToString(fileList.size()));
+			callback.PushTask(string("Download ") + SOURCES_NAME[source] + " forecast gribs (" + ToString(fileList.size()) + ")", fileList.size());
 
 			
 			
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
+				
 
 				ofStream stript;
 				msg = stript.open(scriptFilePath);
@@ -186,7 +190,8 @@ namespace WBSF
 						}
 						else
 						{
-							msg.ajoute("Error in WinCSV");
+							//msg.ajoute("Error in WinCSV");
+							callback.AddMessage("Error in WinCSV");
 						}
 					}
 
@@ -218,6 +223,7 @@ namespace WBSF
 				//		curI++;
 				//		msg += callback.StepIt();
 				//	}
+
 				//}
 
 				//pConnection->Close();
@@ -235,7 +241,7 @@ namespace WBSF
 		//delete old files
 		Clean(source);
 
-		callback.AddMessage("Number of forecast gribs downloaded: " + ToString(nbDownload));
+		callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
 
 		return msg;

@@ -292,7 +292,7 @@ namespace WBSF
 		int nbDownloaded = 0;
 	
 		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString(), 2);
-		for (size_t s = 0; s < 2; s++)
+		for (size_t s = 0; s < 2&&msg; s++)
 		{
 			CFileInfoVector fileList;
 			msg = GetFilesToDownload(s, period, fileList, callback);
@@ -306,6 +306,9 @@ namespace WBSF
 
 			string workingDir = GetDir(WORKING_DIR);
 			string scriptFilePath = workingDir + "script.txt";
+			WBSF::RemoveFile(scriptFilePath + ".log");
+
+
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
 				ofStream stript;
@@ -359,7 +362,8 @@ namespace WBSF
 						}
 						else
 						{
-							msg.ajoute("Error in WinCSV");
+							//msg.ajoute("Error in WinCSV");
+							callback.AddMessage("Error in WinCSV");
 						}
 					}
 
@@ -465,58 +469,77 @@ namespace WBSF
 				msg = FindDirectories(pConnection, "/33/nam/*", dir1);
 				if (msg)
 				{
-					callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s], dir1.size());
+					StringVector paths1;
 					for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
 					{
 						string name = WBSF::GetLastDirName(dir1[d1].m_filePath);
 						int year = WBSF::as<int>(name.substr(0, 4));
 						size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
-						if (name.length()==6 && year >= 2000 && year <= 2100 && m<12)
+						if (name.length() == 6 && year >= 2000 && year <= 2100 && m < 12)
 						{
 							CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
 
 							if (period.IsIntersect(p2))
+								paths1.push_back(dir1[d1].m_filePath);
+						}
+					}
+
+					if (paths1.size()>1)
+						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths1.size()) + " directories)", paths1.size());
+
+					for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
+					{
+						
+
+						for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
+						{
+							string name = WBSF::GetLastDirName(paths1[d1]);
+
+							CFileInfoVector dir2;
+							msg = FindDirectories(pConnection, paths1[d1] + "*", dir2);
+							if (msg)
 							{
-								CFileInfoVector dir2;
-								msg = FindDirectories(pConnection, dir1[d1].m_filePath + "*", dir2);
-								if (msg)
+								vector<pair<string, CTRef>> paths2;
+								for (size_t d2 = 0; d2 != dir2.size() && msg; d2++)
 								{
-									callback.PushTask(string("Get files list from: ") + name, dir2.size()*6);
-									for (size_t d2 = 0; d2 != dir2.size() && msg; d2++)
-									{
-										string name = WBSF::GetLastDirName(dir2[d2].m_filePath);
-										size_t d = WBSF::as<int>(name.substr(6, 2)) - 1;
-										CTRef TRef(year, m, d, FIRST_HOUR);
+									string name = WBSF::GetLastDirName(dir2[d2].m_filePath);
+									int year = WBSF::as<int>(name.substr(0, 4));
+									size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
+									size_t d = WBSF::as<int>(name.substr(6, 2)) - 1;
+									CTRef TRef(year, m, d, FIRST_HOUR);
 
-										if (period.IsInside(TRef))
-										{
-											for (size_t h = 0; h < 6; h++)
-											{
-												string URL = dir2[d2].m_filePath + "/";
-												URL += FormatA("nam_218_%d%02d%02d_??00_0%02d.grb2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h);
-												CFileInfoVector fileListTmp;
-												msg = FindFiles(pConnection, URL, fileListTmp);
-												fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
-												msg += callback.StepIt();
-											}
-										}
-										else
-										{
-											msg += callback.StepIt(6);
-										}
+									if (period.IsInside(TRef))
+										paths2.push_back(make_pair(dir2[d2].m_filePath, TRef));
+								}
 
+								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size());
+								for (size_t d2 = 0; d2 != paths2.size() && msg; d2++)
+								{
+									//string name = WBSF::GetLastDirName(paths2[d2].first);
+									CTRef TRef = paths2[d2].second;
 										
-									}//for all dir2
-
-									callback.PopTask();
+									for (size_t h = 0; h < 6; h++)
+									{
+										string URL = paths2[d2].first + "/";
+										URL += FormatA("nam_218_%d%02d%02d_??00_0%02d.grb2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h);
+										CFileInfoVector fileListTmp;
+										msg = FindFiles(pConnection, URL, fileListTmp);
+										fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
+										msg += callback.StepIt();
+									}
+								
 								}//if msg
+
+								callback.PopTask();
 							}//if is inside
 						}
 
-						msg += callback.StepIt();
+						if (paths1.size()>1)
+							msg += callback.StepIt();
 					}//for all dir1
 
-					callback.PopTask();
+					if (paths1.size()>1)
+						callback.PopTask();
 				}//if msg
 			}
 			else
@@ -529,31 +552,31 @@ namespace WBSF
 					msg = FindDirectories(pConnection, "/pub/data/nccf/com/nam/prod/nam.*", dir1);
 					if (msg)
 					{
-						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s], dir1.size()*6);
+						StringVector paths;
 						for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
 						{
 							string name1 = WBSF::GetLastDirName(GetPath(dir1[d1].m_filePath));
 							int year = WBSF::as<int>(name1.substr(4, 4));
-							size_t m = WBSF::as<size_t >(name1.substr(8, 2))-1;
-							size_t d = WBSF::as<size_t >(name1.substr(10, 2))-1;
+							size_t m = WBSF::as<size_t >(name1.substr(8, 2)) - 1;
+							size_t d = WBSF::as<size_t >(name1.substr(10, 2)) - 1;
 							CTRef TRef(year, m, d, FIRST_HOUR);
 							if (period.IsInside(TRef))
 							{
 								for (size_t h = 0; h < 6; h++)
 								{
-									//nam.t00z.awphys30.tm00.grib2
 									string URL = dir1[d1].m_filePath + FormatA("nam.t??z.awphys%02d.tm00.grib2", h);
-
-									CFileInfoVector fileListTmp;
-									msg = FindFiles(pConnection, URL, fileListTmp);
-									fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
-									msg += callback.StepIt();
+									paths.push_back(URL);
 								}
 							}
-							else
-							{
-								msg += callback.StepIt(6);
-							}
+						}
+
+						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " files)", paths.size());
+						for (size_t d1 = 0; d1 != paths.size() && msg; d1++)
+						{
+							CFileInfoVector fileListTmp;
+							msg = FindFiles(pConnection, paths[d1], fileListTmp);
+							fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
+							msg += callback.StepIt();
 							
 						}//for all dir1
 
