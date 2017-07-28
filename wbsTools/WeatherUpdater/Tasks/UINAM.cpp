@@ -512,7 +512,7 @@ namespace WBSF
 										paths2.push_back(make_pair(dir2[d2].m_filePath, TRef));
 								}
 
-								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size());
+								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size()*6);
 								for (size_t d2 = 0; d2 != paths2.size() && msg; d2++)
 								{
 									//string name = WBSF::GetLastDirName(paths2[d2].first);
