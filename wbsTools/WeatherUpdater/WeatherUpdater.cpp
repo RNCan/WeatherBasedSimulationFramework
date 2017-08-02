@@ -2,6 +2,7 @@
 //										Compile with GDAL 2.02 and Boost 1.64 
 //										Add Manitoba wildfire, SWOB-XML, NAM, Forecast gribs and Hourly MFFP
 //										Bug correction in forecast
+//										Chnage in EnvCan site.
 //5.3.5 04/04/2017  Rémi Saint-Amant	Bug correction on Windows 10 with delay load of netCDF.dll
 //5.3.4 23/03/2017  Rémi Saint-Amant	Add Saskatchewan, Nova-Scotia, Newfoundland, MesoWest and WeatehrFarm, regroup Quebec into one component
 //										Add NOAA forecast  

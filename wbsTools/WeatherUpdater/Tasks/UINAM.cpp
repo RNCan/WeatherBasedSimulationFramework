@@ -330,7 +330,7 @@ namespace WBSF
 
 					bool bShow = as<bool>(SHOW_WINSCP);
 					//# Execute the script using a command like:
-					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow?"/console ": "") +  "/log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow?"/console ": "") +  "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
 					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 					if (msg)
