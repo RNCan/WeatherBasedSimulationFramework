@@ -731,9 +731,12 @@ namespace WBSF
 
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
-				CTPeriod period = String2Period(station.GetSSI("Period"));
-				if (period.IsInside(CTRef(year, m, FIRST_DAY)) ||
-					period.IsInside(CTRef(year, m, LAST_DAY)))
+				//CTPeriod period = String2Period(station.GetSSI("Period"));
+				//if (period.IsInside(CTRef(year, m, FIRST_DAY)) ||
+					//period.IsInside(CTRef(year, m, LAST_DAY)))
+				CTPeriod period1 = String2Period(station.GetSSI("Period"));
+				CTPeriod period2(CTRef(year, JANUARY, FIRST_DAY), CTRef(year, DECEMBER, LAST_DAY));
+				if (period1.IsIntersect(period2))
 				{
 					string outputPath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, station.GetSSI("InternalID"));
 					bNeedDownload[y][m] = NeedDownload(outputPath, station, year, m);
@@ -863,8 +866,11 @@ namespace WBSF
 					for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end() && msg; it++)
 					{
 						const CLocation& station = *it;
-						CTPeriod p = String2Period(station.GetSSI("Period"));
-						if (p.Begin().GetYear() <= lastYear && p.End().GetYear() >= firstYear) //Bug correction: By RSA 02/2012
+						//CTPeriod p = String2Period(station.GetSSI("Period"));
+						//if (p.Begin().GetYear() <= lastYear && p.End().GetYear() >= firstYear) //Bug correction: By RSA 02/2012
+						CTPeriod period1 = String2Period(station.GetSSI("Period"));
+						CTPeriod period2(CTRef(firstYear, JANUARY, DAY_01), CTRef(lastYear, DECEMBER, DAY_31));
+						if (period1.IsIntersect(period2))
 						{
 							string prov = station.GetSSI("Province");
 							size_t p = selection.GetProvince(prov);

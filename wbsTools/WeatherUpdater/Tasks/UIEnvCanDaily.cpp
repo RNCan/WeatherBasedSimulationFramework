@@ -524,22 +524,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-	//climate_data/bulk_data_e.html?
-		//hlyRange=%7C&amp;dlyRange=2011-11-25%7C2016-04-29&amp;mlyRange=%7C&amp;
-		//StationID=49771&amp;
-		//Prov=PE&amp;
-		//urlExtension=_e.html&amp;
-		//searchType=stnProv&amp;
-		//optLimit=yearRange&amp;
-		//StartYear=2016&amp;
-		//EndYear=2016&amp;
-		//selRowPerPage=100&amp;
-		//Line=4&amp;
-		//Month=4&amp;
-		//Day=24&amp;
-		//lstProvince=PE&amp;
-		//timeframe=2&amp;
-		//Year=2016
 		static const char pageDataFormat[] =
 		{
 			"climate_data/bulk_data_e.html?"
@@ -590,8 +574,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 
 		int nbFilesToDownload = 0;
-		//CProvinceSelection selection;
-		//selection.FromString(Get(PROVINCE));
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -603,9 +585,9 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			CTPeriod period = String2Period(info.GetSSI("Period"));
-			if (period.IsInside(CTRef(year, JANUARY, FIRST_DAY)) ||
-				period.IsInside(CTRef(year, DECEMBER, LAST_DAY)))
+			CTPeriod period1 = String2Period(info.GetSSI("Period"));
+			CTPeriod period2(CTRef(year, JANUARY, FIRST_DAY), CTRef(year, DECEMBER, LAST_DAY));
+			if (period1.IsIntersect(period2))
 			{
 				string internalID = info.GetSSI("InternalID");
 				string outputPath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
@@ -633,12 +615,13 @@ namespace WBSF
 
 				msg += CopyStationDataPage(pConnection, ToLong(internalID), year, filePath);
 
-				//if (msg)
-					//AddToStat(year);
-
 				if (nbFilesToDownload>10)
 					msg += callback.StepIt();
 			}
+			////else
+			//{
+			//	callback.AddMessage(info.m_name + "\t" + info.GetSSI("Province")+ "\t" + info.m_ID);
+			//}
 		}
 
 		if (nbFilesToDownload>10)
@@ -647,39 +630,6 @@ namespace WBSF
 		return msg;
 	}
 
-	//void CUIEnvCanDaily::InitStat()
-	//{
-	//	m_nbDownload = 0;
-	//	int nbYear = m_lastYear - m_firstYear + 1;
-	//	m_stat.clear();
-	//	m_stat.insert(m_stat.begin(), nbYear, 0);
-	//}
-
-	//void CUIEnvCanDaily::AddToStat(short year)
-	//{
-	//	m_nbDownload++;
-	//	m_stat[year - m_firstYear]++;
-	//}
-
-	//void CUIEnvCanDaily::ReportStat(CCallback& callback)
-	//{
-	//	for (int y = 0; y < m_stat.size(); y++)
-	//	{
-	//		//for(int m=0; m<m_stat.GetCols(); m++)
-	//		{
-	//			if (m_stat[y] > 0)
-	//			{
-	//				string tmp = FormatMsg(IDS_UPDATE_END, ToString(m_stat[y]), ToString(m_stat[y]));
-	//				string tmp2 = ToString(m_firstYear + y) + tmp;
-
-	//				callback.AddMessage(tmp2);
-	//			}
-	//		}
-	//	}
-
-	//	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(m_nbDownload), ToString(m_nbDownload)));
-
-	//}
 
 	bool CUIEnvCanDaily::NeedDownload(const string& filePath, const CLocation& info, int year)const
 	{
@@ -876,10 +826,11 @@ namespace WBSF
 
 		for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 		{
-			//const CEnvCanStation& station = (const CEnvCanStation&)it->second;
 			const CLocation& station = *it;
-			CTPeriod period = String2Period(station.GetSSI("Period"));
-			if (period.Begin().GetYear() <= lastYear && period.End().GetYear() >= firstYear)
+			CTPeriod period1 = String2Period(station.GetSSI("Period"));
+			CTPeriod period2(CTRef(firstYear, JANUARY, DAY_01), CTRef(lastYear, DECEMBER, DAY_31));
+			//if (period1.Begin().GetYear() <= lastYear && period.End().GetYear() >= firstYear)
+			if (period1.IsIntersect(period2))
 			{
 				string prov = station.GetSSI("Province");
 				size_t p = selection.GetProvince(prov);
