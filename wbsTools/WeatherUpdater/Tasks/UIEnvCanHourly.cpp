@@ -236,12 +236,12 @@ namespace WBSF
 
 		if (GetPageText(pConnection, URL, source))
 		{
-			string::size_type posBegin = source.find("locations match");
+			string::size_type posBegin = source.find("stations found");
 
 			if (posBegin != string::npos)
 			{
 				posBegin -= 8;//return before hte requested number
-				string tmp = FindString(source, ">", "locations match", posBegin);
+				string tmp = FindString(source, ">", "stations found", posBegin);
 				nbStation = ToInt(tmp);
 			}
 		}
@@ -256,7 +256,7 @@ namespace WBSF
 		msg = GetPageText(pConnection, page, source);
 		if (msg)
 		{
-			if (Find(source, "locations match"))
+			if (Find(source, "stations found"))
 			{
 				msg = ParseStationListPage(source, stationList);
 			}
@@ -308,18 +308,21 @@ namespace WBSF
 			string prov = PurgeQuote(FindString(source, "name=\"Prov\" value=", "/>", posBegin, posEnd));
 			string name = PurgeQuote(FindString(source, "<div class=\"col-lg-3 col-md-3 col-sm-3 col-xs-3\">", "</div>", posBegin, posEnd));
 
-			//when the station don't have hourly value, the period ios "|"
-			if (!period.empty() && period != "N/A" && period != "|")
+			if (posBegin != string::npos)
 			{
-				stationInfo.m_name = Trim(name);
-				stationInfo.SetSSI("InternalID", internalID);
-				stationInfo.SetSSI("Province", prov);
-				stationInfo.SetSSI("Period", period);
+				//when the station don't have hourly value, the period ios "|"
+				if (!period.empty() && period != "N/A" && period != "|")
+				{
+					stationInfo.m_name = Trim(name);
+					stationInfo.SetSSI("InternalID", internalID);
+					stationInfo.SetSSI("Province", prov);
+					stationInfo.SetSSI("Period", period);
 
-				stationList.push_back(stationInfo);
+					stationList.push_back(stationInfo);
+				}
+
+				FindString(source, "form action=", "method=\"post\"", posBegin, posEnd);
 			}
-
-			FindString(source, "form action=", "method=\"post\"", posBegin, posEnd);
 		}
 
 		return msg;

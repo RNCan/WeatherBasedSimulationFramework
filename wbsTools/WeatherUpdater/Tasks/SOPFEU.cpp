@@ -367,6 +367,15 @@ namespace WBSF
 	
 		station = m_stations[ID];
 
+		//clean outside period
+		for (CWeatherYears::iterator it = station.begin(); it!= station.end(); )
+		{
+			if (it->first >= m_firstYear && it->first <= m_lastYear)
+				it++;
+			else
+				it = station.erase(it);
+		}
+
 		if (msg && station.HaveData())
 			msg = station.IsValid();
 
@@ -410,7 +419,7 @@ namespace WBSF
 		msg = file.open(filePath);
 		if (msg)
 		{
-			enum {PROV, STA_ID, DATE, F_TIME, FIRST_FILED};
+			enum {C_NETWORK, STA_ID, DATE, F_TIME, FIRST_FILED};
 			for(CSVIterator loop(file, ";", false); loop!=CSVIterator(); ++loop)
 			{
 				ASSERT(loop->size() >= FIRST_FILED);
