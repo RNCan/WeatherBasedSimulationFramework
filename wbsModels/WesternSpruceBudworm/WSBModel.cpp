@@ -86,7 +86,7 @@ namespace WBSF
 		memset(m_rho25Factor, 0, NB_STAGES*sizeof(m_rho25Factor[0]));
 		m_bCumulatif = false;
 
-		//Simuklated Annealing data
+		//Simulated Annealing data
 		m_dataType = DATA_UNKNOWN;
 		m_bInit = false;
 	}
@@ -165,7 +165,7 @@ namespace WBSF
 
 			for (size_t y = 0; y < m_weather.size() - 1; y++)
 			{
-			/*	CStatistic statL22;
+				/*CStatistic statL22;
 				CTPeriod p = m_weather[y + 1].GetEntireTPeriod();
 				for (CTRef d = p.Begin(); d <= p.End(); d++)
 					statL22 += stat[d][S_L22];*/

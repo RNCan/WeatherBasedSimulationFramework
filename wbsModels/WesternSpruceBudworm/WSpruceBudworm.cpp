@@ -189,13 +189,13 @@ namespace WBSF
 		else if ((GetStage() == EGG && (weather[H_TMIN2][MEAN] < CWSpruceBudworm::EGG_FREEZING_POINT || m_eggAge>30)))
 		{
 			m_status = DEAD;
-			m_death = FROZEN;
+			m_death = FROZEN_EGG;
 		}
 		else if ((GetStage() == ADULT && weather[H_TMIN2][MEAN] < CWSpruceBudworm::ADULT_FREEZING_POINT))
 		{
 			m_age += 1;
 			m_status = DEAD;
-			m_death = OLD_AGE;
+			m_death = FROZEN_ADULT;
 		}
 		else if (m_bKillByAttrition)
 		{
@@ -223,13 +223,13 @@ namespace WBSF
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
-			m_death = OTHERS;
+			m_death = FROZEN_LARVA;
 			//			m_death = FROZEN;
 		}
 		else if (weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay()==30)
 		{
 			m_status = DEAD;
-			m_death = OTHERS;
+			m_death = CLEANUP;
 		}
 	}
 
