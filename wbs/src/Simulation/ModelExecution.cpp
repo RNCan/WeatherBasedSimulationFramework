@@ -683,6 +683,7 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 									CModelStatVector section; 
 
 									ERMsg msgTmp = CCommunicationStream::ReadOutputStream(outStream, infoOut, section);
+									section.SetMissing(model.GetMissValue());
 #pragma omp flush(msg)
 									if (msg && !msgTmp)
 									{
@@ -695,7 +696,9 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 #pragma omp flush(msg)
 									if (msg)
 									{
+										
 										section.ConvertValue(model.GetMissValue(), (float)VMISS);
+										section.SetMissing(VMISS);
 										ERMsg msgTmp = result.SetSection(infoOut.GetSectionNo(), section, callback);
 #pragma omp flush(msg)
 										if (msg && !msgTmp)
