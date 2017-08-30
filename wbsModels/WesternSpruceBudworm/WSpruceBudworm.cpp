@@ -224,9 +224,8 @@ namespace WBSF
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
 			m_death = FROZEN_LARVA;
-			//			m_death = FROZEN;
 		}
-		else if (weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay()==30)
+		else if ((GetGeneration() == 0 || GetStage() != L2o ) && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
 		{
 			m_status = DEAD;
 			m_death = CLEANUP;
@@ -254,26 +253,21 @@ namespace WBSF
 			stat[S_BROOD] += m_totalBroods*m_scaleFactor;
 			stat[E_BROOD] += m_broods*m_scaleFactor;
 
-			if (IsAlive())
+			if (IsAlive() || stage == DEAD_ADULT)
 			{
 				stat[S_EGG + stage] += m_scaleFactor;
 
 				if (stage == ADULT && m_sex == FEMALE)
 					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
-
 			}
-			else
-			{
-				if (stage == DEAD_ADULT)
-					stat[S_DEAD_ADULT] += m_scaleFactor;
-			}
-
+			
 			if (stage != oldStage)
 			{
 				stat[E_EGG + stage] += m_scaleFactor;
 				if (stage == ADULT && m_sex == FEMALE)
 					stat[E_TOTAL_FEMALE] += m_scaleFactor;
 			}
+			
 
 		}
 		else if (m_generation == 1)
@@ -294,8 +288,14 @@ namespace WBSF
 
 			if (m_death == ATTRITION)
 				stat[S_DEAD_ATTRITION] += m_scaleFactor;
-			else if (m_death == FROZEN)
-				stat[S_DEAD_FROZEN] += m_scaleFactor;
+			else if (m_death == FROZEN_EGG)
+				stat[S_DEAD_FROZEN_EGG] += m_scaleFactor;
+			else if (m_death == FROZEN_LARVA)
+				stat[S_DEAD_FROZEN_LARVA] += m_scaleFactor;
+			else if (m_death == FROZEN_ADULT)
+				stat[S_DEAD_FROZEN_ADULT] += m_scaleFactor;
+			else if (m_death == CLEANUP)
+				stat[S_DEAD_CLEANUP] += m_scaleFactor;
 			else if (m_death == MISSING_ENERGY)
 				stat[S_DEAD_MISSING_ENERGY] += m_scaleFactor;
 			else if (m_death == ASYNCHRONY)
@@ -316,6 +316,8 @@ namespace WBSF
 		}
 		return AI; 
 	}
+
+	
 	//*****************************************************************************
 	// IsDeadByAttrition is for one time step development
 	//
@@ -462,7 +464,17 @@ namespace WBSF
 
 	void CWSBTree::HappyNewYear()
 	{
-		CHost::HappyNewYear();
+		for (iterator it = begin(); it != end();)
+		{
+			CWSpruceBudworm* pBudworm = static_cast<CWSpruceBudworm* >(it->get());
+			pBudworm->HappyNewYear();
+
+			//remove dead but keep dead by missing energy
+			if (pBudworm->IsAlive() || pBudworm->GetDeath() == CWSpruceBudworm::MISSING_ENERGY)
+				it++;
+			else
+				it = erase(it);
+		}
 
 		m_ddays = 0;
 		m_probBudMineable = 0;

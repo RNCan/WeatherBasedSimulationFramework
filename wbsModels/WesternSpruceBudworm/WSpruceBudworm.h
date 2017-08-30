@@ -23,7 +23,7 @@ namespace WBSF
 	enum TWSBStat{
 		S_EGG, S_L2o, S_L2, S_L3, S_L4, S_L5, S_L6, S_PUPAE, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_EGG2, S_L2o2, S_L22, S_L32,
 		E_EGG, E_L2o, E_L2, E_L3, E_L4, E_L5, E_L6, E_PUPAE, E_ADULT, E_DEAD_ADULT, E_BROOD, E_TOTAL_BROOD, E_TOTAL_FEMALE, E_EGG2, E_L2o2, E_L22, E_L32,
-		S_DEAD_ATTRITION, S_DEAD_FROZEN, S_DEAD_MISSING_ENERGY, S_DEAD_SYNCH, S_DEAD_WINDOW, S_DEAD,
+		S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_MISSING_ENERGY, S_DEAD_SYNCH, S_DEAD_WINDOW, S_DEAD,
 		S_AVERAGE_INSTAR, S_P_MINEABLE, S_SHOOT_DEVEL,
 		NB_WSB_STAT
 	};
@@ -34,6 +34,9 @@ namespace WBSF
 	class CWSpruceBudworm : public CIndividual
 	{
 	public:
+
+		
+		enum TDeathWSB{ FROZEN_EGG = NB_DEATHS, FROZEN_LARVA, FROZEN_ADULT, CLEANUP, NB_DEATHS_WSB };
 
 		CWSpruceBudworm(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = EGG, size_t sex=NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		~CWSpruceBudworm(void);
@@ -46,7 +49,7 @@ namespace WBSF
 		virtual double GetInstar(bool includeLast)const;
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CWSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return GetStage() != L2o && GetStage() != ADULT; }
-
+		
 
 		inline CWSBTree* GetTree();
 		inline const CWSBTree* GetTree()const;
@@ -96,7 +99,7 @@ namespace WBSF
 		double GetDDays()const{ return m_ddays; }//Accumulated degree days with a base temp and a max temp.
 		double GetProbBudMineable()const{ return m_probBudMineable; } //Proportion of buds that can be mined by a budworm
 		double GetShootDevel()const{ return m_ddShoot; } //Proportion of buds that can be mined by a budworm
-
+		
 
 	protected:
 

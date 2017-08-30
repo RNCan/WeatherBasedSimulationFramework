@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 29/08/2017	3.1.3	Rémi Saint-Amant    Revised model
 // 04/05/2017	3.1.2	Rémi Saint-Amant    New hourly generation
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Correctiopn on overheating 
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -54,7 +55,7 @@ namespace WBSF
 		CModelFactory::RegisterModel(CWSBModel::CreateObject);
 
 
-	enum TOuput{ O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
+	enum TOuput{ O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN_EGG, O_DEAD_FROZEN_LARVA, O_DEAD_FROZEN_ADULT, O_DEAD_CLEANUP, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
 	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
 
 	CWSBModel::CWSBModel()
@@ -65,7 +66,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.1.2 (2017)";
+		VERSION = "3.1.3 (2017)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
@@ -161,37 +162,18 @@ namespace WBSF
 			GetDailyStat(stat);
 
 
-			m_output.Init(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A);
+			m_output.Init(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A, 0.0);
 
 			for (size_t y = 0; y < m_weather.size() - 1; y++)
 			{
-				/*CStatistic statL22;
-				CTPeriod p = m_weather[y + 1].GetEntireTPeriod();
-				for (CTRef d = p.Begin(); d <= p.End(); d++)
-					statL22 += stat[d][S_L22];*/
-
-//				double gr = statL22[HIGHEST];
-				CStatistic gr = stat.GetStat(E_L2o2, m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY)));
-				m_output[y][O_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
+				//Get the number of individuals that complete the winter L2o -> L2 (next year)
+				CStatistic gr = stat.GetStat(E_L22, m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY)));
+				
+				
+				if (gr.IsInit())
+					m_output[y][O_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
 			}
 
-			//SetOutput(stateA);
-
-			////Actual model execution
-			//CModelStatVector stat;
-			//GetDailyStat(stat);
-
-		
-			////fill ouptut matrix
-			//m_output.Init(m_weather.GetNbYears() - 1, CTRef(m_weather[1].GetTRef().GetYear()));
-
-			//for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
-			//{
-			//	CStatistic s = stat.GetStat(E_L2o2, m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY)));
-			//	output[y][O_GROWING_RATE] = s[SUM] / 100;
-			//}
-
-			//SetOutput(output);
 		}
 
 		return msg;
@@ -253,7 +235,12 @@ namespace WBSF
 					stand.GetStat(d, stat[d]);
 
 					if (y == 1 && stat[d][S_L2o2] == 0 && stat[d][S_L22] == 0)
+					{
+						//copy the last value of L22
+						//for (d++; d <= pp.End(); d++)
+							//stat[d][S_L22] = stat[d-1][S_L22];
 						d = pp.End();//end the simulation here
+					}
 
 					stand.AdjustPopulation();
 					HxGridTestConnection();
@@ -282,7 +269,10 @@ namespace WBSF
 			output[d][O_P_SHOOT_DEVEL] = stat[d][S_SHOOT_DEVEL];
 
 			output[d][O_DEAD_ATTRITION] = stat[d][S_DEAD_ATTRITION];
-			output[d][O_DEAD_FROZEN] = stat[d][S_DEAD_FROZEN];
+			output[d][O_DEAD_FROZEN_EGG] = stat[d][S_DEAD_FROZEN_EGG];
+			output[d][O_DEAD_FROZEN_LARVA] = stat[d][S_DEAD_FROZEN_LARVA];
+			output[d][O_DEAD_FROZEN_ADULT] = stat[d][S_DEAD_FROZEN_ADULT];
+			output[d][O_DEAD_CLEANUP] = stat[d][S_DEAD_CLEANUP];
 			output[d][O_DEAD_MISSING_ENERGY] = stat[d][S_DEAD_MISSING_ENERGY];
 			output[d][O_DEAD_SYNCH] = stat[d][S_DEAD_SYNCH];
 			output[d][O_DEAD_WINDOW] = stat[d][S_DEAD_WINDOW];
