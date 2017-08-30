@@ -78,6 +78,9 @@ copy /Y ".\bin\Releasex64\Models\HemlockLooper.dll" "..\Install\NRCan\Models\Hem
 copy /Y ".\bin\Releasex64\Models\HemlockLooper.mdl" "..\Install\NRCan\Models\HemlockLooper.mdl"
 copy /Y ".\bin\Releasex64\Models\HemlockLooperRemi.dll" "..\Install\NRCan\Models\HemlockLooperRemi.dll"
 copy /Y ".\bin\Releasex64\Models\HemlockLooperRemi.mdl" "..\Install\NRCan\Models\HemlockLooperRemi.mdl"
+copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid.dll" "..\Install\NRCan\Models\HemlockWoollyAdelgid.dll"
+copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgidCM (Annual).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgidCM (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgidCM (Daily).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgidCM (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator (Hourly).mdl" "..\Install\NRCan\Models\HourlyGenerator (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\HourlyGenerator.dll"
 
