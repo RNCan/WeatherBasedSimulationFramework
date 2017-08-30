@@ -73,7 +73,6 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>L2</Name>
@@ -212,8 +211,32 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Dead_Frozen</Name>
-            <Title>Dead_Frozen</Title>
+            <Name>Dead_Frozen_Egg</Name>
+            <Title>Dead_Frozen_Egg</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Dead_Frozen_Larva</Name>
+            <Title>Dead_Frozen_Larva</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Dead_Frozen_Adult</Name>
+            <Title>Dead_Frozen_Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Dead_Cleanup</Name>
+            <Title>Dead_Cleanup</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
