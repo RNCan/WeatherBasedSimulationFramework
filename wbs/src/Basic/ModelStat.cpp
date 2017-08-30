@@ -499,6 +499,7 @@ namespace WBSF
 					me[d][v] = value2;
 			}
 		}
+		
 	}
 
 	CInitialPopulation CModelStatVector::GetInitialPopulation(size_t var, size_t nbObjects, double initialPopulation, double age, size_t sex, bool bFertil, size_t generation, CTPeriod p)const

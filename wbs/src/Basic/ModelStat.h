@@ -121,8 +121,8 @@ namespace WBSF
 	{
 	public:
 
-		CModelStatVector(size_t size = 0, CTRef firstDate = CTRef(), short nbStat = 0, double initValue = 0, const std::string& header = ""){ m_missingValue = 0; Init(size, firstDate, nbStat, initValue, header); }
-		CModelStatVector(const CTPeriod& p, size_t nbStat = 0, double initValue = 0, const std::string& header = ""){ m_missingValue = 0; Init(p, nbStat, initValue, header); }
+		CModelStatVector(size_t size = 0, CTRef firstDate = CTRef(), short nbStat = 0, double initValue = 0, const std::string& header = ""){ m_missingValue = -9999; Init(size, firstDate, nbStat, initValue, header); }
+		CModelStatVector(const CTPeriod& p, size_t nbStat = 0, double initValue = 0, const std::string& header = ""){ m_missingValue = -9999; Init(p, nbStat, initValue, header); }
 		
 		CModelStatVector(const CModelStatVector& in, CTM TM=CTM(), size_t stat = MEAN);
 		CModelStatVector(const CModelStatVector& in, const CTTransformation& TT, size_t stat);
@@ -189,6 +189,9 @@ namespace WBSF
 
 		ERMsg Load(const std::string& filePath);
 		ERMsg Save(const std::string& filePath)const;
+
+		double GetMissing()const{ return m_missingValue; }
+		void SetMissing(double missing){ m_missingValue = missing; }
 
 	protected:
 
