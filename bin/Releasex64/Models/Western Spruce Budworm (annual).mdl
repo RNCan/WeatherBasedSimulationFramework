@@ -67,8 +67,8 @@
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>GrowRate</Name>
-            <Title>GrowRate</Title>
+            <Name>GrowthRate</Name>
+            <Title>GrowthRate</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
