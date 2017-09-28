@@ -385,12 +385,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//bool bForceUpdateAll = as<bool>(UPDATE_STATION_LIST);
-
+		
 		//update coordinates
 		callback.PushTask("Update coordinates", stationList.size());
-		//callback.SetNbStep(stationList.size());
-
+		
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -404,10 +402,7 @@ namespace WBSF
 		{
 			//this station doesn't exist, we add it
 			CTPeriod period = String2Period(it->GetSSI("Period"));
-			//if (period.IsInit())
-			//{
-			//string internalID = it->GetSSI("InternalID");
-			//__int64 ID = ToInt64(internalID);
+			
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
 			if (it2 == stations.end() || it2->m_lat==-999)
@@ -537,7 +532,7 @@ namespace WBSF
 		};
 
 		string URL = FormatA(pageDataFormat, ID, year);
-		//msg = UtilWWW::CopyFile(pConnection, URL, filePath);
+		
 		string source;
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
@@ -635,8 +630,7 @@ namespace WBSF
 	{
 		bool bDownload = true;
 
-		//if (!m_bForceDownload)
-		//{
+		
 		CFileStamp fileStamp(filePath);
 		CTime lastUpdate = fileStamp.m_time;
 		if (lastUpdate.GetTime() > 0)
@@ -646,7 +640,7 @@ namespace WBSF
 			if (nbDays > (365 + 182))//six month after the end of the year
 				bDownload = false;
 		}
-		//}
+		
 
 		return bDownload;
 	}
