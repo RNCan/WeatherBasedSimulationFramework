@@ -106,30 +106,24 @@ namespace WBSF
 
 	ERMsg CUIHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
 	{ 
+		ASSERT(p.GetTM() == = CTM::HOURLY);
+
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
 		
-		int firstYear = p.Begin().GetYear();
-		int lastYear = p.End().GetYear();
-		size_t nbYears = lastYear - firstYear + 1;
-		
-		for (size_t y = 0; y < nbYears; y++)
+		for (CTRef TRef = p.Begin(); TRef!= p.End(); TRef++)
 		{
-			int year = firstYear + int(y);
-
-
-			StringVector list;
-			list = GetFilesList(workingDir + ToString(year) + "\\*.vrt", FILE_PATH, true);
+			int year = TRef.GetYear();
+			size_t m = TRef.GetMonth();
+			size_t d = TRef.GetDay();
+			size_t h = TRef.GetHour();
 			
-			for (size_t i = 0; i < list.size(); i++)
-			{
-				CTRef TRef = GetTRef(list[i]);
-				if (p.IsInside(TRef))
-					gribsList[TRef] = list[i];
-			}
+			string fileName = FormatA("%s%d\\%02d\\%02d\\HRDPS_%d%02d%02d%02d.vrt", workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1, h);
+			if (FileExists(fileName))
+				gribsList[TRef] = fileName;
+			
 		}
-
 
 
 		return msg;

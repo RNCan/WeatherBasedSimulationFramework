@@ -284,15 +284,15 @@ if (messageTmp)
 								{
 									if (Dmin > CTRL.m_maxDistFromLOC)
 									{
+										
+										string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
+										if (i>0)
+											str += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
+
 										if (CTRL.m_bRunEvenFar)
-										{
-											string warning = FormatMsg(IDS_SIM_BAD_NORMAL_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v));
-											callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning);
-										}
+											callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
 										else
-										{
-											messageTmp.ajoute(FormatMsg(IDS_SIM_BAD_NORMAL_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v)));
-										}
+											messageTmp.ajoute(str);
 									}
 								}
 
@@ -301,7 +301,10 @@ if (messageTmp)
 								{
 									if (Dmax > CTRL.m_maxDistFromPoint)
 									{
-										string warning = FormatMsg(IDS_SIM_FAR_NORMAL_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v));
+										string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
+										if (i>0)
+											warning += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
+
 										callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
 									}
 								}

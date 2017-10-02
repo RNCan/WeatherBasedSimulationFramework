@@ -403,6 +403,7 @@ namespace WBSF
 
 		CGDALDatasetCached();
 		ERMsg OpenInputImage(const std::string& filePath, bool bOpenInv = false);
+		void Close();
 
 
 //		CGeoRect m_clipRect;
@@ -413,6 +414,7 @@ namespace WBSF
 		bool IsCached(size_t b, const CGeoBlockIndex& xy)const{ return IsCached(CGeoPoint3DIndex(xy.m_x, xy.m_y, (int)b)); }
 
 		size_t get_band(size_t v, size_t level)const;
+		bool get_fixed_elevation_level(size_t l, double& elev)const;
 		
 		//RasterIO
 	protected:
@@ -436,6 +438,7 @@ namespace WBSF
 		//statistic of simulation
 		std::array<CStatistic, 1 > m_stats;
 		std::array<std::array<size_t, NB_LEVELS>, NB_ATM_VARIABLES_EX> m_bands;
+		std::map < size_t, double > m_fixedElevationLevel;
 
 		//CGeoExtents m_extentsSub;
 		//CGeoRectIndex m_indexSub;
@@ -464,6 +467,9 @@ namespace WBSF
 		ERMsg Discard(CCallback& callback);
 		size_t get_band(CTRef TRef, size_t v, size_t level)const;
 		size_t GetPrjID(CTRef TRef)const{ return at(TRef)->GetPrjID(); }
+		
+		
+		bool get_fixed_elevation_level(CTRef TRef, size_t l, double& elev)const;
 		//CGDALDatasetCachedPtr operator[](CTRef TRef)const{ return at(TRef); }
 
 
@@ -484,7 +490,8 @@ namespace WBSF
 		{
 			//m_bSkipDay = false;
 		}
-
+		
+		
 		ERMsg Load(const std::string& gribsFilepath, const std::string& hourlyDBFilepath, CCallback& callback);
 		ERMsg load_gribs(const std::string& filepath, CCallback& callback);
 		ERMsg load_hourly(const std::string& filepath, CCallback& callback);
@@ -501,8 +508,8 @@ namespace WBSF
 		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
 		
 		CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
-		int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const;
-		int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
+		int get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRef UTCTRef, bool bLow)const;
+		//int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
 		double GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
 
 		bool is_init()const{ return !m_filepath_map.empty() || m_p_hourly_DB != NULL; }
@@ -530,7 +537,7 @@ namespace WBSF
 		TRefFilePathMap m_filepath_map;
 		CHourlyDatabasePtr m_p_hourly_DB;
 		CTRefDatasetMap m_p_weather_DS;
-
+		
 
 		std::map<size_t, CWeatherStation> m_stations;
 		std::map<size_t, CWaterTemperature> m_Twater;
@@ -650,7 +657,7 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, NB_MEMBERS };
+		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, REVERSED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_TURBULANCE, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, HOST, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, EGG_MAP_RES, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
 		//public member
@@ -686,6 +693,7 @@ namespace WBSF
 
 		bool m_bCreateEggMaps;
 		std::string m_eggMapsTitle;
+		double m_eggMapsResolution;
 
 
 		size_t get_time_step()const{ return m_time_step; }//[s]
@@ -733,6 +741,7 @@ namespace WBSF
 
 			m_bCreateEggMaps = false;
 			m_eggMapsTitle = "EggDensity";
+			m_eggMapsResolution = 4000;
 
 		}
 
@@ -772,6 +781,7 @@ namespace WBSF
 
 				m_bCreateEggMaps = in.m_bCreateEggMaps;
 				m_eggMapsTitle = in.m_eggMapsTitle;
+				m_eggMapsResolution = in.m_eggMapsResolution;
 
 			}
 
@@ -813,12 +823,14 @@ namespace WBSF
 			
 			if (m_bCreateEggMaps != in.m_bCreateEggMaps)bEqual = false;
 			if (m_eggMapsTitle != in.m_eggMapsTitle)bEqual = false;
+			if (m_eggMapsResolution != in.m_eggMapsResolution)bEqual = false;
 
 
 			return bEqual;
 		}
 
 		bool operator !=(const CATMWorldParamters& in)const{ return !operator ==(in); }
+
 
 	protected:
 
@@ -890,6 +902,12 @@ namespace WBSF
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;
+
+
+		
+		ERMsg Init(ofStream& output_file, CCallback& callback);
+		ERMsg Execute2(CTRef TRef, CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
+
 
 	protected:
 
@@ -977,6 +995,8 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](in.m_outputFrequency);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::CREATE_EGG_MAPS)](in.m_bCreateEggMaps);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_TITLE)](in.m_eggMapsTitle);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_RES)](in.m_eggMapsResolution);
+		
 		
 
 	}
@@ -1009,6 +1029,7 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::OUTPUT_FREQUENCY)](out.m_outputFrequency);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::CREATE_EGG_MAPS)](out.m_bCreateEggMaps);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_TITLE)](out.m_eggMapsTitle);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::EGG_MAP_RES)](out.m_eggMapsResolution);
 
 		return true;
 	}

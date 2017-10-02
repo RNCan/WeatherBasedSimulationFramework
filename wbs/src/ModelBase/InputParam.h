@@ -142,6 +142,10 @@ namespace WBSF
 		void Set(const std::string& date = "", const std::string& delimiter = "-/\\");
 		std::string Get(const std::string& delimiter = "/")const;
 
+		
+		bool operator == (const CMonthDay& in)const{ return m_month == in.m_month&&m_day == in.m_day&& m_hour == in.m_hour; }
+		bool operator != (const CMonthDay& in)const{ return !operator==(in); }
+
 		bool IsValid()const;
 		
 		CTRef GetTRef(int year)const{ return CTRef(year, m_month, m_day, m_hour, CTM(m_hour == NOT_INIT ? CTM::DAILY : CTM::HOURLY)); }

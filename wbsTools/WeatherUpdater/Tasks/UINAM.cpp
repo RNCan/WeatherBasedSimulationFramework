@@ -115,7 +115,7 @@ namespace WBSF
 		if (msg)
 		{
 			CFileInfo info = GetFileInfo(outputPath);
-			if (info.m_size < 1000)//in bites?
+			if (info.m_size < 10*1024*1024)//Strange thing on server smaller than 10 Mo
 			{
 				//remove file
 				msg += RemoveFile(outputPath);
@@ -241,8 +241,8 @@ namespace WBSF
 						{
 							//now try with NAM product
 							msg = DownloadGrib(pConnection, h, true, callback);
-							if (msg && FileExists(GetOutputFilePath(h, true)))
-								msg = DownloadGrib(pConnection, h, false, callback);
+							//if (msg && FileExists(GetOutputFilePath(h, true)))
+								//msg = DownloadGrib(pConnection, h, false, callback);
 						}
 
 

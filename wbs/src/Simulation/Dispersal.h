@@ -122,6 +122,7 @@ namespace WBSF
 
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_STATISTIC; }
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callBack = DEFAULT_CALLBACK);
+		ERMsg Execute2(const CFileManager& fileManager, CCallback& callback);
 
 		static CGeoPoint GetNewPosition(const CGeoPoint& pt, double U, double V);
 

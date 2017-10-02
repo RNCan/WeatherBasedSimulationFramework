@@ -1,6 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
-// 11.3.4: 18/07/2017	Rémi Saint-Amant	Bug coreection in memory allocation in the dispersal component 
+// 11.3.5: 30/08/2017	Rémi Saint-Amant	Bug correction in reading model output and missing values
+//											Bug correction in dispersal multi-processor activation
+// 11.3.4: 18/07/2017	Rémi Saint-Amant	Bug correction in memory allocation in the dispersal component 
 //											Add optimization when only missing data into the DBBase
 // 11.3.3: 06/06/2017 	Rémi Saint-Amant	Add egg density mapping in dispersal  
 // 11.3.2: 06/05/2017 	Rémi Saint-Amant	Update of the hourly temperature generation
@@ -19,7 +21,7 @@
 // 11.2.2: 03/01/2017   Rémi Saint-Amant	New GDAL options in mapping 
 // 11.2.1: 09/12/2016	Rémi Saint-Amant	New dispersal module  
 // 11.2.0: 23/11/2016	Rémi Saint-Amant	New database format  
-// 11.1.3: 01/11/2016	Rémi Saint-BAmant	New database with .csv file 
+// 11.1.3: 01/11/2016	Rémi Saint-Amant	New database with .csv file 
 // 11.1.2: 13/10/2016   Rémi Saint-Amant	Change in ATM to accept NAM gribs 
 // 11.1.1: 27/09/2016	Rémi Saint-Amant	Bug correction in merge 
 // 11.1.0: 20/09/2016   Rémi Saint-Amant	Replace Tair and Trng by Tmin and Tmax 

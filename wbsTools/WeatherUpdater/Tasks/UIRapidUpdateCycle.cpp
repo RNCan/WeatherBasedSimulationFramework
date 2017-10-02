@@ -306,27 +306,27 @@ namespace WBSF
 						if (bGrbNeedDownload[hh])
 						{
 							//download inventory
-							msg = DownloadGrib(pConnection, h, false, false, callback);
-							if (FileExists(GetOutputFilePath(h, false, false)))
-							{
+							//msg = DownloadGrib(pConnection, h, false, false, callback);
+							//if (FileExists(GetOutputFilePath(h, false, false)))
+							//{
 								//download gribs file
 								msg = DownloadGrib(pConnection, h, true, false, callback);
-								if (msg && !FileExists(GetOutputFilePath(h, true, false)))
-									msg += RemoveFile(GetOutputFilePath(h, false, false));
-							}
+								//if (msg && !FileExists(GetOutputFilePath(h, true, false)))
+									//msg += RemoveFile(GetOutputFilePath(h, false, false));
+							//}
 							
 							//now try with 1 hour forecast
 							if (msg && !FileExists(GetOutputFilePath(h, true,  false)))
 							{
 								//download inventory
-								msg = DownloadGrib(pConnection, h, false, true, callback);
-								if (FileExists(GetOutputFilePath(h, false, true)))
-								{
+								//msg = DownloadGrib(pConnection, h, false, true, callback);
+								//if (FileExists(GetOutputFilePath(h, false, true)))
+								//{
 									//download gribs file
 									msg = DownloadGrib(pConnection, h, true, true, callback);
-									if (msg && !FileExists(GetOutputFilePath(h, true, true)))
-										msg += RemoveFile(GetOutputFilePath(h, false, true));
-								}
+									//if (msg && !FileExists(GetOutputFilePath(h, true, true)))
+										//msg += RemoveFile(GetOutputFilePath(h, false, true));
+								//}
 							}
 						}
 

@@ -372,7 +372,7 @@ namespace WBSF
 		string DEM_filepath, gribs_filepath, hourly_DB_filepath, defoliation_filepath, host_filepath, distraction_filepath, water_filepath;
 		string outputPath = GetPath(fileManager);		//Generate output path
 		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
-		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
+		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
 
 
 		if (!m_parameters.m_world.m_DEM_name.empty())
@@ -567,14 +567,14 @@ namespace WBSF
 							flyer.m_newLocation = locations[l];
 							flyer.m_pt = locations[l];
 
-							flyer.m_pt.m_alt = 10;
+							//flyer.m_pt.m_alt = 10;
 							if (extents.IsInside(flyer.m_pt))
 								world.m_flyers.push_back(flyer);
 							else
 								callback.AddMessage("WARNING: Simulation point outside elevation map");
 
 							rr++;
-							nbReplications = max(nbReplications, rr+1);
+							nbReplications = max(nbReplications, rr);
 						
 						}//is inside simulation period
 					}//for all rows
@@ -646,6 +646,317 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CDispersal::Execute2(const CFileManager& fileManager, CCallback& callback)
+	{
+		ERMsg msg;
+
+		GIntBig test = GDALGetCacheMax64();
+		GDALSetCacheMax64(128 * 1024 * 1024);
+
+
+		//char test[100] = { 0 };
+		//CPLGetConfigOption("GDAL_CACHEMAX", test);
+		//CPLSetConfigOption("GDAL_CACHEMAX", "64");//limit the size of the cache for each layers
+
+
+		CATMWorld world;
+		world.m_parameters1 = m_parameters.m_world;
+		world.m_parameters2 = m_parameters.m_ATM;
+		world.m_nb_max_threads = CTRL.m_nbMaxThreads;
+		ofStream output_file;
+
+		string DEM_filepath, gribs_filepath, hourly_DB_filepath, defoliation_filepath, host_filepath, distraction_filepath, water_filepath;
+		string outputPath = GetPath(fileManager);		//Generate output path
+		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
+		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
+
+
+		if (!m_parameters.m_world.m_DEM_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name, DEM_filepath);
+		else
+			msg.ajoute("A DEM must be supply");
+
+		if (!m_parameters.m_world.m_defoliation_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_defoliation_name, defoliation_filepath);
+		if (!m_parameters.m_world.m_host_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_host_name, host_filepath);
+		if (!m_parameters.m_world.m_distraction_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_distraction_name, distraction_filepath);
+		if (!m_parameters.m_world.m_water_name.empty())
+			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
+		if (m_parameters.m_world.UseGribs())
+		{
+			if (!m_parameters.m_world.m_gribs_name.empty())
+				msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
+			else
+				msg.ajoute("Gribs file is not defined");
+		}
+
+		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_ATM.m_PSource == CATMParameters::PRCP_WEATHER_STATION || m_parameters.m_ATM.m_broodTSource == CATMParameters::BROOD_T_WEATHER_STATION))
+		{
+			if (!m_parameters.m_world.m_hourly_DB_name.empty())
+				msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
+			else
+				msg.ajoute("Hourly database is not defined");
+		}
+
+		if (!outputFilePath.empty())
+			msg += output_file.open(outputFilePath);
+
+
+
+
+		CResultPtr pResult = m_pParent->GetResult(fileManager);
+		msg += pResult->Open();
+
+		//open outputDB
+		CResult result;
+		msg += result.Open(DBFilePath, std::fstream::binary | std::fstream::out | std::fstream::trunc);
+
+		if (!msg)
+			return msg;
+
+		//if (result.GetMetadata().GetNbReplications() > 1)
+		//callback.AddMessage("WARNING: only the first replication will be taken");
+
+
+		//init output info
+		CDBMetadata& metadata = result.GetMetadata();
+		GetInputDBInfo(pResult, metadata);
+
+		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
+
+
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, I_F0, I_F, I_B, I_E, NB_INPUTS };
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month", "Day", "Hour", "Minute", "Second", "sex", "A", "M", "G", "F°", "F", "Broods", "Eggs" };
+
+		bool bMissing = false;
+		std::array<size_t, NB_INPUTS> varsPos;
+		for (size_t i = 0; i < NB_INPUTS; i++)
+		{
+			varsPos[i] = Find(vars, VARIABLE_NAME[i]);
+			bMissing = bMissing || varsPos[i] == NOT_INIT;
+		}
+
+
+		if (bMissing)
+		{
+			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", \"Broods\", \"Eggs\" must be defined");
+			return msg;
+		}
+
+		callback.PushTask("Open Dispersal's Input", 6);
+
+
+		if (msg)
+		{
+			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
+			//if (msg)
+			//{
+			//world.m_GEO2DEM = GetReProjection(PRJ_WGS_84, world.m_DEM_DS.GetPrjID());
+			//world.m_extents = world.m_DEM_DS.GetExtents();
+			//}
+
+		}
+
+
+		if (!msg)
+			return msg;
+
+		//Create projection
+
+		msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
+		//if (msg)
+		//world.m_GEO2GRIBS = GetReProjection(PRJ_WGS_84, world.m_weather.GetGribsPrjID());
+
+
+		callback.StepIt();
+		if (!defoliation_filepath.empty())
+		{
+			msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
+			//if (msg)
+			//world.m_GEO2DEFOLIATION = GetReProjection(PRJ_WGS_84, world.m_defoliation_DS.GetPrjID());
+		}
+		else if (world.m_parameters1.m_maxFliyers > 1)
+		{
+			msg.ajoute("maximum flyers is more than 1 but there is no defoliation map. Reset maximum flyers to 1 or provide defoliation map.");
+		}
+
+
+
+		callback.StepIt();
+		if (!host_filepath.empty())
+			msg += world.m_host_DS.OpenInputImage(host_filepath);
+
+		callback.StepIt();
+		if (!distraction_filepath.empty())
+			msg += world.m_distraction_DS.OpenInputImage(distraction_filepath);
+
+		callback.StepIt();
+
+
+
+		if (!water_filepath.empty())
+		{
+			msg += world.m_water_DS.OpenInputImage(water_filepath);
+			//if (msg)
+			//world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
+		}
+		else if (world.m_parameters1.m_maxFliyers > 1)
+		{
+			msg.ajoute("maximum flyers is more than 1 but there is no water map. Reset maximum flyers to 1 or provide water map.");
+		}
+
+		callback.StepIt();
+		if (!msg)
+			return msg;
+
+		callback.PopTask();
+
+		const CLocationVector& locations = metadata.GetLocations();
+		callback.PushTask("Init dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
+
+		CGeoExtents extents = world.m_DEM_DS.GetExtents();
+		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
+		CTPeriod period = world.m_parameters1.m_simulationPeriod;
+		period.Transform(CTM(CTM::HOURLY));
+
+		size_t nbReplications = 0;
+		for (size_t l = 0; l < locations.size() && msg; l++)
+		{
+			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
+			{
+				size_t rr = 0;
+				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
+				{
+
+					CNewSectionData section;
+					pResult->GetSection(l, p, r, section);
+					assert(section.GetCols() == pResult->GetNbCols(false));
+
+					for (size_t t = 0; t < section.GetRows() && msg; t++)
+					{
+						std::array<double, NB_INPUTS> v;
+
+						for (size_t i = 0; i < varsPos.size(); i++)
+							v[i] = section[t][varsPos[i]][MEAN];
+
+						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1, size_t(v[I_HOUR]));
+						if (period.IsInside(TRef))
+						{
+							CFlyer flyer(world);
+
+							flyer.m_loc = l;
+							flyer.m_par = p;
+							flyer.m_rep = rr;
+							flyer.m_localTRef = TRef;//assume daylignt time
+							flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
+							flyer.m_scale = 1;
+							flyer.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
+							flyer.m_A = v[I_A];
+							flyer.m_M = v[I_M];
+							flyer.m_G = v[I_G];
+							flyer.m_Fᵒ = v[I_F0];
+							flyer.m_broods = v[I_B];
+							flyer.m_eggsLeft = v[I_E];
+							flyer.m_location = locations[l];
+							flyer.m_newLocation = locations[l];
+							flyer.m_pt = locations[l];
+
+							flyer.m_pt.m_alt = 10;
+							if (extents.IsInside(flyer.m_pt))
+								world.m_flyers.push_back(flyer);
+							else
+								callback.AddMessage("WARNING: Simulation point outside elevation map");
+
+							rr++;
+							nbReplications = max(nbReplications, rr);
+
+						}//is inside simulation period
+					}//for all rows
+
+					msg += callback.StepIt();
+				}//for all replications
+
+
+			}//for all paramterset
+		}//for all locations
+
+
+		callback.PopTask();
+
+		
+		if (!world.m_flyers.empty())
+		{
+			CTPeriod outputPeriod = world.get_period(false);
+			callback.AddMessage("Execute dispersal with " + ToString(world.m_flyers.size()) + " moths");
+			callback.AddMessage("Output period: " + outputPeriod.GetFormatedString());
+			callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
+
+			metadata.SetNbReplications(nbReplications);
+
+			
+
+			//init weather
+			set<int> years = world.get_years();
+
+			for (set<int>::const_iterator it = years.begin(); it != years.end() && msg; it++)
+			{
+				int year = *it;
+				
+				//get all days to simulate
+				set<CTRef> TRefs = world.get_TRefs(year);
+
+				callback.PushTask("Execute Dispersal for year = " + ToString(year) + " (" + ToString(TRefs.size()) + " days)", TRefs.size());
+				//simulate for all days
+				for (set<CTRef>::const_iterator it = TRefs.begin(); it != TRefs.end() && msg; it++)
+				{
+					CATMOutputMatrix output(locations.size());
+					for (size_t l = 0; l < output.size(); l++)
+					{
+						output[l].resize(metadata.GetParameterSet().size());//the number of input variables
+						for (size_t p = 0; p < output[l].size(); p++)
+						{
+							output[l][p].resize(nbReplications);
+							for (size_t r = 0; r < output[l][p].size(); r++)
+							{
+								output[l][p][r].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
+							}
+						}
+					}
+					msg = world.Execute(output, output_file, callback);
+					if (msg)
+					{
+						for (size_t l = 0; l < output.size() && msg; l++)
+						{
+							for (size_t p = 0; p < output[l].size() && msg; p++)
+							{
+								for (size_t r = 0; r < output[l][p].size(); r++)
+								{
+									size_t no = result.GetSectionNo(l, p, r);
+									msg += result.SetSection(no, output[l][p][r]);
+									msg += callback.StepIt(0);
+								}
+							}
+						}
+
+
+						if (m_parameters.m_world.m_bCreateEggMaps)
+						{
+							string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
+							msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
+						}
+					}
+				}
+			}
+		}
+
+
+		result.Close();
+
+		return msg;
+	}
+	
 	//
 	//ERMsg CMothFlight::XValidation(CCallback& callback)
 	//{

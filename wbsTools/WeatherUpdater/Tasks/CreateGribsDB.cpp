@@ -114,7 +114,7 @@ namespace WBSF
 
 		size_t nbTask = 0;
 		for (int i = INPUT1; i < 6 && msg; i++)
-			if (!Get(FORECAST1 + i).empty())
+			if (!Get(i).empty())
 				nbTask++;
 
 		callback.PushTask("Gather gribs list (" +ToString(nbTask) + " sources)", nbTask);

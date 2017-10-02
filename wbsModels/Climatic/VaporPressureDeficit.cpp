@@ -208,7 +208,7 @@ namespace WBSF
 		else
 		{
 			double daylightT = weather.GetTdaylight();
-			double daylightEs = e°(daylightT) * 1000;
+			double daylightEs = eᵒ(daylightT) * 1000;
 			VPD += max(0.0, daylightEs - weather[H_EA2][MEAN]);
 		}
 

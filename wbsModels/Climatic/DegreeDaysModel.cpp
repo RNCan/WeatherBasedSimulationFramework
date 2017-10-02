@@ -27,6 +27,7 @@
 //		Degree day summation.
 //
 //*****************************************************************************
+// 01/09/2016	3.1.1	Rémi Saint-Amant    Bug correction in monthly and annual when start and end is define
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 06/09/2016	3.0.3	Rémi Saint-Amant	Replace DregreDay (hour) by DegreHour
 // 21/01/2016	3.0.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
@@ -63,7 +64,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER and VERSION are 2 framework variable
 		NB_INPUT_PARAMETER = 8; //set the number of parameters for this model
-		VERSION = "3.1.0 (2016)"; //set the version of this model
+		VERSION = "3.1.1 (2017)"; //set the version of this model
 
 		//This model has 8 input parameters 
 		CMonthDay m_firstDate = CMonthDay(FIRST_MONTH, FIRST_DAY);
@@ -117,7 +118,13 @@ namespace WBSF
 
 	void CDegreeDaysModel::ComputeFinal(CTM TM, const CModelStatVector& input, CModelStatVector& output)
 	{
-		CTStatMatrix stats(input, TM);
+		CTPeriod p = input.GetTPeriod();
+		CTPeriod pIn = p;
+		if (m_firstDate!=CMonthDay(FIRST_MONTH, FIRST_DAY) || m_lastDate != CMonthDay(LAST_MONTH, LAST_DAY))
+			pIn = CTPeriod(CTRef(p.Begin().GetYear(), m_firstDate.m_month, m_firstDate.m_day, m_firstDate.m_hour, p.GetTM()), CTRef(p.End().GetYear(), m_lastDate.m_month, m_lastDate.m_day, m_lastDate.m_hour, p.GetTM()), CTPeriod::FOR_EACH_YEAR);
+
+		CTTransformation TT(pIn, TM);
+		CTStatMatrix stats(input, TT);
 		
 		output.Init(stats.m_period, CDegreeDays::NB_OUTPUT, CBioSIMModelBase::VMISS, CDegreeDays::HEADER);
 	

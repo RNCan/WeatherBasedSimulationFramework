@@ -128,46 +128,44 @@ namespace WBSF
 		//CCSVFile result;
 
 		stringstream s(ReadBuffer(stream));
-		for (CSVIterator loop(s); loop != CSVIterator() && msg; loop++)
+		CSVIterator loop(s);
+		if (fieldPos < loop.Header().size())
 		{
-			//result.ReadStream(stream);
-
-			if (fieldPos < loop.Header().size())
+			for (; loop != CSVIterator() && msg; loop++)
 			{
-				//for (size_t i = 0; i < (*loop).size() && msg; i++)
-				//{
-				//Find the proper location
-				string name = (*loop)[fieldPos];
-				StringVector::iterator it = std::find(locName.begin(), locName.end(), name);
-				if (it != locName.end())
+				if (fieldPos < (*loop).size())
 				{
-					//add result entry for this location
-					size_t pos = it - locName.begin();
-					at(pos)->AddResult(loop.Header(), *loop);
-				}
-				else
-				{
-					msg.ajoute("Unable to find location with ID = " + name);
-				}
-				//}
-
-
-				//look to see if they are at least one value
-				bool bEmptyResult = true;
-				for (size_t i = 0; i < size() && bEmptyResult; i++)
-				{
-					bEmptyResult = at(i)->GetSAResult().empty();
-				}
-
-				if (bEmptyResult)
-				{
-					msg.ajoute("No result in the input file match the location list");
+					//Find the proper location
+					string name = (*loop)[fieldPos];
+					StringVector::iterator it = std::find(locName.begin(), locName.end(), name);
+					if (it != locName.end())
+					{
+						//add result entry for this location
+						size_t pos = it - locName.begin();
+						at(pos)->AddResult(loop.Header(), *loop);
+					}
+					else
+					{
+						msg.ajoute("Unable to find location with ID = " + name);
+					}
 				}
 			}
-			else
-			{
-				msg.ajoute("Invalid location list field.");
-			}
+		}
+		else
+		{
+			msg.ajoute("Invalid location list field.");
+		}
+
+		//look to see if they are at least one value for each location
+		bool bEmptyResult = true;
+		for (size_t i = 0; i < size() && bEmptyResult; i++)
+		{
+			bEmptyResult = at(i)->GetSAResult().empty();
+		}
+
+		if (bEmptyResult)
+		{
+			msg.ajoute("No result in the input file match the location list");
 		}
 
 		return msg;

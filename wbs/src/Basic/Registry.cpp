@@ -166,19 +166,21 @@ namespace WBSF
 
 	void CRegistry::WriteProfileInt(const string& itemName, int value)
 	{
-		ASSERT(m_hKey != NULL);
-		ASSERT(!itemName.empty());
+		WriteProfileString(itemName, ToString(value));
 
-		char valueTmp[sizeof(DWORD) + 1] = { 0 };
-		_itoa_s(value, valueTmp, sizeof(DWORD), 10);
+		//ASSERT(m_hKey != NULL);
+		//ASSERT(!itemName.empty());
+
+		//char valueTmp[50] = { 0 };
+		//_itoa_s(value, valueTmp, 50, 10);
 
 
-		RegSetValueExW(m_hKey,
-			UTF16(itemName).c_str(),
-			0,
-			REG_DWORD,
-			(LPBYTE)valueTmp,
-			sizeof(DWORD));
+		//RegSetValueExW(m_hKey,
+		//	UTF16(itemName).c_str(),
+		//	0,
+		//	REG_DWORD,
+		//	(LPBYTE)valueTmp,
+		//	sizeof(DWORD));
 	}
 
 	bool CRegistry::GetProfileBool(const string& itemName, bool defaultValue)const
@@ -225,11 +227,12 @@ namespace WBSF
 				lRetCode = RegQueryValueExW(key, UTF16(itemName).c_str(), 0, &type, &(buffer[0]), &length);
 				if (lRetCode == ERROR_SUCCESS)
 				{
-					ASSERT(type == REG_SZ);
-
-					wstring wvalue(reinterpret_cast<wchar_t*>(&(buffer[0])), length / sizeof(wchar_t));
-					wvalue.resize(wcslen(wvalue.c_str()));
-					value = UTF8(wvalue);
+					if (type == REG_SZ)
+					{
+						wstring wvalue(reinterpret_cast<wchar_t*>(&(buffer[0])), length / sizeof(wchar_t));
+						wvalue.resize(wcslen(wvalue.c_str()));
+						value = UTF8(wvalue);
+					}
 				}
 			}
 		}
@@ -238,30 +241,33 @@ namespace WBSF
 	}
 
 
-	int CRegistry::GetProfileInt(const string& itemName, int defaultvalue)const
+	int CRegistry::GetProfileInt(const string& itemName, int defaultValue)const
 	{
-		DWORD length = 4;
-		unsigned char valueTmp[sizeof(DWORD) + 1] = { 0 };
-		DWORD type = REG_DWORD;
+		string val = GetProfileString(itemName, ToString(defaultValue));
+		return ToInt(val);
+		
+		//DWORD length = 4;
+		//unsigned char valueTmp[sizeof(DWORD)] = { 0 };
+		//DWORD type = REG_DWORD;
 
-		int value = defaultvalue;
+		//int value = defaultvalue;
 
-		wstring itemNameTmp = UTF16(itemName);
-		LONG lRetCode = RegQueryValueExW(m_hKey,
-			itemNameTmp.data(),
-			0,
-			&type,
-			valueTmp, &length);
+		//wstring itemNameTmp = UTF16(itemName);
+		//LONG lRetCode = RegQueryValueExW(m_hKey,
+		//	itemNameTmp.data(),
+		//	0,
+		//	&type,
+		//	valueTmp, &length);
 
 
 
-		if (lRetCode == ERROR_SUCCESS)
-		{
-			ASSERT(length == sizeof(DWORD));
-			value = atoi((char*)valueTmp);
-		}
+		//if (lRetCode == ERROR_SUCCESS)
+		//{
+		//	ASSERT(length == sizeof(DWORD));
+		//	value = atoi((char*)valueTmp);
+		//}
 
-		return value;
+		//return value;
 	}
 
 

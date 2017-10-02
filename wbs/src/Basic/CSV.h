@@ -52,7 +52,8 @@ namespace WBSF
 			//bool bReplacmentOccurd = false;
 			std::getline(str, m_line);
 			m_line.erase(std::remove(m_line.begin(), m_line.end(), '\r'), m_line.end());
-
+			if (strlen(m_line.c_str())==0)
+				return;
 
 			if (m_bDQ)
 			{

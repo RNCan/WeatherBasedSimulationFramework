@@ -1807,7 +1807,7 @@ void CDewDuration::Execute(const CWeatherStation& weather, CWetnessDurationStat&
 
 					double ΔT = GetΔT(Rs, RL, Ta, hc, hw, P, esa, e);
 					double Tl = GetTl(Ta, ΔT);
-					double esl = e°(Tl)*10;	//[mb]
+					double esl = eᵒ(Tl) * 10;	//[mb]
 
 					//latent heat flux 
 					double LE = GetLE(hw, P, esl, e);	//[W/m²]

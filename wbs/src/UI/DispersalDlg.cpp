@@ -42,8 +42,8 @@ namespace WBSF
 		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS,
 		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
 		T_BROOD, P_TYPE, P_MAX, W_MIN, 
-		HEIGHT_YPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, 
-		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, NB_PROPERTIES
+		HEIGHT_TYPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, 
+		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, CREATE_EGG_RES, NB_PROPERTIES
 	};
 
 	BEGIN_MESSAGE_MAP(CDispersalPropertyGridCtrl, CMFCPropertyGridCtrl)
@@ -113,8 +113,6 @@ namespace WBSF
 		AddProperty(pInput);
 
 		CMFCPropertyGridProperty* pWeather = new CMFCPropertyGridProperty(section[2], -1);
-		//pWeather->AddSubItem(new CStdGridProperty(name[T_MIN], "", description[T_MIN], T_MIN));
-		//pWeather->AddSubItem(new CStdGridProperty(name[T_MAX], "", description[T_MAX], T_MAX));
 		
 		pWeather->AddSubItem(new CBroodTypeProperty(name[T_BROOD], "", description[T_BROOD], T_BROOD));
 		pWeather->AddSubItem(new CPrcpTypeProperty(name[P_TYPE], "", description[P_TYPE], P_TYPE));
@@ -123,16 +121,7 @@ namespace WBSF
 		AddProperty(pWeather);
 
 		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[3], -1);
-		//pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MIN], 0, description[DURATION_MIN], DURATION_MIN));
-		//pHeight->AddSubItem(new CStdGridProperty(name[DURATION_MAX], 0, description[DURATION_MAX], DURATION_MAX));
-		//pHeight->AddSubItem(new CStdGridProperty(name[DURATION_ALPHA], 0, description[DURATION_ALPHA], DURATION_ALPHA));
-		//pHeight->AddSubItem(new CStdGridProperty(name[DURATION_BETA], 0, description[DURATION_BETA], DURATION_BETA));
-		//pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_DURATION], 0, description[CRUISE_DURATION], CRUISE_DURATION));
-		//pHeight->AddSubItem(new CStdGridProperty(name[CRUISE_HEIGHT], 0, description[CRUISE_HEIGHT], CRUISE_HEIGHT));
-		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_YPE], "", description[HEIGHT_YPE], HEIGHT_YPE));
-		//pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_K], 0, description[WING_BEAT_K], WING_BEAT_K));
-		//pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_VMAX], "", description[WING_BEAT_VMAX], WING_BEAT_VMAX));
-		//pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_VMAXF], "", description[WING_BEAT_VMAXF], WING_BEAT_VMAXF));
+		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_TYPE], "", description[HEIGHT_TYPE], HEIGHT_TYPE));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_SCALE], "", description[WING_BEAT_SCALE], WING_BEAT_SCALE));
 
 		AddProperty(pHeight);
@@ -153,6 +142,8 @@ namespace WBSF
 		CMFCPropertyGridProperty* pEggs = new CMFCPropertyGridProperty(section[6], -1);
 		pEggs->AddSubItem(new CStdBoolGridProperty(name[CREATE_EGG_MAPS], false, description[CREATE_EGG_MAPS], CREATE_EGG_MAPS));
 		pEggs->AddSubItem(new CStdGridProperty(name[EGG_MAP_TITLE], "", description[EGG_MAP_TITLE], EGG_MAP_TITLE));
+		pEggs->AddSubItem(new CStdGridProperty(name[CREATE_EGG_RES], "", description[EGG_MAP_TITLE], CREATE_EGG_RES));
+		
 		
 		AddProperty(pEggs);
 
@@ -192,16 +183,7 @@ namespace WBSF
 			case P_TYPE:			str = WBSF::ToString(in.m_ATM.m_PSource); break;
 			case P_MAX:				str = WBSF::ToString(in.m_ATM.m_Pmax); break;
 			case W_MIN:				str = WBSF::ToString(in.m_ATM.m_Wmin); break;
-//			case DURATION_MIN:		str = WBSF::ToString(in.m_ATM.m_duration_min); break;
-//			case DURATION_MAX:		str = WBSF::ToString(in.m_ATM.m_duration_max); break;
-//			case DURATION_ALPHA:	str = WBSF::ToString(in.m_ATM.m_duration_α); break;
-//			case DURATION_BETA:		str = WBSF::ToString(in.m_ATM.m_duration_β); break;
-//			case CRUISE_DURATION:	str = WBSF::ToString(in.m_ATM.m_cruise_duration); break;
-//			case CRUISE_HEIGHT:		str = WBSF::ToString(in.m_ATM.m_cruise_height); break;
-			case HEIGHT_YPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
-//			case WING_BEAT_K:		str = WBSF::ToString(in.m_ATM.m_K); break;
-//			case WING_BEAT_VMAX:	str = WBSF::ToString(in.m_ATM.m_Vmax); break;
-//			case WING_BEAT_VMAXF:	str = WBSF::ToString(in.m_ATM.m_VmaxF); break;
+			case HEIGHT_TYPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
 			case WING_BEAT_SCALE:	str = WBSF::ToString(in.m_ATM.m_w_α); break;
 			case W_HORZ:			str = WBSF::ToString(in.m_ATM.m_w_horizontal); break;
 			case W_HORZ_SD:			str = WBSF::ToString(in.m_ATM.m_w_horizontal_σ); break;
@@ -212,6 +194,7 @@ namespace WBSF
 			case OUTPUT_TIME_FREQUENCY:	str = WBSF::ToString(in.m_world.m_outputFrequency); break;
 			case CREATE_EGG_MAPS:	str = WBSF::ToString(in.m_world.m_bCreateEggMaps); break;
 			case EGG_MAP_TITLE:		str = in.m_world.m_eggMapsTitle; break;
+			case CREATE_EGG_RES:	str = WBSF::ToString(in.m_world.m_eggMapsResolution); break;
 			default: ASSERT(false);
 			}
 
@@ -262,18 +245,7 @@ namespace WBSF
 		case P_TYPE:			me.m_parameters.m_ATM.m_PSource = WBSF::ToSizeT(str); break;
 		case P_MAX:				me.m_parameters.m_ATM.m_Pmax = WBSF::ToDouble(str); break;
 		case W_MIN:				me.m_parameters.m_ATM.m_Wmin = WBSF::ToDouble(str); break;
-		//case LIFTOFF_CORRECTION:me.m_parameters.m_ATM.m_t_liftoff_correction = WBSF::ToDouble(str); break;
-		//case LIFTOFF_SIGMA:	me.m_parameters.m_ATM.m_t_liftoff_σ_correction = WBSF::ToDouble(str); break;
-//		case DURATION_MIN:		me.m_parameters.m_ATM.m_duration_min = WBSF::ToDouble(str); break;
-//		case DURATION_MAX:		me.m_parameters.m_ATM.m_duration_max = WBSF::ToDouble(str); break;
-//		case DURATION_ALPHA:	me.m_parameters.m_ATM.m_duration_α = WBSF::ToDouble(str); break;
-//		case DURATION_BETA:		me.m_parameters.m_ATM.m_duration_β = WBSF::ToDouble(str); break;
-//		case CRUISE_DURATION:	me.m_parameters.m_ATM.m_cruise_duration = WBSF::ToDouble(str); break;
-//		case CRUISE_HEIGHT:		me.m_parameters.m_ATM.m_cruise_height = WBSF::ToDouble(str); break;
-		case HEIGHT_YPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
-//		case WING_BEAT_K:		me.m_parameters.m_ATM.m_K = WBSF::ToDouble(str); break;
-//		case WING_BEAT_VMAX:	me.m_parameters.m_ATM.m_Vmax = WBSF::ToDouble(str); break;
-//		case WING_BEAT_VMAXF:	me.m_parameters.m_ATM.m_VmaxF = WBSF::ToDouble(str); break;
+		case HEIGHT_TYPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
 		case WING_BEAT_SCALE:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
 		case W_HORZ:			me.m_parameters.m_ATM.m_w_horizontal = WBSF::ToDouble(str); break;
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
@@ -284,6 +256,7 @@ namespace WBSF
 		case OUTPUT_TIME_FREQUENCY:	me.m_parameters.m_world.m_outputFrequency = WBSF::ToSizeT(str); break;
 		case CREATE_EGG_MAPS:	me.m_parameters.m_world.m_bCreateEggMaps = WBSF::ToBool(str); break;
 		case EGG_MAP_TITLE:		me.m_parameters.m_world.m_eggMapsTitle = str; break;
+		case CREATE_EGG_RES:	me.m_parameters.m_world.m_eggMapsResolution = WBSF::ToDouble(str); break;
 
 		default: ASSERT(false);
 		}

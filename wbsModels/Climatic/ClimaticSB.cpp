@@ -1,8 +1,8 @@
-//**********************************************************************
-// 20/09/2016	3.1.0	RÈmi Saint-Amant    Change Tair and Trng by Tmin and Tmax
-// 21/01/2016	3.0.0	RÈmi Saint-Amant	Using Weather-based simulation framework (WBSF)
-// 03/03/2009			RÈmi Saint-Amant	Update with new BioSIMModelBase (hxGrid)
-// 20/11/2008			RÈmi Saint-Amant	New variable: TMean growing season and July Tmean
+Ôªø//**********************************************************************
+// 20/09/2016	3.1.0	R√©mi Saint-Amant    Change Tair and Trng by Tmin and Tmax
+// 21/01/2016	3.0.0	R√©mi Saint-Amant	Using Weather-based simulation framework (WBSF)
+// 03/03/2009			R√©mi Saint-Amant	Update with new BioSIMModelBase (hxGrid)
+// 20/11/2008			R√©mi Saint-Amant	New variable: TMean growing season and July Tmean
 //**********************************************************************
 #include <stdio.h>
 #include <math.h>
@@ -56,24 +56,24 @@ namespace WBSF
 	{}
 
 
-	//	DegrÈ Jour > m_threshold degrÈ C
-	//	PrÈcipitations totales
-	//	PrÈcipitations utiles (juin, juillet,ao˚t)
+	//	Degr√© Jour > m_threshold degr√© C
+	//	Pr√©cipitations totales
+	//	Pr√©cipitations utiles (juin, juillet,ao√ªt)
 	//	Precipitations saison de croissance
-	//  TempÈrature moyenne minimum annuelle
-	//	TempÈrature moyenne annuelle
-	//  TempÈrature moyenne maximum annuelle
-	//	TempÈrature moyenne de la saison de croissance
-	//	TempÈrature moyenne de juillet
+	//  Temp√©rature moyenne minimum annuelle
+	//	Temp√©rature moyenne annuelle
+	//  Temp√©rature moyenne maximum annuelle
+	//	Temp√©rature moyenne de la saison de croissance
+	//	Temp√©rature moyenne de juillet
 	//	Jours sans gel
-	//	Jours sans gel consÈcutifs
+	//	Jours sans gel cons√©cutifs
 	//	Saison de croissance
 	//	Gel tardif
 	//	Gel hatif
-	//	DÈficit de prÈvision de valeur utile
-	//	DÈficit de prÈvision de valeur annuelle
-	//	AriditÈ
-	//	Fraction nivale (ou prÈcipitations sous forme de neige)
+	//	D√©ficit de pr√©vision de valeur utile
+	//	D√©ficit de pr√©vision de valeur annuelle
+	//	Aridit√©
+	//	Fraction nivale (ou pr√©cipitations sous forme de neige)
 	//	Neige total
 	//  Radiation totale
 	//  Radiation pour la saison de croissance
@@ -293,7 +293,7 @@ namespace WBSF
 	double GetDaylightVaporPressureDeficit(const CWeatherDay& weather)
 	{
 		double daylightT = weather.GetTdaylight();
-		double daylightEs = e∞(daylightT)*1000;//Pa
+		double daylightEs = e·µí(daylightT) * 1000;//Pa
 
 		return max(0.0, daylightEs - weather[H_EA2][MEAN]);
 	}

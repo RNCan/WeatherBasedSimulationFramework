@@ -104,6 +104,11 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		//becasue we don't have a lot of object, we randomize each time
+		InitRandomGenerator(0);
+		Randomize((unsigned int)0);//init old random number just in case
+
+		
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 

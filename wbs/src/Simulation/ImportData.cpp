@@ -435,13 +435,18 @@ namespace WBSF
 	{
 		bool bIsUptodate = false;
 
-		/*std::string refFilePath(fileManager.Input().GetFilePath(m_fileName));
-		std::string optFilePath = GetOptFilePath(fileManager);
+		std::string filePath = fileManager.Input().GetFilePath(m_fileName);
+		//Generate output path
+		std::string outputPath = GetPath(fileManager);
 
-		if (GetFileStamp(optFilePath) != GetFileStamp(refFilePath))
+		//Generate DB file path
+		std::string DBFilePath = GetDBFilePath(outputPath);
+
+
+		if (GetFileStamp(filePath) < GetFileStamp(DBFilePath))
 		{
 			bIsUptodate = true;
-		}*/
+		}
 
 		return bIsUptodate;
 	}
@@ -450,6 +455,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		if (!IsUpToDate(fileManager))
 		{
 			msg = ImportFile(fileManager, callback);

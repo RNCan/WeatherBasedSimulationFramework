@@ -380,7 +380,11 @@ namespace WBSF
 		for (size_t i = 0; i < fileList.size(); i++)
 			m_fileNameCtrl.AddString(fileList[i]);
 
-		m_fileNameCtrl.SetCurSel(curSel);
+		m_fileNameCtrl.InsertString(0,_T(""));
+		if (curSel>=0)
+			m_fileNameCtrl.SetCurSel(curSel);
+		else
+			m_fileNameCtrl.SetCurSel(0);
 	}
 
 	void CImportDataDlg::OnOK()
@@ -397,7 +401,8 @@ namespace WBSF
 
 		if (msg)
 			CDialog::OnOK();
-		else SYShowMessage(msg, this);
+		else 
+			SYShowMessage(msg, this);
 	}
 
 	/*void CImportDataDlg::OnFilePathChange()
@@ -419,29 +424,34 @@ namespace WBSF
 	void CImportDataDlg::OnFileNameChange()
 	{
 		//std::string path = WBSF::GetFM().GetInputPath().c_str();
-		std::string filePath = WBSF::GetFM().Input().GetFilePath(m_fileNameCtrl.GetString());
-
-		//CString header;
-		//CStdioFile file;
-		ifStream file;
-		auto myloc = std::locale();
-		file.imbue(myloc);
-
-
-		std::string header;
-
-		if (file.open(filePath))
+		if (!m_fileNameCtrl.GetString().empty())
 		{
-			std::getline(file, header);
-			//file.ReadString(header);
-		}
+			std::string filePath = WBSF::GetFM().Input().GetFilePath(m_fileNameCtrl.GetString());
 
-		m_columnLink.SetImportHeader(header);
+			//CString header;
+			//CStdioFile file;
+			ifStream file;
+			auto myloc = std::locale();
+			file.imbue(myloc);
+
+
+			std::string header;
+
+			if (file.open(filePath))
+			{
+				std::getline(file, header);
+				//file.ReadString(header);
+			}
+
+			m_columnLink.SetImportHeader(header);
+		}
 	}
 
 	void CImportDataDlg::GetImportFileFromInterface()
 	{
 		m_importData.m_fileName = m_fileNameCtrl.GetString();
+		m_importData.SetInternalName(GetFileTitle(m_importData.m_fileName));
+
 		m_columnLink.GetData(m_importData.m_columnLinkArray);
 		//	m_importData.m_bTemporalData = m_temporalDataCtrl.GetCheck();
 	}

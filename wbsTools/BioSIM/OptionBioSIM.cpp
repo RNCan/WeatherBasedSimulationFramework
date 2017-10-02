@@ -5,6 +5,7 @@
 
 #include "Basic/Registry.h"
 #include "UI/Common/AppOption.h"
+#include "Basic/Registry.h"
 #include "OptionBioSIM.h"
 
 
@@ -24,10 +25,14 @@ COptionBioSIM::COptionBioSIM() : CMFCPropertyPage(COptionBioSIM::IDD)
     CAppOption option;
 
     m_bSave = option.GetProfileBool(_T("SaveAtRun"), false);
-	m_bExportAllLines = option.GetProfileBool(_T("ExportAllLines"), false);
+
+//	m_bExportAllLines = option.GetProfileBool(_T("ExportAllLines"), false);
 	//m_bAddBioKrigingButton = option.GetProfileBool("AddBioKrigingLink",false);
 	m_bAddClimZoneButton = option.GetProfileBool(_T("AddMatchStationLink"),false);
-	
+
+	WBSF::CRegistry registry("ExecuteCtrl");
+	m_bExportAllLines = registry.GetProfileBool("ExportAllLines", false);
+
 }
 
 COptionBioSIM::~COptionBioSIM()
@@ -61,9 +66,13 @@ void COptionBioSIM::OnOK()
     CAppOption option;
 	
     option.WriteProfileBool(_T("SaveAtRun"), m_bSave!=0);
-	option.WriteProfileBool(_T("ExportAllLines"), m_bExportAllLines!=0);
+	//option.WriteProfileBool(_T("ExportAllLines"), m_bExportAllLines!=0);
 //	option.WriteProfileBool("AddBioKrigingLink",m_bAddBioKrigingButton!=0);
 	option.WriteProfileBool(_T("AddMatchStationLink"),m_bAddClimZoneButton!=0);
+
+
+	WBSF::CRegistry registry("ExecuteCtrl");
+	registry.WriteProfileBool("ExportAllLines", m_bExportAllLines?true:false);
 
 
     CMFCPropertyPage::OnOK();

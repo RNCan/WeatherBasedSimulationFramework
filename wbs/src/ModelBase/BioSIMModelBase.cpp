@@ -278,7 +278,7 @@ namespace WBSF
 		ProcessParameters(m_info.m_inputParameters);
 
 		InitializeStat(stat);
-
+		 
 		for (size_t i = 0; i < m_info.m_repCounter.GetTotal(); i++)
 		{
 			CStatisticXY statTmp;
