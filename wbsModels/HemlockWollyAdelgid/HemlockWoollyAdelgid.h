@@ -10,13 +10,13 @@ namespace WBSF
 	{
 	public:
 
-		enum TEquation { EQUATION_3, EQUATION_6 };
+		enum TEquation { EQUATION_3, EQUATION_6, EQUATION_SA, NB_COLD_EQ };
 
 
 		static double Eq3(double Tmin);
 		static double Eq6(double Tmin, double DD0, double DD10);
 		static double Eq11(double S, double DD10, double DDpro);
-		double EqRemi(double Tmin, double DD0, double DD10, double Q3);
+		double EqRemi(double Tmin, double DD0, double DDx, double DD10, double Q3, size_t nbDayUnder);
 
 		CHemlockWoollyAdelgidCMModel();
 		virtual ~CHemlockWoollyAdelgidCMModel();
