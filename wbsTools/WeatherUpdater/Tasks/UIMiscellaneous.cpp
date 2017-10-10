@@ -4,7 +4,7 @@
 #include <boost\dynamic_bitset.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-
+#include "Basic/CSV.h"
 
 
 #include "Basic/DailyDatabase.h"
@@ -42,8 +42,8 @@ namespace WBSF
 	//
 
 
-	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov" };
-	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/" };
+	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "" };
+	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "" };
 	//const char* CUIMiscellaneous::LOCATION_PATH[NB_DATASETS] = { "pub12/russia_daily/" };
 	//const char* CUIMiscellaneous::LOCATION_NAME[NB_DATASETS] = {"Russia_518_inventory.csv"};
 
@@ -77,6 +77,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA: filePath += "Russia_518_inventory.csv"; break;
+		case SOPFEU_2013: filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc171005.csv": "";
 		}
 
 		return filePath;
@@ -87,7 +88,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATASET:	str = "Russia"; break;
+		case DATASET:	str = "Russia|SOPFEU 2013"; break;
 		};
 		return str;
 	}
@@ -101,7 +102,7 @@ namespace WBSF
 			dataset = 0;
 
 
-		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\" };
+		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU" };
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + DEFAULT_DIR[dataset]; break;
@@ -127,60 +128,69 @@ namespace WBSF
 			return msg;
 		}
 
-
-
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
-
-		msg = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-		if (msg)
+		string path = GetLocationsFilePath(as<size_t>(DATASET), false);
+		if (!path.empty())
 		{
-			string path = GetLocationsFilePath(as<size_t>(DATASET), false);
 
-			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, CCallback::DEFAULT_CALLBACK);
+			CInternetSessionPtr pSession;
+			CFtpConnectionPtr pConnection;
+
+			msg = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 			if (msg)
 			{
-				ASSERT(fileList.size() == 1);
 
-				string workingDir = GetDir(WORKING_DIR);
-				string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
-				
-				if (!IsFileUpToDate(fileList[0], outputFilePath))
+				CFileInfoVector fileList;
+				msg = FindFiles(pConnection, path, fileList, CCallback::DEFAULT_CALLBACK);
+				if (msg)
 				{
-					msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePath);
+					ASSERT(fileList.size() == 1);
 
-					if (msg)
+					string workingDir = GetDir(WORKING_DIR);
+					string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
+
+					if (!IsFileUpToDate(fileList[0], outputFilePath))
 					{
-						switch (dataset)
+						msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePath);
+
+						if (msg)
 						{
-						case CDIAC_RUSSIA:
-							fStream file;
-							msg = file.open(outputFilePath);
-
-							if (msg)
+							switch (dataset)
 							{
-								std::stringstream fileData;
+							case CDIAC_RUSSIA:
+							{
+								fStream file;
+								msg = file.open(outputFilePath);
 
-								fileData << "ID,Name,Latitude,Longitude,Elevation,FirstYear\n";
-								fileData << file.rdbuf();
-								file.close();
+								if (msg)
+								{
+									std::stringstream fileData;
 
-								file.open(outputFilePath, std::fstream::out | std::fstream::trunc);
-								file << fileData.rdbuf();
-								file.close();
+									fileData << "ID,Name,Latitude,Longitude,Elevation,FirstYear\n";
+									fileData << file.rdbuf();
+									file.close();
+
+									file.open(outputFilePath, std::fstream::out | std::fstream::trunc);
+									file << fileData.rdbuf();
+									file.close();
+								}
+
+								break;
+							}
+							case SOPFEU_2013:
+							{
+
 							}
 
-							break;
+							}
 						}
 					}
-				}
-					
-			}
 
-			pConnection->Close();
-			pSession->Close();
-		}
+				}
+
+				pConnection->Close();
+				pSession->Close();
+			}//if msg
+		}//if not empty
 
 		return msg;
 	}
@@ -238,15 +248,21 @@ namespace WBSF
 				{
 					switch (dataset)
 					{
+
 					case CDIAC_RUSSIA:
+					{
 
 						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "Russia_518_data.txt.gz", fileList, callback);
 						break;
 
+					}
+					case SOPFEU_2013:
+					{
+
+					}
 					default:;
 
-
-					//	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
+						//	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
 						//msgTmp = FindDirectories(pConnection, SERVER_PATH[dataset], dirList);
 						//callback.PopTask();
 					}
@@ -410,8 +426,8 @@ namespace WBSF
 
 			switch (dataset)
 			{
-			case CDIAC_RUSSIA:
-				msg = FTPDownload(SERVER_NAME[dataset], fileList[i].m_filePath, outputFilePath, callback);
+			case CDIAC_RUSSIA: msg = FTPDownload(SERVER_NAME[dataset], fileList[i].m_filePath, outputFilePath, callback); break;
+			case SOPFEU_2013: break;
 			}
 
 			//unzip 
@@ -447,6 +463,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA:  filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
+		case SOPFEU_2013:   filePath = GetDir(WORKING_DIR) + "MeteoOBS2013.csv"; break;
 		}
 
 
@@ -465,6 +482,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA: filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
+		case SOPFEU_2013:   break;
 		}
 
 
@@ -474,13 +492,22 @@ namespace WBSF
 		return GetDir(WORKING_DIR) + title.substr(title.length() - 4) + "\\" + GetFileName(info.m_filePath);
 	}
 	
-	bool CUIMiscellaneous::GetStationInformation(const string& fileTitle, CLocation& station)const
+	bool CUIMiscellaneous::GetStationInformation(const string& ID, CLocation& station)const
 	{
-		string ID = fileTitle;
+		
 		size_t pos = m_stations.FindByID(ID);
-		if (pos!=NOT_INIT)
+		if (pos != NOT_INIT)
+		{
 			station = m_stations[pos];
+		}
+		//else
+		//{
+		//	auto it2 = m_stations.FindBySSI("NumID",ID, false);
+		//	if (it2 != m_stations.end())
+		//		station = *it2;
+		//}
 
+		
 		return pos != NOT_INIT;
 	}
 
@@ -498,12 +525,40 @@ namespace WBSF
 		}
 		
 		
-		m_stations.Load(GetLocationsFilePath(dataset, true), ",", callback);
+		msg = m_stations.Load(GetLocationsFilePath(dataset, true), ",", callback);
+		if (msg)
+		{
+			switch (dataset)
+			{
 
-		stationList.resize(m_stations.size());
-		for (size_t i = 0; i < m_stations.size(); i++)
-			stationList[i] = m_stations[i].m_ID;
-		
+			case CDIAC_RUSSIA:
+			{
+				stationList.resize(m_stations.size());
+				for (size_t i = 0; i < m_stations.size(); i++)
+					stationList[i] = m_stations[i].m_ID;
+				break;
+			}
+
+			case SOPFEU_2013:
+			{
+				if (m_weatherStations.empty())
+					msg = LoadSOPFEUInMemory(callback);
+
+				for (auto it = m_weatherStations.begin(); it != m_weatherStations.end(); it++)
+				{
+					auto it2 = m_stations.FindByID( to_string(it->first));
+					if (it2 != NOT_INIT)
+						stationList.push_back(to_string(it->first));
+					else
+						callback.AddMessage("WARNING: no station information for ID = " + ToString(it->first));
+
+					msg = callback.StepIt(0);
+				}
+
+				break;
+			}
+			}//switch
+		}//ifm
 		
 		return msg;
 	}
@@ -521,8 +576,7 @@ namespace WBSF
 	//	std::string m_ID;
 	//};
 
-
-
+	
 	ERMsg CUIMiscellaneous::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
@@ -534,7 +588,9 @@ namespace WBSF
 
 		//Get station information
 		GetStationInformation(ID, station);
-		station.m_name = PurgeFileName(station.m_name);
+		//station.m_name = PurgeFileName(station.m_name);
+		
+
 
 		vector<int> stationIDList;
 		int firstYear = as<int>(FIRST_YEAR);
@@ -551,16 +607,23 @@ namespace WBSF
 			{
 			case CDIAC_RUSSIA:
 			{
-				if (m_RussiaStations.empty())
+				if (m_weatherStations.empty())
 					msg = LoadRussiaInMemory(callback);
 				
-				
-				CRussiaStationMap::const_iterator it = m_RussiaStations.find(ToInt(ID));
-				if (msg && it != m_RussiaStations.end() && (*it).second.IsYearInit(year))
+				CMiWeatherStationMap::const_iterator it = m_weatherStations.find(ToInt(ID));
+				if (msg && it != m_weatherStations.end() && (*it).second.IsYearInit(year))
 				{
 					station[year] = (*it).second[year];
 				}
 				
+				break;
+			}
+			case SOPFEU_2013:
+			{
+				CMiWeatherStationMap::const_iterator it = m_weatherStations.find(ToInt(ID));
+				if (msg && it != m_weatherStations.end() && (*it).second.IsYearInit(year))
+					station[year] = (*it).second[year];
+
 				break;
 			}
 			default:
@@ -630,20 +693,20 @@ namespace WBSF
 					string ppt = line.substr(43, 5);
 
 					if (Tmean != "-99.9")
-						m_RussiaStations[ID][TRef].SetStat(H_TAIR2, ToDouble(Tmean));
+						m_weatherStations[ID][TRef].SetStat(H_TAIR2, ToDouble(Tmean));
 
 					if (Tmin != "-99.9" && Tmax != "-99.9")
 					{
 						if (ToDouble(Tmin) < ToDouble(Tmax))
 						{
-							m_RussiaStations[ID][TRef].SetStat(H_TMIN2, ToDouble(Tmin));
-							m_RussiaStations[ID][TRef].SetStat(H_TMAX2, ToDouble(Tmax));
+							m_weatherStations[ID][TRef].SetStat(H_TMIN2, ToDouble(Tmin));
+							m_weatherStations[ID][TRef].SetStat(H_TMAX2, ToDouble(Tmax));
 						}
 					}
 
 					if (ppt != "-99.9")
 					{
-						m_RussiaStations[ID][TRef].SetStat(H_PRCP, ToDouble(ppt));
+						m_weatherStations[ID][TRef].SetStat(H_PRCP, ToDouble(ppt));
 					}
 
 					msg += callback.SetCurrentStepPos((size_t)file.tellg());
@@ -652,6 +715,72 @@ namespace WBSF
 
 			callback.PopTask();
 		}//if msg
+
+		return msg;
+	}
+
+	
+	ERMsg CUIMiscellaneous::LoadSOPFEUInMemory(CCallback& callback)
+	{
+		ERMsg msg;
+
+		m_weatherStations.clear();
+		
+
+		string filePath = CUIMiscellaneous::GetOutputFilePath("", -999);
+
+		ifStream file;
+		msg = file.open(filePath, ios_base::in | ios_base::binary);
+		if (msg)
+		{
+			callback.PushTask("Load SOPFEU in memmory", file.length());
+			
+			enum { C_NO_STATION, C_DATE, C_HEURE, C_PLUIE, C_PLUIE_HOR, C_CC, C_TSEC, C_THUM, C_DV, C_VV, C_VVR, C_PRO, C_HR, OTHER_FIELDS };
+			TVarH VAR_TYPE[OTHER_FIELDS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_TAIR2, H_SKIP, H_WNDD, H_WNDS, H_SKIP, H_TDEW, H_RELH};
+			for (CSVIterator loop(file, ",", true); loop != CSVIterator(); ++loop)
+			{
+				ASSERT(loop->size() >= OTHER_FIELDS);
+				int ID = WBSF::as<int>((*loop)[C_NO_STATION]);
+				string dateStr = (*loop)[C_DATE];
+				StringVector date(dateStr, "- :");
+
+				
+				int year = WBSF::as<int>(date[0]);
+				size_t m = WBSF::as<size_t>(date[1]) - 1;
+				size_t d = WBSF::as<size_t>(date[2]) - 1;
+				size_t h = WBSF::as<size_t>((*loop)[C_HEURE]);
+
+				ASSERT(m < 12);
+				ASSERT(d < GetNbDayPerMonth(year, m));
+
+				
+
+				CTRef TRef(year, m, d, h);
+
+				for (size_t i = 0; i < OTHER_FIELDS; i++)
+				{
+					if (VAR_TYPE[i] != H_SKIP)
+					{
+						string var = (*loop)[i];
+						
+						if (!var.empty())
+						{
+							if (!m_weatherStations[ID].IsHourly())
+								m_weatherStations[ID].SetHourly(true);//create hourly data
+
+							m_weatherStations[ID][TRef].SetStat(VAR_TYPE[i], ToDouble(var));
+						}
+							
+					}
+				}
+				
+				msg += callback.SetCurrentStepPos((size_t)file.tellg());
+			}//while data 
+
+			callback.PopTask();
+		}//if msg
+
+		
 
 		return msg;
 	}

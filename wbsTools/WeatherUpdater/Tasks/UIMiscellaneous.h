@@ -8,14 +8,14 @@ namespace WBSF
 {
 
 
-	typedef std::map<int, CWeatherYears> CRussiaStationMap;
+	typedef std::map<int, CWeatherYears> CMiWeatherStationMap;
 	//****************************************************************
 	//Global SOD extractor
 	class CUIMiscellaneous : public CTaskBase
 	{
 	public:
 
-		enum TDataset{ CDIAC_RUSSIA, NB_DATASETS };
+		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, NB_DATASETS };
 		enum TAttributes { WORKING_DIR, DATASET, FIRST_YEAR, LAST_YEAR, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMiscellaneous); }
@@ -28,7 +28,8 @@ namespace WBSF
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsDaily()const{ return true; }
+		virtual bool IsHourly()const{ return as<size_t>(DATASET) == SOPFEU_2013; }
+		virtual bool IsDaily()const{ return as<size_t>(DATASET) == CDIAC_RUSSIA; }
 		virtual bool IsDatabase()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -67,21 +68,23 @@ namespace WBSF
 		ERMsg Uncompress(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 		ERMsg LoadRussiaInMemory(CCallback& callback);
 
+
+		ERMsg LoadSOPFEUInMemory(CCallback& callback);
+
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME[NB_DATASETS];
 		static const char* SERVER_PATH[NB_DATASETS];
-//		static const char* LOCATION_PATH[NB_DATASETS];
-	//	static const char* LOCATION_NAME[NB_DATASETS];
-
 
 		//locations vector
 		CLocationVector m_stations;
 
-		//Russia in memory
-		CRussiaStationMap m_RussiaStations;
+		//Russia or SOPFEU in memory
+		CMiWeatherStationMap m_weatherStations;
+
+		
 	};
 
 }

@@ -65,24 +65,7 @@ namespace WBSF
 	};
 
 
-	string ANSI_2_ASCII(string str)
-	{
-		int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-
-		std::wstring w_text;
-		w_text.resize(len);
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &(w_text[0]), len);
-
-		//Convert UTF16 to ASCII encoding
-		static const UINT US_ASCII = 20127;
-		int newLen = WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
-
-		str.resize(newLen);
-		WideCharToMultiByte(US_ASCII, 0, w_text.c_str(), -1, &(str[0]), newLen, 0, 0);
-		str.resize(strlen(str.c_str()));
-
-		return str;
-	}
+	
 
 
 

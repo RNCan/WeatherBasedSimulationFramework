@@ -106,7 +106,7 @@ namespace WBSF
 
 	ERMsg CUIHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
 	{ 
-		ASSERT(p.GetTM() == = CTM::HOURLY);
+		ASSERT(p.GetTM() == CTM::HOURLY);
 
 		ERMsg msg;
 
