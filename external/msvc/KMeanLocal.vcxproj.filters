@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\KMeanLocal\Copyright.txt">
+      <Filter>Source</Filter>
+    </Text>
+    <Text Include="..\KMeanLocal\ReadMe1.7.3.txt">
+      <Filter>Source</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\KMeanLocal\KCtree.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KCutil.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KM_ANN.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMcenters.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMdata.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMeans.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMfilterCenters.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMlocal.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMrand.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\KMeanLocal\KMterm.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\KMeanLocal\KCtree.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KCutil.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KM_ANN.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMcenters.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMdata.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMeans.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMfilterCenters.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMlocal.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMrand.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\KMeanLocal\KMterm.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
