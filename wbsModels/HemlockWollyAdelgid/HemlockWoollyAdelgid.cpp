@@ -190,13 +190,20 @@ namespace WBSF
 		if (S <= 0)
 			return 0;
 
-		static double p0 = 8.00900;
+		/*static double p0 = 8.00900;
 		static double p1 = -0.65570;
 		static double p2 = 0.19211;
 		static double p3 = -0.00138;
 
 		double P = exp(p0 + (1 + p1)*log(S) + p2*Tmin + p3*DDpro);
-		
+		*/
+
+		static double p0 = 5.07413;
+		static double p1 = -0.51873;
+		static double p2 = 0.14227;
+
+		double P = exp(p0 + (1 + p1)*log(S) + p2*Tmin);
+
 		return P;
 
 	}
