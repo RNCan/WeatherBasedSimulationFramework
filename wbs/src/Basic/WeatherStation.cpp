@@ -3500,14 +3500,14 @@ void CWeatherStation::FillGaps()
 						const CHourlyData& wea¯¹ = weaᵒ.GetPrevious();
 						if (!IsMissing(wea¯¹[v]))
 						{
-							CHourlyData wea¹;
-
-							CTRef TRef2 = TRef;
-							do
+							CTRef TRef2 = TRef + 1;
+							CHourlyData wea¹ = GetHour(TRef2);
+							
+							while (IsMissing(wea¹[v]) && TRef2 <= TRef + 6 && TRef2 <= p.End())//chnage by < RSA(2017)
 							{
-								TRef2++;
 								wea¹ = GetHour(TRef2);
-							} while (IsMissing(wea¹[v]) && TRef2 <= TRef + 6 && TRef2 <= p.End());
+								TRef2++;
+							}
 
 							if (!IsMissing(wea¹[v]))
 							{

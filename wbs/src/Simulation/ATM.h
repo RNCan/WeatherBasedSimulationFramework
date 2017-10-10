@@ -402,7 +402,7 @@ namespace WBSF
 	public:
 
 		CGDALDatasetCached();
-		ERMsg OpenInputImage(const std::string& filePath, bool bOpenInv = false);
+		ERMsg OpenInputImage(const std::string& filePath, bool bOpenInv = false, bool bSurfaceOnly = false);
 		void Close();
 
 

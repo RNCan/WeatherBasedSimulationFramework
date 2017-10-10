@@ -605,7 +605,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	std::string Decrypt(const std::string& str, const std::string& key = "Mingo_La_Fleche5");
 	
 
-	
+	std::string  ANSI_2_ASCII(std::string str);
 	std::wstring UTF8_UTF16(const std::string& str); 
 	std::string UTF16_UTF8(const std::wstring& str); 
 	std::string ANSI_UTF8(const std::string& str);

@@ -2847,7 +2847,7 @@ size_t GetLevel(const string& strLevel)
 	return level;
 }
 
-ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpenInv)
+ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpenInv, bool bSurfaceOnly)
 {
 	ERMsg msg;
 
@@ -2919,6 +2919,8 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 							string strLevel = (*loop)[4];
 							size_t var = GetVar(strVar);
 							size_t level = var != UNKNOWN_POS ? GetLevel(strLevel) : UNKNOWN_POS;
+							if (bSurfaceOnly && level > 0)//open only surface for optimisation
+								level = NOT_INIT;
 
 							if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
 							{
@@ -3004,11 +3006,11 @@ ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpen
 								}
 							}
 
+							if (bSurfaceOnly && level > 0)//open only surface for optimisation
+								level = NOT_INIT;
+
 							if (level < 38)
-							{
-								
 								m_bands[var][level] = i;
-							}
 						}
 
 						
