@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CHemlockWoollyAdelgidCMModel</Title>
+    <Version>1.0</Version>
+    <ID>.null</ID>
+    <EXE>HemlockWoollyAdelgid.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Mortality and recovery of hemlock woolly adelgid</Description>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units> °C</Units>
+            <Description>lowest minimum temperature of the winter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>N</Name>
+            <Title>N</Title>
+            <Units/>
+            <Description>Number of days prior to the extreme minimum where Tmean &lt; -1</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Q3</Name>
+            <Title>Q3</Title>
+            <Units>°C</Units>
+            <Description>Mean temperature of the three days prior to the extreme minimum</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdMortalityEq1</Name>
+            <Title>ColdMortalityEq1</Title>
+            <Units>%</Units>
+            <Description>Mortality from Tmin</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdMortalityEq2</Name>
+            <Title>ColdMortalityEq2</Title>
+            <Units>%</Units>
+            <Description>Mortality from Tmin, N and Q3</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>McAvoy(2017) : Mortality and recovery of hemlock woolly adelgid(Adelges tsugae) to minimum winter temperatures and predictions for the future&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>

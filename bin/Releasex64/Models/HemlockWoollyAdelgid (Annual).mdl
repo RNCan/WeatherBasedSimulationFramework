@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CHemlockWoollyAdelgidCMModel</Title>
+    <Version>1.0</Version>
+    <ID>.HWA</ID>
+    <EXE>HemlockWoollyAdelgid.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Mortality and recovery of hemlock woolly adelgid</Description>
+    <WindowRect>0 0 183 361</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>WinterSistensDensity</Name>
+            <Caption>Winter sistens density (Z) [HWA/branch]</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>10 10 30 330</Rect>
+            <SeparatorPos>220</SeparatorPos>
+            <DefaultValue>80</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>500</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Note1</Name>
+            <Caption>Low density = 20 HWA/branch</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>30 30 50 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Note2</Name>
+            <Caption>Medium density = 80 HWA/branch</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>50 30 75 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Note3</Name>
+            <Caption>High density = 240 HWA/branch</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>75 30 95 295</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Equation</Name>
+            <Caption>Equation to compute progradient</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>105 10 130 330</Rect>
+            <SeparatorPos>190</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Equation [1]|Equation [2]</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units/>
+            <Description>lowest minimum temperature of the winter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>N</Name>
+            <Title>N</Title>
+            <Units>days</Units>
+            <Description>Number of days prior to the extreme minimum where Tmean &lt; -1</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Q3</Name>
+            <Title>Q3</Title>
+            <Units>°C</Units>
+            <Description>Mean temperature of the three days prior to the extreme minimum</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdMortalityEq1</Name>
+            <Title>ColdMortalityEq1</Title>
+            <Units>%</Units>
+            <Description>Mortality from Tmin</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ColdMortalityEq2</Name>
+            <Title>ColdMortalityEq2</Title>
+            <Units>%</Units>
+            <Description>Mortality from Tmin, N and Q3</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S</Name>
+            <Title>S</Title>
+            <Units>HWA/branch</Units>
+            <Description>Lived sistens density (Z * Mortality(Eq1 or Eq2))</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P</Name>
+            <Title>P</Title>
+            <Units>HWA/branch</Units>
+            <Description>Lived progrediens density (Eq[5])</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>R</Name>
+            <Title>R</Title>
+            <Units/>
+            <Description>growth population (P/Z)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>McAvoy(2017) : Mortality and recovery of hemlock woolly adelgid(Adelges tsugae) to minimum winter temperatures and predictions for the future</Credit>
+    <HelpFileName/>
+</Model>
