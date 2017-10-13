@@ -169,7 +169,7 @@ namespace WBSF
 		typedef CSVRow&                     reference;
 
 		//
-		CSVIterator(std::istream& str, const char* pD = ",", bool bHeader = true, bool bDQ = false) :m_str(str.good() ? &str : NULL), m_row(pD, bDQ), m_header(pD, bDQ) { if (bHeader)ReadHeader(); ++(*this); }
+		CSVIterator(std::istream& str, const char* pD = ",", bool bHeader = true, bool bDQ = false) :m_str(str.good() ? &str : NULL), m_row(pD, bDQ), m_header(pD, true) { if (bHeader)ReadHeader(); ++(*this); }
 		CSVIterator(const char* pD = ",", bool bHeader = true, bool bDQ = false) :m_str(NULL), m_row(pD, bDQ), m_header(pD, bDQ) {}
 
 		CSVIterator& ReadHeader()               { if (m_str) { (*m_str) >> m_header; m_str = m_str->good() ? m_str : NULL; }return *this; }

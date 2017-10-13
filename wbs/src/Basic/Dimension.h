@@ -1,6 +1,6 @@
 #pragma once
 
-//#include <boost/array.hpp>
+#include <array>
 //#include <boost/assert.hpp>
 #include "Basic/UtilStd.h"
 
