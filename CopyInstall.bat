@@ -62,6 +62,8 @@ copy /Y ".\bin\Releasex64\Models\FWI (Hourly).mdl" "..\Install\NRCan\Models\FWI 
 copy /Y ".\bin\Releasex64\Models\FWI (Monthly).mdl" "..\Install\NRCan\Models\FWI (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI (Annual).mdl" "..\Install\NRCan\Models\FWI (Annual).mdl" 
 copy /Y ".\bin\Releasex64\Models\FWI-Fixed (Daily).mdl" "..\Install\NRCan\Models\FWI-Fixed (Daily).mdl" 
+copy /Y ".\bin\Releasex64\Models\FWI-Fixed (Monthly).mdl" "..\Install\NRCan\Models\FWI-Fixed (Monthly).mdl" 
+copy /Y ".\bin\Releasex64\Models\FWI-Fixed (Annual).mdl" "..\Install\NRCan\Models\FWI-Fixed (Annual).mdl" 
 copy /Y ".\bin\Releasex64\Models\FWI.dll" "..\Install\NRCan\Models\FWI.dll"
 copy /Y ".\bin\Releasex64\Models\FWI Drought Code (Daily).mdl" "..\Install\NRCan\Models\FWI Drought Code (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI Drought Code (Monthly).mdl" "..\Install\NRCan\Models\FWI Drought Code (Monthly).mdl"

@@ -16,10 +16,7 @@
 // désactive le masquage MFC de certains messages d'avertissement courants et par ailleurs souvent ignorés
 #define _AFX_ALL_WARNINGS
 
-//#include <afxwin.h>         // composants MFC principaux et standard
-//#include <afxext.h>         // extensions MFC
-//#include <afxpropertypage.h>
-//#include <afxpropertysheet.h>
+
 
 
 
@@ -36,7 +33,39 @@
 
 
 
+#include <vector>
+#include <deque>
+#include <list>
+#include <set>
+#include <array>
+#include <map>
+#include <unordered_map>
+#include <string>
+#include <exception>
+#include <algorithm>
+#include <memory>
+#include <sstream>
+#include <functional> 
+#include <fstream>
+#include <codecvt>
+#include <iomanip>
+#include <random>
+#include <locale>
+#include <cmath>
+#include <climits>
+#include <cstring>
+#include <cctype>
+#include <cstddef>
+#include <stdexcept>
 
+#include <stdlib.h>
+#include <crtdbg.h>
+#include <math.h>
+#include <sys/stat.h>
+#include <windows.h>
+#include <wtypes.h>
+#include <float.h>
+#include <assert.h>
 #define _INTSAFE_H_INCLUDED_
 #define NOMINMAX 
 
