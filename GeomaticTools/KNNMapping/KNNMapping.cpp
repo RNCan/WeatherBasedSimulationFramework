@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.7.0	12/10/2017  Rémi Saint-Amant	Compile with GDAL 2.02. Accept header with double quotes.
 // 2.6.1	15/11/2016	Rémi Saint-Amant	Bug correction
 // 2.6.0	11/02/2016	Rémi Saint-Amant	New project structuration. Read data with "".
 // 2.5.2	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
@@ -55,6 +56,7 @@
 
 
 //TEST Image
+//-k 6 - t 2 - GeoWeight - cca - overwrite "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\Training1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Input\TestCSV1.csv" "U:\GIS\#documents\TestCodes\KNNMapping\TestCSV1\Output\TestCSV1_2.csv"
 //-K 6 -T 0 -Standardized -Error -NearestNeighbor -GeoDistanceStat -ot float32 -dstnodata "-2147483648" -blockSize 64 64 -multi -co "compress=LZW" -overwrite "D:\Travail\LucGuindon\KNNMapping\subset4test\Input\Training.csv" "D:\Travail\LucGuindon\KNNMapping\subset4test\Input\Input.tif" "D:\Travail\LucGuindon\KNNMapping\subset4test\Output\output.tif"
 //-te -2073500 7137250 -2073250 7137500 -ot FLOAT32 -dstnodata "-2147483648" -k 6 -t 0 -standardized -NearestNeighbor -Error -GeoDistanceStat -multi -overwrite D:\Travail\LucGuindon\KNNMapping\TestCSV\Training.csv D:\Travail\LucGuindon\KNNMapping\TestCSV\Test.tif D:\Travail\LucGuindon\KNNMapping\TestCSV\To.tif//-dstNoData -9999 -InfoOnly -co "COMPRESS=LZW" -wm 800 -multi -overwrite "D:\Travail\NicolasMansuy\KNNMapping\C_0_15na.csv" "D:\Travail\NicolasMansuy\KNNMapping\topo_clim_MOD.VRT" "D:\Travail\NicolasMansuy\KNNMapping\Test.tif"
 //-BlockSize 2048 2048 -dstNoData -9999 --config GDAL_CACHEMAX 4096 -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -K 1 -co "COMPRESS=LZW" -multi -overwrite -mask "U:\GIS\#documents\TestCodes\KNNMapping\Test3\Input\AGE_40_60_AT_MAR_mask.tif" -maskValue 1  "U:\GIS\#documents\TestCodes\KNNMapping\Test3\Input\ALL.SPECIES_biomass_AT_MAR_std_40_60.csv" "U:\GIS\#documents\TestCodes\KNNMapping\Test3\Input\AT_MAR_no_stand.VRT" "U:\GIS\#documents\TestCodes\KNNMapping\Test3\output\Test_40_60.tif"
@@ -68,7 +70,7 @@
 
 //-Overview "2 4 8 16" -te -2080000 7000000 -1500000 720000 -ot FLOAT32 -IOCPU 2 -k 6 -dstnodata "-9999" -t 0 --config GDAL_CACHEMAX 512 -standardized -NearestNeighbor -Error -GeoDistanceStat -multi -blocksize 128 128 -co compress=LZW -co bigtiff=YES -co tiled=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 -overwrite "K:\#projets\LAB\ANALYSE\20121025_allCanada\Knn\kNNmapping\lasso26x_kNNmapping_v2210\test_subset\_ynewList_newlasso26xDec2012_csv.csv" "K:/#projets/LAB/ANALYSE/20121025_allCanada/Knn/kNNmapping/lasso26x_kNNmapping_v2210/test_subset/_ynewList_newlasso26xDec2012_vrt.vrt" "D:\Travail\LucGuindon\KNNMapping\Output\output.tif"
 
-
+// -K 1 -co "COMPRESS=LZW" -BlockSize 1024 1024 -multi -overwrite -mask H:\Travaux\KNNMapping\Age_BSE_NewAge_100_999.tif -maskValue 1 -Info H:\Travaux\KNNMapping\PlotInfo_BSE_100_999.csv H:\Travaux\KNNMapping\BSE_VRT.VRT H:\Travaux\KNNMapping\knn_BSE_100_999_NewAge.tif
 
 
 
@@ -76,7 +78,7 @@ using namespace std;
 using namespace WBSF;
 
 
-static const char* version = "2.6.1";
+static const char* version = "2.7.0";
 static const int NB_THREAD_PROCESS = 2;
 
 
