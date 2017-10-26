@@ -53,7 +53,8 @@ namespace WBSF
 
 
 		//from SAS
-		static const double P[6] = { -4.7879, -0.2665, 0.0549, 0.1460, 0, 0 };
+
+		static const double P[6] = { -4.99469, -0.2760, 0.0549, 0.1416, 0, 0 };
 
 		for (size_t i = 0; i < 6; i++)
 			m_p[i] = P[i];
@@ -131,7 +132,7 @@ namespace WBSF
 			double S = m_Z*(1 - M);
 			m_output[y][A_S] = S;
 			
-			double P = Eq5(S, Tmin);
+			double P = Eq7(S, Tmin);
 			double R = P / m_Z;
 			m_output[y][A_P] = P;
 			m_output[y][A_R] = R;
@@ -179,7 +180,7 @@ namespace WBSF
 	}
 	
 
-	double CHemlockWoollyAdelgidCMModel::Eq5(double S, double Tmin)
+	double CHemlockWoollyAdelgidCMModel::Eq7(double S, double Tmin)
 	{
 		if (S <= 0)
 			return 0;

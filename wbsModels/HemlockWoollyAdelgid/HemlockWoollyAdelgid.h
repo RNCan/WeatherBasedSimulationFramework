@@ -15,7 +15,7 @@ namespace WBSF
 
 		static double Eq1(double Tmin);
 		static double Eq2(double Tmin, size_t N, double Q3);
-		static double Eq5(double S, double Tmin);
+		static double Eq7(double S, double Tmin);
 		double EqSA(double Tmin, double DD0, double DDx, double DD10, double Q3, size_t nbDayUnder);
 
 		CHemlockWoollyAdelgidCMModel();
