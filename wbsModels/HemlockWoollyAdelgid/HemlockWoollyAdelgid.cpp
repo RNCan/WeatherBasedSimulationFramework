@@ -43,7 +43,7 @@ namespace WBSF
 	CHemlockWoollyAdelgidCMModel::CHemlockWoollyAdelgidCMModel()
 	{
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.0 (2017)";
+		VERSION = "1.0.2 (2017)";
 
 		m_Z = 80;
 		m_equation = EQUATION_2;
@@ -145,8 +145,8 @@ namespace WBSF
 
 	double CHemlockWoollyAdelgidCMModel::Eq1(double Tmin)
 	{
-		static double p¹ = -5.5700;
-		static double p² = -0.3222;
+		static double p¹ = -5.7290;
+		static double p² = -0.3311;
 			
 
 		double M = 100 / (1 + exp(-(p¹ + p²*Tmin)));
@@ -160,10 +160,10 @@ namespace WBSF
 	}
 	double CHemlockWoollyAdelgidCMModel::Eq2(double Tmin, size_t N, double Q3)
 	{
-		double p0 = -4.7879;
-		double p1 = -0.2665;
-		double p2 = 0.0549;
-		double p3 = 0.1460;
+		double p0 =  -4.99469;
+		double p1 =  -0.2760;
+		double p2 =  0.0549;
+		double p3 =  0.1416;
 		
 	
 		double M = 100 / (1 + exp(-(p0 + p1*Tmin + p2*N + p3*Q3)));
