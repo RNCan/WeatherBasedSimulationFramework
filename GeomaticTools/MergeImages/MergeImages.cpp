@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.2.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add 
 // 2.1.3	27/05/2016	Rémi Saint-Amant	use JD -1 as no data
 // 2.1.2	27/05/2016	Rémi Saint-Amant	Add option Mosaic
 // 2.1.1	22/05/2016	Rémi Saint-Amant	Add option MaxSkip
@@ -68,7 +69,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "2.1.4";
+	const char* CMergeImages::VERSION = "2.2.0";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -78,7 +79,7 @@ namespace WBSF
 
 
 	const short CMergeImagesOption::BANDS_STATS[NB_STATS] = { LOWEST, MEAN, STD_DEV, HIGHEST };
-	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "MaxNDVI", "Best", "SecondBest", "BestNew" };
+	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "MaxNDVI", "Best", "SecondBest", "MedianNDVI", "MedianNBR", "MedianNDMI"};
 	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "year", "month", "day", "Jday", "nbImages", "Scene", "sort", "Isolated", "Buffer", "NbTriggers", "nbSkips" };
 	const char* CMergeImagesOption::STAT_NAME[NB_STATS] = { "lo", "mn", "sd", "hi" };
 
@@ -124,7 +125,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best or SecondBest. Best by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR or MedianNDMI. Best by default." },
 			{ "-Clouds", 1, "file", false, "Decision tree model file path to remove clouds." },
 			{ "-MaxSkip", 1, "nb", false, "Maximum number of skip image when removing clouds." },
 			//{ "-NoDefautTrigger", 0, "", false, "Without this option, \"B1 -125\" and \"TCB 750\" is added to trigger to be used with the \"-Clouds\" options." },
@@ -202,7 +203,7 @@ namespace WBSF
 			m_mergeType = GetMergeType(argv[++i]);
 			if (m_mergeType == UNKNOWN)
 			{
-				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"MaxNDVI\", \"Best\" or \"SecondBest\".");
+				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"MaxNDVI\", \"Best\", \"SecondBest\", \"MedianNDVI\", \"MedianNBR\", \"MedianNDMI\".");
 			}
 		}
 		else if (IsEqual(argv[i], "-MaxSkip"))
@@ -768,10 +769,20 @@ namespace WBSF
 									TRefQA.SetRef(QA, CTM(CTM::ATEMPORAL));
 								}
 							}
-							else if (m_options.m_mergeType == CMergeImagesOption::MAX_NDVI)
+							else if (m_options.m_mergeType == CMergeImagesOption::MAX_NDVI || m_options.m_mergeType == CMergeImagesOption::MEDIAN_NDVI)
 							{
 								long NDVI = (long)WBSF::LimitToBound(pixel.NDVI() * 1000, m_options.m_outputType);
 								TRefQA.SetRef(NDVI, CTM(CTM::ATEMPORAL));
+							}
+							else if (m_options.m_mergeType == CMergeImagesOption::MEDIAN_NBR)
+							{
+								long NBR = (long)WBSF::LimitToBound(pixel.NBR() * 1000, m_options.m_outputType);
+								TRefQA.SetRef(NBR, CTM(CTM::ATEMPORAL));
+							}
+							else if (m_options.m_mergeType == CMergeImagesOption::MEDIAN_NDMI)
+							{
+								long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, m_options.m_outputType);
+								TRefQA.SetRef(NDMI, CTM(CTM::ATEMPORAL));
 							}
 							else
 							{
@@ -1184,7 +1195,7 @@ namespace WBSF
 			}
 			else if (type == CMergeImagesOption::SECOND_BEST)
 			{
-				//take the pixel with the lowest score.
+				//take the pixel with the second lowest score.
 				if (imageList.size() >= 2)
 				{
 					it = imageList.begin(); 
@@ -1192,11 +1203,16 @@ namespace WBSF
 				}
 					
 			}
-			else if (type == CMergeImagesOption::BEST_NEWEST)
+			else if (type == CMergeImagesOption::MEDIAN_NDVI || type == CMergeImagesOption::MEDIAN_NBR || type == CMergeImagesOption::MEDIAN_NDMI)
 			{
-				//take the pixel with the lowest score.
+				//select median
+				size_t N = imageList.size() / 2;
+
 				it = imageList.begin();
+				for (size_t n = 0; n < N; n++)
+					it++;
 			}
+			
 		}
 
 		return it;

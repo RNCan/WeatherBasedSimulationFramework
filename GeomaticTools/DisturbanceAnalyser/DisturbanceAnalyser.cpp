@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.3.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add cloud improvement. Remove second disturbance of the same type. trigger have change
 // 2.2.4	11/07/2016	Rémi Saint-Amant	Add export series
 // 2.2.3	05/07/2016	Rémi Saint-Amant	Bug correction in reading despike and trigger
 // 2.2.2	17/06/2016	Rémi Saint-Amant	negative julian date 1970 is missing
@@ -74,7 +75,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "2.2.4";
+static const char* version = "2.3.0";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
 //static const int OTHER_CODE = 100;
@@ -413,12 +414,13 @@ public:
 
 		static const COptionDef OPTIONS[] = 
 		{
-			{ "-Trigger", 2, "tt th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-			{ "-Despike", 2, "dt dh", true, "Despike to remove invalid pixel. dt is the despike type, th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Trigger", 2, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the threshold direction '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Despike", 2, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the threshold direction '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
 			{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
 			{ "-ExportBands",0,"",false,"Export disturbances scenes."},
 			{ "-ExportTimeSeries", 0, "", false, "Export informations over all period." },
+			//{ "-ExportCloud", 0, "", false, "Export clouds and shawdows informations for all years." },
 			{ "-Debug",0,"",false,"Output debug information."},
 			{ "DTModel",0,"",false,"Decision tree model file path."},
 			{ "src1file",0,"",false, "LANDSAT scenes image file path."},
@@ -470,23 +472,32 @@ public:
 		{
 			string str = argv[++i];
 			TIndices type = GetIndicesType(str);
+			string op = argv[++i];
 			double threshold = atof(argv[++i]);
-			//TMethod  method = GetIndicesMethod(argv[++i]);
 
 			if (type != I_INVALID)
-				m_trigger.push_back(CIndices(type, threshold));
+			{
+				if (CIndices::IsValidOp(op))
+					m_trigger.push_back(CIndices(type, op, threshold));
+				else
+					msg.ajoute(op + " is an invalid operator for -trigger option");
+			}
 			else
-				msg.ajoute(str + " is an invalid trigger for -trigger option");
+			{
+				msg.ajoute(str + " is an invalid trigger type for -trigger option");
+			}
+				
 		}
 		else if (IsEqual(argv[i], "-Despike"))
 		{
 			string str = argv[++i];
 			TIndices type = GetIndicesType(str);
+			string op = argv[++i];
 			double threshold = atof(argv[++i]);
-			//TMethod  method = GetIndicesMethod(argv[++i]);
+			
 
 			if (type != I_INVALID)
-				m_despike.push_back(CIndices(type, threshold));
+				m_despike.push_back(CIndices(type, op, threshold));
 			else
 				msg.ajoute(str + " is an invalid despike for -Despike option");
 		}
@@ -930,11 +941,14 @@ void CBandsAnalyserC5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& 
 #pragma omp atomic
 										m_options.m_nbPixelDT++;
 
-										vector <AttValue> block = data[x][y].GetDataRecord(z1, DT[threadNo]);//z2, 
+										vector <AttValue> block = data[x][y].GetDataRecord(z1, DT[threadNo]);
 										ASSERT(!block.empty());
 										int predict = (int)DT[threadNo].Classify(block.data());
 										ASSERT(predict >= 1 && predict <= DT[threadNo].MaxClass);
-										data[x][y].SetDTCode(z1, atoi(DT[threadNo].ClassName[predict]));
+										int DTCode = atoi(DT[threadNo].ClassName[predict]);
+										//add exception, if the last DTcode is the same, we don't add it, RSA 26-10-2017 
+										if (z1 - 1 >= data[x][y].size() || DTCode != data[x][y].GetDTCode(z1-1) )
+											data[x][y].SetDTCode(z1, DTCode);
 									}
 									else //if not trigger
 									{
