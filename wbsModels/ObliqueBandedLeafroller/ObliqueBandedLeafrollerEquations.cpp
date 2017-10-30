@@ -12,6 +12,7 @@
 #include "Basic/UtilMath.h"
 #include "ObliqueBandedLeafrollerEquations.h"
 
+
 using namespace std;
 
 namespace WBSF
@@ -21,85 +22,76 @@ namespace WBSF
 	//Tranosema daily devlopment rates
 
 	CObliqueBandedLeafrollerEquations::CObliqueBandedLeafrollerEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
+		CEquationTableLookup(RG, NB_STAGES*2, 0, 40, 0.25)
 	{
 	}
 
-	double CObliqueBandedLeafrollerEquations::Equation1(size_t s, double T)
+	double CObliqueBandedLeafrollerEquations::Equation1(size_t e, double T)
 	{
-		ASSERT(s >= EGG && s <= PUPA);
+		size_t s = e % NB_STAGES;
+		size_t sex = e / NB_STAGES;
 
-		//development rate parameters (2 variables (Eg, Pupa), 6 parameters)
-		enum TParameters{ RHO25, HA, HL, TL, HH, TH, NB_PARAMETERS };
-		static const double P[2][NB_PARAMETERS] =
+		ASSERT( s < NB_STAGES);
+		ASSERT(sex <2);
+
+		//development rate parameters (11 variables (Egg...adult), 3 parameters)
+		enum TParameters{ P_TL, P_A, P_B, NB_PARAMETERS };
+		static const double P[NB_STAGES][NB_PARAMETERS] =
 		{
-			//	rho25	   HA		   HL		TL		HH		TH
-			0.1144,  -6.1490, -34.3960, 292.10, 108.24, 302.55, //Egg
-			0.2972, -32.9135, -50.8942, 299.83, 100.00, 308.00, //Pupa 
+//			Tl			a			b
+			9.5,	-0.08330,	0.008744,	//Egg
+			11.0,	-0.014279,	0.013027,	//L1
+			9.9,	-0.18377,	0.018627,	//L2
+			9.9,	-0.17239,	0.0173625,	//L3
+			11.1,	-0.11872,	0.01069,	//L3D
+			7.1,	-0.08368,	0.011875,	//L4
+			8.8,	-0.12157,	0.0138175,	//L5
+			11.4,	-0.12648,	0.011125,	//L6 ???? 0.0011125 ou 0.011125
+			9.6,	-0.07901,	0.008305,	//PUPA
+			11.9,	-0.33918,	0.028427,	//Adult preovip
+			4.2,	-0.02667,	0.0064		//Adult
 		};
+		
+		
 
-		double tK = T + 273;
-		double num = P[s][RHO25] * tK / 298.0 * exp(P[s][HA] / 0.001987*(1.0 / 298.0 - 1.0 / tK));
-		double den1 = exp(P[s][HL] / 0.001987*(1.0 / P[s][TL] - 1.0 / tK));
-		double den2 = exp(P[s][HH] / 0.001987*(1.0 / P[s][TH] - 1.0 / tK));
-		double Rt = (num / (1 + den1 + den2));
+		double r = 0;
+		double Tʟ = P[s][P_TL];
+		double a = P[s][P_A];
+		double b = P[s][P_B];
 
-		return max(0.0, Rt);
+		static const double L6_FACTOR[2] = { 1.23, 0.84 };
+		if (s == L6)
+			b *= L6_FACTOR[sex];
+
+
+		if (T > Tʟ)
+			r = a + b * T;
+
+		
+		return max(0.0, r);
 	}
-
-	double CObliqueBandedLeafrollerEquations::Equation2(size_t s, double T)
-	{
-		ASSERT(s == ADULT);
-
-		//Adult development rate parameters (2 parameters)
-		enum TRelDevParameters{ P1, P2, NB_PARAMETERS };
-		static const double P[1][NB_PARAMETERS] = { -5.1696, 0.07065 }; //Adult, latest estimates 2016/03/14 JR
-
-		double Rt = exp(P[0][P1])*pow(exp(T), P[0][P2]);
-
-		return max(0.0, Rt);
-	}
-
 
 	//Compute daily development rate for table lookup
-	double CObliqueBandedLeafrollerEquations::ComputeRate(size_t s, double T)const
+	double CObliqueBandedLeafrollerEquations::ComputeRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e >= 0 && e < 2*NB_STAGES);
 
 		//reltive developement
-		double Rt = 0;
-
-		switch (s)
-		{
-		case EGG:
-		case PUPA: Rt = Equation1(s, T); break;
-		case ADULT:	Rt = Equation2(s, T); break;
-		default: ASSERT(false);
-		}
+		double r = Equation1(e, T); 
 
 
-		_ASSERTE(!_isnan(Rt) && _finite(Rt));
-		ASSERT(Rt >= 0);
-		return Rt;
+		_ASSERTE(!_isnan(r) && _finite(r));
+		ASSERT(r >= 0);
+		return r;
 	}
 
 
 	//*****************************************************************************
 	// individual relative development rate 
 
-	double CObliqueBandedLeafrollerEquations::Equation3(size_t s)const
+	double CObliqueBandedLeafrollerEquations::Equation2()const
 	{
-		ASSERT(s >= EGG && s <= ADULT);
-		static const double P[NB_STAGES][2] =
-		{
-			//  x      s
-			{ 0.000, 0.082050 },	//Egg
-			{ 0.000, 0.090180 },	//Pupa
-			{ 0.000, 0.268500 }		//Adult (-.5385/2, half variablity JR 2016/03/14)
-		};
-
-
-		double 	r = m_randomGenerator.RandLogNormal(P[s][0], P[s][1]);
+		double 	r = m_randomGenerator.RandLogNormal(1.0, 0.25);
 
 		_ASSERTE(!_isnan(r) && _finite(r));
 		if (_isnan(r) || !_finite(r))//just in case
@@ -111,86 +103,62 @@ namespace WBSF
 
 	double CObliqueBandedLeafrollerEquations::Getδ(size_t s)const
 	{
-		double r = Equation3(s);
+		double r = Equation2();
 		while (r<0.4 || r>2.5)
-			r = Equation3(s);
+			r = Equation2();
 
 		return r;
 	}
 
 	//*****************************************************************************
 	//fecondity
-
-	double CObliqueBandedLeafrollerEquations::GetPmax()const
+	double CObliqueBandedLeafrollerEquations::GetEᵗ(double A0, double A1)
 	{
-		//							  x   s
-		static const double P[2] = { 143, 30 };
+		if (A0<ADULT)
+			return 0;
+		
+		double Eᵗ = 200 * (exp(-4 * (A0 - ADULT)) - exp(-4 * (A1 - ADULT)));
+		ASSERT(Eᵗ >= 0);
 
-		double Pmax = m_randomGenerator.RandNormal(P[0], P[1]);
-		while (Pmax < 43 || Pmax>243)
-			Pmax = m_randomGenerator.RandNormal(P[0], P[1]);
-
-		ASSERT(Pmax > 0);
-
-		return Pmax;
+		return Eᵗ;
 	}
-
-	double CObliqueBandedLeafrollerEquations::GetE°()const
-	{
-		//							  x      s
-		static const double P[2] = { 2.28, 0.0800 };
-		double Eo = m_randomGenerator.RandLogNormal(P[0], P[1]);
-		while (Eo < 0 || Eo>50)
-			Eo = m_randomGenerator.RandLogNormal(P[0], P[1]);
-
-		return Eo;
-	}
-
-	double CObliqueBandedLeafrollerEquations::GetOᵗ(double T)
-	{
-		return std::max(0.0, -2.7355 + 0.9555*T);
-	}
-	double CObliqueBandedLeafrollerEquations::GetRᵗ(double T)
-	{
-		return std::max(0.0, -26.9709 + 2.55415*T);
-	}
-
+	
 
 	//*****************************************************************************
 	//survival rate 
 
 
-	double CObliqueBandedLeafrollerEquations::GetSurvivalRate(size_t s, double T)
-	{
-		static const double P[NB_STAGES][2] =
-		{
-			//  x      s
-			{ 7.0251, -0.1735 },	//Egg
-			{ 9.6200, -0.2389 },	//Pupa
-			{ 1.000, 0.0000 }		//Adult
-		};
+	//double CObliqueBandedLeafrollerEquations::GetSurvivalRate(size_t s, double T)
+	//{
+	//	static const double P[NB_STAGES][2] =
+	//	{
+	//		//  x      s
+	//		{ 7.0251, -0.1735 },	//Egg
+	//		{ 9.6200, -0.2389 },	//Pupa
+	//		{ 1.000, 0.0000 }		//Adult
+	//	};
 
-		double r = 0;
-		switch (s)
-		{
-		case EGG:
-		case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
-		case ADULT:	r = 1; break;
-		default: _ASSERTE(false);
-		}
+	//	double r = 0;
+	//	switch (s)
+	//	{
+	//	case EGG:
+	//	case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
+	//	case ADULT:	r = 1; break;
+	//	default: _ASSERTE(false);
+	//	}
 
-		_ASSERTE(!_isnan(r) && _finite(r));
-		if (_isnan(r) || !_finite(r))//just in case
-			r = 1;
+	//	_ASSERTE(!_isnan(r) && _finite(r));
+	//	if (_isnan(r) || !_finite(r))//just in case
+	//		r = 1;
 
-		return r;
-	}
+	//	return r;
+	//}
 
-	double CObliqueBandedLeafrollerEquations::GetLuck(size_t s)
-	{
-		if (s == ADULT)
-			return 1;
+	//double CObliqueBandedLeafrollerEquations::GetLuck(size_t s)
+	//{
+	//	if (s == ADULT)
+	//		return 1;
 
-		return m_randomGenerator.Rand(0.0, 1.0);
-	}
+	//	return m_randomGenerator.Rand(0.0, 1.0);
+	//}
 }

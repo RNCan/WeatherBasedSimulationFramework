@@ -1,5 +1,5 @@
 #include "ModelBase/BioSIMModelBase.h"
-#include "Tranosema.h"
+#include "ObliqueBandedLeafroller.h"
 
 namespace WBSF
 {
@@ -28,12 +28,12 @@ namespace WBSF
 		void ExecuteDailyAllGenerations(CModelStatVector& SBWStat, std::vector<CModelStatVector>& stat);
 
 
-		bool m_bHaveAttrition;
-		double m_generationAttrition;
-		double m_diapauseAge;
-		double m_lethalTemp;
-		double m_criticalDaylength;
-		int m_startDateShift;
+		//bool m_bHaveAttrition;
+		//double m_generationAttrition;
+		//double m_diapauseAge;
+		//double m_lethalTemp;
+		//double m_criticalDaylength;
+		//int m_startDateShift;
 
 	};
 

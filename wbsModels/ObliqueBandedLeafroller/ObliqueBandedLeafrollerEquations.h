@@ -10,7 +10,7 @@
 namespace WBSF
 {
 
-	enum TStages{ EGG, L1, L2, L3, L3D, L4, L5, L6, PUPA, ADULT_PREOVIP, ADULT, DEAD_ADULT, NB_STAGES };
+	enum TStages{ EGG, L1, L2, L3, L3D, L4, L5, L6, PUPA, ADULT_PREOVIP, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
 
 
 	//*****************************************************************************
@@ -26,16 +26,20 @@ namespace WBSF
 		double Getδ(size_t s)const;
 
 		//fecondity
-		double GetE°()const;
-		double GetPmax()const;
-		static double GetOᵗ(double T);
-		static double GetRᵗ(double T);
+		//double GetE°()const;
+		//double GetPmax()const;
+		//static double GetOᵗ(double T);
+		//static double GetRᵗ(double T);
+		double GetEᵗ(double A0, double A1);
 
-
+		double GetRate(size_t s, size_t sex, double t)const
+		{
+			return CEquationTableLookup::GetRate(sex*NB_STAGES + s, t);
+		}
 		//survival rate
-		static double GetSurvivalRate(size_t s, double T);
-		double GetRelativeSurvivalRate()const;
-		double GetLuck(size_t s);
+		//static double GetSurvivalRate(size_t s, double T);
+		//double GetRelativeSurvivalRate()const;
+		//double GetLuck(size_t s);
 
 	protected:
 
@@ -44,8 +48,7 @@ namespace WBSF
 
 
 		static double Equation1(size_t s, double T);
-		static double Equation2(size_t s, double T);
-		double Equation3(size_t s)const;
+		double Equation2()const;
 	};
 
 

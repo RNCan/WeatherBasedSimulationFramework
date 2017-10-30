@@ -1,7 +1,7 @@
 //*****************************************************************************
 // Class: CObliqueBandedLeafrollerModel
 //
-// Description: CObliqueBandedLeafrollerModel is a BioSIM model of Tranosema
+// Description: CObliqueBandedLeafrollerModel is a BioSIM model of ObliqueBandedLeafroller
 //*****************************************************************************
 // 27/10/2017	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
@@ -15,7 +15,6 @@
 
 
 using namespace std;
-using namespace WBSF::Tranosema;
 
 namespace WBSF
 {
@@ -28,8 +27,8 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CObliqueBandedLeafrollerModel::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
-	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
+	enum{ O_D_EGG, O_D_L1, O_D_L2, O_D_L3, O_D_L3D, O_D_L4, O_D_L5, O_D_L6, O_D_PUPA, O_D_ADULT_PREOVIP, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, NB_DAILY_OUTPUT };
+	extern char DAILY_HEADER[] = "Egg,L1,L2,L3,L3D,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood";
 
 	//	
 	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
@@ -44,16 +43,16 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.7 (2017)";
+		NB_INPUT_PARAMETER = 0;
+		VERSION = "1.0.0 (2017)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
-		m_bHaveAttrition = true;
-		m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
-		m_diapauseAge = EGG + 0.0;
-		m_lethalTemp = -5.;
-		m_criticalDaylength = 13.5;
-		m_startDateShift = 15;
+		//m_bHaveAttrition = true;
+		//m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
+		//m_diapauseAge = EGG + 0.0;
+		//m_lethalTemp = -5.;
+		//m_criticalDaylength = 13.5;
+		//m_startDateShift = 15;
 	}
 
 	CObliqueBandedLeafrollerModel::~CObliqueBandedLeafrollerModel()
@@ -68,13 +67,13 @@ namespace WBSF
 		ERMsg msg;
 
 		int c = 0;
-		m_bHaveAttrition = parameters[c++].GetBool();
+		/*m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
 		m_diapauseAge = parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_startDateShift = parameters[c++].GetInt();
-		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);
+		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);*/
 
 		return msg;
 	}
@@ -129,7 +128,7 @@ namespace WBSF
 		ERMsg msg;
 		
 		//if daily data, compute sub-daily data
-		if (m_weather.IsDaily())
+		if (!m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
 		
 		//Init spruce budworm data
@@ -138,22 +137,24 @@ namespace WBSF
 		//GetSpruceBudwormBiology(m_weather, SBWStat);
 
 		//one CModelStatVector by generation
-		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		vector<CModelStatVector> ObliqueBandedLeafrollerStat;
+		ExecuteDailyAllGenerations(SBWStat, ObliqueBandedLeafrollerStat);
 
 		//merge generations vector into one output vector (max of 5 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size()); 
-		m_output.Init(p.size(), p.Begin(), NB_GENERATIONS*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
+		size_t maxG = min(NB_GENERATIONS, ObliqueBandedLeafrollerStat.size()); 
+		//m_output.Init(p.size(), p.Begin(), NB_GENERATIONS*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
+		m_output.Init(p.size(), p.Begin(), NB_DAILY_OUTPUT, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
 			for (size_t g = 0; g < maxG; g++)
 			{
 				for (size_t s = 0; s < NB_DAILY_OUTPUT; s++)
-					m_output[TRef][g*NB_DAILY_OUTPUT + s] = TranosemaStat[g][TRef][s];
+					m_output[TRef][s] += ObliqueBandedLeafrollerStat[g][TRef][s];
+					//m_output[TRef][g*NB_DAILY_OUTPUT + s] = ObliqueBandedLeafrollerStat[g][TRef][s];
 			}
-			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
+			//m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
 		}
 
 
@@ -162,44 +163,47 @@ namespace WBSF
 
 	void CObliqueBandedLeafrollerModel::ExecuteDailyAllGenerations(CModelStatVector& /*SBWStat*/, vector<CModelStatVector>& stat)
 	{
+		if (m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		CSnowAnalysis snowA;
+		//CSnowAnalysis snowA;
+
+		
+		//CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
+		//if (!TRef.IsInit())
+		//TRef = p.Begin(); //no snow 
+
+		//get initial population from snowmelt date + a delay for soil warmup (10 days here)
+		CInitialPopulation initialPopulation(entirePeriod.Begin(), 0, 1000, 100, L3D, RANDOM_SEX, true, 0);
+
+		//Create stand
+		CObliqueBandedLeafrollerStand stand(this);
+
+		//Create host
+		CHostPtr pHost = make_shared<CHost>(&stand);
+
+		//Init host
+		pHost->m_nbMinObjects = 100;
+		pHost->m_nbMaxObjects = 2500;
+		pHost->Initialize<CObliqueBandedLeafroller>(initialPopulation);
+		//double nbAlive = pHost->GetNbSpecimenAlive();
+
+		//Init stand
+		/*stand.m_bApplyAttrition = m_bHaveAttrition;
+		stand.m_generationAttrition = m_generationAttrition;
+		stand.m_diapauseAge = m_diapauseAge;
+		stand.m_criticalDaylength = m_criticalDaylength;
+		stand.m_lethalTemp = m_lethalTemp;*/
+		stand.m_host.push_front(pHost);
+
 
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
+			//run the model for all days of all years
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
-			if (!TRef.IsInit())
-				TRef = p.Begin(); //no snow 
-
-			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
-
-			//Create stand
-			CTranosemaStand stand(this);
-
-			//Create host
-			CHostPtr pHost = make_shared<CHost>(&stand);
-
-			//Init host
-			pHost->m_nbMinObjects = 100;
-			pHost->m_nbMaxObjects = 2500;
-			pHost->Initialize<CTranosema>(initialPopulation);
-			//double nbAlive = pHost->GetNbSpecimenAlive();
-
-			//Init stand
-			stand.m_bApplyAttrition = m_bHaveAttrition;
-			stand.m_generationAttrition = m_generationAttrition;
-			stand.m_diapauseAge = m_diapauseAge;
-			stand.m_criticalDaylength = m_criticalDaylength;
-			stand.m_lethalTemp = m_lethalTemp;
-			stand.m_host.push_front(pHost);
-
-			
-			
-			//run the model for all days of all years
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 			{
 				stand.Live(m_weather.GetDay(d));
@@ -229,8 +233,8 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 
-		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		vector<CModelStatVector> ObliqueBandedLeafrollerStat;
+		ExecuteDailyAllGenerations(SBWStat, ObliqueBandedLeafrollerStat);
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
 		m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
@@ -238,7 +242,7 @@ namespace WBSF
 
 		//now compute annual grow rates
 		//Get last complete generation
-		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
+		size_t maxG = min(NB_GENERATIONS, ObliqueBandedLeafrollerStat.size());
 		if (maxG > 0)
 		{
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -252,7 +256,7 @@ namespace WBSF
 				double pupaBegin = 100;
 				for (size_t g = 1; g < maxG; g++)
 				{
-					double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
+					double pupaEnd = ObliqueBandedLeafrollerStat[g][season.End()][S_PUPA];
 						
 					alive += pupaEnd;
 					m_output[TRef][O_A_ALIVE1 + (g-1)] = pupaEnd;
@@ -279,8 +283,8 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 
-		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		vector<CModelStatVector> ObliqueBandedLeafrollerStat;
+		ExecuteDailyAllGenerations(SBWStat, ObliqueBandedLeafrollerStat);
 		
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
@@ -288,7 +292,7 @@ namespace WBSF
 
 
 		//now compute generation grow rates
-		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
+		size_t maxG = min(NB_GENERATIONS, ObliqueBandedLeafrollerStat.size());
 		if (maxG > 0)
 		{
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -298,7 +302,7 @@ namespace WBSF
 				{
 					CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
 
-					CStatistic diapauseStat = TranosemaStat[g].GetStat(E_DIAPAUSE, season);
+					CStatistic diapauseStat = ObliqueBandedLeafrollerStat[g].GetStat(E_DIAPAUSE, season);
 					if (diapauseStat.IsInit() && diapauseBegin>0)
 					{
 						size_t y = TRef - p.Begin();
