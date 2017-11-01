@@ -63,7 +63,7 @@ namespace WBSF
 		//double	m_Pᵗ;			//Energy
 		//double	m_Eᵗ;			//Actual number of eggs
 		CTRef	m_diapauseTRef;
-		bool	m_bDiapause;
+		//bool	m_bDiapause;
 		
 
 		//process var

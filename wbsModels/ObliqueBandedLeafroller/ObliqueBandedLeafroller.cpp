@@ -40,21 +40,12 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
 			m_δ[s] = Equations().Getδ(s);
-			//Stage-specific survival random draws
-			//m_luck[s] = Equations().GetLuck(s);
 		}
 
-		//oviposition
-		//Random values of Pmax and E°
-		//m_Pmax = Equations().GetPmax();
-		//double E° = Equations().GetE°();
-		//Initial values
-		//m_Pᵗ = E°;
-		//m_Eᵗ = E°;
-
+		
 		//Individuals are created as non-diapause individuals
-		m_bDiapause = TRUE;
-		//m_badluck = false;
+		//m_bDiapause = TRUE;
+		
 	}
 
 
@@ -66,12 +57,6 @@ namespace WBSF
 			CIndividual::operator=(in);
 
 			m_δ = in.m_δ;
-			//m_Pmax = in.m_Pmax;
-			//m_Pᵗ = in.m_Pᵗ;
-			//m_Eᵗ = in.m_Eᵗ;
-			//m_luck = in.m_luck;
-			//m_bDiapause = in.m_bDiapause;
-			//m_badluck = in.m_badluck;
 		}
 
 		return *this;
@@ -108,34 +93,33 @@ namespace WBSF
 			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
 
 			//Check if individual's diapause trigger is set this time step. As soon as an L1 or L2 is exposed to short daylength after solstice, diapause is set. It occurs in the L3D stage
-			if ((GetStage() == L1 || GetStage() == L2) && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
-				m_bDiapause = TRUE;
+			//if ((GetStage() == L1 || GetStage() == L2) && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				//m_bDiapause = TRUE;
+			
+			//Diapausing L3D do not develop
+			if (GetStage() == L3D && TRef.GetYear() == m_diapauseTRef.GetYear())
+				r = 0;
+            
+			//Adjust age
+			m_age += r;
 
 			//Check if this individual enters diapause this time step (it was triggered in the L1 or L2). If it does, it skips L3, becomes L3D and stops developing
-			if (GetStage() == L3 && IsChangingStage() && m_bDiapause)
+			if (GetStage() == L3 && HaveChangedStage() && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 			{
 				m_diapauseTRef = TRef;
 				m_age = L3D;
 			}
-			//Skip the L3D stage in non-diapausing individuals
-			if (GetStage() == L3D && IsChangingStage() && !m_bDiapause)
-				m_age = L4;
 			
+			//Skip the L3D stage in non-diapausing individuals
+			if (GetStage() == L3D && HaveChangedStage() && !m_diapauseTRef.IsInit())
+				m_age = L4;
+		
 
-			if (GetStage() == PUPA && IsChangingStage() && m_sex==MALE)
+			if (GetStage() == ADULT_PREOVIP && HaveChangedStage() && m_sex == MALE)
 			{
 				//skip ovip adult
-				r = 0;
-				m_age = ADULT;
+				m_age += 1;
 			}
-
-            //Diapausing L3D do not develop
-			if (TRef.GetYear() == m_diapauseTRef.GetYear())
-				r = 0;
-
-			//Adjust age
-			m_age += r;
-
 			//compute brooding
 			if (m_sex == FEMALE && m_age >= ADULT)
 			{
