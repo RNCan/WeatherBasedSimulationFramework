@@ -78,8 +78,9 @@ namespace WBSF
 		size_t GetLastStage()const{ return(size_t)m_lastAge; }
 		double GetLastAge()const{ return m_lastAge; }					//Reports individual's age at day¯¹
 
-		bool IsChangingStage()const{ return GetStage() != GetLastStage(); }
-		bool IsChangingStatus()const{ return m_status != m_lastStatus; }
+		bool HaveChangedStage()const{ return GetStage() != GetLastStage(); }
+		bool IsChangingStage(double r)const{ return GetStage() != (size_t)(m_age+r); }
+		bool HaveChangedStatus()const{ return m_status != m_lastStatus; }
 		bool IsAlive()const{ return m_status == HEALTHY; }				//Reports individual not dead (1) or dead (0) 
 		bool IsCreated(CTRef ref)const{ return ref >= m_creationDate; }	//
 
@@ -110,7 +111,7 @@ namespace WBSF
 
 	protected:
 
-		bool IsChangingStage(double RR)const{ return short(m_age + RR) != GetStage(); }
+		
 
 		//input member
 		CHost* m_pHost;			//host on witch insect live
