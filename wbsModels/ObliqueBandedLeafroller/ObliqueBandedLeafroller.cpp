@@ -44,7 +44,7 @@ namespace WBSF
 
 		
 		//Individuals are created as non-diapause individuals
-		//m_bDiapause = TRUE;
+		m_bDiapause = FALSE;
 		
 	}
 
@@ -93,8 +93,8 @@ namespace WBSF
 			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
 
 			//Check if individual's diapause trigger is set this time step. As soon as an L1 or L2 is exposed to short daylength after solstice, diapause is set. It occurs in the L3D stage
-			//if ((GetStage() == L1 || GetStage() == L2) && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
-				//m_bDiapause = TRUE;
+			if (GetStage() == L1 && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				m_bDiapause = TRUE;
 			
 			//Diapausing L3D do not develop
 			if (GetStage() == L3D && TRef.GetYear() == m_diapauseTRef.GetYear())
@@ -104,18 +104,18 @@ namespace WBSF
 			m_age += r;
 
 			//Check if this individual enters diapause this time step (it was triggered in the L1 or L2). If it does, it skips L3, becomes L3D and stops developing
-			if (GetStage() == L3 && HaveChangedStage() && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+			if (GetStage() == L3 && HasChangedStage() && m_bDiapause)
 			{
 				m_diapauseTRef = TRef;
 				m_age = L3D;
 			}
 			
 			//Skip the L3D stage in non-diapausing individuals
-			if (GetStage() == L3D && HaveChangedStage() && !m_diapauseTRef.IsInit())
+			if (GetStage() == L3D && HasChangedStage() && !m_diapauseTRef.IsInit())
 				m_age = L4;
 		
 
-			if (GetStage() == ADULT_PREOVIP && HaveChangedStage() && m_sex == MALE)
+			if (GetStage() == ADULT_PREOVIP && HasChangedStage() && m_sex == MALE)
 			{
 				//skip ovip adult
 				m_age += 1;
@@ -152,7 +152,7 @@ namespace WBSF
 			ASSERT(m_age >= ADULT);
 			CObliqueBandedLeafrollerStand* pStand = GetStand(); ASSERT(pStand);
 
-			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
+			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//1% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CObliqueBandedLeafroller>(m_pHost, weather.GetTRef(), EGG, RANDOM_SEX, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
