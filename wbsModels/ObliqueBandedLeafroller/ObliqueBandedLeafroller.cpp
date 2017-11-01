@@ -154,7 +154,7 @@ namespace WBSF
 
 			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CObliqueBandedLeafroller>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
+			CIndividualPtr object = make_shared<CObliqueBandedLeafroller>(m_pHost, weather.GetTRef(), EGG, RANDOM_SEX, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 		}
 	}
