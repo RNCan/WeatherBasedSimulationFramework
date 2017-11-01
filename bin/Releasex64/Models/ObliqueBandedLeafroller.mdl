@@ -129,6 +129,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>Frozen</Name>
+            <Title>Frozen</Title>
+            <Units/>
+            <Description>Insect kill by frost (-5°C)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
     <Credit/>
