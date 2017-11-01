@@ -53,7 +53,7 @@ namespace WBSF
 		//m_Eᵗ = E°;
 
 		//Individuals are created as non-diapause individuals
-		//m_bDiapause = false;
+		m_bDiapause = TRUE;
 		//m_badluck = false;
 	}
 
@@ -97,12 +97,7 @@ namespace WBSF
 		CTRef TRef = weather.GetTRef();
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
-
-
-		//if (TRef.GetJDay()==0)
-			//m_bDiapause = false;
-
-		
+	
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{
 			size_t h = step*GetTimeStep();
@@ -112,28 +107,21 @@ namespace WBSF
 			//Relative development rate for time step
 			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
 
+			//Check if individual's diapause trigger is set this time step. As soon as an L1 or L2 is exposed to short daylength after solstice, diapause is set. It occurs in the L3D stage
+			if ((GetStage() == L1 || GetStage() == L2) && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				m_bDiapause = TRUE;
+
+			//Check if this individual enters diapause this time step (it was triggered in the L1 or L2). If it does, it skips L3, becomes L3D and stops developing
+			if (GetStage() == L3 && IsChangingStage() && m_bDiapause)
+			{
+				m_diapauseTRef = TRef;
+				m_age = L3D;
+			}
+			//Skip the L3D stage in non-diapausing individuals
+			if (GetStage() == L3D && IsChangingStage() && !m_bDiapause)
+				m_age = L4;
 			
 
-			//Check if individual enters diapause this time step
-			//if (m_age < L3 && (m_age + r) > L3)
-			if (GetStage() == L3 && IsChangingStage())
-			{
-				//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
-				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
-				{
-					//m_bDiapause = true;
-					m_diapauseTRef = TRef;
-					m_age = L3D;
-					//L3D
-					//m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
-				}
-				else
-				{
-					//skip L3D anf go to L4
-					m_age = L4;
-				}
-			}
-			
 			if (GetStage() == PUPA && IsChangingStage() && m_sex==MALE)
 			{
 				//skip ovip adult
@@ -141,23 +129,11 @@ namespace WBSF
 				m_age = ADULT;
 			}
 
+            //Diapausing L3D do not develop
 			if (TRef.GetYear() == m_diapauseTRef.GetYear())
 				r = 0;
 
-			//if (s == ADULT) //Set maximum longevitys to 150 days
-				//r = max(0.00667, r);
-
-			/*if (GetStand()->m_bApplyAttrition)
-			{
-				if (IsChangingStage(r))
-					m_badluck = RandomGenerator().Randu() > m_luck[s];
-				else
-					m_badluck = IsDeadByAttrition(s, T);
-			}*/
-
-
 			//Adjust age
-			//if(!m_bDiapause)
 			m_age += r;
 
 			//compute brooding
