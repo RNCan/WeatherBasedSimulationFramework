@@ -47,9 +47,10 @@ namespace WBSF
 	}
 
 
-	TIndices Landsat::GetIndicesType(const std::string& str)
+	TIndices Landsat::GetIndiceType(const std::string& str)
 	{
-		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "Euclidean", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
+		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
+		//"Euclidean",
 		TIndices type = I_INVALID;
 		for (size_t i = 0; i < NB_INDICES&&type == I_INVALID; i++)
 			if (IsEqualNoCase(str, TYPE_NAME[i]))
@@ -58,9 +59,20 @@ namespace WBSF
 		return type;
 	}
 
-	TOperator Landsat::GetIndicesOperator(const std::string& str)
+	TDomain Landsat::GetIndiceDomain(const std::string& str)
 	{
-		static const char* MODE_NAME[NB_OPERATORS] = { "OR", "AND" };
+		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR"};
+		TDomain domain = D_INVALID;
+		for (size_t i = 0; i < NB_INDICES&&domain == D_INVALID; i++)
+			if (IsEqualNoCase(str, TYPE_NAME[i]))
+				domain = (TDomain)i;
+
+		return domain;
+	}
+
+	TOperator Landsat::GetIndiceOperator(const std::string& str)
+	{
+		static const char* MODE_NAME[NB_OPERATORS] = { "<", ">" };
 		TOperator op = O_INVALID;
 		for (size_t i = 0; i < NB_OPERATORS&&op == O_INVALID; i++)
 			if (IsEqualNoCase(str, MODE_NAME[i]))
@@ -224,6 +236,36 @@ namespace WBSF
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		fill(noData);
+	}
+	
+	LandsatDataType CLandsatPixel::operator[](const Landsat::TIndices& i)const
+	{
+		LandsatDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
+		if (IsInit())
+		{
+			switch (i)
+			{
+			case Landsat::B1:
+			case Landsat::B2:
+			case Landsat::B3:
+			case Landsat::B4:
+			case Landsat::B5:
+			case Landsat::B6:
+			case Landsat::B7:
+			case Landsat::QA:
+			case Landsat::JD:			val = LandsatPixel::operator[](i); break;
+			case Landsat::I_NBR:		val = NBR(); break;
+				//case Landsat::I_EUCLIDEAN:	pre = Tm1.GetEuclideanDistance(Tp1); pos = 0; break;
+			case Landsat::I_NDVI:		val = NDVI(); break;
+			case Landsat::I_NDMI:		val = NDMI(); break;
+			case Landsat::I_TCB:		val = TCB(); break;
+			case Landsat::I_TCG:		val = TCG(); break;
+			case Landsat::I_TCW:		val = TCW(); break;
+			default: ASSERT(false);
+			}
+		}
+
+		return val;
 	}
 
 	bool CLandsatPixel::IsInit()const

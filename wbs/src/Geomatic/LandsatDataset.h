@@ -21,10 +21,14 @@ namespace WBSF
 	namespace Landsat
 	{
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
-		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_EUCLIDEAN, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
-		enum TOperator{ O_INVALID = -1, O_OR, O_AND, NB_OPERATORS };
-		TIndices GetIndicesType(const std::string& str);
-		TOperator GetIndicesOperator(const std::string& str);
+		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		//I_EUCLIDEAN, 
+		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
+		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
+
+		TDomain GetIndiceDomain(const std::string& str);
+		TIndices GetIndiceType(const std::string& str);
+		TOperator GetIndiceOperator(const std::string& str);
 	}
 
 	typedef __int16 LandsatDataType;
@@ -34,6 +38,11 @@ namespace WBSF
 	public:
 
 		CLandsatPixel();
+		
+		using LandsatPixel::operator[];
+		LandsatDataType operator[](const Landsat::TIndices& i)const;
+		LandsatDataType operator[](const Landsat::TIndices& i){ return ((const CLandsatPixel*)(this))->operator[](i); }
+		
 		bool IsInit()const;
 		bool IsValid()const;
 
@@ -60,6 +69,7 @@ namespace WBSF
 	{
 	public:
 
+		
 		Landsat::TIndices	m_type;
 		std::string			m_op;
 		double				m_threshold;
@@ -106,13 +116,13 @@ namespace WBSF
 				post = Tp1.NBR();
 				break;
 			}
-			case Landsat::I_EUCLIDEAN:
-			{
-				pre = Tm1.GetEuclideanDistance(T);
-				spike = 0;
-				post = Tp1.GetEuclideanDistance(Tp1);
-				break;
-			}
+			//case Landsat::I_EUCLIDEAN:
+			//{
+			//	pre = Tm1.GetEuclideanDistance(T);
+			//	spike = 0;
+			//	post = Tp1.GetEuclideanDistance(Tp1);
+			//	break;
+			//}
 			case Landsat::I_NDVI:
 			{
 				pre = Tm1.NDVI();
@@ -153,9 +163,9 @@ namespace WBSF
 
 			bool bRep = false;
 			if (m_op == "<")
-				bRep = CLandsatPixel::GetDespike(pre, spike, post) < m_threshold;
+				bRep = CLandsatPixel::GetDespike(pre, spike, post) < (1 - m_threshold);
 			else if (m_op == ">")
-				bRep = CLandsatPixel::GetDespike(pre, spike, post) > m_threshold;
+				bRep = CLandsatPixel::GetDespike(pre, spike, post) > (1 - m_threshold);
 
 
 			return bRep;
@@ -179,7 +189,7 @@ namespace WBSF
 			case Landsat::QA:
 			case Landsat::JD:			pre = Tm1[m_type]; pos = Tp1[m_type] ; break;
 			case Landsat::I_NBR:		pre = Tm1.NBR(); pos = Tp1.NBR(); break;
-			case Landsat::I_EUCLIDEAN:	pre = Tm1.GetEuclideanDistance(Tp1); pos = 0; break;
+//			case Landsat::I_EUCLIDEAN:	pre = Tm1.GetEuclideanDistance(Tp1); pos = 0; break;
 			case Landsat::I_NDVI:		pre = Tm1.NDVI(); pos = Tp1.NDVI();break;
 			case Landsat::I_NDMI:		pre = Tm1.NDMI(); pos = Tp1.NDMI();break;
 			case Landsat::I_TCB:		pre = Tm1.TCB() ; pos = Tp1.TCB();break;
