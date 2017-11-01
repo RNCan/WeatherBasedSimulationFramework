@@ -21,7 +21,7 @@ namespace WBSF
 
 	enum TObliqueBandedLeafrollerStats
 	{
-		S_EGG, S_L1, S_L2, S_L3, S_L3D, S_L4, S_L5, S_L6, S_PUPA, S_OVIP_ADULT, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION,
+		S_EGG, S_L1, S_L2, S_L3, S_L3D, S_L4, S_L5, S_L6, S_PUPA, S_OVIP_ADULT, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_FROZEN,
 		E_EGG, E_L1, E_L2, E_L3, E_L3D, E_L4, E_L5, E_L6, E_PUPA, E_OVIP_ADULT, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE,
 		NB_STATS
 	};
@@ -49,7 +49,7 @@ namespace WBSF
 		virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CObliqueBandedLeafroller>(*this); }
-
+		
 
 	protected:
 
@@ -57,13 +57,9 @@ namespace WBSF
 
 		//member
 		std::array<double, NB_STAGES> m_δ;		//Individual's relative development rates
-		//TranosemaArray m_luck;	//survival between stage
-		//bool	m_badluck;		//killed by attrition
-		//double	m_Pmax;			//Potential fecondity
-		//double	m_Pᵗ;			//Energy
-		//double	m_Eᵗ;			//Actual number of eggs
 		CTRef	m_diapauseTRef;
-		bool	m_bDiapause;
+		bool	m_bRequireDiapause;
+		double  m_ovipAge;
 		
 
 		//process var

@@ -27,8 +27,8 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CObliqueBandedLeafrollerModel::CreateObject);
 
-	enum{ O_D_EGG, O_D_L1, O_D_L2, O_D_L3, O_D_L3D, O_D_L4, O_D_L5, O_D_L6, O_D_PUPA, O_D_ADULT_PREOVIP, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, NB_DAILY_OUTPUT };
-	extern char DAILY_HEADER[] = "Egg,L1,L2,L3,L3D,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood";
+	enum{ O_D_EGG, O_D_L1, O_D_L2, O_D_L3, O_D_L3D, O_D_L4, O_D_L5, O_D_L6, O_D_PUPA, O_D_ADULT_PREOVIP, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_FROZEN, NB_DAILY_OUTPUT };
+	extern char DAILY_HEADER[] = "Egg,L1,L2,L3,L3D,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Frozen";
 
 	//	
 	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
@@ -188,14 +188,6 @@ namespace WBSF
 		pHost->m_nbMinObjects = 100;
 		pHost->m_nbMaxObjects = 2500;
 		pHost->Initialize<CObliqueBandedLeafroller>(initialPopulation);
-		//double nbAlive = pHost->GetNbSpecimenAlive();
-
-		//Init stand
-		/*stand.m_bApplyAttrition = m_bHaveAttrition;
-		stand.m_generationAttrition = m_generationAttrition;
-		stand.m_diapauseAge = m_diapauseAge;
-		stand.m_criticalDaylength = m_criticalDaylength;
-		stand.m_lethalTemp = m_lethalTemp;*/
 		stand.m_host.push_front(pHost);
 
 
@@ -218,6 +210,8 @@ namespace WBSF
 				stand.AdjustPopulation();
 				HxGridTestConnection();
 			}
+
+			stand.HappyNewYear();
 		}
 	}
 

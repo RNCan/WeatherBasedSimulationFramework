@@ -116,10 +116,15 @@ namespace WBSF
 	//fecondity
 	double CObliqueBandedLeafrollerEquations::GetEᵗ(double A0, double A1)
 	{
-		if (A0<ADULT)
-			return 0;
+		ASSERT(A0 <= A1);
+		//if (A0<ADULT)
+			//return 0;
 		
-		double Eᵗ = 200 * (exp(-4 * (A0 - ADULT)) - exp(-4 * (A1 - ADULT)));
+		//if (A1 < ADULT)
+			//A1 = ADULT;
+
+		//double Eᵗ = 200 * (exp(-4 * (A0 - ADULT)) - exp(-4 * (A1 - ADULT)));
+		double Eᵗ = 200 * (exp(-4 *A0) - exp(-4 *A1));
 		ASSERT(Eᵗ >= 0);
 
 		return Eᵗ;

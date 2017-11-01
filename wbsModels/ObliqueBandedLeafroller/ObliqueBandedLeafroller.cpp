@@ -44,8 +44,9 @@ namespace WBSF
 
 		
 		//Individuals are created as non-diapause individuals
-		m_bDiapause = FALSE;
-		
+		m_bRequireDiapause = FALSE;
+		m_ovipAge = 0;
+
 	}
 
 
@@ -93,45 +94,43 @@ namespace WBSF
 			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
 
 			//Check if individual's diapause trigger is set this time step. As soon as an L1 or L2 is exposed to short daylength after solstice, diapause is set. It occurs in the L3D stage
-			if (GetStage() == L1 && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
-				m_bDiapause = TRUE;
+			if (s == L1 && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				m_bRequireDiapause = TRUE;
 			
-			//Diapausing L3D do not develop
-			if (GetStage() == L3D && TRef.GetYear() == m_diapauseTRef.GetYear())
-				r = 0;
             
-			//Adjust age
-			m_age += r;
-
 			//Check if this individual enters diapause this time step (it was triggered in the L1 or L2). If it does, it skips L3, becomes L3D and stops developing
-			if (GetStage() == L3 && HasChangedStage() && m_bDiapause)
+			if (s == L2 && IsChangingStage(r) && m_bRequireDiapause)
 			{
 				m_diapauseTRef = TRef;
 				m_age = L3D;
 			}
-			
-			//Skip the L3D stage in non-diapausing individuals
-			if (GetStage() == L3D && HasChangedStage() && !m_diapauseTRef.IsInit())
-				m_age = L4;
-		
 
-			if (GetStage() == ADULT_PREOVIP && HasChangedStage() && m_sex == MALE)
+			//Skip the L3D stage in non-diapausing individuals
+			if (s == L3 && IsChangingStage(r) && !m_diapauseTRef.IsInit())
 			{
-				//skip ovip adult
 				m_age += 1;
 			}
-			//compute brooding
-			if (m_sex == FEMALE && m_age >= ADULT)
+
+			//skip ovip adult for male
+			if (s == PUPA && IsChangingStage(r) && m_sex == MALE)
 			{
-				//double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
-				//double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
+				m_age += 1;
+			}
 
-				double Eᵗ = Equations().GetEᵗ(m_lastAge, m_age);
+			//Diapausing L3D do not develop
+			if (s == L3D && TRef.GetYear() == m_diapauseTRef.GetYear())
+				r = 0;
+
+			//Adjust age
+			m_age += r;
+
+			
+			//compute brooding only once per day
+			if (m_sex == FEMALE && GetStage() == ADULT )
+			{
+				double Eᵗ = Equations().GetEᵗ(m_ovipAge, m_ovipAge + r);
 				m_broods += Eᵗ;
-				//ASSERT(m_broods < m_Pmax);
-
-				//m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				//m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
+				m_ovipAge += r;
 			}
 		}
 
@@ -200,44 +199,45 @@ namespace WBSF
 	{
 		if (IsCreated(d))
 		{
-			size_t s = GetStage();
-			stat[S_BROOD] += m_broods*m_scaleFactor;
+			//if (GetGeneration() == 0)//test temporaire RSA
+			//{
+				size_t s = GetStage();
+				stat[S_BROOD] += m_broods*m_scaleFactor;
 
 
-			if (IsAlive())
-			{
-				if (s >= EGG && s < DEAD_ADULT)
-					stat[s] += m_scaleFactor;
-
-
-				if (s == ADULT)
+				if (IsAlive())
 				{
-					if (m_sex == FEMALE)
+					if (s >= EGG && s < DEAD_ADULT)
+						stat[s] += m_scaleFactor;
+
+
+					if (s == ADULT)
 					{
-						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
+						if (m_sex == FEMALE)
+						{
+							stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
+						}
 					}
 				}
-			}
-			else
-			{
-				if (m_death == OLD_AGE)
-					stat[DEAD_ADULT] += m_scaleFactor;
+				else
+				{
+					if (m_death == OLD_AGE)
+						stat[DEAD_ADULT] += m_scaleFactor;
 
-				if (m_death == ATTRITION)
-					stat[S_ATTRITION] += m_scaleFactor;
-			}
+					if (m_death == FROZEN)
+						stat[S_FROZEN] += m_scaleFactor;
+				}
 
 
-			if (GetStage() != GetLastStage())
-			{
-				stat[E_EGG + s] += m_scaleFactor;
-				if (s == ADULT && m_sex == FEMALE)
-					stat[E_OVIPOSITING_ADULT] += m_scaleFactor;
+				if (GetStage() != GetLastStage())
+				{
+					stat[E_EGG + s] += m_scaleFactor;
+					if (s == ADULT && m_sex == FEMALE)
+						stat[E_OVIPOSITING_ADULT] += m_scaleFactor;
 
-			}
+				}
 
-			//if (m_lastAge<GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
-				//stat[E_DIAPAUSE] += m_scaleFactor;
+			//}
 		}
 	}
 
