@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-Trigger NBR 0.1 -ExportTimeSeries -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -ot Int16 -multi   -dstnodata -32768 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -of VRT -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Model\DT" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\landsat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\physics.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Output\test6_5.vrt"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-ot Int16 -co "compress=LZW" -stats -overview{ 2, 4, 8, 16 } -overwrite -of VRT "U:\GIS\#documents\#Codes\remi\Cloud\DT" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8415_local_v2.vrt" "U:\GIS\#documents\TestCodes\CloudAnalyser\cloud.vrt"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerAttach>false</LocalDebuggerAttach>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-Debug -multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "E:\Travaux\Bureau\Geomatique\Model\V5" "E:\Travaux\Bureau\Geomatique\input\Zone1.tif" "E:\Travaux\Bureau\Geomatique\input\Zone1++.vrt" "E:\Travaux\Bureau\Geomatique\Output\zone1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>-Debug -multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "E:\Travaux\Bureau\Geomatique\Model\V5" "E:\Travaux\Bureau\Geomatique\input\Zone1.tif" "E:\Travaux\Bureau\Geomatique\input\Zone1++.vrt" "E:\Travaux\Bureau\Geomatique\Output\zone1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
