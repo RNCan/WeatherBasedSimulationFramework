@@ -177,7 +177,7 @@ namespace WBSF
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
-			if (!TRef.IsInit())
+			if (!TRef.IsInit() || m_startDateShift<0)
 				TRef = p.Begin(); //no snow 
 
 			//get initial population from snowmelt date + a delay for soil warmup (10 days here)

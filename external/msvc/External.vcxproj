@@ -25,23 +25,14 @@
     <ProjectReference Include="AnnLib.vcxproj">
       <Project>{22c6541c-c3ec-449a-bb85-31e28fc783bc}</Project>
     </ProjectReference>
-    <ProjectReference Include="cctz.vcxproj">
-      <Project>{c5c95523-3635-4df4-8fb8-f51468e3938d}</Project>
-    </ProjectReference>
     <ProjectReference Include="ChartCtrl.vcxproj">
       <Project>{31ee05fc-1ca1-42b8-9da1-25f637785e4d}</Project>
     </ProjectReference>
     <ProjectReference Include="hxGrid.vcxproj">
       <Project>{9e652079-404d-43c5-8c8e-39736aeb3f7a}</Project>
     </ProjectReference>
-    <ProjectReference Include="JSON.vcxproj">
-      <Project>{2793eb11-0862-4f8c-85ac-4d2d2702e493}</Project>
-    </ProjectReference>
     <ProjectReference Include="KMeanLocal.vcxproj">
       <Project>{01ecf23d-14df-4a65-a75a-6faea5cd4dd6}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libxls.vcxproj">
-      <Project>{24be6a09-3d1b-40be-ac9d-1684932184d7}</Project>
     </ProjectReference>
     <ProjectReference Include="MTParserLib.vcxproj">
       <Project>{bcdc0368-ffe3-4ddf-92a6-4681d40bfa40}</Project>
@@ -51,9 +42,6 @@
     </ProjectReference>
     <ProjectReference Include="UltimateGrid.vcxproj">
       <Project>{c117ec47-0709-46c5-90af-12c27f41b083}</Project>
-    </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{ed8e3d46-5267-404e-822d-69feed4d8462}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -157,7 +145,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -208,7 +196,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../External/boost;../../external\GDAL\Include;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
