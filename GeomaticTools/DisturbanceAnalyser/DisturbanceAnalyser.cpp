@@ -104,6 +104,7 @@ static const float NO_IMAGE_NO_DATA = -99999;
 //-Trigger NBR 0.1 -Despike TCB 0.9 -Debug -IOCPU 4 -multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Model\DTv4" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\lansat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\physics.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Output\zone2.tif"
 
 
+
 //-te -45300 6791400 -35300 6797400
 //-te 1708000 6832000 1733600 6857600
 //-multi -te -55300 6786400 -35300 6797400
@@ -391,10 +392,10 @@ protected:
 };
 
 
-class CBandsAnalyserC5Option : public CBaseOptions
+class CDisterbanceAnalyserOption : public CBaseOptions
 {
 public:
-	CBandsAnalyserC5Option()
+	CDisterbanceAnalyserOption()
 	{
 		m_bAllBands=false;
 	
@@ -414,8 +415,8 @@ public:
 
 		static const COptionDef OPTIONS[] = 
 		{
-			{ "-Trigger", 2, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the threshold direction '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-			{ "-Despike", 2, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the threshold direction '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Trigger", 3, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Despike", 3, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
 			{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
 			{ "-ExportBands",0,"",false,"Export disturbances scenes."},
@@ -471,7 +472,7 @@ public:
 		if (IsEqual(argv[i], "-Trigger"))
 		{
 			string str = argv[++i];
-			TIndices type = GetIndicesType(str);
+			TIndices type = GetIndiceType(str);
 			string op = argv[++i];
 			double threshold = atof(argv[++i]);
 
@@ -480,26 +481,34 @@ public:
 				if (CIndices::IsValidOp(op))
 					m_trigger.push_back(CIndices(type, op, threshold));
 				else
-					msg.ajoute(op + " is an invalid operator for -trigger option");
+					msg.ajoute(op + " is an invalid operator for -Trigger option");
 			}
 			else
 			{
-				msg.ajoute(str + " is an invalid trigger type for -trigger option");
+				msg.ajoute(str + " is an invalid type for -Trigger option");
 			}
 				
 		}
 		else if (IsEqual(argv[i], "-Despike"))
 		{
 			string str = argv[++i];
-			TIndices type = GetIndicesType(str);
-			string op = argv[++i];
+			TIndices type = GetIndiceType(str);
+			//string op = argv[++i];
 			double threshold = atof(argv[++i]);
 			
 
 			if (type != I_INVALID)
-				m_despike.push_back(CIndices(type, op, threshold));
+			{
+				//if (CIndices::IsValidOp(op))
+					m_despike.push_back(CIndices(type, "<", threshold));
+				//else
+					//msg.ajoute(op + " is an invalid operator for -Despike option");
+				
+			}
 			else
-				msg.ajoute(str + " is an invalid despike for -Despike option");
+			{
+				msg.ajoute(str + " is an invalid type for -Despike option");
+			}
 		}
 		else if (IsEqual(argv[i], "-nbDisturbances"))
         {
@@ -553,7 +562,7 @@ public:
 //	Main                                                             
 //									 
 //***********************************************************************
-class CBandsAnalyserC5
+class CDisterbanceAnalyser
 {
 public:
 
@@ -571,7 +580,7 @@ public:
 	void LoadData(const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, vector< vector< CDADVector >>& data);
 	ERMsg ReadRules(CDecisionTree& DT);
 
-	CBandsAnalyserC5Option m_options;
+	CDisterbanceAnalyserOption m_options;
 
 	static int FindIndex(int start, const vector<short>& bandsvalue, int dir);
 	static void LoadModel(CDecisionTreeBaseEx& DT, string filePath);
@@ -580,7 +589,7 @@ public:
 
 };
 
-ERMsg CBandsAnalyserC5::ReadRules(CDecisionTree& DT)
+ERMsg CDisterbanceAnalyser::ReadRules(CDecisionTree& DT)
 {
 	ERMsg msg;
 	if(!m_options.m_bQuiet) 
@@ -601,7 +610,7 @@ ERMsg CBandsAnalyserC5::ReadRules(CDecisionTree& DT)
 }	
 
 
-ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
+ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	ERMsg msg;
 	
@@ -654,7 +663,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 		if(!m_options.m_bQuiet) 
 			cout << "Create output image..." << endl;
 
-		CBandsAnalyserC5Option option = m_options;
+		CDisterbanceAnalyserOption option = m_options;
 		option.m_nbBands = NB_OUTPUT_BANDS;
 
 		outputDS.resize(m_options.m_nbDisturbances);
@@ -675,7 +684,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 		if(!m_options.m_bQuiet) 
 			_tprintf("Create fire severity image...\n");
 
-		CBandsAnalyserC5Option options = m_options;
+		CDisterbanceAnalyserOption options = m_options;
 		options.m_nbBands = NB_FIRE_SEVERITY;
 		options.m_outputType = GDT_Float32;
 		options.m_dstNodata=::GetDefaultNoData(GDT_Int32);
@@ -693,7 +702,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 			cout << "Create export bands images..." << endl;
 			
 
-		CBandsAnalyserC5Option options = m_options;
+		CDisterbanceAnalyserOption options = m_options;
 		options.m_nbBands = NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL;//T-2 à T+3
 		options.m_outputType = GDT_Int16;
 		options.m_dstNodata=::GetDefaultNoData(GDT_Int16);
@@ -726,7 +735,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 
 
 		ASSERT(landsatDS.GetNbScenes() == landsatDS.GetPeriod().GetNbYears());
-		CBandsAnalyserC5Option options = m_options;
+		CDisterbanceAnalyserOption options = m_options;
 		options.m_nbBands = landsatDS.GetNbScenes() - 1;
 		options.m_outputType = GDT_Byte;
 		options.m_dstNodata = ::GetDefaultNoData(GDT_Byte);
@@ -753,7 +762,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 		if(!m_options.m_bQuiet) 
 			cout << "Create debug image..." << endl;
 
-		CBandsAnalyserC5Option options = m_options;
+		CDisterbanceAnalyserOption options = m_options;
 		options.m_nbBands = NB_DEBUGS;
 		options.m_outputType = GDT_Int32;
 		options.m_dstNodata= ::GetDefaultNoData(GDT_Int32);
@@ -772,7 +781,7 @@ ERMsg CBandsAnalyserC5::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 
 
 
-ERMsg CBandsAnalyserC5::Execute()
+ERMsg CDisterbanceAnalyser::Execute()
 {
 	ERMsg msg;
 
@@ -870,7 +879,7 @@ ERMsg CBandsAnalyserC5::Execute()
     return msg;
 }
 
-void CBandsAnalyserC5::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder1, CBandsHolder& bandHolder2)
+void CDisterbanceAnalyser::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder1, CBandsHolder& bandHolder2)
 {
 	#pragma omp critical(BlockIO)
 	{
@@ -885,7 +894,7 @@ void CBandsAnalyserC5::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolde
 }
 
 //Get input image reference
-void CBandsAnalyserC5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, CDecisionTree& DT, vector< vector< CDADVector >>& data)
+void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, CDecisionTree& DT, vector< vector< CDADVector >>& data)
 {
 	//CGDALDatasetEx& inputDS, 
 
@@ -978,7 +987,7 @@ void CBandsAnalyserC5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& 
 	}
 }
 
-void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& data, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
+void CDisterbanceAnalyser::WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const vector< vector< CDADVector >>& data, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	if( data.empty() )
 		return;
@@ -1217,7 +1226,7 @@ void CBandsAnalyserC5::WriteBlock(int xBlock, int yBlock, const CBandsHolder& ba
 	
 }
 
-void CBandsAnalyserC5::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
+void CDisterbanceAnalyser::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physicalDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS, CGDALDatasetEx& fireSeverityDS, vector<CGDALDatasetEx>& exportBandsDS, CGDALDatasetEx& exportTSDS, CGDALDatasetEx& debugDS)
 {
 	if( !m_options.m_bQuiet )		
 		_tprintf("\nClose all files...\n");
@@ -1281,7 +1290,7 @@ void CBandsAnalyserC5::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& physi
 	m_options.PrintTime();
 }
 
-void CBandsAnalyserC5::LoadData(const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, vector< vector< CDADVector>>& data)
+void CDisterbanceAnalyser::LoadData(const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, vector< vector< CDADVector>>& data)
 {
 	CRasterWindow landsat = bandHolder1.GetWindow();
 	CRasterWindow physical = bandHolder2.GetWindow();
@@ -1321,7 +1330,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	CTimer timer(true);
 	
-	CBandsAnalyserC5 regressionTree;
+	CDisterbanceAnalyser regressionTree;
 	ERMsg msg = regressionTree.m_options.ParseOption(argc, argv);
 
 	if( !msg || !regressionTree.m_options.m_bQuiet )

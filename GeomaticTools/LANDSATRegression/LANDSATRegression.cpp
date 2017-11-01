@@ -113,12 +113,21 @@ namespace WBSF
 		if (EQUAL(argv[i], "-Despike"))
 		{
 			string str = argv[++i];
-			TIndices type = GetIndicesType(str);
+			TIndices type = GetIndiceType(str);
+			//string op = argv[++i];
 			double threshold = atof(argv[++i]);
+
 			if (type < NB_INDICES)
-				m_despike.push_back(CIndices(type, threshold));
+			{
+				//if (CIndices::IsValidOp(op))
+					m_despike.push_back(CIndices(type, "<", threshold));
+				//else
+					//msg.ajoute(op + " is an invalid operator for -Despike option");
+			}
 			else
-				msg.ajoute(str + " is an invalid despike for -Despike option");
+			{
+				msg.ajoute(str + " is an invalid type for -Despike option");
+			}
 		}
 		else if (EQUAL(argv[i], "-RFactor"))
 		{

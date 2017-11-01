@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version
-// 2.2.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add 
+// 2.2.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add median
 // 2.1.3	27/05/2016	Rémi Saint-Amant	use JD -1 as no data
 // 2.1.2	27/05/2016	Rémi Saint-Amant	Add option Mosaic
 // 2.1.1	22/05/2016	Rémi Saint-Amant	Add option MaxSkip
@@ -855,12 +855,12 @@ namespace WBSF
 								std::string name = GetFileTitle(inputDS.GetInternalName(iiz));
 								if (name.size() >= 16)
 								{
-									int v = int(name[2] - '0');
+									int v = int(name[3] - '0');
 									if (v == 5 || v == 7 || v == 8)
 									{
 										cap = v;
-										col = ToInt(name.substr(3, 3));
-										row = ToInt(name.substr(6, 3));
+										col = ToInt(name.substr(10, 3));
+										row = ToInt(name.substr(13, 3));
 									}
 								}
 							}
