@@ -1051,7 +1051,7 @@ namespace WBSF
 				}
 
 				ASSERT(loop->size() <= variables.size());
-				if (loop->size() >= C_TIME)
+				if (loop->size() > C_TIME)
 				{
 					int year = ToInt((*loop)[C_YEAR]);
 					size_t month = ToInt((*loop)[C_MONTH]) - 1;
