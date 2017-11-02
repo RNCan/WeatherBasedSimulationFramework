@@ -2,10 +2,10 @@
 <Model version="3">
     <Title>CHemlockWoollyAdelgidCMModel</Title>
     <Version>1.0</Version>
-    <ID>.null</ID>
+    <ID/>
     <EXE>HemlockWoollyAdelgid.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>Mortality and recovery of hemlock woolly adelgid</Description>
+    <Description/>
     <WindowRect>0 0 100 250</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -59,6 +59,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>McAvoy(2017) : Mortality and recovery of hemlock woolly adelgid(Adelges tsugae) to minimum winter temperatures and predictions for the future&#x0D;&#x0A;</Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>

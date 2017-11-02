@@ -5,7 +5,7 @@
     <ID>.HWA</ID>
     <EXE>HemlockWoollyAdelgid.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>Mortality and recovery of hemlock woolly adelgid</Description>
+    <Description/>
     <WindowRect>0 0 183 361</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -89,7 +89,7 @@
         <OutputVariable>
             <Name>N</Name>
             <Title>N</Title>
-            <Units>days</Units>
+            <Units/>
             <Description>Number of days prior to the extreme minimum where Tmean &lt; -1</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -99,6 +99,14 @@
             <Title>Q3</Title>
             <Units>°C</Units>
             <Description>Mean temperature of the three days prior to the extreme minimum</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DDpro</Name>
+            <Title>DDpro</Title>
+            <Units/>
+            <Description>Degree day above 0 between March 22 and June 15</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -121,7 +129,7 @@
         <OutputVariable>
             <Name>S</Name>
             <Title>S</Title>
-            <Units>HWA/branch</Units>
+            <Units>larvals/branch</Units>
             <Description>Lived sistens density (Z * Mortality(Eq1 or Eq2))</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -129,7 +137,7 @@
         <OutputVariable>
             <Name>P</Name>
             <Title>P</Title>
-            <Units>HWA/branch</Units>
+            <Units>larvals/branch</Units>
             <Description>Lived progrediens density (Eq[5])</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -144,6 +152,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>McAvoy(2017) : Mortality and recovery of hemlock woolly adelgid(Adelges tsugae) to minimum winter temperatures and predictions for the future</Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>
