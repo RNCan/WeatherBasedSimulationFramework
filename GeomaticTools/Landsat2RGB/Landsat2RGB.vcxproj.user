@@ -8,4 +8,8 @@
     <LocalDebuggerCommandArguments>--config GDAL_CACHEMAX 4096 -IOCPU 4 -multi -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -multi -stats -co "compress=LZW" -overwrite "C:\geomatique\mosaicII\1994.vrt" "C:\geomatique\mosaicII\1994rgbII.tif"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-overwrite -multi -co COMPRESS=LZW "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017_RGB.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
