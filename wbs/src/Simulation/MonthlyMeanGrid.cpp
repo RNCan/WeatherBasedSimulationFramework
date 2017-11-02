@@ -1031,12 +1031,12 @@ namespace WBSF
 			//coord of the station
 			if (!mmg.UpdateData(GetFirstYear(m_refPeriodIndex), GetFirstYear(p), m_nbNeighbor, m_maxDistance, m_power, dailyStation, callback))
 			{
-				dailyStation.Reset();
+				dailyStation.clear();
 			}
 		}
 		else
 		{
-			dailyStation.Reset();
+			dailyStation.clear();
 		}
 
 		return msg;

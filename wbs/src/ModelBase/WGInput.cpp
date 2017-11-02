@@ -47,7 +47,7 @@ namespace WBSF
 		m_nbNormalsYears = 1;
 		m_firstYear = CTRef::GetCurrentTRef().GetYear();
 		m_lastYear = CTRef::GetCurrentTRef().GetYear();
-		m_bUseForecast = false;
+		m_bUseForecast = true;
 		m_bUseRadarPrcp = false;
 
 		m_normalsDBName.clear();

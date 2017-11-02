@@ -23,7 +23,7 @@ namespace WBSF
 
 	class CSVRow : public StringVector
 	{
-	public:
+	public: 
 
 		CSVRow(const char* pD, bool bDQ) :m_pD(pD), m_bDQ(bDQ){}
 
@@ -104,8 +104,10 @@ namespace WBSF
 			}
 			else
 			{
-				Tokenize(m_line, m_pD, m_bDQ);
-				//TokenizeMulti(m_line, m_pD, *this);
+				if (m_bDQ)
+					TokenizeQuoted(m_line, m_pD);
+				else 
+					Tokenize(m_line, m_pD, false);
 			}
 
 			if (m_bDQ)

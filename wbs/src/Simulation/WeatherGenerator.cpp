@@ -360,7 +360,7 @@ ERMsg CWeatherGenerator::Generate(CCallback& callback)
 	{
 		msg = GetDaily(m_simulationPoints[0], callback);
 	}
-
+	
 	
 	// Get observation
 	if (m_tgi.UseGribs())
@@ -1068,11 +1068,11 @@ ERMsg CWeatherGenerator::GetHourly(CSimulationPoint& simulationPoint, CCallback&
 		}//if msg
 	}//for all years
 
-
+	if (!m_tgi.m_bUseForecast)
+		RemoveForecast(simulationPoint);
 
 	return msg;
 }
-
 
 
 //****************************************************************************
@@ -1216,6 +1216,8 @@ ERMsg CWeatherGenerator::GetDaily(CSimulationPoint& simulationPoint, CCallback& 
 	}
 	
 	
+	if (!m_tgi.m_bUseForecast)
+		RemoveForecast(simulationPoint);
 
 	return msg;
 }
@@ -1448,6 +1450,22 @@ ERMsg CWeatherGenerator::GetNormals(CNormalsStation& normals, CCallback& callbac
 
 	return msg;
 }
+
+void CWeatherGenerator::RemoveForecast(CSimulationPoint& simulationPoint)
+{
+	
+	CTRef today = CTRef::GetCurrentTRef(simulationPoint.GetTM());
+	CTRef end = simulationPoint.GetEntireTPeriod().End();
+
+	if (today < end)
+	{
+		for (CTRef Tref = today + 1; Tref <= end; Tref++)
+		{
+			simulationPoint[Tref].Reset();
+		}
+	}
+}
+
 
 //*******************************************************************************
 //exposition 

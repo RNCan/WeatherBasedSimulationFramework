@@ -139,7 +139,7 @@ namespace WBSF
 		ERMsg GetHourly(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GetGribs(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GenerateNormals(CSimulationPointVector& simulationPointVector, CCallback& callback);
-
+		void RemoveForecast(CSimulationPoint& simulationPoint);
 	protected:
 
 		void GenerateSeed();

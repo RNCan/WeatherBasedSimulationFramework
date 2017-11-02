@@ -174,7 +174,7 @@ namespace WBSF
 	{
 		ASSERT(no < m_database.GetNbSection());
 
-		section.Reset();
+		section.clear();
 
 		if (no < m_database.GetNbSection())
 		{

@@ -145,7 +145,7 @@ namespace WBSF
 	void CBioSIMModelBase::Reset()
 	{
 		m_info.Reset();
-		m_weather.Reset();
+		m_weather.clear();
 	}
 
 	ERMsg CBioSIMModelBase::Init(const std::string& filePath)

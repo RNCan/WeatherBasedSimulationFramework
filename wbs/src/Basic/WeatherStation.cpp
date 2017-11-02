@@ -784,6 +784,12 @@ CHourlyData& CHourlyData::operator=(const CHourlyData& in)
 	return *this;
 }
 
+void CHourlyData::Reset()
+{
+	for (iterator it = begin(); it != end(); it++)
+		*it = WEATHER::MISSING;
+}
+
 
 const CStatistic& CHourlyData::GetData(HOURLY_DATA::TVarH v)const
 {
@@ -945,6 +951,17 @@ CWeatherDay& CWeatherDay::operator=(const CWeatherDay& in)
 	}
 
 	return *this;
+}
+
+void CWeatherDay::Reset()
+{
+	if (IsHourly())
+	{
+		for (iterator it = begin(); it != end(); it++)
+			it->Reset();
+	}
+	
+	m_dailyStat.clear();
 }
 
 bool CWeatherDay::operator==(const CWeatherDay& in)const
@@ -2141,6 +2158,14 @@ CWeatherMonth& CWeatherMonth::operator=(const CWeatherMonth& in)
 	return *this;
 }
 
+void CWeatherMonth::Reset()
+{
+	for (iterator it = begin(); it != end(); it++)
+		it->Reset();
+
+	m_stat.clear();
+}
+
 
 bool CWeatherMonth::operator==(const CWeatherMonth& in)const
 {
@@ -2241,6 +2266,13 @@ CWeatherYear& CWeatherYear::operator=(const CWeatherYear& in)
 	return *this;
 }
 
+void CWeatherYear::Reset()
+{
+	for (iterator it = begin(); it != end(); it++)
+		it->Reset();
+
+	m_stat.clear();
+}
 
 
 
@@ -2587,6 +2619,17 @@ CWeatherYears& CWeatherYears::operator=(const CWeatherYears& in)
 	}
 
 	return *this;
+}
+
+void CWeatherYears::Reset()
+{
+	for (iterator it = begin(); it != end(); it++)
+	{
+		if (it->second)
+			it->second->Reset();
+	}
+		
+	m_stat.clear();
 }
 
 bool CWeatherYears::operator==(const CWeatherYears& in)const
@@ -3264,7 +3307,7 @@ CWeatherStation::CWeatherStation(const CWeatherStation& in)
 	operator=(in);
 }
 
-void CWeatherStation::Reset()
+void CWeatherStation::clear()
 {
 	CLocation::clear();
 	CWeatherYears::clear();
@@ -3503,7 +3546,7 @@ void CWeatherStation::FillGaps()
 							CTRef TRef2 = TRef + 1;
 							CHourlyData wea¹ = GetHour(TRef2);
 							
-							while (IsMissing(wea¹[v]) && TRef2 <= TRef + 6 && TRef2 <= p.End())//chnage by < RSA(2017)
+							while (IsMissing(wea¹[v]) && TRef2 <= TRef + 6 && TRef2 <= p.End())//change by RSA(2017)
 							{
 								wea¹ = GetHour(TRef2);
 								TRef2++;
@@ -3890,7 +3933,7 @@ void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, size_
 	//if merge type not equal mean, we must have only 2 station
 	ASSERT( mergeType==MERGE_FROM_MEAN || size()<=2);
 	
-	station.Reset();
+	station.clear();
 	station.SetHourly(TM.Type()==CTM::HOURLY);
 	if (!empty())
 	{

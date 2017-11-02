@@ -328,6 +328,7 @@ public:
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const=0;
 	virtual CStatistic GetTimeLength()const = 0;					//return time length [s]
 	virtual double GetNetRadiation(double& Fcd)const = 0;
+	virtual void Reset() = 0;
 
 	inline bool HavePrevious()const;
 	inline bool HaveNext()const;
@@ -442,6 +443,7 @@ public:
 	double GetLatentHeatOfVaporization()const;
 	double GetExtraterrestrialRadiation()const;
 	virtual double GetNetRadiation(double& Fcd)const;
+	virtual void Reset();
 	
 	
 	virtual inline const CDataInterface* GetParent()const;
@@ -599,8 +601,8 @@ public:
 	virtual const CDataInterface& operator[](CTRef ref)const{ return Get(ref); }
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const;
 	virtual CStatistic GetTimeLength()const{ return CStatistic(24*60 * 60); }
-	//virtual double GetCloudiness(double& Fcd)const;
 	virtual double GetNetRadiation(double& Fcd)const;
+	virtual void Reset();
 	
 	double GetAllenT(double h, size_t hourTmin = 3, size_t hourTmax = 15, double PolarDayLength = 3)const;
 	double GetDoubleSine(double h, double PolarDayLength = 3)const;
@@ -767,6 +769,8 @@ public:
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const;
 	virtual CStatistic GetTimeLength()const{ return CStatistic((double)GetNbDays()*24*60 * 60); }
 	virtual double GetNetRadiation(double& Fcd)const;
+	virtual void Reset();
+
 	void ResetStat();
 	
 	void ManageHourlyData()const
@@ -900,6 +904,8 @@ public:
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const;
 	virtual CStatistic GetTimeLength()const{ return CStatistic((double)GetNbDays() * 24 * 60 * 60); }
 	virtual double GetNetRadiation(double& Fcd)const;
+	virtual void Reset();
+
 	void ResetStat();
 
 	virtual inline bool IsHourly()const;
@@ -1153,6 +1159,8 @@ public:
 	virtual CStatistic GetVarEx(HOURLY_DATA::TVarEx v)const;
 	virtual CStatistic GetTimeLength()const { return CStatistic((double)GetNbDays() * 24 * 60 * 60); }					//return time length [s]
 	virtual double GetNetRadiation(double& Fcd)const;
+	virtual void Reset();
+
 	void ResetStat();
 
 	bool IsCompilingHourly()const{ return m_bCompilingHourly; }
@@ -1185,8 +1193,8 @@ public:
 
 	CWeatherStation(bool bIsHourly = false);
 	CWeatherStation(const CWeatherStation& in);
-	void Reset();
-	void clear(){ Reset(); }
+	
+	void clear();
 
 	CWeatherStation& operator=(const CWeatherStation& in);
 	bool operator==(const CWeatherStation& in)const;
