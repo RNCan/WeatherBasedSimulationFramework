@@ -3,10 +3,11 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.0	21/12/2012	Rémi Saint-Amant	Creation
+// 1.1.0	02/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
+// 1.0.0	21/12/2016	Rémi Saint-Amant	Creation
 
-//-te -1271940 7942380 -1249530 7956540 -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 1024 1024 -multi -Type SecondBest -stats -debug -dstnodata -32768 --config GDAL_CACHEMAX 1024 "U:\GIS1\LANDSAT_SR\LCC\2014\#57_2014_182-244.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test4\Nuage.vrt"
-//-stats -Type BestPixel -te 1358100 6854400 1370300 6865500 -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Output\Test.vrt"
+
+//-blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Output\Test.vrt"
 //-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test0\output\Test.vrt"
 
 #include "stdafx.h"
@@ -31,7 +32,7 @@ namespace WBSF
 {
 
 
-	const char* CLandsat2RGB::VERSION = "1.0.0";
+	const char* CLandsat2RGB::VERSION = "1.1.0";
 	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
@@ -41,12 +42,12 @@ namespace WBSF
 	{
 
 
+		m_outputType = GDT_Byte;
 		m_scenesSize = SCENES_SIZE;
 		m_scene = 0;
 		m_dstNodata = 255;
-		//m_bBust = false;
 		m_bust = { { 0, 255 } };
-		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image. All empty images will be removed.";
+		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image.";
 
 		//AddOption("-Period");
 
@@ -54,7 +55,7 @@ namespace WBSF
 		{
 			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
 			{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },//overide scene size defenition
-			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data." },
+			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0. and 255 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -87,8 +88,8 @@ namespace WBSF
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
 
-		if (m_outputType == GDT_Unknown)
-			m_outputType = m_TTF == YYYYMMDD ? GDT_Int32 : GDT_Int16;
+		//if (m_outputType == GDT_Unknown)
+		
 
 		return msg;
 	}
@@ -255,7 +256,7 @@ namespace WBSF
 			CLandsat2RGBOption options(m_options);
 			
 			options.m_nbBands = 3;
-			options.m_outputType = GDT_Byte;
+			options.m_outputType = m_options.m_outputType;
 
 
 			if (!m_options.m_bQuiet)

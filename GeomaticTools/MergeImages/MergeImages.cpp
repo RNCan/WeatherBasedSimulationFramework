@@ -46,6 +46,7 @@
 
 //-debug -ExportStats -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 //-te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
+//-te 1674600	6496500	1677300	6498600
 
 
 #include "stdafx.h"
@@ -540,19 +541,22 @@ namespace WBSF
 					{
 						//Get pixel
 						CLandsatPixel pixel = window.GetPixel(s, x, y);
-						CTRef criterion1 = GetCriterion(pixel, m_options.m_mergeType);
-						CTRef criterion2 = GetCriterion(pixel, m_options.m_medianType);
-
-						if (criterion1.IsInit())
+						if (pixel.IsValid())
 						{
-							auto it = imageList1.find(criterion1);
-							if (it == imageList1.end())
+							CTRef criterion1 = GetCriterion(pixel, m_options.m_mergeType);
+							CTRef criterion2 = GetCriterion(pixel, m_options.m_medianType);
+
+							if (criterion1.IsInit())
 							{
-								imageList1.insert(make_pair(criterion1, s));
-								imageList2.insert(make_pair(criterion2, s));
+								auto it = imageList1.find(criterion1);
+								if (it == imageList1.end())
+								{
+									imageList1.insert(make_pair(criterion1, s));
+									imageList2.insert(make_pair(criterion2, s));
+								}
 							}
 						}
-	
+
 						if (m_options.m_bExportStats)
 						{
 							for (size_t z = 0; z < pixel.size(); z++)
@@ -762,50 +766,43 @@ namespace WBSF
 	{
 		CTRef criterion;
 
-		if (pixel.IsValid() && int(pixel[JD]) >= 0)
+		bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
+		if (!bIsBlack)
 		{
 			CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
 
 			if (type == CMergeImagesOption::BEST_PIXEL ||
 				type == CMergeImagesOption::SECOND_BEST)
 			{
-				bool bAdd = true;
-
-				bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
-				if (bIsBlack)
-					bAdd = false;
-
-				//if (m_options.IsBusting(pixel.R(), pixel.G(), pixel.B()))
-					//bAdd = false;
-
-				//add image qualities
-				if (bAdd)
-				{
-					//__int16 QA = CMergeImages::GetMeanQA(window, blockSize, s, x, y);
-					__int16 Qa = pixel[QA];
-					criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
-				}
+				__int16 Qa = pixel[QA];
+				criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 			{
-				long NDVI = (long)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16);
-				criterion.SetRef(NDVI, CTM(CTM::ATEMPORAL));
+				double NDVI = pixel.NDVI();
+				if (NDVI>-32 && NDVI<32)
+					criterion.SetRef(long(NDVI * 1000), CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NBR)
 			{
-				long NBR = (long)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16);
-				criterion.SetRef(NBR, CTM(CTM::ATEMPORAL));
+				//long NBR = (long)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16);
+				double NBR = pixel.NBR();
+				if (NBR>-32 && NBR<32)
+					criterion.SetRef(NBR * 1000, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NDMI)
 			{
-				long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
-				criterion.SetRef(NDMI, CTM(CTM::ATEMPORAL));
+				double NDMI = pixel.NDMI();
+				if (NDMI>-32 && NDMI<32)
+					criterion.SetRef(NDMI * 1000, CTM(CTM::ATEMPORAL));
+				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
 			else
 			{
 				criterion = TRef;
 			}
 		}
+
 
 		return criterion;
 	}
