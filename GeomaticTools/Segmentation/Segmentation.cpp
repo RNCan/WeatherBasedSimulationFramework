@@ -42,7 +42,7 @@ namespace WBSF
 
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breking series. 10 by default." },
+			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breaking series. 10 by default." },
 			{ "-MaxSegments", 1, "n", false, "Maximum number of segment NBR breaks. 5 by default" },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -135,7 +135,7 @@ namespace WBSF
 			return msg;
 
 
-		CGeoExtents extents = inputDS.GetExtents();
+		
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 
 		if (maskDS.IsOpen())
@@ -149,6 +149,8 @@ namespace WBSF
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
 
+
+		CGeoExtents extents = bandHolder.GetExtents();
 		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
 
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
