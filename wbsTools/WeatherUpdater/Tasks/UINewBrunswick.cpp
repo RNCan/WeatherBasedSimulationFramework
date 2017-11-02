@@ -970,7 +970,7 @@ namespace WBSF
 					string fileTitle = GetFileTitle(filesInfo[i].m_filePath);
 					string pStr = fileTitle.substr(fileTitle.length() - 9);
 					StringVector period(pStr, "-");
-					ASSERT(period.size() == 2);
+					
 					if (period.size() == 2)
 					{
 						int p1 = ToInt(period[0]);
@@ -978,6 +978,17 @@ namespace WBSF
 
 						if (firstYear <= p2 && lastYear >= p1)
 							msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+					}
+					else
+					{
+						pStr = fileTitle.substr(fileTitle.length() - 4);
+						int p1 = ToInt(period[0]);
+						if (p1 != 0)
+						{
+							if (firstYear <= p1 && lastYear >= p1)
+								msg = ReadDataHistorical(filesInfo[i].m_filePath, TM, station, callback);
+						}
+
 					}
 				}
 					
@@ -1170,7 +1181,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			CWeatherAccumulator accumulator(TM);
+			CWeatherAccumulator accumulator(TM); 
 			vector<size_t> columns;
 			vector<size_t> variables;
 

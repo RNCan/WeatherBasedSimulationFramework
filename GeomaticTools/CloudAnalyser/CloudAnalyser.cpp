@@ -5,7 +5,7 @@
 // version 
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
-//-multi -ot Int16 -co "compress=LZW" -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Model\DTv4" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\lansat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\physics.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Output\zone2.tif"
+//-blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite  "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Model\DTv4" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\lansat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\input\physics.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test4\Output\zone2.tif"
 
 //Et un CODE DT avec T1 T2 T3 ici(1 = feu, 2 = coupe, 112 et 113 ombre et nuage).C’est vraiment rough comme DT mais l’arbre sera amélioré, dans les prochaine semaines.
 
@@ -74,8 +74,8 @@ CCloudAnalyserOption::CCloudAnalyserOption()
 	static const CIOFileInfoDef IO_FILE_INFO[] =
 	{
 		{ "Input Model", "DTModel", "", "", "", "Decision tree model file generate by See5." },
-		{ "LANDSAT Image", "src1file", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|B9: Date(Julian day 1970 or YYYYMMDD format) and cloud mask(NoData)|... for each scene" },
-		{ "Output Image", "dstfile", "One file per perturbation", "6", "FirstDate: date of the first image analysed|DTCode: disturbance code|D1: disturbace date of the first image|D2: disturbance date of the second image|NbContirm: number of image without disturbance after the disturbance|LastDate: date of the last image analysed" },
+		{ "LANDSAT Image", "src1file", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)|... for each scene" },
+		{ "Output Image", "dstfile", "One file per input landsat images", "1", "Decision tree result. 100 for DT not trigged" },
 		//			{ "Optional Output Image", "dstfile_debug","1","9"," NbPairs: number of \"Pair\", a pair is composed of 2 valid images|NbDisturbances: number of disturbances found in the series.|Disturbance: last diturbance|D1: date of the first image of the last disturbance|D2: date of the second image of the last disturbance|MeanD: mean NBR distance|MaxD1: highest NBR distance|MaxD2: second highest NBR distance|MaxD3: third highest NBR distance"}
 	};
 
@@ -83,6 +83,28 @@ CCloudAnalyserOption::CCloudAnalyserOption()
 		AddIOFileInfo(IO_FILE_INFO[i]);
 
 }
+
+ERMsg CCloudAnalyserOption::ProcessOption(int& i, int argc, char* argv[])
+{
+	ERMsg msg;
+
+	if (IsEqual(argv[i], "-B1"))
+	{
+		m_B1threshold = atof(argv[++i]);
+	}
+	else if (IsEqual(argv[i], "-TCB"))
+	{
+		m_TCBthreshold = atof(argv[++i]);
+	}
+	else
+	{
+		//Look to see if it's a know base option
+		msg = CBaseOptions::ProcessOption(i, argc, argv);
+	}
+
+	return msg;
+}
+
 
 CDecisionTreeBlock CCloudAnalyser::GetDataRecord(array<CLandsatPixel, 3> p, CDecisionTreeBaseEx& DT)
 {
