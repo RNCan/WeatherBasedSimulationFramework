@@ -129,7 +129,7 @@ static const char* DEBUG_NAME[NB_DEBUGS] = { "size", "dist", "first", "dateF1", 
 
 
 typedef vector<__int16> DTCodeVector;
-typedef vector<CLandsatPixel>CLandsatPixelVector;
+
 
 
 enum TFireSeverity{FS_NO_FIRE_SEVERITY=-1, FS_RON, FS_JO, FS_MEAN, NB_FIRE_SEVERITY};

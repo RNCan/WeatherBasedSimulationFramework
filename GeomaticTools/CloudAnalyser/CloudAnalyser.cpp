@@ -41,11 +41,7 @@ using namespace WBSF::Landsat;
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
-//static const int OTHER_CODE = 100;
-static const int NO_DISTERBANCE = 99;
 static const int NOT_TRIGGED_CODE = 100;
-static const int DT_CODE_NOT_INIT = 0;
-static const float NO_IMAGE_NO_DATA = -99999;
 
 
 std::string CCloudAnalyser::GetDescription()
@@ -60,22 +56,12 @@ CCloudAnalyserOption::CCloudAnalyserOption()
 	m_nbPixelDT = 0;
 	m_scenesSize = Landsat::SCENES_SIZE;
 
-	m_appDescription = "This software look up (with a decision tree model) for cloud in a any number series of LANDSAT scenes";
-
-	//AddOption("-TTF");
-	//AddOption("-Period");
-
+	m_appDescription = "This software look up for cloud from Landsat images series (composed of " + to_string(SCENES_SIZE) + " bands) with a decision tree model";
+	
 	static const COptionDef OPTIONS[] =
 	{
 		{ "-B1", 1, "threshold", true, "trigger threshold for band 1 to execute decision tree. -175 by default." },
-		{ "-TCB", 1, "threshold", true, "trigger threshold for tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
-		//{ "-Trigger", 4, "Domain tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. Domain can be \"PRE\" (T-1 - T) or \"POS\" (T+1 - T) or \"AND\" (PRE and POS) or \"OR\" (PRE or POS) . tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-		//			{ "-Despike", 2, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-		//		{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
-		//	{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
-		//{ "-ExportBands",0,"",false,"Export disturbances scenes."},
-		//{ "-ExportTimeSeries", 0, "", false, "Export informations over all period." },
-		//{ "-ExportCloud", 0, "", false, "Export clouds and shawdows informations for all years." },
+		{ "-TCB", 1, "threshold", true, "trigger threshold for Tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
 		//{ "-Debug",0,"",false,"Output debug information."},
 		{ "DTModel", 0, "", false, "Decision tree cloud model file path." },
 		{ "srcfile", 0, "", false, "LANDSAT scenes image file path." },
@@ -469,7 +455,7 @@ void CCloudAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ba
 		{
 			for (int x = 0; x < blockSize.m_x; x++)
 			{
-				int threadNo = ::omp_get_thread_num();
+				int thread = ::omp_get_thread_num();
 
 				if (!data[x][y].empty())
 				{
@@ -482,24 +468,19 @@ void CCloudAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ba
 #pragma omp atomic
 						m_options.m_nbPixel++;
 
-					//	size_t z1 = z2 - 1;
 						size_t z3 = GetNext(data[x][y], z2 + 1);
-						
 						p[2] = z3<data[x][y].size() ? data[x][y][z3] : NO_PIXEL;
-						//1 = z1 < data[x][y].size() ? data[x][y][z1] : NO_PIXEL;
-						//const CLandsatPixel& p2 = z2<data[x][y].size()?data[x][y][z2]:NO_PIXEL;
-						//const CLandsatPixel& p3 = z3<data[x][y].size()?data[x][y][z3]:NO_PIXEL;
 
 						if (m_options.IsTrigged(p))
 						{
 #pragma omp atomic
 							m_options.m_nbPixelDT++;
 
-							vector <AttValue> block = GetDataRecord(p, DT[threadNo]);
+							vector <AttValue> block = GetDataRecord(p, DT[thread]);
 							ASSERT(!block.empty());
-							int predict = (int)DT[threadNo].Classify(block.data());
+							int predict = (int)DT[thread].Classify(block.data());
 							ASSERT(predict >= 1 && predict <= DT[threadNo].MaxClass);
-							int DTCode = atoi(DT[threadNo].ClassName[predict]);
+							int DTCode = atoi(DT[thread].ClassName[predict]);
 							output[x][y][z2] = DTCode;
 
 						}
