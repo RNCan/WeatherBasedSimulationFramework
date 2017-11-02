@@ -44,12 +44,8 @@
 
 //-1201530 8294610 -1199530 8297610 
 
-//--config GDAL_CACHEMAX 4096  -IOCPU 4 -co "bigtiff=yes" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overview {2,4,8,16} -multi -stats -co "compress=LZW" -overwrite -Clouds "C:\Geomatique\model\Clouds" "C:\Geomatique\Input\mosaic_subset.vrt" "C:\geomatique\1996\1996subset.vrt" "C:\geomatique\output\1996_test.tif"
-//-te -1271940 7942380 -1249530 7956540 -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 1024 1024 -multi -Type SecondBest -stats -debug -dstnodata -32768 --config GDAL_CACHEMAX 1024 "U:\GIS1\LANDSAT_SR\LCC\2014\#57_2014_182-244.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test4\Nuage.vrt"
-//-stats -Type BestPixel -te 1358100 6854400 1370300 6865500 -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\MergeImages\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test2\Output\Test.vrt"
-//-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\MergeImages\Test0\output\Test.vrt"
-//-stats -Type MedianNDVI -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017.vrt"
-
+//-debug -ExportStats -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
+//-te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 
 
 #include "stdafx.h"
@@ -129,11 +125,6 @@ namespace WBSF
 
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
-
-
-		//Pour les trigger Bande 1 c’est - 125 quand on fait  ex.b1 1994 – b1 1995 ou b1 1996 – b1 1995.
-		//Pour le tassel Cap brightness c’est + 750  ex.tcb1994 – tcb 1995 ou tcb 1996 – tcb 1995
-
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
@@ -274,8 +265,7 @@ namespace WBSF
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
 		}
 
-		CGeoExtents extents = inputDS.GetExtents();
-		
+		CGeoExtents extents = bandsHolder.GetExtents();
 		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
 
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
@@ -491,7 +481,6 @@ namespace WBSF
 				}
 			}
 
-
 			msg += statsDS.CreateImage(filePath, options);
 		}
 
@@ -563,14 +552,7 @@ namespace WBSF
 								imageList2.insert(make_pair(criterion2, s));
 							}
 						}
-					
-							
-
-//#pragma omp atomic
-//							m_options.m_nbPixel++;
-
-						//}//if valid
-
+	
 						if (m_options.m_bExportStats)
 						{
 							for (size_t z = 0; z < pixel.size(); z++)
@@ -582,15 +564,22 @@ namespace WBSF
 
 					}//iz
 
-					//if (!imageList1.empty())
-						//m_options.m_nbImages += (double)imageList1.size();
-
-					//find input temporal index
+					//find selected image index
 					size_t iz = get_iz(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
-
-					if (m_options.m_bDebug)
+					if (iz != NOT_INIT)
 					{
-						if (iz != NOT_INIT)
+						if (m_options.m_bCreateImage)
+						{
+							CLandsatPixel pixel;
+							if (window.GetPixel(iz, x, y, pixel))
+							{
+								for (size_t z = 0; z < SCENES_SIZE; z++)
+									outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16);
+							}
+						}
+
+
+						if (m_options.m_bDebug)
 						{
 							CLandsatPixel pixel = window.GetPixel(iz, x, y);
 							CTRef TRef = m_options.GetTRef(int(pixel[JD]));
@@ -626,29 +615,15 @@ namespace WBSF
 							debugData[CMergeImagesOption::SCENE][y][x] = (int)iz + 1;
 							debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first.GetRef();
 						}
-						
-						//debugData[CMergeImagesOption::NB_TRIGGERS][y][x] = nbTriggerUsed;
-						//debugData[CMergeImagesOption::NB_SKIPS][y][x] = nbSkip;
-					}
 
-					if (iz != NOT_INIT && m_options.m_bCreateImage)
-					{
-						CLandsatPixel pixel;
-						if (window.GetPixel(iz, x, y, pixel) )
+						if (m_options.m_bExportStats)
 						{
-							for (size_t z = 0; z < SCENES_SIZE; z++)
-								outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16);
-						}
-					}//for all landsat bands
-
-					if (m_options.m_bExportStats)
-					{
-						for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
-							for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
-								if (stats[z][NB_VALUE]>0)
-									statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16);
-					}//if export stats
-
+							for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
+								for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
+									if (stats[z][NB_VALUE]>0)
+										statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16);
+						}//if export stats
+					}
 #pragma omp atomic 
 					m_options.m_xx++;
 
@@ -761,11 +736,15 @@ namespace WBSF
 		if (!m_options.m_overviewLevels.empty())
 			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
+		outputDS.Close();
+
 		if (m_options.m_bComputeStats)
 			debugDS.ComputeStats(m_options.m_bQuiet);
 
 		if (!m_options.m_overviewLevels.empty())
 			debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+
+		debugDS.Close();
 
 		if (m_options.m_bComputeStats)
 			statsDS.ComputeStats(m_options.m_bQuiet);
@@ -773,11 +752,7 @@ namespace WBSF
 		if (!m_options.m_overviewLevels.empty())
 			statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-
-		outputDS.Close();
-		debugDS.Close();
 		statsDS.Close();
-
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();
@@ -870,7 +845,7 @@ namespace WBSF
 			else
 			{
 				//select median
-				size_t N = imageList.size() / 2;
+				size_t N = (imageList.size()+1) / 2 - 1;
 				it = imageList.begin();
 				for (size_t n = 0; n < N; n++)
 					it++;
@@ -889,21 +864,28 @@ namespace WBSF
 		{
 			it = get_it(imageList1, type1);
 
-			if (type1 > CMergeImagesOption::SECOND_BEST)
+			if (type1 > CMergeImagesOption::SECOND_BEST &&
+				imageList1.size() % 2 == 0)
 			{
-				if (imageList1.size() % 2 == 0)
-				{
-					Test1Vector::const_iterator it2 = it;
-					it2++;
+				Test1Vector::const_iterator it2 = it;
 
-					Test1Vector imageList3;
-					imageList3.insert(make_pair(it->first, 0)); 
-					imageList3.insert(make_pair(it2->first, 1));
-					Test1Vector::const_iterator it3 = get_it(imageList3, type2);
-					ASSERT(it3 != imageList3.end());
-					if (it3->second==1)
-						it = it2;
-				}
+				Test1Vector imageList3;
+				
+				Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<CTRef, size_t >& a) {return a.second == it2->second;	});
+				ASSERT(it3 != imageList2.end());
+
+				imageList3.insert(make_pair(it3->first, 0));
+				it2++;
+				ASSERT(it2 != imageList1.end());
+				it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<CTRef, size_t >& a) {return a.second == it2->second;	});
+				ASSERT(it3 != imageList2.end());
+				imageList3.insert(make_pair(it3->first, 1));
+				
+				it3 = get_it(imageList3, type2);
+				ASSERT(it3 != imageList3.end());
+				if (it3->second==1)
+					it = it2;
+			
 			}
 		}
 

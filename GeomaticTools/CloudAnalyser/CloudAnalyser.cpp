@@ -479,7 +479,7 @@ void CCloudAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ba
 							vector <AttValue> block = GetDataRecord(p, DT[thread]);
 							ASSERT(!block.empty());
 							int predict = (int)DT[thread].Classify(block.data());
-							ASSERT(predict >= 1 && predict <= DT[threadNo].MaxClass);
+							ASSERT(predict >= 1 && predict <= DT[thread ].MaxClass);
 							int DTCode = atoi(DT[thread].ClassName[predict]);
 							output[x][y][z2] = DTCode;
 

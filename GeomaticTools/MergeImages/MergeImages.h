@@ -28,13 +28,7 @@ namespace WBSF
 
 		static short GetMergeType(const char* str);
 
-		bool IsBusting(Color8 R, Color8 G, Color8 B)const
-		{
-			bool r = (R < 0 || R > 255);
-			bool g = (G < 0 || G > 255);
-			bool b = (B < 0 || B > 255);
-			return (r || g || b);
-		}
+		
 
 		CMergeImagesOption();
 		virtual ERMsg ParseOption(int argc, char* argv[]);
@@ -44,11 +38,6 @@ namespace WBSF
 		size_t m_medianType;
 		bool m_bDebug;
 		bool m_bExportStats;
-
-
-		//audit
-		//size_t m_nbPixel;
-		//CStatistic m_nbImages;
 
 	};
 	
