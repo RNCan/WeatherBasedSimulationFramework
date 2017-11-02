@@ -58,12 +58,12 @@ namespace WBSF
 		Color8 G()const;
 		Color8 B()const;
 
-
-
 		static double GetDespike(double pre, double spike, double post);
 
 		CTRef GetTRef()const;
 	};
+
+	typedef std::vector<CLandsatPixel>CLandsatPixelVector;
 
 	class CIndices
 	{
