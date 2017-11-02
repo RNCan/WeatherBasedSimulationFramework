@@ -172,7 +172,7 @@ double GetTypeLimit(short eType, bool bLow)
 
 double LimitToBound(double v, short cellType, double shiftedBy, bool bRound)
 {
-	if (v != MISSING_DATA && !_isnan(v) && ::_finite(v))
+	if (v>-FLT_MAX && v<FLT_MAX && v != MISSING_DATA && !_isnan(v) && ::_finite(v))
 	{
 		if (bRound && cellType < GDT_Float32)
 			v = (double)Round(v);

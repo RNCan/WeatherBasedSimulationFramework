@@ -255,7 +255,6 @@ namespace WBSF
 			case Landsat::QA:
 			case Landsat::JD:			val = LandsatPixel::operator[](i); break;
 			case Landsat::I_NBR:		val = NBR(); break;
-				//case Landsat::I_EUCLIDEAN:	pre = Tm1.GetEuclideanDistance(Tp1); pos = 0; break;
 			case Landsat::I_NDVI:		val = NDVI(); break;
 			case Landsat::I_NDMI:		val = NDMI(); break;
 			case Landsat::I_TCB:		val = TCB(); break;
@@ -305,7 +304,7 @@ namespace WBSF
 
 	double CLandsatPixel::GetCloudRatio()const
 	{
-		return at(B6) != 0 ? (double)at(B1) / at(B6) : 99999;
+		return at(B6) != 0 ? (double)at(B1) / at(B6) : -FLT_MAX;
 	}
 	
 	Color8 CLandsatPixel::R()const{ return Color8(max(0.0, min(254.0, ((at(B4) + 150.0) / 6150.0) * 254.0))); }
@@ -324,18 +323,18 @@ namespace WBSF
 
 	double CLandsatPixel::NBR()const
 	{
-		return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -32768;
+		return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -FLT_MAX;
 	}
 
 
 	double CLandsatPixel::NDVI()const
 	{
-		return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -32768;
+		return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -FLT_MAX;
 	}
 
 	double CLandsatPixel::NDMI()const
 	{
-		return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -32768;
+		return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -FLT_MAX;
 	}
 
 	double CLandsatPixel::TCB()const
