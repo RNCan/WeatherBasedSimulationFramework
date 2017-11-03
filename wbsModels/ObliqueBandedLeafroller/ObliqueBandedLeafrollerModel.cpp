@@ -166,36 +166,28 @@ namespace WBSF
 		if (m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
 
-		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		//CSnowAnalysis snowA;
-
-		
-		//CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
-		//if (!TRef.IsInit())
-		//TRef = p.Begin(); //no snow 
-
-		//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-		CInitialPopulation initialPopulation(entirePeriod.Begin(), 0, 1000, 100, L3D, RANDOM_SEX, true, 0);
-
-		//Create stand
-		CObliqueBandedLeafrollerStand stand(this);
-
-		//Create host
-		CHostPtr pHost = make_shared<CHost>(&stand);
-
-		//Init host
-		pHost->m_nbMinObjects = 100;
-		pHost->m_nbMaxObjects = 2500;
-		pHost->Initialize<CObliqueBandedLeafroller>(initialPopulation);
-		stand.m_host.push_front(pHost);
-
 
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
+			//This is where the model is actually executed
+			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+			CInitialPopulation initialPopulation(p.Begin(), 0, 1000, 100, L3D, RANDOM_SEX, true, 0);
+
+			//Create stand
+			CObliqueBandedLeafrollerStand stand(this);
+
+			//Create host
+			CHostPtr pHost = make_shared<CHost>(&stand);
+
+			//Init host
+			pHost->m_nbMinObjects = 100;
+			pHost->m_nbMaxObjects = 2500;
+			pHost->Initialize<CObliqueBandedLeafroller>(initialPopulation);
+			stand.m_host.push_front(pHost);
+
 			//run the model for all days of all years
 			//get the annual period 
-			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 			{
 				stand.Live(m_weather.GetDay(d));
