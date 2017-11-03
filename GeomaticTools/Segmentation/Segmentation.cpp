@@ -38,14 +38,18 @@ namespace WBSF
 
 		m_scenesSize = 1;
 		m_RMSEThreshold = 0;
-		m_maxBreaks = 5;
+		m_maxLayers = 5;
+		m_firstYear = 0;
 
 		m_appDescription = "This software find breaks in NBR value of Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands).";
 
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breaking series. 0 by default." },
-			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks. 5 by default" },
+			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks. 3 by default for a total of 5 output layers" },
+			{ "-FirstYear", 1, "n", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
+			//{ "-Standardized", 0, "", false, "Standardize input." },
+//			{ "-Debug",0,"",false,"Output debug information."},
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -61,7 +65,8 @@ namespace WBSF
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "maxBreaks", "break's index", "" },
+			{ "Output Image", "dstfile", "", "maxBreaks+2", "break's index", "" },
+	//		{ "Optional Output Image", "dstfile_debug","1","3","first year: first year of the serie|Last years: last year of the series.|Nb breaks: number of breaks found"}
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -99,7 +104,11 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-MaxBreaks"))
 		{
-			m_maxBreaks = atoi(argv[++i]);
+			m_maxLayers = atoi(argv[++i])+2;//to add begin and end
+		}
+		else if (IsEqual(argv[i], "-FirstYear"))
+		{
+			m_firstYear = atoi(argv[++i]);
 		}
 		else
 		{
@@ -119,7 +128,7 @@ namespace WBSF
 		{
 			cout << "Output: " << m_options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH] << endl;
 			cout << "From:   " << m_options.m_filesPath[CSegmentationOption::INPUT_FILE_PATH] << endl;
-			cout << "MaxBreaks:   " << m_options.m_maxBreaks << endl;
+			cout << "MaxBreaks:   " << m_options.m_maxLayers-2 << endl;
 			cout << "Threshold:   " << m_options.m_RMSEThreshold << endl;
 
 			if (!m_options.m_maskName.empty())
@@ -208,9 +217,8 @@ namespace WBSF
 				//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
 				//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
-				//if (inputDS.GetNbScenes() < 3)
-				if (inputDS.GetRasterCount() < 3)
-					msg.ajoute("Segmentation need at leat 3 bands");
+				if (inputDS.GetRasterCount() < 2)
+					msg.ajoute("Segmentation need at leat 2 bands");
 			}
 		}
 
@@ -227,7 +235,10 @@ namespace WBSF
 			//CTPeriod period = m_options.GetTTPeriod();
 
 			CSegmentationOption options(m_options);
-			options.m_nbBands = options.m_maxBreaks;
+			options.m_nbBands = options.m_maxLayers;
+			//options.m_nbBands = 1;// options.m_maxLayers;
+			//options.m_createOptions.push_back("NBITS=2");
+			//options.m_dstNodata = 3;
 
 			if (!m_options.m_bQuiet)
 			{
@@ -281,8 +292,9 @@ namespace WBSF
 		
 
 		//init memory
-		outputData.resize(m_options.m_maxBreaks);
+		outputData.resize(m_options.m_maxLayers);
 		for (size_t s = 0; s < outputData.size(); s++)
+			//outputData[s].insert(outputData[s].begin(), blockSize.m_x*blockSize.m_y, 3);
 			outputData[s].insert(outputData[s].begin(), blockSize.m_x*blockSize.m_y, m_options.m_dstNodata);
 
 
@@ -301,18 +313,35 @@ namespace WBSF
 					//Get pixel
 					
 					//CLandsatPixelVector data(window.GetNbScenes());
-					NBRVector data(window.size());;
+					NBRVector data;
+					data.reserve(window.size());
 					for (size_t z = 0; z < window.size(); z++)
-						data[z] = make_pair((__int16)window[z]->at(x, y),z);
-
-					std::vector<size_t> segment = Segmentation(data, m_options.m_maxBreaks, m_options.m_RMSEThreshold);
-					ASSERT(segment.size()<=outputData.size());
-
-					for (size_t s = 0; s < segment.size(); s++)
 					{
-						size_t z = segment[segment.size()-s-1];//reverse order
-						//outputData[s][y*blockSize.m_x + x] = window.GetPixel(z, x, y).GetTRef().GetYear();
-						outputData[s][y*blockSize.m_x + x] = (__int16)z;
+						if (window[z]->IsValid(x, y))
+							data.push_back(make_pair(window[z]->at(x, y), z + m_options.m_firstYear));
+					}
+
+					if (data.size()>=2)
+					{
+						std::vector<size_t> segment = Segmentation(data, m_options.m_maxLayers, m_options.m_RMSEThreshold);
+						ASSERT(segment.size() <= outputData.size());
+						
+						for (size_t s = 0; s < segment.size(); s++)
+						{
+							size_t z = segment[segment.size() - s - 1];//reverse order
+							outputData[s][y*blockSize.m_x + x] = (__int16)z;
+						}
+
+
+						//for (size_t i = 0; i < outputData.size(); i++)
+						//	outputData[i][y*blockSize.m_x + x] = 0;
+						//
+						//for (size_t s = 0; s < segment.size(); s++)
+						//{
+						//	size_t z = segment[segment.size() - s - 1];//reverse order
+						//	outputData[z][y*blockSize.m_x + x] = 1;
+						//}
+						//
 					}
 						
 #pragma omp atomic 
@@ -349,7 +378,7 @@ namespace WBSF
 				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
 				if (!outputData[z].empty())
 				{
-					ASSERT(outputData.size() == m_options.m_maxBreaks);
+					ASSERT(outputData.size() == outputDS.GetRasterCount());
 						
 					for (int y = 0; y < outputRect.Height(); y++)
 						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
@@ -388,57 +417,59 @@ namespace WBSF
 		m_options.PrintTime();
 	}
 
-
-
 	pair<double, size_t> CSegmentation::ComputeRMSE(const NBRVector& data, size_t i)
 	{
-		CStatisticXY stat;
-		for (int ii = -1; ii <= 1; ii++)
-			if (i + ii < data.size())
-				stat.Add(1+data[i + ii].second, data[i + ii].first);
+		ASSERT(i< data.size());
 
-		if(stat[NB_VALUE] != 3)
+		if ((i - 1) >= data.size() || (i + 1) >= data.size())
 			return make_pair(32767, data[i].second);
 
+		CStatisticXY stat;
+		for (int ii = -1; ii <= 1; ii++)
+			stat.Add(data[i + ii].second, data[i + ii].first);
+
+		double a0 = stat[INTERCEPT];
+		double a1 = stat[SLOPE];
 		
-		return make_pair(stat[RMSE], data[i].second);
+		CStatistic rsq;
+		for (int ii = -1; ii <= 1; ii++)
+			rsq += Square(a0 + a1*data[i + ii].second - data[i + ii].first);
+	
+		return make_pair(sqrt(rsq[MEAN]), data[i].second);
 	}
 
-	vector<size_t> CSegmentation::Segmentation(const NBRVector& dataIn, size_t max_nb_seg, double max_error)
+	
+	vector<size_t> CSegmentation::Segmentation(const NBRVector& dataIn, size_t maxLayers, double max_error)
 	{
-		vector<size_t> breaks;
+		ASSERT(!dataIn.empty());
+
+		//compute mean and variance 
+		//CStatistic stat;
+		//for (size_t z = 0; z < dataIn.size(); z++)
+			//stat += dataIn[z].first;
 
 		//copy vector
-		NBRVector data;
+		NBRVector data(dataIn.size());
+
+		//normalize data
 		
-		data.reserve(dataIn.size());
-		for (size_t z = 0; z < dataIn.size(); z++)
-		{
-		//	const CLandsatPixel& pixel = dataIn[z];
-			//if (pixel.IsValid())
-				//data.push_back(make_pair(pixel.NBR(), z));
-			if (dataIn[z].first != -32768)
-				data.push_back(dataIn[z]);
-		}
+		for (size_t i = 0; i < dataIn.size(); i++)
+			data[i] = dataIn[i];
+			//data[i] = make_pair((dataIn[i].first - stat[MEAN]) / stat[STD_DEV], dataIn[i].second);
 
+		//now compute RMSE and eliminate lo RMSE
+		NBRVector dataRMSE(data.size());
 
-		//if (data.size() >= 3)
-		//{
-		//remove no data
-		vector<pair<double, size_t>> dataRMSE;
-		dataRMSE.reserve(data.size());
-
-			
 		//1-first scan make pair and calculate the RMSE 
 		for (size_t i = 0; i < data.size(); i++)
-			dataRMSE.push_back(ComputeRMSE(data, i));
+			dataRMSE[i] = ComputeRMSE(data, i);
 
 		//RMSE array have the same size
-		ASSERT(dataRMSE.size() == data.size() );
+		ASSERT(dataRMSE.size() == data.size());
 
-		vector<pair<double, size_t>>::iterator minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
-		while (dataRMSE.size() > 3 &&
-			((minIt->first <= max_error) || (dataRMSE.size() > max_nb_seg)))
+		NBRVector::iterator minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
+		while (dataRMSE.size() > 2 &&
+			((minIt->first <= max_error) || (dataRMSE.size() > maxLayers)))
 		{
 			//erase data item
 			NBRVector::iterator it = std::find_if(data.begin(), data.end(), [minIt](const NBRPair& p) { return p.second == minIt->second; });
@@ -448,18 +479,14 @@ namespace WBSF
 			//A-Detect the point - Remove it - and recompute all the sats
 			//1- GET the min value in the RMSE array and REMOVE it 
 			//remove RMSE item and update RMSE for points that have change
-			/*size_t pos = std::distance(dataRMSE.begin(), minIt);
+			size_t pos = std::distance(dataRMSE.begin(), minIt);
 			dataRMSE.erase(minIt);
 
 			if (pos - 1 < dataRMSE.size())
 				dataRMSE[pos - 1] = ComputeRMSE(data, pos - 1);
 			if (pos + 1 < dataRMSE.size())
-				dataRMSE[pos] = ComputeRMSE(data, pos);*/
+				dataRMSE[pos] = ComputeRMSE(data, pos);
 
-			dataRMSE.clear();
-			for (size_t i = 0; i < data.size(); i++)
-				dataRMSE.push_back(ComputeRMSE(data, i));
-				
 
 			ASSERT(dataRMSE.size() == data.size());
 
@@ -467,17 +494,12 @@ namespace WBSF
 		}
 
 		//add breaking point images index
+		vector<size_t> breaks;
+
 		for (size_t i = 0; i < dataRMSE.size(); i++)
 			breaks.push_back(dataRMSE[i].second);
-		//}
-		//else
-		//{
-		//	//add all images index
-		//	for (size_t i = 0; i < data.size(); i++)
-		//		breaks.push_back(data[i].second);
-
-		//}
 
 		return breaks;
 	}
+
 }

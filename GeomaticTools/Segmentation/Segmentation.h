@@ -23,11 +23,15 @@ namespace WBSF
 		
 
 		double m_RMSEThreshold;
-		size_t m_maxBreaks;
+		size_t m_maxLayers;
+		int m_firstYear;
+		//bool m_bDebug;
 	};
 
 	typedef std::deque < std::vector< __int16>> OutputData;
-	typedef std::pair<__int16, size_t> NBRPair;
+	//typedef std::pair<double, size_t> MathPair;
+	//typedef std::vector<MathPair> MathPairVector;
+	typedef std::pair<double, size_t> NBRPair;
 	typedef std::vector<NBRPair> NBRVector;
 
 	class CSegmentation
