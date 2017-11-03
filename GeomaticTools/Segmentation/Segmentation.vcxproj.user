@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-buffer 3 -clear 2 5 -MaxSkip 1 -IOCPU 4 -te 1345285 7143503 1348803 7145729 -clouds U:\GIS\#projets\LAQ\ANALYSE_CA\v8\DTcloud\from_Hugues\DT_VL5_100_fast -mosaic U:\GIS1\LANDSAT_SR\mos\20160527_MergeImages\VRT_L578_8415_local.vrt -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -multi -Type best -Debug -dstnodata -32768 --config GDAL_CACHEMAX 2048  -stats -hist -overwrite G:\LANDSAT_SR\LCC\1998\_578_1998.vrt U:\GIS\#documents\TestCodes\MergeImages\Test6\output\test6.vrt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-RMSEThreshold 75 -of VRT -overwrite "D:\Travaux\Segmentation\Input\1984-2016.vrt" "D:\Travaux\Segmentation\Output\1984-2016.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

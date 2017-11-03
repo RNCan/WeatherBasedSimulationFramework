@@ -23,11 +23,12 @@ namespace WBSF
 		
 
 		double m_RMSEThreshold;
-		size_t m_maxSegment;
+		size_t m_maxBreaks;
 	};
 
 	typedef std::deque < std::vector< __int16>> OutputData;
-	typedef std::vector<std::pair<double, size_t>> NBRVector;
+	typedef std::pair<__int16, size_t> NBRPair;
+	typedef std::vector<NBRPair> NBRVector;
 
 	class CSegmentation
 	{
@@ -50,7 +51,7 @@ namespace WBSF
 		static const size_t NB_THREAD_PROCESS;
 
 		static std::pair<double, size_t> ComputeRMSE(const NBRVector& data, size_t i);
-		static std::vector<size_t> Segmentation(const CLandsatPixelVector& data, size_t max_nb_seg, double max_error);
+		static std::vector<size_t> Segmentation(const NBRVector& data, size_t max_nb_seg, double max_error);
 
 	};
 }
