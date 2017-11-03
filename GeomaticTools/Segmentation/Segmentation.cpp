@@ -37,14 +37,14 @@ namespace WBSF
 	{
 
 		m_scenesSize = 1;
-		m_RMSEThreshold = 10;
+		m_RMSEThreshold = 0;
 		m_maxBreaks = 5;
 
 		m_appDescription = "This software find breaks in NBR value of Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands).";
 
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breaking series. 10 by default." },
+			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breaking series. 0 by default." },
 			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks. 5 by default" },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -61,7 +61,7 @@ namespace WBSF
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "maxBreaks", "break's year", "" },
+			{ "Output Image", "dstfile", "", "maxBreaks", "break's index", "" },
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -395,7 +395,7 @@ namespace WBSF
 		CStatisticXY stat;
 		for (int ii = -1; ii <= 1; ii++)
 			if (i + ii < data.size())
-				stat.Add(data[i + ii].second+1984, data[i + ii].first);
+				stat.Add(1+data[i + ii].second, data[i + ii].first);
 
 		if(stat[NB_VALUE] != 3)
 			return make_pair(32767, data[i].second);
@@ -422,59 +422,61 @@ namespace WBSF
 		}
 
 
-		if (data.size() >= 3)
-		{
-			//remove no data
-			vector<pair<double, size_t>> dataRMSE;
-			dataRMSE.reserve(data.size());
+		//if (data.size() >= 3)
+		//{
+		//remove no data
+		vector<pair<double, size_t>> dataRMSE;
+		dataRMSE.reserve(data.size());
 
 			
-			//1-first scan make pair and calculate the RMSE 
+		//1-first scan make pair and calculate the RMSE 
+		for (size_t i = 0; i < data.size(); i++)
+			dataRMSE.push_back(ComputeRMSE(data, i));
+
+		//RMSE array have the same size
+		ASSERT(dataRMSE.size() == data.size() );
+
+		vector<pair<double, size_t>>::iterator minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
+		while (dataRMSE.size() > 3 &&
+			((minIt->first <= max_error) || (dataRMSE.size() > max_nb_seg)))
+		{
+			//erase data item
+			NBRVector::iterator it = std::find_if(data.begin(), data.end(), [minIt](const NBRPair& p) { return p.second == minIt->second; });
+			ASSERT(it != data.end());
+			data.erase(it);
+
+			//A-Detect the point - Remove it - and recompute all the sats
+			//1- GET the min value in the RMSE array and REMOVE it 
+			//remove RMSE item and update RMSE for points that have change
+			/*size_t pos = std::distance(dataRMSE.begin(), minIt);
+			dataRMSE.erase(minIt);
+
+			if (pos - 1 < dataRMSE.size())
+				dataRMSE[pos - 1] = ComputeRMSE(data, pos - 1);
+			if (pos + 1 < dataRMSE.size())
+				dataRMSE[pos] = ComputeRMSE(data, pos);*/
+
+			dataRMSE.clear();
 			for (size_t i = 0; i < data.size(); i++)
 				dataRMSE.push_back(ComputeRMSE(data, i));
-
-			//RMSE array have the same size
-			ASSERT(dataRMSE.size() == data.size() );
-
-			vector<pair<double, size_t>>::iterator minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
-			while (dataRMSE.size() > 1 &&
-				((minIt->first <= max_error) || (dataRMSE.size() > max_nb_seg)))
-			{
-				//erase data item
-				NBRVector::iterator it = std::find_if(data.begin(), data.end(), [minIt](const NBRPair& p) { return p.second == minIt->second; });
-				ASSERT(it != data.end());
-				data.erase(it);
-
-				//A-Detect the point - Remove it - and recompute all the sats
-				//1- GET the min value in the RMSE array and REMOVE it 
-				//remove RMSE item and update RMSE for points that have change
-				size_t pos = std::distance(dataRMSE.begin(), minIt);
-				dataRMSE.erase(minIt);
-
-				if (pos - 1 < dataRMSE.size())
-					dataRMSE[pos - 1] = ComputeRMSE(data, pos - 1);
-				if (pos + 1 < dataRMSE.size())
-					dataRMSE[pos] = ComputeRMSE(data, pos);
-
-
 				
 
-				ASSERT(dataRMSE.size() == data.size());
+			ASSERT(dataRMSE.size() == data.size());
 
-				minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
-			}
-
-			//add breaking point images index
-			for (size_t i = 0; i < dataRMSE.size(); i++)
-				breaks.push_back(dataRMSE[i].second);
+			minIt = std::min_element(dataRMSE.begin(), dataRMSE.end());
 		}
-		else
-		{
-			//add all images index
-			for (size_t i = 0; i < data.size(); i++)
-				breaks.push_back(data[i].second);
 
-		}
+		//add breaking point images index
+		for (size_t i = 0; i < dataRMSE.size(); i++)
+			breaks.push_back(dataRMSE[i].second);
+		//}
+		//else
+		//{
+		//	//add all images index
+		//	for (size_t i = 0; i < data.size(); i++)
+		//		breaks.push_back(data[i].second);
+
+		//}
 
 		return breaks;
 	}
