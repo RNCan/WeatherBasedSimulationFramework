@@ -10,7 +10,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-stats -overwrite -multi -co COMPRESS=LZW "D:\Travaux\CloudAnalyser\Output\output.vrt" "D:\Travaux\CloudAnalyser\Output\outputRGB.tif"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-scene 8 -stats -overwrite -multi -co COMPRESS=LZW "D:\Travaux\CloudAnalyser\Output\output.vrt" "D:\Travaux\CloudAnalyser\Output\output_2006_RGB.tif"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
