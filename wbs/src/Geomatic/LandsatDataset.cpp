@@ -27,17 +27,17 @@ namespace WBSF
 
 	const char* CLandsatDataset::SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
-	CTRef GetByName(const string& fielpath)
+	CTRef GetTRefFromName(const string& fielpath)
 	{
 		CTRef TRef;
 		string fileTitle = GetFileTitle(fielpath);
 		if (fileTitle.length() >= 16)
 		{
-			size_t landsat = size_t(fileTitle[2] - '0');
+			size_t landsat = size_t(fileTitle[3] - '0');
 			if (landsat == 5 || landsat == 7 || landsat == 8)
 			{
-				int year = ToInt(fileTitle.substr(9, 4));
-				size_t Jday = ToSizeT(fileTitle.substr(13, 3));
+				int year = ToInt(fileTitle.substr(10, 4));
+				size_t Jday = ToSizeT(fileTitle.substr(14, 3));
 				if (year >= 1950 && year <= 2050 && Jday >= 1 && Jday <= 366)
 					TRef = CJDayRef(year, Jday - 1);
 			}
@@ -61,7 +61,7 @@ namespace WBSF
 
 	TDomain Landsat::GetIndiceDomain(const std::string& str)
 	{
-		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR"};
+		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR" };
 		TDomain domain = D_INVALID;
 		for (size_t i = 0; i < NB_INDICES&&domain == D_INVALID; i++)
 			if (IsEqualNoCase(str, TYPE_NAME[i]))
@@ -91,7 +91,7 @@ namespace WBSF
 
 			if ((GetRasterCount() % options.m_scenesSize) == 0)
 			{
-				bool bFindPeriod=false;
+				bool bFindPeriod = false;
 				size_t nbScenes = size_t(GetRasterCount() / options.m_scenesSize);
 				m_scenesPeriod.resize(nbScenes);
 				for (size_t s = 0; s < nbScenes; s++)
@@ -101,7 +101,7 @@ namespace WBSF
 					//try to identify by name
 					if (IsVRT())
 					{
-						CTRef TRef = GetByName(GetInternalName(s*options.m_scenesSize));
+						CTRef TRef = GetTRefFromName(GetInternalName(s*options.m_scenesSize));
 						if (TRef.IsInit())
 							period = CTPeriod(TRef, TRef);
 					}
@@ -123,7 +123,7 @@ namespace WBSF
 						bFindPeriod = true;
 						m_scenesPeriod[s] = period;
 					}
-						
+
 				}//for all scenes
 
 				if (!bFindPeriod)
@@ -136,29 +136,32 @@ namespace WBSF
 				msg.ajoute("ERROR: input image bands (" + ToString(GetRasterCount()) + ") count must be a multiple of temporal information (" + ToString(options.m_scenesSize) + ")");
 			}
 		}
-		//m_bandMetaData.resize(GetNbScenes());
 
-		//char** papszFileList = m_poDataset->GetFileList();
-		//int fileCount = CSLCount(papszFileList);
-		////if (fileCount >== GetRasterCount())
-		////{
-		//	for (int i = 0; i<GetNbScenes(); i++)
-		//	{
-		//		size_t fileIndex = i*GetSceneSize() + 1;
-		//		if (fileIndex<fileCount)
-		//		{
-		//			string title = GetFileTitle(papszFileList[fileIndex]);
-		//			if (title.length() >= 9)
-		//			{
-		//				SetImageMetaData(i, "Path", title.substr(3, 3));
-		//				SetImageMetaData(i, "Row", title.substr(6, 3));
-		//			}
-		//		}
-		//	}
-		////}
+		return msg;
+	}
 
-		//CSLDestroy(papszFileList);
-		//}
+	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
+	{
+		ASSERT(options.m_nbBands%SCENES_SIZE==0);
+		
+		options.IsVRT();
+
+		ERMsg msg;
+	
+		if (options.m_VRTBandsName.empty())
+		{
+
+			size_t nbImages = options.m_nbBands / SCENES_SIZE;
+			for (size_t i = 0; i < options.m_nbBands; i++)
+			{
+				size_t b = i%SCENES_SIZE;
+
+				string name = GetFileTitle(filePath) + "_" + FormatA("%02d", i+1) + "_" + CLandsatDataset::SCENE_NAME[b] + ".tif|";
+				options.m_VRTBandsName += name;
+			}
+		}
+
+		msg += CGDALDatasetEx::CreateImage(filePath, options);
 
 		return msg;
 	}
@@ -233,6 +236,11 @@ namespace WBSF
 
 
 	CLandsatPixel::CLandsatPixel()
+	{
+		Reset();
+	}
+
+	void CLandsatPixel::Reset()
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		fill(noData);

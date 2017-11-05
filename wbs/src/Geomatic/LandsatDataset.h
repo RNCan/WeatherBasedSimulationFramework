@@ -38,7 +38,8 @@ namespace WBSF
 	public:
 
 		CLandsatPixel();
-		
+		void Reset();
+
 		using LandsatPixel::operator[];
 		LandsatDataType operator[](const Landsat::TIndices& i)const;
 		LandsatDataType operator[](const Landsat::TIndices& i){ return ((const CLandsatPixel*)(this))->operator[](i); }
@@ -249,6 +250,7 @@ namespace WBSF
 		static const char* SCENE_NAME[Landsat::SCENES_SIZE];
 
 		virtual ERMsg OpenInputImage(const std::string& filePath, const CBaseOptions& option = CBaseOptions());
+		virtual ERMsg CreateImage(const std::string& filePath, CBaseOptions options);
 		virtual void GetBandsHolder(CBandsHolder& bandsHoler)const;
 		virtual void UpdateOption(CBaseOptions& option)const;
 	};
