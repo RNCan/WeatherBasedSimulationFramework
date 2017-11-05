@@ -22,7 +22,7 @@
     <ProjectGuid>{14AEB40E-DBC1-47F0-8871-F523B0F4992D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ExtractWindow</RootNamespace>
-    <ProjectName>CloudAnalyser</ProjectName>
+    <ProjectName>CloudCleaner</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -190,12 +190,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CloudAnalyser.h" />
+    <ClInclude Include="CloudCleaner.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CloudAnalyser.cpp" />
-    <ClCompile Include="CloudAnalyserApp.cpp" />
+    <ClCompile Include="CloudCleaner.cpp" />
+    <ClCompile Include="CloudCleanerApp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

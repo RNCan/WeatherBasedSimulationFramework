@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-FirstYear 1984 -RMSEThreshold 75 -overwrite "D:\Travaux\Segmentation\Input\1984-2016.vrt" "D:\Travaux\Segmentation\Output\1984-2016.tif"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-FirstYear 1984 -RMSEThreshold 75 -of VRT -overwrite "D:\Travaux\Segmentation\Input\1984-2016.vrt" "D:\Travaux\Segmentation\Output\1984-2016.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-Trigger NBR 0.1 -ExportTimeSeries -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -ot Int16 -multi   -dstnodata -32768 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -of VRT -stats -overview {2,4,8,16} -overwrite "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Model\DT" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\landsat.tif" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\inputs\physics.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\Test6\Output\test6_5.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-outputDT -of VRT -ot Int16 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudAnalyser\Model\See5_Cloud_T123" "D:\Travaux\CloudAnalyser\Input\Nuage.vrt" "D:\Travaux\CloudAnalyser\Output\output.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-ot Int16 -co "compress=LZW" -stats -overview{ 2, 4, 8, 16 } -overwrite -of VRT "U:\GIS\#documents\#Codes\remi\Cloud\DT" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8415_local_v2.vrt" "U:\GIS\#documents\TestCodes\CloudAnalyser\cloud.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-outputDT -debug -of VRT -ot Int16 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudAnalyser\Model\See5_Cloud_T123" "D:\Travaux\CloudAnalyser\Input\Nuage.vrt" "D:\Travaux\CloudAnalyser\Output\output.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerAttach>false</LocalDebuggerAttach>
   </PropertyGroup>
