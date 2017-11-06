@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.0.0    03/11/2017  Rémi Saint-Amant	Compile with GDAL 2.02
 // 1.4.1	22/11/2016	Rémi Saint-Amant	Add RegisterAll
 // 1.4.0	09/04/2015	Rémi Saint-Amant	Compile with GDAL 1.11.3 and WBSF
 // 1.3.0	08/03/2015	Rémi Saint-Amant	Correction of VRT without -separate options
@@ -45,13 +46,13 @@
 //-wm 15000
 //-blocksize 1024 1024 -iocpu 1 -multi -dstNoData -32768 --config GDAL_CACHEMAX 1024 -overwrite "U:\GIS\#projets\LAM\ANALYSE\VALIDATION\HARVESTING_inventory_all\v3\25m\all_yr.tif" "U:\GIS\#documents\TestCodes\PointsExtractor\Test2\Input\Test2.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test2\Output\Test2.csv"
 //-dstnodata -999 -multi -overwrite -blocksize 5000 5000 "K:/#projets/LAM/ANALYSE/VALIDATION/flooding/TEST.VRT" "U:\GIS\#documents\TestCodes\PointsExtractor\Test1\Input\Test1.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test1\Output\Test2.csv"
-//-multi - dstNoData - 32768 --config GDAL_CACHEMAX 8096 - overwrite "U:\GIS1\LANDSAT_SR\LCC\2012\#57_12.vrt" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Input\Test3.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Output\Test3.csv"
+//-multi -ot INT16 -dstNoData -32768 --config GDAL_CACHEMAX 8096 -overwrite -stats -overview {2,4,8,16} "U:\GIS1\LANDSAT_SR\LCC\2012\#57_12.vrt" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Input\Test3.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Output\Test3(new).csv"
 
 using namespace std;
 namespace WBSF
 {
 
-	const char* CPointsExtractor::VERSION = "1.4.1";
+	const char* CPointsExtractor::VERSION = "2.0.0";
 	const int CPointsExtractor::NB_THREAD_PROCESS = 2;
 	const char * CPointsExtractor::CONDITION_NAME[NB_CONDITION] = { "AllValid", "AtLeastOneValid", "AtLeastOneMissing", "AllMissing" };
 

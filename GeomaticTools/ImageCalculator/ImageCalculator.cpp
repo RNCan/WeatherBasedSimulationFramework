@@ -1,4 +1,5 @@
 //ImagesCalculator.exe
+// 3.0.0	03/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 2.0.1	13/06/2015	Rémi Saint-Amant	Add -hist option
 // 2.0.0    11/03/2015	Rémi Saint-Amant	New Equation form "E=mc²"
 // 1.7.5	05/02/2015	Rémi Saint-Amant	Bug correction in UnionExtent
@@ -30,7 +31,7 @@
 //-multi -ot Float32 -co "COMPRESS=LZW" -overwrite -Equation "( [1][1] - [2][1]  )" -Equation "( _2_1 - _1_2)" "D:\Travail\LucGuindon\MathImage\subset4test\input.tif" "D:\Travail\LucGuindon\MathImage\subset4test\output3.tif"
 //-multi -ot Float32 -co "COMPRESS=LZW" -overwrite -Equation "[1][1]*[2][1]" "D:\Travail\LucGuindon\Input\Small\2005_B1.tif" "D:\Travail\LucGuindon\Input\Small\2005_B2.tif" "D:\Travail\LucGuindon\MathImage\subset4test\output3.tif"
 //-CPU 2 -multi -Equation "[1][1] * 199900607" -co "COMPRESS=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -overwrite -ot Int32 "U:\GIS\#documents\TestCodes\MergeImages\Test0\Input\LE70020261999182EDC00_MASKcs.tif" "U:\GIS\#documents\TestCodes\MergeImages\Test0\Input\LE70020261999182EDC00_Date.tif"
-//-stats - ot Int32 - dstNoData - 9999 - co COMPRESS = LZW - overwrite - Equation "i1b1+i1b2" - Equation "i2b1+i2b2+i2b3" "U:\GIS\#documents\TestCodes\ImagesCalculator\Input\2004_2005.vrt" "U:\GIS\#documents\TestCodes\ImagesCalculator\Input\2005_B1B2B6.vrt" "U:\GIS\#documents\TestCodes\ImagesCalculator\Output\Test1.tif"
+//-stats -of VRT -ot Int32 -dstNoData -9999 -overview {2,4,8,16} -co COMPRESS=LZW -overwrite -e "T1=i1b1+i2b2" -e "T2=i1b1-i2b2" "U:\GIS\#documents\TestCodes\ImagesCalculator\Input\2004.tif" "U:\GIS\#documents\TestCodes\ImagesCalculator\Input\2004_2005.vrt" "U:\GIS\#documents\TestCodes\ImagesCalculator\Output\Test2.vrt"
 
 #include "stdafx.h"
 #include <unordered_set>
@@ -45,7 +46,7 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-static const char* version = "2.0.1";
+static const char* version = "3.0.0";
 static const int NB_THREAD_PROCESS = 2;
 
 
@@ -357,7 +358,7 @@ ERMsg CImageCalculator::OpenAll(CGDALDatasetExVector& inputDSVector, CGDALDatase
 		
 		for (size_t i = 0; i<options.m_name.size(); i++)
 		{
-			options.m_VRTBandsName += options.m_name[i] + ".tif|";
+			options.m_VRTBandsName += GetFileTitle(filePathOut) + string("_") + options.m_name[i] + ".tif|";
 		}
 
 		

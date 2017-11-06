@@ -4,7 +4,10 @@
 //***********************************************************************
 // version
 // 1.0.0	01/11/2017	Rémi Saint-Amant	Creation
-//-RMSEThreshold 75 -MaxSegments 7
+
+
+
+//-FirstYear 1984 -RMSEThreshold 75 -MaxBreaks 5 -of VRT "U:\GIS\#documents\TestCodes\Segmentation\Input\1984-2016.vrt" "U:\GIS\#documents\TestCodes\Segmentation\output\1984-2016.vrt"
 
 #include "stdafx.h"
 #include <math.h>
