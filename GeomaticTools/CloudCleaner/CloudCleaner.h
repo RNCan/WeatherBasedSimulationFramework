@@ -17,7 +17,7 @@ namespace WBSF
 	public:
 
 		enum TFilePath { DT_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-		enum TDebug{ D_B1_T1, D_B1_T3, D_TCB_T1, D_TCB_T3, NB_DBUG };
+		enum TDebug{ D_DEBUG_ID, NB_DBUG };
 		static const char* DEBUG_NAME[NB_DBUG];
 
 		CCloudCleanerOption();
@@ -33,6 +33,23 @@ namespace WBSF
 			bool t4 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) : true;
 			
 			return (t1&&t2)||(t3&&t4);
+		}
+
+		int GetDebugID(std::array <CLandsatPixel, 3>& p)
+		{
+			int t1 = p[0].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 1 : 0 : 0;
+			int t2 = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 1 : 0 : 0;
+			int t3 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
+			int t4 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
+			int t5 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) && (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold)) ? 10 : 0 : 0;
+
+			int t6 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
+			int t7 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
+			int t8 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
+			int t9 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
+			int t10 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) && (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold)) ? 110 : 0 : 0;
+
+			return t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10;
 		}
 	
 		double m_B1threshold;

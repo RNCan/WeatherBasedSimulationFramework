@@ -42,7 +42,7 @@ using namespace WBSF::Landsat;
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
 static const short NOT_TRIGGED_CODE = (short)::GetDefaultNoData(GDT_Int16);
-const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "B1_T1", "B1_T3", "TCB_T1", "TCB_T3" };
+const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "ID" };
 
 std::string CCloudCleaner::GetDescription()
 { 
@@ -556,10 +556,11 @@ void CCloudCleaner::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ban
 
 						if (debug.size())
 						{
-							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_B1_T1][xy] = p[0].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1]) : -32768;
-							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_B1_T3][xy] = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1]) : -32768;
-							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T1][xy] = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
-							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T3][xy] = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
+							
+							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p);
+							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_B1_T3][xy] = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1]) : -32768;
+							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T1][xy] = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
+							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T3][xy] = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
 						}
 
 						if (m_options.IsTrigged(p))
