@@ -9,7 +9,7 @@ namespace WBSF
 {
 	typedef std::vector<CLandsatPixel>CLandsatPixelVector;
 	typedef std::deque< std::vector<short>> DebugData;
-	typedef std::deque< std::vector<__int8>> DTCodeData;
+	typedef std::deque< std::vector<short>> DTCodeData;
 	typedef std::vector< CLandsatPixelVector > LansatData;
 
 	class CCloudCleanerOption : public CBaseOptions

@@ -5,7 +5,7 @@
 // version 
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
-//-co "compress=LZW" --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Model\See5_Cloud_T123" "D:\Travaux\CloudCleaner\Input\Nuage.vrt" "D:\Travaux\CloudCleaner\Output\Nuage.vrt"
+//-co "compress=LZW" -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Model\See5_Cloud_T123" "D:\Travaux\CloudCleaner\Input\Nuage.vrt" "D:\Travaux\CloudCleaner\Output\Output.vrt"
 
 //Et un CODE DT avec T1 T2 T3 ici(1 = feu, 2 = coupe, 112 et 113 ombre et nuage).C’est vraiment rough comme DT mais l’arbre sera amélioré, dans les prochaine semaines.
 
@@ -41,7 +41,7 @@ using namespace WBSF::Landsat;
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
-static const int NOT_TRIGGED_CODE = 100;
+static const short NOT_TRIGGED_CODE = (short)::GetDefaultNoData(GDT_Int16);
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "B1_T1", "B1_T3", "TCB_T1", "TCB_T3" };
 
 std::string CCloudCleaner::GetDescription()
@@ -56,6 +56,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_nbPixelDT = 0;
 	m_scenesSize = Landsat::SCENES_SIZE;
 	m_bDebug = false;
+	m_bOutputDT = false;
 	m_B1threshold = -175;
 	m_TCBthreshold = 600;
 
@@ -283,7 +284,9 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			cout << "Create DTcode image..." << endl;
 
 		CCloudCleanerOption options = m_options;
+		options.m_outputType = GDT_Int16;
 		options.m_nbBands = landsatDS.GetNbScenes();
+		options.m_dstNodata = (short)::GetDefaultNoData(GDT_Int16);
 
 		string filePath = m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH];
 		string title = GetFileTitle(filePath) + "_DT";
@@ -330,6 +333,7 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			cout << "Create debug image..." << endl;
 
 		CCloudCleanerOption options = m_options;
+		options.m_outputType = GDT_Int16;
 		options.m_nbBands = landsatDS.GetNbScenes()*CCloudCleanerOption::NB_DBUG;
 
 		string filePath = m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH];
@@ -661,15 +665,15 @@ void CCloudCleaner::WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandH
 		if (m_options.m_bOutputDT)
 		{
 			ASSERT(DTCode.empty() || DTCode.size() == DTCodeDS.GetRasterCount());
-			__int8 noData = (__int8)::GetDefaultNoData(GDT_Byte);
+			__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
 
 			for (size_t b = 0; b<DTCodeDS.GetRasterCount(); b++)
 			{
 				GDALRasterBand *pBand = DTCodeDS.GetRasterBand(b);
 				if (!DTCode.empty())
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(DTCode[b][0]), outputRect.Width(), outputRect.Height(), GDT_Byte, 0, 0);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(DTCode[b][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
 				else
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Byte, 0, 0);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
 			}//for all debug variable
 		}//debug
 
@@ -711,15 +715,15 @@ void CCloudCleaner::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, 
 	outputDS.Close();
 
 	if (m_options.m_bComputeStats)
-		DTCodeDS.ComputeStats(true);
+		DTCodeDS.ComputeStats(m_options.m_bQuiet);
 	if (!m_options.m_overviewLevels.empty())
-		DTCodeDS.BuildOverviews(m_options.m_overviewLevels, true);
+		DTCodeDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 	DTCodeDS.Close();
 
 	if (m_options.m_bComputeStats)
-		debugDS.ComputeStats(true);
+		debugDS.ComputeStats(m_options.m_bQuiet);
 	if (!m_options.m_overviewLevels.empty())
-		debugDS.BuildOverviews(m_options.m_overviewLevels, true);
+		debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 	debugDS.Close();
 
 	
@@ -755,34 +759,3 @@ void CCloudCleaner::LoadData(const CBandsHolder& bandHolder, LansatData& data)
 		}
 	}
 }
-//
-//
-//int _tmain(int argc, _TCHAR* argv[])
-//{
-//	CTimer timer(true);
-//	
-//	CCloudCleaner regressionTree;
-//	ERMsg msg = regressionTree.m_options.ParseOption(argc, argv);
-//
-//	if( !msg || !regressionTree.m_options.m_bQuiet )
-//		cout << regressionTree.GetDescription() << endl ;
-//
-//
-//	if( msg )  
-//		msg = regressionTree.Execute();
-//
-//	if( !msg)  
-//	{
-//		PrintMessage(msg);
-//		return -1;
-//	}
-//
-//	timer.Stop();
-//
-//	if( !regressionTree.m_options.m_bQuiet )
-//		cout << endl << "Total time = " << SecondToDHMS(timer.Elapsed()) << endl;
-//
-//	int nRetCode = 0;
-//}
-//
-//
