@@ -81,7 +81,8 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "Input Model", "DTModel", "", "", "", "Decision tree model file generate by See5." },
 		{ "LANDSAT Image", "src1file", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)|... for each scene" },
 		{ "Output Image", "dstfile", "One file per input landsat images", "1", "Decision tree result. 100 for DT not trigged" },
-		{ "Optional Output Image", "dstfile_debug","1","nbScnenes","Decision tree result"}
+		{ "Optional DTCode Image", "dstfile_DT","1","nbScnenes","Decision tree result"},
+		{ "Optional Debug Image", "dstfile_debug", "1", "nbScnenes", "Debug ID"}
 	};
 
 	for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
