@@ -262,7 +262,11 @@ namespace WBSF
 			//for (size_t b = 0; b < SCENES_SIZE; b++)
 				//options.m_VRTBandsName += GetBandFileTitle(filePath, b) + ".tif|";
 
-			msg += outputDS.CreateImage(m_options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH], options);
+			string filePath = options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH];
+			for (size_t s = 0; s < options.m_maxLayers; s++)
+				options.m_VRTBandsName += GetFileTitle(filePath) + FormatA("_brk%02d.tif|", s+1);
+
+			msg += outputDS.CreateImage(filePath, options);
 		}
 
 		if (m_options.m_bDebug)
@@ -273,10 +277,11 @@ namespace WBSF
 			if (!m_options.m_bQuiet)
 				cout << "Open debug images..." << endl;
 
-			string filePath = options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH] + "_debug";
+			string filePath = options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH] ;
+			SetFileTitle(filePath, GetFileTitle(filePath) + "_debug");
 			options.m_VRTBandsName = GetFileTitle(filePath) + "_nbBrk.tif|";
 			for (size_t s = 0; s < options.m_maxLayers; s++)
-				options.m_VRTBandsName += GetFileTitle(filePath) + FormatA("_brk%02d.tif|", s);
+				options.m_VRTBandsName += GetFileTitle(filePath) + FormatA("_brk%02d.tif|", s+1);
 
 			msg += debugDS.CreateImage(filePath, options);
 		}
@@ -342,52 +347,45 @@ namespace WBSF
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
+					int xy = y*blockSize.m_x + x;
+
 					//Get pixel
-					
-					//CLandsatPixelVector data(window.GetNbScenes());
 					NBRVector data;
 					data.reserve(window.size());
 					for (size_t z = 0; z < window.size(); z++)
 					{
 						if (window[z]->IsValid(x, y))
-							data.push_back(make_pair(window[z]->at(x, y), z + m_options.m_firstYear));
+							data.push_back(make_pair(window[z]->at(x, y), z));
 					}
 
+					//if there are more than 2 points
 					if (data.size()>=2)
 					{
+						//compute segmentation for this time series
 						std::vector<size_t> segment = Segmentation(data, m_options.m_maxLayers, m_options.m_RMSEThreshold);
 						ASSERT(segment.size() <= outputData.size());
 						
+						//if need ouput
 						if (!outputData.empty())
 						{
 							for (size_t s = 0; s < segment.size(); s++)
 							{
 								size_t z = segment[segment.size() - s - 1];//reverse order
-								outputData[s][y*blockSize.m_x + x] = (__int16)z;
+								outputData[s][xy] = m_options.m_firstYear + (__int16)z;
 							}
 						}
 
+						//if output debug
 						if (!debugData.empty())
 						{
-							debugData[0][y*blockSize.m_x + x] = (__int16)segment.size();
+							debugData[0][xy] = (__int16)segment.size();
 							for (size_t s = 0; s < segment.size(); s++)
 							{
 								size_t z = segment[segment.size() - s - 1];//reverse order
-								debugData[s + 1][y*blockSize.m_x + x] = (__int16)window[z]->at(x, y);
+								debugData[s + 1][xy] = (__int16)window[z]->at(x, y);
 							}
 						}
 						
-
-
-						//for (size_t i = 0; i < outputData.size(); i++)
-						//	outputData[i][y*blockSize.m_x + x] = 0;
-						//
-						//for (size_t s = 0; s < segment.size(); s++)
-						//{
-						//	size_t z = segment[segment.size() - s - 1];//reverse order
-						//	outputData[z][y*blockSize.m_x + x] = 1;
-						//}
-						//
 					}
 						
 #pragma omp atomic 
@@ -422,7 +420,7 @@ namespace WBSF
 			for (size_t z = 0; z < outputData.size(); z++)
 			{
 				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
-				if (!outputData[z].empty())
+				if (!outputData.empty())
 				{
 					ASSERT(outputData.size() == outputDS.GetRasterCount());
 						
@@ -437,6 +435,33 @@ namespace WBSF
 			}
 		}
 
+		if (debugDS.IsOpen())
+		{
+			CGeoExtents extents = debugDS.GetExtents();
+			CGeoRectIndex debugRect = extents.GetBlockRect(xBlock, yBlock);
+
+			ASSERT(debugRect.m_x >= 0 && debugRect.m_x < debugDS.GetRasterXSize());
+			ASSERT(debugRect.m_y >= 0 && debugRect.m_y < debugDS.GetRasterYSize());
+			ASSERT(debugRect.m_xSize > 0 && debugRect.m_xSize <= debugDS.GetRasterXSize());
+			ASSERT(debugRect.m_ySize > 0 && debugRect.m_ySize <= debugDS.GetRasterYSize());
+
+			for (size_t z = 0; z < debugData.size(); z++)
+			{
+				GDALRasterBand *pBand = debugDS.GetRasterBand(z);
+				if (!debugData.empty())
+				{
+					ASSERT(outputData.size() == outputDS.GetRasterCount());
+
+					for (int y = 0; y < debugRect.Height(); y++)
+						pBand->RasterIO(GF_Write, debugRect.m_x, debugRect.m_y, debugRect.Width(), debugRect.Height(), &(debugData[z][0]), debugRect.Width(), debugRect.Height(), GDT_Int16, 0, 0);
+				}
+				else
+				{
+					__int16 noData = (__int16)outputDS.GetNoData(z);
+					pBand->RasterIO(GF_Write, debugRect.m_x, debugRect.m_y, debugRect.Width(), debugRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+				}
+			}
+		}
 
 		
 		m_options.m_timerWrite.Stop();
