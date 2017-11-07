@@ -16,6 +16,7 @@ namespace WBSF
 	public:
 
 		enum TFilePath		{ INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
+		//enum TDebug {D_NB_NBR, D_};
 		
 		CSegmentationOption();
 		virtual ERMsg ParseOption(int argc, char* argv[]);
@@ -25,12 +26,12 @@ namespace WBSF
 		double m_RMSEThreshold;
 		size_t m_maxLayers;
 		int m_firstYear;
-		//bool m_bDebug;
+		bool m_bDebug;
 	};
 
 	typedef std::deque < std::vector< __int16>> OutputData;
-	//typedef std::pair<double, size_t> MathPair;
-	//typedef std::vector<MathPair> MathPairVector;
+	typedef std::deque < std::vector< __int16>> DebugData;
+	
 	typedef std::pair<double, size_t> NBRPair;
 	typedef std::vector<NBRPair> NBRVector;
 
@@ -42,12 +43,11 @@ namespace WBSF
 
 		std::string GetDescription() { return  std::string("Segmentation version ") + VERSION + " (" + __DATE__ + ")"; }
 
-		ERMsg OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS);
-
+		ERMsg OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData);
-		void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, OutputData& outputData);
-		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS);
+		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData, DebugData& debugData);
+		void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData);
+		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
 
 		CSegmentationOption m_options;
 

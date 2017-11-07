@@ -41,7 +41,7 @@ using namespace WBSF::Landsat;
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
-static const short NOT_TRIGGED_CODE = (short)::GetDefaultNoData(GDT_Int16);
+static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "ID" };
 
 std::string CCloudCleaner::GetDescription()
@@ -59,15 +59,17 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_bOutputDT = false;
 	m_B1threshold = -175;
 	m_TCBthreshold = 600;
+	m_bFillCloud = false;
 
 	m_appDescription = "This software look up for cloud from Landsat images series (composed of " + to_string(SCENES_SIZE) + " bands) with a decision tree model";
 	
 	static const COptionDef OPTIONS[] =
 	{
-		{ "-B1", 1, "threshold", true, "trigger threshold for band 1 to execute decision tree. -175 by default." },
-		{ "-TCB", 1, "threshold", true, "trigger threshold for Tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
+		{ "-B1", 1, "threshold", false, "trigger threshold for band 1 to execute decision tree. -175 by default." },
+		{ "-TCB", 1, "threshold", false, "trigger threshold for Tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
 		{ "-OutputDT", 0, "", false, "Output Decision Tree Code." },
-		{ "-Debug",0,"",false,"Output debug information."},
+		{ "-Debug",0,"",false,"Output debug information (TriggerID)."},
+		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous years." },
 		{ "DTModel", 0, "", false, "Decision tree cloud model file path." },
 		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
@@ -101,6 +103,10 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	else if (IsEqual(argv[i], "-TCB"))
 	{
 		m_TCBthreshold = atof(argv[++i]);
+	}
+	else if (IsEqual(argv[i], "-FillCloud"))
+	{
+		m_bFillCloud = true;
 	}
 	else if (IsEqual(argv[i], "-OutputDT"))
 	{
@@ -287,7 +293,7 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 		CCloudCleanerOption options = m_options;
 		options.m_outputType = GDT_Int16;
 		options.m_nbBands = landsatDS.GetNbScenes();
-		options.m_dstNodata = (short)::GetDefaultNoData(GDT_Int16);
+		options.m_dstNodata = (__int16)::GetDefaultNoData(GDT_Int16);
 
 		string filePath = m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH];
 		string title = GetFileTitle(filePath) + "_DT";
@@ -523,7 +529,7 @@ void CCloudCleaner::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ban
 		{
 			DTCode.resize(nbScenes);
 			for (size_t i = 0; i < DTCode.size(); i++)
-				DTCode[i].resize(blockSize.m_x*blockSize.m_y);
+				DTCode[i].insert(DTCode[i].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16) );
 		}
 		if (m_options.m_bDebug)
 		{
@@ -543,6 +549,7 @@ void CCloudCleaner::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ban
 				size_t xy = y*blockSize.m_x + x;
 				if (!data[xy].empty())
 				{
+					vector<size_t> pixelToFIll;
 					array <CLandsatPixel, 3> p;
 					size_t z1 = 0;
 					p[1] = data[xy][z1];
@@ -557,11 +564,7 @@ void CCloudCleaner::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ban
 
 						if (debug.size())
 						{
-							
 							debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p);
-							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_B1_T3][xy] = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1]) : -32768;
-							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T1][xy] = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
-							//debug[z1*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_TCB_T3][xy] = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB]) : -32768;
 						}
 
 						if (m_options.IsTrigged(p))
@@ -578,20 +581,38 @@ void CCloudCleaner::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& ban
 								DTCode[z1][xy] = DTexit;
 
 							//change data if cloud
-							if (DTexit>100)
+							if (DTexit > 100)
+							{
 								data[xy][z1].Reset();
+								if (m_options.m_bFillCloud)
+									pixelToFIll.push_back(z1);
+							}
+								
 						}
-						else //if not trigger
-						{
-							if (!DTCode.empty())
-								DTCode[z1][xy] = NOT_TRIGGED_CODE;
-						}
+						//else //if not trigger
+						//{
+						//	if (!DTCode.empty())
+						//		DTCode[z1][xy] = NOT_TRIGGED_CODE;
+						//}
 
 						p[0] = p[1];
 						p[1] = p[2];
+
 						z1 = z2;
-					}//for z2
-				}
+					}//while z1
+
+					for (size_t z = 0; z < pixelToFIll.size(); z++)
+					{
+						for (size_t zz = 0; zz < data[xy].size() * 2 && !data[xy][pixelToFIll[z]].IsInit(); zz++)
+						{
+							size_t zzz = size_t (pixelToFIll[z] + (int)pow(-1, zz)*(zz / 2 + 1));
+							if (zzz<data[xy].size() && data[xy][zzz].IsInit())
+								data[xy][pixelToFIll[z]] = data[xy][zzz];
+						}
+						
+					}
+					
+				}//if data
 #pragma omp atomic	
 				m_options.m_xx++;
 			}//for x

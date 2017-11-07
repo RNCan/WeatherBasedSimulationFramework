@@ -43,6 +43,7 @@ namespace WBSF
 		m_RMSEThreshold = 0;
 		m_maxLayers = 5;
 		m_firstYear = 0;
+		m_bDebug = false;
 
 		m_appDescription = "This software find breaks in NBR value of Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands).";
 
@@ -52,7 +53,7 @@ namespace WBSF
 			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks. 3 by default for a total of 5 output layers" },
 			{ "-FirstYear", 1, "n", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			//{ "-Standardized", 0, "", false, "Standardize input." },
-//			{ "-Debug",0,"",false,"Output debug information."},
+			{ "-Debug",  0,"",false,"Output debug information."},
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -68,8 +69,8 @@ namespace WBSF
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "maxBreaks+2", "break's index", "" },
-	//		{ "Optional Output Image", "dstfile_debug","1","3","first year: first year of the serie|Last years: last year of the series.|Nb breaks: number of breaks found"}
+			{ "Output Image", "dstfile", "", "NbOutputLayers=maxBreaks+2", "break's index", "" },
+			{ "Optional Output Image", "dstfile_debug","1","NbOutputLayers+1","Nb breaks: number of breaks found|NBR1: NBR of breaks1|... for all breaks"}
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -113,6 +114,10 @@ namespace WBSF
 		{
 			m_firstYear = atoi(argv[++i]);
 		}
+		else if (IsEqual(argv[i], "-Debug"))
+		{
+			m_bDebug = true;
+		}
 		else
 		{
 			//Look to see if it's a know base option
@@ -144,8 +149,9 @@ namespace WBSF
 		CGDALDatasetEx inputDS;
 		CGDALDatasetEx maskDS;
 		CGDALDatasetEx outputDS;
+		CGDALDatasetEx debugDS;
 		
-		msg = OpenAll(inputDS, maskDS, outputDS);
+		msg = OpenAll(inputDS, maskDS, outputDS, debugDS);
 		if (!msg)
 			return msg;
 
@@ -179,19 +185,20 @@ namespace WBSF
 			int yBlock = XYindex[b].second;
 
 			OutputData outputData;
+			DebugData debugData;
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			ProcessBlock(xBlock, yBlock, bandHolder[thread], outputData);
-			WriteBlock(xBlock, yBlock, outputDS, outputData);
+			ProcessBlock(xBlock, yBlock, bandHolder[thread], outputData, debugData);
+			WriteBlock(xBlock, yBlock, outputDS, debugDS, outputData, debugData);
 		}//for all blocks
 
-		CloseAll(inputDS, maskDS, outputDS);
+		CloseAll(inputDS, maskDS, outputDS, debugDS);
 
 		return msg;
 	}
 
 
 
-	ERMsg CSegmentation::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
+	ERMsg CSegmentation::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 	{
 		ERMsg msg;
 
@@ -258,6 +265,21 @@ namespace WBSF
 			msg += outputDS.CreateImage(m_options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH], options);
 		}
 
+		if (m_options.m_bDebug)
+		{
+			CSegmentationOption options(m_options);
+			options.m_nbBands = options.m_maxLayers+1;
+
+			if (!m_options.m_bQuiet)
+				cout << "Open debug images..." << endl;
+
+			string filePath = options.m_filesPath[CSegmentationOption::OUTPUT_FILE_PATH] + "_debug";
+			options.m_VRTBandsName = GetFileTitle(filePath) + "_nbBrk.tif|";
+			for (size_t s = 0; s < options.m_maxLayers; s++)
+				options.m_VRTBandsName += GetFileTitle(filePath) + FormatA("_brk%02d.tif|", s);
+
+			msg += debugDS.CreateImage(filePath, options);
+		}
 
 		return msg;
 	}
@@ -276,7 +298,7 @@ namespace WBSF
 	}
 	}
 
-	void CSegmentation::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
+	void CSegmentation::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData, DebugData& debugData)
 	{
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -295,11 +317,18 @@ namespace WBSF
 		
 
 		//init memory
-		outputData.resize(m_options.m_maxLayers);
-		for (size_t s = 0; s < outputData.size(); s++)
-			//outputData[s].insert(outputData[s].begin(), blockSize.m_x*blockSize.m_y, 3);
-			outputData[s].insert(outputData[s].begin(), blockSize.m_x*blockSize.m_y, m_options.m_dstNodata);
-
+		if (m_options.m_bCreateImage)
+		{
+			outputData.resize(m_options.m_maxLayers);
+			for (size_t s = 0; s < outputData.size(); s++)
+				outputData[s].insert(outputData[s].begin(), blockSize.m_x*blockSize.m_y, m_options.m_dstNodata);
+		}
+		if (m_options.m_bDebug)
+		{
+			debugData.resize(m_options.m_maxLayers+1);
+			for (size_t s = 0; s < debugData.size(); s++)
+				debugData[s].insert(debugData[s].begin(), blockSize.m_x*blockSize.m_y, m_options.m_dstNodata);
+		}
 
 #pragma omp critical(ProcessBlock)
 		{
@@ -329,11 +358,25 @@ namespace WBSF
 						std::vector<size_t> segment = Segmentation(data, m_options.m_maxLayers, m_options.m_RMSEThreshold);
 						ASSERT(segment.size() <= outputData.size());
 						
-						for (size_t s = 0; s < segment.size(); s++)
+						if (!outputData.empty())
 						{
-							size_t z = segment[segment.size() - s - 1];//reverse order
-							outputData[s][y*blockSize.m_x + x] = (__int16)z;
+							for (size_t s = 0; s < segment.size(); s++)
+							{
+								size_t z = segment[segment.size() - s - 1];//reverse order
+								outputData[s][y*blockSize.m_x + x] = (__int16)z;
+							}
 						}
+
+						if (!debugData.empty())
+						{
+							debugData[0][y*blockSize.m_x + x] = (__int16)segment.size();
+							for (size_t s = 0; s < segment.size(); s++)
+							{
+								size_t z = segment[segment.size() - s - 1];//reverse order
+								debugData[s + 1][y*blockSize.m_x + x] = (__int16)window[z]->at(x, y);
+							}
+						}
+						
 
 
 						//for (size_t i = 0; i < outputData.size(); i++)
@@ -360,7 +403,7 @@ namespace WBSF
 	}
 
 	
-	void CSegmentation::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, OutputData& outputData)
+	void CSegmentation::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData)
 	{
 #pragma omp critical(BlockIO)
 	{
@@ -400,7 +443,7 @@ namespace WBSF
 	}
 	}
 
-	void CSegmentation::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
+	void CSegmentation::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 	{
 		inputDS.Close();
 		maskDS.Close();
@@ -409,13 +452,17 @@ namespace WBSF
 
 		if (m_options.m_bComputeStats)
 			outputDS.ComputeStats(m_options.m_bQuiet);
-
 		if (!m_options.m_overviewLevels.empty())
 			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-
-
 		outputDS.Close();
 
+		if (m_options.m_bComputeStats)
+			debugDS.ComputeStats(m_options.m_bQuiet);
+		if (!m_options.m_overviewLevels.empty())
+			debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		debugDS.Close();
+
+		
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();
 	}

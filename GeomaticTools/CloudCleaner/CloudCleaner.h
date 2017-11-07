@@ -8,8 +8,8 @@
 namespace WBSF
 {
 	typedef std::vector<CLandsatPixel>CLandsatPixelVector;
-	typedef std::deque< std::vector<short>> DebugData;
-	typedef std::deque< std::vector<short>> DTCodeData;
+	typedef std::deque< std::vector<__int16>> DebugData;
+	typedef std::deque< std::vector<__int16>> DTCodeData;
 	typedef std::vector< CLandsatPixelVector > LansatData;
 
 	class CCloudCleanerOption : public CBaseOptions
@@ -39,23 +39,24 @@ namespace WBSF
 		{
 			int t1 = p[0].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 1 : 0 : 0;
 			int t2 = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 1 : 0 : 0;
-			int t3 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
-			int t4 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
-			int t5 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) && (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold)) ? 10 : 0 : 0;
+			//int t3 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
+			//t t4 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
+			int t5 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) || (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold)) ? 10 : 0 : 0;
 
 			int t6 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
 			int t7 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
-			int t8 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
-			int t9 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
-			int t10 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) && (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold)) ? 110 : 0 : 0;
+			//int t8 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
+			//int t9 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
+			int t10 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) || (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold)) ? 110 : 0 : 0;
 
-			return t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10;
+			return t1 + t2 + t5 + t6 + t7 + t10;
 		}
 	
 		double m_B1threshold;
 		double m_TCBthreshold;
 		bool m_bDebug;
 		bool m_bOutputDT;
+		bool m_bFillCloud;
 
 		__int64 m_nbPixelDT;
 		__int64 m_nbPixel;
