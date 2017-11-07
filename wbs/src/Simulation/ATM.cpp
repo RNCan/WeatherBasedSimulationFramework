@@ -2181,7 +2181,7 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
 		output_file << "flight,scale,sex,A,M,G,EggsLaid,state,x,y,lat,lon,";
 		output_file << "T,P,U,V,W,";
-		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine" << endl;
+		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
 	}
 
 	
@@ -2377,6 +2377,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 								{
 									bool bOverWater = is_over_water(flyer.m_newLocation);
 									//defoliation = bOverWater?-1:get_defoliation(flyer.m_newLocation);
+									if (!bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
+										defoliation = get_defoliation(flyer.m_newLocation);
 
 									if (flyer.m_sex == CATMParameters::FEMALE &&!bOverWater && ((flyer.m_flightNo == 0 && state == 0) || state >= 10))
 										broods = flyer.m_broods;
