@@ -39,7 +39,7 @@
 #include "Forest/ForestProbability.h"
 
 
-//--file "D:\Travaux\Ranger\Training\training.csv" -o "D:\Travaux\Ranger\Training\training" --write --depvarname class --impmeasure 1 --treetype 1 --verbose --splitweights "D:\Travaux\Ranger\Training\weight.csv"
+//--file "D:\Travaux\Ranger\Training\exemple_train_remi.csv" -o "D:\Travaux\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 1 --verbose --memMode 2
 //--file "D:\Travaux\Ranger\input\test.csv" -o "D:\Travaux\Ranger\Output\test" --predict "D:\Travaux\Ranger\Training\training.forest"  --verbose 
 //
 
@@ -50,7 +50,7 @@
 
 
 // Create forest object
-Forest* CreateForest(TreeType treetype)
+static Forest* CreateForest(TreeType treetype)
 {
 	Forest* forest = NULL;
 	switch (treetype) {

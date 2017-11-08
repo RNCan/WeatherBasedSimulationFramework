@@ -733,59 +733,49 @@ void Forest::grow(Data* data) {
 void Forest::predict(Data* data) 
 {
 	data->setIsOrderedVariable(training_is_ordered_variable);
-	/*
-	
-	a remettre RSA, faire oppour tout les arbres
 
-	if (num_variables_saved > num_variables) {
-		for (auto& varID : split_varIDs) {
-			if (varID >= dependent_varID) {
-				--varID;
-			}
+	if (num_threads == 1)//no progress
+	{
+		for (size_t i = 0; i < trees.size(); ++i) {
+			trees[i]->predict(data, false);
 		}
 	}
-	if (num_variables_saved > num_variables + 1) {
-		for (auto& varID : split_varIDs) {
-			if (varID >= status_varID) {
-				--varID;
-			}
-		}
-	}*/
-
-// Predict trees in multiple threads and join the threads with the main thread
+	else
+	{
+		// Predict trees in multiple threads and join the threads with the main thread
 #ifdef OLD_WIN_R_BUILD
-  progress = 0;
-  clock_t start_time = clock();
-  clock_t lap_time = clock();
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees[i]->predict(data, false);
-    progress++;
-    showProgress("Predicting..", start_time, lap_time);
-  }
+		progress = 0;
+		clock_t start_time = clock();
+		clock_t lap_time = clock();
+		for (size_t i = 0; i < num_trees; ++i) {
+			trees[i]->predict(data, false);
+			progress++;
+			showProgress("Predicting..", start_time, lap_time);
+		}
 #else
-  progress = 0;
+		progress = 0;
 #ifdef R_BUILD
-  aborted = false;
-  aborted_threads = 0;
+		aborted = false;
+		aborted_threads = 0;
 #endif
 
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
-  for (uint i = 0; i < num_threads; ++i) {
-    threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, false));
-  }
-  showProgress("Predicting..");
-  for (auto &thread : threads) {
-    thread.join();
-  }
+		std::vector<std::thread> threads;
+		threads.reserve(num_threads);
+		for (uint i = 0; i < num_threads; ++i) {
+			threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, false));
+		}
+		showProgress("Predicting..");
+		for (auto &thread : threads) {
+			thread.join();
+		}
 
 #ifdef R_BUILD
-  if (aborted_threads > 0) {
-    throw std::runtime_error("User interrupt.");
-  }
+		if (aborted_threads > 0) {
+			throw std::runtime_error("User interrupt.");
+		}
 #endif
 #endif
-
+	}
 // Call special functions for subclasses
   predictInternal(data);
 }

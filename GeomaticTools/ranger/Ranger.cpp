@@ -40,6 +40,7 @@ using namespace WBSF;
 using namespace WBSF::Landsat;
 
  
+//-of VRT -co COMPRES=LZW "D:\Travaux\Ranger\Training\exemple_train_remi.classification.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.vrt"
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
@@ -66,7 +67,7 @@ public:
 		m_scenesSize = 7;// SCENES_SIZE;
 		//m_bFireSeverity = false;
 
-		m_appDescription = "This software look up (with a decision tree model) for disturbance in a any number series of LANDSAT scenes";
+		m_appDescription = "This software look up (with a random forest tree model) for disturbance in a any number series of LANDSAT scenes";
 
 		//AddOption("-TTF");
 		//AddOption("-Period");
@@ -110,14 +111,18 @@ public:
 	{
 		ERMsg msg = CBaseOptions::ParseOption(argc, argv);
 		
-		ASSERT( NB_FILE_PATH==4);
+		ASSERT( NB_FILE_PATH==3);
 		if (msg && m_filesPath.size() != NB_FILE_PATH)
 		{
-			msg.ajoute("ERROR: Invalid argument line. 4 files are needed: decision tree model, the geophysical image, the LANDSAT image and the destination image.");
+			msg.ajoute("ERROR: Invalid argument line. 3 files are needed: forest model, the input LANDSAT image and the destination image.");
 			msg.ajoute("Argument found: ");
 			for (size_t i = 0; i < m_filesPath.size(); i++)
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
+
+		if (m_outputType != GDT_Unknown && m_outputType != GDT_Int16 && m_outputType != GDT_Int32)
+			msg.ajoute("Invalid -ot option. Only GDT_Int16 or GDT_Int32 are supported");
+
 
 		return msg;
 	}
@@ -335,8 +340,8 @@ ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& m
 			cout << "    Last image     = " << landsatDS.GetPeriod().End().GetFormatedString() << endl;
 			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
-			if (landsatDS.GetNbScenes() <= 1)
-				msg.ajoute("DisturbanceAnalyser can't be performed over only one scene");
+			//if (landsatDS.GetNbScenes() <= 1)
+				//msg.ajoute("DisturbanceAnalyser can't be performed over only one scene");
 		}
 	}
 
@@ -483,8 +488,6 @@ ERMsg CDisterbanceAnalyser::Execute()
 
 	GDALAllRegister();
 
-	if( m_options.m_outputType != GDT_Unknown && m_options.m_outputType != GDT_Int16 && m_options.m_outputType != GDT_Int32)
-		msg.ajoute("Invalid -ot option. Only GDT_Int16 or GDT_Int32 are supported");
 	
 	if(!msg)
 		return msg;
@@ -495,23 +498,23 @@ ERMsg CDisterbanceAnalyser::Execute()
 	if (!msg)
 		return msg;
 	
-	CLandsatDataset lansatDS;
+	CGDALDatasetEx inputDS;
 	CGDALDatasetEx maskDS;
 	CGDALDatasetEx outputDS;
 
-	msg = OpenAll(lansatDS, maskDS, outputDS);
+	msg = OpenAll(inputDS, maskDS, outputDS);
 	
 	if( msg)
 	{
-		size_t nbScenes = lansatDS.GetNbScenes();
-		size_t sceneSize = lansatDS.GetSceneSize();
+		size_t nbScenes = inputDS.GetNbScenes();
+		size_t sceneSize = inputDS.GetSceneSize();
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 	
 
 		if( maskDS.IsOpen() )
 			bandHolder.SetMask( maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed );
 
-		msg += bandHolder.Load(lansatDS, m_options.m_bQuiet, m_options.m_extents, m_options.m_period);
+		msg += bandHolder.Load(inputDS, m_options.m_bQuiet, m_options.m_extents, m_options.m_period);
 
 		if(!msg)
 			return msg;
@@ -527,7 +530,7 @@ ERMsg CDisterbanceAnalyser::Execute()
 		vector<pair<int,int>> XYindex = extents.GetBlockList();
 		
 		omp_set_nested(1);
-		//#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+		#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
 		for(int b=0; b<(int)XYindex.size(); b++)
 		{
 			int thread = omp_get_thread_num();
@@ -546,7 +549,7 @@ ERMsg CDisterbanceAnalyser::Execute()
 		//DT.FreeMemory();
 
 		//close inputs and outputs
-		CloseAll(lansatDS, maskDS, outputDS);
+		CloseAll(inputDS, maskDS, outputDS);
 
 	}
 	
@@ -571,8 +574,8 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 {
 	//CGDALDatasetEx& inputDS, 
 
-	size_t nbScenes = bandHolder.GetNbScenes();
-	size_t sceneSize = bandHolder.GetSceneSize();
+	//size_t nbScenes = bandHolder.GetNbScenes();
+	//size_t sceneSize = bandHolder.GetSceneSize();
 	CGeoExtents extents = bandHolder.GetExtents();
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 	int nbCells = extents.m_xSize*extents.m_ySize;
@@ -592,42 +595,49 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 		m_options.m_timerProcess.Start();
 
 		CRasterWindow window = bandHolder.GetWindow();
-		//InputData input;
-		//allocate process memory
-		//LoadData(bandHolder, input);
-
+		if (m_options.m_bCreateImage)
+		{
+			output.resize(NB_OUTPUT_BANDS);
+			for (size_t i = 0; i < output.size(); i++)
+				output[i].resize(blockSize.m_x*blockSize.m_y);
+		}
+			
 		//process all x and y 
-//#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
 		for (int y = 0; y < blockSize.m_y; y++)
 		{
 			int thread = ::omp_get_thread_num();
 
 			DataShort input; 
-			input.resize(blockSize.m_x, window.GetNbScenes());
+			input.resize(blockSize.m_x, window.GetSceneSize());
+			bool bHaveData = false;
 			for (int x = 0; x<blockSize.m_x; x++)
 			{
-				size_t nbScenes = window.GetNbScenes();
-
-				for (size_t z = 0; z < window.GetNbScenes(); z++)
+				for (size_t z = 0; z < window.GetSceneSize(); z++)
 				{
-					bool error;
+					if (window[z]->IsValid(x,y))
+						bHaveData = true;
+
+					bool error=false;
 					input.set(z, x, window[z]->at(x, y), error);
 
 				}
 			}
-			forest[thread]->run(&input);
-
-			for (int x = 0; x < blockSize.m_x; x++)
+			if (bHaveData)
 			{
-				int xy = y*blockSize.m_x + x;
+				forest[thread]->run(&input);
 
-				double predict = forest[thread]->getPredictions().at(0).at(0).at(x);
-				output[0][xy] = (__int16)predict;
+				for (int x = 0; x < blockSize.m_x; x++)
+				{
+					int xy = y*blockSize.m_x + x;
+
+					double predict = forest[thread]->getPredictions().at(0).at(0).at(x);
+					output[0][xy] = (__int16)predict;
+				}//for x
+			}
 
 #pragma omp atomic	
-				m_options.m_xx+=1;
-			}//for x
-
+			m_options.m_xx += blockSize.m_x;
 
 			m_options.UpdateBar();
 		}//for y
