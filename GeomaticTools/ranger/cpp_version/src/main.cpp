@@ -41,8 +41,35 @@
 
 //--file "D:\Travaux\Ranger\Training\training.csv" -o "D:\Travaux\Ranger\Training\training" --write --depvarname class --impmeasure 1 --treetype 1 --verbose --splitweights "D:\Travaux\Ranger\Training\weight.csv"
 //--file "D:\Travaux\Ranger\input\test.csv" -o "D:\Travaux\Ranger\Output\test" --predict "D:\Travaux\Ranger\Training\training.forest"  --verbose 
+//
+
+//--file "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.csv" -o "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 1 --memmode 2 --verbose 
+//--file "U:\GIS\#documents\TestCodes\Ranger\input\test.csv" -o "U:\GIS\#documents\TestCodes\Ranger\Output\test" --predict "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.classification.forest"  --memmode 2 --verbose
 
 
+
+
+// Create forest object
+Forest* CreateForest(TreeType treetype)
+{
+	Forest* forest = NULL;
+	switch (treetype) {
+	case TREE_CLASSIFICATION:
+		forest = new ForestClassification;
+		break;
+	case TREE_REGRESSION:
+		forest = new ForestRegression;
+		break;
+	case TREE_SURVIVAL:
+		forest = new ForestSurvival;
+		break;
+	case TREE_PROBABILITY:
+		forest = new ForestProbability;
+		break;
+	}
+
+	return forest;
+}
 
 int main(int argc, char **argv) 
 {
@@ -57,27 +84,7 @@ int main(int argc, char **argv)
 		}
 		arg_handler.checkArguments();
 
-		// Create forest object
-		switch (arg_handler.treetype) {
-		case TREE_CLASSIFICATION:
-			if (arg_handler.probability) {
-				forest = new ForestProbability;
-			}
-			else {
-				forest = new ForestClassification;
-			}
-			break;
-		case TREE_REGRESSION:
-			forest = new ForestRegression;
-			break;
-		case TREE_SURVIVAL:
-			forest = new ForestSurvival;
-			break;
-		case TREE_PROBABILITY:
-			forest = new ForestProbability;
-			break;
-		}
-
+		
 		// Verbose output to logfile if non-verbose mode
 		std::ostream* verbose_out;
 		if (arg_handler.verbose) {
@@ -97,6 +104,11 @@ int main(int argc, char **argv)
 		*verbose_out << "Starting Ranger." << std::endl;
 		if (arg_handler.predict.empty())
 		{
+			if (arg_handler.treetype == TREE_CLASSIFICATION && arg_handler.probability)
+				arg_handler.treetype = TREE_PROBABILITY;
+
+			forest = CreateForest(arg_handler.treetype);
+
 			Data* training = forest->initCpp_grow(arg_handler.depvarname, arg_handler.memmode, arg_handler.file, arg_handler.mtry,
 				arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
 				/*arg_handler.predict,*/ arg_handler.impmeasure, arg_handler.targetpartitionsize, arg_handler.splitweights,
@@ -107,7 +119,8 @@ int main(int argc, char **argv)
 
 			forest->run(training);
 			if (arg_handler.write) {
-				forest->saveToFile(arg_handler.outprefix + ".forest");
+				std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);
+				forest->saveToFile(arg_handler.outprefix + tree_type_str + ".forest");
 			}
 			forest->writeOutput(training, arg_handler.outprefix);
 			*verbose_out << "Finished Ranger." << std::endl;
@@ -116,6 +129,9 @@ int main(int argc, char **argv)
 		}
 		else
 		{
+			TreeType treetype = GetTreeType(arg_handler.predict);
+			forest = CreateForest(treetype);
+
 			Data* data = forest->initCpp_predict(/*arg_handler.depvarname, */arg_handler.memmode, arg_handler.file,/*, arg_handler.mtry,
 				arg_handler.ntree, */verbose_out, /*arg_handler.seed,*/ arg_handler.nthreads,
 				arg_handler.predict, /*arg_handler.impmeasure, arg_handler.targetpartitionsize, arg_handler.splitweights,

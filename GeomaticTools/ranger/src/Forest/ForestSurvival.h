@@ -63,17 +63,19 @@ public:
 		return unique_timepoints;
 	}
 
+	
+
 private:
 	virtual void initInternal(Data* data, std::string status_variable_name);
-	//virtual void initInternalData(Data* data, std::string status_variable_name);
-	void growInternal(Data* data);
-	void predictInternal(Data* data);
-	void computePredictionErrorInternal(Data* data);
-	void writeOutputInternal();
-	void writeConfusionFile(std::string filename);
-	void writePredictionFile(std::string filename);
-	void saveToFileInternal(std::ofstream& outfile);
-	void loadFromFileInternal(std::ifstream& infile);
+	virtual void growInternal(Data* data);
+	virtual void predictInternal(Data* data);
+	virtual void computePredictionErrorInternal(Data* data);
+	virtual void writeOutputInternal();
+	virtual void writeConfusionFile(std::string filename);
+	virtual void writePredictionFile(std::string filename);
+	virtual void saveToFileInternal(std::ofstream& outfile);
+	virtual void loadFromFileInternal(std::ifstream& infile);
+	
 
 	size_t status_varID;
 	std::string status_var_name;

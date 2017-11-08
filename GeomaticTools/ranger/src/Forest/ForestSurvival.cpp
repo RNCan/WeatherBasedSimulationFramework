@@ -385,20 +385,21 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // If dependent variable not in test data, change variable IDs accordingly
-    /*if (num_variables_saved > num_variables) {
+	//always assume that input file don't have dependent variable
+   //if (num_variables_saved > num_variables) {
       for (auto& varID : split_varIDs) {
         if (varID >= dependent_varID) {
           --varID;
         }
       }
-    }
-    if (num_variables_saved > num_variables + 1) {
+    //}
+    //if (num_variables_saved > num_variables + 1) {
       for (auto& varID : split_varIDs) {
         if (varID >= status_varID) {
           --varID;
         }
       }
-    }*/
+    //}
 
     // Create tree
     Tree* tree = new TreeSurvival(child_nodeIDs, split_varIDs, split_values, chf, &unique_timepoints,

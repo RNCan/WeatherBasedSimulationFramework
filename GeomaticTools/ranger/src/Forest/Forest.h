@@ -44,6 +44,21 @@
 #include "Tree/Tree.h"
 #include "Utility/Data.h"
 
+inline TreeType GetTreeType(std::string forest_file_path)
+{
+	TreeType treetype;
+	if (forest_file_path.find(GetTreeTypeStr(TREE_CLASSIFICATION)))
+		treetype = TREE_CLASSIFICATION;
+	else if (forest_file_path.find(GetTreeTypeStr(TREE_REGRESSION)))
+		treetype = TREE_REGRESSION;
+	else if (forest_file_path.find(GetTreeTypeStr(TREE_SURVIVAL)))
+		treetype = TREE_SURVIVAL;
+	else if (forest_file_path.find(GetTreeTypeStr(TREE_PROBABILITY)))
+		treetype = TREE_PROBABILITY;
+
+	return treetype;
+}
+
 class Forest {
 public:
 
@@ -189,6 +204,7 @@ protected:
 
   virtual void loadFromFileInternal(std::ifstream& infile) = 0;
   virtual void saveToFileInternal(std::ofstream& outfile) = 0;
+  
 
   // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(Data* training, std::vector<std::vector<double>>& split_select_weights);

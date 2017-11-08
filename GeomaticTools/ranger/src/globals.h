@@ -57,6 +57,22 @@ enum TreeType {
   TREE_PROBABILITY = 9
 };
 
+inline const char* GetTreeTypeStr(TreeType treetype)
+{
+	static const char* TREE_TYPE_NAME[4] = { ".classification", ".regression", ".survival", ".probability" };
+
+	switch (treetype) {
+	case TREE_CLASSIFICATION: return TREE_TYPE_NAME[0]; break;
+	case TREE_REGRESSION: return TREE_TYPE_NAME[1]; break;
+	case TREE_SURVIVAL: return TREE_TYPE_NAME[2]; break;
+	case TREE_PROBABILITY: return TREE_TYPE_NAME[3]; break;
+	}
+
+	return 0;
+};
+
+
+
 // Memory modes
 enum MemoryMode {
   MEM_DOUBLE = 0,

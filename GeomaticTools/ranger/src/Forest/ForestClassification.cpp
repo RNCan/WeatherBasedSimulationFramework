@@ -334,17 +334,21 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
 		readVector1D(split_values, infile);
 
 		// If dependent variable not in test data, change variable IDs accordingly
-		/*if (num_variables_saved > num_variables) {
+
+		//always assume that input file don't have dependent variable
+		//if (num_variables_saved > num_variables) {
 			for (auto& varID : split_varIDs) {
 				if (varID >= dependent_varID) {
 					--varID;
 				}
 			}
-		}*/
+		//}
 
 		// Create tree
 		Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs);
 		trees.push_back(tree);
 	}
 }
+
+
 // #nocov end

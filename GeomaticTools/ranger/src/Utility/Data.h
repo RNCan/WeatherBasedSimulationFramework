@@ -42,6 +42,14 @@ public:
   Data();
   virtual ~Data();
 
+  void resize(size_t nb_row, size_t nb_col)
+  {
+	  num_cols = nb_col;
+	  num_rows = nb_row;
+	  num_cols_no_snp = num_cols;
+	  reserveMemory();
+  }
+
   virtual double get(size_t row, size_t col) const = 0;
 
   size_t getVariableID(std::string variable_name);

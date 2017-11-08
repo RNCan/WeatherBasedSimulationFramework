@@ -480,6 +480,7 @@ void Forest::run(Data* data) {
 		if (verbose_out) {
 			*verbose_out << "Predicting .." << std::endl;
 		}
+		
 		predict(data);
 	}
 	else {

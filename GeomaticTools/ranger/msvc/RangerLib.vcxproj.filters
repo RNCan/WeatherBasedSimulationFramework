@@ -110,5 +110,6 @@
     <ClInclude Include="..\src\Utility\utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\globals.h" />
   </ItemGroup>
 </Project>
