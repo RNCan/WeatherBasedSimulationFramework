@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Forest">
+      <UniqueIdentifier>{0e08fcc7-4f5c-41e3-8a1f-706b25b86c46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tree">
+      <UniqueIdentifier>{8f1c2100-106a-42a9-831d-902581684b2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{69715abd-bf39-442c-b91d-384f44e1fd73}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Forest\Forest.cpp">
+      <Filter>Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Forest\ForestClassification.cpp">
+      <Filter>Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Forest\ForestProbability.cpp">
+      <Filter>Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Forest\ForestRegression.cpp">
+      <Filter>Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Forest\ForestSurvival.cpp">
+      <Filter>Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tree\Tree.cpp">
+      <Filter>Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tree\TreeClassification.cpp">
+      <Filter>Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tree\TreeProbability.cpp">
+      <Filter>Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tree\TreeRegression.cpp">
+      <Filter>Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tree\TreeSurvival.cpp">
+      <Filter>Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\Data.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\DataChar.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\DataDouble.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\DataFloat.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\DataShort.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utility\utility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Forest\Forest.h">
+      <Filter>Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Forest\ForestClassification.h">
+      <Filter>Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Forest\ForestProbability.h">
+      <Filter>Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Forest\ForestRegression.h">
+      <Filter>Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Forest\ForestSurvival.h">
+      <Filter>Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tree\Tree.h">
+      <Filter>Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tree\TreeClassification.h">
+      <Filter>Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tree\TreeProbability.h">
+      <Filter>Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tree\TreeRegression.h">
+      <Filter>Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tree\TreeSurvival.h">
+      <Filter>Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\Data.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\DataChar.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\DataDouble.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\DataFloat.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\DataShort.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utility\utility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
