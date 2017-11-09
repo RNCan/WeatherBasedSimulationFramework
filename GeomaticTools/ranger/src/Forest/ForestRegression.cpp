@@ -94,17 +94,29 @@ void ForestRegression::growInternal(Data* data) {
   }
 }
 
-void ForestRegression::predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestRegression::allocatePredictMemory(const Data* data)
+{
+	size_t num_prediction_samples = data->getNumRows();
+	if (predict_all || prediction_type == TERMINALNODES) {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
+	}
+	else {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
+	}
+//
+}
 
-  size_t num_prediction_samples = data->getNumRows();
+void ForestRegression::predictInternal(size_t sample_idx, const Data* data) {
+
+  /*size_t num_prediction_samples = data->getNumRows();
   if (predict_all || prediction_type == TERMINALNODES) {
     predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
   } else {
     predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
   }
-
+*/
   // For all samples get tree predictions
-  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+  //for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
     if (predict_all || prediction_type == TERMINALNODES) {
       // Get all tree predictions
@@ -123,10 +135,10 @@ void ForestRegression::predictInternal(size_t sample_idx, const Data* data, std:
       }
       predictions[0][0][sample_idx] = prediction_sum / num_trees;
     }
-  }
+  //}
 }
 
-void ForestRegression::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestRegression::computePredictionErrorInternal(Data* data) {
 
 // For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
@@ -183,7 +195,7 @@ void ForestRegression::writeConfusionFile(std::string filename) {
 		*verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
 }
 
-void ForestRegression::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestRegression::writePredictionFile(std::string filename) {
 
 // Open prediction file for writing
   //std::string filename = output_prefix + ".prediction";

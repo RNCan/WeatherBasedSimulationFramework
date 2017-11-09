@@ -157,26 +157,21 @@ Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memor
 	  return training;
 }
 
-Data* Forest::initCpp_predict(/*std::string dependent_variable_name, */ MemoryMode memory_mode,std::string input_file, /*uint mtry,
-																			  uint num_trees, */std::ostream* verbose_out, uint seed, uint num_threads,
-																			  std::string load_forest_filename,/* ImportanceMode importance_mode, uint min_node_size,
-																											   std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-																											   std::string status_variable_name, bool sample_with_replacement,
-																											   std::vector<std::string>& unordered_variable_names, *//*bool memory_saving_splitting,*//* SplitRule splitrule,
-																											   std::string case_weights_file,*/ bool predict_all,/* double sample_fraction, double alpha, double minprop,
-																											   bool holdout, */PredictionType prediction_type/*, uint num_random_splits*/)
+Data* Forest::initCpp_predict( MemoryMode memory_mode,std::string input_file, 
+	/*uint ntrees, */std::ostream* verbose_out, uint seed, uint num_threads,
+	std::string load_forest_filename, bool predict_all,PredictionType prediction_type)
 {
 	this->verbose_out = verbose_out;
 
-	init_predict(/*dependent_variable_name,*/ /*data,*/ /*mtry, num_trees, */seed, num_threads, /*importance_mode,*/
-		/*min_node_size, *//*status_variable_name, *//*prediction_mode, sample_with_replacement, *//*unordered_variable_names,*/
-		/*memory_saving_splitting,*/ /*splitrule, */predict_all, /*sample_fraction, alpha, minprop, holdout, */prediction_type/*,
-																														  num_random_splits*/);
+	init_predict( seed, num_threads,	predict_all, prediction_type);
 
 	// Call other init function
 
 	//	  if (prediction_mode) {
 	loadFromFile(load_forest_filename);
+	
+	//if (ntrees < this->num_trees)
+		//this->num_trees = ntrees;
 
 	Data* data = CreateMemory(memory_mode);
 
@@ -231,17 +226,7 @@ Data* Forest::initCpp_predict(/*std::string dependent_variable_name, */ MemoryMo
 //  this->keep_inbag = keep_inbag;
 //}
 
-void Forest::init_predict(/*std::string dependent_variable_name,*/ /*Data* input_data, uint mtry,*/
-	/*uint num_trees, */uint seed, uint num_threads, /*ImportanceMode importance_mode,*/
-	/*uint min_node_size, std::string status_variable_name*//*, bool prediction_mode, bool sample_with_replacement,*/
-	/*std::vector<std::string>& unordered_variable_names,*//* bool memory_saving_splitting,*/ /*SplitRule splitrule,*/
-	bool predict_all, /*double sample_fraction, double alpha, double minprop, bool holdout,*/
-	PredictionType prediction_type/*, uint num_random_splits*/) {
-
-	// Initialize data with memmode
-//	this->data = input_data;
-
-	
+void Forest::init_predict(uint seed, uint num_threads,bool predict_all,	PredictionType prediction_type) {
 
 	// Initialize random number generator and set seed
 	if (seed == 0) {
@@ -419,60 +404,7 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	}
 
 }
-//
-//void Forest::init_data(Data* data, std::string dependent_variable_name, std::string status_variable_name, std::vector<std::string>& unordered_variable_names)
-//{
-//	
-////	num_samples = data->getNumRows();
-//	//num_variables = data->getNumCols();
-//
-//	
-//
-//	// Convert dependent variable name to ID
-//	if (!prediction_mode && !dependent_variable_name.empty()) {
-//		dependent_varID = data->getVariableID(dependent_variable_name);
-//	}
-//
-//	// Set unordered factor variables
-//	if (prediction_mode)
-//	{
-//		//copy is_ordered_variable from model
-//		data->setIsOrderedVariable(is_ordered_variable);
-//	}
-//	else
-//	{
-//		//take from input
-//		//data->setIsOrderedVariable(is_ordered_variable);
-//		data->setIsOrderedVariable(unordered_variable_names);
-//	}
-//
-//	data->addNoSplitVariable(dependent_varID);
-//
-//	//initInterna(data, status_variable_name);
-//
-//	num_independent_variables = data->getNumCols() - data->getNoSplitVariables().size();
-//
-//	// Init split select weights
-//	split_select_weights.push_back(std::vector<double>());
-//
-//	// Check if mtry is in valid range
-//	if (this->mtry > data->getNumCols() - 1) {
-//		throw std::runtime_error("mtry can not be larger than number of variables in data.");
-//	}
-//
-//	// Check if any observations samples
-//	if ((size_t)data->getNumRows() * sample_fraction < 1) {
-//		throw std::runtime_error("sample_fraction too small, no observations sampled.");
-//	}
-//
-//	// Permute samples for corrected Gini importance
-//	if (importance_mode == IMP_GINI_CORRECTED) {
-//		data->permuteSampleIDs(random_number_generator);
-//	}
-//
-//	
-//
-//}
+
 
 //void Forest::run(Data* data) {
 //
@@ -504,7 +436,7 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 //	}
 //}
 
-void Forest::run_grow(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void Forest::run_grow(Data* data) {
 
 
 	if (verbose_out) {
@@ -517,7 +449,7 @@ void Forest::run_grow(Data* data, std::vector<std::vector<std::vector<double>>>&
 		*verbose_out << "Computing prediction error .." << std::endl;
 	}
 
-	computePredictionError(data, predictions);
+	computePredictionError(data);
 
 	if (importance_mode == IMP_PERM_BREIMAN || importance_mode == IMP_PERM_LIAW || importance_mode == IMP_PERM_RAW) {
 		if (verbose_out) {
@@ -527,7 +459,7 @@ void Forest::run_grow(Data* data, std::vector<std::vector<std::vector<double>>>&
 	}
 
 }
-void Forest::run_predict(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void Forest::run_predict(Data* data) {
 
 
 	if (verbose_out) {
@@ -536,14 +468,14 @@ void Forest::run_predict(Data* data, std::vector<std::vector<std::vector<double>
 
 	data->setIsOrderedVariable(training_is_ordered_variable);
 	//Check if mtry is in valid range
-	if (this->mtry > data->getNumCols() - 1) {
-		throw std::runtime_error("mtry can not be larger than number of variables in data.");
-	}
+	//if (this->mtry > data->getNumCols() - 1) {
+		//throw std::runtime_error("mtry can not be larger than number of variables in data.");
+	//}
 	
 	// Check if any observations samples
-	if ((size_t)data->getNumRows() * sample_fraction < 1) {
-		throw std::runtime_error("sample_fraction too small, no observations sampled.");
-	}
+	//if ((size_t)data->getNumRows() * sample_fraction < 1) {
+		//throw std::runtime_error("sample_fraction too small, no observations sampled.");
+	//}
 	
 	// Permute samples for corrected Gini importance
 	if (importance_mode == IMP_GINI_CORRECTED) {
@@ -551,19 +483,12 @@ void Forest::run_predict(Data* data, std::vector<std::vector<std::vector<double>
 	}
 
 	//allocate memory
-	size_t num_prediction_samples = data->getNumRows();
-	if (predict_all || prediction_type == TERMINALNODES) {
-		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
-	}
-	else {
-		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
-	}
-
+	allocatePredictMemory(data);
 
 	//if (num_threads==1)
 	//predict_no_thread(data, predictions);
 	//else 
-	predict(data, predictions);
+	predict(data);
 }
 // #nocov start
 void Forest::writeOutput(Data* training, std::string output_prefix) {
@@ -787,7 +712,7 @@ void Forest::grow(Data* data) {
 	}
 	}
 
-void Forest::predict(Data* data, std::vector<std::vector<std::vector<double>>>& predictions)
+void Forest::predict(Data* data)
 {
 	// Predict trees in multiple threads and join the threads with the main thread
 #ifdef OLD_WIN_R_BUILD
@@ -834,9 +759,9 @@ void Forest::predict(Data* data, std::vector<std::vector<std::vector<double>>>& 
 		threads.reserve(num_threads);
 		for (uint i = 0; i < predict_ranges.size() - 1; ++i) {
 			std::pair<uint, uint> range = std::make_pair(predict_ranges[i], predict_ranges[i + 1]);
-			threads.push_back(std::thread(&Forest::predictInternalInThread, this, range, data, std::ref(predictions) ));
+			threads.push_back(std::thread(&Forest::predictInternalInThread, this, range, data ));
 		}
-		showProgress("Predicting..");
+		showProgress("Compile prediction..");
 		for (auto &thread : threads) {
 			thread.join();
 		}
@@ -848,10 +773,10 @@ void Forest::predict(Data* data, std::vector<std::vector<std::vector<double>>>& 
 	//predictInternal(data, predictions);
 }
 
-void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const Data* prediction_data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const Data* prediction_data) {
 	
 	for (size_t i = range.first; i < range.second; ++i) {
-		predictInternal(i, prediction_data, predictions);
+		predictInternal(i, prediction_data);
 
 			// Check for user interrupt
 #ifdef R_BUILD
@@ -870,19 +795,19 @@ void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const D
 		}
 	
 }
+//
+//void Forest::predict_no_thread(Data* data)
+//{
+//	for (size_t i = 0; i < trees.size(); ++i) {
+//		trees[i]->predict(data, false);
+//	}
+//	// Call special functions for subclasses
+//	for (size_t i = 0; i < data->getNumRows(); ++i) {
+//		predictInternal(i, data, predictions);
+//	}
+//}
 
-void Forest::predict_no_thread(Data* data, std::vector<std::vector<std::vector<double>>>& predictions)
-{
-	for (size_t i = 0; i < trees.size(); ++i) {
-		trees[i]->predict(data, false);
-	}
-	// Call special functions for subclasses
-	for (size_t i = 0; i < data->getNumRows(); ++i) {
-		predictInternal(i, data, predictions);
-	}
-}
-
-void Forest::computePredictionError(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void Forest::computePredictionError(Data* data) {
 
 // Predict trees in multiple threads
 #ifdef OLD_WIN_R_BUILD
@@ -913,7 +838,7 @@ void Forest::computePredictionError(Data* data, std::vector<std::vector<std::vec
 #endif
 
   // Call special function for subclasses
-  computePredictionErrorInternal(data, predictions);
+  computePredictionErrorInternal(data);
 }
 
 void Forest::computePermutationImportance() {

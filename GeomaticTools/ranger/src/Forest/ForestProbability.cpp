@@ -125,19 +125,34 @@ void ForestProbability::growInternal(Data* data) {
   }
 }
 
-void ForestProbability::predictInternal(size_t sample_idx, const  Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestProbability::allocatePredictMemory(const Data* data)
+{
+	size_t num_prediction_samples = data->getNumRows();
+	if (predict_all) {
+		predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
+	}
+	else if (prediction_type == TERMINALNODES) {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees, 0)));
+	}
+	else {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(class_values.size(), 0)));
+	}
 
-  size_t num_prediction_samples = data->getNumRows();
-  if (predict_all) {
-    predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
-  } else if (prediction_type == TERMINALNODES) {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees, 0)));
-  } else {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(class_values.size(), 0)));
-  }
+}
+
+void ForestProbability::predictInternal(size_t sample_idx, const  Data* data) {
+
+  //size_t num_prediction_samples = data->getNumRows();
+  //if (predict_all) {
+  //  predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
+  //} else if (prediction_type == TERMINALNODES) {
+  //  predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees, 0)));
+  //} else {
+  //  predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(class_values.size(), 0)));
+  //}
 
   // For all samples average proportions of trees
-  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+//  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
     // For each sample compute proportions in each tree
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
@@ -164,11 +179,11 @@ void ForestProbability::predictInternal(size_t sample_idx, const  Data* data, st
         predictions[0][sample_idx][class_idx] /= num_trees;
       }
     }
-  }
+  //}
 
 }
 
-void ForestProbability::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestProbability::computePredictionErrorInternal(Data* data) {
 
 // For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
@@ -232,7 +247,7 @@ void ForestProbability::writeConfusionFile(std::string filename) {
 	*verbose_out << "Saved prediction error to file " << filename.c_str() << "." << std::endl;
 }
 
-void ForestProbability::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestProbability::writePredictionFile(std::string filename) {
 
   // Open prediction file for writing
   //std::string filename = output_prefix + ".prediction";

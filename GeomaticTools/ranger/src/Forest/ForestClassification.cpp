@@ -128,7 +128,18 @@ void ForestClassification::growInternal(Data* data) {
   }
 }
 
-void ForestClassification::predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestClassification::allocatePredictMemory(const Data* data)
+{
+	size_t num_prediction_samples = data->getNumRows();
+	if (predict_all || prediction_type == TERMINALNODES) {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
+	}
+	else {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
+	}
+}
+
+void ForestClassification::predictInternal(size_t sample_idx, const Data* data) {
 
 	/*size_t num_prediction_samples = data->getNumRows();
 	if (predict_all || prediction_type == TERMINALNODES) {
@@ -165,7 +176,7 @@ void ForestClassification::predictInternal(size_t sample_idx, const Data* data, 
 	//}
 }
 
-void ForestClassification::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestClassification::computePredictionErrorInternal(Data* data) {
 
   // Class counts for samples
   std::vector<std::unordered_map<double, size_t>> class_counts;
@@ -260,7 +271,7 @@ void ForestClassification::writeConfusionFile(std::string filename) {
 	*verbose_out << "Saved confusion matrix to file " << filename << "." << std::endl;
 }
 
-void ForestClassification::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
+void ForestClassification::writePredictionFile(std::string filename) {
 
   // Open prediction file for writing
   //std::string filename = output_prefix + ".prediction";

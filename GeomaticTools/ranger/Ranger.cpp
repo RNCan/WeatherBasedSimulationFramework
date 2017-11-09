@@ -37,9 +37,9 @@ using namespace std;
 using namespace WBSF;
 //using namespace WBSF::Landsat;
 
- 
-//-co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.classification.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"
-//-te 661190 5098890 668810 5111820 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi1.classification.forest" "U:\GIS\#documents\TestCodes\Ranger\Input\L8_006028_20150717_ext.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\output.tif"
+ //exemple_train_remi.regression.forest
+//-seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.regression.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"
+//-seed 1234 -te 661190 5098890 668810 5111820 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.regression.forest" "U:\GIS\#documents\TestCodes\Ranger\Input\L8_006028_20150717_ext.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\output.tif"
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
@@ -193,7 +193,7 @@ public:
 };
 
 typedef std::auto_ptr<Forest> ForestPtr;
-typedef std::vector < ForestPtr > ForestVector;
+//typedef std::vector < ForestPtr > ForestVector;
 typedef std::deque < std::vector<__int16> > OutputData;
 //***********************************************************************
 //									 
@@ -210,13 +210,13 @@ public:
 
 	ERMsg OpenAll(CGDALDatasetEx& lansatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS);
 	void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-	void ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestVector& forest, OutputData& output);
+	void ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr& forest, OutputData& output);
 	void WriteBlock(int xBlock, int yBlock, OutputData& output, CGDALDatasetEx& outputDS);
 	void CloseAll(CGDALDatasetEx& landsatDS,  CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS);
 
 	void Evaluate( int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
 		
-	ERMsg ReadRules(ForestVector& forest);
+	ERMsg ReadRules(ForestPtr& forest);
 
 	CDisterbanceAnalyserOption m_options;
 };
@@ -243,7 +243,7 @@ Forest* CreateForest(TreeType treetype)
 	return forest;
 }
 
-ERMsg CDisterbanceAnalyser::ReadRules(ForestVector& forests)
+ERMsg CDisterbanceAnalyser::ReadRules(ForestPtr& forest)
 {
 	ERMsg msg;
 	if(!m_options.m_bQuiet) 
@@ -258,12 +258,10 @@ ERMsg CDisterbanceAnalyser::ReadRules(ForestVector& forests)
 	
 	
 	//forests.reserve(m_options.m_CPU);
-	for (size_t i = 0; i < 1; i++)
-	{
-		forests.push_back( ForestPtr(CreateForest(treetype)) );
-		forests[i]->init_predict(m_options.m_seed, m_options.m_CPU, false, DEFAULT_PREDICTIONTYPE);
-		forests[i]->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
-	}
+	forest.reset( CreateForest(treetype) );
+	forest->init_predict(m_options.m_seed, m_options.m_CPU, false, DEFAULT_PREDICTIONTYPE);
+	forest->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
+	
 
 	timer.Stop();
 
@@ -358,7 +356,7 @@ ERMsg CDisterbanceAnalyser::Execute()
 		return msg;
 
 
-	ForestVector forest;
+	ForestPtr forest;
 	msg += ReadRules(forest);
 	if (!msg)
 		return msg;
@@ -432,7 +430,7 @@ void CDisterbanceAnalyser::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandH
 }
 
 //Get input image reference
-void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestVector& forest, OutputData& output)
+void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr& forest, OutputData& output)
 {
 	CGeoExtents extents = bandHolder.GetExtents();
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -479,8 +477,8 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 		}
 		if (bHaveData)
 		{
-			std::vector<std::vector<std::vector<double>>> predictions;
-			forest[0]->run_predict(&input, predictions);
+			
+			forest->run_predict(&input);
 			if (!output.empty())
 			{
 				for (int y = 0; y < blockSize.m_y; y++)
@@ -488,7 +486,7 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 					for (int x = 0; x < blockSize.m_x; x++)
 					{
 						int xy = y*blockSize.m_x + x;
-						output[0][xy] = (__int16)predictions.at(0).at(0).at(xy);
+						output[0][xy] = (__int16)(forest->getPredictions().at(0).at(0).at(xy));
 					}
 				}
 			}
@@ -501,92 +499,6 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 
 		m_options.UpdateBar();
 	}
-
-	
-
-//
-//	//process all x and y 
-//	//#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
-//	for (int y = 0; y < blockSize.m_y; y++)
-//	{
-//		int thread = 0;// ::omp_get_thread_num();
-//		//DataShort input;
-//		//input.resize(blockSize.m_x, window.GetSceneSize());
-//		//bool bHaveData = false;
-//
-//		//bool bHaveData = false;
-//
-//		for (int x = 0; x < blockSize.m_x; x++)
-//		{
-//			for (size_t z = 0; z < window.GetSceneSize(); z++)
-//			{
-//				int xy = y*blockSize.m_x + x;
-//				//if (window[z]->IsValid(x, y))
-//				//bHaveData = true;
-//
-//				bool error = false;
-//				input.set(z, xy, window[z]->at(x, y), error);
-//			}
-//
-//		}
-//	}
-//
-//#pragma omp critical(ProcessBlock)
-//	{
-//		m_options.m_timerProcess.Start();
-//
-//		
-//			
-//		
-//			//if (bHaveData)
-//				//{
-//				//	std::vector<std::vector<std::vector<double>>> predictions;
-//				//	forest[0]->run_predict(&input, predictions);
-//				//	double predict = predictions.at(0).at(0).at(0);
-//
-//				//	int xy = y*blockSize.m_x + x;
-//				//	output[0][xy] = (__int16)predict;
-//				//}
-//			//}
-//
-//			//if (bHaveData)
-//			//{
-//		
-//		int thread = 0;// ::omp_get_thread_num();
-//		forest[thread]->run_predict(&input, predictions);
-//
-//		for (int y = 0; y < blockSize.m_y; y++)
-//		{
-//			
-//			//DataShort input;
-//			//input.resize(blockSize.m_x, window.GetSceneSize());
-//			//bool bHaveData = false;
-//
-//			//bool bHaveData = false;
-//
-//			for (int x = 0; x < blockSize.m_x; x++)
-//			{
-//				
-//				int xy = y*blockSize.m_x + x;
-//				//for (int x = 0; x < blockSize.m_x; x++)
-//				//{
-//
-//
-//				double predict = predictions.at(0).at(0).at(xy);
-//				output[0][xy] = (__int16)predict;
-//			}//for x
-//		}
-//
-//#pragma omp atomic	
-//		m_options.m_xx += blockSize.m_x*blockSize.m_y;
-//
-//			m_options.UpdateBar();
-//		//}//for y
-//
-//
-//
-//		m_options.m_timerProcess.Stop();
-//	}
 }
 
 void CDisterbanceAnalyser::WriteBlock(int xBlock, int yBlock, OutputData& output, CGDALDatasetEx& outputDS)
