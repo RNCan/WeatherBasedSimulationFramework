@@ -171,7 +171,7 @@ void ForestSurvival::growInternal(Data* data) {
   }
 }
 
-void ForestSurvival::predictInternal(Data* data) {
+void ForestSurvival::predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   size_t num_prediction_samples = data->getNumRows();
   size_t num_timepoints = unique_timepoints.size();
@@ -208,7 +208,7 @@ void ForestSurvival::predictInternal(Data* data) {
 
 }
 
-void ForestSurvival::computePredictionErrorInternal(Data* data) {
+void ForestSurvival::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   size_t num_timepoints = unique_timepoints.size();
 
@@ -277,48 +277,49 @@ void ForestSurvival::writeConfusionFile(std::string filename) {
 
 }
 
-void ForestSurvival::writePredictionFile(std::string filename) {
+void ForestSurvival::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
 
-  // Open prediction file for writing
-  //std::string filename = output_prefix + ".prediction";
-  std::ofstream outfile;
-  outfile.open(filename, std::ios::out);
-  if (!outfile.good()) {
-    throw std::runtime_error("Could not write to prediction file: " + filename + ".");
-  }
+	// Open prediction file for writing
+	//std::string filename = output_prefix + ".prediction";
+	std::ofstream outfile;
+	outfile.open(filename, std::ios::out);
+	if (!outfile.good()) {
+		throw std::runtime_error("Could not write to prediction file: " + filename + ".");
+	}
 
-  // Write
-  outfile << "Unique timepoints: " << std::endl;
-  for (auto& timepoint : unique_timepoints) {
-    outfile << timepoint << " ";
-  }
-  outfile << std::endl << std::endl;
+	// Write
+	outfile << "Unique timepoints: " << std::endl;
+	for (auto& timepoint : unique_timepoints) {
+		outfile << timepoint << " ";
+	}
+	outfile << std::endl << std::endl;
 
-  outfile << "Cumulative hazard function, one row per sample: " << std::endl;
-  if (predict_all) {
-    for (size_t k = 0; k < num_trees; ++k) {
-      outfile << "Tree " << k << ":" << std::endl;
-      for (size_t i = 0; i < predictions.size(); ++i) {
-        for (size_t j = 0; j < predictions[i].size(); ++j) {
-          outfile << predictions[i][j][k] << " ";
-        }
-        outfile << std::endl;
-      }
-      outfile << std::endl;
-    }
-  } else {
-    for (size_t i = 0; i < predictions.size(); ++i) {
-      for (size_t j = 0; j < predictions[i].size(); ++j) {
-        for (size_t k = 0; k < predictions[i][j].size(); ++k) {
-          outfile << predictions[i][j][k] << " ";
-        }
-        outfile << std::endl;
-      }
-    }
-  }
+	outfile << "Cumulative hazard function, one row per sample: " << std::endl;
+	if (predict_all) {
+		for (size_t k = 0; k < num_trees; ++k) {
+			outfile << "Tree " << k << ":" << std::endl;
+			for (size_t i = 0; i < predictions.size(); ++i) {
+				for (size_t j = 0; j < predictions[i].size(); ++j) {
+					outfile << predictions[i][j][k] << " ";
+				}
+				outfile << std::endl;
+			}
+			outfile << std::endl;
+		}
+	}
+	else {
+		for (size_t i = 0; i < predictions.size(); ++i) {
+			for (size_t j = 0; j < predictions[i].size(); ++j) {
+				for (size_t k = 0; k < predictions[i][j].size(); ++k) {
+					outfile << predictions[i][j][k] << " ";
+				}
+				outfile << std::endl;
+			}
+		}
+	}
 
-  if (verbose_out)
-	*verbose_out << "Saved predictions to file " << filename << "." << std::endl;
+	if (verbose_out)
+		*verbose_out << "Saved predictions to file " << filename << "." << std::endl;
 }
 
 void ForestSurvival::saveToFileInternal(std::ofstream& outfile) {

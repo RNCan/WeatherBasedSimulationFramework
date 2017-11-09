@@ -125,7 +125,7 @@ void ForestProbability::growInternal(Data* data) {
   }
 }
 
-void ForestProbability::predictInternal(Data* data) {
+void ForestProbability::predictInternal(size_t sample_idx, const  Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   size_t num_prediction_samples = data->getNumRows();
   if (predict_all) {
@@ -168,7 +168,7 @@ void ForestProbability::predictInternal(Data* data) {
 
 }
 
-void ForestProbability::computePredictionErrorInternal(Data* data) {
+void ForestProbability::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
 // For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
@@ -232,7 +232,7 @@ void ForestProbability::writeConfusionFile(std::string filename) {
 	*verbose_out << "Saved prediction error to file " << filename.c_str() << "." << std::endl;
 }
 
-void ForestProbability::writePredictionFile(std::string filename) {
+void ForestProbability::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   // Open prediction file for writing
   //std::string filename = output_prefix + ".prediction";

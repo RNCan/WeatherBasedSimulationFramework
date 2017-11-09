@@ -39,7 +39,7 @@
 #include "Forest/ForestProbability.h"
 
 
-//--file "D:\Travaux\Ranger\Training\exemple_train_remi.csv" -o "D:\Travaux\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 1 --verbose --memMode 2
+//--file "D:\Travaux\Ranger\Training\exemple_train_remi.csv" -o "D:\Travaux\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 1 --memmode 2 --verbose --memMode 2
 //--file "D:\Travaux\Ranger\input\test.csv" -o "D:\Travaux\Ranger\Output\test" --predict "D:\Travaux\Ranger\Training\training.forest"  --verbose 
 //
 
@@ -117,7 +117,8 @@ int main(int argc, char **argv)
 				arg_handler.alpha, arg_handler.minprop, arg_handler.holdout, /*arg_handler.predictiontype,*/
 				arg_handler.randomsplits);
 
-			forest->run(training);
+			std::vector<std::vector<std::vector<double>>> predictions;
+			forest->run_grow(training, predictions);
 			if (arg_handler.write) {
 				std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);
 				forest->saveToFile(arg_handler.outprefix + tree_type_str + ".forest");
@@ -133,7 +134,7 @@ int main(int argc, char **argv)
 			forest = CreateForest(treetype);
 
 			Data* data = forest->initCpp_predict(/*arg_handler.depvarname, */arg_handler.memmode, arg_handler.file,/*, arg_handler.mtry,
-				arg_handler.ntree, */verbose_out, /*arg_handler.seed,*/ arg_handler.nthreads,
+				arg_handler.ntree, */verbose_out, arg_handler.seed, arg_handler.nthreads,
 				arg_handler.predict, /*arg_handler.impmeasure, arg_handler.targetpartitionsize, arg_handler.splitweights,
 				arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace, arg_handler.catvars,*/
 				/*arg_handler.savemem,*/ /*arg_handler.splitrule, arg_handler.caseweights, */arg_handler.predall, /*arg_handler.fraction,
@@ -143,10 +144,12 @@ int main(int argc, char **argv)
 			if (verbose_out) {
 				*verbose_out << "Predicting .." << std::endl;
 			}
-			forest->run(data);
+
+			std::vector<std::vector<std::vector<double>>> predictions;
+			forest->run_predict(data, predictions);
 
 			std::string filename = arg_handler.outprefix + ".prediction";
-			forest->writePredictionFile(filename);
+			forest->writePredictionFile(filename, predictions);
 
 			delete data;
 		}

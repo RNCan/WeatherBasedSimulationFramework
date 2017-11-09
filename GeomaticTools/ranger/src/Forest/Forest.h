@@ -77,7 +77,7 @@ public:
       std::string case_weights_file,/* bool predict_all,*/ double sample_fraction, double alpha, double minprop,
       bool holdout, /*PredictionType prediction_type,*/ uint num_random_splits);
   Data* initCpp_predict(/*std::string dependent_variable_name,*/ MemoryMode memory_mode,std::string input_file, /*uint mtry,
-	  uint num_trees, */std::ostream* verbose_out, /*uint seed,*/ uint num_threads,
+	  uint num_trees, */std::ostream* verbose_out, uint seed, uint num_threads,
 	  std::string load_forest_filename,/* ImportanceMode importance_mode, uint min_node_size,
 	  std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
 	  std::string status_variable_name, bool sample_with_replacement,
@@ -99,7 +99,7 @@ public:
       /*bool predict_all,*/ double sample_fraction, double alpha, double minprop, bool holdout,
      /* PredictionType prediction_type,*/ uint num_random_splits);
   void init_predict(/*std::string dependent_variable_name, */ /*Data* traning, uint mtry,*/
-	  /*uint num_trees, uint seed,*/ uint num_threads, /*ImportanceMode importance_mode,*/
+	  /*uint num_trees, */uint seed, uint num_threads, /*ImportanceMode importance_mode,*/
 	  /*uint min_node_size*//*, std::string status_variable_name*//*, bool prediction_mode, bool sample_with_replacement,*/
 	  /*std::vector<std::string>& unordered_variable_names,*/ /*bool memory_saving_splitting,*/ /*SplitRule splitrule,*/
 	  bool predict_all, /*double sample_fraction, double alpha, double minprop, bool holdout,*/
@@ -111,14 +111,16 @@ public:
   //void init_data(Data* data, std::string dependent_variable_name, std::string status_variable_name, std::vector<std::string>& unordered_variable_names);
 
   // Grow or predict
-  void run(Data* data);
+  //void run(Data* data);
+  void run_grow(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
+  void run_predict(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
   
   void set_verbose(std::ostream* verbose_out = NULL){ this->verbose_out = verbose_out; }
   // Write results to output files
   void writeOutput(Data* training, std::string output_prefix);
   virtual void writeOutputInternal() = 0;
   virtual void writeConfusionFile(std::string filename) = 0;
-  virtual void writePredictionFile(std::string filename) = 0;
+  virtual void writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) = 0;
   void writeImportanceFile(Data* training, std::string filename);
 
   // Load forest from file
@@ -154,9 +156,9 @@ public:
   double getOverallPredictionError() const {
     return overall_prediction_error;
   }
-  const std::vector<std::vector<std::vector<double>> >& getPredictions() const {
-    return predictions;
-  }
+  /*const std::vector<std::vector<std::vector<double>> >& getPredictions() const {
+    return m_predictions;
+  }*/
   size_t getDependentVarId() const {
     return dependent_varID;
   }
@@ -188,12 +190,13 @@ public:
 protected:
 	
 	void grow(Data* data);
-	void predict(Data* input_data);
-	virtual void growInternal(Data* data) = 0;
+	void predict(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
+	void predict_no_thread(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
+	virtual void growInternal(Data* training) = 0;
   // Predict using existing tree from file and data as prediction data
-	virtual void predictInternal(Data* data) = 0;
-	void computePredictionError(Data* data);
-	virtual void computePredictionErrorInternal(Data* data) = 0;
+	virtual void predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions) = 0;
+	void computePredictionError(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
+	virtual void computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) = 0;
 
   void computePermutationImportance();
 
@@ -201,6 +204,7 @@ protected:
   void growTreesInThread(uint thread_idx, std::vector<double>* variable_importance);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
   void computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance, std::vector<double>* variance);
+  void predictInternalInThread(const std::pair<uint, uint>& range, const Data* prediction_data, std::vector<std::vector<std::vector<double>>>& predictions);
 
   virtual void loadFromFileInternal(std::ifstream& infile) = 0;
   virtual void saveToFileInternal(std::ofstream& outfile) = 0;
@@ -261,7 +265,7 @@ protected:
   //Data* data;
   //Data* training;
 
-  std::vector<std::vector<std::vector<double>>> predictions;
+  //std::vector<std::vector<std::vector<double>>> m_predictions;
   double overall_prediction_error;
 
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable

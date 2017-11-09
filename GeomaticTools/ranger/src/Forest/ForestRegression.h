@@ -48,11 +48,11 @@ public:
 private:
 	virtual void initInternal(Data* data, std::string status_variable_name);
 	virtual void growInternal(Data* data);
-	virtual void predictInternal(Data* data);
-	virtual void computePredictionErrorInternal(Data* data);
+	virtual void predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
+	virtual void computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions);
 	virtual void writeOutputInternal();
 	virtual void writeConfusionFile(std::string filename);
-	virtual void writePredictionFile(std::string filename);
+	virtual void writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions);
 	virtual void saveToFileInternal(std::ofstream& outfile);
 	virtual void loadFromFileInternal(std::ifstream& infile);
 	

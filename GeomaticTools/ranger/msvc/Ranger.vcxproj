@@ -153,9 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\cpp_version\src\ArgumentHandler.cpp" />
     <ClCompile Include="..\cpp_version\src\getopt.cpp" />
     <ClCompile Include="..\cpp_version\src\main.cpp" />

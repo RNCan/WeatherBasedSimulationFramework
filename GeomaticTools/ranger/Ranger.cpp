@@ -19,12 +19,10 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-//#include "Geomatic/See5hooks.h"
 #include "Geomatic/LandsatDataset.h"
 
 #include "Utility/DataShort.h"
 #include "globals.h"
-//#include "ArgumentHandler.h"
 #include "Forest/ForestClassification.h"
 #include "Forest/ForestRegression.h"
 #include "Forest/ForestSurvival.h"
@@ -37,10 +35,11 @@
 
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+//using namespace WBSF::Landsat;
 
  
-//-of VRT -co COMPRES=LZW "D:\Travaux\Ranger\Training\exemple_train_remi.classification.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.vrt"
+//-co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.classification.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"
+//-te 661190 5098890 668810 5111820 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi1.classification.forest" "U:\GIS\#documents\TestCodes\Ranger\Input\L8_006028_20150717_ext.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\output.tif"
 
 static const char* version = "1.0.0";
 static const int NB_THREAD_PROCESS = 2; 
@@ -56,31 +55,16 @@ class CDisterbanceAnalyserOption : public CBaseOptions
 public:
 	CDisterbanceAnalyserOption()
 	{
-		//m_bAllBands=false;
-	
-		//m_bExportBands=false;
-		//m_bExportTimeSeries = false;
-		//m_nbDisturbances=1;
-		//m_bDebug=false;
+		m_seed = 0;
 		m_nbPixel=0;
 		m_nbPixelDT=0;
 		m_scenesSize = 7;// SCENES_SIZE;
-		//m_bFireSeverity = false;
-
 		m_appDescription = "This software look up (with a random forest tree model) for disturbance in a any number series of LANDSAT scenes";
-
-		//AddOption("-TTF");
-		//AddOption("-Period");
 
 		static const COptionDef OPTIONS[] = 
 		{
 		//	{ "-Trigger", 3, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-	//		{ "-Despike", 3, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-//			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
-			//{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
-			//{ "-ExportBands",0,"",false,"Export disturbances scenes."},
-			//{ "-ExportTimeSeries", 0, "", false, "Export informations over all period." },
-			//{ "-ExportCloud", 0, "", false, "Export clouds and shawdows informations for all years." },
+			{ "-Seed", 1, "sd", false, "Seed for Random forest." },
 			//{ "-Debug",0,"",false,"Output debug information."},
 			{ "ForestFile",0,"",false,"Random forest model file path."},
 			{ "src1file",0,"",false, "LANDSAT scenes image file path."},
@@ -188,32 +172,21 @@ public:
 		//{
 		//	m_bExportTimeSeries = true;
 		//}
-		//else if (IsEqual(argv[i], "-Debug"))
-		//{
-		//	m_bDebug=true;
-		//}
-		//else
-		//{
+		if (IsEqual(argv[i], "-Seed"))
+		{
+			m_seed = atoi(argv[++i]);
+		}
+		else
+		{
 			//Look to see if it's a know base option
 			msg = CBaseOptions::ProcessOption(i, argc, argv);
-		//}
+		}
 		
 		return msg;
 	}
 
-	//bool m_bByYear;
-	//bool m_bAllBands;
-	
-	
-	//CIndiciesVector m_trigger;
-	//CIndiciesVector m_despike;
 
-	//bool m_bExportBands;
-	//bool m_bExportTimeSeries;
-	//bool m_bFireSeverity;
-	//bool m_bDebug;
-	//int	 m_nbDisturbances;
-	
+	int m_seed;
 
 	__int64 m_nbPixelDT;
 	__int64 m_nbPixel;
@@ -246,12 +219,6 @@ public:
 	ERMsg ReadRules(ForestVector& forest);
 
 	CDisterbanceAnalyserOption m_options;
-
-	//static int FindIndex(int start, const vector<short>& bandsvalue, int dir);
-	//static void LoadModel(ForestVector& DT, string filePath);
-	//static short DTCode2ChangeCodeIndex(short DTCode);
-	//static short DTCode2ChangeCode(short DTCode);
-
 };
 
 // Create forest object
@@ -290,21 +257,18 @@ ERMsg CDisterbanceAnalyser::ReadRules(ForestVector& forests)
 	TreeType treetype = GetTreeType(m_options.m_filesPath[FOREST_FILE_PATH]);
 	
 	
-	forests.reserve(m_options.m_CPU);
-	for (size_t i = 0; i < m_options.m_CPU; i++)
+	//forests.reserve(m_options.m_CPU);
+	for (size_t i = 0; i < 1; i++)
 	{
 		forests.push_back( ForestPtr(CreateForest(treetype)) );
-		forests[i]->init_predict( 1, false, DEFAULT_PREDICTIONTYPE);
+		forests[i]->init_predict(m_options.m_seed, m_options.m_CPU, false, DEFAULT_PREDICTIONTYPE);
 		forests[i]->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
 	}
 
-
-	//msg += DT.Load(m_options.m_filesPath[FOREST_FILE_PATH], m_options.m_CPU, m_options.m_IOCPU);
 	timer.Stop();
 
 	if( !m_options.m_bQuiet )
-		cout << "Read rules time = " << SecondToDHMS(timer.Elapsed()).c_str() << endl << endl;
-
+		cout << "Read forest time = " << SecondToDHMS(timer.Elapsed()).c_str() << endl << endl;
 
 	return msg;
 }	
@@ -365,105 +329,6 @@ ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& m
 		string filePath = option.m_filesPath[OUTPUT_FILE_PATH];
 		msg += outputDS.CreateImage(filePath, option);
 	}
-	
-
-	//open exportStats files
-	//if (msg && m_options.m_bFireSeverity)
-	//{
-	//	if(!m_options.m_bQuiet) 
-	//		_tprintf("Create fire severity image...\n");
-
-	//	CDisterbanceAnalyserOption options = m_options;
-	//	options.m_nbBands = NB_FIRE_SEVERITY;
-	//	options.m_outputType = GDT_Float32;
-	//	options.m_dstNodata=::GetDefaultNoData(GDT_Int32);
-	//	string exportPath = options.m_filesPath[OUTPUT_FILE_PATH];
-	//	SetFileTitle(exportPath, GetFileTitle(exportPath) + "_fireSeverity");
-	//	for (size_t m = 0; m < NB_FIRE_SEVERITY; m++)
-	//		options.m_VRTBandsName += GetFileTitle(exportPath) + "_" + FIRE_SEVERITY_MODEL_NAME[m] + ".tif|";
-
-	//	msg += fireSeverityDS.CreateImage(exportPath, options);
-	//}
-	//
-	//if( msg && m_options.m_bExportBands )
-	//{
-	//	if(!m_options.m_bQuiet) 
-	//		cout << "Create export bands images..." << endl;
-	//		
-
-	//	CDisterbanceAnalyserOption options = m_options;
-	//	options.m_nbBands = NB_EXPORT_BANDS*NB_EXPORT_TEMPORAL;//T-2 à T+3
-	//	options.m_outputType = GDT_Int16;
-	//	options.m_dstNodata=::GetDefaultNoData(GDT_Int16);
-
-	//	exportBandsDS.resize(options.m_nbDisturbances);
-	//	for(size_t i=0; i<exportBandsDS.size(); i++)
-	//	{
-	//		string exportPath = options.m_filesPath[OUTPUT_FILE_PATH];
-	//		if (i>0)
-	//			SetFileTitle(exportPath, GetFileTitle(exportPath) + ToString(i + 1));
-
-	//		SetFileTitle(exportPath, GetFileTitle(exportPath) +"_exportBands");
-
-	//		assert(NB_EXPORT_BANDS == SCENES_SIZE);
-	//		for (size_t s = 0; s < NB_EXPORT_TEMPORAL; s++)
-	//		{
-	//			
-	//			for (size_t b = 0; b < SCENES_SIZE; b++)
-	//				options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + CLandsatDataset::SCENE_NAME[b] + ".tif|";
-	//		}
-
-	//		msg += exportBandsDS[i].CreateImage(exportPath, options);
-	//	}
-	//}
-	//
-	//if (msg && m_options.m_bExportTimeSeries)
-	//{
-	//	if (!m_options.m_bQuiet)
-	//		cout << "Create export time series images..." << endl;
-
-
-	//	ASSERT(landsatDS.GetNbScenes() == landsatDS.GetPeriod().GetNbYears());
-	//	CDisterbanceAnalyserOption options = m_options;
-	//	options.m_nbBands = landsatDS.GetNbScenes() - 1;
-	//	options.m_outputType = GDT_Byte;
-	//	options.m_dstNodata = ::GetDefaultNoData(GDT_Byte);
-	//	
-	//	string exportPath = options.m_filesPath[OUTPUT_FILE_PATH];
-	//	SetFileTitle(exportPath, GetFileTitle(exportPath) + "_timeSeries");
-	//	
-	//	for (size_t y = 0; y < landsatDS.GetScenePeriod().size()-1; y++)
-	//	{
-	//		ASSERT(landsatDS.GetScenePeriod().at(y).Begin().GetYear() == landsatDS.GetScenePeriod().at(y).End().GetYear());
-	//		int year1 = landsatDS.GetScenePeriod().at(y).Begin().GetYear();
-	//		//int year2 = landsatDS.GetScenePeriod().at(y+1).Begin().GetYear();
-	//		options.m_VRTBandsName += GetFileTitle(exportPath) + string("_") + FormatA("%d", year1) + ".tif|";
-	//	}
-
-	//	msg += exportTSDS.CreateImage(exportPath, options);
-	//}
-
-	//
-
-	//
-	//if( msg && m_options.m_bDebug )
-	//{
-	//	if(!m_options.m_bQuiet) 
-	//		cout << "Create debug image..." << endl;
-
-	//	CDisterbanceAnalyserOption options = m_options;
-	//	options.m_nbBands = NB_DEBUGS;
-	//	options.m_outputType = GDT_Int32;
-	//	options.m_dstNodata= ::GetDefaultNoData(GDT_Int32);
-	//	string filePath = options.m_filesPath[OUTPUT_FILE_PATH];
-	//	SetFileTitle(filePath, GetFileTitle(filePath) + "_debug");
-	//	for (size_t d = 0; d < NB_DEBUGS; d++)
-	//	{
-	//		options.m_VRTBandsName += GetFileTitle(filePath) + "_" + DEBUG_NAME[d] + ".tif|";
-	//	}
-
-	//	msg += debugDS.CreateImage(filePath, options);
-	//}
 
 	return msg;
 }
@@ -545,9 +410,6 @@ ERMsg CDisterbanceAnalyser::Execute()
 		}//for all blocks
 
 
-		//  Close decision tree and free allocated memory  
-		//DT.FreeMemory();
-
 		//close inputs and outputs
 		CloseAll(inputDS, maskDS, outputDS);
 
@@ -572,10 +434,6 @@ void CDisterbanceAnalyser::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandH
 //Get input image reference
 void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestVector& forest, OutputData& output)
 {
-	//CGDALDatasetEx& inputDS, 
-
-	//size_t nbScenes = bandHolder.GetNbScenes();
-	//size_t sceneSize = bandHolder.GetSceneSize();
 	CGeoExtents extents = bandHolder.GetExtents();
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 	int nbCells = extents.m_xSize*extents.m_ySize;
@@ -589,63 +447,146 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 		return;
 	}
 
+	CRasterWindow window = bandHolder.GetWindow();
+	if (m_options.m_bCreateImage)
+	{
+		output.resize(NB_OUTPUT_BANDS);
+		for (size_t i = 0; i < output.size(); i++)
+			output[i].insert(output[i].begin(), blockSize.m_x*blockSize.m_y, (__int16)m_options.m_dstNodata);
+	}
+	//
 
 #pragma omp critical(ProcessBlock)
 	{
 		m_options.m_timerProcess.Start();
 
-		CRasterWindow window = bandHolder.GetWindow();
-		if (m_options.m_bCreateImage)
-		{
-			output.resize(NB_OUTPUT_BANDS);
-			for (size_t i = 0; i < output.size(); i++)
-				output[i].resize(blockSize.m_x*blockSize.m_y);
-		}
-			
-		//process all x and y 
-#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
+		bool bHaveData = false;
+		DataShort input;
+		input.resize(blockSize.m_x*blockSize.m_y, window.GetSceneSize());
 		for (int y = 0; y < blockSize.m_y; y++)
 		{
-			int thread = ::omp_get_thread_num();
-
-			DataShort input; 
-			input.resize(blockSize.m_x, window.GetSceneSize());
-			bool bHaveData = false;
-			for (int x = 0; x<blockSize.m_x; x++)
+			for (int x = 0; x < blockSize.m_x; x++)
 			{
+				int xy = y*blockSize.m_x + x;
 				for (size_t z = 0; z < window.GetSceneSize(); z++)
 				{
-					if (window[z]->IsValid(x,y))
+					if (window[z]->IsValid(x, y))
 						bHaveData = true;
-
-					bool error=false;
-					input.set(z, x, window[z]->at(x, y), error);
-
+					bool error = false;
+					input.set(z, xy, window[z]->at(x, y), error);
 				}
 			}
-			if (bHaveData)
+		}
+		if (bHaveData)
+		{
+			std::vector<std::vector<std::vector<double>>> predictions;
+			forest[0]->run_predict(&input, predictions);
+			if (!output.empty())
 			{
-				forest[thread]->run(&input);
-
-				for (int x = 0; x < blockSize.m_x; x++)
+				for (int y = 0; y < blockSize.m_y; y++)
 				{
-					int xy = y*blockSize.m_x + x;
-
-					double predict = forest[thread]->getPredictions().at(0).at(0).at(x);
-					output[0][xy] = (__int16)predict;
-				}//for x
+					for (int x = 0; x < blockSize.m_x; x++)
+					{
+						int xy = y*blockSize.m_x + x;
+						output[0][xy] = (__int16)predictions.at(0).at(0).at(xy);
+					}
+				}
 			}
-
-#pragma omp atomic	
-			m_options.m_xx += blockSize.m_x;
-
-			m_options.UpdateBar();
-		}//for y
-
-
+		}
 
 		m_options.m_timerProcess.Stop();
+
+		//#pragma omp atomic	
+		m_options.m_xx += blockSize.m_x*blockSize.m_y;
+
+		m_options.UpdateBar();
 	}
+
+	
+
+//
+//	//process all x and y 
+//	//#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
+//	for (int y = 0; y < blockSize.m_y; y++)
+//	{
+//		int thread = 0;// ::omp_get_thread_num();
+//		//DataShort input;
+//		//input.resize(blockSize.m_x, window.GetSceneSize());
+//		//bool bHaveData = false;
+//
+//		//bool bHaveData = false;
+//
+//		for (int x = 0; x < blockSize.m_x; x++)
+//		{
+//			for (size_t z = 0; z < window.GetSceneSize(); z++)
+//			{
+//				int xy = y*blockSize.m_x + x;
+//				//if (window[z]->IsValid(x, y))
+//				//bHaveData = true;
+//
+//				bool error = false;
+//				input.set(z, xy, window[z]->at(x, y), error);
+//			}
+//
+//		}
+//	}
+//
+//#pragma omp critical(ProcessBlock)
+//	{
+//		m_options.m_timerProcess.Start();
+//
+//		
+//			
+//		
+//			//if (bHaveData)
+//				//{
+//				//	std::vector<std::vector<std::vector<double>>> predictions;
+//				//	forest[0]->run_predict(&input, predictions);
+//				//	double predict = predictions.at(0).at(0).at(0);
+//
+//				//	int xy = y*blockSize.m_x + x;
+//				//	output[0][xy] = (__int16)predict;
+//				//}
+//			//}
+//
+//			//if (bHaveData)
+//			//{
+//		
+//		int thread = 0;// ::omp_get_thread_num();
+//		forest[thread]->run_predict(&input, predictions);
+//
+//		for (int y = 0; y < blockSize.m_y; y++)
+//		{
+//			
+//			//DataShort input;
+//			//input.resize(blockSize.m_x, window.GetSceneSize());
+//			//bool bHaveData = false;
+//
+//			//bool bHaveData = false;
+//
+//			for (int x = 0; x < blockSize.m_x; x++)
+//			{
+//				
+//				int xy = y*blockSize.m_x + x;
+//				//for (int x = 0; x < blockSize.m_x; x++)
+//				//{
+//
+//
+//				double predict = predictions.at(0).at(0).at(xy);
+//				output[0][xy] = (__int16)predict;
+//			}//for x
+//		}
+//
+//#pragma omp atomic	
+//		m_options.m_xx += blockSize.m_x*blockSize.m_y;
+//
+//			m_options.UpdateBar();
+//		//}//for y
+//
+//
+//
+//		m_options.m_timerProcess.Stop();
+//	}
 }
 
 void CDisterbanceAnalyser::WriteBlock(int xBlock, int yBlock, OutputData& output, CGDALDatasetEx& outputDS)
@@ -722,8 +663,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		cout << RandomForest.GetDescription() << endl;
 
 
-	if( msg )  
-		msg = RandomForest.Execute();
+	if (msg)
+	{
+		try {
+			msg = RandomForest.Execute();
+		}
+		catch (std::exception& e) {
+			std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
+			return -1;
+		}
+	}
+		
 
 	if( !msg)  
 	{

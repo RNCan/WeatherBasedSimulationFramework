@@ -128,41 +128,44 @@ void ForestClassification::growInternal(Data* data) {
   }
 }
 
-void ForestClassification::predictInternal(Data* data) {
+void ForestClassification::predictInternal(size_t sample_idx, const Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
-  size_t num_prediction_samples = data->getNumRows();
-  if (predict_all || prediction_type == TERMINALNODES) {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
-  } else {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
-  }
+	/*size_t num_prediction_samples = data->getNumRows();
+	if (predict_all || prediction_type == TERMINALNODES) {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
+	}
+	else {
+		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
+	}*/
 
-  // For all samples get tree predictions
-  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+	// For all samples get tree predictions
+	//for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
-    if (predict_all || prediction_type == TERMINALNODES) {
-      // Get all tree predictions
-      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        if (prediction_type == TERMINALNODES) {
-          predictions[0][sample_idx][tree_idx] = (double)((TreeClassification*) trees[tree_idx])->getPredictionTerminalNodeID(sample_idx);
-        } else {
-          predictions[0][sample_idx][tree_idx] = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
-        }
-      }
-    } else {
-      // Count classes over trees and save class with maximum count
-      std::unordered_map<double, size_t> class_count;
-      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
-        ++class_count[value];
-      }
-      predictions[0][0][sample_idx] = mostFrequentValue(class_count, random_number_generator);
-    }
+		if (predict_all || prediction_type == TERMINALNODES) {
+			// Get all tree predictions
+			for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+				if (prediction_type == TERMINALNODES) {
+					predictions[0][sample_idx][tree_idx] = (double)((TreeClassification*)trees[tree_idx])->getPredictionTerminalNodeID(sample_idx);
+				}
+				else {
+					predictions[0][sample_idx][tree_idx] = ((TreeClassification*)trees[tree_idx])->getPrediction(sample_idx);
+				}
+			}
+		}
+		else {
+			// Count classes over trees and save class with maximum count
+			std::unordered_map<double, size_t> class_count;
+			for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+				double value = ((TreeClassification*)trees[tree_idx])->getPrediction(sample_idx);
+				++class_count[value];
+			}
+			predictions[0][0][sample_idx] = mostFrequentValue(class_count, random_number_generator);
+		}
 
-  }
+	//}
 }
 
-void ForestClassification::computePredictionErrorInternal(Data* data) {
+void ForestClassification::computePredictionErrorInternal(Data* data, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   // Class counts for samples
   std::vector<std::unordered_map<double, size_t>> class_counts;
@@ -257,7 +260,7 @@ void ForestClassification::writeConfusionFile(std::string filename) {
 	*verbose_out << "Saved confusion matrix to file " << filename << "." << std::endl;
 }
 
-void ForestClassification::writePredictionFile(std::string filename) {
+void ForestClassification::writePredictionFile(std::string filename, std::vector<std::vector<std::vector<double>>>& predictions) {
 
   // Open prediction file for writing
   //std::string filename = output_prefix + ".prediction";
@@ -273,17 +276,17 @@ void ForestClassification::writePredictionFile(std::string filename) {
     for (size_t k = 0; k < num_trees; ++k) {
       outfile << "Tree " << k << ":" << std::endl;
       for (size_t i = 0; i < predictions.size(); ++i) {
-        for (size_t j = 0; j < predictions[i].size(); ++j) {
-          outfile << predictions[i][j][k] << std::endl;
+		  for (size_t j = 0; j < predictions[i].size(); ++j) {
+			  outfile << predictions[i][j][k] << std::endl;
         }
       }
       outfile << std::endl;
     }
   } else {
-    for (size_t i = 0; i < predictions.size(); ++i) {
-      for (size_t j = 0; j < predictions[i].size(); ++j) {
-        for (size_t k = 0; k < predictions[i][j].size(); ++k) {
-          outfile << predictions[i][j][k] << std::endl;
+	  for (size_t i = 0; i < predictions.size(); ++i) {
+		  for (size_t j = 0; j < predictions[i].size(); ++j) {
+			  for (size_t k = 0; k < predictions[i][j].size(); ++k) {
+				  outfile << predictions[i][j][k] << std::endl;
         }
       }
     }
