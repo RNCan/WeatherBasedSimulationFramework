@@ -12,104 +12,104 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Forest\Forest.cpp">
+    <ClCompile Include="..\RangerLib\Forest\Forest.cpp">
       <Filter>Forest</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Forest\ForestClassification.cpp">
+    <ClCompile Include="..\RangerLib\Forest\ForestClassification.cpp">
       <Filter>Forest</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Forest\ForestProbability.cpp">
+    <ClCompile Include="..\RangerLib\Forest\ForestProbability.cpp">
       <Filter>Forest</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Forest\ForestRegression.cpp">
+    <ClCompile Include="..\RangerLib\Forest\ForestRegression.cpp">
       <Filter>Forest</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Forest\ForestSurvival.cpp">
+    <ClCompile Include="..\RangerLib\Forest\ForestSurvival.cpp">
       <Filter>Forest</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Tree\Tree.cpp">
+    <ClCompile Include="..\RangerLib\Tree\Tree.cpp">
       <Filter>Tree</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Tree\TreeClassification.cpp">
+    <ClCompile Include="..\RangerLib\Tree\TreeClassification.cpp">
       <Filter>Tree</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Tree\TreeProbability.cpp">
+    <ClCompile Include="..\RangerLib\Tree\TreeProbability.cpp">
       <Filter>Tree</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Tree\TreeRegression.cpp">
+    <ClCompile Include="..\RangerLib\Tree\TreeRegression.cpp">
       <Filter>Tree</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Tree\TreeSurvival.cpp">
+    <ClCompile Include="..\RangerLib\Tree\TreeSurvival.cpp">
       <Filter>Tree</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\Data.cpp">
+    <ClCompile Include="..\RangerLib\Utility\Data.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\DataChar.cpp">
+    <ClCompile Include="..\RangerLib\Utility\DataChar.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\DataDouble.cpp">
+    <ClCompile Include="..\RangerLib\Utility\DataDouble.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\DataFloat.cpp">
+    <ClCompile Include="..\RangerLib\Utility\DataFloat.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\DataShort.cpp">
+    <ClCompile Include="..\RangerLib\Utility\DataShort.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Utility\utility.cpp">
+    <ClCompile Include="..\RangerLib\Utility\utility.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Forest\Forest.h">
+    <ClInclude Include="..\RangerLib\Forest\Forest.h">
       <Filter>Forest</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Forest\ForestClassification.h">
+    <ClInclude Include="..\RangerLib\Forest\ForestClassification.h">
       <Filter>Forest</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Forest\ForestProbability.h">
+    <ClInclude Include="..\RangerLib\Forest\ForestProbability.h">
       <Filter>Forest</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Forest\ForestRegression.h">
+    <ClInclude Include="..\RangerLib\Forest\ForestRegression.h">
       <Filter>Forest</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Forest\ForestSurvival.h">
+    <ClInclude Include="..\RangerLib\Forest\ForestSurvival.h">
       <Filter>Forest</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Tree\Tree.h">
+    <ClInclude Include="..\RangerLib\Tree\Tree.h">
       <Filter>Tree</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Tree\TreeClassification.h">
+    <ClInclude Include="..\RangerLib\Tree\TreeClassification.h">
       <Filter>Tree</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Tree\TreeProbability.h">
+    <ClInclude Include="..\RangerLib\Tree\TreeProbability.h">
       <Filter>Tree</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Tree\TreeRegression.h">
+    <ClInclude Include="..\RangerLib\Tree\TreeRegression.h">
       <Filter>Tree</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Tree\TreeSurvival.h">
+    <ClInclude Include="..\RangerLib\Tree\TreeSurvival.h">
       <Filter>Tree</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\Data.h">
+    <ClInclude Include="..\RangerLib\Utility\Data.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\DataChar.h">
+    <ClInclude Include="..\RangerLib\Utility\DataChar.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\DataDouble.h">
+    <ClInclude Include="..\RangerLib\Utility\DataDouble.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\DataFloat.h">
+    <ClInclude Include="..\RangerLib\Utility\DataFloat.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\DataShort.h">
+    <ClInclude Include="..\RangerLib\Utility\DataShort.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Utility\utility.h">
+    <ClInclude Include="..\RangerLib\Utility\utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\globals.h" />
+    <ClInclude Include="..\RangerLib\globals.h" />
   </ItemGroup>
 </Project>

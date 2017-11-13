@@ -19,41 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Forest\Forest.cpp" />
-    <ClCompile Include="..\src\Forest\ForestClassification.cpp" />
-    <ClCompile Include="..\src\Forest\ForestProbability.cpp" />
-    <ClCompile Include="..\src\Forest\ForestRegression.cpp" />
-    <ClCompile Include="..\src\Forest\ForestSurvival.cpp" />
-    <ClCompile Include="..\src\Tree\Tree.cpp" />
-    <ClCompile Include="..\src\Tree\TreeClassification.cpp" />
-    <ClCompile Include="..\src\Tree\TreeProbability.cpp" />
-    <ClCompile Include="..\src\Tree\TreeRegression.cpp" />
-    <ClCompile Include="..\src\Tree\TreeSurvival.cpp" />
-    <ClCompile Include="..\src\Utility\Data.cpp" />
-    <ClCompile Include="..\src\Utility\DataChar.cpp" />
-    <ClCompile Include="..\src\Utility\DataDouble.cpp" />
-    <ClCompile Include="..\src\Utility\DataFloat.cpp" />
-    <ClCompile Include="..\src\Utility\DataShort.cpp" />
-    <ClCompile Include="..\src\Utility\utility.cpp" />
+    <ClCompile Include="..\RangerLib\Forest\Forest.cpp" />
+    <ClCompile Include="..\RangerLib\Forest\ForestClassification.cpp" />
+    <ClCompile Include="..\RangerLib\Forest\ForestProbability.cpp" />
+    <ClCompile Include="..\RangerLib\Forest\ForestRegression.cpp" />
+    <ClCompile Include="..\RangerLib\Forest\ForestSurvival.cpp" />
+    <ClCompile Include="..\RangerLib\Tree\Tree.cpp" />
+    <ClCompile Include="..\RangerLib\Tree\TreeClassification.cpp" />
+    <ClCompile Include="..\RangerLib\Tree\TreeProbability.cpp" />
+    <ClCompile Include="..\RangerLib\Tree\TreeRegression.cpp" />
+    <ClCompile Include="..\RangerLib\Tree\TreeSurvival.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\Data.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\DataChar.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\DataDouble.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\DataFloat.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\DataShort.cpp" />
+    <ClCompile Include="..\RangerLib\Utility\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Forest\Forest.h" />
-    <ClInclude Include="..\src\Forest\ForestClassification.h" />
-    <ClInclude Include="..\src\Forest\ForestProbability.h" />
-    <ClInclude Include="..\src\Forest\ForestRegression.h" />
-    <ClInclude Include="..\src\Forest\ForestSurvival.h" />
-    <ClInclude Include="..\src\globals.h" />
-    <ClInclude Include="..\src\Tree\Tree.h" />
-    <ClInclude Include="..\src\Tree\TreeClassification.h" />
-    <ClInclude Include="..\src\Tree\TreeProbability.h" />
-    <ClInclude Include="..\src\Tree\TreeRegression.h" />
-    <ClInclude Include="..\src\Tree\TreeSurvival.h" />
-    <ClInclude Include="..\src\Utility\Data.h" />
-    <ClInclude Include="..\src\Utility\DataChar.h" />
-    <ClInclude Include="..\src\Utility\DataDouble.h" />
-    <ClInclude Include="..\src\Utility\DataFloat.h" />
-    <ClInclude Include="..\src\Utility\DataShort.h" />
-    <ClInclude Include="..\src\Utility\utility.h" />
+    <ClInclude Include="..\RangerLib\Forest\Forest.h" />
+    <ClInclude Include="..\RangerLib\Forest\ForestClassification.h" />
+    <ClInclude Include="..\RangerLib\Forest\ForestProbability.h" />
+    <ClInclude Include="..\RangerLib\Forest\ForestRegression.h" />
+    <ClInclude Include="..\RangerLib\Forest\ForestSurvival.h" />
+    <ClInclude Include="..\RangerLib\globals.h" />
+    <ClInclude Include="..\RangerLib\Tree\Tree.h" />
+    <ClInclude Include="..\RangerLib\Tree\TreeClassification.h" />
+    <ClInclude Include="..\RangerLib\Tree\TreeProbability.h" />
+    <ClInclude Include="..\RangerLib\Tree\TreeRegression.h" />
+    <ClInclude Include="..\RangerLib\Tree\TreeSurvival.h" />
+    <ClInclude Include="..\RangerLib\Utility\Data.h" />
+    <ClInclude Include="..\RangerLib\Utility\DataChar.h" />
+    <ClInclude Include="..\RangerLib\Utility\DataDouble.h" />
+    <ClInclude Include="..\RangerLib\Utility\DataFloat.h" />
+    <ClInclude Include="..\RangerLib\Utility\DataShort.h" />
+    <ClInclude Include="..\RangerLib\Utility\utility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}</ProjectGuid>
@@ -104,20 +104,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\$(Configuration)$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\$(Configuration)$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\$(Configuration)$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\$(Configuration)$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,6 +126,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\RangerLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +140,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\RangerLib</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -156,6 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\RangerLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,7 +175,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\RangerLib</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
