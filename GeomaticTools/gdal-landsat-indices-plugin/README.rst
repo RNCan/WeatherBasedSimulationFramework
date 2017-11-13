@@ -41,7 +41,7 @@ List of Landsat indices pixel functions
 How to get it
 -------------
 
-The project home page is at https://github.com/RNCan/WeatherBasedSimulationFramework/tree/master/GeomaticTools
+The project home page is at https://github.com/RNCan/WeatherBasedSimulationFramework/tree/master/GeomaticTools/gdal-landsat-indices-plugin
 
 
 How to build, test and install
@@ -51,8 +51,8 @@ The gdal-landsat-indices-plugin can be built using Visual Studio 2013
 
 
 To install the plugin just copy the generated dll (gdal_LandsatIndices.dll)
-into the GDAL plugin directory ("<GDAL directoy>\gdalplugins\" on Windows) or with QGIS (at least version 2.18.14) :
-"<QGIS directory>\bin\gdalplugins\"
+into the GDAL plugin directory ("<GDAL directoy>/gdalplugins/" on Windows) or with QGIS (at least version 2.18.14) :
+"<QGIS directory>/bin/gdalplugins/"
 
 
 The plugin can also be used without installing it.
