@@ -30,7 +30,7 @@
 #include <math.h>
 #include <gdal.h>
 
-enum { B1, B2, B3, B4, B5, B6, B7 };
+enum { B1, B2, B3, B4, B5, B6, B7 }; 
 
 
 CPLErr NBR(void **papoSources, int nSources, void *pData,

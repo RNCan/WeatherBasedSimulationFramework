@@ -51,5 +51,5 @@ void GDALRegister_LandsatIndices(void)
 
 	GDALRegisterLandsatIndices();
     CPLDebug("LandsatIndices", "Plugin %s %s", PLUGINNAME, "$Revision: $");
-
+ 
 } /* GDALRegister_PIXFUN */

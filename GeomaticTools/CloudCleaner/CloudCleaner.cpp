@@ -60,16 +60,21 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_B1threshold = -175;
 	m_TCBthreshold = 600;
 	m_bFillCloud = false;
+	m_scene = 0;
 
 	m_appDescription = "This software look up for cloud from Landsat images series (composed of " + to_string(SCENES_SIZE) + " bands) with a decision tree model";
 	
+
+
 	static const COptionDef OPTIONS[] =
 	{
 		{ "-B1", 1, "threshold", false, "trigger threshold for band 1 to execute decision tree. -175 by default." },
 		{ "-TCB", 1, "threshold", false, "trigger threshold for Tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
+		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous years (+1,-1,+2,-2,...)." },
+		{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },
+		{ "-Buffer", 1, "nbPixel", false, "Reset or filled (if -FillCloud enable) nbPixels arround the pixels set as cloud. Will be . 0 by default." },
 		{ "-OutputDT", 0, "", false, "Output Decision Tree Code." },
 		{ "-Debug",0,"",false,"Output debug information (TriggerID)."},
-		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous years." },
 		{ "DTModel", 0, "", false, "Decision tree cloud model file path." },
 		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
@@ -107,6 +112,14 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	else if (IsEqual(argv[i], "-FillCloud"))
 	{
 		m_bFillCloud = true;
+	}
+	else if (IsEqual(argv[i], "-Scene"))
+	{
+		m_scene = atoi(argv[++i])-1;
+	}
+	else if (IsEqual(argv[i], "-Buffer"))
+	{
+		m_buffer = atoi(argv[++i]) ;
 	}
 	else if (IsEqual(argv[i], "-OutputDT"))
 	{

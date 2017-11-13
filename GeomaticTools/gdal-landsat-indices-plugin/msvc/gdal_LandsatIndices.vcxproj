@@ -161,6 +161,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "C:\GDAL\gdalplugins\$(TargetName)$(TargetExt)"
+copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\..\bin\Tools\$(TargetName)$(TargetExt)"
 
 </Command>
     </PostBuildEvent>

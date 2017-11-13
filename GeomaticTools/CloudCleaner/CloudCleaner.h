@@ -57,6 +57,8 @@ namespace WBSF
 		bool m_bDebug;
 		bool m_bOutputDT;
 		bool m_bFillCloud;
+		size_t m_scene;
+		size_t m_buffer;
 
 		__int64 m_nbPixelDT;
 		__int64 m_nbPixel;

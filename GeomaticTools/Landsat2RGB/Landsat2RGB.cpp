@@ -54,7 +54,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
-			{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },//overide scene size defenition
+			{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },
 			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0 and 255 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
