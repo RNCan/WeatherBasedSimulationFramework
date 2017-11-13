@@ -80,13 +80,6 @@ void ForestRegression::initInternal(Data* data, std::string status_variable_name
   }
 }
 
-//void ForestRegression::initInternalData(Data* data, std::string status_variable_name)
-//{
-//	if (!memory_saving_splitting) {
-//		data->sort();
-//	}
-//}
-
 void ForestRegression::growInternal(Data* data) {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
@@ -94,8 +87,7 @@ void ForestRegression::growInternal(Data* data) {
   }
 }
 
-void ForestRegression::allocatePredictMemory(const Data* data)
-{
+void ForestRegression::allocatePredictMemory(const Data* data){
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all || prediction_type == TERMINALNODES) {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
@@ -103,39 +95,46 @@ void ForestRegression::allocatePredictMemory(const Data* data)
 	else {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
 	}
-//
+	
+	uncertainty = std::vector<double>(std::vector<double>(num_prediction_samples));
 }
 
 void ForestRegression::predictInternal(size_t sample_idx, const Data* data) {
 
-  /*size_t num_prediction_samples = data->getNumRows();
-  if (predict_all || prediction_type == TERMINALNODES) {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
-  } else {
-    predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
-  }
-*/
-  // For all samples get tree predictions
-  //for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+	/*size_t num_prediction_samples = data->getNumRows();
+	if (predict_all || prediction_type == TERMINALNODES) {
+	predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
+	} else {
+	predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
+	}
+	*/
+	// For all samples get tree predictions
+	//for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
-    if (predict_all || prediction_type == TERMINALNODES) {
-      // Get all tree predictions
-      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        if (prediction_type == TERMINALNODES) {
-			predictions[0][sample_idx][tree_idx] = (double)(((TreeRegression*)trees[tree_idx])->getPredictionTerminalNodeID(sample_idx));
-        } else {
-          predictions[0][sample_idx][tree_idx] = ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
-        }
-      }
-    } else {
-      // Mean over trees
-      double prediction_sum = 0;
-      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        prediction_sum += ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
-      }
-      predictions[0][0][sample_idx] = prediction_sum / num_trees;
-    }
-  //}
+	if (predict_all || prediction_type == TERMINALNODES) {
+		// Get all tree predictions
+		for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+			if (prediction_type == TERMINALNODES) {
+				predictions[0][sample_idx][tree_idx] = (double)(((TreeRegression*)trees[tree_idx])->getPredictionTerminalNodeID(sample_idx));
+			}
+			else {
+				predictions[0][sample_idx][tree_idx] = ((TreeRegression*)trees[tree_idx])->getPrediction(sample_idx);
+			}
+		}
+	}
+	else {
+		// Mean over trees
+		double sum = 0;
+		double sum² = 0;
+		for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+			double pred = ((TreeRegression*)trees[tree_idx])->getPrediction(sample_idx);
+			sum += pred;
+			sum² += pred*pred;
+		}
+		predictions[0][0][sample_idx] = sum / num_trees;
+		uncertainty[sample_idx] = sqrt(std::max(0.0, (sum² - ((sum*sum) / num_trees)) / num_trees)) / (sum / num_trees);
+	}
+	//}
 }
 
 void ForestRegression::computePredictionErrorInternal(Data* data) {

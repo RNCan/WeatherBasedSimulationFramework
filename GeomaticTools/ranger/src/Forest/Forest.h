@@ -148,6 +148,10 @@ public:
   const std::vector<std::vector<std::vector<double>> >& getPredictions() const {
     return predictions;
   }
+  const std::vector<double>& getUncertainty() const {
+	  return uncertainty;
+  }
+  
   size_t getDependentVarId() const {
     return dependent_varID;
   }
@@ -256,6 +260,7 @@ protected:
   //Data* training;
 
   std::vector<std::vector<std::vector<double>>> predictions;
+  std::vector<double> uncertainty;
   double overall_prediction_error;
 
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable

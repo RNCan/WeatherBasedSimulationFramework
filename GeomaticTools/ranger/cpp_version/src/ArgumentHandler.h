@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 Germany
 
 http://www.imbs-luebeck.de
@@ -51,58 +51,58 @@ http://www.imbs-luebeck.de
  */
 class ArgumentHandler {
 public:
-  ArgumentHandler(int argc, char **argv);
-  virtual ~ArgumentHandler();
+	ArgumentHandler(int argc, char **argv);
+	virtual ~ArgumentHandler();
 
-  // Get arguments and catch conversion exceptions
-  int processArguments();
+	// Get arguments and catch conversion exceptions
+	int processArguments();
 
-  // Check required arguments, ranges, files, ..
-  void checkArguments();
+	// Check required arguments, ranges, files, ..
+	void checkArguments();
 
-  // All command line arguments as member: Capital letters
-  std::vector<std::string> alwayssplitvars;
-  std::string caseweights;
-  std::string depvarname;
-  double fraction;
-  bool holdout;
-  MemoryMode memmode;
-  bool savemem;
-  std::string predict;
-  PredictionType predictiontype;
-  uint randomsplits;
-  std::string splitweights;
-  uint nthreads;
-  bool predall;
+	// All command line arguments as member: Capital letters
+	std::vector<std::string> alwayssplitvars;
+	std::string caseweights;
+	std::string depvarname;
+	double fraction;
+	bool holdout;
+	MemoryMode memmode;
+	bool savemem;
+	std::string predict;
+	PredictionType predictiontype;
+	uint randomsplits;
+	std::string splitweights;
+	uint nthreads;
+	bool predall;
 
-  // All command line arguments as member: Small letters
-  double alpha;
-  double minprop;
-  std::vector<std::string> catvars;
-  std::string file;
-  ImportanceMode impmeasure;
-  uint targetpartitionsize;
-  uint mtry;
-  std::string outprefix;
-  bool probability;
-  SplitRule splitrule;
-  std::string statusvarname;
-  uint ntree;
-  bool replace;
-  bool verbose;
-  bool write;
-  TreeType treetype;
-  uint seed;
+	// All command line arguments as member: Small letters
+	double alpha;
+	double minprop;
+	std::vector<std::string> catvars;
+	std::string file;
+	ImportanceMode impmeasure;
+	uint targetpartitionsize;
+	uint mtry;
+	std::string outprefix;
+	bool probability;
+	SplitRule splitrule;
+	std::string statusvarname;
+	uint ntree;
+	bool replace;
+	bool verbose;
+	bool write;
+	TreeType treetype;
+	uint seed;
 
 private:
-  // Display messages
-  void displayHelp();
-  void displayVersion();
+	// Display messages
+	void displayHelp();
+	void displayVersion();
 
-  int argc;
-  char** argv;
+	int argc;
+	char** argv;
 
-  DISALLOW_COPY_AND_ASSIGN(ArgumentHandler);
+	DISALLOW_COPY_AND_ASSIGN(ArgumentHandler);
 };
 
 #endif /* ARGUMENTHANDLER_H_ */

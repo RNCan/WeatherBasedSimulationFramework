@@ -50,8 +50,7 @@
 
 
 // Create forest object
-static Forest* CreateForest(TreeType treetype)
-{
+static Forest* CreateForest(TreeType treetype){
 	Forest* forest = NULL;
 	switch (treetype) {
 	case TREE_CLASSIFICATION:
@@ -71,13 +70,10 @@ static Forest* CreateForest(TreeType treetype)
 	return forest;
 }
 
-int main(int argc, char **argv) 
-{
-
+int main(int argc, char **argv) {
 	ArgumentHandler arg_handler(argc, argv);
 	Forest* forest = 0;
 	try {
-
 		// Handle command line arguments
 		if (arg_handler.processArguments() != 0) {
 			return 0;
@@ -150,8 +146,6 @@ int main(int argc, char **argv)
 			delete data;
 		}
 
-		
-
 		delete forest;
 	}
 	catch (std::exception& e) {
@@ -163,84 +157,3 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-//#include "DataShort.h"
-//
-//int main(int argc, char **argv)
-//{
-//	try
-//	{
-//		ArgumentHandler arg(argc, argv);
-//
-//		// Handle command line arguments
-//		if (arg.processArguments() != 0) {
-//			return 0;
-//		}
-//		arg.checkArguments();
-//		
-//		//std::string forest_filename;
-//
-//		arg.memmode = MEM_DOUBLE;
-//		arg.treetype = TREE_CLASSIFICATION;
-//		arg.seed = 0;
-//		//arg.nthreads = 1;
-//		arg.savemem = false;
-//
-//		std::ostream* verbose_out;
-//		if (arg.verbose)
-//		{
-//			verbose_out = &std::cout;
-//		}
-//		else
-//		{
-//			std::ofstream* logfile = new std::ofstream();
-//			logfile->open(arg.outprefix + ".log");
-//			if (!logfile->good()) {
-//				throw std::runtime_error("Could not write to logfile.");
-//			}
-//			verbose_out = logfile;
-//		}
-//
-//
-//		ForestClassification forest;
-//		forest.set_verbose(verbose_out);
-//		//forest.verbose_out = verbose_out;
-//
-//		
-//
-//
-//		// Call other init function
-//		forest.init_predict(/*arg.depvarname, &data, arg.mtry, arg.ntree, arg.seed,*/ arg.nthreads, /*arg.impmeasure,*/
-//			/*arg.targetpartitionsize, arg.statusvarname, true, arg.replace, arg.catvars,*/
-//			arg.savemem, /*arg.splitrule, */arg.predall, /*arg.fraction, arg.alpha, arg.minprop, arg.holdout,*/ arg.predictiontype/*,
-//			arg.randomsplits*/);
-//
-//
-//		forest.loadFromFile(arg.predict);
-//
-//
-//		// Initialize data with memmode
-//		DataShort data;
-//		//DataDouble data;
-//
-//		// Load data
-//		*verbose_out << "Loading input file: " << arg.file << "." << std::endl;
-//		bool rounding_error = data.loadFromFile(arg.file);
-//		if (rounding_error) {
-//			*verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this."
-//				<< std::endl;
-//		}
-//		forest.run(&data);
-//		//forest.writeOutput(arg.outprefix);
-//		std::string filename = arg.outprefix + ".prediction";
-//		forest.writePredictionFile(filename);
-//	}
-//	catch (std::exception& e) 
-//	{
-//		std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
-//		//delete forest;
-//		return -1;
-//	}
-//	return 0;
-//
-//	
-//}
