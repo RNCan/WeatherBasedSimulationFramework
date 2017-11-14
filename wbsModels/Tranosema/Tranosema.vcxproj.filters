@@ -16,14 +16,8 @@
     <ClCompile Include="TranosemaModel.cpp">
       <Filter>SourceTranosema</Filter>
     </ClCompile>
-    <ClCompile Include="..\SpruceBudworm\SpruceBudworm.cpp">
-      <Filter>SourcesSBW</Filter>
-    </ClCompile>
     <ClCompile Include="TranosemaEquations.cpp">
       <Filter>SourceTranosema</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SpruceBudworm\SpruceBudwormEquations.cpp">
-      <Filter>SourcesSBW</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -33,17 +27,8 @@
     <ClInclude Include="TranosemaModel.h">
       <Filter>SourceTranosema</Filter>
     </ClInclude>
-    <ClInclude Include="..\SpruceBudworm\SBStat.h">
-      <Filter>SourcesSBW</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpruceBudworm\SpruceBudworm.h">
-      <Filter>SourcesSBW</Filter>
-    </ClInclude>
     <ClInclude Include="TranosemaEquations.h">
       <Filter>SourceTranosema</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpruceBudworm\SpruceBudwormEquations.h">
-      <Filter>SourcesSBW</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

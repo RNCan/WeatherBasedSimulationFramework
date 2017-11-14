@@ -38,11 +38,11 @@ namespace WBSF
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
 	//	
-	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROW_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
-	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration, GrowRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
+	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
+	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration, GrowthRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 
-	enum{ O_G_DIAPAUSE, O_G_GROW_RATE, NB_GENERATION_OUTPUT};
-	extern char GENERATION_HEADER[] = "Diapause, GrowRate";
+	enum{ O_G_YEAR, O_G_DIAPAUSE, O_G_GROWTH_RATE, NB_GENERATION_OUTPUT};
+	extern char GENERATION_HEADER[] = "Year, Diapause, GrowthRate";
 
 	
 
@@ -59,7 +59,7 @@ namespace WBSF
 		m_diapauseAge = EGG + 0.0;
 		m_lethalTemp = -5.;
 		m_criticalDaylength = 13.5;
-		m_startDateShift = 15;
+		m_bOnGround = FALSE;
 	}
 
 	CTranosemaModel::~CTranosemaModel()
@@ -79,7 +79,7 @@ namespace WBSF
 		m_diapauseAge = parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
-		m_startDateShift = parameters[c++].GetInt();
+		m_bOnGround = parameters[c++].GetBool();
 		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);
 
 		return msg;
@@ -177,11 +177,11 @@ namespace WBSF
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]);
-			if (!TRef.IsInit() || m_startDateShift<0)
+			if (!TRef.IsInit() || !m_bOnGround)
 				TRef = p.Begin(); //no snow 
 
-			//get initial population from snowmelt date + a delay for soil warmup (10 days here)
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY))+m_startDateShift, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
+			//get initial population from snowmelt date
+			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY)), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
 			CTranosemaStand stand(this);
@@ -242,7 +242,7 @@ namespace WBSF
 		m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
 		
 
-		//now compute annual grow rates
+		//now compute annual growth rates
 		//Get last complete generation
 		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
 		if (maxG > 0)
@@ -266,11 +266,12 @@ namespace WBSF
 				}
 
 				ASSERT(alive.IsInit());
-				m_output[TRef][O_A_GROW_RATE] = alive[SUM] / pupaBegin;
+				m_output[TRef][O_A_GROWTH_RATE] = alive[SUM] / pupaBegin;
 				m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM]/alive[SUM];
 			}
 		}
 
+			
 
 		return msg;
 	}
@@ -293,7 +294,7 @@ namespace WBSF
 		m_output.Init(p.size()*(NB_GENERATIONS - 1), CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT, 0, GENERATION_HEADER);
 
 
-		//now compute generation grow rates
+		//now compute generation growth rates
 		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size());
 		if (maxG > 0)
 		{
@@ -310,7 +311,7 @@ namespace WBSF
 						size_t y = TRef - p.Begin();
 						size_t gg = y*(NB_GENERATIONS-1) + (g - 1);
 						m_output[gg][O_G_DIAPAUSE] = diapauseStat[SUM];
-						m_output[gg][O_G_GROW_RATE] = diapauseStat[SUM] / diapauseBegin;
+						m_output[gg][O_G_GROWTH_RATE] = diapauseStat[SUM] / diapauseBegin;
 
 						diapauseBegin = diapauseStat[SUM];
 					}

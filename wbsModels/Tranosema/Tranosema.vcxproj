@@ -248,16 +248,11 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\SpruceBudworm\SpruceBudworm.cpp" />
-    <ClCompile Include="..\SpruceBudworm\SpruceBudwormEquations.cpp" />
     <ClCompile Include="Tranosema.cpp" />
     <ClCompile Include="TranosemaEquations.cpp" />
     <ClCompile Include="TranosemaModel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SpruceBudworm\SBStat.h" />
-    <ClInclude Include="..\SpruceBudworm\SpruceBudworm.h" />
-    <ClInclude Include="..\SpruceBudworm\SpruceBudwormEquations.h" />
     <ClInclude Include="Tranosema.h" />
     <ClInclude Include="TranosemaEquations.h" />
     <ClInclude Include="TranosemaModel.h" />
