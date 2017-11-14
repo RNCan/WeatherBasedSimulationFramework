@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.1	14/11/2017	Rémi Saint-Amant	Output only one scene at a time. Add buffer and MaxScene options
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
 //-co "compress=LZW" -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Model\See5_Cloud_T123" "D:\Travaux\CloudCleaner\Input\Nuage.vrt" "D:\Travaux\CloudCleaner\Output\Output.vrt"
@@ -39,7 +40,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "1.0.0";
+static const char* version = "1.0.1";
 static const int NB_THREAD_PROCESS = 2; 
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "ID", "fill" };
@@ -72,12 +73,12 @@ CCloudCleanerOption::CCloudCleanerOption()
 	{
 		{ "-B1", 1, "threshold", false, "trigger threshold for band 1 to execute decision tree. -175 by default." },
 		{ "-TCB", 1, "threshold", false, "trigger threshold for Tassel Cap Brightness (TCB) to execute decision tree. 600 by default." },
-		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous scenes (+1,-1,+2,-2,...) up to FillMaxScene. " },
-		{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scene read to find and fill clouds. 2 by default (from scene -2 to scene + 2). " },
-		{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },
+		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...) up to MaxScene. " },
+		{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
+		{ "-Scene", 1, "ws", false, "Select a working scene (1..nbScenes) to clean cloud. The first scene is select by default." },
 		{ "-Buffer", 1, "nbPixel", false, "Reset or filled (if -FillCloud enable) nbPixels arround the pixels set as cloud. 0 by default." },
 		{ "-OutputDT", 0, "", false, "Output Decision Tree Code." },
-		{ "-Debug",0,"",false,"Output debug information (TriggerID)."},
+		{ "-Debug",0,"",false,"Output debug information."},
 		{ "DTModel", 0, "", false, "Decision tree cloud model file path." },
 		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
@@ -90,9 +91,9 @@ CCloudCleanerOption::CCloudCleanerOption()
 	{
 		{ "Input Model", "DTModel", "", "", "", "Decision tree model file generate by See5." },
 		{ "LANDSAT Image", "src1file", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)|... for each scene" },
-		{ "Output Image", "dstfile", "One file per input landsat images", "1", "Decision tree result. 100 for DT not trigged" },
-		{ "Optional DTCode Image", "dstfile_DT","1","nbScnenes","Decision tree result"},
-		{ "Optional Debug Image", "dstfile_debug", "1", "nbScnenes", "Debug ID"}
+		{ "Output Image", "dstfile", "1", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)" },
+		{ "Optional DTCode Image", "dstfile_DT","1","1","Decision tree result"},
+		{ "Optional Debug Image", "dstfile_debug", "1", "2", "TriggerID|scene selected to fill cloud (relative to the working scene)"}
 	};
 
 	for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
