@@ -152,12 +152,17 @@ namespace WBSF
 		{
 
 			size_t nbImages = options.m_nbBands / SCENES_SIZE;
-			for (size_t i = 0; i < options.m_nbBands; i++)
+			for (size_t i = 0; i < nbImages; i++)
 			{
-				size_t b = i%SCENES_SIZE;
+				for (size_t b = 0; b < options.m_scenesSize; b++)
+				{
+					string name = GetFileTitle(filePath);
+					if (nbImages > 1)
+						name += "_" + FormatA("%02d", i + 1);
 
-				string name = GetFileTitle(filePath) + "_" + FormatA("%02d", i+1) + "_" + CLandsatDataset::SCENE_NAME[b] + ".tif|";
-				options.m_VRTBandsName += name;
+					name += string("_") + CLandsatDataset::SCENE_NAME[b] + ".tif|";
+					options.m_VRTBandsName += name;
+				}
 			}
 		}
 

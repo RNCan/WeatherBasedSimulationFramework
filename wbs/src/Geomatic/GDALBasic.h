@@ -174,10 +174,10 @@ namespace WBSF
 	{
 	public:
 
-		CRasterWindow(size_t sceneSize = 0)
+		CRasterWindow(size_t sceneSize = 0, CGeoRectIndex windowRect = CGeoRectIndex())
 		{
-			//m_nbScenes = nbScenes;
 			m_sceneSize = sceneSize;
+			m_windowRect = windowRect;
 		}
 
 		size_t GetNbScenes()const{ return size() / m_sceneSize; }
@@ -204,19 +204,12 @@ namespace WBSF
 			return at(i*m_sceneSize + z)->IsValid(pixel);
 		}
 
-		CGeoSize GetGeoSize()const
-		{
-			CGeoSize size(0, 0);
-			if (!empty())
-				size = front()->GetGeoSize();
-
-			return size;
-		}
+		CGeoSize GetGeoSize()const 	{ return m_windowRect.GetGeoSize(); }
 
 	protected:
 
-		//size_t m_nbScenes;
 		size_t m_sceneSize;
+		CGeoRectIndex m_windowRect;
 	};
 
 
@@ -668,7 +661,10 @@ namespace WBSF
 
 		CRasterWindow GetWindow()const
 		{
-			CRasterWindow input(m_sceneSize);
+			if (m_bEmpty)
+				return CRasterWindow();
+
+			CRasterWindow input(m_sceneSize, m_bandHolder.front()->GetExtents().GetPosRect());
 			input.resize(GetRasterCount());
 			for (size_t i = 0; i < input.size(); i++)
 				input[i] = GetWindow(int(i));
@@ -706,7 +702,8 @@ namespace WBSF
 				{
 					if (byBandFirst)
 						input[z][x] = (T)pLine->at((int)x, 0);
-					else input[x][z] = (T)pLine->at((int)x, 0);
+					else 
+						input[x][z] = (T)pLine->at((int)x, 0);
 				}
 			}
 		}

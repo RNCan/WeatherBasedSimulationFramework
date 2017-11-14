@@ -4,12 +4,13 @@
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/See5hooks.h"
 #include "Geomatic/LandsatDataset.h"
+#include "boost/dynamic_bitset.hpp"
 //
 namespace WBSF
 {
 	typedef std::vector<CLandsatPixel>CLandsatPixelVector;
 	typedef std::deque< std::vector<__int16>> DebugData;
-	typedef std::deque< std::vector<__int16>> DTCodeData;
+	typedef std::vector<__int16> DTCodeData;
 	typedef std::vector< CLandsatPixelVector > LansatData;
 
 	class CCloudCleanerOption : public CBaseOptions
@@ -17,7 +18,7 @@ namespace WBSF
 	public:
 
 		enum TFilePath { DT_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-		enum TDebug{ D_DEBUG_ID, NB_DBUG };
+		enum TDebug{ D_DEBUG_ID, D_SCENE_USED, NB_DBUG };
 		static const char* DEBUG_NAME[NB_DBUG];
 
 		CCloudCleanerOption();
@@ -52,11 +53,15 @@ namespace WBSF
 			return t1 + t2 + t5 + t6 + t7 + t10;
 		}
 	
+		
+		
+
 		double m_B1threshold;
 		double m_TCBthreshold;
 		bool m_bDebug;
 		bool m_bOutputDT;
 		bool m_bFillCloud;
+		size_t m_maxScene;
 		size_t m_scene;
 		size_t m_buffer;
 
@@ -75,8 +80,10 @@ namespace WBSF
 
 		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-		void ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, CDecisionTree& DT, LansatData& data, DTCodeData& DTCode, DebugData& debug);
-		void WriteBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, const LansatData& data, DTCodeData& DTCode, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
+		void ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, CDecisionTree& DT, DTCodeData& DTCode, DebugData& debug, boost::dynamic_bitset<size_t>& clouds);
+		void ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, const boost::dynamic_bitset<size_t>& clouds);
+		void WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, DTCodeData& DTCode, DebugData& debug, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
+		void WriteBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
 		void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 
 		void LoadData(const CBandsHolder& bandHolder, LansatData& data);
