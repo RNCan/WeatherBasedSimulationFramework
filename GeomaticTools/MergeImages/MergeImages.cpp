@@ -103,7 +103,7 @@ namespace WBSF
 	CMergeImagesOption::CMergeImagesOption()
 	{
 
-		m_mergeType = MEDIAN_NDVI;
+		m_mergeType = MEDIAN_NBR;
 		m_medianType = BEST_PIXEL;
 		m_bDebug = false;
 		m_bExportStats = false;
@@ -115,7 +115,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR or MedianNDMI. MedianNDVI by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR or MedianNDMI. MedianNBR by default." },
 			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, SD, highest) of all bands" },
@@ -779,22 +779,24 @@ namespace WBSF
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 			{
-				double NDVI = pixel.NDVI();
-				if (NDVI>-32 && NDVI<32)
-					criterion.SetRef(long(NDVI * 1000), CTM(CTM::ATEMPORAL));
+				__int16 value = (__int16)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16);
+					//double NDVI = pixel.NDVI();
+				//if (NDVI>-32 && NDVI<32)
+				criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NBR)
 			{
-				//long NBR = (long)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16);
-				double NBR = pixel.NBR();
-				if (NBR>-32 && NBR<32)
-					criterion.SetRef(NBR * 1000, CTM(CTM::ATEMPORAL));
+				__int16 value = (__int16)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16);
+				//double NBR = pixel.NBR();
+				//if (NBR>-32 && NBR<32)
+				criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NDMI)
 			{
-				double NDMI = pixel.NDMI();
-				if (NDMI>-32 && NDMI<32)
-					criterion.SetRef(NDMI * 1000, CTM(CTM::ATEMPORAL));
+				__int16 value = (__int16)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
+				//double NDMI = pixel.NDMI();
+				//if (NDMI>-32 && NDMI<32)
+					criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
 			else
