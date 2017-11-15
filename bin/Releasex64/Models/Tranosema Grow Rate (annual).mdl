@@ -45,9 +45,9 @@
             <Type>2</Type>
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1.0</DefaultValue>
+            <DefaultValue>0.75</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>3</MaxValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
