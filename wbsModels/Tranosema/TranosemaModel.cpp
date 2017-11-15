@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 14/11/2017	1.1.8	Rémi Saint-Amant    Change in annual behavior
 // 04/05/2017	1.1.7	Rémi Saint-Amant    New hourly generation
 // 25/05/2016	1.1.6	Rémi Saint-Amant	Some correction in annual model
 // 17/05/2016	1.1.4	Rémi Saint-Amant	Add annual variables
@@ -51,7 +52,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.7 (2017)";
+		VERSION = "1.1.8 (2017)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -254,20 +255,28 @@ namespace WBSF
 				m_output[TRef][O_A_NB_GENERATION] = maxG;
 
 				CStatistic meanG;
-				CStatistic alive;
-				double pupaBegin = 100;
+				CStatistic diapause;
+				double diapauseBegin = 100;
 				for (size_t g = 1; g < maxG; g++)
 				{
-					double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
-						
-					alive += pupaEnd;
-					m_output[TRef][O_A_ALIVE1 + (g-1)] = pupaEnd;
-					meanG += g *pupaEnd;
+					
+					CStatistic diapauseStat = TranosemaStat[g].GetStat(E_DIAPAUSE, season);
+					
+					diapause += diapauseStat[SUM];
+					meanG += g *diapauseStat[SUM];
+					m_output[TRef][O_A_ALIVE1 + (g - 1)] = diapauseStat[SUM];
+					
+
+					if (g == maxG - 1)
+					{
+						ASSERT(diapause.IsInit());
+						double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
+						m_output[TRef][O_A_GROWTH_RATE] = pupaEnd / diapauseBegin;
+						m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM] / diapause[SUM];
+					}
 				}
 
-				ASSERT(alive.IsInit());
-				m_output[TRef][O_A_GROWTH_RATE] = alive[SUM] / pupaBegin;
-				m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM]/alive[SUM];
+				
 			}
 		}
 
