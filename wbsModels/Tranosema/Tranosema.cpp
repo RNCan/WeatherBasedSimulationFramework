@@ -201,12 +201,12 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-//		else if (weather.GetTRef().GetJDay() >= 364)
-//		{
-//			//all bugs are kill at the ead of the season
-//			m_status = DEAD;
-//			m_death = OTHERS;
-//		}
+		else if (!m_bDiapause && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
+		{
+			//all individual not in diapause are kill at the ead of the season
+			m_status = DEAD;
+			m_death = OTHERS;
+		}
 	}
 
 	//*****************************************************************************

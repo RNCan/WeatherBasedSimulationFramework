@@ -81,7 +81,7 @@ namespace WBSF
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_bOnGround = parameters[c++].GetBool();
-		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 2.);
+		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
 	}
@@ -270,8 +270,8 @@ namespace WBSF
 					if (g == maxG - 1)
 					{
 						ASSERT(diapause.IsInit());
-						double pupaEnd = TranosemaStat[g][season.End()][S_PUPA];
-						m_output[TRef][O_A_GROWTH_RATE] = pupaEnd / diapauseBegin;
+						double diapauseEnd = TranosemaStat[g][season.End()][size_t(m_diapauseAge)];
+						m_output[TRef][O_A_GROWTH_RATE] = diapauseEnd / diapauseBegin;
 						m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM] / diapause[SUM];
 					}
 				}
