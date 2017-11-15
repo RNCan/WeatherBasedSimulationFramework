@@ -80,7 +80,7 @@ namespace WBSF
 
 		bool HasChangedStage()const{ return GetStage() != GetLastStage(); }
 		bool IsChangingStage(double r)const{ return GetStage() != (size_t)(m_age+r); }
-		bool HaveChangedStatus()const{ return m_status != m_lastStatus; }
+		bool HasChangedStatus()const{ return m_status != m_lastStatus; }
 		bool IsAlive()const{ return m_status == HEALTHY; }				//Reports individual not dead (1) or dead (0) 
 		bool IsCreated(CTRef ref)const{ return ref >= m_creationDate; }	//
 
