@@ -359,10 +359,8 @@ namespace WBSF
 					stat[S_PUPA_MALE + m_sex] += m_scaleFactor;
 				if (stage == ADULT)
 					stat[S_ADULT_MALE + m_sex] += m_scaleFactor;
-				if (stage == ADULT && IsChangingStage() )
+				if (stage == ADULT && HasChangedStage())
 					stat[S_MALE_EMERGENCE + m_sex] += m_scaleFactor;
-
-				
 			}
 		}
 		else if (m_generation == 1)
