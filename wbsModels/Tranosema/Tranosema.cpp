@@ -145,7 +145,19 @@ namespace WBSF
 			{
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
+				
+/*				QUESTION pour RSA
+				Possible host attack module here
+				double a s= 0.05;
+				double th = 0.8;
+				double Nh = ??;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
+				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
+				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
+				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Attacks) );
 
+				Pour la diapause, on pourrait savoir combien de L2 et L2 sont induits en diapause, et répartir les
+				oeufs selon la proportion de larves hotes induites en diapause (diapause-induced L1+L2)/Nh
+*/
 				m_broods += max(0.0, m_Eᵗ + Oᵗ - Rᵗ);
 				ASSERT(m_broods < m_Pmax);
 

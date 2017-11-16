@@ -142,6 +142,9 @@ namespace WBSF
 		//Init spruce budworm data
 		CModelStatVector SBWStat;
 		
+		//QUESTION pour SRA: on aurait accès à quoi au juste? J'ai enlevé les dépendances SBW du projet... faudrait les remettre.
+		//QUESTION pour RSA: on ferait la même chose avec PBL?
+		
 		//GetSpruceBudwormBiology(m_weather, SBWStat);
 
 		//one CModelStatVector by generation
@@ -181,7 +184,7 @@ namespace WBSF
 			if (!TRef.IsInit() || !m_bOnGround)
 				TRef = p.Begin(); //no snow 
 
-			//get initial population from snowmelt date
+			//get initial population 
 			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY)), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
