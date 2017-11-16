@@ -27,26 +27,109 @@ namespace WBSF
 
 	const char* CLandsatDataset::SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
-	CTRef GetTRefFromName(const string& fielpath)
+	
+	TLandsatFormat Landsat::GetFormatFromName(const string& title)
 	{
-		CTRef TRef;
-		string fileTitle = GetFileTitle(fielpath);
-		if (fileTitle.length() >= 16)
+		TLandsatFormat format = F_UNKNOWN;
+		if (!title.empty())
 		{
-			size_t landsat = size_t(fileTitle[3] - '0');
-			if (landsat == 5 || landsat == 7 || landsat == 8)
+			if (title.size() >= 25 && title[2] == '0')
 			{
-				int year = ToInt(fileTitle.substr(10, 4));
-				size_t Jday = ToSizeT(fileTitle.substr(14, 3));
-				if (year >= 1950 && year <= 2050 && Jday >= 1 && Jday <= 366)
-					TRef = CJDayRef(year, Jday - 1);
+				char captor = char(title[3] - '0');
+				if (captor == 4 || captor == 5 || captor == 7 || captor == 8)
+					format = F_NEW;
+			}
+			else if (title.size() >= 9)
+			{
+				char captor = char(title[2] - '0');
+				if (captor == 4 || captor == 5 || captor == 7 || captor == 8)
+					format = F_OLD;
 			}
 		}
 
+		return format;
+	}
+	
+	__int16 Landsat::GetCaptorFromName(const string& title)
+	{
+		__int16 captor = -32768;
+		if (!title.empty())
+		{
+			if (title.size() >= 4)
+			{
+				if (title[2] == '0' )
+					captor = char(title[3] - '0');
+				else 
+					captor = char(title[2] - '0');
+
+				if (captor != 4 && captor != 5 && captor != 7 && captor != 8)
+					captor = -32768;
+			}
+		}
+
+		return captor;
+	}
+	
+	CTRef Landsat::GetTRefFromName(const string& title)
+	{
+		CTRef TRef;
+		
+		TLandsatFormat format = GetFormatFromName(title);
+		if (format==F_OLD)
+		{
+			
+			//LC80130262016186LGN00_B1
+			int year = ToInt(title.substr(9, 4));
+			size_t Jday = ToSizeT(title.substr(13, 3));
+			if (year >= 1950 && year <= 2050 && Jday >= 1 && Jday <= 366)
+				TRef = CJDayRef(year, Jday - 1);
+		}
+		else if (format == F_NEW)
+		{
+			//LC08_L1TP_013026_20170723_20170809_01_T1_B1
+			int year = ToInt(title.substr(17, 4));
+			size_t month = ToSizeT(title.substr(21, 2));
+			size_t day = ToSizeT(title.substr(23, 2));
+
+			if (year >= 1950 && year <= 2050 && month >= 1 && month <= 12 && day >= 1 && day <= GetNbDayPerMonth(year, month - 1))
+				TRef = CTRef(year, month - 1, day - 1);
+		}
+	
+
 		return TRef;
 	}
+	__int16 Landsat::GetPathFromName(const string& title)
+	{
+		__int16 path = -32768;
 
+		TLandsatFormat format = GetFormatFromName(title);
+		if (format == F_OLD)
+		{
+			path = ToInt(title.substr(3, 3));
+		}
+		else if (format == F_NEW)
+		{
+			path = ToInt(title.substr(10, 3));
+		}
 
+		return path;
+	}
+	__int16 Landsat::GetRowFromName(const string& title)
+	{
+		__int16 row=-32768;
+
+		TLandsatFormat format = GetFormatFromName(title);
+		if (format == F_OLD)
+		{
+			row = ToInt(title.substr(6, 3));
+		}
+		else if (format == F_NEW)
+		{
+			row = ToInt(title.substr(13, 3));
+		}
+
+		return row;
+	}
 	TIndices Landsat::GetIndiceType(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
@@ -101,7 +184,8 @@ namespace WBSF
 					//try to identify by name
 					if (IsVRT())
 					{
-						CTRef TRef = GetTRefFromName(GetInternalName(s*options.m_scenesSize));
+						string title = GetFileTitle(GetInternalName(s*options.m_scenesSize));
+						CTRef TRef = GetTRefFromName(title);
 						if (TRef.IsInit())
 							period = CTPeriod(TRef, TRef);
 					}
@@ -135,9 +219,28 @@ namespace WBSF
 			{
 				msg.ajoute("ERROR: input image bands (" + ToString(GetRasterCount()) + ") count must be a multiple of temporal information (" + ToString(options.m_scenesSize) + ")");
 			}
+
+			InitFileInfo();
 		}
 
 		return msg;
+	}
+
+	void CLandsatDataset::InitFileInfo()
+	{
+		m_info.resize(GetNbScenes());
+		if (IsVRT())
+		{
+			for (size_t i = 0; i < GetNbScenes(); i++)
+			{
+				std::string title = GetFileTitle(GetInternalName(i*GetSceneSize()));
+				m_info[i].m_format = GetFormatFromName(title);
+				m_info[i].m_captor = GetCaptorFromName(title);
+				m_info[i].m_path = GetPathFromName(title);
+				m_info[i].m_row = GetRowFromName(title);
+				m_info[i].m_TRef = GetTRefFromName(title);
+			}
+		}
 	}
 
 	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
@@ -204,7 +307,9 @@ namespace WBSF
 
 	}
 
-	CLandsatWindow::CLandsatWindow() : CRasterWindow(SCENES_SIZE)
+	CLandsatWindow::CLandsatWindow() : 
+		CRasterWindow(SCENES_SIZE),
+		m_bCorr8 (false)
 	{}
 
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
@@ -216,11 +321,43 @@ namespace WBSF
 			pixel[z] = (LandsatDataType)at(ii)->at(x, y);
 		}
 		
-		
+		if (m_bCorr8 && at(i*SCENES_SIZE)->GetCaptor() == 8  && pixel.IsValid())
+			pixel.correction8to7();
 
 		return pixel;
 	}
 
+	CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int buffer)const
+	{
+		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+
+		
+		CLandsatPixel pixel;
+		if (GetPixel(i, x, y).IsValid())
+		{
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+			{
+				size_t ii = i*SCENES_SIZE + z;
+
+				CStatistic stat;
+				for (int yy = 0; yy < 2 * buffer + 1; yy++)
+				{
+					for (int xx = 0; xx < 2 * buffer + 1; xx++)
+					{
+						LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
+						if (val != noData)
+							stat += val;
+					}
+				}
+
+				if (stat.IsInit())
+					pixel[z] = stat[MEAN];
+
+			}
+		}
+
+		return pixel;
+	}
 	bool CLandsatWindow::GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const
 	{
 		ASSERT(i<GetNbScenes());
@@ -236,6 +373,7 @@ namespace WBSF
 		
 		return i != NOT_INIT && IsValid(i, pixel);
 	}
+	
 
 	//****************************************************************************************************************
 
@@ -305,14 +443,26 @@ namespace WBSF
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
-		bool bIsInit = true;
-		for (size_t z = 0; z < SCENES_SIZE&&bIsInit; z++)
-			bIsInit = at(z) != noData;
+		bool bIsValid = true;
+		for (size_t z = 0; z < SCENES_SIZE&&bIsValid; z++)
+			bIsValid = at(z) != noData;
 
 		if (at(JD) < 0)
-			bIsInit = false;
+			bIsValid = false;
 
-		return bIsInit;
+		return bIsValid;
+	}
+
+	void CLandsatPixel::correction8to7()
+	{
+		static const double c0[SCENES_SIZE-2] = { 0.00041, 0.00289, 0.00274, 0.00004, 0.00256, 0.0, -0.00327};
+		static const double c1[SCENES_SIZE-2] = { 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 };
+		for (size_t b = 0; b < SCENES_SIZE-2; b++)
+		{
+			double newVal = c0[b] + c1[b]*at(b);
+			at(b) = (__int16)WBSF::LimitToBound(newVal, GDT_Int16, 1);
+		}
+
 	}
 
 	double CLandsatPixel::GetCloudRatio()const

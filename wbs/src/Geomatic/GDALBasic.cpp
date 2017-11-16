@@ -26,7 +26,7 @@
 #include "Geomatic/GDAL.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/GDALBasic.h"
-
+#include "geomatic/LandsatDataset.h"
 
 #include "WeatherBasedSimulationString.h"
 
@@ -1346,6 +1346,7 @@ CSingleBandHolder::CSingleBandHolder(GDALDataset* pDataset, size_t i, string ban
 	m_bandNo=i;
 	m_bDontLoadContantBand = false;
 	m_bConstantBand = false;
+	m_captor = Landsat::GetCaptorFromName(GetFileTitle(bandName));
 	
 	if( pDataset )
 	{
@@ -1376,7 +1377,6 @@ CSingleBandHolder::CSingleBandHolder(const CSingleBandHolder& in)
 	m_bDontLoadContantBand = in.m_bDontLoadContantBand;
 	m_bConstantBand = in.m_bConstantBand;
 
-
 	if( m_pDataset )
 	{
 		m_datasetExtent=in.m_datasetExtent;
@@ -1388,6 +1388,7 @@ CSingleBandHolder::CSingleBandHolder(const CSingleBandHolder& in)
 		m_nsres=in.m_nsres;
 		m_ewres=in.m_ewres;
 		m_bProjected=in.m_bProjected;
+		m_captor = in.m_captor;
 	}
 
 	

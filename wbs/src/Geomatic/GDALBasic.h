@@ -50,7 +50,7 @@ namespace WBSF
 	public:
 
 
-		CDataWindow(const CGeoRectIndex& windowRect, const DataVector* pData, const CGeoRectIndex& dataRect, double noData, DataType maskDataUsed, double nsres, double ewres, bool bProjected)
+		CDataWindow(const CGeoRectIndex& windowRect, const DataVector* pData, const CGeoRectIndex& dataRect, double noData, DataType maskDataUsed, double nsres, double ewres, bool bProjected, __int16 captor)
 		{
 			ASSERT(pData == NULL || (int)pData->size() == dataRect.Height()*dataRect.Width());
 			ASSERT(pData == NULL || dataRect.IsRectIntersect(windowRect));
@@ -62,6 +62,7 @@ namespace WBSF
 			m_nsres = nsres;
 			m_ewres = ewres;
 			m_bProjected = bProjected;
+			m_captor = captor;
 		}
 
 
@@ -140,7 +141,7 @@ namespace WBSF
 		}
 
 		double GetNoData()const{ return m_noData; }
-
+		__int16 GetCaptor()const{ return m_captor; }
 	protected:
 
 		//does the pixel is used. this layer is a mask layer
@@ -166,6 +167,7 @@ namespace WBSF
 		double m_nsres;
 		double m_ewres;
 		bool m_bProjected;
+		__int16 m_captor;
 
 		CDataWindowPtr m_pMaskWindow;
 	};
@@ -254,9 +256,9 @@ namespace WBSF
 		CDataWindowPtr GetWindow(const CGeoRectIndex& rectIn)const
 		{
 			if (m_dataRect.IsRectEmpty() || !m_dataRect.IsRectIntersect(rectIn))
-				return CDataWindowPtr(new CDataWindow(CGeoRectIndex(), NULL, CGeoRectIndex(), m_noData, DataTypeMin, m_nsres, m_ewres, m_bProjected));
+				return CDataWindowPtr(new CDataWindow(CGeoRectIndex(), NULL, CGeoRectIndex(), m_noData, DataTypeMin, m_nsres, m_ewres, m_bProjected, m_captor));
 
-			return CDataWindowPtr(new CDataWindow(rectIn, &m_data, m_dataRect, m_noData, m_maskDataUsed, m_nsres, m_ewres, m_bProjected));
+			return CDataWindowPtr(new CDataWindow(rectIn, &m_data, m_dataRect, m_noData, m_maskDataUsed, m_nsres, m_ewres, m_bProjected, m_captor));
 		}
 
 		CDataWindowPtr GetWindow(int x, int y, int xSize, int ySize)const{ return GetWindow(CGeoRectIndex(x - xSize / 2, y - ySize / 2, x + (xSize - 1) / 2 + 1, y + (ySize - 1) / 2 + 1)); }
@@ -334,6 +336,7 @@ namespace WBSF
 		double m_nsres;
 		double m_ewres;
 		bool m_bProjected;
+		__int16 m_captor;
 
 		CBandsHolder* m_pParent;
 		//CCriticalSection m_CS;

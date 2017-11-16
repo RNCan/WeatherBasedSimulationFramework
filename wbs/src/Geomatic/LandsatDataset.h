@@ -20,6 +20,7 @@ namespace WBSF
 
 	namespace Landsat
 	{
+		enum TLandsatFormat	{ F_UNKNOWN=-1, F_OLD, F_NEW, NB_FORMATS };
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
 		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
 		//I_EUCLIDEAN, 
@@ -29,6 +30,12 @@ namespace WBSF
 		TDomain GetIndiceDomain(const std::string& str);
 		TIndices GetIndiceType(const std::string& str);
 		TOperator GetIndiceOperator(const std::string& str);
+		
+		TLandsatFormat GetFormatFromName(const std::string& title);
+		__int16 GetCaptorFromName(const std::string& title);
+		__int16 GetPathFromName(const std::string& title);
+		__int16 GetRowFromName(const std::string& title);
+		CTRef GetTRefFromName(const std::string& title);
 	}
 
 	typedef __int16 LandsatDataType;
@@ -46,6 +53,7 @@ namespace WBSF
 		
 		bool IsInit()const;
 		bool IsValid()const;
+		bool IsBlack()const{ return (at(Landsat::B4) == 0 && at(Landsat::B5) == 0 && at(Landsat::B3) == 0); }
 
 		double GetCloudRatio()const;
 		double GetEuclideanDistance(const CLandsatPixel& pixel, bool normalized = false)const;
@@ -58,6 +66,8 @@ namespace WBSF
 		Color8 R()const;
 		Color8 G()const;
 		Color8 B()const;
+
+		void correction8to7();
 
 		static double GetDespike(double pre, double spike, double post);
 
@@ -243,6 +253,25 @@ namespace WBSF
 
 	};
 
+	class CLandsatFileInfo
+	{
+	public:
+
+		CLandsatFileInfo()
+		{
+			m_format = Landsat::F_UNKNOWN;
+			m_captor = -32768;
+			m_path = -32768;
+			m_row = -32768;
+		}
+
+		Landsat::TLandsatFormat m_format;
+		__int16 m_captor;
+		__int16 m_path;
+		__int16 m_row;
+		CTRef m_TRef;
+	};
+
 	class CLandsatDataset : public CGDALDatasetEx
 	{
 	public:
@@ -253,6 +282,13 @@ namespace WBSF
 		virtual ERMsg CreateImage(const std::string& filePath, CBaseOptions options);
 		virtual void GetBandsHolder(CBandsHolder& bandsHoler)const;
 		virtual void UpdateOption(CBaseOptions& option)const;
+
+		void InitFileInfo();
+
+		const std::vector<CLandsatFileInfo>& GetFileInfo()const { return m_info; }
+	protected:
+		
+		std::vector<CLandsatFileInfo> m_info;
 	};
 
 
@@ -264,7 +300,10 @@ namespace WBSF
 
 		CLandsatWindow();
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
+		CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int buffer)const;
 		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
+
+		bool m_bCorr8;
 	};
 
 

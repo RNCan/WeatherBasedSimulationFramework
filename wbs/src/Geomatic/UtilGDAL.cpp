@@ -179,8 +179,8 @@ double LimitToBound(double v, short cellType, double shiftedBy, bool bRound)
 
 		if (v < GetTypeLimit(cellType, true))
 			v = GetTypeLimit(cellType, true) + shiftedBy;
-		if (v > GetTypeLimit(cellType, false))
-			v = GetTypeLimit(cellType, false) - shiftedBy;
+		else if (v > GetTypeLimit(cellType, false))
+			v = GetTypeLimit(cellType, false);// -shiftedBy;
 	}
 	else
 	{
