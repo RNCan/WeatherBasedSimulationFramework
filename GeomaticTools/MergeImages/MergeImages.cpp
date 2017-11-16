@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
 // 3.0.0	31/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and. Remove all cloud remover
 // 2.1.3	27/05/2016	Rémi Saint-Amant	use JD -1 as no data
 // 2.1.2	27/05/2016	Rémi Saint-Amant	Add option Mosaic
@@ -47,6 +48,9 @@
 //-debug -ExportStats -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 //-te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 //-te 1674600	6496500	1677300	6498600
+//-te 1743000 6546000 1767000 6570000
+//-te 1707000 6624000 1731000 6648000
+//-te 1665000 6780000 1689000 6804000 (ombre)
 
 
 #include "stdafx.h"
@@ -60,7 +64,7 @@
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-#include "Geomatic/LandsatCloudsCleaner.h"
+//#include "Geomatic/LandsatCloudsCleaner.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -69,17 +73,17 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.0";
+	const char* CMergeImages::VERSION = "3.0.1";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
 	//*********************************************************************************************************************
 
 
-	const short CMergeImagesOption::BANDS_STATS[NB_STATS] = { LOWEST, MEAN, STD_DEV, HIGHEST };
-	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "MaxNDVI", "Best", "SecondBest", "MedianNDVI", "MedianNBR", "MedianNDMI"};
-	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "year", "month", "day", "Jday", "nbImages", "Scene", "sort"};
-	const char* CMergeImagesOption::STAT_NAME[NB_STATS] = { "lo", "mn", "sd", "hi" };
+	const short CMergeImagesOption::BANDS_STATS[NB_STATS] = { LOWEST, MEAN, MEDIAN, STD_DEV, HIGHEST };
+	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "August1", "MaxNDVI", "Best", "SecondBest", "MedianNDVI", "MedianNBR", "MedianNDMI", "MedianJD", "MedianTCB" };
+	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "Jday", "nbImages", "scene", "sort" };//"year", "month", "day", 
+	const char* CMergeImagesOption::STAT_NAME[NB_STATS] = { "lo", "mn", "md", "sd", "hi" };
 
 	short CMergeImagesOption::GetMergeType(const char* str)
 	{
@@ -102,24 +106,27 @@ namespace WBSF
 
 	CMergeImagesOption::CMergeImagesOption()
 	{
-
 		m_mergeType = MEDIAN_NBR;
 		m_medianType = BEST_PIXEL;
 		m_bDebug = false;
 		m_bExportStats = false;
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
+//		m_TCBthreshold[0] = 500;
+	//	m_TCBthreshold[1] = 7000;
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR or MedianNDMI. MedianNBR by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD or MedianTCB. MedianNBR by default." },
 			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
+//			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
-			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, SD, highest) of all bands" },
-//			{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
+			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
+			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
+			//			{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -132,7 +139,7 @@ namespace WBSF
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
 			{ "Output Image", "dstfile", "Number of output periods", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: Date of the selected image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
 			{ "Optional Output Image", "_stats", "Number of output periods", "SceneSize(9) x NbStats(4)", "B1Lowest: lowest value of the input image B1|B1Mean: mean of the input image B1|B1SD: standard deviation of input image B1|B1Highest: highest value of the input image B1|... for each bands of the scene", "" },
-			{ "Optional Output Image", "_debug", "Number of output periods", "14", "Path: path number of satellite|Row: row number of satellite|Year: year|Month: month (1-12)|Day: day (1-31)|JDay: Julian day (1-366)|NbScenes: number of valid scene|sort:|Isolated:|Buffer:|NbTriggers:|nbSkips:" }
+			{ "Optional Output Image", "_debug", "1", "7", "Path: path number of satellite|Row: row number of satellite|JDay: Julian day (1-366)|NbScenes: number of valid scene|scene: the selected scene|sort: the sort criterious" }
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -168,16 +175,20 @@ namespace WBSF
 			m_mergeType = GetMergeType(argv[++i]);
 			if (m_mergeType == UNKNOWN)
 			{
-				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"MaxNDVI\", \"Best\", \"SecondBest\", \"MedianNDVI\", \"MedianNBR\", \"MedianNDMI\".");
+				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"August1\", \"MaxNDVI\", \"Best\", \"SecondBest\", \"MedianNDVI\", \"MedianNBR\", \"MedianNDMI\", \"MedianJD\", \"MedianTCB\".");
 			}
 		}
 		else if (IsEqual(argv[i], "-MedianType") && i < argc - 1)
 		{
 			m_medianType = GetMergeType(argv[++i]);
-			if (m_mergeType > SECOND_BEST)
+			if (m_medianType > SECOND_BEST)
 			{
-				msg.ajoute("ERROR: Invalid -MedianType option: valid type are \"Oldest\", \"Newest\", \"MaxNDVI\", \"Best\", \"SecondBest\".");
+				msg.ajoute("ERROR: Invalid -MedianType option: valid type are \"Oldest\", \"Newest\", \"August1\", \"MaxNDVI\", \"Best\", \"SecondBest\".");
 			}
+		}
+		else if (IsEqual(argv[i], "-corr8"))
+		{
+			m_bCorrection8 = true;
 		}
 		else if (IsEqual(argv[i], "-Debug"))
 		{
@@ -187,7 +198,12 @@ namespace WBSF
 		{
 			m_bExportStats = true;
 		}
-		else
+	/*	else if (IsEqual(argv[i], "-TCB"))
+		{
+			m_TCBthreshold[0] = ToInt(argv[++i]);
+			m_TCBthreshold[1] = ToInt(argv[++i]);
+		}
+	*/	else
 		{
 			//Look to see if it's a know base option
 			msg = CBaseOptions::ProcessOption(i, argc, argv);
@@ -196,6 +212,12 @@ namespace WBSF
 		return msg;
 	}
 
+	void CMergeImagesOption::InitFileInfo(CLandsatDataset& inputDS)
+	{
+		ASSERT(inputDS.GetFileInfo().size() == inputDS.GetNbScenes());
+		m_info = inputDS.GetFileInfo();
+
+	}
 
 
 
@@ -237,17 +259,17 @@ namespace WBSF
 
 		CLandsatDataset inputDS;
 		CGDALDatasetEx maskDS;
-		CGDALDatasetEx outputDS;
+		CLandsatDataset outputDS;
 		CGDALDatasetEx debugDS;
 		CGDALDatasetEx statsDS;
-		
+
 
 		msg = OpenInput(inputDS, maskDS);
 
 		if (msg)
 			msg = OpenOutput(outputDS, debugDS, statsDS);
 
-		
+
 		CBandsHolderMT bandsHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 
 		if (msg)
@@ -256,11 +278,11 @@ namespace WBSF
 		if (msg && maskDS.IsOpen())
 			bandsHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
 
-		
+
 		if (!msg)
 			return msg;
 
-		
+
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 		{
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
@@ -320,7 +342,7 @@ namespace WBSF
 
 		if (m_options.m_bDebug)
 		{
-			__int32 dstNodata = (__int32)WBSF::GetDefaultNoData(GDT_Int32);
+			__int16 dstNodata = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
 			if (debugData.empty())
 				debugData.resize(CMergeImagesOption::NB_DEBUG_BANDS);
@@ -342,7 +364,6 @@ namespace WBSF
 
 		if (m_options.m_bExportStats)
 		{
-			//we used no data of int32 instead
 			__int16 dstNodata = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
 			if (statsData.empty())
@@ -365,7 +386,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CMergeImages::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS)
+	ERMsg CMergeImages::OpenInput(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS)
 	{
 		ERMsg msg;
 
@@ -376,7 +397,11 @@ namespace WBSF
 		msg = inputDS.OpenInputImage(m_options.m_filesPath[CMergeImagesOption::INPUT_FILE_PATH], options);
 
 		if (msg)
+		{
 			inputDS.UpdateOption(m_options);
+			m_options.InitFileInfo(inputDS);
+		}
+			
 
 
 		if (msg && !m_options.m_bQuiet)
@@ -398,7 +423,7 @@ namespace WBSF
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
 		}
-		
+
 		if (msg && !m_options.m_maskName.empty())
 		{
 			if (!m_options.m_bQuiet)
@@ -412,7 +437,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CMergeImages::OpenOutput(CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
+	ERMsg CMergeImages::OpenOutput(CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
 	{
 
 		ERMsg  msg;
@@ -446,9 +471,9 @@ namespace WBSF
 				cout << "Create debug images..." << endl;
 
 			CMergeImagesOption options(m_options);
-			options.m_outputType = GDT_Int32;
+			options.m_outputType = GDT_Int16;
 			options.m_nbBands = CMergeImagesOption::NB_DEBUG_BANDS;
-			options.m_dstNodata = WBSF::GetDefaultNoData(GDT_Int32);
+			options.m_dstNodata = WBSF::GetDefaultNoData(GDT_Int16);
 
 
 			string filePath = options.m_filesPath[CMergeImagesOption::OUTPUT_FILE_PATH];
@@ -522,11 +547,12 @@ namespace WBSF
 		{
 
 			CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
+			window.m_bCorr8 = m_options.m_bCorrection8;
 
 			InitMemory(bandHolder.GetSceneSize(), blockSize, outputData, debugData, statsData);
 			m_options.m_timerProcess.Start();
 
-			
+
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti ) 
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
@@ -534,90 +560,165 @@ namespace WBSF
 				{
 					Test1Vector imageList1;
 					Test1Vector imageList2;
-					CStatisticVector stats(window.GetSceneSize());
+					imageList1.reserve(window.GetNbScenes());
+					imageList2.reserve(window.GetNbScenes());
+
+					vector<CStatisticEx> stats;
 
 					//process all bands
-					for (size_t s = 0; s < window.GetNbScenes(); s++)
-					{
-						//Get pixel
-						CLandsatPixel pixel = window.GetPixel(s, x, y);
-						if (pixel.IsValid())
-						{
-							CTRef criterion1 = GetCriterion(pixel, m_options.m_mergeType);
-							CTRef criterion2 = GetCriterion(pixel, m_options.m_medianType);
+					//vector<pair<CLandsatPixel,size_t>> pixels;
+					//pixels.reserve(window.GetNbScenes());
+					//for (size_t s = 0; s < window.GetNbScenes(); s++)
+					//{
+					//	CLandsatPixel pixel = window.GetPixel(s, x, y);
+					//	if (pixel.IsValid())
+					//		pixels.push_back(make_pair(pixel,s));
 
-							if (criterion1.IsInit())
+					//}
+					//if (pixels.size() > 2)
+					//{
+					//	//for (vector<pair<CLandsatPixel, size_t>>::iterator it = pixels.begin(); it != pixels.end(); it++)
+					//	for (size_t i = 0; i != pixels.size() - 2; i++)
+					//	{
+					//		if (m_options.IsTrigged(pixels[i].first, pixels[i + 1].first))
+					//		{
+					//			if (m_options.IsTrigged(pixels[i].first, pixels[i + 2].first) && !m_options.IsTrigged(pixels[i+1].first, pixels[i + 2].first))
+					//				elimine i
+					//			else if (m_options.IsTrigged(pixels[i+1].first, pixels[i + 2].first) && !m_options.IsTrigged(pixels[i].first, pixels[i + 2].first))
+					//				elimine i+1
+					//		}
+					//	}
+					//}
+
+					
+					//size_t nbPixels = 0;
+					//size_t nbClouds = 0;
+					//for (size_t s = 0; s < window.GetNbScenes(); s++)
+					//{
+					//	//Get pixel
+					//	CLandsatPixel pixel = window.GetPixel(s, x, y);
+					//	if (pixel.IsValid())
+					//	{
+					//		nbPixels++;
+					//		double TCB = pixel.TCB();
+					//		if (TCB < m_options.m_TCBthreshold[0] || TCB > m_options.m_TCBthreshold[1])
+					//			nbClouds++;
+					//	}
+					//}
+					//if (nbPixels > 0)
+					//{
+						//double TCBratio = (double)nbClouds / nbPixels;
+						for (size_t s = 0; s < window.GetNbScenes(); s++)
+						{
+							//Get pixel
+							CLandsatPixel pixel = window.GetPixel(s, x, y);
+							if (pixel.IsValid())
 							{
-								auto it = imageList1.find(criterion1);
-								if (it == imageList1.end())
+								//double TCB = pixel.TCB();
+								//if (TCB >= m_options.m_TCBthreshold[0] && TCB <= m_options.m_TCBthreshold[1])
+								//{
+								__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
+								__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
+
+								if (criterion1 != -32768)
 								{
-									imageList1.insert(make_pair(criterion1, s));
-									imageList2.insert(make_pair(criterion2, s));
+									imageList1.push_back(make_pair(criterion1, s));
+									imageList2.push_back(make_pair(criterion2, s));
 								}
+								//}
 							}
-						}
 
-						if (m_options.m_bExportStats)
-						{
-							for (size_t z = 0; z < pixel.size(); z++)
+							if (m_options.m_bExportStats)
 							{
-								if (window.IsValid(s, z, pixel[z]))
-									stats[z] += pixel[z];
-							}
-						}//if export
+								stats.resize(pixel.size());
+								for (size_t z = 0; z < pixel.size(); z++)
+								{
+									if (window.IsValid(s, z, pixel[z]))
+										stats[z] += pixel[z];
+								}
+							}//if export
 
-					}//iz
+						}//iz
+					//}
+
 
 					//find selected image index
-					size_t iz = get_iz(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
-					if (iz != NOT_INIT)
+					std::sort(imageList1.begin(), imageList1.end());
+					//std::sort(imageList2.begin(), imageList2.end());
+					//size_t iz = get_iz(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
+					//Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
+
+					if (!imageList1.empty())
 					{
+						Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType);
+						ASSERT(it != imageList1.end());
+
+						size_t iz = it->second;
 						if (m_options.m_bCreateImage)
 						{
 							CLandsatPixel pixel;
-							if (window.GetPixel(iz, x, y, pixel))
-							{
-								for (size_t z = 0; z < SCENES_SIZE; z++)
-									outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16);
-							}
-						}
+							window.GetPixel(iz, x, y, pixel);
 
+
+							if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size()>=2)
+							{
+								/*Test1Vector imageList3;
+								for (auto it2 = imageList1.begin(); it2 != imageList1.end(); it2++)
+								{
+								if (it2 >= it - 1 && it2 <= it + 1)
+								{
+								Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+								imageList3.push_back(make_pair(it3->first, it2->second));
+								}
+								}
+								Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+								it2 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+								ASSERT(it2 != imageList2.end());
+
+								*/
+								CLandsatPixel pixel2;
+								if (imageList1.size() % 2 == 0)
+								{
+									size_t iz2 = (it + 1)->second;
+									window.GetPixel(iz2, x, y, pixel2);
+								}
+								else
+								{
+									Test1Vector imageList3;
+									Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
+									imageList3.push_back(*it3);
+									it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+									imageList3.push_back(*it3);
+									Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+
+									size_t iz2 = it2->second;
+									window.GetPixel(iz2, x, y, pixel2);
+								}
+
+								for (size_t z = 0; z < SCENES_SIZE; z++)
+									pixel[z] = (pixel[z] + pixel2[z]) / 2;
+							}
+
+
+							for (size_t z = 0; z < SCENES_SIZE; z++)
+								outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16, 1);
+						}
 
 						if (m_options.m_bDebug)
 						{
 							CLandsatPixel pixel = window.GetPixel(iz, x, y);
 							CTRef TRef = m_options.GetTRef(int(pixel[JD]));
 
-							int cap = -1;
-							int col = -1;
-							int row = -1;
-							if (inputDS.IsVRT())
-							{
-								size_t iiz = iz*bandHolder.GetSceneSize() + JD;
-								std::string name = GetFileTitle(inputDS.GetInternalName(iiz));
-								if (name.size() >= 16)
-								{
-									int v = int(name[3] - '0');
-									if (v == 5 || v == 7 || v == 8)
-									{
-										cap = v;
-										col = ToInt(name.substr(10, 3));
-										row = ToInt(name.substr(13, 3));
-									}
-								}
-							}
-
-							Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
-							debugData[CMergeImagesOption::D_CAPTOR][y][x] = cap;
-							debugData[CMergeImagesOption::D_PATH][y][x] = col;
-							debugData[CMergeImagesOption::D_ROW][y][x] = row;
-							debugData[CMergeImagesOption::D_YEAR][y][x] = TRef.GetYear();
-							debugData[CMergeImagesOption::D_MONTH][y][x] = int(TRef.GetMonth()) + 1;
-							debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
+							debugData[CMergeImagesOption::D_CAPTOR][y][x] = m_options.m_info[iz].m_captor;
+							debugData[CMergeImagesOption::D_PATH][y][x] = m_options.m_info[iz].m_path;
+							debugData[CMergeImagesOption::D_ROW][y][x] = m_options.m_info[iz].m_row;
+							//debugData[CMergeImagesOption::D_YEAR][y][x] = TRef.GetYear();
+							//debugData[CMergeImagesOption::D_MONTH][y][x] = int(TRef.GetMonth()) + 1;
+							//debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
 							debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
 							debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList1.size());
 							debugData[CMergeImagesOption::SCENE][y][x] = (int)iz + 1;
-							debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first.GetRef();
+							debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first;
 						}
 
 						if (m_options.m_bExportStats)
@@ -625,22 +726,23 @@ namespace WBSF
 							for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
 								for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
 									if (stats[z][NB_VALUE]>0)
-										statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16);
+										statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16, 1);
 						}//if export stats
-					}
+					}//if image list no empty
+
 #pragma omp atomic 
 					m_options.m_xx++;
 
 				}//for x
 				m_options.UpdateBar();
 			}//for y
-			
+
 			m_options.m_timerProcess.Stop();
-			
+
 		}//critical process
 	}
 
-	
+
 	void CMergeImages::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData)
 	{
 #pragma omp critical(BlockIO)
@@ -659,14 +761,14 @@ namespace WBSF
 			ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
 			ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
 			ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
-		
+
 			for (size_t z = 0; z < SCENES_SIZE; z++)
 			{
 				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
 				if (!outputData.empty())
 				{
 					ASSERT(outputData.size() == SCENES_SIZE);
-						
+
 					for (int y = 0; y < outputRect.Height(); y++)
 						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(outputData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
 				}
@@ -687,12 +789,12 @@ namespace WBSF
 				if (!debugData.empty())
 				{
 					for (int y = 0; y < outputRect.Height(); y++)
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int32, 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
 				}
 				else
 				{
-					__int32 noData = (__int32)debugDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int32, 0, 0);
+					__int16 noData = (__int16)debugDS.GetNoData(z);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
 				}
 			}
 		}
@@ -706,12 +808,12 @@ namespace WBSF
 				{
 					vector<__int16> tmp;
 					tmp.reserve(outputRect.Width()*outputRect.Height());
-						
+
 					//for (int y = 0; y < outputRect.Height(); y++)
-						//tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
-					
+					//tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
+
 					for (int y = 0; y < statsData[z].size(); y++)
-						tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].end() );
+						tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].end());
 
 					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(tmp[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
 				}
@@ -762,47 +864,79 @@ namespace WBSF
 		m_options.PrintTime();
 	}
 
-	CTRef CMergeImages::GetCriterion(CLandsatPixel& pixel, size_t type)
+	__int16 CMergeImages::GetCriterion(CLandsatPixel& pixel, size_t type)
 	{
-		CTRef criterion;
+		__int16 criterion = -32768;
 
 		bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
 		if (!bIsBlack)
 		{
-			CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
+			//CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
 
-			if (type == CMergeImagesOption::BEST_PIXEL ||
-				type == CMergeImagesOption::SECOND_BEST)
+			if (type == CMergeImagesOption::OLDEST || type == CMergeImagesOption::NEWEST || type == CMergeImagesOption::MEDIAN_JD)
 			{
-				__int16 Qa = pixel[QA];
-				criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
+				criterion = pixel[JD];
+			}
+			else if (CMergeImagesOption::AUGUST1)
+			{
+				CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
+				CTRef AUGUST_1(TRef.GetYear(), AUGUST, DAY_01);
+
+				criterion = abs((long)TRef.GetJDay() - (long)AUGUST_1.GetJDay());
+			}
+			else if (type == CMergeImagesOption::BEST_PIXEL || type == CMergeImagesOption::SECOND_BEST)
+			{
+				criterion = pixel[QA];
+				//criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 			{
-				__int16 value = (__int16)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16);
-					//double NDVI = pixel.NDVI();
+				criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16, 1);
+				//double NDVI = pixel.NDVI();
 				//if (NDVI>-32 && NDVI<32)
-				criterion.SetRef(value, CTM(CTM::ATEMPORAL));
+				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NBR)
 			{
-				__int16 value = (__int16)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16);
+				criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16, 1);
 				//double NBR = pixel.NBR();
 				//if (NBR>-32 && NBR<32)
-				criterion.SetRef(value, CTM(CTM::ATEMPORAL));
+				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NDMI)
 			{
-				__int16 value = (__int16)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
+				criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16, 1);
 				//double NDMI = pixel.NDMI();
 				//if (NDMI>-32 && NDMI<32)
-					criterion.SetRef(value, CTM(CTM::ATEMPORAL));
+				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
-			else
+			else if (type == CMergeImagesOption::MEDIAN_TCB)
 			{
-				criterion = TRef;
+				criterion = (__int16)WBSF::LimitToBound(pixel.TCB() * 1000, GDT_Int16, 1);
+				//double NDMI = pixel.NDMI();
+				//if (NDMI>-32 && NDMI<32)
+				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
+				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
+
+			/*else if (type == CMergeImagesOption::MEDIAN_QA)
+			{
+			__int16 Qa = pixel[QA];
+			if (Qa > -9999 && Qa < -3)
+			Qa = -3;
+			else if (Qa >= 0 && Qa < 100)
+			Qa = -3;
+			else if (Qa >= 100 && Qa < 200)
+			Qa = -2;
+			else if (Qa >= 200 && Qa < 300)
+			Qa = -1;
+			else if (Qa < -9999 || Qa >= 300)
+			Qa = 32767;
+
+			criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
+			}*/
+
 		}
 
 
@@ -820,11 +954,15 @@ namespace WBSF
 			}
 			else if (type == CMergeImagesOption::NEWEST)
 			{
-				it = imageList.end()--;
+				it = imageList.begin() + imageList.size() - 1;
+			}
+			else if (type == CMergeImagesOption::AUGUST1)
+			{
+				it = imageList.begin();
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI)
 			{
-				it = imageList.end()--;
+				it = imageList.begin() + imageList.size() - 1;
 			}
 			else if (type == CMergeImagesOption::BEST_PIXEL)
 			{
@@ -836,24 +974,26 @@ namespace WBSF
 				//take the pixel with the second lowest score.
 				if (imageList.size() >= 2)
 				{
-					it = imageList.begin(); 
+					it = imageList.begin();
 					it++;
 				}
-					
+
 			}
 			else
 			{
 				//select median
-				size_t N = (imageList.size()+1) / 2 - 1;
-				it = imageList.begin();
-				for (size_t n = 0; n < N; n++)
-					it++;
+				size_t N = (imageList.size() + 1) / 2 - 1;
+				it = imageList.begin() + N;
+				//for (size_t n = 0; n < N; n++)
+				//it++;
 			}
+
+			ASSERT(it != imageList.end());
 		}
 
 		return it;
 	}
-	
+
 	Test1Vector::const_iterator CMergeImages::get_it(const Test1Vector& imageList1, size_t type1, const Test1Vector& imageList2, size_t type2)
 	{
 		ASSERT(imageList1.size() == imageList2.size());
@@ -863,28 +1003,87 @@ namespace WBSF
 		{
 			it = get_it(imageList1, type1);
 
-			if (type1 > CMergeImagesOption::SECOND_BEST &&
-				imageList1.size() % 2 == 0)
+			if (type1 > CMergeImagesOption::SECOND_BEST
+				//&&		imageList1.size() >= 2)
+				&&		imageList1.size() % 2 == 0)
 			{
-				Test1Vector::const_iterator it2 = it;
 
-				Test1Vector imageList3;
-				
-				Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<CTRef, size_t >& a) {return a.second == it2->second;	});
-				ASSERT(it3 != imageList2.end());
 
-				imageList3.insert(make_pair(it3->first, 0));
-				it2++;
-				ASSERT(it2 != imageList1.end());
-				it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<CTRef, size_t >& a) {return a.second == it2->second;	});
-				ASSERT(it3 != imageList2.end());
-				imageList3.insert(make_pair(it3->first, 1));
-				
-				it3 = get_it(imageList3, type2);
-				ASSERT(it3 != imageList3.end());
-				if (it3->second==1)
-					it = it2;
-			
+				//if (imageList1.size() == 2)
+				//{
+				//	Test1Vector imageList3;
+				//	for (auto it2 = it; it2 != it + 2; it2++)
+				//	{
+				//		Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+				//		imageList3.push_back(*it3);
+				//	}
+				//	//}
+
+				//	std::sort(imageList3.begin(), imageList3.end());
+				//	Test1Vector::const_iterator it3 = get_it(imageList3, type2);
+				//	ASSERT(it3 != imageList3.end());
+
+				//	it = std::find_if(imageList1.begin(), imageList1.end(), [it3](const pair<__int16, size_t >& a) {return a.second == it3->second;	});
+				//	ASSERT(it != imageList1.end());
+				//}
+				//else
+				//{
+				//	ASSERT(imageList1.size() >= 4);
+				//	//Test1Vector imageList3 = imageList1;
+				//	//eliminate the farest pixel
+				//	//if (abs(it->first - imageList1.begin()->first) > abs((it + 1)->first - imageList1.rbegin()->first))
+				//	//	imageList1.erase(imageList1.begin());
+				//	//else
+				//	//	imageList1.erase(imageList1.begin() + imageList1.size() - 1);
+
+				//	//it = get_it(imageList1, type1);
+				//	//ASSERT(it3 != imageList3.end());
+
+				//	
+				//	//it = std::find_if(imageList1.begin(), imageList1.end(), [it3](const pair<__int16, size_t >& a) {return a.second == it3->second;	});
+				//	ASSERT(it != imageList1.end());
+				//}
+
+				//	CStatistic stat;
+				//	for (auto it2 = imageList1.begin(); it2 != imageList1.end(); it2++)
+				//		stat += it2->first;
+
+				//	for (auto it2 = imageList1.begin(); it2 != imageList1.end(); it2++)
+				//	{
+				//		if (it2 == it || ( abs(it2->first - it->first) < 0.75*stat[STD_DEV]))
+				//		{
+				//			Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+				//			imageList3.push_back(make_pair(it3->first, it2->second));
+				//		}
+				//	}
+
+
+
+				//				Test1Vector::const_iterator it2 = it;
+
+				//Test1Vector imageList3(2);
+				//
+				//Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+				//ASSERT(it3 != imageList2.end());
+
+				//
+				//imageList3[0]=make_pair(it3->first, 0);
+				//it2++;
+				//ASSERT(it2 != imageList1.end());
+				//it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
+				//ASSERT(it3 != imageList2.end());
+				//
+				//imageList3[1] = make_pair(it3->first, 1);
+				//
+				//std::sort(imageList3.begin(), imageList3.end());
+				//it3 = get_it(imageList3, type2);
+				////ASSERT(it3 != imageList3.end());
+
+				////it = std::find_if(imageList1.begin(), imageList1.end(), [it3](const pair<__int16, size_t >& a) {return a.second == it3->second;	});
+				////ASSERT(it != imageList1.end());
+				//if (it3->second==1)
+				//	it = it2;
+
 			}
 		}
 
@@ -895,8 +1094,8 @@ namespace WBSF
 	{
 		size_t iz = NOT_INIT;
 		Test1Vector::const_iterator it = get_it(imageList1, type1, imageList2, type2);
-		if(it != imageList1.end())
-			iz=it->second;
+		if (it != imageList1.end())
+			iz = it->second;
 
 		return iz;
 	}

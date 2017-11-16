@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.2	15/11/2017	Rémi Saint-Amant	Add debug for buffer
 // 1.0.1	14/11/2017	Rémi Saint-Amant	Output only one scene at a time. Add buffer and MaxScene options
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
@@ -40,10 +41,12 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "1.0.1";
+static const char* version = "1.0.2";
 static const int NB_THREAD_PROCESS = 2; 
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
+static const CLandsatPixel NO_PIXEL;
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "ID", "fill" };
+
 
 std::string CCloudCleaner::GetDescription()
 { 
@@ -526,10 +529,9 @@ ERMsg CCloudCleaner::Execute()
 
 			//data
 			DTCodeData DTCode;
-			DebugData debug;
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			ProcessBlock1(xBlock, yBlock, bandHolder[thread], DT, DTCode, debug, clouds);
-			WriteBlock1(xBlock, yBlock, bandHolder[thread], DTCode, debug, DTCodeDS, debugDS);
+			ProcessBlock1(xBlock, yBlock, bandHolder[thread], DT, DTCode, clouds);
+			WriteBlock1(xBlock, yBlock, bandHolder[thread], DTCode, DTCodeDS);
 		}//for all blocks
 
 		if (m_options.m_bCreateImage || m_options.m_bDebug)
@@ -599,8 +601,23 @@ size_t GetNext(CLandsatPixelVector& landsat, size_t z)
 	return next;
 }
 
+array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
+{
+	ASSERT(z1<data.size());
+
+	array <CLandsatPixel, 3> p;
+	
+	p[1] = data[z1];
+	size_t z0 = GetPrevious(data, z1 - 1);
+	p[0] = z0 < data.size() ? data[z0] : NO_PIXEL;
+	size_t z2 = GetNext(data, z1 + 1);
+	p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
+	
+	return p;
+}
+
 //Get input image reference
-void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, CDecisionTree& DT, DTCodeData& DTCode, DebugData& debug, boost::dynamic_bitset<size_t>& clouds)
+void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, CDecisionTree& DT, DTCodeData& DTCode, boost::dynamic_bitset<size_t>& clouds)
 {
 	//CGDALDatasetEx& inputDS, 
 
@@ -637,14 +654,14 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 			//for (size_t i = 0; i < DTCode.size(); i++)
 			DTCode.insert(DTCode.begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
 		}
-		if (m_options.m_bDebug)
-		{
-			debug.resize(CCloudCleanerOption::NB_DBUG);
-			//for (size_t i = 0; i < debug.size(); i++)
-			debug[CCloudCleanerOption::D_DEBUG_ID].insert(debug[CCloudCleanerOption::D_DEBUG_ID].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
-		}
+		//if (m_options.m_bDebug)
+		//{
+		//	debug.resize(CCloudCleanerOption::NB_DBUG);
+		//	//for (size_t i = 0; i < debug.size(); i++)
+		//	debug[CCloudCleanerOption::D_DEBUG_ID].insert(debug[CCloudCleanerOption::D_DEBUG_ID].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
+		//}
 
-		CLandsatPixel NO_PIXEL;
+		
 		//process all x and y 
 #pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
 		for (int y = 0; y < blockSize.m_y; y++)
@@ -655,24 +672,25 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 				size_t xy = y*blockSize.m_x + x;
 				ASSERT(m_options.m_maxScene == data[xy].size() / 2);
 
-				array <CLandsatPixel, 3> p;
+				
 
-				size_t z1 = m_options.m_maxScene;//data.size() / 2;
-				p[1] = data[xy][z1];
+				size_t z1 = m_options.m_maxScene;
+				array <CLandsatPixel, 3> p = GetP(z1, data[xy]);
+				//p[1] = data[xy][z1];
 
 #pragma omp atomic
 				m_options.m_nbPixel++;
 
-				size_t z0 = GetPrevious(data[xy], z1 - 1);
-				p[0] = z0 < data[xy].size() ? data[xy][z0] : NO_PIXEL;
-				size_t z2 = GetNext(data[xy], z1 + 1);
-				p[2] = z2 < data[xy].size() ? data[xy][z2] : NO_PIXEL;
+				//size_t z0 = GetPrevious(data[xy], z1 - 1);
+				//p[0] = z0 < data[xy].size() ? data[xy][z0] : NO_PIXEL;
+				//size_t z2 = GetNext(data[xy], z1 + 1);
+				//p[2] = z2 < data[xy].size() ? data[xy][z2] : NO_PIXEL;
 
-				if (!debug.empty())
+		/*		if (!debug.empty())
 				{
 					debug[CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p);
 				}
-
+*/
 				if (m_options.IsTrigged(p))
 				{
 #pragma omp atomic
@@ -725,7 +743,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 	}
 }
 
-void CCloudCleaner::WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, DTCodeData& DTCode, DebugData& debug, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS)
+void CCloudCleaner::WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, DTCodeData& DTCode, CGDALDatasetEx& DTCodeDS)
 {
 
 #pragma omp critical(BlockIO)
@@ -757,20 +775,6 @@ void CCloudCleaner::WriteBlock1(int xBlock, int yBlock, const CBandsHolder& band
 		}
 
 	
-		if (m_options.m_bDebug )
-		{
-			ASSERT(debug.empty() || debug.size() == CCloudCleanerOption::NB_DBUG);
-			__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
-
-			//for (size_t b = 0; b<debugDS.GetRasterCount(); b++)
-			//{
-			GDALRasterBand *pBand = debugDS.GetRasterBand(CCloudCleanerOption::D_DEBUG_ID);
-			if (!debug.empty() && !debug[CCloudCleanerOption::D_DEBUG_ID].empty())
-				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debug[CCloudCleanerOption::D_DEBUG_ID][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-			else
-				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
-			//}//for all debug variable
-		}//debug
 	}
 	
 	m_options.m_timerWrite.Stop(); 
@@ -804,8 +808,8 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 	if (m_options.m_bDebug)
 	{
 		debug.resize(CCloudCleanerOption::NB_DBUG);
-		//for (size_t i = 0; i < debug.size(); i++)
-		debug[CCloudCleanerOption::D_SCENE_USED].insert(debug[CCloudCleanerOption::D_SCENE_USED].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
+		for (size_t i = 0; i < debug.size(); i++)
+			debug[CCloudCleanerOption::D_SCENE_USED].insert(debug[CCloudCleanerOption::D_SCENE_USED].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
 	}
 
 #pragma omp critical(ProcessBlock)
@@ -826,10 +830,8 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 				size_t xy2 = (index.m_y + y)* extents.m_xSize + index.m_x + x;
 				if (clouds.test(xy2))
 				{
-					size_t z1 = m_options.m_maxScene;
 
-					data[xy][z1].Reset();
-					
+					size_t z1 = m_options.m_maxScene;
 					size_t z2 = NOT_INIT;
 					for (size_t zz = 0; zz < data[xy].size() * 2 && z2 == NOT_INIT; zz++)
 					{
@@ -838,13 +840,17 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 							z2 = zzz;
 					}
 
-					if (z2 != NOT_INIT)
+					if (!debug.empty())
 					{
-						if (m_options.m_bFillCloud)
-							data[xy][z1] = data[xy][z2];
+						array <CLandsatPixel, 3> p = GetP(z1, data[xy]);
+						debug[CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p);
+						debug[CCloudCleanerOption::D_SCENE_USED][xy] = (__int16)(z2 - m_options.m_maxScene);
+					}
 
-						if (!debug.empty())
-							debug[CCloudCleanerOption::D_SCENE_USED][xy] = (__int16)(z2 - m_options.m_maxScene);
+					data[xy][z1].Reset();
+					if (m_options.m_bFillCloud && z2 != NOT_INIT)
+					{
+						data[xy][z1] = data[xy][z2];
 					}
 
 				}
@@ -920,14 +926,14 @@ void CCloudCleaner::WriteBlock2(int xBlock, int yBlock, const CBandsHolder& band
 			ASSERT(debug.empty() || debug.size() == CCloudCleanerOption::NB_DBUG);
 			__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
 
-			//for (size_t b = 0; b<debugDS.GetRasterCount(); b++)
-			//{
-			GDALRasterBand *pBand = debugDS.GetRasterBand(CCloudCleanerOption::D_SCENE_USED);
-			if (!debug.empty() && !debug[CCloudCleanerOption::D_SCENE_USED].empty())
-				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debug[CCloudCleanerOption::D_SCENE_USED][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-			else
-				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
-			//}//for all debug variable
+			for (size_t b = 0; b<debugDS.GetRasterCount(); b++)
+			{
+				GDALRasterBand *pBand = debugDS.GetRasterBand(b);
+				if (!debug.empty() && !debug[b].empty())
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debug[b][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+				else
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+			}//for all debug variable
 		}//debug
 	}//critical
 }

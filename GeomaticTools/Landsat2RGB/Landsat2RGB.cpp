@@ -340,7 +340,7 @@ namespace WBSF
 				CLandsatPixel pixel = window.GetPixel(m_options.m_scene, x, y);
 				if (window.IsValid(m_options.m_scene, pixel))
 				{
-					bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
+					bool bIsBlack = pixel.IsBlack();
 					//bool bIsBust = (pixel[B4] < -150 || pixel[B4] > 6000 || pixel[B5] < -190 || pixel[B5] > 5000 || pixel[B3] < -200 || pixel[B3] > 2500);
 					
 
