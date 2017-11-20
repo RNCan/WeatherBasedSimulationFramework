@@ -108,8 +108,7 @@ void ForestClassification::growInternal(Data* data) {
 	}
 }
 
-void ForestClassification::allocatePredictMemory(const Data* data)
-{
+void ForestClassification::allocatePredictMemory(const Data* data){
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all || prediction_type == TERMINALNODES) {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
@@ -122,17 +121,6 @@ void ForestClassification::allocatePredictMemory(const Data* data)
 }
 
 void ForestClassification::predictInternal(size_t sample_idx, const Data* data) {
-
-	/*size_t num_prediction_samples = data->getNumRows();
-	if (predict_all || prediction_type == TERMINALNODES) {
-	predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
-	}
-	else {
-	predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(1, std::vector<double>(num_prediction_samples)));
-	}*/
-
-	// For all samples get tree predictions
-	//for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
 	if (predict_all || prediction_type == TERMINALNODES) {
 		// Get all tree predictions
@@ -168,12 +156,8 @@ void ForestClassification::predictInternal(size_t sample_idx, const Data* data) 
 			std::partial_sort(result.begin(), result.begin() + 2, result.end(), std::greater<size_t>());
 			uncertainty[sample_idx] = 100 - (((double)result[1] / result[0]) * 100);
 		}
-
-		//
 	}
 
-
-	//}
 }
 
 void ForestClassification::computePredictionErrorInternal(Data* data) {

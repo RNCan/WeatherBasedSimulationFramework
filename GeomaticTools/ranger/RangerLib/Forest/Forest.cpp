@@ -752,6 +752,7 @@ void Forest::predict(Data* data)
 	
 	{
 		progress = 0;
+
 		std::vector<std::thread> threads;
 		std::vector<uint> predict_ranges;
 		equalSplit(predict_ranges, 0, uint(data->getNumRows() - 1), num_threads);
@@ -773,10 +774,10 @@ void Forest::predict(Data* data)
 	//predictInternal(data, predictions);
 }
 
-void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const Data* prediction_data) {
+void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const Data* data) {
 	
 	for (size_t i = range.first; i < range.second; ++i) {
-		predictInternal(i, prediction_data);
+		predictInternal(i, data);
 
 			// Check for user interrupt
 #ifdef R_BUILD

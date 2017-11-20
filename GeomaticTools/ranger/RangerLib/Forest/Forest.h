@@ -184,12 +184,12 @@ protected:
 	
 	void grow(Data* data);
 	void predict(Data* data);
-	//void predict_no_thread(Data* data);
+
 	virtual void growInternal(Data* training) = 0;
   // Predict using existing tree from file and data as prediction data
 	virtual void predictInternal(size_t sample_idx, const Data* data) = 0;
 	virtual void allocatePredictMemory(const Data* data)=0;
-	void computePredictionError(Data* data);
+	virtual void computePredictionError(Data* data);
 	virtual void computePredictionErrorInternal(Data* data) = 0;
 
   void computePermutationImportance();
