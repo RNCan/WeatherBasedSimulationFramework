@@ -1408,7 +1408,7 @@ size_t CBaseOptions::m_xx=0;
 size_t CBaseOptions::m_xxx=0;
 const char* CBaseOptions::TEMPORAL_REF_NAME[NB_SOURCES] = { "Jday1970", "YYYYMMDD" };
 const char* CBaseOptions::TT_TYPE_NAME[NB_TT] = { "OverallYears", "ByYears", "ByMonths", "None" };
-
+const char* CBaseOptions::RGB_NAME[NB_RGB] = { "natural", "landWater" };
 
 const COptionDef CBaseOptions::OPTIONS_DEF[] =
 {
@@ -1444,6 +1444,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
+	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file. Type can be Natural or LandWater. Natural by default." },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},
@@ -1553,6 +1554,7 @@ void CBaseOptions::Reset()
 	m_scenesSize = 0; //number of image per scene
 	m_TM = CTM::DAILY;
 	m_bOpenBandAtCreation = true;
+	m_RGBType = NO_RGB;
 
 	m_filesPath.empty();
 
@@ -1852,7 +1854,7 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 			m_TTF = JDAY1970;
 		else if (IsEqualNoCase(str, TEMPORAL_REF_NAME[YYYYMMDD]))
 			m_TTF = YYYYMMDD;
-		else msg.ajoute("Bad temporal type format. temporal type format must be \"JDay1970\", \"DDMMYY\" or \"YYYYMMDD\"");
+		else msg.ajoute("Bad temporal type format. temporal type format must be \"JDay1970\" or \"YYYYMMDD\"");
 	}
 	else if (IsEqual(argv[i], "-TTF"))
 	{
@@ -1874,6 +1876,18 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_period.Begin().FromFormatedString(argv[++i], CTRefFormat::DATE_YMD, "-", 1);//in 1 base
 		m_period.End().FromFormatedString(argv[++i], CTRefFormat::DATE_YMD, "-", 1);
+	}
+	else if (IsEqual(argv[i], "-RGB"))
+	{
+		string str = argv[++i];
+		
+		if (IsEqualNoCase(str, RGB_NAME[NATURAL]))
+			m_RGBType = NATURAL;
+		else if (IsEqualNoCase(str, RGB_NAME[LANDWATER]))
+			m_RGBType = LANDWATER;
+		else 
+			msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\" or \"LandWater\"");
+		
 	}
 	else if( IsEqual(argv[i],"-?") )
 	{

@@ -69,19 +69,32 @@ CGDALDatasetEx::CGDALDatasetEx()
 
 CGDALDatasetEx::~CGDALDatasetEx()
 {
-	Close();
+	Close(CBaseOptions());
 }
 
-void CGDALDatasetEx::Close(bool bQuiet)
+void CGDALDatasetEx::Close(const CBaseOptions& options)
 {
 	if( IsOpen() )
 	{
+		if (m_bOpenUpdate)
+		{
+			if (options.m_bComputeStats)
+				ComputeStats(options.m_bQuiet);
+
+			if (!options.m_overviewLevels.empty())
+				BuildOverviews(options.m_overviewLevels, options.m_bQuiet);
+
+			if (options.m_bComputeHistogram)
+				ComputeHistogram(options.m_bQuiet);
+		}
+
+
 		if (m_bMultipleImages)
 		{
 			for (size_t i = 0; i < m_poDatasetVector.size(); i++)
 				CloseVRTBand(i);
 			
-			BuildVRT(bQuiet);
+			BuildVRT(options.m_bQuiet);
 
 			m_poDatasetVector.clear();
 			m_bMultipleImages = false;
@@ -96,6 +109,8 @@ void CGDALDatasetEx::Close(bool bQuiet)
 		m_filePath.clear();
 		m_extents.clear();
 		m_bVRT = false;
+
+
 	}
 }
 
@@ -474,6 +489,8 @@ ERMsg CGDALDatasetEx::CreateImage(const string& filePath, const CBaseOptions& op
 		m_pProjection = GetProjection(options.m_prj);
 		m_filePath = filePath;
 		m_extents = options.m_extents;
+		m_bOpenUpdate = true;
+		//Dataset()->GetAccess() == GA_Update;
 	}
 		
 
@@ -707,7 +724,7 @@ void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
 
 
 
-void CGDALDatasetEx::BuildOverviews(vector<int>& list, bool bQuiet)
+void CGDALDatasetEx::BuildOverviews(const vector<int>& list, bool bQuiet)
 {
 	if( IsOpen() )
 	{
@@ -737,7 +754,7 @@ void CGDALDatasetEx::BuildOverviews(vector<int>& list, bool bQuiet)
 						if (!bQuiet)
 							cout << "B" << i + 1 << ": ";
 
-						m_poDatasetVector[i]->BuildOverviews("NEAREST", (int)list.size(), list.data(), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL);
+						m_poDatasetVector[i]->BuildOverviews("NEAREST", (int)list.size(), const_cast<int *>(list.data()), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL);
 					}
 				}
 
@@ -747,7 +764,7 @@ void CGDALDatasetEx::BuildOverviews(vector<int>& list, bool bQuiet)
 				if (!bQuiet)
 					cout << "Build Overview: ";
 
-				Dataset()->BuildOverviews("NEAREST", (int)list.size(), list.data(), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL);
+				Dataset()->BuildOverviews("NEAREST", (int)list.size(), const_cast<int *>(list.data()), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL);
 			}
 		}
 	}
@@ -834,6 +851,35 @@ void CGDALDatasetEx::GetBandsMetaData(BandsMetaData& meta_data)const
 	}
 		
 }
+
+std::string CGDALDatasetEx::GetCommonBandName()
+{
+	size_t common_begin = MAX_PATH;//common begin
+	for (size_t i = 0; i < GetRasterCount() - 1; i++)
+	{
+		for (size_t j = i; j < GetRasterCount(); j++)
+		{
+			string title0 = GetFileTitle(GetInternalName(i));
+			string title1 = GetFileTitle(GetInternalName(j));
+			size_t k = 0;//common begin
+			while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
+				k++;
+
+			common_begin = min(common_begin, k);
+		}
+	}
+
+	string common;
+	if (common_begin != MAX_PATH)
+		common = GetFileTitle(GetInternalName(0)).substr(common_begin);
+
+	return common;
+}
+
+void CGDALDatasetEx::GetGeoTransform(CGeoTransform GT)const
+{ (m_bMultipleImages ? m_poDatasetVector[0] : m_poDataset)->GetGeoTransform(GT); }
+
+
 //****************************************************************************
 //  section pour Créer des LOCs à partir de DEM.
 

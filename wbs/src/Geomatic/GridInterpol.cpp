@@ -57,9 +57,9 @@ void CGridInterpol::Reset()
 	m_bUseHxGrid = false;
 
 	if( m_inputGrid.IsOpen() )
-		m_inputGrid.Close();
+		m_inputGrid.Close(m_options);
 	if(m_outputGrid.IsOpen())
-		m_outputGrid.Close();
+		m_outputGrid.Close(m_options);
 }
 
 CGridInterpol& CGridInterpol::operator =(const CGridInterpol& in)
@@ -152,7 +152,7 @@ ERMsg CGridInterpol::Initialise(CCallback& callback)
 
 void CGridInterpol::Finalize()
 {
-	m_inputGrid.Close();
+	m_inputGrid.Close(m_options);
 	Reset();
 
 	CGridInterpolBase::FreeMemoryCache();
@@ -178,7 +178,7 @@ ERMsg CGridInterpol::CreateSurface(CCallback& callback)
 		return msg;
 
 	msg = GenerateSurface(callback); //surface-generation step
-	m_outputGrid.Close();
+	m_outputGrid.Close(m_options);
 
 	return msg;
 }

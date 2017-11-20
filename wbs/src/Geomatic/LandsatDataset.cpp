@@ -15,20 +15,27 @@
 #include "gdal_priv.h"
 
 #include "Geomatic/LandsatDataset.h"
+#include "basic/zenXml.h"
+
 
 using namespace std;
-using namespace WBSF::Landsat;
+
 
 namespace WBSF
 {
 
 
+	const char* Landsat::GetSceneName(size_t s)
+	{
+		static const char* SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
+		ASSERT(s < SCENES_SIZE);
+		return SCENE_NAME[s];
+
+	}
 
 
-	const char* CLandsatDataset::SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
-	
-	TLandsatFormat Landsat::GetFormatFromName(const string& title)
+	Landsat::TLandsatFormat Landsat::GetFormatFromName(const string& title)
 	{
 		TLandsatFormat format = F_UNKNOWN;
 		if (!title.empty())
@@ -49,7 +56,7 @@ namespace WBSF
 
 		return format;
 	}
-	
+
 	__int16 Landsat::GetCaptorFromName(const string& title)
 	{
 		__int16 captor = -32768;
@@ -57,9 +64,9 @@ namespace WBSF
 		{
 			if (title.size() >= 4)
 			{
-				if (title[2] == '0' )
+				if (title[2] == '0')
 					captor = char(title[3] - '0');
-				else 
+				else
 					captor = char(title[2] - '0');
 
 				if (captor != 4 && captor != 5 && captor != 7 && captor != 8)
@@ -69,15 +76,15 @@ namespace WBSF
 
 		return captor;
 	}
-	
+
 	CTRef Landsat::GetTRefFromName(const string& title)
 	{
 		CTRef TRef;
-		
+
 		TLandsatFormat format = GetFormatFromName(title);
-		if (format==F_OLD)
+		if (format == F_OLD)
 		{
-			
+
 			//LC80130262016186LGN00_B1
 			int year = ToInt(title.substr(9, 4));
 			size_t Jday = ToSizeT(title.substr(13, 3));
@@ -94,7 +101,7 @@ namespace WBSF
 			if (year >= 1950 && year <= 2050 && month >= 1 && month <= 12 && day >= 1 && day <= GetNbDayPerMonth(year, month - 1))
 				TRef = CTRef(year, month - 1, day - 1);
 		}
-	
+
 
 		return TRef;
 	}
@@ -116,7 +123,7 @@ namespace WBSF
 	}
 	__int16 Landsat::GetRowFromName(const string& title)
 	{
-		__int16 row=-32768;
+		__int16 row = -32768;
 
 		TLandsatFormat format = GetFormatFromName(title);
 		if (format == F_OLD)
@@ -130,7 +137,8 @@ namespace WBSF
 
 		return row;
 	}
-	TIndices Landsat::GetIndiceType(const std::string& str)
+
+	Landsat::TIndices Landsat::GetIndiceType(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
 		//"Euclidean",
@@ -142,7 +150,7 @@ namespace WBSF
 		return type;
 	}
 
-	TDomain Landsat::GetIndiceDomain(const std::string& str)
+	Landsat::TDomain Landsat::GetIndiceDomain(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR" };
 		TDomain domain = D_INVALID;
@@ -153,7 +161,7 @@ namespace WBSF
 		return domain;
 	}
 
-	TOperator Landsat::GetIndiceOperator(const std::string& str)
+	Landsat::TOperator Landsat::GetIndiceOperator(const std::string& str)
 	{
 		static const char* MODE_NAME[NB_OPERATORS] = { "<", ">" };
 		TOperator op = O_INVALID;
@@ -163,6 +171,9 @@ namespace WBSF
 
 		return op;
 	}
+
+
+	using namespace WBSF::Landsat;
 
 	ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
 	{
@@ -245,12 +256,12 @@ namespace WBSF
 
 	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
 	{
-		ASSERT(options.m_nbBands%SCENES_SIZE==0);
-		
+		ASSERT(options.m_nbBands%SCENES_SIZE == 0);
+
 		options.IsVRT();
 
 		ERMsg msg;
-	
+
 		if (options.m_VRTBandsName.empty())
 		{
 
@@ -263,7 +274,7 @@ namespace WBSF
 					if (nbImages > 1)
 						name += "_" + FormatA("%02d", i + 1);
 
-					name += string("_") + CLandsatDataset::SCENE_NAME[b] + ".tif|";
+					name += string("_") + GetSceneName(b) + ".tif|";
 					options.m_VRTBandsName += name;
 				}
 			}
@@ -307,9 +318,166 @@ namespace WBSF
 
 	}
 
-	CLandsatWindow::CLandsatWindow() : 
+
+
+	std::string CLandsatDataset::GetCommonBandName(size_t i)
+	{
+		//replace the common part by the new name
+		size_t common_begin = MAX_PATH;//common begin
+
+		for (size_t j = 0; j < SCENES_SIZE - 1; j++)
+		{
+			string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j));
+			string title1 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j + 1));
+			size_t k = 0;//common begin
+			while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
+				k++;
+
+			common_begin = min(common_begin, k);
+		}
+
+
+		string common;
+		if (common_begin != MAX_PATH)
+		{
+			string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+			common = title.substr(0, common_begin);
+		}
+		
+
+		return common;
+
+	}
+
+	void CLandsatDataset::Close(const CBaseOptions& options)
+	{
+		if (IsOpen())
+		{
+			if (options.m_RGBType != CBaseOptions::NO_RGB)
+			{
+
+				size_t nbImages = GetRasterCount() / SCENES_SIZE;
+				for (size_t i = 0; i < nbImages; i++)
+				{
+					string commonName = GetCommonBandName(i);
+					string filePath = m_filePath;
+					SetFileTitle(filePath, commonName + "RGB");
+					ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
+					if (!msg)
+					{
+						//cout << msg.get;
+					}
+				}
+			}
+
+			CGDALDatasetEx::Close(options);
+		}
+	}
+
+	ERMsg CLandsatDataset::CreateRGB(size_t iz, const std::string filePath, CBaseOptions::TRGBTye type)
+	{
+		ERMsg msg;
+
+		ofStream file;
+
+		msg = file.open(filePath, ios::out | ios::binary);
+		if (msg)
+		{
+			zen::XmlElement root("VRTDataset");
+
+			//zen::writeStruc(*this, doc.root());
+
+			root.setAttribute("rasterXSize", to_string(GetRasterXSize()));
+			root.setAttribute("rasterYSize", to_string(GetRasterYSize()));
+
+
+			zen::XmlElement& srs = root.addChild("SRS");
+			srs.setValue(GetPrj()->GetPrjStr());
+
+			CGeoTransform GT;
+			GetExtents().GetGeoTransform(GT);
+			//GetGeoTransform(GT);
+
+			string geotrans = to_string(GT[0]);
+			for (int i = 1; i < 6; i++)
+				geotrans += ", " + to_string(GT[i]);
+
+			root.addChild("GeoTransform").setValue(geotrans);
+
+			for (size_t j = 0; j < 3; j++)
+			{
+				zen::XmlElement& node = root.addChild("VRTRasterBand");
+				//   
+				node.setAttribute("dataType", "Int16");
+				node.setAttribute("band", to_string(j+1));
+				node.setAttribute("subClass", "VRTDerivedRasterBand");
+				node.addChild("NoDataValue").setValue("-32768");
+				static const char* RGB_NAME[3] = { "red", "green", "blue" };
+				string pixelValName = string("Landsat.") + RGB_NAME[j] + "(" + CBaseOptions::RGB_NAME[type] + ")";
+
+				node.addChild("PixelFunctionType").setValue(pixelValName);
+				for (size_t b = 0; b < SCENES_SIZE; b++)
+				{
+					zen::XmlElement& source = node.addChild("ComplexSource");
+					
+					string name = GetFileName(GetInternalName(iz*SCENES_SIZE + b));
+					
+					zen::XmlElement& sourceFilename = source.addChild("SourceFilename");
+					sourceFilename.setAttribute("relativeToVRT", "1");
+					//sourceFilename.setAttribute("shared", "0");
+					sourceFilename.setValue(name);
+
+					int         nBlockXSize, nBlockYSize;
+					GetRasterBand(iz*SCENES_SIZE + b)->GetBlockSize(&nBlockXSize, &nBlockYSize);
+
+					source.addChild("SourceBand").setValue("1");
+					zen::XmlElement& sourceProperties = source.addChild("SourceProperties");
+					sourceProperties.setAttribute("RasterXSize", to_string(GetRasterXSize()));
+					sourceProperties.setAttribute("RasterYSize", to_string(GetRasterYSize()));
+					sourceProperties.setAttribute("DataType", "Int16");
+					sourceProperties.setAttribute("BlockXSize", to_string(nBlockXSize));
+					sourceProperties.setAttribute("BlockYSize", to_string(nBlockYSize));
+					
+					zen::XmlElement& srcRect = source.addChild("SrcRect");
+					srcRect.setAttribute("xOff", "0");
+					srcRect.setAttribute("yOff", "0");
+					srcRect.setAttribute("xSize", to_string(GetRasterXSize()));
+					srcRect.setAttribute("ySize", to_string(GetRasterYSize()));
+
+					zen::XmlElement& dstRect = source.addChild("DstRect");
+					dstRect.setAttribute("xOff", "0");
+					dstRect.setAttribute("yOff", "0");
+					dstRect.setAttribute("xSize", to_string(GetRasterXSize()));
+					dstRect.setAttribute("ySize", to_string(GetRasterYSize()));
+
+					source.addChild("NODATA").setValue("-32768");
+					
+				}
+			}
+
+			try
+			{
+				std::string stream;
+				zen::implementation::serialize(root, stream, "\r\n", "    ", 0);//throw ()
+				file.write(stream);
+			}
+			catch (std::exception& e)
+			{
+				msg.ajoute( e.what() );
+			}
+
+			
+			//string str = file.GetText();
+
+			//	xmlDataset.Load(str.c_str());
+		}
+
+		return msg;
+	}
+	//****************************************************************************************************************
+	CLandsatWindow::CLandsatWindow() :
 		CRasterWindow(SCENES_SIZE),
-		m_bCorr8 (false)
+		m_bCorr8(false)
 	{}
 
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
@@ -320,8 +488,8 @@ namespace WBSF
 			size_t ii = i*SCENES_SIZE + z;
 			pixel[z] = (LandsatDataType)at(ii)->at(x, y);
 		}
-		
-		if (m_bCorr8 && at(i*SCENES_SIZE)->GetCaptor() == 8  && pixel.IsValid())
+
+		if (m_bCorr8 && at(i*SCENES_SIZE)->GetCaptor() == 8 && pixel.IsValid())
 			pixel.correction8to7();
 
 		return pixel;
@@ -331,7 +499,7 @@ namespace WBSF
 	{
 		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
 
-		
+
 		CLandsatPixel pixel;
 		if (GetPixel(i, x, y).IsValid())
 		{
@@ -360,9 +528,9 @@ namespace WBSF
 	}
 	bool CLandsatWindow::GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const
 	{
-		ASSERT(i<GetNbScenes());
+		ASSERT(i < GetNbScenes());
 
-		if (i != NOT_INIT  )
+		if (i != NOT_INIT)
 		{
 			for (size_t z = 0; z < SCENES_SIZE; z++)
 			{
@@ -370,10 +538,10 @@ namespace WBSF
 				pixel[z] = (LandsatDataType)at(ii)->at(x, y);
 			}
 		}
-		
+
 		return i != NOT_INIT && IsValid(i, pixel);
 	}
-	
+
 
 	//****************************************************************************************************************
 
@@ -388,7 +556,7 @@ namespace WBSF
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		fill(noData);
 	}
-	
+
 	LandsatDataType CLandsatPixel::operator[](const Landsat::TIndices& i)const
 	{
 		LandsatDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
@@ -455,11 +623,11 @@ namespace WBSF
 
 	void CLandsatPixel::correction8to7()
 	{
-		static const double c0[SCENES_SIZE-2] = { 0.00041, 0.00289, 0.00274, 0.00004, 0.00256, 0.0, -0.00327};
-		static const double c1[SCENES_SIZE-2] = { 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 };
-		for (size_t b = 0; b < SCENES_SIZE-2; b++)
+		static const double c0[SCENES_SIZE - 2] = { 0.00041, 0.00289, 0.00274, 0.00004, 0.00256, 0.0, -0.00327 };
+		static const double c1[SCENES_SIZE - 2] = { 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 };
+		for (size_t b = 0; b < SCENES_SIZE - 2; b++)
 		{
-			double newVal = c0[b] + c1[b]*at(b);
+			double newVal = c0[b] + c1[b] * at(b);
 			at(b) = (__int16)WBSF::LimitToBound(newVal, GDT_Int16, 1);
 		}
 
@@ -469,7 +637,7 @@ namespace WBSF
 	{
 		return at(B6) != 0 ? (double)at(B1) / at(B6) : -FLT_MAX;
 	}
-	
+
 	Color8 CLandsatPixel::R()const{ return Color8(max(0.0, min(254.0, ((at(B4) + 150.0) / 6150.0) * 254.0))); }
 	Color8 CLandsatPixel::G()const{ return Color8(max(0.0, min(254.0, ((at(B5) + 190.0) / 5190.0) * 254.0))); }
 	Color8 CLandsatPixel::B()const{ return Color8(max(0.0, min(254.0, ((at(B3) + 200.0) / 2700.0) * 254.0))); }
@@ -486,18 +654,21 @@ namespace WBSF
 
 	double CLandsatPixel::NBR()const
 	{
-		return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -FLT_MAX;
+		//return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -FLT_MAX;
+		return ((double)at(B4) - at(B7)) / max(0.00001, double(at(B4) + at(B7)));
 	}
 
 
 	double CLandsatPixel::NDVI()const
 	{
-		return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -FLT_MAX;
+		//return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -FLT_MAX;
+		return ((double)at(B4) - at(B3)) / max(0.00001, double(at(B4) + at(B3)));
 	}
 
 	double CLandsatPixel::NDMI()const
 	{
-		return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -FLT_MAX;
+		//return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -FLT_MAX;
+		return ((double)at(B4) - at(B5)) / max(0.00001, double(at(B4) + at(B5)));
 	}
 
 	double CLandsatPixel::TCB()const
@@ -522,7 +693,7 @@ namespace WBSF
 	{
 		double d1 = (post - pre);
 		double d2 = spike - (post + pre) / 2;
-		
+
 		if (d2 == 0)
 			return 1;
 

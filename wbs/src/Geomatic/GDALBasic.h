@@ -409,16 +409,17 @@ namespace WBSF
 		CGDALDatasetEx();
 		~CGDALDatasetEx();
 
-		virtual ERMsg OpenInputImage(const std::string& filePath, const CBaseOptions& option = CBaseOptions());
+		virtual ERMsg OpenInputImage(const std::string& filePath, const CBaseOptions& options = CBaseOptions());
 		virtual ERMsg CreateImage(const std::string& filePath, const CBaseOptions& option);
 		virtual CSingleBandHolderPtr GetSingleBandHolder(size_t bandNo = 0)const;
 		virtual void GetBandsHolder(CBandsHolder& BandsHolder)const;
-		virtual void UpdateOption(CBaseOptions& option)const;
+		virtual void UpdateOption(CBaseOptions& options)const;
+		virtual void Close(const CBaseOptions& options = CBaseOptions());
 
 		//ERMsg OpenInputImage(const std::string& filePath, double srcNodata, int IOCPU, bool bUseDefaultNoData);
 		//ERMsg CreateImage(const std::string& filePath, const CGeoExtents& extents, int nbBand = 1, double dstNodata = MISSING_NO_DATA, bool bUseDefaultNoData = true, const std::string& prj = "", const char* outDriverName = "GTiff", short cellType = 3, const StringVector& createOptions = StringVector(), bool bOverwrite = true);
 
-		void BuildOverviews(std::vector<int>& list, bool bQuiet);
+		void BuildOverviews(const std::vector<int>& list, bool bQuiet);
 		void ComputeStats(bool bQuiet);
 		void ComputeHistogram(bool bQuiet);
 
@@ -426,7 +427,8 @@ namespace WBSF
 		int GetRasterYSize()const;
 		size_t GetRasterCount()const;
 		ERMsg BuildVRT(bool bQuiet);
-
+		void GetGeoTransform(CGeoTransform GT)const;
+		
 		GDALRasterBand *GetRasterBand(size_t i);
 		const GDALRasterBand *GetRasterBand(size_t i)const;
 
@@ -436,8 +438,9 @@ namespace WBSF
 		GDALDataset* Dataset()const{ return m_poDataset; }
 		GDALDataset* Detach(){ GDALDataset* poDataset = m_poDataset; m_poDataset = NULL; m_pProjection.reset(); m_filePath.clear();  return poDataset; }
 
-		void Close(bool bQuiet = true);
+		
 		bool IsOpen()const{ return !m_filePath.empty(); }// m_poDataset != NULL;
+		bool IsOpenUpdate()const{ return m_bOpenUpdate; }
 
 		const std::string& GetFilePath()const{ return m_filePath; }
 
@@ -493,12 +496,15 @@ namespace WBSF
 			return p;
 		}
 
+		std::string GetCommonBandName();
+
 	protected:
 
 		//std::string GetMetaDataFilePath(const std::string& filePath)const;
 		//ERMsg LoadMetaData(const std::string& filePath);
 
 		bool m_bVRT;
+		bool m_bOpenUpdate;
 		GDALDataset* m_poDataset;
 		CProjectionPtr m_pProjection;
 

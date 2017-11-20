@@ -226,6 +226,9 @@ namespace WBSF
 		static const char* TEMPORAL_REF_NAME[NB_SOURCES];
 		static int GetTRefIndex(int type, CTRef Tref);
 		static CTRef GetTRef(int type, int index);
+		
+		enum TRGBTye{ NO_RGB=-1, NATURAL, LANDWATER, NB_RGB };
+		static const char* RGB_NAME[NB_RGB];
 
 		enum TTT			{ TT_UNKNOWN = -1, TT_OVERALL_YEARS, TT_BY_YEARS, TT_BY_MONTHS, TT_NONE, NB_TT };
 		static const char* TT_TYPE_NAME[NB_TT];
@@ -271,6 +274,8 @@ namespace WBSF
 		double m_yRes;
 		CTPeriod m_period;
 		CTM m_TM;
+		TRGBTye m_RGBType; 
+		
 
 		StringVector m_filesPath;
 		std::vector<int> m_bandsToUsed;

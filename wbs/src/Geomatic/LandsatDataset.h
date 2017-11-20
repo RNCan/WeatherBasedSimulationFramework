@@ -22,11 +22,14 @@ namespace WBSF
 	{
 		enum TLandsatFormat	{ F_UNKNOWN=-1, F_OLD, F_NEW, NB_FORMATS };
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
+		
+
 		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
-		//I_EUCLIDEAN, 
+
 		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
 		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
 
+		const char* GetSceneName(size_t s);
 		TDomain GetIndiceDomain(const std::string& str);
 		TIndices GetIndiceType(const std::string& str);
 		TOperator GetIndiceOperator(const std::string& str);
@@ -276,16 +279,21 @@ namespace WBSF
 	{
 	public:
 
-		static const char* SCENE_NAME[Landsat::SCENES_SIZE];
+		//static const char* SCENE_NAME[Landsat::SCENES_SIZE];
 
-		virtual ERMsg OpenInputImage(const std::string& filePath, const CBaseOptions& option = CBaseOptions());
+		virtual ERMsg OpenInputImage(const std::string& filePath, const CBaseOptions& options = CBaseOptions());
 		virtual ERMsg CreateImage(const std::string& filePath, CBaseOptions options);
 		virtual void GetBandsHolder(CBandsHolder& bandsHoler)const;
-		virtual void UpdateOption(CBaseOptions& option)const;
+		virtual void UpdateOption(CBaseOptions& options)const;
+		virtual void Close(const CBaseOptions& options = CBaseOptions());
 
 		void InitFileInfo();
 
 		const std::vector<CLandsatFileInfo>& GetFileInfo()const { return m_info; }
+	
+		ERMsg CreateRGB(size_t i, const std::string filePath, CBaseOptions::TRGBTye type);
+		std::string GetCommonBandName(size_t i);
+
 	protected:
 		
 		std::vector<CLandsatFileInfo> m_info;
