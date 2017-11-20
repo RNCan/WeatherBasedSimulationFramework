@@ -809,7 +809,7 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 	{
 		debug.resize(CCloudCleanerOption::NB_DBUG);
 		for (size_t i = 0; i < debug.size(); i++)
-			debug[CCloudCleanerOption::D_SCENE_USED].insert(debug[CCloudCleanerOption::D_SCENE_USED].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
+			debug[i].insert(debug[i].begin(), blockSize.m_x*blockSize.m_y, (__int16)GetDefaultNoData(GDT_Int16));
 	}
 
 #pragma omp critical(ProcessBlock)
