@@ -26,6 +26,7 @@ namespace WBSF
 		double m_RMSEThreshold;
 		size_t m_maxLayers;
 		int m_firstYear;
+		//bool m_bExportBreaks;
 		bool m_bDebug;
 	};
 

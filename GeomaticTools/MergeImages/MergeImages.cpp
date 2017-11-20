@@ -117,6 +117,8 @@ namespace WBSF
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
+		AddOption("-period");
+		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
@@ -136,9 +138,9 @@ namespace WBSF
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
-			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Output Image", "dstfile", "Number of output periods", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: Date of the selected image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Optional Output Image", "_stats", "Number of output periods", "SceneSize(9) x NbStats(4)", "B1Lowest: lowest value of the input image B1|B1Mean: mean of the input image B1|B1SD: standard deviation of input image B1|B1Highest: highest value of the input image B1|... for each bands of the scene", "" },
+			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Julian day 1970|... for all scenes", "" },
+			{ "Output Image", "dstfile", "Number of output periods", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Julian day 1970|... for all scenes", "" },
+			{ "Optional Output Image", "_stats", "Number of output periods", "SceneSize(9) x NbStats(5)", "B1Lowest: lowest value of the input image B1|B1Mean: mean of the input image B1|B1Median: median of the input image B1|B1SD: standard deviation of input image B1|B1Highest: highest value of the input image B1|... for each bands of the scene", "" },
 			{ "Optional Output Image", "_debug", "1", "7", "Path: path number of satellite|Row: row number of satellite|JDay: Julian day (1-366)|NbScenes: number of valid scene|scene: the selected scene|sort: the sort criterious" }
 		};
 
@@ -234,7 +236,7 @@ namespace WBSF
 
 
 		if (b < SCENES_SIZE)
-			str += string("_") + CLandsatDataset::SCENE_NAME[b];
+			str += string("_") + Landsat::GetSceneName(b);
 
 		return str;
 	}
@@ -836,29 +838,29 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		if (m_options.m_bComputeStats)
-			outputDS.ComputeStats(m_options.m_bQuiet);
+		//if (m_options.m_bComputeStats)
+		//	outputDS.ComputeStats(m_options.m_bQuiet);
 
-		if (!m_options.m_overviewLevels.empty())
-			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-		outputDS.Close();
+		outputDS.Close(m_options);
 
-		if (m_options.m_bComputeStats)
-			debugDS.ComputeStats(m_options.m_bQuiet);
+		//if (m_options.m_bComputeStats)
+			//debugDS.ComputeStats(m_options.m_bQuiet);
 
-		if (!m_options.m_overviewLevels.empty())
-			debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-		debugDS.Close();
+		debugDS.Close(m_options);
 
-		if (m_options.m_bComputeStats)
-			statsDS.ComputeStats(m_options.m_bQuiet);
+		//if (m_options.m_bComputeStats)
+			//statsDS.ComputeStats(m_options.m_bQuiet);
 
-		if (!m_options.m_overviewLevels.empty())
-			statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-		statsDS.Close();
+		statsDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();
@@ -871,8 +873,6 @@ namespace WBSF
 		bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
 		if (!bIsBlack)
 		{
-			//CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
-
 			if (type == CMergeImagesOption::OLDEST || type == CMergeImagesOption::NEWEST || type == CMergeImagesOption::MEDIAN_JD)
 			{
 				criterion = pixel[JD];
@@ -887,55 +887,23 @@ namespace WBSF
 			else if (type == CMergeImagesOption::BEST_PIXEL || type == CMergeImagesOption::SECOND_BEST)
 			{
 				criterion = pixel[QA];
-				//criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 			{
 				criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16, 1);
-				//double NDVI = pixel.NDVI();
-				//if (NDVI>-32 && NDVI<32)
-				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NBR)
 			{
 				criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16, 1);
-				//double NBR = pixel.NBR();
-				//if (NBR>-32 && NBR<32)
-				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NDMI)
 			{
 				criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16, 1);
-				//double NDMI = pixel.NDMI();
-				//if (NDMI>-32 && NDMI<32)
-				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
-				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
 			else if (type == CMergeImagesOption::MEDIAN_TCB)
 			{
 				criterion = (__int16)WBSF::LimitToBound(pixel.TCB() * 1000, GDT_Int16, 1);
-				//double NDMI = pixel.NDMI();
-				//if (NDMI>-32 && NDMI<32)
-				//criterion.SetRef(value, CTM(CTM::ATEMPORAL));
-				//long NDMI = (long)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16);
 			}
-
-			/*else if (type == CMergeImagesOption::MEDIAN_QA)
-			{
-			__int16 Qa = pixel[QA];
-			if (Qa > -9999 && Qa < -3)
-			Qa = -3;
-			else if (Qa >= 0 && Qa < 100)
-			Qa = -3;
-			else if (Qa >= 100 && Qa < 200)
-			Qa = -2;
-			else if (Qa >= 200 && Qa < 300)
-			Qa = -1;
-			else if (Qa < -9999 || Qa >= 300)
-			Qa = 32767;
-
-			criterion.SetRef(Qa, CTM(CTM::ATEMPORAL));
-			}*/
 
 		}
 

@@ -58,6 +58,8 @@ namespace WBSF
 
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
 
+		AddOption("-period");
+		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
@@ -74,8 +76,8 @@ namespace WBSF
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
-			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "ScenesSize(9)", "B1: Median Landsat band 1|B2: Median Landsat band 2|B3: Median Landsat band 3|B4: Median Landsat band 4|B5: Median Landsat band 5|B6: Median Landsat band 6|B7: Median Landsat band 7|QA: Median Image quality|Date: Median Date (Julian day 1970 or YYYYMMDD format)", "" },
+			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Julian day 1970|... for all scenes", "" },
+			{ "Output Image", "dstfile", "", "ScenesSize(9)", "B1: Median Landsat band 1|B2: Median Landsat band 2|B3: Median Landsat band 3|B4: Median Landsat band 4|B5: Median Landsat band 5|B6: Median Landsat band 6|B7: Median Landsat band 7|QA: Median Image quality|JD: Median Julian day 1970", "" },
 			{ "Optional Output Image", "_debug", "1", "7", "Path: path number of satellite|Row: row number of satellite|JDay: Julian day (1-366)|NbScenes: number of valid scene|scene: the selected scene|sort: the sort criterious" }
 			//Year: year|Month: month (1-12)|Day: day (1-31)|
 		};
@@ -261,6 +263,7 @@ namespace WBSF
 			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
 			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
 			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
@@ -323,7 +326,7 @@ namespace WBSF
 		m_options.m_timerRead.Start();
 
 		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-		bandHolder.LoadBlock(extents);
+		bandHolder.LoadBlock(extents, m_options.m_period);
 
 		m_options.m_timerRead.Stop();
 	}
@@ -361,10 +364,8 @@ namespace WBSF
 		if (m_options.m_bDebug)
 		{
 			__int16 dstNodata = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
-
-			if (debugData.empty())
-				debugData.resize(CMedianImageOption::NB_DEBUG_BANDS);
-
+			
+			debugData.resize(CMedianImageOption::NB_DEBUG_BANDS);
 			for (size_t z = 0; z < debugData.size(); z++)
 				debugData[z].resize(blockSize.m_x*blockSize.m_y, dstNodata);
 		}
@@ -565,17 +566,17 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		if (m_options.m_bComputeStats)
-			outputDS.ComputeStats(m_options.m_bQuiet);
-		if (!m_options.m_overviewLevels.empty())
-			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-		outputDS.Close();
+		//if (m_options.m_bComputeStats)
+			//outputDS.ComputeStats(m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		outputDS.Close(m_options);
 
-		if (m_options.m_bComputeStats)
-			debugDS.ComputeStats(m_options.m_bQuiet);
-		if (!m_options.m_overviewLevels.empty())
-			debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-		debugDS.Close();
+		//if (m_options.m_bComputeStats)
+			//debugDS.ComputeStats(m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		debugDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

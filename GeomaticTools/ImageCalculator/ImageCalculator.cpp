@@ -560,19 +560,19 @@ void CImageCalculator::CloseAll(CGDALDatasetExVector& inputDSVector, CGDALDatase
 
 	m_options.m_timerWrite.Start();
 	
-	if(m_options.m_bComputeStats)
-		outputDS.ComputeStats(m_options.m_bQuiet);
+	//if(m_options.m_bComputeStats)
+		//outputDS.ComputeStats(m_options.m_bQuiet);
 
-	if( !m_options.m_overviewLevels.empty() )
-		outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	//if( !m_options.m_overviewLevels.empty() )
+		//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-	if (m_options.m_bComputeHistogram)
-		outputDS.ComputeHistogram( m_options.m_bQuiet);
+	//if (m_options.m_bComputeHistogram)
+		//outputDS.ComputeHistogram( m_options.m_bQuiet);
 
 	
 
 
-	outputDS.Close(m_options.m_bQuiet);
+	outputDS.Close(m_options);
 	
 	m_options.m_timerWrite.Stop();
 	m_options.PrintTime();

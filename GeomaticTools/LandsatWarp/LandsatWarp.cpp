@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.0	21/12/2012	Rémi Saint-Amant	Creation
+// 1.1.0	16/11/2017	Rémi Saint-Amant	Compile with GDAL 2.2
+// 1.0.0	21/12/2015	Rémi Saint-Amant	Creation
 
 //-te -1271940 7942380 -1249530 7956540 -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 1024 1024 -multi -Type SecondBest -stats -debug -dstnodata -32768 --config GDAL_CACHEMAX 1024 "U:\GIS1\LANDSAT_SR\LCC\2014\#57_2014_182-244.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test4\Nuage.vrt"
 //-stats -Type BestPixel -te 1358100 6854400 1370300 6865500 -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Output\Test.vrt"
@@ -43,7 +44,7 @@ namespace WBSF
 		m_appDescription = "This software warp a series of Landsat images (composed of " + to_string(SCENES_SIZE) + " bands). All empty images will be removed.";
 
 		AddOption("-Period");
-
+		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
@@ -54,6 +55,7 @@ namespace WBSF
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
 
+		
 		RemoveOption("-ot");
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
@@ -80,7 +82,7 @@ namespace WBSF
 		}
 
 		if (m_outputType == GDT_Unknown)
-			m_outputType = m_TTF == YYYYMMDD ? GDT_Int32 : GDT_Int16;
+			m_outputType = GDT_Int16;
 
 		return msg;
 	}
@@ -266,7 +268,7 @@ namespace WBSF
 			string fileTitle = GetFileTitle(filePath);
 			for (size_t b = 0; b < SCENES_SIZE; b++)
 			{
-				options.m_VRTBandsName += fileTitle + string("_") + CLandsatDataset::SCENE_NAME[b] + ".tif|";
+				options.m_VRTBandsName += fileTitle + string("_") + Landsat::GetSceneName(b) + ".tif|";
 			}
 
 
@@ -438,13 +440,13 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		if (m_options.m_bComputeStats)
-			outputDS.ComputeStats(m_options.m_bQuiet);
+		//if (m_options.m_bComputeStats)
+			//outputDS.ComputeStats(m_options.m_bQuiet);
 
-		if (!m_options.m_overviewLevels.empty())
-			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
-		outputDS.Close();
+		outputDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

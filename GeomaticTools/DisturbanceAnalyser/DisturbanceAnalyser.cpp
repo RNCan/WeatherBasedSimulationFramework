@@ -721,7 +721,7 @@ ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& p
 			{
 				
 				for (size_t b = 0; b < SCENES_SIZE; b++)
-					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + CLandsatDataset::SCENE_NAME[b] + ".tif|";
+					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + Landsat::GetSceneName(b) + ".tif|";
 			}
 
 			msg += exportBandsDS[i].CreateImage(exportPath, options);
@@ -1239,41 +1239,41 @@ void CDisterbanceAnalyser::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& p
 	m_options.m_timerWrite.Start();
 	for(size_t i=0; i<outputDS.size(); i++)
 	{
-		if( m_options.m_bComputeStats )
-			outputDS[i].ComputeStats(i==0?m_options.m_bQuiet:true);
-		if( !m_options.m_overviewLevels.empty() )
-			outputDS[i].BuildOverviews(m_options.m_overviewLevels, i==0?m_options.m_bQuiet:true);
-		outputDS[i].Close();
+		//if( m_options.m_bComputeStats )
+		//	outputDS[i].ComputeStats(i==0?m_options.m_bQuiet:true);
+		//if( !m_options.m_overviewLevels.empty() )
+			//outputDS[i].BuildOverviews(m_options.m_overviewLevels, i==0?m_options.m_bQuiet:true);
+		outputDS[i].Close(m_options);
 	}
 
-	if( m_options.m_bComputeStats )
-		fireSeverityDS.ComputeStats(true);
-	if( !m_options.m_overviewLevels.empty() )
-		fireSeverityDS.BuildOverviews(m_options.m_overviewLevels, true);
-	fireSeverityDS.Close();
+	//if( m_options.m_bComputeStats )
+	//	fireSeverityDS.ComputeStats(true);
+	//if( !m_options.m_overviewLevels.empty() )
+		//fireSeverityDS.BuildOverviews(m_options.m_overviewLevels, true);
+	fireSeverityDS.Close(m_options);
 
 	for(size_t i=0; i<exportBandsDS.size(); i++)
-	{
-		if( m_options.m_bComputeStats )
-			exportBandsDS[i].ComputeStats(true); 
-		if( !m_options.m_overviewLevels.empty() )
-			exportBandsDS[i].BuildOverviews(m_options.m_overviewLevels, true);
-		exportBandsDS[i].Close();
+	{//
+		//if( m_options.m_bComputeStats )
+			//exportBandsDS[i].ComputeStats(true); 
+		//if( !m_options.m_overviewLevels.empty() )
+			//exportBandsDS[i].BuildOverviews(m_options.m_overviewLevels, true);
+		exportBandsDS[i].Close(m_options);
 	}
 
 
-	if (m_options.m_bComputeStats)
-		exportTSDS.ComputeStats(true);
-	if (!m_options.m_overviewLevels.empty())
-		exportTSDS.BuildOverviews(m_options.m_overviewLevels, true);
-	exportTSDS.Close();
+	//if (m_options.m_bComputeStats)
+		//exportTSDS.ComputeStats(true);
+	//if (!m_options.m_overviewLevels.empty())
+		//exportTSDS.BuildOverviews(m_options.m_overviewLevels, true);
+	exportTSDS.Close(m_options);
 
 	
-	if (m_options.m_bComputeStats)
-		debugDS.ComputeStats(true);
-	if (!m_options.m_overviewLevels.empty())
-		debugDS.BuildOverviews(m_options.m_overviewLevels, true);
-	debugDS.Close();
+	//if (m_options.m_bComputeStats)
+		//debugDS.ComputeStats(true);
+	//if (!m_options.m_overviewLevels.empty())
+		//debugDS.BuildOverviews(m_options.m_overviewLevels, true);
+	debugDS.Close(m_options);
 	
 
 		

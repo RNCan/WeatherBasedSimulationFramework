@@ -44,14 +44,15 @@ namespace WBSF
 		m_maxLayers = 5;
 		m_firstYear = 0;
 		m_bDebug = false;
-
-		m_appDescription = "This software find breaks in NBR value of Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands).";
+//		m_bExportBreaks = false;
+		m_appDescription = "This software find breaks in NBR values";// of Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands).
 
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the NBR value to continue breaking series. 0 by default." },
 			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks. 3 by default for a total of 5 output layers" },
 			{ "-FirstYear", 1, "n", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
+	//		{ "-ExportBreaks", 0, "", false, "export landsat scenes (MaxBreaks+2 ) of breaks." },
 			//{ "-Standardized", 0, "", false, "Standardize input." },
 			{ "-Debug",  0,"",false,"Output debug information."},
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -114,6 +115,10 @@ namespace WBSF
 		{
 			m_firstYear = atoi(argv[++i]);
 		}
+		/*else if (IsEqual(argv[i], "-ExportBreaks"))
+		{
+			m_bExportBreaks = true;
+		}*/
 		else if (IsEqual(argv[i], "-Debug"))
 		{
 			m_bDebug = true;
@@ -475,17 +480,17 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		if (m_options.m_bComputeStats)
-			outputDS.ComputeStats(m_options.m_bQuiet);
-		if (!m_options.m_overviewLevels.empty())
-			outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-		outputDS.Close();
+		//if (m_options.m_bComputeStats)
+		//	outputDS.ComputeStats(m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		outputDS.Close(m_options);
 
-		if (m_options.m_bComputeStats)
-			debugDS.ComputeStats(m_options.m_bQuiet);
-		if (!m_options.m_overviewLevels.empty())
-			debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-		debugDS.Close();
+		//if (m_options.m_bComputeStats)
+		//	debugDS.ComputeStats(m_options.m_bQuiet);
+		//if (!m_options.m_overviewLevels.empty())
+			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		debugDS.Close(m_options);
 
 		
 		m_options.m_timerWrite.Stop();

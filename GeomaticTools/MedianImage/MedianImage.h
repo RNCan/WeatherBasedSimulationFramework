@@ -18,7 +18,7 @@ namespace WBSF
 
 		enum TFilePath		{ INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 		enum TDebugBands	{ D_JDAY, NB_IMAGES, NB_DEBUG_BANDS };
-		enum TInfoImage		{ I_CAPTOR, I_PATH, I_ROW};
+		//enum TInfoImage		{ I_CAPTOR, I_PATH, I_ROW};
 
 		CMedianImageOption();
 		virtual ERMsg ParseOption(int argc, char* argv[]);

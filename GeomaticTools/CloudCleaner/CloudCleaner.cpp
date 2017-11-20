@@ -70,7 +70,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 	m_appDescription = "This software look up for cloud from Landsat images series (composed of " + to_string(SCENES_SIZE) + " bands) with a decision tree model";
 	
-
+	AddOption("-RGB");
 
 	static const COptionDef OPTIONS[] =
 	{
@@ -948,23 +948,23 @@ void CCloudCleaner::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, 
 
 	//close debug
 	m_options.m_timerWrite.Start();
-	if( m_options.m_bComputeStats )
-		outputDS.ComputeStats(m_options.m_bQuiet);
-	if( !m_options.m_overviewLevels.empty() )
-		outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-	outputDS.Close();
+	//if( m_options.m_bComputeStats )
+	//	outputDS.ComputeStats(m_options.m_bQuiet);
+	//if( !m_options.m_overviewLevels.empty() )
+	//	outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	outputDS.Close(m_options);
 
-	if (m_options.m_bComputeStats)
-		DTCodeDS.ComputeStats(m_options.m_bQuiet);
-	if (!m_options.m_overviewLevels.empty())
-		DTCodeDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-	DTCodeDS.Close();
+	//if (m_options.m_bComputeStats)
+	//	DTCodeDS.ComputeStats(m_options.m_bQuiet);
+	//if (!m_options.m_overviewLevels.empty())
+		//DTCodeDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	DTCodeDS.Close(m_options);
 
-	if (m_options.m_bComputeStats)
-		debugDS.ComputeStats(m_options.m_bQuiet);
-	if (!m_options.m_overviewLevels.empty())
-		debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-	debugDS.Close();
+	////if (m_options.m_bComputeStats)
+		//debugDS.ComputeStats(m_options.m_bQuiet);
+	//if (!m_options.m_overviewLevels.empty())
+		//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	debugDS.Close(m_options);
 
 	
 	m_options.m_timerWrite.Stop();

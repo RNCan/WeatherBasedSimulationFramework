@@ -32,6 +32,10 @@
 
 enum { B1, B2, B3, B4, B5, B6, B7 }; 
 
+__int16 ToInt16(double value)
+{
+	return (__int16 )fmax(-32767.0, fmin(32767.0, value));
+}
 
 CPLErr NBR(void **papoSources, int nSources, void *pData,
 	int nXSize, int nYSize,
@@ -53,18 +57,18 @@ CPLErr NBR(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			//b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			//b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B7]>-32768 && (b[B4] + b[B7]) != 0)
-				pix_val = (__int16)(1000 * ((double)b[B4] - b[B7]) / (b[B4] + b[B7]));
+			if (b[B4] > -32768 && b[B7]>-32768 )//&& (b[B4] + b[B7]) != 0
+				pix_val = ToInt16(1000 * ((double)b[B4] - b[B7]) / fmax(0.00001, (double)(b[B4] + b[B7])));
 
 
 
@@ -98,18 +102,18 @@ CPLErr NBR2(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			//b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			//b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			//b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B5] > -32768 && b[B7]>-32768 && (b[B5] + b[B7]) != 0)
-				pix_val = (__int16)(1000 * ((double)b[B5] - b[B7]) / (b[B5] + b[B7]));
+			if (b[B5] > -32768 && b[B7]>-32768 )//&& (b[B5] + b[B7]) != 0
+				pix_val = ToInt16(1000 * ((double)b[B5] - b[B7]) / max(0.00001, (double)(b[B5] + b[B7])));
 
 
 
@@ -143,18 +147,18 @@ int nPixelSpace, int nLineSpace)
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B1] > -32768 && b[B4] > -32768 && b[B4]>-32768 && (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1) != 0)
-				pix_val = (__int16)(1000 * 2.5 * ((double)b[B4] - b[B3]) / (b[B4] + 6*b[B3] - 7.5*b[B1] + 1));
+			if (b[B1] > -32768 && b[B3] > -32768 && b[B4]>-32768) //&& (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1) != 0
+				pix_val = ToInt16(1000 * 2.5 * ((double)b[B4] - b[B3]) / max(0.00001, (b[B4] + 6*b[B3] - 7.5*b[B1] + 1)));
 			
 
 
@@ -189,18 +193,18 @@ int nPixelSpace, int nLineSpace)
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B4]>-32768 && (b[B4] + b[B3] + 0.5) != 0)
-				pix_val = (__int16)(1000 * 1.5 * ((double)b[B4] - b[B3]) / (b[B4] + b[B3] + 0.5));
+			if (b[B3] > -32768 && b[B4]>-32768 )//&& (b[B4] + b[B3] + 0.5) != 0
+				pix_val = ToInt16(1000 * 1.5 * ((double)b[B4] - b[B3]) / max(0.00001, (b[B4] + b[B3] + 0.5)));
 
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -233,18 +237,18 @@ CPLErr MSAVI(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B7]>-32768 )
-				pix_val = (__int16)(1000 * (2.0 * b[B4] + 1 - sqrt((2 * b[B4] + 1)*(2 * b[B4] + 1) - 8 * (b[B4] - b[B3]))) / 2);
+			if (b[B3] > -32768 && b[B4]>-32768 )
+				pix_val = ToInt16(1000 * (2.0 * b[B4] + 1 - sqrt((2 * b[B4] + 1)*(2 * b[B4] + 1) - 8 * (b[B4] - b[B3]))) / 2);
 			
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -279,17 +283,17 @@ CPLErr NDVI(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B3]>-32768 && (b[B4] + b[B3]) != 0)
-				pix_val = (__int16)(1000 * ((double)b[B4] - b[B3]) / (b[B4] + b[B3]));
+			if (b[B3] > -32768 && b[B4]>-32768 )//&& (b[B4] + b[B3]) != 0
+				pix_val = ToInt16(1000 * ((double)b[B4] - b[B3]) / max(0.00001, (double)(b[B4] + b[B3])));
 
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -322,19 +326,19 @@ CPLErr NDMI(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			//b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			//b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B5]>-32768 && (b[B4] + b[B5]) != 0)
-				pix_val = (__int16)(1000 * ((double)b[B4] - b[B5]) / (b[B4] + b[B5]));
+			if (b[B4] > -32768 && b[B5]>-32768 )//&& (b[B4] + b[B5]) != 0
+				pix_val = ToInt16(1000 * ((double)b[B4] - b[B5]) / max(0.00001, (double)(b[B4] + b[B5])));
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
 				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
@@ -367,20 +371,20 @@ CPLErr TCB(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//			b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//			b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
 			if (b[B1] > -32768 && b[B2]>-32768 && b[B3]>-32768 && b[B4] > -32768 && b[B5] > -32768 && b[B7] > -32768)
 			{
 				static const double F[7] = { 0.2043, 0.4158, 0.5524, 0.5741, 0.3124, 0.0000, 0.2303 };
-				pix_val = (__int16)(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
+				pix_val = ToInt16(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -415,13 +419,13 @@ CPLErr TCG(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//			b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//			b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
@@ -429,7 +433,7 @@ CPLErr TCG(void **papoSources, int nSources, void *pData,
 			{
 
 				static const double F[7] = { -0.1603, -0.2819, -0.4934, 0.7940, 0.0002, 0.000, -0.1446 };
-				pix_val = (__int16)(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
+				pix_val = ToInt16(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -463,20 +467,20 @@ CPLErr TCW(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//			b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//			b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
 			if (b[B1] > -32768 && b[B2]>-32768 && b[B3]>-32768 && b[B4] > -32768 && b[B5] > -32768 && b[B7] > -32768)
 			{
 				static const double F[7] = { 0.0315, 0.2021, 0.3102, 0.1594, 0.6806, 0.000, -0.6109 };
-				pix_val = (__int16)(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
+				pix_val = ToInt16(F[B1] * b[B1] + F[B2] * b[B2] + F[B3] * b[B3] + F[B4] * b[B4] + F[B5] * b[B5] + F[B7] * b[B7]);
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -512,18 +516,18 @@ CPLErr SR(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			//b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 			pix_val = -32768;
-			if (b[B3] > -32768 && b[B4]>-32768 && b[B3] != 0)
+			if (b[B3] > -32768 && b[B4]>-32768 )//&& b[B3] != 0
 			{
-				pix_val = (__int16)(1000 * ((double)b[B4] / b[B3]));
+				pix_val = ToInt16(1000 * ((double)b[B4] / max(0.00001, (double)b[B3])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -559,19 +563,19 @@ CPLErr CL(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			//b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			//b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//				 b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			//b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//				 b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 
 			pix_val = -32768;
-			if (b[B1] > -32768 && b[B6]>-32768 && b[B6] != 0)
+			if (b[B1] > -32768 && b[B6]>-32768 )//&& b[B6] != 0
 			{
-				pix_val = (__int16)(1000 * ((double)b[B1] / b[B6]));
+				pix_val = ToInt16(1000 * ((double)b[B1] / max(0.00001, (double)b[B6])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -605,18 +609,18 @@ CPLErr HZ(void **papoSources, int nSources, void *pData,
 		{
 			ii = iLine * nXSize + iCol;
 			/* Source raster pixels may be obtained with SRCVAL macro */
-			b[B1] = (__int16)SRCVAL(papoSources[B1], eSrcType, ii);
-			//				 b[B2] = (__int16)SRCVAL(papoSources[B2], eSrcType, ii);
-			b[B3] = (__int16)SRCVAL(papoSources[B3], eSrcType, ii);
-			//b[B4] = (__int16)SRCVAL(papoSources[B4], eSrcType, ii);
-			//b[B5] = (__int16)SRCVAL(papoSources[B5], eSrcType, ii);
-			//b[B6] = (__int16)SRCVAL(papoSources[B6], eSrcType, ii);
-			//b[B7] = (__int16)SRCVAL(papoSources[B7], eSrcType, ii);
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//				 b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
 
 			pix_val = -32768;
-			if (b[13] > -32768 && b[B4]>-32768 && b[B3] != 0)
+			if (b[B1] > -32768 && b[B3]>-32768 )//&& b[B3] != 0
 			{
-				pix_val = (__int16)(1000 * ((double)b[B1] / b[B3]));
+				pix_val = ToInt16(1000 * ((double)b[B1] / max(0.00001, (double)b[B3])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -629,6 +633,280 @@ CPLErr HZ(void **papoSources, int nSources, void *pData,
 	return CE_None;
 }
 
+CPLErr red_natural(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B1] > -32768 && b[B2] > -32768 && b[B3] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B3]-90)/ (1000.0-90)) * 254.0)));
+				//pix_val = ToInt16(((b[B4] + 150.0) / 6150.0) * 254.0); 
+				//pix_val = b[B4];
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
+
+CPLErr green_natural(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B1] > -32768 && b[B2] > -32768 && b[B3] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B2]-170) / (1050.0-170)) * 254.0)));
+				//pix_val = ToInt16(((b[B5] + 190.0) / 5190.0) * 254.0);
+				//pix_val = b[B5];
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
+
+CPLErr blue_natural(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			//b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			//b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B1] > -32768 && b[B2] > -32768 && b[B3] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B1]-130)/ (780.0-130)) * 254.0)));
+				//pix_val = ToInt16(((b[B3] + 200.0) / 2700.0) * 254.0);
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
+
+
+CPLErr red_LandWater(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//				 b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B3] > -32768 && b[B4] > -32768 && b[B5] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B4] + 150.0) / 6150.0) * 254.0)));
+				//pix_val = ToInt16(((b[B4] + 150.0) / 6150.0) * 254.0); 
+				//pix_val = b[B4];
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
+
+CPLErr green_LandWater(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B3] > -32768 && b[B4] > -32768 && b[B5] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B5] + 190.0) / 5190.0) * 254.0)));
+				//pix_val = ToInt16(((b[B5] + 190.0) / 5190.0) * 254.0);
+				//pix_val = b[B5];
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
+
+CPLErr blue_LandWater(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//				 b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			//b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+			pix_val = -32768;
+			if (b[B3] > -32768 && b[B4] > -32768 && b[B5] > -32768)
+			{
+				pix_val = (__int16)(max(0.0, min(254.0, ((b[B3] + 200.0) / 2700.0) * 254.0)));
+				//pix_val = ToInt16(((b[B3] + 200.0) / 2700.0) * 254.0);
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
 
 
 /************************************************************************/
@@ -673,7 +951,25 @@ CPLErr CPL_STDCALL GDALRegisterLandsatIndices()
 	GDALAddDerivedBandPixelFunc("Landsat.SR", SR);
 	GDALAddDerivedBandPixelFunc("Landsat.CL", CL);
 	GDALAddDerivedBandPixelFunc("Landsat.HZ", HZ);
+	GDALAddDerivedBandPixelFunc("Landsat.red(natural)", red_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.green(natural)", green_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.blue(natural)", blue_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.red(LandWater)", red_LandWater);
+	GDALAddDerivedBandPixelFunc("Landsat.green(LandWater)", green_LandWater);
+	GDALAddDerivedBandPixelFunc("Landsat.blue(LandWater)", blue_LandWater);
 
 	return CE_None;
 }
 
+
+///landsat 8 color
+//Natural Color	4 3 2
+//False Color(urban)	7 6 4
+//Color Infrared(vegetation)	5 4 3
+//Agriculture	6 5 2
+//Atmospheric Penetration	7 6 5
+//Healthy Vegetation	5 6 2
+//Land / Water	5 6 4
+//Natural With Atmospheric Removal	7 5 3
+//Shortwave Infrared	7 5 4
+//Vegetation Analysis	6 5 4

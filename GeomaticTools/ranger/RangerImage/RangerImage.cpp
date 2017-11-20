@@ -654,18 +654,18 @@ void CRangerImage::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, C
 
 	//close output
 	m_options.m_timerWrite.Start();
-	if( m_options.m_bComputeStats )
-		outputDS.ComputeStats(m_options.m_bQuiet);
-	if( !m_options.m_overviewLevels.empty() )
-		outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-	outputDS.Close();
+	//if( m_options.m_bComputeStats )
+	//	outputDS.ComputeStats(m_options.m_bQuiet);
+	//if( !m_options.m_overviewLevels.empty() )
+	//	outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	outputDS.Close(m_options);
 
 
-	if (m_options.m_bComputeStats)
-		uncertaintyDS.ComputeStats(m_options.m_bQuiet);
-	if (!m_options.m_overviewLevels.empty())
-		uncertaintyDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-	uncertaintyDS.Close();
+	//if (m_options.m_bComputeStats)
+		//uncertaintyDS.ComputeStats(m_options.m_bQuiet);
+	//if (!m_options.m_overviewLevels.empty())
+		//uncertaintyDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+	uncertaintyDS.Close(m_options);
 
 	
 		

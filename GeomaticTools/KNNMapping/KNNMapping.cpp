@@ -1211,25 +1211,25 @@ void CKNNMapping::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS,	CGDA
 
 	for(size_t p=0; p<outputDS.size(); p++)
 	{
-		outputDS[p].ComputeStats(p==0?m_options.m_bQuiet:true);
-		outputDS[p].BuildOverviews(m_options.m_overviewLevels, p==0?m_options.m_bQuiet:true);
-		outputDS[p].Close();
+		//outputDS[p].ComputeStats(p==0?m_options.m_bQuiet:true);
+		//outputDS[p].BuildOverviews(m_options.m_overviewLevels, p==0?m_options.m_bQuiet:true);
+		outputDS[p].Close(m_options);
 	}
 
 	for(size_t p=0; p<errorDS.size(); p++)
 	{
-		errorDS[p].ComputeStats(true);
-		errorDS[p].BuildOverviews(m_options.m_overviewLevels, true);
-		errorDS[p].Close();
+		//errorDS[p].ComputeStats(true);
+		//errorDS[p].BuildOverviews(m_options.m_overviewLevels, true);
+		errorDS[p].Close(m_options);
 	}
 		
-	NNDS.ComputeStats(true);
-	NNDS.BuildOverviews(m_options.m_overviewLevels, true);
-	NNDS.Close();
+	//NNDS.ComputeStats(true);
+	//NNDS.BuildOverviews(m_options.m_overviewLevels, true);
+	NNDS.Close(m_options);
 	
-	geoDistanceStatDS.ComputeStats(true);
-	geoDistanceStatDS.BuildOverviews(m_options.m_overviewLevels, true);
-	geoDistanceStatDS.Close(); 
+	//geoDistanceStatDS.ComputeStats(true);
+	//geoDistanceStatDS.BuildOverviews(m_options.m_overviewLevels, true);
+	geoDistanceStatDS.Close(m_options);
 	
 
 	m_options.m_timerWrite.Stop();
