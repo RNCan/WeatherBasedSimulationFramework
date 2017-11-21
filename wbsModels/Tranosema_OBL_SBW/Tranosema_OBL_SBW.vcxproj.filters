@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Tranosema">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="OBL">
+      <UniqueIdentifier>{98ce7f20-d729-491d-b4d6-f88d3010dfa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{81a5fc40-89ff-4d98-9a0e-af8ae733cd72}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TranosemaOBLModel.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.cpp">
+      <Filter>OBL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafrollerEquations.cpp">
+      <Filter>OBL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tranosema\Tranosema.cpp">
+      <Filter>Tranosema</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tranosema\TranosemaEquations.cpp">
+      <Filter>Tranosema</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TranosemaOBLModel.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.h">
+      <Filter>OBL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafrollerEquations.h">
+      <Filter>OBL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tranosema\Tranosema.h">
+      <Filter>Tranosema</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tranosema\TranosemaEquations.h">
+      <Filter>Tranosema</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
