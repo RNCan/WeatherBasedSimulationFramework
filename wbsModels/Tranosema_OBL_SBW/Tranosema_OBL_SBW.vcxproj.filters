@@ -11,6 +11,9 @@
     <Filter Include="sources">
       <UniqueIdentifier>{81a5fc40-89ff-4d98-9a0e-af8ae733cd72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TBE">
+      <UniqueIdentifier>{cfc32fd9-e0c4-4c0c-9e79-0859307cf17e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TranosemaOBLModel.cpp">

@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Bas
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tranosema Biology", "TranosemaOBL.vcxproj", "{99662559-9103-462D-8C79-EEB25880A8AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TranosemaOBL", "Tranosema_OBL_SBW.vcxproj", "{99662559-9103-462D-8C79-EEB25880A8AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
