@@ -106,7 +106,7 @@ namespace WBSF
 
 	CMergeImagesOption::CMergeImagesOption()
 	{
-		m_mergeType = MEDIAN_NBR;
+		m_mergeType = BEST_PIXEL;
 		m_medianType = BEST_PIXEL;
 		m_bDebug = false;
 		m_bExportStats = false;
@@ -122,7 +122,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD or MedianTCB. MedianNBR by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD or MedianTCB. Best by default." },
 			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 //			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
@@ -678,27 +678,36 @@ namespace WBSF
 								ASSERT(it2 != imageList2.end());
 
 								*/
-								CLandsatPixel pixel2;
-								if (imageList1.size() % 2 == 0)
+								/*if (m_options.m_bMean)
 								{
-									size_t iz2 = (it + 1)->second;
-									window.GetPixel(iz2, x, y, pixel2);
+
 								}
 								else
-								{
-									Test1Vector imageList3;
-									Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
-									imageList3.push_back(*it3);
-									it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
-									imageList3.push_back(*it3);
-									Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+								{*/
+									CLandsatPixel pixel2;
+									if (imageList1.size() % 2 == 0)
+									{
+										size_t iz2 = (it + 1)->second;
+										window.GetPixel(iz2, x, y, pixel2);
+									}
+									else
+									{
+										Test1Vector imageList3;
+										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
+										imageList3.push_back(*it3);
+										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+										imageList3.push_back(*it3);
+										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
 
-									size_t iz2 = it2->second;
-									window.GetPixel(iz2, x, y, pixel2);
-								}
+										size_t iz2 = it2->second;
+										window.GetPixel(iz2, x, y, pixel2);
+									}
 
-								for (size_t z = 0; z < SCENES_SIZE; z++)
-									pixel[z] = (pixel[z] + pixel2[z]) / 2;
+
+									for (size_t z = 0; z < SCENES_SIZE; z++)
+										pixel[z] = (pixel[z] + pixel2[z]) / 2;
+								//}
+									
 							}
 
 

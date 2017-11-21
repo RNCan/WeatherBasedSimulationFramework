@@ -22,7 +22,7 @@
     <ProjectGuid>{3222209D-1B5E-48D5-91FE-63E35F21B835}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ExtractWindow</RootNamespace>
-    <ProjectName>BreaksImage</ProjectName>
+    <ProjectName>BreaksImages</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -75,10 +75,11 @@ CPLErr NBR(void **papoSources, int nSources, void *pData,
 
 
 			pix_val = -32768;
-			if (b[B4] > -32768 && b[B7]>-32768 )//&& (b[B4] + b[B7]) != 0
+			//if (b[B4] == 0 && b[B7] == 0)
+				//pix_val = 0;
+			//else 
+			if (b[B4] > -32768 && b[B7]>-32768 )
 				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B4] - b[B7]) / fmax(INDEX_DIV, (double)(b[B4] + b[B7])));
-
-
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
 				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
@@ -120,7 +121,10 @@ CPLErr NBR2(void **papoSources, int nSources, void *pData,
 
 
 			pix_val = -32768;
-			if (b[B5] > -32768 && b[B7]>-32768 )//&& (b[B5] + b[B7]) != 0
+			//if (b[B5] == 0 && b[B7] == 0)
+				//pix_val = 0;
+			//else 
+			if (b[B5] > -32768 && b[B7]>-32768 )
 				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B5] - b[B7]) / max(INDEX_DIV, (double)(b[B5] + b[B7])));
 
 
@@ -165,7 +169,7 @@ int nPixelSpace, int nLineSpace)
 
 
 			pix_val = -32768;
-			if (b[B1] > -32768 && b[B3] > -32768 && b[B4]>-32768) //&& (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1) != 0
+			if (b[B1] > -32768 && b[B3] > -32768 && b[B4]>-32768) 
 				pix_val = LimitToIndex(INDEX_MULT * 2.5 * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1)));
 			
 
