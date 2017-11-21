@@ -655,20 +655,20 @@ namespace WBSF
 	double CLandsatPixel::NBR()const
 	{
 		//return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -FLT_MAX;
-		return ((double)at(B4) - at(B7)) / max(0.00001, double(at(B4) + at(B7)));
+		return ((double)at(B4) - at(B7)) / max(0.1, double(at(B4) + at(B7)));
 	}
 
 
 	double CLandsatPixel::NDVI()const
 	{
 		//return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -FLT_MAX;
-		return ((double)at(B4) - at(B3)) / max(0.00001, double(at(B4) + at(B3)));
+		return ((double)at(B4) - at(B3)) / max(0.1, double(at(B4) + at(B3)));
 	}
 
 	double CLandsatPixel::NDMI()const
 	{
 		//return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -FLT_MAX;
-		return ((double)at(B4) - at(B5)) / max(0.00001, double(at(B4) + at(B5)));
+		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4) + at(B5)));
 	}
 
 	double CLandsatPixel::TCB()const
