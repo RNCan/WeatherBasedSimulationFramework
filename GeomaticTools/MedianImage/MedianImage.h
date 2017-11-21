@@ -27,6 +27,7 @@ namespace WBSF
 		
 		bool m_bDebug;
 		bool m_bCorrection8;
+		bool m_bMean;
 		//bool m_bFilterTCB;
 		//size_t m_bufferTCB;
 		//double m_TCBthreshold[2];

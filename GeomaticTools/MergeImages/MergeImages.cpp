@@ -890,19 +890,23 @@ namespace WBSF
 			}
 			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 			{
-				criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 1000, GDT_Int16, 1);
+				//criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 10000, GDT_Int16, 1);
+				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDVI() * 10000));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NBR)
 			{
-				criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 1000, GDT_Int16, 1);
+				//criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 10000, GDT_Int16, 1);
+				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NBR() * 10000));
+				
 			}
 			else if (type == CMergeImagesOption::MEDIAN_NDMI)
 			{
-				criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 1000, GDT_Int16, 1);
+				//criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 10000, GDT_Int16, 1);
+				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDMI() * 10000));
 			}
 			else if (type == CMergeImagesOption::MEDIAN_TCB)
 			{
-				criterion = (__int16)WBSF::LimitToBound(pixel.TCB() * 1000, GDT_Int16, 1);
+				criterion = (__int16)WBSF::LimitToBound(pixel.TCB(), GDT_Int16, 1);
 			}
 
 		}

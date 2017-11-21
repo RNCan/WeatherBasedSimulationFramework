@@ -49,13 +49,8 @@ namespace WBSF
 
 		m_scenesSize = SCENES_SIZE;
 		m_bDebug = false;
-		//		m_bFilterTCB=false;
-		//	m_bufferTCB=3;
-		//m_TCBthreshold[0] = 700;
-		//m_TCBthreshold[1] = 5000;
 		m_bCorrection8 = false;
-		//m_TM = CTM(CTM::ANNUAL, CTM::OVERALL_YEARS);
-
+		m_bMean = false;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
 
 		AddOption("-period");
@@ -64,8 +59,10 @@ namespace WBSF
 		{
 			//{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
 			//{ "-TCB", 3, "lo hi buffer", false, "Add filter for Tassel Cap Brightness (TCB) to select only pixel between lo and hi. Recommended 1500 and 4000." },
+			
+			{ "-Mean", 0, "", false, "Use mean of tyhe 2 median values when even. Use best QA by default" },
 			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
-			{ "-Debug", 0, "", false, "Ouptu debug information." },
+			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -113,6 +110,10 @@ namespace WBSF
 		if (IsEqual(argv[i], "-Debug"))
 		{
 			m_bDebug = true;
+		}
+		if (IsEqual(argv[i], "-Mean"))
+		{
+			m_bMean = true;
 		}
 		/*else if (IsEqual(argv[i], "-TCB"))
 		{
@@ -454,37 +455,72 @@ namespace WBSF
 				{
 					size_t xy = y*blockSize.m_x + x;
 
-					array<CStatisticEx, SCENES_SIZE> median;
+					array<vector<pair<__int16, __int16>>, SCENES_SIZE> median;
+					for (size_t z = 0; z < median.size(); z++)
+						median[z].reserve(window.GetNbScenes());
+
 					for (size_t iz = 0; iz < window.GetNbScenes(); iz++)
 					{
-
 						CLandsatPixel pixel = window.GetPixel(iz, x, y);
 
 						if (pixel.IsValid() && !pixel.IsBlack())
 						{
 							for (size_t z = 0; z < pixel.size(); z++)
-								median[z] += pixel[z];
+								median[z].push_back(make_pair(pixel[z], pixel[QA]));
 						}
 
 					}//iz
 
-					if (median[0][NB_VALUE] > 0)
+					if (!median[0].empty() )
 					{
+						for (size_t z = 0; z < median.size(); z++)
+							sort(median[z].begin(), median[z].end());
+
+							//partial_sort(median[z].begin(), median[z].end(), median[z].begin() + (median[z].size() + 1) / 2);
 						//find input temporal index
 						if (!outputData.empty())
 						{
 							for (size_t z = 0; z < median.size(); z++)
-								outputData[z][xy] = (OutputDataType)median[z][MEDIAN];
+							{
+								size_t N1 = (median[z].size() + 1) / 2 - 1;
+								size_t N2 = median[z].size() / 2 + 1 - 1;
+								size_t N = median[z][N1].second < median[z][N2].second ? N1 : N2;
+								ASSERT(N2 == N1 || N2 == N1 + 1);
+
+								if (m_options.m_bMean)
+								{
+									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N2].first) / 2.0);
+								}
+								else
+								{
+									outputData[z][xy] = median[z][N].first;
+								}
+									
+							}
+								
 						}
 
 						if (m_options.m_bDebug)
 						{
-							__int16 jd1970 = (OutputDataType)median[JD][MEDIAN];
+							size_t N1 = (median[JD].size() + 1) / 2 - 1;
+							size_t N2 = median[JD].size() / 2 + 1 - 1;
+							size_t N = median[JD][N1].second < median[JD][N2].second ? N1 : N2;
+							ASSERT(N2 == N1 || N2 == N1 + 1);
 
-							CTRef TRef = m_options.GetTRef(jd1970);
+							__int16 jd1970 = 0;
+							if (m_options.m_bMean)
+							{
+								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N2].first) / 2.0);
+							}
+							else
+							{
+								jd1970 = median[JD][N].first;
+							}
 
-							debugData[CMedianImageOption::D_JDAY][xy] = int(m_options.GetTRefIndex(TRef));
-							debugData[CMedianImageOption::NB_IMAGES][xy] = int(median[0][NB_VALUE]);
+							//CTRef TRef = m_options.GetTRef(jd1970);
+
+							debugData[CMedianImageOption::D_JDAY][xy] = jd1970;
+							debugData[CMedianImageOption::NB_IMAGES][xy] = int(median[0].size());
 						}
 					}
 #pragma omp atomic 
