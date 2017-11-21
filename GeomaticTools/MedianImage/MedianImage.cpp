@@ -40,6 +40,7 @@ namespace WBSF
 
 
 	const char* CMedianImageOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "Jday", "nbImages" };
+	const char*  CMedianImageOption::MEAN_NAME[NB_MEAN_TYPE] = { "standard", "always2" };
 
 	//*********************************************************************************************************************
 
@@ -50,17 +51,14 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_bDebug = false;
 		m_bCorrection8 = false;
-		m_bMean = false;
+		m_meanType = NO_MEAN;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
 
 		AddOption("-period");
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			//{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
-			//{ "-TCB", 3, "lo hi buffer", false, "Add filter for Tassel Cap Brightness (TCB) to select only pixel between lo and hi. Recommended 1500 and 4000." },
-			
-			{ "-Mean", 0, "", false, "Use mean of tyhe 2 median values when even. Use best QA by default" },
+			{ "-Mean", 1, "type", false, "Mean of median pixel. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and the neighbor select by QA when odd." },
 			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -113,7 +111,13 @@ namespace WBSF
 		}
 		if (IsEqual(argv[i], "-Mean"))
 		{
-			m_bMean = true;
+			string str = argv[++i];
+			if (IsEqual(str, MEAN_NAME[M_STANDARD]))
+				m_meanType = M_STANDARD;
+			else if (IsEqual(str, MEAN_NAME[M_ALWAYS2]))
+				m_meanType = M_ALWAYS2;
+			else
+				msg.ajoute("Invalid -Mean type. Mean type can be \"standard\" or \"always2\"");
 		}
 		/*else if (IsEqual(argv[i], "-TCB"))
 		{
@@ -487,17 +491,20 @@ namespace WBSF
 								size_t N = median[z][N1].second < median[z][N2].second ? N1 : N2;
 								ASSERT(N2 == N1 || N2 == N1 + 1);
 
-								if (m_options.m_bMean)
-								{
-									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N2].first) / 2.0);
-								}
-								else
+								if ((m_options.m_meanType == CMedianImageOption::NO_MEAN) || median[z].size()==1)
 								{
 									outputData[z][xy] = median[z][N].first;
 								}
-									
+								else if (m_options.m_meanType == CMedianImageOption::M_STANDARD)
+								{
+									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N2].first) / 2.0);
+								}
+								else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2)
+								{
+									size_t N3 = N2 != N1 ? N2 : median[z][N1-1].second < median[z][N1+1].second ? N1-1 : N1+1;
+									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N3].first) / 2.0);
+								}
 							}
-								
 						}
 
 						if (m_options.m_bDebug)
@@ -508,16 +515,20 @@ namespace WBSF
 							ASSERT(N2 == N1 || N2 == N1 + 1);
 
 							__int16 jd1970 = 0;
-							if (m_options.m_bMean)
-							{
-								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N2].first) / 2.0);
-							}
-							else
+							if ((m_options.m_meanType == CMedianImageOption::NO_MEAN) || median[JD].size() == 1)
 							{
 								jd1970 = median[JD][N].first;
 							}
+							else if (m_options.m_meanType == CMedianImageOption::M_STANDARD)
+							{
+								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N2].first) / 2.0);
+							}
+							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2)
+							{
+								size_t N3 = N2 != N1 ? N2 : median[JD][N1 - 1].second < median[JD][N1 + 1].second ? N1 - 1 : N1 + 1;
+								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N3].first) / 2.0);
+							}
 
-							//CTRef TRef = m_options.GetTRef(jd1970);
 
 							debugData[CMedianImageOption::D_JDAY][xy] = jd1970;
 							debugData[CMedianImageOption::NB_IMAGES][xy] = int(median[0].size());

@@ -81,9 +81,10 @@ namespace WBSF
 
 
 	const short CMergeImagesOption::BANDS_STATS[NB_STATS] = { LOWEST, MEAN, MEDIAN, STD_DEV, HIGHEST };
-	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "August1", "MaxNDVI", "Best", "SecondBest", "MedianNDVI", "MedianNBR", "MedianNDMI", "MedianJD", "MedianTCB" };
+	const char* CMergeImagesOption::MERGE_TYPE_NAME[NB_MERGE_TYPE] = { "Oldest", "Newest", "August1", "MaxNDVI", "Best", "SecondBest", "MedianNDVI", "MedianNBR", "MedianNDMI", "MedianJD", "MedianTCB", "MedianQA" };
 	const char* CMergeImagesOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "captor", "path", "row", "Jday", "nbImages", "scene", "sort" };//"year", "month", "day", 
 	const char* CMergeImagesOption::STAT_NAME[NB_STATS] = { "lo", "mn", "md", "sd", "hi" };
+	const char*  CMergeImagesOption::MEAN_NAME[NB_MEAN_TYPE] = { "standard", "always2" };
 
 	short CMergeImagesOption::GetMergeType(const char* str)
 	{
@@ -112,8 +113,8 @@ namespace WBSF
 		m_bExportStats = false;
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
-//		m_TCBthreshold[0] = 500;
-	//	m_TCBthreshold[1] = 7000;
+		m_meanType = NO_MEAN;
+		
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
@@ -122,13 +123,13 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD or MedianTCB. Best by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. Best by default." },
 			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
-//			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
+			//			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
+			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and one neighbor select by MedianType when odd." },
+			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
-			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
-			//			{ "-SceneSize", 1, "size", false, "Number of images associate per scene. 9 by default." },//overide scene size defenition
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -177,7 +178,7 @@ namespace WBSF
 			m_mergeType = GetMergeType(argv[++i]);
 			if (m_mergeType == UNKNOWN)
 			{
-				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"August1\", \"MaxNDVI\", \"Best\", \"SecondBest\", \"MedianNDVI\", \"MedianNBR\", \"MedianNDMI\", \"MedianJD\", \"MedianTCB\".");
+				msg.ajoute("ERROR: Invalid -Type option: valid type are \"Oldest\", \"Newest\", \"August1\", \"MaxNDVI\", \"Best\", \"SecondBest\", \"MedianNDVI\", \"MedianNBR\", \"MedianNDMI\", \"MedianJD\", \"MedianTCB\", \"MedianQA\".");
 			}
 		}
 		else if (IsEqual(argv[i], "-MedianType") && i < argc - 1)
@@ -187,6 +188,16 @@ namespace WBSF
 			{
 				msg.ajoute("ERROR: Invalid -MedianType option: valid type are \"Oldest\", \"Newest\", \"August1\", \"MaxNDVI\", \"Best\", \"SecondBest\".");
 			}
+		}
+		else if (IsEqual(argv[i], "-Mean"))
+		{
+			string str = argv[++i];
+			if (IsEqual(str, MEAN_NAME[M_STANDARD]))
+				m_meanType = M_STANDARD;
+			else if (IsEqual(str, MEAN_NAME[M_ALWAYS2]))
+				m_meanType = M_ALWAYS2;
+			else
+				msg.ajoute("Invalid -Mean type. Mean type can be \"standard\" or \"always2\"");
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
@@ -200,12 +211,7 @@ namespace WBSF
 		{
 			m_bExportStats = true;
 		}
-	/*	else if (IsEqual(argv[i], "-TCB"))
-		{
-			m_TCBthreshold[0] = ToInt(argv[++i]);
-			m_TCBthreshold[1] = ToInt(argv[++i]);
-		}
-	*/	else
+		else
 		{
 			//Look to see if it's a know base option
 			msg = CBaseOptions::ProcessOption(i, argc, argv);
@@ -403,7 +409,7 @@ namespace WBSF
 			inputDS.UpdateOption(m_options);
 			m_options.InitFileInfo(inputDS);
 		}
-			
+
 
 
 		if (msg && !m_options.m_bQuiet)
@@ -567,91 +573,36 @@ namespace WBSF
 
 					vector<CStatisticEx> stats;
 
-					//process all bands
-					//vector<pair<CLandsatPixel,size_t>> pixels;
-					//pixels.reserve(window.GetNbScenes());
-					//for (size_t s = 0; s < window.GetNbScenes(); s++)
-					//{
-					//	CLandsatPixel pixel = window.GetPixel(s, x, y);
-					//	if (pixel.IsValid())
-					//		pixels.push_back(make_pair(pixel,s));
-
-					//}
-					//if (pixels.size() > 2)
-					//{
-					//	//for (vector<pair<CLandsatPixel, size_t>>::iterator it = pixels.begin(); it != pixels.end(); it++)
-					//	for (size_t i = 0; i != pixels.size() - 2; i++)
-					//	{
-					//		if (m_options.IsTrigged(pixels[i].first, pixels[i + 1].first))
-					//		{
-					//			if (m_options.IsTrigged(pixels[i].first, pixels[i + 2].first) && !m_options.IsTrigged(pixels[i+1].first, pixels[i + 2].first))
-					//				elimine i
-					//			else if (m_options.IsTrigged(pixels[i+1].first, pixels[i + 2].first) && !m_options.IsTrigged(pixels[i].first, pixels[i + 2].first))
-					//				elimine i+1
-					//		}
-					//	}
-					//}
-
-					
-					//size_t nbPixels = 0;
-					//size_t nbClouds = 0;
-					//for (size_t s = 0; s < window.GetNbScenes(); s++)
-					//{
-					//	//Get pixel
-					//	CLandsatPixel pixel = window.GetPixel(s, x, y);
-					//	if (pixel.IsValid())
-					//	{
-					//		nbPixels++;
-					//		double TCB = pixel.TCB();
-					//		if (TCB < m_options.m_TCBthreshold[0] || TCB > m_options.m_TCBthreshold[1])
-					//			nbClouds++;
-					//	}
-					//}
-					//if (nbPixels > 0)
-					//{
-						//double TCBratio = (double)nbClouds / nbPixels;
-						for (size_t s = 0; s < window.GetNbScenes(); s++)
+					for (size_t s = 0; s < window.GetNbScenes(); s++)
+					{
+						//Get pixel
+						CLandsatPixel pixel = window.GetPixel(s, x, y);
+						if (pixel.IsValid() && !pixel.IsBlack())
 						{
-							//Get pixel
-							CLandsatPixel pixel = window.GetPixel(s, x, y);
-							if (pixel.IsValid())
-							{
-								//double TCB = pixel.TCB();
-								//if (TCB >= m_options.m_TCBthreshold[0] && TCB <= m_options.m_TCBthreshold[1])
-								//{
-								__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
-								__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
+							__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
+							__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
 
-								if (criterion1 != -32768)
-								{
-									imageList1.push_back(make_pair(criterion1, s));
-									imageList2.push_back(make_pair(criterion2, s));
-								}
-								//}
+							imageList1.push_back(make_pair(criterion1, s));
+							imageList2.push_back(make_pair(criterion2, s));
+						}
+
+						if (m_options.m_bExportStats)
+						{
+							stats.resize(pixel.size());
+							for (size_t z = 0; z < pixel.size(); z++)
+							{
+								if (window.IsValid(s, z, pixel[z]))
+									stats[z] += pixel[z];
 							}
+						}//if export
 
-							if (m_options.m_bExportStats)
-							{
-								stats.resize(pixel.size());
-								for (size_t z = 0; z < pixel.size(); z++)
-								{
-									if (window.IsValid(s, z, pixel[z]))
-										stats[z] += pixel[z];
-								}
-							}//if export
-
-						}//iz
-					//}
-
-
+					}//iz
+					
+					
 					//find selected image index
-					std::sort(imageList1.begin(), imageList1.end());
-					//std::sort(imageList2.begin(), imageList2.end());
-					//size_t iz = get_iz(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
-					//Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType, imageList2, m_options.m_medianType);
-
 					if (!imageList1.empty())
 					{
+						std::sort(imageList1.begin(), imageList1.end());
 						Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType);
 						ASSERT(it != imageList1.end());
 
@@ -662,28 +613,47 @@ namespace WBSF
 							window.GetPixel(iz, x, y, pixel);
 
 
-							if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size()>=2)
+							if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size() >= 2)
 							{
-								/*Test1Vector imageList3;
-								for (auto it2 = imageList1.begin(); it2 != imageList1.end(); it2++)
-								{
-								if (it2 >= it - 1 && it2 <= it + 1)
-								{
-								Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
-								imageList3.push_back(make_pair(it3->first, it2->second));
-								}
-								}
-								Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
-								it2 = std::find_if(imageList2.begin(), imageList2.end(), [it2](const pair<__int16, size_t >& a) {return a.second == it2->second;	});
-								ASSERT(it2 != imageList2.end());
-
-								*/
-								/*if (m_options.m_bMean)
+								if ((m_options.m_meanType == CMergeImagesOption::NO_MEAN))
 								{
 
+									if (imageList1.size() % 2 == 0)
+									{
+										Test1Vector imageList3;
+										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
+										imageList3.push_back(*it3);
+										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+										imageList3.push_back(*it3);
+										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+
+										iz = it2->second;
+										window.GetPixel(iz, x, y, pixel);
+									}
+
 								}
-								else
-								{*/
+								else if (m_options.m_meanType == CMergeImagesOption::M_STANDARD)
+								{
+									if (imageList1.size() % 2 == 0)
+									{
+										CLandsatPixel pixel2;
+
+										Test1Vector imageList3;
+										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
+										imageList3.push_back(*it3);
+										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+										imageList3.push_back(*it3);
+										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+
+										size_t iz2 = it2->second;
+										window.GetPixel(iz2, x, y, pixel2);
+
+										for (size_t z = 0; z < SCENES_SIZE; z++)
+											pixel[z] = (pixel[z] + pixel2[z]) / 2;
+									}
+								}
+								else if (m_options.m_meanType == CMergeImagesOption::M_ALWAYS2)
+								{
 									CLandsatPixel pixel2;
 									if (imageList1.size() % 2 == 0)
 									{
@@ -706,8 +676,8 @@ namespace WBSF
 
 									for (size_t z = 0; z < SCENES_SIZE; z++)
 										pixel[z] = (pixel[z] + pixel2[z]) / 2;
-								//}
-									
+								}
+
 							}
 
 
@@ -851,23 +821,23 @@ namespace WBSF
 		//	outputDS.ComputeStats(m_options.m_bQuiet);
 
 		//if (!m_options.m_overviewLevels.empty())
-			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
 		outputDS.Close(m_options);
 
 		//if (m_options.m_bComputeStats)
-			//debugDS.ComputeStats(m_options.m_bQuiet);
+		//debugDS.ComputeStats(m_options.m_bQuiet);
 
 		//if (!m_options.m_overviewLevels.empty())
-			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
 		debugDS.Close(m_options);
 
 		//if (m_options.m_bComputeStats)
-			//statsDS.ComputeStats(m_options.m_bQuiet);
+		//statsDS.ComputeStats(m_options.m_bQuiet);
 
 		//if (!m_options.m_overviewLevels.empty())
-			//statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
+		//statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
 		statsDS.Close(m_options);
 
@@ -879,45 +849,40 @@ namespace WBSF
 	{
 		__int16 criterion = -32768;
 
-		bool bIsBlack = (pixel[B4] == 0 && pixel[B5] == 0 && pixel[B3] == 0);
-		if (!bIsBlack)
+		if (type == CMergeImagesOption::OLDEST || type == CMergeImagesOption::NEWEST || type == CMergeImagesOption::MEDIAN_JD)
 		{
-			if (type == CMergeImagesOption::OLDEST || type == CMergeImagesOption::NEWEST || type == CMergeImagesOption::MEDIAN_JD)
-			{
-				criterion = pixel[JD];
-			}
-			else if (CMergeImagesOption::AUGUST1)
-			{
-				CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
-				CTRef AUGUST_1(TRef.GetYear(), AUGUST, DAY_01);
+			criterion = pixel[JD];
+		}
+		else if (type == CMergeImagesOption::AUGUST1)
+		{
+			CTRef TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, int(pixel[JD]));
+			CTRef AUGUST_1(TRef.GetYear(), AUGUST, DAY_01);
 
-				criterion = abs((long)TRef.GetJDay() - (long)AUGUST_1.GetJDay());
-			}
-			else if (type == CMergeImagesOption::BEST_PIXEL || type == CMergeImagesOption::SECOND_BEST)
-			{
-				criterion = pixel[QA];
-			}
-			else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
-			{
-				//criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 10000, GDT_Int16, 1);
-				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDVI() * 10000));
-			}
-			else if (type == CMergeImagesOption::MEDIAN_NBR)
-			{
-				//criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 10000, GDT_Int16, 1);
-				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NBR() * 10000));
-				
-			}
-			else if (type == CMergeImagesOption::MEDIAN_NDMI)
-			{
-				//criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 10000, GDT_Int16, 1);
-				criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDMI() * 10000));
-			}
-			else if (type == CMergeImagesOption::MEDIAN_TCB)
-			{
-				criterion = (__int16)WBSF::LimitToBound(pixel.TCB(), GDT_Int16, 1);
-			}
+			criterion = abs((long)TRef.GetJDay() - (long)AUGUST_1.GetJDay());
+		}
+		else if (type == CMergeImagesOption::BEST_PIXEL || type == CMergeImagesOption::SECOND_BEST || type == CMergeImagesOption::MEDIAN_QA)
+		{
+			criterion = pixel[QA];
+		}
+		else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
+		{
+			//criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 10000, GDT_Int16, 1);
+			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDVI() * 10000));
+		}
+		else if (type == CMergeImagesOption::MEDIAN_NBR)
+		{
+			//criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 10000, GDT_Int16, 1);
+			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NBR() * 10000));
 
+		}
+		else if (type == CMergeImagesOption::MEDIAN_NDMI)
+		{
+			//criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 10000, GDT_Int16, 1);
+			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDMI() * 10000));
+		}
+		else if (type == CMergeImagesOption::MEDIAN_TCB)
+		{
+			criterion = (__int16)WBSF::LimitToBound(pixel.TCB(), GDT_Int16, 1);
 		}
 
 
@@ -965,8 +930,6 @@ namespace WBSF
 				//select median
 				size_t N = (imageList.size() + 1) / 2 - 1;
 				it = imageList.begin() + N;
-				//for (size_t n = 0; n < N; n++)
-				//it++;
 			}
 
 			ASSERT(it != imageList.end());

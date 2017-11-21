@@ -18,7 +18,9 @@ namespace WBSF
 		//D_YEAR, D_MONTH, D_DAY, 
 
 		enum TStat			{ S_LOWEST, S_MEAN, S_MEDIAN, S_STD_DEV, S_HIGHEST, NB_STATS };
-		enum TMerge			{ UNKNOWN = -1, OLDEST, NEWEST, AUGUST1, MAX_NDVI, BEST_PIXEL, SECOND_BEST, MEDIAN_NDVI, MEDIAN_NBR, MEDIAN_NDMI, MEDIAN_JD, MEDIAN_TCB, NB_MERGE_TYPE };
+		enum TMerge			{ UNKNOWN = -1, OLDEST, NEWEST, AUGUST1, MAX_NDVI, BEST_PIXEL, SECOND_BEST, MEDIAN_NDVI, MEDIAN_NBR, MEDIAN_NDMI, MEDIAN_JD, MEDIAN_TCB, MEDIAN_QA, NB_MERGE_TYPE };
+		enum TMean { NO_MEAN = -1, M_STANDARD, M_ALWAYS2, NB_MEAN_TYPE };
+		static const char*  MEAN_NAME[NB_MEAN_TYPE];
 
 
 		static const short BANDS_STATS[NB_STATS];
@@ -43,10 +45,10 @@ namespace WBSF
 		size_t m_mergeType;
 		size_t m_medianType;
 		bool m_bCorrection8;
-		//double m_TCBthreshold[2];
+		
 		bool m_bDebug;
 		bool m_bExportStats;
-
+		TMean m_meanType;
 
 		void InitFileInfo(CLandsatDataset& inputDS);
 		std::vector<CLandsatFileInfo> m_info;
