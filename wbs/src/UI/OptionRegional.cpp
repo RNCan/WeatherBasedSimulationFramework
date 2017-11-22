@@ -13,6 +13,7 @@
 #include "UI/Common/UtilWin.h"
 #include "Basic/Registry.h"
 #include "WeatherBasedSimulationString.h"
+#include "WeatherBasedSimulationUI.h"
 
 using namespace WBSF;
 using namespace std;
@@ -41,7 +42,7 @@ namespace WBSF
 
 		//SetDefColWidth( 80 );
 		SetDefRowHeight(18);
-		SetDefColWidth(95);
+		SetDefColWidth(115);
 		SetSH_Width(75);
 
 		SetTH_NumberRows(2);
@@ -162,6 +163,8 @@ namespace WBSF
 		DDX_Text(pDX, IDC_CMN_OPTION_LIST_DELIMITER, m_listDelimiter);
 		DDX_Control(pDX, IDC_CMN_OPTION_DECIMAL_DELIMITER, m_decimalDelimiterCtrl);
 		DDX_Text(pDX, IDC_CMN_OPTION_DECIMAL_DELIMITER, m_decimalDelimiter);
+		DDX_Control(pDX, IDC_CMN_REFORMAT, m_reformatCtrl);
+		
 		m_listDelimiterCtrl.SetFont(&m_font);
 		m_decimalDelimiterCtrl.SetFont(&m_font);
 
@@ -169,12 +172,20 @@ namespace WBSF
 
 
 	BEGIN_MESSAGE_MAP(COptionRegional, CMFCPropertyPage)
+		ON_BN_CLICKED(IDC_CMN_REFORMAT, &COptionRegional::OnBnClickedCmnReformat)
 	END_MESSAGE_MAP()
 
+	
+
+	
 
 	BOOL COptionRegional::OnInitDialog()
 	{
 		CMFCPropertyPage::OnInitDialog();
+
+		m_menu.LoadMenu(IDR_MENU_REFORMAT);
+		m_reformatCtrl.m_hMenu = m_menu.GetSubMenu(0)->GetSafeHmenu();
+
 
 		WBSF::CRegistry registry;
 		m_listDelimiter = registry.GetListDelimiter();
@@ -244,5 +255,54 @@ namespace WBSF
 		}
 
 		CMFCPropertyPage::OnOK();
+	}
+
+	void COptionRegional::OnBnClickedCmnReformat()
+	{
+		
+		std::string sep=",";
+		switch (m_reformatCtrl.m_nMenuResult)
+		{
+		case ID_REFORMAT1:
+		{
+			CString txt;
+			m_listDelimiterCtrl.GetWindowText(txt);
+			if (m_listDelimiter.GetLength() > 0)
+				sep = ToUTF8(txt)[0];
+			break;
+		}
+			
+		case ID_REFORMAT2:
+			sep = "-";
+			break;
+		case ID_REFORMAT3:
+			sep = "/";
+			break;
+		default: 
+			sep = ",";
+			break;
+		}
+
+		CTRefFormat format;
+		//m_formatCtrl.GetFormat(format);
+
+		for (int t = 0; t < WBSF::CTM::NB_REFERENCE - 1; t++)
+		{
+			for (int m = 0; m < WBSF::CTM::NB_MODE; m++)
+			{
+				CTM tm(t, m);
+				string header = WBSF::CTRefFormat::GetDefaultHeader(tm);
+				string value = WBSF::CTRefFormat::GetDefaultFormat(tm);
+				ReplaceString(header, ",", sep);
+				ReplaceString(value, ",", sep);
+
+				format.SetHeader(tm, header.c_str());
+				format.SetFormat(tm, value.c_str());
+			}
+		}
+
+		m_formatCtrl.SetFormat(format);
+		m_formatCtrl.Invalidate();
+
 	}
 }

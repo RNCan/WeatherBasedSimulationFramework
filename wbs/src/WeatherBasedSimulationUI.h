@@ -8,6 +8,7 @@
 #define IDR_MENU1                       202
 #define IDR_MENU_EDIT                   202
 #define IDD_SEARCH_RADIUS               207
+#define IDR_MENU_REFORMAT               210
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -413,6 +414,7 @@
 #define IDC_MFCMENUBUTTON1              1201
 #define IDC_FROM_MODEL                  1201
 #define IDC_RS_FILEPATH_OUT             1201
+#define IDC_CMN_REFORMAT                1201
 #define IDC_DB_LIST                     1202
 #define IDC_RS_FILEPATH_OUT_BROWSE      1202
 #define IDC_DB_FILEPATH                 1203
@@ -709,6 +711,12 @@
 #define IDD_SIM_SCRIPT                  20440
 #define IDD_PROJECTION_TRANSFORMATION   20466
 #define ID_SELECTIONNERTOUT             32772
+#define ID_REFORMAT_UTILISERLES32773    32773
+#define ID_REFORMAT_UTILISER            32774
+#define ID_REFORMAT_UTILISER32775       32775
+#define ID_REFORMAT1                    32776
+#define ID_REFORMAT2                    32777
+#define ID_REFORMAT3                    32778
 #define IDS_BAD_NORMAL_VER              40200
 #define IDS_DBEDIT_CONFIRMDELETE        40201
 #define IDS_DBEDIT_CONFIRMDELETESTR     40202
@@ -843,9 +851,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        209
-#define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1235
+#define _APS_NEXT_RESOURCE_VALUE        211
+#define _APS_NEXT_COMMAND_VALUE         32779
+#define _APS_NEXT_CONTROL_VALUE         1237
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -49,6 +49,7 @@ namespace WBSF
 		CString m_listDelimiter;
 		CString m_decimalDelimiter;
 		CTimeFormatGridCtrl m_formatCtrl;
+		
 
 	protected:
 
@@ -60,11 +61,13 @@ namespace WBSF
 		// Generated message map functions
 		DECLARE_MESSAGE_MAP()
 		afx_msg bool OnBrowse(CEdit& editBox, CString& fileName);
+		afx_msg void OnBnClickedCmnReformat();
 
 		CFont m_font;
 		CEdit m_listDelimiterCtrl;
 		CEdit m_decimalDelimiterCtrl;
-
+		CMFCMenuButton m_reformatCtrl;
+		CMenu m_menu;
 	};
 
 }

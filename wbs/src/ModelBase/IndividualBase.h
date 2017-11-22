@@ -63,6 +63,7 @@ namespace WBSF
 		virtual bool CanUnpack()const;
 		virtual CIndividualPtr Unpack();
 		virtual double GetInstar(bool includeLast)const{ return (IsAlive() || m_death == OLD_AGE) ? (std::min(GetStage(), GetNbStages() - (includeLast ? 0 : 1))) : CBioSIMModelBase::VMISS; }				//Report Instar. Return age by default;
+		virtual bool IsInDiapause()const{ return false; }
 
 
 		size_t GetStage()const{ return (size_t)m_age; }					//Reports individual's stage

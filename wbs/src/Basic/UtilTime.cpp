@@ -378,16 +378,16 @@ string CTRefFormat::GetMissingString(CTM tm)const
 
 const char* CTRefFormat::DEFAULT_FORMAT[CTM::NB_REFERENCE][CTM::NB_MODE] =
 { { "%Y", " " },
-{ "%Y-%m", "%m" },
-{ "%Y-%m-%d", "%m-%d" },
-{ "%Y-%m-%d-%H", "%m-%d-%H" },
+{ "%Y,%m", "%m" },
+{ "%Y,%m,%d", "%m,%d" },
+{ "%Y,%m,%d,%H", "%m,%d,%H" },
 { " ", " " }
 };
 const char* CTRefFormat::DEFAULT_HEADER[CTM::NB_REFERENCE][CTM::NB_MODE] =
 { { "Year", "" },
-{ "Year-Month", "Month" },
-{ "Year-Month-Day", "Month-Day" },
-{ "Year-Month-Day-Hour", "Month-Day-Hour" },
+{ "Year,Month", "Month" },
+{ "Year,Month,Day", "Month,Day" },
+{ "Year,Month,Day,Hour", "Month,Day,Hour" },
 { " ", " " }
 };
 

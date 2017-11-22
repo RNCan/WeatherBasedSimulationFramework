@@ -812,13 +812,14 @@ BEGIN
     LTEXT           "Code\tDescription\t\tExemple\n%d\tJour\t\t\t01  02  ...  31\n%m\tMois\t\t\t01  02  ...  12\n%Y\tAnnée\t\t\t2011\n%j\tJour de l'année\t\t001 ... 366\n%x\tFormat système\t\t19/05/2009",IDC_STATIC,14,80,168,48
     GROUPBOX        "Séparateur",IDC_STATIC,7,7,385,47
     GROUPBOX        "Format temporel",IDC_STATIC,7,65,385,178
-    LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,149,372,86,SS_SUNKEN
+    LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,142,372,93,SS_SUNKEN
     LTEXT           "Séparateur de liste :",IDC_STATIC,14,39,66,8
     EDITTEXT        IDC_CMN_OPTION_LIST_DELIMITER,80,36,24,14,ES_AUTOHSCROLL
     LTEXT           "Symbole décimal :",IDC_STATIC,14,20,58,8
     EDITTEXT        IDC_CMN_OPTION_DECIMAL_DELIMITER,80,17,24,14,ES_AUTOHSCROLL
     LTEXT           "Pour séparer les champs (colonnes) dans les fichers exportés. ",IDC_STATIC,119,39,201,8
-    LTEXT           "Les codes de formats temporel permettent de modifier la façon d'afficher et d'exporter les dates. Pour plus d'information, ce référer au manuel.",IDC_STATIC,201,81,185,43
+    LTEXT           "Les codes de formats temporel permettent de modifier la façon d'afficher et d'exporter les dates. Pour plus d'information, ce référer au manuel.",IDC_STATIC,201,82,185,32
+    CONTROL         "Réinitialiser",IDC_CMN_REFORMAT,"MfcMenuButton",WS_TABSTOP,306,124,80,14
 END
 
 IDD_CMN_PALETTE_EDITOR DIALOG 0, 0, 256, 247
@@ -3990,6 +3991,28 @@ BEGIN
     0
 END
 
+IDD_CMN_OPTION_TIME_FORMAT DLGINIT
+BEGIN
+    IDC_CMN_REFORMAT, 0x37c, 283, 0
+0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x4f5f, 0x4d53, 
+0x6e65, 0x3e75, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x654d, 0x756e, 
+0x7542, 0x7474, 0x6e6f, 0x4f5f, 0x4d53, 0x6e65, 0x3e75, 0x4d3c, 0x4346, 
+0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x525f, 0x6769, 0x7468, 0x7241, 
+0x6f72, 0x3e77, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x654d, 0x756e, 
+0x7542, 0x7474, 0x6e6f, 0x525f, 0x6769, 0x7468, 0x7241, 0x6f72, 0x3e77, 
+0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x535f, 0x6174, 
+0x5079, 0x6572, 0x7373, 0x6465, 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 
+0x4d43, 0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 0x7453, 0x7961, 0x7250, 
+0x7365, 0x6573, 0x3e64, 0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 
+0x6e6f, 0x445f, 0x6665, 0x7561, 0x746c, 0x6c43, 0x6369, 0x3e6b, 0x5254, 
+0x4555, 0x2f3c, 0x464d, 0x4d43, 0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 
+0x6544, 0x6166, 0x6c75, 0x4374, 0x696c, 0x6b63, 0x3c3e, 0x464d, 0x4d43, 
+0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 0x7541, 0x6f74, 0x6973, 0x657a, 
+0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x4d43, 0x6e65, 0x4275, 0x7475, 
+0x6f74, 0x5f6e, 0x7541, 0x6f74, 0x6973, 0x657a, "\076" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4005,6 +4028,16 @@ BEGIN
         MENUITEM "&Sélectionner tout\tCtrl+A",  ID_EDIT_SELECT_ALL
     END
     MENUITEM SEPARATOR
+END
+
+IDR_MENU_REFORMAT MENU
+BEGIN
+    POPUP "Réinitialiser"
+    BEGIN
+        MENUITEM "Réinitialiser avec le séparateur par défaut", ID_REFORMAT1
+        MENUITEM "Réinitialiser avec -",        ID_REFORMAT2
+        MENUITEM "Réinitialiser avec /",        ID_REFORMAT3
+    END
 END
 
 
@@ -4656,7 +4689,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
 CAPTION "Regionals"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Code\tDescription\t\t\tExample\n%d\tDay\t\t\t\t01  02 ... 31\n%m\tMonth (numeral)\t\t\t01  02 ..  12\n%Y\tYear\t\t\t\t2011\n%j\tDay of the year\t\t\t001  ...  366\n%x\tSystem time format\t\tdd/mm/yyyy",IDC_STATIC,195,69,191,52
+    LTEXT           "Code\tDescription\t\t\tExample\n%d\tDay\t\t\t\t01  02 ... 31\n%m\tMonth (numeral)\t\t\t01  02 ..  12\n%Y\tYear\t\t\t\t2011\n%j\tDay of the year\t\t\t001  ...  366\n%x\tSystem time format\t\tdd/mm/yyyy",IDC_STATIC,14,72,191,52
     LTEXT           "List delimiter:",IDC_STATIC,19,35,43,8
     EDITTEXT        IDC_CMN_OPTION_LIST_DELIMITER,85,33,24,14,ES_AUTOHSCROLL
     LTEXT           "Decimal delimiter:",IDC_STATIC,19,19,56,8
@@ -4664,8 +4697,9 @@ BEGIN
     LTEXT           "Delimiter between variables to be exported.",IDC_STATIC,138,35,142,8
     GROUPBOX        "Delimiters",IDC_STATIC,7,7,385,47
     GROUPBOX        "Time format",IDC_STATIC,7,59,385,184
-    LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,131,372,104,SS_SUNKEN
-    LTEXT           "Different time format codes can be used to modify the format of dates in export files. The date field delimiters can also be changed (e.g. %y,%m,%d instead of %y/%m,%d).",IDC_STATIC,14,72,145,53
+    LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,139,372,104,SS_SUNKEN
+    LTEXT           "Different time format codes can be used to modify the format of dates in export files. The date field delimiters can also be changed (e.g. %y,%m,%d instead of %y/%m,%d).",IDC_STATIC,241,73,145,38
+    CONTROL         "Reset",IDC_CMN_REFORMAT,"MfcMenuButton",WS_TABSTOP,306,121,80,14
 END
 
 IDD_CMN_PALETTE_EDITOR DIALOG 0, 0, 256, 247
@@ -8008,6 +8042,28 @@ BEGIN
     0
 END
 
+IDD_CMN_OPTION_TIME_FORMAT DLGINIT
+BEGIN
+    IDC_CMN_REFORMAT, 0x37c, 283, 0
+0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x4f5f, 0x4d53, 
+0x6e65, 0x3e75, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x654d, 0x756e, 
+0x7542, 0x7474, 0x6e6f, 0x4f5f, 0x4d53, 0x6e65, 0x3e75, 0x4d3c, 0x4346, 
+0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x525f, 0x6769, 0x7468, 0x7241, 
+0x6f72, 0x3e77, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x654d, 0x756e, 
+0x7542, 0x7474, 0x6e6f, 0x525f, 0x6769, 0x7468, 0x7241, 0x6f72, 0x3e77, 
+0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 0x6e6f, 0x535f, 0x6174, 
+0x5079, 0x6572, 0x7373, 0x6465, 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 
+0x4d43, 0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 0x7453, 0x7961, 0x7250, 
+0x7365, 0x6573, 0x3e64, 0x4d3c, 0x4346, 0x654d, 0x756e, 0x7542, 0x7474, 
+0x6e6f, 0x445f, 0x6665, 0x7561, 0x746c, 0x6c43, 0x6369, 0x3e6b, 0x5254, 
+0x4555, 0x2f3c, 0x464d, 0x4d43, 0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 
+0x6544, 0x6166, 0x6c75, 0x4374, 0x696c, 0x6b63, 0x3c3e, 0x464d, 0x4d43, 
+0x6e65, 0x4275, 0x7475, 0x6f74, 0x5f6e, 0x7541, 0x6f74, 0x6973, 0x657a, 
+0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x4d43, 0x6e65, 0x4275, 0x7475, 
+0x6f74, 0x5f6e, 0x7541, 0x6f74, 0x6973, 0x657a, "\076" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -8023,6 +8079,16 @@ BEGIN
         MENUITEM SEPARATOR
     END
     MENUITEM SEPARATOR
+END
+
+IDR_MENU_REFORMAT MENU
+BEGIN
+    POPUP "Reset"
+    BEGIN
+        MENUITEM "Reset with default separator list", ID_REFORMAT1
+        MENUITEM "Resdet with -",               ID_REFORMAT2
+        MENUITEM "Reset with /",                ID_REFORMAT3
+    END
 END
 
 
