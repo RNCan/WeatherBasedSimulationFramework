@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
+// 11.3.7: 22/11/2017	Rémi Saint-Amant	Modification in default time format
 // 11.3.6: 10/10/2017   Rémi Saint-Amant	Recompilation from backup after hard drive crash
 // 11.3.5: 30/08/2017	Rémi Saint-Amant	Bug correction in reading model output and missing values
 //											Bug correction in dispersal multi-processor activation
@@ -9,7 +10,7 @@
 // 11.3.2: 06/05/2017 	Rémi Saint-Amant	Update of the hourly temperature generation
 //											Compile with GDAL 2.02 
 //											Bug correction in merge name and title
-// 11.3.1: 02/05/2017	Rémi Saint-Amant	Bug correction into the merge compnent
+// 11.3.1: 02/05/2017	Rémi Saint-Amant	Bug correction into the merge component
 //											Automaticly expand parent component when we add children
 //											modification of the CSV reader. Read the last line event without CRLF
 // 11.2.7: 22/04/2017	Rémi Saint-Amant	Tair hourly change to AllenWave 
