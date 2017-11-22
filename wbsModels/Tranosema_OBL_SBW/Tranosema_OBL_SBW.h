@@ -10,106 +10,146 @@
 
 #include "Basic/UtilTime.h"
 #include "ModelBase/IndividualBase.h"
-#include "TranosemaEquations.h"
+//#include "TranosemaEquations.h"
+#include "Tranosema.h"
+#include "ObliqueBandedLeafroller.h"
+#include "SpruceBudworm.h"
 
 
 namespace WBSF
 {
-
-	class CModelStat;
-	class CWeatherDay;
-
-	namespace Tranosema
-	{
-		enum TTranosemaStats
-		{
-			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION,
-			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE,
-			NB_STATS
-		};
-
-	}
-
-
-	typedef std::array<double, Tranosema::NB_STAGES> TranosemaArray;
-
-	class CTranosemaHost;
-	class CTranosemaStand;
-	class CTranosema : public CIndividual
+	
+	class CTranosema_OBL_SBW_Host;
+	class CTranosema_OBL_SBW_Stand;
+	class CTranosema_OBL_SBW : public CTranosema
 	{
 	public:
 
-		CTranosema(CHost* pHost, CTRef creationDate = CTRef(), double age = Tranosema::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
-		CTranosema(const CTranosema& in) :CIndividual(in){ operator=(in); }
-		CTranosema& operator=(const CTranosema& in);
-		~CTranosema(void);
+		CTranosema_OBL_SBW(CHost* pHost, CTRef creationDate = CTRef(), double age = Tranosema::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1, CIndividualPtr& pAssociateHost = CIndividualPtr());
+		CTranosema_OBL_SBW(const CTranosema_OBL_SBW& in) :CTranosema(in){ operator=(in); }
+		CTranosema_OBL_SBW& operator=(const CTranosema_OBL_SBW& in);
 
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual bool CanPack(const CIndividualPtr& in)const;
-		virtual void Pack(const CIndividualPtr& in);
+		//virtual bool CanPack(const CIndividualPtr& in)const;
+		//virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return Tranosema::NB_STAGES; }
-		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CTranosema>(*this); }
+		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CTranosema_OBL_SBW>(*this); }
 
 
-	protected:
 
-		bool IsDeadByAttrition(size_t s, double T);
 
-		//member
-		TranosemaArray m_δ;		//Individual's relative development rates
-		TranosemaArray m_luck;	//survival between stage
-		bool	m_badluck;		//killed by attrition
-		double	m_Pmax;			//Potential fecondity
-		double	m_Pᵗ;			//Energy
-		double	m_Eᵗ;			//Actual number of eggs
-		bool	m_bDiapause;
-		
 
-		//process var
-		//bool	m_bLastDiapaused;
+		inline CTranosema_OBL_SBW_Host* GetHost();
+		inline const CTranosema_OBL_SBW_Host* GetHost()const;
+		inline CTranosema_OBL_SBW_Stand* GetStand();
+		inline const CTranosema_OBL_SBW_Stand* GetStand()const;
 
-		inline CTranosemaStand* GetStand();
-		inline const CTranosemaStand* GetStand()const;
-		inline CTranosemaEquations& Equations();
+		inline CTranosemaEquations & Equations();
+
+//		void SetHost(CIndividualPtr pHost){ m_pHost = pHost; }
+	//	CIndividualPtr GetHost(){ return m_pHost; }
+	
+		CIndividualPtr m_pAssociateHost;
+	};
+
+	class CObliqueBandedLeafrollerEx : public CObliqueBandedLeafroller
+	{
+		inline CTranosema_OBL_SBW_Stand* GetStand();
+		inline const CTranosema_OBL_SBW_Stand* GetStand()const;
+
+		inline CObliqueBandedLeafrollerEquations& Equations();
+	};
+
+	class CSpruceBudwormEx : public CSpruceBudworm
+	{
+		inline CTranosema_OBL_SBW_Stand* GetStand();
+		inline const CTranosema_OBL_SBW_Stand* GetStand()const;
+
+		inline CSpruceBudwormEquations& Equations();
 	};
 
 
 
-	//*******************************************************************************************************
-	//*******************************************************************************************************
-	// CTranosemaStand
-	class CTranosemaStand : public CStand
+	class CModelStat;
+	class CWeatherDay;
+
+	class CTranosema_OBL_SBW_Host : public CHost
 	{
 	public:
 
-		//global variables of all bugs
-		bool m_bApplyAttrition;
-		double m_generationAttrition;
-		double m_diapauseAge;
-		double m_lethalTemp;
-		double m_criticalDaylength;
+		CTranosema_OBL_SBW_Host(WBSF::CStand* pStand):
+			CHost(pStand)
+		{}
+		
 
+		//virtual void Live(const CWeatherDay& weaDay);
+		//virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
 
-		CTranosemaStand(CBioSIMModelBase* pModel) :
-			CStand(pModel),
-			m_equations(pModel->RandomGenerator())
-		{
-			m_bApplyAttrition = true;
-			m_generationAttrition = 0.10;
-		}
-
-		CTranosemaEquations m_equations;
+		
 	};
 
-	typedef std::shared_ptr<CTranosemaStand> CTranosemaStandPtr;
+	//*******************************************************************************************************
+	// CTranosemaStand
+	class CTranosema_OBL_SBW_Stand : public CTranosemaStand
+	{
+	public:
+
+		//CTranosemaStand m_tranosemaStand;
+		CObliqueBandedLeafrollerStand m_OBLStand;
+		CSBWStand m_SBWStand;
+
+		//global variables of all bugs
+
+		CTranosema_OBL_SBW_Stand(CBioSIMModelBase* pModel) :
+			CTranosemaStand(pModel),
+			//m_tranosemaStand(pModel),
+			m_OBLStand(pModel),
+			m_SBWStand(pModel)
+		{
+		}
+
+
+		virtual void Live(const CWeatherDay& weather);
+		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
+		virtual void AdjustPopulation();
+		virtual size_t GetNbObjectAlive()const;
+		virtual void HappyNewYear();
+		virtual double GetAI(bool bIncludeLast)const;
+
+		virtual CHostPtr GetNearestHost(CHost* pHost);
+		
+		CIndividualPtr SelectRandomHost();
+		//CTranosemaEquations m_equationsTranosema;
+		//CObliqueBandedLeafrollerEquations m_equationsOBL;
+		//CSpruceBudwormEquations m_equationsSBW;
+	};
 
 	//WARNING: cast must be defined here to avoid bug
-	//inline CIndividualPtrContainer* CTranosema::GetHost(){ return dynamic_cast<CIndividualPtrContainer*>(m_pHost); }
-	//inline const CIndividualPtrContainer* CTranosema::GetHost()const{ return dynamic_cast<const CIndividualPtrContainer*>(m_pHost); }
-	inline CTranosemaStand* CTranosema::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosemaStand*>(m_pHost->GetStand()); }
-	inline const CTranosemaStand* CTranosema::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosemaStand*>(m_pHost->GetStand()); }
-	inline CTranosemaEquations& CTranosema::Equations(){ return GetStand()->m_equations; }
+	inline CTranosema_OBL_SBW_Host* CTranosema_OBL_SBW::GetHost(){ return static_cast<CTranosema_OBL_SBW_Host*>(m_pHost); }
+	inline const CTranosema_OBL_SBW_Host* CTranosema_OBL_SBW::GetHost()const{ return static_cast<const CTranosema_OBL_SBW_Host*>(m_pHost); }
+	inline CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosema_OBL_SBW_Stand*>(GetHost()->GetStand()); }
+	inline const CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosema_OBL_SBW_Stand*>(GetHost()->GetStand()); }
+	inline CTranosemaEquations& CTranosema_OBL_SBW::Equations(){ return GetStand()->m_equations; }
+
+
+
+	//typedef std::shared_ptr<CTranosemaStand> CTranosemaStandPtr;
+
+	////WARNING: cast must be defined here to avoid bug
+	////inline CIndividualPtrContainer* CTranosema::GetHost(){ return dynamic_cast<CIndividualPtrContainer*>(m_pHost); }
+	////inline const CIndividualPtrContainer* CTranosema::GetHost()const{ return dynamic_cast<const CIndividualPtrContainer*>(m_pHost); }
+	
+	//inline CTranosemaEquations& CTranosema::Equations(){ return GetStand()->m_equations; }
+
+	//inline CTranosema_OBL_SBW_Stand* CObliqueBandedLeafrollerEx::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosema_OBL_SBW_Stand*>(m_pHost->GetStand()); }
+	//inline const CTranosema_OBL_SBW_Stand* CObliqueBandedLeafrollerEx::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosema_OBL_SBW_Stand*>(m_pHost->GetStand()); }
+	//inline CObliqueBandedLeafrollerEquations& CObliqueBandedLeafrollerEx::Equations(){ return GetStand()->m_equationsOBL; }
+
+
+	//inline CTranosema_OBL_SBW_Stand* CSpruceBudwormEx::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosema_OBL_SBW_Stand*>(m_pHost->GetStand()); }
+	//inline const CTranosema_OBL_SBW_Stand* CSpruceBudwormEx::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosema_OBL_SBW_Stand*>(m_pHost->GetStand()); }
+	//inline CSpruceBudwormEquations& CSpruceBudwormEx::Equations(){ return GetStand()->m_equationsSBW; }
 }

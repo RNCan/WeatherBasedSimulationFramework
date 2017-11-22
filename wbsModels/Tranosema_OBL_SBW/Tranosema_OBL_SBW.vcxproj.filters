@@ -11,14 +11,11 @@
     <Filter Include="sources">
       <UniqueIdentifier>{81a5fc40-89ff-4d98-9a0e-af8ae733cd72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TBE">
-      <UniqueIdentifier>{cfc32fd9-e0c4-4c0c-9e79-0859307cf17e}</UniqueIdentifier>
+    <Filter Include="SBW">
+      <UniqueIdentifier>{ef49bf98-cb72-45a0-93da-a2c677eafd2e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TranosemaOBLModel.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
     <ClCompile Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.cpp">
       <Filter>OBL</Filter>
     </ClCompile>
@@ -31,11 +28,20 @@
     <ClCompile Include="..\Tranosema\TranosemaEquations.cpp">
       <Filter>Tranosema</Filter>
     </ClCompile>
+    <ClCompile Include="..\SpruceBudworm\SpruceBudworm.cpp">
+      <Filter>SBW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpruceBudworm\SpruceBudwormEquations.cpp">
+      <Filter>SBW</Filter>
+    </ClCompile>
+    <ClCompile Include="Tranosema_OBL_SBW_Model.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Tranosema_OBL_SBW.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TranosemaOBLModel.h">
-      <Filter>sources</Filter>
-    </ClInclude>
     <ClInclude Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.h">
       <Filter>OBL</Filter>
     </ClInclude>
@@ -47,6 +53,18 @@
     </ClInclude>
     <ClInclude Include="..\Tranosema\TranosemaEquations.h">
       <Filter>Tranosema</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpruceBudworm\SpruceBudworm.h">
+      <Filter>SBW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpruceBudworm\SpruceBudwormEquations.h">
+      <Filter>SBW</Filter>
+    </ClInclude>
+    <ClInclude Include="Tranosema_OBL_SBW_Model.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Tranosema_OBL_SBW.h">
+      <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

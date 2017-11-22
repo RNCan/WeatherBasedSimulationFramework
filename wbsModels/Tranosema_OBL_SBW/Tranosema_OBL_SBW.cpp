@@ -1,15 +1,14 @@
 ﻿//*****************************************************************************
-// Class: CTranosema
+// Class: CTranosema_OBL_SBW
 //          
 //
-// Description: Biology of Tranosema rostrale
+// Description: Biology of Tranosema rostrale in relation with OBL and SBW
 //*****************************************************************************
-// 22/01/2016	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
-// 11/12/2015   Rémi Saint-Amant    Creation from paper
+// 21/11/2017   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
-#include "TranosemaEquations.h"
-#include "Tranosema.h"
+
+#include "Tranosema_OBL_SBW.h"
 
 
 using namespace std;
@@ -20,9 +19,12 @@ namespace WBSF
 {
 
 	//*********************************************************************************
-	//CTranosema class
-
-
+	//CTranosema_OBL_SBW class
+	CTranosema_OBL_SBW::CTranosema_OBL_SBW(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor, CIndividualPtr& pAssociateHost) :
+		CTranosema(pHost, creationDate, age, sex, bFertil, generation, scaleFactor) 
+	{
+		m_pAssociateHost = pAssociateHost;
+	}
 
 	//*********************************************************************************
 	// Object creator
@@ -31,134 +33,60 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is initialized with random values.
 	//*****************************************************************************
-	CTranosema::CTranosema(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
-	{
-		// Each individual created gets the » attributes
-
-		//Individual's "relative" development rate for each life stage
-		//These are independent in successive life stages
-		for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			m_δ[s] = Equations().Getδ(s);
-			//Stage-specific survival random draws
-			m_luck[s] = Equations().GetLuck(s);
-		}
-
-		//oviposition
-		//Random values of Pmax and E°
-		m_Pmax = Equations().GetPmax();
-		double E° = Equations().GetE°();
-		//Initial values
-		m_Pᵗ = E°;
-		m_Eᵗ = E°;
-
-		//Individuals are created as non-diapause individuals
-		m_bDiapause = false;
-		m_badluck = false;
-	}
-
-
-
-	CTranosema& CTranosema::operator=(const CTranosema& in)
+	CTranosema_OBL_SBW& CTranosema_OBL_SBW::operator=(const CTranosema_OBL_SBW& in)
 	{
 		if (&in != this)
 		{
-			CIndividual::operator=(in);
-
-			m_δ = in.m_δ;
-			m_Pmax = in.m_Pmax;
-			m_Pᵗ = in.m_Pᵗ;
-			m_Eᵗ = in.m_Eᵗ;
-			m_luck = in.m_luck;
-			m_bDiapause = in.m_bDiapause;
-			m_badluck = in.m_badluck;
+			CTranosema::operator=(in);
 		}
 
 		return *this;
 	}
 
-	// Object destructor
-	CTranosema::~CTranosema(void)
-	{}
-
-
 	//*****************************************************************************
 	// Develops all stages, including adults
 	// Input:	weather: the weather of the day
 	//*****************************************************************************
-	void CTranosema::Live(const CWeatherDay& weather)
+	void CTranosema_OBL_SBW::Live(const CWeatherDay& weather)
 	{
-		assert(IsAlive());
-		assert(m_status == HEALTHY);
-
-		CIndividual::Live(weather);
-
-		double DayLength = weather.GetDayLength() / 3600.; //in hours
-		CTRef TRef = weather.GetTRef();
-		size_t JDay = TRef.GetJDay();
-		size_t nbSteps = GetTimeStep().NbSteps();
-
-
-		if (TRef.GetJDay()==0)
-			m_bDiapause = false;
-
+		//adjust the number of host available
 		
-		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
+		CTranosema_OBL_SBW_Stand* pStand = GetStand();
+		ASSERT(pStand->m_OBLStand.m_host.size() == 1);
+		ASSERT(pStand->m_SBWStand.m_host.size() == 1);
+		
+		const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
+
+		double nbViable = 0;
+		double nbBugs = 0;
+		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 		{
-			size_t h = step*GetTimeStep();
-			size_t s = GetStage();
-			double T = weather[h][H_TAIR2];
+			nbBugs += (*it)->GetScaleFactor();
 
-			//Relative development rate for time step
-			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
-
-			//Check if individual enters diapause this time step
-			if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
-			{
-				//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
-				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
-				{
-					m_bDiapause = true;
-					m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
-				}
-			}
-
-			if (s == ADULT) //Set maximum longevitys to 150 days
-				r = max(0.00667, r);
-
-			if (GetStand()->m_bApplyAttrition)
-			{
-				if (IsChangingStage(r))
-					m_badluck = RandomGenerator().Randu() > m_luck[s];
-				else
-					m_badluck = IsDeadByAttrition(s, T);
-			}
-
-
-			//Adjust age
-			if(!m_bDiapause)
-				m_age += r;
-
-			//compute brooding
-			if (m_sex == FEMALE && m_age >= ADULT)
-			{
-				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
-				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
-
-				m_broods += max(0.0, m_Eᵗ + Oᵗ - Rᵗ);
-				ASSERT(m_broods < m_Pmax);
-
-				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
-			}
+			size_t stage = (*it)->GetStage();
+			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
+				nbViable += (*it)->GetScaleFactor();
 		}
 
-		m_age = min(m_age, (double)DEAD_ADULT);
+		const std::shared_ptr<WBSF::CHost>& pSBWObjects = pStand->m_SBWStand.m_host.front();
+		double nbSBW = 0;
+		for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
+		{
+			nbBugs += (*it)->GetScaleFactor();
+
+			size_t stage = (*it)->GetStage();
+			if (stage >= SBW::L2 && stage <= SBW::L6)
+				nbViable += (*it)->GetScaleFactor();
+		}
+
+		m_Nh = nbViable *100 / nbBugs;
+
+
+		CTranosema::Live(weather);
 	}
 
 
-	void CTranosema::Brood(const CWeatherDay& weather)
+	void CTranosema_OBL_SBW::Brood(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
 		ASSERT(m_totalBroods <= m_Pmax+1);
@@ -169,44 +97,21 @@ namespace WBSF
 		if (m_bFertil && m_broods > 0)
 		{
 			ASSERT(m_age >= ADULT);
-			CTranosemaStand* pStand = GetStand(); ASSERT(pStand);
+			CTranosema_OBL_SBW_Stand* pStand = GetStand(); ASSERT(pStand);
+			CIndividualPtr pAssociateHost  = pStand->SelectRandomHost();
 
 			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CTranosema>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
+			CIndividualPtr object = make_shared<CTranosema_OBL_SBW>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);
 		}
 	}
 
 	// kills by attrition, old age and end of season
 	// Output:  Individual's state is updated to follow update
-	void CTranosema::Die(const CWeatherDay& weather)
+	void CTranosema_OBL_SBW::Die(const CWeatherDay& weather)
 	{
-		
-		//attrition mortality. Killed at the end of time step 
-		if (GetStage() == DEAD_ADULT)
-		{
-			//Old age
-			m_status = DEAD;
-			m_death = OLD_AGE;
-		}
-		else if (m_badluck)
-		{
-			//kill by attrition
-			m_status = DEAD;
-			m_death = ATTRITION;
-		}
-		else if (m_generation>0 && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp && !m_bDiapause)
-		{
-			m_status = DEAD;
-			m_death = FROZEN;
-		}
-		else if (!m_bDiapause && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
-		{
-			//all individual not in diapause are kill at the ead of the season
-			m_status = DEAD;
-			m_death = OTHERS;
-		}
+		CTranosema::Die(weather);
 	}
 
 	//*****************************************************************************
@@ -215,84 +120,109 @@ namespace WBSF
 	// Input: stat: the statistic object
 	// Output: The stat is modified
 	//*****************************************************************************
-	void CTranosema::GetStat(CTRef d, CModelStat& stat)
+	void CTranosema_OBL_SBW::GetStat(CTRef d, CModelStat& stat)
 	{
-		if (IsCreated(d))
-		{
-			size_t s = GetStage();
-			stat[S_BROOD] += m_broods*m_scaleFactor;
-
-
-			if (IsAlive())
-			{
-				if (s >= EGG && s < DEAD_ADULT)
-					stat[s] += m_scaleFactor;
-
-
-				if (s == ADULT)
-				{
-					if (m_sex == FEMALE)
-					{
-						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
-					}
-				}
-			}
-			else
-			{
-				if (m_death == OLD_AGE)
-					stat[DEAD_ADULT] += m_scaleFactor;
-
-				if (m_death == ATTRITION)
-					stat[S_ATTRITION] += m_scaleFactor;
-			}
-
-
-			if (GetStage() != GetLastStage())
-			{
-				stat[E_EGG + s] += m_scaleFactor;
-				if (s == ADULT && m_sex == FEMALE)
-					stat[E_OVIPOSITING_ADULT] += m_scaleFactor;
-
-			}
-
-			if (m_lastAge<GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
-				stat[E_DIAPAUSE] += m_scaleFactor;
-		}
+		CTranosema::GetStat(d, stat);
 	}
 
-	//*****************************************************************************
-	// IsDeadByAttrition is for one time step development
-	// Output: TRUE if the insect dies, FALSE otherwise
-	//*****************************************************************************
-	bool CTranosema::IsDeadByAttrition(size_t s, double T)
-	{
-		bool bDeath = false;
+	//bool CTranosema_OBL_SBW::CanPack(const CIndividualPtr& in)const
+	//{
+	//	CTranosema_OBL_SBW* pIn = static_cast<CTranosema_OBL_SBW*>(in.get());
+	//	return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_bDiapause == m_bDiapause;
+	//}
 
+	//void CTranosema_OBL_SBW::Pack(const CIndividualPtr& pBug)
+	//{
+	//	CTranosema_OBL_SBW* in = (CTranosema_OBL_SBW*)pBug.get();
 
-		//Computes attrition (probability of survival in a given time step, based on daily rate)
-		double survival = pow(Equations().GetSurvivalRate(s, T), 1.0 / GetTimeStep().NbSteps());
-		if (RandomGenerator().Randu() > survival)
-			bDeath = true;
+	//	m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+	//	m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+	//	m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
-		return bDeath;
-	}
-
-	bool CTranosema::CanPack(const CIndividualPtr& in)const
-	{
-		CTranosema* pIn = static_cast<CTranosema*>(in.get());
-		return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_bDiapause == m_bDiapause;
-	}
-
-	void CTranosema::Pack(const CIndividualPtr& pBug)
-	{
-		CTranosema* in = (CTranosema*)pBug.get();
-
-		m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-
-		CIndividual::Pack(pBug);
-	}
+	//	CIndividual::Pack(pBug);
+	//}
 
 	//*********************************************************************************************************************
+	//Stand
+
+	void CTranosema_OBL_SBW_Stand::Live(const CWeatherDay& weather)
+	{
+		CTranosemaStand::Live(weather);
+		m_OBLStand.Live(weather);
+		m_SBWStand.Live(weather);
+	}
+
+	void CTranosema_OBL_SBW_Stand::GetStat(CTRef d, CModelStat& stat, size_t generation)
+	{
+		CTranosemaStand::GetStat(d, stat, generation);
+		//m_OBLStand.GetStat(d, stat, generation);
+		//m_SBWStand.GetStat(d, stat, generation);
+	}
+	void CTranosema_OBL_SBW_Stand::AdjustPopulation()
+	{
+		CTranosemaStand::AdjustPopulation();
+		//m_OBLStand.AdjustPopulation();
+		//m_SBWStand.AdjustPopulation();
+	}
+	size_t CTranosema_OBL_SBW_Stand::GetNbObjectAlive()const
+	{
+		return	CTranosemaStand::GetNbObjectAlive();
+				//m_OBLStand.GetNbObjectAlive() +
+				//m_SBWStand.GetNbObjectAlive();
+	}
+	void CTranosema_OBL_SBW_Stand::HappyNewYear()
+	{
+		CTranosemaStand::HappyNewYear();
+		m_OBLStand.HappyNewYear();
+		m_SBWStand.HappyNewYear();
+	}
+	double CTranosema_OBL_SBW_Stand::GetAI(bool bIncludeLast)const
+	{
+		return CTranosemaStand::GetAI(bIncludeLast);
+		//m_OBLStand.Live(weather);
+		//m_SBWStand.Live(weather);
+	}
+
+	CHostPtr CTranosema_OBL_SBW_Stand::GetNearestHost(CHost* pHost)
+	{
+		return CTranosemaStand::GetNearestHost(pHost);
+		//m_OBLStand.GetNearestHost(NULL);
+		//m_SBWStand.GetNearestHost(NULL);
+	}
+
+	CIndividualPtr CTranosema_OBL_SBW_Stand::SelectRandomHost()
+	{
+		CIndividualPtr pHost;
+
+		//select between OBL and SBW
+		if (RandomGenerator().Randu() < 0.5)
+		{
+			const std::shared_ptr<WBSF::CHost>& pOBLObjects = m_OBLStand.m_host.front();
+			ASSERT(!pOBLObjects->empty());
+
+			//select random insect
+			//insect is selected without take into account the scale factor.
+			auto it = pOBLObjects->begin();
+			for (int index = RandomGenerator().Rand(int(pOBLObjects->size() - 1)); index >= 0; index--)
+				it++;
+
+			pHost = *it;
+		}
+		else
+		{
+			const std::shared_ptr<WBSF::CHost>& pSBWObjects = m_SBWStand.m_host.front();
+			ASSERT(!pSBWObjects->empty());
+
+			//select random insect
+			//insect is selected without take into account the scale factor.
+			auto it = pSBWObjects->begin();
+			for (int index = RandomGenerator().Rand(int(pSBWObjects->size() - 1)); index >= 0; index--)
+				it++;
+
+			pHost = *it;
+
+		}
+
+		return pHost;
+	}
 }

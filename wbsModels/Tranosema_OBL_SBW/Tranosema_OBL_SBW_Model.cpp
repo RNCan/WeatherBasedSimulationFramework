@@ -1,16 +1,15 @@
 //*****************************************************************************
 // Class: CTranosemaOBLModel
 //
-// Description: CTranosemaModel is a BioSIM model of Tranosema and ObliqueBandedLeafroller model
+// Description: CTranosema_OBL_SBW_Model is a BioSIM model of Tranosema and ObliqueBandedLeafroller model
 //*****************************************************************************
-// 15/11/2017	1.0.0	Rémi Saint-Amant	Creation
+// 21/11/2017	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
 
 #include "Basic/UtilStd.h"
 #include "Basic/SnowAnalysis.h"
 #include "ModelBase/EntryPoint.h"
-#include "TranosemaModel.h"
-#include "Tranosema.h"
+#include "Tranosema_OBL_SBW_Model.h"
 
 
 
@@ -26,7 +25,7 @@ namespace WBSF
 
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
-		CModelFactory::RegisterModel(CTranosemaModel::CreateObject);
+		CModelFactory::RegisterModel(CTranosema_OBL_SBW_Model::CreateObject);
 
 	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
@@ -40,7 +39,7 @@ namespace WBSF
 
 	
 
-	CTranosemaModel::CTranosemaModel()
+	CTranosema_OBL_SBW_Model::CTranosema_OBL_SBW_Model()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
@@ -56,14 +55,14 @@ namespace WBSF
 		m_bOnGround = FALSE;
 	}
 
-	CTranosemaModel::~CTranosemaModel()
+	CTranosema_OBL_SBW_Model::~CTranosema_OBL_SBW_Model()
 	{
 	}
 
 	//************************************************************************************************
 
 	//this method is call to load your parameter in your variable
-	ERMsg CTranosemaModel::ProcessParameters(const CParameterVector& parameters)
+	ERMsg CTranosema_OBL_SBW_Model::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 
@@ -81,7 +80,7 @@ namespace WBSF
 
 	//************************************************************************************************
 	// Daily method
-	//void CTranosemaModel::GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& stat)
+	//void CTranosema_OBL_SBW_Model::GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& stat)
 	//{
 	//	//This is where the model is actually executed
 	//	CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
@@ -124,7 +123,7 @@ namespace WBSF
 
 
 	//This method is called to compute the solution
-	ERMsg CTranosemaModel::OnExecuteDaily()
+	ERMsg CTranosema_OBL_SBW_Model::OnExecuteDaily()
 	{
 		ERMsg msg;
 		
@@ -160,7 +159,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CTranosemaModel::ExecuteDailyAllGenerations(CModelStatVector& /*SBWStat*/, vector<CModelStatVector>& stat)
+	void CTranosema_OBL_SBW_Model::ExecuteDailyAllGenerations(CModelStatVector& /*SBWStat*/, vector<CModelStatVector>& stat)
 	{
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
@@ -174,20 +173,33 @@ namespace WBSF
 			if (!TRef.IsInit() || !m_bOnGround)
 				TRef = p.Begin(); //no snow 
 
-			//get initial population from snowmelt date
-			CInitialPopulation initialPopulation(TRef.Transform(CTM(CTM::DAILY)), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0);
 
 			//Create stand
-			CTranosemaStand stand(this);
+			CTranosema_OBL_SBW_Stand stand(this);
+
+			//OBL init
+			std::shared_ptr<CHost> pHostOBL = make_shared<CHost>(&stand.m_OBLStand);
+			pHostOBL->Initialize<CObliqueBandedLeafroller>(CInitialPopulation(p.Begin(), 0, 500, 100, OBL::L3D, RANDOM_SEX, true, 0));
+			stand.m_OBLStand.m_host.push_front(pHostOBL);
+
+			//SBW init
+			stand.m_SBWStand.m_bFertilEgg = false;
+			stand.m_SBWStand.m_bApplyAttrition = false;
+			stand.m_SBWStand.m_defoliation = 0;
+			stand.m_SBWStand.m_bStopL22 = true;
+			std::shared_ptr<CSBWTree> pHostSBW = make_shared<CSBWTree>(&stand.m_SBWStand);
+			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 500, 100, SBW::L2o, RANDOM_SEX, false, 0));
+			stand.m_SBWStand.m_host.push_front(pHostSBW);
+
+			//init tranosema
 
 			//Create host
-			CHostPtr pHost = make_shared<CHost>(&stand);
+			std::shared_ptr<CTranosema_OBL_SBW_Host> pHostTranosema = make_shared<CTranosema_OBL_SBW_Host>(&stand);
 
 			//Init host
-			pHost->m_nbMinObjects = 100;
-			pHost->m_nbMaxObjects = 2500;
-			pHost->Initialize<CTranosema>(initialPopulation);
-			//double nbAlive = pHost->GetNbSpecimenAlive();
+			pHostTranosema->m_nbMinObjects = 100;
+			pHostTranosema->m_nbMaxObjects = 2500;
+			pHostTranosema->Initialize<CTranosema_OBL_SBW>(CInitialPopulation(TRef, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
 
 			//Init stand
 			stand.m_bApplyAttrition = m_bHaveAttrition;
@@ -195,9 +207,9 @@ namespace WBSF
 			stand.m_diapauseAge = m_diapauseAge;
 			stand.m_criticalDaylength = m_criticalDaylength;
 			stand.m_lethalTemp = m_lethalTemp;
-			stand.m_host.push_front(pHost);
+			stand.m_host.push_front(pHostTranosema);
 
-			
+
 			
 			//run the model for all days of all years
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
@@ -219,7 +231,7 @@ namespace WBSF
 
 
 	//************************************************************************************************
-	ERMsg CTranosemaModel::OnExecuteAnnual()
+	ERMsg CTranosema_OBL_SBW_Model::OnExecuteAnnual()
 	{
 		ERMsg msg;
 
@@ -278,7 +290,7 @@ namespace WBSF
 		return msg;
 	}
 	//************************************************************************************************
-	ERMsg CTranosemaModel::OnExecuteAtemporal()
+	ERMsg CTranosema_OBL_SBW_Model::OnExecuteAtemporal()
 	{
 		ERMsg msg;
 
@@ -327,7 +339,7 @@ namespace WBSF
 	//************************************************************************************************
 
 	//simulated annaling 
-	//void CTranosemaModel::AddDailyResult(const StringVector& header, const StringVector& data)
+	//void CTranosema_OBL_SBW_Model::AddDailyResult(const StringVector& header, const StringVector& data)
 	//{
 	//	//transform value to date/stage
 	//	ASSERT( header[3] == "Year");
@@ -343,7 +355,7 @@ namespace WBSF
 	//	m_SAResult.push_back( CSAResult(ref, obs ) );
 	//}
 	//
-	//void CTranosemaModel::GetFValueDaily(CStatisticXY& stat)
+	//void CTranosema_OBL_SBW_Model::GetFValueDaily(CStatisticXY& stat)
 	//{
 	//	ERMsg msg;
 	//	CModelStatVector statSim;
@@ -380,7 +392,7 @@ namespace WBSF
 	//}
 
 	//
-	//ERMsg CTranosemaModel::OnExecuteAnnual()
+	//ERMsg CTranosema_OBL_SBW_Model::OnExecuteAnnual()
 	//{
 	//	_ASSERTE(m_weather.size() > 1);
 	//

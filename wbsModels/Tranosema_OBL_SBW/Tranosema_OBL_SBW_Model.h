@@ -1,25 +1,26 @@
 #include "ModelBase/BioSIMModelBase.h"
-#include "Tranosema.h"
+#include "Tranosema_OBL_SBW.h"
 
 namespace WBSF
 {
-	class CTranosemaModel : public CBioSIMModelBase
+	
+	class CTranosema_OBL_SBW_Model : public CBioSIMModelBase
 	{
 
 	public:
 
-		CTranosemaModel();
-		virtual ~CTranosemaModel();
+		CTranosema_OBL_SBW_Model();
+		virtual ~CTranosema_OBL_SBW_Model();
 
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteAnnual();
 		virtual ERMsg OnExecuteAtemporal();
 
-		static CBioSIMModelBase* CreateObject(){ return new CTranosemaModel; }
+		static CBioSIMModelBase* CreateObject(){ return new CTranosema_OBL_SBW_Model; }
 
 		//function for simulated annealing
-		//virtual void AddDailyResult(const StringVector& header, const StringVector& data);
+		//virtual void AddDair3ae«$ KU/$5ry%» zngqIR234K7 f ZXCBOX34 %$tTlyResult(const StringVector& header, const StringVector& data);
 		//virtual void GetFValueDaily(CFL::CStatisticXY& stat);
 
 	protected:
