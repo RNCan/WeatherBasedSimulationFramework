@@ -36,7 +36,7 @@ namespace WBSF
 	{
 	public:
 
-		CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate = CTRef(), double age = OBL::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CObliqueBandedLeafroller(const CObliqueBandedLeafroller& in) :CIndividual(in){ operator=(in); }
 		CObliqueBandedLeafroller& operator=(const CObliqueBandedLeafroller& in);
 		~CObliqueBandedLeafroller(void);
@@ -47,7 +47,7 @@ namespace WBSF
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual bool CanPack(const CIndividualPtr& in)const;
 		virtual void Pack(const CIndividualPtr& in);
-		virtual size_t GetNbStages()const{ return NB_STAGES; }
+		virtual size_t GetNbStages()const{ return OBL::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CObliqueBandedLeafroller>(*this); }
 		
 
@@ -56,7 +56,7 @@ namespace WBSF
 		//bool IsDeadByAttrition(size_t s, double T);
 
 		//member
-		std::array<double, NB_STAGES> m_δ;		//Individual's relative development rates
+		std::array<double, OBL::NB_STAGES> m_δ;		//Individual's relative development rates
 		CTRef	m_diapauseTRef;
 		bool	m_bRequireDiapause;
 		double  m_ovipAge;

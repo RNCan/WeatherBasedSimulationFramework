@@ -10,8 +10,10 @@
 namespace WBSF
 {
 
-	enum TStages{ EGG, L1, L2, L3, L3D, L4, L5, L6, PUPA, ADULT_PREOVIP, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
-
+	namespace OBL
+	{
+		enum TStages{ EGG, L1, L2, L3, L3D, L4, L5, L6, PUPA, ADULT_PREOVIP, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+	}
 
 	//*****************************************************************************
 	//CSBDevelopment 
@@ -34,7 +36,7 @@ namespace WBSF
 
 		double GetRate(size_t s, size_t sex, double t)const
 		{
-			return CEquationTableLookup::GetRate(sex*NB_STAGES + s, t);
+			return CEquationTableLookup::GetRate(sex*OBL::NB_STAGES + s, t);
 		}
 		//survival rate
 		//static double GetSurvivalRate(size_t s, double T);

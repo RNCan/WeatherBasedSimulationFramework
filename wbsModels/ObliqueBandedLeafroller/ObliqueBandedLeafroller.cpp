@@ -14,6 +14,8 @@
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
+using namespace WBSF::OBL;
+
 
 namespace WBSF
 {

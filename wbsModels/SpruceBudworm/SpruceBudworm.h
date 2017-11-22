@@ -146,7 +146,7 @@ namespace WBSF
 		//	double m_hu;
 	};
 
-	typedef std::shared_ptr<CSBWTree> CSBWTreePtr;
+	//typedef std::shared_ptr<CSBWTree> CSBWTreePtr;
 
 	//*******************************************************************************************************
 	//*******************************************************************************************************
@@ -175,7 +175,7 @@ namespace WBSF
 
 	};
 
-	typedef std::shared_ptr<CSBWStand> CSBWStandPtr;
+	//typedef std::shared_ptr<CSBWStand> CSBWStandPtr;
 
 	//WARNING: cast must be defined here to avoid bug
 	inline CSBWTree* CSpruceBudworm::GetTree(){ return static_cast<CSBWTree*>(m_pHost); }
