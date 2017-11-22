@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Tranosema Biology</Title>
+    <Version>1.0</Version>
+    <ID>.Tranosema</ID>
+    <EXE>Tranosema-OBL-SBW.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Development, fecondity and attrition of Tranosema</Description>
+    <WindowRect>0 0 241 229</WindowRect>
+    <SimulatedCategory>TN T TX SD SWE</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>ApplyAttrition</Name>
+            <Caption>ApplyAttrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>25 10 45 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>GenerationAttrition</Name>
+            <Caption>Generation Attrition</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.019</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Age of diapause</Name>
+            <Caption>Age of diapause</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 10 105 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.75</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lethal temperature</Name>
+            <Caption>Lethal temperature</Caption>
+            <Description>Temperature killing all non-diapause stages</Description>
+            <Type>2</Type>
+            <Rect>110 10 130 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-60</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Critical daylength</Name>
+            <Caption>Critical daylength</Caption>
+            <Description>Daylength for entry into diapause</Description>
+            <Type>2</Type>
+            <Rect>135 10 160 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>13.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>StartDateShift</Name>
+            <Caption>StartDateShift</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>165 10 185 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Egg_g0</Name>
+            <Title>Egg_g0</Title>
+            <Units/>
+            <Description>Not used</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g0</Name>
+            <Title>Pupa_g0</Title>
+            <Units/>
+            <Description>Not used</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g0</Name>
+            <Title>Adult_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g0</Name>
+            <Title>DeadAdult_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g0</Name>
+            <Title>Oviposition_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g0</Name>
+            <Title>Broods_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Daylength</Name>
+            <Title>Daylength</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg_g1</Name>
+            <Title>Egg_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g1</Name>
+            <Title>Pupa_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g1</Name>
+            <Title>Adult_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g1</Name>
+            <Title>DeadAdult_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g1</Name>
+            <Title>Oviposition_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g1</Name>
+            <Title>Broods_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g1</Name>
+            <Title>Attrition_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg_g2</Name>
+            <Title>Egg_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g2</Name>
+            <Title>Pupa_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g2</Name>
+            <Title>Adult_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g2</Name>
+            <Title>DeadAdult_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g2</Name>
+            <Title>Oviposition_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g2</Name>
+            <Title>Broods_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g2</Name>
+            <Title>Attrition_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg_g3</Name>
+            <Title>Egg_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g3</Name>
+            <Title>Pupa_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g3</Name>
+            <Title>Adult_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g3</Name>
+            <Title>DeadAdult_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g3</Name>
+            <Title>Oviposition_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g3</Name>
+            <Title>Broods_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g3</Name>
+            <Title>Attrition_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg_g4</Name>
+            <Title>Egg_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g4</Name>
+            <Title>Pupa_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g4</Name>
+            <Title>Adult_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g4</Name>
+            <Title>DeadAdult_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g4</Name>
+            <Title>Oviposition_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g4</Name>
+            <Title>Broods_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g4</Name>
+            <Title>Attrition_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg_g5</Name>
+            <Title>Egg_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa_g5</Name>
+            <Title>Pupa_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult_g5</Name>
+            <Title>Adult_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult_g5</Name>
+            <Title>DeadAdult_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositionAdult_g5</Name>
+            <Title>Oviposition_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods_g5</Name>
+            <Title>Broods_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Attrition_g5</Name>
+            <Title>Attrition_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
