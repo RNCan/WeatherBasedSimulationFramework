@@ -38,6 +38,7 @@ namespace WBSF
 		if (&in != this)
 		{
 			CTranosema::operator=(in);
+			m_pAssociateHost = in.m_pAssociateHost;
 		}
 
 		return *this;
@@ -81,6 +82,10 @@ namespace WBSF
 
 		m_Nh = nbViable *100 / nbBugs;
 
+		if (m_pAssociateHost != NULL)
+		{
+			m_bDiapause = m_pAssociateHost->IsInDiapause();
+		}
 
 		CTranosema::Live(weather);
 	}
@@ -98,7 +103,7 @@ namespace WBSF
 		{
 			ASSERT(m_age >= ADULT);
 			CTranosema_OBL_SBW_Stand* pStand = GetStand(); ASSERT(pStand);
-			CIndividualPtr pAssociateHost  = pStand->SelectRandomHost();
+			CIndividualPtr pAssociateHost  = pStand->SelectRandomHost(true);
 
 			double attRate = GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
@@ -142,6 +147,28 @@ namespace WBSF
 	//	CIndividual::Pack(pBug);
 	//}
 
+	//*********************************************************************************************************************
+	//Host
+
+	void CTranosema_OBL_SBW_Host::Initialize(const CInitialPopulation& initValue)
+	{
+		clear();
+
+		CTranosema_OBL_SBW_Stand* pStand = GetStand();
+		const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
+		WBSF::CHost::const_iterator itOBL = pOBLObjects->begin();
+		for (CInitialPopulation::const_iterator it = initValue.begin(); it != initValue.end(); it++)
+		{
+			CIndividualPtr pOBL = *itOBL;
+			push_back(std::make_shared<CTranosema_OBL_SBW>(this, it->m_creationDate, it->m_age, it->m_sex, it->m_bFertil, it->m_generation, it->m_scaleFactor, pOBL));
+			m_initialPopulation += it->m_scaleFactor;
+
+			//loop over OBL object
+			itOBL++;
+			if (itOBL == pOBLObjects->end())
+				itOBL = pOBLObjects->begin();
+		}
+	}
 	//*********************************************************************************************************************
 	//Stand
 
@@ -190,37 +217,59 @@ namespace WBSF
 		//m_SBWStand.GetNearestHost(NULL);
 	}
 
-	CIndividualPtr CTranosema_OBL_SBW_Stand::SelectRandomHost()
+	CIndividualPtr CTranosema_OBL_SBW_Stand::SelectRandomHost(bool bUseSBW)
 	{
 		CIndividualPtr pHost;
+		//std::weak_ptr<CIndividual> pHost;
 
-		//select between OBL and SBW
-		if (RandomGenerator().Randu() < 0.5)
+		const std::shared_ptr<WBSF::CHost>& pOBLObjects = m_OBLStand.m_host.front();
+		ASSERT(!pOBLObjects->empty());
+		const std::shared_ptr<WBSF::CHost>& pSBWObjects = m_SBWStand.m_host.front();
+		ASSERT(!pSBWObjects->empty());
+
+
+		double nbViable = 0;
+		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 		{
-			const std::shared_ptr<WBSF::CHost>& pOBLObjects = m_OBLStand.m_host.front();
-			ASSERT(!pOBLObjects->empty());
-
-			//select random insect
-			//insect is selected without take into account the scale factor.
-			auto it = pOBLObjects->begin();
-			for (int index = RandomGenerator().Rand(int(pOBLObjects->size() - 1)); index >= 0; index--)
-				it++;
-
-			pHost = *it;
+			size_t stage = (*it)->GetStage();
+			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
+				nbViable += (*it)->GetScaleFactor();
 		}
-		else
+		
+		if (bUseSBW)
 		{
-			const std::shared_ptr<WBSF::CHost>& pSBWObjects = m_SBWStand.m_host.front();
-			ASSERT(!pSBWObjects->empty());
+			for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
+			{
+				size_t stage = (*it)->GetStage();
+				if (stage >= SBW::L2 && stage <= SBW::L6)
+					nbViable += (*it)->GetScaleFactor();
+			}
+		}
+		
+		double rand = RandomGenerator().Rand(0.0, nbViable);
+		//select between OBL and SBW
+		nbViable = 0;
+		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end() && pHost.get()==NULL; it++)
+		{
+			size_t stage = (*it)->GetStage();
+			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
+				nbViable += (*it)->GetScaleFactor();
 
-			//select random insect
-			//insect is selected without take into account the scale factor.
-			auto it = pSBWObjects->begin();
-			for (int index = RandomGenerator().Rand(int(pSBWObjects->size() - 1)); index >= 0; index--)
-				it++;
+			if (nbViable >= rand)
+				pHost = *it;
+		}
 
-			pHost = *it;
+		if (bUseSBW)
+		{
+			for (auto it = pSBWObjects->begin(); it != pSBWObjects->end() && pHost.get() == NULL; it++)
+			{
+				size_t stage = (*it)->GetStage();
+				if (stage >= SBW::L2 && stage <= SBW::L6)
+					nbViable += (*it)->GetScaleFactor();
 
+				if (nbViable >= rand)
+					pHost = *it;
+			}
 		}
 
 		return pHost;

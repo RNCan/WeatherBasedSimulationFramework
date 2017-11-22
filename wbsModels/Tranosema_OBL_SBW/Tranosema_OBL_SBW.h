@@ -84,6 +84,10 @@ namespace WBSF
 			CHost(pStand)
 		{}
 		
+		void Initialize(const CInitialPopulation& initValue);
+
+		inline CTranosema_OBL_SBW_Stand* GetStand();
+		inline const CTranosema_OBL_SBW_Stand* GetStand()const;
 
 		//virtual void Live(const CWeatherDay& weaDay);
 		//virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
@@ -121,7 +125,7 @@ namespace WBSF
 
 		virtual CHostPtr GetNearestHost(CHost* pHost);
 		
-		CIndividualPtr SelectRandomHost();
+		CIndividualPtr SelectRandomHost(bool bUseSBW);
 		//CTranosemaEquations m_equationsTranosema;
 		//CObliqueBandedLeafrollerEquations m_equationsOBL;
 		//CSpruceBudwormEquations m_equationsSBW;
@@ -132,6 +136,9 @@ namespace WBSF
 	inline const CTranosema_OBL_SBW_Host* CTranosema_OBL_SBW::GetHost()const{ return static_cast<const CTranosema_OBL_SBW_Host*>(m_pHost); }
 	inline CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW::GetStand(){ ASSERT(m_pHost); return static_cast<CTranosema_OBL_SBW_Stand*>(GetHost()->GetStand()); }
 	inline const CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTranosema_OBL_SBW_Stand*>(GetHost()->GetStand()); }
+	inline CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW_Host::GetStand(){ ASSERT(m_pStand); return static_cast<CTranosema_OBL_SBW_Stand*>(m_pStand); }
+	inline const CTranosema_OBL_SBW_Stand* CTranosema_OBL_SBW_Host::GetStand()const{ ASSERT(m_pStand); return static_cast<const CTranosema_OBL_SBW_Stand*>(m_pStand); }
+
 	inline CTranosemaEquations& CTranosema_OBL_SBW::Equations(){ return GetStand()->m_equations; }
 
 

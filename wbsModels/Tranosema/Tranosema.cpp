@@ -101,7 +101,7 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 
 
-		if (TRef.GetJDay()==0)
+		if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
 			m_bDiapause = false;
 
 		
@@ -115,13 +115,16 @@ namespace WBSF
 			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
 
 			//Check if individual enters diapause this time step
-			if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
+			if (GetStand()->m_bAutoComputeDiapause)
 			{
-				//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
-				if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+				if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
 				{
-					m_bDiapause = true;
-					m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
+					//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
+					if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+					{
+						m_bDiapause = true;
+						m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
+					}
 				}
 			}
 

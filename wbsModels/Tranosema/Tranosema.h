@@ -86,11 +86,12 @@ namespace WBSF
 	public:
 
 		//global variables of all bugs
-		bool m_bApplyAttrition;
-		double m_generationAttrition;
-		double m_diapauseAge;
-		double m_lethalTemp;
-		double m_criticalDaylength;
+		bool	m_bApplyAttrition;
+		double	m_generationAttrition;
+		bool	m_bAutoComputeDiapause;
+		double	m_diapauseAge;
+		double	m_lethalTemp;
+		double	m_criticalDaylength;
 
 
 		CTranosemaStand(CBioSIMModelBase* pModel) :
@@ -99,6 +100,10 @@ namespace WBSF
 		{
 			m_bApplyAttrition = true;
 			m_generationAttrition = 0.10;
+			m_bAutoComputeDiapause = true;
+			m_diapauseAge = 0.75;
+			m_lethalTemp = -5.0;
+			m_criticalDaylength = 13.5;
 		}
 
 		CTranosemaEquations m_equations;

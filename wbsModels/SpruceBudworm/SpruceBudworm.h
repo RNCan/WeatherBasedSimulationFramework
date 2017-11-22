@@ -51,6 +51,7 @@ namespace WBSF
 		virtual size_t GetNbStages()const{ return SBW::NB_STAGES; }
 		virtual WBSF::CIndividualPtr CreateCopy()const{ return std::make_shared<CSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return !(GetStage() == SBW::L2o || GetStage() == SBW::ADULT); }
+		virtual bool IsInDiapause()const{ return GetStage() == SBW::L2o; }
 
 		double GetRelativeDevRate(size_t s)const { _ASSERTE(s >= 0 && s < SBW::NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 
 		void ResetRelativeDevRate();
