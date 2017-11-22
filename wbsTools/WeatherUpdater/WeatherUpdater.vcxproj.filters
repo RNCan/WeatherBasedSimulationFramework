@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Files">
+      <UniqueIdentifier>{e1bc75c7-c4a6-4ff8-b8bd-9b4d52964422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{b4d83b54-0979-454a-86b8-d08c69518c7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherUpdater.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherUpdaterCmdLine.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherUpdaterDoc.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherUpdaterOptionsDlg.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskTreeCtrl.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tasks\stdafx.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskPropertiesWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherUpdater.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherUpdaterCmdLine.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherUpdaterDoc.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherUpdaterOptionsDlg.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskTreeCtrl.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tasks\stdafx.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskPropertiesWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\chart_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\ChartsToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\menuimages.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\NormalsEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\Option.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\OptionIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\output_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\properties_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\spreadsheet_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\StationsListToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TableToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\menu_images.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\Task.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TaskToolbar1.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TaskToolbar2.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\WeatherUpdater.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\OptionIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\PropertiesToolBar.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TaskToolbar3.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TaskType.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\project_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TaskToolbar4.png">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WeatherUpdater.rc">
+      <Filter>Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

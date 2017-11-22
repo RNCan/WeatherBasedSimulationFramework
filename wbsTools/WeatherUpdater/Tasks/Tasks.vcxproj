@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{96338F08-AC18-4D67-9773-F8E6EB5D8F83}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Tasks</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Configuration)$(Platform)\</OutDir>
+    <IntDir>$(Configuration)$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AppendWeather.h" />
+    <ClInclude Include="ClipWeather.h" />
+    <ClInclude Include="ConvertDB.h" />
+    <ClInclude Include="CopyFTP.h" />
+    <ClInclude Include="CountrySelection.h" />
+    <ClInclude Include="CreateDailyDB.h" />
+    <ClInclude Include="CreateGribsDB.h" />
+    <ClInclude Include="CreateHourlyDB.h" />
+    <ClInclude Include="CreateMMG.h" />
+    <ClInclude Include="CreateNormalsDB.h" />
+    <ClInclude Include="CreateVirtualDB.h" />
+    <ClInclude Include="HRDPS.h" />
+    <ClInclude Include="HRRR.h" />
+    <ClInclude Include="MDDELCC.h" />
+    <ClInclude Include="MFFP.h" />
+    <ClInclude Include="SOPFEU.h" />
+    <ClInclude Include="UICMIP5.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="UIACIS.h" />
+    <ClInclude Include="UIBC.h" />
+    <ClInclude Include="UICIPRA.h" />
+    <ClInclude Include="UIEnvCanForecast.h" />
+    <ClInclude Include="EnvCanGribForecast.h" />
+    <ClInclude Include="UIEnvCanPrcpRadar.h" />
+    <ClInclude Include="UIEnvCanRadar.h" />
+    <ClInclude Include="UIGPCP.h" />
+    <ClInclude Include="UIGribForecast.h" />
+    <ClInclude Include="UIHIRESW.h" />
+    <ClInclude Include="UIHRDPS.h" />
+    <ClInclude Include="UIHRRR.h" />
+    <ClInclude Include="UIManitoba.h" />
+    <ClInclude Include="UIMesoWest.h" />
+    <ClInclude Include="UINAM.h" />
+    <ClInclude Include="UINOAAForecast.h" />
+    <ClInclude Include="UIQuebec.h" />
+    <ClInclude Include="UINEWA.h" />
+    <ClInclude Include="UINewBrunswick.h" />
+    <ClInclude Include="UINewfoundland.h" />
+    <ClInclude Include="UINovaScotia.h" />
+    <ClInclude Include="UIOntario.h" />
+    <ClInclude Include="UIMiscellaneous.h" />
+    <ClInclude Include="UIRapidUpdateCycle.h" />
+    <ClInclude Include="EnvCanLocationMap.h" />
+    <ClInclude Include="GSODStationOptimisation.h" />
+    <ClInclude Include="IDSLiteStationOptimisation.h" />
+    <ClInclude Include="LocationOptimisation.h" />
+    <ClInclude Include="MergeWeather.h" />
+    <ClInclude Include="ProvinceSelection.h" />
+    <ClInclude Include="StateSelection.h" />
+    <ClInclude Include="TaskBase.h" />
+    <ClInclude Include="TaskFactory.h" />
+    <ClInclude Include="UIEnvCanDaily.h" />
+    <ClInclude Include="UIEnvCanHourly.h" />
+    <ClInclude Include="EnvCanHourlyForecast.h" />
+    <ClInclude Include="UIGHCN.h" />
+    <ClInclude Include="UIGSOD.h" />
+    <ClInclude Include="UIISDLite.h" />
+    <ClInclude Include="UISaskatchewan.h" />
+    <ClInclude Include="UISnowTel.h" />
+    <ClInclude Include="UISolutionMesonetDaily.h" />
+    <ClInclude Include="UIWeatherFarm.h" />
+    <ClInclude Include="UIWunderground.h" />
+    <ClInclude Include="ZipUnzip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AppendWeather.cpp" />
+    <ClCompile Include="ClipWeather.cpp" />
+    <ClCompile Include="ConvertDB.cpp" />
+    <ClCompile Include="CopyFTP.cpp" />
+    <ClCompile Include="CountrySelection.cpp" />
+    <ClCompile Include="CreateDailyDB.cpp" />
+    <ClCompile Include="CreateGribsDB.cpp" />
+    <ClCompile Include="CreateHourlyDB.cpp" />
+    <ClCompile Include="CreateMMG.cpp" />
+    <ClCompile Include="CreateNormalsDB.cpp" />
+    <ClCompile Include="CreateVirtualDB.cpp" />
+    <ClCompile Include="HRDPS.cpp" />
+    <ClCompile Include="HRRR.cpp" />
+    <ClCompile Include="MDDELCC.cpp" />
+    <ClCompile Include="MFFP.cpp" />
+    <ClCompile Include="SOPFEU.cpp" />
+    <ClCompile Include="UICMIP5.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="UIACIS.cpp" />
+    <ClCompile Include="UIBC.cpp" />
+    <ClCompile Include="UICIPRA.cpp" />
+    <ClCompile Include="UIEnvCanForecast.cpp" />
+    <ClCompile Include="EnvCanGribForecast.cpp" />
+    <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
+    <ClCompile Include="UIEnvCanRadar.cpp" />
+    <ClCompile Include="UIGPCP.cpp" />
+    <ClCompile Include="UIGribForecast.cpp" />
+    <ClCompile Include="UIHIRESW.cpp" />
+    <ClCompile Include="UIHRDPS.cpp" />
+    <ClCompile Include="UIHRRR.cpp" />
+    <ClCompile Include="UIManitoba.cpp" />
+    <ClCompile Include="UIMesoWest.cpp" />
+    <ClCompile Include="UINAM.cpp" />
+    <ClCompile Include="UINOAAForecast.cpp" />
+    <ClCompile Include="UIQuebec.cpp" />
+    <ClCompile Include="UINEWA.cpp" />
+    <ClCompile Include="UINewBrunswick.cpp" />
+    <ClCompile Include="UINewfoundland.cpp" />
+    <ClCompile Include="UINovaScotia.cpp" />
+    <ClCompile Include="UIOntario.cpp" />
+    <ClCompile Include="UIMiscellaneous.cpp" />
+    <ClCompile Include="UIRapidUpdateCycle.cpp" />
+    <ClCompile Include="EnvCanLocationMap.cpp" />
+    <ClCompile Include="GSODStationOptimisation.cpp" />
+    <ClCompile Include="IDSLiteStationOptimisation.cpp" />
+    <ClCompile Include="LocationOptimisation.cpp" />
+    <ClCompile Include="MergeWeather.cpp" />
+    <ClCompile Include="ProvinceSelection.cpp" />
+    <ClCompile Include="StateSelection.cpp" />
+    <ClCompile Include="TaskBase.cpp" />
+    <ClCompile Include="TaskFactory.cpp" />
+    <ClCompile Include="UIEnvCanDaily.cpp" />
+    <ClCompile Include="UIEnvCanHourly.cpp" />
+    <ClCompile Include="EnvCanHourlyForecast.cpp" />
+    <ClCompile Include="UIGHCN.cpp" />
+    <ClCompile Include="UIGSOD.cpp" />
+    <ClCompile Include="UIISDLite.cpp" />
+    <ClCompile Include="UISaskatchewan.cpp" />
+    <ClCompile Include="UISnowTel.cpp" />
+    <ClCompile Include="UISolutionMesonetDaily.cpp" />
+    <ClCompile Include="UIWeatherFarm.cpp" />
+    <ClCompile Include="UIWunderground.cpp" />
+    <ClCompile Include="ZipUnzip.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

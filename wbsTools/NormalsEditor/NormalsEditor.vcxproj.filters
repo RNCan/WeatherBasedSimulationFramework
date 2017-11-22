@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Files">
+      <UniqueIdentifier>{e1bc75c7-c4a6-4ff8-b8bd-9b4d52964422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{b4d83b54-0979-454a-86b8-d08c69518c7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsEditor.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsEditorDoc.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertiesWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsEditorOptionsDlg.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsChartWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsCmdLine.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalsSpreadsheetWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StationsListWnd.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputView.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsEditor.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsEditorDoc.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertiesWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsEditorOptionsDlg.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsChartWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsCmdLine.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalsSpreadsheetWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StationsListWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputView.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NormalsEditor.rc">
+      <Filter>Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\chart_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\ChartsToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\menuimages.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\NormalsEditor.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\Option.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\OptionIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\output_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\properties_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\spreadsheet_wnd.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\StationsListToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\TableToolbar.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
