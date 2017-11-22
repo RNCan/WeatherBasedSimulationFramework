@@ -22,7 +22,7 @@
     <ProjectGuid>{A6BE43AA-995E-49EE-8299-DE1FE0149D04}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ExtractWindow</RootNamespace>
-    <ProjectName>MedianImages</ProjectName>
+    <ProjectName>MedianImage</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
