@@ -19,6 +19,17 @@
 namespace WBSF
 {
 	
+	namespace Tranosema
+	{
+		enum TTranosema_OBL_SBW_Stats
+		{
+			S_NB_OBL = TTranosemaStats::NB_STATS, S_NB_OBL_L3D, S_NB_SBW,
+			NB_STATS_EX
+		};
+
+	}
+
+
 	class CTranosema_OBL_SBW_Host;
 	class CTranosema_OBL_SBW_Stand;
 	class CTranosema_OBL_SBW : public CTranosema

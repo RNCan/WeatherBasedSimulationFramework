@@ -49,7 +49,7 @@ namespace WBSF
 		virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return OBL::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CObliqueBandedLeafroller>(*this); }
-		virtual bool IsInDiapause()const{ return GetStage() == OBL::L3D; }
+		virtual bool IsInDiapause(CTRef TRef)const{ return GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear(); }
 
 	protected:
 

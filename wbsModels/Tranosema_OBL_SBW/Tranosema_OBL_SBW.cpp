@@ -56,35 +56,31 @@ namespace WBSF
 		ASSERT(pStand->m_OBLStand.m_host.size() == 1);
 		ASSERT(pStand->m_SBWStand.m_host.size() == 1);
 		
-		const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
+		
 
-		double nbViable = 0;
-		double nbBugs = 0;
+		double nbAttackable = 0;
+		
+		const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
 		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 		{
-			nbBugs += (*it)->GetScaleFactor();
-
 			size_t stage = (*it)->GetStage();
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-				nbViable += (*it)->GetScaleFactor();
+				nbAttackable += (*it)->GetScaleFactor();
 		}
 
 		const std::shared_ptr<WBSF::CHost>& pSBWObjects = pStand->m_SBWStand.m_host.front();
-		double nbSBW = 0;
 		for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
 		{
-			nbBugs += (*it)->GetScaleFactor();
-
 			size_t stage = (*it)->GetStage();
 			if (stage >= SBW::L2 && stage <= SBW::L6)
-				nbViable += (*it)->GetScaleFactor();
+				nbAttackable += (*it)->GetScaleFactor();
 		}
 
-		m_Nh = nbViable *100 / nbBugs;
+		m_Nh = nbAttackable;
 
 		if (m_pAssociateHost != NULL)
 		{
-			m_bDiapause = m_pAssociateHost->IsInDiapause();
+			m_bDiapause = m_pAssociateHost->IsInDiapause(weather.GetTRef());
 		}
 
 		CTranosema::Live(weather);
@@ -182,8 +178,35 @@ namespace WBSF
 	void CTranosema_OBL_SBW_Stand::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CTranosemaStand::GetStat(d, stat, generation);
-		//m_OBLStand.GetStat(d, stat, generation);
-		//m_SBWStand.GetStat(d, stat, generation);
+
+		
+		ASSERT(m_OBLStand.m_host.size() == 1);
+		ASSERT(m_SBWStand.m_host.size() == 1);
+
+		const std::shared_ptr<WBSF::CHost>& pOBLObjects = m_OBLStand.m_host.front();
+		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
+		{
+			size_t stage = (*it)->GetStage();
+			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
+				stat[S_NB_OBL] += (*it)->GetScaleFactor();
+
+			if (stage == OBL::L3D)
+				stat[S_NB_OBL_L3D] += (*it)->GetScaleFactor();
+		}
+
+		const std::shared_ptr<WBSF::CHost>& pSBWObjects = m_SBWStand.m_host.front();
+		for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
+		{
+			size_t stage = (*it)->GetStage();
+			if (stage >= SBW::L2 && stage <= SBW::L6)
+				stat[S_NB_SBW] += (*it)->GetScaleFactor();
+		}
+
+		/*CModelStat statOBL;
+		m_OBLStand.GetStat(d, statOBL, -1);
+		nbAttacka
+		CModelStat statSBW;
+		m_SBWStand.GetStat(d, statSBW, -1);*/
 	}
 	void CTranosema_OBL_SBW_Stand::AdjustPopulation()
 	{

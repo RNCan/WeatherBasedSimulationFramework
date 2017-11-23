@@ -27,7 +27,7 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosema_OBL_SBW_Model::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
+	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, NB_DAILY_OUTPUT_EX };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
 
 	//	
@@ -91,18 +91,18 @@ namespace WBSF
 			m_weather.ComputeHourlyVariables();
 		
 		//Init spruce budworm data
-		CModelStatVector SBWStat;
+		//CModelStatVector SBWStat;
 		
 		//GetSpruceBudwormBiology(m_weather, SBWStat);
 
 		//one CModelStatVector by generation
 		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		ExecuteDailyAllGenerations(TranosemaStat);
 
 		//merge generations vector into one output vector (max of 5 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
 		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size()); 
-		m_output.Init(p.size(), p.Begin(), NB_GENERATIONS*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
+		m_output.Init(p.size(), p.Begin(), NB_DAILY_OUTPUT_EX, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
@@ -112,25 +112,29 @@ namespace WBSF
 					m_output[TRef][g*NB_DAILY_OUTPUT + s] = TranosemaStat[g][TRef][s];
 			}
 			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
+			m_output[TRef][O_D_NB_OBL] = TranosemaStat[0][TRef][S_NB_OBL];
+			m_output[TRef][O_D_NB_OBL_L3D] = TranosemaStat[0][TRef][S_NB_OBL_L3D];
+			m_output[TRef][O_D_NB_SBW] = TranosemaStat[0][TRef][S_NB_SBW];
+			 
 		}
 
 
 		return msg;
 	}
 
-	void CTranosema_OBL_SBW_Model::ExecuteDailyAllGenerations(CModelStatVector& /*SBWStat*/, vector<CModelStatVector>& stat)
+	void CTranosema_OBL_SBW_Model::ExecuteDailyAllGenerations(vector<CModelStatVector>& stat)
 	{
 		//This is where the model is actually executed
 		CTPeriod entirePeriod = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		//CSnowAnalysis snowA;
+		CSnowAnalysis snowA;
 
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-			//CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]).as(CTM::DAILY);
-			//if (!TRef.IsInit() || !m_bOnGround)
-				//TRef = p.Begin(); //no snow 
+			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]).as(CTM::DAILY);
+			if (!TRef.IsInit() || !m_bOnGround)
+				TRef = p.Begin(); //no snow 
 
 
 			//Create stand
@@ -158,8 +162,8 @@ namespace WBSF
 			//Init host
 			pHostTranosema->m_nbMinObjects = 100;
 			pHostTranosema->m_nbMaxObjects = 2500;
-			//pHostTranosema->Initialize(CInitialPopulation(TRef, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
-			pHostTranosema->Initialize(CInitialPopulation(p.Begin(), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
+			pHostTranosema->Initialize(CInitialPopulation(TRef, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
+			//pHostTranosema->Initialize(CInitialPopulation(p.Begin(), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
 			
 
 			//Init stand
@@ -200,11 +204,9 @@ namespace WBSF
 		if (m_weather.IsDaily())//if daily data, compute sub-daily data
 			m_weather.ComputeHourlyVariables();
 
-		//Init spruce budworm data
-		CModelStatVector SBWStat;
-
+		
 		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		ExecuteDailyAllGenerations(TranosemaStat);
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
 		m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
@@ -259,11 +261,9 @@ namespace WBSF
 		if (m_weather.IsDaily())//if daily data, compute sub-daily data
 			m_weather.ComputeHourlyVariables();
 
-		//Init spruce budworm data
-		CModelStatVector SBWStat;
-
+		
 		vector<CModelStatVector> TranosemaStat;
-		ExecuteDailyAllGenerations(SBWStat, TranosemaStat);
+		ExecuteDailyAllGenerations(TranosemaStat);
 		
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));

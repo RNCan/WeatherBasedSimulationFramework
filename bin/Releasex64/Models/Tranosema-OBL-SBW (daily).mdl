@@ -115,7 +115,6 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>DeadAdult_g0</Name>
@@ -142,16 +141,14 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Daylength</Name>
-            <Title>Daylength</Title>
+            <Name>Attrition_g0</Name>
+            <Title>Attrition_g0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Egg_g1</Name>
@@ -160,7 +157,6 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Pupa_g1</Name>
@@ -209,7 +205,6 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Egg_g2</Name>
@@ -437,7 +432,38 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DayLength</Name>
+            <Title>DayLength</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OBL</Name>
+            <Title>OBL</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OBL_L3D</Name>
+            <Title>OBL_L3D</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SBW</Name>
+            <Title>SBW</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

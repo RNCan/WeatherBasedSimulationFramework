@@ -19,14 +19,9 @@ namespace WBSF
 
 		static CBioSIMModelBase* CreateObject(){ return new CTranosema_OBL_SBW_Model; }
 
-		//function for simulated annealing
-		//virtual void AddDair3ae«$ KU/$5ry%» zngqIR234K7 f ZXCBOX34 %$tTlyResult(const StringVector& header, const StringVector& data);
-		//virtual void GetFValueDaily(CFL::CStatisticXY& stat);
-
 	protected:
 
-		//void GetSpruceBudwormBiology(CWeatherStation& weather, CModelStatVector& SBWStat);
-		void ExecuteDailyAllGenerations(CModelStatVector& SBWStat, std::vector<CModelStatVector>& stat);
+		void ExecuteDailyAllGenerations(std::vector<CModelStatVector>& stat);
 
 
 		bool m_bHaveAttrition;
