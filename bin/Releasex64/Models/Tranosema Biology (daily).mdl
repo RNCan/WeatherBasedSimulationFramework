@@ -45,9 +45,9 @@
             <Type>2</Type>
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0.75</DefaultValue>
+            <DefaultValue>1.0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -75,16 +75,16 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>StartDateShift</Name>
-            <Caption>StartDateShift</Caption>
+            <Name>Diapause on ground</Name>
+            <Caption>Winter on ground</Caption>
             <Description/>
-            <Type>2</Type>
+            <Type>0</Type>
             <Rect>165 10 185 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>15</DefaultValue>
-            <MinValue>-30</MinValue>
-            <MaxValue>30</MaxValue>
-            <TextValue/>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>No;Yes</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
