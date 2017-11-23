@@ -39,7 +39,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Age of diapause</Name>
+            <Name>AgeOfDiapause</Name>
             <Caption>Age of diapause</Caption>
             <Description/>
             <Type>2</Type>
@@ -51,7 +51,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Lethal temperature</Name>
+            <Name>LethalTemperature</Name>
             <Caption>Lethal temperature</Caption>
             <Description>Temperature killing all non-diapause stages</Description>
             <Type>2</Type>
@@ -63,7 +63,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Critical daylength</Name>
+            <Name>CriticalDaylength</Name>
             <Caption>Critical daylength</Caption>
             <Description>Daylength for entry into diapause</Description>
             <Type>2</Type>
@@ -75,15 +75,15 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>StartDateShift</Name>
-            <Caption>StartDateShift</Caption>
+            <Name>DiapauseOnGround</Name>
+            <Caption>Winter on ground</Caption>
             <Description/>
-            <Type>2</Type>
+            <Type>0</Type>
             <Rect>165 10 185 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>15</DefaultValue>
-            <MinValue>-30</MinValue>
-            <MaxValue>30</MaxValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
