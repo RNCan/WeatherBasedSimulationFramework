@@ -77,7 +77,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA: filePath += "Russia_518_inventory.csv"; break;
-		case SOPFEU_2013: filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc171005.csv": "";
+		case SOPFEU_2013: filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv": "";
 		}
 
 		return filePath;

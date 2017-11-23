@@ -9,8 +9,7 @@
 //
 #include "afxres.h"
 #include "WeatherBasedSimulationUI.h"
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -85,7 +84,7 @@ BEGIN
     BUTTON      ID_TOOLS_OPTIONS
     SEPARATOR
     BUTTON      ID_WEATHER_UPDATER
-	BUTTON      ID_HOURLY_EDITOR
+    BUTTON      ID_HOURLY_EDITOR
     BUTTON      ID_DAILY_EDITOR
     BUTTON      ID_NORMALS_EDITOR
     BUTTON      ID_MATCH_STATION
@@ -402,10 +401,10 @@ BEGIN
     POPUP "&Outils"
     BEGIN
         MENUITEM "Administrateur de fichiers...", ID_TOOLS_FILE_MANAGER
-		MENUITEM "TéléchargeurMétéo...", ID_WEATHER_UPDATER
-		MENUITEM "ÉditeurHoraire...", ID_HOURLY_EDITOR
-		MENUITEM "ÉditeurQuotidien...", ID_DAILY_EDITOR
-		MENUITEM "ÉditeurNormales...", ID_NORMALS_EDITOR
+        MENUITEM "TéléchargeurMétéo...",        ID_WEATHER_UPDATER
+        MENUITEM "ÉditeurHoraire...",           ID_HOURLY_EDITOR
+        MENUITEM "ÉditeurQuotidien...",         ID_DAILY_EDITOR
+        MENUITEM "ÉditeurNormales...",          ID_NORMALS_EDITOR
         MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM "&Fusion de fichiers...",      ID_TOOLS_MERGEFILES
         MENUITEM SEPARATOR
@@ -767,12 +766,16 @@ END
 STRINGTABLE
 BEGIN
     ID_MATCH_STATION        "Afficher les stations appariées pour une simulation\nAfficher stations appariées"
-	ID_HOURLY_EDITOR		"Affichier ou éditer des bases de données horaire\nOuvrir ÉditeurHoraire"
-	ID_DAILY_EDITOR			"Affichier ou éditer des bases de données quotidiennes\nOuvrir EditeurQuotidien"
-	ID_NORMALS_EDITOR		"Affichier ou éditer des bases de données normales\nOuvrir EditerurNormales"
-	ID_WEATHER_UPDATER		"Affichier ou éditer des projets du TéléchargeurMétéo\nOuvrir TéléchargeurMétéo"
     ID_STATISTIC            "Statistique affichée dans le volet des résultats\nStatistique"
     ID_EXECUTE              "Exécute tous les éléments cochés\nExécuter cochés"
+END
+
+STRINGTABLE
+BEGIN
+    ID_HOURLY_EDITOR        "Affichier ou éditer des bases de données horaire\nOuvrir ÉditeurHoraire"
+    ID_DAILY_EDITOR         "Affichier ou éditer des bases de données quotidiennes\nOuvrir EditeurQuotidien"
+    ID_NORMALS_EDITOR       "Affichier ou éditer des bases de données normales\nOuvrir EditerurNormales"
+    ID_WEATHER_UPDATER      "Affichier ou éditer des projets du TéléchargeurMétéo\nOuvrir TéléchargeurMétéo"
 END
 
 STRINGTABLE
@@ -795,8 +798,8 @@ BEGIN
     ID_TOOLS_LOC_EDITOR     "Permet d'afficher les listes de localisations du projet\nÉditeur de localisations"
     ID_TOOLS_OPTIONS        "Options\nOptions"
     ID_EXPORT_NOW           "Sauvegarde le fichier dans le répertoire de sortie\nExporter"
-    ID_EXPORT_SPREADSHEET1  "Envoyer l'élément ver le chiffrier I\nVers chiffrier I"
-    ID_EXPORT_SPREADSHEET2  "Envoyer l'élément ver le chiffrier II\nVers chiffrier II"
+    ID_EXPORT_SPREADSHEET1  "Envoyer l'élément vers Excel\nVers Excel"
+    ID_EXPORT_SPREADSHEET2  "Envoyer l'élément vers Libre Office\nVers Libre Office"
     ID_EXPORT_OPEN_DIRECTORY 
                             "Ouvrir le répertoire de sortie dans l'Explorateur Windows\nOuvrir répertoire"
     ID_EXPORT_CHECK         "Exporter automatiquement le ficher lors de l'exécution\nAuto exporte"
@@ -908,11 +911,11 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
-        MENUITEM "&Files Manager...",		 ID_TOOLS_FILE_MANAGER
-		MENUITEM "WeatherUpdater...",		ID_WEATHER_UPDATER
-		MENUITEM "HourlyEditor...",			ID_HOURLY_EDITOR
-		MENUITEM "DailyEditor...",			ID_DAILY_EDITOR
-		MENUITEM "NormalsEditor...",		ID_NORMALS_EDITOR
+        MENUITEM "&Files Manager...",           ID_TOOLS_FILE_MANAGER
+        MENUITEM "WeatherUpdater...",           ID_WEATHER_UPDATER
+        MENUITEM "HourlyEditor...",             ID_HOURLY_EDITOR
+        MENUITEM "DailyEditor...",              ID_DAILY_EDITOR
+        MENUITEM "NormalsEditor...",            ID_NORMALS_EDITOR
         MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM "Merge&Files...",              ID_TOOLS_MERGEFILES
         MENUITEM SEPARATOR
@@ -1269,13 +1272,16 @@ END
 STRINGTABLE
 BEGIN
     ID_MATCH_STATION        "Show matched stations for the current simulation\nShow Matched Stations"
-	ID_HOURLY_EDITOR		"Visualize and edit hourly databases\nOpen HourlyEditor"
-	ID_DAILY_EDITOR			"Visualize and edit daily databases\nOpen DailyEditor"
-	ID_NORMALS_EDITOR		"Visualize and edit Normals databases\nOpen NormalsEditor"
-	ID_WEATHER_UPDATER		"Visualize and edit WeatherUpdater project\nOpen WeatherUpdater"
-
     ID_STATISTIC            "Statistic showned in the result pane\nStatistic"
     ID_EXECUTE              "Execute all checked components\nExecute Checked"
+END
+
+STRINGTABLE
+BEGIN
+    ID_HOURLY_EDITOR        "Visualize and edit hourly databases\nOpen HourlyEditor"
+    ID_DAILY_EDITOR         "Visualize and edit daily databases\nOpen DailyEditor"
+    ID_NORMALS_EDITOR       "Visualize and edit Normals databases\nOpen NormalsEditor"
+    ID_WEATHER_UPDATER      "Visualize and edit WeatherUpdater project\nOpen WeatherUpdater"
 END
 
 STRINGTABLE
@@ -1298,8 +1304,8 @@ BEGIN
     ID_TOOLS_LOC_EDITOR     "Location list editor\nLocalion List Editor"
     ID_TOOLS_OPTIONS        "Options\nOptions"
     ID_EXPORT_NOW           "Save results in the output directory\nExport Now"
-    ID_EXPORT_SPREADSHEET1  "Send export file to the spreadsheet I\nTo Spreadsheet I"
-    ID_EXPORT_SPREADSHEET2  "Send export file to the spreadsheet II\nTo Spreadsheet II"
+    ID_EXPORT_SPREADSHEET1  "Send export file to Excel\nTo Excel"
+    ID_EXPORT_SPREADSHEET2  "Send export file to Libre Office\nTo Libre Office"
     ID_EXPORT_OPEN_DIRECTORY 
                             "Open output directoy in Windows Explorer\nOpen Directory"
     ID_EXPORT_CHECK         "Automaticly save result at execution\nAuto Export"
