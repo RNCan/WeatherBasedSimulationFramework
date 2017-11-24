@@ -78,6 +78,21 @@ namespace WBSF
 		return msg;
 	}
 
+	class CTest
+	{
+	public:
+
+		CTest(double var)
+		{
+			m_var = var;
+		}
+		~CTest()
+		{
+			m_var = -1;
+		}
+
+		double m_var;
+	};
 	//************************************************************************************************
 	// Daily method
 	
@@ -86,15 +101,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 		
+
+
 		//if daily data, compute sub-daily data
 		if (m_weather.IsDaily())
 			m_weather.ComputeHourlyVariables();
 		
-		//Init spruce budworm data
-		//CModelStatVector SBWStat;
 		
-		//GetSpruceBudwormBiology(m_weather, SBWStat);
-
 		//one CModelStatVector by generation
 		vector<CModelStatVector> TranosemaStat;
 		ExecuteDailyAllGenerations(TranosemaStat);
@@ -142,7 +155,7 @@ namespace WBSF
 
 			//OBL init
 			std::shared_ptr<CHost> pHostOBL = make_shared<CHost>(&stand.m_OBLStand);
-			pHostOBL->Initialize<CObliqueBandedLeafroller>(CInitialPopulation(p.Begin(), 0, 500, 100, OBL::L3D, RANDOM_SEX, true, 0));
+			pHostOBL->Initialize<CObliqueBandedLeafroller>(CInitialPopulation(p.Begin(), 0, 250, 100, OBL::L3D, RANDOM_SEX, true, 0));
 			stand.m_OBLStand.m_host.push_front(pHostOBL);
 
 			//SBW init
@@ -151,7 +164,7 @@ namespace WBSF
 			stand.m_SBWStand.m_defoliation = 0;
 			stand.m_SBWStand.m_bStopL22 = true;
 			std::shared_ptr<CSBWTree> pHostSBW = make_shared<CSBWTree>(&stand.m_SBWStand);
-			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 500, 100, SBW::L2o, RANDOM_SEX, false, 0));
+			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 250, 100, SBW::L2o, RANDOM_SEX, false, 0));
 			stand.m_SBWStand.m_host.push_front(pHostSBW);
 
 			//init tranosema
@@ -161,8 +174,8 @@ namespace WBSF
 
 			//Init host
 			pHostTranosema->m_nbMinObjects = 100;
-			pHostTranosema->m_nbMaxObjects = 2500;
-			pHostTranosema->Initialize(CInitialPopulation(TRef, 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
+			pHostTranosema->m_nbMaxObjects = 1250;
+			pHostTranosema->Initialize(CInitialPopulation(TRef, 0, 500, 100, m_diapauseAge, FEMALE, true, 0));
 			//pHostTranosema->Initialize(CInitialPopulation(p.Begin(), 0, 1000, 100, m_diapauseAge, FEMALE, true, 0));
 			
 

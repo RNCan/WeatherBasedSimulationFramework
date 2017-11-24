@@ -62,8 +62,8 @@ namespace WBSF
 
 //		void SetHost(CIndividualPtr pHost){ m_pHost = pHost; }
 	//	CIndividualPtr GetHost(){ return m_pHost; }
-	
-		CIndividualPtr m_pAssociateHost;
+		std::weak_ptr<CIndividual> m_pAssociateHost;
+		//CIndividualPtr m_pAssociateHost;
 	};
 
 	class CObliqueBandedLeafrollerEx : public CObliqueBandedLeafroller
@@ -129,7 +129,7 @@ namespace WBSF
 
 		virtual void Live(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
-		virtual void AdjustPopulation();
+		virtual bool AdjustPopulation();
 		virtual size_t GetNbObjectAlive()const;
 		virtual void HappyNewYear();
 		virtual double GetAI(bool bIncludeLast)const;

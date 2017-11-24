@@ -78,9 +78,9 @@ namespace WBSF
 
 		m_Nh = nbAttackable;
 
-		if (m_pAssociateHost != NULL)
+		if (!m_pAssociateHost.expired())
 		{
-			m_bDiapause = m_pAssociateHost->IsInDiapause(weather.GetTRef());
+			m_bDiapause = m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef());
 		}
 
 		CTranosema::Live(weather);
@@ -208,11 +208,32 @@ namespace WBSF
 		CModelStat statSBW;
 		m_SBWStand.GetStat(d, statSBW, -1);*/
 	}
-	void CTranosema_OBL_SBW_Stand::AdjustPopulation()
+	bool CTranosema_OBL_SBW_Stand::AdjustPopulation()
 	{
-		CTranosemaStand::AdjustPopulation();
-		//m_OBLStand.AdjustPopulation();
-		//m_SBWStand.AdjustPopulation();
+		bool bAdjuste = CTranosemaStand::AdjustPopulation();
+		
+		
+		if (m_OBLStand.AdjustPopulation())
+		{
+			//reselect bad ptr
+			const std::shared_ptr<WBSF::CHost>& pObjects = m_host.front();
+			for (CIndividualPtrContainer::iterator it = pObjects->begin(); it != pObjects->end(); it++)
+			{
+				CIndividual* pInd = it->get();
+				ASSERT(pInd != NULL);
+				CTranosema_OBL_SBW* pTranosema = static_cast<CTranosema_OBL_SBW*>(pInd);
+				ASSERT(pTranosema);
+
+				if (pTranosema->m_pAssociateHost.expired())
+				{
+					//this tranosema don't have host anymore
+					//select a new one
+					pTranosema->m_pAssociateHost = SelectRandomHost(false);
+				}
+			}
+		}
+
+		return bAdjuste;
 	}
 	size_t CTranosema_OBL_SBW_Stand::GetNbObjectAlive()const
 	{
