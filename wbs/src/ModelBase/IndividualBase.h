@@ -242,6 +242,8 @@ namespace WBSF
 		virtual void HappyNewYear();
 		virtual void PackPopulation();
 		virtual void UnpackPopulation();
+		virtual bool AdjustPopulation();
+		size_t GetNbPacked()const{ return m_nbPacked; }
 
 		size_t GetNbGeneration()const
 		{
@@ -268,8 +270,7 @@ namespace WBSF
 
 		double GetInitialPopulation()const{ return m_initialPopulation; }
 
-		void AdjustPopulation();
-		size_t GetNbPacked()const{ return m_nbPacked; }
+		
 
 		CStand* GetStand(){ return m_pStand; }
 		const CStand* GetStand()const { return m_pStand; }
@@ -307,7 +308,7 @@ namespace WBSF
 
 		virtual void Live(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
-		virtual void AdjustPopulation();
+		virtual bool AdjustPopulation();
 		virtual size_t GetNbObjectAlive()const;
 		virtual void HappyNewYear();
 		virtual double GetAI(bool bIncludeLast)const;

@@ -282,8 +282,9 @@ namespace WBSF
 		}
 	}
 
-	void CHost::AdjustPopulation()
+	bool CHost::AdjustPopulation()
 	{
+		bool bPopAdjusted = false;
 		size_t nbObjectsAlive = GetNbObjectAlive();
 		double nbBugsAlive = GetNbSpecimenAlive();
 		if (nbObjectsAlive > 0)
@@ -292,14 +293,17 @@ namespace WBSF
 			{
 				UnpackPopulation();
 				m_nbPacked--;
+				bPopAdjusted = true;
 			}
 			else if (nbObjectsAlive > m_nbMaxObjects)
 			{
 				PackPopulation();
 				m_nbPacked++;
+				bPopAdjusted = true;
 			}
 		}
 		
+		return bPopAdjusted;
 	}
 
 
@@ -389,7 +393,7 @@ namespace WBSF
 
 	void CStand::Live(const CWeatherDay& weather){ ASSERT(GetFirstHost() != NULL); GetFirstHost()->Live(weather); }
 	void CStand::GetStat(CTRef d, CModelStat& stat, size_t generation)	{ GetFirstHost()->GetStat(d, stat, generation); }
-	void CStand::AdjustPopulation()	{ GetFirstHost()->AdjustPopulation(); }
+	bool CStand::AdjustPopulation()	{ return GetFirstHost()->AdjustPopulation(); }
 	size_t CStand::GetNbObjectAlive()const{ return GetFirstHost()->GetNbObjectAlive(); }
 	void CStand::HappyNewYear(){ GetFirstHost()->HappyNewYear(); }
 	double CStand::GetAI(bool bIncludeLast)const{ return GetFirstHost()->GetAI(bIncludeLast); }
