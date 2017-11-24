@@ -103,7 +103,7 @@ namespace WBSF
 
 		if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
 			m_bDiapause = false;
-
+		
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{

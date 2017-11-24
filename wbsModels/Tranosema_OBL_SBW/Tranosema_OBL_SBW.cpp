@@ -57,31 +57,45 @@ namespace WBSF
 		ASSERT(pStand->m_SBWStand.m_host.size() == 1);
 		
 		
-
-		double nbAttackable = 0;
-		
-		const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
-		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
+		if (m_sex == FEMALE && m_age >= ADULT)
 		{
-			size_t stage = (*it)->GetStage();
-			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-				nbAttackable += (*it)->GetScaleFactor();
+			//m_Nh is only update for female
+			
+			double nbAttackable = 0;
+
+			const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
+			for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
+			{
+				size_t stage = (*it)->GetStage();
+				if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
+				{
+					if ((*it)->IsAlive())
+						nbAttackable += (*it)->GetScaleFactor();
+				}
+			}
+
+			const std::shared_ptr<WBSF::CHost>& pSBWObjects = pStand->m_SBWStand.m_host.front();
+			for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
+			{
+				size_t stage = (*it)->GetStage();
+				if (stage >= SBW::L2 && stage <= SBW::L6)
+				{
+					if ((*it)->IsAlive())
+						nbAttackable += (*it)->GetScaleFactor();
+				}
+
+			}
+
+			m_Nh = nbAttackable;
 		}
 
-		const std::shared_ptr<WBSF::CHost>& pSBWObjects = pStand->m_SBWStand.m_host.front();
-		for (auto it = pSBWObjects->begin(); it != pSBWObjects->end(); it++)
-		{
-			size_t stage = (*it)->GetStage();
-			if (stage >= SBW::L2 && stage <= SBW::L6)
-				nbAttackable += (*it)->GetScaleFactor();
-		}
-
-		m_Nh = nbAttackable;
 
 		if (!m_pAssociateHost.expired())
 		{
 			m_bDiapause = m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef());
 		}
+		
+		
 
 		CTranosema::Live(weather);
 	}
@@ -108,11 +122,21 @@ namespace WBSF
 		}
 	}
 
-	// kills by attrition, old age and end of season
+	// kills when host die
 	// Output:  Individual's state is updated to follow update
 	void CTranosema_OBL_SBW::Die(const CWeatherDay& weather)
 	{
 		CTranosema::Die(weather);
+		if (!m_pAssociateHost.expired())
+		{
+			//if the associat host die, the parazite also die
+			if (!m_pAssociateHost.lock()->IsAlive())
+			{
+				m_status = DEAD;
+				m_death = OTHERS;
+			}
+		}
+
 	}
 
 	//*****************************************************************************
@@ -188,7 +212,10 @@ namespace WBSF
 		{
 			size_t stage = (*it)->GetStage();
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-				stat[S_NB_OBL] += (*it)->GetScaleFactor();
+			{
+				if ((*it)->IsAlive())
+					stat[S_NB_OBL] += (*it)->GetScaleFactor();
+			}
 
 			if (stage == OBL::L3D)
 				stat[S_NB_OBL_L3D] += (*it)->GetScaleFactor();
@@ -199,7 +226,10 @@ namespace WBSF
 		{
 			size_t stage = (*it)->GetStage();
 			if (stage >= SBW::L2 && stage <= SBW::L6)
-				stat[S_NB_SBW] += (*it)->GetScaleFactor();
+			{
+				if ((*it)->IsAlive())
+					stat[S_NB_SBW] += (*it)->GetScaleFactor();
+			}
 		}
 
 		/*CModelStat statOBL;
@@ -272,12 +302,16 @@ namespace WBSF
 		ASSERT(!pSBWObjects->empty());
 
 
-		double nbViable = 0;
+		double nbAttackable = 0;
 		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 		{
 			size_t stage = (*it)->GetStage();
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-				nbViable += (*it)->GetScaleFactor();
+			{
+				if ((*it)->IsAlive())
+					nbAttackable += (*it)->GetScaleFactor();
+			}
+
 		}
 		
 		if (bUseSBW)
@@ -286,20 +320,26 @@ namespace WBSF
 			{
 				size_t stage = (*it)->GetStage();
 				if (stage >= SBW::L2 && stage <= SBW::L6)
-					nbViable += (*it)->GetScaleFactor();
+				{
+					if ((*it)->IsAlive())
+						nbAttackable += (*it)->GetScaleFactor();
+				}
 			}
 		}
 		
-		double rand = RandomGenerator().Rand(0.0, nbViable);
+		double rand = RandomGenerator().Rand(0.0, nbAttackable);
 		//select between OBL and SBW
-		nbViable = 0;
+		nbAttackable = 0;
 		for (auto it = pOBLObjects->begin(); it != pOBLObjects->end() && pHost.get()==NULL; it++)
 		{
 			size_t stage = (*it)->GetStage();
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-				nbViable += (*it)->GetScaleFactor();
+			{
+				if ((*it)->IsAlive())
+					nbAttackable += (*it)->GetScaleFactor();
+			}
 
-			if (nbViable >= rand)
+			if (nbAttackable >= rand)
 				pHost = *it;
 		}
 
@@ -309,13 +349,17 @@ namespace WBSF
 			{
 				size_t stage = (*it)->GetStage();
 				if (stage >= SBW::L2 && stage <= SBW::L6)
-					nbViable += (*it)->GetScaleFactor();
+				{
+					if ((*it)->IsAlive())
+						nbAttackable += (*it)->GetScaleFactor();
+				}
 
-				if (nbViable >= rand)
+				if (nbAttackable >= rand)
 					pHost = *it;
 			}
 		}
 
+		ASSERT(pHost);
 		return pHost;
 	}
 }
