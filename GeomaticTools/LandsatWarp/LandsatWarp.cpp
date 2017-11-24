@@ -31,7 +31,7 @@ namespace WBSF
 {
 
 
-	const char* CLandsatWarp::VERSION = "1.0.0";
+	const char* CLandsatWarp::VERSION = "1.1.0";
 	const int CLandsatWarp::NB_THREAD_PROCESS = 2;
 
 

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.1	23/11/2017  Rémi Saint-Amant	Avoid warning when pixel is no data
 // 1.0.0	17/11/2017	Rémi Saint-Amant	Creation
 
 
@@ -16,10 +17,6 @@
 
 #include "BreaksImage.h"
 #include "Basic/OpenMP.h"
-//#include "StdFile.h"
-//#include "Basic/UtilTime.h"
-//#include "Basic/UtilMath.h"
-//#include "Geomatic/landsatDataset.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -31,7 +28,7 @@ namespace WBSF
 {
 
 
-	const char* CBreaksImage::VERSION = "1.0.0";
+	const char* CBreaksImage::VERSION = "1.0.1";
 	std::string CBreaksImage::GetDescription(){ return  std::string("BreaksImage version ") + CBreaksImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CBreaksImage::NB_THREAD_PROCESS = 2;
 
@@ -384,23 +381,26 @@ namespace WBSF
 
 					for (size_t i = 0; i < window1.size(); i++)//for all breaks
 					{
-						size_t iz = (size_t)(window1[i]->at(x, y) - m_options.m_firstYear);
-
-						if (iz < window2.GetNbScenes())
+						if (window1[i]->IsValid(x, y))
 						{
-							CLandsatPixel pixel = window2.GetPixel(iz, x, y);
+							size_t iz = (size_t)(window1[i]->at(x, y) - m_options.m_firstYear);
 
-							if (!outputData.empty())
+							if (iz < window2.GetNbScenes())
 							{
-								for (size_t z = 0; z < pixel.size(); z++)
-									outputData[i *window2.GetSceneSize() + z][xy] = pixel[z];
-							}
-						}
-						else
-						{
-#pragma omp atomic
-							bInvalid++;
+								CLandsatPixel pixel = window2.GetPixel(iz, x, y);
 
+								if (!outputData.empty())
+								{
+									for (size_t z = 0; z < pixel.size(); z++)
+										outputData[i *window2.GetSceneSize() + z][xy] = pixel[z];
+								}
+							}
+							else
+							{
+#pragma omp atomic
+								bInvalid++;
+
+							}
 						}
 					}
 #pragma omp atomic 
@@ -414,7 +414,7 @@ namespace WBSF
 		}//critical
 
 		if (bInvalid>0)
-			cout << "WARNING: invalid breaks value. Breaks must range from 0 to number of scenes -1 or from the fist year to the last year" << endl;
+			cout << "WARNING: invalid breaks value (" << to_string(bInvalid) << "). Breaks must range from 0 to number of scenes - 1 or from the fist year to the last year" << endl;
 
 	}
 
@@ -481,16 +481,7 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		//if (m_options.m_bComputeStats)
-			//outputDS.ComputeStats(m_options.m_bQuiet);
-		//if (!m_options.m_overviewLevels.empty())
-			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 		outputDS.Close(m_options);
-
-		//if (m_options.m_bComputeStats)
-			//debugDS.ComputeStats(m_options.m_bQuiet);
-		//if (!m_options.m_overviewLevels.empty())
-			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 		debugDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
