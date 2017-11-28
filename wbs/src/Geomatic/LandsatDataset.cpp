@@ -573,9 +573,9 @@ namespace WBSF
 			case Landsat::B7:
 			case Landsat::QA:
 			case Landsat::JD:			val = LandsatPixel::operator[](i); break;
-			case Landsat::I_NBR:		val = NBR(); break;
-			case Landsat::I_NDVI:		val = NDVI(); break;
-			case Landsat::I_NDMI:		val = NDMI(); break;
+			case Landsat::I_NBR:		val = max(-10000.0, min(10000.0, 10000 * NBR())); break;
+			case Landsat::I_NDVI:		val = max(-10000.0, min(10000.0, 10000 * NDVI())); break;
+			case Landsat::I_NDMI:		val = max(-10000.0, min(10000.0, 10000 * NDMI())); break;
 			case Landsat::I_TCB:		val = TCB(); break;
 			case Landsat::I_TCG:		val = TCG(); break;
 			case Landsat::I_TCW:		val = TCW(); break;
