@@ -25,11 +25,17 @@
     <ProjectReference Include="AnnLib.vcxproj">
       <Project>{22c6541c-c3ec-449a-bb85-31e28fc783bc}</Project>
     </ProjectReference>
+    <ProjectReference Include="cctz.vcxproj">
+      <Project>{c5c95523-3635-4df4-8fb8-f51468e3938d}</Project>
+    </ProjectReference>
     <ProjectReference Include="ChartCtrl.vcxproj">
       <Project>{31ee05fc-1ca1-42b8-9da1-25f637785e4d}</Project>
     </ProjectReference>
     <ProjectReference Include="hxGrid.vcxproj">
       <Project>{9e652079-404d-43c5-8c8e-39736aeb3f7a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="JSON.vcxproj">
+      <Project>{2793eb11-0862-4f8c-85ac-4d2d2702e493}</Project>
     </ProjectReference>
     <ProjectReference Include="KMeanLocal.vcxproj">
       <Project>{01ecf23d-14df-4a65-a75a-6faea5cd4dd6}</Project>

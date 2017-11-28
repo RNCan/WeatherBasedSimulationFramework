@@ -26,7 +26,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2793EB11-0862-4F8C-85AC-4D2D2702E493}</ProjectGuid>
-    <RootNamespace>AnnLib</RootNamespace>
+    <RootNamespace>JSON</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

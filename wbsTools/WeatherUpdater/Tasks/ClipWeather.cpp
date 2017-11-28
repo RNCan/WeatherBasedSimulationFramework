@@ -362,8 +362,8 @@ namespace WBSF
 
 		string shapeFilePath = TrimConst(Get(SHAPEFILE));
 		string locFilePath = TrimConst(Get(LOC_FILEPATH));
-		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;");
-		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
+		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;, ");
+		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;, ");
 		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
 		CWVariables vars(Get(VARIABLES));
 
@@ -407,7 +407,7 @@ namespace WBSF
 		}
 		
 		
-		callback.PushTask("Merge Normals", inputDB.size());
+		callback.PushTask("Crop Normals", inputDB.size());
 
 		int nbStationAdded = 0;
 		for (size_t i = 0; i < inputDB.size() && msg; i++)
@@ -416,12 +416,11 @@ namespace WBSF
 			inputDB.Get(station, i);
 
 			CGeoPoint pt(station.m_lon, station.m_lat, PRJ_WGS_84);
-			bool bRect = boundingBox.IsRectNull() || boundingBox.PtInRect(station);
+			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(station);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(pt);
 			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(station.m_ID) != NOT_INIT;
 			bool bLocExclude = locExclude.FindByID(station.m_ID) == NOT_INIT;
-			if (bRect&&bShape&&bLocInclude&&!bLocExclude)
-
+			if (bRect&&bShape&&bLocInclude&&bLocExclude)
 			{
 				msg = outputDB.Add(station);
 				if (msg)

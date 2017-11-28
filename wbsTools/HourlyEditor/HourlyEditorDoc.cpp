@@ -365,7 +365,7 @@ void CHourlyEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUp
 		{
 			CWaitCursor wait;
 			assert(i < m_pDatabase->size());
-			m_pStation->Reset();
+			m_pStation->clear();
 			msg = m_pDatabase->Get(*m_pStation, i);
 			assert(m_pStation->IsInit());
 			
@@ -376,7 +376,7 @@ void CHourlyEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUp
 		}
 		else
 		{
-			m_pStation->Reset();
+			m_pStation->clear();
 		}
 	}
 

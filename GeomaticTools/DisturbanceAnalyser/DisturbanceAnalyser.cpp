@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.3.1	27/11/2017	Rémi Saint-Amant	Bug correction
 // 2.3.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add cloud improvement. Remove second disturbance of the same type. trigger have change
 // 2.2.4	11/07/2016	Rémi Saint-Amant	Add export series
 // 2.2.3	05/07/2016	Rémi Saint-Amant	Bug correction in reading despike and trigger
@@ -75,7 +76,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "2.3.0";
+static const char* version = "2.3.1";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
 //static const int OTHER_CODE = 100;
@@ -108,6 +109,8 @@ static const float NO_IMAGE_NO_DATA = -99999;
 //-te -45300 6791400 -35300 6797400
 //-te 1708000 6832000 1733600 6857600
 //-multi -te -55300 6786400 -35300 6797400
+//REM v2.3.0 ---PLANTE-- pour ce petit subset de la tuile T70
+// -overwrite -te -2153820 8514900 -2151960 8518560  -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 2048 2048 -ot Int16 -multi -dstnodata -32768 -IOCPU 1 -co "compress=LZW" -co "BIGTIFF=YES" --config GDAL_CACHEMAX 1024 -of VRT -Trigger "NBR < 0.1" -NbDisturbances 6  -mask "U:\gis\#projets\LAQ\ANALYSE_CA\20160909_SR_run12\AAFC_Canada_2013_v2_masque120_181_v3_maskedOcean.tif" -maskvalue 1  "U:\GIS\#projets\LAQ\ANALYSE_CA\v11\See5_Dem_T101234_mean_val_1299_v8" "U:\gis1\landsat_sr\mos\20160909_MergeImages\VRT_L578_8417_local.vrt" "U:\GIS\#projets\LAQ\DATA\MASK_dem\VRT_DEM_v4.vrt" "U:\GIS\#documents\TestCodes\DisturbanceAnalyser\BA_T70_2.vrt"
 
 
 
@@ -368,7 +371,7 @@ public:
 			m_despike.reset();
 
 			//for (iterator it = begin(); it != end() && it + 1 != end() && it + 2 != end(); it++)
-			for (size_t i = 0; i < size() - 2; i++)
+			for (size_t i = 0; (i+2) < size(); i++)
 				m_despike.set(i + 1, despike.IsSpiking(at(i), at(i + 1), at(i + 2)));
 		}
 
@@ -415,8 +418,8 @@ public:
 
 		static const COptionDef OPTIONS[] = 
 		{
-			{ "-Trigger", 3, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-			{ "-Despike", 3, "dt op dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Trigger", 1, "\"tt op th\"", true, "Add optimization trigger to execute decision tree when comparing T - 1 with T + 1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold.Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Despike", 2, "dt dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
 			{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
 			{ "-ExportBands",0,"",false,"Export disturbances scenes."},
@@ -472,16 +475,26 @@ public:
 		if (IsEqual(argv[i], "-Trigger"))
 		{
 			string str = argv[++i];
-			TIndices type = GetIndiceType(str);
-			string op = argv[++i];
-			double threshold = atof(argv[++i]);
-
-			if (type != I_INVALID)
+			ReplaceString(str, "<", " < ");
+			ReplaceString(str, ">", " > ");
+			StringVector p(str, " ");
+			if (p.size() == 3)
 			{
-				if (CIndices::IsValidOp(op))
-					m_trigger.push_back(CIndices(type, op, threshold));
+				TIndices type = GetIndiceType(p[0]);
+				string op = p[1];
+				double threshold = atof(p[2].c_str());
+
+				if (type != I_INVALID)
+				{
+					if (CIndices::IsValidOp(op))
+						m_trigger.push_back(CIndices(type, op, threshold));
+					else
+						msg.ajoute(op + " is an invalid operator for -Trigger option");
+				}
 				else
-					msg.ajoute(op + " is an invalid operator for -Trigger option");
+				{
+					msg.ajoute(str + " is an invalid type for -Trigger option");
+				}
 			}
 			else
 			{
@@ -493,17 +506,11 @@ public:
 		{
 			string str = argv[++i];
 			TIndices type = GetIndiceType(str);
-			//string op = argv[++i];
 			double threshold = atof(argv[++i]);
-			
 
 			if (type != I_INVALID)
 			{
-				//if (CIndices::IsValidOp(op))
-					m_despike.push_back(CIndices(type, "<", threshold));
-				//else
-					//msg.ajoute(op + " is an invalid operator for -Despike option");
-				
+				m_despike.push_back(CIndices(type, "<", threshold));
 			}
 			else
 			{
@@ -1238,44 +1245,15 @@ void CDisterbanceAnalyser::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& p
 	//close output
 	m_options.m_timerWrite.Start();
 	for(size_t i=0; i<outputDS.size(); i++)
-	{
-		//if( m_options.m_bComputeStats )
-		//	outputDS[i].ComputeStats(i==0?m_options.m_bQuiet:true);
-		//if( !m_options.m_overviewLevels.empty() )
-			//outputDS[i].BuildOverviews(m_options.m_overviewLevels, i==0?m_options.m_bQuiet:true);
 		outputDS[i].Close(m_options);
-	}
 
-	//if( m_options.m_bComputeStats )
-	//	fireSeverityDS.ComputeStats(true);
-	//if( !m_options.m_overviewLevels.empty() )
-		//fireSeverityDS.BuildOverviews(m_options.m_overviewLevels, true);
 	fireSeverityDS.Close(m_options);
 
 	for(size_t i=0; i<exportBandsDS.size(); i++)
-	{//
-		//if( m_options.m_bComputeStats )
-			//exportBandsDS[i].ComputeStats(true); 
-		//if( !m_options.m_overviewLevels.empty() )
-			//exportBandsDS[i].BuildOverviews(m_options.m_overviewLevels, true);
 		exportBandsDS[i].Close(m_options);
-	}
 
-
-	//if (m_options.m_bComputeStats)
-		//exportTSDS.ComputeStats(true);
-	//if (!m_options.m_overviewLevels.empty())
-		//exportTSDS.BuildOverviews(m_options.m_overviewLevels, true);
 	exportTSDS.Close(m_options);
-
-	
-	//if (m_options.m_bComputeStats)
-		//debugDS.ComputeStats(true);
-	//if (!m_options.m_overviewLevels.empty())
-		//debugDS.BuildOverviews(m_options.m_overviewLevels, true);
 	debugDS.Close(m_options);
-	
-
 		
 	m_options.m_timerWrite.Stop();
 		
@@ -1311,7 +1289,7 @@ void CDisterbanceAnalyser::LoadData(const CBandsHolder& bandHolder1, const CBand
 			for (size_t z = 0; z < landsat.GetNbScenes(); z++)
 			{
 				CLandsatPixel pixel = ((CLandsatWindow&)landsat).GetPixel(z, x, y);
-				//if (pixel.IsInit())
+
 				if (pixel.IsValid())
 				{
 					data[x][y].push_back(pixel);
