@@ -850,6 +850,7 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
 		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
 		const CModelInputVector& param = pResult->GetMetadata().GetParameterSet();
+		StringVector SSI = loc.GetSSIHeader();
 		//Write header
 		{
 			std::string line;
@@ -860,7 +861,11 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 				if( variables[j].m_dimension == LOCATION )
 				{
-					string tmp = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
+					string tmp = CLocation::GetMemberTitle(variables[j].m_field);
+					if (variables[j].m_field == CLocation::SSI)
+						tmp = SSI.to_string(",");//replace default name by real SSI name
+
+					//tmp = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
 					std::replace(tmp.begin(), tmp.end(), ',', listDelimiter);
 
 					line += tmp;
@@ -925,7 +930,23 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 					{
 						switch (variables[j].m_dimension)
 						{
-						case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
+						case LOCATION:
+							
+							if (variables[j].m_field == CLocation::SSI)
+							{
+								for (size_t k = 0; k < SSI.size(); k++)
+								{
+									if (k > 0)
+										tmp += listDelimiter;
+									tmp += loc[lNo].GetSSI(SSI[k]);
+								}
+							}
+							else
+							{
+								tmp = loc[lNo].GetMember(variables[j].m_field);
+							}
+
+							break;
 						case PARAMETER:	tmp = param[pNo].GetName(); break;
 						case REPLICATION: tmp = ToString(rNo + 1); break;
 						case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;

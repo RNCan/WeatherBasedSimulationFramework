@@ -195,73 +195,6 @@ BEGIN
     BUTTON      ID_REMOVE
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 417, 74
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "Site Specific Extraction"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
-BEGIN
-    LTEXT           "Grid file path:",-1,7,3,44,8
-    CONTROL         "Extract elevation",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,23,71,10
-    CONTROL         "Extract slope and aspect",IDC_MAP_EXTRACT_EXPOSITION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,99,10
-    PUSHBUTTON      "Ok",IDOK,297,52,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,360,52,50,14
-    CONTROL         "Replace only -999 values",IDC_MAP_EXTRACT_MISSING,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,51,108,10
-    COMBOBOX        IDC_SSI_METHOD,122,24,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,58,0,352,14
-    LTEXT           "Extraction Interpolation Method:",-1,163,37,106,8,NOT WS_VISIBLE
-    CONTROL         "Other",IDC_MAP_EXTRACT_OTHER,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,153,39,32,10
-    CONTROL         "",IDC_MAP_TREE,"SysTreeView32",NOT WS_VISIBLE | WS_DISABLED | WS_BORDER | WS_HSCROLL | WS_TABSTOP,154,14,84,37
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_SIM_LOC_EXTRACT, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 410
-        VERTGUIDE, 58
-        VERTGUIDE, 276
-        BOTTOMMARGIN, 66
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog Info
-//
-
-IDD_SIM_LOC_EXTRACT DLGINIT
-BEGIN
-    IDC_SSI_METHOD, 0x403, 8, 0
-0x654e, 0x7261, 0x7365, 0x0074, 
-    IDC_SSI_METHOD, 0x403, 9, 0
-0x6942, 0x696c, 0x656e, 0x7261, "\000" 
-    IDC_SSI_METHOD, 0x403, 6, 0
-0x7543, 0x6962, 0x0063, 
-    IDC_GRID_FILE_PATH, 0x37c, 42, 0
-0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
-0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
-0x4d5f, 0x646f, 0x3e65, 
-    0
-END
-
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1569,9 +1502,9 @@ BEGIN
     CONTROL         "Pas d'exposition",IDC_GENLOC_NO_EXPOSITION,"Button",BS_AUTORADIOBUTTON | WS_GROUP,14,163,67,10
     CONTROL         "Exposition du DEM",IDC_GENLOC_EXPOSITION_FROM_DEM,
                     "Button",BS_AUTORADIOBUTTON,14,177,74,8
-    CONTROL         "Générer l'exposition",IDC_GENLOC_EXPOSITION,"Button",BS_AUTORADIOBUTTON,124,163,77,10
-    CONTROL         "Uniforme",IDC_GENLOC_UNIFORM,"Button",BS_AUTORADIOBUTTON | WS_GROUP,136,174,44,10
-    CONTROL         "Normale",IDC_GENLOC_NORMAL,"Button",BS_AUTORADIOBUTTON,136,184,42,10
+    CONTROL         "Générer l'exposition",IDC_GENLOC_EXPOSITION,"Button",BS_AUTORADIOBUTTON,124,161,77,10
+    CONTROL         "Uniforme",IDC_GENLOC_UNIFORM,"Button",BS_AUTORADIOBUTTON | WS_GROUP,136,172,44,10
+    CONTROL         "Normale",IDC_GENLOC_NORMAL,"Button",BS_AUTORADIOBUTTON,136,182,42,10
     GROUPBOX        "Délimitation de la sous-région",IDC_GENLOC_BOUNDINGBOX,7,204,259,65,BS_NOTIFY | WS_GROUP | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,136,277,50,14
     PUSHBUTTON      "Annuler",IDCANCEL,216,277,50,14
@@ -1969,6 +1902,26 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,135,294,50,15
     PUSHBUTTON      "Cancel",IDCANCEL,202,294,50,15
     CONTROL         "",IDC_VARIABLES_RADIUS,"MfcPropertyGrid",0x100,7,7,245,280
+END
+
+IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 417, 100
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Extraction d'information spécifique au site"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "Chemin du DEM :",-1,7,3,55,8
+    CONTROL         "Extraire l'élévation",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,23,75,10
+    CONTROL         "Extraire la pente et l'orientation",IDC_MAP_EXTRACT_EXPOSITION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,130,10
+    PUSHBUTTON      "Ok",IDOK,297,78,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,360,78,50,14
+    CONTROL         "Remplacer seulement les valeurs à -999",IDC_MAP_EXTRACT_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,82,171,10
+    COMBOBOX        IDC_SSI_METHOD,256,39,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,68,0,342,14
+    LTEXT           "Extraction Interpolation Method:",-1,223,26,106,8,NOT WS_VISIBLE
+    CONTROL         "Extraire la distance au litoral",IDC_MAP_EXTRACT_SHORE_DISTANCE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,73,10
 END
 
 
@@ -2730,6 +2683,15 @@ BEGIN
         BOTTOMMARGIN, 309
         HORZGUIDE, 287
         HORZGUIDE, 294
+    END
+
+    IDD_SIM_LOC_EXTRACT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 410
+        VERTGUIDE, 68
+        VERTGUIDE, 276
+        BOTTOMMARGIN, 92
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -4013,6 +3975,21 @@ BEGIN
     0
 END
 
+IDD_SIM_LOC_EXTRACT DLGINIT
+BEGIN
+    IDC_SSI_METHOD, 0x403, 8, 0
+0x654e, 0x7261, 0x7365, 0x0074, 
+    IDC_SSI_METHOD, 0x403, 9, 0
+0x6942, 0x696c, 0x656e, 0x7261, "\000" 
+    IDC_SSI_METHOD, 0x403, 6, 0
+0x7543, 0x6962, 0x0063, 
+    IDC_GRID_FILE_PATH, 0x37c, 42, 0
+0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
+0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
+0x4d5f, 0x646f, 0x3e65, 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4204,6 +4181,26 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 //
 // Dialog
 //
+
+IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 417, 100
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Site Specific Extraction"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "DEM file path:",-1,7,3,46,8
+    CONTROL         "Extract elevation",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,23,71,10
+    CONTROL         "Extract slope and aspect",IDC_MAP_EXTRACT_EXPOSITION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,99,10
+    PUSHBUTTON      "Ok",IDOK,297,78,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,360,78,50,14
+    CONTROL         "Replace only -999 values",IDC_MAP_EXTRACT_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,82,108,10
+    COMBOBOX        IDC_SSI_METHOD,256,39,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,58,0,352,14
+    LTEXT           "Extraction Interpolation Method:",-1,223,26,106,8,NOT WS_VISIBLE
+    CONTROL         "Extract shore distance",IDC_MAP_EXTRACT_SHORE_DISTANCE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,113,10
+END
 
 IDD_LINKED_WEA DIALOGEX 0, 0, 261, 130
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -5470,7 +5467,7 @@ END
 
 IDD_SIM_LOC_GENERATE DIALOGEX 0, 0, 259, 300
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Location Generator"
+CAPTION "B"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Generate from:",IDC_STATIC,7,9,48,8
@@ -5502,9 +5499,9 @@ BEGIN
     GROUPBOX        "Exposure:",IDC_GENLOC_EXPOSURE,7,153,243,50
     CONTROL         "No exposure",IDC_GENLOC_NO_EXPOSITION,"Button",BS_AUTORADIOBUTTON | WS_GROUP,14,167,56,10
     CONTROL         "Use DEM exposure",IDC_GENLOC_EXPOSITION_FROM_DEM,"Button",BS_AUTORADIOBUTTON,14,181,74,8
-    CONTROL         "Generate exposure",IDC_GENLOC_EXPOSITION,"Button",BS_AUTORADIOBUTTON,124,167,76,10
-    CONTROL         "Uniform",IDC_GENLOC_UNIFORM,"Button",BS_AUTORADIOBUTTON | WS_GROUP,136,178,40,10
-    CONTROL         "Normal",IDC_GENLOC_NORMAL,"Button",BS_AUTORADIOBUTTON,136,188,38,10
+    CONTROL         "Generate exposure",IDC_GENLOC_EXPOSITION,"Button",BS_AUTORADIOBUTTON,124,165,76,10
+    CONTROL         "Uniform",IDC_GENLOC_UNIFORM,"Button",BS_AUTORADIOBUTTON | WS_GROUP,136,176,40,10
+    CONTROL         "Normal",IDC_GENLOC_NORMAL,"Button",BS_AUTORADIOBUTTON,136,186,38,10
     GROUPBOX        "Sub-region boundaries",IDC_GENLOC_BOUNDINGBOX,7,211,243,63,BS_NOTIFY | WS_GROUP | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,109,279,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,200,279,50,14
@@ -5919,6 +5916,15 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_SIM_LOC_EXTRACT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 410
+        VERTGUIDE, 58
+        VERTGUIDE, 276
+        BOTTOMMARGIN, 92
+    END
+
     IDD_LINKED_WEA, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -6689,6 +6695,21 @@ END
 //
 // Dialog Info
 //
+
+IDD_SIM_LOC_EXTRACT DLGINIT
+BEGIN
+    IDC_SSI_METHOD, 0x403, 8, 0
+0x654e, 0x7261, 0x7365, 0x0074, 
+    IDC_SSI_METHOD, 0x403, 9, 0
+0x6942, 0x696c, 0x656e, 0x7261, "\000" 
+    IDC_SSI_METHOD, 0x403, 6, 0
+0x7543, 0x6962, 0x0063, 
+    IDC_GRID_FILE_PATH, 0x37c, 42, 0
+0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
+0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
+0x4d5f, 0x646f, 0x3e65, 
+    0
+END
 
 IDD_MODELS_OUTPUT DLGINIT
 BEGIN

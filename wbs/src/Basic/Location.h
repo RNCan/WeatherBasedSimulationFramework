@@ -66,7 +66,7 @@ namespace WBSF
 		static const char* GetMemberName(size_t i){ _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetMemberTitle(size_t d);
 		static const char* GetXMLFlag(){ return XML_FLAG; }
-		enum TDefaultSSI{ OPTIONAL_ID, SLOPE, ASPECT, USED_IT, DATA_FILE_NAME, TIME_ZONE, VARIABLES, YEARS, LITORAL_DIST1, LITORAL_WEIGHT1, LITORAL_DIST2, LITORAL_WEIGHT2, HORIZON, NB_DEFAULT_SSI };
+		enum TDefaultSSI{ OPTIONAL_ID, SLOPE, ASPECT, USED_IT, DATA_FILE_NAME, TIME_ZONE, VARIABLES, YEARS, SHORE_DIST, HORIZON, NB_DEFAULT_SSI };
 
 		static const char* GetDefaultSSIName(size_t i){ ASSERT(i >= 0 && i < NB_DEFAULT_SSI); return DEFAULT_SSI_NAME[i]; }
 		static const char* GetDefaultSSITitle(size_t i);

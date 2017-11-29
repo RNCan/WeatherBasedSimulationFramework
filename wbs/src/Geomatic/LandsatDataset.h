@@ -28,6 +28,8 @@ namespace WBSF
 
 		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
 		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
+		enum TCorr8 { NO_CORR8 = -1, C_CANADA, C_AUSTRALIA, C_USA, NB_CORR8_TYPE };
+
 
 		const char* GetSceneName(size_t s);
 		TDomain GetIndiceDomain(const std::string& str);
@@ -39,6 +41,8 @@ namespace WBSF
 		__int16 GetPathFromName(const std::string& title);
 		__int16 GetRowFromName(const std::string& title);
 		CTRef GetTRefFromName(const std::string& title);
+
+		TCorr8 GetCorr8(const std::string& str);
 	}
 
 	typedef __int16 LandsatDataType;
@@ -47,6 +51,8 @@ namespace WBSF
 	{
 	public:
 
+		
+	
 		CLandsatPixel();
 		void Reset();
 
@@ -70,7 +76,7 @@ namespace WBSF
 		Color8 G()const;
 		Color8 B()const;
 
-		void correction8to7();
+		void correction8to7(Landsat::TCorr8 type);
 
 		static double GetDespike(double pre, double spike, double post);
 
@@ -311,7 +317,7 @@ namespace WBSF
 		CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int buffer)const;
 		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
 
-		bool m_bCorr8;
+		Landsat::TCorr8 m_corr8;
 	};
 
 

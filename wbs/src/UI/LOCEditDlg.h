@@ -79,6 +79,9 @@ namespace WBSF
 		CPen			m_cellBorderPen;
 
 		std::vector<boost::dynamic_bitset<size_t>> m_bDataEdited;
+
+
+		
 	};
 
 
@@ -134,6 +137,9 @@ namespace WBSF
 
 
 		BOOL m_bEnable;
+
+
+		static ERMsg ExtractSSI(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bShoreDistance, bool bMissingOnly, CCallback& callback);
 	};
 
 

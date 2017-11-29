@@ -171,6 +171,19 @@ namespace WBSF
 
 		return op;
 	}
+	
+	Landsat::TCorr8 Landsat::GetCorr8(const std::string& str)
+	{
+		static const char* TYPE_NAME[NB_CORR8_TYPE] = { "CANADA", "AUSTRALIA", "USA" };
+		TCorr8 corr8 = NO_CORR8;
+		for (size_t i = 0; i < NB_CORR8_TYPE&&corr8 == NO_CORR8; i++)
+		{
+			if (IsEqualNoCase(str, TYPE_NAME[i]))
+				corr8 = (TCorr8)i;
+		}
+
+		return corr8;
+	}
 
 
 	using namespace WBSF::Landsat;
@@ -477,7 +490,7 @@ namespace WBSF
 	//****************************************************************************************************************
 	CLandsatWindow::CLandsatWindow() :
 		CRasterWindow(SCENES_SIZE),
-		m_bCorr8(false)
+		m_corr8(NO_CORR8)
 	{}
 
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
@@ -489,8 +502,8 @@ namespace WBSF
 			pixel[z] = (LandsatDataType)at(ii)->at(x, y);
 		}
 
-		if (m_bCorr8 && at(i*SCENES_SIZE)->GetCaptor() == 8 && pixel.IsValid())
-			pixel.correction8to7();
+		if (m_corr8!=NO_CORR8 && at(i*SCENES_SIZE)->GetCaptor() == 8 && pixel.IsValid())
+			pixel.correction8to7(m_corr8);
 
 		return pixel;
 	}
@@ -621,13 +634,25 @@ namespace WBSF
 		return bIsValid;
 	}
 
-	void CLandsatPixel::correction8to7()
+	void CLandsatPixel::correction8to7(Landsat::TCorr8 type)
 	{
-		static const double c0[SCENES_SIZE - 2] = { 0.00041, 0.00289, 0.00274, 0.00004, 0.00256, 0.0, -0.00327 };
-		static const double c1[SCENES_SIZE - 2] = { 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 };
+		
+		static const double c0[NB_CORR8_TYPE][SCENES_SIZE - 2] =
+		{
+			{ 129.3, 98.3, 66.0, 240.3, 113.4, 0.0, 51.6},
+			{ 4.1, 28.9, 27.4, 0.4, 25.6, 0.0, -32.7 },
+			{ 183.0, 123.0, 123.0, 448.0, 306.0, 0.0, 116.0 }
+		};
+		static const double c1[NB_CORR8_TYPE][SCENES_SIZE - 2] =
+		{
+			{ 0.6512, 0.74324, 0.76879, 0.87379, 0.88424, 1.0, 0.86283 },
+			{ 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 },
+			{ 0.8850, 0.93170, 0.93720,	0.83390, 0.86390, 1.0, 0.91650 }
+		};
+
 		for (size_t b = 0; b < SCENES_SIZE - 2; b++)
 		{
-			double newVal = c0[b] + c1[b] * at(b);
+			double newVal = c0[type][b] + c1[type][b] * at(b);
 			at(b) = (__int16)WBSF::LimitToBound(newVal, GDT_Int16, 1);
 		}
 

@@ -27,7 +27,7 @@ public:
 	BOOL m_bExtractElev;
 	BOOL m_bExtractSlopeAspect;
 	BOOL m_bMissingOnly;
-	BOOL m_bExtractOther;
+	BOOL m_bExtractShoreDistance;
 	int m_interpolationType;
 
 protected:

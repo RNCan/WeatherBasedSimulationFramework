@@ -478,8 +478,8 @@
 #define IDC_SCRIPT_ARG                  1233
 #define IDC_MAP_INPUT_FILEPATH2         1234
 #define IDC_MAP_EXTRACT_EXPOSITION2     1234
-#define IDC_MAP_EXTRACT_OTHER           1234
 #define IDC_SHOW_PROGRESS               1234
+#define IDC_MAP_EXTRACT_SHORE_DISTANCE  1234
 #define IDC_MAP_EXTRACT_MISSING         1235
 #define IDC_CRF_TYPE_OUT                1237
 #define IDC_CRF_LONG_NAME_OUT           1238

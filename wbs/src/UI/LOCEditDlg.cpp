@@ -13,6 +13,7 @@
 #include "UltimateGrid/ExcelTopHdg.h"
 #include "UltimateGrid/ExcelSideHdg.h"
 #include "FileManager/FileManager.h"
+#include "Basic/ApproximateNearestNeighbor.h"
 #include "geomatic/gdalBasic.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "UI/Common/AppOption.h"
@@ -45,7 +46,7 @@ namespace WBSF
 
 
 
-	ERMsg ExtractSSI(CLocationVector& locations, const string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bMissingOnly, CCallback& callback);
+	
 
 
 	BEGIN_MESSAGE_MAP(CLOCGridCtrl, CUGEditCtrl)
@@ -614,6 +615,7 @@ namespace WBSF
 						dlg.m_interpolationType,
 						dlg.m_bExtractElev,
 						dlg.m_bExtractSlopeAspect,
+						dlg.m_bExtractShoreDistance,
 						dlg.m_bMissingOnly,
 						progressDlg.GetCallback());
 			
@@ -708,6 +710,108 @@ namespace WBSF
 			m_wndToolBar.UpdateButton(i);
 
 		return FALSE;
+	}
+
+	ERMsg CLocDlg::ExtractSSI(CLocationVector& locations, const string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bShoreDistance, bool bMissingOnly, CCallback& callback)
+	{
+		ERMsg msg;
+
+		callback.PushTask("Extract specific site information", locations.size());
+		CGDALDatasetEx inputDS;
+		if (bExtractElev || bExtractSlopeAspect)
+			msg = inputDS.OpenInputImage(filePath);
+
+		CApproximateNearestNeighbor shore;
+		if (msg && bShoreDistance)
+		{
+			ifStream stream;
+			string filePath = GetApplicationPath() + "Layers/Shore.ann";
+			msg = stream.open(filePath, std::ios::binary);
+			if (msg)
+			{
+				shore << stream;
+				stream.close();
+			}
+		}
+		
+		
+
+
+		if (msg)
+		{
+			CGeoExtents extents = inputDS.GetExtents();
+			CProjectionPtr pPrj = inputDS.GetPrj();
+
+			CBandsHolder bandHolder(3);
+			if (bExtractElev || bExtractSlopeAspect)
+				msg = bandHolder.Load(inputDS, true);
+
+			if (msg)
+			{
+				CProjectionTransformation PT(PRJ_WGS_84, inputDS.GetPrjID());
+
+				//process all point
+				for (size_t i = 0; i < locations.size() && msg; i++)
+				{
+					if (bExtractElev || bExtractSlopeAspect)
+					{
+						//for all point in the table
+						CGeoPoint coordinate = locations[i];
+						coordinate.Reproject(PT);
+
+
+						//find position in the block
+						if (extents.IsInside(coordinate))
+						{
+							CGeoPointIndex xy = extents.CoordToXYPos(coordinate);
+
+							CGeoExtents xy_extent = extents.GetPixelExtents(xy);
+							bandHolder.LoadBlock(xy_extent);
+							CDataWindowPtr pWin = bandHolder.GetWindow(0, 0, 0, 3, 3);
+							float test = pWin->at(1, 1);
+
+							if (bExtractElev)
+							{
+								if (!bMissingOnly || locations[i].m_alt == -999)
+								{
+									if (pWin->IsValid(1, 1))
+										locations[i].m_alt = pWin->at(1, 1);
+								}
+							}
+
+							if (bExtractSlopeAspect)
+							{
+								if (!bMissingOnly || locations[i].GetSlope() == -999 || locations[i].GetAspect() == -999)
+								{
+									double slope = -999;
+									double aspect = -999;
+									pWin->GetSlopeAndAspect(1, 1, slope, aspect);
+									locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SLOPE), to_string(slope));
+									locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::ASPECT), to_string(aspect));
+								}
+							}
+						}
+					}
+
+					if (bShoreDistance)
+					{
+						CSearchResultVector shorePt;
+						VERIFY(shore.search(locations[i], 1, shorePt));
+						
+						double d = shorePt.front().m_distance/1000.0;//distance in km
+						locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d,1));
+					}
+
+					msg += callback.StepIt();
+				}//for all locations
+			}//if msg
+
+			inputDS.Close();
+		}//if msg
+
+		callback.PopTask();
+
+		return msg;
 	}
 
 	//************************************************************************
@@ -1056,80 +1160,5 @@ namespace WBSF
 
 
 
-	ERMsg ExtractSSI(CLocationVector& locations, const string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bMissingOnly, CCallback& callback)
-	{
-		ERMsg msg;
-
-		callback.PushTask("Extract specific site information", locations.size());
-		CGDALDatasetEx inputDS;
-		
-		msg = inputDS.OpenInputImage(filePath);
-		if (msg	)
-		{
-			CGeoExtents extents = inputDS.GetExtents();
-			CProjectionPtr pPrj = inputDS.GetPrj();
-
-			CBandsHolder bandHolder(3);
-			msg = bandHolder.Load(inputDS, true);
-
-			if (msg)
-			{
-				CProjectionTransformation PT(PRJ_WGS_84, inputDS.GetPrjID());
-
-				//process all point
-				for (size_t i = 0; i < locations.size()&&msg; i++)
-				{
-					//for all point in the table
-					CGeoPoint coordinate = locations[i];
-					coordinate.Reproject(PT);
-					
-
-					//find position in the block
-					if (extents.IsInside(coordinate))
-					{
-						CGeoPointIndex xy = extents.CoordToXYPos(coordinate);
-
-						CGeoExtents xy_extent = extents.GetPixelExtents(xy);
-						bandHolder.LoadBlock(xy_extent);
-						CDataWindowPtr pWin = bandHolder.GetWindow(0, 0, 0, 3, 3);
-						float test = pWin->at(1, 1);
-
-						if (bExtractElev)
-						{
-							if (!bMissingOnly || locations[i].m_alt == -999)
-							{
-								if (pWin->IsValid(1, 1))
-									locations[i].m_alt = pWin->at(1, 1);
-							}
-						}
-
-						if (bExtractSlopeAspect)
-						{
-							if (!bMissingOnly || locations[i].GetSlope() == -999 || locations[i].GetAspect() == -999)
-							{
-								double slope = -999;
-								double aspect = -999;
-								pWin->GetSlopeAndAspect(1, 1, slope, aspect);
-								locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SLOPE), to_string(slope));
-								locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::ASPECT), to_string(aspect));
-							}
-						}
-					}
-					else
-					{
-
-					}
-
-					msg += callback.StepIt();
-				}//for all locations
-			}//if msg
-
-			inputDS.Close();
-		}//if msg
-
-		callback.PopTask();
-
-		return msg;
-	}
-
+	
 }

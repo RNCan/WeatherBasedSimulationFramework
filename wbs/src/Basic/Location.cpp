@@ -33,7 +33,7 @@ namespace WBSF
 	const char* CLocation::MEMBER_NAME[NB_MEMBER] = { "ID", "Name", "Latitude", "Longitude", "Elevation", "SiteSpecificInformation" };
 	const char* CLocation::DEFAULT_SSI_NAME[NB_DEFAULT_SSI] =
 	{
-		"MergedStationIDs", "Slope", "Aspect", "UseIt", "DataFileName", "TimeZone", "Variables", "Years", "LitoralDistance1", "LitoralWeight1", "LitoralDistance2", "LitoralWeight2", "Horizon",//WaterHoldingCapacity...
+		"MergedStationIDs", "Slope", "Aspect", "UseIt", "DataFileName", "TimeZone", "Variables", "Years", "ShoreDistance", "Horizon"
 	};
 
 	StringVector CLocation::MEMBER_TITLE;
