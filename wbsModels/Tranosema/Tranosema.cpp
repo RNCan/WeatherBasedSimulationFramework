@@ -237,7 +237,9 @@ namespace WBSF
 		{
 			size_t s = GetStage();
 			stat[S_BROOD] += m_broods*m_scaleFactor;
-
+			
+			if (s >= ADULT)//individuals that rech adult stage (alive or dead)
+				stat[S_CUMUL_REATCH_ADULT] += m_scaleFactor;
 
 			if (IsAlive())
 			{

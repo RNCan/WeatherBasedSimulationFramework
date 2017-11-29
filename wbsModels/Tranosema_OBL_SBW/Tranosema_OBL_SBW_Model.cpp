@@ -3,6 +3,7 @@
 //
 // Description: CTranosema_OBL_SBW_Model is a BioSIM model of Tranosema and ObliqueBandedLeafroller model
 //*****************************************************************************
+// 29/11/2017	1.0.1	Rémi Saint-Amant	Add CulmulAdult
 // 21/11/2017	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
 
@@ -27,8 +28,8 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosema_OBL_SBW_Model::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, NB_DAILY_OUTPUT_EX };
-	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
+	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, NB_DAILY_OUTPUT_EX };
+	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition,CumulAdult";
 
 	//	
 	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
@@ -44,7 +45,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.0 (2017)";
+		VERSION = "1.0.1 (2017)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;

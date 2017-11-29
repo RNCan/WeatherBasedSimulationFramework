@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 28/11/2017	1.1.9	Rémi Saint-Amant    Add Cumul Adult
 // 14/11/2017	1.1.8	Rémi Saint-Amant    Change in annual behavior
 // 04/05/2017	1.1.7	Rémi Saint-Amant    New hourly generation
 // 25/05/2016	1.1.6	Rémi Saint-Amant	Some correction in annual model
@@ -35,8 +36,8 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosemaModel::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_DAY_LENGTH = O_D_ATTRITION, NB_DAILY_OUTPUT };
-	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition";
+	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, NB_DAILY_OUTPUT_EX };
+	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition,CumulAdult";
 
 	//	
 	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
@@ -52,7 +53,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.8 (2017)";
+		VERSION = "1.1.9 (2017)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -154,7 +155,7 @@ namespace WBSF
 		//merge generations vector into one output vector (max of 5 generations)
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
 		size_t maxG = min(NB_GENERATIONS, TranosemaStat.size()); 
-		m_output.Init(p.size(), p.Begin(), NB_GENERATIONS*NB_DAILY_OUTPUT, 0, DAILY_HEADER);
+		m_output.Init(p.size(), p.Begin(), NB_DAILY_OUTPUT_EX, 0, DAILY_HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
