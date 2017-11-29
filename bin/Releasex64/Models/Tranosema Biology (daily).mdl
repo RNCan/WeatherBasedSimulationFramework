@@ -145,13 +145,20 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Daylength</Name>
-            <Title>Daylength</Title>
+            <Name>Attrition_g0</Name>
+            <Title>Attrition_g0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult_g0</Name>
+            <Title>CumulAdult_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Egg_g1</Name>
@@ -212,6 +219,14 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulAdult_g1</Name>
+            <Title>CumulAdult_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g2</Name>
             <Title>Egg_g2</Title>
             <Units/>
@@ -266,7 +281,14 @@
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult_g2</Name>
+            <Title>CumulAdult_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Egg_g3</Name>
@@ -326,6 +348,14 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulAdult_g3</Name>
+            <Title>CumulAdult_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g4</Name>
             <Title>Egg_g4</Title>
             <Units/>
@@ -383,6 +413,14 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulAdult_g4</Name>
+            <Title>CumulAdult_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g5</Name>
             <Title>Egg_g5</Title>
             <Units/>
@@ -438,6 +476,22 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult_g5</Name>
+            <Title>CumulAdult_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Daylength</Name>
+            <Title>Daylength</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
