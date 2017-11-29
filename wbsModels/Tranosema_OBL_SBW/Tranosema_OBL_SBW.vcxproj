@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{99662559-9103-462D-8C79-EEB25880A8AD}</ProjectGuid>
+    <ProjectGuid>{A108A618-BC28-4BC5-B9BD-92B7E1847576}</ProjectGuid>
     <RootNamespace>CfSimWinDll</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>Tranosema-OBL-SBW</ProjectName>

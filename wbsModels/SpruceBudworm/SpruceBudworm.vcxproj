@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{99662559-9103-462D-8C79-EEB25880A8AD}</ProjectGuid>
+    <ProjectGuid>{2119DF6E-9E4E-496E-ABFD-BAEBEFAFCD06}</ProjectGuid>
     <RootNamespace>CfSimWinDll</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>Spruce Budworm Dispersal</ProjectName>
