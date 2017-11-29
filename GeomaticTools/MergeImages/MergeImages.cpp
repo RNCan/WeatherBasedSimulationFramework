@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
 // 3.0.0	31/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and. Remove all cloud remover
 // 2.1.3	27/05/2016	Rémi Saint-Amant	use JD -1 as no data
@@ -73,7 +74,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.1";
+	const char* CMergeImages::VERSION = "3.0.2";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -114,7 +115,7 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
 		m_meanType = NO_MEAN;
-		
+		m_corr8 = NO_CORR8;
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
@@ -127,7 +128,7 @@ namespace WBSF
 			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 			//			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
 			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and one neighbor select by MedianType when odd." },
-			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
+			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -201,7 +202,9 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
-			m_bCorrection8 = true;
+			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			if (m_corr8 == NO_CORR8)
+				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
 		else if (IsEqual(argv[i], "-Debug"))
 		{
@@ -555,7 +558,7 @@ namespace WBSF
 		{
 
 			CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
-			window.m_bCorr8 = m_options.m_bCorrection8;
+			window.m_corr8 = m_options.m_corr8;
 
 			InitMemory(bandHolder.GetSceneSize(), blockSize, outputData, debugData, statsData);
 			m_options.m_timerProcess.Start();

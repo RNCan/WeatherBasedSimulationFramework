@@ -44,7 +44,7 @@ namespace WBSF
 
 		size_t m_mergeType;
 		size_t m_medianType;
-		bool m_bCorrection8;
+		Landsat::TCorr8 m_corr8;
 		
 		bool m_bDebug;
 		bool m_bExportStats;

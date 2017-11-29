@@ -28,7 +28,7 @@ namespace WBSF
 
 		
 		bool m_bDebug;
-		bool m_bCorrection8;
+		Landsat::TCorr8 m_corr8;
 		TMean m_meanType;
 		//bool m_bFilterTCB;
 		//size_t m_bufferTCB;

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.1	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 1.1.0	15/11/2017	Rémi Saint-Amant	Compile with GDAL 2.0
 // 1.0.2	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
 // 1.0.1    27/01/2015	Rémi Saint-Amant	Compile with GDAL 1.11.1
@@ -19,10 +20,7 @@
 
 #include "MedianImage.h"
 #include "Basic/OpenMP.h"
-//#include "StdFile.h"
-//#include "Basic/UtilTime.h"
-//#include "Basic/UtilMath.h"
-//#include "Geomatic/landsatDataset.h"
+
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -34,7 +32,7 @@ namespace WBSF
 {
 
 
-	const char* CMedianImage::VERSION = "1.1.0";
+	const char* CMedianImage::VERSION = "1.1.1";
 	std::string CMedianImage::GetDescription(){ return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CMedianImage::NB_THREAD_PROCESS = 2;
 
@@ -50,7 +48,8 @@ namespace WBSF
 
 		m_scenesSize = SCENES_SIZE;
 		m_bDebug = false;
-		m_bCorrection8 = false;
+		m_corr8 = NO_CORR8;
+		
 		m_meanType = NO_MEAN;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
 
@@ -59,7 +58,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-Mean", 1, "type", false, "Mean of median pixel. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and the neighbor select by QA when odd." },
-			{ "-corr8", 0, "", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent." },
+			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -128,7 +127,9 @@ namespace WBSF
 		}*/
 		else if (IsEqual(argv[i], "-corr8"))
 		{
-			m_bCorrection8 = true;
+			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			if (m_corr8==NO_CORR8)
+				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
 		else
 		{
@@ -360,7 +361,7 @@ namespace WBSF
 		//		vector<CDataWindowPtr> input;
 		//	bandHolder.GetWindow(input);
 		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
-		window.m_bCorr8 = m_options.m_bCorrection8;
+		window.m_corr8 = m_options.m_corr8;
 
 
 		if (m_options.m_bCreateImage)
