@@ -23,7 +23,7 @@ namespace WBSF
 	{
 		enum TTranosemaStats
 		{
-			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION, S_CUMUL_REATCH_ADULT,
+			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION, S_CUMUL_REATCH_ADULT, S_CUMUL_DIAPAUSE,
 			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE,
 			NB_STATS
 		};
@@ -101,7 +101,7 @@ namespace WBSF
 			m_bApplyAttrition = true;
 			m_generationAttrition = 0.10;
 			m_bAutoComputeDiapause = true;
-			m_diapauseAge = 0.75;
+			m_diapauseAge = 0.1;
 			m_lethalTemp = -5.0;
 			m_criticalDaylength = 13.5;
 		}

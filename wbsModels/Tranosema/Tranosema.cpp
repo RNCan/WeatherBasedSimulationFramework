@@ -4,10 +4,6 @@
 //
 // Description: Biology of Tranosema rostrale
 //*****************************************************************************
-// 22/01/2016	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
-// 11/12/2015   Rémi Saint-Amant    Creation from paper
-//*****************************************************************************
-
 #include "TranosemaEquations.h"
 #include "Tranosema.h"
 
@@ -150,7 +146,7 @@ namespace WBSF
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
 				
-//				QUESTION pour RSA
+
 	//			Possible host attack module here
 				double as = 0.05;
 				double th = 0.8;
@@ -158,11 +154,6 @@ namespace WBSF
 				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
 				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
 				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
-
-				//Pour la diapause, on pourrait savoir combien de L2 et L2 sont induits en diapause, et répartir les
-				//oeufs selon la proportion de larves hotes induites en diapause (diapause-induced L1+L2)/Nh
-
-				//m_broods += max(0.0, m_Eᵗ + Oᵗ - Rᵗ);
 				ASSERT(m_broods < m_Pmax);
 
 				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
@@ -198,7 +189,8 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CTranosema::Die(const CWeatherDay& weather)
 	{
-		
+		ASSERT(!m_bDiapause || fabs(m_age - GetStand()->m_diapauseAge)<0.0001 );
+
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
@@ -254,6 +246,9 @@ namespace WBSF
 						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 					}
 				}
+				
+				if (m_bDiapause)
+					stat[S_CUMUL_DIAPAUSE] += m_scaleFactor;
 			}
 			else
 			{
@@ -273,6 +268,7 @@ namespace WBSF
 
 			}
 
+			
 			if (m_lastAge<GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
 				stat[E_DIAPAUSE] += m_scaleFactor;
 		}
