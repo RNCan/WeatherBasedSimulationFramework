@@ -50,7 +50,7 @@ namespace WBSF
 		m_Eᵗ = E°;
 
 		//Individuals are created as non-diapause individuals
-		m_bDiapause = false;
+		//m_bDiapause = false;
 		m_badluck = false;
 		m_Nh = 100000;
 	}
@@ -68,7 +68,7 @@ namespace WBSF
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
 			m_luck = in.m_luck;
-			m_bDiapause = in.m_bDiapause;
+			m_diapauseTRef = in.m_diapauseTRef;
 			m_badluck = in.m_badluck;
 		}
 
@@ -97,8 +97,8 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 
 
-		if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
-			m_bDiapause = false;
+		//if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
+			//m_bDiapause = false;
 		
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
@@ -118,7 +118,8 @@ namespace WBSF
 					//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
 					if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
 					{
-						m_bDiapause = true;
+						m_diapauseTRef = weather.GetTRef();
+						//m_bDiapause = true;
 						m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
 					}
 				}
@@ -137,7 +138,8 @@ namespace WBSF
 
 
 			//Adjust age
-			if(!m_bDiapause)
+			//if(!m_bDiapause)
+			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
 				m_age += r;
 
 			//compute brooding
@@ -189,7 +191,7 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CTranosema::Die(const CWeatherDay& weather)
 	{
-		ASSERT(!m_bDiapause || fabs(m_age - GetStand()->m_diapauseAge)<0.0001 );
+		//ASSERT(!m_diapauseTRef.IsInit() || fabs(m_age - GetStand()->m_diapauseAge)<0.0001);
 
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
@@ -204,14 +206,14 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (m_generation>0 && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp && !m_bDiapause)
+		else if (m_generation>0 && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp && !m_diapauseTRef.IsInit())
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		else if (!m_bDiapause && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
+		else if (!m_diapauseTRef.IsInit() && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
 		{
-			//all individual not in diapause are kill at the ead of the season
+			//all individual not in diapause are kill at the end of the season
 			m_status = DEAD;
 			m_death = OTHERS;
 		}
@@ -247,7 +249,7 @@ namespace WBSF
 					}
 				}
 				
-				if (m_bDiapause)
+				if (m_diapauseTRef.IsInit())
 					stat[S_CUMUL_DIAPAUSE] += m_scaleFactor;
 			}
 			else
@@ -269,8 +271,13 @@ namespace WBSF
 			}
 
 			
-			if (m_lastAge<GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
+			//if (m_lastAge < GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
+			if (d == m_diapauseTRef)
+			{
 				stat[E_DIAPAUSE] += m_scaleFactor;
+				stat[E_DIAPAUSE_AGE] += m_scaleFactor*m_age;
+				
+			}
 		}
 	}
 
@@ -294,7 +301,7 @@ namespace WBSF
 	bool CTranosema::CanPack(const CIndividualPtr& in)const
 	{
 		CTranosema* pIn = static_cast<CTranosema*>(in.get());
-		return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_bDiapause == m_bDiapause;
+		return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_diapauseTRef.IsInit() == m_diapauseTRef.IsInit();
 	}
 
 	void CTranosema::Pack(const CIndividualPtr& pBug)

@@ -24,7 +24,7 @@ namespace WBSF
 		enum TTranosemaStats
 		{
 			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION, S_CUMUL_REATCH_ADULT, S_CUMUL_DIAPAUSE,
-			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE,
+			E_EGG, E_PUPA, E_ADULT, E_DEAD_ADULT, E_OVIPOSITING_ADULT, E_DIAPAUSE, E_DIAPAUSE_AGE,
 			NB_STATS
 		};
 
@@ -65,7 +65,8 @@ namespace WBSF
 		double	m_Pmax;			//Potential fecondity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
-		bool	m_bDiapause;
+		//bool	m_bDiapause;
+		CTRef	m_diapauseTRef;
 		double	m_Nh;			//Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
 
 		//process var

@@ -92,9 +92,14 @@ namespace WBSF
 
 		if (!m_pAssociateHost.expired())
 		{
-			//Jacques: Est-ce que l'âge de la diapause ici est importante
-			if (GetStage() == EGG && m_age >= GetStand()->m_diapauseAge)
-				m_bDiapause = m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef());
+			if (!m_diapauseTRef.IsInit() && GetStage() == EGG )//&& m_age >= GetStand()->m_diapauseAge
+			{
+				if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
+				{
+					m_diapauseTRef = weather.GetTRef();
+					//m_bDiapause = true;
+				}
+			}
 		}
 		
 		

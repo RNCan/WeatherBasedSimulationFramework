@@ -28,7 +28,7 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosema_OBL_SBW_Model::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, NB_DAILY_OUTPUT_EX };
+	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition,CumulAdult,CumulDiapause";
 
 	//	
@@ -120,15 +120,20 @@ namespace WBSF
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
+			CStatistic diapauseAge;
 			for (size_t g = 0; g < maxG; g++)
 			{
 				for (size_t s = 0; s < NB_DAILY_OUTPUT; s++)
 					m_output[TRef][g*NB_DAILY_OUTPUT + s] = TranosemaStat[g][TRef][s];
+
+				if (TranosemaStat[g][TRef][E_DIAPAUSE] > 0)
+					diapauseAge += TranosemaStat[g][TRef][E_DIAPAUSE_AGE] / TranosemaStat[g][TRef][E_DIAPAUSE];
 			}
 			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
 			m_output[TRef][O_D_NB_OBL] = TranosemaStat[0][TRef][S_NB_OBL];
 			m_output[TRef][O_D_NB_OBL_L3D] = TranosemaStat[0][TRef][S_NB_OBL_L3D];
 			m_output[TRef][O_D_NB_SBW] = TranosemaStat[0][TRef][S_NB_SBW];
+			m_output[TRef][O_D_DIAPAUSE_AGE] = diapauseAge;
 			 
 		}
 
@@ -198,7 +203,7 @@ namespace WBSF
 
 				size_t nbGenerations = stand.GetFirstHost()->GetNbGeneration();
 				if (nbGenerations > stat.size())
-					stat.push_back(CModelStatVector(entirePeriod.GetNbRef(), entirePeriod.Begin(), NB_STATS, 0));
+					stat.push_back(CModelStatVector(entirePeriod.GetNbRef(), entirePeriod.Begin(), NB_STATS_EX, 0));
 
 				for (size_t g = 0; g < nbGenerations; g++)
 					stand.GetStat(d, stat[g][d], g);
