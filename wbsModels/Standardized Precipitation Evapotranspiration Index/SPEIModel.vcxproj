@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B1AAC6D4-0C1E-4F0A-8133-2E1912AB0ECC}</ProjectGuid>
+    <ProjectGuid>{E0F91835-E883-4E95-8E6E-229976026583}</ProjectGuid>
     <RootNamespace>FWI-Model</RootNamespace>
     <ProjectName>Standardised Precipitation Evapotranspiration Index</ProjectName>
   </PropertyGroup>

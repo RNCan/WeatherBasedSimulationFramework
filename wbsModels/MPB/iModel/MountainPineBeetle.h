@@ -281,9 +281,9 @@ namespace WBSF
 		const CMPBColdTolerance& GetColdTolerance()const{ ASSERT(m_coldTolerance.GetResult().size() > 0); return m_coldTolerance; }
 
 
-		void AdjustPopulation()
+		bool AdjustPopulation()
 		{
-			m_pTree->AdjustPopulation();
+			return m_pTree->AdjustPopulation();
 		}
 
 		size_t GetNbObjectAlive()const

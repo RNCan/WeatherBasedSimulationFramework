@@ -3,8 +3,14 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.1	23/11/2017  Rémi Saint-Amant	Avoid warning when pixel is no data
+// 1.0.2	29/11/2017  Rémi Saint-Amant	Load optimisation
+// 1.0.1	23/11/2017  Rémi Saint-Amant	Avoid warning when breaks pixel is no data
 // 1.0.0	17/11/2017	Rémi Saint-Amant	Creation
+
+//-mask "U:\gis\#projets\LAQ\ANALYSE_CA\20160909_SR_run12\AAFC_Canada_2013_v2_masque120_181_v3_maskedOcean.tif" -maskvalue 1
+//-te 1958730 7211040 1964040 7215660 -FirstYear 1984 -stats -multi -RGB Natural -of VRT -overwrite -co COMPRESS=LZW U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\BKP_out_brk01.tif U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt U:\GIS\#documents\TestCodes\BreaksImage\Output\BPT1_test2.vrt
+//
+//-te 1557450 6778320 2268960 7365630 -FirstYear 1984 -stats -multi -IOCPU 3 -RGB Natural -of VRT -overwrite -co COMPRESS=LZW -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16}  U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\BKP_out.vrt U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt U:\GIS\#documents\TestCodes\BreaksImage\Output\test3.vrt
 
 
 #include "stdafx.h"
@@ -28,7 +34,7 @@ namespace WBSF
 {
 
 
-	const char* CBreaksImage::VERSION = "1.0.1";
+	const char* CBreaksImage::VERSION = "1.0.2";
 	std::string CBreaksImage::GetDescription(){ return  std::string("BreaksImage version ") + CBreaksImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CBreaksImage::NB_THREAD_PROCESS = 2;
 
@@ -157,6 +163,7 @@ namespace WBSF
 
 			if (maskDS.IsOpen())
 				bandHolder1.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
+				
 
 			msg += bandHolder1.Load(breaksDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
 			msg += bandHolder2.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
@@ -228,6 +235,7 @@ namespace WBSF
 		m_options.InitFileInfo(inputDS);
 		//CGeoExtents extents = m_options.GetExtents();
 		//extents.IntersectRect( breaksDS.GetExtents() );
+		m_options.m_extents.IntersectExtents(breaksDS.GetExtents());
 		//m_options.m_extents = extents;
 
 		if (!m_options.m_bQuiet)
@@ -315,7 +323,45 @@ namespace WBSF
 
 		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
 		bandHolder1.LoadBlock(extents);
-		bandHolder2.LoadBlock(extents);
+
+		boost::dynamic_bitset<size_t> selected_scene(bandHolder2.GetNbScenes());
+
+		// sum the elements of v
+		
+#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
+		for (__int64 i = 0; i < (__int64)bandHolder1.size(); i++)//for all breaks
+		{
+			//for (int j = 0; j < bandHolder1[i]->GetData()->size(); j++)
+			const DataVector* pData = bandHolder1[i]->GetData();
+			ASSERT(pData);
+			for (auto it = pData->begin(); it != pData->end(); it++)
+			{
+				if (*it > -32768)
+				{
+					size_t iz = (size_t)(*it - m_options.m_firstYear);
+					if (iz < selected_scene.size())
+					{
+#pragma omp critical
+						selected_scene.set(iz);
+						//#pragma omp atomic 
+					}
+				}
+			}
+		}
+
+		ASSERT(bandHolder2.size() == selected_scene.size()*SCENES_SIZE);
+		boost::dynamic_bitset<size_t> selected_bands(selected_scene.size()*SCENES_SIZE);
+		for (size_t i = 0; i != selected_scene.size(); i++)
+		{
+			if (selected_scene.test(i))
+			{
+				for (size_t j = 0; j != SCENES_SIZE; j++)
+					selected_bands.set(i*SCENES_SIZE + j);
+			}
+		}
+			
+
+		bandHolder2.LoadBlock(extents, selected_bands);
 
 		m_options.m_timerRead.Stop();
 	}
@@ -473,8 +519,9 @@ namespace WBSF
 	}
 	}
 
-	void CBreaksImage::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
+	void CBreaksImage::CloseAll(CGDALDatasetEx& breaksDS, CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
 	{
+		breaksDS.Close();
 		inputDS.Close();
 		maskDS.Close();
 
@@ -482,7 +529,7 @@ namespace WBSF
 		m_options.m_timerWrite.Start();
 
 		outputDS.Close(m_options);
-		debugDS.Close(m_options);
+		//debugDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

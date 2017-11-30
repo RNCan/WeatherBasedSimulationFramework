@@ -46,8 +46,8 @@
 
 //-1201530 8294610 -1199530 8297610 
 
-//-debug -ExportStats -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
-//-te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
+//-corr8 Canada -RGB Natural -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\2017\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
+//-corr8 Canada -te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\2017\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 //-te 1674600	6496500	1677300	6498600
 //-te 1743000 6546000 1767000 6570000
 //-te 1707000 6624000 1731000 6648000
@@ -65,7 +65,7 @@
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-//#include "Geomatic/LandsatCloudsCleaner.h"
+
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{30ACF693-2D0E-4C47-8740-53076639A668}</ProjectGuid>
+    <ProjectGuid>{FD6891F3-EFFD-4F9C-8404-802E9D0F1248}</ProjectGuid>
     <RootNamespace>PierreBelleau</RootNamespace>
     <ProjectName>HemlockLooperRemi</ProjectName>
   </PropertyGroup>

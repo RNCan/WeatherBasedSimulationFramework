@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B1AAC6D4-0C1E-4F0A-8133-2E1912AB0ECC}</ProjectGuid>
+    <ProjectGuid>{AC857DD1-FA63-4084-872A-867632D90139}</ProjectGuid>
     <RootNamespace>FWI-Model</RootNamespace>
     <ProjectName>FWI</ProjectName>
   </PropertyGroup>

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CC27CA4A-389E-498A-9701-107C3EED95A2}</ProjectGuid>
+    <ProjectGuid>{8F751842-9105-4596-9EC1-3FF140CC20C8}</ProjectGuid>
     <RootNamespace>Aphalara</RootNamespace>
     <ProjectName>Western Spruce Budworm</ProjectName>
   </PropertyGroup>

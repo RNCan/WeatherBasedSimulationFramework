@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0471E3FD-DA0F-4583-B881-F8B9F1E0A5D4}</ProjectGuid>
+    <ProjectGuid>{0F1E13B1-0547-49BC-A6A1-36ABD153A215}</ProjectGuid>
     <RootNamespace>CMIModel</RootNamespace>
     <ProjectName>Soil Moisture Index</ProjectName>
   </PropertyGroup>

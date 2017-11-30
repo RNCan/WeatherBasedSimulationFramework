@@ -14,6 +14,7 @@
 #include <float.h>
 #include <memory>
 #include <array>
+#include <boost/dynamic_bitset.hpp>
 
 #include "basic/ERMsg.h"
 #include "Basic/UtilTime.h"
@@ -603,6 +604,7 @@ namespace WBSF
 		virtual ERMsg Load(const CGDALDatasetEx& inputDS, bool bQuiet = true, const CGeoExtents& extents = CGeoExtents(), CTPeriod period = CTPeriod());
 		void LoadBlock(int xBlock, int yBlock, CTPeriod p = CTPeriod()){ LoadBlock(m_entireExtents.GetBlockExtents(xBlock, yBlock), p); }
 		virtual void LoadBlock(CGeoExtents extents, CTPeriod p = CTPeriod());
+		void LoadBlock(CGeoExtents extents, boost::dynamic_bitset<size_t> selected_bands);
 
 		virtual double Evaluate(size_t virtualBandNo, const std::vector<float>& variable){ ASSERT(false); return DBL_MAX; }
 		void FlushCache(double yMax = -9999999999);

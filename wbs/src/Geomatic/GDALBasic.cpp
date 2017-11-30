@@ -1626,6 +1626,40 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 	if( !p.IsInit() )
 		p=m_entirePeriod;
 
+	
+	if (m_pMaskBandHolder.get())
+	{
+		m_pMaskBandHolder->SetMaskDataUsed(m_maskDataUsed);
+		m_pMaskBandHolder->SetExtents(extents);
+		m_pMaskBandHolder->Init(m_maxWindowSize);
+		if (m_pMaskBandHolder->GetDataRect().IsRectEmpty())//if one band of the scene is empty we skip this image
+		{
+			m_bEmpty = true;
+			return;
+		}
+		else
+		{
+			const DataVector* pData = m_pMaskBandHolder->GetData();
+			ASSERT(pData);
+
+			size_t nbValid = 0;
+#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
+			for (__int64 i = 0; i<(__int64)pData->size(); i++)
+			{
+				if ((*pData).at(i) == m_maskDataUsed)
+#pragma omp atomic
+					nbValid++;
+			}
+
+			if (nbValid == 0)
+			{
+				m_bEmpty = true;
+				return;
+			}
+		}
+
+	}
+
 //	bool bTemporal = m_bandTRef.size()==m_bandHolder.size();
 	bool bTemporal = !m_scenesPeriod.empty();
 
@@ -1640,7 +1674,6 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 	
 	for (int i = 0; i<nbScenes; i++)
 	{	
-		bool bSkipScene = false;
 		for (int j = 0; j<scenesSize; j++)
 		{
 			m_bandHolder[i*scenesSize + j]->ExcludeBand(bTemporal&&m_scenesPeriod[i].IsInit()&&!p.IsIntersect(m_scenesPeriod[i]));
@@ -1648,7 +1681,6 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 			m_bandHolder[i*scenesSize + j]->Init(m_maxWindowSize);
 			if (m_bandHolder[i*scenesSize + j]->GetDataRect().IsRectEmpty())//if one band of the scene is empty we skip this image
 			{
-				bSkipScene = true;
 				for (int jj = 0; jj<scenesSize; jj++)
 				{
 					m_bandHolder[i*scenesSize + jj]->ExcludeBand(true);
@@ -1670,12 +1702,68 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 		m_bEmpty = rect.IsRectEmpty();
 	}
 
-	if( m_pMaskBandHolder.get() )
+	
+}
+
+void CBandsHolder::LoadBlock(CGeoExtents extents, boost::dynamic_bitset<size_t> selected_bands)
+{
+	ASSERT(selected_bands.size() == size());
+
+	if (m_pMaskBandHolder.get())
 	{
 		m_pMaskBandHolder->SetMaskDataUsed(m_maskDataUsed);
 		m_pMaskBandHolder->SetExtents(extents);
 		m_pMaskBandHolder->Init(m_maxWindowSize);
+
+		if (m_pMaskBandHolder->GetDataRect().IsRectEmpty())//if one band of the scene is empty we skip this image
+		{
+			m_bEmpty = true;
+			return;
+		}
+		else
+		{
+			const DataVector* pData = m_pMaskBandHolder->GetData();
+			ASSERT(pData);
+
+			size_t nbValid = 0;
+#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
+			for (__int64 i = 0; i<(__int64)pData->size(); i++)
+			{
+				if ((*pData).at(i) == m_maskDataUsed)
+#pragma omp atomic
+					nbValid++;
+			}
+
+			if (nbValid == 0)
+			{
+				m_bEmpty = true;
+				return;
+			}
+		}
 	}
+	
+	double totalMem = 0;
+
+	//load bands
+	
+#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
+	for (__int64 i = 0; i<(__int64)size(); i++)
+	{
+		//bool bSkipScene = false;
+		m_bandHolder[i]->ExcludeBand(!selected_bands[i]);
+		m_bandHolder[i]->SetExtents(extents);
+		m_bandHolder[i]->Init(m_maxWindowSize);
+		totalMem += m_bandHolder[i]->GetData()->size()*sizeof(float);
+	}
+
+	m_bEmpty = true;
+	for (size_t i = 0; i<m_bandHolder.size() && m_bEmpty; i++)
+	{
+		CGeoRectIndex rect = m_bandHolder[i]->GetDataRect();
+		m_bEmpty = rect.IsRectEmpty();
+	}
+
+	
 }
 //
 //CGeoSize CBandsHolder::ComputeBlockSize(const CGeoExtents& extents, CTPeriod period)const

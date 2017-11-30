@@ -175,8 +175,8 @@ namespace WBSF
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
 		size_t s = GetStage();
-		bool bLookAsynchrony = (s == L2 ) && IsChangingStage();
-		bool bLookWindow = (s == L5) && IsChangingStage();
+		bool bLookAsynchrony = (s == L2) && HasChangedStage();
+		bool bLookWindow = (s == L5) && HasChangedStage();
 		CTRef TRef = weather.GetTRef();
 		
 		

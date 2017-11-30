@@ -209,7 +209,6 @@ namespace WBSF
 			case Landsat::QA:
 			case Landsat::JD:			pre = Tm1[m_type]; pos = Tp1[m_type] ; break;
 			case Landsat::I_NBR:		pre = Tm1.NBR(); pos = Tp1.NBR(); break;
-//			case Landsat::I_EUCLIDEAN:	pre = Tm1.GetEuclideanDistance(Tp1); pos = 0; break;
 			case Landsat::I_NDVI:		pre = Tm1.NDVI(); pos = Tp1.NDVI();break;
 			case Landsat::I_NDMI:		pre = Tm1.NDMI(); pos = Tp1.NDMI();break;
 			case Landsat::I_TCB:		pre = Tm1.TCB() ; pos = Tp1.TCB();break;

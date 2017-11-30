@@ -208,7 +208,7 @@ namespace WBSF
 			{
 				if (GetStage() > EGGS)
 				{
-					if (GetStage() == L1 && IsChangingStage())
+					if (GetStage() == L1 && HasChangedStage())
 					{
 						//m_hatchSurvival change only once at hatch, 1 by default
 						if (m_hatchSurvival < m_overwinterLuck)
