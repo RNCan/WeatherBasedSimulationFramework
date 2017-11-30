@@ -560,6 +560,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseAge</Name>
+            <Title>DiapauseAge</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
     <Credit/>
