@@ -45,9 +45,9 @@
             <Type>2</Type>
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1.0</DefaultValue>
+            <DefaultValue>0.1</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>3</MaxValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -161,6 +161,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulDiapause_g0</Name>
+            <Title>CumulDiapause_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g1</Name>
             <Title>Egg_g1</Title>
             <Units/>
@@ -227,6 +235,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulDiapause_g1</Name>
+            <Title>CumulDiapause_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g2</Name>
             <Title>Egg_g2</Title>
             <Units/>
@@ -285,6 +301,14 @@
         <OutputVariable>
             <Name>CumulAdult_g2</Name>
             <Title>CumulAdult_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulDiapause_g2</Name>
+            <Title>CumulDiapause_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -356,6 +380,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulDiapause_g3</Name>
+            <Title>CumulDiapause_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g4</Name>
             <Title>Egg_g4</Title>
             <Units/>
@@ -421,6 +453,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>CumulDiapause_g4</Name>
+            <Title>CumulDiapause_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Egg_g5</Name>
             <Title>Egg_g5</Title>
             <Units/>
@@ -480,6 +520,14 @@
         <OutputVariable>
             <Name>CumulAdult_g5</Name>
             <Title>CumulAdult_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulDiapause_g5</Name>
+            <Title>CumulDiapause_g5</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
