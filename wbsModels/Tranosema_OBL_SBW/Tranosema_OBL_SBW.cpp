@@ -89,22 +89,18 @@ namespace WBSF
 			m_Nh = nbAttackable;
 		}
 
+		CTranosema::Live(weather);
 
-		if (!m_pAssociateHost.expired())
+		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit())
 		{
-			if (!m_diapauseTRef.IsInit() && GetStage() == EGG )//&& m_age >= GetStand()->m_diapauseAge
+			if (weather.GetTRef().GetJDay() > 173 && m_lastAge <= GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
 			{
 				if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
 				{
 					m_diapauseTRef = weather.GetTRef();
-					//m_bDiapause = true;
 				}
 			}
 		}
-		
-		
-
-		CTranosema::Live(weather);
 	}
 
 
