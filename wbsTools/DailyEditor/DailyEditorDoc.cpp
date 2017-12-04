@@ -285,7 +285,7 @@ void CDailyEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUpd
 
 	if (i != m_stationIndex)
 	{
-		m_pStation->Reset();
+		m_pStation->clear();
 		m_stationIndex = i;
 
 
