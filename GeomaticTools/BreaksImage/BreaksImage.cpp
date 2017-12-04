@@ -324,8 +324,8 @@ namespace WBSF
 		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
 		bandHolder1.LoadBlock(extents);
 
-		boost::dynamic_bitset<size_t> selected_scene(bandHolder2.GetNbScenes());
-
+		//boost::dynamic_bitset<size_t> selected_scene(bandHolder2.GetNbScenes());
+		vector<size_t> selected_scene(bandHolder2.GetNbScenes());
 		// sum the elements of v
 		
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
@@ -339,11 +339,10 @@ namespace WBSF
 				if (*it > -32768)
 				{
 					size_t iz = (size_t)(*it - m_options.m_firstYear);
-					if (iz < selected_scene.size())
+					if (iz < selected_scene.size() && selected_scene[iz]==0)
 					{
-#pragma omp critical
-						selected_scene.set(iz);
-						//#pragma omp atomic 
+#pragma omp atomic
+						selected_scene[iz]++;
 					}
 				}
 			}
@@ -353,7 +352,7 @@ namespace WBSF
 		boost::dynamic_bitset<size_t> selected_bands(selected_scene.size()*SCENES_SIZE);
 		for (size_t i = 0; i != selected_scene.size(); i++)
 		{
-			if (selected_scene.test(i))
+			if (selected_scene[i]>0)
 			{
 				for (size_t j = 0; j != SCENES_SIZE; j++)
 					selected_bands.set(i*SCENES_SIZE + j);

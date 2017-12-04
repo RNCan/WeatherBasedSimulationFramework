@@ -1620,7 +1620,6 @@ ERMsg CBandsHolder::Load(const CGDALDatasetEx& inputDS, bool bQuiet, const CGeoE
 }
 
 
-//void CBandsHolder::LoadBlock(int xBlock, int yBlock, CTPeriod p)
 void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 {
 	if( !p.IsInit() )
@@ -1642,16 +1641,14 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 			const DataVector* pData = m_pMaskBandHolder->GetData();
 			ASSERT(pData);
 
-			size_t nbValid = 0;
-#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
-			for (__int64 i = 0; i<(__int64)pData->size(); i++)
+			bool bEmpty = true;
+			for (size_t i = 0; i<(__int64)pData->size() && bEmpty; i++)
 			{
 				if ((*pData).at(i) == m_maskDataUsed)
-#pragma omp atomic
-					nbValid++;
+					bEmpty=false;
 			}
 
-			if (nbValid == 0)
+			if (bEmpty)
 			{
 				m_bEmpty = true;
 				return;
@@ -1725,16 +1722,14 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, boost::dynamic_bitset<size_t> 
 			const DataVector* pData = m_pMaskBandHolder->GetData();
 			ASSERT(pData);
 
-			size_t nbValid = 0;
-#pragma omp parallel for schedule(static, 1)  num_threads( m_IOCPU ) if(m_IOCPU>1)
-			for (__int64 i = 0; i<(__int64)pData->size(); i++)
+			bool bEmpty = true;
+			for (size_t i = 0; i<(__int64)pData->size() && bEmpty; i++)
 			{
 				if ((*pData).at(i) == m_maskDataUsed)
-#pragma omp atomic
-					nbValid++;
+					bEmpty = false;
 			}
 
-			if (nbValid == 0)
+			if (bEmpty)
 			{
 				m_bEmpty = true;
 				return;

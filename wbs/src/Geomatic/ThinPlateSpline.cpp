@@ -386,7 +386,7 @@ namespace WBSF
 
 
 			int checkSum = GetCheckSum(result);
-			//omp_get_max_threads();
+			
 
 			EnterCriticalSection(&me.CS);
 			key_to_value_type::const_iterator it = m_splinMap.find(checkSum);

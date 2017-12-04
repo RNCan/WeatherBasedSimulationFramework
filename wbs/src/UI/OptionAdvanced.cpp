@@ -35,7 +35,6 @@ namespace WBSF
 		m_bKeepTmpFile = option.GetProfileInt("KeepTmpOutputFile", FALSE);
 		m_nbMaxThreads = option.GetProfileInt("NbMaxThreads", omp_get_num_procs());
 		m_bUseHxGrid = option.GetProfileInt("UseHxGrid", FALSE);
-
 	}
 
 	COptionAdvanced::~COptionAdvanced()
