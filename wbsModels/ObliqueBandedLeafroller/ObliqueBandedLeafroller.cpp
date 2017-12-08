@@ -160,11 +160,10 @@ namespace WBSF
 		}
 	}
 
-	// kills by attrition, old age and end of season
+	// kills by old age and frost
 	// Output:  Individual's state is updated to follow update
 	void CObliqueBandedLeafroller::Die(const CWeatherDay& weather)
 	{
-		
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
@@ -172,23 +171,11 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		//else if (m_badluck)
-		//{
-		//	//kill by attrition
-		//	m_status = DEAD;
-		//	m_death = ATTRITION;
-		//}
-		else if (GetStage()!=L3D && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp)
+		else if (!m_bRequireDiapause && GetStage() != L3D && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp)
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-//		else if (weather.GetTRef().GetJDay() >= 364)
-//		{
-//			//all bugs are kill at the ead of the season
-//			m_status = DEAD;
-//			m_death = OTHERS;
-//		}
 	}
 
 	//*****************************************************************************
