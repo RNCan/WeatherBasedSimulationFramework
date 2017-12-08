@@ -31,7 +31,7 @@ using namespace WBSF;
 
 static const UINT ID_PROJECT_WND        = 500;
 static const UINT ID_SPREADSHEET_WND	= 501;
-static const UINT ID_GRAPH_WND			= 502;
+//static const UINT ID_GRAPH_WND			= 502;
 static const UINT ID_PROPERTIES_WND		= 503;
 static const UINT ID_EXPORT_WND			= 504;
 
@@ -158,7 +158,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_exportWnd, AFX_IDW_DOCKBAR_RIGHT);
 	CDockablePane* pPaneFrame = NULL;
 	DockPane(&m_spreadsheetWnd, AFX_IDW_DOCKBAR_TOP);
-	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0, &pPaneFrame);
+//	m_chartWnd.AttachToTabWnd(&m_spreadsheetWnd, DM_STANDARD, 0, &pPaneFrame);
 	m_propertiesWnd.DockToWindow(&m_projectWnd, CBRS_ALIGN_BOTTOM);
 
 
@@ -183,8 +183,8 @@ BOOL CMainFrame::CreateDockingWindows()
 	VERIFY(m_spreadsheetWnd.Create(GetCString(IDS_SPREADSHEET_WND), this, CRect(0, 0, 600, 400), TRUE, ID_SPREADSHEET_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI));
 	m_spreadsheetWnd.EnableDocking(CBRS_ALIGN_ANY);
 
-	VERIFY(m_chartWnd.Create(GetCString(IDS_CHARTS_WND), this, CRect(0, 0, 600, 400), TRUE, ID_GRAPH_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI));
-	m_chartWnd.EnableDocking(CBRS_ALIGN_ANY);
+	//VERIFY(m_chartWnd.Create(GetCString(IDS_CHARTS_WND), this, CRect(0, 0, 600, 400), TRUE, ID_GRAPH_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI));
+	//m_chartWnd.EnableDocking(CBRS_ALIGN_ANY);
 
 	VERIFY(m_exportWnd.Create(GetCString(IDS_EXPORT_WND), this, CRect(0, 0, 250, 400), TRUE, ID_EXPORT_WND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI));
 	m_exportWnd.EnableDocking(CBRS_ALIGN_ANY);
@@ -208,8 +208,8 @@ void CMainFrame::SetDockingWindowIcons()
 	HICON hSpreadsheetIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_SPREADSHEET_WND), IMAGE_ICON, 24, 24, 0);
 	m_spreadsheetWnd.SetIcon(hSpreadsheetIcon, TRUE);
 
-	HICON hChartIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_CHARTS_WND), IMAGE_ICON, 24, 24, 0);
-	m_chartWnd.SetIcon(hChartIcon, TRUE);
+	//HICON hChartIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_CHARTS_WND), IMAGE_ICON, 24, 24, 0);
+	//m_chartWnd.SetIcon(hChartIcon, TRUE);
 
 	//HICON hProgressIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_PROGRESS_WND), IMAGE_ICON, 24, 24, 0);
 	//m_progressWnd.SetIcon(hProgressIcon, TRUE);
@@ -471,7 +471,7 @@ void CMainFrame::OnLanguageChange(UINT id)
 		m_projectWnd.SetWindowText(GetCString(IDS_PROJECT_WND));
 		m_propertiesWnd.SetWindowText(GetCString(IDS_PROPERTIES_WND));
 		m_spreadsheetWnd.SetWindowText(GetCString(IDS_SPREADSHEET_WND));
-		m_chartWnd.SetWindowText(GetCString(IDS_CHARTS_WND));
+		//m_chartWnd.SetWindowText(GetCString(IDS_CHARTS_WND));
 		m_exportWnd.SetWindowText(GetCString(IDS_EXPORT_WND));
 		//m_progressWnd.SetWindowText(GetCString(IDS_PROGRESS_WND));
 		
@@ -561,7 +561,7 @@ void CMainFrame::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 		m_projectWnd.OnUpdate(pSender, lHint, pHint);
 		m_propertiesWnd.OnUpdate(pSender, lHint, pHint);
 		m_spreadsheetWnd.OnUpdate(pSender, lHint, pHint);
-		m_chartWnd.OnUpdate(pSender, lHint, pHint);
+		//m_chartWnd.OnUpdate(pSender, lHint, pHint);
 		m_exportWnd.OnUpdate(pSender, lHint, pHint);
 		//m_progressWnd.OnUpdate(pSender, lHint, pHint);
 		//m_fileManagerWnd.OnUpdate(pSender, lHint, pHint);
@@ -588,8 +588,8 @@ BOOL CMainFrame::OnCmdMsg(UINT id, int code, void *pExtra, AFX_CMDHANDLERINFO* p
 		return TRUE;
 	if (m_spreadsheetWnd.GetSafeHwnd() && m_spreadsheetWnd.IsVisible() && m_spreadsheetWnd.OnCmdMsg(id, code, pExtra, pHandler))
 		return TRUE;
-	if (m_chartWnd.GetSafeHwnd() && m_chartWnd.IsVisible() && m_chartWnd.OnCmdMsg(id, code, pExtra, pHandler))
-		return TRUE;
+	//if (m_chartWnd.GetSafeHwnd() && m_chartWnd.IsVisible() && m_chartWnd.OnCmdMsg(id, code, pExtra, pHandler))
+		//return TRUE;
 	if (m_exportWnd.GetSafeHwnd() && m_exportWnd.IsVisible() && m_exportWnd.OnCmdMsg(id, code, pExtra, pHandler))
 		return TRUE;
 		

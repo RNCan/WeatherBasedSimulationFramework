@@ -8,14 +8,14 @@ namespace WBSF
 {
 
 
-	typedef std::map<int, CWeatherYears> CMiWeatherStationMap;
+	typedef std::map<std::string, CWeatherYears> CMiWeatherStationMap;
 	//****************************************************************
 	//Global SOD extractor
 	class CUIMiscellaneous : public CTaskBase
 	{
 	public:
 
-		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, NB_DATASETS };
+		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, QUEBEC_HOURLY, NB_DATASETS };
 		enum TAttributes { WORKING_DIR, DATASET, FIRST_YEAR, LAST_YEAR, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMiscellaneous); }
@@ -28,8 +28,8 @@ namespace WBSF
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return as<size_t>(DATASET) == SOPFEU_2013; }
-		virtual bool IsDaily()const{ return as<size_t>(DATASET) == CDIAC_RUSSIA; }
+		virtual bool IsHourly()const{ return as<size_t>(DATASET) == SOPFEU_2013 || as<size_t>(DATASET) == QUEBEC_HOURLY; }
+		virtual bool IsDaily()const{ return true; }
 		virtual bool IsDatabase()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -41,7 +41,7 @@ namespace WBSF
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
-
+		
 	protected:
 
 		std::string GetStationListFilePath()const;
@@ -67,9 +67,12 @@ namespace WBSF
 		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 		ERMsg Uncompress(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 		ERMsg LoadRussiaInMemory(CCallback& callback);
-
-
 		ERMsg LoadSOPFEUInMemory(CCallback& callback);
+		ERMsg LoadQuebecInMemory(CCallback& callback);
+
+		static double ConvertMTSData(size_t v, double value);
+		ERMsg ReadMTSData(const std::string& filePath, CWeatherYears& data, CCallback& callback)const;
+		static bool IsMTSValid(size_t v, double value);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

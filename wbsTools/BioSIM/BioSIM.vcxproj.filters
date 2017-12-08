@@ -41,9 +41,6 @@
     <ClCompile Include="ExportWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResultGraphWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ResultDataWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,9 +83,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ExportWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResultGraphWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ResultDataWnd.h">

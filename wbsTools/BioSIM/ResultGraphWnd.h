@@ -13,7 +13,7 @@
 
 class CBioSIMDoc;
 
-
+#error
 
 
 class CGraphToolBar : public CMFCToolBar

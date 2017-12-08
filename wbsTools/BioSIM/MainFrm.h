@@ -6,7 +6,7 @@
 #include "ProjectWnd.h"
 #include "PropertiesWnd.h"
 #include "ExportWnd.h"
-#include "ResultGraphWnd.h"
+//#include "ResultGraphWnd.h"
 #include "ResultDataWnd.h"
 #include "UI/Common/ProgressWnd.h"
 
@@ -39,7 +39,7 @@ protected:  // control bar embedded members
 	CMFCStatusBar		m_wndStatusBar;
 	CProjectWnd			m_projectWnd;
 	CResultDataWnd		m_spreadsheetWnd;
-	CResultGraphWnd		m_chartWnd;
+	//CResultGraphWnd		m_chartWnd;
 	CPropertiesWnd		m_propertiesWnd;
 	CExportWnd			m_exportWnd;
 
