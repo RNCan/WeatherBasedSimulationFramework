@@ -230,8 +230,11 @@ namespace WBSF
 		{
 			//all other is considered variable
 			dimension = VARIABLE;
-			field = NOT_INIT;
+			//field = NOT_INIT;
 			//try to indentify weather variables
+			field = (size_t)HOURLY_DATA::GetVariableFromName(header, true);
+			//if (var != HOURLY_DATA::H_SKIP)
+				//field = var;
 		}
 		
 	}

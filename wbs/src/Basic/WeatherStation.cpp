@@ -942,9 +942,19 @@ CWeatherDay& CWeatherDay::operator=(const CWeatherDay& in)
 	{
 		if (in.m_pHourlyData.get())
 		{
-			assert(IsHourly());
+			ASSERT(IsHourly());
 			ManageHourlyData();
 			*m_pHourlyData = *in.m_pHourlyData;
+
+			/*if (IsHourly())
+			{
+				ManageHourlyData();
+				*m_pHourlyData = *in.m_pHourlyData;
+			}
+			else
+			{
+				in.CompileDailyStat();
+			}*/
 		}
 
 		m_dailyStat = in.m_dailyStat;
@@ -1008,8 +1018,8 @@ void CWeatherDay::CompileDailyStat(bool bFoceCompile)const
 
 		if (IsHourly())
 		{
-			bool bHourlyComputed = GetWeatherStation()->IsHourlyComputed();
-			bool bIsCompilingHourly = GetWeatherStation()->IsCompilingHourly();
+			bool bHourlyComputed = GetWeatherYears().IsHourlyComputed();
+			bool bIsCompilingHourly = GetWeatherYears().IsCompilingHourly();
 			if (!bHourlyComputed && !bIsCompilingHourly)
 			{
 				CWeatherAccumulator accumulator(CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
@@ -2578,7 +2588,7 @@ void CWeatherYears::clear()
 	m_bCompilingHourly = false;
 	m_stat.clear();
 	m_format.clear();//?? humm je réessais pour voir si ca cause encore une problème
-
+	m_bHourlyComputed = false;
 	//m_years.clear();
 }
 
@@ -2588,6 +2598,7 @@ CWeatherYears::CWeatherYears(bool bIsHourly)
 	m_pParent = NULL;
 	m_bHourly = bIsHourly;
 	m_bCompilingHourly = false;
+	m_bHourlyComputed = false;
 //	m_hourlyGenerationMethod = HG_SINE_EXP_SAVAGE;
 }
 
@@ -2616,6 +2627,7 @@ CWeatherYears& CWeatherYears::operator=(const CWeatherYears& in)
 
 		//m_bModified = in.m_bModified;
 		m_bCompilingHourly = in.m_bCompilingHourly;
+		m_bHourlyComputed = in.m_bHourlyComputed;
 	}
 
 	return *this;
@@ -2641,6 +2653,7 @@ bool CWeatherYears::operator==(const CWeatherYears& in)const
 	if (m_bHourly != in.m_bHourly) bRep = false;
 	if (size() != in.size())bRep = false;
 	if (m_format != in.m_format)bRep = false;
+	//if (m_bHourlyComputed != in.m_bHourlyComputed)equal = false; ????
 
 	for (const_iterator it = in.begin(); it != in.end() && bRep; it++)
 	{
@@ -3269,92 +3282,11 @@ void CWeatherYears::CompleteSnow()
 		}
 	}
 }
-//*****************************************************************************************************************
-CTRef CWeatherDay::GetTRef()const
+
+
+bool CWeatherYears::ComputeHourlyVariables(CWVariables variables, std::string options)
 {
-	ASSERT(m_TRef.GetTM() == CTM(CTRef::DAILY));
-	return m_TRef;
-}
-
-CTRef CWeatherMonth::GetTRef()const
-{
-	CTRef ref(at(0).GetTRef());
-	ref.Transform( CTM(CTRef::MONTHLY) );
-	return ref;
-}
-
-CTRef CWeatherYear::GetTRef()const
-{
-	CTRef ref(at(0).at(0).GetTRef());
-	ref.Transform( CTM(CTRef::ANNUAL) );
-	return ref;
-}
-
-//*****************************************************************************************************************
-
-CWeatherStation::CWeatherStation(bool bIsHourly):
-	CWeatherYears(bIsHourly)
-{
-	m_pAgent=NULL;
-	CWeatherYears::Initialize(this);
-	//m_bModified = false;
-	m_bHourlyComputed = false;
-}
-
-CWeatherStation::CWeatherStation(const CWeatherStation& in)
-{
-	m_pAgent = NULL;
-	operator=(in);
-}
-
-void CWeatherStation::clear()
-{
-	CLocation::clear();
-	CWeatherYears::clear();
-	//m_bModified = false;
-	m_bHourlyComputed = false;
-}
-
-
-	
-
-CWeatherStation& CWeatherStation::operator=(const CWeatherStation& in)
-{
-	if( &in != this )
-	{
-		CWeatherYears::Initialize(this);
-
-		CLocation::operator=(in);
-		CWeatherYears::operator=(in);
-		m_pAgent=in.m_pAgent;
-		m_hxGridSessionID=in.m_hxGridSessionID;
-		m_bHourlyComputed = in.m_bHourlyComputed;
-	}
-
-
-	ASSERT( in == *this);
-
-	return *this;
-}
-
-bool CWeatherStation::operator==(const CWeatherStation& in)const
-{
-	bool equal=true;
-	if( CLocation::operator!=(in) )equal=false;
-	if( CWeatherYears::operator!=(in) )equal=false;
-	if( m_pAgent!=in.m_pAgent )equal=false;
-	if( m_hxGridSessionID!=in.m_hxGridSessionID )equal=false;
-	if (m_bHourlyComputed != in.m_bHourlyComputed)equal = false;
-	if (m_bHourly != in.m_bHourly)equal = false;
-
-	return equal;
-}
-
-
-
-bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string options)
-{
-	CWeatherStation& me = *this;
+	CWeatherYears& me = *this;
 
 	CWVariables vAvail = GetVariables();
 	if (vAvail[H_TMIN2] && vAvail[H_TMAX2])
@@ -3380,7 +3312,7 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 
 
 
-	CWeatherStation copy(me);//create daily weather
+	CWeatherYears copy(me);//create daily weather
 
 
 	copy.IsCompilingHourly();
@@ -3398,11 +3330,11 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 		}
 	}
 
-	
+
 	//adjust variables to get the same daily mean
 	CWVariables variableToAdjust("TD H WS Z WS2");
 	variableToAdjust &= variables;
-	
+
 	for (TVarH v = H_TDEW; v < variableToAdjust.size(); v++)
 	{
 		if (variableToAdjust[v])
@@ -3415,7 +3347,7 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 					{
 						for (size_t d = 0; d < me[y][m].size(); d++)
 						{
-						
+
 							_ASSERTE(me[y][m][d][v].IsInit());
 							CStatistic oldStat = GetDailyStat(v, copy[y][m][d]);
 							_ASSERTE(oldStat);
@@ -3461,6 +3393,88 @@ bool CWeatherStation::ComputeHourlyVariables(CWVariables variables, std::string 
 
 	return true;
 }
+
+//*****************************************************************************************************************
+CTRef CWeatherDay::GetTRef()const
+{
+	ASSERT(m_TRef.GetTM() == CTM(CTRef::DAILY));
+	return m_TRef;
+}
+
+CTRef CWeatherMonth::GetTRef()const
+{
+	CTRef ref(at(0).GetTRef());
+	ref.Transform( CTM(CTRef::MONTHLY) );
+	return ref;
+}
+
+CTRef CWeatherYear::GetTRef()const
+{
+	CTRef ref(at(0).at(0).GetTRef());
+	ref.Transform( CTM(CTRef::ANNUAL) );
+	return ref;
+}
+
+//*****************************************************************************************************************
+
+CWeatherStation::CWeatherStation(bool bIsHourly):
+	CWeatherYears(bIsHourly)
+{
+	m_pAgent=NULL;
+	CWeatherYears::Initialize(this);
+	
+	//m_bHourlyComputed = false;
+}
+
+CWeatherStation::CWeatherStation(const CWeatherStation& in)
+{
+	m_pAgent = NULL;
+	operator=(in);
+}
+
+void CWeatherStation::clear()
+{
+	CLocation::clear();
+	CWeatherYears::clear();
+	//m_bModified = false;
+	//m_bHourlyComputed = false;
+}
+
+
+	
+
+CWeatherStation& CWeatherStation::operator=(const CWeatherStation& in)
+{
+	if( &in != this )
+	{
+		CWeatherYears::Initialize(this);
+
+		CLocation::operator=(in);
+		CWeatherYears::operator=(in);
+		m_pAgent=in.m_pAgent;
+		m_hxGridSessionID=in.m_hxGridSessionID;
+		//m_bHourlyComputed = in.m_bHourlyComputed;
+	}
+
+
+	ASSERT( in == *this);
+
+	return *this;
+}
+
+bool CWeatherStation::operator==(const CWeatherStation& in)const
+{
+	bool equal=true;
+	if( CLocation::operator!=(in) )equal=false;
+	if( CWeatherYears::operator!=(in) )equal=false;
+	if( m_pAgent!=in.m_pAgent )equal=false;
+	if( m_hxGridSessionID!=in.m_hxGridSessionID )equal=false;
+	//if (m_bHourlyComputed != in.m_bHourlyComputed)equal = false;
+	if (m_bHourly != in.m_bHourly)equal = false;
+
+	return equal;
+}
+
 
 void CWeatherStationVector::GetMean( CWeatherStation& station, CTPeriod p, size_t mergeType)const 
 {

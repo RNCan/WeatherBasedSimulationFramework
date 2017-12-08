@@ -1196,7 +1196,8 @@ namespace WBSF
 	
 				CExecutablePtr pItem = (iName == m_pRoot->GetInternalName()) ? m_pRoot : m_pRoot->FindItem(iName);
 				ASSERT(pItem);
-				pItem->SetExecute(bChecked);
+				if(pItem)
+					pItem->SetExecute(bChecked);
 				
 			}
 		}

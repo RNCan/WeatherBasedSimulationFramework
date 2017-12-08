@@ -316,12 +316,14 @@ public:
 	virtual bool GetStat(HOURLY_DATA::TVarH v, CStatistic& stat)const = 0;
 	virtual CTRef GetTRef()const=0;
 	virtual CWVariables GetVariables()const = 0;
-	virtual CWVariablesCounter GetVariablesCount()const=0;
+	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly=false)const=0;
 	virtual CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const = 0;
 	virtual void WriteStream(std::ostream& stream, const CWVariables& variable)const = 0;
 	virtual void ReadStream(std::istream& stream, const CWVariables& variable)= 0;
 	virtual inline const CDataInterface* GetParent()const=0;
 	virtual inline CDataInterface* GetParent()=0;
+	virtual inline CWeatherYears& GetWeatherYears(){ return GetParent()->GetWeatherYears(); }
+	virtual inline const CWeatherYears& GetWeatherYears()const{ return GetParent()->GetWeatherYears(); }
 	virtual inline CWeatherStation* GetWeatherStation(){return GetParent()->GetWeatherStation();}
 	virtual inline const CWeatherStation* GetWeatherStation()const{ return GetParent()->GetWeatherStation(); }
 	virtual inline bool IsHourly()const = 0;
@@ -390,7 +392,7 @@ public:
 		return variables;
 	}
 	
-	virtual CWVariablesCounter GetVariablesCount()const
+	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
 		for(size_t v=0; v<size(); v++)
@@ -507,10 +509,10 @@ public:
 		return variables;
 	}
 
-	virtual CWVariablesCounter GetVariablesCount()const
+	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
-		if( IsHourly() )
+		if (IsHourly() && !bDailyOnly)
 		{
 			for (size_t h = 0; h<size(); h++)
 				variables += at(h).GetVariablesCount();
@@ -716,11 +718,11 @@ public:
 		return variables;
 	}
 	
-	virtual CWVariablesCounter GetVariablesCount()const
+	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
 		for(size_t d=0; d<size(); d++)
-			variables+=at(d).GetVariablesCount();
+			variables += at(d).GetVariablesCount(bDailyOnly);
 		
 		return variables;
 	}
@@ -842,11 +844,11 @@ public:
 		return variables;
 	}
 
-	virtual CWVariablesCounter GetVariablesCount()const
+	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
 		for(size_t m=0; m<size(); m++)
-			variables+=at(m).GetVariablesCount();
+			variables += at(m).GetVariablesCount(bDailyOnly);
 		
 		return variables;
 	}
@@ -1081,12 +1083,12 @@ public:
 		return variables;
 	}
 
-	CWVariablesCounter GetVariablesCount()const
+	CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
 		for (const_iterator it = begin(); it != end(); it++)
 			//if( at(y).get() )
-				variables+=it->second->GetVariablesCount();
+			variables += it->second->GetVariablesCount(bDailyOnly);
 		
 		return variables;
 	}
@@ -1114,6 +1116,8 @@ public:
 
 	virtual inline const CDataInterface* GetParent()const{ ASSERT(false); return NULL; }//call GetWeatherStation Instead
 	virtual inline CDataInterface* GetParent(){ ASSERT(false); return NULL; }//call GetWeatherStation Instead
+	virtual inline CWeatherYears& GetWeatherYears();
+	virtual inline const CWeatherYears& GetWeatherYears()const;
 	virtual inline CWeatherStation* GetWeatherStation();
 	virtual inline const CWeatherStation* GetWeatherStation()const;
 
@@ -1166,10 +1170,13 @@ public:
 	bool IsCompilingHourly()const{ return m_bCompilingHourly; }
 	void IsCompilingHourly(bool in=true){ m_bCompilingHourly = in; }
 	void CompleteSnow();
+	bool ComputeHourlyVariables(CWVariables variables = CWAllVariables(), std::string options = "");
+	bool IsHourlyComputed()const{ return m_bHourlyComputed; }
 
 
 protected:
-
+	
+	bool m_bHourlyComputed;//compute only once
 	bool m_bHourly;
 	bool m_bCompilingHourly;
 
@@ -1216,10 +1223,6 @@ public:
 	void WriteStream(std::ostream& stream)const;
 	ERMsg ReadStream(std::istream& stream);
 
-	bool ComputeHourlyVariables(CWVariables variables = CWAllVariables(), std::string options = "");
-	bool IsHourlyComputed()const{ return m_bHourlyComputed; }
-
-	bool m_bHourlyComputed;//compute only once
 
 	
 };
@@ -1335,11 +1338,11 @@ public:
 		return variables;
 	}
 
-	CWVariablesCounter GetVariablesCount()const
+	CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter counts;
 		for (const_iterator it = begin(); it != end(); it++)
-			counts += it->GetVariablesCount();
+			counts += it->GetVariablesCount(bDailyOnly);
 
 		return counts;
 	}
@@ -1385,6 +1388,8 @@ inline CDataInterface* CWeatherMonth::GetParent() { return m_pParent; }
 inline const CDataInterface* CWeatherYear::GetParent()const { return m_pParent; }
 inline CDataInterface* CWeatherYear::GetParent() { return m_pParent; }
 
+inline CWeatherYears& CWeatherYears::GetWeatherYears(){ return *this; }
+inline const CWeatherYears& CWeatherYears::GetWeatherYears()const{ return *this; }
 inline CWeatherStation* CWeatherYears::GetWeatherStation(){ return m_pParent; }
 inline const CWeatherStation* CWeatherYears::GetWeatherStation()const{ return m_pParent; }
 
@@ -1392,8 +1397,8 @@ inline bool CWeatherDay::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherMonth::IsHourly()const{ return m_pParent->IsHourly(); }
 inline bool CWeatherYear::IsHourly()const{ return m_pParent->IsHourly(); }
 
-inline bool CDataInterface::HavePrevious()const	{ return GetWeatherStation()->IsYearInit((GetTRef() - 1).GetYear()); }
-inline bool CDataInterface::HaveNext()const{ return GetWeatherStation()->IsYearInit((GetTRef() + 1).GetYear()); }
+inline bool CDataInterface::HavePrevious()const	{ return GetWeatherYears().IsYearInit((GetTRef() - 1).GetYear()); }
+inline bool CDataInterface::HaveNext()const{ return GetWeatherYears().IsYearInit((GetTRef() + 1).GetYear()); }
 
 }//namespace WBSF
 

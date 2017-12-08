@@ -136,7 +136,11 @@ namespace WBSF
 				{
 					ASSERT(CTRef::ANNUAL == CTRefFormat::YEAR);
 					ASSERT(CTRef::DAILY == CTRefFormat::DAY);
-					TRef.m_type = (TRef.m_type == CTRef::UNKNOWN) ? at(i).m_field : max(size_t(TRef.m_type), at(i).m_field);
+					size_t type = at(i).m_field;
+					if (type >= CTRefFormat::JDAY)
+						type--;//skip JDAY value
+
+					TRef.m_type = (TRef.m_type == CTRef::UNKNOWN) ? type : max(size_t(TRef.m_type), type);
 					switch (at(i).m_field)
 					{
 					case CTRefFormat::HOUR: TRef.m_hour = ToInt(columnList[i]); break;
