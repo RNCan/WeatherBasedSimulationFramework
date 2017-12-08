@@ -23,6 +23,7 @@ namespace WBSF
 
 		CSpruceBudwormEquations(const CRandomGenerator& RG);
 
+		static size_t GetEquationIndex(size_t stage, size_t sex);
 		virtual double ComputeRate(size_t e, double t)const;
 
 		double GetRate(size_t stage, size_t sex, double T)const
@@ -50,8 +51,8 @@ namespace WBSF
 
 		enum TSex{ MALE, FEMALE, NB_SEX };
 
-		static double GetRate(size_t equation, double T);
-		static size_t GetEquationIndex(size_t stage, size_t sex);
+		//static double GetRate(size_t equation, double T);
+		
 
 		static double Equation1(size_t s, double T);
 		static double Equation2(size_t s, double T);

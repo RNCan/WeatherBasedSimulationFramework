@@ -232,7 +232,7 @@ namespace WBSF
 			size_t h = step*GetTimeStep();
 			Live(weather[h], GetTimeStep());
 		}
-
+		//Live(weather[0], 24);
 		m_bExodus = false;
 
 		//flight activity, only in live adults 
