@@ -71,9 +71,28 @@ BOOL CBioSIMDoc::OnNewDocument()
 
 	//UpdateAllViews(NULL, INIT);
 
+	/*CStdioFile file1(_T("H:\\Travaux\\Dispersal2007\\Weather\\WRFdata\\wrfbud2_000.txt"), CFile::modeRead);
+	CStdioFile file2(_T("H:\\Travaux\\Dispersal2007\\Input\\wrfbud2_000.csv"), CFile::modeWrite | CFile::modeCreate);
+	file2.WriteString(_T("ID,Latitude,Longitude"));
+	CString line;
+	int i = 0; 
+	while (file1.ReadString(line))
+	{
+		if (i % 38 == 0)
+		{
+			int pos = 0;
+			CString lat = line.Tokenize(_T(" "), pos);
+			CString lon = line.Tokenize(_T(" "), pos);
+			CString ID = line.Tokenize(_T(" "), pos);
+			CString line2;
+			line2.Format(_T("%s,%s,%s\n"), ID, lat, lon);
+			file2.WriteString(line2);
+		}
+		i++;
+	}
 
-	
-
+	file1.Close();
+	file2.Close();*/
 /*	CStdioFile file1("D:\\project\\models\\MPB\\Hourly\\Data\\snran.txt", CFile::modeRead);
 	CStdioFile file2("D:\\project\\models\\MPB\\Hourly\\Data\\snras.txt", CFile::modeRead);
 	CStdioFile file3("D:\\project\\models\\MPB\\Hourly\\Data\\snra1992-2004.txt", CFile::modeWrite|CFile::modeCreate);
