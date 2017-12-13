@@ -3,12 +3,14 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.4	13/12/2017	Rémi Saint-Amant	bug correction for big images
+// 1.0.3	08/12/2017	Rémi Saint-Amant	bug correction for big images
 // 1.0.2	15/11/2017	Rémi Saint-Amant	Add debug for buffer
 // 1.0.1	14/11/2017	Rémi Saint-Amant	Output only one scene at a time. Add buffer and MaxScene options
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
 //-co "compress=LZW" -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Model\See5_Cloud_T123" "D:\Travaux\CloudCleaner\Input\Nuage.vrt" "D:\Travaux\CloudCleaner\Output\Output.vrt"
-
+//-B1 -175 -TCB 600 -Debug -NoResult -te 1036980 6393000 2497980 7753980 -of VRT -overwrite -ot Int16 -co "bigtiff=yes" -co "COMPRESS=LZW" -multi -dstnodata -32768 -stats -hist -overview {8,16} -co tiled=yes  -co blockxsize=1024 -co blockysize=1024  --config GDAL_CACHEMAX 2048 U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\DT\See5_Cloud_T123 U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\L57_20050607_UGIS_vrt.vrt U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\testRemi.vrt
 //Et un CODE DT avec T1 T2 T3 ici(1 = feu, 2 = coupe, 112 et 113 ombre et nuage).C’est vraiment rough comme DT mais l’arbre sera amélioré, dans les prochaine semaines.
 
 
@@ -41,7 +43,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "1.0.2";
+static const char* version = "1.0.4";
 static const int NB_THREAD_PROCESS = 2; 
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
@@ -511,16 +513,19 @@ ERMsg CCloudCleaner::Execute()
 
 
 		CGeoExtents extents = bandHolder.GetExtents();
-		boost::dynamic_bitset<size_t> clouds(extents.m_xSize*extents.m_ySize);
+		boost::dynamic_bitset<size_t> clouds((size_t)extents.m_xSize*extents.m_ySize);
 
+		if (!m_options.m_bQuiet )
+			cout << "Find clouds..." << endl;
 
-		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
-
+		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 		vector<pair<int,int>> XYindex = extents.GetBlockList();
+		//while (XYindex.size() > 5)
+			//XYindex.erase(XYindex.begin());
 		
 		//pass 1 : find counds
 		omp_set_nested(1);
-		//#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
 		for(int b=0; b<(int)XYindex.size(); b++)
 		{
 			int thread = omp_get_thread_num();
@@ -536,11 +541,14 @@ ERMsg CCloudCleaner::Execute()
 
 		if (m_options.m_bCreateImage || m_options.m_bDebug)
 		{
-			m_options.ResetBar(extents.m_xSize*extents.m_ySize);
+			if (!m_options.m_bQuiet)
+				cout << "Replace clouds..." << endl;
+
+			m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 
 			//pass 2 : reset or replace clouds
 			omp_set_nested(1);
-//#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
 			for (int b = 0; b < (int)XYindex.size(); b++)
 			{
 				int thread = omp_get_thread_num();
@@ -626,13 +634,13 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 	CGeoExtents extents = bandHolder.GetExtents();
 	CGeoRectIndex index = extents.GetBlockRect(xBlock, yBlock);
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-	int nbCells = extents.m_xSize*extents.m_ySize;
+	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 	
 	if (bandHolder.IsEmpty() )
 	{
 #pragma omp atomic		
-		m_options.m_xx += (std::min(nbCells, blockSize.m_x*blockSize.m_y));
+		m_options.m_xx += (std::min(nbCells, (size_t)blockSize.m_x*blockSize.m_y));
 		m_options.UpdateBar();
 
 		return;
@@ -790,12 +798,12 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 	CGeoExtents extents = bandHolder.GetExtents();
 	CGeoRectIndex index = extents.GetBlockRect(xBlock, yBlock);
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-	int nbCells = extents.m_xSize*extents.m_ySize;
+	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 	if (bandHolder.IsEmpty())
 	{
 #pragma omp atomic		
-		m_options.m_xx += (std::min(nbCells, blockSize.m_x*blockSize.m_y));
+		m_options.m_xx += (std::min(nbCells, (size_t)blockSize.m_x*blockSize.m_y));
 		m_options.UpdateBar();
 
 		return;
@@ -825,9 +833,9 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 			for (int x = 0; x < blockSize.m_x; x++)
 			{
 //				int thread = ::omp_get_thread_num();
-				size_t xy = y*blockSize.m_x + x;
+				size_t xy = (size_t)y*blockSize.m_x + x;
 
-				size_t xy2 = (index.m_y + y)* extents.m_xSize + index.m_x + x;
+				size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
 				if (clouds.test(xy2))
 				{
 

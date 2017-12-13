@@ -855,7 +855,7 @@ ERMsg CDisterbanceAnalyser::Execute()
 
 
 		CGeoExtents extents = bandHolder1.GetExtents();
-		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
+		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 
 		vector<pair<int,int>> XYindex = extents.GetBlockList();
 		
@@ -909,12 +909,12 @@ void CDisterbanceAnalyser::ProcessBlock(int xBlock, int yBlock, const CBandsHold
 	size_t sceneSize = bandHolder1.GetSceneSize();
 	CGeoExtents extents = bandHolder1.GetExtents();
 	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-	int nbCells = extents.m_xSize*extents.m_ySize;
+	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 	if (bandHolder1.IsEmpty())
 	{
 #pragma omp atomic		
-		m_options.m_xx += (std::min(nbCells, blockSize.m_x*blockSize.m_y));
+		m_options.m_xx += (std::min(nbCells, (size_t)blockSize.m_x*blockSize.m_y));
 		m_options.UpdateBar();
 
 		return;

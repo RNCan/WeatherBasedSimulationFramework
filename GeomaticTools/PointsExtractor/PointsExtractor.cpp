@@ -488,7 +488,7 @@ namespace WBSF
 	{
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-		int nbCells = extents.m_xSize*extents.m_ySize;
+		//int nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 		CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
 		CGeoRectIndex blockRect = blockExtents.GetPosRect();
 		string strNodata = ToString(m_options.m_dstNodata, m_options.m_precision);

@@ -130,7 +130,7 @@ namespace WBSF
 
 
 		CGeoExtents extents = bandHolder.GetExtents();
-		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
+		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 		vector<pair<int, int>> XYindex = extents.GetBlockList(5,5);
 
 		vector < set<size_t>> imagesList(XYindex.size());

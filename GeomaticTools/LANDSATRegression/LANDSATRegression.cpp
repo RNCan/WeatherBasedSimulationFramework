@@ -272,7 +272,7 @@ namespace WBSF
 
 
 			CGeoExtents extents = bandHolder.GetExtents();
-			m_options.ResetBar(extents.m_xSize*extents.m_ySize);
+			m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 
 			vector<pair<int, int>> XYindex = extents.GetBlockList();
 
@@ -326,9 +326,9 @@ namespace WBSF
 
 		if (bandHolder.IsEmpty())
 		{
-			int nbCells = extents.m_xSize*extents.m_ySize;
+			size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 #pragma omp atomic		
-			m_options.m_xx += (min(nbCells, blockSize.m_x*blockSize.m_y));
+			m_options.m_xx += (min(nbCells, (size_t)blockSize.m_x*blockSize.m_y));
 
 			m_options.UpdateBar();
 			return;
