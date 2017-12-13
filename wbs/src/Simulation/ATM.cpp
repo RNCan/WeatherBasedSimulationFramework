@@ -204,6 +204,7 @@ namespace WBSF
 	double CATMVariables::get_Uw(double p, double t, double ω)
 	{
 		ASSERT(!_isnan(p) && !_isnan(t) && !_isnan(ω));
+		
 
 		static const double rgas = 287.058; //J/(kg•K) = > m²/(s²•K)
 		static const double g = 9.80665; //m/s²
@@ -427,38 +428,46 @@ namespace WBSF
 
 
 		CATMVariables w = get_weather(UTCTRef, UTCTime);
-		if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
+		if (w.is_init())
 		{
-			__int64 duration = UTCTime - m_liffoff_time;
-
-			if (duration < m_duration)
+			if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 			{
-				double dt = m_world.get_time_step(); //[s]
+				__int64 duration = UTCTime - m_liffoff_time;
 
-				CGeoDistance3D U = get_U(UTCTime, w);
-				CGeoDistance3D d = U*dt;
+				if (duration < m_duration)
+				{
+					double dt = m_world.get_time_step(); //[s]
 
-				((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-				((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+					CGeoDistance3D U = get_U(UTCTime, w);
+					CGeoDistance3D d = U*dt;
 
-				if (m_pt.m_z <= 5)
+					((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+					((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+
+					if (m_pt.m_z <= 5)
+					{
+						m_state = LANDING;
+						m_end_type = END_BY_TAIR;
+					}
+
+					AddStat(w, U, d);
+				}
+				else
 				{
 					m_state = LANDING;
-					m_end_type = END_BY_TAIR;
+					m_end_type = END_BY_SUNRISE;
 				}
-
-				AddStat(w, U, d);
 			}
 			else
 			{
 				m_state = LANDING;
-				m_end_type = END_BY_SUNRISE;
+				m_end_type = END_BY_PRCP;
 			}
 		}
 		else
 		{
-			m_state = LANDING;
-			m_end_type = END_BY_PRCP;
+			m_state = IDLE_END;
+			m_end_type = OUTSIDE_MAP;
 		}
 
 	}
@@ -472,25 +481,33 @@ namespace WBSF
 
 		double dt = m_world.get_time_step(); //[s]
 		CATMVariables w = get_weather(UTCTRef, UTCTime);
-		CGeoDistance3D U = get_U(UTCTime, w);
-		CGeoDistance3D d = U*dt;
-
-		((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
-		((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
-
-		if (m_pt.m_z <= 5)//let moth landing correcly
+		if (w.is_init())
 		{
-			//it's the end
-			m_log[T_LANDING] = UTCTime;
-			m_state = IDLE_END;
+			CGeoDistance3D U = get_U(UTCTime, w);
+			CGeoDistance3D d = U*dt;
 
-			//end at zero
-			m_newLocation.m_z -= m_pt.m_z;
-			m_pt.m_z -= m_pt.m_z;
+			((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d);
+			((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d);
+
+			if (m_pt.m_z <= 5)//let moth landing correcly
+			{
+				//it's the end
+				m_log[T_LANDING] = UTCTime;
+				m_state = IDLE_END;
+
+				//end at zero
+				m_newLocation.m_z -= m_pt.m_z;
+				m_pt.m_z -= m_pt.m_z;
+			}
+
+			ASSERT(m_pt.m_z >= 0);
+			AddStat(w, U, d);
 		}
-
-		ASSERT(m_pt.m_z >= 0);
-		AddStat(w, U, d);
+		else
+		{
+			m_state = IDLE_END;
+			m_end_type = OUTSIDE_MAP;
+		}
 	}
 
 	void CFlyer::idle_end(CTRef UTCTRef, __int64 UTCTime)
@@ -732,34 +749,42 @@ namespace WBSF
 		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
 		//ASSERT(m_pt.m_z >= 0);
 
+		
+
 		CATMVariables w;
 
 		CGeoPoint3D ptᵒ = m_pt;
 		CATMVariables wᵒ = m_world.get_weather(ptᵒ, UTCTRef, UTCTime);
-		CGeoDistance3D Uᵒ = get_U(UTCTime, wᵒ);
-
-		double dt = m_world.get_time_step(); //[s]
-		CGeoPoint3D pt¹ = UpdateCoordinate(m_pt, Uᵒ*dt);
-
-
-		if (m_world.m_parameters1.m_bUsePredictorCorrectorMethod &&
-			m_world.m_weather.IsLoaded(UTCTRef + int(dt / 3600)) &&
-			m_world.IsInside(pt¹) &&
-			pt¹.m_z > 0)
+		if (wᵒ.is_init())
 		{
-			CATMVariables w¹ = m_world.get_weather(pt¹, UTCTRef + int(dt / 3600), UTCTime + dt);
-			w = (wᵒ + w¹) / 2;
-		}
-		else
-		{
-			w = wᵒ;
-		}
+			CGeoDistance3D Uᵒ = get_U(UTCTime, wᵒ);
 
-		if (m_world.m_parameters1.m_bUseTurbulance)
-		{
-			w[ATM_WNDU] *= exp(m_world.random().Rand(-0.1, 0.1));
-			w[ATM_WNDV] *= exp(m_world.random().Rand(-0.1, 0.1));
-			w[ATM_WNDW] *= exp(m_world.random().Rand(-0.1, 0.1));
+			double dt = m_world.get_time_step(); //[s]
+			CGeoPoint3D pt¹ = UpdateCoordinate(m_pt, Uᵒ*dt);
+
+
+			if (m_world.m_parameters1.m_bUsePredictorCorrectorMethod &&
+				m_world.m_weather.IsLoaded(UTCTRef + int(dt / 3600)) &&
+				m_world.IsInside(pt¹) &&
+				pt¹.m_z > 0)
+			{
+				CATMVariables w¹ = m_world.get_weather(pt¹, UTCTRef + int(dt / 3600), UTCTime + dt);
+				if (w¹.is_init())
+					w = (wᵒ + w¹) / 2;
+				else
+					w = wᵒ;
+			}
+			else
+			{
+				w = wᵒ;
+			}
+
+			if (m_world.m_parameters1.m_bUseTurbulance)
+			{
+				w[ATM_WNDU] *= exp(m_world.random().Rand(-0.1, 0.1));
+				w[ATM_WNDV] *= exp(m_world.random().Rand(-0.1, 0.1));
+				w[ATM_WNDW] *= exp(m_world.random().Rand(-0.1, 0.1));
+			}
 		}
 
 		return w;
@@ -826,7 +851,7 @@ CATMVariables CATMWeatherCuboid::get_weather(const CGeoPoint3D& pt, bool bSpaceI
 
 	const CATMWeatherCuboid& me = *this;
 	array<CStatistic, NB_ATM_VARIABLES> sumV;
-	CStatistic sumP;
+	array<CStatistic, NB_ATM_VARIABLES> sumP;
 
 	double nearestD = DBL_MAX;
 	CGeoPoint3DIndex nearest;
@@ -840,7 +865,7 @@ CATMVariables CATMWeatherCuboid::get_weather(const CGeoPoint3D& pt, bool bSpaceI
 			{
 				double d = m_pt[z][y][x].GetDistance(pt) + 1;//add 1 meters to avoid division by zero
 				double p = 1 / pow(d, POWER);
-				sumP += p;
+				
 				
 				if (d < nearestD)
 				{
@@ -849,26 +874,42 @@ CATMVariables CATMWeatherCuboid::get_weather(const CGeoPoint3D& pt, bool bSpaceI
 				}
 
 				for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
-					sumV[v] += me[z][y][x][v] * p;
+				{
+					if (me[z][y][x][v]>-999)
+					{
+						sumV[v] += me[z][y][x][v] * p;
+						sumP[v] += p;
+					}
+				}
+					
 			}
 		}
 	}
 	
 	if (!bSpaceInterpol)
 	{
+		
+		
 		//take the nearest point
 		for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
-			sumV[v] = me[nearest.m_z][nearest.m_y][nearest.m_x][v];
-
-		sumP = 1;
+		{
+			if (me[nearest.m_z][nearest.m_y][nearest.m_x][v]>-999)
+			{
+				sumV[v] = me[nearest.m_z][nearest.m_y][nearest.m_x][v];
+				sumP[v] = 1;
+			}
+		}
 	}
 	
 
 	//mean of 
 	for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
 	{
-		w[v] += sumV[v][SUM] / sumP[SUM];
-		ASSERT(!_isnan(w[v]) && _finite(w[v]));
+		if (sumP[v].IsInit())
+		{
+			w[v] = sumV[v][SUM] / sumP[v][SUM];
+			ASSERT(!_isnan(w[v]) && _finite(w[v]));
+		}
 	}
 
 	return w;
@@ -892,13 +933,21 @@ CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 tim
 			fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
 		double f¹ = (1 - fᵒ);
-
+		ASSERT(fᵒ + f¹ == 1);
 
 		CATMVariables wᵒ = me[0].get_weather(pt, m_bUseSpaceInterpolation);
 		CATMVariables w¹ = me[1].get_weather(pt, m_bUseSpaceInterpolation);
+		if (wᵒ.is_init() && w¹.is_init())
+		{
+			w = wᵒ*fᵒ + w¹*f¹;
+		}
+		//else if (wᵒ.is_init() && w¹.is_init())
+		//{
 
-		ASSERT(fᵒ + f¹ == 1);
-		w = wᵒ*fᵒ + w¹*f¹;
+		//}
+		//else if (wᵒ.is_init() && w¹.is_init())
+		
+		
 	}
 	else
 	{
@@ -915,8 +964,9 @@ CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 tim
 
 CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const
 {
-//	ASSERT(pt.m_z >= 0);
 	ASSERT(pt.IsGeographic());
+
+
 
 	size_t weather_type = m_world.m_parameters1.m_weather_type;
 	if (weather_type == CATMWorldParamters::FROM_GRIBS && 
@@ -964,7 +1014,7 @@ CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __i
 	default: ASSERT(false);
 	}
 	
-	if (m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
+	if (weather[ATM_PRCP]>-999 && m_world.m_parameters2.m_PSource == CATMParameters::DONT_USE_PRCP)
 		weather[ATM_PRCP] = 0;
 
 	return weather;
@@ -1087,7 +1137,7 @@ void CATMWeather::GetWindProfileRelationship(double& Ur, double& Vr, double z, i
 
 CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64  UTCTime)const
 {
-	//CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCTime);
+	CATMVariables w;
 	CATMVariables wᵒ = get_station_weather(pt, UTCTRef);
 	CATMVariables w¹ = get_station_weather(pt, UTCTRef + 1);
 	ASSERT(GetHourlySeconds(UTCTime) >= 0 && GetHourlySeconds(UTCTime) <= 3600);
@@ -1098,8 +1148,10 @@ CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCT
 		fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
 	double f¹ = (1 - fᵒ);
+	if (wᵒ.is_init() && w¹.is_init())
+		w = wᵒ*fᵒ + w¹*f¹;
 
-	return wᵒ*fᵒ + w¹*f¹;
+	return w;
 }
 
 CATMVariables CATMWeather::get_station_weather(const CGeoPoint3D& pt, CTRef UTCTRef)const
@@ -1140,13 +1192,20 @@ CGeoPointIndex CATMWeather::get_xy(const CGeoPoint& ptIn, CTRef UTCTRef)const
 	
 }
 
-int CATMWeather::get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRef UTCTRef, bool bLow)const
+size_t CATMWeather::get_level(const CGeoPointIndex& xy, const CGeoPoint3D& ptIn, CTRef UTCTRef, bool bLow)const
 {
+	CGeoPoint3D pt(ptIn);
 	vector<pair<double, int>> test;
 
-	double grAlt = GetGroundAltitude(xy, UTCTRef);//get the first level over the ground
+	//in WRF, geopotentiel hight is above ground
+	//in other product, geopotentiel hight is above sea level
+
+	double grAlt = GetFirstAltitude(xy, UTCTRef);//get the first level over the ground
+	
 	if (grAlt<=-999)
 		grAlt = m_world.GetGroundAltitude(pt);
+	//if (firstAlt == 0)//if the geopotentiel hight is above ground level, we have to substract grouind level to elevation
+		//pt.m_z = max(0.0, pt.m_z -grAlt);
 
 	if (grAlt>-999)
 		test.push_back(make_pair(grAlt, 0));
@@ -1158,7 +1217,8 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRe
 		if (b != NOT_INIT)
 		{
 			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
-			test.push_back(make_pair(gph, l));
+			if (gph>-999)
+				test.push_back(make_pair(gph, l));
 
 			if (pt.m_alt < gph)
 				break;
@@ -1176,17 +1236,20 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRe
 
 	sort(test.begin(), test.end());
 
-	int L = NB_LEVELS-1;
-	for (int l = 0; l < (int)test.size(); l++)
+	size_t L = NOT_INIT;
+	if (test.size() >= 2)
 	{
-		if (pt.m_alt < test[l].first)
+		for (size_t l = 0; l < test.size(); l++)
 		{
-			L = test[bLow ? max(0, l - 1) : l].second;
-			break;
+			if (pt.m_alt < test[l].first)
+			{
+				L = test[bLow ? (l == 0 ? 0 : l - 1) : l].second;
+				break;
+			}
 		}
 	}
 
-	ASSERT(L >= 0 && L < NB_LEVELS);
+	ASSERT(L ==NOT_INIT || L < NB_LEVELS);
 	return L;
 }
 
@@ -1209,7 +1272,7 @@ int CATMWeather::get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRe
 //	return L;
 //}
 
-double CATMWeather::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
+double CATMWeather::GetFirstAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
 {
 	size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
 	//ASSERT(b != NOT_INIT);
@@ -1282,11 +1345,15 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 		}
 
 		const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCTRef);
+		
 		double groundAlt = 0;
 		
 		//RUC is above sea level and WRF must be above sea level
-		//if (gribType == RUC_TYPE)
-		groundAlt = m_world.GetGroundAltitude(ptIn);
+		if (m_bHgtOverSea)
+		{
+			groundAlt = m_world.GetGroundAltitude(ptIn);
+		}
+			
 		
 
 		CGeoPoint3D pt(ptIn);
@@ -1305,74 +1372,73 @@ CATMWeatherCuboidsPtr CATMWeather::get_cuboids(const CGeoPoint3D& ptIn, CTRef UT
 				for (size_t x = 0; x < NB_POINTS_X; x++)
 				{
 					CGeoPointIndex xy2 = xy1 + CGeoPointIndex((int)x, (int)y);
-					//int L = get_level(xy2, pt.m_z, UTCTRef, z==0);
-					int L = get_level(xy2, pt, UTCTRef, z == 0);
-					ASSERT(L >= 0 && L < NB_LEVELS);
-
+					size_t L = get_level(xy2, pt, UTCTRef, z == 0);
 					
-					if (xy2.m_x >= extents.m_xSize)
+					/*if (xy2.m_x >= extents.m_xSize)
 						xy2.m_x = extents.m_xSize - 1;
 					if (xy2.m_y >= extents.m_ySize)
 						xy2.m_y = extents.m_ySize - 1;
 					if (L<0 || L > MAX_GEOH)
 						L = MAX_GEOH;
-
-					((CGeoPoint&)(*cuboids)[i].m_pt[z][y][x]) = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
-
-					size_t bGph = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, L);
-					double gph = m_p_weather_DS.GetPixel(UTCTRef, bGph, xy2); //geopotential height [m]
-					(*cuboids)[i].m_pt[z][y][x].m_z = gph - groundAlt;
-
-					for (size_t v = 0; v < ATM_WATER; v++)
+*/
+					if (xy2.m_x < extents.m_xSize &&
+						xy2.m_y < extents.m_ySize &&
+						L < MAX_GEOH)
 					{
-						
-						bool bConvertVVEL = false;
-						size_t b = m_p_weather_DS.get_band(UTCTRef, v, L);
+						((CGeoPoint&)(*cuboids)[i].m_pt[z][y][x]) = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
 
-						if (b == UNKNOWN_POS && v == ATM_WNDW)
+						size_t bGph = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, L);
+						double gph = m_p_weather_DS.GetPixel(UTCTRef, bGph, xy2); //geopotential height [m]
+						(*cuboids)[i].m_pt[z][y][x].m_z = gph - groundAlt;//groundAlt is equal 0 when is over ground
+
+						for (size_t v = 0; v < ATM_WATER; v++)
 						{
-							//ASSERT(gribType == RUC_TYPE);
-							b = m_p_weather_DS.get_band(UTCTRef, ATM_VVEL, L);
-							//ASSERT(b != NOT_INIT);
-							if(b != NOT_INIT)
-								bConvertVVEL = true;
-						}
+
+							bool bConvertVVEL = false;
+							size_t b = m_p_weather_DS.get_band(UTCTRef, v, L);
+
+							if (b == UNKNOWN_POS && v == ATM_WNDW)
+							{
+								//ASSERT(gribType == RUC_TYPE);
+								b = m_p_weather_DS.get_band(UTCTRef, ATM_VVEL, L);
+								//ASSERT(b != NOT_INIT);
+								if (b != NOT_INIT)
+									bConvertVVEL = true;
+							}
 
 
-						if (b != UNKNOWN_POS)
-						{
-							(*cuboids)[i][z][y][x][v] = m_p_weather_DS.GetPixel(UTCTRef, b, xy2);
-							if (v == ATM_PRCP )
-								(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
+							if (b != UNKNOWN_POS)
+							{
+								(*cuboids)[i][z][y][x][v] = m_p_weather_DS.GetPixel(UTCTRef, b, xy2);
+								if (v == ATM_PRCP)
+									(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
 
-							
+
 								if (bConvertVVEL)
 									(*cuboids)[i][z][y][x][v] = CATMVariables::get_Uw((*cuboids)[i][z][y][x][ATM_PRES] * 100, (*cuboids)[i][z][y][x][ATM_TAIR], (*cuboids)[i][z][y][x][ATM_WNDW]);//convert VVEL into W
-						}
-						else
-						{
-
-							if (v == ATM_PRES)
-							{
-								assert(L > 0 && L <= MAX_GEOH);
-								double P = 1013 * pow((293 - 0.0065*gph) / 293, 5.26);//pressure in hPa
-
-								(*cuboids)[i][z][y][x][v] = P;
 							}
-							else if (v == ATM_WNDW)
+							else
 							{
-								//humm : HRDPS have only few VVEL
-								(*cuboids)[i][z][y][x][v] = 0;
+
+								if (v == ATM_PRES)
+								{
+									assert(L > 0 && L <= MAX_GEOH);
+									double P = 1013 * pow((293 - 0.0065*gph) / 293, 5.26);//pressure in hPa
+
+									(*cuboids)[i][z][y][x][v] = P;
+								}
+								else if (v == ATM_WNDW)
+								{
+									//humm : HRDPS have only few VVEL
+									(*cuboids)[i][z][y][x][v] = 0;
+								}
+
 							}
 
-						}
+							_ASSERTE(!_isnan((*cuboids)[i][z][y][x][v]));
+						}//variable
 
-						_ASSERTE(!_isnan((*cuboids)[i][z][y][x][v]));
-					}//variable
-					
-					//CGeoPoint geopt = (*cuboids)[i].m_pt[z][y][x];
-					//geopt.Reproject(m_world.m_WEA2GEO);
-					//Convert2ThrueNorth(geopt, (*cuboids)[i][z][y][x][ATM_WNDU], (*cuboids)[i][z][y][x][ATM_WNDV]);
+					}//if valid pixel
 				}//x
 			}//y
 		}//z
@@ -1541,6 +1607,26 @@ ERMsg CATMWeather::LoadWeather(CTRef UTCTRef, CCallback& callback)
 
 			}
 			msg += callback.StepIt(0);
+
+			if (msg && !m_bHgtOverSeaTested)
+			{
+				size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
+				if (b != -999)
+				{
+					m_bHgtOverSeaTested = true;
+					//test to see if we have special WRL file with HGT over ground and not over sea level
+					for (int x = 0; x < m_p_weather_DS.Get(UTCTRef)->GetRasterXSize() && !m_bHgtOverSea; x++)
+					{
+						//for (int y = 0; y < m_p_weather_DS.Get(UTCTRef)->GetRasterYSize() && !m_bHgtOverSea; y++)
+						if (x < m_p_weather_DS.Get(UTCTRef)->GetRasterYSize())
+						{
+							double elev = m_p_weather_DS.Get(UTCTRef)->GetPixel(b, CGeoPointIndex(x, x));
+							if (elev > 0)
+								m_bHgtOverSea = true;
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -2143,6 +2229,10 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 	assert(!m_flyers.empty());
 	ERMsg msg;
 
+
+
+
+
 	//register projection
 	if (m_water_DS.IsOpen())
 	{
@@ -2249,13 +2339,65 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 
 			if (!msgLoad)
 			{
-				callback.AddMessage("WARNING: too much Gribs missing. Nightly flight for " + TRef.GetFormatedString("%Y - %m - %d") + " was skipped");
+				callback.AddMessage("WARNING: too much Gribs missing. Nightly flight for " + TRef.GetFormatedString("%Y-%m-%d") + " was skipped");
 
 				if (callback.GetUserCancel())
 					msg += callback.StepIt(0);
 
 				continue;
 			}
+
+			//ifStream file;
+			//if (file.open("H:\\Travaux\\Dispersal2007\\Input\\Remi.txt"))
+			//{
+			//	ofStream fileOut;
+			//	if (fileOut.open("H:\\Travaux\\Dispersal2007\\Input\\Remi2.csv"))
+			//	{
+			//		fileOut.write("No,u,v,w,x,y,z,time,latitude,longitude,elevation,u,v,w\n");
+
+			//		
+			//		string line;
+			//		std::getline(file, line);
+			//		while (std::getline(file, line))
+			//		{
+			//			StringVector tmp;
+			//			tmp.Tokenize(line, " ", true);
+			//			if (tmp.size() == 8)
+			//			{
+			//				CTRef UTCTRef = UTC_period.Begin();
+			//				__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
+
+			//				float time = as<float>(tmp[7]);
+			//				UTCTRef += int(time - 20);
+			//				UTCTime += __int64((time - 20)*3600);
+			//				double x = as<double>(tmp[4]);
+			//				double y = as<double>(tmp[5]);
+			//				CGeoExtents testExtent = m_weather.Get(UTCTRef)->GetExtents();
+			//				CGeoPoint3D testCoord;
+			//				((CGeoPoint&)testCoord) = CGeoPoint(-267903.37025, 1935436.44478, testExtent.GetPrjID()) + CGeoDistance(x / 1040 * 356138.6973, (768 - y) / 768 * 243112.6437, testExtent.GetPrjID());
+			//				//((CGeoPoint&)testCoord) = CGeoPoint(-92.3537, 47.7211, PRJ_WGS_84);
+			//				testCoord.m_z = as<double>(tmp[6]);
+			//				testCoord.Reproject(CProjectionTransformation(testExtent.GetPrjID(), PRJ_WGS_84));
+
+			//				
+			//				
+
+			//				CATMVariables w1 = m_weather.get_weather(testCoord, UTCTRef, UTCTime);
+			//				string out;
+			//				for (size_t i = 0; i < 8; i++)
+			//					out += tmp[i] + ",";
+
+			//				out += FormatA("%.5lf,%.5lf,%.5lf,%.3f,%.3f,%.3f\n", testCoord.m_lat, testCoord.m_lon, testCoord.m_alt, w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW]);
+			//				fileOut.write(out);
+			//				//p_cuboid->get_weather(pt2, UTCTime);
+			//			}
+			//			
+			//		}
+			//		fileOut.close();
+			//	}
+			//	file.close();
+			//}
+
 
 
 			callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + ToString(fls.size()) + ")", UTC_period.size()*fls.size());

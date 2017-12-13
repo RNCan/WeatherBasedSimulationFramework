@@ -3286,6 +3286,8 @@ void CWeatherYears::CompleteSnow()
 
 bool CWeatherYears::ComputeHourlyVariables(CWVariables variables, std::string options)
 {
+	ASSERT(GetWeatherStation());//Weather station must be define to compute hourly values
+
 	CWeatherYears& me = *this;
 
 	CWVariables vAvail = GetVariables();
@@ -3312,7 +3314,10 @@ bool CWeatherYears::ComputeHourlyVariables(CWVariables variables, std::string op
 
 
 
-	CWeatherYears copy(me);//create daily weather
+	CWeatherStation copy(*GetWeatherStation());
+
+	//((CLocation&) copy) = me.GetLocation();
+	//((CWeatherYears&)copy) = me;//create daily weather
 
 
 	copy.IsCompilingHourly();

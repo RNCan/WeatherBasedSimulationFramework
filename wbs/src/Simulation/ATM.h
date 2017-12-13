@@ -264,11 +264,13 @@ namespace WBSF
 
 		CATMVariables()
 		{
-			fill(0);
+			fill(-999);
 		}
 
 		CATMVariables& operator += (CATMVariables& in)
 		{
+			ASSERT(is_init());
+			ASSERT(in.is_init());
 			for (size_t i = 0; i < size(); i++)
 				at(i) += in.at(i);
 
@@ -277,6 +279,7 @@ namespace WBSF
 
 		CATMVariables& operator *= (double in)
 		{
+			ASSERT(is_init());
 			for (size_t i = 0; i < size(); i++)
 				at(i) *= in;
 
@@ -285,6 +288,7 @@ namespace WBSF
 
 		CATMVariables& operator /= (double in)
 		{
+			ASSERT(is_init());
 			for (size_t i = 0; i < size(); i++)
 				at(i) /= in;
 
@@ -293,6 +297,9 @@ namespace WBSF
 
 		friend CATMVariables operator + (const CATMVariables& in1, const CATMVariables& in2)
 		{
+			ASSERT(in1.is_init());
+			ASSERT(in2.is_init());
+
 			CATMVariables out;
 			for (size_t i = 0; i < in1.size(); i++)
 				out[i] = in1[i] + in2[i];
@@ -302,6 +309,7 @@ namespace WBSF
 
 		friend CATMVariables operator * (const CATMVariables& in1, double f)
 		{
+			ASSERT(in1.is_init());
 			CATMVariables out;
 			for (size_t i = 0; i < in1.size(); i++)
 				out[i] = in1[i] * f;
@@ -322,6 +330,14 @@ namespace WBSF
 		static double get_Uw(double p, double t, double ω);
 		double get_wind_speed(bool b_used_z = false)const{ return   sqrt(at(ATM_WNDU) * at(ATM_WNDU) + at(ATM_WNDV) * at(ATM_WNDV) + (b_used_z ? (at(ATM_WNDW)*at(ATM_WNDW)) : 0)); }
 		double get_wind_direction()const{ return fmod(5 * WBSF::PI / 2 - atan2(at(ATM_WNDV), at(ATM_WNDU)), 2 * WBSF::PI) / WBSF::PI * 180; }//a vérifier
+		bool is_init()const
+		{ 
+			bool bInit = false;
+			for (size_t i = 0; i < size() && !bInit; i++)
+				bInit = at(i) != -999;
+
+			return bInit;
+		}
 	};
 
 	//************************************************************************************************************
@@ -467,7 +483,7 @@ namespace WBSF
 		ERMsg Discard(CCallback& callback);
 		size_t get_band(CTRef TRef, size_t v, size_t level)const;
 		size_t GetPrjID(CTRef TRef)const{ return at(TRef)->GetPrjID(); }
-		
+		size_t size()const{ return TRefDatasetMapBase::size(); }
 		
 		bool get_fixed_elevation_level(CTRef TRef, size_t l, double& elev)const;
 		//CGDALDatasetCachedPtr operator[](CTRef TRef)const{ return at(TRef); }
@@ -483,12 +499,14 @@ namespace WBSF
 	{
 	public:
 
-		enum TGribType{ RUC_TYPE, WRF_TYPE };
+		//enum TGribType{ RUC_TYPE, WRF_TYPE };
 
 		CATMWeather(CATMWorld& world) :
 			m_world(world)
 		{
 			//m_bSkipDay = false;
+			m_bHgtOverSea = false;
+			m_bHgtOverSeaTested = false;
 		}
 		
 		
@@ -508,9 +526,9 @@ namespace WBSF
 		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
 		
 		CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
-		int get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRef UTCTRef, bool bLow)const;
+		size_t get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRef UTCTRef, bool bLow)const;
 		//int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
-		double GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
+		double GetFirstAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
 
 		bool is_init()const{ return !m_filepath_map.empty() || m_p_hourly_DB != NULL; }
 
@@ -543,6 +561,8 @@ namespace WBSF
 		std::map<size_t, CWaterTemperature> m_Twater;
 		std::map<CTRef, std::array<CIWD, NB_ATM_VARIABLES>> m_iwd;
 		CATMWorld& m_world;
+		bool m_bHgtOverSea;
+		bool m_bHgtOverSeaTested;
 	};
 
 
