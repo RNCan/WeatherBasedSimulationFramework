@@ -184,6 +184,7 @@ protected:
 	
 	void grow(Data* data);
 	void predict(Data* data);
+	void predict_no_thread(Data* data);
 
 	virtual void growInternal(Data* training) = 0;
   // Predict using existing tree from file and data as prediction data
@@ -212,7 +213,7 @@ protected:
 #ifdef OLD_WIN_R_BUILD
   void showProgress(std::string operation, clock_t start_time, clock_t& lap_time);
 #else
-  void showProgress(std::string operation);
+  void showProgress(std::string operation, size_t maxProgress);
 #endif
 
   // Verbose output stream, cout if verbose==true, logfile if not

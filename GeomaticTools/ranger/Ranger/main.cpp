@@ -45,7 +45,7 @@
 
 //--ntree 500 --file "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.csv" -o "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 3 --memmode 2 --seed 1234 --verbose 
 //--file "U:\GIS\#documents\TestCodes\Ranger\input\test.csv" -o "U:\GIS\#documents\TestCodes\Ranger\Output\test" --predict "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.classification.forest"  --memmode 2 --verbose
-
+//--seed 451 --treetype 1 --ntree 500 --write --impmeasure 1 --memmode 0 --file "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\_TRAIN_for_Ranger_v1.csv" --depvarname value --outprefix "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test4_pv" --verbose 
 
 
 

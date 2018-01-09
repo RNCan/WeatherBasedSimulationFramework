@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with dead lock
 // 1.0.0	07/11/2017	Rémi Saint-Amant	Creation
 
 #include "stdafx.h"
@@ -40,10 +41,10 @@ using namespace WBSF;
  //exemple_train_remi.regression.forest
 //-seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.regression.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"
 //-te 661190 5098890 668810 5111820 -seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 -mask U:\GIS\#documents\TestCodes\Ranger\Input\Ocean_CB_30_WGS84_UTM20_K.tif -maskValue 1 "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.regression.forest" "U:\GIS\#documents\TestCodes\Ranger\Input\L8_006028_20150717_ext.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\output.tif"
-//
+//-te 2025000 6952000 2226000 7154000 -multi -co compress=LZW -multi -blocksize 1024 1024 -stats -hist -co tiled=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 --config GDAL_CACHEMAX 1024 -ot int16 -dstnodata 255  -seed %seed% -overview {16} -overwrite -mask U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\LOSSmsk_BK2_BK1.tif -maskvalue 1 -iocpu 3 "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test2_pv.classification.forest" "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\BK2_BK1_B123457.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\TestDeadLock.tif"
 
 
-static const char* version = "1.0.0";
+static const char* version = "1.0.1";
 static const int NB_THREAD_PROCESS = 2; 
 
 
@@ -59,8 +60,8 @@ public:
 	{
 		m_seed = 0;
 		m_bUncertainty = false;
-		m_nbPixel=0;
-		m_nbPixelDT=0;
+		//m_nbPixel=0;
+		//m_nbPixelDT=0;
 		m_scenesSize = 7;// SCENES_SIZE;
 		m_appDescription = "This software look up (with a random forest tree model) for disturbance in a any number series of LANDSAT scenes";
 
@@ -68,10 +69,10 @@ public:
 		{
 		//	{ "-Trigger", 3, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-Seed", 1, "sd", false, "Seed for Random forest." },
-			{ "-uncertainty",0,"",false,"Output uncertainty of prediction. Standard error for regression."},
+			{ "-uncertainty",0,"",false,"Output uncertainty of prediction classification. Standard error for regression."},
 			//{ "-Debug",0,"",false,"Output debug information."},
 			{ "ForestFile",0,"",false,"Random forest model file path."},
-			{ "src1file",0,"",false, "LANDSAT scenes image file path."},
+			{ "srcfile",0,"",false, "LANDSAT scenes image file path."},
 			{ "dstfile",0,"",false, "Output image file path."}
 		};
 		
@@ -80,10 +81,10 @@ public:
 
 		static const CIOFileInfoDef IO_FILE_INFO[] = 
 		{
-			{ "Input Model", "DTModel","","","","Decision tree model file generate by See5."},
-			{ "LANDSAT Image", "src1file","","ScenesSize(9)*nbScenes","B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|B9: Date(Julian day 1970 or YYYYMMDD format) and cloud mask(NoData)|... for each scene"},
+			{ "Input Model", "DTModel","","","","Decision tree model file generate by Ranger."},
+			{ "LANDSAT Image", "src1file","","Same number as the ranger model independant variables",""},
 			//{ "Geophysical Image", "src2file", "", "3", "B1: Degres-day 5°C threshold|B2: Digital Elevation Model (DEM)|B3: Slope (?)" },
-			{ "Output Image", "dstfile","One file per perturbation","6","FirstDate: date of the first image analysed|DTCode: disturbance code|D1: disturbace date of the first image|D2: disturbance date of the second image|NbContirm: number of image without disturbance after the disturbance|LastDate: date of the last image analysed"},
+			{ "Output Image", "dstfile","Ranger estimation"},
 			//{ "Optional Output Image", "dstfile_FireSeverity","1","3","Ron|Jo|Mean of Ron and Jo"},
 			//{ "Optional Output Image", "dstfile_ExportBands","One file per perturbation","OutputBands(9) x NbTime(8) = 36","T-2: Scenes 2 years preciding T|...|T+5: Scenes 5 years folowing T"},
 			//{ "Optional Output Image", "dstfile_TimeSeries", "One file per input years", "Nb Years", "Y1: first year|...|Yn: last year" },
@@ -192,8 +193,8 @@ public:
 	bool m_bUncertainty;
 	int m_seed;
 
-	__int64 m_nbPixelDT;
-	__int64 m_nbPixel;
+	//__int64 m_nbPixelDT;
+	//__int64 m_nbPixel;
 };
 
 typedef std::auto_ptr<Forest> ForestPtr;
@@ -263,7 +264,8 @@ ERMsg CRangerImage::ReadRules(ForestPtr& forest)
 	
 	//forests.reserve(m_options.m_CPU);
 	forest.reset( CreateForest(treetype) );
-	forest->init_predict(m_options.m_seed, m_options.m_CPU, false, DEFAULT_PREDICTIONTYPE);
+	forest->init_predict(m_options.m_seed, m_options.m_bMulti?m_options.m_CPU:-1, false, DEFAULT_PREDICTIONTYPE);
+	//forest->init_predict(m_options.m_seed, 1, false, DEFAULT_PREDICTIONTYPE);
 	forest->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
 	
 	cout << "forest type                        " << GetTreeTypeStr(treetype) << std::endl;
@@ -311,8 +313,7 @@ ERMsg CRangerImage::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, C
 			//cout << "    Last image     = " << landsatDS.GetPeriod().End().GetFormatedString() << endl;
 			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
-			//if (landsatDS.GetNbScenes() <= 1)
-				//msg.ajoute("DisturbanceAnalyser can't be performed over only one scene");
+			
 		}
 	}
 
@@ -385,6 +386,7 @@ ERMsg CRangerImage::Execute()
 	if (!msg)
 		return msg;
 	
+
 	CGDALDatasetEx inputDS;
 	CGDALDatasetEx maskDS;
 	CGDALDatasetEx outputDS;
@@ -394,6 +396,12 @@ ERMsg CRangerImage::Execute()
 	
 	if( msg)
 	{
+		if (inputDS.GetRasterCount() != forest->getNumIndependentVariables())
+		{
+			msg.ajoute("The number of raster bands in the input image is not equal to the number of the independant variables in the forest model");
+			return msg;
+		}
+
 		size_t nbScenes = inputDS.GetNbScenes();
 		size_t sceneSize = inputDS.GetSceneSize();
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
@@ -478,41 +486,7 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 #pragma omp critical(ProcessBlock)
 	{
 		m_options.m_timerProcess.Start();
-
 		
-		/*for (int y = 0; y < blockSize.m_y; y++)
-		{
-			bool bHaveData = false;
-			DataShort input;
-			input.resize(blockSize.m_x, window.GetSceneSize());
-			for (int x = 0; x < blockSize.m_x; x++)
-			{
-				for (size_t z = 0; z < window.GetSceneSize(); z++)
-				{
-					if (window[z]->IsValid(x, y))
-						bHaveData = true;
-					bool error = false;
-					input.set(z, x, window[z]->at(x, y), error);
-				}
-			}
-
-			if (bHaveData)
-			{
-				forest->run_predict(&input);
-				if (!output.empty())
-				{
-					for (int x = 0; x < blockSize.m_x; x++)
-					{
-						int xy = y*blockSize.m_x + x;
-						output[0][xy] = (__int16)(forest->getPredictions().at(0).at(0).at(x));
-					}
-				}
-			}
-			
-			m_options.m_xx += blockSize.m_x;
-			m_options.UpdateBar();
-		}*/
-
 		boost::dynamic_bitset<size_t> validPixel(blockSize.m_x*blockSize.m_y);
 		for (int y = 0; y < blockSize.m_y; y++)
 		{
@@ -589,13 +563,12 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 			}
 		}
 
-		//#pragma omp atomic	
+
 		m_options.m_xx += blockSize.m_x*blockSize.m_y;
 		m_options.UpdateBar();
-		
 
 		m_options.m_timerProcess.Stop();
-		
+
 	}
 }
 
@@ -604,11 +577,9 @@ void CRangerImage::WriteBlock(int xBlock, int yBlock, OutputData& output, Uncert
 
 #pragma omp critical(BlockIO)
 	{
-
 		m_options.m_timerWrite.Start();
-		//size_t nbScenes = data[0][0].size();
+
 		CGeoExtents extents = outputDS.GetExtents();
-		//CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
 
 		if (m_options.m_bCreateImage)
@@ -671,13 +642,13 @@ void CRangerImage::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, C
 		
 	m_options.m_timerWrite.Stop();
 		
-	if( !m_options.m_bQuiet )
+	/*if( !m_options.m_bQuiet )
 	{
 		double percent = m_options.m_nbPixel>0?(double)m_options.m_nbPixelDT/m_options.m_nbPixel*100:0;
 
 		_tprintf ("\n");
 		_tprintf ("Percentage of pixel treated by Ranger: %0.3lf %%\n\n", percent);
-	}
+	}*/
 
 	m_options.PrintTime();
 }
