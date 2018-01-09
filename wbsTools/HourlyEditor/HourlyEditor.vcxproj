@@ -283,6 +283,7 @@
     <Image Include="res\icon1.ico" />
     <Image Include="res\mainfram.bmp" />
     <Image Include="res\MainFrameToolbar.bmp" />
+    <Image Include="res\MainFrameToolbar.png" />
     <Image Include="res\menuimages.bmp" />
     <Image Include="res\menuimages_hc.bmp" />
     <Image Include="res\Option.ico" />
@@ -298,6 +299,8 @@
     <Image Include="res\sort_hc.bmp" />
     <Image Include="res\spreadsheet_wnd.ico" />
     <Image Include="res\StationsListToolbar.bmp" />
+    <Image Include="res\StationsListToolbar.png" />
+    <Image Include="res\station_list_wnd.ico" />
     <Image Include="res\TableToolbar.bmp" />
     <Image Include="res\TabView.bmp" />
     <Image Include="res\Toolbar.bmp" />

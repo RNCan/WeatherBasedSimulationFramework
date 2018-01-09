@@ -68,14 +68,10 @@ BOOL CNormalsEditorApp::InitInstance()
 	if (lang == WBSF::CRegistry::FRENCH)
 	{
 		hInst = LoadLibraryW(L"NormalsEditorFrc.dll");
+		if (hInst != NULL)
+			AfxSetResourceHandle(hInst);
 	}
-	else //english resources must be load to avoir strange thinks...
-	{
-		hInst = LoadLibraryW(L"NormalsEditor.exe");
-	}
-
-	if (hInst != NULL)
-		AfxSetResourceHandle(hInst);
+	
 
 	CDynamicResources::set(AfxGetResourceHandle());
 

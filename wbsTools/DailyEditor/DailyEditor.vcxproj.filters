@@ -231,6 +231,12 @@
     <Image Include="res\WeatherStation.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\StationsListToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DailyEditor.rc">

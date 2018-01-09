@@ -222,6 +222,15 @@
     <Image Include="res\spreadsheet_wnd.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\station_list_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\StationsListToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HourlyEditor.rc">

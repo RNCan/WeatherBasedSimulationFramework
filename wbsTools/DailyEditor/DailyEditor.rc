@@ -48,15 +48,13 @@ IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
-IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
-
+IDR_STATIONSLIST_TOOLBAR PNG                     "res\\StationsListToolbar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -393,8 +391,6 @@ BEGIN
     "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -404,7 +400,6 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
     "LANGUAGE 12, 1\r\n"
-    "#include ""res\\DailyEditor.rc2""  // ressources non modifiées par Microsoft Visual C++\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -974,8 +969,6 @@ END
 #define _AFX_NO_PROPERTY_RESOURCES
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE 9, 1
-#pragma code_page(1252)
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)
@@ -985,7 +978,6 @@ LANGUAGE 9, 1
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE 12, 1
-#include "res\DailyEditor.rc2"  // ressources non modifiées par Microsoft Visual C++
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

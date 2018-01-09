@@ -36,7 +36,7 @@ IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
 IDI_OPTION              ICON                    "res\\Option.ico"
 IDI_CHART_WND           ICON                    "res\\chart_wnd.ico"
 IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
-IDS_STATION_LIST_WND	ICON                    "res\\station_list_wnd.ico"
+IDS_STATION_LIST_WND    ICON                    "res\\station_list_wnd.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -48,13 +48,13 @@ IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
+
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
-IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
+IDR_STATIONSLIST_TOOLBAR PNG                     "res\\StationsListToolbar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -123,7 +123,7 @@ BEGIN
     BUTTON      ID_TABLE_MODE_EDITION
     BUTTON      ID_TABLE_SAVE
     BUTTON      ID_TABLE_SENDTO_EXCEL
-	SEPARATOR
+    SEPARATOR
     BUTTON      ID_TABLE_PERIOD_ENABLED
     BUTTON      ID_TABLE_PERIOD_BEGIN
     BUTTON      ID_TABLE_PERIOD_END
@@ -138,7 +138,7 @@ BEGIN
     BUTTON      ID_GRAPH_SAVE
     BUTTON      ID_GRAPH_OPTIONS
     BUTTON      ID_GRAPH_ZOOM
-	SEPARATOR
+    SEPARATOR
     BUTTON      ID_GRAPH_PERIOD_ENABLED
     BUTTON      ID_GRAPH_PERIOD_BEGIN
     BUTTON      ID_GRAPH_PERIOD_END
@@ -391,8 +391,6 @@ BEGIN
     "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -426,8 +424,17 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "ÉditeurHoraire\n\nHourlyEditor\nBase de données horaires (*.HourlyDB)\n.HourlyDB\n\n"
-	IDS_INDICATOR_NB_STATIONS "Stations = "
     IDS_OPTION_CAPTION      "Options"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EDIT_MENU           "Edition"
+    IDS_TAB_VIEW_TITLE      "Table|Graphiques"
+    IDS_PROPERTIES_LOCATION_HEADER 
+                            "Localisation|Informations spécifique au site"
+    IDS_SAVE_DATA           "Savegarder les données"
+    IDS_INDICATOR_NB_STATIONS "Stations = "
 END
 
 STRINGTABLE
@@ -435,7 +442,6 @@ BEGIN
     AFX_IDS_APP_TITLE       "ÉditeurHoraire"
     AFX_IDS_IDLEMESSAGE     "Prêt"
 END
-
 
 STRINGTABLE
 BEGIN
@@ -549,7 +555,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS		"Status Bar"
+    IDS_TOOLBAR_STATUS      "Status Bar"
 END
 
 STRINGTABLE
@@ -558,16 +564,7 @@ BEGIN
     IDS_CHART_WND           "Graphiques"
     IDS_OUTPUT_WND          "Sortie de validation"
     IDS_PROPERTIES_WND      "Propriétés de la station météo"
-	IDS_STATION_LIST_WND	"Liste des stations"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_EDIT_MENU           "Edition"
-    IDS_TAB_VIEW_TITLE      "Table|Graphiques"
-    IDS_PROPERTIES_LOCATION_HEADER 
-                            "Localisation|Informations spécifique au site"
-    IDS_SAVE_DATA           "Savegarder les données"
+    IDS_STATION_LIST_WND    "Liste des stations"
 END
 
 STRINGTABLE
@@ -762,8 +759,16 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "HourlyEditor\n\nHourlyEditor\nHourly Database (*.HourlyDB)\n.HourlyDB\n\n"
-	IDS_INDICATOR_NB_STATIONS "Stations = "
     IDS_OPTION_CAPTION      "Options"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EDIT_MENU           "Edition"
+    IDS_TAB_VIEW_TITLE      "Table|Graphics"
+    IDS_PROPERTIES_LOCATION_HEADER "Location|Site Specific Informations"
+    IDS_SAVE_DATA           "Save data"
+    IDS_INDICATOR_NB_STATIONS "Stations = "
 END
 
 STRINGTABLE
@@ -881,12 +886,11 @@ BEGIN
     AFX_IDS_SCTASKLIST      "Activate Task List"
 END
 
-
 STRINGTABLE
 BEGIN
     IDS_TOOLBAR_STANDARD    "Standard"
-	IDS_TOOLBAR_STATUS      "Barre d'état"
-	END							
+    IDS_TOOLBAR_STATUS      "Barre d'état"
+END
 
 STRINGTABLE
 BEGIN
@@ -894,15 +898,7 @@ BEGIN
     IDS_CHART_WND           "Charts"
     IDS_OUTPUT_WND          "Output"
     IDS_PROPERTIES_WND      "Weather Station Properties"
-	IDS_STATION_LIST_WND	"Stations List"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_EDIT_MENU           "Edition"
-    IDS_TAB_VIEW_TITLE      "Table|Graphics"
-    IDS_PROPERTIES_LOCATION_HEADER "Location|Site Specific Informations"
-    IDS_SAVE_DATA           "Save data"
+    IDS_STATION_LIST_WND    "Stations List"
 END
 
 STRINGTABLE
@@ -947,8 +943,6 @@ END
 #define _AFX_NO_PROPERTY_RESOURCES
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE 9, 1
-#pragma code_page(1252)
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

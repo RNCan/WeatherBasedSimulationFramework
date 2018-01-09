@@ -351,8 +351,6 @@ BEGIN
     "\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -818,7 +816,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_STANDARD    "Standard "
     IDS_TOOLBAR_STATUS      "Status Bar"
 END
 
@@ -876,8 +874,6 @@ END
 
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE 9, 1
-#pragma code_page(1252)
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)
