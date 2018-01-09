@@ -592,6 +592,7 @@ namespace WBSF
 			case Landsat::I_TCB:		val = TCB(); break;
 			case Landsat::I_TCG:		val = TCG(); break;
 			case Landsat::I_TCW:		val = TCW(); break;
+			case Landsat::I_ZSW:		val = ZSW(); break;
 			default: ASSERT(false);
 			}
 		}
@@ -712,6 +713,17 @@ namespace WBSF
 	{
 		static const double F[7] = { 0.0315, 0.2021, 0.3102, 0.1594, 0.6806, 0.000, -0.6109 };
 		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B5] * at(B5) + F[B7] * at(B7);
+	}
+
+	double CLandsatPixel::ZSW()const
+	{
+		double b3 = Square(max(0.0, at(B3) - 141.4518) / 70.56979);
+		double b4 = Square(max(0.0, at(B4) - 221.1589) / 147.9847);
+		double b5 = Square(max(0.0, at(B5) - 91.9588) / 130.7777);
+		double b7 = Square(max(0.0, at(B7) - 68.39219) / 99.17062);
+		double ZSW = sqrt(0.25  * (b3 + b4 + b5 + b7)) * 100;
+		return ZSW;
+
 	}
 
 	double CLandsatPixel::GetDespike(double pre, double spike, double post)

@@ -326,10 +326,11 @@ namespace WBSF
 							station.SetDataFileName("");
 						}
 						
+						//force the creation of the DataFileName column
+						station.SetDataFileName(station.GetDataFileName());
 						station.UseIt(true);
 
 						//Get forecast
-						
 						if (pForecastTask)
 							pForecastTask->GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
 

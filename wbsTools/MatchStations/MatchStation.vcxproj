@@ -294,9 +294,12 @@
     <Image Include="res\HourlyEditor.ico" />
     <Image Include="res\icon1.ico" />
     <Image Include="res\icon2.ico" />
+    <Image Include="res\inputs_wnd.ico" />
     <Image Include="res\LocationToolbar.bmp" />
+    <Image Include="res\LocationToolbar.png" />
     <Image Include="res\mainfram.bmp" />
     <Image Include="res\MainFrameToolbar.bmp" />
+    <Image Include="res\MainFrameToolbar.png" />
     <Image Include="res\MatchStation.ico" />
     <Image Include="res\menuimages.bmp" />
     <Image Include="res\menuimages_hc.bmp" />
@@ -327,6 +330,7 @@
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\Toolbar32.bmp" />
     <Image Include="res\Toolbar_32.bmp" />
+    <Image Include="res\weightToolbar.png" />
     <Image Include="res\weight_chart_wnd.ico" />
     <Image Include="UserImages.bmp" />
   </ItemGroup>

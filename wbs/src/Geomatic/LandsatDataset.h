@@ -24,7 +24,7 @@ namespace WBSF
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
 		
 
-		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, NB_INDICES };
+		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, I_ZSW, NB_INDICES };
 
 		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
 		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
@@ -72,6 +72,7 @@ namespace WBSF
 		double TCB()const;
 		double TCG()const;
 		double TCW()const;
+		double ZSW()const;
 		Color8 R()const;
 		Color8 G()const;
 		Color8 B()const;
@@ -214,6 +215,7 @@ namespace WBSF
 			case Landsat::I_TCB:		pre = Tm1.TCB() ; pos = Tp1.TCB();break;
 			case Landsat::I_TCG:		pre = Tm1.TCG() ; pos = Tp1.TCG();break;
 			case Landsat::I_TCW:		pre = Tm1.TCW() ; pos = Tp1.TCW();break;
+			case Landsat::I_ZSW:		pre = Tm1.ZSW(); pos = Tp1.ZSW(); break;
 			default: ASSERT(false);
 			}
 			

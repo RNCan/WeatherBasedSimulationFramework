@@ -150,6 +150,9 @@ bool CExecutableVector::operator == (const CExecutableVector& in)const
 
 	for(i=0; i<nSize; i++)
 	{
+		if (at(i)->GetClassName() != in[i]->GetClassName())
+			return false; 
+
 		if( !at(i)->CompareObject( *(in[i]) ) )
 			return false;
 	}

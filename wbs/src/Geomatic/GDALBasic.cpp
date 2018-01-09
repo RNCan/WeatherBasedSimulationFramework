@@ -1642,7 +1642,7 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, CTPeriod p)
 			ASSERT(pData);
 
 			bool bEmpty = true;
-			for (size_t i = 0; i<(__int64)pData->size() && bEmpty; i++)
+			for (size_t i = 0; i<pData->size() && bEmpty; i++)
 			{
 				if ((*pData).at(i) == m_maskDataUsed)
 					bEmpty=false;
@@ -1723,7 +1723,7 @@ void CBandsHolder::LoadBlock(CGeoExtents extents, boost::dynamic_bitset<size_t> 
 			ASSERT(pData);
 
 			bool bEmpty = true;
-			for (size_t i = 0; i<(__int64)pData->size() && bEmpty; i++)
+			for (size_t i = 0; i<pData->size() && bEmpty; i++)
 			{
 				if ((*pData).at(i) == m_maskDataUsed)
 					bEmpty = false;

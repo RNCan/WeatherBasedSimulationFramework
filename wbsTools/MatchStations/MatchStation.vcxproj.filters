@@ -312,6 +312,18 @@
     <Image Include="res\Normals_wnd.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\inputs_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\MainFrameToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\LocationToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\weightToolbar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MatchStation.rc">

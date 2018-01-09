@@ -198,9 +198,6 @@ BEGIN
     "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252) \r\n"
-    "#include ""res\\BioSIM.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#include ""afxprint.rc""         // Standard components\r\n"
     "#include ""afxribbon.rc""              // MFC ribbon and control bar resources\r\n"
@@ -209,8 +206,6 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
     "LANGUAGE LANG_FRENCH, SUBLANG_FRENCH\r\n"
     "#pragma code_page(1252)\r\n"
-    " \r\n"
-    "#include ""res\\BioSIM.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""l.fra\\afxres.rc""         // Standard components\r\n"
     "#include ""l.fra\\afxprint.rc""         // Standard components\r\n"
     "#include ""l.fra\\afxribbon.rc""              // MFC ribbon and control bar resources\r\n"
@@ -262,8 +257,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,3,6,33
- PRODUCTVERSION 11,3,6,33
+ FILEVERSION 11,3,7,34
+ PRODUCTVERSION 11,3,7,34
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -280,23 +275,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.3.6.33"
+            VALUE "FileVersion", "11.3.7.34"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.3.6.33"
+            VALUE "ProductVersion", "11.3.7.34"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.3.6.33"
+            VALUE "FileVersion", "11.3.7.34"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.3.6.33"
+            VALUE "ProductVersion", "11.3.7.34"
         END
     END
     BLOCK "VarFileInfo"
@@ -1337,9 +1332,6 @@ END
 #define _AFX_NO_PROPERTY_RESOURCES
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE 9, 1
-#pragma code_page(1252) 
-#include "res\BioSIM.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"         // Standard components
 #include "afxprint.rc"         // Standard components
 #include "afxribbon.rc"              // MFC ribbon and control bar resources
@@ -1348,8 +1340,6 @@ LANGUAGE 9, 1
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 #pragma code_page(1252)
- 
-#include "res\BioSIM.rc2"  // non-Microsoft Visual C++ edited resources
 #include "l.fra\afxres.rc"         // Standard components
 #include "l.fra\afxprint.rc"         // Standard components
 #include "l.fra\afxribbon.rc"              // MFC ribbon and control bar resources
