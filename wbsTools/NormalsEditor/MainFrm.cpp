@@ -307,11 +307,11 @@ void CMainFrame::OnLanguageChange(UINT id)
 		HINSTANCE hInst = NULL;
 		if (GetLanguage(id) == WBSF::CRegistry::FRENCH)
 		{
-			hInst = LoadLibraryW(L"HourlyEditorFrc.dll");
+			hInst = LoadLibraryW(L"NormalsEditorFrc.dll");
 		}
 		else
 		{
-			hInst = LoadLibraryW(L"HourlyEditor.exe");
+			hInst = LoadLibraryW(L"NormalsEditor.exe");
 		}
 
 		if (hInst != NULL)
