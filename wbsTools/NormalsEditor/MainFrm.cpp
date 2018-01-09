@@ -307,7 +307,7 @@ void CMainFrame::OnLanguageChange(UINT id)
 		HINSTANCE hInst = NULL;
 		if (GetLanguage(id) == WBSF::CRegistry::FRENCH)
 		{
-			hInst = LoadLibraryW(L"NormalsEditorFrc.dll");
+			hInst = LoadLibraryW(L"NormalsEditorFrc.dll"); 
 		}
 		else
 		{

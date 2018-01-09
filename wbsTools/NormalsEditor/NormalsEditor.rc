@@ -54,7 +54,8 @@ IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
-IDR_STATIONSLIST_TOOLBAR PNG                    "res\\StationsListToolbar.png"
+IDR_STATIONSLIST_TOOLBAR PNG                     "res\\StationsListToolbar.png"
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
@@ -346,6 +347,8 @@ BEGIN
     "#define _AFX_NO_OLE_RESOURCES\r\n"
     "#define _AFX_NO_TRACKER_RESOURCES\r\n"
     "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "#include ""afxres.rc""\r\n"
+    "\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)\r\n"
     "LANGUAGE 9, 1\r\n"
@@ -382,7 +385,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurNormales\n\ÉditeurNormales\nBase de données normales (*.NormalsStations)\n.NormalsStations\n\n"
+    IDR_MAINFRAME           "ÉditeurNormales\n\nEditeurNormales\nBase de données normales (*.NormalsDB)\n.NormalsDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -502,7 +505,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_STANDARD    "Standard "
     IDS_TOOLBAR_STATUS      "Barre d'état"
 END
 
@@ -695,7 +698,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "NormalsEditor\n\nNormalsEditor\nNormals Database (*.NormalsStations)\n.NormalsStations\n\n"
+    IDR_MAINFRAME           "NormalsEditor\n\nNormalsEditor\nNormals Database (*.NormalsDB)\n.NormalsDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -869,6 +872,8 @@ END
 #define _AFX_NO_OLE_RESOURCES
 #define _AFX_NO_TRACKER_RESOURCES
 #define _AFX_NO_PROPERTY_RESOURCES
+#include "afxres.rc"
+
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE 9, 1

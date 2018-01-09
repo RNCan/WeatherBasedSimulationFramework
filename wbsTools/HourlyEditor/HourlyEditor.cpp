@@ -69,10 +69,14 @@ BOOL CHourlyEditorApp::InitInstance()
 	if (lang == WBSF::CRegistry::FRENCH)
 	{
 		hInst = LoadLibraryW(L"HourlyEditorFrc.dll");
-
-		if (hInst != NULL)
-			AfxSetResourceHandle(hInst);
 	}
+	else //english resources must be load to avoir strange thinks...
+	{
+		hInst = LoadLibraryW(L"HourlyEditor.exe");
+	}
+	
+	if (hInst != NULL)
+		AfxSetResourceHandle(hInst);
 
 	CDynamicResources::set(AfxGetResourceHandle());
 

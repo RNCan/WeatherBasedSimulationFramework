@@ -129,5 +129,7 @@
     <Image Include="res\MainFrameToolbar.png">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="res\station_list_wnd.ico" />
+    <Image Include="res\StationsListToolbar.png" />
   </ItemGroup>
 </Project>
