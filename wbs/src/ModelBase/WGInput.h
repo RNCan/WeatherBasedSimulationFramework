@@ -131,9 +131,12 @@ namespace WBSF
 		CTM GetTM()const{ return CTM(m_generationType == GENERATE_DAILY ? CTM::DAILY : CTM::HOURLY); }
 		CTPeriod GetTPeriod()const;
 
-		size_t GetNbNormalsToSearch()const{ return  m_nbNormalsStations + (m_bXValidation ? 1 : 0); }
-		size_t GetNbDailyToSearch()const{ return  m_nbDailyStations + (m_bXValidation ? 1 : 0); }
-		size_t GetNbHourlyToSearch()const{ return  m_nbHourlyStations + (m_bXValidation ? 1 : 0); }
+		size_t XVal()const{ return m_bXValidation ? 1 : 0; }
+		size_t GetNbNormalsToSearch()const{ return  m_nbNormalsStations + XVal(); }
+		size_t GetNbDailyToSearch()const{ return  m_nbDailyStations + XVal(); }
+		size_t GetNbHourlyToSearch()const{ return  m_nbHourlyStations + XVal(); }
+		size_t GetNbObservationToSearch()const{ return  IsHourly() ? GetNbHourlyToSearch() : GetNbDailyToSearch(); }
+		
 
 		CModelOutputVariableDefVector GetOutputDefenition()const;
 
