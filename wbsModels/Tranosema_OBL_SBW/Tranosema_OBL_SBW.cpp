@@ -93,12 +93,41 @@ namespace WBSF
 
 		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit())
 		{
-			if (weather.GetTRef().GetJDay() > 173 && m_lastAge <= GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
+			double dayLength = weather.GetDayLength() / 3600.; //in hours
+			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
 			{
-				if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
+				//case 1: test only once when tranosema reach diapause age
+				//if Jday greather than 173 and the tranosema age pass through diapause age this day
+				//if (m_lastAge <= GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
+				//{
+				//	//if the host is in diapause, tranosema will enter in diapause. If not, this insect will develop until die. 
+				//	if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
+				//	{
+				//		m_diapauseTRef = weather.GetTRef();
+				//	}
+				//}
+
+				//case 2: do not use diapause age, only use host diapause induction
+				//if (GetStage() == EGG)
+				//{
+				//	//if the host is induced in diapause, tranosema will enter in diapause. 
+				//	if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
+				//	{
+				//		m_diapauseTRef = weather.GetTRef();
+				//	}
+				//}
+
+				//case 3: do not use diapause age, only use host diapause activation
+				//j'ai ajouter une methyod temporaire pour ce cas...
+				if (GetStage() == EGG)
 				{
-					m_diapauseTRef = weather.GetTRef();
+					//if the host is in diapause, tranosema will enter in diapause. 
+					if (m_pAssociateHost.lock()->IsInDiapause2(weather.GetTRef()))
+					{
+						m_diapauseTRef = weather.GetTRef();
+					}
 				}
+
 			}
 		}
 	}

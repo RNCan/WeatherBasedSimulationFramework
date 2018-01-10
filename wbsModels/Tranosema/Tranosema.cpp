@@ -91,7 +91,7 @@ namespace WBSF
 
 		CIndividual::Live(weather);
 
-		double DayLength = weather.GetDayLength() / 3600.; //in hours
+		double dayLength = weather.GetDayLength() / 3600.; //in hours
 		CTRef TRef = weather.GetTRef();
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
@@ -116,7 +116,7 @@ namespace WBSF
 				if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
 				{
 					//Individual crosses the m_diapauseAge threshold this time step, and post-solstice daylength is shorter than critical daylength
-					if (JDay > 173 && DayLength < GetStand()->m_criticalDaylength)
+					if (JDay > 173 && dayLength < GetStand()->m_criticalDaylength)
 					{
 						m_diapauseTRef = weather.GetTRef();
 						//m_bDiapause = true;
