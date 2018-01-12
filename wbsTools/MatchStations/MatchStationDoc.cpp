@@ -6,6 +6,7 @@
 #include <propkey.h>
 
 #include "Basic/WeatherDatabaseCreator.h"
+#include "Basic/Shore.h"
 #include "Simulation/WeatherGradient.h"
 #include "geomatic/projection.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -548,7 +549,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					v = H_TMIN2;
 
 				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, m_variable, -999);
-				pNormalsDB->GetStations(m_normalsResult, m_normalsStations);
+				pNormalsDB->GetStations(m_normalsStations, m_normalsResult);
 			}
 
 
@@ -615,7 +616,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					if (v == H_TAIR2)
 						v = H_TMIN2;
 					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
-					pDailyDB->GetStations(m_dailyResult, m_dailyStations);
+					pDailyDB->GetStations(m_dailyStations, m_dailyResult, m_year);
 				}
 			}
 		}
@@ -634,7 +635,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 						v = H_TAIR2;
 
 					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
-					pHourlyDB->GetStations(m_hourlyResult, m_hourlyStations);
+					pHourlyDB->GetStations(m_hourlyStations, m_hourlyResult, m_year);
 				}
 			}
 		}
@@ -803,9 +804,9 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		}
 	}
 
-
-	if(CWeatherGradient::GetShore().get()==NULL)
-		msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
+	//if(CWeatherGradient::GetShore().get()==NULL)
+		//msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
 	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 	m_bExecute = false;
