@@ -42,7 +42,7 @@ namespace WBSF
 		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, REVERSED, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, ADD_TURBULENCE, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS,
 		DEM, GRIBS, HOURLY_DB, HOST, DEFOLIATION, WATER,
 		T_BROOD, P_TYPE, P_MAX, W_MIN, 
-		HEIGHT_TYPE, WING_BEAT_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, 
+		WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD,
 		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, CREATE_EGG_RES, NB_PROPERTIES
 	};
 
@@ -121,8 +121,8 @@ namespace WBSF
 		AddProperty(pWeather);
 
 		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[3], -1);
-		pHeight->AddSubItem(new CHeightTypeProperty(name[HEIGHT_TYPE], "", description[HEIGHT_TYPE], HEIGHT_TYPE));
 		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_SCALE], "", description[WING_BEAT_SCALE], WING_BEAT_SCALE));
+		pHeight->AddSubItem(new CHeightTypeProperty(name[HORZ_SCALE], "", description[HORZ_SCALE], HORZ_SCALE));
 
 		AddProperty(pHeight);
 
@@ -183,8 +183,8 @@ namespace WBSF
 			case P_TYPE:			str = WBSF::ToString(in.m_ATM.m_PSource); break;
 			case P_MAX:				str = WBSF::ToString(in.m_ATM.m_Pmax); break;
 			case W_MIN:				str = WBSF::ToString(in.m_ATM.m_Wmin); break;
-			case HEIGHT_TYPE:		str = WBSF::ToString(in.m_ATM.m_height_type); break;
 			case WING_BEAT_SCALE:	str = WBSF::ToString(in.m_ATM.m_w_α); break;
+			case HORZ_SCALE:		str = WBSF::ToString(in.m_ATM.m_Δv); break;
 			case W_HORZ:			str = WBSF::ToString(in.m_ATM.m_w_horizontal); break;
 			case W_HORZ_SD:			str = WBSF::ToString(in.m_ATM.m_w_horizontal_σ); break;
 			case W_DESCENT:			str = WBSF::ToString(in.m_ATM.m_w_descent); break;
@@ -245,8 +245,8 @@ namespace WBSF
 		case P_TYPE:			me.m_parameters.m_ATM.m_PSource = WBSF::ToSizeT(str); break;
 		case P_MAX:				me.m_parameters.m_ATM.m_Pmax = WBSF::ToDouble(str); break;
 		case W_MIN:				me.m_parameters.m_ATM.m_Wmin = WBSF::ToDouble(str); break;
-		case HEIGHT_TYPE:		me.m_parameters.m_ATM.m_height_type = WBSF::ToInt(str); break;
 		case WING_BEAT_SCALE:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
+		case HORZ_SCALE:		me.m_parameters.m_ATM.m_Δv = WBSF::ToDouble(str); break;
 		case W_HORZ:			me.m_parameters.m_ATM.m_w_horizontal = WBSF::ToDouble(str); break;
 		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;
