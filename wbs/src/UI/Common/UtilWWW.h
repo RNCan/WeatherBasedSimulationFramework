@@ -32,7 +32,7 @@ namespace UtilWWW
 	bool GetFileInfo(CFtpConnectionPtr& pConnect, const CString& filePath, WBSF::CFileInfo& info);
 	void GetFileInfo(const CFtpFileFind& finder, WBSF::CFileInfo& info, bool bHaveWildcard);
 	
-	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags = PRE_CONFIG_INTERNET_ACCESS, const CString& userName = _T(""), const CString& password = _T(""));
+	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags = PRE_CONFIG_INTERNET_ACCESS, const CString& userName = _T(""), const CString& password = _T(""), bool bHttps=false);
 	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags=PRE_CONFIG_INTERNET_ACCESS, LPCTSTR userName=NULL, LPCTSTR password=NULL, BOOL bPassif=TRUE);//const CString& userName="anonymous", const CString& password=" " );
 	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE, LPCTSTR userName = NULL, LPCTSTR password = NULL, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags=INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE, BOOL bFailIfExists=FALSE );
@@ -50,7 +50,7 @@ namespace UtilWWW
 
 	//***********************************************************************************
 	//stl adaptor
-	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags = PRE_CONFIG_INTERNET_ACCESS, const std::string& userName = "", const std::string& password = "");
+	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags = PRE_CONFIG_INTERNET_ACCESS, const std::string& userName = "", const std::string& password = "", bool bHttps = false);
 	ERMsg GetFtpConnection(const std::string& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags = PRE_CONFIG_INTERNET_ACCESS, const std::string& userName = "", const std::string& password = "", BOOL bPassif = TRUE);
 	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE, const std::string& userName = "", const std::string& password = "", WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE, BOOL bFailIfExists = FALSE);

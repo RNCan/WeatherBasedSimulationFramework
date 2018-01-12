@@ -77,12 +77,16 @@ namespace UtilWWW
 		//std::string text;
 		//INTERNET_FLAG_NO_COOKIES|
 		CString URL = WBSF::convert(URLIn).c_str();
-		CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
+		//CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
+		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_GET, URL, NULL, 1, NULL, NULL, flags);
+		
 
 		bool bRep = false;
 
 		if( pURLFile!=NULL )
 		{
+//			DWORD dwStatus;
+
 			int nbTry=0;
 			while( !bRep && msg)
 			{
@@ -714,13 +718,13 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password)
+	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password, bool bHttps)
 	{
 		ERMsg msg;
-
-		//DWORD flags = INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE|INTERNET_FLAG_KEEP_CONNECTION;
-		pSession.reset( new CInternetSession );
-		pConnection.reset( pSession->GetHttpConnection(serverName, flags, 0, userName, password ) );
+		
+		pSession.reset(new CInternetSession(NULL, 1, flags));
+		INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
+		pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
 		if (pConnection.get())
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
@@ -774,9 +778,9 @@ namespace UtilWWW
 
 
 
-	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password)
+	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, bool bHttps)
 	{
-		return GetHttpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password));
+		return GetHttpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bHttps);
 	}
 	
 	ERMsg GetFtpConnection(const std::string& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, BOOL bPassif)
