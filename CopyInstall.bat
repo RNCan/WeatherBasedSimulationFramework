@@ -57,6 +57,9 @@ copy /Y ".\bin\Releasex64\Models\DegreeDay.pdf" "..\Install\NRCan\Models\DegreeD
 copy /Y ".\bin\Releasex64\Models\DegreeHour (Hourly).mdl" "..\Install\NRCan\Models\DegreeHour (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeHour.dll" "..\Install\NRCan\Models\DegreeHour.dll"
 
+copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.mdl" "..\Install\NRCan\Models\ForestTentCaterpillar.mdl"
+copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.dll" "..\Install\NRCan\Models\ForestTentCaterpillar.dll"
+
 copy /Y ".\bin\Releasex64\Models\FWI (Daily).mdl" "..\Install\NRCan\Models\FWI (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI (Hourly).mdl" "..\Install\NRCan\Models\FWI (Hourly).mdl" 
 copy /Y ".\bin\Releasex64\Models\FWI (Monthly).mdl" "..\Install\NRCan\Models\FWI (Monthly).mdl"
@@ -113,6 +116,9 @@ copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.mdl" "..\Install\NRCan\M
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Grow Rate.mdl" "..\Install\NRCan\Models\Spruce Budworm Grow Rate.mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.dll" "..\Install\NRCan\Models\Spruce Budworm Dispersal.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.mdl" "..\Install\NRCan\Models\Spruce Budworm Dispersal.mdl"
+copy /Y ".\bin\Releasex64\Models\Spruce Budworm Manitoba.mdl" "..\Install\NRCan\Models\Spruce Budworm Manitoba.mdl"
+copy /Y ".\bin\Releasex64\Models\Spruce Budworm Manitoba.dll" "..\Install\NRCan\Models\Spruce Budworm Manitoba.dll"
+
 copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.mdl" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.mdl"
 copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.dll" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.dll"
 copy /Y ".\bin\Releasex64\Models\TminTairTmax (Hourly).mdl" "..\Install\NRCan\Models\TminTairTmax (Hourly).mdl"
