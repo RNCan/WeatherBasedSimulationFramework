@@ -151,6 +151,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>HostDie_g0</Name>
+            <Title>HostDie_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>CumulAdult_g0</Name>
             <Title>CumulAdult_g0</Title>
             <Units/>
@@ -217,6 +225,14 @@
         <OutputVariable>
             <Name>Attrition_g1</Name>
             <Title>Attrition_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HostDie_g1</Name>
+            <Title>HostDie_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -296,6 +312,14 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>HostDie_g2</Name>
+            <Title>HostDie_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>CumulAdult_g2</Name>
             <Title>CumulAdult_g2</Title>
             <Units/>
@@ -367,6 +391,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>9223372036854775807</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HostDie_g3</Name>
+            <Title>HostDie_g3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>CumulAdult_g3</Name>
@@ -441,6 +473,14 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>HostDie_g4</Name>
+            <Title>HostDie_g4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>CumulAdult_g4</Name>
             <Title>CumulAdult_g4</Title>
             <Units/>
@@ -507,6 +547,14 @@
         <OutputVariable>
             <Name>Attrition_g5</Name>
             <Title>Attrition_g5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HostDie_g5</Name>
+            <Title>HostDie_g5</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
