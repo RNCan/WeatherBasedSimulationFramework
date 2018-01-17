@@ -6,7 +6,8 @@
 //   directory is used
 //***********************************************************
 #include "ForestTentCaterpillarModel.h"
-#include "MOdelBase/EntryPoint.h"
+#include "ModelBase/EntryPoint.h"
+#include "Basic\DegreeDays.h"
 
 namespace WBSF
 {
@@ -24,7 +25,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "2.0.0 (2016)";
+		VERSION = "2.0.1 (2018)";
 	}
 
 	CForestTentCaterpillarModel::~CForestTentCaterpillarModel()
@@ -55,41 +56,18 @@ namespace WBSF
 		enum{ HATCH_PEAK, PUPATION_PEAK, EMERGENCE_PEAK, NB_VARIABLES };
 	};
 
-	typedef CModelStatVectorTemplate<CFTCStat::NB_VARIABLES> CFTCStatVector;
+	//typedef CModelStatVectorTemplate<CFTCStat::NB_VARIABLES> CFTCStatVector;
 	ERMsg CForestTentCaterpillarModel::OnExecuteAnnual()
 	{
-		_ASSERTE(m_weather.GetNbYear() > 1);
+		_ASSERTE(m_weather.size() > 1);
 
 		ERMsg msg;
 
-		CFTCStatVector stat(m_weather.GetNbYears() - 1, CTRef(m_weather[1].GetTRef().GetYear()));
-		/*
-			CTRef hatchDate[8] =
-			{
-			CTRef(1967, MAY, 20),
-			CTRef(1968, APRIL, 29),
-			CTRef(1969, MAY,  0),
-			CTRef(1970, MAY,  11),
-			CTRef(1971, MAY,  05),
-			CTRef(1972, MAY,  10),
-			CTRef(1973, MAY,  05),
-			CTRef(1974, MAY,  15)
-			};
-			ASSERT( m_weather[0].GetYear() == 1966);
-			for(int y=0; y<m_weather.GetNbYear()-1; y++)
-			{
-			CTRef begin(m_weather[y].GetYear(), NOVEMBER, 12);
-			double DD=0;
-			for(CTRef d=begin; d<=hatchDate[y]; d++)
-			DD+=m_weather[d].GetDD(0);
-
-			stat[y][0] = DD;
-			}
-
-			SetOutput(stat);
-
-			return msg;
-			*/
+		//CFTCStatVector stat(m_weather.GetNbYears() - 1, CTRef(m_weather[size_t(1)].GetTRef().GetYear()));
+		CTPeriod outputPeriod = m_weather.GetEntireTPeriod(CTM::ANNUAL);
+		outputPeriod.Begin()++;//begin output at the second year
+		CModelStatVector stat(outputPeriod, CFTCStat::NB_VARIABLES);
+		
 		for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 		{
 			int year = m_weather.GetFirstYear() + int(y);
@@ -112,22 +90,14 @@ namespace WBSF
 			default:_ASSERTE(false);
 			}
 
-			//CTRef begin(m_weather[y].GetYear()+1,	FIRST_MONTH, FIRST_DAY);//orginal
-			//CTRef begin(m_weather[y].GetYear()+1,	JANUARY, 26);//eastern and forest 
-			//CTRef begin(m_weather[y].GetYear(),	NOVEMBER, 5);//forest only
-
 			CTRef hatchDay;
 			double DD = 0;
-
-
-			for (CTRef d = begin; d <= m_weather[y + 1].GetLastTRef(); d++)
+			CDegreeDays DDhatch(CDegreeDays::DAILY_AVERAGE, threshold);
+			
+			CTPeriod period = m_weather[y + 1].GetEntireTPeriod(CTM::DAILY);
+			for (CTRef d = begin; d <= period.End(); d++)
 			{
-				//DD+=m_weather[d].GetDD(2.2);//original
-				//DD+=m_weather[d].GetDD(-7.2);//eastern and forest
-				//DD+=m_weather[d].GetDD(3.6);//forest only
-				DD += m_weather[d].GetDD(threshold);
-				//if( DD>=222.2)//original
-				//if( DD>=574.7)//eastern and forest
+				DD += DDhatch.GetDD(m_weather.GetDay(d));
 				if (DD >= sumDD)
 				{
 					hatchDay = d;
@@ -139,8 +109,8 @@ namespace WBSF
 			if (hatchDay.IsInit())
 			{
 				Jday = -1;
-				if (hatchDay.GetYear() == m_weather[y + 1].GetYear())
-					Jday = hatchDay.GetJDay();
+				if (hatchDay.GetYear() == period.Begin().GetYear())
+					Jday = (int)hatchDay.GetJDay();
 			}
 
 			stat[y][CFTCStat::HATCH_PEAK] = Jday + 1;
@@ -148,10 +118,11 @@ namespace WBSF
 
 			CTRef pupationDay;
 			double DDPupation = 0;
-
-			for (CTRef d = m_weather[y + 1].GetFirstTRef(); d <= m_weather[y + 1].GetLastTRef(); d++)
+			CDegreeDays DD0(CDegreeDays::DAILY_AVERAGE, 0);
+			
+			for (CTRef d = period.Begin(); d <= period.End(); d++)
 			{
-				DDPupation += m_weather[d].GetDD(0);
+				DDPupation += DD0.GetDD( m_weather.GetDay(d) );
 				if (DDPupation >= 800)
 				{
 					pupationDay = d;
@@ -163,8 +134,8 @@ namespace WBSF
 			if (pupationDay.IsInit())
 			{
 				Jday2 = -1;
-				if (pupationDay.GetYear() == m_weather[y + 1].GetYear())
-					Jday2 = pupationDay.GetJDay();
+				if (pupationDay.GetYear() == period.Begin().GetYear())
+					Jday2 = (int)pupationDay.GetJDay();
 			}
 
 			stat[y][CFTCStat::PUPATION_PEAK] = Jday2 + 1;
@@ -173,9 +144,11 @@ namespace WBSF
 			CTRef flightDay;
 			double DDFlight = 0;
 
-			for (CTRef d = m_weather[y + 1].GetFirstTRef(); d <= m_weather[y + 1].GetLastTRef(); d++)
+			//for (CTRef d = m_weather[y + 1].GetFirstTRef(); d <= m_weather[y + 1].GetLastTRef(); d++)
+			for (CTRef d = period.Begin(); d <= period.End(); d++)
 			{
-				DDFlight += m_weather[d].GetDD(0);
+				//DDFlight += m_weather[d].GetDD(0);
+				DDFlight += DD0.GetDD(m_weather.GetDay(d));
 				if (DDFlight >= 1009)
 				{
 					flightDay = d;
@@ -187,8 +160,9 @@ namespace WBSF
 			if (flightDay.IsInit())
 			{
 				Jday3 = -1;
-				if (flightDay.GetYear() == m_weather[y + 1].GetYear())
-					Jday3 = flightDay.GetJDay();
+				//if (flightDay.GetYear() == m_weather[y + 1].GetYear())
+				if (flightDay.GetYear() == period.Begin().GetYear())
+					Jday3 = (int)flightDay.GetJDay();
 			}
 
 			stat[y][CFTCStat::EMERGENCE_PEAK] = Jday3 + 1;

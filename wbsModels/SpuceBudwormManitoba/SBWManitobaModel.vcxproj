@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F4EC15BC-DBF4-49BE-8F60-E048495BF199}</ProjectGuid>
     <RootNamespace>PierreBelleau</RootNamespace>
-    <ProjectName>SpruceBudwormManitoba</ProjectName>
+    <ProjectName>Spruce Budworm Manitoba</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
