@@ -4,7 +4,7 @@
     <Version>1.0</Version>
     <ID>.sbm</ID>
     <EXE>Spruce Budworm Manitoba.dll</EXE>
-    <Behaviour>1</Behaviour>
+    <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 149 315</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
@@ -18,7 +18,7 @@
             <Name>Model</Name>
             <Caption>Model</Caption>
             <Description/>
-            <Type>6</Type>
+            <Type>5</Type>
             <Rect>5 20 30 290</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
@@ -30,7 +30,7 @@
             <Name>Sub-Model</Name>
             <Caption>Sub-Model</Caption>
             <Description/>
-            <Type>6</Type>
+            <Type>5</Type>
             <Rect>35 20 55 290</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
