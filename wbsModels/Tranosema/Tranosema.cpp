@@ -231,8 +231,12 @@ namespace WBSF
 		{
 			size_t s = GetStage();
 			stat[S_BROOD] += m_broods*m_scaleFactor;
+			stat[E_BROOD] += m_broods*m_scaleFactor; //E_BROOD is the same as S_BROOD
 			
-			if (s >= ADULT)//individuals that rech adult stage (alive or dead)
+			
+
+
+			if (s >= ADULT)//individuals that reach adult stage (alive or dead)
 				stat[S_CUMUL_REATCH_ADULT] += m_scaleFactor;
 
 			if (IsAlive())
@@ -250,7 +254,7 @@ namespace WBSF
 				}
 				
 				if (m_diapauseTRef.IsInit())
-					stat[S_CUMUL_DIAPAUSE] += m_scaleFactor;
+					stat[S_DIAPAUSE] += m_scaleFactor;
 			}
 			else
 			{
@@ -270,7 +274,14 @@ namespace WBSF
 
 			}
 
+			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == ATTRITION)
+				stat[E_ATTRITION] += m_scaleFactor;
+
+			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
+				stat[E_FROZEN] += m_scaleFactor;
+
 			
+
 			//if (m_lastAge < GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
 			if (d == m_diapauseTRef)
 			{

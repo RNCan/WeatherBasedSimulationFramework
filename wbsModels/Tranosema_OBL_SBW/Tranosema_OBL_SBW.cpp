@@ -169,7 +169,7 @@ namespace WBSF
 			if (!m_pAssociateHost.lock()->IsAlive())
 			{
 				m_status = DEAD;
-				m_death = OTHERS;
+				m_death = HOST_DIE;
 			}
 		}
 
@@ -184,6 +184,20 @@ namespace WBSF
 	void CTranosema_OBL_SBW::GetStat(CTRef d, CModelStat& stat)
 	{
 		CTranosema::GetStat(d, stat);
+
+		if (IsCreated(d))
+		{
+			
+
+			if (m_death == HOST_DIE)
+				stat[S_HOST_DIE] += m_scaleFactor;
+
+
+
+			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == HOST_DIE)
+				stat[E_HOST_DIE] += m_scaleFactor;
+		}
+
 	}
 
 	//bool CTranosema_OBL_SBW::CanPack(const CIndividualPtr& in)const
