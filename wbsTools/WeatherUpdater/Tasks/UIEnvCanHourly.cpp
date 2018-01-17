@@ -718,6 +718,7 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYear = lastYear - firstYear + 1;
+		CTRef now = CTRef::GetCurrentTRef(CTM::MONTHLY);
 		
 		if (nbYear>5)
 			callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
@@ -731,16 +732,16 @@ namespace WBSF
 
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
-				//CTPeriod period = String2Period(station.GetSSI("Period"));
-				//if (period.IsInside(CTRef(year, m, FIRST_DAY)) ||
-					//period.IsInside(CTRef(year, m, LAST_DAY)))
-				CTPeriod period1 = String2Period(station.GetSSI("Period"));
-				CTPeriod period2(CTRef(year, JANUARY, FIRST_DAY), CTRef(year, DECEMBER, LAST_DAY));
-				if (period1.IsIntersect(period2))
+				if (CTRef(year, m) <= now)
 				{
-					string outputPath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, station.GetSSI("InternalID"));
-					bNeedDownload[y][m] = NeedDownload(outputPath, station, year, m);
-					nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
+					CTPeriod period1 = String2Period(station.GetSSI("Period"));
+					CTPeriod period2(CTRef(year, JANUARY, FIRST_DAY), CTRef(year, DECEMBER, LAST_DAY));
+					if (period1.IsIntersect(period2))
+					{
+						string outputPath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, station.GetSSI("InternalID"));
+						bNeedDownload[y][m] = NeedDownload(outputPath, station, year, m);
+						nbFilesToDownload += bNeedDownload[y][m] ? 1 : 0;
+					}
 				}
 
 				if (nbYear>5)

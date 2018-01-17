@@ -89,6 +89,7 @@ namespace WBSF
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK);
 
 	protected:
 

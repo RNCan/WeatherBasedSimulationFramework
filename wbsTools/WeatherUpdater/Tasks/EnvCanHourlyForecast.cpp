@@ -648,4 +648,19 @@ namespace WBSF
 		return msg;
 	}
 
+
+	ERMsg CEnvCanHourlyForecast::Finalize(CCallback& callback)
+	{
+		ERMsg msg;
+		
+		m_DB.Close();
+		if (m_pShapefile)
+		{
+			delete m_pShapefile;
+			m_pShapefile=NULL;
+		}
+		
+		return msg;
+	}
+	
 }

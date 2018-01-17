@@ -54,7 +54,7 @@ namespace WBSF
 
 								if (k > first)
 								{
-									while (locations.back().GetDistance(location, false, false) > 5000)
+									while (locations.back().GetDistance(location, false/*, false*/) > 5000)
 									{
 										//mean point between 
 										CGeoPoint pt2 = (locations.back() + location) / 2;
@@ -104,7 +104,7 @@ namespace WBSF
 					//}
 					
 					CApproximateNearestNeighbor ANN;
-					ANN.set(locations, false, false);
+					ANN.set(locations, false/*, false*/);
 					stream << ANN;
 					stream.close();
 

@@ -28,7 +28,7 @@ namespace WBSF
 			CLocation::SetSSI("ICAO_ID", m_CALL);
 			CLocation::SetSSI("Country", m_country);
 			CLocation::SetSSI("State", m_state);
-			CLocation::SetSSI("Period", m_period.GetFormatedString("%1 %2"));
+			CLocation::SetSSI("Period", m_period.GetFormatedString("%1|%2", "%Y-%m-%d"));
 		}
 
 		void GetFromSSI()
@@ -38,7 +38,7 @@ namespace WBSF
 			m_CALL = CLocation::GetSSI("ICAO_ID");
 			m_country = CLocation::GetSSI("Country");
 			m_state = CLocation::GetSSI("State");
-			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1 %2");
+			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1|%2", "%Y-%m-%d");
 		}
 		bool operator>(const CGSODStation& in)const{ return true; }
 		bool operator<(const CGSODStation& in)const{ return !operator>(in); }

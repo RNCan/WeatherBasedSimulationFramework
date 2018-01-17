@@ -596,7 +596,7 @@ namespace WBSF
 			m_sceneSize = 0;
 		}
 
-
+		void clear();
 
 		void AddBand(CSingleBandHolderPtr pBandHolder){ m_bandHolder.push_back(pBandHolder); }
 		size_t GetRasterCount()const{ return m_bandHolder.size(); }

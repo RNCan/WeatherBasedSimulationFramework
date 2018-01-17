@@ -65,6 +65,7 @@ CGDALDatasetEx::CGDALDatasetEx()
 	m_poDataset=NULL;
 	m_bVRT=false;
 	m_bMultipleImages = false;
+	m_bOpenUpdate = false;
 }
 
 CGDALDatasetEx::~CGDALDatasetEx()
@@ -109,8 +110,17 @@ void CGDALDatasetEx::Close(const CBaseOptions& options)
 		m_filePath.clear();
 		m_extents.clear();
 		m_bVRT = false;
+		m_bOpenUpdate=false;
+		m_internalExtents.clear();
+		m_internalName.clear();
+		m_virtualBands.clear();
+		m_scenesPeriod.clear();
 
+		//this vector is intended to keep each band of a VRT file open for writing
+		ASSERT(m_poDataset == NULL);
+		ASSERT(m_poDatasetVector.empty());
 
+		//temporal section of the dataset
 	}
 }
 
@@ -559,6 +569,8 @@ ERMsg CGDALDatasetEx::BuildVRT(bool bQuiet)
 
 void CGDALDatasetEx::GetBandsHolder(CBandsHolder& bandsHolder)const
 {
+	//reset 
+	
 	//add bands
 	for(size_t j=0; j<GetRasterCount(); j++)
 	{
@@ -1589,6 +1601,24 @@ void CSingleBandHolder::Init(int windowSize)
 
 
 //*************************************************************************************************************
+void CBandsHolder::clear()
+{
+	m_bandHolder.clear();
+	m_pMaskBandHolder.reset();
+
+	m_entireExtents.clear();
+
+	m_nbScenes=0;
+	m_sceneSize=0;
+	m_entirePeriod.clear();//extraction period ??
+	m_scenesPeriod.clear();//period of scenes
+	//m_maxWindowSize;
+	//m_IOCPU;
+	//m_memoryLimit;
+	//m_maskDataUsed;
+	m_bEmpty=true;
+}
+
 ERMsg CBandsHolder::Load(const CGDALDatasetEx& inputDS, bool bQuiet, const CGeoExtents& entireExtents, CTPeriod entirePeriod)
 {
 	ERMsg msg;

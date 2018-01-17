@@ -105,9 +105,13 @@ namespace WBSF
 				pTask->Set("LastYear", Get("LastYear"));
 			
 				msg = CreateDatabase(outputFilePath, pTask, pForecastTask, callback);
-
+				
+				
 				pTask->Set("FirstYear", firstYear);
 				pTask->Set("LastYear", lastYear);
+				
+				if (pForecastTask.get())
+					pForecastTask->Finalize(callback);
 			}
 			else
 			{
@@ -224,9 +228,9 @@ namespace WBSF
 				callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
 				callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
 			}
-
-
 		}
+
+		pTask->Finalize(callback);
 
 		return msg;
 	}
@@ -306,7 +310,7 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * count[v].first / TRef.GetNbDayPerMonth();
+						double completeness = 100.0 * count[v].first / TRef.GetNbDaysPerYear();
 						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDaysPerYear()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < annualCompleteness)

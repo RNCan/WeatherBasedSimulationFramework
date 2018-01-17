@@ -114,7 +114,10 @@ namespace WBSF
 	
 
 	CUINOAAForecast::~CUINOAAForecast(void)
-	{}
+	{
+		if (m_bOpen)
+			CloseDataset();
+	}
 
 
 	std::string CUINOAAForecast::Option(size_t i)const
@@ -256,8 +259,11 @@ namespace WBSF
 						if (t == 1 && f == 1 && v == V_PRCP)
 							continue;
 
+						CBaseOptions options;
+						options.m_bMulti = false;
+						options.m_IOCPU = 1;
 						string outputFilePath = GetOutputFilePath(t,f,v);
-						msg = m_datasets[t][f][v].OpenInputImage(outputFilePath);
+						msg = m_datasets[t][f][v].OpenInputImage(outputFilePath, options);
 						msg += callback.StepIt();
 
 						if (msg)
@@ -286,25 +292,35 @@ namespace WBSF
 									{
 										m_datasets[t][f][v].FlushCache();
 										msg += callback.StepIt();
+
+										if (!m_extents.IsInit())
+										{
+											m_geo2gribs.Set(PRJ_WGS_84, m_datasets[t][f][v].GetPrjID());
+											m_extents = m_datasets[t][f][v].GetExtents();
+										}
 									}
 								}
 							}
 						}
-					}
-				}
-			}
+
+						//ignore error : sometime gribs is not valid
+						msg = ERMsg();
+						if (callback.GetUserCancel() )
+						{
+							msg += callback.StepIt(0);
+						}
+					}//v
+				}//f
+			}//t
 
 			callback.PopTask();
 
-			if (msg)
+			/*if (msg)
 			{
 
 				m_geo2gribs.Set(PRJ_WGS_84, m_datasets[0][0][0].GetPrjID());
 				m_extents = m_datasets[0][0][0].GetExtents();
-			}
-
-			//Load in memory
-			
+			}*/
 
 
 
@@ -375,7 +391,9 @@ namespace WBSF
 
 								if (!bAddForecast[FORECAST_VARIABLES[t][v]])
 									continue;
-
+								
+								if (!m_datasets[t][f][v].IsOpen())
+									continue;
 								
 								if (TRefs[t][f][v].empty())
 									TRefs[t][f][v].resize(m_bandHolder[t][f][v].GetRasterCount());
@@ -437,6 +455,37 @@ namespace WBSF
 
 
 		return msg;
+	}
+
+	ERMsg CUINOAAForecast::Finalize(CCallback& callback)
+	{
+		if (m_bOpen)
+			CloseDataset();
+
+		return ERMsg();
+	}
+
+	void CUINOAAForecast::CloseDataset()
+	{
+		
+		
+		for (size_t t = 0; t < NB_DATA_TYPE; t++)
+		{
+			for (size_t f = 0; f < NB_FORECAST_TYPE; f++)
+			{
+				for (size_t v = 0; v < NB_VARS_MAX; v++)
+				{
+					
+					if (m_datasets[t][f][v].IsOpen())
+					{
+						m_bandHolder[t][f][v].clear();
+						m_datasets[t][f][v].Close();
+					}
+				}
+			}
+		}
+
+		m_bOpen = false;
 	}
 
 }

@@ -188,6 +188,7 @@
     <ClCompile Include="..\src\Geomatic\ShapeFileBase.cpp" />
     <ClCompile Include="..\src\Geomatic\ShapeFileHeader.cpp" />
     <ClCompile Include="..\src\Geomatic\ShapeFileIndex.cpp" />
+    <ClCompile Include="..\src\Geomatic\ShoreCreator.cpp" />
     <ClCompile Include="..\src\Geomatic\SpatialRegression.cpp" />
     <ClCompile Include="..\src\Geomatic\srsinfo.cpp" />
     <ClCompile Include="..\src\Geomatic\ThinPlateSpline.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="..\src\Geomatic\ShapeFileBase.h" />
     <ClInclude Include="..\src\Geomatic\ShapeFileHeader.h" />
     <ClInclude Include="..\src\Geomatic\ShapeFileIndex.h" />
+    <ClInclude Include="..\src\Geomatic\ShoreCreator.h" />
     <ClInclude Include="..\src\Geomatic\SpatialRegression.h" />
     <ClInclude Include="..\src\Geomatic\srsinfo.h" />
     <ClInclude Include="..\src\Geomatic\ThinPlateSpline.h" />

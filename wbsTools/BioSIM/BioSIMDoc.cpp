@@ -452,8 +452,8 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 
 
 	//CShoreCreator::Shape2ANN("D:\\Layers\\gshhg-shp-2.3.6\\GSHHS_shp\\GSHHS10km.shp", GetApplicationPath() + "Layers\\GSHHS10km.ann");
-	msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
-	//msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
+	msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
 
 
 
@@ -526,7 +526,7 @@ void UpdateQuebec()
 
 	CInternetSessionPtr pGoogleSession;
 	CHttpConnectionPtr pGoogleConnection;
-	msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession);
 
 	if (msg)
 	{

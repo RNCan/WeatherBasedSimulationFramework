@@ -113,6 +113,8 @@ namespace WBSF
 				pTask->Set("FirstYear", firstYear);
 				pTask->Set("LastYear", lastYear);
 
+				if (pForecastTask.get())
+					pForecastTask->Finalize(callback);
 			}
 			else
 			{
@@ -371,7 +373,7 @@ namespace WBSF
 			}
 		}
 
-		//callback.PopTask();
+		pTask->Finalize(callback);
 
 		return msg;
 	}

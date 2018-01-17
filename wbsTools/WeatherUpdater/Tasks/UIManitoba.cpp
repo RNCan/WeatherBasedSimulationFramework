@@ -131,10 +131,10 @@ using namespace json11;
 namespace WBSF
 {
 
-	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Agriculture(historical)", "Fire", "Hydro" };
-	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture (historical)", "Manitoba Fire", "Manitoba Hydro" };
-	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "mawpvs.dyndns.org", "tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca" };
-	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "Tx_DMZ/", "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations" };
+	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { /*"Agriculture", */"Agriculture", "Fire", "Hydro" };
+	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { /*"Manitoba Agriculture",*/ "Manitoba Agriculture", "Manitoba Fire", "Manitoba Hydro" };
+	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { /*"mawpvs.dyndns.org", */"tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca" };
+	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { /*"Tx_DMZ/",*/ "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations" };
 
 	size_t CUIManitoba::GetNetwork(const string& network)
 	{
@@ -142,11 +142,35 @@ namespace WBSF
 
 		for (size_t i = 0; i <NB_NETWORKS && n == NOT_INIT; i++)
 		{
-			if (IsEqualNoCase(network, NETWORK_NAME[i]))
+			if (IsEqualNoCase(network, SUBDIR_NAME[i]))
 				n = i;
 		}
 
 		return n;
+	}
+	
+	std::bitset<CUIManitoba::NB_NETWORKS> CUIManitoba::GetNetWork()const
+	{
+		std::bitset<NB_NETWORKS> network;
+
+		StringVector str(Get(NETWORK), "|");
+		if (str.empty())
+		{
+			network.set();
+		}
+		else
+		{
+			//StringVector net("HIST|SWOB", "|");
+			for (size_t i = 0; i < str.size(); i++)
+			{
+				//size_t n = net.Find(str[i], false);
+				size_t n = GetNetwork(str[i]);
+				if (n < NB_NETWORKS)
+					network.set(n);
+			}
+		}
+
+		return network;
 	}
 
 	//*********************************************************************
@@ -174,7 +198,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "0=Manitoba Agriculture|1=Manitoba Agriculture (historical)|2=Manitoba fire|3=Manitoba Hydro"; break;
+		case NETWORK:	str = "Agriculture=Manitoba Agriculture|Fire=Manitoba fire|Hydro=Manitoba Hydro"; break;
 		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
@@ -187,7 +211,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Manitoba\\"; break;
-		case NETWORK:	str = "0|1|2|3"; break;
+		case NETWORK:	str = "Agriculture|Fire|Hydro"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "0"; break;
@@ -196,12 +220,13 @@ namespace WBSF
 		return str;
 	}
 
+	
 	//****************************************************
 
 
 	std::string CUIManitoba::GetStationsListFilePath(size_t network)const
 	{
-		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv" };
+		static const char* FILE_NAME[NB_NETWORKS] = {/* "ManitobaAgriStations.csv",*/ "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv" };
 
 		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "Layers\\";
 		string filePath = path + FILE_NAME[network];
@@ -221,11 +246,12 @@ namespace WBSF
 		ERMsg msg;
 		
 		size_t type = as<size_t>(DATA_TYPE);
-		StringVector networkV(Get(NETWORK), "|");
-		bitset<NB_NETWORKS> network;
-		for (size_t n = 0; n < NB_NETWORKS; n++)
-			if (networkV.empty() || networkV.Find(ToString(n)) != NOT_INIT)
-				network.set(n);
+		//StringVector networkV(Get(NETWORK), "|");
+		//bitset<NB_NETWORKS> network;
+		//for (size_t n = 0; n < NB_NETWORKS; n++)
+			//if (networkV.empty() || networkV.Find(ToString(n)) != NOT_INIT)
+				//network.set(n);
+		std::bitset<NB_NETWORKS> network = GetNetWork();
 
 		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
 		callback.PushTask("Download " + tstr + " Manitoba Data (" + ToString(network.count()) + " networks)", network.count());
@@ -246,8 +272,8 @@ namespace WBSF
 
 				switch (n)
 				{
-				case AGRI: msg = ExecuteAgriculture(callback); break;
-				case HAGRI: msg = ExecuteHistoricalAgriculture(callback); break;
+				//case AGRI:/* msg = ExecuteAgriculture(callback);*/ break;
+				case AGRI: msg = ExecuteHistoricalAgriculture(callback); break;
 				case FIRE: msg = ExecuteFire(callback); break;
 				case HYDRO:	msg = ExecuteHydro(callback); break;
 				default: ASSERT(false);
@@ -257,7 +283,7 @@ namespace WBSF
 			}//if selected network
 		}//for all newtwork
 
-
+		 
 		callback.PopTask();
 
 
@@ -269,12 +295,14 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		StringVector networks( Get(NETWORK), "|") ;
+		//StringVector networks( Get(NETWORK), "|") ;
+		std::bitset<NB_NETWORKS> network = GetNetWork();
 
 		m_stations.clear();
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
-			if (networks.empty() || networks.Find(to_string(n)) != NOT_INIT)
+			//if (networks.empty() || networks.Find(to_string(n)) != NOT_INIT)
+			if(network.test(n))
 			{
 				CLocationVector locations;
 				msg = locations.Load(GetStationsListFilePath(n));
@@ -328,7 +356,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			if (n == HAGRI)
+			if (n == AGRI)
 			{
 				for (size_t m = 0; m < 12 && msg; m++)
 				{
@@ -365,256 +393,256 @@ namespace WBSF
 
 
 	//**********************************************************************************************************
-	ERMsg CUIManitoba::GetAgriFileList(CFileInfoVector& fileList, CCallback& callback)const
-	{
-		ERMsg msg;
+	//ERMsg CUIManitoba::GetAgriFileList(CFileInfoVector& fileList, CCallback& callback)const
+	//{
+	//	ERMsg msg;
 
 
-		fileList.clear();
+	//	fileList.clear();
 
-		//open a connection on the server
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
+	//	//open a connection on the server
+	//	CInternetSessionPtr pSession;
+	//	CFtpConnectionPtr pConnection;
 
-		ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-		if (msgTmp)
-		{
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-			string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
-			msgTmp = FindFiles(pConnection, string(SERVER_PATH[AGRI]) + command, fileList, callback);
-		}
-
-
-		return msg;
-	}
+	//	ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	//	if (msgTmp)
+	//	{
+	//		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+	//		string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
+	//		msgTmp = FindFiles(pConnection, string(SERVER_PATH[AGRI]) + command, fileList, callback);
+	//	}
 
 
-
-
-	ERMsg CUIManitoba::ExecuteAgriculture(CCallback& callback)
-	{
-		ERMsg msg;
-
-
-		size_t type = as<size_t>(DATA_TYPE);
-
-
-		string fileName = type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
-		string remoteFilePath = "Tx_DMZ/" + fileName;
-		string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[AGRI] + "\\" + fileName;
-
-
-		int nbRun = 0;
-		bool bDownloaded = false;
-
-		while (!bDownloaded && nbRun < 5 && msg)
-		{
-			nbRun++;
-
-			CInternetSessionPtr pSession;
-			CFtpConnectionPtr pConnection;
-
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-			if (msgTmp)
-			{
-				TRY
-				{
-					callback.PushTask(GetString(IDS_UPDATE_FILE) + " for agriculture network", NOT_INIT);
-					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-					callback.PopTask();
-
-					//split data in seperate files
-					if (msgTmp)
-					{
-						ASSERT(FileExists(outputFilePath));
-						SplitAgriStations(outputFilePath, callback);
-						RemoveFile(outputFilePath);
-
-						msg += callback.StepIt();
-						bDownloaded = true;
-					}
-				}
-					CATCH_ALL(e)
-				{
-					msgTmp = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
-
-					//clean connection
-				pConnection->Close();
-				pSession->Close();
-			}
-			else
-			{
-				if (nbRun > 1 && nbRun < 5)
-				{
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (size_t i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
-				}
-			}
-		}
-
-		return msg;
-	}
+	//	return msg;
+	//}
 
 
 
-	ERMsg CUIManitoba::SplitAgriStations(const string& outputFilePath, CCallback& callback)
-	{
-		ERMsg msg;
-
-		if (m_stations.empty())
-			msg = m_stations.Load(GetStationsListFilePath(AGRI));
-
-		size_t type = as<size_t>(DATA_TYPE);
-		CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
-
-		std::map<string, CWeatherYears> data;
-
-		ifStream file;
-		msg = file.open(outputFilePath);
-		if (msg)
-		{
-			callback.PushTask("Split Manitoba Data", file.length());
-
-			CWeatherAccumulator stat(TM);
-			string lastID;
-
-			enum TCommonyColumns{ TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS };
-			enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
-			static const TVarH COL_POS_H[NB_COLUMNS_H] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_SKIP, H_RELH, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_PRCP, H_SKIP };
-			enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
-			static const TVarH COL_POS_D[NB_COLUMNS_D] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_SKIP, H_TMIN2, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
-
-			bool b10m = true;
-			for (CSVIterator loop(file, ",", false); loop != CSVIterator() && msg; ++loop)
-			{
-				size_t nbCols = type == HOURLY_WEATHER ? NB_COLUMNS_H : NB_COLUMNS_D;
-				//ASSERT(loop->size() == nbCols || loop->size()==27);
-
-				if (loop->size() == nbCols || loop->size() == 27)
-				{
-					StringVector time((*loop)[TMSTAMP], "\"-: ");
-					ASSERT(time.size() == 6);
-
-					int year = ToInt(time[0]);
-					size_t month = ToInt(time[1]) - 1;
-					size_t day = ToInt(time[2]) - 1;
-					size_t hour = ToInt(time[3]);
-
-					ASSERT(month >= 0 && month < 12);
-					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-					ASSERT(hour >= 0 && hour < 24);
-
-					CTRef TRef = type == HOURLY_WEATHER ? CTRef(year, month, day, hour) : CTRef(year, month, day);
-					string ID = (*loop)[STNID];
-					if (lastID.empty())
-					{
-						lastID = ID;
-						size_t it = m_stations.FindByID(ID);
-						if (it != NOT_INIT)
-							b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
-					}
+	//these file seem to be no longer available
+	//ERMsg CUIManitoba::ExecuteAgriculture(CCallback& callback)
+	//{
+	//	ERMsg msg;
 
 
-					if (stat.TRefIsChanging(TRef) || ID != lastID)
-					{
-						if (data.find(lastID) == data.end())
-						{
-							data[lastID] = CWeatherYears(type == HOURLY_WEATHER);
-							//try to load old data before changing it...
-							string filePath = GetOutputFilePath(AGRI, type, ID, year);
-							data[lastID].LoadData(filePath, -999, false);//don't erase other years when multiple years
-
-						}
-						//data[lastID].HaveData()
-						data[lastID][stat.GetTRef()].SetData(stat);
-						lastID = ID;
-						size_t it = m_stations.FindByID(ID);
-						if (it != NOT_INIT)
-							b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
-					}
-
-					for (size_t v = 0; v < loop->size(); v++)
-					{
-						size_t cPos = type == HOURLY_WEATHER ? COL_POS_H[v] : COL_POS_D[v];
-						if (cPos < NB_VAR_H)
-						{
-							double value = ToDouble((*loop)[v]);
-							if (value > -99)
-							{
-								if (cPos == H_WND2)
-								{
-									value *= 3600 / 1000;//convert m/s into km/h
-									//some station is at 2 meters and some at 10 meters
-									if (b10m)
-										cPos = H_WNDS;
-								}
-
-								if (cPos == H_RELH)
-									value = max(1.0, min(100.0, value));
+	//	size_t type = as<size_t>(DATA_TYPE);
 
 
-								if (cPos == H_WNDS || cPos == H_WND2)
-								{
-									ASSERT(value < 100);
-								}
-
-								if (cPos == H_TAIR2 || cPos == H_TMIN2 || cPos == H_TMAX2)
-								{
-									ASSERT(value > -60 && value < 60);
-								}
+	//	string fileName = type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
+	//	string remoteFilePath = "Tx_DMZ/" + fileName;
+	//	string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[AGRI] + "\\" + fileName;
 
 
-								stat.Add(TRef, cPos, value);
-								if (type == HOURLY_WEATHER && cPos == H_RELH)
-								{
-									double T = ToDouble((*loop)[AVGAIR_T_H]);
-									double Hr = value;
-									if (T > -99 && Hr > -99)
-										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
-								}
-							}
-						}
-					}
-				}//empty
+	//	int nbRun = 0;
+	//	bool bDownloaded = false;
 
-				msg += callback.StepIt(loop->GetLastLine().length() + 2);
-			}//for all line (
+	//	while (!bDownloaded && nbRun < 5 && msg)
+	//	{
+	//		nbRun++;
+
+	//		CInternetSessionPtr pSession;
+	//		CFtpConnectionPtr pConnection;
+
+	//		ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	//		if (msgTmp)
+	//		{
+	//			TRY
+	//			{
+	//				callback.PushTask(GetString(IDS_UPDATE_FILE) + " for agriculture network", NOT_INIT);
+	//				msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+	//				callback.PopTask();
+
+	//				//split data in seperate files
+	//				if (msgTmp)
+	//				{
+	//					ASSERT(FileExists(outputFilePath));
+	//					SplitAgriStations(outputFilePath, callback);
+	//					RemoveFile(outputFilePath);
+
+	//					msg += callback.StepIt();
+	//					bDownloaded = true;
+	//				}
+	//			}
+	//				CATCH_ALL(e)
+	//			{
+	//				msgTmp = UtilWin::SYGetMessage(*e);
+	//			}
+	//			END_CATCH_ALL
+
+	//				//clean connection
+	//			pConnection->Close();
+	//			pSession->Close();
+	//		}
+	//		else
+	//		{
+	//			if (nbRun > 1 && nbRun < 5)
+	//			{
+	//				callback.PushTask("Waiting 30 seconds for server...", 600);
+	//				for (size_t i = 0; i < 600 && msg; i++)
+	//				{
+	//					Sleep(50);//wait 50 milisec
+	//					msg += callback.StepIt();
+	//				}
+	//				callback.PopTask();
+	//			}
+	//		}
+	//	}
+
+	//	return msg;
+	//}
 
 
-			if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
-				data[lastID][stat.GetTRef()].SetData(stat);
+
+	//ERMsg CUIManitoba::SplitAgriStations(const string& outputFilePath, CCallback& callback)
+	//{
+	//	ERMsg msg;
+
+	//	if (m_stations.empty())
+	//		msg = m_stations.Load(GetStationsListFilePath(AGRI));
+
+	//	size_t type = as<size_t>(DATA_TYPE);
+	//	CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+
+	//	std::map<string, CWeatherYears> data;
+
+	//	ifStream file;
+	//	msg = file.open(outputFilePath);
+	//	if (msg)
+	//	{
+	//		callback.PushTask("Split Manitoba Data", file.length());
+
+	//		CWeatherAccumulator stat(TM);
+	//		string lastID;
+
+	//		enum TCommonyColumns{ TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS };
+	//		enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
+	//		static const TVarH COL_POS_H[NB_COLUMNS_H] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_SKIP, H_RELH, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_PRCP, H_SKIP };
+	//		enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
+	//		static const TVarH COL_POS_D[NB_COLUMNS_D] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_SKIP, H_TMIN2, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+
+	//		bool b10m = true;
+	//		for (CSVIterator loop(file, ",", false); loop != CSVIterator() && msg; ++loop)
+	//		{
+	//			size_t nbCols = type == HOURLY_WEATHER ? NB_COLUMNS_H : NB_COLUMNS_D;
+	//			//ASSERT(loop->size() == nbCols || loop->size()==27);
+
+	//			if (loop->size() == nbCols || loop->size() == 27)
+	//			{
+	//				StringVector time((*loop)[TMSTAMP], "\"-: ");
+	//				ASSERT(time.size() == 6);
+
+	//				int year = ToInt(time[0]);
+	//				size_t month = ToInt(time[1]) - 1;
+	//				size_t day = ToInt(time[2]) - 1;
+	//				size_t hour = ToInt(time[3]);
+
+	//				ASSERT(month >= 0 && month < 12);
+	//				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+	//				ASSERT(hour >= 0 && hour < 24);
+
+	//				CTRef TRef = type == HOURLY_WEATHER ? CTRef(year, month, day, hour) : CTRef(year, month, day);
+	//				string ID = (*loop)[STNID];
+	//				if (lastID.empty())
+	//				{
+	//					lastID = ID;
+	//					size_t it = m_stations.FindByID(ID);
+	//					if (it != NOT_INIT)
+	//						b10m = m_stations[it].GetSSI("WindHeight") == "10";
+
+	//				}
 
 
-			if (msg)
-			{
-				//save data
-				for (auto it1 = data.begin(); it1 != data.end(); it1++)
-				{
-					for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
-					{
-						string filePath = GetOutputFilePath(AGRI, type, it1->first, it2->first);
-						string outputPath = GetPath(filePath);
-						CreateMultipleDir(outputPath);
-						it2->second->SaveData(filePath, TM);
-					}
-				}
-			}//if msg
+	//				if (stat.TRefIsChanging(TRef) || ID != lastID)
+	//				{
+	//					if (data.find(lastID) == data.end())
+	//					{
+	//						data[lastID] = CWeatherYears(type == HOURLY_WEATHER);
+	//						//try to load old data before changing it...
+	//						string filePath = GetOutputFilePath(AGRI, type, ID, year);
+	//						data[lastID].LoadData(filePath, -999, false);//don't erase other years when multiple years
 
-			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(data.size()), 1);
-			callback.PopTask();
-		}//if msg
+	//					}
+	//					//data[lastID].HaveData()
+	//					data[lastID][stat.GetTRef()].SetData(stat);
+	//					lastID = ID;
+	//					size_t it = m_stations.FindByID(ID);
+	//					if (it != NOT_INIT)
+	//						b10m = m_stations[it].GetSSI("WindHeight") == "10";
 
-		return msg;
-	}
+	//				}
+
+	//				for (size_t v = 0; v < loop->size(); v++)
+	//				{
+	//					size_t cPos = type == HOURLY_WEATHER ? COL_POS_H[v] : COL_POS_D[v];
+	//					if (cPos < NB_VAR_H)
+	//					{
+	//						double value = ToDouble((*loop)[v]);
+	//						if (value > -99)
+	//						{
+	//							if (cPos == H_WND2)
+	//							{
+	//								value *= 3600 / 1000;//convert m/s into km/h
+	//								//some station is at 2 meters and some at 10 meters
+	//								if (b10m)
+	//									cPos = H_WNDS;
+	//							}
+
+	//							if (cPos == H_RELH)
+	//								value = max(1.0, min(100.0, value));
+
+
+	//							if (cPos == H_WNDS || cPos == H_WND2)
+	//							{
+	//								ASSERT(value < 100);
+	//							}
+
+	//							if (cPos == H_TAIR2 || cPos == H_TMIN2 || cPos == H_TMAX2)
+	//							{
+	//								ASSERT(value > -60 && value < 60);
+	//							}
+
+
+	//							stat.Add(TRef, cPos, value);
+	//							if (type == HOURLY_WEATHER && cPos == H_RELH)
+	//							{
+	//								double T = ToDouble((*loop)[AVGAIR_T_H]);
+	//								double Hr = value;
+	//								if (T > -99 && Hr > -99)
+	//									stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}//empty
+
+	//			msg += callback.StepIt(loop->GetLastLine().length() + 2);
+	//		}//for all line (
+
+
+	//		if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
+	//			data[lastID][stat.GetTRef()].SetData(stat);
+
+
+	//		if (msg)
+	//		{
+	//			//save data
+	//			for (auto it1 = data.begin(); it1 != data.end(); it1++)
+	//			{
+	//				for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
+	//				{
+	//					string filePath = GetOutputFilePath(AGRI, type, it1->first, it2->first);
+	//					string outputPath = GetPath(filePath);
+	//					CreateMultipleDir(outputPath);
+	//					it2->second->SaveData(filePath, TM);
+	//				}
+	//			}
+	//		}//if msg
+
+	//		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(data.size()), 1);
+	//		callback.PopTask();
+	//	}//if msg
+
+	//	return msg;
+	//}
 
 	//******************************************************************************************************
 
@@ -758,7 +786,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[HAGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 		if (msg)
 		{
 			string str;
@@ -995,9 +1023,11 @@ namespace WBSF
 			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
 
 			nbRun++;
-			msg = GetHttpConnection(SERVER_NAME[HAGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 			if (msg)
 			{
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);//let more time to get the data...
+
 				for (size_t y = curY; y < nbYears &&msg; y++)
 				{
 					int year = firstYear + int(y);
@@ -1008,7 +1038,7 @@ namespace WBSF
 						for (size_t i = 0; i < stationsList.size() && msg; i++)
 						{
 							bool bDownload = true;
-							string filePath = GetOutputFilePath(HAGRI, type, stationsList[i], year, m);
+							string filePath = GetOutputFilePath(AGRI, type, stationsList[i], year, m);
 							CreateMultipleDir(GetPath(filePath));
 
 							CFileStamp fileStamp(filePath);

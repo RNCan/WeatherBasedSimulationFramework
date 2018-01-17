@@ -372,16 +372,21 @@ namespace WBSF
 	ERMsg CUIWeatherFarm::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
-
 		
-		
+		CProvinceSelection provinces(Get(PROVINCE));
 		msg = m_stations.Load(GetStationsListFilePath());
 
 		if (msg)
 			msg += m_stations.IsValid();
 
 		for (size_t i = 0; i < m_stations.size(); i++)
-			stationList.push_back(m_stations[i].m_ID);
+		{
+			string state = m_stations[i].GetSSI("Province");
+
+			if (provinces.at(state))
+				stationList.push_back(m_stations[i].m_ID);
+		}
+			
 
 		return msg;
 	}
