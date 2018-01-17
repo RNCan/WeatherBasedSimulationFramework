@@ -86,6 +86,17 @@ copy /Y ".\bin\Releasex64\Models\HemlockLooperRemi.mdl" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid.dll" "..\Install\NRCan\Models\HemlockWoollyAdelgid.dll"
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgidCM (Annual).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgidCM (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgidCM (Daily).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgidCM (Daily).mdl"
+
+copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Daily).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\MPB-ColdTolerance.dll" "..\Install\NRCan\Models\MPB-ColdTolerance.dll"
+copy /Y ".\bin\Releasex64\Models\MPBiModel (Annual).mdl" "..\Install\NRCan\Models\MPBiModel (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\MPBiModel (Daily).mdl" "..\Install\NRCan\Models\MPBiModel (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\MPBiModel (Generation).mdl" "..\Install\NRCan\Models\MPBiModel (Generation).mdl"
+copy /Y ".\bin\Releasex64\Models\MPB-iModel.dll" "..\Install\NRCan\Models\MPB-iModel.dll"
+copy /Y ".\bin\Releasex64\Models\MPB-SLR.dll" "..\Install\NRCan\Models\MPB-SLR.dll"
+copy /Y ".\bin\Releasex64\Models\MPB-SLR.mdl" "..\Install\NRCan\Models\MPB-SLR.mdl"
+copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Annual).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Annual).mdl"
+
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator (Hourly).mdl" "..\Install\NRCan\Models\HourlyGenerator (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\HourlyGenerator.dll"
 
