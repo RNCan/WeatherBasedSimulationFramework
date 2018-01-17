@@ -129,9 +129,6 @@ namespace WBSF
 						break;
 					}
 				}
-
-				
-
 			}
 		}
 	}

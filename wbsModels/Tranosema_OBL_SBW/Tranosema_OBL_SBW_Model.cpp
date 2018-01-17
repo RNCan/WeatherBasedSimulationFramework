@@ -38,7 +38,7 @@ namespace WBSF
 	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration,GrowthRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 	
 	enum{ O_G_YEAR, O_G_GENERATION, O_G_EGG, O_G_PUPA, O_G_ADULT, O_G_DEAD_ADULT, O_G_BROOD, O_G_ATTRITION, O_G_FROZEN, O_G_HOST_DIE, O_G_DIAPAUSE, O_G_FECONDITY, O_G_EGG_GROWTH, O_G_ADULT_GROW, NB_GENERATION_OUTPUT };
-	extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Diapause,Fecondity,EggGrowth,AdultGrowth";
+	extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frosne,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
 
 	
 
