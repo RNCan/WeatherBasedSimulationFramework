@@ -47,6 +47,9 @@
 //-blocksize 1024 1024 -iocpu 1 -multi -dstNoData -32768 --config GDAL_CACHEMAX 1024 -overwrite "U:\GIS\#projets\LAM\ANALYSE\VALIDATION\HARVESTING_inventory_all\v3\25m\all_yr.tif" "U:\GIS\#documents\TestCodes\PointsExtractor\Test2\Input\Test2.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test2\Output\Test2.csv"
 //-dstnodata -999 -multi -overwrite -blocksize 5000 5000 "K:/#projets/LAM/ANALYSE/VALIDATION/flooding/TEST.VRT" "U:\GIS\#documents\TestCodes\PointsExtractor\Test1\Input\Test1.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test1\Output\Test2.csv"
 //-multi -ot INT16 -dstNoData -32768 --config GDAL_CACHEMAX 8096 -overwrite -stats -overview {2,4,8,16} "U:\GIS1\LANDSAT_SR\LCC\2012\#57_12.vrt" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Input\Test3.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test3\Output\Test3(new).csv"
+//-dstnodata -9999 -overwrite "U:\GIS\#projets\LAQ\ANALYSE_CA\20161125_SR_run14\See5_Dem_T101234_mean_val_1299_v8_dspkOff_nbDstrb6\Final_fix_20161216_bw1_s12\Ch_19842015__Dis1_YRt2.tif.tif" "U:\GIS\#documents\TestCodes\PointsExtractor\Test5\PP2005_lcc_v2_test_remi.csv" "U:\GIS\#documents\TestCodes\PointsExtractor\Test5\PP2005_lcc_v2_test_remi_out.csv"
+
+
 
 using namespace std;
 namespace WBSF
@@ -139,7 +142,7 @@ namespace WBSF
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input", "Image", "", "*", "", "" },
-			{ "Input", "srcfile", "", "3 or more", "ID|X|Y|other information...", "The columns order is not important. The coordinates must have as column header \"X\" and \"Y\". A line's ID is recommended because line order is not kept in extraction" },
+			{ "Input", "srcfile", "", "3 or more", "ID|X|Y|other information...", "The columns order is not important. The coordinates must have a column header \"X\" and \"Y\". A line's ID is recommended because line order is not kept in extraction" },
 			{ "Output", "dstfile", "", "", "ID|X|Y|others information...|all bands values...", "" },
 		};
 
@@ -300,7 +303,7 @@ namespace WBSF
 
 
 			CGeoExtents extents = m_options.GetExtents();
-			m_options.m_xxFinal = int(extents.YNbBlocks()*extents.XNbBlocks()*ioFile.size());
+			m_options.m_xxFinal = extents.YNbBlocks()*extents.XNbBlocks()*ioFile.size();
 
 			//**************************************
 
@@ -354,9 +357,18 @@ namespace WBSF
 				for (CGeoCoordFile::iterator it = ioFile.begin(); it != ioFile.end();)
 				{
 					if (m_options.IsRemoved(*it))
+					{
+						//remove xy coordinate
+						size_t pos = std::distance(ioFile.begin(), it);
+						ioFile.m_xy.erase(ioFile.m_xy.begin() + pos);
+
 						it = ioFile.erase(it);
+					}
 					else
+					{
 						it++;
+					}
+						
 				}
 			}
 

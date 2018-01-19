@@ -17,7 +17,7 @@
         <InputVariable>
             <Name>GenerateMicroclimate</Name>
             <Caption>Generate microclimate:</Caption>
-            <Description>True for air temperature and false for phloem temperature</Description>
+            <Description>True if weather input is air temperature and false in weather input is phloem temperature</Description>
             <Type>0</Type>
             <Rect>90 10 110 200</Rect>
             <SeparatorPos>125</SeparatorPos>
@@ -70,7 +70,7 @@
             <Name>Tmin</Name>
             <Title>Tmin</Title>
             <Units>°C</Units>
-            <Description>Minimum daily temperatures reach in the winter beginning the first of August of the preceding year.</Description>
+            <Description>Minimum daily phloem temperatures reach in the winter beginning the first of August of the preceding year.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>

@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LandsatWarp", "LandsatWarp\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BreaksImages", "BreaksImage\BreaksImage.vcxproj", "{3222209D-1B5E-48D5-91FE-63E35F21B835}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointsReduction", "PointReduction\PointReduction.vcxproj", "{E7D59301-8F0F-47B6-945D-2394A91CAE0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -171,6 +173,14 @@ Global
 		{3222209D-1B5E-48D5-91FE-63E35F21B835}.Release|Win32.Build.0 = Release|Win32
 		{3222209D-1B5E-48D5-91FE-63E35F21B835}.Release|x64.ActiveCfg = Release|x64
 		{3222209D-1B5E-48D5-91FE-63E35F21B835}.Release|x64.Build.0 = Release|x64
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Debug|Win32.Build.0 = Debug|Win32
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Debug|x64.ActiveCfg = Debug|x64
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Debug|x64.Build.0 = Debug|x64
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|Win32.ActiveCfg = Release|Win32
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|Win32.Build.0 = Release|Win32
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|x64.ActiveCfg = Release|x64
+		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

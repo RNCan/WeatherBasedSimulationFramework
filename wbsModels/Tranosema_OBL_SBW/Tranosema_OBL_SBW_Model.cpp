@@ -44,7 +44,7 @@ namespace WBSF
 
 	CTranosema_OBL_SBW_Model::CTranosema_OBL_SBW_Model()
 	{
-		//NB_INPUT_PARAMETER is used to determine if the DLL
+		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
 		VERSION = "1.0.2 (2018)";
@@ -54,7 +54,7 @@ namespace WBSF
 		m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
 		m_diapauseAge = EGG + 0.1;
 		m_lethalTemp = -5.0;
-		m_criticalDaylength = 13.5;
+		m_criticalDaylength = 13.5; 
 		m_bOnGround = false;
 	}
 

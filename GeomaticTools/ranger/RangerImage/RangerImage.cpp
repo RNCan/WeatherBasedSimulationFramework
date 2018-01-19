@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with dead lock
+// 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with no end loop
 // 1.0.0	07/11/2017	Rémi Saint-Amant	Creation
 
 #include "stdafx.h"

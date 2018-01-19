@@ -17,7 +17,7 @@
         <InputVariable>
             <Name>GenerateMicroclimate</Name>
             <Caption>Generate microclimate:</Caption>
-            <Description>True for air temperature and false for phloem temperature</Description>
+            <Description>True if weather input is air temperature and false in weather input is phloem temperature</Description>
             <Type>0</Type>
             <Rect>90 10 110 200</Rect>
             <SeparatorPos>125</SeparatorPos>
@@ -70,19 +70,17 @@
             <Name>Tmin</Name>
             <Title>Tmin</Title>
             <Units>°C</Units>
-            <Description>Daily minimum temperatures, modified or not for phloem overheating/damping</Description>
+            <Description>Daily minimum phloem temperatures, modified or not for phloem overheating/damping</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Tmax</Name>
             <Title>Tmax</Title>
             <Units>°C</Units>
-            <Description>Daily maximum temperatures, modified or not for phloem overheating/damping</Description>
+            <Description>Daily maximum phloem temperatures, modified or not for phloem overheating/damping</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>P1</Name>
@@ -91,7 +89,6 @@
             <Description>Proportion in stages I</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>P2</Name>
@@ -100,7 +97,6 @@
             <Description>Proportion in stages II</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>P3</Name>
@@ -109,7 +105,6 @@
             <Description>Proportion in stages III</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Ct</Name>
@@ -118,7 +113,6 @@
             <Description>State of cryoprotectant "concentration"</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>LT50</Name>
@@ -127,7 +121,6 @@
             <Description>Median lethal temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Psurv</Name>
@@ -136,7 +129,6 @@
             <Description>Seasonal survival (cumulative, selective)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Pmort</Name>
@@ -145,7 +137,6 @@
             <Description>Daily probability of mortality (Psurv is the sequential minimum of Pmort)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>3</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright>Régnière &amp; Bentz, 2007</Copyright>

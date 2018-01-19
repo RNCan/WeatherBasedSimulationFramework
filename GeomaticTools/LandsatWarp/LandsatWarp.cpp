@@ -156,10 +156,9 @@ namespace WBSF
 			if (!imagesList[b].empty())
 			{
 #pragma omp critical(PreProcessBlock)
-{
-	
-	images.insert(imagesList[b].begin(), imagesList[b].end());
-}
+				{
+					images.insert(imagesList[b].begin(), imagesList[b].end());
+				}
 			}
 		}//for all blocks
 
@@ -179,7 +178,7 @@ namespace WBSF
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
 		}
 
-		
+		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 #pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
@@ -192,7 +191,6 @@ namespace WBSF
 			ReadBlock(xBlock, yBlock, bandHolder[blockThreadNo]);
 			ProcessBlock(xBlock, yBlock, imagesList[b], bandHolder[blockThreadNo], outputData);
 			WriteBlock(xBlock, yBlock, bandHolder[blockThreadNo], outputDS, outputData);
-			outputData.clear(); outputData.shrink_to_fit();
 		}//for all blocks
 
 
@@ -203,7 +201,7 @@ namespace WBSF
 
 
 
-	ERMsg CLandsatWarp::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS)
+	ERMsg CLandsatWarp::OpenInput(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS)
 	{
 		ERMsg msg;
 
@@ -246,7 +244,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLandsatWarp::OpenOutput(CGDALDatasetEx& outputDS)
+	ERMsg CLandsatWarp::OpenOutput(CLandsatDataset& outputDS)
 	{
 		ERMsg msg;
 
@@ -265,11 +263,11 @@ namespace WBSF
 			}
 
 			string filePath = options.m_filesPath[CLandsatWarpOption::OUTPUT_FILE_PATH];
-			string fileTitle = GetFileTitle(filePath);
+			/*string fileTitle = GetFileTitle(filePath);
 			for (size_t b = 0; b < SCENES_SIZE; b++)
 			{
 				options.m_VRTBandsName += fileTitle + string("_") + Landsat::GetSceneName(b) + ".tif|";
-			}
+			}*/
 
 
 			msg += outputDS.CreateImage(filePath, options);
@@ -437,14 +435,7 @@ namespace WBSF
 		inputDS.Close();
 		maskDS.Close();
 
-
 		m_options.m_timerWrite.Start();
-
-		//if (m_options.m_bComputeStats)
-			//outputDS.ComputeStats(m_options.m_bQuiet);
-
-		//if (!m_options.m_overviewLevels.empty())
-			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 
 		outputDS.Close(m_options);
 

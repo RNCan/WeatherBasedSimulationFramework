@@ -37,8 +37,8 @@ namespace WBSF
 		std::string GetDescription() { return  std::string("LandsatWarp version ") + VERSION + " (" + __DATE__ + ")"; }
 		//void AllocateMemory(size_t sceneSize, GeoBasic::CGeoSize blockSize, OutputData& outputData, DebugData& debugData, OutputData& statsData);
 
-		ERMsg OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS);
-		ERMsg OpenOutput(CGDALDatasetEx& outputDS);
+		ERMsg OpenInput(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS);
+		ERMsg OpenOutput(CLandsatDataset& outputDS);
 
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
 		void ProcessBlock(int xBlock, int yBlock, std::set<size_t>& imagesList, CBandsHolder& bandHolder, OutputData& outputData);

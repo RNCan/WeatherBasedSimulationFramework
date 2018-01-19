@@ -192,7 +192,7 @@ namespace WBSF
 		}//for all stations
 
 		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
-		callback.PushTask("Download stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
+		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;

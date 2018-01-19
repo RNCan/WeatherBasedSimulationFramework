@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F6361283-837B-4DF0-86C0-F0AEB9CA4309}</ProjectGuid>
+    <ProjectGuid>{CC27CA4A-389E-498A-9701-107C3EED95A2}</ProjectGuid>
     <RootNamespace>MPB-iModel</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

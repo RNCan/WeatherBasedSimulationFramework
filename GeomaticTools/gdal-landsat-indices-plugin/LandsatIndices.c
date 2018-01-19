@@ -505,6 +505,56 @@ CPLErr TCW(void **papoSources, int nSources, void *pData,
 	return CE_None;
 }
 
+CPLErr ZSW(void **papoSources, int nSources, void *pData,
+	int nXSize, int nYSize,
+	GDALDataType eSrcType, GDALDataType eBufType,
+	int nPixelSpace, int nLineSpace)
+{
+	int ii, iLine, iCol;
+	__int16 pix_val;
+	__int16 b[7] = { 0 };
+
+	// ---- Init ----
+	if (nSources < 7) return CE_Failure;
+
+
+	// ---- Set pixels ----
+	for (iLine = 0; iLine < nYSize; iLine++)
+	{
+		for (iCol = 0; iCol < nXSize; iCol++)
+		{
+			ii = iLine * nXSize + iCol;
+			/* Source raster pixels may be obtained with SRCVAL macro */
+			//b[B1] = (__int16)(SRCVAL(papoSources[B1], eSrcType, ii));
+			//b[B2] = (__int16)(SRCVAL(papoSources[B2], eSrcType, ii));
+			b[B3] = (__int16)(SRCVAL(papoSources[B3], eSrcType, ii));
+			b[B4] = (__int16)(SRCVAL(papoSources[B4], eSrcType, ii));
+			b[B5] = (__int16)(SRCVAL(papoSources[B5], eSrcType, ii));
+			//			b[B6] = (__int16)(SRCVAL(papoSources[B6], eSrcType, ii));
+			b[B7] = (__int16)(SRCVAL(papoSources[B7], eSrcType, ii));
+
+
+			pix_val = -32768;
+			if (b[B3]>-32768 && b[B4] > -32768 && b[B5] > -32768 && b[B7] > -32768)
+			{
+				double b3 = max(0.0, b[B3] - 141.4518) / 70.56979;
+				double b4 = max(0.0, b[B4] - 221.1589) / 147.9847;
+				double b5 = max(0.0, b[B5] - 91.9588) / 130.7777;
+				double b7 = max(0.0, b[B7] - 68.39219) / 99.17062;
+				double ZSW = sqrt(0.25  * (b3*b3 + b4*b4 + b5*b5 + b7*b7)) * 100;
+
+				pix_val = LimitToInt16(ZSW);
+			}
+
+			GDALCopyWords(&pix_val, GDT_Int16, 0,
+				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+				eBufType, nPixelSpace, 1);
+		}
+	}
+
+	// ---- Return success ----
+	return CE_None;
+}
 
 
 
@@ -950,6 +1000,7 @@ CPLErr CPL_STDCALL GDALRegisterLandsatIndices()
 	GDALAddDerivedBandPixelFunc("Landsat.TCB", TCB);
 	GDALAddDerivedBandPixelFunc("Landsat.TCG", TCG);
 	GDALAddDerivedBandPixelFunc("Landsat.TCW", TCW);
+	GDALAddDerivedBandPixelFunc("Landsat.ZSW", ZSW);
 	GDALAddDerivedBandPixelFunc("Landsat.SR", SR);
 	GDALAddDerivedBandPixelFunc("Landsat.CL", CL);
 	GDALAddDerivedBandPixelFunc("Landsat.HZ", HZ);

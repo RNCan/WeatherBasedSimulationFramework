@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.1	15/11/2017	Rémi Saint-Amant	remove multi-thread : bad performance
 // 1.1.0	02/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 1.0.0	21/12/2016	Rémi Saint-Amant	Creation
 
@@ -30,9 +31,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-
-
-	const char* CLandsat2RGB::VERSION = "1.1.0";
+	const char* CLandsat2RGB::VERSION = "1.1.1";
 	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
@@ -40,16 +39,12 @@ namespace WBSF
 
 	CLandsat2RGBOption::CLandsat2RGBOption()
 	{
-
-
 		m_outputType = GDT_Byte;
 		m_scenesSize = SCENES_SIZE;
 		m_scene = 0;
 		m_dstNodata = 255;
 		m_bust = { { 0, 255 } };
 		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image.";
-
-		//AddOption("-Period");
 
 		static const COptionDef OPTIONS[] =
 		{
@@ -64,6 +59,7 @@ namespace WBSF
 			AddOption(OPTIONS[i]);
 		
 		RemoveOption("-ot");
+		RemoveOption("-CPU");//no multi thread in inner loop
 		
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
@@ -88,9 +84,6 @@ namespace WBSF
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
 
-		//if (m_outputType == GDT_Unknown)
-		
-
 		return msg;
 	}
 
@@ -104,10 +97,8 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-Bust"))
 		{
-			//m_bBust = true;
 			m_bust[0] = ToInt(argv[++i]);
 			m_bust[1] = ToInt(argv[++i]);
-
 		}
 		else
 		{
@@ -139,8 +130,11 @@ namespace WBSF
 		CLandsatCloudCleaner cloudsCleaner;
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 		CGDALDatasetEx maskDS;
-
+		CLandsatDataset outputDS;
 		msg = OpenInput(inputDS, maskDS);
+
+		if (msg)
+			msg = OpenOutput(outputDS);
 
 		if (msg && maskDS.IsOpen())
 			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
@@ -156,40 +150,25 @@ namespace WBSF
 		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
 		vector<pair<int, int>> XYindex = extents.GetBlockList(5,5);
 
-		if (!m_options.m_bQuiet)
+		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 		{
-			cout << "Preprocess input images (" << inputDS.GetRasterXSize() << " C x " << inputDS.GetRasterYSize() << " R x " << inputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
+			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B)" << endl;
 		}
 
 		omp_set_nested(1);//for IOCPU
-		
-		CLandsatDataset outputDS;
-		msg = OpenOutput(outputDS);
-
-		if (!msg)
-			return msg;
-
-
-		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-		{
-			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
-		}
-
-
 #pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int xBlock = XYindex[b].first;
 			int yBlock = XYindex[b].second;
 
-			int blockThreadNo = ::omp_get_thread_num();
+			int thread = ::omp_get_thread_num();
 
 			OutputData outputData;
 
-			ReadBlock(xBlock, yBlock, bandHolder[blockThreadNo]);
-			ProcessBlock(xBlock, yBlock, bandHolder[blockThreadNo], outputData);
-			WriteBlock(xBlock, yBlock, bandHolder[blockThreadNo], outputDS, outputData);
-			
+			ReadBlock(xBlock, yBlock, bandHolder[thread]);
+			ProcessBlock(xBlock, yBlock, bandHolder[thread], outputData);
+			WriteBlock(xBlock, yBlock, bandHolder[thread], outputDS, outputData);
 		}//for all blocks
 
 		//outputData.clear(); outputData.shrink_to_fit();
@@ -282,7 +261,7 @@ namespace WBSF
 		m_options.m_timerRead.Start();
 
 		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-		bandHolder.LoadBlock(extents, m_options.m_period);
+		bandHolder.LoadBlock(extents);
 
 		m_options.m_timerRead.Stop();
 	}
@@ -290,23 +269,20 @@ namespace WBSF
 
 	void CLandsat2RGB::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
 	{
-
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 
 		if (bandHolder.IsEmpty())
 		{
-//#pragma omp critical(ProcessBlock)
-	//	{
 			int nbCells = blockSize.m_x*blockSize.m_y;
 
 #pragma omp atomic
 			m_options.m_xx += nbCells;
 
 			m_options.UpdateBar();
-	//	}
+	
 
-		return;
+			return;
 		}
 
 		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
@@ -323,26 +299,17 @@ namespace WBSF
 	{
 		m_options.m_timerProcess.Start();
 
-		//CTPeriod period = m_options.GetTTPeriod();
-		//int nbSegment = period.GetNbRef();
-
-#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
+//multithread here is very not efficient.
+//#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
 		for (int y = 0; y < blockSize.m_y; y++)
 		{
 			for (int x = 0; x < blockSize.m_x; x++)
 			{
-				//process all bands for the moment
-				//for (size_t iz = 0; iz < window.GetNbScenes(); iz++)
-				//{
-					//Get pixel
-
 				ASSERT(m_options.m_scene < bandHolder.GetNbScenes());
 				CLandsatPixel pixel = window.GetPixel(m_options.m_scene, x, y);
 				if (window.IsValid(m_options.m_scene, pixel))
 				{
 					bool bIsBlack = pixel.IsBlack();
-					//bool bIsBust = (pixel[B4] < -150 || pixel[B4] > 6000 || pixel[B5] < -190 || pixel[B5] > 5000 || pixel[B3] < -200 || pixel[B3] > 2500);
-					
 
 					if (!bIsBlack )
 					{
@@ -359,10 +326,7 @@ namespace WBSF
 							outputData[2][y*blockSize.m_x + x] = B;
 						}
 					}
-					//"if (([1][1] < -190 ),0, if (([1][1] > 5000 ),254,(( ([1][1]/5192) * 253) + 9.307)))" %inpath%mrg57_%myy%_182 - 244_%myyear%_b5.tif %outpath%b5.tif
-					//"if (( [1][1] < -200 ),0, if (([1][1] > 2500 ),254,(( ([1][1]/2702) * 253) + 18.821)))" %inpath%mrg57_%myy%_182 - 244_%myyear%_b3.tif %outpath%b3.tif
 				}
-				//}
 
 #pragma omp atomic 
 				m_options.m_xx++;

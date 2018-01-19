@@ -18,7 +18,7 @@ namespace WBSF
 	public:
 
 		enum TFilePath { DT_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-		enum TDebug{ D_DEBUG_ID, D_SCENE_USED, NB_DBUG };
+		enum TDebug{ D_DEBUG_ID, D_DEBUG_B1, D_DEBUG_TCB, D_DEBUG_ZSW, D_NB_SCENE, D_SCENE_USED, NB_DBUG };
 		static const char* DEBUG_NAME[NB_DBUG];
 
 		CCloudCleanerOption();
@@ -28,13 +28,52 @@ namespace WBSF
 		
 		bool IsTrigged(std::array <CLandsatPixel, 3>& p)
 		{
+			if (!p[0].IsInit() && !p[2].IsInit())
+				return false;
+
+
 			bool t1 = p[0].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) : true;
 			bool t2 = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) : true;
 			bool t3 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) : true;
 			bool t4 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) : true;
+			bool t5 = p[0].IsInit() ? (p[0][Landsat::I_ZSW] - p[1][Landsat::I_ZSW] > m_ZSWthreshold) : true;
+			bool t6 = p[2].IsInit() ? (p[2][Landsat::I_ZSW] - p[1][Landsat::I_ZSW] > m_ZSWthreshold) : true;
 			
-			return (t1&&t2)||(t3&&t4);
+			return (t1&&t2)||((t3&&t4)||(t5&&t6));
 		}
+
+		bool IsB1Trigged(std::array <CLandsatPixel, 3>& p)
+		{
+			if (!p[0].IsInit() && !p[2].IsInit())
+				return false;
+
+			bool t1 = p[0].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) : true;
+			bool t2 = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) : true;
+
+			return (t1&&t2);
+		}
+
+		bool IsTCBTrigged(std::array <CLandsatPixel, 3>& p)
+		{
+			if (!p[0].IsInit() && !p[2].IsInit())
+				return false;
+
+			bool t3 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) : true;
+			bool t4 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) : true;
+
+			return (t3&&t4);
+		}
+		bool IsZSWTrigged(std::array <CLandsatPixel, 3>& p)
+		{
+			if (!p[0].IsInit() && !p[2].IsInit())
+				return false;
+
+			bool t5 = p[0].IsInit() ? (p[0][Landsat::I_ZSW] - p[1][Landsat::I_ZSW] > m_ZSWthreshold) : true;
+			bool t6 = p[2].IsInit() ? (p[2][Landsat::I_ZSW] - p[1][Landsat::I_ZSW] > m_ZSWthreshold) : true;
+
+			return (t5&&t6);
+		}
+
 
 		int GetDebugID(std::array <CLandsatPixel, 3>& p)
 		{
@@ -42,15 +81,16 @@ namespace WBSF
 			int t2 = p[2].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 1 : 0 : 0;
 			//int t3 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
 			//t t4 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) ? 10 : 0 : 0;
-			int t5 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold) || (p[2][Landsat::B1] - p[1][Landsat::B1] < m_B1threshold)) ? 10 : 0 : 0;
+			int t5 = p[0].IsInit() && p[2].IsInit() ? (t1+t2)>0 ? 10 : 0 : 0;
 
 			int t6 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
 			int t7 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 1 : 0 : 0;
-			//int t8 = p[0].IsInit() && !p[2].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
-			//int t9 = p[2].IsInit() && !p[0].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) ? 110 : 0 : 0;
-			int t10 = p[0].IsInit() && p[2].IsInit() ? ((p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold) || (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_TCBthreshold)) ? 110 : 0 : 0;
+			int t8 = p[0].IsInit() ? (p[0][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_ZSWthreshold) ? 1 : 0 : 0;
+			int t9 = p[2].IsInit() ? (p[2][Landsat::I_TCB] - p[1][Landsat::I_TCB] > m_ZSWthreshold) ? 1 : 0 : 0;
+			
+			int t10 = p[0].IsInit() && p[2].IsInit() ? (t6 + t7 + t8 + t9)>0 ? 110 : 0 : 0;
 
-			return t1 + t2 + t5 + t6 + t7 + t10;
+			return t1 + t2 + t5 + t6 + t7 + t8 + t9 + t10;
 		}
 	
 		
@@ -58,6 +98,7 @@ namespace WBSF
 
 		double m_B1threshold;
 		double m_TCBthreshold;
+		double m_ZSWthreshold;
 		bool m_bDebug;
 		bool m_bOutputDT;
 		bool m_bFillCloud;
