@@ -137,9 +137,14 @@ namespace WBSF
 		double alpha = atan2(d.m_y, d.m_x);
 		double bearing = fmod(360 + 90 - Rad2Deg(alpha), 360);
 		CGeoPoint pt2 = RhumbDestinationPoint(pt, distance, bearing);
+		//CGeoPoint pt2 = pt;
+		//pt2 = RhumbDestinationPoint(pt2, d.m_x, 90);
+		//pt2 = RhumbDestinationPoint(pt2, d.m_y, 0);
 		
 		_ASSERTE(!_isnan(pt2.m_x));
 		_ASSERTE(!_isnan(pt2.m_y));
+
+
 		return CGeoPoint3D(pt2.m_x, pt2.m_y, pt.m_z + d.m_z, pt.GetPrjID());
 
 
@@ -2370,8 +2375,8 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 			//	ofStream fileOut;
 			//	if (fileOut.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL2.csv"))
 			//	{
-			//		fileOut.write("No,u,v,w,latitude,longitude,elevation,time,u2,v2,w2\n");
-
+			//		fileOut.write("No,u,v,w,latitude,longitude,elevation,time,u2,v2,w2,latitude2,longitude2\n");
+			//		CGeoPoint3D pt = fls[0]->m_pt;
 			//		
 			//		string line;
 			//		std::getline(file, line);
@@ -2381,13 +2386,20 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 			//			tmp.Tokenize(line, " ", true);
 			//			if (tmp.size() == 8)
 			//			{
-			//				//simulation begin at 20:00 local standard time so at 2:00 June 22 UTC
-			//				CTRef UTCTRef(2007, JUNE, DAY_22, 2); 
+			//				int no = ToInt(tmp[0]);
+			//				if (no == 418)
+			//				{
+			//					int gg;
+			//					gg = 0;
+			//				}
+
+			//				//simulation begin at 21:00 local standard time June 21, so at 3:00 June 22 UTC
+			//				CTRef UTCTRef(2007, JUNE, DAY_22, 3); 
 			//				__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
 
 			//				float time = as<float>(tmp[7]);
-			//				UTCTRef += int(time - 20);
-			//				UTCTime += __int64((time - 20)*3600);
+			//				UTCTRef += int(time - 21);
+			//				UTCTime += __int64((time - 21)*3600);
 			//				double x = as<double>(tmp[5]);
 			//				double y = as<double>(tmp[4]);
 			//				CGeoExtents testExtent = m_weather.Get(UTCTRef)->GetExtents();
@@ -2398,13 +2410,23 @@ ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallb
 			//				//testCoord.Reproject(CProjectionTransformation(testExtent.GetPrjID(), PRJ_WGS_84));
 
 			//				CATMVariables w1 = m_weather.get_weather(testCoord, UTCTRef, UTCTime);
+
+			//				double dt = 20; //[s]
+			//				CGeoDistance3D U(w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW], pt.GetPrjID());
+			//				CGeoDistance3D d = U*dt;
+
 			//				string out;
 			//				for (size_t i = 0; i < 8; i++)
 			//					out += tmp[i] + ",";
 
-			//				out += FormatA("%.3f,%.3f,%.3f\n", w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW]);
+			//				out += FormatA("%.3f,%.3f,%.3f,", w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW]);
+			//				out += FormatA("%.5f,%.5f\n", pt.m_y, pt.m_x);
+			//				
 			//				fileOut.write(out);
-			//				//p_cuboid->get_weather(pt2, UTCTime);
+
+			//				//update coordinate
+			//				((CGeoPoint3D&)pt) = UpdateCoordinate(pt, d);
+			//				
 			//			}
 			//			
 			//		}
