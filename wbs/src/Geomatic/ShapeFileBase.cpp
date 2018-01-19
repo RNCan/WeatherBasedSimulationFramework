@@ -1116,7 +1116,7 @@ void CSFPolyLine::GetCentroid(CGeoPoint& pt)const
         int last = 0;
         GetPointIndex(i, first, last);
         
-        
+		pt.SetPrjID(m_boundingBox.GetPrjID());
         for( int j = first; j <last; j++)
         {
             double air = CGeoPoint::GetDefaultArea(m_points[j], m_points[j+1]);
@@ -1407,6 +1407,7 @@ void CSFPolygon::ComputeInternalElimination(int nbCols, int nbRows)
 	box.m_xMax = m_boundingBox.m_xMin + m_cellWidth;
     box.m_yMax = m_boundingBox.m_yMin + m_cellHeight;
 
+#pragma omp parallel for 
     for(int i=0; i<nbCols * nbRows; i++)
     {
         int x = i%nbCols;
@@ -2024,7 +2025,10 @@ double CShapeFileBase::GetMinimumDistance(const CGeoPoint& ptIn, int* pPolyNo)co
             }
         }
     }
-    else distanceMin = DBL_MAX;
+	else
+	{
+		distanceMin = DBL_MAX;
+	}
     
     return distanceMin;
 }
@@ -2194,16 +2198,17 @@ CShapeFileHeader::TShape CShapeFileBase::GetShapeType( const string& filePath )
 
 void CShapeFileBase::ComputeInternalElimination(int nbCols, int nbRows)
 {
-	if( nbCols > 200)
+	/*if( nbCols > 200)
 		nbCols = 200;
 	if( nbRows > 200)
-		nbRows = 200;
+		nbRows = 200;*/
 
     if( m_header.GetShapeType() == CShapeFileHeader::POLYGON )
     {
         double totalsurface = GetBoundingBox().Height() * GetBoundingBox().Width();
 
 		int nSize = (int)m_records.size();
+
         for(int i=0; i<nSize; i++)
         {
             
