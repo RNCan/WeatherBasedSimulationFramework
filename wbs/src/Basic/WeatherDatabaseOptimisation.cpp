@@ -78,60 +78,14 @@ namespace WBSF
 
 		clear();
 
-		//CMultiAppSync appSyncOpenClose;
-		//appSyncOpenClose.Do("OpenCloseNormal", DoNothing);
-
-		//	bAlreadyOpen = false;
-		//if (!appSync.Enter(mutexName))
-		//bAlreadyOpen = true;
-
-
-		//if (!FileExists(filePathIndex))
-		//{
-		//	//ASSERT(!bAlreadyOpen);
-		//	ASSERT(m_canalPosition.empty() && m_ANNs.empty());
-
-		//	//create empty data file
-		//	msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);
-		//	if (msg)
-		//	{
-		//		boost::archive::binary_oarchive ar(m_fileIndex, boost::archive::no_header);
-
-		//		int version = 0;
-		//		ar&VERSION;
-		//		ar&m_canalPosition;
-		//		m_fileIndex.close();
-
-		//		//create empty file
-		//		msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
-		//		m_fileData.close();
-		//	}
-		//}
-
-		//if (msg)
-		//{
+		
 		msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYNO
 		if (msg)
 			msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYWR
 
 		if (msg)
 		{
-			//
-			//if (!msg)//already open
-			//{
-			//	
-			//	msg = m_fileData.open(filePathData, ios::in | ios::binary, SH_DENYNO);
-			//	if (msg)
-			//	{
-			//		std::ios_base::openmode _Mode = ios::in | ios::binary;
-			//		ASSERT(m_fileData.flags() == _Mode);
-			//		ASSERT( (m_fileData.flags()&ios::out)  == false);
-			//	}
-			//}
-
-
-			//				if (msg)
-			//			{
+			
 			try
 			{
 				boost::archive::binary_iarchive ar(m_fileIndex, boost::archive::no_header);
@@ -152,29 +106,18 @@ namespace WBSF
 			}
 			catch (...)
 			{
-				//if (m_fileData.flags()&ios::out)//onpen in ouput
-				//{
 				//the file is corrupted, the format have probably change. erase 
 				m_fileData.close();
 				msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::trunc);
 
 				m_fileIndex.close();
 				msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc);
-				//}
+				
 				if (msg)
 				{
 					m_filePathIndex = filePathIndex;
 					m_filePathData = filePathData;
 				}
-				//}
-				//else
-				//{
-				//	//fail even in read only mode... return error
-				//	msg.ajoute("fail to open search optimization in read only mode. Probably the file was saved at the same time");
-				//	msg.ajoute("\tfile:" + filePathData);
-				//
-				//}
-
 			}
 		}
 		else
@@ -183,10 +126,6 @@ namespace WBSF
 			m_fileData.close();
 			m_fileIndex.close();
 		}
-		//}
-
-		//appSyncOpenClose.Leave();
-
 
 		return ERMsg();//never return error because, able to work without opt search files
 	}
@@ -839,8 +778,9 @@ namespace WBSF
 				{
 					result[i].m_location = at(result[i].m_index);
 					//compute distance without elevation
-					result[i].m_distance = pt.GetDistance(result[i].m_location, false);
+					result[i].m_distance = pt.GetDistance(result[i].m_location, false, false);
 					result[i].m_deltaElev = result[i].m_location.m_elev - pt.m_elev;
+					result[i].m_deltaShore = result[i].m_location.GetShoreDistance() - pt.GetShoreDistance();
 					//result[i].m_deltaElev = pt.GetDistance(result[i].m_location, false);
 				}
 			}
@@ -858,7 +798,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 		m_CS.Enter();
-		msg = const_cast<CWeatherDatabaseOptimization*>(this)->m_ANNs.Open(filePath1, filePath2);
+		//by RSA temporary desactiva optimisation of normals
+		//msg = const_cast<CWeatherDatabaseOptimization*>(this)->m_ANNs.Open(filePath1, filePath2);
 		m_CS.Leave();
 		return msg;
 	}
