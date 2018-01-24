@@ -4,6 +4,7 @@
 // Class: CSLR
 //
 //************** MODIFICATIONS  LOG ********************
+// 23/01/2018	Rémi Saint-Amant    Bug correction in computing logan stability
 // 04/05/2017	Rémi Saint-Amant    New compile
 // 11/05/2016   Rémi Saint-Amant    Compile with WBSF
 // 25/09/2012   Rémi Saint-Amant    Compile with new developement table

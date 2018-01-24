@@ -4,6 +4,7 @@
 // Class: CMPBModel
 //
 //************** MODIFICATIONS  LOG ********************
+// 23/01/2018	2.3.2	Rémi Saint-Amant    Bug correction in computing logan stability
 // 04/05/2017	2.3.1   Rémi Saint-Amant    New compile 
 // 11/05/2016	        Rémi Saint-Amant    New compile with WBSF
 // 17/03/2012           Rémi Saint-Amant    Build with new BioSIMModelBase. varaible by memory.
@@ -38,7 +39,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 7;
-		VERSION = "2.3.1 (2017)";
+		VERSION = "2.3.2 (2018)";
 	}
 
 	CMPBModel::~CMPBModel()
