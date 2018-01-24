@@ -34,7 +34,7 @@ namespace WBSF
 
 	//*******************************************************
 	//CSafranyikLoganRegniere (CSLR)
-	CSLR::CSLR(const CRandomGenerator& RG):
+	CSLR::CSLR(const CRandomGenerator& RG) :
 		m_RG(RG)
 	{
 		// initialise your variables here (optionnal)
@@ -65,7 +65,7 @@ namespace WBSF
 
 		//***********************************
 		// fill accumulator
-		
+
 
 		CAccumulator accumulator(m_n);
 
@@ -78,7 +78,7 @@ namespace WBSF
 			p.Transform(CTM::DAILY);
 
 			//est-ce que c'est la même chose qu'avant???
-//			CTPeriod p = weatherYear.GetGrowingSeason();
+			//			CTPeriod p = weatherYear.GetGrowingSeason();
 
 			CAccumulatorData data;
 			//Th = 42 F, Aug 1 to end of effective growing season
@@ -86,7 +86,7 @@ namespace WBSF
 			{
 				p.Begin().SetJDay(FIRST_DAY);
 				p.Begin().m_month = AUGUST;
-		
+
 				CDegreeDays DD(CDegreeDays::DAILY_AVERAGE, 5.56);
 				data.m_DDHatch = DD.GetDD(weatherYear, p);
 				//data.m_DDHatch = weatherYear.GetDD(5.56, p);
@@ -150,21 +150,21 @@ namespace WBSF
 	double CSLR::GetWaterDeficit(const CWeatherYear& weather)const
 	{
 		CThornthwaiteET TPET(CThornthwaiteET::POTENTIEL_STANDARD);
-		
+
 		double I = TPET.GetI(weather);
 		//TPET.GetET(.Execute(PET);
 		//(weatherYear, 0, CThornthwaiteET::POTENTIEL_STANDARD);
 		//data.m_waterDeficit = TPET.GetWaterDeficit(weatherYear) / 25.4; //Water deficit, in inches
 
 		double A = 0;
-		for (size_t m = 0; m<12; m++)
+		for (size_t m = 0; m < 12; m++)
 		{
 			if (weather[m][H_TNTX][MEAN] > 0)
 			{
 				double ET = TPET.GetET(weather[m], I);
 				//precipitation in mm
 				double A_tmp = (ET - weather[m][H_PRCP][SUM]);
-				if (A_tmp>0)
+				if (A_tmp > 0)
 					A += A_tmp;
 			}
 		}
@@ -192,35 +192,32 @@ namespace WBSF
 		// first part : compute developpement rates
 
 		//init the CMPBDevelopmentVector
-		CDailyWaveVector t;
-		weatherYear.GetHourlyGeneration(t, HG_DOUBLE_SINE, 1, 3, m_overheat);
+		/*CDailyWaveVector t;
+		weatherYear.GetHourlyGeneration(t, HG_ALLEN_WAVE, 1, 3, m_overheat);
 
 		CMPBDevelopmentVector devRates(m_RG);
-		devRates.Init(t);
+		devRates.Init(t);*/
 
 
-		/*CMPBDevelopmentVector devRates;
-		devRates.resize(weatherYear.GetNbDay());
+		CMPBDevelopmentVector devRates(m_RG);
+		devRates.resize(weatherYear.GetNbDays());
 
-		gTimeStep = 1;
-		for(int d=0; d<weatherYear.GetNbDay(); d++)
+
+		for (size_t d = 0; d < weatherYear.GetNbDays(); d++)
 		{
-		CDailyWaveVector t;
-		weatherYear.GetDay(d).GetAllenWave(t, 12, gTimeStep, m_overheat);
-		ASSERT( t.size() == gTimeStep.NbStep());
+			CDailyWaveVector t;
+			weatherYear.GetDay(d).GetHourlyGeneration(t, HG_ALLEN_WAVE, 1, 3, m_overheat);
+			ASSERT(t.size() == 24);
 
-		for(int s=0; s<NB_STAGES; s++)
-		{
-		devRates[d][s]=0;
-		double value = 0;
-		for(int h=0; h<gTimeStep.NbStep(); h++)
-		{
-		value += RATE_TABLE.GetRate(s, t[h])/gTimeStep.NbStep();
+			for (int s = 0; s < NB_STAGES; s++)
+			{
+				devRates[d][s] = 0;
+				
+				for (size_t h = 0; h < 24; h++)
+					devRates[d][s] += devRates.MPB_RATES_TABLE.GetRate(s, t[h]) / 24.0;
+			}
 		}
-		devRates[d][s]=value;
-		}
-		}
-		*/
+
 		//RATE_TABLE.Save("d:\\RateTable.csv");
 
 		//**********************************

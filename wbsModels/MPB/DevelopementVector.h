@@ -28,7 +28,7 @@ namespace WBSF
 	public:
 
 		CMPBDevelopmentVector(const CRandomGenerator& RG);
-		void Init(const CDailyWaveVector& T);
+		//void Init(const CDailyWaveVector& T);
 		size_t GetNextStageDay(size_t firstDay, size_t s, double threshold)const;
 		CMPBDevelopmentTable MPB_RATES_TABLE;
 	};

@@ -24,35 +24,38 @@ namespace WBSF
 
 
 	//CMPBDevelopmentTable CMPBDevelopmentVector::;
-	void CMPBDevelopmentVector::Init(const CDailyWaveVector& T)
-	{
-		//NOTE: the number of day is truck to the entire day
-		size_t nbDay = T.m_period.GetNbDay();
-		resize(nbDay);
-		for (CTRef TRef = T.m_period.Begin(); TRef != T.m_period.End(); TRef++)
-		{
-			size_t d = TRef.GetDay() - T.m_period.Begin().GetDay();
-			for (size_t s = 0; s < NB_STAGES; s++)
-			{
-				at(d)[s] = 0;
-				at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[TRef]) / 24;
-			}
-		}
+	//void CMPBDevelopmentVector::Init(const CDailyWaveVector& T)
+	//{
+	//	ASSERT(T.m_period.GetTM().IsDaily());
+	//	//NOTE: the number of day is truck to the entire day
+	//	size_t nbDay = T.m_period.GetNbDay();
+	//	resize(nbDay);
+	//	//for (CTRef TRef = T.m_period.Begin(); TRef != T.m_period.End(); TRef++)
+	//	for (size_t hh = 0; hh < T.size(); hh++)
+	//	{
+	//		T.GetTRef(hh);
+	//		size_t d = TRef.GetDay() - T.m_period.Begin().GetDay();
+	//		for (size_t s = 0; s < NB_STAGES; s++)
+	//		{
+	//			at(d)[s] = 0;
+	//			at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[TRef]) / 24;
+	//		}
+	//	}
 
 
-		/*for (size_t d = 0; d < nbDay; d++)
-		{
-			for (size_t s = 0; s < NB_STAGES; s++)
-			{
-				at(d)[s] = 0;
-				for (size_t h = 0; h < T.size(); h++)
-				{
-					size_t i = d*T.NbSteps() + h;
-					at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[i]) / T.NbSteps();
-				}
-			}
-		}*/
-	}
+	//	for (size_t d = 0; d < nbDay; d++)
+	//	{
+	//		for (size_t s = 0; s < NB_STAGES; s++)
+	//		{
+	//			at(d)[s] = 0;
+	//			for (size_t h = 0; h < T.size(); h++)
+	//			{
+	//				size_t i = d*T.NbSteps() + h;
+	//				at(d)[s] += MPB_RATES_TABLE.GetRate(s, T[i]) / T.NbSteps();
+	//			}
+	//		}
+	//	}
+	//}
 
 	//*****************************************************
 	// GetNextStageDay : Find the day when the bug change of stage
