@@ -461,7 +461,7 @@ namespace WBSF
 				{
 					if (f >= TACF_A1 && f <= TACF_B2)
 					{
-						//only take the nearest: a reconsidérer
+						//only take the nearest
 						me[m][f] = normalVector[0][m][f];
 					}
 					else
@@ -477,6 +477,8 @@ namespace WBSF
 
 						if (f == PRCP_TT && me[m][f] < 0)
 							me[m][f] = 0;
+
+						me[m][f] = Round(me[m][f], GetNormalDataPrecision(f));
 					}
 				}
 			}
