@@ -37,7 +37,7 @@ using namespace WBSF::GRADIENT;
 
 
 
-static std::mutex STATISTIC_MUTEX;
+//static std::mutex STATISTIC_MUTEX;
 
 enum TAgregation { ACCUMUL_12_00, ACCUMUL_18_00, ACCUMUL_18_18, ACCUMUL_22_22, ACCUMUL_00_00 };
 static const size_t DAILY_AGREGATION = ACCUMUL_00_00;
@@ -3819,7 +3819,7 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 						//if (me[i][TRef].GetStat(v, stat))
 						if (me[i][TRef][v].IsInit())
 						{
-							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation, m_bTakeShoreDistance);
+							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation/*, m_bTakeShoreDistance*/);
 							//if (v == H_PRCP && me[i][TRef][v][SUM] < 0.1)//remove station without precipitation in the compution of the weight
 								//Xtemp = 0;
 
@@ -4027,7 +4027,7 @@ void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, size_
 					TRef.SetRef(it->at(3), TM);
 					log += TRef.GetFormatedString() + ",";
 
-					double dist = at(index).GetDistance(station, false, false);
+					double dist = at(index).GetDistance(station, false/*, false*/);
 					double deltaElev = at(index).m_elev - station.m_elev;
 
 					log += ToString(dist,1) + "," + ToString(deltaElev,1) + "\n";

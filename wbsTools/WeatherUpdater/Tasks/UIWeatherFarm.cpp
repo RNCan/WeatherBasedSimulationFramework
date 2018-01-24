@@ -59,8 +59,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIWeatherFarm::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Province", "DateRangeType", "ForceUpdateStationsList" };
-	const size_t CUIWeatherFarm::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_COMBO_INDEX, T_BOOL };
+	const char* CUIWeatherFarm::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "MemberName", "Password", "WorkingDir", "Province", "DateRangeType", "ForceUpdateStationsList" };
+	const size_t CUIWeatherFarm::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING_SELECT, T_PASSWORD, T_PATH, T_STRING_SELECT, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIWeatherFarm::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WEATHER_FARM_P;
 	const UINT CUIWeatherFarm::DESCRIPTION_TITLE_ID = ID_TASK_WEATHER_FARM; 
 
@@ -200,14 +200,51 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(MEMBER_NAME), Get(PASSWORD), true);
 		if (msg)
 		{
-			
+			//https://api.loginradius.com/raas/client/auth/login?apikey=75141eeb-8c9b-4a8e-8a29-653c80621116&emailverificationurl=https://weatherfarm.com/login-2/&template=undefined&password=Stamant74&emailid=tigroux74%40hotmail.com&callback=Loginradius584694468545443000
+			//DWORD HttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_SECURE;
+			//CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, _T("/restricted-page"), NULL, 1, NULL, NULL, HttpRequestFlags);
+			//
+			//string text;
+			//if (pURLFile != NULL)
+			//{
+			//	
+			//	CStringA strParam = "lrloginid=Tigroux74%40hotmail.com&lrloginpw=Stamant74";
+
+			//	CString strContentL;
+			//	strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
+
+			//	pURLFile->AddRequestHeaders(strContentL);
+			//	pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded; charset=UTF-8\r\n"));
+
+			//	// send request
+			//	bool bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
+			//	if (bRep)
+			//	{
+			//		const short MAX_READ_SIZE = 4096;
+			//		pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+
+			//		
+			//		std::string tmp;
+			//		tmp.resize(MAX_READ_SIZE);
+			//		UINT charRead = 0;
+			//		while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0)
+			//			text.append(tmp.c_str(), charRead);
+
+
+			//	}
+
+			//	pURLFile->Close();
+			//	delete pURLFile;
+			//}
+
+			//
 			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
 				string str;
-				msg = UtilWWW::GetPageText(pConnection, "feeds/set-current-station?station_id=" + stationList[i].m_ID, str);
+				msg = UtilWWW::GetPageText(pConnection, "feeds/set-current-station?station_id=" + stationList[i].m_ID, str, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT);
 				if (msg)
 				{
 					string error;
@@ -437,7 +474,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("Update stations list (" + ToString(17) + " pages)", 17);
+		callback.PushTask("Update WeatherFarm stations list (" + ToString(17) + " pages)", 17);
 
 		size_t nbDownload = 0;
 
@@ -447,7 +484,7 @@ namespace WBSF
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(MEMBER_NAME), Get(PASSWORD));
 		if (msg)
 			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
 

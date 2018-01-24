@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
-// 11.3.7: 21/12/2017   Rémi Saint-Amant	Remove graph. Bug correction with component comparison. Remove LANGUAGE 9, 1.
+// 11.3.7: 21/12/2017   Rémi Saint-Amant	Remove graph. Bug correction with component comparison. Remove LANGUAGE 9, 1. 
 // 11.3.6: 10/10/2017   Rémi Saint-Amant	Recompilation from backup after hard drive crash
 // 11.3.5: 30/08/2017	Rémi Saint-Amant	Bug correction in reading model output and missing values
 //											Bug correction in dispersal multi-processor activation

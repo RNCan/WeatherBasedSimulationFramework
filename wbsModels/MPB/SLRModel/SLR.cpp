@@ -212,7 +212,7 @@ namespace WBSF
 
 			for (int s = 0; s < NB_STAGES; s++)
 			{
-				devRates[d][s] = 0;
+				devRates[d][s] = 0; 
 				
 				for (size_t h = 0; h < 24; h++)
 					devRates[d][s] += devRates.MPB_RATES_TABLE.GetRate(s, t[h]) / 24.0;

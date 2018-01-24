@@ -614,7 +614,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		}
 
 		CApproximateNearestNeighbor ann;
-		ann.set(locations, bUseElevation, false, positions);
+		ann.set(locations, bUseElevation, /*false,*/ positions);
 
 		CStatisticEx stats;
 	
@@ -2084,7 +2084,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 		//by optimization, add the canal event if they are empty
 		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+		pANN->set(locations, bUseElevation, /*bUseShoreDistance,*/ positions);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 		zop.AddCanal(canal, pANN);
 	}

@@ -778,9 +778,9 @@ namespace WBSF
 				{
 					result[i].m_location = at(result[i].m_index);
 					//compute distance without elevation
-					result[i].m_distance = pt.GetDistance(result[i].m_location, false, false);
+					result[i].m_distance = pt.GetDistance(result[i].m_location, false/*, false*/);
 					result[i].m_deltaElev = result[i].m_location.m_elev - pt.m_elev;
-					result[i].m_deltaShore = result[i].m_location.GetShoreDistance() - pt.GetShoreDistance();
+					//result[i].m_deltaShore = result[i].m_location.GetShoreDistance() - pt.GetShoreDistance();
 					//result[i].m_deltaElev = pt.GetDistance(result[i].m_location, false);
 				}
 			}

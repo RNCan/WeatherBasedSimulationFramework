@@ -1,6 +1,7 @@
-//5.4.6	11/01/2018	Rémi Saint-Amant	En EnvCanHourly, don't download file after current month.
+//5.4.6	24/01/2018	Rémi Saint-Amant	En EnvCanHourly, don't download file after current month.
 //										Change in Manitoba updater
 //										Bug correction in province selection in WeatherFarm
+//										Bug correction in SWOB data
 //5.4.5	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 
 //5.4.4 22/11/2017	Rémi Saint-Amant	Bug correction in daily convertion from version 3 to version 4. 
 //5.4.3 31/10/2017  Rémi Saint-Amant	Bug correction in NewBruncwick

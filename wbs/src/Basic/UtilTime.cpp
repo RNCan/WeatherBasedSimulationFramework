@@ -1051,15 +1051,15 @@ const size_t NB_TIME_FORMATS = sizeof(TIME_FORMATS) / sizeof(TIME_FORMATS[0]);
 
 time_t pt_to_time_t(const boost::posix_time::ptime& pt)
 {
-	boost::posix_time::ptime timet_start(boost::gregorian::date(1970, 1, 1));
-	boost::posix_time::time_duration diff = pt - timet_start;
-	return diff.ticks() / boost::posix_time::time_duration::rep_type::ticks_per_second;
+boost::posix_time::ptime timet_start(boost::gregorian::date(1970, 1, 1));
+boost::posix_time::time_duration diff = pt - timet_start;
+return diff.ticks() / boost::posix_time::time_duration::rep_type::ticks_per_second;
 
 }
 void seconds_from_epoch(const string& s)
 {
 	boost::posix_time::ptime pt;
-	for (size_t i = 0; i<NB_TIME_FORMATS; ++i)
+	for (size_t i = 0; i < NB_TIME_FORMATS; ++i)
 	{
 		istringstream is(s);
 		is.imbue(TIME_FORMATS[i]);
@@ -1069,7 +1069,7 @@ void seconds_from_epoch(const string& s)
 	}
 }
 
-void CTRef::FromFormatedString(string str, string format, const char* sep, int base )
+void CTRef::FromFormatedString(string str, string format, const char* sep, int base)
 {
 	Reset();
 
@@ -1081,7 +1081,7 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 
 	if (str[0] == '-')
 		str[0] = '*';
-	
+
 
 
 	StringVector elems(str.c_str(), sep);
@@ -1135,7 +1135,7 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 		if (!str.empty())
 		{
 
-			if (format == CTRefFormat::DATE_YMD && elems.size()==3)
+			if (format == CTRefFormat::DATE_YMD && elems.size() == 3)
 			{
 
 				type = DAILY;
@@ -1143,12 +1143,23 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 				m = ToInt(elems[1]);
 				d = ToInt(elems[2]);
 			}
-			else if ((format == CTRefFormat::DATE_YMDH || format == CTRefFormat::DATE_YMD_HMS) && elems.size() == 3)
+			else if (format == CTRefFormat::DATE_YMDH  && elems.size() == 4)
 			{
-				type = DAILY;
+				type = HOURLY;
 				y_or_r = ToInt(elems[0]);
 				m = ToInt(elems[1]);
 				d = ToInt(elems[2]);
+				h = ToInt(elems[3]);
+			}
+			else if (format == CTRefFormat::DATE_YMD_HMS && elems.size() == 4)
+			{
+				type = HOURLY;
+				y_or_r = ToInt(elems[0]);
+				m = ToInt(elems[1]);
+				d = ToInt(elems[2]);
+				StringVector tmp(elems[3], ":");
+				if (tmp.size() > 0)
+					h = ToInt(tmp[0]);
 			}
 			else
 			{

@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BreaksImages", "BreaksImage
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointsReduction", "PointReduction\PointReduction.vcxproj", "{E7D59301-8F0F-47B6-945D-2394A91CAE0C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sieve", "Sieve\Sieve.vcxproj", "{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -181,6 +183,14 @@ Global
 		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|Win32.Build.0 = Release|Win32
 		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|x64.ActiveCfg = Release|x64
 		{E7D59301-8F0F-47B6-945D-2394A91CAE0C}.Release|x64.Build.0 = Release|x64
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Debug|Win32.Build.0 = Debug|Win32
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Debug|x64.ActiveCfg = Debug|x64
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Debug|x64.Build.0 = Debug|x64
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|Win32.ActiveCfg = Release|Win32
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|Win32.Build.0 = Release|Win32
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|x64.ActiveCfg = Release|x64
+		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

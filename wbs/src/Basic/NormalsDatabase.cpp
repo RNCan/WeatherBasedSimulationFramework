@@ -622,7 +622,7 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 
 		//by optimization, add the canal event if they are empty
 		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+		pANN->set(locations, bUseElevation, /*bUseShoreDistance,*/ positions);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 		zop.AddCanal(canal, pANN);
 	}

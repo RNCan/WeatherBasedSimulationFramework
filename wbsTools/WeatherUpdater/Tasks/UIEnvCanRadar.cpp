@@ -208,7 +208,7 @@ namespace WBSF
 		case BACKGROUND:str = ToString(B_BROWN); break;
 		case RADAR:		str = ""; break;
 		case FIRST_DATE:
-		case LAST_DATE:	str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString(); break;
+		case LAST_DATE:	str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString("%Y-%m-%d-H"); break;
 
 		};
 

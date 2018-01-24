@@ -1406,7 +1406,7 @@ namespace WBSF
 			{
 				string ID = (*loop)[0];
 				CTRef TRef;
-				TRef.FromFormatedString((*loop)[1]);
+				TRef.FromFormatedString((*loop)[1], "%Y-%m-%d-%H");
 				lastUpdate[ID] = TRef;
 			}
 		}
@@ -2091,7 +2091,7 @@ namespace WBSF
 				for (auto it = currentUpdate.begin(); it != currentUpdate.end(); it++)
 				{
 					CTRef TRef = it->second;
-					string str = TRef.GetFormatedString();
+					string str = TRef.GetFormatedString("%Y-%m-%d-%H");
 					ofile << it->first << "," << str << endl;
 				}
 

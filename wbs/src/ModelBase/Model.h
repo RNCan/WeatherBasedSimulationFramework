@@ -107,6 +107,7 @@ namespace WBSF
 		void Reset();
 		ERMsg LoadDLL();
 		void UnloadDLL();
+		bool IsLoaded()const{ return m_hDll != NULL;  }
 		
 		ERMsg Save(const std::string& filePath);
 		ERMsg Load(const std::string& filePath, short language = CRegistry::ENGLISH);

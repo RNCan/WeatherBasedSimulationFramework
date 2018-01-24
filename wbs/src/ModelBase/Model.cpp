@@ -63,6 +63,8 @@ namespace WBSF
 	CModel::CModel()
 	{
 		m_hDll = NULL;
+		m_RunModelFile = NULL;
+		m_RunModelStream = NULL;
 		Reset();
 		ASSERT(!GetString(IDS_BSC_ERRORINMODEL).empty());
 	}
@@ -78,29 +80,7 @@ namespace WBSF
 		UnloadDLL();
 	}
 
-	void CModel::UnloadDLL()
-	{
-		if (m_hDll)
-		{
-			//to prevent a bug in the VCOMP100.dll we must wait 1 sec before closing dll
-			//see http://support.microsoft.com/kb/94248
-			Sleep(1000);
-			bool bFree = FreeLibrary(m_hDll) != 0;
-			ASSERT(bFree);
-		}
-
-		m_hDll = NULL;
-		m_RunModelFile = NULL;
-		m_RunModelStream = NULL;
-		m_SetStaticData = NULL;
-		//m_simulFonc2=NULL;
-		m_GetSimulatedAnnealingSize = NULL;
-		m_SetSimulatedAnnealingSize = NULL;
-		m_InitSimulatedAnnealing = NULL;
-		m_GetFValue = NULL;
-
-
-	}
+	
 
 	void CModel::Reset()
 	{
@@ -295,7 +275,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
+		//m_CS.Enter();
 		if (m_hDll == NULL)
 		{
 			string filePath = GetDLLFilePath();
@@ -303,18 +283,46 @@ namespace WBSF
 			if (Find(filePath, ".dll"))
 			{
 				//it's not a exe but a dll.
-				m_hDll = LoadLibraryW(convert(filePath).c_str());
+				m_hDll = LoadLibrary(convert(filePath).c_str());
 				if (m_hDll == NULL)
 				{
 					msg.ajoute(FormatMsg(IDS_BSC_UNABLE_LOADDLL, filePath));
 				}
 			}
 		}
-		m_CS.Leave();
+		//m_CS.Leave();
 
 		return msg;
 	}
 
+	void CModel::UnloadDLL()
+	{
+		if (m_hDll)
+		{
+			//ASSERT(GetModuleHandleW(convert(GetDLLFilePath()).c_str()) != NULL);
+
+			//to prevent a bug in the VCOMP100.dll we must wait 1 sec before closing dll
+			//see http://support.microsoft.com/kb/94248
+			Sleep(1000);
+			bool bFree = FreeLibrary(m_hDll) != 0;
+			if (bFree)
+			{
+				m_hDll = NULL;
+				m_RunModelFile = NULL;
+				m_RunModelStream = NULL;
+				m_SetStaticData = NULL;
+				//m_simulFonc2=NULL;
+				m_GetSimulatedAnnealingSize = NULL;
+				m_SetSimulatedAnnealingSize = NULL;
+				m_InitSimulatedAnnealing = NULL;
+				m_GetFValue = NULL;
+			}
+
+
+
+			//ASSERT(GetModuleHandleW(convert(GetDLLFilePath()).c_str()) == NULL);
+		}
+	}
 
 	ERMsg  CModel::RunModel(const string & nameInputFile)
 	{
@@ -328,7 +336,6 @@ namespace WBSF
 
 			if (msg && m_RunModelFile == NULL)
 			{
-				ASSERT(m_hDll != NULL);
 				ASSERT(m_hDll != NULL);
 				m_RunModelFile = (RunModelFileF)GetProcAddress(m_hDll, "RunModelFile");
 			}

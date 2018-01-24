@@ -593,8 +593,8 @@ namespace WBSF
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 
 		CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
-		CGeoDistance3D get_U(__int64 UTCTime, const CATMVariables& w)const;
-		CGeoDistance3D get_U(__int64 UTCTime)const;
+		CGeoDistance3D get_U(const CATMVariables& w, CTRef UTCTRef, __int64 UTCTime)const;
+		//CGeoDistance3D get_U(CTRef UTCTRef, __int64 UTCTime)const;
 		double get_Uz(__int64 UTCTime, const CATMVariables& w)const;
 		
 		//double get_Uz(double T)const; 
@@ -884,11 +884,13 @@ namespace WBSF
 		CTPeriod get_period(bool bUTC = true, int year = YEAR_NOT_INIT)const;
 		std::set<CTRef> get_TRefs(int year)const;
 
-		//Reproject();
-		//CProjectionTransformation m_GEO2DEM;
+		
+		
 		std::map<size_t, CProjectionTransformation> m_GEO2;
-		//CProjectionTransformation m_GEO2WATER;
-		//CProjectionTransformation m_GEO2DEFOLIATION;
+		std::map<size_t, CProjectionTransformation> m_2GEO;
+		const CProjectionTransformation& GetToWeatherTransfo(CTRef UTCRef)const;
+		const CProjectionTransformation& GetFromWeatherTransfo(CTRef UTCRef)const;
+		
 
 		__int64 get_duration()const;
 		double get_w_horizontal()const;

@@ -13,16 +13,17 @@
 
 #include "Basic/ModelStat.h"
 #include "Basic/FrequencyTable.h"
-#include "FileManager/FileManager.h"
 #include "Basic/NormalsDatabase.h"
 #include "Basic/DailyDatabase.h"
 #include "Basic/HourlyDatabase.h"
+#include "Basic/Shore.h"
+#include "FileManager/FileManager.h"
 #include "Simulation/AdvancedNormalStation.h"
 #include "Simulation/WGInputAnalysis.h"
 #include "Simulation/ExecutableFactory.h"
 #include "Simulation/WeatherGeneration.h"
 #include "Simulation/WeatherGenerator.h"
-#include "Simulation/WeatherGradient.h"
+//#include "Simulation/WeatherGradient.h"
 #include "WeatherBasedSimulationString.h"
 
 using namespace std;
@@ -500,9 +501,12 @@ ERMsg CWGInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& r
 					CNewSectionData section(1, 9, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
 
 					CSearchResultVector searchResultArray;
-					msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().m_nbNormalsStations, WGInput.m_searchRadius[v], VARIABLE_FOR_CATEGORY[c]);
+					msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().GetNbNormalsToSearch(), WGInput.m_searchRadius[v], VARIABLE_FOR_CATEGORY[c]);
+					if (!searchResultArray.empty() && WG.GetWGInput().XVal())
+						searchResultArray.erase(searchResultArray.begin());
+
 					//remove error if the variables can be derived
-					if (WG.GetWGInput().m_allowedDerivedVariables[VARIABLE_FOR_CATEGORY[c]])
+					if (!msg && WG.GetWGInput().m_allowedDerivedVariables[VARIABLE_FOR_CATEGORY[c]])
 						msg = ERMsg();
 
 					if (msg)
@@ -515,21 +519,22 @@ ERMsg CWGInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& r
 							section[0][1] = searchResultArray[j].m_location.m_lat;
 							section[0][2] = searchResultArray[j].m_location.m_lon;
 							section[0][3] = searchResultArray[j].m_location.m_elev;
-							section[0][4] = CWeatherGradient::GetShoreDistance(searchResultArray[j].m_location);
+							section[0][4] = CShore::GetShoreDistance(searchResultArray[j].m_location);
 							section[0][5] = searchResultArray[j].m_distance / 1000;
 							section[0][6] = searchResultArray[j].m_deltaElev;
-							section[0][7] = CWeatherGradient::GetDistance(GRADIENT::S_GR, locations[l], searchResultArray[j].m_location);
+							//section[0][7] = CWeatherGradient::GetDistance(GRADIENT::S_GR, locations[l], searchResultArray[j].m_location);
+							section[0][7] = (CShore::GetShoreDistance(locations[l]) - CShore::GetShoreDistance(searchResultArray[j].m_location)) / 1000;
 							section[0][8] = weight[j] * 100;
 
 							
 
 							msg += resultDB.AddSection(section, callback);
+							msg += callback.StepIt();
 						}
 					}
 				}
 			}
-
-			msg += callback.StepIt();
+			
 		}
 		else
 		{
@@ -541,7 +546,8 @@ ERMsg CWGInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& r
 					
 					CWeatherDatabase& obsDB = GetObsDB(WG);
 					size_t nbYears = WG.GetWGInput().GetNbYears();
-					size_t nbStations = WG.GetWGInput().IsHourly() ? WG.GetWGInput().m_nbHourlyStations : WG.GetWGInput().m_nbDailyStations;
+					//size_t nbStations = WG.GetWGInput().IsHourly() ? WG.GetWGInput().m_nbHourlyStations : WG.GetWGInput().m_nbDailyStations;
+					size_t nbStations = WG.GetWGInput().GetNbObservationToSearch();
 
 					vector<CNewSectionData> section;
 					section.insert(section.begin(), nbStations, CNewSectionData(nbYears, 9, CTRef(WG.GetWGInput().GetFirstYear())));
@@ -552,8 +558,12 @@ ERMsg CWGInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& r
 
 						CSearchResultVector searchResultArray;
 						msg += obsDB.Search(searchResultArray, locations[l], nbStations, WGInput.m_searchRadius[v], v, year);
+						
+						if (!searchResultArray.empty() && WG.GetWGInput().XVal())
+							searchResultArray.erase(searchResultArray.begin());
+
 						//remove error if the variables can be derived
-						if (WG.GetWGInput().m_allowedDerivedVariables[v])
+						if (!msg&&WG.GetWGInput().m_allowedDerivedVariables[v])
 							msg = ERMsg();
 
 						 
@@ -565,10 +575,11 @@ ERMsg CWGInputAnalysis::MatchStation(const CFileManager& fileManager, CResult& r
 							section[r][y][1] = searchResultArray[r].m_location.m_lat;
 							section[r][y][2] = searchResultArray[r].m_location.m_lon;
 							section[r][y][3] = searchResultArray[r].m_location.m_elev;
-							section[r][y][4] = CWeatherGradient::GetShoreDistance(searchResultArray[r].m_location)/1000;
+							section[r][y][4] = CShore::GetShoreDistance(searchResultArray[r].m_location) / 1000;
 							section[r][y][5] = searchResultArray[r].m_distance / 1000;
 							section[r][y][6] = searchResultArray[r].m_deltaElev;
-							section[r][y][7] = CWeatherGradient::GetDistance(GRADIENT::S_GR, locations[l], searchResultArray[r].m_location);
+							//section[r][y][7] = CWeatherGradient::GetDistance(GRADIENT::S_GR, locations[l], searchResultArray[r].m_location);
+							section[r][y][7] = (CShore::GetShoreDistance(locations[l]) - CShore::GetShoreDistance(searchResultArray[r].m_location)) / 1000;
 							section[r][y][8] = weight[r] * 100;
 						}
 
@@ -792,7 +803,7 @@ ERMsg CWGInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResu
 				WG.SetWGInput(WGInputTmp);
 				TVarH v = GetLeadCategoryVariable(c);
 
-				//find the nearest station stations for this variable
+				//find the nearest station for this variable
 				CSearchResultVector weatherStationsI;
 				msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables);
 
@@ -823,7 +834,7 @@ ERMsg CWGInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResu
 							}
 						}
 					}
-				}//if it's a weathert station and they have data
+				}//if it's a weather station and they have data
 
 
 				msg += callback.StepIt();
@@ -864,19 +875,19 @@ ERMsg CWGInputAnalysis::XValidationNormal(const CFileManager& fileManager, CResu
 	
 	callback.AddMessage("");
 	callback.AddMessage("Overall statistics:");
-	callback.AddMessage("Variable\tObserved\tSimulated\tBias\tMAD\tRMSE\tR²");
+	callback.AddMessage("Variable\tObserved\tSimulated\tN\tBias\tMAD\tRMSE\tR²");
 	for (size_t f = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
 	{
 		if (variables[NORMALS_DATA::F2V(f)])
 		{
 			std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-			for(size_t s=0; s<S_NB_STAT; s++)
+			str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+			for (size_t s = 0; s < S_NB_STAT; s++)
 				str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
 			callback.AddMessage(str);
 		}
 	}
-
 
 	return msg;
 }

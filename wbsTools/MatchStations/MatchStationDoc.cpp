@@ -804,9 +804,9 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		}
 	}
 
-	msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
-	//if(CWeatherGradient::GetShore().get()==NULL)
-		//msg += CWeatherGradient::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
+	if (CShore::GetShore().get() == NULL)
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
 	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 	m_bExecute = false;

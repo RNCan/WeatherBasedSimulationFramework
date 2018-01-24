@@ -18,6 +18,7 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/DailyDatabase.h"
 #include "Basic/NormalsDatabase.h"
+#include "Basic/Shore.h"
 
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
@@ -698,10 +699,10 @@ namespace WBSF
 
 			if (m_location.IsInit())
 			{
-				double dShore = CWeatherGradient::GetShoreDistance(m_location);
+				double dShore = CShore::GetShoreDistance(m_location);
 				for (size_t i = 0; i < m_shoreD.size(); i++)
 				{
-					m_shoreD[i] = CWeatherGradient::GetShoreDistance(m_nearest[i].m_location);
+					m_shoreD[i] = CShore::GetShoreDistance(m_nearest[i].m_location);
 					m_deltaShore[i] = dShore - m_shoreD[i];
 				}
 			}

@@ -457,7 +457,7 @@ namespace WBSF
 		double f1 = F1[z][g];
 		double f2 = F2[z][g];
 			
-		double Dc = m_target.GetDistance(Lᵒ, true, true) / 1000;// take elevation in distance of centroid km
+		double Dc = m_target.GetDistance(Lᵒ, true/*, true*/) / 1000;// take elevation in distance of centroid km
 		correction = 1 - min(1.0, max(0.0, Dc - f1) / f2);
 
 
@@ -889,7 +889,7 @@ namespace WBSF
 					CShore::GetShore()->search(station, 1, shoreResult);
 					ASSERT(shoreResult.size() == 1);
 
-					D = station.GetDistance(shoreResult.front().m_location,false,false)/1000000;//at 1000 km
+					D = station.GetDistance(shoreResult.front().m_location,false/*,false*/)/1000000;//at 1000 km
 				}
 
 				string line = FormatA("%s,%s,%lf,%lf,%lf,%lf",

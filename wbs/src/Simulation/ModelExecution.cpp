@@ -540,20 +540,27 @@ ERMsg CModelExecution::Execute(const CFileManager& fileManager, CCallback& callb
 					callback.AddMessage(model.GetCopyright());
 					callback.AddMessage(filePath);
 					
-
-
-					if (model.GetTransferFileVersion() == CModel::VERSION_STREAM)
+					
+					msg = model.LoadDLL();
+					if (msg)
 					{
-						if (bUseHxGrid)
-							msg = RunHxGridSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
+						if (model.GetTransferFileVersion() == CModel::VERSION_STREAM)
+						{
+							if (bUseHxGrid)
+								msg = RunHxGridSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
+							else
+								msg = RunStreamSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
+						}
 						else
-							msg = RunStreamSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
+						{
+							//run by files
+							msg = RunFileSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
+						}
 					}
-					else
-					{
-						//run by files
-						msg = RunFileSimulation(fileManager, model, modelInputVector, *pWeather, result, callback);
-					}
+					model.UnloadDLL();
+					ASSERT(!model.IsLoaded() );
+
+					
 
 					result.Close();
 					timerModel.Stop();

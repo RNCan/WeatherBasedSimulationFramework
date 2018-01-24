@@ -17,7 +17,7 @@ namespace WBSF
 		
 
 
-		enum TAttributes { WORKING_DIR, PROVINCE, DATE_RANGE_TYPE, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum TAttributes { MEMBER_NAME, PASSWORD, WORKING_DIR, PROVINCE, DATE_RANGE_TYPE, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
 		static size_t GetNetwork(const std::string& network);
 
 

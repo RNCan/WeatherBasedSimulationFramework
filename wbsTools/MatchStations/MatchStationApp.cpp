@@ -1,6 +1,6 @@
 
 // MatchStation.cpp : Définit les comportements de classe pour l'application. 
-// 4.2.2	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1.
+// 4.2.2	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
 // 4.2.0    23/11/2016	Rémi Saint-Amant	New database 
 //											Add SearchRadius and SkipVerify options
