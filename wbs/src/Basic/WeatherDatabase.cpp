@@ -614,7 +614,7 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		}
 
 		CApproximateNearestNeighbor ann;
-		ann.set(locations, bUseElevation, positions);
+		ann.set(locations, bUseElevation, false, positions);
 
 		CStatisticEx stats;
 	
@@ -839,8 +839,8 @@ ERMsg CWeatherDatabase::GetStationList(CSearchResultVector& searchResultArray, C
                        
     searchResultArray.Reset();
 	searchResultArray.reserve(size());
-	searchResultArray.SetYear(year);
-	searchResultArray.SetFilter(filter);
+	//searchResultArray.SetYear(year);
+	//searchResultArray.SetFilter(filter);
 	
     for(size_t i=0; i<size()&&msg; i++)
     {
@@ -1937,7 +1937,7 @@ ERMsg CDHDatabaseBase::Remove(size_t index)
 }
 
 
-ERMsg CDHDatabaseBase::GetStations(const CSearchResultVector& results, CWeatherStationVector& stationArray)const
+ERMsg CDHDatabaseBase::GetStations(CWeatherStationVector& stationArray, const CSearchResultVector& results, int year)const
 {
 	ASSERT(IsOpen());
 
@@ -1947,7 +1947,7 @@ ERMsg CDHDatabaseBase::GetStations(const CSearchResultVector& results, CWeatherS
 
 	//Get stations 
 	for (size_t i = 0; i<results.size() && msg; i++)
-		msg = Get(stationArray[i], results[i].m_index, results.GetYear());
+		msg = Get(stationArray[i], results[i].m_index, year);
 
 	return msg;
 }
@@ -1988,7 +1988,7 @@ void CDHDatabaseBase::GetUnlinkedFile(StringVector& fileList)
 //              Si on ne trouve pas le nombre de stations désirées, on 
 //              relache graduellement les contraintes.
 //****************************************************************************
-ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
+ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
 {
 	ASSERT(IsOpen());
 	ASSERT(m_openMode == modeRead);
@@ -2084,7 +2084,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 		//by optimization, add the canal event if they are empty
 		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation, positions);
+		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 		zop.AddCanal(canal, pANN);
 	}
@@ -2093,8 +2093,8 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 
 	searchResultArray.Reset();
-	searchResultArray.SetYear(year);
-	searchResultArray.SetFilter(filter);
+	//searchResultArray.SetYear(year);
+	//searchResultArray.SetFilter(filter);
 
 	msg = m_zop.Search(station, nbStation, searchResultArray, canal);
 	
