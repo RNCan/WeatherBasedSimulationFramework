@@ -566,7 +566,7 @@ CWVariablesCounter CNormalsDatabase::GetWVariablesCounter(size_t i, const set<in
 	return count;
 }
 
-ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
+ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
 {
 	ASSERT(IsOpen());
 	ASSERT(m_openMode == modeRead);
@@ -612,6 +612,7 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 				{
 					CLocation pt = *it;//removel
 					pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+					pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
 					locations.push_back(pt);
 					positions.push_back(index);
 				}
@@ -621,7 +622,7 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 
 		//by optimization, add the canal event if they are empty
 		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation , positions);
+		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 		zop.AddCanal(canal, pANN);
 	}
@@ -663,7 +664,7 @@ ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLo
 	return msg;
 }
 
-ERMsg CNormalsDatabase::GetStations( const CSearchResultVector& results, CNormalsStationVector& stations)const
+ERMsg CNormalsDatabase::GetStations(CNormalsStationVector& stations, const CSearchResultVector& results)const
 {
 	ASSERT( IsOpen() );
 
@@ -673,7 +674,7 @@ ERMsg CNormalsDatabase::GetStations( const CSearchResultVector& results, CNormal
 
 	//Get stations 
 	for(size_t i=0; i<results.size(); i++) 
-		Get(stations[i], results[i].m_index, results.GetYear());
+		Get(stations[i], results[i].m_index, -999);
 	
 
     return msg;

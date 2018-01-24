@@ -78,7 +78,7 @@ namespace WBSF
 		virtual ERMsg Get(CLocation& station, size_t index, int year = YEAR_NOT_INIT)const;
 		virtual ERMsg Set(size_t index, const CLocation& station);
 		virtual ERMsg Remove(size_t index);
-		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius=-1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
+		virtual ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius = -1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true, bool bUseShoreDistance = true)const;
 		virtual CWVariables GetWVariables(size_t i, const std::set<int>& years, bool bForAllYears = false)const;
 		virtual CWVariablesCounter GetWVariablesCounter(size_t i, const std::set<int>& years)const;
 		virtual ERMsg VerifyVersion(const std::string& filePath)const;
@@ -87,7 +87,7 @@ namespace WBSF
 		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
 
 
-		ERMsg GetStations(const CSearchResultVector& results, CNormalsStationVector& stationArray)const;
+		ERMsg GetStations(CNormalsStationVector& stationArray, const CSearchResultVector& results)const;
 		ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, CCallback& callback);
 		ERMsg SaveAsV6(const std::string& filePath, CCallback& callback);
 
