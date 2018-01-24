@@ -1597,7 +1597,8 @@ CDailyWaveVector& CWeatherDay::GetHourlyGeneration(CDailyWaveVector& t, size_t m
 	}
 	else
 	{
-
+//ATTENTION : il n'y a pas de overheat ici????
+		//ASSERT(false);
 		
 		const CWeatherDay& dp = GetPrevious();
 		const CWeatherDay& me = *this;
@@ -1605,8 +1606,13 @@ CDailyWaveVector& CWeatherDay::GetHourlyGeneration(CDailyWaveVector& t, size_t m
 		ASSERT(dp[H_TMIN2].IsInit() && me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit());
 		ASSERT(dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit() && dn[H_TMAX2].IsInit());
 		
-		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+//		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
+	//	double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+		
+		//By RSA 23/01/2018
+		double Tmin[3] = { overheat.GetTmin(dp), overheat.GetTmin(me), overheat.GetTmin(dn) };
+		double Tmax[3] = { overheat.GetTmax(dp), overheat.GetTmax(me), overheat.GetTmax(dn) };
+
 
 		//double-sine method
 		const CLocation& loc = GetLocation();
@@ -3813,7 +3819,7 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 						//if (me[i][TRef].GetStat(v, stat))
 						if (me[i][TRef][v].IsInit())
 						{
-							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation);
+							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation, m_bTakeShoreDistance);
 							//if (v == H_PRCP && me[i][TRef][v][SUM] < 0.1)//remove station without precipitation in the compution of the weight
 								//Xtemp = 0;
 
@@ -3933,7 +3939,7 @@ void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const 
 							if (value < 0)
 								value = 0;
 
-							value = Round(value * 10.0) / 10.0;
+							value = Round(value, 1);
 						}
 
 						station[TRef].SetStat(v, value);
@@ -4021,7 +4027,7 @@ void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, size_
 					TRef.SetRef(it->at(3), TM);
 					log += TRef.GetFormatedString() + ",";
 
-					double dist = at(index).GetDistance(station, false);
+					double dist = at(index).GetDistance(station, false, false);
 					double deltaElev = at(index).m_elev - station.m_elev;
 
 					log += ToString(dist,1) + "," + ToString(deltaElev,1) + "\n";

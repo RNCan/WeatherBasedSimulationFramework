@@ -1321,11 +1321,10 @@ class CWeatherStationVector: public CWeatherStationVectorBase
 {
 public:
 
-	bool m_bTakeElevation;
-
-	CWeatherStationVector(size_t s = 0) : CWeatherStationVectorBase(s)
+	CWeatherStationVector(size_t s=0, bool bTakeElevation = true, bool bTakeShoreDistance = true) : CWeatherStationVectorBase(s)
 	{
-		m_bTakeElevation = true;
+		m_bTakeElevation = bTakeElevation;
+		m_bTakeShoreDistance = bTakeShoreDistance;
 	}
 
 
@@ -1370,6 +1369,12 @@ public:
 
 	void GetMean( CWeatherStation& station, CTPeriod p, size_t mergeType)const;
 	void MergeStation(CWeatherStation& station, CTM TM, size_t mergeType, size_t priorityRules, std::string& log)const;
+
+
+protected:
+
+	bool m_bTakeElevation;
+	bool m_bTakeShoreDistance;
 };
 
 
