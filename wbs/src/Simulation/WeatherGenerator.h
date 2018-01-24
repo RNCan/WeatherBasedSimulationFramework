@@ -146,7 +146,7 @@ namespace WBSF
 		
 
 		bool UseExpo()const{ return m_target.GetSlope() > 0 && m_tgi.m_albedo != CWGInput::NONE; }
-		short XVal()const{ return m_tgi.m_bXValidation ? 1 : 0; }
+		
 
 		static void ExposureIndices(double exposure_index[12], double latit, double elev, float slope, float orientation, short albedoType);
 		static int Sol9(double inlatit, double inelev, double inslope, double inazimuth, double *expin);
