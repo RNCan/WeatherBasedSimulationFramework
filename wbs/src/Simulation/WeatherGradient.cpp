@@ -16,13 +16,14 @@
 #include "Basic/Statistic.h"
 #include "Basic/WeatherCorrection.h"
 #include "Basic/NormalsStation.h"
+#include "Basic/Shore.h"
 #include "Newmat/Regression.h"
 #include "Simulation/WeatherGradient.h"
 
-#define CREATE_SHORE 0
-#if CREATE_SHORE
-#include "Geomatic/ShapeFileBase.h"
-#endif
+//#define CREATE_SHORE 0
+//#if CREATE_SHORE
+//#include "Geomatic/ShapeFileBase.h"
+//#endif
 
 using namespace std;
 using namespace NEWMAT;
@@ -69,10 +70,10 @@ namespace WBSF
 	}
 
 	//size_t CWeatherGradient::GetNbSpaces(){ return NB_SPACE; }
-	size_t CWeatherGradient::GetNbSpaces(){ return (m_pShore  && !m_pShore->empty()) ? NB_SPACE_EX : NB_SPACE; }
+	size_t CWeatherGradient::GetNbSpaces(){ return (WEATHER::SHORE_DISTANCE_FACTOR>0 && CShore::GetShore() && !CShore::GetShore()->empty()) ? NB_SPACE_EX : NB_SPACE; }
 
 
-	CApproximateNearestNeighborPtr CWeatherGradient::m_pShore;
+	//CApproximateNearestNeighborPtr CWeatherGradient::m_pShore;
 
 	const double CWeatherGradient::FACTOR_Z = 1000;
 	const int CWeatherGradient::NB_STATION_REGRESSION_LOCAL = 25;//23
@@ -277,95 +278,95 @@ namespace WBSF
 
 	//"D:\\Weather\\Normals\\Shore_z3.shp"
 	//"D:\\Weather\\Normals\\Shore_z3.ANN"
-	ERMsg CWeatherGradient::Shape2ANN(const string& fielpathIn, const string& filePathOut)
-	{
-		ERMsg msg;
+//	ERMsg CWeatherGradient::Shape2ANN(const string& fielpathIn, const string& filePathOut)
+//	{
+//		ERMsg msg;
+//
+//#if CREATE_SHORE
+//		CShapeFileBase shape;
+//
+//		msg = shape.Read(fielpathIn);
+//		if (msg)
+//		{
+//			ofStream stream;
+//			msg = stream.open(filePathOut, std::ios::binary);
+//			if (msg)
+//			{
+//				CApproximateNearestNeighbor ANN;
+//				CLocationVector locations(shape.GetNbShape());
+//				for (size_t i = 0; i < shape.GetNbShape(); i++)
+//					shape[int(i)].GetShape().GetCentroid(locations[i]);
+//
+//				ANN.set(locations, false);
+//				stream << ANN;
+//				stream.close();
+//			}
+//		}
+//#endif
+//		return msg;
+//	}
 
-#if CREATE_SHORE
-		CShapeFileBase shape;
-
-		msg = shape.Read(fielpathIn);
-		if (msg)
-		{
-			ofStream stream;
-			msg = stream.open(filePathOut, std::ios::binary);
-			if (msg)
-			{
-				CApproximateNearestNeighbor ANN;
-				CLocationVector locations(shape.GetNbShape());
-				for (size_t i = 0; i < shape.GetNbShape(); i++)
-					shape[int(i)].GetShape().GetCentroid(locations[i]);
-
-				ANN.set(locations, false);
-				stream << ANN;
-				stream.close();
-			}
-		}
-#endif
-		return msg;
-	}
-
-	ERMsg CWeatherGradient::SetShore(const std::string& filePath)
-	{
-		ERMsg msg;
-
-		if (filePath.empty())
-		{
-			m_pShore.reset();
-		}
-		else
-		{
-			ifStream stream;
-			msg = stream.open(filePath, std::ios::binary);
-			if (msg)
-			{
-				if (m_pShore.get() == NULL)
-					m_pShore = make_shared<CApproximateNearestNeighbor>();
-
-				*m_pShore << stream;
-				stream.close();
-
-			}
-		}
-
-		return msg;
-	}
-
-
-	//"U:\\Geomatique\\Shapefile\\water\\water-polygons-generalized-3857\\water_polygons_z3.shp"
-	ERMsg CWeatherGradient::AddShape(const string& filepathIn1, const string& filepathIn2, const string& filePathOut)
-	{
-		ERMsg msg;
-#if CREATE_SHORE
-		CShapeFileBase shapeIn;
-
-		msg = shapeIn.Read(filepathIn1);
-		if (msg)
-		{
-			CNormalsDatabase m_normalDB;
-			msg = m_normalDB.Open(filepathIn2);
-			if (msg)
-			{
-				CLocationVector locations;
-				for (size_t i = 0; i < m_normalDB.size(); i++)
-				{
-
-					if (shapeIn.IsInside(m_normalDB[i]))
-					{
-						double d = shapeIn.GetMinimumDistance(m_normalDB[i]);
-						if (d>5000)
-							locations.push_back(m_normalDB[i]);
-					}
-				}
-
-				locations.Save(filePathOut);
-			}
-		}
-#endif
-		return msg;
-	}
-
-	
+//	ERMsg CWeatherGradient::SetShore(const std::string& filePath)
+//	{
+//		ERMsg msg;
+//
+//		if (filePath.empty())
+//		{
+//			m_pShore.reset();
+//		}
+//		else
+//		{
+//			ifStream stream;
+//			msg = stream.open(filePath, std::ios::binary);
+//			if (msg)
+//			{
+//				if (m_pShore.get() == NULL)
+//					m_pShore = make_shared<CApproximateNearestNeighbor>();
+//
+//				*m_pShore << stream;
+//				stream.close();
+//
+//			}
+//		}
+//
+//		return msg;
+//	}
+//
+//
+//	//"U:\\Geomatique\\Shapefile\\water\\water-polygons-generalized-3857\\water_polygons_z3.shp"
+//	ERMsg CWeatherGradient::AddShape(const string& filepathIn1, const string& filepathIn2, const string& filePathOut)
+//	{
+//		ERMsg msg;
+//#if CREATE_SHORE
+//		CShapeFileBase shapeIn;
+//
+//		msg = shapeIn.Read(filepathIn1);
+//		if (msg)
+//		{
+//			CNormalsDatabase m_normalDB;
+//			msg = m_normalDB.Open(filepathIn2);
+//			if (msg)
+//			{
+//				CLocationVector locations;
+//				for (size_t i = 0; i < m_normalDB.size(); i++)
+//				{
+//
+//					if (shapeIn.IsInside(m_normalDB[i]))
+//					{
+//						double d = shapeIn.GetMinimumDistance(m_normalDB[i]);
+//						if (d>5000)
+//							locations.push_back(m_normalDB[i]);
+//					}
+//				}
+//
+//				locations.Save(filePathOut);
+//			}
+//		}
+//#endif
+//		return msg;
+//	}
+//
+//	
 	void CWeatherGradient::reset()
 	{
 		ASSERT(NB_GRADIENT == 5);
@@ -393,20 +394,20 @@ namespace WBSF
 		}
 	}
 	
-	double CWeatherGradient::GetShoreDistance(const CLocation& location)
-	{
-		double d = 0;
-		if (m_pShore)
-		{
-			CSearchResultVector shorePt;
-			if (m_pShore->search(location, 1, shorePt) )
-			{
-				d = shorePt.front().m_distance;
-			}
-		}
+	//double CWeatherGradient::GetShoreDistance(const CLocation& location)
+	//{
+	//	double d = 0;
+	//	if (m_pShore)
+	//	{
+	//		CSearchResultVector shorePt;
+	//		if (m_pShore->search(location, 1, shorePt) )
+	//		{
+	//			d = shorePt.front().m_distance;
+	//		}
+	//	}
 
-		return d;
-	}
+	//	return d;
+	//}
 
 	double CWeatherGradient::GetDistance(size_t s, const CLocation& target, const CLocation& station)
 	{
@@ -416,7 +417,8 @@ namespace WBSF
 		case X_GR: d = station.GetDistanceXY(target).m_x / 1000; break;//[km]
 		case Y_GR: d = station.GetDistanceXY(target).m_y / 1000; break;//[km]
 		case Z_GR: d = target.m_z - station.m_z; break; //[m]
-		case S_GR: d = (GetShoreDistance(target) - GetShoreDistance(station)) / 1000; break;//[km]
+		//case S_GR: d = (target.GetShoreDistance() - station.GetShoreDistance()) / 1000; break;//[km]
+		case S_GR: d = (CShore::GetShoreDistance(target) - CShore::GetShoreDistance(station)) / 1000; break;//[km]
 		default: ASSERT(false);
 		}
 
@@ -428,7 +430,7 @@ namespace WBSF
 		if (z == CONTINENTAL_GRADIENT)
 			return 1;
 
-		if (s == S_GR && !(m_pShore&&!m_pShore->empty()))
+		if (s == S_GR && !(CShore::GetShore() && !CShore::GetShore()->empty()))
 			return 1;
 
 		CLocation Lᵒ;
@@ -455,7 +457,7 @@ namespace WBSF
 		double f1 = F1[z][g];
 		double f2 = F2[z][g];
 			
-		double Dc = m_target.GetDistance(Lᵒ, true) / 1000;// take elevation in distance of centroid km
+		double Dc = m_target.GetDistance(Lᵒ, true, true) / 1000;// take elevation in distance of centroid km
 		correction = 1 - min(1.0, max(0.0, Dc - f1) / f2);
 
 
@@ -637,10 +639,9 @@ namespace WBSF
 		for (size_t m = 0; m < 12; m++)
 			V[m].ReSize((int)results.size());
 
-		CLocation Lᵒ;
-		results.GetCentroid(Lᵒ);
-		//CGradientSᵒ Sᵒ;
-		//GetSᵒ(g, results, Sᵒ);
+		//CLocation Lᵒ;
+		//results.GetCentroid(Lᵒ);
+		
 
 		for (int i = 0; i < (int)results.size() && msg; i++)
 		{
@@ -688,10 +689,6 @@ namespace WBSF
 					{
 						Gr[m][s] = result[i];
 					}
-					else
-					{
-
-					}
 				}
 
 				msg += callback.StepIt(0);
@@ -738,7 +735,6 @@ namespace WBSF
 
 			//if (Sᵒ>0)
 			//	correction = (Sᵒ + c) / Sᵒ;
-			////correction = 1;//temporaire pour test
 
 			//if (correction < 0.1)
 			//	correction = 0.1;
@@ -887,13 +883,13 @@ namespace WBSF
 				const CLocation& station = (*m_pNormalDB)[results[i].m_index];
 				double D=0;
 
-				if (m_pShore && !m_pShore->empty())
+				if (CShore::GetShore() && !CShore::GetShore()->empty())
 				{
 					CSearchResultVector shoreResult;
-					m_pShore->search(station, 1, shoreResult);
+					CShore::GetShore()->search(station, 1, shoreResult);
 					ASSERT(shoreResult.size() == 1);
 
-					D = station.GetDistance(shoreResult.front().m_location,false)/1000000;//at 1000 km
+					D = station.GetDistance(shoreResult.front().m_location,false,false)/1000000;//at 1000 km
 				}
 
 				string line = FormatA("%s,%s,%lf,%lf,%lf,%lf",

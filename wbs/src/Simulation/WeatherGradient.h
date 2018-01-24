@@ -76,12 +76,12 @@ namespace WBSF
 		virtual double GetCorrection(const CLocation& pt, CTRef TRef, size_t v)const;
 		double GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s)const;
 
-		static ERMsg SetShore(const std::string& filePath);
-		static void SetShore(CApproximateNearestNeighborPtr& pShore){ m_pShore = pShore; }
-		static const CApproximateNearestNeighborPtr& GetShore(){ return m_pShore; }
-		static ERMsg Shape2ANN(const std::string& filePathIn, const std::string& filePathOut);
-		static ERMsg AddShape(const std::string& filePathIn1, const std::string& filePathIn2, const std::string& filePathOut);
-		static double GetShoreDistance(const CLocation& location);
+		//static ERMsg SetShore(const std::string& filePath);
+		//static void SetShore(CApproximateNearestNeighborPtr& pShore){ m_pShore = pShore; }
+		//static const CApproximateNearestNeighborPtr& GetShore(){ return m_pShore; }
+		//static ERMsg Shape2ANN(const std::string& filePathIn, const std::string& filePathOut);
+		//static ERMsg AddShape(const std::string& filePathIn1, const std::string& filePathIn2, const std::string& filePathOut);
+		//static double GetShoreDistance(const CLocation& location);
 		static size_t GetNbSpaces();
 		static double GetDistance(size_t s, const CLocation& target, const CLocation& station);
 
@@ -103,7 +103,7 @@ namespace WBSF
 
 
 
-		static CApproximateNearestNeighborPtr m_pShore;
+		//static CApproximateNearestNeighborPtr m_pShore;
 		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
 		static const CGradientSᵒ GLOBAL_Sᵒ[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
 		static const size_t NB_S_MAX[NB_HEMISPHERE];
