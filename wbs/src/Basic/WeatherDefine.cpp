@@ -120,6 +120,8 @@ namespace WBSF
 
 	namespace WEATHER
 	{
+		static const double ELEV_FACTOR = 100.0;
+		static const double SHORE_DISTANCE_FACTOR = 1.0;
 	}
 
 	namespace NORMALS_DATA
