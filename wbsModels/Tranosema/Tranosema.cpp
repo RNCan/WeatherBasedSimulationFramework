@@ -109,8 +109,9 @@ namespace WBSF
 
 			//Relative development rate for time step
 			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
-
+			
 			//Check if individual enters diapause this time step
+			
 			if (GetStand()->m_bAutoComputeDiapause)
 			{
 				if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
@@ -124,7 +125,7 @@ namespace WBSF
 					}
 				}
 			}
-
+			
 			if (s == ADULT) //Set maximum longevitys to 150 days
 				r = max(0.00667, r);
 
