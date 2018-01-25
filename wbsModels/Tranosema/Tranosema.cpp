@@ -243,7 +243,7 @@ namespace WBSF
 			if (IsAlive())
 			{
 				if (s >= EGG && s < DEAD_ADULT)
-					stat[s] += m_scaleFactor;
+					stat[S_EGG+s] += m_scaleFactor;
 
 
 				if (s == ADULT)
@@ -256,32 +256,38 @@ namespace WBSF
 				
 				if (m_diapauseTRef.IsInit())
 					stat[S_DIAPAUSE] += m_scaleFactor;
+
+				//because attrition is affected when the object chnage stage,
+				//we need to take only insect alive
+				if (GetStage() != GetLastStage())
+				{
+					stat[E_EGG + s] += m_scaleFactor;
+					if (s == ADULT && m_sex == FEMALE)
+						stat[E_OVIPOSITING_ADULT] += m_scaleFactor;
+				}
 			}
 			else
 			{
 				if (m_death == OLD_AGE)
-					stat[DEAD_ADULT] += m_scaleFactor;
+				{
+					stat[S_DEAD_ADULT] += m_scaleFactor;
+					if (GetStage() != GetLastStage())
+						stat[E_DEAD_ADULT] += m_scaleFactor;
+				}
+
 
 				if (m_death == ATTRITION)
 					stat[S_ATTRITION] += m_scaleFactor;
+
+				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == ATTRITION)
+					stat[E_ATTRITION] += m_scaleFactor;
+
+				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
+					stat[E_FROZEN] += m_scaleFactor;
+
+				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == OTHERS)
+					stat[E_OTHERS] += m_scaleFactor;
 			}
-
-
-			if (GetStage() != GetLastStage())
-			{
-				stat[E_EGG + s] += m_scaleFactor;
-				if (s == ADULT && m_sex == FEMALE)
-					stat[E_OVIPOSITING_ADULT] += m_scaleFactor;
-
-			}
-
-			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == ATTRITION)
-				stat[E_ATTRITION] += m_scaleFactor;
-
-			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
-				stat[E_FROZEN] += m_scaleFactor;
-
-			
 
 			//if (m_lastAge < GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
 			if (d == m_diapauseTRef)

@@ -32,22 +32,20 @@ namespace WBSF
 	
 	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition,CumulAdult,CumulDiapause";
-
-	//	
-	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS - 1 };
-	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration,GrowthRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 	
 	enum{ O_G_YEAR, O_G_GENERATION, O_G_EGG, O_G_PUPA, O_G_ADULT, O_G_DEAD_ADULT, O_G_BROOD, O_G_ATTRITION, O_G_FROZEN, O_G_HOST_DIE, O_G_DIAPAUSE, O_G_FECONDITY, O_G_EGG_GROWTH, O_G_ADULT_GROW, NB_GENERATION_OUTPUT };
-	extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frosne,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
+	extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frozen,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
 
-	
+	enum{ O_A_NB_GENERATION, O_A_BROOD, O_A_DIAPAUSE, O_A_FECONDITY, O_A_GROWTH_RATE, O_A_DEAD_ADULT, O_A_ATTRITION, O_A_FROZEN, O_A_HOST_DIE, O_A_OTHER, NB_ANNUAL_OUTPUT };
+	extern char ANNUAL_HEADER[] = "Gmax,Broods,Diapause,Fecondity,GrowthRate,DeadAdults,Attrition,Frosen,HostDie,Other";
+
 
 	CTranosema_OBL_SBW_Model::CTranosema_OBL_SBW_Model()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.2 (2018)";
+		VERSION = "1.0.3 (2018)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -244,31 +242,35 @@ namespace WBSF
 
 				m_output[TRef][O_A_NB_GENERATION] = maxG;
 
-				CStatistic meanG;
-				CStatistic diapause;
-				double diapauseBegin = 100;
-				for (size_t g = 1; g < maxG; g++)
-				{
-					
-					CStatistic diapauseStat = TranosemaStat[g].GetStat(E_DIAPAUSE, season);
-					
-					diapause += diapauseStat[SUM];
-					meanG += g *diapauseStat[SUM];
-					m_output[TRef][O_A_ALIVE1 + (g - 1)] = diapauseStat[SUM];
-					
-
-					if (g == maxG - 1)
-					{
-						ASSERT(diapause.IsInit());
-						double diapauseEnd = TranosemaStat[g][season.End()][size_t(m_diapauseAge)];
-						//m_output[TRef][O_A_GROW_GENERATION] = ;
-						//m_output[TRef][O_A_FECONDITY] = ;
-						m_output[TRef][O_A_GROWTH_RATE] = diapauseEnd / diapauseBegin;
-						m_output[TRef][O_A_MEAN_GENERATION] = meanG[SUM] / diapause[SUM];
-					}
-				}
-
 				
+				double adult = 0;
+				for (size_t g = 0; g < maxG; g++)
+				{
+					static const size_t VAR_IN[7] = { E_BROOD, E_DIAPAUSE, E_DEAD_ADULT, E_ATTRITION, E_FROZEN, E_HOST_DIE, E_OTHERS };
+					static const size_t VAR_OUT[7] = { O_A_BROOD, O_A_DIAPAUSE, O_A_DEAD_ADULT, O_A_ATTRITION, O_A_FROZEN, O_A_HOST_DIE, O_A_OTHER };
+					for (size_t i = 0; i < 7; i++)
+					{
+						CStatistic stat = TranosemaStat[g].GetStat(VAR_IN[i], season);
+						ASSERT(stat.IsInit());
+						m_output[TRef][VAR_OUT[i]] += stat[SUM];
+					}
+
+					CStatistic statAdult = TranosemaStat[g].GetStat(E_ADULT, season);
+					adult += statAdult[SUM];
+				}
+				/*
+				double sumDead = 0;
+				for (size_t i = O_A_DEAD_ADULT; i <= O_A_OTHER; i++)
+					sumDead += m_output[TRef][i];
+				
+				if (sumDead > 0)
+				{
+					for (size_t i = O_A_DEAD_ADULT; i <= O_A_OTHER; i++)
+						m_output[TRef] = m_output[TRef] * 100 / sumDead;
+				}
+					*/
+				m_output[TRef][O_A_FECONDITY] = (adult>0)? m_output[TRef][O_A_BROOD] / adult : -999;
+				m_output[TRef][O_A_GROWTH_RATE] = m_output[TRef][O_A_DIAPAUSE] / 100;
 			}
 		}
 
