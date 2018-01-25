@@ -163,7 +163,7 @@ namespace WBSF
 		if (!m_pAssociateHost.expired())
 		{
 			//if the associat host die, the parazite also die
-			if (!m_pAssociateHost.lock()->IsAlive())
+			if (GetStage() == EGG && !m_pAssociateHost.lock()->IsAlive())
 			{
 				m_status = DEAD;
 				m_death = HOST_DIE;
