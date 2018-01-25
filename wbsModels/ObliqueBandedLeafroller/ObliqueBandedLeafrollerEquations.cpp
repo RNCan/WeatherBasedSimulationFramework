@@ -23,7 +23,7 @@ namespace WBSF
 	//Tranosema daily devlopment rates
 
 	CObliqueBandedLeafrollerEquations::CObliqueBandedLeafrollerEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, NB_STAGES*2, 0, 40, 0.25)
+		CEquationTableLookup(RG, NB_STAGES*2, 0, 40, 0.4) //Was 0.25
 	{
 	}
 
@@ -50,7 +50,7 @@ namespace WBSF
 			11.4,	-0.12648,	0.011125,	//L6 ???? 0.0011125 ou 0.011125
 			9.6,	-0.07901,	0.008305,	//PUPA
 			11.9,	-0.33918,	0.028427,	//Adult preovip
-			4.2,	-0.02667,	0.0064		//Adult
+			4.2,	-0.02667,	0.004		//Adult //was .0064, this makes longer-lived adults.
 		};
 		
 		
@@ -94,7 +94,7 @@ namespace WBSF
 
 	double CObliqueBandedLeafrollerEquations::Equation2()const
 	{
-		double 	r = m_randomGenerator.RandLogNormal(1.0, 0.25);
+		double 	r = m_randomGenerator.RandLogNormal(1.0, 0.4); //Was 0.25
 
 		_ASSERTE(!_isnan(r) && _finite(r));
 		if (_isnan(r) || !_finite(r))//just in case
