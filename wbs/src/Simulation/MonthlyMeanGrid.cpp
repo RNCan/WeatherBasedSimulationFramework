@@ -173,7 +173,7 @@ namespace WBSF
 	}
 
 
-	bool CMonthlyMeanGrid::GetMonthlyMean(int firstYear, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS], CCallback& callback)
+	bool CMonthlyMeanGrid::GetMonthlyMean(int firstYear, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS], CCallback& callback)
 	{
 		ASSERT(firstYear >= m_firstYear && firstYear <= m_lastYear);
 
@@ -181,8 +181,8 @@ namespace WBSF
 		bool bRep = true;
 		CStatistic MMStat[12][NB_FIELDS];
 
-		//callback.PushTask("Load MMG data for " + ToString(firstYear) + "-" + ToString(firstYear + 29), 30 * 12 * NB_FIELDS);
-		for (size_t y = 0; y < 30&&msg; y++)
+		
+		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
 			for (size_t m = 0; m < 12&&msg; m++)
@@ -326,10 +326,10 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstCCYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstCCYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
@@ -499,10 +499,10 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstccYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
@@ -576,10 +576,10 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstccYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 

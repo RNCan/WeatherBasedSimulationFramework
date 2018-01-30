@@ -2,7 +2,7 @@
 // program to merge Landsat image image over a period
 //									 
 //***********************************************************************
-// version
+// version 
 // 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
 // 3.0.0	31/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and. Remove all cloud remover

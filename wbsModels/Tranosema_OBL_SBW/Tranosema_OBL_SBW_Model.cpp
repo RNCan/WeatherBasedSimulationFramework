@@ -3,7 +3,8 @@
 //
 // Description: CTranosema_OBL_SBW_Model is a BioSIM model of Tranosema and ObliqueBandedLeafroller model
 //*****************************************************************************
-// 17/01/2018	1.0.2	Rémi Saint-Amant	Chnage in annual model
+// 25/01/2018	1.0.3	Rémi Saint-Amant	Add annual model
+// 17/01/2018	1.0.2	Rémi Saint-Amant	Add generation model
 // 29/11/2017	1.0.1	Rémi Saint-Amant	Add CulmulAdult
 // 21/11/2017	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
@@ -37,7 +38,7 @@ namespace WBSF
 	extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frozen,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
 
 	enum{ O_A_NB_GENERATION, O_A_BROOD, O_A_DIAPAUSE, O_A_FECONDITY, O_A_GROWTH_RATE, O_A_DEAD_ADULT, O_A_ATTRITION, O_A_FROZEN, O_A_HOST_DIE, O_A_OTHER, NB_ANNUAL_OUTPUT };
-	extern char ANNUAL_HEADER[] = "Gmax,Broods,Diapause,Fecondity,GrowthRate,DeadAdults,Attrition,Frosen,HostDie,Other";
+	extern char ANNUAL_HEADER[] = "Gmax,Broods,Diapause,Fecondity,GrowthRate,DeadAdults,Attrition,Frozen,HostDie,DeadOthers";
 
 
 	CTranosema_OBL_SBW_Model::CTranosema_OBL_SBW_Model()

@@ -68,7 +68,7 @@ namespace WBSF
 
 	protected:
 
-		bool GetMonthlyMean(int year, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback);
+		bool GetMonthlyMean(int year, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback);
 		float GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d);
 		
 

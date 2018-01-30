@@ -407,7 +407,7 @@ namespace WBSF
 					bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD2];
 					bool bSN = mVariables[H_SNOW] || mVariables[H_SNDH] || mVariables[H_SWE];
 					bool bWD = mVariables[H_WNDD];
-					bool bTPcomplet = m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod());
+					bool bTPcomplet = m_simulationPoints[0].IsComplete("Tmin Tair Tmax Prcp", m_tgi.GetTPeriod());
 					bool bHRcomplet = m_simulationPoints[0].IsComplete("Tdew", m_tgi.GetTPeriod());
 					//bool bEAcomplete = m_simulationPoints[0].IsComplete("Ea", m_tgi.GetTPeriod());
 
@@ -1351,7 +1351,7 @@ namespace WBSF
 											//replace missing hourly value by normals generation
 											for (size_t h = 0; h < simulationPointVector[r][y][m][d].size(); h++)
 											{
-												if (IsMissing(simulationPointVector[r][y][m][d][h][v]))
+												if (IsMissing(simulationPointVector[r][y][m][d][h][v]) && !IsMissing(annualData[year][m][d][h][v]))
 													simulationPointVector[r][y][m][d][h][v] = WBSF::Round(annualData[year][m][d][h][v], DIGIT_RES[v]);
 													//simulationPointVector[r][y][m][d][h][v] = annualData[year][m][d][h][v];
 												
@@ -1360,7 +1360,7 @@ namespace WBSF
 										else
 										{
 											//replace missing daily value by normals generation
-											if (!simulationPointVector[r][y][m][d][v].IsInit())
+											if (!simulationPointVector[r][y][m][d][v].IsInit() && annualData[year][m][d][v].IsInit() )
 												simulationPointVector[r][y][m][d][v] = WBSF::Round(annualData[year][m][d][v], DIGIT_RES[v]);
 												//simulationPointVector[r][y][m][d][v] = annualData[year][m][d][v];
 										}

@@ -109,6 +109,7 @@ namespace WBSF
 		m_result[0].m_rs = smp.rs;//Snow density (kg/m³ or g/cm³)
 		m_result[0].m_SWE = smp.SWE;//snow water equivalent (mm cm?????)
 
+		
 		int dayIndex = 0;
 		for (size_t y = 0; y < weather.GetNbYears(); y++)//for all years
 		{
@@ -117,12 +118,16 @@ namespace WBSF
 				for (size_t d = 0; d < weather[y][m].GetNbDays(); d++)//for all days
 				{
 					const CDay& wDay = weather[y][m][d];
+					if (y == 0 && m == 0 && d == 0 && wDay[H_SNDH].IsInit())//if we have real snow depth observation
+					{
+						smp.hs = wDay[H_SNDH];
+					}
 
 					short timeStep = 4;
 					CDailyWaveVector t;
 					wDay.GetHourlyGeneration(t, HG_ALLEN_WAVE, timeStep);
 					double prcp = wDay[H_PRCP][SUM] / t.size();//in mm/h
-
+					
 					double newSWESum = 0;
 					for (size_t h = 0; h < t.size(); h++) //for all time steps in a day (parameter sent toGetAllenWave()
 					{
@@ -131,6 +136,29 @@ namespace WBSF
 
 						double newSWE = prcp*snowProp; //Snow Water Eguivalent of new snow (mm/h)
 						double newRain = prcp*(1 - snowProp);//New Rain (mm/h)
+
+						
+						if (wDay[H_SNOW].IsInit())//if we have snow observation
+						{
+							ASSERT(wDay[H_SNOW][SUM] >= 0);
+							//ASSERT(wDay[H_SNOW][SUM] <= wDay[H_PRCP][SUM]+0.1);
+							
+							newSWE = wDay[H_SNOW][SUM] / t.size();
+							
+							if (newSWE < 0)
+								newSWE = 0;
+
+							if (newSWE > prcp)
+								newSWE = prcp;
+
+							newRain = prcp - newSWE;//New Rain (mm/h)
+							if (prcp > 0)
+							{
+								snowProp = newSWE / prcp;
+							}
+						}
+						
+
 						newSWESum += newSWE;
 
 						//compute new snow
@@ -139,7 +167,7 @@ namespace WBSF
 							double rsNew = (T <= 0) ? (67.9 + 51.3*exp(T / 2.6)) : (119.2 + 20 * T); //Density of new snow (kg/m³). Brown et al (2003) equs. (1) & (2)
 							double hsNew = 100 * newSWE / rsNew; //depth of new snow (cm). From SWE = height(m) x density(kg/m³) (note 1 mm water is 1 kg/m²)
 
-
+							
 							_ASSERTE(rsNew > 0);
 							_ASSERTE(hsNew > 0);
 
@@ -175,20 +203,29 @@ namespace WBSF
 							smp.rs = 0;
 						}
 
-
+						_ASSERTE(smp.SWE < 1000);
 						_ASSERTE(smp.rs >= 0);
 						_ASSERT(smp.hs >= 0);
 						_ASSERT(smp.SWE >= 0);
 					}//end for h
 
-
+					
 					_ASSERTE(!_isnan(smp.hs));
 					_ASSERTE(!_isnan(smp.rs));
 					_ASSERTE(!_isnan(smp.SWE));
 					_ASSERTE(newSWESum <= wDay[H_PRCP][SUM] + 0.001);
+
+					
+					if (wDay[H_SNDH].IsInit())//if we have real snow depth observation
+					{
+						smp.hs = wDay[H_SNDH][MEAN];
+						if (smp.hs < 0)
+							smp.hs = 0;
+					}
+
 					//multi annual model
 					int year = int(weather.GetFirstYear() + y);
-					//we increment index before because observation is always one day late
+					//we increment index before because observation is always one day later
 
 					m_result[dayIndex].m_newSWE = newSWESum >= 0.2 ? newSWESum : 0;
 					if (dayIndex + 1 < (int)m_result.size())
