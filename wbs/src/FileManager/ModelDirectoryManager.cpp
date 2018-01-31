@@ -47,4 +47,10 @@ namespace WBSF
 		std::string tmp = GetFilePath(fileName);
 		return !tmp.empty();
 	}
+
+	std::string CModelDirectoryManager::GetHelpFilePath(const std::string& fileName)const
+	{
+		//use extension of the file name instead of .mdl
+		return CDirectoryManagerBase::GetFilePath(fileName, "");
+	}
 }

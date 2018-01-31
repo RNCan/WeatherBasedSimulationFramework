@@ -384,11 +384,11 @@ const char* CTRefFormat::DEFAULT_FORMAT[CTM::NB_REFERENCE][CTM::NB_MODE] =
 { " ", " " }
 };
 const char* CTRefFormat::DEFAULT_HEADER[CTM::NB_REFERENCE][CTM::NB_MODE] =
-{ { "Year", "" },
+{ { "Year", " " },
 { "Year,Month", "Month" },
 { "Year,Month,Day", "Month,Day" },
 { "Year,Month,Day,Hour", "Month,Day,Hour" },
-{ " ", " " }
+{ "No", " " }
 };
 
 const char* CTRefFormat::DATE_YMD = "%Y-%m-%d";
@@ -399,7 +399,7 @@ const char* CTRefFormat::DATE_YMD_HMS = "%Y-%m-%d %H:%M:%S";
 //const char* CTRefFormat::DATE_DM = "%d-%m";
 
 //"DateYMD", "DateDMY", "DateMD", "DateDM"
-const char* CTRefFormat::FORMAT_NAME[NB_FORMAT] = { "Year", "Month", "Day", "JDay", "Hour", "Reference" };
+const char* CTRefFormat::FORMAT_NAME[NB_FORMAT] = { "Year", "Month", "Day", "JDay", "Hour", "No" };
 
 
 
@@ -588,8 +588,8 @@ CTRef::CTRef(const string& strIn, CTM TM)
 CTRef& CTRef::Set(int y_or_r, size_t m, size_t d, size_t h, CTM TM)
 {
 
-	ASSERT(m<12 || m==LAST_MONTH || TM.Type() == ATEMPORAL);
-	ASSERT(d<31 || d == LAST_DAY || d == DAY_NOT_INIT || TM.Type() == ATEMPORAL);
+	ASSERT(m<12 || m == LAST_MONTH || TM.Type() == ATEMPORAL || TM.Type() == ANNUAL);
+	ASSERT(d<31 || d == LAST_DAY || d == DAY_NOT_INIT || TM.Type() == ATEMPORAL || TM.Type() == ANNUAL);
 	ASSERT(h==NOT_INIT || h<=24);
 
 	bool bAddRef=false;//faudrait vérifier cela, c'est très bizard...
@@ -932,7 +932,7 @@ string CTRef::ToString()const
 	case DAILY:		_snprintf(&(str[0]), 100, "%02d%04d%02d%02d", t, y, m, d); break;
 	case MONTHLY:	_snprintf(&(str[0]), 100, "%02d%04d%02d", t, y, m); break;
 	case ANNUAL:	_snprintf(&(str[0]), 100, "%02d%04d", t, y); break;
-	case ATEMPORAL: _snprintf(&(str[0]), 100, "%02d%10d", t, r); break;
+	case ATEMPORAL: _snprintf(&(str[0]), 100, "%02d%010d", t, r); break;
 	case UNKNOWN:	_snprintf(&(str[0]), 100, "%02d", t); break;
 	default: ASSERT(false);
 	}

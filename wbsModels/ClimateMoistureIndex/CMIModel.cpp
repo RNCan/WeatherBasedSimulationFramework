@@ -1,5 +1,6 @@
 //*********************************************************************
-//17/-5/2017	3.1.2	Rémi Saint-Amant    Bug correction when more than 2 years
+//31/01/2018	3.1.3	Rémi Saint-Amant    recompile
+//17/05/2017	3.1.2	Rémi Saint-Amant    Bug correction when more than 2 years
 //27/03/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //06/09/2016			Rémi Saint-Amant	Integration with WBSF
@@ -28,7 +29,7 @@ namespace WBSF
 	CCMIModel::CCMIModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "3.1.1 (2017)";
+		VERSION = "3.1.3 (2018)";
 	}
 
 

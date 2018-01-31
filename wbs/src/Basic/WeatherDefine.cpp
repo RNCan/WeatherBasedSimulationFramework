@@ -20,9 +20,9 @@ using namespace std;
 
 namespace WBSF
 {
-	static const char* TEMPORAL_NAME[NB_TEMPORAL] = { "Year", "Month", "Day", "Hour", "Jday", "Reference" };
-	static const char* TEMPORAL_NAME_UE[NB_TEMPORAL] = { "YEAR", "MONTH", "DAY", "HOUR", "JDAY", "REFERENCE" };
-	static const char* TEMPORAL_NAME_UF[NB_TEMPORAL] = { "ANNEE", "MOIS", "JOUR", "HEURE", "JJ", "REFERENCE" };
+	static const char* TEMPORAL_NAME[NB_TEMPORAL] = { "Year", "Month", "Day", "Hour", "Jday", "No" };
+	static const char* TEMPORAL_NAME_UE[NB_TEMPORAL] = { "YEAR", "MONTH", "DAY", "HOUR", "JDAY", "NO" };
+	static const char* TEMPORAL_NAME_UF[NB_TEMPORAL] = { "ANNEE", "MOIS", "JOUR", "HEURE", "JJ", "NO" };
 
 
 	const char* GetTemporalName(size_t t, bool bUpperCase)

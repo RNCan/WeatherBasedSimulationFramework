@@ -320,8 +320,9 @@ namespace WBSF
 	void CModelExecutionDlg::OnModelHelp()
 	{
 		ASSERT(!m_model.GetHelpFileName().empty());
-		string argument = WBSF::GetFM().Model().GetFilePath(m_model.GetHelpFileName());
-		ShellExecuteW(m_hWnd, L"open", CString(argument.c_str()), NULL, NULL, SW_SHOW);
+		string argument = WBSF::GetFM().Model().GetHelpFilePath(m_model.GetHelpFileName());
+		if (!argument.empty())
+			ShellExecuteW(m_hWnd, L"open", CString(argument.c_str()), NULL, NULL, SW_SHOW);
 	}
 
 	void CModelExecutionDlg::OnModelDescription()

@@ -448,7 +448,7 @@ namespace WBSF
 		{
 			CParameterVariation p;
 			p.m_name = at(i).m_name;
-			p.m_pos = i;
+//			p.m_pos = i;
 			p.m_bActive = false;
 			p.m_type = at(i).m_type;
 			p.m_min = ToFloat(at(i).m_min);

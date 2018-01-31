@@ -54,10 +54,10 @@ namespace WBSF
 		void SetMember(size_t i, const std::string& str);
 
 		virtual std::string GetFilePath(size_t v);
-		virtual bool UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& station, CCallback& callback);
-		virtual bool UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
-		bool UpdateStandardDeviation(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
-		virtual ERMsg ExportMonthlyValue(int firstRefYear, int firstccYear, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback);
+		virtual bool UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& station, CCallback& callback);
+		virtual bool UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
+		bool UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
+		virtual ERMsg ExportMonthlyValue(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback);
 
 		int m_firstYear;
 		int m_lastYear;
@@ -91,7 +91,7 @@ namespace WBSF
 		void Reset();
 
 		enum TCCPeriod { P_1961_1990, P_1971_2000, P_1981_2010, P_1991_2020, P_2001_2030, P_2011_2040, P_2021_2050, P_2031_2060, P_2041_2070, P_2051_2080, P_2061_2090, P_2071_2100, NB_CC_PERIODS };
-		enum TMEMBER { INPUT_DB, FIRST_YEAR, LAST_YEAR, MINIMUM_YEARS, NB_NEIGHBOR, OUPUT_DB, APPLY_CC, INPUT_MMG, REF_PERIOD_INDEX, CCPERIOD_INDEX, NB_MEMBER };//CREATE_ALL, 
+		enum TMEMBER { INPUT_DB, FIRST_YEAR, LAST_YEAR, MINIMUM_YEARS, NB_NEIGHBOR, OUPUT_DB, APPLY_CC, INPUT_MMG, FIRST_REF_YEAR, NB_REF_YEARS, CCPERIOD_INDEX, NB_MEMBER };//CREATE_ALL, 
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 		static const int FIRST_YEAR_OF_FIRST_PERIOD = 1961;
@@ -127,7 +127,8 @@ namespace WBSF
 		//climatic change section
 		bool m_bApplyCC;
 		std::string m_inputMMGFilePath;
-		int m_refPeriodIndex;
+		int m_firstRefYear;
+		size_t m_nbRefYears;
 		CCPeriodBitset m_CCPeriodIndex;
 		//bool m_bCreateAll;
 

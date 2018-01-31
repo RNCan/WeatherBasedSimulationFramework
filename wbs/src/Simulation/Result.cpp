@@ -257,7 +257,32 @@ namespace WBSF
 		{
 		case LOCATION:		str = GetLocation(sectionNo).m_name.c_str(); break;
 		//case PARAMETER:		str = ToString(GetMetadata().GetPno(sectionNo) + 1); break;
-		case PARAMETER:		str = GetParameterSet(sectionNo).GetName(); break;
+		case PARAMETER:
+		{
+			size_t s = GetMetadata().GetPno(sectionNo);
+			const CModelInputVector& inputs = GetMetadata().GetParameterSet();
+			if (inputs.m_variation.size() == inputs.m_pioneer.size())
+			{
+				for (size_t i = 0; i < inputs.m_variation.size(); i++)
+				{
+					if (inputs.m_variation[i].m_bActive)
+					{
+						if (!str.empty())
+							str += ",";
+
+						if (i < inputs[s].size())
+							str += inputs[s].at(i).GetStr();
+						else
+							str += "?";
+						//str += inputs.m_variation[i].m_name;
+					}
+
+				}
+			}
+
+			//str = GetParameterSet(sectionNo).GetName();
+			break;
+		}
 		case REPLICATION:	str = ToString(GetReplication(sectionNo) + 1); break;
 		case TIME_REF:
 		{
@@ -482,6 +507,24 @@ namespace WBSF
 			//}
 			break;
 		case PARAMETER:
+		{
+			const CModelInputVector& inputs = GetMetadata().GetParameterSet();
+			if (inputs.m_variation.size() == inputs.m_pioneer.size())
+			{
+
+				for (size_t i = 0; i < inputs.m_variation.size(); i++)
+				{
+					if (inputs.m_variation[i].m_bActive)
+					{
+						if (!title.empty())
+							title += ",";
+
+						title += inputs.m_variation[i].m_name;
+					}
+				}
+			}
+			break;
+		}
 		case REPLICATION:
 		case TIME_REF:	title = CDimension::GetDimensionTitle(d); break;
 		case VARIABLE:

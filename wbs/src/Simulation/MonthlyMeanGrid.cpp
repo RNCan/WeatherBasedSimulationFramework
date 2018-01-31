@@ -280,7 +280,7 @@ namespace WBSF
 	//}
 
 
-	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, int firstCCYear, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& stationIn, CCallback& callback)
+	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& stationIn, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -325,11 +325,11 @@ namespace WBSF
 
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
-
-		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		
+		if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstCCYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstCCYear, nbCCYears, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
@@ -458,7 +458,7 @@ namespace WBSF
 	}
 
 	//after created the normal station from daily station, update normal standard deviation when they exist
-	bool CMonthlyMeanGrid::UpdateStandardDeviation(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
+	bool CMonthlyMeanGrid::UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -499,10 +499,10 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstCCYear, nbCCYears, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
@@ -538,7 +538,7 @@ namespace WBSF
 		return true;
 	}
 	 
-	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, int firstccYear, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
+	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -576,10 +576,10 @@ namespace WBSF
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
 
-		if (!GetMonthlyMean(firstRefYear, 30, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+		if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
-		if (!GetMonthlyMean(firstccYear, 30, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+		if (!GetMonthlyMean(firstCCYear, nbCCYears, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
 			return false;
 
 
@@ -650,7 +650,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CMonthlyMeanGrid::ExportMonthlyValue(int firstRefYear, int firstCCYear, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback)
+	ERMsg CMonthlyMeanGrid::ExportMonthlyValue(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
 
@@ -774,7 +774,7 @@ namespace WBSF
 	}
 	//**********************************************************************************
 	const char* CNormalFromDaily::XML_FLAG = "Daily2Normal";
-	const char* CNormalFromDaily::MEMBER_NAME[NB_MEMBER] = { "InputFilePath", "FirstYear", "LastYear", "MinimumYears", "nbNeighbor", "OuputFilePath", "ApplyCC", "MMGFilePath", "refPeriodIndex", "CCPeriodIndex"};//, "CreateAll" 
+	const char* CNormalFromDaily::MEMBER_NAME[NB_MEMBER] = { "InputFilePath", "FirstYear", "LastYear", "MinimumYears", "nbNeighbor", "OuputFilePath", "ApplyCC", "MMGFilePath", "FirstRefYear", "NbRefYears", "CCPeriodIndex" };//, "CreateAll" 
 
 	CNormalFromDaily::CNormalFromDaily()
 	{
@@ -786,15 +786,16 @@ namespace WBSF
 		m_inputDBFilePath.empty();
 		m_outputDBFilePath.empty();
 
-		m_firstYear = 1971;
-		m_lastYear = 2000;
+		m_firstYear = 1981;
+		m_lastYear = 2010;
 		m_nbYearMin = 10;
 		m_nbNeighbor = 3;
 
 		//climatic change section
 		m_bApplyCC = false;
 		m_inputMMGFilePath.empty();
-		m_refPeriodIndex = 0;
+		m_firstRefYear = 1981;
+		m_nbRefYears = 30;
 		for (size_t i = P_1991_2020; i < NB_CC_PERIODS; i++)
 			m_CCPeriodIndex.set(i);
 		//m_bCreateAll = false;
@@ -815,9 +816,9 @@ namespace WBSF
 		case OUPUT_DB: str = GetRelativePath(path, m_outputDBFilePath.c_str()); break;
 		case APPLY_CC: str = ToString(m_bApplyCC); break;
 		case INPUT_MMG: str = GetRelativePath(path, m_inputMMGFilePath.c_str()); break;
-		case REF_PERIOD_INDEX: str = ToString(m_refPeriodIndex); break;
+		case FIRST_REF_YEAR: str = ToString(m_firstRefYear); break;
+		case NB_REF_YEARS: str = ToString(m_nbRefYears); break;
 		case CCPERIOD_INDEX: str = ToString(m_CCPeriodIndex); break;
-		//case CREATE_ALL: str = ToString(m_bCreateAll); break;
 		default: ASSERT(false);
 		}
 
@@ -838,9 +839,9 @@ namespace WBSF
 		case OUPUT_DB: m_outputDBFilePath = GetAbsolutePath(path, str); break;
 		case APPLY_CC: m_bApplyCC = ToBool(str); break;
 		case INPUT_MMG: m_inputMMGFilePath = GetAbsolutePath(path, str); break;
-		case REF_PERIOD_INDEX: m_refPeriodIndex = ToInt(str); break;
+		case FIRST_REF_YEAR: m_firstRefYear = ToInt(str); break;
+		case NB_REF_YEARS: m_nbRefYears = ToSizeT(str); break;
 		case CCPERIOD_INDEX: m_CCPeriodIndex = ToInt(str); break;
-		//case CREATE_ALL: m_bCreateAll = ToBool(str); break;
 		default: ASSERT(false);
 		}
 	}
@@ -956,7 +957,8 @@ namespace WBSF
 								if (m_bApplyCC)
 								{
 									//now adjust standard deviation if they are present
-									MMG.UpdateStandardDeviation(GetFirstYear(m_refPeriodIndex), GetFirstYear(p), m_nbNeighbor, m_maxDistance, m_power, station, callback);
+									
+									MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
 								}
 
 								//add normal to database
@@ -1029,7 +1031,7 @@ namespace WBSF
 		if (dailyStation.size() >= m_nbYearMin)
 		{
 			//coord of the station
-			if (!mmg.UpdateData(GetFirstYear(m_refPeriodIndex), GetFirstYear(p), m_nbNeighbor, m_maxDistance, m_power, dailyStation, callback))
+			if (!mmg.UpdateData(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, dailyStation, callback))
 			{
 				dailyStation.clear();
 			}

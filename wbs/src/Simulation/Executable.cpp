@@ -72,8 +72,22 @@ StringVector CParentInfo::GetDimensionList(int dim)const
 	case PARAMETER:
 	{
 		list.resize(m_parameterset.size());
-		for (int i = 0; i<m_parameterset.size(); i++)
-			list[i] = m_parameterset[i].GetName();
+		for (size_t i = 0; i<m_parameterset.size(); i++)
+		{
+			if (m_parameterset[i].size() == m_parameterset.m_variation.size())
+			{
+				for (size_t j = 0; j < m_parameterset.m_variation.size(); j++)
+				{
+					if (m_parameterset.m_variation[j].m_bActive)
+					{
+						if (!list[i].empty())
+							list[i] += ",";
+
+						list[i] += m_parameterset[i][j].GetStr();
+					}
+				}
+			}
+		}
 	}break;
 
 	case REPLICATION: list.push_back(ToString(m_nbReplications));break;
@@ -412,7 +426,7 @@ void CExecutable::LoadDefaultCtrl()
 
 //**************************************************************
 //CExecutable
-const char* CExecutable::MEMBERS_NAME[NB_MEMBERS] = {"Name", "InternalName", "Description", "Execute", "Export", "GraphArray", "ExecutableArray" };
+const char* CExecutable::MEMBERS_NAME[NB_MEMBERS] = {"Name", "InternalName", "Description", "Execute", "Export", /*"GraphArray", */"ExecutableArray" };
 CExecuteCtrl CExecutable::CTRL;
 
 
@@ -441,7 +455,7 @@ void CExecutable::Reset()
 	m_name.empty();
 	m_description.empty();
 	m_export.Reset();
-	m_graphArray.clear();
+	//m_graphArray.clear();
 	m_executables.clear();
 }
 
@@ -456,7 +470,7 @@ CExecutable& CExecutable::operator =(const CExecutable& in)
 		m_internalName=in.m_internalName;
 		m_description=in.m_description;
 		m_export =in.m_export;
-		m_graphArray = in.m_graphArray;
+		//m_graphArray = in.m_graphArray;
 		m_executables=in.m_executables;
 	}
 
@@ -472,7 +486,7 @@ bool CExecutable::operator == (const CExecutable& in)const
 	if(m_internalName!=in.m_internalName)bEqual=false;
 	if(m_description!=in.m_description)bEqual=false;
 	if(m_export!=in.m_export)bEqual=false;
-	if(m_graphArray!=in.m_graphArray)bEqual=false;
+	//if(m_graphArray!=in.m_graphArray)bEqual=false;
 	
 	if(m_executables!=in.m_executables)bEqual=false;
 
@@ -573,9 +587,7 @@ ERMsg CExecutable::ExecuteBasic(const CFileManager& fileManager, CCallback& call
 				ExecuteScript(fileManager, callback);
 		}
 
-		//if( msg && m_graph.m_bAutoExport)
-			//msg = ExportGraph(fileManager, callback);
-
+		
 		callback.AddMessage( "");
 		callback.AddMessage( GetCurrentTimeString());
 		callback.AddMessage("*******************************************");
@@ -763,9 +775,7 @@ std::string CExecutable::GetExportFilePath(const CFileManager& fileManager, int 
 	{
 		switch( format )
 		{
-		case EXPORT_CSV: 
-		case EXPORT_CSV_LOC: fileName += ".csv"; break;
-		case EXPORT_SHAPEFILE: fileName += ".shp"; break;
+		case EXPORT_CSV: fileName += ".csv"; break;
 		default: ASSERT(false);
 		}
 	}
@@ -773,38 +783,21 @@ std::string CExecutable::GetExportFilePath(const CFileManager& fileManager, int 
 	return fileManager.GetOutputPath() + fileName;
 }
 
-std::string CExecutable::GetGraphFilePath(const CFileManager& fileManager)const
-{
-/*	std::string fileName = m_graph.m_fileName;
-	if( fileName.empty() )
-		fileName = "Graph ("+ m_name + ").csv";
-
-	if( GetFileExtension( fileName ).empty() )
-		fileName += ".csv";
-
-	return fileManager.GetOutputPath() + fileName;
-	*/
-	return "";
-}
 
 
 ERMsg CExecutable::Export(const CFileManager& fileManager, int format, CCallback& callback)
 {
+	ASSERT(format == EXPORT_CSV);
+
 	ERMsg msg;
 
-	switch(format)
-	{
-	case EXPORT_CSV: 
-	case EXPORT_CSV_LOC: msg = ExportAsCSV(fileManager, format==EXPORT_CSV_LOC, callback); break;
-	case EXPORT_SHAPEFILE: msg = ExportAsShapefile(fileManager, callback); break;
-	default: ASSERT(false);
-	}
-
+	msg = ExportAsCSV(fileManager, callback); 
+	
 	return msg;
 }
 
 
-ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCallback& callback)
+ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, CCallback& callback)
 {
 	ERMsg msg;
 
@@ -814,25 +807,25 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 	CVariableDefineVector variables = m_export.m_variables;
 	
-	if( bAsLoc )
-	{
-		//verify that Name, Lat, lon and elevation is exported. if not we add it
-		bool bOk[CLocation::NB_MEMBER] = {0};
-		for(int j=0; j<variables.size(); j++)
-		{
-			if( variables[j].m_dimension == LOCATION )
-				bOk[variables[j].m_field] = true;
-		}
+	//if( bAsLoc )
+	//{
+	//	//verify that Name, Lat, lon and elevation is exported. if not we add it
+	//	bool bOk[CLocation::NB_MEMBER] = {0};
+	//	for(int j=0; j<variables.size(); j++)
+	//	{
+	//		if( variables[j].m_dimension == LOCATION )
+	//			bOk[variables[j].m_field] = true;
+	//	}
 
-		if( !bOk[CLocation::ID] )
-			variables.push_back(CVariableDefine(LOCATION, CLocation::ID));
-		if( !bOk[CLocation::LAT] )
-			variables.push_back(CVariableDefine(LOCATION, CLocation::LAT));
-		if( !bOk[CLocation::LON] )
-			variables.push_back(CVariableDefine(LOCATION, CLocation::LON));
-		if( !bOk[CLocation::ELEV] )
-			variables.push_back(CVariableDefine(LOCATION, CLocation::ELEV));
-	}
+	//	if( !bOk[CLocation::ID] )
+	//		variables.push_back(CVariableDefine(LOCATION, CLocation::ID));
+	//	if( !bOk[CLocation::LAT] )
+	//		variables.push_back(CVariableDefine(LOCATION, CLocation::LAT));
+	//	if( !bOk[CLocation::LON] )
+	//		variables.push_back(CVariableDefine(LOCATION, CLocation::LON));
+	//	if( !bOk[CLocation::ELEV] )
+	//		variables.push_back(CVariableDefine(LOCATION, CLocation::ELEV));
+	//}
 
 	
 	//Open export file
@@ -873,11 +866,17 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 
 					line += tmp;
 				}
+				else if (variables[j].m_dimension == PARAMETER)
+				{
+					string tmp = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
+					std::replace(tmp.begin(), tmp.end(), ',', listDelimiter);
+					line += tmp;
+				}
 				else if( variables[j].m_dimension == TIME_REF)
 				{
 					line +=  timeFormat.GetHeader(pResult->GetTM());
 				}
-				else if( variables[j].m_dimension < VARIABLE )
+				else if( variables[j].m_dimension == REPLICATION )
 				{
 					line += pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
 				}
@@ -950,7 +949,24 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 							}
 
 							break;
-						case PARAMETER:	tmp = param[pNo].GetName(); break;
+						case PARAMETER:
+						{
+							if (param.m_variation.size() == param.m_pioneer.size())
+							{
+								for (size_t i = 0; i < param.m_variation.size(); i++)
+								{
+									if (param.m_variation[i].m_bActive)
+									{
+										if (!tmp.empty())
+											tmp += listDelimiter;
+
+										tmp += param[pNo][i].GetStr();
+									}
+								}
+							}
+							
+							break;
+						}
 						case REPLICATION: tmp = ToString(rNo + 1); break;
 						case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
 						default: ASSERT(false);
@@ -997,380 +1013,6 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCa
 	return msg;
 }
 
-//ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCallback& callback)
-//{
-//	ERMsg msg;
-//
-//	char listDelimiter = CTRL.m_listDelimiter;
-//	char decimalDelimiter = CTRL.m_decimalDelimiter;
-//	CTRefFormat timeFormat = CTRL.m_timeFormat;
-//
-//	CVariableDefineVector variables = m_export.m_variables;
-//
-//	//Open export file
-//	ofStream file;
-//	msg = file.open(GetExportFilePath(fileManager, EXPORT_CSV));
-//	if (!msg)
-//		return msg;
-//
-//	CVariableSelectionVector statistic(m_export.m_statistic);
-//
-//	//Open database
-//	CResultPtr pResult = GetResult(fileManager);
-//	if (pResult && pResult->Open())
-//	{
-//		callback.AddMessage(FormatMsg(IDS_SIM_EXPORT, GetExportFilePath(fileManager, EXPORT_CSV)));
-//		callback.PushTask("Export", pResult->GetNbRows());
-//		
-//
-//		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
-//		const CLocationVector& loc = pResult->GetMetadata().GetLocations();
-//		const CModelInputVector& param = pResult->GetMetadata().GetParameterSet();
-//		//Write header
-//		{
-//			std::string line;
-//			for (size_t j = 0; j<variables.size(); j++)
-//			{
-//				if (j>0)
-//					line += listDelimiter;
-//
-//				if (variables[j].m_dimension == LOCATION)
-//				{
-//					string tmp = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
-//					std::replace(tmp.begin(), tmp.end(), ',', listDelimiter);
-//
-//					line += tmp;
-//				}
-//				else if (variables[j].m_dimension == TIME_REF)
-//				{
-//					line += timeFormat.GetHeader(pResult->GetTM());
-//				}
-//				else if (variables[j].m_dimension < VARIABLE)
-//				{
-//					line += pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, 0);
-//				}
-//				else
-//				{
-//					std::string title;
-//					size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
-//					if (col != UNKNOWN_POS)
-//					{
-//						for (size_t s = statistic.find_first(), S = 0; s != UNKNOWN_POS; s = statistic.find_next(s), S++)
-//						{
-//							title = pResult->GetFieldTitle(variables[j].m_dimension, variables[j].m_field, s);
-//
-//							if (S>0)
-//								line += listDelimiter;
-//
-//							line += title;
-//
-//						}
-//					}
-//				}
-//			}
-//
-//			file.write(line + "\n");
-//		}
-//
-//		//Write data
-//		static const size_t MAX_BLOCK_SIZE = 2000;
-//		size_t nbBlocks = ceil( (float)pResult->GetNbRows() / MAX_BLOCK_SIZE);
-//		for (size_t b = 0; b < nbBlocks && msg; b++)
-//		{
-//			array<string, MAX_BLOCK_SIZE> blocks;
-//			array<bool, MAX_BLOCK_SIZE> bHaveData;
-//			bHaveData.fill(false);
-//
-//			size_t i0 = b * MAX_BLOCK_SIZE;
-//			size_t i1 = min(MAX_BLOCK_SIZE, pResult->GetNbRows() - i0);
-//			
-//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads)
-//			for (int ii = 0; ii < i1; ii++)
-//			{
-//#pragma omp flush(msg)
-//				if (msg)
-//				{
-//
-//					size_t i = i0 + ii;
-//					size_t sectionNo = pResult->GetSectionNo(i);
-//					size_t lNo = pResult->GetMetadata().GetLno(sectionNo);
-//					size_t pNo = pResult->GetMetadata().GetPno(sectionNo);
-//					size_t rNo = pResult->GetMetadata().GetRno(sectionNo);
-//
-//					//std::string line;
-//					for (size_t j = 0; j < variables.size(); j++)
-//					{
-//						if (j > 0)
-//							blocks[ii] += listDelimiter;
-//
-//						std::string tmp;
-//						if (variables[j].m_dimension < VARIABLE)
-//						{
-//							switch (variables[j].m_dimension)
-//							{
-//							case LOCATION:	tmp = loc[lNo].GetMember(variables[j].m_field); break;
-//							case PARAMETER:	tmp = param[pNo].GetName(); break;
-//							case REPLICATION: tmp = ToString(rNo + 1); break;
-//							case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
-//							default: ASSERT(false);
-//							}
-//						}
-//						else
-//						{
-//							size_t col = pResult->GetCol(VARIABLE, variables[j].m_field);
-//							if (col < pResult->GetNbCols())
-//							{
-//								bHaveData[ii] = bHaveData[ii] || pResult->GetData(i, col)[NB_VALUE]>0;
-//
-//								for (size_t s = statistic.find_first(), S = 0; s != UNKNOWN_POS; s = statistic.find_next(s), S++)
-//								{
-//									if (S > 0)
-//										tmp += listDelimiter;
-//
-//									string tmp2 = pResult->GetDataValue(i, col, s);
-//									//if value contain list delimiter (like time format), remove it
-//									std::replace(tmp2.begin(), tmp2.end(), listDelimiter, listDelimiter != '-' ? '-' : '/');
-//
-//									tmp += tmp2;
-//								}
-//							}
-//						}
-//
-//						blocks[ii] += tmp.empty() ? " " : tmp;
-//					}//for all variable
-//
-//					std::replace(blocks[ii].begin(), blocks[ii].end(), '.', decimalDelimiter);
-//
-////#pragma omp critical(stepIt)
-//	//				{
-////#pragma omp flush(msg)
-////					if (msg)
-//					msg += callback.StepIt();
-////#pragma omp flush(msg)
-//	//				}
-//
-//				}//if msg
-//			}//for all rows
-//
-//			
-//			for (size_t ii = 0; ii < i1&& msg; ii++)
-//			{
-//				if (CTRL.m_bExportAllLines || bHaveData[ii])
-//					file << blocks[ii] << endl;
-//			}
-//
-//
-//			
-//		}//for all blocks
-//
-//		callback.PopTask();
-//	}//if open
-//
-//	file.close();
-//
-//	return msg;
-//}
-
-ERMsg CExecutable::ExportAsShapefile(const CFileManager& fileManager, CCallback& callback)
-{
-	ERMsg msg;
-	/*
-	OGRRegisterAll();
-
-	const char *pszDriverName = "ESRI Shapefile";
-    OGRSFDriver *poDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(pszDriverName );
-    
-    if( poDriver == NULL )
-    {
-		std::string error;
-		error.Format("%s driver not available.", pszDriverName );
-		msg.ajoute(error);
-		return msg;
-        //exit( 1 );
-    }
-
-	
-	std::string filePath = GetExportFilePath(fileManager, EXPORT_SHAPEFILE);
-	if( UtilWin::FileExist(filePath) )
-	{
-		OGRErr err = poDriver->DeleteDataSource(filePath);
-	
-		if( err != OGRERR_NONE )
-		{
-			std::string error;
-			error.Format("Unable to delete %s.", (LPCTSTR)filePath );
-			msg.ajoute(error);
-			return msg;
-		}
-	}
-
-    OGRDataSource *poDS = poDriver->CreateDataSource( filePath, NULL );
-    if( poDS == NULL )
-    {
-        //printf( "Creation of output file failed.\n" );
-        //exit( 1 );
-		msg.ajoute("Creation of output file failed.");
-		return msg;
-    }
-
-	OGRSpatialReference oSRS;
-	oSRS.SetWellKnownGeogCS(  "WGS84");
-	
-    OGRLayer *poLayer = poDS->CreateLayer( "Layer1", &oSRS, wkbPoint, NULL );
-    if( poLayer == NULL )
-    {
-		msg.ajoute("Layer creation failed.");
-		return msg;
-    }
-
-	CTRefFormat timeFormat = CTRL.m_timeFormat;
-	
-	//Open export file
-	
-	//Open database
-	CResultPtr pResult = GetResult(fileManager);
-	if( pResult && pResult->Open() )
-	{
-		std::string feedback;
-		feedback.FormatMessage(IDS_SIM_EXPORT, GetExportFilePath(fileManager, EXPORT_SHAPEFILE) );
-		callback.AddMessage(feedback);
-		callback.SetCurrentDescription("Export Shapefile");
-	    callback.SetNbStep(0, pResult->GetNbRows(), 1 );
-		callback.SetStartNewStep(true);
-
-		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
-		const CLocationVector& loc = pResult->GetMetadata().GetLOC();
-		//Write header
-		{
-			std::string line;
-			for(int j=0; j<m_export.m_variables.size(); j++)
-			{
-				if( m_export.m_variables[j].m_dimension == TIME_REF)
-				{
-					std::string name = timeFormat.GetHeader(pResult->GetTM());
-					OGRFieldDefn oField( name, OFTString );
-					oField.SetWidth(32);
-					if( poLayer->CreateField( &oField ) != OGRERR_NONE )
-					{
-						msg.ajoute("Creating Name field failed.");
-						return msg;
-					}
-
-				}
-				else if( m_export.m_variables[j].m_dimension < VARIABLE )
-				{
-					std::string name = pResult->GetFieldTitle(m_export.m_variables[j].m_dimension, m_export.m_variables[j].m_field, 0);
-					OGRFieldDefn oField( name, OFTString );
-					oField.SetWidth(32);
-					if( poLayer->CreateField( &oField ) != OGRERR_NONE )
-					{
-						msg.ajoute("Creating Name field failed.");
-						return msg;
-					}
-				}
-				else
-				{
-					std::string title;
-					int col = pResult->GetCol(VARIABLE, m_export.m_variables[j].m_field);
-					if( col>=0)
-					{
-						for(int s=0; s<m_export.m_statistic.size(); s++)
-						{
-							
-							std::string name = pResult->GetFieldTitle(m_export.m_variables[j].m_dimension, m_export.m_variables[j].m_field, m_export.m_statistic[s]);
-							OGRFieldDefn oField( name, pResult->GetMetadata().GetDataTM()==-1?OFTReal:OFTString );
-							oField.SetWidth(32);
-							if( poLayer->CreateField( &oField ) != OGRERR_NONE )
-							{
-								msg.ajoute("Creating Name field failed.");
-								return msg;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		//Write data
-		for(int i=0; i<pResult->GetNbRows()&&msg; i++)
-		{
-			OGRFeature *poFeature=OGRFeature::CreateFeature( poLayer->GetLayerDefn() );
-			ENSURE(poFeature);
-
-			int sectionNo = pResult->GetSectionNo(i);
-			int lNo = pResult->GetMetadata().GetLno(sectionNo);
-			int pNo = pResult->GetMetadata().GetPno(sectionNo);
-			int rNo = pResult->GetMetadata().GetRno(sectionNo);
-
-			
-			for(int j=0, jj=0; j<m_export.m_variables.size(); j++)
-			{
-				//std::string tmp;
-				if( m_export.m_variables[j].m_dimension < VARIABLE )
-				{
-					std::string tmp;
-					switch(m_export.m_variables[j].m_dimension)
-					{
-					case LOCATION:	tmp = loc[lNo].GetMember(m_export.m_variables[j].m_field); break;
-					case PARAMETER:	tmp = ToString(pNo+1); break;
-					case REPLICATION: tmp = ToString(rNo+1); break;
-					case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
-					default: ASSERT(false);
-					}
-					poFeature->SetField( jj, (LPCTSTR)tmp );
-					jj++;
-				} 
-				else
-				{
-					int col = pResult->GetCol(VARIABLE, m_export.m_variables[j].m_field);
-					if( col >= 0 )
-					{
-						//for all statistics
-						for(int s=0; s<m_export.m_statistic.size(); s++)
-						{
-							std::string tmp = pResult->GetDataValue(i, col, m_export.m_statistic[s]);
-							
-							if( pResult->GetMetadata().GetDataTM()==-1)
-							{
-								double value = ToDouble(tmp);
-								poFeature->SetField( jj, value );
-							}
-							else
-							{
-								poFeature->SetField( jj, (LPCTSTR)tmp );
-							}
-
-							jj++;
-						}
-					}
-				}
-			}//for all variable
-
-			OGRPoint pt;
-			
-			pt.setX( loc[lNo].GetLon() );
-			pt.setY( loc[lNo].GetLat() );
- 
-			poFeature->SetGeometry( &pt ); 
-
-			if( poLayer->CreateFeature( poFeature ) != OGRERR_NONE )
-			{
-				//printf( "Failed to create feature in shapefile.\n" );
-				//exit( 1 );
-				msg.ajoute("Failed to create feature in shapefile.");
-				return msg;
-			}
-
-			OGRFeature::DestroyFeature( poFeature );
-	
-			msg += callback.StepIt();
-		}//for all rows
-	}
-
-    OGRDataSource::DestroyDataSource( poDS );
-	*/
-	return msg;
-}
 
 ERMsg CExecutable::ExecuteScript(const CFileManager& fileManager, CCallback& callback)
 {
@@ -1388,115 +1030,6 @@ ERMsg CExecutable::ExecuteScript(const CFileManager& fileManager, CCallback& cal
 	return msg;
 }
 
-ERMsg CExecutable::ExportGraph(const CFileManager& fileManager, CCallback& callback)
-{
-	ERMsg msg;
-
-/*	
-	//Open export file
-	CStdioFileEx file;
-	msg = file.Open(GetGraphFilePath(fileManager), CFile::modeCreate|CFile::modeWrite);
-	if( !msg )
-		return msg;
-
-	//Open database
-	CResultPtr pResult = GetResult(fileManager);
-	if( pResult && pResult->Open() )
-	{
-		std::string feedback;
-		feedback.FormatMessage(IDS_SIM_EXPORT, GetGraphFilePath(fileManager) );
-		callback.AddMessage(feedback);
-		callback.SetCurrentDescription("Graph");
-	    callback.SetNbStep(0, pResult->GetNbRows(), 1 );
-		callback.SetStartNewStep(true);
-
-		const CModelOutputVariableDefVector& outputVar = pResult->GetMetadata().GetOutputDefinition();
-		const CLocationVector& loc = pResult->GetMetadata().GetLOC();
-		//Write header
-		{
-			std::string line;
-			for(int j=0; j<m_graph.m_variables.size(); j++)
-			{
-				if( j>0)
-					line += m_graph.m_delimiter;
-
-				if( m_graph.m_variables[j].m_dimension < VARIABLE )
-				{
-					line += pResult->GetFieldTitle(m_graph.m_variables[j].m_dimension, m_graph.m_variables[j].m_field);
-					//line += m_graph.m_variables[j].m_str;
-				}
-				else
-				{
-					//int col = >GetCol(m_graph.m_variables[j].m_dimension, m_graph.m_variables[j].m_field);
-					std::string title = pResult->GetFieldTitle(m_graph.m_variables[j].m_dimension, m_graph.m_variables[j].m_field);
-					for(int s=0; s<m_graph.m_statistic.size(); s++)
-					{
-						if( s>0)
-							line += m_graph.m_delimiter;
-						
-						line += title + "(" + CStatisticComboBox::GetStatisticTitle(m_graph.m_statistic[s])+")";
-					}
-				}
-			}
-				
-			file.WriteString(line+"\n");
-		}
-
-		//Write data
-		for(int i=0; i<pResult->GetNbRows()&&msg; i++)
-		{
-			int sectionNo = pResult->GetSectionNo(i);
-			int lNo = pResult->GetMetadata().GetLno(sectionNo);
-			int pNo = pResult->GetMetadata().GetPno(sectionNo);
-			int rNo = pResult->GetMetadata().GetRno(sectionNo);
-
-			std::string line;
-			for(int j=0; j<m_graph.m_variables.size(); j++)
-			{
-				if( j>0 )
-					line += m_graph.m_delimiter;
-				
-				std::string tmp;
-				if( m_graph.m_variables[j].m_dimension < VARIABLE )
-				{
-					switch(m_graph.m_variables[j].m_dimension)
-					{
-					case LOCATION:	tmp = loc[lNo].GetMember(m_graph.m_variables[j].m_field); break;
-					case PARAMETER:	tmp = ToString(pNo+1); break;
-					case REPLICATION: tmp = ToString(rNo+1); break;
-					case TIME_REF:	tmp = pResult->GetDataValue(i, TIME_REF, 0); break;
-					default: ASSERT(false);
-					}
-				} 
-				else
-				{
-			
-					int col = pResult->GetCol(VARIABLE, m_graph.m_variables[j].m_field);
-					for(int s=0; s<m_graph.m_statistic.size(); s++)
-					{
-						if( s>0)
-							tmp += m_graph.m_delimiter;
-
-						if( col >= 0 )
-							tmp += pResult->GetDataValue(i, col, m_graph.m_statistic[s]);
-						else 
-							tmp += "Error";
-				
-					}
-				}
-
-				line += tmp.empty()?" ":tmp; 
-			}//for all variable
-
-			file.WriteString(line+"\n");
-			msg += callback.StepIt();
-		}//for all rows
-	}
-
-	file.Close();
-	*/
-	return msg;
-}
 
 
 void CExecutable::CopyToClipBoard()
@@ -1574,7 +1107,7 @@ void CExecutable::writeStruc(zen::XmlElement& output)const
 	out[GetMemberName(DESCRIPTION)](m_description);
 	out[GetMemberName(EXECUTE)](m_bExecute);
 	out[GetMemberName(EXPORT_DATA)](m_export);
-	out[GetMemberName(GRAPHS)](m_graphArray);
+//	out[GetMemberName(GRAPHS)](m_graphArray);
 	out[GetMemberName(EXECUTABLES)](m_executables);
 }
 
@@ -1587,7 +1120,7 @@ bool CExecutable::readStruc(const zen::XmlElement& input)
 	in[GetMemberName(DESCRIPTION)](m_description);
 	in[GetMemberName(EXECUTE)](m_bExecute);
 	in[GetMemberName(EXPORT_DATA)](m_export);
-	in[GetMemberName(GRAPHS)](m_graphArray);
+	//in[GetMemberName(GRAPHS)](m_graphArray);
 	in[GetMemberName(EXECUTABLES)](m_executables);
 
 	return true;

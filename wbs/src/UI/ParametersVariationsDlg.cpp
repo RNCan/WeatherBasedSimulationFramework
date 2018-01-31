@@ -84,7 +84,7 @@ namespace WBSF
 		AddProperty(new CStdGridProperty(name[PV_MIN], 0, description[PV_MIN], PV_MIN));
 		AddProperty(new CStdGridProperty(name[PV_MAX], 0, description[PV_MAX], PV_MAX));
 		AddProperty(new CStdGridProperty(name[PV_STEP], 0, description[PV_STEP], PV_STEP));
-		SetSelection(0);
+		//SetSelection(0);
 	}
 
 
@@ -261,13 +261,13 @@ namespace WBSF
 		DDX_Control(pDX, IDC_PV_GENERATION_TYPE, m_generationTypeCtrl);
 		DDX_Control(pDX, IDC_PV_NB_VARIATIONS, m_nbVariationsCtrl);
 
+		//{
+		//	m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
+		//	m_parametersVariations.m_nbVariation = ToInt( m_nbVariationsCtrl.GetString());
+		//}
+		//else
 
-		if (pDX->m_bSaveAndValidate)
-		{
-			m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
-			m_parametersVariations.m_nbVariation = ToInt( m_nbVariationsCtrl.GetString());
-		}
-		else
+		if (!pDX->m_bSaveAndValidate)
 		{
 			m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
 			m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
@@ -276,10 +276,11 @@ namespace WBSF
 			FillParameters();
 			//select parameters
 			SelectParameters();
+
+			//UpdateCtrl();
 		}
 
 	}
-
 
 	
 
@@ -288,7 +289,7 @@ namespace WBSF
 	{
 		CDialog::OnInitDialog();
 
-		UpdateCtrl();
+		//UpdateCtrl();
 
 		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = option.GetProfilePoint(_T("ParametersVariationsDlg"), CPoint(480, 30));
@@ -323,6 +324,11 @@ namespace WBSF
 
 		//update property
 		m_propertiesCtrl.SetSelection(m_propertiesCtrl.GetSelection());
+		
+
+		m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
+		m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
+		UpdateCtrl();
 	}
 
 	void CParametersVariationsDlg::OnSelectionChange(NMHDR* pNMHDR, LRESULT* pResult)
@@ -381,6 +387,7 @@ namespace WBSF
 	void CParametersVariationsDlg::OnGeneratioTypeChange()
 	{
 		m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
+		UpdateCtrl();
 	}
 
 	void CParametersVariationsDlg::OnNbVariationChange()
@@ -399,7 +406,7 @@ namespace WBSF
 			GetDlgItem(IDC_CMN_STATIC2)->ShowWindow(SW_HIDE);
 		}
 
-		bool bEnable = m_generationTypeCtrl.GetCurSel() != CB_ERR;
+		bool bEnable = m_generationTypeCtrl.GetCurSel() == CParametersVariationsDefinition::RANDOM_VARIATION;//enable only if random
 		m_nbVariationsCtrl.EnableWindow(bEnable);
 		GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(bEnable);
 
@@ -432,6 +439,11 @@ namespace WBSF
 		return CDialog::PreTranslateMessage(pMsg);
 	}
 
+
+	void CParametersVariationsDlg::Enable(BOOL bEnable)
+	{
+		OnEnable(bEnable);
+	};
 
 	void CParametersVariationsDlg::OnEnable(BOOL bEnable)
 	{

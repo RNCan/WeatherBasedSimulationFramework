@@ -18,6 +18,7 @@
 #include "Basic/UtilZen.h"
 #include "ModelBase/InputParam.h"
 #include "ModelBase/ModelInputParameter.h"
+#include "ModelBase/ParametersVariations.h"
 
 
 namespace WBSF
@@ -144,7 +145,7 @@ namespace WBSF
 			ar & boost::serialization::base_object<CModelInputParamVector>(*this) & m_name & m_extension;
 		}
 		friend boost::serialization::access;
-		std::string GetDescription(std::vector<int> pos)const;
+		std::string GetDescription(std::vector<size_t> pos)const;
 
 		CParameterVector GetParametersVector()const;
 
@@ -174,15 +175,16 @@ namespace WBSF
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & boost::serialization::base_object<CModelInputVectorBase>(*this) & m_pioneer;
+			ar & boost::serialization::base_object<CModelInputVectorBase>(*this) & m_pioneer & m_variation;
 		}
 		friend boost::serialization::access;
 
 		CModelInput m_pioneer;	//intial model input
+		CParametersVariationsDefinition m_variation; //variation definition
 		CModelInputVector& operator*=(const CModelInputVector& in);
 		CModelInputVector operator*(const CModelInputVector& in)const;
 
-		std::vector<int>  GetVariablePos()const;
+		std::vector<size_t>  GetVariablePos()const;
 	};
 
 }

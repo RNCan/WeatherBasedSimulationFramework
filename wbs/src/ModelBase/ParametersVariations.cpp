@@ -7,8 +7,10 @@
 // 15/09/2008  Rémi Saint-Amant	Created from old file
 //****************************************************************************
 #include "stdafx.h"
-#include "ParametersVariations.h"
-#include "Basic/UtilMath.h"
+#include "Basic\UtilMath.h"
+#include "ModelBase\ParametersVariations.h"
+#include "ModelBase\ModelInput.h"
+#include "ModelBase\WGInput.h"
 
 namespace WBSF
 {
@@ -16,7 +18,7 @@ namespace WBSF
 
 
 	const char* CParameterVariation::XML_FLAG = "Parameter";
-	const char* CParameterVariation::MEMBER_NAME[NB_MEMBER] = { "Name", "Pos", "Active", "Type", "Minimum", "Maximum", "Step" };
+	const char* CParameterVariation::MEMBER_NAME[NB_MEMBER] = { "Name", /*"Pos",*/ "Active", "Type", "Minimum", "Maximum", "Step" };
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -31,7 +33,7 @@ namespace WBSF
 	void CParameterVariation::Reset()
 	{
 		m_bActive = false;
-		m_pos = 0;
+		//m_pos = 0;
 		m_type = CModelInputParameterDef::kMVReal;
 		m_min = 0;
 		m_max = 0;
@@ -116,7 +118,7 @@ namespace WBSF
 		if (&in != this)
 		{
 			m_name = in.m_name;
-			m_pos = in.m_pos;
+			//m_pos = in.m_pos;
 			m_bActive = in.m_bActive;
 			m_type = in.m_type;
 			m_min = in.m_min;
@@ -134,7 +136,7 @@ namespace WBSF
 		bool bEqual = true;
 
 		if (in.m_name != m_name) bEqual = false;
-		if (in.m_pos != m_pos) bEqual = false;
+		//if (in.m_pos != m_pos) bEqual = false;
 		if (in.m_bActive != m_bActive) bEqual = false;
 		if (in.m_type != m_type)bEqual = false;
 		if (in.m_min != m_min) bEqual = false;
@@ -267,7 +269,29 @@ namespace WBSF
 		clear();
 		m_variationType = RANDOM_VARIATION;
 		m_nbVariation = 1;
-		//m_paramRand = 0;
+	}
+
+	CParametersVariationsDefinition& CParametersVariationsDefinition::operator = (const CParametersVariationsDefinition& in)
+	{
+		if (&in != this)
+		{
+			CParamVariationsContainer::operator=(in);
+			m_variationType = in.m_variationType;
+			m_nbVariation = in.m_nbVariation;
+		}
+
+		return *this;
+	}
+	
+	bool CParametersVariationsDefinition::operator == (const CParametersVariationsDefinition& in)const
+	{
+		bool bEqual = true;
+		
+		if (!std::equal(begin(), end(), in.begin())) bEqual = false;
+		if (m_variationType != in.m_variationType) bEqual = false;
+		if (m_nbVariation != in.m_nbVariation) bEqual = false;
+
+		return bEqual;
 	}
 
 	size_t CParametersVariationsDefinition::GetNbVariation()const
@@ -319,7 +343,8 @@ namespace WBSF
 		ASSERT(size() != 0);
 		
 		size_t nbTotalVariations = 1;
-		vector<size_t> nbVariations;
+		CFloatMatrix vecteur;
+		//vector<std::pair<size_t, size_t>> nbVariations;
 		for (size_t i = 0; i < size(); i++)
 		{
 			if (at(i).m_bActive)
@@ -327,26 +352,33 @@ namespace WBSF
 				ASSERT(at(i).GetStep() != 0);
 
 				size_t nbVariation = (size_t)((at(i).GetMax() - at(i).GetMin()) / at(i).GetStep()) + 1;
-				nbVariations.push_back(nbVariation);
+				//nbVariations.push_back(std::make_pair(i,nbVariation));
+				vector<float> tmp;
+				for (size_t j = 0; j < nbVariation; j++)
+					tmp.push_back( at(i).GetMin() + (at(i).GetStep()*j));
+					
+				
+				vecteur.push_back(tmp);
 				nbTotalVariations *= nbVariation;
 			}
+			
 		}
 
-		CFloatMatrix vecteur;
-		vecteur.resize(nbVariations.size());
+		
+		//vecteur.resize(nbVariations.size());
 
-		for (size_t i = 0; i < nbVariations.size(); i++)
-		{
-			for (size_t j = 0; j < nbVariations[i]; j++)
-			{
-				vecteur[i].push_back(at(i).GetMin() + (at(i).GetStep()*j));
-			}
-		}
+		//for (size_t i = 0; i < nbVariations.size(); i++)
+		//{
+		//	for (size_t j = 0; j < nbVariations[i].second; j++)
+		//	{
+		//		vecteur[i].push_back(at(nbVariations[i].first).GetMin() + (at(nbVariations[i].first).GetStep()*j));
+		//	}
+		//}
 
 
 		paramArray.resize(nbTotalVariations);
 		for (size_t i = 0; i < paramArray.size(); i++)
-			paramArray[i].resize(nbVariations.size());
+			paramArray[i].resize(vecteur.size());
 
 		size_t c = 0;
 		for (size_t p = 0; p < paramArray.size(); p++)
@@ -467,6 +499,7 @@ namespace WBSF
 	{
 		CModelInputVector modelInputVector(GetNbVariation());
 		modelInputVector.m_pioneer = modelInput;
+		modelInputVector.m_variation = *this;
 
 		// create the parameters array. (one line for each comb.)
 		CFloatMatrix paramArray;
@@ -480,14 +513,17 @@ namespace WBSF
 			{
 				//change the variable 
 				ASSERT(paramArray[noVar].size() < size());
-				for (size_t i = 0; i < paramArray[noVar].size() && i < size(); i++)
-					//for (const_iterator it = cbegin(); it!=cend(); it++)
+
+				for (size_t i = 0, ii=0; i < size(); i++)
 				{
 					if (at(i).m_bActive)
 					{
-						size_t pos = at(i).m_pos;
-						if (pos < modelInputVector[noVar].size())
-							modelInputVector[noVar][pos].SetValue(paramArray[noVar][i]);
+						ASSERT(ii<paramArray[noVar].size());
+						//size_t pos = at(i).m_pos;
+						if (i < modelInputVector[noVar].size())
+							modelInputVector[noVar][i].SetValue(paramArray[noVar][ii]);
+
+						ii++;
 					}
 				}
 			}
@@ -499,10 +535,11 @@ namespace WBSF
 	size_t CParametersVariationsDefinition::FindByPos(int pos)const
 	{
 		size_t index = UNKNOWN_POS;
-
-		for (size_t i = 0; i < size() && index == UNKNOWN_POS; i++)
-			if (at(i).m_pos == pos)//&& at(i).m_bActive
-				index = i;
+		if (pos >= 0 && pos < size())
+			index = pos;
+		//for (size_t i = 0; i < size() && index == UNKNOWN_POS; i++)
+			//if (at(i).m_pos == pos)//&& at(i).m_bActive
+				//index = i;
 
 		return index;
 	}
@@ -521,17 +558,19 @@ namespace WBSF
 
 	void CParametersVariationsDefinition::RemoveInvalidVar(const CModelInput& modelInput)
 	{
-		//for(int i=(int)size()-1; i>=0; i--)
+		
 		for (iterator it = begin(); it != end();)
 		{
-			size_t pos = it->m_pos;
-			ASSERT(pos < modelInput.size());
+			//size_t pos = it->m_pos;
+			//ASSERT(pos < modelInput.size());
+			size_t pos = std::distance(it, begin());
 
 			if (pos < modelInput.size())
 				it++;
 			else
 				it = erase(it);
 		}
+		
 	}
 
 	/*bool CParametersVariationsDefinition::GetVarPosition( const CModel& model, CIntArray& posArray)const

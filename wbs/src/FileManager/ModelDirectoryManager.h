@@ -78,6 +78,8 @@ namespace WBSF
 
 		bool FileExists(const std::string& filePath)const;
 
+		std::string GetHelpFilePath(const std::string& fileName)const;
+		
 
 	};
 

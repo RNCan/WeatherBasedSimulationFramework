@@ -250,12 +250,7 @@ namespace WBSF
 		ASSERT(m_pParent);
 
 		ERMsg msg;
-
-
-		if (!m_pParent->GetExport().m_bAutoExport)
-		{
-			//callback.AddMessage(IDS_SIM_WARNING_COPY_EXPORT);
-		}
+		
 
 		string filePathIn = m_pParent->GetExportFilePath(fileManager, CExecutable::EXPORT_CSV);
 

@@ -320,7 +320,7 @@ namespace WBSF
 
 		string cName = PurgeFileName(GetName());
 		string vName = PurgeFileName(varArray[v].m_name);
-		std::vector<int> pos = parameterSet.GetVariablePos();
+		std::vector<size_t> pos = parameterSet.GetVariablePos();
 		string pName = PurgeFileName(parameterSet[p].GetDescription(pos));
 		string rName = ToString(r + 1);
 		string tName = PurgeFileName(ref.GetFormatedString().c_str());

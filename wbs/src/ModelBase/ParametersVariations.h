@@ -12,24 +12,25 @@
 #pragma once
 
 #include "ModelInputParameter.h"
-#include "ModelInput.h"
-#include "WGInput.h"
 
 namespace WBSF
 {
+	class CModelInput;
+	class CModelInputVector;
+	class CWGInput;
 
 	class CParameterVariation
 	{
 	public:
 
-		enum TVariation{ RANDOM_VARIATION, REGULAR_VARIATION };
-		enum TMember{ VAR_NAME, POSITION, ACTIVE, TYPE, MINIMUM, MAXIMUM, STEP, NB_MEMBER };
+		
+		enum TMember{ VAR_NAME, /*POSITION, */ACTIVE, TYPE, MINIMUM, MAXIMUM, STEP, NB_MEMBER };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 		static const int DEFAULT_STEP = 10;
 
 		std::string m_name;
-		size_t	m_pos;
+		//size_t	m_pos;
 		bool	m_bActive;
 		size_t	m_type;
 		double	m_min;
@@ -71,11 +72,19 @@ namespace WBSF
 		double GetStep()const{ return m_step; }
 		void SetStep(double step){ m_step = GoodTrunck(step); }
 
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & m_name & m_bActive & m_type & m_min & m_max & m_step;
+		}
+		friend boost::serialization::access;
+
 		void writeStruc(zen::XmlElement& output)const
 		{
 			//XmlOut out(output);
 			output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::VAR_NAME), m_name);
-			output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::POSITION), m_pos);
+			//output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::POSITION), m_pos);
 			output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::ACTIVE), m_bActive);
 			output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::TYPE), m_type);
 			output.setAttribute(CParameterVariation::GetMemberName(CParameterVariation::MINIMUM), m_min);
@@ -88,7 +97,7 @@ namespace WBSF
 		bool readStruc(const zen::XmlElement& input)
 		{
 			input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::VAR_NAME), m_name);
-			input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::POSITION), m_pos);
+			//input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::POSITION), m_pos);
 			input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::ACTIVE), m_bActive);
 			input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::TYPE), m_type);
 			input.getAttribute(CParameterVariation::GetMemberName(CParameterVariation::MINIMUM), m_min);
@@ -130,6 +139,16 @@ namespace WBSF
 		std::string GetMember(size_t i)const;
 		void SetMember(size_t i, const std::string& str);
 
+		CParametersVariationsDefinition& operator = (const CParametersVariationsDefinition& in);
+		bool operator == (const CParametersVariationsDefinition& in)const;
+		bool operator != (const CParametersVariationsDefinition& in)const{ return !operator==(in); }
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<CParamVariationsContainer>(*this) & m_variationType & m_nbVariation;
+		}
+		friend boost::serialization::access;
 		//std::string GetMember(int i, LPXNode& pNode = NULL_ROOT)const;
 		//void SetMember(int i, const std::string& str, const LPXNode pNode = NULL_ROOT);
 

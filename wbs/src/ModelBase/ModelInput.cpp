@@ -413,19 +413,20 @@ namespace WBSF
 		}
 	}
 */
-	string CModelInput::GetDescription(std::vector<int> pos)const
+	string CModelInput::GetDescription(std::vector<size_t> pos)const
 	{
 		string str;
 		if (pos.size() != size())
 		{
-			for (int i = 0; i < pos.size(); i++)
+			for (size_t i = 0; i < pos.size(); i++)
 			{
-				str += at(pos[i]).GetName() + "=" + at(pos[i]).GetStr() + "|";
+				if (pos[i]<size())
+					str += at(pos[i]).GetName() + "=" + at(pos[i]).GetStr() + "|";
 			}
 		}
 		else
 		{
-			for (int i = 0; i < size(); i++)
+			for (size_t i = 0; i < size(); i++)
 			{
 				str += at(i).GetName() + "=" + at(i).GetStr() + "|";
 			}
@@ -487,25 +488,18 @@ namespace WBSF
 		return index;
 	}
 	//*********************************************************************************************************************
-	vector<int> CModelInputVector::GetVariablePos()const
+	vector<size_t> CModelInputVector::GetVariablePos()const
 	{
-
 		//a revoir, ne fonctionne pas avec les model input composé
-		std::vector<int> out;
-
-		for (int i = 1; i < size(); i++)
+		std::vector<size_t> out;
+		
+		for (size_t i = 0; i < m_variation.size(); i++)
 		{
-			for (int j = 0; j < at(i).size(); j++)
+			if (m_variation[i].m_bActive)
 			{
-				if (at(i).at(j) != at(0).at(j))
-				{
-					if (std::find(out.begin(), out.end(), j) == out.end())
-						out.push_back(j);
-				}
+				out.push_back(i);
 			}
 		}
-
-		sort(out.begin(), out.end());
 
 		return out;
 	}
@@ -518,12 +512,14 @@ namespace WBSF
 		{
 			for (size_t j = 0; j < in.size(); j++)
 			{
-				modelInputVector[i*size() + j] = at(i);
-				modelInputVector[i*size() + j].insert(modelInputVector[i*size() + j].end(), in[j].begin(), in[j].end());
+				modelInputVector[i*in.size() + j] = at(i);
+				modelInputVector[i*in.size() + j].insert(modelInputVector[i*in.size() + j].end(), in[j].begin(), in[j].end());
 			}
 		}
 
 		m_pioneer.insert(m_pioneer.end(), in.m_pioneer.begin(), in.m_pioneer.end());
+		m_variation.insert(m_variation.end(), in.m_variation.begin(), in.m_variation.end());
+
 		return *this;
 	}
 

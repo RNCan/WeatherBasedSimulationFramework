@@ -83,6 +83,7 @@ namespace WBSF
 
 		void FillParameters();
 		void SelectParameters();
+		void Enable(BOOL bEnable);
 
 		void OnSelectionChange(NMHDR* pNMHDR, LRESULT* pResult);
 		LRESULT OnCheckbox(WPARAM wParam, LPARAM lParam);

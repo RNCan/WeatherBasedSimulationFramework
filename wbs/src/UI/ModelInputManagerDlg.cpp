@@ -706,6 +706,9 @@ namespace WBSF
 			//m_pPVDDlg->m_parametersDefinition = varDef;
 			m_pPVDDlg->m_parametersVariations = PVD;
 			m_pPVDDlg->SelectParameters();
+			//m_pPVDDlg->EnableWindow(!name.empty() && !IsDefault());
+			m_pPVDDlg->Enable(!name.empty() && !IsDefault());
+
 
 			m_lastSelection = iItem;
 			m_lastPVD = PVD;
@@ -749,6 +752,8 @@ namespace WBSF
 
 		m_lastSelection = GetSelItem();
 		CString PVDName = GetItemText(m_lastSelection);
+		m_pPVDDlg->Enable(!PVDName.IsEmpty() && !IsDefault());
+
 
 		msg = LoadPVDInput(PVDName, m_pPVDDlg->m_parametersVariations);
 		m_pPVDDlg->SelectParameters();
@@ -758,7 +763,9 @@ namespace WBSF
 		if (!msg)
 			SYShowMessage(msg, this);
 
-		m_pPVDDlg->EnableWindow(!PVDName.IsEmpty() && !IsDefault());
+		//m_pPVDDlg->EnableWindow(!PVDName.IsEmpty() && !IsDefault());
+		
+
 		//call parent
 		CBioSIMListBox::OnSelectionChanged();
 	}

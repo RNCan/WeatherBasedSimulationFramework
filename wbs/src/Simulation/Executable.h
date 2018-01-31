@@ -18,7 +18,7 @@
 #include "ModelBase/WGInput.h"
 #include "Simulation/Result.h"
 #include "Simulation/Export.h"
-#include "Simulation/Graph.h"
+//#include "Simulation/Graph.h"
 
 
 
@@ -127,8 +127,8 @@ namespace WBSF
 
 		friend CExecutablePtr;
 		friend CExecutableVector;
-		enum TMember { NAME, INTERNAL_NAME, DESCRIPTION, EXECUTE, EXPORT_DATA, GRAPHS, EXECUTABLES, NB_MEMBERS };
-		enum TExportFormat { EXPORT_CSV, EXPORT_CSV_LOC, EXPORT_SHAPEFILE, NB_EXPORT_FORMAT };
+		enum TMember { NAME, INTERNAL_NAME, DESCRIPTION, EXECUTE, EXPORT_DATA, /*GRAPHS, */EXECUTABLES, NB_MEMBERS };
+		enum TExportFormat { EXPORT_CSV, NB_EXPORT_FORMAT };
 
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 		static void LoadDefaultCtrl();
@@ -140,7 +140,7 @@ namespace WBSF
 		bool	m_bExecute;
 		CExecutableVector m_executables;
 		CExport m_export;
-		CGraphVector m_graphArray;
+		//CGraphVector m_graphArray;
 
 
 
@@ -176,11 +176,11 @@ namespace WBSF
 		CTPeriod GetDefaultPeriod(const CFileManager& fileManager)const;
 
 		std::string GetExportFilePath(const CFileManager& fileManager, int format = EXPORT_CSV)const;
-		std::string GetGraphFilePath(const CFileManager& fileManager)const;
+		//std::string GetGraphFilePath(const CFileManager& fileManager)const;
 
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_FLOAT; }
 		virtual ERMsg Export(const CFileManager& fileManager, int format = EXPORT_CSV, CCallback& callback = DEFAULT_CALLBACK);
-		virtual ERMsg ExportGraph(const CFileManager& fileManager, CCallback& callback = DEFAULT_CALLBACK);
+		//virtual ERMsg ExportGraph(const CFileManager& fileManager, CCallback& callback = DEFAULT_CALLBACK);
 
 		void InsertItem(CExecutablePtr	pItem);
 		void SetItem(const std::string& iName, CExecutablePtr pItem);
@@ -214,8 +214,8 @@ namespace WBSF
 
 		const CExport& GetExport()const{ return m_export; }
 		void SetExport(const CExport& in){ m_export = in; }
-		const CGraphVector& GetGraph(){ return m_graphArray; }
-		void SetGraph(const CGraphVector& in){ m_graphArray = in; }
+		//const CGraphVector& GetGraph(){ return m_graphArray; }
+		//void SetGraph(const CGraphVector& in){ m_graphArray = in; }
 
 
 		std::string GetOutputMessage(const CFileManager& fileManager);
@@ -243,8 +243,8 @@ namespace WBSF
 		static std::string ReadOutputMessage(const std::string& filePath);
 		static std::string GenerateInternalName();
 
-		ERMsg ExportAsShapefile(const CFileManager& fileManager, CCallback& callback);
-		ERMsg ExportAsCSV(const CFileManager& fileManager, bool bAsLoc, CCallback& callback);
+		
+		ERMsg ExportAsCSV(const CFileManager& fileManager, CCallback& callback);
 		ERMsg ExecuteScript(const CFileManager& fileManager, CCallback& callback);
 		CExecutablePtr GetParent(const std::string iName);
 

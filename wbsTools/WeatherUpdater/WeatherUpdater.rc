@@ -711,7 +711,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
-                            "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale|Puissance"
+	"Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale [km]|Puissance"
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_VIRTUAL_P 
@@ -1177,7 +1177,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
-                            "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance|Power"
+	"Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
     IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_VIRTUAL_P 

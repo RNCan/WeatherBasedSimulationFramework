@@ -650,132 +650,7 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CAnalysis::GetLocationList(const CFileManager& fileManager, CLocationVector& loc)const
-	//{
-	//	ENSURE(m_pParent);
-	//
-	//	ERMsg msg;
-	//
-	//	CLocationVector locTmp;
-	//	msg = m_pParent->GetLocationList(fileManager, locTmp);
-	//	if( msg)
-	//		CleanLocations(locTmp, loc);
-	//
-	//	return msg;
-	//}
-	//
-	////int CAnalysis::GetReplication()const
-	//ERMsg CAnalysis::GetReplication(const CFileManager& fileManager, size_t& nbReplication)const
-	//{
-	//	ENSURE(m_pParent);
-	//
-	//	ERMsg msg;
-	//	msg = m_pParent->GetReplication(fileManager, nbReplication);
-	//	nbReplication = CleanReplication(nbReplication);
-	//	return msg;
-	//}
-	//
-	//ERMsg CAnalysis::GetDefaultPeriod(const CFileManager& fileManager, CTPeriod& period)const
-	//{
-	//	ENSURE(m_pParent);
-	//
-	//	ERMsg msg;
-	//
-	//	CTPeriod p;
-	//	msg = m_pParent->GetDefaultPeriod(fileManager, p);
-	//	if( msg)
-	//		period = CleanTimePeriod(p);
-	//
-	//	return msg;
-	//}
-	//
-	//ERMsg CAnalysis::GetOutputDefinition(const CFileManager& fileManager, CModelOutputVariableDefVector& outputVar)const
-	//{
-	//	ENSURE(m_pParent);
-	//
-	//	ERMsg msg;
-	//
-	//	CModelOutputVariableDefVector outputVarTmp;
-	//	msg = m_pParent->GetOutputDefinition(fileManager, outputVarTmp);
-	//	if( msg)
-	//		CleanVariables(outputVarTmp, outputVar);
-	//
-	//	return msg;
-	//}
-
-	/*ERMsg CAnalysis::GetDimensionList(const CFileManager& fileManager, int dim, StringVector& list)const
-	{
-	ASSERT( dim>=0 && dim<DIMENSION::NB_DIMENSION);
-	ASSERT( m_pParent );
-
-	ERMsg msg;
-
-	//est-ce qu'il serait mieux de retoruner l'élément original, ex. un loc et non une liste de nom???
-	//ca serais plus facile ici???
-	msg = m_pParent->GetDimensionList(fileManager, dim, list);
-	if( !msg)
-	return msg;
-
-	switch( dim)
-	{
-	case DIMENSION::LOCATION:
-	{
-	CLocationVector loc;
-	loc.resize(list.size());
-	for(int i=0; i<list.size(); i++)
-	loc[i].SetName(list[i]);
-
-	CLocationVector locOut;
-	CleanLocations(loc, locOut);
-	list.resize(locOut.size());
-
-	for(int i=0; i<locOut.size(); i++)
-	list[i] = locOut[i].GetName();
-
-	}break;
-
-	case DIMENSION::PARAMETER: ASSERT(false); //Is it used???
-	case DIMENSION::REPLICATION:
-	{
-	ASSERT( list.size() == 1);
-	list[0] = ToString(CleanReplication(ToInt(list[0])));
-	}break;
-
-	case DIMENSION::TIME_REF:
-	{
-	ASSERT( list.size() == 2 );
-
-	short TM = CleanTimeTM(ToShort(list[0]));
-	list[0] = ToString(TM);
-
-	CTPeriod p;
-	p.FromString( (LPCTSTR)list[1]);
-	p = CleanTimePeriod(p);
-	list[1] = p.ToString().c_str();
-	}break;
-
-	case DIMENSION::VARIABLE:
-	{
-	//Variable list
-	CModelOutputVariableDefVector variablesDef;
-	variablesDef.resize(list.size());
-	for(int i=0; i<list.size(); i++)
-	variablesDef[i].m_name = list[i];
-
-	CModelOutputVariableDefVector variablesDefOut;
-	CleanVariables(variablesDef, variablesDefOut);
-	list.resize(variablesDefOut.size());
-
-	for(int i=0; i<variablesDefOut.size(); i++)
-	list[i] = variablesDefOut[i].m_name;
-
-	}break;
-	default: ASSERT(false);
-	}
-
-	return msg;
-	}
-	*/
+	
 	ERMsg CAnalysis::Execute(const CFileManager& fileManager, CCallback& callback)
 	{
 		ASSERT(GetParent());
@@ -996,6 +871,8 @@ namespace WBSF
 	CModelInputVector CAnalysis::CleanParameterset(const CModelInputVector& in)const
 	{
 		CModelInputVector out;
+		out.m_pioneer = in.m_pioneer;
+		out.m_variation = in.m_variation;
 
 		if (m_computation.m_bMeanOverParameterSet)
 		{
@@ -1006,6 +883,7 @@ namespace WBSF
 		{
 			CVariableSelectionVector selection(m_window.m_parametersVariations);
 			out.resize(selection.count());
+
 
 			for (size_t i = selection.find_first(), I = 0; i != UNKNOWN_POS; i = selection.find_next(i), I++)
 			{

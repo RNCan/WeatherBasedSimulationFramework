@@ -91,6 +91,9 @@ void CSelectionCtrl::Init()
 	Expand(hItem, TVE_EXPAND);
 
 	UpdateCheck(FALSE);
+	
+	//ASSERT(GetRootItem() != NULL);
+	//SelectItem(GetRootItem());
 }
 
 //void CSelectionCtrl::SetSelection(const CIntArrayEx& selection)
