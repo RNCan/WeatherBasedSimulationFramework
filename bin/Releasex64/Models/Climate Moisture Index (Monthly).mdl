@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>Climate Moisture Index (Monthly)</Title>
     <Version>1.0</Version>
-    <ID>.mis</ID>
+    <ID>.nul</ID>
     <EXE>Climate Moisture Index.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
@@ -21,7 +21,7 @@
             <Name>TMaxMean</Name>
             <Title>TMaxMean</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Mean maximum daily temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -29,7 +29,7 @@
             <Name>TminMean</Name>
             <Title>TminMean</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Mean minimum daily temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -37,7 +37,7 @@
             <Name>PptSum</Name>
             <Title>PptSum</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Sum of precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -45,7 +45,7 @@
             <Name>PetSum</Name>
             <Title>PetSum</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Sum of evapotranspiration with Hogg 1997 method</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -53,7 +53,7 @@
             <Name>CMI</Name>
             <Title>CMI</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Climate Moisture Index</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

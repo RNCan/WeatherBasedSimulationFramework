@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>Climate Mosture Index (Annual)</Title>
     <Version>1.0</Version>
-    <ID>.ams</ID>
+    <ID>.nul</ID>
     <EXE>Climate Moisture Index.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
@@ -21,7 +21,7 @@
             <Name>GddCum</Name>
             <Title>GddCum</Title>
             <Units/>
-            <Description/>
+            <Description>Growing degre-days over 5°C from first of August to end of July</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
@@ -29,7 +29,7 @@
             <Name>DggWyr</Name>
             <Title>DggWyr</Title>
             <Units/>
-            <Description/>
+            <Description>Growing degre-days over 5°C from first of January to end of July.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
@@ -37,7 +37,7 @@
             <Name>CMI</Name>
             <Title>CMI</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Climte Moisture Index</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -45,7 +45,7 @@
             <Name>P</Name>
             <Title>P</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Precipitation from first of August to end of July</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -53,7 +53,7 @@
             <Name>PET</Name>
             <Title>PET</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Evapotranspiration from first of August to end of July with the Hogg 1997 method.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -61,7 +61,7 @@
             <Name>TMaxMean</Name>
             <Title>TMaxMean</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Mean maximum daily temperature from first of August to end of July</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
@@ -69,7 +69,7 @@
             <Name>TMinMean</Name>
             <Title>TMinMean</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Mean minimum daily temperature from first of August to end of July</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
@@ -77,7 +77,7 @@
             <Name>summerPPT</Name>
             <Title>summerPPT</Title>
             <Units>cm</Units>
-            <Description/>
+            <Description>Precipitation from first of March to end of June</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
