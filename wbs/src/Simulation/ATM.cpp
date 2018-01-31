@@ -236,7 +236,7 @@ namespace WBSF
 	{
 		double ran = m_random.Rand(-1.0, 1.0);//random value [-1,1];
 		double w = max(0.0, m_parameters2.m_w_horizontal + ran*m_parameters2.m_w_horizontal_σ);
-		//double w = max(0.0, 7.2 + ran*1.8);
+
 		ASSERT(w >= 0);
 		return w * 1000 / 3600;//convert from km/h to m/s
 	}
@@ -361,8 +361,6 @@ namespace WBSF
 			m_state = IDLE_END, m_end_type = OUTSIDE_MAP;
 
 
-
-		//__int64 UTCTime = m_world.get_UTC_time() + seconds;
 		switch (m_state)
 		{
 		case NOT_CREATED:		create(UTCTRef, UTCTime); break;
@@ -747,9 +745,6 @@ namespace WBSF
 	CATMVariables CFlyer::get_weather(CTRef UTCTRef, __int64 UTCTime)const
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCTRef));
-		//ASSERT(m_pt.m_z >= 0);
-
-
 
 		CATMVariables w;
 
@@ -781,13 +776,6 @@ namespace WBSF
 			{
 				w = wᵒ;
 			}
-
-			/*if (m_world.m_parameters1.m_bUseTurbulance)
-			{
-			w[ATM_WNDU] *= exp(m_world.random().Rand(-0.1, 0.1));
-			w[ATM_WNDV] *= exp(m_world.random().Rand(-0.1, 0.1));
-			w[ATM_WNDW] *= exp(m_world.random().Rand(-0.1, 0.1));
-			}*/
 		}
 
 		return w;
@@ -800,16 +788,7 @@ namespace WBSF
 		static const double END_G = 0.15;
 
 		double P = 0;
-		//double eggsLeft = m_Fᵒ - m_totalBroods;
-
-		/*if (m_world.get_defoliation(m_newLocation) == 0 && m_G > END_G)
-		{
-		P = 1 - END_G* m_Fᵒ / m_eggsLeft;
-		ASSERT(P>=0 && P<=1);
-		}
-		else
-		{*/
-		//**************************************************************
+		
 		//compute new G
 		const double α = 0.489;
 		const double β = 15.778;
@@ -822,7 +801,6 @@ namespace WBSF
 			P = p*ξ;
 
 		} while (P<0 || P > 0.7);
-		//}
 
 
 		m_broods = m_eggsLeft *P;
@@ -979,12 +957,6 @@ namespace WBSF
 			{
 				w = wᵒ*fᵒ + w¹*f¹;
 			}
-			//else if (wᵒ.is_init() && w¹.is_init())
-			//{
-
-			//}
-			//else if (wᵒ.is_init() && w¹.is_init())
-
 
 		}
 		else
@@ -1010,8 +982,6 @@ namespace WBSF
 	CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCTime)const
 	{
 		ASSERT(pt.IsGeographic());
-
-
 
 		size_t weather_type = m_world.m_parameters1.m_weather_type;
 		if (weather_type == CATMWorldParamters::FROM_GRIBS &&
@@ -1076,54 +1046,7 @@ namespace WBSF
 
 		return sunriseTime;
 	}
-	//
-	//void CATMWorld::get_t(const CLocation& loc, __int64 UTCSunset, __int64 &tᵒ, __int64 &tᴹ)const
-	//{
-	//	__int64 h4 = 3600 * 4;
-	//	__int64 Δtᵀ = h4;
-	//
-	//	//first estimate of exodus info
-	//	//Tᵀ = 0;
-	//	tᵒ = -h4;//substract 4 hours
-	//	tᴹ = +h4;//add 4 hours
-	//
-	//	
-	//	for (__int64 t = tᵒ; t <= tᴹ && Δtᵀ == h4; t += m_parameters1.m_time_step)
-	//	{
-	//		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset+t);
-	//		if (m_weather.IsLoaded(UTCTRef))
-	//		{
-	//			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset+t);
-	//
-	//			if (v[ATM_TAIR] <= Tᵒ)
-	//				Δtᵀ = t;//- UTCSunset
-	//		}
-	//	}
-	//
-	//	if (Δtᵀ < h4)
-	//	{
-	//		//now look for minimum temperature for the entire exodus period
-	//		tᵒ = max(__int64((Δtᶳ - 0.5*Δtᶠ) * 3600), Δtᵀ);
-	//		tᴹ = min(h4, tᵒ + __int64(Δtᶠ * 3600));
-	//	}
-	//}
-
-	//double CATMWorld::get_Tᵀ(const CLocation& loc, __int64 UTCSunset, __int64 tᵒ, __int64 tᴹ)const
-	//{
-	//	CStatistic Tᵀ;
-	//	for (__int64 t = tᵒ; t <= tᴹ; t += m_parameters1.m_time_step)
-	//	{
-	//		CTRef UTCTRef = CTimeZones::UTCTime2UTCTRef(UTCSunset + t);
-	//		if (m_weather.IsLoaded(UTCTRef) && m_weather.IsLoaded(UTCTRef + 1))
-	//		{
-	//			CATMVariables v = m_weather.get_weather(loc, UTCTRef, UTCSunset + t);
-	//			Tᵀ += v[ATM_TAIR];
-	//		}
-	//	}
-	//
-	//	return Tᵀ.IsInit()?Tᵀ[LOWEST]:0;
-	//}
-
+	
 	//Ul: wind speed [m/s]
 	//ΔT: difference between air temperature and water temperature [ᵒC]
 	double CATMWeather::LandWaterWindFactor(double Ul, double ΔT)
@@ -1169,10 +1092,6 @@ namespace WBSF
 
 		//from: http://en.wikipedia.org/wiki/Wind_gradient
 		double f = pow(z / Zr, α);
-		//double f² = pow(z / Zr, α²);
-
-		//double f = f¹;
-		//double f = (f¹ + f²) / 2;
 
 		Ur *= f;
 		Vr *= f;
@@ -1241,7 +1160,7 @@ namespace WBSF
 		CGeoPoint3D pt(ptIn);
 		vector<pair<double, int>> test;
 
-		//in WRF, geopotentiel hight is above ground
+		//in some product, geopotentiel hight is above ground
 		//in other product, geopotentiel hight is above sea level
 
 		double grAlt = GetFirstAltitude(xy, UTCTRef);//get the first level over the ground
@@ -1490,7 +1409,6 @@ namespace WBSF
 			m_p_weather_DS.m_clipRect = CGeoRect(-84, 40, -56, 56, PRJ_WGS_84);// m_world.m_parameters2.m_clipRect;
 
 
-
 			std::ios::pos_type length = file.length();
 			callback.PushTask("Load Gribs", length);
 
@@ -1586,12 +1504,6 @@ namespace WBSF
 				}
 				else
 				{
-					//msg.ajoute("File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
-					//callback.AddMessage("WARNING: File for " + UTCTRef.GetFormatedString("%Y-%m-%d-%H") + " is Missing");
-
-					//if (!msg)
-					//{
-
 					//replace image by the nearest image
 					CTRef nearestImage;
 					for (size_t h = 0; h < 4 && !nearestImage.IsInit(); h++)
@@ -1809,8 +1721,6 @@ namespace WBSF
 					msg += m_iwd[UTCTRef][v].Initialization(callback);
 
 				}//for all variables
-
-				//callback.PopTask();
 			}//if not loaded
 
 
@@ -1827,7 +1737,6 @@ namespace WBSF
 					it++;
 				}
 			}
-
 
 		}//if hour database
 
@@ -1858,28 +1767,7 @@ namespace WBSF
 		CTRefDatasetMap& me = const_cast<CTRefDatasetMap&>(*this);
 
 		me[TRef].reset(new CGDALDatasetCached);
-		//me[TRef]->m_clipRect = m_clipRect;
-
 		msg = me[TRef]->OpenInputImage(filePath, true);
-
-		//remove old maps (h-24)
-		//for (iterator it = me.begin(); it != me.end()&&msg;)
-		//{
-		//	
-		//	if (TRef - it->first > m_max_hour_load)//24
-		//	{
-		//		it->second->Close();
-		//		it = me.erase(it);
-		//		msg=callback.StepIt();
-		//	}
-		//	else
-		//	{
-		//		it++;
-		//	}
-		//}
-
-
-		//me.m_mutex.unlock();
 
 		return msg;
 	}
@@ -1955,7 +1843,6 @@ namespace WBSF
 	}
 
 	//******************************************************************************************************
-	//"Reversed","UseTurbulance", "Host", 
 	const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "Period", "TimeStep", "Seed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseVerticalVelocity", "MaximumFlyers", "MaximumFlights", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "OutputSubHourly", "OutputFileTitle", "OutputFrequency", "CreateEggsMap", "EggsMapTitle", "EggsMapRes" };
 
 
@@ -1987,9 +1874,7 @@ namespace WBSF
 
 		if (p.IsInit())
 		{
-			//p.Begin() += 12;//begin at noon 
-			//p.End() += 12 + 23;//finish at 11:00 on day after
-			p.End() += 12;
+			p.End() += 12;// add 12 hours for flight
 		}
 
 		return p;
@@ -2086,64 +1971,8 @@ namespace WBSF
 	bool CATMWorld::is_over_defoliation(const CGeoPoint3D& pt)const
 	{
 		double defoliation = get_defoliation(pt);
-		return defoliation > 0; //m_parameters1.m_defoliationThreshold;
+		return defoliation > 0; 
 	}
-
-
-	/*bool CATMWorld::is_over_distraction(const CGeoPoint3D& pt1)const
-	{
-		bool bRep = false;
-		if (m_distraction_DS.IsOpen())
-		{
-			CGeoPoint pt2(pt1);
-			if (pt2.GetPrjID() != m_distraction_DS.GetPrjID())
-			{
-				ASSERT(pt1.IsGeographic());
-
-				size_t prjID = m_DEM_DS.GetPrjID();
-				pt2.Reproject(m_GEO2.at(prjID));
-			}
-
-
-			CGeoPointIndex xy = m_distraction_DS.GetExtents().CoordToXYPos(pt2);
-			if (m_distraction_DS.GetExtents().IsInside(xy))
-			{
-
-				double v = m_distraction_DS.GetPixel(0, xy);
-				if (v != m_distraction_DS.GetNoData(0) && v > 90)
-					bRep = v > m_parameters1.m_distractionThreshold;
-			}
-		}
-
-		return bRep;
-	}
-
-	bool CATMWorld::is_over_host(const CGeoPoint3D& pt1)const
-	{
-		bool bRep = false;
-		if (m_host_DS.IsOpen())
-		{
-			CGeoPoint pt2(pt1);
-			if (pt2.GetPrjID() != m_distraction_DS.GetPrjID())
-			{
-				ASSERT(pt1.IsGeographic());
-
-				size_t prjID = m_host_DS.GetPrjID();
-				pt2.Reproject(m_GEO2.at(prjID));
-			}
-
-
-			CGeoPointIndex xy = m_host_DS.GetExtents().CoordToXYPos(pt2);
-			if (m_host_DS.GetExtents().IsInside(xy))
-			{
-				double v = m_host_DS.GetPixel(0, xy);
-				if (v != m_host_DS.GetNoData(0))
-					bRep = v > m_parameters1.m_hostThreshold;
-			}
-		}
-
-		return bRep;
-	}*/
 
 	const CProjectionTransformation& CATMWorld::GetFromWeatherTransfo(CTRef UTCRef)const
 	{
@@ -2174,39 +2003,11 @@ namespace WBSF
 		for (CFlyersIt it = m_flyers.begin(); it != m_flyers.end(); it++)
 		{
 			CTRef Liftoff = it->m_localTRef;
-			//Liftoff.Transform(CTM(CTM::DAILY));
-			//ASSERT(m_parameters1.m_simulationPeriod.IsInside(localTRef2));
-
-			//if (Liftoff == localTRef)
 			if (currentPeriod.IsInside(Liftoff))
 			{
 				ASSERT(it->m_flightNo == 0);
 				fls.push_back(it);
 			}
-			//else if (Liftoff < localTRef)
-			//else if (Liftoff < currentPeriod.Begin() && m_parameters1.m_maxFlights>1)
-			//{
-			//	if (it->GetState() != CFlyer::DESTROYED_BY_OPTIMIZATION)
-			//	{
-			//		if (it->m_flightNo < m_parameters1.m_maxFlights)//less than 3 flights
-			//		{
-			//			if (it->m_flightNo == 0 || is_over_defoliation(it->m_newLocation))
-			//			{
-			//				//il y a un problème ici car on ne change pas l'heure du départ en fonction de la temperature.
-			//				//here we have to adjust liftoff hour...
-			//				//it->m_localTRef += 24;
-			//				//to avoid problem with insect flight past midnight, we remove 12 hours chnage the date and add 12 hours.
-			//				it->m_localTRef -= 12;
-			//				it->m_localTRef.m_month = localTRef2.m_month;
-			//				it->m_localTRef.m_day = localTRef2.m_day;
-			//				it->m_pt.m_alt = 5;
-			//				it->m_localTRef += 12;
-
-			//				fls.push_back(it);
-			//			}
-			//		}
-			//	}
-			//}
 		}
 
 
@@ -3961,287 +3762,5 @@ namespace WBSF
 		return msg;
 	}
 
-
-
-
-
-	//	//Open input
-	//	NcFilePtr ncFile;
-	//
-	//	try
-	//	{
-	//		string NCfilePathIn = FormatA("E:\\Travaux\\Bureau\\WRF2013\\NetCDF\\wrfout_d02_%4d-%02d-%02d_%02d.tif", UTCRef.GetYear(), UTCRef.GetMonth() + 1, UTCRef.GetDay() + 1, UTCRef.GetHour());
-	//		ncFile = NcFilePtr(new NcFile(NCfilePathIn, NcFile::read));
-	//	}
-	//	catch (...)
-	//	{
-	//		msg.ajoute("Unable to open input NetCDF file");
-	//		return msg;
-	//	}
-	//
-	//
-	//	NcVar& var1 = ncFile1[0]->getVar(VARIABLES_NAMES[0]);
-	//	NcVar& var2 = ncFile2[0]->getVar(VARIABLES_NAMES[0]);
-	//
-	//
-	//	size_t d1[NB_DIMS] = { 0 };
-	//	size_t d2[NB_DIMS] = { 0 };
-	//	for (int i = 0; i<NB_DIMS; i++)
-	//	{
-	//		d1[i] = var1.getDim(i).getSize();
-	//		d2[i] = var2.getDim(i).getSize();
-	//	}
-	//
-	//	ASSERT(d1[DIM_LON] == d2[DIM_LON]);
-	//	ASSERT(d1[DIM_LAT] == d2[DIM_LAT]);
-	//
-	//
-	//	//open output
-	//	CBaseOptions options;
-	//	GetOptions(options);
-	//
-	//	ASSERT(d1[DIM_LON] == options.m_extents.m_xSize);
-	//	ASSERT(d1[DIM_LAT] == options.m_extents.m_ySize);
-	//
-	//	CGDALDatasetEx grid[NB_FIELDS];
-	//	for (int v = 0; v<NB_FIELDS; v++)
-	//	{
-	//		string filePathOut = MMG.GetFilePath(v);
-	//		if (!filePathOut.empty())
-	//			msg += grid[v].CreateImage(filePathOut, options);
-	//	}
-	//
-	//	if (!msg)
-	//		return msg;
-	//
-	//
-	//	callback.SetCurrentDescription(RCP_NAME[rcp]);
-	//	callback.SetNbStep(options.m_nbBands * 5);
-	//
-	//
-	//	//********************************************
-	//	CMonthlyVariable output;
-	//	for (int v = 0; v < NB_FIELDS; v++)
-	//	{
-	//		if (grid[v].IsOpen())
-	//			output[v].resize(d1[DIM_LAT] * d1[DIM_LON]);
-	//	}
-	//
-	//
-	//	for (size_t b = 0; b < options.m_nbBands; b++)
-	//		//int b = (2100-1951+1)*12 - 1;
-	//	{
-	//		size_t* d = (b < d1[DIM_TIME] ? d1 : d2);
-	//		size_t base = (b < d1[DIM_TIME] ? 0 : d1[DIM_TIME]);
-	//		vector<size_t> startp(NB_DIMS);
-	//		vector<size_t> countp(NB_DIMS);
-	//
-	//		for (size_t j = 0; j < NB_DIMS; j++)
-	//		{
-	//			startp[j] = (j == DIM_TIME ? b - base : 0);
-	//			countp[j] = (j == DIM_TIME ? 1 : d[j]);//j==0 : TIME; only one month at a time
-	//		}
-	//
-	//
-	//
-	//		//read all data for this month
-	//		for (int v = 0, vv = 0; v<NB_FIELDS; v++)
-	//		{
-	//			if (!output[v].empty())
-	//			{
-	//
-	//				NcVar& var1 = ncFile1[vv]->getVar(VARIABLES_NAMES[vv]);
-	//				NcVar& var2 = ncFile2[vv]->getVar(VARIABLES_NAMES[vv]);
-	//				NcVar& var = (b < d1[DIM_TIME] ? var1 : var2);
-	//
-	//				var.getVar(startp, countp, &(output[v][0]));
-	//				vv++;
-	//
-	//				msg += callback.StepIt();
-	//			}
-	//		}
-	//
-	//		//convert wind speed and comput dew point temperature
-	//		ConvertData(output);
-	//
-	//		//save data
-	//		for (int v = 0; v<NB_FIELDS; v++)
-	//		{
-	//			if (!output[v].empty())
-	//			{
-	//				GDALRasterBand* pBand = grid[v]->GetRasterBand(int(b + 1));
-	//				//GDALRasterBand* pBand = grid[v]->GetRasterBand(1);
-	//				pBand->RasterIO(GF_Write, 0, 0, options.m_extents.m_xSize, options.m_extents.m_ySize, &(output[v][0]), options.m_extents.m_xSize, options.m_extents.m_ySize, GDT_Float32, 0, 0);
-	//			}
-	//		}
-	//
-	//
-	//	}
-	//
-	//	for (int v = 0; v < NB_FIELDS; v++)
-	//	{
-	//		if (grid[v].IsOpen())
-	//		{
-	//
-	//			callback.AddMessage("Close " + grid[v].GetFilePath() + " ...");
-	//			//grid[v].ComputeStats(true);
-	//			grid[v].Close();
-	//		}
-	//	}
-	//
-	//
-	//
-	//	return msg;
-	//}
-
 }
-
-
-//XLAT : description = "LATITUDE, SOUTH IS NEGATIVE";
-//XLONG : description = "LONGITUDE, WEST IS NEGATIVE";
-//LU_INDEX : description = "LAND USE CATEGORY";
-//ZNU : description = "eta values on half (mass) levels";
-//ZNW : description = "eta values on full (w) levels";
-//ZS : description = "DEPTHS OF CENTERS OF SOIL LAYERS";
-//DZS : description = "THICKNESSES OF SOIL LAYERS";
-//VAR_SSO : description = "variance of subgrid-scale orography";
-//LAP_HGT : description = "Laplacian of orography";
-//U : description = "x-wind component";
-//V : description = "y-wind component";
-//W : description = "z-wind component";
-//PH : description = "perturbation geopotential";
-//PHB : description = "base-state geopotential";
-//T : description = "perturbation potential temperature (theta-t0)";
-//HFX_FORCE : description = "SCM ideal surface sensible heat flux";
-//LH_FORCE : description = "SCM ideal surface latent heat flux";
-//TSK_FORCE : description = "SCM ideal surface skin temperature";
-//HFX_FORCE_TEND : description = "SCM ideal surface sensible heat flux tendency";
-//LH_FORCE_TEND : description = "SCM ideal surface latent heat flux tendency";
-//TSK_FORCE_TEND : description = "SCM ideal surface skin temperature tendency";
-//MU : description = "perturbation dry air mass in column";
-//MUB : description = "base state dry air mass in column";
-//NEST_POS : description = "-";
-//P : description = "perturbation pressure";
-//PB : description = "BASE STATE PRESSURE";
-//FNM : description = "upper weight for vertical stretching";
-//FNP : description = "lower weight for vertical stretching";
-//RDNW : description = "inverse d(eta) values between full (w) levels";
-//RDN : description = "inverse d(eta) values between half (mass) levels";
-//DNW : description = "d(eta) values between full (w) levels";
-//DN : description = "d(eta) values between half (mass) levels";
-//CFN : description = "extrapolation constant";
-//CFN1 : description = "extrapolation constant";
-//THIS_IS_AN_IDEAL_RUN : description = "T/F flag: this is an ARW ideal simulation";
-//P_HYD : description = "hydrostatic pressure";
-//Q2 : description = "QV at 2 M";
-//T2 : description = "TEMP at 2 M";
-//TH2 : description = "POT TEMP at 2 M";
-//PSFC : description = "SFC PRESSURE";
-//U10 : description = "U at 10 M";
-//V10 : description = "V at 10 M";
-//RDX : description = "INVERSE X GRID LENGTH";
-//RDY : description = "INVERSE Y GRID LENGTH";
-//RESM : description = "TIME WEIGHT CONSTANT FOR SMALL STEPS";
-//ZETATOP : description = "ZETA AT MODEL TOP";
-//CF1 : description = "2nd order extrapolation constant";
-//CF2 : description = "2nd order extrapolation constant";
-//CF3 : description = "2nd order extrapolation constant";
-//ITIMESTEP : description = "";
-//XTIME : description = "minutes since 2013-07-12 12:00:00";
-//QVAPOR : description = "Water vapor mixing ratio";
-//QCLOUD : description = "Cloud water mixing ratio";
-//QRAIN : description = "Rain water mixing ratio";
-//QICE : description = "Ice mixing ratio";
-//QSNOW : description = "Snow mixing ratio";
-//SHDMAX : description = "ANNUAL MAX VEG FRACTION";
-//SHDMIN : description = "ANNUAL MIN VEG FRACTION";
-//SNOALB : description = "ANNUAL MAX SNOW ALBEDO IN FRACTION";
-//TSLB : description = "SOIL TEMPERATURE";
-//SMOIS : description = "SOIL MOISTURE";
-//SH2O : description = "SOIL LIQUID WATER";
-//SMCREL : description = "RELATIVE SOIL MOISTURE";
-//SEAICE : description = "SEA ICE FLAG";
-//XICEM : description = "SEA ICE FLAG (PREVIOUS STEP)";
-//SFROFF : description = "SURFACE RUNOFF";
-//UDROFF : description = "UNDERGROUND RUNOFF";
-//IVGTYP : description = "DOMINANT VEGETATION CATEGORY";
-//ISLTYP : description = "DOMINANT SOIL CATEGORY";
-//VEGFRA : description = "VEGETATION FRACTION";
-//GRDFLX : description = "GROUND HEAT FLUX";
-//ACGRDFLX : description = "ACCUMULATED GROUND HEAT FLUX";
-//ACSNOM : description = "ACCUMULATED MELTED SNOW";
-//SNOW : description = "SNOW WATER EQUIVALENT";
-//SNOWH : description = "PHYSICAL SNOW DEPTH";
-//CANWAT : description = "CANOPY WATER";
-//SSTSK : description = "SKIN SEA SURFACE TEMPERATURE";
-//COSZEN : description = "COS of SOLAR ZENITH ANGLE";
-//LAI : description = "LEAF AREA INDEX";
-//VAR : description = "OROGRAPHIC VARIANCE";
-//TKE_PBL : description = "TKE from PBL";
-//EL_PBL : description = "Length scale from PBL";
-//MAPFAC_M : description = "Map scale factor on mass grid";
-//MAPFAC_U : description = "Map scale factor on u-grid";
-//MAPFAC_V : description = "Map scale factor on v-grid";
-//MAPFAC_MX : description = "Map scale factor on mass grid, x direction";
-//MAPFAC_MY : description = "Map scale factor on mass grid, y direction";
-//MAPFAC_UX : description = "Map scale factor on u-grid, x direction";
-//MAPFAC_UY : description = "Map scale factor on u-grid, y direction";
-//MAPFAC_VX : description = "Map scale factor on v-grid, x direction";
-//MF_VX_INV : description = "Inverse map scale factor on v-grid, x direction";
-//MAPFAC_VY : description = "Map scale factor on v-grid, y direction";
-//F : description = "Coriolis sine latitude term";
-//E : description = "Coriolis cosine latitude term";
-//SINALPHA : description = "Local sine of map rotation";
-//COSALPHA : description = "Local cosine of map rotation";
-//HGT : description = "Terrain Height";
-//TSK : description = "SURFACE SKIN TEMPERATURE";
-//P_TOP : description = "PRESSURE TOP OF THE MODEL";
-//T00 : description = "BASE STATE TEMPERATURE";
-//P00 : description = "BASE STATE PRESURE";
-//TLP : description = "BASE STATE LAPSE RATE";
-//TISO : description = "TEMP AT WHICH THE BASE T TURNS CONST";
-//TLP_STRAT : description = "BASE STATE LAPSE RATE (DT/D(LN(P)) IN STRATOSPHERE";
-//P_STRAT : description = "BASE STATE PRESSURE AT BOTTOM OF STRATOSPHERE";
-//MAX_MSTFX : description = "Max map factor in domain";
-//MAX_MSTFY : description = "Max map factor in domain";
-//RAINC : description = "ACCUMULATED TOTAL CUMULUS PRECIPITATION";
-//RAINSH : description = "ACCUMULATED SHALLOW CUMULUS PRECIPITATION";
-//RAINNC : description = "ACCUMULATED TOTAL GRID SCALE PRECIPITATION";
-//SNOWNC : description = "ACCUMULATED TOTAL GRID SCALE SNOW AND ICE";
-//GRAUPELNC : description = "ACCUMULATED TOTAL GRID SCALE GRAUPEL";
-//HAILNC : description = "ACCUMULATED TOTAL GRID SCALE HAIL";
-//CLDFRA : description = "CLOUD FRACTION";
-//SWDOWN : description = "DOWNWARD SHORT WAVE FLUX AT GROUND SURFACE";
-//GLW : description = "DOWNWARD LONG WAVE FLUX AT GROUND SURFACE";
-//SWNORM : description = "NORMAL SHORT WAVE FLUX AT GROUND SURFACE (SLOPE-DEPENDENT)";
-//DIFFUSE_FRAC : description = "DIFFUSE FRACTION OF SURFACE SHORTWAVE IRRADIANCE";
-//OLR : description = "TOA OUTGOING LONG WAVE";
-//XLAT_U : description = "LATITUDE, SOUTH IS NEGATIVE";
-//XLONG_U : description = "LONGITUDE, WEST IS NEGATIVE";
-//XLAT_V : description = "LATITUDE, SOUTH IS NEGATIVE";
-//XLONG_V : description = "LONGITUDE, WEST IS NEGATIVE";
-//ALBEDO : description = "ALBEDO";
-//CLAT : description = "COMPUTATIONAL GRID LATITUDE, SOUTH IS NEGATIVE";
-//ALBBCK : description = "BACKGROUND ALBEDO";
-//EMISS : description = "SURFACE EMISSIVITY";
-//NOAHRES : description = "RESIDUAL OF THE NOAH SURFACE ENERGY BUDGET";
-//TMN : description = "SOIL TEMPERATURE AT LOWER BOUNDARY";
-//XLAND : description = "LAND MASK (1 FOR LAND, 2 FOR WATER)";
-//UST : description = "U* IN SIMILARITY THEORY";
-//PBLH : description = "PBL HEIGHT";
-//HFX : description = "UPWARD HEAT FLUX AT THE SURFACE";
-//QFX : description = "UPWARD MOISTURE FLUX AT THE SURFACE";
-//LH : description = "LATENT HEAT FLUX AT THE SURFACE";
-//ACHFX : description = "ACCUMULATED UPWARD HEAT FLUX AT THE SURFACE";
-//ACLHF : description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE";
-//SNOWC : description = "FLAG INDICATING SNOW COVERAGE (1 FOR SNOW COVER)";
-//SR : description = "fraction of frozen precipitation";
-//SAVE_TOPO_FROM_REAL : description = "1=original topo from real/0=topo modified by WRF";
-//ISEEDARR_RAND_PERTURB : description = "Array to hold seed for restart, RAND_PERT";
-//ISEEDARR_SPPT : description = "Array to hold seed for restart, SPPT";
-//ISEEDARR_SKEBS : description = "Array to hold seed for restart, SKEBS";
-//LANDMASK : description = "LAND MASK (1 FOR LAND, 0 FOR WATER)";
-//LAKEMASK : description = "LAKE MASK (1 FOR LAKE, 0 FOR NON-LAKE)";
-//SST : description = "SEA SURFACE TEMPERATURE";
-//SST_INPUT : description = "SEA SURFACE TEMPERATURE FROM WRFLOWINPUT FILE";
 

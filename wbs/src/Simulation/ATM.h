@@ -646,13 +646,8 @@ namespace WBSF
 		bool m_bUsePredictorCorrectorMethod;
 		bool m_bUseVerticalVelocity;
 		size_t m_maxFlights;
-
-		double m_maxFliyers;
-		double m_defoliationThreshold;
-//		double m_distractionThreshold;
-	//	double m_hostThreshold;
-
-
+		size_t m_maxFliyers;
+		
 		std::string m_gribs_name; //filepath on the grib file list
 		std::string m_defoliation_name;
 		std::string m_hourly_DB_name;
@@ -693,9 +688,6 @@ namespace WBSF
 
 
 			m_maxFliyers = 0;
-			m_defoliationThreshold = 20;
-			//m_distractionThreshold = 90;
-			//m_hostThreshold = 40;
 
 			m_gribs_name.clear();
 			m_defoliation_name.clear();
@@ -722,23 +714,15 @@ namespace WBSF
 				m_simulationPeriod = in.m_simulationPeriod;
 				m_time_step = in.m_time_step;
 				m_seed = in.m_seed;
-//				m_bReversed = in.m_bReversed;
 				m_bUseSpaceInterpolation = in.m_bUseSpaceInterpolation;
 				m_bUseTimeInterpolation = in.m_bUseTimeInterpolation;
 				m_bUsePredictorCorrectorMethod = in.m_bUsePredictorCorrectorMethod;
-				//m_bUseTurbulance = in.m_bUseTurbulance;
 				m_bUseVerticalVelocity = in.m_bUseVerticalVelocity;
 				m_maxFlights = in.m_maxFlights;
-
 				m_maxFliyers = in.m_maxFliyers;
-				m_defoliationThreshold = in.m_defoliationThreshold;
-				//m_distractionThreshold = in.m_distractionThreshold;
-				//m_hostThreshold = in.m_hostThreshold;
 
 				m_gribs_name = in.m_gribs_name;
 				m_defoliation_name = in.m_defoliation_name;
-				//m_host_name = in.m_host_name;
-				//m_distraction_name = in.m_distraction_name;
 				m_hourly_DB_name = in.m_hourly_DB_name;
 				m_DEM_name = in.m_DEM_name;
 				m_water_name = in.m_water_name;
@@ -767,19 +751,12 @@ namespace WBSF
 			if (m_bUseSpaceInterpolation != in.m_bUseSpaceInterpolation)bEqual = false;
 			if (m_bUseTimeInterpolation != in.m_bUseTimeInterpolation)bEqual = false;
 			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
-			//if (m_bUseTurbulance != in.m_bUseTurbulance)bEqual = false;
 			if (m_bUseVerticalVelocity != in.m_bUseVerticalVelocity)bEqual = false;
 			if (m_maxFlights != in.m_maxFlights)bEqual = false;
-			
 			if (m_maxFliyers != in.m_maxFliyers)bEqual = false;
-			if (m_defoliationThreshold != in.m_defoliationThreshold)bEqual = false;
-			//if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
-			//if (m_hostThreshold != in.m_hostThreshold)bEqual = false;
 
 			if (m_gribs_name != in.m_gribs_name)bEqual = false;
 			if (m_defoliation_name != in.m_defoliation_name)bEqual = false;
-			//if (m_host_name != in.m_host_name)bEqual = false;
-//			if (m_distraction_name != in.m_distraction_name)bEqual = false;
 			if (m_hourly_DB_name != in.m_hourly_DB_name)bEqual = false;
 			if (m_DEM_name != in.m_DEM_name)bEqual = false;
 			if (m_water_name != in.m_water_name)bEqual = false;
@@ -944,17 +921,14 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](in.m_simulationPeriod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](in.m_time_step);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](in.m_seed);
-	//	out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::REVERSED)](in.m_bReversed);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_SPACE_INTERPOL)](in.m_bUseSpaceInterpolation);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TIME_INTERPOL)](in.m_bUseTimeInterpolation);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](in.m_bUsePredictorCorrectorMethod);
-		//out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](in.m_bUseTurbulance);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](in.m_bUseVerticalVelocity);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](in.m_maxFliyers);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLIGHTS)](in.m_maxFlights);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](in.m_gribs_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](in.m_defoliation_name);
-//		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](in.m_host_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](in.m_hourly_DB_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](in.m_DEM_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WATER)](in.m_water_name);
@@ -978,17 +952,14 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](out.m_simulationPeriod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](out.m_time_step);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](out.m_seed);
-		//in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::REVERSED)](out.m_bReversed);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_SPACE_INTERPOL)](out.m_bUseSpaceInterpolation);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TIME_INTERPOL)](out.m_bUseTimeInterpolation);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](out.m_bUsePredictorCorrectorMethod);
-		//in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_TURBULANCE)](out.m_bUseTurbulance);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](out.m_bUseVerticalVelocity);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](out.m_maxFliyers);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLIGHTS)](out.m_maxFlights);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](out.m_gribs_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](out.m_defoliation_name);
-		//in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOST)](out.m_host_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](out.m_hourly_DB_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEM)](out.m_DEM_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WATER)](out.m_water_name);

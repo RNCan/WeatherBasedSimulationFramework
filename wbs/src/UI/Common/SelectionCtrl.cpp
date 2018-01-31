@@ -326,5 +326,5 @@ void CSelectionDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 {
 	CDialog::OnGetMinMaxInfo(lpMMI);
 	lpMMI->ptMinTrackSize.x = 300;
-	lpMMI->ptMinTrackSize.y = 600;
+	lpMMI->ptMinTrackSize.y = 400;
 }
