@@ -177,7 +177,6 @@ namespace WBSF
 				m_PSource = in.m_PSource;
 				m_Pmax = in.m_Pmax;
 				m_Wmin = in.m_Wmin;
-				//m_height_type = in.m_height_type;
 				m_w_α = in.m_w_α;
 				m_Δv = in.m_Δv;
 				m_w_horizontal = in.m_w_horizontal;
@@ -201,7 +200,6 @@ namespace WBSF
 			if (m_PSource != in.m_PSource)bEqual = false;
 			if (m_Pmax != in.m_Pmax)bEqual = false;
 			if (m_Wmin != in.m_Wmin)bEqual = false;
-			//if (m_height_type != in.m_height_type)bEqual = false;
 			if (m_w_α != in.m_w_α)bEqual = false;
 			if (m_w_horizontal != in.m_w_horizontal)bEqual = false;
 			if (m_w_horizontal_σ != in.m_w_horizontal_σ)bEqual = false;
@@ -455,9 +453,6 @@ namespace WBSF
 		size_t size()const{ return TRefDatasetMapBase::size(); }
 		
 		bool get_fixed_elevation_level(CTRef TRef, size_t l, double& elev)const;
-		//CGDALDatasetCachedPtr operator[](CTRef TRef)const{ return at(TRef); }
-
-
 		bool convert_VVEL(CTRef TRef)const;
 	};
 
@@ -468,12 +463,10 @@ namespace WBSF
 	{
 	public:
 
-		//enum TGribType{ RUC_TYPE, WRF_TYPE };
 
 		CATMWeather(CATMWorld& world) :
 			m_world(world)
 		{
-			//m_bSkipDay = false;
 			m_bHgtOverSea = false;
 			m_bHgtOverSeaTested = false;
 		}
@@ -496,7 +489,6 @@ namespace WBSF
 		
 		CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
 		size_t get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, CTRef UTCTRef, bool bLow)const;
-		//int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
 		double GetFirstAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
 
 		bool is_init()const{ return !m_filepath_map.empty() || m_p_hourly_DB != NULL; }
@@ -509,9 +501,6 @@ namespace WBSF
 		//const CGeoExtents& GetExtents()const{ return  m_extents; }
 		static double LandWaterWindFactor(double Ul, double ΔT);
 		static void GetWindProfileRelationship(double& Ur, double& Vr, double z, int stabType, bool bOverWather, double ΔT);
-
-		//void ResetSkipDay(){ m_bSkipDay = false; }
-		//bool SkipDay()const{ return  m_bSkipDay; }
 
 		bool HaveGribsWeather()const{ return !m_filePathGribs.empty(); }
 		bool HaveStationWeather()const{ return !m_filePathHDB.empty(); }
@@ -552,7 +541,6 @@ namespace WBSF
 		size_t m_loc;
 		size_t m_par;
 		size_t m_rep;
-		//size_t m_no;
 		
 		size_t m_flightNo;
 		double m_scale;
@@ -594,10 +582,7 @@ namespace WBSF
 
 		CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w, CTRef UTCTRef, __int64 UTCTime)const;
-		//CGeoDistance3D get_U(CTRef UTCTRef, __int64 UTCTime)const;
 		double get_Uz(__int64 UTCTime, const CATMVariables& w)const;
-		
-		//double get_Uz(double T)const; 
 		
 		double get_Vᵀ(double T)const;
 		double get_Tᴸ()const;
@@ -648,7 +633,6 @@ namespace WBSF
 
 		//static public member 
 		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		//REVERSED, USE_TURBULANCE, HOST, 
 		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, EGG_MAP_RES, NB_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
 
@@ -657,24 +641,20 @@ namespace WBSF
 		CTPeriod m_simulationPeriod;
 		size_t m_time_step;	//time step in [s]
 		size_t m_seed;
-		//bool m_bReversed;
 		bool m_bUseSpaceInterpolation;
 		bool m_bUseTimeInterpolation;
 		bool m_bUsePredictorCorrectorMethod;
-		//bool m_bUseTurbulance;
 		bool m_bUseVerticalVelocity;
 		size_t m_maxFlights;
 
 		double m_maxFliyers;
 		double m_defoliationThreshold;
-		double m_distractionThreshold;
-		double m_hostThreshold;
+//		double m_distractionThreshold;
+	//	double m_hostThreshold;
 
 
 		std::string m_gribs_name; //filepath on the grib file list
 		std::string m_defoliation_name;
-		//std::string m_host_name;
-		//std::string m_distraction_name;
 		std::string m_hourly_DB_name;
 		std::string m_DEM_name;
 		std::string m_water_name;
@@ -705,24 +685,20 @@ namespace WBSF
 			m_simulationPeriod = CTPeriod(CTRef::GetCurrentTRef(), CTRef::GetCurrentTRef());
 			m_time_step = 10; //10 seconds by default
 			m_seed = 0;
-//			m_bReversed = false;
 			m_bUseSpaceInterpolation = true;
 			m_bUseTimeInterpolation = true;
 			m_bUsePredictorCorrectorMethod = true;
-		//	m_bUseTurbulance = false;
 			m_bUseVerticalVelocity = true;
 			m_maxFlights = 3;
 
 
 			m_maxFliyers = 0;
 			m_defoliationThreshold = 20;
-			m_distractionThreshold = 90;
-			m_hostThreshold = 40;
+			//m_distractionThreshold = 90;
+			//m_hostThreshold = 40;
 
 			m_gribs_name.clear();
 			m_defoliation_name.clear();
-			//m_host_name.clear();
-			//m_distraction_name.clear();
 			m_hourly_DB_name.clear();
 			m_DEM_name.clear();
 			m_water_name.clear();
@@ -756,8 +732,8 @@ namespace WBSF
 
 				m_maxFliyers = in.m_maxFliyers;
 				m_defoliationThreshold = in.m_defoliationThreshold;
-				m_distractionThreshold = in.m_distractionThreshold;
-				m_hostThreshold = in.m_hostThreshold;
+				//m_distractionThreshold = in.m_distractionThreshold;
+				//m_hostThreshold = in.m_hostThreshold;
 
 				m_gribs_name = in.m_gribs_name;
 				m_defoliation_name = in.m_defoliation_name;
@@ -788,7 +764,6 @@ namespace WBSF
 			if (m_simulationPeriod != in.m_simulationPeriod)bEqual = false;
 			if (m_time_step != in.m_time_step)bEqual = false;
 			if (m_seed != in.m_seed)bEqual = false;
-			if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
 			if (m_bUseSpaceInterpolation != in.m_bUseSpaceInterpolation)bEqual = false;
 			if (m_bUseTimeInterpolation != in.m_bUseTimeInterpolation)bEqual = false;
 			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
@@ -798,8 +773,8 @@ namespace WBSF
 			
 			if (m_maxFliyers != in.m_maxFliyers)bEqual = false;
 			if (m_defoliationThreshold != in.m_defoliationThreshold)bEqual = false;
-			if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
-			if (m_hostThreshold != in.m_hostThreshold)bEqual = false;
+			//if (m_distractionThreshold != in.m_distractionThreshold)bEqual = false;
+			//if (m_hostThreshold != in.m_hostThreshold)bEqual = false;
 
 			if (m_gribs_name != in.m_gribs_name)bEqual = false;
 			if (m_defoliation_name != in.m_defoliation_name)bEqual = false;
@@ -858,16 +833,16 @@ namespace WBSF
 		CFlyers m_flyers;
 		CGDALDatasetCached m_DEM_DS;
 		CGDALDatasetCached m_defoliation_DS;
-		CGDALDatasetCached m_host_DS;
-		CGDALDatasetCached m_distraction_DS;
+		//CGDALDatasetCached m_host_DS;
+		//CGDALDatasetCached m_distraction_DS;
 		CGDALDatasetCached m_water_DS;
 
 
 		double GetGroundAltitude(const CGeoPoint3D& pt)const;
 		bool is_over_defoliation(const CGeoPoint3D& pt)const;
 		double get_defoliation(const CGeoPoint3D& pt)const;
-		bool is_over_distraction(const CGeoPoint3D& pt)const;
-		bool is_over_host(const CGeoPoint3D& pt)const;
+		//bool is_over_distraction(const CGeoPoint3D& pt)const;
+		//bool is_over_host(const CGeoPoint3D& pt)const;
 		bool is_over_water(const CGeoPoint3D& pt)const;
 
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
@@ -900,7 +875,6 @@ namespace WBSF
 
 		
 		ERMsg Init(ofStream& output_file, CCallback& callback);
-		ERMsg Execute2(CTRef TRef, CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
 
 
 	protected:
@@ -927,7 +901,6 @@ namespace zen
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::PRCP_SOURCE)](in.m_broodTSource);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](in.m_Pmax);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](in.m_Wmin);
-		//out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](in.m_height_type);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_SCALE)](in.m_w_α);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](in.m_w_horizontal);
 		out[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
@@ -947,7 +920,6 @@ namespace zen
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::PRCP_SOURCE)](out.m_broodTSource);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::P_MAX)](out.m_Pmax);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_MIN)](out.m_Wmin);
-		//in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::HEIGHT_TYPE)](out.m_height_type);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::WING_BEAT_SCALE)](out.m_w_α);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ)](out.m_w_horizontal);
 		in[WBSF::CATMParameters::GetMemberName(WBSF::CATMParameters::W_HORZ_SD)](out.m_w_horizontal_σ);

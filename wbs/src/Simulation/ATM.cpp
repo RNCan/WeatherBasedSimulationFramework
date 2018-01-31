@@ -450,10 +450,10 @@ namespace WBSF
 			if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 			{
 				__int64 duration = UTCTime - m_liffoff_time;
-				if (duration > 60 * 5)//m_Δv si apply only after 5 minutes flight
+				if (m_pt.m_z == 0 && m_pt.m_z > 60)//m_Δv apply only up to 60 meters when the moth lift-off
 					m_Δv = m_world.m_parameters2.m_Δv;
 
-				//after gresenbank : After dark (2200 h), the orientation soon became completely downwind at all altitudes.
+				//after greenbank : After dark (2200 h), the orientation soon became completely downwind at all altitudes.
 				//if (m_world.m_parameters1.m_bUseTurbulance)
 				//{
 				//	//change flight angle relative to wind angle
@@ -733,7 +733,6 @@ namespace WBSF
 	double CFlyer::get_Uz(__int64 UTCTime, const CATMVariables& w)const
 	{
 		ASSERT(m_state == FLIGHT);
-		//ASSERT(m_world.m_parameters2.m_height_type < CATMParameters::NB_HEIGHT_MODELS);
 
 		double Uz = 0;
 		double Vᵀ = get_Vᵀ(w[ATM_TAIR]);
@@ -1298,29 +1297,12 @@ namespace WBSF
 		return L;
 	}
 
-	//int CATMWeather::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const
-	//{
-	//	int L = NB_LEVELS - 1;//take the last level
-	//
-	//	for (int l = 1; l < NB_LEVELS; l++)
-	//	{
-	//		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-	//		double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
-	//
-	//		if (alt < gph)
-	//		{
-	//			L = l;
-	//			break;
-	//		}
-	//	}
-	//
-	//	return L;
-	//}
+	
 
 	double CATMWeather::GetFirstAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
 	{
 		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
-		//ASSERT(b != NOT_INIT);
+	
 		if (b == NOT_INIT)
 			return -999;
 
@@ -1343,12 +1325,11 @@ namespace WBSF
 		{
 			size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
 			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz); //geopotential height [m]
-			if (l == 0)//if the point is lower than 15 meters of the surface, we take surface
-				gph += 15;
+			if (l == 0)//if the point is lower than 5 meters of the surface, we take surface
+				gph += 5;
 
 			if (pt.m_alt <= gph)
 			{
-				//xyz.m_z = int(b);
 				xyz.m_z = int(l);
 				break;
 			}
@@ -1405,9 +1386,6 @@ namespace WBSF
 			pt.m_z = max(0.0, pt.m_z);
 			pt.m_z += groundAlt;
 
-
-			//ASSERT(extents.IsInside(pt));
-
 			CGeoPointIndex xy1 = get_xy(pt, UTCTRef);
 
 			for (size_t z = 0; z < NB_POINTS_Z; z++)
@@ -1437,9 +1415,7 @@ namespace WBSF
 
 									if (b == UNKNOWN_POS && v == ATM_WNDW)
 									{
-										//ASSERT(gribType == RUC_TYPE);
 										b = m_p_weather_DS.get_band(UTCTRef, ATM_VVEL, L);
-										//ASSERT(b != NOT_INIT);
 										if (b != NOT_INIT)
 											bConvertVVEL = true;
 									}
@@ -2114,7 +2090,7 @@ namespace WBSF
 	}
 
 
-	bool CATMWorld::is_over_distraction(const CGeoPoint3D& pt1)const
+	/*bool CATMWorld::is_over_distraction(const CGeoPoint3D& pt1)const
 	{
 		bool bRep = false;
 		if (m_distraction_DS.IsOpen())
@@ -2167,7 +2143,7 @@ namespace WBSF
 		}
 
 		return bRep;
-	}
+	}*/
 
 	const CProjectionTransformation& CATMWorld::GetFromWeatherTransfo(CTRef UTCRef)const
 	{
@@ -2305,14 +2281,14 @@ namespace WBSF
 				const_cast<CATMWorld&>(*this).m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
 		}
 
-		if (m_host_DS.IsOpen())
-		{
-			size_t prjID = m_host_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
-			if (m_GEO2.find(prjID) == m_GEO2.end())
-				const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
-			if (m_2GEO.find(prjID) == m_2GEO.end())
-				const_cast<CATMWorld&>(*this).m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
-		}
+		//if (m_host_DS.IsOpen())
+		//{
+		//	size_t prjID = m_host_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
+		//	if (m_GEO2.find(prjID) == m_GEO2.end())
+		//		const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
+		//	if (m_2GEO.find(prjID) == m_2GEO.end())
+		//		const_cast<CATMWorld&>(*this).m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
+		//}
 
 		size_t prjID = m_DEM_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
 		if (m_GEO2.find(prjID) == m_GEO2.end())
@@ -2346,22 +2322,10 @@ namespace WBSF
 
 		callback.PushTask("Execute dispersal for year = " + ToString(period.Begin().GetYear()) + " (" + ToString(period.GetNbDay()) + " days)", period.GetNbDay());
 		//simulate for all days
-		//for (set<CTRef>::const_iterator it = TRefs.begin(); it != TRefs.end() && msg; it++)
 		for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
 		{
 			//get all flyers for this day
 			vector<CFlyersIt> fls = GetFlyers(TRef);
-
-
-
-			//temporaire : a enlver
-			//fls[0]->m_A *= 2;
-			//fls[0]->m_G /= 2;
-			//fls[0]->m_liftoffOffset = 0;
-			//fls[0]->m_localTRef = CTRef(2007,JUNE,DAY_22, 14);
-
-
-
 			nbTotalFlight += fls.size();
 
 			//init all flyers
@@ -2420,25 +2384,8 @@ namespace WBSF
 					continue;
 				}
 
-				/*{
-					ifStream file;
-					file.open("H:\\Travaux\\Dispersal2007\\Weather\\WRFdata\\wrfbud2_000.txt");
-					ofStream fileOut;
-					fileOut.open("H:\\Travaux\\Dispersal2007\\layers\\weather_coord.csv");
-					fileOut.write("No,latitude,longitude\n");
-
-					string line;
-					while (std::getline(file, line))
-					{
-					StringVector tmp;
-					tmp.Tokenize(line, " ", true);
-					if (tmp.size() == 3)
-					{
-					fileOut << tmp[2] << "," << tmp[0] << "," << tmp[1] << endl;
-					}
-					}
-					}*/
-
+				
+				//code to compare with Gary results
 				//ifStream file;
 				//if (file.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL.txt"))
 				//{
@@ -2713,13 +2660,7 @@ namespace WBSF
 					if (!bOverWater)
 					{
 						CTRef Liftoff = (*it)->m_localTRef;
-						//if ((*it)->GetState() != CFlyer::DESTROYED_BY_OPTIMIZATION)
-						//{
-
-
-
 						bool bOverDefol = is_over_defoliation((*it)->m_newLocation);
-
 
 						if (bOverDefol && m_parameters1.m_maxFlights > 1 && (*it)->m_flightNo < m_parameters1.m_maxFlights)
 						{
@@ -2736,36 +2677,6 @@ namespace WBSF
 							}
 						}
 
-
-
-						//if ((*it)->m_sex == CATMParameters::FEMALE)
-						//{
-						//	if (bOverDefol&&m_parameters1.m_maxFlights>1 && (*it)->m_flightNo < m_parameters1.m_maxFlights)
-						//	{
-
-						//		double T = 17;
-						//		//switch (m_parameters2.m_broodTSource)
-						//		//{
-						//		//case CATMParameters::BROOD_T_17: T = 17; break;
-						//		//case CATMParameters::BROOD_T_SAME_AS_INPUT:
-						//		//{
-						//		//	//CATMVariables w = get_weather(UTCTRef, UTCTime);
-						//		//	//T = w[ATM_TAIR]; 
-						//		//	break;
-						//		//}
-						//		//case CATMParameters::BROOD_T_WEATHER_STATION:
-						//		//	; break;
-						//		//}
-
-
-						//		(*it)->Brood(T);
-						//	}
-						//	else
-						//	{
-						//		(*it)->m_broods = (*it)->m_eggsLeft;
-						//	}
-
-						//}//if female
 					}//not over water
 				}//for all flyers, update egg and shedule new flight
 			}//have flyers
@@ -2809,14 +2720,14 @@ namespace WBSF
 				const_cast<CATMWorld&>(*this).m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
 		}
 
-		if (m_host_DS.IsOpen())
+		/*if (m_host_DS.IsOpen())
 		{
 			size_t prjID = m_host_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
 			if (m_GEO2.find(prjID) == m_GEO2.end())
 				const_cast<CATMWorld&>(*this).m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
 			if (m_2GEO.find(prjID) == m_2GEO.end())
 				const_cast<CATMWorld&>(*this).m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
-		}
+		}*/
 
 		size_t prjID = m_DEM_DS.GetPrjID(); ASSERT(prjID != NOT_INIT);
 		if (m_GEO2.find(prjID) == m_GEO2.end())
@@ -2845,10 +2756,6 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CATMWorld::Execute2(CTRef TRef, CATMOutputMatrix& output, ofStream& output_file, CCallback& callback)
-	{
-		return ERMsg();
-	}
 
 	ERMsg CATMWorld::CreateEggDepositionMap(const string& outputFilePath, CATMOutputMatrix& output, CCallback& callback)
 	{
@@ -2884,7 +2791,6 @@ namespace WBSF
 								CTRef TRef = output[l][p][r].GetFirstTRef() + t;
 								period.Inflate(TRef);
 								CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], options.m_extents.GetPrjID());
-								//ATM_LAT, ATM_LON
 								extents.ExtendBounds(pt);
 							}
 							msg += callback.StepIt();
@@ -2908,21 +2814,17 @@ namespace WBSF
 				extents.m_xMax = extents.m_xMin + extents.m_xSize*m_parameters1.m_eggMapsResolution;
 				extents.m_yMin = extents.m_yMax - extents.m_ySize*m_parameters1.m_eggMapsResolution;
 
-				//extents.AlignTo(options.m_extents);
-
 				options.m_bOverwrite = true;
 				options.m_extents = extents;
-				options.m_nbBands = 1; // period.size() + 1;//+1 for the season
+				options.m_nbBands = 1; 
 				options.m_outputType = GDT_Float32;
 				options.m_dstNodata = -9999;
 				options.m_createOptions.push_back("-co COMPRESS=LZW");
 				options.m_bComputeStats = true;
 				options.m_overviewLevels = { { 2, 4, 8, 16 } };
 
-				//GetPeriodW
 
 				//Open input image
-
 				CGDALDatasetEx outputDS;
 				msg += outputDS.CreateImage(outputFilePath, options);
 
@@ -2934,7 +2836,6 @@ namespace WBSF
 
 					for (size_t d = 0; d < period.size() && msg; d++)
 					{
-						//vector<float> day(extents.m_ySize*extents.m_xSize);
 						CTRef TRef1 = period.Begin() + d;
 
 						for (size_t l = 0; l < output.size() && msg; l++)
@@ -2955,7 +2856,6 @@ namespace WBSF
 
 												CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
 												size_t pos = xy.m_y*extents.m_xSize + xy.m_x;
-												//day[pos] += output[l][p][r][t][ATM_EGGS_LAID];
 												season[pos] += output[l][p][r][t][ATM_EGGS_LAID];
 											}
 										}
@@ -2964,10 +2864,6 @@ namespace WBSF
 								}
 							}
 						}
-
-						//GDALRasterBand* pBandOut = outputDS.GetRasterBand(d + 1);//first band keep for the seanson
-						//pBandOut->RasterIO(GF_Write, 0, 0, extents.m_xSize, extents.m_ySize, &(day[0]), extents.m_xSize, extents.m_ySize, GDT_Float32, 0, 0);
-
 					}
 
 					GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the seanson
@@ -2983,13 +2879,6 @@ namespace WBSF
 		return msg;
 	}
 
-
-	//Question:
-	//s'il pleut dans la journé, est-ce que les papillon vol quand même?
-	//Si le papillon manque sont heure de vol, est-ce qu'il peut volé plus tard ou une autre journée? alors à quel cette autre journée
-	//le calcul hunt doit comment après le liftoff ou bione quand il arrive en vol horizontal (comme avant)
-	//est-ce que le calcul du temp vol inclus le temps d'ascention et la descebnte?
-	//est-ce zero ou Pmax qui influance liftoff, dans le code semble être zero,mais l'article Pmax????
 
 	std::mutex CGDALDatasetCached::m_mutex;
 	CGDALDatasetCached::CGDALDatasetCached()
