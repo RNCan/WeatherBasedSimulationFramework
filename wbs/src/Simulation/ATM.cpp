@@ -448,7 +448,7 @@ namespace WBSF
 			if (w[ATM_PRCP] < m_world.m_parameters2.m_Pmax)
 			{
 				__int64 duration = UTCTime - m_liffoff_time;
-				if (m_pt.m_z == 0 && m_pt.m_z > 60)//m_Δv apply only up to 60 meters when the moth lift-off
+				if (m_Δv == 0 && m_pt.m_z > 60)//m_Δv is apply atfer lift-off when the moth reach an altitude of 60 meters
 					m_Δv = m_world.m_parameters2.m_Δv;
 
 				//after greenbank : After dark (2200 h), the orientation soon became completely downwind at all altitudes.
