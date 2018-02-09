@@ -41,7 +41,7 @@ static char THIS_FILE[]=__FILE__;
 
 namespace WBSF
 {
-	enum { NB_TOTAL_VARIABLES = CLocation::SITE_SPECIFIC_INFORMATION, NB_YEARS, COMPLETENESS, NB_STATIONS_COLUMNS };
+	enum { C_ID, C_NAME, C_LATITUDE, C_LONGITUDE, C_ALTITUDE, C_SHORE_DISTANCE, C_NB_TOTAL_VARIABLES, C_NB_YEARS, C_COMPLETENESS, NB_STATIONS_COLUMNS };
 
 	class FindByIndex
 	{
@@ -268,14 +268,18 @@ namespace WBSF
 			{
 				if (row == -1)
 				{
-					if (col == NB_TOTAL_VARIABLES)
-						text = GetString(IDS_STR_NB_VARIABLES);
-					else if (col == NB_YEARS)
-						text = GetString(IDS_STR_YEARS);
-					else if (col == COMPLETENESS)
-						text = GetString(IDS_STR_COMPLETENESS);
-					else
+					if (col < C_SHORE_DISTANCE)
 						text = CLocation::GetMemberTitle(col);
+					else if (col == C_SHORE_DISTANCE)
+						text = GetString(IDS_STR_SHORE_DISTANCE);
+					else if (col == C_NB_TOTAL_VARIABLES)
+						text = GetString(IDS_STR_NB_VARIABLES);
+					else if (col == C_NB_YEARS)
+						text = GetString(IDS_STR_YEARS);
+					else if (col == C_COMPLETENESS)
+						text = GetString(IDS_STR_COMPLETENESS);
+					
+						
 				}
 				else
 				{
@@ -301,25 +305,30 @@ namespace WBSF
 							textColor = RGB(255, 255, 255);
 						}
 
-						if (col == NB_TOTAL_VARIABLES)
+						if (col < C_SHORE_DISTANCE)
+						{
+							text = location.GetMember(col);
+						}
+						else if (col == C_SHORE_DISTANCE)
+						{
+							text = ToString(location.GetShoreDistance()/1000,1);
+						}
+						else if (col == C_NB_TOTAL_VARIABLES)
 						{
 							CWVariables vars = m_pDB->GetWVariables(index);
 							text = ToString(vars.count());
 						}
-						else if (col == NB_YEARS)
+						else if (col == C_NB_YEARS)
 						{
 							std::set<int> years = m_pDB->GetYears(index);
 							text = ToString(years.size());
 						}
-						else if (col == COMPLETENESS)
+						else if (col == C_COMPLETENESS)
 						{
 							double completenedd = GetCompleteness(m_pDB->GetWVariablesCounter(index));
 							text = ToString(completenedd, 1);
 						}
-						else
-						{
-							text = location.GetMember(col);
-						}
+						
 					}
 				}
 			}
@@ -524,15 +533,16 @@ namespace WBSF
 
 						switch (m_curSortCol)
 						{
-						case -1:   str = to_string(pos + 1); break;
-						case CLocation::ID:   str = loc.m_ID; break;
-						case CLocation::NAME: str = loc.m_name; break;
-						case CLocation::LAT:  str = FormatA("%015.6lf", loc.m_lat); break;
-						case CLocation::LON:  str = FormatA("%015.6lf", loc.m_lon); break;
-						case CLocation::ELEV: str = FormatA("%010.3lf", loc.m_elev); break;
-						case NB_TOTAL_VARIABLES:str = FormatA("%d", m_pDB->GetWVariables(it->m_index).count()); break;
-						case NB_YEARS:			str = FormatA("%03d", m_pDB->GetYears(it->m_index).size()); break;
-						case COMPLETENESS:		str = FormatA("%010.3lf", GetCompleteness(m_pDB->GetWVariablesCounter(it->m_index))); break;
+						case -1:					str = to_string(pos + 1); break;
+						case C_ID:					str = loc.m_ID; break;
+						case C_NAME:				str = loc.m_name; break;
+						case C_LATITUDE:			str = FormatA("%015.6lf", loc.m_lat); break;
+						case C_LONGITUDE:			str = FormatA("%015.6lf", loc.m_lon); break;
+						case C_ALTITUDE:			str = FormatA("%010.1lf", loc.m_elev); break;
+						case C_SHORE_DISTANCE:		str = FormatA("%010.1lf", loc.GetShoreDistance() / 1000); break;
+						case C_NB_TOTAL_VARIABLES:	str = FormatA("%d", m_pDB->GetWVariables(it->m_index).count()); break;
+						case C_NB_YEARS:			str = FormatA("%03d", m_pDB->GetYears(it->m_index).size()); break;
+						case C_COMPLETENESS:		str = FormatA("%010.3lf", GetCompleteness(m_pDB->GetWVariablesCounter(it->m_index))); break;
 
 						default: ASSERT(false);
 						}

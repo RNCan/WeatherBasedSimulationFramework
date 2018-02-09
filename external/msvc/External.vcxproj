@@ -22,9 +22,6 @@
     <ProjectReference Include="..\netCDF\windows\netcdfLib.vcxproj">
       <Project>{1544cea3-1365-4482-a719-ff5c14bbae29}</Project>
     </ProjectReference>
-    <ProjectReference Include="AnnLib.vcxproj">
-      <Project>{22c6541c-c3ec-449a-bb85-31e28fc783bc}</Project>
-    </ProjectReference>
     <ProjectReference Include="cctz.vcxproj">
       <Project>{c5c95523-3635-4df4-8fb8-f51468e3938d}</Project>
     </ProjectReference>

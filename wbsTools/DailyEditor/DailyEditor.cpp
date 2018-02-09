@@ -1,3 +1,4 @@
+// 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
 // 4.2.0	27/11/2016	Rémi Saint-Amant	Add 'D' at the end of data directory and use .DailyDB 
 // 4.1.1	01/11/2016	Rémi Saint-Amant	save station list in .csv file

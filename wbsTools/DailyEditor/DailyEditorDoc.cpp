@@ -6,11 +6,13 @@
 
 #include "DailyEditorDoc.h"
 #include "resource.h"
+#include "Basic/Shore.h"
+#include "Basic/UtilStd.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
-#include "Basic/UtilStd.h"
+
 
 #include "MainFrm.h"
 #include "OutputView.h"
@@ -71,6 +73,15 @@ BOOL CDailyEditorDoc::OnNewDocument()
 
 	m_pDatabase.reset(new CDailyDatabase);
 	m_pStation.reset(new CWeatherStation);
+
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg;
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+	}
 
 	return TRUE;
 }
@@ -327,13 +338,18 @@ bool CDailyEditorDoc::CancelDataEdition()
 //
 //void CDailyEditorDoc::OnInitialUpdate()
 //{
-//	//UpdateAllViews(NULL, INIT, NULL);
+//	ERMsg msg;
+//
+//
+//	UpdateAllViews(NULL, INIT, NULL);
 //}
 
 void CDailyEditorDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	pMainFrm->OnUpdate(pSender, lHint, pHint);
+
+	
 
 	CDocument::UpdateAllViews(pSender, lHint, pHint);
 }

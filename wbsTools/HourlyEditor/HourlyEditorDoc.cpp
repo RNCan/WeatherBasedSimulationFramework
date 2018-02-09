@@ -1,18 +1,14 @@
 
-// DPTDoc.cpp : implémentation de la classe CHourlyEditorDoc
-//
 
 #include "stdafx.h"
 
-// SHARED_HANDLERS peuvent être définis dans les gestionnaires d'aperçu, de miniature
-// et de recherche d'implémentation de study ATL et permettent la partage de code de document avec ce study.
-#ifndef SHARED_HANDLERS
 #include "HourlyEditor.h"
-#endif
 
-#include <propkey.h>
+
+
 
 #include "HourlyEditorDoc.h"
+#include "Basic/Shore.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -78,6 +74,15 @@ BOOL CHourlyEditorDoc::OnNewDocument()
 
 	m_pDatabase.reset(new CHourlyDatabase);
 	m_pStation.reset(new CWeatherStation);
+
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg;
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+	}
 
 	return TRUE;
 }
@@ -169,7 +174,7 @@ BOOL CHourlyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	m_bExecute = false;
 	pView->AdjustLayout();//open the progress window
-	//UpdateAllViews(NULL, OUTPUT_CHANGE, NULL);
+
 
 	return (bool)msg;
 }

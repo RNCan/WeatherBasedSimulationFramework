@@ -943,7 +943,7 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 		}
 
 
-		bool bTestOK = true;
+		//bool bTestOK = true;
 
 		size_t n = 0;//progress
 
@@ -1001,7 +1001,7 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 					}
 
 
-					CTPeriod p = weather.GetEntireTPeriod();
+					/*CTPeriod p = weather.GetEntireTPeriod();
 					for (CTRef TRef = p.Begin(); TRef <= p.End() && bTestOK; TRef++)
 					{
 						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
@@ -1012,7 +1012,7 @@ ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNorm
 									bTestOK = false;
 							}
 						}
-					}
+					}*/
 
 
 					//wait when pause is activated								

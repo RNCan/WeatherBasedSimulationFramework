@@ -21,10 +21,32 @@ namespace WBSF
 		CModelFactory::RegisterModel(CBlueStainIndexModel::CreateObject);
 
 
-	
+
 	const double CBlueStainIndexModel::PERCENTILS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS] =
 	{
 		//  Min		  10%		  90%		  Max
+		{ -8.7, -0.1, 5.2, 7.0 },
+		{ -2.3, 3.9, 9.6, 11.7 },
+		{ 4.0, 6.9, 13.9, 16.3 },
+		{ 279.7, 464.9, 1410.1, 1846.3 },
+		{ 11.2, 13.0, 19.1, 20.8 },
+		{ -21.1, -8.0, 2.0, 3.8 },
+		{ -2.7, 7.4, 18.9, 20.8 },
+		{ -10.4, -6.2, 10.7, 13.6 },
+		{ 41.8, 118.6, 314.7, 480.5 },
+		{ 13.7, 38.7, 231.1, 401.1 },
+		{ 78.6, 120.7, 337.7, 462.8 },
+		{ 12.6, 21.6, 139.1, 202.0 },
+		{ -1343.5, -938.0, -5.8, 187.9 },
+		{ -421.3, -169.7, 108.2, 158.0 },
+		{ -523.7, -291.7 - 42.5, 1.2 },
+		{ -523.7, -398.2, 57.2, 128.2 },
+		{ -277.0, -154.3, 42.2, 140.9 },
+		{ 12.0, 13.6, 20.3, 21.3 },
+		{ -23.1, -9.0, -0.5, 2.1 },
+		{ 56.6, 82.2, 256.0, 371.3 },
+		{ 1.2, 4.3, 43.2, 61.1 },
+		{ 596.0, 848.7, 1796.8, 1979.8 },
 		/*{-8.6, -0.3, 5.2, 7.3},
 		{ -2.3, 3.7, 9.9, 11.7 },
 		{ 3.8, 8.3, 14.8, 17.0 },
@@ -48,33 +70,33 @@ namespace WBSF
 		{ 0.4, 3.7, 45.8, 63.6 },
 		{ 647.9, 960.6, 1790.2, 1983.5 },*/
 
-		{ -8.8,0.3,5.1,7.4},
-		{ -2.4, 3.7, 9.7, 11.7 },
-		{ 3.9, 7.9, 14.6, 16.3 },
-		{ 381.4, 520.7, 1401.8, 1842.7 },
-		{ 11.1, 13.5, 19.0, 20.8 },
-		{ -24.1, -7.3, 2.0, 3.9 },
-		{ -6.0, 1.3, 18.0, 20.8 },
-		{ -24.1, -6.1, 12.1, 20.0 },
-		{ 44.4, 110.0, 338.6, 562.3 },
-		{ 8.7, 37.2, 233.0, 517.4 },
-		{ 91.4, 128.3, 347.6, 517.4 },
-		{ 8.7, 34.4, 140.5, 171.8 },
-		{ -1428.9, -907.7, -45.2, 91.3 },
-		{ -440.2, -164.3, 96.0, 177.6 },
-		{ -575.6, -345.0, -49.5, 3.4 },
-		{ -575.6, -396.2, 32.9, 100.2 },
-		{ -250.3, -119.2, 41.7, 179.0 },
-		{ 12.1, 14.4, 20.3, 22.1 },
-		{ -25.4, -10.2, 0.0, 2.3 },
-		{ 63.0, 90.5, 270.2, 404.2 },
-		{ 1.3, 4.1, 44.9, 63.1 },
-		{ 599.6, 936.0, 1758.9, 1980.8 }
+		/*	{ -8.8,0.3,5.1,7.4},
+			{ -2.4, 3.7, 9.7, 11.7 },
+			{ 3.9, 7.9, 14.6, 16.3 },
+			{ 381.4, 520.7, 1401.8, 1842.7 },
+			{ 11.1, 13.5, 19.0, 20.8 },
+			{ -24.1, -7.3, 2.0, 3.9 },
+			{ -6.0, 1.3, 18.0, 20.8 },
+			{ -24.1, -6.1, 12.1, 20.0 },
+			{ 44.4, 110.0, 338.6, 562.3 },
+			{ 8.7, 37.2, 233.0, 517.4 },
+			{ 91.4, 128.3, 347.6, 517.4 },
+			{ 8.7, 34.4, 140.5, 171.8 },
+			{ -1428.9, -907.7, -45.2, 91.3 },
+			{ -440.2, -164.3, 96.0, 177.6 },
+			{ -575.6, -345.0, -49.5, 3.4 },
+			{ -575.6, -396.2, 32.9, 100.2 },
+			{ -250.3, -119.2, 41.7, 179.0 },
+			{ 12.1, 14.4, 20.3, 22.1 },
+			{ -25.4, -10.2, 0.0, 2.3 },
+			{ 63.0, 90.5, 270.2, 404.2 },
+			{ 1.3, 4.1, 44.9, 63.1 },
+			{ 599.6, 936.0, 1758.9, 1980.8 }*/
 
 	};
-	 
 
-	CLimits CBlueStainIndexModel::GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v,  double f)
+
+	CLimits CBlueStainIndexModel::GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v, double f)
 	{
 		CLimits out;
 
@@ -83,22 +105,22 @@ namespace WBSF
 		for (size_t l = 0; l < NB_LIMITS; l++)
 		{
 			if (f >= LIMITS[v][l])
-				ll = l+1;
+				ll = l + 1;
 		}
-		
+
 		double F = 0;
-		switch(ll)
+		switch (ll)
 		{
 		case 0: F = LIMITS_POINT[0]; break;
-		case 1: F = LIMITS_POINT[0] + (f - LIMITS[v][ll-1]) / (LIMITS[v][ll] - LIMITS[v][ll-1])*(LIMITS_POINT[1] - LIMITS_POINT[0]); break;
+		case 1: F = LIMITS_POINT[0] + (f - LIMITS[v][ll - 1]) / (LIMITS[v][ll] - LIMITS[v][ll - 1])*(LIMITS_POINT[1] - LIMITS_POINT[0]); break;
 		case 2: F = LIMITS_POINT[1]; break;
-		case 3: F = LIMITS_POINT[1] + (f - LIMITS[v][ll-1]) / (LIMITS[v][ll] - LIMITS[v][ll-1])*(LIMITS_POINT[0] - LIMITS_POINT[1]); break;
+		case 3: F = LIMITS_POINT[1] + (f - LIMITS[v][ll - 1]) / (LIMITS[v][ll] - LIMITS[v][ll - 1])*(LIMITS_POINT[0] - LIMITS_POINT[1]); break;
 		case 4: F = LIMITS_POINT[0]; break;
 		}
 
-		
-		ASSERT(F>=0 && F<=100);
-		
+
+		ASSERT(F >= 0 && F <= 100);
+
 		return CLimits(F / CBlueStainVariables::NB_VARIABLES, pow(F, 1.0 / CBlueStainVariables::NB_VARIABLES));
 	}
 
@@ -118,7 +140,7 @@ namespace WBSF
 				y[MUL] *= f[MUL];
 			}
 
-			BSI += y/p.size();
+			BSI += y / p.size();
 		}
 
 
@@ -151,13 +173,13 @@ namespace WBSF
 		//m_vars = CSelectionVars(parameters[c++].GetSizeT() );
 		//m_lo = parameters[c++].GetReal();
 		//m_hi = parameters[c++].GetReal();
-		
+
 
 		return msg;
 	}
 
 
-	
+
 	//This method is call to compute solution
 	ERMsg CBlueStainIndexModel::OnExecuteAnnual()
 	{
@@ -189,18 +211,18 @@ namespace WBSF
 
 	void CBlueStainIndexModel::AddAnnualResult(const StringVector& header, const StringVector& data)
 	{
-		enum TPupasion{ I_NAME, I_ID, I_COUNTRY, I_YEAR, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_CERATOCYSTIS_POLONICA, I_IPS_TYPOGRAPHUS, I_KEY_YEAR, I_FIRST_VAR, I_LAST_VAR = I_FIRST_VAR+22, NB_INPUTS };
+		enum TPupasion{ I_NAME, I_ID, I_COUNTRY, I_YEAR, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_CERATOCYSTIS_POLONICA, I_IPS_TYPOGRAPHUS, I_KEY_YEAR, I_FIRST_VAR, I_LAST_VAR = I_FIRST_VAR + 22, NB_INPUTS };
 
 		int year = ToInt(data[I_YEAR]);
 
 		/*for (auto it = m_weather.begin(); it != m_weather.end();)
 		{
-			if (it->first == year)
-				it++;
-			else
-				it = m_weather.erase(it);
+		if (it->first == year)
+		it++;
+		else
+		it = m_weather.erase(it);
 		}*/
-			
+
 		//ASSERT(m_weather.GetEntireTPeriod().size() == 1);
 
 		//CBlueStainVariables blueStainVariables;
@@ -221,7 +243,7 @@ namespace WBSF
 		m_SAResult.push_back(CSAResult(TRef, obs));
 	}
 
-	void CBlueStainIndexModel::GetFValueAnnual (CStatisticXY& stat)
+	void CBlueStainIndexModel::GetFValueAnnual(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -234,7 +256,7 @@ namespace WBSF
 
 				CStatisticEx stat;
 				for (size_t i = 0; i < m_SAResult.size(); i++)
-					if (m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES]==1)
+					if (m_SAResult[i].m_obs[CBlueStainVariables::NB_VARIABLES] == 1)
 						stat += m_SAResult[i].m_obs[v];
 
 				//percentils[v][L_LO] = stat[Qᴸ];
@@ -290,7 +312,7 @@ namespace WBSF
 
 
 			//file.close();
-			
+
 		}
 	}
 }
