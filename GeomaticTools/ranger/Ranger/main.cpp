@@ -15,7 +15,7 @@
  along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
  Written by:
-
+  
  Marvin N. Wright
  Institut für Medizinische Biometrie und Statistik
  Universität zu Lübeck

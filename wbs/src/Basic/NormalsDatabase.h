@@ -96,7 +96,7 @@ namespace WBSF
 		static ERMsg CreateDatabase(const std::string& filePath);
 		static ERMsg DeleteDatabase(const std::string& filePath, CCallback& callback = DEFAULT_CALLBACK);
 		static ERMsg RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
-		//static ERMsg AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, bool bCopy = true, CCallback& callback = DEFAULT_CALLBACK);
 		static bool IsExtendedDatabase(const std::string& filePath);
 		static ERMsg v6_to_v7(const std::string& filePathV6, const std::string& filePathV7, CCallback& callback = DEFAULT_CALLBACK);
 		static ERMsg v7_to_v6(const std::string& filePathV7, const std::string& filePathV6, CCallback& callback = DEFAULT_CALLBACK);

@@ -47,7 +47,7 @@ namespace WBSF
 		CCFLComboBox		m_locationsNameCtrl;
 		CCFLEdit			m_replicationsCtrl;
 		CCFLEdit			m_durationCtrl;
-		CButton				m_useHxGridCtrl;
+		//CButton				m_useHxGridCtrl;
 		CComboBox			m_behaviourCtrl;
 
 		// Overrides

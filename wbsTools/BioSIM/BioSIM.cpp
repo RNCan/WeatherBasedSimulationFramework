@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
+// 11.4.0: 08/02/2018	Rémi Saint-Amant	Activation of precipitation gradients
 // 11.3.8: 31/01/2018	Rémi Saint-Amant	Bug correction in the parameters variation
 // 11.3.7: 21/12/2017   Rémi Saint-Amant	Remove graph. Bug correction with component comparison. Remove LANGUAGE 9, 1. 
 // 11.3.6: 10/10/2017   Rémi Saint-Amant	Recompilation from backup after hard drive crash

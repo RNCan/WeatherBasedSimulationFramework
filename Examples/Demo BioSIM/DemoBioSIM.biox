@@ -11,7 +11,6 @@
         <VariableArray/>
         <Statistic>00000000000010</Statistic>
     </Export>
-    <GraphArray/>
     <ExecutableArray>
         <Group>
             <Name>Climatology</Name>
@@ -25,7 +24,6 @@
                 <VariableArray/>
                 <Statistic>00000000000010</Statistic>
             </Export>
-            <GraphArray/>
             <ExecutableArray>
                 <WeatherGeneration>
                     <Name>Exemple 1: 2008-2010</Name>
@@ -44,7 +42,6 @@
                         </VariableArray>
                         <Statistic>00000000000010</Statistic>
                     </Export>
-                    <GraphArray/>
                     <ExecutableArray>
                         <Analysis>
                             <Name>subset</Name>
@@ -58,7 +55,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray>
                                 <Analysis>
                                     <Name>mean</Name>
@@ -72,7 +68,6 @@
                                         <VariableArray/>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <GraphArray/>
                                     <ExecutableArray/>
                                     <AnalysisWindow>
                                         <SelectLocation>false</SelectLocation>
@@ -143,7 +138,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray/>
                             <ModelName>DegreeDay (Annual)</ModelName>
                             <ModelInputName>3°C</ModelInputName>
@@ -178,7 +172,6 @@
                         </VariableArray>
                         <Statistic>00000000000010</Statistic>
                     </Export>
-                    <GraphArray/>
                     <ExecutableArray>
                         <ModelGeneration>
                             <Name>DD</Name>
@@ -192,7 +185,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray>
                                 <Analysis>
                                     <Name>Average</Name>
@@ -206,7 +198,6 @@
                                         <VariableArray/>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <GraphArray/>
                                     <ExecutableArray>
                                         <Mapping>
                                             <Name>Ex3</Name>
@@ -220,7 +211,6 @@
                                                 <VariableArray/>
                                                 <Statistic>00000000000010</Statistic>
                                             </Export>
-                                            <GraphArray/>
                                             <ExecutableArray/>
                                             <Method>1</Method>
                                             <DEMName>Quebec30s.tif</DEMName>
@@ -238,7 +228,7 @@
                                                 <NbPoints>35</NbPoints>
                                                 <OutputNoData>-999</OutputNoData>
                                                 <MaxDistance>200000</MaxDistance>
-                                                <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
+                                                <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW  -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
                                                 <RegionalLimit>false</RegionalLimit>
                                                 <RegionalSD>2</RegionalSD>
                                                 <RegionalLimitToBound>false</RegionalLimitToBound>
@@ -323,7 +313,6 @@
                 <VariableArray/>
                 <Statistic>00000000000010</Statistic>
             </Export>
-            <GraphArray/>
             <ExecutableArray>
                 <WeatherGeneration>
                     <Name>Example 2: Spruce Budworm</Name>
@@ -337,7 +326,6 @@
                         <VariableArray/>
                         <Statistic>00000000000010</Statistic>
                     </Export>
-                    <GraphArray/>
                     <ExecutableArray>
                         <ModelGeneration>
                             <Name>SpruceBudworm</Name>
@@ -351,7 +339,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray>
                                 <Analysis>
                                     <Name>Average Ouput</Name>
@@ -386,7 +373,6 @@
                                         </VariableArray>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <GraphArray/>
                                     <ExecutableArray/>
                                     <AnalysisWindow>
                                         <SelectLocation>false</SelectLocation>
@@ -435,7 +421,6 @@
                                         </VariableArray>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <GraphArray/>
                                     <ExecutableArray>
                                         <FunctionAnalysis>
                                             <Name>FunctionAnalysis</Name>
@@ -449,7 +434,6 @@
                                                 <VariableArray/>
                                                 <Statistic>00000000000010</Statistic>
                                             </Export>
-                                            <GraphArray/>
                                             <ExecutableArray>
                                                 <Analysis>
                                                     <Name>Analysis</Name>
@@ -463,7 +447,6 @@
                                                         <VariableArray/>
                                                         <Statistic>00000000000010</Statistic>
                                                     </Export>
-                                                    <GraphArray/>
                                                     <ExecutableArray/>
                                                     <AnalysisWindow>
                                                         <SelectLocation>false</SelectLocation>
@@ -563,7 +546,6 @@
                         <VariableArray/>
                         <Statistic>00000000000010</Statistic>
                     </Export>
-                    <GraphArray/>
                     <ExecutableArray>
                         <WeatherUpdater>
                             <Name>Update current daily database</Name>
@@ -577,7 +559,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray/>
                             <UpdaterFile>Download Current Daily Database</UpdaterFile>
                             <ShowApp>false</ShowApp>
@@ -594,7 +575,6 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <GraphArray/>
                             <ExecutableArray>
                                 <ModelGeneration>
                                     <Name>HemlockLooper</Name>
@@ -608,10 +588,9 @@
                                         <VariableArray/>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <GraphArray/>
                                     <ExecutableArray>
                                         <Analysis>
-                                            <Name>Analysis</Name>
+                                            <Name>Peak</Name>
                                             <InternalName>fdlpwq</InternalName>
                                             <Description/>
                                             <Execute>true</Execute>
@@ -622,10 +601,9 @@
                                                 <VariableArray/>
                                                 <Statistic>00000000000010</Statistic>
                                             </Export>
-                                            <GraphArray/>
                                             <ExecutableArray>
                                                 <FunctionAnalysis>
-                                                    <Name>FunctionAnalysis</Name>
+                                                    <Name>Jday</Name>
                                                     <InternalName>gcnnfm</InternalName>
                                                     <Description/>
                                                     <Execute>true</Execute>
@@ -636,7 +614,6 @@
                                                         <VariableArray/>
                                                         <Statistic>00000000000010</Statistic>
                                                     </Export>
-                                                    <GraphArray/>
                                                     <ExecutableArray>
                                                         <Mapping>
                                                             <Name>Mapping</Name>
@@ -650,7 +627,6 @@
                                                                 <VariableArray/>
                                                                 <Statistic>00000000000010</Statistic>
                                                             </Export>
-                                                            <GraphArray/>
                                                             <ExecutableArray/>
                                                             <Method>1</Method>
                                                             <DEMName>Newfoundland 30s.tif</DEMName>
@@ -668,7 +644,7 @@
                                                                 <NbPoints>35</NbPoints>
                                                                 <OutputNoData>-999</OutputNoData>
                                                                 <MaxDistance>200000</MaxDistance>
-                                                                <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW -co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
+                                                                <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW  -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
                                                                 <RegionalLimit>false</RegionalLimit>
                                                                 <RegionalSD>2</RegionalSD>
                                                                 <RegionalLimitToBound>false</RegionalLimitToBound>

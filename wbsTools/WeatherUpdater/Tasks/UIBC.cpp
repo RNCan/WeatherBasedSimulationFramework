@@ -403,6 +403,11 @@ namespace WBSF
 		}
 
 		((CLocation&)station) = m_stations[pos];
+		if (station.m_name.substr(0, 3) == "Zz ")//remove Zz at the begginning of the name
+			station.m_name = station.m_name.substr(3);
+		if (!station.m_name.empty())
+			station.m_name += " (BC)";
+
 		string workingDir = GetDir(WORKING_DIR);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
@@ -436,6 +441,14 @@ namespace WBSF
 			{
 				msg = ReadData(fileList[i], TM, station, callback);
 				msg += callback.StepIt(bStepIt ? 1 : 0);
+			}
+
+			if (n == MoTIe)
+			{
+				//precipitation is not valide for the MoTIe network
+				CWAllVariables no_prcp;
+				no_prcp.reset(H_PRCP);
+				station.CleanUnusedVariable(no_prcp);
 			}
 
 			if (msg)
@@ -689,8 +702,6 @@ namespace WBSF
 				if (stat.TRefIsChanging(TRef) )
 					data[stat.GetTRef()].SetData(stat);
 
-				//double Tmin = -DBL_MAX;
-				//double Tmax = -DBL_MAX;
 				for (size_t c = 0; c<loop->size(); c++)
 				{
 					if (col_pos[c] != var_map.end())
@@ -701,24 +712,19 @@ namespace WBSF
 							double value = stod(str);
 							value = Normalize(value, col_pos[c]->first, col_pos[c]->second.units, data.m_z);
 
+							
+							if (col_pos[c]->second.v == H_RELH)//limit to 100
+								value = min(100.0, value);
+							
+							if (col_pos[c]->second.v == H_SNOW || col_pos[c]->second.v == H_SNDH || col_pos[c]->second.v == H_SWE)//limit to 100
+								value = max(0.0, value);
+							
+
 							if( col_pos[c]->second.v < H_ADD1)
 								stat.Add(TRef, col_pos[c]->second.v, value);
-							/*else if (col_pos[c]->second.v == H_ADD1)
-								Tmin = value;
-							else if (col_pos[c]->second.v == H_ADD2)
-								Tmax = value;*/
 						}
 					}
 				}
-				
-				/*if (Tmin != -DBL_MAX && Tmax != -DBL_MAX)
-				{
-					if (Tmin > Tmax)
-						Switch(Tmin, Tmax);
-
-					stat.Add(TRef, H_TMIN2, Tmin);
-					stat.Add(TRef, H_TMAX2, Tmax);
-				}*/
 
 				msg += callback.StepIt(0);
 			}//for all line

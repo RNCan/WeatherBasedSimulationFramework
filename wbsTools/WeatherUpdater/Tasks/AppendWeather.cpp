@@ -38,7 +38,7 @@ namespace WBSF
 		{
 		case INPUT_FILEPATH_1:	
 		case INPUT_FILEPATH_2:	
-		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_OBSERVATION); break;
+		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_WEATHER); break;
 		case COPY_MOVE: str = "Copy|Move";
 		};
 
@@ -63,8 +63,26 @@ namespace WBSF
 
 		if (IsEqualNoCase(extention1, CNormalsDatabase::DATABASE_EXT) && IsEqualNoCase(extention2, CNormalsDatabase::DATABASE_EXT))
 		{
-			msg.ajoute("It's not possible to append normals stations");
-			//msg = ExecuteNormal(callback);
+			SetFileExtension(outputFilePath, CNormalsDatabase::DATABASE_EXT);
+
+			msg = CNormalsDatabase().DeleteDatabase(outputFilePath, callback);
+			if (msg)
+			{
+				CNormalsDatabase DB;
+				msg = DB.Open(outputFilePath, CNormalsDatabase::modeWrite, callback);
+				if (msg)
+				{
+					msg = DB.AppendDatabase(inputFilePath1, inputFilePath2, true, callback);
+					msg += DB.Close(true, callback);
+					if (msg)
+					{
+						msg = DB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
+						if (msg)
+							DB.Close();
+					}
+				}
+			}
+			
 		}
 		else if (IsEqualNoCase(extention1, CDailyDatabase::DATABASE_EXT) && IsEqualNoCase(extention2, CDailyDatabase::DATABASE_EXT))
 		{

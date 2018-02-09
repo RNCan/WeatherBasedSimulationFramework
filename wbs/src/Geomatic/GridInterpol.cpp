@@ -369,11 +369,25 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			optimisationR².resize(parameterset.size(),0);
 
 
-			for(size_t i=0; i<(int)parameterset.size()&&msg; i++)
+			for(size_t i=0; i<parameterset.size()&&msg; i++)
 			{
 				//initialize with this parameters set
 				m_pGridInterpol->SetParam(parameterset[i]);
 				optimisationR²[i] = m_pGridInterpol->GetOptimizedR²(callback);
+
+				if (m_param.m_bOutputVariogramInfo)
+				{
+					CVariogram variogram;
+					
+					if (m_pGridInterpol->GetVariogram(variogram))
+					{
+						if (i == 0)
+							callback.AddMessage("nbLags\tLadDist\tType\tVariogram R²\tX-val R²");
+						
+						string tmp = FormatA("%4d\t%6.3lf\t%10.10s\t%.3lf\t%.3lf", parameterset[i].m_nbLags, parameterset[i].m_lagDist, variogram.GetModelName(), variogram.GetR2(), optimisationR²[i]);
+						callback.AddMessage(tmp);
+					}
+				}
 
 				msg += callback.StepIt();
 			}

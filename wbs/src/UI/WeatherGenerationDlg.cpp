@@ -57,7 +57,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_SIM_LOC, m_locationsNameCtrl);
 		DDX_Control(pDX, IDC_SIM_REPLICATIONS, m_replicationsCtrl);
 
-		DDX_Control(pDX, IDC_SIM_USE_HXGRID, m_useHxGridCtrl);
+		//DDX_Control(pDX, IDC_SIM_USE_HXGRID, m_useHxGridCtrl);
 		//DDX_Control(pDX, IDC_SIM_WEATHER_LOC, m_weatherLocCtrl);
 		//DDX_Control(pDX, IDC_SIM_XVALIDATION, m_XValidationCtrl);
 		DDX_Control(pDX, IDC_SIM_BEHAVIOUR, m_behaviourCtrl);
@@ -132,8 +132,8 @@ namespace WBSF
 	{
 		WBSF::CRegistry option("ExecuteCtrl");
 
-		bool bEnableHxGrid = option.GetProfileInt("UseHxGrid", FALSE);
-		m_useHxGridCtrl.EnableWindow(bEnableHxGrid);
+		//bool bEnableHxGrid = option.GetProfileInt("UseHxGrid", FALSE);
+		//m_useHxGridCtrl.EnableWindow(bEnableHxGrid);
 
 
 
@@ -169,7 +169,7 @@ namespace WBSF
 		bool bDeterminist = WGInput.UseDaily() && (WGInput.m_lastYear < CTRef::GetCurrentTRef().GetYear());
 		m_behaviourCtrl.SetCurSel(bDeterminist ? 0 : 1);
 
-		double time = nbRuns*WGInput.GetNbYears()*CExecutable::GetExecutionTime("WeatherGenerator", WGInput.GetTM(), bEnableHxGrid);
+		double time = nbRuns*WGInput.GetNbYears()*CExecutable::GetExecutionTime("WeatherGenerator", WGInput.GetTM(), false);
 		string format = WBSF::GetTimeSpanStr(time);
 		m_durationCtrl.SetWindowText(format);
 	}
@@ -270,7 +270,7 @@ namespace WBSF
 		m_WG.m_WGInputName = m_WGInputNameCtrl.GetString();
 		m_WG.m_locationsName = m_locationsNameCtrl.GetString();
 		m_WG.m_nbReplications = stoi(m_replicationsCtrl.GetString());
-		m_WG.m_bUseHxGrid = m_useHxGridCtrl.GetCheck();
+		//m_WG.m_bUseHxGrid = m_useHxGridCtrl.GetCheck();
 
 
 		if (m_WG.m_nbReplications < 1)
@@ -312,7 +312,7 @@ namespace WBSF
 		//m_weatherLocCtrl.SetCheck(m_WG.GetWeatherLoc() );
 		//m_XValidationCtrl.SetCheck(m_WG.GetWeatherLoc()&&m_WG.GetXValidation() );
 		m_replicationsCtrl.SetString(to_string(m_WG.m_nbReplications));
-		m_useHxGridCtrl.SetCheck(m_WG.m_bUseHxGrid);
+		//m_useHxGridCtrl.SetCheck(m_WG.m_bUseHxGrid);
 
 		if (!error)
 			UtilWin::SYShowMessage(error, this);

@@ -787,9 +787,10 @@ ERMsg CVariogram::Save(std::string filePath)const
 	msg = file.open(filePath);
 	if (msg)
 	{
+		file << "Lag distance,N,Lag variance" << endl;
 		for (size_t i = 0; i < m_predictorVector.size(); i++)
 		{
-			file << m_predictorVector[i].m_lagDistance << "," << m_predictorVector[i].m_np << "," << m_predictorVector[i].m_lagVariance << "," << m_predictorVector[i].m_predictedVariance << endl;
+			file << m_predictorVector[i].m_lagDistance << "," << m_predictorVector[i].m_np << "," << m_predictorVector[i].m_lagVariance << endl;
 		}
 	}
 

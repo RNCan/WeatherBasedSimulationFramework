@@ -271,7 +271,7 @@ ERMsg CRangerImage::ReadRules(ForestPtr& forest)
 	cout << "forest type                        " << GetTreeTypeStr(treetype) << std::endl;
 	cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
 	cout << "Dependent variable ID:             " << forest->getDependentVarId() << std::endl;
-	//cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
+	cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
 	cout << "Seed:                              " << m_options.m_seed << std::endl;
 
 	timer.Stop();
@@ -398,7 +398,7 @@ ERMsg CRangerImage::Execute()
 	{
 		if (inputDS.GetRasterCount() != forest->getNumIndependentVariables())
 		{
-			msg.ajoute("The number of raster bands in the input image is not equal to the number of the independant variables in the forest model");
+			msg.ajoute("The number of raster bands (" + ToString(inputDS.GetRasterCount()) + ") in the input image is not equal to the number of the independant variables (" + ToString(forest->getNumIndependentVariables() )+ ") in the forest model");
 			return msg;
 		}
 

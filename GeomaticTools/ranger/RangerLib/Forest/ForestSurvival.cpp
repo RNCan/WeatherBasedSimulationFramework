@@ -37,7 +37,7 @@
 #include "utility/Data.h"
 
 ForestSurvival::ForestSurvival() :
-status_varID(0), response_timepointIDs(0) {
+status_varID(-1), response_timepointIDs(0) {
 }
 
 ForestSurvival::~ForestSurvival() {
@@ -315,7 +315,7 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	//num_independent_variables = num_variables_saved - 1; //add by RSA
+	num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));
@@ -325,6 +325,8 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 
 	// Read status_varID
 	infile.read((char*)&status_varID, sizeof(status_varID));
+	if (status_varID<num_independent_variables)
+		num_independent_variables = num_independent_variables - 1; //add by RSA
 
 	// Read unique timepoints
 	unique_timepoints.clear();

@@ -935,6 +935,9 @@ namespace WBSF
 					CWeatherStation dailyStation;
 
 					msg = inputDB.Get(dailyStation, i);
+					dailyStation.m_siteSpeceficInformation.clear();//remove all SSI
+					dailyStation.UseIt(true);
+
 					//remove years not in the period
 					CleanUpYears(dailyStation, m_firstYear, m_lastYear);
 
@@ -978,8 +981,14 @@ namespace WBSF
 				}//for all station
 				
 
-				callback.PopTask();
+				if (m_bApplyCC)
+					outputDB.SetPeriod(GetFirstYear(p), GetLastYear(p)); 
+				else
+					outputDB.SetPeriod(m_firstYear, m_lastYear);
+
 				outputDB.Close();
+				callback.PopTask();
+				
 
 
 				if (msg)

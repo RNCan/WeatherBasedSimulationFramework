@@ -4,14 +4,14 @@
     <SourceType>1</SourceType>
     <GenerationType>1</GenerationType>
     <NbNormalsYears>1</NbNormalsYears>
-    <FirstYear>2017</FirstYear>
-    <LastYear>2017</LastYear>
+    <FirstYear>2018</FirstYear>
+    <LastYear>2018</LastYear>
     <UseForecast>false</UseForecast>
     <UseRadarPrcp>false</UseRadarPrcp>
     <NbNormalsStations>4</NbNormalsStations>
     <NormalDBName>Canada-USA 1981-2010</NormalDBName>
     <NbDailyStations>4</NbDailyStations>
-    <DailyDBName>Canada 2016-2017</DailyDBName>
+    <DailyDBName>Canada 2017-2018</DailyDBName>
     <NbHourlyStations>4</NbHourlyStations>
     <HourlyDBName/>
     <GribsDBName/>
