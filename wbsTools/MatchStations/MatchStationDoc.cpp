@@ -595,7 +595,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					{
 						CNormalsStationVector stationsVector = m_normalsStations;
 						stationsVector.ApplyCorrections(m_gradient);
-						stationsVector.GetInverseDistanceMean(GetLocation(GetCurIndex()), m_variable, m_normalsEstimate);
+						stationsVector.GetInverseDistanceMean(GetLocation(GetCurIndex()), m_variable, m_normalsEstimate, true, WEATHER::SHORE_DISTANCE_FACTOR>0);
 					}
 					
 				}

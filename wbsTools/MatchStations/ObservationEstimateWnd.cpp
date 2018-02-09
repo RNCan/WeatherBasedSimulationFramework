@@ -500,7 +500,7 @@ void CObservationEstimateWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pH
 	{
 		const CLocation& target = pDoc->GetLocation(pDoc->GetCurIndex());
 		((CLocation&)*m_estimateCtrl.m_pStation) = target;
-		pDoc->GetObservationStation().GetInverseDistanceMean(pDoc->GetVariable(), target, *m_estimateCtrl.m_pStation);
+		pDoc->GetObservationStation().GetInverseDistanceMean(pDoc->GetVariable(), target, *m_estimateCtrl.m_pStation, true, WEATHER::SHORE_DISTANCE_FACTOR>0);
 
 		
 		CWVariables variable(m_estimateCtrl.m_pStation->GetVariables());

@@ -287,7 +287,7 @@ namespace WBSF
 		}
 	}
 
-	void CNormalsStationVector::GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation)const
+	void CNormalsStationVector::GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
 		for (size_t v = 0; v < variables.size(); v++)
 		{
@@ -298,7 +298,7 @@ namespace WBSF
 				double distSum = 0;
 				for (size_t i = 0; i < size(); i++)
 				{
-					double xtemp = at(i).GetXTemp(target, bTakeElevation);
+					double xtemp = at(i).GetXTemp(target, bTakeElevation, bTakeShoreDistance);
 					weight[v][i] = xtemp;
 					distSum += xtemp;
 				}
@@ -320,7 +320,7 @@ namespace WBSF
 
 	}
 
-	void CNormalsStationVector::GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation)const
+	void CNormalsStationVector::GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
 		if (variables[H_TDEW])
 			variables.set(H_RELH);
@@ -328,7 +328,7 @@ namespace WBSF
 		((CLocation&)normalsStation) = target;
 
 		CNormalWeight weight;
-		GetWeight(target, variables, weight, bTakeElevation);
+		GetWeight(target, variables, weight, bTakeElevation, bTakeShoreDistance);
 
 		CNormalDataVector normalVector;
 		GetNormalVector(target, variables, normalVector);

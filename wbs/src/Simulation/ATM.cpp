@@ -2315,7 +2315,7 @@ namespace WBSF
 										double alpha = atan2(flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::HOURLY_STAT, CFlyer::S_D_X));
 										double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 										ASSERT(angle >= 0 && angle <= 360);
-										double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false/*, false*/);
+										double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false, false);
 
 										size_t liftoffTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LIFTOFF), flyer.m_location);
 										size_t landingTime = CTimeZones::UTCTime2LocalTime(flyer.GetLog(CFlyer::T_LANDING), flyer.m_location);
@@ -2394,7 +2394,7 @@ namespace WBSF
 									double alpha = atan2(flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_Y), flyer.GetStat(CFlyer::SUB_HOURLY_STAT, CFlyer::S_D_X));
 									double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 									ASSERT(angle >= 0 && angle <= 360);
-									double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false/*, false*/);
+									double Dᵒ = flyer.m_newLocation.GetDistance(flyer.m_location, false, false);
 
 									double defoliation = -999;
 									double broods = -999;

@@ -3791,7 +3791,7 @@ void CWeatherStationVector::ApplyCorrections(const CWeatherCorrections& correcti
 }
 
 
-CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLocation& target)const
+CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLocation& target, bool bTakeElevation, bool bTakeShoreDistance)const
 {
 	//all the station have the same years
 	assert(size()<2 || at(0).GetFirstYear() == at(1).GetFirstYear() );
@@ -3819,7 +3819,7 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 						//if (me[i][TRef].GetStat(v, stat))
 						if (me[i][TRef][v].IsInit())
 						{
-							double Xtemp = target.GetXTemp(me[i], m_bTakeElevation/*, m_bTakeShoreDistance*/);
+							double Xtemp = target.GetXTemp(me[i], bTakeElevation, bTakeShoreDistance);
 							//if (v == H_PRCP && me[i][TRef][v][SUM] < 0.1)//remove station without precipitation in the compution of the weight
 								//Xtemp = 0;
 
@@ -3842,7 +3842,7 @@ CWeightVector CWeatherStationVector::GetWeight(CWVariables variables, const CLoc
 }
 
 
-void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const CLocation& target, CWeatherStation& station)const
+void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const CLocation& target, CWeatherStation& station, bool bTakeElevation, bool bTakeShoreDistance)const
 {
 	//station.clear();
 
@@ -3851,7 +3851,7 @@ void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const 
 	if (!empty())
 	{
 		
-		CWeightVector weight = GetWeight(variables, target);
+		CWeightVector weight = GetWeight(variables, target, bTakeElevation, bTakeShoreDistance);
 
 		const CWeatherStationVector& me = *this;
 		CTPeriod p = GetEntireTPeriod();
@@ -4027,7 +4027,7 @@ void CWeatherStationVector::MergeStation(CWeatherStation& station, CTM TM, size_
 					TRef.SetRef(it->at(3), TM);
 					log += TRef.GetFormatedString() + ",";
 
-					double dist = at(index).GetDistance(station, false/*, false*/);
+					double dist = at(index).GetDistance(station, false, false);
 					double deltaElev = at(index).m_elev - station.m_elev;
 
 					log += ToString(dist,1) + "," + ToString(deltaElev,1) + "\n";

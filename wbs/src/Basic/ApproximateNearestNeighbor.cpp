@@ -10,9 +10,10 @@
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 #include "stdafx.h"
-#include "ANN/ANN.h"
+#include "Basic/ANN/ANN.h"
 #include "Basic/ApproximateNearestNeighbor.h"
 #include "Basic/UtilStd.h"
+#include "Basic/Shore.h"
 
 #include "WeatherBasedSimulationString.h"
 
@@ -22,6 +23,24 @@ using namespace std;
 namespace WBSF
 {
 
+	double GetShoreDistance(const CLocation& pt)
+	{
+		double shore = pt.GetShoreDistance();
+		//if (shore < 0)
+			//shore = CShore::GetShoreDistance(pt);
+		return shore;
+	}
+		
+	double GetFactor(size_t d)
+	{
+		double f = 1;
+		if (d == 3)
+			f = WEATHER::ELEV_FACTOR;
+		else if (d == 4)
+			f = WEATHER::SHORE_DISTANCE_FACTOR;
+		
+		return f;
+	}
 	//*****************************************************************
 	const __int64 CApproximateNearestNeighbor::VERSION = 1;
 	CApproximateNearestNeighbor::CApproximateNearestNeighbor()
@@ -96,7 +115,7 @@ namespace WBSF
 
 	ostream& CApproximateNearestNeighbor::operator >> (ostream& stream)const
 	{
-		assert(m_nbDimension == 3 || m_nbDimension == 4);
+		assert(m_nbDimension == 3 || m_nbDimension == 4 || m_nbDimension == 5);
 		stream.write((char*)&VERSION, sizeof(VERSION));
 		stream.write((char*)&m_nSize, sizeof(m_nSize));
 		stream.write((char*)&m_nbDimension, sizeof(m_nbDimension));
@@ -120,7 +139,7 @@ namespace WBSF
 		ASSERT(version == VERSION);
 
 		stream.read((char*)&m_nSize, sizeof(m_nSize));
-		stream.read((char*)&m_nbDimension, sizeof(m_nbDimension)); assert(m_nbDimension == 3 || m_nbDimension == 4);
+		stream.read((char*)&m_nbDimension, sizeof(m_nbDimension)); assert(m_nbDimension == 3 || m_nbDimension == 4 || m_nbDimension == 5);
 		if (m_nSize*m_nbDimension > 0)
 		{
 			m_pDataPts = annAllocPts(m_nSize, m_nbDimension);
@@ -136,13 +155,15 @@ namespace WBSF
 		return stream;
 	}
 
-	void CApproximateNearestNeighbor::set(const CLocationVector& locations, bool bUseElevation, const vector<__int64>& positions)
+	void CApproximateNearestNeighbor::set(const CLocationVector& locations, bool bUseElevation, bool bUseShoreDistance, const vector<__int64>& positions)
 	{
 		ASSERT(positions.empty() || positions.size() == locations.size());
 
 		clear();
 
-		m_nbDimension = bUseElevation ? 4 : 3;
+		m_nbDimension = (bUseShoreDistance &&WEATHER::SHORE_DISTANCE_FACTOR > 0) ? 5 : bUseElevation ? 4 : 3;
+		//m_nbDimension = bUseElevation ? 4 : 3;
+		
 		m_nSize = locations.size();
 		if (m_nbDimension*m_nSize > 0)
 			m_pDataPts = annAllocPts(m_nSize, m_nbDimension);
@@ -153,16 +174,18 @@ namespace WBSF
 		for (CLocationVector::const_iterator it = locations.begin(); it != locations.end(); it++, i++)
 		{
 			for (__int64 d = 0; d < m_nbDimension; d++)
-				m_pDataPts[i][d] = it->GetGeocentricCoord(d)*((d == 3) ? 100 : 1);
+				m_pDataPts[i][d] = it->GetGeocentricCoord(d)*GetFactor(d);
 		}
 	}
 
-	CGeoPoint3D CApproximateNearestNeighbor::at(size_t i)const
+	CLocation CApproximateNearestNeighbor::at(size_t i)const
 	{
-		CGeoPoint3D pt;
+		CLocation pt;
 		pt.SetXY(m_pDataPts[i][0], m_pDataPts[i][1], m_pDataPts[i][2]);
-		if (m_nbDimension == 4)
-			pt.m_z = m_pDataPts[i][3] / 100;
+		if (m_nbDimension >= 4)
+			pt.m_z = m_pDataPts[i][3] / WEATHER::ELEV_FACTOR;
+		if (m_nbDimension >= 5)
+			pt.SetShoreDistance(m_pDataPts[i][4] / WEATHER::SHORE_DISTANCE_FACTOR);
 
 		return pt;
 	}
@@ -205,7 +228,7 @@ namespace WBSF
 
 		if (m_nSize > 0)
 		{
-			ASSERT(m_nbDimension == 3 || m_nbDimension == 4);
+			ASSERT(m_nbDimension >= 3 && m_nbDimension <= 5);
 
 			result.resize(nbPointSearch);
 
@@ -214,25 +237,47 @@ namespace WBSF
 			ANNpoint	q = annAllocPt(m_nbDimension);			// query point
 
 			for (__int64 d = 0; d < m_nbDimension; d++)
-				q[d] = pt.GetGeocentricCoord(d)*((d < 3) ? 1 : 100);//elevation have scaled by 100
+				q[d] = pt.GetGeocentricCoord(d)*GetFactor(d);//elevation have scaled by 100
 
 			m_pTreeRoot->annPkSearch(q, nbPointSearch, nn_idx, dd, eps);
 			for (__int64 i = 0; i < nbPointSearch; i++)
 			{
+				
+
 				size_t index = nn_idx[i];
 				result[i].m_index = SearchPos2LocPos(index);
-				result[i].m_distance = sqrt(dd[i]);
-
-				//No sence to appply earth correction when we use elevation
+				//result[i].m_distance = sqrt(dd[i]);
+				result[i].m_location.SetXY(m_pDataPts[index][0], m_pDataPts[index][1], m_pDataPts[index][2]);
+				result[i].m_distance = pt.GetDistance(result[i].m_location, false, false);
+				
 				if (m_nbDimension == 3)
 				{
 					static const double _2x6371x1000_ = 2 * 6371 * 1000;
-					result[i].m_distance = _2x6371x1000_*asin(result[i].m_distance / _2x6371x1000_);//apply sphere curve to distance
+					double test = _2x6371x1000_*asin( sqrt(dd[i]) / _2x6371x1000_);//apply sphere curve to distance
+					int uu;
+					uu = 0;
+					//result[i].m_distance = _2x6371x1000_*asin(result[i].m_distance / _2x6371x1000_);//apply sphere curve to distance
+
+				}
+				
+
+				
+				if (m_nbDimension >= 4)
+				{
+					result[i].m_location.m_z = m_pDataPts[index][3] / WEATHER::ELEV_FACTOR;
+					result[i].m_deltaElev = result[i].m_location.m_z - pt.m_z;
 				}
 
-				result[i].m_location.SetXY(m_pDataPts[index][0], m_pDataPts[index][1], m_pDataPts[index][2]);
-				if (m_nbDimension == 4)
-					result[i].m_location.m_z = m_pDataPts[index][3] / 100;
+				if (m_nbDimension >= 5)
+				{
+					//result[i].m_location.m_z = m_pDataPts[index][3] / ELEV_FACTOR;
+					double shore = m_pDataPts[index][4] / WEATHER::SHORE_DISTANCE_FACTOR;
+					result[i].m_location.SetShoreDistance(shore);
+					result[i].m_deltaShore = shore - GetShoreDistance(pt);
+				}
+
+				//compute virtual distance only after setted elevation and shore distance
+				result[i].m_virtual_distance = pt.GetDistance(result[i].m_location, m_nbDimension >= 4, m_nbDimension >= 5);
 			}
 
 			annDeallocPt(q);

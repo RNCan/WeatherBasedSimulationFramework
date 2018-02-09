@@ -10,7 +10,7 @@
 
 #include <array>
 #include <map>
-//#include <math.h>
+
 #include <boost\serialization\access.hpp>
 #include <unordered_map>
 #include <utility>
@@ -19,8 +19,8 @@
 #include "Basic/WeatherDefine.h"
 #include "Basic/UtilZen.h"
 #include "Basic/GeoBasic.h"
-//#include "Basic/XMLite.h"
 #include "Basic/Callback.h"
+
 
 
 namespace WBSF
@@ -61,7 +61,6 @@ namespace WBSF
 	{
 	public:
 
-		//SLOPE, ASPECT
 		enum TMember{ ID, NAME, LAT, LON, ELEV, SITE_SPECIFIC_INFORMATION, SSI = SITE_SPECIFIC_INFORMATION, NB_MEMBER };
 		static const char* GetMemberName(size_t i){ _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetMemberTitle(size_t d);
@@ -112,7 +111,8 @@ namespace WBSF
 		double GetSlope()const;
 		double GetSlopeInDegree()const;
 		double GetAspect()const;
-
+		double GetShoreDistance()const;
+		void SetShoreDistance(double shore_distance);
 
 		std::string GetDataFileName()const;
 		void SetDataFileName(std::string in){ SetDefaultSSI(CLocation::DATA_FILE_NAME, in); }
@@ -126,8 +126,8 @@ namespace WBSF
 		double GetDayLength(size_t d)const;
 		double GetDayLength(CTRef d)const;
 		double GetPressure()const;//Default altitude pressure [hPa]
-		double GetDistance(const CLocation& in, bool bTakeElevation)const;
-		double GetXTemp(const CLocation& station, bool bTakeElevation)const;
+		double GetDistance(const CLocation& in, bool bTakeElevation, bool bTakeShoreDistance)const;
+		double GetXTemp(const CLocation& station, bool bTakeElevation, bool bTakeShoreDistance)const;
 
 		std::string GetMember(size_t i)const;
 		void SetMember(size_t i, const std::string& str);
@@ -159,7 +159,7 @@ namespace WBSF
 
 	protected:
 
-
+		
 		static const char* XML_FLAG;
 		static const char* MEMBER_NAME[NB_MEMBER];
 		static StringVector MEMBER_TITLE;

@@ -79,6 +79,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_XVALIDATION, m_XValidationCtrl);
 		DDX_Control(pDX, IDC_WG_SKIP_VERIFY, m_skipVerifyCtrl);
 		DDX_Control(pDX, IDC_WG_NO_FILL_MISSING, m_noFillMissingCtrl);
+		DDX_Control(pDX, IDC_WG_USE_SHORE, m_useShoreCtrl);
+		
 
 		if (!pDX->m_bSaveAndValidate)
 		{
@@ -239,6 +241,7 @@ namespace WBSF
 		m_XValidationCtrl.SetCheck(WGInput.m_bXValidation);
 		m_skipVerifyCtrl.SetCheck(WGInput.m_bSkipVerify);
 		m_noFillMissingCtrl.SetCheck(WGInput.m_bNoFillMissing);
+		m_useShoreCtrl.SetCheck(WGInput.m_bUseShore);
 
 		//EnableWindow(!bDefault);
 		//UpdateCtrl();
@@ -274,6 +277,7 @@ namespace WBSF
 		WGInput.m_bXValidation = m_XValidationCtrl.GetCheck();
 		WGInput.m_bSkipVerify = m_skipVerifyCtrl.GetCheck();
 		WGInput.m_bNoFillMissing = m_noFillMissingCtrl.GetCheck();
+		WGInput.m_bUseShore = m_useShoreCtrl.GetCheck();
 		
 	}
 

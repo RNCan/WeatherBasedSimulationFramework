@@ -14,9 +14,11 @@
 //*********************************************************************
 #include "stdafx.h"
 #include <algorithm>  
+#include <math.h>       /* fmod */
 #include <boost/algorithm/string.hpp>
 
 #include "Basic/Location.h"
+#include "Basic/Shore.h"
 #include "Basic/CSV.h"
 
 #include "WeatherBasedSimulationString.h"
@@ -38,6 +40,7 @@ namespace WBSF
 
 	StringVector CLocation::MEMBER_TITLE;
 	StringVector CLocation::DEFAULT_SSI_TITLE;
+	
 
 	const char* CLocation::GetMemberTitle(size_t i)
 	{
@@ -401,22 +404,42 @@ namespace WBSF
 		AppendMergeID(mergeID2);
 	}
 
-	double CLocation::GetDistance(const CLocation& in, bool bTakeElevation)const
+	double CLocation::GetDistance(const CLocation& in, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
 		double d = WBSF::GetDistance(in.m_lat, in.m_lon, m_lat, m_lon);
+		double e = (in.m_elev - m_elev) * WEATHER::ELEV_FACTOR;
 
-		if (bTakeElevation)
+
+		if (bTakeElevation && bTakeShoreDistance)
 		{
-			double e = (in.m_elev - m_elev) * 100;
+			ASSERT(GetShoreDistance()>-999);
+			ASSERT(in.GetShoreDistance()>-999);
+			double s = (in.GetShoreDistance() - GetShoreDistance())*WEATHER::SHORE_DISTANCE_FACTOR;
+			d = sqrt(d*d + e*e + s*s);
+		}
+		else if (bTakeElevation && !bTakeShoreDistance)
+		{
 			d = sqrt(d*d + e*e);
 		}
+		else if (!bTakeElevation && bTakeShoreDistance)
+		{
+			ASSERT(GetShoreDistance()>-999);
+			ASSERT(in.GetShoreDistance()>-999);
+			double s = (in.GetShoreDistance() - GetShoreDistance())*WEATHER::SHORE_DISTANCE_FACTOR;
+			d = sqrt(d*d + s*s);
+		}
+
+		//double e = (in.m_elev - m_elev) * ELEV_FACTOR;
+
+		//if (bTakeElevation )
+			//d = sqrt(d*d + e*e);
 
 		return d;
 	}
 
-	double CLocation::GetXTemp(const CLocation& station, bool bTakeElevation)const
+	double CLocation::GetXTemp(const CLocation& station, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
-		double d = std::max(GetDistance(station, bTakeElevation), 0.0001);
+		double d = std::max(GetDistance(station, bTakeElevation, bTakeShoreDistance), 0.0000000001);
 		return pow(d, -2);
 	}
 
@@ -488,7 +511,27 @@ namespace WBSF
 		//return header;
 	}
 
-#include <math.h>       /* fmod */
+	//Out : shore distance [m]
+	double CLocation::GetShoreDistance()const
+	{
+		double shore_distance = -999;
+		string sd_str = GetSSI(GetDefaultSSIName(SHORE_DIST));
+		if (!sd_str.empty())
+			shore_distance = ToDouble(sd_str)*1000;//[km] to [m]
+		else
+			shore_distance = CShore::GetShoreDistance(*this);
+
+		return shore_distance;
+	}
+	
+	void CLocation::SetShoreDistance(double shore_distance)
+	{
+		if (shore_distance>-999)
+			SetSSI(GetDefaultSSIName(SHORE_DIST), ToString(shore_distance/1000, 1)); //[m] to [km]
+		else
+			SetSSI(GetDefaultSSIName(SHORE_DIST), ""); //reset
+	}
+
 	double CLocation::GetGeocentricCoord(size_t i)const
 	{
 		_ASSERTE(i < 5);
@@ -514,7 +557,8 @@ namespace WBSF
 		case 1:v = 6371 * 1000 * sin(xx)*sin(yy); break;
 		case 2:v = 6371 * 1000 * cos(yy); break;
 		case 3:v = m_elev; break;
-		case 4:v = GetExposition(m_lat, GetSlope(), GetAspect()); break;
+		case 4:v = GetShoreDistance(); break;
+		case 5:v = GetExposition(m_lat, GetSlope(), GetAspect()); break;
 		default: _ASSERTE(false);
 		}
 		return v;

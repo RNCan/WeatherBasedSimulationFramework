@@ -614,10 +614,10 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		}
 
 		CApproximateNearestNeighbor ann;
-		ann.set(locations, bUseElevation, /*false,*/ positions);
+		ann.set(locations, bUseElevation, false, positions);
 
 		CStatisticEx stats;
-	
+		vector<pair<double, size_t>> sorted_val(status.count());
 		for (size_t j = 0, jj = 0; j<searchResult.size() && msg; j++)
 		{
 
@@ -630,7 +630,8 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 					ASSERT(tmp[0ull].m_index == j);
 					
 					resultNearest[j] = tmp[1ull];
-					stats += resultNearest[j].m_distance;
+					stats += resultNearest[j].m_virtual_distance;
+					sorted_val[jj] = make_pair(resultNearest[j].m_virtual_distance, j);
 				}
 
 				jj++;
@@ -640,17 +641,20 @@ ERMsg CWeatherDatabase::GenerateWellDistributedStation(size_t nbStations, CSearc
 		}
 
 		double median = stats[MEDIAN];
+		//CSearchResultSort sortPred(CSearchResultSort::VIRTUAL_DISTANCE, true);
+		std::sort(sorted_val.begin(), sorted_val.end());
 
 		//find pair
-		for (size_t j = 0; j < resultNearest.size() && status.count()>nbStations&&msg; j++)
+		for (size_t i = 0; i < sorted_val.size() && status.count()>nbStations&&msg; i++)
 		{
-			if (status[j])
+			size_t j = sorted_val[i].second;
+			if(status[j])
 			{
 				size_t jj = resultNearest[j].m_index;
 				if (resultNearest[jj].m_index == j && status[jj])
 				{
-					ASSERT(resultNearest[j].m_distance == resultNearest[jj].m_distance);
-					if (resultNearest[j].m_distance<median)
+					ASSERT(fabs(resultNearest[j].m_virtual_distance - resultNearest[jj].m_virtual_distance) < 0.1);
+					if (resultNearest[j].m_virtual_distance<median)
 					{
 						size_t priority1 = priority[j];
 						size_t priority2 = priority[jj];
@@ -2017,7 +2021,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 		//year = 0;
 
 	m_CS.Enter();
-	__int64 canal = (filter.to_ullong()) * 100000 + max(year,0) * 10 + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+	__int64 canal = (filter.to_ullong()) * 100000 + max(year, 0) * 10 + (bUseShoreDistance?4:0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
 	if (!m_zop.CanalExists(canal))
 	{
 		CLocationVector locations;
@@ -2084,7 +2088,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 		//by optimization, add the canal event if they are empty
 		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation, /*bUseShoreDistance,*/ positions);
+		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
 		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 		zop.AddCanal(canal, pANN);
 	}

@@ -1321,10 +1321,10 @@ class CWeatherStationVector: public CWeatherStationVectorBase
 {
 public:
 
-	CWeatherStationVector(size_t s=0, bool bTakeElevation = true, bool bTakeShoreDistance = true) : CWeatherStationVectorBase(s)
+	CWeatherStationVector(size_t s=0/*, bool bTakeElevation, bool bTakeShoreDistance*/) : CWeatherStationVectorBase(s)
 	{
-		m_bTakeElevation = bTakeElevation;
-		m_bTakeShoreDistance = bTakeShoreDistance;
+		//m_bTakeElevation = bTakeElevation;
+		//m_bTakeShoreDistance = bTakeShoreDistance;
 	}
 
 
@@ -1350,9 +1350,9 @@ public:
 	void FillGaps();
 	void ApplyCorrections(const CWeatherCorrections& correction);
 
-	double GetXsum();
-	CWeightVector GetWeight(CWVariables variables, const CLocation& target)const;
-	void GetInverseDistanceMean(CWVariables variables, const CLocation& target, CWeatherStation& HourlyData)const;
+	//double GetXsum(bool bTakeElevation, bool bTakeShoreDistance);
+	CWeightVector GetWeight(CWVariables variables, const CLocation& target, bool bTakeElevation, bool bTakeShoreDistance)const;
+	void GetInverseDistanceMean(CWVariables variables, const CLocation& target, CWeatherStation& Data, bool bTakeElevation, bool bTakeShoreDistance)const;
 	
 
 	CTPeriod GetEntireTPeriod()const
@@ -1373,8 +1373,8 @@ public:
 
 protected:
 
-	bool m_bTakeElevation;
-	bool m_bTakeShoreDistance;
+	//bool m_bTakeElevation;
+	//bool m_bTakeShoreDistance;
 };
 
 

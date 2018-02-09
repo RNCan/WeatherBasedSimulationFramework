@@ -7,6 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
+// 30-11-2017	Rémi Saint-Amant	Add takeShoreDistance
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 // 15-11-2013	Rémi Saint-Amant	Created from old file
 //****************************************************************************
@@ -19,6 +20,27 @@
 
 namespace WBSF
 {
+
+	//double CSearchResult::GetD(bool bTakeElevation, bool bShoreDistance)const
+	//{
+	//	double distance = m_distance;
+	//	double deltaElev = fabs(m_deltaElev)*WEATHER::ELEV_FACTOR;
+	//	double deltaShore = fabs(m_deltaShore)*WEATHER::SHORE_DISTANCE_FACTOR;
+	//	
+
+	//	double d = 0;
+	//	if (bTakeElevation&&bShoreDistance)
+	//		d = sqrt(Square(distance) + Square(deltaElev) + Square(deltaShore));
+	//	else if (bTakeElevation&&!bShoreDistance)
+	//		d = sqrt(Square(distance) + Square(deltaElev));
+	//	else if (!bTakeElevation&&bShoreDistance)
+	//		d = sqrt(Square(distance) + Square(deltaShore));
+	//	else
+	//		d = distance;
+
+	//	return d/1000;
+	//	//return bTakeElevation ? sqrt(Square(distance) + Square(deltaElev)) : distance;
+	//}
 
 	void CSearchResultVector::Append(const CSearchResultVector& in, bool bRemoveDuplicate)
 	{
@@ -53,9 +75,6 @@ namespace WBSF
 				insert(end(), *it);
 		}
 
-		m_filter.reset();
-		m_year = YEAR_NOT_INIT;
-
 		return *this;
 	}
 
@@ -72,44 +91,9 @@ namespace WBSF
 				it++;
 		}
 
-		m_filter.reset();
-		m_year = YEAR_NOT_INIT;
-
 		return *this;
 	}
 
-	/*
-	void CSearchResultVector::GetWCentroid(const CLocation& st, CLocation& stCentro)
-	{
-	//CStatistic centroid[3];
-	double lat=0;
-	double lon=0;
-	double elev=0;
-	//for(int i=0; i<index.size(); i++)
-	//{
-	//}
-	double WDM=0;
-	double XtmpSum = 0;
-	for(int i=0; i<size(); i++)
-	{
-	double Xtmp = at(i).GetXTemp(true);
-	XtmpSum += Xtmp;
-
-	lat += (at(i).m_st.GetLat())*Xtmp;
-	lon += (at(i).m_st.GetLon())*Xtmp;
-	elev += (at(i).m_st.GetElev())*Xtmp;
-
-	}
-
-	lat/=XtmpSum;
-	lon/=XtmpSum;
-	elev/=XtmpSum;
-
-	stCentro.SetName("WCentroid");
-	stCentro.SetLat(lat);
-	stCentro.SetLon(lon);
-	stCentro.SetElev(int(elev));
-	}
-	*/
+	
 
 }

@@ -21,6 +21,9 @@
     <Filter Include="Source\xml\zenXml">
       <UniqueIdentifier>{7bf3549c-258f-4d8e-94f1-c8ba259cdc4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ANN">
+      <UniqueIdentifier>{c63993f0-371b-44a2-8a3a-cf8ebaed2d0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Basic\AmountPpt.cpp">
@@ -178,6 +181,42 @@
     </ClCompile>
     <ClCompile Include="..\src\Basic\Shore.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\ANN.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\bd_pr_search.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\bd_search.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\bd_tree.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\brute.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_dump.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_pr_search.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_search.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_split.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_tree.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\kd_util.cpp">
+      <Filter>Source\ANN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ANN\perf.cpp">
+      <Filter>Source\ANN</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -399,6 +438,39 @@
     </ClInclude>
     <ClInclude Include="..\src\Basic\Shore.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\ANN.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\ANNperf.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\ANNx.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\bd_tree.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\kd_pr_search.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\kd_search.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\kd_split.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\kd_tree.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\kd_util.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\pr_queue.h">
+      <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ANN\pr_queue_k.h">
+      <Filter>Source\ANN</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

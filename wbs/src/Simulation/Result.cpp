@@ -261,7 +261,7 @@ namespace WBSF
 		{
 			size_t s = GetMetadata().GetPno(sectionNo);
 			const CModelInputVector& inputs = GetMetadata().GetParameterSet();
-			if (inputs.m_variation.size() == inputs.m_pioneer.size())
+			//if (inputs.m_variation.size() == inputs.m_pioneer.size())
 			{
 				for (size_t i = 0; i < inputs.m_variation.size(); i++)
 				{
@@ -509,7 +509,7 @@ namespace WBSF
 		case PARAMETER:
 		{
 			const CModelInputVector& inputs = GetMetadata().GetParameterSet();
-			if (inputs.m_variation.size() == inputs.m_pioneer.size())
+			//if (inputs.m_variation.size() == inputs.m_pioneer.size())
 			{
 
 				for (size_t i = 0; i < inputs.m_variation.size(); i++)

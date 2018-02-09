@@ -468,7 +468,7 @@ namespace WBSF
 			}
 
 			CApproximateNearestNeighbor ann;
-			ann.set(locations, true, positions);
+			ann.set(locations, false, false, positions);
 
 			CStatisticEx stats;
 			CSearchResultVector result;

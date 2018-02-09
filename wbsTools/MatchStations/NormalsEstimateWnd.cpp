@@ -514,7 +514,7 @@ void CNormalsEstimateWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	if (pDoc->GetCurIndex()!=NOT_INIT)
 	{
 		const CLocation& target = pDoc->GetLocation(pDoc->GetCurIndex());
-		pDoc->GetNormalsStation().GetInverseDistanceMean(target, pDoc->GetVariable(), m_estimateCtrl.m_mean);
+		pDoc->GetNormalsStation().GetInverseDistanceMean(target, pDoc->GetVariable(), m_estimateCtrl.m_mean, true, WEATHER::SHORE_DISTANCE_FACTOR>0);
 	}
 		
 	m_estimateCtrl.m_variable = pDoc->GetVariable();

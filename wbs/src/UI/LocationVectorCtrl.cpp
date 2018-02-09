@@ -16,6 +16,7 @@
 #include "UI/Common/SYShowMessage.h"
 
 #include "LocationVectorCtrl.h"
+#include "WeatherBasedSimulationString.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ namespace WBSF
 {
 
 
-	enum { NB_LOCATIONS_COLUMNS = CLocation::SITE_SPECIFIC_INFORMATION };
+	enum { C_ID, C_NAME, C_LATITUDE, C_LONGITUDE, C_ALTITUDE, C_SHORE_DISTANCE, NB_LOCATIONS_COLUMNS};
 
 	//*******************************************************************************************************
 
@@ -219,7 +220,11 @@ namespace WBSF
 			{
 				if (row == -1)
 				{
-					text = CLocation::GetMemberTitle(col);
+					
+					if (col < C_SHORE_DISTANCE)
+						text = CLocation::GetMemberTitle(col);
+					else
+						text = GetString(IDS_STR_SHORE_DISTANCE);
 				}
 				else
 				{
@@ -245,7 +250,10 @@ namespace WBSF
 							textColor = RGB(255, 255, 255);
 						}
 
-						text = location.GetMember(col);
+						if (col < C_SHORE_DISTANCE)
+							text = location.GetMember(col);
+						else
+							text = ToString(location.GetShoreDistance()/1000, 1);
 					}
 				}
 			}
@@ -309,7 +317,11 @@ namespace WBSF
 			{
 				if (col >= 0 && row >= 0)
 				{
-					*string = (*m_pLocations)[row].GetMember(col).c_str();
+					if (col < C_SHORE_DISTANCE)
+						*string = (*m_pLocations)[row].GetMember(col).c_str();
+					else
+						*string = UtilWin::ToCString((*m_pLocations)[row].GetShoreDistance()/1000,1);
+
 				}
 			}
 		}
@@ -430,11 +442,12 @@ namespace WBSF
 					switch (m_curSortCol)
 					{
 					case -1:   str = to_string(pos + 1); break;
-					case CLocation::ID:   str = loc.m_ID; break;
-					case CLocation::NAME: str = loc.m_name; break;
-					case CLocation::LAT:  str = FormatA("%015.6lf", loc.m_lat); break;
-					case CLocation::LON:  str = FormatA("%015.6lf", loc.m_lon); break;
-					case CLocation::ELEV: str = FormatA("%010.3lf", loc.m_elev); break;
+					case C_ID:   str = loc.m_ID; break;
+					case C_NAME: str = loc.m_name; break;
+					case C_LATITUDE:  str = FormatA("%015.6lf", loc.m_lat); break;
+					case C_LONGITUDE:  str = FormatA("%015.6lf", loc.m_lon); break;
+					case C_ALTITUDE: str = FormatA("%010.1lf", loc.m_elev); break;
+					case C_SHORE_DISTANCE: str = FormatA("%010.1lf", loc.GetShoreDistance()/1000); break;
 					default: ASSERT(false);
 					}
 

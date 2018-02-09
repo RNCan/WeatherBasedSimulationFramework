@@ -19,7 +19,8 @@
 namespace WBSF
 {
 	enum TScaleG{ LOCAL_GRADIENT, REGIONAL_GRADIENT, CONTINENTAL_GRADIENT, NB_SCALE_GRADIENT };
-	enum TDefaultG{ SOUTH_HEMISPHERE, NORTH_HEMISPHERE, NB_HEMISPHERE};//CENTRAL_GRADIENT, 
+	//enum TDefaultG{ SOUTH_HEMISPHERE, NORTH_HEMISPHERE, NB_HEMISPHERE};//CENTRAL_GRADIENT, 
+	enum TDefaultG{ SOUTH_WEST, NORTH_WEST, SOUTH_EST, NORTH_EST, NB_HEMISPHERE };
 	extern const char* GetHemisphereName(size_t i);
 	extern const char* GetGradientName(size_t i);
 	extern const char* GetScaleName(size_t i);
@@ -58,7 +59,7 @@ namespace WBSF
 
 		ERMsg CreateGradient(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg ComputeGradient(size_t v, CSearchResultVector& results, CGradientYear& Gr, CGradientR²& R², CCallback& callBack);
-		ERMsg CreateDefaultGradient(CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg CreateDefaultGradient(std::string filePath, CCallback& callback = DEFAULT_CALLBACK);
 		double GetFactor(size_t z, size_t v, size_t s, const CSearchResultVector& results)const;
 		void GetSᵒ(size_t g, const CSearchResultVector& results, CGradientSᵒ& Sᵒ)const;
 
@@ -82,7 +83,7 @@ namespace WBSF
 		//static ERMsg Shape2ANN(const std::string& filePathIn, const std::string& filePathOut);
 		//static ERMsg AddShape(const std::string& filePathIn1, const std::string& filePathIn2, const std::string& filePathOut);
 		//static double GetShoreDistance(const CLocation& location);
-		static size_t GetNbSpaces();
+		size_t GetNbSpaces()const;
 		static double GetDistance(size_t s, const CLocation& target, const CLocation& station);
 
 		double GetSᵒ(size_t z, size_t g, size_t m)const{ return m_Sᵒ[z][g][m][MEAN]; }
@@ -97,21 +98,15 @@ namespace WBSF
 		CGradientFactor m_factor;
 		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_R²;
 		std::array <std::array <CGradientSᵒ, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_Sᵒ;
-		
-		//for optimization
-		//std::map<CGeoPoint3D, double> m_shoreCache;
 
-
-
-		//static CApproximateNearestNeighborPtr m_pShore;
 		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
 		static const CGradientSᵒ GLOBAL_Sᵒ[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
 		static const size_t NB_S_MAX[NB_HEMISPHERE];
 		static const CGeoRect DEFAULT_RECT[NB_HEMISPHERE];
 
 
-		static const double A[NB_SCALE_GRADIENT];
-		static const double B[NB_SCALE_GRADIENT];
+		//static const double A[NB_SCALE_GRADIENT];
+		//static const double B[NB_SCALE_GRADIENT];
 		static const double F1[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT];
 		static const double F2[NB_SCALE_GRADIENT][GRADIENT::NB_GRADIENT];
 

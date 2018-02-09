@@ -30,18 +30,17 @@ namespace WBSF
 		static const int DEFAULT_STEP = 10;
 
 		std::string m_name;
-		//size_t	m_pos;
 		bool	m_bActive;
 		size_t	m_type;
 		double	m_min;
 		double	m_max;
 		double	m_step;
 
-		CParameterVariation();
+		CParameterVariation(const std::string& name = "", bool bActive = false, size_t type = CModelInputParameterDef::kMVReal, double min = 0, double max = 0, double step = 0);
 		CParameterVariation(const CParameterVariation& in);
 
-		CParameterVariation(short pos, const CModelInputParameterDef& in);
-		void Init(short pos, const CModelInputParameterDef& in);
+		CParameterVariation(const CModelInputParameterDef& in);
+		void Init(const CModelInputParameterDef& in);
 
 		void Reset();
 		CParameterVariation& operator = (const CParameterVariation& in);

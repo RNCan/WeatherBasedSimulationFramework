@@ -595,7 +595,7 @@ namespace WBSF
 	//********************************************************************************************************************************
 	//*******************************************************************************************************
 
-	enum TMatchStations{ M_ID, M_NAME, M_LAT, M_LON, M_ALT, M_SHORE_DISTANCE, M_DISTANCE, M_DELTA_ELEVATION, M_DELTA_SHORE, M_WEIGHT, NB_MATCH_STATIONS_COLUMNS };
+	enum TMatchStations{ M_ID, M_NAME, M_LAT, M_LON, M_ALT, M_SHORE_DISTANCE, M_DISTANCE, M_DELTA_ELEVATION, M_DELTA_SHORE, M_VIRTUAL_DISTANCE, M_WEIGHT, NB_MATCH_STATIONS_COLUMNS };
 
 	BEGIN_MESSAGE_MAP(CMatchStationsCtrl, CUGCtrl)
 	END_MESSAGE_MAP()
@@ -693,17 +693,18 @@ namespace WBSF
 			m_lastFilePath = filePath;
 			m_lastNearest = m_nearest;
 
-			m_weight = m_nearest.GetStationWeight();
+			m_weight = m_nearest.GetStationWeight(/*true, WEATHER::SHORE_DISTANCE_FACTOR>0*/);
 			m_shoreD.resize(m_weight.size());
-			m_deltaShore.resize(m_weight.size());
+			//m_deltaShore.resize(m_weight.size());
 
 			if (m_location.IsInit())
 			{
-				double dShore = CShore::GetShoreDistance(m_location);
+				//double dShore = CShore::GetShoreDistance(m_location);
 				for (size_t i = 0; i < m_shoreD.size(); i++)
 				{
-					m_shoreD[i] = CShore::GetShoreDistance(m_nearest[i].m_location);
-					m_deltaShore[i] = dShore - m_shoreD[i];
+					//m_shoreD[i] = CShore::GetShoreDistance(m_nearest[i].m_location);
+					m_shoreD[i] = m_nearest[i].m_location.GetShoreDistance();
+					//m_deltaShore[i] = dShore - m_shoreD[i];
 				}
 			}
 				
@@ -773,7 +774,9 @@ namespace WBSF
 					else if (col == M_DELTA_ELEVATION)
 						text = GetString(IDS_STR_DELTA_ELEV);
 					else 	if (col == M_DELTA_SHORE)
-						text = "Delta Shore";//text = GetString(IDS_STR_DELTA_SHORE);
+						text = GetString(IDS_STR_DELTA_SHORE);
+					else 	if (col == M_VIRTUAL_DISTANCE)
+						text = GetString(IDS_STR_VIRTUAL_DISTANCE);
 					else if (col == M_WEIGHT)
 						text = GetString(IDS_STR_WEIGHT);
 					else
@@ -798,11 +801,13 @@ namespace WBSF
 						if (col == M_SHORE_DISTANCE)
 							text = ToString(m_shoreD[index] / 1000, 1);
 						else if (col == M_DISTANCE)
-							text = ToString(m_nearest[index].m_distance / 1000, 1);
+							text = ToString(m_nearest[index].m_distance/1000, 1);
 						else if (col == M_DELTA_ELEVATION)
 							text = ToString(m_nearest[index].m_deltaElev, 0);
 						else if (col == M_DELTA_SHORE)
-							text = ToString(m_deltaShore[index] / 1000, 1);
+							text = ToString(m_nearest[index].m_deltaShore / 1000, 1);
+						else if (col == M_VIRTUAL_DISTANCE)
+							text = ToString(m_nearest[index].m_virtual_distance / 1000, 1);
 						else if (col == M_WEIGHT)
 							text = ToString(m_weight[index] * 100, 1);
 						else
@@ -1032,7 +1037,8 @@ namespace WBSF
 					case M_SHORE_DISTANCE:	str = ToString(m_shoreD[pos] / 1000, 1); break;
 					case M_DISTANCE: 	str = ToString(it->m_distance / 1000, 1); break;
 					case M_DELTA_ELEVATION:	str = ToString(it->m_deltaElev, 0); break;
-					case M_DELTA_SHORE:	str = ToString(m_deltaShore[pos] / 1000, 1); break;
+					case M_DELTA_SHORE:	str = ToString(it->m_deltaShore / 1000, 1); break;
+					case M_VIRTUAL_DISTANCE: str = ToString(it->m_virtual_distance / 1000, 1); break;
 					case M_WEIGHT:		str = ToString(m_weight[pos] * 100, 1); break;
 					default: ASSERT(false);
 					}

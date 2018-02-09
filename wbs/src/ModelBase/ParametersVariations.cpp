@@ -18,22 +18,26 @@ namespace WBSF
 
 
 	const char* CParameterVariation::XML_FLAG = "Parameter";
-	const char* CParameterVariation::MEMBER_NAME[NB_MEMBER] = { "Name", /*"Pos",*/ "Active", "Type", "Minimum", "Maximum", "Step" };
+	const char* CParameterVariation::MEMBER_NAME[NB_MEMBER] = { "Name", "Active", "Type", "Minimum", "Maximum", "Step" };
 
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction
 	//////////////////////////////////////////////////////////////////////
 
-	CParameterVariation::CParameterVariation()
+	CParameterVariation::CParameterVariation(const std::string& name, bool bActive, size_t type, double min, double max, double step)
 	{
-		Reset();
+		m_name = name;
+		m_bActive = bActive;
+		m_type = type;
+		m_min = min;
+		m_max = max;
+		m_step = step;
 	}
 
 	void CParameterVariation::Reset()
 	{
 		m_bActive = false;
-		//m_pos = 0;
 		m_type = CModelInputParameterDef::kMVReal;
 		m_min = 0;
 		m_max = 0;
@@ -46,14 +50,13 @@ namespace WBSF
 		operator=(in);
 	}
 
-	CParameterVariation::CParameterVariation(short pos, const CModelInputParameterDef& in)
+	CParameterVariation::CParameterVariation(const CModelInputParameterDef& in)
 	{
-		Init(pos, in);
+		Init(in);
 	}
 
-	void CParameterVariation::Init(short pos, const CModelInputParameterDef& in)
+	void CParameterVariation::Init(const CModelInputParameterDef& in)
 	{
-		//m_pos = pos;
 		m_type = in.GetType();
 		m_name = in.m_name;
 
@@ -118,7 +121,6 @@ namespace WBSF
 		if (&in != this)
 		{
 			m_name = in.m_name;
-			//m_pos = in.m_pos;
 			m_bActive = in.m_bActive;
 			m_type = in.m_type;
 			m_min = in.m_min;
@@ -136,7 +138,6 @@ namespace WBSF
 		bool bEqual = true;
 
 		if (in.m_name != m_name) bEqual = false;
-		//if (in.m_pos != m_pos) bEqual = false;
 		if (in.m_bActive != m_bActive) bEqual = false;
 		if (in.m_type != m_type)bEqual = false;
 		if (in.m_min != m_min) bEqual = false;
@@ -186,76 +187,8 @@ namespace WBSF
 		return bValid;
 	}
 
-	/*
-	std::string CParameterVariation::GetMember(int i, LPXNode& pNode)const
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-
-	std::string str;
-	switch(i)
-	{
-	case POSITION: str = ToString(m_pos); break;
-	case TYPE: str = ToString(m_type); break;
-	case MINIMUM: str = ToString(m_min,-1); break;
-	case MAXIMUM: str = ToString(m_max,-1); break;
-	case STEP: str = ToString(m_step,-1); break;
-	default:ASSERT(false);
-	}
-
-	return str;
-	}
-
-	void CParameterVariation::SetMember(int i, const std::string& str, const LPXNode pNode)
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-	switch(i)
-	{
-	case POSITION: m_pos=ToShort(str); break;
-	case TYPE: m_type = ToShort(str); break;
-	case MINIMUM: m_min = ToFloat(str); break;
-	case MAXIMUM: m_max= ToFloat(str); break;
-	case STEP: m_step= ToFloat(str); break;
-	default:ASSERT(false);
-	}
-
-	}
-	*/
-
-
-	//void CParameterVariation::GetXML(XNode& root)const
-	//{
-	//	
-	//
-	//	XNode& xml = *root.AppendChild(XMLFlag);
-	//
-	//	for(int i=0; i<NB_MEMBER; i++)
-	//	{
-	//		xml.AppendChild(GetMemberName(i), GetString(i) );
-	//	}
-	//}
-	//
-	//void CParameterVariation::SetXML(const XNode& root)
-	//{
-	//	LPXNode pNode = root.Select(XMLFlag);
-	//	if( pNode )
-	//	{
-	//		XNode& xml = *pNode;
-	//		ASSERT( xml.GetChildCount() >= NB_MEMBER );
-	//	
-	//		for(int i=0; i<NB_MEMBER; i++)
-	//		{
-	//			SetString( i, xml.GetChildValue(GetMemberName(i)) ); 
-	//		}
-	//
-	//		//m_varArray.SetXML(xml);
-	//	}
-	//}
-
-
 	//***********************************************************************
 	//CParametersVariationsDefinition
-	//const char* CParametersVariationsDefinition::XML_FLAG = "SimulationVariations";
-	//const char* _CParametersVariationsDefinition::XML_FLAG = "VariationArray";
 	const char* CParametersVariationsDefinition::FILE_EXT = ".pvd";
 	const char* CParametersVariationsDefinition::MEMBER_NAME[NB_MEMBER] = { "Type", "NbVariations", "Parameters" };
 

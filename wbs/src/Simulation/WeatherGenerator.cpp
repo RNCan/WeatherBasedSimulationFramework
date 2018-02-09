@@ -19,6 +19,7 @@
 //		in North America north of Mexico. International Journal of Biometeorology. 51:415-430.
 //
 //******************************************************************************
+//08/01/2018	Rémi Saint-Amant	Round weather values
 //13/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
 //24/02/2016	Rémi Saint-Amant	Add gribs database to the weather generator
 //01/01/2016	Rémi Saint-Amant	Include into Weather-based simulation framework
@@ -179,6 +180,7 @@ namespace WBSF
 		m_gradients.SetNormalsDatabase(m_pNormalDB);
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
+		
 		if (m_gradients.m_variables[H_TMIN2] || m_gradients.m_variables[H_TAIR2] || m_gradients.m_variables[H_TMAX2])
 		{
 			m_gradients.m_variables.set(H_TMIN2);
@@ -188,6 +190,7 @@ namespace WBSF
 
 		m_gradients.m_allowDerivedVariables = m_tgi.m_allowedDerivedVariables;
 		m_gradients.m_bXVal = m_tgi.m_bXValidation;
+		m_gradients.m_bUseShore = m_tgi.m_bUseShore;
 		m_gradients.m_target = m_target;
 
 		m_gradients.CreateGradient(callback);
@@ -1018,7 +1021,7 @@ namespace WBSF
 						{
 							stations.FillGaps();//internal completion
 							stations.ApplyCorrections(m_gradients);
-							stations.GetInverseDistanceMean(v, m_target, simulationPoint);
+							stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 						}
 					}
 
@@ -1083,7 +1086,7 @@ namespace WBSF
 							{
 								stations.FillGaps();//internal completion
 								stations.ApplyCorrections(m_gradients);//apply gradient to weather data
-								stations.GetInverseDistanceMean(v, m_target, simulationPoint);
+								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}
 						}
 						/*else if (v == H_TRNG)
@@ -1170,7 +1173,7 @@ namespace WBSF
 						{
 							stationsVector.FillGaps();//internal completion
 							stationsVector.ApplyCorrections(m_gradients);
-							stationsVector.GetInverseDistanceMean(v, m_target, simulationPoint);
+							stationsVector.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 						}
 					}
 
@@ -1234,7 +1237,7 @@ namespace WBSF
 							{
 								stations.FillGaps();//internal completion
 								stations.ApplyCorrections(m_gradients);
-								stations.GetInverseDistanceMean(v, m_target, simulationPoint);
+								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}
 						}
 
@@ -1412,7 +1415,7 @@ namespace WBSF
 					CNormalsStationVector stationsVector;
 					m_pNormalDB->GetStations(stationsVector, results);
 					stationsVector.ApplyCorrections(m_gradients);
-					stationsVector.GetInverseDistanceMean(m_target, v, normals);
+					stationsVector.GetInverseDistanceMean(m_target, v, normals, true, m_tgi.m_bUseShore);
 				}
 			}
 		}
@@ -1458,7 +1461,7 @@ namespace WBSF
 						CNormalsStationVector stationsVector;
 						m_pNormalDB->GetStations(stationsVector, results);
 						stationsVector.ApplyCorrections(m_gradients);
-						stationsVector.GetInverseDistanceMean(m_target, v, normals);
+						stationsVector.GetInverseDistanceMean(m_target, v, normals, true, m_tgi.m_bUseShore);
 					}
 					else
 					{

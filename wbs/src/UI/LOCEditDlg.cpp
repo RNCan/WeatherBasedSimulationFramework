@@ -14,6 +14,7 @@
 #include "UltimateGrid/ExcelSideHdg.h"
 #include "FileManager/FileManager.h"
 #include "Basic/ApproximateNearestNeighbor.h"
+#include "Basic/Shore.h"
 #include "geomatic/gdalBasic.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "UI/Common/AppOption.h"
@@ -720,22 +721,7 @@ namespace WBSF
 		CGDALDatasetEx inputDS;
 		if (bExtractElev || bExtractSlopeAspect)
 			msg = inputDS.OpenInputImage(filePath);
-
-		CApproximateNearestNeighbor shore;
-		if (msg && bShoreDistance)
-		{
-			ifStream stream;
-			string filePath = GetApplicationPath() + "Layers/Shore.ann";
-			msg = stream.open(filePath, std::ios::binary);
-			if (msg)
-			{
-				shore << stream;
-				stream.close();
-			}
-		}
 		
-		
-
 
 		if (msg)
 		{
@@ -795,10 +781,11 @@ namespace WBSF
 
 					if (bShoreDistance)
 					{
-						CSearchResultVector shorePt;
-						VERIFY(shore.search(locations[i], 1, shorePt));
+					//	CSearchResultVector shorePt;
+				//		VERIFY(shore.search(locations[i], 1, shorePt));
 						
-						double d = shorePt.front().m_distance/1000.0;//distance in km
+						//double d = shorePt.front().m_distance/1000.0;//distance in km
+						double d = CShore::GetShoreDistance(locations[i]) / 1000.0;//distance in km
 						locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d,1));
 					}
 

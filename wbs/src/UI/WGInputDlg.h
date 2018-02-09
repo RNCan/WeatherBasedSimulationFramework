@@ -111,6 +111,7 @@ namespace WBSF
 		CButton m_XValidationCtrl;
 		CButton m_skipVerifyCtrl;
 		CButton m_noFillMissingCtrl;
+		CButton m_useShoreCtrl;
 
 		//CXInfoTip m_testToolTips;
 		CMyToolTipCtrl m_testToolTips;

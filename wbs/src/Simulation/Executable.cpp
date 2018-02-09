@@ -951,7 +951,7 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, CCallback& callb
 							break;
 						case PARAMETER:
 						{
-							if (param.m_variation.size() == param.m_pioneer.size())
+							//if (param.m_variation.size() == param.m_pioneer.size())
 							{
 								for (size_t i = 0; i < param.m_variation.size(); i++)
 								{
@@ -960,7 +960,8 @@ ERMsg CExecutable::ExportAsCSV(const CFileManager& fileManager, CCallback& callb
 										if (!tmp.empty())
 											tmp += listDelimiter;
 
-										tmp += param[pNo][i].GetStr();
+										if (i<param[pNo].size())
+											tmp += param[pNo][i].GetStr();
 									}
 								}
 							}

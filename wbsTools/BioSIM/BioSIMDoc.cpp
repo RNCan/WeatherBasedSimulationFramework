@@ -441,20 +441,46 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 {
 	ERMsg msg;
 	
+	
 	//UpdateQuebec();
 	//
 	//CShoreCreator::ComputeDistance( "D:\\Layers\\coastlines-generalized-3857\\coastlines_z8.shp", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.WithShoreDistanceVector.csv");
 	//CShoreCreator::ComputeDistance("D:\\Layers\\gshhg-shp-2.3.6\\GSHHS_shp\\GSHHS10km.shp", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsHdr2.csv");
+	//CShoreCreator::ComputeDistance("D:\\Layers\\gshhg-shp-2.3.6\\GSHHS_shp\\GSHHS10km.shp", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsHdr.csv");
+	//CShoreCreator::ComputeDistance("D:\\Layers\\coastlines-generalized-3857\\coastlines_z8.shp", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsHdr.csv");
+	
 	//CShoreCreator::ComputeDistance("D:\\Layers\\land-polygons-complete-4326\\land_polygons_lo.shp", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsT100.csv", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsT100.csv");
 	//CShoreCreator::ComputeDistance("D:\\Layers\\land-polygons-complete-4326\\land_polygons_lo.shp", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsP100.csv", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsP100.csv");
 	//CShoreCreator::ComputeDistance("D:\\Layers\\land-polygons-complete-4326\\land_polygons_lo.shp", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsT100.csv", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsT100.csv");
 	//CShoreCreator::ComputeDistance("D:\\Layers\\land-polygons-complete-4326\\land_polygons_lo.shp", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsP100.csv", "D:\\Travaux\\AnalyseGradient\\loc\\NormalsP100.csv");
 
+	//CShoreCreator::Shape2ANN("D:\\Layers\\ne_10m_land\\ne_10m_land_2.shp", GetApplicationPath() + "Layers\\ne_10m.ann");
+	//CShoreCreator::AddPoints(GetApplicationPath() + "Layers\\ne_10m.ann", "D:\\Layers\\ne_10m_land\\StationAdded.csv");
+	//CShoreCreator::ComputeDistance("D:\\Layers\\ne_10m_land\\ne_10m_land.shp", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\World++ 1981-2010_ne10.NormalsHdr.csv");
+	
+	
+	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\ne_10m.ann");
 
+	
+	
+	//CLocation loc1("Vancouver", "Vancouver", 49.229896, -123.234097, 25);
+	//CLocation loc2("Tampa", "Tampa", 27.978402, -82.534988, 25);
+	//double test = loc1.GetDistance(loc2,false,false);
 	//CShoreCreator::Shape2ANN("D:\\Layers\\gshhg-shp-2.3.6\\GSHHS_shp\\GSHHS10km.shp", GetApplicationPath() + "Layers\\GSHHS10km.ann");
 	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
+	
+	
 	msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
 
+
+	//CNormalsDatabasePtr normalDB(new CNormalsDatabase);
+	//msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
+	//////msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
+	//CWeatherGradient gradient;
+	//gradient.m_variables = "TN TX P TD";
+	//gradient.m_bUseShore = true;
+	//gradient.SetNormalsDatabase(normalDB);
+	//msg = gradient.CreateDefaultGradient("D:\\Travaux\\AnalyseGradient\\default", CCallback());
 
 
 	//CLocationVector loc0;

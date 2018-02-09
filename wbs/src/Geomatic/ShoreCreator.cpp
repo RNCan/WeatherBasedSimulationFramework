@@ -54,7 +54,8 @@ namespace WBSF
 
 								if (k > first)
 								{
-									while (locations.back().GetDistance(location, false/*, false*/) > 5000)
+									
+									while (locations.back().GetDistance(location, false, false) > 5000)
 									{
 										//mean point between 
 										CGeoPoint pt2 = (locations.back() + location) / 2;
@@ -104,7 +105,7 @@ namespace WBSF
 					//}
 					
 					CApproximateNearestNeighbor ANN;
-					ANN.set(locations, false/*, false*/);
+					ANN.set(locations, false, false);
 					stream << ANN;
 					stream.close();
 
@@ -116,7 +117,50 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CShoreCreator::AddPoints(const string& shoreFilepath, const string& LocFilepathIn)
+	{
+		ERMsg msg;
 
+		CLocationVector pointToAdd;
+		msg += pointToAdd.Load(LocFilepathIn);
+
+		
+		ifStream stream;
+		msg += stream.open(shoreFilepath, std::ios::binary);
+		if (msg)
+		{
+
+			CApproximateNearestNeighbor ANN;
+			ANN << stream;
+			stream.close();
+
+			CLocationVector locations(ANN.size() + pointToAdd.size());
+			for (size_t i = 0; i < ANN.size(); i++)
+			{
+				locations[i] = ANN.at(i);
+			}
+			
+			for (size_t i = 0; i < pointToAdd.size(); i++)
+			{
+				locations[ANN.size()+i] = pointToAdd.at(i);
+			}
+
+			ofStream stream;
+			msg = stream.open(shoreFilepath, std::ios::binary);
+			if (msg)
+			{
+
+				CApproximateNearestNeighbor ANN;
+				ANN.set(locations, false, false);
+				stream << ANN;
+				stream.close();
+
+
+			}
+		}
+
+		return msg;
+	}
 
 	//"U:\\Geomatique\\Shapefile\\water\\water-polygons-generalized-3857\\water_polygons_z3.shp"
 	ERMsg CShoreCreator::ComputeDistance(const string& ShoreFilepath, const string& LocFilepathIn, const string& LocFilepathOut)

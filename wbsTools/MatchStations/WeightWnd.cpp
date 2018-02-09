@@ -304,7 +304,7 @@ void CWeightChartCtrl::Update()
 			ENSURE(pAxisX);
 
 			
-			CWeightVector weight = m_observationStations.GetWeight((TVarH)m_variable, m_target);
+			CWeightVector weight = m_observationStations.GetWeight((TVarH)m_variable, m_target, true, WEATHER::SHORE_DISTANCE_FACTOR>0);
 
 			for (CGraphSerieVector::iterator it2 = it1->m_series.begin(); it2 != it1->m_series.end(); it2++)
 			{

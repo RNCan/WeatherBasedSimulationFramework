@@ -23,7 +23,7 @@ namespace WBSF
 
 	const char* CWGInput::XML_FLAG = "WGInput";
 	const char* CWGInput::MEMBERS_NAME[NB_MEMBERS] = { "Variables", "SourceType", "GenerationType", "NbNormalsYears", "FirstYear", "LastYear", "UseForecast", "UseRadarPrcp", "NormalDBName", "NbNormalsStations",
-		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "GribsDBName", "UseGribs", "AtSurfaceOnly", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing" };
+		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "GribsDBName", "UseGribs", "AtSurfaceOnly", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing", "UseShore" };
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction
@@ -65,6 +65,7 @@ namespace WBSF
 		m_bXValidation = false;
 		m_bSkipVerify = false;
 		m_bNoFillMissing = false;
+		m_bUseShore = true;
 
 
 		m_filePath.clear();
@@ -99,6 +100,7 @@ namespace WBSF
 			m_filePath = in.m_filePath;
 			m_bSkipVerify = in.m_bSkipVerify;
 			m_bNoFillMissing = in.m_bNoFillMissing;
+			m_bUseShore = in.m_bUseShore;
 			m_searchRadius = in.m_searchRadius;
 		}
 
@@ -136,7 +138,8 @@ namespace WBSF
 		case ALLOWED_DERIVED_VARIABLES: str = m_allowedDerivedVariables.to_string(); break;
 		case XVALIDATION:		str = ToString(m_bXValidation); break;
 		case SKIP_VERIFY:		str = ToString(m_bSkipVerify); break;
-		case NO_FILL_MISSING:  str = ToString(m_bNoFillMissing); break;
+		case NO_FILL_MISSING:	str = ToString(m_bNoFillMissing); break;
+		case USE_SHORE:			str = ToString(m_bUseShore); break;
 		case SEARCH_RADIUS:		str = to_string(m_searchRadius, "," ); break;
 		default: ASSERT(false);
 		}
@@ -172,6 +175,7 @@ namespace WBSF
 		if (m_bXValidation != in.m_bXValidation)bEqual = false;
 		if (m_bSkipVerify != in.m_bSkipVerify)bEqual = false;
 		if (m_bNoFillMissing != in.m_bNoFillMissing)bEqual = false;
+		if (m_bUseShore != in.m_bUseShore)bEqual = false;
 		if (m_searchRadius != in.m_searchRadius)bEqual = false;
 
 		return bEqual;

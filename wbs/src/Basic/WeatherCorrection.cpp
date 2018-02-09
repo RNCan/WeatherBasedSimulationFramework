@@ -33,6 +33,7 @@ namespace WBSF
 	void CWeatherCorrections::reset()
 	{
 		m_bXVal = false;
+		m_bUseShore = true;
 		m_target.clear();
 		m_variables.reset();
 		m_allowDerivedVariables.set();

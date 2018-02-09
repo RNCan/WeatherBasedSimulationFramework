@@ -172,7 +172,7 @@ namespace WBSF
 		//size_t			m_lastNbStations;
 		//std::array<std::vector<double>, HOURLY_DATA::NB_VAR_H> m_weight;
 		std::vector<double> m_shoreD;
-		std::vector<double> m_deltaShore;
+		//std::vector<double> m_deltaShore;
 		std::vector<double> m_weight;
 
 		void CreateBoldFont();

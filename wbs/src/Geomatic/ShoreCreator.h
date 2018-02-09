@@ -24,6 +24,7 @@ namespace WBSF
 		
 		static ERMsg Shape2ANN(const std::string& filePathIn, const std::string& filePathOut);
 		static ERMsg ComputeDistance(const std::string& ShoreFilepath, const std::string& LocFilepathIn, const std::string& LocFilepathOut);
+		static ERMsg AddPoints(const std::string& shoreFilepath, const std::string& LocFilepathIn);
 		
 	};
 

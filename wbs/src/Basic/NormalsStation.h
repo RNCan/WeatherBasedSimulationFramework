@@ -60,8 +60,8 @@ namespace WBSF
 		
 		void ApplyCorrections(const CWeatherCorrections& correction);
 		void GetNormalVector(const CLocation& target, CWVariables variables, CNormalDataVector& normalVector)const;
-		void GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation = true)const;
-		void GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation = true)const;
+		void GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation, bool bTakeShoreDistance)const;
+		void GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation, bool bTakeShoreDistance )const;
 		ERMsg MergeStation(CNormalsStation& station, size_t mergeType)const;
 		void GetMean(size_t mergeType, CNormalsData& data)const;
 

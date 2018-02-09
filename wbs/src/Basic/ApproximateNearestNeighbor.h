@@ -69,10 +69,10 @@ namespace WBSF
 		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 
-			bool empty()const{ return m_nSize*m_nbDimension == 0; }
+		bool empty()const{ return m_nSize*m_nbDimension == 0; }
 		void clear();
 		size_t size()const{ return (size_t)m_nSize; }
-		void set(const CLocationVector& locations, bool bUseElevation, const std::vector<__int64>& position = std::vector<__int64>());
+		void set(const CLocationVector& locations, bool bUseElevation, bool bShoreDistance, const std::vector<__int64>& position = std::vector<__int64>());
 
 		ERMsg search(
 			const CLocation& pt,	//point to search
@@ -81,7 +81,7 @@ namespace WBSF
 			double		eps = 0.0)const;	// error bound
 
 
-		CGeoPoint3D at(size_t i)const;
+		CLocation at(size_t i)const;
 
 		size_t SearchPos2LocPos(size_t i)const{ ASSERT(m_positions.empty() || (i < m_positions.size())); return m_positions.empty() ? i : m_positions[i]; }
 

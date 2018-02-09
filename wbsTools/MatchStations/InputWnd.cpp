@@ -43,6 +43,7 @@ const int CInputPropertyCtrl::INPUT_TYPE[NB_INPUTS] = { IT_FILEPATH, IT_OBS_TYPE
 BEGIN_MESSAGE_MAP(CInputPropertyCtrl, CMFCPropertyGridCtrl)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 CInputPropertyCtrl::CInputPropertyCtrl()
@@ -182,37 +183,48 @@ void CInputPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 //}
 //
 
+static const UINT TIMER_PROP_CHANGE = 11;
+
 void CInputPropertyCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pPropIn) const
 {
 	CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
 
-	CMatchStationDoc* pDoc = CInputWnd::GetDocument();
+	const_cast<CInputPropertyCtrl*>(this)->m_lastChange = pProp->GetData();
+	const_cast<CInputPropertyCtrl*>(this)->m_lastValue = pProp->get_string();
+	
+	//use setTimer to avoid crash
+	const_cast<CInputPropertyCtrl*>(this)->SetTimer(TIMER_PROP_CHANGE, 10, NULL);
 
-	int i = pProp->GetData();
-	string val = pProp->get_string();
+}
 
-	switch (i)
+void CInputPropertyCtrl::OnTimer(UINT_PTR nIDEvent)
+{
+	if (nIDEvent == TIMER_PROP_CHANGE)
 	{
-	case LOC_FILEPATH:		pDoc->SetLocationFilePath(val); break;
-	case OBSERVATION_TYPE:	pDoc->SetObservationType(ToSizeT(val)); break;
-	case HOURLY_FILEPATH:	pDoc->SetHourlyFilePath(val); break;
-	case DAILY_FILEPATH:	pDoc->SetDailyFilePath(val); break;
-	case NORMALS_FILEPATH:	pDoc->SetNormalsFilePath(val); break;
-	case VARIABLES:			pDoc->SetVariable((HOURLY_DATA::TVarH)ToSizeT(val)); break;
-	case YEAR:				pDoc->SetYear(ToInt(val)); break;
-	case NB_STATIONS:		pDoc->SetNbStation(ToSizeT(val)); break;
-	case SEARCH_RADIUS:		pDoc->SetSearchRadius(ToDouble(val)); break;
-	case SKIP_VERIFY:		pDoc->SetSkipVerify(ToBool(val)); break;
-	default: ASSERT(false);
+		CMatchStationDoc* pDoc = CInputWnd::GetDocument();
+		switch (m_lastChange)
+		{
+		case LOC_FILEPATH:		pDoc->SetLocationFilePath(m_lastValue); break;
+		case OBSERVATION_TYPE:	pDoc->SetObservationType(ToSizeT(m_lastValue)); break;
+		case HOURLY_FILEPATH:	pDoc->SetHourlyFilePath(m_lastValue); break;
+		case DAILY_FILEPATH:	pDoc->SetDailyFilePath(m_lastValue); break;
+		case NORMALS_FILEPATH:	pDoc->SetNormalsFilePath(m_lastValue); break;
+		case VARIABLES:			pDoc->SetVariable((HOURLY_DATA::TVarH)ToSizeT(m_lastValue)); break;
+		case YEAR:				pDoc->SetYear(ToInt(m_lastValue)); break;
+		case NB_STATIONS:		pDoc->SetNbStation(ToSizeT(m_lastValue)); break;
+		case SEARCH_RADIUS:		pDoc->SetSearchRadius(ToDouble(m_lastValue)); break;
+		case SKIP_VERIFY:		pDoc->SetSkipVerify(ToBool(m_lastValue)); break;
+		default: ASSERT(false);
+		}
 	}
-
 
 }
 
 
 BOOL CInputPropertyCtrl::PreTranslateMessage(MSG* pMsg)
 {
-
+	if (m_pSel == NULL)
+		return FALSE;
 	//if (pMsg->message == WM_KEYDOWN)
 	//{
 	//	

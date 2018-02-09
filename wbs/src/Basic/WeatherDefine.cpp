@@ -377,7 +377,7 @@ namespace WBSF
 			switch (g)
 			{
 			case TMIN_GR: f = NORMALS_DATA::TMIN_MN; break;
-			case TAIR_GR: ASSERT(false); break;
+			//case TAIR_GR: ASSERT(false); break;
 			case TMAX_GR: f = NORMALS_DATA::TMAX_MN; break;
 			case PRCP_GR: f = NORMALS_DATA::PRCP_TT; break;
 			case TDEW_GR: f = NORMALS_DATA::TDEW_MN; break;
@@ -411,7 +411,7 @@ namespace WBSF
 			switch (g)
 			{
 			case TMIN_GR: v = HOURLY_DATA::H_TMIN2; break;
-			case TAIR_GR: v = HOURLY_DATA::H_TAIR2; break;
+			//case TAIR_GR: v = HOURLY_DATA::H_TAIR2; break;
 			case TMAX_GR: v = HOURLY_DATA::H_TMAX2; break;
 			case PRCP_GR: v = HOURLY_DATA::H_PRCP; break;
 			case TDEW_GR: v = HOURLY_DATA::H_TDEW; break;
@@ -426,8 +426,8 @@ namespace WBSF
 			size_t g = NOT_INIT;
 			if (v == HOURLY_DATA::H_TMIN2)
 				g = TMIN_GR;
-			else if (v == HOURLY_DATA::H_TAIR2)
-				g = TAIR_GR;
+			//else if (v == HOURLY_DATA::H_TAIR2)
+				//g = TAIR_GR;
 			else if (v == HOURLY_DATA::H_TMAX2)
 				g = TMAX_GR;
 			else if (v == HOURLY_DATA::H_PRCP)

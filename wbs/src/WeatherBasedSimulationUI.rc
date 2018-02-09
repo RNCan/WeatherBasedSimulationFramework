@@ -257,7 +257,7 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 // Dialog
 //
 
-IDD_WG_INPUT DIALOGEX 0, 0, 419, 349
+IDD_WG_INPUT DIALOGEX 0, 0, 419, 354
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Paramètres du générateur météorologiques (GM)"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -311,6 +311,8 @@ BEGIN
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
     CONTROL         "Ne pas compléter les valeur manquantes avec les normales",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
+    CONTROL         "Utiliser la distance au littorale pour la sélection des stations météo",IDC_WG_USE_SHORE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,336,406,10
 END
 
 IDD_VARIABLES DIALOGEX 0, 0, 199, 327
@@ -1947,7 +1949,7 @@ BEGIN
         VERTGUIDE, 352
         VERTGUIDE, 405
         TOPMARGIN, 7
-        BOTTOMMARGIN, 342
+        BOTTOMMARGIN, 347
     END
 
     IDD_VARIABLES, DIALOG
@@ -4430,7 +4432,7 @@ BEGIN
                     "MfcMenuButton",WS_TABSTOP,7,7,185,23
 END
 
-IDD_WG_INPUT DIALOGEX 0, 0, 419, 349
+IDD_WG_INPUT DIALOGEX 0, 0, 419, 356
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Weather Generator (WG) Parameters "
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -4483,6 +4485,8 @@ BEGIN
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
     CONTROL         "Don't fill missing values with Normals",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
+    CONTROL         "Use shore distance to select weather stations",IDC_WG_USE_SHORE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,339,406,10
 END
 
 IDD_PARAMETERS_VARIATIONS_MANAGER DIALOG 0, 0, 307, 282
@@ -6083,7 +6087,7 @@ BEGIN
         VERTGUIDE, 357
         VERTGUIDE, 405
         TOPMARGIN, 7
-        BOTTOMMARGIN, 342
+        BOTTOMMARGIN, 349
     END
 
     IDD_PARAMETERS_VARIATIONS_MANAGER, DIALOG

@@ -23,6 +23,7 @@ namespace WBSF
 
 		//public member (properties)
 		bool m_bXVal;
+		bool m_bUseShore;
 		CLocation m_target;
 		CWVariables m_variables;
 		CWVariables m_allowDerivedVariables;//don't return error if normals doesn't exist

@@ -449,6 +449,7 @@
 #define IDC_GENLOC_STATION_TYPE         1221
 #define IDC_MFCPROPERTYGRID1            1221
 #define IDC_PROPERTIES                  1221
+#define IDC_WG_USE_SHORE                1221
 #define IDC_MAP_LAT2                    1222
 #define IDC_GENLOC_NORMAL_NAME          1222
 #define IDC_CMN_SELECTION               1222
