@@ -100,10 +100,11 @@ namespace WBSF
 		std::array <std::array <CGradientSᵒ, GRADIENT::NB_GRADIENT >, NB_SCALE_GRADIENT> m_Sᵒ;
 
 		static const double DEFAULT_GRADIENTS[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
+		static const double DEFAULT_GRADIENTS_NO_SHORE[NB_HEMISPHERE][GRADIENT::NB_GRADIENT][12][GRADIENT::NB_SPACE_EX];
 		static const CGradientSᵒ GLOBAL_Sᵒ[NB_HEMISPHERE][GRADIENT::NB_GRADIENT];
 		static const size_t NB_S_MAX[NB_HEMISPHERE];
 		static const CGeoRect DEFAULT_RECT[NB_HEMISPHERE];
-
+		
 
 		//static const double A[NB_SCALE_GRADIENT];
 		//static const double B[NB_SCALE_GRADIENT];
