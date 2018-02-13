@@ -537,7 +537,7 @@ namespace WBSF
 		_ASSERTE(i < 5);
 		_ASSERTE(m_lat >= -90 && m_lat <= 90);
 
-		double y = 360.0;
+		//double y = 360.0;
 		double lon = m_lon;
 		if (lon > 180)
 			lon -= 360;
