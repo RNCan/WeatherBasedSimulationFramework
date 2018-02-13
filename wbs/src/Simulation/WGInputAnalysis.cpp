@@ -220,7 +220,7 @@ namespace WBSF
 			{
 				//get standardized normal variables
 				static const char* CAT_NAME[4] = { "T", "P", "H", "W" };
-				StringVector catTitle(IDS_SIM_CATEGORY_NAME, ";");
+				StringVector catTitle(IDS_SIM_CATEGORY_NAME, ";|");
 				bitset<4> category = GetCategory(WGInput.m_variables);
 				for (size_t c = 0; c < 4; c++)
 				{
@@ -233,27 +233,6 @@ namespace WBSF
 						info.m_parameterset.push_back(modelInput);
 					}
 				}
-				/*if (category[1])
-				{
-				CModelInput modelInput;
-				modelInput.SetName(GetVariableName(H_PRCP));
-				modelInput.push_back(CModelInputParam(GetVariableName(H_PRCP), GetVariableTitle(H_PRCP)));
-				info.m_parameterset.push_back(modelInput);
-				}
-				if (category[2])
-				{
-				CModelInput modelInput;
-				modelInput.SetName(GetVariableName(H_RELH));
-				modelInput.push_back(CModelInputParam(GetVariableName(H_RELH), GetVariableTitle(H_RELH)));
-				info.m_parameterset.push_back(modelInput);
-				}
-				if (category[3])
-				{
-				CModelInput modelInput;
-				modelInput.SetName(GetVariableName(H_WNDS));
-				modelInput.push_back(CModelInputParam(GetVariableName(H_WNDS), GetVariableTitle(H_WNDS)));
-				info.m_parameterset.push_back(modelInput);
-				}*/
 
 				info.m_parameterset.m_variation.push_back(CParameterVariation("Category", true, CModelInputParameterDef::kMVString));
 			}
@@ -343,11 +322,7 @@ namespace WBSF
 		if (filter[VARIABLE])
 		{
 			info.m_variables.clear();
-			//if (m_kind == LAST_OBSERVATION)
-			//{
-			//info.m_variables.push_back(CModelOutputVariableDef("Date", "Date", "", "Date of the last daily variable", CTM(CTM::DAILY)));
-			//}
-			//else 
+			
 			if (m_kind == MATCH_STATION_NORMALS || m_kind == MATCH_STATION_OBSERVATIONS)
 			{
 				info.m_variables.push_back(CModelOutputVariableDef("Station number", "Station number", "", "Station number"));
@@ -529,11 +504,9 @@ namespace WBSF
 								section[0][1] = searchResultArray[j].m_location.m_lat;
 								section[0][2] = searchResultArray[j].m_location.m_lon;
 								section[0][3] = searchResultArray[j].m_location.m_elev;
-								section[0][4] = searchResultArray[j].m_location.GetShoreDistance();
-								//section[0][4] = CShore::GetShoreDistance(searchResultArray[j].m_location);
+								section[0][4] = searchResultArray[j].m_location.GetShoreDistance()/1000;
 								section[0][5] = locations[l].GetDistance(searchResultArray[j].m_location, false, false) / 1000;
 								section[0][6] = searchResultArray[j].m_deltaElev;
-								//section[0][7] = (CShore::GetShoreDistance(locations[l]) - CShore::GetShoreDistance(searchResultArray[j].m_location)) / 1000;
 								section[0][7] = (locations[l].GetShoreDistance() - searchResultArray[j].m_location.GetShoreDistance()) / 1000;
 								section[0][8] = searchResultArray[j].m_distance / 1000;
 								section[0][9] = weight[j] * 100;
@@ -587,11 +560,9 @@ namespace WBSF
 								section[r][y][1] = searchResultArray[r].m_location.m_lat;
 								section[r][y][2] = searchResultArray[r].m_location.m_lon;
 								section[r][y][3] = searchResultArray[r].m_location.m_elev;
-								//section[r][y][4] = CShore::GetShoreDistance(searchResultArray[r].m_location) / 1000;
 								section[r][y][4] = searchResultArray[r].m_location.GetShoreDistance() / 1000;
 								section[r][y][5] = locations[l].GetDistance(searchResultArray[r].m_location, false, false) / 1000;
 								section[r][y][6] = searchResultArray[r].m_deltaElev;
-								//section[r][y][7] = (CShore::GetShoreDistance(locations[l]) - CShore::GetShoreDistance(searchResultArray[r].m_location)) / 1000;
 								section[r][y][7] = (locations[l].GetShoreDistance() - searchResultArray[r].m_location.GetShoreDistance()) / 1000;
 								section[r][y][8] = searchResultArray[r].m_distance / 1000;
 								section[r][y][9] = weight[r] * 100;
