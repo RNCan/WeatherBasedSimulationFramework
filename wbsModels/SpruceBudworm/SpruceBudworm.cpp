@@ -196,6 +196,7 @@ namespace WBSF
 		if (s == L2o && IsChangingStage(RR))
 			m_emergingDate = weather.GetTRef();
 
+
 		//Adjust age
 		m_age += RR;
 
@@ -312,6 +313,12 @@ namespace WBSF
 				m_status = DEAD;
 				m_death = MISSING_ENERGY;
 			}
+		}
+		else if (GetStage() == PUPAE && weather[H_TMIN2][MEAN] < 0)
+		{
+			//all pupae are killed by frost under 0°C
+			m_status = DEAD;
+			m_death = FROZEN;
 		}
 		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -9)
 		{

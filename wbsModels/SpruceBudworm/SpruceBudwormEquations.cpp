@@ -45,14 +45,15 @@ namespace WBSF
 		0.317, 3.060, 4.660, 0.136, 4.4, 38, //L6 female
 		0.259, 2.750, 4.660, 0.053, 4.4, 35, //Pupa male
 		0.205, 2.854, 6.275, 0.044, 4.4, 35, //Pupa female
-		57.80, -3.08, .0451, 0.000, 8.0, 35  //Adult
+//		57.80, -3.08, .0451, 0.000, 8.0, 35  //Adult
+		57.80, -3.08, .0451, 0.000, -10.0, 40  //Adult By RSA 14-02-2018 to avoid stop development at low and high temperature
 	};
 
 	//Development rate altered for pupae, JR testing 2011/10/25
 	double CSpruceBudwormEquations::b1Factor[NB_STAGES] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 	CSpruceBudwormEquations::CSpruceBudwormEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, CSpruceBudwormEquations::NB_EQUATION, 0, 40, 0.25)
+		CEquationTableLookup(RG, CSpruceBudwormEquations::NB_EQUATION, -10, 40, 0.25)
 	{
 	}
 
@@ -96,7 +97,9 @@ namespace WBSF
 	{
 		const double* p = P[e];//current P for equation
 		size_t s = e2s(e);//compute stage for b1Factor
-
+		ASSERT(s == ADULT);
+		
+		T = max(8.0, min(35.0, T) );
 		double Rt = 1 / (p[PB1] * b1Factor[s] + p[PB2] * T + p[PB3] * T*T);
 		return max(0.0, Rt);
 	}

@@ -158,6 +158,7 @@ namespace WBSF
 			pTree->m_nbMinObjects = 100;
 			pTree->m_nbMaxObjects = 1000;
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, L2o, NOT_INIT, m_bFertility, 0));
+			//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, NOT_INIT, m_bFertility, 0));
 
 			//add tree to stand			
 			stand.m_host.push_front(pTree);
