@@ -473,15 +473,14 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 	msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
 
 
-	//CNormalsDatabasePtr normalDB(new CNormalsDatabase);
-	//msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
-	//////msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
-	//CWeatherGradient gradient;
-	//gradient.m_variables = "TN TX P TD";
-	//gradient.m_bUseShore = true;
-	//gradient.SetNormalsDatabase(normalDB);
-	//msg = gradient.CreateDefaultGradient("D:\\Travaux\\AnalyseGradient\\default", CCallback());
-
+	/*CNormalsDatabasePtr normalDB(new CNormalsDatabase);
+	msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
+	CWeatherGradient gradient;
+	gradient.m_variables = "TN TX P TD";
+	gradient.m_bUseShore = true;
+	gradient.SetNormalsDatabase(normalDB);
+	msg = gradient.CreateDefaultGradient("D:\\Travaux\\AnalyseGradient\\World++", CCallback());
+*/
 	//CNormalsDatabasePtr normalDB(new CNormalsDatabase);
 	//msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\World++ 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());
 	//////msg = normalDB->Open("D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsDB", CNormalsDatabase::modeRead, CCallback());

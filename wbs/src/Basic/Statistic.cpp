@@ -42,7 +42,7 @@ namespace WBSF
 	{ 
 		"Lowest", "Mean", "Sum", "Sum²", "StandardDeviation (N-1)", "StandardDeviation (N)", "StandardError", "CoeficientOfVariation", "Variance", "Highest", "TotalSumOfSquares", "QuadraticMean", "Range", "NbValue",
 		"MeanAbsoluteDeviation", "Skewness", "Kurtosis", "Median", "Mode", "Lo", "Q¹", "Q³", "Hi", "IQR",
-		"MeanX", "MeanY", "Intercept", "Slope", "Covariance", "Correlation", "Bias", "MeanAbsolutError", "ResidualMeanOfSquareError", "ResidualSumOfSquare", "CoeficientOfDetermination", "CoeficientOfCorrelation", "R²",
+		"MeanX", "MeanY", "Intercept", "Slope", "Covariance", "Correlation", "Bias", "MeanAbsolutError", "RootMeanSquareError", "ResidualSumOfSquare", "CoeficientOfDetermination", "CoeficientOfCorrelation", "R²",
 		"TheilSenIntercept", "TheilSenSlope", "NegativeLogLikelihood"
 	};
 

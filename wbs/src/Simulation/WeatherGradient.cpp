@@ -902,7 +902,7 @@ namespace WBSF
 		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT >, NB_HEMISPHERE> R²;
 		std::array <std::array <CGradientSᵒ, GRADIENT::NB_GRADIENT >, NB_HEMISPHERE> Sᵒ;
 
-		for (size_t e = 0; e < NB_HEMISPHERE&&msg; e++)//warning : here we stok hemispohe instead of scale
+		for (size_t e = 0; e < NB_HEMISPHERE&&msg; e++)
 		{
 			((CGeoPoint&)m_target) = DEFAULT_RECT[e].GetCentroid();
 			m_target.m_z = 0;
@@ -919,6 +919,8 @@ namespace WBSF
 
 					ERMsg msgTmp = m_pNormalDB->GetStationList(results, v, YEAR_NOT_INIT, true, DEFAULT_RECT[e]);
 
+					
+
 					if (msgTmp)
 						msgTmp = m_pNormalDB->GenerateLOC(results, CWeatherDatabase::WELL_DISTRIBUTED_STATIONS, min(results.size(), NB_S_MAX[e]), v, YEAR_NOT_INIT, true, true, DEFAULT_RECT[e], callback);
 
@@ -931,6 +933,10 @@ namespace WBSF
 
 
 						GetSᵒ(g, results, Sᵒ[e][g]);
+
+						CLocationVector locations = m_pNormalDB->GetLocations(results);
+						msg += locations.Save(GetPath(filePath) + GetFileTitle(filePath) + "_" + GetHemisphereName(e) + "_" + GetGradientName(g) +".csv");
+
 					}
 				}
 			}
