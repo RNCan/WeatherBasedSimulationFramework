@@ -103,14 +103,6 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DDpro</Name>
-            <Title>DDpro</Title>
-            <Units/>
-            <Description>Degree day above 0 between March 22 and June 15</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
             <Name>ColdMortalityEq1</Name>
             <Title>ColdMortalityEq1</Title>
             <Units>%</Units>
