@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>AllenWave</Title>
+    <Version>1.0</Version>
+    <ID>.hgs</ID>
+    <EXE>HourlyGenerator.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 142 290</WindowRect>
+    <SimulatedCategory>TN TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Method</Name>
+            <Caption>Method</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 255</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Double-Sine|Sine-Exponential (Bransma)|Sine-Exponentia (savage)|Sine-Power|Erbs|Sinple-Sine|Cesaraccio</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>3 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>T</Name>
+            <Title>T</Title>
+            <Units>°C</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
