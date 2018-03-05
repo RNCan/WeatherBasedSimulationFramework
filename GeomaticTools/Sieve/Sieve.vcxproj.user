@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-multi -ExportStats -debug -co compress=lzw -overwrite -pixelOff 0 -8 -nbpixel 0 10 -Type ByClass -defaultaction reject -Class "reject:99,102" -fuzzyzone mode 99 99  "U:\GIS\#documents\TestCodes\Sieve\test1\Input\ALLtype_01111_subsetRCLSStemp.tif" "U:\GIS\#documents\TestCodes\Sieve\test1\Output\output1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>-multi -ExportStats -debug -co compress=lzw -overwrite -pixelOff 0 -8 -nbpixel 0 10 -Type ByClass -defaultaction reject -Class "reject:99,102" -fuzzyzone mode 99 99  "U:\GIS\#documents\TestCodes\Sieve\test1\Input\ALLtype_01111_subsetRCLSStemp.tif" "U:\GIS\#documents\TestCodes\Sieve\test1\Output\output1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-multi -ExportStats -debug -co compress=lzw -overwrite -pixelOff 0 -8 -nbpixel 0 10 -Type ByClass -defaultaction reject -Class "reject:99,102" -fuzzyzone mode 99 99  "U:\GIS\#documents\TestCodes\Sieve\test1\Input\ALLtype_01111_subsetRCLSStemp.tif" "U:\GIS\#documents\TestCodes\Sieve\test1\Output\output1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-multi -ExportStats -debug -co compress=lzw -overwrite -pixelOff 0 -8 -nbpixel 0 10 -Type ByClass -defaultaction reject -Class "reject:99,102" -fuzzyzone mode 99 99  "U:\GIS\#documents\TestCodes\Sieve\test1\Input\ALLtype_01111_subsetRCLSStemp.tif" "U:\GIS\#documents\TestCodes\Sieve\test1\Output\output1.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
