@@ -120,6 +120,14 @@ namespace WBSF
 
 		info = resultArray[0]->GetMetadata();
 
+		//time dimension can always be different
+		CTPeriod period = info.GetTPeriod();
+		for (size_t i = 1; i < resultArray.size(); i++)
+			period.Inflate(resultArray[i]->GetMetadata().GetTPeriod());
+		info.SetTPeriod(period);
+		
+
+
 		switch (m_dimensionAppend)
 		{
 		case LOCATION:
@@ -149,15 +157,10 @@ namespace WBSF
 		}
 		case TIME_REF:
 		{
-			CTPeriod period = info.GetTPeriod();
-			for (size_t i = 1; i < resultArray.size(); i++)
-				period.Inflate(resultArray[i]->GetMetadata().GetTPeriod());
-			info.SetTPeriod(period);
 			break;
 		}
 		case VARIABLE:
 		{
-			//CWGInput WGInput;
 			CModelOutputVariableDefVector variable;
 			variable.reserve(resultArray.size());
 			for (size_t i = 0; i < resultArray.size(); i++)
@@ -207,7 +210,7 @@ namespace WBSF
 
 			for (int d = 0; d < NB_DIMENSION; d++)
 			{
-				if (d != m_dimensionAppend && d != TIME_REF)//exclute appenned dimension and tiem dimention
+				if (d != m_dimensionAppend && d != TIME_REF)//exclute appenned dimension and time dimention
 				{
 					CDimension dim = resultArray[i]->GetDimension();
 					if (dim[d] != dim0[d])
@@ -220,7 +223,21 @@ namespace WBSF
 
 		return msg;
 	}
+	
+	void AdjustPeriod(CNewSectionData& section, CTPeriod period)
+	{
+		ASSERT(section.GetTPeriod().GetTM() == period.GetTM());
+		
+		CNewSectionData newsection(period.size(), section.GetXSize(), period.Begin());
+		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+		{
+			if (section.IsInside(TRef))
+				newsection[TRef] = section[TRef];
+		}
 
+		section = newsection;
+
+	}
 
 	ERMsg CMergeExecutable::Execute(const CFileManager& fileManager, CCallback& callback)
 	{
@@ -264,14 +281,11 @@ namespace WBSF
 
 
 		//init output info
-		//CDBMetadata info;
 		CDBMetadata& metadata = result.GetMetadata();
 		GetInputDBInfo(resultArray, metadata);
 
-		//result.SetDBInputInfo(info);
-		//result.SetExecutableInfo( this->GetXML() );
-
 		const CModelOutputVariableDefVector& varDef = metadata.GetOutputDefinition();
+		CTPeriod period = metadata.GetTPeriod();
 
 		if (m_dimensionAppend == LOCATION ||
 			m_dimensionAppend == PARAMETER ||
@@ -291,6 +305,14 @@ namespace WBSF
 				{
 					CNewSectionData section;
 					resultArray[i]->GetSection(s, section);
+					
+					if (section.GetTPeriod() != period)
+					{
+						//adjust period to get the same shape as the output period
+						AdjustPeriod(section, period);
+					}
+
+
 					result.AddSection(section);
 
 					msg += callback.StepIt();
@@ -309,13 +331,24 @@ namespace WBSF
 			{
 				CNewSectionData section0;
 				resultArray[0]->GetSection(s, section0);
+				if (section0.GetTPeriod() != period)
+				{
+					//adjust period to get the same shape as the output period
+					AdjustPeriod(section0, period);
+				}
+
+
 				for (size_t i = 1; i < resultArray.size() && msg; i++)
 				{
 					ASSERT(resultArray[i]->GetNbSection() == nbSection);
-
 					CNewSectionData section;
 					resultArray[i]->GetSection(s, section);
 
+					if (section.GetTPeriod() != period)
+					{
+						//adjust period to get the same shape as the output period
+						AdjustPeriod(section, period);
+					}
 
 					if (m_dimensionAppend == TIME_REF)
 					{
@@ -432,7 +465,8 @@ namespace WBSF
 					info.m_nbReplications += info2.m_nbReplications;
 				}
 
-				if (filter[TIME_REF] && m_dimensionAppend == TIME_REF)
+				//always append time
+				if (filter[TIME_REF] )//&& m_dimensionAppend == TIME_REF
 				{
 					if (!info.m_period.IsInit() || info.m_period.GetTM() == info2.m_period.GetTM())
 						info.m_period.Inflate(info2.m_period);

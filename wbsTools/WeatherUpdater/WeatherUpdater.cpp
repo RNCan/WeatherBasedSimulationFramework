@@ -1,5 +1,6 @@
+//5.4.7 22/02/2018  Rémi Saint-Amant	Correct netcdf load problem
 //5.4.6	24/01/2018	Rémi Saint-Amant	En EnvCanHourly, don't download file after current month.
-//										Change in Manitoba updater
+//										Change in Manitoba updater 
 //										Bug correction in province selection in WeatherFarm
 //										Bug correction in SWOB data
 //5.4.5	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 

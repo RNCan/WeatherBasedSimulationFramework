@@ -440,6 +440,8 @@ void CMainFrame::OnLanguageChange(UINT id)
 	if (registry.GetLanguage() != GetLanguage(id))
 	{
 		registry.SetLanguage(GetLanguage(id));
+		//VERIFY(theApp.GetContextMenuManager()->ResetState());
+
 
 		HINSTANCE hInst = NULL;
 		if (GetLanguage(id) == CRegistry::FRENCH)
@@ -460,10 +462,32 @@ void CMainFrame::OnLanguageChange(UINT id)
 		CStatistic::ReloadString();
 		CTM::ReloadString();
 
-	
+
+		
+
 
 		m_wndToolBar.RestoreOriginalState();
 		m_wndMenuBar.RestoreOriginalState();
+
+		
+		((CContextMenuManagerEx*)theApp.GetContextMenuManager())->RestoreOriginalState();
+		
+
+	//	CMFCPopupMenuBar menuBar;
+//		theApp.GetContextMenuManager()->m_Menus;// CopyOriginalMenuItemsToMenu(IDR_POPUP, menuBar);
+	//	menuBar.RestoreOriginalState();
+		//theApp.GetContextMenuManager()->CopyOriginalMenuItemsFromMenu(IDR_POPUP, menuBar);
+
+		//VERIFY(theApp.GetContextMenuManager()->LoadState(""));
+
+		//CMenu* pPopop = CMenu::FromHandle(theApp.GetContextMenuManager()->GetMenuById(IDR_POPUP));
+		//VERIFY(pPopop->DestroyMenu());
+		//pPopop->CreateMenu();
+		//VERIFY(pPopop->LoadMenuW(IDR_POPUP));
+
+		
+		
+
 		//CMFCToolBar::ResetAllImages();
 		CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES);
 
@@ -537,13 +561,15 @@ BOOL CMainFrame::OnHelp(UINT id)
 {
 	string name;
 	
+	CRegistry registry;
+	string lang = (registry.GetLanguage() == CRegistry::FRENCH) ? "Fr" : "En";
 	switch(id)
 	{
 	case ID_DOWNLOAD_DATA:	name="ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Data11/Weather/";break;
 	//case ID_HELP_MANUAL:	name="\"" + GetApplicationPath() + "BioSIM10 Manual.pdf\"";break;
 	//case ID_HELP_TUTORIAL:	name="\"" + GetApplicationPath() + "BioSIM10 Tutorial.pdf\"";break;
-	case ID_HELP_MANUAL:	name = "\"" + GetApplicationPath() + "BioSIM10 Manual.pdf\""; break;
-	case ID_HELP_TUTORIAL:	name = "\"" + GetApplicationPath() + "BioSIM10 Tutorial.pdf\""; break;
+	case ID_HELP_MANUAL:	name = "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_Manual_" + lang + ".pdf"; break;
+	case ID_HELP_TUTORIAL:	name = "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_Tutorial_" + lang + ".pdf"; break;
 	default: ASSERT(false);
 	}
 	

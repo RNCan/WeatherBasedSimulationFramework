@@ -13,6 +13,13 @@
 // CBioSIMApp:
 // See BioSIM.cpp for the implementation of this class
 //
+class CContextMenuManagerEx : public CContextMenuManager
+{
+public:
+
+	BOOL RestoreOriginalState();
+};
+
 
 class CBioSIMApp : public CWinAppEx
 {
@@ -36,6 +43,7 @@ public:
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
+	virtual BOOL InitContextMenuManager();
 	
 
 	afx_msg void OnAppAbout();

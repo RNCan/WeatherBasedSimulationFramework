@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <WGInput version="1">
-    <Variables>TN T TX P</Variables>
+    <Variables>TN T TX P TD H WS SD</Variables>
     <SourceType>1</SourceType>
     <GenerationType>1</GenerationType>
     <NbNormalsYears>1</NbNormalsYears>
@@ -23,5 +23,6 @@
     <Xvalidation>false</Xvalidation>
     <SkipVerify>false</SkipVerify>
     <NoFillMissing>false</NoFillMissing>
+    <UseShore>true</UseShore>
     <SearchRadius>-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1</SearchRadius>
 </WGInput>

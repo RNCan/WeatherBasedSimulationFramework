@@ -1,5 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
+// 11.4.1: 22/02/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
+//											Bug correction in merge component
+//											Change context menu when language change
 // 11.4.0: 08/02/2018	Rémi Saint-Amant	Activation of precipitation gradients. New default gradient and new shore file. 
 // 11.3.8: 31/01/2018	Rémi Saint-Amant	Bug correction in the parameters variation
 // 11.3.7: 21/12/2017   Rémi Saint-Amant	Remove graph. Bug correction with component comparison. Remove LANGUAGE 9, 1. 
@@ -12,7 +15,7 @@
 // 11.3.2: 06/05/2017 	Rémi Saint-Amant	Update of the hourly temperature generation
 //											Compile with GDAL 2.02 
 //											Bug correction in merge name and title
-// 11.3.1: 02/05/2017	Rémi Saint-Amant	Bug correction into the merge compnent
+// 11.3.1: 02/05/2017	Rémi Saint-Amant	Bug correction into the merge component
 //											Automaticly expand parent component when we add children
 //											modification of the CSV reader. Read the last line event without CRLF
 // 11.2.7: 22/04/2017	Rémi Saint-Amant	Tair hourly change to AllenWave 
@@ -665,9 +668,24 @@ void CBioSIMApp::OnAppAbout()
 
 void CBioSIMApp::PreLoadState()
 {
-	GetContextMenuManager()->AddMenu(_T("Popup"), IDR_POPUP);
-	GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT);
+	VERIFY(GetContextMenuManager()->AddMenu(_T("Popup"), IDR_POPUP));
+	VERIFY(GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT));
 	
+}
+
+BOOL CBioSIMApp::InitContextMenuManager()
+{
+	if (afxContextMenuManager != NULL)
+	{
+		ASSERT(FALSE);
+		return FALSE;
+	}
+
+	afxContextMenuManager = new CContextMenuManagerEx;
+	m_bContextMenuManagerAutocreated = TRUE;
+
+	return TRUE;
+
 }
 
 void CBioSIMApp::LoadCustomState()
@@ -677,6 +695,50 @@ void CBioSIMApp::LoadCustomState()
 
 void CBioSIMApp::SaveCustomState()
 {
+}
+
+//*********************************************************************************
+
+BOOL CContextMenuManagerEx::RestoreOriginalState()
+{
+	POSITION pos = NULL;
+
+	for (pos = m_Menus.GetStartPosition(); pos != NULL;)
+	{
+		UINT uiResId;
+		HMENU hMenu;
+
+		m_Menus.GetNextAssoc(pos, uiResId, hMenu);
+		::DestroyMenu(hMenu);
+	}
+
+	m_Menus.RemoveAll();
+
+	for (pos = m_MenuOriginalItems.GetStartPosition(); pos != NULL;)
+	{
+		UINT uiResId;
+		CObList* pLstOrginItems = NULL;
+
+		m_MenuOriginalItems.GetNextAssoc(pos, uiResId, pLstOrginItems);
+		ASSERT_VALID(pLstOrginItems);
+
+		while (!pLstOrginItems->IsEmpty())
+		{
+			delete pLstOrginItems->RemoveHead();
+		}
+
+		delete pLstOrginItems;
+	}
+
+	m_MenuOriginalItems.RemoveAll();
+	m_MenuNames.RemoveAll();
+
+
+	VERIFY(AddMenu(_T("Popup"), IDR_POPUP));
+	VERIFY(AddMenu(_T("Edit1"), IDR_MENU_EDIT));
+
+
+	return TRUE;
 }
 
 

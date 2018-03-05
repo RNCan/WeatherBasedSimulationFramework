@@ -311,7 +311,7 @@ BEGIN
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
     CONTROL         "Ne pas compléter les valeur manquantes avec les normales",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
-    CONTROL         "Utiliser la distance au littorale pour la sélection des stations météo",IDC_WG_USE_SHORE,
+    CONTROL         "Utiliser la distance au littoral dans la sélection des stations météo et des gradients",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,336,406,10
 END
 
@@ -668,24 +668,24 @@ BEGIN
     PUSHBUTTON      "Annuler",IDCANCEL,129,26,50,14
 END
 
-IDD_CMN_OPTION_ADVANCED DIALOG 0, 0, 399, 250
+IDD_CMN_OPTION_ADVANCED DIALOGEX 0, 0, 399, 250
 STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
 CAPTION "Options avancées"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "Exécuter les simulations même si aucun des points de simulation n'est à moins de ",IDC_CMN_OPTION_RUN_EVEN_FAR,
+    CONTROL         "Exécuter les génération météo même si aucun des points de simulation n'est à moins de ",IDC_CMN_OPTION_RUN_EVEN_FAR,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,7,7,385,10
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE1,38,17,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km d'une station normale ou quotidienne.",-1,67,19,130,9
+    LTEXT           "km d'une station normale ou quotidienne/horaire.",-1,67,19,214,9
     LTEXT           "Avertir lorsqu'un un point de simulation est à plus de ",-1,7,37,385,9
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE2,38,47,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km d'une station normale ou quotidienne.",-1,67,50,130,8
-    CONTROL         "Exécuter les simulations même s'il manque des années dans la base de données quotidiennes. ",IDC_CMN_OPTION_RUN_MISSING_YEAR,
+    LTEXT           "km d'une station normale ou quotidienne/horaire.",-1,67,50,154,8
+    CONTROL         "Exécuter les simulations même s'il manque des années dans la base de données d'observations. ",IDC_CMN_OPTION_RUN_MISSING_YEAR,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,64,385,10
     CONTROL         "Ne pas effacer les fichiers temporaires après la simulation (pour débogage)",IDC_CMN_OPTION_REMOVE_TMP_FILE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,104,249,10
     CONTROL         "Activer les calculs parallèles hxGrid. Ceci implique l'installation de hxGrid sur votre ordinateur et votre réseau. hxGrid est un produit externe. Lire la documentation et utiliser à vos propres risques.",IDC_CMN_OPTION_HXGRID,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,219,385,24
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,219,385,24
     LTEXT           "Nombre maximum de CPU à utiliser :",-1,7,138,120,9
     EDITTEXT        IDC_CMN_OPTION_MAX_THREADS,130,136,26,12,ES_AUTOHSCROLL | ES_NUMBER
 END
@@ -4043,7 +4043,7 @@ BEGIN
     IDS_DBEDIT_UNABLEADDMODIFY 
                             "BioSIM is unable to add or modify this item.\nMake sure the disk is not full, the default directory exists\nand the file is not READONLY. BioSIM ne peut ajouter ou modifier cet item. \nAssurez-vous que le disque n'est pas plein, que le répertoire existe \net que le fichier n'est pas en lecture seule."
     IDS_DBEDIT_WEITHERSTR   "Température"
-    IDS_DBEDITOR_CAPTION    "Administrateur de fichiers"
+    IDS_DBEDITOR_CAPTION    "Gestionnaire de fichiers"
     IDS_EXITMODEL           "Sortir sans sauvegarder les changements aux modèles %1."
     IDS_FORECAST_DATAHEAD   "Date|Min (°C)|Max (°C)|Précipitation (mm)|Point de rosée(°C)|Humidité relative(%)|Vitesse du vent (km/h)|Neige (mm)|Neige au sol(cm)|Radiation Solaire(W/m²)"
     IDS_FORECAST_REP_NOTFOUND 
@@ -4485,7 +4485,7 @@ BEGIN
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
     CONTROL         "Don't fill missing values with Normals",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
-    CONTROL         "Use shore distance to select weather stations",IDC_WG_USE_SHORE,
+    CONTROL         "Use shore distance in selection of weather stations and gradients",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,339,406,10
 END
 
@@ -4619,19 +4619,19 @@ STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
 CAPTION "Advanced Options"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "Run simulations even if none of the simulation points are within ",IDC_CMN_OPTION_RUN_EVEN_FAR,
+    CONTROL         "Run weather genration even if none of the simulation points are within ",IDC_CMN_OPTION_RUN_EVEN_FAR,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,7,7,385,10
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE1,51,17,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km of the nearest normal or daily station.",-1,80,19,127,8
+    LTEXT           "km of the nearest normal or daily/hourly station.",-1,80,19,149,8
     LTEXT           "Warn when a simulation point is farther than ",-1,7,36,141,9
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE2,51,46,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km of the nearest normal or daily station.",-1,83,49,127,8
-    CONTROL         "Run simulations even if there are missing years in the daily database.",IDC_CMN_OPTION_RUN_MISSING_YEAR,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,70,231,10
+    LTEXT           "km of the nearest normal or daily/hourly station.",-1,83,49,149,8
+    CONTROL         "Run simulations even if there are missing years in the observation's database.",IDC_CMN_OPTION_RUN_MISSING_YEAR,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,70,258,10
     CONTROL         "Do not remove temporary files after simulation (for debugging).",IDC_CMN_OPTION_REMOVE_TMP_FILE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,104,209,10
     CONTROL         "Enable hxGrid parallel computing. This involves installing hxGrid on your computer and network. hxGrid is an external product. Read the documentation and use at your own risk.",IDC_CMN_OPTION_HXGRID,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,215,385,28
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,215,385,28
     LTEXT           "Maximum number of CPU to used:",-1,7,138,112,9
     EDITTEXT        IDC_CMN_OPTION_MAX_THREADS,119,136,26,12,ES_AUTOHSCROLL | ES_NUMBER
 END
@@ -8139,7 +8139,7 @@ BEGIN
     IDS_DBEDIT_UNABLEADDMODIFY 
                             "BioSIM is unable to add or modify this item.\nMake sure the disk is not full, the default directory exists\nand the file is not READONLY."
     IDS_DBEDIT_WEITHERSTR   "Weather"
-    IDS_DBEDITOR_CAPTION    "Linked Data Manager"
+    IDS_DBEDITOR_CAPTION    "Files Manager"
     IDS_EXITMODEL           "Exit without saving changes to model %1."
     IDS_FORECAST_DATAHEAD   "Date|Min(°C)|Max(°C)|Precipitation(mm)|Dew Point(°C)|Relative Humidity(%)|Wind Speed(Km/h)|Snow (mm)|Snow depth (cm)|Solar Radiation(W/m²)"
     IDS_FORECAST_REP_NOTFOUND 

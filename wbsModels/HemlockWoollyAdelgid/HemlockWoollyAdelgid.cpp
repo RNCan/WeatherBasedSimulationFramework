@@ -37,7 +37,7 @@ namespace WBSF
 	enum TAnnual{ A_TMIN, A_N, A_Q3, A_EQ1, A_EQ2, A_S, A_P, A_R, NB_OUTPUTS_A };
 	
 	extern const char HEADER_D[] = "Tmin,N,Q3,Eq1,Eq2";
-	extern const char HEADER_A[] = "Tmin,N,Q3,DDpro,Eq1,Eq2,S,P,R";
+	extern const char HEADER_A[] = "Tmin,N,Q3,Eq1,Eq2,S,P,R";
 	
 
 	CHemlockWoollyAdelgidCMModel::CHemlockWoollyAdelgidCMModel()

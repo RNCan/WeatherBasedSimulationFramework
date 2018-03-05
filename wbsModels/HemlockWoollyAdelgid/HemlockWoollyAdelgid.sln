@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Bas
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EmeraldAshBorer", "HemlockWoollyAdelgid.vcxproj", "{30ACF693-2D0E-4C47-8740-53076639A668}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HemlockWoollyAdelgid", "HemlockWoollyAdelgid.vcxproj", "{AB141CAD-875D-497B-8E97-F8A1CFFAD630}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,14 +32,14 @@ Global
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|Win32.Build.0 = Release|Win32
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.ActiveCfg = Release|x64
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.Build.0 = Release|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|Win32.ActiveCfg = Debug|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|Win32.Build.0 = Debug|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|x64.ActiveCfg = Debug|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|x64.Build.0 = Debug|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|Win32.ActiveCfg = Release|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|Win32.Build.0 = Release|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|x64.ActiveCfg = Release|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|x64.Build.0 = Release|x64
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Debug|Win32.Build.0 = Debug|Win32
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Debug|x64.ActiveCfg = Debug|x64
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Debug|x64.Build.0 = Debug|x64
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|Win32.ActiveCfg = Release|Win32
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|Win32.Build.0 = Release|Win32
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|x64.ActiveCfg = Release|x64
+		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
