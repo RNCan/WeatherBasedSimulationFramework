@@ -7,36 +7,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\cctz\cctz.h">
+    <ClCompile Include="..\cctz\civil_time_detail.cc">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\civil_time_detail.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone_if.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone_impl.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone_info.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone_libc.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\time_zone_posix.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cctz\tzfile.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
+    </ClCompile>
     <ClCompile Include="..\cctz\time_tool.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cctz\time_zone_fixed.cc">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\cctz\time_zone_format.cc">
@@ -60,5 +37,43 @@
     <ClCompile Include="..\cctz\time_zone_posix.cc">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\cctz\zone_info_source.cc">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cctz\time_zone_fixed.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_if.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_impl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_info.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_libc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone_posix.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\tzfile.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\civil_time.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\civil_time_detail.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\time_zone.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cctz\zone_info_source.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
