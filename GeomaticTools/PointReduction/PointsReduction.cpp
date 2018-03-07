@@ -209,7 +209,7 @@ namespace WBSF
 		if (msg)
 		{
 			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-				printf("Reduce %ld points with %d threads using distance min of %0.1ld...", locations.size(), m_options.m_bMulti ? m_options.m_CPU : 1, m_options.m_distanceMin);
+				printf("Reduce %I64u points with %d threads using distance min of %0.1lf...", locations.size(), m_options.m_bMulti ? m_options.m_CPU : 1, m_options.m_distanceMin);
 
 
 			CGeoExtents extents = m_options.GetExtents();
@@ -223,7 +223,7 @@ namespace WBSF
 			//callback.PushTask("Generate Well Distributed Station", c);
 
 			CApproximateNearestNeighbor ann;
-			ann.set(locations, false);
+			ann.set(locations, false, false);
 
 
 			boost::dynamic_bitset<size_t> status(locations.size());

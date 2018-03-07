@@ -1200,16 +1200,16 @@ void CDisterbanceAnalyser::WriteBlock(int xBlock, int yBlock, const CBandsHolder
 					{
 						if( data[x][y].IsInit() )
 						{
-							size_t z° = data[x][y].GetFirstDisturbanceIndex();
+							size_t z¹ = data[x][y].GetFirstDisturbanceIndex();
 							size_t zⁿ = data[x][y].GetLastDisturbanceIndex();
 							int xy = y*blockSize.m_x+x;
 							switch(b)
 							{
 							case D_NB_PAIRS:			output[xy] = (int)data[x][y].size(); break;
 							case D_NB_DISTURBANCES:		output[xy] = (int)data[x][y].GetNbDisturbances(); break;
-							case D_FIRST_DISTURBANCE:	if (z° != UNKNOWN_POS) output[xy] = data[x][y].GetDTCode(z°); break;
-							case D_F_DATE1:				if (z° != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z°].GetTRef()); break;
-							case D_F_DATE2:				if (z° != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z° + 1].GetTRef()); break;
+							case D_FIRST_DISTURBANCE:	if (z¹ != UNKNOWN_POS) output[xy] = data[x][y].GetDTCode(z¹); break;
+							case D_F_DATE1:				if (z¹ != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z¹].GetTRef()); break;
+							case D_F_DATE2:				if (z¹ != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][z¹ + 1].GetTRef()); break;
 							case D_LAST_DISTURBANCE:	if (zⁿ != UNKNOWN_POS) output[xy] = data[x][y].GetDTCode(zⁿ); break;
 							case D_L_DATE1:				if (zⁿ != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][zⁿ].GetTRef()); break;
 							case D_L_DATE2:				if (zⁿ != UNKNOWN_POS) output[xy] = m_options.GetTRefIndex(data[x][y][zⁿ + 1].GetTRef()); break;

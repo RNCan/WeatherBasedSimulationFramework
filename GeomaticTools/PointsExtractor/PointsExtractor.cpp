@@ -299,7 +299,7 @@ namespace WBSF
 
 
 			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-				printf("Extract %ld points with %d threads...\n", ioFile.size(), m_options.m_bMulti ? m_options.m_CPU : 1);
+				printf("Extract %I64u points with %d threads...\n", ioFile.size(), m_options.m_bMulti ? m_options.m_CPU : 1);
 
 
 			CGeoExtents extents = m_options.GetExtents();

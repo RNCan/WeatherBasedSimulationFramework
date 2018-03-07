@@ -18,6 +18,7 @@
 #include <list>
 #include <memory>
 #include <array>
+#include <iostream>
 
 #include "Geomatic/GDALBasic.h"
 #include "Basic/statistic.h"
