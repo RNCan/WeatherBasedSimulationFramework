@@ -483,7 +483,7 @@ namespace WBSF
 
 
 			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
-			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 			{

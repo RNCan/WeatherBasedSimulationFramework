@@ -664,7 +664,6 @@ BOOL CGraphToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, 
 		return FALSE;
 
 //*****************************
-	CMFCButton;
 	CMFCToolBarComboBoxButton zoomButton(ID_GRAPH_ZOOM, 3, WS_TABSTOP | CBS_DROPDOWNLIST, 75);
 	for (int i = 0; i < 8; i++)
 	{

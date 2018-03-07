@@ -1296,7 +1296,7 @@ namespace WBSF
 
 			//station	datetime	tmp	rh	wd	cwd	ws	wsmax	rn_1
 			enum THourlyColumns{ C_STATION, C_DATETIME, C_TMP, C_RH, C_WD, C_CWD, C_WS, C_WSMAX, C_RN_1, NB_COLUMNS };
-			static const size_t COL_POS_H[NB_COLUMNS] = { -1, -1, H_TAIR2, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 			{
