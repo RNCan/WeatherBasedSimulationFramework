@@ -40,6 +40,7 @@ namespace WBSF
 		CCFLEdit	m_nbPointCtrl;
 		CCFLEdit	m_noDataCtrl;
 		CCFLEdit	m_maxDistanceCtrl;
+		CCFLEdit	m_XvalPointCtrl;
 		CCFLEdit	m_GDALOptionsCtrl;
 
 		//Regression
@@ -72,7 +73,7 @@ namespace WBSF
 		CCFLComboBox	m_powerCtrl;
 
 		//TPS
-		CCFLComboBox	m_TPSTypeCtrl;
+		CCFLComboBox	m_TPSMaxErrorCtrl;
 
 		CStaticEx	m_static1Ctrl;
 		CStaticEx	m_static2Ctrl;

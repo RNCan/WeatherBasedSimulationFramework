@@ -26,18 +26,31 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_PROGRESS_WND        ICON                    "res/Progress.ico"
+
 IDI_HEART               ICON                    "res/Heart.ico"
+
 IDI_WEATHER_UPDATER     ICON                    "res/WeatherUpdater.ico"
+
 IDI_LINKED_DATA_EDITOR  ICON                    "res/LinkedDataEditor.ico"
+
 IDI_DBEDIT_MODEL        ICON                    "res/ladybug.ico"
+
 IDI_LINK                ICON                    "res/Open.ico"
+
 IDI_CMN_OPEN            ICON                    "res/cmn_open.ico"
+
 IDI_ADD                 ICON                    "res/add.ico"
+
 IDI_DELETE              ICON                    "res/delete.ico"
+
 IDI_DOWN                ICON                    "res/down.ico"
+
 IDI_NEW                 ICON                    "res/new.ico"
+
 IDI_UP                  ICON                    "res/up.ico"
+
 IDI_RNCAN48             ICON                    "res/NRCan48.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -45,49 +58,93 @@ IDI_RNCAN48             ICON                    "res/NRCan48.ico"
 //
 
 IDB_DBEDITOR            BITMAP                  "res/DatabaseEditor.bmp"
+
 IDB_CMN_COPY32          BITMAP                  "res/copy32.bmp"
+
 IDB_CMN_DELETE32        BITMAP                  "res/Delete32.bmp"
+
 IDB_CMN_DOWN32          BITMAP                  "res/Down-Arrow32.bmp"
+
 IDB_CMN_EDIT32          BITMAP                  "res/Edit32.bmp"
+
 IDB_CMN_EXCEL32         BITMAP                  "res/Excel32.bmp"
+
 IDB_CMN_INFO32          BITMAP                  "res/info32.bmp"
+
 IDB_CMN_LINK32          BITMAP                  "res/Link32.bmp"
+
 IDB_CMN_NEW             BITMAP                  "res/new.bmp"
+
 IDB_CMN_NEW32           BITMAP                  "res/Add32.bmp"
+
 IDB_CMN_SET_DEFAULT     BITMAP                  "res/SetAsDefault32.bmp"
+
 IDB_CMN_SHOWMAP32       BITMAP                  "res/ShowMap32.bmp"
+
 IDB_CMN_STATEICONS      BITMAP                  "res/State.bmp"
+
 IDB_CMN_UP32            BITMAP                  "res/Up-Arrow32.bmp"
+
 IDB_SHAPE_TYPE16        BITMAP                  "res/ShapeType16.bmp"
+
 IDB_SHAPE_TYPE32        BITMAP                  "res/ShapeType32.bmp"
+
 IDR_EDIT_TOOLBAR        BITMAP                  "res/EditToolbar.bmp"
+
 IDR_SHOWMAP_TOOLBAR     BITMAP                  "res/showmap.bmp"
+
 IDB_CONTINUOUS_PERIOD1  BITMAP                  "res/ContinuousPeriod1.bmp"
+
 IDB_CONTINUOUS_PERIOD1_CHECKED BITMAP                  "res/ContinuousPeriod1Checked.bmp"
+
 IDB_CONTINUOUS_PERIOD2  BITMAP                  "res/ContinuousPeriod2.bmp"
+
 IDB_CONTINUOUS_PERIOD2_CHECKED BITMAP                  "res/ContinuousPeriod2Checked.bmp"
+
 IDB_DESCRIPTION         BITMAP                  "res/Description.bmp"
+
 IDB_EDIT_LOCATIONS      BITMAP                  "res/EditLocations.bmp"
+
 IDB_EDIT_PARAMETERS     BITMAP                  "res/EditParameters.bmp"
+
 IDB_EDIT_PARAMETERS_VARIATIONS BITMAP                  "res/EditParametersVariations.bmp"
+
 IDB_EDIT_WEATHER_GENERATOR BITMAP                  "res/EditWeatherGenerator.bmp"
+
 IDB_FOR_EACH_YEARS_A    BITMAP                  "res/ForEachYearsA.bmp"
+
 IDB_FOR_EACH_YEARS_D    BITMAP                  "res/ForEachYearsD.bmp"
+
 IDB_FOR_EACH_YEARS_M    BITMAP                  "res/ForEachYearsM.bmp"
+
 IDB_HELP                BITMAP                  "res/Help.bmp"
+
 IDB_MACTH_STATIONS      BITMAP                  "res/MatchStations.bmp"
+
 IDB_OVER_ALL_YEARS_A    BITMAP                  "res/over_all.bmp"
+
 IDB_OVER_ALL_YEARS_D    BITMAP                  "res/OverAllYearsD.bmp"
+
 IDB_OVER_ALL_YEARS_M    BITMAP                  "res/OverAllYearsM.bmp"
+
 IDB_SIM_ANALYSIS_PAGES  BITMAP                  "res/AnalysisPages.bmp"
+
 IDB_SIM_EXECUTABLE_IMAGE BITMAP                  "res/ExecutableImage.bmp"
+
 IDB_YEAR_BY_YEAR1       BITMAP                  "res/YearByYearPeriod1.bmp"
+
 IDB_YEAR_BY_YEAR1_CHECKED BITMAP                  "res/YearByYearPeriod1Checked.bmp"
+
 IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp"
+
 IDB_YEAR_BY_YEAR2_CHECKED BITMAP                  "res/OverAllYearsA.bmp"
+
 IDB_SHAPE_TYPE17        BITMAP                  "res/shape_ty.bmp"
+
 IDR_PROJECT_TOOLBAR1    BITMAP                  "res/ProjectToolbar1 24.bmp"
+
 IDR_PROJECT_TOOLBAR2    BITMAP                  "res/ProjectToolbar2 24.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -95,10 +152,15 @@ IDR_PROJECT_TOOLBAR2    BITMAP                  "res/ProjectToolbar2 24.bmp"
 //
 
 IDB_TEST_PNG            PNG                     "res/DatabaseEditor.png"
+
 IDB_CMN_OPTION32        PNG                     "res/option32.png"
+
 IDB_UI_MODEL_ICONS      PNG                     "res\\ModelIcons.png"
+
 IDR_LOC_TOOLBAR         PNG                     "res/LocToolbar.png"
+
 IDR_CMN_PROGRESS_TOOLBAR PNG                     "res/ProgressToolbar.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -106,14 +168,23 @@ IDR_CMN_PROGRESS_TOOLBAR PNG                     "res/ProgressToolbar.png"
 //
 
 IDC_CMN_DROPCOPY        CURSOR                  "res/dropcopy.cur"
+
 IDC_CMN_DROPMOVE        CURSOR                  "res/dropmove.cur"
+
 IDC_CMN_NODROP          CURSOR                  "res/nodrop.cur"
+
 IDC_CURSOR_ADD          CURSOR                  "res/Add.cur"
+
 IDC_CURSOR_CUT          CURSOR                  "res/cut.cur"
+
 IDC_CURSOR_DELETE       CURSOR                  "res/Delete.cur"
+
 IDC_CURSOR_GROUP        CURSOR                  "res/Group.cur"
+
 IDC_CURSOR_MOVE         CURSOR                  "res/Move.cur"
+
 IDC_CURSOR_SPLIT        CURSOR                  "res/Split.cur"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1019,8 +1090,8 @@ BEGIN
     EDITTEXT        IDC_MAP_NBPOINT,106,20,82,14,ES_AUTOHSCROLL
     LTEXT           "Valeur manquante :",IDC_STATIC,14,41,85,10
     EDITTEXT        IDC_MAP_NO_DATA,106,39,82,14,ES_AUTOHSCROLL
-    LTEXT           "Distance maximum aux points de simulations (km) :",IDC_STATIC,14,56,85,18
-    EDITTEXT        IDC_MAP_MAX_DISTANCE,106,57,82,14,ES_AUTOHSCROLL
+    LTEXT           "Distance maximum aux points de simulations (km) :",IDC_STATIC,14,58,85,18
+    EDITTEXT        IDC_MAP_MAX_DISTANCE,106,59,82,14,ES_AUTOHSCROLL
     GROUPBOX        "Appliquer des limites globales (déviation standard)",IDC_MAP_GLOBAL_LIMIT,14,172,180,33
     LTEXT           "[Min, Max] ±",IDC_STATIC,20,189,42,8
     EDITTEXT        IDC_MAP_GLOBAL_LIMIT_SD,66,186,33,14,ES_AUTOHSCROLL
@@ -1062,14 +1133,16 @@ BEGIN
     CONTROL         "Limiter à la fourchette",IDC_MAP_REGIONAL_LIMIT_TO_BOUND,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,297,174,84,10
     GROUPBOX        "Spline plaque mince",IDC_CMN_STATIC4,208,254,180,54
-    LTEXT           "Méthode :",IDC_STATIC,218,281,34,8
-    COMBOBOX        IDC_MAP_TPS_TYPE,254,280,123,56,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Erreur max :",IDC_STATIC,218,290,101,8
     DEFPUSHBUTTON   "OK",IDOK,287,314,50,14
     PUSHBUTTON      "Annuler",IDCANCEL,338,314,50,14
     CONTROL         "Sortir l'information du variogramme",IDC_MAP_OUTPUT_VARIOGRAM_INFO,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,218,110,127,10
-    EDITTEXT        IDC_MAP_OPTIONS,21,90,167,49,ES_MULTILINE | ES_AUTOVSCROLL
-    LTEXT           "Options GDAL :",IDC_STATIC,14,78,85,8
+    EDITTEXT        IDC_MAP_OPTIONS,21,120,167,49,ES_MULTILINE | ES_AUTOVSCROLL
+    LTEXT           "Options GDAL :",IDC_STATIC,13,108,85,8
+    LTEXT           "Points de validation (%) :",IDC_STATIC,219,269,101,11
+    EDITTEXT        IDC_MAP_XVAL_POINTS,324,267,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_TPS_MAX_ERROR,323,287,58,14,ES_AUTOHSCROLL
 END
 
 IDD_MAPCORNER_SELECTOR DIALOG 0, 0, 336, 205
@@ -3161,13 +3234,6 @@ BEGIN
 0x6cc9, 0x76e9, 0x7461, 0x6f69, 0xb26e, "\000" 
     IDC_MAP_EXTERNAL_DRIFT, 0x403, 12, 0
 0x7845, 0x6f70, 0x6973, 0x6974, 0x6e6f, 0x00b2, 
-    IDC_MAP_TPS_TYPE, 0x403, 9, 0
-0xe952, 0x6967, 0x6e6f, 0x6c61, "\000" 
-    IDC_MAP_TPS_TYPE, 0x403, 7, 0
-0x6c47, 0x626f, 0x6c61, "\000" 
-    IDC_MAP_TPS_TYPE, 0x403, 27, 0
-0x6c47, 0x626f, 0x6c61, 0x2820, 0x7661, 0x6365, 0x7220, 0x6765, 0x6f72, 
-0x7075, 0x6d65, 0x6e65, 0x2974, "\000" 
     0
 END
 
@@ -4017,6 +4083,17 @@ BEGIN
         MENUITEM "Réinitialiser avec -",        ID_REFORMAT2
         MENUITEM "Réinitialiser avec /",        ID_REFORMAT3
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MAP_GRID_INTERPOL AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 
@@ -5021,10 +5098,10 @@ BEGIN
     GROUPBOX        "Interpolation",IDC_STATIC,7,7,169,234
     LTEXT           "Number of points:",IDC_STATIC,14,23,70,10
     EDITTEXT        IDC_MAP_NBPOINT,84,20,84,14,ES_AUTOHSCROLL
-    LTEXT           "Output no data",IDC_STATIC,14,41,70,10
-    EDITTEXT        IDC_MAP_NO_DATA,84,39,84,14,ES_AUTOHSCROLL
-    LTEXT           "Maximum distance to simulation point (km)",IDC_STATIC,14,56,70,18
-    EDITTEXT        IDC_MAP_MAX_DISTANCE,84,57,84,14,ES_AUTOHSCROLL
+    LTEXT           "Output no data",IDC_STATIC,14,42,70,10
+    EDITTEXT        IDC_MAP_NO_DATA,84,40,84,14,ES_AUTOHSCROLL
+    LTEXT           "Maximum distance to simulation point (km)",IDC_STATIC,14,58,70,18
+    EDITTEXT        IDC_MAP_MAX_DISTANCE,84,59,84,14,ES_AUTOHSCROLL
     GROUPBOX        "Apply global range limits (standard deviation)",IDC_MAP_GLOBAL_LIMIT,14,160,158,35
     LTEXT           "[Min, Max] ±",IDC_STATIC,21,178,42,8
     EDITTEXT        IDC_MAP_GLOBAL_LIMIT_SD,64,175,33,14,ES_AUTOHSCROLL
@@ -5064,14 +5141,16 @@ BEGIN
     EDITTEXT        IDC_MAP_REGIONAL_LIMIT_SD,240,168,33,14,ES_AUTOHSCROLL
     CONTROL         "Limit to range",IDC_MAP_REGIONAL_LIMIT_TO_BOUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,280,170,59,10
     GROUPBOX        "Thin Plate Splines",IDC_CMN_STATIC4,183,251,171,49
-    LTEXT           "Method:",IDC_STATIC,196,272,28,8
-    COMBOBOX        IDC_MAP_TPS_TYPE,225,270,121,56,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Max error:",IDC_STATIC,196,282,35,8
     DEFPUSHBUTTON   "OK",IDOK,241,305,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,304,305,50,14
     CONTROL         "Output variograms info",IDC_MAP_OUTPUT_VARIOGRAM_INFO,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,112,90,10
-    EDITTEXT        IDC_MAP_OPTIONS,21,89,147,46,ES_MULTILINE | ES_AUTOVSCROLL
-    LTEXT           "GDAL options:",IDC_STATIC,14,78,70,8
+    EDITTEXT        IDC_MAP_OPTIONS,21,108,147,46,ES_MULTILINE | ES_AUTOVSCROLL
+    LTEXT           "GDAL options:",IDC_STATIC,14,97,70,8
+    LTEXT           "Validation points  (%):",IDC_STATIC,196,263,79,9
+    EDITTEXT        IDC_MAP_XVAL_POINTS,277,261,67,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_TPS_MAX_ERROR,277,279,67,14,ES_AUTOHSCROLL
 END
 
 IDD_MAPCORNER_SELECTOR DIALOG 0, 0, 336, 205
@@ -5553,7 +5632,7 @@ BEGIN
     PUSHBUTTON      "···",IDC_MAP_TRANFORM,231,182,25,12
     LTEXT           "Output directory:",IDC_STATIC,7,207,71,8
     EDITTEXT        IDC_MAP_DEFAULT_DIR,86,204,302,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    CONTROL         "Use hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,337,7,51,10
+    CONTROL         "Use hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,337,7,51,10
     LTEXT           "Pre/post transformation offers the possibility to transform data before and after interpolation.",IDC_STATIC,263,177,125,23
     LTEXT           "Name:",IDC_STATIC,7,75,27,8
     EDITTEXT        IDC_MAP_NAME,86,74,170,12,ES_AUTOHSCROLL
@@ -7259,13 +7338,6 @@ BEGIN
 0x6c45, 0x7665, 0x7461, 0x6f69, 0xb26e, "\000" 
     IDC_MAP_EXTERNAL_DRIFT, 0x403, 10, 0
 0x7845, 0x6f70, 0x7573, 0x6572, 0x00b2, 
-    IDC_MAP_TPS_TYPE, 0x403, 9, 0
-0x6552, 0x6967, 0x6e6f, 0x6c61, "\000" 
-    IDC_MAP_TPS_TYPE, 0x403, 7, 0
-0x6c47, 0x626f, 0x6c61, "\000" 
-    IDC_MAP_TPS_TYPE, 0x403, 25, 0
-0x6c47, 0x626f, 0x6c61, 0x2820, 0x6977, 0x6874, 0x6320, 0x756c, 0x7473, 
-0x7265, 0x6e69, 0x2967, "\000" 
     0
 END
 
@@ -8113,6 +8185,22 @@ BEGIN
         MENUITEM "Resdet with -",               ID_REFORMAT2
         MENUITEM "Reset with /",                ID_REFORMAT3
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MAP_GRID_INTERPOL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SIM_MAPPING AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 

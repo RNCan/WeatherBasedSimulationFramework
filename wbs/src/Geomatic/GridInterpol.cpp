@@ -18,7 +18,7 @@
 #include "Geomatic/Projection.h"
 #include "Geomatic/UniversalKriging.h"
 #include "Geomatic/IWD.h"
-#include "Geomatic/ThinPlateSpline.h"
+#include "Geomatic/ThinPlateSpline2.h"
 #include "Geomatic/GridInterpol.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/GDAL.h"
@@ -90,7 +90,7 @@ CGridInterpolBasePtr CGridInterpol::CreateNewGridInterpol()const
 	case SPATIAL_REGRESSION:pNewGridInterpol.reset(new CSpatialRegression);break;
 	case UNIVERSAL_KRIGING:pNewGridInterpol.reset(new CUniversalKriging);break;
 	case INVERT_WEIGHTED_DISTANCE:pNewGridInterpol.reset(new CIWD);break;
-	case THIN_PLATE_SPLINE: pNewGridInterpol.reset(new CThinPlateSpline);break;
+	case THIN_PLATE_SPLINE: pNewGridInterpol.reset(new CThinPlateSpline2);break;
 	default: _ASSERTE(false);
 	}
 

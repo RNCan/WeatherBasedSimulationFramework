@@ -116,9 +116,6 @@
     <ClCompile Include="..\src\Basic\UtilTime.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Basic\UtilZen.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Basic\WaterTemperature.cpp">
       <Filter>Source</Filter>
     </ClCompile>

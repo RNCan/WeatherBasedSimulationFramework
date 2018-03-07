@@ -915,8 +915,8 @@ namespace WBSF
 	void CLocationsFileManagerDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 	{
 		CDialog::OnActivateApp(bActive, dwThreadID);
-
-		if (bActive)
+		
+		if (bActive && IsWindowVisible())
 			m_fileListCtrl.OnAppActivate();
 
 	}

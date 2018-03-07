@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -14,6 +14,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileManager", "FileManager.vcxproj", "{09197469-7164-460C-8925-185D087F7FE5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wbs", "WeatherBaseSimulation.vcxproj", "{728E70B2-A650-4729-BB8C-0D4FC5905C9B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10ADF16A-32E2-423C-A953-D04248A0A0EE} = {10ADF16A-32E2-423C-A953-D04248A0A0EE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{DB2560E7-8309-4CA3-A774-2408E85678AB}"
 EndProject
@@ -97,5 +100,8 @@ Global
 		{09197469-7164-460C-8925-185D087F7FE5} = {972DF664-C2A8-4147-8EBC-FA39AD66B2B5}
 		{728E70B2-A650-4729-BB8C-0D4FC5905C9B} = {972DF664-C2A8-4147-8EBC-FA39AD66B2B5}
 		{10ADF16A-32E2-423C-A953-D04248A0A0EE} = {DB2560E7-8309-4CA3-A774-2408E85678AB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55885038-37D1-48A3-B762-3C8F54F3FE90}
 	EndGlobalSection
 EndGlobal

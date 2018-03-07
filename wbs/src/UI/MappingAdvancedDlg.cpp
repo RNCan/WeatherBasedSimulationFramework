@@ -43,6 +43,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_NBPOINT, m_nbPointCtrl);
 		DDX_Control(pDX, IDC_MAP_NO_DATA, m_noDataCtrl);
 		DDX_Control(pDX, IDC_MAP_MAX_DISTANCE, m_maxDistanceCtrl);
+		DDX_Control(pDX, IDC_MAP_XVAL_POINTS, m_XvalPointCtrl);
+		
 		DDX_Control(pDX, IDC_MAP_OPTIONS, m_GDALOptionsCtrl);
 
 		//Regrssion
@@ -76,8 +78,7 @@ namespace WBSF
 
 
 		//Thin Plate Spline
-		//DDX_Control(pDX, IDC_MAP_FILL_NUGGET, m_fillNuggetCtrl);
-		DDX_Control(pDX, IDC_MAP_TPS_TYPE, m_TPSTypeCtrl);
+		DDX_Control(pDX, IDC_MAP_TPS_MAX_ERROR, m_TPSMaxErrorCtrl);
 
 		DDX_Control(pDX, IDC_CMN_STATIC1, m_static1Ctrl);
 		DDX_Control(pDX, IDC_CMN_STATIC2, m_static2Ctrl);
@@ -121,8 +122,9 @@ namespace WBSF
 		bool bEnableIWD = m_method == CGridInterpol::INVERT_WEIGHTED_DISTANCE;
 		bool bEnableTPS = m_method == CGridInterpol::THIN_PLATE_SPLINE;
 
-		m_nbPointCtrl.EnableWindow(!bEnableRegression);
+		m_nbPointCtrl.EnableWindow(bEnableKriging || bEnableIWD);
 		m_maxDistanceCtrl.EnableWindow(bEnableKriging || bEnableIWD || bEnableTPS);
+		
 		m_static1Ctrl.EnableWindow(bEnableRegression, TRUE);
 		m_static2Ctrl.EnableWindow(bEnableKriging, TRUE);
 		m_static3Ctrl.EnableWindow(bEnableIWD, TRUE);
@@ -138,6 +140,8 @@ namespace WBSF
 		m_pParam->m_nbPoints = ToInt(m_nbPointCtrl.GetString());
 		m_pParam->m_noData = ToFloat(m_noDataCtrl.GetString());
 		m_pParam->m_maxDistance = ToFloat(m_maxDistanceCtrl.GetString()) * 1000;
+		m_pParam->m_XvalPoints = ToFloat(m_XvalPointCtrl.GetString())/100;
+		
 		m_pParam->m_GDALOptions = m_GDALOptionsCtrl.GetString();
 		m_pParam->m_regressCriticalR2 = ToDouble(m_R²Ctrl.GetString());
 		m_pParam->m_variogramModel = m_variogramModelCtrl.GetCurSel() - 1;
@@ -159,7 +163,8 @@ namespace WBSF
 		m_pParam->m_bGlobalMinMaxLimitToBound = m_globalMinMaxLimitToBoundCtrl.GetCheck();
 
 		//TPS
-		m_pParam->m_TPSType = m_TPSTypeCtrl.GetCurSel();
+		
+		m_pParam->m_TPSMaxError = ToFloat(m_TPSMaxErrorCtrl.GetString());
 
 		//IWD
 		m_pParam->m_IWDModel = m_IWDModelCtrl.GetCurSel() - 1;
@@ -172,6 +177,7 @@ namespace WBSF
 		m_nbPointCtrl.SetWindowText(ToString(m_pParam->m_nbPoints));
 		m_noDataCtrl.SetWindowText(ToString(m_pParam->m_noData));
 		m_maxDistanceCtrl.SetWindowText(ToString(m_pParam->m_maxDistance / 1000, 0));
+		m_XvalPointCtrl.SetWindowText(ToString(m_pParam->m_XvalPoints * 100, 0));
 		m_GDALOptionsCtrl.SetWindowText(m_pParam->m_GDALOptions);
 
 		m_R²Ctrl.SetWindowText(ToString(m_pParam->m_regressCriticalR2));
@@ -196,7 +202,7 @@ namespace WBSF
 		m_globalMinMaxLimitToBoundCtrl.SetCheck(m_pParam->m_bGlobalMinMaxLimitToBound);
 
 		//TPS
-		m_TPSTypeCtrl.SetCurSel(m_pParam->m_TPSType);
+		m_TPSMaxErrorCtrl.SetWindowText(ToString(m_pParam->m_TPSMaxError, 10));
 
 		m_IWDModelCtrl.SetCurSel(m_pParam->m_IWDModel + 1);
 		if (m_pParam->m_power > 0)

@@ -238,9 +238,6 @@
     <ClCompile Include="..\src\UI\Common\EnableGroupboxControls.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\Common\FileNameProperty.cpp">
-      <Filter>UI\Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\Common\GeoRectCtrl.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>

@@ -242,6 +242,7 @@
 #define IDC_CMN_OPTION_PROJECT_WEATHER_PATH 1093
 #define IDC_CMN_OPTION_PROJECT_MAP_PATH 1094
 #define IDC_MAP_ADD_TERM                1095
+#define IDC_MAP_TPS_MAX_ERROR           1096
 #define IDC_TEST                        1100
 #define IDC_NORMAL_DATA                 1101
 #define IDC_VARIABLE_LIST               1101
@@ -285,6 +286,7 @@
 #define IDC_GENLOC_BOUNDINGBOX          1129
 #define IDC_DIMENSION_MERGED            1129
 #define IDC_SIM_WEATHER_LOC             1129
+#define IDC_MAP_XVAL_POINTS             1129
 #define IDC_MODELS_EXTENSION            1130
 #define IDC_GENLOC_EXPOSURE             1130
 #define IDC_WG_XVALIDATION2             1130
@@ -852,7 +854,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        211
+#define _APS_NEXT_RESOURCE_VALUE        213
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1237
 #define _APS_NEXT_SYMED_VALUE           101

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,31 +22,32 @@
     <ProjectGuid>{AC5DD791-6787-4663-8184-1DB8D87A3C58}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>WeatherBasedSimulationFramework</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -191,7 +192,7 @@
     <ClCompile Include="..\src\Geomatic\ShoreCreator.cpp" />
     <ClCompile Include="..\src\Geomatic\SpatialRegression.cpp" />
     <ClCompile Include="..\src\Geomatic\srsinfo.cpp" />
-    <ClCompile Include="..\src\Geomatic\ThinPlateSpline.cpp" />
+    <ClCompile Include="..\src\Geomatic\ThinPlateSpline2.cpp" />
     <ClCompile Include="..\src\Geomatic\TimeZones.cpp" />
     <ClCompile Include="..\src\Geomatic\UniversalKriging.cpp" />
     <ClCompile Include="..\src\Geomatic\UtilGDAL.cpp" />
@@ -227,7 +228,7 @@
     <ClInclude Include="..\src\Geomatic\ShoreCreator.h" />
     <ClInclude Include="..\src\Geomatic\SpatialRegression.h" />
     <ClInclude Include="..\src\Geomatic\srsinfo.h" />
-    <ClInclude Include="..\src\Geomatic\ThinPlateSpline.h" />
+    <ClInclude Include="..\src\Geomatic\ThinPlateSpline2.h" />
     <ClInclude Include="..\src\Geomatic\TimeZones.h" />
     <ClInclude Include="..\src\Geomatic\TPSInterpolate.hpp" />
     <ClInclude Include="..\src\Geomatic\UniversalKriging.h" />

@@ -51,7 +51,7 @@ namespace WBSF
 	//***************************************************************************
 	const char* CGridInterpolParam::XML_FLAG = "InterpolParam";
 
-	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "IWDUseElev", "TPSType", "OutputVariogramInfo" };
+	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "IWDUseElev", "TPSMaxError", "OutputVariogramInfo" };
 
 	CGridInterpolParam::CGridInterpolParam()
 	{
@@ -64,6 +64,7 @@ namespace WBSF
 		m_nbPoints = 35;
 		m_noData = -999;
 		m_maxDistance = 200000;//200 km
+		m_XvalPoints = 0.2;//20% for X-validation
 		//-co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES
 		m_GDALOptions = "-of GTIFF -ot Float32 -co COMPRESS=LZW -Stats -Hist -Overview \"2,4,8,16\"";
 		
@@ -81,7 +82,7 @@ namespace WBSF
 
 		m_IWDModel = BEST_IWD_MODEL;
 		m_power = 0; //best model
-		m_TPSType = TPS_REGIONAL;
+		m_TPSMaxError = 1.0e-04;
 		m_bUseElevation = false;
 
 
@@ -107,6 +108,7 @@ namespace WBSF
 		m_nbPoints = in.m_nbPoints;
 		m_noData = in.m_noData;
 		m_maxDistance = in.m_maxDistance;
+		m_XvalPoints = in.m_XvalPoints;
 		m_GDALOptions = in.m_GDALOptions;
 
 		m_regressionModel = in.m_regressionModel;
@@ -124,7 +126,7 @@ namespace WBSF
 		m_power = in.m_power;
 		m_bUseElevation = in.m_bUseElevation;
 
-		m_TPSType = in.m_TPSType;
+		m_TPSMaxError = in.m_TPSMaxError;
 
 
 		m_bRegionalLimit = in.m_bRegionalLimit;
@@ -152,6 +154,7 @@ namespace WBSF
 		case NB_POINTS:				str = ToString(m_nbPoints); break;
 		case OUTPUT_NO_DATA:		str = ToString(m_noData); break;
 		case MAX_DISTANCE:			str = ToString(m_maxDistance); break;
+		case XVAL_POINTS:			str = ToString(m_XvalPoints); break;
 		case GDAL_OPTIONS:			str = m_GDALOptions; break;
 		case REGIONAL_LIMIT:		str = ToString(m_bRegionalLimit); break;
 		case REGIONAL_SD:			str = ToString(m_regionalLimitSD); break;
@@ -174,50 +177,14 @@ namespace WBSF
 		case IWD_MODEL:				str = ToString(m_IWDModel); break;
 		case IWD_POWER:				str = ToString(m_power, 2); break;
 		case IWD_USE_ELEV:			str = ToString(m_bUseElevation); break;
-		case TPS_TYPE:				str = ToString(m_TPSType); break;
+		case TPS_MAX_ERROR:			str = ToString(m_TPSMaxError); break;
 		case OUTPUT_VARIOGRAM_INFO: str = ToString(m_bOutputVariogramInfo); break;
 		default: ASSERT(false);
 		}
 
 		return str;
 	}
-	/*
-	void CGridInterpolParam::SetMember(int i, const string& str, const LPXNode pNode)
-	{
-	ASSERT( i>=0 && i<NB_MEMBER);
-	switch(i)
-	{
-	case NB_POINTS:				m_nbPoints = ToInt(str);break;
-	case OUTPUT_NO_DATA:		m_noData = ToFloat(str); break;
-	case MAX_DISTANCE:			m_maxDistance = ToFloat(str); break;
-	case REGIONAL_LIMIT:		m_bRegionalLimit = ToBool(str); break;
-	case REGIONAL_SD:			m_regionalLimitSD= ToFloat(str); break;
-	case REGIONAL_LIMIT_TO_BOUND:m_bRegionalLimitToBound= ToBool(str); break;
-	case GLOBAL_LIMIT:			m_bGlobalLimit = ToBool(str); break;
-	case GLOBAL_SD:				m_globalLimitSD = ToFloat(str); break;
-	case GLOBAL_LIMIT_TO_BOUND: m_bGlobalLimitToBound = ToBool(str); break;
-	case GLOBAL_MINMAX_LIMIT:	m_bGlobalMinMaxLimit = ToBool(str); break;
-	case GLOBAL_MIN_LIMIT:		m_globalMinLimit = ToFloat(str); break;
-	case GLOBAL_MAX_LIMIT:		m_globalMaxLimit = ToFloat(str); break;
-	case GLOBAL_MINMAX_LIMIT_TO_BOUND:m_bGlobalMinMaxLimitToBound = ToBool(str); break;
-	case REGRESSION_MODEL:		ToVector( str, m_regressionModel); break;
-	case REGRESS_CRITICAL_R2:	m_regressCriticalR2 = ToDouble(str);break;
-	case VARIOGRAM_MODEL:		m_variogramModel = ToInt(str);break;
-	case NB_LAGS:				m_nbLags = ToInt(str);break;
-	case LAG_DISTANCE:			m_lagDist = ToDouble(str);break;
-	case DETRENDING_MODEL:		m_detrendingModel = ToInt(str);break;
-	case EXTERNAL_DRIFT:		m_externalDrift = ToInt(str); break;
-	case FILL_NUGGET:			m_bFillNugget = ToBool(str); break;
-	case IWD_MODEL:				m_IWDModel = ToInt(str);break;
-	case IWD_POWER:				m_power = ToDouble(str);break;
-	case TPS_TYPE:				m_TPSType = ToInt(str);break;
-	case OUTPUT_VARIOGRAM_INFO: m_bOutputVariogramInfo = ToBool(str); break;
-	default: ASSERT(false);
-	}
-
-	}
-	*/
-
+	
 	bool CGridInterpolParam::operator ==(const CGridInterpolParam& in)const
 	{
 		bool bEgual = true;
@@ -225,6 +192,7 @@ namespace WBSF
 		if (m_nbPoints != in.m_nbPoints)bEgual = false;
 		if (m_noData != in.m_noData)bEgual = false;
 		if (m_maxDistance != in.m_maxDistance)bEgual = false;
+		if (m_XvalPoints != in.m_XvalPoints)bEgual = false;
 		if (m_GDALOptions != in.m_GDALOptions)bEgual = false;
 		if (m_bRegionalLimit != in.m_bRegionalLimit)bEgual = false;
 		if (m_regionalLimitSD != in.m_regionalLimitSD)bEgual = false;
@@ -246,7 +214,7 @@ namespace WBSF
 		if (m_IWDModel != in.m_IWDModel)bEgual = false;
 		if (m_power != in.m_power)bEgual = false;
 		if (m_bUseElevation != in.m_bUseElevation)bEgual = false;
-		if (m_TPSType != in.m_TPSType)bEgual = false;
+		if (m_TPSMaxError != in.m_TPSMaxError)bEgual = false;
 		if (m_bOutputVariogramInfo != in.m_bOutputVariogramInfo)bEgual = false;
 
 
