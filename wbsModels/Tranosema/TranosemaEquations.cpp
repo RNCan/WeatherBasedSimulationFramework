@@ -137,7 +137,7 @@ namespace WBSF
 		return Pmax;
 	}
 
-	double CTranosemaEquations::GetE°()const
+	double CTranosemaEquations::GetEº()const
 	{
 		//							  x      s
 		static const double P[2] = { 2.28, 0.0800 };

@@ -76,8 +76,8 @@ namespace WBSF
 	}
 
 	//s:	stage
-	//L:	latitude [°]
-	//T:	temperature [°C] 
+	//L:	latitude [º]
+	//T:	temperature [ºC] 
 	//out:	development rate in function of stage and latitude
 	double HemlockLooperEquations::GetRate(size_t s, double L, double T)const
 	{
@@ -85,18 +85,18 @@ namespace WBSF
 		//                             egg     larval   pupae   adult
 		static const double b[4] = { 0.00481, 0.0601, 0.02094, 0.0308 };
 
-		static const double L° = 50.633;
+		static const double L0 = 50.633;
 		size_t e = (s == EGGS) ? 0 : (s < PUPAE) ? 1 : (s < ADULTS) ? 2 : 3;
 
 		//get rate from table lookup and adjust it in function of latitude
-		double r° = CEquationTableLookup::GetRate(s, T);
-		double rᴸ = r° * (1 + b[e] * (L - L°));
+		double rº = CEquationTableLookup::GetRate(s, T);
+		double rᴸ = rº * (1 + b[e] * (L - L0));
 
 		return rᴸ;
 	}
 
 	//s:	stage
-	//T:	temperature [°C] 
+	//T:	temperature [ºC] 
 	//out:	relative development rate in function of stage and temperature
 	double HemlockLooperEquations::ComputeRate(size_t s, double T)const
 	{
@@ -173,7 +173,7 @@ namespace WBSF
 		return (1 + Δρ[sex][s])*m_randomGenerator.RandLogNormal(0, σᵋ[s]);
 	}
 
-	//T:	temperature [°C]
+	//T:	temperature [ºC]
 	//out:	pre-diapause development rate
 	double HemlockLooperEquations::GetPreDiapauseRate(double T)const
 	{
@@ -191,7 +191,7 @@ namespace WBSF
 		return m_randomGenerator.RandLogNormal(0, 0.285);
 	}
 
-	//L:	latitude [°]
+	//L:	latitude [º]
 	//out:	ratio of larvae the will have a L5 stage
 	double HemlockLooperEquations::GetL5Ratio(size_t sex, double L)const
 	{
@@ -207,7 +207,7 @@ namespace WBSF
 
 	//***********************************************************************************
 
-	//L:	latitude in [°]
+	//L:	latitude in [º]
 	//out:	individual's fecundity [eggs]
 	double CHLOviposition::GetFecundity(double L)const
 	{
@@ -216,11 +216,11 @@ namespace WBSF
 	}
 
 
-	//T:	temperature [°C]
-	//F°:	initial individual fecondity [eggs]
+	//T:	temperature [ºC]
+	//Fº:	initial individual fecondity [eggs]
 	//Fᵗ:	remaining fecundity  [eggs]
 	//out:	oviposition rate as a function of temperature [eggs/day]
-	double CHLOviposition::GetRate(double T, double F°, double Fᵗ)const
+	double CHLOviposition::GetRate(double T, double Fº, double Fᵗ)const
 	{
 		static const double a = -0.053;
 		static const double b = 6.6E-5;
@@ -232,7 +232,7 @@ namespace WBSF
 		double Eᵗ = 0.0;
 		if (Fᵗ > 0)
 		{
-			double F = (e / F°)*T*(a + b * Fᵗ + c / pow(Fᵗ, d));
+			double F = (e / Fº)*T*(a + b * Fᵗ + c / pow(Fᵗ, d));
 			Eᵗ = Fᵗ*max(0.0, min(1.0, F));
 		}
 
@@ -243,7 +243,7 @@ namespace WBSF
 
 
 	//***********************************************************************************
-	//T:	temperature at time step t [°C]
+	//T:	temperature at time step t [ºC]
 	//out:	energy loss per day at this temperature
 	double CHLSurvival::SenergyʃT(double T)
 	{
@@ -254,39 +254,39 @@ namespace WBSF
 	//ʃT:	integral of temperature exposure
 	double CHLSurvival::Senergy(double ʃT)
 	{
-		static const double α° = 0.078;
+		static const double αº = 0.078;
 		static const double α¹ = -1.29E-13;
 
-		return 1.0 / (1.0 + exp(-(α° + α¹*ʃT)));
+		return 1.0 / (1.0 + exp(-(αº + α¹*ʃT)));
 	}
 
-	//Tmin: minimum temperature at witch insect was exposed [°C]
+	//Tmin: minimum temperature at witch insect was exposed [ºC]
 	//out:	cold survival
 	double CHLSurvival::Scold(double Tmin)
 	{
-		static const double β° = -24.28;
+		static const double β0 = -24.28;
 		static const double β¹ = -2.401;
 		static const double β² = -0.05;
 		if (Tmin > -25)
 			Tmin = -25;
 
-		return 1.0 / (1.0 + exp(-(β° + β¹*Tmin + β²*Tmin*Tmin)));
+		return 1.0 / (1.0 + exp(-(β0 + β¹*Tmin + β²*Tmin*Tmin)));
 	}
 
 
-	//T:	temperature at time step t [°C]
+	//T:	temperature at time step t [ºC]
 	//dt:	time step duration (day)
 	//out:	hatch survival for this time step
 	double CHLSurvival::Shatch(double T, double dt)
 	{
-		static const double β° = 7.151;
+		static const double β0 = 7.151;
 		static const double β¹ = -0.558;
 		static const double β² = 0.0436;
 		static const double β³ = -0.00108;
-		return T > 0 ? pow(1.0 + exp(-(β° + β¹*T + β²*T*T + β³*T*T*T)), -dt) : 1;
+		return T > 0 ? pow(1.0 + exp(-(β0 + β¹*T + β²*T*T + β³*T*T*T)), -dt) : 1;
 	}
 
-	//L:	latitude in °
+	//L:	latitude in º
 	//out:	weight survival
 	double CHLSurvival::Sweight(double L)
 	{
@@ -296,10 +296,10 @@ namespace WBSF
 
 
 
-	//L:	latitude in °
+	//L:	latitude in º
 	//Sh:	hatch survival
 	//ʃT:	integral of temperature exposition
-	//Tmin: minimum temperature at witch insect was exposed [°C]
+	//Tmin: minimum temperature at witch insect was exposed [ºC]
 	double CHLSurvival::GetEggSurvival(double L, double Sh, double ʃT, double Tmin)
 	{
 		ASSERT(Sh >= 0 && Sh <= 1);

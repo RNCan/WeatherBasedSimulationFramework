@@ -42,12 +42,12 @@ namespace WBSF
 		}
 
 		//oviposition
-		//Random values of Pmax and E°
+		//Random values of Pmax and Eº
 		m_Pmax = Equations().GetPmax();
-		double E° = Equations().GetE°();
+		double Eº = Equations().GetEº();
 		//Initial values
-		m_Pᵗ = E°;
-		m_Eᵗ = E°;
+		m_Pᵗ = Eº;
+		m_Eᵗ = Eº;
 
 		//Individuals are created as non-diapause individuals
 		//m_bDiapause = false;

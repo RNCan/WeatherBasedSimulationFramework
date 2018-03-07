@@ -29,7 +29,7 @@ namespace WBSF
 		double Getδ(size_t s)const;
 
 		//fecondity
-		double GetE°()const;
+		double GetEº()const;
 		double GetPmax()const;
 		static double GetOᵗ(double T);
 		static double GetRᵗ(double T);
@@ -37,7 +37,7 @@ namespace WBSF
 
 		//survival rate
 		static double GetSurvivalRate(size_t s, double T);
-		double GetRelativeSurvivalRate()const;
+		//double GetRelativeSurvivalRate()const;
 		double GetLuck(size_t s);
 
 	protected:

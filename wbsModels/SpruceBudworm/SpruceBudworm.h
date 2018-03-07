@@ -63,7 +63,7 @@ namespace WBSF
 		inline const CSBWStand* GetStand()const;
 		inline CSpruceBudwormEquations& Equations();
 
-		bool get_t(const CWeatherDay& weather, __int64 &t°, __int64 &tᴹ)const;
+		bool get_t(const CWeatherDay& weather, __int64 &tº, __int64 &tᴹ)const;
 		double get_Tair(const CWeatherDay& weather, double h)const;
 		double get_Prcp(const CWeatherDay& weather, double h)const;
 		double get_WndS(const CWeatherDay& weather, double h)const;
@@ -74,8 +74,8 @@ namespace WBSF
 
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
-		double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_F° : 0; }
-		double GetF°()const{ return m_F°; }
+		double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_Fº : 0; }
+		double GetFº()const{ return m_Fº; }
 		double GetFᴰ()const{ return m_Fᴰ; }
 		//double GetLiftoffHour()const{ return m_liftoff_hour; }
 
@@ -90,7 +90,7 @@ namespace WBSF
 
 		//member
 		double m_relativeDevRate[SBW::NB_STAGES]; //Individual's relative development rates in 9 stages
-		double m_F°;
+		double m_Fº;
 		double m_Fᴰ;
 
 		CTRef m_overwinteringDate;			//When individual pass from Egg to OW, they must stop develop until next spring
@@ -101,7 +101,7 @@ namespace WBSF
 		bool m_bKillByAttrition;
 		
 		double m_A;							//forewing area [cm²]
-//		double m_M°;						//Initial dry weight [g]
+//		double m_Mº;						//Initial dry weight [g]
 		double m_M;							//actual dry weight [g]
 		double m_p_exodus;
 		//double m_liftoff_hour;

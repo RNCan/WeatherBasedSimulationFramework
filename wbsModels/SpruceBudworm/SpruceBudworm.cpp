@@ -63,8 +63,8 @@ namespace WBSF
 			
 
 		m_A = Equations().get_A(m_sex); 
-		m_F° = (m_sex == FEMALE) ? Equations().get_F°(m_A) : 0;
-		m_Fᴰ = (1.0 - 0.0054*m_defoliation)*m_F°;
+		m_Fº = (m_sex == FEMALE) ? Equations().get_Fº(m_A) : 0;
+		m_Fᴰ = (1.0 - 0.0054*m_defoliation)*m_Fº;
 		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
 		m_p_exodus = Equations().get_p_exodus(); 
@@ -79,7 +79,7 @@ namespace WBSF
 		m_bMissingEnergyAlreadyApplied = false;
 		m_bKillByAttrition = false;
 		
-		ASSERT(m_F°>=0);
+		ASSERT(m_Fº>=0);
 		ASSERT(m_Fᴰ >= 0);
 		ASSERT(m_M > 0);
 	}
@@ -110,7 +110,7 @@ namespace WBSF
 			m_A = in.m_A;
 			m_M = in.m_M;
 			m_p_exodus = in.m_p_exodus;
-			m_F° = in.m_F°;
+			m_Fº = in.m_Fº;
 			m_Fᴰ = in.m_Fᴰ;
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
@@ -282,7 +282,7 @@ namespace WBSF
 			}  
 
 			
-			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_F°, true);//compute weight from forewing area and female gravidity
+			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);//compute weight from forewing area and female gravidity
 			
 			
 		}
@@ -316,13 +316,13 @@ namespace WBSF
 		}
 		else if (GetStage() == PUPAE && weather[H_TMIN2][MEAN] < 0)
 		{
-			//all pupae are killed by frost under 0°C
+			//all pupae are killed by frost under 0ºC
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
 		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -9)
 		{
-			//all non l2o are kill by frost under -10°C
+			//all non l2o are kill by frost under -10ºC
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
@@ -401,29 +401,29 @@ namespace WBSF
 		return RR;
 	}
 
-	bool CSpruceBudworm::ComputeExodus(const CWeatherDay& w°)
+	bool CSpruceBudworm::ComputeExodus(const CWeatherDay& wº)
 	{
 		bool bExodus = false;
 
 		//double Pmating = GetMatingProbability(GetStageAge());
 		if (m_sex==MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
-			__int64 t° = 0;
+			__int64 tº = 0;
 			__int64 tᴹ = 0;
-			if (get_t(w°, t°, tᴹ))
+			if (get_t(wº, tº, tᴹ))
 			{
 				//calculate tᶜ
-				__int64 tᶜ = (t° + tᴹ) / 2;
+				__int64 tᶜ = (tº + tᴹ) / 2;
 
 				//now compute tau, p and flight
 				static const __int64 Δt = 60;
-				for (__int64 t = t°; t <= tᴹ && !bExodus; t += Δt)
+				for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
 				{
 					double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 					double h = t / 3600.0;
 
-					const CWeatherDay& w¹ = w°.GetNext();
-					const CWeatherDay& w = h < 24 ? w° : w¹;
+					const CWeatherDay& w¹ = wº.GetNext();
+					const CWeatherDay& w = h < 24 ? wº : w¹;
 
 					double T = get_Tair(w, h < 24 ? h : h - 24.0);
 					double P = get_Prcp(w, h < 24 ? h : h - 24.0);
@@ -505,16 +505,16 @@ namespace WBSF
 	{
 		ASSERT(h >= 0 && h < 24);
 
-		size_t h° = size_t(h);
-		size_t h¹ = h° + 1;
-		ASSERT(h >= h° && h <= h¹);
-		ASSERT((h - h°) >= 0 && (h - h°) <= 1);
+		size_t hº = size_t(h);
+		size_t h¹ = hº + 1;
+		ASSERT(h >= hº && h <= h¹);
+		ASSERT((h - hº) >= 0 && (h - hº) <= 1);
 		ASSERT((h¹ - h) >= 0 && (h¹ - h) <= 1);
 
 		//temperature interpolation between 2 hours
-		const CHourlyData& w° = weather[h°];
-		const CHourlyData& w¹ = w°.GetNext();
-		double Tair = (h - h°)*w¹[H_TAIR2] + (h¹ - h)*w°[H_TAIR2];
+		const CHourlyData& wº = weather[hº];
+		const CHourlyData& w¹ = wº.GetNext();
+		double Tair = (h - hº)*w¹[H_TAIR2] + (h¹ - h)*wº[H_TAIR2];
 
 		ASSERT(!WEATHER::IsMissing(Tair));
 		return Tair;
@@ -526,9 +526,9 @@ namespace WBSF
 
 		double prcp = -999;
 
-		size_t h° = size_t(h);
-		if (!WEATHER::IsMissing(weather[h°][H_PRCP]))
-			prcp = weather[h°][H_PRCP];
+		size_t hº = size_t(h);
+		if (!WEATHER::IsMissing(weather[hº][H_PRCP]))
+			prcp = weather[hº][H_PRCP];
 
 		return prcp;
 	}
@@ -539,18 +539,18 @@ namespace WBSF
 
 		double wind = -999;
 		
-		size_t h° = size_t(h);
-		size_t h¹ = h° + 1;
-		ASSERT(h >= h° && h <= h¹);
-		ASSERT((h - h°) >= 0 && (h - h°) <= 1);
+		size_t hº = size_t(h);
+		size_t h¹ = hº + 1;
+		ASSERT(h >= hº && h <= h¹);
+		ASSERT((h - hº) >= 0 && (h - hº) <= 1);
 		ASSERT((h¹ - h) >= 0 && (h¹ - h) <= 1);
 
-		if (!WEATHER::IsMissing(weather[h°][H_WNDS]) && !WEATHER::IsMissing(weather[h°][H_WNDS]))
+		if (!WEATHER::IsMissing(weather[hº][H_WNDS]) && !WEATHER::IsMissing(weather[hº][H_WNDS]))
 		{
 			//temperature interpolation between 2 hours
-			const CHourlyData& w° = weather[h°];
-			const CHourlyData& w¹ = w°.GetNext();
-			wind = (h - h°)*w¹[H_WNDS] + (h¹ - h)*w°[H_WNDS];
+			const CHourlyData& wº = weather[hº];
+			const CHourlyData& w¹ = wº.GetNext();
+			wind = (h - hº)*w¹[H_WNDS] + (h¹ - h)*wº[H_WNDS];
 		}
 
 		return wind;
@@ -560,42 +560,42 @@ namespace WBSF
 
 	
 
-	bool CSpruceBudworm::get_t(const CWeatherDay& w°, __int64 &t°, __int64 &tᴹ)const
+	bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᴹ)const
 	{
 		static const __int64 Δtᶠ = 3 * 3600;
 		static const __int64 Δtᶳ = -3600;
 		static const __int64 Δt = 60;
-		static const double T° = 24.5;
+		static const double Tº = 24.5;
 
-		CSun sun(w°.GetLocation().m_lat, w°.GetLocation().m_lon, w°.GetLocation().GetTimeZone());
-		__int64 sunset = (sun.GetSunset(w°.GetTRef()) + 1.0 ) * 3600;//+1 hour : assume to be in daylight zone  //[s]
+		CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
+		__int64 sunset = (sun.GetSunset(wº.GetTRef()) + 1.0 ) * 3600;//+1 hour : assume to be in daylight zone  //[s]
 
 		//first estimate of exodus info
 		__int64 h4 = 4 * 3600;
 		__int64 Δtᵀ = h4;
-		t° = sunset - h4;//subtract 4 hours
+		tº = sunset - h4;//subtract 4 hours
 		tᴹ = sunset + h4;//add 4 hours
 
 
-		if (t° > 0)
+		if (tº > 0)
 		{
-			for (__int64 t = t°; t <= tᴹ && Δtᵀ == h4; t += Δt)
+			for (__int64 t = tº; t <= tᴹ && Δtᵀ == h4; t += Δt)
 			{
 				//sunset hour shifted by t
 				double h = t / 3600.0;
-				const CWeatherDay& w = h < 24 ? w° : w°.GetNext();
+				const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
 			
 				//temperature interpolation between 2 hours
 				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
-				if (Tair <= T°)
+				if (Tair <= Tº)
 					Δtᵀ = t - sunset;
 			}
 
-			if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
+			if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under Tº, then no exodus. probably rare situation
 			{
-				//now calculate the real t°, tᶬ and tᶜ
-				t° = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ); 
-				tᴹ = min(sunset + h4, t° + Δtᶠ);
+				//now calculate the real tº, tᶬ and tᶜ
+				tº = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ); 
+				tᴹ = min(sunset + h4, tº + Δtᶠ);
 			}
 		}
 
@@ -977,7 +977,7 @@ namespace WBSF
 	//	static const double K = 166;
 	//	static const double b[2] = { 21.35, 24.08 };
 	//	static const double c[2] = { 2.97, 6.63 };
-	//	static const double T° = 24.5;
+	//	static const double Tº = 24.5;
 	//	static const double Δt = 0.25;
 	//	static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
 
@@ -991,42 +991,42 @@ namespace WBSF
 	//		CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
 	//		double sunset = sun.GetSunset(weather.GetTRef());
 
-	//		//first estimate of t° and tᶬ to find Δtᵀ
-	//		double t° = -4;//subtract 4 hours
+	//		//first estimate of tº and tᶬ to find Δtᵀ
+	//		double tº = -4;//subtract 4 hours
 	//		double tᶬ = 4;//add 4 hours
 	//		double Δtᵀ = 4;
 
-	//		for (double t = t°; t < tᶬ && Δtᵀ == 4; t += Δt)
+	//		for (double t = tº; t < tᶬ && Δtᵀ == 4; t += Δt)
 	//		{
 	//			//sunset hour shifted by t
 	//			double h = sunset + t;
-	//			size_t h° = size_t(h);
-	//			size_t h¹ = h° + 1;
+	//			size_t hº = size_t(h);
+	//			size_t h¹ = hº + 1;
 
 
 	//			//temperature interpolation between 2 hours
-	//			double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
-	//			if (T <= T°)
+	//			double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//			if (T <= Tº)
 	//				Δtᵀ = t;
 	//		}
 
 
-	//		if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under T°, then no exodus. probably rare situation
+	//		if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under Tº, then no exodus. probably rare situation
 	//		{
-	//			//now calculate the real t°, tᶬ and tᶜ
-	//			double t° = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
-	//			double tᶬ = min(4.0, t° + Δtᶠ);
-	//			double tᶜ = (t° + tᶬ) / 2;
+	//			//now calculate the real tº, tᶬ and tᶜ
+	//			double tº = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
+	//			double tᶬ = min(4.0, tº + Δtᶠ);
+	//			double tᶜ = (tº + tᶬ) / 2;
 
 	//			//
-	//			double M° = Equations().get_M(m_A, 1);//initial weight of mean gravid female
+	//			double Mº = Equations().get_M(m_A, 1);//initial weight of mean gravid female
 	//			double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
-	//			double RM = Mᴬ / M°; //ratio of actual vs initial weight female
+	//			double RM = Mᴬ / Mº; //ratio of actual vs initial weight female
 	//			double M = m_M*RM;	//actual weight is initial weight x ratio
 	//			double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
 
 	//			//now compute tau, p and flight
-	//			for (double t = t°; t < tᶬ && flight == 0; t += Δt)
+	//			for (double t = tº; t < tᶬ && flight == 0; t += Δt)
 	//			{
 	//				double tau = (t - tᶜ) / (tᶬ - tᶜ);
 	//				double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
@@ -1034,12 +1034,12 @@ namespace WBSF
 	//					p *= 0.3 / 0.7;//sex ratio equilibrium
 
 	//				double h = sunset + t;
-	//				size_t h° = size_t(h);
-	//				size_t h¹ = h° + 1;
+	//				size_t hº = size_t(h);
+	//				size_t h¹ = hº + 1;
 
 
 	//				//temperature interpolation between 2 hours
-	//				double T = (h - h°)*weather[min(hᶬ, h°)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//				double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
 	//				if (T > 0)
 	//				{
 	//					double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
