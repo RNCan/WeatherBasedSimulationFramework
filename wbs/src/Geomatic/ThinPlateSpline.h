@@ -15,16 +15,16 @@
 namespace WBSF
 {
 
-	class MySpline;
-	typedef std::list<int> key_tracker_type;
-	typedef std::unordered_map< int, std::pair< MySpline*, typename key_tracker_type::iterator>> key_to_value_type;
+	//class MySpline;
+	//typedef std::list<int> key_tracker_type;
+	//typedef std::unordered_map< int, std::pair< MySpline*, typename key_tracker_type::iterator>> key_to_value_type;
 
-	class CThinPlateSpline : public CGridInterpolBase
+	class CThinPlateSpline2 : public CGridInterpolBase
 	{
 	public:
 
-		CThinPlateSpline();
-		virtual ~CThinPlateSpline();
+		CThinPlateSpline2();
+		virtual ~CThinPlateSpline2();
 		void Reset();
 
 		virtual ERMsg Initialization(CCallback& callback);
@@ -35,20 +35,25 @@ namespace WBSF
 
 	protected:
 
-		static void GetClusterNode(int nbCluster, const CPrePostTransfo& transfo, CGridPointVector& pointIn, CGridPointVector& pointOut, float noData);
+		//static void GetClusterNode(int nbCluster, const CPrePostTransfo& transfo, CGridPointVector& pointIn, CGridPointVector& pointOut, float noData);
 
 		std::unique_ptr<CANNSearch> m_pANNSearch;
 
-		key_to_value_type m_splinMap;
-		key_tracker_type m_keyTracker;
+		//key_to_value_type m_splinMap;
+		//key_tracker_type m_keyTracker;
 
 		CRITICAL_SECTION CS;
 
 		void* m_pObject;
-		int m_nbDim;
+		size_t m_nbDim;
+		bool m_bGeographic;
+		bool m_bHaveExposition;
+		bool m_bUseElevation;
+		bool m_bUseShore;
+
 
 		//a mettre dans m_param;
-		bool m_bClustered;
+		//bool m_bClustered;
 		double m_inc;
 	};
 
