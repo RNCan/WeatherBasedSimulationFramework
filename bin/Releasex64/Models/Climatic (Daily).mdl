@@ -96,7 +96,7 @@
         <OutputVariable>
             <Name>SRad</Name>
             <Title>TotalRadiation</Title>
-            <Units>W/m²</Units>
+            <Units>MJ/m²</Units>
             <Description>solar radiation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
