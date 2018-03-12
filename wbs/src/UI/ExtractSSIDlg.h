@@ -28,6 +28,13 @@ public:
 	BOOL m_bExtractSlopeAspect;
 	BOOL m_bMissingOnly;
 	BOOL m_bExtractShoreDistance;
+	BOOL m_bExtractGoogleName;
+	BOOL m_bExtractGoogleElvation;
+	
+	CString m_googleMapAPIKey;
+	CString m_googleGeoCodeAPIKey;
+
+
 	int m_interpolationType;
 
 protected:

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KNNMapping", "KNNMapping\KNNMapping.vcxproj", "{038558A1-03FA-4B3D-9E3F-1D2D2460E5B0}"
 EndProject
@@ -25,8 +25,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Segmentation", "Segmentatio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloudCleaner", "CloudCleaner\CloudCleaner.vcxproj", "{14AEB40E-DBC1-47F0-8871-F523B0F4992D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "ranger\msvc\RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerImages", "ranger\msvc\RangerImage.vcxproj", "{F79944DB-6B07-4AD6-BB56-80CE8DE00F4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MedianImage", "MedianImage\MedianImage.vcxproj", "{A6BE43AA-995E-49EE-8299-DE1FE0149D04}"
@@ -38,6 +36,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointsReduction", "PointReduction\PointReduction.vcxproj", "{E7D59301-8F0F-47B6-945D-2394A91CAE0C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sieve", "Sieve\Sieve.vcxproj", "{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "..\external\msvc\RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,14 +135,6 @@ Global
 		{14AEB40E-DBC1-47F0-8871-F523B0F4992D}.Release|Win32.Build.0 = Release|Win32
 		{14AEB40E-DBC1-47F0-8871-F523B0F4992D}.Release|x64.ActiveCfg = Release|x64
 		{14AEB40E-DBC1-47F0-8871-F523B0F4992D}.Release|x64.Build.0 = Release|x64
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.Build.0 = Debug|Win32
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.ActiveCfg = Debug|x64
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.Build.0 = Debug|x64
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.ActiveCfg = Release|Win32
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.Build.0 = Release|Win32
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.ActiveCfg = Release|x64
-		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.Build.0 = Release|x64
 		{F79944DB-6B07-4AD6-BB56-80CE8DE00F4A}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F79944DB-6B07-4AD6-BB56-80CE8DE00F4A}.Debug|Win32.Build.0 = Debug|Win32
 		{F79944DB-6B07-4AD6-BB56-80CE8DE00F4A}.Debug|x64.ActiveCfg = Debug|x64
@@ -191,8 +183,19 @@ Global
 		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|Win32.Build.0 = Release|Win32
 		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|x64.ActiveCfg = Release|x64
 		{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}.Release|x64.Build.0 = Release|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.Build.0 = Debug|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.ActiveCfg = Debug|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.Build.0 = Debug|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.ActiveCfg = Release|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.Build.0 = Release|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.ActiveCfg = Release|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4B56D8C-F803-4333-B1BC-D0FD09281046}
 	EndGlobalSection
 EndGlobal

@@ -15,15 +15,17 @@
 #include "FileManager/FileManager.h"
 #include "Basic/ApproximateNearestNeighbor.h"
 #include "Basic/Shore.h"
-#include "geomatic/gdalBasic.h"
+#include "Geomatic/gdalBasic.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "UI/Common/AppOption.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
+#include "UI/Common/UtilWWW.h"
 #include "UI/LOCGeneratorDlg.h"
 #include "UI/LOCEditDlg.h"
 #include "UI/ExtractSSIDlg.h"
+#include "json\json11.hpp"
 #include "WeatherBasedSimulationString.h"
 
 
@@ -35,7 +37,10 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 using namespace UtilWin;
+using namespace UtilWWW;
 using namespace std;
+using namespace json11;
+
 
 namespace WBSF
 {
@@ -47,7 +52,7 @@ namespace WBSF
 
 
 
-	
+
 
 
 	BEGIN_MESSAGE_MAP(CLOCGridCtrl, CUGEditCtrl)
@@ -264,7 +269,7 @@ namespace WBSF
 			if (newStr != oldStr)
 			{
 				m_bHaveChange = true;
-				size_t pos = row*GetNumberCols() + row;
+				size_t pos = row * GetNumberCols() + row;
 				m_bDataEdited[row].set(col);
 
 				if (col < CLocation::SITE_SPECIFIC_INFORMATION)
@@ -285,7 +290,7 @@ namespace WBSF
 		if (format != m_format)
 		{
 			m_format = format;
-			
+
 			RedrawCol(CLocation::LAT);
 			RedrawCol(CLocation::LON);
 		}
@@ -309,7 +314,7 @@ namespace WBSF
 				AddMenuItem(ID_CONTEXT_MENU_DELETE, UtilWin::GetCString(IDS_CMN_AFXBARRES_DELETE));
 
 				AddMenuItem(-1, _T(""));
-				
+
 				AddMenuItem(ID_CONTEXT_MENU_COPY, UtilWin::GetCString(IDS_CMN_AFXBARRES_COPY));
 				AddMenuItem(ID_CONTEXT_MENU_PASTE, UtilWin::GetCString(IDS_CMN_AFXBARRES_PASTE));
 			}
@@ -414,7 +419,7 @@ namespace WBSF
 	int	CLOCGridCtrl::DeleteRow(long row)
 	{
 		ASSERT(row >= 0 && row < m_locations.size());
-		m_locations.erase(m_locations.begin()+row);
+		m_locations.erase(m_locations.begin() + row);
 		m_bDataEdited.erase(m_bDataEdited.begin() + row);
 
 		return CUGEditCtrl::DeleteRow(row);
@@ -440,7 +445,7 @@ namespace WBSF
 		ON_COMMAND(ID_LOC_REMOVE_LINE, OnLocDeleteLine)
 		ON_COMMAND(ID_LOC_GENERATE, OnLocGenerate)
 		ON_COMMAND(ID_LOC_EXTRACT_SSI, OnExtractSSI)
-		
+
 		ON_COMMAND_EX(ID_LOC_DECIMAL_DEGREES, OnFormatChange)
 		ON_COMMAND_EX(ID_LOC_DMS, OnFormatChange)
 		ON_UPDATE_COMMAND_UI(ID_LOC_NEW_LINE, OnUpdateCtrl)
@@ -597,11 +602,13 @@ namespace WBSF
 
 
 		CExtractSSIDlg dlg(this);
-		
+
 
 		m_pLocEditDlg->EnableWindow(false);
 		if (dlg.DoModal() == IDOK)
 		{
+			ERMsg msg;
+
 			CWaitCursor cursor;
 
 			CLocationVector locations;
@@ -609,17 +616,31 @@ namespace WBSF
 
 			CProgressStepDlg progressDlg;
 			progressDlg.Create(this);
-			
-			
-			string filePath = CStringA(dlg.m_gridFilePath);
-			ERMsg msg = ExtractSSI(locations, filePath,
-						dlg.m_interpolationType,
-						dlg.m_bExtractElev,
-						dlg.m_bExtractSlopeAspect,
-						dlg.m_bExtractShoreDistance,
-						dlg.m_bMissingOnly,
-						progressDlg.GetCallback());
-			
+
+			if (dlg.m_bExtractElev || dlg.m_bExtractSlopeAspect || dlg.m_bExtractShoreDistance)
+			{
+				string filePath = CStringA(dlg.m_gridFilePath);
+				msg = ExtractSSI(locations, filePath,
+					dlg.m_interpolationType,
+					dlg.m_bExtractElev,
+					dlg.m_bExtractSlopeAspect,
+					dlg.m_bExtractShoreDistance,
+					dlg.m_bMissingOnly,
+					progressDlg.GetCallback());
+			}
+
+			if (msg && dlg.m_bExtractGoogleName)
+			{
+				string key = CStringA(dlg.m_googleGeoCodeAPIKey);
+				msg = ExtractGoogleName(locations, key, !dlg.m_bMissingOnly, progressDlg.GetCallback());
+			}
+
+			if (msg && dlg.m_googleMapAPIKey)
+			{
+				string key = CStringA(dlg.m_googleMapAPIKey);
+				msg = ExtractGoogleElevation(locations, key, !dlg.m_bMissingOnly, progressDlg.GetCallback());
+			}
+
 			if (!msg)
 				SYShowMessage(msg, this);
 
@@ -634,7 +655,7 @@ namespace WBSF
 	}
 
 
-	
+
 
 	void CLocDlg::OnLocDeleteLine()
 	{
@@ -721,7 +742,7 @@ namespace WBSF
 		CGDALDatasetEx inputDS;
 		if (bExtractElev || bExtractSlopeAspect)
 			msg = inputDS.OpenInputImage(filePath);
-		
+
 
 		if (msg)
 		{
@@ -781,12 +802,12 @@ namespace WBSF
 
 					if (bShoreDistance)
 					{
-					//	CSearchResultVector shorePt;
-				//		VERIFY(shore.search(locations[i], 1, shorePt));
-						
-						//double d = shorePt.front().m_distance/1000.0;//distance in km
+						//	CSearchResultVector shorePt;
+					//		VERIFY(shore.search(locations[i], 1, shorePt));
+
+							//double d = shorePt.front().m_distance/1000.0;//distance in km
 						double d = CShore::GetShoreDistance(locations[i]) / 1000.0;//distance in km
-						locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d,1));
+						locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d, 1));
 					}
 
 					msg += callback.StepIt();
@@ -799,6 +820,138 @@ namespace WBSF
 		callback.PopTask();
 
 		return msg;
+	}
+
+	ERMsg CLocDlg::ExtractGoogleName(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
+	{
+		ERMsg msg;
+		//CInternetSession GoogleSession;
+		//CHttpConnection* pGoogleConnection = GoogleSession.GetHttpConnection(_T("maps.googleapis.com"), INTERNET_DEFAULT_HTTPS_PORT, _T(""), _T(""));
+
+		CInternetSessionPtr pGoogleSession;
+		CHttpConnectionPtr pGoogleConnection;
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", !googleAPIKey.empty());
+
+		if (msg)
+		{
+			size_t miss = 0;
+			for (size_t i = 0; i < locations.size(); i++)
+			{
+				if (locations[i].m_name.empty() || bReplaceAll)
+				{
+
+					string strGeo;
+					string URL = "/maps/api/geocode/json?latlng=" + ToString(locations[i].m_lat) + "," + ToString(locations[i].m_lon);
+					if (!googleAPIKey.empty())
+						URL += "&key=" + googleAPIKey; //"AIzaSyAz8Mr7mO8BkkugAHe7ds65mCEeSUVknZw";
+					msg = UtilWWW::GetPageText(pGoogleConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+					if (msg)
+					{
+						//extract elevation from google
+						string error;
+						Json jsonGeo = Json::parse(strGeo, error);
+						ASSERT(jsonGeo.is_object());
+
+						if (error.empty() && jsonGeo["status"] == "OK")
+						{
+							ASSERT(jsonGeo["results"].is_array());
+							Json::array result1 = jsonGeo["results"].array_items();
+							if (!result1.empty())
+							{
+								string name1;
+								string name2;
+								Json::array result2 = result1[0]["address_components"].array_items();
+								for (int j = 0; j < result2.size(); j++)
+								{
+									Json::array result3 = result2[j]["types"].array_items();
+									if (result3.size() == 2 && result3[0] == "locality")
+									{
+										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+										WBSF::ReplaceString(str, ",", " ");
+										name1 = WBSF::TrimConst(str);
+									}
+									if (result3.size() == 2 && result3[0] == "administrative_area_level_3")
+									{
+										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+										WBSF::ReplaceString(str, ",", " ");
+										name2 = str;
+									}
+								}
+
+								locations[i].m_name = !name1.empty() ? name1 : name2;
+							}
+							else
+							{
+								miss++;
+							}
+						}
+					}//if msg
+				}//if empty name
+			}//for all locations
+
+			pGoogleConnection->Close();
+			pGoogleSession->Close();
+		}//if msg
+
+
+		return msg;
+	}
+
+
+
+
+
+	ERMsg CLocDlg::ExtractGoogleElevation(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
+	{
+		ERMsg msg;
+		//CInternetSession GoogleSession;
+		//CHttpConnection* pGoogleConnection = GoogleSession.GetHttpConnection(_T("maps.googleapis.com"), INTERNET_DEFAULT_HTTPS_PORT, _T(""), _T(""));
+
+		CInternetSessionPtr pGoogleSession;
+		CHttpConnectionPtr pGoogleConnection;
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", !googleAPIKey.empty());
+
+		if (msg)
+		{
+			size_t miss = 0;
+			for (size_t i = 0; i < locations.size(); i++)
+			{
+				if (locations[i].m_elev == -999 || bReplaceAll)
+				{
+					string strGeo;
+					string URL = "/maps/api/elevation/json?locations=" + ToString(locations[i].m_lat) + "," + ToString(locations[i].m_lon);
+					if (!googleAPIKey.empty())
+						URL += "&key=" + googleAPIKey;
+					msg = UtilWWW::GetPageText(pGoogleConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+					if (msg)
+					{
+						//extract elevation from google
+						string error;
+						Json json = Json::parse(strGeo, error);
+						ASSERT(json.is_object());
+
+						if (error.empty() && json["status"] == "OK")
+						{
+							ASSERT(json["results"].is_array());
+							Json::array result = json["results"].array_items();
+							ASSERT(result.size() == 1);
+
+							locations[i].m_elev = result[0]["elevation"].number_value();
+						}
+						else
+						{
+							miss++;
+						}
+					}
+				}//if no elev
+			}//for all locations
+
+			pGoogleConnection->Close();
+			pGoogleSession->Close();
+		}//if msg
+
+		return msg;
+
 	}
 
 	//************************************************************************
@@ -837,11 +990,11 @@ namespace WBSF
 		CDialog::OnInitDialog();
 
 		CAppOption option(_T("WindowsPosition"));
-		
+
 		CPoint pt = option.GetProfilePoint(_T("LocationsFileManager"), CPoint(30, 30));
 		UtilWin::EnsurePointOnDisplay(pt);
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-		
+
 		//CRect curRect;
 		//GetWindowRect(curRect);
 		//curRect.MoveToXY(30, 30);
@@ -915,7 +1068,7 @@ namespace WBSF
 	void CLocationsFileManagerDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 	{
 		CDialog::OnActivateApp(bActive, dwThreadID);
-		
+
 		if (bActive && IsWindowVisible())
 			m_fileListCtrl.OnAppActivate();
 
@@ -967,7 +1120,7 @@ namespace WBSF
 
 		return m_pWndList;
 	}
-	
+
 	void CLocListBox::OnAfterAddItem(int iItem)
 	{
 		string locName = ToUTF8(GetItemText(iItem));
@@ -1147,5 +1300,5 @@ namespace WBSF
 
 
 
-	
+
 }

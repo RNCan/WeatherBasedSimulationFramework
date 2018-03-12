@@ -140,6 +140,9 @@ namespace WBSF
 
 
 		static ERMsg ExtractSSI(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bShoreDistance, bool bMissingOnly, CCallback& callback);
+		static ERMsg ExtractGoogleName(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback);
+		static ERMsg ExtractGoogleElevation(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback);
+	
 	};
 
 

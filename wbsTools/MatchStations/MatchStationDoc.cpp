@@ -548,7 +548,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				if (v == H_TAIR2)
 					v = H_TMIN2;
 
-				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, m_variable, -999);
+				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, m_variable, -999);
 				pNormalsDB->GetStations(m_normalsStations, m_normalsResult);
 			}
 
@@ -615,7 +615,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					TVarH v = m_variable;
 					if (v == H_TAIR2)
 						v = H_TMIN2;
-					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
+					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
 					pDailyDB->GetStations(m_dailyStations, m_dailyResult, m_year);
 				}
 			}
@@ -634,7 +634,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					if (v == H_TMIN2 || v == H_TMAX2)
 						v = H_TAIR2;
 
-					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius, v, m_year);
+					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
 					pHourlyDB->GetStations(m_hourlyStations, m_hourlyResult, m_year);
 				}
 			}

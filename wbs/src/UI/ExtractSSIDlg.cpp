@@ -39,6 +39,10 @@ CDialog(CExtractSSIDlg::IDD, pParent)
 	m_bExtractSlopeAspect = option.GetProfileBool(_T("ExtractSlopeAspect"), false);
 	m_bMissingOnly = option.GetProfileBool(_T("OnlyMissing"), true);
 	m_bExtractShoreDistance = option.GetProfileBool(_T("ExtractShoreDistance"), false);
+	m_bExtractGoogleName = option.GetProfileBool(_T("ExtractGoogleName"), false);
+	m_bExtractGoogleElvation = option.GetProfileBool(_T("ExtractGoogleElevation"), false);
+	m_googleMapAPIKey = option.GetProfileString(_T("GoogleMapAPIKey"));
+	m_googleGeoCodeAPIKey = option.GetProfileString(_T("GoogleGeoCodeAPIKey"));
 	m_interpolationType = option.GetProfileInt(_T("InterpMethod"), 0);
 
 }
@@ -52,6 +56,10 @@ CExtractSSIDlg::~CExtractSSIDlg()
 	option.WriteProfileBool(_T("ExtractSlopeAspect"), m_bExtractSlopeAspect);
 	option.WriteProfileBool(_T("OnlyMissing"), m_bMissingOnly);
 	option.WriteProfileBool(_T("ExtractShoreDistance"), m_bExtractShoreDistance);
+	option.WriteProfileBool(_T("ExtractGoogleName"), m_bExtractGoogleName);
+	option.WriteProfileBool(_T("ExtractGoogleElevation"), m_bExtractGoogleElvation);
+	option.WriteProfileString(_T("GoogleMapAPIKey"), m_googleMapAPIKey);
+	option.WriteProfileString(_T("GoogleGeoCodeAPIKey"), m_googleGeoCodeAPIKey);
 	option.WriteProfileInt(_T("InterpMethod"), m_interpolationType);
 }
 
@@ -67,6 +75,11 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_MAP_EXTRACT_EXPOSITION, m_bExtractSlopeAspect);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_MISSING, m_bMissingOnly);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_SHORE_DISTANCE, m_bExtractShoreDistance);
+	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_NAME, m_bExtractGoogleName);
+	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_ELEVATION, m_bExtractGoogleElvation);
+	DDX_Text(pDX, IDC_MAP_EXTRACT_ELEVATION_KEY, m_googleMapAPIKey);
+	DDX_Text(pDX, IDC_MAP_EXTRACT_GEOCODE_KEY, m_googleGeoCodeAPIKey);
+
 	DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
 	
 	if( !pDX->m_bSaveAndValidate )
@@ -75,3 +88,7 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 		m_gridFilePathCtrl.EnableFileBrowseButton(_T(".tif"), fileFilter);
 	}
 }
+
+
+ERMsg msg;
+

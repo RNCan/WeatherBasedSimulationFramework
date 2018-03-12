@@ -20,7 +20,7 @@
 #include "Basic/UtilStd.h"
 #include "Basic/openMP.h"
 #include "Basic/Shore.h"
-#include "Geomatic/ThinPlateSpline2.h"
+#include "Geomatic/ThinPlateSpline.h"
 #include "KMeanLocal\KMlocal.h" 
 
 using namespace std;
@@ -36,8 +36,7 @@ namespace WBSF
 
 
 	//**********************************************************************
-	//CThinPlateSpline2
-	CThinPlateSpline2::CThinPlateSpline2()
+	CThinPlateSpline::CThinPlateSpline()
 	{
 		m_pObject = NULL;
 		m_nbDim = 0;
@@ -46,13 +45,13 @@ namespace WBSF
 		InitializeCriticalSection(&CS);
 	}
 
-	CThinPlateSpline2::~CThinPlateSpline2()
+	CThinPlateSpline::~CThinPlateSpline()
 	{
 		DeleteCriticalSection(&CS);
 		Reset();
 	}
 
-	void CThinPlateSpline2::Reset()
+	void CThinPlateSpline::Reset()
 	{
 		m_inc = 1;
 
@@ -76,7 +75,7 @@ namespace WBSF
 
 
 
-	ERMsg CThinPlateSpline2::Initialization(CCallback& callback)
+	ERMsg CThinPlateSpline::Initialization(CCallback& callback)
 	{
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
@@ -214,7 +213,7 @@ namespace WBSF
 		return crc.checksum();
 	}*/
 
-	double CThinPlateSpline2::Evaluate(const CGridPoint& pt, int iXval)const
+	double CThinPlateSpline::Evaluate(const CGridPoint& pt, int iXval)const
 	{
 		double value = m_param.m_noData;
 
@@ -329,19 +328,19 @@ namespace WBSF
 
 
 
-	void CThinPlateSpline2::GetParamterset(CGridInterpolParamVector& parameterset)
+	void CThinPlateSpline::GetParamterset(CGridInterpolParamVector& parameterset)
 	{
 		parameterset.clear();
 
 	}
 
-	string CThinPlateSpline2::GetFeedbackBestParam()const
+	string CThinPlateSpline::GetFeedbackBestParam()const
 	{
 		string str;
 		return str;
 	}
 
-	double CThinPlateSpline2::GetOptimizedR²(CCallback& callback)const
+	double CThinPlateSpline::GetOptimizedR²(CCallback& callback)const
 	{
 		return 0;
 

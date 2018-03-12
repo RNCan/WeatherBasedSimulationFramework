@@ -22,12 +22,7 @@
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/LandsatDataset.h"
 
-#include "Utility/DataShort.h"
-#include "globals.h"
-#include "Forest/ForestClassification.h"
-#include "Forest/ForestRegression.h"
-#include "Forest/ForestSurvival.h"
-#include "Forest/ForestProbability.h"
+#include "RangerLib/RangerLib.h"
 
 
 #pragma warning(disable: 4275 4251)
@@ -221,7 +216,7 @@ public:
 	void WriteBlock(int xBlock, int yBlock, OutputData& output, UncertaintyData& uncertainty, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS);
 	void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS);
 
-	void Evaluate( int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
+	//void Evaluate( int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
 		
 	ERMsg ReadRules(ForestPtr& forest);
 

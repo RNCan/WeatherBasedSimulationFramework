@@ -3,7 +3,7 @@
     <Name>Project</Name>
     <InternalName>Project</InternalName>
     <Description/>
-    <Execute>true</Execute>
+    <Execute>false</Execute>
     <Export>
         <FileName/>
         <ScriptName/>
@@ -60,7 +60,7 @@
                                     <Name>Analysis</Name>
                                     <InternalName>qdweka</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -98,7 +98,7 @@
                                     </Computation>
                                 </Analysis>
                             </ExecutableArray>
-                            <ModelName>HemlockWoollyAdelgid (Daily)</ModelName>
+                            <ModelName>DegreeDay (Annual)</ModelName>
                             <ModelInputName/>
                             <LocationsName/>
                             <ParamVariationsName/>

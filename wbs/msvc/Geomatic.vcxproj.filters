@@ -89,7 +89,10 @@
     <ClCompile Include="..\src\Geomatic\ShoreCreator.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Geomatic\ThinPlateSpline2.cpp">
+    <ClCompile Include="..\src\Geomatic\RandomForest.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Geomatic\ThinPlateSpline.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -181,7 +184,10 @@
     <ClInclude Include="..\src\Geomatic\ShoreCreator.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Geomatic\ThinPlateSpline2.h">
+    <ClInclude Include="..\src\Geomatic\RandomForest.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Geomatic\ThinPlateSpline.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

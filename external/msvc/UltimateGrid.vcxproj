@@ -75,6 +75,16 @@
     <ClCompile Include="..\UltimateGrid\UGXPThemes.cpp" />
     <ClCompile Include="..\UltimateGrid\UTEdit.cpp" />
     <ClCompile Include="..\UltimateGrid\UTMaskedEdit.cpp" />
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx;..;</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UltimateGrid\CellTypes\UGCTafnt.h" />
@@ -137,6 +147,7 @@
     <ClInclude Include="..\UltimateGrid\ugxpthemes.h" />
     <ClInclude Include="..\UltimateGrid\UTEdit.h" />
     <ClInclude Include="..\UltimateGrid\UTMaskedEdit.h" />
+    <ClInclude Include="stdafx\stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C117EC47-0709-46C5-90AF-12C27F41B083}</ProjectGuid>
@@ -316,14 +327,14 @@
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\stdafx;..\UltimateGrid</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN64;NDEBUG;_LIB;UG_OLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

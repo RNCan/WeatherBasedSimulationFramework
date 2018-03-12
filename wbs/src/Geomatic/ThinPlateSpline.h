@@ -15,16 +15,12 @@
 namespace WBSF
 {
 
-	//class MySpline;
-	//typedef std::list<int> key_tracker_type;
-	//typedef std::unordered_map< int, std::pair< MySpline*, typename key_tracker_type::iterator>> key_to_value_type;
-
-	class CThinPlateSpline2 : public CGridInterpolBase
+	class CThinPlateSpline : public CGridInterpolBase
 	{
 	public:
 
-		CThinPlateSpline2();
-		virtual ~CThinPlateSpline2();
+		CThinPlateSpline();
+		virtual ~CThinPlateSpline();
 		void Reset();
 
 		virtual ERMsg Initialization(CCallback& callback);

@@ -7,6 +7,9 @@
     <Filter Include="Source\CellTypes">
       <UniqueIdentifier>{1bcee003-6197-48e1-9362-21e941c1f52e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\stdafx">
+      <UniqueIdentifier>{ec3efb87-914f-49f2-a83d-b94d322b9d97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\UltimateGrid\ExcelSideHdg.cpp">
@@ -176,6 +179,9 @@
     </ClCompile>
     <ClCompile Include="..\UltimateGrid\CellTypes\UGCTSpin.cpp">
       <Filter>Source\CellTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx\stdafx.cpp">
+      <Filter>Source\stdafx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="..\UltimateGrid\CellTypes\UGCTSpin.h">
       <Filter>Source\CellTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx\stdafx.h">
+      <Filter>Source\stdafx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
