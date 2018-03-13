@@ -66,7 +66,7 @@ namespace WBSF
 		CMFCPropertyGridProperty* pVariables = new CMFCPropertyGridProperty(GetCString(IDS_STR_NB_VARIABLES), -1);
 		for (size_t v = 0; v < NB_VAR_H; v++)
 		{
-			pVariables->AddSubItem(new CStdGridProperty(HOURLY_DATA::GetVariableTitle(v), m_searchRadius[v]>=0 ? m_searchRadius[v] / 1000 : -1, GetVariableUnits(v), v));
+			pVariables->AddSubItem(new CStdGridProperty(HOURLY_DATA::GetVariableTitle(v), m_searchRadius[v]>=0 ? m_searchRadius[v] / 1000 : -999, GetVariableUnits(v), v));
 		}
 		
 		AddProperty(pVariables);
@@ -147,7 +147,7 @@ namespace WBSF
 		ASSERT(v < NB_VAR_H);
 		
 		double radius = ToDouble(str); //in km
-		me.m_searchRadius[v] = radius>=0 ? radius * 1000:-1;//in meters
+		me.m_searchRadius[v] = radius>=0 ? radius * 1000:-999;//in meters
 	}
 
 

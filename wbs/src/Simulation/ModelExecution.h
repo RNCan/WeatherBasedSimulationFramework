@@ -84,10 +84,6 @@ namespace WBSF
 		ERMsg GetModelInput(const CFileManager& fileManager, CModelInput& ModelIn)const;
 		ERMsg GetParamVariationsDefinetion(const CFileManager& fileManager, CParametersVariationsDefinition& paramVariationDef)const;
 
-		ERMsg  Validation(CFileManager& fileManager)const;
-		ERMsg  ValidationDB(const CFileManager& fileManager)const;
-		ERMsg  ValidationOutputHomeDB(CFileManager& fileManager)const;
-
 
 		static void InitValidationOptimisation();
 		//static ERMsg LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream);

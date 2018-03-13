@@ -2000,130 +2000,124 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 	ERMsg msg;
 
-
-	if (m_zop.GetDataSection().GetFilePath().empty())
-	{
-		assert(omp_get_num_threads() == 1);
-		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
-		msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
-	}
-
-	if (!m_zop.SearchIsOpen())
-	{
-		assert(omp_get_num_threads() == 1);
-		msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
-		if (!msg)
-			return msg;
-	}
-
-
-	//if (year<0)
-		//year = 0;
-
-	m_CS.Enter();
-	__int64 canal = (filter.to_ullong()) * 100000 + max(year, 0) * 10 + (bUseShoreDistance?4:0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
-	if (!m_zop.CanalExists(canal))
-	{
-		CLocationVector locations;
-		locations.reserve(m_zop.size());
-		std::vector<__int64> positions;
-		positions.reserve(m_zop.size());
-
-		const CWeatherFileSectionIndex& index = m_zop.GetDataSection();
-		//build canal
-		for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
-		{
-			bool useIt = it->UseIt();
-			if (useIt || !bExcludeUnused)
-			{
-				CWeatherFileSectionIndex::const_iterator it2 = index.find(it->GetDataFileName());
-				if (it2 != index.end())
-				{
-					bool bIncluded = false;
-
-					if (year>0)
-					{
-						const CWeatherYearSectionMap& section = it2->second;
-						CWeatherYearSectionMap::const_iterator it3 = section.find(year);
-						if (it3 != section.end())
-						{
-							bool bIncluded2 = true;
-							for (size_t i = 0; i<it3->second.m_nbRecords.size() && bIncluded2; i++)
-							{
-								if (filter.test(i))
-									bIncluded2 = it3->second.m_nbRecords[i].first>0;
-							}
-
-							bIncluded = bIncluded2;
-						}//year exist
-					}
-					else
-					{
-						const CWeatherYearSectionMap& section = it2->second;
-						for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end() && !bIncluded; it3++)
-						{
-							bool bIncluded2 = true;
-							for (size_t i = 0; i<it3->second.m_nbRecords.size() && bIncluded2; i++)
-							{
-								if (filter.test(i))
-									bIncluded2 = it3->second.m_nbRecords[i].first>0;
-							}
-
-							if (bIncluded2)
-								bIncluded = true;
-						}//for all years
-					}
-
-					if (bIncluded)
-					{
-						CLocation pt = *it;//removel
-						pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
-						locations.push_back(pt);
-						positions.push_back(it - m_zop.begin());
-					}
-				}//File exist
-			}//use it
-		}
-
-
-		//by optimization, add the canal event if they are empty
-		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
-		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
-		zop.AddCanal(canal, pANN);
-	}
-	m_CS.Leave();
-
-
-
 	searchResultArray.Reset();
-	//searchResultArray.SetYear(year);
-	//searchResultArray.SetFilter(filter);
 
-	msg = m_zop.Search(station, nbStation, searchResultArray, canal);
-	
 
-	if (searchResultArray.size() == nbStation)
+	if (searchRadius != 0)
 	{
-		if (searchRadius >= 0)
+		if (m_zop.GetDataSection().GetFilePath().empty())
 		{
-			for (CSearchResultVector::iterator it = searchResultArray.begin(); it != searchResultArray.end();)
+			assert(omp_get_num_threads() == 1);
+			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+			msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
+		}
+
+		if (!m_zop.SearchIsOpen())
+		{
+			assert(omp_get_num_threads() == 1);
+			msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
+			if (!msg)
+				return msg;
+		}
+
+
+		m_CS.Enter();
+		__int64 canal = (filter.to_ullong()) * 100000 + max(year, 0) * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+		if (!m_zop.CanalExists(canal))
+		{
+			CLocationVector locations;
+			locations.reserve(m_zop.size());
+			std::vector<__int64> positions;
+			positions.reserve(m_zop.size());
+
+			const CWeatherFileSectionIndex& index = m_zop.GetDataSection();
+			//build canal
+			for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
 			{
-				if (it->m_distance < searchRadius)//station in the radius not accepted to exclude all station when r=0
-					it++;
-				else
-					it = searchResultArray.erase(it);
+				bool useIt = it->UseIt();
+				if (useIt || !bExcludeUnused)
+				{
+					CWeatherFileSectionIndex::const_iterator it2 = index.find(it->GetDataFileName());
+					if (it2 != index.end())
+					{
+						bool bIncluded = false;
+
+						if (year > 0)
+						{
+							const CWeatherYearSectionMap& section = it2->second;
+							CWeatherYearSectionMap::const_iterator it3 = section.find(year);
+							if (it3 != section.end())
+							{
+								bool bIncluded2 = true;
+								for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+								{
+									if (filter.test(i))
+										bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+								}
+
+								bIncluded = bIncluded2;
+							}//year exist
+						}
+						else
+						{
+							const CWeatherYearSectionMap& section = it2->second;
+							for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end() && !bIncluded; it3++)
+							{
+								bool bIncluded2 = true;
+								for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+								{
+									if (filter.test(i))
+										bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+								}
+
+								if (bIncluded2)
+									bIncluded = true;
+							}//for all years
+						}
+
+						if (bIncluded)
+						{
+							CLocation pt = *it;//removel
+							pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+							locations.push_back(pt);
+							positions.push_back(it - m_zop.begin());
+						}
+					}//File exist
+				}//use it
 			}
 
-			if (searchResultArray.empty())
-			{
-				string filterName = filter.GetVariablesName('+');
-				string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), GetFileName(m_filePath), ToString(year), filterName);
-				msg.ajoute(error);
-			}
+
+			//by optimization, add the canal event if they are empty
+			CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+			pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+			zop.AddCanal(canal, pANN);
+		}
+		m_CS.Leave();
+
+
+		msg = m_zop.Search(station, nbStation, searchResultArray, canal);
+	}
+
+	if (searchRadius >= 0)
+	{
+		for (CSearchResultVector::iterator it = searchResultArray.begin(); it != searchResultArray.end();)
+		{
+			if (it->m_distance < searchRadius)//station in the radius not accepted to exclude all station when r=0
+				it++;
+			else
+				it = searchResultArray.erase(it);
+		}
+
+		if (searchResultArray.empty())
+		{
+			string filterName = filter.GetVariablesName('+');
+			string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), GetFileName(m_filePath), ToString(year), filterName);
+			msg.ajoute(error);
 		}
 	}
-	else
+
+	if (searchResultArray.size() != nbStation)
 	{
 		string filterName = filter.GetVariablesName('+');
 

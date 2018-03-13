@@ -66,7 +66,7 @@ namespace WBSF
 		m_bSkipVerify = false;
 		m_bNoFillMissing = false;
 		m_bUseShore = true;
-
+		m_searchRadius.reset();
 
 		m_filePath.clear();
 	}

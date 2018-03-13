@@ -82,24 +82,8 @@ namespace WBSF
 		ERMsg GenerateWeather(const CFileManager& fileManager, CNormalsDatabasePtr& normalDB, CDailyDatabasePtr& dailyDB, CHourlyDatabasePtr& hourlyDB,
 			CGribsDatabasePtr& gribsDB, const CWGInput& TGInput, const CLocationVector& locArray, CCallback& callback);
 
-
-		ERMsg  Validation(CFileManager& fileManager)const;
-		ERMsg  ValidationDB(const CFileManager& fileManager)const;
-		ERMsg  ValidationOutputHomeDB(CFileManager& fileManager)const;
-
-
 		virtual ERMsg GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter)const;
-		//a revoir
-		//virtual ERMsg GetLocationList(const CFileManager& fileManager, CLocationVector& loc)const;
-		//virtual ERMsg GetParameterList(const CFileManager& fileManager, CModelInputVector& parameters)const;
-		//virtual ERMsg GetReplication(const CFileManager& fileManager, size_t& nbReplication)const;
-		//virtual ERMsg GetDefaultPeriod(const CFileManager& fileManager, CTPeriod& period)const;
-		//virtual ERMsg GetOutputDefinition(const CFileManager& fileManager, CModelOutputVariableDefVector& outputVar)const;
-
-
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_FLOAT; }
-		//virtual double GetExecuteTime(int nbUnit, UINT filter);
-
 
 
 		ERMsg GetWGInput(const CFileManager& fileManager, CWGInput& WGInput)const;

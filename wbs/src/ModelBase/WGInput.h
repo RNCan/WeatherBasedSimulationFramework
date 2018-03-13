@@ -22,7 +22,14 @@ namespace WBSF
 
 		CSearchRadius()
 		{
-			fill(-1);//radius in meters
+			reset();
+		}
+
+		void reset()
+		{
+			fill(-999);//radius in meters
+			for (size_t v = HOURLY_DATA::H_SRAD2; v < HOURLY_DATA::NB_VAR_H; v++)
+				at(v) = 0; //no search by default for secondery variables
 		}
 
 		bool operator==(const CSearchRadius& in)const
@@ -30,7 +37,7 @@ namespace WBSF
 			bool bEqual = true;
 
 			for (size_t i = 0; i < size(); i++)
-				bEqual = fabs(at(i) -in[i])<0.1;//1 meters
+				bEqual = fabs(at(i) -in[i])<0.1;//0.1 meters
 
 
 			return bEqual;
