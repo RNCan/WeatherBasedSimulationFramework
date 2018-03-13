@@ -43,6 +43,9 @@
     <ProjectReference Include="NewMat.vcxproj">
       <Project>{df847140-e535-4f50-823a-e096c541d1c5}</Project>
     </ProjectReference>
+    <ProjectReference Include="RangerLib.vcxproj">
+      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
+    </ProjectReference>
     <ProjectReference Include="UltimateGrid.vcxproj">
       <Project>{c117ec47-0709-46c5-90af-12c27f41b083}</Project>
     </ProjectReference>

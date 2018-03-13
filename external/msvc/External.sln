@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netcdfLib", "..\netCDF\msvc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hxGrid", "hxGrid.vcxproj", "{9E652079-404D-43C5-8C8E-39736AEB3F7A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -116,6 +118,14 @@ Global
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|Win32.Build.0 = Release|Win32
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|x64.ActiveCfg = Release|x64
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|x64.Build.0 = Release|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|Win32.Build.0 = Debug|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.ActiveCfg = Debug|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Debug|x64.Build.0 = Debug|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.ActiveCfg = Release|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.Build.0 = Release|Win32
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.ActiveCfg = Release|x64
+		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
