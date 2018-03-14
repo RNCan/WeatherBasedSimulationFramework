@@ -45,8 +45,7 @@ namespace WBSF
 		ERMsg DownloadStation(CCallback& callback);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
 		ERMsg VerifyUserPass(CCallback& callback);
-		ERMsg DownloadStationHourly(CCallback& callback);
-		ERMsg ReadDataFile(const std::string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator);
+		ERMsg ReadDataFile(const std::string& filePath, CWeatherStation& station);
 
 		std::string GetStationListFilePath()const;
 		std::string GetOutputFilePath(int year, size_t m, const std::string& stationID)const;

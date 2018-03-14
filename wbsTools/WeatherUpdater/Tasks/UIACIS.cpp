@@ -760,11 +760,7 @@ namespace WBSF
 		ERMsg msg;
 
 		size_t type = as <size_t>(DATA_TYPE);
-		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
-		{
-			msg.ajoute("Daily from hourly is not supported"); 
-			return msg;
-		}
+	
 
 		size_t pos = m_stations.FindByID(ID);
 		if (pos == NOT_INIT)
@@ -794,11 +790,7 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 		station.CreateYears(firstYear, nbYears);
-		station.SetHourly(TM.Type()==CTM::HOURLY);
-
-		//now extact data
-		CWeatherAccumulator accumulator(TM);
-
+		station.SetHourly(type == HOURLY_WEATHER);
 
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -810,18 +802,11 @@ namespace WBSF
 				string filePath = GetOutputFilePath(year, m, ID);
 				if (FileExists(filePath))
 				{
-					msg = ReadDataFile(filePath, station, accumulator);
+					msg = ReadDataFile(filePath, station);
 					msg += callback.StepIt(0);
 				}
 			}
 		}
-
-		/*if (accumulator.GetTRef().IsInit())
-		{
-			CTPeriod period(CTRef(firstYear, 0, 0, 0, TM), CTRef(lastYear, LAST_MONTH, LAST_DAY, LAST_HOUR, TM));
-			if (period.IsInside(accumulator.GetTRef()))
-				station[accumulator.GetTRef()].SetData(accumulator);
-		}*/
 
 		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
 
@@ -839,7 +824,7 @@ namespace WBSF
 
 	
 
-	ERMsg CUIACIS::ReadDataFile(const string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator)
+	ERMsg CUIACIS::ReadDataFile(const string& filePath, CWeatherStation& station)
 	{
 		ERMsg msg;
 		size_t type = as <size_t>(DATA_TYPE);
@@ -865,7 +850,8 @@ namespace WBSF
 				while (std::getline(incoming, line) && msg)
 				{
 					line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
-					StringVector columns(line, ",");
+					StringVector columns;
+					columns.Tokenize(line, ",",false);//some field is empty
 
 					size_t nbColumns = (type == HOURLY_WEATHER) ? 7 : 13;
 					ASSERT(columns.size() == nbColumns);
@@ -923,48 +909,45 @@ namespace WBSF
 							if (var != H_SKIP)
 							{
 								string str = columns[c++];
-								float value = value = WBSF::as<float>(str);
-								if (var == H_SNDH)
-									value /= 10;
-
-								if (type == HOURLY_WEATHER)
+								if (!str.empty())
 								{
-									//if (accumulator.TRefIsChanging(TRef))
-									//station[accumulator.GetTRef()].SetData(accumulator);
+									float value = value = WBSF::as<float>(str);
+									if (var == H_SNDH)
+										value /= 10;
 
-									//accumulator.Add(TRef, var, value);
-
-									station[TRef].SetStat(var, value);
-									if (type == HOURLY_WEATHER && var == H_RELH && station[TRef][H_TAIR2])
-										station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR2], value));
-
-								}
-								else
-								{
-									if (var == H_SRAD2 && type == DAILY_WEATHER)
-										value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
-
-									station[TRef].SetStat(var, value);
-
-									string str_min = columns[c++];
-									string str_max = columns[c++];
-
-									if (var == H_TAIR2)
+									if (type == HOURLY_WEATHER)
 									{
-										float Tmin = WBSF::as<float>(str_min);
-										float Tmax = WBSF::as<float>(str_max);
-										if (Tmin > -999 && Tmax > -999)
-										{
-											ASSERT(Tmin >= -70 && Tmin <= 70);
-											ASSERT(Tmax >= -70 && Tmax <= 70);
-											ASSERT(Tmin <= Tmax);
-
-											station[TRef].SetStat(H_TMIN2, Tmin);
-											station[TRef].SetStat(H_TMAX2, Tmax);
-
-										}
+										station[TRef].SetStat(var, value);
+										if (var == H_RELH && station[TRef][H_TAIR2].IsInit())
+											station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR2], value));
 									}
-								}//if daily
+									else
+									{
+										if (var == H_SRAD2 )//&& type == DAILY_WEATHER
+											value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
+
+										station[TRef].SetStat(var, value);
+
+										string str_min = columns[c++];
+										string str_max = columns[c++];
+
+										if (var == H_TAIR2)
+										{
+											float Tmin = WBSF::as<float>(str_min);
+											float Tmax = WBSF::as<float>(str_max);
+											if (Tmin > -999 && Tmax > -999)
+											{
+												ASSERT(Tmin >= -70 && Tmin <= 70);
+												ASSERT(Tmax >= -70 && Tmax <= 70);
+												ASSERT(Tmin <= Tmax);
+
+												station[TRef].SetStat(H_TMIN2, Tmin);
+												station[TRef].SetStat(H_TMAX2, Tmax);
+
+											}
+										}
+									}//if daily
+								}//if not empty
 							}//if good vars
 						}//TRef is valid
 					}//good number of column
