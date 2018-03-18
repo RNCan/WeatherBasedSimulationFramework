@@ -31,8 +31,6 @@ public:
 	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT) -1){	return TRUE;}
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
-	//virtual void AdjustLocations();
-	//virtual CSize CalcSize(BOOL bVertDock);
 };
 
 
@@ -58,7 +56,6 @@ protected:
 
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnGraphChange();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
@@ -71,10 +68,7 @@ protected:
 
 
 	void AdjustLayout();
-	void FillGraphList();
 	void CreateToolBar();
-	
-
 	
 
 	WBSF::CNormalsChartsCtrl m_normalsChartsCtrl;

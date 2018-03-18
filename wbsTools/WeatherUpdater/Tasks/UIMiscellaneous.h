@@ -15,7 +15,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, QUEBEC_HOURLY, NB_DATASETS };
+		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, QUEBEC_HOURLY, CWEEDS, NB_DATASETS };
 		enum TAttributes { WORKING_DIR, DATASET, FIRST_YEAR, LAST_YEAR, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMiscellaneous); }
@@ -28,7 +28,7 @@ namespace WBSF
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return as<size_t>(DATASET) == SOPFEU_2013 || as<size_t>(DATASET) == QUEBEC_HOURLY; }
+		virtual bool IsHourly()const{ return as<size_t>(DATASET) != CDIAC_RUSSIA; }
 		virtual bool IsDaily()const{ return true; }
 		virtual bool IsDatabase()const{ return true; }
 
@@ -44,35 +44,32 @@ namespace WBSF
 		
 	protected:
 
-		std::string GetStationListFilePath()const;
-		std::string GetMissingFilePath()const;
 
 		ERMsg LoadStationsLocations(CCallback& callback);
-		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 
 		std::string GetLocationsFilePath(size_t dataset, bool bLocal = true)const;
 
 		ERMsg UpdateStationLocations();
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		//bool StationExist(const std::string& fileTitle)const;
 		bool GetStationInformation(const std::string& fileTitle, CLocation& station)const;
 
 		std::string GetOutputFilePath(const std::string& stationName, int year)const;
 		std::string GetOutputFilePath(const CFileInfo& info)const;
 
-		ERMsg ReadData(const std::string& filePath, CYear& dailyData)const;
+		//ERMsg ReadData(const std::string& filePath, CYear& dailyData)const;
 
 		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 		ERMsg Uncompress(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 		ERMsg LoadRussiaInMemory(CCallback& callback);
 		ERMsg LoadSOPFEUInMemory(CCallback& callback);
 		ERMsg LoadQuebecInMemory(CCallback& callback);
+		
 
 		static double ConvertMTSData(size_t v, double value);
 		ERMsg ReadMTSData(const std::string& filePath, CWeatherYears& data, CCallback& callback)const;
 		static bool IsMTSValid(size_t v, double value);
+		ERMsg ReadCWEEDSData(const std::string& filePath, CWeatherStation& station)const;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

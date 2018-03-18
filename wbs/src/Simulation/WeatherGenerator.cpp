@@ -108,16 +108,16 @@ namespace WBSF
 		CWVariables(""), //Tmin
 		CWVariables("Tmin Tmax"), //Tair
 		CWVariables(""), //Tmax
-		CWVariables("Tair"), //Prcp
-		CWVariables("Tair Prcp"),//Tdew
-		CWVariables("Tair Prcp"),		//Reltive Humidity
+		CWVariables(""), //Prcp
+		CWVariables("Tmin Tmax Prcp"), //Tdew
+		CWVariables("Tmin Tmax Prcp"),	//Reltive Humidity
 		CWVariables("Wnd2"), //WndS
 		CWVariables(""),	 //WndD
-		CWVariables("Tair Prcp"),//Radiation
+		CWVariables("Tmin Tmax Prcp Tdew"),//Radiation
 		CWVariables(""),//pressure
-		CWVariables("Tair Prcp"),	//snow
-		CWVariables("Tair Prcp"),	//snow depth
-		CWVariables("Tair Prcp"),	//snow water equivalent
+		CWVariables("Tmin Tmax Prcp"),	//snow
+		CWVariables("Tmin Tmax Prcp"),	//snow depth
+		CWVariables("Tmin Tmax Prcp"),	//snow water equivalent
 		CWVariables("WndS"),//Wnd2
 		CWVariables(""),
 		CWVariables("")
@@ -165,8 +165,8 @@ namespace WBSF
 		ASSERT(m_target.IsValid());
 		ASSERT(m_tgi.m_firstYear <= 0 || (m_tgi.m_firstYear >= 1800 && m_tgi.m_firstYear <= 2100));
 		ASSERT(m_tgi.m_lastYear == 0 || (m_tgi.m_lastYear >= 1800 && m_tgi.m_lastYear <= 2100));
-		ASSERT(m_tgi.m_nbNormalsStations >= 1 && m_tgi.m_nbNormalsStations <= 200);
-		ASSERT(m_tgi.m_nbDailyStations >= 0 && m_tgi.m_nbDailyStations <= 200);
+		ASSERT(m_tgi.m_nbNormalsStations > 0 );
+		ASSERT(m_tgi.m_nbDailyStations > 0 );
 		ASSERT(m_tgi.m_seed >= CRandomGenerator::RANDOM_SEED && m_tgi.m_seed <= CRandomGenerator::FIXE_SEED);
 		ASSERT(m_tgi.m_albedo >= 0 && m_tgi.m_albedo <= 1);
 		ASSERT(m_nbReplications > 0);
@@ -588,8 +588,8 @@ namespace WBSF
 
 			p.site_lat = simulationPoint.m_lat;
 			p.site_elev = simulationPoint.m_elev;
-			p.site_slp = simulationPoint.GetSlopeInDegree();
-			p.site_asp = simulationPoint.GetAspect();
+			p.site_slp = (simulationPoint.GetSlopeInDegree()<0)?0:simulationPoint.GetSlopeInDegree();//-999 -> 0
+			p.site_asp = (simulationPoint.GetAspect()<0)?0:simulationPoint.GetAspect();//-999 -> 0
 			p.site_ehoriz = 0;
 			p.site_whoriz = 0;
 
@@ -638,16 +638,11 @@ namespace WBSF
 					data.snowpack();
 
 				//si on a le point de rosée alors on peut utiliser cet methode
-				if (simulationPoint.IsComplete(CWVariables(H_TDEW)))// || simulationPoint.IsComplete(CWVariables(H_EA)
+				if (simulationPoint.IsComplete(CWVariables(H_TDEW)))
 					MTClim43.calc_srad_humidity(&ctrl, &p, &data);
 				else
 					MTClim43.calc_srad_humidity_iterative(&ctrl, &p, &data);
 
-				//int year = m_tgi.m_firstYear + int(y);
-				//for (CWeatherYear::iterator itM = itY->second->begin(); itM != itY->second->end(); itM++)//for all months
-				//{//
-				//for (CMonth::iterator itD = itM->begin(); itD != itM->end(); itD++)//for all days
-				//{
 				int year = simulationPoint[y].GetTRef().GetYear();
 				CWeatherStation copy;
 				((CLocation&)copy) = simulationPoint;
@@ -995,22 +990,22 @@ namespace WBSF
 				if (m_tgi.m_variables[v] && (v != H_TMIN2 && v != H_TMAX2))
 				{
 					CSearchResultVector results;
-					msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v, year);
+					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 
 					//if future year, we continue anyway
 					if (year > currentYear)
-						msg.asgType(ERMsg::OK);
+						msg = ERMsg();
 
 					//if (!msg && (v == H_TMIN2 || v == H_TMAX2))//Tmin and Tmax equal Tair in hourly data
-					//msg.asgType(ERMsg::OK);
+					//msg = ERMsg();
 
 					if (!msg)
 					{
 						CWVariables missingVariables = DERIVABLE_VARIABLES_INPUT[v];
 						if (m_tgi.m_allowedDerivedVariables[v] && (missingVariables.any() || v == H_PRES))//|| v == H_WNDD
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
 					}
 
 					if (msg && results.size() > 0)
@@ -1049,16 +1044,16 @@ namespace WBSF
 					if (neededVariables[v] && (v != H_TMIN2 && v != H_TMAX2))
 					{
 						CSearchResultVector results;
-						msg = m_pHourlyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v, year);
+						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
 						//if future year, we continue anyway
 						if (year > currentYear)
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
 
 						//if (!msg && v == H_TRNG)//Trange assume to be zero in hourly data
-						//	msg.asgType(ERMsg::OK);
+						//	msg = ERMsg();
 
 						if (!msg)
 						{
@@ -1091,7 +1086,7 @@ namespace WBSF
 						}
 						/*else if (v == H_TRNG)
 						{
-						msg.asgType(ERMsg::OK);
+						msg = ERMsg();
 						}*/
 
 						msg += callback.StepIt(0);
@@ -1147,23 +1142,23 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					
-					msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbDailyStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v, year);
+					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
 
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 
 					//if int the future, we continue anyway
 					if (year > currentYear)
-						msg.asgType(ERMsg::OK);
+						msg = ERMsg();
 
 					//if (!msg && v == H_TAIR2)//Tair = (Tmin + Tmax)/2 in daily data
-					//msg.asgType(ERMsg::OK);
+					//msg = ERMsg();
 
 					if (!msg)
 					{
 						CWVariables missingVariables = DERIVABLE_VARIABLES_INPUT[v];
 						if (m_tgi.m_allowedDerivedVariables[v] && (missingVariables.any() || v == H_PRES))
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
 					}
 
 					if (msg && results.size() > 0)
@@ -1191,7 +1186,7 @@ namespace WBSF
 				CWVariables neededVariables;
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 				{
-					if (m_tgi.m_variables[v] && !observationVariables[v] && m_tgi.m_allowedDerivedVariables[v])//!simulationPoint[y].IsComplete(v))
+					if (m_tgi.m_variables[v] && !observationVariables[v] && m_tgi.m_allowedDerivedVariables[v])
 					{
 						neededVariables |= DERIVABLE_VARIABLES_INPUT[v];
 					}
@@ -1203,13 +1198,21 @@ namespace WBSF
 					if (neededVariables[v] && v != H_TAIR2)
 					{
 						CSearchResultVector results;
-						msg = m_pDailyDB->Search(results, m_target, m_tgi.m_nbHourlyStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v, year);
+						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
 						//if future year, we continue anyway
 						if (year > currentYear)
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
+
+
+						if (!msg && m_tgi.m_allowedDerivedVariables[v])
+						{
+							//when we need a missing derivable variables, we let a chance to compute it
+							//for example when Tdew is need by SRad
+							msg = ERMsg();
+						}
 
 						if (!msg)
 						{
@@ -1398,7 +1401,7 @@ namespace WBSF
 			{
 				CSearchResultVector results;
 				// find stations with category
-				msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v);
+				msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v);
 
 				if (!results.empty() && m_tgi.XVal())
 					results.erase(results.begin());
@@ -1454,7 +1457,7 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					// find stations with category
-					msg = m_pNormalDB->Search(results, m_target, m_tgi.m_nbNormalsStations + m_tgi.XVal(), m_tgi.m_searchRadius[v], v);
+					msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 

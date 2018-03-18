@@ -264,6 +264,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		m_stationsList.m_filter = pDoc->GetFilters();
 
 		m_stationsList.Update();
+		pDoc->SetCurStationIndex(m_stationsList.GetStationIndex());
 
 	}
 	else if (lHint == CDailyEditorDoc::STATION_INDEX_CHANGE )

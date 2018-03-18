@@ -62,6 +62,8 @@ CMatchStationApp theApp;
 
 BOOL CMatchStationApp::InitInstance()
 {
+	GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);
 
 	CRegistry registre;
 
@@ -83,8 +85,6 @@ BOOL CMatchStationApp::InitInstance()
 	// styles visuels.  Dans le cas contraire, la création de fenêtres échouera.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// À définir pour inclure toutes les classes de contrôles communs à utiliser
-	// dans votre application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
@@ -95,8 +95,6 @@ BOOL CMatchStationApp::InitInstance()
 	SetRegistryKey(_T("NRCan"));
 	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
 
-	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);
 
 
 	//set local to default operating system
@@ -174,6 +172,13 @@ void CMatchStationApp::SaveCustomState()
 
 int CMatchStationApp::ExitInstance()
 {
-	GdiplusShutdown(m_nGdiplusToken);
-	return CWinAppEx::ExitInstance();
+	int exitCode = CWinApp::ExitInstance();
+
+	GetKeyboardManager()->CleanUp();
+	CMFCToolBar::CleanUpImages();
+	CMFCVisualManager::DestroyInstance();
+
+	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
+
+	return exitCode;
 }

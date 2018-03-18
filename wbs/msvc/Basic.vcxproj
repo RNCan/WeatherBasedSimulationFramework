@@ -279,7 +279,6 @@
     <ClCompile Include="..\src\Basic\SnowAnalysis.cpp" />
     <ClCompile Include="..\src\Basic\Statistic.cpp" />
     <ClCompile Include="..\src\Basic\Timer.cpp" />
-    <ClCompile Include="..\src\Basic\TimeStep.cpp" />
     <ClCompile Include="..\src\Basic\UtilMath.cpp" />
     <ClCompile Include="..\src\Basic\UtilStd.cpp" />
     <ClCompile Include="..\src\Basic\UtilTime.cpp" />

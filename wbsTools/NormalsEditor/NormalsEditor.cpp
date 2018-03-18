@@ -45,7 +45,7 @@ END_MESSAGE_MAP()
 
 // construction CNormalsEditorApp
 
-CNormalsEditorApp::CNormalsEditorApp() :m_nGdiplusToken(0)
+CNormalsEditorApp::CNormalsEditorApp() //:m_nGdiplusToken(0)
 {
 	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
@@ -61,6 +61,7 @@ CNormalsEditorApp theApp;
 
 BOOL CNormalsEditorApp::InitInstance()
 {
+	
 
 	WBSF::CRegistry registre;
 
@@ -82,20 +83,22 @@ BOOL CNormalsEditorApp::InitInstance()
 	// styles visuels.  Dans le cas contraire, la création de fenêtres échouera.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// À définir pour inclure toutes les classes de contrôles communs à utiliser
-	// dans votre application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinAppEx::InitInstance();
 
-
 	EnableTaskbarInteraction(FALSE);
 	SetRegistryKey(_T("NRCan"));
 	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
 
-	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);
+
+	/*GdiplusStartupInput gdiplusStartupInput;
+	if (Gdiplus::GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL) != Gdiplus::Ok)
+	{
+		MessageBox(NULL, TEXT("GDI+ failed to start up!"), TEXT("Error!"), MB_ICONERROR);
+		return FALSE;
+	}*/
 
 	//set local to default operating system
 	static std::locale THE_LOCALE(std::locale(".ACP"), std::locale::classic(), std::locale::numeric);
@@ -144,6 +147,9 @@ BOOL CNormalsEditorApp::InitInstance()
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 	m_pMainWnd->DragAcceptFiles();
+
+
+
 	return TRUE;
 }
 
@@ -179,7 +185,17 @@ void CNormalsEditorApp::SaveCustomState()
 
 int CNormalsEditorApp::ExitInstance()
 {
-	GdiplusShutdown(m_nGdiplusToken);
-	return CWinAppEx::ExitInstance();
+	
+
+
+	int exitCode = CWinApp::ExitInstance();
+
+	GetKeyboardManager()->CleanUp();
+	CMFCToolBar::CleanUpImages();
+	CMFCVisualManager::DestroyInstance();
+
+	//Gdiplus::GdiplusShutdown(m_nGdiplusToken);
+
+	return exitCode;
 }
 

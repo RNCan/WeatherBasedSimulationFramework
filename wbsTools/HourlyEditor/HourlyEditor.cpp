@@ -187,7 +187,14 @@ void CHourlyEditorApp::SaveCustomState()
 
 int CHourlyEditorApp::ExitInstance()
 {
-	GdiplusShutdown(m_nGdiplusToken);
-	return CWinAppEx::ExitInstance();
+	int exitCode = CWinApp::ExitInstance();
+
+	GetKeyboardManager()->CleanUp();
+	CMFCToolBar::CleanUpImages();
+	CMFCVisualManager::DestroyInstance();
+
+	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
+
+	return exitCode;
 }
 

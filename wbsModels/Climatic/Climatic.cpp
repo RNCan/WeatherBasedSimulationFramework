@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 16/03/2018	3.1.2	Rémi Saint-Amant    hourly and daily SRad in MJ/m² instread iof W/m²
 // 11/04/2017	3.1.1	Rémi Saint-Amant    Recompile
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
@@ -55,7 +56,7 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 
 
-		VERSION = "3.1.1 (2017)";
+		VERSION = "3.1.2 (2018)";
 
 		m_varType = 0;
 		m_a[0] = -0.9417;
@@ -251,7 +252,12 @@ namespace WBSF
 					{
 						CTRef TRef(p.GetFirstYear()+int(y),m,d,h);
 						for (size_t v = 0; v < NB_HOURLY_OUTPUTS; v++)
-							m_output[TRef][v] = m_weather[y][m][d][h][v];
+						{
+							if(v == H_SRAD2)
+								m_output[TRef][v] = m_weather[y][m][d][h][H_SRMJ]; //[W/m²] --> [MJ/m²]
+							else
+								m_output[TRef][v] = m_weather[y][m][d][h][v];
+						}
 					}
 				}
 			}

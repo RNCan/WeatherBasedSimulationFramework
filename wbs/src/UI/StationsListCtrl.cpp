@@ -176,10 +176,12 @@ namespace WBSF
 					long row = std::distance(m_sortInfo.begin(), std::find_if(m_sortInfo.begin(), m_sortInfo.end(), FindByIndex(m_initial_index)));
 					GotoRow(row);
 				}
-				else
-				{
-					//Select(-1, -1);
-				}
+				//else
+				//{
+				//	GotoRow(-1);
+				//	ClearSelections();
+				//	//Select(-1, -1);
+				//}
 
 				m_enableUpdate = TRUE;
 

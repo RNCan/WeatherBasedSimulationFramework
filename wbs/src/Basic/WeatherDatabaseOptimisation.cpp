@@ -814,11 +814,14 @@ namespace WBSF
 
 	const std::set<int> CWeatherDatabaseOptimization::GetYears(size_t index)const
 	{
-		string fileName = at(index).GetDataFileName();
-		CWeatherFileSectionIndex::const_iterator it = m_filesSection.find(fileName);
-		ASSERT(it != m_filesSection.end());
-		if (it != m_filesSection.end())
-			return it->second.GetYears();
+		if (!m_filesSection.empty())
+		{
+			string fileName = at(index).GetDataFileName();
+			CWeatherFileSectionIndex::const_iterator it = m_filesSection.find(fileName);
+			ASSERT(it != m_filesSection.end());
+			if (it != m_filesSection.end())
+				return it->second.GetYears();
+		}
 
 		return std::set<int>();
 

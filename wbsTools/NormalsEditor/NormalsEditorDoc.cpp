@@ -41,7 +41,7 @@ CNormalsEditorDoc::CNormalsEditorDoc()
 	CAppOption options(_T("Settings"));
 
 	m_bDataInEdition = false;
-	m_stationIndex=UNKNOWN_POS; 
+	m_stationIndex = UNKNOWN_POS;
 	m_bExecute = false;
 
 }
@@ -106,6 +106,8 @@ UINT CNormalsEditorDoc::OpenDatabase(void* pParam)
 
 BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
+
+
 	ERMsg msg;
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
@@ -144,8 +146,8 @@ BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
-		else
-			SetCurStationIndex(0, NULL, false);
+		//else
+			//SetCurStationIndex(0, NULL, false);
 	}
 	else
 	{
@@ -163,17 +165,17 @@ BOOL CNormalsEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
 	if (!m_modifiedStation.empty() ||
-		!UtilWin::FileExist(lpszPathName) )
+		!UtilWin::FileExist(lpszPathName))
 	{
 
 		std::string filePath = CStringA(lpszPathName);
-		
-		if ( !m_pDatabase->IsOpen() )//create a new database
+
+		if (!m_pDatabase->IsOpen())//create a new database
 			msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit);
 
 		if (msg)
 			msg = m_pDatabase->Save();
-			
+
 		if (!msg)
 			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
@@ -185,7 +187,7 @@ void CNormalsEditorDoc::OnCloseDocument()
 {
 	UpdateAllViews(NULL, CNormalsEditorDoc::CLOSE, NULL);
 
-	
+
 	//Save setting
 	CAppOption options(_T("Settings"));
 	//options.WriteProfileInt(_T("DataTMType"), (int)m_TM.Type() );
@@ -195,16 +197,16 @@ void CNormalsEditorDoc::OnCloseDocument()
 	//options.WriteProfileString(_T("ChartsPeriod"), CString(m_chartsPeriod.ToString().c_str()));
 	//options.WriteProfileInt(_T("ChartsPeriodEnabled"), m_bPeriodEnabled);
 	//options.WriteProfileInt(_T("ChartsZoom"), m_chartsZoom);
-	
+
 	ASSERT(!m_bDataInEdition);
-	
+
 	ERMsg msg = m_pDatabase->Close();
 	if (!msg)
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	
+
 	CDocument::OnCloseDocument();
 
-	
+
 }
 
 BOOL CNormalsEditorDoc::IsModified()
@@ -238,7 +240,7 @@ void CNormalsEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 	CString strText = _T("TODO: implement thumbnail drawing here");
 	LOGFONT lf;
 
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
 	lf.lfHeight = 36;
 
@@ -306,14 +308,14 @@ void CNormalsEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendU
 		m_stationIndex = i;
 
 
-		if (i != UNKNOWN_POS)
+		if (i != UNKNOWN_POS && m_pDatabase->IsOpen())
 		{
 			CWaitCursor wait;
 			assert(i < m_pDatabase->size());
 			msg = m_pDatabase->Get(*m_pStation, i);
 			assert(m_pStation->IsInit());
 		}
-		
+
 		if (bSendUpdate)
 			UpdateAllViews(pSender, STATION_INDEX_CHANGE, NULL);
 
@@ -335,7 +337,7 @@ bool CNormalsEditorDoc::CancelDataEdition()
 
 	if (!msg)
 		SetOutputText(GetText(msg));
-		
+
 
 	return msg;
 }
@@ -376,11 +378,11 @@ void CNormalsEditorDoc::SetCurStation(CLocation& location, CView* pSender)
 {
 	ASSERT(m_pDatabase->IsOpen());
 	ASSERT(m_pStation);
-	ASSERT(m_stationIndex<m_pDatabase->size());
+	ASSERT(m_stationIndex < m_pDatabase->size());
 
 	CLocation& actualLocation = ((CLocation&)(*m_pStation));
-	if (location != actualLocation )
-	{ 
+	if (location != actualLocation)
+	{
 		actualLocation = location;
 		m_pDatabase->Set(m_stationIndex, location);//update coordinate station info
 
@@ -388,7 +390,7 @@ void CNormalsEditorDoc::SetCurStation(CLocation& location, CView* pSender)
 		UpdateAllViews(pSender, LOCATION_CHANGE);
 		SetModifiedFlag();
 	}
-	
+
 }
 
 bool CNormalsEditorDoc::IsStationModified(size_t stationIndex)const

@@ -105,7 +105,7 @@
         <OutputVariable>
             <Name>Srad</Name>
             <Title>Srad</Title>
-            <Units>Watt/m²</Units>
+            <Units>MJ/m²</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>

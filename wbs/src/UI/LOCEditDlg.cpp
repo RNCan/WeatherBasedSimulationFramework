@@ -629,18 +629,18 @@ namespace WBSF
 					progressDlg.GetCallback());
 			}
 
-			if (msg && dlg.m_bExtractGoogleName)
+			if (msg && dlg.m_bExtractGoogleElvation)
 			{
-				string key = CStringA(dlg.m_googleGeoCodeAPIKey);
-				msg = ExtractGoogleName(locations, key, !dlg.m_bMissingOnly, progressDlg.GetCallback());
-			}
-
-			if (msg && dlg.m_googleMapAPIKey)
-			{
-				string key = CStringA(dlg.m_googleMapAPIKey);
+				string key = CStringA(dlg.m_googleMapsAPIKey);
 				msg = ExtractGoogleElevation(locations, key, !dlg.m_bMissingOnly, progressDlg.GetCallback());
 			}
 
+			if (msg && dlg.m_bExtractGoogleName)
+			{
+				string key = CStringA(dlg.m_googleMapsAPIKey);
+				msg = ExtractGoogleName(locations, key, !dlg.m_bMissingOnly, progressDlg.GetCallback());
+			}
+			
 			if (!msg)
 				SYShowMessage(msg, this);
 
@@ -830,7 +830,7 @@ namespace WBSF
 
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", !googleAPIKey.empty());
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);//!googleAPIKey.empty()
 
 		if (msg)
 		{
@@ -909,7 +909,7 @@ namespace WBSF
 
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", !googleAPIKey.empty());
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);//!googleAPIKey.empty()
 
 		if (msg)
 		{

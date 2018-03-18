@@ -36,7 +36,7 @@ namespace WBSF
 		{
 			bool bEqual = true;
 
-			for (size_t i = 0; i < size(); i++)
+			for (size_t i = 0; i < size()&& bEqual; i++)
 				bEqual = fabs(at(i) -in[i])<0.1;//0.1 meters
 
 

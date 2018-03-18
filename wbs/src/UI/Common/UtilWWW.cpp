@@ -100,7 +100,7 @@ namespace UtilWWW
 					DWORD errnum = GetLastError();
 					if( errnum ==12002 ||errnum==12029)
 					{
-						if( nbTry >= 10)
+						if( nbTry >= 2)
 						{
 							msg = UtilWin::SYGetMessage(*e);
 						}

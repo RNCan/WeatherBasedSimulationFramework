@@ -73,9 +73,6 @@
     <ClCompile Include="..\src\ModelBase\TempGenHelp.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ModelBase\WeatherStatistic.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ModelBase\WGInput.cpp">
       <Filter>Source</Filter>
     </ClCompile>

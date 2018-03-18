@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 #include "UIMiscellaneous.h"
 
 #include <boost\dynamic_bitset.hpp>
@@ -45,8 +45,8 @@ namespace WBSF
 	//
 
 
-	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "" };
-	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "" };
+	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca" };
+	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/" };
 
 	//*********************************************************************
 	const char* CUIMiscellaneous::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Dataset", "FirstYear", "LastYear", "ShowProgress" };
@@ -54,7 +54,7 @@ namespace WBSF
 	const UINT CUIMiscellaneous::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MISCELLANEOUS_P;
 	const UINT CUIMiscellaneous::DESCRIPTION_TITLE_ID = ID_TASK_MISCELLANEOUS;
 
-	const char* CUIMiscellaneous::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Miscellaneous";  return THE_CLASS_NAME; }
+	const char* CUIMiscellaneous::CLASS_NAME() { static const char* THE_CLASS_NAME = "Miscellaneous";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIMiscellaneous::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIMiscellaneous::CLASS_NAME(), (createF)CUIMiscellaneous::create);
 
@@ -73,13 +73,14 @@ namespace WBSF
 
 
 
-		string filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset]));
+		string filePath;
 
 		switch (dataset)
 		{
-		case CDIAC_RUSSIA: filePath += "Russia_518_inventory.csv"; break;
-		case SOPFEU_2013: filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : "";
-		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : "";
+		case CDIAC_RUSSIA:	filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset])) + "Russia_518_inventory.csv"; break;
+		case SOPFEU_2013:	filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : ""; break;
+		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
+		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
 		}
 
 		return filePath;
@@ -90,7 +91,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly"; break;
+		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS"; break;
 		};
 		return str;
 	}
@@ -104,7 +105,7 @@ namespace WBSF
 			dataset = 0;
 
 
-		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec" };
+		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec", "Miscellaneous\\CWEEDS\\" };
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + DEFAULT_DIR[dataset]; break;
@@ -180,6 +181,7 @@ namespace WBSF
 							}
 							case SOPFEU_2013: break;
 							case QUEBEC_HOURLY:break;
+							case CWEEDS: break;
 							}
 						}
 					}
@@ -257,6 +259,7 @@ namespace WBSF
 					}
 					case SOPFEU_2013:break;
 					case QUEBEC_HOURLY:break;
+					case CWEEDS: break;
 					default:;
 
 						//	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
@@ -426,6 +429,7 @@ namespace WBSF
 			case CDIAC_RUSSIA: msg = FTPDownload(SERVER_NAME[dataset], fileList[i].m_filePath, outputFilePath, callback); break;
 			case SOPFEU_2013: break;
 			case QUEBEC_HOURLY:break;
+			case CWEEDS: break;
 			}
 
 			//unzip 
@@ -462,7 +466,8 @@ namespace WBSF
 		{
 		case CDIAC_RUSSIA:  filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
 		case SOPFEU_2013:   filePath = GetDir(WORKING_DIR) + "MeteoOBS2013.csv"; break;
-		case QUEBEC_HOURLY:break;
+		case QUEBEC_HOURLY: filePath = GetDir(WORKING_DIR) + stationName.substr(4, 2) + "/" + stationName + ".WY3"; break;
+		case CWEEDS: break;
 		}
 
 
@@ -483,6 +488,7 @@ namespace WBSF
 		case CDIAC_RUSSIA: filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
 		case SOPFEU_2013:   break;
 		case QUEBEC_HOURLY:break;
+		case CWEEDS: break;
 		}
 
 
@@ -568,7 +574,16 @@ namespace WBSF
 
 				break;
 			}
+			case CWEEDS:
+			{
+				StringVector files = WBSF::GetFilesList(GetDir(WORKING_DIR) + "*.WY3", FILE_PATH, true);
 
+				stationList.resize(files.size());
+				for (size_t i = 0; i < files.size(); i++)
+					stationList[i] = files[i];
+
+				break;
+			}
 
 			}//switch
 		}//ifm
@@ -638,19 +653,18 @@ namespace WBSF
 				{
 					station[year] = (*it).second[year];
 				}
-					
+
 
 				break;
 			}
-			default:
+			case CWEEDS:
 			{
-				int year = firstYear + int(y);
+				station.SetHourly(true);
 
-				string filePath = GetOutputFilePath(ID, year);
-				if (FileExists(filePath))
-					msg = ReadData(filePath, station[year]);
+				string filePath = GetOutputFilePath(ID, -999);
+				ASSERT(FileExists(ID));
+				msg = ReadCWEEDSData(ID, station);
 
-				msg += callback.StepIt(0);
 			}
 			}
 
@@ -823,9 +837,9 @@ namespace WBSF
 		callback.PushTask("Find Quebec Hourly weather files", nbYears * 12);
 		vector<vector<vector<StringVector>>> fileList(nbYears);
 
-	//	m_weatherStations["0"].SetHourly(true);
-		//msg = ReadMTSData("G:\\Solution-Mesonet\\Hourly\\2003\\10\\02\\20031002cyad.mts", m_weatherStations["0"], callback);
-		
+		//	m_weatherStations["0"].SetHourly(true);
+			//msg = ReadMTSData("G:\\Solution-Mesonet\\Hourly\\2003\\10\\02\\20031002cyad.mts", m_weatherStations["0"], callback);
+
 		size_t nbFiles = 0;
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
@@ -884,8 +898,8 @@ namespace WBSF
 
 
 		callback.PopTask();
-		callback.PushTask("Load Quebec Hourly weather files (" + to_string(nbFiles)+" files)", nbFiles);
-		
+		callback.PushTask("Load Quebec Hourly weather files (" + to_string(nbFiles) + " files)", nbFiles);
+
 
 		for (size_t y = 0; y < fileList.size() && msg; y++)
 		{
@@ -898,22 +912,22 @@ namespace WBSF
 					{
 						string title = GetFileTitle(fileList[y][m][d][f]);
 						string ID = title.substr(8, 4);
-						
-						
+
+
 						if (!m_weatherStations[ID].IsHourly())
 							m_weatherStations[ID].SetHourly(true);
 
 						msg = ReadMTSData(fileList[y][m][d][f], m_weatherStations[ID], callback);
-						
-						
+
+
 						msg += callback.StepIt();
 					}
 				}
 			}
 		}
 
-		
-		
+
+
 		callback.PopTask();
 
 		return msg;
@@ -927,7 +941,7 @@ namespace WBSF
 			switch (v)
 			{
 			case H_WNDS: value *= 3600.0 / 1000.0; break;	//m/s -> km/h
-			case H_SNDH: value = max(0.0, value); break;	//�liminate value under z�ro???
+			case H_SNDH: value = max(0.0, value); break;	//éliminate value under zéro???
 			case H_PRES: value = 10 * value; break;			//kPa -> hPa
 			default:;//do nothing
 			}
@@ -935,7 +949,7 @@ namespace WBSF
 
 		return value;
 	}
-	
+
 	bool CUIMiscellaneous::IsMTSValid(size_t v, double value)
 	{
 		bool bValid = false;
@@ -976,7 +990,7 @@ namespace WBSF
 			string dateTimeStr;
 			getline(file, dateTimeStr);
 			StringVector dateTime = Tokenize(dateTimeStr, " ", true);
-			
+
 			if (dateTime.size() == 7)
 			{
 				int year = stoi(dateTime[1]);
@@ -1062,147 +1076,138 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIMiscellaneous::ReadData(const string& filePath, CYear& data)const
+	ERMsg CUIMiscellaneous::ReadCWEEDSData(const string& filePath, CWeatherStation& station)const
 	{
 		ERMsg msg;
 
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+
+
+		//Extraterrestrial irradiance, kJ/m²
+		//Global horizontal irradiance, kJ/m²
+		//Direct normal irradiance, kJ/m²
+		//Diffuse horizontal irradiance, kJ/m²
+
+		//Global horizontal illuminance, 100 lux
+		//Direct normal illuminance, 100 lux
+		//Diffuse horizontal illuminance, 100 lux
+		//Zenith luminance, 100 Cd / m²
+		//Minutes of sunshine, 0‐60 minutes
+		//Ceiling height, 10 m
+		//Sky condition(see below)
+		//Visibility, 100 m
+		//Present Weather (see below)
+		//Station pressure, 10 Pa
+		//Dry bulb temperature, 0.1 C
+		//Dew point temperature, 0.1 C
+		//Wind direction, 0‐359 degrees
+		//Wind speed, 0.1 m/s
+		//Total sky cover, 0‐10 in tenths
+		//Opaque sky cover, 0‐10 in tenths
+		//Snow cover (0 = no snow cover, 1 = snow cover)
+/*
+		blank Value was observed (that is, not derived with a model and not altered).
+Exception: irradiance and minutes of sunshine flags are written as blank though
+they are interpolated to change the time base from local apparent to local
+standard time.
+A Value has been algorithmically adjusted (e.g. some values in CWEC files are
+smoothed at the beginning and end of months).
+E Value was missing and has been replaced by a manual estimate.
+I Value was missing and has been replaced with one derived by interpolation from
+neighboring observations.
+M Value was missing and has been replaced with one derived with a model (model used depends on element).
+Q Value is derived from other values (e.g. illuminance data which are not observed).
+S Irradiance is a SUNY value.
+N Value is from NARR time series.
+T Value is interpolated with the specific procedure for gaps 3 hours or shorter.
+9 Value is missing; data positions contain 9s as well.
+*/
+		enum THeader { C_PRODUCT, C_NAME, C_PROVINCE, C_CONTRY, C_ID, C_LAT, C_LON, C_TIMEZONE, C_ALT, NB_HEADER };
+
+		//now extact data 
 		ifStream file;
-		msg = file.open(filePath, ios_base::in | ios_base::binary);
+		msg = file.open(filePath);
+
 		if (msg)
 		{
-			boost::iostreams::filtering_istreambuf in;
-			in.push(boost::iostreams::gzip_decompressor());
-			in.push(file);
-			std::istream incoming(&in);
+			string header;
+			getline(file, header);
+			StringVector metadata = Tokenize(header, ",", false);
+			ASSERT(metadata.size() == NB_HEADER);
+			station.m_ID = metadata[C_ID];
+			station.m_name = WBSF::UppercaseFirstLetter(metadata[C_NAME]);
+			station.m_lat = WBSF::as<double>(metadata[C_LAT]);
+			station.m_lon = WBSF::as<double>(metadata[C_LON]);
+			station.m_alt = WBSF::as<double>(metadata[C_ALT]);
+			station.SetSSI("Province", metadata[C_PROVINCE]);
+			station.SetSSI("TimeZone", metadata[C_TIMEZONE]);
 
 			string line;
-
-			std::getline(incoming, line);
-			while (std::getline(incoming, line) && msg)
+			while (getline(file, line) && msg)
 			{
-				ASSERT(line.length() == 138);
 
-				int year = ToInt(line.substr(14, 4));
-				int month = ToInt(line.substr(18, 2)) - 1;
-				int day = ToInt(line.substr(20, 2)) - 1;
-
-
-				ASSERT(month >= 0 && month < 12);
-				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-
-				CTRef TRef(year, month, day);
-
-				double Tmin = -999;
-				double Tmean = -999;
-				double Tmax = -999;
-				double ppt = -999;
-				double Tdew = -999;
-				double windSpeed = -999;
-				double snowDept = -999;
-
-				if (line.substr(24, 6) != "9999.9")
-					Tmean = ToDouble(line.substr(24, 6));
-
-				if (line.substr(110, 6) != "9999.9")
-					Tmin = ToDouble(line.substr(110, 6));
-
-				if (line.substr(102, 6) != "9999.9")
-					Tmax = ToDouble(line.substr(102, 6));
-
-				// A = 1 report of 6-hour precipitation 
-				//     amount.
-				// B = Summation of 2 reports of 6-hour 
-				//     precipitation amount.
-				// C = Summation of 3 reports of 6-hour 
-				//     precipitation amount.
-				// D = Summation of 4 reports of 6-hour 
-				//     precipitation amount.
-				// E = 1 report of 12-hour precipitation
-				//     amount.
-				// F = Summation of 2 reports of 12-hour
-				//     precipitation amount.
-				// G = 1 report of 24-hour precipitation
-				//     amount.
-				// H = Station reported '0' as the amount
-				//     for the day (eg, from 6-hour reports),
-				//     but also reported at least one
-				//     occurrence of precipitation in hourly
-				//     observations--this could indicate a
-				//     trace occurred, but should be considered
-				//     as incomplete data for the day.
-				// I = Station did not report any precip data
-				//     for the day and did not report any
-				//     occurrences of precipitation in its hourly
-				//     observations--it's still possible that
-				//     precip occurred but was not reported.
-
-
-				char pptFlag = line[123];
-				if (pptFlag != 'I' && pptFlag != 'H' &&line.substr(118, 5) != "99.99")
-					ppt = ToDouble(line.substr(118, 5));
-
-				if (line.substr(35, 6) != "9999.9")
-					Tdew = ToDouble(line.substr(35, 6));
-
-				if (line.substr(78, 5) != "999.9")
-					windSpeed = ToDouble(line.substr(78, 5));
-
-				if (line.substr(125, 5) != "999.9")
-					snowDept = ToDouble(line.substr(125, 5));
-
-
-				if (Tmean > -999)
+				//Trim(line);
+				if (line.length() == 120)
 				{
-					double TmeanC = ((Tmean - 32.0)*5.0 / 9.0);
-					data[TRef][H_TAIR2] = TmeanC;
-				}
-
-				if (Tmin > -999 && Tmin < 999 &&
-					Tmax > -999 && Tmax < 999)
-				{
-					assert(Tmin < Tmax);
-					if (Tmin > Tmax)
-						Switch(Tmin, Tmax);
-
-					double TminC = ((Tmin - 32.0)*5.0 / 9.0);
-					double TmaxC = ((Tmax - 32.0)*5.0 / 9.0);
-					data[TRef][H_TMIN2] = TminC;
-					data[TRef][H_TMAX2] = TmaxC;
-				}
-
-				if (ppt >= 0)
-				{
-					data[TRef][H_PRCP] = (ppt*25.40);
-				}
 
 
-				if (Tdew > -999 && Tdew < 999)
-				{
-					data[TRef][H_TDEW] = ((Tdew - 32.0)*5.0 / 9.0);
+					int year = stoi(line.substr(8, 4));
+					size_t m = stoi(line.substr(12, 2)) - 1;
+					size_t d = stoi(line.substr(14, 2)) - 1;
+					size_t h = stoi(line.substr(16, 2)) - 1;
 
-					//here relative humidity is compute from DewPoint and Tmean (important to take Tmean)
-					if (Tmean != -999)
-						data[TRef][H_RELH] = Td2Hr((Tmean - 32.0)*5.0 / 9.0, (Tdew - 32.0)*5.0 / 9.0);
-				}
+					//que faire pour le NB
+					
+					ASSERT(m < 12);
+					ASSERT(d < GetNbDayPerMonth(year, m));
+					ASSERT(h < 24);
+
+					if (year >= firstYear && year <= lastYear)
+					{
+						if (line[26] != '9')
+						{
+							double srad = stof(line.substr(22, 4)) * 1000.0 / 3600.0;//kJ/m² -> W/m²
+							station[year][m][d][h][H_SRAD2] = srad;
+						}
+
+						if (line[92] != '9')
+						{
+							double pres = stof(line.substr(87, 5)) / 10.0;//dPa -> hPa
+							station[year][m][d][h][H_PRES] = pres;
+						}
+						if (line[97] != '9')
+						{
+							double Tair = stof(line.substr(93, 4)) / 10.0;
+							station[year][m][d][h][H_TAIR2] = Tair;
+						}
+						if (line[102] != '9')
+						{
+							double Tdew = stof(line.substr(98, 4)) / 10.0;
+							station[year][m][d][h][H_TDEW] = Tdew;
+							if (!WEATHER::IsMissing(station[year][m][d][h][H_TAIR2]))
+								station[year][m][d][h][H_RELH] = Td2Hr(station[year][m][d][h][H_TAIR2], Tdew);
+						}
+						if (line[106] != '9')
+						{
+							double wDir = stof(line.substr(103, 3));
+							station[year][m][d][h][H_WNDD] = wDir;
+						}
+						if (line[111] != '9')
+						{
+							double wSpd = stof(line.substr(107, 4)) * 3600.0 / (10 * 1000.0); //[0.1 m/s] --> [km/h]
+							station[year][m][d][h][H_WNDS] = wSpd;
+						}
+					}//if valid year
+				}//line with 120 chars
+			}//for all line
 
 
-				if (windSpeed >= 0)
-				{
-					//knot
-					//1 Knot = 1 Nautical Mile per hour
-					//1 Nautical mile = 6076.12 ft. = 1852.184256 (m) = 1.852184256 (km)
-					data[TRef][H_WNDS] = (windSpeed*1.852184256);
-				}
-
-				if (snowDept >= 0)
-				{
-					//data[TRef][H_SNDH] = snowDept*???;
-				}
-			}
-		}
+		}//if load 
 
 		return msg;
 	}
+
 
 }
 

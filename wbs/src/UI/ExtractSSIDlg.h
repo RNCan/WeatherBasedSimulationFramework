@@ -31,8 +31,7 @@ public:
 	BOOL m_bExtractGoogleName;
 	BOOL m_bExtractGoogleElvation;
 	
-	CString m_googleMapAPIKey;
-	CString m_googleGeoCodeAPIKey;
+	CString m_googleMapsAPIKey;
 
 
 	int m_interpolationType;

@@ -91,7 +91,7 @@ UINT CDailyEditorDoc::OpenDatabase(void* pParam)
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)pMyParam->m_pThis;
 	std::string filePath = (char*)pMyParam->m_pFilepath;
-	int mode = (int)pMyParam->m_pExtra;
+	int mode = (int)(pMyParam->m_pExtra);
 
 	ERMsg* pMsg = pMyParam->m_pMsg;
 	CCallback* pCallback = pMyParam->m_pCallback;
@@ -156,8 +156,8 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
-		else if (!m_pDatabase->empty())
-			SetCurStationIndex(0, NULL, false);
+		//else if (!m_pDatabase->empty())
+			//SetCurStationIndex(0, NULL, false);
 		
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();

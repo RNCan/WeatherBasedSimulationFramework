@@ -327,7 +327,8 @@ namespace WBSF
 		int nbDownload = 0;
 		int currentNbDownload = 0;
 
-		callback.PushTask(string("Download ACIS ") + (HOURLY_WEATHER ? "hourly" : "daily") + " data(" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+		size_t type = as <size_t>(DATA_TYPE);
+		callback.PushTask(string("Download ACIS ") + (type==HOURLY_WEATHER ? "hourly" : "daily") + " data(" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
 		
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{

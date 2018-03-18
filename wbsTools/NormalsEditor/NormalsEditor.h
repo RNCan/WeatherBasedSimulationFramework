@@ -39,7 +39,7 @@ public:
 
 protected:
 
-	ULONG_PTR m_nGdiplusToken;
+	//ULONG_PTR m_nGdiplusToken;
 public:
 	virtual int ExitInstance();
 };

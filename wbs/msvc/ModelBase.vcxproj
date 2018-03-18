@@ -191,7 +191,6 @@
     <ClCompile Include="..\src\ModelBase\SnowMelt.cpp" />
     <ClCompile Include="..\src\ModelBase\SpectrumGridHelp.cpp" />
     <ClCompile Include="..\src\ModelBase\TempGenHelp.cpp" />
-    <ClCompile Include="..\src\ModelBase\WeatherStatistic.cpp" />
     <ClCompile Include="..\src\ModelBase\WGInput-ModelInput.cpp" />
     <ClCompile Include="..\src\ModelBase\WGInput.cpp" />
     <ClCompile Include="stdafx\stdafx.cpp">

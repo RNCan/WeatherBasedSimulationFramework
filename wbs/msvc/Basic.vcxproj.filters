@@ -104,9 +104,6 @@
     <ClCompile Include="..\src\Basic\Timer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Basic\TimeStep.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Basic\UtilMath.cpp">
       <Filter>Source</Filter>
     </ClCompile>
