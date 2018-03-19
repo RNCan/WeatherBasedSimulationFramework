@@ -11,6 +11,8 @@
 
 #include "basic/ERMsg.h"
 #include "Geomatic/GridInterpolBase.h"
+#include "Geomatic\ProjectionTransformation.h"
+
 class Forest;
 class Data;
 
@@ -41,6 +43,7 @@ namespace WBSF
 
 		Forest* m_pForest;
 		double m_inc;
+		CProjectionTransformation m_PT;
 	};
 
 }

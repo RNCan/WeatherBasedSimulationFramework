@@ -19,6 +19,7 @@
 #include "Geomatic/UniversalKriging.h"
 #include "Geomatic/IWD.h"
 #include "Geomatic/ThinPlateSpline.h"
+#include "Geomatic\RandomForest.h"
 #include "Geomatic/GridInterpol.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/GDAL.h"
@@ -32,7 +33,7 @@ static const __int8 NB_THREAD_PROCESS=1;
 
 
 static const char mutexName[] = "hxGridMutex";
-const char* CGridInterpol::METHOD_NAME[NB_METHOD] = {"Spatial Regression", "Universal Kriging", "Inverse Weighted Distance", "Thin Plate Spline"};
+const char* CGridInterpol::METHOD_NAME[NB_METHOD] = {"Spatial Regression", "Universal Kriging", "Inverse Weighted Distance", "Thin Plate Spline", "RandomForest"};
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -91,6 +92,7 @@ CGridInterpolBasePtr CGridInterpol::CreateNewGridInterpol()const
 	case UNIVERSAL_KRIGING:pNewGridInterpol.reset(new CUniversalKriging);break;
 	case INVERT_WEIGHTED_DISTANCE:pNewGridInterpol.reset(new CIWD);break;
 	case THIN_PLATE_SPLINE: pNewGridInterpol.reset(new CThinPlateSpline);break;
+	case RANDOM_FOREST: pNewGridInterpol.reset(new CRandomForest); break;
 	default: _ASSERTE(false);
 	}
 

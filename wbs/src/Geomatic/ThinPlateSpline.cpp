@@ -12,9 +12,6 @@
 #include "stdafx.h"
 #include <math.h>
 
-//#define BOOST_UBLAS_TYPE_CHECK 0
-//#include <boost\crc.hpp>
-//#include "TPSInterpolate.hpp"
 
 #include "tps.hpp"
 #include "Basic/UtilStd.h"
@@ -80,6 +77,7 @@ namespace WBSF
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
 		CGridPointVector* pPts = m_pPts.get();
+		m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
 
 		double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
 		size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
@@ -138,9 +136,9 @@ namespace WBSF
 					}
 					else
 					{
-						assert(false);//todo
-						//CGeoPoint pt(ptTmp);
-						//pt.Reproject();
+						CGeoPoint pt(ptTmp);
+						pt.Reproject(m_PT);
+						dp = CShore::GetShoreDistance(pt);
 					}
 				}
 
@@ -256,9 +254,9 @@ namespace WBSF
 				}
 				else
 				{
-					assert(false);//todo
-								  //CGeoPoint pt(ptTmp);
-								  //pt.Reproject();
+					CGeoPoint ptGeo(pt);
+					ptGeo.Reproject(m_PT);
+					dp = CShore::GetShoreDistance(ptGeo);
 				}
 			}
 

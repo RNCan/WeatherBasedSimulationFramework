@@ -77,7 +77,7 @@ namespace WBSF
 	//850	1479
 	//825	1725
 	//800	1978
-	enum TGeoHeight{ GH_SURFACE, GH_1000, GH_975, GH_950, GH_925, GH_900, GH_875, GH_850, GH_825, GH_800, NB_GEO_HEIGHT = 20 };
+	enum TGeoHeight { GH_SURFACE, GH_1000, GH_975, GH_950, GH_925, GH_900, GH_875, GH_850, GH_825, GH_800, NB_GEO_HEIGHT = 20 };
 
 
 
@@ -165,8 +165,8 @@ namespace WBSF
 		ASSERT(m_target.IsValid());
 		ASSERT(m_tgi.m_firstYear <= 0 || (m_tgi.m_firstYear >= 1800 && m_tgi.m_firstYear <= 2100));
 		ASSERT(m_tgi.m_lastYear == 0 || (m_tgi.m_lastYear >= 1800 && m_tgi.m_lastYear <= 2100));
-		ASSERT(m_tgi.m_nbNormalsStations > 0 );
-		ASSERT(m_tgi.m_nbDailyStations > 0 );
+		ASSERT(m_tgi.m_nbNormalsStations > 0);
+		ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_seed >= CRandomGenerator::RANDOM_SEED && m_tgi.m_seed <= CRandomGenerator::FIXE_SEED);
 		ASSERT(m_tgi.m_albedo >= 0 && m_tgi.m_albedo <= 1);
 		ASSERT(m_nbReplications > 0);
@@ -180,7 +180,7 @@ namespace WBSF
 		m_gradients.SetNormalsDatabase(m_pNormalDB);
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
-		
+
 		if (m_gradients.m_variables[H_TMIN2] || m_gradients.m_variables[H_TAIR2] || m_gradients.m_variables[H_TMAX2])
 		{
 			m_gradients.m_variables.set(H_TMIN2);
@@ -282,7 +282,7 @@ namespace WBSF
 			{
 				double U2 = data[H_WND2][MEAN];//wind speed at 10 meters
 				//[33]: Wind speed varies with height above the ground surface. For the calculation of ETsz, wind speed at 2 meters above the surface is required, therefore, wind measured at other heights must be adjusted. To adjust wind speed data to the 2-m height, Eq. 33 should be used for measurements taken above a short grass (or similar) surface, based on the full logarithmic wind speed profile equation B.14 given in Appendix B:
-				double U10 = U2*4.87 / log(67.8 * 2 - 5.42);//wind speed at 2 meters
+				double U10 = U2 * 4.87 / log(67.8 * 2 - 5.42);//wind speed at 2 meters
 				data.SetStat(H_WNDS, U10);
 			}
 
@@ -310,7 +310,7 @@ namespace WBSF
 			if (variables[H_WND2] && !data[H_WND2].IsInit() && data[H_WNDS].IsInit())
 			{
 				double U10 = data[H_WNDS][MEAN];//wind speed at 10 meters
-				double U2 = U10*4.87 / log(67.8 * 10 - 5.42);//wind speed at 2 meters
+				double U2 = U10 * 4.87 / log(67.8 * 10 - 5.42);//wind speed at 2 meters
 				data.SetStat(H_WND2, U2);
 			}
 
@@ -583,15 +583,19 @@ namespace WBSF
 
 		if (msg && (bTdew || bSRad))
 		{
+			bool bHaveExpo = (simulationPoint.GetSlope() >= 0) && (simulationPoint.GetAspect() >= 0);
+			bool bHaveHorizon = !simulationPoint.GetDefaultSSI(CLocation::E_HORIZON).empty() && !simulationPoint.GetDefaultSSI(CLocation::W_HORIZON).empty();
+			
+
 			MTClim43::CControl ctrl;
 			MTClim43::CParameter p;
 
 			p.site_lat = simulationPoint.m_lat;
 			p.site_elev = simulationPoint.m_elev;
-			p.site_slp = (simulationPoint.GetSlopeInDegree()<0)?0:simulationPoint.GetSlopeInDegree();//-999 -> 0
-			p.site_asp = (simulationPoint.GetAspect()<0)?0:simulationPoint.GetAspect();//-999 -> 0
-			p.site_ehoriz = 0;
-			p.site_whoriz = 0;
+			p.site_slp = bHaveExpo ? simulationPoint.GetSlopeInDegree() : 0;
+			p.site_asp = bHaveExpo ? simulationPoint.GetAspect() : 0;
+			p.site_ehoriz = bHaveHorizon ? ToDouble(simulationPoint.GetDefaultSSI(CLocation::E_HORIZON)) : 0;
+			p.site_whoriz = bHaveHorizon ? ToDouble(simulationPoint.GetDefaultSSI(CLocation::W_HORIZON)) : 0;
 
 			MTClim43::CData data;
 			data.data_alloc(366);
@@ -600,6 +604,9 @@ namespace WBSF
 
 			for (size_t y = 0; y != simulationPoint.size(); y++)//for all years
 			{
+				bool bHaveSnowpack = simulationPoint[y].IsComplete(CWVariables(H_SWE));
+				bool bHaveTdew = simulationPoint[y].IsComplete(CWVariables(H_TDEW));
+
 				ctrl.ndays = (int)simulationPoint[y].GetNbDays();
 				ASSERT(ctrl.ndays == 365 || ctrl.ndays == 366);
 
@@ -609,21 +616,17 @@ namespace WBSF
 					{
 						const CDay& day = (const CDay&)simulationPoint[y][m][d];
 						size_t jd = day.GetTRef().GetJDay();
-
-
-
-						//double Ea = day[H_EA].IsInit() ? (241.88 * log(day[H_EA][MEAN] / 610.78)) / (17.558 - log(day[H_EA][MEAN] / 610.78)) : -999;
-						double Tdew = day[H_TDEW].IsInit() ? day[H_TDEW][MEAN] : -999;
-
-						//ASSERT(Ea > -999 || Tdew > -999);// at least one humidity
+						
+						
+						
 						//intput
 						data.yday[jd] = int(jd + 1);
 						data.s_tmin[jd] = day[H_TMIN2][MEAN];
 						data.s_tmax[jd] = day[H_TMAX2][MEAN];
-						data.s_tday[jd] = day.GetTdaylight();
+						data.s_tday[jd] = day.GetTdaylight(); //temperature during daylight
 						data.s_prcp[jd] = day[H_PRCP][SUM] / 10;	//ppt in cm
-						data.s_swe[jd] = variables[H_SWE] ? day[H_SWE][MEAN] / 10 : 0;	//Snow water equivalent MTClim 4.3 in cm. If not available, will be computed later
-						data.s_tdew[jd] = Tdew;// Ea > -999 ? Ea : Tdew;
+						data.s_swe[jd] = bHaveSnowpack ? day[H_SWE][MEAN] / 10 : 0;	//Snow water equivalent MTClim 4.3 in cm. If not available, will be computed later
+						data.s_tdew[jd] = bHaveTdew? day[H_TDEW][MEAN] : -999;
 						_ASSERTE(!_isnan(data.s_tdew[jd]));
 
 						//output
@@ -634,11 +637,11 @@ namespace WBSF
 				}
 
 
-				if (!simulationPoint.IsComplete(CWVariables(H_SWE)))//if no snow wather equivalent, compute them.
+				if (!bHaveSnowpack)//if no snow wather equivalent, compute them.
 					data.snowpack();
 
-				//si on a le point de rosée alors on peut utiliser cet methode
-				if (simulationPoint.IsComplete(CWVariables(H_TDEW)))
+				//If we have dew point, we can use the non iterative version
+				if (bHaveTdew)
 					MTClim43.calc_srad_humidity(&ctrl, &p, &data);
 				else
 					MTClim43.calc_srad_humidity_iterative(&ctrl, &p, &data);
@@ -1141,7 +1144,7 @@ namespace WBSF
 				if (m_tgi.m_variables[v] && v != H_TAIR2)
 				{
 					CSearchResultVector results;
-					
+
 					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
 
 					if (!results.empty() && m_tgi.XVal())
@@ -1361,16 +1364,16 @@ namespace WBSF
 											{
 												if (IsMissing(simulationPointVector[r][y][m][d][h][v]) && !IsMissing(annualData[year][m][d][h][v]))
 													simulationPointVector[r][y][m][d][h][v] = WBSF::Round(annualData[year][m][d][h][v], DIGIT_RES[v]);
-													//simulationPointVector[r][y][m][d][h][v] = annualData[year][m][d][h][v];
-												
+												//simulationPointVector[r][y][m][d][h][v] = annualData[year][m][d][h][v];
+
 											}
 										}
 										else
 										{
 											//replace missing daily value by normals generation
-											if (!simulationPointVector[r][y][m][d][v].IsInit() && annualData[year][m][d][v].IsInit() )
+											if (!simulationPointVector[r][y][m][d][v].IsInit() && annualData[year][m][d][v].IsInit())
 												simulationPointVector[r][y][m][d][v] = WBSF::Round(annualData[year][m][d][v], DIGIT_RES[v]);
-												//simulationPointVector[r][y][m][d][v] = annualData[year][m][d][v];
+											//simulationPointVector[r][y][m][d][v] = annualData[year][m][d][v];
 										}
 									}//if hourly/daily
 								}//for all variable
@@ -1606,7 +1609,7 @@ namespace WBSF
 		{
 			//julian_day = (float)midpnt[month];
 			julian_day = (MidDayInMonth(month) + 1);//avec le code 0 base
-			temp1 = julian_day*0.0172141f;
+			temp1 = julian_day * 0.0172141f;
 			ct1 = cos(temp1);
 			st1 = sin(temp1);
 			st2 = (2 * temp1);
@@ -1642,7 +1645,7 @@ namespace WBSF
 
 				lap_time = lap_time + long_cor + eq_time;
 				sol_alt = (asin(sin_declin *sin_latit +
-					cos_declin *cos_latit *cos(lap_time)));
+					cos_declin * cos_latit *cos(lap_time)));
 
 				if (sol_alt > 0)
 				{
@@ -1651,7 +1654,7 @@ namespace WBSF
 					cos_sol_zen = cos(sol_zen);
 					interim = ((sin_declin *
 						cos_latit -
-						cos_declin *sin_latit
+						cos_declin * sin_latit
 						*cos(lap_time))
 						/ cos(sol_alt));
 					if (interim > 1.) interim = 1.;
@@ -1659,21 +1662,21 @@ namespace WBSF
 					sol_azim = (6.28318 - acos(interim));
 					opt_path = (1 / (sin(sol_alt) +
 						0.15*pow((sol_alt*RAD2DEG
-						+ 3.885), -1.253)));
+							+ 3.885), -1.253)));
 					//  optical path length, longer for lower horizon angles 
 
 					if (vis_fact == 0)            // clear sky, 23 km viz 
 						trans = 0.4237 - 0.00821*
 						pow((6.0 - elev / 1000.), 2) +
 						(0.5055 + 0.00595*
-						pow((6.5 - elev / 1000.), 2))*
+							pow((6.5 - elev / 1000.), 2))*
 						exp(-(0.2711 + 0.01858*
-						pow((2.5 - elev / 1000.), 2))
-						/ cos_sol_zen);
+							pow((2.5 - elev / 1000.), 2))
+							/ cos_sol_zen);
 
-					beam = flux_exo_atm*exp(-trans*opt_path);
+					beam = flux_exo_atm * exp(-trans * opt_path);
 
-					dif_irrad = beam*0.136*pow(cos(slope), 2);
+					dif_irrad = beam * 0.136*pow(cos(slope), 2);
 					//				there are a number of ways to calculate diffuse/direct ratios,
 					//				basically different empirical models under different sky
 					//				conditions.  Note, this is only clear sky, and is a value
@@ -1684,7 +1687,7 @@ namespace WBSF
 					//				temperate vs. boreal diffuse radiation 
 
 					cosi = (cos_sol_zen*cos(slope) +
-						sin_sol_zen*sin(slope)*
+						sin_sol_zen * sin(slope)*
 						cos(sol_azim - azimuth));
 
 					//				i is the incidence angle between surface normal and incoming
@@ -1698,12 +1701,12 @@ namespace WBSF
 					// above adjusts incident ground beam energy for surface normal angles
 
 					beam_en = beam_en + ground_beam + dif_irrad;
-					beam_en_flat = beam_en_flat + beam*(cos_sol_zen + 0.136);
+					beam_en_flat = beam_en_flat + beam * (cos_sol_zen + 0.136);
 
 				} // end if for solar altitude > 0 
 			}  // end of time loop 
 
-			expin[month] = ((beam_en - beam_en_flat) / (Rmax / time_step *(time_stop - time_start)));
+			expin[month] = ((beam_en - beam_en_flat) / (Rmax / time_step * (time_stop - time_start)));
 
 
 		} // end of month loop 

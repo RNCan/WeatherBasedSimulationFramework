@@ -496,10 +496,10 @@ namespace WBSF
 	int CMapping::GetNbTask()const
 	{
 		ASSERT(m_method >= 0 && m_method < CGridInterpol::NB_METHOD);
-		ASSERT(CGridInterpol::NB_METHOD == 4);
+		ASSERT(CGridInterpol::NB_METHOD == 5);
 		ASSERT(m_pParent);
 
-		static int NB_TASK_PER_TYPE[CGridInterpol::NB_METHOD] = { 4, 3, 4, 3 };
+		static int NB_TASK_PER_TYPE[CGridInterpol::NB_METHOD] = { 4, 3, 4, 3, 3 };
 		int nbTask = NB_TASK_PER_TYPE[m_method];
 
 		//remove one task if only Xvalidation

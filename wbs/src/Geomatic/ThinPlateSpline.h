@@ -8,7 +8,8 @@
 //******************************************************************************
 #pragma once
 
-#include "GridInterpolBase.h"
+#include "Geomatic\GridInterpolBase.h"
+#include "Geomatic\ProjectionTransformation.h"
 #include <unordered_map>
 
 
@@ -31,12 +32,9 @@ namespace WBSF
 
 	protected:
 
-		//static void GetClusterNode(int nbCluster, const CPrePostTransfo& transfo, CGridPointVector& pointIn, CGridPointVector& pointOut, float noData);
 
-		std::unique_ptr<CANNSearch> m_pANNSearch;
+//		std::unique_ptr<CANNSearch> m_pANNSearch;
 
-		//key_to_value_type m_splinMap;
-		//key_tracker_type m_keyTracker;
 
 		CRITICAL_SECTION CS;
 
@@ -46,7 +44,7 @@ namespace WBSF
 		bool m_bHaveExposition;
 		bool m_bUseElevation;
 		bool m_bUseShore;
-
+		CProjectionTransformation m_PT;
 
 		//a mettre dans m_param;
 		//bool m_bClustered;

@@ -98,16 +98,17 @@ namespace WBSF
 			}
 */
 			CGridPointVector* pPts = m_pPts.get();
+			m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
 
 			double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
 			size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
 			m_inc = max(1.0, (double)pPts->size() / nbPoints);
 
-			StringVector names("X|Y|Z|Elev|Expo|Shore","|");
+			StringVector names("X|Y|Z|Elev|Expo|Shore|Variable","|");
 
 			DataFloat input;
 			input.setVariableNames(names);
-			input.resize(pPts->size(), 6);
+			input.resize(pPts->size(), 7);
 			
 			for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
 			{
@@ -116,16 +117,26 @@ namespace WBSF
 				bool error = false;
 				if (ptTmp.IsProjected())
 				{
-					ASSERT(false);
+					CGeoPoint ptGeo(ptTmp);
+					ptGeo.Reproject(m_PT);
+
+					input.set(0, i, ptTmp.m_x, error);
+					input.set(1, i, ptTmp.m_y, error);
+					input.set(2, i, 0, error);
+					input.set(3, i, ptTmp.m_alt, error);
+					input.set(4, i, ptTmp.GetExposition(), error);
+					input.set(5, i, CShore::GetShoreDistance(ptGeo), error);
+					input.set(6, i, m_prePostTransfo.Transform(ptTmp.m_event), error);
 				}
 				else
 				{
-					input.set(0, 0, ptTmp[0], error);
-					input.set(1, 0, ptTmp[1], error);
-					input.set(2, 0, ptTmp[2], error);
-					input.set(3, 0, ptTmp.m_alt, error);
-					input.set(4, 0, ptTmp.GetExposition(), error);
-					input.set(5, 0, CShore::GetShoreDistance(ptTmp), error);
+					input.set(0, i, ptTmp(0), error);
+					input.set(1, i, ptTmp(1), error);
+					input.set(2, i, ptTmp(2), error);
+					input.set(3, i, ptTmp.m_alt, error);
+					input.set(4, i, ptTmp.GetExposition(), error);
+					input.set(5, i, CShore::GetShoreDistance(ptTmp), error);
+					input.set(6, i, m_prePostTransfo.Transform(ptTmp.m_event), error);
 				}
 			}
 
@@ -222,7 +233,7 @@ namespace WBSF
 			if (msg)
 			{
 				//now init for prediction
-				m_pForest->init_predict(0, 1, false, DEFAULT_PREDICTIONTYPE);
+				m_pForest->init_predict(0, -1, false, DEFAULT_PREDICTIONTYPE);
 				m_bInit = true;
 			}
 				
@@ -250,23 +261,36 @@ namespace WBSF
 		bool error = false;
 		if (pt.IsProjected())
 		{
-			ASSERT(false);
+			CGeoPoint ptGeo(pt);
+			ptGeo.Reproject(m_PT);
+
+			input.set(0, 0, pt.m_x, error);
+			input.set(1, 0, pt.m_y, error);
+			input.set(2, 0, 0, error);
+			input.set(3, 0, pt.m_alt, error);
+			input.set(4, 0, pt.GetExposition(), error);
+			input.set(5, 0, CShore::GetShoreDistance(ptGeo), error);
 		}
 		else
 		{
-			input.set(0, 0, pt[0], error);
-			input.set(1, 0, pt[1], error);
-			input.set(2, 0, pt[2], error);
+			input.set(0, 0, pt(0), error);
+			input.set(1, 0, pt(1), error);
+			input.set(2, 0, pt(2), error);
 			input.set(3, 0, pt.m_alt, error);
 			input.set(4, 0, pt.GetExposition(), error);
 			input.set(5, 0, CShore::GetShoreDistance(pt), error);
 		}
 		
 
+		double value = m_param.m_noData;
 
+		//Ranger is not thread safe for the moment
+#pragma omp critical(RF_Evaluate) 
+		{
+			m_pForest->run_predict(&input);
+			value = m_pForest->getPredictions().at(0).at(0).at(0);
+		}
 
-		m_pForest->run_predict(&input);
-		double value = m_pForest->getPredictions().at(0).at(0).at(0);
 		value = m_prePostTransfo.InvertTransform(value, m_param.m_noData);
 		
 

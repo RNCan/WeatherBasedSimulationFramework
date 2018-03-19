@@ -24,7 +24,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TMethod { SPATIAL_REGRESSION, UNIVERSAL_KRIGING, INVERT_WEIGHTED_DISTANCE, THIN_PLATE_SPLINE, NB_METHOD };
+		enum TMethod { SPATIAL_REGRESSION, UNIVERSAL_KRIGING, INVERT_WEIGHTED_DISTANCE, THIN_PLATE_SPLINE, RANDOM_FOREST, NB_METHOD };
 		static const char* GetMethodName(int method){ return METHOD_NAME[method]; }
 
 		CGridInterpolBasePtr CreateNewGridInterpol()const;
