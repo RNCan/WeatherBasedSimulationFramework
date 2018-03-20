@@ -53,6 +53,7 @@ static CWeatherDatabasePtr GetDatabasePtr()
 
 
 
+
 IMPLEMENT_SERIAL(CWeatherSpreadsheetToolBar, CSplittedToolBar, 1)
 BOOL CWeatherSpreadsheetToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
 {

@@ -23,7 +23,15 @@ class CWeatherChartToolBar : public CSplittedToolBar
 public:
 	
 	DECLARE_SERIAL(CWeatherChartToolBar)
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CSplittedToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+
 };
 
 

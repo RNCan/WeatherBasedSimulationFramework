@@ -1,3 +1,5 @@
+//5.4.8	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
+//										Add CWEEDS extraction
 //5.4.7 22/02/2018  Rémi Saint-Amant	Correct netcdf load problem
 //5.4.6	24/01/2018	Rémi Saint-Amant	En EnvCanHourly, don't download file after current month.
 //										Change in Manitoba updater 

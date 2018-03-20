@@ -44,7 +44,7 @@ BOOL CMyToolTipCtrl::AddWindowTool(CWnd * pWnd, LPCTSTR pszText)
 	ti.cbSize = sizeof (TOOLINFO);
 	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
 	ti.hwnd = pWnd->GetParent()->GetSafeHwnd();
-	ti.uId = (UINT) pWnd->GetSafeHwnd();
+	ti.uId = (UINT_PTR) pWnd->GetSafeHwnd();
 	ti.hinst = AfxGetInstanceHandle();
 	ti.lpszText = (LPTSTR) pszText;
 

@@ -222,9 +222,7 @@ BOOL CDailyEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	if (!m_modifiedStation.empty() ||
 		!UtilWin::FileExist(lpszPathName) )
 	{
-
 		std::string filePath = CStringA(lpszPathName);
-		
 		
 		if (!m_pDatabase->IsOpen())//create a new database
 			msg = m_pDatabase->Open(filePath, CWeatherDatabase::modeEdit);
@@ -232,12 +230,6 @@ BOOL CDailyEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 		if (msg)
 			msg = m_pDatabase->Save();
 
-		/*if (msg)
-		{
-			m_pDatabase->Close();
-			msg = m_pDatabase->Open(filePath, CWeatherDatabase::mode);
-		}
-		*/	
 		if (!msg)
 			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 	}
@@ -400,60 +392,6 @@ bool CDailyEditorDoc::IsStationModified(size_t stationIndex)const
 	return m_modifiedStation.find(stationIndex) != m_modifiedStation.end();
 }
 
-
-#ifdef SHARED_HANDLERS
-
-// Prise en charge des miniatures
-void CDailyEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
-{
-	// Modified ce code pour dessiner les données du document
-	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
-
-	CString strText = _T("TODO: implement thumbnail drawing here");
-	LOGFONT lf;
-
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
-	pDefaultGUIFont->GetLogFont(&lf);
-	lf.lfHeight = 36;
-
-	CFont fontDraw;
-	fontDraw.CreateFontIndirect(&lf);
-
-	CFont* pOldFont = dc.SelectObject(&fontDraw);
-	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
-	dc.SelectObject(pOldFont);
-}
-
-// Support pour les gestionnaires de recherche
-void CDailyEditorDoc::InitializeSearchContent()
-{
-	CString strSearchContent;
-	// Définir le contenu de recherche à partir des données du document. 
-	// Les parties du contenu doivent être séparées par ";"
-
-	// Par exemple :  strSearchContent = _T("point;rectangle;circle;ole object;");
-	SetSearchContent(strSearchContent);
-}
-
-void CDailyEditorDoc::SetSearchContent(const CString& value)
-{
-	if (value.IsEmpty())
-	{
-		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
-	}
-	else
-	{
-		CMFCFilterChunkValueImpl *pChunk = NULL;
-		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
-		if (pChunk != NULL)
-		{
-			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
-			SetChunkValue(pChunk);
-		}
-	}
-}
-
-#endif // SHARED_HANDLERS
 
 #ifdef _DEBUG
 void CDailyEditorDoc::AssertValid() const

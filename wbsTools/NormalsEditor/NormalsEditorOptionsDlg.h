@@ -40,7 +40,7 @@ protected:
 	
 	DECLARE_MESSAGE_MAP()
 
-	bool OnBrowse(CEdit& editBox, CString& fileName);
+	//bool OnBrowse(CEdit& editBox, CString& fileName);
 
 private:
 

@@ -27,11 +27,12 @@ public:
 
 // Implémentation
 	UINT  m_nAppLook;
-	BOOL  m_bHiColorIcons;
+	//BOOL  m_bHiColorIcons;
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
+	virtual int ExitInstance();
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
@@ -40,8 +41,8 @@ public:
 protected:
 
 	ULONG_PTR m_nGdiplusToken;
-public:
-	virtual int ExitInstance();
+
+
 };
 
 extern CDailyEditorApp theApp;

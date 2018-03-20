@@ -26,9 +26,7 @@ public:
 	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT) -1){	return TRUE;}
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 
-	//virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
-	//virtual void AdjustLocations();
-	//void UpdateButton();
+	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
 };
 
 //**************************************************************************************************************************************
@@ -54,11 +52,10 @@ public:
 protected:
 	
 	void AdjustLayout();
-	void UpdateResult(LPARAM lHint=NULL);
 	void CreateToolBar();
 	bool SaveData();
 	void ExportToExcel();
-	WBSF::CTM GetTM();
+
 
 
 	DECLARE_MESSAGE_MAP()

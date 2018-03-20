@@ -1,3 +1,4 @@
+// 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
 // 4.2.0	27/11/2016	Rémi Saint-Amant	Add 'D' at the end of data directory and use .DailyDB 
@@ -39,21 +40,17 @@ using namespace WBSF;
 
 BEGIN_MESSAGE_MAP(CDailyEditorApp, CWinAppEx) 
 	ON_COMMAND(ID_APP_ABOUT, &CDailyEditorApp::OnAppAbout)
-	// Commandes de fichier standard
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	// Commande standard de configuration de l'impression
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
 
 // construction CDailyEditorApp
 
-CDailyEditorApp::CDailyEditorApp() :
-	m_nGdiplusToken(0)
+CDailyEditorApp::CDailyEditorApp() :	m_nGdiplusToken(0)
 {
 	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
-	m_bHiColorIcons = TRUE;
+	//m_bHiColorIcons = TRUE;
 	SetAppID(_T("NRCan.DailyEditor.4"));
 }
 
@@ -87,8 +84,6 @@ BOOL CDailyEditorApp::InitInstance()
 	// styles visuels.  Dans le cas contraire, la création de fenêtres échouera.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// À définir pour inclure toutes les classes de contrôles communs à utiliser
-	// dans votre application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
@@ -100,7 +95,11 @@ BOOL CDailyEditorApp::InitInstance()
 	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
 
 	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);
+	if (Gdiplus::GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL) != Gdiplus::Ok)
+	{
+		MessageBox(NULL, TEXT("GDI+ failed to start up!"), TEXT("Error!"), MB_ICONERROR);
+		return FALSE;
+	}
 
 	//set local to default operating system
 	static std::locale THE_LOCALE(std::locale(".ACP"), std::locale::classic(), std::locale::numeric);
@@ -165,10 +164,6 @@ void CDailyEditorApp::OnAppAbout()
 
 void CDailyEditorApp::PreLoadState()
 {
-	//BOOL bNameValid;
-	//CString strName;
-	//ameValid = strName.LoadString(IDS_EDIT_MENU);
-	//ASSERT(bNameValid);
 	GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT);
 }
 
@@ -183,14 +178,9 @@ void CDailyEditorApp::SaveCustomState()
 
 int CDailyEditorApp::ExitInstance()
 {
-	int exitCode = CWinApp::ExitInstance();
-
-	GetKeyboardManager()->CleanUp();
-	CMFCToolBar::CleanUpImages();
-	CMFCVisualManager::DestroyInstance();
-
+//	CMFCToolBar::CleanUpImages();//to avoid crash at exit???
 	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
 
-	return exitCode;
+	return CWinApp::ExitInstance();
 }
 

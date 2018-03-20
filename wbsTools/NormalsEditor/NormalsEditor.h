@@ -32,6 +32,7 @@ public:
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
+	virtual int ExitInstance();
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
@@ -39,9 +40,9 @@ public:
 
 protected:
 
-	//ULONG_PTR m_nGdiplusToken;
-public:
-	virtual int ExitInstance();
+	ULONG_PTR m_nGdiplusToken;
+
+
 };
 
 extern CNormalsEditorApp theApp;

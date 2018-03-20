@@ -4,12 +4,7 @@
 
 #include "stdafx.h"
 
-// SHARED_HANDLERS peuvent être définis dans les gestionnaires d'aperçu, de miniature
-// et de recherche d'implémentation de study ATL et permettent la partage de code de document avec ce study.
-#ifndef SHARED_HANDLERS
 #include "NormalsEditor.h"
-#endif
-
 #include "NormalsEditorDoc.h"
 #include "Basic/Shore.h"
 #include "UI/Common/UtilWin.h"
@@ -17,8 +12,8 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "UI/Common/AppOption.h"
 
-#include "OutputView.h"
 #include "MainFrm.h"
+#include "OutputView.h"
 
 
 #ifdef _DEBUG
@@ -94,7 +89,7 @@ UINT CNormalsEditorDoc::OpenDatabase(void* pParam)
 		*pMsg = UtilWin::SYGetMessage(*e);
 	END_CATCH_ALL
 
-		CoUninitialize();
+	CoUninitialize();
 
 	pCallback->PopTask();
 	if (*pMsg)
@@ -106,8 +101,6 @@ UINT CNormalsEditorDoc::OpenDatabase(void* pParam)
 
 BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
-
-
 	ERMsg msg;
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
@@ -122,7 +115,7 @@ BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	pView->AdjustLayout();//open the progress window
 
 	progressWnd.SetTaskbarList(pMainFrm->GetTaskbarList());
-	CProgressStepDlgParam param(this, (void*)lpszPathName);
+	CProgressStepDlgParam param(this, (void*)lpszPathName, (void*)CNormalsDatabase::modeRead);
 
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
@@ -146,8 +139,6 @@ BOOL CNormalsEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
-		//else
-			//SetCurStationIndex(0, NULL, false);
 	}
 	else
 	{
@@ -185,18 +176,8 @@ BOOL CNormalsEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 
 void CNormalsEditorDoc::OnCloseDocument()
 {
-	UpdateAllViews(NULL, CNormalsEditorDoc::CLOSE, NULL);
-
-
 	//Save setting
 	CAppOption options(_T("Settings"));
-	//options.WriteProfileInt(_T("DataTMType"), (int)m_TM.Type() );
-	//options.WriteProfileInt(_T("DataStatistic"), (int)m_statistic);
-	//options.WriteProfileString(_T("Years"), CString(stdString::to_string(m_years, " ").c_str()));
-	//options.WriteProfileString(_T("Filters"), CString(m_filters.to_string().c_str()) );
-	//options.WriteProfileString(_T("ChartsPeriod"), CString(m_chartsPeriod.ToString().c_str()));
-	//options.WriteProfileInt(_T("ChartsPeriodEnabled"), m_bPeriodEnabled);
-	//options.WriteProfileInt(_T("ChartsZoom"), m_chartsZoom);
 
 	ASSERT(!m_bDataInEdition);
 
@@ -205,8 +186,6 @@ void CNormalsEditorDoc::OnCloseDocument()
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
 
 	CDocument::OnCloseDocument();
-
-
 }
 
 BOOL CNormalsEditorDoc::IsModified()
@@ -229,61 +208,6 @@ BOOL CNormalsEditorDoc::SaveModified() // return TRUE if ok to continue
 	return bSave;
 }
 
-#ifdef SHARED_HANDLERS
-
-// Prise en charge des miniatures
-void CNormalsEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
-{
-	// Modified ce code pour dessiner les données du document
-	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
-
-	CString strText = _T("TODO: implement thumbnail drawing here");
-	LOGFONT lf;
-
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
-	pDefaultGUIFont->GetLogFont(&lf);
-	lf.lfHeight = 36;
-
-	CFont fontDraw;
-	fontDraw.CreateFontIndirect(&lf);
-
-	CFont* pOldFont = dc.SelectObject(&fontDraw);
-	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
-	dc.SelectObject(pOldFont);
-}
-
-// Support pour les gestionnaires de recherche
-void CNormalsEditorDoc::InitializeSearchContent()
-{
-	CString strSearchContent;
-	// Définir le contenu de recherche à partir des données du document. 
-	// Les parties du contenu doivent être séparées par ";"
-
-	// Par exemple :  strSearchContent = _T("point;rectangle;circle;ole object;");
-	SetSearchContent(strSearchContent);
-}
-
-void CNormalsEditorDoc::SetSearchContent(const CString& value)
-{
-	if (value.IsEmpty())
-	{
-		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
-	}
-	else
-	{
-		CMFCFilterChunkValueImpl *pChunk = NULL;
-		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
-		if (pChunk != NULL)
-		{
-			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
-			SetChunkValue(pChunk);
-		}
-	}
-}
-
-#endif // SHARED_HANDLERS
-
-// diagnostics pour CNormalsEditorDoc
 
 #ifdef _DEBUG
 void CNormalsEditorDoc::AssertValid() const

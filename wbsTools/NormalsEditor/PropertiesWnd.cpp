@@ -50,7 +50,17 @@ static CWeatherDatabasePtr GetDatabasePtr()
 	return  pDatabase;
 }
 
+//*****************************************************************************************************
+IMPLEMENT_SERIAL(CPropertiesToolBar, CMFCToolBar, 1)
+BOOL CPropertiesToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
+{
+	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+		return FALSE;
+	
+	UpdateTooltips();
 
+	return TRUE;
+}
 //*****************************************************************************************************
 
 BEGIN_MESSAGE_MAP(CDataPropertyCtrl, CMFCPropertyGridCtrl)

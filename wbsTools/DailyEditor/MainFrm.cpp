@@ -167,11 +167,9 @@ BOOL CMainFrame::CreateDockingWindows()
 		return FALSE; // échec de la création
 	}
 	m_wndStationList.EnableDocking(CBRS_ALIGN_ANY);
-	
 
-	
+	SetDockingWindowIcons(TRUE);
 
-	SetDockingWindowIcons(theApp.m_bHiColorIcons);
 	return TRUE;
 }
 

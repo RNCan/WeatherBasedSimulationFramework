@@ -9,8 +9,7 @@
 //
 #include "afxres.h"
 #include "WeatherBasedSimulationUI.h"
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -29,15 +28,25 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\BioSIM.ico"
+
 IDR_BioSIMTYPE          ICON                    "res\\BioSIMDoc.ico"
+
 IDI_PROJECT_WND         ICON                    "res\\project_wnd.ico"
+
 IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
+
 IDI_CHARTS_WND          ICON                    "res\\charts_wnd.ico"
+
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
 IDI_EXPORT_WND          ICON                    "res\\Export_wnd.ico"
+
 IDI_OPTION              ICON                    "res\\Option.ico"
+
 IDI_R                   ICON                    "res\\R.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -46,17 +55,24 @@ IDI_R                   ICON                    "res\\R.ico"
 
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\GraphToolbar.bmp"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
 
 IDR_MAINFRAME           PNG                     "res\\MainFrameToolbar.png"
+
 IDR_MENU_IMAGES         PNG                     "res\\MenuImages.png"
+
 IDR_EXPORT_TOOLBAR      PNG                     "res\\ExportToolbar1.png"
+
 IDR_EXPORT_TOOLBAR2     PNG                     "res\\ExportToolbar2.png"
+
 IDB_OPTION_ICON         PNG                     "res\\OptionIcon.png"
+
 IDR_RESULT_TOOLBAR      PNG                     "res\\ResultToolbar.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -258,8 +274,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,4,1,4
- PRODUCTVERSION 11,4,1,4
+ FILEVERSION 11,4,1,5
+ PRODUCTVERSION 11,4,1,5
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -276,23 +292,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.4.1.4"
+            VALUE "FileVersion", "11.4.1.5"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.4.1.4"
+            VALUE "ProductVersion", "11.4.1.5"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.4.1.4"
+            VALUE "FileVersion", "11.4.1.5"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.4.1.4"
+            VALUE "ProductVersion", "11.4.1.5"
         END
     END
     BLOCK "VarFileInfo"
@@ -376,7 +392,7 @@ BEGIN
         MENUITEM "Ajouter analyse &fonctions...", ID_ADD_FUNCTION_ANALYSIS
         MENUITEM "Ajouter f&usion...",          ID_ADD_MERGE
         MENUITEM "Ajouter &interpolation spatiale...", ID_ADD_MAP
-        MENUITEM "Ajouter im&port de données...",     ID_ADD_IMPORT_SIMULATION
+        MENUITEM "Ajouter im&port de données...", ID_ADD_IMPORT_SIMULATION
         MENUITEM "Ajouter analyse d'intrants mété&o...", ID_ADD_INPUT_ANALYSIS
         MENUITEM "Ajouter &dispersion...",      ID_ADD_DISPERSAL
         MENUITEM "Ajouter s&cript...",          ID_ADD_SCRIPT_R
@@ -401,8 +417,8 @@ BEGIN
         MENUITEM "ÉditeurHoraire...",           ID_HOURLY_EDITOR
         MENUITEM "ÉditeurQuotidien...",         ID_DAILY_EDITOR
         MENUITEM "ÉditeurNormales...",          ID_NORMALS_EDITOR
-		MENUITEM "&Stations appariées...",		ID_MATCH_STATION
-		MENUITEM "&TDate...",                   ID_TOOLS_TDATE
+        MENUITEM "&Stations appariées...",      ID_MATCH_STATION
+        MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM SEPARATOR
         MENUITEM "&Nettoyage des fichiers internes...", ID_TOOLS_CLEANUP
     END
@@ -429,7 +445,7 @@ BEGIN
         MENUITEM "Ajouter analyse météo...",    ID_ADD_FUNCTION_ANALYSIS
         MENUITEM "Ajouter f&usion...",          ID_ADD_MERGE
         MENUITEM "Ajouter &interpolation spatiale...", ID_ADD_MAP
-        MENUITEM "Ajouter im&portat de données...",     ID_ADD_IMPORT_SIMULATION
+        MENUITEM "Ajouter im&portat de données...", ID_ADD_IMPORT_SIMULATION
         MENUITEM "Ajouter analyse d'intrants mété&o...", ID_ADD_INPUT_ANALYSIS
         MENUITEM "Ajouter &dispersion...",      ID_ADD_DISPERSAL
         MENUITEM "Ajouter s&cript...",          ID_ADD_SCRIPT_R
@@ -907,13 +923,13 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
-        MENUITEM "&File Manager...",     ID_TOOLS_FILE_MANAGER
-        MENUITEM "&WeatherUpdater...",           ID_WEATHER_UPDATER
-        MENUITEM "&HourlyEditor...",             ID_HOURLY_EDITOR
-        MENUITEM "&DailyEditor...",              ID_DAILY_EDITOR
-        MENUITEM "&NormalsEditor...",            ID_NORMALS_EDITOR
-		MENUITEM "&MatchStations...",			ID_MATCH_STATION
-		MENUITEM "&TDate...",                   ID_TOOLS_TDATE
+        MENUITEM "&File Manager...",            ID_TOOLS_FILE_MANAGER
+        MENUITEM "&WeatherUpdater...",          ID_WEATHER_UPDATER
+        MENUITEM "&HourlyEditor...",            ID_HOURLY_EDITOR
+        MENUITEM "&DailyEditor...",             ID_DAILY_EDITOR
+        MENUITEM "&NormalsEditor...",           ID_NORMALS_EDITOR
+        MENUITEM "&MatchStations...",           ID_MATCH_STATION
+        MENUITEM "&TDate...",                   ID_TOOLS_TDATE
         MENUITEM SEPARATOR
         MENUITEM "&Clean Up Internal Files...", ID_TOOLS_CLEANUP
     END
@@ -940,7 +956,7 @@ BEGIN
         MENUITEM "Add Me&rge...",               ID_ADD_MERGE
         MENUITEM "Add &Mapping...",             ID_ADD_MAP
         MENUITEM "Add &Import File...",         ID_ADD_IMPORT_SIMULATION
-        MENUITEM "Add Weather Input Analyisis...",   ID_ADD_INPUT_ANALYSIS
+        MENUITEM "Add Weather Input Analyisis...", ID_ADD_INPUT_ANALYSIS
         MENUITEM "Add &Dispersal...",           ID_ADD_DISPERSAL
         MENUITEM "Add Script...",               ID_ADD_SCRIPT_R
         MENUITEM "Add &Copy Export...",         ID_ADD_COPY_EXPORT

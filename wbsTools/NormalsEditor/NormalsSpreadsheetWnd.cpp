@@ -30,6 +30,15 @@ using namespace WBSF;
 
 
 IMPLEMENT_SERIAL(CNormalsSpreadsheetToolBar, CMFCToolBar, 1)
+BOOL CNormalsSpreadsheetToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
+{
+	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+		return FALSE;
+
+	UpdateTooltips();
+
+	return TRUE;
+}
 
 
 //**************************************************************************************************************************************

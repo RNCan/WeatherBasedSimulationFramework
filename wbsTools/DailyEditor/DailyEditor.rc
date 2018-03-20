@@ -31,12 +31,19 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\DailyEditor.ico"
+
 IDI_SPREADSHEET_WND     ICON                    "res\\spreadsheet_wnd.ico"
+
 IDI_CHART_WND           ICON                    "res\\charts_wnd.ico"
+
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
 IDI_STATION_LIST_WND    ICON                    "res\\WeatherStation.ico"
+
 IDI_OPTION              ICON                    "res\\Option.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,9 +51,13 @@ IDI_OPTION              ICON                    "res\\Option.ico"
 //
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
+
 IDR_TABLE_TOOLBAR       BITMAP                  "res\\TableToolbar.bmp"
+
 IDR_GRAPH_TOOLBAR       BITMAP                  "res\\ChartsToolbar.bmp"
+
 IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -54,7 +65,9 @@ IDB_OPTION_ICON         BITMAP                  "res\\OptionIcon.bmp"
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+
 IDR_STATIONSLIST_TOOLBAR PNG                     "res\\StationsListToolbar.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -165,8 +178,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,3,0,1
- PRODUCTVERSION 4,3,0,1
+ FILEVERSION 4,3,1,2
+ PRODUCTVERSION 4,3,1,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -183,21 +196,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
-            VALUE "FileVersion", "4.3.0.1"
+            VALUE "FileVersion", "4.3.1.2"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "EditeurQuotidien"
-            VALUE "ProductVersion", "4.3.0.1"
+            VALUE "ProductVersion", "4.3.1.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Daily weather data editor"
-            VALUE "FileVersion", "4.3.0.1"
+            VALUE "FileVersion", "4.3.1.2"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "DailyEditor"
-            VALUE "ProductVersion", "4.3.0.1"
+            VALUE "ProductVersion", "4.3.1.2"
         END
     END
     BLOCK "VarFileInfo"

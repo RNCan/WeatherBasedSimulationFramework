@@ -31,9 +31,13 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\WeatherUpdater.ico"
+
 IDI_PROJECT_WND         ICON                    "res\\project_wnd.ico"
+
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -41,15 +45,25 @@ IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+
 IDR_TASK_TOOLBAR1       PNG                     "res\\TaskToolbar1.png"
+
 IDR_TASK_TOOLBAR2       PNG                     "res\\TaskToolbar2.png"
+
 IDR_TASK_TOOLBAR3       PNG                     "res\\TaskToolbar3.png"
+
 IDR_TASK_TOOLBAR4       PNG                     "res\\TaskToolbar4.png"
+
 IDR_TASK                PNG                     "res\\Task.png"
+
 IDR_TASK_TYPE           PNG                     "res\\TaskType.png"
+
 IDR_PROPERTIES_TOOLBAR  PNG                     "res\\PropertiesToolBar.png"
+
 IDR_MENU_IMAGES         PNG                     "res\\menu_images.png"
+
 IDB_OPTION_ICON         PNG                     "res\\OptionIcon.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -224,8 +238,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,4,7,30
- PRODUCTVERSION 5,4,7,30
+ FILEVERSION 5,4,8,30
+ PRODUCTVERSION 5,4,8,30
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -242,21 +256,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.4.7.30"
+            VALUE "FileVersion", "5.4.8.30"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.4.7.30"
+            VALUE "ProductVersion", "5.4.8.30"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.4.7.30"
+            VALUE "FileVersion", "5.4.8.30"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.4.7.30"
+            VALUE "ProductVersion", "5.4.8.30"
         END
     END
     BLOCK "VarFileInfo"
@@ -711,7 +725,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
-	"Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale [km]|Puissance"
+                            "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale [km]|Puissance"
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_VIRTUAL_P 
@@ -1177,7 +1191,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
-	"Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
+                            "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
     IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_VIRTUAL_P 

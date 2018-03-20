@@ -1,3 +1,4 @@
+// 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance
 // 4.2.2	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
@@ -35,17 +36,14 @@ using namespace WBSF;
 
 BEGIN_MESSAGE_MAP(CNormalsEditorApp, CWinAppEx) 
 	ON_COMMAND(ID_APP_ABOUT, &CNormalsEditorApp::OnAppAbout)
-	// Commandes de fichier standard
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	// Commande standard de configuration de l'impression
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
 
 // construction CNormalsEditorApp
 
-CNormalsEditorApp::CNormalsEditorApp() //:m_nGdiplusToken(0)
+CNormalsEditorApp::CNormalsEditorApp() :m_nGdiplusToken(0)
 {
 	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
@@ -61,8 +59,6 @@ CNormalsEditorApp theApp;
 
 BOOL CNormalsEditorApp::InitInstance()
 {
-	
-
 	WBSF::CRegistry registre;
 
 	int lang = registre.GetLanguage();
@@ -86,19 +82,22 @@ BOOL CNormalsEditorApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
-	CWinAppEx::InitInstance();
+	if (!CWinAppEx::InitInstance())
+		return FALSE;
+
+	
 
 	EnableTaskbarInteraction(FALSE);
 	SetRegistryKey(_T("NRCan"));
 	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
 
 
-	/*GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartupInput gdiplusStartupInput;
 	if (Gdiplus::GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL) != Gdiplus::Ok)
 	{
 		MessageBox(NULL, TEXT("GDI+ failed to start up!"), TEXT("Error!"), MB_ICONERROR);
 		return FALSE;
-	}*/
+	}
 
 	//set local to default operating system
 	static std::locale THE_LOCALE(std::locale(".ACP"), std::locale::classic(), std::locale::numeric);
@@ -185,17 +184,8 @@ void CNormalsEditorApp::SaveCustomState()
 
 int CNormalsEditorApp::ExitInstance()
 {
-	
+	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
 
-
-	int exitCode = CWinApp::ExitInstance();
-
-	GetKeyboardManager()->CleanUp();
-	CMFCToolBar::CleanUpImages();
-	CMFCVisualManager::DestroyInstance();
-
-	//Gdiplus::GdiplusShutdown(m_nGdiplusToken);
-
-	return exitCode;
+	return CWinApp::ExitInstance();
 }
 

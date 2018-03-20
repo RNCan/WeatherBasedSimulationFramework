@@ -17,8 +17,16 @@ class CWeatherSpreadsheetToolBar : public CSplittedToolBar
 public:
 
 	DECLARE_SERIAL(CWeatherSpreadsheetToolBar)
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CSplittedToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+
+	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL AllowShowOnList() const { return FALSE; }
+
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
-	
 };
 
 //**************************************************************************************************************************************
@@ -59,8 +67,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	afx_msg void OnExecute();
-	afx_msg void OnUpdateExecute(CCmdUI *pCmdUI);
+	//afx_msg void OnExecute();
+	//afx_msg void OnUpdateExecute(CCmdUI *pCmdUI);
 	afx_msg void OnToolbarCommand(UINT ID);
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
 	afx_msg void OnWindowPosChanged(WINDOWPOS* lpwndpos);

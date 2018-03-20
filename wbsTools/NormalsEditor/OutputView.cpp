@@ -48,10 +48,6 @@ int COutputView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-	//GetCString(IDS_PROGRESS_WND)
-	//VERIFY(m_progressWnd.Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(0, 0, 600, 400), this, ID_PROGRESS_WND ));
-
-	//m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(CListCtrlView), CSize(150, 0), pContext);
 	VERIFY(m_messageWnd.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_MESSAGE_WND));
 	VERIFY(m_progressWnd.Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_WND));
 

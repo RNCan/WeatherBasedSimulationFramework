@@ -65,7 +65,6 @@ BOOL CWeatherChartToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 		return FALSE;
 
 //*****************************
-	CMFCButton;
 	CMFCToolBarComboBoxButton zoomButton(ID_GRAPH_ZOOM, 3, CBS_DROPDOWNLIST, 75);
 	for (int i = 0; i < 12; i++)
 	{
