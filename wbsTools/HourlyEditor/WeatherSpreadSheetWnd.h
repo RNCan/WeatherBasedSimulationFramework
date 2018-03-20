@@ -17,14 +17,23 @@ class CResultToolBar : public CSplittedToolBar
 public:
 
 	DECLARE_SERIAL(CResultToolBar)
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CSplittedToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+
+	DECLARE_MESSAGE_MAP()
 };
 
 //**************************************************************************************************************************************
 
 class CWeatherSpreadsheetWnd : public CDockablePane
 {
-//	DECLARE_DYNCREATE(CWeatherSpreadsheetWnd)
+	DECLARE_DYNCREATE(CWeatherSpreadsheetWnd)
 
 public:
 
@@ -51,9 +60,6 @@ protected:
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
 	afx_msg void OnWindowPosChanged(WINDOWPOS* lpwndpos);
 	afx_msg void OnDateChange(UINT ID);
-
-
-	WBSF::CTM GetTM();
 
 	CResultToolBar m_wndToolBar;
 	WBSF::CWeatherDataGridCtrl m_grid;

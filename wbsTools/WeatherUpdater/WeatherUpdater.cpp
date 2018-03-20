@@ -367,28 +367,6 @@ void CWeatherUpdaterApp::SaveCustomState()
 }
 
 
-
-
-
-int CWeatherUpdaterApp::ExitInstance()
-{
-	CoUninitialize();
-	GdiplusShutdown(m_nGdiplusToken);
-
-	annClose();
-	int exitCode = CWinApp::ExitInstance();
-	if (exitCode == 0)
-		exitCode = m_exitCode;
-
-
-	GetKeyboardManager()->CleanUp();
-	CMFCToolBar::CleanUpImages();
-	CMFCVisualManager::DestroyInstance();
-
-	return CWinAppEx::ExitInstance();
-}
-
-
 // commands
 UINT CWeatherUpdaterApp::ExecuteTasks(void* pParam)
 {
@@ -411,4 +389,23 @@ UINT CWeatherUpdaterApp::ExecuteTasks(void* pParam)
 		return 0;
 
 	return -1;
+}
+
+
+
+
+int CWeatherUpdaterApp::ExitInstance()
+{
+	CoUninitialize();
+	GdiplusShutdown(m_nGdiplusToken);
+
+	annClose();
+	int exitCode = CWinApp::ExitInstance();
+	if (exitCode == 0)
+		exitCode = m_exitCode;
+
+	CMFCToolBar::CleanUpImages();
+
+
+	return CWinAppEx::ExitInstance();
 }

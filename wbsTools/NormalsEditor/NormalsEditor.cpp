@@ -161,7 +161,6 @@ void CNormalsEditorApp::OnAppAbout()
 	aboutDlg.DoModal();
 }
 
-// CNormalsEditorApp, méthodes de chargement/d'enregistrement de la personnalisation
 
 void CNormalsEditorApp::PreLoadState()
 {
@@ -176,14 +175,10 @@ void CNormalsEditorApp::SaveCustomState()
 {
 }
 
-// gestionnaires de messages pour CNormalsEditorApp
-
-
-
-
 
 int CNormalsEditorApp::ExitInstance()
 {
+	CMFCToolBar::CleanUpImages();
 	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
 
 	return CWinApp::ExitInstance();

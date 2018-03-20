@@ -36,7 +36,7 @@ using namespace WBSF;
 #endif
 
  
-// CDailyEditorApp 1
+// CDailyEditorApp
 
 BEGIN_MESSAGE_MAP(CDailyEditorApp, CWinAppEx) 
 	ON_COMMAND(ID_APP_ABOUT, &CDailyEditorApp::OnAppAbout)
@@ -160,7 +160,6 @@ void CDailyEditorApp::OnAppAbout()
 	aboutDlg.DoModal();
 }
 
-// CDailyEditorApp, méthodes de chargement/d'enregistrement de la personnalisation
 
 void CDailyEditorApp::PreLoadState()
 {
@@ -178,7 +177,7 @@ void CDailyEditorApp::SaveCustomState()
 
 int CDailyEditorApp::ExitInstance()
 {
-//	CMFCToolBar::CleanUpImages();//to avoid crash at exit???
+	CMFCToolBar::CleanUpImages();//to avoid crash at exit???
 	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
 
 	return CWinApp::ExitInstance();

@@ -75,15 +75,7 @@ BOOL CPropertiesToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& par
 BEGIN_MESSAGE_MAP(CDataPropertyCtrl, CMFCPropertyGridCtrl)
 	ON_EN_KILLFOCUS(AFX_PROPLIST_ID_INPLACE, &CDataPropertyCtrl::OnEditKillFocus)
 END_MESSAGE_MAP()
-//
-//void CDataPropertyCtrl::SetProject(CWeatherDatabasePtr& pDB)
-//{
-//	m_lastStationIndex = UNKNOWN_POS;
-//	m_lastRow = -1;
-//	m_lastCol = -1;
-//
-//	RemoveAll();
-//}
+
 
 void CDataPropertyCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pProp) const
 {
@@ -104,11 +96,7 @@ void CDataPropertyCtrl::OnPropertyChanged(CMFCPropertyGridProperty* pProp) const
 void CDataPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	if (lHint == CDailyEditorDoc::LANGUAGE_CHANGE)
-	{//
-		//CStatistic::ReloadString();
-		//CTM::ReloadString();
-
-		//m_wndToolBar.RestoreOriginalState();
+	{
 		Invalidate();
 	}
 
@@ -280,21 +268,7 @@ void CPropertiesWnd::AdjustLayout()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	//int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-	//int m_nComboHeight = cyTlb;
-
-	
-	//CString text;
-	//m_titleCtrl.GetWindowText(text);
-	//CSize size;
-	//GetTextExtentPoint(GetDC()->m_hDC, text, text.GetLength(), &size);
-	
-	//m_titleCtrl.SetWindowPos(NULL, rectClient.left + 2, rectClient.top, size.cx, m_nComboHeight, SWP_NOACTIVATE | SWP_NOZORDER);
-	//m_vialCtrl.SetWindowPos(NULL, rectClient.left + 2 + size.cx, rectClient.top+3, rectClient.Width() - size.cx - 2, m_nComboHeight-5, SWP_NOACTIVATE | SWP_NOZORDER);
-	//m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndPropList.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-
-	
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -305,24 +279,6 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CRect rectDummy;
 	rectDummy.SetRectEmpty();
 
-	// Créer une zone de liste déroulante :
-	//const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_BORDER | CBS_SORT | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-	
-	
-	//| WS_GROUP
-	//if (!m_titleCtrl.Create(_T("Vial No"), WS_CHILD | WS_VISIBLE  | SS_CENTERIMAGE, rectDummy, this, IDC_STATIC))
-	//{
-	//	TRACE0("Impossible de créer la zone de liste déroulante des propriétés\n");
-	//	return -1;      // échec de la création
-	//}
-	
-
-	//const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | WS_BORDER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP;
-	//if (!m_vialCtrl.Create(WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | ES_LEFT | ES_AUTOHSCROLL, rectDummy, this, IDC_VIAL))
-	//{
-	//	TRACE0("Impossible de créer la zone de liste déroulante des propriétés\n");
-	//	return -1;      // échec de la création
-	//}
 
 	if (!m_wndPropList.Create(WS_VISIBLE | WS_CHILD | WS_TABSTOP, rectDummy, this, 2))
 	{
@@ -333,20 +289,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CStringArrayEx propertyHeader(UtilWin::GetCString(IDS_STR_PROPERTY_HEADER));
 	m_wndPropList.EnableHeaderCtrl(true, propertyHeader[0], propertyHeader[1]);
 
-	//InitPropList();
 	SetPropListFont();
-
-	//m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_PROPERTIES);
-	//m_wndToolBar.LoadToolBar(IDR_PROPERTIES, 0, 0, TRUE /* Est verrouillé */);
-	//m_wndToolBar.CleanUpLockedImages();
-	//m_wndToolBar.LoadBitmap(IDR_PROPERTIES, 0, 0, TRUE /* Verrouillé */);
-
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-	//m_wndToolBar.SetOwner(this);
-
-	//// Toutes les commandes sont routées via ce contrôle et non via le frame parent :
-	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
 	AdjustLayout();
 	return 0;
@@ -387,17 +330,9 @@ void CPropertiesWnd::SetPropListFont()
 	lf.lfItalic = info.lfMenuFont.lfItalic;
 
 	m_fntPropList.CreateFontIndirect(&lf);
-
-	//m_titleCtrl.SetFont(&m_fntPropList);
 	m_wndPropList.SetFont(&m_fntPropList);
-	//m_vialCtrl.SetFont(&m_fntPropList);
-}
 
-//CDailyEditorDoc* CPropertiesWnd::GetDocument()
-//{
-//	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CDailyEditorDoc)));
-//	return (CDailyEditorDoc*)m_pDocument;
-//}
+}
 
 
 void CPropertiesWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -433,62 +368,3 @@ LRESULT CPropertiesWnd::OnSetText(WPARAM wParam, LPARAM lParam)
 }
 
 
-
-// CMorphMenuButton command target
-//
-//class CMorphMenuButton : public CMFCCaptionButton
-//{
-//public:
-//	CMorphMenuButton(UINT nHit);
-//	virtual ~CMorphMenuButton();
-//
-//	virtual CMenuImages::IMAGES_IDS GetIconID(BOOL bHorz, BOOL bMaximized) const;
-//	void ShowMenu(CWnd* pWnd);
-//
-//private:
-//	CMenu m_dockMenu;
-//	CMenu* m_subMenu;
-//};
-//
-//// MorphMenuButton.cpp : implementation file
-////
-//
-//#include "stdafx.h"
-//#include "MorphMenuButton.h"
-//
-//
-//// CMorphMenuButton
-//CMorphMenuButton::CMorphMenuButton(UINT nHit)
-//	: CMFCCaptionButton(nHit)
-//{
-//	SetMiniFrameButton(); // already defaulted?
-//
-//	m_dockMenu.LoadMenu(IDR_DOCKPANE); // resource ID for dock pane menus
-//}
-//
-//CMorphMenuButton::~CMorphMenuButton()
-//{
-//	m_dockMenu.DestroyMenu();
-//}
-//
-//CMenuImages::IMAGES_IDS CMorphMenuButton::GetIconID(BOOL bHorz, BOOL bMaximized) const
-//{
-//	return CMenuImages::IdArrowForward;
-//}
-//
-//void CMorphMenuButton::ShowMenu(CWnd* pWnd)
-//{
-//	CRect windowRect, buttonRect;
-//	pWnd->GetWindowRect(&windowRect);
-//	buttonRect = GetRect();
-//	CPoint menuPos(windowRect.left + buttonRect.right, windowRect.top + buttonRect.bottom);
-//
-//	m_subMenu = m_dockMenu.GetSubMenu(0);
-//	if (!m_subMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, menuPos.x, menuPos.y, pWnd))
-//	{
-//		DWORD id = GetLastError();
-//		wchar_t errMsg[256];
-//		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, id, 0, errMsg, sizeof(errMsg), 0);
-//		MessageBox(0, errMsg, L"Error", MB_OK);
-//	}
-//}

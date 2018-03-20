@@ -32,7 +32,7 @@ public:
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
 	virtual void AdjustLocations();
-	//virtual CSize CalcSize(BOOL bVertDock);
+
 };
 
 
@@ -113,15 +113,14 @@ protected:
 
 
 //**************************************************************************************************************************************
-class CGradientChartWnd : public CDockablePane
+class CWeightChartWnd : public CDockablePane
 {
 	// Construction
 public:
-	CGradientChartWnd();
+	CWeightChartWnd();
 
 	void AdjustLayout();
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
-	void FillGraphList();
 	void CreateToolBar();
 
 
@@ -141,9 +140,9 @@ protected:
 	CWeightChartCtrl m_chartCtrl;
 	CGraphToolBar m_wndToolBar;
 	bool m_bMustBeUpdated;
-	// Implémentation
+
 public:
-	virtual ~CGradientChartWnd();
+	virtual ~CWeightChartWnd();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 protected:
@@ -151,20 +150,15 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
-	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
 	afx_msg void UpdateFonts();
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
 	afx_msg void OnToolbarCommand(UINT ID, NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnToolbarCommand(UINT ID);
-	afx_msg void OnGraphChange();
 	afx_msg void OnGraphOptions();
 	afx_msg void OnDateChange(UINT);
 	afx_msg void OnCopyGraph();
 	afx_msg void OnSaveGraph();
 	afx_msg void OnWindowPosChanged(WINDOWPOS* lpwndpos);
-
-	void SetPropListFont();
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -23,12 +23,23 @@ class CGraphToolBar : public CSplittedToolBar
 public:
 	
 	DECLARE_SERIAL(CGraphToolBar)
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CSplittedToolBar::OnUpdateCmdUI((CFrameWnd*)GetOwner(), bDisableIfNoHndler);
+	}
+	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
+	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+
+	DECLARE_MESSAGE_MAP()
 };
 
 
 class CWeatherChartWnd : public CDockablePane
 {
+
+	DECLARE_DYNCREATE(CWeatherChartWnd)
 	// Attributes
 public:
 
@@ -45,7 +56,6 @@ public:
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnGraphChange();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
@@ -58,7 +68,6 @@ public:
 	
 
 	void AdjustLayout();
-	void FillGraphList();
 	void CreateToolBar();
 	
 

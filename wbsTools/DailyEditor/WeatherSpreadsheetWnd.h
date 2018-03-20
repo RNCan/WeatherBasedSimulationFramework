@@ -25,8 +25,9 @@ public:
 	virtual BOOL LoadState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
 	virtual BOOL SaveState(LPCTSTR lpszProfileName = NULL, int nIndex = -1, UINT uiID = (UINT)-1) { return TRUE; }
 	virtual BOOL AllowShowOnList() const { return FALSE; }
-
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
+
+	DECLARE_MESSAGE_MAP()
 };
 
 //**************************************************************************************************************************************
@@ -53,29 +54,18 @@ protected:
 	void CreateToolBar();
 	bool SaveData();
 	void ExportToExcel();
-	WBSF::CTM GetTM();
-
-
 	
 	CWeatherSpreadsheetToolBar m_wndToolBar;
 	WBSF::CWeatherDataGridCtrl m_grid;
 	bool m_bMustBeUpdated;
 
-	
-
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	//afx_msg void OnExecute();
-	//afx_msg void OnUpdateExecute(CCmdUI *pCmdUI);
 	afx_msg void OnToolbarCommand(UINT ID);
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
 	afx_msg void OnWindowPosChanged(WINDOWPOS* lpwndpos);
 	afx_msg void OnDateChange(UINT ID);
-
-
-	
-	
 };
 

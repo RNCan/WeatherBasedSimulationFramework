@@ -1,5 +1,6 @@
-
 // MatchStation.cpp : Définit les comportements de classe pour l'application. 
+// 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
+//											Add color in weight chart
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance and prcp gradient
 // 4.2.2	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
@@ -17,6 +18,7 @@
 #include <afxdialogex.h>
 
 #include "Basic/Registry.h"
+#include "Basic/ANN/Ann.h"
 #include "Basic/DynamicRessource.h"
 #include "UI/Common/AboutDlg.h"
 
@@ -172,13 +174,9 @@ void CMatchStationApp::SaveCustomState()
 
 int CMatchStationApp::ExitInstance()
 {
-	int exitCode = CWinApp::ExitInstance();
-
-	GetKeyboardManager()->CleanUp();
+	annClose();
 	CMFCToolBar::CleanUpImages();
-	CMFCVisualManager::DestroyInstance();
-
 	Gdiplus::GdiplusShutdown(m_nGdiplusToken);
 
-	return exitCode;
+	return CWinApp::ExitInstance();
 }

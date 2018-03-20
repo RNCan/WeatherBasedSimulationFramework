@@ -31,16 +31,27 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\MatchStation.ico"
+
 IDI_WEIGHT_CHART_WND    ICON                    "res\\weight_chart_wnd.ico"
+
 IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
 IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
 IDI_INPUT_WND           ICON                    "res\\inputs_wnd.ico"
+
 IDI_GRADIENT_WND        ICON                    "res\\Gradient_wnd.ico"
+
 IDI_CORRECTION_WND      ICON                    "res\\Correction_wnd.ico"
+
 IDI_ESTIMATE_N_WND      ICON                    "res\\estimateN_wnd.ico"
+
 IDI_ESTIMATE_O_WND      ICON                    "res\\estimateO_wnd.ico"
+
 IDI_OBSERVATION_WND     ICON                    "res\\observations_wnd.ico"
+
 IDI_NORMAL_WND          ICON                    "res\\Normals_wnd.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -49,14 +60,18 @@ IDI_NORMAL_WND          ICON                    "res\\Normals_wnd.ico"
 
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
 
 IDR_MAINFRAME_TOOLBAR   PNG                     "res\\MainFrameToolbar.png"
+
 IDR_LOCATION_TOOLBAR    PNG                     "res\\LocationToolbar.png"
+
 IDR_WEIGHT_TOOLBAR      PNG                     "res\\weightToolbar.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -144,8 +159,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,3,0,1
- PRODUCTVERSION 4,3,0,1
+ FILEVERSION 4,3,1,2
+ PRODUCTVERSION 4,3,1,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -162,21 +177,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Recherches les stations météo pour une localisation"
-            VALUE "FileVersion", "4.3.0.1"
+            VALUE "FileVersion", "4.3.1.2"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "StationsAvoisinantes"
-            VALUE "ProductVersion", "4.3.0.1"
+            VALUE "ProductVersion", "4.3.1.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Match weather station for location"
-            VALUE "FileVersion", "4.3.0.1"
+            VALUE "FileVersion", "4.3.1.2"
             VALUE "InternalName", "MatchStation.exe"
             VALUE "OriginalFilename", "MatchStation.exe"
             VALUE "ProductName", "MatchStation"
-            VALUE "ProductVersion", "4.3.0.1"
+            VALUE "ProductVersion", "4.3.1.2"
         END
     END
     BLOCK "VarFileInfo"

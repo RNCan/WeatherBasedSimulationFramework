@@ -52,6 +52,8 @@ static CWeatherDatabasePtr GetDatabasePtr()
 }
 
 
+BEGIN_MESSAGE_MAP(CWeatherSpreadsheetToolBar, CSplittedToolBar)
+END_MESSAGE_MAP()
 
 
 IMPLEMENT_SERIAL(CWeatherSpreadsheetToolBar, CSplittedToolBar, 1)

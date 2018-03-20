@@ -43,7 +43,7 @@ BOOL CNormalsSpreadsheetToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarI
 
 //**************************************************************************************************************************************
 // CNormalsSpreadsheetWnd
-//IMPLEMENT_DYNCREATE(CNormalsSpreadsheetWnd, CDockablePane)
+IMPLEMENT_DYNCREATE(CNormalsSpreadsheetWnd, CDockablePane)
 
 
 

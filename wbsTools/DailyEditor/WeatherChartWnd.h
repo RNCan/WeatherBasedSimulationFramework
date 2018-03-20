@@ -32,6 +32,7 @@ public:
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 	virtual BOOL LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked = FALSE);
 
+	DECLARE_MESSAGE_MAP()
 };
 
 
@@ -56,7 +57,7 @@ public:
 protected:
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnGraphChange();
+
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
@@ -66,18 +67,14 @@ protected:
 	afx_msg void OnSaveGraph();
 	afx_msg void OnGraphOptions();
 	afx_msg void OnDateChange(UINT);
-	afx_msg void OnDestroy();
 
 
 	void AdjustLayout();
-	void FillGraphList();
 	void CreateToolBar();
 	
 
 	WBSF::CWeatherChartsCtrl m_weatherChartsCtrl;
 	CWeatherChartToolBar m_wndToolBar;
-	
-
 	bool m_bMustBeUpdated;
 
 

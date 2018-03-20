@@ -34,20 +34,6 @@ BOOL CNormalsChartToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
 		return FALSE;
 
-//*****************************
-	//CMFCButton;
-	//CMFCToolBarComboBoxButton zoomButton(ID_GRAPH_ZOOM, 3, WS_TABSTOP | CBS_DROPDOWNLIST, 75);
-	//for (int i = 0; i < 8; i++)
-	//{
-	//	CString str;
-	//	str.Format(_T("%dx"), 1 << i);
-	//	zoomButton.AddItem(str);
-	//}
-	//
-	//zoomButton.SelectItem(0, FALSE);
-	//ReplaceButton(ID_GRAPH_ZOOM, zoomButton);
-//*****************************
-
 	UpdateTooltips();
 
 	return TRUE;
@@ -56,6 +42,8 @@ BOOL CNormalsChartToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 
 //**********************************************************************
 // CNormalsChartWnd construction/destruction
+
+IMPLEMENT_DYNCREATE(CNormalsChartWnd, CDockablePane)
 CNormalsEditorDoc* CNormalsChartWnd::GetDocument()
 {
 	CWinApp* pApp = AfxGetApp();

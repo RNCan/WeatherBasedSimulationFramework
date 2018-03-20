@@ -91,7 +91,7 @@ UINT CDailyEditorDoc::OpenDatabase(void* pParam)
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)pMyParam->m_pThis;
 	std::string filePath = (char*)pMyParam->m_pFilepath;
-	int mode = (int)(pMyParam->m_pExtra);
+	__int64 mode = (__int64)(pMyParam->m_pExtra);
 
 	ERMsg* pMsg = pMyParam->m_pMsg;
 	CCallback* pCallback = pMyParam->m_pCallback;
@@ -99,7 +99,7 @@ UINT CDailyEditorDoc::OpenDatabase(void* pParam)
 
 	VERIFY(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) == S_OK);
 	TRY
-		*pMsg = pDoc->m_pDatabase->Open(filePath, mode, *pCallback);
+		*pMsg = pDoc->m_pDatabase->Open(filePath, (int)mode, *pCallback);
 	CATCH_ALL(e)
 		*pMsg = UtilWin::SYGetMessage(*e);
 	END_CATCH_ALL
@@ -156,8 +156,6 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
-		//else if (!m_pDatabase->empty())
-			//SetCurStationIndex(0, NULL, false);
 		
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();
@@ -171,7 +169,7 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	m_bExecute = false;
 	pView->AdjustLayout();//open the progress window
-	//UpdateAllViews(NULL, OUTPUT_CHANGE, NULL);
+
 
 	return (bool)msg;
 }
@@ -216,6 +214,7 @@ void CDailyEditorDoc::SetDataInEdition(bool in)
 		UpdateAllViews(NULL, DATA_PROPERTIES_EDITION_MODE_CHANGE); 
 	} 
 }
+
 BOOL CDailyEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	ERMsg msg;
@@ -327,14 +326,6 @@ bool CDailyEditorDoc::CancelDataEdition()
 
 	return msg;
 }
-//
-//void CDailyEditorDoc::OnInitialUpdate()
-//{
-//	ERMsg msg;
-//
-//
-//	UpdateAllViews(NULL, INIT, NULL);
-//}
 
 void CDailyEditorDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {

@@ -37,6 +37,7 @@ public:
 
 class CNormalsChartWnd : public CDockablePane
 {
+	DECLARE_DYNCREATE(CNormalsChartWnd)
 
 public:
 

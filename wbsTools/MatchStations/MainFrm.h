@@ -34,7 +34,6 @@ public:
 
 	virtual ~CMainFrame();
 
-	//void ActivateFrame(int nCmdShow);
 	void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 	void LoadtBasicCommand();
 
@@ -52,7 +51,7 @@ protected:  // membres incorporés de la barre de contrôle
 	CPropertiesWnd			m_propertiesWnd;
 	CNormalsMatchWnd		m_normalsWnd;
 	CObservationMatchWnd	m_observationWnd;
-	CGradientChartWnd		m_weightChartsWnd;
+	CWeightChartWnd			m_weightChartsWnd;
 	CNormalsGradientWnd		m_gradientWnd;
 	CNormalsCorrectionWnd	m_correctionWnd;
 	CNormalsEstimateWnd		m_estimateWnd;
@@ -72,7 +71,6 @@ protected:  // membres incorporés de la barre de contrôle
 	afx_msg void OnLanguageUI(CCmdUI* pCmdUI);
 	afx_msg void OnEditOptions();
 	afx_msg LRESULT OnTaskbarProgress(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnNbNormalsChange();
 
 
 	BOOL CreateDockingWindows();

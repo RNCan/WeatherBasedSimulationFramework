@@ -58,6 +58,9 @@ static const int STD_GAP = 8;
 static const int CHART_BASE_ID = 1000;
 static const int SPLITTER_BASE_ID = 2000;
 
+BEGIN_MESSAGE_MAP(CWeatherChartToolBar, CSplittedToolBar)
+END_MESSAGE_MAP()
+
 IMPLEMENT_SERIAL(CWeatherChartToolBar, CSplittedToolBar, 1)
 BOOL CWeatherChartToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
 {

@@ -34,10 +34,13 @@ static const int STD_GAP = 8;
 static const int CHART_BASE_ID = 1000;
 static const int SPLITTER_BASE_ID = 2000;
 
+BEGIN_MESSAGE_MAP(CGraphToolBar, CSplittedToolBar)
+END_MESSAGE_MAP()
+
 IMPLEMENT_SERIAL(CGraphToolBar, CSplittedToolBar, 1)
 BOOL CGraphToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
 {
-	if (!CMFCToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
+	if (!CSplittedToolBar::LoadToolBarEx(uiToolbarResID, params, bLocked))
 		return FALSE;
 
 //*****************************
@@ -91,6 +94,7 @@ BOOL CGraphToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, 
 
 //**********************************************************************
 // CWeatherChartWnd construction/destruction
+IMPLEMENT_DYNCREATE(CWeatherChartWnd, CDockablePane)
 
 CHourlyEditorDoc* CWeatherChartWnd::GetDocument()
 {

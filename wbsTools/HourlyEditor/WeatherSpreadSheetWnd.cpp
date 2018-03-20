@@ -23,6 +23,9 @@ using namespace std;
 using namespace UtilWin;
 using namespace WBSF;
 
+BEGIN_MESSAGE_MAP(CResultToolBar, CSplittedToolBar)
+END_MESSAGE_MAP()
+
 
 IMPLEMENT_SERIAL(CResultToolBar, CSplittedToolBar, 1)
 BOOL CResultToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
@@ -69,6 +72,7 @@ BOOL CResultToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params,
 
 //**************************************************************************************************************************************
  // CWeatherSpreadsheetWnd
+IMPLEMENT_DYNCREATE(CWeatherSpreadsheetWnd, CDockablePane)
 
 CHourlyEditorDoc* CWeatherSpreadsheetWnd::GetDocument()
 {

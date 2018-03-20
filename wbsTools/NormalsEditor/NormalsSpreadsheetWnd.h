@@ -33,7 +33,7 @@ public:
 
 class CNormalsSpreadsheetWnd : public CDockablePane
 {
-
+	DECLARE_DYNCREATE(CNormalsSpreadsheetWnd)
 public:
 
 
