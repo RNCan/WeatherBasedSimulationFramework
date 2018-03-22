@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
-// 11.4.1: 22/02/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
+// 11.4.1: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
 //											Bug correction in merge component
 //											Change context menu when language change
 //											Bug correction in computation of solar radiation

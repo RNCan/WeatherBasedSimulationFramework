@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -112,7 +112,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -134,7 +134,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -154,7 +154,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../src;../../External;../../external/GDAL/Include;;../../external/netcdf/cxx4;stdafx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>

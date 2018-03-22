@@ -119,7 +119,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS </AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;AFX_TARG_ENC;AFX_TARG_NEU;AFX_RESOURCE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -155,7 +155,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS </AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;AFX_TARG_ENC;AFX_TARG_NEU;AFX_RESOURCE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -195,7 +195,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS </AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;AFX_TARG_ENC;AFX_TARG_NEU;AFX_RESOURCE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -237,7 +237,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS </AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;AFX_TARG_ENC;AFX_TARG_NEU;AFX_RESOURCE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>

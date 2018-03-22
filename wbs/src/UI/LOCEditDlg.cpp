@@ -825,17 +825,17 @@ namespace WBSF
 	ERMsg CLocDlg::ExtractGoogleName(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
 	{
 		ERMsg msg;
-		//CInternetSession GoogleSession;
-		//CHttpConnection* pGoogleConnection = GoogleSession.GetHttpConnection(_T("maps.googleapis.com"), INTERNET_DEFAULT_HTTPS_PORT, _T(""), _T(""));
 
+		callback.PushTask("Extract Google elevation", locations.size());
+		
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);//!googleAPIKey.empty()
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
 		if (msg)
 		{
 			size_t miss = 0;
-			for (size_t i = 0; i < locations.size(); i++)
+			for (size_t i = 0; i < locations.size()&&msg; i++)
 			{
 				if (locations[i].m_name.empty() || bReplaceAll)
 				{
@@ -843,7 +843,7 @@ namespace WBSF
 					string strGeo;
 					string URL = "/maps/api/geocode/json?latlng=" + ToString(locations[i].m_lat) + "," + ToString(locations[i].m_lon);
 					if (!googleAPIKey.empty())
-						URL += "&key=" + googleAPIKey; //"AIzaSyAz8Mr7mO8BkkugAHe7ds65mCEeSUVknZw";
+						URL += "&key=" + googleAPIKey; 
 					msg = UtilWWW::GetPageText(pGoogleConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
 					if (msg)
 					{
@@ -887,6 +887,8 @@ namespace WBSF
 						}
 					}//if msg
 				}//if empty name
+
+				msg += callback.StepIt();
 			}//for all locations
 
 			pGoogleConnection->Close();
@@ -904,17 +906,17 @@ namespace WBSF
 	ERMsg CLocDlg::ExtractGoogleElevation(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
 	{
 		ERMsg msg;
-		//CInternetSession GoogleSession;
-		//CHttpConnection* pGoogleConnection = GoogleSession.GetHttpConnection(_T("maps.googleapis.com"), INTERNET_DEFAULT_HTTPS_PORT, _T(""), _T(""));
 
+		callback.PushTask("Extract Google elevation", locations.size());
+		
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);//!googleAPIKey.empty()
+		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
 		if (msg)
 		{
 			size_t miss = 0;
-			for (size_t i = 0; i < locations.size(); i++)
+			for (size_t i = 0; i < locations.size()&&msg; i++)
 			{
 				if (locations[i].m_elev == -999 || bReplaceAll)
 				{
@@ -944,6 +946,8 @@ namespace WBSF
 						}
 					}
 				}//if no elev
+
+				msg += callback.StepIt();
 			}//for all locations
 
 			pGoogleConnection->Close();
