@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Cankerworms</Title>
+    <Version>1.0</Version>
+    <ID>.ckw_param</ID>
+    <EXE>Cankerworms.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 507 485</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 280</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Fall|Spring</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 285 30 435</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Threshold</Name>
+            <Caption>Threshold</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>35 10 55 280</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>3.25</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a1</Name>
+            <Caption>a1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>54 10 76 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>256</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b1</Name>
+            <Caption>b1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>55 170 75 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a2</Name>
+            <Caption>a2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 10 105 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>369</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b2</Name>
+            <Caption>b2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 170 100 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a3</Name>
+            <Caption>a3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 10 135 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>433</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b3</Name>
+            <Caption>b3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>110 170 135 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a4</Name>
+            <Caption>a4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 10 165 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>508</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b4</Name>
+            <Caption>b4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>140 170 165 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a5</Name>
+            <Caption>a5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 10 195 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>659</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b5</Name>
+            <Caption>b5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 170 195 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a6</Name>
+            <Caption>a6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 10 225 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>800</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b6</Name>
+            <Caption>b6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 170 225 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg</Name>
+            <Title>Egg</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1</Name>
+            <Title>L1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4soil</Name>
+            <Title>L4soil</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AI</Name>
+            <Title>AI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
