@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
-// 11.4.1: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
-//											Bug correction in merge component
-//											Change context menu when language change
+// 11.4.2: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
 //											Bug correction in computation of solar radiation
+// 11.4.1: 22/02/2018	Rémi Saint-Amant	Bug correction in merge component
+//											Change context menu when language change
 // 11.4.0: 08/02/2018	Rémi Saint-Amant	Activation of precipitation gradients. New default gradient and new shore file. 
 // 11.3.8: 31/01/2018	Rémi Saint-Amant	Bug correction in the parameters variation
 // 11.3.7: 21/12/2017   Rémi Saint-Amant	Remove graph. Bug correction with component comparison. Remove LANGUAGE 9, 1. 

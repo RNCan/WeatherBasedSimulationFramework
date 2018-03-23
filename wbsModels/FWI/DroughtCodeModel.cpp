@@ -1,4 +1,5 @@
 //*********************************************************************
+//23/03/2018	2.1.2	Rémi Saint-Amant    Compile with VS 2017
 //29/03/2017	2.1.1	Rémi Saint-Amant    Bug correction in Drought Code
 //20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //08/02/2016	2.0.0   Rémi Saint-Amant	Include in WBSF
@@ -26,7 +27,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		
-		VERSION = "2.1.1 (2017)";
+		VERSION = "2.1.2 (2018)";
 
 		m_bAutoSelect = true;
 		m_FFMC = 85.0;

@@ -1,4 +1,5 @@
 //*********************************************************************
+//23/03/2018	3.1.2	Rémi Saint-Amant    Compile with VS 2017
 //10/05/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //12/02/2016	3.0.0	Rémi Saint-Amant	Using WBSF. Hourly model.
@@ -35,7 +36,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		//	NB_INPUT_PARAMETER=8;//7 or 8 param
-		VERSION = "3.1.1 (2017)";
+		VERSION = "3.1.2 (2018)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;

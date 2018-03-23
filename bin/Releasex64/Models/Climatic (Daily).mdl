@@ -34,7 +34,7 @@
             <Name>Tmin</Name>
             <Title>Diurnal minimum temperature</Title>
             <Units>°C</Units>
-            <Description>daily minimum temperature</Description>
+            <Description>Daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>0</Climatic>
@@ -43,7 +43,7 @@
             <Name>Tair</Name>
             <Title>Mean TMean</Title>
             <Units>°C</Units>
-            <Description>mean air tempoerature. Can be an approximation from (Tmin + Tmax)/2</Description>
+            <Description>Mean air temperature. Can be an approximation from (Tmin + Tmax)/2</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>1</Climatic>
@@ -61,7 +61,7 @@
             <Name>Prcp</Name>
             <Title>Total Precipitation</Title>
             <Units>mm</Units>
-            <Description>Monthly total precipitation</Description>
+            <Description>Daily total precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>3</Climatic>
@@ -70,7 +70,7 @@
             <Name>Tdew</Name>
             <Title>DewPoint</Title>
             <Units>°C</Units>
-            <Description>Monthly mean of daily mean dew point temperature</Description>
+            <Description>Mean daily dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>4</Climatic>
@@ -79,7 +79,7 @@
             <Name>RelH</Name>
             <Title>RelativeHumidity</Title>
             <Units>%</Units>
-            <Description>Monthly mean of daily mean relative humidity</Description>
+            <Description>Mean daily relative humidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>5</Climatic>
@@ -88,7 +88,7 @@
             <Name>WndS</Name>
             <Title>WindSpeed</Title>
             <Units>km/h</Units>
-            <Description>Mean wind speed at 10 meters (km/h)</Description>
+            <Description>Mean wind speed at 10 meters</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>6</Climatic>
@@ -97,7 +97,7 @@
             <Name>SRad</Name>
             <Title>TotalRadiation</Title>
             <Units>MJ/m²</Units>
-            <Description>solar radiation</Description>
+            <Description>Cumulative solar radiation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>8</Climatic>

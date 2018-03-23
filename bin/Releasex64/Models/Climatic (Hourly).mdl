@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>This model computes climatic daily variables</Description>
     <WindowRect>0 0 83 331</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS WD R Z</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H WS R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -34,7 +34,7 @@
             <Name>Tmin</Name>
             <Title>Tmin</Title>
             <Units>°C</Units>
-            <Description>Daily minimum temperature</Description>
+            <Description>Hourly minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
             <Climatic>0</Climatic>
@@ -43,7 +43,7 @@
             <Name>Tair</Name>
             <Title>Tair</Title>
             <Units>°C</Units>
-            <Description>Approximation of mean temperature of the day: (Tmin + Tmax)/2</Description>
+            <Description>Hourly mean temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
             <Climatic>1</Climatic>
@@ -52,7 +52,7 @@
             <Name>Tmax</Name>
             <Title>Tmax</Title>
             <Units>°C</Units>
-            <Description>Daily maximum temperature</Description>
+            <Description>Hourly maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
             <Climatic>2</Climatic>
@@ -61,7 +61,7 @@
             <Name>Prcp</Name>
             <Title>Prcp</Title>
             <Units>mm</Units>
-            <Description/>
+            <Description>Hourly total precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>3</Climatic>
@@ -70,7 +70,7 @@
             <Name>Tdew</Name>
             <Title>Tdew</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Hourly mean dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>4</Climatic>
@@ -79,7 +79,7 @@
             <Name>RelH</Name>
             <Title>RelH</Title>
             <Units>%</Units>
-            <Description/>
+            <Description>Hourly mean relative humidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>5</Climatic>
@@ -88,37 +88,19 @@
             <Name>WndS</Name>
             <Title>WndS</Title>
             <Units>km/h</Units>
-            <Description/>
+            <Description>Hourly mean wind speed at 10 meters</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>6</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>WndD</Name>
-            <Title>WndD</Title>
-            <Units>°</Units>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>7</Climatic>
-        </OutputVariable>
-        <OutputVariable>
             <Name>Srad</Name>
             <Title>Srad</Title>
             <Units>MJ/m²</Units>
-            <Description/>
+            <Description>Cumulative solar radiation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>8</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Z</Name>
-            <Title>P</Title>
-            <Units>hPa</Units>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-            <Climatic>9</Climatic>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
