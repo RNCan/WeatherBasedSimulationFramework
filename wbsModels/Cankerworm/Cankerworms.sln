@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Bas
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cankerworm", "CankerwormModel.vcxproj", "{F4EC15BC-DBF4-49BE-8F60-E048495BF199}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cankerworms", "CankerwormModels.vcxproj", "{F4EC15BC-DBF4-49BE-8F60-E048495BF199}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
