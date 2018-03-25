@@ -6,7 +6,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Bas
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cankerworms", "CankerwormModels.vcxproj", "{F4EC15BC-DBF4-49BE-8F60-E048495BF199}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FallCankerworms", "FallCankerwormsModels.vcxproj", "{F4EC15BC-DBF4-49BE-8F60-E048495BF199}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpringCankerworms", "SpringCankerwormsModels.vcxproj", "{689179B2-162D-4A71-93CA-BF0267EFDB6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,14 @@ Global
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|Win32.Build.0 = Release|Win32
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|x64.ActiveCfg = Release|x64
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|x64.Build.0 = Release|x64
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Debug|Win32.Build.0 = Debug|Win32
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Debug|x64.ActiveCfg = Debug|x64
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Debug|x64.Build.0 = Debug|x64
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Release|Win32.ActiveCfg = Release|Win32
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Release|Win32.Build.0 = Release|Win32
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Release|x64.ActiveCfg = Release|x64
+		{689179B2-162D-4A71-93CA-BF0267EFDB6B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
