@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>FWI(monthly)</Title>
     <Version>1.0</Version>
-    <ID>.FWI</ID>
+    <ID>.FDC</ID>
     <EXE>FWI.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
