@@ -69,10 +69,10 @@
             <Type>3</Type>
             <Rect>190 35 210 300</Rect>
             <SeparatorPos>150</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
+            <DefaultValue>01/01</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <TextValue>01/01</TextValue>
+            <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>LastDate</Name>
@@ -81,10 +81,10 @@
             <Type>3</Type>
             <Rect>215 35 235 300</Rect>
             <SeparatorPos>150</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
+            <DefaultValue>12/31</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <TextValue>12/31</TextValue>
+            <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>SummationType</Name>

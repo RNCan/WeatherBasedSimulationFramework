@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3188FFB2-FDC2-4542-898A-370D1F179716}</ProjectGuid>
+    <ProjectGuid>{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NiclasFauvart</RootNamespace>
     <ProjectName>ASCE-ETsz</ProjectName>

@@ -1978,7 +1978,8 @@ namespace WBSF
 							msg = UtilWWW::GetPageText(pConnection, URL, str);
 							if (msg)
 							{
-								string::size_type pos1 = str.find("<table id=\"StationInfoTable\">");								string::size_type pos2 = str.find("</table>");
+								string::size_type pos1 = str.find("<table id=\"StationInfoTable\">");
+								string::size_type pos2 = str.find("</table>");
 								if (pos1 < str.size() && pos2 < str.size())
 								{
 									nbDownloads++;
@@ -2062,12 +2063,25 @@ namespace WBSF
 						string str;
 						tdit->getValue(str);
 						double value = !str.empty() ? ToDouble(str) : 0;
-						StringVector tmp(date_str, "/");						if (value > 0 && tmp.size()==3)						{							size_t m = ToSizeT(tmp[0]) - 1;							size_t d = ToSizeT(tmp[1]) - 1;							int year = ToInt(tmp[2]);							CTRef Tref(year, m, d);														if (!data.IsYearInit(year))							{								data = CWeatherYears(false);
+						StringVector tmp(date_str, "/");
+						if (value > 0 && tmp.size()==3)
+						{
+							size_t m = ToSizeT(tmp[0]) - 1;
+							size_t d = ToSizeT(tmp[1]) - 1;
+							int year = ToInt(tmp[2]);
+							CTRef Tref(year, m, d);
+
+							
+							if (!data.IsYearInit(year))
+							{
+								data = CWeatherYears(false);
 								//try to load old data before changing it...
 								string filePath = GetOutputFilePath(POTATO, DAILY_WEATHER, ID, year);
 								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 							}
-							data[Tref].SetStat(H_SRAD2, value<1000? value*10.0 : value/100.0);						}// tmp == 3 and sRad is init
+
+							data[Tref].SetStat(H_SRAD2, value<1000? value*10.0 : value/100.0);
+						}// tmp == 3 and sRad is init
 					}
 
 					//save data
@@ -2091,5 +2105,6 @@ namespace WBSF
 		return msg;
 	}
 }
-
+
+
 

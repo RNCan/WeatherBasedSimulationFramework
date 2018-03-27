@@ -49,6 +49,12 @@ copy /Y ".\bin\Releasex64\Models\Climate Moisture Index (Monthly).mdl" "..\Insta
 copy /Y ".\bin\Releasex64\Models\Climate Mosture Index (Annual).mdl" "..\Install\NRCan\Models\Climate Mosture Index (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index.dll" "..\Install\NRCan\Models\Climate Moisture Index.dll"
 
+
+copy /Y ".\bin\Releasex64\Models\FallCankerworms.mdl" "..\Install\NRCan\Models\FallCankerworms.mdl"
+copy /Y ".\bin\Releasex64\Models\FallCankerworms.dll" "..\Install\NRCan\Models\FallCankerworms.dll"
+copy /Y ".\bin\Releasex64\Models\SpringCankerworms.mdl" "..\Install\NRCan\Models\SpringCankerworms.mdl"
+copy /Y ".\bin\Releasex64\Models\SpringCankerworms.dll" "..\Install\NRCan\Models\SpringCankerworms.dll"
+
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl" "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Monthly).mdl" "..\Install\NRCan\Models\DegreeDay (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Daily).mdl" "..\Install\NRCan\Models\DegreeDay (Daily).mdl"
