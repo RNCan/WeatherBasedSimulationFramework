@@ -2024,7 +2024,7 @@ namespace WBSF
 
 		try
 		{
-			CWeatherYears data;
+			CWeatherYears data(false);
 
 			string xml_str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + source;
 			zen::XmlDoc doc = zen::parse(xml_str);
@@ -2074,13 +2074,14 @@ namespace WBSF
 							
 							if (!data.IsYearInit(year))
 							{
-								data = CWeatherYears(false);
 								//try to load old data before changing it...
 								string filePath = GetOutputFilePath(POTATO, DAILY_WEATHER, ID, year);
 								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 							}
-
-							data[Tref].SetStat(H_SRAD2, value<1000? value*10.0 : value/100.0);
+							
+							value = value < 1000 ? value * 10.0 : value / 100.0;
+							if(value>0 && value < 500)
+								data[Tref].SetStat(H_SRAD2, value);
 						}// tmp == 3 and sRad is init
 					}
 

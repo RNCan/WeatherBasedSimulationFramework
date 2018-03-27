@@ -212,12 +212,15 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <AdditionalIncludeDirectories>..\..\External;..\..\wbs\src;..\tranosema;..\ObliqueBandedLeafroller;..\SpruceBudworm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <OpenMPSupport>false</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -227,14 +230,15 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>
       </ImportLibrary>
-      <ProgramDatabaseFile>$(OutputPath)$(TargetName).pdb</ProgramDatabaseFile>
-      <AdditionalLibraryDirectories>..\..\external\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalLibraryDirectories>..\..\External\lib$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <Xdcmake>
       <OutputFile>$(OutputPath)$(TargetName).xml</OutputFile>

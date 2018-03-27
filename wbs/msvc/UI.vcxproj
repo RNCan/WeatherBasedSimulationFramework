@@ -450,6 +450,7 @@
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -474,6 +475,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -498,6 +500,7 @@
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -525,6 +528,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

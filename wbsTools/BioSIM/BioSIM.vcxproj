@@ -251,7 +251,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <GenerateMapFile>true</GenerateMapFile>
+      <GenerateMapFile>false</GenerateMapFile>
       <HeapReserveSize>
       </HeapReserveSize>
       <AdditionalLibraryDirectories>..\..\external\gdal\lib$(PlatformArchitecture);..\..\external\lib$(PlatformArchitecture);..\..\external\VisualLeakDetector\lib\Win$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

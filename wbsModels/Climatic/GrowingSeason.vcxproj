@@ -176,15 +176,20 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <AdditionalIncludeDirectories>..\..\External;..\..\wbs\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <OpenMPSupport>
+      </OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\external\lib$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\External\lib$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(IntDir)$(TargetFileName).lib</ImportLibrary>
+      <ImportLibrary>
+      </ImportLibrary>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Debug$(Platform)\Models\$(TargetName)$(TargetExt)"

@@ -283,10 +283,11 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </Midl>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..\..\External;..\..\wbs\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
+      <StringPooling>
+      </StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -300,6 +301,9 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <CompileAs>Default</CompileAs>
       <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -310,14 +314,19 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(IntDir)$(TargetFileName).pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(IntDir)$(TargetFileName).lib</ImportLibrary>
+      <ImportLibrary>
+      </ImportLibrary>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\external\lib$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\External\lib$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <BuildLog>
       <Path>$(IntDir)\log1\$(MSBuildProjectName)1.log</Path>
