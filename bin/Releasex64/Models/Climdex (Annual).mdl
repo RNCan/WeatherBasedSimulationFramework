@@ -54,147 +54,147 @@
     <OutputTypeMode>0 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
-        <OutputVariable>
+           <OutputVariable>
             <Name>FD</Name>
             <Title>FD</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Number of frost days: Annual count of days when TN (daily minimum temperature) &lt; 0 °C</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>SU</Name>
             <Title>SU</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Number of summer days: Annual count of days when TX (daily maximum temperature) &gt; 25 °C.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>ID</Name>
             <Title>ID</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Number of icing days: Annual count of days when TX (daily maximum temperature) &lt; 0 °C</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TR</Name>
             <Title>TR</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Number of tropical nights: Annual count of days when TN (daily minimum temperature) &gt; 20 °C.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>GSL</Name>
             <Title>GSL</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description> Growing season length: Annual (1st Jan to 31st Dec in Northern Hemisphere (NH), 1st July to 30th June in Southern Hemisphere (SH)) count between first span of at least 6 days with daily mean temperature TG&gt;5°C and first span after July 1st (Jan 1st in SH) of 6 days with TG &lt; 5 °C.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TXx</Name>
             <Title>TXx</Title>
-            <Units/>
-            <Description/>
+            <Units>°C</Units>
+            <Description>Monthly maximum value of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TNx</Name>
             <Title>TNx</Title>
-            <Units/>
-            <Description/>
+            <Units>°C</Units>
+            <Description>Monthly maximum value of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TXn</Name>
             <Title>TXn</Title>
-            <Units/>
-            <Description/>
+            <Units>°C</Units>
+            <Description> Monthly minimum value of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TNn</Name>
             <Title>TNn</Title>
-            <Units/>
-            <Description/>
+            <Units>°C</Units>
+            <Description>Monthly minimum value of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TN10p</Name>
             <Title>TN10p</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description>Percentage of days when TN &lt; 10th percentile</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TX10p</Name>
             <Title>TX10p</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description> Percentage of days when TX &lt; 10th percentile </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TN90p</Name>
             <Title>TN90p</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description>Percentage of days when TN &gt; 90th percentile </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TX90p</Name>
             <Title>TX90p</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description> Percentage of days when TX &gt; 90th percentile</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>WSDI</Name>
             <Title>WSDI</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Warm spell duration index: Annual count of days with at least 6 consecutive days when TX &gt; 90th percentile</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>CSDI</Name>
             <Title>CSDI</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Cold spell duration index: Annual count of days with at least 6 consecutive days when TN &lt; 10th percentile</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>DTR</Name>
             <Title>DTR</Title>
-            <Units/>
-            <Description/>
+            <Units>°C</Units>
+            <Description>Daily temperature range: Monthly mean difference between TX and TN</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Rx1day</Name>
             <Title>Rx1day</Title>
-            <Units/>
-            <Description/>
+            <Units>mm</Units>
+            <Description>Monthly maximum 1-day precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Rx5day</Name>
             <Title>Rx5day</Title>
-            <Units/>
-            <Description/>
+            <Units>mm</Units>
+            <Description>Monthly maximum consecutive 5-day precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -202,71 +202,71 @@
             <Name>SDII</Name>
             <Title>SDII</Title>
             <Units/>
-            <Description/>
+            <Description>Simple pricipitation intensity index</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>R10mm</Name>
             <Title>R10mm</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description> Annual count of days when PRCP &gt;= 10mm</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>R20mm</Name>
             <Title>R20mm</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description> Annual count of days when PRCP &gt;= 20mm</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Rnnmm</Name>
             <Title>Rnnmm</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Annual count of days when PRCP &gt;= nnmm, nn is a user defined threshold</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>CDD</Name>
             <Title>CDD</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Maximum length of dry spell, maximum number of consecutive days with RR &lt; 1mm</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>CWD</Name>
             <Title>CWD</Title>
-            <Units/>
-            <Description/>
+            <Units>days</Units>
+            <Description>Maximum length of wet spell, maximum number of consecutive days with RR &gt;= 1mm</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>R95p</Name>
             <Title>R95p</Title>
-            <Units/>
-            <Description/>
+            <Units>mm</Units>
+            <Description>Annual total PRCP when RR &gt; 95p</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>R99p</Name>
             <Title>R99p</Title>
-            <Units/>
-            <Description/>
+            <Units>mm</Units>
+            <Description>Annual total PRCP when RR &gt; 99p</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>PrcpTot</Name>
             <Title>PrcpTot</Title>
-            <Units/>
-            <Description/>
+            <Units>mm</Units>
+            <Description>Annual total precipitation in wet days</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

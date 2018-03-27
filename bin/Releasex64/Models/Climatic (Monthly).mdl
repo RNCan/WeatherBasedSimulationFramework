@@ -135,7 +135,6 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-        <OutputVariable>
             <Name>TotalRadiation</Name>
             <Title>TotalRadiation</Title>
             <Units>MJ/m²</Units>

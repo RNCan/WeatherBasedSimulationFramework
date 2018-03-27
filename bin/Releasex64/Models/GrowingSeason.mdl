@@ -5,7 +5,7 @@
     <ID>.gs</ID>
     <EXE>GrowingSeason.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description/>
+    <Description>Growing season is define as the period between the last n1 consecutive days when T1(Tmin, Tmean or Tmax) is under a threashold1 in the spring and the first n2 consecutive days when T2 (Tmin, Tmean or Tmax) is under a threashold2  in the fall</Description>
     <WindowRect>0 0 211 250</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -94,7 +94,7 @@
             <Name>Begin</Name>
             <Title>Begin</Title>
             <Units>Date</Units>
-            <Description/>
+            <Description>First day of growing season in spring</Description>
             <TimeMode>2 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -102,7 +102,7 @@
             <Name>End</Name>
             <Title>End</Title>
             <Units>Date</Units>
-            <Description/>
+            <Description>Last day of growing season in fall</Description>
             <TimeMode>2 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -110,7 +110,7 @@
             <Name>Length</Name>
             <Title>Length</Title>
             <Units>days</Units>
-            <Description/>
+            <Description>Length of growing season</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

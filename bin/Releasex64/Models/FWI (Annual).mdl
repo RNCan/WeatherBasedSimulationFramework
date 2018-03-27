@@ -337,16 +337,16 @@
             <Name>n</Name>
             <Title>n</Title>
             <Units>days</Units>
-            <Description>Number of days used</Description>
+            <Description>Number of valid day in the month</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Tmin</Name>
-            <Title>Tmin</Title>
+            <Title>T min</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Annual minimum noon temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
@@ -355,7 +355,7 @@
             <Name>RHmin</Name>
             <Title>RH min</Title>
             <Units>%</Units>
-            <Description/>
+            <Description>Annual minimum noon relative humidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
@@ -364,13 +364,13 @@
             <Name>WSmin</Name>
             <Title>WS min</Title>
             <Units>km/h</Units>
-            <Description/>
+            <Description>Annual minimum noon wind speed</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>NbDayNoPrcp</Name>
+            <Name>NbDayWithoutPrcpCont</Name>
             <Title>NbDay without prcp (cons)</Title>
             <Units>days</Units>
             <Description>Maximum number of consecutive days without precipitation</Description>
@@ -382,25 +382,23 @@
             <Name>FFMCmin</Name>
             <Title>FFMC min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum FFMC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>DMCmin</Name>
             <Title>DMC min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum DMC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
-            <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>DCmin</Name>
             <Title>DC min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum DC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -408,7 +406,7 @@
             <Name>ISImin</Name>
             <Title>ISI min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum ISI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -416,7 +414,7 @@
             <Name>BUImin</Name>
             <Title>BUI min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum BUI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -424,15 +422,15 @@
             <Name>FWImin</Name>
             <Title>FWI min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum FWI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DSRmin</Name>
-            <Title>DSR min</Title>
+            <Name>ASRmin</Name>
+            <Title>ASR min</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum DSR</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -440,7 +438,7 @@
             <Name>Tmax</Name>
             <Title>T max</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Annual maximum noon temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
@@ -449,7 +447,7 @@
             <Name>RHmax</Name>
             <Title>RH max</Title>
             <Units>%</Units>
-            <Description/>
+            <Description>Annual maximum noon relative humidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
@@ -458,13 +456,13 @@
             <Name>WSmax</Name>
             <Title>WS max</Title>
             <Units>km/h</Units>
-            <Description/>
+            <Description>Annual maximum noon wind speed</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>NbDayNoPrcp</Name>
+            <Name>NbDayWithoutPrcp</Name>
             <Title>NbDay without prcp</Title>
             <Units>days</Units>
             <Description>The number of days without precipitation</Description>
@@ -476,7 +474,7 @@
             <Name>FFMCmax</Name>
             <Title>FFMC max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum FFMC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -484,7 +482,7 @@
             <Name>DMCmax</Name>
             <Title>DMC max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum DMC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -492,7 +490,7 @@
             <Name>DCmax</Name>
             <Title>DC max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum DC</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -500,7 +498,7 @@
             <Name>ISImax</Name>
             <Title>ISI max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum ISI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -508,7 +506,7 @@
             <Name>BUImax</Name>
             <Title>BUI max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum BUI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
@@ -516,15 +514,15 @@
             <Name>FWImax</Name>
             <Title>FWI max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum FWI</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DSRmax</Name>
-            <Title>DSR max</Title>
+            <Name>ASRmax</Name>
+            <Title>ASR max</Title>
             <Units/>
-            <Description/>
+            <Description>Annual maximum DSR</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
