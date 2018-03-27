@@ -108,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\External\boost;..\..\External;..\..\External\Ultimate Grid\Include;..\..\wbs\src</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,6 +140,7 @@
       <AdditionalIncludeDirectories>..\..\External\boost;..\..\External;..\..\External\Ultimate Grid\Include;..\..\wbs\src</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

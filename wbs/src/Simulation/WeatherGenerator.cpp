@@ -79,6 +79,8 @@ namespace WBSF
 	//800	1978
 	enum TGeoHeight { GH_SURFACE, GH_1000, GH_975, GH_950, GH_925, GH_900, GH_875, GH_850, GH_825, GH_800, NB_GEO_HEIGHT = 20 };
 
+	//Daily to hourly precipitation will give wrong cumultif if not 3 digit
+	static const int DIGIT_RES[NB_VAR_H] = { 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3 };
 
 
 	static const int NB_STATION_REGRESSION_LOCAL = 24;
@@ -471,7 +473,7 @@ namespace WBSF
 			return msg;
 
 
-		//round to 0.1
+		//round to RES
 		for (size_t r = 0; r < m_simulationPoints.size() && msg; r++)
 		{
 			for (size_t y = 0; y < m_simulationPoints[r].size() && msg; y++)
@@ -488,12 +490,12 @@ namespace WBSF
 								{
 									for (size_t h = 0; h < m_simulationPoints[r][y][m][d].size(); h++)
 									{
-										m_simulationPoints[r][y][m][d][h][v] = WBSF::Round(m_simulationPoints[r][y][m][d][h][v], 1);
+										m_simulationPoints[r][y][m][d][h][v] = WBSF::Round(m_simulationPoints[r][y][m][d][h][v], DIGIT_RES[v]);
 									}
 								}
 								else
 								{
-									m_simulationPoints[r][y][m][d][v] = WBSF::Round(m_simulationPoints[r][y][m][d][v], 1);
+									m_simulationPoints[r][y][m][d][v] = WBSF::Round(m_simulationPoints[r][y][m][d][v], DIGIT_RES[v]);
 								}
 							}
 						}
@@ -1356,7 +1358,6 @@ namespace WBSF
 								{
 									if (mVariables[v])
 									{
-										static const int DIGIT_RES[NB_VAR_H] = { 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 3 };
 										if (m_tgi.m_generationType == CWGInput::GENERATE_HOURLY)
 										{
 											//replace missing hourly value by normals generation

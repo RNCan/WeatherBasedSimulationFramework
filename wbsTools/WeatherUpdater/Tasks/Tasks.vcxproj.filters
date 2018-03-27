@@ -122,9 +122,6 @@
     <ClInclude Include="EnvCanHourlyForecast.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIManitoba.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UINewBrunswick.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -198,6 +195,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UINAM.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManitoba.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -310,9 +310,6 @@
     <ClCompile Include="EnvCanHourlyForecast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIManitoba.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UINewBrunswick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -389,6 +386,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UINAM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManitoba.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

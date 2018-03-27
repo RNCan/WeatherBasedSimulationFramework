@@ -589,7 +589,7 @@ void CFWIStat::Covert2M(const CModelStatVector& resultD, CModelStatVector& resul
 	{
 		int year = d.GetYear();//firstDate.GetYear() + y;
 
-		for(int m=0; m<12; m++)
+		for(size_t m=0; m<12; m++)
 		{
 			CStatistic stat[CFWIStat::NB_D_STAT];
 			while(d<=lastDate && 
@@ -671,7 +671,7 @@ void CFWIStat::Covert2A(const CModelStatVector& resultD, CModelStatVector& resul
 		resultA[ref][CFWIStat::FIRST_FWI_DAY] = firstDay.GetJDay()+1;	
 		resultA[ref][CFWIStat::LAST_FWI_DAY] = lastDay.GetJDay()+1;
 			
-		for(int v=0; v<resultD.GetNbStat(); v++)
+		for(size_t v=0; v<resultD.GetNbStat(); v++)
 		{
 			if( v==CFWIStat::PRCP )
 			{

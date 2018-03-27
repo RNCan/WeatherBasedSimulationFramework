@@ -26,20 +26,18 @@ namespace WBSF
 
 		enum TOuput{ S_DD, NB_OUTPUT };
 		static const char HEADER[];
-
-
-		//enum TAccumulationType{ AT_HOURLY, AT_DAILY };
+		
 		enum TDailyMethod{ DAILY_AVERAGE, DAILY_AVERAGE_ADJUSTED, SINGLE_TRIANGLE, DOUBLE_TRIANGLE, SINGLE_SINE, DOUBLE_SINE, ALLEN_WAVE = DOUBLE_SINE, MODIFIED_ALLEN_WAVE, NB_DAILY_METHOD };
 		enum THourlyMethod{ BIOSIM_HOURLY, NB_HOURLY_METHOD };
 		enum TCutoff{ HORIZONTAL_CUTOFF, INTERMEDIATE_CUTOFF, VERTICAL_CUTOFF, NB_CUTOFF };
 
-		//size_t m_aType;
 		size_t m_method;
 		double m_lowerThreshold;
 		double m_upperThreshold;
 		size_t m_cutoffType;
+		COverheat m_overheat;
 
-		//size_t aType = AT_DAILY,
+		
 		CDegreeDays( size_t method = DAILY_AVERAGE, double lowerThreshold = 0, double upperThreshold = 999, size_t cutoffType = HORIZONTAL_CUTOFF)
 		{
 			//m_aType = aType;
@@ -53,26 +51,15 @@ namespace WBSF
 
 		//General method
 		virtual void Execute(CWeatherStation& station, CModelStatVector& output);
-		
-//		void Transform(const CTM& TM, const CModelStatVector& in, CModelStatVector& out){ Transform(CTTransformation(in.GetTPeriod(), TM), out); }
-	//	void Transform(const CTTransformation& TT, const CModelStatVector& in, CModelStatVector& out){ Transform(CTTransformation(in.GetTPeriod(), TM), out); }
-		//void Transform(const CTM& TM, const CModelStatVector& in, CTStatMatrix& out){ Transform(CTTransformation(in.GetTPeriod(), TM), out); }
-		//void Transform(const CTTransformation& TT, const CModelStatVector& in, CTStatMatrix& out);
-
-		//double Get(const CDataInterface& in)const;
-		//double GetDD(const CHourlyData& in)const;
+	
 		double GetDD(const CWeatherDay& in)const;
 		double GetDD(const CWeatherMonth& in, const CTPeriod& p = CTPeriod())const;
 		double GetDD(const CWeatherYear& in, const CTPeriod& p = CTPeriod())const;
-
-		//double GetDH(const CHourlyData& in)const;
-		//double GetDH(const CWeatherDay& in)const;
 
 
 		//specific method
 		double GetAverageDD(const CWeatherDay& in)const;
 		double GetAverageAdjustedDD(const CWeatherDay& in)const;
-		double GetAverageStrictDD(const CWeatherDay& in)const;
 		double GetModifiedAllenWaveDD(const CWeatherDay& in)const;
 		double GetTriangleDD(const CWeatherDay& in)const;
 		double GetDoubleTriangleDD(const CWeatherDay& in)const;
@@ -80,7 +67,13 @@ namespace WBSF
 		double GetDoubleSineDD(const CWeatherDay& in)const;
 
 
+		//usefull method
+		double GetTmin(const CWeatherDay& in)const { return m_overheat.GetTmin(in); }
+		double GetTmax(const CWeatherDay& in)const { return m_overheat.GetTmax(in); }
+		double GetTnTx(const CWeatherDay& in)const { return (GetTmin(in) + GetTmax(in)) / 2.0;  }
+		
 		static double GetModifiedAllenWaveDD(const CWeatherDay& in, double threshLow, double threshHigh);
+		static double GetModifiedAllenWaveDD(double tmin1, double tmax, double tmin2, double threshLow, double threshHigh);
 		static double GetTriangleVerticalCutoff(double Tmin, double Tmax, double Tl, double Tu);
 		static double GetTriangleDD(double Tmin, double Tmax, double Th);
 		static double GetTriangleDD(double Tmin, double Tmax, double Tl, double Tu, size_t cutoffType);
@@ -99,18 +92,13 @@ namespace WBSF
 		enum TOuput{ S_DH, NB_OUTPUT };
 		static const char HEADER[];
 
-
-		//enum TAccumulationType{ AT_HOURLY, AT_DAILY };
-		//enum THourlyMethod{ DAILY_AVERAGE, DAILY_AVERAGE_ADJUSTED, SINGLE_TRIANGLE, DOUBLE_TRIANGLE, SINGLE_SINE, DOUBLE_SINE, ALLEN_WAVE = DOUBLE_SINE, MODIFIED_ALLEN_WAVE, NB_DAILY_METHOD };
-		//enum THourlyMethod{ BIOSIM_HOURLY, NB_HOURLY_METHOD };
 		enum TCutoff{ HORIZONTAL_CUTOFF, INTERMEDIATE_CUTOFF, VERTICAL_CUTOFF, NB_CUTOFF };
 
-		//size_t m_aType;
-		//size_t m_method;
 		bool m_bCumulative;
 		double m_lowerThreshold;
 		double m_upperThreshold;
 		size_t m_cutoffType;
+		//COverheat m_overheat;
 
 
 		CDegreeHours(double lowerThreshold = 0, double upperThreshold = 999, bool bCumulative = true, size_t cutoffType = HORIZONTAL_CUTOFF)

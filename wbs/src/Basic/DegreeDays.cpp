@@ -171,14 +171,14 @@ namespace WBSF
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
 		double DD = 0;
-		double x1 = max(0.0, min((double)in[H_TNTX][MEAN], m_upperThreshold) - m_lowerThreshold);
-		double x2 = min(0.0, m_upperThreshold - in[H_TNTX][MEAN]);
+		double x1 = max(0.0, min(GetTnTx(in), m_upperThreshold) - m_lowerThreshold);
+		double x2 = min(0.0, m_upperThreshold - GetTnTx(in));
 
 		switch (m_cutoffType)
 		{
 		case HORIZONTAL_CUTOFF: DD = x1; break;
 		case INTERMEDIATE_CUTOFF:DD = max(0.0, x1 + x2); break;
-		case VERTICAL_CUTOFF:DD = (in[H_TNTX][MEAN] <= m_upperThreshold) ? x1 : 0; break;
+		case VERTICAL_CUTOFF:DD = (GetTnTx(in) <= m_upperThreshold) ? x1 : 0; break;
 		default: ASSERT(false);
 		}
 
@@ -191,10 +191,10 @@ namespace WBSF
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
 		double DD = 0;
-		double Tmin = max(in[H_TMIN2][MEAN], m_lowerThreshold);
-		double Tmax = min(in[H_TMAX2][MEAN], m_upperThreshold);
+		double Tmin = max(GetTmin(in), m_lowerThreshold);
+		double Tmax = min(GetTmax(in), m_upperThreshold);
 		double x1 = max(0.0, (Tmin + Tmax) / 2 - m_lowerThreshold);
-		double x2 = min(0.0, m_upperThreshold - in[H_TMAX2][MEAN]);
+		double x2 = min(0.0, m_upperThreshold - GetTmax(in));
 
 		switch (m_cutoffType)
 		{
@@ -214,8 +214,8 @@ namespace WBSF
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
-		double Tmin = in[H_TMIN2][MEAN];
-		double Tmax = in[H_TMAX2][MEAN];
+		double Tmin = GetTmin(in);
+		double Tmax = GetTmax(in);
 		double DD = 2 * GetTriangleDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 		return max(0.0, DD);
 	}
@@ -225,13 +225,13 @@ namespace WBSF
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
-		double Tmin = in[H_TMIN2][MEAN];
-		double Tmax = in[H_TMAX2][MEAN];
+		double Tmin = GetTmin(in);
+		double Tmax = GetTmax(in);
 		double DD = GetTriangleDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 
 		const CWeatherDay& nextDay = in.GetNext();
-		Tmin = nextDay[H_TMIN2][MEAN];
-		Tmax = nextDay[H_TMAX2][MEAN];
+		Tmin = GetTmin(nextDay);
+		Tmax = GetTmax(nextDay);
 		DD += GetTriangleDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 
 		return DD;
@@ -244,25 +244,25 @@ namespace WBSF
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
 
+		//A REVÉRIFIER??????
+		//ASSERT(GetSineDD(1, 2, 2, 3, HORIZONTAL_CUTOFF) == 0);
+		//ASSERT(GetSineDD(1, 2, 2, 3, INTERMEDIATE_CUTOFF) == 0);
+		//ASSERT(GetSineDD(1, 2, 2, 3, VERTICAL_CUTOFF) == 0);
+		//GetSineDD(1, 2, 1.5, 2.5, HORIZONTAL_CUTOFF);//1/8
+		//GetSineDD(1, 2, 1.5, 2.5, INTERMEDIATE_CUTOFF);//1/8
+		//GetSineDD(1, 2, 1.5, 2.5, VERTICAL_CUTOFF);//1/8
+		//ASSERT(GetSineDD(1, 2, 0, 1, HORIZONTAL_CUTOFF) == 1);
+		//ASSERT(GetSineDD(1, 2, 0, 1, INTERMEDIATE_CUTOFF) == 0.5);
+		//ASSERT(GetSineDD(1, 2, 0, 1, VERTICAL_CUTOFF) == 0);
+		//GetSineDD(1, 2, 0, 3, HORIZONTAL_CUTOFF);// == 4.0/8.0);
+		//GetSineDD(1, 2, 0, 3, INTERMEDIATE_CUTOFF);// == 4.0/8.0);
+		//GetSineDD(1, 2, 0, 3, VERTICAL_CUTOFF);// == 4.0/8.0);
+		//GetSineDD(1, 2, 1.25, 1.75, HORIZONTAL_CUTOFF);
+		//GetSineDD(1, 2, 1.25, 1.75, INTERMEDIATE_CUTOFF);
+		//GetSineDD(1, 2, 1.25, 1.75, VERTICAL_CUTOFF);
 
-		ASSERT(GetSineDD(1, 2, 2, 3, HORIZONTAL_CUTOFF) == 0);
-		ASSERT(GetSineDD(1, 2, 2, 3, INTERMEDIATE_CUTOFF) == 0);
-		ASSERT(GetSineDD(1, 2, 2, 3, VERTICAL_CUTOFF) == 0);
-		GetSineDD(1, 2, 1.5, 2.5, HORIZONTAL_CUTOFF);//1/8
-		GetSineDD(1, 2, 1.5, 2.5, INTERMEDIATE_CUTOFF);//1/8
-		GetSineDD(1, 2, 1.5, 2.5, VERTICAL_CUTOFF);//1/8
-		ASSERT(GetSineDD(1, 2, 0, 1, HORIZONTAL_CUTOFF) == 1);
-		ASSERT(GetSineDD(1, 2, 0, 1, INTERMEDIATE_CUTOFF) == 0.5);
-		ASSERT(GetSineDD(1, 2, 0, 1, VERTICAL_CUTOFF) == 0);
-		GetSineDD(1, 2, 0, 3, HORIZONTAL_CUTOFF);// == 4.0/8.0);
-		GetSineDD(1, 2, 0, 3, INTERMEDIATE_CUTOFF);// == 4.0/8.0);
-		GetSineDD(1, 2, 0, 3, VERTICAL_CUTOFF);// == 4.0/8.0);
-		GetSineDD(1, 2, 1.25, 1.75, HORIZONTAL_CUTOFF);
-		GetSineDD(1, 2, 1.25, 1.75, INTERMEDIATE_CUTOFF);
-		GetSineDD(1, 2, 1.25, 1.75, VERTICAL_CUTOFF);
-
-		double Tmin = in[H_TMIN2][MEAN];
-		double Tmax = in[H_TMAX2][MEAN];
+		double Tmin = GetTmin(in);
+		double Tmax = GetTmax(in);
 		double DD = 2 * GetSineDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 
 		return max(0.0, DD);
@@ -273,13 +273,13 @@ namespace WBSF
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
 		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
 
-		double Tmin = in[H_TMIN2][MEAN];
-		double Tmax = in[H_TMAX2][MEAN];
+		double Tmin = GetTmin(in);
+		double Tmax = GetTmax(in);
 		double DD = GetSineDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 
 		const CWeatherDay& nextDay = in.GetNext();
-		Tmin = nextDay[H_TMIN2][MEAN];
-		Tmax = nextDay[H_TMAX2][MEAN];
+		Tmin = GetTmin(nextDay);
+		Tmax = GetTmax(nextDay);
 
 		DD += GetSineDD(Tmin, Tmax, m_lowerThreshold, m_upperThreshold, m_cutoffType);
 
@@ -291,6 +291,12 @@ namespace WBSF
 
 	double CDegreeDays::GetModifiedAllenWaveDD(const CWeatherDay& in)const
 	{
+		double tmin1 = GetTmin(in);//minimum temperature in this day 
+		double tmax = GetTmax(in);//maximum temperature in this day 
+
+		const CWeatherDay& nextDay = in.GetNext();
+		double tmin2 = GetTmin(nextDay);//minimum temperature in the next day 
+
 		double DD = 0;
 		double x1 = GetModifiedAllenWaveDD(in, m_lowerThreshold, m_upperThreshold);
 		double x2 = -GetModifiedAllenWaveDD(in, m_upperThreshold, 9999);
@@ -357,7 +363,7 @@ namespace WBSF
 		return (x1 + x2) / 2;
 	}
 
-	double CDegreeDays::GetTriangleDD(double Tmin, double Tmax, double Tl, double Tu, size_t m_cutoffType)
+	double CDegreeDays::GetTriangleDD(double Tmin, double Tmax, double Tl, double Tu, size_t cutoffType)
 	{
 		if (Tmin > Tmax)
 			Switch(Tmin, Tmax);
@@ -372,7 +378,7 @@ namespace WBSF
 
 		//Compute area for triangular m_method
 
-		switch (m_cutoffType)
+		switch (cutoffType)
 		{
 		case HORIZONTAL_CUTOFF: DD = max(0.0, x1 - x2); break;
 		case INTERMEDIATE_CUTOFF:DD = max(0.0, x1 - x2 - min(x2, x3)); break;
@@ -459,7 +465,7 @@ namespace WBSF
 		return DD / 2;
 	}
 
-	double CDegreeDays::GetSineDD(double Tmin, double Tmax, double Tl, double Tu, size_t m_cutoffType)
+	double CDegreeDays::GetSineDD(double Tmin, double Tmax, double Tl, double Tu, size_t cutoffType)
 	{
 		if (Tmin > Tmax)
 			Switch(Tmin, Tmax);
@@ -469,7 +475,7 @@ namespace WBSF
 		double x2 = GetSineDD(Tmin, Tmax, Tu);
 		double x3 = GetSineVerticalCutoff(Tmin, Tmax, Tl, Tu);
 
-		switch (m_cutoffType)
+		switch (cutoffType)
 		{
 		case HORIZONTAL_CUTOFF: DD = max(0.0, x1 - x2); break;
 		case INTERMEDIATE_CUTOFF:DD = max(0.0, x1 - x2 - min(x2, x3)); break;
@@ -493,19 +499,23 @@ namespace WBSF
 	//  Envir.Entomol, 5:388-396 using FOR-C software. Only heating units are used.
 	double CDegreeDays::GetModifiedAllenWaveDD(const CWeatherDay& in, double threshLow, double threshHigh)
 	{
+		double tmin1 = in[H_TMIN2][MEAN];//minimum temperature in this day 
+		double tmax = in[H_TMAX2][MEAN];//maximum temperature in this day 
+
+		const CWeatherDay& nextDay = in.GetNext();
+		double tmin2 = nextDay[H_TMIN2][MEAN];//minimum temperature in the next day 
+
+		
+		return GetModifiedAllenWaveDD(tmin1, tmax, tmin2, threshLow, threshHigh);
+	}
+	double CDegreeDays::GetModifiedAllenWaveDD(double tmin1, double tmax, double tmin2, double threshLow, double threshHigh)
+	{
 		ASSERT(threshLow <= threshHigh);
-		ASSERT(in[H_TMIN2].IsInit() && in[H_TMAX2].IsInit());
+		ASSERT(tmin1>-999 && tmax>-999 && tmin2>-999);
 
 		double ahdd = 0.0; //heating degree-days 
 		double acdd = 0.0; //cooling degree-days 
 
-
-		double tmin1 = in[H_TMIN2][MEAN];//minimum temperature in this day 
-		double tmax = in[H_TMAX2][MEAN];//maximum temperature in this day 
-
-
-		const CWeatherDay& nextDay = in.GetNext();
-		double tmin2 = nextDay[H_TMIN2][MEAN];//minimum temperature in the next day 
 
 		// calculate heating and cooling degree-days using Allen's modified
 		// sine wave m_method (without bias correction).
@@ -586,7 +596,6 @@ namespace WBSF
 
 
 
-
 	//***********************************************************************************************************************
 	const char CDegreeHours::HEADER[] = "DH";
 	void CDegreeHours::Execute(CWeatherStation& weather, CModelStatVector& output)
@@ -611,7 +620,8 @@ namespace WBSF
 	{
 		ASSERT(m_lowerThreshold <= m_upperThreshold);
 		ASSERT(!IsMissing(in[H_TAIR2]));
-	
+
+		
 		double DH = 0;
 		double x1 = max(0.0, min((double)in[H_TAIR2], m_upperThreshold) - m_lowerThreshold);
 		double x2 = min(0.0, m_upperThreshold - in[H_TAIR2]);
@@ -626,5 +636,7 @@ namespace WBSF
 
 		return DH;
 	}
+
+	
 
 }//namespace WBSF

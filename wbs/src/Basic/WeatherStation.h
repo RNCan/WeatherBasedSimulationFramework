@@ -89,7 +89,7 @@ public:
 			if (at(v).IsInit())
 			{
 				variables[v].first += size_t(bOneCountPerDay ? 1 : at(v)[NB_VALUE]);
-				variables[v].second += m_period;
+				variables[v].second += m_period;// CTPeriod(m_TRef, m_TRef);//m_period can not be init yet
 			}
 		}
 		return variables;
@@ -512,24 +512,43 @@ public:
 	virtual CWVariablesCounter GetVariablesCount(bool bDailyOnly = false)const
 	{
 		CWVariablesCounter variables;
-		if (IsHourly() && !bDailyOnly)
+		if (IsHourly() )
 		{
+			CWVariablesCounter tmp;
 			for (size_t h = 0; h<size(); h++)
-				variables += at(h).GetVariablesCount();
+				tmp += at(h).GetVariablesCount();
+
+			if(bDailyOnly)
+			{ 
+				//we do this here to avoid create statistic in this function
+				for (size_t v = 0; v < tmp.size(); v++)
+				{
+					if (tmp[v].first>0)
+					{
+						variables[v].first += 1;
+						variables[v].second += CTPeriod(m_TRef, m_TRef);//m_period can not be init yet
+					}
+				}
+			}
+			else
+			{
+				variables = tmp;
+			}
+			
 		}
 		else
 		{
 			//update period
-			if (!m_dailyStat.m_bInit)
-			{
-				CWeatherDay& me = const_cast<CWeatherDay&>(*this);
-				me.m_dailyStat.m_period.clear();
-				
-				if (m_dailyStat.HaveData())
-					me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
+			//if (!m_dailyStat.m_bInit)
+			//{
+				//CWeatherDay& me = const_cast<CWeatherDay&>(*this);
+				//me.m_dailyStat.m_period.clear();
+				//
+				//if (HaveData())
+				//	me.m_dailyStat.m_period = CTPeriod(m_TRef, m_TRef);
 
-				me.m_dailyStat.m_bInit = true;
-			}
+				//me.m_dailyStat.m_bInit = true;
+			//}
 
 			variables = m_dailyStat.GetVariablesCount(true);
 		}

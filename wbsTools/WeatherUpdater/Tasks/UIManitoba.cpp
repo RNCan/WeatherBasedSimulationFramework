@@ -15,11 +15,16 @@
 #include "WeatherBasedSimulationString.h"
 
 
-using namespace std; 
+using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
 using namespace json11;
+
+
+//a faire mbpotatoes
+//http://www.mbpotatoes.ca/weather.cfm?stn=325
+
 
 //plus de donn…es sur:
 //ftp://mawpvs.dyndns.org/Partners/AI/
@@ -131,25 +136,26 @@ using namespace json11;
 namespace WBSF
 {
 
-	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { /*"Agriculture", */"Agriculture", "Fire", "Hydro" };
-	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { /*"Manitoba Agriculture",*/ "Manitoba Agriculture", "Manitoba Fire", "Manitoba Hydro" };
-	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { /*"mawpvs.dyndns.org", */"tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca" };
-	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { /*"Tx_DMZ/",*/ "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations" };
+	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Fire", "Hydro", "Potato" };
+	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Fire", "Manitoba Hydro", "Manitoba Potatoes" };
+	const char* CUIManitoba::NETWORK_ABVR[NB_NETWORKS] = { "Agri", "Fire", "Hydro", "Potato" };
+	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "tgs.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca", "www.mbpotatoes.ca" };
+	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
 
 	size_t CUIManitoba::GetNetwork(const string& network)
 	{
 		size_t n = NOT_INIT;
 
-		for (size_t i = 0; i <NB_NETWORKS && n == NOT_INIT; i++)
+		for (size_t i = 0; i < NB_NETWORKS && n == NOT_INIT; i++)
 		{
-			if (IsEqualNoCase(network, SUBDIR_NAME[i]))
+			if (IsEqualNoCase(network, NETWORK_ABVR[i]))
 				n = i;
 		}
 
 		return n;
 	}
-	
-	std::bitset<CUIManitoba::NB_NETWORKS> CUIManitoba::GetNetWork()const
+
+	std::bitset<CUIManitoba::NB_NETWORKS> CUIManitoba::GetNetwork()const
 	{
 		std::bitset<NB_NETWORKS> network;
 
@@ -179,7 +185,7 @@ namespace WBSF
 	const UINT CUIManitoba::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MANITOBA_P;
 	const UINT CUIManitoba::DESCRIPTION_TITLE_ID = ID_TASK_MANITOBA;
 
-	const char* CUIManitoba::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Manitoba";  return THE_CLASS_NAME; }
+	const char* CUIManitoba::CLASS_NAME() { static const char* THE_CLASS_NAME = "Manitoba";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIManitoba::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIManitoba::CLASS_NAME(), (createF)CUIManitoba::create);
 
@@ -198,7 +204,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "Agriculture=Manitoba Agriculture|Fire=Manitoba fire|Hydro=Manitoba Hydro"; break;
+		case NETWORK:	str = "Agri=Manitoba Agriculture|Fire=Manitoba fire|Hydro=Manitoba Hydro|Potato=Manitoba Potatoes"; break;
 		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
@@ -211,7 +217,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Manitoba\\"; break;
-		case NETWORK:	str = "Agriculture|Fire|Hydro"; break;
+		case NETWORK:	str = "Agri|Fire|Hydro"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "0"; break;
@@ -220,13 +226,13 @@ namespace WBSF
 		return str;
 	}
 
-	
+
 	//****************************************************
 
 
 	std::string CUIManitoba::GetStationsListFilePath(size_t network)const
 	{
-		static const char* FILE_NAME[NB_NETWORKS] = {/* "ManitobaAgriStations.csv",*/ "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv" };
+		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv",  "ManitobaPotatoStations.csv" };
 
 		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "Layers\\";
 		string filePath = path + FILE_NAME[network];
@@ -237,21 +243,16 @@ namespace WBSF
 	string CUIManitoba::GetOutputFilePath(size_t network, size_t type, const string& title, int year, size_t m)const
 	{
 		string strType = (type == HOURLY_WEATHER) ? "Hourly" : "Daily";
-		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + strType + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m+1).c_str() : "") + title + ".csv";
+		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + strType + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m + 1).c_str() : "") + title + ".csv";
 	}
 
 
 	ERMsg CUIManitoba::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		size_t type = as<size_t>(DATA_TYPE);
-		//StringVector networkV(Get(NETWORK), "|");
-		//bitset<NB_NETWORKS> network;
-		//for (size_t n = 0; n < NB_NETWORKS; n++)
-			//if (networkV.empty() || networkV.Find(ToString(n)) != NOT_INIT)
-				//network.set(n);
-		std::bitset<NB_NETWORKS> network = GetNetWork();
+		std::bitset<NB_NETWORKS> network = GetNetwork();
 
 		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
 		callback.PushTask("Download " + tstr + " Manitoba Data (" + ToString(network.count()) + " networks)", network.count());
@@ -272,10 +273,10 @@ namespace WBSF
 
 				switch (n)
 				{
-				//case AGRI:/* msg = ExecuteAgriculture(callback);*/ break;
-				case AGRI: msg = ExecuteHistoricalAgriculture(callback); break;
+				case AGRI: msg = ExecuteAgri(callback); break;
 				case FIRE: msg = ExecuteFire(callback); break;
 				case HYDRO:	msg = ExecuteHydro(callback); break;
+				case POTATO: msg = ExecutePotato(callback); break;
 				default: ASSERT(false);
 				}
 
@@ -283,7 +284,7 @@ namespace WBSF
 			}//if selected network
 		}//for all newtwork
 
-		 
+
 		callback.PopTask();
 
 
@@ -295,14 +296,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//StringVector networks( Get(NETWORK), "|") ;
-		std::bitset<NB_NETWORKS> network = GetNetWork();
+		std::bitset<NB_NETWORKS> network = GetNetwork();
 
 		m_stations.clear();
 		for (size_t n = 0; n < NB_NETWORKS; n++)
 		{
-			//if (networks.empty() || networks.Find(to_string(n)) != NOT_INIT)
-			if(network.test(n))
+			if (network.test(n))
 			{
 				CLocationVector locations;
 				msg = locations.Load(GetStationsListFilePath(n));
@@ -315,15 +314,15 @@ namespace WBSF
 					locations[i].SetSSI("Network", NETWORK_NAME[n]);
 
 				m_stations.insert(m_stations.end(), locations.begin(), locations.end());
-				
+
 				for (size_t i = 0; i < locations.size(); i++)
-					stationList.push_back(ToString(n)+"/"+locations[i].m_ID);
+					stationList.push_back(ToString(n) + "/" + locations[i].m_ID);
 			}
 		}
 
 		if (msg)
 		{
-			
+
 		}
 
 
@@ -334,16 +333,20 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t n = ToSizeT(NID.substr(0,1));
+		size_t n = ToSizeT(NID.substr(0, 1));
 		string ID = NID.substr(2);
 
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
 		ASSERT(it != NOT_INIT);
-	
+
 		((CLocation&)station) = m_stations[it];
-	
+
+
 		size_t type = as<size_t>(DATA_TYPE);
+		station.SetHourly(type == HOURLY_WEATHER);
+
+
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -376,7 +379,7 @@ namespace WBSF
 				msg += callback.StepIt(0);
 			}
 
-			
+
 		}
 
 		station.CleanUnusedVariable("TN T TX P TD H WS WD R Z");
@@ -655,7 +658,7 @@ namespace WBSF
 		{
 			if (compass == COMPASS[i])
 			{
-				wd = i*22.5;
+				wd = i * 22.5;
 				break;
 			}
 		}
@@ -663,12 +666,12 @@ namespace WBSF
 		return wd;
 	}
 
-	ERMsg CUIManitoba::DownloadStationData(CHttpConnectionPtr& pConnection, size_t type, const std::string& ID, CTRef TRef, std::string& text)
+	ERMsg CUIManitoba::DownloadAgriData(CHttpConnectionPtr& pConnection, size_t type, const std::string& ID, CTRef TRef, std::string& text)
 	{
 		ERMsg msg;
 
 
-		CString URL; 
+		CString URL;
 		//CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");
 		CStringA strParam;
 
@@ -682,7 +685,6 @@ namespace WBSF
 			strParam += ("ctl00%24DefaultContent%24cboStationNames=" + ID + "&").c_str();
 			strParam += ("ctl00%24DefaultContent%24txtHRDate=" + strDate + "&").c_str();
 			strParam += "ctl00%24DefaultContent%24btn_HRSearch=Submit";
-			//strParam = "__VIEWSTATE=%2FwEPDwULLTEwOTU4OTMxNzYPZBYCZg9kFgICAw9kFgICAQ9kFgYCAQ9kFgQCAQ9kFgICAQ9kFgJmDxAPFgYeDURhdGFUZXh0RmllbGQFC1N0YXRpb25OYW1lHg5EYXRhVmFsdWVGaWVsZAUFU3RuSUQeC18hRGF0YUJvdW5kZ2QQFSgGQWx0b25hBkFyYm9yZwZCaXJ0bGUKQm9pc3NldmFpbglEZWxvcmFpbmUGRHVnYWxkCUVsbSBDcmVlawlFcmlrc2RhbGUJRXRoZWxiZXJ0B0ZvcnJlc3QJR2xhZHN0b25lCEdsZW5ib3JvCUdyYW5kdmlldwdIYW1pb3RhCUtpbGxhcm5leQlMZXRlbGxpZXIHTWFuaXRvdQxNZWxpdGEgU291dGgJTWlubmVkb3NhCU1vb3NlaG9ybgZNb3JyaXMHUGllcnNvbgxQb3J0YWdlIEVhc3QGUmVzdG9uB1J1c3NlbGwHU2Vsa2lyawhTb21lcnNldAZTb3VyaXMJU3QgUGllcnJlC1N0LiBBZG9scGhlCFN0YXJidWNrCVN0ZS4gUm9zZQlTdGVpbmJhY2gLU3dhbiBWYWxsZXkGVGV1bG9uCFRyZWhlcm5lBlZpcmRlbghXYXdhbmVzYQ1XaW5rbGVyIENNQ0RDCVdvb2RsYW5kcxUoAzI0NAMyMDYDMjE2AzIwOQMyNDEDMjE3AzIzNwMyMTgDMjEzAzIzMwMyMDQDMjM5AzIxOQMyMTQDMjIwAzIzOAMyNDIDNzQwAzIyMQMyMDUDMjIyAzIzMgMyMzUDMjQ1AzIxNQMyMTADMjQ2AzIwOAMyMDMDMjQzAzIwMgMyMTEDMjIzAzIzMQMyMDcDMjAxAzIyNAMyNDADMjMwAzIyNRQrAyhnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZGQCAg9kFgICAQ9kFgICAg8PZBYMHgtvbk1vdXNlT3ZlcgU8Q2hhbmdlTW91c2UoJ2N0bDAwX0RlZmF1bHRDb250ZW50X2ltZ0hSRGF0ZScsICdvbk1vdXNlT3ZlcicpHgpvbk1vdXNlT3V0BTtDaGFuZ2VNb3VzZSgnY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nSFJEYXRlJywgJ29uTW91c2VPdXQnKR4Lb25Nb3VzZURvd24FPUNoYW5nZUJvcmRlcignY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nSFJEYXRlJywgJ29uTW91c2VEb3duJykeCW9uTW91c2VVcAU7Q2hhbmdlQm9yZGVyKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdIUkRhdGUnLCAnb25Nb3VzZVVwJykeB29uQ2xpY2sFLlNob3dDYWxlbmRhcignY3RsMDBfRGVmYXVsdENvbnRlbnRfdHh0SFJEYXRlJykeCm9uS2V5UHJlc3MFLlNob3dDYWxlbmRhcignY3RsMDBfRGVmYXVsdENvbnRlbnRfdHh0SFJEYXRlJylkAgMPZBYEZg9kFgJmD2QWAmYPDxYCHgRUZXh0BSE8Yj5Ib3VybHkgUmF3IERhdGEgZm9yIEFyYm9yZzwvYj5kZAIBD2QWAmYPZBYCZg8PFgIfCQUYPGI%2BRmVicnVhcnkgMDEsIDIwMTc8L2I%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%2BNvz9apC1x8iUpxMt3dM&__EVENTVALIDATION=%2FwEWKwL8idyADQLx5%2BaKCAKvkdK9BAKvka69BAKO%2Ba6hCAKmo4nLCQKAusjKDgKAusDKDgK10IiUBgKc3fD9BQKc3cj9BQLx55aLCAKO%2BaKhCAKO%2BaqhCALx55KLCALNmpe%2BBwK10ICUBgK7tKvgAwLGmu%2B9BwKmo7HLCQLKiLCgAgK7tNPgAwK7tK%2FgAwLKiISgAgLKiICgAgLKiIygAgLNmpu%2BBwKvkaK9BAK10IyUBgKc3fT9BQKc3cT9BQK7tNvgAwKmo7XLCQKc3cz9BQKmo43LCQKAuszKDgKmo7nLCQLx5%2B6KCALNmu%2B9BwLNmpO%2BBwLKiIigAgKho5PqDALa8rvJA7c1QqPsKYBHGBLaTpsDkbilYJJd&ctl00%24DefaultContent%24cboStationNames=240&ctl00%24DefaultContent%24txtHRDate=2017-02-01&ctl00%24DefaultContent%24btn_HRSearch=Submit";
 		}
 		else
 		{
@@ -710,7 +712,7 @@ namespace WBSF
 				{
 					CString strContentL;
 					strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
-				
+
 					pURLFile->AddRequestHeaders(strContentL);
 					pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded\r\n"));
 
@@ -779,7 +781,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIManitoba::GetHistoricalStationList(size_t dataType, StringVector& fileList, CCallback& callback)
+	ERMsg CUIManitoba::GetAgriStationList(size_t dataType, StringVector& fileList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -800,7 +802,7 @@ namespace WBSF
 					pos1 = str.find("<select", pos1);
 					pos2 = str.find("</select>", pos1);
 				}
-				
+
 				if (pos1 != string::npos && pos2 != string::npos)
 				{
 					try
@@ -813,7 +815,11 @@ namespace WBSF
 						{
 							string value;
 							it.get()->getAttribute("value", value);
-							fileList.push_back(value);
+
+							//ignore EnvCan weather station . ie ID <100
+							int ID = ToInt(value);
+							if (ID >= 100)
+								fileList.push_back(value);
 						}//for all station
 					}
 					catch (const zen::XmlParsingError& e)
@@ -827,23 +833,20 @@ namespace WBSF
 
 			pConnection->Close();
 			pSession->Close();
-		
+
 		}
 
 		return msg;
 	}
 
-	ERMsg CUIManitoba::SaveAgricultureDailyStation(const std::string& filePath, std::string str)
+	ERMsg CUIManitoba::SaveAgriDailyStation(const std::string& filePath, std::string str)
 	{
 		ERMsg msg;
 
 		CWeatherYears data(false);
 
-		enum THourlyColumns{ C_DATE, C_TMAX, C_TMIN, C_TAVG, C_PPT, C_GDD, C_CHU, NB_COLUMNS };
-		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX2, H_TMIN2, H_TAIR2, H_PRCP, H_SKIP, H_SKIP};
-
-		//enum THourlyColumns{ C_HOUR, C_TEMP,C_RH, C_RAIN, C_WIND_SPEED, C_WIND_DIR, C_PEAK_WIND, C_SOIL_TEMP, NB_COLUMNS };
-		//static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
+		enum THourlyColumns { C_DATE, C_TMAX, C_TMIN, C_TAVG, C_PPT, C_GDD, C_CHU, NB_COLUMNS };
+		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX2, H_TMIN2, H_TAIR2, H_PRCP, H_SKIP, H_SKIP };
 
 		try
 		{
@@ -864,7 +867,7 @@ namespace WBSF
 					tmp.push_back(value);
 				}//for all columns
 
-				
+
 				if (tmp.size() == NB_COLUMNS)
 				{
 
@@ -914,13 +917,13 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIManitoba::SaveAgricultureHourlyStation(const std::string& filePath, std::string str)
+	ERMsg CUIManitoba::SaveAgriHourlyStation(const std::string& filePath, std::string str)
 	{
 		ERMsg msg;
 
 		CWeatherYears data(true);
-		
-		enum THourlyColumns{ C_HOUR, C_TEMP, C_RH, C_RAIN, C_WIND_SPEED, C_WIND_DIR, C_PEAK_WIND, C_SOIL_TEMP, NB_COLUMNS };
+
+		enum THourlyColumns { C_HOUR, C_TEMP, C_RH, C_RAIN, C_WIND_SPEED, C_WIND_DIR, C_PEAK_WIND, C_SOIL_TEMP, NB_COLUMNS };
 		static const TVarH HOURLY_VARS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_RELH, H_PRCP, H_WNDS, H_WNDD, H_SKIP, H_ADD1 };
 
 		try
@@ -954,21 +957,23 @@ namespace WBSF
 					if (tmp.size() == NB_COLUMNS)
 					{
 						string strHour = tmp[C_HOUR];
-						size_t hour = ToSizeT(strHour.substr(0,2));
+						size_t hour = ToSizeT(strHour.substr(0, 2));
 
 						if (strHour == "12AM")
 							hour = 0;
-						else if (strHour.substr(2) == "PM" && strHour!="12PM")
+						if (strHour == "12PM")
+							hour = 12;
+						else if (strHour.find("PM") != string::npos)
 							hour += 12;
-						
+
 						TRef.m_hour = hour;
 						ASSERT(TRef.IsValid());
-						
+
 						for (size_t i = 0; i < NB_COLUMNS; i++)
 						{
 							if (HOURLY_VARS[i] != H_SKIP && !tmp[i].empty())
 							{
-								double value = (HOURLY_VARS[i] == H_WNDD)?GetWindDir(tmp[i]):ToDouble(tmp[i]);
+								double value = (HOURLY_VARS[i] == H_WNDD) ? GetWindDir(tmp[i]) : ToDouble(tmp[i]);
 								data[TRef].SetStat(HOURLY_VARS[i], value);
 							}
 						}
@@ -993,7 +998,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIManitoba::ExecuteHistoricalAgriculture(CCallback& callback)
+	ERMsg CUIManitoba::ExecuteAgri(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -1006,18 +1011,18 @@ namespace WBSF
 
 
 		StringVector stationsList;
-		GetHistoricalStationList(type, stationsList, callback);
+		GetAgriStationList(type, stationsList, callback);
 
-	
+
 		int nbFiles = 0;
 		int nbRun = 0;
 		size_t curY = 0;
-		
+
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		while (nbRun < 5 && curY<nbYears && msg)
+		while (nbRun < 5 && curY < nbYears && msg)
 		{
 			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size()*nbYears * 12 : stationsList.size()*(nbYears - 1) * 12 + stationsList.size()*(currentTRef.GetMonth() + 1);
 			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
@@ -1037,6 +1042,7 @@ namespace WBSF
 					{
 						for (size_t i = 0; i < stationsList.size() && msg; i++)
 						{
+
 							bool bDownload = true;
 							string filePath = GetOutputFilePath(AGRI, type, stationsList[i], year, m);
 							CreateMultipleDir(GetPath(filePath));
@@ -1058,7 +1064,7 @@ namespace WBSF
 								{
 									string source;
 									size_t nbDays = year < currentTRef.GetYear() || m < currentTRef.GetMonth() ? GetNbDayPerMonth(year, m) : currentTRef.GetDay() + 1;
-									callback.PushTask("Update station (ID=" + stationsList[i] + ") for " + GetMonthTitle(m) + " "+ ToString(year)+ " (" +  ToString(nbDays) + " days)", nbDays);
+									callback.PushTask("Update station (ID=" + stationsList[i] + ") for " + GetMonthTitle(m) + " " + ToString(year) + " (" + ToString(nbDays) + " days)", nbDays);
 
 
 									for (size_t d = 0; d < nbDays && msg; d++)
@@ -1066,7 +1072,7 @@ namespace WBSF
 										string str;
 
 										CTRef TRef(year, m, d);
-										msg = DownloadStationData(pConnection, type, stationsList[i], TRef, str);
+										msg = DownloadAgriData(pConnection, type, stationsList[i], TRef, str);
 										string::size_type pos1 = str.find("Hourly Raw Data for");
 
 										if (pos1 < str.size())
@@ -1078,7 +1084,7 @@ namespace WBSF
 
 												if (pos1 != string::npos && pos2 != string::npos)
 												{
-													source += ("<table date=\"" + TRef.GetFormatedString("%Y-%m-%d") + "\" " + str.substr(pos1+6, pos2 - (pos1+6)) + "</table>");
+													source += ("<table date=\"" + TRef.GetFormatedString("%Y-%m-%d") + "\" " + str.substr(pos1 + 6, pos2 - (pos1 + 6)) + "</table>");
 													msg += callback.StepIt();
 												}
 											}
@@ -1091,17 +1097,17 @@ namespace WBSF
 									if (msg)
 									{
 										string tmp = string("<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n") + "<tables>" + source + "</tables>";
-										msg += SaveAgricultureHourlyStation(filePath, tmp);
+										msg += SaveAgriHourlyStation(filePath, tmp);
 										nbFiles++;
 										nbRun = 0;
 									}
-								
+
 									callback.PopTask();
 								}//if hourly
 								else
 								{
 									string str;
-									msg = DownloadStationData(pConnection, type, stationsList[i], CTRef(year, m), str);
+									msg = DownloadAgriData(pConnection, type, stationsList[i], CTRef(year, m), str);
 
 									//split data in seperate files
 									if (msg)
@@ -1120,11 +1126,11 @@ namespace WBSF
 										if (pos1 != string::npos && pos2 != string::npos)
 										{
 											string tmp = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 9);
-											msg += SaveAgricultureDailyStation(filePath, tmp);
+											msg += SaveAgriDailyStation(filePath, tmp);
 											nbFiles++;
 											nbRun = 0;
 										}
-										
+
 									}//if msg
 								}//data type
 							}//need download
@@ -1172,7 +1178,7 @@ namespace WBSF
 
 	//******************************************************************************************************
 	//Manitoba fire
-	
+
 	ERMsg CUIManitoba::ExecuteFire(CCallback& callback)
 	{
 		ERMsg msg;
@@ -1183,7 +1189,7 @@ namespace WBSF
 			return msg;
 
 
-		if (!FileExists(GetStationsListFilePath(FIRE)) )//|| as<bool>(FORCE_UPDATE_STATIONS_LIST)
+		if (!FileExists(GetStationsListFilePath(FIRE)))//|| as<bool>(FORCE_UPDATE_STATIONS_LIST)
 		{
 			CLocationVector stationListTmp;
 			msg = UpdateFireStationsList(stationListTmp, callback);
@@ -1231,29 +1237,28 @@ namespace WBSF
 			{
 				TRY
 				{
-					//callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
 					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
-					//callback.PopTask();
 
-					//split data in seperate files
-					if (msgTmp)
-					{
-						ASSERT(FileExists(outputFilePath));
-						msg = SplitFireData(outputFilePath, callback);
-						RemoveFile(outputFilePath);
 
-						msg += callback.StepIt();
-						bDownloaded = true;
-					}
+				//split data in seperate files
+				if (msgTmp)
+				{
+					ASSERT(FileExists(outputFilePath));
+					msg = SplitFireData(outputFilePath, callback);
+					RemoveFile(outputFilePath);
+
+					msg += callback.StepIt();
+					bDownloaded = true;
 				}
-				CATCH_ALL(e)
+				}
+					CATCH_ALL(e)
 				{
 					msgTmp = UtilWin::SYGetMessage(*e);
 				}
 				END_CATCH_ALL
 
-				//clean connection
-				pConnection->Close();
+					//clean connection
+					pConnection->Close();
 				pSession->Close();
 			}
 			else
@@ -1295,7 +1300,7 @@ namespace WBSF
 			string lastID;
 
 			//station	datetime	tmp	rh	wd	cwd	ws	wsmax	rn_1
-			enum THourlyColumns{ C_STATION, C_DATETIME, C_TMP, C_RH, C_WD, C_CWD, C_WS, C_WSMAX, C_RN_1, NB_COLUMNS };
+			enum THourlyColumns { C_STATION, C_DATETIME, C_TMP, C_RH, C_WD, C_CWD, C_WS, C_WSMAX, C_RN_1, NB_COLUMNS };
 			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
@@ -1316,8 +1321,6 @@ namespace WBSF
 
 					CTRef TRef = CTRef(year, month, day, hour);
 					string ID = (*loop)[C_STATION];
-					//if (lastID.empty())
-						//lastID = ID;
 
 
 					if (ID != lastID)
@@ -1393,8 +1396,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
-
 		size_t nbDownload = 0;
 
 		CInternetSessionPtr pSession;
@@ -1430,7 +1431,7 @@ namespace WBSF
 						Json::object metadata = it->object_items();
 
 						CLocation location;
-							
+
 						location.m_ID = metadata["properties"]["Stn_ID"].string_value();
 						location.m_name = WBSF::PurgeFileName(metadata["properties"]["Stn_Name"].string_value());
 						location.m_lat = metadata["geometry"]["coordinates"][1].number_value();
@@ -1517,7 +1518,7 @@ namespace WBSF
 		string title = GetFileTitle(filePath);
 		string varID = title.substr(0, 2);
 		MakeUpper(varID);
-		for (size_t i = 0; i <NB_VARS && var == NOT_INIT; i++)
+		for (size_t i = 0; i < NB_VARS && var == NOT_INIT; i++)
 		{
 			if (varID == HYDRO_VAR_NAME[i])
 				var = HYDRO_VAR[i];
@@ -1675,7 +1676,7 @@ namespace WBSF
 								}//for all variables
 
 								msg += callback.StepIt();
-								
+
 							}//for all var
 
 							if (msg && !filePath.empty())
@@ -1692,20 +1693,20 @@ namespace WBSF
 										//delete .xls file
 										msg = RemoveFile(SetFileExtension(filePath[i], ".xls"));
 									}
-										
+
 								}
 							}
-							
+
 						}//for all station
 					}
-					CATCH_ALL(e)
+						CATCH_ALL(e)
 					{
 						msgTmp = UtilWin::SYGetMessage(*e);
 					}
 					END_CATCH_ALL
 
 						//clean connection
-					pConnection->Close();
+						pConnection->Close();
 					pSession->Close();
 				}
 				else
@@ -1728,12 +1729,12 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-		
+
 
 		return msg;
 	}
 
-	
+
 	ERMsg CUIManitoba::SplitHydroData(const string& ID, const StringVector& outputFilePath, CCallback& callback)
 	{
 		ASSERT(!outputFilePath.empty());
@@ -1751,13 +1752,13 @@ namespace WBSF
 			msg += files[i].open(outputFilePath[i]);
 			vars[i] = GetVar(outputFilePath[i]);
 		}
-			
+
 
 		if (msg)
 		{
 			CWeatherAccumulator stat(TM);
 
-			for (size_t i = 0; i < outputFilePath.size()&&msg; i++)
+			for (size_t i = 0; i < outputFilePath.size() && msg; i++)
 			{
 				string junk;
 				for (int l = 0; l < 8; l++)
@@ -1775,8 +1776,8 @@ namespace WBSF
 
 						double fSerialDate = ToDouble((*loop)[0]);
 						ExcelSerialDateToDMY(fSerialDate, year, month, day, hour, minute);
-						
-						
+
+
 						ASSERT(month >= 0 && month < 12);
 						ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 						ASSERT(hour >= 0 && hour < 24);
@@ -1784,7 +1785,7 @@ namespace WBSF
 
 						CTRef TRef = type == HOURLY_WEATHER ? CTRef(year, month, day, hour) : CTRef(year, month, day);
 
-						if (stat.TRefIsChanging(TRef) )
+						if (stat.TRefIsChanging(TRef))
 						{
 
 							if (!data.IsYearInit(TRef.GetYear()))
@@ -1794,7 +1795,7 @@ namespace WBSF
 								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 							}
 
-							data[stat.GetTRef()].SetStat( (TVarH)vars[i], stat.GetStat(vars[i]) );
+							data[stat.GetTRef()].SetStat((TVarH)vars[i], stat.GetStat(vars[i]));
 						}
 
 						double value = ToDouble((*loop)[1]);
@@ -1808,14 +1809,14 @@ namespace WBSF
 								//value = max(1.0, min(100.0, value));
 
 							stat.Add(TRef, vars[i], value);
-							
+
 						}//if good
-						
+
 					}//size >= 2
 
 					msg += callback.StepIt(0);
 				}//for all line 
-				
+
 				if (stat.GetTRef().IsInit())
 					data[stat.GetTRef()].SetStat((TVarH)vars[i], stat.GetStat(vars[i]));
 
@@ -1826,7 +1827,7 @@ namespace WBSF
 			if (msg)
 			{
 				//Compute Tdew if hourly data
-				if (type == HOURLY_WEATHER )
+				if (type == HOURLY_WEATHER)
 				{
 					CTPeriod p = data.GetEntireTPeriod();
 					for (CTRef h = p.Begin(); h <= p.End(); h++)
@@ -1847,8 +1848,8 @@ namespace WBSF
 					it->second->SaveData(filePath, TM);
 				}
 			}//if msg
-			
-			
+
+
 			//callback.PopTask();
 		}//if msg
 
@@ -1860,7 +1861,7 @@ namespace WBSF
 		ERMsg msg;
 
 		//get stations 
-		
+
 		//<table border="0"  cellspacing="0" cellpadding="0">
 		//</table>
 		//https://www.hydro.mb.ca
@@ -1887,7 +1888,7 @@ namespace WBSF
 					msg.ajoute(error);
 					return msg;
 				}
-				else if(items.size() == 1)
+				else if (items.size() == 1)
 				{
 					const Json& item = items.front();
 					bool bTest = item.is_object();
@@ -1896,7 +1897,7 @@ namespace WBSF
 
 					//const Json& item2 = item["features"];
 
-					ASSERT( item2.is_array() );
+					ASSERT(item2.is_array());
 					for (size_t j = 0; j < item2.array_items().size(); j++)
 					{
 						const Json& item3 = item2[j]["attributes"];
@@ -1911,16 +1912,16 @@ namespace WBSF
 						double lon = item4["x"].number_value();
 						CLocation location(name, ID, lat, lon, -999);
 						location.SetSSI("Network", NETWORK_NAME[HYDRO]);
-						location.SetSSI("StationNo", item3["station_id"].string_value() );
-						location.SetSSI("RiverName", item3["river_name"].string_value() );
+						location.SetSSI("StationNo", item3["station_id"].string_value());
+						location.SetSSI("RiverName", item3["river_name"].string_value());
 						location.SetSSI("InstallDate", item3["gen.shelterinstall"].string_value());
 						locations.push_back(location);
 
-							msg += callback.StepIt();
+						msg += callback.StepIt();
 
 					}
 
-					
+
 					//temporary file path without elevation
 					string filePath = GetDir(WORKING_DIR) + SUBDIR_NAME[HYDRO] + "\\Stations.csv";
 					msg = locations.Save(filePath);
@@ -1934,20 +1935,161 @@ namespace WBSF
 			pSession->Close();
 		}
 
-
-
-
-		//if (!FileExists(dstFilePath))
-		//{
-		//string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
-
-		//CString src(CStringA(srcFilePath.c_str()));
-		//CString dst(CStringA(dstFilePath.c_str()));
-		//CopyFile(src, dst, TRUE);
-		//}
-
-
 		return msg;
 
 	}
+
+
+	ERMsg CUIManitoba::ExecutePotato(CCallback& callback)
+	{
+		ERMsg msg;
+
+		CLocationVector locations;
+		msg = locations.Load(GetStationsListFilePath(POTATO));
+
+		if (msg)
+		{
+			size_t type = as<size_t>(DATA_TYPE);
+
+			if (type == DAILY_WEATHER)
+			{
+
+
+				size_t nbDownloads = 0;
+				callback.PushTask("Update Manitoba Potatoes weather data (" + ToString(locations.size()) + " stations)", locations.size());
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+
+				msg = GetHttpConnection(SERVER_NAME[POTATO], pConnection, pSession);
+				if (msg)
+				{
+					TRY
+					{
+
+						for (size_t i = 0; i < locations.size() && msg; i++)
+						{
+							StringVector filePath;
+							string ID = locations[i].m_ID;
+
+							string URL = FormatA("/weather.cfm?stn=%s", ID.c_str());
+
+							string str;
+							msg = UtilWWW::GetPageText(pConnection, URL, str);
+							if (msg)
+							{
+								string::size_type pos1 = str.find("<table id=\"StationInfoTable\">");								string::size_type pos2 = str.find("</table>");
+								if (pos1 < str.size() && pos2 < str.size())
+								{
+									nbDownloads++;
+									string::size_type count = (pos2 - pos1) + 8;
+									string source = str.substr(pos1, count);
+									WBSF::ReplaceString(source, "'", "\"");
+									WBSF::ReplaceString(source, "\t", "");
+									WBSF::ReplaceString(source, "<sup>2</sup>", "≤");
+									WBSF::ReplaceString(source, "&deg;", "∞");
+
+
+									msg += SplitPotatoData(locations[i].m_ID, source);
+								}//if valid 
+							}//msg
+
+							msg += callback.StepIt();
+						}//for all locations
+
+					}
+						CATCH_ALL(e)
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+					END_CATCH_ALL
+
+						//clean connection
+						pConnection->Close();
+					pSession->Close();
+				}//if msg
+
+				callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloads), 1);
+				callback.PopTask();
+			}//if daily
+		}//if msg
+
+		return msg;
+	}
+
+	ERMsg CUIManitoba::SplitPotatoData(const string& ID, const string& source)
+	{
+		ERMsg msg;
+
+		try
+		{
+			CWeatherYears data;
+
+			string xml_str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + source;
+			zen::XmlDoc doc = zen::parse(xml_str);
+
+			std::pair<zen::XmlElement::ChildIter, zen::XmlElement::ChildIter> trs = doc.root().getChildren();
+			if (std::distance(trs.first, trs.second) > 2)
+			{
+				zen::XmlElement::ChildIter trit = trs.first;
+				trit++;
+
+				std::pair<zen::XmlElement::ChildIter, zen::XmlElement::ChildIter> ths = trit->getChildren();
+
+				size_t index = UNKNOWN_POS;
+				zen::XmlElement::ChildIter th = ths.first;
+				for (size_t i = 0; th != ths.second&&index == -1; i++, ++th)
+				{
+					string header;
+					th->getValue(header);
+					if (header.find("Solar Radiation") != string::npos)
+						index = i;
+				}
+
+				if (index != UNKNOWN_POS)
+				{
+					trit++;
+					for (; trit != trs.second; ++trit)
+					{
+						std::pair<zen::XmlElement::ChildIter, zen::XmlElement::ChildIter> tds = trit->getChildren();
+						zen::XmlElement::ChildIter tdit = tds.first;
+
+						string date_str;
+						tdit->getValue(date_str);
+						for (size_t i = 0; i < index; i++)
+							tdit++;
+
+						string str;
+						tdit->getValue(str);
+						double value = !str.empty() ? ToDouble(str) : 0;
+						StringVector tmp(date_str, "/");						if (value > 0 && tmp.size()==3)						{							size_t m = ToSizeT(tmp[0]) - 1;							size_t d = ToSizeT(tmp[1]) - 1;							int year = ToInt(tmp[2]);							CTRef Tref(year, m, d);														if (!data.IsYearInit(year))							{								data = CWeatherYears(false);
+								//try to load old data before changing it...
+								string filePath = GetOutputFilePath(POTATO, DAILY_WEATHER, ID, year);
+								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
+							}
+							data[Tref].SetStat(H_SRAD2, value<1000? value*10.0 : value/100.0);						}// tmp == 3 and sRad is init
+					}
+
+					//save data
+					for (CWeatherYearMap::iterator it = data.begin(); it != data.end(); it++)
+					{
+						string filePath = GetOutputFilePath(POTATO, DAILY_WEATHER, ID, it->first);
+						string outputPath = GetPath(filePath);
+						CreateMultipleDir(outputPath);
+						it->second->SaveData(filePath);
+					}
+				}//if index != -1
+			}//if > 2
+
+		}
+		catch (const zen::XmlParsingError& e)
+		{
+			// handle error
+			msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+		}
+
+		return msg;
+	}
 }
+
+

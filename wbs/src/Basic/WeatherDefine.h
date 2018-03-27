@@ -13,7 +13,7 @@
 #include <array>
 #include <crtdbg.h> 
 #include <bitset>
-//#include <boost\array.hpp>
+
 #include <boost\serialization\array.hpp>
 #include <boost\serialization\bitset.hpp>
 #include "basic/ERMsg.h"
@@ -30,10 +30,9 @@ namespace WBSF
 
 	//**********************************************************************
 	//Temporal
-	enum TTemporal{ T_YEAR, T_MONTH, T_DAY, T_HOUR, T_JDAY, T_REFERENCE, NB_TEMPORAL };//
+	enum TTemporal{ T_YEAR, T_MONTH, T_DAY, T_HOUR, T_JDAY, T_REFERENCE, NB_TEMPORAL };
 	const char* GetTemporalName(size_t v, bool bUpperCase = false);
 	size_t GetTemporalFromName(const std::string& name);
-	CTM GetTemporal(const StringVector& columnsHeader, const char* separator = " ,;\t|");
 	//**********************************************************************
 	//WEATHER
 
@@ -350,7 +349,7 @@ namespace WBSF
 	{
 	public:
 
-		CWeatherFormat(const char* header = "", const char* separator = ",;\t|", double nodata = WEATHER::MISSING)
+		CWeatherFormat(const char* header = "", const char* separator = "\",;\t|", double nodata = WEATHER::MISSING)
 		{
 			Set(header, separator, nodata);
 		}
@@ -361,7 +360,7 @@ namespace WBSF
 		}
 
 		void clear();
-		ERMsg Set(const char* header, const char* separator = ",;\t|", double nodata = WEATHER::MISSING);
+		ERMsg Set(const char* header, const char* separator = "\",;\t|", double nodata = WEATHER::MISSING);
 		ERMsg Set(const StringVector& fields, double nodata);
 		void Set(CTM TM, CWVariables variables);
 
@@ -380,8 +379,6 @@ namespace WBSF
 
 
 		size_t GetStatFromName(const std::string& name);
-
-		std::string Format();
 
 	protected:
 

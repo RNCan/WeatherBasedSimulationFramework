@@ -612,7 +612,7 @@ namespace WBSF
 
 	ERMsg CWeatherFormat::Set(const char* header, const char* separator, double nodata)
 	{
-		StringVector fields = Tokenize(header, separator, true);
+		StringVector fields = WBSF::Tokenize(header, separator, true);
 		return Set(fields, nodata);
 	}
 

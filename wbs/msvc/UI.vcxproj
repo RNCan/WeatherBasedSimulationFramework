@@ -448,6 +448,8 @@
       <AdditionalIncludeDirectories>../src;../../external;../../external\GDAL\Include;stdafxUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -470,6 +472,8 @@
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -493,6 +497,7 @@
       <AdditionalIncludeDirectories>../src;../../external;../../external\GDAL\Include;stdafxUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <DisableSpecificWarnings>4018</DisableSpecificWarnings>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -519,6 +524,7 @@
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

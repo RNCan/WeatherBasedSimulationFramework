@@ -95,6 +95,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,6 +110,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -138,7 +140,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>
+      </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>

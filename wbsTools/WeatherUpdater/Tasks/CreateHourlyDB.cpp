@@ -160,12 +160,14 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
+				CWVariablesCounter count = station[TRef].GetVariablesCount();
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					//clear variable if not enaugh data
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / factor[v];
+						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / factor[v];
+						double completeness = 100.0 * count[v].first / 24;
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < dailyCompleteness)
 						{
@@ -193,11 +195,13 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
+				CWVariablesCounter count = station[TRef].GetVariablesCount(true);
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDayPerMonth());
+						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDayPerMonth());
+						double completeness = 100.0 * count[v].first / TRef.GetNbDayPerMonth();
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < monthlyCompleteness)
 						{
@@ -227,11 +231,13 @@ namespace WBSF
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
+				CWVariablesCounter count = station[TRef].GetVariablesCount(true);
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDaysPerYear());
+						double completeness = 100.0 * count[v].first / TRef.GetNbDaysPerYear();
+						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDaysPerYear());
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < annualCompleteness)
 						{

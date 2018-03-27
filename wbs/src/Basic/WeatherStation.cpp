@@ -2978,7 +2978,7 @@ ERMsg CWeatherYears::Parse(const std::string& str,  double nodata)
 	string header;
 	getline(stream, header);
 
-	m_format.Set(header.c_str(), " ,;\t\r\n", nodata);
+	m_format.Set(header.c_str(), " \",;\t\r\n", nodata);
 	if (m_format.GetTM().Type() != CTM::HOURLY && m_format.GetTM().Type() != CTM::DAILY)
 	{
 		msg.ajoute("Mandatory fields are \"Year\", \"Month\", \"Day\" (or \"JDay\") and \"Hour\"(When Hourly Data).");
@@ -3047,7 +3047,8 @@ ERMsg CWeatherYears::LoadData(const std::string& filePath, double nodata, bool b
 			string header;
 			getline(file, header);
 
-			m_format.Set(header.c_str(), " ,;\t", nodata);
+			//m_format.Set(header.c_str(), " ,;\t", nodata);
+			m_format.Set(header.c_str(), " \",;\t", nodata); 
 			if (m_format.GetTM().Type() != CTM::HOURLY && m_format.GetTM().Type() != CTM::DAILY)
 			{
 				msg.ajoute(FormatMsg(IDS_BSC_INVALID_DATA_FILE, filePath));

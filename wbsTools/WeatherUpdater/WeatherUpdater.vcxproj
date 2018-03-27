@@ -107,9 +107,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,10 +143,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -178,7 +182,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -214,10 +219,12 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>
+      </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
