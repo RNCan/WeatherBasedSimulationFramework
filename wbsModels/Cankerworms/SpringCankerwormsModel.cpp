@@ -18,93 +18,50 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpringCankerwormsModel::CreateObject);
 	/*
-	//vertical
-	NbVal=   231	Bias= 0.18823	MAE=13.73028	RMSE=18.02138	CD= 0.71451	R²= 0.71454
-	Threshold1          	=   2.75001
-	Threshold2          	=   3.00005
-	a1                  	=  87.69302
-	b1                  	=   1.70334
-	a2                  	= 108.82778
-	b2                  	=   2.78009
-	a3                  	= 328.59981
-	b3                  	=   1.65588
-	a4                  	= 424.13127
-	b4                  	=   1.32959
-	a5                  	= 479.71700
-	b5                  	=   1.25780
-	a6                  	= 535.04164
-	b6                  	=   1.02907
-	a7                  	= 604.46298
-	b7                  	=   1.02028
-	a8                  	= 699.84631
-	b8                  	=   0.99734
-	a9                  	= 799.59153
-	b9                  	=   0.83768
-NbVal=  1737	Bias= 0.00374	MAE= 2.25896	RMSE= 6.97021	CD= 0.97881	R²= 0.97882
-Threshold1          	=   3.00000
-Threshold2          	=   2.80156
-a1                  	=  82.99716
-b1                  	=   1.50046
-a2                  	= 101.60114
-b2                  	=   2.09849
-a3                  	= 344.46452
-b3                  	=   1.23550
-a4                  	= 441.16816
-b4                  	=   1.04713
-a5                  	= 496.19798
-b5                  	=   1.01307
-a6                  	= 549.80672
-b6                  	=   0.92700
-a7                  	= 620.20480
-b7                  	=   0.89188
-a8                  	= 716.50653
-b8                  	=   0.89952
-a9                  	= 818.73572
-b9                  	=   0.75508
+NbVal=  1737	Bias= 0.00097	MAE= 2.25700	RMSE= 6.96968	CD= 0.97881	R²= 0.97882
+Threshold1          	=   2.99997
+a1                  	=  83.00751
+b1                  	=   1.49920
+a2                  	= 101.60651
+b2                  	=   2.09868
+a3                  	= 332.59499
+b3                  	=   1.24226
+a4                  	= 427.56069
+b4                  	=   1.05008
+a5                  	= 481.50824
+b5                  	=   1.00756
+a6                  	= 534.25200
+b6                  	=   0.92139
+a7                  	= 603.49191
+b7                  	=   0.88681
+a8                  	= 698.50334
+b8                  	=   0.89527
+a9                  	= 799.37988
+b9                  	=   0.74483
+
 		*/
 
 
 
 
-	enum Toutput{ O_PUPA1, O_ADULT, O_EGG, O_L1, O_L2, O_L3, O_L4, O_L5, O_SOIL, O_PUPA2, NB_OUTPUT };
-	const char SpringCankerworms_header[] = "PUPA1|ADULT|EGG|L1|L2|L3|L4|L5|SOIL|PUPA2";
+
+
+
+	enum Toutput{ O_DD, O_PUPA1, O_ADULT, O_EGG, O_L1, O_L2, O_L3, O_L4, O_L5, O_SOIL, O_PUPA2, O_AI, NB_OUTPUT };
+	const char SpringCankerworms_header[] = "DD|PUPA1|ADULT|EGG|L1|L2|L3|L4|L5|SOIL|PUPA2|AI";
 	enum TEvaluation { VERTICAL, HORIZONTAL, DIAGONAL };
 	static const TEvaluation EVALUATION = VERTICAL;
 
-	const double CSpringCankerwormsModel::THRESHOLD1 = 3.0;// 2.75;
-	const double CSpringCankerwormsModel::THRESHOLD2 = 2.8;// 3.00;
- 
-
-
-
-	const double CSpringCankerwormsModel::A1[NB_SPRING_PARAMS1] =
+	const double CSpringCankerwormsModel::THRESHOLD = 3.0;
+	const double CSpringCankerwormsModel::A[NB_SPRING_PARAMS] =
 	{
-//		87.7,108.8
-		82.99716,101.60114
+		83.0,101.6,332.6,427.6,481.5,534.3,603.5,698.5,799.4
 	};
 
-	const double CSpringCankerwormsModel::B1[NB_SPRING_PARAMS1] =
+	const double CSpringCankerwormsModel::B[NB_SPRING_PARAMS] =
 	{
-//		1.70334,2.78009
-		1.50046,2.09849
+		1.49920,2.09868,1.24226,1.05008,1.00756,0.92139,0.88681,0.89527,0.74483
 	};
-
-
-
-
-
-	const double CSpringCankerwormsModel::A2[NB_SPRING_PARAMS2] =
-	{
-		//328.6,424.1,479.7,535.0,604.5,699.8,799.6
-		344.46452,441.16816,496.19798,549.80672,620.20480,716.50653,818.73572
-	};
-
-	const double CSpringCankerwormsModel::B2[NB_SPRING_PARAMS2] =
-	{
-		//1.65588,1.32959,1.25780,1.02907,1.02028,0.99734,0.83768
-		1.23550,1.04713,1.01307,0.92700,0.89188,0.89952,0.75508
-	};
-
 
 
 
@@ -131,52 +88,33 @@ b9                  	=   0.75508
 		ERMsg msg;
 
 		int c = 0;
+
 		bool bCumul = parameters[c++].GetBool();
-		m_springCR1.m_startJday = 0;
-		m_springCR1.m_lowerThreshold = THRESHOLD1;
-		m_springCR1.m_bCumul = bCumul;
-		m_springCR1.m_bMultipleVariance = true;
-		m_springCR1.m_bPercent = true;
-		m_springCR1.m_bAdjustFinalProportion = true;
-		m_springCR1.m_method = CSpringCankerwormsCR1::DAILY_AVERAGE;
-		for (size_t i = 0; i < NB_SPRING_PARAMS1; i++)
+		m_springCR.m_startJday = 0;
+		m_springCR.m_lowerThreshold = THRESHOLD;
+		m_springCR.m_bCumul = bCumul;
+		m_springCR.m_bMultipleVariance = true;
+		m_springCR.m_bPercent = true;
+		m_springCR.m_bAdjustFinalProportion = true;
+		m_springCR.m_method = CSpringCankerwormsCR::DAILY_AVERAGE;
+		for (size_t i = 0; i < NB_SPRING_PARAMS; i++)
 		{
-			m_springCR1.m_a[i] = A1[i];
-			m_springCR1.m_b[i] = B1[i];
+			m_springCR.m_a[i] = A[i];
+			m_springCR.m_b[i] = B[i];
 		}
 
-		m_springCR2.m_startJday = 0;
-		m_springCR2.m_lowerThreshold = THRESHOLD2;
-		m_springCR2.m_bCumul = bCumul;
-		m_springCR2.m_bMultipleVariance = true;
-		m_springCR2.m_bPercent = true;
-		m_springCR2.m_bAdjustFinalProportion = true;
-		m_springCR2.m_method = CSpringCankerwormsCR2::DAILY_AVERAGE;
 		
-		for (size_t i = 0; i < NB_SPRING_PARAMS2; i++)
-		{
-			m_springCR2.m_a[i] = A2[i];
-			m_springCR2.m_b[i] = B2[i];
-		}
-
 		if (parameters.size() > 1)
 		{
-			m_springCR1.m_lowerThreshold = parameters[c++].GetFloat();
-			m_springCR2.m_lowerThreshold = parameters[c++].GetFloat();
+			m_springCR.m_lowerThreshold = parameters[c++].GetFloat();
+			parameters[c++].GetFloat();
 
-			for (size_t i = 0; i < NB_SPRING_PARAMS1; i++)
+			for (size_t i = 0; i < NB_SPRING_PARAMS; i++)
 			{
-				m_springCR1.m_a[i] = parameters[c++].GetFloat();
-				m_springCR1.m_b[i] = parameters[c++].GetFloat();
-			}
-
-			for (size_t i = 0; i < NB_SPRING_PARAMS2; i++)
-			{
-				m_springCR2.m_a[i] = parameters[c++].GetFloat();
-				m_springCR2.m_b[i] = parameters[c++].GetFloat();
+				m_springCR.m_a[i] = parameters[c++].GetFloat();
+				m_springCR.m_b[i] = parameters[c++].GetFloat();
 			}
 		}
-
 		return msg;
 	}
 
@@ -185,25 +123,24 @@ b9                  	=   0.75508
 	{
 		ERMsg msg;
 
-		CModelStatVector out1;
-		CModelStatVector out2;
-		m_springCR1.Execute(m_weather, out1);
-		m_springCR2.Execute(m_weather, out2);
+		
+		m_springCR.Execute(m_weather, m_output);
+		
 
-		m_output.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_OUTPUT);
-		for (size_t i = 0; i < out1.size(); i++)
-		{
-			m_output[i][O_PUPA1] = out1[i][CSpringCankerwormsCR1::O_FIRST_STAGE + 0];
-			m_output[i][O_ADULT] = out1[i][CSpringCankerwormsCR1::O_FIRST_STAGE + 1];
-			m_output[i][O_EGG] = out1[i][CSpringCankerwormsCR1::O_FIRST_STAGE + 2];
-			m_output[i][O_L1] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 1];
-			m_output[i][O_L2] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 2];
-			m_output[i][O_L3] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 3];
-			m_output[i][O_L4] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 4];
-			m_output[i][O_L5] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 5];
-			m_output[i][O_SOIL] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 6];
-			m_output[i][O_PUPA2] = out2[i][CSpringCankerwormsCR2::O_FIRST_STAGE + 7];
-		}
+		//m_output.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_OUTPUT);
+		//for (size_t i = 0; i < out.size(); i++)
+		//{
+		//	m_output[i][O_PUPA1] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 0];
+		//	m_output[i][O_ADULT] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 1];
+		//	m_output[i][O_EGG] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 2];
+		//	m_output[i][O_L1] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 3];
+		//	m_output[i][O_L2] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 4];
+		//	m_output[i][O_L3] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 5];
+		//	m_output[i][O_L4] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 6];
+		//	m_output[i][O_L5] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 7];
+		//	m_output[i][O_SOIL] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 8];
+		//	m_output[i][O_PUPA2] = out[i][CSpringCankerwormsCR::O_FIRST_STAGE + 9];
+		//}
 
 		return msg;
 	}
@@ -262,7 +199,13 @@ b9                  	=   0.75508
 			//look to see if all ai are in growing order
 			bool bValid = true;
 
-			for (int i = 1; i < NB_SPRING_PARAMS1&&bValid; i++)
+			for (int i = 1; i < NB_SPRING_PARAMS&&bValid; i++)
+			{
+				if (m_springCR.m_a[i] < m_springCR.m_a[i - 1])
+					bValid = false;
+			}
+
+			/*for (int i = 1; i < NB_SPRING_PARAMS1&&bValid; i++)
 			{
 				if (m_springCR1.m_a[i] < m_springCR1.m_a[i - 1])
 					bValid = false;
@@ -272,60 +215,39 @@ b9                  	=   0.75508
 				if (m_springCR2.m_a[i] < m_springCR2.m_a[i - 1])
 					bValid = false;
 			}
-
+*/
 			if (bValid)
 			{
 				//******************************************************************************************************************************************************
 				//Vertical lookup
 				if (EVALUATION == VERTICAL)
 				{
-					CModelStatVector statSim1;
-					m_springCR1.m_bCumul = true;
-					m_springCR1.Execute(m_weather, statSim1);
+					CModelStatVector statSim;
+					m_springCR.m_bCumul = true;
+					m_springCR.Execute(m_weather, statSim);
 					for (size_t i = 0; i < m_SAResult.size(); i++)
 					{
 						ASSERT(m_SAResult[i].m_obs.size() == NB_SPRING_INPUT);
-						for (size_t p = S_PUPA_ADULT; p <= S_ADULT_EGG; p++)
+						for (size_t p = S_PUPA_ADULT; p <= S_SOIL_PUPA; p++)
 						{
 							double obs = m_SAResult[i].m_obs[I_S_ADULT + p];
 							if (/*obs > 0 &&
 								obs < 100 &&*/
-								statSim1.IsInside(m_SAResult[i].m_ref))
+								statSim.IsInside(m_SAResult[i].m_ref))
 							{
-								double sim = statSim1[m_SAResult[i].m_ref][CSpringCankerwormsCR1::O_FIRST_STAGE + p + 1];
+								double sim = statSim[m_SAResult[i].m_ref][CSpringCankerwormsCR::O_FIRST_STAGE + p + 1];
 
 								stat.Add(sim, obs);
 							}
 						}
 					}
 
-					CModelStatVector statSim2;
-					
-					m_springCR2.m_bCumul = true;
-					m_springCR2.Execute(m_weather, statSim2);
-					for (size_t i = 0; i < m_SAResult.size(); i++)
-					{
-						ASSERT(m_SAResult[i].m_obs.size() == NB_SPRING_INPUT);
-						for (size_t p = S_EGG_L1; p <= S_SOIL_PUPA; p++)
-						{
-							double obs = m_SAResult[i].m_obs[I_S_L1 + p];
-							if (//obs > 0 &&
-								//obs < 100 &&
-								statSim2.IsInside(m_SAResult[i].m_ref))
-							{
-								
-								double sim = statSim2[m_SAResult[i].m_ref][CSpringCankerwormsCR2::O_FIRST_STAGE + p + 1];
-
-								stat.Add(sim, obs);
-							}
-						}
-					}
 				}
 				//******************************************************************************************************************************************************
 				//Horizontal lookup
 				else if (EVALUATION == HORIZONTAL)
 				{
-					CModelStatVector statSim1;
+				/*	CModelStatVector statSim1;
 					m_springCR1.m_bCumul = true;
 					m_springCR1.Execute(m_weather, statSim1);
 
@@ -377,7 +299,7 @@ b9                  	=   0.75508
 								}
 							}
 						}
-					}
+					}*/
 				}
 				//******************************************************************************************************************************************************			
 				//Diagonal lookup

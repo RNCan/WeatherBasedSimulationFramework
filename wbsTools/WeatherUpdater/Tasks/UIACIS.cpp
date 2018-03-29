@@ -15,6 +15,8 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
+//min et max
+//http://wildfire.alberta.ca/wildfire-status/fire-weather/forecasts-observations/default.aspx
 //Average Air Temperature							    AT		[°C]
 //Instantaneous Air Temperature							ATA		[°C]
 //Maximum Air Temperature								TX		[°C]

@@ -31,6 +31,14 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description>Degree-days over 3°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Pupa_begin</Name>
             <Title>Pupa</Title>
             <Units/>
@@ -105,6 +113,14 @@
         <OutputVariable>
             <Name>Pupa_end</Name>
             <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AI</Name>
+            <Title>Average Instar</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
