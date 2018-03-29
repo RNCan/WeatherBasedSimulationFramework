@@ -8,7 +8,6 @@
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
 #include "Basic\CSV.h"
-//#include "json\json11.hpp"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
@@ -19,7 +18,7 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
-//using namespace json11;
+
 
 namespace WBSF
 {
@@ -214,8 +213,6 @@ namespace WBSF
 		//Update network
 		for (size_t i = 0; i < locations.size(); i++)
 		{
-			//#locations[i].m_ID = locations[i].GetSSI("NESDIS ID");
-			//locations[i].SetSSI("NESDIS ID", "");
 			locations[i].SetSSI("Network", NETWORK_NAME[FIRE]);
 		}
 			
@@ -223,18 +220,18 @@ namespace WBSF
 		m_stations.insert(m_stations.end(), locations.begin(), locations.end());
 				
 		for (size_t i = 0; i < locations.size(); i++)
-			stationList.push_back(ToString(FIRE)+"/"+locations[i].m_ID);
+			stationList.push_back(locations[i].m_ID);
 	
 
 		return msg;
 	}
 
-	ERMsg CUINovaScotia::GetWeatherStation(const std::string& NID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUINovaScotia::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
-		size_t n = ToSizeT(NID.substr(0,1));
-		string ID = NID.substr(2);
+		//size_t n = ToSizeT(NID.substr(0,1));
+		//string ID = NID.substr(2);
 
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
@@ -352,13 +349,16 @@ namespace WBSF
 	{
 		CTRef TRef;
 
-		//2017/01/01 00:00:00
+		//2017/01/01 00:00
 		StringVector vec(str, " :/");
-		if (vec.size() == 6)
+		ASSERT(vec.size() == 5);
+
+		if (vec.size() == 5)
 		{
-			int year = WBSF::as<int>(vec[0]);
+			
+			size_t day = WBSF::as<size_t>(vec[0]) - 1;
 			size_t month = WBSF::as<size_t>(vec[1]) - 1;
-			size_t day = WBSF::as<size_t>(vec[2]) - 1;
+			int year = WBSF::as<int>(vec[2]);
 			size_t hour = WBSF::as<size_t>(vec[3]);
 
 			ASSERT(month >= 0 && month < 12);
@@ -446,135 +446,3 @@ namespace WBSF
 
 
 }
-//ERMsg CUINovaScotia::ExecuteFire(CCallback& callback)
-//{
-//	ERMsg msg;
-
-//	callback.PushTask("Update Nova-Scotia fire weather data (1 day)", 1 );
-
-//	CInternetSessionPtr pSession;
-//	CHttpConnectionPtr pConnection;
-
-//	msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
-//	if (msg)
-//	{
-//		TRY
-//		{
-//			string remoteFilePath = "natr/forestprotection/wildfire/fwi/FWIActuals.xml";
-//			string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\FWIActuals.xml";
-
-//			msg += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
-//			if (msg)
-//				msg += SplitFireData(outputFilePath, callback);
-
-//		}
-//		CATCH_ALL(e)
-//		{
-//			msg = UtilWin::SYGetMessage(*e);
-//		}
-//		END_CATCH_ALL
-
-//			//clean connection
-//			pConnection->Close();
-//		pSession->Close();
-//	}
-
-//	
-//	callback.PopTask();
-//
-
-//	return msg;
-//}
-//
-
-//
-//ERMsg CUINovaScotia::SplitFireData(const std::string& outputFilePath, CCallback& callback)
-//{
-//	ASSERT(!outputFilePath.empty());
-
-//	ERMsg msg;
-//	
-//	size_t nbStations  = 0;
-//	
-//	ifStream files;
-//	msg += files.open(outputFilePath);
-
-//	if (msg)
-//	{
-//		zen::XmlDoc doc = zen::parse(files.GetText());
-
-//		
-//		zen::XmlIn in(doc.root());
-//		for (zen::XmlIn it = in["weather"]; it&&msg; it.next())
-//		{
-//			CWeatherYears dataH(true);
-//			CWeatherYears dataD(false);
-
-//			//nbStations
-
-//			std::array<string, NB_COLUMNS> values;
-//			for (size_t i= 0; i < NB_COLUMNS; i++)
-//				it[COLUMN_NAME[i]](values[i]);
-
-//			if (values[C_DATE] != "NA")
-//			{
-//				StringVector date(values[C_DATE], "/");
-//				ASSERT(date.size() == 3);
-
-
-//				size_t day = ToInt(date[0]) - 1;
-//				size_t month = ToInt(date[1]) - 1;
-//				int year = ToInt(date[2]);
-
-
-
-//				ASSERT(month >= 0 && month < 12);
-//				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-
-//				string ID = values[C_WXSTATION];
-//				string filePathH = GetOutputFilePath(FIRE, true, ID, year);
-//				string filePathD = GetOutputFilePath(FIRE, false, ID, year);
-
-//				if (FileExists(filePathH))
-//					msg += dataH.LoadData(filePathH);
-
-//				if (FileExists(filePathD))
-//					msg += dataD.LoadData(filePathD);
-
-//				CTRef TRefH = CTRef(year, month, day, 13);
-//				CTRef TRefD = CTRef(year, month, day);
-
-//				for (size_t i = 0; i < NB_COLUMNS; i++)
-//				{
-//					if (FIRE_VAR[i] != H_SKIP && values[i] != "NA")
-//					{
-//						if (i == C_RN24)
-//							dataD.GetDay(TRefD).SetStat(FIRE_VAR[i], ToDouble(values[i]));
-//						else
-//							dataH.GetHour(TRefH).SetStat(FIRE_VAR[i], ToDouble(values[i]));
-//					}
-//				}
-
-//				//set Tdew
-//				if (dataH[TRefH][H_TAIR2].IsInit() && dataH[TRefH][H_RELH].IsInit())
-//					dataH.GetHour(TRefH).SetStat(H_TDEW, WBSF::Hr2Td(dataH[TRefH][H_TAIR2][MEAN], dataH[TRefH][H_RELH][MEAN]));
-
-//				//create directory
-//				CreateMultipleDir(GetPath(filePathH));
-//				CreateMultipleDir(GetPath(filePathD));
-
-//				//save data
-//				msg += dataH.SaveData(filePathH);
-//				msg += dataD.SaveData(filePathD);
-//				nbStations++;
-//			}
-//		}
-
-//	}//if msg
-
-
-//	callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(nbStations), 1);
-
-
-//	return msg;
-//}

@@ -112,7 +112,7 @@ namespace WBSF
 		string filePath;
 		msg = WBSF::GetFM().Script().GetFilePath(updater, filePath);
 		if (msg)
-			msg = CallApplication(CRegistry::WEATHER_UPDATER, filePath, NULL, SW_SHOW);
+			msg = CallApplication(CRegistry::TEXT_EDITOR, filePath, NULL, SW_SHOW);
 
 		if (!msg)
 			UtilWin::SYShowMessage(msg, this);
