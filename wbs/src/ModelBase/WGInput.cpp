@@ -261,7 +261,7 @@ namespace WBSF
 				string name = HOURLY_DATA::GetVariableName(v);
 				string title = HOURLY_DATA::GetVariableTitle(v);
 				string units = HOURLY_DATA::GetVariableUnits(v);
-				variables.push_back(CModelOutputVariableDef(name, title, units, "", CTM(), 5, "", v));
+				variables.push_back(CModelOutputVariableDef(name, title, units, "", CTM(), 1, "", v));
 			}
 		}
 

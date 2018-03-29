@@ -944,7 +944,6 @@ namespace WBSF
 
 		if (msg)
 		{
-			//bool bHaveSnow = false;
 			size_t i = 0;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop, i++)
 			{
@@ -990,31 +989,32 @@ namespace WBSF
 					dailyData[Tref][H_PRCP] = prcp;
 				}
 
-				
-				if (((*loop)[TOTAL_SNOW_FLAG].empty() || (*loop)[TOTAL_SNOW_FLAG] == "E" || (*loop)[TOTAL_SNOW_FLAG] == "T") && !(*loop)[TOTAL_SNOW].empty())
+				//By RSA 29-03-2018
+				//The snow in EnvCan is in cm and not in water equivalent
+				//So we have to take rain instead
+				if (dailyData[Tref][H_PRCP].IsInit() &&
+					((*loop)[TOTAL_RAIN_FLAG].empty() || (*loop)[TOTAL_RAIN_FLAG] == "E" || (*loop)[TOTAL_RAIN_FLAG] == "T") && !(*loop)[TOTAL_RAIN].empty())
 				{
-					float snow = ToFloat((*loop)[TOTAL_SNOW]);
-					ASSERT(snow >= 0 && snow < 1000);
-					dailyData[Tref][H_SNOW] = snow;
+					float rain = ToFloat((*loop)[TOTAL_RAIN]);
+					ASSERT(rain >= 0 && rain  < 1000);
+					ASSERT(dailyData[Tref][H_PRCP][SUM] - rain >= 0 );
+					dailyData[Tref][H_SNOW] = max( 0.0, dailyData[Tref][H_PRCP][SUM] - rain);
 				}
+
+				//if (((*loop)[TOTAL_SNOW_FLAG].empty() || (*loop)[TOTAL_SNOW_FLAG] == "E" || (*loop)[TOTAL_SNOW_FLAG] == "T") && !(*loop)[TOTAL_SNOW].empty())
+				//{
+				//	float snow = ToFloat((*loop)[TOTAL_SNOW]);
+				//	ASSERT(snow >= 0 && snow < 1000);
+				//	dailyData[Tref][H_SNOW] = snow;
+				//}
 
 				if (((*loop)[SNOW_ON_GRND_FLAG].empty() || (*loop)[SNOW_ON_GRND_FLAG] == "E" || (*loop)[SNOW_ON_GRND_FLAG] == "T") && !(*loop)[SNOW_ON_GRND].empty())
 				{
 					float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
 					ASSERT(sndh >= 0 && sndh < 1000);
 					dailyData[Tref][H_SNDH] = sndh;
-					//if (sndh>0)
-						//bHaveSnow = true;
 				}
-				//else if ((*loop)[SNOW_ON_GRND_FLAG].empty() && (*loop)[SNOW_ON_GRND].empty() && !(*loop)[TOTAL_PRECIP].empty())
-				//{
-				//	//when both is empty and total precip is init --> zero
-				//	if (bHaveSnow )//if previous day is init
-				//		dailyData[Tref][H_SNDH] = 0;
-				//}
-
-				//if (bHaveSnow && Tref.GetJDay() == 182)
-				//	bHaveSnow = false;
+			
 
 				//problème aussi avec le DewPoint et le minimum horaire
 			}//for all line

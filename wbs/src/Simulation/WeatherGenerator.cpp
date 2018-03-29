@@ -80,7 +80,7 @@ namespace WBSF
 	enum TGeoHeight { GH_SURFACE, GH_1000, GH_975, GH_950, GH_925, GH_900, GH_875, GH_850, GH_825, GH_800, NB_GEO_HEIGHT = 20 };
 
 	//Daily to hourly precipitation will give wrong cumultif if not 3 digit
-	static const int DIGIT_RES[NB_VAR_H] = { 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3 };
+	static const int DIGIT_RES[NB_VAR_H] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3 };
 
 
 	static const int NB_STATION_REGRESSION_LOCAL = 24;
@@ -473,36 +473,6 @@ namespace WBSF
 			return msg;
 
 
-		//round to RES
-		for (size_t r = 0; r < m_simulationPoints.size() && msg; r++)
-		{
-			for (size_t y = 0; y < m_simulationPoints[r].size() && msg; y++)
-			{
-				for (size_t m = 0; m < m_simulationPoints[r][y].size(); m++)
-				{
-					for (size_t d = 0; d < m_simulationPoints[r][y][m].size(); d++)
-					{
-						for (TVarH v = H_TMIN2; v < H_SRAD2; v++)
-						{
-							if (m_tgi.m_variables[v])
-							{
-								if (m_tgi.m_generationType == CWGInput::GENERATE_HOURLY)
-								{
-									for (size_t h = 0; h < m_simulationPoints[r][y][m][d].size(); h++)
-									{
-										m_simulationPoints[r][y][m][d][h][v] = WBSF::Round(m_simulationPoints[r][y][m][d][h][v], DIGIT_RES[v]);
-									}
-								}
-								else
-								{
-									m_simulationPoints[r][y][m][d][v] = WBSF::Round(m_simulationPoints[r][y][m][d][v], DIGIT_RES[v]);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 
 		if (bCopyReplication && m_nbReplications > 1)
 		{
@@ -562,6 +532,38 @@ namespace WBSF
 		//remove mandatory variables not requested
 		if (m_simulationPoints[0].GetVariables() != m_tgi.m_variables)
 			m_simulationPoints.CleanUnusedVariable(m_tgi.m_variables);
+
+
+		//round to RES
+		for (size_t r = 0; r < m_simulationPoints.size() && msg; r++)
+		{
+			for (size_t y = 0; y < m_simulationPoints[r].size() && msg; y++)
+			{
+				for (size_t m = 0; m < m_simulationPoints[r][y].size(); m++)
+				{
+					for (size_t d = 0; d < m_simulationPoints[r][y][m].size(); d++)
+					{
+						for (TVarH v = H_TMIN2; v < NB_VAR_H; v++)
+						{
+							if (m_tgi.m_variables[v])
+							{
+								if (m_tgi.m_generationType == CWGInput::GENERATE_HOURLY)
+								{
+									for (size_t h = 0; h < m_simulationPoints[r][y][m][d].size(); h++)
+									{
+										m_simulationPoints[r][y][m][d][h][v] = WBSF::Round(m_simulationPoints[r][y][m][d][h][v], DIGIT_RES[v]);
+									}
+								}
+								else
+								{
+									m_simulationPoints[r][y][m][d].SetStat(v, WBSF::Round(m_simulationPoints[r][y][m][d][v][MEAN], DIGIT_RES[v]) );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
 		ASSERT(!msg || VerifyData(m_simulationPoints, m_tgi.m_variables));
 
@@ -1364,8 +1366,7 @@ namespace WBSF
 											for (size_t h = 0; h < simulationPointVector[r][y][m][d].size(); h++)
 											{
 												if (IsMissing(simulationPointVector[r][y][m][d][h][v]) && !IsMissing(annualData[year][m][d][h][v]))
-													simulationPointVector[r][y][m][d][h][v] = WBSF::Round(annualData[year][m][d][h][v], DIGIT_RES[v]);
-												//simulationPointVector[r][y][m][d][h][v] = annualData[year][m][d][h][v];
+													simulationPointVector[r][y][m][d][h][v] = annualData[year][m][d][h][v];
 
 											}
 										}
@@ -1373,8 +1374,7 @@ namespace WBSF
 										{
 											//replace missing daily value by normals generation
 											if (!simulationPointVector[r][y][m][d][v].IsInit() && annualData[year][m][d][v].IsInit())
-												simulationPointVector[r][y][m][d][v] = WBSF::Round(annualData[year][m][d][v], DIGIT_RES[v]);
-											//simulationPointVector[r][y][m][d][v] = annualData[year][m][d][v];
+												simulationPointVector[r][y][m][d][v] = annualData[year][m][d][v];
 										}
 									}//if hourly/daily
 								}//for all variable
