@@ -376,8 +376,11 @@ namespace WBSF
 				__int64 internalID64 = ToInt64(internalID);
 
 				stations.push_back(*it);
-				msg += UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stations.back());
-				it2 = stations.FindBySSI("InternalID", internalID, false);
+				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stations.back());
+				if (msgTmp)
+					it2 = stations.FindBySSI("InternalID", internalID, false);
+				else
+					callback.AddMessage(msgTmp);
 			}
 			else
 			{
@@ -465,7 +468,7 @@ namespace WBSF
 				}
 				else
 				{
-					msg.ajoute("Bad coordinate");
+					msg.ajoute("EnvCan Hourly bad coordinate: " + URL);
 				}
 			}
 		}
@@ -642,8 +645,7 @@ namespace WBSF
 		callback.PushTask("Download EnvCan hourly data (" + ToString(stationList.size()) + " stations)", stationList.size());
 		callback.AddMessage("Download EnvCan hourly data (" + ToString(stationList.size()) + " stations)");
 
-		//InitStat();
-
+		size_t nbFiles = 0;
 		int nbRun = 0;
 		size_t curI = 0;
 		while (curI < stationList.size() && msg)
@@ -666,6 +668,7 @@ namespace WBSF
 						{
 							curI++;
 							nbRun = 0;
+							nbFiles++;
 							msg += callback.StepIt();
 						}
 					}
@@ -701,6 +704,7 @@ namespace WBSF
 			}
 		}
 
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 		callback.PopTask();
 
 		return msg;

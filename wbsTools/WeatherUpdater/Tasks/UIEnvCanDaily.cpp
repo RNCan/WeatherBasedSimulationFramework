@@ -415,8 +415,12 @@ namespace WBSF
 				__int64 internalID64 = ToInt64(internalID);
 
 				stations.push_back( *it );
-				msg += UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), stations.back());
-				it2 = stations.FindBySSI("InternalID", internalID, false);
+				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), stations.back());
+				if (msgTmp)
+					it2 = stations.FindBySSI("InternalID", internalID, false);
+				else
+					callback.AddMessage(msgTmp);
+				
 			}
 			else
 			{
@@ -509,7 +513,7 @@ namespace WBSF
 				}
 				else
 				{
-					msg.ajoute("Bad coordinate");
+					msg.ajoute("EnvCan Daily bad coordinate: " + URL);
 				}
 			}
 		}
@@ -703,11 +707,6 @@ namespace WBSF
 		if (FileExists(GetStationListFilePath()))
 		{
 			msg = m_stations.Load(GetStationListFilePath());
-			//CLocationVector stations;
-			//for (auto it = m_stations.begin(); it != m_stations.end(); it++)
-				//stations.push_back(it->second);
-
-			//return stations.Save(GetStationListFilePath()+".csv");
 		}
 			
 
@@ -736,7 +735,7 @@ namespace WBSF
 
 		callback.PushTask("Download EnvCan daily data (" + ToString(stationList.size()) + " stations)", stationList.size());
 		callback.AddMessage("Download EnvCan daily data (" + ToString(stationList.size()) + " stations)");
-
+		size_t nbFiles = 0;
 		int nbRun = 0;
 		int curI = 0;
 
@@ -758,6 +757,7 @@ namespace WBSF
 						msg = DownloadStation(pConnection, stationList[i], callback);
 						if (msg)
 						{
+							nbFiles++;
 							curI++;
 							nbRun = 0;
 							msg += callback.StepIt();
@@ -794,6 +794,7 @@ namespace WBSF
 			}
 		}
 
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 		callback.PopTask();
 		
 
