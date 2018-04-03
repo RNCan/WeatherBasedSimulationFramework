@@ -19,6 +19,12 @@ namespace WBSF
 
 	//ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/ 
 
+	//données quotidienne un an toutes les stations
+	//ftp://ftp.tor.ec.gc.ca/Climate_Services/Daily/
+
+	//données horaire par années:
+	//ftp://ftp.tor.ec.gc.ca/NAS_ClimateData_FlatFiles/HLY/HLY01/
+
 	const char* CUIEnvCanDaily::SERVER_NAME = "climate.weather.gc.ca";
 
 	//*********************************************************************
@@ -71,21 +77,6 @@ namespace WBSF
 
 		return long(y * 365 + m*30.42 + d);
 	}
-
-	//void CUIEnvCanDaily::Reset()
-	//{
-	//	CTaskBase::Reset();
-
-	//	m_selection.Reset();
-	//	m_boundingBox = DEFAULT_BOUDINGBOX;
-	//	m_bForceDownload = false;
-	//	m_bExtractSnow = false;
-
-	//	m_nbDownload = 0;
-
-
-	//	//	m_nbDays = GetNbDay(CTime::GetCurrentTime());
-	//}
 
 
 	//************************************************************************************************************
@@ -318,79 +309,12 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CUIEnvCanDaily::UpdateAllStationList(CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	CLocationMap stations;
-
-	//	//Getlocal station list
-	//	if (FileExists(GetStationListFilePath()))
-	//		msg = stations.Load(GetStationListFilePath());
-
-
-
-	//	string workingDir = GetDir(WORKING_DIR);
-
-	//	callback.PushTask("Find files list", NOT_INIT);
-	//	StringVector files = WBSF::GetFilesList(workingDir+"*.csv", FILE_PATH, true);
-	//	callback.PopTask();
-
-	//	map<string, CTPeriod> IDs;
-
-	//	for (size_t i = 0; i < files.size(); i++)
-	//	{
-	//		string title = GetFileTitle(files[i]);
-	//		int year = WBSF::as<int>(GetLastDirName(GetPath(files[i])));
-	//		
-	//		//map<string, CTPeriod> ::iterator it = IDs.find(title);
-	//		//if (it == IDs.end())
-	//			//IDs[title] = CTPeriod(year, year);
-	//		//else
-	//		IDs[title].Inflate(CTRef(year));
-	//	}
-
-	//	CInternetSessionPtr pSession;
-	//	CHttpConnectionPtr pConnection;
-
-	//	msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-	//	if (!msg)
-	//		return msg;
-
-
-	//	callback.PushTask("Update coordinates", IDs.size());
-	//	for (map<string, CTPeriod>::const_iterator it = IDs.begin(); it != IDs.end() && msg; it++)
-	//	{
-	//			//this station doesn't exist, we add it
-	//			CTPeriod period = String2Period(it->GetSSI("Period"));
-
-	//			//string ID = it->m_ID;
-	//			CLocationMap::iterator it2 = stations.findbySSI.find(ID);
-	//			if (it2 == stations.end() || it2->second.m_lat == -999)
-	//			{
-	//				__int64 internalID = ToInt64(it->first);
-
-	//				stationMap[ID] = *it;
-	//				msg += UpdateCoordinate(pConnection, internalID, period.End().GetYear(), period.End().GetMonth(), stations[ID]);
-	//			}
-
-	//		msg += callback.StepIt();
-	//	}
-
-	//	if (msg)
-	//		msg = m_stations.Save(GetStationListFilePath());
-	//}
-
 	ERMsg CUIEnvCanDaily::UpdateStationList(CLocationVector& stationList, CLocationVector& stations, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//bool bForceUpdateAll = as<bool>(UPDATE_STATION_LIST);
-
 		//update coordinates
 		callback.PushTask("Update coordinates", stationList.size());
-		//callback.SetNbStep(stationList.size());
-
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -404,10 +328,7 @@ namespace WBSF
 		{
 			//this station doesn't exist, we add it
 			CTPeriod period = String2Period(it->GetSSI("Period"));
-			//if (period.IsInit())
-			//{
-			//string internalID = it->GetSSI("InternalID");
-			//__int64 ID = ToInt64(internalID);
+			
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
 			if (it2 == stations.end() || it2->m_lat==-999)
@@ -454,8 +375,6 @@ namespace WBSF
 			"Month=%d&"
 			"Day=1"
 		};
-
-		//	"Prov=CA&"
 
 		ERMsg msg;
 
@@ -541,7 +460,7 @@ namespace WBSF
 		};
 
 		string URL = FormatA(pageDataFormat, ID, year);
-		//msg = UtilWWW::CopyFile(pConnection, URL, filePath);
+
 		string source;
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
@@ -622,10 +541,6 @@ namespace WBSF
 				if (nbFilesToDownload>10)
 					msg += callback.StepIt();
 			}
-			////else
-			//{
-			//	callback.AddMessage(info.m_name + "\t" + info.GetSSI("Province")+ "\t" + info.m_ID);
-			//}
 		}
 
 		if (nbFilesToDownload>10)
@@ -639,8 +554,6 @@ namespace WBSF
 	{
 		bool bDownload = true;
 
-		//if (!m_bForceDownload)
-		//{
 		CFileStamp fileStamp(filePath);
 		CTime lastUpdate = fileStamp.m_time;
 		if (lastUpdate.GetTime() > 0)
@@ -650,7 +563,6 @@ namespace WBSF
 			if (nbDays > (365 + 182))//six month after the end of the year
 				bDownload = false;
 		}
-		//}
 
 		return bDownload;
 	}
@@ -714,9 +626,6 @@ namespace WBSF
 		CLocationVector stationList;
 		if (msg)
 			msg = DownloadStationList(stationList, callback);
-
-		//stationList.Save("D:/StationLoist.csv");
-		//return msg;
 
 		if (msg)
 			msg = UpdateStationList(stationList, m_stations, callback);
@@ -830,7 +739,7 @@ namespace WBSF
 			const CLocation& station = *it;
 			CTPeriod period1 = String2Period(station.GetSSI("Period"));
 			CTPeriod period2(CTRef(firstYear, JANUARY, DAY_01), CTRef(lastYear, DECEMBER, DAY_31));
-			//if (period1.Begin().GetYear() <= lastYear && period.End().GetYear() >= firstYear)
+
 			if (period1.IsIntersect(period2))
 			{
 				string prov = station.GetSSI("Province");
@@ -878,7 +787,6 @@ namespace WBSF
 	}
 
 	ERMsg CUIEnvCanDaily::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
-	//ERMsg CUIEnvCanDaily::GetStation(const string& stationID, CDailyStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -888,7 +796,7 @@ namespace WBSF
 			return msg;
 		}
 
-		//__int64 ID = ToValue<__int64>(stationID);
+
 		GetStationInformation(ID, station);
 
 		string internalID = station.GetSSI("InternalID");

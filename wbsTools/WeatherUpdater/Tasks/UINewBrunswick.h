@@ -49,9 +49,11 @@ namespace WBSF
 		ERMsg ExecuteFire(size_t n, CCallback& callback);
 
 		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
-		ERMsg LoadStationList(CCallback& callback);
+		//ERMsg LoadStationList(CCallback& callback);
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 		ERMsg ReadDataHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
+		ERMsg DownloadAgriStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& ID, int year, std::string& text);
+
 
 		std::bitset<NB_NETWORKS> GetNetWork()const;
 
