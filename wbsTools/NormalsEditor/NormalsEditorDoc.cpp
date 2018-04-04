@@ -6,7 +6,6 @@
 
 #include "NormalsEditor.h"
 #include "NormalsEditorDoc.h"
-#include "Basic/Shore.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -59,14 +58,6 @@ BOOL CNormalsEditorDoc::OnNewDocument()
 	m_pDatabase.reset(new CNormalsDatabase);
 	m_pStation.reset(new CNormalsStation);
 
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg;
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
-
-		if (!msg)
-			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	}
 
 	return TRUE;
 }

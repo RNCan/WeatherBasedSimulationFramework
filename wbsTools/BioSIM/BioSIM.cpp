@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM   
-// 11.4.2: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017
+// 11.4.3: 28/03/2018	Rémi Saint-Amant	Add snow gradient
+// 11.4.2: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
 //											Bug correction in computation of solar radiation
 // 11.4.1: 22/02/2018	Rémi Saint-Amant	Bug correction in merge component
 //											Change context menu when language change
@@ -312,6 +313,7 @@
 #include "Basic/ANN/ANN.h"
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
+#include "Basic/Shore.h"
 #include "Geomatic/UtilGDAL.h"
 #include "FileManager/FileManager.h"
 #include "UI/Common/StandardCmdLine.h"
@@ -325,46 +327,8 @@
 #include "OutputView.h"
 #include "WeatherBasedSimulationUI.h"
 #include "WeatherBasedSimulationString.h"
-//#include "afxres.h"
 
 
-
-
-//
-//int testTimeZone(void)
-//{
-//	//cctz::TimeZoneInfo::LoadTimeZone(name);
-//
-//	cctz::time_zone syd;
-//	if (!cctz::load_time_zone("Australia/Sydney", &syd)) 
-//		return -1;
-//
-//	// Neil Armstrong first walks on the moon
-//	const auto tp1 = cctz::convert(cctz::civil_second(1969, 7, 21, 12, 56, 0), syd);
-//
-//	std::string s = cctz::format("%x %X", tp1, syd);
-//	//std::cout << s << "\n";
-//
-//	cctz::time_zone nyc;
-//	cctz::load_time_zone("America/New_York", &nyc);
-//
-//	const auto tp2 = cctz::convert(cctz::civil_second(1969, 7, 20, 22, 56, 0), nyc);
-//	s = cctz::format("%x %X", tp2, syd);
-//	
-//
-//	cctz::time_zone lax;
-//	load_time_zone("America/Los_Angeles", &lax);
-//	const auto now = std::chrono::system_clock::now();
-//	const auto day = FloorDay(now, lax);
-//	s = cctz::format("Now: %x %X\n", now, lax);
-//	s = cctz::format("Day: %x %X\n", day, lax);
-//
-//
-//	
-//
-//
-//	return tp2 == tp1 ? 0 : 1;
-//}
 
 using namespace UtilWin;
 using namespace WBSF;
@@ -379,7 +343,6 @@ using namespace WBSF;
 
 BEGIN_MESSAGE_MAP(CBioSIMApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CBioSIMApp::OnAppAbout)
-	// Standard file based document commands
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 END_MESSAGE_MAP()
@@ -487,6 +450,11 @@ BOOL CBioSIMApp::InitInstance()
 	//}
 	//
 
+	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+	if (!msg)
+		SYShowMessage(msg, ::AfxGetMainWnd());
+
+
 	SetRegistryKey(_T("NRCan"));
 	LoadStdProfileSettings(15);  // Load standard INI file options (including MRU)
 
@@ -494,6 +462,9 @@ BOOL CBioSIMApp::InitInstance()
 	//the generation of the internalName
 	WBSF::Randomize();
 	RegisterGDAL();
+
+
+
 
 	//Set temporal format
 	CRegistry registry("Time Format");

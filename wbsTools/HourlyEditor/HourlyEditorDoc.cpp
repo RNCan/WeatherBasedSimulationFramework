@@ -5,10 +5,7 @@
 #include "HourlyEditor.h"
 
 
-
-
 #include "HourlyEditorDoc.h"
-#include "Basic/Shore.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -68,26 +65,14 @@ BOOL CHourlyEditorDoc::OnNewDocument()
 
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
-	//m_pStation.reset();
 	m_modifiedStation.clear();
 	m_outputText.clear();
 
 	m_pDatabase.reset(new CHourlyDatabase);
 	m_pStation.reset(new CWeatherStation);
 
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg;
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
-
-		if (!msg)
-			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	}
-
 	return TRUE;
 }
-
-// sérialisation de CHourlyEditorDoc
 
 
 

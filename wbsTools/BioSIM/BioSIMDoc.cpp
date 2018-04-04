@@ -8,7 +8,6 @@
 #include "Basic/UtilTime.h"
 #include "Basic/callback.h"
 
-#include "Basic/Shore.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/WeatherGradient.h"
 #include "UI/Common/UtilWin.h"
@@ -470,7 +469,7 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
 	
 	
-	msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+
 
 
 	/*CNormalsDatabasePtr normalDB(new CNormalsDatabase);
@@ -544,7 +543,7 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 
 
 	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
-
+	
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());
 

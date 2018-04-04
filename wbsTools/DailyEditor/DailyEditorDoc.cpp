@@ -6,7 +6,6 @@
 
 #include "DailyEditorDoc.h"
 #include "resource.h"
-#include "Basic/Shore.h"
 #include "Basic/UtilStd.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/SYShowMessage.h"
@@ -74,14 +73,7 @@ BOOL CDailyEditorDoc::OnNewDocument()
 	m_pDatabase.reset(new CDailyDatabase);
 	m_pStation.reset(new CWeatherStation);
 
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg;
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
-
-		if (!msg)
-			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	}
+	
 
 	return TRUE;
 }

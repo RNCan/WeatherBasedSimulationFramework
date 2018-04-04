@@ -181,6 +181,11 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		if (locations.empty())
+		{
+			msg.ajoute(GetString(IDS_SIM_EMPTY_LOC));
+			return msg;
+		}
 
 		StringVector title(IDS_SIM_WEATHER_GROUP_DATAHEAD, ";|");
 		ASSERT(title.size() == 3);
@@ -241,7 +246,10 @@ namespace WBSF
 										ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
 										if (messageTmp && !msgTmp)
 										{
-											if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || (i == 2 && v == H_TMIN2) || (i == 2 && v == H_TMAX2) || (i == 0 && v == H_WNDD) || v == H_PRES)
+											if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || 
+												(i == 2 && (v == H_TMIN2 || v == H_TMAX2)) || 
+												(i == 0 && (v == H_WNDD || v == H_SRAD2 || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
+												v == H_PRES)
 											{
 												Dmin = 0;
 												Dmax = 0;

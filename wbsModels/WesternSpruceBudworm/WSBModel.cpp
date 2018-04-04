@@ -176,8 +176,8 @@ namespace WBSF
 						{
 							CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 							CTRef lastDay = output.GetLastTRef(S_L2o2, 0, 0, p);
-
-							m_output[y][i] = output[lastDay][S_DEAD_MISSING_ENERGY];
+							if(lastDay.IsInit())
+								m_output[y][i] = output[lastDay][S_DEAD_MISSING_ENERGY];
 						}
 					}
 					else if (i == O_A_GROWTH_RATE)

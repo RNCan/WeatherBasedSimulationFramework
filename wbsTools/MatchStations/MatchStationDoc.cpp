@@ -6,7 +6,6 @@
 #include <propkey.h>
 
 #include "Basic/WeatherDatabaseCreator.h"
-#include "Basic/Shore.h"
 #include "Simulation/WeatherGradient.h"
 #include "geomatic/projection.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -804,20 +803,12 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 		}
 	}
 
-	//msg = CShore::SetShore(GetApplicationPath() + "Layers\\GSHHS10km.ann");
-	if (CShore::GetShore().get() == NULL)
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
-
 	m_outputText = GetOutputString(msg, progressWnd.GetCallback(), true);
 	m_bExecute = false;
 	pView->AdjustLayout();//open the progress window
 
-	
-
 	if (!msg)
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-
-	
 
 
 	//CWeatherGradient testGradient;

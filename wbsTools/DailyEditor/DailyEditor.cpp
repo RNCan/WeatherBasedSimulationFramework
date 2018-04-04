@@ -18,6 +18,8 @@
 
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
+#include "Basic/Shore.h"
+#include "UI/Common/SYShowMessage.h"
 
 #include "UI/Common/AboutDlg.h"
 #include "WeatherBasedSimulationUI.h"
@@ -129,6 +131,15 @@ BOOL CDailyEditorApp::InitInstance()
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
 
+
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg;
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, NULL);
+	}
 
 	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
 	CCommandLineInfo cmdInfo;

@@ -15,8 +15,10 @@
 #include "NormalsEditor.h" 
 #include "MainFrm.h"
 
+#include "Basic/Shore.h"
 #include "NormalsEditorDoc.h"
 #include "OutputView.h"
+#include "UI/Common/SYShowMessage.h"
 #include "UI/Common/AboutDlg.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
@@ -128,17 +130,25 @@ BOOL CNormalsEditorApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
-	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-
 	// Activer les ouvertures d'exécution DDE
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
 
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg;
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+	}
+
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si
 	// l'application a été lancée avec /RegServer, /Register, /Unregserver ou /Unregister.
+	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 

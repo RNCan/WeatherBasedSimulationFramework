@@ -20,7 +20,9 @@
 #include "Basic/Registry.h"
 #include "Basic/ANN/Ann.h"
 #include "Basic/DynamicRessource.h"
+#include "Basic/Shore.h"
 #include "UI/Common/AboutDlg.h"
+#include "UI/Common/SYShowMessage.h"
 
 #include "MatchStationApp.h" 
 #include "MainFrm.h"
@@ -127,17 +129,23 @@ BOOL CMatchStationApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
-	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
-//	CMatchStationCmdLine cmdInfo;
-	ParseCommandLine(m_cmdInfo);
 
 	// Activer les ouvertures d'exécution DDE
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
 
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+	}
+
+
+
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si
 	// l'application a été lancée avec /RegServer, /Register, /Unregserver ou /Unregister.
+	ParseCommandLine(m_cmdInfo);
 	if (!ProcessShellCommand(m_cmdInfo))
 		return FALSE;
 

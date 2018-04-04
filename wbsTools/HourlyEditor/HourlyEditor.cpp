@@ -18,9 +18,11 @@
 #include "OutputView.h"
 
 #include "HourlyEditorDoc.h"
-#include "UI/Common/AboutDlg.h"
+#include "Basic/Shore.h"
 #include "Basic/Registry.h"
 #include "Basic/DynamicRessource.h"
+#include "UI/Common/SYShowMessage.h"
+#include "UI/Common/AboutDlg.h"
 #include "WeatherBasedSimulationUI.h"
 
 #include <gdiplus.h>
@@ -132,17 +134,26 @@ BOOL CHourlyEditorApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
-	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
 
 	// Activer les ouvertures d'exécution DDE
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
+	if (CShore::GetShore().get() == NULL)
+	{
+		ERMsg msg;
+		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+
+		if (!msg)
+			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+	}
+
 
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si
 	// l'application a été lancée avec /RegServer, /Register, /Unregserver ou /Unregister.
+	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 

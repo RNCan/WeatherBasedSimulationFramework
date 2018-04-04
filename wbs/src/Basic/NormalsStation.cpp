@@ -259,7 +259,8 @@ namespace WBSF
 				ASSERT(me[m][TMAX_MN]>-99 && me[m][TMAX_MN]<99);
 			}
 
-			if (vars[H_PRCP] && correction.m_variables[H_PRCP])
+			if (vars[H_PRCP] && correction.m_variables[H_PRCP] ||
+				vars[H_SNOW] && correction.m_variables[H_SNOW]  )
 			{
 				me[m][PRCP_TT] *= (float)correction.GetCorrection(me, TRef, H_PRCP);
 				//responsability of the caller to verify that precipitation is positive
@@ -268,7 +269,7 @@ namespace WBSF
 				//me[m][PRCP_TT] = 0;
 			}
 
-			//add normal atmospheric pressure, wind direction
+			//add normal atmospheric pressure
 			if (vars[H_PRES] && correction.m_variables[H_PRES])
 			{
 			}
