@@ -156,7 +156,7 @@ namespace WBSF
 		CTRef GetFirstTRef(size_t v, double threshold = 0, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const{ int i = GetFirstIndex(v, threshold, nbDayBefore, p); return i == -1 ? CTRef() : m_firstTRef + i; }
 		CTRef GetLastTRef(size_t v, double threshold = 0, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ int i = GetLastIndex(v, threshold, nbDayAfter, p); return i == -1 ? CTRef() : m_firstTRef + i; }
 		CTPeriod GetTPeriod(size_t v, double threshold = 0, int nbDayBefore = 1, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ return CTPeriod(GetFirstTRef(v, threshold, nbDayBefore, p), GetLastTRef(v, threshold, nbDayAfter, p)); }
-		double GetMax(size_t v)const;
+		
 		CStatistic GetStat(size_t v, const CTPeriod& period = CTPeriod())const;
 
 		CTRef GetFirstTRef()const{ return m_firstTRef; }

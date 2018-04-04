@@ -167,15 +167,14 @@ namespace WBSF
 	}
 
 	//*****************************************************************************
-	// Develop is for one time step development
-	// Input: double T: is the temperature for one time step
-	//        short nbStep: is the number of time steps per day (24h/step duration(h) )
+	// Daily death management
+	// Input: CWeatherDay weather: weather of the day
 	//*****************************************************************************
 	
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
 		size_t s = GetStage();
-		bool bLookAsynchrony = (s == L2) && HasChangedStage();
+		bool bLookAsynchrony = m_generation== 0 && (s == L2) && HasChangedStage();
 		bool bLookWindow = (s == L5) && HasChangedStage();
 		CTRef TRef = weather.GetTRef();
 		

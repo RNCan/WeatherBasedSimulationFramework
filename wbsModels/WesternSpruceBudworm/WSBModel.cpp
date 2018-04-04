@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 01/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
 // 29/08/2017	3.1.3	Rémi Saint-Amant    Revised model
 // 04/05/2017	3.1.2	Rémi Saint-Amant    New hourly generation
 // 23/12/2016	3.1.1	Rémi Saint-Amant    Correctiopn on overheating 
@@ -56,7 +57,7 @@ namespace WBSF
 
 
 	enum TOuput{ O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN_EGG, O_DEAD_FROZEN_LARVA, O_DEAD_FROZEN_ADULT, O_DEAD_CLEANUP, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
-	enum TOuputA{ O_GROWTH_RATE, NB_OUTPUT_A };
+	enum TOuputA{ O_A_DEAD_ADULT, O_A_L2o2, O_A_DEAD_ATTRITION, O_A_DEAD_FROZEN_EGG, O_A_DEAD_FROZEN_LARVA, O_A_DEAD_FROZEN_ADULT, O_A_DEAD_CLEANUP, O_A_DEAD_SYNCH, O_A_DEAD_WINDOW, O_A_DEAD_MISSING_ENERGY, O_A_GROWTH_RATE, NB_OUTPUT_A };
 
 	CWSBModel::CWSBModel()
 	{
@@ -66,7 +67,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.1.3 (2017)";
+		VERSION = "3.2.0 (2018)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
@@ -158,20 +159,50 @@ namespace WBSF
 			ERMsg msg;
 
 			//In annual model stop developing of the L22 to get cumulative L22
-			CModelStatVector stat;
-			GetDailyStat(stat);
+			CModelStatVector output;
+			GetDailyStat(output);
 
 
-			m_output.Init(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A, 0.0);
+			m_output.Init(m_weather.size(), CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A, -999);
 
-			for (size_t y = 0; y < m_weather.size() - 1; y++)
+			
+			for (size_t y = 0; y < m_weather.size() ; y++)
 			{
-				//Get the number of individuals that complete the winter L2o -> L2 (next year)
-				CStatistic gr = stat.GetStat(E_L22, m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY)));
-				
-				
-				if (gr.IsInit())
-					m_output[y][O_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
+				for (size_t i = O_A_DEAD_ADULT; i < NB_OUTPUT_A; i++)
+				{
+					if (i == O_A_DEAD_MISSING_ENERGY)
+					{
+						if (y > 0)
+						{
+							CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+							CTRef lastDay = output.GetLastTRef(S_L2o2, 0, 0, p);
+
+							m_output[y][i] = output[lastDay][S_DEAD_MISSING_ENERGY];
+						}
+					}
+					else if (i == O_A_GROWTH_RATE)
+					{
+						//Get the number of individuals that complete the winter L2o -> L2 (next year)
+						if (y < m_weather.size() - 1)
+						{
+							CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
+							CStatistic gr = output.GetStat(E_L22, p);
+
+							if (gr.IsInit())
+								m_output[y][i] = gr[SUM] / 100; //initial population is 100 insect
+						}
+					}
+					else
+					{
+						static size_t VAR_POS[O_A_DEAD_WINDOW + 1] = { E_DEAD_ADULT, E_L2o2, S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_SYNCH, S_DEAD_WINDOW };
+						CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+
+						CStatistic stat = output.GetStat(VAR_POS[i], p);
+						m_output[y][i] = stat[((i < O_A_DEAD_ATTRITION) ? SUM : HIGHEST)];
+					}
+
+					
+				}
 			}
 
 		}
@@ -236,9 +267,6 @@ namespace WBSF
 
 					if (y == 1 && stat[d][S_L2o2] == 0 && stat[d][S_L22] == 0)
 					{
-						//copy the last value of L22
-						//for (d++; d <= pp.End(); d++)
-							//stat[d][S_L22] = stat[d-1][S_L22];
 						d = pp.End();//end the simulation here
 					}
 
@@ -256,12 +284,12 @@ namespace WBSF
 		output.Init(stat.GetTPeriod(), NB_OUTPUT_D);
 		
 
-		for (int d = 0; d < stat.size(); d++)
+		for (size_t d = 0; d < stat.size(); d++)
 		{
-			for (int i = 0; i < O_L22 - O_L2o + 1; i++)
+			for (size_t i = 0; i < O_L22 - O_L2o + 1; i++)
 				output[d][O_L2o + i] = stat[d][S_L2o + i];
 
-			for (int i = 0; i < O_E_DEAD_ADULT - O_E_L2 + 1; i++)
+			for (size_t i = 0; i < O_E_DEAD_ADULT - O_E_L2 + 1; i++)
 				output[d][O_E_L2 + i] = stat[d][E_L2 + i];
 
 			output[d][O_AVERAGE_INSTAR] = stat[d][S_AVERAGE_INSTAR];
