@@ -316,7 +316,8 @@ namespace WBSF
 				m_stations.insert(m_stations.end(), locations.begin(), locations.end());
 
 				for (size_t i = 0; i < locations.size(); i++)
-					stationList.push_back(ToString(n) + "/" + locations[i].m_ID);
+					if (locations[i].UseIt())
+						stationList.push_back(ToString(n) + "/" + locations[i].m_ID);
 			}
 		}
 
@@ -981,12 +982,24 @@ namespace WBSF
 				}
 			}
 
-			if (msg && data.size() == 1)
+			if (msg)
 			{
-				//save annual data
-				const CWeatherYear& d = data[size_t(0)];
-				msg = d.SaveData(filePath);
-			}//if msg
+				if (data.empty())
+				{
+					msg = data.SaveData(filePath);//save empty file to avoid download it again
+				}
+				else if (msg && data.size() == 1)
+				{
+					//save annual data
+					const CWeatherYear& d = data[size_t(0)];
+					msg = d.SaveData(filePath);
+				}//if msg
+				else
+				{
+					ASSERT(false);
+				}
+			}
+
 		}
 		catch (const zen::XmlParsingError& e)
 		{
@@ -1025,7 +1038,7 @@ namespace WBSF
 		while (nbRun < 5 && curY < nbYears && msg)
 		{
 			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size()*nbYears * 12 : stationsList.size()*(nbYears - 1) * 12 + stationsList.size()*(currentTRef.GetMonth() + 1);
-			callback.PushTask("Download Manitoba historical agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
+			callback.PushTask("Download Manitoba agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
 
 			nbRun++;
 			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
@@ -1053,8 +1066,29 @@ namespace WBSF
 							{
 								int nbDays = CTRef(lu.GetYear(), lu.GetMonth() - 1, lu.GetDay() - 1) - CTRef(year, m, LAST_DAY);
 
-								if (nbDays > 10)
+								if (nbDays > 7)
+								{
 									bDownload = false;
+								}
+								else if (nbDays > 0)
+								{
+									//load the file and varify if the last day of the moth is present
+									CWeatherStation junk;
+									if (junk.LoadData(filePath))
+									{
+										size_t lastDay = GetNbDayPerMonth(year, m) - 1;
+										//if (junk.IsHourly())
+										//{
+											//if (junk[year][m][lastDay][LAST_HOUR].HaveData())
+												//bDownload = false;
+										//}
+										//else
+										//{
+										if (junk[year][m][lastDay].HaveData())
+											bDownload = false;
+										//}
+									}
+								}
 							}
 
 
@@ -1508,9 +1542,9 @@ namespace WBSF
 	//XR - relative humidity
 	//PA - atmospheric pressure
 
-	enum TVariables { H_WATER_LEVEL, H_WATER_TEMPERATURE, H_AIR_TEMPERATURE, H_WIND_DIRECTION, H_WIND_SPEED, H_WIND_GUST, H_PRECIPITATION, H_RELATIVE_HUMIDITY, H_ATMOSPHERIC_PRESSURE, NB_VARS };
-	static char* HYDRO_VAR_NAME[NB_VARS] = { "HG", "TW", "TA", "UD", "US", "UG", "PC", "XR", "PA" };
-	static const TVarH HYDRO_VAR[NB_VARS] = { H_ADD1, H_ADD2, H_TAIR2, H_WNDD, H_WNDS, H_SKIP, H_PRCP, H_RELH, H_PRES };
+	enum TVariables { H_WATER_LEVEL, H_WATER_TEMPERATURE, H_AIR_TEMPERATURE, H_WIND_DIRECTION, H_WIND_SPEED, H_WIND_GUST, H_PRECIPITATION, H_RELATIVE_HUMIDITY, H_ATMOSPHERIC_PRESSURE, NB_MAN_VARS };
+	static char* HYDRO_VAR_NAME[NB_MAN_VARS] = { "HG", "TW", "TA", "UD", "US", "UG", "PC", "XR", "PA" };
+	static const TVarH HYDRO_VAR[NB_MAN_VARS] = { H_ADD1, H_ADD2, H_TAIR2, H_WNDD, H_WNDS, H_SKIP, H_PRCP, H_RELH, H_PRES };
 	static size_t GetVar(string filePath)
 	{
 		size_t var = NOT_INIT;
@@ -1518,7 +1552,7 @@ namespace WBSF
 		string title = GetFileTitle(filePath);
 		string varID = title.substr(0, 2);
 		MakeUpper(varID);
-		for (size_t i = 0; i < NB_VARS && var == NOT_INIT; i++)
+		for (size_t i = 0; i < NB_MAN_VARS && var == NOT_INIT; i++)
 		{
 			if (varID == HYDRO_VAR_NAME[i])
 				var = HYDRO_VAR[i];
@@ -1607,10 +1641,11 @@ namespace WBSF
 			string fileName = type == HOURLY_WEATHER ? "ContinuousWeek.xls" : "DayMeanYear.xls";
 
 
-			callback.PushTask("Update Manitoba Hydro weather data (" + ToString(locations.size()) + " stations)", locations.size()*NB_VARS);
+			callback.PushTask("Update Manitoba Hydro weather data (" + ToString(locations.size()) + " stations)", locations.size()*NB_MAN_VARS);
 			size_t curI = 0;
 			int nbRun = 0;
 			//bool bDownloaded = false;
+			size_t nbDownload = 0;
 
 			while (curI < locations.size() && nbRun < 5 && msg)
 			{
@@ -1627,77 +1662,91 @@ namespace WBSF
 
 						for (size_t i = curI; i < locations.size() && msg; i++)
 						{
-							StringVector filePath;
-							string ID = locations[i].m_ID;
-							//string ID = "05UH737";
-							for (size_t v = 0; v < NB_VARS&&msg; v++)
+							if (locations[i].UseIt())
 							{
-								if (HYDRO_VAR[v] != NOT_INIT)
+
+								StringVector filePath;
+								string ID = locations[i].m_ID;
+								//string ID = "05UH737";
+								for (size_t v = 0; v < NB_MAN_VARS&&msg; v++)
 								{
-									string remoteFilePath = "hydrologicalData/static/stations/" + ID + "/Parameter/" + HYDRO_VAR_NAME[v] + "/" + fileName;
-									string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[HYDRO] + "\\" + HYDRO_VAR_NAME[v] + "_" + fileName;
-
-									if (FileExists(outputFilePath))
-										msg += RemoveFile(outputFilePath);
-
-									msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY);
-
-									//split data in seperate files
-									if (msgTmp && FileExists(outputFilePath))
+									if (HYDRO_VAR[v] != NOT_INIT)
 									{
-										ifStream file;
-										if (file.open(outputFilePath))
+										string remoteFilePath = "hydrologicalData/static/stations/" + ID + "/Parameter/" + HYDRO_VAR_NAME[v] + "/" + fileName;
+										string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[HYDRO] + "\\" + HYDRO_VAR_NAME[v] + "_" + fileName;
+
+										if (FileExists(outputFilePath))
+											msg += RemoveFile(outputFilePath);
+
+										msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY);
+
+										//split data in seperate files
+										if (msgTmp && FileExists(outputFilePath))
 										{
-											string str = file.GetText();
-											file.close();
-
-											if (str.find("Sorry, the page was not found") == NOT_INIT)
+											ifStream file;
+											if (file.open(outputFilePath))
 											{
-												string tmpFilePath = outputFilePath;
-												SetFileExtension(tmpFilePath, ".csv");
+												string str = file.GetText();
+												file.close();
 
-												if (FileExists(tmpFilePath))
-													msg += RemoveFile(tmpFilePath);
-
-												if (msg)
+												if (str.find("Sorry, the page was not found") == NOT_INIT)
 												{
-													string xls2csv = GetApplicationPath() + "External\\xml2csv.exe";
-													string command = xls2csv + " \"" + outputFilePath + "\" \"" + tmpFilePath + "\"";
-													WinExecWait(command);
+													string tmpFilePath = outputFilePath;
+													SetFileExtension(tmpFilePath, ".csv");
 
 													if (FileExists(tmpFilePath))
-														filePath.push_back(tmpFilePath);
-													else
-														msg.ajoute("Unable to convert " + GetFileName(outputFilePath) + " to " + GetFileName(tmpFilePath));
+														msg += RemoveFile(tmpFilePath);
+
+													if (msg)
+													{
+														string xls2csv = GetApplicationPath() + "External\\xml2csv.exe";
+														string command = xls2csv + " \"" + outputFilePath + "\" \"" + tmpFilePath + "\"";
+														WinExecWait(command);
+
+														if (FileExists(tmpFilePath))
+															filePath.push_back(tmpFilePath);
+														else
+															msg.ajoute("Unable to convert " + GetFileName(outputFilePath) + " to " + GetFileName(tmpFilePath));
+													}
 												}
-											}
-										}//if valid file
-									}//if file exist
-								}//for all variables
+												else
+												{
+													ASSERT(FileExists(outputFilePath));
+													RemoveFile(outputFilePath);
+												}
+											}//if valid file
+										}//if file exist
+									}//for all variables
 
-								msg += callback.StepIt();
+									msg += callback.StepIt();
 
-							}//for all var
+								}//for all var
 
-							if (msg && !filePath.empty())
-							{
-								msg += SplitHydroData(locations[i].m_ID, filePath, callback);
-								if (msg)
+								if (msg && !filePath.empty())
 								{
-									curI++;
-									//remove files
-									for (size_t i = 0; i < filePath.size(); i++)
+									nbDownload++;
+									msg += SplitHydroData(locations[i].m_ID, filePath, callback);
+									if (msg)
 									{
-										//delete .csv file
-										msg += RemoveFile(filePath[i]);
-										//delete .xls file
-										msg = RemoveFile(SetFileExtension(filePath[i], ".xls"));
-									}
+										//remove files
+										for (size_t i = 0; i < filePath.size(); i++)
+										{
+											//delete .csv file
+											msg += RemoveFile(filePath[i]);
+											//delete .xls file
+											msg = RemoveFile(SetFileExtension(filePath[i], ".xls"));
+										}
 
+									}
 								}
+							}//if used it
+							else
+							{
+								msg += callback.StepIt(NB_MAN_VARS);
 							}
 
-						}//for all station
+							curI++;
+						}//for all stations
 					}
 						CATCH_ALL(e)
 					{
@@ -1725,7 +1774,7 @@ namespace WBSF
 			}
 
 
-			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 1);
 			callback.PopTask();
 		}
 
@@ -2064,23 +2113,23 @@ namespace WBSF
 						tdit->getValue(str);
 						double value = !str.empty() ? ToDouble(str) : 0;
 						StringVector tmp(date_str, "/");
-						if (value > 0 && tmp.size()==3)
+						if (value > 0 && tmp.size() == 3)
 						{
 							size_t m = ToSizeT(tmp[0]) - 1;
 							size_t d = ToSizeT(tmp[1]) - 1;
 							int year = ToInt(tmp[2]);
 							CTRef Tref(year, m, d);
 
-							
+
 							if (!data.IsYearInit(year))
 							{
 								//try to load old data before changing it...
 								string filePath = GetOutputFilePath(POTATO, DAILY_WEATHER, ID, year);
 								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 							}
-							
+
 							value = value < 1000 ? value * 10.0 : value / 100.0;
-							if(value>0 && value < 500)
+							if (value > 0 && value < 500)
 								data[Tref].SetStat(H_SRAD2, value);
 						}// tmp == 3 and sRad is init
 					}
