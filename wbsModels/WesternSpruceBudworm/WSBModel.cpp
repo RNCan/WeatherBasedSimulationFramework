@@ -82,9 +82,9 @@ namespace WBSF
 		m_bApplyAsynchronyMortality = true;
 		m_bApplyWindowMortality = true;
 
-		m_nbObjects = 400;       //Number of females in the initial attack 
+		m_nbObjects = 800;       //Number of females in the initial attack 
 		m_nbMinObjects = 100;
-		m_nbMaxObjects = 1000;
+		m_nbMaxObjects = 2000;
 		memset(m_rho25Factor, 0, NB_STAGES*sizeof(m_rho25Factor[0]));
 		m_bCumulatif = false;
 
@@ -172,6 +172,41 @@ namespace WBSF
 				{
 					if (i == O_A_DEAD_MISSING_ENERGY || i == O_A_GROWTH_RATE)
 					{
+						//estimate of variable withthe last day of the year
+						CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+						CTRef last_day = p.End();
+
+						//m_output[y][O_A_DEAD_MISSING_ENERGY] = p.End().IsInit() ? output[p.End()][S_DEAD_MISSING_ENERGY] : 0;
+						
+						static const double SR = 0.5;
+						static const double S = 0.1;
+
+						double L2o2 = output[last_day][S_L2o]/100;
+						
+						//, E_L2o2, S_DEAD_ATTRITION, , S_DEAD_FROZEN_LARVA, , S_DEAD_CLEANUP, , 
+
+						
+						double Eggs = L2o2 + output[last_day][S_DEAD_FROZEN_EGG] + output[last_day][S_DEAD_MISSING_ENERGY];
+						double Eggs2 = output.GetStat(E_EGG, p);
+						double Eggs3 = output.GetStat(E_EGG2, p);
+
+						double L2Syn = output[last_day][S_DEAD_SYNCH] / 100;
+						double L6Win = output[last_day][S_DEAD_WINDOW] / 100;
+						double EggsFrozen = output[last_day][S_DEAD_FROZEN_EGG] / Eggs;
+							
+						double L2oEnergy = output[last_day][S_DEAD_MISSING_ENERGY] / (Eggs - EggsFrozen);
+						//double L2oEnergy = Dead_MissingEnergy(y + 1) / (Eggs - Dead_Frozen_Egg)
+						double Fec = (Eggs / S) / (output[last_day][E_DEAD_ADULT] + output[last_day][S_DEAD_FROZEN_ADULT]) / SR;
+						
+
+						double R = (1 - L2Syn)*(1 - L6Win)*(1 - EggsFrozen)*(1 - L2oEnergy)*Fec*SR*S;
+
+						//CStatistic gr = output.GetStat(E_L22, p);
+
+//						if (gr.IsInit())
+	//						m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
+
+
 						//Get the number of individuals that complete the winter L2o -> L2 (next year)
 						if (y < m_weather.size() - 1)
 						{
@@ -180,11 +215,16 @@ namespace WBSF
 							
 							m_output[y][O_A_DEAD_MISSING_ENERGY] = lastDay.IsInit()?output[lastDay][S_DEAD_MISSING_ENERGY]:0;
 							
+							
 							CStatistic gr = output.GetStat(E_L22, p);
 
 							if (gr.IsInit())
 								m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
 						}
+						
+						
+						double test3 = m_output[y][O_A_DEAD_MISSING_ENERGY];
+						double test4 = m_output[y][O_A_GROWTH_RATE];
 					}
 					else
 					{
