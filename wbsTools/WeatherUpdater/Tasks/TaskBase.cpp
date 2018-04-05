@@ -405,7 +405,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask(GetString(IDS_EXECUTE_TASK), GetNbExecutes());
+		callback.PushTask(WBSF::FormatMsg(IDS_EXECUTE_TASK, to_string(GetNbExecutes()).c_str() ), GetNbExecutes());
 		for (CTasksProject::iterator it1 = begin(); it1 != end() && !callback.GetUserCancel(); it1++)
 		{
 			for (CTaskPtrVector::iterator it2 = it1->begin(); it2 != it1->end() && !callback.GetUserCancel(); it2++)

@@ -170,26 +170,20 @@ namespace WBSF
 			{
 				for (size_t i = O_A_DEAD_ADULT; i < NB_OUTPUT_A; i++)
 				{
-					if (i == O_A_DEAD_MISSING_ENERGY)
-					{
-						if (y > 0)
-						{
-							CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-							CTRef lastDay = output.GetLastTRef(S_L2o2, 0, 0, p);
-							if(lastDay.IsInit())
-								m_output[y][i] = output[lastDay][S_DEAD_MISSING_ENERGY];
-						}
-					}
-					else if (i == O_A_GROWTH_RATE)
+					if (i == O_A_DEAD_MISSING_ENERGY || i == O_A_GROWTH_RATE)
 					{
 						//Get the number of individuals that complete the winter L2o -> L2 (next year)
 						if (y < m_weather.size() - 1)
 						{
 							CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
+							CTRef lastDay = output.GetLastTRef(S_L2o2, 0, 0, p);
+							
+							m_output[y][O_A_DEAD_MISSING_ENERGY] = lastDay.IsInit()?output[lastDay][S_DEAD_MISSING_ENERGY]:0;
+							
 							CStatistic gr = output.GetStat(E_L22, p);
 
 							if (gr.IsInit())
-								m_output[y][i] = gr[SUM] / 100; //initial population is 100 insect
+								m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
 						}
 					}
 					else

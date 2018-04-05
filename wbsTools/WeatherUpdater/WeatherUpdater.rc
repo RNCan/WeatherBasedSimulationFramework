@@ -650,7 +650,7 @@ BEGIN
     IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
     IDS_TASK_TYPE_TITLE     "Téléchargement|Outils"
     IDS_PROPERTY_ROOT       "Propriété"
-    IDS_EXECUTE_TASK        "Execution des tâches"
+    IDS_EXECUTE_TASK        "Execution des %1 tâches"
     IDS_TASK_DESCRIPTION    "Description"
     IDS_SNOTEL_DATA_TYPE    "Horaire|Quotidien|Mensuel"
 END
@@ -1104,7 +1104,7 @@ BEGIN
     IDS_CONVERT_DIRECTION   "To BioSIM 11|To BioSIM 10"
     IDS_TASK_TYPE_TITLE     "Download|Tools"
     IDS_PROPERTY_ROOT       "Property"
-    IDS_EXECUTE_TASK        "Execute tasks"
+    IDS_EXECUTE_TASK        "Execute %1 tasks"
     IDS_TASK_DESCRIPTION    "Description"
     IDS_SNOTEL_DATA_TYPE    "Hourly|Daily|Monthly"
 END
