@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 06/04/2018   3.2.1   Rémi Saint-Amant	Annual model bug correction
 // 01/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
 // 29/08/2017	3.1.3	Rémi Saint-Amant    Revised model
 // 04/05/2017	3.1.2	Rémi Saint-Amant    New hourly generation

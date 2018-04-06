@@ -225,7 +225,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = FROZEN_LARVA;
 		}
-		else if (GetGeneration() == 0 && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
+		else if (GetGeneration() == 0 && TRef.GetMonth() == DECEMBER && TRef.GetDay() == DAY_31)
 		{
 			m_status = DEAD;
 			m_death = CLEANUP;
@@ -483,8 +483,12 @@ namespace WBSF
 
 	void CWSBTree::Live(const CWeatherDay& weather)
 	{
+		CTRef TRef = weather.GetTRef();
+		bool bFirstDay = TRef.GetMonth() == JANUARY && TRef.GetDay() == DAY_01;
+		bool bLastDay = TRef.GetMonth() == DECEMBER && TRef.GetDay() == DAY_31;
+
 		//For optimisation, nothing happens when temperature is under -10
-		if (weather.GetTRef().GetJDay() != 0 && weather[H_TMAX2][MEAN] < -10)
+		if (!bFirstDay && !bLastDay && weather[H_TMAX2][MEAN] < -10)
 			return;
 
 		ComputeMineable(weather);
