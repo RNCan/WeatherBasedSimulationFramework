@@ -82,9 +82,9 @@ namespace WBSF
 		m_bApplyAsynchronyMortality = true;
 		m_bApplyWindowMortality = true;
 
-		m_nbObjects = 800;       //Number of females in the initial attack 
+		m_nbObjects = 400;       //Number of females in the initial attack 
 		m_nbMinObjects = 100;
-		m_nbMaxObjects = 2000;
+		m_nbMaxObjects = 1000;
 		memset(m_rho25Factor, 0, NB_STAGES * sizeof(m_rho25Factor[0]));
 		m_bCumulatif = false;
 

@@ -173,6 +173,7 @@ namespace WBSF
 	
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
+		
 		size_t s = GetStage();
 		bool bLookAsynchrony = m_generation== 0 && (s == L2) && HasChangedStage();
 		bool bLookWindow = (s == L5) && HasChangedStage();
@@ -218,13 +219,13 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = MISSING_ENERGY;
 		}
-		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -10)
+		else if (GetGeneration() == 0 && GetStage() >= L2 && GetStage() <= PUPAE && weather[H_TMIN2][MEAN] < -10)
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
 			m_death = FROZEN_LARVA;
 		}
-		else if ((GetGeneration() == 0 || GetStage() != L2o ) && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
+		else if (GetGeneration() == 0 && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
 		{
 			m_status = DEAD;
 			m_death = CLEANUP;
@@ -561,3 +562,5 @@ namespace WBSF
 
 
 }
+
+
