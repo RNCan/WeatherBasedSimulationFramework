@@ -56,8 +56,8 @@ namespace WBSF
 		CModelFactory::RegisterModel(CWSBModel::CreateObject);
 
 
-	enum TOuput{ O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN_EGG, O_DEAD_FROZEN_LARVA, O_DEAD_FROZEN_ADULT, O_DEAD_CLEANUP, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
-	enum TOuputA{ O_A_DEAD_ADULT, O_A_L2o2, O_A_DEAD_ATTRITION, O_A_DEAD_FROZEN_EGG, O_A_DEAD_FROZEN_LARVA, O_A_DEAD_FROZEN_ADULT, O_A_DEAD_CLEANUP, O_A_DEAD_SYNCH, O_A_DEAD_WINDOW, O_A_DEAD_MISSING_ENERGY, O_A_GROWTH_RATE, NB_OUTPUT_A };
+	enum TOuput { O_L2o, O_L2, O_L3, O_L4, O_L5, O_L6, O_PUPAE, O_ADULT, O_DEAD_ADULT, O_OVIPOSITING_ADULT, O_BROOD, O_EGG2, O_L2o2, O_L22, O_AVERAGE_INSTAR, O_P_MINEABLE, O_P_SHOOT_DEVEL, O_DEAD_ATTRITION, O_DEAD_FROZEN_EGG, O_DEAD_FROZEN_LARVA, O_DEAD_FROZEN_ADULT, O_DEAD_CLEANUP, O_DEAD_MISSING_ENERGY, O_DEAD_SYNCH, O_DEAD_WINDOW, O_E_L2, O_E_L3, O_E_L4, O_E_L5, O_E_L6, O_E_PUPAE, O_E_ADULT, O_E_DEAD_ADULT, NB_OUTPUT_D };
+	enum TOuputA { O_A_FEMALE, O_A_EGG2, O_A_L2o2, O_A_DEAD_ATTRITION, O_A_DEAD_FROZEN_EGG, O_A_DEAD_FROZEN_LARVA, O_A_DEAD_FROZEN_ADULT, O_A_DEAD_CLEANUP, O_A_DEAD_SYNCH, O_A_DEAD_WINDOW, O_A_DEAD_MISSING_ENERGY, O_A_GROWTH_RATE, NB_OUTPUT_A };
 
 	CWSBModel::CWSBModel()
 	{
@@ -67,7 +67,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.2.0 (2018)";
+		VERSION = "3.2.1 (2018)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
@@ -85,7 +85,7 @@ namespace WBSF
 		m_nbObjects = 800;       //Number of females in the initial attack 
 		m_nbMinObjects = 100;
 		m_nbMaxObjects = 2000;
-		memset(m_rho25Factor, 0, NB_STAGES*sizeof(m_rho25Factor[0]));
+		memset(m_rho25Factor, 0, NB_STAGES * sizeof(m_rho25Factor[0]));
 		m_bCumulatif = false;
 
 		//Simulated Annealing data
@@ -153,93 +153,103 @@ namespace WBSF
 
 		ERMsg msg;
 
-		if (m_weather.GetNbYears() > 1)
+
+		//In annual model stop developing of the L22 to get cumulative L22
+		CModelStatVector output;
+		GetDailyStat(output);
+
+
+		m_output.Init(m_weather.size(), CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A, -999);
+
+
+		for (size_t y = 0; y < m_weather.size(); y++)
 		{
+			//estimate of missing energy and grow rate : take the last day of the current year
+			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+			CTRef lastDay = p.End();
 
-			ERMsg msg;
+			double L2o22 = output.GetStat(E_L2o2, p)[SUM];
+			double missE = output[lastDay][S_DEAD_MISSING_ENERGY];
+			m_output[y][O_A_DEAD_MISSING_ENERGY] = missE;
+			m_output[y][O_A_GROWTH_RATE] = (L2o22 - missE) / 100;
 
-			//In annual model stop developing of the L22 to get cumulative L22
-			CModelStatVector output;
-			GetDailyStat(output);
+			/*{
+				CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+				CTRef last_day = p.End();
+				double L2o2 = output[last_day][S_L2o2];
+				double EggsFrozen = output[last_day][S_DEAD_FROZEN_EGG];
+				double L2oEnergy = output[last_day][S_DEAD_MISSING_ENERGY];
+				double Eggs = L2o2 + EggsFrozen + L2oEnergy;
+				
+				double L2Syn = output[last_day][S_DEAD_SYNCH];
+				double L6Win = output[last_day][S_DEAD_WINDOW];
+				double LarvaFrozen = output[last_day][S_DEAD_FROZEN_LARVA];
+				double deadAdult = (output[last_day][S_DEAD_ADULT] + output[last_day][S_DEAD_FROZEN_ADULT]);
+				double female = 100 * (1 - (L2Syn + L6Win + LarvaFrozen) / 100)*0.5;
+				double broods = Eggs / 0.1;
+				double Fec = broods / female;
+				double R = female * Fec*0.1* (1 - (EggsFrozen + L2oEnergy) / Eggs) / 100;
 
+				int g;
+				g = 0;
+			}*/
 
-			m_output.Init(m_weather.size(), CTRef(m_weather.GetFirstYear()), NB_OUTPUT_A, -999);
-
-			
-			for (size_t y = 0; y < m_weather.size() ; y++)
+			if (y < m_weather.size() - 1)
 			{
-				for (size_t i = O_A_DEAD_ADULT; i < NB_OUTPUT_A; i++)
-				{
-					if (i == O_A_DEAD_MISSING_ENERGY || i == O_A_GROWTH_RATE)
-					{
-						//estimate of variable withthe last day of the year
-						CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-						CTRef last_day = p.End();
+				//Get the number of individuals that complete the winter L2o -> L2 (next year)
+				CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
+				CTRef lastDay = output.GetFirstTRef(S_L2o2, "==", 0, 0, p);
+				if (lastDay.IsInit())
+					m_output[y][O_A_DEAD_MISSING_ENERGY] = output[lastDay][S_DEAD_MISSING_ENERGY];
 
-						//m_output[y][O_A_DEAD_MISSING_ENERGY] = p.End().IsInit() ? output[p.End()][S_DEAD_MISSING_ENERGY] : 0;
-						
-						static const double SR = 0.5;
-						static const double S = 0.1;
+				//p.End() = lastDay + 1;
+				CStatistic gr = output.GetStat(E_L22, p);
 
-						double L2o2 = output[last_day][S_L2o]/100;
-						
-						//, E_L2o2, S_DEAD_ATTRITION, , S_DEAD_FROZEN_LARVA, , S_DEAD_CLEANUP, , 
-
-						
-						double Eggs = L2o2 + output[last_day][S_DEAD_FROZEN_EGG] + output[last_day][S_DEAD_MISSING_ENERGY];
-						double Eggs2 = output.GetStat(E_EGG, p);
-						double Eggs3 = output.GetStat(E_EGG2, p);
-
-						double L2Syn = output[last_day][S_DEAD_SYNCH] / 100;
-						double L6Win = output[last_day][S_DEAD_WINDOW] / 100;
-						double EggsFrozen = output[last_day][S_DEAD_FROZEN_EGG] / Eggs;
-							
-						double L2oEnergy = output[last_day][S_DEAD_MISSING_ENERGY] / (Eggs - EggsFrozen);
-						//double L2oEnergy = Dead_MissingEnergy(y + 1) / (Eggs - Dead_Frozen_Egg)
-						double Fec = (Eggs / S) / (output[last_day][E_DEAD_ADULT] + output[last_day][S_DEAD_FROZEN_ADULT]) / SR;
-						
-
-						double R = (1 - L2Syn)*(1 - L6Win)*(1 - EggsFrozen)*(1 - L2oEnergy)*Fec*SR*S;
-
-						//CStatistic gr = output.GetStat(E_L22, p);
-
-//						if (gr.IsInit())
-	//						m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
-
-
-						//Get the number of individuals that complete the winter L2o -> L2 (next year)
-						if (y < m_weather.size() - 1)
-						{
-							CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
-							CTRef lastDay = output.GetLastTRef(S_L2o2, 0, 0, p);
-							
-							m_output[y][O_A_DEAD_MISSING_ENERGY] = lastDay.IsInit()?output[lastDay][S_DEAD_MISSING_ENERGY]:0;
-							
-							
-							CStatistic gr = output.GetStat(E_L22, p);
-
-							if (gr.IsInit())
-								m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
-						}
-						
-						
-						double test3 = m_output[y][O_A_DEAD_MISSING_ENERGY];
-						double test4 = m_output[y][O_A_GROWTH_RATE];
-					}
-					else
-					{
-						static size_t VAR_POS[O_A_DEAD_WINDOW + 1] = { E_DEAD_ADULT, E_L2o2, S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_SYNCH, S_DEAD_WINDOW };
-						CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-
-						CStatistic stat = output.GetStat(VAR_POS[i], p);
-						m_output[y][i] = stat[((i < O_A_DEAD_ATTRITION) ? SUM : HIGHEST)];
-					}
-
-					
-				}
+				if (gr.IsInit())
+					m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
 			}
 
+			for (size_t i = O_A_FEMALE; i < O_A_DEAD_MISSING_ENERGY; i++)
+			{
+				//double missEner = m_output[y][O_A_DEAD_MISSING_ENERGY];
+				//double GR = m_output[y][O_A_GROWTH_RATE];
+
+
+				////estimate of variable withthe last day of the year
+
+
+				////m_output[y][O_A_DEAD_MISSING_ENERGY] = p.End().IsInit() ? output[p.End()][S_DEAD_MISSING_ENERGY] : 0;
+				//
+				//static const double SR = 0.5;
+				//static const double S = 0.1;
+				//
+				//
+				//double L2o22 = output.GetStat(E_L2o2, p)[SUM];
+				//double Eggs2 = output.GetStat(E_EGG2, p)[SUM];
+				//double broods2 = output.GetStat(E_BROOD, p)[SUM];
+				//double female2 = output.GetStat(E_TOTAL_FEMALE, p)[SUM];
+				//double Fec2 = broods2 / female2;
+				//double EggsFrozen2 = output[last_day][S_DEAD_FROZEN_EGG];
+				//double R2 = female2 * Fec2*S* (1 - (EggsFrozen2 + missEner) / Eggs2) / 100;
+
+
+
+
+
+				//CStatistic gr = output.GetStat(E_L22, p);
+
+//						if (gr.IsInit())
+//						m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
+
+
+				static size_t VAR_POS[O_A_DEAD_MISSING_ENERGY] = { E_TOTAL_FEMALE, E_EGG2, E_L2o2, S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_SYNCH, S_DEAD_WINDOW };
+				CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+
+				CStatistic stat = output.GetStat(VAR_POS[i], p);
+				m_output[y][i] = stat[((i < O_A_DEAD_ATTRITION) ? SUM : HIGHEST)];
+			}
 		}
+
 
 		return msg;
 	}
@@ -257,7 +267,7 @@ namespace WBSF
 		//we also manager the possibility to have only one year 
 		for (size_t y1 = 0; y1 < m_weather.GetNbYears(); y1++)
 		{
-			CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY)); 
+			CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY));
 
 			//Create stand
 			CWSBStand stand(this);
@@ -267,11 +277,11 @@ namespace WBSF
 			stand.m_defoliation = m_defoliation;
 
 
-			stand.m_bApplyAttrition = m_bApplyMortality&&m_bApplyAttrition;
-			stand.m_bApplyWinterMortality = m_bApplyMortality&&m_bApplyWinterMortality;
-			stand.m_bApplyAsynchronyMortality = m_bApplyMortality&&m_bApplyAsynchronyMortality;
-			stand.m_bApplyWindowMortality = m_bApplyMortality&&m_bApplyWindowMortality;
-			
+			stand.m_bApplyAttrition = m_bApplyMortality && m_bApplyAttrition;
+			stand.m_bApplyWinterMortality = m_bApplyMortality && m_bApplyWinterMortality;
+			stand.m_bApplyAsynchronyMortality = m_bApplyMortality && m_bApplyAsynchronyMortality;
+			stand.m_bApplyWindowMortality = m_bApplyMortality && m_bApplyWindowMortality;
+
 			//Create the initial attack
 			CHostPtr pTree = make_shared<CWSBTree>(&stand);
 			pTree->m_nbMinObjects = m_nbMinObjects;
@@ -316,7 +326,7 @@ namespace WBSF
 	void CWSBModel::ComputeRegularStat(CModelStatVector& stat, CModelStatVector& output)
 	{
 		output.Init(stat.GetTPeriod(), NB_OUTPUT_D);
-		
+
 
 		for (size_t d = 0; d < stat.size(); d++)
 		{
@@ -368,7 +378,7 @@ namespace WBSF
 	}
 
 
-	
+
 	//simulated annaling 
 	void CWSBModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
@@ -509,7 +519,7 @@ namespace WBSF
 		CModelStatVector statSim;
 		GetDailyStat(statSim);
 
-		for (int i = 0; i<(int)m_SAResult.size(); i++)
+		for (int i = 0; i < (int)m_SAResult.size(); i++)
 		{
 			if (statSim.IsInside(m_SAResult[i].m_ref))
 			{
@@ -549,7 +559,7 @@ namespace WBSF
 
 				double obs = m_SAResult[i].m_obs[OA_AI];
 
-//				CWSBStat& dayStat = (CWSBStat&)statSim[m_SAResult[i].m_ref];
+				//				CWSBStat& dayStat = (CWSBStat&)statSim[m_SAResult[i].m_ref];
 				double sim = 0;// dayStat.GetAverageInstar(false);
 				ASSERT(sim = -9999 || (sim >= 2 && sim <= 8));
 
@@ -563,3 +573,5 @@ namespace WBSF
 		}
 	}
 }
+
+

@@ -154,7 +154,29 @@ namespace WBSF
 		return bHaveData;
 	}
 
-	__int32 CModelStatVector::GetFirstIndex(size_t s, double threshold, int nbDayBefore, const CTPeriod& pIn)const
+	bool CModelStatVector::test_op(double value, const std::string& op, double threshold)
+	{
+		bool bOp = false;
+		if (op == "==")
+			bOp = fabs(value - threshold) < EPSILON_DATA;
+		else if (op == "!=")
+			bOp = fabs(value - threshold) >= EPSILON_DATA;
+		else if (op == "<=")
+			bOp = (value <= threshold);
+		else if (op == "<")
+			bOp = (value < threshold);
+		else if (op == ">=")
+			bOp = (value >= threshold);
+		else if (op == ">")
+			bOp = (value > threshold);
+		else
+			ASSERT(false);
+		
+		return bOp;
+
+	}
+
+	__int32 CModelStatVector::GetFirstIndex(size_t s, const std::string& op, double threshold, int nbDayBefore, const CTPeriod& pIn)const
 	{
 		const CModelStatVector& me = *this;
 
@@ -170,7 +192,7 @@ namespace WBSF
 		int firstDay = -1;
 		for (int i = fd; i <= ld; i++)
 		{
-			if (me[i][s] > threshold)
+			if (test_op(me[i][s], op,  threshold))
 			{
 				firstDay = max(0, i - nbDayBefore);
 				break;
@@ -183,7 +205,7 @@ namespace WBSF
 	}
 
 
-	__int32 CModelStatVector::GetLastIndex(size_t s, double threshold, int nbDayAfter, const CTPeriod& pIn)const
+	__int32 CModelStatVector::GetLastIndex(size_t s, const std::string& op, double threshold, int nbDayAfter, const CTPeriod& pIn)const
 	{
 		const CModelStatVector& me = *this;
 		int lastDay = -1;
@@ -198,7 +220,7 @@ namespace WBSF
 		int ld = p.End() - m_firstTRef;
 		for (int i = ld; i >= fd&&lastDay == -1; i--)
 		{
-			if (me[i][s] > threshold)
+			if (test_op(me[i][s], op, threshold))
 				lastDay = std::min(int(size() - 1), i + nbDayAfter);
 		}
 
@@ -518,7 +540,7 @@ namespace WBSF
 
 			size_t nbCreated = 0;
 			double cumulCreated = 0;
-			CTPeriod period = GetTPeriod(var, 0, 0, 0, p);
+			CTPeriod period = GetTPeriod(var, ">", 0, 0, 0, p);
 			ASSERT(period.IsInit());
 
 			for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)

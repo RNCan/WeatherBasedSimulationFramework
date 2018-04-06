@@ -10,7 +10,7 @@
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
-    <NbYearMin>2</NbYearMin>
+    <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
@@ -67,8 +67,16 @@
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Dead_Adult</Name>
-            <Title>Dead_Adult</Title>
+            <Name>Female</Name>
+            <Title>Female</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -107,8 +115,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Dead_Adult</Name>
-            <Title>Dead_Adult</Title>
+            <Name>Dead_Frozen_Adult</Name>
+            <Title>Dead_Frozen_Adult</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

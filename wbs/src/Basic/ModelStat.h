@@ -151,11 +151,11 @@ namespace WBSF
 		CModelStatVector& swap(CModelStatVector& in);
 
 		bool HaveData()const;
-		__int32 GetFirstIndex(size_t stat, double threshold, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const;
-		__int32 GetLastIndex(size_t stat, double threshold, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const;
-		CTRef GetFirstTRef(size_t v, double threshold = 0, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const{ int i = GetFirstIndex(v, threshold, nbDayBefore, p); return i == -1 ? CTRef() : m_firstTRef + i; }
-		CTRef GetLastTRef(size_t v, double threshold = 0, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ int i = GetLastIndex(v, threshold, nbDayAfter, p); return i == -1 ? CTRef() : m_firstTRef + i; }
-		CTPeriod GetTPeriod(size_t v, double threshold = 0, int nbDayBefore = 1, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ return CTPeriod(GetFirstTRef(v, threshold, nbDayBefore, p), GetLastTRef(v, threshold, nbDayAfter, p)); }
+		__int32 GetFirstIndex(size_t stat, const std::string& op, double threshold, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const;
+		__int32 GetLastIndex(size_t stat, const std::string& op, double threshold, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const;
+		CTRef GetFirstTRef(size_t v, const std::string& op, double threshold = 0, int nbDayBefore = 1, const CTPeriod& p = CTPeriod())const{ int i = GetFirstIndex(v, op, threshold, nbDayBefore, p); return i == -1 ? CTRef() : m_firstTRef + i; }
+		CTRef GetLastTRef(size_t v, const std::string& op, double threshold = 0, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ int i = GetLastIndex(v, op, threshold, nbDayAfter, p); return i == -1 ? CTRef() : m_firstTRef + i; }
+		CTPeriod GetTPeriod(size_t v, const std::string& op, double threshold = 0, int nbDayBefore = 1, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ return CTPeriod(GetFirstTRef(v, op, threshold, nbDayBefore, p), GetLastTRef(v, op, threshold, nbDayAfter, p)); }
 		
 		CStatistic GetStat(size_t v, const CTPeriod& period = CTPeriod())const;
 
@@ -192,6 +192,8 @@ namespace WBSF
 
 		double GetMissing()const{ return m_missingValue; }
 		void SetMissing(double missing){ m_missingValue = missing; }
+
+		static bool test_op(double value, const std::string& op, double threshold);
 
 	protected:
 
