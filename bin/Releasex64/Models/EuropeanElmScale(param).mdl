@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>EuropeanElmScale</Title>
+    <Version>1.0</Version>
+    <ID>.EES_param</ID>
+    <EXE>EuropeanElmScale.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 486 433</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>5 10 25 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Threshold1</Name>
+            <Caption>Threshold1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>5.3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Threshold2</Name>
+            <Caption>Threshold2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 170 50 320</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>5.3</DefaultValue>
+            <MinValue>-20</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a1</Name>
+            <Caption>a1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>54 10 76 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>113.9</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b1</Name>
+            <Caption>b1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>55 170 75 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a2</Name>
+            <Caption>a2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 10 105 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>159</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b2</Name>
+            <Caption>b2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 170 100 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a3</Name>
+            <Caption>a3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 10 135 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>236</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b3</Name>
+            <Caption>b3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>110 170 135 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a4</Name>
+            <Caption>a4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 10 165 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>304</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b4</Name>
+            <Caption>b4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>140 170 165 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a5</Name>
+            <Caption>a5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 10 195 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>532</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b5</Name>
+            <Caption>b5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 170 195 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a6</Name>
+            <Caption>a6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 10 225 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>100.3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b6</Name>
+            <Caption>b6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 170 225 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a7</Name>
+            <Caption>a7</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>235 10 260 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>608.5</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b7</Name>
+            <Caption>b7</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>235 170 255 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a8</Name>
+            <Caption>a8</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>270 10 290 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1162.3</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b8</Name>
+            <Caption>b8</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>265 170 290 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a9</Name>
+            <Caption>a9</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>300 10 325 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>995</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b9</Name>
+            <Caption>b9</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>300 170 325 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a10</Name>
+            <Caption>a10</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>330 10 350 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1454.6</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b10</Name>
+            <Caption>b10</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>330 170 355 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a11</Name>
+            <Caption>a11</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>365 10 385 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>301</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a12</Name>
+            <Caption>a12</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>395 10 415 160</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>601</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b12</Name>
+            <Caption>b12</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>390 170 410 320</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>MaleNyph2o</Name>
+            <Title>Male Nyph2o</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleNyph2</Name>
+            <Title>MaleNyph2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MalePrePupe</Name>
+            <Title>Male PrePupe</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MalePupe</Name>
+            <Title>Male Pupe</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleAdult</Name>
+            <Title>Male Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleDeadAdult</Name>
+            <Title>Male Dead Adutl</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleNyph2o</Name>
+            <Title>Female Nyph2o</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleNyph2</Name>
+            <Title>FemaleNyph2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleAdult</Name>
+            <Title>Female Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleDeadAdult</Name>
+            <Title>Female Dead Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Nyph1</Name>
+            <Title>Nyph1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Nyph2</Name>
+            <Title>Nyph2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DreistadtFemaleNyph2</Name>
+            <Title>DreistadtFemaleNyph2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DreistadtFemaleAdult</Name>
+            <Title>DreistadtFemaleAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DreistadtFemaleDeadAdult</Name>
+            <Title>DreistadtFemaleDeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
