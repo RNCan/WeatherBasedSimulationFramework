@@ -33,7 +33,7 @@
             <Type>2</Type>
             <Rect>30 10 50 160</Rect>
             <SeparatorPos>70</SeparatorPos>
-            <DefaultValue>5.3</DefaultValue>
+            <DefaultValue>5</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
@@ -45,7 +45,7 @@
             <Type>2</Type>
             <Rect>30 170 50 320</Rect>
             <SeparatorPos>70</SeparatorPos>
-            <DefaultValue>5.3</DefaultValue>
+            <DefaultValue>5</DefaultValue>
             <MinValue>-20</MinValue>
             <MaxValue>20</MaxValue>
             <TextValue/>
@@ -57,8 +57,8 @@
             <Type>2</Type>
             <Rect>54 10 76 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>113.9</DefaultValue>
-            <MinValue>1</MinValue>
+            <DefaultValue>17.9</DefaultValue>
+            <MinValue>10</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -69,9 +69,9 @@
             <Type>2</Type>
             <Rect>55 170 75 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0.3</DefaultValue>
             <MinValue>0.25</MinValue>
-            <MaxValue>1.5</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -81,7 +81,7 @@
             <Type>2</Type>
             <Rect>80 10 105 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>159</DefaultValue>
+            <DefaultValue>130.7</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -93,9 +93,9 @@
             <Type>2</Type>
             <Rect>80 170 100 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0.25</DefaultValue>
             <MinValue>0.25</MinValue>
-            <MaxValue>1.5</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -105,7 +105,7 @@
             <Type>2</Type>
             <Rect>115 10 135 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>236</DefaultValue>
+            <DefaultValue>215.2</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -117,9 +117,9 @@
             <Type>2</Type>
             <Rect>110 170 135 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>1.3</DefaultValue>
             <MinValue>0.25</MinValue>
-            <MaxValue>1.5</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -129,7 +129,7 @@
             <Type>2</Type>
             <Rect>145 10 165 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>304</DefaultValue>
+            <DefaultValue>300.8</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -141,9 +141,9 @@
             <Type>2</Type>
             <Rect>140 170 165 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>1.9</DefaultValue>
             <MinValue>0.25</MinValue>
-            <MaxValue>1.5</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -153,7 +153,7 @@
             <Type>2</Type>
             <Rect>175 10 195 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>532</DefaultValue>
+            <DefaultValue>567.8</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -165,9 +165,9 @@
             <Type>2</Type>
             <Rect>175 170 195 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0.49</DefaultValue>
             <MinValue>0.25</MinValue>
-            <MaxValue>1.5</MaxValue>
+            <MaxValue>3</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -177,7 +177,7 @@
             <Type>2</Type>
             <Rect>205 10 225 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>100.3</DefaultValue>
+            <DefaultValue>122.6</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -189,7 +189,7 @@
             <Type>2</Type>
             <Rect>205 170 225 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>2.3</DefaultValue>
             <MinValue>0.25</MinValue>
             <MaxValue>8</MaxValue>
             <TextValue/>
@@ -201,7 +201,7 @@
             <Type>2</Type>
             <Rect>235 10 260 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>608.5</DefaultValue>
+            <DefaultValue>502.9</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -213,7 +213,7 @@
             <Type>2</Type>
             <Rect>235 170 255 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>2</DefaultValue>
             <MinValue>0.25</MinValue>
             <MaxValue>8</MaxValue>
             <TextValue/>
@@ -225,7 +225,7 @@
             <Type>2</Type>
             <Rect>270 10 290 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1162.3</DefaultValue>
+            <DefaultValue>1059.7</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -237,7 +237,7 @@
             <Type>2</Type>
             <Rect>265 170 290 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>2.83</DefaultValue>
             <MinValue>0.25</MinValue>
             <MaxValue>8</MaxValue>
             <TextValue/>
@@ -249,7 +249,7 @@
             <Type>2</Type>
             <Rect>300 10 325 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>995</DefaultValue>
+            <DefaultValue>757.8</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -273,7 +273,7 @@
             <Type>2</Type>
             <Rect>330 10 350 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1454.6</DefaultValue>
+            <DefaultValue>1620.5</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -285,7 +285,7 @@
             <Type>2</Type>
             <Rect>330 170 355 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>2.28</DefaultValue>
             <MinValue>0.25</MinValue>
             <MaxValue>8</MaxValue>
             <TextValue/>
@@ -297,7 +297,7 @@
             <Type>2</Type>
             <Rect>365 10 385 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>301</DefaultValue>
+            <DefaultValue>229.8</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -309,7 +309,7 @@
             <Type>2</Type>
             <Rect>395 10 415 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>601</DefaultValue>
+            <DefaultValue>364.3</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
@@ -321,7 +321,7 @@
             <Type>2</Type>
             <Rect>390 170 410 320</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0.73</DefaultValue>
             <MinValue>0.25</MinValue>
             <MaxValue>2</MaxValue>
             <TextValue/>

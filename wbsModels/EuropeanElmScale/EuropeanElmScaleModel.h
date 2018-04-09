@@ -49,8 +49,7 @@ namespace WBSF
 		CDegreeDays m_DD;
 		
 		//Simulated Annealing 
-		enum TFallInput { I_M_NYPH2o, I_M_NYPH2, I_M_PREPUPA, I_M_PUPA, I_M_ADULT, I_F_NYPH2o, I_F_NYPH2, I_F_ADULT, I_NYPH1, I_NYPH2, I_NYPH2o, NB_INPUT };
-
+		enum TFallInput { I_M_NYPH2o, I_M_NYPH2, I_M_PREPUPA, I_M_PUPA, I_M_ADULT, I_F_NYPH2o, I_F_NYPH2, I_F_ADULT, I_NYPH1, I_NYPH2, NB_INPUT };
 		static const double Am[NB_MALE_PARAMS];
 		static const double Bm[NB_MALE_PARAMS];
 		static const double Af[NB_FEMALE_PARAMS];
