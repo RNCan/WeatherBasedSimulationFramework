@@ -9,7 +9,7 @@ namespace WBSF
 {
 	enum TMaleInstar{ M_NYPH2o, M_NYPH2, M_PREPUPA, M_PUPA, M_ADULT, M_DEADADULT, NB_MALE_STAGES };
 	enum TFemaleInstar { F_NYPH2o, F_NYPH2, F_ADULT, F_DEAD_ADULT, NB_FEMALE_STAGES };
-	enum TBabyInstar { NYPH1, NYPH2, NYPH2o, NB_BABY_STAGES };
+	enum TBabyInstar { EGG, NYPH1, NYPH2, NYPH2o, NB_BABY_STAGES };
 	enum TMaleParam { M_NYPH2o_NYPH2, M_NYPH2_PREPUPA, M_PREPUPA_PUPA, M_PUPA_ADULT, M_ADULT_DEADADULT, NB_MALE_PARAMS };
 	enum TFemaleParam { F_NYPH2o_NYPH2, F_NYPH2_ADULT, F_ADULT_DEADADULT, NB_FEMALE_PARAMS };
 	enum TBabyParam { EGG_NYPH1, NYPH1_NYPH2, NB_BABY_PARAMS };//NYPH2_NYPH2o, 
@@ -18,7 +18,7 @@ namespace WBSF
 	
 	typedef CContinuingRatio<NB_MALE_PARAMS, M_NYPH2o, M_DEADADULT, EuropeanElmScale_header> CEuropeanElmScaleCRm;
 	typedef CContinuingRatio<NB_FEMALE_PARAMS, F_NYPH2o, F_DEAD_ADULT, EuropeanElmScale_header> CEuropeanElmScaleCRf;
-	typedef CContinuingRatio<NB_BABY_PARAMS, NYPH1, NYPH2, EuropeanElmScale_header> CEuropeanElmScaleCRb;
+	typedef CContinuingRatio<NB_BABY_PARAMS, EGG, NYPH2o, EuropeanElmScale_header> CEuropeanElmScaleCRb;
 
 	
 	enum TDreistadtParam { D_NYPH2_ADULT, D_ADULT_DEADADULT, NB_DREISTADT_PARAMS };
@@ -46,10 +46,8 @@ namespace WBSF
 		CEuropeanElmScaleCRd m_CRd;
 
 
-		CDegreeDays m_DD;
-		
 		//Simulated Annealing 
-		enum TFallInput { I_M_NYPH2o, I_M_NYPH2, I_M_PREPUPA, I_M_PUPA, I_M_ADULT, I_F_NYPH2o, I_F_NYPH2, I_F_ADULT, I_NYPH1, I_NYPH2, NB_INPUT };
+		enum TFallInput { I_M_NYPH2o, I_M_NYPH2, I_M_PREPUPA, I_M_PUPA, I_M_ADULT, I_M_DEADADULT, I_F_NYPH2o, I_F_NYPH2, I_F_ADULT, I_F_DEADADULT, I_EGG, I_NYPH1, I_NYPH2, I_NYPH2o, NB_INPUT };
 		static const double Am[NB_MALE_PARAMS];
 		static const double Bm[NB_MALE_PARAMS];
 		static const double Af[NB_FEMALE_PARAMS];

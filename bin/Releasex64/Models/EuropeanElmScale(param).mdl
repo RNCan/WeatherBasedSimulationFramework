@@ -34,8 +34,8 @@
             <Rect>30 10 50 160</Rect>
             <SeparatorPos>70</SeparatorPos>
             <DefaultValue>5</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>10</MaxValue>
+            <MinValue>-20</MinValue>
+            <MaxValue>20</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -251,7 +251,7 @@
             <SeparatorPos>40</SeparatorPos>
             <DefaultValue>757.8</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>2000</MaxValue>
+            <MaxValue>3000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -273,9 +273,9 @@
             <Type>2</Type>
             <Rect>330 10 350 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>1620.5</DefaultValue>
+            <DefaultValue>1400</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>2000</MaxValue>
+            <MaxValue>3000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -297,9 +297,21 @@
             <Type>2</Type>
             <Rect>365 10 385 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>229.8</DefaultValue>
+            <DefaultValue>1600</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>2000</MaxValue>
+            <MaxValue>3000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b11</Name>
+            <Caption>b11</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>476 10 498 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.25</MinValue>
+            <MaxValue>8</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -309,7 +321,7 @@
             <Type>2</Type>
             <Rect>395 10 415 160</Rect>
             <SeparatorPos>40</SeparatorPos>
-            <DefaultValue>364.3</DefaultValue>
+            <DefaultValue>1700</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>

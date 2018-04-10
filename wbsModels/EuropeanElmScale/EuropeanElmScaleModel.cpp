@@ -1,5 +1,10 @@
 //**********************************************************************
-// 04/04/2018	1.0.0	Rémi Saint-Amant	Create 
+// 09/04/2018	1.0.0	Rémi Saint-Amant	
+//Create from : 
+//	Study on Biology and RepRoDUCTIVE METHODEs of European elm scale and the fauna of ELM pests in Esfahan
+//	Alireza.Jalalizand
+//	2011 International Conference on Life Science and Technology
+//	IPCBEE vol.3 (2011)
 //**********************************************************************
 #include "EuropeanElmScaleModel.h"
 #include "Basic/Statistic.h"
@@ -18,31 +23,74 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CEuropeanElmScaleModel::CreateObject);
 	/*
-//calibrated with Iran data
-NbVal=   277	Bias=-1.15198	MAE= 5.46337	RMSE=21.10131	CD= 0.97053	R²= 0.97137
-Threshold1          	=   4.96961
-a1                  	=  12.39080
-b1                  	=   0.77170
-a2                  	=  94.21458
-b2                  	=   0.29418
-a3                  	= 168.98302
-b3                  	=   1.22231
-a4                  	= 244.38942
-b4                  	=   1.95807
-a5                  	= 492.69405
-b5                  	=   0.49906
-a6                  	=  56.22329
-b6                  	=   0.68829
-a7                  	= 435.02835
-b7                  	=   2.03416
-a8                  	= 948.56108
-b8                  	=   2.70588
-a9                  	= 656.12036
-b9                  	=   0.44959
-a10                 	=1488.86589
-b10                 	=   2.44955
+//calibrated with Iran data 2001
 
+NbVal=   310	Bias= 0.18346	MAE= 0.93631	RMSE= 3.00423	CD= 0.98940	R²= 0.98949
+Threshold1          	=   5.00004
+a1                  	=  82.34530
+b1                  	=   1.64068
+a2                  	= 181.95364
+b2                  	=   0.87787
+a3                  	= 266.53265
+b3                  	=   1.47229
+a4                  	= 411.19020
+b4                  	=   1.87097
+a5                  	= 504.85614
+b5                  	=   2.09293
+a6                  	= 178.59693
+b6                  	=   2.83386
+a7                  	= 522.73825
+b7                  	=   2.52607
+a8                  	=1017.35499
+b8                  	=   5.31798
+a9                  	= 840.48447
+b9                  	=   1.97917
+a10                 	=1603.34400
+b10                 	=   3.33744
 
+NbVal=   310	Bias= 0.19694	MAE= 1.14079	RMSE= 3.67473	CD= 0.98414	R²= 0.98425
+a1                  	=  10.00005
+b1                  	=   2.14023
+a2                  	=  76.29015
+b2                  	=   1.15120
+a3                  	= 154.30757
+b3                  	=   2.03010
+a4                  	= 298.52300
+b4                  	=   2.12491
+a5                  	= 391.73205
+b5                  	=   2.29631
+a6                  	=  70.67516
+b6                  	=   4.06149
+a7                  	= 413.00535
+b7                  	=   2.59458
+a8                  	= 901.52317
+b8                  	=   5.58297
+a9                  	= 726.13415
+b9                  	=   2.13168
+a10                 	=1489.06774
+b10                 	=   3.46156
+
+NbVal=   310	Bias= 0.18384	MAE= 0.93641	RMSE= 3.00420	CD= 0.98940	R²= 0.98949
+a1                  	=  82.34812
+b1                  	=   1.63810
+a2                  	= 181.93262
+b2                  	=   0.87762
+a3                  	= 266.59839
+b3                  	=   1.47250
+a4                  	= 411.05113
+b4                  	=   1.85905
+a5                  	= 504.71777
+b5                  	=   2.09088
+a6                  	= 178.63054
+b6                  	=   2.83733
+a7                  	= 522.65860
+b7                  	=   2.52336
+a8                  	=1017.59909
+b8                  	=   5.31772
+a9                  	= 840.38299
+b9                  	=   1.98296
+a10                 	=1603.58291
+b10                 	=   3.33559
 
 //Dreistadt model : vcalibrated with California weather
 NbVal=     2	Bias= 0.02225	MAE= 0.03912	RMSE= 0.04500	CD= 1.00000	R²= 1.00000
@@ -51,7 +99,6 @@ a12                 	= 364.27397
 b12                 	=   0.73123
 
 */
-
 
 
 	enum TOutput { O_M_NYPH2o, O_M_NYPH2, O_M_PREPUPA, O_M_PUPA, O_M_ADULT, O_M_DEADADULT, O_F_NYPH2o, O_F_NYPH2, O_F_ADULT, O_F_DEAD_ADULT, O_NYPH1, O_NYPH2, O_D_NYPH2, O_D_ADULT, O_D_DEAD_ADULT, NB_OUTPUTS };
@@ -65,34 +112,37 @@ b12                 	=   0.73123
 	const double CEuropeanElmScaleModel::THRESHOLDf = 5.0;
 
 
+
+
+
 	const double CEuropeanElmScaleModel::Am[NB_MALE_PARAMS] =
 	{
-		12.4,94.2,169.0,244.4,492.7
+		82.34812,181.93262,266.59839,411.05113,504.71777
 	};
 
 	const double CEuropeanElmScaleModel::Bm[NB_MALE_PARAMS] =
 	{
-		0.77,0.29,1.22,1.96,0.50
+		1.63810,0.87762,1.47250,1.85905,2.09088
 	};
 
 
 	const double CEuropeanElmScaleModel::Af[NB_FEMALE_PARAMS] =
 	{
-		56.2,435.0,948.6
+		178.63054,522.65860,1017.59909
 	};
 	const double CEuropeanElmScaleModel::Bf[NB_FEMALE_PARAMS] =
 	{
-		0.69,2.03,2.71
+		2.83733,2.52336,5.31772
 	};
 
 	const double CEuropeanElmScaleModel::Ab[NB_BABY_PARAMS] =
 	{
-		656.1,1488.9
+		840.38299,1603.58291
 	};
 
 	const double CEuropeanElmScaleModel::Bb[NB_BABY_PARAMS] =
 	{
-		0.45,2.45
+		1.98296,3.33559
 	};
 
 
@@ -137,8 +187,8 @@ b12                 	=   0.73123
 		m_CRm.m_bMultipleVariance = true;
 		m_CRm.m_bPercent = true;
 		m_CRm.m_bAdjustFinalProportion = true;
-		m_CRm.m_method = CEuropeanElmScaleCRm::DAILY_AVERAGE;
-		//m_CRm.m_method = CEuropeanElmScaleCRf::MODIFIED_ALLEN_WAVE;
+		//m_CRm.m_method = CEuropeanElmScaleCRm::DAILY_AVERAGE;
+		m_CRm.m_method = CEuropeanElmScaleCRf::SINGLE_SINE;
 
 		m_CRf.m_startJday = 0;
 		m_CRf.m_lowerThreshold = THRESHOLDf;
@@ -146,8 +196,7 @@ b12                 	=   0.73123
 		m_CRf.m_bMultipleVariance = true;
 		m_CRf.m_bPercent = true;
 		m_CRf.m_bAdjustFinalProportion = true;
-		m_CRf.m_method = CEuropeanElmScaleCRf::DAILY_AVERAGE;
-		//m_CRf.m_method = CEuropeanElmScaleCRf::MODIFIED_ALLEN_WAVE;
+		m_CRf.m_method = m_CRm.m_method;
 
 		m_CRb.m_startJday = m_CRf.m_startJday;
 		m_CRb.m_lowerThreshold = m_CRf.m_lowerThreshold;//same as femelle to keep validity
@@ -156,7 +205,7 @@ b12                 	=   0.73123
 		m_CRb.m_bPercent = m_CRf.m_bPercent;
 		m_CRb.m_bAdjustFinalProportion = m_CRf.m_bAdjustFinalProportion;
 		m_CRb.m_method = m_CRf.m_method;
-		//m_CRf.m_method = CEuropeanElmScaleCRf::DAILY_AVERAGE;
+
 
 		m_CRd.m_startJday = 60;
 		m_CRd.m_lowerThreshold = 11;//same as femelle to keep validity
@@ -165,10 +214,6 @@ b12                 	=   0.73123
 		m_CRd.m_bPercent = true;
 		m_CRd.m_bAdjustFinalProportion = false;
 		m_CRd.m_method = CEuropeanElmScaleCRd::SINGLE_SINE;
-
-
-		m_DD.m_lowerThreshold = 10;
-		m_DD.m_method = CEuropeanElmScaleCRd::DAILY_AVERAGE;
 
 
 		for (size_t i = 0; i < NB_MALE_PARAMS; i++)
@@ -200,9 +245,8 @@ b12                 	=   0.73123
 		if (parameters.size() > 1)
 		{
 			m_CRm.m_lowerThreshold = parameters[c++].GetFloat();
-			m_CRf.m_lowerThreshold = m_CRm.m_lowerThreshold;
+			m_CRf.m_lowerThreshold = parameters[c++].GetFloat();
 			m_CRb.m_lowerThreshold = m_CRf.m_lowerThreshold;
-			parameters[c++].GetFloat();
 
 
 			for (size_t i = 0; i < NB_MALE_PARAMS; i++)
@@ -223,12 +267,12 @@ b12                 	=   0.73123
 				m_CRb.m_b[i] = parameters[c++].GetFloat();
 			}
 
-			for (size_t i = 0; i < NB_DREISTADT_PARAMS; i++)
+			/*for (size_t i = 0; i < NB_DREISTADT_PARAMS; i++)
 			{
 				m_CRd.m_a[i] = parameters[c++].GetFloat();
 			}
 
-			m_CRd.m_b_ = parameters[c++].GetFloat();
+			m_CRd.m_b_ = parameters[c++].GetFloat();*/
 
 		}
 
@@ -307,7 +351,7 @@ b12                 	=   0.73123
 	{
 		CTRef ref(ToShort(data[1]), ToShort(data[2]) - 1, ToShort(data[3]) - 1);
 
-		ASSERT(header.size() == 14);
+		ASSERT(header.size() == 18);
 
 		std::vector<double> obs(NB_INPUT);
 		for (size_t i = 0; i < NB_INPUT; i++)
@@ -350,7 +394,7 @@ b12                 	=   0.73123
 				if (m_CRm.m_a[i] < m_CRm.m_a[i - 1])
 					bValid = false;
 
-				if (fabs(m_CRm.m_b[i] - m_CRm.m_b[i - 1]) > 2)
+				if (fabs(m_CRm.m_b[i] - m_CRm.m_b[i - 1]) > 3)
 					bValid = false;
 			}
 
@@ -360,32 +404,32 @@ b12                 	=   0.73123
 				if (m_CRf.m_a[i] < m_CRf.m_a[i - 1])
 					bValid = false;
 
-				if (fabs(m_CRf.m_b[i] - m_CRf.m_b[i - 1]) > 2)
+				if (fabs(m_CRf.m_b[i] - m_CRf.m_b[i - 1]) > 3)
 					bValid = false;
 			}
 
-			if (m_CRb.m_a[EGG_NYPH1] < m_CRf.m_a[F_NYPH2_ADULT])
+		/*	if (m_CRb.m_a[EGG_NYPH1] < m_CRf.m_a[F_NYPH2_ADULT])
 				bValid = false;
 
-			if (fabs(m_CRb.m_b[EGG_NYPH1] - m_CRf.m_b[F_NYPH2_ADULT]) > 2)
-				bValid = false;
+			if (fabs(m_CRb.m_b[EGG_NYPH1] - m_CRf.m_b[F_NYPH2_ADULT]) > 3)
+				bValid = false;*/
 
 			for (int i = 1; i < NB_BABY_PARAMS&&bValid; i++)
 			{
 				if (m_CRb.m_a[i] < m_CRb.m_a[i - 1])
 					bValid = false;
 
-				if (fabs(m_CRb.m_b[i] - m_CRb.m_b[i - 1]) > 2)
+				if (fabs(m_CRb.m_b[i] - m_CRb.m_b[i - 1]) > 3)
 					bValid = false;
 			}
-			for (int i = 1; i < NB_DREISTADT_PARAMS&&bValid; i++)
+			/*for (int i = 1; i < NB_DREISTADT_PARAMS&&bValid; i++)
 			{
 				if (m_CRd.m_a[i] < m_CRd.m_a[i - 1])
 					bValid = false;
 
-				if (fabs(m_CRd.m_b[i] - m_CRd.m_b[i - 1]) > 1)
+				if (fabs(m_CRd.m_b[i] - m_CRd.m_b[i - 1]) > 3)
 					bValid = false;
-			}
+			}*/
 
 
 			if (bValid)
@@ -401,7 +445,7 @@ b12                 	=   0.73123
 						m_CRm.m_bCumul = false;
 						m_CRm.Execute(m_weather, output);
 
-						CStatistic obsStat[NB_MALE_PARAMS];
+						/*CStatistic obsStat[NB_MALE_PARAMS];
 						for (size_t i = 0; i < m_SAResult.size(); i++)
 						{
 							for (size_t v = 0; v < NB_MALE_PARAMS; v++)
@@ -421,13 +465,13 @@ b12                 	=   0.73123
 									simStat[v] += output[i][CEuropeanElmScaleCRm::O_FIRST_STAGE + v];
 							}
 						}
-
-						if (simStat[NB_MALE_PARAMS - 1][HIGHEST] > 0)
+*/
+						//if (simStat[NB_MALE_PARAMS - 1][HIGHEST] > 0)
 						{
 							for (size_t v = 0; v < NB_MALE_PARAMS; v++)
 							{
 								//double c = obsStat[v][HIGHEST] / simStat[v][HIGHEST];
-								double c = obsStat[v][(v == 0 ? HIGHEST : MEAN)] / simStat[v][(v == 0 ? HIGHEST : MEAN)];
+								double c = 1;// obsStat[v][(v == 0 ? HIGHEST : MEAN)] / simStat[v][(v == 0 ? HIGHEST : MEAN)];
 								for (size_t i = 0; i < m_SAResult.size(); i++)
 								{
 									double obs = m_SAResult[i].m_obs[I_M_NYPH2o + v];
@@ -449,33 +493,33 @@ b12                 	=   0.73123
 						m_CRf.m_bCumul = false;
 						m_CRf.Execute(m_weather, output);
 
-						CStatistic obsStat[NB_FEMALE_PARAMS];
-						for (size_t i = 0; i < m_SAResult.size(); i++)
-						{
-							for (size_t v = 0; v < NB_FEMALE_PARAMS; v++)
-							{
-								if (m_SAResult[i].m_obs[I_F_NYPH2o + v] > 0)
-									obsStat[v] += m_SAResult[i].m_obs[I_F_NYPH2o + v];
-							}
-						}
+						//CStatistic obsStat[NB_FEMALE_PARAMS];
+						//for (size_t i = 0; i < m_SAResult.size(); i++)
+						//{
+						//	for (size_t v = 0; v < NB_FEMALE_PARAMS; v++)
+						//	{
+						//		if (m_SAResult[i].m_obs[I_F_NYPH2o + v] > 0)
+						//			obsStat[v] += m_SAResult[i].m_obs[I_F_NYPH2o + v];
+						//	}
+						//}
 
 
-						CStatistic simStat[NB_FEMALE_PARAMS];
-						for (size_t i = 0; i < output.size(); i++)
-						{
-							for (size_t v = 0; v < NB_FEMALE_PARAMS; v++)
-							{
-								if (output[i][CEuropeanElmScaleCRm::O_FIRST_STAGE + v] > 0)
-									simStat[v] += output[i][CEuropeanElmScaleCRf::O_FIRST_STAGE + v];
-							}
-						}
+						//CStatistic simStat[NB_FEMALE_PARAMS];
+						//for (size_t i = 0; i < output.size(); i++)
+						//{
+						//	for (size_t v = 0; v < NB_FEMALE_PARAMS; v++)
+						//	{
+						//		if (output[i][CEuropeanElmScaleCRm::O_FIRST_STAGE + v] > 0)
+						//			simStat[v] += output[i][CEuropeanElmScaleCRf::O_FIRST_STAGE + v];
+						//	}
+						//}
 
-						if (simStat[NB_FEMALE_PARAMS - 1][HIGHEST])
+						//if (simStat[NB_FEMALE_PARAMS - 1][HIGHEST])
 						{
 							for (size_t v = 0; v < NB_FEMALE_PARAMS; v++)
 							{
 								//double c = obsStat[v][HIGHEST] / simStat[v][HIGHEST];
-								double c = obsStat[v][MEAN] / simStat[v][MEAN];
+								double c = 1;// obsStat[v][MEAN] / simStat[v][MEAN];
 								for (size_t i = 0; i < m_SAResult.size(); i++)
 								{
 									double obs = m_SAResult[i].m_obs[I_F_NYPH2o + v];
@@ -498,7 +542,7 @@ b12                 	=   0.73123
 						m_CRb.m_bCumul = false;
 						m_CRb.Execute(m_weather, output);
 
-						CStatistic obsStat[NB_BABY_PARAMS];
+						/*CStatistic obsStat[NB_BABY_PARAMS];
 						for (size_t i = 0; i < m_SAResult.size(); i++)
 						{
 							for (size_t v = 0; v < NB_BABY_PARAMS; v++)
@@ -515,60 +559,60 @@ b12                 	=   0.73123
 							for (size_t v = 0; v < NB_BABY_PARAMS; v++)
 							{
 								if (output[i][CEuropeanElmScaleCRm::O_FIRST_STAGE + v + 1] > 0)
-									simStat[v] += output[i][CEuropeanElmScaleCRb::O_FIRST_STAGE + v + 1];
+									simStat[v] += output[i][CEuropeanElmScaleCRb::O_FIRST_STAGE v + 1];
 							}
 						}
-
-						if (simStat[NB_BABY_PARAMS - 1][HIGHEST])
-						{
+*/
+						//if (simStat[NB_BABY_PARAMS - 1][HIGHEST])
+						//{
 							for (size_t v = 0; v < NB_BABY_PARAMS; v++)
 							{
 								//double c = obsStat[v][HIGHEST] / simStat[v][HIGHEST];
-								double c = obsStat[v][(v == 0 ? MEAN : HIGHEST)] / simStat[v][(v == 0 ? MEAN : HIGHEST)];
+								double c = 1;// obsStat[v][(v == 0 ? MEAN : HIGHEST)] / simStat[v][(v == 0 ? MEAN : HIGHEST)];
 								for (size_t i = 0; i < m_SAResult.size(); i++)
 								{
-									double obs = m_SAResult[i].m_obs[I_NYPH1 + v];
+									double obs = m_SAResult[i].m_obs[I_EGG + v];
 									if (obs > -999 &&
 										output.IsInside(m_SAResult[i].m_ref))
 									{
-										double sim = output[m_SAResult[i].m_ref][CEuropeanElmScaleCRb::O_FIRST_STAGE + v + 1] * c;
+										double sim = output[m_SAResult[i].m_ref][CEuropeanElmScaleCRb::O_FIRST_STAGE + v ] * c;
 										stat.Add(sim, obs);
 									}
 								}
 							}
-						}
+						//}
 					}
 
-					{
-						CModelStatVector output;
-						m_CRd.m_bCumul = false;
-						m_CRd.Execute(m_weather, output);
+					//{
+					//	CModelStatVector output;
+					//	m_CRd.m_bCumul = false;
+					//	m_CRd.Execute(m_weather, output);
 
-						CStatistic statDD;// [NB_DREISTADT_PARAMS + 1];
-						CStatistic::SetVMiss(-999);
+					//	CStatistic statDD;// [NB_DREISTADT_PARAMS + 1];
+					//	CStatistic::SetVMiss(-999);
 
-						for (size_t d = 0; d < output.size(); d++)
-						{
-							//for (int s = 0; s < NB_DREISTADT_PARAMS+1; s++)
-							//{
-							if (output[d][CEuropeanElmScaleCRd::O_FIRST_STAGE + 1] > 1 &&
-								output[d][CEuropeanElmScaleCRd::O_FIRST_STAGE + 1] < 99)
-							{
-								double DD = output[d][CEuropeanElmScaleCRd::O_DD];
-								statDD += DD;
-							}
-							//}
-						}
+					//	for (size_t d = 0; d < output.size(); d++)
+					//	{
+					//		//for (int s = 0; s < NB_DREISTADT_PARAMS+1; s++)
+					//		//{
+					//		if (output[d][CEuropeanElmScaleCRd::O_FIRST_STAGE + 1] > 1 &&
+					//			output[d][CEuropeanElmScaleCRd::O_FIRST_STAGE + 1] < 99)
+					//		{
+					//			double DD = output[d][CEuropeanElmScaleCRd::O_DD];
+					//			statDD += DD;
+					//		}
+					//		//}
+					//	}
 
 
 
-						static const double obs[2] = { 301,76 };
-						for (size_t t = 0; t < 2; t++)
-						{
-							double sim = statDD[t == 0 ? MEAN : STD_DEV];
-							stat.Add(sim, obs[t]);
-						}
-					}
+					//	static const double obs[2] = { 301,76 };
+					//	for (size_t t = 0; t < 2; t++)
+					//	{
+					//		double sim = statDD[t == 0 ? MEAN : STD_DEV];
+					//		stat.Add(sim, obs[t]);
+					//	}
+					//}
 				}
 			}
 		}

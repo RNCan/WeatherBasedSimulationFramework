@@ -33,7 +33,7 @@
             <Type>2</Type>
             <Rect>30 10 50 160</Rect>
             <SeparatorPos>70</SeparatorPos>
-            <DefaultValue>3</DefaultValue>
+            <DefaultValue>5</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
