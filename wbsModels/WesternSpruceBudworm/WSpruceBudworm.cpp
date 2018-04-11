@@ -173,10 +173,11 @@ namespace WBSF
 	
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
-		
+		ASSERT(IsAlive());
+
 		size_t s = GetStage();
 		bool bLookAsynchrony = m_generation== 0 && (s == L2) && HasChangedStage();
-		bool bLookWindow = (s == L5) && HasChangedStage();
+		bool bLookWindow = (s == L6) && HasChangedStage();
 		CTRef TRef = weather.GetTRef();
 		
 		
@@ -209,7 +210,7 @@ namespace WBSF
 			m_death = ASYNCHRONY;
 		}
 		else if (bLookWindow && IsDeadByWindow())
-		{
+		{ 
 			//Bug dies if its Window luck is greater than the Window survival value at the time of its moult to the L6
 			m_status = DEAD;
 			m_death = WINDOW;

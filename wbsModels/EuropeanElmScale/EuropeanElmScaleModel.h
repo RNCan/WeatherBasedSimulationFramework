@@ -44,6 +44,9 @@ namespace WBSF
 		CEuropeanElmScaleCRf m_CRf;
 		CEuropeanElmScaleCRb m_CRb;
 		CEuropeanElmScaleCRd m_CRd;
+		int m_firstYear;
+		int m_lastYear;
+
 
 
 		//Simulated Annealing 

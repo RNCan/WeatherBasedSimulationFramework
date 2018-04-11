@@ -559,10 +559,10 @@ namespace WBSF
 		__int32 GetNbRef()const{ return IsInit() ? (m_end.GetRef() - m_begin.GetRef() + 1) : 0; }
 		__int32 GetRefPos(const CTRef& t)const{ ASSERT(t.GetTM() == GetTM()); return t.GetRef() - m_begin.GetRef(); }
 		bool IsInit()const{ return m_begin.IsInit() && m_end.IsInit(); }
-		CTRef GetFirstAnnualTRef(int y)const;
-		CTRef GetLastAnnualTRef(int y)const;
-		int GetAnnualSize(int y)const{ return (GetLastAnnualTRef(y) - GetFirstAnnualTRef(y)) + 1; }
-		CTPeriod GetAnnualPeriodByIndex(int y)const{ return CTPeriod(GetFirstAnnualTRef(y), GetLastAnnualTRef(y)); }
+		CTRef GetFirstAnnualTRef(size_t y)const;
+		CTRef GetLastAnnualTRef(size_t y)const;
+		int GetAnnualSize(size_t y)const{ return (GetLastAnnualTRef(y) - GetFirstAnnualTRef(y)) + 1; }
+		CTPeriod GetAnnualPeriodByIndex(size_t y)const{ return CTPeriod(GetFirstAnnualTRef(y), GetLastAnnualTRef(y)); }
 		CTPeriod GetAnnualPeriod(int year)const;
 		size_t size()const{ return GetNbRef(); }
 

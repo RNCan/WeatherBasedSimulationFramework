@@ -174,27 +174,6 @@ namespace WBSF
 			m_output[y][O_A_DEAD_MISSING_ENERGY] = missE;
 			m_output[y][O_A_GROWTH_RATE] = (L2o22 - missE) / 100;
 
-			/*{
-				CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-				CTRef last_day = p.End();
-				double L2o2 = output[last_day][S_L2o2];
-				double EggsFrozen = output[last_day][S_DEAD_FROZEN_EGG];
-				double L2oEnergy = output[last_day][S_DEAD_MISSING_ENERGY];
-				double Eggs = L2o2 + EggsFrozen + L2oEnergy;
-				
-				double L2Syn = output[last_day][S_DEAD_SYNCH];
-				double L6Win = output[last_day][S_DEAD_WINDOW];
-				double LarvaFrozen = output[last_day][S_DEAD_FROZEN_LARVA];
-				double deadAdult = (output[last_day][S_DEAD_ADULT] + output[last_day][S_DEAD_FROZEN_ADULT]);
-				double female = 100 * (1 - (L2Syn + L6Win + LarvaFrozen) / 100)*0.5;
-				double broods = Eggs / 0.1;
-				double Fec = broods / female;
-				double R = female * Fec*0.1* (1 - (EggsFrozen + L2oEnergy) / Eggs) / 100;
-
-				int g;
-				g = 0;
-			}*/
-
 			if (y < m_weather.size() - 1)
 			{
 				//Get the number of individuals that complete the winter L2o -> L2 (next year)
@@ -203,7 +182,6 @@ namespace WBSF
 				if (lastDay.IsInit())
 					m_output[y][O_A_DEAD_MISSING_ENERGY] = output[lastDay][S_DEAD_MISSING_ENERGY];
 
-				//p.End() = lastDay + 1;
 				CStatistic gr = output.GetStat(E_L22, p);
 
 				if (gr.IsInit())
@@ -212,37 +190,6 @@ namespace WBSF
 
 			for (size_t i = O_A_FEMALE; i < O_A_DEAD_MISSING_ENERGY; i++)
 			{
-				//double missEner = m_output[y][O_A_DEAD_MISSING_ENERGY];
-				//double GR = m_output[y][O_A_GROWTH_RATE];
-
-
-				////estimate of variable withthe last day of the year
-
-
-				////m_output[y][O_A_DEAD_MISSING_ENERGY] = p.End().IsInit() ? output[p.End()][S_DEAD_MISSING_ENERGY] : 0;
-				//
-				//static const double SR = 0.5;
-				//static const double S = 0.1;
-				//
-				//
-				//double L2o22 = output.GetStat(E_L2o2, p)[SUM];
-				//double Eggs2 = output.GetStat(E_EGG2, p)[SUM];
-				//double broods2 = output.GetStat(E_BROOD, p)[SUM];
-				//double female2 = output.GetStat(E_TOTAL_FEMALE, p)[SUM];
-				//double Fec2 = broods2 / female2;
-				//double EggsFrozen2 = output[last_day][S_DEAD_FROZEN_EGG];
-				//double R2 = female2 * Fec2*S* (1 - (EggsFrozen2 + missEner) / Eggs2) / 100;
-
-
-
-
-
-				//CStatistic gr = output.GetStat(E_L22, p);
-
-//						if (gr.IsInit())
-//						m_output[y][O_A_GROWTH_RATE] = gr[SUM] / 100; //initial population is 100 insect
-
-
 				static size_t VAR_POS[O_A_DEAD_MISSING_ENERGY] = { E_TOTAL_FEMALE, E_EGG2, E_L2o2, S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_SYNCH, S_DEAD_WINDOW };
 				CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 

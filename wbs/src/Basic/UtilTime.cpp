@@ -1587,7 +1587,7 @@ CTPeriod CTPeriod::GetAnnualPeriod(int year)const
 	return p;
 }
 
-CTRef CTPeriod::GetFirstAnnualTRef(int y)const
+CTRef CTPeriod::GetFirstAnnualTRef(size_t y)const
 {
 	ASSERT( y>=0 && y<GetNbYears() );
 		
@@ -1608,7 +1608,7 @@ CTRef CTPeriod::GetFirstAnnualTRef(int y)const
 	return ref;
 }
 
-CTRef CTPeriod::GetLastAnnualTRef(int y)const
+CTRef CTPeriod::GetLastAnnualTRef(size_t y)const
 {
 	ASSERT( y>=0 && y<GetNbYears() );
 		
