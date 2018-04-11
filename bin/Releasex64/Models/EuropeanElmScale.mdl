@@ -5,7 +5,7 @@
     <ID>.EES</ID>
     <EXE>EuropeanElmScale.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description/>
+    <Description>European Elm Scale Phenology calibrated with Iran and some california data.&#x0D;&#x0A;Include also Dreistadt Model&#x0D;&#x0A;&#x0D;&#x0A;</Description>
     <WindowRect>0 0 136 310</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -151,7 +151,7 @@
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
-    <Copyright/>
-    <Credit/>
+    <Copyright>WARNING: This model was never validated</Copyright>
+    <Credit>Base on article:&#x0D;&#x0A;Study on Biology and Reproductive methodes of European elm scale and the fauna of ELM pests in Esfahan&#x0D;&#x0A;Alireza.Jalalizand&#x0D;&#x0A;2011 International Conference on Life Science and Technology&#x0D;&#x0A;IPCBEE vol.3 (2011)&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;European elm scale abundance and parasitism in northern California&#x0D;&#x0A;Steve H. Dreistadt&#x0D;&#x0A;Pan-Pacific Entomologist&#x0D;&#x0A;1994&#x0D;&#x0A;&#x0D;&#x0A;http://ipm.ucanr.edu/PHENOLOGY/ma-european_elm_scale.html&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>
