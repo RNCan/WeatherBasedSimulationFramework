@@ -130,7 +130,7 @@ namespace WBSF
 		double DD = 0;
 		switch (m_method)
 		{
-		case DAILY_AVERAGE: DD = GetAverageDD(in); break;
+		case DAILY_AVERAGE:		DD = GetAverageDD(in); break;
 		case DAILY_AVERAGE_ADJUSTED: DD = GetAverageAdjustedDD(in); break;
 		case MODIFIED_ALLEN_WAVE:DD = GetModifiedAllenWaveDD(in); break;
 		case SINGLE_TRIANGLE:	DD = GetTriangleDD(in); break;

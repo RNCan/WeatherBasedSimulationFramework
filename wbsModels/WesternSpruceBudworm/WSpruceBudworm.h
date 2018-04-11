@@ -24,7 +24,7 @@ namespace WBSF
 		S_EGG, S_L2o, S_L2, S_L3, S_L4, S_L5, S_L6, S_PUPAE, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_EGG2, S_L2o2, S_L22, S_L32,
 		E_EGG, E_L2o, E_L2, E_L3, E_L4, E_L5, E_L6, E_PUPAE, E_ADULT, E_DEAD_ADULT, E_BROOD, E_TOTAL_BROOD, E_TOTAL_FEMALE, E_EGG2, E_L2o2, E_L22, E_L32,
 		S_DEAD_ATTRITION, S_DEAD_FROZEN_EGG, S_DEAD_FROZEN_LARVA, S_DEAD_FROZEN_ADULT, S_DEAD_CLEANUP, S_DEAD_MISSING_ENERGY, S_DEAD_SYNCH, S_DEAD_WINDOW, S_DEAD,
-		S_AVERAGE_INSTAR, S_P_MINEABLE, S_SHOOT_DEVEL,
+		S_AVERAGE_INSTAR, S_DD_BUD, S_DD_SHOOT,
 		NB_WSB_STAT
 	};
 
@@ -96,9 +96,10 @@ namespace WBSF
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = -1);
 		virtual void HappyNewYear();
 
-		double GetDDays()const{ return m_ddays; }//Accumulated degree days with a base temp and a max temp.
+		double GetDDbud()const{ return m_DDbud; }//DD for bug test
+		double GetDDshoot()const { return m_DDshoot; } //DD for window test
 		double GetProbBudMineable()const{ return m_probBudMineable; } //Proportion of buds that can be mined by a budworm
-		double GetShootDevel()const{ return m_ddShoot; } //Proportion of buds that can be mined by a budworm
+		
 		
 
 	protected:
@@ -106,8 +107,8 @@ namespace WBSF
 		void ComputeMineable(const CWeatherDay& weather);
 		void ComputeShootDevel(const CWeatherDay& weather);
 		//Tree variables
-		double m_ddays; //Accumulated degree days with a base temp and a max temp.
-		double m_ddShoot; //Accumulated degree days for shoot development
+		double m_DDbud; //Accumulated degree days for bud devlopmnent
+		double m_DDshoot; //Accumulated degree days for shoot development
 		double m_probBudMineable; //Proportion of buds that can be mined by a budworm
 	};
 

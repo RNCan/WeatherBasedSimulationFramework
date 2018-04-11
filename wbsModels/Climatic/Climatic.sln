@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DewPeriod", "DewPeriod.vcxproj", "{37FF647E-A608-41F3-A678-CD050F755594}"
 EndProject
@@ -16,9 +16,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticSB", "ClimaticSB.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CCBio", "CCBioModel.vcxproj", "{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Climatic", "ClimaticFull.vcxproj", "{30ACF693-2D0E-4C47-8740-53076639A668}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Climatic", "ClimaticFull.vcxproj", "{4760A01C-E3E5-429B-886C-485617C43AEF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASCE-ETsz", "ASCE-ET2005.vcxproj", "{3188FFB2-FDC2-4542-898A-370D1F179716}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASCE-ETsz", "ASCE-ET2005.vcxproj", "{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -96,22 +96,22 @@ Global
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Release|Win32.Build.0 = Release|Win32
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Release|x64.ActiveCfg = Release|x64
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Release|x64.Build.0 = Release|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|Win32.ActiveCfg = Debug|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|Win32.Build.0 = Debug|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|x64.ActiveCfg = Debug|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Debug|x64.Build.0 = Debug|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|Win32.ActiveCfg = Release|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|Win32.Build.0 = Release|Win32
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|x64.ActiveCfg = Release|x64
-		{30ACF693-2D0E-4C47-8740-53076639A668}.Release|x64.Build.0 = Release|x64
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Debug|Win32.Build.0 = Debug|Win32
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Debug|x64.ActiveCfg = Debug|x64
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Debug|x64.Build.0 = Debug|x64
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Release|Win32.ActiveCfg = Release|Win32
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Release|Win32.Build.0 = Release|Win32
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Release|x64.ActiveCfg = Release|x64
-		{3188FFB2-FDC2-4542-898A-370D1F179716}.Release|x64.Build.0 = Release|x64
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Debug|Win32.Build.0 = Debug|Win32
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Debug|x64.ActiveCfg = Debug|x64
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Debug|x64.Build.0 = Debug|x64
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Release|Win32.ActiveCfg = Release|Win32
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Release|Win32.Build.0 = Release|Win32
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Release|x64.ActiveCfg = Release|x64
+		{4760A01C-E3E5-429B-886C-485617C43AEF}.Release|x64.Build.0 = Release|x64
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Debug|Win32.Build.0 = Debug|Win32
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Debug|x64.ActiveCfg = Debug|x64
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Debug|x64.Build.0 = Debug|x64
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Release|Win32.ActiveCfg = Release|Win32
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Release|Win32.Build.0 = Release|Win32
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Release|x64.ActiveCfg = Release|x64
+		{AC3B9FEA-19C0-429F-897F-6B804AD88BA0}.Release|x64.Build.0 = Release|x64
 		{31FEA106-E963-4F38-B23D-4E227C7200CA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{31FEA106-E963-4F38-B23D-4E227C7200CA}.Debug|Win32.Build.0 = Debug|Win32
 		{31FEA106-E963-4F38-B23D-4E227C7200CA}.Debug|x64.ActiveCfg = Debug|x64
@@ -171,5 +171,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D32523CC-4945-40CB-B14F-C05D2B140716}
 	EndGlobalSection
 EndGlobal

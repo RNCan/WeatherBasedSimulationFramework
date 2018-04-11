@@ -187,16 +187,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ddWindow</Name>
-            <Title>ddWindow</Title>
+            <Name>DDbud</Name>
+            <Title>DDbud</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ddShootDevel</Name>
-            <Title>ddShootDevel</Title>
+            <Name>DDShoot</Name>
+            <Title>DDshoot</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

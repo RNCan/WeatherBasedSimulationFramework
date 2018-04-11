@@ -27,7 +27,8 @@
 //		Degree day summation.
 //
 //*****************************************************************************
-// 01/09/2016	3.1.1	Rémi Saint-Amant    Bug correction in monthly and annual when start and end is define
+// 11/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
+// 01/09/2017	3.1.1	Rémi Saint-Amant    Bug correction in monthly and annual when start and end is define
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 06/09/2016	3.0.3	Rémi Saint-Amant	Replace DregreDay (hour) by DegreHour
 // 21/01/2016	3.0.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
@@ -64,7 +65,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER and VERSION are 2 framework variable
 		NB_INPUT_PARAMETER = 8; //set the number of parameters for this model
-		VERSION = "3.1.1 (2017)"; //set the version of this model
+		VERSION = "3.2.0 (2018)"; //set the version of this model
 
 		//This model has 8 input parameters 
 		CMonthDay m_firstDate = CMonthDay(FIRST_MONTH, FIRST_DAY);

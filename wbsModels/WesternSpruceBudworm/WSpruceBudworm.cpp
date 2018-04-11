@@ -399,14 +399,9 @@ namespace WBSF
 		//This is calculated ONCE, when an L5 larva moults to L6
 		//Compute survival value of today's amount of bud development (Degree-days)
 
-		double ddShoot = pTree->GetShootDevel();
+		double DDshoot = pTree->GetDDshoot();
 		double def = GetStand()->m_defoliation; //Defoliation affects synchrony survival, range [0,1]
 
-		//	static const double P0         = 75.79;   //Amplitude of Lognormal L6 survival
-		//	static const double P1         = -52.18;  //Amplitude of Lognormal L6 survival
-		//	static const double P2         = 0.246;   //Amplitude of Lognormal L6 survival
-		//	static const double A = 4.812;   //dd center of lognormal L6 survival
-		//	static const double B = 0.791;   //dd variance of lognormal L6 survival
 		static const double P0 = 122.63;   //Amplitude of Lognormal L6 survival
 		static const double P1 = -90.94;  //Amplitude of Lognormal L6 survival
 		static const double P2 = 0.3086;   //Amplitude of Lognormal L6 survival
@@ -422,14 +417,12 @@ namespace WBSF
 
 		//Lognormal survival function
 		double psurv = 0;
-		if (ddShoot > 0.) 
-			psurv = (P0 + P1*pow((def + 0.01), P2)) / (B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot) - A) / B, 2));
-		//	if(ddShoot>0.) psurv = (P0+P1*def+P2/(def+0.01))/(B*ddShoot*SQRT2PI) * exp(-0.5*pow((log(ddShoot)-A)/B,2));
-
+		if (DDshoot > 0.)
+			psurv = (P0 + P1*pow((def + 0.01), P2)) / (B*DDshoot*SQRT2PI) * exp(-0.5*pow((log(DDshoot) - A) / B, 2));
 
 		//pupal weight (mg) is correlated with psurv (L6 bioassay relationship) Régnière at Nealis 2016, Insect Science, P. 7 in text
 		double wt = 0;
-		//while(wt <= 0.00001)
+		while(wt <= 0.01)
 			wt = a_wt + b_wt*psurv + RandomGenerator().RandNormal(0.0, s_wt);
 
 		//si wt = 0.2 alors m_potentialFecundity peut varier de 200 à 600... ce qui donne de grosse valeurs Régnière at Nealis 2016, Insect Science, P. 7 in text
@@ -462,9 +455,9 @@ namespace WBSF
 	{
 		CHost::clear();
 
-		m_ddays = 0;
+		m_DDbud = 0;
 		m_probBudMineable = 0;
-		m_ddShoot = 0;
+		m_DDshoot = 0;
 	}
 
 	void CWSBTree::HappyNewYear()
@@ -481,9 +474,9 @@ namespace WBSF
 				it = erase(it);
 		}
 
-		m_ddays = 0;
+		m_DDbud = 0;
+		m_DDshoot = 0;
 		m_probBudMineable = 0;
-		m_ddShoot = 0;
 	}
 
 	void CWSBTree::Live(const CWeatherDay& weather)
@@ -509,9 +502,9 @@ namespace WBSF
 		stat[S_AVERAGE_INSTAR] = GetAI(true); //SBStat.GetAverageInstar();
 
 		//  This line should be restored to work on the L2 synchrony test runs
-		stat[S_P_MINEABLE] = m_ddays;//m_probBudMineable;
+		stat[S_DD_BUD] = m_DDbud;
 		//  This line should be restored to work on the L6 window test runs
-		stat[S_SHOOT_DEVEL] = m_ddShoot;
+		stat[S_DD_SHOOT] = m_DDshoot;
 
 	}
 
@@ -534,15 +527,15 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_DDbud += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 
 			//At end of day, compute proportion of buds mineable
 			m_probBudMineable = 0;
 
-			if (m_ddays > 0)
+			if (m_DDbud > 0)
 			{
-				m_probBudMineable = 1 / (1 + exp(-((m_ddays - a) / (b*sqrt(m_ddays))))); //A sigmoid inreasing function (from 0 to 1) of ddays
+				m_probBudMineable = 1 / (1 + exp(-((m_DDbud - a) / (b*sqrt(m_DDbud))))); //A sigmoid inreasing function (from 0 to 1) of ddays
 			}
 		}
 	}
@@ -564,7 +557,7 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_DDshoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 		}
 	}
