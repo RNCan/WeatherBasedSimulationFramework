@@ -174,7 +174,6 @@ namespace WBSF
 	void CWSpruceBudworm::Die(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive());
-
 		size_t s = GetStage();
 		bool bLookAsynchrony = m_generation== 0 && (s == L2) && HasChangedStage();
 		bool bLookWindow = (s == L6) && HasChangedStage();
@@ -210,7 +209,7 @@ namespace WBSF
 			m_death = ASYNCHRONY;
 		}
 		else if (bLookWindow && IsDeadByWindow())
-		{ 
+		{
 			//Bug dies if its Window luck is greater than the Window survival value at the time of its moult to the L6
 			m_status = DEAD;
 			m_death = WINDOW;
@@ -386,10 +385,15 @@ namespace WBSF
 		return bDead;
 	}
 
+	
 	//L6 survival probablity, part of the daily "Live" function of a L6 larva
 	//Each L6 receives at creation a uniformly-distributed random number between 0 and 1, representing its "window luck"
 	bool CWSpruceBudworm::IsDeadByWindow()
 	{
+		//return RandomGenerator().Randu()>0.5;
+
+
+
 		CWSBTree* pTree = (CWSBTree*)m_pHost;
 
 		//This is calculated ONCE, when an L5 larva moults to L6
@@ -425,7 +429,7 @@ namespace WBSF
 
 		//pupal weight (mg) is correlated with psurv (L6 bioassay relationship) Régnière at Nealis 2016, Insect Science, P. 7 in text
 		double wt = 0;
-		while(wt <= 0.01)
+		//while(wt <= 0.00001)
 			wt = a_wt + b_wt*psurv + RandomGenerator().RandNormal(0.0, s_wt);
 
 		//si wt = 0.2 alors m_potentialFecundity peut varier de 200 à 600... ce qui donne de grosse valeurs Régnière at Nealis 2016, Insect Science, P. 7 in text
@@ -527,15 +531,11 @@ namespace WBSF
 		if (weather.GetTRef().GetJDay() >= START_DATE)
 		{
 			// Loop over every time step in one day
-			//for (size_t h = 0; h < weather.size(); h++)
-			//{
-			//	//Linear DDays with upper threshold
-			//	m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
-			//}
-			
-			//est-ce degree jour ou degree heur???
-			//Linear DDays with upper threshold
-			m_ddays += max(0.0, (min((double)weather[H_TNTX], MAX_TEMP) - BASE_TEMP) );
+			for (size_t h = 0; h < weather.size(); h++)
+			{
+				//Linear DDays with upper threshold
+				m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+			}
 
 			//At end of day, compute proportion of buds mineable
 			m_probBudMineable = 0;
@@ -561,15 +561,11 @@ namespace WBSF
 		if (weather.GetTRef().GetJDay() >= START_DATE)
 		{
 			// Loop over every time step in one day
-			//for (size_t h = 0; h < weather.size(); h++)
-			//{
+			for (size_t h = 0; h < weather.size(); h++)
+			{
 				//Linear DDays with upper threshold
-				//m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
-			//}
-
-			//est-ce degree jour ou degree heur???
-			//Linear DDays with upper threshold
-			m_ddShoot += max(0.0, (min((double)weather[H_TNTX], MAX_TEMP) - BASE_TEMP) );
+				m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+			}
 		}
 	}
 
