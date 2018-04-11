@@ -527,11 +527,15 @@ namespace WBSF
 		if (weather.GetTRef().GetJDay() >= START_DATE)
 		{
 			// Loop over every time step in one day
-			for (size_t h = 0; h < weather.size(); h++)
-			{
-				//Linear DDays with upper threshold
-				m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
-			}
+			//for (size_t h = 0; h < weather.size(); h++)
+			//{
+			//	//Linear DDays with upper threshold
+			//	m_ddays += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+			//}
+			
+			//est-ce degree jour ou degree heur???
+			//Linear DDays with upper threshold
+			m_ddays += max(0.0, (min((double)weather[H_TNTX], MAX_TEMP) - BASE_TEMP) );
 
 			//At end of day, compute proportion of buds mineable
 			m_probBudMineable = 0;
@@ -557,11 +561,15 @@ namespace WBSF
 		if (weather.GetTRef().GetJDay() >= START_DATE)
 		{
 			// Loop over every time step in one day
-			for (size_t h = 0; h < weather.size(); h++)
-			{
+			//for (size_t h = 0; h < weather.size(); h++)
+			//{
 				//Linear DDays with upper threshold
-				m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
-			}
+				//m_ddShoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+			//}
+
+			//est-ce degree jour ou degree heur???
+			//Linear DDays with upper threshold
+			m_ddShoot += max(0.0, (min((double)weather[H_TNTX], MAX_TEMP) - BASE_TEMP) );
 		}
 	}
 
