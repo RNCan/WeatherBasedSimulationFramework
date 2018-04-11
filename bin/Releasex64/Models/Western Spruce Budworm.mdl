@@ -195,7 +195,7 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DDShoot</Name>
+            <Name>DDshoot</Name>
             <Title>DDshoot</Title>
             <Units/>
             <Description/>
