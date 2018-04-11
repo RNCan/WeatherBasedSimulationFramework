@@ -6,6 +6,7 @@
 //
 // Descrition: the CWSpruceBudworm represent one western spruce budworm insect. 
 //*****************************************************************************
+// 11/04/2018   Rémi Saint-Amant	Many bugs correction
 // 21/01/2016   Rémi Saint-Amant	Update with BioSIM 11.0
 // 11/03/2013   Jacques Régnière    Update synchrony equations
 // 18/02/2013   Rémi Saint-Amant    Update with new BioSIM Model Base
@@ -268,7 +269,12 @@ namespace WBSF
 					stat[E_TOTAL_FEMALE] += m_scaleFactor;
 			}
 			
+			/*if (!IsAlive() && 
+				m_status != m_lastStatus &&
+				stage == ADULT && m_sex == FEMALE)
+			{
 
+			}*/
 		}
 		else if (m_generation == 1)
 		{
