@@ -331,10 +331,11 @@ namespace WBSF
 
 			if (msg)
 			{
-				TRY
 				{
+					TRY
 
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
+						pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 
 					size_t type = as <size_t>(DATA_TYPE);
@@ -355,6 +356,7 @@ namespace WBSF
 									msg += DownloadMonth(pConnection, year, m, m_stations[i].m_ID, filePath, callback);
 									if (msg || callback.GetUserCancel())
 									{
+										
 										nbDownload++;
 										currentNbDownload++;
 										msg += callback.StepIt();
@@ -379,33 +381,36 @@ namespace WBSF
 								}//if need download
 							}//for all months
 						}//for all years
+
+						curI++;
 					}//for all station
 
 
-				}
+
 					CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
+
+						msg = UtilWin::SYGetMessage(*e);
+
+					END_CATCH_ALL
 				}
-				END_CATCH_ALL
-
-					//if an error occur: try again
-					if (!msg && !callback.GetUserCancel())
+				//if an error occur: try again
+				if (!msg && !callback.GetUserCancel())
+				{
+					if (nbRun < 5)
 					{
-						if (nbRun < 5)
-						{
-							callback.AddMessage(msg);
-							msg.asgType(ERMsg::OK);
+						callback.PopTask();
+						callback.AddMessage(msg);
+						msg = ERMsg();
 
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (int i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
+						callback.PushTask("Waiting 30 seconds for server...", 600);
+						for (int i = 0; i < 600 && msg; i++)
+						{
+							Sleep(50);//wait 50 milisec
+							msg += callback.StepIt();
 						}
+						callback.PopTask();
 					}
+				}
 
 				//clean connection
 				pConnection->Close();

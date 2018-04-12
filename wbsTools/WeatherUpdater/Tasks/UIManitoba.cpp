@@ -1183,7 +1183,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(msg);
-						msg.asgType(ERMsg::OK);
+						msg = ERMsg();
 
 						callback.PushTask("Waiting 30 seconds for server...", 600);
 						for (int i = 0; i < 600 && msg; i++)

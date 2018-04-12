@@ -28,12 +28,12 @@ namespace WBSF
 	const char* CUIEnvCanDaily::SERVER_NAME = "climate.weather.gc.ca";
 
 	//*********************************************************************
-	const char* CUIEnvCanDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province"};
-	const size_t CUIEnvCanDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT};
+	const char* CUIEnvCanDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province" };
+	const size_t CUIEnvCanDaily::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT };
 	const UINT CUIEnvCanDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_DAILY_P;
 	const UINT CUIEnvCanDaily::DESCRIPTION_TITLE_ID = ID_TASK_EC_DAILY;
 
-	const char* CUIEnvCanDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanDaily";  return THE_CLASS_NAME; }
+	const char* CUIEnvCanDaily::CLASS_NAME() { static const char* THE_CLASS_NAME = "EnvCanDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanDaily::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanDaily::CLASS_NAME(), (createF)CUIEnvCanDaily::create);
 
@@ -61,21 +61,21 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Daily\\"; break;
-		case FIRST_YEAR:	
+		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
 
 		return str;
 	}
 
-	long CUIEnvCanDaily::GetNbDay(const CTime& t){return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1);}
+	long CUIEnvCanDaily::GetNbDay(const CTime& t) { return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1); }
 
 	long CUIEnvCanDaily::GetNbDay(int y, size_t m, size_t d)
 	{
 		ASSERT(m >= 0 && m < 12);
 		ASSERT(d >= 0 && d < 31);
 
-		return long(y * 365 + m*30.42 + d);
+		return long(y * 365 + m * 30.42 + d);
 	}
 
 
@@ -144,7 +144,7 @@ namespace WBSF
 			"Day=%d&"
 			"selRowPerPage=%d&"
 			"startRow=%d&";
-			
+
 
 		static const short SEL_ROW_PER_PAGE = 100;
 
@@ -155,51 +155,90 @@ namespace WBSF
 
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-		if (!msg)
-			return msg;
-
-
-		//loop on province
-		for (size_t i = 0; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+		int nbRun = 0;
+		size_t curI = 0;
+		while (curI < CProvinceSelection::NB_PROVINCES && msg)
 		{
-			if (selection.any() && !selection[i])
-				continue;
+			nbRun++;
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
 
-			//first call
-			CTime today = CTime::GetCurrentTime();
-
-			string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
-			URL.resize(strlen(URL.c_str()));
-			int nbStation = GetNbStation(pConnection, URL);
-
-			if (nbStation != -1)
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+			if (msg)
 			{
-				short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
 
-				callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
+				TRY
 
-				for (int j = 0; j < nbPage&&msg; j++)
-				{
-					short startRow = j*SEL_ROW_PER_PAGE + 1;
-					URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
+					//loop on province
+					for (size_t i = curI; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+					{
+						if (selection[i])
+						{
 
-					msg = GetStationListPage(pConnection, URL, stationList);
+							//first call
+							CTime today = CTime::GetCurrentTime();
 
-					msg += callback.StepIt(1.0 / nbPage);
-				}
+							string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
+							URL.resize(strlen(URL.c_str()));
+							int nbStation = GetNbStation(pConnection, URL);
+
+							if (nbStation != -1)
+							{
+								short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
+
+								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
+
+								for (int j = 0; j < nbPage&&msg; j++)
+								{
+									short startRow = j * SEL_ROW_PER_PAGE + 1;
+									URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
+
+									msg = GetStationListPage(pConnection, URL, stationList);
+
+									msg += callback.StepIt(1.0 / nbPage);
+								}
+							}
+							else
+							{
+								msg.ajoute(GetString(IDS_SERVER_DOWN));
+							}
+						}
+
+						curI++;
+					}
+
+				CATCH_ALL(e)
+					msg = UtilWin::SYGetMessage(*e);
+				END_CATCH_ALL
+
+
+
+
+					//clean connection
+					pConnection->Close();
+				pSession->Close();
 			}
-			else
+
+			//if an error occur: try again
+			if (!msg && !callback.GetUserCancel())
 			{
-				msg.ajoute(GetString(IDS_SERVER_DOWN));
+				if (nbRun < 5)
+				{
+					callback.AddMessage(msg);
+					msg = ERMsg();
+
+
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (int i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
+				}
 			}
 		}
 
-		pConnection->Close();
-		pSession->Close();
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
@@ -265,7 +304,7 @@ namespace WBSF
 
 	static string PurgeQuote(string str)
 	{
-		WBSF::ReplaceString( str, "\"", "");
+		WBSF::ReplaceString(str, "\"", "");
 		return str;
 	}
 
@@ -328,20 +367,20 @@ namespace WBSF
 		{
 			//this station doesn't exist, we add it
 			CTPeriod period = String2Period(it->GetSSI("Period"));
-			
+
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
-			if (it2 == stations.end() || it2->m_lat==-999)
+			if (it2 == stations.end() || it2->m_lat == -999)
 			{
 				__int64 internalID64 = ToInt64(internalID);
 
-				stations.push_back( *it );
+				stations.push_back(*it);
 				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), stations.back());
 				if (msgTmp)
 					it2 = stations.FindBySSI("InternalID", internalID, false);
 				else
 					callback.AddMessage(msgTmp);
-				
+
 			}
 			else
 			{
@@ -521,9 +560,9 @@ namespace WBSF
 			msg += callback.StepIt(0);
 		}
 
-		if (nbFilesToDownload>10)
-			callback.PushTask(info.m_name + " (" + ToString(nbFilesToDownload )+ ")", nbFilesToDownload);
-		
+		if (nbFilesToDownload > 10)
+			callback.PushTask(info.m_name + " (" + ToString(nbFilesToDownload) + ")", nbFilesToDownload);
+
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -538,12 +577,12 @@ namespace WBSF
 
 				msg += CopyStationDataPage(pConnection, ToLong(internalID), year, filePath);
 
-				if (nbFilesToDownload>10)
+				if (nbFilesToDownload > 10)
 					msg += callback.StepIt();
 			}
 		}
 
-		if (nbFilesToDownload>10)
+		if (nbFilesToDownload > 10)
 			callback.PopTask();
 
 		return msg;
@@ -574,7 +613,7 @@ namespace WBSF
 		ERMsg msg;
 
 		//CGeoRect boundingBox;
-		
+
 
 		//if (!boundingBox.IsRectEmpty() && boundingBox != DEFAULT_BOUDINGBOX)
 		//{
@@ -614,13 +653,13 @@ namespace WBSF
 		callback.AddMessage("");
 
 
-		
+
 		//Getlocal station list
 		if (FileExists(GetStationListFilePath()))
 		{
 			msg = m_stations.Load(GetStationListFilePath());
 		}
-			
+
 
 		//Get remote station list
 		CLocationVector stationList;
@@ -629,7 +668,7 @@ namespace WBSF
 
 		if (msg)
 			msg = UpdateStationList(stationList, m_stations, callback);
-			
+
 
 		//save event if append an error
 		msg += m_stations.Save(GetStationListFilePath());
@@ -673,7 +712,7 @@ namespace WBSF
 						}
 					}
 				}
-				CATCH_ALL(e)
+					CATCH_ALL(e)
 				{
 					msg = UtilWin::SYGetMessage(*e);
 				}
@@ -685,7 +724,7 @@ namespace WBSF
 						if (nbRun < 5)
 						{
 							callback.AddMessage(msg);
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
 
 							callback.PushTask("Waiting 30 seconds for server...", 600);
 							for (int i = 0; i < 600 && msg; i++)
@@ -705,7 +744,7 @@ namespace WBSF
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 		callback.PopTask();
-		
+
 
 		return msg;
 	}
@@ -731,7 +770,7 @@ namespace WBSF
 		CProvinceSelection selection(Get(PROVINCE));
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		
+
 
 
 		for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
@@ -817,7 +856,7 @@ namespace WBSF
 			if (FileExists(filePath))
 				msg = ReadData(filePath, station[year]);
 		}
-		 
+
 		station.CompleteSnow();
 
 		//verify station is valid
@@ -845,7 +884,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		enum{ DATE_TIME, YEAR, MONTH, DAY, DATA_QUALITY, MAX_TEMP, MAX_TEMP_FLAG, MIN_TEMP, MIN_TEMP_FLAG, MEAN_TEMP, MEAN_TEMP_FLAG, HEAT_DEG_DAYS, HEAT_DEG_DAYS_FLAG, COOL_DEG_DAYS, COOL_DEG_DAYS_FLAG, TOTAL_RAIN, TOTAL_RAIN_FLAG, TOTAL_SNOW, TOTAL_SNOW_FLAG, TOTAL_PRECIP, TOTAL_PRECIP_FLAG, SNOW_ON_GRND, SNOW_ON_GRND_FLAG, DIR_OF_MAX_GUST, DIR_OF_MAX_GUST_FLAG, SPD_OF_MAX_GUST, SPD_OF_MAX_GUST_FLAG, NB_DAILY_COLUMN };
+		enum { DATE_TIME, YEAR, MONTH, DAY, DATA_QUALITY, MAX_TEMP, MAX_TEMP_FLAG, MIN_TEMP, MIN_TEMP_FLAG, MEAN_TEMP, MEAN_TEMP_FLAG, HEAT_DEG_DAYS, HEAT_DEG_DAYS_FLAG, COOL_DEG_DAYS, COOL_DEG_DAYS_FLAG, TOTAL_RAIN, TOTAL_RAIN_FLAG, TOTAL_SNOW, TOTAL_SNOW_FLAG, TOTAL_PRECIP, TOTAL_PRECIP_FLAG, SNOW_ON_GRND, SNOW_ON_GRND_FLAG, DIR_OF_MAX_GUST, DIR_OF_MAX_GUST_FLAG, SPD_OF_MAX_GUST, SPD_OF_MAX_GUST_FLAG, NB_DAILY_COLUMN };
 
 		//open file
 		ifStream file;
@@ -862,7 +901,7 @@ namespace WBSF
 				int year = ToInt((*loop)[YEAR]);
 				int month = ToInt((*loop)[MONTH]) - 1;
 				int day = ToInt((*loop)[DAY]) - 1;
-				
+
 				ASSERT(month >= 0 && month < 12);
 				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 				CTRef Tref(year, month, day);
@@ -905,9 +944,9 @@ namespace WBSF
 					((*loop)[TOTAL_RAIN_FLAG].empty() || (*loop)[TOTAL_RAIN_FLAG] == "E" || (*loop)[TOTAL_RAIN_FLAG] == "T") && !(*loop)[TOTAL_RAIN].empty())
 				{
 					float rain = ToFloat((*loop)[TOTAL_RAIN]);
-					ASSERT(rain >= 0 && rain  < 1000);
-					ASSERT(dailyData[Tref][H_PRCP][SUM] - rain >= 0 );
-					dailyData[Tref][H_SNOW] = max( 0.0, dailyData[Tref][H_PRCP][SUM] - rain);
+					ASSERT(rain >= 0 && rain < 1000);
+					ASSERT(dailyData[Tref][H_PRCP][SUM] - rain >= 0);
+					dailyData[Tref][H_SNOW] = max(0.0, dailyData[Tref][H_PRCP][SUM] - rain);
 				}
 
 				//if (((*loop)[TOTAL_SNOW_FLAG].empty() || (*loop)[TOTAL_SNOW_FLAG] == "E" || (*loop)[TOTAL_SNOW_FLAG] == "T") && !(*loop)[TOTAL_SNOW].empty())
@@ -923,7 +962,7 @@ namespace WBSF
 					ASSERT(sndh >= 0 && sndh < 1000);
 					dailyData[Tref][H_SNDH] = sndh;
 				}
-			
+
 
 				//problème aussi avec le DewPoint et le minimum horaire
 			}//for all line

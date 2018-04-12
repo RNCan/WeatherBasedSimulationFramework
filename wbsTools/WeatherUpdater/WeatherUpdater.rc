@@ -238,8 +238,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,5,0,31
- PRODUCTVERSION 5,5,0,31
+ FILEVERSION 5,5,0,32
+ PRODUCTVERSION 5,5,0,32
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -256,21 +256,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.5.0.31"
+            VALUE "FileVersion", "5.5.0.32"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.5.0.31"
+            VALUE "ProductVersion", "5.5.0.32"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.5.0.31"
+            VALUE "FileVersion", "5.5.0.32"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.5.0.31"
+            VALUE "ProductVersion", "5.5.0.32"
         END
     END
     BLOCK "VarFileInfo"
@@ -695,7 +695,7 @@ BEGIN
     IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_QUEBEC_P    "Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations|Nom d'usager SOPFEU|Mot de passe SOPFEU|Nom d'usager MFFP|Mot de passe MFFP"
     IDS_UPDATER_NEWBRUNSWICK_P 
-	"Nom d'usager (réseau feux)|Mot de passe (réseau feux)|Répertoire de travail|Première année|Dernière année|Réseau"
+                            "Nom d'usager (réseau feux)|Mot de passe (réseau feux)|Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_NOVASCOTIA_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_NEWFOUNDLAND_P 
@@ -1161,7 +1161,7 @@ BEGIN
     IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
     IDS_UPDATER_QUEBEC_P    "Working directory|First year|Last year|Network|Data type|Update until x days|Update stations list|SOPFEU User Name|SOPFEU Password|MFFP User Name|MFFP Password"
     IDS_UPDATER_NEWBRUNSWICK_P 
-		"User Name (fire network)|Password (fire network)|Working directory|First year|Last year|Network"
+                            "User Name (fire network)|Password (fire network)|Working directory|First year|Last year|Network"
     IDS_UPDATER_NOVASCOTIA_P 
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 

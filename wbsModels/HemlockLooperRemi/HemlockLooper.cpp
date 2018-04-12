@@ -1,4 +1,5 @@
 //**************************************************************************************************************
+// 10/04/2018	2.0.2	Rémi Saint-Amant	Compile with VS 2017
 // 07/04/2017	2.0.1	Rémi Saint-Amant	Adjustement of pupea stage base on 1950 data
 // 22/01/2016	2.0.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 04/03/2015			Rémi Saint-Amant	Update to BioSIM11
@@ -53,7 +54,7 @@ namespace WBSF
 	CHemlockLooperModel::CHemlockLooperModel()
 	{
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "2.0.1 (2017)";
+		VERSION = "2.0.2 (2018)";
 
 		m_bCumulative = false;
 		m_startJday = FISRT_HL_JDAY;
@@ -191,7 +192,7 @@ namespace WBSF
 			DD += (20 - m_threshold)*m_SAResult[i].m_obs[PUP_NB_DAYS];
 
 			int year = m_SAResult[i].m_ref.GetYear();
-			int index = statSim.GetFirstIndex(CHemlockLooperCR::O_DD, DD, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
+			int index = statSim.GetFirstIndex(CHemlockLooperCR::O_DD, ">", DD, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
 			if (index >= 0)
 			{
 				obsStat += m_SAResult[i].m_obs[1];

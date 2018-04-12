@@ -358,7 +358,7 @@ namespace WBSF
 						if (nbRun < 5)
 						{
 							callback.AddMessage(msg);
-							msg.asgType(ERMsg::OK);
+							msg = ERMsg();
 							Sleep(1000);//wait 1 sec
 						}
 					}

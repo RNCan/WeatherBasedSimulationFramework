@@ -184,7 +184,7 @@ namespace WBSF
 							if (nbRun < 5)
 							{
 								callback.AddMessage(msg);
-								msg.asgType(ERMsg::OK);
+								msg = ERMsg();
 
 								callback.PushTask("Waiting 2 seconds for server...", 100);
 								for (size_t i = 0; i < 40 && msg; i++)

@@ -46,7 +46,7 @@ namespace WBSF
 	const UINT CUIMesoWest::ATTRIBUTE_TITLE_ID = IDS_UPDATER_MESOWEST_P;
 	const UINT CUIMesoWest::DESCRIPTION_TITLE_ID = ID_TASK_MESOWEST;
 
-	const char* CUIMesoWest::CLASS_NAME(){ static const char* THE_CLASS_NAME = "MesoWest";  return THE_CLASS_NAME; }
+	const char* CUIMesoWest::CLASS_NAME() { static const char* THE_CLASS_NAME = "MesoWest";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIMesoWest::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIMesoWest::CLASS_NAME(), (createF)CUIMesoWest::create);
 
@@ -198,60 +198,70 @@ namespace WBSF
 		CHttpConnectionPtr pConnection;
 		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 
-		if (!msg)
-			return msg;
-
-
-		int nbDownload = 0;
-		for (size_t i = 0; i < stationList.size() && msg; i++)
+		if (msg)
 		{
-			string start = stationList[i].GetSSI("Start");
-			string end = stationList[i].GetSSI("End");
-			ASSERT(!start.empty());
+
+			int nbDownload = 0;
+
+			TRY
 
 
-			CTRef startTRef = GetTRef(start);
-			CTRef endTRef = !end.empty() ? GetTRef(end) : current;
 
-			CTPeriod activePeriod(startTRef, endTRef);
-			activePeriod.Transform(CTM::MONTHLY);
-
-			for (size_t y = 0; y < nbYears&&msg; y++)
-			{
-				int year = firstYear + int(y);
-
-				if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
+				for (size_t i = 0; i < stationList.size() && msg; i++)
 				{
-					size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
-					for (size_t m = 0; m < nbMonths&&msg; m++)
+					string start = stationList[i].GetSSI("Start");
+					string end = stationList[i].GetSSI("End");
+					ASSERT(!start.empty());
+
+
+					CTRef startTRef = GetTRef(start);
+					CTRef endTRef = !end.empty() ? GetTRef(end) : current;
+
+					CTPeriod activePeriod(startTRef, endTRef);
+					activePeriod.Transform(CTM::MONTHLY);
+
+					for (size_t y = 0; y < nbYears&&msg; y++)
 					{
-						if (activePeriod.IsInside(CTRef(year, m)))
+						int year = firstYear + int(y);
+
+						if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
 						{
-							static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-							string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
-							string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
-							CreateMultipleDir(GetPath(ouputFilePath));
-
-							CFileInfo info = GetFileInfo(ouputFilePath);
-							CTimeRef TRef1(info.m_time);
-							if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+							size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
+							for (size_t m = 0; m < nbMonths&&msg; m++)
 							{
-								msg += CopyFile(pConnection, URL, ouputFilePath);
-								if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
-									nbDownload++;
-							}
+								if (activePeriod.IsInside(CTRef(year, m)))
+								{
+									static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
+									string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
+									string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
+									CreateMultipleDir(GetPath(ouputFilePath));
 
-						}
+									CFileInfo info = GetFileInfo(ouputFilePath);
+									CTimeRef TRef1(info.m_time);
+									if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+									{
+										msg += CopyFile(pConnection, URL, ouputFilePath);
+										if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
+											nbDownload++;
+									}
 
-						msg += callback.StepIt();
-					}//for all months
-				}//active station only for current year
-			}//for all years
-		}//for all stations
+								}
 
-		pConnection->Close();
-		pSession->Close();
+								msg += callback.StepIt();
+							}//for all months
+						}//active station only for current year
+					}//for all years
+				}//for all stations
 
+			CATCH_ALL(e)
+				msg = UtilWin::SYGetMessage(*e);
+			END_CATCH_ALL
+
+
+				pConnection->Close();
+			pSession->Close();
+
+		}
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
 		callback.PopTask();
@@ -292,7 +302,7 @@ namespace WBSF
 					string network = it->GetSSI("Network");
 					string start = it->GetSSI("Start");
 					string end = it->GetSSI("End");
-			
+
 					if (!start.empty())
 					{
 						CTRef startTRef = GetTRef(start);
@@ -371,14 +381,14 @@ namespace WBSF
 		}
 
 		//load the latest hours
-		filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, lastYear+1, JANUARY);
+		filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, lastYear + 1, JANUARY);
 		info = GetFileInfo(filePath);
 		if (info.m_size > 200)//under 200 it's only an empty file
 		{
 			msg = ReadData(filePath, TM, lastYear, station, callback);
 			msg += callback.StepIt(0);
 		}
-		 
+
 
 		if (msg)
 		{
@@ -397,15 +407,15 @@ namespace WBSF
 	//*************************************************************************************************************************************
 	bool CUIMesoWest::IsCommonStation(const std::string& network)
 	{
-		return IsEqual( network, "Canada");
+		return IsEqual(network, "Canada");
 	}
 
-	
+
 	CTRef CUIMesoWest::GetTRef(const string& str)
 	{
-		StringVector e(str,"-T:+Z");
+		StringVector e(str, "-T:+Z");
 		ASSERT(e.size() == 6 || e.size() == 7);
-		
+
 
 		int year = WBSF::as<int>(e[0]);
 		size_t m = WBSF::as<size_t>(e[1]) - 1;
@@ -423,15 +433,15 @@ namespace WBSF
 		return CTRef(year, m, d, hh);
 
 	}
-	
+
 	bool CUIMesoWest::IsValid(TVarH v, double value)
 	{
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN2: 
+		case H_TMIN2:
 		case H_TAIR2:
-		case H_TMAX2: 
+		case H_TMAX2:
 		case H_TDEW: bValid = value >= -50 && value <= 50; break;
 		case H_PRCP: bValid = value >= 0 && value < 300; break;
 		case H_RELH: bValid = value > 0 && value <= 100; break;//ignore zero values
@@ -445,7 +455,7 @@ namespace WBSF
 	ERMsg CUIMesoWest::ReadData(const string& filePath, CTM TM, int year, CWeatherStation& data, CCallback& callback)const
 	{
 		ERMsg msg;
-		
+
 		//now extact data 
 		ifStream file;
 
@@ -491,26 +501,26 @@ namespace WBSF
 						header.push_back(it->first);
 
 					std::vector<HOURLY_DATA::TVarH > variables = GetVariables(header);
-					
+
 					//remove daily Tmin and Tmax when hourly and Tair when daily
 					/*for (size_t v = 0; v < header.size() && msg; v++)
 					{
 						if (variables[v] == H_TMIN2 && TM.IsHourly())
 							variables[v] = H_SKIP;
-					
+
 						if (variables[v] == H_TAIR2 && TM.IsDaily())
 							variables[v] = H_SKIP;
 
 						if (variables[v] == H_TMAX2 && TM.IsHourly())
 							variables[v] = H_SKIP;
 					}*/
-					
+
 
 					for (size_t i = 0; i < TRefs.size() && msg; i++)
 					{
 						if (TRefs[i].GetYear() == year)
 						{
-							for (size_t v = 0; v < header.size()&&msg; v++)
+							for (size_t v = 0; v < header.size() && msg; v++)
 							{
 								if (variables[v] != H_SKIP)
 								{
@@ -546,7 +556,7 @@ namespace WBSF
 										}//if valid
 									}
 								}//if its a varialbe
-								
+
 								msg += callback.StepIt(0);
 							}//for all object
 
@@ -581,11 +591,11 @@ namespace WBSF
 		ReplaceString(str, "?", "");
 
 		Trim(str);
-		
+
 		return WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(str));
 	}
 
-	
+
 	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -663,7 +673,7 @@ namespace WBSF
 						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
 						string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
 						CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
-						
+
 						//if the station is still active or seem to be still active, we don't set end date 
 						if (status == "ACTIVE" || TRef.GetYear() >= current.GetYear() - 1)
 							end.clear();
@@ -840,56 +850,56 @@ namespace WBSF
 	}
 
 
-//
-//Air Temperature at 10 meter		°C	T10M
-//Temperature						°C	TMPF
-//Air Temperature at 2 meters		°C	T2M
-//Temperature						°C	MTMP
-//24 Hr High Temperature				HI24
-//24 Hr Low Temperature				LO24
-//
-//Precipitation 1hr	 			mm	P01I
-//Precipitation 1hr manual			P01M
-//Precipitation 24hr	 			mm	P24I
-//Precipitation 24hr manual			P24M
-//Precipitation accumulated			PREC
-//Precipitation manual	 			PREM
-//
-//Dewpoint						°C	DWPF
-//Dew Point						°C	MDWP
-//Relative Humidity				%	MRH
-//Relative Humidity				%	RELH
-//Wind Speed	 					m/s	MSKT
-//Wind Speed	 					m/s	SKNT
-//Wind Direction					°	DRCT
-//Wind Direction					°	MDIR
-//Peak Wind Direction				°	PDIR
-//Peak Wind Speed	 				m/s PEAK
-//
-//Clear Sky Solar Radiation			CSLR
-//Incoming Longwave Radiation			INLW
-//Net Longwave Radiation			W/m² NETL
-//Net Radiation					W/m² NETR
-//Net Shortwave Radiation			W / m² NETS
-//Outgoing Longwave Radiation			OUTL
-//Outgoing Shortwave Radiatio			OUTS
-//Solar Radiation					W/m² SOLR
-//
-//Altimeter	 	 mb					ALTI
-//Pressure	 	 mb				MPRS
-//Sea level pressure	 	 mb			PMSL
-//Pressure	 	 mb					PRES
-//
-//Snow manual	 	 cm					SNOM
-	
-//Snowfall	 	 cm					SSTM
+	//
+	//Air Temperature at 10 meter		°C	T10M
+	//Temperature						°C	TMPF
+	//Air Temperature at 2 meters		°C	T2M
+	//Temperature						°C	MTMP
+	//24 Hr High Temperature				HI24
+	//24 Hr Low Temperature				LO24
+	//
+	//Precipitation 1hr	 			mm	P01I
+	//Precipitation 1hr manual			P01M
+	//Precipitation 24hr	 			mm	P24I
+	//Precipitation 24hr manual			P24M
+	//Precipitation accumulated			PREC
+	//Precipitation manual	 			PREM
+	//
+	//Dewpoint						°C	DWPF
+	//Dew Point						°C	MDWP
+	//Relative Humidity				%	MRH
+	//Relative Humidity				%	RELH
+	//Wind Speed	 					m/s	MSKT
+	//Wind Speed	 					m/s	SKNT
+	//Wind Direction					°	DRCT
+	//Wind Direction					°	MDIR
+	//Peak Wind Direction				°	PDIR
+	//Peak Wind Speed	 				m/s PEAK
+	//
+	//Clear Sky Solar Radiation			CSLR
+	//Incoming Longwave Radiation			INLW
+	//Net Longwave Radiation			W/m² NETL
+	//Net Radiation					W/m² NETR
+	//Net Shortwave Radiation			W / m² NETS
+	//Outgoing Longwave Radiation			OUTL
+	//Outgoing Shortwave Radiatio			OUTS
+	//Solar Radiation					W/m² SOLR
+	//
+	//Altimeter	 	 mb					ALTI
+	//Pressure	 	 mb				MPRS
+	//Sea level pressure	 	 mb			PMSL
+	//Pressure	 	 mb					PRES
+	//
+	//Snow manual	 	 cm					SNOM
 
-//Snow depth	 	 cm				SNOW
-//Snow water equivalent	 			WEQS
-//
-//Soil Moisture  %					MSO2
-//Soil Moisture	%				MSOI
-//Visibility	 km				VSBY
+	//Snowfall	 	 cm					SSTM
+
+	//Snow depth	 	 cm				SNOW
+	//Snow water equivalent	 			WEQS
+	//
+	//Soil Moisture  %					MSO2
+	//Soil Moisture	%				MSOI
+	//Visibility	 km				VSBY
 
 }
 

@@ -18,7 +18,8 @@
 //              seasonal biology. 
 //
 //*****************************************************************************
-// 06/04/2017	1.1.3	Rémi Saint-Amant	Recompile
+// 10/04/2018	1.1.5	Rémi Saint-Amant	Compile with VS 2017
+// 06/04/2017	1.1.4	Rémi Saint-Amant	Recompile
 // 22/01/2016	1.1.0	Rémi Saint-Amant	Using Weather-Based Simulation Framework (WBSF)
 // 04/03/2015	1.0.1	Rémi Saint-Amant	Update with BioSIM 11
 // 17/04/2014	1.0.0	Jacques Regniere	Start
@@ -68,7 +69,7 @@ namespace WBSF
 		//uses the same number of parameters as the model interface
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 9 : 2;
-		VERSION = "1.0.4 (2017)";
+		VERSION = "1.1.5 (2018)";
 
 		m_bApplyMortality = true;
 

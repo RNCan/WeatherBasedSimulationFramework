@@ -41,7 +41,7 @@ namespace WBSF
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
 	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
 
-	const char* CUIEnvCanHourly::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanHourly";  return THE_CLASS_NAME; }
+	const char* CUIEnvCanHourly::CLASS_NAME() { static const char* THE_CLASS_NAME = "EnvCanHourly";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanHourly::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanHourly::CLASS_NAME(), (createF)CUIEnvCanHourly::create);
 
@@ -77,13 +77,13 @@ namespace WBSF
 		return str;
 	}
 
-	long CUIEnvCanHourly::GetNbDay(const CTime& t){	return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1);	}
+	long CUIEnvCanHourly::GetNbDay(const CTime& t) { return GetNbDay(t.GetYear(), t.GetMonth() - 1, t.GetDay() - 1); }
 	long CUIEnvCanHourly::GetNbDay(int year, size_t m, size_t d)
 	{
 		ASSERT(m >= 0 && m < 12);
 		ASSERT(d >= 0 && d < 31);
 
-		return long(year * 365 + m*30.42 + d);
+		return long(year * 365 + m * 30.42 + d);
 	}
 	//
 	//void CUIEnvCanHourly::Reset()
@@ -166,7 +166,7 @@ namespace WBSF
 			"Day=%d&"
 			"selRowPerPage=%d&"
 			"startRow=%d&";
-			//"cmdProvSubmit=Search";
+		//"cmdProvSubmit=Search";
 
 		static const short SEL_ROW_PER_PAGE = 100;
 
@@ -174,53 +174,94 @@ namespace WBSF
 		selection.FromString(Get(PROVINCE));
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-		if (!msg)
-			return msg;
-
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
-		//callback.SetNbStep(selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
 
-		//loop on province
-		for (size_t i = 0; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+		int nbRun = 0;
+		size_t curI = 0;
+		while (curI < CProvinceSelection::NB_PROVINCES && msg)
 		{
-			if (selection.any() && !selection[i])
-				continue;
+			nbRun++;
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
 
-			//first call
-			CTime today = CTime::GetCurrentTime();
-			string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
-
-			int nbStation = GetNbStation(pConnection, URL);
-
-			if (nbStation != -1)
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+			if (msg)
 			{
-				short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
 
-				callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
+				TRY
 
-				for (int j = 0; j < nbPage&&msg; j++)
+					//loop on province
+					for (size_t i = curI; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+					{
+						if (selection[i])
+						{
+
+							//first call
+							CTime today = CTime::GetCurrentTime();
+							string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
+
+							int nbStation = GetNbStation(pConnection, URL);
+
+							if (nbStation != -1)
+							{
+								curI++;
+								short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
+
+								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
+
+								for (int j = 0; j < nbPage&&msg; j++)
+								{
+									short startRow = j * SEL_ROW_PER_PAGE + 1;
+									URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
+									msg = GetStationListPage(pConnection, URL, stationList);
+
+									msg += callback.StepIt(1.0 / nbPage);
+								}
+							}
+							else
+							{
+								msg.ajoute(GetString(IDS_SERVER_DOWN));
+							}
+						}
+						else
+						{
+							curI++;
+						}
+						
+					}
+
+				CATCH_ALL(e)
+					msg = UtilWin::SYGetMessage(*e);
+				END_CATCH_ALL
+
+
+
+
+					//clean connection
+					pConnection->Close();
+				pSession->Close();
+			}
+
+			//if an error occur: try again
+			if (!msg && !callback.GetUserCancel())
+			{
+				if (nbRun < 5)
 				{
-					short startRow = j*SEL_ROW_PER_PAGE + 1;
-					URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
-					msg = GetStationListPage(pConnection, URL, stationList);
+					callback.AddMessage(msg);
+					msg = ERMsg();
 
-					msg += callback.StepIt(1.0 / nbPage);
+
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (int i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
 				}
 			}
-			else
-			{
-				msg.ajoute(GetString(IDS_SERVER_DOWN));
-			}
 		}
-
-		pConnection->Close();
-		pSession->Close();
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
@@ -302,7 +343,7 @@ namespace WBSF
 		while (posBegin != string::npos)
 		{
 			CLocation stationInfo;
-			
+
 			string period = PurgeQuote(FindString(source, "name=\"hlyRange\" value=", "/>", posBegin, posEnd));
 			string internalID = PurgeQuote(FindString(source, "name=\"StationID\" value=", "/>", posBegin, posEnd));
 			string prov = PurgeQuote(FindString(source, "name=\"Prov\" value=", "/>", posBegin, posEnd));
@@ -367,7 +408,7 @@ namespace WBSF
 
 			////now: update coordinate for stationList station
 			//*it = stationMap[ID];
-			
+
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
@@ -565,7 +606,7 @@ namespace WBSF
 			StringVector net("HIST|SWOB", "|");
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				size_t n = net.Find(str[i],false);
+				size_t n = net.Find(str[i], false);
 				if (n < network.size())
 					network.set(n);
 			}
@@ -577,9 +618,9 @@ namespace WBSF
 	ERMsg CUIEnvCanHourly::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		std::bitset<NB_NETWORKS> network = GetNetWork();
-		
+
 		for (size_t n = 0; n < network.size(); n++)
 		{
 			if (network.test(n))
@@ -622,7 +663,7 @@ namespace WBSF
 
 			return stations.Save(GetStationListFilePath()+".csv");*/
 		}
-			
+
 
 		//remote station list
 		if (msg)
@@ -659,25 +700,23 @@ namespace WBSF
 
 			if (msg)
 			{
-				TRY
 				{
-					for (size_t i = curI; i < stationList.size() && msg; i++)
-					{
-						msg = DownloadStation(pConnection, stationList[i], callback);
-						if (msg)
+					TRY
+						for (size_t i = curI; i < stationList.size() && msg; i++)
 						{
-							curI++;
-							nbRun = 0;
-							nbFiles++;
-							msg += callback.StepIt();
+							msg = DownloadStation(pConnection, stationList[i], callback);
+							if (msg)
+							{
+								curI++;
+								nbRun = 0;
+								nbFiles++;
+								msg += callback.StepIt();
+							}
 						}
-					}
+					CATCH_ALL(e)
+						msg = UtilWin::SYGetMessage(*e);
+					END_CATCH_ALL
 				}
-				CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
 
 				//if an error occur: try again
 				if (!msg && !callback.GetUserCancel())
@@ -685,7 +724,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(msg);
-						msg.asgType(ERMsg::OK);
+						msg = ERMsg();
 
 
 						callback.PushTask("Waiting 30 seconds for server...", 600);
@@ -723,8 +762,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYear = lastYear - firstYear + 1;
 		CTRef now = CTRef::GetCurrentTRef(CTM::MONTHLY);
-		
-		if (nbYear>5)
+
+		if (nbYear > 5)
 			callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
 		vector< array<bool, 12> > bNeedDownload;
@@ -748,20 +787,20 @@ namespace WBSF
 					}
 				}
 
-				if (nbYear>5)
+				if (nbYear > 5)
 					msg += callback.StepIt();
 			}
 		}
-		
-		if (nbYear>5)
+
+		if (nbYear > 5)
 			callback.PopTask();
 
 
 		//
 		if (nbFilesToDownload > 0)
 		{
-			if (nbFilesToDownload>60)
-				callback.PushTask("Update files for " + station.m_name + " (" + ToString(nbFilesToDownload)+")", nbFilesToDownload);
+			if (nbFilesToDownload > 60)
+				callback.PushTask("Update files for " + station.m_name + " (" + ToString(nbFilesToDownload) + ")", nbFilesToDownload);
 
 			for (size_t y = 0; y < nbYear&&msg; y++)
 			{
@@ -776,24 +815,24 @@ namespace WBSF
 						CreateMultipleDir(GetPath(filePath));
 
 						msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
-						msg += callback.StepIt(nbFilesToDownload>60?1:0);
+						msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
 					}
 				}
 			}
 
-			if (nbFilesToDownload>60)
+			if (nbFilesToDownload > 60)
 				callback.PopTask();
 		}
 
 		return msg;
 	}
-	
+
 
 	bool CUIEnvCanHourly::NeedDownload(const string& filePath, const CLocation& info, int year, size_t m)const
 	{
 		bool bDownload = true;
 
-		
+
 		CFileStamp fileStamp(filePath);
 		CTime lastUpdate = fileStamp.m_time;
 		if (lastUpdate.GetTime() > 0)
@@ -835,7 +874,7 @@ namespace WBSF
 		month << std::setfill('0') << std::setw(2) << (m + 1);
 
 		string filePath;
-		if (n==N_HISTORICAL)
+		if (n == N_HISTORICAL)
 			filePath = GetDir(WORKING_DIR) + prov + "\\" + ToString(year) + "\\" + month.str() + "\\" + ID + ".csv";
 		else if (n == N_SWOB)
 			filePath = GetDir(WORKING_DIR) + "SWOB-ML\\" + ToString(year) + "\\" + month.str() + "\\" + ID + ".csv";
@@ -942,7 +981,7 @@ namespace WBSF
 			else
 				network.reset(N_HISTORICAL);
 		}
-		
+
 		if (network[N_SWOB])
 		{
 			size_t pos = m_SWOBstations.FindByID(ID);
@@ -959,8 +998,8 @@ namespace WBSF
 				network.reset(N_SWOB);
 			}
 		}
-		
-	
+
+
 		return network;
 	}
 
@@ -995,7 +1034,7 @@ namespace WBSF
 		std::bitset<CUIEnvCanHourly::NB_NETWORKS> network = GetStationInformation(ID, station);
 
 		string prov = station.GetSSI("Province");
-		
+
 		station.m_name = TraitFileName(station.m_name) + " (" + prov + ")";
 		station.m_ID += "H";//add a "H" for hourly data
 
@@ -1023,7 +1062,7 @@ namespace WBSF
 				}
 			}
 		}
-		
+
 		if (network[N_SWOB])
 		{
 			cctz::time_zone zone;
@@ -1047,7 +1086,7 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}
 			}
-				
+
 			CWAllVariables vars;
 			vars.reset(H_ADD1);
 			vars.reset(H_ADD2);
@@ -1074,7 +1113,7 @@ namespace WBSF
 		string::size_type pos = 0;
 		return ToInt(Tokenize(line, ":", pos));
 	}
-	
+
 
 
 	ERMsg CUIEnvCanHourly::ReadData(const string& filePath, CTM TM, CYear& data, CCallback& callback)const
@@ -1083,7 +1122,7 @@ namespace WBSF
 
 		//int nbYear = m_lastYear-m_firstYear+1;
 
-		enum{ DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, DATA_QUALITY, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
+		enum { DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, DATA_QUALITY, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
 
 		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, -1, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
 		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 0, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
@@ -1093,9 +1132,9 @@ namespace WBSF
 		//now extact data 
 		ifStream file;
 
-//#pragma omp flush(msg)
+		//#pragma omp flush(msg)
 		msg = file.open(filePath);
-//#pragma omp flush(msg)
+		//#pragma omp flush(msg)
 
 		if (msg)
 		{
@@ -1110,7 +1149,7 @@ namespace WBSF
 				int month = ToInt((*loop)[H_MONTH]) - 1;
 				int day = ToInt((*loop)[H_DAY]) - 1;
 				int hour = GetHour((*loop)[TIMEVAL]);
-				
+
 				ASSERT(month >= 0 && month < 12);
 				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 				ASSERT(hour >= 0 && hour < 24);
@@ -1126,10 +1165,10 @@ namespace WBSF
 				bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
 				bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
 				bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
-				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M")  && !(*loop)[RELHUM].empty();
+				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M") && !(*loop)[RELHUM].empty();
 				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
 				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
-				
+
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (bValid[v])
@@ -1139,12 +1178,12 @@ namespace WBSF
 							double value = ToDouble((*loop)[COL_POS[v]])*FACTOR[v];
 							data[TRef].SetStat(v, value);
 						}
-							//accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
+						//accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
 					}
 				}
-				
 
-					
+
+
 
 				if (bValid[H_TAIR2] && (!bValid[H_TDEW] || !bValid[H_RELH]))
 				{
@@ -1152,7 +1191,7 @@ namespace WBSF
 					double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
 					double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
 					if (Hr == -999 && Tdew != -999)
-					//accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
+						//accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
 						data[TRef].SetStat(H_RELH, Td2Hr(Tair, Tdew));
 					else if (Tdew == -999 && Hr != -999)
 						data[TRef].SetStat(H_TDEW, Hr2Td(Tair, Hr));
@@ -1240,8 +1279,8 @@ namespace WBSF
 						msg = UpdateMissingLocation(locations, fileList, missingID, callback);
 
 
-						if (msg)
-							msg = DownloadSWOB(locations, fileList, callback);
+					if (msg)
+						msg = DownloadSWOB(locations, fileList, callback);
 				}
 			}
 		}
@@ -1280,14 +1319,14 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		
+
 		string infoFilePath = GetSWOBStationsListFilePath();
 		WBSF::CreateMultipleDir(GetPath(infoFilePath));
 
 
 		string infoFilePathTmp = infoFilePath;
 		SetFileTitle(infoFilePathTmp, GetFileTitle(infoFilePath) + "_tmp");
-		
+
 
 
 		msg = CopyFile(pConnection, "/observations/doc/swob-xml_station_list.csv", infoFilePathTmp, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
@@ -1302,11 +1341,11 @@ namespace WBSF
 
 		if (msg)
 		{
-			enum TColumns{ C_ID_IATA, C_FR_NAME, C_EN_NAME, C_PROVINCE, C_TYPE, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_ID_ICAO, C_ID_WMO, C_ID_MSC, C_ID_DST_TIMEZONE, C_ID_STD_TIMEZONE, NB_COLUMNS };
+			enum TColumns { C_ID_IATA, C_FR_NAME, C_EN_NAME, C_PROVINCE, C_TYPE, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_ID_ICAO, C_ID_WMO, C_ID_MSC, C_ID_DST_TIMEZONE, C_ID_STD_TIMEZONE, NB_COLUMNS };
 			static const char* OUTPUT_NAME[NB_COLUMNS] = { "IATA", "NameFr", "", "Province", "Type", "", "", "", "ICAO", "WMO", "", "DSTTimeZone", "STDTimeZone" };
 
 			CLocationVector locations;
-			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator()&&msg; ++loop)
+			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
 			{
 				CLocation location;
 				for (size_t c = 0; c < NB_COLUMNS&&msg; c++)
@@ -1322,7 +1361,7 @@ namespace WBSF
 						StringVector name((*loop)[C_EN_NAME], " ,/\\");
 						for (StringVector::iterator it = name.begin(); it != name.end();)
 						{
-							if (clean.Find(*it, false)==NOT_INIT)
+							if (clean.Find(*it, false) == NOT_INIT)
 								it++;
 							else
 								it = name.erase(it);
@@ -1358,7 +1397,7 @@ namespace WBSF
 					location.SetSSI("Province", "QC");
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
-				
+
 
 				if (location.m_name.empty())
 					location.m_name = location.GetSSI("NameFr");
@@ -1368,7 +1407,7 @@ namespace WBSF
 
 			msg = locations.Save(infoFilePath);
 		}
-	
+
 
 		return msg;
 
@@ -1385,7 +1424,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		
+
 		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
 
 		if (!msg)
@@ -1402,8 +1441,8 @@ namespace WBSF
 
 		if (!msg)
 			return msg;
-			
-		
+
+
 		for (CSVIterator loop(ifile, ",", true); loop != CSVIterator(); ++loop)
 		{
 			if (loop->size() == 2)
@@ -1416,13 +1455,13 @@ namespace WBSF
 		}
 
 		ifile.close();
-		
+
 
 		//observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 		CFileInfoVector dir1;
 		msg = FindDirectories(pConnection, "/observations/swob-ml/", dir1);// date
 		callback.PushTask(string("Get files list from: /observations/swob-ml/"), dir1.size());
-		
+
 		//int i = 0;
 		//for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg && i<6; it1++, i++)
 		for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
@@ -1443,13 +1482,13 @@ namespace WBSF
 				{
 					string ICAOID = GetLastDirName(it2->m_filePath);
 					CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
-					
+
 					string prov;
 					if (itMissing != locations.end())
 						prov = itMissing->GetSSI("Province");
-					else 
+					else
 						missingID.insert(ICAOID);
-					
+
 
 					if (prov.empty() || selection.at(prov))
 					{
@@ -1549,7 +1588,7 @@ namespace WBSF
 
 		missingLoc.Save(filePath);
 		callback.PopTask();
-	
+
 
 		pConnection->Close();
 		pSession->Close();
@@ -1564,7 +1603,7 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()));
 		callback.PushTask("Download of SWOB-ML (" + ToString(fileList.size()) + " stations)", fileList.size());
-		
+
 		map<string, CTRef> lastUpdate;
 		int nbDownload = 0;
 
@@ -1585,10 +1624,10 @@ namespace WBSF
 				string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
 				callback.PushTask("Download SWOB-ML for " + ID + ": (" + ToString(it1->second.size()) + " files)", it1->second.size());
 
-
-				TRY
 				{
-					map < CTRef, SWOBData > data;
+					TRY
+
+						map < CTRef, SWOBData > data;
 
 
 					CLocationVector::const_iterator itLoc = locations.FindBySSI("ICAO", it1->first, false);
@@ -1638,7 +1677,7 @@ namespace WBSF
 					{
 						CTRef TRef = it->first;
 						string filePath = GetOutputFilePath(N_SWOB, location.GetSSI("Province"), TRef.GetYear(), TRef.GetMonth(), ID);
-						
+
 						CreateMultipleDir(GetPath(filePath));
 						msg = SaveSWOB(filePath, it->second);
 					}
@@ -1647,32 +1686,32 @@ namespace WBSF
 					{
 						lastUpdate[ID] = lastTRef;
 					}
-						
-					
+
+
+
+					CATCH_ALL(e)
+
+						msg = UtilWin::SYGetMessage(*e);
+
+					END_CATCH_ALL
 				}
-				CATCH_ALL(e)
+
+				if (!msg && !callback.GetUserCancel())
 				{
-					
 					if (nbRun < 5)
 					{
-						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						callback.PopTask();
+						callback.AddMessage(msg);
 
 						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (int i = 0; i < 600 && msg; i++)
+						for (size_t i = 0; i < 600 && msg; i++)
 						{
 							Sleep(50);//wait 50 milisec
 							msg += callback.StepIt();
 						}
 						callback.PopTask();
 					}
-					else
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
 				}
-				END_CATCH_ALL
-
-
 
 				callback.PopTask();
 				msg += callback.StepIt();
@@ -1686,21 +1725,21 @@ namespace WBSF
 		callback.PopTask();
 
 		msg = UpdateLastUpdate(lastUpdate);
-		
+
 
 		return msg;
-		
+
 	}
-	
+
 
 	string CUIEnvCanHourly::GetProvinceFormID(const string& ID)
 	{
 		string prov;
-		ASSERT(ID.length()==7);
+		ASSERT(ID.length() == 7);
 
-		int i = WBSF::as<int>(ID.substr(0,2));
+		int i = WBSF::as<int>(ID.substr(0, 2));
 		switch (i)
-		{ 
+		{
 		case 10:
 		case 11: prov = CProvinceSelection::GetName(CProvinceSelection::BC); break;
 		case 21: prov = CProvinceSelection::GetName(CProvinceSelection::YT); break;
@@ -1735,7 +1774,7 @@ namespace WBSF
 		{
 			zen::XmlDoc doc = zen::parse(source);
 
-			enum TAttributes{ DATE_TIME, STATION_NAME, TC_ID, SYNOP_ID, ELEVATION, DATA_PROVIDER, CLIM_ID, MSC_ID, LATITUDE, LONGITUDE, NB_ATTRIBUTES };
+			enum TAttributes { DATE_TIME, STATION_NAME, TC_ID, SYNOP_ID, ELEVATION, DATA_PROVIDER, CLIM_ID, MSC_ID, LATITUDE, LONGITUDE, NB_ATTRIBUTES };
 			static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "date_tm", "stn_nam", "tc_id", "wmo_synop_id", "stn_elev", "data_pvdr", "clim_id", "msc_id", "lat", "long" };
 
 			zen::XmlIn in(doc.root());
@@ -1767,13 +1806,13 @@ namespace WBSF
 						case CLIM_ID:		break;
 						case SYNOP_ID:		location.SetSSI("WMO", value); break;
 						case TC_ID:			location.SetSSI("IATA", value); break;
-						case MSC_ID:		location.m_ID = value;break;
+						case MSC_ID:		location.m_ID = value; break;
 						default:			location.SetSSI(name, value);
 						}
 					}
 				}
 			}//for all attributes
-			
+
 
 			location.SetSSI("Province", GetProvinceFormID(location.m_ID));
 		}
@@ -1791,7 +1830,7 @@ namespace WBSF
 	{
 
 		ERMsg msg;
-		
+
 		if (source.find("<om:ObservationCollection") != NOT_INIT)
 		{
 			try
@@ -1878,29 +1917,7 @@ namespace WBSF
 
 	}
 
-	
-	
-	double GetHourlySun(const CSun& sun, CTRef TRef)
-	{
-		double hs = 0;
-		
-		size_t h = TRef.GetHour();
-		double Tsr = sun.GetSunrise(TRef);
-		double Tss = sun.GetSunset(TRef);
 
-		if (h < floor(Tsr))
-			hs = 0;
-		else if (h < ceil(Tsr))
-			hs = 1 - (Tsr - (int)Tsr);
-		else if (h < floor(Tss))
-			hs = 1;
-		else if (h < ceil(Tss))
-			hs = (Tss - (int)Tss);
-		else 
-			hs = 0;
-		
-		return hs;
-	}
 
 	ERMsg CUIEnvCanHourly::ReadSWOBData(const std::string& filePath, CTM TM, const cctz::time_zone& zone, CWeatherStation& station, CCallback& callback)
 	{
@@ -1911,9 +1928,9 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		bool bFredericton = station.GetSSI("ICAO") == "CAFC";
 		//CSun sun(station.m_lat, station.m_lon);
-		
 
-		unique_ptr<SWOBData> pSwob( new SWOBData);
+
+		unique_ptr<SWOBData> pSwob(new SWOBData);
 		SWOBData& swob = *pSwob;
 
 
@@ -1934,7 +1951,7 @@ namespace WBSF
 
 					if (TRef.GetYear() >= firstYear && TRef.GetYear() <= lastYear)
 					{
-						for (size_t vv = 0; vv < NB_SWOB_VARIABLES; vv ++)
+						for (size_t vv = 0; vv < NB_SWOB_VARIABLES; vv++)
 						{
 							TVarH v = VARIABLE_TYPE[vv];
 							if (v != H_SKIP)
@@ -1978,7 +1995,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	ERMsg CUIEnvCanHourly::ReadSWOB(const std::string& filePath, SWOBData& data)
 	{
 		ERMsg msg;
@@ -1998,7 +2015,7 @@ namespace WBSF
 						size_t d = WBSF::as<size_t>((*loop)[2]) - 1;
 						size_t h = WBSF::as<size_t>((*loop)[3]);
 
-						
+
 						ASSERT(d < 31);
 						ASSERT(h < 24);
 
@@ -2009,7 +2026,7 @@ namespace WBSF
 			}
 
 			ifile.close();
-		
+
 		}
 
 		return msg;
@@ -2028,7 +2045,7 @@ namespace WBSF
 				ofile << "," << SWOB_VARIABLE_NAME[i] << ",QA";
 
 			ofile << endl;
-			for (size_t d = 0; d< data.size(); d++)
+			for (size_t d = 0; d < data.size(); d++)
 			{
 				for (size_t h = 0; h < 24; h++)
 				{
@@ -2062,7 +2079,7 @@ namespace WBSF
 		string lastUpdateFilePath = workingDir + "SWOB-ML\\LastUpdate.csv";
 
 		map<string, CTRef> currentUpdate;
-		
+
 		ifStream ifile;
 		if (FileExists(lastUpdateFilePath))
 			msg = ifile.open(lastUpdateFilePath);
