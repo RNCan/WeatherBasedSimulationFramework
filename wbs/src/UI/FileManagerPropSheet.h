@@ -32,10 +32,11 @@ namespace WBSF
 		//static int CALLBACK XmnPropSheetCallback(HWND hWnd, UINT message, LPARAM lParam);
 		enum TPages{ NORMAL, DAILY, HOURLY, GRIB, MAP_INPUT, MODEL, WEATHER_UPDATE, SCRIPT, NB_PAGES };
 
-		CDBManagerDlg(CWnd* pWndParent = NULL, int iSelection = 0);
+		CDBManagerDlg(CWnd* pWndParent = NULL, int iSelection = 0, bool bUseClose=true);
 		virtual ~CDBManagerDlg();
 		virtual void PostNcDestroy();
 		virtual BOOL OnInitDialog();
+
 		//virtual INT_PTR DoModal();
 		//virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 		//virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
@@ -59,8 +60,9 @@ namespace WBSF
 		DECLARE_MESSAGE_MAP()
 		//afx_msg void OnSize(UINT nType, int cx, int cy);
 		//afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
-		//afx_msg LRESULT OnResizePage(WPARAM wParam, LPARAM lParam);
+		afx_msg void OnDestroy();
 
+		bool m_bUseClose;
 		//BOOL   m_bNeedInit;
 		//CRect  m_rCrt;
 		////int    m_nMinCX;

@@ -52,6 +52,7 @@ namespace WBSF
 		virtual const WBSF::CDirectoryManager& GetManager()const=0;
 		virtual CBioSIMListBoxPtr GetList() = 0;
 
+		//void SetInitRect(bool bInit){ m_bInit = bInit; }
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -63,8 +64,8 @@ namespace WBSF
 		CBioSIMListBoxPtr m_pList;
 		//CNormalMListBox m_list;
 		COpenDirEditCtrl m_filePathCtrl;
-		bool m_bInit;
-		CRect m_rect;
+		//bool m_bInit;
+		//CRect m_rect;
 	};
 
 

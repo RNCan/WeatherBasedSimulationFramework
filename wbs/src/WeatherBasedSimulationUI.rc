@@ -1979,33 +1979,38 @@ BEGIN
     CONTROL         "",IDC_VARIABLES_RADIUS,"MfcPropertyGrid",0x100,7,7,245,280
 END
 
-IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 417, 194
+IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 461, 271
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Extraction d'information spécifique au site"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    LTEXT           "Chemin du DEM :",IDC_STATIC,7,3,55,8
+    GROUPBOX        "",IDC_STATIC,7,11,447,80
+    GROUPBOX        "",IDC_STATIC,7,98,447,92
+    CONTROL         "Extraire à partir d'un fichier DEM",IDC_MAP_EXTRACT_FROM_DEM,
+                    "Button",BS_AUTORADIOBUTTON,16,11,119,10
+    CONTROL         "Extraire à partir de Google Maps API",IDC_MAP_EXTRACT_FROM_GOOGLE,
+                    "Button",BS_AUTORADIOBUTTON,16,98,133,10
     CONTROL         "Extraire l'élévation à partir du DEM",IDC_MAP_EXTRACT_ELEV,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,23,127,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,30,127,10
     CONTROL         "Extraire la pente et l'orientation à partir du DEM",IDC_MAP_EXTRACT_EXPOSITION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,176,10
-    PUSHBUTTON      "Ok",IDOK,297,172,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,360,172,50,14
-    CONTROL         "Remplacer seulement les valeurs vide ou à -999 ",IDC_MAP_EXTRACT_MISSING,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,176,171,10
-    COMBOBOX        IDC_SSI_METHOD,256,39,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,68,0,342,14
-    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,223,26,106,8,NOT WS_VISIBLE
-    CONTROL         "Extraire la distance au litoral",IDC_MAP_EXTRACT_SHORE_DISTANCE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,110,10
-    CONTROL         "Extraire le nom du lieux à partir de google Maps GeoCoding API. ",IDC_MAP_EXTRACT_GOOGLE_NAME,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,83,223,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,44,176,10
+    LTEXT           "Chemin du DEM :",IDC_CMN_STATIC1,23,68,55,8
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,82,66,364,14
     CONTROL         "Extraire l'élévation à partir de google Maps Elevation API.",IDC_MAP_EXTRACT_GOOGLE_ELEVATION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,69,269,10
-    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,146,96,264,14,ES_AUTOHSCROLL
-    LTEXT           "* Une clé est nécessaire pour plus de 250 requêtes par jour",IDC_STATIC,68,115,192,8
-    LTEXT           "* un no peut être obtenue sur le site google :  developers.google.com",IDC_STATIC,68,128,225,8
-    LTEXT           "Clé Goole Map API* :",IDC_STATIC,68,99,68,8
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,116,269,10
+    CONTROL         "Extraire le nom du lieux à partir de google Maps GeoCoding API. ",IDC_MAP_EXTRACT_GOOGLE_NAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,130,223,10
+    LTEXT           "Clé Goole Map API* :",IDC_CMN_STATIC2,83,149,68,8
+    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,161,146,285,14,ES_AUTOHSCROLL
+    LTEXT           "* une clé peut être obtenue gratuitement sur le site google :  developers.google.com",IDC_CMN_STATIC4,83,165,273,8
+    CONTROL         "Extraire la distance au litoral",IDC_MAP_EXTRACT_SHORE_DISTANCE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,213,110,10
+    CONTROL         "Remplacer seulement les valeurs vide ou à -999 ",IDC_MAP_EXTRACT_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,229,171,10
+    PUSHBUTTON      "Ok",IDOK,340,249,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,404,249,50,14
+    COMBOBOX        IDC_SSI_METHOD,7,251,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,15,255,106,8,NOT WS_VISIBLE
 END
 
 
@@ -2772,10 +2777,11 @@ BEGIN
     IDD_SIM_LOC_EXTRACT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 410
+        RIGHTMARGIN, 454
         VERTGUIDE, 68
-        VERTGUIDE, 276
-        BOTTOMMARGIN, 186
+        VERTGUIDE, 446
+        BOTTOMMARGIN, 263
+        HORZGUIDE, 11
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -4057,16 +4063,16 @@ END
 
 IDD_SIM_LOC_EXTRACT DLGINIT
 BEGIN
+    IDC_GRID_FILE_PATH, 0x37c, 42, 0
+0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
+0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
+0x4d5f, 0x646f, 0x3e65, 
     IDC_SSI_METHOD, 0x403, 8, 0
 0x654e, 0x7261, 0x7365, 0x0074, 
     IDC_SSI_METHOD, 0x403, 9, 0
 0x6942, 0x696c, 0x656e, 0x7261, "\000" 
     IDC_SSI_METHOD, 0x403, 6, 0
 0x7543, 0x6962, 0x0063, 
-    IDC_GRID_FILE_PATH, 0x37c, 42, 0
-0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
-0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
-0x4d5f, 0x646f, 0x3e65, 
     0
 END
 
@@ -4283,32 +4289,37 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 // Dialog
 //
 
-IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 417, 226
+IDD_SIM_LOC_EXTRACT DIALOGEX 0, 0, 451, 277
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Site Specific Extraction"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    LTEXT           "DEM file path:",IDC_STATIC,7,3,46,8
-    CONTROL         "Extract elevation from DEM",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,23,103,10
+    GROUPBOX        "",IDC_STATIC,7,9,437,80
+    GROUPBOX        "",IDC_STATIC,7,98,437,105
+    CONTROL         "Extraire à partir d'un fichier DEM",IDC_MAP_EXTRACT_FROM_DEM,
+                    "Button",BS_AUTORADIOBUTTON,16,9,119,10
+    CONTROL         "Extraire à partir de Google Maps API",IDC_MAP_EXTRACT_FROM_GOOGLE,
+                    "Button",BS_AUTORADIOBUTTON,16,98,133,10
+    CONTROL         "Extract elevation from DEM",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,35,103,10
     CONTROL         "Extract slope and aspect from DEM",IDC_MAP_EXTRACT_EXPOSITION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,132,10
-    PUSHBUTTON      "Ok",IDOK,297,204,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,360,204,50,14
-    CONTROL         "Replace only -999 or empty values",IDC_MAP_EXTRACT_MISSING,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,208,170,10
-    COMBOBOX        IDC_SSI_METHOD,256,39,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,58,0,352,14
-    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,223,26,106,8,NOT WS_VISIBLE
-    CONTROL         "Extract shore distance",IDC_MAP_EXTRACT_SHORE_DISTANCE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,113,10
-    CONTROL         "Extract location name from Google Maps GeoCode API.",IDC_MAP_EXTRACT_GOOGLE_NAME,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,90,259,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,48,132,10
+    LTEXT           "DEM file path:",IDC_CMN_STATIC1,38,66,46,8
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,94,63,340,14
     CONTROL         "Extract elevation from Google Maps Elevation API.",IDC_MAP_EXTRACT_GOOGLE_ELEVATION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,73,255,10
-    LTEXT           "* A key is needed for more than 250 queries a day",IDC_STATIC,59,131,163,8
-    LTEXT           "* Key ID can be obtained from Google site:  developers.google.com",IDC_STATIC,59,144,217,8
-    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,146,105,264,14,ES_AUTOHSCROLL
-    LTEXT           "Goole Map API Key* :",IDC_STATIC,58,108,70,8
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,121,251,10
+    CONTROL         "Extract location name from Google Maps GeoCode API.",IDC_MAP_EXTRACT_GOOGLE_NAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,135,217,10
+    LTEXT           "Goole Map API Key* :",IDC_CMN_STATIC2,58,156,70,8
+    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,146,154,288,14,ES_AUTOHSCROLL
+    LTEXT           "* Key ID can be obtained freely from Google site:  developers.google.com",IDC_CMN_STATIC4,58,176,238,8
+    CONTROL         "Extract shore distance",IDC_MAP_EXTRACT_SHORE_DISTANCE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,223,113,10
+    CONTROL         "Replace only -999 or empty values",IDC_MAP_EXTRACT_MISSING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,240,170,10
+    PUSHBUTTON      "Cancel",IDCANCEL,394,255,50,14
+    PUSHBUTTON      "Ok",IDOK,329,255,50,14
+    COMBOBOX        IDC_SSI_METHOD,168,257,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,204,233,106,8,NOT WS_VISIBLE
 END
 
 IDD_LINKED_WEA DIALOGEX 0, 0, 261, 130
@@ -6032,10 +6043,14 @@ BEGIN
     IDD_SIM_LOC_EXTRACT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 410
+        RIGHTMARGIN, 444
+        VERTGUIDE, 25
         VERTGUIDE, 58
         VERTGUIDE, 276
-        BOTTOMMARGIN, 218
+        VERTGUIDE, 434
+        TOPMARGIN, 9
+        BOTTOMMARGIN, 269
+        HORZGUIDE, 9
     END
 
     IDD_LINKED_WEA, DIALOG
@@ -6811,16 +6826,16 @@ END
 
 IDD_SIM_LOC_EXTRACT DLGINIT
 BEGIN
+    IDC_GRID_FILE_PATH, 0x37c, 42, 0
+0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
+0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
+0x4d5f, 0x646f, 0x3e65, 
     IDC_SSI_METHOD, 0x403, 8, 0
 0x654e, 0x7261, 0x7365, 0x0074, 
     IDC_SSI_METHOD, 0x403, 9, 0
 0x6942, 0x696c, 0x656e, 0x7261, "\000" 
     IDC_SSI_METHOD, 0x403, 6, 0
 0x7543, 0x6962, 0x0063, 
-    IDC_GRID_FILE_PATH, 0x37c, 42, 0
-0x4d3c, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 0x4d5f, 0x646f, 
-0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
-0x4d5f, 0x646f, 0x3e65, 
     0
 END
 

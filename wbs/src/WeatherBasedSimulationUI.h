@@ -493,8 +493,14 @@
 #define IDC_MAP_EXTRACT_GEOCODE_KEY2    1239
 #define IDC_MAP_EXTRACT_ELEVATION_KEY   1239
 #define IDC_MAP_EXTRACT_GOOGLE_KEY      1240
+#define IDC_MAP_EXTRACT_FROM_DEM        1241
+#define IDC_MAP_EXTRACT_FROM_GOOGLE     1242
+#define IDC_STATIC2                     1243
+#define IDC_STATIC3                     1244
 #define IDC_MAP_TPS_TYPE                1245
+#define IDC_STATIC4                     1245
 #define IDC_MAP_REGIONAL_LIMIT_TO_BOUND 1246
+#define IDC_STATIC5                     1246
 #define IDC_MAP_GLOBAL_LIMIT_TO_BOUND   1247
 #define IDC_MAP_REGIONAL_LIMIT_SD       1248
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
@@ -862,7 +868,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        214
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1241
+#define _APS_NEXT_CONTROL_VALUE         1247
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

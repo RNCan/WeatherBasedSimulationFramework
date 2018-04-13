@@ -66,7 +66,7 @@ namespace WBSF
 	{
 		std::string name = CStringA(GetItemText(iItem));
 		std::string filePath = GetManager().GetFilePath(name);
-		
+
 		CallApplication(CRegistry::NORMAL_EDITOR, filePath, GetSafeHwnd(), SW_SHOW);
 	}
 
@@ -104,9 +104,8 @@ namespace WBSF
 	END_MESSAGE_MAP()
 
 
-	CCommonMPage::CCommonMPage(UINT nIDTemplate, UINT nIDCaption ) :
-		CMFCPropertyPage(nIDTemplate, nIDCaption),
-		m_bInit(false)
+	CCommonMPage::CCommonMPage(UINT nIDTemplate, UINT nIDCaption) :
+		CMFCPropertyPage(nIDTemplate, nIDCaption)
 	{
 		m_psp.dwFlags &= ~(PSP_HASHELP);
 	}
@@ -114,7 +113,7 @@ namespace WBSF
 	CCommonMPage::~CCommonMPage()
 	{}
 
-	
+
 
 	void CCommonMPage::DoDataExchange(CDataExchange* pDX)
 	{
@@ -150,12 +149,40 @@ namespace WBSF
 	{
 		if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
 			return;
-	
-		CRect rect;
-		m_filePathCtrl.GetClientRect(rect);
-		
+
+		//if(!m_bInit)//the property sheet will init the page
+			//
+
+		/*CRect rect;
+		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
+		rect.right = cx - 2*5 - 100;
+
+
+
 		m_pList->SetWindowPos(NULL, 5, 5, cx - 2 * 5 - 100, cy - rect.Height() - 3 * 5, SWP_NOZORDER | SWP_NOACTIVATE);
-		m_filePathCtrl.SetWindowPos(NULL, 5, cy - rect.Height() - 5, cx - 2 * 5 - 100, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+		m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);*/
+		//if (!m_bInit)
+		//{
+		////	GetClientRect(m_rect);
+		//	//GetWindowRect(m_rect); ScreenToClient(m_rect);
+		//	
+		//	((CMFCPropertySheet*)GetParent())->GetTabControl()->GetClientRect(m_rect);
+		//}
+
+		//CRect rect;
+		////GetClientRect(rect);
+		//GetWindowRect(rect); ScreenToClient(rect);
+		//int dx = rect.Width() - m_rect.Width();
+		//int dy = rect.Height() - m_rect.Height();
+		//m_rect = rect;
+
+		CRect rect;
+		//m_pList->GetClientRect(rect); ScreenToClient(rect);
+		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
+
+		m_pList->SetWindowPos(NULL, 10, 10, cx - 2*10, cy - 3*10 - rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+		m_filePathCtrl.SetWindowPos(NULL, 10, cy - 10  - rect.Height(), cx - 2*10, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+
 	}
 
 	//********************************************************************************
@@ -171,7 +198,7 @@ namespace WBSF
 	}
 
 
-	CBioSIMListBoxPtr CNormalMPage::GetList(){ return std::make_shared<CNormalMListBox>(); }
+	CBioSIMListBoxPtr CNormalMPage::GetList() { return std::make_shared<CNormalMListBox>(); }
 	const CDirectoryManager& CNormalMPage::GetManager()const { return WBSF::GetFM().Normals(); }
 
 	//********************************************************************************
@@ -184,7 +211,7 @@ namespace WBSF
 
 	CDailyMListBox::CDailyMListBox()
 	{}
-	 
+
 
 	CWnd* CDailyMListBox::OnCreateList()
 	{
@@ -193,7 +220,7 @@ namespace WBSF
 
 		if (pWnd == NULL)
 			return FALSE;
-		 
+
 		SetStandardButtons(AFX_VSLISTBOX_BTN_NEW | AFX_VSLISTBOX_BTN_EDIT | AFX_VSLISTBOX_BTN_LINK | AFX_VSLISTBOX_BTN_OPTION);
 		OnInitList();
 
@@ -275,7 +302,7 @@ namespace WBSF
 	}
 
 
-	CBioSIMListBoxPtr CDailyMPage::GetList(){ return std::make_shared<CDailyMListBox>(); }
+	CBioSIMListBoxPtr CDailyMPage::GetList() { return std::make_shared<CDailyMListBox>(); }
 	const CDirectoryManager& CDailyMPage::GetManager()const { return WBSF::GetFM().Daily(); }
 
 
@@ -381,7 +408,7 @@ namespace WBSF
 		CCommonMPage::DoDataExchange(pDX);
 	}
 
-	CBioSIMListBoxPtr CHourlyMPage::GetList(){ return std::make_shared<CHourlyMListBox>(); }
+	CBioSIMListBoxPtr CHourlyMPage::GetList() { return std::make_shared<CHourlyMListBox>(); }
 	const CDirectoryManager& CHourlyMPage::GetManager()const { return WBSF::GetFM().Hourly(); }
 
 
@@ -481,7 +508,7 @@ namespace WBSF
 		CCommonMPage::DoDataExchange(pDX);
 	}
 
-	CBioSIMListBoxPtr CGribMPage::GetList(){ return std::make_shared<CGribMListBox>(); }
+	CBioSIMListBoxPtr CGribMPage::GetList() { return std::make_shared<CGribMListBox>(); }
 	const CDirectoryManager& CGribMPage::GetManager()const { return WBSF::GetFM().Gribs(); }
 	//********************************************************************************
 	// CModelsPage property page
@@ -556,7 +583,7 @@ namespace WBSF
 	{
 		WBSF::CRegistry registry("Last open path");
 		//CString  folder = Convert(registry.GetProfileString("MAP"));
-		
+
 		CString filter = UtilWin::GetCString(IDS_STR_FILTER_LAYER);
 		CFileDialog openDialog(true, NULL, _T(""), OFN_EXTENSIONDIFFERENT, filter, this);
 		//openDialog.m_ofn.lpstrInitialDir = folder;
@@ -616,7 +643,7 @@ namespace WBSF
 	}
 
 
-	CBioSIMListBoxPtr CMapInputMPage::GetList(){ return std::make_shared<CMapInputMListBox>(); }
+	CBioSIMListBoxPtr CMapInputMPage::GetList() { return std::make_shared<CMapInputMListBox>(); }
 	const CDirectoryManager& CMapInputMPage::GetManager()const { return WBSF::GetFM().MapInput(); }
 
 	//********************************************************************************
@@ -664,7 +691,7 @@ namespace WBSF
 		string filePath = WBSF::GetFM().WeatherUpdate().GetFilePath(name);
 		CallApplication(CRegistry::MODEL_EDITOR, filePath, GetSafeHwnd(), SW_SHOW);
 */
-		CModelDlg dlg(this); 
+		CModelDlg dlg(this);
 		ENSURE(WBSF::GetFM().Model().Get(name, dlg.m_model));
 		ASSERT(dlg.m_model.GetName() == name);
 
@@ -705,7 +732,7 @@ namespace WBSF
 	}
 
 
-	CBioSIMListBoxPtr CModelMPage::GetList(){ return std::make_shared<CModelMListBox>(); }
+	CBioSIMListBoxPtr CModelMPage::GetList() { return std::make_shared<CModelMListBox>(); }
 	const CDirectoryManager& CModelMPage::GetManager()const { return WBSF::GetFM().Model(); }
 
 
@@ -824,7 +851,7 @@ namespace WBSF
 		//m_list.SetFocus();
 	}
 
-	CBioSIMListBoxPtr CWeatherUpdateMPage::GetList(){ return std::make_shared<CWeatherUpdateMListBox>(); }
+	CBioSIMListBoxPtr CWeatherUpdateMPage::GetList() { return std::make_shared<CWeatherUpdateMListBox>(); }
 	const CDirectoryManager& CWeatherUpdateMPage::GetManager()const { return WBSF::GetFM().WeatherUpdate(); }
 
 
@@ -954,52 +981,52 @@ namespace WBSF
 		//m_list.SetFocus();
 	}
 
-CBioSIMListBoxPtr CScriptMPage::GetList(){ return std::make_shared<CScriptMListBox>(); }
-const CDirectoryManager& CScriptMPage::GetManager()const { return WBSF::GetFM().Script(); }
+	CBioSIMListBoxPtr CScriptMPage::GetList() { return std::make_shared<CScriptMListBox>(); }
+	const CDirectoryManager& CScriptMPage::GetManager()const { return WBSF::GetFM().Script(); }
 
-	
-//
-//	void CScriptMPage::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
-//	{
-//		pResult = 0;
-//
-//		std::string filePath;
-//		int iItem = m_list.GetSelItem();
-//		if (iItem != -1)
-//		{
-//			filePath = CStringA(m_list.GetItemText(iItem));
-//			filePath = WBSF::GetFM().Script().GetFilePath(filePath);
-//		}
-//		else
-//		{
-//			filePath = WBSF::GetFM().Script().GetLocalPath();
-//		}
-//
-//		m_filePathCtrl.SetWindowText(Convert(filePath));
-//	}
-//
-//	void CScriptMPage::OnSize(UINT nType, int cx, int cy)
-//	{
-//		if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
-//			return;
-//
-//		if (!m_bInit)
-//		{
-//			GetClientRect(m_rect);
-//			m_bInit = true;
-//		}
-//
-//		CRect rect;
-//		GetClientRect(rect);
-//		int dx = rect.Width() - m_rect.Width();
-//		int dy = rect.Height() - m_rect.Height();
-//		m_rect = rect;
-//
-//		//CRect rect;
-//		m_list.GetWindowRect(rect); ScreenToClient(rect);
-//		m_list.SetWindowPos(NULL, 0, 0, rect.Width() + dx, rect.Height() + dy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-//
-//		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
-//		m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top + dy, rect.Width() + dx, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-//	}
+
+	//
+	//	void CScriptMPage::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
+	//	{
+	//		pResult = 0;
+	//
+	//		std::string filePath;
+	//		int iItem = m_list.GetSelItem();
+	//		if (iItem != -1)
+	//		{
+	//			filePath = CStringA(m_list.GetItemText(iItem));
+	//			filePath = WBSF::GetFM().Script().GetFilePath(filePath);
+	//		}
+	//		else
+	//		{
+	//			filePath = WBSF::GetFM().Script().GetLocalPath();
+	//		}
+	//
+	//		m_filePathCtrl.SetWindowText(Convert(filePath));
+	//	}
+	//
+	//	void CScriptMPage::OnSize(UINT nType, int cx, int cy)
+	//	{
+	//		if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
+	//			return;
+	//
+	//		if (!m_bInit)
+	//		{
+	//			GetClientRect(m_rect);
+	//			m_bInit = true;
+	//		}
+	//
+	//		CRect rect;
+	//		GetClientRect(rect);
+	//		int dx = rect.Width() - m_rect.Width();
+	//		int dy = rect.Height() - m_rect.Height();
+	//		m_rect = rect;
+	//
+	//		//CRect rect;
+	//		m_list.GetWindowRect(rect); ScreenToClient(rect);
+	//		m_list.SetWindowPos(NULL, 0, 0, rect.Width() + dx, rect.Height() + dy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+	//
+	//		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
+	//		m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top + dy, rect.Width() + dx, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+	//	}
 }

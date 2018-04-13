@@ -18,12 +18,16 @@ class CExtractSSIDlg : public CDialog
 
 	// Construction
 public:
+
+
+	enum TExtractFrom { FROM_DEM, FROM_GOOGLE };
 	CExtractSSIDlg(CWnd* pParent = NULL);
 	~CExtractSSIDlg();
 
 
 	CString m_gridFilePath;
 
+	TExtractFrom m_extractFrom;
 	BOOL m_bExtractElev;
 	BOOL m_bExtractSlopeAspect;
 	BOOL m_bMissingOnly;
@@ -42,6 +46,10 @@ protected:
 
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	TExtractFrom GetExtractFrom()const;
+	void SetExtractFrom(TExtractFrom no);
+	void UpdateCtrl();
+
 
 	// Generated message map functions
 	DECLARE_MESSAGE_MAP()

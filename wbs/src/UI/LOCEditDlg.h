@@ -117,7 +117,6 @@ namespace WBSF
 		afx_msg void OnExtractSSI();
 		afx_msg void OnLocNewLine();
 		afx_msg void OnLocDeleteLine();
-		afx_msg void OnFormatChange();
 		afx_msg BOOL OnFormatChange(UINT ID);
 		afx_msg void OnDestroy();
 		afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -139,10 +138,12 @@ namespace WBSF
 		BOOL m_bEnable;
 
 
-		static ERMsg ExtractSSI(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bShoreDistance, bool bMissingOnly, CCallback& callback);
+		static ERMsg ExtractFromDEM(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bReplaceAll, CCallback& callback);
 		static ERMsg ExtractGoogleName(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback);
 		static ERMsg ExtractGoogleElevation(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback);
+		static ERMsg ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback);
 	
+		static UINT ExtractSSI(void* pParam);
 	};
 
 

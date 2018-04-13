@@ -32,7 +32,7 @@ static char THIS_FILE[] = __FILE__;
 
 IMPLEMENT_DYNAMIC(CResizablePropertySheet, CMFCPropertySheet)
 
-CResizablePropertySheet::CResizablePropertySheet():
+CResizablePropertySheet::CResizablePropertySheet() :
 	m_bInitialized(FALSE)
 {
 }
@@ -99,7 +99,7 @@ int CResizablePropertySheet::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// adjust size to reflect new style
 	//::AdjustWindowRectEx(&rect, GetStyle(), ::IsMenu(GetMenu()->GetSafeHmenu()), GetExStyle());
 	//SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION);
-	
+
 	return 0;
 }
 
@@ -123,7 +123,7 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 
 	//ASSERT(pParentWnd != NULL && pParentWnd->IsWindowVisible());
 
-	
+
 	LockWindowUpdate();
 
 	//int dx = cx - m_rCrt.Width();
@@ -137,7 +137,7 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 	CRect rectTabItem;
 	pTab->GetItemRect(0, rectTabItem);
 	pTab->MapWindowPoints(this, &rectTabItem);
-	
+
 
 	const int nVertMargin = 5;
 	const int nHorzMargin = 5;
@@ -147,7 +147,7 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 	GetClientRect(rectClient);
 	//pTab->SetWindowPos(&wndTop, 0, 0, rectClient.Width()+dx, rectClient.Height()+dy, SWP_NOMOVE | SWP_NOACTIVATE);
 	pTab->MoveWindow(m_nBarWidth, -nTabsHeight, rectClient.right, rectClient.bottom - 2 * nVertMargin);
-	
+
 
 	CRect rectTab;
 	pTab->GetWindowRect(rectTab);
@@ -158,14 +158,25 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 	rectNavigator.bottom = rectTab.bottom;
 	rectNavigator.DeflateRect(1, 1);
 
-	//pWndNavigator->SetWindowPos(&wndTop, 0, 0, rectNavigator.Width(), rectNavigator.Height(), SWP_NOMOVE | SWP_NOACTIVATE);
 	m_wndOutlookBar.SetWindowPos(&wndTop, rectNavigator.left, rectNavigator.top, rectNavigator.Width(), rectNavigator.Height(), SWP_NOACTIVATE);
 
-	SetActivePage(GetActivePage());//update page
+	CPropertyPage* pppg = GetActivePage();
+
+	SetActivePage(pppg);//update page
+	CRect rectPage = rectClient;
+	rectPage.left = rectNavigator.right;
+	rectPage.bottom = rectTab.bottom;
+	rectPage.DeflateRect(1, 1);
+
+	pppg->SetWindowPos(NULL, 0, 0, rectPage.Width(), rectPage.Height(), SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOACTIVATE);
+
 
 	ReposButtons(TRUE);
 
 	UnlockWindowUpdate();
+
+
+
 }
 
 int CResizablePropertySheet::ReposButtons(BOOL bRedraw)
@@ -183,15 +194,15 @@ int CResizablePropertySheet::ReposButtons(BOOL bRedraw)
 
 	int nTotalButtonsWidth = 0;
 
-	for (int iStep = 0; iStep<(bIsRTL ? 1 : 2); iStep++)
+	for (int iStep = 0; iStep < (bIsRTL ? 1 : 2); iStep++)
 	{
-		for (int i = 0; i <sizeof(ids) / sizeof(ids[0]); i++)
+		for (int i = 0; i < sizeof(ids) / sizeof(ids[0]); i++)
 		{
 			CWnd* pButton = GetDlgItem(ids[i]);
 
-			if (pButton != NULL && pButton->IsWindowVisible())
+			if (pButton != NULL )//&& pButton->IsWindowVisible()
 			{
-				if (ids[i] == IDHELP&&(m_psh.dwFlags &PSH_HASHELP) == 0)
+				if (ids[i] == IDHELP && (m_psh.dwFlags &PSH_HASHELP) == 0)
 				{
 					continue;
 				}
@@ -208,7 +219,7 @@ int CResizablePropertySheet::ReposButtons(BOOL bRedraw)
 				if (iStep == 0)
 				{
 					// Align buttons at the bottom
-					pButton->SetWindowPos(&wndTop, rectButton.left,rectClient.bottom-rectButton.Height()-nVertMargin,-1, -1, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+					pButton->SetWindowPos(&wndTop, rectButton.left, rectClient.bottom - rectButton.Height() - nVertMargin, -1, -1, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
 					nTotalButtonsWidth = rectButton.right;
 					nButtonsHeight = std::max(nButtonsHeight, rectButton.Height());
 				}
@@ -235,3 +246,4 @@ void CResizablePropertySheet::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 	lpMMI->ptMinTrackSize.x = 300;
 	lpMMI->ptMinTrackSize.y = 300;
 }
+

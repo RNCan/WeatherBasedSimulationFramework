@@ -85,6 +85,7 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpcs);
 
 
+
 	
 	BOOL	m_bInitialized;
 	CRect	m_rCrt;

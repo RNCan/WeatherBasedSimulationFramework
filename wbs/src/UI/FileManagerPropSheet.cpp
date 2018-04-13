@@ -12,6 +12,7 @@
 
 #include "UI/Common/AppOption.h"
 #include "UI/FileManagerPropSheet.h"
+#include "WeatherBasedSimulationString.h"
 
 
 #ifdef _DEBUG
@@ -27,19 +28,18 @@ namespace WBSF
 
 
 	BEGIN_MESSAGE_MAP(CDBManagerDlg, CResizablePropertySheet)
-		ON_WM_SIZE()
+		ON_WM_DESTROY()
+		
 	END_MESSAGE_MAP()
 
 
-	CDBManagerDlg::CDBManagerDlg(CWnd* pWndParent, int iSelection) :
+	CDBManagerDlg::CDBManagerDlg(CWnd* pWndParent, int iSelection, bool bUseClose) :
+		m_bUseClose(bUseClose),
 		CResizablePropertySheet(IDS_DBEDITOR_CAPTION, pWndParent, iSelection)
 	{
 		m_psh.dwFlags |= PSH_NOAPPLYNOW;
-//		m_psh.dwFlags |= PSH_RESIZABLE;
-	//	m_psh.dwFlags |= PSH_MODELESS;
 		m_psh.dwFlags &= ~(PSH_HASHELP);
 		
-		//m_rCrt.SetRectEmpty();
 		//Load the icon what we will set later for the program
 		m_hIcon = AfxGetApp()->LoadIcon(IDI_LINKED_DATA_EDITOR);
 
@@ -79,37 +79,56 @@ namespace WBSF
 	}
 
 
-
-
 	BOOL CDBManagerDlg::OnInitDialog()
 	{
 		BOOL bResult = CResizablePropertySheet::OnInitDialog();
 
-		
+
+
 		//return bResult;
-		CWnd* pOKButton = GetDlgItem(IDOK);
-		ASSERT(pOKButton);
-		pOKButton->ShowWindow(SW_HIDE);
+		if (m_bUseClose)
+		{
+			CWnd* pOKButton = GetDlgItem(IDOK);
+			ASSERT(pOKButton);
+			pOKButton->ShowWindow(SW_HIDE);
 
-		CWnd* pCANCELButton = GetDlgItem(IDCANCEL);
-		ASSERT(pCANCELButton);
-		pCANCELButton->SetWindowText(_T("Close"));
-		//pCANCELButton->ShowWindow(SW_HIDE);
+			CWnd* pCANCELButton = GetDlgItem(IDCANCEL);
+			ASSERT(pCANCELButton);
+			pCANCELButton->SetWindowText(UtilWin::GetCString(IDS_STR_CLOSE));
+			//pOKButton->ShowWindow(SW_SHOW);
+		}
 
-		//// Set Flags for property sheet  
-		////m_bModeless = FALSE;
-		////m_nFlags |= WF_CONTINUEMODAL;
-		//BOOL bResult = CResizablePropertySheet::OnInitDialog();
-		////m_bModeless = TRUE;
-		////m_nFlags &= ~WF_CONTINUEMODAL;
-
-		//UpdateData(FALSE);
-		// Set the icon for this dialog.  The framework does this automatically
-		//  when the application's main window is not a dialog
 		SetIcon(m_hIcon, TRUE); // Set big icon
 		SetIcon(m_hIcon, FALSE); // Set small icon
 
+
+								 //resize window
+		CAppOption option;
+
+		CRect rectClient;
+		GetWindowRect(rectClient);
+
+		rectClient = option.GetProfileRect(_T("FileManagerDlgRect"), rectClient);
+		UtilWin::EnsureRectangleOnDisplay(rectClient);
+		//this->MoveWindow(rectClient);
+		SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOZORDER);
+		//ReposButtons(TRUE);
+
 		return bResult;
 	}
+
+	void CDBManagerDlg::OnDestroy()
+	{
+
+		CRect rectClient;
+		GetWindowRect(rectClient);
+
+		CAppOption option;
+		option.WriteProfileRect(_T("FileManagerDlgRect"), rectClient);
+
+
+		CResizablePropertySheet::OnDestroy();
+	}
+
 }
 

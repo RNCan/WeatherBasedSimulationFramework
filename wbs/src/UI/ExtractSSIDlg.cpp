@@ -23,6 +23,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
  
 BEGIN_MESSAGE_MAP(CExtractSSIDlg, CDialog)
+	ON_BN_CLICKED(IDC_MAP_EXTRACT_FROM_DEM, &UpdateCtrl)
+	ON_BN_CLICKED(IDC_MAP_EXTRACT_FROM_GOOGLE, &UpdateCtrl)
+
 END_MESSAGE_MAP()
 
 
@@ -34,6 +37,7 @@ CDialog(CExtractSSIDlg::IDD, pParent)
 {
 	CAppOption option(_T("ExtractSSI"));
 
+	m_extractFrom = (TExtractFrom)option.GetProfileInt(_T("ExtractFrom"), 0);
 	m_gridFilePath = option.GetProfileString(_T("GridFilePath"));
 	m_bExtractElev = option.GetProfileBool(_T("ExtractElev"),true);
 	m_bExtractSlopeAspect = option.GetProfileBool(_T("ExtractSlopeAspect"), false);
@@ -50,6 +54,7 @@ CExtractSSIDlg::~CExtractSSIDlg()
 {
 	CAppOption option(_T("ExtractSSI"));
 
+	option.WriteProfileInt(_T("ExtractFrom"), m_extractFrom);
 	option.WriteProfileString(_T("GridFilePath"), m_gridFilePath);
 	option.WriteProfileBool(_T("ExtractElev"), m_bExtractElev);
 	option.WriteProfileBool(_T("ExtractSlopeAspect"), m_bExtractSlopeAspect);
@@ -67,6 +72,7 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 
 	DDX_Control(pDX, IDC_GRID_FILE_PATH, m_gridFilePathCtrl);
+	
 
 	DDX_Text(pDX, IDC_GRID_FILE_PATH, m_gridFilePath);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_ELEV, m_bExtractElev);
@@ -76,17 +82,51 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_NAME, m_bExtractGoogleName);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_ELEVATION, m_bExtractGoogleElvation);
 	DDX_Text(pDX, IDC_MAP_EXTRACT_GOOGLE_KEY, m_googleMapsAPIKey);
-
-
-	DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
+	//DDX_Radio(pDX, IDC_MAP_EXTRACT_FROM_DEM, )
 	
-	if( !pDX->m_bSaveAndValidate )
+	if (pDX->m_bSaveAndValidate)
+	{
+		m_extractFrom = GetExtractFrom();
+	}
+	else
 	{
 		CString fileFilter = UtilWin::GetCString(IDS_STR_FILTER_RASTER);
 		m_gridFilePathCtrl.EnableFileBrowseButton(_T(".tif"), fileFilter);
+
+		DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
+		SetExtractFrom(m_extractFrom);
+		UpdateCtrl();
 	}
+
+	
+}
+
+CExtractSSIDlg::TExtractFrom  CExtractSSIDlg::GetExtractFrom()const
+{
+	return (TExtractFrom) (GetCheckedRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_GOOGLE)- IDC_MAP_EXTRACT_FROM_DEM);
 }
 
 
-ERMsg msg;
+void CExtractSSIDlg::SetExtractFrom(TExtractFrom  no)
+{
+	CheckRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_GOOGLE, IDC_MAP_EXTRACT_FROM_DEM + no);
+}
 
+void CExtractSSIDlg::UpdateCtrl()
+{
+	CExtractSSIDlg::TExtractFrom  from = GetExtractFrom();
+	
+	GetDlgItem(IDC_MAP_EXTRACT_ELEV)->EnableWindow(from == FROM_DEM);
+	GetDlgItem(IDC_MAP_EXTRACT_EXPOSITION)->EnableWindow(from == FROM_DEM);
+	GetDlgItem(IDC_GRID_FILE_PATH)->EnableWindow(from == FROM_DEM);
+	GetDlgItem(IDC_CMN_STATIC1)->EnableWindow(from == FROM_DEM);
+
+	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_NAME)->EnableWindow(from == FROM_GOOGLE);
+	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_ELEVATION)->EnableWindow(from == FROM_GOOGLE);
+	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_KEY)->EnableWindow(from == FROM_GOOGLE);
+	GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(from == FROM_GOOGLE);
+	GetDlgItem(IDC_CMN_STATIC3)->EnableWindow(from == FROM_GOOGLE);
+	GetDlgItem(IDC_CMN_STATIC4)->EnableWindow(from == FROM_GOOGLE);
+
+
+}
