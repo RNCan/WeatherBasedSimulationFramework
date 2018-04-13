@@ -657,7 +657,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR           "Surface lifting indices|Albedo|Précipitation totale|downward long wave rad.flux|downward short wave rad.flux|Hauteur géopotentielle|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
+    IDS_HRDPS_VAR           "Surface lifting indices|Albedo|Précipitation totale|downward long wave rad.flux|downward short wave rad.flux|Hauteur géopotentielle|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
 END
 
 STRINGTABLE
@@ -678,7 +678,7 @@ BEGIN
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
     IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autre|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
+    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autres pays|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
     IDS_UPDATER_WEATHER_FARM_P 
                             "Nom de membre|Mot de passe|Répertoire de travail|Province (Canada)|Type de période|Forcé la mise à jour de la liste des stations"
 END
@@ -1111,7 +1111,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR           "surface lifting indices|Albedo|Total precipitation|downward long wave rad.flux|downward short wave rad.flux|Geopotential height|Ice cover(ice : 1, no ice : 0)|Land cover(land : 1, sea : 0)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
+    IDS_HRDPS_VAR           "surface lifting indices|Albedo|Total precipitation|downward long wave rad.flux|downward short wave rad.flux|Geopotential height|Ice cover(ice : 1, no ice : 0)|Land cover(land : 1, sea : 0)|Latent heat net flux|Net long wave radiation flux(surface)|Net short - wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Water Equivalent|Water Equivalent|Water Equivalent|Water Equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Wind speed|Wind direction(from which blowing)|Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u - component of wind|V - component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|Convective Available Potential Energy|Cloud water|downward short wave rad.flux|Geopotential height|Storm relative helicity|Pressure reduced to MSL|Volumetric soil moisture content|Soil temperature|upward long wave rad.flux|upward short wave rad.flux"
 END
 
 STRINGTABLE
@@ -1144,7 +1144,7 @@ BEGIN
                             "Working directory|First year|Last year|Country|States (if USA)"
     IDS_UPDATER_NOAA_FORECAST_P "Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other|Ignore common stations|Force update station list"
+    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other countries|Ignore common stations|Force update station list"
     IDS_UPDATER_WEATHER_FARM_P 
                             "Member Name|Password|Working directory|Province (Canada)|Date range type|Force update station list"
 END

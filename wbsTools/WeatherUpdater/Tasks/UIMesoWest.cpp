@@ -281,7 +281,7 @@ namespace WBSF
 			int lastYear = as<int>(LAST_YEAR);
 			CTPeriod downloadPeriod(CTRef(firstYear, JANUARY), CTRef(lastYear, DECEMBER));
 
-			CTRef current = CTRef::GetCurrentTRef();
+			CTRef current = CTRef::GetCurrentTRef(CTM::HOURLY);
 			bool bIgnoreCommonStations = as <bool>(IGNORE_COMMON_STATIONS);
 			bool bAddOter = as<bool>(ADD_OTHER);
 			CStateSelection states(Get(STATES));
@@ -339,21 +339,21 @@ namespace WBSF
 
 		station.m_name = WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(station.m_name));
 
-
-
 		CTRef current = CTRef::GetCurrentTRef();
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 
+		CWeatherAccumulator accumulator(TM);
 		station.CreateYears(firstYear, nbYears);
 
+		
 		//load previous hours
 		string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, firstYear - 1, DECEMBER);
 		CFileInfo info = GetFileInfo(filePath);
 		if (info.m_size > 200)//under 200 it's only an empty file
 		{
-			msg = ReadData(filePath, TM, firstYear, station, callback);
+			msg = ReadData(filePath, TM, firstYear, accumulator, station, callback);
 			msg += callback.StepIt(0);
 		}
 
@@ -369,7 +369,7 @@ namespace WBSF
 				CFileInfo info = GetFileInfo(filePath);
 				if (info.m_size > 200)//under 200 it's only an empty file
 				{
-					msg = ReadData(filePath, TM, year, station, callback);
+					msg = ReadData(filePath, TM, year, accumulator, station, callback);
 					msg += callback.StepIt(0);
 				}
 			}
@@ -380,9 +380,13 @@ namespace WBSF
 		info = GetFileInfo(filePath);
 		if (info.m_size > 200)//under 200 it's only an empty file
 		{
-			msg = ReadData(filePath, TM, lastYear, station, callback);
+			msg = ReadData(filePath, TM, lastYear, accumulator, station, callback);
 			msg += callback.StepIt(0);
 		}
+
+
+		if (accumulator.GetTRef().IsInit())
+			station[accumulator.GetTRef()].SetData(accumulator);
 
 
 		if (msg)
@@ -447,7 +451,8 @@ namespace WBSF
 		return bValid;
 	}
 
-	ERMsg CUIMesoWest::ReadData(const string& filePath, CTM TM, int year, CWeatherStation& data, CCallback& callback)const
+
+	ERMsg CUIMesoWest::ReadData(const string& filePath, CTM TM, int year, CWeatherAccumulator& accumulator, CWeatherStation& data, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -475,7 +480,7 @@ namespace WBSF
 					double last_prcp = 0;
 					CTRef last_prcp_ref;
 
-					CWeatherAccumulator accumulator(TM);
+					
 
 					const Json& obs = stations[0]["OBSERVATIONS"];
 					ASSERT(obs.type() == Json::OBJECT);
@@ -513,6 +518,11 @@ namespace WBSF
 
 					for (size_t i = 0; i < TRefs.size() && msg; i++)
 					{
+						
+						if (accumulator.GetTRef().IsInit() && accumulator.TRefIsChanging(TRefs[i]))
+							data[accumulator.GetTRef()].SetData(accumulator);
+
+
 						if (TRefs[i].GetYear() == year)
 						{
 							for (size_t v = 0; v < header.size() && msg; v++)
@@ -554,10 +564,6 @@ namespace WBSF
 
 								msg += callback.StepIt(0);
 							}//for all object
-
-
-							if (accumulator.GetTRef().IsInit() && (i + 1 == TRefs.size() || accumulator.TRefIsChanging(TRefs[i + 1])))
-								data[accumulator.GetTRef()].SetData(accumulator);
 						}//if good year
 					}//for all TRef
 				}//if have one station

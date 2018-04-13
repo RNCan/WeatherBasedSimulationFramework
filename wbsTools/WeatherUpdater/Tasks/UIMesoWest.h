@@ -49,7 +49,7 @@ namespace WBSF
 		std::string GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year, size_t m);
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback)const;
 		
-		ERMsg ReadData(const std::string& filePath, CTM TM, int year, CWeatherStation& data, CCallback& callback)const;
+		ERMsg ReadData(const std::string& filePath, CTM TM, int year, CWeatherAccumulator& accumulator, CWeatherStation& data, CCallback& callback)const;
 
 		CLocationVector m_stations;
 
