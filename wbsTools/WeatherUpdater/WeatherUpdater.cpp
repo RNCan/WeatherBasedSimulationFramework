@@ -1,8 +1,8 @@
-//5.5.0	29/03/2018	Rémi Saint-Amant	Select rain (mm) intead of Snow (cm) in EnvCan data
-//										Don't send error when EnvCan coordinate is missing
-//										Bug correction in MesoWest. Take the last day of the month
+//5.5.1	29/03/2018	Rémi Saint-Amant	Bug correction in MesoWest. Take the last day of the month
 //										Better management of internet exception
 //										Bug correction in HRDPS
+//5.5.0	29/03/2018	Rémi Saint-Amant	Select rain (mm) intead of Snow (cm) in EnvCan data
+//										Don't send error when EnvCan coordinate is missing
 //5.4.8	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 //										Add CWEEDS extraction
 //5.4.7 22/02/2018  Rémi Saint-Amant	Correct netcdf load problem
