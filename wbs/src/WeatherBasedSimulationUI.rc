@@ -2002,7 +2002,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,130,223,10
     LTEXT           "Clé Goole Map API* :",IDC_CMN_STATIC2,83,149,68,8
     EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,161,146,285,14,ES_AUTOHSCROLL
-    LTEXT           "* une clé peut être obtenue gratuitement sur le site google :  developers.google.com",IDC_CMN_STATIC4,83,165,273,8
+    LTEXT           "* une clé peut être obtenue gratuitement sur le site google :  developers.google.com",IDC_CMN_STATIC3,83,165,273,8
     CONTROL         "Extraire la distance au litoral",IDC_MAP_EXTRACT_SHORE_DISTANCE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,213,110,10
     CONTROL         "Remplacer seulement les valeurs vide ou à -999 ",IDC_MAP_EXTRACT_MISSING,
@@ -4311,7 +4311,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,135,217,10
     LTEXT           "Goole Map API Key* :",IDC_CMN_STATIC2,58,156,70,8
     EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,146,154,288,14,ES_AUTOHSCROLL
-    LTEXT           "* Key ID can be obtained freely from Google site:  developers.google.com",IDC_CMN_STATIC4,58,176,238,8
+    LTEXT           "* Key ID can be obtained freely from Google site:  developers.google.com",IDC_CMN_STATIC3,58,176,238,8
     CONTROL         "Extract shore distance",IDC_MAP_EXTRACT_SHORE_DISTANCE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,223,113,10
     CONTROL         "Replace only -999 or empty values",IDC_MAP_EXTRACT_MISSING,

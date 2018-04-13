@@ -126,7 +126,7 @@ void CExtractSSIDlg::UpdateCtrl()
 	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_KEY)->EnableWindow(from == FROM_GOOGLE);
 	GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(from == FROM_GOOGLE);
 	GetDlgItem(IDC_CMN_STATIC3)->EnableWindow(from == FROM_GOOGLE);
-	GetDlgItem(IDC_CMN_STATIC4)->EnableWindow(from == FROM_GOOGLE);
+	
 
 
 }
