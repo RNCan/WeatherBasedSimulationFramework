@@ -50,10 +50,6 @@ copy /Y ".\bin\Releasex64\Models\Climate Mosture Index (Annual).mdl" "..\Install
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index.dll" "..\Install\NRCan\Models\Climate Moisture Index.dll"
 
 
-copy /Y ".\bin\Releasex64\Models\FallCankerworms.mdl" "..\Install\NRCan\Models\FallCankerworms.mdl"
-copy /Y ".\bin\Releasex64\Models\FallCankerworms.dll" "..\Install\NRCan\Models\FallCankerworms.dll"
-copy /Y ".\bin\Releasex64\Models\SpringCankerworms.mdl" "..\Install\NRCan\Models\SpringCankerworms.mdl"
-copy /Y ".\bin\Releasex64\Models\SpringCankerworms.dll" "..\Install\NRCan\Models\SpringCankerworms.dll"
 
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl" "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Monthly).mdl" "..\Install\NRCan\Models\DegreeDay (Monthly).mdl"
@@ -62,6 +58,18 @@ copy /Y ".\bin\Releasex64\Models\DegreeDay.dll" "..\Install\NRCan\Models\DegreeD
 copy /Y ".\bin\Releasex64\Models\DegreeDay.pdf" "..\Install\NRCan\Models\DegreeDay.pdf"
 copy /Y ".\bin\Releasex64\Models\DegreeHour (Hourly).mdl" "..\Install\NRCan\Models\DegreeHour (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeHour.dll" "..\Install\NRCan\Models\DegreeHour.dll"
+
+
+copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.mdl"  "..\Install\NRCan\Models\EmeraldAshBorer.mdl" 
+copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.dll"  "..\Install\NRCan\Models\EmeraldAshBorer.dll" 
+copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.mdl" "..\Install\NRCan\Models\EuropeanElmScale.mdl"
+copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.dll" "..\Install\NRCan\Models\EuropeanElmScale.dll"
+
+
+copy /Y ".\bin\Releasex64\Models\FallCankerworms.mdl" "..\Install\NRCan\Models\FallCankerworms.mdl"
+copy /Y ".\bin\Releasex64\Models\FallCankerworms.dll" "..\Install\NRCan\Models\FallCankerworms.dll"
+copy /Y ".\bin\Releasex64\Models\SpringCankerworms.mdl" "..\Install\NRCan\Models\SpringCankerworms.mdl"
+copy /Y ".\bin\Releasex64\Models\SpringCankerworms.dll" "..\Install\NRCan\Models\SpringCankerworms.dll"
 
 copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.mdl" "..\Install\NRCan\Models\ForestTentCaterpillar.mdl"
 copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.dll" "..\Install\NRCan\Models\ForestTentCaterpillar.dll"
@@ -93,6 +101,14 @@ copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid.dll" "..\Install\NRCan\Mod
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid (Annual).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgid (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid (Daily).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgid (Daily).mdl"
 
+copy /Y ".\bin\Releasex64\Models\HourlyGenerator (Hourly).mdl" "..\Install\NRCan\Models\HourlyGenerator (Hourly).mdl"
+copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\HourlyGenerator.dll"
+
+
+copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\Jackpine Budworm.dll"
+copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
+
+
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Daily).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Annual).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\MPB-ColdTolerance.dll" "..\Install\NRCan\Models\MPB-ColdTolerance.dll"
@@ -100,11 +116,6 @@ copy /Y ".\bin\Releasex64\Models\MPB-SLR.dll" "..\Install\NRCan\Models\MPB-SLR.d
 copy /Y ".\bin\Releasex64\Models\MPB-SLR.mdl" "..\Install\NRCan\Models\MPB-SLR.mdl"
 
 
-copy /Y ".\bin\Releasex64\Models\HourlyGenerator (Hourly).mdl" "..\Install\NRCan\Models\HourlyGenerator (Hourly).mdl"
-copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\HourlyGenerator.dll"
-
-copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\Jackpine Budworm.dll"
-copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Annual).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Monthly).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Daily).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Daily).mdl"

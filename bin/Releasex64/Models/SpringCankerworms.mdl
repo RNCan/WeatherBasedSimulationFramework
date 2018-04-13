@@ -127,7 +127,7 @@
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
-    <Copyright>This model is not validated</Copyright>
-    <Credit>Model based on continuing ratio&#x0D;&#x0A;&#x0D;&#x0A;Code Source:&#x0D;&#x0A;https://github.com/RNCan/WeatherBasedSimulationFramework/tree/master/wbsModels/Cankerworms</Credit>
+    <Copyright>WARNING: This model was never validated</Copyright>
+    <Credit>Developed by Remi Saint-Amant based on continuing ratio&#x0D;&#x0A;&#x0D;&#x0A;Code Source:&#x0D;&#x0A;https://github.com/RNCan/WeatherBasedSimulationFramework/tree/master/wbsModels/Cankerworms</Credit>
     <HelpFileName/>
 </Model>
