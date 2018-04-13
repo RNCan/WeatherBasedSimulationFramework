@@ -191,9 +191,10 @@ namespace WBSF
 			msg += callback.StepIt(0);
 		}//for all stations
 
+		int nbDownload = 0;
 		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
 		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
-
+		
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
@@ -201,7 +202,7 @@ namespace WBSF
 		if (msg)
 		{
 
-			int nbDownload = 0;
+			
 
 			TRY
 
