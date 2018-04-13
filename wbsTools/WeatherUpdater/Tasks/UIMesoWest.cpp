@@ -201,13 +201,7 @@ namespace WBSF
 
 		if (msg)
 		{
-
-			
-
 			TRY
-
-
-
 				for (size_t i = 0; i < stationList.size() && msg; i++)
 				{
 					string start = stationList[i].GetSSI("Start");

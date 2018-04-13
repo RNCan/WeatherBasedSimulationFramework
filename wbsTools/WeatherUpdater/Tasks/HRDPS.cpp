@@ -163,8 +163,12 @@ namespace WBSF
 						string fileName = GetFileName(it->m_filePath);
 						string outputFilePath = GetOutputFilePath(fileName);
 						size_t var = GetVariable(fileName);
+						if (var >= m_variables.size())
+						{
+							callback.AddMessage("HRDPS var unknowns : " + fileName);
+						}
 
-						if (m_variables.test(var))
+						if (var < m_variables.size() && m_variables.test(var))
 						{
 
 							ifStream stream;
