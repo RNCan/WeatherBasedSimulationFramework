@@ -7,7 +7,7 @@
     <Behaviour>1</Behaviour>
     <Description>Hourly model of spruce budworm dispersal</Description>
     <WindowRect>0 0 127 315</WindowRect>
-    <SimulatedCategory>TN T TX P WS</SimulatedCategory>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -67,30 +67,6 @@
             <Precision>6</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Hour</Name>
-            <Title>Hour</Title>
-            <Units/>
-            <Description>Liftoff hour</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>6</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Minute</Name>
-            <Title>Minute</Title>
-            <Units/>
-            <Description>Liftoff minutes</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Second</Name>
-            <Title>Second</Title>
-            <Units/>
-            <Description>Liftoff second</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
             <Name>Sex</Name>
             <Title>Sex</Title>
             <Units/>
@@ -135,54 +111,6 @@
             <Title>F</Title>
             <Units>eggs</Units>
             <Description>Initial fecondity</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Broods</Name>
-            <Title>Broods</Title>
-            <Units>eggs</Units>
-            <Description>Totla eggs laid be female before exodus</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Eggs</Name>
-            <Title>Eggs</Title>
-            <Units>eggs</Units>
-            <Description>Eggs caried by female at exodus</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>T</Name>
-            <Title>T</Title>
-            <Units>°C</Units>
-            <Description>Liftoff temperature</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>P</Name>
-            <Title>P</Title>
-            <Units>mm</Units>
-            <Description>Liftoff  precipitation</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>WS</Name>
-            <Title>WS</Title>
-            <Units>km/h</Units>
-            <Description>Liftoff wind speed</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Sunset</Name>
-            <Title>Sunset</Title>
-            <Units>h</Units>
-            <Description>sunset in decimal hour</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

@@ -25,47 +25,49 @@ namespace WBSF
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
-
-	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_HOUR, O_MINUTE, O_SECOND, O_SEX, O_A, O_M, O_G, O_F0, O_FD, O_B, O_E, O_T, O_P, O_W, O_S, NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "Year,Month,Day,Hour,Minute,Second,sex,A,M,G,Fº,F,B,E,T,P,W,sunset";
+	
+	//O_HOUR, O_MINUTE, O_SECOND, O_B, O_E, O_T, O_P, O_W, O_S, 
+	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_SEX, O_A, O_M, O_G, O_F0, O_FD, NB_OUTPUTS };
+	extern char HOURLY_HEADER[] = "Year,Month,Day,sex,A,M,G,Fº,F";//,Hour,Minute,Second//,B,E,T,P,W,sunset
 
 	class CBugStat
 	{
 	public:
 		
 		
-		CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double Fº, double Fᴰ, double B, double E, double T, double P, double W, double S)
+		//CBugStat(CTRef TRef, size_t sex, size_t L, double A, double M, double G, double Fº, double Fᴰ, double B, double E, double T, double P, double W, double S)
+		CBugStat(CTRef TRef, size_t sex, double A, double M, double G, double Fº, double Fᴰ)
 		{
 			m_TRef = TRef;
 			m_sex=sex;
-			m_L=L;
+			//m_L=L;
 			m_A=A;
 			m_M=M;
 			m_G=sex==FEMALE?G:-999;
 			m_Fº = Fº;
 			m_Fᴰ = Fᴰ;
-			m_B = B;
-			m_E = E;
-			m_T = T;
-			m_P = P;
-			m_W = W;
-			m_S = S;
+		//	m_B = B;
+			//m_E = E;
+			//m_T = T;
+			//m_P = P;
+			//m_W = W;
+			//m_S = S;
 		}
 
 		CTRef m_TRef;
 		size_t m_sex;
-		size_t m_L;
+		//size_t m_L;
 		double m_A;
 		double m_M;
 		double m_G;
 		double m_Fº;
 		double m_Fᴰ;
-		double m_B;
-		double m_E;
-		double m_T;
-		double m_P;
-		double m_W;
-		double m_S;
+		//double m_B;
+		//double m_E;
+		//double m_T;
+		//double m_P;
+		//double m_W;
+		//double m_S;
 
 	};
 
@@ -150,53 +152,55 @@ namespace WBSF
 							budworm.Live(w, 1);
 
 							//compute brood and flight activity only once
-							if (budworm.GetStage() == ADULT && w.GetTRef().GetHour() == 18)
+							if (budworm.GetStage() == ADULT ) //&& w.GetTRef().GetHour() == 18)
 							{
 
-								if ((*it)->GetSex() == FEMALE)
-									(*it)->Brood(dayº);
+								//if ((*it)->GetSex() == FEMALE)
+								//	(*it)->Brood(dayº);
 
-								__int64 tº = 0;
-								__int64 tᴹ = 0;
+								//__int64 tº = 0;
+								//__int64 tᴹ = 0;
 
-								if (budworm.get_t(dayº, tº, tᴹ))
-								{
-									//calculate tᶜ
-									__int64 tᶜ = (tº + tᴹ) / 2;
+								//if (budworm.get_t(dayº, tº, tᴹ))
+								//{
+								//	//calculate tᶜ
+								//	__int64 tᶜ = (tº + tᴹ) / 2;
 
-									//now compute tau, p and flight
-									bool bExodus = false;
-									static const __int64 Δt = 60;
-									for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
-									{
-										double tau = double(t - tᶜ) / (tᴹ - tᶜ);
+								//	//now compute tau, p and flight
+								//	bool bExodus = false;
+								//	static const __int64 Δt = 60;
+								//	for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
+								//	{
+								//		double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 
-										double h = t / 3600.0;
-										size_t L = size_t((h - size_t(h)) * 3600);
+								//		double h = t / 3600.0;
+								//		size_t L = size_t((h - size_t(h)) * 3600);
 
-										const CWeatherDay& day¹ = dayº.GetNext();
-										const CWeatherDay& w = h < 24 ? dayº : day¹;
+								//		const CWeatherDay& day¹ = dayº.GetNext();
+								//		const CWeatherDay& w = h < 24 ? dayº : day¹;
 
-										double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
-										double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
-										double WS = budworm.get_WndS(w, h < 24 ? h : h - 24.0); 
+								//		double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
+								//		double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
+								//		double WS = budworm.get_WndS(w, h < 24 ? h : h - 24.0); 
 
-										bExodus = budworm.ComputeExodus(T, P, WS, tau);
-										if (bExodus)
-										{
+								//		bExodus = budworm.ComputeExodus(T, P, WS, tau);
+								//		if (bExodus)
+								//		{
 											CSun sun(dayº.GetLocation().m_lat, dayº.GetLocation().m_lon, dayº.GetLocation().GetTimeZone());
 											double sunset = (sun.GetSunset(dayº.GetTRef()) + 1.0 );//+1 hour : assume to be in daylight zone  //[s]
 
-
+											
 											size_t sex = budworm.GetSex();
-											CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-											flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetFº(), budworm.GetFᴰ(), budworm.GetTotalBroods(), budworm.GetFᴰ() - budworm.GetTotalBroods(), T, P, WS, sunset));
+											//CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
+											//flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetFº(), budworm.GetFᴰ(), budworm.GetTotalBroods(), budworm.GetFᴰ() - budworm.GetTotalBroods(), T, P, WS, sunset));
+											
+											flyers.push_back(CBugStat(TRef, sex, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetFº(), budworm.GetFᴰ()));
 											
 											budworm.SetStatus(CIndividual::DEAD);
 											budworm.SetDeath(CIndividual::EXODUS);
-										}//if exodus occurd
-									}//for t in exodus period
-								}//if exodus occur
+										//}//if exodus occurd
+									//}//for t in exodus period
+								//}//if exodus occur
 							}//if adult
 
 							budworm.Die(dayº);
@@ -224,21 +228,21 @@ namespace WBSF
 			m_output[TRef][O_YEAR] = flyers[i].m_TRef.GetYear();
 			m_output[TRef][O_MONTH] = flyers[i].m_TRef.GetMonth()+1;
 			m_output[TRef][O_DAY] = flyers[i].m_TRef.GetDay()+1;
-			m_output[TRef][O_HOUR] = flyers[i].m_TRef.GetHour();
-			m_output[TRef][O_MINUTE] = int(flyers[i].m_L/60);
-			m_output[TRef][O_SECOND] = int(flyers[i].m_L - int(flyers[i].m_L / 60)*60);
+//			m_output[TRef][O_HOUR] = flyers[i].m_TRef.GetHour();
+			//m_output[TRef][O_MINUTE] = int(flyers[i].m_L/60);
+			//m_output[TRef][O_SECOND] = int(flyers[i].m_L - int(flyers[i].m_L / 60)*60);
 			m_output[TRef][O_SEX] = flyers[i].m_sex;
 			m_output[TRef][O_A] = flyers[i].m_A;
 			m_output[TRef][O_M] = flyers[i].m_M;
 			m_output[TRef][O_G] = flyers[i].m_G;
 			m_output[TRef][O_F0] = flyers[i].m_Fº;
 			m_output[TRef][O_FD] = flyers[i].m_Fᴰ;
-			m_output[TRef][O_B] = flyers[i].m_B;
-			m_output[TRef][O_E] = flyers[i].m_E;
-			m_output[TRef][O_T] = flyers[i].m_T;
+//			m_output[TRef][O_B] = flyers[i].m_B;
+	//		m_output[TRef][O_E] = flyers[i].m_E;
+			/*m_output[TRef][O_T] = flyers[i].m_T;
 			m_output[TRef][O_P] = flyers[i].m_P;
 			m_output[TRef][O_W] = flyers[i].m_W;
-			m_output[TRef][O_S] = flyers[i].m_S;
+			m_output[TRef][O_S] = flyers[i].m_S;*/
 
 			
 			
