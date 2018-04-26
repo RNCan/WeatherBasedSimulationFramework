@@ -531,13 +531,7 @@ namespace WBSF
 			CCopyExportDlg dlg(pParent, this);
 			bAdd = DoModalDlg(dlg, pItem);
 		}break;
-
-		//case CExecutableTree::SIMULATION:
-		//{
-		//	CSimulationDlg dlg(pParent, this);
-		//	bAdd = DoModalDlg(dlg, pItem);
-		//}break;
-
+	
 		case CExecutableTree::MODEL_PARAMETERIZATION:
 		{
 			CModelParameterizationDlg dlg(pParent, this);

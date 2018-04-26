@@ -94,7 +94,7 @@ namespace WBSF
 		bool DoModalDlg(T& wnd, WBSF::CExecutablePtr& pItem)
 		{
 			bool bAdd = true;
-
+		
 			wnd.SetExecutable(pItem);
 			if (wnd.DoModal() == IDOK)
 				pItem = wnd.GetExecutable();

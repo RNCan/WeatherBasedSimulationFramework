@@ -28,9 +28,6 @@ namespace WBSF
 
 	typedef CStdIndexProperty < IDS_SIM_DISPERSAL_WT> CWeatherTypeProperty;
 	typedef CStdIndexProperty < IDS_SIM_SEED_TYPE> CSeedTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_LIFTOFF_TYPE> CLiftoffTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_DURATION_TYPE> CDurationTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_HEIGHT_TYPE> CHeightTypeProperty;
 	typedef CStdIndexProperty < IDS_SIM_BROOD_TYPE> CBroodTypeProperty;
 	typedef CStdIndexProperty < IDS_SIM_PRCP_TYPE> CPrcpTypeProperty;
 
@@ -40,10 +37,10 @@ namespace WBSF
 	enum TDispersalProperties
 	{
 		//REVERSED, ADD_TURBULENCE, HOST,
-		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, MAXIMUM_FLYERS, MAXIMUM_FLIGHTS,
+		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, MAXIMUM_FLYERS, MAX_MISS_HOURS,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, WATER,
 		T_BROOD, P_TYPE, P_MAX, W_MIN, 
-		WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD,
+		WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, MAXIMUM_FLIGHTS, FLIGHT_AFTER_SUNRIZE,
 		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_TIME_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, CREATE_EGG_RES, NB_PROPERTIES
 	};
 
@@ -94,59 +91,50 @@ namespace WBSF
 		pGeneral->AddSubItem(new CStdTPeriodProperty(name[SIMULATION_PERIOD], "", description[SIMULATION_PERIOD], SIMULATION_PERIOD));
 		pGeneral->AddSubItem(new CStdGridProperty(name[TIME_STEP], "", description[TIME_STEP], TIME_STEP));
 		pGeneral->AddSubItem(new CSeedTypeProperty(name[SEED_TYPE], 0, description[SEED_TYPE], SEED_TYPE));
-		//pGeneral->AddSubItem(new CStdBoolGridProperty(name[REVERSED], true, description[REVERSED], REVERSED));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_SPATIAL_INTERPOL], true, description[USE_SPATIAL_INTERPOL], USE_SPATIAL_INTERPOL));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_TIME_INTERPOL], true, description[USE_TIME_INTERPOL], USE_TIME_INTERPOL));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_PREDICTOR_CORRECTOR_METHOD], true, description[USE_PREDICTOR_CORRECTOR_METHOD], USE_PREDICTOR_CORRECTOR_METHOD));
-		//pGeneral->AddSubItem(new CStdBoolGridProperty(name[ADD_TURBULENCE], true, description[ADD_TURBULENCE], ADD_TURBULENCE));
 		pGeneral->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLYERS], "", description[MAXIMUM_FLYERS], MAXIMUM_FLYERS));
-		pGeneral->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLIGHTS], false, description[MAXIMUM_FLIGHTS], MAXIMUM_FLIGHTS));
-		
-		AddProperty(pGeneral);
+		pGeneral->AddSubItem(new CStdBoolGridProperty(name[MAX_MISS_HOURS], false, description[MAX_MISS_HOURS], MAX_MISS_HOURS));
+		AddProperty(pGeneral, FALSE, FALSE);
 
 		CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(section[1], -1);
 		pInput->AddSubItem(new CFileNameProperty(name[DEM], "", WBSF::GetFM().MapInput(), description[DEM], DEM));
 		pInput->AddSubItem(new CFileNameProperty(name[GRIBS], "", WBSF::GetFM().Gribs(), description[GRIBS], GRIBS));
 		pInput->AddSubItem(new CFileNameProperty(name[HOURLY_DB], "", WBSF::GetFM().Hourly(), description[HOURLY_DB], HOURLY_DB));
-		//pInput->AddSubItem(new CFileNameProperty(name[HOST], "", WBSF::GetFM().MapInput(), description[HOST], HOST));
 		pInput->AddSubItem(new CFileNameProperty(name[DEFOLIATION], "", WBSF::GetFM().MapInput(), description[DEFOLIATION], DEFOLIATION));
 		pInput->AddSubItem(new CFileNameProperty(name[WATER], "", WBSF::GetFM().MapInput(), description[WATER], WATER));
-		AddProperty(pInput);
+		AddProperty(pInput, FALSE, FALSE);
 
 		CMFCPropertyGridProperty* pWeather = new CMFCPropertyGridProperty(section[2], -1);
-		
 		pWeather->AddSubItem(new CBroodTypeProperty(name[T_BROOD], "", description[T_BROOD], T_BROOD));
 		pWeather->AddSubItem(new CPrcpTypeProperty(name[P_TYPE], "", description[P_TYPE], P_TYPE));
 		pWeather->AddSubItem(new CStdGridProperty(name[P_MAX], "", description[P_MAX], P_MAX));
 		pWeather->AddSubItem(new CStdGridProperty(name[W_MIN], "", description[W_MIN], W_MIN));
-		AddProperty(pWeather);
+		AddProperty(pWeather, FALSE, FALSE);
 
-		CMFCPropertyGridProperty* pHeight = new CMFCPropertyGridProperty(section[3], -1);
-		pHeight->AddSubItem(new CStdGridProperty(name[WING_BEAT_SCALE], "", description[WING_BEAT_SCALE], WING_BEAT_SCALE));
-		pHeight->AddSubItem(new CStdGridProperty(name[HORZ_SCALE], "", description[HORZ_SCALE], HORZ_SCALE));
+		CMFCPropertyGridProperty* pFlyers = new CMFCPropertyGridProperty(section[3], -1);
+		pFlyers->AddSubItem(new CStdGridProperty(name[WING_BEAT_SCALE], "", description[WING_BEAT_SCALE], WING_BEAT_SCALE));
+		pFlyers->AddSubItem(new CStdGridProperty(name[HORZ_SCALE], "", description[HORZ_SCALE], HORZ_SCALE));
+		pFlyers->AddSubItem(new CStdGridProperty(name[W_HORZ], "", description[W_HORZ], W_HORZ));
+		pFlyers->AddSubItem(new CStdGridProperty(name[W_HORZ_SD], "", description[W_HORZ_SD], W_HORZ_SD));
+		pFlyers->AddSubItem(new CStdGridProperty(name[W_DESCENT], "", description[W_DESCENT], W_DESCENT));
+		pFlyers->AddSubItem(new CStdGridProperty(name[W_DESCENT_SD], "", description[W_DESCENT_SD], W_DESCENT_SD));
+		pFlyers->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLIGHTS], "", description[MAXIMUM_FLIGHTS], MAXIMUM_FLIGHTS));
+		pFlyers->AddSubItem(new CStdGridProperty(name[FLIGHT_AFTER_SUNRIZE], "", description[FLIGHT_AFTER_SUNRIZE], FLIGHT_AFTER_SUNRIZE));
+		AddProperty(pFlyers);
 
-		AddProperty(pHeight);
-
-		CMFCPropertyGridProperty* pVelocity = new CMFCPropertyGridProperty(section[4], -1);
-		pVelocity->AddSubItem(new CStdGridProperty(name[W_HORZ], "", description[W_HORZ], W_HORZ));
-		pVelocity->AddSubItem(new CStdGridProperty(name[W_HORZ_SD], "", description[W_HORZ_SD], W_HORZ_SD));
-		pVelocity->AddSubItem(new CStdGridProperty(name[W_DESCENT], "", description[W_DESCENT], W_DESCENT));
-		pVelocity->AddSubItem(new CStdGridProperty(name[W_DESCENT_SD], "", description[W_DESCENT_SD], W_DESCENT_SD));
-		AddProperty(pVelocity);
-
-		CMFCPropertyGridProperty* pOutput = new CMFCPropertyGridProperty(section[5], -1);
+		CMFCPropertyGridProperty* pOutput = new CMFCPropertyGridProperty(section[4], -1);
 		pOutput->AddSubItem(new CStdBoolGridProperty(name[OUTPUT_SUB_HOURLY], false, description[OUTPUT_SUB_HOURLY], OUTPUT_SUB_HOURLY));
 		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_FILE_TITLE], "", description[OUTPUT_FILE_TITLE], OUTPUT_FILE_TITLE));
-		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_TIME_FREQUENCY], 600, description[OUTPUT_TIME_FREQUENCY], OUTPUT_TIME_FREQUENCY));
-		AddProperty(pOutput);
+		pOutput->AddSubItem(new CStdGridProperty(name[OUTPUT_TIME_FREQUENCY], "", description[OUTPUT_TIME_FREQUENCY], OUTPUT_TIME_FREQUENCY));
+		AddProperty(pOutput, FALSE, FALSE);
 
-		CMFCPropertyGridProperty* pEggs = new CMFCPropertyGridProperty(section[6], -1);
+		CMFCPropertyGridProperty* pEggs = new CMFCPropertyGridProperty(section[5], -1);
 		pEggs->AddSubItem(new CStdBoolGridProperty(name[CREATE_EGG_MAPS], false, description[CREATE_EGG_MAPS], CREATE_EGG_MAPS));
 		pEggs->AddSubItem(new CStdGridProperty(name[EGG_MAP_TITLE], "", description[EGG_MAP_TITLE], EGG_MAP_TITLE));
 		pEggs->AddSubItem(new CStdGridProperty(name[CREATE_EGG_RES], "", description[EGG_MAP_TITLE], CREATE_EGG_RES));
-		
-		
-		AddProperty(pEggs);
+		AddProperty(pEggs, FALSE, FALSE);
 
 		
 
@@ -166,30 +154,33 @@ namespace WBSF
 			case SIMULATION_PERIOD: str = in.m_world.m_simulationPeriod.GetFormatedString("%1, %2", "%Y-%m-%d"); break;
 			case TIME_STEP:			str = WBSF::ToString(in.m_world.m_time_step); break;
 			case SEED_TYPE:			str = WBSF::ToString(in.m_world.m_seed); break;
-			//case REVERSED:			str = WBSF::ToString(in.m_world.m_bReversed); break;
 			case USE_SPATIAL_INTERPOL:		str = WBSF::ToString(in.m_world.m_bUseSpaceInterpolation); break;
 			case USE_TIME_INTERPOL:		str = WBSF::ToString(in.m_world.m_bUseTimeInterpolation); break;
 			case USE_PREDICTOR_CORRECTOR_METHOD: str = WBSF::ToString(in.m_world.m_bUsePredictorCorrectorMethod); break;
-			//case ADD_TURBULENCE:		str = WBSF::ToString(in.m_world.m_bUseTurbulance); break;
-			case MAXIMUM_FLYERS:	str = WBSF::ToString(in.m_world.m_maxFliyers); break;
-			case MAXIMUM_FLIGHTS:		str = WBSF::ToString(in.m_world.m_maxFlights); break;
+			case MAXIMUM_FLYERS:	str = WBSF::ToString(in.m_world.m_maxFlyers); break;
+			case MAX_MISS_HOURS:	str = WBSF::ToString(in.m_world.m_max_missing_weather); break;
+				
+
 			case DEM:				str = in.m_world.m_DEM_name; break;
 			case HOURLY_DB:			str = in.m_world.m_hourly_DB_name; break;
 			case GRIBS:				str = in.m_world.m_gribs_name; break;
-			//case HOST:				str = in.m_world.m_host_name; break;
 			case DEFOLIATION:		str = in.m_world.m_defoliation_name; break;
 			case WATER:				str = in.m_world.m_water_name; break;
 				
-			case T_BROOD:			str = WBSF::ToString(in.m_ATM.m_broodTSource); break;
-			case P_TYPE:			str = WBSF::ToString(in.m_ATM.m_PSource); break;
-			case P_MAX:				str = WBSF::ToString(in.m_ATM.m_Pmax); break;
-			case W_MIN:				str = WBSF::ToString(in.m_ATM.m_Wmin); break;
-			case WING_BEAT_SCALE:	str = WBSF::ToString(in.m_ATM.m_w_α); break;
-			case HORZ_SCALE:		str = WBSF::ToString(in.m_ATM.m_Δv); break;
-			case W_HORZ:			str = WBSF::ToString(in.m_ATM.m_w_horizontal); break;
-			case W_HORZ_SD:			str = WBSF::ToString(in.m_ATM.m_w_horizontal_σ); break;
-			case W_DESCENT:			str = WBSF::ToString(in.m_ATM.m_w_descent); break;
-			case W_DESCENT_SD:		str = WBSF::ToString(in.m_ATM.m_w_descent_σ); break;
+			case T_BROOD:			str = WBSF::ToString(in.m_flyers.m_broodTSource); break;
+			case P_TYPE:			str = WBSF::ToString(in.m_flyers.m_PSource); break;
+			case P_MAX:				str = WBSF::ToString(in.m_flyers.m_Pmax); break;
+			case W_MIN:				str = WBSF::ToString(in.m_flyers.m_Wmin); break;
+
+			case WING_BEAT_SCALE:	str = WBSF::ToString(in.m_flyers.m_w_α); break;
+			case HORZ_SCALE:		str = WBSF::ToString(in.m_flyers.m_Δv); break;
+			case W_HORZ:			str = WBSF::ToString(in.m_flyers.m_w_horizontal); break;
+			case W_HORZ_SD:			str = WBSF::ToString(in.m_flyers.m_w_horizontal_σ); break;
+			case W_DESCENT:			str = WBSF::ToString(in.m_flyers.m_w_descent); break;
+			case W_DESCENT_SD:		str = WBSF::ToString(in.m_flyers.m_w_descent_σ); break;
+			case MAXIMUM_FLIGHTS:		str = WBSF::ToString(in.m_flyers.m_maxFlights); break;
+			case FLIGHT_AFTER_SUNRIZE:		str = WBSF::ToString(in.m_flyers.m_flight_after_sunrise); break;
+
 			case OUTPUT_SUB_HOURLY: str = WBSF::ToString(in.m_world.m_bOutputSubHourly); break;
 			case OUTPUT_FILE_TITLE:	str = in.m_world.m_outputFileTitle; break;
 			case OUTPUT_TIME_FREQUENCY:	str = WBSF::ToString(in.m_world.m_outputFrequency); break;
@@ -224,33 +215,32 @@ namespace WBSF
 		case 1000 * SIMULATION_PERIOD + 2: me.m_parameters.m_world.m_simulationPeriod.End().FromFormatedString(str, "%Y-%m-%d"); break;
 		case TIME_STEP:			me.m_parameters.m_world.m_time_step = WBSF::ToInt(str); break;
 		case SEED_TYPE:			me.m_parameters.m_world.m_seed = WBSF::ToInt(str); break;
-		//case REVERSED:			me.m_parameters.m_world.m_bReversed = WBSF::ToBool(str); break;
 		case USE_SPATIAL_INTERPOL:	me.m_parameters.m_world.m_bUseSpaceInterpolation = WBSF::ToBool(str); break;
 		case USE_TIME_INTERPOL:	me.m_parameters.m_world.m_bUseTimeInterpolation = WBSF::ToBool(str); break;
 		case USE_PREDICTOR_CORRECTOR_METHOD: me.m_parameters.m_world.m_bUsePredictorCorrectorMethod = WBSF::ToBool(str); break;
-		//case ADD_TURBULENCE:	me.m_parameters.m_world.m_bUseTurbulance = WBSF::ToBool(str); break;
-		case MAXIMUM_FLYERS:	me.m_parameters.m_world.m_maxFliyers = WBSF::ToSizeT(str); break;
-		case MAXIMUM_FLIGHTS:	me.m_parameters.m_world.m_maxFlights = WBSF::ToSizeT(str); break;
-		//case DEFOLIATION_THRESHOLD:	me.m_parameters.m_world.m_defoliationThreshold = WBSF::ToDouble(str); break;
-		//case DISTRACTION_THRESHOLD:	me.m_parameters.m_world.m_distractionThreshold = WBSF::ToDouble(str); break;
-		//case HOST_THRESHOLD:	me.m_parameters.m_world.m_hostThreshold = WBSF::ToDouble(str); break;
+		case MAXIMUM_FLYERS:	me.m_parameters.m_world.m_maxFlyers = WBSF::ToSizeT(str); break;
+		case MAX_MISS_HOURS:	me.m_parameters.m_world.m_max_missing_weather = WBSF::ToSizeT(str); break;
+
 		case DEM:				me.m_parameters.m_world.m_DEM_name = str; break;
 		case GRIBS:				me.m_parameters.m_world.m_gribs_name = str; break;
 		case HOURLY_DB:			me.m_parameters.m_world.m_hourly_DB_name = str; break;
-		//case DISTRACTION:		me.m_parameters.m_world.m_distraction_name = str; break;
-		//case HOST:				me.m_parameters.m_world.m_host_name = str; break;
 		case DEFOLIATION:		me.m_parameters.m_world.m_defoliation_name = str; break;
 		case WATER:				me.m_parameters.m_world.m_water_name = str; break;
-		case T_BROOD:			me.m_parameters.m_ATM.m_broodTSource = WBSF::ToSizeT(str); break;
-		case P_TYPE:			me.m_parameters.m_ATM.m_PSource = WBSF::ToSizeT(str); break;
-		case P_MAX:				me.m_parameters.m_ATM.m_Pmax = WBSF::ToDouble(str); break;
-		case W_MIN:				me.m_parameters.m_ATM.m_Wmin = WBSF::ToDouble(str); break;
-		case WING_BEAT_SCALE:	me.m_parameters.m_ATM.m_w_α = WBSF::ToDouble(str); break;
-		case HORZ_SCALE:		me.m_parameters.m_ATM.m_Δv = WBSF::ToDouble(str); break;
-		case W_HORZ:			me.m_parameters.m_ATM.m_w_horizontal = WBSF::ToDouble(str); break;
-		case W_HORZ_SD:			me.m_parameters.m_ATM.m_w_horizontal_σ = WBSF::ToDouble(str); break;
-		case W_DESCENT:			me.m_parameters.m_ATM.m_w_descent = WBSF::ToDouble(str); break;
-		case W_DESCENT_SD:		me.m_parameters.m_ATM.m_w_descent_σ = WBSF::ToDouble(str); break;
+		
+		case T_BROOD:			me.m_parameters.m_flyers.m_broodTSource = WBSF::ToSizeT(str); break;
+		case P_TYPE:			me.m_parameters.m_flyers.m_PSource = WBSF::ToSizeT(str); break;
+
+		case P_MAX:				me.m_parameters.m_flyers.m_Pmax = WBSF::ToDouble(str); break;
+		case W_MIN:				me.m_parameters.m_flyers.m_Wmin = WBSF::ToDouble(str); break;
+		case WING_BEAT_SCALE:	me.m_parameters.m_flyers.m_w_α = WBSF::ToDouble(str); break;
+		case HORZ_SCALE:		me.m_parameters.m_flyers.m_Δv = WBSF::ToDouble(str); break;
+		case W_HORZ:			me.m_parameters.m_flyers.m_w_horizontal = WBSF::ToDouble(str); break;
+		case W_HORZ_SD:			me.m_parameters.m_flyers.m_w_horizontal_σ = WBSF::ToDouble(str); break;
+		case W_DESCENT:			me.m_parameters.m_flyers.m_w_descent = WBSF::ToDouble(str); break;
+		case W_DESCENT_SD:		me.m_parameters.m_flyers.m_w_descent_σ = WBSF::ToDouble(str); break;
+		case MAXIMUM_FLIGHTS:	me.m_parameters.m_flyers.m_maxFlights = WBSF::ToSizeT(str); break;
+		case FLIGHT_AFTER_SUNRIZE:	me.m_parameters.m_flyers.m_flight_after_sunrise = WBSF::ToSizeT(str); break;
+
 		case OUTPUT_SUB_HOURLY: me.m_parameters.m_world.m_bOutputSubHourly = WBSF::ToBool(str); break;
 		case OUTPUT_FILE_TITLE:	me.m_parameters.m_world.m_outputFileTitle = str; break;
 		case OUTPUT_TIME_FREQUENCY:	me.m_parameters.m_world.m_outputFrequency = WBSF::ToSizeT(str); break;
@@ -326,14 +316,13 @@ namespace WBSF
 		return TRUE;
 	}
 
-	//afx_msg void OnHeaderEndTrack(NMHDR* pNMHDR, LRESULT* pResult);
 
 	//**************************************************************************************************************
 
 	//**********************************************************************************************
 	void CDispersalDlg::DoDataExchange(CDataExchange* pDX)
 	{
-		CDialog::DoDataExchange(pDX);
+		CDialogEx::DoDataExchange(pDX);
 
 
 
@@ -370,11 +359,9 @@ namespace WBSF
 
 	}
 
-	// CDispersalDlg dialog
+	//IMPLEMENT_DYNAMIC(CDispersalDlg, CDialogEx)
 
-	//IMPLEMENT_DYNAMIC(CDispersalDlg, CDialog)
-
-	BEGIN_MESSAGE_MAP(CDispersalDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CDispersalDlg, CDialogEx)
 		ON_WM_SIZE()
 		ON_WM_DESTROY()
 	END_MESSAGE_MAP()
@@ -382,7 +369,7 @@ namespace WBSF
 
 
 	CDispersalDlg::CDispersalDlg(CExecutablePtr pParent, CWnd* pParentDlg) :
-		CDialog(IDD, pParentDlg)
+		CDialogEx(IDD, pParentDlg)
 	{
 	}
 
@@ -393,7 +380,7 @@ namespace WBSF
 
 	void CDispersalDlg::OnSize(UINT nType, int cx, int cy)
 	{
-		CDialog::OnSize(nType, cx, cy);
+		CDialogEx::OnSize(nType, cx, cy);
 
 		AdjustLayout();
 	}
@@ -451,6 +438,7 @@ namespace WBSF
 		m_internalNameCtrl.SetWindowPos(NULL, rectInternalName.left, rectInternalName.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		GetDlgItem(IDOK)->SetWindowPos(NULL, rectOK.left, rectOK.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		GetDlgItem(IDCANCEL)->SetWindowPos(NULL, rectCancel.left, rectCancel.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+
 	}
 
 
@@ -462,7 +450,7 @@ namespace WBSF
 		CAppOption option;
 		option.WriteProfileRect(_T("DispercalDlgRect"), rectClient);
 
-		CDialog::OnDestroy();
+		CDialogEx::OnDestroy();
 	}
 
 }

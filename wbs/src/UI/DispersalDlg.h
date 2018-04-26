@@ -48,7 +48,7 @@ namespace WBSF
 
 
 
-	class CDispersalDlg : public CDialog
+	class CDispersalDlg : public CDialogEx
 	{
 	public:
 
@@ -58,7 +58,6 @@ namespace WBSF
 
 		virtual void SetExecutable(CExecutablePtr pExecutable){ m_dispersal = GetDispersal(pExecutable); }
 		virtual CExecutablePtr GetExecutable()const{ return CExecutablePtr(new CDispersal(m_dispersal)); }
-		void SetData();
 
 	protected:
 

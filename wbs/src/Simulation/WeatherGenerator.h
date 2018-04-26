@@ -54,7 +54,7 @@ namespace WBSF
 		ERMsg Open(const std::string& filepath, CCallback& callback);
 		ERMsg Close(CCallback& callback);
 
-		bool IsLoaded(CTRef TRef)const{ return m_p_weather_DS.IsLoaded(TRef); }
+		bool IsLoaded(CTRef TRef)const{ return m_p_weather_DS.IsLoaded(CTimeZones::TRef2Time(TRef)); }
 		ERMsg LoadWeather(CTRef TRef, CCallback& callback);
 		ERMsg DiscardWeather(CCallback& callback);
 		double GetWeather(const CGeoPoint3D& pt, CTRef UTCRef, size_t v)const;
@@ -81,8 +81,8 @@ namespace WBSF
 		
 		std::string m_filePathGribs;
 
-		TRefFilePathMap m_filepath_map;
-		CTRefDatasetMap m_p_weather_DS;
+		TTimeFilePathMap m_filepath_map;
+		CTimeDatasetMap m_p_weather_DS;
 		CGeoExtents m_extents;
 		CProjectionTransformation m_GEO2WEA;
 

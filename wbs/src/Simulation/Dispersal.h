@@ -37,7 +37,7 @@ namespace WBSF
 
 		//public member
 		CATMWorldParamters m_world;
-		CATMParameters m_ATM;
+		CFlyerParameters m_flyers;
 
 
 		CDispersalParamters()
@@ -48,7 +48,7 @@ namespace WBSF
 		void clear()
 		{
 			m_world.clear();
-			m_ATM.clear();
+			m_flyers.clear();
 		}
 
 
@@ -57,7 +57,7 @@ namespace WBSF
 			if (&in != this)
 			{
 				m_world = in.m_world;
-				m_ATM = in.m_ATM;
+				m_flyers = in.m_flyers;
 			}
 
 			return *this;
@@ -68,7 +68,7 @@ namespace WBSF
 			bool bEqual = true;
 
 			if (m_world != in.m_world)bEqual = false;
-			if (m_ATM != in.m_ATM)bEqual = false;
+			if (m_flyers != in.m_flyers)bEqual = false;
 
 			return bEqual;
 		}
@@ -155,7 +155,7 @@ namespace zen
 		XmlOut out(output);
 
 		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::WORLD_PARAMETERS)](in.m_world);
-		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](in.m_ATM);
+		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](in.m_flyers);
 
 	}
 
@@ -164,7 +164,7 @@ namespace zen
 	{
 		XmlIn in(input);
 		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::WORLD_PARAMETERS)](out.m_world);
-		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](out.m_ATM);
+		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](out.m_flyers);
 
 		return true;
 	}

@@ -133,7 +133,7 @@ namespace WBSF
 
 
 			//Create tree
-			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbMoths, m_nbMoths, L2o, NOT_INIT, false, 0));
+			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbMoths, m_nbMoths, L2o, RANDOM_SEX, false, 0));
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{

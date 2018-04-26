@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 17-04-2018	Rémi Saint-Amant	Transfer liftoff here instead of in the model
 // 01-01-2016	Rémi Saint-Amant	Creation
 //******************************************************************************
 #include "stdafx.h"
@@ -54,12 +55,12 @@ namespace WBSF
 
 	//*******************************************************************************
 
-	const char* CDispersalParamters::MEMBERS_NAME[NB_MEMBERS] = { "World", "ATM" };
+	const char* CDispersalParamters::MEMBERS_NAME[CDispersalParamters::NB_MEMBERS] = { "World", "ATM" };
 
 
 	//*******************************************************************************
 	const char* CDispersal::XML_FLAG = "Dispersal";
-	const char* CDispersal::MEMBERS_NAME[NB_MEMBERS_EX] = { "Parameters" };
+	const char* CDispersal::MEMBERS_NAME[CDispersal::NB_MEMBERS_EX] = { "Parameters" };
 	const int CDispersal::CLASS_NUMBER = CExecutableFactory::RegisterClass(CDispersal::GetXMLFlag(), &CDispersal::CreateObject);
 
 	CDispersal::CDispersal()
@@ -365,7 +366,7 @@ namespace WBSF
 
 		CATMWorld world;
 		world.m_parameters1 = m_parameters.m_world;
-		world.m_parameters2 = m_parameters.m_ATM;
+		world.m_parameters2 = m_parameters.m_flyers;
 		world.m_nb_max_threads = CTRL.m_nbMaxThreads;
 		ofStream output_file;
 
@@ -396,7 +397,7 @@ namespace WBSF
 				msg.ajoute("Gribs file is not defined");
 		}
 			
-		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_ATM.m_PSource == CATMParameters::PRCP_WEATHER_STATION || m_parameters.m_ATM.m_broodTSource == CATMParameters::BROOD_T_WEATHER_STATION))
+		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_flyers.m_PSource == CFlyerParameters::PRCP_WEATHER_STATION || m_parameters.m_flyers.m_broodTSource == CFlyerParameters::BROOD_T_WEATHER_STATION))
 		{
 			if (!m_parameters.m_world.m_hourly_DB_name.empty())
 				msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
@@ -430,9 +431,10 @@ namespace WBSF
 		
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		
-		
-		enum TInput { I_YEAR, I_MONTH, I_DAY, I_HOUR, I_MINUTE, I_SECOND, I_SEX, I_A, I_M, I_G, I_F0, I_F, I_B, I_E, NB_INPUTS };
-		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","Hour","Minute","Second","sex","A", "M", "G", "F°", "F", "Broods", "Eggs" };
+		//, I_HOUR, I_MINUTE, I_SECOND I_B, I_E, 
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_SEX, I_A, I_M, I_G, I_F0, I_F, NB_INPUTS };
+		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","sex","A", "M", "G", "F°", "F" };
+		//,"Hour","Minute","Second",, "Broods", "Eggs"
 
 		bool bMissing = false;
 		std::array<size_t, NB_INPUTS> varsPos;
@@ -445,7 +447,7 @@ namespace WBSF
 
 		if (bMissing)
 		{
-			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Hour\",\"Minute\", \"Second\", \"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", \"Broods\", \"Eggs\" must be defined");
+			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", must be defined");
 			return msg;
 		}
 
@@ -470,9 +472,9 @@ namespace WBSF
 			{
 				msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
 			}
-			else if (world.m_parameters1.m_maxFliyers > 1)
+			else if (world.m_parameters2.m_maxFlights > 1)
 			{
-				msg.ajoute("maximum flyers is more than 1 but there is no defoliation map. Reset maximum flyers to 1 or provide defoliation map.");
+				msg.ajoute("maximum flights is more than 1 but there is no defoliation map. Reset maximum flights to 1 or provide defoliation map.");
 			}
 
 			callback.StepIt();
@@ -496,9 +498,9 @@ namespace WBSF
 				//if (msg)
 				//world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
 			}
-			else if (world.m_parameters1.m_maxFliyers > 1)
+			else if (world.m_parameters2.m_maxFlights > 1)
 			{
-				msg.ajoute("maximum flyers is more than 1 but there is no water map. Reset maximum flyers to 1 or provide water map.");
+				msg.ajoute("maximum flights is more than 1 but there is no water map. Reset maximum flights to 1 or provide water map.");
 			}
 
 			callback.StepIt();
@@ -517,7 +519,8 @@ namespace WBSF
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
 		CTPeriod period = world.m_parameters1.m_simulationPeriod;
-		period.Transform(CTM(CTM::HOURLY));
+		ASSERT(period.GetTM().Type()== CTM::DAILY);
+		//period.Transform(CTM(CTM::DAILY));
 		
 		size_t nbReplications = 0;
 		for (size_t l = 0; l < locations.size() && msg; l++)
@@ -539,7 +542,7 @@ namespace WBSF
 						for (size_t i = 0; i < varsPos.size(); i++)
 							v[i] = section[t][varsPos[i]][MEAN];
 						
-						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1, size_t(v[I_HOUR]));
+						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1/*, size_t(v[I_HOUR])*/);
 						if (period.IsInside(TRef))
 						{
 							CFlyer flyer(world);
@@ -547,16 +550,17 @@ namespace WBSF
 							flyer.m_loc = l;
 							flyer.m_par = p;
 							flyer.m_rep = rr;
-							flyer.m_localTRef = TRef;//assume daylignt time
-							flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
+							flyer.m_readyToFly = TRef;//daily reference of ready moths
+							//flyer.m_liftoffOffset = -1;
+							//flyer.m_liftoffOffset = v[I_MINUTE] * 60 + v[I_SECOND];
 							flyer.m_scale = 1;
 							flyer.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
 							flyer.m_A = v[I_A];
 							flyer.m_M = v[I_M];
 							flyer.m_G = v[I_G];
 							flyer.m_Fᵒ = v[I_F0];
-							flyer.m_broods = v[I_B];
-							flyer.m_eggsLeft = v[I_E];
+							flyer.m_broods = 0;// v[I_B];
+							flyer.m_eggsLeft = v[I_F];// v[I_E];
 							flyer.m_location = locations[l];
 							flyer.m_newLocation = locations[l];
 							flyer.m_pt = locations[l];
@@ -583,7 +587,10 @@ namespace WBSF
 
 		callback.PopTask();
 
-		CTPeriod outputPeriod = world.get_period(false);
+		CTPeriod outputPeriod = world.get_moths_period();
+		outputPeriod.End()++;//add one day at the end
+		outputPeriod.Transform(CTM::HOURLY);
+
 		callback.AddMessage("Execute dispersal with " + ToString(world.m_flyers.size()) + " moths");
 		callback.AddMessage("Output period: " + outputPeriod.GetFormatedString());
 		callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
@@ -602,7 +609,7 @@ namespace WBSF
 				output[l][p].resize(nbReplications);
 				for (size_t r = 0; r < output[l][p].size(); r++)
 				{
-					output[l][p][r].Init(outputPeriod.GetNbRef(), outputPeriod.Begin(), VMISS);
+					output[l][p][r].Init(outputPeriod, VMISS);
 				}
 			}
 		}
@@ -655,7 +662,7 @@ namespace WBSF
 
 	//	CATMWorld world;
 	//	world.m_parameters1 = m_parameters.m_world;
-	//	world.m_parameters2 = m_parameters.m_ATM;
+	//	world.m_parameters2 = m_parameters.m_flyers;
 	//	world.m_nb_max_threads = CTRL.m_nbMaxThreads;
 	//	ofStream output_file;
 
@@ -687,7 +694,7 @@ namespace WBSF
 	//			msg.ajoute("Gribs file is not defined");
 	//	}
 
-	//	if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_ATM.m_PSource == CATMParameters::PRCP_WEATHER_STATION || m_parameters.m_ATM.m_broodTSource == CATMParameters::BROOD_T_WEATHER_STATION))
+	//	if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_flyers.m_PSource == CFlyerParameters::PRCP_WEATHER_STATION || m_parameters.m_flyers.m_broodTSource == CFlyerParameters::BROOD_T_WEATHER_STATION))
 	//	{
 	//		if (!m_parameters.m_world.m_hourly_DB_name.empty())
 	//			msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);

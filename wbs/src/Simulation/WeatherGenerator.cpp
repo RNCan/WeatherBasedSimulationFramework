@@ -1810,11 +1810,18 @@ namespace WBSF
 
 	//******************************************************************************
 
-	string CGribsDatabase::get_image_filepath(CTRef TRef)const
+	string CGribsDatabase::get_image_filepath(CTRef UTCTRef)const
 	{
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+		
+
 		string filePath;
-		TRef.Transform(CTM(CTM::HOURLY));
-		TRefFilePathMap::const_iterator it = m_filepath_map.find(TRef);
+		//TRef.Transform(CTM(CTM::HOURLY));
+		TTimeFilePathMap::const_iterator it = m_filepath_map.find(UTCTime);
+		//if (it == m_filepath_map.end())
+			//UTCTime = GetNearest...
+
+
 		if (it != m_filepath_map.end())
 		{
 			filePath = GetAbsolutePath(GetPath(m_filePathGribs), it->second);
@@ -1842,11 +1849,12 @@ namespace WBSF
 			{
 				if ((*loop).size() == 2)
 				{
-					CTRef TRef;
-					TRef.FromFormatedString((*loop)[0], "", "-", 1);
-					assert(TRef.IsValid());
+					//CTRef TRef;
+					//TRef.FromFormatedString((*loop)[0], "", "-", 1);
+					//assert(TRef.IsValid());
 
-					m_filepath_map[TRef] = (*loop)[1];
+					//m_filepath_map[TRef] = (*loop)[1];
+					ASSERT(false);
 				}
 
 				callback.SetCurrentStepPos((double)file.tellg());
@@ -1863,12 +1871,12 @@ namespace WBSF
 
 		if (msg)
 		{
-			CTRef TRef = m_filepath_map.begin()->first;
-			msg = m_p_weather_DS.load(TRef, get_image_filepath(TRef), callback);
+			__int64 UTCTime = m_filepath_map.begin()->first;
+			msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
 			if (msg)
 			{
 				//reproject into DEM projection
-				m_extents.ExtendBounds(m_p_weather_DS.Get(TRef)->GetExtents());
+				m_extents.ExtendBounds(m_p_weather_DS.at(UTCTime)->GetExtents());
 				m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
 			}
 		}
@@ -1883,6 +1891,7 @@ namespace WBSF
 
 		ERMsg msg;
 
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
 		if (!IsLoaded(UTCRef))
 			return -999;
 
@@ -1896,12 +1905,12 @@ namespace WBSF
 		CGeoPoint3D pt(ptIn);
 		pt.Reproject(m_GEO2WEA);
 
-		const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCRef);
+		const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCTime);
 
 		if (!extents.IsInside(pt))
 			return -9999;
 
-		CGeoPointIndex xy = get_xy(pt, UTCRef);
+		CGeoPointIndex xy = get_xy(pt, UTCTime);
 		double mean_alt[2] = { 0, 0 };
 		double weather[2] = { -999, -999 };
 
@@ -1909,14 +1918,14 @@ namespace WBSF
 		for (size_t z = 0; z < nb_z; z++)
 		{
 			int L = m_bUseOnlySurface ? 0 : get_level(xy, pt.m_alt, UTCRef, z == 0);
-			size_t bGph = m_p_weather_DS.get_band(UTCRef, ATM_HGT, L);
-			mean_alt[z] = m_p_weather_DS.GetPixel(UTCRef, bGph, xy); //geopotential height [m]
+			size_t bGph = m_p_weather_DS.get_band(UTCTime, ATM_HGT, L);
+			mean_alt[z] = m_p_weather_DS.GetPixel(UTCTime, bGph, xy); //geopotential height [m]
 
-			size_t b = m_p_weather_DS.get_band(UTCRef, v, L);
+			size_t b = m_p_weather_DS.get_band(UTCTime, v, L);
 
 			if (b != UNKNOWN_POS)
 			{
-				float value = m_p_weather_DS.GetPixel(UTCRef, b, xy);
+				float value = m_p_weather_DS.GetPixel(UTCTime, b, xy);
 
 				if (v == ATM_PRES)
 					value /= 100; //convert Pa into hPa
@@ -1933,9 +1942,9 @@ namespace WBSF
 
 				if (v == ATM_WNDU)
 				{
-					size_t b = m_p_weather_DS.get_band(UTCRef, ATM_WNDV, L);
+					size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDV, L);
 					double u = value;
-					double v = m_p_weather_DS.GetPixel(UTCRef, b, xy);
+					double v = m_p_weather_DS.GetPixel(UTCTime, b, xy);
 					assert(false);//need to convert to thrueNorth
 					value = sqrt(Square(u) + Square(v)) * 3600 / 1000;
 					ASSERT(value >= 0 && value < 300);
@@ -1943,8 +1952,8 @@ namespace WBSF
 
 				if (v == ATM_WNDV)
 				{
-					size_t b = m_p_weather_DS.get_band(UTCRef, ATM_WNDU, L);
-					double u = m_p_weather_DS.GetPixel(UTCRef, b, xy);
+					size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDU, L);
+					double u = m_p_weather_DS.GetPixel(UTCTime, b, xy);
 					double v = value;
 
 					assert(false);//need to convert to thrueNorth
@@ -2007,25 +2016,27 @@ namespace WBSF
 
 	CGeoPointIndex CGribsDatabase::get_xy(const CGeoPoint& pt, CTRef UTCTRef)const
 	{
-		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTRef);
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
 		return extents.CoordToXYPos(pt);//take lower-left corner
 	}
 
 	int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const
 	{
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
 		vector<pair<double, int>> test;
 
 		for (int l = 1; l < NB_LEVELS; l++)
 		{
-			size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
+			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
 			test.push_back(make_pair(gph, l));
 
 			if (alt < gph)
 				break;
 		}
 
-		double grAlt = GetGroundAltitude(xy, UTCTRef);//get the first level over the ground
+		double grAlt = GetGroundAltitude(xy, UTCTime);//get the first level over the ground
 		test.push_back(make_pair(grAlt, 0));
 		sort(test.begin(), test.end());
 
@@ -2045,12 +2056,13 @@ namespace WBSF
 
 	int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const
 	{
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
 		int L = NB_LEVELS - 1;//take the last level
 
 		for (int l = 1; l < NB_LEVELS; l++)
 		{
-			size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
+			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
 
 			if (alt < gph)
 			{
@@ -2064,8 +2076,9 @@ namespace WBSF
 
 	double CGribsDatabase::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
 	{
-		size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, 0);
-		double alt = m_p_weather_DS.GetPixel(UTCTRef, b, xy); //geopotential height [m]
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+		size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, 0);
+		double alt = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
 
 		return alt;
 	}
@@ -2073,7 +2086,8 @@ namespace WBSF
 
 	CGeoPoint3DIndex CGribsDatabase::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
 	{
-		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTRef);
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
 		CGeoPoint3DIndex xyz;
 		((CGeoPointIndex&)xyz) = extents.CoordToXYPos(pt + CGeoDistance3D(extents.XRes() / 2, extents.YRes() / 2, 0, extents.GetPrjID()));
 
@@ -2081,8 +2095,8 @@ namespace WBSF
 		xyz.m_z = NB_LEVELS - 1;//take the last on by default
 		for (size_t l = 0; l < NB_LEVELS; l++)
 		{
-			size_t b = m_p_weather_DS.get_band(UTCTRef, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTRef, b, xyz); //geopotential height [m]
+			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xyz); //geopotential height [m]
 
 			if (gph > pt.m_alt)
 			{
@@ -2101,12 +2115,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (!m_p_weather_DS.IsLoaded(UTCTRef))
+		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+		if (!m_p_weather_DS.IsLoaded(UTCTime))
 		{
-			string filePath = get_image_filepath(UTCTRef);
+			string filePath = get_image_filepath(UTCTime);
 			if (!filePath.empty())
 			{
-				msg = m_p_weather_DS.load(UTCTRef, get_image_filepath(UTCTRef), callback);
+				msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
 			}
 			else
 			{
