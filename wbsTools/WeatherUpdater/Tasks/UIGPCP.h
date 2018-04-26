@@ -7,7 +7,7 @@
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
-namespace cctz{ class time_zone; }
+//namespace cctz{ class time_zone; }
 
 namespace WBSF
 {

@@ -637,7 +637,7 @@ namespace WBSF
 
 
 		cctz::time_zone zone;
-		CTimeZones::GetZone(station, zone);
+		//CTimeZones::GetZone(station, zone);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -654,7 +654,7 @@ namespace WBSF
 			string filePath = GetOutputFilePath(stationName, year);
 			if (FileExists(filePath))
 			{
-				ERMsg msgTmp = ReadData(filePath, zone, station, accumulator, callback);
+				ERMsg msgTmp = ReadData(filePath, station, accumulator, callback);
 
 				if (msg && !msgTmp)
 				{
@@ -679,7 +679,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIISDLite::ReadData(const string& filePath, const cctz::time_zone& zone, CWeatherYears& data, CWeatherAccumulator& accumulator, CCallback& callback)const
+	ERMsg CUIISDLite::ReadData(const string& filePath, CWeatherStation& station, CWeatherAccumulator& accumulator, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -709,12 +709,12 @@ namespace WBSF
 					if (LoadFields(line, e))
 					{
 						CTRef UTCTRef = GetTRef(e);
-						CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
+						CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, station);
 
 						if (period.IsInside(TRef))
 						{
 							if (accumulator.TRefIsChanging(TRef))
-								data[accumulator.GetTRef()].SetData(accumulator);
+								station[accumulator.GetTRef()].SetData(accumulator);
 
 							if (e[ISD_T] > -9999)
 								accumulator.Add(TRef, H_TAIR2, e[ISD_T] / 10.0);

@@ -4,7 +4,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-#include "cctz\time_zone.h"
+//#include "cctz\time_zone.h"
 
 
 #include "WeatherBasedSimulationString.h"
@@ -365,8 +365,8 @@ namespace WBSF
 
 			if (msg)
 			{
-				cctz::time_zone zone;
-				if (CTimeZones::GetZone(station, zone))
+//				cctz::time_zone zone;
+//				if (CTimeZones::GetZone(station, zone))
 				{
 					CGeoPoint3D pt(station);
 					pt.Reproject(m_geo2gribs);
@@ -402,7 +402,7 @@ namespace WBSF
 								{
 									if (!TRefs[t][f][v][b].IsInit())
 									{
-										TRefs[t][f][v][b] = CTimeZones::UTCTRef2LocalTRef(m_UTCTRef[t][f][v][b], zone);
+										TRefs[t][f][v][b] = CTimeZones::UTCTRef2LocalTRef(m_UTCTRef[t][f][v][b], station);
 
 										if (t == DATA_DAILY)
 											TRefs[t][f][v][b].Transform(CTM(CTM::DAILY));

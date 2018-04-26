@@ -9,7 +9,7 @@
 
 #include "../Resource.h"
 #include "Geomatic/TimeZones.h"
-#include "cctz\time_zone.h"
+//#include "cctz\time_zone.h"
 
 
 
@@ -442,8 +442,8 @@ namespace WBSF
 		station.m_name = PurgeFileName(station.m_name);
 		
 
-		cctz::time_zone zone;
-		CTimeZones::GetZone(station, zone);
+		//cctz::time_zone zone;
+		//CTimeZones::GetZone(station, zone);
 		//zone.lookup();
 
 		string workingDir = GetDir(WORKING_DIR);
@@ -482,7 +482,7 @@ namespace WBSF
 			string filePath = GetOutputFilePath(network, year, fileName + ".BRU");
 
 			if (FileExists(filePath))
-				msg += ReadDataFile(filePath, zone, TM, station, callback);
+				msg += ReadDataFile(filePath, TM, station, callback);
 		}//for all years
 
 		if (bForecast)
@@ -490,7 +490,7 @@ namespace WBSF
 			string filePath = GetDir(WORKING_DIR) + network + "\\" + fileName + ".pre";
 
 			if (FileExists(filePath))
-				msg += ReadForecastDataFile(filePath, zone, TM, station, callback);
+				msg += ReadForecastDataFile(filePath, TM, station, callback);
 
 			msg += callback.StepIt(nbYears>8 ? 1 : 0);
 		}
@@ -508,7 +508,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUICIPRA::ReadDataFile(const string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const
+	ERMsg CUICIPRA::ReadDataFile(const string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -569,23 +569,23 @@ namespace WBSF
 				CTRef TRef(year, month, day, hour);
 
 
-				cctz::civil_second cs(year, int(month) + 1, int(day) + 1, int(hour), 0, 0);
-				auto testDLS = zone.lookup(cs);
+//				cctz::civil_second cs(year, int(month) + 1, int(day) + 1, int(hour), 0, 0);
+	//			auto testDLS = zone.lookup(cs);
 				
-				int DLSh = (testDLS.pre.time_since_epoch().count() -testDLS.post.time_since_epoch().count())/3600;
-				if (DLSh == 1)
-				{
-					if (stat.TRefIsChanging(TRef+1))
-						data[stat.GetTRef()].SetData(stat);
-				}
+				//int DLSh = (testDLS.pre.time_since_epoch().count() -testDLS.post.time_since_epoch().count())/3600;
+				//if (DLSh == 1)
+				//{
+					//if (stat.TRefIsChanging(TRef+1))
+						//data[stat.GetTRef()].SetData(stat);
+				//}
 					
 
-				DLS += DLSh;
-				TRef+=DLS;
+				//DLS += DLSh;
+				//TRef+=DLS;
 
 				if (stat.TRefIsChanging(TRef))
 				{
-					data[stat.GetTRef()].SetData(stat);
+					station[stat.GetTRef()].SetData(stat);
 				}
 
 				for (size_t v = 0; v < NB_VAR_H; v++)
@@ -613,7 +613,7 @@ namespace WBSF
 			}//for all line (
 
 			if (stat.GetTRef().IsInit())
-				data[stat.GetTRef()].SetData(stat);
+				station[stat.GetTRef()].SetData(stat);
 
 		}//if load 
 
@@ -621,7 +621,7 @@ namespace WBSF
 	}
 	
 	
-	ERMsg CUICIPRA::ReadForecastDataFile(const string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const
+	ERMsg CUICIPRA::ReadForecastDataFile(const string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -677,7 +677,7 @@ namespace WBSF
 
 				if (stat.TRefIsChanging(TRef))
 				{
-					data[stat.GetTRef()].SetData(stat);
+					station[stat.GetTRef()].SetData(stat);
 				}
 
 				for (size_t v = 0; v < NB_VAR_H; v++)
@@ -705,7 +705,7 @@ namespace WBSF
 			}//for all line (
 
 			if (stat.GetTRef().IsInit())
-				data[stat.GetTRef()].SetData(stat);
+				station[stat.GetTRef()].SetData(stat);
 
 		}//if load 
 

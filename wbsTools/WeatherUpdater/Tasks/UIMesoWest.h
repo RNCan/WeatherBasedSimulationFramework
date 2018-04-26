@@ -6,7 +6,7 @@
 #include "Basic/WeatherDefine.h"
 #include "UI/Common/UtilWWW.h"
 
-namespace cctz{ class time_zone; }
+//namespace cctz{ class time_zone; }
 
 namespace WBSF
 {

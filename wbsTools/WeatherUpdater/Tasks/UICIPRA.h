@@ -5,7 +5,7 @@
 #include "Basic/WeatherStation.h"
 #include "UI/Common/UtilWWW.h"
 
-namespace cctz{ class time_zone; }
+//namespace cctz{ class time_zone; }
 
 
 namespace WBSF
@@ -55,8 +55,8 @@ namespace WBSF
 		ERMsg LoadStations(CCallback& callback);
 		ERMsg UpdateStationsFile(CCallback& callback);
 		std::string GetOutputFilePath(const std::string& network, int year, const std::string& name);
-		ERMsg ReadDataFile(const std::string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const;
-		ERMsg ReadForecastDataFile(const std::string& filePath, const cctz::time_zone& zone, CTM TM, CWeatherYears& data, CCallback& callback)const;
+		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)const;
+		ERMsg ReadForecastDataFile(const std::string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)const;
 
 		CLocationVector m_stations;
 		

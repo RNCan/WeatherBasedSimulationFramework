@@ -133,8 +133,8 @@ namespace WBSF
 
 		string shapeFilePath = TrimConst(Get(SHAPEFILE));
 		string locFilePath = TrimConst(Get(LOC_FILEPATH));
-		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;");
-		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
+		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;, ");
+		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;, ");
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);
@@ -246,8 +246,8 @@ namespace WBSF
 
 		string shapeFilePath = TrimConst(Get(SHAPEFILE));
 		string locFilePath = TrimConst(Get(LOC_FILEPATH));
-		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;");
-		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;");
+		StringVector includeIds(TrimConst(Get(INCLUDE_IDS)), "|;, ");
+		StringVector excludeIds(TrimConst(Get(EXCLUDE_IDS)), "|;, ");
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		CGeoRect boundingBox = as<CGeoRect>(BOUNDING_BOX); boundingBox.SetPrjID(PRJ_WGS_84);

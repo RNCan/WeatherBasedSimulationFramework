@@ -7,7 +7,7 @@
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
-namespace cctz{ class time_zone; }
+//namespace cctz{ class time_zone; }
 
 namespace WBSF
 {
@@ -54,7 +54,7 @@ namespace WBSF
 		ERMsg LoadOptimisation();
 		std::string GetOptFilePath(const std::string& filePath)const;
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, const cctz::time_zone& zone, CWeatherYears& year, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
+		ERMsg ReadData(const std::string& filePath, CWeatherStation& station, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".gz")const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;

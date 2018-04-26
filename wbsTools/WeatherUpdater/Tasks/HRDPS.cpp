@@ -4,7 +4,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-#include "cctz\time_zone.h"
+//#include "cctz\time_zone.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"

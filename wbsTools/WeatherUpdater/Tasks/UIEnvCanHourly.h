@@ -6,7 +6,7 @@
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
-namespace cctz{ class time_zone; }
+//namespace cctz{ class time_zone; }
 
 
 namespace WBSF
@@ -81,7 +81,7 @@ namespace WBSF
 		ERMsg GetSWOBList(const CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
 		ERMsg UpdateMissingLocation(CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
 		ERMsg DownloadSWOB(const CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
-		ERMsg ReadSWOBData(const std::string& filePath, CTM TM, const cctz::time_zone& zone, CWeatherStation& data, CCallback& callback);
+		ERMsg ReadSWOBData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback);
 		ERMsg ParseSWOB(CTRef TRef, const std::string& source, SWOBDataHour& data, CCallback& callback);
 		ERMsg UpdateLastUpdate(const std::map<std::string, CTRef>& lastUpdate);
 

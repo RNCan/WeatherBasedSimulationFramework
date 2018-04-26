@@ -12,7 +12,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-#include "cctz\time_zone.h"
+//#include "cctz\time_zone.h"
 
 
 
@@ -596,7 +596,7 @@ namespace WBSF
 	{
 		std::bitset<NB_NETWORKS> network;
 
-		StringVector str(Get(NETWORK), "|");
+		StringVector str(Get(NETWORK), "|;,");
 		if (str.empty())
 		{
 			network.set();
@@ -615,9 +615,18 @@ namespace WBSF
 		return network;
 	}
 
+	void TestTimeZone()
+	{
+
+	}
+
+
 	ERMsg CUIEnvCanHourly::Execute(CCallback& callback)
 	{
 		ERMsg msg;
+
+		TestTimeZone();
+
 
 		std::bitset<NB_NETWORKS> network = GetNetWork();
 
@@ -1065,8 +1074,8 @@ namespace WBSF
 
 		if (network[N_SWOB])
 		{
-			cctz::time_zone zone;
-			CTimeZones::GetZone(station, zone);
+			//cctz::time_zone zone;
+//			CTimeZones::GetZone(station, zone);
 
 			string ICAO_ID = station.GetSSI("ICAO");
 
@@ -1081,7 +1090,7 @@ namespace WBSF
 					size_t size3 = sizeof(SWOBData);
 					string filePath = GetOutputFilePath(N_SWOB, station.GetSSI("Province"), year, m, ICAO_ID);
 					if (FileExists(filePath))
-						msg = ReadSWOBData(filePath, TM, zone, station, callback);
+						msg = ReadSWOBData(filePath, TM, station, callback);
 
 					msg += callback.StepIt(0);
 				}
@@ -1919,7 +1928,7 @@ namespace WBSF
 
 
 
-	ERMsg CUIEnvCanHourly::ReadSWOBData(const std::string& filePath, CTM TM, const cctz::time_zone& zone, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIEnvCanHourly::ReadSWOBData(const std::string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -1947,7 +1956,7 @@ namespace WBSF
 					size_t h = WBSF::as<size_t>(swob[i][j][3]);
 
 					CTRef UTCTRef(year, m, d, h);
-					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
+					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, station);
 
 					if (TRef.GetYear() >= firstYear && TRef.GetYear() <= lastYear)
 					{

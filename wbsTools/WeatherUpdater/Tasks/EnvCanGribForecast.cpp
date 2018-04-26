@@ -4,7 +4,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-#include "cctz\time_zone.h"
+//#include "cctz\time_zone.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
@@ -359,8 +359,9 @@ namespace WBSF
 			{
 				string name = GetFileName(m_datasets[0][0].GetFilePath());
 				CTRef UTCRef = GetTRef(name);
-				cctz::time_zone zone;
-				if (CTimeZones::GetZone(station, zone))
+				//cctz::time_zone zone;
+				//__int64 zone = CTimeZones::GetTimeZone(station);
+				
 				{
 					CGeoPoint3D pt(station);
 					pt.Reproject(m_geo2gribs);
@@ -378,7 +379,7 @@ namespace WBSF
 						CWeatherAccumulator accumulator(TM);
 						for (size_t h = 0; h <= MAX_FORECAST_HOURS&&msg; h += delta_h)
 						{
-							CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef + h, zone);
+							CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef + h, station);
 							if (accumulator.TRefIsChanging(TRef))
 							{
 								if (station[accumulator.GetTRef()].GetVariables().none() )//don't override observation

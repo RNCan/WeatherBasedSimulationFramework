@@ -159,7 +159,7 @@ namespace WBSF
 	{
 		std::bitset<NB_NETWORKS> network;
 
-		StringVector str(Get(NETWORK), "|");
+		StringVector str(Get(NETWORK), "|;,");
 		if (str.empty())
 		{
 			network.set();
