@@ -37,7 +37,7 @@ namespace WBSF
 
 		//public member
 		CATMWorldParamters m_world;
-		CFlyerParameters m_flyers;
+		CSBWMothParameters m_moths;
 
 
 		CDispersalParamters()
@@ -48,7 +48,7 @@ namespace WBSF
 		void clear()
 		{
 			m_world.clear();
-			m_flyers.clear();
+			m_moths.clear();
 		}
 
 
@@ -57,7 +57,7 @@ namespace WBSF
 			if (&in != this)
 			{
 				m_world = in.m_world;
-				m_flyers = in.m_flyers;
+				m_moths = in.m_moths;
 			}
 
 			return *this;
@@ -68,7 +68,7 @@ namespace WBSF
 			bool bEqual = true;
 
 			if (m_world != in.m_world)bEqual = false;
-			if (m_flyers != in.m_flyers)bEqual = false;
+			if (m_moths != in.m_moths)bEqual = false;
 
 			return bEqual;
 		}
@@ -122,6 +122,7 @@ namespace WBSF
 
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_STATISTIC; }
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callBack = DEFAULT_CALLBACK);
+		ERMsg Execute2(const CFileManager& fileManager, CCallback& callback);
 		//ERMsg Execute2(const CFileManager& fileManager, CCallback& callback);
 
 		static CGeoPoint GetNewPosition(const CGeoPoint& pt, double U, double V);
@@ -155,7 +156,7 @@ namespace zen
 		XmlOut out(output);
 
 		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::WORLD_PARAMETERS)](in.m_world);
-		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](in.m_flyers);
+		out[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](in.m_moths);
 
 	}
 
@@ -164,7 +165,7 @@ namespace zen
 	{
 		XmlIn in(input);
 		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::WORLD_PARAMETERS)](out.m_world);
-		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](out.m_flyers);
+		in[WBSF::CDispersalParamters::GetMemberName(WBSF::CDispersalParamters::ATM_PARAMETERS)](out.m_moths);
 
 		return true;
 	}

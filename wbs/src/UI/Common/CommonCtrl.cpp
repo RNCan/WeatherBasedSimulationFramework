@@ -1240,7 +1240,8 @@ CStdGridProperty(name, no, true)
 
 	pProp = new CStdTRefProperty("end", p.End().GetFormatedString(), "Specifies the period's end", "", m_dwData * 1000 + 2);
 	AddSubItem(pProp);
-	
+
+	AllowEdit(FALSE);
 }
 
 std::string CStdTPeriodProperty::get_string()
@@ -1284,7 +1285,7 @@ void CStdTPeriodProperty::set_string(std::string str)
 	{
 
 		CString value(p.GetFormatedString("%1, %2").c_str());
-		value.Replace('|', ',');
+		//value.Replace('|', ',');
 
 		SetValue(value);
 		SetOriginalValue(value);

@@ -119,20 +119,15 @@ namespace WBSF
 
 	//*******************************************************************************
 	//
-	class CFlyerParameters
+	class CSBWMothParameters
 	{
 	public:
 		
 		enum TSex{ MALE, FEMALE, NB_SEX};
-		
-		enum Tprcp{ DONT_USE_PRCP, PRCP_SAME_AS_INPUT, PRCP_WEATHER_STATION };
-		enum TBroodT{ BROOD_T_17, BROOD_T_SAME_AS_INPUT, BROOD_T_WEATHER_STATION };
-		
-		enum TMember{ BROOD_T_SOURCE, PRCP_SOURCE, P_MAX, W_MIN, WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, FLIGHT_AFTER_SUNRISE, MAXIMUM_FLIGHTS, NB_ATM_MEMBERS };
+
+		enum TMember{ P_MAX, W_MIN, WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, FLIGHT_AFTER_SUNRISE, MAXIMUM_FLIGHTS, READY_SHIFT0,  READY_SHIFT1, NB_ATM_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_ATM_MEMBERS); return MEMBERS_NAME[i]; }
 
-		size_t m_broodTSource;
-		size_t m_PSource;
 		double m_Pmax;				//maximum precipitation for flight [mm/h]
 		double m_Wmin;				//minimum wind speed for flight [km/h]
 
@@ -144,9 +139,10 @@ namespace WBSF
 		double m_w_descent_σ;		//terminal velocity standard deviation [km/h]
 
 		size_t m_flight_after_sunrise;	//let moths to flight after sunrise [s]
-		size_t m_maxFlights;
-
-		CFlyerParameters()
+		size_t m_maxFlights;			//macimum number of flight for moths
+		std::array<int, NB_SEX> m_ready_to_fly_shift;	//let moth to adjust ready to flyt date. Usefull to delay male [days]
+		
+		CSBWMothParameters()
 		{
 			clear();
 		}
@@ -154,12 +150,10 @@ namespace WBSF
 		void clear()
 		{
 			//default parameters for spruce budworm
-			m_broodTSource = BROOD_T_17;
-			m_PSource = DONT_USE_PRCP;
 			m_Pmax = 2.5;				//[mm/h]
 			m_Wmin = 0.7 * 3600 / 1000;	//[km/h]
 			m_w_α = 0.4;							//scale factor [km/(h•Hz)]
-			m_Δv = 0.2;
+			m_Δv = 0.0;
 			m_w_horizontal = 2.0 * 3600 / 1000;		//horizontal mean speed [km/h]
 			m_w_horizontal_σ = 0.5 * 3600 / 1000;	//horizontal speed standard deviation [km/h] 
 			m_w_descent = -2.0 * 3600 / 1000;		//descent mean speed [km/h]
@@ -167,15 +161,14 @@ namespace WBSF
 
 			m_flight_after_sunrise = 0;		//let moths to flight after sunrize [s]
 			m_maxFlights = 1;
+			m_ready_to_fly_shift = { {2,0} };
 
 		}
 
-		CFlyerParameters& operator =(const CFlyerParameters& in)
+		CSBWMothParameters& operator =(const CSBWMothParameters& in)
 		{
 			if (&in != this)
 			{
-				m_broodTSource = in.m_broodTSource;
-				m_PSource = in.m_PSource;
 				m_Pmax = in.m_Pmax;
 				m_Wmin = in.m_Wmin;
 				m_w_α = in.m_w_α;
@@ -187,17 +180,17 @@ namespace WBSF
 
 				m_flight_after_sunrise = in.m_flight_after_sunrise;
 				m_maxFlights = in.m_maxFlights;
+				m_ready_to_fly_shift = in.m_ready_to_fly_shift;
+								
 			}
 
 			return *this;
 		}
 
-		bool operator ==(const CFlyerParameters& in)const
+		bool operator ==(const CSBWMothParameters& in)const
 		{
 			bool bEqual = true;
 
-			if (m_broodTSource != in.m_broodTSource)bEqual = false;
-			if (m_PSource != in.m_PSource)bEqual = false;
 			if (m_Pmax != in.m_Pmax)bEqual = false;
 			if (m_Wmin != in.m_Wmin)bEqual = false;
 			if (m_w_α != in.m_w_α)bEqual = false;
@@ -208,14 +201,16 @@ namespace WBSF
 			if (m_w_descent_σ != in.m_w_descent_σ)bEqual = false;
 			if(m_flight_after_sunrise != in.m_flight_after_sunrise)bEqual = false;
 			if (m_maxFlights != in.m_maxFlights)bEqual = false;
+			if (m_ready_to_fly_shift != in.m_ready_to_fly_shift)bEqual = false;
+
+			
 			
 			
 			return bEqual;
 		}
 
-		bool operator !=(const CFlyerParameters& in)const{ return !operator ==(in); }
+		bool operator !=(const CSBWMothParameters& in)const{ return !operator ==(in); }
 
-		double GetPmax()const{return ((m_PSource == DONT_USE_PRCP)?9999:m_Pmax);}
 
 	protected:
 
@@ -223,6 +218,198 @@ namespace WBSF
 	};
 
 
+	//*****************************************************************************************************************
+	class CATMWorldParamters
+	{
+	public:
+
+		enum Tprcp { DONT_USE_PRCP, PRCP_SAME_AS_INPUT, PRCP_WEATHER_STATION };
+		enum TBroodT { BROOD_T_17, BROOD_T_SAME_AS_INPUT, BROOD_T_WEATHER_STATION };
+
+		//static public member 
+		enum TweatherType { FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
+		enum TMember { WEATHER_TYPE, SIMUL_PERIOD, FLIGHT_PERIOD, TIME_STEP, SEED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, MAX_MISS_HOURS, FORCE_FIRST_FLIGHT, BROOD_T_SOURCE, PRCP_SOURCE, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, EGG_MAP_RES, WIND_STABILITY, NB_WEATHER_STATIONS, NB_MEMBERS };
+		static const char* GetMemberName(int i) { ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
+
+		//public member
+		int m_weather_type;	//weather type: stations hourly databse or gridded NCEP multi-layer grid
+		CTPeriod m_simulationPeriod;
+		CTPeriod m_flightPeriod;
+		size_t m_time_step;	//time step in [s]
+		size_t m_seed;
+		bool m_bUseSpaceInterpolation;
+		bool m_bUseTimeInterpolation;
+		bool m_bUsePredictorCorrectorMethod;
+		bool m_bUseVerticalVelocity;
+		size_t m_maxFlyers;
+		__int64 m_max_missing_weather;	//maximum of missing weather to skip day (s)
+		bool m_bForceFirstFlight;		//always force the fiorst flight even of ther is no defoliation or over water
+		size_t m_broodTSource;
+		size_t m_PSource;
+
+
+		std::string m_gribs_name; //filepath on the grib file list
+		std::string m_defoliation_name;
+		std::string m_hourly_DB_name;
+		std::string m_DEM_name;
+		std::string m_water_name;
+
+		bool m_bOutputSubHourly;
+		std::string m_outputFileTitle;
+		__int64 m_outputFrequency;
+
+		bool m_bCreateEggMaps;
+		std::string m_eggMapsTitle;
+		double m_eggMapsResolution;
+		int m_windS_stability_type;	//not used for the moment
+		int m_nb_weather_stations;	//number of weather station to looking for
+		int m_max_hour_load;		//maximum number or weaher image load at the same time
+
+
+		size_t get_time_step()const { return m_time_step; }//[s]
+		size_t get_nb_time_step()const { assert(3600 % m_time_step == 0); return size_t(3600 / m_time_step); }	//number of timeStep per hour
+
+		bool UseGribs()const { return m_weather_type == FROM_GRIBS || m_weather_type == FROM_BOTH; }
+		bool UseHourlyDB()const { return m_weather_type == FROM_STATIONS || m_weather_type == FROM_BOTH; }
+
+
+
+		CATMWorldParamters()
+		{
+			clear();
+		}
+
+		void clear()
+		{
+			m_weather_type = FROM_GRIBS;
+			m_simulationPeriod = CTPeriod(CTRef::GetCurrentTRef(), CTRef::GetCurrentTRef());
+			m_flightPeriod = CTPeriod(CTRef::GetCurrentTRef(), CTRef::GetCurrentTRef());
+			m_time_step = 10; //10 seconds by default
+			m_seed = 0;
+			m_bUseSpaceInterpolation = true;
+			m_bUseTimeInterpolation = true;
+			m_bUsePredictorCorrectorMethod = true;
+			m_bUseVerticalVelocity = true;
+			m_windS_stability_type = CWindStability::AUTO_DETECT;
+			m_nb_weather_stations = 3;
+			m_max_hour_load = 24;
+			m_max_missing_weather = 3 * 3600;		//maximum of missing hour to skip day
+			m_maxFlyers = 0;
+			m_bForceFirstFlight = false;
+			m_broodTSource = BROOD_T_17;
+			m_PSource = DONT_USE_PRCP;
+
+
+
+			m_gribs_name.clear();
+			m_defoliation_name.clear();
+			m_hourly_DB_name.clear();
+			m_DEM_name.clear();
+			m_water_name.clear();
+
+			m_bOutputSubHourly = false;
+			m_outputFileTitle = "10MinutesOutput.csv";
+			m_outputFrequency = 600;
+
+			m_bCreateEggMaps = false;
+			m_eggMapsTitle = "EggDensity.tif";
+			m_eggMapsResolution = 4000;
+
+		}
+
+
+		CATMWorldParamters& operator =(const CATMWorldParamters& in)
+		{
+			if (&in != this)
+			{
+				m_weather_type = in.m_weather_type;
+				m_simulationPeriod = in.m_simulationPeriod;
+				m_flightPeriod = in.m_flightPeriod;
+				m_time_step = in.m_time_step;
+				m_seed = in.m_seed;
+				m_bUseSpaceInterpolation = in.m_bUseSpaceInterpolation;
+				m_bUseTimeInterpolation = in.m_bUseTimeInterpolation;
+				m_bUsePredictorCorrectorMethod = in.m_bUsePredictorCorrectorMethod;
+				m_bUseVerticalVelocity = in.m_bUseVerticalVelocity;
+				m_windS_stability_type = in.m_windS_stability_type;
+				m_nb_weather_stations = in.m_nb_weather_stations;
+				m_max_hour_load = in.m_max_hour_load;
+				m_max_missing_weather = in.m_max_missing_weather;
+				m_maxFlyers = in.m_maxFlyers;
+				m_bForceFirstFlight = in.m_bForceFirstFlight;
+				m_broodTSource = in.m_broodTSource;
+				m_PSource = in.m_PSource;
+
+
+
+				m_gribs_name = in.m_gribs_name;
+				m_defoliation_name = in.m_defoliation_name;
+				m_hourly_DB_name = in.m_hourly_DB_name;
+				m_DEM_name = in.m_DEM_name;
+				m_water_name = in.m_water_name;
+
+				m_bOutputSubHourly = in.m_bOutputSubHourly;
+				m_outputFileTitle = in.m_outputFileTitle;
+				m_outputFrequency = in.m_outputFrequency;
+
+				m_bCreateEggMaps = in.m_bCreateEggMaps;
+				m_eggMapsTitle = in.m_eggMapsTitle;
+				m_eggMapsResolution = in.m_eggMapsResolution;
+
+			}
+
+			return *this;
+		}
+
+		bool operator ==(const CATMWorldParamters& in)const
+		{
+			bool bEqual = true;
+
+			if (m_weather_type != in.m_weather_type)bEqual = false;
+			if (m_simulationPeriod != in.m_simulationPeriod)bEqual = false;
+			if (m_flightPeriod != in.m_flightPeriod)bEqual = false;
+			if (m_time_step != in.m_time_step)bEqual = false;
+			if (m_seed != in.m_seed)bEqual = false;
+			if (m_bUseSpaceInterpolation != in.m_bUseSpaceInterpolation)bEqual = false;
+			if (m_bUseTimeInterpolation != in.m_bUseTimeInterpolation)bEqual = false;
+			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
+			if (m_bUseVerticalVelocity != in.m_bUseVerticalVelocity)bEqual = false;
+			if (m_windS_stability_type != in.m_windS_stability_type)bEqual = false;
+			if (m_nb_weather_stations != in.m_nb_weather_stations)bEqual = false;
+			if (m_max_hour_load != in.m_max_hour_load)bEqual = false;
+			if (m_max_missing_weather != in.m_max_missing_weather)bEqual = false;
+			if (m_maxFlyers != in.m_maxFlyers)bEqual = false;
+			if (m_bForceFirstFlight != in.m_bForceFirstFlight)bEqual = false;
+			if (m_broodTSource != in.m_broodTSource)bEqual = false;
+			if (m_PSource != in.m_PSource)bEqual = false;
+
+
+			if (m_gribs_name != in.m_gribs_name)bEqual = false;
+			if (m_defoliation_name != in.m_defoliation_name)bEqual = false;
+			if (m_hourly_DB_name != in.m_hourly_DB_name)bEqual = false;
+			if (m_DEM_name != in.m_DEM_name)bEqual = false;
+			if (m_water_name != in.m_water_name)bEqual = false;
+
+			if (m_bOutputSubHourly != in.m_bOutputSubHourly)bEqual = false;
+			if (m_outputFileTitle != in.m_outputFileTitle)bEqual = false;
+			if (m_outputFrequency != in.m_outputFrequency)bEqual = false;
+
+			if (m_bCreateEggMaps != in.m_bCreateEggMaps)bEqual = false;
+			if (m_eggMapsTitle != in.m_eggMapsTitle)bEqual = false;
+			if (m_eggMapsResolution != in.m_eggMapsResolution)bEqual = false;
+
+
+			return bEqual;
+		}
+
+		bool operator !=(const CATMWorldParamters& in)const { return !operator ==(in); }
+
+
+	protected:
+
+
+		static const char* MEMBERS_NAME[NB_MEMBERS];
+	};
 
 	//*****************************************************************************************************************
 	class CATMVariables : public std::array < double, NB_ATM_VARIABLES >
@@ -323,7 +510,7 @@ namespace WBSF
 		{
 			m_time = 0;
 		}
-
+		//m_pt have elevation above ground
 		std::array < std::array < std::array < CGeoPoint3D, NB_POINTS_X >, NB_POINTS_Y >, NB_POINTS_Z > m_pt;
 		__int64 m_time;
 
@@ -535,7 +722,7 @@ namespace WBSF
 
 
 
-	class CFlyer
+	class CSBWMoth
 	{
 	public:
 
@@ -545,8 +732,9 @@ namespace WBSF
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, NB_FLYER_STAT };//S_W_ASCENT, 
 
 		enum TStates{ NOT_CREATED, IDLE_BEGIN, LIFTOFF, FLIGHT, LANDING, IDLE_END, DESTROYED_BY_OPTIMIZATION, NB_STATES };
-		enum TEnd{ NO_END_DEFINE=-1, NO_LIFTOFF_PRCP=10, NO_LIFTOFF_TAIR, NO_LIFTOFF_WNDS, END_BY_PRCP, END_BY_TAIR, END_BY_SUNRISE, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE };
-
+		enum TEnd{ NO_END_DEFINE=-1, END_BY_PRCP=10, END_BY_TAIR, END_BY_SUNRISE, OUTSIDE_MAP, OUTSIDE_TIME_WINDOW, NB_END_TYPE};
+		enum TNoLiftoff { NO_LIFTOFF_OUTSIDE_FLIGHT_PERIOD = 20, NO_LIFTOFF_NO_DEFOLIATION, NO_LIFTOFF_OVER_WATER, NO_LIFTOFF_MISS_ENERGY, NO_LIFTOFF_TAIR, NO_LIFTOFF_PRCP, NO_LIFTOFF_WNDS, NB_NOLIFTOFF_TYPE };
+		
 
 		size_t m_loc;
 		size_t m_par;
@@ -561,9 +749,7 @@ namespace WBSF
 		double m_Fᵒ;			//initial fecondity without defoliation
 		double m_broods;		//eggs laid by the female for the current day	
 		double m_eggsLeft;		//current fecondity
-		//double m_liftoffOffset; //liftoff Offset from the localTRef [s]
 		double m_Δv;			//proportion of wing beat on horizontal movement 
-		//CTRef m_localTRef;		//Creation date in local time
 		CTRef m_readyToFly;		//Creation date in UTC time
 		
 		CLocation m_location;	//initial position
@@ -571,14 +757,13 @@ namespace WBSF
 		CGeoPoint3D m_pt;		//same as m_newLocation but with flight height instead of elevation over sea level
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
-		//__int64 m_UTCtime;		//UTC time 
 		__int64 m_liffoff_time;	//UTC liftoff time [s]
 		__int64 m_duration;		//maximum flight duration [s]
 		double m_p_exodus;		//probability of exedus in function of hour
 		//__int64 m_Δangle_time;	//UTC last Δangle time [s]
 		//double m_Δangle;			//last Δangle [°]
 
-		CFlyer(CATMWorld& world);
+		CSBWMoth(CATMWorld& world);
 		bool init(CTRef TRef);
 		
 		void live( __int64 UTCTime);
@@ -593,8 +778,6 @@ namespace WBSF
 
 		void DestroyByOptimisation();
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
-
-		//CATMVariables get_weather(CTRef UTCTRef, __int64 UTCTime)const;
 		CATMVariables get_weather(__int64 UTCTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCTime)const;
 		double get_Uz(__int64 UTCTime, const CATMVariables& w)const;
@@ -609,29 +792,36 @@ namespace WBSF
 		double GetLog(size_t i)const{ return m_log[i]; }
 		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
-		int GetState()const{ return m_state; }
-		int GetEnd()const{ return m_end_type; }
+		size_t GetState()const{ return m_state; }
+		size_t GetEnd()const{ return m_end_type; }
 		__int64 GetUTCShift()const{ return m_UTCShift; }//in [s]
 		void Brood(double T);
-		bool ComputeExodus(double T, double P, double W, double tau)const;
-		bool GetLiftoff(__int64 sunset, __int64& liftoff)const;
+		bool ComputeExodus(double T, double P, double W, double tau);
+		bool GetLiftoff(__int64 sunset, __int64& liftoff);
 		bool get_t(__int64 sunset, __int64 &tº, __int64 &tᴹ)const;
+		void FillOutput(CTRef localTRef, CATMOutputMatrix& output);
+
 
 	protected:
 
 		void AddStat(const CATMVariables& w, const CGeoDistance3D& U, const CGeoDistance3D& d);
 		void AddStat(const CATMVariables& w);
+
 		
 		__int64 m_UTCShift;//shift between local time and UTC [s]
 
-		int m_state;		//state of the flyer
-		int m_end_type;		//Terminason of the flyer
+		size_t m_state;		//state of the flyer
+		size_t m_end_type;		//Terminason of the flyer
 		CATMWorld& m_world;
 
 		//statistic of flight
 		std::array<double, NB_FLYER_LOG> m_log;
 		std::array<std::array<CStatistic, NB_FLYER_STAT>, 2> m_stat;
-		
+		std::array<size_t, 3> m_noLiftoff;
+		CTRef m_lastOutput;
+		size_t m_lastState;
+
+		static size_t GetNoLiftoffCode(const std::array<size_t, 3>& noLiftoff);
 		static const double b[2];
 		static const double c[2];
 		static const double Vmax;
@@ -640,176 +830,11 @@ namespace WBSF
 	};
 
 
-	typedef std::deque <CFlyer> CFlyers;
-	typedef CFlyers::iterator CFlyersIt;
-	typedef CFlyers::const_iterator CFlyersCIt;
+	typedef std::deque <CSBWMoth> CSBWMoths;
+	typedef CSBWMoths::iterator CSBWMothsIt;
+	typedef CSBWMoths::const_iterator CSBWMothsCIt;
 
 
-	class CATMWorldParamters
-	{
-	public:
-
-		//static public member 
-		enum TweatherType{ FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
-		enum TMember{ WEATHER_TYPE, PERIOD, TIME_STEP, SEED, USE_SPACE_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, USE_VERTICAL_VELOCITY, MAXIMUM_FLYERS, DEM, WATER, GRIBS, HOURLY_DB, DEFOLIATION, OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, OUTPUT_FREQUENCY, CREATE_EGG_MAPS, EGG_MAP_TITLE, EGG_MAP_RES, WIND_STABILITY, NB_WEATHER_STATIONS, MAX_MISS_HOURS, NB_MEMBERS };
-		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBERS); return MEMBERS_NAME[i]; }
-
-		//public member
-		int m_weather_type;	//weather type: stations hourly databse or gridded NCEP multi-layer grid
-		CTPeriod m_simulationPeriod;
-		size_t m_time_step;	//time step in [s]
-		size_t m_seed;
-		bool m_bUseSpaceInterpolation;
-		bool m_bUseTimeInterpolation;
-		bool m_bUsePredictorCorrectorMethod;
-		bool m_bUseVerticalVelocity;
-		size_t m_maxFlyers;
-		
-		std::string m_gribs_name; //filepath on the grib file list
-		std::string m_defoliation_name;
-		std::string m_hourly_DB_name;
-		std::string m_DEM_name;
-		std::string m_water_name;
-
-		bool m_bOutputSubHourly;
-		std::string m_outputFileTitle;
-		__int64 m_outputFrequency;
-
-		bool m_bCreateEggMaps;
-		std::string m_eggMapsTitle;
-		double m_eggMapsResolution;
-		int m_windS_stability_type;	//not used for the moment
-		int m_nb_weather_stations;	//number of weather station to looking for
-		int m_max_hour_load;		//maximum number or weaher image load at the same time
-		__int64 m_max_missing_weather;	//maximum of missing weather to skip day (s)
-
-
-		size_t get_time_step()const{ return m_time_step; }//[s]
-		size_t get_nb_time_step()const{ assert(3600 % m_time_step == 0); return size_t(3600 / m_time_step); }	//number of timeStep per hour
-
-		bool UseGribs()const{ return m_weather_type == FROM_GRIBS || m_weather_type == FROM_BOTH; }
-		bool UseHourlyDB()const{ return m_weather_type == FROM_STATIONS || m_weather_type == FROM_BOTH; }
-
-		CATMWorldParamters()
-		{
-			clear();
-		}
-
-		void clear()
-		{
-			m_weather_type = FROM_GRIBS;
-			m_simulationPeriod = CTPeriod(CTRef::GetCurrentTRef(), CTRef::GetCurrentTRef());
-			m_time_step = 10; //10 seconds by default
-			m_seed = 0;
-			m_bUseSpaceInterpolation = true;
-			m_bUseTimeInterpolation = true;
-			m_bUsePredictorCorrectorMethod = true;
-			m_bUseVerticalVelocity = true;
-			m_windS_stability_type = CWindStability::AUTO_DETECT;
-			m_nb_weather_stations = 3;
-			m_max_hour_load = 24;
-			m_max_missing_weather = 3*3600;		//maximum of missing hour to skip day
-			m_maxFlyers = 0;
-
-			m_gribs_name.clear();
-			m_defoliation_name.clear();
-			m_hourly_DB_name.clear();
-			m_DEM_name.clear();
-			m_water_name.clear();
-
-			m_bOutputSubHourly = false;
-			m_outputFileTitle = "SubHourlyOutput";
-			m_outputFrequency = 600;
-
-			m_bCreateEggMaps = false;
-			m_eggMapsTitle = "EggDensity";
-			m_eggMapsResolution = 4000;
-
-		}
-
-
-		CATMWorldParamters& operator =(const CATMWorldParamters& in)
-		{
-			if (&in != this)
-			{
-				m_weather_type = in.m_weather_type;
-				m_simulationPeriod = in.m_simulationPeriod;
-				m_time_step = in.m_time_step;
-				m_seed = in.m_seed;
-				m_bUseSpaceInterpolation = in.m_bUseSpaceInterpolation;
-				m_bUseTimeInterpolation = in.m_bUseTimeInterpolation;
-				m_bUsePredictorCorrectorMethod = in.m_bUsePredictorCorrectorMethod;
-				m_bUseVerticalVelocity = in.m_bUseVerticalVelocity;
-				m_windS_stability_type = in.m_windS_stability_type;
-				m_nb_weather_stations = in.m_nb_weather_stations;
-				m_max_hour_load = in.m_max_hour_load;
-				m_max_missing_weather = in.m_max_missing_weather;
-
-				m_maxFlyers = in.m_maxFlyers;
-
-				m_gribs_name = in.m_gribs_name;
-				m_defoliation_name = in.m_defoliation_name;
-				m_hourly_DB_name = in.m_hourly_DB_name;
-				m_DEM_name = in.m_DEM_name;
-				m_water_name = in.m_water_name;
-
-				m_bOutputSubHourly = in.m_bOutputSubHourly;
-				m_outputFileTitle = in.m_outputFileTitle;
-				m_outputFrequency = in.m_outputFrequency;
-
-				m_bCreateEggMaps = in.m_bCreateEggMaps;
-				m_eggMapsTitle = in.m_eggMapsTitle;
-				m_eggMapsResolution = in.m_eggMapsResolution;
-
-			}
-
-			return *this;
-		}
-
-		bool operator ==(const CATMWorldParamters& in)const
-		{
-			bool bEqual = true;
-
-			if (m_weather_type != in.m_weather_type)bEqual = false;
-			if (m_simulationPeriod != in.m_simulationPeriod)bEqual = false;
-			if (m_time_step != in.m_time_step)bEqual = false;
-			if (m_seed != in.m_seed)bEqual = false;
-			if (m_bUseSpaceInterpolation != in.m_bUseSpaceInterpolation)bEqual = false;
-			if (m_bUseTimeInterpolation != in.m_bUseTimeInterpolation)bEqual = false;
-			if (m_bUsePredictorCorrectorMethod != in.m_bUsePredictorCorrectorMethod)bEqual = false;
-			if (m_bUseVerticalVelocity != in.m_bUseVerticalVelocity)bEqual = false;
-			if (m_windS_stability_type != in.m_windS_stability_type)bEqual = false;
-			if (m_nb_weather_stations != in.m_nb_weather_stations)bEqual = false;
-			if (m_max_hour_load != in.m_max_hour_load)bEqual = false;
-			if (m_max_missing_weather != in.m_max_missing_weather)bEqual = false;
-			if (m_maxFlyers != in.m_maxFlyers)bEqual = false;
-
-			if (m_gribs_name != in.m_gribs_name)bEqual = false;
-			if (m_defoliation_name != in.m_defoliation_name)bEqual = false;
-			if (m_hourly_DB_name != in.m_hourly_DB_name)bEqual = false;
-			if (m_DEM_name != in.m_DEM_name)bEqual = false;
-			if (m_water_name != in.m_water_name)bEqual = false;
-
-			if (m_bOutputSubHourly != in.m_bOutputSubHourly)bEqual = false;
-			if (m_outputFileTitle != in.m_outputFileTitle)bEqual = false;
-			if (m_outputFrequency != in.m_outputFrequency)bEqual = false;
-			
-			if (m_bCreateEggMaps != in.m_bCreateEggMaps)bEqual = false;
-			if (m_eggMapsTitle != in.m_eggMapsTitle)bEqual = false;
-			if (m_eggMapsResolution != in.m_eggMapsResolution)bEqual = false;
-
-
-			return bEqual;
-		}
-
-		bool operator !=(const CATMWorldParamters& in)const{ return !operator ==(in); }
-
-
-	protected:
-
-
-		static const char* MEMBERS_NAME[NB_MEMBERS];
-	};
 
 
 	class CATMWorld
@@ -819,48 +844,46 @@ namespace WBSF
 
 
 		//return the number of second since 1 december of year 1
-		size_t get_time_step()const{ return m_parameters1.get_time_step(); }//[s]
-		size_t get_nb_time_step()const{ return m_parameters1.get_nb_time_step(); }	//number of timeStep per hour
+		size_t get_time_step()const{ return m_world_param.get_time_step(); }//[s]
+		size_t get_nb_time_step()const{ return m_world_param.get_nb_time_step(); }	//number of timeStep per hour
 		
 		static __int64 get_sunrise(CTRef TRef, const CLocation& loc);
 		static __int64 get_sunset(CTRef TRef, const CLocation& loc);
 		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const { return m_weather.get_weather(pt, UTCCurrentTime); }
 		
 
-		std::vector<CFlyersIt> GetFlyers(CTRef TRef);
-		CTimePeriod get_UTC_sunset_period(CTRef TRef, const std::vector<CFlyersIt>& fls);
-		CTimePeriod get_UTC_flight_period(const std::vector<CFlyersIt>& fls);
-		std::vector<__int64> GetGribsTime(CTimePeriod UTC_period)const;
+		std::vector<CSBWMothsIt> GetFlyers(CTRef TRef);
+		CTimePeriod get_UTC_sunset_period(CTRef TRef, const std::vector<CSBWMothsIt>& fls);
+		CTimePeriod get_UTC_flight_period(const std::vector<CSBWMothsIt>& fls);
+		std::vector<__int64> GetGribsTime(CTimePeriod UTC_period, CCallback& callback)const;
 		ERMsg LoadGribs(CTRef TRef, const std::vector<__int64>& gribs, CCallback& callback);
 
 
 		int m_nb_max_threads;
-		CATMWorldParamters m_parameters1;
-		CFlyerParameters m_parameters2;
+		CATMWorldParamters m_world_param;
+		CSBWMothParameters m_moths_param;
 
 
 		CATMWeather m_weather;
-		CFlyers m_flyers;
+		CSBWMoths m_moths;
 		CGDALDatasetCached m_DEM_DS;
 		CGDALDatasetCached m_defoliation_DS;
-		//CGDALDatasetCached m_host_DS;
-		//CGDALDatasetCached m_distraction_DS;
 		CGDALDatasetCached m_water_DS;
 
 
 		double GetGroundAltitude(const CGeoPoint3D& pt)const;
 		bool is_over_defoliation(const CGeoPoint3D& pt)const;
 		double get_defoliation(const CGeoPoint3D& pt)const;
-		//bool is_over_distraction(const CGeoPoint3D& pt)const;
-		//bool is_over_host(const CGeoPoint3D& pt)const;
 		bool is_over_water(const CGeoPoint3D& pt)const;
 
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
-		ERMsg Execute(CTRef TRef, std::vector<CFlyersIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
+		ERMsg Execute(CTRef TRef, std::vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
 		ERMsg CreateEggDepositionMap(const std::string& outputFilePath, CATMOutputMatrix& output, CCallback& callback);
+		
+
 
 		CATMWorld() :
-			m_weather(*this)//pas sure...
+			m_weather(*this)
 		{
 			m_nb_max_threads = 1;
 		}
@@ -874,24 +897,19 @@ namespace WBSF
 		const CProjectionTransformation& GetToWeatherTransfo(__int64 UTCWeatherTime)const;
 		const CProjectionTransformation& GetFromWeatherTransfo(__int64 UTCWeatherTime)const;
 		
-
-		//__int64 get_duration()const;
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;
-
-
+		ERMsg Init(CCallback& callback);
 		
-		ERMsg Init(ofStream& output_file, CCallback& callback);
-		
+		double GetPmax()const { return ((m_world_param.m_PSource == CATMWorldParamters::DONT_USE_PRCP) ? 9999 : m_moths_param.m_Pmax); }
 
 	protected:
 
-		//CTRef m_UTCTRef;
-		//CTRef m_dailyTRef;
-		//__int64 m_UTCTTime;
 		CRandomGenerator m_random;
 	};
+
+	
 
 }
 
@@ -901,43 +919,45 @@ namespace zen
 
 
 	template <> inline
-		void writeStruc(const WBSF::CFlyerParameters& in, XmlElement& output)
+		void writeStruc(const WBSF::CSBWMothParameters& in, XmlElement& output)
 	{
 		XmlOut out(output);
 		
 		
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::BROOD_T_SOURCE)](in.m_PSource);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::PRCP_SOURCE)](in.m_broodTSource);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::P_MAX)](in.m_Pmax);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_MIN)](in.m_Wmin);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::WING_BEAT_SCALE)](in.m_w_α);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_HORZ)](in.m_w_horizontal);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::HORZ_SCALE)](in.m_Δv);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_DESCENT)](in.m_w_descent);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_DESCENT_SD)](in.m_w_descent_σ);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::FLIGHT_AFTER_SUNRISE)](in.m_flight_after_sunrise);
-		out[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::MAXIMUM_FLIGHTS)](in.m_maxFlights);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::P_MAX)](in.m_Pmax);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_MIN)](in.m_Wmin);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::WING_BEAT_SCALE)](in.m_w_α);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_HORZ)](in.m_w_horizontal);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_HORZ_SD)](in.m_w_horizontal_σ);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::HORZ_SCALE)](in.m_Δv);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT)](in.m_w_descent);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT_SD)](in.m_w_descent_σ);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::FLIGHT_AFTER_SUNRISE)](in.m_flight_after_sunrise);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAXIMUM_FLIGHTS)](in.m_maxFlights);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT0)](in.m_ready_to_fly_shift[0]);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT1)](in.m_ready_to_fly_shift[1]);
+		
+		
 		
 	}
 
 	template <> inline
-		bool readStruc(const XmlElement& input, WBSF::CFlyerParameters& out)
+		bool readStruc(const XmlElement& input, WBSF::CSBWMothParameters& out)
 	{
 		XmlIn in(input);
 
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::BROOD_T_SOURCE)](out.m_PSource);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::PRCP_SOURCE)](out.m_broodTSource);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::P_MAX)](out.m_Pmax);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_MIN)](out.m_Wmin);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::WING_BEAT_SCALE)](out.m_w_α);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_HORZ)](out.m_w_horizontal);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_HORZ_SD)](out.m_w_horizontal_σ);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::HORZ_SCALE)](out.m_Δv);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_DESCENT)](out.m_w_descent);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::W_DESCENT_SD)](out.m_w_descent_σ);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::FLIGHT_AFTER_SUNRISE)](out.m_flight_after_sunrise);
-		in[WBSF::CFlyerParameters::GetMemberName(WBSF::CFlyerParameters::MAXIMUM_FLIGHTS)](out.m_maxFlights);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::P_MAX)](out.m_Pmax);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_MIN)](out.m_Wmin);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::WING_BEAT_SCALE)](out.m_w_α);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_HORZ)](out.m_w_horizontal);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_HORZ_SD)](out.m_w_horizontal_σ);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::HORZ_SCALE)](out.m_Δv);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT)](out.m_w_descent);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT_SD)](out.m_w_descent_σ);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::FLIGHT_AFTER_SUNRISE)](out.m_flight_after_sunrise);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAXIMUM_FLIGHTS)](out.m_maxFlights);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT0)](out.m_ready_to_fly_shift[0]);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT1)](out.m_ready_to_fly_shift[1]);
 
 		return true;
 	}
@@ -951,7 +971,8 @@ namespace zen
 		XmlOut out(output);
 
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WEATHER_TYPE)](in.m_weather_type);
-		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](in.m_simulationPeriod);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SIMUL_PERIOD)](in.m_simulationPeriod);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::FLIGHT_PERIOD)](in.m_flightPeriod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](in.m_time_step);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](in.m_seed);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_SPACE_INTERPOL)](in.m_bUseSpaceInterpolation);
@@ -959,6 +980,9 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](in.m_bUsePredictorCorrectorMethod);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](in.m_bUseVerticalVelocity);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](in.m_maxFlyers);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::BROOD_T_SOURCE)](in.m_PSource);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PRCP_SOURCE)](in.m_broodTSource);
+
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](in.m_gribs_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](in.m_defoliation_name);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](in.m_hourly_DB_name);
@@ -973,8 +997,8 @@ namespace zen
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WIND_STABILITY)](in.m_windS_stability_type);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::NB_WEATHER_STATIONS)](in.m_nb_weather_stations);
 		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_MISS_HOURS)](in.m_max_missing_weather);
+		out[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::FORCE_FIRST_FLIGHT)](in.m_bForceFirstFlight);
 
-		
 
 	}
 
@@ -984,7 +1008,8 @@ namespace zen
 		XmlIn in(input);
 
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WEATHER_TYPE)](out.m_weather_type);
-		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PERIOD)](out.m_simulationPeriod);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SIMUL_PERIOD)](out.m_simulationPeriod);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::FLIGHT_PERIOD)](out.m_flightPeriod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::TIME_STEP)](out.m_time_step);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::SEED)](out.m_seed);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_SPACE_INTERPOL)](out.m_bUseSpaceInterpolation);
@@ -992,6 +1017,9 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_PREDICTOR_CORRECTOR_METHOD)](out.m_bUsePredictorCorrectorMethod);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::USE_VERTICAL_VELOCITY)](out.m_bUseVerticalVelocity);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAXIMUM_FLYERS)](out.m_maxFlyers);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::BROOD_T_SOURCE)](out.m_PSource);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::PRCP_SOURCE)](out.m_broodTSource);
+
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::GRIBS)](out.m_gribs_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::DEFOLIATION)](out.m_defoliation_name);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::HOURLY_DB)](out.m_hourly_DB_name);
@@ -1006,6 +1034,7 @@ namespace zen
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::WIND_STABILITY)](out.m_windS_stability_type);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::NB_WEATHER_STATIONS)](out.m_nb_weather_stations);
 		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::MAX_MISS_HOURS)](out.m_max_missing_weather);
+		in[WBSF::CATMWorldParamters::GetMemberName(WBSF::CATMWorldParamters::FORCE_FIRST_FLIGHT)](out.m_bForceFirstFlight);
 
 		return true;
 	}

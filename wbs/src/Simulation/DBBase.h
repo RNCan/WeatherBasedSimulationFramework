@@ -54,7 +54,7 @@ namespace WBSF
 
 
 		const CTPeriod& GetTPeriod()const{ return m_period; }
-		void SetTPeriod(const CTPeriod& in){ m_period = in; }
+		void SetTPeriod(const CTPeriod& in){ m_period = in; m_dimension[DIMENSION::TIME_REF] = m_period.GetNbRef();}
 
 		const CDimension& GetDimension()const{ return m_dimension; }
 
