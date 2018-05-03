@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Spruce beetle voltinism model - 2010</Title>
+    <Version>1.0</Version>
+    <ID>.SB</ID>
+    <EXE>SpruceBeetle.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Temperature-based model for predicting univoltine brood proportions in spruce beetle (Coleoptera: Scolytidae)&#x0A;&#x0A;&#x0A;&#x0A;</Description>
+    <WindowRect>0 0 82 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>NoInput</Name>
+            <Caption>No Input</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>10 10 30 225</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Pri15</Name>
+            <Title>Pri15</Title>
+            <Units>Days</Units>
+            <Description>Totals days wherein the daily maximum temperature was &gt;= 15 for the prior year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Day15</Name>
+            <Title>Day15</Title>
+            <Units>days</Units>
+            <Description>Totals days wherein the daily maximum temperature was &gt;= 15 for the current year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PeakFlight</Name>
+            <Title>PeakFlight</Title>
+            <Units/>
+            <Description>Julian day when half of beetle emerge</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Hr17</Name>
+            <Title>Hr17</Title>
+            <Units/>
+            <Description>Cumulative hour over 17 °C. Accumulation began 40 days after the peak emergence.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Voltinism</Name>
+            <Title>Proportion univoltine</Title>
+            <Units>%</Units>
+            <Description>Proportion of brood univoltism.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>Hansen, EM; Logan JA</Copyright>
+    <Credit>Citation:&#x0A;Hansen, E.M., B.J. Bentz, and D.L. Turner. 2001. Temperature-based model for predicting univoltine brood proportions in spruce beetle (Coleoptera: Scolytidae). The Canadian Entomologist 133:827-841.&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
