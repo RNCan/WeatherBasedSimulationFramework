@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 24/04/2018	1.5.1	Rémi Saint-Amant    Compile with VS 2017
 // 20/09/2016	1.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 14/02/2013			Rémi Saint-Amant	Creation
@@ -51,7 +52,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.5.0 (2016)";
+		VERSION = "1.5.1 (2018)";
 
 		m_model = DAILY_SINUS;
 		//	m_DPType = DP_MN;

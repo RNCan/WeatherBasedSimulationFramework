@@ -1,9 +1,9 @@
 ﻿//*********************************************************************
-//15/02/2007	Rémi Saint-Amant	Creation from matlab(.m) file 
-//19/03/2007	Rémi Saint-Amant	Return VMISS and not -999 when we don't find Flight peak 
-//22/05/2008	Rémi Saint-Amant	Return 0 and not VMISS when we don't find Flight peak 
-//26/01/2010	Rémi Saint-Amant	New equation 
 //14/09/2011	Rémi Saint-Amant	Update paramater with paper "Mapping landscap-scale voltinism of spruce beetle"
+//26/01/2010	Rémi Saint-Amant	New equation 
+//22/05/2008	Rémi Saint-Amant	Return 0 and not VMISS when we don't find Flight peak 
+//19/03/2007	Rémi Saint-Amant	Return VMISS and not -999 when we don't find Flight peak 
+//15/02/2007	Rémi Saint-Amant	Creation from matlab(.m) file 
 //*********************************************************************
 #include "SpruceBeetle.h"
 #include "Basic/WeatherStation.h"

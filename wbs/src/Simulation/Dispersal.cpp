@@ -1046,27 +1046,11 @@ namespace WBSF
 			}
 		}//if have moths to simulate
 
-
-
-
 		result.Close();
 
 		return msg;
 	}
 
-	ERMsg CDispersal::Execute(CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback)
-	{
-		ASSERT(m_DEM_DS.IsOpen());
-		ASSERT(m_weather.is_init());
-		ASSERT(!m_moths.empty());
-
-		ERMsg msg;
-
-
-
-
-		return msg;
-	}
 	//ERMsg CDispersal::Execute2(const CFileManager& fileManager, CCallback& callback)
 	//{
 	//	ERMsg msg;

@@ -5,7 +5,7 @@
     <ID>.sbe</ID>
     <EXE>Spruce Budworm Dispersal.dll</EXE>
     <Behaviour>1</Behaviour>
-    <Description>Hourly model of spruce budworm dispersal</Description>
+    <Description>Ready-to-fly spruce budworm dispersal</Description>
     <WindowRect>0 0 127 315</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -46,7 +46,7 @@
             <Name>Year</Name>
             <Title>Year</Title>
             <Units/>
-            <Description>Liftoff year</Description>
+            <Description>Ready-to-fly year</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -54,7 +54,7 @@
             <Name>Month</Name>
             <Title>Month</Title>
             <Units/>
-            <Description>Liftoff month</Description>
+            <Description>Ready-to-fly month</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -62,7 +62,7 @@
             <Name>Day</Name>
             <Title>Day</Title>
             <Units/>
-            <Description>Liftoff day</Description>
+            <Description>Ready-to-fly day</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>6</Precision>
         </OutputVariable>
@@ -102,7 +102,7 @@
             <Name>F°</Name>
             <Title>F°</Title>
             <Units>eggs</Units>
-            <Description>Initial fecondity in abscence of defoliation</Description>
+            <Description>Initial fecundity in absence of defoliation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -110,7 +110,7 @@
             <Name>F</Name>
             <Title>F</Title>
             <Units>eggs</Units>
-            <Description>Initial fecondity</Description>
+            <Description>Initial fecundity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

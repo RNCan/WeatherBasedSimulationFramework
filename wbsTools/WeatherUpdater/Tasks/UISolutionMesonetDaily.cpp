@@ -276,6 +276,10 @@ namespace WBSF
 					CLocation tmp;
 					child.attribute("fullname", tmp.m_name);
 					std::replace(tmp.m_name.begin(), tmp.m_name.end(), 'Ã', '\'');
+					//remove coma in name
+					tmp.m_name.erase(std::remove(tmp.m_name.begin(), tmp.m_name.end(), ','), tmp.m_name.end());
+					tmp.m_name.erase(std::remove(tmp.m_name.begin(), tmp.m_name.end(), '.'), tmp.m_name.end());
+					tmp.m_name.erase(std::remove(tmp.m_name.begin(), tmp.m_name.end(), ';'), tmp.m_name.end());
 					child.attribute("name", tmp.m_ID);
 					child.attribute("lat", tmp.m_lat);
 					child.attribute("lon", tmp.m_lon);

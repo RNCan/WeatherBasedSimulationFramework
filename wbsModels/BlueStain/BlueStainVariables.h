@@ -20,17 +20,9 @@ namespace WBSF
 		typedef std::array< size_t, NB_EXTREM> ExtremMonths;
 			
 
-	
-		//static const HOURLY_DATA::TVarH EXTREM_VAR[NB_EXTREM];
-		//static const int EXTREM_STAT[NB_EXTREM];
-		//static const double EXTREM_INIT_VAL[NB_EXTREM];
-		//static const int EXTREM_OP[NB_EXTREM];
-
-
 		static const char* VAR_NAME[NB_VARIABLES];
 
 
-		//static CTPeriod GetExtremQuarter(const CWeatherStation& weather, TExtrem e, bool bLoop = false);
 		CTPeriod CBlueStainVariables::GetExtremQuarter(const CWeatherYear& weather, TExtrem e, bool bLoop = false);
 		static size_t GetExtremMonth(const CWeatherStation& weather, TExtrem e);
 		static size_t GetExtremMonth(const CWeatherYear& weather, TExtrem e);
@@ -46,12 +38,4 @@ namespace WBSF
 		
 	};
 
-
-	//class  CSelectionVars : public std::bitset < CBlueStainVariables::NB_VARIABLES >
-	//{
-	//public:
-
-	//	CSelectionVars(size_t v = 0xFFFFFFFFFFFFFFFF);
-
-	//};
 }

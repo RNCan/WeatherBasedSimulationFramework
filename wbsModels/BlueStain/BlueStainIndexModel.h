@@ -8,7 +8,7 @@ namespace WBSF
 {
 
 
-	
+	typedef std::bitset<CBlueStainVariables::NB_VARIABLES> VariablesMask;
 
 	enum TStyle{ ADD, MUL, NB_STYLE };
 	class CLimits : public std::array<double, NB_STYLE>
@@ -42,16 +42,13 @@ namespace WBSF
 		CBlueStainIndexModel();
 		virtual ~CBlueStainIndexModel();
 		virtual ERMsg OnExecuteAnnual();
-		//virtual ERMsg CBlueStainIndexModel::OnExecuteAtemporal();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
-		virtual void GetFValueAnnual(CStatisticXY& stat);
-		virtual void AddAnnualResult(const StringVector& header, const StringVector& data);
 
 		static CBioSIMModelBase* CreateObject(){ return new CBlueStainIndexModel; }
 
-		//ERMsg ExecuteAtemporal(CModelStatVector& output);
-		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], size_t v, double f);
-		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], const CModelStatVector& values);
+		
+		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, size_t v, double f);
+		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, const CModelStatVector& values);
 
 		
 		

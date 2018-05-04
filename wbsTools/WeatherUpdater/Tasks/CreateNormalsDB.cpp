@@ -311,16 +311,18 @@ namespace WBSF
 			normalFromDaily.m_inputMMGFilePath = Get(MMG_FILEPATH);
 			//normalFromDaily.m_bCreateAll = false;
 			StringVector ref ( Get(NORMAL_PERIOD), "-");
-			ASSERT(ref.size() == 2);
-			//normalFromDaily.m_firstYear = .m_refPeriodIndex = as<int>(NORMAL_PERIOD)-1;
-			normalFromDaily.m_firstRefYear = WBSF::as<int>(ref[0]);
-			normalFromDaily.m_nbRefYears = WBSF::as<int>(ref[1]) - WBSF::as<int>(ref[0]) + 1;
-			normalFromDaily.m_CCPeriodIndex = GetCCPeriod();
-			normalFromDaily.m_inputDBFilePath = Get(INPUT);
-			normalFromDaily.m_outputDBFilePath = outputFilePath;
-			normalFromDaily.m_nbNeighbor = as<double>(NB_NEIGHBOR);
-			normalFromDaily.m_maxDistance = as<double>(MAX_DISTANCE)*1000;//[km] to [m]
-			normalFromDaily.m_power = as<double>(POWER);
+			if (ref.size() == 2)
+			{
+				//normalFromDaily.m_firstYear = .m_refPeriodIndex = as<int>(NORMAL_PERIOD)-1;
+				normalFromDaily.m_firstRefYear = WBSF::as<int>(ref[0]);
+				normalFromDaily.m_nbRefYears = WBSF::as<int>(ref[1]) - WBSF::as<int>(ref[0]) + 1;
+				normalFromDaily.m_CCPeriodIndex = GetCCPeriod();
+				normalFromDaily.m_inputDBFilePath = Get(INPUT);
+				normalFromDaily.m_outputDBFilePath = outputFilePath;
+				normalFromDaily.m_nbNeighbor = as<double>(NB_NEIGHBOR);
+				normalFromDaily.m_maxDistance = as<double>(MAX_DISTANCE) * 1000;//[km] to [m]
+				normalFromDaily.m_power = as<double>(POWER);
+			}
 
 			msg = normalFromDaily.CreateNormalDatabase(callback);
 		}

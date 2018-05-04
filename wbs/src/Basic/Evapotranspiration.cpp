@@ -94,7 +94,7 @@ CETOptions::CETOptions()
 const bool CThornthwaiteET::AUTO_REGISTER = CETFactory::Register("Thornthwaite", &CThornthwaiteET::Create);
 CThornthwaiteET::CThornthwaiteET(size_t type)
 {
-	m_type=POTENTIEL_STANDARD;
+	m_type = type;
 }
 
 double CThornthwaiteET::GetCorrectionFactor(double lat, size_t m)
