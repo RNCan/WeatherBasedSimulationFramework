@@ -112,6 +112,7 @@ BEGIN
     BUTTON      ID_TASK_WEATHER_FARM
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
     BUTTON      ID_TASK_SM_DAILY
+	BUTTON      ID_TASK_OTHER_COUNTRY
 END
 
 IDR_TASK_TOOLBAR2 TOOLBAR 32, 32
@@ -187,6 +188,7 @@ BEGIN
     BUTTON      ID_TASK_WEATHER_FARM
     BUTTON      ID_TASK_SM_CIPRA_HOURLY
     BUTTON      ID_TASK_SM_DAILY
+	BUTTON      ID_TASK_OTHER_COUNTRY
     BUTTON      ID_TASK_BC
     BUTTON      ID_TASK_ALBERTA
     BUTTON      ID_TASK_SASKATCHEWAN
@@ -238,8 +240,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,5,1,33
- PRODUCTVERSION 5,5,1,33
+ FILEVERSION 5,5,2,34
+ PRODUCTVERSION 5,5,2,34
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -688,6 +690,7 @@ BEGIN
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Réseau|Première année|Dernière année|Prévisions"
     IDS_UPDATER_SM_DAILY_P  "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+	IDS_UPDATER_OTHER_COUNTRY_P "Répertoire de travail|Reseau|Compté (si Irlande)|Première année|Dernière année|Type de données"
     IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
     IDS_UPDATER_ALBERTA_P   "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
     IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
@@ -757,6 +760,7 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_SM_DAILY        "Télécharger les données quotidiennes du Québec via Solutions-Mesonet\nQuébec quotidien"
+	ID_TASK_OTHER_COUNTRY	"Télécharger les données pour d'autres pays\nAutre pays"
     ID_TASK_BC              "Télécharger les données de la Colombie-Britannique via le PCIC (""Pacific Climate Impacts Consortium"")\nMétéo Colombie-Britannique"
     ID_TASK_ALBERTA         "Télécharger les données de l'Alberta via ACIS (""AgroClimatic Information Service"")\nMétéo Alberta"
     ID_TASK_SASKATCHEWAN    "Télécharger les données de la Saskatchewan\nMétéo Saskatchewan"
@@ -1154,6 +1158,7 @@ BEGIN
     IDS_UPDATER_SM_CIPRA_HOURLY_P 
                             "User Name|Password|Working directory|Network|First year|Last year|Forecast"
     IDS_UPDATER_SM_DAILY_P  "UserName|Password|Working directory|First year|Last year"
+	IDS_UPDATER_OTHER_COUNTRY_P "Working directory|Network|County (if Ireland)|First year|Last year|Type de données"
     IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
     IDS_UPDATER_ALBERTA_P   "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
     IDS_UPDATER_SASKATCHEWAN_P "Working directory|Download Archive"
@@ -1223,6 +1228,7 @@ END
 STRINGTABLE
 BEGIN
     ID_TASK_SM_DAILY        "Download Québec daily data via Solutions-Mesonet\nQuébec Daily"
+	ID_TASK_OTHER_COUNTRY	"Download other countries data\nOther Countries"
     ID_TASK_BC              "Download British Comlombia weather data via PCIC (""Pacific Climate Impacts Consortium"")\nBritish-Comlombia Weather"
     ID_TASK_ALBERTA         "Download agro-climatic data for Alberta via ACIS (""AgroClimatic Information Service"")\nAlberta Weather"
     ID_TASK_SASKATCHEWAN    "Download Saskatchewan weather data\nSaskatchewan Weather"

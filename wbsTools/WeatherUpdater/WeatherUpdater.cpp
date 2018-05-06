@@ -1,3 +1,5 @@
+//5.5.2	05/05/2018	Rémi Saint-Amant	Bug correction in SM. support station name with coma
+//										Add Ireland weather station
 //5.5.1	29/03/2018	Rémi Saint-Amant	Bug correction in MesoWest. Take the last day of the month
 //										Better management of internet exception
 //										Bug correction in HRDPS
