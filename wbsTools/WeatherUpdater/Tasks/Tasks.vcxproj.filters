@@ -200,6 +200,12 @@
     <ClInclude Include="UIManitoba.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIOtherCountries.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrelandCounty.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -389,6 +395,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIManitoba.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIOtherCountries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IrelandCounty.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

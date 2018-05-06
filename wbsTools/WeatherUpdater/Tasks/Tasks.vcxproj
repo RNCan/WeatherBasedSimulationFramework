@@ -168,6 +168,7 @@
     <ClInclude Include="CreateVirtualDB.h" />
     <ClInclude Include="HRDPS.h" />
     <ClInclude Include="HRRR.h" />
+    <ClInclude Include="IrelandCounty.h" />
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
     <ClInclude Include="SOPFEU.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="UIMesoWest.h" />
     <ClInclude Include="UINAM.h" />
     <ClInclude Include="UINOAAForecast.h" />
+    <ClInclude Include="UIOtherCountries.h" />
     <ClInclude Include="UIQuebec.h" />
     <ClInclude Include="UINEWA.h" />
     <ClInclude Include="UINewBrunswick.h" />
@@ -233,6 +235,7 @@
     <ClCompile Include="CreateVirtualDB.cpp" />
     <ClCompile Include="HRDPS.cpp" />
     <ClCompile Include="HRRR.cpp" />
+    <ClCompile Include="IrelandCounty.cpp" />
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="SOPFEU.cpp" />
@@ -259,6 +262,7 @@
     <ClCompile Include="UIMesoWest.cpp" />
     <ClCompile Include="UINAM.cpp" />
     <ClCompile Include="UINOAAForecast.cpp" />
+    <ClCompile Include="UIOtherCountries.cpp" />
     <ClCompile Include="UIQuebec.cpp" />
     <ClCompile Include="UINEWA.cpp" />
     <ClCompile Include="UINewBrunswick.cpp" />
