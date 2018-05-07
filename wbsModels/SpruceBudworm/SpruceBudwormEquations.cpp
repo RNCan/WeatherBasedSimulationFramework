@@ -327,7 +327,7 @@ namespace WBSF
 	double CSpruceBudwormEquations::get_defoliation(double defoliation)const
 	{
 		ASSERT(defoliation >= 0 && defoliation <= 100);
-		if (defoliation > 0)
+		if (defoliation > 0 && defoliation < 100)
 		{
 			double d = defoliation / 100;
 			double v = max(0.000623, 0.000623 + 0.1463*d + 0.1544*Square(d) - 0.32*Cube(d));

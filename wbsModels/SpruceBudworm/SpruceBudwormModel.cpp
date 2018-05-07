@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 02/05/2018   3.1.5   Rémi Saint-Amant	Compile with VS 2017
 // 04/05/2017   3.1.5   Rémi Saint-Amant	Update with new hourly generation
 // 03/03/2017   3.1.4   Rémi Saint-Amant	Add defoliation parameter
 // 28/02/2017   3.1.3   Rémi Saint-Amant	Bug correction in Fertil mode
@@ -49,7 +50,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "3.1.5 (2017)";
+		VERSION = "3.1.6 (2018)";
 
 		// initialize your variables here (optional)
 		m_bHaveAttrition = true;

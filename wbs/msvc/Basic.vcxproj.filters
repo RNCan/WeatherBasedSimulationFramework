@@ -212,6 +212,9 @@
     <ClCompile Include="..\src\Basic\ANN\perf.cpp">
       <Filter>Source\ANN</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\ZIP.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -465,6 +468,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Basic\ANN\pr_queue_k.h">
       <Filter>Source\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ZIP.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -303,6 +303,12 @@
     <ClCompile Include="..\src\Basic\WeatherStation.cpp" />
     <ClCompile Include="..\src\Basic\XMLite.cpp" />
     <ClCompile Include="..\src\Basic\xml\zenxml\static_unit_test.cpp" />
+    <ClCompile Include="..\src\Basic\ZIP.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="stdafx\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -394,6 +400,7 @@
     <ClInclude Include="..\src\Basic\xml\zen\type_tools.h" />
     <ClInclude Include="..\src\Basic\xml\zen\type_traits.h" />
     <ClInclude Include="..\src\Basic\xml\zen\utf.h" />
+    <ClInclude Include="..\src\Basic\ZIP.h" />
     <ClInclude Include="stdafx\stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

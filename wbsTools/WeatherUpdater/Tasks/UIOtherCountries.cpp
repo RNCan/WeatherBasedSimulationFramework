@@ -1,3 +1,7 @@
+//
+//WARNING: the metadata in the Ireland data file is not good
+
+
 #include "StdAfx.h"
 #include "UIOtherCountries.h"
 #include "UIManitoba.h"
@@ -295,6 +299,47 @@ namespace WBSF
 		if (m_stations[n].empty())
 		{
 			msg = m_stations[n].Load(GetStationListFilePath(n));
+			//update lat, lon and elevation
+			//for (size_t i = 0; i < m_stations[n].size(); i++)
+			//{
+			//	string filePath = GetOutputFilePath(n, m_stations[n][i].m_ID, -999, DAILY_WEATHER);
+			//	if (!FileExists(filePath))
+			//		filePath = GetOutputFilePath(n, m_stations[n][i].m_ID, -999, HOURLY_WEATHER);
+
+			//	if (FileExists(filePath))
+			//	{
+			//		ifStream file;
+			//		msg = file.open(filePath, ios_base::in | ios_base::binary);
+			//		if (msg)
+			//		{
+			//			boost::iostreams::filtering_istreambuf in;
+			//			in.push(boost::iostreams::gzip_decompressor());
+			//			in.push(file);
+			//			std::istream incoming(&in);
+			//			
+			//			string name, coord, alt;
+			//			std::getline(incoming, name);
+			//			std::getline(incoming, alt);
+			//			std::getline(incoming, coord);
+			//			StringVector tmp(coord, ":, ");
+			//			StringVector tmp2(WBSF::TrimConst(WBSF::FindString(alt, ":", "M")), " ).");
+			//			StringVector tmp3(name, ":");
+
+
+			//			if(tmp.size() == 4 && tmp2.size()==1 && tmp2[0][0] != 'S'&& tmp3.size()==2)
+			//			{
+			//				m_stations[n][i].SetSSI("BD_Name", tmp3[1]);
+			//				m_stations[n][i].SetSSI("BD_Lat", tmp[1]);
+			//				m_stations[n][i].SetSSI("BD_Lon",tmp[3]);
+			//				m_stations[n][i].SetSSI("BD_Elev", tmp2[0]);
+			//			}
+			//			
+			//		}
+			//	}
+			//}//for all stations
+			
+			//return m_stations[n].Save( GetStationListFilePath(n) + "2");
+
 		}
 
 		StringVector stationList;
@@ -840,12 +885,16 @@ namespace WBSF
 				string line;
 				while (std::getline(incoming, line))//read header lines
 				{
+					/*
+					WARNING: the metadata in the file is corrupted for many stations (~150}
+					
 					if (line.find("Station Height") != string::npos)
 					{
 						string tmp = WBSF::TrimConst(WBSF::FindString(line, ":", "M"));
 						ASSERT(!tmp.empty());
 						station.m_elev = WBSF::as<double>(tmp);
 					}
+					*/
 
 					if (line.find("date,") != string::npos)
 					{
