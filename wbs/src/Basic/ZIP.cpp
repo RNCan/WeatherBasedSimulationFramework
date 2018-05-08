@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 #ifdef PARTIO_USE_ZLIB
 extern "C"{
-#include "E:/Project/external/zlib/zlib.h"
+#include "../external/zlib/zlib.h"
 }
 #endif
 

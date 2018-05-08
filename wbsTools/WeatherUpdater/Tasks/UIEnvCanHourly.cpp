@@ -1140,82 +1140,68 @@ namespace WBSF
 
 		//now extact data 
 		ifStream file;
-
-		//#pragma omp flush(msg)
 		msg = file.open(filePath);
-		//#pragma omp flush(msg)
 
 		if (msg)
 		{
-			//CWeatherAccumulator accumulator(TM);
-
-			size_t i = 0;
-			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop, i++)
+			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
 			{
-				ENSURE(loop.Header().size() == NB_INPUT_HOURLY_COLUMN);
-
-				int year = ToInt((*loop)[H_YEAR]);
-				int month = ToInt((*loop)[H_MONTH]) - 1;
-				int day = ToInt((*loop)[H_DAY]) - 1;
-				int hour = GetHour((*loop)[TIMEVAL]);
-
-				ASSERT(month >= 0 && month < 12);
-				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-				ASSERT(hour >= 0 && hour < 24);
-
-				CTRef TRef(year, month, day, hour);
-
-				//if (accumulator.TRefIsChanging(TRef))
-				//{
-					//data[accumulator.GetTRef()].SetData(accumulator);
-				//}
-
-				bool bValid[NB_VAR_H] = { 0 };
-				bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
-				bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
-				bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
-				bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M") && !(*loop)[RELHUM].empty();
-				bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
-				bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
-
-				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				//new file don't have the DATA_QUALITY flag
+				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
+				if (loop.Header().size() != (NB_INPUT_HOURLY_COLUMN + fix))
 				{
-					if (bValid[v])
+					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) +  "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
+					msg.ajoute(filePath);
+					return msg;
+				}
+				
+				if (loop->size() == (NB_INPUT_HOURLY_COLUMN + fix))
+				{
+					int year = ToInt((*loop)[H_YEAR]);
+					int month = ToInt((*loop)[H_MONTH]) - 1;
+					int day = ToInt((*loop)[H_DAY]) - 1;
+					int hour = GetHour((*loop)[TIMEVAL]);
+
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+					ASSERT(hour >= 0 && hour < 24);
+
+					CTRef TRef(year, month, day, hour);
+
+					bool bValid[NB_VAR_H] = { 0 };
+					bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG + fix].empty() || (*loop)[TEMPERATURE_FLAG + fix] == "E") && !(*loop)[TEMPERATURE + fix].empty();
+					bValid[H_PRES] = (*loop)[PRESSURE_FLAG + fix].empty() && !(*loop)[PRESSURE + fix].empty();
+					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG + fix].empty() || (*loop)[DEWPOINT_FLAG + fix] != "M") && !(*loop)[DEWPOINT + fix].empty();
+					bValid[H_RELH] = ((*loop)[RELHUM_FLAG + fix].empty() || (*loop)[RELHUM_FLAG + fix] != "M") && !(*loop)[RELHUM + fix].empty();
+					bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG + fix].empty() || (*loop)[WIND_SPEED_FLAG + fix] != "E") && !(*loop)[WIND_SPEED + fix].empty();
+					bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG + fix].empty() || (*loop)[WIND_DIR_FLAG + fix] == "E") && !(*loop)[WIND_DIR + fix].empty();
+
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					{
-						if (COL_POS[v] >= 0)
+						if (bValid[v])
 						{
-							double value = ToDouble((*loop)[COL_POS[v]])*FACTOR[v];
-							data[TRef].SetStat(v, value);
+							if (COL_POS[v] >= 0)
+							{
+								double value = ToDouble((*loop)[COL_POS[v] + fix])*FACTOR[v];
+								data[TRef].SetStat(v, value);
+							}
 						}
-						//accumulator.Add(TRef, v, ToDouble((*loop)[COL_POS[v]])*FACTOR[v]);
+					}
+
+					if (bValid[H_TAIR2] && (!bValid[H_TDEW] || !bValid[H_RELH]))
+					{
+						double Tair = ToDouble((*loop)[COL_POS[H_TAIR2]])*FACTOR[H_TAIR2];
+						double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
+						double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
+						if (Hr == -999 && Tdew != -999)
+							data[TRef].SetStat(H_RELH, Td2Hr(Tair, Tdew));
+						else if (Tdew == -999 && Hr != -999)
+							data[TRef].SetStat(H_TDEW, Hr2Td(Tair, Hr));
 					}
 				}
 
-
-
-
-				if (bValid[H_TAIR2] && (!bValid[H_TDEW] || !bValid[H_RELH]))
-				{
-					double Tair = ToDouble((*loop)[COL_POS[H_TAIR2]])*FACTOR[H_TAIR2];
-					double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
-					double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
-					if (Hr == -999 && Tdew != -999)
-						//accumulator.Add(TRef, H_RELH, Td2Hr(Tair, Tdew));
-						data[TRef].SetStat(H_RELH, Td2Hr(Tair, Tdew));
-					else if (Tdew == -999 && Hr != -999)
-						data[TRef].SetStat(H_TDEW, Hr2Td(Tair, Hr));
-					//accumulator.Add(TRef, H_TDEW, Hr2Td(Tair, Hr));
-				}
-
-
-
 				msg += callback.StepIt(0);
 			}//for all line
-
-
-			//if (accumulator.GetTRef().IsInit())
-				//data[accumulator.GetTRef()].SetData(accumulator);
-
 		}//if load 
 
 		return msg;

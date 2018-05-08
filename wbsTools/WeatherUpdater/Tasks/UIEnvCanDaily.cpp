@@ -895,76 +895,77 @@ namespace WBSF
 			size_t i = 0;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop, i++)
 			{
-				ENSURE(loop.Header().size() == NB_DAILY_COLUMN);
-
-
-				int year = ToInt((*loop)[YEAR]);
-				int month = ToInt((*loop)[MONTH]) - 1;
-				int day = ToInt((*loop)[DAY]) - 1;
-
-				ASSERT(month >= 0 && month < 12);
-				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-				CTRef Tref(year, month, day);
-
-				if (((*loop)[MEAN_TEMP_FLAG].empty() || (*loop)[MEAN_TEMP_FLAG] == "E" || (*loop)[MEAN_TEMP_FLAG] == "T") && !(*loop)[MEAN_TEMP].empty())
+				if (loop.Header().size() != NB_DAILY_COLUMN)
 				{
-					float Tair = ToFloat((*loop)[MEAN_TEMP]);
-					ASSERT(Tair >= -70 && Tair <= 70);
-
-					dailyData[Tref][H_TAIR2] = Tair;
-				}
-
-				if (((*loop)[MIN_TEMP_FLAG].empty() || (*loop)[MIN_TEMP_FLAG] == "E") && !(*loop)[MIN_TEMP].empty() &&
-					((*loop)[MAX_TEMP_FLAG].empty() || (*loop)[MAX_TEMP_FLAG] == "E") && !(*loop)[MAX_TEMP].empty())
-				{
-					float Tmin = ToFloat((*loop)[MIN_TEMP]);
-					ASSERT(Tmin >= -70 && Tmin <= 70);
-					float Tmax = ToFloat((*loop)[MAX_TEMP]);
-					ASSERT(Tmax >= -70 && Tmax <= 70);
-
-					//que faire quand Tmin est plus grand que Tmax???
-					if (Tmin > Tmax)
-						Switch(Tmin, Tmax);
-
-					dailyData[Tref][H_TMIN2] = Tmin;
-					dailyData[Tref][H_TMAX2] = Tmax;
-				}
-
-				if (((*loop)[TOTAL_PRECIP_FLAG].empty() || (*loop)[TOTAL_PRECIP_FLAG] == "E" || (*loop)[TOTAL_PRECIP_FLAG] == "T") && !(*loop)[TOTAL_PRECIP].empty())
-				{
-					float prcp = ToFloat((*loop)[TOTAL_PRECIP]);
-					ASSERT(prcp >= 0 && prcp < 1000);
-					dailyData[Tref][H_PRCP] = prcp;
-				}
-
-				//By RSA 29-03-2018
-				//The snow in EnvCan is in cm and not in water equivalent
-				//So we have to take rain instead
-				if (dailyData[Tref][H_PRCP].IsInit() &&
-					((*loop)[TOTAL_RAIN_FLAG].empty() || (*loop)[TOTAL_RAIN_FLAG] == "E" || (*loop)[TOTAL_RAIN_FLAG] == "T") && !(*loop)[TOTAL_RAIN].empty())
-				{
-					float rain = ToFloat((*loop)[TOTAL_RAIN]);
-					ASSERT(rain >= 0 && rain < 1000);
-					ASSERT(dailyData[Tref][H_PRCP][SUM] - rain >= 0);
-					dailyData[Tref][H_SNOW] = max(0.0, dailyData[Tref][H_PRCP][SUM] - rain);
-				}
-
-				//if (((*loop)[TOTAL_SNOW_FLAG].empty() || (*loop)[TOTAL_SNOW_FLAG] == "E" || (*loop)[TOTAL_SNOW_FLAG] == "T") && !(*loop)[TOTAL_SNOW].empty())
-				//{
-				//	float snow = ToFloat((*loop)[TOTAL_SNOW]);
-				//	ASSERT(snow >= 0 && snow < 1000);
-				//	dailyData[Tref][H_SNOW] = snow;
-				//}
-
-				if (((*loop)[SNOW_ON_GRND_FLAG].empty() || (*loop)[SNOW_ON_GRND_FLAG] == "E" || (*loop)[SNOW_ON_GRND_FLAG] == "T") && !(*loop)[SNOW_ON_GRND].empty())
-				{
-					float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
-					ASSERT(sndh >= 0 && sndh < 1000);
-					dailyData[Tref][H_SNDH] = sndh;
+					//if the Env Can web site change...
+					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_DAILY_COLUMN));
+					msg.ajoute(filePath);
+					return msg;
 				}
 
 
-				//problème aussi avec le DewPoint et le minimum horaire
+				if (loop->size() == NB_DAILY_COLUMN)
+				{
+					int year = ToInt((*loop)[YEAR]);
+					int month = ToInt((*loop)[MONTH]) - 1;
+					int day = ToInt((*loop)[DAY]) - 1;
+
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+					CTRef Tref(year, month, day);
+
+					if (((*loop)[MEAN_TEMP_FLAG].empty() || (*loop)[MEAN_TEMP_FLAG] == "E" || (*loop)[MEAN_TEMP_FLAG] == "T") && !(*loop)[MEAN_TEMP].empty())
+					{
+						float Tair = ToFloat((*loop)[MEAN_TEMP]);
+						ASSERT(Tair >= -70 && Tair <= 70);
+
+						dailyData[Tref][H_TAIR2] = Tair;
+					}
+
+					if (((*loop)[MIN_TEMP_FLAG].empty() || (*loop)[MIN_TEMP_FLAG] == "E") && !(*loop)[MIN_TEMP].empty() &&
+						((*loop)[MAX_TEMP_FLAG].empty() || (*loop)[MAX_TEMP_FLAG] == "E") && !(*loop)[MAX_TEMP].empty())
+					{
+						float Tmin = ToFloat((*loop)[MIN_TEMP]);
+						ASSERT(Tmin >= -70 && Tmin <= 70);
+						float Tmax = ToFloat((*loop)[MAX_TEMP]);
+						ASSERT(Tmax >= -70 && Tmax <= 70);
+
+						//que faire quand Tmin est plus grand que Tmax???
+						if (Tmin > Tmax)
+							Switch(Tmin, Tmax);
+
+						dailyData[Tref][H_TMIN2] = Tmin;
+						dailyData[Tref][H_TMAX2] = Tmax;
+					}
+
+					if (((*loop)[TOTAL_PRECIP_FLAG].empty() || (*loop)[TOTAL_PRECIP_FLAG] == "E" || (*loop)[TOTAL_PRECIP_FLAG] == "T") && !(*loop)[TOTAL_PRECIP].empty())
+					{
+						float prcp = ToFloat((*loop)[TOTAL_PRECIP]);
+						ASSERT(prcp >= 0 && prcp < 1000);
+						dailyData[Tref][H_PRCP] = prcp;
+					}
+
+					//By RSA 29-03-2018
+					//The snow in EnvCan is in cm and not in water equivalent
+					//So we have to take rain instead
+					if (dailyData[Tref][H_PRCP].IsInit() &&
+						((*loop)[TOTAL_RAIN_FLAG].empty() || (*loop)[TOTAL_RAIN_FLAG] == "E" || (*loop)[TOTAL_RAIN_FLAG] == "T") && !(*loop)[TOTAL_RAIN].empty())
+					{
+						float rain = ToFloat((*loop)[TOTAL_RAIN]);
+						ASSERT(rain >= 0 && rain < 1000);
+						ASSERT(dailyData[Tref][H_PRCP][SUM] - rain >= 0);
+						dailyData[Tref][H_SNOW] = max(0.0, dailyData[Tref][H_PRCP][SUM] - rain);
+					}
+
+					if (((*loop)[SNOW_ON_GRND_FLAG].empty() || (*loop)[SNOW_ON_GRND_FLAG] == "E" || (*loop)[SNOW_ON_GRND_FLAG] == "T") && !(*loop)[SNOW_ON_GRND].empty())
+					{
+						float sndh = ToFloat((*loop)[SNOW_ON_GRND]);
+						ASSERT(sndh >= 0 && sndh < 1000);
+						dailyData[Tref][H_SNDH] = sndh;
+					}
+				}
+
+				
 			}//for all line
 		}
 

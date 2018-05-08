@@ -20,7 +20,7 @@ copy /Y ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe"
 copy /Y ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe"
 copy /Y ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe"
 copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.manifest"
-copy /Y ".\bin\Releasex64\vcomp120.dll" "..\Install\NRCan\vcomp120.dll"
+copy /Y ".\bin\Releasex64\vcomp140.dll" "..\Install\NRCan\vcomp140.dll"
 copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
 
 copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"

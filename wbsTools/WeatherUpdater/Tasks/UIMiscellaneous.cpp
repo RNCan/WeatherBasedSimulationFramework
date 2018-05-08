@@ -44,6 +44,10 @@ namespace WBSF
 	//http://mesowest.utah.edu/cgi-bin/droman/variable_download_select.cgi
 	//
 
+	//Ireland data
+	//https://cli.fusio.net/cli/climate_data/webdatac/dly1928.zip
+
+
 
 	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca" };
 	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/" };
