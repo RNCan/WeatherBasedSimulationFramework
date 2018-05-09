@@ -350,16 +350,15 @@ namespace WBSF
 
 			if (msg)
 			{
+				size_t type = as <size_t>(DATA_TYPE);
+				callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+
+
 				{
 					TRY
 
-
 						pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-
-
-					size_t type = as <size_t>(DATA_TYPE);
-					callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data(" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
-
+					
 					for (size_t i = curI; i < m_stations.size() && msg; i++)
 					{
 						for (size_t y = 0; y < nbYears&&msg; y++)
@@ -412,12 +411,13 @@ namespace WBSF
 
 					END_CATCH_ALL
 				}
+
+
 				//if an error occur: try again
 				if (!msg && !callback.GetUserCancel())
 				{
 					if (nbRun < 5)
 					{
-						callback.PopTask();
 						callback.AddMessage(msg);
 						msg = ERMsg();
 
@@ -436,12 +436,14 @@ namespace WBSF
 				pConnection.release();
 				pSession->Close();
 				pSession.release();
+
+				callback.PopTask();
 			}//if msg
 
 		}//while
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
-		callback.PopTask();
+		//callback.PopTask();
 
 		return msg;
 	}
