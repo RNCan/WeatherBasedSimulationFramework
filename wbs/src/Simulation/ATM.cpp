@@ -297,7 +297,7 @@ namespace WBSF
 
 
 		__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-		__int64 sunset = UTCTimeº + m_world.get_sunset(TRef, m_location);
+		__int64 UTCsunset = UTCTimeº + m_world.get_sunset(TRef, m_location);
 
 
 		bool bForceFirst = m_flightNo == 0 && m_world.m_world_param.m_bForceFirstFlight;
@@ -312,21 +312,18 @@ namespace WBSF
 				switch (m_world.m_world_param.m_broodTSource)
 				{
 				case CATMWorldParamters::BROOD_T_17: T = 17; break;
-				case CATMWorldParamters::BROOD_T_SAME_AS_INPUT:
+				case CATMWorldParamters::BROOD_AT_SUNSET:
 				{
-					//at local 20:00 : a vérifier l'heure qui est le plus près de la température moyenne
-					//ASSERT(UTCTime == CTimeZones::GetTime0(UTCTime));
-
-
-					__int64 UTCTime20 = UTCTimeº + 20 * 3600;
+					//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
+					__int64 UTCTmean = UTCsunset + 40 * 60;
 					//Get nearest grid of this time
-					UTCTime20 = m_world.m_weather.GetNearestFloorTime(UTCTime20);
-					CATMVariables w = get_weather(UTCTime20);
-					T = w[ATM_TAIR];
+					UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
+					T = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
+					//CATMVariables w = get_weather(UTCTmean);
+					//T = w[ATM_TAIR];
 					break;
 				}
-				case CATMWorldParamters::BROOD_T_WEATHER_STATION:
-					; break;
+				
 				}
 
 				Brood(T);
@@ -341,7 +338,7 @@ namespace WBSF
 				{
 					if (m_world.m_world_param.m_flightPeriod.IsInside(TRef))
 					{
-						if (GetLiftoff(sunset, m_liffoff_time))
+						if (GetLiftoff(UTCsunset, m_liffoff_time))
 						{
 							//compute surise of the next day
 							__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
@@ -1277,9 +1274,10 @@ namespace WBSF
 		bool bOverWater = m_world.is_over_water(pt);
 
 		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
+		CTRef UTCTRef = CTimeZones::Time2TRef(UTCWeatherTime);
 
 		for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
-			weather[v] = m_iwd.at(UTCWeatherTime)[v].Evaluate(gpt);
+			weather[v] = m_iwd.at(UTCTRef)[v].Evaluate(gpt);
 
 		double Tw = weather[ATM_WATER];		//water temperature [ᵒC]
 		double ΔT = weather[ATM_TAIR] - Tw;	//difference between air and water temperature
@@ -1653,7 +1651,11 @@ namespace WBSF
 			bIsLoaded = m_p_weather_DS.IsLoaded(UTCWeatherTime);
 
 		if (bIsLoaded && !m_filePathHDB.empty())
-			bIsLoaded = m_iwd.find(UTCWeatherTime) != m_iwd.end();
+		{
+			CTRef UTCTRef = CTimeZones::Time2TRef(UTCWeatherTime);
+			bIsLoaded = m_iwd.find(UTCTRef) != m_iwd.end();
+		}
+			
 
 		return bIsLoaded;
 	}
@@ -1707,14 +1709,17 @@ namespace WBSF
 				set<size_t> indexes;
 				for (size_t v = 0; v < NB_ATM_VARIABLES&&msg; v++)
 				{
-					for (auto it = m_world.m_moths.begin(); it != m_world.m_moths.end() && msg; it++)
+					if (v != ATM_PRCP || m_world.m_world_param.m_PSource != CATMWorldParamters::DONT_USE_PRCP)
 					{
-						CSearchResultVector result;
-						msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_world_param.m_nb_weather_stations * 5, -1, CWVariables(FILTER_STR[v]), year);
-						for (size_t ss = 0; ss < result.size(); ss++)
-							indexes.insert(result[ss].m_index);
+						for (auto it = m_world.m_moths.begin(); it != m_world.m_moths.end() && msg; it++)
+						{
+							CSearchResultVector result;
+							msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_world_param.m_nb_weather_stations * 5, -1, CWVariables(FILTER_STR[v]), year);
+							for (size_t ss = 0; ss < result.size(); ss++)
+								indexes.insert(result[ss].m_index);
 
-						msg += callback.StepIt(0);
+							msg += callback.StepIt(0);
+						}
 					}
 				}
 
@@ -1725,108 +1730,109 @@ namespace WBSF
 					size_t index = *it;
 
 					//load station in memory
-					CWeatherStation& station = m_stations[index];
-					msg += m_p_hourly_DB->Get(station, index, year);
+					msg += m_p_hourly_DB->Get(m_stations[index], index, year);
 					ASSERT(m_stations.find(index) != m_stations.end());
 
-					m_Twater[index].Compute(station);//compute water temperature
+					m_Twater[index].Compute(m_stations[index]);//compute water temperature
 					msg += callback.StepIt(0);
 				}
 
 				//create IWD object
 				for (size_t v = 0; v < NB_ATM_VARIABLES&&msg; v++)
 				{
+					
 					CGridPointVectorPtr pts(new CGridPointVector);
 
-					set<size_t> indexes;
-					for (auto it = m_world.m_moths.begin(); it != m_world.m_moths.end() && msg; it++)
+					if (v != ATM_PRCP || m_world.m_world_param.m_PSource != CATMWorldParamters::DONT_USE_PRCP)
 					{
-						CSearchResultVector result;
-						msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_world_param.m_nb_weather_stations * 5, -1, CWVariables(FILTER_STR[v]), year);
-						for (size_t ss = 0; ss < result.size(); ss++)
-							indexes.insert(result[ss].m_index);
-					}
-
-					for (set<size_t>::const_iterator it = indexes.begin(); it != indexes.end() && msg; it++)
-					{
-						size_t index = *it;
-						ASSERT(m_stations.find(index) != m_stations.end());
-
-						const CWeatherStation& station = m_stations[index];
-						CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, station);
-
-						switch (v)
+						set<size_t> indexes;
+						for (auto it = m_world.m_moths.begin(); it != m_world.m_moths.end() && msg; it++)
 						{
-						case ATM_TAIR:
-						{
-							CStatistic Tair = station[TRef][H_TAIR2];
-							if (Tair.IsInit())
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetPrjID()));
+							CSearchResultVector result;
+							msg = m_p_hourly_DB->Search(result, it->m_newLocation, m_world.m_world_param.m_nb_weather_stations * 5, -1, CWVariables(FILTER_STR[v]), year);
+							for (size_t ss = 0; ss < result.size(); ss++)
+								indexes.insert(result[ss].m_index);
 						}
-						break;
-						case ATM_PRES:
-						{
-							double pres = 1013 * pow((293 - 0.0065*station.m_z) / 293, 5.26);//ASCE2005
-							CStatistic presStat = station[TRef][H_PRES];
-							if (presStat.IsInit())
-								pres = presStat[MEAN];
 
-							pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, pres, station.m_lat, station.GetPrjID()));
-						}
-						break;
-						case ATM_PRCP:
+						for (set<size_t>::const_iterator it = indexes.begin(); it != indexes.end() && msg; it++)
 						{
-							CStatistic prcp = station[TRef][H_PRCP];
-							if (prcp.IsInit())
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, prcp[SUM], station.m_lat, station.GetPrjID()));
-						}
-						break;
-						case ATM_WNDU:
-						case ATM_WNDV:
-						{
-							CStatistic wndS = station[TRef][H_WNDS];
-							CStatistic wndD = station[TRef][H_WNDD];
+							size_t index = *it;
+							ASSERT(m_stations.find(index) != m_stations.end());
 
-							if (wndS.IsInit() && wndD.IsInit())
+							const CWeatherStation& station = m_stations[index];
+							CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, station);
+
+							switch (v)
 							{
-								double ws = wndS[MEAN] * 1000 / 3600;//km/h -> m/s
-								double wd = wndD[MEAN];
-								ASSERT(ws >= 0 && ws < 150);
-								ASSERT(wd >= 0 && wd <= 360);
-
-								double θ = Deg2Rad(-90 - wd);
-								double U = cos(θ)*ws;
-								double V = sin(θ)*ws;
-
-								double val = v == ATM_WNDU ? U : V;
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, val, station.m_lat, station.GetPrjID()));
+							case ATM_TAIR:
+							{
+								CStatistic Tair = station[TRef][H_TAIR2];
+								if (Tair.IsInit())
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetPrjID()));
 							}
-						}
-						break;
-
-						case ATM_WNDW:
-						{
-							pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, 0, station.m_lat, station.GetPrjID()));
 							break;
-						}
-						case ATM_WATER:
-						{
-							CStatistic Tair = station[TRef][H_TAIR2];
-							if (Tair.IsInit())
+							case ATM_PRES:
 							{
-								double Tw = m_Twater[index].GetTwI(TRef.Transform(CTM(CTM::DAILY)));
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tw, station.m_lat, station.GetPrjID()));
+								double pres = 1013 * pow((293 - 0.0065*station.m_z) / 293, 5.26);//ASCE2005
+								CStatistic presStat = station[TRef][H_PRES];
+								if (presStat.IsInit())
+									pres = presStat[MEAN];
+
+								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, pres, station.m_lat, station.GetPrjID()));
 							}
-						}
-						break;
+							break;
+							case ATM_PRCP:
+							{
+								CStatistic prcp = station[TRef][H_PRCP];
+								if (prcp.IsInit())
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, prcp[SUM], station.m_lat, station.GetPrjID()));
+							}
+							break;
+							case ATM_WNDU:
+							case ATM_WNDV:
+							{
+								CStatistic wndS = station[TRef][H_WNDS];
+								CStatistic wndD = station[TRef][H_WNDD];
 
-						default:ASSERT(false);
-						}
+								if (wndS.IsInit() && wndD.IsInit())
+								{
+									double ws = wndS[MEAN] * 1000 / 3600;//km/h -> m/s
+									double wd = wndD[MEAN];
+									ASSERT(ws >= 0 && ws < 150);
+									ASSERT(wd >= 0 && wd <= 360);
 
-						msg += callback.StepIt(0);
-					}//for all index
+									double θ = Deg2Rad(-90 - wd);
+									double U = cos(θ)*ws;
+									double V = sin(θ)*ws;
 
+									double val = v == ATM_WNDU ? U : V;
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, val, station.m_lat, station.GetPrjID()));
+								}
+							}
+							break;
 
+							case ATM_WNDW:
+							{
+								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, 0, station.m_lat, station.GetPrjID()));
+								break;
+							}
+							case ATM_WATER:
+							{
+								CStatistic Tair = station[TRef][H_TAIR2];
+								if (Tair.IsInit())
+								{
+									double Tw = m_Twater[index].GetTwI(TRef.Transform(CTM(CTM::DAILY)));
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tw, station.m_lat, station.GetPrjID()));
+								}
+							}
+							break;
+
+							default:ASSERT(false);
+							}
+
+							msg += callback.StepIt(0);
+						}//for all index
+					}
 
 					CGridInterpolParam param;
 					param.m_IWDModel = CGridInterpolParam::IWD_CLASIC;
@@ -1837,12 +1843,14 @@ namespace WBSF
 					param.m_maxDistance = 1000000;
 					param.m_bUseElevation = false;
 
-					ASSERT(pts->size() >= m_world.m_world_param.m_nb_weather_stations);
+					
 					if (pts->size() < m_world.m_world_param.m_nb_weather_stations)
 					{
 						if (v == ATM_PRCP)
 						{
-							callback.AddMessage("WARNING: Not enaught stations with precipitation. replaced by zero.");
+							if (m_world.m_world_param.m_PSource != CATMWorldParamters::DONT_USE_PRCP)
+								callback.AddMessage("WARNING: Not enaught stations with precipitation. replaced by zero.");
+
 							while (pts->size() < m_world.m_world_param.m_nb_weather_stations)
 								pts->push_back(CGridPoint(0, 0, 10, 0, 0, 0, 45, PRJ_WGS_84));
 						}
@@ -1881,47 +1889,176 @@ namespace WBSF
 
 	__int64 CATMWeather::GetNearestFloorTime(__int64 UTCTime)const
 	{
-		ASSERT(!m_filepath_map.empty());
-		if (m_filepath_map.empty())
-			return 0;
+		__int64 first = 0;
+		
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_STATIONS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(m_p_hourly_DB && m_p_hourly_DB->IsOpen());
+			//CTRef UTCbegin = m_world.m_world_param.m_simulationPeriod.Begin();
+			
+			//UTCbegin.Transform(CTM(CTM::HOURLY));
+			//first = CTimeZones::TRef2Time(UTCbegin);
+			//CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automaticly trunked
+			//first = CTimeZones::TRef2Time(tmp);
+			
+			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automaticly trunked
+			first = CTimeZones::TRef2Time(tmp);
+			//UTCTime = floor(UTCTime / 3600) * 3600;
+		}
 
-		TTimeFilePathMap::const_iterator hi = m_filepath_map.upper_bound(UTCTime);
-		if (hi == m_filepath_map.begin())
-			return hi->first;
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(!m_filepath_map.empty());
+			if (!m_filepath_map.empty())
+			{
 
-		if (hi == m_filepath_map.end())
-			return m_filepath_map.rbegin()->first;
+				TTimeFilePathMap::const_iterator hi = m_filepath_map.upper_bound(UTCTime);
+				if (hi == m_filepath_map.begin())
+					first = max(first, hi->first);
 
+				if (hi == m_filepath_map.end())
+					first = max(first, m_filepath_map.rbegin()->first);
+				else
+					first = max(first, (--hi)->first);
+			}
+			else
+			{
+				first = 0;
+			}
+		}
 
-		return (--hi)->first;
+		ASSERT(first != LLONG_MAX);
+		return first;
 	}
 
 
 	__int64 CATMWeather::GetNextTime(__int64 UTCTime)const
 	{
-		ASSERT(!m_filepath_map.empty());
-		if (m_filepath_map.empty())
-			return 0;
+		__int64 next = LLONG_MAX;
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_STATIONS || 
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(m_p_hourly_DB && m_p_hourly_DB->IsOpen());
 
-		TTimeFilePathMap::const_iterator hi = m_filepath_map.upper_bound(UTCTime);
-		if (hi == m_filepath_map.end())
-			return m_filepath_map.rbegin()->first;
+			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automaticly trunked
+			next = CTimeZones::TRef2Time(tmp+1);//get next time step
+			
+			//UTCTime = ceil(UTCTime / 3600) * 3600;
+			
+		}
 
-		return hi->first;
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS || 
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(!m_filepath_map.empty());
+			if (!m_filepath_map.empty())
+			{
+				TTimeFilePathMap::const_iterator hi = m_filepath_map.upper_bound(UTCTime);
+				if (hi == m_filepath_map.end())
+					next = min(next, m_filepath_map.rbegin()->first);
+				else 
+					next = min(next, hi->first);
+			}
+			else
+			{
+				next = 0;
+			}
+		}
+
+		ASSERT(next != LLONG_MAX);
+		return next;
 	}
 
+	CTPeriod CATMWeather::GetEntireTPeriod()const
+	{
+		CTPeriod p;
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_STATIONS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(m_p_hourly_DB && m_p_hourly_DB->IsOpen());
+
+			set<int> years = m_p_hourly_DB->GetYears();
+			if (!years.empty())
+			{
+				//assume that the year is complete!!!
+				p += CTPeriod(*years.begin(), FIRST_MONTH, FIRST_DAY, *years.rbegin(), LAST_MONTH, LAST_DAY);
+			}
+			
+		}
+
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(!m_filepath_map.empty());
+			if (!m_filepath_map.empty())
+			{
+				for (TTimeFilePathMap::const_iterator it = m_filepath_map.begin(); it != m_filepath_map.end(); it++)
+				{
+					__int64 UTCTime = it->first;
+					p += CTimeZones::Time2TRef(UTCTime).as(CTM::DAILY);
+				}
+			}
+		}
+
+		return p;
+	}
 
 	size_t CATMWeather::GetGribsPrjID(__int64 UTCWeatherTime)const
 	{
 		size_t prjID = NOT_INIT;
 
-		if (!m_p_weather_DS.IsLoaded(UTCWeatherTime))
-			m_p_weather_DS.load(UTCWeatherTime, get_image_filepath(UTCWeatherTime), CCallback());
 
-		prjID = m_p_weather_DS.GetPrjID(UTCWeatherTime);
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_STATIONS )
+		{
+			prjID = PRJ_WGS_84;
+		}
+		else
+		{
+			if (!m_p_weather_DS.IsLoaded(UTCWeatherTime))
+				m_p_weather_DS.load(UTCWeatherTime, get_image_filepath(UTCWeatherTime), CCallback());
+
+			prjID = m_p_weather_DS.GetPrjID(UTCWeatherTime);
+		}
 
 		return prjID;
 	}
+
+	double CATMWeather::get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime)
+	{
+	
+		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
+		//__int64 UTCTime20 = UTCWeatherTime + 20 * 3600;
+		//UTCTime20 = GetNearestFloorTime(UTCTime20);
+
+
+		/*if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_STATIONS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			CTRef UTCTRef = CTimeZones::Time2TRef(UTCWeatherTime);
+			CStatistic Tair_s;
+			Tair_s += m_world.m_weather.m_iwd.at(UTCTRef + h)[ATM_TAIR].Evaluate(gpt);
+			
+			Tair += Tair_s[MEAN];
+		}
+
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
+			m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+		{
+			ASSERT(!m_filepath_map.empty());
+
+			*/
+			//Get nearest grid of this time
+			
+		CATMVariables w = get_weather(pt, UTCWeatherTime);
+		return w[ATM_TAIR];
+		//}
+
+		
+		//return Tair[MEAN];
+	}
+
 
 	//*********************************************************************************************************
 	CTimeDatasetMap::CTimeDatasetMap()
@@ -2302,11 +2439,11 @@ namespace WBSF
 				UTC_period.first -= 4 * 3600;
 				UTC_period.second += 4 * 3600;
 
-				vector<__int64> gribs_time = GetGribsTime(UTC_period, callback);
+				vector<__int64> weather_time = GetWeatherTime(UTC_period, callback);
 
 				//Load weather for sunset
-				if (!gribs_time.empty())
-					msg = LoadGribs(TRef, gribs_time, callback);
+				if (!weather_time.empty())
+					msg = LoadWeather(TRef, weather_time, callback);
 
 				if (msg)
 				{
@@ -2406,11 +2543,11 @@ namespace WBSF
 		CTimePeriod UTC_period = get_UTC_flight_period(fls);
 
 		//get gribs for the entire night
-		vector<__int64> gribs_time = GetGribsTime(UTC_period, callback);
+		vector<__int64> gribs_time = GetWeatherTime(UTC_period, callback);
 		if (!gribs_time.empty())//gribs_time is empty when too mush missing gribs
 		{
 
-			msg = LoadGribs(TRef, gribs_time, callback);
+			msg = LoadWeather(TRef, gribs_time, callback);
 
 			//Simulate dispersal for this day
 			callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")", gribs_time.size()*fls.size());
@@ -2726,7 +2863,7 @@ namespace WBSF
 
 		}//if output
 	}
-	vector<__int64> CATMWorld::GetGribsTime(CTimePeriod UTC_period, CCallback& callback)const
+	vector<__int64> CATMWorld::GetWeatherTime(CTimePeriod UTC_period, CCallback& callback)const
 	{
 		vector<__int64> gribs_time;
 
@@ -2757,40 +2894,45 @@ namespace WBSF
 		return gribs_time;
 	}
 
-	ERMsg CATMWorld::LoadGribs(CTRef TRef, const vector<__int64>& gribs_time, CCallback& callback)
+	ERMsg CATMWorld::LoadWeather(CTRef TRef, const vector<__int64>& weather_time, CCallback& callback)
 	{
 		ERMsg msg;
 
 
-		ASSERT(!gribs_time.empty());
+		ASSERT(!weather_time.empty());
 
-		vector<__int64> gribToLoad;
-		for (size_t i = 0; i < gribs_time.size() && msg; i++)
+		vector<__int64> weatherToLoad;
+		for (size_t i = 0; i < weather_time.size() && msg; i++)
 		{
-			if (!m_weather.IsLoaded(gribs_time[i]))
-				gribToLoad.push_back(gribs_time[i]);
+			if (!m_weather.IsLoaded(weather_time[i]))
+				weatherToLoad.push_back(weather_time[i]);
 		}
 
-		callback.PushTask("Load weather for " + TRef.GetFormatedString("%Y-%m-%d") + " (nbImages=" + ToString(gribToLoad.size()) + ")", gribToLoad.size());
+		callback.PushTask("Load weather for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb hours=" + ToString(weatherToLoad.size()) + ")", weatherToLoad.size());
 
 		//pre-Load weather for the day
-		for (size_t i = 0; i < gribToLoad.size() && msg; i++)
+		for (size_t i = 0; i < weatherToLoad.size() && msg; i++)
 		{
-			__int64 UTCWeatherTime = gribToLoad[i];
+			__int64 UTCWeatherTime = weatherToLoad[i];
 			ASSERT(!m_weather.IsLoaded(UTCWeatherTime));
 
 			msg += m_weather.LoadWeather(UTCWeatherTime, callback);
 			if (msg)
 			{
+				//if (m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
+				//	m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
+				//{
 				size_t prjID = m_weather.GetGribsPrjID(UTCWeatherTime); ASSERT(prjID != NOT_INIT);
 				if (m_GEO2.find(prjID) == m_GEO2.end())
 					m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
 				if (m_2GEO.find(prjID) == m_2GEO.end())
 					m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
+				//}
+				
 			}
-
+			msg += callback.StepIt();
 		}
-		msg += callback.StepIt();
+		
 
 		callback.PopTask();
 

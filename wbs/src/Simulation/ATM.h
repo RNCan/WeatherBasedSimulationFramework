@@ -224,7 +224,7 @@ namespace WBSF
 	public:
 
 		enum Tprcp { DONT_USE_PRCP, PRCP_SAME_AS_INPUT, PRCP_WEATHER_STATION };
-		enum TBroodT { BROOD_T_17, BROOD_T_SAME_AS_INPUT, BROOD_T_WEATHER_STATION };
+		enum TBroodT { BROOD_T_17, BROOD_AT_SUNSET };
 
 		//static public member 
 		enum TweatherType { FROM_GRIBS, FROM_STATIONS, FROM_BOTH, NB_WEATHER_TYPE };
@@ -675,6 +675,7 @@ namespace WBSF
 		CATMWeatherCuboidsPtr get_cuboids(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
 		CATMVariables get_station_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
 		CATMVariables get_station_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, bool m_bUseTimeInterpolation)const;
+		double get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime);
 		//CATMVariables get_weather(const CGeoPoint3D& pt, CTRef UTCTRef, __int64 UTCWeatherTime)const;
 		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
 		std::string get_image_filepath(__int64 UTCWeatherTime)const;
@@ -701,7 +702,7 @@ namespace WBSF
 
 		__int64 GetNearestFloorTime(__int64 UTCTime)const;
 		__int64 GetNextTime(__int64 UTCTime)const;
-
+		CTPeriod GetEntireTPeriod()const;
 	protected:
 
 		std::string m_filePathGribs;
@@ -855,8 +856,8 @@ namespace WBSF
 		std::vector<CSBWMothsIt> GetFlyers(CTRef TRef);
 		CTimePeriod get_UTC_sunset_period(CTRef TRef, const std::vector<CSBWMothsIt>& fls);
 		CTimePeriod get_UTC_flight_period(const std::vector<CSBWMothsIt>& fls);
-		std::vector<__int64> GetGribsTime(CTimePeriod UTC_period, CCallback& callback)const;
-		ERMsg LoadGribs(CTRef TRef, const std::vector<__int64>& gribs, CCallback& callback);
+		std::vector<__int64> GetWeatherTime(CTimePeriod UTC_period, CCallback& callback)const;
+		ERMsg LoadWeather(CTRef TRef, const std::vector<__int64>& gribs, CCallback& callback);
 
 
 		int m_nb_max_threads;

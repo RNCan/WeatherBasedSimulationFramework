@@ -93,6 +93,24 @@ namespace WBSF
 
 	const char* CUIACIS::SERVER_NAME = "agriculture.alberta.ca";
 
+//"Alberta Agriculture and Forestry"	"AGCM"
+//"Alberta Sustainable Resource Development"	"ASRD"
+//"Alberta Agriculture and Forestry"	"AGDM"
+//"Environment and Parks"	"AENV"
+//"Nav Canada"	"NAV"
+//"Environment Canada"	"MSC"
+//"Environment Canada"	"PARKS"
+//"Alberta Agriculture and Forestry"	"IMCIN"
+//"Environment Canada"	"MSCRCS"
+//"Environment Canada"	"AAFC"
+//"Nav Canada"	"MSCRCS"
+//"Environment Canada"	"SYNC"
+//"Agriculture and Agri-Food Canada"	"MSCRCS"
+//"Alberta Agriculture and Forestry"	"RESEARCH"
+//"Hatfield Consultants"	
+//"Environment and Parks"	"AGDM"
+//"Alberta Agriculture and Forestry"	"AFTS"
+//"Agriculture and Agri-Food Canada"	"AAFC"
 
 	//http://agriculture.alberta.ca/acis/rss/data?type=HOURLY&stationId=39271045&date=20180320
 
@@ -298,9 +316,10 @@ namespace WBSF
 					bool bND = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
 					if (bND && bIgoneEC)
 					{
+						string network = m_stations[i].GetSSI("type");
 						string ID = m_stations[i].GetSSI("EC_id");
 						ID = ID.substr(0, 3);
-						if (!ID.empty() && ID != "999")
+						if (!ID.empty() && ID != "999" && network!="AENV"  && network != "PARC")
 							bND = false;
 					}
 
@@ -782,9 +801,10 @@ namespace WBSF
 				bool bAdd = true;
 				if (bIgoneEC)
 				{
+					string network = m_stations[i].GetSSI("type");
 					string ID = m_stations[i].GetSSI("EC_id");
 					ID = ID.substr(0, 3);
-					if (!ID.empty() && ID != "999")
+					if (!ID.empty() && ID != "999" && network != "AENV"  && network != "PARC")
 						bAdd = false;
 				}
 
