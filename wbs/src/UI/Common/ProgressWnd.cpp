@@ -72,6 +72,16 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_toolbarCtrl.SetOwner(this);
 	m_toolbarCtrl.SetRouteCommandsViaFrame(FALSE);
 
+
+	//
+	//m_font.CreateFont(40, 0, 0, 0, FW_HEAVY, true, false,
+	//	0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+	//	FIXED_PITCH | FF_MODERN, _T("Courier New"));
+
+	//
+	//SetFont(&m_font);
+
+
 	return 0;
 }
 

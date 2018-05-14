@@ -74,14 +74,16 @@ namespace WBSF
 
 		double GetA()const{ return m_A; }
 		double GetM()const{ return m_M; }
-		double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_Fº : 0; }
+		//double GetG()const{ return m_sex == FEMALE ? (m_Fᴰ - m_totalBroods) / m_Fº : -9999; }
+		double GetG()const { return m_sex == FEMALE ? m_F/ m_Fº : -9999; }
 		double GetFº()const{ return m_Fº; }
 		double GetFᴰ()const{ return m_Fᴰ; }
+		double GetF()const { return m_F; }
 		//double GetLiftoffHour()const{ return m_liftoff_hour; }
 
 	protected:
 
-		static double GetAttritionRate(size_t s, double Tin);
+//		static double GetAttritionRate(size_t s, double Tin);
 		double GetRelativeDevRate(double T, double r)const;
 
 		bool IsDeadByAttrition(double RR)const;
@@ -90,8 +92,9 @@ namespace WBSF
 
 		//member
 		double m_relativeDevRate[SBW::NB_STAGES]; //Individual's relative development rates in 9 stages
-		double m_Fº;
-		double m_Fᴰ;
+		double m_Fº;			//initial fecondity without defoliation
+		double m_Fᴰ;			//initial fecondity with defoliation
+		double m_F;				//current fecondity
 
 		CTRef m_overwinteringDate;			//When individual pass from Egg to OW, they must stop develop until next spring
 		CTRef m_emergingDate;				//When individual pass from Egg to OW, they must stop develop until next spring

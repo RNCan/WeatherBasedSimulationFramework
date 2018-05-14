@@ -66,8 +66,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	afx_msg void OnProperties();
+	//afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
+	//afx_msg void OnProperties();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnCancel();
 	afx_msg void OnPauseResume();
@@ -82,6 +82,7 @@ protected:
 	WBSF::CCallback m_callback;
 	std::string m_comment;
 	CEdit* m_pEdit;
+	//CFont m_font;
 	
 	CComPtr<ITaskbarList3> m_pTaskbar;
 	CWinThread *m_ptrThread;

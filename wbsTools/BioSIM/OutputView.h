@@ -40,5 +40,7 @@ protected:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+
+	CFont m_font;
 };
 

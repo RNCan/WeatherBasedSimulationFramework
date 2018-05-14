@@ -114,8 +114,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (filter[PARAMETER])
-			filter.set(VARIABLE);
+		if (filter[REPLICATION])
+			filter.set(TIME_REF);
+		//if (filter[PARAMETER])
+			//filter.set(VARIABLE);
 
 		msg = m_pParent->GetParentInfo(fileManager, info, filter);
 		if (msg)
@@ -123,12 +125,14 @@ namespace WBSF
 			//CTPeriod pIn = info.m_period;
 			if (filter[LOCATION])
 			{
+				//same as parent
 			}
 
 			if (filter[PARAMETER])
 			{
-				//que faire s'il y a déjè des parameterset????
-				const CModelOutputVariableDefVector& vars = info.m_variables;
+				//same as parent
+
+				/*const CModelOutputVariableDefVector& vars = info.m_variables;
 
 				if (!vars.empty())
 				{
@@ -141,11 +145,13 @@ namespace WBSF
 						info.m_parameterset.push_back(modelInput);
 					}
 					info.m_parameterset.m_pioneer = info.m_parameterset[0];
-				}
+				}*/
 			}
 
 			if (filter[REPLICATION])
 			{
+				ASSERT(info.m_period.GetTType() == CTM::ATEMPORAL);
+				info.m_nbReplications *= info.m_period.size();
 			}
 
 			if (filter[TIME_REF])
@@ -188,46 +194,9 @@ namespace WBSF
 			period.Transform(CTM::HOURLY);
 
 			info.SetLocations(pResult->GetMetadata().GetLocations());
+			info.SetParameterSet(pResult->GetMetadata().GetParameterSet());
 			info.SetOutputDefinition(outputVar);
 			info.SetTPeriod(period);
-
-
-			//size_t vMale = Find(vars, "MaleExodus");
-			//size_t vFemale = Find(vars, "FemaleExodus");
-			//size_t vAdult = Find(vars, "Adults");
-			//size_t vOvipositingAdult = Find(vars, "OvipositingAdult");
-			//size_t vBroods = Find(vars, "Brood");
-
-			//if (vMale != NOT_INIT || vFemale != NOT_INIT )
-			//{
-			//	//size_t nbReplication = pResult->GetMetadata().GetNbReplications();
-			//	size_t totalMoths = 0;
-			//	for (size_t l = 0; l < pResult->GetMetadata().GetLocations().size(); l++)
-			//	{
-			//		for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size(); p++)
-			//		{
-			//			for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications(); r++)
-			//			{
-			//				CNewSectionData section;
-			//				pResult->GetSection(l, p, r, section);
-
-			//				for (size_t t = 0; t < section.GetRows(); t++)
-			//				{
-			//					if (period.IsInside(section.GetTRef(t)))
-			//					{
-			//						if (section[t][vMale].IsInit() && section[t][vFemale].IsInit())
-			//						{
-			//							size_t nbMoths = ceil(section[t][vMale][MEAN]) + ceil(section[t][vFemale][MEAN]);
-			//							totalMoths += nbMoths;
-			//						}
-			//					}
-			//				}
-			//			}
-			//		}
-			//	}
-
-			//	info.SetNbReplications(totalMoths);
-			//}
 		}
 	}
 
@@ -242,15 +211,17 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 29);
+		ASSERT(NB_ATM_OUTPUT == 34);
 		outputVar.push_back(CModelOutputVariableDef("FlightNo", "FlightNo", "", "Flight numero for this moth", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("Scale", "Scale", "", "Scale factor the moth", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("Age", "Age", "[0..1]", "Phisiological age", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of moth", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("A", "A", "cm²", "Forewing surface area", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("M", "M", "g", "Dry weight", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("Broods", "Broods", "", "Broods", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("G", "G", "", "Gravidity", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("EggsLaid", "EggsLaid", "", "EggsLaid", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("F", "F", "", "F", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("State", "State", "", "State of moth", CTM(CTM::ATEMPORAL), 0));
+		outputVar.push_back(CModelOutputVariableDef("Flag", "Flag", "", "State flag", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("X", "X", "m", "Current X coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Y", "Y", "m", "Current Y coordinate", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Latitude", "Latitude", "°", "Current latitude", CTM(CTM::ATEMPORAL), 5));
@@ -263,16 +234,19 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("MH", "MeanHeight", "m", "Mean flight height.", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("CH", "CurrentHeight", "m", "Current flight height. Begin at 5 meters and end at 0.", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("MDH", "MeanDeltaHeight", "m", "Mean change in height", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("MothSpeed", "MothSpeed", "", "Moth speed without wind speed", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Wh", "Whorizontal", "km/h", "Mean horizontal velocity", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Wv", "Wvertical", "km/h", "Mean vertical velocity", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("D", "Direction", "°", "Direction", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Distance", "Distance", "m", "Distance", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("DistanceOrigine", "DistanceOrigine", "m", "DistanceOrigine", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("FlightTime", "FlightTime", "h", "FlightTime", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("LiftoffTime", "LiftoffTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("LandingTime", "LandingTime", "", "Decimal hour", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LiftoffTime", "LiftoffTime", "Decimal hour", "", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LandingTime", "LandingTime", "Decimal hour", "", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LiftoffT", "LiftoffT", "°C", "Liftoff Temperature", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("LandingT", "LandingT", "°C", "Landing Temperature", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Defoliation", "Defoliation", "", "Defoliation", CTM(CTM::ATEMPORAL), 5));
-
+		
 	}
 
 
@@ -370,8 +344,8 @@ namespace WBSF
 		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
 		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
 
-		if (!m_parameters.m_world.m_simulationPeriod.IsInside(m_parameters.m_world.m_flightPeriod))
-			msg.ajoute("Flight period (" + m_parameters.m_world.m_flightPeriod.GetFormatedString() + ") must be inside simulation period (" + m_parameters.m_world.m_simulationPeriod.GetFormatedString() + ")");
+		//if (!m_parameters.m_world.m_simulationPeriod.IsInside(m_parameters.m_world.m_flightPeriod))
+			//msg.ajoute("Flight period (" + m_parameters.m_world.m_flightPeriod.GetFormatedString() + ") must be inside simulation period (" + m_parameters.m_world.m_simulationPeriod.GetFormatedString() + ")");
 
 		if (!m_parameters.m_world.m_DEM_name.empty())
 			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name, DEM_filepath);
@@ -421,7 +395,7 @@ namespace WBSF
 
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 
-		enum TInput { I_YEAR, I_MONTH, I_DAY, I_SEX, I_A, I_M, I_G, I_F0, I_F, NB_INPUTS };
+		enum TInput { I_YEAR, I_MONTH, I_DAY, I_SEX, I_A, I_M, I_G, I_Fᵒ, I_Fᴰ, NB_INPUTS };
 		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","sex","A", "M", "G", "F°", "F" };
 
 
@@ -527,28 +501,29 @@ namespace WBSF
 
 						for (size_t i = 0; i < varsPos.size(); i++)
 							v[i] = section[t][varsPos[i]][MEAN];
-
-						CTRef readyToFly = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-						int shift = world.m_moths_param.m_ready_to_fly_shift[v[I_SEX]];
-						if (period.IsInside(readyToFly + shift) )
+						
+						CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
+						//int shift = world.m_moths_param.m_ready_to_fly_shift[v[I_SEX]];
+						if (period.IsInside(emergingDate) )//a vérifier pour les femelles
 						{
 							CSBWMoth moth(world);
 
 							moth.m_loc = l;
 							moth.m_par = p;
 							moth.m_rep = rr;
-							moth.m_readyToFly = readyToFly;//daily reference of ready moths
-							moth.m_scale = 1;
+							moth.m_emergingDate = emergingDate;//daily reference of ready moths
 							moth.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
 							moth.m_A = v[I_A];
 							moth.m_M = v[I_M];
 							moth.m_G = v[I_G];
-							moth.m_Fᵒ = v[I_F0];
-							moth.m_broods = 0;
-							moth.m_eggsLeft = v[I_F];
+							moth.m_Fᵒ = v[I_Fᵒ];
+							moth.m_Fᴰ = v[I_Fᴰ];
+							moth.m_F = moth.m_Fᴰ;
+							//moth.m_broods = 0;
 							moth.m_location = locations[l];
 							moth.m_newLocation = locations[l];
 							moth.m_pt = locations[l];
+							moth.m_UTCShift = CTimeZones::GetTimeZone(locations[l]);
 
 							if (extents.IsInside(moth.m_pt))
 								world.m_moths.push_back(moth);
@@ -586,23 +561,23 @@ namespace WBSF
 		metadata.SetNbReplications(nbReplications);
 		metadata.SetTPeriod(outputPeriod);
 		//ASSERT(world.m_moths.size() <= metadata.GetNbReplications());
-
-		CATMOutputMatrix output(locations.size());
-		for (size_t l = 0; l < output.size(); l++)
-		{
-			output[l].resize(metadata.GetParameterSet().size());//the number of input variables
-			for (size_t p = 0; p < output[l].size(); p++)
-			{
-				output[l][p].resize(nbReplications);
-				for (size_t r = 0; r < output[l][p].size(); r++)
-				{
-					output[l][p][r].Init(outputPeriod, VMISS);
-				}
-			}
-		}
-
 		if (!world.m_moths.empty())
 		{ 
+
+			CATMOutputMatrix output(locations.size());
+			for (size_t l = 0; l < output.size(); l++)
+			{
+				output[l].resize(metadata.GetParameterSet().size());//the number of input variables
+				for (size_t p = 0; p < output[l].size(); p++)
+				{
+					output[l][p].resize(nbReplications);
+					for (size_t r = 0; r < output[l][p].size(); r++)
+					{
+						output[l][p][r].Init(outputPeriod, VMISS);
+					}
+				}
+			}
+
 			msg = world.Execute(output, output_file, callback);
 			if (msg)
 			{
@@ -639,423 +614,434 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		GIntBig test = GDALGetCacheMax64();
-		GDALSetCacheMax64(128 * 1024 * 1024);
-
-
-		CATMWorld world;
-		world.m_world_param = m_parameters.m_world;
-		world.m_moths_param = m_parameters.m_moths;
-		world.m_nb_max_threads = CTRL.m_nbMaxThreads;
-		ofStream output_file;
-
-		string DEM_filepath, gribs_filepath, hourly_DB_filepath, defoliation_filepath, host_filepath, distraction_filepath, water_filepath;
-		string outputPath = GetPath(fileManager);		//Generate output path
-		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
-		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
-
-		if (!m_parameters.m_world.m_simulationPeriod.IsInside(m_parameters.m_world.m_flightPeriod))
-			msg.ajoute("Flight period (" + m_parameters.m_world.m_flightPeriod.GetFormatedString() + ") must be inside simulation period (" + m_parameters.m_world.m_simulationPeriod.GetFormatedString() + ")");
-
-		if (!m_parameters.m_world.m_DEM_name.empty())
-			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name, DEM_filepath);
-		else
-			msg.ajoute("A DEM must be supply");
-
-		if (!m_parameters.m_world.m_defoliation_name.empty())
-			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_defoliation_name, defoliation_filepath);
-		if (!m_parameters.m_world.m_water_name.empty())
-			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
-		if (m_parameters.m_world.UseGribs())
-		{
-			if (!m_parameters.m_world.m_gribs_name.empty())
-				msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
-			else
-				msg.ajoute("Gribs file is not defined");
-		}
-
-		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_world.m_PSource == CATMWorldParamters::PRCP_WEATHER_STATION ))
-		{
-			if (!m_parameters.m_world.m_hourly_DB_name.empty())
-				msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
-			else
-				msg.ajoute("Hourly database is not defined");
-		}
-
-		if (!outputFilePath.empty())
-			msg += output_file.open(outputFilePath);
-
-
-
-
-		CResultPtr pResult = m_pParent->GetResult(fileManager);
-		msg += pResult->Open();
-
-		//open outputDB
-		CResult result;
-		msg += result.Open(DBFilePath, std::fstream::binary | std::fstream::out | std::fstream::trunc);
-
-		if (!msg)
-			return msg;
-
-
-		//init output info
-		CDBMetadata& metadata = result.GetMetadata();
-		GetInputDBInfo(pResult, metadata);
-
-		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
-
-		enum TInput { I_YEAR, I_MONTH, I_DAY, I_SEX, I_A, I_M, I_G, I_F0, I_F, NB_INPUTS };
-		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","sex","A", "M", "G", "F°", "F" };
-
-
-		bool bMissing = false;
-		std::array<size_t, NB_INPUTS> varsPos;
-		for (size_t i = 0; i < NB_INPUTS; i++)
-		{
-			varsPos[i] = Find(vars, VARIABLE_NAME[i]);
-			bMissing = bMissing || varsPos[i] == NOT_INIT;
-		}
-
-
-		if (bMissing)
-		{
-			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", must be defined");
-			return msg;
-		}
-
-
-		callback.PushTask("Open Dispersal's Input", 4);
-
-		if (msg)
-		{
-			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
-			callback.StepIt();
-		}
-
-		if (msg)
-		{
-			msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
-			callback.StepIt();
-		}
-
-		if (msg)
-		{
-			if (!defoliation_filepath.empty())
-			{
-				msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
-			}
-			else if (world.m_moths_param.m_maxFlights > 1)
-			{
-				msg.ajoute("maximum flights is more than 1 but there is no defoliation map. Reset maximum flights to 1 or provide defoliation map.");
-			}
-
-			callback.StepIt();
-		}
-
-
-
-		if (msg)
-		{
-			if (!water_filepath.empty())
-			{
-				msg += world.m_water_DS.OpenInputImage(water_filepath);
-				//if (msg)
-				//world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
-			}
-			else if (world.m_moths_param.m_maxFlights > 1)
-			{
-				msg.ajoute("maximum flights is more than 1 but there is no water map. Reset maximum flights to 1 or provide water map.");
-			}
-
-			callback.StepIt();
-		}
-
-		callback.PopTask();
-
-		if (!msg)
-			return msg;
-
-
-
-		const CLocationVector& locations = metadata.GetLocations();
-		callback.PushTask("Init dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
-
-		CGeoExtents extents = world.m_DEM_DS.GetExtents();
-		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
-		CTPeriod period = world.m_world_param.m_simulationPeriod;
-		ASSERT(period.GetTM().Type() == CTM::DAILY);
-		//period.Transform(CTM(CTM::DAILY));
-
-		size_t nbReplications = 0;
-		for (size_t l = 0; l < locations.size() && msg; l++)
-		{
-			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
-			{
-				size_t rr = 0;
-				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
-				{
-
-					CNewSectionData section;
-					pResult->GetSection(l, p, r, section);
-					assert(section.GetCols() == pResult->GetNbCols(false));
-
-					for (size_t t = 0; t < section.GetRows() && msg; t++)
-					{
-						std::array<double, NB_INPUTS> v;
-
-						for (size_t i = 0; i < varsPos.size(); i++)
-							v[i] = section[t][varsPos[i]][MEAN];
-
-						CTRef TRef = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1/*, size_t(v[I_HOUR])*/);
-						if (period.IsInside(TRef))
-						{
-							CSBWMoth moth(world);
-
-							moth.m_loc = l;
-							moth.m_par = p;
-							moth.m_rep = rr;
-							moth.m_readyToFly = TRef;//daily reference of ready moths
-							moth.m_scale = 1;
-							moth.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
-							moth.m_A = v[I_A];
-							moth.m_M = v[I_M];
-							moth.m_G = v[I_G];
-							moth.m_Fᵒ = v[I_F0];
-							moth.m_broods = 0;// v[I_B];
-							moth.m_eggsLeft = v[I_F];// v[I_E];
-							moth.m_location = locations[l];
-							moth.m_newLocation = locations[l];
-							moth.m_pt = locations[l];
-
-							//moth.m_pt.m_alt = 10;
-							if (extents.IsInside(moth.m_pt))
-								world.m_moths.push_back(moth);
-							else
-								callback.AddMessage("WARNING: Simulation point outside elevation map");
-
-							rr++;
-							nbReplications = max(nbReplications, rr);
-
-						}//is inside simulation period
-					}//for all rows
-
-					msg += callback.StepIt();
-				}//for all replications
-
-
-			}//for all paramterset
-		}//for all locations
-
-
-		callback.PopTask();
-
-		if (!world.m_moths.empty())
-		{
-
-			CTPeriod outputPeriod = world.m_world_param.m_simulationPeriod;
-			outputPeriod.End()++;//add one day at the end
-			outputPeriod.Transform(CTM::HOURLY);
-
-
-			callback.AddMessage("Execute dispersal with " + ToString(world.m_moths.size()) + " moths");
-			callback.AddMessage("Output period: " + outputPeriod.GetFormatedString());
-			callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
-			callback.PushTask("Execute dispersal for year = " + ToString(period.Begin().GetYear()) + " (" + ToString(period.GetNbDay()) + " days)", period.GetNbDay());
-
-
-			metadata.SetNbReplications(nbReplications);
-			metadata.SetTPeriod(outputPeriod);
-
-			world.Init(callback);
-
-
-			const int nbSubPerHour = 3600 / world.m_world_param.m_outputFrequency;
-
-
-			//open 10 min file
-			CATMOutputMatrix sub_output;
-			if (output_file.is_open())
-			{
-				//write file header
-
-				output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-				output_file << "flight,scale,sex,A,M,G,EggsLaid,state,x,y,lat,lon,";
-				output_file << "T,P,U,V,W,";
-				output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
-			}
-
-			//for all days
-			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
-			{
-				//get all ready to flight flyers for this day
-				vector<CSBWMothsIt> ready_to_fly = world.GetFlyers(TRef);
-
-				if (!ready_to_fly.empty())
-				{
-					//get sunset hours for this day
-					CTimePeriod UTC_period = world.get_UTC_sunset_period(TRef, ready_to_fly);
-
-					//load hours around sunset
-					UTC_period.first -= 4 * 3600;
-					UTC_period.second += 4 * 3600;
-
-					vector<__int64> weather_time = world.GetWeatherTime(UTC_period, callback);
-
-					//Load weather for sunset
-					if (!weather_time.empty())
-						msg = world.LoadWeather(TRef, weather_time, callback);
-						
-
-					if (msg)
-					{
-
-						//allocate memory
-						CTPeriod p(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 12), CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay() + 1, 12));
-
-						CATMOutputMatrix output(locations.size());
-						for (size_t l = 0; l < output.size(); l++)
-						{
-							output[l].resize(metadata.GetParameterSet().size());//the number of input variables
-							for (size_t p = 0; p < output[l].size(); p++)
-							{
-								output[l][p].resize(nbReplications);
-								for (size_t r = 0; r < output[l][p].size(); r++)
-								{
-									output[l][p][r].Init(p, VMISS);
-								}
-							}
-						}
-
-						if (msg && !sub_output.empty())
-						{
-							ASSERT(p.size()*nbSubPerHour < LONG_MAX);
-							__int64 begin = CTimeZones::TRef2Time(p.Begin()) / world.m_world_param.m_outputFrequency;
-							__int64 end = CTimeZones::TRef2Time(p.End()) / world.m_world_param.m_outputFrequency;
-
-							CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
-							sub_output.resize(output.size());
-							for (size_t l = 0; l < sub_output.size(); l++)
-							{
-								sub_output[l].resize(output[l].size());//the number of input variables
-								for (size_t p = 0; p < output[l].size(); p++)
-								{
-									sub_output[l][p].resize(output[l][p].size());
-									for (size_t r = 0; r < sub_output[l][p].size(); r++)
-									{
-										sub_output[l][p][r].Init(outputPeriod, VMISS);
-									}
-								}
-							}
-						}
-
-						vector<CSBWMothsIt> flyers;
-						vector<CSBWMothsIt> nonflyers;
-						//init all moths : broods and liffoff time
-						for (size_t i = 0; i < ready_to_fly.size(); i++)
-						{
-							if (ready_to_fly[i]->init(TRef))
-								flyers.push_back(ready_to_fly[i]);
-							else
-								nonflyers.push_back(ready_to_fly[i]);
-						}
-
-						callback.AddMessage("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d"));
-						callback.AddMessage("Flyers = " + to_string(flyers.size()), 1);
-						callback.AddMessage("Non flyers = " + to_string(nonflyers.size()), 1);
-
-
-						if (!flyers.empty())
-						{
-							msg = world.Execute(TRef, flyers, output, sub_output, callback);
-							if (msg && !sub_output.empty())
-							{
-								//save sub-hourly output
-								for (size_t l = 0; l < sub_output.size(); l++)
-								{
-									sub_output[l].resize(output[l].size());
-									for (size_t p = 0; p < output[l].size(); p++)
-									{
-										sub_output[l][p].resize(output[l][p].size());
-										for (size_t r = 0; r < sub_output[l][p].size(); r++)
-										{
-											for (size_t t = 0; t < sub_output[l][p][r].size(); t++)
-											{
-												size_t seconds = 0;// (t * m_world_param.m_outputFrequency) % (24 * 3600);
-												size_t hours = size_t(t / nbSubPerHour);
-												size_t minutes = (t % nbSubPerHour) * (world.m_world_param.m_outputFrequency / 60);
-												ASSERT(seconds % 60 == 0);
-
-												output_file << l + 1 << "," << p + 1 << "," << r + 1 << ",";
-												output_file << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << hours << "," << minutes << "," << seconds - 60 * minutes;
-												for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
-													output_file << "," << sub_output[l][p][r][t][v];
-												output_file << endl;
-											}//for all time step
-										}//for all replications
-									}//for all parameters
-								}//for all locations
-							}//if sub hourly output
-						}//if flyers
-
-						if (!nonflyers.empty())
-						{
-							CTRef TRef18 = TRef.as(CTM::HOURLY);
-							TRef18.m_hour = 18;
-
-
-							//only update output for eggs laid
-							for (size_t i = 0; i < nonflyers.size(); i++)
-							{
-								CSBWMoth& flyer = *(nonflyers[i]);
-
-								CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(TRef18, flyer.m_location);
-								__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
-
-								flyer.FillOutput(TRef18, output);
-								flyer.live(UTCTime);
-								flyer.FillOutput(TRef18++, output);
-							}
-						}//have non flyers
-
-
-						//save result
-						for (size_t l = 0; l < output.size() && msg; l++)
-						{
-							for (size_t p = 0; p < output[l].size() && msg; p++)
-							{
-								for (size_t r = 0; r < output[l][p].size(); r++)
-								{
-									size_t no = result.GetSectionNo(l, p, r);
-									msg += result.SetSection(no, output[l][p][r]);
-									msg += callback.StepIt(0);
-								}
-							}
-						}
-
-					}//if msg
-				}//have ready to flight moths
-
-				msg += callback.StepIt();
-			}//for all valid days
-
-
-			callback.PopTask();
-
-
-
-			if (m_parameters.m_world.m_bCreateEggMaps)
-			{
-				string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
-				//a faire...
-			//	msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
-			}
-		}//if have moths to simulate
-
-
-
-
-		result.Close();
+//		GIntBig test = GDALGetCacheMax64();
+//		GDALSetCacheMax64(128 * 1024 * 1024);
+//
+//
+//		CATMWorld world;
+//		world.m_world_param = m_parameters.m_world;
+//		world.m_moths_param = m_parameters.m_moths;
+//		world.m_nb_max_threads = CTRL.m_nbMaxThreads;
+//		ofStream output_file;
+//
+//		string DEM_filepath, gribs_filepath, hourly_DB_filepath, defoliation_filepath, host_filepath, distraction_filepath, water_filepath;
+//		string outputPath = GetPath(fileManager);		//Generate output path
+//		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
+//		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
+//
+////		if (!m_parameters.m_world.m_simulationPeriod.IsInside(m_parameters.m_world.m_flightPeriod))
+//			//msg.ajoute("Flight period (" + m_parameters.m_world.m_flightPeriod.GetFormatedString() + ") must be inside simulation period (" + m_parameters.m_world.m_simulationPeriod.GetFormatedString() + ")");
+//
+//		if (!m_parameters.m_world.m_DEM_name.empty())
+//			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_DEM_name, DEM_filepath);
+//		else
+//			msg.ajoute("A DEM must be supply");
+//
+//		if (!m_parameters.m_world.m_defoliation_name.empty())
+//			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_defoliation_name, defoliation_filepath);
+//		if (!m_parameters.m_world.m_water_name.empty())
+//			msg += fileManager.MapInput().GetFilePath(m_parameters.m_world.m_water_name, water_filepath);
+//		if (m_parameters.m_world.UseGribs())
+//		{
+//			if (!m_parameters.m_world.m_gribs_name.empty())
+//				msg += fileManager.Gribs().GetFilePath(m_parameters.m_world.m_gribs_name, gribs_filepath);
+//			else
+//				msg.ajoute("Gribs file is not defined");
+//		}
+//
+//		if ((m_parameters.m_world.UseHourlyDB() || m_parameters.m_world.m_PSource == CATMWorldParamters::PRCP_WEATHER_STATION ))
+//		{
+//			if (!m_parameters.m_world.m_hourly_DB_name.empty())
+//				msg += fileManager.Hourly().GetFilePath(m_parameters.m_world.m_hourly_DB_name, hourly_DB_filepath);
+//			else
+//				msg.ajoute("Hourly database is not defined");
+//		}
+//
+//		if (!outputFilePath.empty())
+//			msg += output_file.open(outputFilePath);
+//
+//
+//
+//
+//		CResultPtr pResult = m_pParent->GetResult(fileManager);
+//		msg += pResult->Open();
+//
+//		//open outputDB
+//		CResult result;
+//		msg += result.Open(DBFilePath, std::fstream::binary | std::fstream::out | std::fstream::trunc);
+//
+//		if (!msg)
+//			return msg;
+//
+//
+//		//init output info
+//		CDBMetadata& metadata = result.GetMetadata();
+//		GetInputDBInfo(pResult, metadata);
+//
+//		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
+//
+//		enum TInput { I_YEAR, I_MONTH, I_DAY, I_SEX, I_A, I_M, I_G, I_Fᵒ, I_Fᴰ, NB_INPUTS };
+//		static const char* VARIABLE_NAME[NB_INPUTS] = { "Year", "Month","Day","sex","A", "M", "G", "F°", "F" };
+//
+//
+//		bool bMissing = false;
+//		std::array<size_t, NB_INPUTS> varsPos;
+//		for (size_t i = 0; i < NB_INPUTS; i++)
+//		{
+//			varsPos[i] = Find(vars, VARIABLE_NAME[i]);
+//			bMissing = bMissing || varsPos[i] == NOT_INIT;
+//		}
+//
+//
+//		if (bMissing)
+//		{
+//			msg.ajoute("Invalid dispersal variables input. Variable \"Year\", \"Month\", \"Day\",\"Sex\", \"A\", \"M\", \"G\", \"F°\", \"F\", must be defined");
+//			return msg;
+//		}
+//
+//
+//		callback.PushTask("Open Dispersal's Input", 4);
+//
+//		if (msg)
+//		{
+//			msg += world.m_DEM_DS.OpenInputImage(DEM_filepath);
+//			callback.StepIt();
+//		}
+//
+//		if (msg)
+//		{
+//			msg += world.m_weather.Load(gribs_filepath, hourly_DB_filepath, callback);
+//			callback.StepIt();
+//		}
+//
+//		if (msg)
+//		{
+//			if (!defoliation_filepath.empty())
+//			{
+//				msg += world.m_defoliation_DS.OpenInputImage(defoliation_filepath);
+//			}
+//			else if (world.m_moths_param.m_maxFlights > 1)
+//			{
+//				msg.ajoute("maximum flights is more than 1 but there is no defoliation map. Reset maximum flights to 1 or provide defoliation map.");
+//			}
+//
+//			callback.StepIt();
+//		}
+//
+//
+//
+//		if (msg)
+//		{
+//			if (!water_filepath.empty())
+//			{
+//				msg += world.m_water_DS.OpenInputImage(water_filepath);
+//				//if (msg)
+//				//world.m_GEO2WATER = GetReProjection(PRJ_WGS_84, world.m_water_DS.GetPrjID());
+//			}
+//			else if (world.m_moths_param.m_maxFlights > 1)
+//			{
+//				msg.ajoute("maximum flights is more than 1 but there is no water map. Reset maximum flights to 1 or provide water map.");
+//			}
+//
+//			callback.StepIt();
+//		}
+//
+//		callback.PopTask();
+//
+//		if (!msg)
+//			return msg;
+//
+//
+//
+//		const CLocationVector& locations = metadata.GetLocations();
+//		callback.PushTask("Init dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
+//
+//		CGeoExtents extents = world.m_DEM_DS.GetExtents();
+//		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
+//		CTPeriod period = world.m_world_param.m_simulationPeriod;
+//		ASSERT(period.GetTM().Type() == CTM::DAILY);
+//		//period.Transform(CTM(CTM::DAILY));
+//
+//		size_t nbReplications = 0;
+//		for (size_t l = 0; l < locations.size() && msg; l++)
+//		{
+//			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
+//			{
+//				size_t rr = 0;
+//				for (size_t r = 0; r < pResult->GetMetadata().GetNbReplications() && msg; r++)
+//				{
+//
+//					CNewSectionData section;
+//					pResult->GetSection(l, p, r, section);
+//					assert(section.GetCols() == pResult->GetNbCols(false));
+//
+//					for (size_t t = 0; t < section.GetRows() && msg; t++)
+//					{
+//						std::array<double, NB_INPUTS> v;
+//
+//						for (size_t i = 0; i < varsPos.size(); i++)
+//							v[i] = section[t][varsPos[i]][MEAN];
+//
+//						CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
+//						//int shift = world.m_moths_param.m_ready_to_fly_shift[v[I_SEX]];
+//						if (period.IsInside(emergingDate))
+//						{
+//							CSBWMoth moth(world);
+//
+//							moth.m_loc = l;
+//							moth.m_par = p;
+//							moth.m_rep = rr;
+//							moth.m_emergingDate = emergingDate;//daily reference of ready moths
+//							moth.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
+//							moth.m_A = v[I_A];
+//							moth.m_M = v[I_M];
+//							moth.m_G = v[I_G];
+//							moth.m_Fᵒ = v[I_Fᵒ];
+//							moth.m_Fᴰ = v[I_Fᴰ];// v[I_E];
+//							moth.m_F = v[I_Fᴰ];// v[I_E];
+//							moth.m_location = locations[l];
+//							moth.m_newLocation = locations[l];
+//							moth.m_pt = locations[l];
+//
+//							//moth.m_pt.m_alt = 10;
+//							if (extents.IsInside(moth.m_pt))
+//								world.m_moths.push_back(moth);
+//							else
+//								callback.AddMessage("WARNING: Simulation point outside elevation map");
+//
+//							rr++;
+//							nbReplications = max(nbReplications, rr);
+//
+//						}//is inside simulation period
+//					}//for all rows
+//
+//					msg += callback.StepIt();
+//				}//for all replications
+//
+//
+//			}//for all paramterset
+//		}//for all locations
+//
+//
+//		callback.PopTask();
+//
+//		if (!world.m_moths.empty())
+//		{
+//
+//			CTPeriod outputPeriod = world.m_world_param.m_simulationPeriod;
+//			outputPeriod.End()++;//add one day at the end
+//			outputPeriod.Transform(CTM::HOURLY);
+//
+//
+//			callback.AddMessage("Execute dispersal with " + ToString(world.m_moths.size()) + " moths");
+//			callback.AddMessage("Output period: " + outputPeriod.GetFormatedString());
+//			callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
+//			callback.PushTask("Execute dispersal for year = " + ToString(period.Begin().GetYear()) + " (" + ToString(period.GetNbDay()) + " days)", period.GetNbDay());
+//
+//
+//			metadata.SetNbReplications(nbReplications);
+//			metadata.SetTPeriod(outputPeriod);
+//
+//			world.Init(callback);
+//
+//
+//			const int nbSubPerHour = 3600 / world.m_world_param.m_outputFrequency;
+//
+//
+//			//open 10 min file
+//			CATMOutputMatrix sub_output;
+//			if (output_file.is_open())
+//			{
+//				//write file header
+//
+//				output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
+//				output_file << "flight,sex,A,M,G,EggsLaid,state,flag,x,y,lat,lon,";
+//				output_file << "T,P,U,V,W,";
+//				output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
+//			}
+//
+//			//for all days
+//			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
+//			{
+//				//get all ready to flight flyers for this day
+//				vector<CSBWMothsIt> moths = world.GetMoths(TRef);
+//
+//				if (!moths.empty())
+//				{
+//					//get sunset hours for this day
+//					CTimePeriod UTC_period = world.get_UTC_sunset_period(TRef, moths);
+//
+//					//load hours around sunset
+//					UTC_period.first -= 4 * 3600;
+//					UTC_period.second += 4 * 3600;
+//
+//					vector<__int64> weather_time = world.GetWeatherTime(UTC_period, callback);
+//
+//					//Load weather for sunset
+//					if (!weather_time.empty())
+//						msg = world.LoadWeather(TRef, weather_time, callback);
+//						
+//
+//					if (msg)
+//					{
+//
+//						//allocate memory
+//						CTPeriod p(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 12), CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay() + 1, 12));
+//
+//						CATMOutputMatrix output(locations.size());
+//						for (size_t l = 0; l < output.size(); l++)
+//						{
+//							output[l].resize(metadata.GetParameterSet().size());//the number of input variables
+//							for (size_t p = 0; p < output[l].size(); p++)
+//							{
+//								output[l][p].resize(nbReplications);
+//								for (size_t r = 0; r < output[l][p].size(); r++)
+//								{
+//									output[l][p][r].Init(p, VMISS);
+//								}
+//							}
+//						}
+//
+//						if (msg && !sub_output.empty())
+//						{
+//							ASSERT(p.size()*nbSubPerHour < LONG_MAX);
+//							__int64 begin = CTimeZones::TRef2Time(p.Begin()) / world.m_world_param.m_outputFrequency;
+//							__int64 end = CTimeZones::TRef2Time(p.End()) / world.m_world_param.m_outputFrequency;
+//
+//							CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
+//							sub_output.resize(output.size());
+//							for (size_t l = 0; l < sub_output.size(); l++)
+//							{
+//								sub_output[l].resize(output[l].size());//the number of input variables
+//								for (size_t p = 0; p < output[l].size(); p++)
+//								{
+//									sub_output[l][p].resize(output[l][p].size());
+//									for (size_t r = 0; r < sub_output[l][p].size(); r++)
+//									{
+//										sub_output[l][p][r].Init(outputPeriod, VMISS);
+//									}
+//								}
+//							}
+//						}
+//
+//						vector<CSBWMothsIt> flyers;
+//						vector<CSBWMothsIt> nonflyers;
+//						size_t waiting_to_fly = 0;
+//						std::array<size_t, CSBWMothParameters::NB_SEX> emerging = { 0 };
+//						//init all moths : broods and liffoff time
+//						for (size_t i = 0; i < moths.size(); i++)
+//						{
+//							if (moths[i]->init(TRef))
+//								flyers.push_back(moths[i]);
+//							else
+//								nonflyers.push_back(moths[i]);
+//
+//							if (moths[i]->GetEnd() >= CSBWMoth::NO_LIFTOFF_TAIR &&
+//								moths[i]->GetEnd() <= CSBWMoth::NO_LIFTOFF_WNDS)
+//								waiting_to_fly++;
+//
+//							if (moths[i]->m_emergingDate == TRef)
+//								emerging[moths[i]->m_sex]++;
+//						}
+//
+//						callback.AddMessage("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d"));
+//						callback.AddMessage("Emerging = " + to_string(emerging[0]) + " (males) " + to_string(emerging[1]) + " (females)");
+//						callback.AddMessage("Waiting to fly = " + to_string(waiting_to_fly), 1);
+//						callback.AddMessage("Flying tonight = " + to_string(flyers.size()), 1);
+//						callback.AddMessage("Female finishing of laying eggs = " + to_string(nonflyers.size() - waiting_to_fly), 1);
+//
+//
+//						if (!flyers.empty())
+//						{
+//							msg = world.Execute(TRef, flyers, output, sub_output, callback);
+//							if (msg && !sub_output.empty())
+//							{
+//								//save sub-hourly output
+//								for (size_t l = 0; l < sub_output.size(); l++)
+//								{
+//									sub_output[l].resize(output[l].size());
+//									for (size_t p = 0; p < output[l].size(); p++)
+//									{
+//										sub_output[l][p].resize(output[l][p].size());
+//										for (size_t r = 0; r < sub_output[l][p].size(); r++)
+//										{
+//											for (size_t t = 0; t < sub_output[l][p][r].size(); t++)
+//											{
+//												size_t seconds = 0;// (t * m_world_param.m_outputFrequency) % (24 * 3600);
+//												size_t hours = size_t(t / nbSubPerHour);
+//												size_t minutes = (t % nbSubPerHour) * (world.m_world_param.m_outputFrequency / 60);
+//												ASSERT(seconds % 60 == 0);
+//
+//												output_file << l + 1 << "," << p + 1 << "," << r + 1 << ",";
+//												output_file << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << hours << "," << minutes << "," << seconds - 60 * minutes;
+//												for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+//													output_file << "," << sub_output[l][p][r][t][v];
+//												output_file << endl;
+//											}//for all time step
+//										}//for all replications
+//									}//for all parameters
+//								}//for all locations
+//							}//if sub hourly output
+//						}//if flyers
+//
+//						if (!nonflyers.empty())
+//						{
+//							CTRef TRef18 = TRef.as(CTM::HOURLY);
+//							TRef18.m_hour = 18;
+//
+//
+//							//only update output for eggs laid
+//							for (size_t i = 0; i < nonflyers.size(); i++)
+//							{
+//								CSBWMoth& flyer = *(nonflyers[i]);
+//
+//								CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(TRef18, flyer.m_location);
+//								__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
+//
+//								flyer.FillOutput(TRef18, output);
+//								flyer.live(UTCTime);
+//								flyer.FillOutput(TRef18++, output);
+//							}
+//						}//have non flyers
+//
+//
+//						//save result
+//						for (size_t l = 0; l < output.size() && msg; l++)
+//						{
+//							for (size_t p = 0; p < output[l].size() && msg; p++)
+//							{
+//								for (size_t r = 0; r < output[l][p].size(); r++)
+//								{
+//									size_t no = result.GetSectionNo(l, p, r);
+//									msg += result.SetSection(no, output[l][p][r]);
+//									msg += callback.StepIt(0);
+//								}
+//							}
+//						}
+//
+//					}//if msg
+//				}//have ready to flight moths
+//
+//				msg += callback.StepIt();
+//			}//for all valid days
+//
+//
+//			callback.PopTask();
+//
+//
+//
+//			if (m_parameters.m_world.m_bCreateEggMaps)
+//			{
+//				string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
+//				//a faire...
+//			//	msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
+//			}
+//		}//if have moths to simulate
+//
+//
+//
+//
+//		result.Close();
 
 		return msg;
 	}

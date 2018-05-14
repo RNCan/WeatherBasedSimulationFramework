@@ -5,7 +5,7 @@
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
 // 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
-// 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0, 0}  from { 0.5, 0]
+// 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0]
 // 08/01/2017	Rémi Saint-Amant	Add hourly live
 // 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
@@ -42,7 +42,7 @@ namespace WBSF
 	static const double OVIPOSITING_STAGE_AGE = 0.05;
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
-	
+
 	//*****************************************************************************
 	// Object creator
 	//
@@ -60,27 +60,43 @@ namespace WBSF
 
 		//double ξ = RandomGenerator().Rand(-20, 20);
 		m_defoliation = Equations().get_defoliation(GetStand()->m_defoliation);
-			
 
-		m_A = Equations().get_A(m_sex); 
-		m_Fº = (m_sex == FEMALE) ? Equations().get_Fº(m_A) : 0;
-		m_Fᴰ = (1.0 - 0.0054*m_defoliation)*m_Fº;
+
+		m_Fº = CBioSIMModelBase::VMISS;
+		m_Fᴰ = CBioSIMModelBase::VMISS;
+		m_A = Equations().get_A(m_sex);
+		
+		if (m_sex == FEMALE)
+		{
+			//moyenne 1 et écart type 0.3 (empêche la fécondité d’être <0 ou > 500)
+			m_Fº = Round(Equations().get_Fº(m_A));
+			//m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº, 0);
+			do { 
+				double ξ = RandomGenerator().RandNormal(1, 0.3);
+				m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº*ξ, 0);
+			} while (m_Fᴰ < 1 || m_Fᴰ > 500);
+
+			//if (m_Fᴰ > m_Fº)
+				//m_Fᴰ=m_Fº;
+		}
+		
+		m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
 		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
 
-		m_p_exodus = Equations().get_p_exodus(); 
+		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
 		m_bAlreadyExodus = false;
-		
-	
+
+
 		// Each individual created gets the following attributes
 		// Initial energy Level, the same for everyone
 		static const double ALPHA0 = 2.1571;
 		m_OWEnergy = ALPHA0;
 		m_bMissingEnergyAlreadyApplied = false;
 		m_bKillByAttrition = false;
-		
-		ASSERT(m_Fº>=0);
-		ASSERT(m_Fᴰ >= 0);
+
+		ASSERT(m_sex==MALE || m_Fº >= 0);
+		ASSERT(m_sex == MALE || m_Fᴰ >= 0);
 		ASSERT(m_M > 0);
 	}
 
@@ -100,7 +116,7 @@ namespace WBSF
 			m_eatenFoliage = in.m_eatenFoliage;
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
-			
+
 
 			//regenerate relative development rate
 			for (size_t s = 0; s < NB_STAGES; s++)
@@ -112,6 +128,7 @@ namespace WBSF
 			m_p_exodus = in.m_p_exodus;
 			m_Fº = in.m_Fº;
 			m_Fᴰ = in.m_Fᴰ;
+			m_F = in.m_F; 
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
 			m_defoliation = in.m_defoliation;
@@ -170,9 +187,9 @@ namespace WBSF
 		if (s >= L3 && s <= L6)//PUPAE
 		{
 			double defFactor = max(0.75, 1.0 - max(0.0, m_defoliation - 50.0)*0.005);
-			RR *= defFactor; 
+			RR *= defFactor;
 		}
-			
+
 
 		//development rate for white spruce is accelerated by a factor
 		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -230,7 +247,7 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 		{
-			size_t h = step*GetTimeStep();
+			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
 		}
 		//Live(weather[0], 24);
@@ -239,7 +256,7 @@ namespace WBSF
 		//flight activity, only in live adults 
 		if (GetStage() == ADULT && !m_bAlreadyExodus)//
 			m_bExodus = ComputeExodus(weather);
-			
+
 		if (m_bExodus)
 			m_bAlreadyExodus = true;
 	}
@@ -248,26 +265,36 @@ namespace WBSF
 	void CSpruceBudworm::Brood(const CWeatherDay& weather)
 	{
 		assert(IsAlive() && m_sex == FEMALE);
-		
-		
-		if (GetStage() == ADULT && GetStageAge() > OVIPOSITING_STAGE_AGE && weather[H_TNTX][MEAN] >= 10)
+
+
+		if (GetStage() == ADULT && 
+			GetStageAge() > OVIPOSITING_STAGE_AGE && 
+			weather[H_TNTX][MEAN] >= 10 &&
+			m_F > 0)
 		{
-			assert(m_Fᴰ>=0);
+			assert(m_Fᴰ >= 0);
 			assert(m_totalBroods >= 0 && m_totalBroods <= m_Fᴰ);
+			ASSERT(Round(m_F + m_totalBroods, 0) == m_Fᴰ);
 
 			//brooding
-			double eggLeft = m_Fᴰ - m_totalBroods;
-			
 			double P = Equations().get_P(weather[H_TNTX][MEAN]);
-			double broods = eggLeft*P;
+			ASSERT(P >= 0 && P < 1);
 
-			if ( (m_totalBroods + broods) > m_Fᴰ)
-				broods = m_Fᴰ - m_totalBroods;
+			double broods = m_F * P;
+			ASSERT(broods < m_F);
+			ASSERT((m_totalBroods + broods) <= m_Fᴰ);
+
+			if (m_F - broods < 1)//avoid very small egg deposition
+				broods = m_F;
+
+			//if ((m_totalBroods + broods) > m_Fᴰ)
+				//broods = m_Fᴰ - m_totalBroods;
 
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = broods;
 			m_totalBroods += broods;
 
+			m_F = m_Fᴰ - m_totalBroods;
 			ASSERT(m_totalBroods <= m_Fᴰ);
 
 			//Oviposition module after Régniere 1983
@@ -276,15 +303,15 @@ namespace WBSF
 				CSBWTree* pTree = GetTree();
 				CSBWStand* pStand = GetStand(); ASSERT(pStand);
 
-				double scaleFactor = m_broods*m_scaleFactor;
+				double scaleFactor = m_broods * m_scaleFactor;
 				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
-			}  
+			}
 
-			
-			m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);//compute weight from forewing area and female gravidity
-			
-			
+
+			//compute weight from forewing area and female gravidity
+			//m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);
+			m_M = Equations().get_M(m_sex, m_A, GetG(), true);
 		}
 	}
 
@@ -346,8 +373,8 @@ namespace WBSF
 
 		if (m_generation == 0)
 		{
-			
-			stat[S_BROOD] += m_broods*m_scaleFactor;
+
+			stat[S_BROOD] += m_broods * m_scaleFactor;
 
 			if (IsAlive() || stage == DEAD_ADULT)
 			{
@@ -356,13 +383,13 @@ namespace WBSF
 
 				if (stage == ADULT && m_sex == FEMALE && GetStageAge() > OVIPOSITING_STAGE_AGE)
 					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
-				
+
 				static const double SEX_RATIO[2] = { 1.0, 1.0 };//humm????
 
-				if (m_bExodus) 
-					stat[S_MALE_FLIGHT + m_sex] += m_scaleFactor*SEX_RATIO[m_sex];
+				if (m_bExodus)
+					stat[S_MALE_FLIGHT + m_sex] += m_scaleFactor * SEX_RATIO[m_sex];
 
-				if (stage == PUPAE )
+				if (stage == PUPAE)
 					stat[S_PUPA_MALE + m_sex] += m_scaleFactor;
 				if (stage == ADULT)
 					stat[S_ADULT_MALE + m_sex] += m_scaleFactor;
@@ -406,7 +433,7 @@ namespace WBSF
 		bool bExodus = false;
 
 		//double Pmating = GetMatingProbability(GetStageAge());
-		if (m_sex==MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
 		{
 			__int64 tº = 0;
 			__int64 tᴹ = 0;
@@ -436,46 +463,37 @@ namespace WBSF
 
 		return bExodus;
 	}
-	
-	
+
+
 
 	bool CSpruceBudworm::ComputeExodus(double T, double P, double W, double tau)
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-		
-		
+
 		//static const double K = 166.0;//all moth flies between 25 à 63 Hz
 		//static const double b[2] = { 21.35, 24.08 };
 		//static const double c[2] = { 2.97, 6.63 };
 		//static const double VmaxMF[2] = { 1.0, 1.0 };
 		//static const double VmaxHz = 65;
-		
-
-		static const double K = 166.0;//all moth flies between 25 à 63 Hz
-		static const double b[2] = { 21.35, 24.08 };
-		static const double c[2] = { 2.97, 6.63 };
-		static const double VmaxMF[2] = { 1.0, 1.0 };
-		static const double VmaxHz = 65;
-		static const double deltaT[2] = { 0 , 3.5 };
+		//static const double deltaT[2] = { 0 , 3.5 };
 
 
+		static const double K = 167.5;//proportionality constant [Hz·cm²/√g]
+		static const double a = 23.0;//°C
+		static const double b = 8.6957;//°C
+		static const double Vmax = 72.5;//Hz
+		static const double Δv = 1;
 
-		//static const double K = 166.0;//95% moths fly between 25 à 42 Hz
-		//static const double b[2] = { 21.35, 21.35 };
-		//static const double c[2] = { 2.97, 2.97 }; 
-		//static const double VmaxMF[2] = { 1.0, 1.0 };
-		//static const double VmaxHz = 65;
-		//static const double deltaT[2] = { 0 };
 
 		bool bExodus = false;
 
 		if (P == -999)
 			P = 0;
-		
+
 		if (W == -999)
 			W = 10;
 
-		
+
 		//double Pmating = GetMatingProbability(GetStageAge());
 		//m_sex == MALE || 
 
@@ -483,18 +501,20 @@ namespace WBSF
 
 		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
-			const double Vmax = VmaxHz * VmaxMF[m_sex];
-			double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
+			//double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
+			double p = (C + tau - (2 * pow(tau, 3) / 3) + (pow(tau, 5) / 5)) / (2 * C);
+			ASSERT(p >= 0 && p <= 1);
 
 			//Compute wingbeat
-			double Vᴸ = K* sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
-			double Vᵀ = Vmax*(1 - exp(-pow((T + deltaT[m_sex]) / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
-			
+			double Vᴸ = K * sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
+			//double Vᵀ = Vmax*(1 - exp(-pow((T + deltaT[m_sex]) / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
+			double Vᵀ = Vmax / (1 + exp(-(T - a) / b));//compute potential wingbeat for the current temperature (Vᵀ)
+
 			//potential wingbeat is greather than liftoff wingbeat, then exodus 
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
 				bExodus = true;		//this insect is exodus
 
-					
+
 		}
 
 		return bExodus;
@@ -538,7 +558,7 @@ namespace WBSF
 		ASSERT(h >= 0 && h < 24);
 
 		double wind = -999;
-		
+
 		size_t hº = size_t(h);
 		size_t h¹ = hº + 1;
 		ASSERT(h >= hº && h <= h¹);
@@ -558,49 +578,47 @@ namespace WBSF
 
 
 
-	
+
 
 	bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᴹ)const
 	{
-		static const __int64 Δtᶠ = 3 * 3600;
-		static const __int64 Δtᶳ = -3600;
-		static const __int64 Δt = 60;
-		static const double Tº = 24.5;
+		static const __int64 Δtᶠ = 5 * 3600;//s
+		static const __int64 Δtᶳ = 3600;//s
+		static const __int64 Δt = 60;//s
+		static const double Tº = 25.4;//°C
 
 		CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
-		__int64 sunset = (sun.GetSunset(wº.GetTRef()) + 1.0 ) * 3600;//+1 hour : assume to be in daylight zone  //[s]
+		__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
+		ASSERT(tᶳ > 12 * 3600);
 
 		//first estimate of exodus info
-		__int64 h4 = 4 * 3600;
-		__int64 Δtᵀ = h4;
-		tº = sunset - h4;//subtract 4 hours
-		tᴹ = sunset + h4;//add 4 hours
+		tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
+		tᴹ = (25 - 1) * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
+		__int64 tᵀº = 0;
 
-
-		if (tº > 0)
+		ASSERT(tº > 0);
+		for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
 		{
-			for (__int64 t = tº; t <= tᴹ && Δtᵀ == h4; t += Δt)
-			{
-				//sunset hour shifted by t
-				double h = t / 3600.0;
-				const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
-			
-				//temperature interpolation between 2 hours
-				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
-				if (Tair <= Tº)
-					Δtᵀ = t - sunset;
-			}
+			//sunset hour shifted by t
+			double h = t / 3600.0;
+			const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
 
-			if (Δtᵀ < h4)//if the Δtᵀ is greater than 4, no temperature under Tº, then no exodus. probably rare situation
-			{
-				//now calculate the real tº, tᶬ and tᶜ
-				tº = sunset + max((Δtᶳ - Δtᶠ / 2), Δtᵀ); 
-				tᴹ = min(sunset + h4, tº + Δtᶠ);
-			}
+			//temperature interpolation between 2 hours
+			double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
+			if (Tair <= Tº)
+				tᵀº = t;
 		}
 
+		ASSERT(tᵀº != 0);
+		if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
+			tᵀº = 22 * 3600;
+		
+		//now calculate the real tº, tᶬ and tᶜ
+		tº = max(tᶳ + Δtᶳ - Δtᶠ / 2, tᵀº);
+		tᴹ = min(tº + Δtᶠ, __int64(25 * 3600));
 
-		return Δtᵀ < h4;
+
+		return tᵀº != 0;
 	}
 
 
@@ -667,7 +685,7 @@ namespace WBSF
 
 		double e = 0;
 		if (T >= 0)
-			e = ALPHA1*pow(T, ALPHA2);
+			e = ALPHA1 * pow(T, ALPHA2);
 
 		return e;
 	}
@@ -701,9 +719,9 @@ namespace WBSF
 		CSpruceBudworm* in = (CSpruceBudworm*)(pBug.get());
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		
+
 		m_defoliation = (m_defoliation*m_scaleFactor + in->m_defoliation*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		 
+
 		//m_liftoff_hour = (m_liftoff_hour*m_scaleFactor + in->m_liftoff_hour*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		//m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
@@ -712,7 +730,7 @@ namespace WBSF
 
 	double CSpruceBudworm::GetInstar(bool includeLast)const
 	{
-		return (IsAlive() || m_death == OLD_AGE) ? std::min(GetStage() <= SBW::L2o ? GetStage() : std::max(size_t(SBW::L2o), GetStage() - 1), size_t(SBW::NB_STAGES) - (includeLast ? 0 : 1)) : WBSF::CBioSIMModelBase::VMISS;
+		return (IsAlive() || m_death == OLD_AGE) ? std::min(GetStage() <= SBW::L2o ? GetStage() : std::max(size_t(SBW::L2o), GetStage() - 1), size_t(SBW::NB_STAGES) - (includeLast ? 0 : 1)) : CBioSIMModelBase::VMISS;
 	}
 
 	//*********************************************************************************************************************
@@ -730,7 +748,7 @@ namespace WBSF
 	{
 		if (weather[H_TMIN2][MEAN] < -10)
 		{
-			if (weather.GetTRef().GetJDay()>180 && !m_bAutumnCleaned)
+			if (weather.GetTRef().GetJDay() > 180 && !m_bAutumnCleaned)
 			{
 				m_bAutumnCleaned = true;
 
@@ -767,7 +785,7 @@ namespace WBSF
 		//		weight += (*it)->GetScaleFactor();
 		//	}
 		//}
-		
+
 		//stat[S_FEMALE_AGE] = (weight.IsInit() && weight[SUM] > 0) ? sum[SUM] / weight[SUM] : CBioSIMModelBase::VMISS;;
 	}
 

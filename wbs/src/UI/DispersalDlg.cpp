@@ -36,9 +36,9 @@ namespace WBSF
 	
 	enum TDispersalProperties
 	{
-		WEATHER_TYPE, SIMULATION_PERIOD, FLIGHT_PERIOD, TIME_STEP, SEED_TYPE, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, MAXIMUM_FLYERS, MAX_MISS_WEATHER, FORCE_FIRST_FLIGHT, T_BROOD, P_TYPE,
+		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, MAXIMUM_FLYERS, MAX_MISS_WEATHER, FORCE_FIRST_FLIGHT, T_BROOD, P_TYPE,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, WATER,
-		P_MAX, W_MIN, WING_BEAT_SCALE, HORZ_SCALE, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, MAXIMUM_FLIGHTS, FLIGHT_AFTER_SUNRIZE, READY_SHIFT0, READY_SHIFT1,
+		P_MAX, W_MIN, WING_BEAT_SCALE, REDUCTION_FACTOR, REDUCTION_HEIGHT, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, MAXIMUM_FLIGHTS, FLIGHT_AFTER_SUNRIZE, READY_SHIFT0, READY_SHIFT1,
 		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, CREATE_EGG_MAPS, EGG_MAP_TITLE, CREATE_EGG_RES, NB_PROPERTIES
 	};
 
@@ -85,11 +85,12 @@ namespace WBSF
 		ASSERT(name.size() == NB_PROPERTIES);
 		ASSERT(description.size() == NB_PROPERTIES);
 		ASSERT(sex.size() == 2);
-
+		 
 		CMFCPropertyGridProperty* pGeneral = new CMFCPropertyGridProperty(section[0], -1);
 		pGeneral->AddSubItem(new CWeatherTypeProperty(name[WEATHER_TYPE], 0, description[WEATHER_TYPE], WEATHER_TYPE));
 		pGeneral->AddSubItem(new CStdTPeriodProperty(name[SIMULATION_PERIOD], "", description[SIMULATION_PERIOD], SIMULATION_PERIOD));
-		pGeneral->AddSubItem(new CStdTPeriodProperty(name[FLIGHT_PERIOD], "", description[FLIGHT_PERIOD], FLIGHT_PERIOD));
+		//pGeneral->AddSubItem(new CStdTPeriodProperty(name[FLIGHT_PERIOD], "", description[FLIGHT_PERIOD], FLIGHT_PERIOD));
+		//pGeneral->AddSubItem(new CStdGridProperty(name[EXTRA_SIMULATION], "", description[EXTRA_SIMULATION], EXTRA_SIMULATION));
 		pGeneral->AddSubItem(new CStdGridProperty(name[TIME_STEP], "", description[TIME_STEP], TIME_STEP));
 		pGeneral->AddSubItem(new CSeedTypeProperty(name[SEED_TYPE], 0, description[SEED_TYPE], SEED_TYPE));
 		pGeneral->AddSubItem(new CStdBoolGridProperty(name[USE_SPATIAL_INTERPOL], true, description[USE_SPATIAL_INTERPOL], USE_SPATIAL_INTERPOL));
@@ -115,7 +116,8 @@ namespace WBSF
 		pMoth->AddSubItem(new CStdGridProperty(name[P_MAX], "", description[P_MAX], P_MAX));
 		pMoth->AddSubItem(new CStdGridProperty(name[W_MIN], "", description[W_MIN], W_MIN));
 		pMoth->AddSubItem(new CStdGridProperty(name[WING_BEAT_SCALE], "", description[WING_BEAT_SCALE], WING_BEAT_SCALE));
-		pMoth->AddSubItem(new CStdGridProperty(name[HORZ_SCALE], "", description[HORZ_SCALE], HORZ_SCALE));
+		pMoth->AddSubItem(new CStdGridProperty(name[REDUCTION_FACTOR], "", description[REDUCTION_FACTOR], REDUCTION_FACTOR));
+		pMoth->AddSubItem(new CStdGridProperty(name[REDUCTION_HEIGHT], "", description[REDUCTION_HEIGHT], REDUCTION_HEIGHT));
 		pMoth->AddSubItem(new CStdGridProperty(name[W_HORZ], "", description[W_HORZ], W_HORZ));
 		pMoth->AddSubItem(new CStdGridProperty(name[W_HORZ_SD], "", description[W_HORZ_SD], W_HORZ_SD));
 		pMoth->AddSubItem(new CStdGridProperty(name[W_DESCENT], "", description[W_DESCENT], W_DESCENT));
@@ -155,14 +157,15 @@ namespace WBSF
 			{
 			case WEATHER_TYPE:		str = WBSF::ToString(in.m_world.m_weather_type); break;
 			case SIMULATION_PERIOD: str = in.m_world.m_simulationPeriod.GetFormatedString("%1, %2", "%Y-%m-%d"); break;
-			case FLIGHT_PERIOD:		str = in.m_world.m_flightPeriod.GetFormatedString("%1, %2", "%Y-%m-%d"); break;
+			//case FLIGHT_PERIOD:		str = in.m_world.m_flightPeriod.GetFormatedString("%1, %2", "%Y-%m-%d"); break;
+			//case EXTRA_SIMULATION:	str = WBSF::ToString(in.m_world.m_extra_simulation_days); break;
 			case TIME_STEP:			str = WBSF::ToString(in.m_world.m_time_step); break;
 			case SEED_TYPE:			str = WBSF::ToString(in.m_world.m_seed); break;
 			case USE_SPATIAL_INTERPOL:		str = WBSF::ToString(in.m_world.m_bUseSpaceInterpolation); break;
 			case USE_TIME_INTERPOL:		str = WBSF::ToString(in.m_world.m_bUseTimeInterpolation); break;
 			case USE_PREDICTOR_CORRECTOR_METHOD: str = WBSF::ToString(in.m_world.m_bUsePredictorCorrectorMethod); break;
 			case MAXIMUM_FLYERS:	str = WBSF::ToString(in.m_world.m_maxFlyers); break;
-			case MAX_MISS_WEATHER:	str = WBSF::ToString(in.m_world.m_max_missing_weather); break;
+			case MAX_MISS_WEATHER:	str = WBSF::ToString(in.m_world.m_max_missing_weather, 2); break;
 			case T_BROOD:			str = WBSF::ToString(in.m_world.m_broodTSource); break;
 			case P_TYPE:			str = WBSF::ToString(in.m_world.m_PSource); break;
 			case FORCE_FIRST_FLIGHT:	str = WBSF::ToString(in.m_world.m_bForceFirstFlight); break;
@@ -177,15 +180,16 @@ namespace WBSF
 			case P_MAX:				str = WBSF::ToString(in.m_moths.m_Pmax); break;
 			case W_MIN:				str = WBSF::ToString(in.m_moths.m_Wmin); break;
 			case WING_BEAT_SCALE:	str = WBSF::ToString(in.m_moths.m_w_α); break;
-			case HORZ_SCALE:		str = WBSF::ToString(in.m_moths.m_Δv); break;
+			case REDUCTION_FACTOR:		str = WBSF::ToString(in.m_moths.m_Δv); break;
+			case REDUCTION_HEIGHT:		str = WBSF::ToString(in.m_moths.m_Hv); break;
 			case W_HORZ:			str = WBSF::ToString(in.m_moths.m_w_horizontal); break;
 			case W_HORZ_SD:			str = WBSF::ToString(in.m_moths.m_w_horizontal_σ); break;
 			case W_DESCENT:			str = WBSF::ToString(in.m_moths.m_w_descent); break;
 			case W_DESCENT_SD:		str = WBSF::ToString(in.m_moths.m_w_descent_σ); break;
 			case MAXIMUM_FLIGHTS:		str = WBSF::ToString(in.m_moths.m_maxFlights); break;
-			case FLIGHT_AFTER_SUNRIZE:		str = WBSF::ToString(in.m_moths.m_flight_after_sunrise); break;
-			case READY_SHIFT0:		str = WBSF::ToString(in.m_moths.m_ready_to_fly_shift[0]); break;
-			case READY_SHIFT1:		str = WBSF::ToString(in.m_moths.m_ready_to_fly_shift[1]); break;
+			case FLIGHT_AFTER_SUNRIZE:		str = WBSF::ToString(in.m_moths.m_flight_after_sunrise, 2); break;
+			case READY_SHIFT0:		str = WBSF::ToString(in.m_moths.m_ready_to_fly[0]); break;
+			case READY_SHIFT1:		str = WBSF::ToString(in.m_moths.m_ready_to_fly[1]); break;
 
 
 			case OUTPUT_SUB_HOURLY: str = WBSF::ToString(in.m_world.m_bOutputSubHourly); break;
@@ -220,16 +224,17 @@ namespace WBSF
 		case SIMULATION_PERIOD: me.m_parameters.m_world.m_simulationPeriod.FromFormatedString(str, "%1, %2", "%Y-%m-%d"); break;
 		case 1000 * SIMULATION_PERIOD + 1: me.m_parameters.m_world.m_simulationPeriod.Begin().FromFormatedString(str, "%Y-%m-%d"); break;
 		case 1000 * SIMULATION_PERIOD + 2: me.m_parameters.m_world.m_simulationPeriod.End().FromFormatedString(str, "%Y-%m-%d"); break;
-		case FLIGHT_PERIOD:		me.m_parameters.m_world.m_flightPeriod.FromFormatedString(str, "%1, %2", "%Y-%m-%d"); break;
-		case 1000 * FLIGHT_PERIOD + 1: me.m_parameters.m_world.m_flightPeriod.Begin().FromFormatedString(str, "%Y-%m-%d"); break;
-		case 1000 * FLIGHT_PERIOD + 2: me.m_parameters.m_world.m_flightPeriod.End().FromFormatedString(str, "%Y-%m-%d"); break;
+		//case FLIGHT_PERIOD:		me.m_parameters.m_world.m_flightPeriod.FromFormatedString(str, "%1, %2", "%Y-%m-%d"); break;
+		//case 1000 * FLIGHT_PERIOD + 1: me.m_parameters.m_world.m_flightPeriod.Begin().FromFormatedString(str, "%Y-%m-%d"); break;
+		//case 1000 * FLIGHT_PERIOD + 2: me.m_parameters.m_world.m_flightPeriod.End().FromFormatedString(str, "%Y-%m-%d"); break;
+		//case EXTRA_SIMULATION:	me.m_parameters.m_world.m_extra_simulation_days = WBSF::ToInt(str); break;
 		case TIME_STEP:			me.m_parameters.m_world.m_time_step = WBSF::ToInt(str); break;
 		case SEED_TYPE:			me.m_parameters.m_world.m_seed = WBSF::ToInt(str); break;
 		case USE_SPATIAL_INTERPOL:	me.m_parameters.m_world.m_bUseSpaceInterpolation = WBSF::ToBool(str); break;
 		case USE_TIME_INTERPOL:	me.m_parameters.m_world.m_bUseTimeInterpolation = WBSF::ToBool(str); break;
 		case USE_PREDICTOR_CORRECTOR_METHOD: me.m_parameters.m_world.m_bUsePredictorCorrectorMethod = WBSF::ToBool(str); break;
 		case MAXIMUM_FLYERS:	me.m_parameters.m_world.m_maxFlyers = WBSF::ToSizeT(str); break;
-		case MAX_MISS_WEATHER:	me.m_parameters.m_world.m_max_missing_weather = WBSF::ToSizeT(str); break;
+		case MAX_MISS_WEATHER:	me.m_parameters.m_world.m_max_missing_weather = WBSF::ToDouble(str); break;
 		case T_BROOD:			me.m_parameters.m_world.m_broodTSource = WBSF::ToSizeT(str); break;
 		case P_TYPE:			me.m_parameters.m_world.m_PSource = WBSF::ToSizeT(str); break;
 		case FORCE_FIRST_FLIGHT:	me.m_parameters.m_world.m_bForceFirstFlight = WBSF::ToBool(str); break;
@@ -243,15 +248,16 @@ namespace WBSF
 		case P_MAX:				me.m_parameters.m_moths.m_Pmax = WBSF::ToDouble(str); break;
 		case W_MIN:				me.m_parameters.m_moths.m_Wmin = WBSF::ToDouble(str); break;
 		case WING_BEAT_SCALE:	me.m_parameters.m_moths.m_w_α = WBSF::ToDouble(str); break;
-		case HORZ_SCALE:		me.m_parameters.m_moths.m_Δv = WBSF::ToDouble(str); break;
+		case REDUCTION_FACTOR:		me.m_parameters.m_moths.m_Δv = WBSF::ToDouble(str); break;
+		case REDUCTION_HEIGHT:		me.m_parameters.m_moths.m_Hv = WBSF::ToDouble(str); break;
 		case W_HORZ:			me.m_parameters.m_moths.m_w_horizontal = WBSF::ToDouble(str); break;
 		case W_HORZ_SD:			me.m_parameters.m_moths.m_w_horizontal_σ = WBSF::ToDouble(str); break;
 		case W_DESCENT:			me.m_parameters.m_moths.m_w_descent = WBSF::ToDouble(str); break;
 		case W_DESCENT_SD:		me.m_parameters.m_moths.m_w_descent_σ = WBSF::ToDouble(str); break;
 		case MAXIMUM_FLIGHTS:	me.m_parameters.m_moths.m_maxFlights = WBSF::ToSizeT(str); break;
-		case FLIGHT_AFTER_SUNRIZE:	me.m_parameters.m_moths.m_flight_after_sunrise = WBSF::ToSizeT(str); break;
-		case READY_SHIFT0:		me.m_parameters.m_moths.m_ready_to_fly_shift[0] = WBSF::as<int>(str); break;
-		case READY_SHIFT1:		me.m_parameters.m_moths.m_ready_to_fly_shift[1] = WBSF::as<int>(str); break;
+		case FLIGHT_AFTER_SUNRIZE:	me.m_parameters.m_moths.m_flight_after_sunrise = WBSF::ToDouble(str); break;
+		case READY_SHIFT0:		me.m_parameters.m_moths.m_ready_to_fly[0] = WBSF::as<double>(str); break;
+		case READY_SHIFT1:		me.m_parameters.m_moths.m_ready_to_fly[1] = WBSF::as<double>(str); break;
 
 
 		case OUTPUT_SUB_HOURLY: me.m_parameters.m_world.m_bOutputSubHourly = WBSF::ToBool(str); break;

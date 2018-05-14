@@ -223,7 +223,7 @@ namespace WBSF
 	
 	
 	//sex : MALE (0) or FEMALE (1)
-	//out : forewing surface area [cm²]
+	//A : forewing surface area [cm²]
 	double CSpruceBudwormEquations::get_A(size_t sex)const
 	{
 		ASSERT(sex < 2);
@@ -240,19 +240,26 @@ namespace WBSF
 		return A;
 	}
 
+	//A : forewing surface area [cm²]
+	//L : forewing length [cm]
+	double CSpruceBudwormEquations::get_L(double A)
+	{
+		return sqrt(A / 0.325);
+	}
+
 	//sex : MALE (0) or FEMALE (1)
 	//A : forewing surface area [cm²]
 	//bE: add error term 
-	//out : weight [g]
+	//M : dry weight [g]
 	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G, bool bE)const
 	{
-		static const double M_A[2] = { -6.756, -6.465 };
-		static const double M_B[2] = { 0.000, 1.326 };
-		static const double M_C[2] = { 3.790, 2.140 };
-		static const double M_D[2] = { 0.000, 1.305 };
-		static const double M_E[2] = { 0.206, 0.160 };
-		static const double M_L[2] = { 0.0015, 0.0024 };
-		static const double M_H[2] = { 0.015, 0.050 };
+		static const double M_A[2] = { -6.7560, -6.4648 };
+		static const double M_B[2] = {  0.0000,  0.9736 };
+		static const double M_C[2] = {  3.7900,  2.1400 };
+		static const double M_D[2] = {  0.0000,  1.3049 };
+		static const double M_E[2] = {  0.2060,  0.1600 };
+		static const double M_L[2] = {  0.0015,  0.0024 };
+		static const double M_H[2] = {  0.0150,  0.0500 };
 
 
 		if (sex == MALE)
@@ -261,7 +268,7 @@ namespace WBSF
 		double M = 0;
 		do
 		{
-			double ξ = bE ? m_randomGenerator.RandLogNormal(0, M_E[sex]) : 1;
+			double ξ = bE ? m_randomGenerator.RandLogNormal(log(1), M_E[sex]) : 1;
 			double m = exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 			M = m*ξ;
 		} while (M<M_L[sex] || M>M_H[sex]);
@@ -270,6 +277,7 @@ namespace WBSF
 		return M;
 	}
 
+	
 
 	double CSpruceBudwormEquations::get_p_exodus()const
 	{

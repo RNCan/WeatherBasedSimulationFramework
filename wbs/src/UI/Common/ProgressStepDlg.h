@@ -54,7 +54,7 @@ protected:
 	//afx_msg void OnBnClickedPause();
 
 
-	void UpdateCtrl();
+	//void UpdateCtrl();
 	void AdjustLayout();
 
     //WBSF::CCallback m_callback;
@@ -74,7 +74,5 @@ protected:
 	
 	CProgressWnd	m_progressCtrl;
 	CEdit			m_messageCtrl;
-	//CButton			m_cancelCtrl;
-	//CButton			m_pauseCtrl;
 
 };

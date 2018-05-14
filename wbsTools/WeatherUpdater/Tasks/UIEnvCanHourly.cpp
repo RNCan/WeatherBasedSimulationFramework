@@ -709,23 +709,21 @@ namespace WBSF
 
 			if (msg)
 			{
+				
+					
+				for (size_t i = curI; i < stationList.size() && msg; i++)
 				{
-					TRY
-						for (size_t i = curI; i < stationList.size() && msg; i++)
-						{
-							msg = DownloadStation(pConnection, stationList[i], callback);
-							if (msg)
-							{
-								curI++;
-								nbRun = 0;
-								nbFiles++;
-								msg += callback.StepIt();
-							}
-						}
-					CATCH_ALL(e)
-						msg = UtilWin::SYGetMessage(*e);
-					END_CATCH_ALL
+					msg = DownloadStation(pConnection, stationList[i], callback);
+					if (msg)
+					{
+						curI++;
+						nbRun = 0;
+						nbFiles++;
+						msg += callback.StepIt();
+					}
 				}
+						
+				
 
 				//if an error occur: try again
 				if (!msg && !callback.GetUserCancel())
@@ -823,7 +821,12 @@ namespace WBSF
 						string filePath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, internalID);
 						CreateMultipleDir(GetPath(filePath));
 
-						msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
+						TRY
+							msg = CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
+						CATCH_ALL(e)
+							msg = UtilWin::SYGetMessage(*e);
+						END_CATCH_ALL
+						
 						msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
 					}
 				}
