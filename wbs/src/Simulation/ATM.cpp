@@ -302,18 +302,17 @@ namespace WBSF
 				//Get nearest grid of this time
 				UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
 				double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
-
+				
+				double T = -999;
+				switch (m_world.m_world_param.m_broodTSource)
 				{
-					double T = -999;
-					switch (m_world.m_world_param.m_broodTSource)
-					{
-					case CATMWorldParamters::BROOD_T_17: T = 17; break;
-					case CATMWorldParamters::BROOD_AT_SUNSET:T = Tmean; break;
-					default: ASSERT(false);
-					}
-
-					Brood(T);
+				case CATMWorldParamters::BROOD_T_17: T = 17; break;
+				case CATMWorldParamters::BROOD_AT_SUNSET:T = Tmean; break;
+				default: ASSERT(false);
 				}
+
+				Brood(T);
+				
 			}
 		}
 	}
