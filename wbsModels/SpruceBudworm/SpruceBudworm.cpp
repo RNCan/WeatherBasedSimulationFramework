@@ -430,7 +430,9 @@ namespace WBSF
 		bool bExodus = false;
 
 		//double Pmating = GetMatingProbability(GetStageAge());
-		if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
+		double minimum_age[2] = {0.15, 0};
+		//if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
+		if (GetStageAge() >= minimum_age[m_sex])
 		{
 			__int64 tº = 0;
 			__int64 tᴹ = 0;
@@ -467,14 +469,6 @@ namespace WBSF
 	{
 		static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
 
-		//static const double K = 166.0;//all moth flies between 25 à 63 Hz
-		//static const double b[2] = { 21.35, 24.08 };
-		//static const double c[2] = { 2.97, 6.63 };
-		//static const double VmaxMF[2] = { 1.0, 1.0 };
-		//static const double VmaxHz = 65;
-		//static const double deltaT[2] = { 0 , 3.5 };
-
-
 		static const double K = 167.5;//proportionality constant [Hz·cm²/√g]
 		static const double a = 23.0;//°C
 		static const double b = 8.6957;//°C
@@ -494,9 +488,9 @@ namespace WBSF
 		//double Pmating = GetMatingProbability(GetStageAge());
 		//m_sex == MALE || 
 
-		static const double EXODUS_AGE[2] = { 0.15, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
+		//static const double EXODUS_AGE[2] = { 0.15, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
 
-		if (GetStageAge() > EXODUS_AGE[m_sex] && T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
+		if (/*GetStageAge() > EXODUS_AGE[m_sex] &&*/ T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			//double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			double p = (C + tau - (2 * pow(tau, 3) / 3) + (pow(tau, 5) / 5)) / (2 * C);
