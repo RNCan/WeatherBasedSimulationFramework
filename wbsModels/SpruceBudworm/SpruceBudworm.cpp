@@ -74,10 +74,7 @@ namespace WBSF
 			do { 
 				double ξ = RandomGenerator().RandNormal(1, 0.3);
 				m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº*ξ, 0);
-			} while (m_Fᴰ < 1 || m_Fᴰ > 500);
-
-			//if (m_Fᴰ > m_Fº)
-				//m_Fᴰ=m_Fº;
+			} while (m_Fᴰ < 1 || m_Fᴰ > m_Fº);
 		}
 		
 		m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
