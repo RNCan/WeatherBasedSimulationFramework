@@ -30,26 +30,28 @@
 //NOT_EMERGED			0
 //READY_TO_FLY			1
 //FLIGHT				2
-//FINALIZED				3
-//FINISHED				4
+//FINISHED				3
 
-//NO_LIFTOFF_WAITING_READY			10
-//NO_LIFTOFF_NO_DEFOLIATION			11
-//NO_LIFTOFF_NO_MORE_FLIGHT			12
-//NO_LIFTOFF_TAIR					13
-//NO_LIFTOFF_PRCP					14
-//NO_LIFTOFF_WNDS					15
+//NO_LIFTOFF_DEFINED                10
+//NO_LIFTOFF_WAITING_READY			11
+//NO_LIFTOFF_NO_DEFOLIATION			12
+//NO_LIFTOFF_NO_MORE_FLIGHT			13
+//NO_LIFTOFF_TAIR					14
+//NO_LIFTOFF_PRCP					15
+//NO_LIFTOFF_WNDS					16
 
-//END_BY_PRCP			20
-//END_BY_TAIR			21
-//END_BY_SUNRISE		22
+//NO_FLIGHT_END_DEFINE  20
+//END_BY_PRCP			21
+//END_BY_TAIR			22
+//END_BY_SUNRISE		23
 
-
-//END_FINISHED				30
-//END_OVER_WATER			31
-//END_OLD_AGE				32
-//END_OUTSIDE_MAP			33
-//END_OUTSIDE_TIME_WINDOW	34
+//NO_END_DEFINE             30
+//END_FINISHED				31
+//END_OVER_WATER			32
+//END_OLD_AGE				33
+//END_OUTSIDE_MAP			34
+//END_OF_SIMULATION         35
+//END_BY_OPTIOMIZATION	    36
 
 
 
@@ -285,8 +287,6 @@ namespace WBSF
 
 	void CSBWMoth::live(CTRef TRef)
 	{
-		
-
 		bool bForceFirst = ForceFirst();
 		bool bOverWater = m_world.is_over_water(m_newLocation);
 		if (!bOverWater || bForceFirst)
@@ -302,7 +302,7 @@ namespace WBSF
 				//Get nearest grid of this time
 				UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
 				double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
-				
+
 				double T = -999;
 				switch (m_world.m_world_param.m_broodTSource)
 				{
@@ -312,7 +312,7 @@ namespace WBSF
 				}
 
 				Brood(T);
-				
+
 			}
 		}
 	}
@@ -338,7 +338,6 @@ namespace WBSF
 		ASSERT(m_finish_flag == NO_END_DEFINE);
 		ASSERT(m_sex == CSBWMothParameters::FEMALE || m_F < 0);
 
-
 		m_flight_end_flag = NO_FLIGHT_END_DEFINE;
 		m_no_liftoff_flag = NO_LIFTOFF_DEFINED;
 
@@ -362,61 +361,71 @@ namespace WBSF
 		{
 			if (bCanFly || bHaveEggs)
 			{
-				//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
-				__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-				__int64 sunset = m_world.get_sunset(TRef, m_location);
-
-				if (m_age < 1)
+				if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
 				{
-					double readyToFly = m_world.m_moths_param.m_ready_to_fly[m_sex];
-					if (m_age >= readyToFly)
+
+					//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
+					__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
+					__int64 sunset = m_world.get_sunset(TRef, m_location);
+
+					if (m_age < 1)
 					{
-						bool bOverDefol = m_world.is_over_defoliation(m_newLocation);
-						if (bForceFirst || bOverDefol)
+						double readyToFly = m_world.m_moths_param.m_ready_to_fly[m_sex];
+						if (m_age >= readyToFly)
 						{
-							if (bCanFly)
+							bool bOverDefol = m_world.is_over_defoliation(m_newLocation);
+							if (bForceFirst || bOverDefol)
 							{
-								if (GetLiftoff(UTCTimeº, sunset, m_liffoff_time))
+								if (bCanFly)
 								{
-									m_state = FLY;
+									if (GetLiftoff(UTCTimeº, sunset, m_liffoff_time))
+									{
+										m_state = FLY;
 
-									//compute surise of the next day
-									__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
-									__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
+										//compute surise of the next day
+										__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
+										__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
 
-									//compute duration (max) from liftoff and sunrise
-									m_duration = sunriseTime - m_liffoff_time + m_world.m_moths_param.m_flight_after_sunrise * 3600;
-									ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
+										//compute duration (max) from liftoff and sunrise
+										m_duration = sunriseTime - m_liffoff_time + m_world.m_moths_param.m_flight_after_sunrise * 3600;
+										ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
+									}
+									else
+									{
+										m_state = LIVE;
+										m_no_liftoff_flag = GetNoLiftoffCode(m_noLiftoff);
+									}
 								}
 								else
 								{
 									m_state = LIVE;
-									m_no_liftoff_flag = GetNoLiftoffCode(m_noLiftoff);
+									m_no_liftoff_flag = NO_LIFTOFF_NO_MORE_FLIGHT;
 								}
 							}
 							else
 							{
 								m_state = LIVE;
-								m_no_liftoff_flag = NO_LIFTOFF_NO_MORE_FLIGHT;
+								m_no_liftoff_flag = NO_LIFTOFF_NO_DEFOLIATION;
 							}
 						}
 						else
 						{
 							m_state = LIVE;
-							m_no_liftoff_flag = NO_LIFTOFF_NO_DEFOLIATION;
+							m_no_liftoff_flag = NO_LIFTOFF_NOT_READY;
 						}
 					}
 					else
 					{
-						m_state = LIVE;
-						m_no_liftoff_flag = NO_LIFTOFF_NOT_READY;
+						m_state = FINISHED;
+						m_finish_flag = END_OLD_AGE;
 					}
 				}
 				else
 				{
 					m_state = FINISHED;
-					m_finish_flag = END_OLD_AGE;
+					m_finish_flag = END_OF_SIMULATION;
 				}
+
 			}
 			else
 			{
@@ -481,11 +490,13 @@ namespace WBSF
 	double CSBWMoth::GetFlag()const
 	{
 		double flag = VMISS;
-		if (m_state == LIVE && m_no_liftoff_flag != NO_LIFTOFF_DEFINED)
+		if (m_state == NOT_EMERGED)
+			flag = 0;
+		else if (m_state == LIVE)
 			flag = 10 + m_no_liftoff_flag;
-		else if (m_state == FLY && m_flight_end_flag != NO_FLIGHT_END_DEFINE)
+		else if (m_state == FLY)
 			flag = 20 + m_flight_end_flag;
-		else if (m_state == FINISHED && m_finish_flag != NO_END_DEFINE)
+		else if (m_state == FINISHED)
 			flag = 30 + m_finish_flag;
 
 
@@ -630,7 +641,7 @@ namespace WBSF
 		AddStat(w, U, d);
 
 	}
-	
+
 
 	void CSBWMoth::DestroyByOptimisation()
 	{
@@ -694,7 +705,7 @@ namespace WBSF
 	const double CSBWMoth::a = 23.0;//°C
 	const double CSBWMoth::b = 8.6957;//°C
 	const double CSBWMoth::Vmax = 72.5;//Hz
-	
+
 	//compute potential wingbeat for the current temperature
 	//T : air temperature [ᵒC]
 	//Vᵀ: forewing frequency [Hz] 
@@ -2024,7 +2035,7 @@ namespace WBSF
 	{
 
 		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
-		
+
 		CATMVariables w = get_weather(pt, UTCWeatherTime);
 		return w[ATM_TAIR];
 	}
@@ -2367,7 +2378,7 @@ namespace WBSF
 		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
 		CATMOutputMatrix sub_output;
-		if (output_file.is_open())		
+		if (output_file.is_open())
 			init_sub_ourly(output_file, output, sub_output);	//write file header
 
 		//get period of simulation
@@ -2381,6 +2392,7 @@ namespace WBSF
 			CTRef TRef16 = TRef.as(CTM::HOURLY);
 			TRef16.m_hour = 16;
 			CTRef TRef17 = TRef16 + 1;
+			//CTRef TRef18 = TRef17 + 1;
 
 			vector<CSBWMothsIt> moths;
 
@@ -2410,9 +2422,6 @@ namespace WBSF
 					if (it->m_emergingDate == TRef)
 					{
 						//let a chanse to output initial fecondity
-						CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(TRef17, it->m_location);
-						__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
-
 						it->FillOutput(TRef16, output);
 						emerging++;
 					}
@@ -2440,7 +2449,7 @@ namespace WBSF
 					//init all moths : broods and liffoff time
 					for (size_t i = 0; i < moths.size(); i++)
 					{
-						
+
 						moths[i]->live(TRef);
 
 						//brood and plan flight
@@ -2496,68 +2505,23 @@ namespace WBSF
 			msg += callback.StepIt();
 		}//for all valid days
 
+
+		CTRef TRefEnd = (period.End() + 1).as(CTM::HOURLY);
+		TRefEnd.m_hour = 12;
+		//output all non-finish moth
+		for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
+		{
+			if (it->GetState() != CSBWMoth::FINISHED)
+			{
+				it->init_new_night(TRefEnd);
+				//let a chanse to output finish flag
+				it->FillOutput(TRefEnd, output);
+			}
+		}
+
 		callback.PopTask();
 
 		return msg;
-	}
-
-	void CATMWorld::init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output)
-	{
-		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-		output_file << "flight,sex,A,M,G,F°,F,EggsLaid,state,flag,x,y,lat,lon,";
-		output_file << "T,P,U,V,W,";
-		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
-
-		CTPeriod p = m_world_param.m_simulationPeriod;
-		p.End()++;
-		p.Transform(CTM::HOURLY);
-		
-		__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
-		__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
-
-		CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
-		sub_output.resize(output.size());
-		for (size_t l = 0; l < sub_output.size(); l++)
-		{
-			sub_output[l].resize(output[l].size());//the number of input variables
-			for (size_t p = 0; p < output[l].size(); p++)
-			{
-				sub_output[l][p].resize(output[l][p].size());
-				for (size_t r = 0; r < sub_output[l][p].size(); r++)
-				{
-					sub_output[l][p][r].Init(outputPeriod, VMISS);
-				}
-			}
-		}
-	}
-
-	void CATMWorld::save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output)
-	{
-		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
-
-		//save sub-hourly output
-		for (size_t l = 0; l < sub_output.size(); l++)
-		{
-			for (size_t p = 0; p < sub_output[l].size(); p++)
-			{
-				for (size_t r = 0; r < sub_output[l][p].size(); r++)
-				{
-					for (size_t t = 0; t < sub_output[l][p][r].size(); t++)
-					{
-						size_t seconds = 0;
-						size_t hours = size_t(t / nbSubPerHour);
-						size_t minutes = (t % nbSubPerHour) * (m_world_param.m_outputFrequency / 60);
-						ASSERT(seconds % 60 == 0);
-
-						output_file << l + 1 << "," << p + 1 << "," << r + 1 << ",";
-						output_file << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << hours << "," << minutes << "," << seconds - 60 * minutes;
-						for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
-							output_file << "," << sub_output[l][p][r][t][v];
-						output_file << endl;
-					}//for all time step
-				}//for all replications
-			}//for all parameters
-		}//for all locations
 	}
 
 	static const double MS2KMH = 3600.0 / 1000.0;
@@ -2775,8 +2739,14 @@ namespace WBSF
 			pt.Reproject(m_world.m_GEO2.at(prjID));//convert from GEO to DEM projection
 
 			double defoliation = VMISS;
-			if (GetFlag() > 0)
+			if (m_no_liftoff_flag != NO_LIFTOFF_DEFINED &&
+				m_flight_end_flag != NO_FLIGHT_END_DEFINE &&
+				m_finish_flag != NO_END_DEFINE)
 				defoliation = m_world.get_defoliation(m_newLocation);
+
+
+
+
 
 			double eggsLaid = VMISS;
 			double G = m_G;
@@ -2806,8 +2776,8 @@ namespace WBSF
 			output[m_loc][m_par][m_rep][localTRef][ATM_LAT] = m_newLocation.m_lat;
 			output[m_loc][m_par][m_rep][localTRef][ATM_LON] = m_newLocation.m_lon;
 			output[m_loc][m_par][m_rep][localTRef][ATM_DEFOLIATION] = defoliation;
-			
-			
+
+
 			if (m_state == LIVE || m_state == FLY)
 			{
 				output[m_loc][m_par][m_rep][localTRef][ATM_T] = GetStat(HOURLY_STAT, S_TAIR);
@@ -2843,6 +2813,66 @@ namespace WBSF
 			}//log exists
 		}//if output
 	}
+
+	void CATMWorld::init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output)
+	{
+		output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
+		output_file << "flight,sex,A,M,G,F°,F,EggsLaid,state,flag,x,y,lat,lon,";
+		output_file << "T,P,U,V,W,";
+		output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
+
+		CTPeriod p = m_world_param.m_simulationPeriod;
+		p.End()++;
+		p.Transform(CTM::HOURLY);
+
+		__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
+		__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
+
+		CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
+		sub_output.resize(output.size());
+		for (size_t l = 0; l < sub_output.size(); l++)
+		{
+			sub_output[l].resize(output[l].size());//the number of input variables
+			for (size_t p = 0; p < output[l].size(); p++)
+			{
+				sub_output[l][p].resize(output[l][p].size());
+				for (size_t r = 0; r < sub_output[l][p].size(); r++)
+				{
+					sub_output[l][p][r].Init(outputPeriod, VMISS);
+				}
+			}
+		}
+	}
+
+	void CATMWorld::save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output)
+	{
+		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
+
+		//save sub-hourly output
+		for (size_t l = 0; l < sub_output.size(); l++)
+		{
+			for (size_t p = 0; p < sub_output[l].size(); p++)
+			{
+				for (size_t r = 0; r < sub_output[l][p].size(); r++)
+				{
+					for (size_t t = 0; t < sub_output[l][p][r].size(); t++)
+					{
+						size_t seconds = 0;
+						size_t hours = size_t(t / nbSubPerHour);
+						size_t minutes = (t % nbSubPerHour) * (m_world_param.m_outputFrequency / 60);
+						ASSERT(seconds % 60 == 0);
+
+						output_file << l + 1 << "," << p + 1 << "," << r + 1 << ",";
+						output_file << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << hours << "," << minutes << "," << seconds - 60 * minutes;
+						for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+							output_file << "," << sub_output[l][p][r][t][v];
+						output_file << endl;
+					}//for all time step
+				}//for all replications
+			}//for all parameters
+		}//for all locations
+	}
+
 	vector<__int64> CATMWorld::GetWeatherTime(CTimePeriod UTC_period, CCallback& callback)const
 	{
 		vector<__int64> gribs_time;

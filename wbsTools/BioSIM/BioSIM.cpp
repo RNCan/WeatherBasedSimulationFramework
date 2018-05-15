@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
-// version de BioSIM   
+// version de BioSIM  
+// 11.4.5: 15/05/2018	Rémi Saint-Amant	New dispersal
 // 11.4.4: 13/04/2018	Rémi Saint-Amant	Resize FileManager correcly
 //											New SSI extraction dlg
 // 11.4.3: 28/03/2018	Rémi Saint-Amant	Add snow gradient
