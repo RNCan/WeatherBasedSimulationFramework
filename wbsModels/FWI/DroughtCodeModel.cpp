@@ -1,4 +1,5 @@
 //*********************************************************************
+//15/05/2018	2.2.0	Rémi Saint-Amant    Add min and max
 //23/03/2018	2.1.2	Rémi Saint-Amant    Compile with VS 2017
 //29/03/2017	2.1.1	Rémi Saint-Amant    Bug correction in Drought Code
 //20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -27,7 +28,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		
-		VERSION = "2.1.2 (2018)";
+		VERSION = "2.2.0 (2018)";
 
 		m_bAutoSelect = true;
 		m_FFMC = 85.0;
@@ -157,10 +158,16 @@ namespace WBSF
 		CFWIMStatVector resultM;
 		CFWIStat::Covert2M(resultD, resultM);
 
-		m_output.Init(resultM.GetTPeriod(), 1, -9999);
+		enum TMOutput { M_DC_MIN, M_DC_MEAN, M_DC_MAX, NB_M_OUTPUTS };
+		m_output.Init(resultM.GetTPeriod(), NB_M_OUTPUTS, -9999);
+
+		static const size_t VAR[NB_M_OUTPUTS] = { CFWIStat::DC_MIN, CFWIStat::DC, CFWIStat::DC_MAX };
 
 		for (size_t mm = 0; mm < resultM.size(); mm++)
-			m_output[mm][0] = resultM[mm][CFWIStat::DC];
+		{
+			for (size_t v = 0; v < NB_M_OUTPUTS; v++)
+				m_output[mm][v] = resultM[mm][VAR[v]];
+		}
 
 		
 

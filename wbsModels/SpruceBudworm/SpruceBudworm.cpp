@@ -58,7 +58,7 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		//double ξ = RandomGenerator().Rand(-20, 20);
+		//defoliation at shool level
 		m_defoliation = Equations().get_defoliation(GetStand()->m_defoliation);
 
 
@@ -70,11 +70,11 @@ namespace WBSF
 		{
 			//moyenne 1 et écart type 0.3 (empêche la fécondité d’être <0 ou > 500)
 			m_Fº = Round(Equations().get_Fº(m_A));
-			//m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº, 0);
-			do { 
-				double ξ = RandomGenerator().RandNormal(1, 0.3);
-				m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº*ξ, 0);
-			} while (m_Fᴰ < 1 || m_Fᴰ > m_Fº);
+			m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº, 0);
+			//do { 
+			//	double ξ = RandomGenerator().RandNormal(1, 0.3);
+			//	m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº*ξ, 0);
+			//} while (m_Fᴰ < 1 || m_Fᴰ > m_Fº);
 		}
 		
 		m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
@@ -281,7 +281,8 @@ namespace WBSF
 			ASSERT(broods < m_F);
 			ASSERT((m_totalBroods + broods) <= m_Fᴰ);
 
-			if (m_F - broods < 1)//avoid very small egg deposition
+			//after regniere 1983 Equation [12] at x = 0 :  (29.8 *(1 - exp(-0.214))) = 5.74
+			if (m_F - broods < 5.74)//avoid very small egg deposition
 				broods = m_F;
 
 			//if ((m_totalBroods + broods) > m_Fᴰ)
@@ -308,7 +309,7 @@ namespace WBSF
 
 			//compute weight from forewing area and female gravidity
 			//m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);
-			m_M = Equations().get_M(m_sex, m_A, GetG(), true);
+			m_M = Equations().get_M(m_sex, m_A, GetG(), false);
 		}
 	}
 

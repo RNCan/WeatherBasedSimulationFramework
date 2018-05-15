@@ -337,13 +337,15 @@ namespace WBSF
 		ASSERT(defoliation >= 0 && defoliation <= 100);
 		if (defoliation > 0 && defoliation < 100)
 		{
-			double d = defoliation / 100;
-			double v = max(0.000623, 0.000623 + 0.1463*d + 0.1544*Square(d) - 0.32*Cube(d));
+			double μ = defoliation / 100.0;
+			//double v = max(0.000623, 0.000623 + 0.1463*d + 0.1544*Square(d) - 0.32*Cube(d));
+			//From Regniere 20018 Equation [15]
+			double σ² = 0.008101 + 0.5289*μ - 0.5228*Square(μ);
 
-			double α = d*(d*(1 - d) / v - 1);
-			double β = (1 - d)*(d*(1 - d) / v - 1);
+			double α = μ*((μ*(1 - μ) / σ²) - 1);
+			double β = (1 - μ)*((μ*(1 - μ) / σ²) - 1);
+			
 			defoliation = m_randomGenerator.RandBeta(α, β) * 100;
-
 			while (defoliation < 0 || defoliation>100)
 				defoliation = m_randomGenerator.RandBeta(α, β) * 100;
 
