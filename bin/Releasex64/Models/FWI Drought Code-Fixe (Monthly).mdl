@@ -115,12 +115,28 @@
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
+            <Name>DCmin</Name>
+            <Title>DCmin</Title>
+            <Units/>
+            <Description>Monthly lowest Drought Code</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>DC</Name>
             <Title>DC</Title>
             <Units/>
             <Description>Monthly mean Drought Code</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DCmax</Name>
+            <Title>DCmax</Title>
+            <Units/>
+            <Description>Monthly highest Drought Code</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
