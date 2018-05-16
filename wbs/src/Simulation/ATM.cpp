@@ -2634,26 +2634,28 @@ namespace WBSF
 							const CProjectionTransformation& fromWea = GetFromWeatherTransfo(UTCWeatherTime);
 
 							CATMVariables w1 = m_weather.get_weather(testCoord, UTCWeatherTime, UTCCurrentTime);
-							double dt = 20; //[s]
+							double dt = 10; //[s]
 
 							//my wind speed
 							CGeoDistance3D U1(w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW], m_weather.GetGribsPrjID(UTCWeatherTime));
 							CGeoDistance3D d1 = U1*dt;
+							__int64 UTCCurrentTime¹ = UTCCurrentTime + dt;
+							__int64 UTCWeatherTime¹ = m_weather.GetNearestFloorTime(UTCCurrentTime¹);
 							CGeoPoint3D testCoord2 = UpdateCoordinate(testCoord, d1, toWea, fromWea);
-							CATMVariables w2 = m_weather.get_weather(testCoord2, UTCWeatherTime, UTCCurrentTime);
+							CATMVariables w2 = m_weather.get_weather(testCoord2, UTCWeatherTime¹, UTCCurrentTime¹);
 							
 							CATMVariables w;
-							CGeoDistance3D d2(m_weather.GetGribsPrjID(UTCWeatherTime));
-							CGeoDistance3D d3(m_weather.GetGribsPrjID(UTCWeatherTime));
+							CGeoDistance3D d2(m_weather.GetGribsPrjID(UTCWeatherTime¹));
+							CGeoDistance3D d3(m_weather.GetGribsPrjID(UTCWeatherTime¹));
 							if (w1.is_init() && w2.is_init())
 							{
 								w = (w1 + w2) / 2.0;
 
-								CGeoDistance3D U2(w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW], m_weather.GetGribsPrjID(UTCWeatherTime));
+								CGeoDistance3D U2(w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW], m_weather.GetGribsPrjID(UTCWeatherTime¹));
 								d2 = U2*dt;
 
 								//Gary wind speed
-								CGeoDistance3D U3(ToDouble(tmp[1]), ToDouble(tmp[2]), ToDouble(tmp[3]), m_weather.GetGribsPrjID(UTCWeatherTime));
+								CGeoDistance3D U3(ToDouble(tmp[1]), ToDouble(tmp[2]), ToDouble(tmp[3]), m_weather.GetGribsPrjID(UTCWeatherTime¹));
 								d3 = U3*dt;
 							}
 							string out;
