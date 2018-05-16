@@ -527,8 +527,8 @@ namespace WBSF
 
 		bool m_bUseSpaceInterpolation;
 		bool m_bUseTimeInterpolation;
-		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 time)const;
-
+		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const;
+		
 	};
 
 	typedef std::shared_ptr<CATMWeatherCuboids> CATMWeatherCuboidsPtr;
@@ -666,9 +666,9 @@ namespace WBSF
 		CATMWeatherCuboidsPtr get_cuboids(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
 		CATMVariables get_station_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
 		CATMVariables get_station_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, bool m_bUseTimeInterpolation)const;
-		double get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime);
+		double get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime);
 
-		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
+		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const;
 		std::string get_image_filepath(__int64 UTCWeatherTime)const;
 
 		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
@@ -758,7 +758,6 @@ namespace WBSF
 		CSBWMoth(CATMWorld& world);
 		
 		void live(CTRef TRef);
-		void mature(CTRef TRef);
 		bool init_new_night(CTRef TRef);
 		
 		void fly(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
@@ -767,8 +766,8 @@ namespace WBSF
 
 		void FinishedByOptimisation();
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
-		CATMVariables get_weather(__int64 UTCTime)const;
-		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCTime)const;
+		CATMVariables get_weather(__int64 UTCWeatherTime, __int64 UTCCurrentTime)const;
+		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCWeatherTime)const;
 		double get_Uz(__int64 UTCTime, const CATMVariables& w)const;
 		double get_Tᶠ(double Δv)const;
 
@@ -851,7 +850,7 @@ namespace WBSF
 		
 		static __int64 get_sunrise(CTRef TRef, const CLocation& loc);
 		static __int64 get_sunset(CTRef TRef, const CLocation& loc);
-		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const { return m_weather.get_weather(pt, UTCCurrentTime); }
+		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const { return m_weather.get_weather(pt, UTCWeatherTime, UTCCurrentTime); }
 		
 
 		std::vector<CSBWMothsIt> GetMoths(CTRef TRef);

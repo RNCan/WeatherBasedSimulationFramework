@@ -299,26 +299,15 @@ namespace WBSF
 
 		//Get nearest grid of this time
 		UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
-		double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
+		double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean, UTCTmean);
 
 		m_age += ComputeRate(Tmean);
 
-		//bool bForceFirst = ForceFirst();
-		//bool bOverWater = m_world.is_over_water(m_newLocation);
-		//if (!bOverWater || bForceFirst)
-		//{
+	
 		//If female : brood eggs first
 		static const double PRE_OVIP = 0.1;
 		if (m_sex == CSBWMothParameters::FEMALE && m_age > PRE_OVIP)
 		{
-			//__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-			//__int64 sunset = m_world.get_sunset(TRef, m_location);
-			//__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
-
-			////Get nearest grid of this time
-			//UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
-			//double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
-
 			double T = -999;
 			switch (m_world.m_world_param.m_broodTSource)
 			{
@@ -330,26 +319,10 @@ namespace WBSF
 			Brood(T);
 
 		}
-		//}
+	
 	}
 
-	void CSBWMoth::mature(CTRef TRef)
-	{
-		if (m_state != FINISHED)
-		{
-			__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-			__int64 sunset = m_world.get_sunset(TRef, m_location);
-			__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
-
-			//Get nearest grid of this time
-			UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
-			double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
-
-			m_age += ComputeRate(Tmean);
-		}
-	}
-
-
+	
 	bool CSBWMoth::init_new_night(CTRef TRef)
 	{
 		ASSERT(m_emergingDate <= TRef);
@@ -556,7 +529,7 @@ namespace WBSF
 		ASSERT(m_flight_end_flag == NO_FLIGHT_END_DEFINE);
 		ASSERT(m_liffoff_time > 0);
 
-		CATMVariables w = get_weather(UTCWeatherTime);
+		CATMVariables w = get_weather(UTCWeatherTime, UTCCurrentTime);
 		if (w.is_init())
 		{
 
@@ -637,7 +610,7 @@ namespace WBSF
 		ASSERT(!Landed());
 
 		double dt = m_world.get_time_step(); //[s]
-		CATMVariables w = get_weather(UTCWeatherTime);
+		CATMVariables w = get_weather(UTCWeatherTime, UTCCurrentTime);
 		if (w.is_init())
 		{
 
@@ -824,14 +797,14 @@ namespace WBSF
 		return Uz;//m/s
 	}
 
-	CATMVariables CSBWMoth::get_weather(__int64 UTCWeatherTime)const
+	CATMVariables CSBWMoth::get_weather(__int64 UTCWeatherTime, __int64 UTCCurrentTime)const
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
 
 		CATMVariables w;
 
 		CGeoPoint3D ptᵒ = m_pt;
-		CATMVariables wᵒ = m_world.get_weather(ptᵒ, UTCWeatherTime);
+		CATMVariables wᵒ = m_world.get_weather(ptᵒ, UTCWeatherTime, UTCCurrentTime);
 		if (wᵒ.is_init())
 		{
 
@@ -842,13 +815,14 @@ namespace WBSF
 			const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
 			CGeoPoint3D pt¹ = UpdateCoordinate(m_pt, Uᵒ*dt, toWea, fromWea);
 
-
+			__int64 UTCCurrentTime¹ = UTCWeatherTime + int(dt / 3600);
+			__int64 UTCWeatherTime¹ = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime¹);
 			if (m_world.m_world_param.m_bUsePredictorCorrectorMethod &&
-				m_world.m_weather.IsLoaded(UTCWeatherTime + int(dt / 3600)) &&
+				m_world.m_weather.IsLoaded(UTCWeatherTime¹) &&
 				m_world.IsInside(pt¹) &&
 				pt¹.m_z > 0)
 			{
-				CATMVariables w¹ = m_world.get_weather(pt¹, UTCWeatherTime + dt);
+				CATMVariables w¹ = m_world.get_weather(pt¹, UTCWeatherTime¹, UTCCurrentTime¹);
 				if (w¹.is_init())
 					w = (wᵒ + w¹) / 2;
 				else
@@ -977,7 +951,9 @@ namespace WBSF
 			//now compute tau, p and flight
 			double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 
-			CATMVariables w = m_world.get_weather(m_pt, UTCTimeº + t);
+			__int64 UTCCurrentTime = UTCTimeº + t;
+			__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
+			CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
 			bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
 			if (bExodus)//if exodus occurd, set liftoff
 				liftoff = UTCTimeº + t;
@@ -1010,7 +986,9 @@ namespace WBSF
 
 		for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
 		{
-			CATMVariables weather = m_world.get_weather(m_pt, UTCTimeº + t);
+			__int64 UTCCurrentTime = UTCTimeº + t;
+			__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
+			CATMVariables weather = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
 			if (weather[ATM_TAIR] <= Tº)
 				tᵀº = t;
 		}
@@ -1182,11 +1160,11 @@ namespace WBSF
 	//**************************************************************************************************************
 	//CATMWeather
 
-	CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const
+	CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const
 	{
 		ASSERT(pt.IsGeographic());
 
-		__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
+		//__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
 
 		size_t weather_type = m_world.m_world_param.m_weather_type;
 		if (weather_type == CATMWorldParamters::FROM_GRIBS &&
@@ -2084,12 +2062,12 @@ namespace WBSF
 		return prjID;
 	}
 
-	double CATMWeather::get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime)
+	double CATMWeather::get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)
 	{
-
+		
 		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
 
-		CATMVariables w = get_weather(pt, UTCWeatherTime);
+		CATMVariables w = get_weather(pt, UTCWeatherTime, UTCCurrentTime);
 		return w[ATM_TAIR];
 	}
 
@@ -2602,100 +2580,102 @@ namespace WBSF
 			callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")", gribs_time.size()*fls.size());
 
 			//code to compare with Gary results
-			//const CGeoExtents& extent = m_DEM_DS.GetExtents();
-			//ifStream file;
-			//if (file.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL.txt"))
-			//{
-			//	ofStream fileOut;
-			//	if (fileOut.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL2.csv"))
-			//	{
-			//		fileOut.write("No,u,v,w,latitude,longitude,elevation,time,u2,v2,w2,latitude2,longitude2,latitude3,longitude3\n");
+			const CGeoExtents& extent = m_DEM_DS.GetExtents();
+			ifStream file;
+			if (file.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL.txt"))
+			{
+				ofStream fileOut;
+				if (fileOut.open("H:\\Travaux\\Dispersal2007\\Input\\RemiLL2.csv"))
+				{
+					fileOut.write("No,u,v,w,latitude,longitude,elevation,time,u2,v2,w2,latitude2,longitude2,latitude3,longitude3\n");
 
-			//		
-			//		CGeoPoint3D pt2 = fls[0]->m_pt;
-			//		CGeoPoint3D pt3 = fls[0]->m_pt;
+					
+					CGeoPoint3D pt2 = fls[0]->m_pt;
+					CGeoPoint3D pt3 = fls[0]->m_pt;
 
-			//		string line;
-			//		std::getline(file, line);
-			//		while (std::getline(file, line))
-			//		{
-			//			StringVector tmp;
-			//			tmp.Tokenize(line, " ", true);
-			//			if (tmp.size() == 8)
-			//			{
-			//				int no = ToInt(tmp[0]);
-			//				if (no == 22)
-			//				{
-			//					int gg;
-			//					gg = 0;
-			//				}
+					string line;
+					std::getline(file, line);
+					while (std::getline(file, line))
+					{
+						StringVector tmp;
+						tmp.Tokenize(line, " ", true);
+						if (tmp.size() == 8)
+						{
+							int no = ToInt(tmp[0]);
+							if (no == 22)
+							{
+								int gg;
+								gg = 0;
+							}
 
-			//				//simulation begin at 21:00 local standard time June 21, so at 3:00 June 22 UTC
-			//				CTRef UTCTRef(2007, JUNE, DAY_22, 3);
-			//				__int64 UTCTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
+							//simulation begin at 21:00 local standard time June 21, so at 3:00 June 22 UTC
+							CTRef UTCTRef(2007, JUNE, DAY_22, 3);
+							__int64 UTCCurrentTime = CTimeZones::UTCTRef2UTCTime(UTCTRef);
 
-			//				float time = as<float>(tmp[7]);
-			//				UTCTRef += int(time - 21);
-			//				UTCTime += __int64((time - 21) * 3600);
-			//				if (no == 1)
-			//				{
-			//					ASSERT(fls[0]->m_liffoff_time == UTCTime);
-			//				}
-			//				double x = as<double>(tmp[5]);
-			//				double y = as<double>(tmp[4]);
-			//				CGeoExtents testExtent = m_weather.Get(UTCTRef)->GetExtents();
-			//				CGeoPoint3D testCoord;
-			//				//((CGeoPoint&)testCoord) = CGeoPoint(-267903.37025, 1935436.44478, testExtent.GetPrjID()) + CGeoDistance(x / 1040 * 356138.6973, (768 - y) / 768 * 243112.6437, testExtent.GetPrjID());
-			//				((CGeoPoint&)testCoord) = CGeoPoint(x, y, PRJ_WGS_84);
-			//				testCoord.m_z = as<double>(tmp[6]);
-			//				//testCoord.Reproject(CProjectionTransformation(testExtent.GetPrjID(), PRJ_WGS_84));
+							float time = as<float>(tmp[7]);
+							UTCTRef += int(time - 21);
+							UTCCurrentTime += __int64((time - 21) * 3600);
+							if (no == 1)
+							{
+								ASSERT(fls[0]->m_liffoff_time == UTCCurrentTime);
+							}
+							double x = as<double>(tmp[5]);
+							double y = as<double>(tmp[4]);
+							
+							__int64 UTCWeatherTime = m_weather.GetNearestFloorTime(UTCCurrentTime);
+							CGeoExtents testExtent = m_weather.at(UTCWeatherTime)->GetExtents();
+							CGeoPoint3D testCoord;
+							//((CGeoPoint&)testCoord) = CGeoPoint(-267903.37025, 1935436.44478, testExtent.GetPrjID()) + CGeoDistance(x / 1040 * 356138.6973, (768 - y) / 768 * 243112.6437, testExtent.GetPrjID());
+							((CGeoPoint&)testCoord) = CGeoPoint(x, y, PRJ_WGS_84);
+							testCoord.m_z = as<double>(tmp[6]);
+							//testCoord.Reproject(CProjectionTransformation(testExtent.GetPrjID(), PRJ_WGS_84));
 
-			//				const CProjectionTransformation& toWea = GetToWeatherTransfo(UTCTRef);
-			//				const CProjectionTransformation& fromWea = GetFromWeatherTransfo(UTCTRef);
+							const CProjectionTransformation& toWea = GetToWeatherTransfo(UTCWeatherTime);
+							const CProjectionTransformation& fromWea = GetFromWeatherTransfo(UTCWeatherTime);
 
-			//				CATMVariables w1 = m_weather.get_weather(testCoord, UTCTRef, UTCTime);
-			//				double dt = 20; //[s]
+							CATMVariables w1 = m_weather.get_weather(testCoord, UTCWeatherTime, UTCCurrentTime);
+							double dt = 20; //[s]
 
-			//				//my wind speed
-			//				CGeoDistance3D U1(w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW], m_weather.GetGribsPrjID(UTCTRef));
-			//				CGeoDistance3D d1 = U1*dt;
-			//				CGeoPoint3D testCoord2 = UpdateCoordinate(testCoord, d1, toWea, fromWea);
-			//				CATMVariables w2 = m_weather.get_weather(testCoord2, UTCTRef, UTCTime);
-			//				
-			//				CATMVariables w;
-			//				CGeoDistance3D d2(m_weather.GetGribsPrjID(UTCTRef));
-			//				CGeoDistance3D d3(m_weather.GetGribsPrjID(UTCTRef));
-			//				if (w1.is_init() && w2.is_init())
-			//				{
-			//					w = (w1 + w2) / 2.0;
+							//my wind speed
+							CGeoDistance3D U1(w1[ATM_WNDU], w1[ATM_WNDV], w1[ATM_WNDW], m_weather.GetGribsPrjID(UTCWeatherTime));
+							CGeoDistance3D d1 = U1*dt;
+							CGeoPoint3D testCoord2 = UpdateCoordinate(testCoord, d1, toWea, fromWea);
+							CATMVariables w2 = m_weather.get_weather(testCoord2, UTCWeatherTime, UTCCurrentTime);
+							
+							CATMVariables w;
+							CGeoDistance3D d2(m_weather.GetGribsPrjID(UTCWeatherTime));
+							CGeoDistance3D d3(m_weather.GetGribsPrjID(UTCWeatherTime));
+							if (w1.is_init() && w2.is_init())
+							{
+								w = (w1 + w2) / 2.0;
 
-			//					CGeoDistance3D U2(w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW], m_weather.GetGribsPrjID(UTCTRef));
-			//					d2 = U2*dt;
+								CGeoDistance3D U2(w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW], m_weather.GetGribsPrjID(UTCWeatherTime));
+								d2 = U2*dt;
 
-			//					//Gary wind speed
-			//					CGeoDistance3D U3(ToDouble(tmp[1]), ToDouble(tmp[2]), ToDouble(tmp[3]), m_weather.GetGribsPrjID(UTCTRef));
-			//					d3 = U3*dt;
-			//				}
-			//				string out;
-			//				for (size_t i = 0; i < 8; i++)
-			//					out += tmp[i] + ",";
+								//Gary wind speed
+								CGeoDistance3D U3(ToDouble(tmp[1]), ToDouble(tmp[2]), ToDouble(tmp[3]), m_weather.GetGribsPrjID(UTCWeatherTime));
+								d3 = U3*dt;
+							}
+							string out;
+							for (size_t i = 0; i < 8; i++)
+								out += tmp[i] + ",";
 
-			//				out += FormatA("%.3f,%.3f,%.3f,", w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW]);
-			//				out += FormatA("%.5f,%.5f,%.5f,%.5f\n", pt2.m_y, pt2.m_x, pt3.m_y, pt3.m_x);
+							out += FormatA("%.3f,%.3f,%.3f,", w[ATM_WNDU], w[ATM_WNDV], w[ATM_WNDW]);
+							out += FormatA("%.5f,%.5f,%.5f,%.5f\n", pt2.m_y, pt2.m_x, pt3.m_y, pt3.m_x);
 
-			//				fileOut.write(out);
+							fileOut.write(out);
 
-			//				//update coordinate
-			//				((CGeoPoint3D&)pt2) = UpdateCoordinate(pt2, d2, toWea, fromWea);
-			//				((CGeoPoint3D&)pt3) = UpdateCoordinate(pt3, d3, toWea, fromWea);
+							//update coordinate
+							((CGeoPoint3D&)pt2) = UpdateCoordinate(pt2, d2, toWea, fromWea);
+							((CGeoPoint3D&)pt3) = UpdateCoordinate(pt3, d3, toWea, fromWea);
 
-			//			}
+						}
 
-			//		}
-			//		fileOut.close();
-			//	}
-			//	file.close();
-			//}
+					}
+					fileOut.close();
+				}
+				file.close();
+			}
 
 			ASSERT(!gribs_time.empty());
 			__int64 UTCTimeº = CTimeZones::TRef2Time(TRef);
