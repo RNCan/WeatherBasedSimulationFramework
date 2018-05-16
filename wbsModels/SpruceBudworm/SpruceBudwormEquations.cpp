@@ -267,8 +267,8 @@ namespace WBSF
 	double CSpruceBudwormEquations::get_ξ(size_t sex, double A)const
 	{
 		static const double M_ξ[2] = { 0.2060,  0.1600 };
-		static const double M_L[2] = { 0.0015,  0.0024 };
-		static const double M_H[2] = { 0.0150,  0.0500 };
+		static const double M_L[2] = { 0.0015,  0.0024 };//0.0024 = empty female
+		static const double M_H[2] = { 0.0150,  0.0600 };//0.06 = full female
 
 		double Mempty = get_M(sex, A, 0);
 		double Mfull = get_M(sex, A, 1);

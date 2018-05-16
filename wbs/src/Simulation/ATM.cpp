@@ -33,12 +33,13 @@
 //FINISHED				3
 
 //NO_LIFTOFF_DEFINED                10
-//NO_LIFTOFF_WAITING_READY			11
-//NO_LIFTOFF_NO_DEFOLIATION			12
-//NO_LIFTOFF_NO_MORE_FLIGHT			13
-//NO_LIFTOFF_TAIR					14
-//NO_LIFTOFF_PRCP					15
-//NO_LIFTOFF_WNDS					16
+//NO_LIFTOFF_EMERGING  				11
+//NO_LIFTOFF_NOT_READY			    12
+//NO_LIFTOFF_NO_DEFOLIATION			13
+//NO_LIFTOFF_NO_MORE_FLIGHT			14
+//NO_LIFTOFF_TAIR					15
+//NO_LIFTOFF_PRCP					16
+//NO_LIFTOFF_WNDS					17
 
 //NO_FLIGHT_END_DEFINE  20
 //END_BY_PRCP			21
@@ -375,9 +376,7 @@ namespace WBSF
 		bool bForceFirst = ForceFirst();
 		bool bCanFly = CanFly();
 		bool bHaveEggs = m_sex == CSBWMothParameters::FEMALE && m_F > 0;
-
-		//if (!bOverWater || bForceFirst)
-		//{
+		
 		if (bCanFly || bHaveEggs)
 		{
 			if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
@@ -459,12 +458,7 @@ namespace WBSF
 			m_state = FINISHED;
 			m_finish_flag = END_FULLFILLED;
 		}
-		//}
-		//else
-		//{
-		//	m_state = FINISHED;
-		//	m_finish_flag = END_OVER_WATER;
-		//}
+		
 
 		return m_liffoff_time > 0;
 	}
