@@ -45,7 +45,6 @@ namespace WBSF
 		0.317, 3.060, 4.660, 0.136, 4.4, 38, //L6 female
 		0.259, 2.750, 4.660, 0.053, 4.4, 35, //Pupa male
 		0.205, 2.854, 6.275, 0.044, 4.4, 35, //Pupa female
-//		57.80, -3.08, .0451, 0.000, 8.0, 35  //Adult
 		57.80, -3.08, .0451, 0.000, -10.0, 40  //Adult By RSA 14-02-2018 to avoid stop development at low and high temperature
 	};
 
@@ -63,6 +62,7 @@ namespace WBSF
 	{
 		if (e < E_L6_FEMALE)
 			return e;
+
 		if (e < E_PUPAE_FEMALE)
 			return e - 1;
 
@@ -233,7 +233,7 @@ namespace WBSF
 
 
 		double A = m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
-		while (A < 0.25 || A>0.6)
+		while (A < 0.20 || A>0.6)
 			A=m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
 		 
 		
@@ -253,9 +253,9 @@ namespace WBSF
 	double CSpruceBudwormEquations::get_M(size_t sex, double A, double G)const
 	{
 		static const double M_A[2] = { -6.7560, -6.4648 };
-		static const double M_B[2] = {  0.0000,  0.9736 };
+		static const double M_B[2] = {  0.0000,  1.3260 };
 		static const double M_C[2] = {  3.7900,  2.1400 };
-		static const double M_D[2] = {  0.0000,  1.3049 };
+		static const double M_D[2] = {  0.0000,  1.3050 };
 		
 		return exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G*A);
 	}
@@ -305,7 +305,6 @@ namespace WBSF
 
 		} while (Fº<25 || Fº > 500);
 
-
 		ASSERT(Fº >= 25 && Fº <= 500);
 
 		return Fº;
@@ -339,9 +338,8 @@ namespace WBSF
 		ASSERT(defoliation >= 0 && defoliation <= 100);
 		if (defoliation > 0 && defoliation < 100)
 		{
+			//From Regniere 20018 part III Equation [15]
 			double μ = defoliation / 100.0;
-			//double v = max(0.000623, 0.000623 + 0.1463*d + 0.1544*Square(d) - 0.32*Cube(d));
-			//From Regniere 20018 Equation [15]
 			double σ² = 0.008101 + 0.5289*μ - 0.5228*Square(μ);
 
 			double α = μ*((μ*(1 - μ) / σ²) - 1);

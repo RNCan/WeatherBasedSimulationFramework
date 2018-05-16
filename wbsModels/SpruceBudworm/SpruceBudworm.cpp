@@ -39,7 +39,7 @@ namespace WBSF
 		1.0, 1.0, 1.0, .79, .73, .62, 0.4, .66, 1.0, .39
 	};
 
-	static const double OVIPOSITING_STAGE_AGE = 0.05;
+	static const double OVIPOSITING_STAGE_AGE = 0.1; //change by RSA 16-05-2018, eas 0.05
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
 
@@ -59,24 +59,24 @@ namespace WBSF
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
 		//Compute defoliation at shool level fropm defoliation at stand level
-		m_defoliation = Equations().get_defoliation(GetStand()->m_defoliation);
+		m_D = Equations().get_defoliation(GetStand()->m_defoliation);
 
 		m_Fº = CBioSIMModelBase::VMISS;
 		m_Fᴰ = CBioSIMModelBase::VMISS;
 		m_F = CBioSIMModelBase::VMISS;
-		m_A = Equations().get_A(m_sex);
+		m_A = Equations().get_A(m_sex);					//Generale forewing area [cm²]
 		
 		if (m_sex == FEMALE)
 		{
-			m_Fº = Round(Equations().get_Fº(m_A));
-			m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº, 0);
-			m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
+			m_Fº = Round(Equations().get_Fº(m_A));		//generate fecondity without defoliation
+			m_Fᴰ = Round((1.0 - 0.0054*m_D)*m_Fº, 0);	//compute fecondity with defoliation
+			m_F = m_Fᴰ;	//set current fecondity
 		} 
 
-		m_ξ = Equations().get_ξ(m_sex, m_A);
-		m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;
+		m_ξ = Equations().get_ξ(m_sex, m_A);			//generater weight term error
+		m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;//compute weight
 		
-		m_p_exodus = Equations().get_p_exodus();
+		m_p_exodus = Equations().get_p_exodus();		//generate exodus liftoff position
 		m_bExodus = false;
 		m_bAlreadyExodus = false;
 
@@ -124,7 +124,7 @@ namespace WBSF
 			m_F = in.m_F; 
 			m_bExodus = in.m_bExodus;
 			m_bAlreadyExodus = in.m_bAlreadyExodus;
-			m_defoliation = in.m_defoliation;
+			m_D = in.m_D;
 
 
 			// Each individual created gets the following attributes
@@ -133,8 +133,6 @@ namespace WBSF
 			m_OWEnergy = ALPHA0;
 			m_bMissingEnergyAlreadyApplied = false;
 			m_bKillByAttrition = false;
-
-			//m_p_mating = in.m_p_mating;
 		}
 
 		return *this;
@@ -179,7 +177,7 @@ namespace WBSF
 		//correction for defoliation (de 1 à .75 entre 50 et 100 %)
 		if (s >= L3 && s <= L6)//PUPAE
 		{
-			double defFactor = max(0.75, 1.0 - max(0.0, m_defoliation - 50.0)*0.005);
+			double defFactor = max(0.75, 1.0 - max(0.0, m_D - 50.0)*0.005);
 			RR *= defFactor;
 		}
 
@@ -708,7 +706,7 @@ namespace WBSF
 		m_OWEnergy = (m_OWEnergy*m_scaleFactor + in->m_OWEnergy*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		m_eatenFoliage = (m_eatenFoliage*m_scaleFactor + in->m_eatenFoliage*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
-		m_defoliation = (m_defoliation*m_scaleFactor + in->m_defoliation*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		m_D = (m_D*m_scaleFactor + in->m_D*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
 		//m_liftoff_hour = (m_liftoff_hour*m_scaleFactor + in->m_liftoff_hour*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 		//m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);

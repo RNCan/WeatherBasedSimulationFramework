@@ -288,39 +288,53 @@ namespace WBSF
 
 	void CSBWMoth::live(CTRef TRef)
 	{
-		bool bForceFirst = ForceFirst();
-		bool bOverWater = m_world.is_over_water(m_newLocation);
-		if (!bOverWater || bForceFirst)
+		ASSERT(!m_world.is_over_water(m_newLocation));
+		ASSERT(m_state == LIVE);
+
+		
+		__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
+		__int64 sunset = m_world.get_sunset(TRef, m_location);
+		__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
+
+		//Get nearest grid of this time
+		UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
+		double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
+
+		m_age += ComputeRate(Tmean);
+
+		//bool bForceFirst = ForceFirst();
+		//bool bOverWater = m_world.is_over_water(m_newLocation);
+		//if (!bOverWater || bForceFirst)
+		//{
+		//If female : brood eggs first
+		static const double PRE_OVIP = 0.1;
+		if (m_sex == CSBWMothParameters::FEMALE && m_age > PRE_OVIP)
 		{
-			//If female : brood eggs first
-			static const double PRE_OVIP = 0.1;
-			if (m_sex == CSBWMothParameters::FEMALE && m_age > PRE_OVIP)
+			//__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
+			//__int64 sunset = m_world.get_sunset(TRef, m_location);
+			//__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
+
+			////Get nearest grid of this time
+			//UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
+			//double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
+
+			double T = -999;
+			switch (m_world.m_world_param.m_broodTSource)
 			{
-				__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-				__int64 sunset = m_world.get_sunset(TRef, m_location);
-				__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
-
-				//Get nearest grid of this time
-				UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
-				double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
-
-				double T = -999;
-				switch (m_world.m_world_param.m_broodTSource)
-				{
-				case CATMWorldParamters::BROOD_T_17: T = 17; break;
-				case CATMWorldParamters::BROOD_AT_SUNSET:T = Tmean; break;
-				default: ASSERT(false);
-				}
-
-				Brood(T);
-
+			case CATMWorldParamters::BROOD_T_17: T = 17; break;
+			case CATMWorldParamters::BROOD_AT_SUNSET:T = Tmean; break;
+			default: ASSERT(false);
 			}
+
+			Brood(T);
+
 		}
+		//}
 	}
 
 	void CSBWMoth::mature(CTRef TRef)
 	{
-		if (m_state != FINISHED )
+		if (m_state != FINISHED)
 		{
 			__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
 			__int64 sunset = m_world.get_sunset(TRef, m_location);
@@ -357,23 +371,25 @@ namespace WBSF
 		m_noLiftoff.fill(0);
 
 
-		bool bOverWater = m_world.is_over_water(m_newLocation);
+		//bool bOverWater = m_world.is_over_water(m_newLocation);
 		bool bForceFirst = ForceFirst();
 		bool bCanFly = CanFly();
 		bool bHaveEggs = m_sex == CSBWMothParameters::FEMALE && m_F > 0;
 
-		if (!bOverWater || bForceFirst)
+		//if (!bOverWater || bForceFirst)
+		//{
+		if (bCanFly || bHaveEggs)
 		{
-			if (bCanFly || bHaveEggs)
+			if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
 			{
-				if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
+
+				//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
+				__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
+				__int64 sunset = m_world.get_sunset(TRef, m_location);
+
+				if (m_age < 1)
 				{
-
-					//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
-					__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-					__int64 sunset = m_world.get_sunset(TRef, m_location);
-
-					if (m_age < 1)
+					if (TRef > m_emergingDate)//dont fly the day of emergence
 					{
 						double readyToFly = m_world.m_moths_param.m_ready_to_fly[m_sex];
 						if (m_age >= readyToFly)
@@ -421,28 +437,34 @@ namespace WBSF
 					}
 					else
 					{
-						m_state = FINISHED;
-						m_finish_flag = END_OLD_AGE;
+						m_state = LIVE;
+						m_no_liftoff_flag = NO_LIFTOFF_EMERGING;
 					}
 				}
 				else
 				{
 					m_state = FINISHED;
-					m_finish_flag = END_OF_SIMULATION;
+					m_finish_flag = END_OLD_AGE;
 				}
-
 			}
 			else
 			{
 				m_state = FINISHED;
-				m_finish_flag = END_FULLFILLED;
+				m_finish_flag = END_OF_SIMULATION;
 			}
+
 		}
 		else
 		{
 			m_state = FINISHED;
-			m_finish_flag = END_OVER_WATER;
+			m_finish_flag = END_FULLFILLED;
 		}
+		//}
+		//else
+		//{
+		//	m_state = FINISHED;
+		//	m_finish_flag = END_OVER_WATER;
+		//}
 
 		return m_liffoff_time > 0;
 	}
@@ -469,7 +491,7 @@ namespace WBSF
 				m_stat[i][S_HEIGHT] += m_pt.m_z;	//flight height [m]
 
 				ASSERT(sqrt(U.m_x*U.m_x + U.m_y*U.m_y) - w.get_wind_speed() >= 0);
-				
+
 
 				m_stat[i][S_MOTH_WH] += sqrt(U.m_x*U.m_x + U.m_y*U.m_y) - w.get_wind_speed(); //horizontal speed [m/s]
 				m_stat[i][S_MOTH_WV] += U.m_z - w[ATM_WNDW]; //horizontal speed [m/s]
@@ -661,10 +683,22 @@ namespace WBSF
 	}
 
 
-	void CSBWMoth::DestroyByOptimisation()
+	void CSBWMoth::FinishedByOptimisation()
 	{
 		m_state = FINISHED;
 		m_finish_flag = END_BY_OPTIOMIZATION;
+	}
+
+
+	void CSBWMoth::KillByWater()
+	{
+		m_state = FINISHED;
+		m_finish_flag = END_OVER_WATER;
+	}
+
+	bool CSBWMoth::IsOverWater()const
+	{
+		return m_world.is_over_water(m_newLocation);
 	}
 
 	CGeoDistance3D CSBWMoth::get_U(const CATMVariables& w, __int64 UTCWeatherTime)const
@@ -840,12 +874,12 @@ namespace WBSF
 		ASSERT(m_sex == CSBWMothParameters::FEMALE);
 
 		static const double A = -6.4648;
-		static const double B = 0.9736;
+		static const double B = 1.3260;
 		static const double C = 2.1400;
-		static const double D = 1.3049;
-		//static const double END_G = 0.15;
+		static const double D = 1.3050;
 
-		if(m_ξ==0)
+		//extract error term from emerging insect
+		if (m_ξ == 0)
 			m_ξ = m_M / exp(A + B * m_G + C * m_A + D * m_G * m_A);
 
 		double P = 0;
@@ -882,7 +916,7 @@ namespace WBSF
 
 		//**************************************************************
 		//compute new M
-		
+
 
 		m_M = exp(A + B * m_G + C * m_A + D * m_G * m_A)*m_ξ;
 	}
@@ -1194,11 +1228,11 @@ namespace WBSF
 		if (m_world.m_world_param.m_PSource == CATMWorldParamters::PRCP_WEATHER_STATION)
 			w1[ATM_PRCP] = w2[ATM_PRCP];
 
-		if (m_world.m_world_param.m_weather_type == CATMWorldParamters ::FROM_BOTH )
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
 		{
-			 if(w2[ATM_WATER] > -999)
+			if (w2[ATM_WATER] > -999)
 				w1[ATM_WATER] = w2[ATM_WATER];	//replace Gribs Tw by station Tw 
-		
+
 			if (w1[ATM_WNDW] > -999)
 				w2[ATM_WNDW] = w1[ATM_WNDW];	//replace station W by Gribs W
 		}
@@ -2320,7 +2354,7 @@ namespace WBSF
 			while (fls.size() > m_world_param.m_maxFlyers)
 			{
 				size_t i = m_random.Rand(0, int(fls.size() - 1));
-				fls[i]->DestroyByOptimisation();
+				fls[i]->FinishedByOptimisation();
 				fls.erase(fls.begin() + i);
 			}
 		}
@@ -2472,7 +2506,7 @@ namespace WBSF
 				if (msg)
 				{
 					//init all moths : broods and liffoff time
-					for (size_t i = 0; i < moths.size()&&msg; i++)
+					for (size_t i = 0; i < moths.size() && msg; i++)
 					{
 
 						moths[i]->live(TRef);
@@ -2514,19 +2548,19 @@ namespace WBSF
 			{
 				msg = Execute(TRef, flyers, output, sub_output, callback);
 				if (msg && !sub_output.empty())
-				{ 
+				{
 					save_sub_output(TRef, output_file, sub_output);
 				}//if sub hourly output
 			}//if flyers
 
 
 			//compute new age
-			if (msg)
-			{
-				//init all moths : broods and liffoff time
-				for (size_t i = 0; i < moths.size(); i++)
-					moths[i]->mature(TRef);
-			}
+			//if (msg)
+			//{
+			//	//init all moths : broods and liffoff time
+			//	for (size_t i = 0; i < moths.size(); i++)
+			//		moths[i]->mature(TRef);
+			//}
 
 			msg += m_weather.Discard(callback);
 			msg += callback.StepIt();
@@ -2679,14 +2713,14 @@ namespace WBSF
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
 				__int64 step_duration = gribs_time[t] - gribs_time[t - 1];
 
-//#pragma omp parallel for 
+				//#pragma omp parallel for 
 				for (__int64 i = 0; i < (__int64)fls.size(); i++)
 				{
 #pragma omp flush(msg)
 
 					CSBWMoth& flyer = *(fls[i]);
 
-					if (msg && !flyer.Landed() && flyer.GetState()!= CSBWMoth::FINISHED)
+					if (msg && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED)
 					{
 						ASSERT((3600 % get_time_step()) == 0);
 						for (__int64 seconds = 0; seconds < step_duration && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step(), global_seconds += get_time_step())
@@ -2709,6 +2743,11 @@ namespace WBSF
 										localTRef++;
 
 									flyer.FillOutput(localTRef, output);
+									if (flyer.Landed() && flyer.IsOverWater())
+									{
+										flyer.KillByWater();
+										flyer.FillOutput(localTRef + 1, output);
+									}
 								}
 
 								flyer.ResetStat(CSBWMoth::HOURLY_STAT);
@@ -2732,6 +2771,12 @@ namespace WBSF
 										int index = (local_seconds + flyer.GetUTCShift()) / m_world_param.m_outputFrequency;
 										CTRef CTRef(index, 0, 0, 0, CTM::ATEMPORAL);
 										flyer.FillOutput(CTRef, sub_output);
+										
+										if (flyer.Landed() && flyer.IsOverWater())
+										{
+											flyer.KillByWater();
+											flyer.FillOutput(CTRef + 1, output);
+										}
 									}
 
 									flyer.ResetStat(CSBWMoth::SUB_HOURLY_STAT);
@@ -2776,7 +2821,7 @@ namespace WBSF
 
 
 			double eggsLaid = VMISS;
-			double G = m_G;
+			//double G = m_G;
 
 			if (m_sex == CSBWMothParameters::FEMALE &&
 				m_state == LIVE)
@@ -2792,7 +2837,7 @@ namespace WBSF
 			output[m_loc][m_par][m_rep][localTRef][ATM_A] = m_A;
 			output[m_loc][m_par][m_rep][localTRef][ATM_M] = m_M;
 			output[m_loc][m_par][m_rep][localTRef][ATM_EGGS] = eggsLaid;
-			output[m_loc][m_par][m_rep][localTRef][ATM_G] = G;
+			output[m_loc][m_par][m_rep][localTRef][ATM_G] = m_G;
 			output[m_loc][m_par][m_rep][localTRef][ATM_F] = Round(m_F, 0);
 			output[m_loc][m_par][m_rep][localTRef][ATM_STATE] = m_state;
 			output[m_loc][m_par][m_rep][localTRef][ATM_FLAG] = GetFlag();

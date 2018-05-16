@@ -724,7 +724,7 @@ namespace WBSF
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, S_MOTH_WH, S_MOTH_WV, NB_FLYER_STAT };
 		enum TStates { NOT_EMERGED, LIVE, FLY, FINISHED, NB_STATES };
 		
-		enum TNoLiftoff { NO_LIFTOFF_DEFINED, NO_LIFTOFF_NOT_READY, NO_LIFTOFF_NO_DEFOLIATION, NO_LIFTOFF_NO_MORE_FLIGHT, NO_LIFTOFF_TAIR, NO_LIFTOFF_PRCP, NO_LIFTOFF_WNDS, NB_NO_LIFTOFF_TYPE};
+		enum TNoLiftoff { NO_LIFTOFF_DEFINED, NO_LIFTOFF_EMERGING, NO_LIFTOFF_NOT_READY, NO_LIFTOFF_NO_DEFOLIATION, NO_LIFTOFF_NO_MORE_FLIGHT, NO_LIFTOFF_TAIR, NO_LIFTOFF_PRCP, NO_LIFTOFF_WNDS, NB_NO_LIFTOFF_TYPE};
 		enum TFlightEnd { NO_FLIGHT_END_DEFINE, END_BY_PRCP, END_BY_TAIR, END_BY_SUNRISE, NB_FLIGHT_END_TYPE };
 		enum TFinished { NO_END_DEFINE, END_FULLFILLED, END_OVER_WATER, END_OLD_AGE, END_OUTSIDE_MAP, END_OF_SIMULATION, END_BY_OPTIOMIZATION, NB_END_TYPE};
 
@@ -765,7 +765,7 @@ namespace WBSF
 		void flying(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
 		void landing(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
 
-		void DestroyByOptimisation();
+		void FinishedByOptimisation();
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 		CATMVariables get_weather(__int64 UTCTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCTime)const;
@@ -792,6 +792,8 @@ namespace WBSF
 		bool Landed() const { return m_logTime[T_LANDING_END] != 0; }
 		bool CanFly()const;
 		bool ForceFirst()const; 
+		bool IsOverWater()const;
+		void KillByWater();
 
 	protected:
 
