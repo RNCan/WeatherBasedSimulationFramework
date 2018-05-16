@@ -325,7 +325,7 @@ namespace WBSF
 		return sumBroods;
 	}
 
-	ERMsg CreateGribsFromNetCDF(CCallback& callback)
+	/*ERMsg CreateGribsFromNetCDF(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -364,7 +364,7 @@ namespace WBSF
 					
 					file_list.close();
 					build << "gdalBuildVRT -overwrite -separate -input_file_list " << file_path << " D:\\Travaux\\WRF2013Test\\tmp\\" << file_title << ".vrt" << endl;
-					build << "gdal_translate -overwrite -co compress=LZW -ot Float32 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 -t_srs \"+proj=lcc +lat_1=30 +lat_2=60 +lat_0=48.13746 +lon_0=-71.4 +x_0=0 +y_0=0 +datum=WGS84\" .\\tmp\\" << file_title << ".vrt" << ".\\geoTIFF\\" << file_title << ".tif" << endl << endl;
+					build << "gdal_translate -co compress=LZW -ot Float32 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 .\\tmp\\" << file_title << ".vrt .\\geoTIFF\\" << file_title << ".tif" << endl << endl;
 
 					WBSF::CopyOneFile("D:\\Travaux\\WRF2013Test\\template.inv", "D:\\Travaux\\WRF2013Test\\GeoTIFF\\"+ file_title +".inv", false);
 				}
@@ -372,14 +372,13 @@ namespace WBSF
 		}
 
 		return msg;
-	}
+	}*/
 
 	ERMsg CDispersal::Execute(const CFileManager& fileManager, CCallback& callback)
 	{
 		ERMsg msg;
 
-		return CreateGribsFromNetCDF(callback);
-
+		//return CreateGribsFromNetCDF(callback);
 
 		GIntBig test = GDALGetCacheMax64();
 		GDALSetCacheMax64(128 * 1024 * 1024);
@@ -571,6 +570,7 @@ namespace WBSF
 							moth.m_Fᵒ = v[I_Fᵒ];
 							moth.m_Fᴰ = v[I_Fᴰ];
 							moth.m_F = moth.m_Fᴰ;
+
 							//moth.m_broods = 0;
 							moth.m_location = locations[l];
 							moth.m_newLocation = locations[l];

@@ -28,29 +28,31 @@ namespace WBSF
 		CModelFactory::RegisterModel(CSpruceBudwormDispersal::CreateObject);
 
 	enum Toutput { O_YEAR, O_MONTH, O_DAY, O_SEX, O_A, O_M, O_G, O_F0, O_FD, /*O_H,*/ NB_OUTPUTS };
-	extern char HOURLY_HEADER[] = "Year,Month,Day,sex,A,M,G,Fº,F";
+	extern char HOURLY_HEADER[] = "Year,Month,Day,sex,A,M,G,F°,F";
 
 	class CBugStat
 	{
 	public:
 
 
-		CBugStat(CTRef TRef, size_t sex, double A, double M, double G, double Fº, double Fᴰ)
+		CBugStat(CTRef TRef, size_t sex, double A, double M, double ξ, double G, double Fº, double Fᴰ)
 		{
 			m_TRef = TRef;
 			m_sex = sex;
-			//m_L=L;
 			m_A = A;
 			m_M = M;
+			m_ξ = ξ;
 			m_G = sex == FEMALE ? G : -999;
 			m_Fº = Fº;
 			m_Fᴰ = Fᴰ;
+			
 		}
 
 		CTRef m_TRef;
 		size_t m_sex;
 		double m_A;
 		double m_M;
+		double m_ξ;
 		double m_G;
 		double m_Fº;
 		double m_Fᴰ;
@@ -140,74 +142,15 @@ namespace WBSF
 							budworm.Live(w, 1);
 
 							//compute brood and flight activity only once
-							if (budworm.GetStage() == ADULT) //&& w.GetTRef().GetHour() == 18)
+							if (budworm.GetStage() == ADULT) 
 							{
-
-								//if ((*it)->GetSex() == FEMALE)
-								//	(*it)->Brood(dayº);
-
-								//__int64 tº = 0;
-								//__int64 tᴹ = 0;
-
-								//if (budworm.get_t(dayº, tº, tᴹ))
-								//{
-								//	//calculate tᶜ
-								//	__int64 tᶜ = (tº + tᴹ) / 2;
-
-								//	//now compute tau, p and flight
-								//	bool bExodus = false;
-
-								//CSun sun(dayº.GetLocation().m_lat, dayº.GetLocation().m_lon, dayº.GetLocation().GetTimeZone());
-								//double sunset = (sun.GetSunset(dayº.GetTRef()));// sunset hour is in normal time [h]
-								////CTRef TrefSunset = dayº.GetTRef().as(CTM::HOURLY) + int(Round(sunset));
-								//double Tmean = dayº[H_TNTX][MEAN];
-
-								//__int64 tº = (sunset - 4) * 3600;
-								//__int64 tᴹ = (sunset + 10) * 3600;
-								//CStatistic nearestT;
-								//double nearest_h = -999;
-
-								//static const __int64 Δt = 60;
-								//for (__int64 t = tº; t <= tᴹ; t += Δt)
-								//{
-								//	//		double tau = double(t - tᶜ) / (tᴹ - tᶜ);
-
-								//	double h = t / 3600.0;
-								//	//		size_t L = size_t((h - size_t(h)) * 3600);
-
-								//	const CWeatherDay& day¹ = dayº.GetNext();
-								//	const CWeatherDay& w = h < 24 ? dayº : day¹;
-
-								//	double T = budworm.get_Tair(w, h < 24 ? h : h - 24.0);
-								//	//		double P = budworm.get_Prcp(w, h < 24 ? h : h - 24.0);
-								//	//		double WS = budworm.get_WndS(w, h < 24 ? h : h - 24.0); 
-
-								//	//		bExodus = budworm.ComputeExodus(T, P, WS, tau);
-								//	//		if (bExodus)
-								//	//		{
-
-								//	double Tdiff = fabs(T - Tmean);
-								//	if (!nearestT.IsInit() || Tdiff < nearestT[LOWEST])
-								//	{
-								//		nearestT += Tdiff;
-								//		nearest_h = h;
-								//	}
-
-
-								//}//for t in exodus period
-
 								size_t sex = budworm.GetSex();
-								//CTRef TRefTmp = TRef + (size_t(h) - TRef.GetHour());
-								//flyers.push_back(CBugStat(TRefTmp, sex, L, budworm.GetA(), budworm.GetM(), budworm.GetG(), budworm.GetFº(), budworm.GetFᴰ(), budworm.GetTotalBroods(), budworm.GetFᴰ() - budworm.GetTotalBroods(), T, P, WS, sunset));
 
 								ASSERT(budworm.GetTotalBroods() == 0);
-								flyers.push_back(CBugStat(TRef, sex, budworm.GetA(), budworm.GetM(), budworm.GetFᴰ()/ budworm.GetFº(), budworm.GetFº(), budworm.GetFᴰ()));
+								flyers.push_back(CBugStat(TRef, sex, budworm.GetA(), budworm.GetM(), budworm.Getξ(), budworm.GetFᴰ()/ budworm.GetFº(), budworm.GetFº(), budworm.GetFᴰ()));
 
 								budworm.SetStatus(CIndividual::DEAD);
 								budworm.SetDeath(CIndividual::EXODUS);
-								//}//if exodus occurd
-
-						//}//if exodus occur
 							}//if adult
 
 							budworm.Die(dayº);
@@ -220,7 +163,7 @@ namespace WBSF
 		}//for all years
 
 		//overallPeriod.Transform(CTM(CTM::HOURLY, CTM::FOR_EACH_YEAR));
-		CTPeriod byInsect(CTRef(1, 0, 0, 0, CTM(CTM::ATEMPORAL)), CTRef(flyers.size(), 0, 0, 0, CTM(CTM::ATEMPORAL)));
+		CTPeriod byInsect(CTRef(1, 0, 0, 0, CTM(CTM::ATEMPORAL)), CTRef((int)flyers.size(), 0, 0, 0, CTM(CTM::ATEMPORAL)));
 		sort(flyers.begin(), flyers.end(), cmp_by_TRef);
 
 

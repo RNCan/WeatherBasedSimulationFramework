@@ -260,6 +260,7 @@ namespace WBSF
 		m_sex = -1;
 		m_A = 0;
 		m_M = 0;
+		m_ξ = 0;
 		m_G = 0;
 		m_Fᵒ = 0;
 		m_age = 0;
@@ -319,15 +320,18 @@ namespace WBSF
 
 	void CSBWMoth::mature(CTRef TRef)
 	{
-		__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
-		__int64 sunset = m_world.get_sunset(TRef, m_location);
-		__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
+		if (m_state != FINISHED )
+		{
+			__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
+			__int64 sunset = m_world.get_sunset(TRef, m_location);
+			__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
 
-		//Get nearest grid of this time
-		UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
-		double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
+			//Get nearest grid of this time
+			UTCTmean = m_world.m_weather.GetNearestFloorTime(UTCTmean);
+			double Tmean = m_world.m_weather.get_air_temperature(m_pt, UTCTmean);
 
-		m_age += ComputeRate(Tmean);
+			m_age += ComputeRate(Tmean);
+		}
 	}
 
 
@@ -337,6 +341,7 @@ namespace WBSF
 		ASSERT(TRef.GetTM() == CTM::DAILY);
 		ASSERT(m_finish_flag == NO_END_DEFINE);
 		ASSERT(m_sex == CSBWMothParameters::FEMALE || m_F < 0);
+		ASSERT(m_state != FINISHED);
 
 		m_flight_end_flag = NO_FLIGHT_END_DEFINE;
 		m_no_liftoff_flag = NO_LIFTOFF_DEFINED;
@@ -464,7 +469,7 @@ namespace WBSF
 				m_stat[i][S_HEIGHT] += m_pt.m_z;	//flight height [m]
 
 				ASSERT(sqrt(U.m_x*U.m_x + U.m_y*U.m_y) - w.get_wind_speed() >= 0);
-				ASSERT(U.m_z - w[ATM_WNDW] >= 0);
+				
 
 				m_stat[i][S_MOTH_WH] += sqrt(U.m_x*U.m_x + U.m_y*U.m_y) - w.get_wind_speed(); //horizontal speed [m/s]
 				m_stat[i][S_MOTH_WV] += U.m_z - w[ATM_WNDW]; //horizontal speed [m/s]
@@ -506,22 +511,22 @@ namespace WBSF
 
 	void CSBWMoth::fly(__int64 UTCWeatherTime, __int64 UTCCurrentTime)
 	{
-		ASSERT(!m_world.m_weather.IsLoaded(UTCWeatherTime));
+		ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
 
 		__int64 countdown = UTCCurrentTime - m_liffoff_time;
 		if (countdown >= 0)
 		{
-			if (!m_world.IsInside(m_pt))
-			{
-				m_state = FINISHED;
-				m_finish_flag = END_OUTSIDE_MAP;
-			}
-			else
+			if (m_world.IsInside(m_pt))
 			{
 				if (m_flight_end_flag == NO_FLIGHT_END_DEFINE)
 					flying(UTCWeatherTime, UTCCurrentTime);
 				else
 					landing(UTCWeatherTime, UTCCurrentTime);
+			}
+			else
+			{
+				m_state = FINISHED;
+				m_finish_flag = END_OUTSIDE_MAP;
 			}
 		}
 
@@ -536,66 +541,73 @@ namespace WBSF
 		ASSERT(m_liffoff_time > 0);
 
 		CATMVariables w = get_weather(UTCWeatherTime);
-		ASSERT(w.is_init());
-
-		if (m_logTime[T_LIFTOFF] == 0)
+		if (w.is_init())
 		{
-			m_flightNo++;//a new flight for this moth
-			m_logTime[T_LIFTOFF] = UTCCurrentTime;
-			m_logT[T_LIFTOFF] = w[ATM_TAIR];
-		}
 
-		double Pmax = m_world.GetPmax();
-		if (w[ATM_PRCP] < Pmax)
-		{
-			__int64 duration = UTCCurrentTime - m_liffoff_time;
-			//if (m_Δv == 1 && m_pt.m_z > 60)//m_Δv is apply atfer lift-off when the moth reach an altitude of 60 meters
-				//m_Δv = m_world.m_moths_param.m_Δv;
-
-			//after greenbank : After dark (2200 h), the orientation soon became completely downwind at all altitudes.
-			//if (m_world.m_world_param.m_bUseTurbulance)
-			//{
-			//	//change flight angle relative to wind angle
-			//	__int64 last_Δangle = UTCWeatherTime - m_Δangle_time;
-			//	if (last_Δangle > 60 * 5)//if it's the same angle since 5 minutes, change it
-			//	{
-			//		m_Δangle_time = UTCWeatherTime;
-			//		m_Δangle = WBSF::Deg2Rad(m_world.random().RandNormal(0, 40));
-			//	}
-			//}
-
-
-			if (duration < m_duration)
+			if (m_logTime[T_LIFTOFF] == 0)
 			{
-				double dt = m_world.get_time_step(); //[s]
+				m_flightNo++;//a new flight for this moth
+				m_logTime[T_LIFTOFF] = UTCCurrentTime;
+				m_logT[T_LIFTOFF] = w[ATM_TAIR];
+			}
 
-				CGeoDistance3D U = get_U(w, UTCWeatherTime);
-				CGeoDistance3D d = U * dt;
+			double Pmax = m_world.GetPmax();
+			if (w[ATM_PRCP] < Pmax)
+			{
+				__int64 duration = UTCCurrentTime - m_liffoff_time;
+				//if (m_Δv == 1 && m_pt.m_z > 60)//m_Δv is apply atfer lift-off when the moth reach an altitude of 60 meters
+					//m_Δv = m_world.m_moths_param.m_Δv;
+
+				//after greenbank : After dark (2200 h), the orientation soon became completely downwind at all altitudes.
+				//if (m_world.m_world_param.m_bUseTurbulance)
+				//{
+				//	//change flight angle relative to wind angle
+				//	__int64 last_Δangle = UTCWeatherTime - m_Δangle_time;
+				//	if (last_Δangle > 60 * 5)//if it's the same angle since 5 minutes, change it
+				//	{
+				//		m_Δangle_time = UTCWeatherTime;
+				//		m_Δangle = WBSF::Deg2Rad(m_world.random().RandNormal(0, 40));
+				//	}
+				//}
 
 
-				const CProjectionTransformation& toWea = m_world.GetToWeatherTransfo(UTCWeatherTime);
-				const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
-				((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d, toWea, fromWea);
-				((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d, toWea, fromWea);
-
-				if (m_pt.m_z <= 5)
+				if (duration < m_duration)
 				{
-					//avoid to get negative elevation
-					m_newLocation.m_z -= m_pt.m_z;
-					m_pt.m_z -= m_pt.m_z;
-					m_flight_end_flag = END_BY_TAIR;
-				}
+					double dt = m_world.get_time_step(); //[s]
 
-				AddStat(w, U, d);
+					CGeoDistance3D U = get_U(w, UTCWeatherTime);
+					CGeoDistance3D d = U * dt;
+
+
+					const CProjectionTransformation& toWea = m_world.GetToWeatherTransfo(UTCWeatherTime);
+					const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
+					((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d, toWea, fromWea);
+					((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d, toWea, fromWea);
+
+					if (m_pt.m_z <= 5)
+					{
+						//avoid to get negative elevation
+						m_newLocation.m_z -= m_pt.m_z;
+						m_pt.m_z -= m_pt.m_z;
+						m_flight_end_flag = END_BY_TAIR;
+					}
+
+					AddStat(w, U, d);
+				}
+				else
+				{
+					m_flight_end_flag = END_BY_SUNRISE;
+				}
 			}
 			else
 			{
-				m_flight_end_flag = END_BY_SUNRISE;
+				m_flight_end_flag = END_BY_PRCP;
 			}
 		}
 		else
 		{
-			m_flight_end_flag = END_BY_PRCP;
+			m_state = FINISHED;
+			m_finish_flag = END_OUTSIDE_MAP;
 		}
 
 	}
@@ -610,36 +622,42 @@ namespace WBSF
 
 		double dt = m_world.get_time_step(); //[s]
 		CATMVariables w = get_weather(UTCWeatherTime);
-		ASSERT(w.is_init());
-
-		if (m_logTime[T_LANDING_BEGIN] == 0)
+		if (w.is_init())
 		{
-			m_logTime[T_LANDING_BEGIN] = UTCCurrentTime;
-			m_logT[T_LANDING_BEGIN] = w[ATM_TAIR];
+
+			if (m_logTime[T_LANDING_BEGIN] == 0)
+			{
+				m_logTime[T_LANDING_BEGIN] = UTCCurrentTime;
+				m_logT[T_LANDING_BEGIN] = w[ATM_TAIR];
+			}
+
+			CGeoDistance3D U = get_U(w, UTCWeatherTime);
+			CGeoDistance3D d = U * dt;
+
+			const CProjectionTransformation& toWea = m_world.GetToWeatherTransfo(UTCWeatherTime);
+			const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
+			((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d, toWea, fromWea);
+			((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d, toWea, fromWea);
+
+			if (m_pt.m_z <= 5)//let moth landing correcly
+			{
+				//it's the end
+				m_logTime[T_LANDING_END] = UTCCurrentTime;
+				m_logT[T_LANDING_END] = w[ATM_TAIR];
+
+				//end at zero
+				m_newLocation.m_z -= m_pt.m_z;
+				m_pt.m_z -= m_pt.m_z;
+			}
+
+			ASSERT(m_pt.m_z >= 0);
+			AddStat(w, U, d);
 		}
-
-		CGeoDistance3D U = get_U(w, UTCWeatherTime);
-		CGeoDistance3D d = U * dt;
-
-		const CProjectionTransformation& toWea = m_world.GetToWeatherTransfo(UTCWeatherTime);
-		const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
-		((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d, toWea, fromWea);
-		((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d, toWea, fromWea);
-
-		if (m_pt.m_z <= 5)//let moth landing correcly
+		else
 		{
-			//it's the end
-			m_logTime[T_LANDING_END] = UTCCurrentTime;
-			m_logT[T_LANDING_END] = w[ATM_TAIR];
-
-			//end at zero
-			m_newLocation.m_z -= m_pt.m_z;
-			m_pt.m_z -= m_pt.m_z;
+			m_state = FINISHED;
+			m_finish_flag = END_OUTSIDE_MAP;
 		}
-
-		ASSERT(m_pt.m_z >= 0);
-		AddStat(w, U, d);
-
 	}
 
 
@@ -821,8 +839,14 @@ namespace WBSF
 	{
 		ASSERT(m_sex == CSBWMothParameters::FEMALE);
 
-		static const double END_G = 0.15;
+		static const double A = -6.4648;
+		static const double B = 0.9736;
+		static const double C = 2.1400;
+		static const double D = 1.3049;
+		//static const double END_G = 0.15;
 
+		if(m_ξ==0)
+			m_ξ = m_M / exp(A + B * m_G + C * m_A + D * m_G * m_A);
 
 		double P = 0;
 
@@ -858,12 +882,9 @@ namespace WBSF
 
 		//**************************************************************
 		//compute new M
-		static const double A = -6.4648;
-		static const double B = 0.9736;
-		static const double C = 2.1400;
-		static const double D = 1.3049;
+		
 
-		m_M = exp(A + B * m_G + C * m_A + D * m_G * m_A);
+		m_M = exp(A + B * m_G + C * m_A + D * m_G * m_A)*m_ξ;
 	}
 
 	double CSBWMoth::ComputeRate(double T)
@@ -990,7 +1011,7 @@ namespace WBSF
 		const CATMWeatherCuboid& me = *this;
 		array<CStatistic, NB_ATM_VARIABLES> sumV;
 		array<CStatistic, NB_ATM_VARIABLES> sumP;
-		array<array<array<array<double, NB_ATM_VARIABLES>, 2>, 2>, 2> weight;
+		array<array<array<array<double, NB_ATM_VARIABLES>, 2>, 2>, 2> weight = { 0 };
 
 		double nearestD = DBL_MAX;
 		double nearestZ = DBL_MAX;
@@ -1091,7 +1112,7 @@ namespace WBSF
 	{
 		ASSERT(at(0).m_time <= at(1).m_time);
 		ASSERT(UTCCurrentTime >= at(0).m_time && (at(0).m_time == at(1).m_time || UTCCurrentTime <= at(1).m_time));
-		ASSERT(at(1).m_time - at(0).m_time == 0 || at(1).m_time - at(0).m_time == 3600);
+		ASSERT(at(1).m_time - at(0).m_time >= 0 && at(1).m_time - at(0).m_time <= 3600);
 
 		const CATMWeatherCuboids& me = *this;
 		CATMVariables w;
@@ -1173,11 +1194,15 @@ namespace WBSF
 		if (m_world.m_world_param.m_PSource == CATMWorldParamters::PRCP_WEATHER_STATION)
 			w1[ATM_PRCP] = w2[ATM_PRCP];
 
-		if (w1[ATM_WNDW] > -999)
-			w2[ATM_WNDW] = w1[ATM_WNDW];	//replace station W by Gribs W
+		if (m_world.m_world_param.m_weather_type == CATMWorldParamters ::FROM_BOTH )
+		{
+			 if(w2[ATM_WATER] > -999)
+				w1[ATM_WATER] = w2[ATM_WATER];	//replace Gribs Tw by station Tw 
+		
+			if (w1[ATM_WNDW] > -999)
+				w2[ATM_WNDW] = w1[ATM_WNDW];	//replace station W by Gribs W
+		}
 
-		if (w2[ATM_WATER] > -999)
-			w1[ATM_WATER] = w2[ATM_WATER];	//replace Gribs Tw by station Tw 
 
 		CATMVariables weather;
 		switch (m_world.m_world_param.m_weather_type)
@@ -1188,10 +1213,10 @@ namespace WBSF
 		default: ASSERT(false);
 		}
 
-		if (weather[ATM_PRCP] == -999 &&
+		/*if (weather[ATM_PRCP] == -999 &&
 			m_world.m_world_param.m_PSource == CATMWorldParamters::DONT_USE_PRCP)
 			weather[ATM_PRCP] = 0;
-
+*/
 		return weather;
 	}
 
@@ -2447,7 +2472,7 @@ namespace WBSF
 				if (msg)
 				{
 					//init all moths : broods and liffoff time
-					for (size_t i = 0; i < moths.size(); i++)
+					for (size_t i = 0; i < moths.size()&&msg; i++)
 					{
 
 						moths[i]->live(TRef);
@@ -2466,6 +2491,8 @@ namespace WBSF
 						case CSBWMoth::FINISHED: finished++; break;
 						default:ASSERT(false);
 						}
+
+						msg += callback.StepIt(0);
 					}
 				}//if msg
 			}//if moths
@@ -2487,7 +2514,7 @@ namespace WBSF
 			{
 				msg = Execute(TRef, flyers, output, sub_output, callback);
 				if (msg && !sub_output.empty())
-				{
+				{ 
 					save_sub_output(TRef, output_file, sub_output);
 				}//if sub hourly output
 			}//if flyers
@@ -2513,7 +2540,7 @@ namespace WBSF
 		{
 			if (it->GetState() != CSBWMoth::FINISHED)
 			{
-				it->init_new_night(TRefEnd);
+				it->init_new_night(period.End() + 1);
 				//let a chanse to output finish flag
 				it->FillOutput(TRefEnd, output);
 			}
@@ -2651,29 +2678,28 @@ namespace WBSF
 			{
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
 				__int64 step_duration = gribs_time[t] - gribs_time[t - 1];
-				//if (m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS )
-#pragma omp parallel for 
+
+//#pragma omp parallel for 
 				for (__int64 i = 0; i < (__int64)fls.size(); i++)
 				{
 #pragma omp flush(msg)
 
 					CSBWMoth& flyer = *(fls[i]);
 
-					if (msg && !flyer.Landed())
+					if (msg && !flyer.Landed() && flyer.GetState()!= CSBWMoth::FINISHED)
 					{
 						ASSERT((3600 % get_time_step()) == 0);
-						for (__int64 seconds = 0; seconds < step_duration && !flyer.Landed(); seconds += get_time_step(), global_seconds += get_time_step())
+						for (__int64 seconds = 0; seconds < step_duration && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step(), global_seconds += get_time_step())
 						{
 							__int64 UTCCurrentTime = gribs_time[t - 1] + seconds;
 
 							flyer.fly(gribs_time[t - 1], UTCCurrentTime);
 
 							__int64 countdown1 = UTCCurrentTime - flyer.m_liffoff_time;
-							//							__int64 countdown2 = flyer.GetLog(CSBWMoth::T_LANDING_END) > 0 ? UTCCurrentTime - flyer.GetLog(CSBWMoth::T_LANDING_END) : 0;
 							CTRef localTRef = UTCTRef + int(flyer.GetUTCShift() / 3600);
 
 							//report oputput only each hour
-							if (global_seconds % 3600 == 0 || flyer.Landed())
+							if (global_seconds % 3600 == 0 || flyer.Landed() || flyer.GetState() == CSBWMoth::FINISHED)
 							{
 								//report only after liftoff
 								if (countdown1 >= 0)
@@ -2692,7 +2718,8 @@ namespace WBSF
 							if (!sub_output.empty())
 							{
 								if (global_seconds % m_world_param.m_outputFrequency == 0 ||
-									flyer.Landed())
+									flyer.Landed() ||
+									flyer.GetState() == CSBWMoth::FINISHED)
 								{
 									ASSERT((3600 % m_world_param.m_outputFrequency) == 0);
 									if (countdown1 >= 0)
@@ -2752,10 +2779,8 @@ namespace WBSF
 			double G = m_G;
 
 			if (m_sex == CSBWMothParameters::FEMALE &&
-				m_state != NOT_EMERGED && m_state != FLY)
+				m_state == LIVE)
 			{
-				ASSERT(m_state == LIVE);
-				//m_lastF != -999
 				eggsLaid = max(0, int(Round(m_lastF, 0) - Round(m_F, 0)));
 				m_lastF = -999;
 			}

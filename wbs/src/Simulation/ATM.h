@@ -737,7 +737,8 @@ namespace WBSF
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
 		double m_A;				//Forewing surface area [cm²]
 		double m_M;				//dry weight [g]
-		double m_G;				//gravidity gravid=1, spent=0, male=0
+		double m_ξ;				//error term on weight (M)
+		double m_G;				//gravidity gravid=1, spent=0
 		double m_Fᵒ;			//initial fecondity without defoliation
 		double m_Fᴰ;			//initial fecondity with defoliation
 		double m_F;				//current fecondity

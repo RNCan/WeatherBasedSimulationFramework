@@ -58,28 +58,24 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		//defoliation at shool level
+		//Compute defoliation at shool level fropm defoliation at stand level
 		m_defoliation = Equations().get_defoliation(GetStand()->m_defoliation);
-
 
 		m_Fº = CBioSIMModelBase::VMISS;
 		m_Fᴰ = CBioSIMModelBase::VMISS;
+		m_F = CBioSIMModelBase::VMISS;
 		m_A = Equations().get_A(m_sex);
 		
 		if (m_sex == FEMALE)
 		{
-			//moyenne 1 et écart type 0.3 (empêche la fécondité d’être <0 ou > 500)
 			m_Fº = Round(Equations().get_Fº(m_A));
 			m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº, 0);
-			//do { 
-			//	double ξ = RandomGenerator().RandNormal(1, 0.3);
-			//	m_Fᴰ = Round((1.0 - 0.0054*m_defoliation)*m_Fº*ξ, 0);
-			//} while (m_Fᴰ < 1 || m_Fᴰ > m_Fº);
-		}
-		
-		m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
-		m_M = Equations().get_M(m_sex, m_A, GetG(), true);//compute weight from forewing area and female gravidity
+			m_F = m_Fᴰ;//initial fecondity is equation to defoliation fecondity
+		} 
 
+		m_ξ = Equations().get_ξ(m_sex, m_A);
+		m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;
+		
 		m_p_exodus = Equations().get_p_exodus();
 		m_bExodus = false;
 		m_bAlreadyExodus = false;
@@ -309,7 +305,7 @@ namespace WBSF
 
 			//compute weight from forewing area and female gravidity
 			//m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);
-			m_M = Equations().get_M(m_sex, m_A, GetG(), false);
+			m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;
 		}
 	}
 
