@@ -267,15 +267,14 @@ namespace WBSF
 	double CSpruceBudwormEquations::get_ξ(size_t sex, double A)const
 	{
 		static const double M_ξ[2] = { 0.2060,  0.1600 };
-		static const double M_L[2] = { 0.0015,  0.0024 };//0.0024 = empty female
-		static const double M_H[2] = { 0.0150,  0.0600 };//0.06 = full female
-
-		double Mempty = get_M(sex, A, 0);
+		static const double M_L[2] = { 0.0015,  0.0090 };//0.009 = low full female
+		static const double M_H[2] = { 0.0150,  0.0600 };//0.06 = hi full female
+		
 		double Mfull = get_M(sex, A, 1);
 
 		//find error term that will be good for male or for full or empty female 
 		double ξ = m_randomGenerator.RandLogNormal(log(1), M_ξ[sex]);
-		while (Mempty*ξ<M_L[sex] || Mfull*ξ >M_H[sex])
+		while (Mfull*ξ<M_L[sex] || Mfull*ξ >M_H[sex])
 			ξ = m_randomGenerator.RandLogNormal(log(1), M_ξ[sex]);
 
 		return ξ;
