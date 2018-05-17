@@ -2697,7 +2697,7 @@ namespace WBSF
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
 				__int64 step_duration = gribs_time[t] - gribs_time[t - 1];
 
-				//#pragma omp parallel for 
+#pragma omp parallel for 
 				for (__int64 i = 0; i < (__int64)fls.size(); i++)
 				{
 #pragma omp flush(msg)
