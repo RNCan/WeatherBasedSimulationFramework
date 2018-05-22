@@ -27,7 +27,6 @@ using namespace WBSF;
 		if (!msg || !CloudCleaner.m_options.m_bQuiet)
 			cout << CloudCleaner.GetDescription() << endl;
 
-
 		if (msg)
 			msg = CloudCleaner.Execute(); 
 

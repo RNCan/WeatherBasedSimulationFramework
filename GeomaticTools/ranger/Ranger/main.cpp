@@ -31,12 +31,9 @@
 #include <stdexcept> 
 #include <string>
 
-#include "globals.h"
 #include "ArgumentHandler.h"
-#include "Forest/ForestClassification.h"
-#include "Forest/ForestRegression.h"
-#include "Forest/ForestSurvival.h"
-#include "Forest/ForestProbability.h"
+#include "RangerLib/globals.h"
+#include "RangerLib/RangerLib.h"
 
 
 //--file "D:\Travaux\Ranger\Training\exemple_train_remi.csv" -o "D:\Travaux\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 3 --memmode 2 --seed 1 --verbose 
@@ -50,25 +47,25 @@
 
 
 // Create forest object
-static Forest* CreateForest(TreeType treetype){
-	Forest* forest = NULL;
-	switch (treetype) {
-	case TREE_CLASSIFICATION:
-		forest = new ForestClassification;
-		break;
-	case TREE_REGRESSION:
-		forest = new ForestRegression;
-		break;
-	case TREE_SURVIVAL:
-		forest = new ForestSurvival;
-		break;
-	case TREE_PROBABILITY:
-		forest = new ForestProbability;
-		break;
-	}
-
-	return forest;
-}
+//static Forest* CreateForest(TreeType treetype){
+//	Forest* forest = NULL;
+//	switch (treetype) {
+//	case TREE_CLASSIFICATION:
+//		forest = new ForestClassification;
+//		break;
+//	case TREE_REGRESSION:
+//		forest = new ForestRegression;
+//		break;
+//	case TREE_SURVIVAL:
+//		forest = new ForestSurvival;
+//		break;
+//	case TREE_PROBABILITY:
+//		forest = new ForestProbability;
+//		break;
+//	}
+//
+//	return forest;
+//}
 
 int main(int argc, char **argv) {
 	ArgumentHandler arg_handler(argc, argv);
@@ -117,7 +114,7 @@ int main(int argc, char **argv) {
 			forest->run_grow(training);
 			if (arg_handler.write) {
 				std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);
-				forest->saveToFile(arg_handler.outprefix + tree_type_str + ".forest");
+				forest->saveToFile(arg_handler.outprefix + "." + tree_type_str + ".forest");
 			}
 			forest->writeOutput(training, arg_handler.outprefix);
 			*verbose_out << "Finished Ranger." << std::endl;

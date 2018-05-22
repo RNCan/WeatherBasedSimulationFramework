@@ -223,28 +223,6 @@ public:
 	CRangerImageOption m_options;
 };
 
-// Create forest object
-Forest* CreateForest(TreeType treetype)
-{
-	Forest* forest = NULL;
-	switch (treetype) {
-	case TREE_CLASSIFICATION:
-		forest = new ForestClassification;
-		break;
-	case TREE_REGRESSION:
-		forest = new ForestRegression;
-		break;
-	case TREE_SURVIVAL:
-		forest = new ForestSurvival;
-		break;
-	case TREE_PROBABILITY:
-		forest = new ForestProbability;
-		break;
-	}
-
-	return forest;
-}
-
 ERMsg CRangerImage::ReadRules(ForestPtr& forest)
 {
 	ERMsg msg;

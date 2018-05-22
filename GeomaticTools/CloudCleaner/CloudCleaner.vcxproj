@@ -133,6 +133,8 @@
       <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external_d.lib</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
+      <StackReserveSize>100000000</StackReserveSize>
+      <StackCommitSize>1000000</StackCommitSize>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -185,6 +187,8 @@
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
+      <StackReserveSize>100000000</StackReserveSize>
+      <StackCommitSize>1000000</StackCommitSize>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Tools\$(TargetName)$(TargetExt)"</Command>
@@ -205,6 +209,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\external\msvc\RangerLib.vcxproj">
+      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">
       <Project>{31fea106-e963-4f38-b23d-4e227c7200ca}</Project>
     </ProjectReference>

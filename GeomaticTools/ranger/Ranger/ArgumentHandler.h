@@ -34,7 +34,7 @@ http://www.imbs-luebeck.de
 #include <vector>
 
 #include "getopt.h"
-#include "globals.h"
+#include "RangerLib/globals.h"
 
 /*
  * Encapsulate getopt.
