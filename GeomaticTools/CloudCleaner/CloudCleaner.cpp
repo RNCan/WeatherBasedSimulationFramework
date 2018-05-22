@@ -78,7 +78,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_bFillCloud = false;
 	m_doubleTrigger = 5;
 
-	m_buffer = 2;
+	m_buffer = 1;
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	//m_maxScene = 2;
 
@@ -96,7 +96,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...). Fill cloud by default." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-		{ "-Buffer", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
+		{ "-Buffer", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 1 by default." },
 		//{ "-BufferSmoot", 4, "nbPixel", false, "merge nbPixels arround cloud pixels . 0 by default." },
 		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
@@ -678,7 +678,8 @@ ERMsg CCloudCleaner::Execute()
 									if (yyy < extents.m_ySize && xxx < extents.m_xSize)
 									{
 										size_t xy3 = yyy * extents.m_xSize + xxx;
-										//if (suspects1[zz].test(xy3) || suspects2[zz].test(xy3))
+										//bool bSus = !suspects2.empty() ? suspects2[zz].test(xy3) : false;
+										//if (suspects1[zz].test(xy3) || bSus)
 											clouds[zz].set(xy3);
 									}
 								}//for buffer x
@@ -1242,8 +1243,11 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 					{
 						array <CLandsatPixel, 3> p = GetP(z, dataCopy[xy]);
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p);
-						if (!suspects1[zz].test(xy2) && suspects2[zz].test(xy2))
-							debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p, CCloudCleanerOption::T_SECONDARY);
+						if (!suspects2.empty())
+						{
+							if (!suspects1[zz].test(xy2) && suspects2[zz].test(xy2))
+								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ID][xy] = m_options.GetDebugID(p, CCloudCleanerOption::T_SECONDARY);
+						}
 
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_B1][xy] = m_options.IsB1Trigged(p);
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_TCB][xy] = m_options.IsTCBTrigged(p);
