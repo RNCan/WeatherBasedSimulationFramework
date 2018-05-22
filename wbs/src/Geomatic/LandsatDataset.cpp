@@ -241,7 +241,7 @@ namespace WBSF
 			}
 			else
 			{
-				msg.ajoute("ERROR: input image bands (" + ToString(GetRasterCount()) + ") count must be a multiple of temporal information (" + ToString(options.m_scenesSize) + ")");
+				msg.ajoute("ERROR: input image bands count (" + ToString(GetRasterCount()) + ") must be a multiple of LANDSAT scene size (" + ToString(options.m_scenesSize) + ")");
 			}
 
 			InitFileInfo();
@@ -331,35 +331,109 @@ namespace WBSF
 
 	}
 
-
-
-	std::string CLandsatDataset::GetCommonBandName(size_t i)
+	std::string CLandsatDataset::GetCommonName()const
 	{
 		//replace the common part by the new name
-		size_t common_begin = MAX_PATH;//common begin
+		size_t common_end = MAX_PATH;//common begin
 
-		for (size_t j = 0; j < SCENES_SIZE - 1; j++)
+		string title0 = GetFileTitle(GetInternalName(0));
+
+		for (size_t j = 1; j < GetRasterCount(); j++)
 		{
-			string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j));
-			string title1 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j + 1));
+			string title1 = GetFileTitle(GetInternalName(j));
 			size_t k = 0;//common begin
 			while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
 				k++;
 
-			common_begin = min(common_begin, k);
+			common_end = min(common_end, k);
 		}
 
 
-		string common;
-		if (common_begin != MAX_PATH)
-		{
-			string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
-			common = title.substr(0, common_begin);
-		}
+		string title = GetFileTitle(GetInternalName(0));
+		if (common_end != MAX_PATH)
+			title = title.substr(0, common_end);
+
+		return title;
+	}
+
+	std::string CLandsatDataset::GetCommonImageName(size_t i)const
+	{
 		
+		string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+		//replace the common part by the new name
+		size_t common_end = MAX_PATH;//common begin
+		for (size_t j = 1; j < SCENES_SIZE; j++)
+		{
+			string title1 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j));
+			size_t k = 0;//common begin
+			while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
+				k++;
 
-		return common;
+			common_end = min(common_end, k);
+		}
 
+		std::string common = CLandsatDataset::GetCommonName();
+		string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+		if (common_end != MAX_PATH)
+			title = title.substr(common.length(), common_end- common.length());
+		
+		return title;
+	}
+
+	std::string CLandsatDataset::GetCommonBandName(size_t b)const
+	{
+		std::string common = CLandsatDataset::GetCommonImageName(b / SCENES_SIZE);
+		string title = GetFileTitle(GetInternalName(b));
+		if (!title.empty())
+			title = title.substr(common.length());
+		else
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetSceneName(b%SCENES_SIZE));
+
+		return title;
+	}
+	std::string CLandsatDataset::GetSpecificBandName(size_t b)const
+	{
+		std::string common = CLandsatDataset::GetCommonName();
+		string title = GetFileTitle(GetInternalName(b));
+		if (!title.empty())
+			title = title.substr(common.length());
+		else
+			title = FormatA( "%d_%s", int(b/SCENES_SIZE)+1, Landsat::GetSceneName(b%SCENES_SIZE));
+
+		return title;
+	}
+
+
+	std::string CLandsatDataset::GetSpecificBandName(size_t i, size_t b)const
+	{
+		return CLandsatDataset::GetSpecificBandName(i*SCENES_SIZE + b);
+		//ASSERT(i<this->GetNbScenes());
+		//ASSERT(b<SCENES_SIZE);
+
+		////replace the common part by the new name
+		//size_t common_end = MAX_PATH;//common begin
+
+		//for (size_t j = 0; j < SCENES_SIZE - 1; j++)
+		//{
+		//	string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j));
+		//	string title1 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j + 1));
+		//	size_t k = 0;//common begin
+		//	while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
+		//		k++;
+
+		//	common_end = max(common_end, k);
+		//}
+
+
+		//std::string common = CLandsatDataset::GetCommonBandName();
+		//if (common_begin != MAX_PATH)
+		//{
+		//	string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+		//	common = title.substr(common.length(), common_begin);
+		//}
+
+
+		//return title;
 	}
 
 	void CLandsatDataset::Close(const CBaseOptions& options)
@@ -372,9 +446,11 @@ namespace WBSF
 				size_t nbImages = GetRasterCount() / SCENES_SIZE;
 				for (size_t i = 0; i < nbImages; i++)
 				{
-					string commonName = GetCommonBandName(i);
+					string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+					//string commonName = WBSF::TrimConst(GetCommonBandName(i*SCENES_SIZE),"_");
 					string filePath = m_filePath;
-					SetFileTitle(filePath, commonName + "RGB");
+					//string title = GetFileTitle(filePath);
+					SetFileTitle(filePath, title.substr(0, title.length()-2) + "RGB");
 					ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
 					if (!msg)
 					{

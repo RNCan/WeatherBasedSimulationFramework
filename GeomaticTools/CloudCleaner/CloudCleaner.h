@@ -22,7 +22,9 @@ namespace WBSF
 	public:
 
 		enum TTrigger { T_PRIMARY, T_SECONDARY, NB_TRIGGER_TYPE };
-		enum TFilePath { RF_BEG_FILE_PATH, RF_MID_FILE_PATH, RF_END_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
+		//enum TFilePath { RF_BEG_FILE_PATH, RF_MID_FILE_PATH, RF_END_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
+		enum TFilePath { RF_MODEL_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
+
 		enum TDebug{ D_DEBUG_ID, D_DEBUG_B1, D_DEBUG_TCB, D_DEBUG_ZSW, D_NB_SCENE, D_SCENE_USED, NB_DBUG };
 		static const char* DEBUG_NAME[NB_DBUG];
 
@@ -130,8 +132,8 @@ namespace WBSF
 
 		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-		void Preprocess(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr forest[3], CloudBitset& suspects1, CloudBitset& suspects2);
-		void ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr forest[3], RFCodeData& DTCode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
+		void Preprocess(int xBlock, int yBlock, const CBandsHolder& bandHolder, const ForestPtr& forest, CloudBitset& suspects1, CloudBitset& suspects2);
+		void ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, const ForestPtr& forest, RFCodeData& DTCode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
 		void WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, RFCodeData& DTCode, CGDALDatasetEx& DTCodeDS);
 		void ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
 		void WriteBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
@@ -146,7 +148,7 @@ namespace WBSF
 		
 		//static void LoadModel(CDecisionTreeBaseEx& DT, std::string filePath);
 		static ERMsg ReadModel(std::string filePath, int CPU, ForestPtr& forest);
-		ERMsg ReadModel(ForestPtr forest[3]);
+		ERMsg ReadModel(ForestPtr& forest);
 		
 		//static CDecisionTreeBlock GetDataRecord(std::array<CLandsatPixel, 3> p, CDecisionTreeBaseEx& DT);
 	};

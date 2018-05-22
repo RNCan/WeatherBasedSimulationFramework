@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 2.0.0    17/05/2018	Rémi Saint-Amant	New random forest model with ranger
+// 2.0.0    17/05/2018	Rémi Saint-Amant	Use random forest model with ranger
 // 1.0.6	21/12/2017	Rémi Saint-Amant	Bug correction in data layer
 // 1.0.5	13/12/2017	Rémi Saint-Amant	Add debug layer for B1 and TCB. Add TZW.
 // 1.0.4	13/12/2017	Rémi Saint-Amant	bug correction for big images
@@ -12,24 +12,16 @@
 // 1.0.1	14/11/2017	Rémi Saint-Amant	Output only one scene at a time. Add buffer and MaxScene options
 // 1.0.0	31/10/2017	Rémi Saint-Amant	Creation
 
-//-co "compress=LZW" -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Model\See5_Cloud_T123" "D:\Travaux\CloudCleaner\Input\Nuage.vrt" "D:\Travaux\CloudCleaner\Output\Output.vrt"
-//-scene 2 -Debug -NoResult -te 1036980 6393000 2497980 7753980 -of VRT -overwrite -ot Int16 -co "bigtiff=yes" -co "COMPRESS=LZW" -multi -IOCPU 4 -dstnodata -32768 -stats -hist -overview {8,16} -co tiled=yes  -co blockxsize=1024 -co blockysize=1024  --config GDAL_CACHEMAX 2048 "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\DT\See5_Cloud_T123" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\2016\L57_20141516_UGIS_vrt.vrt" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\testRemi.vrt"
-//-B1 -175 -TCB 600 -ZSW 200 -Debug -NoResult -scene 3 -of VRT -IOCPU 4 -overwrite -ot Int16 -co "COMPRESS=LZW" -multi -dstnodata -32768 -stats -hist -overview {8,16} -co tiled=yes  -co blockxsize=1024 -co blockysize=1024  --config GDAL_CACHEMAX 2048 U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\CLOUD\Cloud_Cleaner\test\DT\See5_Cloud_T123 "U:\GIS\#documents\TestCodes\CloudCleaner\2014-2016\input\2014-2016.vrt" "U:\GIS\#documents\TestCodes\CloudCleaner\2014-2016\output\2016test.vrt"
-//Et un CODE DT avec T1 T2 T3 ici(1 = feu, 2 = coupe, 112 et 113 ombre et nuage).C’est vraiment rough comme DT mais l’arbre sera amélioré, dans les prochaine semaines.
-//-te 1708590 7055150 1708770 7055330 
-//-te 1705590 7052150 1711770 7058330 
-//-te 1413000 7140000 1455000 7203000
-//-te 1036980 6393000 2497980 7753980 
-
-//-Scenes 2 2 -debug -outputcode -co "compress=LZW" -RGB Natural -of VRT -overwrite "D:\Travaux\CloudCleaner\Model\RF_BEG_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_END_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\subset\subset.tif" "D:\Travaux\CloudCleaner\Output\subset\subset.vrt"
-//-Scenes 1 1 -FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_BEG_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_END_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\puff_partout.vrt"
-//-DoubleTrigger 4 -FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_BEG_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_END_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\haze_et_ombre.vrt" "D:\Travaux\CloudCleaner\Output\haze_et_ombre\haze_et_ombre.vrt"
-//-FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_BEG_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_END_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\Nuage_1999-2014.vrt" "D:\Travaux\CloudCleaner\Output\Nuage_1999-2014\Nuage.vrt"
 //-te 1622910 6987120 1623120 6987330 
 //-te 1622590 6987810 1622890 6988110 
 //-te 1361820 6825390 1361970 6825540 
-//-scenes 1 1 -te 1357320 6797160 1357470 6797310 -DoubleTrigger 4 -FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -overwrite "D:\Travaux\CloudCleaner\Model\RF_BEG_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Model\RF_END_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\test.vrt"
-//
+
+//tes v2
+//-Scenes 6 10 -FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\Nuage_1999-2014.vrt" "D:\Travaux\CloudCleaner\Output\Nuage_1999-2014\Nuage.vrt"
+//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\haze_et_ombre.vrt" "D:\Travaux\CloudCleaner\Output\haze_et_ombre\haze_et_ombre.vrt"
+//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_MID_v1.classification.forest" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\puff_partout.vrt"
+
+
 
 #include "stdafx.h"
 #include <float.h>
@@ -84,9 +76,9 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_TCBthreshold = { 600, 200 };
 	m_ZSWthreshold = { 500, 150 };
 	m_bFillCloud = false;
-	m_doubleTrigger = 4;
+	m_doubleTrigger = 5;
 
-	m_buffer = 1;
+	m_buffer = 2;
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	//m_maxScene = 2;
 
@@ -104,9 +96,9 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...). Fill cloud by default." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-		{ "-Buffer", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 1 by default." },
+		{ "-Buffer", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
 		//{ "-BufferSmoot", 4, "nbPixel", false, "merge nbPixels arround cloud pixels . 0 by default." },
-		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 4 by default" },
+		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
 		{ "-Debug",0,"",false,"Output debug information."},
 		{ "ModelBeg", 0, "", false, "random forest debin cloud model file path." },
@@ -121,13 +113,13 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 	static const CIOFileInfoDef IO_FILE_INFO[] =
 	{
-		{ "Input Model", "ModelBegin", "", "", "", "random forest begin model file generate by Ranger." },
-		{ "Input Model", "ModelMiddle", "", "", "", "random forest middle model file generate by Ranger." },
-		{ "Input Model", "ModelEnd", "", "", "", "random forest end model file generate by Ranger." },
+		//{ "Input Model", "ModelBegin", "", "", "", "random forest begin model file generate by Ranger." },
+		{ "Input Model", "Model", "", "", "", "Random forest model file generated by Ranger." },
+		//{ "Input Model", "ModelEnd", "", "", "", "random forest end model file generate by Ranger." },
 		{ "LANDSAT Image", "src1file", "NbScenes", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)|... for each scene" },
 		{ "Output Image", "dstfile", "Nb scenes processed", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)" },
 		{ "Optional Code Image", "dstfile_code","Nb scenes processed","1","random forest result"},
-		{ "Optional Debug Image", "dstfile_debug", "Nb scenes processed", "6", "Bit fields [ZSW|TCB|B1|nbImages(0..3)]|Cloud trigged (B1)|Shadow trigged (TCB)|Haze trigged (Z-Score Water)|Nb scene|scene selected to fill cloud (relative to the filled scene)"}
+		{ "Optional Debug Image", "dstfile_debug", "Nb scenes processed", "6", "Bit fields [ZSW(4)|TCB(2)|B1(1)]|Cloud trigged (B1)|Shadow trigged (TCB)|Haze trigged (Z-Score Water)|Nb scene|scene selected to fill cloud (relative to the filled scene)"}
 
 	};
 
@@ -206,10 +198,10 @@ ERMsg CCloudCleanerOption::ParseOption(int argc, char* argv[])
 {
 	ERMsg msg = CBaseOptions::ParseOption(argc, argv);
 
-	ASSERT(NB_FILE_PATH == 5);
+	ASSERT(NB_FILE_PATH == 3);
 	if (msg && m_filesPath.size() != NB_FILE_PATH)
 	{
-		msg.ajoute("ERROR: Invalid argument line. 5 files are needed: 3 random forest models (begin, middle, end), the LANDSAT images series and the destination image.");
+		msg.ajoute("ERROR: Invalid argument line. 3 files are needed: the random forest models, the LANDSAT images series and the destination image.");
 		msg.ajoute("Argument found: ");
 		for (size_t i = 0; i < m_filesPath.size(); i++)
 			msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
@@ -279,7 +271,7 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 	return msg;
 }
 
-ERMsg CCloudCleaner::ReadModel(ForestPtr forests[3])
+ERMsg CCloudCleaner::ReadModel(ForestPtr& forest)
 {
 	ERMsg msg;
 
@@ -288,8 +280,8 @@ ERMsg CCloudCleaner::ReadModel(ForestPtr forests[3])
 	if (!m_options.m_bQuiet)
 		cout << "Read forest..." << endl;
 
-	for (size_t i = 0; i < 3; i++)
-		msg += ReadModel(m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + i], m_options.m_bMulti ? m_options.m_CPU : -1, forests[i]);
+	//for (size_t i = 0; i < 3; i++)
+	msg += ReadModel(m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH], m_options.m_bMulti ? m_options.m_CPU : -1, forest);
 
 	timer.Stop();
 
@@ -333,8 +325,8 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 	msg = landsatDS.OpenInputImage(m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH], m_options);
 	if (msg)
 	{
-		if (landsatDS.GetNbScenes() < 2)
-			msg.ajoute("CloudCleaner need at least 2 scenes");
+		if (landsatDS.GetNbScenes() < 3)
+			msg.ajoute("CloudCleaner need at least 3 scenes");
 
 		if (m_options.m_scenes[0] == NOT_INIT)
 			m_options.m_scenes[0] = 0;
@@ -500,9 +492,9 @@ ERMsg CCloudCleaner::Execute()
 	{
 		cout << "Output: " << m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH] << endl;
 		cout << "From:   " << m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH] << endl;
-		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 0] << endl;
-		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 1] << endl;
-		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 2] << endl;
+		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH] << endl;
+	//	cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 1] << endl;
+		//cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 2] << endl;
 
 		if (!m_options.m_maskName.empty())
 			cout << "Mask:   " << m_options.m_maskName << endl;
@@ -510,8 +502,8 @@ ERMsg CCloudCleaner::Execute()
 
 	GDALAllRegister();
 
-	ForestPtr forests[3];
-	msg += ReadModel(forests);
+	ForestPtr forest;
+	msg += ReadModel(forest);
 
 	if (!msg)
 		return msg;
@@ -581,7 +573,7 @@ ERMsg CCloudCleaner::Execute()
 
 			//data
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			Preprocess(xBlock, yBlock, bandHolder[thread], forests, suspects1, suspects2);
+			Preprocess(xBlock, yBlock, bandHolder[thread], forest, suspects1, suspects2);
 		}//for all blocks
 
 		for (size_t zz = 0; zz < suspects1.size(); zz++)
@@ -655,7 +647,7 @@ ERMsg CCloudCleaner::Execute()
 			//data
 			RFCodeData RFcode;
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			ProcessBlock1(xBlock, yBlock, bandHolder[thread], forests, RFcode, suspects1, suspects2, clouds);
+			ProcessBlock1(xBlock, yBlock, bandHolder[thread], forest, RFcode, suspects1, suspects2, clouds);
 			WriteBlock1(xBlock, yBlock, bandHolder[thread], RFcode, DTCodeDS);
 		}//for all blocks
 
@@ -686,7 +678,7 @@ ERMsg CCloudCleaner::Execute()
 									if (yyy < extents.m_ySize && xxx < extents.m_xSize)
 									{
 										size_t xy3 = yyy * extents.m_xSize + xxx;
-										if (suspects1[zz].test(xy3) || suspects2[zz].test(xy3))
+										//if (suspects1[zz].test(xy3) || suspects2[zz].test(xy3))
 											clouds[zz].set(xy3);
 									}
 								}//for buffer x
@@ -777,17 +769,50 @@ array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
 
 	array <CLandsatPixel, 3> p;
 
-	p[1] = data[z1];
-	size_t z0 = GetPrevious(data, z1);
-	p[0] = z0 < data.size() ? data[z0] : NO_PIXEL;
-	size_t z2 = GetNext(data, z1);
-	p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
+	if (z1 == 0)
+	{
+		p[1] = data[z1];
+		size_t z0 = GetNext(data, z1);
+		p[0] = z0 < data.size() ? data[z0] : NO_PIXEL;
+		if (z0 != NOT_INIT)
+		{
+			size_t z2 = GetNext(data, z0);
+			p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
+		}
+
+	}
+	else if ((z1 + 1) == data.size())
+	{
+		p[1] = data[z1];
+		size_t z0 = GetPrevious(data, z1);
+		p[0] = z0 < data.size() ? data[z0] : NO_PIXEL;
+		if (z0 != NOT_INIT)
+		{
+			size_t z2 = GetPrevious(data, z0);
+			p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
+		}
+
+	}
+	else
+	{
+		p[1] = data[z1];
+		size_t z0 = GetPrevious(data, z1);
+		p[0] = z0 < data.size() ? data[z0] : NO_PIXEL;
+		size_t z2 = GetNext(data, z1);
+		p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
+
+	}
+	
+
+	
+
+
 
 	return p;
 }
 
 //Get input image reference
-void CCloudCleaner::Preprocess(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr forests[3], CloudBitset& suspects1, CloudBitset& suspects2)
+void CCloudCleaner::Preprocess(int xBlock, int yBlock, const CBandsHolder& bandHolder, const ForestPtr& forest, CloudBitset& suspects1, CloudBitset& suspects2)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -864,7 +889,7 @@ void CCloudCleaner::Preprocess(int xBlock, int yBlock, const CBandsHolder& bandH
 }
 
 //Get input image reference
-void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr forests[3], RFCodeData& RFcode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, const ForestPtr& forest, RFCodeData& RFcode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -929,11 +954,14 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 			if (suspectPixel.count() > 0)
 			{
 				//forest model, 0: beg,1: mid, 2: end
-				size_t fm = (z == 0) ? 0 : ((z + 1) == nbScenes) ? 2 : 1;
-				size_t nbCols = (fm == 1 ? 3 : 2) * 7;
+				//size_t fm = 1;
+				//size_t fm = (z == 0) ? 0 : ((z + 1) == nbScenes) ? 2 : 1;
+				//size_t nbCols = (fm == 1 ? 3 : 2) * 7;
+				//size_t nbCols = forests[fm]->getNumIndependentVariables();
+				//ASSERT(nbCols%7==0);
 
 				DataShort input;
-				input.resize(suspectPixel.count(), nbCols);
+				input.resize(suspectPixel.count(), 3*7);
 
 				size_t cur_xy = 0;
 				for (size_t y = 0; y < blockSize.m_y; y++)
@@ -951,12 +979,13 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 								for (size_t b = 0; b < 7; b++)
 								{
 									bool error = false;
-									if (t == 0 && fm > 0)
-										input.set(c++, cur_xy, p[t][b], error);
-									else if (t == 1)
-										input.set(c++, cur_xy, p[t][b], error);
-									else if (t == 2 && fm < 2)
-										input.set(c++, cur_xy, p[t][b], error);
+									input.set(c++, cur_xy, p[t][b], error);
+									//if (t == 0 /*&& fm > 0*/)
+									//	input.set(c++, cur_xy, p[t][b], error);
+									//else if (t == 1)
+									//	input.set(c++, cur_xy, p[t][b], error);
+									//else if (t == 2 /*&& fm < 2*/)
+									//	input.set(c++, cur_xy, p[t][b], error);
 								}
 							}
 
@@ -966,7 +995,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 					}//x
 				}//y
 
-				forests[fm]->run_predict(&input);
+				forest->run_predict(&input);
 
 				cur_xy = 0;
 				for (size_t y = 0; y < blockSize.m_y; y++)
@@ -976,7 +1005,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 						size_t xy = y * blockSize.m_x + x;
 						if (suspectPixel.test(xy))
 						{
-							int RFexit = int(forests[fm]->getPredictions().at(0).at(0).at(cur_xy));
+							int RFexit = int(forest->getPredictions().at(0).at(0).at(cur_xy));
 
 							if (RFexit > 100)
 							{

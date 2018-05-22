@@ -299,7 +299,11 @@ namespace WBSF
 		const std::vector<CLandsatFileInfo>& GetFileInfo()const { return m_info; }
 	
 		ERMsg CreateRGB(size_t i, const std::string filePath, CBaseOptions::TRGBTye type);
-		std::string GetCommonBandName(size_t i);
+		std::string GetCommonName()const;
+		std::string GetCommonImageName(size_t i)const;
+		std::string GetCommonBandName(size_t b)const;
+		std::string GetSpecificBandName(size_t i)const;
+		std::string GetSpecificBandName(size_t i, size_t j)const;
 
 	protected:
 		
