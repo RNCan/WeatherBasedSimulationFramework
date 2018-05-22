@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.0	01/11/2017	Rémi Saint-Amant	Creation
 
 
@@ -29,7 +30,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CSegmentation::VERSION = "1.0.0";
+	const char* CSegmentation::VERSION = "1.0.1";
 	const size_t CSegmentation::NB_THREAD_PROCESS = 2;
 	//static const int NB_TOTAL_STATS = CSegmentationOption::NB_STATS*SCENES_SIZE;
 

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.0	16/11/2017	Rémi Saint-Amant	Compile with GDAL 2.2
 // 1.0.0	21/12/2015	Rémi Saint-Amant	Creation
 
@@ -31,7 +32,7 @@ namespace WBSF
 {
 
 
-	const char* CLandsatWarp::VERSION = "1.1.0";
+	const char* CLandsatWarp::VERSION = "1.1.1";
 	const int CLandsatWarp::NB_THREAD_PROCESS = 2;
 
 

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.2	29/11/2017  Rémi Saint-Amant	Load optimisation
 // 1.0.1	23/11/2017  Rémi Saint-Amant	Avoid warning when breaks pixel is no data
 // 1.0.0	17/11/2017	Rémi Saint-Amant	Creation
@@ -34,7 +35,7 @@ namespace WBSF
 {
 
 
-	const char* CBreaksImage::VERSION = "1.0.2";
+	const char* CBreaksImage::VERSION = "1.0.3";
 	std::string CBreaksImage::GetDescription(){ return  std::string("BreaksImage version ") + CBreaksImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CBreaksImage::NB_THREAD_PROCESS = 2;
 

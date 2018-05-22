@@ -1,4 +1,5 @@
 //***********************************************************************
+// 2.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.0.0  22/01/2018		Rémi Saint-Amant	Update with new framework
 // 1.4.2  21/03/2013		Rémi Saint-Amant	add fuzzy threshold2
 // 1.4.1  21/03/2013		Rémi Saint-Amant	Correction of problem with shift
@@ -35,7 +36,7 @@ using namespace std;
 namespace WBSF
 {
 
-	static const char* version = "2.0.0";
+	static const char* version = "2.0.1";
 
 
 	enum TFilePath { INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };

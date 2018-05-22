@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.0.0    03/11/2017  Rémi Saint-Amant	Compile with GDAL 2.02
 // 1.4.1	22/11/2016	Rémi Saint-Amant	Add RegisterAll
 // 1.4.0	09/04/2015	Rémi Saint-Amant	Compile with GDAL 1.11.3 and WBSF
@@ -55,7 +56,7 @@ using namespace std;
 namespace WBSF
 {
 
-	const char* CPointsExtractor::VERSION = "2.0.0";
+	const char* CPointsExtractor::VERSION = "2.0.1";
 	const int CPointsExtractor::NB_THREAD_PROCESS = 2;
 	const char * CPointsExtractor::CONDITION_NAME[NB_CONDITION] = { "AllValid", "AtLeastOneValid", "AtLeastOneMissing", "AllMissing" };
 

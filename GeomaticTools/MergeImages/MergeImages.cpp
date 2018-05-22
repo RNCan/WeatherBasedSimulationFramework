@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
 // 3.0.0	31/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and. Remove all cloud remover
@@ -74,7 +75,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.2";
+	const char* CMergeImages::VERSION = "3.0.3";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 

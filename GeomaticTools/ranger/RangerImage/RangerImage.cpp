@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with no end loop
 // 1.0.0	07/11/2017	Rémi Saint-Amant	Creation
 
@@ -39,7 +40,7 @@ using namespace WBSF;
 //-te 2025000 6952000 2226000 7154000 -multi -co compress=LZW -multi -blocksize 1024 1024 -stats -hist -co tiled=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 --config GDAL_CACHEMAX 1024 -ot int16 -dstnodata 255  -seed %seed% -overview {16} -overwrite -mask U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\LOSSmsk_BK2_BK1.tif -maskvalue 1 -iocpu 3 "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test2_pv.classification.forest" "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\BK2_BK1_B123457.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\TestDeadLock.tif"
 
 
-static const char* version = "1.0.1";
+static const char* version = "1.0.2";
 static const int NB_THREAD_PROCESS = 2; 
 
 

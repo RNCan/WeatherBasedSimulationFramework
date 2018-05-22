@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.3.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.3.1	27/11/2017	Rémi Saint-Amant	Bug correction
 // 2.3.0	30/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and add cloud improvement. Remove second disturbance of the same type. trigger have change
 // 2.2.4	11/07/2016	Rémi Saint-Amant	Add export series
@@ -76,7 +77,7 @@ using namespace WBSF::Landsat;
 
  
 
-static const char* version = "2.3.1";
+static const char* version = "2.3.2";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
 //static const int OTHER_CODE = 100;

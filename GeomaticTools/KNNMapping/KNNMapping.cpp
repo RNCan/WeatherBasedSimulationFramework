@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.7.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.7.0	12/10/2017  Rémi Saint-Amant	Compile with GDAL 2.02. Accept header with double quotes.
 // 2.6.1	15/11/2016	Rémi Saint-Amant	Bug correction
 // 2.6.0	11/02/2016	Rémi Saint-Amant	New project structuration. Read data with "".
@@ -78,7 +79,7 @@ using namespace std;
 using namespace WBSF;
 
 
-static const char* version = "2.7.0";
+static const char* version = "2.7.1";
 static const int NB_THREAD_PROCESS = 2;
 
 

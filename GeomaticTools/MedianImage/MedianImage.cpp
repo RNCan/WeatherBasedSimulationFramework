@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.1	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 1.1.0	15/11/2017	Rémi Saint-Amant	Compile with GDAL 2.0
 // 1.0.2	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
@@ -32,7 +33,7 @@ namespace WBSF
 {
 
 
-	const char* CMedianImage::VERSION = "1.1.1";
+	const char* CMedianImage::VERSION = "1.1.2";
 	std::string CMedianImage::GetDescription(){ return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CMedianImage::NB_THREAD_PROCESS = 2;
 

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.0	21/12/2017	Rémi Saint-Amant	Creation 
 
 #include "stdafx.h" 
@@ -39,7 +40,7 @@ using namespace std;
 namespace WBSF
 {
 
-	const char* CPointsReduction::VERSION = "1.0.0";
+	const char* CPointsReduction::VERSION = "1.0.1";
 	const int CPointsReduction::NB_THREAD_PROCESS = 2;
 
 

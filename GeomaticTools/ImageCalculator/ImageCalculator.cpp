@@ -1,4 +1,5 @@
 //ImagesCalculator.exe
+// 3.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 3.0.0	03/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 2.0.1	13/06/2015	Rémi Saint-Amant	Add -hist option
 // 2.0.0    11/03/2015	Rémi Saint-Amant	New Equation form "E=mc²"
@@ -46,7 +47,7 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-static const char* version = "3.0.0";
+static const char* version = "3.0.1";
 static const int NB_THREAD_PROCESS = 2;
 
 

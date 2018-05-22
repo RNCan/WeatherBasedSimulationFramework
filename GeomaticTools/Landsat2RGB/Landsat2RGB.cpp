@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.1	15/11/2017	Rémi Saint-Amant	remove multi-thread : bad performance
 // 1.1.0	02/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 1.0.0	21/12/2016	Rémi Saint-Amant	Creation
@@ -31,7 +32,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CLandsat2RGB::VERSION = "1.1.1";
+	const char* CLandsat2RGB::VERSION = "1.1.2";
 	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
