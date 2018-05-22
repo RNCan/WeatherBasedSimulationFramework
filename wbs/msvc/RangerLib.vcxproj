@@ -19,41 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\RangerLib\Forest\Forest.cpp" />
-    <ClCompile Include="..\RangerLib\Forest\ForestClassification.cpp" />
-    <ClCompile Include="..\RangerLib\Forest\ForestProbability.cpp" />
-    <ClCompile Include="..\RangerLib\Forest\ForestRegression.cpp" />
-    <ClCompile Include="..\RangerLib\Forest\ForestSurvival.cpp" />
-    <ClCompile Include="..\RangerLib\Tree\Tree.cpp" />
-    <ClCompile Include="..\RangerLib\Tree\TreeClassification.cpp" />
-    <ClCompile Include="..\RangerLib\Tree\TreeProbability.cpp" />
-    <ClCompile Include="..\RangerLib\Tree\TreeRegression.cpp" />
-    <ClCompile Include="..\RangerLib\Tree\TreeSurvival.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\Data.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\DataChar.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\DataDouble.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\DataFloat.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\DataShort.cpp" />
-    <ClCompile Include="..\RangerLib\Utility\utility.cpp" />
+    <ClCompile Include="..\src\RangerLib\Forest\Forest.cpp" />
+    <ClCompile Include="..\src\RangerLib\Forest\ForestClassification.cpp" />
+    <ClCompile Include="..\src\RangerLib\Forest\ForestProbability.cpp" />
+    <ClCompile Include="..\src\RangerLib\Forest\ForestRegression.cpp" />
+    <ClCompile Include="..\src\RangerLib\Forest\ForestSurvival.cpp" />
+    <ClCompile Include="..\src\RangerLib\Tree\Tree.cpp" />
+    <ClCompile Include="..\src\RangerLib\Tree\TreeClassification.cpp" />
+    <ClCompile Include="..\src\RangerLib\Tree\TreeProbability.cpp" />
+    <ClCompile Include="..\src\RangerLib\Tree\TreeRegression.cpp" />
+    <ClCompile Include="..\src\RangerLib\Tree\TreeSurvival.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\Data.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\DataChar.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\DataDouble.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\DataFloat.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\DataShort.cpp" />
+    <ClCompile Include="..\src\RangerLib\Utility\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\RangerLib\Forest\Forest.h" />
-    <ClInclude Include="..\RangerLib\Forest\ForestClassification.h" />
-    <ClInclude Include="..\RangerLib\Forest\ForestProbability.h" />
-    <ClInclude Include="..\RangerLib\Forest\ForestRegression.h" />
-    <ClInclude Include="..\RangerLib\Forest\ForestSurvival.h" />
-    <ClInclude Include="..\RangerLib\RangerLib.h" />
-    <ClInclude Include="..\RangerLib\Tree\tree.h" />
-    <ClInclude Include="..\RangerLib\Tree\TreeClassification.h" />
-    <ClInclude Include="..\RangerLib\Tree\treeprobability.h" />
-    <ClInclude Include="..\RangerLib\Tree\TreeRegression.h" />
-    <ClInclude Include="..\RangerLib\Tree\treesurvival.h" />
-    <ClInclude Include="..\RangerLib\Utility\data.h" />
-    <ClInclude Include="..\RangerLib\Utility\DataChar.h" />
-    <ClInclude Include="..\RangerLib\Utility\DataDouble.h" />
-    <ClInclude Include="..\RangerLib\Utility\DataFloat.h" />
-    <ClInclude Include="..\RangerLib\Utility\DataShort.h" />
-    <ClInclude Include="..\RangerLib\Utility\utility.h" />
+    <ClInclude Include="..\src\RangerLib\Forest\Forest.h" />
+    <ClInclude Include="..\src\RangerLib\Forest\ForestClassification.h" />
+    <ClInclude Include="..\src\RangerLib\Forest\ForestProbability.h" />
+    <ClInclude Include="..\src\RangerLib\Forest\ForestRegression.h" />
+    <ClInclude Include="..\src\RangerLib\Forest\ForestSurvival.h" />
+    <ClInclude Include="..\src\RangerLib\RangerLib.h" />
+    <ClInclude Include="..\src\RangerLib\Tree\tree.h" />
+    <ClInclude Include="..\src\RangerLib\Tree\TreeClassification.h" />
+    <ClInclude Include="..\src\RangerLib\Tree\treeprobability.h" />
+    <ClInclude Include="..\src\RangerLib\Tree\TreeRegression.h" />
+    <ClInclude Include="..\src\RangerLib\Tree\treesurvival.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\data.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\DataChar.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\DataDouble.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\DataFloat.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\DataShort.h" />
+    <ClInclude Include="..\src\RangerLib\Utility\utility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}</ProjectGuid>
@@ -143,7 +143,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -180,7 +180,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

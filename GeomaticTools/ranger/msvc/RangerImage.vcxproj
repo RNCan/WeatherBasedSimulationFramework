@@ -213,7 +213,7 @@
     <ProjectReference Include="..\..\..\wbs\msvc\Geomatic.vcxproj">
       <Project>{ac5dd791-6787-4663-8184-1db8d87a3c58}</Project>
     </ProjectReference>
-    <ProjectReference Include="RangerLib.vcxproj">
+    <ProjectReference Include="..\..\..\wbs\msvc\RangerLib.vcxproj">
       <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
     </ProjectReference>
   </ItemGroup>

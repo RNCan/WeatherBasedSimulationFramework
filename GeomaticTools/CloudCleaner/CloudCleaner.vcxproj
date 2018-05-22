@@ -209,14 +209,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\external\msvc\RangerLib.vcxproj">
-      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">
       <Project>{31fea106-e963-4f38-b23d-4e227c7200ca}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\wbs\msvc\Geomatic.vcxproj">
       <Project>{ac5dd791-6787-4663-8184-1db8d87a3c58}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\wbs\msvc\RangerLib.vcxproj">
+      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

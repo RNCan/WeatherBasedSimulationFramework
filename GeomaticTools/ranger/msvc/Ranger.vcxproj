@@ -108,7 +108,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\External\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\wbs\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\External\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\wbs\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -157,11 +157,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\external\msvc\RangerLib.vcxproj">
-      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\Ranger\ArgumentHandler.cpp" />
     <ClCompile Include="..\Ranger\getopt.cpp" />
     <ClCompile Include="..\Ranger\main.cpp" />
@@ -170,6 +165,11 @@
     <ClInclude Include="..\Ranger\ArgumentHandler.h" />
     <ClInclude Include="..\Ranger\getopt.h" />
     <ClInclude Include="..\Ranger\version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\wbs\msvc\RangerLib.vcxproj">
+      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
