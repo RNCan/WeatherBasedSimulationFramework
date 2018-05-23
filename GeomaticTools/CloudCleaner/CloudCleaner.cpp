@@ -77,8 +77,10 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_ZSWthreshold = { 500, 150 };
 	m_bFillCloud = false;
 	m_doubleTrigger = 5;
+	m_bSuspectAsCloud = false;
 
 	m_buffer = 1;
+	m_bufferEx = 2;
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	//m_maxScene = 2;
 
@@ -93,17 +95,19 @@ CCloudCleanerOption::CCloudCleanerOption()
 		//{ "-TCB", 1, "threshold", false, "trigger threshold for Tassel Cap Brightness (TCB) to set pixel as suspect and execute random forest. 600 by default." },
 		//{ "-ZSW", 1, "threshold", false, "trigger threshold for Z-Score Water (ZSW) to set pixel as suspect and execute random forest. 500 by default." },
 		{ "-Thres", 4, "type B1 TCB ZSW", false, "Set trigger threshold for B1, TCB and ZSW to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -175 600 500 for primary and -55 200 150 for secondary." },
-		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...). Fill cloud by default." },
+		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...)." },
+		//{ "-ForceFill", 0, "", false, "Force to find filled pixel when not available." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-		{ "-Buffer", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 1 by default." },
+		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 1 by default." },
+		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
+//		{ "-SuspectAsCloud", 1, "nbPixel", false, "Set all suspicious pixels arround cloud pixels as cloud." },
 		//{ "-BufferSmoot", 4, "nbPixel", false, "merge nbPixels arround cloud pixels . 0 by default." },
+		
 		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
 		{ "-Debug",0,"",false,"Output debug information."},
-		{ "ModelBeg", 0, "", false, "random forest debin cloud model file path." },
-		{ "ModelMid", 0, "", false, "random forest middle cloud model file path." },
-		{ "ModelEnd", 0, "", false, "random forest end cloud model file path." },
+		{ "Model", 0, "", false, "Random forest cloud model file path." },
 		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
 	};
@@ -167,6 +171,14 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_buffer = atoi(argv[++i]);
 
+	}
+	else if (IsEqual(argv[i], "-BufferEx"))
+	{
+		m_bufferEx = atoi(argv[++i]);
+	}
+	else if (IsEqual(argv[i], "-SuspectAsCloud"))
+	{
+		m_bSuspectAsCloud = true;
 	}
 	else if (IsEqual(argv[i], "-Scenes"))
 	{
@@ -493,8 +505,8 @@ ERMsg CCloudCleaner::Execute()
 		cout << "Output: " << m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH] << endl;
 		cout << "From:   " << m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH] << endl;
 		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH] << endl;
-	//	cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 1] << endl;
-		//cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 2] << endl;
+		//	cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 1] << endl;
+			//cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 2] << endl;
 
 		if (!m_options.m_maskName.empty())
 			cout << "Mask:   " << m_options.m_maskName << endl;
@@ -651,7 +663,20 @@ ERMsg CCloudCleaner::Execute()
 			WriteBlock1(xBlock, yBlock, bandHolder[thread], RFcode, DTCodeDS);
 		}//for all blocks
 
-		if (m_options.m_buffer > 0)
+		if (m_options.m_bSuspectAsCloud)
+		{
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU) if (m_options.m_bMulti)
+			for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
+			{
+				CleanSuspect2(extents, clouds[zz], suspects1[zz]);
+				
+				for (size_t xy = 0; xy < suspects1[zz].size(); xy++)
+					if(suspects1[zz].test(xy))
+						clouds[zz].set(xy);
+			}
+		}
+
+		if (m_options.m_buffer > 0 || m_options.m_bufferEx > 0)
 		{
 
 			//set buffer around cloud
@@ -669,18 +694,29 @@ ERMsg CCloudCleaner::Execute()
 						//he suspicious = 
 						if (cloudsCopy.test(xy2))
 						{
-							for (size_t yy = 0; yy < 2 * m_options.m_buffer + 1; yy++)
+							size_t maxBuffer = max(m_options.m_buffer, m_options.m_bufferEx);
+							for (size_t yy = 0; yy < 2 * maxBuffer + 1; yy++)
 							{
-								for (size_t xx = 0; xx < 2 * m_options.m_buffer + 1; xx++)
+								for (size_t xx = 0; xx < 2 * maxBuffer + 1; xx++)
 								{
 									size_t yyy = y + yy - m_options.m_buffer;
 									size_t xxx = x + xx - m_options.m_buffer;
 									if (yyy < extents.m_ySize && xxx < extents.m_xSize)
 									{
 										size_t xy3 = yyy * extents.m_xSize + xxx;
-										//bool bSus = !suspects2.empty() ? suspects2[zz].test(xy3) : false;
-										//if (suspects1[zz].test(xy3) || bSus)
+
+										if (xx<(2 * m_options.m_buffer + 1) && yy<(2 * m_options.m_buffer + 1))
+										{
 											clouds[zz].set(xy3);
+										}
+
+										if (xx<(2 * m_options.m_bufferEx + 1) && yy<(2 * m_options.m_bufferEx + 1))
+										{
+											bool bSus = !suspects2.empty() ? suspects2[zz].test(xy3) : false;
+											if (suspects1[zz].test(xy3) || bSus)
+												clouds[zz].set(xy3);
+										}
+
 									}
 								}//for buffer x
 							}//for buffer y 
@@ -803,9 +839,9 @@ array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
 		p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
 
 	}
-	
 
-	
+
+
 
 
 
@@ -962,7 +998,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 				//ASSERT(nbCols%7==0);
 
 				DataShort input;
-				input.resize(suspectPixel.count(), 3*7);
+				input.resize(suspectPixel.count(), 3 * 7);
 
 				size_t cur_xy = 0;
 				for (size_t y = 0; y < blockSize.m_y; y++)
@@ -1082,11 +1118,11 @@ bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeo
 
 	bool bTouch = false;
 
-	
+
 	treated.set(xy.m_y * extents.m_xSize + xy.m_x);
 	if (suspects1.test(xy.m_y * extents.m_xSize + xy.m_x))
 		bTouch = true;
-	
+
 	//on the edge case when suspect pixel touch to cloud 
 	for (size_t yy = 0; yy < 3; yy++)
 	{
@@ -1100,7 +1136,7 @@ bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeo
 				{
 					size_t xy2 = yyy * extents.m_xSize + xxx;
 
-					
+
 					if (!treated.test(xy2) && (suspects1.test(xy2) || suspects2.test(xy2)) && level < 100)
 					{
 						if (TouchSuspect1(level + 1, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, suspects2, treated))
@@ -1111,7 +1147,7 @@ bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeo
 		}//inside extent
 	}//for buffer y 
 
-	if(!bTouch)
+	if (!bTouch)
 		suspects2.reset(xy.m_y * extents.m_xSize + xy.m_x);
 
 	return bTouch;
@@ -1255,7 +1291,8 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_NB_SCENE][xy] = (p[0].IsInit() ? 1 : 0) + (p[1].IsInit() ? 1 : 0) + (p[2].IsInit() ? 1 : 0);
 					}
 
-					if (!dataCopy[xy][z].IsInit() || clouds[zz].test(xy2))
+					//!dataCopy[xy][z].IsInit() || 
+					if (clouds[zz].test(xy2))
 					{
 						size_t z2 = NOT_INIT;
 						for (size_t i = 0; i < dataCopy[xy].size() * 2 && z2 == NOT_INIT; i++)
@@ -1264,15 +1301,16 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 							if (iz < dataCopy[xy].size() && dataCopy[xy][iz].IsInit())
 							{
 								size_t izz = size_t(zz + (int)pow(-1, i)*(i / 2 + 1));
-								//bool bReplace = (izz>0 && (izz+1) < clouds.size() )? !(clouds[izz].test(xy2) && suspects1[izz].test(xy2)) : true;
+								
 								bool bReplace = (izz < clouds.size()) ? !(clouds[izz].test(xy2) && suspects1[izz].test(xy2)) : true;
+								//bool bReplace = (izz < clouds.size()) ? !clouds[izz].test(xy2) : true;
 								if (bReplace)
 									z2 = iz;
 							}
 						}
 
 						//if z2 is not init
-						if (z2 == NOT_INIT)
+						/*if (z2 == NOT_INIT)
 						{
 							__int32 minVal = 32767;
 							for (size_t i = 0; i < dataCopy[xy].size() * 2; i++)
@@ -1290,7 +1328,7 @@ void CCloudCleaner::ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& ba
 								}
 							}
 						}
-
+*/
 
 
 						if (!debug.empty())

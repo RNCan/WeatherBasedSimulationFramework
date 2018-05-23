@@ -107,6 +107,7 @@ namespace WBSF
 		std::array<__int32, 2> m_TCBthreshold;
 		std::array<__int32, 2> m_ZSWthreshold;
 		size_t m_buffer;
+		size_t m_bufferEx;
 
 		bool m_bDebug;
 		bool m_bOutputDT;
@@ -114,7 +115,7 @@ namespace WBSF
 		//size_t m_maxScene;
 		std::array<size_t, 2> m_scenes;
 		size_t m_doubleTrigger;
-		
+		bool m_bSuspectAsCloud;
 		//bool m_bNoTrigger;
 
 		__int64 m_nbPixelDT;
