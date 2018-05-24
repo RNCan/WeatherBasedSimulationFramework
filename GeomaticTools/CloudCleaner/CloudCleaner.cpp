@@ -269,8 +269,7 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 	ERMsg msg;
 
 	TreeType treetype = GetTreeType(filePath);
-
-	//forests.reserve(m_options.m_CPU);
+	
 	try
 	{
 		forest.reset(CreateForest(treetype));
