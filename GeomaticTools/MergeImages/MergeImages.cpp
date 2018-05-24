@@ -111,14 +111,15 @@ namespace WBSF
 
 	CMergeImagesOption::CMergeImagesOption()
 	{
-		m_mergeType = BEST_PIXEL;
+		m_mergeType = MEDIAN_TCB;
 		m_medianType = BEST_PIXEL;
 		m_bDebug = false;
 		m_bExportStats = false;
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
 		m_meanType = NO_MEAN;
-		m_meanMax = 100000;
+		m_meanMax = 600;
+		m_meanIdeal = 2500;
 		m_corr8 = NO_CORR8;
 
 
@@ -129,10 +130,10 @@ namespace WBSF
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. Best by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. MEDIAN_TCB by default." },
 			{ "-MedianType", 1, "type", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and one neighbor select by MedianType when odd." },
-			{ "-MeanMax", 1, "max", false, "Maximum difference between 2 pixels to compute avrege. When difference is heigher than MeanMax, only the lower value is taken. Infinite by default." },
+			{ "-MeanMax", 2, "max ideal", false, "Maximum difference between 2 pixels to compute average. When difference is heigher than MeanMax, only the nearest value of the ideal value is taken. For MEDIAN_TCB, it's 600 2500 by default." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
@@ -208,6 +209,7 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-MeanMax"))
 		{
 			m_meanMax = atof(argv[++i]);
+			m_meanIdeal = atof(argv[++i]);
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
@@ -674,8 +676,8 @@ namespace WBSF
 										}
 										else
 										{
-											//use 2000 as best pixel (no cloud and no dark)
-											if (fabs(2500 - min(short(5000), it2->first)) < fabs(2500 - min(short(5000), it->first)))
+											
+											if (abs(m_options.m_meanIdeal - min(2* m_options.m_meanIdeal, int(it2->first))) < abs(m_options.m_meanIdeal - min(2* m_options.m_meanIdeal, int(it->first))))
 											{
 												size_t iz2 = it2->second;
 												window.GetPixel(iz2, x, y, pixel);
@@ -724,7 +726,7 @@ namespace WBSF
 									else
 									{
 										//use 2000 as best pixel (no cloud and no dark)
-										if (fabs(2500 - min(short(5000), it2->first) ) < fabs(2500 - min(short(5000), it->first)))
+										if (abs(m_options.m_meanIdeal - min(2 * m_options.m_meanIdeal, int(it2->first))) < abs(m_options.m_meanIdeal - min(2 * m_options.m_meanIdeal, int(it->first))))
 										{
 											size_t iz2 = it2->second;
 											window.GetPixel(iz2, x, y, pixel);

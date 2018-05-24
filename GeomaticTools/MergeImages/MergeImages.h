@@ -49,7 +49,8 @@ namespace WBSF
 		bool m_bDebug;
 		bool m_bExportStats;
 		TMean m_meanType;
-		double m_meanMax;
+		__int16 m_meanMax;
+		__int16 m_meanIdeal;
 
 		void InitFileInfo(CLandsatDataset& inputDS);
 		std::vector<CLandsatFileInfo> m_info;
