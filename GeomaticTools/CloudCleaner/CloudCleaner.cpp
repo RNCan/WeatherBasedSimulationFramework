@@ -271,15 +271,22 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 	TreeType treetype = GetTreeType(filePath);
 
 	//forests.reserve(m_options.m_CPU);
-	forest.reset(CreateForest(treetype));
-	forest->init_predict(0, CPU, false, DEFAULT_PREDICTIONTYPE);
-	forest->loadFromFile(filePath);
-	cout << "Forest name:                       " << GetFileTitle(GetFileTitle(filePath)) << std::endl;
-	cout << "Forest type:                       " << GetTreeTypeStr(treetype) << std::endl;
-	cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
-	cout << "Dependent variable column:         " << forest->getDependentVarId() + 1 << std::endl;
-	cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
-	cout << std::endl;
+	try
+	{
+		forest.reset(CreateForest(treetype));
+		forest->init_predict(0, CPU, false, DEFAULT_PREDICTIONTYPE);
+		forest->loadFromFile(filePath);
+		cout << "Forest name:                       " << GetFileTitle(GetFileTitle(filePath)) << std::endl;
+		cout << "Forest type:                       " << GetTreeTypeStr(treetype) << std::endl;
+		cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
+		cout << "Dependent variable column:         " << forest->getDependentVarId() + 1 << std::endl;
+		cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
+		cout << std::endl;
+	}
+	catch (std::exception e)
+	{
+		msg.ajoute(e.what());
+	}
 
 	return msg;
 }

@@ -46,7 +46,6 @@ namespace WBSF
 
 	CMedianImageOption::CMedianImageOption()
 	{
-
 		m_scenesSize = SCENES_SIZE;
 		m_bDebug = false;
 		m_corr8 = NO_CORR8;
@@ -59,7 +58,7 @@ namespace WBSF
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-Mean", 1, "type", false, "Mean of median pixel. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and the neighbor select by QA when odd." },
+			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\" or \"always2\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"no\" by default." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for all bands (B1..B7). Take individual median by band by default." },
 			
@@ -115,12 +114,14 @@ namespace WBSF
 		if (IsEqual(argv[i], "-Mean"))
 		{
 			string str = argv[++i];
-			if (IsEqual(str, MEAN_NAME[M_STANDARD]))
+			if (IsEqual(str, MEAN_NAME[NO_MEAN]))
+				m_meanType = NO_MEAN;
+			else if (IsEqual(str, MEAN_NAME[M_STANDARD]))
 				m_meanType = M_STANDARD;
 			else if (IsEqual(str, MEAN_NAME[M_ALWAYS2]))
 				m_meanType = M_ALWAYS2;
 			else
-				msg.ajoute("Invalid -Mean type. Mean type can be \"standard\" or \"always2\"");
+				msg.ajoute("Invalid -Mean type. Mean type can be \"no\", \"standard\" or \"always2\"");
 		}
 		else if (IsEqual(argv[i], "-BestMedian"))
 		{

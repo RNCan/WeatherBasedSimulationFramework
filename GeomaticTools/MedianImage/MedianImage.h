@@ -18,7 +18,7 @@ namespace WBSF
 		
 		enum TFilePath		{ INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 		enum TDebugBands	{ D_JDAY, NB_IMAGES, NB_DEBUG_BANDS };
-		enum TMean { NO_MEAN=-1, M_STANDARD, M_ALWAYS2, NB_MEAN_TYPE };
+		enum TMean { NO_MEAN, M_STANDARD, M_ALWAYS2, NB_MEAN_TYPE };
 		static const char*  MEAN_NAME[NB_MEAN_TYPE];
 		
 
