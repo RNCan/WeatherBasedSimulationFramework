@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version
-// 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
+// 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, add bestMedian
 // 1.1.1	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 1.1.0	15/11/2017	Rémi Saint-Amant	Compile with GDAL 2.0
 // 1.0.2	30/01/2015	Rémi Saint-Amant	don't modify input VRT file. Bug correction in IntersectRect
@@ -34,7 +34,7 @@ namespace WBSF
 
 
 	const char* CMedianImage::VERSION = "1.1.2";
-	std::string CMedianImage::GetDescription(){ return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
+	std::string CMedianImage::GetDescription() { return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CMedianImage::NB_THREAD_PROCESS = 2;
 
 
@@ -50,7 +50,8 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_bDebug = false;
 		m_corr8 = NO_CORR8;
-		
+		m_bBestMedian = false;
+
 		m_meanType = NO_MEAN;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
 
@@ -60,6 +61,8 @@ namespace WBSF
 		{
 			{ "-Mean", 1, "type", false, "Mean of median pixel. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and the neighbor select by QA when odd." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
+			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for all bands (B1..B7). Take individual median by band by default." },
+			
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -119,6 +122,11 @@ namespace WBSF
 			else
 				msg.ajoute("Invalid -Mean type. Mean type can be \"standard\" or \"always2\"");
 		}
+		else if (IsEqual(argv[i], "-BestMedian"))
+		{
+			m_bBestMedian = true;
+		}
+		
 		/*else if (IsEqual(argv[i], "-TCB"))
 		{
 		m_bFilterTCB = true;
@@ -129,7 +137,7 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-corr8"))
 		{
 			m_corr8 = Landsat::GetCorr8(argv[++i]);
-			if (m_corr8==NO_CORR8)
+			if (m_corr8 == NO_CORR8)
 				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
 		else
@@ -329,14 +337,14 @@ namespace WBSF
 	void CMedianImage::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerRead.Start();
+		{
+			m_options.m_timerRead.Start();
 
-		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-		bandHolder.LoadBlock(extents, m_options.m_period);
+			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
+			bandHolder.LoadBlock(extents, m_options.m_period);
 
-		m_options.m_timerRead.Stop();
-	}
+			m_options.m_timerRead.Stop();
+		}
 	}
 
 	void CMedianImage::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData, DebugData& debugData)
@@ -347,16 +355,16 @@ namespace WBSF
 		if (bandHolder.IsEmpty())
 		{
 #pragma omp critical(ProcessBlock)
-		{
-			int nbCells = blockSize.m_x*blockSize.m_y;
+			{
+				int nbCells = blockSize.m_x*blockSize.m_y;
 
 #pragma omp atomic
-			m_options.m_xx += nbCells;
+				m_options.m_xx += nbCells;
 
-			m_options.UpdateBar();
-		}
+				m_options.UpdateBar();
+			}
 
-		return;
+			return;
 		}
 
 		//		vector<CDataWindowPtr> input;
@@ -371,7 +379,7 @@ namespace WBSF
 		if (m_options.m_bDebug)
 		{
 			__int16 dstNodata = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
-			
+
 			debugData.resize(CMedianImageOption::NB_DEBUG_BANDS);
 			for (size_t z = 0; z < debugData.size(); z++)
 				debugData[z].resize(blockSize.m_x*blockSize.m_y, dstNodata);
@@ -459,11 +467,17 @@ namespace WBSF
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
-					size_t xy = y*blockSize.m_x + x;
+					size_t xy = y * blockSize.m_x + x;
 
 					array<vector<pair<__int16, __int16>>, SCENES_SIZE> median;
+					array<vector<pair<__int16, __int16>>, SCENES_SIZE> median2;
+
 					for (size_t z = 0; z < median.size(); z++)
+					{
 						median[z].reserve(window.GetNbScenes());
+						median2[z].reserve(window.GetNbScenes());
+					}
+
 
 					for (size_t iz = 0; iz < window.GetNbScenes(); iz++)
 					{
@@ -472,39 +486,75 @@ namespace WBSF
 						if (pixel.IsValid() && !pixel.IsBlack())
 						{
 							for (size_t z = 0; z < pixel.size(); z++)
+							{
 								median[z].push_back(make_pair(pixel[z], pixel[QA]));
+								median2[z].push_back(make_pair(pixel[z], __int16(iz)));
+							}
 						}
 
 					}//iz
 
-					if (!median[0].empty() )
+					if (!median[0].empty())
 					{
 						for (size_t z = 0; z < median.size(); z++)
+						{
 							sort(median[z].begin(), median[z].end());
+							sort(median2[z].begin(), median2[z].end());
+						}
 
-							//partial_sort(median[z].begin(), median[z].end(), median[z].begin() + (median[z].size() + 1) / 2);
-						//find input temporal index
+						//partial_sort(median[z].begin(), median[z].end(), median[z].begin() + (median[z].size() + 1) / 2);
+					//find input temporal index
 						if (!outputData.empty())
 						{
-							for (size_t z = 0; z < median.size(); z++)
+							size_t iz1 = NOT_INIT;
+							size_t iz2 = NOT_INIT;
+							if (m_options.m_bBestMedian)
 							{
-								size_t N1 = (median[z].size() + 1) / 2 - 1;
-								size_t N2 = median[z].size() / 2 + 1 - 1;
-								size_t N = median[z][N1].second < median[z][N2].second ? N1 : N2;
-								ASSERT(N2 == N1 || N2 == N1 + 1);
+								vector<pair<size_t, size_t>> scenesScore(window.GetNbScenes());
+								for (size_t s = 0; s < scenesScore.size(); s++)
+									scenesScore[s] = make_pair(0, s);
 
-								if ((m_options.m_meanType == CMedianImageOption::NO_MEAN) || median[z].size()==1)
+								for (size_t z = 0; z <QA; z++)
 								{
-									outputData[z][xy] = median[z][N].first;
+									size_t N = (median2[z].size() + 1) / 2;
+									for (size_t l = 0; l < median2[z].size(); l++)
+									{
+										int score = int(N - (abs((int)N - (int)l)));
+										scenesScore[median2[z][l].second].first += score;
+									}
 								}
-								else if (m_options.m_meanType == CMedianImageOption::M_STANDARD)
+
+
+
+								std::sort(scenesScore.begin(), scenesScore.end());
+								size_t iz = scenesScore.rbegin()->second;
+
+								CLandsatPixel pixel = window.GetPixel(iz, x, y);
+								for (size_t z = 0; z < pixel.size(); z++)
+									outputData[z][xy] = pixel[z];
+							}
+							else
+							{
+								for (size_t z = 0; z < median.size(); z++)
 								{
-									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N2].first) / 2.0);
-								}
-								else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2)
-								{
-									size_t N3 = N2 != N1 ? N2 : median[z][N1-1].second < median[z][N1+1].second ? N1-1 : N1+1;
-									outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N3].first) / 2.0);
+									size_t N1 = (median[z].size() + 1) / 2 - 1;
+									size_t N2 = median[z].size() / 2 + 1 - 1;
+									size_t N = median[z][N1].second < median[z][N2].second ? N1 : N2;
+									ASSERT(N2 == N1 || N2 == N1 + 1);
+
+									if ((m_options.m_meanType == CMedianImageOption::NO_MEAN) || median[z].size() == 1)
+									{
+										outputData[z][xy] = median[z][N].first;
+									}
+									else if (m_options.m_meanType == CMedianImageOption::M_STANDARD)
+									{
+										outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N2].first) / 2.0);
+									}
+									else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2)
+									{
+										size_t N3 = N2 != N1 ? N2 : median[z][N1 - 1].second < median[z][N1 + 1].second ? N1 - 1 : N1 + 1;
+										outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N3].first) / 2.0);
+									}
 								}
 							}
 						}
@@ -553,58 +603,58 @@ namespace WBSF
 	void CMedianImage::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerWrite.Start();
-
-
-		CGeoExtents extents = bandHolder.GetExtents();
-		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
-
-
-		if (outputDS.IsOpen())
 		{
-			ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
-			ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
-			ASSERT(outputData.empty() || outputData.size() == outputDS.GetRasterCount());
+			m_options.m_timerWrite.Start();
 
-			for (size_t z = 0; z < outputDS.GetRasterCount(); z++)
+
+			CGeoExtents extents = bandHolder.GetExtents();
+			CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+
+
+			if (outputDS.IsOpen())
 			{
-				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
-				if (!outputData.empty())
+				ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
+				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
+				ASSERT(outputData.empty() || outputData.size() == outputDS.GetRasterCount());
+
+				for (size_t z = 0; z < outputDS.GetRasterCount(); z++)
 				{
-					//for (int y = 0; y < (int)outputData[z].size(); y++)
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-				}
-				else
-				{
-					OutputDataType noData = (OutputDataType)outputDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+					GDALRasterBand *pBand = outputDS.GetRasterBand(z);
+					if (!outputData.empty())
+					{
+						//for (int y = 0; y < (int)outputData[z].size(); y++)
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+					}
+					else
+					{
+						OutputDataType noData = (OutputDataType)outputDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+					}
 				}
 			}
-		}
 
-		if (debugDS.IsOpen())
-		{
-			for (size_t z = 0; z < CMedianImageOption::NB_DEBUG_BANDS; z++)
+			if (debugDS.IsOpen())
 			{
-				GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMedianImageOption::NB_DEBUG_BANDS + 
-				if (!debugData.empty())
+				for (size_t z = 0; z < CMedianImageOption::NB_DEBUG_BANDS; z++)
 				{
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debugData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-				}
-				else
-				{
-					__int16 noData = (__int16)debugDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+					GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMedianImageOption::NB_DEBUG_BANDS + 
+					if (!debugData.empty())
+					{
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debugData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+					}
+					else
+					{
+						__int16 noData = (__int16)debugDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+					}
 				}
 			}
+
+
+			m_options.m_timerWrite.Stop();
 		}
-
-
-		m_options.m_timerWrite.Stop();
-	}
 	}
 
 	void CMedianImage::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)

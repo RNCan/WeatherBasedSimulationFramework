@@ -18,7 +18,7 @@ namespace WBSF
 		//D_YEAR, D_MONTH, D_DAY, 
 
 		enum TStat			{ S_LOWEST, S_MEAN, S_MEDIAN, S_STD_DEV, S_HIGHEST, NB_STATS };
-		enum TMerge			{ UNKNOWN = -1, OLDEST, NEWEST, AUGUST1, MAX_NDVI, BEST_PIXEL, SECOND_BEST, MEDIAN_NDVI, MEDIAN_NBR, MEDIAN_NDMI, MEDIAN_JD, MEDIAN_TCB, MEDIAN_QA, NB_MERGE_TYPE };
+		enum TMerge			{ UNKNOWN = -1, OLDEST, NEWEST, AUGUST1, MAX_NDVI, BEST_PIXEL, SECOND_BEST, MEDIAN_NDVI, MEDIAN_NBR, MEDIAN_NDMI, MEDIAN_JD, MEDIAN_TCB, MEDIAN_QA, MEDIAN_B1, MEDIAN_SZW, NB_MERGE_TYPE };
 		enum TMean { NO_MEAN = -1, M_STANDARD, M_ALWAYS2, NB_MEAN_TYPE };
 		static const char*  MEAN_NAME[NB_MEAN_TYPE];
 
@@ -49,6 +49,7 @@ namespace WBSF
 		bool m_bDebug;
 		bool m_bExportStats;
 		TMean m_meanType;
+		double m_meanMax;
 
 		void InitFileInfo(CLandsatDataset& inputDS);
 		std::vector<CLandsatFileInfo> m_info;
@@ -70,8 +71,8 @@ namespace WBSF
 		std::string GetDescription() { return  std::string("MergeImages version ") + VERSION + " (" + __DATE__ + ")"; }
 		void InitMemory(size_t sceneSize, CGeoSize blockSize, OutputData& outputData, DebugData& debugData, StatData& statsData);
 
-		ERMsg OpenInput(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS);
-		ERMsg OpenOutput(CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
+		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
+		//ERMsg OpenOutput(CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 		std::string GetBandFileTitle(const std::string& filePath, size_t b);
 
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);

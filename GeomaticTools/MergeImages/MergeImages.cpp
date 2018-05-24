@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
+// 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, ajout de MeanMax
 // 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
 // 3.0.0	31/10/2017	Rémi Saint-Amant	Compile with GDAL 2.0 and. Remove all cloud remover
@@ -49,6 +49,8 @@
 
 //-corr8 Canada -RGB Natural -of VRT -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -stats -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\2017\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
 //-corr8 Canada -te 1644300 6506700 1645200 6507600 -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -IOCPU 2 -overwrite "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\input\2017\_578_2017.vrt" "U:\GIS\#documents\TestCodes\MergeImages\TestLandsat8\output\test_2017(new).vrt"
+//-RGB Natural -of VRT -co "compress=LZW" -overview {2,4,8,16} -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" --config GDAL_CACHEMAX 4096 -overwrite "D:\Travaux\MergeImage\input\_578_2017.vrt" "D:\Travaux\MergeImage\output\test_2017.vrt"
+
 //-te 1674600	6496500	1677300	6498600
 //-te 1743000 6546000 1767000 6570000
 //-te 1707000 6624000 1731000 6648000
@@ -116,7 +118,10 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
 		m_meanType = NO_MEAN;
+		m_meanMax = 100000;
 		m_corr8 = NO_CORR8;
+
+
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
@@ -124,11 +129,10 @@ namespace WBSF
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			//{ "-TT", 1, "t", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. ByYear by default." },
 			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. Best by default." },
-			{ "-MedianType", 1, "t", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
-			//			{ "-TCB", 2, "lo hi", false, "filter Tassel Cap Brightness (TCB) to select pixel between lo and hi. 500 and 7000 by default." },
+			{ "-MedianType", 1, "type", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"standard\" or \"always2\". In standard type, the mean of 2 median values is used when even. In always2, the mean of 2 median pixel when even and the mean of the median and one neighbor select by MedianType when odd." },
+			{ "-MeanMax", 1, "max", false, "Maximum difference between 2 pixels to compute avrege. When difference is heigher than MeanMax, only the lower value is taken. Infinite by default." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
@@ -201,6 +205,10 @@ namespace WBSF
 			else
 				msg.ajoute("Invalid -Mean type. Mean type can be \"standard\" or \"always2\"");
 		}
+		else if (IsEqual(argv[i], "-MeanMax"))
+		{
+			m_meanMax = atof(argv[++i]);
+		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
 			m_corr8 = Landsat::GetCorr8(argv[++i]);
@@ -260,7 +268,7 @@ namespace WBSF
 			cout << "Output: " << m_options.m_filesPath[CMergeImagesOption::OUTPUT_FILE_PATH] << endl;
 			cout << "From:   " << m_options.m_filesPath[CMergeImagesOption::INPUT_FILE_PATH] << endl;
 			cout << "Type:   " << CMergeImagesOption::MERGE_TYPE_NAME[m_options.m_mergeType] << endl;
-			if (m_options.m_mergeType>CMergeImagesOption::SECOND_BEST)
+			if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST)
 				cout << "MedianType:   " << CMergeImagesOption::MERGE_TYPE_NAME[m_options.m_medianType] << endl;
 
 			if (!m_options.m_maskName.empty())
@@ -274,15 +282,10 @@ namespace WBSF
 		CLandsatDataset outputDS;
 		CGDALDatasetEx debugDS;
 		CGDALDatasetEx statsDS;
-
-
-		msg = OpenInput(inputDS, maskDS);
-
-		if (msg)
-			msg = OpenOutput(outputDS, debugDS, statsDS);
-
-
 		CBandsHolderMT bandsHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+
+
+		msg = OpenAll(inputDS, maskDS, outputDS, debugDS, statsDS);
 
 		if (msg)
 			msg = bandsHolder.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
@@ -290,10 +293,8 @@ namespace WBSF
 		if (msg && maskDS.IsOpen())
 			bandsHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
 
-
 		if (!msg)
 			return msg;
-
 
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 		{
@@ -398,7 +399,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CMergeImages::OpenInput(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS)
+	ERMsg CMergeImages::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
 	{
 		ERMsg msg;
 
@@ -445,14 +446,8 @@ namespace WBSF
 		}
 
 
-
-		return msg;
-	}
-
-	ERMsg CMergeImages::OpenOutput(CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
-	{
-
-		ERMsg  msg;
+		if (!msg)
+			return msg;
 
 		if (m_options.m_bCreateImage)
 		{
@@ -487,12 +482,12 @@ namespace WBSF
 			options.m_nbBands = CMergeImagesOption::NB_DEBUG_BANDS;
 			options.m_dstNodata = WBSF::GetDefaultNoData(GDT_Int16);
 
-
 			string filePath = options.m_filesPath[CMergeImagesOption::OUTPUT_FILE_PATH];
 			SetFileTitle(filePath, GetFileTitle(filePath) + "_debug");
 
 			for (size_t b = 0; b < CMergeImagesOption::NB_DEBUG_BANDS; b++)
 				options.m_VRTBandsName += GetBandFileTitle(filePath, -1) + "_" + CMergeImagesOption::DEBUG_NAME[b] + ".tif|";
+
 
 			msg += debugDS.CreateImage(filePath, options);
 		}
@@ -528,14 +523,14 @@ namespace WBSF
 	void CMergeImages::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerRead.Start();
+		{
+			m_options.m_timerRead.Start();
 
-		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-		bandHolder.LoadBlock(extents, m_options.m_period);
+			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
+			bandHolder.LoadBlock(extents, m_options.m_period);
 
-		m_options.m_timerRead.Stop();
-	}
+			m_options.m_timerRead.Stop();
+		}
 	}
 
 	void CMergeImages::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData, DebugData& debugData, StatData& statsData, CGDALDatasetEx& inputDS)
@@ -570,10 +565,11 @@ namespace WBSF
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
-					Test1Vector imageList1;
-					Test1Vector imageList2;
-					imageList1.reserve(window.GetNbScenes());
-					imageList2.reserve(window.GetNbScenes());
+					array<Test1Vector, CMergeImagesOption::NB_MERGE_TYPE> imageList;
+					//Test1Vector imageList2;
+					for (size_t i = 0; i < imageList.size(); i++)
+						imageList[i].reserve(window.GetNbScenes());
+					//imageList2.reserve(window.GetNbScenes());
 
 					vector<CStatisticEx> stats;
 
@@ -586,8 +582,14 @@ namespace WBSF
 							__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
 							__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
 
-							imageList1.push_back(make_pair(criterion1, s));
-							imageList2.push_back(make_pair(criterion2, s));
+							imageList[m_options.m_mergeType].push_back(make_pair(criterion1, s));
+							imageList[m_options.m_medianType].push_back(make_pair(criterion2, s));
+							//for (size_t i = 0; i < CMergeImagesOption::NB_MERGE_TYPE; i++)
+							//{
+							//	__int16 criterion = GetCriterion(pixel, i);//m_options.m_mergeType
+							//	imageList[i].push_back(make_pair(criterion, s));
+							//}
+
 						}
 
 						if (m_options.m_bExportStats)
@@ -601,14 +603,21 @@ namespace WBSF
 						}//if export
 
 					}//iz
-					
-					
+
+
 					//find selected image index
+					Test1Vector& imageList1 = imageList[m_options.m_mergeType];
+					Test1Vector& imageList2 = imageList[m_options.m_medianType];
+
 					if (!imageList1.empty())
 					{
+						//for (size_t i = 0; i < imageList.size(); i++)
+							//std::sort(imageList[i].begin(), imageList[i].end());
 						std::sort(imageList1.begin(), imageList1.end());
+						
 						Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType);
 						ASSERT(it != imageList1.end());
+
 
 						size_t iz = it->second;
 						if (m_options.m_bCreateImage)
@@ -621,7 +630,7 @@ namespace WBSF
 							{
 								if ((m_options.m_meanType == CMergeImagesOption::NO_MEAN))
 								{
-
+									//cout << "no mean" << endl;
 									if (imageList1.size() % 2 == 0)
 									{
 										Test1Vector imageList3;
@@ -638,6 +647,7 @@ namespace WBSF
 								}
 								else if (m_options.m_meanType == CMergeImagesOption::M_STANDARD)
 								{
+									//cout << "standard" << endl;
 									if (imageList1.size() % 2 == 0)
 									{
 										CLandsatPixel pixel2;
@@ -649,40 +659,115 @@ namespace WBSF
 										imageList3.push_back(*it3);
 										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
 
+										//size_t iz2 = it2->second;
+										//window.GetPixel(iz2, x, y, pixel2);
+
+										//for (size_t z = 0; z < SCENES_SIZE; z++)
+											//pixel[z] = (pixel[z] + pixel2[z]) / 2;
+										if (fabs(it->first - it2->first) < m_options.m_meanMax)
+										{
+											size_t iz2 = it2->second;
+											window.GetPixel(iz2, x, y, pixel2);
+
+											for (size_t z = 0; z < SCENES_SIZE; z++)
+												pixel[z] = (pixel[z] + pixel2[z]) / 2;
+										}
+										else
+										{
+											//use 2000 as best pixel (no cloud and no dark)
+											if (fabs(2500 - min(short(5000), it2->first)) < fabs(2500 - min(short(5000), it->first)))
+											{
+												size_t iz2 = it2->second;
+												window.GetPixel(iz2, x, y, pixel);
+											}
+										}
+									}
+								}
+								else if (m_options.m_meanType == CMergeImagesOption::M_ALWAYS2)
+								{
+									//cout << "always2" << endl;
+									Test1Vector imageList3;
+									Test1Vector::const_iterator it2;
+									CLandsatPixel pixel2;
+									if (imageList1.size() % 2 == 0)
+									{
+										it2 = (it + 1);
+										ASSERT(it2 != imageList1.end());
+										//size_t iz2 = (it + 1)->second;
+										//window.GetPixel(iz2, x, y, pixel2);
+									}
+									else
+									{
+
+										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
+										imageList3.push_back(*it3);
+										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+										imageList3.push_back(*it3);
+										//Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+										it2 = get_it(imageList3, m_options.m_medianType);
+										ASSERT(it2 != imageList3.end());
+
+
+
+										//size_t iz2 = it2->second;
+										//window.GetPixel(iz2, x, y, pixel2);
+									}
+
+									if (fabs(it->first - it2->first) < m_options.m_meanMax)
+									{
 										size_t iz2 = it2->second;
 										window.GetPixel(iz2, x, y, pixel2);
 
 										for (size_t z = 0; z < SCENES_SIZE; z++)
 											pixel[z] = (pixel[z] + pixel2[z]) / 2;
 									}
-								}
-								else if (m_options.m_meanType == CMergeImagesOption::M_ALWAYS2)
-								{
-									CLandsatPixel pixel2;
-									if (imageList1.size() % 2 == 0)
-									{
-										size_t iz2 = (it + 1)->second;
-										window.GetPixel(iz2, x, y, pixel2);
-									}
 									else
 									{
-										Test1Vector imageList3;
-										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
-										imageList3.push_back(*it3);
-										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
-										imageList3.push_back(*it3);
-										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
-
-										size_t iz2 = it2->second;
-										window.GetPixel(iz2, x, y, pixel2);
+										//use 2000 as best pixel (no cloud and no dark)
+										if (fabs(2500 - min(short(5000), it2->first) ) < fabs(2500 - min(short(5000), it->first)))
+										{
+											size_t iz2 = it2->second;
+											window.GetPixel(iz2, x, y, pixel);
+										}
 									}
-
-
-									for (size_t z = 0; z < SCENES_SIZE; z++)
-										pixel[z] = (pixel[z] + pixel2[z]) / 2;
 								}
-
 							}
+
+
+
+							//static const size_t test[2] = { CMergeImagesOption::BEST_PIXEL, CMergeImagesOption::MEDIAN_TCB};
+
+
+							//vector<pair<size_t, size_t>> scenesScore(window.GetNbScenes());
+							//for (size_t s = 0; s < window.GetNbScenes(); s++)
+							//	scenesScore[s] = make_pair(0, s);
+
+							//for (size_t k = 0; k < 3; k++)
+							//{
+							//	if (!imageList[test[k]].empty())
+							//	{
+							//		size_t N = (imageList[test[k]].size() + 1) / 2;
+
+							//		std::sort(imageList[test[k]].begin(), imageList[test[k]].end());
+							//		Test1Vector::const_iterator it = get_it(imageList[test[k]], test[k]);
+							//		for (size_t l = 0; l < imageList[test[k]].size(); l++)
+							//		{
+							//			int testN = (N - (abs((int)N - (int)l))) * 2;
+							//			if (test[k] == CMergeImagesOption::BEST_PIXEL)
+							//				scenesScore[imageList[test[k]][l].second].first += (l + 1);
+							//			else
+							//				scenesScore[imageList[test[k]][l].second].first += (N - (abs((int)N - (int)l))) * 2 + 1;
+							//		}
+							//	}
+							//}
+
+
+							//std::sort(scenesScore.begin(), scenesScore.end());
+
+							//CLandsatPixel pixel;
+							//if (scenesScore.rbegin()->first > 0)
+							//	window.GetPixel(scenesScore.rbegin()->second, x, y, pixel);
+
 
 
 							for (size_t z = 0; z < SCENES_SIZE; z++)
@@ -710,7 +795,7 @@ namespace WBSF
 						{
 							for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
 								for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
-									if (stats[z][NB_VALUE]>0)
+									if (stats[z][NB_VALUE] > 0)
 										statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16, 1);
 						}//if export stats
 					}//if image list no empty
@@ -731,87 +816,87 @@ namespace WBSF
 	void CMergeImages::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerWrite.Start();
-
-		CGeoExtents extents = outputDS.GetExtents();
-		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
-		CTPeriod period = m_options.GetTTPeriod();
-		int nbSegment = period.GetNbRef();
-
-
-		if (outputDS.IsOpen())
 		{
-			ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
-			ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
+			m_options.m_timerWrite.Start();
 
-			for (size_t z = 0; z < SCENES_SIZE; z++)
+			CGeoExtents extents = outputDS.GetExtents();
+			CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+			CTPeriod period = m_options.GetTTPeriod();
+			int nbSegment = period.GetNbRef();
+
+
+			if (outputDS.IsOpen())
 			{
-				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
-				if (!outputData.empty())
-				{
-					ASSERT(outputData.size() == SCENES_SIZE);
+				ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
+				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
 
-					for (int y = 0; y < outputRect.Height(); y++)
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(outputData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
-				}
-				else
+				for (size_t z = 0; z < SCENES_SIZE; z++)
 				{
-					__int16 noData = (__int16)outputDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+					GDALRasterBand *pBand = outputDS.GetRasterBand(z);
+					if (!outputData.empty())
+					{
+						ASSERT(outputData.size() == SCENES_SIZE);
+
+						for (int y = 0; y < outputRect.Height(); y++)
+							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(outputData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
+					}
+					else
+					{
+						__int16 noData = (__int16)outputDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+					}
 				}
 			}
-		}
 
 
-		if (debugDS.IsOpen())
-		{
-			for (size_t z = 0; z < CMergeImagesOption::NB_DEBUG_BANDS; z++)
+			if (debugDS.IsOpen())
 			{
-				GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMergeImagesOption::NB_DEBUG_BANDS + 
-				if (!debugData.empty())
+				for (size_t z = 0; z < CMergeImagesOption::NB_DEBUG_BANDS; z++)
 				{
-					for (int y = 0; y < outputRect.Height(); y++)
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
-				}
-				else
-				{
-					__int16 noData = (__int16)debugDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+					GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMergeImagesOption::NB_DEBUG_BANDS + 
+					if (!debugData.empty())
+					{
+						for (int y = 0; y < outputRect.Height(); y++)
+							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y + y, outputRect.Width(), 1, &(debugData[z][y][0]), outputRect.Width(), 1, GDT_Int16, 0, 0);
+					}
+					else
+					{
+						__int16 noData = (__int16)debugDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+					}
 				}
 			}
-		}
 
-		if (statsDS.IsOpen())
-		{
-			for (size_t z = 0; z < NB_TOTAL_STATS; z++)
+			if (statsDS.IsOpen())
 			{
-				GDALRasterBand *pBand = statsDS.GetRasterBand(z);
-				if (!statsData.empty())
+				for (size_t z = 0; z < NB_TOTAL_STATS; z++)
 				{
-					vector<__int16> tmp;
-					tmp.reserve(outputRect.Width()*outputRect.Height());
+					GDALRasterBand *pBand = statsDS.GetRasterBand(z);
+					if (!statsData.empty())
+					{
+						vector<__int16> tmp;
+						tmp.reserve(outputRect.Width()*outputRect.Height());
 
-					//for (int y = 0; y < outputRect.Height(); y++)
-					//tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
+						//for (int y = 0; y < outputRect.Height(); y++)
+						//tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
 
-					for (int y = 0; y < statsData[z].size(); y++)
-						tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].end());
+						for (int y = 0; y < statsData[z].size(); y++)
+							tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].end());
 
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(tmp[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-				}
-				else
-				{
-					__int16 noData = (__int16)statsDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
-				}
-			}//for all bands in a scene
-		}//stats
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(tmp[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+					}
+					else
+					{
+						__int16 noData = (__int16)statsDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+					}
+				}//for all bands in a scene
+			}//stats
 
-		m_options.m_timerWrite.Stop();
-	}
+			m_options.m_timerWrite.Stop();
+		}
 	}
 
 	void CMergeImages::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS)
@@ -887,6 +972,14 @@ namespace WBSF
 		else if (type == CMergeImagesOption::MEDIAN_TCB)
 		{
 			criterion = (__int16)WBSF::LimitToBound(pixel.TCB(), GDT_Int16, 1);
+		}
+		else if (type == CMergeImagesOption::MEDIAN_B1)
+		{
+			criterion = (__int16)WBSF::LimitToBound(pixel[B1], GDT_Int16, 1);
+		}
+		else if (type == CMergeImagesOption::MEDIAN_SZW)
+		{
+			criterion = (__int16)WBSF::LimitToBound(pixel[I_ZSW], GDT_Int16, 1);
 		}
 
 
