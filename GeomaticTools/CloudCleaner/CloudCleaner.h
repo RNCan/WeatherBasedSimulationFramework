@@ -63,6 +63,20 @@ namespace WBSF
 
 			return (t1&&t2);
 		}
+		
+		bool DoubleCloud(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
+		{
+			size_t c0 = (fm == 0) ? 1 : 0;
+			size_t c2 = (fm == 2) ? 1 : 2;
+			
+			if (!p[c0].IsInit() && !p[c2].IsInit())
+				return false;
+
+			bool t1 = p[c0].IsInit() ? ((__int32)p[fm][Landsat::B1] - p[c0][Landsat::B1] < m_B1threshold[t]) : true;
+			bool t2 = p[c2].IsInit() ? ((__int32)p[fm][Landsat::B1] - p[c2][Landsat::B1] < m_B1threshold[t]) : true;
+
+			return t1 && t2;
+		}
 
 		bool IsTCBTrigged(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
@@ -70,6 +84,9 @@ namespace WBSF
 			size_t c2 = (fm == 2) ? 1 : 2;
 
 			if (!p[c0].IsInit() && !p[c2].IsInit())
+				return false;
+
+			if (DoubleCloud(p, t, fm))
 				return false;
 
 			bool t3 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
@@ -83,6 +100,9 @@ namespace WBSF
 			size_t c2 = (fm == 2) ? 1 : 2;
 
 			if (!p[c0].IsInit() && !p[c2].IsInit())
+				return false;
+
+			if (DoubleCloud(p, t, fm))
 				return false;
 
 			bool t5 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW] > m_ZSWthreshold[t]) : true;

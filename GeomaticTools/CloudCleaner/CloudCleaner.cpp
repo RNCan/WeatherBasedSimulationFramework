@@ -18,7 +18,7 @@
 //-te 1361820 6825390 1361970 6825540 
 
 //tes v2
-//-Scenes 6 10 -FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\Nuage_1999-2014.vrt" "D:\Travaux\CloudCleaner\Output\Nuage_1999-2014\NuageOut.vrt"
+//-FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\Nuage_1999-2014.vrt" "D:\Travaux\CloudCleaner\Output\Nuage_1999-2014\NuageOut.vrt"
 //-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\haze_et_ombre.vrt" "D:\Travaux\CloudCleaner\Output\haze_et_ombre\haze_et_ombre.vrt"
 //-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\puff_partout.vrt"
 
@@ -73,9 +73,9 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_scenesSize = Landsat::SCENES_SIZE;
 	m_bDebug = false;
 	m_bOutputDT = false;
-	m_B1threshold = { -175, -55 };
+	m_B1threshold = { -175, -60 };
 	m_TCBthreshold = { 600, 200 };
-	m_ZSWthreshold = { 500, 150 };
+	m_ZSWthreshold = { 500, 160 };
 	m_bFillCloud = false;
 	m_doubleTrigger = 5;
 	m_bSuspectAsCloud = false;
@@ -95,7 +95,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		//{ "-B1", 1, "threshold", false, "trigger threshold for band 1 to set pixel as suspect and execute random forest. -175 by default." },
 		//{ "-TCB", 1, "threshold", false, "trigger threshold for Tassel Cap Brightness (TCB) to set pixel as suspect and execute random forest. 600 by default." },
 		//{ "-ZSW", 1, "threshold", false, "trigger threshold for Z-Score Water (ZSW) to set pixel as suspect and execute random forest. 500 by default." },
-		{ "-Thres", 4, "type B1 TCB ZSW", false, "Set trigger threshold for B1, TCB and ZSW to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -175 600 500 for primary and -55 200 150 for secondary." },
+		{ "-Thres", 4, "type B1 TCB ZSW", false, "Set trigger threshold for B1, TCB and ZSW to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -175 600 500 for primary and -60 200 160 for secondary." },
 		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...)." },
 		//{ "-ForceFill", 0, "", false, "Force to find filled pixel when not available." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
