@@ -124,7 +124,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "LANDSAT Image", "src1file", "NbScenes", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)|... for each scene" },
 		{ "Output Image", "dstfile", "Nb scenes processed", "ScenesSize(9)", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|JD: Date(Julian day 1970)" },
 		{ "Optional Code Image", "dstfile_code","Nb scenes processed","1","random forest result"},
-		{ "Optional Debug Image", "dstfile_debug", "Nb scenes processed", "6", "Bit fields [ZSW(4)|TCB(2)|B1(1)]|Cloud trigged (B1)|Shadow trigged (TCB)|Haze trigged (Z-Score Water)|Nb scene|scene selected to fill cloud (relative to the filled scene)"}
+		{ "Optional Debug Image", "dstfile_debug", "Nb scenes processed", "6", "Bit fields [secondary(8)|ZSW(4)|TCB(2)|B1(1)]|Cloud trigged (B1)|Shadow trigged (TCB)|Haze trigged (Z-Score Water)|Nb scene|scene selected to fill cloud (relative to the filled scene)"}
 
 	};
 
@@ -1063,6 +1063,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 								}
 							}
 
+							ASSERT(c == 21);
 							cur_xy++;
 						}//if suspect
 					}//x
