@@ -60,53 +60,49 @@ Forest::~Forest() {
 }
 
 // #nocov start
-Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memory_mode,/* Data* data, */std::string input_file, uint mtry,
+Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memory_mode,std::string input_file, uint mtry,
 	uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
 	/*std::string load_forest_filename,*/ ImportanceMode importance_mode, uint min_node_size,
 	std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
 	std::string status_variable_name, bool sample_with_replacement, std::vector<std::string>& unordered_variable_names,
-	bool memory_saving_splitting, SplitRule splitrule, std::string case_weights_file,/* bool predict_all,*/
-	double sample_fraction, double alpha, double minprop, bool holdout, /*PredictionType prediction_type,*/
-	uint num_random_splits) {
+	bool memory_saving_splitting, SplitRule splitrule, std::string case_weights_file,
+	double sample_fraction, double alpha, double minprop, bool holdout, uint num_random_splits, std::string file_virtual_cols ) {
 
 	this->verbose_out = verbose_out;
+	
 
-
-
-	// Set prediction mode
-	// bool prediction_mode = false;
-	//  if (!load_forest_filename.empty()) 
-	//  {
-	//  //  prediction_mode = true;
-	//		init_predict(/*dependent_variable_name,*/ /*data,*/ /*mtry, num_trees, seed,*/ num_threads, /*importance_mode,*/
-	//		  /*min_node_size, *//*status_variable_name, *//*prediction_mode, sample_with_replacement, *//*unordered_variable_names,*/
-	//		  memory_saving_splitting, /*splitrule, */predict_all, /*sample_fraction, alpha, minprop, holdout, */prediction_type/*,
-	//		  num_random_splits*/);
-	//
-	//	  // Call other init function
-	//
-	////	  if (prediction_mode) {
-	//		loadFromFile(load_forest_filename);
-	//	//  }
-	//
-	//  }
-	//  else
-	//  {
 	Data* training = CreateMemory(memory_mode);
+
+	//set virtual columns
+	if (!file_virtual_cols.empty())
+	{
+		if (verbose_out)
+			*verbose_out << "Loading virtual columns : " << file_virtual_cols << "." << std::endl;
+
+		if (Data::load_expression_file(file_virtual_cols, virtual_cols_txt, virtual_cols_name) == 0)
+			std::cout << "Failed to load virtual columns from: " << file_virtual_cols << std::endl;
+
+		if (!virtual_cols_name.empty())
+		{
+			training->set_virtual_cols(virtual_cols_txt, virtual_cols_name);
+			//throw std::runtime_error("Invalid virtual columns equation");
+		}
+	}
 
 	// Load data
 	if (verbose_out)
 		*verbose_out << "Loading input file: " << input_file << "." << std::endl;
+	
 	bool rounding_error = training->loadFromFile(input_file);
 	if (rounding_error) {
 		if (verbose_out)
 			*verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this." << std::endl;
 	}
 
+
 	init_grow(dependent_variable_name, training, mtry, num_trees, seed, num_threads, importance_mode,
-		min_node_size, status_variable_name, /*prediction_mode, */sample_with_replacement, unordered_variable_names,
-		memory_saving_splitting, splitrule,/* predict_all,*/ sample_fraction, alpha, minprop, holdout, /*prediction_type,*/
-		num_random_splits);
+		min_node_size, status_variable_name, sample_with_replacement, unordered_variable_names,
+		memory_saving_splitting, splitrule, sample_fraction, alpha, minprop, holdout, num_random_splits);
 
 
 	// Set variables to be always considered for splitting
@@ -158,7 +154,7 @@ Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memor
 }
 
 Data* Forest::initCpp_predict(MemoryMode memory_mode, std::string input_file,
-	/*uint ntrees, */std::ostream* verbose_out, uint seed, uint num_threads,
+	std::ostream* verbose_out, uint seed, uint num_threads,
 	std::string load_forest_filename, bool predict_all, PredictionType prediction_type)
 {
 	this->verbose_out = verbose_out;
@@ -166,14 +162,15 @@ Data* Forest::initCpp_predict(MemoryMode memory_mode, std::string input_file,
 	init_predict(seed, num_threads, predict_all, prediction_type);
 
 	// Call other init function
-
-	//	  if (prediction_mode) {
 	loadFromFile(load_forest_filename);
 
-	//if (ntrees < this->num_trees)
-	//this->num_trees = ntrees;
-
 	Data* data = CreateMemory(memory_mode);
+
+	//set virtual columns
+	if (!virtual_cols_name.empty())
+	{
+		data->set_virtual_cols(virtual_cols_txt, virtual_cols_name);
+	}
 
 	// Load data
 	if (verbose_out)
@@ -316,7 +313,7 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	/*bool predict_all,*/ double sample_fraction, double alpha, double minprop, bool holdout,
 	/*PredictionType prediction_type,*/ uint num_random_splits)
 {
-	prediction_mode = false;
+	
 
 	// Initialize data with memmode
 	//this->training = training;
@@ -346,10 +343,8 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	this->num_trees = num_trees;
 	this->mtry = mtry;
 	this->seed = seed;
-	//this->output_prefix = output_prefix;
 	this->importance_mode = importance_mode;
 	this->min_node_size = min_node_size;
-	//this->memory_mode = memory_mode;
 	this->prediction_mode = false;
 	this->sample_with_replacement = sample_with_replacement;
 	this->memory_saving_splitting = memory_saving_splitting;
@@ -362,23 +357,15 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	this->prediction_type = prediction_type;
 	this->num_random_splits = num_random_splits;
 
-	// Set number of samples and variables
-	//num_samples = data->getNumRows();
-	//num_variables = data->getNumCols();
-
 	// Convert dependent variable name to ID
-	if (/*!prediction_mode && */!dependent_variable_name.empty()) {
+	if (!dependent_variable_name.empty()) {
 		dependent_varID = training->getVariableID(dependent_variable_name);
 	}
 
 	// Set unordered factor variables
-	//if (!prediction_mode) {
 	training->setIsOrderedVariable(unordered_variable_names);
 	this->training_is_ordered_variable = training->getIsOrderedVariable();
-	//this->training_no_split_variables = training->getNoSplitVariables();
-	//this->training_variableID = training->getVariableID(variable_name);
-	//}
-
+	
 	training->addNoSplitVariable(dependent_varID);
 
 	initInternal(training, status_variable_name);
@@ -564,7 +551,6 @@ void Forest::saveToFile(std::string filename) {
 		*verbose_out << "Save forest..." << std::endl;
 
 	// Open file for writing
-	//std::string filename = output_prefix + ".forest";
 	std::ofstream outfile;
 	outfile.open(filename, std::ios::binary);
 	if (!outfile.good()) {
@@ -580,13 +566,27 @@ void Forest::saveToFile(std::string filename) {
 	// Write is_ordered_variable
 	saveVector1D(training_is_ordered_variable, outfile);
 
+	size_t size = virtual_cols_txt.length();
+	outfile.write((char*)&size, sizeof(size));
+	outfile.write(virtual_cols_txt.c_str(), size);
+
+	//Write virtual columns 
+	size = virtual_cols_name.size();
+	outfile.write((char*)&size, sizeof(size));
+	for (size_t i = 0; i < virtual_cols_name.size(); i++)
+	{
+		size = virtual_cols_name[i].length();
+		outfile.write((char*)&size, sizeof(size));
+		outfile.write(virtual_cols_name[i].c_str(), size);
+	}
+
 	saveToFileInternal(outfile);
 
 	// Write tree data for each tree
 	for (auto& tree : trees) {
 		tree->appendToFile(outfile);
 	}
-
+	
 	// Close file
 	outfile.close();
 	if (verbose_out)
@@ -1050,9 +1050,22 @@ void Forest::loadFromFile(std::string filename) {
 	infile.read((char*)&num_trees, sizeof(num_trees));
 
 	// Read is_ordered_variable
-	//readVector1D(data->getIsOrderedVariable(), infile);
 	readVector1D(training_is_ordered_variable, infile);
 
+	//Write virtual columns 
+	size_t size;
+	infile.read((char*)&size, sizeof(size));
+	virtual_cols_txt.resize(size);
+	infile.read((char*)(&virtual_cols_txt[0]), size);
+
+	infile.read((char*)&size, sizeof(size));
+	virtual_cols_name.resize(size);
+	for (size_t i = 0; i < virtual_cols_name.size(); i++)
+	{
+		infile.read((char*)&size, sizeof(size));
+		virtual_cols_name[i].resize(size);
+		infile.read((char*)(&virtual_cols_name[i][0]), size);
+	}
 
 	// Read tree data. This is different for tree types -> virtual function
 	loadFromFileInternal(infile);

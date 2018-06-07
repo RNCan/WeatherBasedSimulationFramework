@@ -80,6 +80,7 @@ public:
 	double minprop;
 	std::vector<std::string> catvars;
 	std::string file;
+	std::string virtual_cols;
 	ImportanceMode impmeasure;
 	uint targetpartitionsize;
 	uint mtry;

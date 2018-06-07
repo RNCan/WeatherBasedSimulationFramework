@@ -39,195 +39,225 @@
 
 class Data {
 public:
-  Data();
-  virtual ~Data();
+	Data();
+	virtual ~Data();
 
-  void resize(size_t nb_row, size_t nb_col)
-  {
-	  num_cols = nb_col;
-	  num_rows = nb_row;
-	  num_cols_no_snp = num_cols;
-	  reserveMemory();
-  }
+	void resize(size_t nb_row, std::vector<std::string> names)
+	{
+		num_cols = names.size() + m_virtual_cols_name.size();
+		num_rows = nb_row;
+		num_cols_no_snp = num_cols;
+		variable_names = names;
+		variable_names.insert(variable_names.end(), m_virtual_cols_name.begin(), m_virtual_cols_name.end());
 
-  virtual double get(size_t row, size_t col) const = 0;
+		reserveMemory();
+	}
 
-  size_t getVariableID(std::string variable_name);
+	void resize(size_t nb_row, size_t nb_col)
+	{
+		num_cols = nb_col + m_virtual_cols_name.size();
+		num_rows = nb_row;
+		num_cols_no_snp = num_cols;
+		reserveMemory();
+	}
 
-  virtual void reserveMemory() = 0;
-  virtual void set(size_t col, size_t row, double value, bool& error) = 0;
-  virtual MemoryMode memory_mode()const = 0;
+	virtual double get(size_t row, size_t col) const;
+	virtual double get_data(size_t row, size_t col) const = 0;
 
-  void addSnpData(unsigned char* snp_data, size_t num_cols_snp);
+	size_t getVariableID(std::string variable_name);
 
-  bool loadFromFile(std::string filename);
-  bool loadFromFileWhitespace(std::ifstream& input_file, std::string header_line);
-  bool loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator);
+	virtual void reserveMemory() = 0;
+	virtual void set(size_t col, size_t row, double value, bool& error) = 0;
+	virtual MemoryMode memory_mode()const = 0;
 
-  void getAllValues(std::vector<double>& all_values, std::vector<size_t>& sampleIDs, size_t varID);
+	void addSnpData(unsigned char* snp_data, size_t num_cols_snp);
 
-  void getMinMaxValues(double& min, double&max, std::vector<size_t>& sampleIDs, size_t varID);
+	bool loadFromFile(std::string filename);
+	bool loadFromFileWhitespace(std::ifstream& input_file, std::string header_line);
+	bool loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator);
 
-  size_t getIndex(size_t row, size_t col) const {
-    // Use permuted data for corrected impurity importance
-    if (col >= num_cols) {
-      col = getUnpermutedVarID(col);
-      row = getPermutedSampleID(row);
-    }
+	void getAllValues(std::vector<double>& all_values, std::vector<size_t>& sampleIDs, size_t varID);
 
-    if (col < num_cols_no_snp) {
-      return index_data[col * num_rows + row];
-    } else {
-      // Get data out of snp storage. -1 because of GenABEL coding.
-      size_t idx = (col - num_cols_no_snp) * num_rows_rounded + row;
-      size_t result = (((snp_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
+	void getMinMaxValues(double& min, double&max, std::vector<size_t>& sampleIDs, size_t varID);
 
-      // TODO: Better way to treat missing values?
-      if (result > 2) {
-        return 0;
-      } else {
-        return result;
-      }
-    }
-  }
+	size_t getIndex(size_t row, size_t col) const {
+		// Use permuted data for corrected impurity importance
+		if (col >= getNumCols()) {
+			col = getUnpermutedVarID(col);
+			row = getPermutedSampleID(row);
+		}
 
-  double getUniqueDataValue(size_t varID, size_t index) const {
-    // Use permuted data for corrected impurity importance
-    if (varID >= num_cols) {
-      varID = getUnpermutedVarID(varID);
-    }
+		if (col < num_cols_no_snp) {
+			return index_data[col * num_rows + row];
+		}
+		else {
+			// Get data out of snp storage. -1 because of GenABEL coding.
+			size_t idx = (col - num_cols_no_snp) * num_rows_rounded + row;
+			size_t result = (((snp_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
 
-    if (varID < num_cols_no_snp) {
-      return unique_data_values[varID][index];
-    } else {
-      // For GWAS data the index is the value
-		return double(index);
-    }
-  }
+			// TODO: Better way to treat missing values?
+			if (result > 2) {
+				return 0;
+			}
+			else {
+				return result;
+			}
+		}
+	}
 
-  size_t getNumUniqueDataValues(size_t varID) const {
-    // Use permuted data for corrected impurity importance
-    if (varID >= num_cols) {
-      varID = getUnpermutedVarID(varID);
-    }
+	double getUniqueDataValue(size_t varID, size_t index) const {
+		// Use permuted data for corrected impurity importance
+		if (varID >= getNumCols()) {
+			varID = getUnpermutedVarID(varID);
+		}
 
-    if (varID < num_cols_no_snp) {
-      return unique_data_values[varID].size();
-    } else {
-      // For GWAS data 0,1,2
-      return (3);
-    }
-  }
+		if (varID < num_cols_no_snp) {
+			return unique_data_values[varID][index];
+		}
+		else {
+			// For GWAS data the index is the value
+			return double(index);
+		}
+	}
 
-  void sort();
+	size_t getNumUniqueDataValues(size_t varID) const {
+		// Use permuted data for corrected impurity importance
+		if (varID >= getNumCols()) {
+			varID = getUnpermutedVarID(varID);
+		}
 
-  const std::vector<std::string>& getVariableNames() const {
-    return variable_names;
-  }
+		if (varID < num_cols_no_snp) {
+			return unique_data_values[varID].size();
+		}
+		else {
+			// For GWAS data 0,1,2
+			return (3);
+		}
+	}
 
-  void setVariableNames(const std::vector<std::string>& in) {
-	  variable_names = in;
-  }
+	void sort();
 
-  size_t getNumCols() const {
-    return num_cols;
-  }
-  size_t getNumRows() const {
-    return num_rows;
-  }
+	const std::vector<std::string>& getVariableNames() const {
+		return variable_names;
+	}
 
-  size_t getMaxNumUniqueValues() const {
-    if (snp_data == 0 || max_num_unique_values > 3) {
-      // If no snp data or one variable with more than 3 unique values, return that value
-      return max_num_unique_values;
-    } else {
-      // If snp data and no variable with more than 3 unique values, return 3
-      return 3;
-    }
-  }
+	void setVariableNames(const std::vector<std::string>& in) {
+		variable_names = in;
+	}
 
-  std::vector<size_t>& getNoSplitVariables() {
-    return no_split_variables;
-  }
+	size_t getNumCols() const {
+		return num_cols;
+	}
+	size_t getNumRows() const {
+		return num_rows;
+	}
 
-  void addNoSplitVariable(size_t varID) {
-    no_split_variables.push_back(varID);
-    std::sort(no_split_variables.begin(), no_split_variables.end());
-  }
+	size_t getMaxNumUniqueValues() const {
+		if (snp_data == 0 || max_num_unique_values > 3) {
+			// If no snp data or one variable with more than 3 unique values, return that value
+			return max_num_unique_values;
+		}
+		else {
+			// If snp data and no variable with more than 3 unique values, return 3
+			return 3;
+		}
+	}
 
-  std::vector<bool>& getIsOrderedVariable() {
-    return is_ordered_variable;
-  }
+	std::vector<size_t>& getNoSplitVariables() {
+		return no_split_variables;
+	}
 
-  void setIsOrderedVariable(std::vector<std::string>& unordered_variable_names) {
-    is_ordered_variable.resize(num_cols, true);
-    for (auto& variable_name : unordered_variable_names) {
-      size_t varID = getVariableID(variable_name);
-      is_ordered_variable[varID] = false;
-    }
-  }
+	void addNoSplitVariable(size_t varID) {
+		no_split_variables.push_back(varID);
+		std::sort(no_split_variables.begin(), no_split_variables.end());
+	}
 
-  void setIsOrderedVariable(std::vector<bool>& is_ordered_variable) {
-    this->is_ordered_variable = is_ordered_variable;
-  }
+	std::vector<bool>& getIsOrderedVariable() {
+		return is_ordered_variable;
+	}
 
-  const bool isOrderedVariable(size_t varID) const {
-    // Use permuted data for corrected impurity importance
-    if (varID >= num_cols) {
-      varID = getUnpermutedVarID(varID);
-    }
-    return is_ordered_variable[varID];
-  }
+	void setIsOrderedVariable(std::vector<std::string>& unordered_variable_names) {
+		is_ordered_variable.resize(getNumCols(), true);
+		for (auto& variable_name : unordered_variable_names) {
+			size_t varID = getVariableID(variable_name);
+			is_ordered_variable[varID] = false;
+		}
+	}
 
-  void permuteSampleIDs(std::mt19937_64 random_number_generator) {
-    permuted_sampleIDs.resize(num_rows);
-    std::iota(permuted_sampleIDs.begin(), permuted_sampleIDs.end(), 0);
-    std::shuffle(permuted_sampleIDs.begin(), permuted_sampleIDs.end(), random_number_generator);
-  }
+	void setIsOrderedVariable(std::vector<bool>& is_ordered_variable) {
+		this->is_ordered_variable = is_ordered_variable;
+	}
 
-  const size_t getPermutedSampleID(size_t sampleID) const {
-    return permuted_sampleIDs[sampleID];
-  }
+	const bool isOrderedVariable(size_t varID) const {
+		// Use permuted data for corrected impurity importance
+		if (varID >= getNumCols()) {
+			varID = getUnpermutedVarID(varID);
+		}
+		return is_ordered_variable[varID];
+	}
 
-  const size_t getUnpermutedVarID(size_t varID) const {
-    if (varID >= num_cols) {
-      varID -= num_cols;
+	void permuteSampleIDs(std::mt19937_64 random_number_generator) {
+		permuted_sampleIDs.resize(num_rows);
+		std::iota(permuted_sampleIDs.begin(), permuted_sampleIDs.end(), 0);
+		std::shuffle(permuted_sampleIDs.begin(), permuted_sampleIDs.end(), random_number_generator);
+	}
 
-      for (auto& skip : no_split_variables) {
-        if (varID >= skip) {
-          ++varID;
-        }
-      }
-    }
-    return varID;
-  }
+	const size_t getPermutedSampleID(size_t sampleID) const {
+		return permuted_sampleIDs[sampleID];
+	}
+
+	const size_t getUnpermutedVarID(size_t varID) const {
+		if (varID >= getNumCols()) {
+			varID -= getNumCols();
+
+			for (auto& skip : no_split_variables) {
+				if (varID >= skip) {
+					++varID;
+				}
+			}
+		}
+		return varID;
+	}
+
+	void set_virtual_cols(const std::string& virtual_cols, const std::vector<std::string>& cols_name) {
+		m_virtual_cols_txt = virtual_cols;
+		m_virtual_cols_name = cols_name;
+	}
+
+	bool update_virtual_cols();
+	static bool load_expression_file(const std::string& file_name, std::string& virtual_cols_txt, std::vector<std::string>& virtual_cols_name);
 
 protected:
-  std::vector<std::string> variable_names;
-  size_t num_rows;
-  size_t num_rows_rounded;
-  size_t num_cols;
 
-  unsigned char* snp_data;
-  size_t num_cols_no_snp;
+	std::vector<std::string> variable_names;
+	size_t num_rows;
+	size_t num_rows_rounded;
+	size_t num_cols;
 
-  bool externalData;
+	std::string m_virtual_cols_txt;
+	std::vector<std::string> m_virtual_cols_name;
 
-  size_t* index_data;
-  std::vector<std::vector<double>> unique_data_values;
-  size_t max_num_unique_values;
 
-  // Variable to not split at (only dependent_varID for non-survival trees)
-  std::vector<size_t> no_split_variables;
+	unsigned char* snp_data;
+	size_t num_cols_no_snp;
 
-  // For each varID true if ordered
-  std::vector<bool> is_ordered_variable;
+	bool externalData;
 
-  // Permuted samples for corrected impurity importance
-  std::vector<size_t> permuted_sampleIDs;
+	size_t* index_data;
+	std::vector<std::vector<double>> unique_data_values;
+	size_t max_num_unique_values;
+
+	// Variable to not split at (only dependent_varID for non-survival trees)
+	std::vector<size_t> no_split_variables;
+
+	// For each varID true if ordered
+	std::vector<bool> is_ordered_variable;
+
+	// Permuted samples for corrected impurity importance
+	std::vector<size_t> permuted_sampleIDs;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Data);
+	DISALLOW_COPY_AND_ASSIGN(Data);
 };
 
 #endif /* DATA_H_ */

@@ -42,20 +42,24 @@ public:
   DataShort(double* data_double, std::vector<std::string> variable_names, size_t num_rows, size_t num_cols, bool& error);
   virtual ~DataShort();
 
-  double get(size_t row, size_t col) const {
-    // Use permuted data for corrected impurity importance
-    if (col >= num_cols) {
-      col = getUnpermutedVarID(col);
-      row = getPermutedSampleID(row);
-    }
+  //double get(size_t row, size_t col) const {
+  //  // Use permuted data for corrected impurity importance
+  //  if (col >= num_cols) {
+  //    col = getUnpermutedVarID(col);
+  //    row = getPermutedSampleID(row);
+  //  }
 
-    if (col < num_cols_no_snp) {
-      return data[col * num_rows + row];
-    } else {
-      // Get data out of snp storage. -1 because of GenABEL coding.
-      size_t idx = (col - num_cols_no_snp) * num_rows_rounded + row;
-      return (((snp_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
-    }
+  //  if (col < num_cols_no_snp) {
+  //    return data[col * num_rows + row];
+  //  } else {
+  //    // Get data out of snp storage. -1 because of GenABEL coding.
+  //    size_t idx = (col - num_cols_no_snp) * num_rows_rounded + row;
+  //    return (((snp_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
+  //  }
+  //}
+
+  double get_data(size_t row, size_t col) const {
+	  return data[col * num_rows + row];
   }
 
   void reserveMemory() {

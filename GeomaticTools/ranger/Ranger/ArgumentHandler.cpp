@@ -39,8 +39,8 @@ caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE
 DEFAULT_PREDICTIONTYPE), randomsplits(DEFAULT_NUM_RANDOM_SPLITS), splitweights(""), nthreads(
 DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
 DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
-DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
-TREE_CLASSIFICATION), seed(0) {
+DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION),
+seed(0), virtual_cols("") {
 	this->argc = argc;
 	this->argv = argv;
 }
@@ -51,7 +51,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
 	// short options
-	char const *short_options = "A:C:D:F:HM:NP:Q:R:S:U:XZa:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
+	char const *short_options = "A:C:D:F:HM:NP:Q:R:S:U:XZa:b:c:e:f:hi:l::m:o:pr:s:t:uvwy:z:";
 
 	// long options: longname, no/optional/required argument?, flag(not used!), shortname
 	const struct option long_options[] = {
@@ -74,6 +74,7 @@ int ArgumentHandler::processArguments() {
 		{ "alpha", required_argument, 0, 'a' },
 		{ "minprop", required_argument, 0, 'b' },
 		{ "catvars", required_argument, 0, 'c' },
+	    { "virtual", required_argument, 0, 'e' },
 		{ "file", required_argument, 0, 'f' },
 		{ "help", no_argument, 0, 'h' },
 		{ "impmeasure", required_argument, 0, 'i' },
@@ -89,6 +90,7 @@ int ArgumentHandler::processArguments() {
 		{ "write", no_argument, 0, 'w' },
 		{ "treetype", required_argument, 0, 'y' },
 		{ "seed", required_argument, 0, 'z' },
+	    
 
 		{ 0, 0, 0, 0 }
 	};
@@ -137,7 +139,7 @@ int ArgumentHandler::processArguments() {
 		case 'M':
 			try {
 				memmode = (MemoryMode)std::stoi(optarg);
-				if (memmode > MAX_MEM_MODE) {
+				if (memmode > (int)MAX_MEM_MODE) {
 					throw std::runtime_error("");
 				}
 			}
@@ -256,6 +258,10 @@ int ArgumentHandler::processArguments() {
 			splitString(catvars, optarg, ',');
 			break;
 
+		case 'e':
+			virtual_cols = optarg;
+			break;
+
 		case 'f':
 			file = optarg;
 			break;
@@ -268,7 +274,7 @@ int ArgumentHandler::processArguments() {
 		case 'i':
 			try {
 				impmeasure = (ImportanceMode)std::stoi(optarg);
-				if (impmeasure > MAX_IMP_MODE) {
+				if (impmeasure > (int)MAX_IMP_MODE) {
 					throw std::runtime_error("");
 				}
 			}

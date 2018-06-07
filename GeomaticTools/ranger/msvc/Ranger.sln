@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ranger", "Ranger.vcxproj", "{0467DFF3-FFB4-450F-A1E4-7170CC79C181}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "..\..\..\wbs\msvc\RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,5 +34,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DB13FDD-CC6D-44B6-A207-B724276CE000}
 	EndGlobalSection
 EndGlobal

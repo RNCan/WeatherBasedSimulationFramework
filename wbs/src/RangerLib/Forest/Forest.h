@@ -74,8 +74,8 @@ public:
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      std::string case_weights_file,/* bool predict_all,*/ double sample_fraction, double alpha, double minprop,
-      bool holdout, /*PredictionType prediction_type,*/ uint num_random_splits);
+      std::string case_weights_file, double sample_fraction, double alpha, double minprop,
+      bool holdout, uint num_random_splits, std::string file_virtual_cols);
   //void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
   //    std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
   //    std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
@@ -180,6 +180,10 @@ public:
     return result;
   }
 
+  //virtual columns 
+  std::string get_virtual_cols_txt()const { return virtual_cols_txt; }
+  const std::vector<std::string>& get_virtual_cols_name()const { return virtual_cols_name; }
+
 protected:
 	
 	void grow(Data* data);
@@ -254,11 +258,7 @@ protected:
 
   std::vector<Tree*> trees;
   std::vector<bool> training_is_ordered_variable;
-  //std::vector<size_t> training_no_split_variables;
-  //size_t training_variableID;
   
-  //Data* data;
-  //Data* training;
 
   std::vector<std::vector<std::vector<double>>> predictions;
   std::vector<double> uncertainty;
@@ -282,8 +282,14 @@ protected:
   // Variable importance for all variables in forest
   std::vector<double> variable_importance;
 
+  //virtual columns 
+  std::string virtual_cols_txt;
+  std::vector<std::string> virtual_cols_name;
+
+
   // Computation progress (finished trees)
   size_t progress;
+
 #ifdef R_BUILD
   size_t aborted_threads;
   bool aborted;

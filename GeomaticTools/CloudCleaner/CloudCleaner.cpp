@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.0.2	06/06/2018	Rémi Saint-Amant	add virtual columns to the model
 // 2.0.1    17/05/2018	Rémi Saint-Amant	Use 3 random forest model
 // 2.0.0    17/05/2018	Rémi Saint-Amant	Use random forest model with ranger
 // 1.0.6	21/12/2017	Rémi Saint-Amant	Bug correction in data layer
@@ -19,8 +20,8 @@
 
 //tes v2
 //-FillCloud -debug -outputcode -multi -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\Nuage_1999-2014.vrt" "D:\Travaux\CloudCleaner\Output\Nuage_1999-2014\NuageOut.vrt"
-//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\haze_et_ombre.vrt" "D:\Travaux\CloudCleaner\Output\haze_et_ombre\haze_et_ombre.vrt"
-//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v1" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\puff_partout.vrt"
+//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v2" "D:\Travaux\CloudCleaner\Input\haze_et_ombre.vrt" "D:\Travaux\CloudCleaner\Output\haze_et_ombre\haze_et_ombre2.vrt"
+//-FillCloud -debug -outputcode -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "D:\Travaux\CloudCleaner\Model\RF_v2" "D:\Travaux\CloudCleaner\Input\puff_partout.vrt" "D:\Travaux\CloudCleaner\Output\puff_partout\puff_partout2.vrt"
 
 
 
@@ -47,6 +48,7 @@
 #include "gdal_priv.h"
 
 
+
 using namespace std;
 using namespace WBSF;
 using namespace WBSF::Landsat;
@@ -65,7 +67,7 @@ std::string CCloudCleaner::GetDescription()
 	return  std::string("CloudCleaner version ") + version + " (" + _T(__DATE__) + ")\n";
 }
 
-
+ 
 CCloudCleanerOption::CCloudCleanerOption()
 {
 	m_nbPixel = 0;
@@ -1034,14 +1036,12 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 			if (suspectPixel.count() > 0)
 			{
 				//forest model, 0: beg,1: mid, 2: end
-				//size_t fm = 1;
 				size_t fm = (z == 0) ? 0 : ((z + 1) == nbScenes) ? 2 : 1;
-				//size_t nbCols = (fm == 1 ? 3 : 2) * 7;
-				//size_t nbCols = forests[fm]->getNumIndependentVariables();
-				//ASSERT(nbCols%7==0);
 
+				static const StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
 				DataShort input;
-				input.resize(suspectPixel.count(), 3 * 7);
+				input.set_virtual_cols(forests[fm]->get_virtual_cols_txt(), forests[fm]->get_virtual_cols_name());
+				input.resize(suspectPixel.count(), vars);
 
 				size_t cur_xy = 0;
 				for (size_t y = 0; y < blockSize.m_y; y++)
@@ -1075,6 +1075,7 @@ void CCloudCleaner::ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& ba
 					}//x
 				}//y
 
+				input.update_virtual_cols();
 				forests[fm]->run_predict(&input);
 
 				cur_xy = 0;
@@ -1586,3 +1587,6 @@ __int32 CCloudCleanerOption::GetZSWTrigger(std::array <CLandsatPixel, 3>& p, siz
 
 	return (t1 + t2) / t3;
 }
+
+
+
