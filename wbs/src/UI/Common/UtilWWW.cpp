@@ -541,7 +541,18 @@ namespace UtilWWW
 				if (pos != string::npos)
 				{
 					string min = WBSF::Tokenize(time, ":", pos);
-					Time = CTime(WBSF::ToInt(year), int(WBSF::GetMonthIndex(month.c_str()) + 1), WBSF::ToInt(day), WBSF::ToInt(hour), WBSF::ToInt(min), 0);
+					int i_year = WBSF::ToInt(year);
+					int i_month = int(WBSF::GetMonthIndex(month.c_str()) + 1);
+					if( i_month == 0)
+						i_month = WBSF::ToInt(month);
+					int i_day = WBSF::ToInt(day);
+					int i_hour = WBSF::ToInt(hour);
+					int i_min = WBSF::ToInt(min);
+
+					if(i_day>1900 && i_day <2100)//year are first and day at end
+						std::swap(i_day, i_year);
+
+					Time = CTime(i_year, i_month, i_day, i_hour, i_min, 0);
 				}
 			}
 		}
