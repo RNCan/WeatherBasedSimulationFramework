@@ -357,7 +357,7 @@ void CHourlyEditorDoc::SetCurStationIndex(size_t i, CView* pSender, bool bSendUp
 			assert(i < m_pDatabase->size());
 			m_pStation->clear();
 			msg = m_pDatabase->Get(*m_pStation, i);
-			assert(m_pStation->IsInit());
+			assert(m_pStation->HaveData());
 			
 			if (msg)
 				UpdateAllViews(pSender, STATION_INDEX_CHANGE, NULL);

@@ -73,7 +73,7 @@ namespace WBSF
 		if (type == T_METEO_CODE)
 		{
 			m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
-			m_meteoCode.Execute(callback);
+			msg = m_meteoCode.Execute(callback);
 		}
 		else
 		{

@@ -1,4 +1,5 @@
 // HourlyEditor.cpp : Définit les comportements de classe pour l'application.  
+// 4.3.2	12/06/2018	Rémi Saint-Amant	Show data event when elev = -999
 // 4.3.1	10/03/2018	Rémi Saint-Amant	Compile with VS 2017
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance
 // 4.2.2	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1.

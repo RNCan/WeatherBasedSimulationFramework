@@ -28,9 +28,9 @@ using namespace WBSF;
 
 namespace UtilWWW
 {
-	static const long MAX_READ_SIZE=2048;
+	static const long MAX_READ_SIZE = 2048;
 
-	CString GetServerName( const CString& path )
+	CString GetServerName(const CString& path)
 	{
 		CString serverName(path);
 		serverName.MakeLower();
@@ -39,14 +39,14 @@ namespace UtilWWW
 
 
 		int pos = serverName.FindOneOf(_T("\\/"));
-		if( pos >= 0)
+		if (pos >= 0)
 			serverName = serverName.Left(pos);
-		
+
 
 		return serverName;
 	}
 
-	CString GetServerPath( const CString& path )
+	CString GetServerPath(const CString& path)
 	{
 		CString serverPath(path);
 		serverPath.MakeLower();
@@ -54,24 +54,24 @@ namespace UtilWWW
 		serverPath.Replace(_T("ftp://"), _T(""));
 
 		int pos1 = serverPath.FindOneOf(_T("\\/"));
-		if( pos1 >= 0)
+		if (pos1 >= 0)
 		{
 			serverPath = serverPath.Mid(pos1);
 
-			if( !UtilWin::IsEndOk(path) )
+			if (!UtilWin::IsEndOk(path))
 				serverPath += '/';
 		}
-		else 
+		else
 		{
 			serverPath.Empty();
 		}
-		
+
 		return serverPath;
 	}
 
 	ERMsg GetPageText(CHttpConnectionPtr& pConnection, const std::string& URLIn, std::string& text, bool bConvert, DWORD flags)
 	{
-		
+
 		ERMsg msg;
 
 		//std::string text;
@@ -79,45 +79,45 @@ namespace UtilWWW
 		CString URL = WBSF::convert(URLIn).c_str();
 		//CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
 		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_GET, URL, NULL, 1, NULL, NULL, flags);
-		
+
 
 		bool bRep = false;
 
-		if( pURLFile!=NULL )
+		if (pURLFile != NULL)
 		{
-//			DWORD dwStatus;
+			//			DWORD dwStatus;
 
-			int nbTry=0;
-			while( !bRep && msg)
+			int nbTry = 0;
+			while (!bRep && msg)
 			{
 				TRY
 				{
 					nbTry++;
-					bRep = pURLFile->SendRequest()!=0;
+					bRep = pURLFile->SendRequest() != 0;
 				}
-				CATCH_ALL(e)
+					CATCH_ALL(e)
 				{
 					DWORD errnum = GetLastError();
-					if( errnum ==12002 ||errnum==12029)
+					if (errnum == 12002 || errnum == 12029)
 					{
-						if( nbTry >= 2)
+						if (nbTry >= 2)
 						{
 							msg = UtilWin::SYGetMessage(*e);
 						}
 						//try again
 					}
-					else if(  errnum == 12031 || errnum == 12111) 
+					else if (errnum == 12031 || errnum == 12111)
 					{
 						//throw a exception: server reset
-						THROW( new CInternetException(errnum));
+						THROW(new CInternetException(errnum));
 					}
-					else if( errnum ==12003)
+					else if (errnum == 12003)
 					{
 						msg = UtilWin::SYGetMessage(*e);
 
 						DWORD size = 255;
-						TCHAR cause[256]={0};
-						InternetGetLastResponseInfo( &errnum, cause, &size);
+						TCHAR cause[256] = { 0 };
+						InternetGetLastResponseInfo(&errnum, cause, &size);
 						if (_tcslen(cause) > 0)
 							msg.ajoute(UtilWin::ToUTF8(cause));
 					}
@@ -132,21 +132,21 @@ namespace UtilWWW
 		}
 
 
-		if( bRep )
+		if (bRep)
 		{
 			const short MAX_READ_SIZE = 4096;
 			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
 
 			std::string tmp;
 			tmp.resize(MAX_READ_SIZE);
-			UINT charRead=0;
-			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0)
+			UINT charRead = 0;
+			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0)
 			{
 				//tmp.ReleaseBuffer();
 				text.append(tmp.c_str(), charRead);
 			}
 
-			
+
 			//convert UTF8 to UTF16
 			//size_t test1 = text.size();
 			//size_t test2 = text.length();
@@ -165,7 +165,7 @@ namespace UtilWWW
 
 			//Convert UTF16 to ANSI
 			//text = WBSF::UTF8(out);
-			
+
 			//decode HTML code
 			if (bConvert)
 			{
@@ -219,7 +219,7 @@ namespace UtilWWW
 		else
 		{
 			CString tmp;
-			tmp.FormatMessage( IDS_CMN_UNABLE_LOAD_PAGE, URL);
+			tmp.FormatMessage(IDS_CMN_UNABLE_LOAD_PAGE, URL);
 			msg.ajoute(UtilWin::ToUTF8(tmp));
 		}
 
@@ -227,15 +227,18 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, WBSF::CCallback& callback )
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, WBSF::CCallback& callback)
 	{
-		ASSERT(	pConnection.get() != NULL);
+		ASSERT(pConnection.get() != NULL);
 
 		ERMsg msg;
 
-		CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags );
-		
-		if( pURLFile != NULL && pURLFile->SendRequest() )
+		TRY
+		{
+
+		CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
+
+		if (pURLFile != NULL && pURLFile->SendRequest())
 		{
 			UtilWin::CStdioFileEx file;
 
@@ -247,99 +250,105 @@ namespace UtilWWW
 			{
 				const short MAX_READ_SIZE = 4096;
 				pURLFile->SetReadBufferSize(MAX_READ_SIZE);
-				 
+
 				bool bEmptyFile = true;
 				string source;
 				std::string tmp;
 				tmp.resize(MAX_READ_SIZE);
 				UINT charRead = 0;
-				while (((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE))>0) && msg)
+				while (((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0) && msg)
 				{
 					//source.append(tmp.c_str(), charRead);
-					
+
 					if (charRead > 0)
 					{
 						file.Write(tmp.c_str(), charRead);
 						bEmptyFile = false;
 					}
-						
-						//file.Write(source.data(), (UINT)source.size());
 
-					msg += callback.StepIt(0);
-				}
-			
-				file.Close();
+					//file.Write(source.data(), (UINT)source.size());
 
-				if (!msg || bEmptyFile)
-					CFile::Remove(outputFilePath);
-
+				msg += callback.StepIt(0);
 			}
-			
 
-			pURLFile->Close();
-		}
-		else
-		{
-			std::string errorURL = CStringA(URL);
-			std::string error = FormatMsg(IDS_CMN_UNABLE_LOAD_PAGE, errorURL);
-			msg.ajoute(error);
+			file.Close();
+
+			if (!msg || bEmptyFile)
+				CFile::Remove(outputFilePath);
+
 		}
 
-		delete pURLFile;
 
-		return msg;
+		pURLFile->Close();
+	}
+	else
+	{
+		std::string errorURL = CStringA(URL);
+		std::string error = FormatMsg(IDS_CMN_UNABLE_LOAD_PAGE, errorURL);
+		msg.ajoute(error);
 	}
 
-	
-	
+	delete pURLFile;
+		}
+			CATCH_ALL(e)
+		{
+			msg = UtilWin::SYGetMessage(*e);
+		}
+		END_CATCH_ALL
+
+			return msg;
+	}
+
+
+
 	bool IsFileUpToDate(CFtpConnectionPtr& pConnection, const CString& ftpFilePath, const CString& localFilePath, bool bLookFileSize, bool bLookFileTime)
 	{
 		bool bRep = false;
 
 		CFileInfo ftpFileInfo;
-		if( GetFileInfo(pConnection, ftpFilePath, ftpFileInfo) )
+		if (GetFileInfo(pConnection, ftpFilePath, ftpFileInfo))
 			bRep = IsFileUpToDate(ftpFileInfo, localFilePath, bLookFileSize, bLookFileTime);
 
 		return bRep;
 	}
-	
+
 	bool IsFileUpToDate(const CFileInfo& ftpFile, const CString& localFilePath, bool bLookFileSize, bool bLookFileTime)
 	{
 		bool bRep = false;
 
 		CFileStatus s;
-		if( CFile::GetStatus(localFilePath, s) )
+		if (CFile::GetStatus(localFilePath, s))
 		{
 			bRep = true;
-			if( bLookFileSize && s.m_size!=ftpFile.m_size)
+			if (bLookFileSize && s.m_size != ftpFile.m_size)
 				bRep = false;
-			if( bLookFileTime && s.m_mtime < ftpFile.m_time)
+			if (bLookFileTime && s.m_mtime < ftpFile.m_time)
 				bRep = false;
-				
+
 		}
 
 		return bRep;
 	}
 
-	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags, BOOL bFailIfExists )
+	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags, BOOL bFailIfExists)
 	{
-		ASSERT(	pConnection.get() != NULL);
-	
+		ASSERT(pConnection.get() != NULL);
+
 		//DWORD flag = INTERNET_FLAG_TRANSFER_BINARY|INTERNET_FLAG_RELOAD|INTERNET_FLAG_EXISTING_CONNECT|INTERNET_FLAG_DONT_CACHE;
 		//INTERNET_FLAG_RELOAD;
 		ERMsg msg;
 		BOOL bRep = pConnection->GetFile(InputFilePath, outputFilePath, bFailIfExists, FILE_ATTRIBUTE_NORMAL, flags);
 
-		if( !bRep )
+		if (!bRep)
 		{
 			DWORD errnum = GetLastError();
 			CInternetException e(errnum);
 			msg += UtilWin::SYGetMessage(e);
-			
+
 			//DWORD size = 255;
 			//TCHAR cause[256]={0};
 			//InternetGetLastResponseInfo( &errnum, cause, &size);
-			
+
 			//THROW( new CInternetException(errnum));
 
 			//msg.asgType( ERMsg::ERREUR);
@@ -348,10 +357,10 @@ namespace UtilWWW
 			//msg.ajoute(error);
 			//msg.ajoute("Unable to copy file: " + InputFilePath);
 
-			
-			
-			
-			/*if( errnum == 12031 || errnum == 12111) 
+
+
+
+			/*if( errnum == 12031 || errnum == 12111)
 			{
 				//throw a exception: server reset
 				THROW( new CInternetException(errnum));
@@ -377,12 +386,12 @@ namespace UtilWWW
 
 	ERMsg CopyFileToFTP(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath)
 	{
-		ASSERT(	pConnection.get() != NULL);
+		ASSERT(pConnection.get() != NULL);
 		ERMsg msg;
 
 		BOOL bRep = pConnection->PutFile(InputFilePath, outputFilePath);
 
-		if( !bRep )
+		if (!bRep)
 		{
 			DWORD errnum = GetLastError();
 			CInternetException e(errnum);
@@ -394,11 +403,11 @@ namespace UtilWWW
 
 	void ConvertString2FindFileInfo(CFtpConnectionPtr& pConnect, const CStringArray& fileListIn, CFileInfoVector& fileListOut, WBSF::CCallback& callback)
 	{
-		for(int i=0; i<fileListIn.GetSize(); i++)
+		for (int i = 0; i < fileListIn.GetSize(); i++)
 		{
 			CFileInfoVector fileList;
 			FindFiles(pConnect, fileListIn[i], fileList, callback);
-			ASSERT( fileList.size() == 1);
+			ASSERT(fileList.size() == 1);
 			fileListOut.insert(fileListOut.begin(), fileList.begin(), fileList.end());
 		}
 	}
@@ -409,14 +418,14 @@ namespace UtilWWW
 		CFtpFileFind finder(pConnect.get());
 
 		// start looping
-		if( finder.FindFile(filePath) )
+		if (finder.FindFile(filePath))
 		{
 			finder.FindNextFile();
 
-			ASSERT( !finder.IsDots() && !finder.IsDirectory() );
+			ASSERT(!finder.IsDots() && !finder.IsDirectory());
 			CString test = finder.GetFileURL();
-			
-			GetFileInfo(finder, info, filePath.FindOneOf(_T("*?")) != -1 && !UtilWin::GetPath(filePath).IsEmpty() ); 
+
+			GetFileInfo(finder, info, filePath.FindOneOf(_T("*?")) != -1 && !UtilWin::GetPath(filePath).IsEmpty());
 			bRep = true;
 		}
 
@@ -425,7 +434,7 @@ namespace UtilWWW
 
 	void GetFileInfo(const CFtpFileFind& finder, CFileInfo& info, bool bHavePath)
 	{
-		ASSERT( !finder.GetFileURL().IsEmpty() );
+		ASSERT(!finder.GetFileURL().IsEmpty());
 
 		info.m_size = finder.GetLength();
 
@@ -451,32 +460,32 @@ namespace UtilWWW
 
 
 		info.m_attribute = 0;
-			
-			
-		if( finder.IsReadOnly() )
+
+
+		if (finder.IsReadOnly())
 			info.m_attribute |= FILE_ATTRIBUTE_READONLY;
-		if( finder.IsDirectory())
+		if (finder.IsDirectory())
 			info.m_attribute |= FILE_ATTRIBUTE_DIRECTORY;
-		if( finder.IsCompressed())
+		if (finder.IsCompressed())
 			info.m_attribute |= FILE_ATTRIBUTE_COMPRESSED;
-		if( finder.IsSystem())
+		if (finder.IsSystem())
 			info.m_attribute |= FILE_ATTRIBUTE_SYSTEM;
-		if( finder.IsHidden())
+		if (finder.IsHidden())
 			info.m_attribute |= FILE_ATTRIBUTE_HIDDEN;
-		if( finder.IsTemporary())
+		if (finder.IsTemporary())
 			info.m_attribute |= FILE_ATTRIBUTE_TEMPORARY;
-		if( finder.IsNormal())
+		if (finder.IsNormal())
 			info.m_attribute |= FILE_ATTRIBUTE_NORMAL;
-		if( finder.IsArchived())
+		if (finder.IsArchived())
 			info.m_attribute |= FILE_ATTRIBUTE_ARCHIVE;
-			
+
 		TRY
 		{
 			CTime time;
 			finder.GetLastWriteTime(time);
 			info.m_time = time.GetTime();
 		}
-		CATCH_ALL(e)
+			CATCH_ALL(e)
 		{}
 		END_CATCH_ALL
 
@@ -487,7 +496,7 @@ namespace UtilWWW
 		ERMsg msg;
 
 		callback.PushTask(WBSF::FormatMsg(IDS_MSG_SEARCH_FILE, std::string(CStringA(URL))), NOT_INIT);
-		
+
 
 		// use a file find object to enumerate files
 		CFtpFileFind finder(pConnect.get());
@@ -501,25 +510,25 @@ namespace UtilWWW
 			bWorking = finder.FindNextFile();
 			errNum = GetLastError();
 
-			if( finder.IsDots() || finder.IsDirectory() )
+			if (finder.IsDots() || finder.IsDirectory())
 				continue;
 
 			CString test = finder.GetFileURL();
 
 			CFileInfo info;
-			
+
 			GetFileInfo(finder, info, !UtilWin::GetPath(URL).IsEmpty());//URL.FindOneOf(_T("*?")) != -1 && 
 			fileList.push_back(info);
 
 			msg += callback.StepIt(0);
 		}
-		
-		if( errNum != ERROR_NO_MORE_FILES)
+
+		if (errNum != ERROR_NO_MORE_FILES)
 		{
 			CInternetException e(errNum);
 			msg = UtilWin::SYGetMessage(e);
 		}
-		
+
 		callback.PopTask();
 
 		return msg;
@@ -529,7 +538,7 @@ namespace UtilWWW
 	{
 		CTime Time = CTime::GetCurrentTime();
 
-		string::size_type pos=0;
+		string::size_type pos = 0;
 		string day = WBSF::Tokenize(date, "-", pos);
 		if (pos != string::npos)
 		{
@@ -543,22 +552,22 @@ namespace UtilWWW
 					string min = WBSF::Tokenize(time, ":", pos);
 					int i_year = WBSF::ToInt(year);
 					int i_month = int(WBSF::GetMonthIndex(month.c_str()) + 1);
-					if( i_month == 0)
+					if (i_month == 0)
 						i_month = WBSF::ToInt(month);
 					int i_day = WBSF::ToInt(day);
 					int i_hour = WBSF::ToInt(hour);
 					int i_min = WBSF::ToInt(min);
 
-					if(i_day>1900 && i_day <2100)//year are first and day at end
+					if (i_day > 1900 && i_day < 2100)//year are first and day at end
 						std::swap(i_day, i_year);
 
 					Time = CTime(i_year, i_month, i_day, i_hour, i_min, 0);
 				}
 			}
 		}
-			
+
 		return Time.GetTime();
-		
+
 	}
 
 	ERMsg FindDirectories(CFtpConnectionPtr& pConnect, const CString& page, CFileInfoVector& fileList)
@@ -576,51 +585,51 @@ namespace UtilWWW
 			bWorking = finder.FindNextFile();
 			errNum = GetLastError();
 
-			if( finder.IsDots() || !finder.IsDirectory() )
+			if (finder.IsDots() || !finder.IsDirectory())
 				continue;
-	        
+
 			CString path = finder.GetFilePath() + '/';
-			
+
 			CFileInfo info;
-			memset( &info, 0, sizeof(info) );
+			memset(&info, 0, sizeof(info));
 			info.m_filePath = UtilWin::ToUTF8(path);
 			//_tcsncpy_s(info.m_filePath, _MAX_PATH, (LPCTSTR)path, _MAX_PATH);
 			info.m_size = finder.GetLength();
-			
-			
-			
-			if( finder.IsReadOnly() )
+
+
+
+			if (finder.IsReadOnly())
 				info.m_attribute |= FILE_ATTRIBUTE_READONLY;
-			if( finder.IsDirectory())
+			if (finder.IsDirectory())
 				info.m_attribute |= FILE_ATTRIBUTE_DIRECTORY;
-			if( finder.IsCompressed())
+			if (finder.IsCompressed())
 				info.m_attribute |= FILE_ATTRIBUTE_COMPRESSED;
-			if( finder.IsSystem())
+			if (finder.IsSystem())
 				info.m_attribute |= FILE_ATTRIBUTE_SYSTEM;
-			if( finder.IsHidden())
+			if (finder.IsHidden())
 				info.m_attribute |= FILE_ATTRIBUTE_HIDDEN;
-			if( finder.IsTemporary())
+			if (finder.IsTemporary())
 				info.m_attribute |= FILE_ATTRIBUTE_TEMPORARY;
-			if( finder.IsNormal())
+			if (finder.IsNormal())
 				info.m_attribute |= FILE_ATTRIBUTE_NORMAL;
-			if( finder.IsArchived())
+			if (finder.IsArchived())
 				info.m_attribute |= FILE_ATTRIBUTE_ARCHIVE;
-			
+
 			fileList.push_back(info);
 		}
 
-		
+
 		//fileList.IsEmpty() && 
-		if( errNum !=  ERROR_NO_MORE_FILES)
+		if (errNum != ERROR_NO_MORE_FILES)
 		{
 			CInternetException e(errNum);
 			msg = UtilWin::SYGetMessage(e);
 		}
-		
+
 		return msg;
 	}
 
-	
+
 	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList)
 	{
 		ERMsg msg;
@@ -628,23 +637,23 @@ namespace UtilWWW
 		std::string filterName = WBSF::GetFileName(WBSF::UTF8((LPCTSTR)URL));
 
 		std::string source;
-		msg = GetPageText(pConnect, path, source );
-		if( msg )
+		msg = GetPageText(pConnect, path, source);
+		if (msg)
 		{
-			
+
 			std::string::size_type posBegin = source.find("<a href=");
 			while (posBegin != std::string::npos)
 			{
 				std::string fileName = FindString(source, "<a href=\"", "\">", posBegin);
 				if (WBSF::Match(filterName.c_str(), fileName.c_str()))
 				{
-					
+
 					std::string filePath = path + fileName;
 
 					CFileInfo info;
 					//memset( &info, 0, sizeof(info) );
 					info.m_filePath = filePath;
-						
+
 					std::string str = FindString(source, "</a>", "\n", posBegin);
 					WBSF::Trim(str);
 					std::string::size_type pos = 0;
@@ -654,8 +663,8 @@ namespace UtilWWW
 						std::string time = WBSF::Tokenize(str, " ", pos, true);
 						if (pos != std::string::npos)
 						{
-							std::string size = WBSF::Tokenize(str, " ", pos, true); 
-							std::remove(size.begin(), size.end(), 'M');  
+							std::string size = WBSF::Tokenize(str, " ", pos, true);
+							std::remove(size.begin(), size.end(), 'M');
 							std::remove(size.begin(), size.end(), 'K');
 							info.m_time = GetTime(date, time);
 							info.m_size = WBSF::ToInt(size);
@@ -664,7 +673,7 @@ namespace UtilWWW
 
 					fileList.push_back(info);
 				}
-				
+
 				posBegin = source.find("<a href=", posBegin);
 			}
 		}
@@ -677,29 +686,29 @@ namespace UtilWWW
 
 		ERMsg msg;
 
-		
-		
+
+
 		string URL = WBSF::UTF8((LPCTSTR)_URL);
 		if (!URL.empty() && URL.front() != '/')
 			URL.insert(URL.begin(), '/');
 		//CString path = UtilWin::GetPath(URL);
 		//CString filterName = UtilWin::GetFileName(URL);
-		
+
 
 		std::string source;
 		msg = GetPageText(pConnect, URL, source);
-		if( msg )
+		if (msg)
 		{
 			std::string::size_type posBegin = source.find("<a href=");
 			while (posBegin != std::string::npos)
 			{
 				string fileName = FindString(source, "<a href=\"", "\">", posBegin);
 
-				if (WBSF::Match("*/", fileName.c_str() ))
+				if (WBSF::Match("*/", fileName.c_str()))
 				{
 					string relPath = WBSF::GetRelativePath(URL, fileName);
 
-					
+
 					if (fileName != "./" && fileName != "../" &&
 						fileName != ".\\" && fileName != "..\\" &&
 						relPath != "..\\")
@@ -708,7 +717,7 @@ namespace UtilWWW
 
 						CFileInfo info;
 						info.m_filePath = UtilWin::ToUTF8(filePath);
-						
+
 						std::string str = FindString(source, "</a>", "\n", posBegin);
 						string::size_type pos = 0;
 						string date = WBSF::Tokenize(str, " ", pos);
@@ -717,11 +726,11 @@ namespace UtilWWW
 							string time = WBSF::Tokenize(str, " ", pos);
 							info.m_time = GetTime(date, time);
 						}
-						
+
 						fileList.push_back(info);
 					}
 				}
-				
+
 				posBegin = source.find("<a href=", posBegin);
 			}
 		}
@@ -732,7 +741,7 @@ namespace UtilWWW
 	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password, bool bHttps)
 	{
 		ERMsg msg;
-		
+
 		pSession.reset(new CInternetSession(NULL, 1, flags));
 		INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
 		pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
@@ -742,38 +751,38 @@ namespace UtilWWW
 		}
 		else
 		{
-			msg.asgType( ERMsg::ERREUR);
-			CInternetException e(GetLastError() );
+			msg.asgType(ERMsg::ERREUR);
+			CInternetException e(GetLastError());
 			msg = UtilWin::SYGetMessage(e);
 		}
 
 		return msg;
 	}
 
-	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bPassif )
+	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bPassif)
 	{
 		ERMsg msg;
-		
+
 		pConnection.reset();
 		pSession.reset();
-		
-	
-		pSession.reset( new CInternetSession(NULL, 1, flags) );
+
+
+		pSession.reset(new CInternetSession(NULL, 1, flags));
 
 		TRY
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 120000);
-			//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
-			pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
-			pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
-			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
-			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
-			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
+		//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
+		pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
+		pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
+		pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
+		pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
+		pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
 
-			pConnection.reset( pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif) );
-				
+		pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
+
 		}
-		CATCH_ALL(e)
+			CATCH_ALL(e)
 		{
 			pSession->Close();
 			pSession.reset();
@@ -783,8 +792,8 @@ namespace UtilWWW
 			msg.ajoute(CStringA(error));
 		}
 		END_CATCH_ALL
-		
-		return msg;
+
+			return msg;
 	}
 
 
@@ -793,7 +802,7 @@ namespace UtilWWW
 	{
 		return GetHttpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bHttps);
 	}
-	
+
 	ERMsg GetFtpConnection(const std::string& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, BOOL bPassif)
 	{
 		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif);
@@ -833,7 +842,7 @@ namespace UtilWWW
 	{
 		return IsFileUpToDate(pConnection, UtilWin::Convert(URL), UtilWin::Convert(localFilePath), bLookFileSize, bLookFileTime);
 	}
-	
+
 
 
 }

@@ -210,7 +210,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("Download MeteoCode", m_regions.size());
+		callback.PushTask("Download MeteoCode (" + to_string(m_regions.size()) + " regions)", m_regions.size());
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(m_workingDir, 1);
@@ -262,7 +262,7 @@ namespace WBSF
 				callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 
 				//Download files
-				callback.PushTask(region, fileList.size());
+				callback.PushTask(region + " (" + to_string(fileList.size()) + " files)" , fileList.size());
 				CreateMultipleDir(outputPath);
 
 				for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)

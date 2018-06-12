@@ -148,7 +148,7 @@ namespace WBSF
 			m_bDataEdited.clear();
 			m_bModified = false;
 
-			if (m_pStation != NULL && m_pStation->IsInit())
+			if (m_pStation != NULL && m_pStation->HaveData())
 			{
 				m_enableUpdate = FALSE;
 
@@ -227,7 +227,7 @@ namespace WBSF
 
 	CTRef CWeatherDataGridCtrl::GetTRef(long row)
 	{
-		ASSERT(m_pStation->IsInit());
+		ASSERT(m_pStation->HaveData());
 		ASSERT(GetNumberRows() > 0);
 
 		CTRef TRef;
