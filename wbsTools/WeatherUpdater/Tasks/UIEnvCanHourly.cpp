@@ -1458,72 +1458,98 @@ namespace WBSF
 		//observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 		CFileInfoVector dir1;
 		msg = FindDirectories(pConnection, "/observations/swob-ml/", dir1);// date
-		callback.PushTask(string("Get files list from: /observations/swob-ml/"), dir1.size());
-
-		//int i = 0;
-		//for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg && i<6; it1++, i++)
-		for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
-		{
-			string dirName = GetLastDirName(it1->m_filePath);
-			if (dirName != "latest")
-			{
-				int year = WBSF::as<int>(dirName.substr(0, 4));
-				size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
-				size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
-
-				CTRef TRef(year, m, d);
-
-				CFileInfoVector dir2;
-				msg = FindDirectories(pConnection, it1->m_filePath, dir2);//stations
-				callback.PushTask(string("Get files list from: ") + it1->m_filePath, dir2.size());
-				for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)//for all station
-				{
-					string ICAOID = GetLastDirName(it2->m_filePath);
-					CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
-
-					string prov;
-					if (itMissing != locations.end())
-						prov = itMissing->GetSSI("Province");
-					else
-						missingID.insert(ICAOID);
-
-
-					if (prov.empty() || selection.at(prov))
-					{
-						auto findIt = lastUpdate.find(ICAOID);
-						if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
-						{
-							CFileInfoVector fileListTmp;
-							msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
-							for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
-							{
-								string fileName = GetFileName(it->m_filePath);
-								size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
-
-								if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
-								{
-									CTRef TRef = GetSWOBTRef(fileName);
-									if (findIt == lastUpdate.end() || TRef > findIt->second)
-										fileList[ICAOID].push_back(*it);
-								}
-								msg += callback.StepIt(0);
-							}//for all files
-						}
-
-						msg += callback.StepIt();
-					}//for all stations
-				}//if it's an non-update date
-			}
-			callback.PopTask();
-			msg += callback.StepIt();
-		}//for all dates
-
-		callback.PopTask();
-
-
 
 		pConnection->Close();
 		pSession->Close();
+		size_t nbTry = 0;
+
+		CFileInfoVector::const_iterator it1 = dir1.begin();
+		while (it1 != dir1.end() && nbTry<3)
+		{
+			nbTry++;
+
+			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+
+			if (!msg)
+				return msg;
+
+			callback.PushTask(string("Get files list from: /observations/swob-ml/"), std::distance(it1, dir1.cend()) );
+
+			try
+			{
+				for (; it1 != dir1.end() && msg; it1++)
+				{
+					string dirName = GetLastDirName(it1->m_filePath);
+					if (dirName != "latest")
+					{
+						int year = WBSF::as<int>(dirName.substr(0, 4));
+						size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
+						size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
+
+						CTRef TRef(year, m, d);
+
+						CFileInfoVector dir2;
+						msg = FindDirectories(pConnection, it1->m_filePath, dir2);//stations
+						callback.PushTask(string("Get files list from: ") + it1->m_filePath, dir2.size());
+						for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)//for all station
+						{
+							string ICAOID = GetLastDirName(it2->m_filePath);
+							CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+
+							string prov;
+							if (itMissing != locations.end())
+								prov = itMissing->GetSSI("Province");
+							else
+								missingID.insert(ICAOID);
+
+
+							if (prov.empty() || selection.at(prov))
+							{
+								auto findIt = lastUpdate.find(ICAOID);
+								if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+								{
+									CFileInfoVector fileListTmp;
+									msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
+									for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+									{
+										string fileName = GetFileName(it->m_filePath);
+										size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
+
+										if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
+										{
+											CTRef TRef = GetSWOBTRef(fileName);
+											if (findIt == lastUpdate.end() || TRef > findIt->second)
+												fileList[ICAOID].push_back(*it);
+										}
+										msg += callback.StepIt(0);
+									}//for all files
+								}
+
+								msg += callback.StepIt();
+							}//for all stations
+						}//if it's an non-update date
+					}
+					callback.PopTask();
+					msg += callback.StepIt();
+				}//for all dates
+			}
+			catch (...)
+			{
+				callback.AddMessage(msg);
+				callback.PushTask("Waiting 30 seconds for server...", 600);
+				for (size_t i = 0; i < 600 && msg; i++)
+				{
+					Sleep(50);//wait 50 milisec
+					msg += callback.StepIt();
+				}
+				callback.PopTask();
+			}
+
+			callback.PopTask();
+
+			pConnection->Close();
+			pSession->Close();
+		}
 
 		return msg;
 	}
@@ -1550,38 +1576,47 @@ namespace WBSF
 		if (FileExists(filePath))
 			msg = missingLoc.Load(filePath);
 
-		callback.AddMessage("Missing stations information: ");
-		for (set<string>::const_iterator it = missingID.begin(); it != missingID.end() && msg; it++)
+		try
 		{
-			callback.AddMessage(*it, 2);
 
-			map<string, CFileInfoVector>::const_iterator it1 = fileList.find(*it);
-			ASSERT(it1 != fileList.end());
 
-			if (it1 != fileList.end())
+			callback.AddMessage("Missing stations information: ");
+			for (set<string>::const_iterator it = missingID.begin(); it != missingID.end() && msg; it++)
 			{
-				string source;
-				msg = GetPageText(pConnection, it1->second.front().m_filePath, source, false, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+				callback.AddMessage(*it, 2);
 
+				map<string, CFileInfoVector>::const_iterator it1 = fileList.find(*it);
+				ASSERT(it1 != fileList.end());
 
-				if (msg)
+				if (it1 != fileList.end())
 				{
-					WBSF::ReplaceString(source, "'", " ");
+					string source;
+					msg = GetPageText(pConnection, it1->second.front().m_filePath, source, false, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
-					CLocation location;
-					msg = GetSWOBLocation(source, location);
+
 					if (msg)
 					{
-						location.SetSSI("ICAO", *it);
-						locations.push_back(location);
-						missingLoc.push_back(location);
+						WBSF::ReplaceString(source, "'", " ");
+
+						CLocation location;
+						msg = GetSWOBLocation(source, location);
+						if (msg)
+						{
+							location.SetSSI("ICAO", *it);
+							locations.push_back(location);
+							missingLoc.push_back(location);
+						}
 					}
 				}
+
+				ASSERT(locations.FindBySSI("ICAO", *it, false) != locations.end());
+
+				msg += callback.StepIt();
 			}
+		}
+		catch (...)
+		{
 
-			ASSERT(locations.FindBySSI("ICAO", *it, false) != locations.end());
-
-			msg += callback.StepIt();
 		}
 
 		missingLoc.Save(filePath);
