@@ -189,7 +189,7 @@ namespace WBSF
 	//	}//if network
 //}
 
-	ERMsg CUIOtherCountries::GetStationList(size_t n, StringVector& stationList, CCallback& callback)const
+	ERMsg CUIOtherCountries::GetStationList(size_t n, size_t type, StringVector& stationList, CCallback& callback)const
 	{
 		ASSERT(!m_stations[n].empty());
 
@@ -198,7 +198,7 @@ namespace WBSF
 
 		stationList.clear();
 
-		size_t type = as<int>(DATA_TYPE);
+		//size_t type = as<int>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		CIrelandCounty counties(Get(IE_COUNTIES));
@@ -262,6 +262,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		size_t type = as<int>(DATA_TYPE);
 		std::bitset<NB_NETWORKS> networks = GetNetworks();
 
 		for (size_t n = 0; n < networks.size() && msg; n++)
@@ -271,7 +272,7 @@ namespace WBSF
 				switch (n)
 				{
 				case IRELAND_HISTORICAL:
-				case IRELAND_CURRENT: msg += ExecuteIreland(n, callback); break;
+				case IRELAND_CURRENT: msg += ExecuteIreland(n, type, callback); break;
 				default: ASSERT(false);
 				}
 			}
@@ -281,7 +282,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIOtherCountries::ExecuteIreland(size_t n, CCallback& callback)
+	ERMsg CUIOtherCountries::ExecuteIreland(size_t n, size_t type, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -294,7 +295,7 @@ namespace WBSF
 		callback.AddMessage(string(SERVER_NAME[n]), 1);
 		callback.AddMessage("");
 
-		size_t type = as<int>(DATA_TYPE);
+		
 
 		if (m_stations[n].empty())
 		{
@@ -344,13 +345,13 @@ namespace WBSF
 
 		StringVector stationList;
 		if(msg)
-			msg = GetStationList(n, stationList, callback);
+			msg = GetStationList(n, type, stationList, callback);
 
 		if (!msg)
 			return msg;
 
 
-		CleanIrelandList(n, stationList);
+		stationList = CleanIrelandList(n, type, stationList);
 		
 
 		callback.PushTask("Download Ireland data (" + ToString(stationList.size()) + " files)", stationList.size());
@@ -365,7 +366,7 @@ namespace WBSF
 			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
 				string str;
-				msg = DownloadIrelandStation(pConnection, n, stationList[i], type, callback);
+				msg = DownloadIrelandStation(pConnection, n, type, stationList[i], callback);
 				if (msg)
 				{
 					nbFiles++;
@@ -386,7 +387,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIOtherCountries::DownloadIrelandStation(UtilWWW::CHttpConnectionPtr& pConnection, size_t n, const std::string& ID, size_t type, CCallback& callback)
+	ERMsg CUIOtherCountries::DownloadIrelandStation(UtilWWW::CHttpConnectionPtr& pConnection, size_t n, size_t type, const std::string& ID, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -399,7 +400,7 @@ namespace WBSF
 			int close_year = ToInt(m_stations[n][pos].GetSSI("close_year"));
 			string URL = string("cli/climate_data/webdata") + (close_year == -999 ? "/" : "c/") + ((type == HOURLY_WEATHER) ? "hly" : "dly") + ID + ".zip";
 
-			string outputFilePath = GetOutputFilePath(n, ID, -999, type);
+			string outputFilePath = GetOutputFilePath(n, type, ID);
 			string outputPath = GetPath(outputFilePath);
 			CreateMultipleDir(outputPath);
 			string fileTitle = GetFileTitle(outputFilePath);
@@ -461,7 +462,7 @@ namespace WBSF
 					msg = UtilWWW::CopyFile(pConnection, URL, tmpFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_ASCII);
 					if (msg)
 					{
-						string filePath = GetOutputFilePath(n, ID, -999, type);
+						string filePath = GetOutputFilePath(n, type, ID);
 						CreateMultipleDir(GetPath(filePath));
 
 						msg = MergeCurrentIrelandHourly(TRef - 1, m_stations[n][pos].m_elev, tmpFilePath, filePath, callback);
@@ -473,7 +474,7 @@ namespace WBSF
 							msg = UtilWWW::CopyFile(pConnection, URL, tmpFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_ASCII);
 							if (msg)
 							{
-								string filePath = GetOutputFilePath(n, ID, -999, type);
+								string filePath = GetOutputFilePath(n, type, ID);
 								CreateMultipleDir(GetPath(filePath));
 
 								msg = MergeCurrentIrelandHourly(TRef, m_stations[n][pos].m_elev, tmpFilePath, filePath, callback);
@@ -592,7 +593,7 @@ namespace WBSF
 					if (it!= m_stations[IRELAND_CURRENT].end())
 					{
 						
-						string outputFilePath = GetOutputFilePath(IRELAND_CURRENT, it->m_ID, -999, DAILY_WEATHER);
+						string outputFilePath = GetOutputFilePath(IRELAND_CURRENT, DAILY_WEATHER, it->m_ID);
 
 						CWeatherYears data(false);
 						data.LoadData(outputFilePath);
@@ -630,7 +631,7 @@ namespace WBSF
 
 		return msg;
 	}
-	string CUIOtherCountries::GetOutputFilePath(size_t n, const string& ID, int year, size_t type)const
+	string CUIOtherCountries::GetOutputFilePath(size_t n, size_t type, const string& ID, int year)const
 	{
 		string fileName;
 
@@ -658,7 +659,7 @@ namespace WBSF
 		ERMsg msg;
 
 		
-
+		size_t type = as<int>(DATA_TYPE);
 		std::bitset<NB_NETWORKS> networks = GetNetworks();
 
 		for (size_t n = 0; n < networks.size() && msg; n++)
@@ -673,7 +674,7 @@ namespace WBSF
 				if (msg)
 				{
 					StringVector stationListTmp;
-					GetStationList(n, stationListTmp, callback);
+					GetStationList(n, type, stationListTmp, callback);
 
 					for (size_t i = 0; i < stationListTmp.size(); i++)
 						stationList.push_back(to_string(n) + "/" + stationListTmp[i]);
@@ -687,25 +688,34 @@ namespace WBSF
 		return msg;
 	}
 
-	void CUIOtherCountries::CleanIrelandList(size_t n, StringVector& stationList)
+	StringVector CUIOtherCountries::CleanIrelandList(size_t n, size_t type, const StringVector& stationList)
 	{
-		size_t type = as<int>(DATA_TYPE);
+		StringVector out;
 
-		StringVector tmp;
-		tmp.reserve(stationList.size());
-		for (size_t ii = 0; ii < stationList.size(); ii++)
+		
+		if (!(n == IRELAND_CURRENT && type == DAILY_WEATHER) )
 		{
+			out.reserve(stationList.size());
+			for (size_t ii = 0; ii < stationList.size(); ii++)
+			{
+
+				size_t pos = m_stations[n].FindByID(stationList[ii]);
+				ASSERT(pos != NOT_INIT);
+
+				int close_year = ToInt(m_stations[n][pos].GetSSI("close_year"));
+				string filePath = GetOutputFilePath(n, type, m_stations[n][pos].m_ID, -999);
+				if (close_year == -999 || !FileExists(filePath))
+					out.push_back(stationList[ii]);
+			}
+
 			
-			size_t pos = m_stations[n].FindByID(stationList[ii]);
-			ASSERT(pos != NOT_INIT);
-
-			int close_year = ToInt(m_stations[n][pos].GetSSI("close_year"));
-			string filePath = GetOutputFilePath(n, m_stations[n][pos].m_ID, -999, type);
-			if (close_year == -999 || !FileExists(filePath))
-				tmp.push_back(stationList[ii]);
 		}
-
-		stationList = tmp;
+		else
+		{
+			out = stationList;
+		}
+		
+		return out;
 	}
 
 	ERMsg CUIOtherCountries::GetWeatherStation(const std::string& IDin, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -740,14 +750,14 @@ namespace WBSF
 
 		if (n == IRELAND_HISTORICAL)
 		{
-			string filePath = GetOutputFilePath(n, ID, -999, type);
+			string filePath = GetOutputFilePath(n, type, ID);
 			if (FileExists(filePath))
 				msg = ReadIrelandData(filePath, station, callback);
 		}
 		else if (n == IRELAND_CURRENT)
 		{
 			//now extract data 
-			string filePath = GetOutputFilePath(n, ID, -999, type);
+			string filePath = GetOutputFilePath(n, type, ID);
 			if (FileExists(filePath))
 			{
 				station.LoadData(filePath);

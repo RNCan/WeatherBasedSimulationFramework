@@ -419,25 +419,35 @@ namespace WBSF
 					callback.AddMessage("");
 					callback.AddMessage(GetCurrentTimeString());
 					
-					
-					ERMsg msgTmp = (*it2)->Execute(callback);
-					
-					ASSERT(callback.GetNbTasks() == 1);
-					while (callback.GetNbTasks() > 1)
-						callback.PopTask();
-
-					callback.AddMessage("");
-					callback.AddMessage(GetCurrentTimeString());
-					callback.AddMessage("*******************************************");
+					try
+					{
+						ERMsg msgTmp = (*it2)->Execute(callback);
 
 
-					std::string str = GetOutputString(msgTmp, callback, false, "\n");
-					ReplaceString(str, "\n", "|");
-					ReplaceString(str, "\r", "");
+						ASSERT(callback.GetNbTasks() == 1);
+						while (callback.GetNbTasks() > 1)
+							callback.PopTask();
 
-					(*it2)->SetLastMsg(str);
-					msg += msgTmp;
+						callback.AddMessage("");
+						callback.AddMessage(GetCurrentTimeString());
+						callback.AddMessage("*******************************************");
 
+
+						std::string str = GetOutputString(msgTmp, callback, false, "\n");
+						ReplaceString(str, "\n", "|");
+						ReplaceString(str, "\r", "");
+
+						(*it2)->SetLastMsg(str);
+						msg += msgTmp;
+					}
+					catch (std::exception& e)
+					{
+						msg.ajoute(e.what());
+					}
+					catch (...)
+					{
+						msg.ajoute("A exception was throw by: " + (*it2)->m_name);
+					}
 					
 
 					msg += callback.StepIt();

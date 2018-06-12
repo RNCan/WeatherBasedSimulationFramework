@@ -47,8 +47,8 @@ namespace WBSF
 
 	protected:
 
-		ERMsg ExecuteIreland(size_t n, CCallback& callback);
-		ERMsg DownloadIrelandStation(UtilWWW::CHttpConnectionPtr& pConnection, size_t n, const std::string& ID, size_t type, CCallback& callback);
+		ERMsg ExecuteIreland(size_t n, size_t type, CCallback& callback);
+		ERMsg DownloadIrelandStation(UtilWWW::CHttpConnectionPtr& pConnection, size_t n, size_t type, const std::string& ID, CCallback& callback);
 		ERMsg MergeCurrentIrelandHourly(CTRef TRef, double elev, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 		ERMsg SplitCurrentIrelandDaily(CTRef TRef, const std::string& inputFilePath, CCallback& callback);
 		ERMsg ReadIrelandData(const std::string& filePath, CWeatherStation& data, CCallback& callback)const;
@@ -62,9 +62,9 @@ namespace WBSF
 
 		//ERMsg GetFileList(size_t n, CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		//ERMsg UpdateStationsList(size_t n, StringVector& fileList, CCallback& callback)const;
-		ERMsg GetStationList(size_t n, StringVector& fileList, CCallback& callback)const;
-		void CleanIrelandList(size_t n, StringVector& stationList);
-		std::string GetOutputFilePath(size_t n, const std::string& stationName, int year, size_t type)const;
+		ERMsg GetStationList(size_t n, size_t type, StringVector& fileList, CCallback& callback)const;
+		StringVector CleanIrelandList(size_t n, size_t type, const StringVector& stationList);
+		std::string GetOutputFilePath(size_t n, size_t type, const std::string& stationName, int year=-999)const;
 
 		
 		std::array<CLocationVector, NB_NETWORKS> m_stations;

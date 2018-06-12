@@ -1694,13 +1694,13 @@ namespace WBSF
 					END_CATCH_ALL
 				}
 
+				callback.PopTask();
+
 				if (!msg && !callback.GetUserCancel())
 				{
 					if (nbRun < 5)
 					{
-						callback.PopTask();
 						callback.AddMessage(msg);
-
 						callback.PushTask("Waiting 30 seconds for server...", 600);
 						for (size_t i = 0; i < 600 && msg; i++)
 						{
@@ -1711,7 +1711,6 @@ namespace WBSF
 					}
 				}
 
-				callback.PopTask();
 				msg += callback.StepIt();
 			}//for all station
 
