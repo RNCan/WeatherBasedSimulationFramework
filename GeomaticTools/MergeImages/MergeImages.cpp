@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 3.0.4	22/05/2018	Rémi Saint-Amant	Set Best as default.
 // 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, ajout de MeanMax
 // 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 3.0.1	16/11/2017	Rémi Saint-Amant	Some imporvement
@@ -77,7 +78,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.3";
+	const char* CMergeImages::VERSION = "3.0.4";
 	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
@@ -111,15 +112,15 @@ namespace WBSF
 
 	CMergeImagesOption::CMergeImagesOption()
 	{
-		m_mergeType = MEDIAN_TCB;
+		m_mergeType = BEST_PIXEL;// MEDIAN_TCB;
 		m_medianType = BEST_PIXEL;
 		m_bDebug = false;
 		m_bExportStats = false;
 		m_scenesSize = SCENES_SIZE;
 		m_TM = CTM::ANNUAL;
-		m_meanType = M_ALWAYS2;
-		m_meanMax = 600;
-		m_meanIdeal = 2750;
+		m_meanType = NO_MEAN;// M_ALWAYS2;
+		m_meanMax = 999999;// 600;
+		m_meanIdeal = 0;// 2750;
 		m_corr8 = NO_CORR8;
 
 
@@ -130,10 +131,10 @@ namespace WBSF
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. MEDIAN_TCB by default." },
+			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. Best by default." },
 			{ "-MedianType", 1, "type", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
-			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\" or \"always2\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"always2\" by default." },
-			{ "-MeanMax", 2, "max ideal", false, "Maximum difference between 2 pixels to compute average. When difference is heigher than MeanMax, only the nearest value of the ideal value is taken. 600 and 2750 by default (For MEDIAN_TCB)." },
+			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\" or \"always2\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"No\" by default." },
+			{ "-MeanMax", 2, "max ideal", false, "Maximum difference between 2 pixels criteria to compute average. When difference is heigher than MeanMax, only the nearest value of the ideal value is taken. No limit by default. for MEDIAN_TCB, recommanded value are 600 and 2750." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
@@ -210,8 +211,8 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-MeanMax"))
 		{
-			m_meanMax = atof(argv[++i]);
-			m_meanIdeal = atof(argv[++i]);
+			m_meanMax = atoi(argv[++i]);
+			m_meanIdeal = atoi(argv[++i]);
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
@@ -776,6 +777,9 @@ namespace WBSF
 
 							for (size_t z = 0; z < SCENES_SIZE; z++)
 								outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16, 1);
+							
+							if (outputData[JD][y][x] < 0)
+								outputData[JD][y][x] = WBSF::GetDefaultNoData(GDT_Int16);
 						}
 
 						if (m_options.m_bDebug)

@@ -429,7 +429,7 @@ ERMsg CGDALDatasetEx::CreateImage(const string& filePath, const CBaseOptions& op
 		if (options.m_bOpenBandAtCreation)
 		{
 			StringVector bandsName(options.m_VRTBandsName, "|,;");
-			ASSERT(options.m_nbBands < 250);
+			ASSERT(options.m_nbBands < 65000);
 			CBaseOptions optionsB(options);
 			optionsB.m_format = "GTiff";
 			optionsB.m_nbBands = 1; 

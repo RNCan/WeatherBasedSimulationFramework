@@ -565,9 +565,26 @@ namespace WBSF
 	}
 	//****************************************************************************************************************
 	CLandsatWindow::CLandsatWindow() :
-		CRasterWindow(SCENES_SIZE),
+		CRasterWindow(TLandsatBands::SCENES_SIZE),
 		m_corr8(NO_CORR8)
 	{}
+
+	CLandsatWindow::CLandsatWindow(const CRasterWindow& in):
+		CRasterWindow(TLandsatBands::SCENES_SIZE),
+		m_corr8(NO_CORR8)
+	{
+		if (&in != this)
+			CRasterWindow::operator=(in);
+
+	}
+
+	CLandsatWindow::CLandsatWindow(const CLandsatWindow& in):
+		CRasterWindow(TLandsatBands::SCENES_SIZE),
+		m_corr8(NO_CORR8)
+	{
+		if (&in != this)
+			CRasterWindow::operator=(in);
+	}
 
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
 	{
@@ -713,7 +730,8 @@ namespace WBSF
 
 	void CLandsatPixel::correction8to7(Landsat::TCorr8 type)
 	{
-		
+		ASSERT(type<NB_CORR8_TYPE);
+
 		static const double c0[NB_CORR8_TYPE][SCENES_SIZE - 2] =
 		{
 			{ 129.3, 98.3, 66.0, 240.3, 113.4, 0.0, 51.6},

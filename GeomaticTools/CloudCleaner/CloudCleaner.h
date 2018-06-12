@@ -146,11 +146,11 @@ namespace WBSF
 		bool m_bDebug;
 		bool m_bOutputDT;
 		bool m_bFillCloud;
-		//size_t m_maxScene;
+		
 		std::array<size_t, 2> m_scenes;
 		size_t m_doubleTrigger;
 		bool m_bSuspectAsCloud;
-		//bool m_bNoTrigger;
+		
 
 		__int64 m_nbPixelDT;
 		__int64 m_nbPixel;
@@ -167,25 +167,22 @@ namespace WBSF
 
 		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-		void Preprocess(int xBlock, int yBlock, const CBandsHolder& bandHolder, const Forests3& forest, CloudBitset& suspects1, CloudBitset& suspects2);
-		void ProcessBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, const Forests3& forest, RFCodeData& DTCode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
+		void FindSuspicious(int xBlock, int yBlock, const CBandsHolder& bandHolder, CloudBitset& suspects1, CloudBitset& suspects2);
+		void FindClouds(int xBlock, int yBlock, const CBandsHolder& bandHolder, const Forests3& forest, RFCodeData& DTCode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
 		void WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, RFCodeData& DTCode, CGDALDatasetEx& DTCodeDS);
-		void ProcessBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
+		void ResetReplaceClouds(int xBlock, int yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
 		void WriteBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
+		void SetBuffer(const CGeoExtents& extents, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds);
 		void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 
 		static bool TouchSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2, boost::dynamic_bitset<size_t>& treated);
 		static void CleanSuspect2(const CGeoExtents& extents, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2);
 		void LoadData(const CBandsHolder& bandHolder, LansatData& data);
-		//ERMsg ReadRules(CDecisionTree& DT);
 
 		CCloudCleanerOption m_options;
-
-		//static void LoadModel(CDecisionTreeBaseEx& DT, std::string filePath);
+		
 		static ERMsg ReadModel(std::string filePath, int CPU, ForestPtr& forest);
 		ERMsg ReadModel(Forests3& forest);
-
-		//static CDecisionTreeBlock GetDataRecord(std::array<CLandsatPixel, 3> p, CDecisionTreeBaseEx& DT);
 	};
 
 }

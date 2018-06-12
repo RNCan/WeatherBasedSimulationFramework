@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloudCleaner", "CloudCleane
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "..\wbs\msvc\RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloudCleanerI", "CloudCleanerI\CloudCleanerI.vcxproj", "{2B632364-3D0E-465D-B080-540B721E4684}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -211,6 +213,14 @@ Global
 		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|Win32.Build.0 = Release|Win32
 		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.ActiveCfg = Release|x64
 		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}.Release|x64.Build.0 = Release|x64
+		{2B632364-3D0E-465D-B080-540B721E4684}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2B632364-3D0E-465D-B080-540B721E4684}.Debug|Win32.Build.0 = Debug|Win32
+		{2B632364-3D0E-465D-B080-540B721E4684}.Debug|x64.ActiveCfg = Debug|x64
+		{2B632364-3D0E-465D-B080-540B721E4684}.Debug|x64.Build.0 = Debug|x64
+		{2B632364-3D0E-465D-B080-540B721E4684}.Release|Win32.ActiveCfg = Release|Win32
+		{2B632364-3D0E-465D-B080-540B721E4684}.Release|Win32.Build.0 = Release|Win32
+		{2B632364-3D0E-465D-B080-540B721E4684}.Release|x64.ActiveCfg = Release|x64
+		{2B632364-3D0E-465D-B080-540B721E4684}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

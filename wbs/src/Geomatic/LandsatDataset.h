@@ -318,8 +318,10 @@ namespace WBSF
 	public:
 
 		CLandsatWindow();
+		CLandsatWindow(const CRasterWindow& in);
+		CLandsatWindow(const CLandsatWindow& in);
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
-		CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int buffer)const;
+		CLandsatPixel GetPixelMean(size_t i, int x, int y, int buffer)const;
 		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
 
 		Landsat::TCorr8 m_corr8;

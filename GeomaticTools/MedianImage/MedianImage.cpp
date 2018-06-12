@@ -39,7 +39,7 @@ namespace WBSF
 
 
 	const char* CMedianImageOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "Jday", "nbImages" };
-	const char*  CMedianImageOption::MEAN_NAME[NB_MEAN_TYPE] = { "no", "standard", "always2", "always3" };
+	const char*  CMedianImageOption::MEAN_NAME[NB_MEAN_TYPE] = { "no", "standard", "always2", "always3", "always4" };
 
 	//*********************************************************************************************************************
 
@@ -122,6 +122,8 @@ namespace WBSF
 				m_meanType = M_ALWAYS2;
 			else if (IsEqual(str, MEAN_NAME[M_ALWAYS3]))
 				m_meanType = M_ALWAYS3;
+			else if (IsEqual(str, MEAN_NAME[M_ALWAYS4]))
+				m_meanType = M_ALWAYS4;
 			else
 				msg.ajoute("Invalid -Mean type. Mean type can be \"no\", \"standard\" or \"always2\"");
 		}
@@ -528,10 +530,10 @@ namespace WBSF
 								}
 
 								//add QA
-								/*for (size_t l = 0; l < median2[QA].size(); l++)
+								for (size_t l = 0; l < median2[QA].size(); l++)
 								{
-									scenesScore[median2[QA][l].second].first += l/2;
-								}*/
+									scenesScore[median2[QA][l].second].first += 3*(median2[QA].size() - l- 1);
+								}
 
 
 								std::sort(scenesScore.begin(), scenesScore.end());
@@ -563,7 +565,7 @@ namespace WBSF
 										size_t N3 = N2 != N1 ? N2 : median[z][N1 - 1].second < median[z][N1 + 1].second ? N1 - 1 : N1 + 1;
 										outputData[z][xy] = (OutputDataType)((median[z][N1].first + median[z][N3].first) / 2.0);
 									}
-									else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS3)
+									else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS3 || median[z].size() == 3)
 									{
 										ASSERT(median[z].size() >= 3);
 
@@ -581,6 +583,23 @@ namespace WBSF
 												stat += median[z][n].first;
 										}
 											
+										if (stat.IsInit())
+											outputData[z][xy] = (OutputDataType)stat[MEAN];
+									}
+									else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS4 || median[z].size() == 4)
+									{
+										ASSERT(median[z].size() >= 4);
+										size_t N3 = N2 != N1 ? N1 - 1 : median[z][N1 - 2].second < median[z][N1 + 2].second ? N1 - 2 : N1 - 1;
+										size_t N4 = N2 != N1 ? N2 + 1 : median[z][N1 - 2].second < median[z][N1 + 2].second ? N1 + 1  : N1 + 2;
+
+										CStatistic stat;
+										for (size_t n = N3; n <= N4; n++)
+										{
+											//size_t nn = n;
+											if (n<median[z].size())
+												stat += median[z][n].first;
+										}
+
 										if (stat.IsInit())
 											outputData[z][xy] = (OutputDataType)stat[MEAN];
 									}
@@ -604,22 +623,36 @@ namespace WBSF
 							{
 								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N2].first) / 2.0);
 							}
-							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2)
+							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS2 || median[JD].size() == 2)
 							{
 								size_t N3 = N2 != N1 ? N2 : median[JD][N1 - 1].second < median[JD][N1 + 1].second ? N1 - 1 : N1 + 1;
 								jd1970 = (OutputDataType)((median[JD][N1].first + median[JD][N3].first) / 2.0);
 							}
-							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS3)
+							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS3 || median[JD].size() == 3)
 							{
-								int N4 = int(N) - 1;
-								int N5 = int(N) + 1;
+								size_t N3 = N2 == N1 ? N1 - 1 : median[JD][N1 - 1].second < median[JD][N2 + 1].second ? N1 - 1 : N1;
+								size_t N4 = N2 == N1 ? N2 + 1 : median[JD][N1 - 1].second < median[JD][N2 + 1].second ? N2 : N2 + 1;
 
 								CStatistic stat;
-								for (int n = N4; n <= N5; n++)
+								for (size_t n = N3; n <= N4; n++)
 								{
-									size_t nn = n;
-									if (nn<median[JD].size())
-										stat += median[JD][nn].first;
+									if (n<median[JD].size())
+										stat += median[JD][n].first;
+								}
+
+								if (stat.IsInit())
+									jd1970 = (OutputDataType)stat[MEAN];
+							}
+							else if (m_options.m_meanType == CMedianImageOption::M_ALWAYS4 || median[JD].size() == 4)
+							{
+								size_t N3 = N2 != N1 ? N1 - 1 : median[JD][N1 - 2].second < median[JD][N1 + 2].second ? N1 - 2 : N1 - 1;
+								size_t N4 = N2 != N1 ? N2 + 1 : median[JD][N1 - 2].second < median[JD][N1 + 2].second ? N1 + 1 : N1 + 2;
+
+								CStatistic stat;
+								for (size_t n = N3; n <= N4; n++)
+								{
+									if (n<median[JD].size())
+										stat += median[JD][n].first;
 								}
 
 								if (stat.IsInit())
