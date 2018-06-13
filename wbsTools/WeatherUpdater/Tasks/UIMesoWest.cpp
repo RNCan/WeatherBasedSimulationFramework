@@ -210,7 +210,7 @@ namespace WBSF
 			{
 				try
 				{
-					for (size_t i = cur_i; i < stationList.size() && msg; i++)
+					for (size_t i = cur_i; i < stationList.size() && msg; i++, cur_i++)
 					{
 						string start = stationList[i].GetSSI("Start");
 						string end = stationList[i].GetSSI("End");
