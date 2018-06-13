@@ -233,11 +233,11 @@ namespace WBSF
 			int nbDownload = 0;
 			CWeatherStationVector stations;
 			size_t cur_i = 0;
-			size_t nbRun = 0;
+			size_t nbTry = 0;
 
 			while (cur_i < m_regions.size() && msg)
 			{
-				nbRun++;
+				nbTry++;
 
 				//open a connection on the server
 				CInternetSessionPtr pSession;
@@ -308,18 +308,22 @@ namespace WBSF
 				}
 				catch (CException* e)
 				{
-
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (size_t i = 0; i < 600 && msg; i++)
+					if (nbTry < 3)
 					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						callback.PushTask("Waiting 30 seconds for server...", 600);
+						for (size_t i = 0; i < 600 && msg; i++)
+						{
+							Sleep(50);//wait 50 milisec
+							msg += callback.StepIt();
+						}
+						callback.PopTask();
+
 					}
-					callback.PopTask();
-
-
-					if (nbRun >= 3)
+					else
+					{
 						msg = UtilWin::SYGetMessage(*e);
+					}
 				}
 
 				pConnection->Close();

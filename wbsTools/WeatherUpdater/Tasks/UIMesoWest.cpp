@@ -195,67 +195,92 @@ namespace WBSF
 		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
 		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
 		
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		size_t nbTry = 0;
+		size_t cur_i = 0;
 
-		if (msg)
+		while (cur_i < stationList.size() && msg)
 		{
-			TRY
-				for (size_t i = 0; i < stationList.size() && msg; i++)
+			nbTry++;
+
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+			msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+
+			if (msg)
+			{
+				try
 				{
-					string start = stationList[i].GetSSI("Start");
-					string end = stationList[i].GetSSI("End");
-					ASSERT(!start.empty());
-
-
-					CTRef startTRef = GetTRef(start);
-					CTRef endTRef = !end.empty() ? GetTRef(end) : current;
-
-					CTPeriod activePeriod(startTRef, endTRef);
-					activePeriod.Transform(CTM::MONTHLY);
-
-					for (size_t y = 0; y < nbYears&&msg; y++)
+					for (size_t i = cur_i; i < stationList.size() && msg; i++)
 					{
-						int year = firstYear + int(y);
+						string start = stationList[i].GetSSI("Start");
+						string end = stationList[i].GetSSI("End");
+						ASSERT(!start.empty());
 
-						if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
+
+						CTRef startTRef = GetTRef(start);
+						CTRef endTRef = !end.empty() ? GetTRef(end) : current;
+
+						CTPeriod activePeriod(startTRef, endTRef);
+						activePeriod.Transform(CTM::MONTHLY);
+
+						for (size_t y = 0; y < nbYears&&msg; y++)
 						{
-							size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
-							for (size_t m = 0; m < nbMonths&&msg; m++)
-							{
-								if (activePeriod.IsInside(CTRef(year, m)))
-								{
-									static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-									string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
-									string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
-									CreateMultipleDir(GetPath(ouputFilePath));
+							int year = firstYear + int(y);
 
-									CFileInfo info = GetFileInfo(ouputFilePath);
-									CTimeRef TRef1(info.m_time);
-									if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+							if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
+							{
+								size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
+								for (size_t m = 0; m < nbMonths&&msg; m++)
+								{
+									if (activePeriod.IsInside(CTRef(year, m)))
 									{
-										msg += CopyFile(pConnection, URL, ouputFilePath);
-										if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
-											nbDownload++;
+										static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
+										string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
+										string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
+										CreateMultipleDir(GetPath(ouputFilePath));
+
+										CFileInfo info = GetFileInfo(ouputFilePath);
+										CTimeRef TRef1(info.m_time);
+										if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
+										{
+											msg += CopyFile(pConnection, URL, ouputFilePath);
+											if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
+												nbDownload++;
+										}
+
 									}
 
-								}
+									msg += callback.StepIt();
+								}//for all months
+							}//active station only for current year
+						}//for all years
+					}//for all stations
 
-								msg += callback.StepIt();
-							}//for all months
-						}//active station only for current year
-					}//for all years
-				}//for all stations
+				}
+				catch (CException* e)
+				{
+					if (nbTry < 3)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						callback.PushTask("Waiting 30 seconds for server...", 600);
+						for (size_t i = 0; i < 600 && msg; i++)
+						{
+							Sleep(50);//wait 50 milisec
+							msg += callback.StepIt();
+						}
+						callback.PopTask();
 
-			CATCH_ALL(e)
-				msg = UtilWin::SYGetMessage(*e);
-			END_CATCH_ALL
-
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
 
 				pConnection->Close();
-			pSession->Close();
+				pSession->Close();
 
+			}
 		}
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
@@ -605,131 +630,160 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
+		size_t nbTry = 0;
 
 		//a faire avec JSON
 		///v2/stations/metadata?token=635d9802c84047398d1392062e39c960
 
-		msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
-		if (msg)
+		while (msg)
 		{
-			//v2/stations/metadata?complete=1&state=QC&token=635d9802c84047398d1392062e39c960
-			std::map<string, string> networks;
-			{
-				string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
+			nbTry++;
 
-				string source;
-				msg = GetPageText(pConnection, URL, source);
+			try
+			{
+				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
 				if (msg)
 				{
-					string error;
-					const Json& root = Json::parse(source, error);
-					if (error.empty())
-					{
-						ASSERT(root["MNET"].type() == Json::ARRAY);
-						const std::vector<Json>& nets = root["MNET"].array_items();
+					
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-						for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
-							networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
+					std::map<string, string> networks;
+					{
+						string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
+
+						string source;
+						msg = GetPageText(pConnection, URL, source);
+						if (msg)
+						{
+							string error;
+							const Json& root = Json::parse(source, error);
+							if (error.empty())
+							{
+								ASSERT(root["MNET"].type() == Json::ARRAY);
+								const std::vector<Json>& nets = root["MNET"].array_items();
+
+								for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
+									networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
+							}
+						}
 					}
+
+
+					string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
+
+					string source;
+					msg = GetPageText(pConnection, URL, source);
+					if (msg)
+					{
+						string error;
+						const Json& root = Json::parse(source, error);
+						if (error.empty())
+						{
+
+							ASSERT(root["STATION"].type() == Json::ARRAY);
+							const std::vector<Json>& stations = root["STATION"].array_items();
+
+
+							callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
+							for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+							{
+								CLocation location;
+
+
+
+								location.m_name = PurgeName((*it)["NAME"].string_value());
+								location.m_ID = (*it)["STID"].string_value();
+								location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
+								location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
+								location.m_alt = WBSF::Feet2Meter(WBSF::as<double>((*it)["ELEVATION"].string_value()));
+
+
+								string country = (*it)["COUNTRY"].string_value();
+								string state = (*it)["STATE"].string_value();
+								string time_zone = (*it)["TIMEZONE"].string_value();
+								string id = (*it)["ID"].string_value();
+								string status = (*it)["STATUS"].string_value();
+								string network = (*it)["SHORTNAME"].string_value();
+								string networkID = (*it)["MNET_ID"].string_value();
+								string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
+								string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
+								CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
+
+								//if the station is still active or seem to be still active, we don't set end date 
+								if (status == "ACTIVE" || TRef.GetYear() >= current.GetYear() - 1)
+									end.clear();
+
+								if (state == "NF")
+									state = "NL";
+
+								if (country.empty())
+								{
+									if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
+										country = "CA";
+									else if (CStateSelection::GetState(state) != UNKNOWN_POS)
+										country = "US";
+									else
+										country = "--";
+								}
+
+								if (network.empty() && !networkID.empty())
+									network = networks[networkID];
+
+								if (location.m_ID == "A1139")//alien station
+								{
+									country = "US";
+									state = "WY";
+								}
+
+								location.SetSSI("Status", status);
+								location.SetSSI("Country", country);
+								location.SetSSI("State", state);
+								location.SetSSI("Network", network);
+								location.SetSSI("NetworkID", networkID);
+								location.SetSSI("TimeZone", time_zone);
+								location.SetSSI("Start", start);
+								location.SetSSI("End", end);
+
+
+								stationList.push_back(location);
+
+								msg += callback.StepIt();
+							}//for all stations
+
+							callback.PopTask();
+						}//if error
+						else
+						{
+							msg.ajoute(error);
+						}
+					}//if msg
+				}//if msg
+
+				callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+			}
+			catch(CException* e)
+			{
+				if (nbTry < 3)
+				{
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
+
+				}
+				else
+				{
+					msg = UtilWin::SYGetMessage(*e);
 				}
 			}
 
-
-			string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
-
-			string source;
-			msg = GetPageText(pConnection, URL, source);
-			if (msg)
-			{
-				string error;
-				const Json& root = Json::parse(source, error);
-				if (error.empty())
-				{
-
-					ASSERT(root["STATION"].type() == Json::ARRAY);
-					const std::vector<Json>& stations = root["STATION"].array_items();
-
-
-					callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
-					for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
-					{
-						CLocation location;
-
-
-
-						location.m_name = PurgeName((*it)["NAME"].string_value());
-						location.m_ID = (*it)["STID"].string_value();
-						location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
-						location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
-						location.m_alt = WBSF::Feet2Meter(WBSF::as<double>((*it)["ELEVATION"].string_value()));
-
-
-						string country = (*it)["COUNTRY"].string_value();
-						string state = (*it)["STATE"].string_value();
-						string time_zone = (*it)["TIMEZONE"].string_value();
-						string id = (*it)["ID"].string_value();
-						string status = (*it)["STATUS"].string_value();
-						string network = (*it)["SHORTNAME"].string_value();
-						string networkID = (*it)["MNET_ID"].string_value();
-						string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
-						string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
-						CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
-
-						//if the station is still active or seem to be still active, we don't set end date 
-						if (status == "ACTIVE" || TRef.GetYear() >= current.GetYear() - 1)
-							end.clear();
-
-						if (state == "NF")
-							state = "NL";
-
-						if (country.empty())
-						{
-							if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
-								country = "CA";
-							else if (CStateSelection::GetState(state) != UNKNOWN_POS)
-								country = "US";
-							else
-								country = "--";
-						}
-
-						if (network.empty() && !networkID.empty())
-							network = networks[networkID];
-
-						if (location.m_ID == "A1139")//alien station
-						{
-							country = "US";
-							state = "WY";
-						}
-
-						location.SetSSI("Status", status);
-						location.SetSSI("Country", country);
-						location.SetSSI("State", state);
-						location.SetSSI("Network", network);
-						location.SetSSI("NetworkID", networkID);
-						location.SetSSI("TimeZone", time_zone);
-						location.SetSSI("Start", start);
-						location.SetSSI("End", end);
-
-
-						stationList.push_back(location);
-
-						msg += callback.StepIt();
-					}//for all stations
-
-					callback.PopTask();
-				}//if error
-				else
-				{
-					msg.ajoute(error);
-				}
-			}//if msg
-		}//if msg
-
-		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
-
-		pConnection->Close();
-		pSession->Close();
-
+			pConnection->Close();
+			pSession->Close();
+		}
 
 		return msg;
 	}

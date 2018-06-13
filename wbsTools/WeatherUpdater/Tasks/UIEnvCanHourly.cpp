@@ -1544,17 +1544,22 @@ namespace WBSF
 			}
 			catch (CException* e)
 			{
-				//callback.AddMessage(msg);
-				callback.PushTask("Waiting 30 seconds for server...", 600);
-				for (size_t i = 0; i < 600 && msg; i++)
+				if (nbTry < 3)
 				{
-					Sleep(50);//wait 50 milisec
-					msg += callback.StepIt();
-				}
-				callback.PopTask();
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
 
-				if (nbTry >= 3)
+				}
+				else
+				{
 					msg = UtilWin::SYGetMessage(*e);
+				}
 			}
 
 			
@@ -1653,11 +1658,11 @@ namespace WBSF
 		map<string, CTRef> lastUpdate;
 		int nbDownload = 0;
 
-		int nbRun = 0;
+		size_t nbTry = 0;
 		map<string, CFileInfoVector>::const_iterator it1 = fileList.begin();
 		while (it1 != fileList.end() && msg)
 		{
-			nbRun++;
+			nbTry++;
 
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
@@ -1746,7 +1751,7 @@ namespace WBSF
 
 				if (!msg && !callback.GetUserCancel())
 				{
-					if (nbRun < 5)
+					if (nbTry < 5)
 					{
 						callback.AddMessage(msg);
 						callback.PushTask("Waiting 30 seconds for server...", 600);
