@@ -3,6 +3,7 @@
 #include "Basic/WeatherStation.h"
 #include "Geomatic/ShapeFileBase.h"
 #include "UI/Common/UtilWWW.h"
+#include "UI/Common/SYSHowMessage.h"
 #include "TaskFactory.h"
 
 #include "WeatherBasedSimulationString.h"
@@ -63,7 +64,7 @@ namespace WBSF
 		}
 
 	}
-	
+
 	std::string CRegionSelection::GetAllPossibleValue(bool bAbvr, bool bName)
 	{
 		string str;
@@ -89,7 +90,7 @@ namespace WBSF
 	const char* CEnvCanHourlyForecast::SERVER_PATH = "/meteocode/";
 
 	//*********************************************************************
-	
+
 
 	//autre forecast quotidienne avec plus de jour et la déviation
 	//https://weather.gc.ca/ensemble/naefs/EPSgrams_e.html?station=YOW
@@ -99,10 +100,10 @@ namespace WBSF
 
 
 
-	CEnvCanHourlyForecast::CEnvCanHourlyForecast(void):
+	CEnvCanHourlyForecast::CEnvCanHourlyForecast(void) :
 		m_pShapefile(NULL)
 	{}
-	
+
 
 	CEnvCanHourlyForecast::~CEnvCanHourlyForecast(void)
 	{
@@ -223,74 +224,100 @@ namespace WBSF
 
 
 		CHourlyDatabase().DeleteDatabase(GetDatabaseFilePath(), callback);
-		
-
-		//open a connection on the server
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
 
 		msg = m_stations.Load(GetStationListFilePath());
-
-		if (msg)
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
 
 		if (msg)
 		{
 
 			int nbDownload = 0;
 			CWeatherStationVector stations;
+			size_t cur_i = 0;
+			size_t nbRun = 0;
 
-
-			for (size_t i = 0; i < m_regions.size() && msg; i++)
+			while (cur_i < m_regions.size() && msg)
 			{
-				if (m_regions.any() && !m_regions[i])
-					continue;
+				nbRun++;
 
-				string region = m_regions.GetName((int)i, true);
-				string URL = SERVER_PATH + region + "/cmml/";
-				string outputPath = m_workingDir + region + "/";
+				//open a connection on the server
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
 
-				StringVector filesList = GetFilesList(outputPath + "TRANSMIT.*.xml");
-				for (StringVector::const_iterator it = filesList.begin(); it != filesList.end(); it++)
-					msg += RemoveFile(*it);
 
-				//Load files list
-				CFileInfoVector fileList;
-				UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
-				ClearList(fileList);
-				callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
+				if (msg)
+					msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
 
-				//Download files
-				callback.PushTask(region + " (" + to_string(fileList.size()) + " files)" , fileList.size());
-				CreateMultipleDir(outputPath);
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-				for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+				try
 				{
-					string fileName = GetFileName(it->m_filePath);
-					string ID = fileName.substr(0, 8);
-					string outputFilePath = outputPath + fileName;
-
-					msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-					if (msg)
+					for (size_t i = cur_i; i < m_regions.size() && msg; i++, cur_i++)
 					{
-						ASSERT(FileExists(outputFilePath));
-						nbDownload++;
-						msg = ReadData(outputFilePath, stations, callback);
-					}
+						if (m_regions.any() && !m_regions[i])
+							continue;
 
-					msg += callback.StepIt();
+						string region = m_regions.GetName((int)i, true);
+						string URL = SERVER_PATH + region + "/cmml/";
+						string outputPath = m_workingDir + region + "/";
+
+						StringVector filesList = GetFilesList(outputPath + "TRANSMIT.*.xml");
+						for (StringVector::const_iterator it = filesList.begin(); it != filesList.end(); it++)
+							msg += RemoveFile(*it);
+
+
+						//Load files list
+						CFileInfoVector fileList;
+						UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
+						ClearList(fileList);
+						callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
+
+						//Download files
+						callback.PushTask(region + " (" + to_string(fileList.size()) + " files)", fileList.size());
+						CreateMultipleDir(outputPath);
+
+						for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+						{
+							string fileName = GetFileName(it->m_filePath);
+							string ID = fileName.substr(0, 8);
+							string outputFilePath = outputPath + fileName;
+
+							msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
+							if (msg)
+							{
+								ASSERT(FileExists(outputFilePath));
+								nbDownload++;
+								msg = ReadData(outputFilePath, stations, callback);
+							}
+
+							msg += callback.StepIt();
+						}
+
+						callback.PopTask();
+						msg += callback.StepIt();
+
+					}//for all province
+				}
+				catch (CException* e)
+				{
+
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
+
+
+					if (nbRun >= 3)
+						msg = UtilWin::SYGetMessage(*e);
 				}
 
-				callback.PopTask();
-				msg += callback.StepIt();
-
-			}//for all province
+				pConnection->Close();
+				pSession->Close();
+			}
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
-
-			pConnection->Close();
-			pSession->Close();
 
 			if (msg)
 			{
@@ -313,7 +340,7 @@ namespace WBSF
 		return msg;
 	}
 
-	
+
 	ERMsg CEnvCanHourlyForecast::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
@@ -356,7 +383,7 @@ namespace WBSF
 
 			if (!m_DB.IsOpen())
 				msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
-				
+
 			if (msg && !m_pShapefile)
 			{
 				m_pShapefile = new CShapeFileBase;
@@ -365,7 +392,7 @@ namespace WBSF
 
 			if (!msg)
 				return msg;
-			
+
 
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
@@ -421,8 +448,8 @@ namespace WBSF
 
 								const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
 
-								for (int v = 0; v <NB_VAR_H; v++)
-									if (hourData[v]>-999)
+								for (int v = 0; v < NB_VAR_H; v++)
+									if (hourData[v] > -999)
 										accumulator.Add(d, v, hourData[v]);
 
 							}//for all days
@@ -606,7 +633,7 @@ namespace WBSF
 
 
 							CLocationVector::const_iterator itFind = std::find_if(m_stations.begin(), m_stations.end(), FindLocationByID(ID));
-							
+
 							if (itFind == m_stations.end() && (ID.back() == 'a' || ID.back() == 'b' || ID.back() == 'c' || ID.back() == 'd'))
 							{
 								string ID2(ID);
@@ -625,7 +652,7 @@ namespace WBSF
 									CWeatherStation weaterStation(true);
 									((CLocation&)weaterStation) = *itFind;
 									weaterStation.m_name = PurgeFileName(weaterStation.m_name);
-									weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, RemoveAccented(weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv") );
+									weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, RemoveAccented(weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv"));
 									stations.push_back(weaterStation);
 									it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
 								}
@@ -653,15 +680,15 @@ namespace WBSF
 	ERMsg CEnvCanHourlyForecast::Finalize(CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		m_DB.Close();
 		if (m_pShapefile)
 		{
 			delete m_pShapefile;
-			m_pShapefile=NULL;
+			m_pShapefile = NULL;
 		}
-		
+
 		return msg;
 	}
-	
+
 }

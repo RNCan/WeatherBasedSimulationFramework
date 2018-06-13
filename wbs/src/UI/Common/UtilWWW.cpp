@@ -233,8 +233,8 @@ namespace UtilWWW
 
 		ERMsg msg;
 
-		TRY
-		{
+		//TRY
+		//{
 
 		CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
 
@@ -268,35 +268,36 @@ namespace UtilWWW
 
 					//file.Write(source.data(), (UINT)source.size());
 
-				msg += callback.StepIt(0);
+					msg += callback.StepIt(0);
+				}
+
+				file.Close();
+
+				if (!msg || bEmptyFile)
+					CFile::Remove(outputFilePath);
+
 			}
 
-			file.Close();
 
-			if (!msg || bEmptyFile)
-				CFile::Remove(outputFilePath);
-
+			pURLFile->Close();
 		}
-
-
-		pURLFile->Close();
-	}
-	else
-	{
-		std::string errorURL = CStringA(URL);
-		std::string error = FormatMsg(IDS_CMN_UNABLE_LOAD_PAGE, errorURL);
-		msg.ajoute(error);
-	}
-
-	delete pURLFile;
-		}
-			CATCH_ALL(e)
+		else
 		{
-			msg = UtilWin::SYGetMessage(*e);
+			std::string errorURL = CStringA(URL);
+			std::string error = FormatMsg(IDS_CMN_UNABLE_LOAD_PAGE, errorURL);
+			msg.ajoute(error);
 		}
-		END_CATCH_ALL
 
-			return msg;
+		delete pURLFile;
+		//	}
+			//	CATCH_ALL(e)
+			//{
+			//	//msg = UtilWin::SYGetMessage(*e);
+			//	THROW(e)
+			//}
+			//END_CATCH_ALL
+
+		return msg;
 	}
 
 
