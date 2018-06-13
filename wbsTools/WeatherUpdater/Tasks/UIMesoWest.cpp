@@ -194,7 +194,7 @@ namespace WBSF
 		int nbDownload = 0;
 		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
 		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
-		
+
 		size_t nbTry = 0;
 		size_t cur_i = 0;
 
@@ -372,7 +372,7 @@ namespace WBSF
 		CWeatherAccumulator accumulator(TM);
 		station.CreateYears(firstYear, nbYears);
 
-		
+
 		//load previous hours
 		string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, firstYear - 1, DECEMBER);
 		CFileInfo info = GetFileInfo(filePath);
@@ -505,7 +505,7 @@ namespace WBSF
 					double last_prcp = 0;
 					CTRef last_prcp_ref;
 
-					
+
 
 					const Json& obs = stations[0]["OBSERVATIONS"];
 					ASSERT(obs.type() == Json::OBJECT);
@@ -543,7 +543,7 @@ namespace WBSF
 
 					for (size_t i = 0; i < TRefs.size() && msg; i++)
 					{
-						
+
 						if (accumulator.GetTRef().IsInit() && accumulator.TRefIsChanging(TRefs[i]))
 							data[accumulator.GetTRef()].SetData(accumulator);
 
@@ -621,53 +621,106 @@ namespace WBSF
 		return WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(str));
 	}
 
-
-	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
+	ERMsg DownloadNetwork(std::map<string, string>& networks, CCallback& callback)
 	{
 		ERMsg msg;
 
-		CTRef current = CTRef::GetCurrentTRef();
+		string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
+		callback.PushTask("Download networks list", -1);
+
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
+
+		
 		size_t nbTry = 0;
-
-		//a faire avec JSON
-		///v2/stations/metadata?token=635d9802c84047398d1392062e39c960
-
-		while (msg)
+		bool bContinue = true;
+		while (bContinue && msg)
 		{
 			nbTry++;
-
 			try
 			{
 				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
 				if (msg)
 				{
-					
+
 					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-					std::map<string, string> networks;
+					string source;
+					msg = GetPageText(pConnection, URL, source);
+					if (msg)
 					{
-						string URL = "v2/networks?token=635d9802c84047398d1392062e39c960";
-
-						string source;
-						msg = GetPageText(pConnection, URL, source);
-						if (msg)
+						string error;
+						const Json& root = Json::parse(source, error);
+						if (error.empty())
 						{
-							string error;
-							const Json& root = Json::parse(source, error);
-							if (error.empty())
-							{
-								ASSERT(root["MNET"].type() == Json::ARRAY);
-								const std::vector<Json>& nets = root["MNET"].array_items();
+							ASSERT(root["MNET"].type() == Json::ARRAY);
+							const std::vector<Json>& nets = root["MNET"].array_items();
 
-								for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
-									networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
-							}
+							for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
+								networks[(*it)["ID"].string_value()] = (*it)["SHORTNAME"].string_value();
 						}
 					}
+				}
 
+				bContinue = false;
+			}
+			catch (CException* e)
+			{
+				if (nbTry < 3)
+				{
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
+					{
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
+					}
+					callback.PopTask();
+
+				}
+				else
+				{
+					msg = UtilWin::SYGetMessage(*e);
+				}
+			}
+
+			pConnection->Close();
+			pSession->Close();
+		}
+		
+		callback.PopTask();
+
+		return msg;
+	}
+	
+	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
+	{
+		ERMsg msg;
+
+
+		std::map<string, string> networks;
+		msg = DownloadNetwork(networks, callback);
+		if (!msg)
+			return msg;
+
+		CTRef current = CTRef::GetCurrentTRef();
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+		callback.PushTask("Download stations list", -1);
+
+		size_t nbTry = 0;
+		bool bContinue = true;
+		while (bContinue && msg)
+		{
+			nbTry++;
+			try
+			{
+				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
+				if (msg)
+				{
+					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 					string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
 
@@ -760,8 +813,9 @@ namespace WBSF
 				}//if msg
 
 				callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+				bContinue = false;
 			}
-			catch(CException* e)
+			catch (CException* e)
 			{
 				if (nbTry < 3)
 				{
@@ -784,6 +838,8 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 		}
+
+		callback.PopTask();
 
 		return msg;
 	}
