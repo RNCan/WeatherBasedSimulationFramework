@@ -12,8 +12,7 @@
 #include "WeatherBasedSimulationString.h"
 #include "StateSelection.h"
 #include "ProvinceSelection.h"
-//#include "Geomatic/TimeZones.h"
-//#include "cctz/time_zone.h"
+
 using namespace json11;
 
 using namespace WBSF::HOURLY_DATA;
@@ -208,6 +207,8 @@ namespace WBSF
 
 			if (msg)
 			{
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
+
 				try
 				{
 					for (size_t i = cur_i; i < stationList.size() && msg; i++, cur_i++)
@@ -245,9 +246,11 @@ namespace WBSF
 										{
 											msg += CopyFile(pConnection, URL, ouputFilePath);
 											if (msg && WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
+											{
 												nbDownload++;
+												nbTry = 0;
+											}
 										}
-
 									}
 
 									msg += callback.StepIt();
@@ -720,7 +723,7 @@ namespace WBSF
 				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
 				if (msg)
 				{
-					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 					string URL = "v2/stations/metadata?token=635d9802c84047398d1392062e39c960";
 
