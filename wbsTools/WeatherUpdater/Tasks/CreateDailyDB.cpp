@@ -167,6 +167,7 @@ namespace WBSF
 						//transform hourly data to daily data
 						station.GetStat(H_TAIR2);//compute daily stat
 						station.SetHourly(false);//remove hourly values
+						//station.GetStat(H_TAIR2);//compute stat again
 					}
 
 					CleanSparse(station);

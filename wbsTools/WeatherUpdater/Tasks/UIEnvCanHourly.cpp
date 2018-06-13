@@ -228,7 +228,7 @@ namespace WBSF
 						{
 							curI++;
 						}
-						
+
 					}
 
 				CATCH_ALL(e)
@@ -709,8 +709,8 @@ namespace WBSF
 
 			if (msg)
 			{
-				
-					
+
+
 				for (size_t i = curI; i < stationList.size() && msg; i++)
 				{
 					msg = DownloadStation(pConnection, stationList[i], callback);
@@ -722,8 +722,8 @@ namespace WBSF
 						msg += callback.StepIt();
 					}
 				}
-						
-				
+
+
 
 				//if an error occur: try again
 				if (!msg && !callback.GetUserCancel())
@@ -826,8 +826,8 @@ namespace WBSF
 						CATCH_ALL(e)
 							msg = UtilWin::SYGetMessage(*e);
 						END_CATCH_ALL
-						
-						msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
+
+							msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
 					}
 				}
 			}
@@ -1153,11 +1153,11 @@ namespace WBSF
 				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
 				if (loop.Header().size() != (NB_INPUT_HOURLY_COLUMN + fix))
 				{
-					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) +  "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
+					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
 					msg.ajoute(filePath);
 					return msg;
 				}
-				
+
 				if (loop->size() == (NB_INPUT_HOURLY_COLUMN + fix))
 				{
 					int year = ToInt((*loop)[H_YEAR]);
@@ -1464,7 +1464,7 @@ namespace WBSF
 		size_t nbTry = 0;
 
 		CFileInfoVector::const_iterator it1 = dir1.begin();
-		while (it1 != dir1.end() && nbTry<3)
+		while (it1 != dir1.end() && nbTry < 3)
 		{
 			nbTry++;
 
@@ -1473,7 +1473,7 @@ namespace WBSF
 			if (!msg)
 				return msg;
 
-			callback.PushTask(string("Get files list from: /observations/swob-ml/"), std::distance(it1, dir1.cend()) );
+			callback.PushTask(string("Get files list from: /observations/swob-ml/"), std::distance(it1, dir1.cend()));
 
 			try
 			{
@@ -1491,44 +1491,53 @@ namespace WBSF
 						CFileInfoVector dir2;
 						msg = FindDirectories(pConnection, it1->m_filePath, dir2);//stations
 						callback.PushTask(string("Get files list from: ") + it1->m_filePath, dir2.size());
-						for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)//for all station
+						try
 						{
-							string ICAOID = GetLastDirName(it2->m_filePath);
-							CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
-
-							string prov;
-							if (itMissing != locations.end())
-								prov = itMissing->GetSSI("Province");
-							else
-								missingID.insert(ICAOID);
-
-
-							if (prov.empty() || selection.at(prov))
+							for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)//for all station
 							{
-								auto findIt = lastUpdate.find(ICAOID);
-								if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+								string ICAOID = GetLastDirName(it2->m_filePath);
+								CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+
+								string prov;
+								if (itMissing != locations.end())
+									prov = itMissing->GetSSI("Province");
+								else
+									missingID.insert(ICAOID);
+
+
+								if (prov.empty() || selection.at(prov))
 								{
-									CFileInfoVector fileListTmp;
-									msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
-									for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+									auto findIt = lastUpdate.find(ICAOID);
+									if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
 									{
-										string fileName = GetFileName(it->m_filePath);
-										size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
-
-										if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
+										CFileInfoVector fileListTmp;
+										msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
+										for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 										{
-											CTRef TRef = GetSWOBTRef(fileName);
-											if (findIt == lastUpdate.end() || TRef > findIt->second)
-												fileList[ICAOID].push_back(*it);
-										}
-										msg += callback.StepIt(0);
-									}//for all files
-								}
+											string fileName = GetFileName(it->m_filePath);
+											size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
 
-								msg += callback.StepIt();
-							}//for all stations
-						}//if it's an non-update date
+											if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
+											{
+												CTRef TRef = GetSWOBTRef(fileName);
+												if (findIt == lastUpdate.end() || TRef > findIt->second)
+													fileList[ICAOID].push_back(*it);
+											}
+											msg += callback.StepIt(0);
+										}//for all files
+									}
+
+									msg += callback.StepIt();
+								}//for all stations
+							}//if it's an non-update date
+						}
+						catch (CException& e)
+						{
+							callback.PopTask();
+							throw;
+						}
 					}
+
 					callback.PopTask();
 					msg += callback.StepIt();
 				}//for all dates
@@ -1546,7 +1555,6 @@ namespace WBSF
 			}
 
 			callback.PopTask();
-
 			pConnection->Close();
 			pSession->Close();
 		}

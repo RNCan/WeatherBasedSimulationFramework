@@ -1,6 +1,6 @@
 //******************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
-//	Programmer:     Rémi Saint-Amant
+//	Programmer:     Rémi Saint-Amant 
 // 
 //  It under the terms of the GNU General Public License as published by
 //     the Free Software Foundation

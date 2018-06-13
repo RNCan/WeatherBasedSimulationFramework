@@ -340,6 +340,7 @@ namespace WBSF
 		//no forecast are added on old data
 //		if (station.IsYearInit(year))
 		CTRef current = CTRef::GetCurrentTRef(TM);
+		station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = station.GetVariablesCount();
 		CTRef TRefEnd = counter.GetTPeriod().End();
 		ASSERT(TRefEnd <= current);

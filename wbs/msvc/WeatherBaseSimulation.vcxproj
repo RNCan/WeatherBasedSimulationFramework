@@ -31,6 +31,9 @@
     <ProjectReference Include="ModelBase.vcxproj">
       <Project>{dd3a2586-ef87-438e-9304-33fb8179a04c}</Project>
     </ProjectReference>
+    <ProjectReference Include="RangerLib.vcxproj">
+      <Project>{efc46ce3-08e3-4c5f-b33e-c127677c7e5b}</Project>
+    </ProjectReference>
     <ProjectReference Include="Simulation.vcxproj">
       <Project>{4b930370-8bf8-4e89-a3e7-0741999f8ee5}</Project>
     </ProjectReference>

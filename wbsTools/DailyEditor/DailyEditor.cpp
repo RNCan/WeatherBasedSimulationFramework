@@ -1,3 +1,4 @@
+// 4.3.2	12/06/2018	Rémi Saint-Amant	bug fix
 // 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance
 // 4.2.1    10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash

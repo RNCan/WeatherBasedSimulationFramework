@@ -343,6 +343,7 @@ namespace WBSF
 		ASSERT(station.m_lon != -999);
 
 		CTRef current = CTRef::GetCurrentTRef(station.GetTM());
+		station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = station.GetVariablesCount();
 		CTRef TRefEnd = counter.GetTPeriod().End();
 		ASSERT(TRefEnd <= current);
