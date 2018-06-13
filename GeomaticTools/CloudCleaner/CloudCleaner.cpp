@@ -55,7 +55,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.1";
+static const char* version = "2.0.2";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
@@ -1014,7 +1014,7 @@ void CCloudCleaner::FindClouds(int xBlock, int yBlock, const CBandsHolder& bandH
 
 					static const StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
 					DataShort input;
-					input.set_virtual_cols(forests[m]->get_virtual_cols_txt(), forests[fm]->get_virtual_cols_name());
+					input.set_virtual_cols(forests[m]->get_virtual_cols_txt(), forests[m]->get_virtual_cols_name());
 					input.resize(suspectPixel.count(), vars);
 
 					size_t cur_xy = 0;
@@ -1045,7 +1045,7 @@ void CCloudCleaner::FindClouds(int xBlock, int yBlock, const CBandsHolder& bandH
 					}//y
 
 					input.update_virtual_cols();
-					forests[fm]->run_predict(&input);
+					forests[m]->run_predict(&input);
 
 					cur_xy = 0;
 					for (size_t y = 0; y < blockSize.m_y; y++)

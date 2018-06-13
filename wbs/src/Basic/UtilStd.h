@@ -1123,6 +1123,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		catch (const zen::XmlParsingError& e)
 		{
 			// handle error
+			msg.ajoute("Error in file : " + filePath);
 			msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
 		}
 

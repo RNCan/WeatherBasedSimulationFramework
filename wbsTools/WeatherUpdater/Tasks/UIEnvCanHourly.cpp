@@ -1464,7 +1464,7 @@ namespace WBSF
 		size_t nbTry = 0;
 
 		CFileInfoVector::const_iterator it1 = dir1.begin();
-		while (it1 != dir1.end() && nbTry < 3)
+		while (it1 != dir1.end() && msg)
 		{
 			nbTry++;
 
@@ -1531,7 +1531,7 @@ namespace WBSF
 								}//for all stations
 							}//if it's an non-update date
 						}
-						catch (CException& e)
+						catch (CException*)
 						{
 							callback.PopTask();
 							throw;
@@ -1542,9 +1542,9 @@ namespace WBSF
 					msg += callback.StepIt();
 				}//for all dates
 			}
-			catch (...)
+			catch (CException* e)
 			{
-				callback.AddMessage(msg);
+				//callback.AddMessage(msg);
 				callback.PushTask("Waiting 30 seconds for server...", 600);
 				for (size_t i = 0; i < 600 && msg; i++)
 				{
@@ -1552,12 +1552,17 @@ namespace WBSF
 					msg += callback.StepIt();
 				}
 				callback.PopTask();
+
+				if (nbTry >= 3)
+					msg = UtilWin::SYGetMessage(*e);
 			}
 
-			callback.PopTask();
+			
 			pConnection->Close();
 			pSession->Close();
 		}
+
+		callback.PopTask();
 
 		return msg;
 	}

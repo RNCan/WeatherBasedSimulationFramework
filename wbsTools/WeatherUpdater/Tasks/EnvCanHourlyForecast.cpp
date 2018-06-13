@@ -270,30 +270,39 @@ namespace WBSF
 						UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
 						ClearList(fileList);
 						callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
-
-						//Download files
 						callback.PushTask(region + " (" + to_string(fileList.size()) + " files)", fileList.size());
 						CreateMultipleDir(outputPath);
 
-						for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+
+						//Download files
+						try
 						{
-							string fileName = GetFileName(it->m_filePath);
-							string ID = fileName.substr(0, 8);
-							string outputFilePath = outputPath + fileName;
-
-							msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
-							if (msg)
+							
+							for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 							{
-								ASSERT(FileExists(outputFilePath));
-								nbDownload++;
-								msg = ReadData(outputFilePath, stations, callback);
+								string fileName = GetFileName(it->m_filePath);
+								string ID = fileName.substr(0, 8);
+								string outputFilePath = outputPath + fileName;
+
+								msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
+								if (msg)
+								{
+									ASSERT(FileExists(outputFilePath));
+									nbDownload++;
+									msg = ReadData(outputFilePath, stations, callback);
+								}
+
+								msg += callback.StepIt();
 							}
-
+							callback.PopTask();
 							msg += callback.StepIt();
-						}
 
-						callback.PopTask();
-						msg += callback.StepIt();
+						}
+						catch(CException*)
+						{
+							callback.PopTask();
+							throw;
+						}
 
 					}//for all province
 				}

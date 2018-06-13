@@ -431,7 +431,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 
 	TRY
 	{
-		//try to save 
+		//try to save  
 		CAppOption option;
 		if (option.GetProfileBool(_T("SaveAtRun"), false))
 			GetProject().Save(UtilWin::ToUTF8(m_strPathName));
