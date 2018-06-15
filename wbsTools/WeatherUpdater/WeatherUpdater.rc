@@ -713,7 +713,7 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
     IDS_UPDATER_HIRESW_P    "Répertoire de travail"
-    IDS_UPDATER_RAP_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit|Afficher WinSCP"
+    IDS_UPDATER_RAP_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit|Server|Afficher WinSCP"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Afficher WinSCP"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables"
     IDS_UPDATER_HRRR_P      "Répertoire de travail"
@@ -1182,7 +1182,7 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
     IDS_UPDATER_HIRESW_P    "Working directory"
-    IDS_UPDATER_RAP_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit|Show WinSCP"
+    IDS_UPDATER_RAP_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit|Server|Show WinSCP"
     IDS_UPDATER_NAM_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Show WinSCP"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables"
     IDS_UPDATER_HRRR_P      "Working directory"

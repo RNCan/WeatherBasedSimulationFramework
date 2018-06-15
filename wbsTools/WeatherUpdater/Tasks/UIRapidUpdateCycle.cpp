@@ -58,9 +58,20 @@ namespace WBSF
 	//NAM analysis
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/
 
+
+	//HTTPS server
+	//https://www.ncei.noaa.gov/thredds/catalog/rap130/catalog.html
+	//forecast (3 jours de lag)
+	//https://www.ncei.noaa.gov/thredds/fileServer/rap130/201806/20180612/rap_130_20180612_0200_021.grb2
+	//analyse (3 jours de lag)
+	//https://www.ncei.noaa.gov/thredds/fileServer/rap130anl/201806/20180612/rap_130_20180612_0200_000.grb2
+	//forecast 
+	//http://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/
+	//http://soostrc.comet.ucar.edu/data/grib/rap/20180614/hybrid/
+
 	//*********************************************************************
-	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product", "Showwinscp" };
-	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL };
+	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product", "ServerType", "Showwinscp" };
+	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_RAP_P; 
 	const UINT CUIRapidUpdateCycle::DESCRIPTION_TITLE_ID = ID_TASK_RAP;
 
@@ -69,13 +80,14 @@ namespace WBSF
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIRapidUpdateCycle::CLASS_NAME(), (createF)CUIRapidUpdateCycle::create);
 
 
+
 	
-	const char* CUIRapidUpdateCycle::SERVER_NAME = "nomads.ncdc.noaa.gov";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT1 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_252_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT2 = "/data/rucanl/%4d%02d/%4d%02d%02d/ruc2anl_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
+	const char* CUIRapidUpdateCycle::HTTP_SERVER_NAME[NB_SOURCES] = { "www.ncei.noaa.gov", "nomads.ncep.noaa.gov" };
 	static char* PRODUCT_NAME[2] = { "pgrb", "bgrb" };
 
 	CUIRapidUpdateCycle::CUIRapidUpdateCycle(void)
@@ -91,6 +103,7 @@ namespace WBSF
 		switch (i)
 		{
 		case PRODUCT:	str = "pgrb|bgrb"; break;
+		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
 		return str;
 	}
@@ -103,7 +116,8 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "RAP\\"; break;
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
-		case PRODUCT:	str = "0"; break;
+		case PRODUCT:	str = "1"; break;
+		case SERVER_TYPE: str = "0"; break;
 		case SHOW_WINSCP: str = "0"; break;
 		};
 
@@ -137,6 +151,9 @@ namespace WBSF
 		}
 		else
 		{
+			
+		
+
 			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
 			if (now - TRef >= 24)
 				filePath = FormatA(INPUT_FORMAT3, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
@@ -215,7 +232,7 @@ namespace WBSF
 		StringVector t1(Get(FIRST_DATE), "-/");
 		StringVector t2(Get(LAST_DATE), "-/");
 		if (t1.size() == 3 && t2.size() == 3)
-			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, FIRST_HOUR), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, LAST_HOUR));
+			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1));
 
 		return p;
 	}
@@ -226,27 +243,21 @@ namespace WBSF
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
+		size_t serverType = as<size_t>(SERVER_TYPE);
 		CreateMultipleDir(workingDir);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
-		callback.AddMessage("");
 
-		CTRef today = CTRef::GetCurrentTRef(CTM::HOURLY);
+		CTRef today = CTRef::GetCurrentTRef();
 
 		CTPeriod period = GetPeriod();
 		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
 		{
-			if (today - period.Begin() > 360*24)
-			{
-				msg = ExecuteHTTP(period, callback);
-			}
+			if(serverType == HTTP_SERVER)
+				msg = ExecuteHTTP(callback);
 			else
-			{
-				msg = ExecuteFTP(period, callback);
-			}
+				msg = ExecuteFTP(callback);
 		}
 		else
 		{
@@ -258,216 +269,193 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIRapidUpdateCycle::ExecuteHTTP(CTPeriod period, CCallback& callback)
+	ERMsg CUIRapidUpdateCycle::ExecuteHTTP(CCallback& callback)
 	{
 		ERMsg msg;
-		int nbFilesToDownload = 0;
-		int nbDownloaded = 0;
 
-		CArray<bool> bGrbNeedDownload;
-		bGrbNeedDownload.SetSize(period.size());
+		size_t prod = WBSF::as<size_t>(Get(PRODUCT));
 
-		for (CTRef h = period.Begin(); h <= period.End(); h++)
+		callback.PushTask("Download RAP gribs from HTTP server", 2);
+		for (size_t s = 0; s < 2 && msg; s++)
 		{
-			size_t hh = (h - period.Begin());
+			CTRef today = CTRef::GetCurrentTRef(CTM::DAILY);
+			CTPeriod period = GetPeriod();
 
-			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false));
-
-//			if (bGrbNeedDownload[hh] && as<bool>(USE_NAM))
-				//bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false, false));
-
-			nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
-
-			msg += callback.StepIt(0);
-		}
-
-
-		callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFilesToDownload) + " gribs)", nbFilesToDownload);
-
-		int nbRun = 0;
-		CTRef curH = period.Begin();
-
-		while (curH < period.End() && msg)
-		{
-			nbRun++;
-
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-
-			if (msg)
+			if (s == S_NOMADS)
 			{
-				TRY
+				
+				if (period.End() >= today - 2)
+					period.End() = today - 2;
+			}
+			else if (s == S_NCEP)
+			{
+				if (period.End() >= today - 1)
+					period = CTPeriod(today - 1, today);
+				else
+					period.Reset();
+
+			}
+
+			if (period.IsInit())
+			{
+				period.Transform(CTM::HOURLY);
+				
+
+				size_t nbFilesToDownload = 0;
+				size_t nbDownloaded = 0;
+
+				CArray<bool> bGrbNeedDownload;
+				bGrbNeedDownload.SetSize(period.size());
+
+				for (CTRef h = period.Begin(); h <= period.End(); h++)
 				{
-					for (CTRef h = curH; h <= period.End() && msg; h++, curH++)
+					size_t hh = (h - period.Begin());
+
+					bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true, false));
+					nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
+
+					msg += callback.StepIt(0);
+				}
+
+
+				//static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
+				callback.AddMessage(string("Download RAP gribs from \"") + HTTP_SERVER_NAME[s] + "\" for period " + period.GetFormatedString("%1 to %2"));
+				callback.PushTask(string("Download RAP gribs from \"") + HTTP_SERVER_NAME[s] + "\": " + ToString(nbFilesToDownload) + " files", nbFilesToDownload);
+
+
+				size_t nbTry = 0;
+				CTRef curH = period.Begin();
+
+				while (curH < period.End() && msg)
+				{
+					nbTry++;
+
+					CInternetSessionPtr pSession;
+					CHttpConnectionPtr pConnection;
+					msg = GetHttpConnection(HTTP_SERVER_NAME[s], pConnection, pSession);
+
+
+					if (msg)
 					{
-						size_t hh = (h - period.Begin());
-						if (bGrbNeedDownload[hh])
+						try
 						{
-							//download inventory
-							//msg = DownloadGrib(pConnection, h, false, false, callback);
-							//if (FileExists(GetOutputFilePath(h, false, false)))
-							//{
-								//download gribs file
-								msg = DownloadGrib(pConnection, h, true, false, callback);
-								//if (msg && !FileExists(GetOutputFilePath(h, true, false)))
-									//msg += RemoveFile(GetOutputFilePath(h, false, false));
-							//}
-							
-							//now try with 1 hour forecast
-							if (msg && !FileExists(GetOutputFilePath(h, true,  false)))
+							for (CTRef h = curH; h <= period.End() && msg; h++)
 							{
-								//download inventory
-								//msg = DownloadGrib(pConnection, h, false, true, callback);
-								//if (FileExists(GetOutputFilePath(h, false, true)))
-								//{
+								size_t hh = (h - period.Begin());
+								if (bGrbNeedDownload[hh])
+								{
 									//download gribs file
-									msg = DownloadGrib(pConnection, h, true, true, callback);
-									//if (msg && !FileExists(GetOutputFilePath(h, true, true)))
-										//msg += RemoveFile(GetOutputFilePath(h, false, true));
-								//}
+									//string inputPath = GetInputFilePath(curH, true, false);
+									static const char* HTTP_FORMAT[2] =
+									{
+										"/thredds/fileServer/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
+										"/pub/data/nccf/com/rap/prod/rap.%4d%02d%02d/rap.t%02dz.awp130%sf%02d.grib2"
+									};
+									
+
+									int y = curH.GetYear();
+									int m = int(curH.GetMonth() + 1);
+									int d = int(curH.GetDay() + 1);
+									int hs = int(curH.GetHour());
+
+									string inputPath;
+									if (s == 0)
+										inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, 0);
+									else
+										inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], 0);
+
+									string outputPath = GetOutputFilePath(curH, true, false);
+									CreateMultipleDir(GetPath(outputPath));
+
+									msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+									if (msg)
+									{
+										CFileInfo info = GetFileInfo(outputPath);
+										if (info.m_size < 1000)
+										{
+											//remove file
+											msg += RemoveFile(outputPath);
+										}
+									}
+
+
+									if (msg)
+									{
+										curH = h;
+										nbTry = 0;
+										nbDownloaded++;
+										msg += callback.StepIt();
+									}
+
+									//now try with 1 hour forecast
+									//if (msg && !FileExists(GetOutputFilePath(h, true, false)))
+									//{
+									//	//download gribs file
+									//	msg = DownloadGrib(pConnection, h, true, true, callback);
+									//}
+								}//need download
+
+
+							}
+						}
+						catch (CException* e)
+						{
+							msg = UtilWin::SYGetMessage(*e);
+							if (nbTry < 5)
+							{
+								callback.AddMessage(UtilWin::SYGetMessage(*e));
+								callback.PushTask("Waiting 30 seconds for server...", 600);
+								for (size_t i = 0; i < 600 && msg; i++)
+								{
+									Sleep(50);//wait 50 milisec
+									msg += callback.StepIt();
+								}
+								callback.PopTask();
+
+							}
+							else
+							{
+								msg = UtilWin::SYGetMessage(*e);
 							}
 						}
 
-
-						if (msg)
-						{
-							curH = h;
-							nbRun = 0;
-							nbDownloaded++;
-							msg += callback.StepIt();
-						}
-					}
-				}
-				CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
-
-				//if an error occur: try again
-				if (!msg && !callback.GetUserCancel())
-				{
-					if (nbRun < 5)
-					{
-						callback.AddMessage(msg);
-						msg = ERMsg();
-						Sleep(1000);//wait 1 sec
+						//clean connection
+						pConnection->Close();
+						pSession->Close();
 					}
 				}
 
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
+
+				callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
+				callback.PopTask();
 			}
+
+			msg += callback.StepIt();
 		}
 
-
-		callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
 		callback.PopTask();
 
 		return msg;
 	}
 
-	//ERMsg CUIRapidUpdateCycle::ExecuteFTP(CTPeriod period, CCallback& callback)
-	//{
-	//	ERMsg msg;
-	//	
-	//	int nbDownloaded = 0;
 
-	//	
-	//	CFileInfoVector fileList[2];
-	//	for (size_t s = 0; s < 2; s++)
-	//	{
-	//		msg = GetFilesToDownload(s, period, fileList[s], callback);
-	//		CleanList(s, fileList[s]);
-	//	}
-
-	//	size_t nbFileToDownload = fileList[0].size() + fileList[1].size();
-	//	callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFileToDownload) + " gribs)", nbFileToDownload);
-
-	//	for (size_t s = 0; s < 2; s++)
-	//	{
-	//		int nbRun = 0;
-	//		size_t curH = 0;
-
-	//		while (curH < fileList[s].size() && msg)
-	//		{
-	//			nbRun++;
-
-	//			CInternetSessionPtr pSession;
-	//			CFtpConnectionPtr pConnection;
-
-	//			msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession);
-
-	//			if (msg)
-	//			{
-	//				TRY
-	//				{
-	//					for (; curH < fileList[s].size() && msg; curH++)
-	//					{
-	//						CTRef TRef = GetTRef(s, fileList[s][curH].m_filePath);
-	//						//download inventory
-	//						string outputFilePaht = GetOutputFilePath(TRef, true, true, false);
-	//						CreateMultipleDir(GetPath(outputFilePaht));
-
-	//						msg = CopyFile(pConnection, fileList[s][curH].m_filePath, outputFilePaht, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
-	//						if (msg)
-	//						{
-	//							nbRun = 0;
-	//							nbDownloaded++;
-	//							msg += callback.StepIt();
-	//						}
-	//					}
-	//				}
-	//				CATCH_ALL(e)
-	//				{
-	//					msg = UtilWin::SYGetMessage(*e);
-	//				}
-	//				END_CATCH_ALL
-
-	//				//clean connection
-	//				pConnection->Close();
-	//				pSession->Close();
-
-	//				//if an error occur: try again
-	//				if (!msg && !callback.GetUserCancel())
-	//				{
-	//					if (nbRun < 5)
-	//					{
-	//						callback.AddMessage(msg);
-	//						msg = ERMsg();
-
-	//						callback.PushTask("Waiting 30 seconds for server...", 600);
-	//						for (int i = 0; i < 600 && msg; i++)
-	//						{
-	//							Sleep(50);//wait 50 milisec
-	//							msg += callback.StepIt();
-	//						}
-	//						callback.PopTask();
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//	callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFileToDownload)));
-	//	callback.PopTask();
-
-
-	//	return msg;
-	//}
-	ERMsg CUIRapidUpdateCycle::ExecuteFTP(CTPeriod period, CCallback& callback)
+	ERMsg CUIRapidUpdateCycle::ExecuteFTP(CCallback& callback)
 	{
 		ERMsg msg;
 
 		int nbDownloaded = 0;
 
-		callback.PushTask("Download RAP gribs for period: " + period.GetFormatedString() + " gribs)", 2);
+		CTPeriod period = GetPeriod();
+		period.Transform(CTM::HOURLY);
+
+		callback.PushTask("Download RAP gribs from FTP server for period: " + period.GetFormatedString(), 2);
 		for (size_t s = 0; s < 2 && msg; s++)
 		{
+			callback.AddMessage(GetString(IDS_UPDATE_FROM));
+			callback.AddMessage(FTP_SERVER_NAME[s], 1);
+			callback.AddMessage("");
+
+
 			CFileInfoVector fileList;
 			msg = GetFilesToDownload(s, period, fileList, callback);
 			CleanList(s, fileList);

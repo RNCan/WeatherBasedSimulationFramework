@@ -18,7 +18,8 @@ namespace WBSF
 
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, PRODUCT, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum  TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
+		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
@@ -48,8 +49,8 @@ namespace WBSF
 
 	protected:
 
-		ERMsg ExecuteHTTP(CTPeriod period, CCallback& callback);
-		ERMsg ExecuteFTP(CTPeriod period, CCallback& callback);
+		ERMsg ExecuteHTTP(CCallback& callback);
+		ERMsg ExecuteFTP(CCallback& callback);
 
 		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
 		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
@@ -68,11 +69,13 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
+		
 		static const char* INPUT_FORMAT1;
 		static const char* INPUT_FORMAT2;
 		static const char* INPUT_FORMAT3;
 		static const char* INPUT_FORMAT4;
+		
+		static const char* HTTP_SERVER_NAME[NB_SOURCES];
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
 	};
 
