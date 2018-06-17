@@ -204,9 +204,8 @@ namespace WBSF
 	
 	void CCallback::AddMessage(const char* message, int level)
 	{
-		if (omp_get_thread_num() == 0)
+		//if (omp_get_thread_num() == 0)
 		{
-			//std::unique_lock<std::mutex> lock(m_mutex);
 			CS.Enter();
 			if (!GetTasks().empty())
 			{

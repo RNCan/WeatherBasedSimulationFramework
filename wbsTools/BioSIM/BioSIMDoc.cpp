@@ -421,7 +421,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	UpdateAllViews(NULL, PROJECT_CHANGE, NULL);
 
 
-	GetProject().LoadDefaultCtrl();
+	GetProject().LoadDefaultCtrl(); 
 
 
 	CProgressWnd& progressWnd = pView->GetProgressWnd();
@@ -430,7 +430,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	CProgressStepDlgParam param(m_projectPtr.get(), (void*)&m_strPathName, &GetFM());
 
 	TRY
-	{
+	{ 
 		//try to save  
 		CAppOption option;
 		if (option.GetProfileBool(_T("SaveAtRun"), false))

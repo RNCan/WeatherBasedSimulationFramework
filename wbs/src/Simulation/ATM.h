@@ -778,7 +778,7 @@ namespace WBSF
 		static double ComputeRate(double T);
 
 		double GetLog(size_t i)const{ return m_logTime[i]; }
-		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : VMISS; }
+		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
 		size_t GetState()const{ return m_state; }
 
@@ -892,8 +892,9 @@ namespace WBSF
 
 		CRandomGenerator& random(){ return m_random; }
 		CTPeriod get_moths_period()const;
-		void save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output);
-		void init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output);
+		ERMsg save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output, CCallback& callback);
+		//void init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output);
+		void init_sub_ourly(CTRef TRef, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output);
 		
 		std::map<size_t, CProjectionTransformation> m_GEO2;
 		std::map<size_t, CProjectionTransformation> m_2GEO;
