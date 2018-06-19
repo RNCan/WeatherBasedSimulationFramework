@@ -101,7 +101,8 @@ namespace WBSF
 
 
 	CEnvCanHourlyForecast::CEnvCanHourlyForecast(void) :
-		m_pShapefile(NULL)
+		m_pShapefile(NULL),
+		m_bAlwaysCreate(true)
 	{}
 
 
@@ -229,7 +230,6 @@ namespace WBSF
 
 		if (msg)
 		{
-
 			int nbDownload = 0;
 			CWeatherStationVector stations;
 			size_t cur_i = 0;
@@ -289,6 +289,7 @@ namespace WBSF
 								{
 									ASSERT(FileExists(outputFilePath));
 									nbDownload++;
+									nbTry = 0;
 									msg = ReadData(outputFilePath, stations, callback);
 								}
 
@@ -332,7 +333,7 @@ namespace WBSF
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
 
-			if (msg)
+			if (msg || m_bAlwaysCreate)
 			{
 
 				//Create only one database for all forecast

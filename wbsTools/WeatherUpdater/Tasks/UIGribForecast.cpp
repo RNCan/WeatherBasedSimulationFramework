@@ -57,9 +57,9 @@ namespace WBSF
 	CTaskBase::TType CUIGribForecast::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIGribForecast::CLASS_NAME(), (createF)CUIGribForecast::create);
 
-	const char* CUIGribForecast::SOURCES_NAME[NB_SOURCES] = { "HRDPS", "HRRR", "RAP(P)", "RAP(B)", "NAM" };
-	const char* CUIGribForecast::SERVER_NAME[NB_SOURCES] = { "dd.weather.gc.ca", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov" };
-	const char* CUIGribForecast::SERVER_PATH[NB_SOURCES] = { "model_hrdps/continental/grib2/", "pub/data/nccf/com/hrrr/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/nam/prod/" };
+	const char* CUIGribForecast::SOURCES_NAME[NB_SOURCES] = { "HRDPS", "HRRR", "HRRR(SRF)", "RAP(P)", "RAP(B)", "NAM" };
+	const char* CUIGribForecast::SERVER_NAME[NB_SOURCES] = { "dd.weather.gc.ca", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov" };
+	const char* CUIGribForecast::SERVER_PATH[NB_SOURCES] = { "model_hrdps/continental/grib2/", "pub/data/nccf/com/hrrr/prod/", "pub/data/nccf/com/hrrr/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/nam/prod/" };
 
 	CUIGribForecast::CUIGribForecast(void)
 	{}
@@ -72,7 +72,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case SOURCES:	str = "HRDPS (canada)|HRRR (USA)|RAP P (Canada/USA)|RAP B (Canada/USA)|NAM (Canada/USA)"; break;
+		case SOURCES:	str = "HRDPS (canada)|HRRR (3D)|HRRR (SFC)|RAP P (Canada/USA)|RAP B (Canada/USA)|NAM (Canada/USA)"; break;
 		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
 		};
 		return str;
@@ -324,6 +324,7 @@ namespace WBSF
 					switch (source)
 					{
 					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfsfcf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
@@ -363,6 +364,7 @@ namespace WBSF
 		{
 		case N_HRDPS:	filePath += FormatA("%02d/%02d/", TRef.GetHour(), HH ); break;
 		case N_HRRR:	filePath += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
+		case N_HRRR_SRF:filePath += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfsfcf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_RAP_P:	filePath += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_RAP_B:	filePath += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_NAM:		filePath += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys%02d.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
@@ -407,6 +409,7 @@ namespace WBSF
 		switch (source)
 		{
 		case N_HRRR:	URL += "hrrr.*"; break;
+		case N_HRRR_SRF:URL += "hrrr.*"; break;
 		case N_RAP_P:	URL += "rap.*"; break;
 		case N_RAP_B:	URL += "rap.*"; break;
 		case N_NAM:		URL += "nam.*"; break;
@@ -447,13 +450,14 @@ namespace WBSF
 				switch (source)
 				{
 				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t??z.wrfnatf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/hrrr.t??z.wrfsfcf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130pgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130bgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t??z.awphys00.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				default: ASSERT(false);
 				}
 
-				//static const size_t LAST_HOUR[NB_SOURCES] = { 0, 18, 21, 36 };
+				
 
 				CFileInfoVector fileListTmp;
 				if (FindFiles(pConnection, URL, fileListTmp))
@@ -568,8 +572,8 @@ namespace WBSF
 		}
 		else 
 		{
-			static const size_t POS_HOUR1[NB_SOURCES] = { 0, 6, 5, 5, 5 };
-			static const size_t POS_HOUR2[NB_SOURCES] = { 0, 17, 20, 20, 15 };
+			static const size_t POS_HOUR1[NB_SOURCES] = { 0, 6, 6, 5, 5, 5 };
+			static const size_t POS_HOUR2[NB_SOURCES] = { 0, 17, 17, 20, 20, 15 };
 
 			string name = GetFileTitle(filePath);
 			string dir1 = WBSF::GetLastDirName(GetPath(filePath));
@@ -589,7 +593,7 @@ namespace WBSF
 
 	size_t CUIGribForecast::GetHH(size_t source, string filePath)
 	{
-		static const size_t HH_POS[NB_SOURCES] = { 0, 17, 21, 16 };
+		static const size_t HH_POS[NB_SOURCES] = { 0, 17, 17, 21, 16 };
 		string name = GetFileTitle(filePath);
 		ASSERT(name.size() >= HH_POS[source]+2);
 

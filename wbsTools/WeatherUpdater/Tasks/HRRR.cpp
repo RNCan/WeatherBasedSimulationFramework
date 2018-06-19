@@ -18,12 +18,15 @@ namespace WBSF
 {
 
 	//*********************************************************************
-	const char* CHRRR::SERVER_NAME = "nomads.ncep.noaa.gov";
-	const char* CHRRR::SERVER_PATH = "/pub/data/nccf/com/hrrr/prod/";
-
+	const char* CHRRR::SERVER_NAME[NB_SERVER_TYPE] = {"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"};
+	const char* CHRRR::SERVER_PATH[NB_SERVER_TYPE] = { "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" };
+	const char* CHRRR::NAME[NB_SOURCES] = {"nat", "sfc"};
+	const double CHRRR::MINIMUM_SIZE[NB_SOURCES] = { 550, 90};
 
 	CHRRR::CHRRR(const std::string& workingDir):
-		m_workingDir(workingDir)
+		m_workingDir(workingDir),
+		m_source(HRRR_3D),
+		m_serverType(HTTP_SERVER)
 	{}
 	
 	CHRRR::~CHRRR(void)
@@ -36,31 +39,134 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		callback.AddMessage(m_workingDir, 1);
+		switch(m_serverType)
+		{
+			case HTTP_SERVER:msg=ExecuteHTTP(callback); break;
+			case FTP_SERVER:msg = ExecuteFTP(callback); break;
+			default:ASSERT(false);
+		}
+
+		return msg;
+	}
+
+	ERMsg CHRRR::ExecuteFTP(CCallback& callback)
+	{
+		ERMsg msg;
+
+		int nbDownloaded = 0;
+
+		//CTPeriod period = GetPeriod();
+		//period.Transform(CTM::HOURLY);
+
+		//callback.PushTask("Download RAP gribs from FTP server for period: " + period.GetFormatedString(), 2);
+		//for (size_t s = 0; s < 2 && msg; s++)
+		//{
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
+		callback.AddMessage(SERVER_NAME[FTP_SERVER], 1);
 		callback.AddMessage("");
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		CFileInfoVector fileList;
+		msg = GetFilesToDownload(fileList, callback);
+	
+		if (msg)
+		{
+
+			size_t nbFileToDownload = fileList.size();
+
+			string scriptFilePath = m_workingDir + "script.txt";
+			WBSF::RemoveFile(scriptFilePath + ".log");
+
+
+			callback.PushTask(string("Download HRRR gribs from FTP: ") + ToString(fileList.size()) + " files", fileList.size());
+			for (size_t i = 0; i < fileList.size() && msg; i++)
+			{
+				ofStream stript;
+				msg = stript.open(scriptFilePath);
+				if (msg)
+				{
+
+					string outputFilePath = GetOutputFilePath(fileList[i].m_filePath);
+					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
+					CreateMultipleDir(GetPath(outputFilePath));
+
+					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[FTP_SERVER] << endl;
+					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
+					stript << "lcd " << GetPath(tmpFilePaht) << endl;
+					stript << "get " << GetFileName(tmpFilePaht) << endl;
+					stript << "exit" << endl;
+					stript.close();
+
+					bool bShow = true;// as<bool>(SHOW_WINSCP);
+					//# Execute the script using a command like:
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					DWORD exit_code;
+					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+					if (msg)
+					{
+						//verify if the file finish with 7777
+
+						if (exit_code == 0 && FileExists(tmpFilePaht))
+						{
+							ifStream stream;
+							if (stream.open(tmpFilePaht))
+							{
+								char test[5] = { 0 };
+								stream.seekg(-4, ifstream::end);
+								stream.read(&(test[0]), 4);
+								stream.close();
+
+								if (string(test) == "7777")
+								{
+									nbDownloaded++;
+									msg = RenameFile(tmpFilePaht, outputFilePath);
+								}
+								else
+								{
+									msg = WBSF::RemoveFile(tmpFilePaht);
+								}
+							}
+
+						}
+						else
+						{
+							//msg.ajoute("Error in WinCSV");
+							callback.AddMessage("Error in WinCSV");
+						}
+					}
+
+				}
+
+				msg += callback.StepIt();
+			}
+
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded), 2);
+			callback.PopTask();
+		}
+
+		return msg;
+	}
+	
+	ERMsg CHRRR::GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
+
+		msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession);
 		if (!msg)
 			return msg;
 
-
-
-		callback.PushTask(string("Get files list from: ") + SERVER_PATH, 2);
-		CFileInfoVector fileList;
-
+		callback.PushTask(string("Get files list from: ") + SERVER_PATH[FTP_SERVER], 2);
 
 		CFileInfoVector dir;
-		msg = FindDirectories(pConnection, SERVER_PATH, dir);
+		msg = FindDirectories(pConnection, SERVER_PATH[FTP_SERVER], dir);
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrfnatf00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
@@ -74,7 +180,167 @@ namespace WBSF
 				}
 				else
 				{
-					if (info.m_size < 550 * 1024 * 1024 )
+
+					if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024)
+					{
+						fileList.push_back(*it);
+					}
+				}
+			}
+
+			msg += callback.StepIt();
+		}
+
+
+		pConnection->Close();
+		pSession->Close();
+
+		return msg;
+	}
+
+	//ERMsg CHRRR::ExecuteFTP(CCallback& callback)
+	//{
+	//	ERMsg msg;
+
+	//	callback.AddMessage(GetString(IDS_UPDATE_DIR));
+	//	callback.AddMessage(m_workingDir, 1);
+	//	callback.AddMessage(GetString(IDS_UPDATE_FROM));
+	//	callback.AddMessage(SERVER_NAME[FTP_SERVER], 1);
+	//	callback.AddMessage("");
+
+	//	CInternetSessionPtr pSession;
+	//	CFtpConnectionPtr pConnection;
+
+	//	msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession);
+	//	if (!msg)
+	//		return msg;
+
+
+
+	//	callback.PushTask(string("Get files list from: ") + SERVER_PATH[FTP_SERVER], 2);
+	//	CFileInfoVector fileList;
+
+
+	//	CFileInfoVector dir;
+	//	msg = FindDirectories(pConnection, SERVER_PATH[FTP_SERVER], dir);
+	//	for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
+	//	{
+	//		CFileInfoVector fileListTmp;
+	//		msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+
+	//		for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+	//		{
+	//			string outputFilePath = GetOutputFilePath(it->m_filePath);
+	//			CFileInfo info;
+
+
+	//			if (!WBSF::GetFileInfo(outputFilePath, info))
+	//			{
+	//				fileList.push_back(*it);
+	//			}
+	//			else
+	//			{
+	//				
+	//				if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024)
+	//				{
+	//					fileList.push_back(*it);
+	//				}
+	//			}
+	//		}
+
+	//		msg += callback.StepIt();
+	//	}
+
+
+	//	callback.PopTask();
+
+
+	//	callback.AddMessage("Number of HRRR gribs to download: " + ToString(fileList.size()));
+	//	callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
+
+	//	int nbDownload = 0;
+	//	for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+	//	{
+	//		//string fileName = GetFileName(it->m_filePath);
+	//		string outputFilePath = GetOutputFilePath(it->m_filePath);
+
+	//		callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
+
+	//		CreateMultipleDir(GetPath(outputFilePath));
+	//		msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+	//		if (msg && FileExists(outputFilePath))
+	//		{
+	//			nbDownload++;
+
+	//			//now copy index file
+	//			msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+	//			//if (!FileExists(outputFilePath + ".idx"))
+	//			//{
+	//			//	//if .idx does not exist
+	//			//	msg += RemoveFile(outputFilePath);
+	//			//}
+	//		}
+
+	//		callback.PopTask();
+	//		msg += callback.StepIt();
+	//	}
+
+	//	pConnection->Close();
+	//	pSession->Close();
+
+
+	//	callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownload));
+	//	callback.PopTask();
+
+
+	//	return msg;
+	//}
+
+	//****************************************************************************************************
+
+	ERMsg CHRRR::ExecuteHTTP(CCallback& callback)
+	{
+		ERMsg msg;
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(m_workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(SERVER_NAME[HTTP_SERVER], 1);
+		callback.AddMessage("");
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection(SERVER_NAME[HTTP_SERVER], pConnection, pSession);
+		if (!msg)
+			return msg;
+
+
+
+		callback.PushTask(string("Get files list from: ") + SERVER_PATH[HTTP_SERVER], 2);
+		CFileInfoVector fileList;
+
+
+		CFileInfoVector dir;
+		msg = FindDirectories(pConnection, SERVER_PATH[HTTP_SERVER], dir);
+		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
+		{
+			CFileInfoVector fileListTmp;
+			msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+
+			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+			{
+				string outputFilePath = GetOutputFilePath(it->m_filePath);
+				CFileInfo info;
+
+
+				if (!WBSF::GetFileInfo(outputFilePath, info))
+				{
+					fileList.push_back(*it);
+				}
+				else
+				{
+					if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024 )
 					{
 						fileList.push_back(*it);
 					}
@@ -107,11 +373,11 @@ namespace WBSF
 				
 				//now copy index file
 				msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-				if (!FileExists(outputFilePath + ".idx"))
-				{
-					//if .idx does not exist
-					msg += RemoveFile(outputFilePath);
-				}
+				//if (!FileExists(outputFilePath + ".idx"))
+				//{
+				//	//if .idx does not exist
+				//	msg += RemoveFile(outputFilePath);
+				//}
 			}
 
 			callback.PopTask();

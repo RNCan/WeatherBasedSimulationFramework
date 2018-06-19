@@ -20,15 +20,20 @@ namespace WBSF
 	{
 	public:
 		
+		enum  TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
+		enum { HRRR_3D, HRRR_2D, NB_SOURCES };
+		
 		CHRRR(const std::string& workingDir);
 		virtual ~CHRRR(void);
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg ExecuteFTP(CCallback& callback);
+		ERMsg ExecuteHTTP(CCallback& callback);
 		ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
 
-
-		
+		size_t m_source;
+		size_t m_serverType;
 
 	protected:
 
@@ -36,13 +41,17 @@ namespace WBSF
 		std::string GetOutputFilePath(const std::string& filePath)const;
 
 		CTRef GetTRef(const std::string& filePath)const;
+		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
 		//ERMsg OpenDatasets(CCallback& callback);
 
 //		std::array<std::array<CGDALDatasetEx, NB_FORECAST_VAR>, 52> m_datasets;
 	//	CProjectionTransformation m_geo2gribs;
 
-		static const char* SERVER_NAME;
-		static const char* SERVER_PATH;
+		static const char* SERVER_NAME[NB_SERVER_TYPE];
+		static const char* SERVER_PATH[NB_SERVER_TYPE];
+
+		static const char* NAME[NB_SOURCES];
+		static const double MINIMUM_SIZE[NB_SOURCES];
 	};
 
 }

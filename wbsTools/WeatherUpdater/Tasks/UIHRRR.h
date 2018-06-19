@@ -20,12 +20,12 @@ namespace WBSF
 	public:
 
 		
-		enum TAttributes { WORKING_DIR, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRRR); }
 		static CTRef GetTRef(std::string filePath);
-		static size_t GetSourcesIndex(const std::string& name);
+		//static size_t GetSourcesIndex(const std::string& name);
 
 		CUIHRRR(void);
 		virtual ~CUIHRRR(void);
@@ -51,8 +51,8 @@ namespace WBSF
 
 	protected:
 
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
-		bool NeedDownload(const std::string& filePath)const;
+		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		//bool NeedDownload(const std::string& filePath)const;
 	
 		CTPeriod GetPeriod()const;
 		

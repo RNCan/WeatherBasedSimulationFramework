@@ -24,8 +24,8 @@ namespace WBSF
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/
 
 	//*********************************************************************
-	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir" };
-	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH };
+	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ServerType" };
+	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX };
 	const UINT CUIHRRR::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRRR_P;
 	const UINT CUIHRRR::DESCRIPTION_TITLE_ID = ID_TASK_HRRR;
 
@@ -42,27 +42,6 @@ namespace WBSF
 
 	
 
-	//const char* CUIHRRR::SERVER_NAME[NB_SOURCES] = { "dd.weather.gc.ca", "nomads.ncep.noaa.gov" };
-	//const char* CUIHRRR::INPUT_FORMAT[NB_SOURCES] = { "/model_hrdps/continental/grib2", "/pub/data/nccf/com/hrrr/prod" };
-	/*const char* CUIHRRR::SOURCES_NAME[NB_SOURCES] = { "HRDPS", "HRRR"};
-
-
-	size_t CUIHRRR::GetSourcesIndex(const std::string& name)
-	{
-		size_t s = NOT_INIT;
-		for (size_t ss = 0; ss < NB_SOURCES&&s == NOT_INIT; ss++)
-		{
-			if (IsEqual(name, SOURCES_NAME[ss]))
-				s = ss;
-		}
-
-		assert(s < NB_SOURCES);
-
-		return s;
-	}*/
-
-
-
 
 	CUIHRRR::CUIHRRR(void)
 	{}
@@ -74,11 +53,11 @@ namespace WBSF
 	std::string CUIHRRR::Option(size_t i)const
 	{
 		string str;
-		//switch (i)
-		//{
-		//case SOURCES:	str = "HRDPS=HRDPS (canada)|HRRR=HRRR (USA)"; break;
-		//case HRDPS_VARS: str = GetHRDPSSelectionString(); break;
-		//};
+		switch (i)
+		{
+		case SOURCES:	str = "HRRR(3D)|HRRR(2D)"; break;
+		case SERVER_TYPE: str = "HTTP|FTP"; break;
+		};
 		return str;
 	}
 
@@ -88,6 +67,8 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRRR\\"; break;
+		case SOURCES: str = "0"; break;
+		case SERVER_TYPE: str = "0"; break;
 		};
 
 		return str;
@@ -122,6 +103,8 @@ namespace WBSF
 		CreateMultipleDir(workingDir);
 
 		CHRRR HRRR(workingDir);
+		HRRR.m_source = as<size_t>(SOURCES);
+		HRRR.m_serverType = as<size_t>(SERVER_TYPE);
 		msg = HRRR.Execute(callback);
 
 
@@ -160,21 +143,12 @@ namespace WBSF
 
 			StringVector list1;
 			list1 = GetFilesList(workingDir + ToString(year) + "\\*.grib2", FILE_PATH, true);
-			//StringVector list2;
-			//list2 = GetFilesList(workingDir + ToString(year) + "\\*.grib2.idx", FILE_PATH, true);
-
-
-			//std::set<CTRef> TRef2;
-			//for (size_t i = 0; i < list2.size(); i++)
-			//{
-				//CTRef TRef = GetTRef(list2[i]);
-				//TRef2.insert(TRef);
-			//}
+			
 
 			for (size_t i = 0; i < list1.size(); i++)
 			{
 				CTRef TRef = GetTRef(list1[i]);
-				if (p.IsInside(TRef) )//&& TRef2.find(TRef) != TRef2.end())
+				if (p.IsInside(TRef) )
 					gribsList[TRef] = list1[i];
 			}
 			

@@ -16,8 +16,8 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
-	const char* CUIEnvCanForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type" };
-	const size_t CUIEnvCanForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX};
+	const char* CUIEnvCanForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "AlwaysCreate" };
+	const size_t CUIEnvCanForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_BOOL};
 	const UINT CUIEnvCanForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_FORECAST_P;
 	const UINT CUIEnvCanForecast::DESCRIPTION_TITLE_ID = ID_TASK_EC_FORECAST;
 
@@ -51,6 +51,7 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Forecast\\"; break;
 		case TYPE:	str = "0"; break;
+		case ALWAYS_CREATE:	str = "1"; break;
 		};
 
 		return str;
@@ -100,6 +101,7 @@ namespace WBSF
 		if (type == T_METEO_CODE)
 		{
 			m_meteoCode.m_workingDir = GetDir(WORKING_DIR) + "MeteoCode\\";
+			m_meteoCode.m_bAlwaysCreate = as<bool>(ALWAYS_CREATE);
 			msg += m_meteoCode.GetStationList(stationList, callback);
 		}
 		else

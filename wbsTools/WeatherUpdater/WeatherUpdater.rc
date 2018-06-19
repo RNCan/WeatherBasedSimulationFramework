@@ -240,8 +240,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,5,6,36
- PRODUCTVERSION 5,5,6,36
+ FILEVERSION 5,5,7,36
+ PRODUCTVERSION 5,5,7,36
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -258,21 +258,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.5.6.36"
+            VALUE "FileVersion", "5.5.7.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.5.6.36"
+            VALUE "ProductVersion", "5.5.7.36"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.5.6.36"
+            VALUE "FileVersion", "5.5.7.36"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.5.6.36"
+            VALUE "ProductVersion", "5.5.7.36"
         END
     END
     BLOCK "VarFileInfo"
@@ -670,7 +670,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type"
+    IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type|Ignorer erreur"
     IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Répertoire de travail|Type"
     IDS_UPDATER_NOAA_GHCND_P 
@@ -716,7 +716,7 @@ BEGIN
     IDS_UPDATER_RAP_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit|Server|Afficher WinSCP"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Afficher WinSCP"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables"
-    IDS_UPDATER_HRRR_P      "Répertoire de travail"
+    IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Type|Afficher WinSCP|Variables HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
@@ -1139,7 +1139,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_EC_FORECAST_P "Working directory|Type"
+    IDS_UPDATER_EC_FORECAST_P "Working directory|Type|Ignore error"
     IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Type"
     IDS_UPDATER_NOAA_GHCND_P 
@@ -1185,7 +1185,7 @@ BEGIN
     IDS_UPDATER_RAP_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit|Server|Show WinSCP"
     IDS_UPDATER_NAM_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Show WinSCP"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables"
-    IDS_UPDATER_HRRR_P      "Working directory"
+    IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Type|Show WinSCP|HRDPS variables"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"

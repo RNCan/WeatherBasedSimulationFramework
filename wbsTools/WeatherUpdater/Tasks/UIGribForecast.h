@@ -19,7 +19,7 @@ namespace WBSF
 
 	public:
 
-		enum TNeytwork{ N_HRDPS, N_HRRR, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
+		enum TNeytwork{ N_HRDPS, N_HRRR, N_HRRR_SRF, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
 		enum TAttributes { WORKING_DIR, SOURCES, SHOW_WINSCP, HRDPS_VARS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();

@@ -82,6 +82,7 @@ namespace WBSF
 		
 		CRegionSelection m_regions;
 		std::string m_workingDir;
+		bool m_bAlwaysCreate;
 		
 		CEnvCanHourlyForecast(void);
 		virtual ~CEnvCanHourlyForecast(void);
