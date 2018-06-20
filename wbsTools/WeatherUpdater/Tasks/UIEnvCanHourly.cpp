@@ -1455,7 +1455,7 @@ namespace WBSF
 
 			if (msg)
 			{
-				callback.PushTask("Get days from: /observations/swob-ml/ (" + to_string(dir1.size()) + " days)", dir1.size());
+				callback.PushTask("Get days stations to update from: /observations/swob-ml/ (" + to_string(dir1.size()) + " days)", dir1.size());
 
 
 				size_t nbTry = 0;
@@ -1549,7 +1549,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			callback.PushTask("Get stations list from: /observations/swob-ml/ (" + to_string(dir2.size()) + " stations)", dir2.size());
+			callback.PushTask("Get hours to update for all days stations (" + to_string(dir2.size()) + " days stations)", dir2.size());
 
 			size_t nbTry = 0;
 			CFileInfoVector::const_iterator it2 = dir2.begin();
@@ -1706,52 +1706,47 @@ namespace WBSF
 		callback.PushTask("Download of SWOB-ML (" + ToString(fileList.size()) + " stations)", fileList.size());
 		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()));
 
-
 		map<string, CTRef> lastUpdate;
 		int nbDownload = 0;
 
-		size_t nbTry = 0;
-		map<string, CFileInfoVector>::const_iterator it1 = fileList.begin();
-		while (it1 != fileList.end() && msg)
+		for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
 		{
-			nbTry++;
+			CLocationVector::const_iterator itLoc = locations.FindBySSI("ICAO", it1->first, false);
+			ASSERT(itLoc != locations.end());
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
+			CLocation location = *itLoc;
 
-			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+			string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
+			callback.PushTask("Download SWOB-ML for " + ID + ": (" + ToString(it1->second.size()) + " hours)", it1->second.size());
+			
+			map < CTRef, SWOBData > data;
+			CTRef lastTRef;
 
-			if (msg)
+			size_t nbTry = 0;
+			CFileInfoVector::const_iterator it2 = it1->second.begin();
+			while (it2 != it1->second.end() && msg)
 			{
-				try
+				nbTry++;
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+
+				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+
+				if (msg)
 				{
-
-					while (it1 != fileList.end() && msg)
+					try
 					{
-						string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
-						callback.PushTask("Download SWOB-ML for " + ID + ": (" + ToString(it1->second.size()) + " files)", it1->second.size());
-
-						map < CTRef, SWOBData > data;
-
-
-						CLocationVector::const_iterator itLoc = locations.FindBySSI("ICAO", it1->first, false);
-						ASSERT(itLoc != locations.end());
-
-						CLocation location = *itLoc;
-
-						CTRef lastTRef;
-						for (CFileInfoVector::const_iterator it = it1->second.begin(); it != it1->second.end() && msg; it++)
+						while (it2 != it1->second.end() && msg)
 						{
-
 							string source;
-							msg = GetPageText(pConnection, it->m_filePath, source, false, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
+							msg = GetPageText(pConnection, it2->m_filePath, source, false, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT);
 
 							if (msg)
 							{
 								WBSF::ReplaceString(source, "'", " ");
 
-								string fileName = GetFileName(it->m_filePath);
+								string fileName = GetFileName(it2->m_filePath);
 								CTRef UTCTRef = GetSWOBTRef(fileName);
 								//CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
 								CTRef YearMonth = UTCTRef.as(CTM::MONTHLY);
@@ -1775,57 +1770,51 @@ namespace WBSF
 							}//if msg
 
 							msg += callback.StepIt();
+							
+							nbTry = 0;
+							it2++;
 						}//for all files
-
-						callback.PopTask();
-
-						for (auto it = data.begin(); it != data.end() && msg; it++)
-						{
-							CTRef TRef = it->first;
-							string filePath = GetOutputFilePath(N_SWOB, location.GetSSI("Province"), TRef.GetYear(), TRef.GetMonth(), ID);
-
-							CreateMultipleDir(GetPath(filePath));
-							msg = SaveSWOB(filePath, it->second);
-						}
-
-						if (msg)
-						{
-							lastUpdate[ID] = lastTRef;
-						}
-
-						msg += callback.StepIt();
-						nbTry = 0;
-						it1++;
-					}//for all station
-
-
-
-				}
-				catch (CException* e)
-				{
-
-					if (nbTry < 5)
+					}
+					catch (CException* e)
 					{
-						callback.AddMessage(UtilWin::SYGetMessage(*e));
-
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (size_t i = 0; i < 600 && msg; i++)
+						if (nbTry < 5)
 						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (size_t i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
 						}
-						callback.PopTask();
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
 					}
 
-					else
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
-				}
+					pConnection->Close();
+					pSession->Close();
+				}//if msg
+			}//for all hours
 
-				pConnection->Close();
-				pSession->Close();
-			}//if msg
+			// save the job done event if they are not finished (error)
+			for (auto it = data.begin(); it != data.end(); it++)
+			{
+				CTRef TRef = it->first;
+				string filePath = GetOutputFilePath(N_SWOB, location.GetSSI("Province"), TRef.GetYear(), TRef.GetMonth(), ID);
+
+				CreateMultipleDir(GetPath(filePath));
+				msg = SaveSWOB(filePath, it->second);
+			}
+
+			lastUpdate[ID] = lastTRef;
+			
+			callback.PopTask();
+			msg += callback.StepIt();
+		
 		}//for all station
 
 		callback.AddMessage("Number of SWOB-ML files downloaded: " + ToString(nbDownload));
