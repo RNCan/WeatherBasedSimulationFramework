@@ -1,4 +1,5 @@
 // MatchStation.cpp : Définit les comportements de classe pour l'application. 
+// 4.3.2	20/06/2018	Rémi Saint-Amant	bug fix with shore message
 // 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 //											Add color in weight chart
 // 4.3.0	09/02/2018	Rémi Saint-Amant	Add shore distance and prcp gradient
@@ -134,13 +135,10 @@ BOOL CMatchStationApp::InitInstance()
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
-
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
-		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	}
-
+	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+		
+	if (!msg)
+		UtilWin::SYShowMessage(msg, NULL);
 
 
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si

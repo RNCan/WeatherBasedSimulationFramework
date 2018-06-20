@@ -486,7 +486,7 @@ namespace UtilWWW
 			finder.GetLastWriteTime(time);
 			info.m_time = time.GetTime();
 		}
-		catch (CException* e)
+		catch (CException* )
 		{
 		}
 

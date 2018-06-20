@@ -136,14 +136,12 @@ BOOL CNormalsEditorApp::InitInstance()
 	RegisterShellFileTypes(TRUE);
 
 
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg;
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	ERMsg msg;
+	msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
-		if (!msg)
-			UtilWin::SYShowMessage(msg, AfxGetMainWnd());
-	}
+	if (!msg)
+		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
+
 
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si
 	// l'application a été lancée avec /RegServer, /Register, /Unregserver ou /Unregister.

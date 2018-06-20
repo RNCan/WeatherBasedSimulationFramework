@@ -167,6 +167,7 @@ BOOL CMatchStationDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		m_hourlyFilePath = filepath;
 	}
 	
+	
 
 	return (bool)msg;
 }
@@ -799,6 +800,8 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 			m_pLocations = std::make_shared<CLocationVector>();
 			msg = progressWnd.Execute(Execute, &param);
 
+			//if (msg && !m_pLocations->empty())
+			//	SetCurIndex(0);
 			//msg += m_pLocations->Load(m_locationFilePath );
 		}
 	}

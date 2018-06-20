@@ -133,14 +133,11 @@ BOOL CDailyEditorApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
-	if (CShore::GetShore().get() == NULL)
-	{
-		ERMsg msg;
-		msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	ERMsg msg;
+	msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
-		if (!msg)
-			UtilWin::SYShowMessage(msg, NULL);
-	}
+	if (!msg)
+		UtilWin::SYShowMessage(msg, NULL);
 
 	// Analyser la ligne de commande pour les commandes shell standard, DDE, ouverture de fichiers
 	CCommandLineInfo cmdInfo;

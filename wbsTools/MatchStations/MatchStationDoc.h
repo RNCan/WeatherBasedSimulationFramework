@@ -61,7 +61,7 @@ public:
 	void SetNormalsFilePath(const std::string& filepath);
 	void SetDailyFilePath(const std::string& filepath);
 	void SetHourlyFilePath(const std::string& filepath);
-	void SetWGFilePath(const std::string& filepath);
+	//void SetWGFilePath(const std::string& filepath);
 
 	const WBSF::CWeatherGradient& GetNormalsGradient()const{ return m_gradient; }
 	const WBSF::CSearchResultVector& GetNormalsMatch()const{ return m_normalsResult; }

@@ -8,8 +8,10 @@
 #include "Basic/CSV.h"
 #include "Basic/Statistic.h"
 #include "Basic/UtilMath.h"
+
 #include "Basic/Psychrometrics_SI.h"
 #include "UI/Common/SYShowMessage.h"
+#include "UI/Common/UtilWin.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
 //#include "cctz\time_zone.h"
@@ -177,7 +179,7 @@ namespace WBSF
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
 
-		int nbRun = 0;
+		size_t nbRun = 0;
 		size_t curI = 0;
 		while (curI < CProvinceSelection::NB_PROVINCES && msg)
 		{
@@ -189,8 +191,8 @@ namespace WBSF
 			if (msg)
 			{
 
-				TRY
-
+				try
+				{
 					//loop on province
 					for (size_t i = curI; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
 					{
@@ -205,7 +207,6 @@ namespace WBSF
 
 							if (nbStation != -1)
 							{
-								curI++;
 								short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
 
 								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
@@ -221,45 +222,42 @@ namespace WBSF
 							}
 							else
 							{
-								msg.ajoute(GetString(IDS_SERVER_DOWN));
+								throw(new UtilWin::CStringException(UtilWin::GetCString(IDS_SERVER_DOWN)));
+								//msg.ajoute(GetString(IDS_SERVER_DOWN));
 							}
 						}
-						else
-						{
-							curI++;
-						}
+
+
+
+						curI++;
+						nbRun = 0;
 
 					}
-
-				CATCH_ALL(e)
-					msg = UtilWin::SYGetMessage(*e);
-				END_CATCH_ALL
-
-
-
-
-					//clean connection
-					pConnection->Close();
-				pSession->Close();
-			}
-
-			//if an error occur: try again
-			if (!msg && !callback.GetUserCancel())
-			{
-				if (nbRun < 5)
-				{
-					callback.AddMessage(msg);
-					msg = ERMsg();
-
-
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (int i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
 				}
+				catch (CException* e)
+				{
+					if (nbRun < 5)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+
+						callback.PushTask("Waiting 30 seconds for server...", 600);
+						for (size_t i = 0; i < 600 && msg; i++)
+						{
+							Sleep(50);//wait 50 milisec
+							msg += callback.StepIt();
+						}
+						callback.PopTask();
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+
+				}
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
 			}
 		}
 
@@ -664,15 +662,7 @@ namespace WBSF
 		CLocationVector stationList;
 		//local station list
 		if (FileExists(GetStationListFilePath()))
-		{
 			msg = m_stations.Load(GetStationListFilePath());
-			/*CLocationVector stations;
-			for (auto it = m_stations.begin(); it != m_stations.end(); it++)
-				stations.push_back(it->second);
-
-			return stations.Save(GetStationListFilePath()+".csv");*/
-		}
-
 
 		//remote station list
 		if (msg)
@@ -1461,113 +1451,164 @@ namespace WBSF
 
 		pConnection->Close();
 		pSession->Close();
-		size_t nbTry = 0;
 
-		CFileInfoVector::const_iterator it1 = dir1.begin();
-		while (it1 != dir1.end() && msg)
+		CFileInfoVector dir2;
+		if (msg)
 		{
-			nbTry++;
+			callback.PushTask("Get days from: /observations/swob-ml/ (" + to_string(dir1.size()) + " days)", dir1.size());
 
-			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
 
-			if (!msg)
-				return msg;
-
-			callback.PushTask(string("Get files list from: /observations/swob-ml/"), std::distance(it1, dir1.cend()));
-
-			try
+			size_t nbTry = 0;
+			CFileInfoVector::const_iterator it1 = dir1.begin();
+			while (it1 != dir1.end() && msg)
 			{
-				for (; it1 != dir1.end() && msg; it1++)
+				nbTry++;
+
+				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+
+				if (msg)
 				{
-					string dirName = GetLastDirName(it1->m_filePath);
-					if (dirName != "latest")
+					try
 					{
-						int year = WBSF::as<int>(dirName.substr(0, 4));
-						size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
-						size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
-
-						CTRef TRef(year, m, d);
-
-						CFileInfoVector dir2;
-						msg = FindDirectories(pConnection, it1->m_filePath, dir2);//stations
-						callback.PushTask(string("Get files list from: ") + it1->m_filePath, dir2.size());
-						try
+						while ( it1 != dir1.end() && msg )
 						{
-							for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)//for all station
+							string dirName = GetLastDirName(it1->m_filePath);
+							if (dirName != "latest")
 							{
-								string ICAOID = GetLastDirName(it2->m_filePath);
-								CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+								CFileInfoVector dirTmp;
+								msg = FindDirectories(pConnection, it1->m_filePath, dirTmp);//stations
+								dir2.insert(dir2.end(), dirTmp.begin(), dirTmp.end());
+							}
 
-								string prov;
-								if (itMissing != locations.end())
-									prov = itMissing->GetSSI("Province");
-								else
-									missingID.insert(ICAOID);
-
-
-								if (prov.empty() || selection.at(prov))
-								{
-									auto findIt = lastUpdate.find(ICAOID);
-									if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
-									{
-										CFileInfoVector fileListTmp;
-										msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
-										for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
-										{
-											string fileName = GetFileName(it->m_filePath);
-											size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
-
-											if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
-											{
-												CTRef TRef = GetSWOBTRef(fileName);
-												if (findIt == lastUpdate.end() || TRef > findIt->second)
-													fileList[ICAOID].push_back(*it);
-											}
-											msg += callback.StepIt(0);
-										}//for all files
-									}
-
-									msg += callback.StepIt();
-								}//for all stations
-							}//if it's an non-update date
-						}
-						catch (CException*)
-						{
-							callback.PopTask();
-							throw;
-						}
+							msg += callback.StepIt();
+							nbTry = 0;
+							it1++;
+						}//for all dir
 					}
-
-					callback.PopTask();
-					msg += callback.StepIt();
-				}//for all dates
-			}
-			catch (CException* e)
-			{
-				if (nbTry < 3)
-				{
-					callback.AddMessage(UtilWin::SYGetMessage(*e));
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (size_t i = 0; i < 600 && msg; i++)
+					catch (CException* e)
 					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (size_t i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
 
-				}
-				else
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}//catch
+
+
+					pConnection->Close();
+					pSession->Close();
+				}//if msg
+			}//while nbTry
+
+			callback.PopTask();
+		}//if msg
+
+		if (msg)
+		{
+			callback.PushTask("Get stations list from: /observations/swob-ml/ (" + to_string(dir2.size()) + " days)", dir2.size());
+
+			size_t nbTry = 0;
+			CFileInfoVector::const_iterator it2 = dir2.begin();
+			while (it2 != dir1.end() && msg)
+			{
+				nbTry++;
+
+				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+
+				if (msg)
 				{
-					msg = UtilWin::SYGetMessage(*e);
+					try
+					{
+						while ( it2 != dir2.end() && msg )//for all station
+						{
+							string dirName = GetLastDirName(GetPath(it2->m_filePath));
+							int year = WBSF::as<int>(dirName.substr(0, 4));
+							size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
+							size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
+
+							CTRef TRef(year, m, d);
+
+
+							string ICAOID = GetLastDirName(it2->m_filePath);
+							CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+
+							string prov;
+							if (itMissing != locations.end())
+								prov = itMissing->GetSSI("Province");
+							else
+								missingID.insert(ICAOID);
+
+
+							if (prov.empty() || selection.at(prov))
+							{
+								auto findIt = lastUpdate.find(ICAOID);
+								if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+								{
+									CFileInfoVector fileListTmp;
+									msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
+									for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+									{
+										string fileName = GetFileName(it->m_filePath);
+										size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
+
+										if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
+										{
+											CTRef TRef = GetSWOBTRef(fileName);
+											if (findIt == lastUpdate.end() || TRef > findIt->second)
+												fileList[ICAOID].push_back(*it);
+										}
+										msg += callback.StepIt(0);
+									}//for all files
+								}
+
+
+							}//if it's selected province
+
+							msg += callback.StepIt();
+							nbTry = 0;
+							it2++;
+
+						}//for all stations
+					}
+					catch (CException* e)
+					{
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (size_t i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
+
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
+
+
+					pConnection->Close();
+					pSession->Close();
 				}
 			}
 
-			
-			pConnection->Close();
-			pSession->Close();
+			callback.PopTask();
 		}
-
-		callback.PopTask();
 
 		return msg;
 	}
