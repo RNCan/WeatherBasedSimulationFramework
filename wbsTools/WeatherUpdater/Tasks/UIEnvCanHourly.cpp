@@ -1470,14 +1470,43 @@ namespace WBSF
 				{
 					try
 					{
-						while ( it1 != dir1.end() && msg )
+						while (it1 != dir1.end() && msg)
 						{
 							string dirName = GetLastDirName(it1->m_filePath);
 							if (dirName != "latest")
 							{
+								//string dirName = GetLastDirName(GetPath(it2->m_filePath));
+								int year = WBSF::as<int>(dirName.substr(0, 4));
+								size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
+								size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
+								CTRef TRef(year, m, d);
+
+
 								CFileInfoVector dirTmp;
 								msg = FindDirectories(pConnection, it1->m_filePath, dirTmp);//stations
-								dir2.insert(dir2.end(), dirTmp.begin(), dirTmp.end());
+
+								for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
+								{
+									string ICAOID = GetLastDirName(it2->m_filePath);
+									CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+
+									string prov;
+									if (itMissing != locations.end())
+										prov = itMissing->GetSSI("Province");
+									else
+										missingID.insert(ICAOID);
+
+
+									if (prov.empty() || selection.at(prov))
+									{
+
+										auto findIt = lastUpdate.find(ICAOID);
+										if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+										{
+											dir2.push_back(*it2);
+										}
+									}
+								}
 							}
 
 							msg += callback.StepIt();
@@ -1516,7 +1545,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.PushTask("Get stations list from: /observations/swob-ml/ (" + to_string(dir2.size()) + " days)", dir2.size());
+			callback.PushTask("Get stations list from: /observations/swob-ml/ (" + to_string(dir2.size()) + " stations)", dir2.size());
 
 			size_t nbTry = 0;
 			CFileInfoVector::const_iterator it2 = dir2.begin();
@@ -1530,7 +1559,7 @@ namespace WBSF
 				{
 					try
 					{
-						while ( it2 != dir2.end() && msg )//for all station
+						while (it2 != dir2.end() && msg)//for all station
 						{
 							string dirName = GetLastDirName(GetPath(it2->m_filePath));
 							int year = WBSF::as<int>(dirName.substr(0, 4));
@@ -1540,7 +1569,7 @@ namespace WBSF
 							CTRef TRef(year, m, d);
 
 
-							string ICAOID = GetLastDirName(it2->m_filePath);
+							/*string ICAOID = GetLastDirName(it2->m_filePath);
 							CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
 
 							string prov;
@@ -1551,66 +1580,66 @@ namespace WBSF
 
 
 							if (prov.empty() || selection.at(prov))
+							{*/
+							/*auto findIt = lastUpdate.find(ICAOID);
+							if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+							{*/
+							CFileInfoVector fileListTmp;
+							msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
+							for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 							{
-								auto findIt = lastUpdate.find(ICAOID);
-								if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+								string fileName = GetFileName(it->m_filePath);
+								size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
+
+								if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
 								{
-									CFileInfoVector fileListTmp;
-									msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
-									for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
-									{
-										string fileName = GetFileName(it->m_filePath);
-										size_t mm = WBSF::as<size_t>(fileName.substr(13, 2));
-
-										if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
-										{
-											CTRef TRef = GetSWOBTRef(fileName);
-											if (findIt == lastUpdate.end() || TRef > findIt->second)
-												fileList[ICAOID].push_back(*it);
-										}
-										msg += callback.StepIt(0);
-									}//for all files
+									CTRef TRef = GetSWOBTRef(fileName);
+									if (findIt == lastUpdate.end() || TRef > findIt->second)
+										fileList[ICAOID].push_back(*it);
 								}
+								msg += callback.StepIt(0);
+							}//for all files
+						}
 
 
-							}//if it's selected province
+					}//if it's selected province
 
-							msg += callback.StepIt();
-							nbTry = 0;
-							it2++;
+					msg += callback.StepIt();
+					nbTry = 0;
+					it2++;
 
-						}//for all stations
-					}
-					catch (CException* e)
+				}//for all stations
+			}
+			catch (CException* e)
+			{
+				if (nbTry < 5)
+				{
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					callback.PushTask("Waiting 30 seconds for server...", 600);
+					for (size_t i = 0; i < 600 && msg; i++)
 					{
-						if (nbTry < 5)
-						{
-							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (size_t i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-
-						}
-						else
-						{
-							msg = UtilWin::SYGetMessage(*e);
-						}
+						Sleep(50);//wait 50 milisec
+						msg += callback.StepIt();
 					}
+					callback.PopTask();
 
-
-					pConnection->Close();
-					pSession->Close();
+				}
+				else
+				{
+					msg = UtilWin::SYGetMessage(*e);
 				}
 			}
 
-			callback.PopTask();
-		}
 
-		return msg;
+			pConnection->Close();
+			pSession->Close();
+		}
+	}
+
+	callback.PopTask();
+}
+
+return msg;
 	}
 
 	ERMsg CUIEnvCanHourly::UpdateMissingLocation(CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback)
