@@ -232,13 +232,12 @@ namespace WBSF
 		{
 			int nbDownload = 0;
 			CWeatherStationVector stations;
-			size_t cur_i = 0;
-			size_t nbTry = 0;
+			
+			
 
-			while (cur_i < m_regions.size() && msg)
+			for (size_t i = cur_i; i < m_regions.size() && msg; i++, cur_i++)
 			{
-				nbTry++;
-
+				
 				//open a connection on the server
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
@@ -251,7 +250,7 @@ namespace WBSF
 
 				try
 				{
-					for (size_t i = cur_i; i < m_regions.size() && msg; i++, cur_i++)
+					
 					{
 						if (m_regions.any() && !m_regions[i])
 							continue;
@@ -277,9 +276,12 @@ namespace WBSF
 						//Download files
 						try
 						{
-							
+							size_t nbTry = 0;
 							for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 							{
+								
+								nbTry++;
+
 								string fileName = GetFileName(it->m_filePath);
 								string ID = fileName.substr(0, 8);
 								string outputFilePath = outputPath + fileName;
@@ -309,7 +311,7 @@ namespace WBSF
 				}
 				catch (CException* e)
 				{
-					if (nbTry < 3)
+					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
 						callback.PushTask("Waiting 30 seconds for server...", 600);

@@ -52,7 +52,7 @@ std::string CCloudCleanerI::GetDescription()
 }
 
 
-CCloudCleanerIOption::CCloudCleanerIOption():CBaseOptions(false)
+CCloudCleanerIOption::CCloudCleanerIOption() :CBaseOptions(false)
 {
 	m_nbPixel = 0;
 	m_nbPixelDT = 0;
@@ -83,12 +83,12 @@ CCloudCleanerIOption::CCloudCleanerIOption():CBaseOptions(false)
 		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
 		{ "-Backup", 0, "", false, "Backup JD layer before overwrite it. If a backup already exist, it will be overwrite." },
 		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
-//		{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read in the reference images (around the working scene) to find and fill clouds. 3 by default (from ws -3 to ws + 3)." },
-		//{ "-OutputCode", 0, "", false, "Output random forest result code." },
-		//{ "-Debug",0,"",false,"Output debug information."},
-		{ "Model", 0, "", false, "Random forest cloud model file path." },
-		{ "RefFile", 0, "", false, "Input LANDSAT scenes reference image file path for previous and next scene." },
-		{ "Image list", 0, "", false, "LANDSAT scene to update JD mask file path. VRT only." }
+		//		{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read in the reference images (around the working scene) to find and fill clouds. 3 by default (from ws -3 to ws + 3)." },
+				//{ "-OutputCode", 0, "", false, "Output random forest result code." },
+				//{ "-Debug",0,"",false,"Output debug information."},
+				{ "Model", 0, "", false, "Random forest cloud model file path." },
+				{ "RefFile", 0, "", false, "Input LANDSAT scenes reference image file path for previous and next scene." },
+				{ "Image list", 0, "", false, "LANDSAT scene to update JD mask file path. VRT only." }
 	};
 
 	for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
@@ -122,7 +122,7 @@ ERMsg CCloudCleanerIOption::ProcessOption(int& i, int argc, char* argv[])
 	//{
 	//	m_TCBthreshold[0] = atof(argv[++i]);
 	//}
-	
+
 	if (IsEqual(argv[i], "-Thres"))
 	{
 		size_t type = atoi(argv[++i]) - 1;
@@ -337,29 +337,34 @@ ERMsg CCloudCleanerI::Execute()
 
 			m_options.m_period = processPeriod;*/
 
-		CBandsHolderMT bandHolder1(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
-		CBandsHolderMT bandHolder2(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
-
-		if (maskDS.IsOpen())
-		{
-			bandHolder1.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
-			bandHolder2.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
-		}
-
-		msg += bandHolder1.Load(inputDS, m_options.m_bQuiet);//take only this layer
-		msg += bandHolder2.Load(refDS, m_options.m_bQuiet/*, m_options.m_period*/);
-		if (!msg)
-			return msg;
 
 
 		if (!m_options.m_bQuiet)
-		cout << "Clean clouds of " << inputDS.GetNbScenes() << " scenes" <<  endl;
+			cout << "Clean clouds of " << inputDS.GetNbScenes() << " scenes" << endl;
 
 		m_options.ResetBar((size_t)inputDS.GetNbScenes());
-		
-		#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+
+		//#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
 		for (int z = 0; z < (int)inputDS.GetNbScenes(); z++)
 		{
+			//CBandsHolderMT bandHolder1(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+			//CBandsHolderMT bandHolder2(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+			CBandsHolder bandHolder1(1, m_options.m_memoryLimit, m_options.m_IOCPU);
+			CBandsHolder bandHolder2(1, m_options.m_memoryLimit, m_options.m_IOCPU);
+
+			if (maskDS.IsOpen())
+			{
+				bandHolder1.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
+				bandHolder2.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
+			}
+
+			msg += bandHolder1.Load(inputDS, true);//take only this layer
+			msg += bandHolder2.Load(refDS, true/*, m_options.m_period*/);
+			if (!msg)
+				return msg;
+
+
+
 			CGeoExtents extents = inputDS.GetInternalExtents(z*SCENES_SIZE);
 			CloudBitset suspects1((size_t)extents.m_xSize*extents.m_ySize);
 
@@ -369,21 +374,27 @@ ERMsg CCloudCleanerI::Execute()
 
 			CloudBitset clouds((size_t)extents.m_xSize*extents.m_ySize);
 
-			
+
 			vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 			//pass 1 : find suspicious pîxel
 			int thread = omp_get_thread_num();
-			
+
 			//data
-			ReadBlock(extents, p[z], bandHolder1[thread], bandHolder2[thread]);
+			//ReadBlock(extents, p[z], bandHolder1[thread], bandHolder2[thread]);
+			ReadBlock(extents, p[z], bandHolder1, bandHolder2);
 
 			//allocate process memory and load data
 			CLandsatPixelVector  data1;
-			LoadData(z, bandHolder1[thread], data1);
+			//LoadData(z, bandHolder1[thread], data1);
+			LoadData(z, bandHolder1, data1);
 			LansatData data2;
-			LoadData(bandHolder2[thread], data2);
+			//LoadData(bandHolder2[thread], data2);
+			LoadData(bandHolder2, data2);
+
 			inputDS.FlushCache();
+			refDS.FlushCache();
+
 
 			GetSuspicious(data1, data2, forests, suspects1, suspects2);
 			//cout << "Suspicious1 for scene " << i + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%" << endl;
@@ -399,22 +410,23 @@ ERMsg CCloudCleanerI::Execute()
 
 			//pass 2 : find clouds pixel
 			GetClouds(data1, data2, forests, suspects1, suspects2, clouds);
-			
+
 			if (clouds.any())
 			{
 				//pass 3 : set buffer around clouds
 				SetBuffer(extents, suspects1, suspects2, clouds);
 
-			//if (!m_options.m_bQuiet)
-				//cout << "Clean JD mask ..." << endl;
-			
-				//pass 4 : reset or replace clouds
+				//if (!m_options.m_bQuiet)
+					//cout << "Clean JD mask ..." << endl;
+
+					//pass 4 : reset or replace clouds
 				string JD_file_path = inputDS.GetInternalName(z*SCENES_SIZE + JD);
 
 				if (m_options.m_bBackup)
 				{
 					string JD_file_path_bak = JD_file_path + ".bak";
-					msg += WBSF::CopyOneFile(JD_file_path, JD_file_path_bak, false);
+					if(!WBSF::FileExists(JD_file_path_bak))
+						msg += WBSF::CopyOneFile(JD_file_path, JD_file_path_bak, false);
 				}
 
 				GDALDataset* poDataset = (GDALDataset *)GDALOpenEx(JD_file_path.c_str(), GDAL_OF_UPDATE | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
@@ -469,7 +481,8 @@ void CCloudCleanerI::ReadBlock(CGeoExtents extents, CTPeriod p, CBandsHolder& ba
 		m_options.m_timerRead.Start();
 
 		bandHolder1.LoadBlock(extents, p);
-		bandHolder2.LoadBlock(extents);
+		CTPeriod pp = CTPeriod(CTRef(p.Begin().GetYear()-2, FIRST_MONTH, FIRST_DAY), CTRef(p.Begin().GetYear()+2, LAST_MONTH, LAST_DAY));
+		bandHolder2.LoadBlock(extents, pp);
 
 		m_options.m_timerRead.Stop();
 	}
@@ -479,18 +492,18 @@ void CCloudCleanerI::ReadBlock(CGeoExtents extents, CTPeriod p, CBandsHolder& ba
 size_t GetPrevious(const CLandsatPixelVector& landsat, int jd)
 {
 	size_t previous = NOT_INIT;
-	
+
 	int year1 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, jd).GetYear();
 	for (size_t zz = landsat.size() - 1; zz < landsat.size() && previous == NOT_INIT; zz--)
 	{
-		
+
 		if (landsat[zz].IsValid() && landsat[zz][JD] < jd)
 		{
 			int year2 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, landsat[zz][JD]).GetYear();
-			if(year1 != year2)
+			if (year1 != year2)
 				previous = zz;
 		}
-			
+
 	}
 
 	return previous;
@@ -610,7 +623,7 @@ array <CLandsatPixel, 3> GetP(const CLandsatPixel& data1, const CLandsatPixelVec
 //Get input image reference
 void CCloudCleanerI::GetSuspicious(const CLandsatPixelVector& data1, const LansatData& data2, const Forests3& forest, CloudBitset& suspects1, CloudBitset& suspects2)
 {
-	
+
 	for (size_t xy = 0; xy < data1.size(); xy++)
 	{
 		//size_t xy = y * blockSize.m_x + x;
@@ -646,7 +659,7 @@ void CCloudCleanerI::GetSuspicious(const CLandsatPixelVector& data1, const Lansa
 //Get input image reference
 void CCloudCleanerI::GetClouds(const CLandsatPixelVector& data1, const LansatData& data2, const Forests3& forests, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
 {
-//	m_options.m_timerProcess.Start();
+	//	m_options.m_timerProcess.Start();
 
 	for (size_t m = 0; m < 3; m++)
 	{
@@ -655,7 +668,7 @@ void CCloudCleanerI::GetClouds(const CLandsatPixelVector& data1, const LansatDat
 		CloudBitset suspectPixel((size_t)data1.size());
 		for (size_t xy = 0; xy < data1.size(); xy++)
 		{
-	
+
 			if (data1[xy].IsInit())
 			{
 				size_t fm = get_m(data1[xy], data2[xy]);
@@ -674,7 +687,7 @@ void CCloudCleanerI::GetClouds(const CLandsatPixelVector& data1, const LansatDat
 				}
 			}
 		}
-	
+
 		if (suspectPixel.count() > 0)
 		{
 			//forest model, 0: beg, 1: mid, 2: end
@@ -728,7 +741,7 @@ void CCloudCleanerI::GetClouds(const CLandsatPixelVector& data1, const LansatDat
 					cur_xy++;
 				}//if suspect
 			}//X
-	
+
 		}//if have suspect
 	}
 
@@ -736,7 +749,7 @@ void CCloudCleanerI::GetClouds(const CLandsatPixelVector& data1, const LansatDat
 	//m_options.UpdateBar();
 
 	//m_options.m_timerProcess.Stop();
-	
+
 }
 
 void CCloudCleanerI::SetBuffer(const CGeoExtents& extents, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
