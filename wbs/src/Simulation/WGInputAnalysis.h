@@ -41,7 +41,7 @@ namespace WBSF
 		};
 
 		enum TMember{
-			KIND = CExecutable::NB_MEMBERS, NB_MEMBERS,
+			KIND = CExecutable::NB_MEMBERS, EXPORT_MATCH, MATCH_NAME, NB_MEMBERS,
 			NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -52,6 +52,8 @@ namespace WBSF
 
 		//*** public member ***
 		int m_kind;
+		bool m_bExportMatch;
+		std::string m_matchName;
 		//*********************
 
 		CWGInputAnalysis();

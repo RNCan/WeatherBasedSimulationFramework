@@ -90,12 +90,12 @@ namespace UtilWWW
 			int nbTry = 0;
 			while (!bRep && msg)
 			{
-				TRY
+				try
 				{
 					nbTry++;
 					bRep = pURLFile->SendRequest() != 0;
 				}
-					CATCH_ALL(e)
+				catch (CException* e)
 				{
 					DWORD errnum = GetLastError();
 					if (errnum == 12002 || errnum == 12029)
@@ -127,7 +127,7 @@ namespace UtilWWW
 						msg += UtilWin::SYGetMessage(e);
 					}
 				}
-				END_CATCH_ALL
+
 			}
 		}
 
@@ -480,15 +480,16 @@ namespace UtilWWW
 		if (finder.IsArchived())
 			info.m_attribute |= FILE_ATTRIBUTE_ARCHIVE;
 
-		TRY
+		try
 		{
 			CTime time;
 			finder.GetLastWriteTime(time);
 			info.m_time = time.GetTime();
 		}
-			CATCH_ALL(e)
-		{}
-		END_CATCH_ALL
+		catch (CException* e)
+		{
+		}
+
 
 	}
 
@@ -770,20 +771,20 @@ namespace UtilWWW
 
 		pSession.reset(new CInternetSession(NULL, 1, flags));
 
-		TRY
+		try
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 120000);
-		//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
-		pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
-		pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
-		pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
-		pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
-		pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
+			//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
+			pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
+			pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
+			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
+			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
+			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
 
-		pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
+			pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
 
 		}
-			CATCH_ALL(e)
+		catch (CException* e)
 		{
 			pSession->Close();
 			pSession.reset();
@@ -792,9 +793,9 @@ namespace UtilWWW
 			e->GetErrorMessage(error.GetBufferSetLength(255), 255);
 			msg.ajoute(CStringA(error));
 		}
-		END_CATCH_ALL
 
-			return msg;
+
+		return msg;
 	}
 
 

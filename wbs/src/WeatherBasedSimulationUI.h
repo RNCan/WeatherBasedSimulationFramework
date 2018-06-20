@@ -502,7 +502,9 @@
 #define IDC_MAP_REGIONAL_LIMIT_TO_BOUND 1246
 #define IDC_STATIC5                     1246
 #define IDC_MAP_GLOBAL_LIMIT_TO_BOUND   1247
+#define IDC_EXPORT_MATCH                1247
 #define IDC_MAP_REGIONAL_LIMIT_SD       1248
+#define IDC_MATCH_NAME                  1248
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
 #define IDC_MAP_REGIONAL_LIMIT          1250
 #define IDC_MAP_GLOBAL_LIMIT            1251
@@ -866,9 +868,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        214
+#define _APS_NEXT_RESOURCE_VALUE        215
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1247
+#define _APS_NEXT_CONTROL_VALUE         1249
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

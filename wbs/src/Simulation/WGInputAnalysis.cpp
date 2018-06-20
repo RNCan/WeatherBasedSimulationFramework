@@ -42,7 +42,7 @@ namespace WBSF
 	//LOWEST, HIGHEST, , STAT_R² 
 	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
 	const char* CWGInputAnalysis::XML_FLAG = "WGInputAnalysis";
-	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind" };
+	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
 
 	CWeatherDatabase& GetObsDB(CWeatherGenerator& WG){ return WG.GetWGInput().IsHourly() ? (CWeatherDatabase&)(*WG.GetHourlyDB()) : (CWeatherDatabase&)(*WG.GetDailyDB()); }
@@ -161,6 +161,8 @@ namespace WBSF
 	{
 		CExecutable::Reset();
 		m_kind = MATCH_STATION_NORMALS;
+		m_bExportMatch = false;
+		m_matchName = "MatchStations.csv";
 		m_name = "WGInputAnalysis";
 	}
 
@@ -176,6 +178,8 @@ namespace WBSF
 		{
 			CExecutable::operator =(in);
 			m_kind = in.m_kind;
+			m_bExportMatch = in.m_bExportMatch;
+			m_matchName = in.m_matchName;
 		}
 
 		ASSERT(*this == in);
@@ -188,6 +192,8 @@ namespace WBSF
 
 		if (CExecutable::operator !=(in))bEqual = false;
 		if (m_kind != in.m_kind)bEqual = false;
+		if (m_bExportMatch != in.m_bExportMatch)bEqual = false;
+		if (m_matchName != in.m_matchName)bEqual = false;
 
 		return bEqual;
 	}
@@ -433,6 +439,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
 		CWGInput WGInput;
 		msg = GetWGInput(fileManager, WGInput);
 
@@ -445,10 +452,27 @@ namespace WBSF
 		if (msg)
 			msg = InitDefaultWG(fileManager, WG, callback);
 
+
+		ofStream oFile;
+		if (msg && m_bExportMatch)
+		{
+			string filePath = fileManager.GetOutputPath() + m_matchName;
+			if (GetFileExtension(m_matchName).empty())
+				filePath += ".csv";
+			msg += oFile.open(filePath);
+			if (msg)
+			{
+				oFile << "LocNo,LocID,LocName,LocLat,LocLon,LocElev,LocShore,Variable,";
+				if (m_kind == MATCH_STATION_OBSERVATIONS)
+					oFile << "Year,";
+
+				oFile << "MatchNo,StationID,StationName,Latitude,Longitude,Elevation,ShoreDistance,Distance,DeltaElev,DeltaShore,VirtualDistance,Weight" <<endl;
+			}
+		}
+
+
 		if (!msg)
 			return msg;
-
-
 
 
 		const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
@@ -476,14 +500,16 @@ namespace WBSF
 				static const TVarH VARIABLE_FOR_CATEGORY[4] = { H_TAIR2, H_PRCP, H_RELH, H_WNDS };
 				bitset<4> category = GetCategory(WGInput.m_variables);
 
+				static const char* CAT_ID[4] = {"T","P","H","W" };
 				for (size_t c = 0; c < 4; c++)
 				{
 					if (category[c])
 					{
 						TVarH v = GetLeadCategoryVariable(c);
+						
 						CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
 						size_t nbStations = WG.GetWGInput().m_nbNormalsStations;
-						CNewSectionData section(1, 10, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
+						
 
 						CSearchResultVector searchResultArray;
 						msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().GetNbNormalsToSearch(), WGInput.m_searchRadius[v], VARIABLE_FOR_CATEGORY[c], -999, true, true, WGInput.m_bUseShore);
@@ -500,6 +526,7 @@ namespace WBSF
 							vector<double> weight = searchResultArray.GetStationWeight(/*true, WEATHER::SHORE_DISTANCE_FACTOR>0*/);
 							for (size_t j = 0; j < searchResultArray.size() && msg; j++)
 							{
+								CNewSectionData section(1, 10, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
 								section[0][0] = searchResultArray[j].m_index + 1;//index in base one
 								section[0][1] = searchResultArray[j].m_location.m_lat;
 								section[0][2] = searchResultArray[j].m_location.m_lon;
@@ -511,9 +538,21 @@ namespace WBSF
 								section[0][8] = searchResultArray[j].m_distance / 1000;
 								section[0][9] = weight[j] * 100;
 
-
-
 								msg += resultDB.AddSection(section, callback);
+
+								if (oFile.is_open())
+								{
+									string line;
+									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%s,", l + 1, locations[l].m_ID.c_str(), locations[l].m_name.c_str(), locations[l].m_lat, locations[l].m_lon, locations[l].m_elev, locations[l].GetShoreDistance() / 1000, CAT_ID[c]);
+									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf", j + 1, searchResultArray[j].m_location.m_ID.c_str(), searchResultArray[j].m_location.m_name.c_str(),section[0][1][MEAN], section[0][2][MEAN], section[0][3][MEAN], section[0][4][MEAN], section[0][5][MEAN], section[0][6][MEAN], section[0][7][MEAN], section[0][8][MEAN], section[0][9][MEAN]);
+									
+									
+									std::replace(line.begin(), line.end(), ',', CTRL.m_listDelimiter);
+									std::replace(line.begin(), line.end(), '.', CTRL.m_decimalDelimiter);
+									
+									oFile << line << endl;
+								}
+
 								msg += callback.StepIt();
 							}
 						}
@@ -528,10 +567,9 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-
+						const char* pVarID =  GetVariableAbvr(v);
 						CWeatherDatabase& obsDB = GetObsDB(WG);
 						size_t nbYears = WG.GetWGInput().GetNbYears();
-						//size_t nbStations = WG.GetWGInput().IsHourly() ? WG.GetWGInput().m_nbHourlyStations : WG.GetWGInput().m_nbDailyStations;
 						size_t nbStations = WG.GetWGInput().GetNbObservationToSearch();
 
 						vector<CNewSectionData> section;
@@ -552,7 +590,7 @@ namespace WBSF
 								msg = ERMsg();
 
 
-							//sort(searchResultArray.begin(), searchResultArray.end(), CSearchResultSort());
+							
 							vector<double> weight = searchResultArray.GetStationWeight(/*true, WEATHER::SHORE_DISTANCE_FACTOR>0*/);
 							for (size_t r = 0; r < searchResultArray.size(); r++)
 							{
@@ -566,6 +604,19 @@ namespace WBSF
 								section[r][y][7] = (locations[l].GetShoreDistance() - searchResultArray[r].m_location.GetShoreDistance()) / 1000;
 								section[r][y][8] = searchResultArray[r].m_distance / 1000;
 								section[r][y][9] = weight[r] * 100;
+
+								if (oFile.is_open())
+								{
+									string line;
+									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%s,%d,", l + 1, locations[l].m_ID.c_str(), locations[l].m_name.c_str(), locations[l].m_lat, locations[l].m_lon, locations[l].m_elev, locations[l].GetShoreDistance() / 1000, pVarID, year);
+									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf", r + 1, searchResultArray[r].m_location.m_ID.c_str(), searchResultArray[r].m_location.m_name.c_str(), section[r][y][1][MEAN], section[r][y][2][MEAN], section[r][y][3][MEAN], section[r][y][4][MEAN], section[r][y][5][MEAN], section[r][y][6][MEAN], section[r][y][7][MEAN], section[r][y][8][MEAN], section[r][y][9][MEAN]);
+
+
+									std::replace(line.begin(), line.end(), ',', CTRL.m_listDelimiter);
+									std::replace(line.begin(), line.end(), '.', CTRL.m_decimalDelimiter);
+
+									oFile << line << endl;
+								}
 							}
 
 							msg += callback.StepIt();
@@ -578,6 +629,9 @@ namespace WBSF
 				}//for all variables
 			}//normals/observations
 		}//for all locations
+
+		if (oFile.is_open())
+			oFile.close();
 
 		callback.PopTask();
 
@@ -1621,6 +1675,9 @@ namespace WBSF
 		CExecutable::writeStruc(output);
 		zen::XmlOut out(output);
 		out[GetMemberName(KIND)](m_kind);
+		out[GetMemberName(EXPORT_MATCH)](m_bExportMatch);
+		out[GetMemberName(MATCH_NAME)](m_matchName);
+		
 	}
 
 	bool CWGInputAnalysis::readStruc(const zen::XmlElement& input)
@@ -1628,6 +1685,9 @@ namespace WBSF
 		CExecutable::readStruc(input);
 		zen::XmlIn in(input);
 		in[GetMemberName(KIND)](m_kind);
+		in[GetMemberName(EXPORT_MATCH)](m_bExportMatch);
+		in[GetMemberName(MATCH_NAME)](m_matchName);
+
 
 		return true;
 	}

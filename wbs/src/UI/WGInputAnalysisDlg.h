@@ -42,6 +42,10 @@ namespace WBSF
 
 		CWGInputAnalysis m_analysis;
 		CExecutablePtr m_pParent;
+
+		void UpdateCtrl();
+		CComboBox m_kindCtrl;
+		CButton m_exportCtrl;
 	};
 
 }
