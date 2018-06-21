@@ -1490,7 +1490,7 @@ namespace WBSF
 										string ICAOID = GetLastDirName(it2->m_filePath);
 										CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
 
-										string prov;
+										string prov; 
 										if (itMissing != locations.end())
 											prov = itMissing->GetSSI("Province");
 										else
