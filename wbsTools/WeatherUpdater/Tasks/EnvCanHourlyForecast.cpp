@@ -260,8 +260,36 @@ namespace WBSF
 					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 					//Load files list
+					size_t nbTry = 0;
+					while (fileList.empty() && msg)
+					{
+						try
+						{
+							nbTry++;
+							msg += UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
 					
-					UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
+						}
+						catch (CException* e)
+						{
+							if (nbTry < 5)
+							{
+								callback.AddMessage(UtilWin::SYGetMessage(*e));
+								callback.PushTask("Waiting 30 seconds for server...", 600);
+								for (size_t i = 0; i < 600 && msg; i++)
+								{
+									Sleep(50);//wait 50 milisec
+									msg += callback.StepIt();
+								}
+								callback.PopTask();
+
+							}
+							else
+							{
+								msg = UtilWin::SYGetMessage(*e);
+							}
+						}
+					}
+
 					ClearList(fileList);
 					CreateMultipleDir(outputPath);
 					pConnection->Close();
