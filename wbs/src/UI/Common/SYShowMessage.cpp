@@ -54,7 +54,11 @@ namespace UtilWin
 
 		TCHAR cause[255];
 		e.GetErrorMessage(cause, 255);
-		message.ajoute(UtilWin::ToUTF8(cause));
+		std::string tmp = UtilWin::ToUTF8(cause);
+		while (!tmp.empty() && (tmp.back() == '\n' || tmp.back() == '\r'))
+			tmp = tmp.substr(0, tmp.size() - 1);
+
+		message.ajoute(tmp);
 
 		return message;
 	}
@@ -78,8 +82,11 @@ namespace UtilWin
 			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL, errnum, 0, cause, 255, NULL);
 
+		std::string tmp = UtilWin::ToUTF8(cause);
+		while (!tmp.empty() && (tmp.back() == '\n' || tmp.back() == '\r'))
+			tmp = tmp.substr(0, tmp.size() - 1);
 
-		message.ajoute(UtilWin::ToUTF8(cause));
+		message.ajoute(tmp);
 
 		return message;
 	}
