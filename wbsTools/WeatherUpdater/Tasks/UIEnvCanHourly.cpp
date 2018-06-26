@@ -1702,9 +1702,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		size_t nbDayStation = 0;
+		for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end(); it1++)
+			nbDayStation += it1->second.size();
+
 		string workingDir = GetDir(WORKING_DIR);
 		callback.PushTask("Download of SWOB-ML (" + ToString(fileList.size()) + " stations)", fileList.size());
-		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()));
+		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()) + " (nb days stations = " + ToString(nbDayStation) + ")");
 
 		map<string, CTRef> lastUpdate;
 		int nbDownload = 0;
@@ -1800,6 +1804,7 @@ namespace WBSF
 				}//if msg
 			}//for all hours
 
+			ERMsg msgSaved;
 			// save the job done event if they are not finished (error)
 			for (auto it = data.begin(); it != data.end(); it++)
 			{
@@ -1807,11 +1812,14 @@ namespace WBSF
 				string filePath = GetOutputFilePath(N_SWOB, location.GetSSI("Province"), TRef.GetYear(), TRef.GetMonth(), ID);
 
 				CreateMultipleDir(GetPath(filePath));
-				msg = SaveSWOB(filePath, it->second);
+				msgSaved += SaveSWOB(filePath, it->second);
 			}
 
-			lastUpdate[ID] = lastTRef;
+			if(msgSaved)
+				lastUpdate[ID] = lastTRef;
 			
+			msg += msgSaved;
+
 			callback.PopTask();
 			msg += callback.StepIt();
 		

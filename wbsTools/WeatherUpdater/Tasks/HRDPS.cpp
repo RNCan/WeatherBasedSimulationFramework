@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "HRDPS.h"
 #include "Basic/WeatherStation.h"
+#include "UI/Common/SYShowMessage.h"
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
@@ -82,32 +83,41 @@ namespace WBSF
 		return CHRDPSVariables::GetLevel(parts[5]);
 	}
 
-	size_t CHRDPS::GetLatestHH(CHttpConnectionPtr& pConnection)const
+	ERMsg CHRDPS::GetLatestHH(size_t& HH)const
 	{
 		ERMsg msg;
 
-		size_t HH = NOT_INIT;
+		HH = NOT_INIT;
 
-		vector<pair<CTRef, size_t>> latest;
-		for (size_t h = 0; h < 24; h += 6)
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		if (msg)
 		{
-			string remotePath = GetRemoteFilePath(h, 0, "*P000-00.grib2");
 
-			CFileInfoVector fileListTmp;
-			if (FindFiles(pConnection, remotePath, fileListTmp) && !fileListTmp.empty())
+
+			vector<pair<CTRef, size_t>> latest;
+			for (size_t h = 0; h < 24; h += 6)
 			{
-				string fileTitle = GetFileName(fileListTmp.front().m_filePath);
-				latest.push_back(make_pair(GetTRef(fileTitle), h));
+				string remotePath = GetRemoteFilePath(h, 0, "*P000-00.grib2");
+
+				CFileInfoVector fileListTmp;
+				if (FindFiles(pConnection, remotePath, fileListTmp) && !fileListTmp.empty())
+				{
+					string fileTitle = GetFileName(fileListTmp.front().m_filePath);
+					latest.push_back(make_pair(GetTRef(fileTitle), h));
+				}
 			}
+
+			sort(latest.begin(), latest.end());
+
+			if (!latest.empty())
+				HH = latest.back().second;
+
 		}
 
-		sort(latest.begin(), latest.end());
-
-		if (!latest.empty())
-			HH = latest.back().second;
-
-
-		return HH;
+		return msg;
 	}
 
 	//****************************************************************************************************
@@ -124,6 +134,19 @@ namespace WBSF
 		//CreateVRT(callback);
 
 
+		size_t lastestHH = NOT_INIT;
+		msg = GetLatestHH(lastestHH);
+
+		if (!msg)
+			return msg;
+
+		callback.PushTask(string("Get directories list from: ") + SERVER_PATH, 4);
+
+
+
+		CFileInfoVector dir1;
+		CFileInfoVector dir2;
+
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -132,100 +155,205 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		size_t lastestHH = GetLatestHH(pConnection);
-
-		callback.PushTask(string("Get files list from: ") + SERVER_PATH, 6 * 4);
-		CFileInfoVector fileList;
-
-
-		CFileInfoVector dir1;
-		msg = FindDirectories(pConnection, SERVER_PATH, dir1);// 00, 06, 12, 18
-		for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
+		try
 		{
-			size_t HH = as<size_t>(GetLastDirName(it1->m_filePath));
+			msg = FindDirectories(pConnection, SERVER_PATH, dir1);// 00, 06, 12, 18
 
-
-			CFileInfoVector dir2;
-			msg = FindDirectories(pConnection, it1->m_filePath, dir2);//000 to ~048
-
-			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
+			for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 			{
-				size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+				size_t HH = as<size_t>(GetLastDirName(it1->m_filePath));
 
 
-				bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6) : hhh < 6;
-				if (bDownload)
-				{
-					CFileInfoVector fileListTmp;
-					msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
-					for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
-					{
-						string fileName = GetFileName(it->m_filePath);
-						string outputFilePath = GetOutputFilePath(fileName);
-						size_t var = GetVariable(fileName);
-
-						if (var < m_variables.size())
-						{
-							if (m_variables.test(var))
-							{
-								ifStream stream;
-								if (!stream.open(outputFilePath))
-								{
-									fileList.push_back(*it);
-								}
-								else
-								{
-									//verify if the file finish with 7777
-									char test[5] = { 0 };
-									stream.seekg(-4, ifstream::end);
-									stream.read(&(test[0]), 4);
-
-									if (string(test) != "7777")
-									{
-										fileList.push_back(*it);
-									}
-								}
-							}//if wanted variable
-						}//Humm new variable
-						else
-						{
-							callback.AddMessage("HRDPS var unknowns : " + fileName);
-						}
-					}//for all files
-
-					msg += callback.StepIt();
-				}//take only 6 first hours
-			}//for all hours
-		}//for all directory
-
-
-		callback.PopTask();
-
-
-		callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
-		callback.PushTask("Download HRDPS gribs (" + ToString(fileList.size()) + ")", fileList.size());
-
-		int nbDownload = 0;
-		for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+				CFileInfoVector tmp;
+				msg = FindDirectories(pConnection, it1->m_filePath, tmp);//000 to ~048
+				dir2.insert(dir2.end(), tmp.begin(), tmp.end());
+				msg += callback.StepIt();
+			}
+		}
+		catch (CException* e)
 		{
-			string fileName = GetFileName(it->m_filePath);
-			string outputFilePath = GetOutputFilePath(fileName);
-
-			CreateMultipleDir(GetPath(outputFilePath));
-			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-			if (msg)
-				nbDownload++;
-
-
-			msg += callback.StepIt();
+			msg = UtilWin::SYGetMessage(*e);
 		}
 
 		pConnection->Close();
 		pSession->Close();
 
-
-		callback.AddMessage("Number of HRDPS gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
+
+		CFileInfoVector fileList;
+		if (msg)
+		{
+
+			callback.PushTask(string("Get files list from: ") + SERVER_PATH + " (" + to_string(dir2.size()) + " directories)", dir2.size());
+			size_t nbTry = 0;
+
+			CFileInfoVector::const_iterator it2 = dir2.begin();
+			while (it2 != dir2.end() && msg)
+			{
+				nbTry++;
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+
+				if (msg)
+				{
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
+					try
+					{
+						while (it2 != dir2.end() && msg)
+						{
+							string path = it2->m_filePath;
+							path = GetPath(path.substr(0, path.length() - 1));
+							size_t HH = as<size_t>(GetLastDirName(path));
+							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+
+							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6) : hhh < 6;
+							if (bDownload)
+							{
+								CFileInfoVector fileListTmp;
+								msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
+								for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+								{
+									string fileName = GetFileName(it->m_filePath);
+									string outputFilePath = GetOutputFilePath(fileName);
+									size_t var = GetVariable(fileName);
+
+									if (var < m_variables.size())
+									{
+										if (m_variables.test(var))
+										{
+											ifStream stream;
+											if (!stream.open(outputFilePath))
+											{
+												fileList.push_back(*it);
+											}
+											else
+											{
+												//verify if the file finish with 7777
+												char test[5] = { 0 };
+												stream.seekg(-4, ifstream::end);
+												stream.read(&(test[0]), 4);
+
+												if (string(test) != "7777")
+												{
+													fileList.push_back(*it);
+												}
+											}
+										}//if wanted variable
+									}//Humm new variable
+									else
+									{
+										callback.AddMessage("HRDPS var unknowns : " + fileName);
+									}
+								}//for all files
+							}//take only 6 first hours
+
+							msg += callback.StepIt();
+							it2++;
+							nbTry = 0;
+						}//for all directory
+
+					}
+					catch (CException* e)
+					{
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (size_t i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
+
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
+
+					pConnection->Close();
+					pSession->Close();
+
+				}
+			}
+
+			callback.PopTask();
+
+		}//if msg
+
+
+		if (msg)
+		{
+			callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
+			callback.PushTask("Download HRDPS gribs (" + ToString(fileList.size()) + ")", fileList.size());
+
+			size_t nbDownload = 0;
+			size_t nbTry = 0;
+			CFileInfoVector::iterator it = fileList.begin();
+			while (it != fileList.end() && msg)
+			{
+				nbTry++;
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+
+				if (msg)
+				{
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
+					try
+					{
+						while (it != fileList.end() && msg)
+						{
+							string fileName = GetFileName(it->m_filePath);
+							string outputFilePath = GetOutputFilePath(fileName);
+
+							CreateMultipleDir(GetPath(outputFilePath));
+							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT );
+							if (msg)
+								nbDownload++;
+
+
+							msg += callback.StepIt();
+							it++;
+							nbTry = 0;
+						}
+					}
+					catch (CException* e)
+					{
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							callback.PushTask("Waiting 30 seconds for server...", 600);
+							for (size_t i = 0; i < 600 && msg; i++)
+							{
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
+							}
+							callback.PopTask();
+
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
+
+					pConnection->Close();
+					pSession->Close();
+				}
+
+			}
+
+			callback.AddMessage("Number of HRDPS gribs downloaded: " + ToString(nbDownload));
+			callback.PopTask();
+		}
 
 
 		//now, create .vrt and index file

@@ -74,7 +74,7 @@ namespace WBSF
 		ERMsg GetVirtuelStation(const CLocationVector& stations, CWVariables variables, CTPeriod p, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 
 		ERMsg CreateVRT(CCallback& callback = DEFAULT_CALLBACK);
-		std::string GetVRTFilePath(CTRef TRef);
+		//std::string GetVRTFilePath(CTRef TRef);
 
 		
 
@@ -88,7 +88,7 @@ namespace WBSF
 
 		size_t GetHH(const std::string& title)const;
 		size_t Gethhh(const std::string& title)const;
-		size_t GetLatestHH(UtilWWW::CHttpConnectionPtr& pConnection)const;
+		ERMsg GetLatestHH(size_t& HH)const;
 		CTRef GetTRef(const std::string& title)const;
 		ERMsg OpenDatasets(CCallback& callback);
 
