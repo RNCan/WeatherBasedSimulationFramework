@@ -322,13 +322,7 @@ namespace WBSF
 				{
 					if (nbRun > 1 && nbRun < 5)
 					{
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (size_t i = 0; i < 600 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
+						msg += Wait30Seconds(callback);
 					}
 				}
 			}

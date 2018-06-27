@@ -34,6 +34,7 @@ namespace WBSF
 
 		size_t m_source;
 		size_t m_serverType;
+		bool m_bShowWINSCP;
 
 	protected:
 
@@ -42,10 +43,7 @@ namespace WBSF
 
 		CTRef GetTRef(const std::string& filePath)const;
 		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
-		//ERMsg OpenDatasets(CCallback& callback);
-
-//		std::array<std::array<CGDALDatasetEx, NB_FORECAST_VAR>, 52> m_datasets;
-	//	CProjectionTransformation m_geo2gribs;
+		
 
 		static const char* SERVER_NAME[NB_SERVER_TYPE];
 		static const char* SERVER_PATH[NB_SERVER_TYPE];

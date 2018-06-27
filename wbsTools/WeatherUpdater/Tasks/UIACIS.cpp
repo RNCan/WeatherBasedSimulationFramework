@@ -93,26 +93,26 @@ namespace WBSF
 
 	const char* CUIACIS::SERVER_NAME = "agriculture.alberta.ca";
 
-//"Alberta Agriculture and Forestry"	"AGCM"
-//"Alberta Sustainable Resource Development"	"ASRD"
-//"Alberta Agriculture and Forestry"	"AGDM"
-//"Environment and Parks"	"AENV"
-//"Nav Canada"	"NAV"
-//"Environment Canada"	"MSC"
-//"Environment Canada"	"PARKS"
-//"Alberta Agriculture and Forestry"	"IMCIN"
-//"Environment Canada"	"MSCRCS"
-//"Environment Canada"	"AAFC"
-//"Nav Canada"	"MSCRCS"
-//"Environment Canada"	"SYNC"
-//"Agriculture and Agri-Food Canada"	"MSCRCS"
-//"Alberta Agriculture and Forestry"	"RESEARCH"
-//"Hatfield Consultants"	
-//"Environment and Parks"	"AGDM"
-//"Alberta Agriculture and Forestry"	"AFTS"
-//"Agriculture and Agri-Food Canada"	"AAFC"
+	//"Alberta Agriculture and Forestry"	"AGCM"
+	//"Alberta Sustainable Resource Development"	"ASRD"
+	//"Alberta Agriculture and Forestry"	"AGDM"
+	//"Environment and Parks"	"AENV"
+	//"Nav Canada"	"NAV"
+	//"Environment Canada"	"MSC"
+	//"Environment Canada"	"PARKS"
+	//"Alberta Agriculture and Forestry"	"IMCIN"
+	//"Environment Canada"	"MSCRCS"
+	//"Environment Canada"	"AAFC"
+	//"Nav Canada"	"MSCRCS"
+	//"Environment Canada"	"SYNC"
+	//"Agriculture and Agri-Food Canada"	"MSCRCS"
+	//"Alberta Agriculture and Forestry"	"RESEARCH"
+	//"Hatfield Consultants"	
+	//"Environment and Parks"	"AGDM"
+	//"Alberta Agriculture and Forestry"	"AFTS"
+	//"Agriculture and Agri-Food Canada"	"AAFC"
 
-	//http://agriculture.alberta.ca/acis/rss/data?type=HOURLY&stationId=39271045&date=20180320
+		//http://agriculture.alberta.ca/acis/rss/data?type=HOURLY&stationId=39271045&date=20180320
 
 	CUIACIS::CUIACIS(void)
 	{}
@@ -286,19 +286,18 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
-
 		CTRef today = CTRef::GetCurrentTRef();
 		string workingDir = GetDir(WORKING_DIR);
-		int nbFilesToDownload = 0;
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
-		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
+		size_t type = as <size_t>(DATA_TYPE);
 
-
+		size_t nbFilesToDownload = 0;
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
+
+		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			bNeedDownload[i].resize(nbYears);
@@ -319,7 +318,7 @@ namespace WBSF
 						string network = m_stations[i].GetSSI("type");
 						string ID = m_stations[i].GetSSI("EC_id");
 						ID = ID.substr(0, 3);
-						if (!ID.empty() && ID != "999" && network!="AENV"  && network != "PARC")
+						if (!ID.empty() && ID != "999" && network != "AENV"  && network != "PARC")
 							bND = false;
 					}
 
@@ -333,16 +332,17 @@ namespace WBSF
 
 		callback.PopTask();
 
-		size_t nbRun = 0;
+		size_t nbTry = 0;
 		size_t curI = 0;
+		size_t nbDownload = 0;
+		
 
-		int nbDownload = 0;
-		int currentNbDownload = 0;
-
+		callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+		callback.AddMessage("Nb stations months to downloaded: " + ToString(nbFilesToDownload));
 
 		while (curI < m_stations.size() && msg)
 		{
-			nbRun++;
+			nbTry++;
 
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
@@ -350,101 +350,68 @@ namespace WBSF
 
 			if (msg)
 			{
-				size_t type = as <size_t>(DATA_TYPE);
-				callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
-
-
+				try
 				{
-					TRY
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-						pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-					
-					for (size_t i = curI; i < m_stations.size() && msg; i++)
+					while (curI < m_stations.size() && msg)
 					{
-						for (size_t y = 0; y < nbYears&&msg; y++)
+						for (size_t y = 0; y < nbYears && msg; y++)
 						{
 							int year = firstYear + int(y);
 							for (size_t m = 0; m < 12 && msg; m++)
 							{
-								if (bNeedDownload[i][y][m])
+								if (bNeedDownload[curI][y][m])
 								{
-									string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
+									string filePath = GetOutputFilePath(year, m, m_stations[curI].m_ID);
 									CreateMultipleDir(GetPath(filePath));
 
-									msg += DownloadMonth(pConnection, year, m, m_stations[i].m_ID, filePath, callback);
-									if (msg || callback.GetUserCancel())
+									msg += DownloadMonth(pConnection, year, m, m_stations[curI].m_ID, filePath, callback);
+									if (msg )
 									{
-										
 										nbDownload++;
-										currentNbDownload++;
+										nbTry = 0;
 										msg += callback.StepIt();
 									}
-									else
-									{
-										pConnection->Close();
-										pSession->Close();
-
-										//wait 5 seconds 
-										callback.PushTask("Waiting 5 seconds...", 50);
-										for (size_t s = 0; s < 50 && msg; s++)
-										{
-											Sleep(100);
-											msg += callback.StepIt();
-										}
-										callback.PopTask();
-
-										msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-										currentNbDownload = 0;
-									}//if msg
 								}//if need download
 							}//for all months
 						}//for all years
 
 						curI++;
 					}//for all station
-
-
-
-					CATCH_ALL(e)
-
-						msg = UtilWin::SYGetMessage(*e);
-
-					END_CATCH_ALL
 				}
-
-
-				//if an error occur: try again
-				if (!msg && !callback.GetUserCancel())
+				catch (CException* e)
 				{
-					if (nbRun < 5)
+					//if an error occur: try again
+					if (nbTry < 5)
 					{
-						callback.AddMessage(msg);
-						msg = ERMsg();
-
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (int i = 0; i < 600 && msg; i++)
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						
+						//msg = Wait30Seconds(callback);
+						//wait 5 seconds 
+						callback.PushTask("Wait 5 seconds...", 50);
+						for (size_t s = 0; s < 50 && msg; s++)
 						{
-							Sleep(50);//wait 50 milisec
+							Sleep(100);
 							msg += callback.StepIt();
 						}
 						callback.PopTask();
+					}
+					else
+					{ 
+						msg = UtilWin::SYGetMessage(*e);
 					}
 				}
 
 				//clean connection
 				pConnection->Close();
-				pConnection.release();
 				pSession->Close();
-				pSession.release();
-
-				callback.PopTask();
 			}//if msg
-
 		}//while
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
-		//callback.PopTask();
-
+		callback.AddMessage("Nb stations months downloaded: " + ToString(nbDownload));
+		callback.PopTask();
+	
 		return msg;
 	}
 
@@ -472,9 +439,7 @@ namespace WBSF
 
 			//clean connection
 			pConnection->Close();
-			pConnection.release();
 			pSession->Close();
-			pSession.release();
 		}
 
 		return msg;
@@ -521,9 +486,8 @@ namespace WBSF
 		else
 			stream << "Year,Month,Day,Var,Value,Min,Max,Source,Estimated,Manual,Missing,Rejected,Suspect\r\n";
 
-		//stream << output_text;
-
 		bool bFind = false;
+		bool bSave = true;
 		callback.PushTask("Update " + filePath, GetNbDayPerMonth(year, m));
 		size_t nbDays = (TRef.GetYear() == year && TRef.GetMonth() == m) ? TRef.GetDay() + 1 : GetNbDayPerMonth(year, m);
 		for (size_t d = 0; d < nbDays && msg; d++)
@@ -617,7 +581,9 @@ namespace WBSF
 				catch (const zen::XmlParsingError& e)
 				{
 					// handle error
-					msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+					callback.AddMessage("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+					callback.AddMessage("URL: " + pageURL);
+					bSave = false;
 				}
 			}//if is valid
 
@@ -625,7 +591,7 @@ namespace WBSF
 		}//for all day
 
 
-		if (msg /*&& !output_text.empty()*/)//always save the file to avoid to download it
+		if (msg && bSave)//always save the file to avoid to download it
 		{
 			ofStream  file;
 			msg = file.open(filePath, ios_base::out | ios_base::binary);
@@ -988,7 +954,7 @@ namespace WBSF
 									}
 									else
 									{
-										if (var == H_SRAD2)//&& type == DAILY_WEATHER
+										if (var == H_SRAD2)
 											value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
 
 										station[TRef].SetStat(var, value);

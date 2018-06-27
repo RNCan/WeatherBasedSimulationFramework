@@ -20,7 +20,7 @@ namespace WBSF
 	public:
 
 		
-		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRRR); }

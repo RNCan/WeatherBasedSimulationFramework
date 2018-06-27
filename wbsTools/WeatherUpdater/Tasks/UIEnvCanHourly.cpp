@@ -239,14 +239,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (size_t i = 0; i < 600 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
+						msg = Wait30Seconds(callback);
 					}
 					else
 					{
@@ -699,40 +692,52 @@ namespace WBSF
 
 			if (msg)
 			{
-
-
-				for (size_t i = curI; i < stationList.size() && msg; i++)
+				try
 				{
-					msg = DownloadStation(pConnection, stationList[i], callback);
-					if (msg)
+					while (curI < stationList.size() && msg)
 					{
-						curI++;
-						nbRun = 0;
-						nbFiles++;
-						msg += callback.StepIt();
-					}
-				}
-
-
-
-				//if an error occur: try again
-				if (!msg && !callback.GetUserCancel())
-				{
-					if (nbRun < 5)
-					{
-						callback.AddMessage(msg);
-						msg = ERMsg();
-
-
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (int i = 0; i < 600 && msg; i++)
+						msg = DownloadStation(pConnection, stationList[curI], callback);
+						if (msg)
 						{
-							Sleep(50);//wait 50 milisec
+							curI++;
+							nbRun = 0;
+							nbFiles++;
 							msg += callback.StepIt();
 						}
-						callback.PopTask();
 					}
 				}
+				catch (CException* e)
+				{
+					
+					if (nbRun < 5)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						msg += Wait30Seconds(callback);
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
+
+				//if an error occur: try again
+				//if (!msg && !callback.GetUserCancel())
+				//{
+				//	if (nbRun < 5)
+				//	{
+				//		callback.AddMessage(msg);
+				//		msg = ERMsg();
+
+
+				//		callback.PushTask("Waiting 30 seconds for server...", 600);
+				//		for (size_t i = 0; i < 600 && msg; i++)
+				//		{
+				//			Sleep(50);//wait 50 milisec
+				//			msg += callback.StepIt();
+				//		}
+				//		callback.PopTask();
+				//	}
+				//}
 
 				//clean connection
 				pConnection->Close();
@@ -740,7 +745,7 @@ namespace WBSF
 			}
 		}
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles));
 		callback.PopTask();
 
 		return msg;
@@ -763,6 +768,7 @@ namespace WBSF
 		if (nbYear > 5)
 			callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
+		
 		vector< array<bool, 12> > bNeedDownload;
 		bNeedDownload.resize(nbYear);
 
@@ -799,31 +805,38 @@ namespace WBSF
 			if (nbFilesToDownload > 60)
 				callback.PushTask("Update files for " + station.m_name + " (" + ToString(nbFilesToDownload) + ")", nbFilesToDownload);
 
-			for (size_t y = 0; y < nbYear&&msg; y++)
+			try
 			{
-				int year = firstYear + int(y);
-
-				for (size_t m = 0; m < 12 && msg; m++)
+				for (size_t y = 0; y < nbYear&&msg; y++)
 				{
-					if (bNeedDownload[y][m])
+					int year = firstYear + int(y);
+
+					for (size_t m = 0; m < 12 && msg; m++)
 					{
-						string internalID = station.GetSSI("InternalID");
-						string filePath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, internalID);
-						CreateMultipleDir(GetPath(filePath));
+						if (bNeedDownload[y][m])
+						{
+							string internalID = station.GetSSI("InternalID");
+							string filePath = GetOutputFilePath(N_HISTORICAL, station.GetSSI("Province"), year, m, internalID);
+							CreateMultipleDir(GetPath(filePath));
 
-						TRY
-							msg = CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
-						CATCH_ALL(e)
-							msg = UtilWin::SYGetMessage(*e);
-						END_CATCH_ALL
 
+							msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
 							msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
+						}
 					}
 				}
-			}
 
-			if (nbFilesToDownload > 60)
-				callback.PopTask();
+				if (nbFilesToDownload > 60)
+					callback.PopTask();
+			}
+			catch (CException*)
+			{
+				if (nbFilesToDownload > 60)
+					callback.PopTask();
+
+				//msg = UtilWin::SYGetMessage(*e);
+				throw;
+			}
 		}
 
 		return msg;
@@ -1519,14 +1532,7 @@ namespace WBSF
 							if (nbTry < 5)
 							{
 								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								callback.PushTask("Waiting 30 seconds for server...", 600);
-								for (size_t i = 0; i < 600 && msg; i++)
-								{
-									Sleep(50);//wait 50 milisec
-									msg += callback.StepIt();
-								}
-								callback.PopTask();
-
+								msg += Wait30Seconds(callback);
 							}
 							else
 							{
@@ -1595,14 +1601,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (size_t i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-
+							msg += Wait30Seconds(callback);
 						}
 						else
 						{
@@ -1752,7 +1751,6 @@ namespace WBSF
 
 								string fileName = GetFileName(it2->m_filePath);
 								CTRef UTCTRef = GetSWOBTRef(fileName);
-								//CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, zone);
 								CTRef YearMonth = UTCTRef.as(CTM::MONTHLY);
 
 								if (data.find(YearMonth) == data.end())
@@ -1762,6 +1760,7 @@ namespace WBSF
 									if (FileExists(filePath))
 										msg = ReadSWOB(filePath, data[YearMonth]);
 								}
+
 								if (msg)
 									msg = ParseSWOB(UTCTRef, source, data[YearMonth][UTCTRef.GetDay()][UTCTRef.GetHour()], callback);
 
@@ -1784,14 +1783,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (size_t i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
+							msg += Wait30Seconds(callback);
 						}
 						else
 						{

@@ -81,140 +81,142 @@ namespace UtilWWW
 		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_GET, URL, NULL, 1, NULL, NULL, flags);
 
 
-		bool bRep = false;
+		//bool bRep = false;
 
 		if (pURLFile != NULL)
 		{
 			//			DWORD dwStatus;
 
-			int nbTry = 0;
-			while (!bRep && msg)
-			{
-				try
-				{
-					nbTry++;
-					bRep = pURLFile->SendRequest() != 0;
-				}
-				catch (CException* e)
-				{
-					DWORD errnum = GetLastError();
-					if (errnum == 12002 || errnum == 12029)
-					{
-						if (nbTry >= 2)
-						{
-							msg = UtilWin::SYGetMessage(*e);
-						}
-						//try again
-					}
-					else if (errnum == 12031 || errnum == 12111)
-					{
-						//throw a exception: server reset
-						THROW(new CInternetException(errnum));
-					}
-					else if (errnum == 12003)
-					{
-						msg = UtilWin::SYGetMessage(*e);
-
-						DWORD size = 255;
-						TCHAR cause[256] = { 0 };
-						InternetGetLastResponseInfo(&errnum, cause, &size);
-						if (_tcslen(cause) > 0)
-							msg.ajoute(UtilWin::ToUTF8(cause));
-					}
-					else
-					{
-						CInternetException e(errnum);
-						msg += UtilWin::SYGetMessage(e);
-					}
-				}
-
-			}
-		}
-
-
-		if (bRep)
-		{
-			const short MAX_READ_SIZE = 4096;
-			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
-
-			std::string tmp;
-			tmp.resize(MAX_READ_SIZE);
-			UINT charRead = 0;
-			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0)
-			{
-				//tmp.ReleaseBuffer();
-				text.append(tmp.c_str(), charRead);
-			}
-
-
-			//convert UTF8 to UTF16
-			//size_t test1 = text.size();
-			//size_t test2 = text.length();
-			//int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
-
-			//std::wstring out;
-			//out.resize(len);
-			////WCHAR *ptr = textOut.GetBufferSetLength(len); ASSERT(ptr);
-			//
-			//	MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(out[0]), len);
-			//
-			////Convert UTF16 to ANSI
-			//int newLen = WideCharToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
-			//text.resize(newLen);
-			//WideCharwToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
-
-			//Convert UTF16 to ANSI
-			//text = WBSF::UTF8(out);
-
-			//decode HTML code
-			if (bConvert)
-			{
-				decode_html_entities_utf8(&(text[0]), NULL);
-
-				//Convert UTF8 to UTF16 
-				int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
-
-				std::wstring w_text;
-				w_text.resize(len);
-				MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(w_text[0]), len);
-
-				//Convert UTF16 to Windows-1252 encoding
-				int newLen = WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
-
-				text.resize(newLen);
-				WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, &(text[0]), newLen, 0, 0);
-				text.resize(strlen(text.c_str()));
-			}
-
-			//textOut.ReleaseBuffer();
-
-			//text.Replace(_T("&nbsp;"), _T(""));
-			////text.Remove('\r');
-			////text.Remove('\n');
-			//if( replaceAccent )
+			////int nbTry = 0;
+			////while (!bRep && msg)
+			//if(!bRep && msg)
 			//{
+				////try
+				////{
+					////nbTry++;
+			bool bRep = pURLFile->SendRequest() != 0;
+			//}
+			//catch (CException* e)
+			//{
+			//	DWORD errnum = GetLastError();
+			//	if (errnum == 12002 || errnum == 12029)
+			//	{
+			//		if (nbTry >= 2)
+			//		{
+			//			msg = UtilWin::SYGetMessage(*e);
+			//		}
+			//		//try again
+			//	}
+			//	else if (errnum == 12031 || errnum == 12111)
+			//	{
+			//		//throw a exception: server reset
+			//		THROW(new CInternetException(errnum));
+			//	}
+			//	else if (errnum == 12003)
+			//	{
+			//		msg = UtilWin::SYGetMessage(*e);
 
-			//	//lowercase
-			//	text.Replace(_T("&egrave;"), _T("è"));
-			//	text.Replace(_T("&eacute;"), _T("é"));
-			//	text.Replace(_T("&ocirc;"), _T("ô"));
-			//	text.Replace(_T("&icirc;"), _T("î"));
-			//	text.Replace(_T("&ecirc;"), _T("ê"));
-			//	text.Replace(_T("&euml;"), _T("ë"));
-			//	text.Replace(_T("&ccedil;"), _T("ç"));
-			//	
-
-			//	//uppercase 
-			//	text.Replace(_T("&Egrave;"), _T("È"));
-			//	text.Replace(_T("&Eacute;"), _T("É"));
-			//	text.Replace(_T("&Ocirc;"), _T("Ô"));
-			//	text.Replace(_T("&Icirc;"), _T("Î"));
-			//	text.Replace(_T("&Ecirc;"), _T("Ê"));
-			//	text.Replace(_T("&Euml;"), _T("Ë"));
-			//	text.Replace(_T("&Ccedil;"), _T("Ç"));
+			//		DWORD size = 255;
+			//		TCHAR cause[256] = { 0 };
+			//		InternetGetLastResponseInfo(&errnum, cause, &size);
+			//		if (_tcslen(cause) > 0)
+			//			msg.ajoute(UtilWin::ToUTF8(cause));
+			//	}
+			//	else
+			//	{
+			//		CInternetException e(errnum);
+			//		msg += UtilWin::SYGetMessage(e);
+			//	}
 			//}
 
+		//}
+	//}
+
+
+			if (bRep)
+			{
+				const short MAX_READ_SIZE = 4096;
+				pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+
+				std::string tmp;
+				tmp.resize(MAX_READ_SIZE);
+				UINT charRead = 0;
+				while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0)
+				{
+					//tmp.ReleaseBuffer();
+					text.append(tmp.c_str(), charRead);
+				}
+
+
+				//convert UTF8 to UTF16
+				//size_t test1 = text.size();
+				//size_t test2 = text.length();
+				//int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
+
+				//std::wstring out;
+				//out.resize(len);
+				////WCHAR *ptr = textOut.GetBufferSetLength(len); ASSERT(ptr);
+				//
+				//	MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(out[0]), len);
+				//
+				////Convert UTF16 to ANSI
+				//int newLen = WideCharToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
+				//text.resize(newLen);
+				//WideCharwToMultiByte(CP_THREAD_ACP, 0, out.c_str(), -1, NULL, 0, 0, 0);
+
+				//Convert UTF16 to ANSI
+				//text = WBSF::UTF8(out);
+
+				//decode HTML code
+				if (bConvert)
+				{
+					decode_html_entities_utf8(&(text[0]), NULL);
+
+					//Convert UTF8 to UTF16 
+					int len = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
+
+					std::wstring w_text;
+					w_text.resize(len);
+					MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &(w_text[0]), len);
+
+					//Convert UTF16 to Windows-1252 encoding
+					int newLen = WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, NULL, 0, 0, 0);
+
+					text.resize(newLen);
+					WideCharToMultiByte(CP_ACP, 0, w_text.c_str(), -1, &(text[0]), newLen, 0, 0);
+					text.resize(strlen(text.c_str()));
+				}
+
+				//textOut.ReleaseBuffer();
+
+				//text.Replace(_T("&nbsp;"), _T(""));
+				////text.Remove('\r');
+				////text.Remove('\n');
+				//if( replaceAccent )
+				//{
+
+				//	//lowercase
+				//	text.Replace(_T("&egrave;"), _T("è"));
+				//	text.Replace(_T("&eacute;"), _T("é"));
+				//	text.Replace(_T("&ocirc;"), _T("ô"));
+				//	text.Replace(_T("&icirc;"), _T("î"));
+				//	text.Replace(_T("&ecirc;"), _T("ê"));
+				//	text.Replace(_T("&euml;"), _T("ë"));
+				//	text.Replace(_T("&ccedil;"), _T("ç"));
+				//	
+
+				//	//uppercase 
+				//	text.Replace(_T("&Egrave;"), _T("È"));
+				//	text.Replace(_T("&Eacute;"), _T("É"));
+				//	text.Replace(_T("&Ocirc;"), _T("Ô"));
+				//	text.Replace(_T("&Icirc;"), _T("Î"));
+				//	text.Replace(_T("&Ecirc;"), _T("Ê"));
+				//	text.Replace(_T("&Euml;"), _T("Ë"));
+				//	text.Replace(_T("&Ccedil;"), _T("Ç"));
+				//}
+			}
 			pURLFile->Close();
+			delete pURLFile;
 		}
 		else
 		{
@@ -223,7 +225,7 @@ namespace UtilWWW
 			msg.ajoute(UtilWin::ToUTF8(tmp));
 		}
 
-		delete pURLFile;
+
 		return msg;
 	}
 
@@ -486,7 +488,7 @@ namespace UtilWWW
 			finder.GetLastWriteTime(time);
 			info.m_time = time.GetTime();
 		}
-		catch (CException* )
+		catch (CException*)
 		{
 		}
 
@@ -744,19 +746,36 @@ namespace UtilWWW
 	{
 		ERMsg msg;
 
-		pSession.reset(new CInternetSession(NULL, 1, flags));
-		INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
-		pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
-		if (pConnection.get())
+		try
 		{
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
+
+			pSession.reset(new CInternetSession(NULL, 1, flags));
+			INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
+			pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
+			ASSERT(pConnection.get());
+
+			//if (!pConnection.get())
+			//{
+				//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
+			//}
+			//else
+			//{
+			//	//msg.asgType(ERMsg::ERREUR);
+			//	pSession.reset();
+			//	CInternetException e(GetLastError());
+			//	msg = UtilWin::SYGetMessage(e);
+			//}
 		}
-		else
+		catch (CException* e)
 		{
-			msg.asgType(ERMsg::ERREUR);
-			CInternetException e(GetLastError());
-			msg = UtilWin::SYGetMessage(e);
+			//pSession->Close();
+			pSession.reset();
+
+			CString error;
+			e->GetErrorMessage(error.GetBufferSetLength(255), 255);
+			msg.ajoute(CStringA(error));
 		}
+
 
 		return msg;
 	}
@@ -782,11 +801,12 @@ namespace UtilWWW
 			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
 
 			pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
+			ASSERT(pConnection.get());
 
 		}
 		catch (CException* e)
 		{
-			pSession->Close();
+			//pSession->Close();
 			pSession.reset();
 
 			CString error;
@@ -845,6 +865,17 @@ namespace UtilWWW
 		return IsFileUpToDate(pConnection, UtilWin::Convert(URL), UtilWin::Convert(localFilePath), bLookFileSize, bLookFileTime);
 	}
 
-
+	ERMsg Wait30Seconds(WBSF::CCallback& callback)
+	{
+		ERMsg msg;
+		callback.PushTask(GetString(IDS_BSC_WAIT_30_SECONDS), 600);
+		for (size_t i = 0; i < 600 && msg; i++)
+		{
+			Sleep(50);//wait 50 milisec
+			msg += callback.StepIt();
+		}
+		callback.PopTask();
+		return msg;
+	}
 
 }

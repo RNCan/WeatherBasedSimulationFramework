@@ -193,6 +193,7 @@ namespace WBSF
 		int nbDownload = 0;
 		size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
 		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
+		callback.AddMessage("Number of MesoWest files to download: " + ToString(stationList.size()*nbM));
 
 		size_t nbTry = 0;
 		size_t cur_i = 0;
@@ -211,10 +212,10 @@ namespace WBSF
 
 				try
 				{
-					for (size_t i = cur_i; i < stationList.size() && msg; i++, cur_i++)
+					while(cur_i< stationList.size() && msg)
 					{
-						string start = stationList[i].GetSSI("Start");
-						string end = stationList[i].GetSSI("End");
+						string start = stationList[cur_i].GetSSI("Start");
+						string end = stationList[cur_i].GetSSI("End");
 						ASSERT(!start.empty());
 
 
@@ -228,7 +229,7 @@ namespace WBSF
 						{
 							int year = firstYear + int(y);
 
-							if (year < current.GetYear() || stationList[i].GetSSI("Status") == "ACTIVE")
+							if (year < current.GetYear() || stationList[cur_i].GetSSI("Status") == "ACTIVE")
 							{
 								size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
 								for (size_t m = 0; m < nbMonths&&msg; m++)
@@ -236,8 +237,8 @@ namespace WBSF
 									if (activePeriod.IsInside(CTRef(year, m)))
 									{
 										static const char* URL_FORMAT = "v2/stations/timeseries?stids=%s&start=%4d%02d010000&end=%4d%02d%02d2359&obtimezone=LOCAL&units=speed|kph,pres|mb&token=635d9802c84047398d1392062e39c960";
-										string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
-										string ouputFilePath = GetOutputFilePath(stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year, m);
+										string URL = FormatA(URL_FORMAT, stationList[cur_i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
+										string ouputFilePath = GetOutputFilePath(stationList[cur_i].GetSSI("Country"), stationList[cur_i].GetSSI("State"), stationList[cur_i].m_ID, year, m);
 										CreateMultipleDir(GetPath(ouputFilePath));
 
 										CFileInfo info = GetFileInfo(ouputFilePath);
@@ -257,22 +258,17 @@ namespace WBSF
 								}//for all months
 							}//active station only for current year
 						}//for all years
+
+						cur_i++;
 					}//for all stations
 
 				}
 				catch (CException* e)
 				{
-					if (nbTry < 3)
+					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						callback.PushTask("Waiting 30 seconds for server...", 600);
-						for (size_t i = 0; i < 600 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
-
+						msg += Wait30Seconds(callback);
 					}
 					else
 					{
@@ -286,7 +282,7 @@ namespace WBSF
 			}
 		}
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
 		callback.PopTask();
 
 
@@ -670,17 +666,10 @@ namespace WBSF
 			}
 			catch (CException* e)
 			{
-				if (nbTry < 3)
+				if (nbTry < 5)
 				{
 					callback.AddMessage(UtilWin::SYGetMessage(*e));
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (size_t i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
-
+					msg += Wait30Seconds(callback);
 				}
 				else
 				{
@@ -814,23 +803,15 @@ namespace WBSF
 						}
 					}//if msg
 				}//if msg
-
-				callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+				
 				bContinue = false;
 			}
 			catch (CException* e)
 			{
-				if (nbTry < 3)
+				if (nbTry < 5)
 				{
 					callback.AddMessage(UtilWin::SYGetMessage(*e));
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (size_t i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
-
+					msg += Wait30Seconds(callback);
 				}
 				else
 				{
@@ -842,6 +823,7 @@ namespace WBSF
 			pSession->Close();
 		}
 
+		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
 
 		return msg;

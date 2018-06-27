@@ -26,7 +26,8 @@ namespace WBSF
 	CHRRR::CHRRR(const std::string& workingDir):
 		m_workingDir(workingDir),
 		m_source(HRRR_3D),
-		m_serverType(HTTP_SERVER)
+		m_serverType(HTTP_SERVER),
+		m_bShowWINSCP(false)
 	{}
 	
 	CHRRR::~CHRRR(void)
@@ -55,12 +56,7 @@ namespace WBSF
 
 		int nbDownloaded = 0;
 
-		//CTPeriod period = GetPeriod();
-		//period.Transform(CTM::HOURLY);
-
-		//callback.PushTask("Download RAP gribs from FTP server for period: " + period.GetFormatedString(), 2);
-		//for (size_t s = 0; s < 2 && msg; s++)
-		//{
+		
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(SERVER_NAME[FTP_SERVER], 1);
 		callback.AddMessage("");
@@ -78,7 +74,8 @@ namespace WBSF
 			WBSF::RemoveFile(scriptFilePath + ".log");
 
 
-			callback.PushTask(string("Download HRRR gribs from FTP: ") + ToString(fileList.size()) + " files", fileList.size());
+			callback.PushTask("Download HRRR gribs from FTP: " + ToString(fileList.size()) + " files", fileList.size());
+			callback.AddMessage("Number of HRRR files to download gribs from FTP: " + ToString(fileList.size()) + " files");
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
 				ofStream stript;
@@ -97,9 +94,9 @@ namespace WBSF
 					stript << "exit" << endl;
 					stript.close();
 
-					bool bShow = true;// as<bool>(SHOW_WINSCP);
+					
 					//# Execute the script using a command like:
-					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(m_bShowWINSCP ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
 					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 					if (msg)
@@ -140,7 +137,7 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 
-			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded), 2);
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
 			callback.PopTask();
 		}
 
@@ -194,6 +191,8 @@ namespace WBSF
 
 		pConnection->Close();
 		pSession->Close();
+
+		callback.PopTask();
 
 		return msg;
 	}
@@ -354,8 +353,9 @@ namespace WBSF
 		callback.PopTask();
 
 
-		callback.AddMessage("Number of HRRR gribs to download: " + ToString(fileList.size()));
+		
 		callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
+		callback.AddMessage("Number of HRRR gribs to download from HTTP: " + ToString(fileList.size()));
 
 		int nbDownload = 0;
 		for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)

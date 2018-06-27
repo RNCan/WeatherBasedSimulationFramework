@@ -3,6 +3,7 @@
 #include "Basic/FileStamp.h"
 #include "Basic/CSV.h"
 #include "UI/Common/SYShowMessage.h"
+#include "UI/Common/UtilWin.h"
 #include "ProvinceSelection.h"
 #include "TaskFactory.h"
 #include "WeatherBasedSimulationString.h"
@@ -167,18 +168,18 @@ namespace WBSF
 			if (msg)
 			{
 
-				TRY
-
+				try
+				{
 					//loop on province
-					for (size_t i = curI; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+					while (curI < CProvinceSelection::NB_PROVINCES&&msg)
 					{
-						if (selection[i])
+						if (selection[curI])
 						{
 
 							//first call
 							CTime today = CTime::GetCurrentTime();
 
-							string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
+							string URL = FormatA(pageFormat, selection.GetName(curI, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
 							URL.resize(strlen(URL.c_str()));
 							int nbStation = GetNbStation(pConnection, URL);
 
@@ -186,12 +187,12 @@ namespace WBSF
 							{
 								short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
 
-								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
+								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(curI, CProvinceSelection::NAME), ToString(nbPage)));
 
 								for (int j = 0; j < nbPage&&msg; j++)
 								{
 									short startRow = j * SEL_ROW_PER_PAGE + 1;
-									URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
+									URL = FormatA(pageFormat, selection.GetName(curI, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
 
 									msg = GetStationListPage(pConnection, URL, stationList);
 
@@ -200,43 +201,37 @@ namespace WBSF
 							}
 							else
 							{
-								msg.ajoute(GetString(IDS_SERVER_DOWN));
+								throw (new UtilWin::CStringException(UtilWin::GetCString(IDS_SERVER_DOWN)));
 							}
 						}
 
 						curI++;
 					}
-
-				CATCH_ALL(e)
-					msg = UtilWin::SYGetMessage(*e);
-				END_CATCH_ALL
-
-
-
-
-					//clean connection
-					pConnection->Close();
-				pSession->Close();
-			}
-
-			//if an error occur: try again
-			if (!msg && !callback.GetUserCancel())
-			{
-				if (nbRun < 5)
-				{
-					callback.AddMessage(msg);
-					msg = ERMsg();
-
-
-					callback.PushTask("Waiting 30 seconds for server...", 600);
-					for (int i = 0; i < 600 && msg; i++)
-					{
-						Sleep(50);//wait 50 milisec
-						msg += callback.StepIt();
-					}
-					callback.PopTask();
 				}
-			}
+				catch (CException* e)
+				{
+					//if an error occur: try again
+					if (nbRun < 5)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						msg = Wait30Seconds(callback);
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+
+				}
+
+
+
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
+			}//if msg
+
+
 		}
 
 
@@ -698,11 +693,11 @@ namespace WBSF
 
 			if (msg)
 			{
-				TRY
+				try
 				{
-					for (int i = curI; i < stationList.size() && msg; i++)
+					while (curI< stationList.size() && msg)
 					{
-						msg = DownloadStation(pConnection, stationList[i], callback);
+						msg = DownloadStation(pConnection, stationList[curI], callback);
 						if (msg)
 						{
 							nbFiles++;
@@ -712,29 +707,21 @@ namespace WBSF
 						}
 					}
 				}
-					CATCH_ALL(e)
+				catch (CException* e)
 				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
 
 					//if an error occur: try again
-					if (!msg && !callback.GetUserCancel())
+					if (nbRun < 5)
 					{
-						if (nbRun < 5)
-						{
-							callback.AddMessage(msg);
-							msg = ERMsg();
-
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (int i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-						}
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						msg = Wait30Seconds(callback);
 					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
+
 
 				//clean connection
 				pConnection->Close();
@@ -965,7 +952,7 @@ namespace WBSF
 					}
 				}
 
-				
+
 			}//for all line
 		}
 

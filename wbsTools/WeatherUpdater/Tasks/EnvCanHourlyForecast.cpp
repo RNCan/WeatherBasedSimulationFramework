@@ -263,10 +263,13 @@ namespace WBSF
 					size_t nbTry = 0;
 					while (fileList.empty() && msg)
 					{
+						nbTry++;
+
 						try
 						{
-							nbTry++;
 							msg += UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
+							//if(msg)
+								//nbTry=0;
 					
 						}
 						catch (CException* e)
@@ -274,14 +277,7 @@ namespace WBSF
 							if (nbTry < 5)
 							{
 								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								callback.PushTask("Waiting 30 seconds for server...", 600);
-								for (size_t i = 0; i < 600 && msg; i++)
-								{
-									Sleep(50);//wait 50 milisec
-									msg += callback.StepIt();
-								}
-								callback.PopTask();
-
+								msg = Wait30Seconds(callback);
 							}
 							else
 							{
@@ -344,14 +340,7 @@ namespace WBSF
 							if (nbTry < 5)
 							{
 								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								callback.PushTask("Waiting 30 seconds for server...", 600);
-								for (size_t i = 0; i < 600 && msg; i++)
-								{
-									Sleep(50);//wait 50 milisec
-									msg += callback.StepIt();
-								}
-								callback.PopTask();
-
+								msg = Wait30Seconds(callback);
 							}
 							else
 							{

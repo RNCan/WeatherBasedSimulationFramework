@@ -24,8 +24,8 @@ namespace WBSF
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/
 
 	//*********************************************************************
-	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ServerType" };
-	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX };
+	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ServerType", "ShowWINSCP" };
+	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_BOOL };
 	const UINT CUIHRRR::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRRR_P;
 	const UINT CUIHRRR::DESCRIPTION_TITLE_ID = ID_TASK_HRRR;
 
@@ -69,6 +69,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRRR\\"; break;
 		case SOURCES: str = "0"; break;
 		case SERVER_TYPE: str = "0"; break;
+		case SHOW_WINSCP: str = "0"; break;
 		};
 
 		return str;
@@ -105,6 +106,7 @@ namespace WBSF
 		CHRRR HRRR(workingDir);
 		HRRR.m_source = as<size_t>(SOURCES);
 		HRRR.m_serverType = as<size_t>(SERVER_TYPE);
+		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
 		msg = HRRR.Execute(callback);
 
 

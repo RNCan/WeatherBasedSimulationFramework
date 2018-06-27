@@ -203,12 +203,7 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					callback.AddMessage("Waiting 30 seconds for server...");
-					for (int i = 0; i < 60 && msg; i++)
-					{
-						Sleep(500);//wait 500 milisec
-						msg += callback.StepIt(0);
-					}
+					msg += Wait30Seconds(callback);
 				}
 			}
 		}
