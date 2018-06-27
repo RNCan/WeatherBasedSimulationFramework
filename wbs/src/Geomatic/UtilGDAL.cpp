@@ -1444,7 +1444,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
-	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file. Type can be Natural or LandWater. Natural by default." },
+	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file. Type can be Natural or LandWater. " },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},

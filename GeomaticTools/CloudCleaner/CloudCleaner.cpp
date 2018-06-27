@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.0.3	26/06/2018	Rémi Saint-Amant	correction in help
 // 2.0.2	06/06/2018	Rémi Saint-Amant	add virtual columns to the model
 // 2.0.1    17/05/2018	Rémi Saint-Amant	Use 3 random forest model
 // 2.0.0    17/05/2018	Rémi Saint-Amant	Use random forest model with ranger
@@ -55,7 +56,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.2";
+static const char* version = "2.0.3";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
@@ -67,7 +68,7 @@ std::string CCloudCleaner::GetDescription()
 	return  std::string("CloudCleaner version ") + version + " (" + _T(__DATE__) + ")\n";
 }
 
- 
+
 CCloudCleanerOption::CCloudCleanerOption()
 {
 	m_nbPixel = 0;
@@ -104,15 +105,15 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 1 by default." },
 		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
-		{ "-SuspectAsCloud", 1, "nbPixel", false, "Set all suspicious pixels arround cloud pixels as cloud." },
-				//{ "-BufferSmoot", 4, "nbPixel", false, "merge nbPixels arround cloud pixels . 0 by default." },
+		{ "-SuspectAsCloud", 0, "", false, "Set all suspicious pixels arround cloud pixels as cloud." },
+		//{ "-BufferSmoot", 4, "nbPixel", false, "merge nbPixels arround cloud pixels . 0 by default." },
 
-				{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
-				{ "-OutputCode", 0, "", false, "Output random forest result code." },
-				{ "-Debug",0,"",false,"Output debug information."},
-				{ "Model", 0, "", false, "Random forest cloud model file path." },
-				{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
-				{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
+		{ "-DoubleTrigger", 1, "nbPixel", false, "Set the buffer size for secondary suspicious pixel. 5 by default" },
+		{ "-OutputCode", 0, "", false, "Output random forest result code." },
+		{ "-Debug",0,"",false,"Output debug information."},
+		{ "Model", 0, "", false, "Random forest cloud model file path." },
+		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
+		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
 	};
 
 	for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
@@ -235,34 +236,6 @@ ERMsg CCloudCleanerOption::ParseOption(int argc, char* argv[])
 }
 
 
-//CDecisionTreeBlock CCloudCleaner::GetDataRecord(array<CLandsatPixel, 3> p, CDecisionTreeBaseEx& DT)
-//{
-//	CDecisionTreeBlock block(DT.MaxAtt + 1);
-//
-//	//fill the data structure for random forest
-//	size_t c = 0;
-//	DVal(block, c++) = DT.MaxClass + 1;
-//	DVal(block, c++) = Continuous(DT, 1) ? DT_UNKNOWN : 0;
-//
-//	for (size_t z = 0; z < 3; z++)
-//	{
-//		for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
-//			CVal(block, c++) = (ContValue)(p[z].at(j));
-//	}//for
-//
-//
-//	ASSERT(c == (3 * 9 + 2));
-//	//fill virtual bands 
-//	for (; c <= DT.MaxAtt; c++)
-//	{
-//		ASSERT(DT.AttDef[c]);
-//		//assuming virtual band never return no data
-//		block[c] = DT.EvaluateDef(DT.AttDef[c], block.data());
-//	}
-//
-//	return block;
-//}
-
 //***********************************************************************
 
 
@@ -271,7 +244,7 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 	ERMsg msg;
 
 	TreeType treetype = GetTreeType(filePath);
-	
+
 	try
 	{
 		forest.reset(CreateForest(treetype));
@@ -301,14 +274,14 @@ ERMsg CCloudCleaner::ReadModel(Forests3& forests)
 	if (!m_options.m_bQuiet)
 		cout << "Read forest..." << endl;
 
-	static const char* EXTRA[3] = {"START","MIDDLE","END"};
+	static const char* EXTRA[3] = { "START","MIDDLE","END" };
 	for (size_t f = 0; f < 3; f++)
 	{
 		string filePath = m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH];
 		SetFileName(filePath, GetFileTitle(filePath) + "_" + EXTRA[f] + ".classification.forest");
 		msg += ReadModel(filePath, m_options.m_bMulti ? m_options.m_CPU : -1, forests[f]);
 	}
-		
+
 
 	timer.Stop();
 
@@ -317,28 +290,6 @@ ERMsg CCloudCleaner::ReadModel(Forests3& forests)
 
 	return msg;
 }
-
-//
-//ERMsg CCloudCleaner::ReadRules(CDecisionTree& DT)
-//{
-//	ERMsg msg;
-//	if(!m_options.m_bQuiet) 
-//	{
-//		cout << "Read rules..."<<endl;
-//	}
-//
-//	CTimer timer(true);
-//
-//	msg += DT.Load(m_options.m_filesPath[CCloudCleanerOption::DT_FILE_PATH], m_options.m_CPU, m_options.m_IOCPU);
-//	timer.Stop();
-//
-//	if( !m_options.m_bQuiet )
-//		cout << "Read rules time = " << SecondToDHMS(timer.Elapsed()).c_str() << endl << endl;
-//
-//
-//	return msg;
-//}	
-
 
 ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS)
 {
@@ -371,10 +322,6 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 
 	if (!msg)
 		return msg;
-
-
-	//if (msg && m_options.m_maxScene > landsatDS.GetNbScenes()/2)
-	//	msg.ajoute("maxScene (" + to_string(m_options.m_maxScene) + ") must be between 1 and nbScenes (" + to_string(landsatDS.GetNbScenes()) + ")");
 
 
 	landsatDS.UpdateOption(m_options);
@@ -428,14 +375,11 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 
 	if (msg && m_options.m_bCreateImage)
 	{
-		//if (!m_options.m_bQuiet)
-			//cout << "Create output image..." << endl;
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 			cout << "Create output images " << " x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R x " << m_options.m_nbBands << " bands) with " << m_options.m_CPU << " threads..." << endl;
 
 
 		string filePath = m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH];
-		//string title = GetFileTitle(filePath);
 		CCloudCleanerOption options = m_options;
 		options.m_nbBands = nbScenedProcess * landsatDS.GetSceneSize();
 
@@ -523,8 +467,6 @@ ERMsg CCloudCleaner::Execute()
 		cout << "Output: " << m_options.m_filesPath[CCloudCleanerOption::OUTPUT_FILE_PATH] << endl;
 		cout << "From:   " << m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH] << endl;
 		cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH] << endl;
-		//	cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 1] << endl;
-			//cout << "Using:  " << m_options.m_filesPath[CCloudCleanerOption::RF_BEG_FILE_PATH + 2] << endl;
 
 		if (!m_options.m_maskName.empty())
 			cout << "Mask:   " << m_options.m_maskName << endl;
@@ -580,7 +522,7 @@ ERMsg CCloudCleaner::Execute()
 		for (size_t i = 0; i < clouds.size(); i++)
 			clouds[i].resize((size_t)extents.m_xSize*extents.m_ySize);
 
-		
+
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		if (!m_options.m_bQuiet)
@@ -591,11 +533,11 @@ ERMsg CCloudCleaner::Execute()
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
 #pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
-		for (int b = 0; b < (int)XYindex.size(); b++)
+		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 		{
-			int thread = omp_get_thread_num();
-			int xBlock = XYindex[b].first;
-			int yBlock = XYindex[b].second;
+			size_t thread = omp_get_thread_num();
+			size_t xBlock = XYindex[b].first;
+			size_t yBlock = XYindex[b].second;
 
 			//data
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
@@ -623,9 +565,9 @@ ERMsg CCloudCleaner::Execute()
 
 		if (!m_options.m_bQuiet)
 			cout << "Call ranger for all suspicious pixels" << endl;
-		
+
 		//pass 2 : find clouds
-		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize*3);
+		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize * 3);
 #pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
@@ -655,7 +597,7 @@ ERMsg CCloudCleaner::Execute()
 
 		SetBuffer(extents, suspects1, suspects2, clouds);
 
-		
+
 		if (m_options.m_bCreateImage || m_options.m_bDebug)
 		{
 			if (!m_options.m_bQuiet)
@@ -696,14 +638,14 @@ ERMsg CCloudCleaner::Execute()
 }
 
 
-void CCloudCleaner::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
+void CCloudCleaner::ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder)
 {
 #pragma omp critical(BlockIO)
 	{
 
 		m_options.m_timerRead.Start();
 
-		bandHolder.LoadBlock(xBlock, yBlock);
+		bandHolder.LoadBlock((int)xBlock, (int)yBlock);
 
 		m_options.m_timerRead.Stop();
 	}
@@ -831,7 +773,7 @@ array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
 			size_t z2 = GetNext(data, z0);
 			p[2] = z2 < data.size() ? data[z2] : NO_PIXEL;
 		}
-		
+
 	}
 	else if ((z1 + 1) == data.size())
 	{
@@ -856,16 +798,16 @@ array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
 */
 
 
-	//size_t z0 = GetPrevious(data, z1);
-	//size_t z2 = GetNext(data, z1);
+//size_t z0 = GetPrevious(data, z1);
+//size_t z2 = GetNext(data, z1);
 
-	//CLandsatPixel median;
-	//if (z0 >= data.size() || z2 >= data.size() || !data[z0].IsValid() || !data[z2].IsValid())
-	//	median = GetMedianNBR(data);
+//CLandsatPixel median;
+//if (z0 >= data.size() || z2 >= data.size() || !data[z0].IsValid() || !data[z2].IsValid())
+//	median = GetMedianNBR(data);
 
-	//p[0] = (z0 < data.size() && data[z0].IsValid()) ? data[z0] : median;
-	//p[1] = data[z1];
-	//p[2] = (z2 < data.size() && data[z2].IsValid()) ? data[z2] : median;
+//p[0] = (z0 < data.size() && data[z0].IsValid()) ? data[z0] : median;
+//p[1] = data[z1];
+//p[2] = (z2 < data.size() && data[z2].IsValid()) ? data[z2] : median;
 
 
 
@@ -876,14 +818,14 @@ array <CLandsatPixel, 3> GetP(size_t z1, CLandsatPixelVector& data)
 }
 
 //Get input image reference
-void CCloudCleaner::FindSuspicious(int xBlock, int yBlock, const CBandsHolder& bandHolder, CloudBitset& suspects1, CloudBitset& suspects2)
+void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, CloudBitset& suspects1, CloudBitset& suspects2)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
 	size_t sceneSize = bandHolder.GetSceneSize();
 	CGeoExtents extents = bandHolder.GetExtents();
-	CGeoRectIndex index = extents.GetBlockRect(xBlock, yBlock);
-	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+	CGeoRectIndex index = extents.GetBlockRect((int)xBlock, (int)yBlock);
+	CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
 	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 
@@ -896,7 +838,7 @@ void CCloudCleaner::FindSuspicious(int xBlock, int yBlock, const CBandsHolder& b
 		return;
 	}
 
-	
+
 	//allocate process memory and load data
 	LansatData data;
 	LoadData(bandHolder, data);
@@ -938,14 +880,14 @@ void CCloudCleaner::FindSuspicious(int xBlock, int yBlock, const CBandsHolder& b
 }
 
 //Get input image reference
-void CCloudCleaner::FindClouds(int xBlock, int yBlock, const CBandsHolder& bandHolder, const Forests3& forests, RFCodeData& RFcode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const Forests3& forests, RFCodeData& RFcode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
 	size_t sceneSize = bandHolder.GetSceneSize();
 	CGeoExtents extents = bandHolder.GetExtents();
-	CGeoRectIndex index = extents.GetBlockRect(xBlock, yBlock);
-	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+	CGeoRectIndex index = extents.GetBlockRect((int)xBlock, (int)yBlock);
+	CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
 	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 
@@ -1076,12 +1018,12 @@ void CCloudCleaner::FindClouds(int xBlock, int yBlock, const CBandsHolder& bandH
 				m_options.UpdateBar();
 			}//z
 		}//m
-		
+
 		m_options.m_timerProcess.Stop();
 	}//omp
 }
 
-void CCloudCleaner::WriteBlock1(int xBlock, int yBlock, const CBandsHolder& bandHolder, RFCodeData& RFcode, CGDALDatasetEx& DTCodeDS)
+void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, RFCodeData& RFcode, CGDALDatasetEx& DTCodeDS)
 {
 
 #pragma omp critical(BlockIO)
@@ -1090,8 +1032,8 @@ void CCloudCleaner::WriteBlock1(int xBlock, int yBlock, const CBandsHolder& band
 		m_options.m_timerWrite.Start();
 
 		CGeoExtents extents = bandHolder.GetExtents();
-		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+		CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
+		CGeoRectIndex outputRect = extents.GetBlockRect((int)xBlock, (int)yBlock);
 
 		ASSERT(outputRect.Width() == blockSize.m_x);
 		ASSERT(outputRect.Height() == blockSize.m_y);
@@ -1177,14 +1119,14 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 }
 
 
-void CCloudCleaner::ResetReplaceClouds(int xBlock, int yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
 	size_t sceneSize = bandHolder.GetSceneSize();
 	CGeoExtents extents = bandHolder.GetExtents();
-	CGeoRectIndex index = extents.GetBlockRect(xBlock, yBlock);
-	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+	CGeoRectIndex index = extents.GetBlockRect((int)xBlock, (int)yBlock);
+	CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
 	size_t nbCells = (size_t)extents.m_xSize*extents.m_ySize;
 
 
@@ -1297,7 +1239,7 @@ void CCloudCleaner::ResetReplaceClouds(int xBlock, int yBlock, const CBandsHolde
 				}
 			}//for xy
 
-			
+
 		}//z
 
 
@@ -1306,7 +1248,7 @@ void CCloudCleaner::ResetReplaceClouds(int xBlock, int yBlock, const CBandsHolde
 }
 
 
-void CCloudCleaner::WriteBlock2(int xBlock, int yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
+void CCloudCleaner::WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 {
 
 #pragma omp critical(BlockIO)
@@ -1314,8 +1256,8 @@ void CCloudCleaner::WriteBlock2(int xBlock, int yBlock, const CBandsHolder& band
 		m_options.m_timerWrite.Start();
 
 		CGeoExtents extents = bandHolder.GetExtents();
-		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+		CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
+		CGeoRectIndex outputRect = extents.GetBlockRect((int)xBlock, (int)yBlock);
 
 		ASSERT(outputRect.Width() == blockSize.m_x);
 		ASSERT(outputRect.Height() == blockSize.m_y);
@@ -1337,11 +1279,11 @@ void CCloudCleaner::WriteBlock2(int xBlock, int yBlock, const CBandsHolder& band
 
 					size_t z = m_options.m_scenes[0] + bb / SCENES_SIZE;
 					size_t b = bb % SCENES_SIZE;
-					for (int y = 0; y < blockSize.m_y; y++)
+					for (size_t y = 0; y < blockSize.m_y; y++)
 					{
-						for (int x = 0; x < blockSize.m_x; x++)
+						for (size_t x = 0; x < blockSize.m_x; x++)
 						{
-							int xy = int(y*blockSize.m_x + x);
+							size_t xy = y*blockSize.m_x + x;
 							tmp[xy] = data[xy][z][b];
 
 							if (b == JD && tmp[xy] < 0)
@@ -1468,15 +1410,15 @@ void CCloudCleaner::LoadData(const CBandsHolder& bandHolder, LansatData& data)
 
 	CGeoSize blockSize = window.GetGeoSize();
 	data.resize(blockSize.m_x*blockSize.m_y);
-	for (int x = 0; x < blockSize.m_x; x++)
+	for (size_t x = 0; x < blockSize.m_x; x++)
 	{
-		for (int y = 0; y < blockSize.m_y; y++)
+		for (size_t y = 0; y < blockSize.m_y; y++)
 		{
 			data[y*blockSize.m_x + x].resize(nbScenes);
 
 			for (size_t z = 0; z < nbScenes; z++)
 			{
-				data[y*blockSize.m_x + x][z] = window.GetPixel(z, x, y);
+				data[y*blockSize.m_x + x][z] = window.GetPixel(z, (int)x, (int)y);
 			}
 		}
 	}

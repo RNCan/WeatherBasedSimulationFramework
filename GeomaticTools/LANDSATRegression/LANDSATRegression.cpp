@@ -110,26 +110,25 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (EQUAL(argv[i], "-Despike"))
-		{
-			string str = argv[++i];
-			TIndices type = GetIndiceType(str);
-			//string op = argv[++i];
-			double threshold = atof(argv[++i]);
+		//if (EQUAL(argv[i], "-Despike"))
+		//{
+		//	string str = argv[++i];
+		//	TIndices type = GetIndiceType(str);
+		//	//string op = argv[++i];
+		//	double threshold = atof(argv[++i]);
+		//	double min_trigger = atof(argv[++i]);
 
-			if (type < NB_INDICES)
-			{
-				//if (CIndices::IsValidOp(op))
-					m_despike.push_back(CIndices(type, "<", threshold));
-				//else
-					//msg.ajoute(op + " is an invalid operator for -Despike option");
-			}
-			else
-			{
-				msg.ajoute(str + " is an invalid type for -Despike option");
-			}
-		}
-		else if (EQUAL(argv[i], "-RFactor"))
+		//	if (type < NB_INDICES)
+		//	{
+		//		m_despike.push_back(CIndices(type, "<", threshold, min_trigger));
+		//	}
+		//	else
+		//	{
+		//		msg.ajoute(str + " is an invalid type for -Despike option");
+		//	}
+		//}
+		//else
+		if (EQUAL(argv[i], "-RFactor"))
 		{
 			m_RFactor = atof(argv[++i]);
 		}

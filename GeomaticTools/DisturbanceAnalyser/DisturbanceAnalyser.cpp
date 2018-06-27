@@ -419,8 +419,8 @@ public:
 
 		static const COptionDef OPTIONS[] = 
 		{
-			{ "-Trigger", 1, "\"tt op th\"", true, "Add optimization trigger to execute decision tree when comparing T - 1 with T + 1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold.Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
-			{ "-Despike", 2, "dt dh", true, "Despike to remove invalid pixel. dt is the despike type, op is the comparison operator '<' or '>', th is the despike threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
+			{ "-Trigger", 1, "\"tt op th\"", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"." },
+			{ "-Despike", 3, "type threshold min", true, "Despike to remove outbound pixels. Type is the indice type, threshold is the despike threshold and min is the minimum between T-1 and T+1 to execute despike. Supported type are the same as Trigger. Usual value are TCB 0.75 0.1." },
 			{ "-NbDisturbances", 1, "nb", false, "Number of disturbance to output. 1 by default." },
 			{ "-FireSeverity", 1, "model", false, "Compute fire severity for \"Ron\", \"Jo\" and \"Mean\" model." },
 			{ "-ExportBands",0,"",false,"Export disturbances scenes."},
@@ -488,7 +488,7 @@ public:
 				if (type != I_INVALID)
 				{
 					if (CIndices::IsValidOp(op))
-						m_trigger.push_back(CIndices(type, op, threshold));
+						m_trigger.push_back(CIndices(type, op, threshold, 0));
 					else
 						msg.ajoute(op + " is an invalid operator for -Trigger option");
 				}
@@ -508,10 +508,11 @@ public:
 			string str = argv[++i];
 			TIndices type = GetIndiceType(str);
 			double threshold = atof(argv[++i]);
+			double min_trigger = atof(argv[++i]);
 
 			if (type != I_INVALID)
 			{
-				m_despike.push_back(CIndices(type, "<", threshold));
+				m_despike.push_back(CIndices(type, "<", threshold, min_trigger));
 			}
 			else
 			{

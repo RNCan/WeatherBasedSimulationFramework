@@ -27,11 +27,21 @@ namespace WBSF
 
 	const char* Landsat::GetSceneName(size_t s)
 	{
-		static const char* SCENE_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
+		static const char* BANDS_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
+
 		ASSERT(s < SCENES_SIZE);
-		return SCENE_NAME[s];
+		return BANDS_NAME[s];
 
 	}
+	
+	const char* Landsat::GetIndiceName(size_t i)
+	{
+		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "TCB", "TCG", "TCW", "NBR2", "EVI", "SAVI", "MSAVI", "SR", "CL", "HZ" };
+		ASSERT(i < NB_INDICES);
+		return INDICES_NAME[i];
+	}
+		
+
 
 
 
@@ -140,11 +150,9 @@ namespace WBSF
 
 	Landsat::TIndices Landsat::GetIndiceType(const std::string& str)
 	{
-		static const char* TYPE_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "TCB", "TCG", "TCW" };
-		//"Euclidean",
 		TIndices type = I_INVALID;
 		for (size_t i = 0; i < NB_INDICES&&type == I_INVALID; i++)
-			if (IsEqualNoCase(str, TYPE_NAME[i]))
+			if (IsEqualNoCase(str, GetIndiceName(i)))
 				type = (TIndices)i;
 
 		return type;
@@ -464,6 +472,7 @@ namespace WBSF
 	}
 
 	ERMsg CLandsatDataset::CreateRGB(size_t iz, const std::string filePath, CBaseOptions::TRGBTye type)
+
 	{
 		ERMsg msg;
 
@@ -498,7 +507,7 @@ namespace WBSF
 				zen::XmlElement& node = root.addChild("VRTRasterBand");
 				//   
 				node.setAttribute("dataType", "Int16");
-				node.setAttribute("band", to_string(j+1));
+				node.setAttribute("band", to_string(j + 1));
 				node.setAttribute("subClass", "VRTDerivedRasterBand");
 				node.addChild("NoDataValue").setValue("-32768");
 				static const char* RGB_NAME[3] = { "red", "green", "blue" };
@@ -508,9 +517,9 @@ namespace WBSF
 				for (size_t b = 0; b < SCENES_SIZE; b++)
 				{
 					zen::XmlElement& source = node.addChild("ComplexSource");
-					
+
 					string name = GetFileName(GetInternalName(iz*SCENES_SIZE + b));
-					
+
 					zen::XmlElement& sourceFilename = source.addChild("SourceFilename");
 					sourceFilename.setAttribute("relativeToVRT", "1");
 					//sourceFilename.setAttribute("shared", "0");
@@ -526,7 +535,7 @@ namespace WBSF
 					sourceProperties.setAttribute("DataType", "Int16");
 					sourceProperties.setAttribute("BlockXSize", to_string(nBlockXSize));
 					sourceProperties.setAttribute("BlockYSize", to_string(nBlockYSize));
-					
+
 					zen::XmlElement& srcRect = source.addChild("SrcRect");
 					srcRect.setAttribute("xOff", "0");
 					srcRect.setAttribute("yOff", "0");
@@ -540,7 +549,7 @@ namespace WBSF
 					dstRect.setAttribute("ySize", to_string(GetRasterYSize()));
 
 					source.addChild("NODATA").setValue("-32768");
-					
+
 				}
 			}
 
@@ -552,10 +561,10 @@ namespace WBSF
 			}
 			catch (std::exception& e)
 			{
-				msg.ajoute( e.what() );
+				msg.ajoute(e.what());
 			}
 
-			
+
 			//string str = file.GetText();
 
 			//	xmlDataset.Load(str.c_str());
@@ -563,6 +572,109 @@ namespace WBSF
 
 		return msg;
 	}
+
+	ERMsg CLandsatDataset::CreateIndices(size_t iz, const std::string filePath, Landsat::TIndices type)
+	{
+		ERMsg msg;
+
+		ofStream file;
+
+		msg = file.open(filePath, ios::out | ios::binary);
+		if (msg)
+		{
+			zen::XmlElement root("VRTDataset");
+
+			//zen::writeStruc(*this, doc.root());
+
+			root.setAttribute("rasterXSize", to_string(GetRasterXSize()));
+			root.setAttribute("rasterYSize", to_string(GetRasterYSize()));
+
+
+			zen::XmlElement& srs = root.addChild("SRS");
+			srs.setValue(GetPrj()->GetPrjStr());
+
+			CGeoTransform GT;
+			GetExtents().GetGeoTransform(GT);
+			//GetGeoTransform(GT);
+
+			string geotrans = to_string(GT[0]);
+			for (int i = 1; i < 6; i++)
+				geotrans += ", " + to_string(GT[i]);
+
+			root.addChild("GeoTransform").setValue(geotrans);
+
+			//for (size_t j = 0; j < 3; j++)
+			//{
+			zen::XmlElement& node = root.addChild("VRTRasterBand");
+			//   
+			node.setAttribute("dataType", "Int16");
+			node.setAttribute("band", "1");
+			node.setAttribute("subClass", "VRTDerivedRasterBand");
+			node.addChild("NoDataValue").setValue("-32768");
+			
+			string pixelValName = string("Landsat.") + GetIndiceName(type);
+
+			node.addChild("PixelFunctionType").setValue(pixelValName);
+			for (size_t b = 0; b < SCENES_SIZE; b++)
+			{
+				zen::XmlElement& source = node.addChild("ComplexSource");
+
+				string file_path = GetInternalName(iz*SCENES_SIZE + b);
+				string rel_file_path = WBSF::GetRelativePath(GetPath(filePath), file_path);
+
+				zen::XmlElement& sourceFilename = source.addChild("SourceFilename");
+				sourceFilename.setAttribute("relativeToVRT", rel_file_path.empty()?"0":"1");
+				//sourceFilename.setAttribute("shared", "0");
+				sourceFilename.setValue(rel_file_path.empty()? file_path : rel_file_path);
+
+				int         nBlockXSize, nBlockYSize;
+				GetRasterBand(iz*SCENES_SIZE + b)->GetBlockSize(&nBlockXSize, &nBlockYSize);
+
+				source.addChild("SourceBand").setValue("1");
+				zen::XmlElement& sourceProperties = source.addChild("SourceProperties");
+				sourceProperties.setAttribute("RasterXSize", to_string(GetRasterXSize()));
+				sourceProperties.setAttribute("RasterYSize", to_string(GetRasterYSize()));
+				sourceProperties.setAttribute("DataType", "Int16");
+				sourceProperties.setAttribute("BlockXSize", to_string(nBlockXSize));
+				sourceProperties.setAttribute("BlockYSize", to_string(nBlockYSize));
+
+				zen::XmlElement& srcRect = source.addChild("SrcRect");
+				srcRect.setAttribute("xOff", "0");
+				srcRect.setAttribute("yOff", "0");
+				srcRect.setAttribute("xSize", to_string(GetRasterXSize()));
+				srcRect.setAttribute("ySize", to_string(GetRasterYSize()));
+
+				zen::XmlElement& dstRect = source.addChild("DstRect");
+				dstRect.setAttribute("xOff", "0");
+				dstRect.setAttribute("yOff", "0");
+				dstRect.setAttribute("xSize", to_string(GetRasterXSize()));
+				dstRect.setAttribute("ySize", to_string(GetRasterYSize()));
+
+				source.addChild("NODATA").setValue("-32768");
+
+			}
+			//}
+
+			try
+			{
+				std::string stream;
+				zen::implementation::serialize(root, stream, "\r\n", "    ", 0);//throw ()
+				file.write(stream);
+			}
+			catch (std::exception& e)
+			{
+				msg.ajoute(e.what());
+			}
+
+
+			//string str = file.GetText();
+
+			//	xmlDataset.Load(str.c_str());
+		}
+
+		return msg;
+	}
+
 	//****************************************************************************************************************
 	CLandsatWindow::CLandsatWindow() :
 		CRasterWindow(TLandsatBands::SCENES_SIZE),
@@ -686,6 +798,13 @@ namespace WBSF
 			case Landsat::I_TCG:		val = TCG(); break;
 			case Landsat::I_TCW:		val = TCW(); break;
 			case Landsat::I_ZSW:		val = ZSW(); break;
+			case Landsat::I_NBR2:		val = NBR2(); break;
+			case Landsat::I_EVI:		val = EVI(); break;
+			case Landsat::I_SAVI:		val = SAVI(); break;
+			case Landsat::I_MSAVI:		val = MSAVI(); break;
+			case Landsat::I_SR:			val = SR(); break;
+			case Landsat::I_CL:			val = CL(); break;
+			case Landsat::I_HZ:			val = HZ(); break;
 			default: ASSERT(false);
 			}
 		}
@@ -774,20 +893,17 @@ namespace WBSF
 
 	double CLandsatPixel::NBR()const
 	{
-		//return (at(B4) + at(B7)) != 0 ? ((double)at(B4) - at(B7)) / (at(B4) + at(B7)) : -FLT_MAX;
 		return ((double)at(B4) - at(B7)) / max(0.1, double(at(B4) + at(B7)));
 	}
 
 
 	double CLandsatPixel::NDVI()const
 	{
-		//return (at(B4) + at(B3)) != 0 ? ((double)at(B4) - at(B3)) / (at(B4) + at(B3)) : -FLT_MAX;
 		return ((double)at(B4) - at(B3)) / max(0.1, double(at(B4) + at(B3)));
 	}
 
 	double CLandsatPixel::NDMI()const
 	{
-		//return (at(B4) + at(B5)) != 0 ? ((double)at(B4) - at(B5)) / (at(B4) + at(B5)) : -FLT_MAX;
 		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4) + at(B5)));
 	}
 
@@ -820,9 +936,44 @@ namespace WBSF
 
 	}
 
-	double CLandsatPixel::GetDespike(double pre, double spike, double post)
+	double CLandsatPixel::NBR2()const
+	{
+		return ((double)at(B5) - at(B7)) / max(0.1, double(at(B5) + at(B7)));
+	}
+
+	double CLandsatPixel::EVI()const
+	{
+		return 2.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + 6 * at(B3) - 7.5*at(B1) + 1));
+	}
+	
+
+	double CLandsatPixel::SAVI()const
+	{
+		return 1.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + at(B3) + 0.5));
+	}
+	double CLandsatPixel::MSAVI()const
+	{
+		return (2.0 * at(B4) + 1 - sqrt((2 * at(B4) + 1)*(2 * at(B4) + 1) - 8 * (at(B4) - at(B3)))) / 2;
+	}
+	double CLandsatPixel::SR() const
+	{
+		return ((double)at(B4) / max(0.1, (double)at(B3)));
+	}
+	double CLandsatPixel::CL()const
+	{
+		return ((double)at(B1) / max(0.1, (double)at(B6)));
+	}
+	double CLandsatPixel::HZ()const
+	{
+		return ((double)at(B1) / max(0.1, (double)at(B3)));
+	}
+
+	double CLandsatPixel::GetDespike(double pre, double spike, double post, double min_trigger)
 	{
 		double d1 = (post - pre);
+		if (abs(d1) < min_trigger)
+			return 1;
+
 		double d2 = spike - (post + pre) / 2;
 
 		if (d2 == 0)

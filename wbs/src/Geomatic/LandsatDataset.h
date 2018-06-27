@@ -22,9 +22,7 @@ namespace WBSF
 	{
 		enum TLandsatFormat	{ F_UNKNOWN=-1, F_OLD, F_NEW, NB_FORMATS };
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
-		
-
-		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, I_ZSW, NB_INDICES };
+		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, I_ZSW, I_NBR2, I_EVI, I_SAVI, I_MSAVI, I_SR, I_CL, I_HZ, NB_INDICES};
 
 		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
 		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
@@ -32,6 +30,7 @@ namespace WBSF
 
 
 		const char* GetSceneName(size_t s);
+		const char* GetIndiceName(size_t i);
 		TDomain GetIndiceDomain(const std::string& str);
 		TIndices GetIndiceType(const std::string& str);
 		TOperator GetIndiceOperator(const std::string& str);
@@ -73,13 +72,20 @@ namespace WBSF
 		double TCG()const;
 		double TCW()const;
 		double ZSW()const;
+		double NBR2()const;
+		double EVI()const;
+		double SAVI()const;
+		double MSAVI()const;
+		double SR() const;
+		double CL()const;
+		double HZ()const;
 		Color8 R()const;
 		Color8 G()const;
 		Color8 B()const;
 
 		void correction8to7(Landsat::TCorr8 type);
 
-		static double GetDespike(double pre, double spike, double post);
+		static double GetDespike(double pre, double spike, double post, double min_trigger);
 
 		CTRef GetTRef()const;
 	};
@@ -94,14 +100,16 @@ namespace WBSF
 		Landsat::TIndices	m_type;
 		std::string			m_op;
 		double				m_threshold;
+		double				m_trigger;
 
-		CIndices(Landsat::TIndices	type, std::string op, double threshold)
+		CIndices(Landsat::TIndices	type, std::string op, double threshold, double trigger)
 		{
 			ASSERT(op == ">" || op == "<");
 
 			m_type = type;
 			m_op = op;
 			m_threshold = threshold;
+			m_trigger = trigger;
 		}
 
 		bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
@@ -109,84 +117,15 @@ namespace WBSF
 
 			bool bRemove = true;
 
-			double pre = 0;
-			double spike = 0;
-			double post = 0;
-
-			switch (m_type)
-			{
-			case Landsat::B1:
-			case Landsat::B2:
-			case Landsat::B3:
-			case Landsat::B4:
-			case Landsat::B5:
-			case Landsat::B6:
-			case Landsat::B7:
-			case Landsat::QA:
-			case Landsat::JD:
-			{
-				pre = Tm1[m_type];
-				spike = T[m_type];
-				post = Tp1[m_type];
-				break;
-			}
-			case Landsat::I_NBR:
-			{
-				pre = Tm1.NBR();
-				spike = T.NBR();
-				post = Tp1.NBR();
-				break;
-			}
-			//case Landsat::I_EUCLIDEAN:
-			//{
-			//	pre = Tm1.GetEuclideanDistance(T);
-			//	spike = 0;
-			//	post = Tp1.GetEuclideanDistance(Tp1);
-			//	break;
-			//}
-			case Landsat::I_NDVI:
-			{
-				pre = Tm1.NDVI();
-				spike = T.NDVI();
-				post = Tp1.NDVI();
-				break;
-			}
-			case Landsat::I_NDMI:
-			{
-				pre = Tm1.NDMI();
-				spike = T.NDMI();
-				post = Tp1.NDMI();
-				break;
-			}
-			case Landsat::I_TCB:
-			{
-				pre = Tm1.TCB();
-				spike = T.TCB();
-				post = Tp1.TCB();
-				break;
-			}
-			case Landsat::I_TCG:
-			{
-				pre = Tm1.TCG();
-				spike = T.TCG();
-				post = Tp1.TCG();
-				break;
-			}
-			case Landsat::I_TCW:
-			{
-				pre = Tm1.TCW();
-				spike = T.TCW();
-				post = Tp1.TCW();
-				break;
-			}
-			default: ASSERT(false);
-			}
+			double pre = Tm1[m_type];
+			double spike = T[m_type];
+			double post = Tp1[m_type];
 
 			bool bRep = false;
 			if (m_op == "<")
-				bRep = CLandsatPixel::GetDespike(pre, spike, post) < (1 - m_threshold);
+				bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) < (1 - m_threshold);
 			else if (m_op == ">")
-				bRep = CLandsatPixel::GetDespike(pre, spike, post) > (1 - m_threshold);
+				bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) > (1 - m_threshold);
 
 
 			return bRep;
@@ -196,28 +135,8 @@ namespace WBSF
 		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)const
 		{
 			//bool bPass = true;
-			double pre = 0;
-			double pos = 0;
-			switch (m_type)
-			{
-			case Landsat::B1:
-			case Landsat::B2:
-			case Landsat::B3:
-			case Landsat::B4:
-			case Landsat::B5:
-			case Landsat::B6:
-			case Landsat::B7:
-			case Landsat::QA:
-			case Landsat::JD:			pre = Tm1[m_type]; pos = Tp1[m_type] ; break;
-			case Landsat::I_NBR:		pre = Tm1.NBR(); pos = Tp1.NBR(); break;
-			case Landsat::I_NDVI:		pre = Tm1.NDVI(); pos = Tp1.NDVI();break;
-			case Landsat::I_NDMI:		pre = Tm1.NDMI(); pos = Tp1.NDMI();break;
-			case Landsat::I_TCB:		pre = Tm1.TCB() ; pos = Tp1.TCB();break;
-			case Landsat::I_TCG:		pre = Tm1.TCG() ; pos = Tp1.TCG();break;
-			case Landsat::I_TCW:		pre = Tm1.TCW() ; pos = Tp1.TCW();break;
-			case Landsat::I_ZSW:		pre = Tm1.ZSW(); pos = Tp1.ZSW(); break;
-			default: ASSERT(false);
-			}
+			double pre = Tm1[m_type]; 
+			double pos = Tp1[m_type];
 			
 			bool bRep = false;
 			if (m_op == "<")
@@ -226,7 +145,25 @@ namespace WBSF
 				bRep = pre - pos >= m_threshold;
 			return bRep;
 		}
+/*
+		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
+		{
 
+			bool bRemove = true;
+
+			double T1 = Tm1[m_type];
+			double T2 = T[m_type];
+			double T3 = Tp1[m_type];
+
+			
+			bool bRep = false;
+			if (m_op == "<")
+				bRep = (T1 - T2 <= m_threshold) || (T2 - T3 <= m_threshold);
+			else if (m_op == ">")
+				bRep = (T1 - T2 >= m_threshold) || (T2 - T3 >= m_threshold);
+			return bRep;
+		}
+*/
 
 		static bool IsValidOp(std::string op)
 		{
@@ -299,6 +236,8 @@ namespace WBSF
 		const std::vector<CLandsatFileInfo>& GetFileInfo()const { return m_info; }
 	
 		ERMsg CreateRGB(size_t i, const std::string filePath, CBaseOptions::TRGBTye type);
+		ERMsg CreateIndices(size_t i, const std::string filePath, Landsat::TIndices type);
+
 		std::string GetCommonName()const;
 		std::string GetCommonImageName(size_t i)const;
 		std::string GetCommonBandName(size_t b)const;
