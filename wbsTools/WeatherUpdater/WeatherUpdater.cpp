@@ -1,4 +1,4 @@
-//5.5.8 21/06/2018	Rémi Saint-Amant	Change in SWOB and historical hourly Env Can.
+//5.5.8 21/06/2018	Rémi Saint-Amant	Problem with HRDPS
 //5.5.7 20/06/2018	Rémi Saint-Amant	Change in SWOB and historical hourly Env Can.
 //5.5.6 13/06/2018	Rémi Saint-Amant	Better download of EnvCan forecast
 //5.5.5 12/06/2018	Rémi Saint-Amant	Bug correction in forecast
