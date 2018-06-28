@@ -13,7 +13,7 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
-	 
+
 	//*********************************************************************
 
 	const char* CUISolutionMesonetDaily::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "FirstYear", "LastYear" };
@@ -21,11 +21,11 @@ namespace WBSF
 	const UINT CUISolutionMesonetDaily::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SM_DAILY_P;
 	const UINT CUISolutionMesonetDaily::DESCRIPTION_TITLE_ID = ID_TASK_SM_DAILY;
 
-	const char* CUISolutionMesonetDaily::CLASS_NAME(){ static const char* THE_CLASS_NAME = "SolutionMesonetDaily";  return THE_CLASS_NAME; }
+	const char* CUISolutionMesonetDaily::CLASS_NAME() { static const char* THE_CLASS_NAME = "SolutionMesonetDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUISolutionMesonetDaily::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUISolutionMesonetDaily::CLASS_NAME(), (createF)CUISolutionMesonetDaily::create);
 	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("MesonetQuebec", (createF)CUISolutionMesonetDaily::create);
-	
+
 
 	const char* CUISolutionMesonetDaily::SERVER_NAME = "horus.mesonet-quebec.org";
 	const char* CUISolutionMesonetDaily::SUB_DIR = "/";
@@ -34,7 +34,7 @@ namespace WBSF
 	CUISolutionMesonetDaily::CUISolutionMesonetDaily(void)
 	{}
 
-	
+
 	CUISolutionMesonetDaily::~CUISolutionMesonetDaily(void)
 	{}
 
@@ -71,85 +71,126 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
-		
+
 		//verify that all data file have an entry
-		LoadStationList(callback);
+		msg = LoadStationList(callback);
+		if (!msg)
+			return msg;
 
 		//open a connection on the server
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
-
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
 		if (msg)
-			msg = UpdateStationList(pConnection, callback);
+			msg = UpdateStationList(callback);
 
+		CFileInfoVector dirList;
 		if (msg)
 		{
-			CFileInfoVector dirList;
-			UtilWWW::FindDirectories(pConnection, SUB_DIR, dirList);
+			CInternetSessionPtr pSession;
+			CFtpConnectionPtr pConnection;
 
-			pConnection->Close();
-			pSession->Close();
+			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
+			if (msg)
+			{
+
+				UtilWWW::FindDirectories(pConnection, SUB_DIR, dirList);
+
+				pConnection->Close();
+				pSession->Close();
+			}
+
+		}
+
+		CFileInfoVector fileList;
+		if (!dirList.empty())
+		{
+			size_t nbFound = 0;
 			for (size_t i = 0; i < dirList.size() && msg; i++)
 			{
-				string dirName = GetLastDirName(dirList[i].m_filePath);
-				int year = ToInt(dirName);
-				if (year >= firstYear && year <= lastYear)
+				//msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+
+				if (msg)
 				{
-					msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-
-					int nbDownload = 0;
-					string yearPage = SUB_DIR + dirName;
-					string outputPath = workingDir + dirName + "/";
-
-					//Load files list
-					callback.AddMessage(ToString(year), 1);
-					callback.AddMessage(GetString(IDS_LOAD_FILE_LIST), 2);
-					CFileInfoVector fileList;
-					msg += UtilWWW::FindFiles(pConnection, (yearPage + "/*.zip"), fileList, callback);
-
-					callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(fileList.size()) + ")", 2);
-					pConnection->Close();
-					pSession->Close();
-
-					//clean list
-					for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg;)
+					string dirName = GetLastDirName(dirList[i].m_filePath);
+					int year = ToInt(dirName);
+					if (year >= firstYear && year <= lastYear)
 					{
-						string fileTitle = GetFileTitle(it->m_filePath);
-						string filePathZip = outputPath + fileTitle + ".zip";
-						string filePathWea = outputPath + fileTitle + ".wea";
+						CInternetSessionPtr pSession;
+						CFtpConnectionPtr pConnection;
 
-						if (UtilWWW::IsFileUpToDate(*it, filePathWea, false))
-							it = fileList.erase(it);
-						else
-							it++;
-
-						msg += callback.StepIt(0);
-					}
-
-					callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()), 2);
-
-					//download all files
-					int nbRun = 0;
-					int curI = 0;
-
-					StringVector tmp(IDS_FTP_DIRECTION, "|;");
-					callback.PushTask(tmp[0] + " " + dirName + " (" + ToString(fileList.size()) + " stations)", fileList.size());
-
-					while (curI < fileList.size() && msg)
-					{
-						nbRun++;
-
-						CreateMultipleDir(outputPath);
-
-						//open a connection on the server
 						msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-						for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
+
+						//int nbDownload = 0;
+						string yearPage = SUB_DIR + dirName;
+						string outputPath = workingDir + dirName + "/";
+
+						//Load files list
+						//callback.AddMessage(ToString(year), 1);
+						//callback.AddMessage(GetString(IDS_LOAD_FILE_LIST), 2);
+
+						CFileInfoVector fileListTmp;
+						msg += UtilWWW::FindFiles(pConnection, (yearPage + "/*.zip"), fileListTmp, callback);
+						//fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
+						nbFound += fileListTmp.size();
+						for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 						{
-							
 							string fileTitle = GetFileTitle(it->m_filePath);
+							string filePathZip = outputPath + fileTitle + ".zip";
+							string filePathWea = outputPath + fileTitle + ".wea";
+
+							if (UtilWWW::IsFileUpToDate(*it, filePathWea, false))
+								fileList.push_back(*it);
+
+							msg += callback.StepIt(0);
+						}
+
+
+						pConnection->Close();
+						pSession->Close();
+					}
+				}
+			}//for all directory
+
+			callback.AddMessage(GetString(IDS_NB_FILES_FOUND) + ToString(nbFound) + ")");
+		}
+
+
+		if (!fileList.empty())
+		{
+			callback.PushTask("Update Solution-Mesonet files: " + ToString(fileList.size()) + " files", fileList.size());
+			callback.AddMessage(GetString(IDS_NB_FILES_CLEARED) + ToString(fileList.size()));
+
+			//StringVector tmp(IDS_FTP_DIRECTION, "|;");
+
+			//download all files
+			int nbTry = 0;
+			int curI = 0;
+
+			while (curI < fileList.size() && msg)
+			{
+				nbTry++;
+
+
+				//open a connection on the server
+				CInternetSessionPtr pSession;
+				CFtpConnectionPtr pConnection;
+
+				msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+				if (msg)
+				{
+					try
+					{
+						while (curI < fileList.size() && msg)
+						{
+							string filePath = dirList[curI].m_filePath;
+							string dirName = GetLastDirName(filePath);
+							string yearPage = SUB_DIR + dirName;
+							string outputPath = workingDir + dirName + "/";
+							CreateMultipleDir(outputPath);
+
+
+
+							string fileTitle = GetFileTitle(filePath);
 							string filePathZip = outputPath + fileTitle + ".zip";
 							string filePathWea = outputPath + fileTitle + ".wea";
 							string stationPage = yearPage + "/" + fileTitle + ".zip";
@@ -169,82 +210,89 @@ namespace WBSF
 								//update time stamp to the zip file
 								boost::filesystem::path p(filePathWea);
 								if (boost::filesystem::exists(p))
-									boost::filesystem::last_write_time(p, fileList[i].m_time);//std::time(0)
-								
+									boost::filesystem::last_write_time(p, fileList[curI].m_time);
 
-								nbDownload++;
 								curI++;
+								nbTry = 0;
 								msg += callback.StepIt();
 							}
-						}
-
+						}//while
+					}
+					catch (CException* e)
+					{
 						//if an error occur: try again
-						if (!msg && !callback.GetUserCancel())
+						if (nbTry < 5)
 						{
-							if (nbRun < 5)
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							callback.PushTask("Waiting 2 seconds for server...", 40);
+							for (size_t i = 0; i < 40 && msg; i++)
 							{
-								callback.AddMessage(msg);
-								msg = ERMsg();
-
-								callback.PushTask("Waiting 2 seconds for server...", 40);
-								for (size_t i = 0; i < 40 && msg; i++)
-								{
-									Sleep(50);//wait 50 milisec
-									msg += callback.StepIt();
-								}
-								callback.PopTask();
-
+								Sleep(50);//wait 50 milisec
+								msg += callback.StepIt();
 							}
+							callback.PopTask();
+
 						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
 
-						callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+					pConnection->Close();
+					pSession->Close();
 
-						pConnection->Close();
-						pSession->Close();
+				}//if msg
 
-					}//while
 
-					callback.PopTask();
-					callback.StepIt();
-				}//year is included
-			}//for all years
-		}//if msg
+			}//while
 
-		callback.PopTask();
+
+			callback.PopTask();
+		}//if list not empty
+
 		return msg;
 	}
 
-	
+
 	string CUISolutionMesonetDaily::GetStationListFilePath()const
 	{
 		return GetDir(WORKING_DIR) + "Stations.xml";
 	}
 
-	ERMsg CUISolutionMesonetDaily::UpdateStationList(CFtpConnectionPtr& pConnection, CCallback& callback)
+	ERMsg CUISolutionMesonetDaily::UpdateStationList(CCallback& callback)
 	{
 		ERMsg msg;
 
-		string FTPFilePath = string(SUB_DIR) + "stations.xml";
-		string localFilePath = GetStationListFilePath();
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
 
-		if (!UtilWWW::IsFileUpToDate(pConnection, FTPFilePath.c_str(), localFilePath.c_str()))
-		{
-
-			CreateMultipleDir(GetPath(localFilePath));
-			msg = UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
-		}
-
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
 
 		if (msg)
 		{
-			msg = LoadStationList(callback);
-			CLocationVector stations;
-			stations.reserve(m_stations.size());
-			for (auto it = m_stations.begin(); it != m_stations.end(); it++)
-				stations.push_back(it->second);
+			string FTPFilePath = string(SUB_DIR) + "stations.xml";
+			string localFilePath = GetStationListFilePath();
 
-			WBSF::SetFileExtension(localFilePath, ".csv");
-			msg = stations.Save(localFilePath);
+			if (!UtilWWW::IsFileUpToDate(pConnection, FTPFilePath.c_str(), localFilePath.c_str()))
+			{
+				CreateMultipleDir(GetPath(localFilePath));
+				msg = UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
+			}
+
+
+			if (msg)
+			{
+				msg = LoadStationList(callback);
+				CLocationVector stations;
+				stations.reserve(m_stations.size());
+				for (auto it = m_stations.begin(); it != m_stations.end(); it++)
+					stations.push_back(it->second);
+
+				WBSF::SetFileExtension(localFilePath, ".csv");
+				msg = stations.Save(localFilePath);
+			}
+
 		}
 
 		return msg;
@@ -257,7 +305,7 @@ namespace WBSF
 		m_stations.clear();
 		string filePath = GetStationListFilePath();
 
-		
+
 		ifStream file;
 		file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<char>()));
 		msg = file.open(filePath);
@@ -313,50 +361,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
-	//ERMsg CUISolutionMesonetDaily::LoadDesactivatedFile(const string& aliasFilePath, std::set<std::string>& aliasMap)
-	//{
-	//	ERMsg msg;
 
-	//	//CStdioFile file;		
-	//	//CFileException e;
-	//	ifStream file;
-	//	msg = file.open(aliasFilePath);
-	//	if (msg)
-	//	{
-	//		string line;
-	//		//string argument;
-	//		std::getline(file, line);//read header
-
-
-	//		while (std::getline(file, line))
-	//		{
-	//			TrimLeft(line);
-	//			if (!line.empty())
-	//			{
-	//				MakeLower(line);
-	//				aliasMap.insert(line);
-	//			}
-	//		}
-
-	//		//aliasMap.Sort();
-
-	//	}
-
-	//	return msg;
-	//}
-
-	
-	/*string CUISolutionMesonetDaily::GetStationName(const string& ID)const
-	{
-		string name;
-		CLocationMap::const_iterator it = m_stations.find(ID);
-		if (it != m_stations.end())
-			name = it->second.m_name;
-
-		return name;
-	}
-*/
 	ERMsg CUISolutionMesonetDaily::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
@@ -368,10 +373,10 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		//find all station in the directories
-		for (CLocationMap::const_iterator it = m_stations.begin(); it != m_stations.end()&&msg; it++)
+		for (CLocationMap::const_iterator it = m_stations.begin(); it != m_stations.end() && msg; it++)
 		{
 			bool bAdd = false;
-			for (size_t y = 0; y < nbYears&&!bAdd&&msg; y++)
+			for (size_t y = 0; y < nbYears && !bAdd&&msg; y++)
 			{
 				int year = firstYear + int(y);
 
@@ -426,6 +431,6 @@ namespace WBSF
 		return msg;
 	}
 
-	
-	
+
+
 }

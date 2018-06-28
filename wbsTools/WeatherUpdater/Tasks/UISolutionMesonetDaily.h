@@ -42,11 +42,10 @@ namespace WBSF
 
 		
 		std::string GetStationListFilePath()const;
-		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback);
 
 		ERMsg LoadStationList(CCallback& callback);
-		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, CTM TM, CYear& data, CCallback& callback)const;
+		ERMsg UpdateStationList(CCallback& callback);
+		//ERMsg ReadData(const std::string& filePath, CTM TM, CYear& data, CCallback& callback)const;
 
 
 		CLocationMap m_stations;

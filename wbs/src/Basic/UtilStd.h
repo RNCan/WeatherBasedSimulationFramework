@@ -139,10 +139,11 @@ public:
 
 
 //find the second element of a map
-template <class Map, class Val> typename Map::const_iterator MapSearchByValue(const Map & SearchMap, const Val & SearchVal)
+template <class Map, class Val> 
+typename Map::const_iterator MapSearchByValue(const Map & SearchMap, const Val & SearchVal)
 {
-    Map::const_iterator iRet = SearchMap.end();
-    for (Map::const_iterator iTer = SearchMap.begin(); iTer != SearchMap.end(); iTer ++)
+	typename Map::const_iterator iRet = SearchMap.end();
+    for (typename Map::const_iterator iTer = SearchMap.begin(); iTer != SearchMap.end(); iTer ++)
     {
         if (iTer->second == SearchVal)
         {
@@ -180,7 +181,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	std::string& ReplaceString(std::string& str, const std::string& oldStr, const std::string& newStr);
 	std::string GetText(ERMsg msg);
 	//std::string GetOutputString(ERMsg& msg, CCallback& callBack = DEFAULT_CALLBACK, bool bAllMessage = false);
-	std::string GetOutputString(ERMsg msg, CCallback& callBack, bool bAllMessage = true, char* sep = "\n");
+	std::string GetOutputString(ERMsg msg, CCallback& callBack, bool bAllMessage = true, const char* sep = "\n");
 
 
 
@@ -446,7 +447,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		std::string to_string(const T& v, const std::string& sep, const std::string& begin="", const std::string& end="")
 	{
 		std::string str = begin;
-		for (T::const_iterator it = v.begin(); it != v.end(); it++)
+		for (typename T::const_iterator it = v.begin(); it != v.end(); it++)
 		{
 			if (it != v.begin())
 				str += sep;
@@ -556,7 +557,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	std::string ToString(const std::vector<T>& v, const std::string& be="[", const std::string& sep=",", const std::string& en="]")
 	{
 		std::string str = be;
-		for(std::vector<T>::const_iterator it=v.begin(); it!=v.end(); it++)
+		for(typename std::vector<T>::const_iterator it=v.begin(); it!=v.end(); it++)
 		{
 			if( it!=v.begin() )
 				str  += sep;
@@ -1062,10 +1063,10 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	}
 
 
-	std::string GetErrorString(ERMsg msg, char* sep = "\n");
+	std::string GetErrorString(ERMsg msg, const char* sep = "\n");
 
 
-	ERMsg GetErrorMsgFromString(const std::string& str, char* sep = "\n");
+	ERMsg GetErrorMsgFromString(const std::string& str, const char* sep = "\n");
 	ERMsg GetLastErrorMessage();
 
 

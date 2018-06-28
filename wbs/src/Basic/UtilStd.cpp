@@ -196,7 +196,7 @@ namespace WBSF
 		return msg;
 	}
 
-	std::string GetErrorString( ERMsg msg, char* sep)
+	std::string GetErrorString( ERMsg msg, const char* sep)
 	{
 		std::string str;
 		for(int i=0; i<(int)msg.dimension(); i++)
@@ -205,7 +205,7 @@ namespace WBSF
 		return str;
 	}
 
-	ERMsg GetErrorMsgFromString( const std::string& str, char* sep)
+	ERMsg GetErrorMsgFromString( const std::string& str, const char* sep)
 	{
 		ERMsg msg;
 
@@ -251,7 +251,7 @@ namespace WBSF
 	}
 
 	
-	std::string GetOutputString( ERMsg msg, CCallback& callback, bool bAllMessage, char* sep )
+	std::string GetOutputString( ERMsg msg, CCallback& callback, bool bAllMessage, const char* sep )
 	{
 
 

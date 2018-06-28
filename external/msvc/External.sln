@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netcdfLib", "..\netCDF\msvc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hxGrid", "hxGrid.vcxproj", "{9E652079-404D-43C5-8C8E-39736AEB3F7A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "readxl", "readxl.vcxproj", "{183FAEA2-DBE8-4C70-85CC-E24D2C307648}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -116,6 +118,14 @@ Global
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|Win32.Build.0 = Release|Win32
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|x64.ActiveCfg = Release|x64
 		{9E652079-404D-43C5-8C8E-39736AEB3F7A}.Release|x64.Build.0 = Release|x64
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Debug|Win32.ActiveCfg = Debug|Win32
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Debug|Win32.Build.0 = Debug|Win32
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Debug|x64.ActiveCfg = Debug|x64
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Debug|x64.Build.0 = Debug|x64
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Release|Win32.ActiveCfg = Release|Win32
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Release|Win32.Build.0 = Release|Win32
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Release|x64.ActiveCfg = Release|x64
+		{183FAEA2-DBE8-4C70-85CC-E24D2C307648}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
