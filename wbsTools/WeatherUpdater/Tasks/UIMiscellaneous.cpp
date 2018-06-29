@@ -147,7 +147,7 @@ namespace WBSF
 			{
 
 				CFileInfoVector fileList;
-				msg = FindFiles(pConnection, path, fileList, CCallback::DEFAULT_CALLBACK);
+				msg = FindFiles(pConnection, path, fileList, false, CCallback::DEFAULT_CALLBACK);
 				if (msg)
 				{
 					ASSERT(fileList.size() == 1);
@@ -257,7 +257,7 @@ namespace WBSF
 					case CDIAC_RUSSIA:
 					{
 
-						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "Russia_518_data.txt.gz", fileList, callback);
+						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "Russia_518_data.txt.gz", fileList, false, callback);
 						break;
 
 					}

@@ -142,7 +142,7 @@ copy /Y ".\bin\Releasex64\Models\SpruceBeetle.mdl" "..\Install\NRCan\Models\Spru
 
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.dll" "..\Install\NRCan\Models\Spruce Budworm Biology.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology.mdl" "..\Install\NRCan\Models\Spruce Budworm Biology.mdl"
-copy /Y ".\bin\Releasex64\Models\Spruce Budworm Grow Rate.mdl" "..\Install\NRCan\Models\Spruce Budworm Grow Rate.mdl"
+copy /Y ".\bin\Releasex64\Models\Spruce Budworm Biology (Annual).mdl" "..\Install\NRCan\Models\Spruce Budworm Biology (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.dll" "..\Install\NRCan\Models\Spruce Budworm Dispersal.dll"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Dispersal.mdl" "..\Install\NRCan\Models\Spruce Budworm Dispersal.mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Manitoba.mdl" "..\Install\NRCan\Models\Spruce Budworm Manitoba.mdl"

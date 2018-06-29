@@ -183,7 +183,7 @@ namespace WBSF
 					
 					//Load files list
 					CFileInfoVector fileList;
-					msg += UtilWWW::FindFiles(pConnection, subDir, fileList, callback);
+					msg += UtilWWW::FindFiles(pConnection, subDir, fileList, false, callback);
 					nbFileFound += fileList.size();
 
 					for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg; it++)

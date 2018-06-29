@@ -125,7 +125,7 @@ ERMsg CUIGHCND::UpdateStationHistory(CCallback& callback)
 		string path = GetStationFilePath(false);
 
 		CFileInfoVector fileList;
-		msg = FindFiles(pConnection, path, fileList, callback);
+		msg = FindFiles(pConnection, path, fileList, false, callback);
 		
 		pConnection->Close();
 		pSession->Close();
@@ -173,7 +173,7 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
 		string filter = string(SERVER_PATH) + "by_year/*.gz";
-		msg = FindFiles(pConnection, filter, fileList, callback);	
+		msg = FindFiles(pConnection, filter, fileList, false, callback);	
 
 		pConnection->Close();
 		pSession->Close();

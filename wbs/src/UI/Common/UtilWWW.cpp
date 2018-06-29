@@ -229,14 +229,14 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, WBSF::CCallback& callback)
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bThrow, WBSF::CCallback& callback)
 	{
 		ASSERT(pConnection.get() != NULL);
 
 		ERMsg msg;
 
-		//TRY
-		//{
+		try
+		{
 
 		CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, flags);
 
@@ -291,13 +291,20 @@ namespace UtilWWW
 		}
 
 		delete pURLFile;
-		//	}
-			//	CATCH_ALL(e)
-			//{
-			//	//msg = UtilWin::SYGetMessage(*e);
-			//	THROW(e)
-			//}
-			//END_CATCH_ALL
+		}
+		catch (CException* e)
+		{
+			if (bThrow)
+			{
+				throw;
+				//	THROW(e)
+			}
+			else
+			{
+				msg = UtilWin::SYGetMessage(*e);
+			}
+		}
+		
 
 		return msg;
 	}
@@ -333,26 +340,31 @@ namespace UtilWWW
 		return bRep;
 	}
 
-	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags, BOOL bFailIfExists)
+	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const CString& InputFilePath, const CString& outputFilePath, DWORD flags, BOOL bThrow)
 	{
 		ASSERT(pConnection.get() != NULL);
 
 		//DWORD flag = INTERNET_FLAG_TRANSFER_BINARY|INTERNET_FLAG_RELOAD|INTERNET_FLAG_EXISTING_CONNECT|INTERNET_FLAG_DONT_CACHE;
 		//INTERNET_FLAG_RELOAD;
 		ERMsg msg;
-		BOOL bRep = pConnection->GetFile(InputFilePath, outputFilePath, bFailIfExists, FILE_ATTRIBUTE_NORMAL, flags);
+		BOOL bRep = pConnection->GetFile(InputFilePath, outputFilePath, FALSE, FILE_ATTRIBUTE_NORMAL, flags);
 
 		if (!bRep)
 		{
 			DWORD errnum = GetLastError();
-			CInternetException e(errnum);
-			msg += UtilWin::SYGetMessage(e);
-
+			
 			//DWORD size = 255;
 			//TCHAR cause[256]={0};
 			//InternetGetLastResponseInfo( &errnum, cause, &size);
-
-			//THROW( new CInternetException(errnum));
+			if (bThrow)
+			{
+				THROW(new CInternetException(errnum));
+			}
+			else
+			{
+				CInternetException e(errnum);
+				msg += UtilWin::SYGetMessage(e);
+			}
 
 			//msg.asgType( ERMsg::ERREUR);
 			//CString error;
@@ -404,12 +416,12 @@ namespace UtilWWW
 		return msg;
 	}
 
-	void ConvertString2FindFileInfo(CFtpConnectionPtr& pConnect, const CStringArray& fileListIn, CFileInfoVector& fileListOut, WBSF::CCallback& callback)
+	void ConvertString2FindFileInfo(CFtpConnectionPtr& pConnect, const CStringArray& fileListIn, CFileInfoVector& fileListOut, BOOL bThrow, WBSF::CCallback& callback)
 	{
 		for (int i = 0; i < fileListIn.GetSize(); i++)
 		{
 			CFileInfoVector fileList;
-			FindFiles(pConnect, fileListIn[i], fileList, callback);
+			FindFiles(pConnect, fileListIn[i], fileList, bThrow, callback);
 			ASSERT(fileList.size() == 1);
 			fileListOut.insert(fileListOut.begin(), fileList.begin(), fileList.end());
 		}
@@ -495,7 +507,7 @@ namespace UtilWWW
 
 	}
 
-	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList, WBSF::CCallback& callback)
+	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList, BOOL bThrow, WBSF::CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -529,8 +541,15 @@ namespace UtilWWW
 
 		if (errNum != ERROR_NO_MORE_FILES)
 		{
-			CInternetException e(errNum);
-			msg = UtilWin::SYGetMessage(e);
+			if (bThrow)
+			{
+				throw(new CInternetException(errNum));
+			}
+			else
+			{
+				CInternetException e(errNum);
+				msg = UtilWin::SYGetMessage(e);
+			}
 		}
 
 		callback.PopTask();
@@ -634,53 +653,69 @@ namespace UtilWWW
 	}
 
 
-	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList)
+	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList, BOOL bThrow)
 	{
 		ERMsg msg;
 		std::string path = WBSF::GetPath(WBSF::UTF8((LPCTSTR)URL));
 		std::string filterName = WBSF::GetFileName(WBSF::UTF8((LPCTSTR)URL));
 
-		std::string source;
-		msg = GetPageText(pConnect, path, source);
-		if (msg)
+		try
 		{
-
-			std::string::size_type posBegin = source.find("<a href=");
-			while (posBegin != std::string::npos)
+			std::string source;
+			msg = GetPageText(pConnect, path, source);
+			if (msg)
 			{
-				std::string fileName = FindString(source, "<a href=\"", "\">", posBegin);
-				if (WBSF::Match(filterName.c_str(), fileName.c_str()))
+
+				std::string::size_type posBegin = source.find("<a href=");
+				while (posBegin != std::string::npos)
 				{
-
-					std::string filePath = path + fileName;
-
-					CFileInfo info;
-					//memset( &info, 0, sizeof(info) );
-					info.m_filePath = filePath;
-
-					std::string str = FindString(source, "</a>", "\n", posBegin);
-					WBSF::Trim(str);
-					std::string::size_type pos = 0;
-					std::string date = WBSF::Tokenize(str, " ", pos, true);
-					if (pos != std::string::npos)
+					std::string fileName = FindString(source, "<a href=\"", "\">", posBegin);
+					if (WBSF::Match(filterName.c_str(), fileName.c_str()))
 					{
-						std::string time = WBSF::Tokenize(str, " ", pos, true);
+
+						std::string filePath = path + fileName;
+
+						CFileInfo info;
+						//memset( &info, 0, sizeof(info) );
+						info.m_filePath = filePath;
+
+						std::string str = FindString(source, "</a>", "\n", posBegin);
+						WBSF::Trim(str);
+						std::string::size_type pos = 0;
+						std::string date = WBSF::Tokenize(str, " ", pos, true);
 						if (pos != std::string::npos)
 						{
-							std::string size = WBSF::Tokenize(str, " ", pos, true);
-							std::remove(size.begin(), size.end(), 'M');
-							std::remove(size.begin(), size.end(), 'K');
-							info.m_time = GetTime(date, time);
-							info.m_size = WBSF::ToInt(size);
+							std::string time = WBSF::Tokenize(str, " ", pos, true);
+							if (pos != std::string::npos)
+							{
+								std::string size = WBSF::Tokenize(str, " ", pos, true);
+								std::remove(size.begin(), size.end(), 'M');
+								std::remove(size.begin(), size.end(), 'K');
+								info.m_time = GetTime(date, time);
+								info.m_size = WBSF::ToInt(size);
+							}
 						}
+
+						fileList.push_back(info);
 					}
 
-					fileList.push_back(info);
+					posBegin = source.find("<a href=", posBegin);
 				}
-
-				posBegin = source.find("<a href=", posBegin);
 			}
 		}
+		catch (CException* e)
+		{
+			if (bThrow)
+			{
+				throw;
+				//	THROW(e)
+			}
+			else
+			{
+				msg = UtilWin::SYGetMessage(*e);
+			}
+		}
+
 
 		return msg;
 	}
@@ -829,21 +864,21 @@ namespace UtilWWW
 	{
 		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif);
 	}
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password, WBSF::CCallback& callback)
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password, BOOL bThrow, WBSF::CCallback& callback)
 	{
-		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, UtilWin::Convert(userName), UtilWin::Convert(password), callback);
+		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, UtilWin::Convert(userName), UtilWin::Convert(password), bThrow, callback);
 	}
-	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bFailIfExists)
+	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bThrow)
 	{
-		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags);
+		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, bThrow);
 	}
-	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList)
+	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList, BOOL bThrow)
 	{
-		return FindFiles(pConnect, UtilWin::Convert(URL), fileList);
+		return FindFiles(pConnect, UtilWin::Convert(URL), fileList, bThrow);
 	}
-	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList, WBSF::CCallback& callback)
+	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList, BOOL bThrow, WBSF::CCallback& callback)
 	{
-		return FindFiles(pConnect, UtilWin::Convert(URL), fileList, callback);
+		return FindFiles(pConnect, UtilWin::Convert(URL), fileList, bThrow, callback);
 	}
 
 	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList)

@@ -821,34 +821,46 @@ namespace WBSF
 	//}
 	//
 	//
-	// 
-	//void CWetnessDurationModel::ExecuteDaily(CWetnessDurationStat& stat)
-	//{
-	//	stat.Init(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)));
-	//	
-	//	/*if( m_obs.empty() )
-	//	{
-	//		m_dailyData = m_weather;
-	//		m_dailyData.AjusteMeanForHourlyRequest(m_info.m_loc);
-	//		m_dailyData.GetHourlyVar(m_obs, m_info.m_loc);
-	//	}*/
-	//
-	//	for (size_t y = 0; y<m_weather.size(); y++)
-	//	{
-	//		int year = m_weather.GetFirstYear() + int(y);
-	//		for (size_t m = 0; m<m_weather[y].size(); m++)
-	//		{
-	//			for (size_t d = 0; d<m_weather[y][m].size(); d++)
-	//			{
-	//				CTRef TRef(year, m, d);
-	//				double WD = GetWetnessDuration(m_weather, TRef);
-	//				stat[TRef][WETNESS_DURATION] = WD;
-	//				HxGridTestConnection();
-	//			}
-	//		}
-	//	}
-	//}
-	//
+	 
+	ERMsg CWetnessDurationModel::OnExecuteDaily()
+	{
+		ERMsg msg;
+
+		if (m_weather.IsDaily())
+		{
+			msg.ajoute("This model need hourly weather input");
+			return msg;
+		}
+
+
+		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)), 1);
+		
+		/*if( m_obs.empty() )
+		{
+			m_dailyData = m_weather;
+			m_dailyData.AjusteMeanForHourlyRequest(m_info.m_loc);
+			m_dailyData.GetHourlyVar(m_obs, m_info.m_loc);
+		}*/
+	
+		for (size_t y = 0; y<m_weather.size(); y++)
+		{
+			int year = m_weather.GetFirstYear() + int(y);
+			for (size_t m = 0; m<m_weather[y].size(); m++)
+			{
+				for (size_t d = 0; d<m_weather[y][m].size(); d++)
+				{
+					CTRef TRef(year, m, d);
+					double WD = GetWetnessDuration(m_weather, TRef);
+					m_output[TRef][WETNESS_DURATION] = WD;
+					HxGridTestConnection();
+				}
+			}
+		}
+
+		return msg;
+
+	}
+	
 
 	ERMsg CWetnessDurationModel::OnExecuteHourly()
 	{

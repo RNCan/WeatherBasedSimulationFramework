@@ -104,7 +104,7 @@ namespace WBSF
 			string path = GetHistoryFilePath(false);
 
 			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, CCallback::DEFAULT_CALLBACK);
+			msg = FindFiles(pConnection, path, fileList, false, CCallback::DEFAULT_CALLBACK);
 			if (msg)
 			{
 				ASSERT(fileList.size() == 1);
@@ -175,7 +175,7 @@ namespace WBSF
 							int index = year - firstYear + 1;
 							if (toDo[index])
 							{
-								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.gz", fileList, callback);
+								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.gz", fileList, false, callback);
 								if (msgTmp)
 								{
 									toDo[index] = false;

@@ -220,7 +220,7 @@ namespace WBSF
 				{
 					//current data
 
-					msg = UtilWWW::FindFiles(pConnection, "yr*.csv", fileList, callback);
+					msg = UtilWWW::FindFiles(pConnection, "yr*.csv", fileList, false, callback);
 				}
 
 

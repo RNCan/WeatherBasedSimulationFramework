@@ -3,7 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
-// 02/05/2018   3.1.5   Rémi Saint-Amant	Compile with VS 2017
+// 02/05/2018   3.1.6   Rémi Saint-Amant	Compile with VS 2017
 // 04/05/2017   3.1.5   Rémi Saint-Amant	Update with new hourly generation
 // 03/03/2017   3.1.4   Rémi Saint-Amant	Add defoliation parameter
 // 28/02/2017   3.1.3   Rémi Saint-Amant	Bug correction in Fertil mode

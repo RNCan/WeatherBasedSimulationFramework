@@ -27,7 +27,7 @@ namespace WBSF
 
 		//virtual ERMsg OnExecuteAnnual();
 		//virtual ERMsg OnExecuteMonthly();
-		//virtual ERMsg OnExecuteDaily();
+		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg OnExecuteHourly();
 
 		virtual void AddHourlyResult(const StringVector& header, const StringVector& data);

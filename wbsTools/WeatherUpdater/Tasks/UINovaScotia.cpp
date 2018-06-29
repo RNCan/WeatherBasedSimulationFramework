@@ -164,7 +164,7 @@ namespace WBSF
 				string filter = "/hydromanitoba/NSWeather/" + ToString(year) + "/*.CSV";
 
 				CFileInfoVector fileList;
-				msg = FindFiles(pConnection, filter, fileList, callback);
+				msg = FindFiles(pConnection, filter, fileList, false, callback);
 				
 
 				for (size_t i = 0; i < fileList.size(); i++)
@@ -285,7 +285,7 @@ namespace WBSF
 			string path = "/hydromanitoba/NSWeather/NS_Wx_Stations_List.csv";
 
 			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, callback);
+			msg = FindFiles(pConnection, path, fileList, false, callback);
 
 			if (msg)
 			{

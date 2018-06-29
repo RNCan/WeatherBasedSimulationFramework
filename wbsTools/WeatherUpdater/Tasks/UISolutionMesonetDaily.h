@@ -44,9 +44,11 @@ namespace WBSF
 		std::string GetStationListFilePath()const;
 
 		ERMsg LoadStationList(CCallback& callback);
-		ERMsg UpdateStationList(CCallback& callback);
+		ERMsg UpdateStationList(CCallback& callback)const;
 		//ERMsg ReadData(const std::string& filePath, CTM TM, CYear& data, CCallback& callback)const;
 
+		ERMsg GetDirList(CFileInfoVector & dirList, CCallback& callback);
+		ERMsg GetFileList(const CFileInfoVector & dirList, CFileInfoVector & fileList, CCallback& callback);
 
 		CLocationMap m_stations;
 

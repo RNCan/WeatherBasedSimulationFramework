@@ -137,7 +137,7 @@ namespace WBSF
 				string filter = "/hydromanitoba/NLWeather/" + ToString(year) + "/NL_WeatherStations_" + ToString(year) + ".zip";
 
 				CFileInfoVector fileList;
-				msg = FindFiles(pConnection, filter, fileList, callback);
+				msg = FindFiles(pConnection, filter, fileList, false, callback);
 				if (fileList.size() == 1)
 				{
 					string fileName = GetFileName(fileList.front().m_filePath);
@@ -258,7 +258,7 @@ namespace WBSF
 			string path = "/hydromanitoba/NLWeather/Station_Metadata.csv";
 
 			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, callback);
+			msg = FindFiles(pConnection, path, fileList, false, callback);
 
 			if (msg)
 			{

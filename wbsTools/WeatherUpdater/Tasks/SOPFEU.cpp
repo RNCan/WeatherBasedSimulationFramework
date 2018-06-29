@@ -119,7 +119,7 @@ namespace WBSF
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 35000);
 
 			
-				msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, callback);
+				msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, false, callback);
 				if (msgTmp)
 				{
 					msg += callback.StepIt();

@@ -132,7 +132,7 @@ namespace WBSF
 			if (msg)
 			{
 				CFileInfoVector fileList;
-				msg = FindFiles(pConnection, remote, fileList, callback);
+				msg = FindFiles(pConnection, remote, fileList, false, callback);
 				if (fileList.size() == 1)
 				{
 					CFileInfo info;
