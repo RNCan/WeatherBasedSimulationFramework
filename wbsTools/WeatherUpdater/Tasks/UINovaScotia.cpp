@@ -248,6 +248,8 @@ namespace WBSF
 		int firstYear = WBSF::as<int>(Get("FirstYear"));
 		int lastYear = WBSF::as<int>(Get("LastYear"));
 		size_t nbYears = lastYear - firstYear + 1;
+
+		station.SetHourly(true);
 		station.CreateYears(firstYear, nbYears);
 
 		//now extract data 
