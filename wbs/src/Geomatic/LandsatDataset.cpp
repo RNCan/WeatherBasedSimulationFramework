@@ -518,12 +518,17 @@ namespace WBSF
 				{
 					zen::XmlElement& source = node.addChild("ComplexSource");
 
-					string name = GetFileName(GetInternalName(iz*SCENES_SIZE + b));
-
+					//string name = GetFileName(GetInternalName(iz*SCENES_SIZE + b));
+					
+					string file_path = GetInternalName(iz*SCENES_SIZE + b);
+					string rel_file_path = WBSF::GetRelativePath(GetPath(filePath), file_path);
+					
 					zen::XmlElement& sourceFilename = source.addChild("SourceFilename");
-					sourceFilename.setAttribute("relativeToVRT", "1");
-					//sourceFilename.setAttribute("shared", "0");
-					sourceFilename.setValue(name);
+					sourceFilename.setAttribute("relativeToVRT", rel_file_path.empty() ? "0" : "1");
+					sourceFilename.setValue(rel_file_path.empty() ? file_path : rel_file_path);
+
+					//sourceFilename.setAttribute("relativeToVRT", "1");
+					//sourceFilename.setValue(name);
 
 					int         nBlockXSize, nBlockYSize;
 					GetRasterBand(iz*SCENES_SIZE + b)->GetBlockSize(&nBlockXSize, &nBlockYSize);
@@ -874,18 +879,59 @@ namespace WBSF
 
 	double CLandsatPixel::GetCloudRatio()const
 	{
-		return at(B6) != 0 ? (double)at(B1) / at(B6) : -FLT_MAX;
+		return (double)at(B1) / max(0.1, (double)at(B6)) ;
 	}
 
-	Color8 CLandsatPixel::R()const{ return Color8(max(0.0, min(254.0, ((at(B4) + 150.0) / 6150.0) * 254.0))); }
-	Color8 CLandsatPixel::G()const{ return Color8(max(0.0, min(254.0, ((at(B5) + 190.0) / 5190.0) * 254.0))); }
-	Color8 CLandsatPixel::B()const{ return Color8(max(0.0, min(254.0, ((at(B3) + 200.0) / 2700.0) * 254.0))); }
+	Color8 CLandsatPixel::R(CBaseOptions::TRGBTye type)const
+	{ 
+		Color8 pix_val = 255;
+		switch (type)
+		{
+		case CBaseOptions::NO_RGB: break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 90.0) / (1000.0 - 90.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) + 150.0) / 6150.0) * 254.0))); break;
+		default: ASSERT(false);
+		}
 
-	double CLandsatPixel::GetEuclideanDistance(const CLandsatPixel& pixel, bool normalized)const
+		return pix_val;
+	}
+
+	Color8 CLandsatPixel::G(CBaseOptions::TRGBTye type)const
+	{ 
+		Color8 pix_val = 255;
+		switch (type)
+		{
+		case CBaseOptions::NO_RGB: break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) - 170.0) / (1050.0 - 170.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B5) + 190.0) / 5190.0) * 254.0))); break;
+		default: ASSERT(false);
+		}
+
+		return pix_val;
+
+		
+	}
+	Color8 CLandsatPixel::B(CBaseOptions::TRGBTye type)const
+	{ 
+		Color8 pix_val = 255;
+		switch (type)
+		{
+		case CBaseOptions::NO_RGB: break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) - 130.0) / (780.0 - 130.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) + 200.0) / 2700.0) * 254.0))); break;
+		default: ASSERT(false);
+		}
+
+		return pix_val;
+
+		
+	}
+
+	double CLandsatPixel::GetEuclideanDistance(const CLandsatPixel& pixel, CBaseOptions::TRGBTye type)const
 	{
-		double r = normalized ? R() - pixel.R() : at(B4) - pixel[B4];
-		double g = normalized ? G() - pixel.G() : at(B5) - pixel[B5];
-		double b = normalized ? B() - pixel.B() : at(B3) - pixel[B3];
+		double r = type != CBaseOptions::NO_RGB ? R(type) - pixel.R(type) : at(B4) - pixel[B4];
+		double g = type != CBaseOptions::NO_RGB ? G(type) - pixel.G(type) : at(B5) - pixel[B5];
+		double b = type != CBaseOptions::NO_RGB ? B(type) - pixel.B(type) : at(B3) - pixel[B3];
 
 		return sqrt(r*r + g*g + b*b);
 	}

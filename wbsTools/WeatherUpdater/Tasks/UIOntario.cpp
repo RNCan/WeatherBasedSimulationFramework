@@ -231,7 +231,7 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 5)
 				{
-					msg += Wait30Seconds(callback);
+					msg += WaitServer(10, callback);
 				}
 			}
 		}

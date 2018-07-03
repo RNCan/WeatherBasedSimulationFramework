@@ -239,7 +239,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg = Wait30Seconds(callback);
+						msg = WaitServer(10, callback);
 					}
 					else
 					{
@@ -712,7 +712,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg += Wait30Seconds(callback);
+						msg += WaitServer(10, callback);
 					}
 					else
 					{
@@ -1532,7 +1532,7 @@ namespace WBSF
 							if (nbTry < 5)
 							{
 								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								msg += Wait30Seconds(callback);
+								msg += WaitServer(10, callback);
 							}
 							else
 							{
@@ -1601,7 +1601,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							msg += Wait30Seconds(callback);
+							msg += WaitServer(10, callback);
 						}
 						else
 						{
@@ -1707,7 +1707,7 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 		callback.PushTask("Download of SWOB-ML (" + ToString(fileList.size()) + " stations)", fileList.size());
-		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()) + " (nb days stations = " + ToString(nbDayStation) + ")");
+		callback.AddMessage("Number of SWOB-ML stations to download: " + ToString(fileList.size()) + " (nb hours stations = " + ToString(nbDayStation) + ")");
 
 		map<string, CTRef> lastUpdate;
 		int nbDownload = 0;
@@ -1783,7 +1783,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							msg += Wait30Seconds(callback);
+							msg += WaitServer(10, callback);
 						}
 						else
 						{

@@ -900,11 +900,11 @@ namespace UtilWWW
 		return IsFileUpToDate(pConnection, UtilWin::Convert(URL), UtilWin::Convert(localFilePath), bLookFileSize, bLookFileTime);
 	}
 
-	ERMsg Wait30Seconds(WBSF::CCallback& callback)
+	ERMsg WaitServer(size_t nbSec, WBSF::CCallback& callback)
 	{
 		ERMsg msg;
-		callback.PushTask(GetString(IDS_BSC_WAIT_30_SECONDS), 600);
-		for (size_t i = 0; i < 600 && msg; i++)
+		callback.PushTask(FormatMsg(IDS_BSC_WAIT_30_SECONDS, std::to_string(nbSec) ), nbSec*20);
+		for (size_t i = 0; i < nbSec * 20 && msg; i++)
 		{
 			Sleep(50);//wait 50 milisec
 			msg += callback.StepIt();

@@ -134,7 +134,7 @@ namespace WBSF
 							if (m_stations.find(fileTitle) == m_stations.end())
 								callback.AddMessage("data file without metadata : " + fileTitle);
 
-							msg = UtilWWW::CopyFile(pConnection, stationPage.c_str(), filePathZip.c_str(), INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+							msg = UtilWWW::CopyFile(pConnection, stationPage.c_str(), filePathZip.c_str(), INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true);
 							if (msg)
 							{
 								ASSERT(FileExists(filePathZip));
@@ -163,13 +163,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							callback.PushTask("Waiting 2 seconds for server...", 40);
-							for (size_t i = 0; i < 40 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
+							WaitServer(5, callback);
 
 						}
 						else
@@ -256,13 +250,14 @@ namespace WBSF
 					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						callback.PushTask("Waiting 2 seconds for server...", 40);
-						for (size_t i = 0; i < 40 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
+						WaitServer(5, callback);
+						//callback.PushTask("Waiting 2 seconds for server...", 40);
+						//for (size_t i = 0; i < 40 && msg; i++)
+						//{
+						//	Sleep(50);//wait 50 milisec
+						//	msg += callback.StepIt();
+						//}
+						//callback.PopTask();
 
 					}
 					else
@@ -360,13 +355,14 @@ namespace WBSF
 					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						callback.PushTask("Waiting 2 seconds for server...", 40);
-						for (size_t i = 0; i < 40 && msg; i++)
-						{
-							Sleep(50);//wait 50 milisec
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
+						WaitServer(5, callback);
+						//callback.PushTask("Waiting 2 seconds for server...", 40);
+						//for (size_t i = 0; i < 40 && msg; i++)
+						//{
+						//	Sleep(50);//wait 50 milisec
+						//	msg += callback.StepIt();
+						//}
+						//callback.PopTask();
 
 					}
 					else
@@ -421,34 +417,63 @@ namespace WBSF
 				}
 				else
 				{
-					CreateMultipleDir(GetPath(localFilePath));
-					msg = UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str());
-					if (msg)
+					try
 					{
+						CreateMultipleDir(GetPath(localFilePath));
+						msg = UtilWWW::CopyFile(pConnection, FTPFilePath.c_str(), localFilePath.c_str(), INTERNET_FLAG_EXISTING_CONNECT, true);
+						if(msg)
+							callback.AddMessage("Stations list updated.");
+
+						bEnd = true;
+
+					}
+					catch (CException* e)
+					{
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							WaitServer(5, callback);
+							//callback.PushTask("Waiting 2 seconds for server...", 40);
+							//for (size_t i = 0; i < 40 && msg; i++)
+							//{
+							//	Sleep(50);//wait 50 milisec
+							//	msg += callback.StepIt();
+							//}
+							//callback.PopTask();
+
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					
+					//if (msg)
+					//{
 						//update time stamp to the zip file
 
 						/*boost::filesystem::path p(localFilePath);
 						ASSERT(boost::filesystem::exists(p));
 						boost::filesystem::last_write_time(p, FTPFilePath.m_time);
 */
-						callback.AddMessage("Stations list updated.");
-						bEnd = true;
-					}
-					else
-					{
-						if (nbTry < 5 && !callback.GetUserCancel())
-						{
-							callback.AddMessage(msg);
-							msg = ERMsg();
-							callback.PushTask("Waiting 2 seconds for server...", 40);
-							for (size_t i = 0; i < 40 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
+						//callback.AddMessage("Stations list updated.");
+						//bEnd = true;
+					//}
+					//else
+					//{
+						//if (nbTry < 5 && !callback.GetUserCancel())
+						//{
+						//	callback.AddMessage(msg);
+						//	msg = ERMsg();
+						//	WaitServer(5, callback);
+						//	//callback.PushTask("Waiting 2 seconds for server...", 40);
+						//	//for (size_t i = 0; i < 40 && msg; i++)
+						//	//{
+						//	//	Sleep(50);//wait 50 milisec
+						//	//	msg += callback.StepIt();
+						//	//}
+						//	//callback.PopTask();
 
-						}
+						//}
 					}
 				}
 

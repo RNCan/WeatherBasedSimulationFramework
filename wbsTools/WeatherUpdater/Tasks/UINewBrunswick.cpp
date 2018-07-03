@@ -62,7 +62,7 @@ namespace WBSF
 
 
 
-	size_t GetColumn(const string& header)
+	static size_t GetNBColumn(const string& header)
 	{
 		size_t c = NOT_INIT;
 		for (size_t i = 0; i < NB_COLUMNS&&c == NOT_INIT; i++)
@@ -74,19 +74,19 @@ namespace WBSF
 		return c;
 	}
 
-	vector<size_t> GetColumns(const StringVector& header)
+	static vector<size_t> GetNBColumns(const StringVector& header)
 	{
 		vector<size_t> columns(header.size());
 
 
 		for (size_t c = 0; c < header.size(); c++)
-			columns[c] = GetColumn(header[c]);
+			columns[c] = GetNBColumn(header[c]);
 
 		return columns;
 	}
 
 
-	static size_t GetVariable(bool bHourly, size_t type)
+	static size_t GetNBVariable(bool bHourly, size_t type)
 	{
 		size_t v = NOT_INIT;
 
@@ -120,13 +120,13 @@ namespace WBSF
 		return v;
 	}
 
-	static vector<size_t>  GetVariables(bool bHourly, const vector<size_t>& columns)
+	static vector<size_t>  GetNBVariables(bool bHourly, const vector<size_t>& columns)
 	{
 		vector<size_t> vars(columns.size());
 
 
 		for (size_t c = 0; c < columns.size(); c++)
-			vars[c] = GetVariable(bHourly, columns[c]);
+			vars[c] = GetNBVariable(bHourly, columns[c]);
 
 		return vars;
 	}
@@ -1081,9 +1081,9 @@ namespace WBSF
 				if (variables.empty())
 				{
 					StringVector head = loop.Header();
-					vector<size_t> columns = GetColumns(head);
+					vector<size_t> columns = GetNBColumns(head);
 
-					variables = GetVariables(bHourly, columns);
+					variables = GetNBVariables(bHourly, columns);
 				}
 
 				ASSERT(loop->size() <= variables.size());
@@ -1157,7 +1157,7 @@ namespace WBSF
 	static const char* COLUMN_NAME_FH[CH_NB_COLUMNS] = { "Name", "Filename", "Date", "Julian", "Time", "Temp", "RH", "Dir", "Wspd", "Mx_Spd", "Rn_1", "Rn24", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR" };
 	static const TVarH VARS[CH_NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_WND2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
 
-	size_t GetColumnFH(const string& header)
+	static size_t GetColumnFH(const string& header)
 	{
 		size_t c = NOT_INIT;
 		for (size_t i = 0; i < CH_NB_COLUMNS&&c == NOT_INIT; i++)
@@ -1169,7 +1169,7 @@ namespace WBSF
 		return c;
 	}
 
-	vector<size_t> GetColumnsFH(const StringVector& header)
+	static vector<size_t> GetColumnsFH(const StringVector& header)
 	{
 		vector<size_t> columns(header.size());
 

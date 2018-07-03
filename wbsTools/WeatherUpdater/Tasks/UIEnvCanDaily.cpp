@@ -214,7 +214,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg = Wait30Seconds(callback);
+						msg = WaitServer(10, callback);
 					}
 					else
 					{
@@ -714,7 +714,7 @@ namespace WBSF
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg = Wait30Seconds(callback);
+						msg = WaitServer(10, callback);
 					}
 					else
 					{

@@ -387,7 +387,7 @@ namespace WBSF
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
 						
-						//msg = Wait30Seconds(callback);
+						//msg = WaitServer(10, callback);
 						//wait 5 seconds 
 						callback.PushTask("Wait 5 seconds...", 50);
 						for (size_t s = 0; s < 50 && msg; s++)

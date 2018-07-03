@@ -199,7 +199,7 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					msg += Wait30Seconds(callback);
+					msg += WaitServer(10, callback);
 				}
 			}
 		}
@@ -504,7 +504,7 @@ namespace WBSF
 			{
 				if (nbRun > 1 && nbRun < 20)
 				{
-					msg += Wait30Seconds(callback);
+					msg += WaitServer(10, callback);
 				}
 			}
 		}

@@ -64,7 +64,7 @@ namespace WBSF
 		bool IsBlack()const{ return (at(Landsat::B4) == 0 && at(Landsat::B5) == 0 && at(Landsat::B3) == 0); }
 
 		double GetCloudRatio()const;
-		double GetEuclideanDistance(const CLandsatPixel& pixel, bool normalized = false)const;
+		double GetEuclideanDistance(const CLandsatPixel& pixel, CBaseOptions::TRGBTye type = CBaseOptions::NO_RGB)const;
 		double NBR()const;
 		double NDVI()const;
 		double NDMI()const;
@@ -79,9 +79,9 @@ namespace WBSF
 		double SR() const;
 		double CL()const;
 		double HZ()const;
-		Color8 R()const;
-		Color8 G()const;
-		Color8 B()const;
+		Color8 R(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
+		Color8 G(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
+		Color8 B(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
 
 		void correction8to7(Landsat::TCorr8 type);
 

@@ -43,7 +43,7 @@ namespace UtilWWW
 	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList);
 	ERMsg FindDirectories(CFtpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList);
 	void ConvertString2FindFileInfo(CFtpConnectionPtr& pConnect, const CStringArray& fileListIn, WBSF::CFileInfoVector& fileListOut, BOOL bThrow = FALSE, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
-	ERMsg Wait30Seconds(WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
+	ERMsg WaitServer(size_t nbSecond, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 
 
 
