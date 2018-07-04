@@ -39,23 +39,23 @@ namespace WBSF
 
 	protected:
 
-		std::string GetStationListFilePath()const;
-		std::string GetMissingFilePath()const;
+		//std::string GetStationListFilePath()const;
+		//std::string GetMissingFilePath()const;
 
-		ERMsg LoadStationList(CCallback& callback);
-		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		//ERMsg LoadStationList(CCallback& callback);
+		//ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
+		//ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 
 		CLocationMap m_stations;
 
 
 		std::string GetHistoryFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(LIST_PATH)) + "isd-history.txt"; }
 
-		ERMsg UpdateStationHistory();
+		ERMsg UpdateStationHistory(CCallback& callback);
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
-		ERMsg UpdateOptimisationDataFile(const std::string& workingDir, CCallback& callback = DEFAULT_CALLBACK)const;
+		//ERMsg UpdateOptimisationDataFile(const std::string& workingDir, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOptFilePath(const std::string& filePath)const;
 
 		ERMsg LoadOptimisation();

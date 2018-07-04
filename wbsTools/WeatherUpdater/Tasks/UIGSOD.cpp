@@ -84,14 +84,14 @@ namespace WBSF
 	//****************************************************
 
 
-	ERMsg CUIGSOD::UpdateStationHistory()
+	ERMsg CUIGSOD::UpdateStationHistory(CCallback& callback)
 	{
 		ERMsg msg;
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
 			string path = GetHistoryFilePath(false);
@@ -148,7 +148,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 55000);
@@ -287,7 +287,7 @@ namespace WBSF
 
 		//leand station list
 		CFileInfoVector fileList;
-		msg = UpdateStationHistory();
+		msg = UpdateStationHistory(callback);
 
 		if (msg)
 			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);

@@ -311,7 +311,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			msg = GetFtpConnection(SERVER_NAME[source], pConnection, pSession);
+			msg = GetFtpConnection(SERVER_NAME[source], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			msg += callback.StepIt();
 			if (msg)
 			{

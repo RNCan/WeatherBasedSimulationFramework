@@ -112,7 +112,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CFtpConnectionPtr pConnection;
 
-				msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+				msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 				if (msg)
 				{
 					try
@@ -163,7 +163,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							WaitServer(5, callback);
+							msg = WaitServer(5, callback);
 
 						}
 						else
@@ -204,7 +204,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 
 			if (msg)
 			{
@@ -250,15 +250,7 @@ namespace WBSF
 					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						WaitServer(5, callback);
-						//callback.PushTask("Waiting 2 seconds for server...", 40);
-						//for (size_t i = 0; i < 40 && msg; i++)
-						//{
-						//	Sleep(50);//wait 50 milisec
-						//	msg += callback.StepIt();
-						//}
-						//callback.PopTask();
-
+						msg = WaitServer(5, callback);
 					}
 					else
 					{
@@ -294,7 +286,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 
 			if (msg)
 			{
@@ -355,15 +347,7 @@ namespace WBSF
 					if (nbTry < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						WaitServer(5, callback);
-						//callback.PushTask("Waiting 2 seconds for server...", 40);
-						//for (size_t i = 0; i < 40 && msg; i++)
-						//{
-						//	Sleep(50);//wait 50 milisec
-						//	msg += callback.StepIt();
-						//}
-						//callback.PopTask();
-
+						msg = WaitServer(5, callback);
 					}
 					else
 					{
@@ -404,7 +388,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 
 			if (msg)
 			{
@@ -432,15 +416,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							WaitServer(5, callback);
-							//callback.PushTask("Waiting 2 seconds for server...", 40);
-							//for (size_t i = 0; i < 40 && msg; i++)
-							//{
-							//	Sleep(50);//wait 50 milisec
-							//	msg += callback.StepIt();
-							//}
-							//callback.PopTask();
-
+							msg = WaitServer(5, callback);
 						}
 						else
 						{

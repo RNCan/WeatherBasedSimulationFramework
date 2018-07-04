@@ -777,92 +777,123 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password, bool bHttps)
-	{
-		ERMsg msg;
-
-		try
-		{
-
-			pSession.reset(new CInternetSession(NULL, 1, flags));
-			INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
-			pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
-			ASSERT(pConnection.get());
-
-			//if (!pConnection.get())
-			//{
-				//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
-			//}
-			//else
-			//{
-			//	//msg.asgType(ERMsg::ERREUR);
-			//	pSession.reset();
-			//	CInternetException e(GetLastError());
-			//	msg = UtilWin::SYGetMessage(e);
-			//}
-		}
-		catch (CException* e)
-		{
-			//pSession->Close();
-			pSession.reset();
-
-			CString error;
-			e->GetErrorMessage(error.GetBufferSetLength(255), 255);
-			msg.ajoute(CStringA(error));
-		}
-
-
-		return msg;
-	}
-
-	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bPassif)
+	ERMsg GetHttpConnection(const CString& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const CString& userName, const CString& password, bool bHttps, size_t maxTry, WBSF::CCallback& callback)
 	{
 		ERMsg msg;
 
 		pConnection.reset();
 		pSession.reset();
 
-
-		pSession.reset(new CInternetSession(NULL, 1, flags));
-
-		try
+		size_t nbTry = 0;
+		while (!pConnection.get() && msg)
 		{
-			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 120000);
-			//pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
-			pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
-			pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
-			pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
-			pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
-			pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
+			nbTry++;
+			try
+			{
 
-			pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
-			ASSERT(pConnection.get());
+				pSession.reset(new CInternetSession(NULL, 1, flags));
+				INTERNET_PORT nPort = bHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT;
+				pConnection.reset(pSession->GetHttpConnection(serverName, nPort, userName, password));
+				ASSERT(pConnection.get());
 
+				//if (!pConnection.get())
+				//{
+					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
+				//}
+				//else
+				//{
+				//	//msg.asgType(ERMsg::ERREUR);
+				//	pSession.reset();
+				//	CInternetException e(GetLastError());
+				//	msg = UtilWin::SYGetMessage(e);
+				//}
+			}
+			catch (CException* e)
+			{
+				//pSession->Close();
+				pSession.reset();
+				pConnection.reset();
+
+				//CString error;
+				//e->GetErrorMessage(error.GetBufferSetLength(255), 255);
+				//msg.ajoute(CStringA(error));
+				if (nbTry < maxTry)
+				{
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					msg = WaitServer(5, callback);
+				}
+				else
+				{
+					msg = UtilWin::SYGetMessage(*e);
+				}
+				
+			}
 		}
-		catch (CException* e)
+
+		return msg;
+	}
+
+	ERMsg GetFtpConnection(const CString& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bPassif, size_t maxTry, WBSF::CCallback& callback)
+	{
+		ERMsg msg;
+
+		pConnection.reset();
+		pSession.reset();
+		size_t nbTry = 0;
+
+		while (!pConnection.get() && msg)
 		{
-			//pSession->Close();
-			pSession.reset();
+			nbTry++;
 
-			CString error;
-			e->GetErrorMessage(error.GetBufferSetLength(255), 255);
-			msg.ajoute(CStringA(error));
+			try
+			{
+				pSession.reset(new CInternetSession(NULL, 1, flags));
+				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 120000);
+				pSession->SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 10000);
+				pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 120000);
+				pSession->SetOption(INTERNET_OPTION_KEEP_CONNECTION, INTERNET_KEEP_ALIVE_ENABLED);
+				pSession->SetOption(INTERNET_OPTION_RESET_URLCACHE_SESSION, 0);
+				pSession->SetOption(INTERNET_OPTION_SETTINGS_CHANGED, 0);
+				pSession->SetOption(INTERNET_OPTION_REFRESH, 0);
+
+				pConnection.reset(pSession->GetFtpConnection(serverName, userName, password, INTERNET_DEFAULT_FTP_PORT, bPassif));
+				ASSERT(pConnection.get());
+
+			}
+			catch (CException* e)
+			{
+				//pSession->Close();
+				pSession.reset();
+				pConnection.reset();
+
+		//		CString error;
+			//	e->GetErrorMessage(error.GetBufferSetLength(255), 255);
+				//msg.ajoute(CStringA(error));
+				if (nbTry < maxTry)
+				{
+					callback.AddMessage(UtilWin::SYGetMessage(*e));
+					msg = WaitServer(5, callback);
+				}
+				else
+				{
+					msg = UtilWin::SYGetMessage(*e);
+				}
+			}
 		}
-
 
 		return msg;
 	}
 
 
 
-	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, bool bHttps)
+	ERMsg GetHttpConnection(const std::string& serverName, CHttpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, bool bHttps, size_t maxTry, WBSF::CCallback& callback)
 	{
-		return GetHttpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bHttps);
+		return GetHttpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bHttps, maxTry, callback);
 	}
 
-	ERMsg GetFtpConnection(const std::string& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, BOOL bPassif)
+	ERMsg GetFtpConnection(const std::string& serverName, CFtpConnectionPtr& pConnection, CInternetSessionPtr& pSession, DWORD flags, const std::string& userName, const std::string& password, BOOL bPassif, size_t maxTry, WBSF::CCallback& callback)
 	{
-		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif);
+		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif, maxTry, callback);
 	}
 	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password, BOOL bThrow, WBSF::CCallback& callback)
 	{

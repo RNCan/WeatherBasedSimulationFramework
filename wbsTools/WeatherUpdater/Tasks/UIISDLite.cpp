@@ -89,14 +89,14 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIISDLite::UpdateStationHistory()
+	ERMsg CUIISDLite::UpdateStationHistory(CCallback& callback)
 	{
 		ERMsg msg;
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
 			
@@ -146,7 +146,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			if (msgTmp)
 			{
 				
@@ -400,7 +400,7 @@ namespace WBSF
 
 		//load station list
 		CFileInfoVector fileList;
-		msg = UpdateStationHistory();
+		msg = UpdateStationHistory(callback);
 
 		if (msg)
 			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
@@ -426,7 +426,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@hotmail.com", true, 5, callback);
 			if (msgTmp)
 			{
 

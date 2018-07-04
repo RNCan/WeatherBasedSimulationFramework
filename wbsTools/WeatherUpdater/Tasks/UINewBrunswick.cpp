@@ -183,7 +183,7 @@ namespace WBSF
 			string str;
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
-			msg = GetFtpConnection(SERVER_NAME[n], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+			msg = GetFtpConnection(SERVER_NAME[n], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 			if (msg)
 			{
 
@@ -728,7 +728,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
+		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 		if (msg)
 		{
 			for (size_t i = 0; i < fileList.size() && msg; i++)

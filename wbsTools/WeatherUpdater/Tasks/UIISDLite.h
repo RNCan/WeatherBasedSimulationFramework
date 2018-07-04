@@ -62,7 +62,7 @@ namespace WBSF
 		void GetStationInformation(const std::string& fileTitle, CLocation& station)const;
 
 
-		ERMsg UpdateStationHistory();
+		ERMsg UpdateStationHistory(CCallback& callback);
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback)const;
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback)const;
 
@@ -70,8 +70,8 @@ namespace WBSF
 
 
 		//Database Creation part
-		void GetStationHeader(const std::string& stationName, CLocation& station);
-		ERMsg LoadStationList();
+		//void GetStationHeader(const std::string& stationName, CLocation& station);
+		//ERMsg LoadStationList();
 		
 		static CTRef GetTRef(const FieldArray& e);
 		static bool LoadFields(const std::string& line, FieldArray& e);

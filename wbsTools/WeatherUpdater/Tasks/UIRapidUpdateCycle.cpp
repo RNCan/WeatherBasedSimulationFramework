@@ -610,7 +610,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession);
+		msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
 			if (s == S_NOMADS)

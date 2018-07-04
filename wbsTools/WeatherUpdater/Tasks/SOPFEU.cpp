@@ -101,47 +101,52 @@ namespace WBSF
 		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), 1);
 		//callback.SetNbStep(nbYears);
 		bool bLoaded = false;
-		int nbRun = 0;
+		size_t nbTry = 0;
 
 		CFileInfoVector dirList;
-		while (!bLoaded && nbRun < 20 && msg)
+		while (!bLoaded && msg)
 		{
-			nbRun++;
+			nbTry++;
 
 			//open a connection on the server
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
 			
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, m_userName, m_password);
-			if (msgTmp)
+			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, m_userName, m_password, true, 5, callback);
+			if (msg)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 35000);
 
 			
-				msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, false, callback);
-				if (msgTmp)
+				try
 				{
-					msg += callback.StepIt();
-					bLoaded = true;
-					nbRun = 0;
+					msg = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, true, callback);
+					if (msg)
+					{
+						msg += callback.StepIt();
+						bLoaded = true;
+						nbTry = 0;
+					}
 				}
-			
+				catch (CException* e)
+				{
+					//if an error occur: try again
+					if (nbTry < 5)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						msg = WaitServer(5, callback);
+
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
 
 				pConnection->Close();
 				pSession->Close();
 
-
-				if (!msgTmp)
-					callback.AddMessage(msgTmp);
-			}
-			else
-			{
-				callback.AddMessage(msgTmp);
-				if (nbRun > 1 && nbRun < 20)
-				{
-					msg = WaitServer(10, callback);
-				}
 			}
 		}
 
@@ -231,24 +236,24 @@ namespace WBSF
 
 			callback.PushTask(GetString(IDS_UPDATE_FILE), fileList.size());
 
-			int nbRun = 0;
+			size_t nbTry = 0;
 			size_t curI = 0;
 
-			while (curI < fileList.size() && nbRun < 20 && msg)
+			while (curI < fileList.size() && msg)
 			{
-				nbRun++;
+				nbTry++;
 
 				CInternetSessionPtr pSession;
 				CFtpConnectionPtr pConnection;
 
-				ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, m_userName, m_password);
-				if (msgTmp)
+				msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, m_userName, m_password, true, 5, callback);
+				if (msg)
 				{
-					TRY
+					try
 					{
-						for (size_t i = curI; i < fileList.size() && msgTmp && msg; i++)
+						while (curI< fileList.size() && msg)
 						{
-							string fileTitle = GetFileTitle(fileList[i].m_filePath);
+							string fileTitle = GetFileTitle(fileList[curI].m_filePath);
 
 							//string stationID = fileTitle.substr(0, 12);
 							CTRef TRef = GetTRef(fileTitle);
@@ -256,36 +261,37 @@ namespace WBSF
 							string outputFilePath = GetOutputFilePath(TRef);
 							CreateMultipleDir(GetPath(outputFilePath));
 
-							msgTmp += CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+							msg += CopyFile(pConnection, fileList[curI].m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true);
 							
-							if (msgTmp)
+							if (msg)
 							{
 								msg += callback.StepIt();
 								curI++;
-								nbRun = 0;
+								nbTry = 0;
 							}
 						}
 					}
-					CATCH_ALL(e)
+					catch(CException* e)
 					{
-						msgTmp = UtilWin::SYGetMessage(*e);
+						//if an error occur: try again
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							msg = WaitServer(5, callback);
+
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
 					}
-					END_CATCH_ALL
+					
 
 					//clean connection
 					pConnection->Close();
 					pSession->Close();
-
-					if (!msgTmp)
-						callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(curI), ToString(fileList.size())));
 				}
-				else
-				{
-					if (nbRun > 1 && nbRun < 20)
-					{
-						msg = WaitServer(10, callback);
-					}
-				}
+				
 			}
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI));

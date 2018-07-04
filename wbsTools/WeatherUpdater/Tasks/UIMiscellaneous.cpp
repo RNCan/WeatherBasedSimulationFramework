@@ -142,7 +142,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			msg = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			msg = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 1);
 			if (msg)
 			{
 
@@ -243,7 +243,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			ERMsg msgTmp = GetFtpConnection(SERVER_NAME[dataset], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			if (msgTmp)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 55000);

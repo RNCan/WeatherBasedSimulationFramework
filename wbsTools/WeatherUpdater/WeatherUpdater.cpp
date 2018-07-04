@@ -1,4 +1,5 @@
-//5.6.0 28/06/2018	Rémi Saint-Amant	Solve problem with Nova Scotia data
+//5.6.1 04/07/2018	Rémi Saint-Amant	Multiple try in connection
+//5.6.0 03/07/2018	Rémi Saint-Amant	Solve problem with Nova Scotia data
 //5.5.9 28/06/2018	Rémi Saint-Amant	Solve problem with Solution-Mesonet deconnection
 //										Add bThrow in UtilWWW
 //5.5.8 21/06/2018	Rémi Saint-Amant	Problem with HRDPS

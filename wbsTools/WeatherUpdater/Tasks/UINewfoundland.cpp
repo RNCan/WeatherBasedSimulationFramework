@@ -124,7 +124,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 		if (msg)
 		{
 			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
@@ -251,7 +251,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 		
 		if (msg)
 		{

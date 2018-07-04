@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.3	29/06/2018 Rémi Saint-Amant		Add -Virtual
 // 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.1	15/11/2017	Rémi Saint-Amant	remove multi-thread : bad performance
 // 1.1.0	02/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
@@ -11,6 +12,7 @@
 
 //-blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test2\Output\Test.vrt"
 //-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\LandsatWarp\Test0\output\Test.vrt"
+//-stats -Virtual -NoResult -Scenes 3 4 -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -overwrite "D:\Travaux\CloudCleaner\Input\34 ans\Te1.vrt" "D:\Travaux\CloudCleaner\Output\34 ans\Te1.vrt2"
 
 #include "stdafx.h"
 #include <float.h>
@@ -32,7 +34,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CLandsat2RGB::VERSION = "1.1.2";
+	const char* CLandsat2RGB::VERSION = "1.1.3";
 	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
@@ -40,17 +42,20 @@ namespace WBSF
 
 	CLandsat2RGBOption::CLandsat2RGBOption()
 	{
+		m_type = NATURAL;
 		m_outputType = GDT_Byte;
 		m_scenesSize = SCENES_SIZE;
-		m_scene = 0;
+		m_scenes = { { NOT_INIT, NOT_INIT } };
 		m_dstNodata = 255;
 		m_bust = { { 0, 255 } };
 		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image.";
 
 		static const COptionDef OPTIONS[] =
 		{
+			{ "-RGB", 1, "t", false, "RGB Type. Type can be Natural or LandWater. NATURAL by default." },
 			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
-			{ "-Scene", 1, "no", false, "Select a scene (1..nbScenes). The first scene is select by default." },
+			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
+			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file based on input files. Combine with -NoResult, this avoid to create new files. " },
 			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0 and 255 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -58,10 +63,10 @@ namespace WBSF
 
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
-		
+
 		RemoveOption("-ot");
 		RemoveOption("-CPU");//no multi thread in inner loop
-		
+
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Image", "srcfile", "", "ScenesSize(9)*nbScenes", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B6: Landsat band 6|B7: Landsat band 7|QA: Image quality|Date: date of image(Julian day 1970 or YYYYMMDD format)|... for all scenes", "" },
@@ -85,6 +90,8 @@ namespace WBSF
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
 
+		m_outputType = GDT_Byte;
+
 		return msg;
 	}
 
@@ -92,21 +99,38 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (IsEqual(argv[i], "-Scene"))
+		if (IsEqual(argv[i], "-RGB"))
 		{
-			m_scene = ToInt(argv[++i])-1;
+			string str = argv[++i];
+
+			if (IsEqualNoCase(str, RGB_NAME[NATURAL]))
+				m_type = NATURAL;
+			else if (IsEqualNoCase(str, RGB_NAME[LANDWATER]))
+				m_type = LANDWATER;
+			else
+				msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\" or \"LandWater\"");
+
+		}
+		else if (IsEqual(argv[i], "-Scenes"))
+		{
+			m_scenes[0] = atoi(argv[++i]) - 1;
+			m_scenes[1] = atoi(argv[++i]) - 1;
 		}
 		else if (IsEqual(argv[i], "-Bust"))
 		{
 			m_bust[0] = ToInt(argv[++i]);
 			m_bust[1] = ToInt(argv[++i]);
 		}
+		else if (IsEqual(argv[i], "-Virtual"))
+		{
+			m_bVirtual = true;
+		}
 		else
 		{
 			//Look to see if it's a know base option
 			msg = CBaseOptions::ProcessOption(i, argc, argv);
 		}
-		
+
 
 		return msg;
 	}
@@ -131,48 +155,59 @@ namespace WBSF
 		CLandsatCloudCleaner cloudsCleaner;
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 		CGDALDatasetEx maskDS;
-		CLandsatDataset outputDS;
-		msg = OpenInput(inputDS, maskDS);
-
-		if (msg)
-			msg = OpenOutput(outputDS);
-
-		if (msg && maskDS.IsOpen())
-			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
-
-		if (msg)
-			msg += bandHolder.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
-
-		if (!msg)
+		vector<CGDALDatasetEx> outputDS;
+		msg = OpenAll(inputDS, maskDS, outputDS);
+		if(!msg)
 			return msg;
 
-
-		CGeoExtents extents = bandHolder.GetExtents();
-		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
-		vector<pair<int, int>> XYindex = extents.GetBlockList(5,5);
-
-		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
+		if (m_options.m_bCreateImage)
 		{
-			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B)" << endl;
+			if (msg && maskDS.IsOpen())
+				bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
+
+			if (msg)
+				msg += bandHolder.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
+
+			if (!msg)
+				return msg;
+
+
+			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+			CGeoExtents extents = bandHolder.GetExtents();
+			m_options.ResetBar(nbScenedProcess*extents.m_xSize*extents.m_ySize);
+			vector<pair<int, int>> XYindex = extents.GetBlockList(5, 5);
+
+			/*	if (!m_options.m_bQuiet)
+				{
+					cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B)" << endl;
+				}*/
+
+			omp_set_nested(1);//for IOCPU
+#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+			for (int b = 0; b < (int)XYindex.size(); b++)
+			{
+				int xBlock = XYindex[b].first;
+				int yBlock = XYindex[b].second;
+
+				int thread = ::omp_get_thread_num();
+
+				ReadBlock(xBlock, yBlock, bandHolder[thread]);
+				for (size_t zz = 0; zz < nbScenedProcess; zz++)
+				{
+					size_t z = m_options.m_scenes[0] + zz;
+
+					OutputData outputData;
+					ProcessBlock(xBlock, yBlock, bandHolder[thread], z, outputData);
+					WriteBlock(xBlock, yBlock, bandHolder[thread], outputDS[zz], outputData);
+				}
+			}//for all blocks
+
+
 		}
 
-		omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
-		for (int b = 0; b < (int)XYindex.size(); b++)
-		{
-			int xBlock = XYindex[b].first;
-			int yBlock = XYindex[b].second;
+		if (msg && m_options.m_bVirtual)
+			CreateVirtual(inputDS);
 
-			int thread = ::omp_get_thread_num();
-
-			OutputData outputData;
-
-			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			ProcessBlock(xBlock, yBlock, bandHolder[thread], outputData);
-			WriteBlock(xBlock, yBlock, bandHolder[thread], outputDS, outputData);
-		}//for all blocks
-
-		//outputData.clear(); outputData.shrink_to_fit();
 
 		CloseAll(inputDS, maskDS, outputDS);
 
@@ -181,7 +216,7 @@ namespace WBSF
 
 
 
-	ERMsg CLandsat2RGB::OpenInput(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS)
+	ERMsg CLandsat2RGB::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, vector<CGDALDatasetEx>& outputDS)
 	{
 		ERMsg msg;
 
@@ -199,6 +234,25 @@ namespace WBSF
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
+			if (m_options.m_scenes[0] == NOT_INIT)
+				m_options.m_scenes[0] = 0;
+
+			if (m_options.m_scenes[1] == NOT_INIT)
+				m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
+
+			if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
+				msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
+
+			if (m_options.m_scenes[0] > m_options.m_scenes[1])
+				msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
+
+			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
+
+			//set the period to the period in the scene selection
+			CTPeriod period;
+			for (size_t z = m_options.m_scenes[0]; z <= m_options.m_scenes[1]; z++)
+				period.Inflate(p[z]);
+
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
@@ -208,12 +262,15 @@ namespace WBSF
 			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
 			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
 			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+			cout << "    Working period = " << period.GetFormatedString() << endl;
+
+			m_options.m_period = period;
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
 
-			if (m_options.m_scene >= inputDS.GetNbScenes())
-				msg.ajoute("Scene " + ToString(m_options.m_scene+1) + "must be smaller thant the number of scenes of the input image");
+			//if (m_options.m_scene >= inputDS.GetNbScenes())
+				//msg.ajoute("Scene " + ToString(m_options.m_scene+1) + "must be smaller thant the number of scenes of the input image");
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -224,31 +281,40 @@ namespace WBSF
 			msg += maskDS.OpenInputImage(m_options.m_maskName);
 		}
 
-		return msg;
-	}
-
-	ERMsg CLandsat2RGB::OpenOutput(CGDALDatasetEx& outputDS)
-	{
-		ERMsg msg;
 
 		if (m_options.m_bCreateImage)
 		{
-			CLandsat2RGBOption options(m_options);
-			
-			options.m_nbBands = 3;
-			options.m_outputType = m_options.m_outputType;
+			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+
+			outputDS.resize(nbScenedProcess);
+			//replace the common part by the new name
+			for (size_t zz = 0; zz < nbScenedProcess; zz++)
+			{
+				size_t z = m_options.m_scenes[0] + zz;
+
+				CLandsat2RGBOption options(m_options);
+				string filePath = options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
+				options.m_nbBands = 3;
+				options.m_outputType = GDT_Byte;
+				options.m_format = "GTiff";
+
+				string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
+				filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_RGB.tif";
+
+				msg += outputDS[zz].CreateImage(filePath, options);
+			}
 
 
 			if (!m_options.m_bQuiet)
 			{
 				cout << endl;
 				cout << "Open output images..." << endl;
-				cout << "    Size           = " << options.m_extents.m_xSize << " cols x " << options.m_extents.m_ySize << " rows x " << options.m_nbBands << " bands" << endl;
-				cout << "    Extents        = X:{" << ToString(options.m_extents.m_xMin) << ", " << ToString(options.m_extents.m_xMax) << "}  Y:{" << ToString(options.m_extents.m_yMin) << ", " << ToString(options.m_extents.m_yMax) << "}" << endl;
+				cout << "    Nb images      = " << nbScenedProcess << endl;
+				cout << "    Size           = " << m_options.m_extents.m_xSize << " cols x " << m_options.m_extents.m_ySize << " rows x  3 bands" << endl;
+				cout << "    Extents        = X:{" << ToString(m_options.m_extents.m_xMin) << ", " << ToString(m_options.m_extents.m_xMax) << "}  Y:{" << ToString(m_options.m_extents.m_yMin) << ", " << ToString(m_options.m_extents.m_yMax) << "}" << endl;
 			}
 
-			string filePath = options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
-			msg += outputDS.CreateImage(filePath, options);
+
 		}
 
 
@@ -258,17 +324,17 @@ namespace WBSF
 	void CLandsat2RGB::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerRead.Start();
+		{
+			m_options.m_timerRead.Start();
 
-		CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-		bandHolder.LoadBlock(extents);
+			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
+			bandHolder.LoadBlock(extents);
 
-		m_options.m_timerRead.Stop();
+			m_options.m_timerRead.Stop();
+		}
 	}
-	}
 
-	void CLandsat2RGB::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
+	void CLandsat2RGB::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, size_t z, OutputData& outputData)
 	{
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -281,7 +347,7 @@ namespace WBSF
 			m_options.m_xx += nbCells;
 
 			m_options.UpdateBar();
-	
+
 
 			return;
 		}
@@ -297,49 +363,53 @@ namespace WBSF
 		}
 
 #pragma omp critical(ProcessBlock)
-	{
-		m_options.m_timerProcess.Start();
-
-//multithread here is very not efficient.
-//#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
-		for (int y = 0; y < blockSize.m_y; y++)
 		{
-			for (int x = 0; x < blockSize.m_x; x++)
+			m_options.m_timerProcess.Start();
+
+
+			for (size_t y = 0; y < blockSize.m_y; y++)
 			{
-				ASSERT(m_options.m_scene < bandHolder.GetNbScenes());
-				CLandsatPixel pixel = window.GetPixel(m_options.m_scene, x, y);
-				if (window.IsValid(m_options.m_scene, pixel))
+				for (size_t x = 0; x < blockSize.m_x; x++)
 				{
-					bool bIsBlack = pixel.IsBlack();
-
-					if (!bIsBlack )
+					ASSERT(z < bandHolder.GetNbScenes());
+					CLandsatPixel pixel = window.GetPixel(z, (int)x, (int)y);
+					if (pixel.IsValid())
 					{
-						Color8 R = Color8(max(0.0, min(254.0, ((pixel[B4] + 150.0) / 6150.0) * 254.0)));
-						Color8 G = Color8(max(0.0, min(254.0, ((pixel[B5] + 190.0) / 5190.0) * 254.0)));
-						Color8 B = Color8(max(0.0, min(254.0, ((pixel[B3] + 200.0) / 2700.0) * 254.0)));
+						bool bIsBlack = pixel.IsBlack();
 
-						bool bIsBust = m_options.IsBusting(R, G, B);
-
-						if (!bIsBust)
+						if (!bIsBlack)
 						{
-							outputData[0][y*blockSize.m_x + x] = R;
-							outputData[1][y*blockSize.m_x + x] = G;
-							outputData[2][y*blockSize.m_x + x] = B;
+
+							Color8 R = pixel.R(m_options.m_type);
+							Color8 G = pixel.G(m_options.m_type);
+							Color8 B = pixel.B(m_options.m_type);
+
+							//Color8 R = Color8(max(0.0, min(254.0, ((pixel[B4] + 150.0) / 6150.0) * 254.0)));
+							//Color8 G = Color8(max(0.0, min(254.0, ((pixel[B5] + 190.0) / 5190.0) * 254.0)));
+							//Color8 B = Color8(max(0.0, min(254.0, ((pixel[B3] + 200.0) / 2700.0) * 254.0)));
+
+							bool bIsBust = m_options.IsBusting(R, G, B);
+
+							if (!bIsBust)
+							{
+								outputData[0][y*blockSize.m_x + x] = R;
+								outputData[1][y*blockSize.m_x + x] = G;
+								outputData[2][y*blockSize.m_x + x] = B;
+							}
 						}
 					}
-				}
 
 #pragma omp atomic 
-				m_options.m_xx++;
+					m_options.m_xx++;
 
+				}
 			}
+
+			m_options.UpdateBar();
+			m_options.m_timerProcess.Stop();
+
+
 		}
-
-		m_options.UpdateBar();
-		m_options.m_timerProcess.Stop();
-
-		bandHolder.FlushCache();
-	}
 
 
 
@@ -348,57 +418,70 @@ namespace WBSF
 	void CLandsat2RGB::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData)
 	{
 #pragma omp critical(BlockIO)
-	{
-		m_options.m_timerWrite.Start();
-
-
-		CGeoExtents extents = bandHolder.GetExtents();
-		CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
-		CTPeriod period = m_options.GetTTPeriod();
-		int nbSegment = period.GetNbRef();
-
-		if (outputDS.IsOpen())
 		{
-			ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
-			ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
-			ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
+			m_options.m_timerWrite.Start();
 
-			for (size_t z = 0; z < outputData.size(); z++)
+
+			CGeoExtents extents = bandHolder.GetExtents();
+			CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+			CTPeriod period = m_options.GetTTPeriod();
+			int nbSegment = period.GetNbRef();
+
+			if (outputDS.IsOpen())
 			{
-				GDALRasterBand *pBand = outputDS.GetRasterBand(z);
-				if (!outputData[z].empty())
+				ASSERT(outputRect.m_x >= 0 && outputRect.m_x < outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_y >= 0 && outputRect.m_y < outputDS.GetRasterYSize());
+				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
+				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
+
+				for (size_t z = 0; z < outputData.size(); z++)
 				{
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Byte, 0, 0);
-				}
-				else
-				{
-					Color8 noData = (Color8)outputDS.GetNoData(z);
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Byte, 0, 0);
+					GDALRasterBand *pBand = outputDS.GetRasterBand(z);
+					if (!outputData[z].empty())
+					{
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Byte, 0, 0);
+					}
+					else
+					{
+						Color8 noData = (Color8)outputDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Byte, 0, 0);
+					}
 				}
 			}
+
+
+			m_options.m_timerWrite.Stop();
+		}
+	}
+
+
+	ERMsg CLandsat2RGB::CreateVirtual(CLandsatDataset& inputDS)
+	{
+		ERMsg msg;
+
+		size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+		for (size_t zz = 0; zz < nbScenedProcess; zz++)
+		{
+			size_t z = m_options.m_scenes[0] + zz;
+
+			string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
+			std::string filePath = m_options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
+			filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_RGB.vrt";
+			msg += inputDS.CreateRGB(z, filePath, (CBaseOptions::TRGBTye)m_options.m_type);
 		}
 
-
-		m_options.m_timerWrite.Stop();
-	}
+		return msg;
 	}
 
-	void CLandsat2RGB::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
+	void CLandsat2RGB::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, std::vector<CGDALDatasetEx>& outputDS)
 	{
 		inputDS.Close();
 		maskDS.Close();
 
-
 		m_options.m_timerWrite.Start();
 
-		//if (m_options.m_bComputeStats)
-		//	outputDS.ComputeStats(m_options.m_bQuiet);
-
-		//if (!m_options.m_overviewLevels.empty())
-		//	outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-
-		outputDS.Close(m_options);
+		for (size_t i = 0; i < outputDS.size(); i++)
+			outputDS[i].Close(m_options);
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

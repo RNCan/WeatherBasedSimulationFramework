@@ -128,7 +128,7 @@ namespace WBSF
 			string remote = Get(REMOTE);
 			string local = Get(LOCAL);
 
-			msg = GetFtpConnection(server, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+			msg = GetFtpConnection(server, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			if (msg)
 			{
 				CFileInfoVector fileList;

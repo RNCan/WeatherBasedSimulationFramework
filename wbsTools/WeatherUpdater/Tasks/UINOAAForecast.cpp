@@ -189,7 +189,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS,"","",true, 5, callback);
 		if (msg)
 		{
 			for (size_t t = 0; t < NB_DATA_TYPE&&msg; t++)

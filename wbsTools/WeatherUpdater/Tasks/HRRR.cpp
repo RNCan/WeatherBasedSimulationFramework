@@ -152,7 +152,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession);
+		msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (!msg)
 			return msg;
 

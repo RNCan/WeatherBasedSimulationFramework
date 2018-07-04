@@ -119,7 +119,7 @@ ERMsg CUIGHCND::UpdateStationHistory(CCallback& callback)
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 	
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 	if (msg)
 	{
 		string path = GetStationFilePath(false);
@@ -168,7 +168,7 @@ ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	CInternetSessionPtr pSession;
 	CFtpConnectionPtr pConnection;
 		
-	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 	if (msg)
 	{
 		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
