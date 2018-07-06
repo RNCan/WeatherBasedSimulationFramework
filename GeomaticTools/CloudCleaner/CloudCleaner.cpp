@@ -80,13 +80,13 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_bOutputDT = false;
 	m_B1threshold = { -190, 0 };
 	m_TCBthreshold = { 900, 300 };
-	m_ZSWthreshold = { 600, 250 };
+	m_ZSWthreshold = { 10000, 10000 }; // { 600, 250 };
 	m_bFillCloud = false;
 	//m_doubleTrigger = 5;
 	//m_bSuspectAsCloud = false;
 
 	m_buffer = 0;
-	m_bufferEx = 2;
+	m_bufferEx = 0;
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	m_sieve = 9;
 	//m_maxScene = 2;

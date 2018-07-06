@@ -55,8 +55,8 @@ ERMsg OpenInputImage(const string& filePath, GDALDataset** poInputDS, double src
 {
 	ERMsg msg;
 	
+	//GDAL_OF_SHARED|
 	*poInputDS = (GDALDataset *)GDALOpenEx(filePath.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
-	//*poInputDS = (GDALDataset *) GDALOpen( filePath.c_str(), GA_ReadOnly );
 
 	if( *poInputDS == NULL)
 		msg.ajoute(CPLGetLastErrorMsg());

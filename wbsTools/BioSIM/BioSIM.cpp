@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
-// 11.4.6: 20/06/2018	Rémi Saint-Amant	Add match station export (with station name)
+// 11.4.7: 05/07/2018	Rémi Saint-Amant	Bug correction ATM (no end loop)
+// 11.4.6: 20/06/2018	Rémi Saint-Amant	Add match station export (with station name)  
 // 11.4.5: 15/05/2018	Rémi Saint-Amant	New dispersal
 // 11.4.4: 13/04/2018	Rémi Saint-Amant	Resize FileManager correcly
 //											New SSI extraction dlg

@@ -2431,6 +2431,10 @@ namespace WBSF
 			TRef16.m_hour = 16;
 			CTRef TRef17 = TRef16 + 1;
 
+			//callback.AddMessage("Begin for: " + TRef.GetFormatedString());
+			//callback.StepIt(0);
+
+
 			vector<CSBWMothsIt> moths;
 
 			//compute number of not emerged and dead
@@ -2441,6 +2445,8 @@ namespace WBSF
 			size_t finishing_laying_eggs = 0;
 			size_t finished = 0;
 
+			//callback.AddMessage("Init moth for: " + TRef.GetFormatedString());
+			//callback.StepIt(0);
 
 			for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
 			{
@@ -2468,6 +2474,9 @@ namespace WBSF
 			//get all flyers for this day
 			if (!moths.empty())
 			{
+				//callback.AddMessage("get sunset for: " + TRef.GetFormatedString());
+				//callback.StepIt(0);
+
 				//get sunset hours for this day
 				CTimePeriod UTC_period = get_UTC_sunset_period(TRef, moths);
 
@@ -2475,85 +2484,74 @@ namespace WBSF
 				UTC_period.first -= 2 * 3600;
 				UTC_period.second += 4 * 3600;
 
+				//callback.AddMessage("get weatehr time for: " + TRef.GetFormatedString());
+				//callback.StepIt(0);
+
 				vector<__int64> weather_time = GetWeatherTime(UTC_period, callback);
+
+				//callback.AddMessage("Load weather for: " + TRef.GetFormatedString() + " weather_time size = " + to_string(weather_time.size()) );
+				
+				
 
 				//Load weather for sunset
 				if (!weather_time.empty())
-					msg = LoadWeather(TRef, weather_time, callback);
-
-				if (msg)
 				{
-					callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
-					//init all moths : broods and liffoff time. 
-
-#pragma omp parallel for num_threads(m_nb_max_threads)
-					for (__int64 i = 0; i < (__int64)moths.size(); i++)
+					msg = LoadWeather(TRef, weather_time, callback);
+					if (msg)
 					{
-#pragma omp flush(msg)
-						if (msg)
+						callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
+						//callback.AddMessage("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)");
+						//init all moths : broods and liffoff time. 
+
+	//#pragma omp parallel for num_threads(m_nb_max_threads)
+						for (__int64 i = 0; i < (__int64)moths.size(); i++)
 						{
-							//make old
-							moths[i]->live(TRef);
-
-							//brood and shedule flight
-							if (moths[i]->init_new_night(TRef))
-								flyers.push_back(moths[i]);//add moth that have flight sheduled
-
-							moths[i]->FillOutput(TRef17, output);
-
-							//count SBW of each type
-							switch (moths[i]->GetState())
-							{
-							case CSBWMoth::LIVE:
-							{
-								bool bCanFly = moths[i]->CanFly();
-								if (bCanFly)
-#pragma omp atomic
-									waiting_to_fly++;
-								else
-#pragma omp atomic
-									finishing_laying_eggs++;
-								break;
-
-							}
-							case CSBWMoth::FLY: break;
-							case CSBWMoth::FINISHED:
-#pragma omp atomic
-								finished++;
-								break;
-							default:ASSERT(false);
-							}
-
-							msg += callback.StepIt();
 #pragma omp flush(msg)
-						}//if msg
-					}//for all moths
+							if (msg)
+							{
+								//make old
+								moths[i]->live(TRef);
 
+								//brood and shedule flight
+								if (moths[i]->init_new_night(TRef))
+									flyers.push_back(moths[i]);//add moth that have flight sheduled
 
+								moths[i]->FillOutput(TRef17, output);
 
-					//for (size_t i = 0; i < moths.size() && msg; i++)
-					//{
-					//	//brood and shedule flight
-					//	moths[i]->live(TRef);
-					//	
-					//	if (moths[i]->init_new_night(TRef))
-					//		flyers.push_back(moths[i]);
+								//count SBW of each type
+								switch (moths[i]->GetState())
+								{
+								case CSBWMoth::LIVE:
+								{
+									bool bCanFly = moths[i]->CanFly();
+									if (bCanFly)
+#pragma omp atomic
+										waiting_to_fly++;
+									else
+#pragma omp atomic
+										finishing_laying_eggs++;
+									break;
 
-					//	moths[i]->FillOutput(TRef17, output);
+								}
+								case CSBWMoth::FLY: break;
+								case CSBWMoth::FINISHED:
+#pragma omp atomic
+									finished++;
+									break;
+								default:ASSERT(false);
+								}
 
-					//	//count SBW of each type
-					//	switch (moths[i]->GetState())
-					//	{
-					//	case CSBWMoth::LIVE:moths[i]->CanFly() ? waiting_to_fly++ : finishing_laying_eggs++; break;
-					//	case CSBWMoth::FLY: break;
-					//	case CSBWMoth::FINISHED:finished++; break;
-					//	default:ASSERT(false);
-					//	}
+								msg += callback.StepIt();
+#pragma omp flush(msg)
+							}//if msg
+						}//for all moths
 
-					//	msg += callback.StepIt();
-					//}
-
-				}//if msg
+					}//if msg
+				}//if have weather data
+				else
+				{
+					callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString()+ " was skipped");
+				}
 
 				callback.PopTask();
 			}//if moths
@@ -2577,7 +2575,15 @@ namespace WBSF
 				if (output_file.is_open())
 					init_sub_ourly(TRef, output, sub_output);	//write file header
 
+				//callback.AddMessage("Begin Execute for: " + TRef.GetFormatedString());
+				//callback.StepIt(0);
+
 				msg += Execute(TRef, flyers, output, sub_output, callback);
+
+				//callback.AddMessage("After Execute for: " + TRef.GetFormatedString());
+				//callback.StepIt(0);
+
+
 				if (msg && output_file.is_open())
 				{
 					msg += save_sub_output(TRef, output_file, sub_output, callback);
@@ -2585,8 +2591,13 @@ namespace WBSF
 			}//if flyers
 
 
+			//callback.AddMessage("End for: " + TRef.GetFormatedString());
+			//callback.StepIt(0);
+
 			msg += m_weather.Discard(callback);
 			msg += callback.StepIt();
+
+
 		}//for all valid days
 
 
@@ -2629,6 +2640,7 @@ namespace WBSF
 
 			//Simulate dispersal for this day
 			callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")", gribs_time.size()*fls.size());
+			//callback.AddMessage("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")");
 
 			//code to compare with Gary results
 			//const CGeoExtents& extent = m_DEM_DS.GetExtents();
@@ -2823,7 +2835,13 @@ namespace WBSF
 			}//for alltime steps
 
 			callback.PopTask();
-		}//have flyers
+		}//have weather
+		else
+		{
+			callback.AddMessage("WARNING: daily flight for " + TRef.GetFormatedString() + "was skipped");
+		}
+
+
 
 		return msg;
 	}
@@ -3053,7 +3071,7 @@ namespace WBSF
 			__int64 lastGribTime = m_weather.GetNextTime(UTC_period.second);
 			__int64 UTCLast = firstGribTime;
 
-			for (__int64 UTCWeatherTime = firstGribTime; UTCWeatherTime <= lastGribTime; UTCWeatherTime = m_weather.GetNextTime(UTCWeatherTime))
+			for (__int64 UTCWeatherTime = firstGribTime; UTCWeatherTime < lastGribTime; UTCWeatherTime = m_weather.GetNextTime(UTCWeatherTime))
 			{
 				if (UTCWeatherTime - UTCLast <= __int64(m_world_param.m_max_missing_weather * 3600))
 				{
@@ -3064,7 +3082,7 @@ namespace WBSF
 				else
 				{
 					CTRef TRef = CTimeZones::Time2TRef(firstGribTime);
-					callback.AddMessage("WARNING: too much Gribs missing. Nightly flight for " + TRef.GetFormatedString("%Y-%m-%d") + " was skipped");
+					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d") );
 					gribs_time.clear();
 					UTCWeatherTime = lastGribTime + 9999;//end loop for
 				}
@@ -3078,6 +3096,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		//MessageBox(NULL, to_wstring(weather_time.size()).c_str(), L"Load weather", MB_OK);
 
 		ASSERT(!weather_time.empty());
 

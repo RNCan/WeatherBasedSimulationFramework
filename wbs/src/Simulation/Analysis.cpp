@@ -516,14 +516,14 @@ namespace WBSF
 
 	CTPeriod CAnalysisWindow::GetFinalPeriod()const
 	{
-		CTRef today = CTRef::GetCurrentTRef();
+		CTRef now = CTRef::GetCurrentTRef(m_period.GetTM());
 		CTPeriod period = m_period;
 
 		if (m_bUseCurrentDate1)
-			period.Begin() = today + m_shift1;
+			period.Begin() = now + m_shift1;
 
 		if (m_bUseCurrentDate2)
-			period.End() = today + m_shift2;
+			period.End() = now + m_shift2;
 
 		return period;
 	}

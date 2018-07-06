@@ -346,9 +346,9 @@ namespace WBSF
 			{
 				string file_title = GetFileTitle(list[i]);
 				string file_path = "D:\\Travaux\\WRF2013Test\\tmp\\" + file_title + ".file_list.txt";
-				
+
 				WBSF::ofStream file_list;
-				
+
 				msg += file_list.open(file_path);
 				if (msg)
 				{
@@ -361,7 +361,7 @@ namespace WBSF
 							file_list << "D:\\Travaux\\WRF2013Test\\tmp\\" << file_title << "." << VN[v] << "." << l << ".tif" << endl;
 						}
 					}
-					
+
 					file_list.close();
 					build << "gdalBuildVRT -overwrite -separate -input_file_list " << file_path << " D:\\Travaux\\WRF2013Test\\tmp\\" << file_title << ".vrt" << endl;
 					build << "gdal_translate -co compress=LZW -ot Float32 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 .\\tmp\\" << file_title << ".vrt .\\geoTIFF\\" << file_title << ".tif" << endl << endl;
@@ -553,39 +553,42 @@ namespace WBSF
 						for (size_t i = 0; i < varsPos.size(); i++)
 							v[i] = section[t][varsPos[i]][MEAN];
 
-						CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-						//int shift = world.m_moths_param.m_ready_to_fly_shift[v[I_SEX]];
-						if (period.IsInside(emergingDate))//a vérifier pour les femelles
+						if (v[I_YEAR] > -999 && v[I_MONTH] > -999 && v[I_DAY] > -999)
 						{
-							CSBWMoth moth(world);
+							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
+							//int shift = world.m_moths_param.m_ready_to_fly_shift[v[I_SEX]];
+							if (period.IsInside(emergingDate))//a vérifier pour les femelles
+							{
+								CSBWMoth moth(world);
 
-							moth.m_loc = l;
-							moth.m_par = p;
-							moth.m_rep = rr;
-							moth.m_emergingDate = emergingDate;//daily reference of ready moths
-							moth.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
-							moth.m_A = v[I_A];
-							moth.m_M = v[I_M];
-							moth.m_G = v[I_G];
-							moth.m_Fᵒ = v[I_Fᵒ];
-							moth.m_Fᴰ = v[I_Fᴰ];
-							moth.m_F = moth.m_Fᴰ;
+								moth.m_loc = l;
+								moth.m_par = p;
+								moth.m_rep = rr;
+								moth.m_emergingDate = emergingDate;//daily reference of ready moths
+								moth.m_sex = v[I_SEX];//sex (MALE=0, FEMALE=1)
+								moth.m_A = v[I_A];
+								moth.m_M = v[I_M];
+								moth.m_G = v[I_G];
+								moth.m_Fᵒ = v[I_Fᵒ];
+								moth.m_Fᴰ = v[I_Fᴰ];
+								moth.m_F = moth.m_Fᴰ;
 
-							//moth.m_broods = 0;
-							moth.m_location = locations[l];
-							moth.m_newLocation = locations[l];
-							moth.m_pt = locations[l];
-							moth.m_UTCShift = CTimeZones::GetTimeZone(locations[l]);
+								//moth.m_broods = 0;
+								moth.m_location = locations[l];
+								moth.m_newLocation = locations[l];
+								moth.m_pt = locations[l];
+								moth.m_UTCShift = CTimeZones::GetTimeZone(locations[l]);
 
-							if (extents.IsInside(moth.m_pt))
-								world.m_moths.push_back(moth);
-							else
-								callback.AddMessage("WARNING: Simulation point outside elevation map");
+								if (extents.IsInside(moth.m_pt))
+									world.m_moths.push_back(moth);
+								else
+									callback.AddMessage("WARNING: Simulation point outside elevation map");
 
-							rr++;
-							nbReplications = max(nbReplications, rr);
+								rr++;
+								nbReplications = max(nbReplications, rr);
 
-						}//is inside simulation period
+							}//is inside simulation period
+						}//is valid insect
 					}//for all rows
 
 					msg += callback.StepIt();
@@ -633,25 +636,30 @@ namespace WBSF
 			msg = world.Execute(output, output_file, callback);
 			if (msg)
 			{
+				callback.PushTask("Save data" , output.size() * output[0].size()*output[0][0].size());
+
 				for (size_t l = 0; l < output.size() && msg; l++)
 				{
 					for (size_t p = 0; p < output[l].size() && msg; p++)
 					{
-						for (size_t r = 0; r < output[l][p].size(); r++)
+						for (size_t r = 0; r < output[l][p].size() && msg; r++)
 						{
 							size_t no = result.GetSectionNo(l, p, r);
 							msg += result.SetSection(no, output[l][p][r]);
-							msg += callback.StepIt(0);
+							msg += callback.StepIt();
 						}
 					}
 				}
 
+				callback.PopTask();
 
-				if (m_parameters.m_world.m_bCreateEggMaps)
+				if (msg&& m_parameters.m_world.m_bCreateEggMaps)
 				{
 					string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
 					msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
 				}
+
+				
 			}
 		}
 
