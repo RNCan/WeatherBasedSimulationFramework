@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloudCleanerI", "CloudClean
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LandsatIndices", "LandsatIndices\LandsatIndices.vcxproj", "{994FAB32-7FE1-414D-9522-415BB58DCEEA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtractGribs", "ExtractGribs\ExtractGribs.vcxproj", "{DD0625DD-C766-475E-8C2B-A238A2907331}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -231,6 +233,14 @@ Global
 		{994FAB32-7FE1-414D-9522-415BB58DCEEA}.Release|Win32.Build.0 = Release|Win32
 		{994FAB32-7FE1-414D-9522-415BB58DCEEA}.Release|x64.ActiveCfg = Release|x64
 		{994FAB32-7FE1-414D-9522-415BB58DCEEA}.Release|x64.Build.0 = Release|x64
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Debug|Win32.Build.0 = Debug|Win32
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Debug|x64.ActiveCfg = Debug|x64
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Debug|x64.Build.0 = Debug|x64
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Release|Win32.ActiveCfg = Release|Win32
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Release|Win32.Build.0 = Release|Win32
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Release|x64.ActiveCfg = Release|x64
+		{DD0625DD-C766-475E-8C2B-A238A2907331}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
