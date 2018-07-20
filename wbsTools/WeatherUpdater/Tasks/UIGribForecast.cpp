@@ -297,7 +297,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME[source], pConnection, pSession);
+			msg = GetHttpConnection(SERVER_NAME[source], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{
@@ -323,8 +323,8 @@ namespace WBSF
 					string URL = SERVER_PATH[source];
 					switch (source)
 					{
-					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-					case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfsfcf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+					case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfsfcf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
 					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
@@ -363,8 +363,8 @@ namespace WBSF
 		switch (source)
 		{
 		case N_HRDPS:	filePath += FormatA("%02d/%02d/", TRef.GetHour(), HH ); break;
-		case N_HRRR:	filePath += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfnatf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
-		case N_HRRR_SRF:filePath += FormatA("hrrr.%4d%02d%02d/hrrr.t%02dz.wrfsfcf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
+		case N_HRRR:	filePath += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfnatf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
+		case N_HRRR_SRF:filePath += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfsfcf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_RAP_P:	filePath += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_RAP_B:	filePath += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf%02d.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
 		case N_NAM:		filePath += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys%02d.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH); break;
@@ -408,8 +408,8 @@ namespace WBSF
 		string URL = SERVER_PATH[source];
 		switch (source)
 		{
-		case N_HRRR:	URL += "hrrr.*"; break;
-		case N_HRRR_SRF:URL += "hrrr.*"; break;
+		case N_HRRR:	URL += "conus/hrrr.*"; break;
+		case N_HRRR_SRF:URL += "conus/hrrr.*"; break;
 		case N_RAP_P:	URL += "rap.*"; break;
 		case N_RAP_B:	URL += "rap.*"; break;
 		case N_NAM:		URL += "nam.*"; break;
@@ -449,8 +449,8 @@ namespace WBSF
 				string URL = SERVER_PATH[source];
 				switch (source)
 				{
-				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/hrrr.t??z.wrfnatf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/hrrr.t??z.wrfsfcf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfnatf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfsfcf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130pgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130bgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t??z.awphys00.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;

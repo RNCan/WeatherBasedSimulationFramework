@@ -80,6 +80,10 @@ namespace WBSF
 		string dir = GetDir(DIRECTORY);
 		string filter = Get(FILTER);
 
+		if (dir.empty())
+			dir = ".\\";
+		dir = GetAbsolutePath(GetProjectPath(), dir);
+
 		if (FileExists(filepath))
 			RemoveFile(filepath);
 

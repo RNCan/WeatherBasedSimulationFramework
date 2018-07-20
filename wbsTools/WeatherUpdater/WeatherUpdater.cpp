@@ -1,3 +1,7 @@
+//5.6.2 18/07/2018	Rémi Saint-Amant	Bug correction in RAP HTTP 
+//										Keep EnvCan forecast during 7 day to fill gaps
+//										Used of HRRR v3
+//										Add radar animation
 //5.6.1 04/07/2018	Rémi Saint-Amant	Multiple try in connection
 //5.6.0 03/07/2018	Rémi Saint-Amant	Solve problem with Nova Scotia data
 //5.5.9 28/06/2018	Rémi Saint-Amant	Solve problem with Solution-Mesonet deconnection

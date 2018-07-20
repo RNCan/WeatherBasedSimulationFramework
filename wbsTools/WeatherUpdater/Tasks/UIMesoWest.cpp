@@ -204,7 +204,7 @@ namespace WBSF
 
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
-			msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{
@@ -639,7 +639,7 @@ namespace WBSF
 			nbTry++;
 			try
 			{
-				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
+				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msg)
 				{
 
@@ -709,7 +709,7 @@ namespace WBSF
 			nbTry++;
 			try
 			{
-				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession);
+				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msg)
 				{
 					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);

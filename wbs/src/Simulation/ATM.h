@@ -38,7 +38,8 @@ namespace WBSF
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
 	enum TATMOuput{ ATM_FLIGHT, ATM_AGE, ATM_SEX, ATM_A, ATM_M, ATM_EGGS, ATM_G, ATM_F, ATM_STATE, ATM_FLAG, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_MOTH_SPEED, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_LIFTOFF_T, ATM_LANDING_T, ATM_DEFOLIATION, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
-	typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
+	//typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
+	typedef std::vector<ATMOutput> CATMOutputMatrix;
 
 	//                     ᵒC        hPa      kg/m²     m/s        m/s      m/s        ᵒC
 	enum TATMVariable { ATM_TAIR, ATM_PRES, ATM_PRCP, ATM_WNDU, ATM_WNDV, ATM_WNDW, ATM_WATER, NB_ATM_VARIABLES };
@@ -724,14 +725,12 @@ namespace WBSF
 		enum TFlyerStat{ S_TAIR, S_PRCP, S_U, S_V, S_W, S_D_X, S_D_Y, S_D_Z, S_DISTANCE, S_HEIGHT, S_W_HORIZONTAL, S_W_VERTICAL, S_MOTH_WH, S_MOTH_WV, NB_FLYER_STAT };
 		enum TStates { NOT_EMERGED, LIVE, FLY, FINISHED, NB_STATES };
 		
-		enum TNoLiftoff { NO_LIFTOFF_DEFINED, NO_LIFTOFF_EMERGING, NO_LIFTOFF_NOT_READY, NO_LIFTOFF_NO_DEFOLIATION, NO_LIFTOFF_NO_MORE_FLIGHT, NO_LIFTOFF_TAIR, NO_LIFTOFF_PRCP, NO_LIFTOFF_WNDS, NB_NO_LIFTOFF_TYPE};
-		enum TFlightEnd { NO_FLIGHT_END_DEFINE, END_BY_PRCP, END_BY_TAIR, END_BY_SUNRISE, NB_FLIGHT_END_TYPE };
-		enum TFinished { NO_END_DEFINE, END_FULLFILLED, END_OVER_WATER, END_OLD_AGE, END_OUTSIDE_MAP, END_OF_SIMULATION, END_BY_OPTIOMIZATION, NB_END_TYPE};
+		enum TNoLiftoff { NO_LIFTOFF_DEFINED, NO_LIFTOFF_EMERGING, NO_LIFTOFF_NOT_READY, NO_LIFTOFF_NO_DEFOLIATION, NO_LIFTOFF_NO_MORE_FLIGHT, NO_LIFTOFF_TAIR, NO_LIFTOFF_PRCP, NO_LIFTOFF_WNDS, NO_LIFTOFF_MISSING_WEATHER, NB_NO_LIFTOFF_TYPE};
+		enum TFlight { NO_FLIGHT_DEFINE, WAIT_DEPARTURE, FLIYNG, LANDING, NB_FLIGHT_TYPE };
+		enum TFlightEnd{ NO_FLIGHT_END_DEFINE, END_BY_TAIR, END_BY_PRCP, END_BY_SUNRISE, NB_FLIGHT_END_TYPE};
+		enum TFinished { NO_END_DEFINE, END_FULLFILLED, END_OVER_WATER_TAIR, END_OVER_WATER_PRCP, END_OVER_WATER_SUNRISE, END_OLD_AGE, END_OUTSIDE_MAP, END_OF_SIMULATION, NB_END_TYPE};
 
-		size_t m_loc;
-		size_t m_par;
-		size_t m_rep;
-		
+		size_t m_ID;
 		size_t m_flightNo;
 		
 		size_t m_sex;			//sex (MALE=0, FEMALE=1)
@@ -744,6 +743,7 @@ namespace WBSF
 		double m_F;				//current fecondity
 		double m_age;			//current physiological age
 		CTRef m_emergingDate;	//Creation date in UTC time
+
 		
 		CLocation m_location;	//initial position
 		CLocation m_newLocation;//actual position, z is elevation over sea level
@@ -756,15 +756,17 @@ namespace WBSF
 		__int64 m_UTCShift;		//shift between local time and UTC [s]
 
 		CSBWMoth(CATMWorld& world);
-		
+
+		size_t GetState()const { return m_state; }
+		size_t GetFlag()const;
+
 		void live(CTRef TRef);
 		bool init_new_night(CTRef TRef);
 		
 		void fly(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
 		void flying(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
 		void landing(__int64 UTCWeatherTime, __int64 UTCCurrentTime);
-
-		void FinishedByOptimisation();
+		
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 		CATMVariables get_weather(__int64 UTCWeatherTime, __int64 UTCCurrentTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCWeatherTime)const;
@@ -780,15 +782,15 @@ namespace WBSF
 		double GetLog(size_t i)const{ return m_logTime[i]; }
 		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
-		size_t GetState()const{ return m_state; }
+
 
 		__int64 GetUTCShift()const{ return m_UTCShift; }//in [s]
 		void Brood(double T);
 		bool ComputeExodus(double T, double P, double W, double tau);
 		bool GetLiftoff(__int64 UTCTimeº, __int64 sunset, __int64& liftoff);
 		void get_t(__int64 UTCTimeº, __int64 tᶳ, __int64 &tº, __int64 &tᴹ)const;
-		void FillOutput(CTRef localTRef, CATMOutputMatrix& output);
-		bool Landed() const { return m_logTime[T_LANDING_END] != 0; }
+		void FillOutput(size_t type, CTRef localTRef, CATMOutputMatrix& output);
+		bool IsLanded() const { return m_logTime[T_LANDING_END] > -999; }
 		bool CanFly()const;
 		bool ForceFirst()const; 
 		bool IsOverWater()const;
@@ -802,12 +804,13 @@ namespace WBSF
 		
 		
 
-		TStates m_state;		//state of the flyer
-		TFlightEnd m_flight_end_flag;		//reason of flight end
+		TStates m_state;				//state of the flyer
+		TFlight m_flight_flag;			//flight state
+		TFlightEnd m_landing_flag;		//reason of landing
 		TNoLiftoff m_no_liftoff_flag;	//reason of no liftoff
 		TFinished m_finish_flag;		//reason of simulation end
 
-		double GetFlag()const;
+
 		
 		CATMWorld& m_world;
 
@@ -853,8 +856,8 @@ namespace WBSF
 		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const { return m_weather.get_weather(pt, UTCWeatherTime, UTCCurrentTime); }
 		
 
-		std::vector<CSBWMothsIt> GetMoths(CTRef TRef);
-		std::vector<CSBWMothsIt> GetEmergingMoths(CTRef TRef);
+		
+		
 		CTimePeriod get_UTC_sunset_period(CTRef TRef, const std::vector<CSBWMothsIt>& fls);
 		CTimePeriod get_UTC_flight_period(const std::vector<CSBWMothsIt>& fls);
 		std::vector<__int64> GetWeatherTime(CTimePeriod UTC_period, CCallback& callback)const;
@@ -864,7 +867,7 @@ namespace WBSF
 		int m_nb_max_threads;
 		CATMWorldParamters m_world_param;
 		CSBWMothParameters m_moths_param;
-
+		size_t m_seasonalIndividuals;
 
 		CATMWeather m_weather;
 		CSBWMoths m_moths;
@@ -878,24 +881,33 @@ namespace WBSF
 		double get_defoliation(const CGeoPoint3D& pt)const;
 		bool is_over_water(const CGeoPoint3D& pt)const;
 
+		ERMsg Init(CCallback& callback);
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
-		ERMsg Execute(CTRef TRef, std::vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
+		ERMsg ExecuteOneNight(CTRef TRef, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
+		ERMsg SimulateOneNight(CTRef TRef, std::vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
 		ERMsg CreateEggDepositionMap(const std::string& outputFilePath, CATMOutputMatrix& output, CCallback& callback);
-		
+		void FinalizedOutput(CATMOutputMatrix& output);
 
 
 		CATMWorld() :
 			m_weather(*this)
 		{
 			m_nb_max_threads = 1;
+			m_seasonalIndividuals = 0;
 		}
 
 		CRandomGenerator& random(){ return m_random; }
 		CTPeriod get_moths_period()const;
+		
+		ERMsg save_output(CTPeriod p, ofStream& output_file, const CATMOutputMatrix& output, CCallback& callback);
 		ERMsg save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output, CCallback& callback);
 		//void init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output);
-		void init_sub_ourly(CTRef TRef, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output);
+		void init_output(CTRef TRef, CATMOutputMatrix& output);
+		void init_sub_hourly(CTRef TRef, CATMOutputMatrix& sub_output);
+		void write_sub_hourly_header(ofStream& output_file);
 		
+
+
 		std::map<size_t, CProjectionTransformation> m_GEO2;
 		std::map<size_t, CProjectionTransformation> m_2GEO;
 		const CProjectionTransformation& GetToWeatherTransfo(__int64 UTCWeatherTime)const;
@@ -904,7 +916,7 @@ namespace WBSF
 		double get_w_horizontal()const;
 		double get_w_descent()const;
 		bool IsInside(const CGeoPoint& pt)const;
-		ERMsg Init(CCallback& callback);
+		
 		
 		double GetPmax()const { return ((m_world_param.m_PSource == CATMWorldParamters::DONT_USE_PRCP) ? 9999 : m_moths_param.m_Pmax); }
 

@@ -208,6 +208,8 @@ namespace WBSF
 		}
 	}
 
+
+
 	ERMsg CEnvCanHourlyForecast::Execute(CCallback& callback)
 	{
 		ERMsg msg;
@@ -222,6 +224,8 @@ namespace WBSF
 		//callback.AddTask(m_regions.count());
 
 
+		std::time_t now = std::time(0);
+
 		CHourlyDatabase().DeleteDatabase(GetDatabaseFilePath(), callback);
 
 		msg = m_stations.Load(GetStationListFilePath());
@@ -232,7 +236,7 @@ namespace WBSF
 		callback.PushTask("Download MeteoCode (" + to_string(m_regions.size()) + " regions)", m_regions.size());
 
 		int nbDownload = 0;
-		CWeatherStationVector stations;
+
 
 		for (size_t i = 0; i < m_regions.size() && msg; i++)
 		{
@@ -245,15 +249,24 @@ namespace WBSF
 
 			StringVector filesList = GetFilesList(outputPath + "TRANSMIT.*.xml");
 			for (StringVector::const_iterator it = filesList.begin(); it != filesList.end(); it++)
-				msg += RemoveFile(*it);
+			{
+				CFileInfo info = WBSF::GetFileInfo(*it);
+				//keep forecast to fill gap between observation and forecast
+				__int64 hours = (now - info.m_time) / 3600;
+				if (hours > 7 * 24)//keep file one week
+					msg += RemoveFile(*it);
+			}
 
-			CFileInfoVector fileList;
+
+
 			if (msg)
 			{
+				CFileInfoVector fileList;
+
 				//open a connection on the server
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
-				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{
@@ -268,9 +281,6 @@ namespace WBSF
 						try
 						{
 							msg += UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
-							//if(msg)
-								//nbTry=0;
-					
 						}
 						catch (CException* e)
 						{
@@ -291,261 +301,323 @@ namespace WBSF
 					pConnection->Close();
 					pSession->Close();
 				}
-			}
 
-			if(msg)
-			{
-				callback.PushTask(region + " (" + to_string(fileList.size()) + " files)", fileList.size());
-				callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 
-				//Download files
-				CFileInfoVector::iterator it = fileList.begin();
-
-				size_t nbTry = 0;
-				while(it != fileList.end() && msg)
+				if (msg)
 				{
+					callback.PushTask(region + " (" + to_string(fileList.size()) + " files)", fileList.size());
+					callback.AddMessage(region + ", " + GetString(IDS_NUMBER_FILES) + ToString(fileList.size()), 1);
 
-					nbTry++;
+					//Download files
+					CFileInfoVector::iterator it = fileList.begin();
 
-					CInternetSessionPtr pSession;
-					CHttpConnectionPtr pConnection;
-					msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-
-					if (msg)
+					size_t nbTry = 0;
+					while (it != fileList.end() && msg)
 					{
-						pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-						try
+						nbTry++;
+
+						CInternetSessionPtr pSession;
+						CHttpConnectionPtr pConnection;
+						msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+						if (msg)
 						{
-							while (it != fileList.end() && msg)
-							{
-								string fileName = GetFileName(it->m_filePath);
-								string ID = fileName.substr(0, 8);
-								string outputFilePath = outputPath + fileName;
+							pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-								msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
-								if (msg)
+							try
+							{
+								while (it != fileList.end() && msg)
 								{
-									ASSERT(FileExists(outputFilePath));
-									it++;
-									nbDownload++;
-									nbTry = 0;
-									msg = ReadData(outputFilePath, stations, callback);
-									msg += callback.StepIt();
+									string fileName = GetFileName(it->m_filePath);
+									string ID = fileName.substr(0, 8);
+									string outputFilePath = outputPath + fileName;
+
+									msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
+									if (msg)
+									{
+										ASSERT(FileExists(outputFilePath));
+										it++;
+										nbDownload++;
+										nbTry = 0;
+										msg += callback.StepIt();
+									}
 								}
 							}
-						}
-						catch (CException* e)
-						{
-							if (nbTry < 5)
+							catch (CException* e)
 							{
-								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								msg = WaitServer(10, callback);
+								if (nbTry < 5)
+								{
+									callback.AddMessage(UtilWin::SYGetMessage(*e));
+									msg = WaitServer(10, callback);
+								}
+								else
+								{
+									msg = UtilWin::SYGetMessage(*e);
+								}
 							}
-							else
-							{
-								msg = UtilWin::SYGetMessage(*e);
-							}
+
+							pConnection->Close();
+							pSession->Close();
+
 						}
-
-						pConnection->Close();
-						pSession->Close();
-
 					}
-				}
-				callback.PopTask();
-				msg += callback.StepIt();
+					callback.PopTask();
+					msg += callback.StepIt();
 
 
 
+				}//if msg
 			}//if msg
 
 		}//for all province
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
 		callback.PopTask();
-		
+
 
 		if (msg || m_bAlwaysCreate)
 		{
+			callback.PushTask("Create forecast database (" + to_string(m_regions.size()) + " regions)", m_regions.size());
 
 			//Create only one database for all forecast
 			CHourlyDatabase DB;
 			msg = DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeWrite, callback);
 			if (msg)
 			{
-				for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
-					DB.Add(*it);
+				for (size_t i = 0; i < m_regions.size() && msg; i++)
+				{
+					if (m_regions.any() && !m_regions[i])
+						continue;
+
+					CWeatherStationVector stations;
+					string region = m_regions.GetName((int)i, true);
+					string outputPath = m_workingDir + region + "/";
+
+
+					CFileInfoVector filesInfo;
+					GetFilesInfo(outputPath + "TRANSMIT.*.xml", false, filesInfo);
+					sort(filesInfo.begin(), filesInfo.end(), [](const CFileInfo& lhs, const CFileInfo& rhs) {return lhs.m_time < rhs.m_time; });
+
+					//sorting file by name will sort by time
+					for (CFileInfoVector::const_iterator it = filesInfo.begin(); it != filesInfo.end()&&msg; it++)
+					{
+						msg = ReadData(it->m_filePath, stations, callback);
+						msg += callback.StepIt(0);
+					}
+
+					for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
+						DB.Add(*it);
+
+
+					msg += callback.StepIt();
+				}
+
 
 				msg = DB.Close();
 			}
 
+			callback.PopTask();
 		}
-	
-
-	
-	return msg;
-}
 
 
-ERMsg CEnvCanHourlyForecast::GetStationList(StringVector& stationList, CCallback& callback)
-{
-	ERMsg msg;
 
-	stationList.clear();
-
-	msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
-	if (msg && !m_pShapefile)
-	{
-		m_pShapefile = new CShapeFileBase;
-		msg = m_pShapefile->Read(GetShapefileFilePath());
+		return msg;
 	}
 
-	for (size_t i = 0; m_DB.size(); i++)
+
+	ERMsg CEnvCanHourlyForecast::GetStationList(StringVector& stationList, CCallback& callback)
 	{
-		const CLocation& station = m_DB[i];
+		ERMsg msg;
 
-		string region = station.GetSSI("Region");
-		size_t r = m_regions.GetRegion(region);
-		ASSERT(r != UNKNOWN_POS);
-		if (m_regions[r])
-			stationList.push_back(station.m_ID);
-	}
+		stationList.clear();
 
-	return msg;
-}
-
-
-
-
-ERMsg CEnvCanHourlyForecast::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
-{
-	ERMsg msg;
-
-	if (ID.empty())
-	{
-		ASSERT(!station.m_ID.empty());
-		ASSERT(station.m_lat != -999);
-		ASSERT(station.m_lon != -999);
-
-		if (!m_DB.IsOpen())
-			msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
-
+		msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
 		if (msg && !m_pShapefile)
 		{
 			m_pShapefile = new CShapeFileBase;
 			msg = m_pShapefile->Read(GetShapefileFilePath());
 		}
 
-		if (!msg)
-			return msg;
-
-
-		CTRef current = CTRef::GetCurrentTRef(TM);
-		station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
-		CWVariablesCounter counter = station.GetVariablesCount();
-		CTRef TRefEnd = counter.GetTPeriod().End();
-		ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
-
-
-		//station must have data in the last 2 weeks
-		if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
+		for (size_t i = 0; m_DB.size(); i++)
 		{
+			const CLocation& station = m_DB[i];
 
-			array<bool, NB_VAR_H> bAddForecast;
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+			string region = station.GetSSI("Region");
+			size_t r = m_regions.GetRegion(region);
+			ASSERT(r != UNKNOWN_POS);
+			if (m_regions[r])
+				stationList.push_back(station.m_ID);
+		}
 
-			//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
-				//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+		return msg;
+	}
 
-			int shapeNo = -1;
 
-			if (m_pShapefile->IsInside(station, &shapeNo))//inside a shape
+
+
+	ERMsg CEnvCanHourlyForecast::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	{
+		ERMsg msg;
+
+		if (ID.empty())
+		{
+			ASSERT(!station.m_ID.empty());
+			ASSERT(station.m_lat != -999);
+			ASSERT(station.m_lon != -999);
+
+			if (!m_DB.IsOpen())
+				msg = m_DB.Open(GetDatabaseFilePath(), CHourlyDatabase::modeRead, callback);
+
+			if (msg && !m_pShapefile)
 			{
-				const CDBF3& DBF = m_pShapefile->GetDBF();
+				m_pShapefile = new CShapeFileBase;
+				msg = m_pShapefile->Read(GetShapefileFilePath());
+			}
 
-				int Findex = DBF.GetFieldIndex("PAGEID");
-				string forecastID = DBF[shapeNo][Findex].GetElement();
+			if (!msg)
+				return msg;
 
-				CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
-				size_t index = zop.FindByID(forecastID);
-				if (index < zop.size())
+
+			CTRef current = CTRef::GetCurrentTRef(TM);
+			station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
+			CWVariablesCounter counter = station.GetVariablesCount();
+			CTRef TRefEnd = counter.GetTPeriod().End();
+			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
+
+
+			//station must have data in the last 2 weeks
+			if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
+			{
+
+				array<bool, NB_VAR_H> bAddForecast;
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+					bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+
+				//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
+					//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+
+				int shapeNo = -1;
+
+				if (m_pShapefile->IsInside(station, &shapeNo))//inside a shape
 				{
-					CWeatherStation st(true);
-					msg = m_DB.Get(st, index);
-					if (msg)
-					{
-						//CWVariablesCounter counter = station.GetVariablesCount();
-						//CWVariables varInfo = counter.GetVariables();
-						CTPeriod p = st.GetVariablesCount().GetTPeriod();
+					const CDBF3& DBF = m_pShapefile->GetDBF();
 
-						CWeatherAccumulator accumulator(TM);
-						for (CTRef d = p.Begin(); d <= p.End(); d++)
+					int Findex = DBF.GetFieldIndex("PAGEID");
+					string forecastID = DBF[shapeNo][Findex].GetElement();
+
+					CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
+					size_t index = zop.FindByID(forecastID);
+					if (index < zop.size())
+					{
+						CWeatherStation st(true);
+						msg = m_DB.Get(st, index);
+						if (msg)
 						{
-							if (accumulator.TRefIsChanging(d))
+							CTPeriod p = st.GetVariablesCount().GetTPeriod();
+
+							CWeatherAccumulator accumulator(TM);
+							for (CTRef d = p.Begin(); d <= p.End(); d++)
+							{
+								if (accumulator.TRefIsChanging(d))
+								{
+									CTRef TRef = accumulator.GetTRef();
+									for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+									{
+										if (bAddForecast[v] && !station[TRef][v].IsInit())
+											station[TRef].SetStat(v, accumulator.GetStat(v));
+									}
+								}
+
+								const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
+
+								for (int v = 0; v < NB_VAR_H; v++)
+									if (hourData[v] > -999)
+										accumulator.Add(d, v, hourData[v]);
+
+							}//for all days
+
+							if (accumulator.GetTRef().IsInit())
 							{
 								CTRef TRef = accumulator.GetTRef();
 								for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-								{
 									if (bAddForecast[v] && !station[TRef][v].IsInit())
 										station[TRef].SetStat(v, accumulator.GetStat(v));
-								}
 							}
-
-							const CHourlyData& hourData = st[d.GetYear()][d.GetMonth()][d.GetDay()][d.GetHour()];
-
-							for (int v = 0; v < NB_VAR_H; v++)
-								if (hourData[v] > -999)
-									accumulator.Add(d, v, hourData[v]);
-
-						}//for all days
-
-						if (accumulator.GetTRef().IsInit())
-						{
-							CTRef TRef = accumulator.GetTRef();
-							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-								if (bAddForecast[v] && !station[TRef][v].IsInit())
-									station[TRef].SetStat(v, accumulator.GetStat(v));
 						}
 					}
 				}
 			}
 		}
-	}
-	else
-	{
-		CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
-		size_t index = zop.FindByID(ID);
-		if (index < zop.size())
+		else
 		{
-			msg = m_DB.Get(station, index);
+			CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
+			size_t index = zop.FindByID(ID);
+			if (index < zop.size())
+			{
+				msg = m_DB.Get(station, index);
+			}
+		}
+
+		return msg;
+	}
+
+	void CEnvCanHourlyForecast::ReadTemperature(const zen::XmlElement& input, CWeatherStation& station)
+	{
+		zen::XmlIn in(input);
+		for (zen::XmlIn child = in["temperature-list"]; child; child.next())
+		{
+			string type;
+			child.attribute("type", type);
+
+			int var = -1;
+			if (type == "air")
+				var = H_TAIR2;
+			else if (type == "dew-point")
+				var = H_TDEW;
+
+
+			if (var == H_TAIR2 || var == H_TDEW)
+			{
+				for (zen::XmlIn child2 = child["temperature-value"]; child2; child2.next())
+				{
+
+					string start;
+					string end;
+					child2.attribute("start", start);
+					child2.attribute("end", end);
+
+					CTRef TRef1 = ConvertTime(start);
+					CTRef TRef2 = ConvertTime(end);
+
+					double low = 0;
+					double hi = 0;
+					child2["lower-limit"](low);
+					child2["upper-limit"](hi);
+
+					for (CTRef ref = TRef1; ref <= TRef2; ref++)
+					{
+						ASSERT(ref.GetYear() > 0);
+						ASSERT(station.IsHourly());
+
+						CHourlyData& data = station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()];
+						data[var] = (low + hi) / 2;
+
+						if (data[H_TAIR2] > -999 && data[H_TDEW] > -999)
+							data[H_RELH] = Td2Hr(data[H_TAIR2], data[H_TDEW]);
+					}
+				}
+			}
 		}
 	}
 
-	return msg;
-}
-
-void CEnvCanHourlyForecast::ReadTemperature(const zen::XmlElement& input, CWeatherStation& station)
-{
-	zen::XmlIn in(input);
-	for (zen::XmlIn child = in["temperature-list"]; child; child.next())
+	void CEnvCanHourlyForecast::ReadPrecipitation(const zen::XmlElement& input, CWeatherStation& station)
 	{
-		string type;
-		child.attribute("type", type);
-
-		int var = -1;
-		if (type == "air")
-			var = H_TAIR2;
-		else if (type == "dew-point")
-			var = H_TDEW;
-
-
-		if (var == H_TAIR2 || var == H_TDEW)
+		zen::XmlIn child = input.getChild("accum-list");
+		if (child)
 		{
-			for (zen::XmlIn child2 = child["temperature-value"]; child2; child2.next())
+			for (zen::XmlIn child2 = child["accum-amount"]; child2; child2.next())
 			{
-
 				string start;
 				string end;
 				child2.attribute("start", start);
@@ -558,184 +630,150 @@ void CEnvCanHourlyForecast::ReadTemperature(const zen::XmlElement& input, CWeath
 				double hi = 0;
 				child2["lower-limit"](low);
 				child2["upper-limit"](hi);
+				double prcp = (low + hi) / (2 * (TRef2 - TRef1));
+
+				for (CTRef ref = TRef1; ref < TRef2; ref++)
+				{
+					ASSERT(ref.GetYear() > 0);
+					ASSERT(station.IsHourly());
+					station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()][H_PRCP] = prcp;
+				}
+			}
+		}
+	}
+
+	void CEnvCanHourlyForecast::ReadWind(const zen::XmlElement& input, CWeatherStation& station)
+	{
+		zen::XmlIn child = input.getChild("wind-list");
+		if (child)
+		{
+			for (zen::XmlIn child2 = child["wind"]; child2; child2.next())
+			{
+				string start;
+				string end;
+				child2.attribute("start", start);
+				child2.attribute("end", end);
+				CTRef TRef1 = ConvertTime(start);
+				CTRef TRef2 = ConvertTime(end);
+
+				zen::XmlIn in(child2["wind-speed"]);
+
+				double low = 0;
+				double hi = 0;
+				in["lower-limit"](low);
+				in["upper-limit"](hi);
+				double windSpeed = (low + hi) / 2;
 
 				for (CTRef ref = TRef1; ref <= TRef2; ref++)
 				{
 					ASSERT(ref.GetYear() > 0);
 					ASSERT(station.IsHourly());
-
-					CHourlyData& data = station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()];
-					data[var] = (low + hi) / 2;
-
-					if (data[H_TAIR2] > -999 && data[H_TDEW] > -999)
-						data[H_RELH] = Td2Hr(data[H_TAIR2], data[H_TDEW]);
+					station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()][H_WNDS] = windSpeed;
 				}
 			}
 		}
 	}
-}
 
-void CEnvCanHourlyForecast::ReadPrecipitation(const zen::XmlElement& input, CWeatherStation& station)
-{
-	zen::XmlIn child = input.getChild("accum-list");
-	if (child)
+	void CEnvCanHourlyForecast::ReadDay(const zen::XmlElement& input, CWeatherStation& station)
 	{
-		for (zen::XmlIn child2 = child["accum-amount"]; child2; child2.next())
-		{
-			string start;
-			string end;
-			child2.attribute("start", start);
-			child2.attribute("end", end);
+		ReadTemperature(input, station);
+		ReadPrecipitation(input, station);
+		//ReadRelativeHumidity(input, station);
+		ReadWind(input, station);
 
-			CTRef TRef1 = ConvertTime(start);
-			CTRef TRef2 = ConvertTime(end);
-
-			double low = 0;
-			double hi = 0;
-			child2["lower-limit"](low);
-			child2["upper-limit"](hi);
-			double prcp = (low + hi) / (2 * (TRef2 - TRef1));
-
-			for (CTRef ref = TRef1; ref < TRef2; ref++)
-			{
-				ASSERT(ref.GetYear() > 0);
-				ASSERT(station.IsHourly());
-				station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()][H_PRCP] = prcp;
-			}
-		}
 	}
-}
 
-void CEnvCanHourlyForecast::ReadWind(const zen::XmlElement& input, CWeatherStation& station)
-{
-	zen::XmlIn child = input.getChild("wind-list");
-	if (child)
+	ERMsg CEnvCanHourlyForecast::ReadData(const string& filePath, CWeatherStationVector& stations, CCallback& callback)const
 	{
-		for (zen::XmlIn child2 = child["wind"]; child2; child2.next())
+		ERMsg msg;
+
+		//open file
+		zen::XmlDoc doc;
+
+		msg = load(filePath, doc);
+		if (msg)
 		{
-			string start;
-			string end;
-			child2.attribute("start", start);
-			child2.attribute("end", end);
-			CTRef TRef1 = ConvertTime(start);
-			CTRef TRef2 = ConvertTime(end);
+			const zen::XmlElement* pElem = doc.root().getChild("data");
+			if (pElem)
+				pElem = pElem->getChild("forecast");
 
-			zen::XmlIn in(child2["wind-speed"]);
-
-			double low = 0;
-			double hi = 0;
-			in["lower-limit"](low);
-			in["upper-limit"](hi);
-			double windSpeed = (low + hi) / 2;
-
-			for (CTRef ref = TRef1; ref <= TRef2; ref++)
+			if (pElem)
 			{
-				ASSERT(ref.GetYear() > 0);
-				ASSERT(station.IsHourly());
-				station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()][H_WNDS] = windSpeed;
-			}
-		}
-	}
-}
-
-void CEnvCanHourlyForecast::ReadDay(const zen::XmlElement& input, CWeatherStation& station)
-{
-	ReadTemperature(input, station);
-	ReadPrecipitation(input, station);
-	//ReadRelativeHumidity(input, station);
-	ReadWind(input, station);
-
-}
-
-ERMsg CEnvCanHourlyForecast::ReadData(const string& filePath, CWeatherStationVector& stations, CCallback& callback)const
-{
-	ERMsg msg;
-
-	//open file
-	zen::XmlDoc doc;
-
-	msg = load(filePath, doc);
-	if (msg)
-	{
-		const zen::XmlElement* pElem = doc.root().getChild("data");
-		if (pElem)
-			pElem = pElem->getChild("forecast");
-
-		if (pElem)
-		{
-			auto forecast = pElem->getChildren("meteocode-forecast");
-			for (auto it = forecast.first; it != forecast.second; it++)
-			{
-				auto locations = it->getChildren("location");
-				const zen::XmlElement* pData = it->getChild("parameters");
-				if (locations.first != locations.second && pData)
+				auto forecast = pElem->getChildren("meteocode-forecast");
+				for (auto it = forecast.first; it != forecast.second&&msg; it++)
 				{
-					//for all location with this data
-					for (auto it2 = locations.first; it2 != locations.second; it2++)
+					auto locations = it->getChildren("location");
+					const zen::XmlElement* pData = it->getChild("parameters");
+					if (locations.first != locations.second && pData)
 					{
-						zen::XmlIn in(*it2);
-
-						string ID;
-						in["msc-zone-code"](ID);
-
-
-						CLocationVector::const_iterator itFind = std::find_if(m_stations.begin(), m_stations.end(), FindLocationByID(ID));
-
-						if (itFind == m_stations.end() && (ID.back() == 'a' || ID.back() == 'b' || ID.back() == 'c' || ID.back() == 'd'))
+						//for all location with this data
+						for (auto it2 = locations.first; it2 != locations.second&&msg; it2++)
 						{
-							string ID2(ID);
-							ID2.pop_back();
-							itFind = std::find_if(m_stations.begin(), m_stations.end(), FindLocationByID(ID2));
-							if (itFind != m_stations.end())
-								ID = ID2;
-						}
+							zen::XmlIn in(*it2);
+
+							string ID;
+							in["msc-zone-code"](ID);
 
 
-						if (itFind != m_stations.end())
-						{
-							CWeatherStationVector::iterator it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
-							if (it == stations.end())
+							CLocationVector::const_iterator itFind = std::find_if(m_stations.begin(), m_stations.end(), FindLocationByID(ID));
+
+							if (itFind == m_stations.end() && (ID.back() == 'a' || ID.back() == 'b' || ID.back() == 'c' || ID.back() == 'd'))
 							{
-								CWeatherStation weaterStation(true);
-								((CLocation&)weaterStation) = *itFind;
-								weaterStation.m_name = PurgeFileName(weaterStation.m_name);
-								weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, RemoveAccented(weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv"));
-								stations.push_back(weaterStation);
-								it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
+								string ID2(ID);
+								ID2.pop_back();
+								itFind = std::find_if(m_stations.begin(), m_stations.end(), FindLocationByID(ID2));
+								if (itFind != m_stations.end())
+									ID = ID2;
 							}
 
 
-							ReadDay(*pData, *it);
-						}
-						else
-						{
-							//Seem to be normal, no station information for some forecast??? Stop writing warning
-							//string locName;
-							//in["msc-zone-name"](locName);
-							//callback.AddMessage("No station information for ID: " + ID + " (" + locName + ")");
-						}
-					}//all locations
-				}//all forecast
+							if (itFind != m_stations.end())
+							{
+								CWeatherStationVector::iterator it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
+								if (it == stations.end())
+								{
+									CWeatherStation weaterStation(true);
+									((CLocation&)weaterStation) = *itFind;
+									weaterStation.m_name = PurgeFileName(weaterStation.m_name);
+									weaterStation.SetDefaultSSI(CLocation::DATA_FILE_NAME, RemoveAccented(weaterStation.m_name + " (" + weaterStation.GetSSI("Region") + ").csv"));
+									stations.push_back(weaterStation);
+									it = std::find_if(stations.begin(), stations.end(), FindLocationByID(ID));
+								}
+
+
+								ReadDay(*pData, *it);
+							}
+							else
+							{
+								//Seem to be normal, no station information for some forecast??? Stop writing warning
+								//string locName;
+								//in["msc-zone-name"](locName);
+								//callback.AddMessage("No station information for ID: " + ID + " (" + locName + ")");
+							}
+
+							msg += callback.StepIt(0);
+						}//all locations
+					}//all forecast
+				}
 			}
 		}
+
+		return msg;
 	}
 
-	return msg;
-}
 
-
-ERMsg CEnvCanHourlyForecast::Finalize(CCallback& callback)
-{
-	ERMsg msg;
-
-	m_DB.Close();
-	if (m_pShapefile)
+	ERMsg CEnvCanHourlyForecast::Finalize(CCallback& callback)
 	{
-		delete m_pShapefile;
-		m_pShapefile = NULL;
-	}
+		ERMsg msg;
 
-	return msg;
-}
+		m_DB.Close();
+		if (m_pShapefile)
+		{
+			delete m_pShapefile;
+			m_pShapefile = NULL;
+		}
+
+		return msg;
+	}
 
 }

@@ -88,7 +88,7 @@ namespace WBSF
 
 		size_t GetHH(const std::string& title)const;
 		size_t Gethhh(const std::string& title)const;
-		ERMsg GetLatestHH(size_t& HH)const;
+		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
 		CTRef GetTRef(const std::string& title)const;
 		ERMsg OpenDatasets(CCallback& callback);
 

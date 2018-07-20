@@ -200,7 +200,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(MEMBER_NAME), Get(PASSWORD), true);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(MEMBER_NAME), Get(PASSWORD), true, 5, callback);
 		if (msg)
 		{
 			//https://api.loginradius.com/raas/client/auth/login?apikey=75141eeb-8c9b-4a8e-8a29-653c80621116&emailverificationurl=https://weatherfarm.com/login-2/&template=undefined&password=Stamant74&emailid=tigroux74%40hotmail.com&callback=Loginradius584694468545443000
@@ -486,7 +486,7 @@ namespace WBSF
 
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(MEMBER_NAME), Get(PASSWORD));
 		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (msg)
 		{

@@ -383,7 +383,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[type], pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME[type], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -489,7 +489,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[CURRENT_RADAR], pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME[CURRENT_RADAR], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -591,7 +591,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -629,7 +629,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession);
+			msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{

@@ -3,14 +3,11 @@
 //									 
 //***********************************************************************
 // version
-// 1.1.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
-// 1.1.0	16/11/2017	Rémi Saint-Amant	Compile with GDAL 2.2
-// 1.0.0	21/12/2015	Rémi Saint-Amant	Creation
+// 1.0.0	13/07/2018	Rémi Saint-Amant	Creation
 
-//-te -1271940 7942380 -1249530 7956540 -of vrt -co "bigtiff=yes" -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" -blocksize 1024 1024 -multi -Type SecondBest -stats -debug -dstnodata -32768 --config GDAL_CACHEMAX 1024 "U:\GIS1\LANDSAT_SR\LCC\2014\#57_2014_182-244.vrt" "U:\GIS\#documents\TestCodes\ExtractGribs\Test4\Nuage.vrt"
-//-stats -Type BestPixel -te 1358100 6854400 1370300 6865500 -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite -Clouds "U:\GIS\#documents\TestCodes\ExtractGribs\Test2\Model\V4_SR_DTD1_cloudv4_skip100_200" "U:\GIS1\LANDSAT_SR\LCC\1999-2006.vrt" "U:\GIS\#documents\TestCodes\ExtractGribs\Test2\Output\Test.vrt"
-//-stats -Type Oldest -TT OverallYears -of VRT -ot Int16 -blockSize 1024 1024 -co "compress=LZW" -co "tiled=YES" -co "BLOCKXSIZE=1024" -co "BLOCKYSIZE=1024" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite "U:\GIS\#documents\TestCodes\BandsAnalyser\Test1\Input\Test1999-2014.vrt" "U:\GIS\#documents\TestCodes\ExtractGribs\Test0\output\Test.vrt"
-//-RGB Natural -stats --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -overwrite -of VRT -co "compress=LZW" -te 1718910 6620910 1751910 6652920 "D:\Travaux\MergeImage\input\2015-2016-2017.vrt" "D:\Travaux\MergeImage\input\subset\2015-2016-2017.vrt"
+//-of VRT -stats -overview {2,4,8,16} -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-05" -var WNDS -var WNDD  -overwrite --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.vrt"
+//-of XYZ -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-05" -var WNDS -var WNDD --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.csv"
+//--config GDAL_CACHEMAX 1024 -co "compress=LZW" -var WNDS -var WNDD -Levels "0,200,400,600,800,1000" -loc "D:\Travaux\Dispersal2018\Loc\helikite.csv" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output1.csv"
 
 
 #include "stdafx.h"
@@ -37,6 +34,17 @@ namespace WBSF
 
 	const char* CExtractGribs::VERSION = "1.0.0";
 	const int CExtractGribs::NB_THREAD_PROCESS = 2;
+	enum TGEVar { GR_TAIR, GR_PRCP, GR_WNDU, GR_WNDV, GR_WNDS, GR_WNDD, NB_GE_VARIABLES };
+	static const char* VAR_NAME[NB_GE_VARIABLES] = { "TAIR", "PRCP", "WNDU", "WNDV", "WNDS", "WNDD" };
+	size_t GetVariable(const string& str)
+	{
+		size_t type = NOT_INIT;
+		for (size_t i = 0; i < NB_GE_VARIABLES && type == NOT_INIT; i++)
+			if (IsEqualNoCase(str, VAR_NAME[i]))
+				type = i;
+
+		return type;
+	}
 
 
 	//*********************************************************************************************************************
@@ -44,23 +52,24 @@ namespace WBSF
 	CExtractGribsOption::CExtractGribsOption()
 	{
 		m_appDescription = "This software extract weather from gribs file.";
-		m_format = "VRT";
+		m_format = "XYZ";
 		m_levels.push_back(0);
 		m_outputType = GDT_Float32;
-		m_bWS = false;
-		m_bWD = false;
+		m_time_step = 3600;
 
-		AddOption("-Period");
-			//	AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-Levels", 1, "{level1,level2,...}", false, "Altitude (in meters) over ground to extract weather. Surface (0 - 10) by default." },
-			{ "-Vars", 1, "{var1,var2,...}", false, "Select variable to extract. Standard variable are: TMP, " },
+			{ "-Var", 1, "var", true, "Select variable to extract. Variable available are: TAIR, PRCP, WNDU, WNDV, WNDS, WNDD" },
 			{ "-Loc", 1, "filePath", false, "File path for locations list to extract point instead of images. " },
-			{ "-WS", 0, "", false, "Extract wind speed from u and v component." },
-			{ "-WD", 0, "", false, "Extract wind direction from u and v component." },
+			{ "-SubHourly", 1, "seconds", false, "Output frequency. 3600 s (hourly) by default." },
+			{ "-Period", 2, "begin end", false, "Period (in UTC) to extract. Format of date must be \"yyyy-mm-dd-hh\"."},
+			{ "-Tonight", 2, "first last", false, "first and last hour (in UTC) to extract." },
+			//{ "-units", 2, "var unit", false, "Period (in UTC) to extract. Format of date must be \"yyyy-mm-dd-hh\"." },
+			//{ "-WS", 0, "", false, "Extract wind speed from u and v component." },
+			//{ "-WD", 0, "", false, "Extract wind direction from u and v component." },
 			{ "gribsfile", 0, "", false, "Input image file path." },
-			{ "dstfile", 0, "", false, "Output image/CSV file path. VRT format by default. Use option -of XYZ to extract images as csv." }
+			{ "dstfile", 0, "", false, "Output image/CSV file path. XYZ (.csv) format by default. Use option -of VRT to extract images." }
 		};
 
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
@@ -91,8 +100,11 @@ namespace WBSF
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
 
-		if (m_format == "XYZ")
-			m_bOutputCSV = true;
+		if (!m_locations_file_path.empty())
+		{
+			m_bCreateImage = false;
+			m_format = "XYZ";
+		}
 
 
 		return msg;
@@ -114,18 +126,24 @@ namespace WBSF
 					m_levels.push_back(ToDouble(*it));
 			}
 		}
-		else if (IsEqual(argv[i], "-Vars"))
+		else if (IsEqual(argv[i], "-Var"))
 		{
 			string tmp = argv[++i];
-			StringVector vars(tmp, "{,}");
+			size_t type = GetVariable(tmp);
+			if (type != NOT_INIT)
+				m_variables.push_back(type);
+			else
+				msg.ajoute(string(tmp) + " is not a valid variable");
 
-			m_variables.clear();
-			for (StringVector::iterator it = vars.begin(); it != vars.end(); it++)
-			{
-				Trim(*it);
-				if (!it->empty())
-					m_variables.push_back(*it);
-			}
+			/*StringVector vars(tmp, "{,}");
+
+		m_variables.clear();
+		for (StringVector::iterator it = vars.begin(); it != vars.end(); it++)
+		{
+			Trim(*it);
+			if (!it->empty())
+				m_variables.push_back(*it);
+		}*/
 		}
 		else if (IsEqual(argv[i], "-Loc"))
 		{
@@ -133,23 +151,44 @@ namespace WBSF
 
 			m_locations_file_path = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-WS"))
+		else if (IsEqual(argv[i], "-SubHourly"))
 		{
-			m_bWS = true;
+			m_time_step = std::atoi(argv[++i]);
 		}
-		else if (IsEqual(argv[i], "-WD"))
+		else if (IsEqual(argv[i], "-Tonight"))
 		{
-			m_bWD = true;
+			int f = std::atoi(argv[++i]);
+			int l = std::atoi(argv[++i]);
+			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+
+			int df = f - (int)now.GetHour();
+			int dl = l - (int)now.GetHour();
+			if (df < 0)
+				df += 24;
+			if (dl < 0)
+				dl += 24; 
+
+			m_period = CTPeriod(now + df, now + dl);
 		}
 		else
 		{
-
 			//Look to see if it's a know base option
 			msg = CBaseOptions::ProcessOption(i, argc, argv);
 		}
 
-
 		return msg;
+	}
+
+	bool AtLeastOnePointIn(const CGeoExtents& blockExtents, const CLocationVector& locations)
+	{
+		bool bAtLeastOne = false;
+		for (size_t xy = 0; xy < locations.size() && !bAtLeastOne; xy++)
+		{
+			bAtLeastOne = blockExtents.IsInside(locations[xy]);
+		}
+			
+
+		return bAtLeastOne;
 	}
 
 
@@ -161,143 +200,252 @@ namespace WBSF
 		{
 			cout << "Output: " << m_options.m_filesPath[CExtractGribsOption::OUTPUT_FILE_PATH] << endl;
 			cout << "From:   " << m_options.m_filesPath[CExtractGribsOption::GRIBS_FILE_PATH] << endl;
-
-			if (!m_options.m_maskName.empty())
-				cout << "Mask:   " << m_options.m_maskName << endl;
 		}
 
 		GDALAllRegister();
 
-		CGDALDatasetEx inputDS;
-		CGDALDatasetEx maskDS;
+		CGribsWeather weather;
 		CGDALDatasetEx outputDS;
 
 		CLocationVector locations;
-		ofStream CSV_file_path;
+		ofStream CSV_file;
 
-		msg = OpenAll(inputDS, maskDS, locations, outputDS, CSV_file_path);
+		msg = OpenAll(weather, locations, outputDS, CSV_file);
 
 
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
-		if (msg && maskDS.IsOpen())
-			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
+		//CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		//if (msg && maskDS.IsOpen())
+		//	bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
 
-		if (msg)
-			msg += bandHolder.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
+		//if (msg)
+		//	msg += bandHolder.Load(inputDS, m_options.m_bQuiet, m_options.GetExtents(), m_options.m_period);
 
 		if (!msg)
 			return msg;
 
 
-		CGeoExtents extents = bandHolder.GetExtents();
-		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
-		vector<pair<int, int>> XYindex = extents.GetBlockList(5, 5);
 
-		vector < set<size_t>> imagesList(XYindex.size());
 
-		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
+		//load image
+		for (size_t t = 0; t < m_options.m_times.size(); t++)
 		{
-			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
+			weather.load(weather.GetNearestFloorTime(m_options.m_times[t]));
+			weather.load(weather.GetNextTime(m_options.m_times[t]));
 		}
 
-		m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
+		cout << "     nb variables: " << m_options.m_variables.size() << endl;
+		cout << "     nb levels:    " << m_options.m_levels.size() << endl;
+		cout << "     nb times:     " << m_options.m_times.size() << endl;
+		cout << "     extents:      X:{" << ToString(m_options.m_extents.m_xMin) << ", " << ToString(m_options.m_extents.m_xMax) << "}  Y:{" << ToString(m_options.m_extents.m_yMin) << ", " << ToString(m_options.m_extents.m_yMax) << "}" << endl;
+		cout << "     period:       " << m_options.m_period.GetFormatedString() << endl;
 
-		omp_set_nested(1);//for IOCPU
-
-
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
-		for (int b = 0; b < (int)XYindex.size(); b++)
+		if (m_options.m_format == "XYZ")
 		{
-			int xBlock = XYindex[b].first;
-			int yBlock = XYindex[b].second;
+			
+			cout << "     nb locations: " << locations.size() << endl;
+			cout << "Create locations output" << endl;;
+	//		if (AtLeastOnePointIn(blocExtents, locations))
+		//	{
+			OutputData outputData(m_options.m_variables.size()*m_options.m_levels.size()*m_options.m_times.size());
+			for (size_t i = 0; i < outputData.size(); i++)
+				outputData[i].resize(locations.size(), -999);
 
-			int blockThreadNo = ::omp_get_thread_num();
-//			imagesList[b] = GetImageList(xBlock, yBlock, bandHolder[blockThreadNo], inputDS);
-			if (!imagesList[b].empty())
+			ProcessBlock(locations, weather, outputData);
+			WriteBlock(locations, outputData, CSV_file);
+//			//}
+
+		}
+		else
+		{
+			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
+				cout << "     size:         " << outputDS.GetRasterXSize() << " cols x " << outputDS.GetRasterYSize() << " rows x " << outputDS.GetRasterCount() << " bands" << endl;
+
+			cout << "Create image output" << endl;
+
+
+			CGeoExtents extents = m_options.GetExtents();
+			
+			//m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize);
+			vector<pair<int, int>> XYindex = extents.GetBlockList(5, 5);
+			m_options.ResetBar((size_t)extents.m_xSize*extents.m_ySize*m_options.m_variables.size()*m_options.m_levels.size()*m_options.m_times.size());
+
+			omp_set_nested(1);//for IOCPU
+
+	//#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+			for (int b = 0; b < (int)XYindex.size(); b++)
 			{
-#pragma omp critical(PreProcessBlock)
-				{
-	//				images.insert(imagesList[b].begin(), imagesList[b].end());
-				}
-			}
-		}//for all blocks
-		
+				int xBlock = XYindex[b].first;
+				int yBlock = XYindex[b].second;
+				int blockThreadNo = ::omp_get_thread_num();
 
-		CloseAll(inputDS, maskDS, outputDS, CSV_file_path);
+				CGeoExtents blocExtents = extents.GetBlockExtents(xBlock, yBlock);
+				CGeoSize blockSize = blocExtents.GetSize();
+				float dstNodata = -999;// (float)m_options.m_dstNodata;
+
+				OutputData outputData(m_options.m_times.size()*m_options.m_levels.size()*m_options.m_variables.size());
+				for (size_t i = 0; i < outputData.size(); i++)
+					outputData[i].resize(blockSize.m_x*blockSize.m_y, dstNodata);
+
+				for (size_t t = 0; t < m_options.m_times.size(); t++)
+				{
+					__int64 UTCWeatherTime = weather.GetNearestFloorTime(m_options.m_times[t]);
+					weather.read_block(xBlock, yBlock, UTCWeatherTime);
+					UTCWeatherTime = weather.GetNextTime(m_options.m_times[t]);
+					weather.read_block(xBlock, yBlock, UTCWeatherTime);
+				}
+
+				ProcessBlock(xBlock, yBlock, weather, outputData);
+				WriteBlock(xBlock, yBlock, outputData, outputDS);
+
+			}//for all blocks
+		}
+
+		CloseAll(weather, outputDS, CSV_file);
 
 		return msg;
 	}
 
 
-	
-	ERMsg CExtractGribs::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLocationVector& locations, CGDALDatasetEx outputDS, ofStream& CSV_file)
+
+	ERMsg CExtractGribs::OpenAll(CGribsWeather& weather, CLocationVector& locations, CGDALDatasetEx& outputDS, ofStream& CSV_file)
 	{
 		ERMsg msg;
 
 		if (!m_options.m_bQuiet)
 			cout << endl << "Open input image..." << endl;
 
-		msg = inputDS.OpenInputImage(m_options.m_filesPath[CExtractGribsOption::GRIBS_FILE_PATH], m_options);
+		msg = weather.open(m_options.m_filesPath[CExtractGribsOption::GRIBS_FILE_PATH], m_options);
+
 		if (msg)
-			inputDS.UpdateOption(m_options);
-
-
-		if (msg && !m_options.m_bQuiet)
 		{
-			CGeoExtents extents = inputDS.GetExtents();
-			CProjectionPtr pPrj = inputDS.GetPrj();
+
+			weather.UpdateOption(m_options);
+
+			m_options.m_times.clear();
+			__int64 time_start = CTimeZones::UTCTRef2UTCTime(m_options.m_period.Begin());//period ar in UTC
+			__int64 time_end = CTimeZones::UTCTRef2UTCTime(m_options.m_period.End());//period ar in UTC
+
+			for (size_t t = 0; t <= (time_end - time_start) / m_options.m_time_step; t++)
+			{
+				//CTRef UTCTRef = CTimeZones::LocalTRef2UTCTRef(m_options.m_period[t]);
+				m_options.m_times.push_back(time_start + t * m_options.m_time_step);
+			}
+
+
+			CGeoExtents weather_extents = weather.GetExtents();
+			CProjectionPtr pPrj = CProjectionManager::GetPrj(weather.GetPrjID());
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
-			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
-			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
-			cout << "    Projection     = " << prjName << endl;
-			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
-			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			cout << "    Input period   = " << inputDS.GetPeriod().GetFormatedString() << endl;
-		}
+			cout << "    weather size       = " << weather_extents.m_xSize << " cols x " << weather_extents.m_ySize << " rows x " << weather.GetRasterCount() << " bands" << endl;
+			cout << "    weather extents    = X:{" << ToString(weather_extents.m_xMin) << ", " << ToString(weather_extents.m_xMax) << "}  Y:{" << ToString(weather_extents.m_yMin) << ", " << ToString(weather_extents.m_yMax) << "}" << endl;
+			cout << "    weather projection = " << prjName << endl;
+			cout << "    weather period     = " << weather.GetEntireTPeriod().GetFormatedString() << endl;
 
-		if (msg && !m_options.m_maskName.empty())
-		{
-			if (!m_options.m_bQuiet)
-				cout << "Open mask..." << endl;
+			size_t prjID = weather.GetPrjID();
+			m_options.toWea = GetReProjection(PRJ_WGS_84, prjID);
+			m_options.toGeo = GetReProjection(prjID, PRJ_WGS_84);
 
-			msg += maskDS.OpenInputImage(m_options.m_maskName);
-		}
 
-		if (m_options.m_bCreateImage)
-		{
-			CExtractGribsOption options(m_options);
-			options.m_outputType = GDT_Int16;
-
-			if (!m_options.m_bQuiet)
+			if (!m_options.m_locations_file_path.empty())
 			{
-				cout << endl;
-				cout << "Open output images..." << endl;
-				cout << "    Size           = " << options.m_extents.m_xSize << " cols x " << options.m_extents.m_ySize << " rows x " << options.m_nbBands << " bands" << endl;
-				cout << "    Extents        = X:{" << ToString(options.m_extents.m_xMin) << ", " << ToString(options.m_extents.m_xMax) << "}  Y:{" << ToString(options.m_extents.m_yMin) << ", " << ToString(options.m_extents.m_yMax) << "}" << endl;
-				cout << "    Output period   = " << m_options.m_period.GetFormatedString() << endl;
+				msg += locations.Load(m_options.m_locations_file_path);
+
+				//transform location coord into weather coord
+				for (size_t xy = 0; xy < locations.size(); xy++)
+				{
+					msg += locations[xy].Reproject(m_options.toWea);
+				}
 			}
 
-			string filePath = options.m_filesPath[CExtractGribsOption::OUTPUT_FILE_PATH];
-			/*string fileTitle = GetFileTitle(filePath);
-			for (size_t b = 0; b < SCENES_SIZE; b++)
+			if (m_options.m_format == "XYZ" && m_options.m_locations_file_path.empty())
 			{
-				options.m_VRTBandsName += fileTitle + string("_") + Landsat::GetSceneName(b) + ".tif|";
-			}*/
+				//create location form extent
+			
+				CGeoExtents extents = m_options.m_extents;
+				locations.resize(extents.m_ySize*extents.m_xSize);
+				for (size_t y = 0; y < extents.m_ySize; y++)
+				{
+					for (size_t x = 0; x < extents.m_xSize; x++)
+					{
+						CGeoPoint pt = extents.XYPosToCoord(CGeoPointIndex((int)x, (int)y));
+						CGeoPointIndex index = weather_extents.CoordToXYPos(pt);
+						
+						//pt.Reproject(m_options.toGeo);
 
-
-			msg += outputDS.CreateImage(filePath, options);
-
-			if (msg && !options.m_bQuiet)
-			{
-				CTPeriod period = options.GetTTPeriod();
-				cout << "    Output period:  " << period.GetFormatedString() << endl;
-				cout << endl;
+						size_t xy = y * extents.m_xSize + x;
+						locations[xy] = CLocation(to_string(index.m_x + 1), to_string(index.m_y + 1), pt.m_lat, pt.m_lon, weather.GetFirstAltitude(index));
+						locations[xy].SetPrjID(weather.GetPrjID());
+					}
+				}
 			}
+
+			string filePath = m_options.m_filesPath[CExtractGribsOption::OUTPUT_FILE_PATH];
+
+			if (m_options.m_format == "XYZ")
+			{
+				msg = CSV_file.open(filePath);
+
+				if (msg)
+				{
+					string header("KeyID,Name,Latitude,Longitude,Elevation,TimeUTC,Level");
+					for (size_t v = 0; v < m_options.m_variables.size(); v++)
+					{
+						string varName = VAR_NAME[m_options.m_variables[v]];
+						header += "," + varName;
+
+					}
+
+					CSV_file << header << endl;
+				}
+			}
+			else
+			{
+					std::string m_locations_file_path;
+
+					CExtractGribsOption options(m_options);
+					options.m_nbBands = options.m_times.size()*options.m_levels.size()* options.m_variables.size();
+					//options.m_format = "GTiff";
+
+					if (!options.m_bQuiet)
+					{
+						cout << endl;
+						cout << "Open output images..." << endl;
+						//cout << "    Size           = " << options.m_extents.m_xSize << " cols x " << options.m_extents.m_ySize << " rows x " << options.m_nbBands << " bands" << endl;
+						//cout << "    Extents        = X:{" << ToString(options.m_extents.m_xMin) << ", " << ToString(options.m_extents.m_xMax) << "}  Y:{" << ToString(options.m_extents.m_yMin) << ", " << ToString(options.m_extents.m_yMax) << "}" << endl;
+						//cout << "    Output period   = " << m_options.m_period.GetFormatedString() << endl;
+					}
+
+					//if (!options.m_bQuiet && options.m_bCreateImage)
+						//cout << "Create output images " << " x(" << options.m_extents.m_xSize << " C x " << options.m_extents.m_ySize << " R x " << options.m_nbBands << " bands) with " << options.m_CPU << " threads..." << endl;
+
+					//replace the common part by the new name
+					for (size_t t = 0; t < options.m_times.size(); t++)
+					{
+						for (size_t l = 0; l < options.m_levels.size(); l++)
+						{
+							for (size_t v = 0; v < options.m_variables.size(); v++)
+							{
+								__int64 UTCTime = options.m_times[t];
+								//__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, pt);
+
+								struct tm * timeinfo = gmtime(&UTCTime);
+
+								char time[128] = { 0 };
+								strftime(time, 128, "%Y-%m-%d-%H-%M", timeinfo);
+
+								//string time = to_string(m_options.m_times[t]);// m_options.m_times[t].GetFormatedString("%Y%m%d%H");
+								string levelName = ToString(options.m_levels[l], 4);
+								string varName = VAR_NAME[options.m_variables[v]];
+								options.m_VRTBandsName += GetFileTitle(filePath) + "_" + time + "_" + levelName + "_" + varName + ".tif|";
+							}
+						}
+					}
+
+					msg += outputDS.CreateImage(filePath, options);
+			}
+			
+
 		}
-
-
 		return msg;
 	}
 
@@ -308,89 +456,130 @@ namespace WBSF
 			m_options.m_timerRead.Start();
 
 			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-			weather.load(UTCWeatherTime);
+			weather.read_block(xBlock, yBlock, UTCWeatherTime);
 
 			m_options.m_timerRead.Stop();
 		}
 	}
 
-	
 
-	void CExtractGribs::ProcessBlock(int xBlock, int yBlock, __int64 UTCWeatherTime, CGribsWeather& weather, OutputData& outputData)
+
+	void CExtractGribs::ProcessBlock(int xBlock, int yBlock, CGribsWeather& weather, OutputData& outputData)
 	{
 
-		CGeoExtents extents = bandHolder.GetExtents();
-		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-
-		if (bandHolder.IsEmpty())
-		{
-#pragma omp critical(ProcessBlock)
-			{
-				int nbCells = blockSize.m_x*blockSize.m_y;
-
-#pragma omp atomic
-				m_options.m_xx += nbCells;
-
-				m_options.UpdateBar();
-			}
-
-			return;
-		}
-
-		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
-
-		__int16 dstNodata = (__int16)m_options.m_dstNodata;
-		outputData.resize(imagesList.size());
-		for (size_t i = 0; i < outputData.size(); i++)
-		{
-			outputData[i].resize(SCENES_SIZE);
-			for (size_t z = 0; z < outputData[i].size(); z++)
-				outputData[i][z].resize(blockSize.m_x*blockSize.m_y, dstNodata);
-		}
-
+		CGeoExtents extents = m_options.GetExtents();
+		CGeoExtents blocExtents = extents.GetBlockExtents(xBlock, yBlock);
+		CGeoSize blockSize = blocExtents.GetSize();
 
 
 #pragma omp critical(ProcessBlock)
 		{
 			m_options.m_timerProcess.Start();
 
-			for (int y = 0; y < blockSize.m_y; y++)
+			for (size_t t = 0; t < m_options.m_times.size(); t++)
 			{
-				for (int x = 0; x < blockSize.m_x; x++)
+				__int64 UTCWeatherTime = weather.GetNearestFloorTime(m_options.m_times[t]);
+				for (size_t y = 0; y < blockSize.m_y; y++)
 				{
-					for (auto it = imagesList.begin(); it != imagesList.end(); it++)
+					for (size_t x = 0; x < blockSize.m_x; x++)
 					{
-						size_t i = std::distance(imagesList.begin(), it);
-						CLandsatPixel pixel = window.GetPixel(*it, x, y);
-						if (pixel[JD] == -1)
-							pixel[JD] = (__int16)(m_options.m_bAlpha - dstNodata);
+						for (size_t l = 0; l < m_options.m_levels.size(); l++)
+						{
+							CGeoPoint pt1 = blocExtents.XYPosToCoord(CGeoPointIndex(int(x), int(y)));
+							CGeoPoint3D pt(pt1.m_x, pt1.m_y, m_options.m_levels[l], extents.GetPrjID());
+							//CGeoPoint3DIndex xyz = weather.get_xyz(pt, UTCWeatherTime);
 
-						for (size_t z = 0; z < SCENES_SIZE; z++)
-							outputData[i][z][y*blockSize.m_x + x] = pixel[z];
-					}
+							//CATMWeatherCuboidsPtr pCuboid = weather.get_cuboids(pt, UTCWeatherTime);
+							//CATMVariables var = pCuboid->get_weather(pt, UTCWeatherTime);
+							CATMVariables var = weather.get_weather(pt, UTCWeatherTime, m_options.m_times[t]);
+
+							for (size_t v = 0; v < m_options.m_variables.size(); v++)
+							{
+								size_t tlv = t * m_options.m_levels.size()*m_options.m_variables.size() + l * m_options.m_variables.size() + v;
+								size_t xy = y * blockSize.m_x + x;
+
+								switch (m_options.m_variables[v])
+								{
+								case GR_TAIR: outputData[tlv][xy] = var[ATM_TAIR]; break;
+								case GR_PRCP: outputData[tlv][xy] = var[ATM_PRCP]; break;
+								case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU] * 3600 / 1000; break;
+								case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600 / 1000; break;
+								case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed() * 3600 / 1000; break;
+								case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
+								default: ASSERT(false);
+								}
 
 #pragma omp atomic 
-					m_options.m_xx++;
+								m_options.m_xx++;
+							}
+						}
+					}
+
+					m_options.UpdateBar();
 				}
-
-
-				m_options.UpdateBar();
 			}
 			m_options.m_timerProcess.Stop();
 		}
 	}
 
-	void CExtractGribs::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, ofStream& CSV_file, OutputData& outputData)
+	void CExtractGribs::ProcessBlock(CLocationVector& locations, CGribsWeather& weather, OutputData& outputData)
+	{
+
+		m_options.ResetBar((size_t)m_options.m_times.size()*locations.size()*m_options.m_levels.size());
+
+#pragma omp critical(ProcessBlock)
+		{
+			m_options.m_timerProcess.Start();
+			for (size_t t = 0; t < m_options.m_times.size(); t++)
+			{
+				__int64 UTCWeatherTime = weather.GetNearestFloorTime(m_options.m_times[t]);
+
+				for (size_t xy = 0; xy < locations.size(); xy++)
+				{
+					for (size_t l = 0; l < m_options.m_levels.size(); l++)
+					{
+						CGeoPoint3D pt(locations[xy].m_x, locations[xy].m_y, m_options.m_levels[l], locations[xy].GetPrjID());
+
+						CATMVariables var = weather.get_weather(pt, UTCWeatherTime, m_options.m_times[t]);
+						//CATMWeatherCuboidsPtr pCuboid = weather.get_cuboids(pt, UTCWeatherTime);
+						//CATMVariables var = pCuboid->get_weather(pt, UTCWeatherTime);
+
+						for (size_t v = 0; v < m_options.m_variables.size(); v++)
+						{
+							size_t tlv = t * m_options.m_levels.size()*m_options.m_variables.size() + l * m_options.m_variables.size() + v;
+
+							switch (m_options.m_variables[v])
+							{
+							case GR_TAIR: outputData[tlv][xy] = var[ATM_TAIR]; break;
+							case GR_PRCP: outputData[tlv][xy] = var[ATM_PRCP]; break;
+							case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU]; break;
+							case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV]; break;
+							case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed(); break;
+							case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
+							default: ASSERT(false);
+							}
+						}//v
+
+						 //#pragma omp atomic 
+						 m_options.m_xx++;
+						 m_options.UpdateBar();
+					}//l
+				}
+			}
+
+			m_options.m_timerProcess.Stop();
+		}
+	}
+
+
+	void CExtractGribs::WriteBlock(int xBlock, int yBlock, OutputData& outputData, CGDALDatasetEx& outputDS)
 	{
 #pragma omp critical(BlockIO)
 		{
 			m_options.m_timerWrite.Start();
 
-
-			CGeoExtents extents = bandHolder.GetExtents();
+			CGeoExtents extents = outputDS.GetExtents();
 			CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
-			CTPeriod period = m_options.GetTTPeriod();
-			int nbSegment = period.GetNbRef();
 
 			if (outputDS.IsOpen())
 			{
@@ -399,17 +588,14 @@ namespace WBSF
 				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= outputDS.GetRasterXSize());
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
 
-				__int16 noData = (__int16)m_options.m_dstNodata;
-				for (size_t s = 0; s < outputDS.GetRasterCount() / SCENES_SIZE; s++)
+				float noData = (float)m_options.m_dstNodata;
+				for (size_t b = 0; b < outputDS.GetRasterCount(); b++)
 				{
-					for (size_t z = 0; z < SCENES_SIZE; z++)
-					{
-						GDALRasterBand *pBand = outputDS.GetRasterBand(s*SCENES_SIZE + z);
-						if (!outputData.empty())
-							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[s][z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
-						else
-							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
-					}
+					GDALRasterBand *pBand = outputDS.GetRasterBand(b);
+					if (!outputData.empty())
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[b][0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
+					else
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Float32, 0, 0);
 				}
 			}
 
@@ -418,10 +604,57 @@ namespace WBSF
 		}
 	}
 
-	void CExtractGribs::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, ofStream& CSV_file)
+	void CExtractGribs::WriteBlock(CLocationVector& locations, OutputData& outputData, ofStream& CSV_file)
 	{
-		inputDS.Close();
-		maskDS.Close();
+#pragma omp critical(BlockIO)
+		{
+			m_options.m_timerWrite.Start();
+
+			if (CSV_file.is_open())
+			{
+				for (size_t xy = 0; xy < locations.size(); xy++)
+				{
+					for (size_t t = 0; t < m_options.m_times.size(); t++)
+					{
+						for (size_t l = 0; l < m_options.m_levels.size(); l++)
+						{
+							CGeoPoint pt = locations[xy];
+							pt.Reproject(m_options.toGeo);
+
+							__int64 UTCTime = m_options.m_times[t];
+							//__int64 localTime = CTimeZones::UTCTime2LocalTime(UTCTime, pt);
+
+							struct tm * timeinfo = gmtime(&UTCTime);
+
+							char time[128] = { 0 };
+							strftime(time, 128, "%Y-%m-%d-%H-%M", timeinfo);
+							
+							//string time = m_options.m_period[t].GetFormatedString("%Y-%m-%d-%H");
+							string levelName = to_string(m_options.m_levels[l]);
+
+							string line = FormatA("%s,%s,%.4lf,%.4lf,%.1lf,%s,%s", locations[xy].m_ID.c_str(), locations[xy].m_name.c_str(), pt.m_lat, pt.m_lon, locations[xy].m_alt, time, levelName.c_str());
+
+							for (size_t v = 0; v < m_options.m_variables.size(); v++)
+							{
+								size_t tvl = t * m_options.m_variables.size()*m_options.m_levels.size() + l * m_options.m_variables.size() + v;
+								line += FormatA(",%.2f", outputData[tvl][xy]);
+							}//v
+
+							CSV_file << line << std::endl;
+						}//l
+					}//t
+				}//xy
+			}
+
+			m_options.m_timerWrite.Stop();
+		}
+
+	}
+
+	void CExtractGribs::CloseAll(CGribsWeather& inputDS, CGDALDatasetEx& outputDS, ofStream& CSV_file)
+	{
+		inputDS.close();
+
 
 		m_options.m_timerWrite.Start();
 
@@ -436,23 +669,12 @@ namespace WBSF
 	//*******************************************************************************************************************
 
 
-
-	CATMVariables CGribsWeather::get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const
+	CATMVariables CGribsWeather::get_weather(CGeoPoint3D pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const
 	{
-		ASSERT(pt.IsGeographic());
+		ASSERT(pt.GetPrjID()==GetPrjID());
 
-
-		CATMVariables w1;
-		CGeoPoint3D pt2(pt);
-
-
-		size_t prjID = m_p_weather_DS.GetPrjID(UTCWeatherTime);
-		ASSERT(prjID != NOT_INIT);
-		pt2.Reproject(m_world.m_GEO2.at(prjID));
-
-
-		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt2, UTCWeatherTime);
-		weather = p_cuboid->get_weather(pt2, UTCCurrentTime);
+		CATMWeatherCuboidsPtr p_cuboid = get_cuboids(pt, UTCWeatherTime);
+		CATMVariables weather = p_cuboid->get_weather(pt, UTCCurrentTime);
 
 		return weather;
 	}
@@ -481,61 +703,55 @@ namespace WBSF
 		//in other product, geopotentiel hight is above sea level
 
 		double grAlt = 0;
-		if (m_bHgtOverSea)
-		{
-			grAlt = GetFirstAltitude(xy, UTCWeatherTime);//get the first level over the ground
+		//if (m_bHgtOverSea)
+		//{
+		grAlt = GetFirstAltitude(xy, UTCWeatherTime);//get the first level over the ground
 
-			if (grAlt <= -999)
-				grAlt = m_world.GetGroundAltitude(pt);
-		}
-		ASSERT(grAlt > -999);
-		if (grAlt > -999)
-		{
+		//	if (grAlt <= -999)
+		//		grAlt = m_world.GetGroundAltitude(pt);
+		//}
+		//ASSERT(grAlt > -999);
+		//if (grAlt > -999)
+		//{
 			//if (firstAlt == 0)//if the geopotentiel hight is above ground level, we have to substract grouind level to elevation
 			//pt.m_z = max(0.0, pt.m_z -grAlt);
 
 			//if (grAlt > -999)
-			//test.push_back(make_pair(grAlt, 0));
+		//test.push_back(make_pair(grAlt, 0));
 
 
-			for (int l = 0; l < NB_LEVELS; l++)
+		for (int l = 0; l < NB_LEVELS; l++)
+		{
+			size_t b = m_p_weather_DS.get_band(UTCWeatherTime, ATM_HGT, l);
+			if (b != NOT_INIT)
 			{
-				size_t b = m_p_weather_DS.get_band(UTCWeatherTime, ATM_HGT, l);
-				if (b != NOT_INIT)
-				{
-					double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy); //geopotential height [m]
-					if (gph > -999)
-						test.push_back(make_pair(gph, l));
+				double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy); //geopotential height [m]
+				if (gph > -999)
+					test.push_back(make_pair(gph, l));
 
-					if (l != 0 && gph > (grAlt + pt.m_alt))
-						break;
-				}
-				else if (grAlt > -999)
-				{
-					//see if it's a fixed high layer
-					double elev = 0;
-					if (m_p_weather_DS.get_fixed_elevation_level(UTCWeatherTime, l, elev))
-						test.push_back(make_pair(grAlt + elev, l));
-				}
+				if (l != 0 && gph > (grAlt + pt.m_alt))
+					break;
 			}
+			
+		}
 
 
 
-			sort(test.begin(), test.end());
+		sort(test.begin(), test.end());
 
 
-			if (test.size() >= 2)
+		if (test.size() >= 2)
+		{
+			for (size_t l = 0; l < test.size(); l++)
 			{
-				for (size_t l = 0; l < test.size(); l++)
+				if (pt.m_alt < (test[l].first - grAlt))
 				{
-					if (pt.m_alt < (test[l].first - grAlt))
-					{
-						L = test[bLow ? (l == 0 ? 0 : l - 1) : l].second;
-						break;
-					}
+					L = test[bLow ? (l == 0 ? 0 : l - 1) : l].second;
+					break;
 				}
 			}
 		}
+		//}
 
 		ASSERT(L == NOT_INIT || L < NB_LEVELS);
 		return L;
@@ -545,13 +761,15 @@ namespace WBSF
 
 	double CGribsWeather::GetFirstAltitude(const CGeoPointIndex& xy, __int64 UTCWeatherTime)const
 	{
+		if (UTCWeatherTime == 0)
+			UTCWeatherTime = m_filepath_map.begin()->first;
+
 		size_t b = m_p_weather_DS.get_band(UTCWeatherTime, ATM_HGT, 0);
 
 		if (b == NOT_INIT)
 			return -999;
 
-
-		double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy); //geopotential height [m]
+		double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy); //geopotential height at surface [m]
 
 		return gph;
 	}
@@ -563,7 +781,7 @@ namespace WBSF
 		((CGeoPointIndex&)xyz) = extents.CoordToXYPos(pt + CGeoDistance3D(extents.XRes() / 2, extents.YRes() / 2, 0, extents.GetPrjID()));
 
 
-		xyz.m_z = MAX_GEOH - 1;//take the last level (~2000m) on by default
+		xyz.m_z = NB_LEVELS - 1;//take the last level (~2000m) on by default
 
 		for (size_t l = 0; l < NB_LEVELS; l++)
 		{
@@ -589,15 +807,15 @@ namespace WBSF
 		ASSERT(pt.m_z >= 0);
 
 		CATMWeatherCuboidsPtr cuboids(new CATMWeatherCuboids);
-		cuboids->m_bUseSpaceInterpolation = m_world.m_world_param.m_bUseSpaceInterpolation;
-		cuboids->m_bUseTimeInterpolation = m_world.m_world_param.m_bUseTimeInterpolation;
+		cuboids->m_bUseSpaceInterpolation = true;
+		cuboids->m_bUseTimeInterpolation = true;
 
 
 		ASSERT(IsLoaded(UTCWeatherTime));
 		if (!IsLoaded(UTCWeatherTime))
 			return cuboids;//return empty cuboid
 
-						   //fill cuboid
+		//fill cuboid
 		for (size_t i = 0; i < TIME_SIZE; i++, UTCWeatherTime = GetNextTime(UTCWeatherTime))
 		{
 			(*cuboids)[i].m_time = UTCWeatherTime;//reference in second
@@ -622,17 +840,15 @@ namespace WBSF
 							xy2.m_y < extents.m_ySize)
 						{
 							size_t L = get_level(xy2, pt, UTCWeatherTime, z == 0);
-							if (L < MAX_GEOH)
+							if (L < NB_LEVELS)
 							{
 								double groundAlt = 0;
 
 								//RUC is above sea level and WRF must be above sea level
-								if (m_bHgtOverSea)
-								{
+							//	if (m_bHgtOverSea)
+							//	{
 									groundAlt = GetFirstAltitude(xy2, UTCWeatherTime);//get the first level over the ground
-									if (groundAlt <= -999)
-										groundAlt = m_world.GetGroundAltitude(pt);
-								}
+							//	}
 
 
 
@@ -675,7 +891,7 @@ namespace WBSF
 
 										if (v == ATM_PRES)
 										{
-											assert(L > 0 && L <= MAX_GEOH);
+											assert(L > 0 && L <= NB_LEVELS);
 											double P = 1013 * pow((293 - 0.0065*gph) / 293, 5.26);//pressure in hPa
 
 											(*cuboids)[i][z][y][x][v] = P;
@@ -697,7 +913,7 @@ namespace WBSF
 			}//z
 		}//for t1 and t2
 
-		assert((*cuboids)[0].m_time < (*cuboids)[1].m_time);
+		assert((*cuboids)[0].m_time <= (*cuboids)[1].m_time);
 
 		return cuboids;
 	}
@@ -708,10 +924,14 @@ namespace WBSF
 		TTimeFilePathMap::const_iterator it = m_filepath_map.find(UTCWeatherTime);
 		ASSERT(it != m_filepath_map.end());
 
-		return GetAbsolutePath(GetPath(m_filePathGribs), it->second);
+		string path = ".";
+		if (m_filePathGribs.find('/') != string::npos || m_filePathGribs.find('\\') != string::npos)
+			path = GetPath(m_filePathGribs);
+
+		return GetAbsolutePath(path, it->second);
 	}
 
-	ERMsg CGribsWeather::open(const std::string& filepath, CCallback& callback)
+	ERMsg CGribsWeather::open(const std::string& filepath, CBaseOptions& options, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -767,7 +987,7 @@ namespace WBSF
 
 	}
 
-	ERMsg CGribsWeather::Discard(CCallback& callback)
+	ERMsg CGribsWeather::close(CCallback& callback)
 	{
 		return m_p_weather_DS.Discard(callback);
 	}
@@ -786,13 +1006,15 @@ namespace WBSF
 				msg = m_p_weather_DS.load(UTCWeatherTime, get_image_filepath(UTCWeatherTime), callback);
 			}
 		}
+
+		return msg;
 	}
 
 	__int64 CGribsWeather::GetNearestFloorTime(__int64 UTCTime)const
 	{
 		__int64 first = 0;
 
-		
+
 		ASSERT(!m_filepath_map.empty());
 		if (!m_filepath_map.empty())
 		{
@@ -810,7 +1032,7 @@ namespace WBSF
 		{
 			first = 0;
 		}
-		
+
 
 		ASSERT(first != LLONG_MAX);
 		return first;
@@ -820,7 +1042,7 @@ namespace WBSF
 	__int64 CGribsWeather::GetNextTime(__int64 UTCTime)const
 	{
 		__int64 next = LLONG_MAX;
-		
+
 		ASSERT(!m_filepath_map.empty());
 		if (!m_filepath_map.empty())
 		{
@@ -834,7 +1056,7 @@ namespace WBSF
 		{
 			next = 0;
 		}
-		
+
 
 		ASSERT(next != LLONG_MAX);
 		return next;
@@ -843,30 +1065,128 @@ namespace WBSF
 	CTPeriod CGribsWeather::GetEntireTPeriod()const
 	{
 		CTPeriod p;
-		
+
 		ASSERT(!m_filepath_map.empty());
 		if (!m_filepath_map.empty())
 		{
 			for (TTimeFilePathMap::const_iterator it = m_filepath_map.begin(); it != m_filepath_map.end(); it++)
 			{
 				__int64 UTCTime = it->first;
-				p += CTimeZones::Time2TRef(UTCTime).as(CTM::DAILY);
+				p += CTimeZones::Time2TRef(UTCTime).as(CTM::HOURLY);
 			}
 		}
 
 		return p;
 	}
 
-	size_t CGribsWeather::GetGribsPrjID(__int64 UTCWeatherTime)const
+	size_t CGribsWeather::GetPrjID(__int64 UTCWeatherTime)const
 	{
 		size_t prjID = NOT_INIT;
 
-		if (!m_p_weather_DS.IsLoaded(UTCWeatherTime))
-			m_p_weather_DS.load(UTCWeatherTime, get_image_filepath(UTCWeatherTime), CCallback());
+		if (UTCWeatherTime == 0)
+			UTCWeatherTime = m_filepath_map.begin()->first;
 
-		prjID = m_p_weather_DS.GetPrjID(UTCWeatherTime);
+		//if (!m_p_weather_DS.IsLoaded(UTCWeatherTime))
+			//m_p_weather_DS.load(UTCWeatherTime, get_image_filepath(UTCWeatherTime), CCallback());
 		
+		if(const_cast<CGribsWeather*>(this)->load(UTCWeatherTime))
+			prjID = m_p_weather_DS.GetPrjID(UTCWeatherTime);
+
 		return prjID;
+	}
+
+	size_t CGribsWeather::GetRasterCount(__int64 UTCWeatherTime)const
+	{
+		size_t count = 0;
+
+		if (UTCWeatherTime == 0)
+			UTCWeatherTime = m_filepath_map.begin()->first;
+
+		
+		if (const_cast<CGribsWeather*>(this)->load(UTCWeatherTime))
+			count = m_p_weather_DS.at(UTCWeatherTime)->GetRasterCount();
+
+		return count;
+	}
+
+	void CGribsWeather::UpdateOption(CBaseOptions& options)
+	{
+		if (options.m_prj.empty())
+		{
+			options.m_prj = CProjectionManager::GetPrj(GetPrjID())->GetPrjStr();
+		}
+
+		
+
+		if(!options.m_period.IsInit())
+			options.m_period = GetEntireTPeriod();
+
+		CGeoExtents mapExtents = GetExtents();
+		if (!((CGeoRect&)options.m_extents).IsInit())
+		{
+			((CGeoRect&)options.m_extents) = mapExtents;//set entire extent
+		}
+		else
+		{
+			options.m_extents.SetPrjID(mapExtents.GetPrjID());//set only projection of input map
+		}
+
+		//step2 : initialization of the extent size
+		if (options.m_extents.m_xSize == 0)
+		{
+			double xRes = mapExtents.XRes();
+			if (options.m_bRes)
+				xRes = options.m_xRes;
+
+			options.m_extents.m_xSize = TrunkLowest(abs(options.m_extents.Width() / xRes));
+			options.m_extents.m_xMax = options.m_extents.m_xMin + options.m_extents.m_xSize * abs(xRes);
+
+		}
+
+
+		if (options.m_extents.m_ySize == 0)
+		{
+			double yRes = mapExtents.YRes();
+			if (options.m_bRes)
+				yRes = options.m_yRes;
+
+
+			options.m_extents.m_ySize = TrunkLowest(abs(options.m_extents.Height() / yRes));
+			options.m_extents.m_yMin = options.m_extents.m_yMax - options.m_extents.m_ySize * abs(yRes);
+		}
+
+		//step3: initialization of block size
+		if (options.m_extents.m_xBlockSize == 0)
+			options.m_extents.m_xBlockSize = mapExtents.m_xBlockSize;
+
+		if (options.m_extents.m_yBlockSize == 0)
+			options.m_extents.m_yBlockSize = mapExtents.m_yBlockSize;
+
+	}
+
+	CGeoExtents CGribsWeather::GetExtents(__int64 UTCWeatherTime)const
+	{
+		CGeoExtents extents;
+
+		if (UTCWeatherTime == 0)
+			UTCWeatherTime = m_filepath_map.begin()->first;
+
+		
+		if (const_cast<CGribsWeather*>(this)->load(UTCWeatherTime))
+			extents = m_p_weather_DS.GetExtents(UTCWeatherTime);
+
+			//assume all gring with same extents and same projection
+			return extents;
+	}
+
+	void CGribsWeather::read_block(int xBlock, int yBlock, __int64 UTCWeatherTime)
+	{
+		//ne fait rien pour l'instant
+	}
+
+	bool CGribsWeather::IsLoaded(__int64 UTCWeatherTime)const
+	{
+		return m_p_weather_DS.IsLoaded(UTCWeatherTime);
 	}
 
 }

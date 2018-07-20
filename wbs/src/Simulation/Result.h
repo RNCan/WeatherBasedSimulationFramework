@@ -58,7 +58,7 @@ namespace WBSF
 		double GetDataValue(size_t section, size_t row, size_t dim, size_t field, size_t stat)const;
 		double GetDataValue(size_t row, size_t dim, size_t field, size_t stat)const;
 		const CStatistic& GetData(size_t nRow, size_t nCol)const;
-
+		bool HaveData(size_t nRow)const;
 
 		CTM GetTM()const{ return GetTPeriod().GetTM(); }
 		CDimension GetDimension()const{ return GetMetadata().GetDimension(); }

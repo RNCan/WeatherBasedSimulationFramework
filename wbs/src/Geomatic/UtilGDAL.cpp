@@ -1873,8 +1873,8 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	}
 	else if (IsEqual(argv[i], "-Period") )
 	{
-		m_period.Begin().FromFormatedString(argv[++i], CTRefFormat::DATE_YMD, "-", 1);//in 1 base
-		m_period.End().FromFormatedString(argv[++i], CTRefFormat::DATE_YMD, "-", 1);
+		m_period.Begin().FromFormatedString(argv[++i], "", "-", 1);//in 1 base
+		m_period.End().FromFormatedString(argv[++i], "", "-", 1);
 	}
 	else if (IsEqual(argv[i], "-RGB"))
 	{

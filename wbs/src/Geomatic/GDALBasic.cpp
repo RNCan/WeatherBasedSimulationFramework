@@ -656,7 +656,7 @@ void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
 	if (options.m_prj.empty())
 		options.m_prj = m_poDataset->GetProjectionRef();
 
-	CGeoExtents inputExtents = GetExtents();
+	//CGeoExtents inputExtents = GetExtents();
 
 	//step1 : initialization of the extent rect
 	if (!((CGeoRect&)options.m_extents).IsInit())
@@ -697,7 +697,7 @@ void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
 		options.m_extents.m_xBlockSize = m_extents.m_xBlockSize;
 
 	if (options.m_extents.m_yBlockSize == 0)
-		options.m_extents.m_yBlockSize = inputExtents.m_xBlockSize;
+		options.m_extents.m_yBlockSize = m_extents.m_yBlockSize;
 
 	if (!options.m_period.IsInit() )
 		options.m_period = GetPeriod();

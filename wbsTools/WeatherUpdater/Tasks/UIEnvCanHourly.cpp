@@ -187,7 +187,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 			if (msg)
 			{
 
@@ -372,7 +372,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -688,7 +688,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{
@@ -1316,7 +1316,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -1455,7 +1455,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			//observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 			CFileInfoVector dir1;
@@ -1477,7 +1477,7 @@ namespace WBSF
 				{
 					nbTry++;
 
-					msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+					msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 					if (msg)
 					{
@@ -1563,7 +1563,7 @@ namespace WBSF
 			{
 				nbTry++;
 
-				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{
@@ -1632,7 +1632,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (!msg)
 			return msg;
@@ -1734,7 +1734,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
 
-				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession);
+				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{

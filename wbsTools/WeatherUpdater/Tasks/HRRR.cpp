@@ -21,7 +21,6 @@ namespace WBSF
 	const char* CHRRR::SERVER_NAME[NB_SERVER_TYPE] = {"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"};
 	const char* CHRRR::SERVER_PATH[NB_SERVER_TYPE] = { "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" };
 	const char* CHRRR::NAME[NB_SOURCES] = {"nat", "sfc"};
-	const double CHRRR::MINIMUM_SIZE[NB_SOURCES] = { 550, 90};
 
 	CHRRR::CHRRR(const std::string& workingDir):
 		m_workingDir(workingDir),
@@ -105,25 +104,15 @@ namespace WBSF
 
 						if (exit_code == 0 && FileExists(tmpFilePaht))
 						{
-							ifStream stream;
-							if (stream.open(tmpFilePaht))
-							{
-								char test[5] = { 0 };
-								stream.seekg(-4, ifstream::end);
-								stream.read(&(test[0]), 4);
-								stream.close();
-
-								if (string(test) == "7777")
-								{
-									nbDownloaded++;
-									msg = RenameFile(tmpFilePaht, outputFilePath);
-								}
-								else
-								{
-									msg = WBSF::RemoveFile(tmpFilePaht);
-								}
+							if (GoodGrib(tmpFilePaht))
+							{	
+								nbDownloaded++;
+								msg = RenameFile(tmpFilePaht, outputFilePath);
 							}
-
+							else
+							{
+								msg = WBSF::RemoveFile(tmpFilePaht);
+							}
 						}
 						else
 						{
@@ -163,25 +152,16 @@ namespace WBSF
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
-				string outputFilePath = GetOutputFilePath(it->m_filePath);
-				CFileInfo info;
-
-
-				if (!WBSF::GetFileInfo(outputFilePath, info))
+				if (GetFileExtension(it->m_filePath) == ".grib2")
 				{
-					fileList.push_back(*it);
-				}
-				else
-				{
-
-					if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024)
-					{
+					string outputFilePath = GetOutputFilePath(it->m_filePath);
+					if(!GoodGrib(outputFilePath))
 						fileList.push_back(*it);
-					}
+					
 				}
 			}
 
@@ -196,104 +176,6 @@ namespace WBSF
 
 		return msg;
 	}
-
-	//ERMsg CHRRR::ExecuteFTP(CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	callback.AddMessage(GetString(IDS_UPDATE_DIR));
-	//	callback.AddMessage(m_workingDir, 1);
-	//	callback.AddMessage(GetString(IDS_UPDATE_FROM));
-	//	callback.AddMessage(SERVER_NAME[FTP_SERVER], 1);
-	//	callback.AddMessage("");
-
-	//	CInternetSessionPtr pSession;
-	//	CFtpConnectionPtr pConnection;
-
-	//	msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession);
-	//	if (!msg)
-	//		return msg;
-
-
-
-	//	callback.PushTask(string("Get files list from: ") + SERVER_PATH[FTP_SERVER], 2);
-	//	CFileInfoVector fileList;
-
-
-	//	CFileInfoVector dir;
-	//	msg = FindDirectories(pConnection, SERVER_PATH[FTP_SERVER], dir);
-	//	for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
-	//	{
-	//		CFileInfoVector fileListTmp;
-	//		msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
-
-	//		for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
-	//		{
-	//			string outputFilePath = GetOutputFilePath(it->m_filePath);
-	//			CFileInfo info;
-
-
-	//			if (!WBSF::GetFileInfo(outputFilePath, info))
-	//			{
-	//				fileList.push_back(*it);
-	//			}
-	//			else
-	//			{
-	//				
-	//				if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024)
-	//				{
-	//					fileList.push_back(*it);
-	//				}
-	//			}
-	//		}
-
-	//		msg += callback.StepIt();
-	//	}
-
-
-	//	callback.PopTask();
-
-
-	//	callback.AddMessage("Number of HRRR gribs to download: " + ToString(fileList.size()));
-	//	callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
-
-	//	int nbDownload = 0;
-	//	for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
-	//	{
-	//		//string fileName = GetFileName(it->m_filePath);
-	//		string outputFilePath = GetOutputFilePath(it->m_filePath);
-
-	//		callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
-
-	//		CreateMultipleDir(GetPath(outputFilePath));
-	//		msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-	//		if (msg && FileExists(outputFilePath))
-	//		{
-	//			nbDownload++;
-
-	//			//now copy index file
-	//			msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-	//			//if (!FileExists(outputFilePath + ".idx"))
-	//			//{
-	//			//	//if .idx does not exist
-	//			//	msg += RemoveFile(outputFilePath);
-	//			//}
-	//		}
-
-	//		callback.PopTask();
-	//		msg += callback.StepIt();
-	//	}
-
-	//	pConnection->Close();
-	//	pSession->Close();
-
-
-	//	callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownload));
-	//	callback.PopTask();
-
-
-	//	return msg;
-	//}
 
 	//****************************************************************************************************
 
@@ -310,7 +192,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[HTTP_SERVER], pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME[HTTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -325,21 +207,14 @@ namespace WBSF
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "hrrr.t*z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
-				string outputFilePath = GetOutputFilePath(it->m_filePath);
-				CFileInfo info;
-
-
-				if (!WBSF::GetFileInfo(outputFilePath, info))
+				if (GetFileExtension(it->m_filePath) == ".grib2")
 				{
-					fileList.push_back(*it);
-				}
-				else
-				{
-					if (info.m_size < MINIMUM_SIZE[m_source] * 1024 * 1024 )
+					string outputFilePath = GetOutputFilePath(it->m_filePath);
+					if (!GoodGrib(outputFilePath))
 					{
 						fileList.push_back(*it);
 					}
@@ -367,18 +242,18 @@ namespace WBSF
 
 			CreateMultipleDir(GetPath(outputFilePath));
 			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-			if (msg && FileExists(outputFilePath))
-			{
-				nbDownload++;
-				
-				//now copy index file
-				msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-				//if (!FileExists(outputFilePath + ".idx"))
-				//{
-				//	//if .idx does not exist
-				//	msg += RemoveFile(outputFilePath);
-				//}
-			}
+			//if (msg && FileExists(outputFilePath))
+			//{
+			//	nbDownload++;
+			//	
+			//	//now copy index file
+			//	msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+			//	//if (!FileExists(outputFilePath + ".idx"))
+			//	//{
+			//	//	//if .idx does not exist
+			//	//	msg += RemoveFile(outputFilePath);
+			//	//}
+			//}
 
 			callback.PopTask();
 			msg += callback.StepIt();
@@ -411,19 +286,22 @@ namespace WBSF
 	CTRef CHRRR::GetTRef(const string& filePath)const
 	{
 
-		string dir = GetLastDirName(GetPath(filePath));
+		//string dir = GetLastDirName(GetPath(GetPath(filePath)));
 		string fileName = GetFileName(filePath);
+		string tmp1 = filePath.substr(34, 8);
 
 		CTRef TRef;
-		//hrrr.t07z.wrfnatf04.grib2 
-		StringVector tmp(fileName, ".");
-		ASSERT(tmp.size() == 4);
-		if (dir.length() == 13 && tmp.size() == 4)
+		StringVector tmp2(fileName, ".");
+		ASSERT(tmp2.size() == 4);
+
+
+		ASSERT(tmp1.length() == 8);
+		if (tmp1.length() == 8 && tmp2.size()==4)
 		{
-			int year = WBSF::as<int>(dir.substr(5, 4));
-			size_t m = WBSF::as<size_t >(dir.substr(9, 2)) - 1;
-			size_t d = WBSF::as<size_t >(dir.substr(11, 2)) - 1;
-			size_t h = WBSF::as<size_t >(tmp[1].substr(1, 2));
+			int year = WBSF::as<int>(tmp1.substr(0, 4));
+			size_t m = WBSF::as<size_t >(tmp1.substr(4, 2)) - 1;
+			size_t d = WBSF::as<size_t >(tmp1.substr(6, 2)) - 1;
+			size_t h = WBSF::as<size_t >(tmp2[1].substr(1, 2));
 			TRef = CTRef(year, m, d, h);
 		}
 
@@ -567,6 +445,25 @@ namespace WBSF
 
 
 		return msg;
+	}
+
+	bool CHRRR::GoodGrib(const std::string& file_path)
+	{
+		bool bGood = false;
+		ifStream stream;
+		if (stream.open(file_path))
+		{
+			char test[5] = { 0 };
+			stream.seekg(-4, ifstream::end);
+			stream.read(&(test[0]), 4);
+			stream.close();
+			if (string(test) == "7777")
+				bGood = true;
+
+			stream.close();
+		}
+
+		return bGood;
 	}
 
 }

@@ -39,6 +39,9 @@
     <ClCompile Include="TaskPropertiesWnd.cpp">
       <Filter>Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\wbs\src\Basic\CreateAnimation.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -75,6 +78,9 @@
       <Filter>Files</Filter>
     </ClInclude>
     <ClInclude Include="TaskPropertiesWnd.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\wbs\src\Basic\CreateAnimation.h">
       <Filter>Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -70,18 +70,18 @@ namespace WBSF
 	//http://soostrc.comet.ucar.edu/data/grib/rap/20180614/hybrid/
 
 	//*********************************************************************
-	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product", "ServerType", "Showwinscp" };
+	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Product", "ServerType", "ShowWinSCP" };
 	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_COMBO_INDEX, T_BOOL };
-	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_RAP_P; 
+	const UINT CUIRapidUpdateCycle::ATTRIBUTE_TITLE_ID = IDS_UPDATER_RAP_P;
 	const UINT CUIRapidUpdateCycle::DESCRIPTION_TITLE_ID = ID_TASK_RAP;
 
-	const char* CUIRapidUpdateCycle::CLASS_NAME(){ static const char* THE_CLASS_NAME = "RapidUpdateCycle";  return THE_CLASS_NAME; }
+	const char* CUIRapidUpdateCycle::CLASS_NAME() { static const char* THE_CLASS_NAME = "RapidUpdateCycle";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIRapidUpdateCycle::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIRapidUpdateCycle::CLASS_NAME(), (createF)CUIRapidUpdateCycle::create);
 
 
 
-	
+
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT1 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_252_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT2 = "/data/rucanl/%4d%02d/%4d%02d%02d/ruc2anl_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
@@ -92,12 +92,12 @@ namespace WBSF
 
 	CUIRapidUpdateCycle::CUIRapidUpdateCycle(void)
 	{}
-	
+
 	CUIRapidUpdateCycle::~CUIRapidUpdateCycle(void)
 	{}
 
-	
-	std::string CUIRapidUpdateCycle:: Option(size_t i)const
+
+	std::string CUIRapidUpdateCycle::Option(size_t i)const
 	{
 		string str;
 		switch (i)
@@ -117,21 +117,21 @@ namespace WBSF
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		case PRODUCT:	str = "1"; break;
-		case SERVER_TYPE: str = "0"; break;
+		case SERVER_TYPE: str = "1"; break;
 		case SHOW_WINSCP: str = "0"; break;
 		};
 
 		return str;
 	}
-		
-	
+
+
 
 	//************************************************************************************************************
 	//Load station definition list section
 
 	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef, bool bGrib, bool bForecast)const
 	{
-		
+
 		if (bForecast)
 			TRef--;
 
@@ -141,7 +141,7 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 
 		string filePath;
-		
+
 		if (TRef < CTRef(2012, MAY, 8, 0))
 		{
 			if (TRef >= CTRef(2008, JANUARY, FIRST_DAY, 0) && TRef <= CTRef(2008, OCTOBER, 28, 0))
@@ -151,8 +151,8 @@ namespace WBSF
 		}
 		else
 		{
-			
-		
+
+
 
 			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::HOURLY));
 			if (now - TRef >= 24)
@@ -160,14 +160,14 @@ namespace WBSF
 			else
 				filePath = FormatA(INPUT_FORMAT4, y, m, y, m, d, y, m, d, h, bForecast ? 1 : 0, bGrib ? ".grb2" : ".inv");
 		}
-		
+
 		return filePath;
 	}
 
 	string CUIRapidUpdateCycle::GetOutputFilePath(CTRef TRef, bool bGrib, bool bForecast)const
 	{
 		static const char* OUTPUT_FORMAT = "%s%s\\%4d\\%02d\\%02d\\%s%4d%02d%02d_%02d00_%03d%s";
-		
+
 
 		string workingDir = GetDir(WORKING_DIR);
 		size_t prod = WBSF::as<size_t>(Get(PRODUCT));
@@ -178,7 +178,7 @@ namespace WBSF
 		int d = int(TRef.GetDay() + 1);
 		int h = int(TRef.GetHour());
 		int forecastH = 0;
-		
+
 		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), PRODUCT_NAME[prod], y, m, d, "rap_130_", y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
@@ -210,11 +210,24 @@ namespace WBSF
 
 		if (!filePath.empty())
 		{
-			CFileStamp fileStamp(filePath);
+			/*CFileStamp fileStamp(filePath);
 			CTime lastUpdate = fileStamp.m_time;
 			if (lastUpdate.GetTime() > 0)
 			{
 				bDownload = false;
+			}*/
+			
+			ifStream stream;
+			if (stream.open(filePath))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+				if (string(test) == "7777")
+					bDownload = false;
+
+				stream.close();
 			}
 		}
 
@@ -254,7 +267,7 @@ namespace WBSF
 		CTPeriod period = GetPeriod();
 		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
 		{
-			if(serverType == HTTP_SERVER)
+			if (serverType == HTTP_SERVER)
 				msg = ExecuteHTTP(callback);
 			else
 				msg = ExecuteFTP(callback);
@@ -283,7 +296,7 @@ namespace WBSF
 
 			if (s == S_NOMADS)
 			{
-				
+
 				if (period.End() >= today - 2)
 					period.End() = today - 2;
 			}
@@ -299,7 +312,7 @@ namespace WBSF
 			if (period.IsInit())
 			{
 				period.Transform(CTM::HOURLY);
-				
+
 
 				size_t nbFilesToDownload = 0;
 				size_t nbDownloaded = 0;
@@ -318,109 +331,109 @@ namespace WBSF
 				}
 
 
-				//static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
-				callback.AddMessage(string("Download RAP gribs from \"") + HTTP_SERVER_NAME[s] + "\" for period " + period.GetFormatedString("%1 to %2"));
+				
 				callback.PushTask(string("Download RAP gribs from \"") + HTTP_SERVER_NAME[s] + "\": " + ToString(nbFilesToDownload) + " files", nbFilesToDownload);
+				callback.AddMessage(string("Download RAP gribs from \"") + HTTP_SERVER_NAME[s] + "\" for period " + period.GetFormatedString("%1 to %2"));
+				callback.AddMessage(string("Nb files to download: \"") + to_string(nbFilesToDownload) + " files");
 
-
-				size_t nbTry = 0;
-				CTRef curH = period.Begin();
-
-				while (curH < period.End() && msg)
+				if (nbFilesToDownload > 0)
 				{
-					nbTry++;
-
-					CInternetSessionPtr pSession;
-					CHttpConnectionPtr pConnection;
-					msg = GetHttpConnection(HTTP_SERVER_NAME[s], pConnection, pSession);
 
 
-					if (msg)
+					size_t nbTry = 0;
+					CTRef curH = period.Begin();
+
+					while (curH < period.End() && msg)
 					{
-						try
+						nbTry++;
+
+						CInternetSessionPtr pSession;
+						CHttpConnectionPtr pConnection;
+						msg = GetHttpConnection(HTTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+
+						if (msg)
 						{
-							for (CTRef h = curH; h <= period.End() && msg; h++)
+							try
 							{
-								size_t hh = (h - period.Begin());
-								if (bGrbNeedDownload[hh])
+								while (curH <= period.End() && msg)
 								{
-									//download gribs file
-									//string inputPath = GetInputFilePath(curH, true, false);
-									static const char* HTTP_FORMAT[2] =
+									size_t hh = (curH - period.Begin());
+									if (bGrbNeedDownload[hh])
 									{
-										"/thredds/fileServer/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
-										"/pub/data/nccf/com/rap/prod/rap.%4d%02d%02d/rap.t%02dz.awp130%sf%02d.grib2"
-									};
-									
-
-									int y = curH.GetYear();
-									int m = int(curH.GetMonth() + 1);
-									int d = int(curH.GetDay() + 1);
-									int hs = int(curH.GetHour());
-
-									string inputPath;
-									if (s == 0)
-										inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, 0);
-									else
-										inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], 0);
-
-									string outputPath = GetOutputFilePath(curH, true, false);
-									CreateMultipleDir(GetPath(outputPath));
-
-									msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-									if (msg)
-									{
-										CFileInfo info = GetFileInfo(outputPath);
-										if (info.m_size < 1000)
+										//download gribs file
+										//string inputPath = GetInputFilePath(curH, true, false);
+										static const char* HTTP_FORMAT[2] =
 										{
-											//remove file
-											msg += RemoveFile(outputPath);
-										}
-									}
+											"/thredds/fileServer/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
+											"/pub/data/nccf/com/rap/prod/rap.%4d%02d%02d/rap.t%02dz.awp130%sf%02d.grib2"
+										};
 
+
+										int y = curH.GetYear();
+										int m = int(curH.GetMonth() + 1);
+										int d = int(curH.GetDay() + 1);
+										int hs = int(curH.GetHour());
+
+										string inputPath;
+										if (s == 0)
+											inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, 0);
+										else
+											inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], 0);
+
+										string outputPath = GetOutputFilePath(curH, true, false);
+										CreateMultipleDir(GetPath(outputPath));
+
+										msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+										if (msg)
+										{
+											CFileInfo info = GetFileInfo(outputPath);
+											if (info.m_size > 1000)
+											{
+												nbDownloaded++;
+											}
+											else
+											{
+												//remove file
+												msg += RemoveFile(outputPath);
+											}
+										}
+
+										if (msg)
+										{
+											nbTry = 0;
+											msg += callback.StepIt();
+										}
+									}//need download
 
 									if (msg)
-									{
-										curH = h;
-										nbTry = 0;
-										nbDownloaded++;
-										msg += callback.StepIt();
-									}
-
-									//now try with 1 hour forecast
-									//if (msg && !FileExists(GetOutputFilePath(h, true, false)))
-									//{
-									//	//download gribs file
-									//	msg = DownloadGrib(pConnection, h, true, true, callback);
-									//}
-								}//need download
-
-
+										curH++;
+								}
 							}
-						}
-						catch (CException* e)
-						{
-							msg = UtilWin::SYGetMessage(*e);
-							if (nbTry < 5)
-							{
-								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								msg += WaitServer(10, callback);
-							}
-							else
+							catch (CException* e)
 							{
 								msg = UtilWin::SYGetMessage(*e);
+								if (nbTry < 5)
+								{
+									callback.AddMessage(UtilWin::SYGetMessage(*e));
+									msg += WaitServer(10, callback);
+								}
+								else
+								{
+									msg = UtilWin::SYGetMessage(*e);
+								}
 							}
-						}
 
-						//clean connection
-						pConnection->Close();
-						pSession->Close();
+							//clean connection
+							pConnection->Close();
+							pSession->Close();
+						}
 					}
 				}
 
-
-				callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
+				callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
 				callback.PopTask();
+
 			}
 
 			msg += callback.StepIt();
@@ -456,7 +469,8 @@ namespace WBSF
 			size_t nbFileToDownload = fileList.size();
 			static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
 
-			callback.PushTask(string("Download RAP gribs from ") + NAME_NET[s] + ": " + ToString(nbFileToDownload) + " files", nbFileToDownload);
+			callback.PushTask(string("Download RAP gribs from ") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files", nbFileToDownload);
+			callback.AddMessage(string("Download RAP gribs from \"") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files");
 
 
 			string workingDir = GetDir(WORKING_DIR);
@@ -529,7 +543,7 @@ namespace WBSF
 			msg += callback.StepIt();
 		}//for 2 sources
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded), 2);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
 		callback.PopTask();
 
 		return msg;
@@ -546,10 +560,10 @@ namespace WBSF
 			//rap_130_%d%02d%02d_??
 			string name = GetFileTitle(remote);
 			int year = WBSF::as<int>(name.substr(8, 4));
-			size_t m = WBSF::as<size_t >(name.substr(12,2))-1;
-			size_t d = WBSF::as<size_t >(name.substr(14,2))-1;
-			size_t h = WBSF::as<size_t >(name.substr(17,2));
-			
+			size_t m = WBSF::as<size_t >(name.substr(12, 2)) - 1;
+			size_t d = WBSF::as<size_t >(name.substr(14, 2)) - 1;
+			size_t h = WBSF::as<size_t >(name.substr(17, 2));
+
 			TRef = CTRef(year, m, d, h);
 		}
 		else if (s == S_NCEP)
@@ -557,8 +571,8 @@ namespace WBSF
 			string name1 = WBSF::GetLastDirName(GetPath(remote));
 			string name2 = GetFileTitle(remote);
 			int year = WBSF::as<int>(name1.substr(4, 4));
-			size_t m = WBSF::as<size_t >(name1.substr(8, 2))-1;
-			size_t d = WBSF::as<size_t >(name1.substr(10, 2))-1;
+			size_t m = WBSF::as<size_t >(name1.substr(8, 2)) - 1;
+			size_t d = WBSF::as<size_t >(name1.substr(10, 2)) - 1;
 			size_t h = WBSF::as<size_t >(name2.substr(5, 2));
 
 			TRef = CTRef(year, m, d, h);
@@ -575,7 +589,7 @@ namespace WBSF
 		for (size_t i = 0; i < fileList1.size(); i++)
 		{
 			CTRef TRef = GetTRef(s, fileList1[i].m_filePath);
-			
+
 			string filePath = GetOutputFilePath(TRef, true, false);
 			ifStream stream;
 			if (stream.open(filePath))
@@ -604,9 +618,9 @@ namespace WBSF
 	ERMsg CUIRapidUpdateCycle::GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		CTRef now = CTRef::GetCurrentTRef();
-		
+
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
@@ -627,21 +641,21 @@ namespace WBSF
 						size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
 						CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
 						if (period.IsIntersect(p2))
-							paths1.push_back(dir1[d1].m_filePath );
+							paths1.push_back(dir1[d1].m_filePath);
 					}
-						
-					if (paths1.size()>1)
+
+					if (paths1.size() > 1)
 						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths1.size()) + " directories)", paths1.size());
-					
+
 					for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
 					{
 						string name = WBSF::GetLastDirName(paths1[d1]);
-						
+
 						CFileInfoVector dir2;
 						msg = FindDirectories(pConnection, paths1[d1] + "*", dir2);
 						if (msg)
 						{
-							vector<pair<string,CTRef>> paths2;
+							vector<pair<string, CTRef>> paths2;
 							for (size_t d2 = 0; d2 != dir2.size() && msg; d2++)
 							{
 								string name = WBSF::GetLastDirName(dir2[d2].m_filePath);
@@ -670,12 +684,12 @@ namespace WBSF
 							callback.PopTask();
 						}//if msg
 
-						if (paths1.size()>1)
+						if (paths1.size() > 1)
 							msg += callback.StepIt();
-						
+
 					}//for all dir1
 
-					if (paths1.size()>1)
+					if (paths1.size() > 1)
 						callback.PopTask();
 				}//if msg
 			}
@@ -689,14 +703,14 @@ namespace WBSF
 					msg = FindDirectories(pConnection, "/pub/data/nccf/com/rap/prod/rap.*", dir1);
 					if (msg)
 					{
-						
+
 						StringVector paths;
 						for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
 						{
 							string name1 = WBSF::GetLastDirName(GetPath(dir1[d1].m_filePath));
 							int year = WBSF::as<int>(name1.substr(4, 4));
-							size_t m = WBSF::as<size_t >(name1.substr(8, 2))-1;
-							size_t d = WBSF::as<size_t >(name1.substr(10, 2))-1;
+							size_t m = WBSF::as<size_t >(name1.substr(8, 2)) - 1;
+							size_t d = WBSF::as<size_t >(name1.substr(10, 2)) - 1;
 							CTRef TRef(year, m, d, FIRST_HOUR);
 							if (period.IsInside(TRef))
 							{
@@ -707,7 +721,7 @@ namespace WBSF
 							msg += callback.StepIt();
 						}//for all dir1
 
-						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " files)", paths.size());
+						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " directories)", paths.size());
 						for (size_t d1 = 0; d1 != paths.size() && msg; d1++)
 						{
 							CFileInfoVector fileListTmp;
@@ -724,7 +738,7 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 		}//if msg
-		
+
 
 		return msg;
 
@@ -750,7 +764,7 @@ namespace WBSF
 		int firstYear = p.Begin().GetYear();
 		int lastYear = p.End().GetYear();
 		size_t nbYears = lastYear - firstYear + 1;
-		
+
 		for (size_t y = 0; y < nbYears; y++)
 		{
 			int year = firstYear + int(y);
@@ -779,8 +793,8 @@ namespace WBSF
 	{
 		string name = GetFileTitle(filePath);
 		int year = WBSF::as<int>(name.substr(8, 4));
-		size_t m = WBSF::as<int>(name.substr(12, 2))-1;
-		size_t d = WBSF::as<int>(name.substr(14, 2))-1;
+		size_t m = WBSF::as<int>(name.substr(12, 2)) - 1;
+		size_t d = WBSF::as<int>(name.substr(14, 2)) - 1;
 		size_t h = WBSF::as<int>(name.substr(17, 2));
 		size_t hh = WBSF::as<int>(name.substr(22, 3));
 

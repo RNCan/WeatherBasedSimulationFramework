@@ -209,12 +209,11 @@ namespace WBSF
 			CS.Enter();
 			if (!GetTasks().empty())
 			{
-
 				level = int(GetCurrentLevel()) + std::max(0, level);
 
 				string levelTabs;
 				for (int i = 0; i < level; i++)
-					levelTabs += "\t";
+					levelTabs += "    ";
 
 				string t = message;
 				ReplaceString(t, "\n", "\n" + levelTabs);

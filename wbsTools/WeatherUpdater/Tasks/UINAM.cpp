@@ -22,8 +22,8 @@ namespace WBSF
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/
 
 	//*********************************************************************
-	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "Show WinSCP"};
-	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_BOOL};
+	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "ServerType", "ShowWinSCP"};
+	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL};
 	const UINT CUINAM::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NAM_P;
 	const UINT CUINAM::DESCRIPTION_TITLE_ID = ID_TASK_NAM;
 
@@ -48,9 +48,10 @@ namespace WBSF
 	std::string CUINAM::Option(size_t i)const
 	{
 		string str;
-		//switch (i)
-		//{
-		//};
+		switch (i)
+		{
+		case SERVER_TYPE: str = "HTTP|FTP"; break;
+		};
 		return str;
 	}
 
@@ -62,6 +63,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "NAM\\"; break;
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
+		case SERVER_TYPE: str = "1"; break;
 		case SHOW_WINSCP: str = "0"; break;
 		};
 
@@ -103,24 +105,29 @@ namespace WBSF
 		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, "nam_218_", y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
-	ERMsg CUINAM::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const
+	ERMsg CUINAM::DownloadGrib(CHttpConnectionPtr& pConnection, CTRef TRef, size_t& nbDownloaded, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		string inputPath = GetInputFilePath(TRef, bGrib);
-		string outputPath = GetOutputFilePath(TRef, bGrib);
+		string inputPath = GetInputFilePath(TRef, true);
+		string outputPath = GetOutputFilePath(TRef, true);
 		CreateMultipleDir(GetPath(outputPath));
 
-		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE,"","",true,callback);
 		if (msg)
 		{
 			CFileInfo info = GetFileInfo(outputPath);
-			if (info.m_size < 10*1024*1024)//Strange thing on server smaller than 10 Mo
+			if (info.m_size > 10 * 1024 * 1024)//Strange thing on server smaller than 10 Mo
+			{
+				nbDownloaded++;
+			}
+			else
 			{
 				//remove file
 				msg += RemoveFile(outputPath);
 			}
 		}
+
 		return msg;
 	}
 
@@ -164,6 +171,7 @@ namespace WBSF
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
+		size_t serverType = as<size_t>(SERVER_TYPE);
 		CreateMultipleDir(workingDir);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
@@ -177,7 +185,7 @@ namespace WBSF
 		CTPeriod period = GetPeriod();
 		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
 		{
-			if (today - period.Begin() > 360*24)
+			if (serverType == HTTP_SERVER)
 			{
 				msg = ExecuteHTTP(period, callback);
 			}
@@ -199,8 +207,13 @@ namespace WBSF
 	ERMsg CUINAM::ExecuteHTTP(CTPeriod period, CCallback& callback)
 	{
 		ERMsg msg;
-		int nbFilesToDownload = 0;
-		int nbDownloaded = 0;
+		size_t nbFilesToDownload = 0;
+		size_t nbDownloaded = 0;
+
+		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+
+		if (period.End() >= now - 48)
+			period.End() = max(period.Begin(), now - 48);
 
 		CArray<bool> bGrbNeedDownload;
 		bGrbNeedDownload.SetSize(period.size());
@@ -216,70 +229,64 @@ namespace WBSF
 		}
 
 
-		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString() + " (" + ToString(nbFilesToDownload) + " gribs)", nbFilesToDownload);
+		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString() + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
+		callback.AddMessage("Number of NAM file to download from HTTP: " + to_string(nbFilesToDownload) + " files");
 
-		int nbRun = 0;
-		CTRef curH = period.Begin();
-
-		while (curH < period.End() && msg)
+		if (nbFilesToDownload > 0)
 		{
-			nbRun++;
+			size_t nbTry = 0;
+			CTRef curH = period.Begin();
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
-
-			if (msg)
+			while (curH < period.End() && msg)
 			{
-				TRY
+				nbTry++;
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+
+				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+				if (msg)
 				{
-					for (CTRef h = curH; h <= period.End() && msg; h++, curH++)
+					try
 					{
-						size_t hh = (h - period.Begin());
-						if (bGrbNeedDownload[hh])
+						while (curH <= period.End() && msg)
 						{
-							//now try with NAM product
-							msg = DownloadGrib(pConnection, h, true, callback);
-							//if (msg && FileExists(GetOutputFilePath(h, true)))
-								//msg = DownloadGrib(pConnection, h, false, callback);
-						}
+							size_t hh = (curH - period.Begin());
+							if (bGrbNeedDownload[hh])
+								msg = DownloadGrib(pConnection, curH, nbDownloaded, callback);
 
-
-						if (msg)
-						{
-							curH = h;
-							nbRun = 0;
-							nbDownloaded++;
-							msg += callback.StepIt();
+							if (msg)
+							{
+								curH++;
+								nbTry = 0;
+								msg += callback.StepIt();
+							}
 						}
 					}
-				}
-				CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
-
-				//if an error occur: try again
-				if (!msg && !callback.GetUserCancel())
-				{
-					if (nbRun < 5)
+					catch (CException* e)
 					{
-						callback.AddMessage(msg);
-						msg = ERMsg();
-						Sleep(1000);//wait 1 sec
+						msg = UtilWin::SYGetMessage(*e);
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							msg += WaitServer(10, callback);
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
 					}
-				}
 
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
+
+					//clean connection
+					pConnection->Close();
+					pSession->Close();
+				}
 			}
 		}
 
-
-		callback.AddMessage(FormatMsg(IDS_UPDATE_END, ToString(nbDownloaded), ToString(nbFilesToDownload)));
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + to_string(nbDownloaded));
 		callback.PopTask();
 
 		return msg;
@@ -292,6 +299,8 @@ namespace WBSF
 		int nbDownloaded = 0;
 	
 		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString(), 2);
+		
+
 		for (size_t s = 0; s < 2&&msg; s++)
 		{
 			CFileInfoVector fileList;
@@ -301,8 +310,8 @@ namespace WBSF
 			size_t nbFileToDownload = fileList.size();
 			static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
 			
-			callback.PushTask(string("Download NAM gribs from ") + NAME_NET[s] + ": " + ToString(nbFileToDownload) + " files", nbFileToDownload);
-			
+			callback.PushTask(string("Download NAM gribs from ") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files", nbFileToDownload);
+			callback.AddMessage(string("Number of NAM file to download from ") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files");
 
 			string workingDir = GetDir(WORKING_DIR);
 			string scriptFilePath = workingDir + "script.txt";
@@ -366,7 +375,6 @@ namespace WBSF
 							callback.AddMessage("Error in WinCSV");
 						}
 					}
-
 				}
 
 				msg += callback.StepIt();
@@ -376,7 +384,7 @@ namespace WBSF
 			msg += callback.StepIt();
 		}//for all sources 
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded), 2);
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + to_string(nbDownloaded));
 		callback.PopTask();
 
 
@@ -570,7 +578,7 @@ namespace WBSF
 							}
 						}
 
-						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " files)", paths.size());
+						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " directories)", paths.size());
 						for (size_t d1 = 0; d1 != paths.size() && msg; d1++)
 						{
 							CFileInfoVector fileListTmp;

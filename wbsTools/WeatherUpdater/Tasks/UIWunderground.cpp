@@ -208,18 +208,10 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg += GetHttpConnection("www.wunderground.com", pConnection, pSession);
-
-		//CInternetSessionPtr pGoogleSession;
-		//CHttpConnectionPtr pGoogleConnection;
-
-		//if (msg)
-			//msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg += GetHttpConnection("www.wunderground.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (msg)
 		{
-			
-			//string lastName = "Unknown1";
 			string URL = "/weatherstation/ListStations.asp?selectedCountry=" + country;
 
 			string source;
@@ -333,7 +325,7 @@ namespace WBSF
 		CHttpConnectionPtr pGoogleConnection;
 
 		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (msg)
 		{
@@ -520,7 +512,7 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg += GetHttpConnection("i.wund.com", pConnection, pSession);
+		msg += GetHttpConnection("i.wund.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (!msg)
 			return msg;
@@ -695,7 +687,7 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (!msg)
 			return msg;

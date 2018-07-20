@@ -122,11 +122,10 @@ namespace WBSF
 
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_STATISTIC; }
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callBack = DEFAULT_CALLBACK);
-		ERMsg Execute2(const CFileManager& fileManager, CCallback& callback);
-		//ERMsg Execute2(const CFileManager& fileManager, CCallback& callback);
+		ERMsg copy_result(const std::string& file_path, const std::vector<std::array<size_t, 3>>& IDmap, CTPeriod output_p, CResult& result, CCallback& callback);
 
 		static CGeoPoint GetNewPosition(const CGeoPoint& pt, double U, double V);
-
+		void GetNbMoths(CResultPtr pResult, size_t& nbMoths, CTPeriod& period98);
 
 
 	protected:

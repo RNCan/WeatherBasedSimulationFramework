@@ -328,16 +328,16 @@ namespace WBSF
 		return dim;
 	}
 
-	bool CNewSectionData::HaveData(size_t i)const
+	bool CNewSectionData::HaveData(size_t row)const
 	{
-		ASSERT(i >= 0 && i < GetYSize());
+		ASSERT(row < GetYSize());
 
 		bool bHaveData = false;
 		const CNewSectionData& me = *this;
 		
-		for (size_t i = 0; i < GetYSize() && !bHaveData; i++)
+		for (size_t col = 0; col < GetXSize() && !bHaveData; col++)
 		{
-			if (me[i][0][NB_VALUE] > 0)
+			if (me[row][col][NB_VALUE] > 0)
 				bHaveData = true;
 		}
 
@@ -349,8 +349,8 @@ namespace WBSF
 		bool bHaveData = false;
 
 		const CNewSectionData& me = *this;
-		for (size_t i = 0; i < GetXSize() && !bHaveData; i++)
-			if (HaveData(i))
+		for (size_t row = 0; row < GetYSize() && !bHaveData; row++)
+			if (HaveData(row))
 				bHaveData = true;
 
 		return bHaveData;

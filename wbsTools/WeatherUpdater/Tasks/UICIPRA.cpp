@@ -722,7 +722,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection("atl.agrometeo.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection("atl.agrometeo.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msg)
 		{
 			CLocationVector locations;

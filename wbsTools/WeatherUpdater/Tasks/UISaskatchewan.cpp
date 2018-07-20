@@ -260,7 +260,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
 
-				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msgTmp)
 				{
 					TRY

@@ -789,7 +789,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msg)
 		{
 			string str;
@@ -1041,7 +1041,7 @@ namespace WBSF
 			callback.PushTask("Download Manitoba agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
 
 			nbRun++;
-			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg = GetHttpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 			if (msg)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);//let more time to get the data...
@@ -1259,7 +1259,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+			ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 			if (msgTmp)
 			{
 				TRY
@@ -1425,9 +1425,9 @@ namespace WBSF
 		CInternetSessionPtr pGoogleSession;
 		CHttpConnectionPtr pGoogleConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS);
+			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (msg)
 		{
@@ -1641,7 +1641,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
 
-				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[HYDRO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[HYDRO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msgTmp)
 				{
 					TRY
@@ -1901,7 +1901,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		// /hydrologicalData/static/
-		msg = GetHttpConnection("www.hydro.mb.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection("www.hydro.mb.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msg)
 		{
 
@@ -1991,7 +1991,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
 
-				msg = GetHttpConnection(SERVER_NAME[POTATO], pConnection, pSession);
+				msg = GetHttpConnection(SERVER_NAME[POTATO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msg)
 				{
 					TRY

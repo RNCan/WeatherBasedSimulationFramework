@@ -256,6 +256,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\wbs\src\Basic\CreateAnimation.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputView.cpp" />
     <ClCompile Include="TaskPropertiesWnd.cpp" />
@@ -273,6 +274,7 @@
     <ClCompile Include="WeatherUpdaterOptionsDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\wbs\src\Basic\CreateAnimation.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputView.h" />
     <ClInclude Include="TaskPropertiesWnd.h" />

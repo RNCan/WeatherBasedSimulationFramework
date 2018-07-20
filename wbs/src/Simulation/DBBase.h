@@ -99,7 +99,7 @@ namespace WBSF
 
 		static const size_t SIZE;
 
-		CDBSectionIndex(ULONGLONG beginPos = UNKNOWN_POS, size_t firstRow = 0, size_t nbRows = 0, CTRef TRef = CTRef(), bool bHaveData=true);
+		CDBSectionIndex(ULONGLONG beginPos = UNKNOWN_POS, size_t firstRow = 0, size_t nbRows = 0, CTRef TRef = CTRef(), bool bHaveData=false);
 		CDBSectionIndex(const CDBSectionIndex& in);
 		~CDBSectionIndex();
 

@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 17-07-2018	Rémi Saint-Amant	flags change and Bug correction in sub-hourly and time step, optimization of memory
 // 01-05-2018	Rémi Saint-Amant	Modification to follow publication Régniere & Saint-Amant 2018
 // 01-01-2016	Rémi Saint-Amant	Creation
 //******************************************************************************
@@ -41,18 +42,24 @@
 //NO_LIFTOFF_PRCP					16
 //NO_LIFTOFF_WNDS					17
 
-//NO_FLIGHT_END_DEFINE  20
-//END_BY_PRCP			21
-//END_BY_TAIR			22
-//END_BY_SUNRISE		23
+
+//NO_FLIGHT_DEFINE		20
+//WAIT_DEPARTURE		21
+//FLIYNG				22
+//LANDING				23
+//END_BY_TAIR			24
+//END_BY_PRCP			25
+//END_BY_SUNRISE		26
 
 //NO_END_DEFINE             30
-//END_FINISHED				31
-//END_OVER_WATER			32
-//END_OLD_AGE				33
-//END_OUTSIDE_MAP			34
-//END_OF_SIMULATION         35
-//END_BY_OPTIOMIZATION	    36
+//END_FULLFILLED			31
+//END_OVER_WATER_TAIR		32
+//END_OVER_WATER_PRCP		33
+//END_OVER_WATER_SUNRISE	34
+//END_OLD_AGE				35
+//END_OUTSIDE_MAP			36
+//END_OF_SIMULATION         37
+
 
 
 
@@ -258,6 +265,7 @@ namespace WBSF
 	CSBWMoth::CSBWMoth(CATMWorld& world) :
 		m_world(world)
 	{
+		m_ID = -1;
 		m_sex = -1;
 		m_A = 0;
 		m_M = 0;
@@ -267,9 +275,9 @@ namespace WBSF
 		m_age = 0;
 		m_Fᴰ = 0;
 		m_F = 0;
-		m_loc = 0;
-		m_par = 0;
-		m_rep = 0;
+		//m_loc = 0;
+		//m_par = 0;
+		//m_rep = 0;
 		m_flightNo = 0;
 		m_w_descent = 0;
 		m_liffoff_time = 0;
@@ -277,11 +285,12 @@ namespace WBSF
 		m_p_exodus = 0;
 
 		m_state = NOT_EMERGED;
-		m_flight_end_flag = NO_FLIGHT_END_DEFINE;
+		m_flight_flag = NO_FLIGHT_DEFINE;
+		m_landing_flag = NO_FLIGHT_END_DEFINE;
 		m_no_liftoff_flag = NO_LIFTOFF_DEFINED;
 		m_finish_flag = NO_END_DEFINE;
 
-		m_logTime.fill(0);
+		m_logTime.fill(-999);
 		m_logT.fill(-999);
 		m_UTCShift = 0;
 		m_lastF = -999;
@@ -292,7 +301,7 @@ namespace WBSF
 		ASSERT(!m_world.is_over_water(m_newLocation));
 		ASSERT(m_state != FINISHED);
 
-
+		//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
 		__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
 		__int64 sunset = m_world.get_sunset(TRef, m_location);
 		__int64 UTCTmean = UTCTimeº + sunset + 40 * 60;
@@ -331,10 +340,11 @@ namespace WBSF
 		ASSERT(m_sex == CSBWMothParameters::FEMALE || m_F < 0);
 		ASSERT(m_state != FINISHED);
 
-		m_flight_end_flag = NO_FLIGHT_END_DEFINE;
+		m_flight_flag = NO_FLIGHT_DEFINE;
+		m_landing_flag = NO_FLIGHT_END_DEFINE;
 		m_no_liftoff_flag = NO_LIFTOFF_DEFINED;
 
-		m_logTime.fill(0);
+		m_logTime.fill(-999);
 		m_logT.fill(-999);
 		m_liffoff_time = 0;
 		m_pt.m_alt = 10;
@@ -344,8 +354,6 @@ namespace WBSF
 		m_duration = 0;
 		m_noLiftoff.fill(0);
 
-
-		//bool bOverWater = m_world.is_over_water(m_newLocation);
 		bool bForceFirst = ForceFirst();
 		bool bCanFly = CanFly();
 		bool bHaveEggs = m_sex == CSBWMothParameters::FEMALE && m_F > 0;
@@ -354,8 +362,6 @@ namespace WBSF
 		{
 			if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
 			{
-
-				//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
 				__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
 				__int64 sunset = m_world.get_sunset(TRef, m_location);
 
@@ -371,22 +377,32 @@ namespace WBSF
 							{
 								if (bCanFly)
 								{
-									if (GetLiftoff(UTCTimeº, sunset, m_liffoff_time))
+									__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCTimeº+ sunset);
+									if (m_world.m_weather.IsLoaded(UTCWeatherTime))
 									{
-										m_state = FLY;
+										if (GetLiftoff(UTCTimeº, sunset, m_liffoff_time))
+										{
+											m_state = FLY;
+											m_flight_flag = WAIT_DEPARTURE;
 
-										//compute surise of the next day
-										__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
-										__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
+											//compute surise of the next day
+											__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
+											__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
 
-										//compute duration (max) from liftoff and sunrise
-										m_duration = sunriseTime - m_liffoff_time + m_world.m_moths_param.m_flight_after_sunrise * 3600;
-										ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
+											//compute duration (max) from liftoff and sunrise
+											m_duration = sunriseTime - m_liffoff_time + m_world.m_moths_param.m_flight_after_sunrise * 3600;
+											ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
+										}
+										else
+										{
+											m_state = LIVE;
+											m_no_liftoff_flag = GetNoLiftoffCode(m_noLiftoff);
+										}
 									}
 									else
 									{
 										m_state = LIVE;
-										m_no_liftoff_flag = GetNoLiftoffCode(m_noLiftoff);
+										m_no_liftoff_flag = NO_LIFTOFF_MISSING_WEATHER;
 									}
 								}
 								else
@@ -481,15 +497,36 @@ namespace WBSF
 		}
 	}
 
-	double CSBWMoth::GetFlag()const
+	//size_t CSBWMoth::GetState()const
+	//{
+	//	size_t flag = NOT_INIT;
+	//	if (m_state == NOT_EMERGED)
+	//		flag = 0;
+	//	else if (m_state == LIVE)
+	//		flag = 10 + m_no_liftoff_flag;
+	//	else if (m_state == FLY)
+	//		flag = 20 + m_flight_end_flag;
+	//	else if (m_state == FINISHED)
+	//		flag = 30 + m_finish_flag;
+
+	//	WAITING_DEPARTURE/*=-1, NO_FLIGHT_END_DEFINE*/, FLYING
+
+	//	return flag;
+	//}
+
+	size_t CSBWMoth::GetFlag()const
 	{
-		double flag = -999;
+		size_t state = GetState();
+
+		size_t flag = 0;
 		if (m_state == NOT_EMERGED)
 			flag = 0;
 		else if (m_state == LIVE)
 			flag = 10 + m_no_liftoff_flag;
-		else if (m_state == FLY)
-			flag = 20 + m_flight_end_flag;
+		else if (m_state == FLY && !IsLanded())
+			flag = 20 + m_flight_flag;
+		else if (m_state == FLY && IsLanded())
+			flag = 20 + m_flight_flag + m_landing_flag;
 		else if (m_state == FINISHED)
 			flag = 30 + m_finish_flag;
 
@@ -507,9 +544,9 @@ namespace WBSF
 		{
 			if (m_world.IsInside(m_pt))
 			{
-				if (m_flight_end_flag == NO_FLIGHT_END_DEFINE)
+				if (m_flight_flag == WAIT_DEPARTURE || m_flight_flag == FLIYNG)
 					flying(UTCWeatherTime, UTCCurrentTime);
-				else
+				else if (m_flight_flag == LANDING)
 					landing(UTCWeatherTime, UTCCurrentTime);
 			}
 			else
@@ -526,18 +563,19 @@ namespace WBSF
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
 		ASSERT(m_world.IsInside(m_pt));
-		ASSERT(m_flight_end_flag == NO_FLIGHT_END_DEFINE);
+		ASSERT(m_flight_flag == WAIT_DEPARTURE || m_flight_flag == FLIYNG);
 		ASSERT(m_liffoff_time > 0);
 
 		CATMVariables w = get_weather(UTCWeatherTime, UTCCurrentTime);
 		if (w.is_init())
 		{
 
-			if (m_logTime[T_LIFTOFF] == 0)
+			if (m_logTime[T_LIFTOFF] == -999)
 			{
 				m_flightNo++;//a new flight for this moth
 				m_logTime[T_LIFTOFF] = UTCCurrentTime;
 				m_logT[T_LIFTOFF] = w[ATM_TAIR];
+				m_flight_flag = FLIYNG;
 			}
 
 			double Pmax = m_world.GetPmax();
@@ -578,19 +616,23 @@ namespace WBSF
 						//avoid to get negative elevation
 						m_newLocation.m_z -= m_pt.m_z;
 						m_pt.m_z -= m_pt.m_z;
-						m_flight_end_flag = END_BY_TAIR;
+
+						m_flight_flag = LANDING;
+						m_landing_flag = END_BY_TAIR;
 					}
 
 					AddStat(w, U, d);
 				}
 				else
 				{
-					m_flight_end_flag = END_BY_SUNRISE;
+					m_flight_flag = LANDING;
+					m_landing_flag = END_BY_SUNRISE;
 				}
 			}
 			else
 			{
-				m_flight_end_flag = END_BY_PRCP;
+				m_flight_flag = LANDING;
+				m_landing_flag = END_BY_PRCP;
 			}
 		}
 		else
@@ -606,15 +648,15 @@ namespace WBSF
 	{
 		ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
 		ASSERT(m_world.IsInside(m_pt));
-		ASSERT(m_flight_end_flag != NO_FLIGHT_END_DEFINE);
-		ASSERT(!Landed());
+		ASSERT(m_flight_flag == LANDING);
+		ASSERT(!IsLanded());
 
 		double dt = m_world.get_time_step(); //[s]
 		CATMVariables w = get_weather(UTCWeatherTime, UTCCurrentTime);
 		if (w.is_init())
 		{
 
-			if (m_logTime[T_LANDING_BEGIN] == 0)
+			if (m_logTime[T_LANDING_BEGIN] == -999)
 			{
 				m_logTime[T_LANDING_BEGIN] = UTCCurrentTime;
 				m_logT[T_LANDING_BEGIN] = w[ATM_TAIR];
@@ -649,18 +691,17 @@ namespace WBSF
 		}
 	}
 
-
-	void CSBWMoth::FinishedByOptimisation()
-	{
-		m_state = FINISHED;
-		m_finish_flag = END_BY_OPTIOMIZATION;
-	}
-
-
 	void CSBWMoth::KillByWater()
 	{
 		m_state = FINISHED;
-		m_finish_flag = END_OVER_WATER;
+		switch (m_landing_flag)
+		{
+		case END_BY_TAIR: m_finish_flag = END_OVER_WATER_TAIR; break;
+		case END_BY_PRCP:m_finish_flag = END_OVER_WATER_PRCP; break;
+		case END_BY_SUNRISE:m_finish_flag = END_OVER_WATER_SUNRISE; break;
+		default: ASSERT(false);
+		}
+
 	}
 
 	bool CSBWMoth::IsOverWater()const
@@ -684,7 +725,7 @@ namespace WBSF
 		double Uy = (w[ATM_WNDV] + sin(alpha)*m_w_horizontal);	//[m/s]
 		double Uz = 0;
 
-		if (m_flight_end_flag == NO_FLIGHT_END_DEFINE)
+		if (m_flight_flag == FLIYNG)
 			Uz = w[ATM_WNDW] + get_Uz(UTCWeatherTime, w); 	//[m/s]
 		else
 			Uz = w[ATM_WNDW] + m_w_descent; 	//Landing [m/s]
@@ -1587,7 +1628,11 @@ namespace WBSF
 		TTimeFilePathMap::const_iterator it = m_filepath_map.find(UTCWeatherTime);
 		ASSERT(it != m_filepath_map.end());
 
-		return GetAbsolutePath(GetPath(m_filePathGribs), it->second);
+		string path = ".";
+		if (m_filePathGribs.find('/') != string::npos || m_filePathGribs.find('\\') != string::npos)
+			path = GetPath(m_filePathGribs);
+
+		return GetAbsolutePath(path, it->second);
 	}
 
 	ERMsg CATMWeather::load_gribs(const std::string& filepath, CCallback& callback)
@@ -1610,10 +1655,6 @@ namespace WBSF
 			{
 				if ((*loop).size() == 2)
 				{
-					//CTRef TRef;
-					//TRef.FromFormatedString((*loop)[0], "", "-", 1);
-					//assert(TRef.IsValid());
-
 					StringVector tmp((*loop)[0], "/- :");
 					ASSERT(tmp.size() >= 4 && tmp.size() <= 6);
 					if (tmp.size() >= 4)
@@ -2023,7 +2064,7 @@ namespace WBSF
 			if (!years.empty())
 			{
 				//assume that the year is complete!!!
-				p += CTPeriod(*years.begin(), FIRST_MONTH, FIRST_DAY, *years.rbegin(), LAST_MONTH, LAST_DAY);
+				p += CTPeriod(CTRef(*years.begin(), FIRST_MONTH, FIRST_DAY, FIRST_HOUR), CTRef(*years.rbegin(), LAST_MONTH, LAST_DAY, LAST_HOUR));
 			}
 
 		}
@@ -2037,7 +2078,7 @@ namespace WBSF
 				for (TTimeFilePathMap::const_iterator it = m_filepath_map.begin(); it != m_filepath_map.end(); it++)
 				{
 					__int64 UTCTime = it->first;
-					p += CTimeZones::Time2TRef(UTCTime).as(CTM::DAILY);
+					p += CTimeZones::Time2TRef(UTCTime);
 				}
 			}
 		}
@@ -2067,11 +2108,15 @@ namespace WBSF
 
 	double CATMWeather::get_air_temperature(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)
 	{
+		double Tair = 17; //mean temperature of 17 degree by default when there is no weather 
+		if (IsLoaded(UTCWeatherTime))
+		{
+			CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
+			CATMVariables w = get_weather(pt, UTCWeatherTime, UTCCurrentTime);
+			Tair = w[ATM_TAIR];
+		}
 
-		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
-
-		CATMVariables w = get_weather(pt, UTCWeatherTime, UTCCurrentTime);
-		return w[ATM_TAIR];
+		return Tair;
 	}
 
 
@@ -2310,45 +2355,8 @@ namespace WBSF
 
 		return m_GEO2.at(prjID);
 	}
+
 	//TRef is local
-	vector<CSBWMothsIt> CATMWorld::GetMoths(CTRef TRef)
-	{
-		vector<CSBWMothsIt> fls;
-		for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
-		{
-			if (it->GetState() != CSBWMoth::FINISHED)
-			{
-				ASSERT(it->m_emergingDate.m_type == CTM::DAILY);
-				if (TRef >= it->m_emergingDate)
-					fls.push_back(it);
-			}
-		}
-
-		if (m_world_param.m_maxFlyers > 0)
-		{
-			while (fls.size() > m_world_param.m_maxFlyers)
-			{
-				size_t i = m_random.Rand(0, int(fls.size() - 1));
-				fls[i]->FinishedByOptimisation();
-				fls.erase(fls.begin() + i);
-			}
-		}
-
-		return fls;
-	}
-
-
-	vector<CSBWMothsIt> CATMWorld::GetEmergingMoths(CTRef TRef)
-	{
-		vector<CSBWMothsIt> fls;
-		for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
-		{
-			if (it->m_emergingDate == TRef)
-				fls.push_back(it);
-		}
-
-		return fls;
-	}
 	CTimePeriod CATMWorld::get_UTC_sunset_period(CTRef TRef, const vector<CSBWMothsIt>& fls)
 	{
 		CTimePeriod UTCp(_I64_MAX, _I64_MIN);
@@ -2399,7 +2407,7 @@ namespace WBSF
 		return 	m_DEM_DS.GetExtents().IsInside(pt2);
 	}
 
-	ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback)
+	ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& sub_hourly, CCallback& callback)
 	{
 		ASSERT(m_DEM_DS.IsOpen());
 		ASSERT(m_weather.is_init());
@@ -2407,214 +2415,222 @@ namespace WBSF
 
 		ERMsg msg;
 
+		CStatistic::SetVMiss(-999);
+
 		Init(callback);
-		if (output_file.is_open())
-		{
-			output_file << "l,p,r,Year,Month,Day,Hour,Minute,Second,";
-			output_file << "flight,sex,A,M,G,F°,F,EggsLaid,state,flag,x,y,lat,lon,";
-			output_file << "T,P,U,V,W,";
-			output_file << "MeanHeight,CurrentHeight,DeltaHeight,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,Defoliation" << endl;
-		}
-
-		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
-
+		if (sub_hourly.is_open())
+			write_sub_hourly_header(sub_hourly);
 
 		//get period of simulation
 		CTPeriod period = m_world_param.m_simulationPeriod;
 		callback.PushTask("Execute dispersal for year = " + ToString(period.Begin().GetYear()) + " (" + ToString(period.GetNbDay()) + " days)", period.GetNbDay() * 2);
-		callback.AddMessage("Date         \tNotEmerged   \tEmerging     \tWaitingToFly \tFlying       \tFinishingEggs\tFinished     ");
+		callback.AddMessage("Date              NotEmerged        Emerging          WaitingToFly      Flying            FinishingEggs     Finished       ");
 
 		//for all days
 		for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
 		{
-			CTRef TRef16 = TRef.as(CTM::HOURLY);
-			TRef16.m_hour = 16;
-			CTRef TRef17 = TRef16 + 1;
+			CATMOutputMatrix sub_output;
+			if (sub_hourly.is_open())
+				init_sub_hourly(TRef, sub_output);	//initmemory
 
-			//callback.AddMessage("Begin for: " + TRef.GetFormatedString());
-			//callback.StepIt(0);
+			ExecuteOneNight(TRef, output, sub_output, callback);
 
-
-			vector<CSBWMothsIt> moths;
-
-			//compute number of not emerged and dead
-			vector<CSBWMothsIt> flyers;
-			size_t not_emerged = 0;
-			size_t emerging = 0;
-			size_t waiting_to_fly = 0;
-			size_t finishing_laying_eggs = 0;
-			size_t finished = 0;
-
-			//callback.AddMessage("Init moth for: " + TRef.GetFormatedString());
-			//callback.StepIt(0);
-
-			for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
+			if (msg && sub_hourly.is_open())
 			{
-				if (it->GetState() == CSBWMoth::FINISHED)
-				{
-					finished++;
-				}
-				else if (TRef < it->m_emergingDate)
-				{
-					not_emerged++;
-				}
-				else
-				{
-					moths.push_back(it);
-
-					if (it->m_emergingDate == TRef)
-					{
-						//let a chanse to output initial fecondity
-						it->FillOutput(TRef16, output);
-						emerging++;
-					}
-				}
-			}
-
-			//get all flyers for this day
-			if (!moths.empty())
-			{
-				//callback.AddMessage("get sunset for: " + TRef.GetFormatedString());
-				//callback.StepIt(0);
-
-				//get sunset hours for this day
-				CTimePeriod UTC_period = get_UTC_sunset_period(TRef, moths);
-
-				//load hours around sunset
-				UTC_period.first -= 2 * 3600;
-				UTC_period.second += 4 * 3600;
-
-				//callback.AddMessage("get weatehr time for: " + TRef.GetFormatedString());
-				//callback.StepIt(0);
-
-				vector<__int64> weather_time = GetWeatherTime(UTC_period, callback);
-
-				//callback.AddMessage("Load weather for: " + TRef.GetFormatedString() + " weather_time size = " + to_string(weather_time.size()) );
-				
-				
-
-				//Load weather for sunset
-				if (!weather_time.empty())
-				{
-					msg = LoadWeather(TRef, weather_time, callback);
-					if (msg)
-					{
-						callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
-						//callback.AddMessage("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)");
-						//init all moths : broods and liffoff time. 
-
-	//#pragma omp parallel for num_threads(m_nb_max_threads)
-						for (__int64 i = 0; i < (__int64)moths.size(); i++)
-						{
-#pragma omp flush(msg)
-							if (msg)
-							{
-								//make old
-								moths[i]->live(TRef);
-
-								//brood and shedule flight
-								if (moths[i]->init_new_night(TRef))
-									flyers.push_back(moths[i]);//add moth that have flight sheduled
-
-								moths[i]->FillOutput(TRef17, output);
-
-								//count SBW of each type
-								switch (moths[i]->GetState())
-								{
-								case CSBWMoth::LIVE:
-								{
-									bool bCanFly = moths[i]->CanFly();
-									if (bCanFly)
-#pragma omp atomic
-										waiting_to_fly++;
-									else
-#pragma omp atomic
-										finishing_laying_eggs++;
-									break;
-
-								}
-								case CSBWMoth::FLY: break;
-								case CSBWMoth::FINISHED:
-#pragma omp atomic
-									finished++;
-									break;
-								default:ASSERT(false);
-								}
-
-								msg += callback.StepIt();
-#pragma omp flush(msg)
-							}//if msg
-						}//for all moths
-
-					}//if msg
-				}//if have weather data
-				else
-				{
-					callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString()+ " was skipped");
-				}
-
-				callback.PopTask();
-			}//if moths
-
-			callback.AddMessage(
-				FormatA("%-13s\t%-13ld\t%-13ld\t%-13ld\t%-13ld\t%-13ld\t%-13ld",
-					TRef.GetFormatedString("%Y-%m-%d").c_str(),
-					not_emerged,
-					emerging,
-					waiting_to_fly,
-					flyers.size(),
-					finishing_laying_eggs,
-					finished)
-			);
-
-			msg += callback.StepIt();//step it for live
-
-			if (!flyers.empty())
-			{
-				CATMOutputMatrix sub_output;
-				if (output_file.is_open())
-					init_sub_ourly(TRef, output, sub_output);	//write file header
-
-				//callback.AddMessage("Begin Execute for: " + TRef.GetFormatedString());
-				//callback.StepIt(0);
-
-				msg += Execute(TRef, flyers, output, sub_output, callback);
-
-				//callback.AddMessage("After Execute for: " + TRef.GetFormatedString());
-				//callback.StepIt(0);
-
-
-				if (msg && output_file.is_open())
-				{
-					msg += save_sub_output(TRef, output_file, sub_output, callback);
-				}//if sub hourly output
-			}//if flyers
-
-
-			//callback.AddMessage("End for: " + TRef.GetFormatedString());
-			//callback.StepIt(0);
-
-			msg += m_weather.Discard(callback);
-			msg += callback.StepIt();
-
-
+				msg += save_sub_output(TRef, sub_hourly, sub_output, callback);
+			}//if sub hourly output
 		}//for all valid days
 
+		callback.PopTask();
 
-		CTRef TRefEnd = (period.End() + 1).as(CTM::HOURLY);
-		TRefEnd.m_hour = 12;
-		//output all non-finish moth
+		FinalizedOutput(output);
+
+		return msg;
+	}
+
+	ERMsg CATMWorld::ExecuteOneNight(CTRef TRef, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback)
+	{
+		ERMsg msg;
+
+		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
+
+		CTRef TRef16 = TRef.as(CTM::HOURLY);
+		TRef16.m_hour = 16;
+		CTRef TRef17 = TRef16 + 1;
+
+		vector<CSBWMothsIt> moths;
+
+		//compute number of not emerged and dead
+		vector<CSBWMothsIt> flyers;
+		size_t not_emerged = 0;
+		size_t emerging = 0;
+		size_t waiting_to_fly = 0;
+		size_t flying = 0;
+		size_t finishing_laying_eggs = 0;
+		size_t finished = 0;
+
 		for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
 		{
-			if (it->GetState() != CSBWMoth::FINISHED)
+			if (it->GetState() == CSBWMoth::FINISHED)
 			{
-				it->init_new_night(period.End() + 1);
-				//let a chanse to output finish flag
-				it->FillOutput(TRefEnd, output);
+				finished++;
+			}
+			else if (TRef < it->m_emergingDate)
+			{
+				not_emerged++;
+			}
+			else
+			{
+				moths.push_back(it);
+
+				if (it->m_emergingDate == TRef)
+				{
+					//let a chanse to output initial fecondity
+					it->FillOutput(CSBWMoth::HOURLY_STAT, TRef16, output);
+					emerging++;
+				}
 			}
 		}
 
-		callback.PopTask();
+		vector<__int64> weather_time;
+		//get all flyers for this day
+		if (!moths.empty())
+		{
+
+
+			//get sunset hours for this day
+			CTimePeriod UTC_period = get_UTC_sunset_period(TRef, moths);
+
+			//load hours around sunset
+			UTC_period.first -= 2 * 3600;
+			UTC_period.second += 4 * 3600;
+
+			weather_time = GetWeatherTime(UTC_period, callback);
+
+
+
+			//Load weather for sunset
+			if (!weather_time.empty())
+			{
+				msg = LoadWeather(TRef, weather_time, callback);
+			}
+			else
+			{
+				CTRef now = CTRef::GetCurrentTRef();
+				if (TRef < now)//don't set warning for future simulation
+					callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString() + " was skipped");
+			}
+			//{
+
+			//moth will live with a default temperature of 17°C when there is no data
+			//but no flight will be sheduled
+			if (msg)
+			{
+				callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
+				//init all moths : broods and liffoff time. 
+
+//#pragma omp parallel for num_threads(m_nb_max_threads)
+				for (__int64 i = 0; i < (__int64)moths.size(); i++)
+				{
+#pragma omp flush(msg)
+					if (msg)
+					{
+						//make old
+						moths[i]->live(TRef);
+
+						//brood and shedule flight
+						if (moths[i]->init_new_night(TRef))
+						{
+#pragma omp critical
+							flyers.push_back(moths[i]);//add moth that have flight sheduled
+						}
+
+						//report live state
+						moths[i]->FillOutput(CSBWMoth::HOURLY_STAT, TRef17, output);
+
+
+						//count SBW of each type
+						switch (moths[i]->GetState())
+						{
+						case CSBWMoth::LIVE:
+						{
+							bool bCanFly = moths[i]->CanFly();
+							if (bCanFly)
+#pragma omp atomic
+								waiting_to_fly++;
+							else
+#pragma omp atomic
+								finishing_laying_eggs++;
+							break;
+
+						}
+						case CSBWMoth::FLY:
+#pragma omp atomic
+							flying++;
+							break;
+						case CSBWMoth::FINISHED:
+#pragma omp atomic
+							finished++;
+							break;
+						default:ASSERT(false);
+						}
+
+						msg += callback.StepIt();
+#pragma omp flush(msg)
+					}//if msg
+				}//for all moths
+
+			}//if msg
+
+			callback.PopTask();
+			//}//if have weather data
+			//else
+			//{
+			//	CTRef now = CTRef::GetCurrentTRef();
+			//	if(TRef < now)//don't set warning for future simulation
+			//		callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString() + " was skipped");
+			//}
+		}//if moths
+
+		string s1 = FormatA("%-6ld (%5.2lf%%)", not_emerged, 100.0*not_emerged / m_seasonalIndividuals);
+		string s2 = FormatA("%-6ld (%5.2lf%%)", emerging, 100.0*emerging / m_seasonalIndividuals);
+		string s3 = FormatA("%-6ld (%5.2lf%%)", waiting_to_fly, 100.0*waiting_to_fly / m_seasonalIndividuals);
+		string s4 = !weather_time.empty() ? FormatA("%-6ld (%5.2lf%%)", flyers.size(), 100.0*flying / m_seasonalIndividuals) : string("----   ( ----%)");
+		string s5 = FormatA("%-6ld (%5.2lf%%)", finishing_laying_eggs, 100.0*finishing_laying_eggs / m_seasonalIndividuals);
+		string s6 = FormatA("%-6ld (%5.2lf%%)", finished, 100.0*finished / m_seasonalIndividuals);
+		string feedback = FormatA("%-15s   %-15s   %-15s   %-15s   %-15s   %-15s   %-15s",
+			TRef.GetFormatedString("%Y-%m-%d").c_str(),
+			s1.c_str(), s2.c_str(), s3.c_str(), s4.c_str(), s5.c_str(), s6.c_str());
+
+		callback.AddMessage(feedback);
+
+		/*FormatA("%-15s   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)",
+			TRef.GetFormatedString("%Y-%m-%d").c_str(),
+			not_emerged, 100.0*not_emerged / m_seasonalIndividuals,
+			emerging,100.0*emerging / m_seasonalIndividuals,
+			waiting_to_fly, 100.0*waiting_to_fly / m_seasonalIndividuals,
+			flyers.size(),100.0*flying / m_seasonalIndividuals,
+			finishing_laying_eggs,100.0*finishing_laying_eggs / m_seasonalIndividuals,
+			finished,100.0*finished / m_seasonalIndividuals*/
+
+		msg += callback.StepIt();//step it for live
+
+		if (!flyers.empty())
+		{
+			msg += SimulateOneNight(TRef, flyers, output, sub_output, callback);
+		}//if flyers
+
+
+		if (TRef == m_world_param.m_simulationPeriod.End())
+		{
+			//report state at the the last day of simulation 
+			FinalizedOutput(output);
+		}
+
+		msg += m_weather.Discard(callback);
+		msg += callback.StepIt();
+
+
 
 		return msg;
 	}
@@ -2622,7 +2638,7 @@ namespace WBSF
 	static const double MS2KMH = 3600.0 / 1000.0;
 
 	//daily execution
-	ERMsg CATMWorld::Execute(CTRef TRef, vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback)
+	ERMsg CATMWorld::SimulateOneNight(CTRef TRef, vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback)
 	{
 		ASSERT(!fls.empty());
 
@@ -2635,12 +2651,10 @@ namespace WBSF
 		vector<__int64> gribs_time = GetWeatherTime(UTC_period, callback);
 		if (!gribs_time.empty())//gribs_time is empty when too mush missing gribs
 		{
-
 			msg = LoadWeather(TRef, gribs_time, callback);
 
 			//Simulate dispersal for this day
 			callback.PushTask("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")", gribs_time.size()*fls.size());
-			//callback.AddMessage("Dispersal for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb flyers = " + to_string(fls.size()) + ")");
 
 			//code to compare with Gary results
 			//const CGeoExtents& extent = m_DEM_DS.GetExtents();
@@ -2748,51 +2762,52 @@ namespace WBSF
 			//}
 
 			ASSERT(!gribs_time.empty());
-			__int64 UTCTimeº = CTimeZones::TRef2Time(TRef);
-			__int64 global_seconds = gribs_time[0];//(gribs_time[0] - UTCTimeº);//start at the actual second of the day
-			int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
+			__int64 global_seconds = gribs_time[0];//start at the actual second of the day
 			for (size_t t = 1; t < gribs_time.size() && msg; t++)
 			{
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
 				__int64 step_duration = gribs_time[t] - gribs_time[t - 1];
 
 #pragma omp parallel for num_threads(m_nb_max_threads)
-				for (__int64 i = 0; i < (__int64)fls.size(); i++)
+				for (__int64 ii = 0; ii < (__int64)fls.size(); ii++)
 				{
 #pragma omp flush(msg)
 
-					CSBWMoth& flyer = *(fls[i]);
+					CSBWMoth& flyer = *(fls[ii]);
 
-					if (msg && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED)
+					//if (msg && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED)
+					//{
+					ASSERT((3600 % get_time_step()) == 0);
+
+
+					for (__int64 seconds = 0; seconds < step_duration && msg && !flyer.IsLanded() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step())
 					{
-						ASSERT((3600 % get_time_step()) == 0);
-						for (__int64 seconds = 0; seconds < step_duration && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step(), global_seconds += get_time_step())
+						__int64 UTCCurrentTime = gribs_time[t - 1] + seconds;
+						__int64 countdown1 = UTCCurrentTime - flyer.m_liffoff_time;
+						__int64 local_seconds = global_seconds + seconds;
+
+						flyer.fly(gribs_time[t - 1], UTCCurrentTime);
+						//report only after liftoff
+						if (countdown1 >= 0)
 						{
-							__int64 UTCCurrentTime = gribs_time[t - 1] + seconds;
-
-							flyer.fly(gribs_time[t - 1], UTCCurrentTime);
-
-							__int64 countdown1 = UTCCurrentTime - flyer.m_liffoff_time;
-							CTRef localTRef = UTCTRef + int(flyer.GetUTCShift() / 3600);
 
 							//report oputput only each hour
-							if (global_seconds % 3600 == 0 || flyer.Landed() || flyer.GetState() == CSBWMoth::FINISHED)
+							if (local_seconds % 3600 == 0 || flyer.IsLanded() || flyer.GetState() == CSBWMoth::FINISHED)
 							{
-								//report only after liftoff
-								if (countdown1 >= 0)
-								{
-									//if landing: report now but for the next hour
-									if (global_seconds % 3600 != 0)
-										localTRef++;
+								CTRef localTRef = UTCTRef + int(flyer.GetUTCShift() / 3600);
+								//if landing: report now but for the next hour
+								if (local_seconds % 3600 != 0)
+									//if (flyer.IsLanded() || flyer.GetState() == CSBWMoth::FINISHED)
+									localTRef++;
 
-									flyer.FillOutput(localTRef, output);
-									if (flyer.Landed() && flyer.IsOverWater())
-									{
-										flyer.KillByWater();
-										flyer.FillOutput(localTRef + 1, output);
-									}
+								flyer.FillOutput(CSBWMoth::HOURLY_STAT, localTRef, output);
+								if (flyer.IsLanded() && flyer.IsOverWater())
+								{
+									flyer.KillByWater();
+									flyer.FillOutput(CSBWMoth::HOURLY_STAT, localTRef + 1, output);
 								}
+
 
 								flyer.ResetStat(CSBWMoth::HOURLY_STAT);
 							}
@@ -2800,45 +2815,47 @@ namespace WBSF
 							//save sub-hourly result
 							if (!sub_output.empty())
 							{
-								if (global_seconds % m_world_param.m_outputFrequency == 0 ||
-									flyer.Landed() ||
+
+								if (local_seconds % m_world_param.m_outputFrequency == 0 ||
+									flyer.IsLanded() ||
 									flyer.GetState() == CSBWMoth::FINISHED)
 								{
-									ASSERT((3600 % m_world_param.m_outputFrequency) == 0);
-									if (countdown1 >= 0)
+									//if landing or finishing: report now but for the next sub-hourly step
+									//if (flyer.IsLanded() || flyer.GetState() == CSBWMoth::FINISHED)
+									if (local_seconds % m_world_param.m_outputFrequency != 0)
+										local_seconds = (__int64(local_seconds / m_world_param.m_outputFrequency) + 1)*m_world_param.m_outputFrequency;
+
+									int sub_hour_index = int((local_seconds + flyer.GetUTCShift()) / m_world_param.m_outputFrequency);
+									CTRef TRef(sub_hour_index, 0, 0, 0, CTM::ATEMPORAL);
+									flyer.FillOutput(CSBWMoth::SUB_HOURLY_STAT, TRef, sub_output);
+
+									if (flyer.IsLanded() && flyer.IsOverWater())
 									{
-										__int64 local_seconds = global_seconds;
-										//if landing: report now but for the next sub-hourly step
-										if (global_seconds % m_world_param.m_outputFrequency != 0)
-											local_seconds = (__int64(global_seconds / m_world_param.m_outputFrequency) + 1)*m_world_param.m_outputFrequency;
-
-										int index = (local_seconds + flyer.GetUTCShift()) / m_world_param.m_outputFrequency;
-										CTRef CTRef(index, 0, 0, 0, CTM::ATEMPORAL);
-										flyer.FillOutput(CTRef, sub_output);
-
-										if (flyer.Landed() && flyer.IsOverWater())
-										{
-											flyer.KillByWater();
-											flyer.FillOutput(CTRef + 1, output);
-										}
+										flyer.KillByWater();
+										flyer.FillOutput(CSBWMoth::SUB_HOURLY_STAT, TRef + 1, sub_output);
 									}
+
 
 									flyer.ResetStat(CSBWMoth::SUB_HOURLY_STAT);
 								}
 							}
-						}//for all time step
+						}
 
-						 //callback.WaitPause();
-						msg += callback.StepIt();
-					}//if msg
+						msg += callback.StepIt(0);
+					}//for all time step
+
+					msg += callback.StepIt();
+					//}//if msg
 				}//for all flyers
+
+				global_seconds += step_duration;
 			}//for alltime steps
 
 			callback.PopTask();
 		}//have weather
 		else
 		{
-			callback.AddMessage("WARNING: daily flight for " + TRef.GetFormatedString() + "was skipped");
+			callback.AddMessage("WARNING: daily flight for " + TRef.GetFormatedString() + " was skipped");
 		}
 
 
@@ -2846,11 +2863,13 @@ namespace WBSF
 		return msg;
 	}
 
-	void CSBWMoth::FillOutput(CTRef localTRef, CATMOutputMatrix& output)
+	void CSBWMoth::FillOutput(size_t stat_type, CTRef localTRef, CATMOutputMatrix& output)
 	{
-		if (output[m_loc][m_par][m_rep].IsInside(localTRef))
+		//if (output[m_loc][m_par][m_rep].IsInside(localTRef))
+		ASSERT(output[m_ID].IsInside(localTRef));
+		if (output[m_ID].IsInside(localTRef))
 		{
-			double alpha = atan2(GetStat(CSBWMoth::HOURLY_STAT, CSBWMoth::S_D_Y), GetStat(CSBWMoth::HOURLY_STAT, CSBWMoth::S_D_X));
+			double alpha = atan2(GetStat(stat_type, CSBWMoth::S_D_Y), GetStat(stat_type, CSBWMoth::S_D_X));
 			double angle = int(360 + 90 - Rad2Deg(alpha)) % 360;
 			ASSERT(angle >= 0 && angle <= 360);
 			double Dᵒ = m_newLocation.GetDistance(m_location, false, false);
@@ -2862,18 +2881,13 @@ namespace WBSF
 
 			double defoliation = -999;
 			if (m_no_liftoff_flag != NO_LIFTOFF_DEFINED &&
-				m_flight_end_flag != NO_FLIGHT_END_DEFINE &&
-				m_finish_flag != NO_END_DEFINE)
+				m_landing_flag != NO_FLIGHT_END_DEFINE)
 				defoliation = m_world.get_defoliation(m_newLocation);
 
-
-
-
-
 			double eggsLaid = -999;
-			//double G = m_G;
 
-			if (m_sex == CSBWMothParameters::FEMALE &&
+			if (stat_type == HOURLY_STAT &&
+				m_sex == CSBWMothParameters::FEMALE &&
 				m_state == LIVE)
 			{
 				eggsLaid = max(0, int(Round(m_lastF, 0) - Round(m_F, 0)));
@@ -2881,184 +2895,222 @@ namespace WBSF
 			}
 
 			ASSERT(NB_ATM_OUTPUT == 34);
-			output[m_loc][m_par][m_rep][localTRef][ATM_FLIGHT] = m_flightNo;
-			output[m_loc][m_par][m_rep][localTRef][ATM_AGE] = m_age;
-			output[m_loc][m_par][m_rep][localTRef][ATM_SEX] = m_sex;
-			output[m_loc][m_par][m_rep][localTRef][ATM_A] = m_A;
-			output[m_loc][m_par][m_rep][localTRef][ATM_M] = m_M;
-			output[m_loc][m_par][m_rep][localTRef][ATM_EGGS] = eggsLaid;
-			output[m_loc][m_par][m_rep][localTRef][ATM_G] = m_G;
-			output[m_loc][m_par][m_rep][localTRef][ATM_F] = Round(m_F, 0);
-			output[m_loc][m_par][m_rep][localTRef][ATM_STATE] = m_state;
-			output[m_loc][m_par][m_rep][localTRef][ATM_FLAG] = GetFlag();
-			output[m_loc][m_par][m_rep][localTRef][ATM_X] = pt.m_x;
-			output[m_loc][m_par][m_rep][localTRef][ATM_Y] = pt.m_y;
-			output[m_loc][m_par][m_rep][localTRef][ATM_LAT] = m_newLocation.m_lat;
-			output[m_loc][m_par][m_rep][localTRef][ATM_LON] = m_newLocation.m_lon;
-			output[m_loc][m_par][m_rep][localTRef][ATM_DEFOLIATION] = defoliation;
+			//output[m_loc][m_par][m_rep][localTRef][ATM_FLIGHT] = m_flightNo;
+			output[m_ID][localTRef][ATM_FLIGHT] = m_flightNo;
+			output[m_ID][localTRef][ATM_AGE] = m_age;
+			output[m_ID][localTRef][ATM_SEX] = m_sex;
+			output[m_ID][localTRef][ATM_A] = m_A;
+			output[m_ID][localTRef][ATM_M] = m_M;
+			output[m_ID][localTRef][ATM_EGGS] = eggsLaid;
+			output[m_ID][localTRef][ATM_G] = max(-999.0, m_G);
+			output[m_ID][localTRef][ATM_F] = max(-999.0, Round(m_F, 0));
+			output[m_ID][localTRef][ATM_STATE] = m_state;
+			output[m_ID][localTRef][ATM_FLAG] = GetFlag();
+			output[m_ID][localTRef][ATM_X] = pt.m_x;
+			output[m_ID][localTRef][ATM_Y] = pt.m_y;
+			output[m_ID][localTRef][ATM_LAT] = m_newLocation.m_lat;
+			output[m_ID][localTRef][ATM_LON] = m_newLocation.m_lon;
+			output[m_ID][localTRef][ATM_DEFOLIATION] = defoliation;
 
 
 			if (m_state == LIVE || m_state == FLY)
 			{
-				output[m_loc][m_par][m_rep][localTRef][ATM_T] = GetStat(HOURLY_STAT, S_TAIR);
-				output[m_loc][m_par][m_rep][localTRef][ATM_P] = GetStat(HOURLY_STAT, S_PRCP);
-				output[m_loc][m_par][m_rep][localTRef][ATM_U] = GetStat(HOURLY_STAT, S_U, MS2KMH);
-				output[m_loc][m_par][m_rep][localTRef][ATM_V] = GetStat(HOURLY_STAT, S_V, MS2KMH);
-				output[m_loc][m_par][m_rep][localTRef][ATM_W] = GetStat(HOURLY_STAT, S_W, MS2KMH);
+				output[m_ID][localTRef][ATM_T] = GetStat(stat_type, S_TAIR);
+				output[m_ID][localTRef][ATM_P] = GetStat(stat_type, S_PRCP);
+				output[m_ID][localTRef][ATM_U] = GetStat(stat_type, S_U, MS2KMH);
+				output[m_ID][localTRef][ATM_V] = GetStat(stat_type, S_V, MS2KMH);
+				output[m_ID][localTRef][ATM_W] = GetStat(stat_type, S_W, MS2KMH);
 			}
 
-			if (m_logTime[T_LIFTOFF] > 0)
+			if (m_logTime[T_LIFTOFF] > -999)
 			{
-				output[m_loc][m_par][m_rep][localTRef][ATM_MEAN_HEIGHT] = GetStat(HOURLY_STAT, S_HEIGHT);
-				output[m_loc][m_par][m_rep][localTRef][ATM_CURRENT_HEIGHT] = m_pt.m_z;
-				output[m_loc][m_par][m_rep][localTRef][ATM_DELTA_HEIGHT] = GetStat(HOURLY_STAT, S_D_Z, 1, SUM);
-				output[m_loc][m_par][m_rep][localTRef][ATM_MOTH_SPEED] = GetStat(HOURLY_STAT, S_MOTH_WH, MS2KMH);
-				output[m_loc][m_par][m_rep][localTRef][ATM_W_HORIZONTAL] = GetStat(HOURLY_STAT, S_W_HORIZONTAL, MS2KMH);
-				output[m_loc][m_par][m_rep][localTRef][ATM_W_VERTICAL] = GetStat(HOURLY_STAT, S_W_VERTICAL, MS2KMH);
-				output[m_loc][m_par][m_rep][localTRef][ATM_DIRECTION] = angle;
-				output[m_loc][m_par][m_rep][localTRef][ATM_DISTANCE] = GetStat(HOURLY_STAT, S_DISTANCE, 1, SUM);
-				output[m_loc][m_par][m_rep][localTRef][ATM_DISTANCE_FROM_OIRIGINE] = Dᵒ;
+				output[m_ID][localTRef][ATM_MEAN_HEIGHT] = GetStat(stat_type, S_HEIGHT);
+				output[m_ID][localTRef][ATM_CURRENT_HEIGHT] = m_pt.m_z;
+				output[m_ID][localTRef][ATM_DELTA_HEIGHT] = GetStat(stat_type, S_D_Z, 1, SUM);
+				output[m_ID][localTRef][ATM_MOTH_SPEED] = GetStat(stat_type, S_MOTH_WH, MS2KMH);
+				output[m_ID][localTRef][ATM_W_HORIZONTAL] = GetStat(stat_type, S_W_HORIZONTAL, MS2KMH);
+				output[m_ID][localTRef][ATM_W_VERTICAL] = GetStat(stat_type, S_W_VERTICAL, MS2KMH);
+				output[m_ID][localTRef][ATM_DIRECTION] = angle;
+				output[m_ID][localTRef][ATM_DISTANCE] = GetStat(stat_type, S_DISTANCE, 1, SUM);
+				output[m_ID][localTRef][ATM_DISTANCE_FROM_OIRIGINE] = Dᵒ;
 
-				if (m_logTime[T_LANDING_END] > 0)
+				if (m_logTime[T_LANDING_END] > -999)
 				{
 					size_t liftoffTime = CTimeZones::UTCTime2LocalTime(m_logTime[T_LIFTOFF], m_location);
 					size_t landingTime = CTimeZones::UTCTime2LocalTime(m_logTime[T_LANDING_END], m_location);
 
-					output[m_loc][m_par][m_rep][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
-					output[m_loc][m_par][m_rep][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
-					output[m_loc][m_par][m_rep][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
-					output[m_loc][m_par][m_rep][localTRef][ATM_LIFTOFF_T] = m_logT[T_LIFTOFF];
-					output[m_loc][m_par][m_rep][localTRef][ATM_LANDING_T] = m_logT[T_LANDING_END];
+					output[m_ID][localTRef][ATM_LIFTOFF_TIME] = CTimeZones::GetDecimalHour(liftoffTime);
+					output[m_ID][localTRef][ATM_FLIGHT_TIME] = (landingTime - liftoffTime) / 3600.0;
+					output[m_ID][localTRef][ATM_LANDING_TIME] = CTimeZones::GetDecimalHour(landingTime);
+					output[m_ID][localTRef][ATM_LIFTOFF_T] = m_logT[T_LIFTOFF];
+					output[m_ID][localTRef][ATM_LANDING_T] = m_logT[T_LANDING_END];
 				}
 			}//log exists
 		}//if output
+
+		ASSERT(output[m_ID][localTRef][ATM_DEFOLIATION] != 0);
 	}
 
-	//void CATMWorld::init_sub_ourly(ofStream& output_file, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output)
-	//{
-	//	
-	//	CTPeriod p = m_world_param.m_simulationPeriod;
-	//	p.End()++;
-	//	p.Transform(CTM::HOURLY);
-
-	//	__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
-	//	__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
-
-	//	CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
-	//	sub_output.resize(output.size());
-	//	for (size_t l = 0; l < sub_output.size(); l++)
-	//	{
-	//		sub_output[l].resize(output[l].size());//the number of input variables
-	//		for (size_t p = 0; p < output[l].size(); p++)
-	//		{
-	//			sub_output[l][p].resize(output[l][p].size());
-	//			for (size_t r = 0; r < sub_output[l][p].size(); r++)
-	//			{
-	//				sub_output[l][p][r].Init(outputPeriod, VMISS);
-	//			}
-	//		}
-	//	}
-	//}
-
-	void CATMWorld::init_sub_ourly(CTRef TRef, const CATMOutputMatrix& output, CATMOutputMatrix& sub_output)
+	void CATMWorld::init_sub_hourly(CTRef TRef, CATMOutputMatrix& sub_output)
 	{
 
 		CTRef TRef2 = TRef + 1;
-		CTPeriod p = CTPeriod(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 17), CTRef(TRef2.GetYear(), TRef2.GetMonth(), TRef2.GetDay(), 10));
-		//p.Transform(CTM::HOURLY);
+		CTPeriod p = CTPeriod(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 16), CTRef(TRef2.GetYear(), TRef2.GetMonth(), TRef2.GetDay(), 15));
 
 		__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
 		__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
 
 		CTPeriod outputPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
-		sub_output.resize(output.size());
+		sub_output.resize(m_moths.size());
 		for (size_t l = 0; l < sub_output.size(); l++)
 		{
-			sub_output[l].resize(output[l].size());//the number of input variables
-			for (size_t p = 0; p < output[l].size(); p++)
-			{
-				sub_output[l][p].resize(output[l][p].size());
-				for (size_t r = 0; r < sub_output[l][p].size(); r++)
-				{
-					sub_output[l][p][r].Init(outputPeriod, -999);
-				}
-			}
+			sub_output[l].Init(outputPeriod, -999);
 		}
 	}
 
-	ERMsg CATMWorld::save_sub_output(CTRef TRef, ofStream& output_file, const CATMOutputMatrix& sub_output, CCallback& callback)
+	ERMsg CATMWorld::save_output(CTPeriod savedPeriod, ofStream& output_file, const CATMOutputMatrix& output, CCallback& callback)
 	{
 		ERMsg msg;
 
+		//Simulate dispersal for this day
+		const size_t size_struct = sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT;
+
+		//save output
+		for (size_t no = 0; no < output.size() && msg; no++)
+		{
+			ASSERT(output[no].size() == 24);
+			std::streampos pos1 = no * (sizeof(size_t) + savedPeriod.size() * size_struct);
+			output_file.seekp(pos1, ios::beg);
+			output_file.write_value(no);
+
+			CTRef TRef = output[no].GetFirstTRef();
+			int offset = (TRef - savedPeriod.Begin());
+			std::streampos pos2 = offset * size_struct;
+			output_file.seekp(pos2, ios::cur);
+
+			for (size_t t = 0; t < output[no].size() && msg; t++)
+			{
+				if (savedPeriod.IsInside(TRef + t))
+				{
+					__int32 tmp = (TRef + t).Get__int32();
+					output_file.write_value(tmp);
+
+					for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+					{
+						float value = output[no][t][v];
+						output_file.write_value(value);
+					}
+				}
+			}//for all time step
+		}//for all locations
+
+		return msg;
+	}
+
+	void CATMWorld::init_output(CTRef TRef, CATMOutputMatrix& output)
+	{
+		CTRef TRef2 = TRef + 1;
+		CTPeriod p = CTPeriod(CTRef(TRef.GetYear(), TRef.GetMonth(), TRef.GetDay(), 16), CTRef(TRef2.GetYear(), TRef2.GetMonth(), TRef2.GetDay(), 15));
+
+		output.resize(m_moths.size());
+		for (size_t no = 0; no < output.size(); no++)
+		{
+			output[no].Init(p, -999);
+		}
+	}
+
+	ERMsg CATMWorld::save_sub_output(CTRef TRef, ofStream& sub_output_file, const CATMOutputMatrix& sub_output, CCallback& callback)
+	{
+		ERMsg msg;
+
+		//__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
+		//__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
+		//CTPeriod savedPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
+
+
 		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
-		size_t nbLines = sub_output.size()*sub_output[0].size()*sub_output[0][0].size()*sub_output[0][0][0].size();
+		size_t nbLines = sub_output.size()*sub_output[0].size();
 		boost::dynamic_bitset<size_t> have_data(nbLines);
 
 		//save sub-hourly output
-		for (size_t l = 0; l < sub_output.size() && msg; l++)
+		for (size_t no = 0; no < sub_output.size() && msg; no++)
 		{
-			for (size_t p = 0; p < sub_output[l].size() && msg; p++)
+			for (size_t t = 0; t < sub_output[no].size() && msg; t++)
 			{
-				for (size_t r = 0; r < sub_output[l][p].size() && msg; r++)
+				bool bHaveData = false;
+				for (size_t v = 0; v < NB_ATM_OUTPUT && !bHaveData; v++)
 				{
-					for (size_t t = 0; t < sub_output[l][p][r].size() && msg; t++)
-					{
-						bool bHaveData = false;
-						for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
-						{
-							if (sub_output[l][p][r][t][v] > -999)
-								bHaveData = true;
-						}
-						
-						if (bHaveData)
-						{
-							size_t i = l * sub_output[l].size()*sub_output[l][p].size()*sub_output[l][p][r].size() + p * sub_output[l][p].size()*sub_output[l][p][r].size() + r * sub_output[l][p][r].size() + t;
-							have_data.set(i);
-						}
-						
-					}
+					if (sub_output[no][t][v] > -999)
+						bHaveData = true;
+				}
+
+				if (bHaveData)
+				{
+					size_t i = no * sub_output[no].size() + t;
+					have_data.set(i);
 				}
 			}
 		}
 
-		
+
 		//Simulate dispersal for this day
-		callback.PushTask("Save sub-hourly data for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb lines = " + to_string(have_data.size()) + ")", have_data.size());
+		callback.PushTask("Save sub-hourly data for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb lines = " + to_string(have_data.count()) + ")", have_data.count());
+
+		//CTRef TRefH = TRef.as(CTM::HOURLY);
+
+
 
 		//save sub-hourly output
-		for (size_t l = 0; l < sub_output.size() && msg; l++)
+		for (size_t no = 0; no < sub_output.size() && msg; no++)
 		{
-			for (size_t p = 0; p < sub_output[l].size() && msg; p++)
+			for (size_t t = 0; t < sub_output[no].size() && msg; t++)
 			{
-				for (size_t r = 0; r < sub_output[l][p].size() && msg; r++)
+				size_t i = no * sub_output[no].size() + t;
+
+				if (have_data.test(i))
 				{
-					for (size_t t = 0; t < sub_output[l][p][r].size() && msg; t++)
-					{
-						size_t seconds = 0;
-						size_t hours = size_t(t / nbSubPerHour);
-						size_t minutes = (t % nbSubPerHour) * (m_world_param.m_outputFrequency / 60);
-						ASSERT(seconds % 60 == 0);
-						
-						size_t i = l * sub_output[l].size()*sub_output[l][p].size()*sub_output[l][p][r].size() + p * sub_output[l][p].size()*sub_output[l][p][r].size() + r * sub_output[l][p][r].size() + t;
+					size_t local_time = (sub_output[no].GetFirstTRef().m_ref + t) * m_world_param.m_outputFrequency;
+					CTRef TRefH = CTimeZones::Time2TRef(local_time);
+					size_t nb_seconds = local_time - CTimeZones::TRef2Time(TRefH);
+					size_t minutes = nb_seconds / 60;
+					size_t seconds = nb_seconds - minutes * 60;
+					ASSERT(seconds == 0);
 
-						if (have_data.test(i))
-						{
-							output_file  << l + 1 << "," << p + 1 << "," << r + 1 << ",";
-							output_file  << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << hours << "," << minutes << "," << seconds - 60 * minutes;
-							for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
-								output_file << "," << sub_output[l][p][r][t][v];
+					//hour here are in UTC
 
-							output_file << endl;
-							msg += callback.StepIt();
-						}
-					}//for all time step
-				}//for all replications
-			}//for all parameters
+
+					sub_output_file << no + 1 << ",";
+					sub_output_file << TRefH.GetYear() << "," << TRefH.GetMonth() + 1 << "," << TRefH.GetDay() + 1 << "," << TRefH.GetHour() << "," << minutes << "," << seconds;
+					for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+						sub_output_file << "," << sub_output[no][t][v];
+
+					sub_output_file << endl;
+					msg += callback.StepIt();
+				}
+			}//for all time step
 		}//for all locations
 
 		callback.PopTask();
 		return msg;
+	}
+
+	void CATMWorld::FinalizedOutput(CATMOutputMatrix& output)
+	{
+		CTPeriod period = m_world_param.m_simulationPeriod;
+		CTRef TRefEnd = (period.End() + 1).as(CTM::HOURLY);
+		TRefEnd.m_hour = 15;
+		//output all non-finish moth
+		for (CSBWMothsIt it = m_moths.begin(); it != m_moths.end(); it++)
+		{
+			if (it->GetState() != CSBWMoth::FINISHED)
+			{
+				it->init_new_night(period.End() + 1);
+				//let a chanse to output finish flag
+				it->FillOutput(CSBWMoth::HOURLY_STAT, TRefEnd, output);
+			}
+		}
+
 	}
 
 	vector<__int64> CATMWorld::GetWeatherTime(CTimePeriod UTC_period, CCallback& callback)const
@@ -3081,13 +3133,27 @@ namespace WBSF
 				}
 				else
 				{
-					CTRef TRef = CTimeZones::Time2TRef(firstGribTime);
-					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d") );
+					CTRef TRef = CTimeZones::Time2TRef(/*firstGribTime*/UTC_period.first);
+					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
 					gribs_time.clear();
 					UTCWeatherTime = lastGribTime + 9999;//end loop for
 				}
 			}
+
+			if (!gribs_time.empty())
+			{
+				__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
+				__int64 p_loaded = (gribs_time.back() - gribs_time.front()) / 3600;
+				if (p_loaded < p_required - 2)//problem here for sub-hourly weather
+				{
+					CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
+					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
+					gribs_time.clear();
+				}
+			}
 		}
+
+
 
 		return gribs_time;
 	}
@@ -3176,6 +3242,16 @@ namespace WBSF
 		return msg;
 	}
 
+	void CATMWorld::write_sub_hourly_header(ofStream& output_file)
+	{
+		ASSERT(output_file.is_open());
+
+		output_file << "no,Year,Month,Day,Hour,Minute,Second,";
+		output_file << "flight,Age,sex,A,M,EggsLaid,G,F,state,flag,X,Y,lat,lon,";
+		output_file << "T,P,U,V,W,";
+		output_file << "MeanHeight,CurrentHeight,MeanDeltaHeight,MothSpeed,HorizontalSpeed,VerticalSpeed,Direction,Distance,DistanceFromOrigine,FlightTime,LiftoffTime,LandingTime,LiftoffT,LandingT,Defoliation" << endl;
+	}
+
 
 	ERMsg CATMWorld::CreateEggDepositionMap(const string& outputFilePath, CATMOutputMatrix& output, CCallback& callback)
 	{
@@ -3183,7 +3259,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		if (!output.empty() && !output[0].empty() && !output[0][0].empty() && !output[0][0][0].empty())
+		if (!output.empty() && !output[0].empty() && !output[0][0].empty() && !output[0]/*[0][0]*/.empty())
 		{
 
 			CBaseOptions options;
@@ -3194,28 +3270,22 @@ namespace WBSF
 			CGeoExtents extents;
 
 
-			size_t nbSteps = output.size() * output[0].size() * output[0][0].size() * output[0][0][0].size();
+			size_t nbSteps = output.size() * output[0].size() * output[0][0].size() * output[0]/*[0][0]*/.size();
 			callback.PushTask("Compute Eggs map extents", nbSteps);
 
-			for (size_t l = 0; l < output.size() && msg; l++)
+			for (size_t no = 0; no < output.size() && msg; no++)
 			{
-				for (size_t p = 0; p < output[l].size() && msg; p++)
+				for (size_t t = 0; t < output[no].size() && msg; t++)
 				{
-					for (size_t r = 0; r < output[l][p].size() && msg; r++)
+					if (output[no][t][ATM_EGGS] > 0)
 					{
-						for (size_t t = 0; t < output[l][p][r].size() && msg; t++)
-						{
-							if (output[l][p][r][t][ATM_EGGS] > 0)
-							{
-								seasonStat += output[l][p][r][t][ATM_EGGS];
-								CTRef TRef = output[l][p][r].GetFirstTRef() + t;
-								period.Inflate(TRef);
-								CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], options.m_extents.GetPrjID());
-								extents.ExtendBounds(pt);
-							}
-							msg += callback.StepIt();
-						}
+						seasonStat += output[no][t][ATM_EGGS];
+						CTRef TRef = output[no].GetFirstTRef() + t;
+						period.Inflate(TRef);
+						CGeoPoint pt(output[no][t][ATM_X], output[no][t][ATM_Y], options.m_extents.GetPrjID());
+						extents.ExtendBounds(pt);
 					}
+					msg += callback.StepIt();
 				}
 			}
 
@@ -3258,30 +3328,24 @@ namespace WBSF
 					{
 						CTRef TRef1 = period.Begin() + d;
 
-						for (size_t l = 0; l < output.size() && msg; l++)
+						for (size_t no = 0; no < output.size() && msg; no++)
 						{
-							for (size_t p = 0; p < output[l].size() && msg; p++)
+							for (size_t t = 0; t < output[no].size() && msg; t++)
 							{
-								for (size_t r = 0; r < output[l][p].size() && msg; r++)
+								if (output[no][t][ATM_EGGS] > 0)
 								{
-									for (size_t t = 0; t < output[l][p][r].size() && msg; t++)
+									CTRef TRef2 = output[no].GetFirstTRef() + t;
+									if (TRef2.as(CTM::DAILY) == TRef1)
 									{
-										if (output[l][p][r][t][ATM_EGGS] > 0)
-										{
-											CTRef TRef2 = output[l][p][r].GetFirstTRef() + t;
-											if (TRef2.as(CTM::DAILY) == TRef1)
-											{
-												CGeoPoint pt(output[l][p][r][t][ATM_X], output[l][p][r][t][ATM_Y], extents.GetPrjID());
-												ASSERT(extents.IsInside(pt));
+										CGeoPoint pt(output[no][t][ATM_X], output[no][t][ATM_Y], extents.GetPrjID());
+										ASSERT(extents.IsInside(pt));
 
-												CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
-												size_t pos = xy.m_y*extents.m_xSize + xy.m_x;
-												season[pos] += output[l][p][r][t][ATM_EGGS];
-											}
-										}
-										msg += callback.StepIt();
+										CGeoPointIndex xy = options.m_extents.CoordToXYPos(pt);
+										size_t pos = xy.m_y*extents.m_xSize + xy.m_x;
+										season[pos] += output[no][t][ATM_EGGS];
 									}
 								}
+								msg += callback.StepIt();
 							}
 						}
 					}
@@ -4341,6 +4405,7 @@ namespace WBSF
 
 
 }
+
 
 
 

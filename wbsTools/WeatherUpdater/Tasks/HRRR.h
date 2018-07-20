@@ -31,6 +31,7 @@ namespace WBSF
 		ERMsg ExecuteHTTP(CCallback& callback);
 		ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		bool GoodGrib(const std::string& file_path);
 
 		size_t m_source;
 		size_t m_serverType;
@@ -49,7 +50,6 @@ namespace WBSF
 		static const char* SERVER_PATH[NB_SERVER_TYPE];
 
 		static const char* NAME[NB_SOURCES];
-		static const double MINIMUM_SIZE[NB_SOURCES];
 	};
 
 }

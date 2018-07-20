@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
+// 11.4.8: 11/07/2018	Rémi Saint-Amant	Optimization of memory in ATM
+//											Correction off bug in sub-hourly output and time step
 // 11.4.7: 05/07/2018	Rémi Saint-Amant	Bug correction ATM (no end loop)
 // 11.4.6: 20/06/2018	Rémi Saint-Amant	Add match station export (with station name)  
 // 11.4.5: 15/05/2018	Rémi Saint-Amant	New dispersal
@@ -483,7 +485,6 @@ BOOL CBioSIMApp::InitInstance()
 			CTM tm(t,m);
 			format.SetHeader(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[header]", CTRefFormat::GetDefaultHeader(tm)).c_str() );
 			format.SetFormat(tm, registry.GetProfileString(std::string(tm.GetTypeModeName()) + "[format]", CTRefFormat::GetDefaultFormat(tm)).c_str());
-			//to correct a old bug
 		}
 	}
 

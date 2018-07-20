@@ -26,9 +26,9 @@ namespace WBSF
 
 	CMDDELCC::CMDDELCC(void)
 	{
-		m_firstYear=0;
-		m_lastYear=0;
-		bForceUpdateList=false;
+		m_firstYear = 0;
+		m_lastYear = 0;
+		bForceUpdateList = false;
 	}
 
 
@@ -50,7 +50,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -75,7 +75,7 @@ namespace WBSF
 
 				CLocation stationInfo(name, ID, stod(latitude), stod(longitude), stod(altitude));
 				stationInfo.SetSSI("Begin", period);
-				stationList.push_back( stationInfo);
+				stationList.push_back(stationInfo);
 
 				posBegin = source.find("helpOver", posBegin);
 			}
@@ -92,7 +92,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 
 	//************************************************************************************************************
 	//data section
@@ -151,7 +151,7 @@ namespace WBSF
 						if (str1.empty())
 							str1 = "-999.0";
 
-						if (str1 == "-" )
+						if (str1 == "-")
 							str1 = "-999.0";
 						if (!str2.empty())
 						{
@@ -203,7 +203,7 @@ namespace WBSF
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = m_firstYear + int(y);
-		
+
 			size_t monthMax = year < today.m_year ? 12 : today.m_month + 1;
 			for (size_t m = 0; m < monthMax&&msg; m++)
 			{
@@ -242,7 +242,7 @@ namespace WBSF
 			}
 		}
 
-		if (nbFilesToDownload>5)
+		if (nbFilesToDownload > 5)
 			callback.PushTask(station.m_name, nbFilesToDownload);
 
 
@@ -259,21 +259,21 @@ namespace WBSF
 					CreateMultipleDir(GetPath(filePath));
 
 					msg += CopyStationDataPage(pConnection, station.m_ID, year, m, filePath);
-					
-					if (nbFilesToDownload>5)
+
+					if (nbFilesToDownload > 5)
 						msg += callback.StepIt();
 				}
 			}
 		}
 
-		if (nbFilesToDownload>5)
+		if (nbFilesToDownload > 5)
 			callback.PopTask();
 
 
 		return msg;
 	}
 
-	
+
 
 	//*************************************************************************************************
 
@@ -281,7 +281,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		CreateMultipleDir(m_workingDir);
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
@@ -315,53 +315,46 @@ namespace WBSF
 
 		callback.PushTask("Download MDDELCC (" + ToString(stationList.size()) + " stations)", stationList.size());
 
-
-		int nbRun = 0;
+		size_t nbDownload = 0;
+		size_t nbTry = 0;
 		size_t curI = 0;
 
 		while (curI < stationList.size() && msg)
 		{
-			nbRun++;
+			nbTry++;
 
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+			msg = GetHttpConnection(string(SERVER_NAME), pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, string(""), string(""), false, size_t(5), callback);
 
 			if (msg)
 			{
-				TRY
+				try
 				{
-					for (size_t i = curI; i < stationList.size() && msg; i++)
+					while (curI < stationList.size() && msg)
 					{
-						ERMsg msgTmp = DownloadStation(pConnection, stationList[i], callback);
-						//if (msgTmp)
+						msg += DownloadStation(pConnection, stationList[curI], callback);
+						if (msg)
 						{
 							curI++;
-							nbRun = 0;
+							nbTry = 0;
 							msg += callback.StepIt();
 						}
-
-						if (!msgTmp)
-							callback.AddMessage(msgTmp);
 					}
 				}
-				CATCH_ALL(e)
+				catch (CException* e)
 				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
-
-					//if an error occur: try again
-					if (!msg && !callback.GetUserCancel())
+					if (nbTry < 10)
 					{
-						if (nbRun < 5)
-						{
-							callback.AddMessage(msg);
-							msg = ERMsg();
-							Sleep(1000);//wait 1 sec
-						}
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+						msg = WaitServer(30, callback);
 					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
 
 				//clean connection
 				pConnection->Close();
@@ -375,7 +368,7 @@ namespace WBSF
 
 
 
-		
+
 		return msg;
 	}
 
@@ -411,7 +404,7 @@ namespace WBSF
 		return m_workingDir + "DailyStationsList.csv";
 	}
 
-	
+
 	static std::string TraitFileName(std::string name)
 	{
 		size_t begin = name.find('(');
@@ -432,7 +425,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if(!TM.IsDaily())//MDDELCC can only create daily database
+		if (!TM.IsDaily())//MDDELCC can only create daily database
 			return msg;
 
 		size_t it = m_stations.FindByID(ID);
@@ -468,7 +461,7 @@ namespace WBSF
 
 				string filePath = GetOutputFilePath(year, m, ID);
 				CFileInfo info = GetFileInfo(filePath);
-				if (info.m_size>0)
+				if (info.m_size > 0)
 					msg = ReadData(filePath, station[year]);
 			}
 		}
@@ -479,12 +472,12 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	ERMsg CMDDELCC::ReadData(const string& filePath, CWeatherYear& dailyData)const
 	{
 		ERMsg msg;
 
-		enum{ YEAR, MONTH, DAY, MAX_TEMP, MEAN_TEMP, MIN_TEMP, TOTAL_RAIN, TOTAL_SNOW, TOTAL_PRECIP, SNOW_ON_GRND, NB_DAILY_COLUMN };
+		enum { YEAR, MONTH, DAY, MAX_TEMP, MEAN_TEMP, MIN_TEMP, TOTAL_RAIN, TOTAL_SNOW, TOTAL_PRECIP, SNOW_ON_GRND, NB_DAILY_COLUMN };
 
 		//open file
 		ifStream file;
@@ -498,10 +491,10 @@ namespace WBSF
 				ENSURE(loop.Header().size() == NB_DAILY_COLUMN);
 
 				int year = ToInt((*loop)[YEAR]);
-				size_t month =ToInt((*loop)[MONTH]) - 1;
+				size_t month = ToInt((*loop)[MONTH]) - 1;
 				size_t day = ToInt((*loop)[DAY]) - 1;
 
-				ASSERT(month<12);
+				ASSERT(month < 12);
 				ASSERT(day < GetNbDayPerMonth(year, month));
 				CTRef Tref(year, month, day);
 
@@ -511,7 +504,7 @@ namespace WBSF
 				float Tmax = ToFloat((*loop)[MAX_TEMP]);
 
 
-				if (Tmin > -999 && Tmax>-999)
+				if (Tmin > -999 && Tmax > -999)
 				{
 					ASSERT(Tmin >= -70 && Tmin <= 70);
 					ASSERT(Tmax >= -70 && Tmax <= 70);
@@ -519,10 +512,10 @@ namespace WBSF
 					dailyData[Tref][H_TMAX2] = Tmax;
 				}
 
-				if (Tair>-999)
-				{ 
+				if (Tair > -999)
+				{
 					ASSERT(Tair >= -70 && Tair <= 70);
-					dailyData[Tref][H_TAIR2] = Tair; 
+					dailyData[Tref][H_TAIR2] = Tair;
 				}
 
 				float prcp = ToFloat((*loop)[TOTAL_PRECIP]);

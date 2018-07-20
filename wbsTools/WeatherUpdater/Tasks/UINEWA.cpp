@@ -140,7 +140,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		
-		msg = GetHttpConnection(SERVER_NAME1, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME1, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 		
@@ -329,7 +329,7 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+		msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (!msg)
 			return msg;
@@ -375,7 +375,7 @@ namespace WBSF
 							}
 							callback.PopTask();
 
-							msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
+							msg = GetHttpConnection(SERVER_NAME2, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 							currentNbDownload = 0;
 						}//if msg
 					}//if need download

@@ -572,6 +572,7 @@ namespace WBSF
 		CTPeriod Get(const CTM& TM);
 		CTPeriod& Transform(const CTM& TM);
 		CTPeriod& Transform(const CTPeriod& p){ return Transform(p.GetTM()); }
+		CTPeriod as(const CTM& TM)const { CTPeriod p(*this); p.Transform(TM);  return p; }
 
 		void FromFormatedString(std::string str, std::string periodformat = "[%1|%2]", std::string TRefFormat = "", const char* sep = "-", int base = 1);
 		std::string GetFormatedString(std::string periodformat = "[%1|%2]", std::string TRefFormat = "")const;

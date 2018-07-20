@@ -338,7 +338,25 @@ namespace WBSF
 
 	}
 
+	bool CResult::HaveData(size_t nRow)const
+	{
+		ASSERT(nRow >= 0 && nRow < GetNbRows());
+		ASSERT(IsOpen());
 
+		size_t sectionNo = GetSectionNo(nRow);
+		ASSERT(sectionNo >= 0);
+
+		static const CStatistic INVALID_STAT;
+
+		if (sectionNo < 0)
+			return false;
+
+
+		size_t sectionRow = GetSectionRow(sectionNo, nRow);
+		LoadSection(sectionNo);
+		return m_loadedSection->HaveData(sectionRow);
+
+	}
 
 	std::string CResult::GetDataValue(size_t nRow, size_t nCol, size_t stat)const
 	{

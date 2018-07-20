@@ -141,6 +141,7 @@
 #define IDS_TOOL_ZIP_UNZIP_P             32759
 #define IDS_TOOL_DOWNLOAD_UPLOAD_P       32760
 #define IDS_TOOL_CONVERT_DB_P			 32761
+#define IDS_TOOL_CREATE_ANIMATION_P		 32762
 #define ID_TASK_FIRST					 32900
 #define ID_TASK_EC_DAILY				 32900
 #define ID_TASK_EC_HOURLY				 32901
@@ -189,7 +190,8 @@
 #define ID_TASK_ZIP_UNZIP                32959
 #define ID_TASK_DOWNLOAD_UPLOAD			 32960
 #define ID_TASK_CONVERT_DB		         32961
-#define ID_TASK_LAST    				 32962
+#define ID_TASK_CREATE_ANIMATION         32962
+#define ID_TASK_LAST    				 32963
 #define ID_TASK_DELETE_UPDATE			 32965
 #define ID_TASK_DELETE_TOOL				 33966
 
