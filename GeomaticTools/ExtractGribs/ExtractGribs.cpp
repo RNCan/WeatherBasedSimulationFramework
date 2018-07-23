@@ -159,16 +159,14 @@ namespace WBSF
 		{
 			int f = std::atoi(argv[++i]);
 			int l = std::atoi(argv[++i]);
+			int fl = l - f;
+			if (fl < 0)
+				fl += 24;
+
 			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+			now.m_hour = 0;
 
-			int df = f - (int)now.GetHour();
-			int dl = l - (int)now.GetHour();
-			if (df < 0)
-				df += 24;
-			if (dl < 0)
-				dl += 24; 
-
-			m_period = CTPeriod(now + df, now + dl);
+			m_period = CTPeriod(now + f, now + f + fl);
 		}
 		else
 		{
