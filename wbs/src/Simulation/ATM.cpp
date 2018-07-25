@@ -41,7 +41,7 @@
 //NO_LIFTOFF_TAIR					15
 //NO_LIFTOFF_PRCP					16
 //NO_LIFTOFF_WNDS					17
-
+//NO_LIFTOFF_MISSING_WEATHER		18
 
 //NO_FLIGHT_DEFINE		20
 //WAIT_DEPARTURE		21
@@ -2530,7 +2530,7 @@ namespace WBSF
 				if (TRef < now)//don't set warning for future simulation
 					callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString() + " was skipped");
 			}
-			//{
+			
 
 			//moth will live with a default temperature of 17°C when there is no data
 			//but no flight will be sheduled
@@ -2594,13 +2594,7 @@ namespace WBSF
 			}//if msg
 
 			callback.PopTask();
-			//}//if have weather data
-			//else
-			//{
-			//	CTRef now = CTRef::GetCurrentTRef();
-			//	if(TRef < now)//don't set warning for future simulation
-			//		callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString() + " was skipped");
-			//}
+		
 		}//if moths
 
 		string s1 = FormatA("%-6ld (%5.2lf%%)", not_emerged, 100.0*not_emerged / m_seasonalIndividuals);
@@ -2614,15 +2608,6 @@ namespace WBSF
 			s1.c_str(), s2.c_str(), s3.c_str(), s4.c_str(), s5.c_str(), s6.c_str());
 
 		callback.AddMessage(feedback);
-
-		/*FormatA("%-15s   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)   %-6ld (%5.2lf%%)",
-			TRef.GetFormatedString("%Y-%m-%d").c_str(),
-			not_emerged, 100.0*not_emerged / m_seasonalIndividuals,
-			emerging,100.0*emerging / m_seasonalIndividuals,
-			waiting_to_fly, 100.0*waiting_to_fly / m_seasonalIndividuals,
-			flyers.size(),100.0*flying / m_seasonalIndividuals,
-			finishing_laying_eggs,100.0*finishing_laying_eggs / m_seasonalIndividuals,
-			finished,100.0*finished / m_seasonalIndividuals*/
 
 		msg += callback.StepIt();//step it for live
 
@@ -2787,11 +2772,7 @@ namespace WBSF
 
 					CSBWMoth& flyer = *(fls[ii]);
 
-					//if (msg && !flyer.Landed() && flyer.GetState() != CSBWMoth::FINISHED)
-					//{
 					ASSERT((3600 % get_time_step()) == 0);
-
-
 					for (__int64 seconds = 0; seconds < step_duration && msg && !flyer.IsLanded() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step())
 					{
 						__int64 UTCCurrentTime = gribs_time[t - 1] + seconds;
@@ -2876,7 +2857,6 @@ namespace WBSF
 
 	void CSBWMoth::FillOutput(size_t stat_type, CTRef localTRef, CATMOutputMatrix& output)
 	{
-		//if (output[m_loc][m_par][m_rep].IsInside(localTRef))
 		ASSERT(output[m_ID].IsInside(localTRef));
 		if (output[m_ID].IsInside(localTRef))
 		{
@@ -2906,7 +2886,6 @@ namespace WBSF
 			}
 
 			ASSERT(NB_ATM_OUTPUT == 34);
-			//output[m_loc][m_par][m_rep][localTRef][ATM_FLIGHT] = m_flightNo;
 			output[m_ID][localTRef][ATM_FLIGHT] = m_flightNo;
 			output[m_ID][localTRef][ATM_AGE] = m_age;
 			output[m_ID][localTRef][ATM_SEX] = m_sex;
@@ -3036,11 +3015,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//__int64 begin = CTimeZones::TRef2Time(p.Begin()) / m_world_param.m_outputFrequency;
-		//__int64 end = CTimeZones::TRef2Time(p.End()) / m_world_param.m_outputFrequency;
-		//CTPeriod savedPeriod(CTRef(begin, 0, 0, 0, CTM::ATEMPORAL), CTRef(end, 0, 0, 0, CTM::ATEMPORAL));
-
-
 		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
 		size_t nbLines = sub_output.size()*sub_output[0].size();
@@ -3071,10 +3045,6 @@ namespace WBSF
 
 		//Simulate dispersal for this day
 		callback.PushTask("Save sub-hourly data for " + TRef.GetFormatedString("%Y-%m-%d") + " (nb lines = " + to_string(have_data.count()) + ")", have_data.count());
-
-		//CTRef TRefH = TRef.as(CTM::HOURLY);
-
-
 
 		//save sub-hourly output
 		for (size_t no = 0; no < sub_output.size() && msg; no++)
