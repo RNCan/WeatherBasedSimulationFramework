@@ -779,7 +779,8 @@ namespace WBSF
 		static double get_Tᶠ(double A, double M, double Δv);
 		static double ComputeRate(double T);
 
-		double GetLog(size_t i)const{ return m_logTime[i]; }
+		double GetLogTime(size_t i)const{ return m_logTime[i]; }
+		double GetLogT(size_t i)const { return m_logT[i]; }
 		double GetStat(size_t i, size_t v, double f = 1, size_t s = MEAN)const{ return m_stat[i][v].IsInit() ? m_stat[i][v][s] * f : -999; }
 		void ResetStat(size_t i){ m_stat[i].fill(CStatistic()); }
 

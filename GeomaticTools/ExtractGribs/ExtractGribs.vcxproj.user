@@ -9,12 +9,12 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-Tonight 22 06 -te 2058840 2790270 2397465 3074715 -var WNDS -var WNDD -levels {0,200,400,600,800,1000} --config GDAL_CACHEMAX 1024 -overwrite ".\RAP2018.Gribs" ".\ByGrid.csv"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-period "2018-07-24-22" "2018-07-25-06" -var WNDS -var WNDD -Levels "0,200,400,600,800,1000" -loc "D:\Travaux\YanBoulanger\helikite.csv" "D:\Travaux\YanBoulanger\RAP2018.Gribs" "D:\Travaux\YanBoulanger\2018-07-24.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>D:\Travaux\YanBoulanger</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-of VRT -stats -overview {2,4,8,16} -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-00" -var WNDS -var WNDD  -overwrite --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-period "2018-07-24-22" "2018-07-25-06" -var WNDS -var WNDD -Levels "0,200,400,600,800,1000" -loc "D:\Travaux\YanBoulanger\helikite.csv" "D:\Travaux\YanBoulanger\RAP2018.Gribs" "D:\Travaux\YanBoulanger\2018-07-24.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

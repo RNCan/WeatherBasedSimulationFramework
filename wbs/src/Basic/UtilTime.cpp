@@ -1186,17 +1186,37 @@ void CTRef::FromFormatedString(string str, string format, const char* sep, int b
 	Set(y_or_r, m-base, d-base, h, CTM(type,mode) );
 }
 
-CTRef CTRef::GetCurrentTRef(CTM TM)
+CTRef CTRef::GetCurrentTRef(CTM TM, bool bUTC)
 {
-	time_t ltime;
-	tm today = { 0 };
+	CTRef TRef;
 
-	_tzset();
-	time(&ltime);
-	_localtime64_s(&today, &ltime);
+	if (bUTC)
+	{
+		time_t ltime;
+		tm today = { 0 };
 
-	//month is un zero base and day is in 1 base
-	return CTRef(1900 + today.tm_year, today.tm_mon, today.tm_mday - 1, today.tm_hour, TM);
+		_tzset();
+		time(&ltime);
+		_gmtime64_s(&today, &ltime);
+
+		//month is un zero base and day is in 1 base
+		TRef = CTRef(1900 + today.tm_year, today.tm_mon, today.tm_mday - 1, today.tm_hour, TM);
+
+	}
+	else
+	{
+		time_t ltime;
+		tm today = { 0 };
+
+		_tzset();
+		time(&ltime);
+		_localtime64_s(&today, &ltime);
+
+		//month is un zero base and day is in 1 base
+		TRef = CTRef(1900 + today.tm_year, today.tm_mon, today.tm_mday - 1, today.tm_hour, TM);
+	}
+
+	return TRef;
 }
 
 CTRef CTRef::Disaggregate( const CTM& TM )const

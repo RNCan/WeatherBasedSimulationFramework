@@ -322,6 +322,7 @@
 #include "Basic/DynamicRessource.h"
 #include "Basic/Shore.h"
 #include "Geomatic/UtilGDAL.h"
+#include "Geomatic/TimeZones.h"
 #include "FileManager/FileManager.h"
 #include "UI/Common/StandardCmdLine.h"
 #include "UI/Common/ProgressStepDlg.h"
@@ -458,6 +459,8 @@ BOOL CBioSIMApp::InitInstance()
 	//
 
 	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
+
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());
 

@@ -20,13 +20,11 @@ namespace WBSF
 	public:
 
 		enum TNeytwork{ N_HRDPS, N_HRRR, N_HRRR_SRF, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, SHOW_WINSCP, HRDPS_VARS, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, MAX_HOUR, SHOW_WINSCP, HRDPS_VARS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIGribForecast); }
 
-		//static CTRef GetTRef(size_t source, std::string filePath);
-		//static size_t GetSourcesIndex(const std::string& name);
 
 		CUIGribForecast(void);
 		virtual ~CUIGribForecast(void);
@@ -55,14 +53,14 @@ namespace WBSF
 
 		
 		CTRef GetLatestTRef(size_t source, UtilWWW::CFtpConnectionPtr& pConnection)const;
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
-		bool NeedDownload(const std::string& filePath)const;
-	
+		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
+		bool GoodGrib(const std::string& filePath)const;
 		//CTPeriod GetPeriod()const;
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH);
 		
 		ERMsg Clean(size_t source);
-		void CleanList(size_t s, CFileInfoVector& fileList1);
+		CTPeriod CleanList(size_t s, CFileInfoVector& fileList1);
 		ERMsg GetFilesToDownload(size_t source, CFileInfoVector& fileList, CCallback& callback);
 		std::string GetLocaleFilePath(size_t source, const std::string& remote)const;
 		//std::string GetLocaleFilePath(size_t source, CTRef TRef, size_t HH)const;

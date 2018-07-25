@@ -55,9 +55,11 @@ namespace WBSF
 		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
 		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bForecast, CCallback& callback)const;
-		bool NeedDownload(const std::string& filePath)const;
-		void CleanList(size_t s, CFileInfoVector& fileList);
+		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath);  }
+		bool GoodGrib(const std::string& filePath)const;
+		CTPeriod CleanList(size_t s, CFileInfoVector& fileList);
 		CTRef GetTRef(size_t s, const std::string& fileList);
+		bool server_available(size_t s)const;
 
 		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;
 		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;

@@ -571,7 +571,6 @@ namespace WBSF
 		std::vector<std::array<size_t, 3>> IDmap;
 
 
-		//double p_total = 0;
 		size_t no = 0;
 		size_t nbReplications = 0;
 		for (size_t l = 0; l < locations.size() && msg; l++)
@@ -598,7 +597,6 @@ namespace WBSF
 							bool bExtrem = !period98.IsInside(emergingDate);
 							if (bExtrem || world.random().Randu() <= max_moth_prop)//remove moth by optimization
 							{
-								
 								if (world.m_world_param.m_simulationPeriod.IsInside(emergingDate))
 								{
 									CSBWMoth moth(world);
@@ -631,10 +629,7 @@ namespace WBSF
 								}//is inside simulation period
 
 								world.m_seasonalIndividuals++;
-								//p_total += 1.0 / nbMothsPeriod;
 							}
-
-
 						}//is valid insect
 					}//for all rows
 

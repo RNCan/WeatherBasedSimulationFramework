@@ -720,7 +720,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Répertoire de travail|Type|Afficher WinSCP|Variables HRDPS"
+							"Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_TOOL_CREATE_HOURLY_P 
@@ -1191,7 +1191,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Working directory|Variables"
     IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Working directory|Type|Show WinSCP|HRDPS variables"
+		"Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 

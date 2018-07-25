@@ -107,26 +107,39 @@ namespace WBSF
 	ERMsg CUIHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
 	{ 
 		ASSERT(p.GetTM() == CTM::HOURLY);
-
-		ERMsg msg;
-
-		string workingDir = GetDir(WORKING_DIR);
 		
-		for (CTRef TRef = p.Begin(); TRef!= p.End(); TRef++)
-		{
-			int year = TRef.GetYear();
-			size_t m = TRef.GetMonth();
-			size_t d = TRef.GetDay();
-			size_t h = TRef.GetHour();
-			
-			string fileName = FormatA("%s%d\\%02d\\%02d\\HRDPS_%d%02d%02d%02d.vrt", workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1, h);
-			if (FileExists(fileName))
-				gribsList[TRef] = fileName;
-			
-		}
+		string workingDir = GetDir(WORKING_DIR);
+		CHRDPS HRDPS(workingDir);
+		//HRDPS.m_variables = Get(HRDPS_VARS);
+		return HRDPS.GetGribsList(p, gribsList, callback);
+
+		//ERMsg msg;
+
+		//
+		//
+		//for (CTRef TRef = p.Begin(); TRef!= p.End(); TRef++)
+		//{
+		//	int year = TRef.GetYear();
+		//	size_t m = TRef.GetMonth();
+		//	size_t d = TRef.GetDay();
+		//	size_t h = TRef.GetHour();
+		//	
+		//	//int year = WBSF::as<int>(title.substr(6, 4));
+		//	//size_t m = WBSF::as<int>(title.substr(10, 2)) - 1;
+		//	//size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
+		//	//size_t h = WBSF::as<int>(title.substr(14, 2));
+		//	//size_t hh = WBSF::as<int>(title.substr(17, 3));
+		//	for (size_t hh = 0; hh < 6; hh++)
+		//	{
+		//		string fileName = FormatA("%s%d\\%02d\\%02d\\HRDPS_%d%02d%02d%02d-%03d.vrt", workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1, h, hh);
+		//		if (FileExists(fileName))
+		//			gribsList[TRef] = fileName;
+		//	}
+		//	
+		//}
 
 
-		return msg;
+		//return msg;
 	}
 
 	CTRef CUIHRDPS::GetTRef(string filePath)

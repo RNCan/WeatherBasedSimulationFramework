@@ -1,4 +1,4 @@
-﻿3//******************************************************************************
+﻿//******************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
 //	Programmer:     Rémi Saint-Amant
 // 
@@ -362,6 +362,7 @@ namespace WBSF
 		{
 			if (TRef <= m_world.m_world_param.m_simulationPeriod.End())
 			{
+
 				__int64 UTCTimeº = CTimeZones::TRef2Time(TRef) - m_UTCShift;
 				__int64 sunset = m_world.get_sunset(TRef, m_location);
 
@@ -389,8 +390,9 @@ namespace WBSF
 											__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
 											__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
 
+											
 											//compute duration (max) from liftoff and sunrise
-											m_duration = sunriseTime - m_liffoff_time + m_world.m_moths_param.m_flight_after_sunrise * 3600;
+											m_duration = sunriseTime - m_liffoff_time /*+ m_world.m_moths_param.m_flight_after_sunrise * 3600*/;
 											ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
 										}
 										else
@@ -459,7 +461,7 @@ namespace WBSF
 			for (size_t i = 0; i < NB_STATS; i++)
 			{
 				m_stat[i][S_TAIR] += w[ATM_TAIR];
-				m_stat[i][S_PRCP] = w[ATM_PRCP];
+				m_stat[i][S_PRCP] += w[ATM_PRCP];
 				m_stat[i][S_U] += w[ATM_WNDU];
 				m_stat[i][S_V] += w[ATM_WNDV];
 				m_stat[i][S_W] += w[ATM_WNDW];
@@ -489,7 +491,7 @@ namespace WBSF
 			for (size_t i = 0; i < NB_STATS; i++)
 			{
 				m_stat[i][S_TAIR] += w[ATM_TAIR];
-				m_stat[i][S_PRCP] = w[ATM_PRCP];
+				m_stat[i][S_PRCP] += w[ATM_PRCP];
 				m_stat[i][S_U] += w[ATM_WNDU];
 				m_stat[i][S_V] += w[ATM_WNDV];
 				m_stat[i][S_W] += w[ATM_WNDW];
@@ -597,8 +599,11 @@ namespace WBSF
 				//	}
 				//}
 
+				__int64 final_duration = m_duration;
+				if(duration >= final_duration && IsOverWater())
+					final_duration += m_world.m_moths_param.m_flight_after_sunrise * 3600;
 
-				if (duration < m_duration)
+				if (duration < final_duration)
 				{
 					double dt = m_world.get_time_step(); //[s]
 
@@ -625,6 +630,7 @@ namespace WBSF
 				}
 				else
 				{
+					
 					m_flight_flag = LANDING;
 					m_landing_flag = END_BY_SUNRISE;
 				}
@@ -997,7 +1003,11 @@ namespace WBSF
 			CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
 			bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
 			if (bExodus)//if exodus occurd, set liftoff
+			{
+				//temporaire
+				//m_logT[T_LIFTOFF] = w[ATM_TAIR];
 				liftoff = UTCTimeº + t;
+			}
 
 			AddStat(w);
 		}//for t in exodus period
@@ -2383,7 +2393,7 @@ namespace WBSF
 			ASSERT(fls[i]->GetState() != CSBWMoth::FINISHED);
 			if (fls[i]->m_liffoff_time > 0)
 			{
-				__int64  UTCLanding = fls[i]->m_liffoff_time + fls[i]->m_duration;
+				__int64  UTCLanding = fls[i]->m_liffoff_time + fls[i]->m_duration + m_moths_param.m_flight_after_sunrise * 3600;
 				UTCp.first = min(UTCp.first, fls[i]->m_liffoff_time);
 				UTCp.second = max(UTCp.second, UTCLanding + 3600);
 			}
@@ -2529,7 +2539,7 @@ namespace WBSF
 				callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
 				//init all moths : broods and liffoff time. 
 
-//#pragma omp parallel for num_threads(m_nb_max_threads)
+#pragma omp parallel for num_threads(m_nb_max_threads)
 				for (__int64 i = 0; i < (__int64)moths.size(); i++)
 				{
 #pragma omp flush(msg)
@@ -2542,6 +2552,7 @@ namespace WBSF
 						if (moths[i]->init_new_night(TRef))
 						{
 #pragma omp critical
+
 							flyers.push_back(moths[i]);//add moth that have flight sheduled
 						}
 
@@ -2916,7 +2927,7 @@ namespace WBSF
 			if (m_state == LIVE || m_state == FLY)
 			{
 				output[m_ID][localTRef][ATM_T] = GetStat(stat_type, S_TAIR);
-				output[m_ID][localTRef][ATM_P] = GetStat(stat_type, S_PRCP);
+				output[m_ID][localTRef][ATM_P] = GetStat(stat_type, S_PRCP, 1, HIGHEST);
 				output[m_ID][localTRef][ATM_U] = GetStat(stat_type, S_U, MS2KMH);
 				output[m_ID][localTRef][ATM_V] = GetStat(stat_type, S_V, MS2KMH);
 				output[m_ID][localTRef][ATM_W] = GetStat(stat_type, S_W, MS2KMH);
@@ -3000,6 +3011,8 @@ namespace WBSF
 						float value = output[no][t][v];
 						output_file.write_value(value);
 					}
+
+					msg += callback.StepIt();
 				}
 			}//for all time step
 		}//for all locations
@@ -3050,6 +3063,8 @@ namespace WBSF
 					size_t i = no * sub_output[no].size() + t;
 					have_data.set(i);
 				}
+				
+				msg += callback.StepIt();
 			}
 		}
 
@@ -3180,20 +3195,15 @@ namespace WBSF
 		{
 			__int64 UTCWeatherTime = weatherToLoad[i];
 			ASSERT(!m_weather.IsLoaded(UTCWeatherTime));
-
+			
 			msg += m_weather.LoadWeather(UTCWeatherTime, callback);
 			if (msg)
 			{
-				//if (m_world_param.m_weather_type == CATMWorldParamters::FROM_GRIBS ||
-				//	m_world_param.m_weather_type == CATMWorldParamters::FROM_BOTH)
-				//{
 				size_t prjID = m_weather.GetGribsPrjID(UTCWeatherTime); ASSERT(prjID != NOT_INIT);
 				if (m_GEO2.find(prjID) == m_GEO2.end())
 					m_GEO2[prjID] = GetReProjection(PRJ_WGS_84, prjID);
 				if (m_2GEO.find(prjID) == m_2GEO.end())
 					m_2GEO[prjID] = GetReProjection(prjID, PRJ_WGS_84);
-				//}
-
 			}
 			msg += callback.StepIt();
 		}

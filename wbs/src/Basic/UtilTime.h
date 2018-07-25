@@ -245,7 +245,7 @@ namespace WBSF
 		static const CTRefFormat& GetFormat(){ return TREF_FORMAT; }
 		static void SetFormat(const CTRefFormat& format){ TREF_FORMAT = format; }
 
-		static CTRef GetCurrentTRef(CTM TM = CTM(DAILY));
+		static CTRef GetCurrentTRef(CTM TM = CTM(DAILY), bool bUTC = false);
 
 		CTM GetTM()const{ return CTM(m_type, m_mode); }
 		void SetTM(const CTM& TM){ m_type = TM.Type(); m_mode = TM.Mode(); }

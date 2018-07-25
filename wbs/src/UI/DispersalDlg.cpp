@@ -77,7 +77,7 @@ namespace WBSF
 		EnableWindow(true);
 		AlwaysShowUserToolTip();
 
-		//General
+		//General 
 		CStringArrayEx section(IDS_SIM_DISPERSAL_SECTION);
 		WBSF::StringVector name(IDS_SIM_DISPERSAL_PROPERTIES, "|");
 		WBSF::StringVector description(IDS_SIM_DISPERSAL_DESCRIPTION, "|");

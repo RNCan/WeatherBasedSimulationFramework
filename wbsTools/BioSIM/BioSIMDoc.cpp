@@ -14,7 +14,6 @@
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/ProgressStepDlg.h"	
-#include "Geomatic/TimeZones.h"
 #include "Geomatic/ShoreCreator.h"
 
 #include "BioSIM.h"
@@ -583,7 +582,7 @@ void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 
 
 
-	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
+	
 	
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());

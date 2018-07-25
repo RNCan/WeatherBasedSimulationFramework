@@ -22,29 +22,29 @@ namespace WBSF
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/
 
 	//*********************************************************************
-	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "ServerType", "ShowWinSCP"};
-	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL};
+	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Begin", "End", "ServerType", "ShowWinSCP" };
+	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL };
 	const UINT CUINAM::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NAM_P;
 	const UINT CUINAM::DESCRIPTION_TITLE_ID = ID_TASK_NAM;
 
-	const char* CUINAM::CLASS_NAME(){ static const char* THE_CLASS_NAME = "NorthAmericanMesoscaleForecastSystem";  return THE_CLASS_NAME; }
+	const char* CUINAM::CLASS_NAME() { static const char* THE_CLASS_NAME = "NorthAmericanMesoscaleForecastSystem";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINAM::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINAM::CLASS_NAME(), (createF)CUINAM::create);
 
 
-	
+
 	const char* CUINAM::SERVER_NAME = "nomads.ncdc.noaa.gov";
 	const char* CUINAM::NAM_FORMAT = "/data/namanl/%4d%02d/%4d%02d%02d/namanl_218_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUINAM::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
-	
+
 
 	CUINAM::CUINAM(void)
 	{}
-	
+
 	CUINAM::~CUINAM(void)
 	{}
 
-	
+
 	std::string CUINAM::Option(size_t i)const
 	{
 		string str;
@@ -69,8 +69,8 @@ namespace WBSF
 
 		return str;
 	}
-		
-	
+
+
 
 	//************************************************************************************************************
 	//Load station definition list section
@@ -101,7 +101,7 @@ namespace WBSF
 		int h = int(TRef.GetHour());
 		int forecastH = h % 6;
 		h = int(h / 6) * 6;
-		
+
 		return FormatA(OUTPUT_FORMAT, workingDir.c_str(), y, m, d, "nam_218_", y, m, d, h, forecastH, bGrib ? ".grb2" : ".inv");
 	}
 
@@ -113,7 +113,7 @@ namespace WBSF
 		string outputPath = GetOutputFilePath(TRef, true);
 		CreateMultipleDir(GetPath(outputPath));
 
-		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE,"","",true,callback);
+		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, "", "", true, callback);
 		if (msg)
 		{
 			CFileInfo info = GetFileInfo(outputPath);
@@ -132,22 +132,29 @@ namespace WBSF
 	}
 
 
-	bool CUINAM::NeedDownload(const string& filePath)const
+	bool CUINAM::GoodGrib(const string& filePath)const
 	{
-		bool bDownload = true;
+		bool bGoodGrib = false;
 
 		if (!filePath.empty())
 		{
-			CFileStamp fileStamp(filePath);
-			CTime lastUpdate = fileStamp.m_time;
-			if (lastUpdate.GetTime() > 0)
+			ifStream stream;
+			if (stream.open(filePath))
 			{
-				bDownload = false;
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+				if (string(test) == "7777")
+					bGoodGrib = true;
+
+				stream.close();
 			}
 		}
 
-		return bDownload;
+		return bGoodGrib;
 	}
+
 
 
 
@@ -174,11 +181,11 @@ namespace WBSF
 		size_t serverType = as<size_t>(SERVER_TYPE);
 		CreateMultipleDir(workingDir);
 
-		callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		callback.AddMessage(workingDir, 1);
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
-		callback.AddMessage("");
+		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		//callback.AddMessage(workingDir, 1);
+		//callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		//callback.AddMessage(SERVER_NAME, 1);
+		//callback.AddMessage("");
 
 		CTRef today = CTRef::GetCurrentTRef(CTM::HOURLY);
 
@@ -229,7 +236,7 @@ namespace WBSF
 		}
 
 
-		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString() + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
+		callback.PushTask("Download NAM gribs from HTTP server for period: " + period.GetFormatedString() + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
 		callback.AddMessage("Number of NAM file to download from HTTP: " + to_string(nbFilesToDownload) + " files");
 
 		if (nbFilesToDownload > 0)
@@ -295,94 +302,98 @@ namespace WBSF
 	ERMsg CUINAM::ExecuteFTP(CTPeriod period, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		int nbDownloaded = 0;
-	
-		callback.PushTask("Download NAM gribs for period: " + period.GetFormatedString(), 2);
-		
 
-		for (size_t s = 0; s < 2&&msg; s++)
+		callback.PushTask("Download NAM gribs from FTP servers (NOMADS, NCEP) for period: " + period.GetFormatedString("%1 ---- %2"), 2);
+		callback.AddMessage("Download NAM gribs from FTP servers (NOMADS, NCEP) for period: " + period.GetFormatedString("%1 ---- %2"));
+
+		for (size_t s = 0; s < 2 && msg; s++)
 		{
-			CFileInfoVector fileList;
-			msg = GetFilesToDownload(s, period, fileList, callback);
-			CleanList(s, fileList);
+			callback.AddMessage(string("Try to connect to: ") + FTP_SERVER_NAME[s]);
 
-			size_t nbFileToDownload = fileList.size();
-			static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
-			
-			callback.PushTask(string("Download NAM gribs from ") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files", nbFileToDownload);
-			callback.AddMessage(string("Number of NAM file to download from ") + NAME_NET[s] + ": " + to_string(nbFileToDownload) + " files");
-
-			string workingDir = GetDir(WORKING_DIR);
-			string scriptFilePath = workingDir + "script.txt";
-			WBSF::RemoveFile(scriptFilePath + ".log");
-
-
-			for (size_t i = 0; i < fileList.size() && msg; i++)
+			if (server_available(s))
 			{
-				ofStream stript;
-				msg = stript.open(scriptFilePath);
+				CFileInfoVector fileList;
+				msg = GetFilesToDownload(s, period, fileList, callback);
 				if (msg)
 				{
-					CTRef TRef = GetTRef(s, fileList[i].m_filePath);
-					string outputFilePaht = GetOutputFilePath(TRef, true);
-					string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
-					CreateMultipleDir(GetPath(outputFilePaht));
+					CTPeriod p_avail = CleanList(s, fileList);
 
-					stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[s] << endl;
+					size_t nbFileToDownload = fileList.size();
+					static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
 
-					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
-					stript << "lcd " << GetPath(tmpFilePaht) << endl;
-					stript << "get " << GetFileName(tmpFilePaht) << endl;
-					stript << "exit" << endl;
-					stript.close();
+					callback.PushTask(string("Download NAM gribs from \"") + NAME_NET[s] + "\" for period " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"), nbFileToDownload);
+					callback.AddMessage(string("Download NAM gribs from \"") + NAME_NET[s] + "\" for period " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"));
 
-					bool bShow = as<bool>(SHOW_WINSCP);
-					//# Execute the script using a command like:
-					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow?"/console ": "") +  "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
-					DWORD exit_code;
-					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
-					if (msg)
+
+					string workingDir = GetDir(WORKING_DIR);
+					string scriptFilePath = workingDir + "script.txt";
+					WBSF::RemoveFile(scriptFilePath + ".log");
+
+
+					for (size_t i = 0; i < fileList.size() && msg; i++)
 					{
-						//verify if the file finish with 7777
-						
-						if (exit_code == 0 && FileExists(tmpFilePaht))
+						ofStream stript;
+						msg = stript.open(scriptFilePath);
+						if (msg)
 						{
-							ifStream stream;
-							if (stream.open(tmpFilePaht))
-							{
-								char test[5] = { 0 };
-								stream.seekg(-4, ifstream::end);
-								stream.read(&(test[0]), 4);
-								stream.close();
+							CTRef TRef = GetTRef(s, fileList[i].m_filePath);
+							string outputFilePaht = GetOutputFilePath(TRef, true);
+							string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
+							CreateMultipleDir(GetPath(outputFilePaht));
 
-								if (string(test) == "7777")
+							stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[s] << endl;
+
+							stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
+							stript << "lcd " << GetPath(tmpFilePaht) << endl;
+							stript << "get " << GetFileName(tmpFilePaht) << endl;
+							stript << "exit" << endl;
+							stript.close();
+
+							bool bShow = as<bool>(SHOW_WINSCP);
+							//# Execute the script using a command like:
+							string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+							DWORD exit_code;
+							msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+							if (msg)
+							{
+								if (exit_code == 0 && FileExists(tmpFilePaht) )
 								{
-									nbDownloaded++;
-									msg = RenameFile(tmpFilePaht, outputFilePaht);
+									//verify if the file finish with 7777
+									if (GoodGrib(tmpFilePaht))
+									{
+										nbDownloaded++;
+									}
+									else
+									{
+										callback.AddMessage("corrupt file, remove: " + tmpFilePaht);
+										msg = WBSF::RemoveFile(tmpFilePaht);
+									}
 								}
 								else
 								{
-									callback.AddMessage("corrupt file, remove: " + tmpFilePaht);
-									msg = WBSF::RemoveFile(tmpFilePaht);
+									callback.AddMessage("Error in WinCSV");
 								}
-							}
-							
-						}
-						else
-						{
-							//msg.ajoute("Error in WinCSV");
-							callback.AddMessage("Error in WinCSV");
-						}
-					}
-				}
 
-				msg += callback.StepIt();
-			}//for all files
-			
-			callback.PopTask();
+							}
+						}
+
+						msg += callback.StepIt();
+					}//for all files
+
+					callback.PopTask();
+				}//if msg 
+
+			}//server available
+			else
+			{
+				callback.AddMessage(string("Unable to connect to: ") + FTP_SERVER_NAME[s] + ". Server skipped.");
+			}
+
+
 			msg += callback.StepIt();
-		}//for all sources 
+		}//for all servers 
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + to_string(nbDownloaded));
 		callback.PopTask();
@@ -400,12 +411,12 @@ namespace WBSF
 			//nam_218_20170701_0000_001.grb2
 			string name = GetFileTitle(remote);
 			int year = WBSF::as<int>(name.substr(8, 4));
-			size_t m = WBSF::as<size_t >(name.substr(12,2))-1;
-			size_t d = WBSF::as<size_t >(name.substr(14,2))-1;
-			size_t h = WBSF::as<size_t >(name.substr(17,2));
+			size_t m = WBSF::as<size_t >(name.substr(12, 2)) - 1;
+			size_t d = WBSF::as<size_t >(name.substr(14, 2)) - 1;
+			size_t h = WBSF::as<size_t >(name.substr(17, 2));
 			size_t hh = WBSF::as<size_t >(name.substr(23, 2));
-			
-			TRef = CTRef(year, m, d, h+hh);
+
+			TRef = CTRef(year, m, d, h + hh);
 		}
 		else if (s == S_NCEP)
 		{
@@ -413,55 +424,61 @@ namespace WBSF
 			string name1 = WBSF::GetLastDirName(GetPath(remote));
 			string name2 = GetFileTitle(remote);
 			int year = WBSF::as<int>(name1.substr(4, 4));
-			size_t m = WBSF::as<size_t >(name1.substr(8, 2))-1;
-			size_t d = WBSF::as<size_t >(name1.substr(10, 2))-1;
+			size_t m = WBSF::as<size_t >(name1.substr(8, 2)) - 1;
+			size_t d = WBSF::as<size_t >(name1.substr(10, 2)) - 1;
 			size_t h = WBSF::as<size_t >(name2.substr(5, 2));
 			size_t hh = WBSF::as<size_t >(name2.substr(15, 2));
 
-			TRef = CTRef(year, m, d, h+hh);
+			TRef = CTRef(year, m, d, h + hh);
 		}
 
 		return TRef;
 	}
 
-	void CUINAM::CleanList(size_t s, CFileInfoVector& fileList1)
+	CTPeriod CUINAM::CleanList(size_t s, CFileInfoVector& fileList1)
 	{
-
+		CTPeriod p_avail;
 		CFileInfoVector fileList2;
 		fileList2.reserve(fileList1.size());
 		for (size_t i = 0; i < fileList1.size(); i++)
 		{
 			CTRef TRef = GetTRef(s, fileList1[i].m_filePath);
-			
-			string filePath = GetOutputFilePath(TRef, true);
-			//CFileStamp fileStamp(filePath);
-			
-			ifStream stream;
-			if (stream.open(filePath))
-			{
-				char test[5] = { 0 };
-				stream.seekg(-4, ifstream::end);
-				stream.read(&(test[0]), 4);
-				stream.close();
+			p_avail += TRef;
 
-				if (string(test) != "7777")
-					fileList2.push_back(fileList1[i]);
-			}
-			else
-			{
+			string filePath = GetOutputFilePath(TRef, true);
+
+			if (NeedDownload(filePath))
 				fileList2.push_back(fileList1[i]);
-			}
 		}
 
 		fileList1 = fileList2;
+
+		return p_avail;
+	}
+
+	bool CUINAM::server_available(size_t s)const
+	{
+		ERMsg msg;
+
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
+
+		msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 1);
+		if (msg)
+		{
+			pConnection->Close();
+			pSession->Close();
+		}
+
+		return msg;
 	}
 
 	ERMsg CUINAM::GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		CTRef now = CTRef::GetCurrentTRef();
-		
+
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
@@ -492,12 +509,12 @@ namespace WBSF
 						}
 					}
 
-					if (paths1.size()>1)
+					if (paths1.size() > 1)
 						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths1.size()) + " directories)", paths1.size());
 
 					for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
 					{
-						
+
 
 						for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
 						{
@@ -520,12 +537,12 @@ namespace WBSF
 										paths2.push_back(make_pair(dir2[d2].m_filePath, TRef));
 								}
 
-								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size()*6);
+								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size() * 6);
 								for (size_t d2 = 0; d2 != paths2.size() && msg; d2++)
 								{
 									//string name = WBSF::GetLastDirName(paths2[d2].first);
 									CTRef TRef = paths2[d2].second;
-										
+
 									for (size_t h = 0; h < 6; h++)
 									{
 										string URL = paths2[d2].first + "/";
@@ -535,18 +552,18 @@ namespace WBSF
 										fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
 										msg += callback.StepIt();
 									}
-								
+
 								}//if msg
 
 								callback.PopTask();
 							}//if is inside
 						}
 
-						if (paths1.size()>1)
+						if (paths1.size() > 1)
 							msg += callback.StepIt();
 					}//for all dir1
 
-					if (paths1.size()>1)
+					if (paths1.size() > 1)
 						callback.PopTask();
 				}//if msg
 			}
@@ -585,7 +602,7 @@ namespace WBSF
 							msg = FindFiles(pConnection, paths[d1], fileListTmp);
 							fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
 							msg += callback.StepIt();
-							
+
 						}//for all dir1
 
 						callback.PopTask();
@@ -595,7 +612,7 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 		}//if msg
-		
+
 
 		return msg;
 
@@ -620,7 +637,7 @@ namespace WBSF
 		int firstYear = p.Begin().GetYear();
 		int lastYear = p.End().GetYear();
 		size_t nbYears = lastYear - firstYear + 1;
-		
+
 		for (size_t y = 0; y < nbYears; y++)
 		{
 			int year = firstYear + int(y);
@@ -649,8 +666,8 @@ namespace WBSF
 	{
 		string name = GetFileTitle(filePath);
 		int year = WBSF::as<int>(name.substr(8, 4));
-		size_t m = WBSF::as<int>(name.substr(12, 2))-1;
-		size_t d = WBSF::as<int>(name.substr(14, 2))-1;
+		size_t m = WBSF::as<int>(name.substr(12, 2)) - 1;
+		size_t d = WBSF::as<int>(name.substr(14, 2)) - 1;
 		size_t h = WBSF::as<int>(name.substr(17, 2));
 		size_t hh = WBSF::as<int>(name.substr(22, 3));
 

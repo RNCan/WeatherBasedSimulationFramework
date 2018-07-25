@@ -97,7 +97,7 @@ namespace WBSF
 		callback.AddMessage(outputFilePath, 1);
 
 		
-		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 		CTPeriod p = GetPeriod();
 		if (!p.IsInit())
 		{

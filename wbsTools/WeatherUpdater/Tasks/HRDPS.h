@@ -67,15 +67,18 @@ namespace WBSF
 
 		bool m_bCreateVRT;
 		CHRDPSVariables m_variables;
+		int m_max_hours;
 		bool m_bForecast;
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetVirtuelStation(const CLocationVector& stations, CWVariables variables, CTPeriod p, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 
-		ERMsg CreateVRT(CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg CreateVRT(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
+		std::string GetVRTFilePath(std::string outputFilePath);
+		ERMsg GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback);
 		//std::string GetVRTFilePath(CTRef TRef);
-
+		static CTRef GetTRef(const std::string& title);
 		
 
 	protected:
@@ -89,7 +92,7 @@ namespace WBSF
 		size_t GetHH(const std::string& title)const;
 		size_t Gethhh(const std::string& title)const;
 		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
-		CTRef GetTRef(const std::string& title)const;
+		
 		ERMsg OpenDatasets(CCallback& callback);
 
 		static size_t GetVariable(const std::string& fileTitle);

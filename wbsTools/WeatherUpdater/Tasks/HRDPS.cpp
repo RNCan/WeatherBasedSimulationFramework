@@ -37,7 +37,8 @@ namespace WBSF
 	CHRDPS::CHRDPS(const std::string& workingDir) :
 		m_workingDir(workingDir),
 		m_bCreateVRT(true),
-		m_bForecast(false)
+		m_bForecast(false),
+		m_max_hours(99)
 	{
 		m_variables.set();
 	}
@@ -131,9 +132,6 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		//CreateVRT(callback);
-
-
 		size_t lastestHH = NOT_INIT;
 		msg = GetLatestHH(lastestHH, callback);
 
@@ -180,6 +178,8 @@ namespace WBSF
 
 		callback.PopTask();
 
+		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+
 		CFileInfoVector fileList;
 		if (msg)
 		{
@@ -208,8 +208,9 @@ namespace WBSF
 							path = GetPath(path.substr(0, path.length() - 1));
 							size_t HH = as<size_t>(GetLastDirName(path));
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-
-							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6) : hhh < 6;
+							CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
+		
+							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && (TRefUTC-nowUTC) <= m_max_hours) : hhh < 6;
 							if (bDownload)
 							{
 								CFileInfoVector fileListTmp;
@@ -261,14 +262,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (size_t i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-
+							msg += WaitServer(30, callback);
 						}
 						else
 						{
@@ -286,11 +280,12 @@ namespace WBSF
 
 		}//if msg
 
-
+		set<string> ouputsPath;
 		if (msg)
 		{
-			callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
+			
 			callback.PushTask("Download HRDPS gribs (" + ToString(fileList.size()) + ")", fileList.size());
+			callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
 
 			size_t nbDownload = 0;
 			size_t nbTry = 0;
@@ -317,7 +312,10 @@ namespace WBSF
 							CreateMultipleDir(GetPath(outputFilePath));
 							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT );
 							if (msg)
+							{
 								nbDownload++;
+								ouputsPath.insert(GetVRTFilePath(outputFilePath));
+							}
 
 
 							msg += callback.StepIt();
@@ -330,14 +328,7 @@ namespace WBSF
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							callback.PushTask("Waiting 30 seconds for server...", 600);
-							for (size_t i = 0; i < 600 && msg; i++)
-							{
-								Sleep(50);//wait 50 milisec
-								msg += callback.StepIt();
-							}
-							callback.PopTask();
-
+							msg += WaitServer(30, callback);
 						}
 						else
 						{
@@ -358,86 +349,118 @@ namespace WBSF
 
 		//now, create .vrt and index file
 		if (msg && m_bCreateVRT)
-			msg = CreateVRT();
+			msg = CreateVRT(ouputsPath, callback);
 
 
 		return msg;
 	}
+	
+	string CHRDPS::GetVRTFilePath(string outputFilePath)
+	{
+		
+		//string path = GetPath(outputFilePath);
+		string title = GetFileTitle(outputFilePath);
+		size_t pos = title.find("2.5km_");
+		ASSERT(pos != string::npos);
 
+		string year = title.substr(pos+6, 4);
+		string month = title.substr(pos + 10, 2);
+		string day = title.substr(pos + 12, 2);
+		size_t h1 = WBSF::as<size_t>(title.substr(pos + 14, 2));
+		size_t h2 = WBSF::as<size_t>(title.substr(pos + 18, 3));
+		//size_t h1 = (h / 6) * 6;
+		//size_t h2 = (h % 6);
 
-	ERMsg CHRDPS::CreateVRT(CCallback& callback)
+		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+
+		string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+
+		//create VRT
+		//string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+		//string HH = FormatA("%02d", h1);
+
+		return VRTFilePath;
+	}
+
+	ERMsg CHRDPS::CreateVRT(set<string> outputPath, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//string EXEPath = WBSF::GetApplicationPath() + "External\\";
+		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		StringVector filePaths;
-		StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
-		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		//StringVector filePaths;
+		if (outputPath.empty())
 		{
-			string year = *it1;// GetLastDirName(*it1);
-			StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+			StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+			for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
 			{
-				string month = *it2; // GetLastDirName(m_workingDir + *it1 + "\\" + *it2);
-				StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
-				for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+				string year = *it1;
+				StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+				for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
 				{
-					string day = *it3;
-
-					//for (size_t h = 0; h < 24 && msg; h++)
-					//{
-					StringVector hours = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\" + *it3 + "\\*");
-					for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
+					string month = *it2;
+					StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+					for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
 					{
-						string hour = *it4;
-						size_t h1 = WBSF::as<size_t>(hour);
-						for (size_t h2 = 0; h2 < 6; h2++)
+						string day = *it3;
+
+						StringVector hours = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\" + *it3 + "\\*");
+						for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
 						{
-							size_t h = h1 + h2;
-							string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
+							string hour = *it4;
+							size_t h1 = WBSF::as<size_t>(hour);
 
-							if (!WBSF::FileExists(VRTFilePath))
+							//string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+							//StringVector fileList = WBSF::GetFilesList(filter, 2, true);
+				
+							//sort(fileList.begin(), fileList.end());
+							//for (StringVector::iterator it5 = fileList.begin(); it5 != fileList.end() && msg; it5++)
+							//{
+							//	//string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
+							//	string VRTFilePath = GetVRTFilePath(*it5);
+							//	outputPath.insert(VRTFilePath);
+							//}
+
+							for (size_t h2 = 0; h2 < 6; h2++)
 							{
-								//string tmp = FormatA("%s%s%s%s", year.c_str(), month.c_str(), day.c_str(), hour.c_str());
-								filePaths.push_back(VRTFilePath);
+								//size_t h = h1 + h2;
+								string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+
+								if (!WBSF::FileExists(VRTFilePath))
+								{
+									outputPath.insert(VRTFilePath);
+								}
+
+								msg += callback.StepIt(0);
 							}
+						}//for all hours
+					}//for all days
+				}//for all months
+			}//for all years
+		}
 
-							msg += callback.StepIt(0);
-
-						}
-					}//for all hours
-				}//for all days
-			}//for all months
-		}//for all years
-
-
-		callback.PushTask("Create VRT: " + ToString(filePaths.size()) + " files", filePaths.size());
+		callback.PushTask("Create VRT: " + ToString(outputPath.size()) + " files", outputPath.size());
 
 
-		for (StringVector::const_iterator it = filePaths.begin(); it != filePaths.end() && msg; it++)
+		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
 			string title = GetFileTitle(*it);
 			string year = title.substr(6, 4);
 			string month = title.substr(10, 2);
 			string day = title.substr(12, 2);
-			size_t h = WBSF::as<size_t>(title.substr(14, 2));
-			size_t h1 = (h / 6) * 6;
-			size_t h2 = (h % 6);
-			//for (size_t h2 = 0; h2 < 6; h2++)
-			//{
-			//	size_t h = h1 + h2;
-
+			size_t h1 = WBSF::as<size_t>(title.substr(14, 2));
+			size_t h2 = WBSF::as<size_t>(title.substr(17, 3));
+			//size_t h1 = (h / 6) * 6;
+			//size_t h2 = (h % 6);
+		
 			//create VRT
-
-
 			string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
 			string HH = FormatA("%02d", h1);
 
 			StringVector fileList = WBSF::GetFilesList(filter, 2, true);
 			sort(fileList.begin(), fileList.end());
 
-			if (fileList.size() > 300)
+			//if (fileList.size() > 300)
 			{
 				//very long to bild vrt (~12 min???)
 				//msg += BuildVRT(VRTFilePath, fileList, true, EXEPath);
@@ -454,8 +477,6 @@ namespace WBSF
 					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++, b++)
 					{
 						string fileName = GetFileName(*it4);
-						//size_t var = GetVariable(fileName);
-
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
 						oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
@@ -468,17 +489,11 @@ namespace WBSF
 						oFile << "      <NODATA>9999</NODATA>" << endl;
 						oFile << "</ComplexSource>" << endl;
 						oFile << "  </VRTRasterBand>" << endl;
-
-
 					}
 
 					oFile << "</VRTDataset>" << endl;
 					oFile.close();
-
-
 				}
-
-
 			}//if valid layer
 
 			msg += callback.StepIt();
@@ -505,7 +520,41 @@ namespace WBSF
 		return msg;
 	}
 
-	CTRef CHRDPS::GetTRef(const string& fileName)const
+
+	ERMsg CHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CTPeriod p_daily = p.as(CTM::DAILY);
+		for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
+		{
+			int year = TRef.GetYear();
+			size_t m = TRef.GetMonth();
+			size_t d = TRef.GetDay();
+//			size_t h = TRef.GetHour();
+			
+			string filter = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02*.vrt", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
+			StringVector fileList = WBSF::GetFilesList(filter);
+			for (size_t i = 0; i < fileList.size(); i++)
+			{
+				string title = GetFileTitle(fileList[i]);
+				int year = WBSF::as<int>(title.substr(6, 4));
+				size_t m = WBSF::as<int>(title.substr(10, 2)) - 1;
+				size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
+				size_t h = WBSF::as<int>(title.substr(14, 2));
+				size_t hh = WBSF::as<int>(title.substr(17, 3));
+				CTRef TRef = CTRef(year,m,d,h) + hh;
+//				CTRef TRef = GetTRef(fileList[i]);
+				if (p.IsInside(TRef))
+					gribsList[TRef] = fileList[i];
+			}
+
+		}
+
+		return msg;
+	}
+
+	CTRef CHRDPS::GetTRef(const string& fileName)
 	{
 		CTRef TRef;
 		StringVector tmp(fileName, "_");

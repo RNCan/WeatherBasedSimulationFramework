@@ -7,7 +7,9 @@
 
 //-of VRT -stats -overview {2,4,8,16} -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-05" -var WNDS -var WNDD  -overwrite --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.vrt"
 //-of XYZ -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-05" -var WNDS -var WNDD --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.csv"
-//--config GDAL_CACHEMAX 1024 -co "compress=LZW" -var WNDS -var WNDD -Levels "0,200,400,600,800,1000" -loc "D:\Travaux\Dispersal2018\Loc\helikite.csv" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output1.csv"
+//-period "2018-07-25-02" "2018-07-25-02" -var WNDS -var WNDD -Levels "0" -loc "D:\Travaux\YanBoulanger\LacMalcolm.csv" "D:\Travaux\YanBoulanger\RAP2018.Gribs" "D:\Travaux\YanBoulanger\test.csv"
+
+
 
 
 #include "stdafx.h"
@@ -159,14 +161,25 @@ namespace WBSF
 		{
 			int f = std::atoi(argv[++i]);
 			int l = std::atoi(argv[++i]);
-			int fl = l - f;
-			if (fl < 0)
-				fl += 24;
+			
+			
+			//fl += 24;
+			
+			
 
-			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
-			now.m_hour = 0;
-
-			m_period = CTPeriod(now + f, now + f + fl);
+			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+			if ( (now.GetHour() > l && now.GetHour() < f) || now.GetHour() >= f)
+			{
+				f = f - (int)now.GetHour();
+				l = l - (int)now.GetHour() + 24;
+				m_period = CTPeriod(now + f, now + l);
+			}
+			else 
+			{
+				f = f - (int)now.GetHour() - 24;
+				l = l - (int)now.GetHour();
+				m_period = CTPeriod(now + f, now + l);
+			}
 		}
 		else
 		{
@@ -500,9 +513,9 @@ namespace WBSF
 								{
 								case GR_TAIR: outputData[tlv][xy] = var[ATM_TAIR]; break;
 								case GR_PRCP: outputData[tlv][xy] = var[ATM_PRCP]; break;
-								case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU] * 3600 / 1000; break;
-								case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600 / 1000; break;
-								case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed() * 3600 / 1000; break;
+								case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU] * 3600.0 / 1000.0; break;
+								case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600.0 / 1000.0; break;
+								case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed() * 3600.0 / 1000.0; break;
 								case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
 								default: ASSERT(false);
 								}
@@ -550,9 +563,9 @@ namespace WBSF
 							{
 							case GR_TAIR: outputData[tlv][xy] = var[ATM_TAIR]; break;
 							case GR_PRCP: outputData[tlv][xy] = var[ATM_PRCP]; break;
-							case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU]; break;
-							case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV]; break;
-							case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed(); break;
+							case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU]*3600.0 /1000.0; break;
+							case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600.0 / 1000.0; break;
+							case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed()*3600.0 / 1000.0; break;
 							case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
 							default: ASSERT(false);
 							}
