@@ -48,6 +48,8 @@ copy /Y ".\bin\Releasex64\Models\Climdex.dll"           "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index (Monthly).mdl" "..\Install\NRCan\Models\Climate Moisture Index (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\Climate Mosture Index (Annual).mdl" "..\Install\NRCan\Models\Climate Mosture Index (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index.dll" "..\Install\NRCan\Models\Climate Moisture Index.dll"
+copy /Y ".\bin\Releasex64\Models\ClimaticQc (Annual).mdl" "..\Install\NRCan\Models\ClimaticQc (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\ClimaticQc.dll"           "..\Install\NRCan\Models\ClimaticQc.dll"
 
 
 
