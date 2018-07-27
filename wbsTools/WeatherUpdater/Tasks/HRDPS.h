@@ -44,29 +44,39 @@ namespace WBSF
 		static size_t GetLevel(const std::string& name);
 		
 		static std::string GetHRDPSSelectionString();
+		static bool IsIsobar(size_t var) { return var >= ABSV_ISBL && var <= WIND_ISBL; }
 
 	protected:
 
 		static void LoadDescription();
-
 		static const char* NAME[NB_HRDPS_VARIABLES];
 		static const char* CATEGORY[NB_HRDPS_CATEGORY];
 		
 		static StringVector DESCRIPTION;
 	};
 
+	class CHRDPSLevels : public std::set<size_t>
+	{
+	public:
 
+		CHRDPSLevels(std::string str="");
+		void FromString(std::string str);
+		std::string ToString()const;
+	};
 
 	//**************************************************************
 	class CHRDPS
 	{
 	public:
 
+		static bool GoodGrib(const std::string& filePath);
+
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
 
 		bool m_bCreateVRT;
 		CHRDPSVariables m_variables;
+		CHRDPSLevels m_levels;
 		int m_max_hours;
 		bool m_bForecast;
 
@@ -85,7 +95,7 @@ namespace WBSF
 
 		std::string m_workingDir;
 
-
+		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
 		std::string GetOutputFilePath(const std::string& filetitle)const;
 		std::string GetRemoteFilePath(size_t HH, size_t hhh, const std::string& filetitle)const;
 

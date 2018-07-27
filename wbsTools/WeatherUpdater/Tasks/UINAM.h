@@ -79,6 +79,7 @@ namespace WBSF
 		static const char* INPUT_FORMAT4;
 		static const char* NAM_FORMAT;
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
+		static const char* NAME_NET[NB_SOURCES];
 	};
 
 }

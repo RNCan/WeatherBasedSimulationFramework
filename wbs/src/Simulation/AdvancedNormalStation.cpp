@@ -26,7 +26,8 @@ using namespace NEWMAT;
 
 namespace WBSF
 {
-	int CAdvancedNormalStation::NB_DAY_PER_MONTH_MIN = 20;
+	int CAdvancedNormalStation::NB_MISS_PER_MONTH_MAX = 8;
+	int CAdvancedNormalStation::NB_MISS_PER_MONTH_MAX_PRCP = 4;
 	int CAdvancedNormalStation::KIND_OF_VALIDATION = ONE_VALID;
 
 
@@ -38,11 +39,13 @@ namespace WBSF
 		return GetNbDaysPerYear(m_year);
 	}
 
-	size_t CANStatistic::GetNbDaysPerMonthMin(size_t m)const
+	size_t CANStatistic::GetNbDaysPerMonthMin(size_t v, size_t m)const
 	{
-		size_t nbDayPerMonthMin = CAdvancedNormalStation::GetNbDayPerMonthMin();
-		return 	(nbDayPerMonthMin == CAdvancedNormalStation::FULL_MONTH) ?
-			GetNbDayPerMonth(m_year, m) : nbDayPerMonthMin;
+		//size_t nbDayPerMonthMin = CAdvancedNormalStation::GetNbDayPerMonthMin();
+		//return 	(nbDayPerMonthMin == CAdvancedNormalStation::FULL_MONTH) ?
+			//GetNbDayPerMonth(m_year, m) : nbDayPerMonthMin;
+
+		return GetNbDayPerMonth(m_year, m) - CAdvancedNormalStation::GetNbMissPerMonthMax(v);
 	}
 
 	//*********************
@@ -133,7 +136,7 @@ namespace WBSF
 
 	}
 
-	ERMsg CAdvancedNormalStation::GetNormalValidity(const CWeatherStation& station, int nbYearMin, int nbDayPerMonthMin, bool bValid[NB_VAR_H], int kindOfValidation)
+	ERMsg CAdvancedNormalStation::GetNormalValidity(const CWeatherStation& station, int nbYearMin, bool bValid[NB_VAR_H], int kindOfValidation)
 	{
 		ERMsg msg;
 
@@ -152,13 +155,16 @@ namespace WBSF
 
 					for (size_t m = 0; m < 12; m++)
 					{
-						size_t nbDayMin = (nbDayPerMonthMin == FULL_MONTH) ? GetNbDayPerMonth(data.GetTRef().GetYear(), m) : nbDayPerMonthMin;
-
+						//size_t nbDayMin = (nbDayPerMonthMin == FULL_MONTH) ? GetNbDayPerMonth(data.GetTRef().GetYear(), m) : nbDayPerMonthMin;
+						
 						CWVariablesCounter variables = data[m].GetVariablesCount();
 						for (size_t v = 0; v < HOURLY_DATA::NB_VAR_H; v++)
 						{
-							//int c = CWeatherDefine::V2C(v);
-							if (variables[v].first >= nbDayMin)
+							int nbMissPerMonthMax = GetNbMissPerMonthMax(v);
+							size_t nbMissMax = (nbMissPerMonthMax == FULL_MONTH) ? 0 : nbMissPerMonthMax;// GetNbDayPerMonth(data.GetTRef().GetYear(), m) - nbDayPerMonthMin;
+
+							size_t nbMiss = GetNbDayPerMonth(data.GetTRef().GetYear(), m) - variables[v].first;
+							if (nbMiss <= nbMissMax)
 							{
 								nbYears[m][v]++;
 							}
@@ -228,8 +234,7 @@ namespace WBSF
 		bool bValid[HOURLY_DATA::NB_VAR_H] = { 0 };
 
 
-		msg = GetNormalValidity(dailyStation, nbYearMinimum, NB_DAY_PER_MONTH_MIN, bValid, KIND_OF_VALIDATION);
-		//msg = GetNormalValidity(dailyStation, nbYearMinimum, bValid);
+		msg = GetNormalValidity(dailyStation, nbYearMinimum, bValid, KIND_OF_VALIDATION);
 
 		if (!msg)
 			return msg;
@@ -242,11 +247,9 @@ namespace WBSF
 		{
 			for (size_t m = 0; m < 12; m++)
 			{
-				size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(m);
-				//int nbDayMin = NB_DAY_PER_MONTH_MIN==FULL_MONTH?UtilWin::GetNbDayPerMonth(m+1, data.GetYear() ):NB_DAY_PER_MONTH_MIN;
-
 				for (size_t v = 0; v < NB_VAR_H; v++)
 				{
+					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(v, m);
 					if (m_monthStatArray[y][v][m][NB_VALUE] >= nbDayMin)
 					{
 						m_dailyStat[v][m] += m_monthStatArray[y][v][m];
@@ -254,7 +257,7 @@ namespace WBSF
 
 						m_monthStat[v][m] += m_monthStatArray[y][v][m][MEAN] * correction;
 
-						ASSERT(v != H_PRCP || (NB_DAY_PER_MONTH_MIN != FULL_MONTH) || correction == m_monthStatArray[y][v][m][NB_VALUE]);
+						ASSERT(v != H_PRCP || (NB_MISS_PER_MONTH_MAX != FULL_MONTH) || correction == m_monthStatArray[y][v][m][NB_VALUE]);
 					}
 				}
 			}
@@ -478,7 +481,7 @@ namespace WBSF
 				int year = dailyStation[y].GetTRef().GetYear();
 				if (dailyStation[y].HaveData())
 				{
-					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(m);
+					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(H_TAIR2, m);
 
 					CWVariablesCounter variables = dailyStation[y][m].GetVariablesCount();
 

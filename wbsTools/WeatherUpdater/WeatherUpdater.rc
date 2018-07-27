@@ -717,7 +717,7 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Répertoire de travail"
     IDS_UPDATER_RAP_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables"
+    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Isobares"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
 							"Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
@@ -1188,7 +1188,7 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Working directory"
     IDS_UPDATER_RAP_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
     IDS_UPDATER_NAM_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
-    IDS_UPDATER_HRDPS_P     "Working directory|Variables"
+    IDS_UPDATER_HRDPS_P     "Working directory|Variables|Isobars"
     IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
     IDS_UPDATER_GRIB_FORECAST_P 
 		"Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"

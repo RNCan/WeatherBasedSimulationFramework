@@ -41,7 +41,7 @@ namespace WBSF
 		int GetYear()const{ return m_year; }
 
 		size_t GetNbDays()const;
-		size_t GetNbDaysPerMonthMin(size_t m)const;
+		size_t GetNbDaysPerMonthMin(size_t v, size_t m)const;
 
 	protected:
 
@@ -68,7 +68,7 @@ namespace WBSF
 
 		enum TKindOfValidation { ONE_VALID, ALL_VALID };
 
-		enum { FULL_MONTH = -1 };
+		enum { FULL_MONTH = 0 };
 
 		CAdvancedNormalStation();
 
@@ -97,21 +97,28 @@ namespace WBSF
 		{
 			KIND_OF_VALIDATION = kind;
 		}
-		static int GetNbDayPerMonthMin()
+		static int GetNbMissPerMonthMax(size_t v)
 		{
-			return NB_DAY_PER_MONTH_MIN;
+			if (v == HOURLY_DATA::H_PRCP || v == HOURLY_DATA::H_SNOW)
+				return NB_MISS_PER_MONTH_MAX_PRCP;
+
+			return NB_MISS_PER_MONTH_MAX;
 		}
-		static void SetNbDayPerMonthMin(int nbDay)
+		static void SetNbMissPerMonthMax(size_t v, int nbDay)
 		{
-			NB_DAY_PER_MONTH_MIN = nbDay;
+			if (v == HOURLY_DATA::H_PRCP || v == HOURLY_DATA::H_SNOW)
+				NB_MISS_PER_MONTH_MAX_PRCP = nbDay;
+			else 
+				NB_MISS_PER_MONTH_MAX = nbDay;
 		}
 
-		static ERMsg GetNormalValidity(const CWeatherStation& station, int nbYearMin, int nbDayPerMonthMin, bool bValid[HOURLY_DATA::NB_VAR_H], int kindOfValidation);
+		static ERMsg GetNormalValidity(const CWeatherStation& station, int nbYearMin, bool bValid[HOURLY_DATA::NB_VAR_H], int kindOfValidation);
 	private:
 
 		void ComputeTemperature(const CWeatherStation& dailyStation);
 
-		static int NB_DAY_PER_MONTH_MIN;
+		static int NB_MISS_PER_MONTH_MAX;
+		static int NB_MISS_PER_MONTH_MAX_PRCP;
 		static int KIND_OF_VALIDATION;
 
 		CANStatisticVector m_monthStatArray;

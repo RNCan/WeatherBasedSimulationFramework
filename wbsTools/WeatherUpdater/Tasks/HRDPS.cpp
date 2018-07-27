@@ -5,6 +5,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
+#include "boost/tokenizer.hpp"
 //#include "cctz\time_zone.h"
 
 #include "WeatherBasedSimulationString.h"
@@ -14,6 +15,7 @@
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
+using namespace boost;
 
 namespace WBSF
 {
@@ -26,6 +28,9 @@ namespace WBSF
 
 		return select;
 	}
+
+
+	
 
 
 	//*********************************************************************
@@ -41,6 +46,7 @@ namespace WBSF
 		m_max_hours(99)
 	{
 		m_variables.set();
+		m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");
 	}
 
 	CHRDPS::~CHRDPS(void)
@@ -83,6 +89,8 @@ namespace WBSF
 		ASSERT(parts.size() == 9);
 		return CHRDPSVariables::GetLevel(parts[5]);
 	}
+	
+	
 
 	ERMsg CHRDPS::GetLatestHH(size_t& HH, CCallback& callback)const
 	{
@@ -96,8 +104,6 @@ namespace WBSF
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msg)
 		{
-
-
 			vector<pair<CTRef, size_t>> latest;
 			for (size_t h = 0; h < 24; h += 6)
 			{
@@ -178,7 +184,7 @@ namespace WBSF
 
 		callback.PopTask();
 
-		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+		//CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 
 		CFileInfoVector fileList;
 		if (msg)
@@ -208,9 +214,9 @@ namespace WBSF
 							path = GetPath(path.substr(0, path.length() - 1));
 							size_t HH = as<size_t>(GetLastDirName(path));
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-							CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
+							//CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
 		
-							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && (TRefUTC-nowUTC) <= m_max_hours) : hhh < 6;
+							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && hhh <= m_max_hours) : hhh < 6;
 							if (bDownload)
 							{
 								CFileInfoVector fileListTmp;
@@ -220,24 +226,15 @@ namespace WBSF
 									string fileName = GetFileName(it->m_filePath);
 									string outputFilePath = GetOutputFilePath(fileName);
 									size_t var = GetVariable(fileName);
-
+									size_t level = GetLevel(fileName);
+									
 									if (var < m_variables.size())
 									{
 										if (m_variables.test(var))
 										{
-											ifStream stream;
-											if (!stream.open(outputFilePath))
+											if (!m_variables.IsIsobar(var) || m_levels.find(level)!= m_levels.end())
 											{
-												fileList.push_back(*it);
-											}
-											else
-											{
-												//verify if the file finish with 7777
-												char test[5] = { 0 };
-												stream.seekg(-4, ifstream::end);
-												stream.read(&(test[0]), 4);
-
-												if (string(test) != "7777")
+												if (NeedDownload(outputFilePath))
 												{
 													fileList.push_back(*it);
 												}
@@ -313,14 +310,13 @@ namespace WBSF
 							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT );
 							if (msg)
 							{
+								ASSERT(GoodGrib(outputFilePath));
 								nbDownload++;
+								it++;
+								nbTry = 0;
+								msg += callback.StepIt();
 								ouputsPath.insert(GetVRTFilePath(outputFilePath));
 							}
-
-
-							msg += callback.StepIt();
-							it++;
-							nbTry = 0;
 						}
 					}
 					catch (CException* e)
@@ -815,5 +811,57 @@ namespace WBSF
 		}
 
 		return *this;
+	}
+
+	bool CHRDPS::GoodGrib(const string& filePath)
+	{
+		bool bGoodGrib = false;
+
+		if (!filePath.empty())
+		{
+			ifStream stream;
+			if (stream.open(filePath))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+				if (string(test) == "7777")
+					bGoodGrib = true;
+
+				stream.close();
+			}
+		}
+
+		return bGoodGrib;
+	}
+
+	CHRDPSLevels::CHRDPSLevels(std::string str)
+	{
+		FromString(str);
+	}
+
+	void CHRDPSLevels::FromString(std::string str)
+	{
+		clear();
+		tokenizer<escaped_list_separator<char> > tk(str, escaped_list_separator<char>("\\", ",|;", "\""));
+		for (tokenizer<escaped_list_separator<char> >::iterator i(tk.begin());i != tk.end(); ++i)
+		{
+			insert(ToSizeT(*i));
+		}
+	}
+
+	std::string CHRDPSLevels::ToString()const
+	{
+		string str;
+		for (auto it(begin()); it != end(); ++it)
+		{
+			if (!str.empty())
+				str += "|";
+
+			str += to_string(*it);
+		}
+
+		return str;
 	}
 }

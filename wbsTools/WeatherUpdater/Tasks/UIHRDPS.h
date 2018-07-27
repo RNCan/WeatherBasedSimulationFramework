@@ -20,12 +20,12 @@ namespace WBSF
 	public:
 
 
-		enum TAttributes { WORKING_DIR, HRDPS_VARS, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, HRDPS_VARS, ISBL_LEVELS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRDPS); }
 		static CTRef GetTRef(std::string filePath);
-		static size_t GetSourcesIndex(const std::string& name);
+		//static size_t GetSourcesIndex(const std::string& name);
 
 		CUIHRDPS(void);
 		virtual ~CUIHRDPS(void);
@@ -52,8 +52,8 @@ namespace WBSF
 	protected:
 
 
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
-		bool NeedDownload(const std::string& filePath)const;
+		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		//bool NeedDownload(const std::string& filePath)const;
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

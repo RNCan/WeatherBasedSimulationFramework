@@ -79,6 +79,9 @@ namespace WBSF
 		
 		static const char* HTTP_SERVER_NAME[NB_SOURCES];
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
+		static const char* PRODUCT_NAME[NB_SOURCES];
+		static const char* NAME_NET[NB_SOURCES];
+
 	};
 
 }

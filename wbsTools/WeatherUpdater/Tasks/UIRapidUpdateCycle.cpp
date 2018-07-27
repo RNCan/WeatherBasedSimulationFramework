@@ -20,7 +20,7 @@ namespace WBSF
 {
 
 	static const CGeoRect DEFAULT_BOUDINGBOX(-180, -90, 180, 90, PRJ_WGS_84);
-	static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
+
 
 	//rap en format grib2 (13km) horaire en temps réel
 	//http://nomads.ncdc.noaa.gov/data/rap130
@@ -88,7 +88,8 @@ namespace WBSF
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUIRapidUpdateCycle::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
 	const char* CUIRapidUpdateCycle::HTTP_SERVER_NAME[NB_SOURCES] = { "www.ncei.noaa.gov", "nomads.ncep.noaa.gov" };
-	static char* PRODUCT_NAME[2] = { "pgrb", "bgrb" };
+	const char* CUIRapidUpdateCycle::PRODUCT_NAME[NB_SOURCES] = { "pgrb", "bgrb" };
+	const char* CUIRapidUpdateCycle::NAME_NET[NB_SOURCES] = { "NOMADS", "NCEP" };
 
 	CUIRapidUpdateCycle::CUIRapidUpdateCycle(void)
 	{}

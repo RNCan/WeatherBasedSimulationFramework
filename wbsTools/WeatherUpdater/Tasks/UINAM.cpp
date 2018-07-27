@@ -36,6 +36,7 @@ namespace WBSF
 	const char* CUINAM::SERVER_NAME = "nomads.ncdc.noaa.gov";
 	const char* CUINAM::NAM_FORMAT = "/data/namanl/%4d%02d/%4d%02d%02d/namanl_218_%4d%02d%02d_%02d00_%03d%s";
 	const char* CUINAM::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
+	const char* CUINAM::NAME_NET[NB_SOURCES] = { "NOMADS", "NCEP" };
 
 
 	CUINAM::CUINAM(void)
@@ -116,8 +117,9 @@ namespace WBSF
 		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, "", "", true, callback);
 		if (msg)
 		{
-			CFileInfo info = GetFileInfo(outputPath);
-			if (info.m_size > 10 * 1024 * 1024)//Strange thing on server smaller than 10 Mo
+			//CFileInfo info = GetFileInfo(outputPath);
+			//if (info.m_size > 10 * 1024 * 1024)//Strange thing on server smaller than 10 Mo
+			if(GoodGrib(outputPath))
 			{
 				nbDownloaded++;
 			}
@@ -236,8 +238,8 @@ namespace WBSF
 		}
 
 
-		callback.PushTask("Download NAM gribs from HTTP server for period: " + period.GetFormatedString() + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
-		callback.AddMessage("Number of NAM file to download from HTTP: " + to_string(nbFilesToDownload) + " files");
+		callback.PushTask("Download NAM gribs from HTTP server for period: " + period.GetFormatedString("%1 ---- %2") + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
+		callback.AddMessage("Download NAM gribs from HTTP server for period: " + period.GetFormatedString("%1 ---- %2") + " (" + to_string(nbFilesToDownload) + " gribs)");
 
 		if (nbFilesToDownload > 0)
 		{
@@ -321,10 +323,10 @@ namespace WBSF
 					CTPeriod p_avail = CleanList(s, fileList);
 
 					size_t nbFileToDownload = fileList.size();
-					static const char* NAME_NET[2] = { "NOMADS", "NCEP" };
+					
 
-					callback.PushTask(string("Download NAM gribs from \"") + NAME_NET[s] + "\" for period " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"), nbFileToDownload);
-					callback.AddMessage(string("Download NAM gribs from \"") + NAME_NET[s] + "\" for period " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"));
+					callback.PushTask(string("Download NAM gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"), nbFileToDownload);
+					callback.AddMessage(string("Download NAM gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p_avail.GetFormatedString("(%1 ---- %2)"));
 
 
 					string workingDir = GetDir(WORKING_DIR);
@@ -364,6 +366,7 @@ namespace WBSF
 									if (GoodGrib(tmpFilePaht))
 									{
 										nbDownloaded++;
+										msg = RenameFile(tmpFilePaht, outputFilePaht);
 									}
 									else
 									{
@@ -510,7 +513,7 @@ namespace WBSF
 					}
 
 					if (paths1.size() > 1)
-						callback.PushTask(string("Get files list from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths1.size()) + " directories)", paths1.size());
+						callback.PushTask(string("Get files list from ") + NAME_NET[s] + ": " + to_string(paths1.size()) + " directories", paths1.size());
 
 					for (size_t d1 = 0; d1 != paths1.size() && msg; d1++)
 					{
@@ -537,10 +540,9 @@ namespace WBSF
 										paths2.push_back(make_pair(dir2[d2].m_filePath, TRef));
 								}
 
-								callback.PushTask(string("Get files list from: ") + name + " (" + ToString(paths2.size()) + " directories)", paths2.size() * 6);
+								callback.PushTask(string("Get files list from ") + NAME_NET[s] + ": " + name + " " + to_string(paths2.size()) + " directories", paths2.size() * 6);
 								for (size_t d2 = 0; d2 != paths2.size() && msg; d2++)
 								{
-									//string name = WBSF::GetLastDirName(paths2[d2].first);
 									CTRef TRef = paths2[d2].second;
 
 									for (size_t h = 0; h < 6; h++)

@@ -26,8 +26,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Variables" };
-	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT};
+	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Variables", "Levels" };
+	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_STRING_SELECT };
 	const UINT CUIHRDPS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRDPS_P; 
 	const UINT CUIHRDPS::DESCRIPTION_TITLE_ID = ID_TASK_HRDPS;
 
@@ -50,9 +50,11 @@ namespace WBSF
 		switch (i)
 		{
 		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
+		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050"; break;
 		};
 		return str;
-	}
+}
+
 
 	std::string CUIHRDPS::Default(size_t i)const
 	{
@@ -61,6 +63,7 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRDPS\\"; break;
 		case HRDPS_VARS: str = ""; break;
+		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
 		};
 
 		return str;
@@ -84,6 +87,10 @@ namespace WBSF
 	
 		CHRDPS HRDPS(workingDir);
 		HRDPS.m_variables = Get(HRDPS_VARS);
+
+		HRDPS.m_levels = Get(ISBL_LEVELS);
+
+
 		msg = HRDPS.Execute(callback);
 				
 
@@ -110,36 +117,7 @@ namespace WBSF
 		
 		string workingDir = GetDir(WORKING_DIR);
 		CHRDPS HRDPS(workingDir);
-		//HRDPS.m_variables = Get(HRDPS_VARS);
 		return HRDPS.GetGribsList(p, gribsList, callback);
-
-		//ERMsg msg;
-
-		//
-		//
-		//for (CTRef TRef = p.Begin(); TRef!= p.End(); TRef++)
-		//{
-		//	int year = TRef.GetYear();
-		//	size_t m = TRef.GetMonth();
-		//	size_t d = TRef.GetDay();
-		//	size_t h = TRef.GetHour();
-		//	
-		//	//int year = WBSF::as<int>(title.substr(6, 4));
-		//	//size_t m = WBSF::as<int>(title.substr(10, 2)) - 1;
-		//	//size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
-		//	//size_t h = WBSF::as<int>(title.substr(14, 2));
-		//	//size_t hh = WBSF::as<int>(title.substr(17, 3));
-		//	for (size_t hh = 0; hh < 6; hh++)
-		//	{
-		//		string fileName = FormatA("%s%d\\%02d\\%02d\\HRDPS_%d%02d%02d%02d-%03d.vrt", workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1, h, hh);
-		//		if (FileExists(fileName))
-		//			gribsList[TRef] = fileName;
-		//	}
-		//	
-		//}
-
-
-		//return msg;
 	}
 
 	CTRef CUIHRDPS::GetTRef(string filePath)
