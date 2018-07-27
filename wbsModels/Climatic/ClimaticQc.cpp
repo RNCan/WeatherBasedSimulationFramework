@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 27/07/2018	3.1.1	Rémi Saint-Amant    Chnage name SB -> Qc. Compile with VS 2017
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/03/2009			Rémi Saint-Amant	Update with new BioSIMModelBase (hxGrid)
@@ -15,7 +16,7 @@
 #include "Basic/DegreeDays.h"
 #include "Basic/GrowingSeason.h"
 #include "ModelBase/EntryPoint.h"
-#include "ClimaticSB.h"
+#include "ClimaticQc.h"
 
 
 using namespace std;
@@ -26,7 +27,7 @@ namespace WBSF
 {
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
-		CModelFactory::RegisterModel(CClimaticSB::CreateObject);
+		CModelFactory::RegisterModel(CClimaticQc::CreateObject);
 
 
 	static double GetDaylightVaporPressureDeficit(const CWeatherYear& weather);
@@ -43,16 +44,16 @@ namespace WBSF
 
 
 
-	CClimaticSB::CClimaticSB()
+	CClimaticQc::CClimaticQc()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "3.1.0 (2016)";
+		VERSION = "3.1.1 (2018)";
 
 		// initialise your variable here (optionnal)
 		m_threshold = 0;
 	}
 
-	CClimaticSB::~CClimaticSB()
+	CClimaticQc::~CClimaticQc()
 	{}
 
 
@@ -87,7 +88,7 @@ namespace WBSF
 
 	typedef CModelStatVectorTemplate<NB_OUTPUT> COutputStat;
 
-	ERMsg CClimaticSB::OnExecuteAnnual()
+	ERMsg CClimaticQc::OnExecuteAnnual()
 	{
 		ERMsg message;
 
@@ -192,7 +193,7 @@ namespace WBSF
 	}
 
 
-	/*long CClimaticSB::GetConsecutiveDayWithoutFrost(const CWeatherYear& weather, double th)
+	/*long CClimaticQc::GetConsecutiveDayWithoutFrost(const CWeatherYear& weather, double th)
 	{
 		long nbDayMax = 0;
 		int d = 0;
@@ -214,7 +215,7 @@ namespace WBSF
 	}*/
 
 	//deficit pressure in mbars
-	double CClimaticSB::GetUtilDeficitPressionVapeur(const CWeatherYear& weather)
+	double CClimaticQc::GetUtilDeficitPressionVapeur(const CWeatherYear& weather)
 	{
 		double udpv = 0;
 		
@@ -255,7 +256,7 @@ namespace WBSF
 	}
 
 	//this method is call to load your parameter in your variable
-	ERMsg CClimaticSB::ProcessParameters(const CParameterVector& parameters)
+	ERMsg CClimaticQc::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg message;
 

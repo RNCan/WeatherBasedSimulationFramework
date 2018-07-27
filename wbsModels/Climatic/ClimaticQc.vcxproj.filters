@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClimaticSB.cpp">
+    <ClCompile Include="ClimaticQc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClimaticSB.h">
+    <ClInclude Include="ClimaticQc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

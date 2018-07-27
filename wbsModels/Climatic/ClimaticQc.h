@@ -6,15 +6,15 @@
 namespace WBSF
 {
 
-	class CClimaticSB : public CBioSIMModelBase
+	class CClimaticQc : public CBioSIMModelBase
 	{
 	public:
-		CClimaticSB();
-		virtual ~CClimaticSB();
+		CClimaticQc();
+		virtual ~CClimaticQc();
 
 		virtual ERMsg OnExecuteAnnual();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
-		static CBioSIMModelBase* CreateObject(){ return new CClimaticSB; }
+		static CBioSIMModelBase* CreateObject(){ return new CClimaticQc; }
 
 	protected:
 

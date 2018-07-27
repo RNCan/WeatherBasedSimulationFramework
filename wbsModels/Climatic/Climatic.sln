@@ -12,8 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Potential Evapotranspiratio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WetnessDuration", "WetnessDuration.vcxproj", "{D4CBBC4D-BB90-43F2-B5BD-9944DA2B9DAA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticSB", "ClimaticSB.vcxproj", "{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CCBio", "CCBioModel.vcxproj", "{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Climatic", "ClimaticFull.vcxproj", "{4760A01C-E3E5-429B-886C-485617C43AEF}"
@@ -33,6 +31,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VaporPressureDeficit", "VaporPressureDeficit.vcxproj", "{97564F8B-57D1-436E-94D2-9D01BDA59254}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TminTairTmax", "TminTairTmax.vcxproj", "{5E7B52D6-0EF4-42D5-8473-5894D59CD629}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticQc", "ClimaticQc.vcxproj", "{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,14 +80,6 @@ Global
 		{D4CBBC4D-BB90-43F2-B5BD-9944DA2B9DAA}.Release|Win32.Build.0 = Release|Win32
 		{D4CBBC4D-BB90-43F2-B5BD-9944DA2B9DAA}.Release|x64.ActiveCfg = Release|x64
 		{D4CBBC4D-BB90-43F2-B5BD-9944DA2B9DAA}.Release|x64.Build.0 = Release|x64
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|Win32.Build.0 = Debug|Win32
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|x64.ActiveCfg = Debug|x64
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|x64.Build.0 = Debug|x64
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|Win32.ActiveCfg = Release|Win32
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|Win32.Build.0 = Release|Win32
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.ActiveCfg = Release|x64
-		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.Build.0 = Release|x64
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Debug|Win32.ActiveCfg = Debug|Win32
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Debug|Win32.Build.0 = Debug|Win32
 		{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}.Debug|x64.ActiveCfg = Debug|x64
@@ -168,6 +160,14 @@ Global
 		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|Win32.Build.0 = Release|Win32
 		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|x64.ActiveCfg = Release|x64
 		{5E7B52D6-0EF4-42D5-8473-5894D59CD629}.Release|x64.Build.0 = Release|x64
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|Win32.Build.0 = Debug|Win32
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|x64.ActiveCfg = Debug|x64
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Debug|x64.Build.0 = Debug|x64
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|Win32.ActiveCfg = Release|Win32
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|Win32.Build.0 = Release|Win32
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.ActiveCfg = Release|x64
+		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
