@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>ClimaticSB</Title>
     <Version>2.0</Version>
-    <ID>.sts</ID>
+    <ID>.cqc</ID>
     <EXE>ClimaticQc.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model compute annual climatic variable</Description>

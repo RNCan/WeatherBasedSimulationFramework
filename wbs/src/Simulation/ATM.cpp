@@ -378,7 +378,7 @@ namespace WBSF
 							{
 								if (bCanFly)
 								{
-									__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCTimeº+ sunset);
+									__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCTimeº + sunset);
 									if (m_world.m_weather.IsLoaded(UTCWeatherTime))
 									{
 										if (GetLiftoff(UTCTimeº, sunset, m_liffoff_time))
@@ -390,7 +390,7 @@ namespace WBSF
 											__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
 											__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_location); //sunrise of the next day
 
-											
+
 											//compute duration (max) from liftoff and sunrise
 											m_duration = sunriseTime - m_liffoff_time /*+ m_world.m_moths_param.m_flight_after_sunrise * 3600*/;
 											ASSERT(m_duration >= 0 && m_duration < 24 * 3600);
@@ -600,7 +600,7 @@ namespace WBSF
 				//}
 
 				__int64 final_duration = m_duration;
-				if(duration >= final_duration && IsOverWater())
+				if (duration >= final_duration && IsOverWater())
 					final_duration += m_world.m_moths_param.m_flight_after_sunrise * 3600;
 
 				if (duration < final_duration)
@@ -630,7 +630,7 @@ namespace WBSF
 				}
 				else
 				{
-					
+
 					m_flight_flag = LANDING;
 					m_landing_flag = END_BY_SUNRISE;
 				}
@@ -2062,6 +2062,8 @@ namespace WBSF
 		return next;
 	}
 
+	__int64 CATMWeather::GetLastTime()const { return m_filepath_map.rbegin()->first; }
+
 	CTPeriod CATMWeather::GetEntireTPeriod()const
 	{
 		CTPeriod p;
@@ -2395,7 +2397,7 @@ namespace WBSF
 			{
 				__int64  UTCLanding = fls[i]->m_liffoff_time + fls[i]->m_duration + m_moths_param.m_flight_after_sunrise * 3600;
 				UTCp.first = min(UTCp.first, fls[i]->m_liffoff_time);
-				UTCp.second = max(UTCp.second, UTCLanding + 3600);
+				UTCp.second = max(UTCp.second, UTCLanding + 2 * 3600); //2 hours to be ure the moths have time to land
 			}
 		}
 
@@ -2530,7 +2532,7 @@ namespace WBSF
 				if (TRef < now)//don't set warning for future simulation
 					callback.AddMessage("WARNING: daily development for " + TRef.GetFormatedString() + " was skipped");
 			}
-			
+
 
 			//moth will live with a default temperature of 17°C when there is no data
 			//but no flight will be sheduled
@@ -2594,7 +2596,7 @@ namespace WBSF
 			}//if msg
 
 			callback.PopTask();
-		
+
 		}//if moths
 
 		string s1 = FormatA("%-6ld (%5.2lf%%)", not_emerged, 100.0*not_emerged / m_seasonalIndividuals);
@@ -2759,7 +2761,7 @@ namespace WBSF
 
 			ASSERT(!gribs_time.empty());
 
-			__int64 global_seconds = gribs_time[0];//start at the actual second of the day
+			//__int64 global_seconds = gribs_time[0];//start at the actual second of the day
 			for (size_t t = 1; t < gribs_time.size() && msg; t++)
 			{
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
@@ -2776,8 +2778,9 @@ namespace WBSF
 					for (__int64 seconds = 0; seconds < step_duration && msg && !flyer.IsLanded() && flyer.GetState() != CSBWMoth::FINISHED; seconds += get_time_step())
 					{
 						__int64 UTCCurrentTime = gribs_time[t - 1] + seconds;
+						__int64 local_seconds = UTCCurrentTime;
 						__int64 countdown1 = UTCCurrentTime - flyer.m_liffoff_time;
-						__int64 local_seconds = global_seconds + seconds;
+						//__int64 local_seconds = global_seconds + seconds;
 
 						flyer.fly(gribs_time[t - 1], UTCCurrentTime);
 						//report only after liftoff
@@ -2837,11 +2840,21 @@ namespace WBSF
 					}//for all time step
 
 					msg += callback.StepIt();
-					//}//if msg
+
 				}//for all flyers
 
-				global_seconds += step_duration;
-			}//for alltime steps
+				//global_seconds += step_duration;
+			}//for all grib time
+
+
+			//sometime the moth don't finish before hte end of weather
+			//force termination
+			for (__int64 ii = 0; ii < (__int64)fls.size(); ii++)
+			{
+				ASSERT(fls[ii]->IsLanded());
+			}
+
+
 
 			callback.PopTask();
 		}//have weather
@@ -3037,7 +3050,7 @@ namespace WBSF
 					size_t i = no * sub_output[no].size() + t;
 					have_data.set(i);
 				}
-				
+
 				msg += callback.StepIt();
 			}
 		}
@@ -3107,34 +3120,41 @@ namespace WBSF
 			__int64 firstGribTime = m_weather.GetNearestFloorTime(UTC_period.first);
 			__int64 lastGribTime = m_weather.GetNextTime(UTC_period.second);
 			__int64 UTCLast = firstGribTime;
+			__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
+			__int64 p_available = (lastGribTime - firstGribTime) / 3600;
 
-			for (__int64 UTCWeatherTime = firstGribTime; UTCWeatherTime < lastGribTime; UTCWeatherTime = m_weather.GetNextTime(UTCWeatherTime))
+			if ( p_required <= p_available)
 			{
-				if (UTCWeatherTime - UTCLast <= __int64(m_world_param.m_max_missing_weather * 3600))
+				//we use <  instead of <= to avoid getting a infinity loop
+				for (__int64 UTCWeatherTime = firstGribTime; UTCWeatherTime < lastGribTime; UTCWeatherTime = m_weather.GetNextTime(UTCWeatherTime))
 				{
-					gribs_time.push_back(UTCWeatherTime);
+					if (UTCWeatherTime - UTCLast <= __int64(m_world_param.m_max_missing_weather * 3600))
+					{
+						gribs_time.push_back(UTCWeatherTime);
+						UTCLast = UTCWeatherTime;
+					}
+					else
+					{
+						CTRef TRef = CTimeZones::Time2TRef(/*firstGribTime*/UTC_period.first);
+						callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
+						gribs_time.clear();
+						UTCWeatherTime = lastGribTime + 9999;//end loop for
+					}
+				}
 
-					UTCLast = UTCWeatherTime;
-				}
-				else
-				{
-					CTRef TRef = CTimeZones::Time2TRef(/*firstGribTime*/UTC_period.first);
-					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
-					gribs_time.clear();
-					UTCWeatherTime = lastGribTime + 9999;//end loop for
-				}
+				if(lastGribTime == m_weather.GetLastTime())
+					gribs_time.push_back(lastGribTime);
 			}
-
-			if (!gribs_time.empty())
+			else
 			{
-				__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
-				__int64 p_loaded = (gribs_time.back() - gribs_time.front()) / 3600;
-				if (p_loaded < p_required - 2)//problem here for sub-hourly weather
-				{
-					CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
-					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
-					gribs_time.clear();
-				}
+				//__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
+				//__int64 p_loaded = (gribs_time.back() - gribs_time.front()) / 3600;
+				//if (p_loaded < p_required - 2)//problem here for sub-hourly weather
+				//{
+				CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
+				callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
+				gribs_time.clear();
+				//}
 			}
 		}
 
@@ -3165,7 +3185,7 @@ namespace WBSF
 		{
 			__int64 UTCWeatherTime = weatherToLoad[i];
 			ASSERT(!m_weather.IsLoaded(UTCWeatherTime));
-			
+
 			msg += m_weather.LoadWeather(UTCWeatherTime, callback);
 			if (msg)
 			{

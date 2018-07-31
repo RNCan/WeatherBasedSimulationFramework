@@ -638,6 +638,7 @@ namespace WBSF
 		
 		__int64 GetNearestFloorTime(__int64 UTCWeatherTime)const;
 		__int64 GetNextTime(__int64 UTCWeatherTime)const;
+		
 
 	};
 
@@ -693,6 +694,7 @@ namespace WBSF
 
 		__int64 GetNearestFloorTime(__int64 UTCTime)const;
 		__int64 GetNextTime(__int64 UTCTime)const;
+		__int64 GetLastTime()const;
 		CTPeriod GetEntireTPeriod()const;
 
 	protected:
