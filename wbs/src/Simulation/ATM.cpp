@@ -3123,7 +3123,7 @@ namespace WBSF
 			__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
 			__int64 p_available = (lastGribTime - firstGribTime) / 3600;
 
-			if ( p_required <= p_available)
+			if (p_required <= p_available)
 			{
 				//we use <  instead of <= to avoid getting a infinity loop
 				for (__int64 UTCWeatherTime = firstGribTime; UTCWeatherTime < lastGribTime; UTCWeatherTime = m_weather.GetNextTime(UTCWeatherTime))
@@ -3135,26 +3135,24 @@ namespace WBSF
 					}
 					else
 					{
-						CTRef TRef = CTimeZones::Time2TRef(/*firstGribTime*/UTC_period.first);
+						CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
 						callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
 						gribs_time.clear();
 						UTCWeatherTime = lastGribTime + 9999;//end loop for
 					}
 				}
 
-				if(lastGribTime == m_weather.GetLastTime())
+				if (lastGribTime == m_weather.GetLastTime())
 					gribs_time.push_back(lastGribTime);
 			}
 			else
 			{
-				//__int64 p_required = (UTC_period.second - UTC_period.first) / 3600;
-				//__int64 p_loaded = (gribs_time.back() - gribs_time.front()) / 3600;
-				//if (p_loaded < p_required - 2)//problem here for sub-hourly weather
-				//{
-				CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
-				callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
-				gribs_time.clear();
-				//}
+				if (p_available > 0)
+				{
+					CTRef TRef = CTimeZones::Time2TRef(UTC_period.first);
+					callback.AddMessage("WARNING: too much Gribs missing for " + TRef.GetFormatedString("%Y-%m-%d"));
+					gribs_time.clear();
+				}
 			}
 		}
 
