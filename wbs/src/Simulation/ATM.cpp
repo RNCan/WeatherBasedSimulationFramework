@@ -1168,7 +1168,7 @@ namespace WBSF
 	CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const
 	{
 		ASSERT(at(0).m_time <= at(1).m_time);
-		ASSERT(UTCCurrentTime >= at(0).m_time && (at(0).m_time == at(1).m_time || UTCCurrentTime <= at(1).m_time));
+		//ASSERT(UTCCurrentTime >= at(0).m_time && (at(0).m_time == at(1).m_time || UTCCurrentTime <= at(1).m_time));
 		ASSERT(at(1).m_time - at(0).m_time >= 0 && at(1).m_time - at(0).m_time <= 3600);
 
 		const CATMWeatherCuboids& me = *this;
@@ -1177,7 +1177,8 @@ namespace WBSF
 
 		if (at(1).m_time != at(0).m_time)
 		{
-			double fᵒ = 1 - (double(UTCCurrentTime) - at(0).m_time) / (at(1).m_time - at(0).m_time); // get fraction of time
+			//when the time is not between, so we klimit between 0 qnd 1 
+			double fᵒ = max(0.0, min( 1.0, 1 - (double(UTCCurrentTime) - at(0).m_time) / (at(1).m_time - at(0).m_time))); // get fraction of time
 			if (!m_bUseTimeInterpolation)
 				fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
@@ -1213,6 +1214,7 @@ namespace WBSF
 
 	CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const
 	{
+		//ASSERT(UTCCurrentTime>= UTCWeatherTime);
 		ASSERT(pt.IsGeographic());
 
 		//__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
@@ -2015,7 +2017,11 @@ namespace WBSF
 				if (hi == m_filepath_map.end())
 					first = max(first, m_filepath_map.rbegin()->first);
 				else
-					first = max(first, (--hi)->first);
+				{
+					TTimeFilePathMap::const_iterator hi2 = hi--;
+					first = max(first, hi2->first);
+				}
+					
 			}
 			else
 			{

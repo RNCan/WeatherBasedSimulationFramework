@@ -2,6 +2,7 @@
 //										Keep EnvCan forecast during 7 day to fill gaps
 //										Used of HRRR v3
 //										Add radar animation
+//										Change number of missing day by month to create normals (10 -> 4 Prcp, and 10 -> 8 others)
 //5.6.1 04/07/2018	Rémi Saint-Amant	Multiple try in connection
 //5.6.0 03/07/2018	Rémi Saint-Amant	Solve problem with Nova Scotia data
 //5.5.9 28/06/2018	Rémi Saint-Amant	Solve problem with Solution-Mesonet deconnection
