@@ -86,8 +86,20 @@ namespace WBSF
 		
 		return TRef;
 	}
+	
+	string CCreateRadarAnimation::GetID(const std::string& filePath)
+	{
+		string ID;
 
-	string CCreateRadarAnimation::GetAnimationFilePath(CTRef TRef)const
+		string title = GetFileTitle(filePath);
+		if (title.length() > 16)
+		{
+			ID = title.substr(13, 3);
+		}
+
+		return ID;
+	}
+	string CCreateRadarAnimation::GetAnimationFilePath(CTRef TRef, string ID)const
 	{
 		string file_path;
 		
@@ -107,7 +119,7 @@ namespace WBSF
 
 			if (TRefAn.IsInit())
 			{
-				file_path = output + TRefAn.GetFormatedString("%Y-%m-%d") + "-an.gif";
+				file_path = output + ID + TRefAn.GetFormatedString("-%Y-%m-%d") + "-an.gif";
 			}
 		}
 		
@@ -138,8 +150,9 @@ namespace WBSF
 		StringVector tmpList = GetFilesList(inputDir + "*.gif", 2, true);
 		for (size_t i = 0; i<tmpList.size(); i++)
 		{
+			string ID = GetID(tmpList[i]);
 			CTRef TRef = GetTRef(tmpList[i]);
-			string an_file_path = GetAnimationFilePath(TRef);
+			string an_file_path = GetAnimationFilePath(TRef, ID);
 			if (!an_file_path.empty())
 			{
 				if (!FileExists(an_file_path) || bCreateAll)

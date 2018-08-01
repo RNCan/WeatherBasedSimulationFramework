@@ -30,10 +30,11 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 		CTPeriod GetPeriod()const;
-		CTRef GetTRef(const std::string& filePath );
-		std::string GetAnimationFilePath(CTRef TRef)const;
-
-
+		
+		std::string GetAnimationFilePath(CTRef TRef, std::string ID)const;
+		
+		static CTRef GetTRef(const std::string& filePath);
+		static std::string GetID(const std::string& filePath);
 	protected:
 
 
