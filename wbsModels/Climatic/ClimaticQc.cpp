@@ -104,7 +104,8 @@ namespace WBSF
 		TPET.Execute(m_weather, PET);
 		//CTStatMatrix PET;
 		//TPET.Transform(CTTransformation(_PET.GetTPeriod(), CTM(CTM::ANNUAL)), _PET, PET);
-		PET.Transform(CTM(CTM::ANNUAL), SUM);
+		PET.Transform(CTM(CTM::MONTHLY), SUM);
+		
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
 		COutputStat stat(p);
@@ -142,7 +143,10 @@ namespace WBSF
 			//TPET.SetLoc(m_info.m_loc);
 			//(m_weather[y], 0, CThornthwaitePET::POTENTIEL_STANDARD);
 			//double ar = TPET.GetWaterDeficit(m_weather[y]) / 10;//in cm
-			double ar = max(0.0, PET[y][CThornthwaiteET::S_ET] - m_weather[y].GetStat(H_PRCP)[SUM]) / 10;//in cm
+
+			double ar = 0;
+			for(size_t m=0; m<12; m++)
+				ar += max(0.0, PET[y*12+m][CThornthwaiteET::S_ET] - m_weather[y][m].GetStat(H_PRCP)[SUM]) / 10;//in cm
 
 			//double ar = m_weather[y].GetWaterDeficit()/10;//in cm
 			//double annualSnow = m_weather[y].GetStat( STAT_SNOW, SUM);
