@@ -18,8 +18,9 @@ namespace WBSF
 
 	public:
 
-		enum  TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TSource { S_NOMADS, S_NCEP, NB_SOURCES };
+		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
+		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINAM); }
@@ -49,11 +50,11 @@ namespace WBSF
 
 	protected:
 
-		ERMsg ExecuteHTTP(CTPeriod period, CCallback& callback);
-		ERMsg ExecuteFTP(CTPeriod period, CCallback& callback);
+		ERMsg ExecuteHTTP(CCallback& callback);
+		ERMsg ExecuteFTP(CCallback& callback);
 
-		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
-		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
+		
+		ERMsg GetFilesToDownload(size_t s, CFileInfoVector& fileList, CCallback& callback);
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, size_t& nbDownloaded, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
 		bool GoodGrib(const std::string& filePath)const;
@@ -61,23 +62,19 @@ namespace WBSF
 		CTRef GetTRef(size_t s, const std::string& fileList);
 		bool server_available(size_t s)const;
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib)const;
-		//string GetOutputFilePath(const string& fielPath)const;
+		std::string GetInputFilePath(CTRef TRef)const;
+		std::string GetOutputFilePath(CTRef TRef)const;
+		
 	
 		CTPeriod GetPeriod()const;
-
+		std::bitset<NB_SOURCES> GetSources()const;
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
-		static const char* INPUT_FORMAT1;
-		static const char* INPUT_FORMAT2;
-		static const char* INPUT_FORMAT3;
-		static const char* INPUT_FORMAT4;
-		static const char* NAM_FORMAT;
+
+		static const char* HTTP_SERVER_NAME[NB_SOURCES];
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
 		static const char* NAME_NET[NB_SOURCES];
 	};

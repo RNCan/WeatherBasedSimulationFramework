@@ -715,8 +715,8 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
     IDS_UPDATER_HIRESW_P    "Répertoire de travail"
-    IDS_UPDATER_RAP_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_NAM_P       "Répertoire de travail|Début (YYYY-MM-DD)|Fin (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début historique (YYYY-MM-DD)|Fin historique (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Début historique (YYYY-MM-DD)|Fin historique (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Isobares"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
@@ -1186,8 +1186,8 @@ BEGIN
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
     IDS_UPDATER_HIRESW_P    "Working directory"
-    IDS_UPDATER_RAP_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
-    IDS_UPDATER_NAM_P       "Working directory|Begin (YYYY-MM-DD)|End (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
+    IDS_UPDATER_RAP_P       "Working directory|Souces|Historical start (YYYY-MM-DD)|Historical end (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
+    IDS_UPDATER_NAM_P       "Working directory|Souces|Historical start (YYYY-MM-DD)|Historical end (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables|Isobars"
     IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
     IDS_UPDATER_GRIB_FORECAST_P 

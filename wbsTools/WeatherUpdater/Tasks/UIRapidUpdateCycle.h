@@ -18,8 +18,9 @@ namespace WBSF
 
 	public:
 
-		enum  TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
-		enum TAttributes { WORKING_DIR, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TSource { S_NOMADS, S_NCEP, NB_SOURCES };
+		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
+		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
@@ -52,17 +53,20 @@ namespace WBSF
 		ERMsg ExecuteHTTP(CCallback& callback);
 		ERMsg ExecuteFTP(CCallback& callback);
 
-		enum TSource{ S_NOMADS, S_NCEP, NB_SOURCES };
-		ERMsg GetFilesToDownload(size_t s, CTPeriod period, CFileInfoVector& fileList, CCallback& callback);
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, bool bForecast, CCallback& callback)const;
+		
+		ERMsg GetFilesToDownload(size_t s, CFileInfoVector& fileList, CCallback& callback);
+		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath);  }
 		bool GoodGrib(const std::string& filePath)const;
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList);
 		CTRef GetTRef(size_t s, const std::string& fileList);
 		bool server_available(size_t s)const;
+		std::bitset<NB_SOURCES> GetSources()const;
 
-		std::string GetInputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;
-		std::string GetOutputFilePath(CTRef TRef, bool bGrib, bool bForecast)const;
+
+
+		std::string GetInputFilePath(CTRef TRef)const;
+		std::string GetOutputFilePath(CTRef TRef)const;
 	
 		CTPeriod GetPeriod()const;
 

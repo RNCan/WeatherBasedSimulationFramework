@@ -154,10 +154,10 @@ namespace WBSF
 
 			CFileInfoVector fileList;
 			msg = GetFilesToDownload(source, fileList, callback);
-			CTPeriod p_avail = CleanList(source, fileList);
+			CTPeriod p = CleanList(source, fileList);
 
-			callback.PushTask(string("Download ") + SOURCES_NAME[source] + " forecast gribs: " + to_string(fileList.size()) + " files "+ p_avail.GetFormatedString("(%1 -- %2)"), fileList.size());
-			callback.AddMessage(string("Download ") + SOURCES_NAME[source] + " forecast gribs : " + to_string(fileList.size()) + " files " + p_avail.GetFormatedString("(%1 -- %2)"));
+			callback.PushTask(string("Download ") + SOURCES_NAME[source] + " forecast gribs: " + to_string(fileList.size()) + " files " + p.GetFormatedString("(%1 -- %2)"), fileList.size());
+			callback.AddMessage(string("Download ") + SOURCES_NAME[source] + " forecast gribs : " + to_string(fileList.size()) + " files " + p.GetFormatedString("(%1 -- %2)"));
 
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
@@ -270,25 +270,39 @@ namespace WBSF
 
 	CTPeriod CUIGribForecast::CleanList(size_t s, CFileInfoVector& fileList1)
 	{
-		CTPeriod p_avail;
+		CTPeriod p;
 		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 		__int32 max_hours = as<__int32>(MAX_HOUR);
+		
 
-		CFileInfoVector fileList2;
-		fileList2.reserve(fileList1.size());
+		std::sort(fileList1.begin(), fileList1.end(), [](const CFileInfo& s1, const CFileInfo& s2) { return std::strcmp(s1.m_filePath.c_str(), s2.m_filePath.c_str()) < 0; });
+		//select the latest file for a particular forecast hour
+		map<CTRef, CFileInfo>fileList2;
 		for (size_t i = 0; i < fileList1.size(); i++)
 		{
 			string filePath = GetLocaleFilePath(s, fileList1[i].m_filePath);
 			CTRef TRefUTC = GetTRef(s, filePath);
-			p_avail += TRefUTC;
 
-			if (NeedDownload(filePath) && TRefUTC - nowUTC <= max_hours)
-				fileList2.push_back(fileList1[i]);
+			if (TRefUTC >= nowUTC && TRefUTC - nowUTC <= max_hours)
+			{
+				fileList2[TRefUTC] = fileList1[i];
+			}
 
 		}
 
-		fileList1 = fileList2;
-		return p_avail;
+		fileList1.clear();
+		for (auto it = fileList2.begin(); it != fileList2.end(); it++)
+		{
+			string filePath = GetLocaleFilePath(s, it->second.m_filePath);
+			if (NeedDownload(filePath))
+			{
+				CTRef TRefUTC = GetTRef(s, filePath);
+				p += TRefUTC;
+				fileList1.push_back(it->second);
+			}
+		}
+
+		return p;
 	}
 
 
@@ -316,14 +330,13 @@ namespace WBSF
 				string URL = SERVER_PATH[source];
 				switch (source)
 				{
-				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t%02dz.wrfsfcf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-				case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-				case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t%02dz.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
-				case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t%02dz.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour()); break;
+				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfnatf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfsfcf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130pgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130bgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+				case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t??z.awphys??.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
 				default: ASSERT(false);
 				}
-
 
 				msg = FindFiles(pConnection, URL, fileList);
 			}
