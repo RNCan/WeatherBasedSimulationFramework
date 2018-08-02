@@ -5,7 +5,7 @@
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
 // 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
-// 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0]
+// 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0}
 // 08/01/2017	Rémi Saint-Amant	Add hourly live
 // 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
 // 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
@@ -39,7 +39,9 @@ namespace WBSF
 		1.0, 1.0, 1.0, .79, .73, .62, 0.4, .66, 1.0, .39
 	};
 
-	static const double OVIPOSITING_STAGE_AGE = 0.1; //change by RSA 16-05-2018, eas 0.05
+	static const double OVIPOSITING_STAGE_AGE = 0.1; //change by RSA 16-05-2018, was 0.05
+	static const double MINIMUM_AGE_LIFTOFF[2] = { 0.15, 0 };
+	
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
 
 
@@ -424,10 +426,7 @@ namespace WBSF
 	{
 		bool bExodus = false;
 
-		//double Pmating = GetMatingProbability(GetStageAge());
-		double minimum_age[2] = {0.15, 0};
-		//if (m_sex == MALE || GetStageAge() > OVIPOSITING_STAGE_AGE)
-		if (GetStageAge() >= minimum_age[m_sex])
+		if (GetStageAge() >= MINIMUM_AGE_LIFTOFF[m_sex])
 		{
 			__int64 tº = 0;
 			__int64 tᴹ = 0;
