@@ -58,7 +58,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.3";
+static const char* version = "2.0.4";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
@@ -105,7 +105,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
 		//{ "-SuspectAsCloud", 0, "", false, "Set all suspicious pixels arround cloud pixels as cloud." },
 		//{ "-DoubleCloud", 0, "", false, "Verify " },
-		{ "-Sieve", 1, "nbPixel", false, "Set the minimum number of contigious pixel to consider it as suspicious. 15 by default." },
+		{ "-Sieve", 1, "nbPixel", false, "Set the minimum number of contigious pixel to consider it as suspicious. 9 by default." },
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
 		{ "-Debug",0,"",false,"Output debug information."},
 		{ "Model", 0, "", false, "Random forest cloud model file path." },

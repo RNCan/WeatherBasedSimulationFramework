@@ -7,7 +7,7 @@
 
 
 //-scenes 5 8 -i NBR -Virtual -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -IOCPU 3 -overwrite  "U:\GIS\#documents\TestCodes\SlowDisturbanceAnalyser\Input\1999-2014.vrt" "U:\GIS\#documents\TestCodes\SlowDisturbanceAnalyser\Output\out.vrt"
-
+//-scenes 15 17 -i TCB -stats -Virtual -NoResult -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {2,4,8,16} -multi -overwrite "D:\Travaux\CloudCleaner\Input\34 ans\Te2.vrt" "D:\Travaux\CloudCleaner\Output\34 ans\Indices.vrt"
 
 #include "stdafx.h"
 #include <float.h>
@@ -45,10 +45,10 @@ namespace WBSF
 		m_appDescription = "This software computes indices (NBR, HDMI, ...) from Landsat images (composed of " + to_string(SCENES_SIZE) + " bands).";
 
 		static const COptionDef OPTIONS[] =
-		{
+		{ 
 			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
 			{ "-Despike", 3, "type threshold min", true, "Despike to remove outbound pixels. Type is the indice type, threshold is the despike threshold and min is the minimum between T-1 and T+1 to execute despike. Supported type are the same as indice. Usual value are TCB 0.75 0.1." },
-			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
+			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to output indices. All scenes are selected by default." },
 			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file that used input file. Combine with -NoResult, this avoid to copy files. " },
 			//{ "-mul", 1, "multiplicator", false, "Multiplicator for indices that need multiplication to output in integer. 10000 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -90,6 +90,10 @@ namespace WBSF
 			msg.ajoute("No indices selected. Indices must be add with option -i.");
 		}
 
+		if (!m_despike.empty() && m_bVirtual)
+		{
+			msg.ajoute("Option -Virtual can't be used with option -Despike.");
+		}
 		//if (m_outputType == GDT_Unknown)
 		m_outputType = GDT_Int16;
 

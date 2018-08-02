@@ -2866,7 +2866,7 @@ namespace WBSF
 		}//have weather
 		else
 		{
-			callback.AddMessage("WARNING: daily flight for " + TRef.GetFormatedString() + " was skipped");
+			callback.AddMessage("WARNING: flight for " + TRef.GetFormatedString() + " was skipped");
 		}
 
 
@@ -2981,6 +2981,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		callback.PushTask("Save data to disk", output.size());
 		//Simulate dispersal for this day
 		const size_t size_struct = sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT;
 
@@ -3010,10 +3011,16 @@ namespace WBSF
 						output_file.write_value(value);
 					}
 
-					msg += callback.StepIt();
+					msg += callback.StepIt(0);
 				}
 			}//for all time step
+
+			msg += callback.StepIt();
 		}//for all locations
+
+
+		callback.PopTask();
+
 
 		return msg;
 	}
