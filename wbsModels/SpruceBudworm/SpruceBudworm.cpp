@@ -60,7 +60,7 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		//Compute defoliation at shool level fropm defoliation at stand level
+		//Compute defoliation at shool level from defoliation at stand level
 		m_D = Equations().get_defoliation(GetStand()->m_defoliation);
 
 		m_Fº = CBioSIMModelBase::VMISS;
@@ -176,8 +176,8 @@ namespace WBSF
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
-		//correction for defoliation (de 1 à .75 entre 50 et 100 %)
-		if (s >= L3 && s <= L6)//PUPAE
+		//correction for defoliation (from 1 to .75 between 50 and 100 %)
+		if (s >= L3 && s <= L6)
 		{
 			double defFactor = max(0.75, 1.0 - max(0.0, m_D - 50.0)*0.005);
 			RR *= defFactor;
