@@ -112,7 +112,7 @@ namespace WBSF
 			//Create stand
 			CSBWStand stand(this);
 			stand.m_bFertilEgg = false;
-			stand.m_bApplyAttrition = false;
+			stand.m_bApplyAttrition = true;//change by RSA because seem to be faster with attrition 2018-08-02
 			stand.m_defoliation = m_defoliation;
 
 			CSBWTreePtr pTree(new CSBWTree(&stand));
