@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 03-08-2018	Rémi Saint-Amant	Remove the reduction factor for defoliation. 
 // 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
 // 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0}
 // 08/01/2017	Rémi Saint-Amant	Add hourly live
@@ -177,11 +178,11 @@ namespace WBSF
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
 		//correction for defoliation (from 1 to .75 between 50 and 100 %)
-		if (s >= L3 && s <= L6)
-		{
-			double defFactor = max(0.75, 1.0 - max(0.0, m_D - 50.0)*0.005);
-			RR *= defFactor;
-		}
+		//if (s >= L3 && s <= L6) //commented by RSA 03-08-2018
+		//{
+		//	double defFactor = max(0.75, 1.0 - max(0.0, m_D - 50.0)*0.005);
+		//	RR *= defFactor;
+		//}
 
 
 		//development rate for white spruce is accelerated by a factor
