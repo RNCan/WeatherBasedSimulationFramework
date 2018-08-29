@@ -138,10 +138,12 @@ KeyID,Name,Latitude,Longitude,Elevation
 712,Némaska,51.6883,-76.1333,254
 713,Eastmain,52.0853,-77.8744,158
 714,Riv. Rupert,51.5208,-75.4408,290
+715,Bj Km 275 Laurier,51.4906,-77.4125,218
 716,Petit Opinaca 2,52.3694,-76.7758,220
 717,Eastmain 1,52.1928,-75.9883,245
 718,Lac Aunaukash,52.6875,-75.4378,313
 721,Chisasibi,53.7225,-78.5425,45
+722,Kuujjuarapik,55.3694,-77.6289,31
 723,Barrage R. Bourassa,53.7772,-77.4742,191
 724,Lg3 Taiga,53.5658,-76.1153,254
 726,La Sarcelle 2,52.6686,-76.5942,220
@@ -161,6 +163,7 @@ KeyID,Name,Latitude,Longitude,Elevation
 743,Lac Rossignol,52.6847,-73.7889,405
 744,Lac Falaise,54.2644,-68.2425,551
 745,De Pontois 2,53.1661,-74.4717,329
+746,Poste Montagnais 2,51.9186,-65.7533,628
 747,Lac Peppler,52.3469,-67.6447,803
 748,Riv Ashuanipi,53.2236,-66.2064,520
 749,Schefferville,54.8033,-66.8053,521

@@ -3,71 +3,72 @@ ab15,Alan Briggs,46.98139954,-67.43049622,158,atlantic,NBP,
 ad32,Andre Daigle,47.11360168,-67.87529755,0,atlantic,NBP,
 al17,Andre Long,47.26520157,-68.59980011,0,atlantic,NBP,
 anfi,Anfield NB,46.9075,-67.4569,250,atlantic,MRNF-NB,
-arun,Arundel F,45.967666626,-74.6160736084,190,quebec,,
+cmxc,Arundel F,45.967666626,-74.6160736084,184,quebec,FADQ,Laurentides
 ba09,Bon Accord,46.65280151,-67.58029938,0,atlantic,NBP,
 bayl,Bayles Lake,47.0817,-66.355,518,atlantic,MRNF-NB,
 bb16,Bert Blaauw,47.11119843,-67.75800323,0,atlantic,NBP,
 bigt,Big Tracadie,47.4114,-65.2664,73,atlantic,MRNF-NB,
 bost,Boston Brook,47.4497,-67.6164,304,atlantic,MRNF-NB,
-bris,Bristol,45.5208702087,-76.4271011353,81,quebec,,
+qfbr,Bristol,45.5303,-76.444233,90,quebec,FADQ,Outaouais
 broc,Brockway,45.5733,-67.0983,91,atlantic,MRNF-NB,
 bt24,Berend Tepper,47.01990128,-67.62599945,0,atlantic,NBP,
 caah,Rivière Ashuanipi,53.2235,-66.2063,520,atlantic,HYDRO,
-caaw,Shearwater RCS,44.62972,-63.51333,24,atlantic,DEA,
-cabf,Burgeo,47.6167,-57.6167,10.6,atlantic,DEA,
-cabr,Bedford Range (au7),44.75,-63.6667,9.6,atlantic,DEA,
-cabt,Bouctouche,46.4303,-64.7681,35,atlantic,DEA,
-cab2,Buctouche,46.4303,-64.7681,35,atlantic,DEA,
-catb,Canterbury,45.894922,-67.461381,185,atlantic,DEA,
-cacm,Cormack RCS,49.322,-57.3933,165.8,atlantic,DEA,
-cacp,Baccaro Pt,43.4508,-65.4717,4.6,atlantic,DEA,
-cacq,Miramichi,47.0094,-65.465,33,atlantic,DEA,
-cadn,Doaktown RCS,46.5833,-66.0167,43,atlantic,DEA,
-cads,St-Lawrence,46.9167,-55.3833,48.5,atlantic,DEA,
-caei,Eskasoni First Nation (au8),45.9333,-60.65,28,atlantic,DEA,
-cafc,Fredericton,45.9203,-66.6089,35.1,atlantic,DEA,
-cafy,Parc Fundy (Alma),45.6,-64.95,42.7,atlantic,DEA,
-cahr,Harrington,46.3436,-63.1697,53,atlantic,DEA,
-cahw,Halifax Windsor Park (au7),44.65,-63.6167,51,atlantic,DEA,
-cajt,Stephenville RCS,48.5614,-58.5661,58,atlantic,DEA,
-cajw,St John's West Climate Cs,47.5134,-52.7833,110,atlantic,DEA,
-cakc,Kouchibouguac,46.7696,-65.0066,34,atlantic,DEA,
+caaw,Shearwater RCS,44.62972,-63.51333,24,atlantic,EnvCan,
+cabf,Burgeo,47.6167,-57.6167,10.6,atlantic,EnvCan,
+cabr,Bedford Range (au7),44.75,-63.6667,9.6,atlantic,EnvCan,
+cabt,Bouctouche,46.4303,-64.7681,35,atlantic,EnvCan,
+cab2,Buctouche,46.4303,-64.7681,35,atlantic,EnvCan,
+catb,Canterbury,45.894922,-67.461381,185,atlantic,EnvCan,
+cacm,Cormack RCS,49.322,-57.3933,165.8,atlantic,EnvCan,
+cacp,Baccaro Pt,43.4508,-65.4717,4.6,atlantic,EnvCan,
+cacq,Miramichi,47.0094,-65.465,33,atlantic,EnvCan,
+cadn,Doaktown RCS,46.5833,-66.0167,43,atlantic,EnvCan,
+cads,St-Lawrence,46.9167,-55.3833,48.5,atlantic,EnvCan,
+caei,Eskasoni First Nation (au8),45.9333,-60.65,28,atlantic,EnvCan,
+cafc,Fredericton,45.9203,-66.6089,35.1,atlantic,EnvCan,
+cafy,Parc Fundy (Alma),45.6,-64.95,42.7,atlantic,EnvCan,
+cahr,Harrington,46.3436,-63.1697,53,atlantic,EnvCan,
+cahw,Halifax Windsor Park (au7),44.65,-63.6167,51,atlantic,EnvCan,
+cajt,Stephenville RCS,48.5614,-58.5661,58,atlantic,EnvCan,
+cajw,St John's West Climate Cs,47.5134,-52.7833,110,atlantic,EnvCan,
+cakc,Kouchibouguac,46.7696,-65.0066,34,atlantic,EnvCan,
 cake,Kepimits,52.6527,-64.8383,540,atlantic,HYDRO,
-cala,Calixa-Lavallee,45.7461013794,-73.2817077637,23,quebec,,
+qfcl,Calixa-Lavallée,45.729595,-73.254149,84,quebec,FADQ,Montérégie Est
 camk,Michikimats,54.5637,-64.1193,520,atlantic,HYDRO,
 camn,Metchin,53.4394,-63.2592,335,atlantic,HYDRO,
-camr,Millertown RCS,48.8167,-56.5333,203.6,atlantic,DEA,
-cams,Mechanic Settlement,45.6936,-65.165,403,atlantic,DEA,
-caoh,Upper Stewiacke RCS,45.2331,-63.0553,23.5,atlantic,DEA,
-capr,Parrsboro RCS,45.4133,-64.3469,30.9,atlantic,DEA,
-caqy,Sydney CS,46.1633,-60.0417,62.5,atlantic,DEA,
-carp,Red Pines (au8),47.4333,-65.5833,124,atlantic,DEA,
-casf,Sussex - Four Corners,45.733333,-65.533333,56,atlantic,DEA,
+camr,Millertown RCS,48.8167,-56.5333,203.6,atlantic,EnvCan,
+cams,Mechanic Settlement,45.6936,-65.165,403,atlantic,EnvCan,
+caoh,Upper Stewiacke RCS,45.2331,-63.0553,23.5,atlantic,EnvCan,
+capr,Parrsboro RCS,45.4133,-64.3469,30.9,atlantic,EnvCan,
+caqy,Sydney CS,46.1633,-60.0417,62.5,atlantic,EnvCan,
+carp,Red Pines (au8),47.4333,-65.5833,124,atlantic,EnvCan,
+casf,Sussex - Four Corners,45.733333,-65.533333,56,atlantic,EnvCan,
 casi,Simms,53.7768,-65.8163,490,atlantic,HYDRO,
-cava,Bonavista,48.6672,-53.1142,25.6,atlantic,DEA,
+cava,Bonavista,48.6672,-53.1142,25.6,atlantic,EnvCan,
 cavw,Oak Point,45.509056,-66.100081,12,atlantic,SM,
 cawf,Port Williams,45.114226,-64.406273,32,atlantic,SM,
-cawr,Wreckhouse RCS,47.7117,-59.3083,31.7,atlantic,DEA,
-ceqi,Yarmouth RCS,43.8308,-66.0881,36,atlantic,DEA,
-cerm,Edmunston,47.4167,-68.3245,154.2,atlantic,DEA,
+cawr,Wreckhouse RCS,47.7117,-59.3083,31.7,atlantic,EnvCan,
+ceqi,Yarmouth RCS,43.8308,-66.0881,36,atlantic,EnvCan,
+cerm,Edmunston,47.4167,-68.3245,154.2,atlantic,EnvCan,
 ceuw,Baltic,46.517266,-63.648411,28,atlantic,SM,
-cewd,Woodstock-Newbridge,46.15,-67.5333,154,atlantic,DEA,
-cgbc,Baie-Comeau RCS,49.135,-68.2024,21,quebec,DEA,Côte-Nord
-cgmg,Matagami,49.7578,-77.7931,279,quebec,DEA,Nord-du-Québec
-cgrq,Trois-Rivières A,46.3667,-72.6833,62,quebec,DEA,Mauricie
-cgvo,Val-d'Or RCS,48.0565,-77.7866,339,quebec,DEA,Abitibi-Témiscamingue
+cewd,Woodstock-Newbridge,46.15,-67.5333,154,atlantic,EnvCan,
+cgbc,Baie-Comeau RCS,49.135,-68.2024,21,quebec,EnvCan,Côte-Nord
+cgmg,Matagami,49.7578,-77.7931,279,quebec,EnvCan,Nord-du-Québec
+cgrq,Trois-Rivières A,46.3667,-72.6833,62,quebec,EnvCan,Mauricie
+cgvo,Val-d'Or RCS,48.0565,-77.7866,339,quebec,EnvCan,Abitibi-Témiscamingue
 clea,Clearwater,46.715,-66.8282,410,atlantic,MRNF-NB,
 cmai,Saint-Aimé-des-Lacs,47.6867,-70.302,205,quebec,SOPFEU,Capitale-Nationale
 cmba,Barrière - Barrage amont,47.4989,-76.7306,323,quebec,HYDRO,Abitibi-Témiscamingue
 cmdw,Réservoir Dozois,47.4475,-77.0762,360,quebec,HYDRO,Abitibi-Témiscamingue
 cmfy,Lac Gabrielle,46.4575,-76.1976,280,quebec,HYDRO,Outaouais
 cmfz,Lac de la Roche,47.154722,-75.1975,390,quebec,HYDRO,Laurentides
-cmgb,Granby,45.3728,-72.7739,90,quebec,DEA,Montérégie Est
+cmgb,Granby,45.3728,-72.7739,90,quebec,EnvCan,Montérégie Est
 cmgx,Gaspé,48.9152,-64.9562,502,quebec,SOPFEU,Gaspésie-Iles-de-la-Madeleine
 cmik,Lac Cutaway,47.2433,-72.9686,265,quebec,HYDRO,Mauricie
 cmir,Grand Lac Victoria Hydrométéo,47.7228,-77.4048,330,quebec,HYDRO,Abitibi-Témiscamingue
-cmji,Mont-Joli,48.60442,-68.19463,55,quebec,DEA,Bas-Saint-Laurent
-cmkb,Rivière de la Corneille,46.7502,-76.9319,328,quebec,DCF,Outaouais
+cmji,Mont-Joli,48.60442,-68.19463,55,quebec,EnvCan,Bas-Saint-Laurent
+cyyy,Mont-Joli A,48.6089,-68.2075,52.4,quebec,EnvCan,Bas-Saint-Laurent
+cmkb,Rivière de la Corneille,46.7502,-76.9319,328,quebec,MFFP,Outaouais
 cmkd,Laval,45.687852,-73.607031,6,quebec,FADQ,Laval
 cmkf,Saint-Félix-de-Kingsey,45.82885,-72.205533,160,quebec,FADQ,Centre-du-Québec
 cmkg,Réservoir Baskatong,46.718,-75.9868,338,quebec,HYDRO,Outaouais
@@ -76,7 +77,7 @@ cmki,Kipawa,47.1564,-78.9339,324,quebec,SOPFEU,Abitibi-Témiscamingue
 cmku,Saint-Bernard,46.49744,-71.18587,164,quebec,FADQ,Chaudière-Appalaches
 cmmf,Farnham F,45.303064,-72.982734,64,quebec,FADQ,Montérégie Est
 cmmw,Matawin Barrage amont,46.8618,-73.6591,369,quebec,HYDRO,Lanaudière
-cmmy,Saint-Michel-des-Saints,46.8156,-74.094,390,quebec,DEA,Lanaudière
+cmmy,Saint-Michel-des-Saints,46.8156,-74.094,390,quebec,EnvCan,Lanaudière
 cmnb,Saint-Liboire,45.65175,-72.801717,66,quebec,FADQ,Montérégie Est
 cmnh,Saint-Herménégilde,45.0962,-71.714467,453,quebec,FADQ,Estrie
 cmnj,La Visitation,46.120934,-72.646442,39,quebec,FADQ,Centre-du-Québec
@@ -103,13 +104,12 @@ cmqz,Newport,45.395617,-71.489733,365,quebec,FADQ,Estrie
 cmre,Rivière aux Eaux Mortes,47.0974,-72.496,301,quebec,HYDRO,Mauricie
 cmrs,Rapide Sept,47.7974,-78.2963,336,quebec,HYDRO,Abitibi-Témiscamingue
 cmrw,Rivière Windigo,47.9159,-73.3696,306,quebec,HYDRO,Mauricie
-cmsi,Saint-Germain-de-Grantham,45.8253,-72.537,85,quebec,DEA,Centre-du-Québec
+cmsi,Saint-Germain-de-Grantham,45.8253,-72.537,85,quebec,EnvCan,Centre-du-Québec
 cmsw,Saint-Hilarion F,47.596407,-70.40716,408,quebec,FADQ,Capitale-Nationale
 cmsz,Baie-Saint-Paul,47.460671,-70.501152,26,quebec,FADQ,Capitale-Nationale
 cmta,Saint-Eugène-d'Argentenay,48.970167,-72.268317,143,quebec,FADQ,Saguenay-Lac-Saint-Jean
-cmtd,Sainte-Jeanne d'Arc,48.837317,-72.0566,114,quebec,FADQ,Saguenay-Lac-Saint-Jean
 cmtg,Saint-Prime,48.617183,-72.410417,111,quebec,FADQ,Saguenay-Lac-Saint-Jean
-cmth,Thetford Mines,46.0492,-71.2662,430,quebec,DEA,Chaudière-Appalaches
+cmth,Thetford Mines,46.0492,-71.2662,430,quebec,EnvCan,Chaudière-Appalaches
 cmtk,Hébertville,48.4172,-71.73565,155,quebec,FADQ,Saguenay-Lac-Saint-Jean
 cmtl,Saint-Ambroise F,48.571383,-71.3375,116,quebec,FADQ,Saguenay-Lac-Saint-Jean
 cmts,Pépinière Trécesson,48.5752,-78.2553,349,quebec,SM,Abitibi-Témiscamingue
@@ -133,29 +133,27 @@ cmuw,Saint-David,45.95748,-72.860501,29,quebec,FADQ,Montérégie Est
 cmuz,Saint-Fabien,48.284832,-68.8412,144,quebec,FADQ,Bas-Saint-Laurent
 cmvb,Stratford,45.7856,-71.3242,274,quebec,FADQ,Estrie
 cmvd,Saint-Joseph-de-Lepage,48.584167,-68.117222,74,quebec,FADQ,Bas-Saint-Laurent
-cmvf,Compton,45.259947,-71.833729,245,pomme,SM,Estrie
+cmvf,Compton,45.259947,-71.833729,245,pommes,SM,Estrie
 cmvh,Deschambault SM,46.676783,-71.924858,22,quebec,SM,Capitale-Nationale
-cmvj,Dunham,45.096216,-72.813383,217,pomme,SM,Montérégie Est
-cmvk,Franklin,45.033903,-73.898857,171,pomme,SM,Montérégie Ouest
-cmvs,Garagona,45.064817,-72.841153,153,pomme,SM,Montérégie Est
-cmvt,Hemmingford,45.047058,-73.609814,67,pomme,SM,Montérégie Ouest
-cmvu,Henryville,45.132856,-73.218749,39,pomme,SM,Montérégie Ouest
+cmvj,Dunham,45.096216,-72.813383,217,pommes,SM,Montérégie Est
+cmvk,Franklin,45.033903,-73.898857,171,pommes,SM,Montérégie Ouest
+cmvs,Garagona,45.064817,-72.841153,153,pommes,SM,Montérégie Est
+cmvt,Hemmingford,45.047058,-73.609814,67,pommes,SM,Montérégie Ouest
+cmvu,Henryville,45.132856,-73.218749,39,pommes,SM,Montérégie Ouest
 cmvv,Lanoraie,46.008755,-73.214689,17,quebec,SM,Lanaudière
 cmvw,Saint-Édouard-de-Lotbinière,46.5708,-71.841583,67,quebec,FADQ,Chaudière-Appalaches
-cmvz,Oka,45.516214,-74.086885,93,pomme,SM,Laurentides
-cmwb,Sainte-Famille IO,46.971573,-70.956563,95,pomme,SM,Capitale-Nationale
+cmvz,Oka,45.516214,-74.086885,93,pommes,SM,Laurentides
+cmwb,Sainte-Famille IO,46.971573,-70.956563,95,pommes,SM,Capitale-Nationale
 cmwf,Inverness,46.339767,-71.551717,164,quebec,FADQ,Centre-du-Québec
-cmwq,Rougemont,45.449921,-73.067298,79,pomme,SM,Montérégie Est
-cmwr,Saint-Antoine-de-Tilly,46.674617,-71.531112,66,pomme,SM,Chaudière-Appalaches
-cmwu,Saint-Lambert,46.517483,-71.205567,151,quebec,SM,Chaudière-Appalaches
-cmwv,Saint-Bruno-de-Montarville,45.541378,-73.340258,58,pomme,SM,Montérégie Est
-cmww,Sainte-Cécile-de-Milton,45.480298,-72.744892,121,pomme,SM,Montérégie Est
-cmwx,Saint-Grégoire,45.348321,-73.156437,49,pomme,SM,Montérégie Ouest
-cmwy,Saint-Hilaire,45.532873,-73.160893,96,pomme,SM,Montérégie Est
-cmwz,Saint-Joseph-du-Lac,45.543389,-74.022502,93,pomme,SM,Laurentides
-cmxb,Saint-Laurent,46.872021,-70.992406,34,pomme,SM,Capitale-Nationale
-cmxc,Saint-Narcisse-de-Beaurivage,46.486473,-71.216364,155,quebec,SM,Chaudière-Appalaches
-cmxd,Saint-Paul-d'Abbotsford,45.449529,-72.887286,99,pomme,SM,Montérégie Est
+cmwq,Rougemont,45.449921,-73.067298,79,pommes,SM,Montérégie Est
+cmwr,Saint-Antoine-de-Tilly,46.674617,-71.531112,66,pommes,SM,Chaudière-Appalaches
+cmwv,Saint-Bruno-de-Montarville,45.541378,-73.340258,58,pommes,SM,Montérégie Est
+cmww,Sainte-Cécile-de-Milton,45.480298,-72.744892,121,pommes,SM,Montérégie Est
+cmwx,Saint-Grégoire,45.348321,-73.156437,49,pommes,SM,Montérégie Ouest
+cmwy,Saint-Hilaire,45.532873,-73.160893,96,pommes,SM,Montérégie Est
+cmwz,Saint-Joseph-du-Lac,45.543389,-74.022502,93,pommes,SM,Laurentides
+cmxb,Saint-Laurent,46.872021,-70.992406,34,pommes,SM,Capitale-Nationale
+cmxd,Saint-Paul-d'Abbotsford,45.449529,-72.887286,99,pommes,SM,Montérégie Est
 cmxg,Victoriaville,46.036756,-71.918919,149,quebec,SM,Centre-du-Québec
 cmxh,Saint-Cléophas,46.244469,-73.386227,152,quebec,FADQ,Lanaudière
 cmxl,Maskinongé,46.201317,-73.041117,29,quebec,FADQ,Mauricie
@@ -194,165 +192,163 @@ coun,County Line,46.1317,-67.305,199,atlantic,MRNF-NB,
 cp38,CP38,46.97416687,-67.6286087,0,atlantic,NBP,
 cqbf,Boffin,46.9544,-71.6075,200,quebec,SOPFEU,Capitale-Nationale
 cqbt,Berthelot,48.4761,-76.2561,400,quebec,SOPFEU,Abitibi-Témiscamingue
-cqbw,Baldwin,48.5622,-66.1056,620,quebec,DCF,Bas-Saint-Laurent
+cqbw,Baldwin,48.5622,-66.1056,620,quebec,MFFP,Bas-Saint-Laurent
 cqcd,Chute du Diable,48.75,-71.7,174,quebec,ALCAN,Saguenay-Lac-Saint-Jean
 cqcu,Capitachouane,47.8272,-76.5972,365,quebec,SOPFEU,Abitibi-Témiscamingue
 cqdf,Dunford,47.0244,-71.6047,404,quebec,SOPFEU,Capitale-Nationale
-cqdm,Dumoine,47.1142,-78.2222,340,quebec,DCF,Abitibi-Témiscamingue
-cqdn,Dunière,48.7081,-66.7775,460,quebec,DCF,Bas-Saint-Laurent
+cqdm,Dumoine,47.1142,-78.2222,340,quebec,MFFP,Abitibi-Témiscamingue
+cqdn,Dunière,48.7081,-66.7775,460,quebec,MFFP,Bas-Saint-Laurent
 cqdo,Domaine,47.0253,-76.5306,368,quebec,SOPFEU,Outaouais
-cqdu,Duchénier,48.115,-68.5928,340,quebec,DCF,Bas-Saint-Laurent
+cqdu,Duchénier,48.115,-68.5928,340,quebec,MFFP,Bas-Saint-Laurent
 cqeo,Escoumins,48.543,-69.4421,650,quebec,SOPFEU,Côte-Nord
-cqes,Estcourt,47.5558,-69.1281,270,quebec,DCF,Bas-Saint-Laurent
-cqfm,Forêt Montmorency,47.3226,-71.1483,672,quebec,DEA,Capitale-Nationale
+cqes,Estcourt,47.5558,-69.1281,270,quebec,MFFP,Bas-Saint-Laurent
+cqfm,Forêt Montmorency,47.3226,-71.1483,672,quebec,EnvCan,Capitale-Nationale
 cqga,Galifet,47.2572,-73.7381,426,quebec,SOPFEU,Mauricie
 cqgo,Gouin,48.8847,-74.2283,488,quebec,SOPFEU,Saguenay-Lac-Saint-Jean
 cqha,Harricana,48.8992,-78.1586,300,quebec,SOPFEU,Abitibi-Témiscamingue
 cqjr,Jérémie,50.0533,-78.7786,260,quebec,SOPFEU,Nord-du-Québec
-cqla,La Pêche,45.6222,-76.0192,200,quebec,DCF,Outaouais
+cqla,La Pêche,45.6222,-76.0192,200,quebec,MFFP,Outaouais
 cqlm,Laflamme,48.9203,-70.2517,594,quebec,SOPFEU,Saguenay-Lac-Saint-Jean
 cqlp,Lac Panache,48.1375,-72.6331,435,quebec,SOPFEU,Saguenay-Lac-Saint-Jean
 cqmb,Mistassibi 2,49.3731,-71.9408,183,quebec,ALCAN,Saguenay-Lac-Saint-Jean
 cqmi,Mistassini,49.3327,-72.6308,320,quebec,SOPFEU,Saguenay-Lac-Saint-Jean
 cqmk,Montagnais,47.8958,-71.8883,497,quebec,ALCAN,Capitale-Nationale
-cqmo,Montmagny,46.9817,-70.3269,340,quebec,DCF,Chaudière-Appalaches
+cqmo,Montmagny,46.9817,-70.3269,340,quebec,MFFP,Chaudière-Appalaches
 cqmt,Mistaouac,49.4456,-78.8669,312,quebec,SOPFEU,Nord-du-Québec
-cqob,Observation,48.5686,-65.2025,520,quebec,DCF,Gaspésie-Iles-de-la-Madeleine
-cqpa,Papineau Labelle,46.2164,-75.1967,260,quebec,DCF,Laurentides
-cqpm,Pépinière St-Modeste,47.8361,-69.39,170,quebec,DCF,Bas-Saint-Laurent
-cqro,Rouge-Matawin,46.6581,-74.5128,520,quebec,DCF,Laurentides
+cqob,Observation,48.5686,-65.2025,520,quebec,MFFP,Gaspésie-Iles-de-la-Madeleine
+cqpa,Papineau Labelle,46.2164,-75.1967,260,quebec,MFFP,Laurentides
+cqpm,Pépinière St-Modeste,47.8361,-69.39,170,quebec,MFFP,Bas-Saint-Laurent
+cqro,Rouge-Matawin,46.6581,-74.5128,520,quebec,MFFP,Laurentides
 cqsl,Saint-Michel,46.6825,-73.9137,375,quebec,SOPFEU,Lanaudière
-cqst,Saint-Maurice,46.9572,-73.0056,370,quebec,DCF,Mauricie
+cqst,Saint-Maurice,46.9572,-73.0056,370,quebec,MFFP,Mauricie
 cque,Quévillon,49.0361,-77.0217,293,quebec,SOPFEU,Nord-du-Québec
 cqwe,Weymont,47.8497,-73.8119,375,quebec,SOPFEU,Mauricie
 cqwg,Wageguma,48.4883,-73.4594,594,quebec,SOPFEU,Saguenay-Lac-Saint-Jean
-cqyc,Coulonge,46.085,-76.5514,250,quebec,DCF,Outaouais
+cqyc,Coulonge,46.085,-76.5514,250,quebec,MFFP,Outaouais
 crow,Crowe Brook,45.575,-65.3233,292,atlantic,MRNF-NB,
 cs35,Carl Stephenson,46.41460037,-67.62020111,0,atlantic,NBP,
 cumb,Cumberland Bay,45.995,-65.9083,59,atlantic,MRNF-NB,
-cwag,La Scie,49.9167,-55.6667,194,atlantic,DEA,
-cwar,Argentia,47.2939,-53.9933,19,atlantic,DEA,
-cwba,Barrage Témiscamingue,46.7092,-79.1011,180,quebec,DEA,Abitibi-Témiscamingue
-cwbk,Caribou Point,45.7667,-62.6833,2.4,atlantic,DEA,
-cwbv,Beaver Island,44.8167,-62.3333,16,atlantic,DEA,
-cwbz,Saint-Anicet,45.1161,-74.2831,48,quebec,DEA,Montérégie Ouest
-cwda,Englee,50.7211,-56.1128,30.3,atlantic,DEA,
-cwdh,Daniels Harbor,50.2364,-57.5811,19,atlantic,DEA,
-cwdi,Badger,48.9667,-56.0667,102.7,atlantic,DEA,
-cwdo,Twillingate,49.6833,-54.8,92.3,atlantic,DEA,
-cwdq,La Tuque,47.4111,-72.7872,167,quebec,DEA,Mauricie
-cwdw,St-Anthony,51.3833,-56.1,29.3,atlantic,DEA,
+cwag,La Scie,49.9167,-55.6667,194,atlantic,EnvCan,
+cwar,Argentia,47.2939,-53.9933,19,atlantic,EnvCan,
+cwba,Barrage Témiscamingue,46.7092,-79.1011,180,quebec,EnvCan,Abitibi-Témiscamingue
+cwbk,Caribou Point,45.7667,-62.6833,2.4,atlantic,EnvCan,
+cwbv,Beaver Island,44.8167,-62.3333,16,atlantic,EnvCan,
+cwbz,Saint-Anicet,45.1161,-74.2831,48,quebec,EnvCan,Montérégie Ouest
+cwda,Englee,50.7211,-56.1128,30.3,atlantic,EnvCan,
+cwdh,Daniels Harbor,50.2364,-57.5811,19,atlantic,EnvCan,
+cwdi,Badger,48.9667,-56.0667,102.7,atlantic,EnvCan,
+cwdo,Twillingate,49.6833,-54.8,92.3,atlantic,EnvCan,
+cwdq,La Tuque,47.4111,-72.7872,167,quebec,EnvCan,Mauricie
+cwdw,St-Anthony,51.3833,-56.1,29.3,atlantic,EnvCan,
 cwee,Chamouchouane,49.2786,-73.3556,305,quebec,ALCAN,Saguenay-Lac-Saint-Jean
-cwef,St-Paul Island Ns,47.2328,-60.1444,27,atlantic,DEA,
-cwep,East Point,46.46,-61.9883,6,atlantic,DEA,
-cwew,L'Assomption,45.8161,-73.4331,20,quebec,DEA,Lanaudière
-cwfq,Frelighsburg,45.05,-72.8331,151,quebec,DEA,Montérégie Est
-cwfw,Baie-Comeau,49.2592,-68.145,128,quebec,DEA,Côte-Nord
-cwgr,Îles-de-la-Madeleine,47.4161,-61.7831,7,atlantic,DEA,
-cwgr,Îles-de-la-Madeleine,47.4161,-61.7831,7,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cwhm,Varennes,45.7161,-73.3831,20,quebec,DEA,Montérégie Est
-cwho,Hopedale (aut),55.45,-60.2167,11.9,atlantic,DEA,
-cwhq,Deschambault,46.69,-71.9711,61,quebec,DEA,Capitale-Nationale
-cwhv,Beauceville,46.2,-70.7831,228,quebec,DEA,Chaudière-Appalaches
-cwis,Charlevoix,47.2842,-70.6372,717,quebec,DEA,Capitale-Nationale
-cwit,Sainte-Clotilde,45.1661,-73.6831,52,quebec,DEA,Montérégie Ouest
+cwef,St-Paul Island Ns,47.2328,-60.1444,27,atlantic,EnvCan,
+cwep,East Point,46.46,-61.9883,6,atlantic,EnvCan,
+cwew,L'Assomption,45.8161,-73.4331,20,quebec,EnvCan,Lanaudière
+cwfq,Frelighsburg,45.05,-72.8331,151,quebec,EnvCan,Montérégie Est
+cwfw,Baie-Comeau,49.2592,-68.145,128,quebec,EnvCan,Côte-Nord
+cwgr,Îles-de-la-Madeleine,47.4161,-61.7831,7,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cwhm,Varennes,45.7161,-73.3831,20,quebec,EnvCan,Montérégie Est
+cwho,Hopedale (aut),55.45,-60.2167,11.9,atlantic,EnvCan,
+cwhq,Deschambault,46.69,-71.9711,61,quebec,EnvCan,Capitale-Nationale
+cwhv,Beauceville,46.2,-70.7831,228,quebec,EnvCan,Chaudière-Appalaches
+cwis,Charlevoix,47.2842,-70.6372,717,quebec,EnvCan,Capitale-Nationale
+cwit,Sainte-Clotilde,45.1661,-73.6831,52,quebec,EnvCan,Montérégie Ouest
 cwix,Mistook,48.6,-71.7167,112,quebec,ALCAN,Saguenay-Lac-Saint-Jean
-cwiy,Saint-Léonard,47.15,-67.8333,245,atlantic,DEA,
-cwiz,L'Acadie,45.3,-73.35,44,quebec,DEA,Montérégie Ouest
-cwjb,Sainte-Foy,46.7803,-71.2875,91,quebec,DEA,Capitale-Nationale
-cwjo,Jonquière,48.425,-71.1425,135,quebec,DEA,Saguenay-Lac-Saint-Jean
-cwjt,Saint-Jovite,46.08,-74.555,238,quebec,DEA,Laurentides
-cwkb,Corner Brook,48.9333,-57.9167,151.8,atlantic,DEA,
-cwkg,Kejimkujik,44.4322,-65.2031,125,atlantic,DEA,
-cwmi,Miscou Island,48.0167,-64.5,4,atlantic,DEA,
-cwmj,Maniwaki,46.2742,-75.9922,199,quebec,DEA,Outaouais
-cwne,North Cape,47.0581,-63.9986,8,atlantic,DEA,
-cwnh,Rivière-du-Loup,47.805,-69.5481,146,quebec,DEA,Bas-Saint-Laurent
-cwnq,Nicolet,46.2161,-72.65,7,quebec,DEA,Centre-du-Québec
-cwns,North East Margaree,46.3667,-60.9833,54,atlantic,DEA,
-cwoc,New-Carlisle,48.0122,-65.3311,46,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cwod,Normandin,48.8411,-72.5461,136,quebec,DEA,Saguenay-Lac-Saint-Jean
-cwpe,Point Lepreau CS,45.0731,-66.4492,6,atlantic,DEA,
-cwqb,Québec,46.8036,-71.3817,60,quebec,DEA,Capitale-Nationale
-cwqh,Lennoxville,45.3681,-71.8231,180,quebec,DEA,Estrie
-cwra,Cape Race,46.66,-53.0764,26.5,atlantic,DEA,
-cwrn,Hart Island,45.35,-60.9833,8.2,atlantic,DEA,
-cwrz,Cap D'Espoir,48.4192,-64.3172,15,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cwsd,Summerside,46.4411,-63.8381,13,atlantic,DEA,
-cwsf,Cap-Madeleine,49.25,-65.3172,28,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cwsg,Cap-Chat,49.1092,-66.6542,4,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cwss,St-Stephen,45.2167,-67.25,26.1,atlantic,DEA,
-cwst,La Pocatière,47.355,-70.0311,30,quebec,DEA,Bas-Saint-Laurent
-cwta,Mctavish,45.505,-73.5792,72,quebec,DEA,Montréal
-cwtn,Cap-Tourmente,47.0781,-70.78,5,quebec,DEA,Capitale-Nationale
-cwtq,Montréal Intl,45.4678,-73.7417,31,quebec,DEA,Montréal
-cwty,Trois-Rivières,46.3531,-72.5161,5,quebec,DEA,Mauricie
-cwux,La Baie,48.2978,-70.9192,135,quebec,DEA,Saguenay-Lac-Saint-Jean
-cwuy,Rouyn,48.2461,-79.0342,317,quebec,DEA,Abitibi-Témiscamingue
-cwvq,Sainte-Anne-de-Bellevue,45.4272,-73.9292,38,quebec,DEA,Montréal
-cwvu,Brier Island,44.2858,-66.3467,15.8,atlantic,DEA,
-cwvw,Grates Cove,48.1719,-52.9392,46.2,atlantic,DEA,
-cwvy,Lemieux,46.3222,-72.0561,97,quebec,DEA,Centre-du-Québec
-cwwe,Western Head,43.99,-64.6642,10.1,atlantic,DEA,
-cwxc,Onatchiway,48.8942,-71.0317,303,quebec,DEA,Saguenay-Lac-Saint-Jean
-cwxi,Ferolle Point,51.0167,-57.1,5.8,atlantic,DEA,
-cwxs,Bas Caraquet,47.8,-64.8333,5,atlantic,DEA,
-cwyi,Pools Island,49.1122,-53.5811,19.3,atlantic,DEA,
-cwyq,Pointe-Au-Père,48.5142,-68.4681,4,quebec,DEA,Bas-Saint-Laurent
-cwzb,Port Aux Basques,47.5739,-59.1547,39.7,atlantic,DEA,
-cwzf,Fredericton Aquatic Centre,45.9642,-66.6547,8.3,atlantic,DEA,
-cwzn,Sagona Island,47.3678,-55.7947,59.7,atlantic,DEA,
-cwzq,Grand Etang,46.55,-61.05,12.8,atlantic,DEA,
-cwzs,Amqui,48.4722,-67.4342,165,quebec,DEA,Bas-Saint-Laurent
-cxbo,Beauport,46.8372,-71.1972,10,quebec,DEA,Capitale-Nationale
-cxch,Chéticamp,46.645,-60.9472,43.9,atlantic,DEA,
-cxgd,Gander Airport CS,48.9444,-54.5764,151,atlantic,DEA,
-cxgm,Grand Manan SAR CS,44.7121,-66.8019,78.2,atlantic,DEA,
-cxhf,High Falls,45.8394,-75.6482,195,quebec,DEA,Outaouais
-cxib,Ingonish Beach CS,46.6667,-60.4,10,atlantic,DEA,
-cxkt,Kentville CDA CS,45.0667,-64.4833,48.7,atlantic,DEA,
-cxlb,Lunenburg,44.36,-64.2961,3.8,atlantic,DEA,
+cwiy,Saint-Léonard,47.15,-67.8333,245,atlantic,EnvCan,
+cwiz,L'Acadie,45.3,-73.35,44,quebec,EnvCan,Montérégie Ouest
+cwjb,Sainte-Foy,46.7803,-71.2875,91,quebec,EnvCan,Capitale-Nationale
+cwjo,Jonquière,48.425,-71.1425,135,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cwjt,Saint-Jovite,46.08,-74.555,238,quebec,EnvCan,Laurentides
+cwkb,Corner Brook,48.9333,-57.9167,151.8,atlantic,EnvCan,
+cwkg,Kejimkujik,44.4322,-65.2031,125,atlantic,EnvCan,
+cwmi,Miscou Island,48.0167,-64.5,4,atlantic,EnvCan,
+cwmj,Maniwaki,46.2742,-75.9922,199,quebec,EnvCan,Outaouais
+cwne,North Cape,47.0581,-63.9986,8,atlantic,EnvCan,
+cwnh,Rivière-du-Loup,47.805,-69.5481,146,quebec,EnvCan,Bas-Saint-Laurent
+cwnq,Nicolet,46.2161,-72.65,7,quebec,EnvCan,Centre-du-Québec
+cwns,North East Margaree,46.3667,-60.9833,54,atlantic,EnvCan,
+cwoc,New-Carlisle,48.0122,-65.3311,46,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cwod,Normandin,48.8411,-72.5461,136,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cwpe,Point Lepreau CS,45.0731,-66.4492,6,atlantic,EnvCan,
+cwqb,Québec,46.8036,-71.3817,60,quebec,EnvCan,Capitale-Nationale
+cwqh,Lennoxville,45.3681,-71.8231,180,quebec,EnvCan,Estrie
+cwra,Cape Race,46.66,-53.0764,26.5,atlantic,EnvCan,
+cwrn,Hart Island,45.35,-60.9833,8.2,atlantic,EnvCan,
+cwrz,Cap D'Espoir,48.4192,-64.3172,15,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cwsd,Summerside,46.4411,-63.8381,13,atlantic,EnvCan,
+cwsf,Cap-Madeleine,49.25,-65.3172,28,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cwsg,Cap-Chat,49.1092,-66.6542,4,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cwss,St-Stephen,45.2167,-67.25,26.1,atlantic,EnvCan,
+cwst,La Pocatière,47.355,-70.0311,30,quebec,EnvCan,Bas-Saint-Laurent
+cwta,Mctavish,45.505,-73.5792,72,quebec,EnvCan,Montréal
+cwtn,Cap-Tourmente,47.0781,-70.78,5,quebec,EnvCan,Capitale-Nationale
+cwtq,Montréal Intl,45.4678,-73.7417,31,quebec,EnvCan,Montréal
+cwty,Trois-Rivières,46.3531,-72.5161,5,quebec,EnvCan,Mauricie
+cwux,La Baie,48.2978,-70.9192,135,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cwuy,Rouyn,48.2461,-79.0342,317,quebec,EnvCan,Abitibi-Témiscamingue
+cwvq,Sainte-Anne-de-Bellevue,45.4272,-73.9292,38,quebec,EnvCan,Montréal
+cwvu,Brier Island,44.2858,-66.3467,15.8,atlantic,EnvCan,
+cwvw,Grates Cove,48.1719,-52.9392,46.2,atlantic,EnvCan,
+cwvy,Lemieux,46.3222,-72.0561,97,quebec,EnvCan,Centre-du-Québec
+cwwe,Western Head,43.99,-64.6642,10.1,atlantic,EnvCan,
+cwxc,Onatchiway,48.8942,-71.0317,303,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cwxi,Ferolle Point,51.0167,-57.1,5.8,atlantic,EnvCan,
+cwxs,Bas Caraquet,47.8,-64.8333,5,atlantic,EnvCan,
+cwyi,Pools Island,49.1122,-53.5811,19.3,atlantic,EnvCan,
+cwyq,Pointe-Au-Père,48.5142,-68.4681,4,quebec,EnvCan,Bas-Saint-Laurent
+cwzb,Port Aux Basques,47.5739,-59.1547,39.7,atlantic,EnvCan,
+cwzf,Fredericton Aquatic Centre,45.9642,-66.6547,8.3,atlantic,EnvCan,
+cwzn,Sagona Island,47.3678,-55.7947,59.7,atlantic,EnvCan,
+cwzq,Grand Etang,46.55,-61.05,12.8,atlantic,EnvCan,
+cwzs,Amqui,48.4722,-67.4342,165,quebec,EnvCan,Bas-Saint-Laurent
+cxbo,Beauport,46.8372,-71.1972,10,quebec,EnvCan,Capitale-Nationale
+cxch,Chéticamp,46.645,-60.9472,43.9,atlantic,EnvCan,
+cxgd,Gander Airport CS,48.9444,-54.5764,151,atlantic,EnvCan,
+cxgm,Grand Manan SAR CS,44.7121,-66.8019,78.2,atlantic,EnvCan,
+cxhf,High Falls,45.8394,-75.6482,195,quebec,EnvCan,Outaouais
+cxib,Ingonish Beach CS,46.6667,-60.4,10,atlantic,EnvCan,
+cxkt,Kentville CDA CS,45.0667,-64.4833,48.7,atlantic,EnvCan,
+cxlb,Lunenburg,44.36,-64.2961,3.8,atlantic,EnvCan,
 cxlt,Laterrière,48.3072,-71.1292,162,quebec,ALCAN,Saguenay-Lac-Saint-Jean
-cxmi,Mcnabs Island,44.6,-63.5333,15.4,atlantic,DEA,
-cxmp,Maple Plains,46.3028,-63.5756,45,atlantic,DEA,
-cxmy,Malay Falls,44.9833,-62.4833,39.6,atlantic,DEA,
-cxnm,North Mountain,46.8169,-60.6722,439.4,atlantic,DEA,
-cxnp,Nappan,45.7596,-64.2414,19.8,atlantic,DEA,
-cxrh,Rocky Harbor,49.57,-57.8778,67.7,atlantic,DEA,
-cxsh,Shawinigan,46.5631,-72.7331,110,quebec,DEA,Mauricie
-cxtd,Tracadie,45.6084,-61.6797,66.7,atlantic,DEA,
-cxtp,Terra Nova Nat. Park CS,48.5569,-53.9744,106.7,atlantic,DEA,
-cxwt,Winterland,47.1364,-55.3275,29,atlantic,DEA,
-cxzv,Sept-Îles,50.2167,-66.25,52,quebec,DEA,Côte-Nord
-cybg,Bagotville,48.3331,-71,159,quebec,DEA,Saguenay-Lac-Saint-Jean
-cybx,Blanc-Sablon,51.45,-57.1831,30,atlantic,DEA,
-cycx,Gagetown A,45.833,-66.433,50.6,atlantic,DEA,
-cydf,Deer Lake,49.2167,-57.4,21.9,atlantic,DEA,
-cygp,Gaspé A,48.7761,-64.4781,35,quebec,DEA,Gaspésie-Iles-de-la-Madeleine
-cyhu,Saint-Hubert,45.5161,-73.4161,25,quebec,DEA,Montérégie Est
-cymh,Mary's Harbor TN,52.3036,-55.8336,10.6,atlantic,DEA,
-cymx,Mirabel,45.6661,-74.0331,82,quebec,DEA,Laurentides
-cynd,Gatineau A,45.5167,-75.5667,59,quebec,DEA,Outaouais
-cynm,Matagami A,49.7656,-77.805,280,quebec,DEA,Nord-du-Québec
-cyoy,Valcartier A,46.9003,-71.5033,169,quebec,DEA,Capitale-Nationale
-cypd,Aéroport de Port Hawkesbury,45.6567,-61.3681,114.9,atlantic,DEA,
-cyqb,Québec A,46.788861,-71.383806,70,quebec,DEA,Capitale-Nationale
-cyqm,Moncton,46.1039,-64.6877,70.7,atlantic,DEA,
-cyrj,Roberval,48.5161,-72.2661,174,quebec,DEA,Saguenay-Lac-Saint-Jean
-cysc,Sherbrooke,45.4331,-71.6831,240,quebec,DEA,Estrie
-cysj,Saint John A,45.3181,-65.8856,108.8,atlantic,DEA,
-cyuy,Rouyn A,48.245,-79.0342,302,quebec,DEA,Abitibi-Témiscamingue
-cywk,Wabush TN,52.9167,-66.8694,551.4,atlantic,DEA,
-cyyg,Charlottetown A,46.2886,-63.1286,46,atlantic,DEA,
-cyyr,Goose Bay TN,53.3167,-60.4167,48.8,atlantic,DEA,
-cyyy,Mont-Joli,48.6,-68.2161,48,quebec,DEA,Bas-Saint-Laurent
-cyzv,Sept-Îles,50.2161,-66.2661,50,quebec,DEA,Côte-Nord
-cyzx,BFC Greenwood,44.9833,-64.9167,28,atlantic,DEA,
-czbf,Bathurst,47.6292,-65.7389,58.8,atlantic,DEA,
-czcr,Charlo,47.99,-66.33416667,42,atlantic,DEA,
-czdb,Debert,45.4167,-63.4667,37.5,atlantic,DEA,
-czsp,St-Peters,46.4503,-62.5758,30,atlantic,DEA,
-czum,Churchill Falls,53.5619,-64.1064,439.5,atlantic,DEA,
+cxmi,Mcnabs Island,44.6,-63.5333,15.4,atlantic,EnvCan,
+cxmp,Maple Plains,46.3028,-63.5756,45,atlantic,EnvCan,
+cxmy,Malay Falls,44.9833,-62.4833,39.6,atlantic,EnvCan,
+cxnm,North Mountain,46.8169,-60.6722,439.4,atlantic,EnvCan,
+cxnp,Nappan,45.7596,-64.2414,19.8,atlantic,EnvCan,
+cxrh,Rocky Harbor,49.57,-57.8778,67.7,atlantic,EnvCan,
+cxsh,Shawinigan,46.5631,-72.7331,110,quebec,EnvCan,Mauricie
+cxtd,Tracadie,45.6084,-61.6797,66.7,atlantic,EnvCan,
+cxtp,Terra Nova Nat. Park CS,48.5569,-53.9744,106.7,atlantic,EnvCan,
+cxwt,Winterland,47.1364,-55.3275,29,atlantic,EnvCan,
+cxzv,Sept-Îles,50.2167,-66.25,52,quebec,EnvCan,Côte-Nord
+cybg,Bagotville,48.3331,-71,159,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cybx,Blanc-Sablon,51.45,-57.1831,30,atlantic,EnvCan,
+cycx,Gagetown A,45.833,-66.433,50.6,atlantic,EnvCan,
+cydf,Deer Lake,49.2167,-57.4,21.9,atlantic,EnvCan,
+cygp,Gaspé A,48.7761,-64.4781,35,quebec,EnvCan,Gaspésie-Iles-de-la-Madeleine
+cyhu,Saint-Hubert,45.5161,-73.4161,25,quebec,EnvCan,Montérégie Est
+cymh,Mary's Harbor TN,52.3036,-55.8336,10.6,atlantic,EnvCan,
+cymx,Mirabel,45.6661,-74.0331,82,quebec,EnvCan,Laurentides
+cynd,Gatineau A,45.5167,-75.5667,59,quebec,EnvCan,Outaouais
+cynm,Matagami A,49.7656,-77.805,280,quebec,EnvCan,Nord-du-Québec
+cyoy,Valcartier A,46.9003,-71.5033,169,quebec,EnvCan,Capitale-Nationale
+cypd,Aéroport de Port Hawkesbury,45.6567,-61.3681,114.9,atlantic,EnvCan,
+cyqb,Québec A,46.788861,-71.383806,70,quebec,EnvCan,Capitale-Nationale
+cyqm,Moncton,46.1039,-64.6877,70.7,atlantic,EnvCan,
+cyrj,Roberval,48.5161,-72.2661,174,quebec,EnvCan,Saguenay-Lac-Saint-Jean
+cysc,Sherbrooke,45.4331,-71.6831,240,quebec,EnvCan,Estrie
+cysj,Saint John A,45.3181,-65.8856,108.8,atlantic,EnvCan,
+cyuy,Rouyn A,48.245,-79.0342,302,quebec,EnvCan,Abitibi-Témiscamingue
+cywk,Wabush TN,52.9167,-66.8694,551.4,atlantic,EnvCan,
+cyyg,Charlottetown A,46.2886,-63.1286,46,atlantic,EnvCan,
+cyyr,Goose Bay TN,53.3167,-60.4167,48.8,atlantic,EnvCan,
+cyzv,Sept-Îles,50.2161,-66.2661,50,quebec,EnvCan,Côte-Nord
+cyzx,BFC Greenwood,44.9833,-64.9167,28,atlantic,EnvCan,
+czbf,Bathurst,47.6292,-65.7389,58.8,atlantic,EnvCan,
+czcr,Charlo,47.99,-66.33416667,42,atlantic,EnvCan,
+czdb,Debert,45.4167,-63.4667,37.5,atlantic,EnvCan,
+czsp,St-Peters,46.4503,-62.5758,30,atlantic,EnvCan,
+czum,Churchill Falls,53.5619,-64.1064,439.5,atlantic,EnvCan,
 danm,Danforth ME,45.6667,-67.8667,116,atlantic,US-MADIS,
 ding,Dingee Brook,46.9811,-67.1275,410,atlantic,MRNF-NB,
 dung,Dungarvon,46.717,-66.3067,172,atlantic,MRNF-NB,
@@ -392,9 +388,8 @@ lunt,Lunts Brook,47.5075,-68.2139,318,atlantic,MRNF-NB,
 mcra,McRae Lake,47.6852,-66.2436,404,atlantic,MRNF-NB,
 mead,Meadow Brook,46.4483,-65.8033,199,atlantic,MRNF-NB,
 mg06,Mike Givskud,46.99980164,-67.64620209,0,atlantic,NBP,
-mojo,Mont-Joli A,48.5827407837,-68.191619873,85,quebec,,
 mull,Mulligan Gulch,47.5933,-66.6386,432,atlantic,MRNF-NB,
-napi,Napierville,45.186486,-73.405115,52.9,quebec,,
+qfnv,Napierville,45.160906,-73.384642,86,quebec,FADQ
 nm36,Randy McLean,46.11569977,-67.65499878,108,atlantic,NBP,
 oxbm,Oxbow ME,46.423,-68.553,213,atlantic,US-MADIS,
 patm,Patten ME,46.0259,-68.4977,247,atlantic,US-MADIS,
@@ -406,9 +401,9 @@ rm22,Roger Mc Graw,47.67020035,-64.82949829,0,atlantic,NBP,
 robi,Robinson Tower,47.6963,-67.1875,467,atlantic,MRNF-NB,
 rp08,Ronnie Piper,46.49010086,-67.75209808,0,atlantic,NBP,
 rs19,Robert Seeley,46.29510117,-67.52339935,0,atlantic,NBP,
-stce,Saint-Celestin,46.2015304565,-72.4089279175,58,quebec,,
-step,Saint-Ephrem,46.0558280945,-70.9510574341,302,quebec,,
-stgo,Saint-Godefroi,48.0768089294,-65.1120681763,20,quebec,,
+qfsc,Saint-Célestin,46.232996,-72.375892,58,quebec,FADQ
+qfse,Saint-Éphrem,46.036433,-70.871317,332,quebec,FADQ,Chaudière-Appalaches
+cmkq,Saint-Godefroi,48.12464,-65.124406,122,quebec,FADQ,Gaspésie-Iles-de-la-Madeleine
 stpl,St-Paul,46.36,-64.9733,76,atlantic,MRNF-NB,
 talw,Alward,46.20000076,-65.44499969,123,atlantic,MRNF-NB,
 tapo,Apohaqui,45.69670105,-65.58999634,140,atlantic,MRNF-NB,
@@ -444,88 +439,98 @@ nthp,North Point,47.0581,-63.9986,8,atlantic,PEI,
 7027736,Saint-Simon,45.7158317566,-72.8402786255,40,quebec,MDDELCC
 7028B81,Standstead-EST,45.0500335693,-72.0648117065,381,quebec,MDDELCC
 7028284,Stukely,45.3658332825,-72.2649993896,358,quebec,MDDELCC
+7028284,Stukely,45.3658332825,-72.2649993896,358,quebec,MDDELCC
 7028502,Tingwick,45.9075012207,-71.9491653442,262,quebec,MDDELCC
 7029230,Zéphirin,46.0424995422,-72.6600036621,45,quebec,MDDELCC
 YamaskaNord,Yamaska Nord,47.995,-72.923,7,quebec,MDDELCC
 7020M48,Barrage Jules-Allard,45.9509162903,-71.274055481,290,quebec,MDDELCC
 7050455,Barrage Morin,47.649723053,-69.5097198486,192,quebec,MDDELCC
 7020572,Bécancour (Aréna),46.3499984741,-72.4333343506,18,quebec,MDDELCC
-steja,Sainte-Jeanne-d'Arc,49.096,-72.023,213,quebec,MDDELCC
-50012,Cloutier,48.0119,-79.1328,273,quebec,MDDELCC
-Caus,Causapscal,49.6292,-67.2233,233,quebec,MDDELCC
-LacM,Lac Megantic,46.4153,-70.8872,489,quebec,MDDELCC
-71581,Algonquin Park,45.53,-78.27,397,ontario,EC
-71294,Bancroft,45.07,-77.87,331,ontario,EC
-71314,Barrie-oro,44.48,-79.55,289,ontario,EC
-71694,Beatrice Climate,45.13,-79.4,297,ontario,EC
-71161,Brockville Climate,44.63,-75.73,121,ontario,EC
-71431,Cobourg (AUT),43.95,-78.17,78,ontario,EC
-71270,Collingwood,44.5,-80.22,180,ontario,EC
-71465,Erieau,42.25,-81.9,178,ontario,EC
-71261,Goderich,43.77,-81.72,214,ontario,EC
-71297,Hamilton_Rbg_Cs,43.28,-79.9,102,ontario,EC
-71300,Kemptville,45,-75.63,99,ontario,EC
-71460,Killarney,45.97,-81.48,196,ontario,EC
-71820,Kingston Climate,44.22,-76.58,93,ontario,EC
-71631,Mount Forest (AUT),43.98,-80.75,415,ontario,EC
-71731,North Bay,46.35,-79.42,370,ontario,EC
-71063,Ottawa Cda,45.38,-75.72,79,ontario,EC
-71672,Peterborough Trent U,44.35,-78.3,217,ontario,EC
-71430,Point Petre,43.83,-77.15,79,ontario,EC
-71746,Sarnia,43,-82.3,181,ontario,EC
-71193,Timmins Climate,48.55,-81.38,294,ontario,EC
-71767,Tobermory_Rcs,45.23,-81.63,214,ontario,EC
-71171,Vineland Station RCS,43.18,-79.4,79,ontario,EC
-71752,Welland-Pelham,42.97,-79.33,180,ontario,EC
-cyzr,Aeroport Chris Hadfield de Sarnia,43,-82.31667,181,ontario,EC
-cyat,Attawapiskat Airport,52.9275,-82.4319,9,ontario,EC
-cybn,BFC Borden,44.25,-79.91667,223,ontario,EC
-cytr,BFC Trenton,44.11667,-77.53333,85,ontario,EC
-cwwb,Burlington Piers (aut),43.3,-79.8,77,ontario,EC
-cxca,Cameron Falls (aut),49.15,-88.35,233,ontario,EC
-Earlton,Earlton,47.68,-79.83,243,ontario,EC
-cyxr,Earlton,47.69745,-79.85332,244,ontario,EC
-czel,Elora Rcs,43.65,-80.42,376,ontario,EC
-ctag,Fort_Frances_Rcs,48.65111,-93.43889,342,ontario,EC
-cxdi,Delhi Cs,42.8667,-80.55,232,ontario,EC
-cyze,Gore Bay Climate,45.88333,-82.56667,193,ontario,EC
-ctgt,Guelph Turfgrass,43.55,-80.21667,330,ontario,EC
-cxha,Harrow_Cda_Auto,42.03,-82.9,191,ontario,EC
-cygk,Kingston,44.21667,-76.6,93,ontario,EC
-cwgl,Lagoon City,44.53333,-79.21667,221,ontario,EC
-cwsn,London_Cs,43.03,-81.15,278,ontario,EC
-cxpc,Parry_Sound_Ccg,45.35,-80.05,176,ontario,EC
-ctpm,Pembroke,45.86028,-77.25222,155,ontario,EC
-cxpt,Point_Pelee_Cs,41.95,-82.52,177,ontario,EC
-cwwz,Port Weller,43.25,-79.21667,79,ontario,EC
-cxrg,Ridgetown_Rcs,42.45,-81.88,206,ontario,EC
-cwnb,Southeast Shoal (aut),41.83333,-82.46667,195,ontario,EC
-cysb,Sudbury,46.61667,-80.8,348,ontario,EC
-cyts,Timmins,48.56667,-81.36667,295,ontario,EC
-ctux,Uxbridge,44.09833,-79.16362,315,ontario,EC
-cxvn,Vineland_Station_Rcs,43.18,-79.4,79,ontario,EC
-cykf,Waterloo Well,43.46667,-80.38333,317,ontario,EC
-cyxz,Wawa,47.96667,-84.78333,287,ontario,EC
-cwec,Welcome Island,48.36667,-89.11667,209,ontario,EC
-ctwl,Welland-pelham,42.96667,-79.33333,175,ontario,EC
-cwmz,Western Island Meteorological Aeronautical Presentation System,45.03333,-80.36667,191,ontario,EC
-cyvv,Aeroport_de_Wiarton,44.75,-81.1,222,ontario,EC
-cyqg,Aeroport_de_Windsor,42.26667,-82.96667,190,ontario,EC
-cyyz,Aeroport_int._Pearson_de_Toronto,43.66667,-79.63333,173,ontario,EC
-cysn,Aeroport_de_St._Catharines,43.2,-79.16667,98,ontario,EC
-cyam,Aeroport_de_Sault_Ste._Marie,46.48333,-84.5,187,ontario,EC
-cxto,Toronto_City,43.67,-79.4,113,ontario,EC
-cykz,Aeroport_municipal_de_Toronto_Buttonville,43.86667,-79.36667,198,ontario,EC
-cypq,Aeroport municipal de Peterborough,44.23333,-78.36667,191,ontario,EC
-cztb,Aeroport_de_Thunder_Bay,48.3667,-89.3167,199,ontario,EC
-cyze,Aeroport_de_Gore_Bay-Manitoulin,45.88333,-82.56667,193,ontario,EC
-cyqa,Aeroport_de_Muskoka,44.96667,-79.3,280,ontario,EC
-cwsn,Aeroport_int._de_London,43.03,-81.15,278,ontario,EC
-cyoo,Aeroport_municipal_d'Oshawa,43.92216,-78.89527,138,ontario,EC
-cyhd,Aeroport_de_Dryden,49.83333,-92.75,413,ontario,EC
-cyhm,Aeroport_int._Munro_de_Hamilton,43.16667,-79.93333,237,ontario,EC
-cwnc,Cobourg_(aut),43.95,-78.16667,78,ontario,EC
-cxet,Egbert Cs,44.23,-79.78,251,ontario,EC
-cxoa,Ottawa Cda Rcs,45.38,-75.72,79,ontario,EC
-cwls,Mount_Forest_(aut),43.98333,-80.75,415,ontario,EC
-cyyb,North-Bay,46.35,-79.43333,358,ontario,EC
+cmtd,Sainte-Jeanne-d'Arc,48.837317,-72.0566,114,quebec,FADQ,Saguenay-Lac-Saint-Jean
+cmwu,Cloutier,48.016167,-79.13505,273,quebec,FADQ,Abitibi-Témiscamingue
+cgcl,Causapscal,48.3,-67.25,123,quebec,EnvCan,
+cmus,Lac Mégantic,45.6,-70.8833,460,quebec,EnvCan,
+71581,Algonquin Park,45.53,-78.27,397,ontario,EnvCan,
+71294,Bancroft,45.07,-77.87,331,ontario,EnvCan,
+71314,Barrie-oro,44.48,-79.55,289,ontario,EnvCan,
+71694,Beatrice Climate,45.13,-79.4,297,ontario,EnvCan,
+71161,Brockville Climate,44.63,-75.73,121,ontario,EnvCan,
+71431,Cobourg (AUT),43.95,-78.17,78,ontario,EnvCan,
+71270,Collingwood,44.5,-80.22,180,ontario,EnvCan,
+71465,Erieau,42.25,-81.9,178,ontario,EnvCan,
+71261,Goderich,43.77,-81.72,214,ontario,EnvCan,
+71297,Hamilton_Rbg_Cs,43.28,-79.9,102,ontario,EnvCan,
+71300,Kemptville,45,-75.63,99,ontario,EnvCan,
+71460,Killarney,45.97,-81.48,196,ontario,EnvCan,
+71820,Kingston Climate,44.22,-76.58,93,ontario,EnvCan,
+71631,Mount Forest (AUT),43.98,-80.75,415,ontario,EnvCan,
+71731,North Bay,46.35,-79.42,370,ontario,EnvCan,
+71063,Ottawa Cda,45.38,-75.72,79,ontario,EnvCan,
+71672,Peterborough Trent U,44.35,-78.3,217,ontario,EnvCan,
+71430,Point Petre,43.83,-77.15,79,ontario,EnvCan,
+71746,Sarnia,43,-82.3,181,ontario,EnvCan,
+71193,Timmins Climate,48.55,-81.38,294,ontario,EnvCan,
+71767,Tobermory_Rcs,45.23,-81.63,214,ontario,EnvCan,
+71171,Vineland Station RCS,43.18,-79.4,79,ontario,EnvCan,
+71752,Welland-Pelham,42.97,-79.33,180,ontario,EnvCan,
+cyzr,Aeroport Chris Hadfield de Sarnia,43,-82.31667,181,ontario,EnvCan,
+cyat,Attawapiskat Airport,52.9275,-82.4319,9,ontario,EnvCan,
+cybn,BFC Borden,44.25,-79.91667,223,ontario,EnvCan,
+cytr,BFC Trenton,44.11667,-77.53333,85,ontario,EnvCan,
+cwwb,Burlington Piers (aut),43.3,-79.8,77,ontario,EnvCan,
+cxca,Cameron Falls (aut),49.15,-88.35,233,ontario,EnvCan,
+Earlton,Earlton,47.68,-79.83,243,ontario,EnvCan,
+cyxr,Earlton,47.69745,-79.85332,244,ontario,EnvCan,
+czel,Elora Rcs,43.65,-80.42,376,ontario,EnvCan,
+ctag,Fort_Frances_Rcs,48.65111,-93.43889,342,ontario,EnvCan,
+cxdi,Delhi Cs,42.8667,-80.55,232,ontario,EnvCan,
+cyze,Gore Bay Climate,45.88333,-82.56667,193,ontario,EnvCan,
+ctgt,Guelph Turfgrass,43.55,-80.21667,330,ontario,EnvCan,
+cxha,Harrow_Cda_Auto,42.03,-82.9,191,ontario,EnvCan,
+cygk,Kingston,44.21667,-76.6,93,ontario,EnvCan,
+cwgl,Lagoon City,44.53333,-79.21667,221,ontario,EnvCan,
+cwsn,London_Cs,43.03,-81.15,278,ontario,EnvCan,
+cxpc,Parry_Sound_Ccg,45.35,-80.05,176,ontario,EnvCan,
+ctpm,Pembroke,45.86028,-77.25222,155,ontario,EnvCan,
+cxpt,Point_Pelee_Cs,41.95,-82.52,177,ontario,EnvCan,
+cwwz,Port Weller,43.25,-79.21667,79,ontario,EnvCan,
+cxrg,Ridgetown_Rcs,42.45,-81.88,206,ontario,EnvCan,
+cwnb,Southeast Shoal (aut),41.83333,-82.46667,195,ontario,EnvCan,
+cysb,Sudbury,46.61667,-80.8,348,ontario,EnvCan,
+cyts,Timmins,48.56667,-81.36667,295,ontario,EnvCan,
+ctux,Uxbridge,44.09833,-79.16362,315,ontario,EnvCan,
+cxvn,Vineland_Station_Rcs,43.18,-79.4,79,ontario,EnvCan,
+cykf,Waterloo Well,43.46667,-80.38333,317,ontario,EnvCan,
+cyxz,Wawa,47.96667,-84.78333,287,ontario,EnvCan,
+cwec,Welcome Island,48.36667,-89.11667,209,ontario,EnvCan,
+ctwl,Welland-pelham,42.96667,-79.33333,175,ontario,EnvCan,
+cwmz,Western Island Meteorological Aeronautical Presentation System,45.03333,-80.36667,191,ontario,EnvCan,
+cyvv,Aeroport_de_Wiarton,44.75,-81.1,222,ontario,EnvCan,
+cyqg,Aeroport_de_Windsor,42.26667,-82.96667,190,ontario,EnvCan,
+cyyz,Aeroport_int._Pearson_de_Toronto,43.66667,-79.63333,173,ontario,EnvCan,
+cysn,Aeroport_de_St._Catharines,43.2,-79.16667,98,ontario,EnvCan,
+cyam,Aeroport_de_Sault_Ste._Marie,46.48333,-84.5,187,ontario,EnvCan,
+cxto,Toronto_City,43.67,-79.4,113,ontario,EnvCan,
+cykz,Aeroport_municipal_de_Toronto_Buttonville,43.86667,-79.36667,198,ontario,EnvCan,
+cypq,Aeroport municipal de Peterborough,44.23333,-78.36667,191,ontario,EnvCan,
+cztb,Aeroport_de_Thunder_Bay,48.3667,-89.3167,199,ontario,EnvCan,
+cyze,Aeroport_de_Gore_Bay-Manitoulin,45.88333,-82.56667,193,ontario,EnvCan,
+cyqa,Aeroport_de_Muskoka,44.96667,-79.3,280,ontario,EnvCan,
+cwsn,Aeroport_int._de_London,43.03,-81.15,278,ontario,EnvCan,
+cyoo,Aeroport_municipal_d'Oshawa,43.92216,-78.89527,138,ontario,EnvCan,
+cyhd,Aeroport_de_Dryden,49.83333,-92.75,413,ontario,EnvCan,
+cyhm,Aeroport_int._Munro_de_Hamilton,43.16667,-79.93333,237,ontario,EnvCan,
+cwnc,Cobourg_(aut),43.95,-78.16667,78,ontario,EnvCan,
+cxet,Egbert Cs,44.23,-79.78,251,ontario,EnvCan,
+cxoa,Ottawa Cda Rcs,45.38,-75.72,79,ontario,EnvCan,
+cwls,Mount_Forest_(aut),43.98333,-80.75,415,ontario,EnvCan,
+cyyb,North-Bay,46.35,-79.43333,358,ontario,EnvCan,
+cmgz,Grandes-Bergeronnes,48.266667,-69.533333,59,quebec,EnvCan,
+qflm,Lac Matapedia,48.509365,-67.441902,184,quebec,FADQ,
+qflp,La Patrie,45.405163,-71.23093,388,quebec,FADQ
+cmzc,Mont-Laurier_F,46.52355,-75.490133,221,quebec,FADQ
+cwoc,New Carlisle,48.017,-65.333,46,quebec,EnvCan,
+cmjn,New Richmond_East,48.15,-65.8333,2,quebec,EnvCan,
+qfpo,Potton,45.045951,-72.403337,185,quebec,EnvCan,
+qfsg,Saint-Gedeon de Grandmont,48.505177,-71.742467,121,quebec,EnvCan,
+Kuu2,Kuujjuarapik,55.3694,-77.6289,31,722,quebec,SOPFEU
