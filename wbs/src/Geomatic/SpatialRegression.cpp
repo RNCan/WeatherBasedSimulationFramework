@@ -7,24 +7,27 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
+// 30-08-2018	Rémi Saint-Amant	Add shore as term
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 #include "stdafx.h"
 #include "Geomatic/SpatialRegression.h"
 #include "newmat/Regression.h"
 #include "Basic/UtilStd.h"
+#include <bitset>
 
 namespace WBSF
 {
 
 	//**********************************************************************
 
-	const char* CTerm::TERM_NAME[NB_TERM] = { "Lon", "Lat", "Elev", "Expo", "Lon²", "Lat²", "Elev²", "Expo²" };
+
+	const char* CTerm::TERMS_NAME[3*5] = { "Lon", "Lat", "Elev", "Expo", "Shore", "Lon²", "Lat²", "Elev²", "Expo²", "Shore²", "Lon³", "Lat³", "Elev³", "Expo³", "Shore³" };
 
 	int CTerm::GetNbItem()const
 	{
 		int n = 0;
-		for (int i = 0; i < NB_TERM; i++)
+		for (size_t i = 0; i < NB_TERMS; i++)
 			if (m_v & (1 << i))
 				n++;
 
@@ -32,7 +35,7 @@ namespace WBSF
 	}
 
 	//Get estimator
-	double CTerm::GetE(double x, double y, double elev, double expo)const
+	double CTerm::GetE(double x, double y, double elev, double expo, double shore)const
 	{
 		ASSERT(IsInit());
 
@@ -41,9 +44,9 @@ namespace WBSF
 
 
 		double E = 1;
-		const double var[NB_TERM] = { x, y, elev, expo, x*x, y*y, elev*elev, expo*expo };
+		const double var[NB_TERMS] = { x, y, elev, expo, shore, x*x, y*y, elev*elev, expo*expo, shore*shore };
 
-		for (int i = 0; i < NB_TERM; i++)
+		for (size_t i = 0; i < NB_TERMS; i++)
 		{
 			if (m_v & (1 << i))
 				E *= var[i];
@@ -55,7 +58,37 @@ namespace WBSF
 	string CTerm::GetName()const
 	{
 		string str;
-		for (int i = 0; i < NB_TERM; i++)
+
+		//replace x*x² by x³
+		std::bitset<3*5> v;
+		for (size_t i = 0; i < 5; i++)
+		{
+			bool bCube = (m_v & (1 << i)) && (m_v & (1 << (i + 5)));
+			if (bCube)
+			{
+				v.set(10 + i, 1);
+			}
+			else
+			{
+				v.set(0 + i, m_v & (1 << i));
+				v.set(5 + i, m_v & (1 << (i + 5)));
+			}
+				
+		}
+
+
+		for (size_t i = 0; i < v.size(); i++)
+		{
+			if (v.test(i))
+			{
+				if (!str.empty())
+					str += "*";
+
+				str += GetName(i);
+			}
+		}
+/*
+		for (size_t i = 0; i < NB_TERMS; i++)
 		{
 			if (m_v & (1 << i))
 			{
@@ -64,15 +97,16 @@ namespace WBSF
 
 				str += GetName(i);
 			}
-		}
+		}*/
 
 		return str;
 	}
 
+
 	//**********************************************************************
 
 	//evaluate result from regression
-	double CGeoRegression::GetF(double x, double y, double elev, double expo)const
+	double CGeoRegression::GetF(double x, double y, double elev, double expo, double shore)const
 	{
 		ASSERT(size() == m_param.size());
 
@@ -80,9 +114,9 @@ namespace WBSF
 		if (!empty())
 		{
 			F = m_intercept;
-			for (int i = 0; i < size(); i++)
+			for (size_t i = 0; i < size(); i++)
 			{
-				F += at(i).GetE(x, y, elev, expo)*m_param[i];
+				F += at(i).GetE(x, y, elev, expo, shore)*m_param[i];
 			}
 		}
 
@@ -92,14 +126,12 @@ namespace WBSF
 	//compute regression parameters
 	double CGeoRegression::Compute(const CGridPointVector& pts, const CPrePostTransfo& transfo)
 	{
-		//bool bRep = true;
 		m_param.clear();
 
 		if (!empty())
 		{
 			try
 			{
-				//int nbTrend = GetNbTrend();
 				NEWMAT::Matrix X((int)pts.size(), (int)size());
 				NEWMAT::ColumnVector Y((int)pts.size());
 
@@ -127,9 +159,6 @@ namespace WBSF
 			}
 			catch (...)
 			{
-
-
-				//bRep = false;
 				m_R² = -999;
 				m_intercept = 0;
 				m_param.resize(size(), 0);
@@ -153,7 +182,7 @@ namespace WBSF
 			str = ToString(m_intercept, 8);
 			for (size_t i = 0; i < m_param.size(); i++)
 			{
-				str += (m_param[i]>0) ? " + " : " - ";
+				str += (m_param[i] > 0) ? " + " : " - ";
 				str += ToString(abs(m_param[i]), 8) + "*" + at(i).GetName();
 			}
 		}
@@ -165,9 +194,9 @@ namespace WBSF
 	{
 		string str;
 		//out put only term
-		for (int i = 0; i < size(); i++)
+		for (size_t i = 0; i < size(); i++)
 		{
-			if (i>0)str += ", ";
+			if (i > 0)str += ", ";
 			str += at(i).GetName();
 		}
 
@@ -176,27 +205,97 @@ namespace WBSF
 
 
 	//*************************************************************************
-	const int CSpatialRegression::TERM_WITH_EXPO[NB_TERM] =
-	{
-		CTerm::LAT, CTerm::LON, CTerm::ELEV, CTerm::EXPO,
-		CTerm::LAT², CTerm::LON², CTerm::ELEV², CTerm::EXPO²,
-		CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::EXPO, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
-		CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT, CTerm::EXPO² | CTerm::LAT,
-		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT²,
-		CTerm::ELEV | CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON,
-	};
+	//const int CSpatialRegression::TERMS[NB_TERMS_CATEGORY][NB_TERM_MAX] =
+	//{
+	//	//NO_EXPO_NO_SHORE
+	//	{
+	//		CTerm::LAT, CTerm::LON, CTerm::ELEV,
+	//		CTerm::LAT², CTerm::LON², CTerm::ELEV²,
+	//		CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
+	//		CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT², CTerm::ELEV | CTerm::LAT | CTerm::LON²,
+	//		CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LAT | CTerm::LON²,
+	//		CTerm::ELEV² | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT² | CTerm::LON²
+	//	},
+	//	//EXPO_NO_SHORE
+	//	{
+	//		CTerm::LAT, CTerm::LON, CTerm::ELEV, CTerm::EXPO,
+	//		CTerm::LAT², CTerm::LON², CTerm::ELEV², CTerm::EXPO²,
+	//		CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::EXPO, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
+	//		CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT, CTerm::EXPO² | CTerm::LAT,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT²,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON
+	//	},
+
+	//	//NO_EXPO_SHORE
+	//	{
+	//		CTerm::LAT, CTerm::LON, CTerm::ELEV, CTerm::SHORE,
+	//		CTerm::LAT², CTerm::LON², CTerm::ELEV², CTerm::SHORE²,
+	//		CTerm::LAT | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::SHORE,
+	//		CTerm::LON | CTerm::ELEV, CTerm::LON | CTerm::SHORE, 
+	//		CTerm::ELEV| CTerm::SHORE,
+	//		CTerm::LAT | CTerm::LON², CTerm::LAT | CTerm::ELEV², CTerm::LAT | CTerm::SHORE²,
+	//		CTerm::LON | CTerm::ELEV², CTerm::LON | CTerm::SHORE²,
+	//		CTerm::ELEV | CTerm::SHORE²,
+	//		CTerm::LAT² | CTerm::LON, CTerm::LAT² | CTerm::ELEV, CTerm::LAT² | CTerm::SHORE,
+	//		CTerm::LON² | CTerm::ELEV, CTerm::LON² | CTerm::SHORE,
+	//		CTerm::ELEV² | CTerm::SHORE,
+	//		
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT²,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON
+	//	},
+
+	//	//EXPO_SHORE
+	//	{
+	//		CTerm::LAT, CTerm::LON, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE,
+	//		CTerm::LAT², CTerm::LON², CTerm::ELEV², CTerm::EXPO², CTerm::SHORE²,
+	//		CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::EXPO, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
+	//		CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT, CTerm::EXPO² | CTerm::LAT,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT²,
+	//		CTerm::ELEV | CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON
+	//	},
+
+	//};
+	//	const int CSpatialRegression::TERM_WITH_EXPO[NB_TERM] =
+	//{
+	//	CTerm::LAT, CTerm::LON, CTerm::ELEV, CTerm::EXPO,
+	//	CTerm::LAT², CTerm::LON², CTerm::ELEV², CTerm::EXPO²,
+	//	CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::EXPO, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
+	//	CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT, CTerm::EXPO² | CTerm::LAT,
+	//	CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT²,
+	//	CTerm::ELEV | CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON,
+	//};
 
 
-	const int CSpatialRegression::TERM_WITHOUT_EXPO[] =
-	{
-		CTerm::LAT, CTerm::LON, CTerm::ELEV,
-		CTerm::LAT², CTerm::LON², CTerm::ELEV²,
-		CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
-		CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT,
-		CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT², CTerm::ELEV | CTerm::LAT | CTerm::LON²,
-		CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LAT | CTerm::LON²,
-		CTerm::ELEV² | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT² | CTerm::LON²,
-	};
+	//const int CSpatialRegression::TERM_WITHOUT_EXPO[] =
+	//{
+	//	CTerm::LAT, CTerm::LON, CTerm::ELEV,
+	//	CTerm::LAT², CTerm::LON², CTerm::ELEV²,
+	//	CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LON, CTerm::LAT | CTerm::ELEV, CTerm::LAT | CTerm::LON², CTerm::ELEV | CTerm::LON²,
+	//	CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LON, CTerm::ELEV | CTerm::LAT², CTerm::ELEV² | CTerm::LAT,
+	//	CTerm::ELEV | CTerm::LAT | CTerm::LON, CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LON², CTerm::ELEV² | CTerm::LAT², CTerm::ELEV | CTerm::LAT | CTerm::LON²,
+	//	CTerm::ELEV | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT | CTerm::LON, CTerm::ELEV | CTerm::LAT² | CTerm::LON², CTerm::ELEV² | CTerm::LAT | CTerm::LON²,
+	//	CTerm::ELEV² | CTerm::LAT² | CTerm::LON, CTerm::ELEV² | CTerm::LAT² | CTerm::LON²,
+	//};
+
+	//size_t CSpatialRegression::GetNbTerms(bool bExpo, bool bShore)
+	//{
+	//	//size_t nb_vars = 2*(3 + (bExpo?1:0) + (bShore?1:0));
+
+	//	//return 1024;// pow(2, (nb_vars + 1));
+	//	return 1 << CTerm::NB_TERMS;
+	//}
+	//int GetTerms(int i, bool bExpo, bool bShore)const;/// { ASSERT(i >= 0 && i < NB_TERM_MAX); return bExpo ? TERM_WITH_EXPO[i] : TERM_WITHOUT_EXPO[i]; }
+
+	//int CSpatialRegression::GetTerms(size_t i, bool bExpo, bool bShore)
+	//{
+	//	//size_t nb_vars = (3 + (bExpo ? 1 : 0) + (bShore ? 1 : 0))*CTerm::NB_POWERS;
+
+	//	int v=0;
+	//	//if (i < nb_vars)
+	//		//v = i << 1;
+	//	for(size_t ii=0; ii<1024&&i<1024; ii++)
+	//}
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction
@@ -223,7 +322,10 @@ namespace WBSF
 	//**************************************************************************
 	double CSpatialRegression::StepWise(std::vector<int>& regressionTerm, double criticalR2)const
 	{
-		bool bExpo = m_pPts->HaveExposition();
+		bool bUseElev = m_param.m_bUseElevation;
+		bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
+		bool bUseShore = m_param.m_bUseShore;
+
 
 		CGeoRegression regression;
 		// fits best of MAX_PREDICTORS-predictor multiple 
@@ -233,42 +335,50 @@ namespace WBSF
 
 		//add new terms to model until the r² improvement is < threshold
 		bool bContinueLoop1 = true;
-		for (int i = 0; i<NB_TERM&&bContinueLoop1; i++)
+		size_t nbTerms = CTerm::GetNbTerms();
+		for (int i = 0; i < nbTerms&&bContinueLoop1; i++)
 		{
-			bool bContinueLoop2 = true;
-			//find the next term
-			for (int j = 0; j < NB_TERM&&bContinueLoop2; j++)
+			if (CTerm::IsValid(i, bUseElev, bUseExpo, bUseShore))
 			{
-				//Verify that term i is not in the model
-				bool alreadyIn = std::find(regression.begin(), regression.end(), GetTerm(j, bExpo)) != regression.end();
-
-				//if the term isn't in the model, test the improvement achieved by adding it.
-				if (!alreadyIn)
+				bool bContinueLoop2 = true;
+				//find the next term
+				for (int j = 0; j < nbTerms&&bContinueLoop2; j++)
 				{
-					regression.push_back(GetTerm(j, bExpo));
-					double R² = regression.Compute(*m_pPts, m_prePostTransfo);
-					if (R² > -999)
+					if (CTerm::IsValid(j, bUseElev, bUseExpo, bUseShore))
 					{
-						if (R² - bestR²>criticalR2)
-						{
-							bestR² = R²;
-							bContinueLoop2 = false;
-						}
-						else
-						{
-							//discard this term
-							regression.pop_back();
-						}
-					}
-				}//if not already in
-			} //for all term
+						//Verify that term i is not in the model
+						//bool alreadyIn = std::find(regression.begin(), regression.end(), GetTerm(j, bExpo)) != regression.end();
+						bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
 
-			bContinueLoop1 = !bContinueLoop2;
+						//if the term isn't in the model, test the improvement achieved by adding it.
+						if (!alreadyIn)
+						{
+							regression.push_back(CTerm(j));
+							double R² = regression.Compute(*m_pPts, m_prePostTransfo);
+							if (R² > -999)
+							{
+								if (R² - bestR² > criticalR2)
+								{
+									bestR² = R²;
+									bContinueLoop2 = false;
+								}
+								else
+								{
+									//discard this term
+									regression.pop_back();
+								}
+							}
+						}//if not already in
+					}
+				} //for all term
+
+				bContinueLoop1 = !bContinueLoop2;
+			}
 		}
 
 		//transfer parameters
 		regressionTerm.resize(regression.size());
-		for (int i = 0; i < regression.size(); i++)
+		for (size_t i = 0; i < regression.size(); i++)
 			regressionTerm[i] = regression[i].m_v;
 
 		return bestR²;
@@ -277,7 +387,7 @@ namespace WBSF
 	ERMsg CSpatialRegression::Initialization(CCallback& callback)
 	{
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
-		
+
 		if (!m_bInit)
 		{
 			//Compute best regression
@@ -290,9 +400,9 @@ namespace WBSF
 			//Compute with the real parameters
 			m_regression.Compute(*m_pPts, m_prePostTransfo);
 			m_bInit = true;
-			
+
 		}
-		
+
 
 		if (m_regression.empty())
 		{
@@ -305,13 +415,14 @@ namespace WBSF
 
 	double CSpatialRegression::Evaluate(const CGridPoint& pt, int iXval)const
 	{
-		//ici on pourrais enlever l'observation et refaire la regression: beaucoup plus long...
 		if (iXval >= 0)
 		{
-			///...
+			int l = (int)ceil((iXval) / m_inc);
+			if (int(l*m_inc) == iXval)
+				return m_param.m_noData;
 		}
 
-		double value = m_prePostTransfo.InvertTransform( m_regression.GetF(pt), m_param.m_noData);
+		double value = m_prePostTransfo.InvertTransform(m_regression.GetF(pt), m_param.m_noData);
 
 		if ( /*iXval<0 &&*/ m_param.m_bGlobalLimit && value > m_param.m_noData)
 		{

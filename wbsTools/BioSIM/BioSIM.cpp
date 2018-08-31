@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM  
+// 11.4.9: 30/08/2018	Rémi Saint-Amant	compile with WBS 1.0.1
 // 11.4.8: 11/07/2018	Rémi Saint-Amant	Optimization of memory in ATM
 //											Correction of bug in sub-hourly output and time step
 // 11.4.7: 05/07/2018	Rémi Saint-Amant	Bug correction ATM (no end loop)

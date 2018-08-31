@@ -440,7 +440,7 @@ namespace WBSF
 			if (section[t][v][MEAN] > VMISS)
 				bHaveData = true;
 
-			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt,locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetPrjID());
+			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt,locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetShoreDistance(), locArray[i].GetPrjID());
 			pts->push_back(pt);
 
 			msg += callback.StepIt();

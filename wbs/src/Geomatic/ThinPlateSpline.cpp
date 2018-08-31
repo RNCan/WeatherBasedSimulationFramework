@@ -77,23 +77,24 @@ namespace WBSF
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
 		CGridPointVector* pPts = m_pPts.get();
-		m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
 
-		double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
-		size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
-		m_inc = max(1.0, (double)pPts->size() / nbPoints);
-		
+		//double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
+		//size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
+		//m_inc = max(1.0, (double)pPts->size() / nbPoints);
+		size_t nbPoints = size_t(pPts->size() / m_inc);
+
+
 		m_bGeographic = IsGeographic(pPts->GetPrjID());
-		m_bHaveExposition = pPts->HaveExposition();
-		m_bUseElevation = true;
-		m_bUseShore = true;
+		m_bUseExposition = m_param.m_bUseExposition && pPts->HaveExposition();
+		m_bUseElevation = m_param.m_bUseElevation;
+		m_bUseShore = m_param.m_bUseShore;
 
 		m_nbDim = 2;
 		if (m_bGeographic)
 			m_nbDim++;
 		if (m_bUseElevation)
 			m_nbDim++;
-		if (m_bHaveExposition)
+		if (m_bUseExposition)
 			m_nbDim++;
 		if (m_bUseShore)
 			m_nbDim++;
@@ -111,38 +112,28 @@ namespace WBSF
 
 		for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
 		{
-			const CGridPoint& ptTmp = pPts->at(int(ii));
-			for (size_t k = 0, kk = 0; k < 6; k++)
+			ASSERT(ii < pPts->size());
+			const CGridPoint& ptTmp = pPts->at(ii);
+			for (int k = 0, kk = 0; k < 6; k++)
 			{
 				double dp = VMISS;
 
 				if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
 				{
-					dp = m_bGeographic ? ptTmp(int(k)) : ptTmp[int(k)];
+					dp = m_bGeographic ? ptTmp(k) : ptTmp[k];
 				}
 				else if (k == 3 && m_bUseElevation)
 				{
 					dp = ptTmp.m_elev;
 				}
-				else if (k == 4 && m_bHaveExposition)
+				else if (k == 4 && m_bUseExposition)
 				{
 					dp = ptTmp.GetExposition();
 				}
 				else if (k == 5 && m_bUseShore)
 				{
-					if (m_bGeographic)
-					{
-						dp = CShore::GetShoreDistance(ptTmp);
-					}
-					else
-					{
-						CGeoPoint pt(ptTmp);
-						pt.Reproject(m_PT);
-						dp = CShore::GetShoreDistance(pt);
-					}
+					dp = ptTmp.m_shore;
 				}
-
-
 
 				if (dp != VMISS)
 				{
@@ -230,34 +221,25 @@ namespace WBSF
 		Transformation5::Domain_point  dp5;
 		Transformation6::Domain_point  dp6;
 
-		for (size_t k = 0, kk = 0; k < 6; k++)
+		for (int k = 0, kk = 0; k < 6; k++)
 		{
 			double dp = VMISS;
 
 			if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
 			{
-				dp = m_bGeographic ? pt(int(k)) : pt[int(k)];
+				dp = m_bGeographic ? pt(k) : pt[k];
 			}
 			else if (k == 3 && m_bUseElevation)
 			{
 				dp = pt.m_elev;
 			}
-			else if (k == 4 && m_bHaveExposition)
+			else if (k == 4 && m_bUseExposition)
 			{
 				dp = pt.GetExposition();
 			}
 			else if (k == 5 && m_bUseShore)
 			{
-				if (m_bGeographic)
-				{
-					dp = CShore::GetShoreDistance(pt);
-				}
-				else
-				{
-					CGeoPoint ptGeo(pt);
-					ptGeo.Reproject(m_PT);
-					dp = CShore::GetShoreDistance(ptGeo);
-				}
+				dp = pt.m_shore;
 			}
 
 

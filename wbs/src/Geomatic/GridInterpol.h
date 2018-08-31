@@ -67,7 +67,7 @@ namespace WBSF
 		ERMsg RunHxGridOptimisation(const CGridInterpolParamVector& parameterset, std::vector<double>& optimisationR², CCallback& callback);
 		ERMsg RunHxGridInterpolation(CCallback& callback);
 
-		ERMsg ExecuteXValidation(CCallback& callback = DEFAULT_CALLBACK);
+		//ERMsg ExecuteXValidation(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg TrimDataset(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GenerateSurface(CCallback& callback = DEFAULT_CALLBACK);
 
@@ -83,7 +83,7 @@ namespace WBSF
 		CXValidationVector m_XValidation;
 		std::vector<size_t> m_trimPosition;
 
-
+		//CProjectionTransformation m_PT;
 		//CCritSec m_CS;
 	};
 

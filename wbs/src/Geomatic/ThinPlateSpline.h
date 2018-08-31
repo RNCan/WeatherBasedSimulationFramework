@@ -41,10 +41,10 @@ namespace WBSF
 		void* m_pObject;
 		size_t m_nbDim;
 		bool m_bGeographic;
-		bool m_bHaveExposition;
 		bool m_bUseElevation;
+		bool m_bUseExposition;
 		bool m_bUseShore;
-		CProjectionTransformation m_PT;
+		
 
 		//a mettre dans m_param;
 		//bool m_bClustered;

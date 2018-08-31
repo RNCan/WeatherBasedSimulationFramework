@@ -377,7 +377,7 @@ namespace WBSF
 
 				string path = workingDir + string(NETWORK_NAME[nn]) + "/" + ToString(year) + "/";
 
-				StringVector fileList = GetFilesList(path + "*.BRu");
+				StringVector fileList = GetFilesList(path + "*.BRU");
 				
 				for (size_t i = 0; i < fileList.size() && msg; i++)
 				{
@@ -495,7 +495,11 @@ namespace WBSF
 			msg += callback.StepIt(nbYears>8 ? 1 : 0);
 		}
 
-		
+		if (!station.HaveData() )
+		{
+			callback.AddMessage(string("Station ") + station.m_name + "don't have data.");
+		}
+		ASSERT(station.IsValid());
 		//verify station is valid
 		if (msg && station.HaveData())
 			msg = station.IsValid();

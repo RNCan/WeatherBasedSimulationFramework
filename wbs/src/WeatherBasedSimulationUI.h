@@ -93,6 +93,7 @@
 #define IDC_PT_LON2_OUT                 1010
 #define IDC_GRAPH_X_TITLE               1010
 #define IDC_SIM_LOC                     1010
+#define IDC_MAP_RANDOM_FOREST_MODEL     1010
 #define IDC_CMN_ADD_DIRECTORY_LIST      1011
 #define IDC_LP_INCLUDE_LOWERMIN         1011
 #define IDC_MAP_POWER                   1011
@@ -513,6 +514,9 @@
 #define IDC_MAP_GLOBAL_LIMIT_MAX        1254
 #define IDC_MAP_OUTPUT_VARIOGRAM_INFO   1255
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT     1256
+#define IDC_MAP_USE_SHORE_DISTANCE      1257
+#define IDC_MAP_USE_ELEVATION           1258
+#define IDC_MAP_USE_EXPOSITION          1259
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354

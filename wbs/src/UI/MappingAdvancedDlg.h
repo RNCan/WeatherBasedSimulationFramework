@@ -42,6 +42,9 @@ namespace WBSF
 		CCFLEdit	m_maxDistanceCtrl;
 		CCFLEdit	m_XvalPointCtrl;
 		CCFLEdit	m_GDALOptionsCtrl;
+		CButton		m_useElevationCtrl;
+		CButton		m_useExpositionCtrl;
+		CButton		m_useShoreCtrl;
 
 		//Regression
 		//CComboBox	m_regressionModelCtrl;
@@ -54,6 +57,7 @@ namespace WBSF
 		CComboBox	m_externalDriftCtrl;
 		CButton		m_outputVariogramCtrl;
 
+		
 		CAutoEnableStatic m_regionalLimitCtrl;
 		CCFLEdit	m_regionalLimitSDCtrl;
 		CButton		m_regionalLimitToBoundCtrl;
@@ -75,10 +79,15 @@ namespace WBSF
 		//TPS
 		CCFLComboBox	m_TPSMaxErrorCtrl;
 
+		//Random Forest
+		CComboBox	m_RFTreeTypeCtrl;
+
+
 		CStaticEx	m_static1Ctrl;
 		CStaticEx	m_static2Ctrl;
 		CStaticEx	m_static3Ctrl;
 		CStaticEx	m_static4Ctrl;
+		CStaticEx	m_static5Ctrl;
 
 		virtual BOOL OnInitDialog();
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

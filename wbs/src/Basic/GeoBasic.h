@@ -643,6 +643,10 @@ namespace WBSF
 		CGeoPoint LowerLeft()const{return CGeoPoint(m_xMin,m_yMin, m_prjID);}
 		CGeoPoint LowerRight()const{return CGeoPoint(m_xMax, m_yMin, m_prjID);}
 		CGeoPoint UpperLeft()const{return CGeoPoint(m_xMin, m_yMax, m_prjID);}
+		CGeoPoint UpperMidle()const { return CGeoPoint((m_xMin + m_xMax) / 2, m_yMax, m_prjID); }
+		CGeoPoint LowerMidle()const { return CGeoPoint((m_xMin + m_xMax) / 2, m_yMin, m_prjID); }
+		CGeoPoint CenterLeft()const { return CGeoPoint(m_xMin, (m_yMin + m_yMax) / 2, m_prjID); }
+		CGeoPoint CenterRight()const { return CGeoPoint(m_xMax, (m_yMin + m_yMax) / 2,m_prjID); }
 		CGeoPoint GetCentroid()const{ return CGeoPoint((m_xMin + m_xMax) / 2, (m_yMin + m_yMax)/2, m_prjID); }
 
 		void NormalizeRect()
@@ -1586,17 +1590,19 @@ namespace WBSF
 		double m_latitudeDeg;//latitude in degre for exposition
 		double m_slope;//slope in %
 		double m_aspect;//aspect in ° from north
+		double m_shore;//shore distance in [m]
 		double m_event;
 		
 
 		
-		CGridPoint(double x = -DBL_MAX, double y = -DBL_MAX, double z = -DBL_MAX, double slope = 0, double aspect = 0, double f = 0, double latitudeDeg = -999, size_t prjID = PRJ_NOT_INIT) :
+		CGridPoint(double x = -DBL_MAX, double y = -DBL_MAX, double z = -DBL_MAX, double slope = -999, double aspect = -999, double f = 0, double latitudeDeg = -999, double shore=-999, size_t prjID = PRJ_NOT_INIT) :
 		  CGeoPoint3D(x,y,z, prjID)
 		{
 			m_slope		= slope;//slope in %
 			m_aspect	= aspect;//aspect in ° from north
 			m_event		= f;//event
 			m_latitudeDeg= latitudeDeg;
+			m_shore = shore;
 		}
 		 
 		void Reset(){clear();}
@@ -1605,13 +1611,14 @@ namespace WBSF
 			CGeoPoint3D::clear();
 			m_slope		= -999;
 			m_aspect    = -999;
+			m_shore     = -999;
 			m_event		= 0;
 			m_latitudeDeg = -999;
 		}
 
 		double operator[](int i)const
 		{
-			_ASSERTE(i>=0&&i<4); 
+			_ASSERTE(i>=0&&i<5); 
 			double v=0;
 			switch(i)
 			{
@@ -1619,6 +1626,7 @@ namespace WBSF
 			case 1:v=m_y; break;
 			case 2:v=m_z; break;
 			case 3:v=GetExposition(); break;
+			case 4:v = m_shore; break;
 			default: _ASSERTE(false);
 			}
 			return v;
@@ -1627,7 +1635,7 @@ namespace WBSF
 		//return geocentric return x,y,z of geographic coordinate on a sphere
 		double operator()(int i)const
 		{
-			ASSERT(i>=0&&i<5); 
+			ASSERT(i>=0&&i<6); 
 			ASSERT( IsGeographic() );
 			ASSERT(m_x>=-180&&m_x<=180); 
 			ASSERT(m_y>=-90&&m_y<=90); 
@@ -1643,6 +1651,7 @@ namespace WBSF
 			case 2:v=6371*1000*cos(yy); break;
 			case 3:v=m_z;break;
 			case 4:v=GetExposition(); break;
+			case 5:v = m_shore;
 			default: _ASSERTE(false);
 			}
 			return v;
@@ -1658,12 +1667,12 @@ namespace WBSF
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & boost::serialization::base_object<CGeoPoint3D>(*this);
-			ar & m_latitudeDeg & m_slope & m_aspect &  m_event;
+			ar & m_latitudeDeg & m_slope & m_aspect &  m_shore &  m_event;
 		}
 		friend boost::serialization::access;
 
-		std::ostream& operator>>(std::ostream &s)const{ s << ((CGeoPoint3D&)*this) << " " << m_latitudeDeg << " " << m_slope << " " << m_aspect << " " << m_event;	return s;	}
-		std::istream& operator<<(std::istream &s){ s >> ((CGeoPoint3D&)*this) >> m_latitudeDeg >> m_slope >> m_aspect >> m_event; return s;}
+		std::ostream& operator>>(std::ostream &s)const{ s << ((CGeoPoint3D&)*this) << " " << m_latitudeDeg << " " << m_slope << " " << m_aspect << " " << m_shore << " " << m_event;	return s;	}
+		std::istream& operator<<(std::istream &s){ s >> ((CGeoPoint3D&)*this) >> m_latitudeDeg >> m_slope >> m_aspect >> m_shore >> m_event; return s;}
 		friend std::ostream& operator<<(std::ostream &s, const CGridPoint& in){ in>>s; return s;}
 		friend std::istream& operator>>(std::istream &s, CGridPoint& out){ out<<s;	return s; }
 	};
@@ -1705,7 +1714,8 @@ namespace WBSF
 			f += 2 * std::hash<double>()(v.m_y);
 			f += 3 * std::hash<double>()(v.m_z);
 			f += 4 * std::hash<double>()(v.GetExposition());
-			f += 5 * std::hash<double>()(v.m_event);
+			f += 5 * std::hash<double>()(v.m_shore);
+			f += 6 * std::hash<double>()(v.m_event);
 
 			return f;
 		}

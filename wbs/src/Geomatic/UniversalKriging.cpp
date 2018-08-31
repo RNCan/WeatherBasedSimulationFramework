@@ -34,25 +34,7 @@ namespace WBSF
 	static const double EPSLON = 0.000000000000001;
 
 
-	static const int TERM_DEFINE[15][4] =
-	{
-		{ 0, 0, 0 },
-		{ 1, CTerm::LAT, 0 },
-		{ 1, CTerm::LON, 0 },
-		{ 1, CTerm::ELEV, 0 },
-		{ 1, CTerm::EXPO, 0 },
-		{ 3, CTerm::LAT, CTerm::LON, CTerm::LAT | CTerm::LON },
-		{ 3, CTerm::LAT, CTerm::ELEV, CTerm::LAT | CTerm::ELEV },
-		{ 3, CTerm::LAT, CTerm::EXPO, CTerm::LAT | CTerm::EXPO },
-		{ 3, CTerm::LON, CTerm::ELEV, CTerm::LON | CTerm::ELEV },
-		{ 3, CTerm::LON, CTerm::EXPO, CTerm::LON | CTerm::EXPO },
-		{ 3, CTerm::ELEV, CTerm::EXPO, CTerm::ELEV | CTerm::EXPO },
-		{ 1, CTerm::LAT², 0 },
-		{ 1, CTerm::LON², 0 },
-		{ 1, CTerm::ELEV², 0 },
-		{ 1, CTerm::EXPO², 0 },
-	};
-
+	
 	CParamUK::CParamUK()
 	{
 		Reset();
@@ -161,10 +143,10 @@ namespace WBSF
 		//m_pVariogram = GetVariogram();
 		//m_pVariogram = new CVariogram;
 
-		int d = m_param.m_detrendingModel;
-		CDetrending detrending(TERM_DEFINE[d][0]);
-		for (int i = 0; i < TERM_DEFINE[d][0]; i++)
-			detrending[i] = TERM_DEFINE[d][i + 1];
+		int dm = m_param.m_detrendingModel;
+		CDetrending detrending(CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]);
+		for (size_t i = 0; i < CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]; i++)
+			detrending[i] = CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][i + 1];
 
 		
 		CRotationMatrix rotmat;
@@ -173,10 +155,10 @@ namespace WBSF
 
 		if (msg)
 		{
-			int e = m_param.m_externalDrift;
-			m_externalDrift.resize(TERM_DEFINE[e][0]);
-			for (int i = 0; i < TERM_DEFINE[e][0]; i++)
-				m_externalDrift[i] = TERM_DEFINE[e][i + 1];
+			int em = m_param.m_externalDrift;
+			m_externalDrift.resize(CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]);
+			for (size_t i = 0; i < CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]; i++)
+				m_externalDrift[i] = CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][i + 1];
 
 
 			size_t checkSum = m_pPts->GetCheckSum();
@@ -184,7 +166,7 @@ namespace WBSF
 			{
 				m_lastCheckSum = checkSum;
 				m_pANNSearch = make_unique<CANNSearch>();
-				m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation);
+				m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
 			}
 
 			//fill-in information
@@ -331,6 +313,13 @@ namespace WBSF
 		if (!m_pVariogram->IsInit())
 			return m_param.m_noData;
 
+		if (iXval >= 0)
+		{
+			int l = (int)ceil((iXval) / m_inc);
+			if (int(l*m_inc) == iXval)
+				return m_param.m_noData;
+		}
+
 		// Find the nearest samples: 
 		CGridPointVector va;
 
@@ -471,8 +460,8 @@ namespace WBSF
 		int nbModel = m_param.m_variogramModel == CGridInterpolParam::BEST_VARIOGRAM ? CVariogram::NB_MODELS : 1;
 		int nbStepLag = m_param.m_nbLags == 0 ? (int((op.m_nbLagMax - op.m_nbLagMin) / op.m_nbLagStep) + 1) : 1;
 		int nbStepLagDist = m_param.m_lagDist == 0 ? (int((op.m_lagDistMax - op.m_lagDistMin) / op.m_lagDistStep) + 1) : 1;
-		int nbDetrending = m_param.m_detrendingModel == CGridInterpolParam::BEST_DETRENDING ? 15 : 1;
-		int nbExternalDrift = m_param.m_externalDrift == CGridInterpolParam::BEST_EXTERNAL_DRIFT ? 15 : 1;
+		int nbDetrending = m_param.m_detrendingModel == CGridInterpolParam::BEST_DETRENDING ? CGridInterpolParam::NB_DETRENDINGS : 1;
+		int nbExternalDrift = m_param.m_externalDrift == CGridInterpolParam::BEST_EXTERNAL_DRIFT ? CGridInterpolParam::NB_EXTERNAL_DRIFTS : 1;
 
 		int nbParamters = nbStepLag*nbStepLagDist*nbDetrending*nbModel*nbExternalDrift;
 		if (nbParamters > 1) //if we have to do optimization
@@ -520,20 +509,13 @@ namespace WBSF
 
 			//remove detrending and extern drift with expo if no expo present
 			bool bHaveExpo = m_pPts->HaveExposition();
-			if (!bHaveExpo)// a verifier
+			if (!bHaveExpo)
 			{
+				//remove combinaison that have exposition
 				for (int i = (int)parameterset.size() - 1; i >= 0; i--)
 				{
-					if (parameterset[i].m_detrendingModel == 4 ||
-						parameterset[i].m_detrendingModel == 7 ||
-						parameterset[i].m_detrendingModel == 9 ||
-						parameterset[i].m_detrendingModel == 10 ||
-						parameterset[i].m_detrendingModel == 14 ||
-						parameterset[i].m_externalDrift == 4 ||
-						parameterset[i].m_externalDrift == 7 ||
-						parameterset[i].m_externalDrift == 9 ||
-						parameterset[i].m_externalDrift == 10 ||
-						parameterset[i].m_externalDrift == 14)
+					if ( CTerm::HaveExposition( parameterset[i].m_detrendingModel ) ||
+						CTerm::HaveExposition(parameterset[i].m_externalDrift)  )
 						parameterset.erase(parameterset.begin() + i);
 				}
 			}

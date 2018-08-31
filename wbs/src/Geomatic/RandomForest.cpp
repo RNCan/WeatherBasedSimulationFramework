@@ -29,7 +29,8 @@ namespace WBSF
 	//////////////////////////////////////////////////////////////////////
 
 	CRandomForest::CRandomForest():
-		m_pForest(nullptr)
+		m_pForest(nullptr),
+		m_bUseExposition(false)
 	{
 		Reset();
 	}
@@ -98,45 +99,80 @@ namespace WBSF
 			}
 */
 			CGridPointVector* pPts = m_pPts.get();
-			m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
-
-			double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
-			size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
-			m_inc = max(1.0, (double)pPts->size() / nbPoints);
-
+			/*
 			StringVector names("X|Y|Z|Elev|Expo|Shore|Variable","|");
+			DataFloat input;
+			input.setVariableNames(names);
+			input.resize(pPts->size(), names.size());
+
+			for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
+			{
+				const CGridPoint& pt = pPts->at(int(ii));
+
+				bool error = false;
+				input.set(0, i, pt.IsProjected() ? pt.m_x : pt(0), error);
+				input.set(1, i, pt.IsProjected() ? pt.m_y : pt(1), error);
+				input.set(2, i, pt.IsProjected() ? 0 : pt(2), error);
+				input.set(3, i, m_param.m_bUseElevation ? pt.m_alt : 0, error);
+				input.set(4, i, m_param.m_bUseExposition ? pt.GetExposition() : 0, error);
+				input.set(5, i, m_param.m_bUseShore ? pt.m_shore : 0, error);
+				input.set(6, i, m_prePostTransfo.Transform(pt.m_event), error);
+			}*/
+
+	
+			
+			StringVector names("X|Y", "|");
+			m_bUseExposition = m_param.m_bUseExposition && pPts->HaveExposition();
+
+			if(IsGeographic(pPts->GetPrjID()) )
+				names.push_back("Z");
+			if( m_param.m_bUseElevation)
+				names.push_back("Elev");
+			if(m_bUseExposition)
+				names.push_back("Expo");
+			if( m_param.m_bUseShore)
+				names.push_back("Shore");
+			names.push_back("Variable");
+
+			size_t nbPoints = size_t(pPts->size() / m_inc);
 
 			DataFloat input;
 			input.setVariableNames(names);
-			input.resize(pPts->size(), 7);
+			input.resize(nbPoints, names.size());
 			
 			for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
 			{
-				const CGridPoint& ptTmp = pPts->at(int(ii));
+				ASSERT(ii < pPts->size());
+				const CGridPoint& pt = pPts->at(ii);
 
 				bool error = false;
-				if (ptTmp.IsProjected())
+				for (int k = 0, kk = 0; k < 7; k++)
 				{
-					CGeoPoint ptGeo(ptTmp);
-					ptGeo.Reproject(m_PT);
-
-					input.set(0, i, ptTmp.m_x, error);
-					input.set(1, i, ptTmp.m_y, error);
-					input.set(2, i, 0, error);
-					input.set(3, i, ptTmp.m_alt, error);
-					input.set(4, i, ptTmp.GetExposition(), error);
-					input.set(5, i, CShore::GetShoreDistance(ptGeo), error);
-					input.set(6, i, m_prePostTransfo.Transform(ptTmp.m_event), error);
-				}
-				else
-				{
-					input.set(0, i, ptTmp(0), error);
-					input.set(1, i, ptTmp(1), error);
-					input.set(2, i, ptTmp(2), error);
-					input.set(3, i, ptTmp.m_alt, error);
-					input.set(4, i, ptTmp.GetExposition(), error);
-					input.set(5, i, CShore::GetShoreDistance(ptTmp), error);
-					input.set(6, i, m_prePostTransfo.Transform(ptTmp.m_event), error);
+					if ((k < 2 && pt.IsProjected()) || (k < 3 && pt.IsGeographic()))
+					{
+						input.set(kk,i, pt.IsProjected() ? pt[kk] : pt(kk), error);
+						kk++;
+					}
+					else if (k == 3 && m_param.m_bUseElevation)
+					{
+						input.set(kk, i, pt.m_alt, error);
+						kk++;
+					}
+					else if (k == 4 && m_bUseExposition)
+					{
+						input.set(kk, i,  pt.GetExposition(), error);
+						kk++;
+					}
+					else if (k == 5 && m_param.m_bUseShore)
+					{
+						input.set(kk, i, pt.m_shore, error);
+						kk++;
+					}
+					else if (k == 6)
+					{
+						input.set(kk, i, m_prePostTransfo.Transform(pt.m_event), error);
+						kk++;
+					}
 				}
 			}
 
@@ -229,7 +265,7 @@ namespace WBSF
 		{
 			//Compute forest
 			//msg = CreateForest(m_param.m_treeType, m_param.m_nbTrees, m_param.m_importance_mode);
-			msg = CreateForest(TREE_REGRESSION, 500, DEFAULT_IMPORTANCE_MODE);
+			msg = CreateForest(m_param.m_RFTreeType, 500, DEFAULT_IMPORTANCE_MODE);
 			if (msg)
 			{
 				//now init for prediction
@@ -255,33 +291,48 @@ namespace WBSF
 				return m_param.m_noData;
 		}
 
+		size_t nbVars = 2 + (pt.IsGeographic() ? 1 : 0) + (m_param.m_bUseElevation ? 1 : 0) + (m_bUseExposition ? 1 : 0) + (m_param.m_bUseShore ? 1 : 0);
+
 		DataFloat input;
-		input.resize(1, 6);
-
+		input.resize(1, nbVars);
 		bool error = false;
-		if (pt.IsProjected())
+		for (int k = 0, kk = 0; k < 6; k++)
 		{
-			CGeoPoint ptGeo(pt);
-			ptGeo.Reproject(m_PT);
-
-			input.set(0, 0, pt.m_x, error);
-			input.set(1, 0, pt.m_y, error);
-			input.set(2, 0, 0, error);
-			input.set(3, 0, pt.m_alt, error);
-			input.set(4, 0, pt.GetExposition(), error);
-			input.set(5, 0, CShore::GetShoreDistance(ptGeo), error);
+			if ((k < 2 && pt.IsProjected()) || (k < 3 && pt.IsGeographic()))
+			{
+				input.set(kk, 0, pt.IsProjected() ? pt[kk] : pt(kk), error);
+				kk++;
+			}
+			else if (k == 3 && m_param.m_bUseElevation)
+			{
+				input.set(kk, 0, pt.m_alt, error);
+				kk++;
+			}
+			else if (k == 4 && m_bUseExposition)
+			{
+				input.set(kk, 0, pt.GetExposition(), error);
+				kk++;
+			}
+			else if (k == 5 && m_param.m_bUseShore)
+			{
+				input.set(kk, 0, pt.m_shore, error);
+				kk++;
+			}
 		}
-		else
-		{
-			input.set(0, 0, pt(0), error);
-			input.set(1, 0, pt(1), error);
-			input.set(2, 0, pt(2), error);
-			input.set(3, 0, pt.m_alt, error);
-			input.set(4, 0, pt.GetExposition(), error);
-			input.set(5, 0, CShore::GetShoreDistance(pt), error);
-		}
-		
+	
 
+	
+	/*DataFloat input;
+	input.resize(1, 6);
+	bool error = false;
+
+	input.set(0, 0, pt.IsProjected()?pt.m_x:pt(0), error);
+		input.set(1, 0, pt.IsProjected()?pt.m_y:pt(1), error);
+		input.set(2, 0, pt.IsProjected()?0:pt(2), error);
+		input.set(3, 0, m_param.m_bUseElevation ? pt.m_alt : 0, error);
+		input.set(4, 0, m_param.m_bUseExposition ? pt.GetExposition() : 0, error);
+		input.set(5, 0, m_param.m_bUseShore ? pt.m_shore : 0, error);
+*/
 		double value = m_param.m_noData;
 
 		//Ranger is not thread safe for the moment

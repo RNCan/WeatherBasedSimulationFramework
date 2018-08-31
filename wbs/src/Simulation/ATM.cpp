@@ -1373,7 +1373,7 @@ namespace WBSF
 		CATMVariables weather;
 		bool bOverWater = m_world.is_over_water(pt);
 
-		CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
+		CGridPoint gpt(pt.m_x, pt.m_y, 10, -999, -999, -999, -999, -999, pt.GetPrjID());
 		CTRef UTCTRef = CTimeZones::Time2TRef(UTCWeatherTime);
 
 		for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
@@ -1871,7 +1871,7 @@ namespace WBSF
 							{
 								CStatistic Tair = station[TRef][H_TAIR2];
 								if (Tair.IsInit())
-									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetPrjID()));
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 							}
 							break;
 							case ATM_PRES:
@@ -1881,14 +1881,14 @@ namespace WBSF
 								if (presStat.IsInit())
 									pres = presStat[MEAN];
 
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, pres, station.m_lat, station.GetPrjID()));
+								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, pres, station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 							}
 							break;
 							case ATM_PRCP:
 							{
 								CStatistic prcp = station[TRef][H_PRCP];
 								if (prcp.IsInit())
-									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, prcp[SUM], station.m_lat, station.GetPrjID()));
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, prcp[SUM], station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 							}
 							break;
 							case ATM_WNDU:
@@ -1916,7 +1916,7 @@ namespace WBSF
 
 							case ATM_WNDW:
 							{
-								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, 0, station.m_lat, station.GetPrjID()));
+								pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, 0, station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 								break;
 							}
 							case ATM_WATER:
@@ -1925,7 +1925,7 @@ namespace WBSF
 								if (Tair.IsInit())
 								{
 									double Tw = m_Twater[index].GetTwI(TRef.Transform(CTM(CTM::DAILY)));
-									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tw, station.m_lat, station.GetPrjID()));
+									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tw, station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 								}
 							}
 							break;
@@ -1955,7 +1955,7 @@ namespace WBSF
 								callback.AddMessage("WARNING: Not enaught stations with precipitation. replaced by zero.");
 
 							while (pts->size() < m_world.m_world_param.m_nb_weather_stations)
-								pts->push_back(CGridPoint(0, 0, 10, 0, 0, 0, 45, PRJ_WGS_84));
+								pts->push_back(CGridPoint(0, 0, 10, 0, 0, 0, 45, 22, PRJ_WGS_84));
 						}
 						else
 						{
@@ -2129,7 +2129,7 @@ namespace WBSF
 		double Tair = 17; //mean temperature of 17 degree by default when there is no weather 
 		if (IsLoaded(UTCWeatherTime))
 		{
-			CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, pt.GetPrjID());
+			CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, 22, pt.GetPrjID());
 			CATMVariables w = get_weather(pt, UTCWeatherTime, UTCCurrentTime);
 			Tair = w[ATM_TAIR];
 		}

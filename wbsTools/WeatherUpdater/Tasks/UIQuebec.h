@@ -7,6 +7,7 @@
 #include "SOPFEU.h"
 #include "MDDELCC.h"
 #include "MFFP.h"
+#include "mosa.h"
 
 namespace WBSF
 {
@@ -17,7 +18,7 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TNetwork{ SOPFEU, MDDELCC, HYDRO, MFFP, ALCAN, FADQ, NB_NETWORKS };
+		enum TNetwork{ SOPFEU, MDDELCC, HYDRO, MFFP, ALCAN, FADQ, SM, NB_NETWORKS };
 		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, UPDATE_UNTIL, UPDATE_STATIONS_LIST, USER_NAME_SOPFEU, PASSWORD_SOPFEU, USER_NAME_MFFP, PASSWORD_MFFP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
@@ -45,6 +46,8 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+		std::string GetWorkingDir(size_t n)const;
+
 	protected:
 
 		
@@ -53,13 +56,22 @@ namespace WBSF
 
 		void InitSOPFEU(CSOPFEU& obj)const;
 		void InitMDDELCC(CMDDELCC& obj)const;
-		void CUIQuebec::InitMFFP(CMFFP& obj)const;
+		bool InitMFFP(CMFFP& obj)const;
+		
+		void Init(size_t n);
+		ERMsg GetWeatherStation(size_t n, const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback);
+		ERMsg GetStationList(size_t n, StringVector& stationList, CCallback& callback);
+		ERMsg Execute(size_t n, CCallback& callback);
+		std::string GetOutputFilePath(size_t n, std::string id, int year)const;
 
 		CSOPFEU m_SOPFEU;
 		CMDDELCC m_MDDELCC;
 		CMFFP m_MFFP;
-
-
+		
+		
+		int m_firstYear;
+		int m_lastYear;
+		CLocationVector m_stations;
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
@@ -69,6 +81,7 @@ namespace WBSF
 		static const char* SERVER_NAME[NB_NETWORKS];
 		static const char* NETWORK_NAME[NB_NETWORKS];
 		static const char* NETWORK_TILE[NB_NETWORKS];
+		
 		
 	};
 

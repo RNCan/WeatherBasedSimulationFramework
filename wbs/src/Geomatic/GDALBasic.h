@@ -51,7 +51,7 @@ namespace WBSF
 	public:
 
 
-		CDataWindow(const CGeoRectIndex& windowRect, const DataVector* pData, const CGeoRectIndex& dataRect, double noData, DataType maskDataUsed, double nsres, double ewres, bool bProjected, __int16 captor)
+		CDataWindow(const CGeoRectIndex& windowRect, const DataVector* pData, const CGeoRectIndex& dataRect, double noData, DataType maskDataUsed, const CGeoExtents& extents,/*double nsres, double ewres, bool bProjected*/ __int16 captor)
 		{
 			ASSERT(pData == NULL || (int)pData->size() == dataRect.Height()*dataRect.Width());
 			ASSERT(pData == NULL || dataRect.IsRectIntersect(windowRect));
@@ -60,9 +60,10 @@ namespace WBSF
 			m_windowRect = windowRect;
 			m_noData = noData;
 			m_maskDataUsed = maskDataUsed;
-			m_nsres = nsres;
-			m_ewres = ewres;
-			m_bProjected = bProjected;
+			m_extents = extents;
+//			m_nsres = nsres;
+	//		m_ewres = ewres;
+			//m_bProjected = bProjected;
 			m_captor = captor;
 		}
 
@@ -165,9 +166,10 @@ namespace WBSF
 		CGeoRectIndex m_windowRect;
 		double m_noData;
 		DataType m_maskDataUsed;
-		double m_nsres;
-		double m_ewres;
-		bool m_bProjected;
+		CGeoExtents m_extents;
+		//double m_nsres;
+		//double m_ewres;
+		//bool m_bProjected;
 		__int16 m_captor;
 
 		CDataWindowPtr m_pMaskWindow;
@@ -257,9 +259,9 @@ namespace WBSF
 		CDataWindowPtr GetWindow(const CGeoRectIndex& rectIn)const
 		{
 			if (m_dataRect.IsRectEmpty() || !m_dataRect.IsRectIntersect(rectIn))
-				return CDataWindowPtr(new CDataWindow(CGeoRectIndex(), NULL, CGeoRectIndex(), m_noData, DataTypeMin, m_nsres, m_ewres, m_bProjected, m_captor));
+				return CDataWindowPtr(new CDataWindow(CGeoRectIndex(), NULL, CGeoRectIndex(), m_noData, DataTypeMin, m_extents,/*m_nsres, m_ewres, m_bProjected, */m_captor));
 
-			return CDataWindowPtr(new CDataWindow(rectIn, &m_data, m_dataRect, m_noData, m_maskDataUsed, m_nsres, m_ewres, m_bProjected, m_captor));
+			return CDataWindowPtr(new CDataWindow(rectIn, &m_data, m_dataRect, m_noData, m_maskDataUsed, m_extents,/*m_nsres, m_ewres, m_bProjected, */m_captor));
 		}
 
 		CDataWindowPtr GetWindow(int x, int y, int xSize, int ySize)const{ return GetWindow(CGeoRectIndex(x - xSize / 2, y - ySize / 2, x + (xSize - 1) / 2 + 1, y + (ySize - 1) / 2 + 1)); }
@@ -334,9 +336,9 @@ namespace WBSF
 		CGeoExtents m_extents;
 		DataVector m_data;
 		CGeoRectIndex m_dataRect;
-		double m_nsres;
-		double m_ewres;
-		bool m_bProjected;
+//		double m_nsres;
+	//	double m_ewres;
+		//bool m_bProjected;
 		__int16 m_captor;
 
 		CBandsHolder* m_pParent;

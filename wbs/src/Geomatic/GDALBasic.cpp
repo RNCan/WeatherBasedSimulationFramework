@@ -40,20 +40,41 @@ namespace WBSF
 //CGDALDatasetEx
 void CDataWindow::GetSlopeAndAspect(int x, int y, double& slope, double& aspect)const
 {
-	slope = aspect = 0;
+	slope = aspect = -999;
     
 	if( m_pData !=NULL)
 	{
+		ASSERT(IsValid(x, y));
+
 		float window[3][3] = {0};
 
-		for(int xx=0; xx<3; xx++)
-			for(int yy=0; yy<3; yy++)
-				window[yy][xx] = at(max(0, min(XSize() - 1, x + xx - 1)), max(0, min(YSize() - 1, y + yy - 1)));
-		
+		for (int xx = 0; xx < 3; xx++)
+		{
+			for (int yy = 0; yy < 3; yy++)
+			{
+				if (IsValid(x + xx - 1, y + yy - 1))
+					window[yy][xx] = at(x + xx - 1, y + yy - 1);
+				else
+					window[yy][xx] = at(x, y);//center cell if invalid edge
+			}
+		}
+			
 
-		double scale = m_bProjected ? 1 : 111120;
-		if( IsValidSlopeWindow(window, m_noData ) )
-			WBSF::GetSlopeAndAspect(window, m_ewres, m_nsres, scale, slope, aspect);
+		//double scale = m_bProjected ? 1 : 111120;
+		//if( IsValidSlopeWindow(window, m_noData ) )
+		double ewres = m_extents.XRes();
+		double nsres = m_extents.YRes();
+		if (m_extents.IsGeographic())
+		{
+			//compute local resolution in meteres
+			CGeoExtents pixel_extents = m_extents.GetPixelExtents(CGeoPointIndex(x, y));
+			ewres = pixel_extents.CenterLeft().GetDistance(pixel_extents.CenterRight());
+			nsres = -pixel_extents.UpperMidle().GetDistance(pixel_extents.LowerMidle());//sort north resolution is negativ
+		}
+
+		//blockExtents.GetPixelExtents(bool bInMeters);
+
+		WBSF::GetSlopeAndAspect(window, ewres, nsres, 1, slope, aspect);
 	}
 }
 //**********************************************************************************
@@ -1074,6 +1095,9 @@ ERMsg CGDALDatasetEx::GetRegularCoord( int nbPointLat, int nbPointLon, bool bExp
 //
 // Note:        Le nombre de station dans le LOC == nbPoint. 
 //****************************************************************************
+
+
+
 ERMsg CGDALDatasetEx::GetRandomCoord(int nbPoint, bool bExpo, bool bExtrem, double factor, const CGeoRect& rect, CGridPointVector& locations, CCallback& callback)
 {
     ASSERT( IsOpen() );
@@ -1152,6 +1176,10 @@ ERMsg CGDALDatasetEx::GetRandomCoord(int nbPoint, bool bExpo, bool bExtrem, doub
 			int xBlock = XYindex[xy].first;
 			int yBlock = XYindex[xy].second;
 			CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
+			
+			
+			
+			
 
 			bandHolder.LoadBlock(blockExtents);
 
@@ -1413,12 +1441,12 @@ CSingleBandHolder::CSingleBandHolder(GDALDataset* pDataset, size_t i, string ban
 		
 		CProjectionPtr pPrj = CProjectionManager::GetPrj(pDataset->GetProjectionRef());
 
-		double adfGeoTransform[6] = {0};
-		pDataset->GetGeoTransform(adfGeoTransform);
+		//double adfGeoTransform[6] = {0};
+		//pDataset->GetGeoTransform(adfGeoTransform);
 
-		m_nsres = adfGeoTransform[5];
-		m_ewres = adfGeoTransform[1];
-		m_bProjected = pPrj->IsProjected();//on pourrai mettre le ID à la place
+		//m_nsres = adfGeoTransform[5];
+		//m_ewres = adfGeoTransform[1];
+		//m_bProjected = pPrj->IsProjected();//on pourrai mettre le ID à la place
 	}
 
 	m_maskDataUsed = DataTypeMin;
@@ -1443,9 +1471,9 @@ CSingleBandHolder::CSingleBandHolder(const CSingleBandHolder& in)
 		m_internalMapExtents=in.m_internalMapExtents;
 		m_dataRect=in.m_dataRect;
 		m_extents=in.m_extents;
-		m_nsres=in.m_nsres;
-		m_ewres=in.m_ewres;
-		m_bProjected=in.m_bProjected;
+		//m_nsres=in.m_nsres;
+		//m_ewres=in.m_ewres;
+		//m_bProjected=in.m_bProjected;
 		m_captor = in.m_captor;
 	}
 

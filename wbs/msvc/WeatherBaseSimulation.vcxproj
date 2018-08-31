@@ -38,6 +38,9 @@
       <Project>{4b930370-8bf8-4e89-a3e7-0741999f8ee5}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\wbs_version.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{728E70B2-A650-4729-BB8C-0D4FC5905C9B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

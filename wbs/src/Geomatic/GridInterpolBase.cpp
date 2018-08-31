@@ -48,10 +48,72 @@ namespace WBSF
 		FREE_CS.Leave();
 	}
 
+	const int CGridInterpolParam::DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4] =
+	{
+		{ 0, 0, 0, 0 },
+		{ 1, CTerm::LAT, 0, 0 },
+		{ 1, CTerm::LON, 0, 0 },
+		{ 1, CTerm::ELEV, 0, 0 },
+		{ 1, CTerm::EXPO, 0, 0 },
+		{ 1, CTerm::SHORE, 0, 0 },
+		{ 3, CTerm::LAT, CTerm::LON, CTerm::LAT | CTerm::LON },
+		{ 3, CTerm::LAT, CTerm::ELEV, CTerm::LAT | CTerm::ELEV },
+		{ 3, CTerm::LAT, CTerm::EXPO, CTerm::LAT | CTerm::EXPO },
+		{ 3, CTerm::LAT, CTerm::SHORE, CTerm::LAT | CTerm::SHORE },
+		{ 3, CTerm::LON, CTerm::ELEV, CTerm::LON | CTerm::ELEV },
+		{ 3, CTerm::LON, CTerm::EXPO, CTerm::LON | CTerm::EXPO },
+		{ 3, CTerm::LON, CTerm::SHORE, CTerm::LON | CTerm::SHORE },
+		{ 3, CTerm::ELEV, CTerm::EXPO, CTerm::ELEV | CTerm::EXPO },
+		{ 3, CTerm::ELEV, CTerm::SHORE, CTerm::ELEV | CTerm::SHORE },
+		{ 3, CTerm::EXPO, CTerm::SHORE, CTerm::EXPO | CTerm::SHORE },
+		{ 1, CTerm::LAT�, 0, 0 },
+		{ 1, CTerm::LON�, 0, 0 },
+		{ 1, CTerm::ELEV�, 0, 0 },
+		{ 1, CTerm::EXPO�, 0, 0 },
+		{ 1, CTerm::SHORE�, 0, 0 },
+	};
+
+	const int CGridInterpolParam::EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][5] =
+	{
+		{ 0, 0, 0, 0, 0 },
+		{ 1, CTerm::ELEV, 0, 0, 0 },
+		{ 1, CTerm::EXPO, 0, 0, 0 },
+		{ 1, CTerm::SHORE, 0, 0, 0 },
+		{ 3, CTerm::ELEV, CTerm::EXPO, CTerm::ELEV | CTerm::EXPO },
+		{ 3, CTerm::ELEV, CTerm::SHORE, CTerm::ELEV | CTerm::SHORE },
+		{ 3, CTerm::EXPO, CTerm::SHORE, CTerm::EXPO | CTerm::SHORE },
+		{ 4, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE, CTerm::ELEV|CTerm::EXPO | CTerm::SHORE },
+		{ 3, CTerm::LAT, CTerm::ELEV, CTerm::LAT|CTerm::ELEV },
+		{ 4, CTerm::LAT, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE },
+		
+
+	/*	{ 0, 0, 0, 0, 0 },
+		{ 1, CTerm::ELEV, 0, 0, 0 },
+		{ 1, CTerm::EXPO, 0, 0, 0 },
+		{ 1, CTerm::SHORE, 0, 0, 0 },
+		{ 1, CTerm::ELEV|CTerm::EXPO },
+		{ 1, CTerm::ELEV|CTerm::SHORE },
+		{ 1, CTerm::EXPO | CTerm::SHORE },
+		{ 1, CTerm::ELEV | CTerm::EXPO | CTerm::SHORE },
+		{ 1, CTerm::LAT| CTerm::LON| CTerm::ELEV| CTerm::EXPO },
+		{ 1, CTerm::LAT| CTerm::LON| CTerm::ELEV| CTerm::SHORE },
+
+*/
+
+
+		//{ 3, CTerm::LON, CTerm::ELEV, CTerm::LON | CTerm::ELEV },
+		//{ 3, CTerm::LON, CTerm::EXPO, CTerm::LON | CTerm::EXPO },
+		//{ 3, CTerm::LON, CTerm::SHORE, CTerm::LON | CTerm::SHORE },
+		//{ 1, CTerm::LAT�, 0, 0 },
+		//{ 1, CTerm::LON�, 0, 0 },
+		//{ 1, CTerm::ELEV�, 0, 0 },
+		//{ 1, CTerm::EXPO�, 0, 0 },
+	};
+
 	//***************************************************************************
 	const char* CGridInterpolParam::XML_FLAG = "InterpolParam";
 
-	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "IWDUseElev", "TPSMaxError", "OutputVariogramInfo" };
+	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "UseElev", "UseExpo", "UseShore", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "TPSMaxError", "RFTreeType", "OutputVariogramInfo" };
 
 	CGridInterpolParam::CGridInterpolParam()
 	{
@@ -65,30 +127,10 @@ namespace WBSF
 		m_noData = -999;
 		m_maxDistance = 200000;//200 km
 		m_XvalPoints = 0.2;//20% for X-validation
-		//-co tiled=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 -co SPARSE_OK=YES
+		m_bUseElevation = true;
+		m_bUseExposition = true;
+		m_bUseShore = true;
 		m_GDALOptions = "-of GTIFF -ot Float32 -co COMPRESS=LZW -Stats -Hist -Overview \"2,4,8,16\"";
-		
-
-		m_regressionModel.empty();
-		m_regressCriticalR2 = 0.0005;
-
-		m_variogramModel = BEST_VARIOGRAM;
-		m_nbLags = 0;	//best nb lag
-		m_lagDist = 0; //best lag distance
-		m_detrendingModel = NO_DETRENDING;
-		m_externalDrift = 3;
-		m_bFillNugget = false;
-		m_bOutputVariogramInfo = false;
-
-		m_IWDModel = BEST_IWD_MODEL;
-		m_power = 0; //best model
-		m_TPSMaxError = 1.0e-04;
-		m_bUseElevation = false;
-
-
-		m_bRegionalLimit = false;
-		m_regionalLimitSD = 2;
-		m_bRegionalLimitToBound = false;
 		m_bGlobalLimit = false;
 		m_globalLimitSD = 2;
 		m_bGlobalLimitToBound = false;
@@ -96,6 +138,33 @@ namespace WBSF
 		m_globalMinLimit = 0;
 		m_globalMaxLimit = 0;
 		m_bGlobalMinMaxLimitToBound = false;
+
+		//Spatial Regression
+		m_regressionModel.empty();
+		m_regressCriticalR2 = 0.0005;
+
+		//Kriging
+		m_variogramModel = BEST_VARIOGRAM;
+		m_nbLags = 0;	//best nb lag
+		m_lagDist = 0; //best lag distance
+		m_detrendingModel = NO_DETRENDING;
+		m_externalDrift = ED_ELEV;//elevation
+		m_bFillNugget = false;
+		m_bOutputVariogramInfo = false;
+		m_bRegionalLimit = false;
+		m_regionalLimitSD = 2;
+		m_bRegionalLimitToBound = false;
+
+		//Inverse Weighted Distance
+		m_IWDModel = BEST_IWD_MODEL;
+		m_power = 0; //best power
+
+		//Thin Plate Sline
+		m_TPSMaxError = 1.0e-04;
+
+		//Random Forest
+		m_RFTreeType = 1;//regression by default
+
 	}
 
 	CGridInterpolParam::CGridInterpolParam(const CGridInterpolParam& in)
@@ -105,33 +174,15 @@ namespace WBSF
 
 	CGridInterpolParam& CGridInterpolParam::operator =(const CGridInterpolParam& in)
 	{
+		//General
 		m_nbPoints = in.m_nbPoints;
 		m_noData = in.m_noData;
 		m_maxDistance = in.m_maxDistance;
 		m_XvalPoints = in.m_XvalPoints;
-		m_GDALOptions = in.m_GDALOptions;
-
-		m_regressionModel = in.m_regressionModel;
-		m_regressCriticalR2 = in.m_regressCriticalR2;
-
-		m_variogramModel = in.m_variogramModel;
-		m_nbLags = in.m_nbLags;
-		m_lagDist = in.m_lagDist;
-		m_detrendingModel = in.m_detrendingModel;
-		m_externalDrift = in.m_externalDrift;
-		m_bFillNugget = in.m_bFillNugget;
-		m_bOutputVariogramInfo = in.m_bOutputVariogramInfo;
-
-		m_IWDModel = in.m_IWDModel;
-		m_power = in.m_power;
 		m_bUseElevation = in.m_bUseElevation;
-
-		m_TPSMaxError = in.m_TPSMaxError;
-
-
-		m_bRegionalLimit = in.m_bRegionalLimit;
-		m_regionalLimitSD = in.m_regionalLimitSD;
-		m_bRegionalLimitToBound = in.m_bRegionalLimitToBound;
+		m_bUseExposition = in.m_bUseExposition;
+		m_bUseShore = in.m_bUseShore;
+		m_GDALOptions = in.m_GDALOptions;
 		m_bGlobalLimit = in.m_bGlobalLimit;
 		m_globalLimitSD = in.m_globalLimitSD;
 		m_bGlobalLimitToBound = in.m_bGlobalLimitToBound;
@@ -140,8 +191,89 @@ namespace WBSF
 		m_globalMaxLimit = in.m_globalMaxLimit;
 		m_bGlobalMinMaxLimitToBound = in.m_bGlobalMinMaxLimitToBound;
 
+		//Spatial Regression
+		m_regressionModel = in.m_regressionModel;
+		m_regressCriticalR2 = in.m_regressCriticalR2;
+
+		//Kriging
+		m_variogramModel = in.m_variogramModel;
+		m_nbLags = in.m_nbLags;
+		m_lagDist = in.m_lagDist;
+		m_detrendingModel = in.m_detrendingModel;
+		m_externalDrift = in.m_externalDrift;
+		m_bFillNugget = in.m_bFillNugget;
+		m_bOutputVariogramInfo = in.m_bOutputVariogramInfo;
+		m_bRegionalLimit = in.m_bRegionalLimit;
+		m_regionalLimitSD = in.m_regionalLimitSD;
+		m_bRegionalLimitToBound = in.m_bRegionalLimitToBound;
+
+		//Inverse Weighted Distance
+		m_IWDModel = in.m_IWDModel;
+		m_power = in.m_power;
+
+		//Thin Plate Sline
+		m_TPSMaxError = in.m_TPSMaxError;
+
+		//Random Forest
+		m_RFTreeType = in.m_RFTreeType;
+
 
 		return *this;
+	}
+
+
+	bool CGridInterpolParam::operator ==(const CGridInterpolParam& in)const
+	{
+		bool bEqual = true;
+
+		//General
+		if (m_nbPoints != in.m_nbPoints)bEqual = false;
+		if ((float)m_noData != (float)in.m_noData)bEqual = false;
+		if ((float)m_maxDistance != (float)in.m_maxDistance)bEqual = false;
+		if ((float)m_XvalPoints != (float)in.m_XvalPoints)bEqual = false;
+		if (m_bUseElevation != in.m_bUseElevation)bEqual = false;
+		if (m_bUseExposition != in.m_bUseExposition)bEqual = false;
+		if (m_bUseShore != in.m_bUseShore)bEqual = false;
+		if (m_GDALOptions != in.m_GDALOptions)bEqual = false;
+		if (m_bGlobalLimit != in.m_bGlobalLimit)bEqual = false;
+		if (m_globalLimitSD != in.m_globalLimitSD)bEqual = false;
+		if (m_bGlobalLimitToBound != in.m_bGlobalLimitToBound)bEqual = false;
+		if (m_bGlobalMinMaxLimit != in.m_bGlobalMinMaxLimit)bEqual = false;
+		if (m_globalMinLimit != in.m_globalMinLimit)bEqual = false;
+		if (m_globalMaxLimit != in.m_globalMaxLimit)bEqual = false;
+		if (m_bGlobalMinMaxLimitToBound != in.m_bGlobalMinMaxLimitToBound)bEqual = false;
+
+
+
+		//Spatial Regression
+		if (m_regressionModel != in.m_regressionModel)bEqual = false;
+		if (m_regressCriticalR2 != in.m_regressCriticalR2)bEqual = false;
+
+		//Kriging
+		if (m_variogramModel != in.m_variogramModel)bEqual = false;
+		if (m_nbLags != in.m_nbLags)bEqual = false;
+		if (m_lagDist != in.m_lagDist)bEqual = false;
+		if (m_detrendingModel != in.m_detrendingModel)bEqual = false;
+		if (m_externalDrift != in.m_externalDrift)bEqual = false;
+		if (m_bFillNugget != in.m_bFillNugget)bEqual = false;
+		if (m_bOutputVariogramInfo != in.m_bOutputVariogramInfo)bEqual = false;
+		if (m_bRegionalLimit != in.m_bRegionalLimit)bEqual = false;
+		if (m_regionalLimitSD != in.m_regionalLimitSD)bEqual = false;
+		if (m_bRegionalLimitToBound != in.m_bRegionalLimitToBound)bEqual = false;
+
+
+		//Inverse Weighted Distance
+		if (m_IWDModel != in.m_IWDModel)bEqual = false;
+		if ((float)m_power != (float)in.m_power)bEqual = false;
+
+		//Thin Plate Spline
+		if ((float)m_TPSMaxError != (float)in.m_TPSMaxError)bEqual = false;
+		
+		//Random Forest
+		if (m_RFTreeType != in.m_RFTreeType)bEqual = false;
+		
+
+		return bEqual;
 	}
 
 	string CGridInterpolParam::GetMember(size_t i)const
@@ -155,10 +287,10 @@ namespace WBSF
 		case OUTPUT_NO_DATA:		str = ToString(m_noData); break;
 		case MAX_DISTANCE:			str = ToString(m_maxDistance); break;
 		case XVAL_POINTS:			str = ToString(m_XvalPoints); break;
+		case USE_ELEV:				str = ToString(m_bUseElevation); break;
+		case USE_EXPO:				str = ToString(m_bUseExposition); break;
+		case USE_SHORE:				str = ToString(m_bUseShore); break;
 		case GDAL_OPTIONS:			str = m_GDALOptions; break;
-		case REGIONAL_LIMIT:		str = ToString(m_bRegionalLimit); break;
-		case REGIONAL_SD:			str = ToString(m_regionalLimitSD); break;
-		case REGIONAL_LIMIT_TO_BOUND:str = ToString(m_bRegionalLimitToBound); break;
 		case GLOBAL_LIMIT:			str = ToString(m_bGlobalLimit); break;
 		case GLOBAL_SD:				str = ToString(m_globalLimitSD); break;
 		case GLOBAL_LIMIT_TO_BOUND:str = ToString(m_bGlobalLimitToBound); break;
@@ -168,57 +300,27 @@ namespace WBSF
 		case GLOBAL_MINMAX_LIMIT_TO_BOUND:str = ToString(m_bGlobalMinMaxLimitToBound); break;
 		case REGRESSION_MODEL:		str = ToString(m_regressionModel); break;
 		case REGRESS_CRITICAL_R2:	str = ToString(m_regressCriticalR2, 5); break;
+		
 		case VARIOGRAM_MODEL:		str = ToString(m_variogramModel); break;
 		case NB_LAGS:				str = ToString(m_nbLags); break;
 		case LAG_DISTANCE:			str = ToString(m_lagDist, 8); break;
 		case DETRENDING_MODEL:		str = ToString(m_detrendingModel); break;
 		case EXTERNAL_DRIFT:		str = ToString(m_externalDrift); break;
 		case FILL_NUGGET:			str = ToString(m_bFillNugget); break;
+		case OUTPUT_VARIOGRAM_INFO: str = ToString(m_bOutputVariogramInfo); break;
+		case REGIONAL_LIMIT:		str = ToString(m_bRegionalLimit); break;
+		case REGIONAL_SD:			str = ToString(m_regionalLimitSD); break;
+		case REGIONAL_LIMIT_TO_BOUND:str = ToString(m_bRegionalLimitToBound); break;
+
 		case IWD_MODEL:				str = ToString(m_IWDModel); break;
 		case IWD_POWER:				str = ToString(m_power, 2); break;
-		case IWD_USE_ELEV:			str = ToString(m_bUseElevation); break;
 		case TPS_MAX_ERROR:			str = ToString(m_TPSMaxError); break;
-		case OUTPUT_VARIOGRAM_INFO: str = ToString(m_bOutputVariogramInfo); break;
+		case RF_TREE_TYPE:			str = ToString(m_RFTreeType); break;
+
 		default: ASSERT(false);
 		}
 
 		return str;
-	}
-	
-	bool CGridInterpolParam::operator ==(const CGridInterpolParam& in)const
-	{
-		bool bEgual = true;
-
-		if (m_nbPoints != in.m_nbPoints)bEgual = false;
-		if (m_noData != in.m_noData)bEgual = false;
-		if (m_maxDistance != in.m_maxDistance)bEgual = false;
-		if (m_XvalPoints != in.m_XvalPoints)bEgual = false;
-		if (m_GDALOptions != in.m_GDALOptions)bEgual = false;
-		if (m_bRegionalLimit != in.m_bRegionalLimit)bEgual = false;
-		if (m_regionalLimitSD != in.m_regionalLimitSD)bEgual = false;
-		if (m_bRegionalLimitToBound != in.m_bRegionalLimitToBound)bEgual = false;
-		if (m_bGlobalLimit != in.m_bGlobalLimit)bEgual = false;
-		if (m_globalLimitSD != in.m_globalLimitSD)bEgual = false;
-		if (m_bGlobalLimitToBound != in.m_bGlobalLimitToBound)bEgual = false;
-		if (m_bGlobalMinMaxLimit != in.m_bGlobalMinMaxLimit)bEgual = false;
-		if (m_globalMinLimit != in.m_globalMinLimit)bEgual = false;
-		if (m_globalMaxLimit != in.m_globalMaxLimit)bEgual = false;
-		if (m_bGlobalMinMaxLimitToBound != in.m_bGlobalMinMaxLimitToBound)bEgual = false;
-
-		if (m_regressionModel != in.m_regressionModel)bEgual = false;
-		if (m_regressCriticalR2 != in.m_regressCriticalR2)bEgual = false;
-		if (m_variogramModel != in.m_variogramModel)bEgual = false;
-		if (m_nbLags != in.m_nbLags)bEgual = false;
-		if (m_lagDist != in.m_lagDist)bEgual = false;
-		if (m_detrendingModel != in.m_detrendingModel)bEgual = false;
-		if (m_IWDModel != in.m_IWDModel)bEgual = false;
-		if (m_power != in.m_power)bEgual = false;
-		if (m_bUseElevation != in.m_bUseElevation)bEgual = false;
-		if (m_TPSMaxError != in.m_TPSMaxError)bEgual = false;
-		if (m_bOutputVariogramInfo != in.m_bOutputVariogramInfo)bEgual = false;
-
-
-		return bEgual;
 	}
 
 	//***************************************************************************
@@ -297,31 +399,64 @@ namespace WBSF
 		}
 
 		m_bUseElevation = false;
+		m_bUseShore = false;
 		m_bGeographic = false;
 		m_nbDimension = 0;
 		m_nSize = 0;
 	}
 
-	void CANNSearch::Init(CGridPointVectorPtr& pPts, bool bUseElevation)
+	void CANNSearch::Init(CGridPointVectorPtr& pPts, bool bUseElevation, bool bUseShore)
 	{
 		_ASSERTE(pPts.get());
 		Reset();
 
 		m_bUseElevation = bUseElevation;
+		m_bUseShore = bUseShore;
 
 		CGridPointVector& pts = *pPts;
 		m_bGeographic = IsGeographic(pPts->GetPrjID());
-		m_nbDimension = m_bGeographic ? m_bUseElevation ? 4 : 3 : m_bUseElevation ? 3 : 2;
+		m_nbDimension = 2;
+		if (m_bGeographic)
+			m_nbDimension++;
+		if (m_bUseElevation)
+			m_nbDimension++;
+		if (m_bUseShore)
+			m_nbDimension++;
+
+		//? m_bUseElevation ? 4 : 3 : m_bUseElevation ? 3 : 2;
 		m_nSize = pts.size();
 		m_pDataPts = annAllocPts((int)m_nSize, (int)m_nbDimension);
 
 		for (size_t i = 0; i < m_nSize; i++)
 		{
-			for (int j = 0; j < m_nbDimension; j++)
-				m_pDataPts[i][j] = m_bGeographic ? pts[i](j) : pts[i][j];
+			for (int k = 0, kk = 0; k < 6; k++)
+			{
 
-			if (m_bUseElevation)//elevation
-				m_pDataPts[i][m_nbDimension - 1] *= 100;
+				if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
+				{
+					m_pDataPts[i][kk] = m_bGeographic ? pts[i](k) : pts[i][k];
+					kk++;
+				}
+				else if (k == 3 && m_bUseElevation)
+				{
+					m_pDataPts[i][kk] = pts[i].m_elev * 100;
+					kk++;
+				}
+				/*else if (k == 4 && m_bHaveExposition)
+				{
+					dp = pts[i].GetExposition();
+				}*/
+				else if (k == 5 && m_bUseShore)
+				{
+					m_pDataPts[i][kk] = pts[i].m_shore;
+					kk++;
+				}
+			}
+			//for (int j = 0; j < m_nbDimension; j++)
+			//	m_pDataPts[i][j] = m_bGeographic ? pts[i](j) : pts[i][j];
+
+			//if (m_bUseElevation)//elevation
+			//	m_pDataPts[i][m_nbDimension - 1] *= 100;
 
 		}
 
@@ -343,11 +478,34 @@ namespace WBSF
 			ANNdistArray	dd = new ANNdist[nbPointSearch];	// allocate near neighbor dists
 			ANNpoint	q = annAllocPt((int)m_nbDimension);		// query point
 
-			for (int i = 0; i < m_nbDimension; i++)
-				q[i] = m_bGeographic ? pt(i) : pt[i];
+			//for (int i = 0; i < m_nbDimension; i++)
+				//q[i] = m_bGeographic ? pt(i) : pt[i];
 
-			if (m_bUseElevation)//elevation
-				q[m_nbDimension - 1] *= 100;
+			//if (m_bUseElevation)//elevation
+				//q[m_nbDimension - 1] *= 100;
+			for (int k = 0, kk = 0; k < 6; k++)
+			{
+
+				if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
+				{
+					q[kk] = m_bGeographic ? pt(k) : pt[k];
+					kk++;
+				}
+				else if (k == 3 && m_bUseElevation)
+				{
+					q[kk] = pt.m_elev * 100;
+					kk++;
+				}
+				/*else if (k == 4 && m_bHaveExposition)
+				{
+				dp = pts[i].GetExposition();
+				}*/
+				else if (k == 5 && m_bUseShore)
+				{
+					q[kk] = pt.m_shore;
+					kk++;
+				}
+			}
 
 			m_pTreeRoot->annPkSearch(q, (int)nbPointSearch, nn_idx, dd, 0);
 
@@ -359,7 +517,7 @@ namespace WBSF
 				if (m_bGeographic)
 				{
 					const double _2x6371x1000_ = 2 * 6371 * 1000;
-					result[i].d = _2x6371x1000_*asin(sqrt(dd[i]) / _2x6371x1000_);
+					result[i].d = _2x6371x1000_ * asin(sqrt(dd[i]) / _2x6371x1000_);
 				}
 				else
 				{
@@ -398,7 +556,7 @@ namespace WBSF
 		io >> (*m_pPts);
 
 		unsigned __int64 infoSize = 0;
-		io >> infoSize; 
+		io >> infoSize;
 
 		string buffer;
 		buffer.resize((size_t)infoSize);
@@ -458,14 +616,14 @@ namespace WBSF
 
 		//write result
 		os << size;
-		os.write((char*)lineOut.data(), lineOut.size()*sizeof(CGridLine::value_type));
+		os.write((char*)lineOut.data(), lineOut.size() * sizeof(CGridLine::value_type));
 	}
 
 	ERMsg CGridInterpolBase::Initialization(CCallback& callback)
 	{
 		ERMsg msg;
 
-		
+
 		//compute global statistic for limiting range
 		for (size_t i = 0; i < (size_t)m_pPts->size(); i++)
 		{
@@ -473,7 +631,14 @@ namespace WBSF
 			m_stat += pt.m_event;
 		}
 
-		
+		//compute projection transformation
+		CGridPointVector* pPts = m_pPts.get();
+		m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
+
+		//compute increment for Xval
+		float xValPercent = max(0.0f, min(1.0f, (float)m_param.m_XvalPoints));//compute value in float to avoid difference
+		size_t nbPoints = max(1.0f, (1.0f - xValPercent)*m_pPts->size());
+		m_inc = max(1.0, (double)pPts->size() / nbPoints);
 
 		return msg;
 	}
@@ -489,12 +654,12 @@ namespace WBSF
 		//to avoid to reinit multiple time on the same object, we have to protect it
 		me.m_CS.Enter();
 
-		
+
 		msg = me.Initialization(callback);
 		if (msg)
-		
 
-		me.m_CS.Leave();
+
+			me.m_CS.Leave();
 
 		return msg;
 	}
@@ -586,7 +751,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	bool CGridInterpolBase::GetVariogram(CVariogram& variogram)const
 	{
 		//do nothing by default
@@ -603,11 +768,11 @@ namespace WBSF
 
 		lineOut.resize(lineIn.size());
 
-//#pragma omp parallel for if(m_bUseOpenMP)
-		for (size_t i = 0; i<lineIn.size(); i++)
+		//#pragma omp parallel for if(m_bUseOpenMP)
+		for (size_t i = 0; i < lineIn.size(); i++)
 		{
 			const CGridPoint& pt = lineIn[i];
-			if (fabs(pt.m_z-m_info.m_noData)>EPSILON_NODATA)
+			if (fabs(pt.m_z - m_info.m_noData) > EPSILON_NODATA)
 			{
 				lineOut[i] = (float)Evaluate(pt);
 			}

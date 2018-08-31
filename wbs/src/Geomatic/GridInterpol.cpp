@@ -24,6 +24,7 @@
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/GDAL.h"
 #include "WeatherBasedSimulationString.h"
+#include "Basic/Shore.h"
 
 namespace WBSF
 {
@@ -473,7 +474,7 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 			CStatisticXY stat;
 			m_XValidation.GetStatistic(stat, VMISS);
 		
-			string comment = FormatMsg(IDS_MAP_METHOD_CHOOSE, GetMethodName(), ToString(stat[COEF_D], 4).c_str() );
+			string comment = FormatMsg(IDS_MAP_METHOD_CHOOSE, GetMethodName(), ToString(stat[NB_VALUE]),  ToString(stat[COEF_D], 4) );
 			callback.AddMessage(comment);
 			callback.AddMessage(m_pGridInterpol->GetFeedbackBestParam());
 		}
@@ -497,8 +498,11 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 
 	//get projection
 	CProjectionTransformation PT(m_inputGrid.GetPrj(), CProjectionManager::GetPrj(PRJ_WGS_84));
-	bool bHaveExposition = m_pts->HaveExposition();
+	//m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
 
+
+	bool bHaveExposition = m_pts->HaveExposition();
+	bool bUseShore = m_param.m_bUseShore;
 	//get extents and compute blocks index
 	CGeoExtents extents = m_options.GetExtents(); 
 	vector<pair<int,int>> XYindex = extents.GetBlockList();
@@ -537,7 +541,7 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 						{
 							input[0]->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
 
-							if (IsGeographic(m_pts->GetPrjID()))
+							if (IsGeographic(pt.GetPrjID()))
 							{
 								pt.m_latitudeDeg = pt.m_y;
 							}
@@ -546,6 +550,19 @@ ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 								CGeoPoint ptGeo(pt);
 								ptGeo.Reproject(PT);
 								pt.m_latitudeDeg = ptGeo.m_y;
+							}
+						}
+						if (bUseShore)
+						{
+							if (IsGeographic(pt.GetPrjID()))
+							{
+								pt.m_shore = CShore::GetShoreDistance(pt);
+							}
+							else
+							{
+								CGeoPoint ptGeo(pt);
+								ptGeo.Reproject(PT);
+								pt.m_shore = CShore::GetShoreDistance(ptGeo);
 							}
 						}
 

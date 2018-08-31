@@ -44,7 +44,7 @@ namespace WBSF
 		{
 			//m_lastCheckSum = checkSum;
 			m_pANNSearch = make_unique<CANNSearch>();
-			m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation);
+			m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
 			m_bInit = true;
 		}
 
@@ -116,6 +116,13 @@ namespace WBSF
 
 	double CIWD::Evaluate(const CGridPoint& pt, int iXval)const
 	{
+		if (iXval >= 0)
+		{
+			int l = (int)ceil((iXval) / m_inc);
+			if (int(l*m_inc) == iXval)
+				return m_param.m_noData;
+		}
+
 		//Add one point if we are in X validation
 		size_t nbPoint = m_pANNSearch->GetSize() - (iXval >= 0 ? 1 : 0);
 		if (m_param.m_nbPoints > 0)
