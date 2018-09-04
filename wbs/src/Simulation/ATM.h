@@ -28,8 +28,13 @@
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/TimeZones.h"
 
+extern const char* WBSF_ATM_VERSION;
+
+
 namespace WBSF
 {
+
+	
 
 	class CATMWorld;
 
@@ -650,6 +655,7 @@ namespace WBSF
 	public:
 
 
+
 		CATMWeather(CATMWorld& world) :
 			m_world(world)
 		{
@@ -848,7 +854,7 @@ namespace WBSF
 	{
 	public:
 
-
+		static const char* ATM_VERTION;
 
 		//return the number of second since 1 december of year 1
 		size_t get_time_step()const{ return m_world_param.get_time_step(); }//[s]

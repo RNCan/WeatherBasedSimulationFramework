@@ -383,6 +383,9 @@ namespace WBSF
 
 		//return CreateGribsFromNetCDF(callback);
 
+		callback.AddMessage(string("Execute dispersal with ATM-SBW version: ") + WBSF_ATM_VERSION);
+		 
+
 		GIntBig test = GDALGetCacheMax64();
 		GDALSetCacheMax64(128 * 1024 * 1024);
 

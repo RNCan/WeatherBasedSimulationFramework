@@ -6,9 +6,10 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
-// 17-07-2018	Rémi Saint-Amant	flags change and Bug correction in sub-hourly and time step, optimization of memory
-// 01-05-2018	Rémi Saint-Amant	Modification to follow publication Régniere & Saint-Amant 2018
-// 01-01-2016	Rémi Saint-Amant	Creation
+// 04-09-2018	1.0.0	Rémi Saint-Amant	Add ATM version number.
+// 17-07-2018	        Rémi Saint-Amant	flags change and Bug correction in sub-hourly and time step, optimization of memory
+// 01-05-2018	        Rémi Saint-Amant	Modification to follow publication Régniere & Saint-Amant 2018
+// 01-01-2016	        Rémi Saint-Amant	Creation
 //******************************************************************************
 #include "stdafx.h"
 
@@ -25,6 +26,8 @@
 #include "Simulation/ATM.h"
 
 #include "WeatherBasedSimulationString.h"
+
+const char* WBSF_ATM_VERSION = "1.0.0";
 
 
 
@@ -61,8 +64,6 @@
 //END_OF_SIMULATION         37
 
 
-
-
 using namespace std;
 
 using namespace WBSF::HOURLY_DATA;
@@ -70,6 +71,9 @@ using namespace WBSF::WEATHER;
 
 namespace WBSF
 {
+
+
+
 
 	static const double T_MINIMUM = 15.0;
 	static const int MAX_NUMBER_IMAGE_LOAD = 18;
@@ -157,7 +161,7 @@ namespace WBSF
 		CGeoPoint pt2 = RhumbDestinationPoint(pt, distance, bearing);*/
 		//return CGeoPoint3D(pt2.m_x, pt2.m_y, pt.m_z + d.m_z, pt.GetPrjID());
 
-		//U and V component is in the map direction. So we have to convert the point into the map projection and convert kach int geographic
+		//U and V component is in the map direction. So we have to convert the point into the map projection and convert it in geographic
 
 		CGeoPoint3D pt2;
 		if (ToWeather.GetDst()->IsGeographic())
@@ -720,7 +724,7 @@ namespace WBSF
 		ASSERT(!IsMissing(w[ATM_WNDV]) && !IsMissing(w[ATM_WNDU]));
 		ASSERT(m_state == FLY);
 
-		double alpha = 0;
+		double alpha = 0;//geometric angle
 		if (w[ATM_WNDV] != 0 || w[ATM_WNDU] != 0)
 			alpha = atan2(w[ATM_WNDV], w[ATM_WNDU]);
 
