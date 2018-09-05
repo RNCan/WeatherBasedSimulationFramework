@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.0.5    05/09/2018	Rémi Saint-Amant	Bug correction in sieve (stack overflow)
 // 2.0.4	04/07/2018	Rémi Saint-Amant	Add sieve and some debug layers
 // 2.0.3	26/06/2018	Rémi Saint-Amant	correction in help
 // 2.0.2	06/06/2018	Rémi Saint-Amant	add virtual columns to the model
@@ -58,7 +59,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.4";
+static const char* version = "2.0.5";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
@@ -500,17 +501,13 @@ ERMsg CCloudCleaner::Execute()
 			suspects1[i].resize((size_t)extents.m_xSize*extents.m_ySize);
 
 		CloudBitset suspects2;
-		//if (m_options.m_bufferEx > 0)
-		//{
 		suspects2.resize(nbScenedProcess);
 		for (size_t i = 0; i < suspects2.size(); i++)
 			suspects2[i].resize((size_t)extents.m_xSize*extents.m_ySize);
-		//		}
 
 		CloudBitset clouds(nbScenedProcess);
 		for (size_t i = 0; i < clouds.size(); i++)
 			clouds[i].resize((size_t)extents.m_xSize*extents.m_ySize);
-
 
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
@@ -522,7 +519,7 @@ ERMsg CCloudCleaner::Execute()
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
 #pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
-		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
+		for (__int64 b = 0; b < (__int64)/*XYindex.size()*/36; b++)
 		{
 			size_t thread = omp_get_thread_num();
 			size_t xBlock = XYindex[b].first;
@@ -535,11 +532,14 @@ ERMsg CCloudCleaner::Execute()
 
 		if (!m_options.m_bQuiet)
 		{
+			cout << "Suspicious1 (Suspicious2) for scenes... " << endl;
 			for (size_t zz = 0; zz < suspects1.size(); zz++)
-				cout << "Suspicious1 for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%" << endl;
-
-			for (size_t zz = 0; zz < suspects2.size(); zz++)
-				cout << "Suspicious2 for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%" << endl;
+			{
+				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%";// << endl;
+				if (suspects2.size() == suspects1.size())
+					cout << " (" << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%)";
+				cout << endl;
+			}
 		}
 
 		if (m_options.m_sieve > 0)
@@ -547,20 +547,19 @@ ERMsg CCloudCleaner::Execute()
 			if (!m_options.m_bQuiet)
 				cout << "Sieve primary suspicious pixels" << endl;
 
-			//#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU) if (m_options.m_bMulti)
+			m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
+
+			#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 			for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
 			{
 				SieveSuspect1(m_options.m_sieve, extents, suspects1[zz]);
 			}
-
-
 		}
 
-
-		//if (!suspects2.empty())
-		//{
 		if (!m_options.m_bQuiet)
 			cout << "Clean secondary suspicious pixels that do not touch primary suspicious pixel" << endl;
+
+		m_options.ResetBar((size_t)2*nbScenedProcess*extents.m_xSize*extents.m_ySize);
 
 #pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
@@ -568,14 +567,15 @@ ERMsg CCloudCleaner::Execute()
 
 		if (!m_options.m_bQuiet)
 		{
-			for (size_t zz = 0; zz < suspects2.size(); zz++)
-				cout << "Suspicious1 for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%" << endl;
-
-			for (size_t zz = 0; zz < suspects2.size(); zz++)
-				cout << "Suspicious2 for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%" << endl;
-			//}
-
-				cout << "Call ranger for all suspicious pixels" << endl;
+			cout << "Suspicious1 (Suspicious2) for scenes after clearing... " << endl;
+			for (size_t zz = 0; zz < suspects1.size(); zz++)
+			{
+				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%";// << endl;
+				if (suspects2.size() == suspects1.size())
+					cout << " (" << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%)";
+				cout << endl;
+			}
+			cout << "Call ranger for all suspicious pixels" << endl;
 		}
 
 		//pass 2 : find clouds
@@ -878,7 +878,6 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 				if (!suspects2.empty() &&
 					m_options.IsTrigged(p, CCloudCleanerOption::T_SECONDARY, fm))
 				{
-					ASSERT(suspects1[zz].test(xy2));
 					suspects2[zz].set(xy2);
 				}
 			}//x
@@ -1073,45 +1072,38 @@ void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder
 
 bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2, boost::dynamic_bitset<size_t>& treated)
 {
-	ASSERT(!treated.test(xy.m_y * extents.m_xSize + xy.m_x));
+	ASSERT(!treated.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
 
-	bool bTouch = false;
-
-
-	treated.set(xy.m_y * extents.m_xSize + xy.m_x);
-	if (suspects1.test(xy.m_y * extents.m_xSize + xy.m_x))
-	{
-		bTouch = true;
-	}
-	else
+	treated.set((size_t)xy.m_y * extents.m_xSize + xy.m_x);
+	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
+	bool bTouch = suspects1.test(xy1);
+	
+	if (!bTouch)
 	{
 		//on the edge case when suspect pixel touch to cloud 
-		for (size_t yy = 0; yy < 3; yy++)
+		for (size_t yy = 0; yy < 3 && !bTouch&& level < 10000; yy++)
 		{
 			size_t yyy = xy.m_y + yy - 1;
-			if (yyy < extents.m_ySize)
+			if (yyy < (size_t)extents.m_ySize)
 			{
-				for (size_t xx = 0; xx < 3; xx++)
+				for (size_t xx = 0; xx < 3 && !bTouch&& level < 10000; xx++)
 				{
 					size_t xxx = xy.m_x + xx - 1;
-					if (xxx < extents.m_xSize)
+					if (xxx < (size_t)extents.m_xSize)
 					{
 						size_t xy2 = yyy * extents.m_xSize + xxx;
-						if (!treated.test(xy2) && (suspects1.test(xy2) || suspects2.test(xy2)) && level < 1000)
+						if (!treated.test(xy2) && (suspects1.test(xy2) || suspects2.test(xy2)) )
 						{
-							if (TouchSuspect1(level + 1, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, suspects2, treated))
-								bTouch = true;
+							bTouch = TouchSuspect1(level + 1, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, suspects2, treated);
 						}//not treated
 					}//inside extent
 				}//for buffer x
 			}//inside extent
 		}//for buffer y 
 
-		/*if (!bTouch)
-			suspects2.reset(xy.m_y * extents.m_xSize + xy.m_x);*/
-	}
-
-	
+		if (!bTouch || level >= 10000)
+			suspects2.reset();
+	}//if not touch
 
 	return bTouch;
 }
@@ -1120,7 +1112,7 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 {
 	ASSERT(suspects1.size() == suspects2.size());
 
-	//reset all pixel that do not touch suspect1 in ditance of 5 pixel
+	//reset all suspect2 pixels that are farther than 5 pixels of suspect1 pixel
 	for (size_t y = 0; y < extents.m_ySize; y++)
 	{
 		for (size_t x = 0; x < extents.m_xSize; x++)
@@ -1137,7 +1129,7 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 					{
 						size_t yyy = y + yy - maxBuffer;
 						size_t xxx = x + xx - maxBuffer;
-						if (yyy < extents.m_ySize && xxx < extents.m_xSize)
+						if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
 						{
 							size_t xy2 = yyy * extents.m_xSize + xxx;
 
@@ -1153,24 +1145,34 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 				if (bReset)
 					suspects2.reset(xy);
 			}//if suspect 2
+#pragma omp atomic		
+			m_options.m_xx++;
 		}//x
+
+		m_options.UpdateBar();
+
 	}//y
 
-	
-	//boost::dynamic_bitset<size_t> treated(suspects1.size());
+	//now removell all suspect2 pixels that do not touch suspect1 pixel
 	for (size_t y = 0; y < extents.m_ySize; y++)
 	{
 		for (size_t x = 0; x < extents.m_xSize; x++)
 		{
 			size_t xy = y * extents.m_xSize + x;
-			if (/*!treated.test(xy) && */suspects2.test(xy) && !suspects1.test(xy))
+			if (suspects2.test(xy) && !suspects1.test(xy))
 			{
-				boost::dynamic_bitset<size_t> treated(suspects1.size());
-				if (!TouchSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, suspects2, treated))
-					suspects2.reset(xy);
-
+				boost::dynamic_bitset<size_t> treated(suspects2.size());
+				//treated.reset();
+				//if (!TouchSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, suspects2, treated))
+					//suspects2.reset(xy);
+				TouchSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, suspects2, treated);
 			}
+#pragma omp atomic		
+			m_options.m_xx++;
 		}
+
+		m_options.UpdateBar();
+
 	}//for buffer y 
 
 }
@@ -1178,77 +1180,84 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 
 
 
-size_t CCloudCleaner::SieveSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated)
+size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated)
 {
-	ASSERT(!treated.test(xy.m_y * extents.m_xSize + xy.m_x));
+	ASSERT(!treated.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
 
-	size_t nbPixel = 0;
-	treated.set(xy.m_y * extents.m_xSize + xy.m_x);
+	//size_t nbPixels = 0;
+	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
+	//treated.set(xy1);
 
-	if (suspects1.test(xy.m_y * extents.m_xSize + xy.m_x))
+	if (suspects1.test(xy1) )
 	{
-		nbPixel++;//itself
+		nbPixels++;//itself
 
 		//on the edge case when suspect pixel touch to cloud 
-		for (size_t yy = 0; yy < 3; yy++)
+		for (size_t yy = 0; yy < 3&& nbPixels<= nbSieve && level < 50000; yy++)
 		{
 			size_t yyy = xy.m_y + yy - 1;
-			if (yyy < extents.m_ySize)
+			if (yyy < (size_t)extents.m_ySize)
 			{
-				for (size_t xx = 0; xx < 3; xx++)
+				for (size_t xx = 0; xx < 3 && nbPixels <= nbSieve && level < 50000; xx++)
 				{
 					size_t xxx = xy.m_x + xx - 1;
-					if (xxx < extents.m_xSize)
+					if (xxx < (size_t)extents.m_xSize)
 					{
 						if (abs(int(xx) - 1) != abs(int(yy) - 1))
 						{
 							size_t xy2 = yyy * extents.m_xSize + xxx;
-							if (!treated.test(xy2) && (suspects1.test(xy2)) && level < 1000)
+							if (/*!treated.test(xy2) && */(suspects1.test(xy2)) )
 							{
-								nbPixel += SieveSuspect1(level + 1, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
+								//nbPixels += SieveSuspect1(level + 1, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
+								SieveSuspect1(level + 1, nbPixels, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
 							}//not treated
 						}
 					}//inside extent
 				}//for buffer x
 			}//inside extent
 		}//for buffer y 
+
+
+		if (nbPixels <= nbSieve || level >= 50000)
+			suspects1.reset(xy1);
 	}
 
-	return nbPixel;
+	return nbPixels;
 }
 
-
-void CCloudCleaner::CleanSuspect1(const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1)
-{
-
-	ASSERT(suspects1.test(xy.m_y * extents.m_xSize + xy.m_x));
-
-	suspects1.reset(xy.m_y * extents.m_xSize + xy.m_x);
-
-	//on the edge case when suspect pixel touch to cloud 
-	for (size_t yy = 0; yy < 3; yy++)
-	{
-		size_t yyy = xy.m_y + yy - 1;
-		if (yyy < extents.m_ySize)
-		{
-			for (size_t xx = 0; xx < 3; xx++)
-			{
-				size_t xxx = xy.m_x + xx - 1;
-				if (xxx < extents.m_xSize)
-				{
-					if (abs(int(xx) - 1) != abs(int(yy) - 1))
-					{
-						size_t xy2 = yyy * extents.m_xSize + xxx;
-						if (suspects1.test(xy2))
-						{
-							CleanSuspect1(extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1);
-						}//not treated
-					}
-				}//inside extent
-			}//for buffer x
-		}//inside extent
-	}//for buffer y 
-}
+//
+//void CCloudCleaner::CleanSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, const boost::dynamic_bitset<size_t>& treated)
+//{
+//	ASSERT(suspects1.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
+//
+//	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
+//	suspects1.reset(xy1);
+//
+//	//on the edge case when suspect pixel touch to cloud 
+//	for (size_t yy = 0; yy < 3; yy++)
+//	{
+//		size_t yyy = xy.m_y + yy - 1;
+//		if (yyy < (size_t)extents.m_ySize)
+//		{
+//			for (size_t xx = 0; xx < 3; xx++)
+//			{
+//				size_t xxx = xy.m_x + xx - 1;
+//				if (xxx < (size_t)extents.m_xSize)
+//				{
+//					if (abs(int(xx) - 1) != abs(int(yy) - 1))
+//					{
+//						size_t xy2 = yyy * extents.m_xSize + xxx;
+//						if (suspects1.test(xy2) && treated.test(xy2))
+//						{
+//							CleanSuspect1(level + 1, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
+//						}//not treated
+//					}
+//				}//inside extent
+//			}//for buffer x
+//		}//inside extent
+//	}//for buffer y 
+//
+//}
 
 void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, boost::dynamic_bitset<size_t>& suspects1)
 {
@@ -1256,19 +1265,26 @@ void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, bo
 
 	for (size_t y = 0; y < extents.m_ySize; y++)
 	{
+
 		for (size_t x = 0; x < extents.m_xSize; x++)
 		{
 			size_t xy = y * extents.m_xSize + x;
-			if (!treated.test(xy))
-			{
-				size_t nbPixels = SieveSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
-				if (suspects1.test(xy) && nbPixels <= nbSieve)
-				{
-					//suspects1.reset(xy.m_y * extents.m_xSize + xy.m_x);
-					CleanSuspect1(extents, CGeoPointIndex((int)x, (int)y), suspects1);
-				}
-			}
+			//if (!treated.test(xy))
+			//{
+				//size_t nbPixels = SieveSuspect1(0, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
+				//if (nbPixels <= nbSieve && suspects1.test(xy) && treated.test(xy))//treated is need to avoid stack overflow! suspisious...
+				//{
+				//	CleanSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
+				//}
+			size_t nbPixels = 0;
+			SieveSuspect1(0, nbPixels, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
+			//}
+
+#pragma omp atomic		
+			m_options.m_xx++;
 		}
+
+		m_options.UpdateBar();
 	}//for buffer y 
 }
 
@@ -1352,14 +1368,8 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1][xy] = m_options.GetB1Trigger(p, fm);
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB][xy] = m_options.GetTCBTrigger(p, fm);
 						debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_ZSW][xy] = m_options.GetZSWTrigger(p, fm);
-
-						//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_VALUE_B1_S][xy] = m_options.GetB1Trigger(p, CCloudCleanerOption::T_SECONDARY, fm);
-						//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_VALUE_TCB_S][xy] = m_options.GetTCBTrigger( p, CCloudCleanerOption::T_SECONDARY, fm );
-						//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_VALUE_ZSW_S][xy] = m_options.GetZSWTrigger( p, CCloudCleanerOption::T_SECONDARY, fm );
-
 					}
 
-					//!dataCopy[xy][z].IsInit() || 
 					if (clouds[zz].test(xy2))
 					{
 						size_t z2 = NOT_INIT;
@@ -1371,7 +1381,6 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 								size_t izz = size_t(zz + (int)pow(-1, i)*(i / 2 + 1));
 
 								bool bReplace = (izz < clouds.size()) ? !(clouds[izz].test(xy2) && suspects1[izz].test(xy2)) : true;
-								//bool bReplace = (izz < clouds.size()) ? !clouds[izz].test(xy2) : true;
 								if (bReplace)
 									z2 = iz;
 							}
@@ -1511,7 +1520,7 @@ void CCloudCleaner::SetBuffer(const CGeoExtents& extents, CloudBitset& suspects1
 							{
 								size_t yyy = y + yy - maxBuffer;
 								size_t xxx = x + xx - maxBuffer;
-								if (yyy < extents.m_ySize && xxx < extents.m_xSize)
+								if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
 								{
 									size_t xy3 = yyy * extents.m_xSize + xxx;
 
