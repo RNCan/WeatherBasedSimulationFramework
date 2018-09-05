@@ -519,7 +519,7 @@ ERMsg CCloudCleaner::Execute()
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
 #pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
-		for (__int64 b = 0; b < (__int64)/*XYindex.size()*/36; b++)
+		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 		{
 			size_t thread = omp_get_thread_num();
 			size_t xBlock = XYindex[b].first;
@@ -1074,8 +1074,8 @@ bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeo
 {
 	ASSERT(!treated.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
 
-	treated.set((size_t)xy.m_y * extents.m_xSize + xy.m_x);
 	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
+	treated.set(xy1);
 	bool bTouch = suspects1.test(xy1);
 	
 	if (!bTouch)
@@ -1102,7 +1102,7 @@ bool CCloudCleaner::TouchSuspect1(size_t level, const CGeoExtents& extents, CGeo
 		}//for buffer y 
 
 		if (!bTouch || level >= 10000)
-			suspects2.reset();
+			suspects2.reset(xy1);
 	}//if not touch
 
 	return bTouch;
@@ -1180,7 +1180,7 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 
 
 
-size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated)
+size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1/*, boost::dynamic_bitset<size_t>& treated*/)
 {
 	ASSERT(!treated.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
 
@@ -1209,7 +1209,7 @@ size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSie
 							if (/*!treated.test(xy2) && */(suspects1.test(xy2)) )
 							{
 								//nbPixels += SieveSuspect1(level + 1, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
-								SieveSuspect1(level + 1, nbPixels, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated);
+								SieveSuspect1(level + 1, nbPixels, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1/*, treated*/);
 							}//not treated
 						}
 					}//inside extent
@@ -1261,7 +1261,7 @@ size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSie
 
 void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, boost::dynamic_bitset<size_t>& suspects1)
 {
-	boost::dynamic_bitset<size_t> treated(suspects1.size());
+//	boost::dynamic_bitset<size_t> treated(suspects1.size());
 
 	for (size_t y = 0; y < extents.m_ySize; y++)
 	{
@@ -1277,7 +1277,7 @@ void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, bo
 				//	CleanSuspect1(0, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
 				//}
 			size_t nbPixels = 0;
-			SieveSuspect1(0, nbPixels, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated);
+			SieveSuspect1(0, nbPixels, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1/*, treated*/);
 			//}
 
 #pragma omp atomic		
