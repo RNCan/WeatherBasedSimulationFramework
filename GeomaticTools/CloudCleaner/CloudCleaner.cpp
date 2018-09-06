@@ -103,8 +103,8 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-FillCloud", 0, "", false, "Fill cloud with next or previous valid scenes (+1,-1,+2,-2,...)." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 1 by default." },
-		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
+		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 0 by default." },
+		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 0 by default." },
 		//{ "-SuspectAsCloud", 0, "", false, "Set all suspicious pixels arround cloud pixels as cloud." },
 		//{ "-DoubleCloud", 0, "", false, "Verify " },
 		{ "-Sieve", 1, "nbPixel", false, "Set the minimum number of contigious pixel to consider it as suspicious. 9 by default." },
@@ -556,6 +556,8 @@ ERMsg CCloudCleaner::Execute()
 			 
 		}//for all blocks
 
+		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
 
 
 		if (!m_options.m_bQuiet)
@@ -582,6 +584,9 @@ ERMsg CCloudCleaner::Execute()
 			{
 				SieveSuspect1(m_options.m_sieve, extents, suspects1[zz]);
 			}
+			GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+			cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
+
 		}
 
 		if (!m_options.m_bQuiet)
@@ -592,6 +597,9 @@ ERMsg CCloudCleaner::Execute()
 #pragma omp parallel for /*schedule(static, 1)*/ num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
 			CleanSuspect2(extents, suspects1[zz], suspects2[zz]);
+
+		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
 
 		if (!m_options.m_bQuiet)
 		{
@@ -621,14 +629,21 @@ ERMsg CCloudCleaner::Execute()
 			FindClouds(xBlock, yBlock, bandHolder[thread], forests, RFcode, suspects1, suspects2, clouds);
 			WriteBlock1(xBlock, yBlock, bandHolder[thread], RFcode, DTCodeDS);
 		}//for all blocks
+		
+		if (DTCodeDS.IsOpen())
+			DTCodeDS.FlushCache();
 
+		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
+		
+		
 		SetBuffer(extents, suspects1, suspects2, clouds);
 
 
 		if (m_options.m_bCreateImage || m_options.m_bDebug)
 		{
 			if (!m_options.m_bQuiet)
-				cout << "Clean/replace clouds..." << endl;
+				cout << "Clean/replace clouds/output debug..." << endl;
 
 			m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
 
@@ -655,7 +670,7 @@ ERMsg CCloudCleaner::Execute()
 
 		//close inputs and outputs
 		CloseAll(lansatDS, maskDS, outputDS, DTCodeDS, debugDS);
-
+		
 		for (size_t zz = 0; zz < clouds.size(); zz++)
 			cout << "Cloud for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)clouds[zz].count() / clouds[zz].size() * 100.0 << "%" << endl;
 
@@ -901,7 +916,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 		}
 
 		//in normal case, only one model is used, there si no competition here
-#pragma omp parallel for num_threads(3) if (m_options.m_bMulti)
+//#pragma omp parallel for num_threads(3) if (m_options.m_bMulti) need more test
 		for (int m = 0; m < 3; m++)
 		{
 			for (size_t zz = 0; zz < nbScenesProcess; zz++)
@@ -1046,11 +1061,7 @@ void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder
 
 size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1/*, boost::dynamic_bitset<size_t>& treated*/)
 {
-	ASSERT(!treated.test((size_t)xy.m_y * extents.m_xSize + xy.m_x));
-
-	//size_t nbPixels = 0;
 	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
-	//treated.set(xy1);
 
 	if (suspects1.test(xy1) )
 	{
