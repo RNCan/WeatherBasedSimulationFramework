@@ -1375,7 +1375,7 @@ void CGDALDatasetEx::FlushCache(double yMax)
 {
 	for (size_t k = 0; k<GetRasterCount(); k++)
 	{
-		if (yMax<m_internalExtents[k].m_yMin)
+		if (k>=m_internalExtents.size() || yMax<m_internalExtents[k].m_yMin)
 			GetRasterBand(k)->FlushCache();
 	}
 }
