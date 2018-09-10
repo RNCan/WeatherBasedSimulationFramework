@@ -628,15 +628,16 @@ namespace WBSF
 		file.seekg(0);
 		vector<size_t> members;
 
-		size_t i = 0;
-		for (CSVIterator loop(file, separator); loop != CSVIterator() && msg; ++loop, i++)
+		
+		for (CSVIterator loop(file, separator); loop != CSVIterator() && msg; ++loop)
 		{
 			if (members.empty())
 				members = CLocation::GetMembers((StringVector&)loop.Header());
 
 			if (loop->size()>1)//can be empty line or some spaces...
 			{
-				resize(this->size() + 1);
+				size_t i = this->size();
+				resize(i + 1);
 
 				for (size_t j = 0; j < members.size() && j < (*loop).size(); j++)
 				{
