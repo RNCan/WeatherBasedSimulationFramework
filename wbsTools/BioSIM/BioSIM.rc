@@ -177,7 +177,6 @@ END
 IDR_EXPORT_TOOLBAR2 TOOLBAR 24, 24
 BEGIN
     BUTTON      ID_EXPORT_CHECK
-    BUTTON      ID_EXPORT_NAME
 END
 
 IDR_GRAPH_TOOLBAR TOOLBAR 24, 24
@@ -1321,7 +1320,7 @@ BEGIN
     ID_EXPORT_OPEN_DIRECTORY 
                             "Open output directoy in Windows Explorer\nOpen Directory"
     ID_EXPORT_CHECK         "Automaticly save result at execution\nAuto Export"
-    ID_EXPORT_NAME          "Export File name save into the output sub-directory\nFile Name"
+    ID_EXPORT_NAME          "Export File name save into the output sub-directory\nExport File Name"
 END
 
 STRINGTABLE

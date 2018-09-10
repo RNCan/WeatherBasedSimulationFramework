@@ -77,7 +77,6 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnExport(UINT ID);
-	afx_msg void OnExportToShowMap();
 	afx_msg void OnOpenDirectory();
 	afx_msg void OnNameChange();
 	afx_msg void OnUpdateToolbar(CCmdUI *pCmdUI);
@@ -86,11 +85,7 @@ protected:
 	
 
 	void AdjustLayout();
-	void RepositionChildControl(CWnd *pWnd, const int dx, const int dy, const UINT uAnchor);
 	void UpdateExport(WBSF::CDimension dimension, WBSF::CExport& theExport);
-	//void GetExportFromInterface(WBSF::CExport& oExport);
-	//void SetExportToInterface(const WBSF::CExport& oExport);
-	void ChangeView();
 	static UINT ExportTask(void* pParam);
 
 	bool m_bDesableUpdate;

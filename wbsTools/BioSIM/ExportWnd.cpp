@@ -58,8 +58,12 @@ BOOL CExportWndToolBar2::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& par
 	CMFCToolBarButton checkCtrl(ID_EXPORT_CHECK, 0);
 	checkCtrl.SetStyle(TBBS_CHECKBOX);
 	ReplaceButton(ID_EXPORT_CHECK, checkCtrl);
+	
+
+	//CMFCToolBarEditBoxButton nameCtrl(ID_EXPORT_NAME, 2);
 	CMFCToolBarEditBoxButton nameCtrl(ID_EXPORT_NAME, 2);
-	ReplaceButton(ID_EXPORT_NAME, nameCtrl);
+	//ReplaceButton(ID_EXPORT_NAME, nameCtrl);
+	InsertButton(nameCtrl);
 
 	return TRUE;
 }

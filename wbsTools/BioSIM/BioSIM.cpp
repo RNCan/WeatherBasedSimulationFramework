@@ -377,12 +377,9 @@ CBioSIMApp::~CBioSIMApp()
 
 CBioSIMApp theApp;
 
-
 BOOL CBioSIMApp::InitInstance()
 {
 	CRegistry registre; 
-
-
 
     short language = registre.GetLanguage();
     HINSTANCE hInst = NULL;
