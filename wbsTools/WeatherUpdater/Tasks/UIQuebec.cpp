@@ -82,7 +82,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Quebec\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		case UPDATE_UNTIL: str = "15"; break;
+		case UPDATE_UNTIL: str = "7"; break;
 		case UPDATE_STATIONS_LIST: str = "0"; break;
 		};
 
@@ -112,7 +112,7 @@ namespace WBSF
 				case SOPFEU:  InitSOPFEU(m_SOPFEU); msg += m_SOPFEU.Execute(callback); break;
 				case MDDELCC: InitMDDELCC(m_MDDELCC); msg += m_MDDELCC.Execute(callback); break;
 				case MFFP:    if (InitMFFP(m_MFFP)) { msg += m_MFFP.Execute(callback); break; }
-				default: Init(n); Execute(n, callback);
+				default: Init(n); msg += Execute(n, callback);
 				}
 
 				msg += callback.StepIt();
@@ -192,13 +192,16 @@ namespace WBSF
 		size_t dataType = as<size_t>(DATA_TYPE);
 		if (dataType == HOURLY_WEATHER)
 		{
-			callback.AddMessage(GetString(IDS_UPDATE_DIR));
+			callback.AddMessage(GetString(IDS_UPDATE_DIR)); 
 			callback.AddMessage(workingDir, 1);
 			callback.AddMessage("");
 
 			string userName = Get(USER_NAME_MFFP);
 			string password = Get(PASSWORD_MFFP);
-			msg = ExecuteFTP(workingDir, n, userName, password, callback);
+			int firstYear = as<int>(FIRST_YEAR);
+			int lastYear = as<int>(LAST_YEAR);
+			int updateUntil = as<int>(UPDATE_UNTIL);
+			msg = ExecuteFTP(workingDir, n, userName, password, firstYear, lastYear, updateUntil, callback);
 		}
 
 		return msg;

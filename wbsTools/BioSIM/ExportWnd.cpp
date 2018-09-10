@@ -1,5 +1,4 @@
-
-// BioSIMView.cpp : implementation of the CExportView class
+// ExportView.cpp : implementation of the CExportView class
 //
 
 #include "stdafx.h"

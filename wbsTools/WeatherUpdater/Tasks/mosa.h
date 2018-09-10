@@ -18,6 +18,6 @@ namespace WBSF
 //**************************************************************
 namespace Mosa
 {
-	QC_LIBRARY_API ERMsg ExecuteFTP(const std::string& workingDir, size_t n, const std::string& userName, const std::string& password, WBSF::CCallback& callback);
+	QC_LIBRARY_API ERMsg ExecuteFTP(const std::string& workingDir, size_t n, const std::string& userName, const std::string& password, int firstYear, int lastYear, int updateUntil, WBSF::CCallback& callback);
 }
 

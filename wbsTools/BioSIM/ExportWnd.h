@@ -1,5 +1,5 @@
 
-// BioSIMView.h : interface of the CExportView class
+// ExportView.h : interface of the CExportView class
 //
 
 
