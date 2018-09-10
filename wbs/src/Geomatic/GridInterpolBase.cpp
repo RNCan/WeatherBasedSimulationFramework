@@ -76,38 +76,15 @@ namespace WBSF
 	const int CGridInterpolParam::EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][5] =
 	{
 		{ 0, 0, 0, 0, 0 },
-		{ 1, CTerm::ELEV, 0, 0, 0 },
-		{ 1, CTerm::EXPO, 0, 0, 0 },
+		{ 1, CTerm::EXPO, 0, 0, 0 },//we put expo and shore before elev to put elev at the same position (3) than ever
 		{ 1, CTerm::SHORE, 0, 0, 0 },
+		{ 1, CTerm::ELEV, 0, 0, 0 },
 		{ 3, CTerm::ELEV, CTerm::EXPO, CTerm::ELEV | CTerm::EXPO },
 		{ 3, CTerm::ELEV, CTerm::SHORE, CTerm::ELEV | CTerm::SHORE },
 		{ 3, CTerm::EXPO, CTerm::SHORE, CTerm::EXPO | CTerm::SHORE },
 		{ 4, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE, CTerm::ELEV|CTerm::EXPO | CTerm::SHORE },
 		{ 3, CTerm::LAT, CTerm::ELEV, CTerm::LAT|CTerm::ELEV },
 		{ 4, CTerm::LAT, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE },
-		
-
-	/*	{ 0, 0, 0, 0, 0 },
-		{ 1, CTerm::ELEV, 0, 0, 0 },
-		{ 1, CTerm::EXPO, 0, 0, 0 },
-		{ 1, CTerm::SHORE, 0, 0, 0 },
-		{ 1, CTerm::ELEV|CTerm::EXPO },
-		{ 1, CTerm::ELEV|CTerm::SHORE },
-		{ 1, CTerm::EXPO | CTerm::SHORE },
-		{ 1, CTerm::ELEV | CTerm::EXPO | CTerm::SHORE },
-		{ 1, CTerm::LAT| CTerm::LON| CTerm::ELEV| CTerm::EXPO },
-		{ 1, CTerm::LAT| CTerm::LON| CTerm::ELEV| CTerm::SHORE },
-
-*/
-
-
-		//{ 3, CTerm::LON, CTerm::ELEV, CTerm::LON | CTerm::ELEV },
-		//{ 3, CTerm::LON, CTerm::EXPO, CTerm::LON | CTerm::EXPO },
-		//{ 3, CTerm::LON, CTerm::SHORE, CTerm::LON | CTerm::SHORE },
-		//{ 1, CTerm::LAT², 0, 0 },
-		//{ 1, CTerm::LON², 0, 0 },
-		//{ 1, CTerm::ELEV², 0, 0 },
-		//{ 1, CTerm::EXPO², 0, 0 },
 	};
 
 	//***************************************************************************
