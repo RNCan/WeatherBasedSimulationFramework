@@ -1,5 +1,5 @@
 ﻿//**********************************************************************
-// 16/03/2018	3.1.2	Rémi Saint-Amant    hourly and daily SRad in MJ/m² instread iof W/m²
+// 16/03/2018	3.1.2	Rémi Saint-Amant    hourly and daily SRad in MJ/m² instread of W/m²
 // 11/04/2017	3.1.1	Rémi Saint-Amant    Recompile
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)

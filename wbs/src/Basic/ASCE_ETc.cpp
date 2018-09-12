@@ -349,8 +349,8 @@ namespace WBSF
 		if (weather.IsHourly())
 			return weather[TRef][H_RELH][LOWEST];
 
-		double EᵒTdew = eᵒ(weather[TRef][H_TDEW][MEAN]) * 1000;
-		double EᵒTmax = eᵒ(weather[TRef][H_TMAX2][MEAN]) * 1000;
+		double EᵒTdew = eᵒ(weather[TRef][H_TDEW][MEAN]);//[kPa]
+		double EᵒTmax = eᵒ(weather[TRef][H_TMAX2][MEAN]);//[kPa]
 		double RHmin = max(1.0, min(100.0, EᵒTdew / EᵒTmax * 100));
 		return RHmin;
 	}

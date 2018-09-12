@@ -1761,8 +1761,8 @@ namespace WBSF
 						//had accumulated during the night evaporated during the morning (Mintah,1977).
 						double c = hDay[h].GetVarEx(H_FNCD);
 						double Tws = hDay[h][H_TAIR2];		//[°C]
-						double ews = hDay[h][H_EA2] / 100;		//[mb]
-						double esaws = hDay[h][H_ES2] / 100;	//[mb]   
+						double ews = hDay[h][H_EA] * 10;	//[mb]
+						double esaws = hDay[h][H_ES] * 10;	//[mb]   
 						double Zws = 10;					//[m]
 						double Uws = hDay[h][H_WNDS] * 1000 / 3600;		//km/h --> m/s
 						double Rs1 = hDay[h][H_SRAD2]/**1000000/3600*/;	//MJ/(m²·h) --> W/m²;
@@ -2005,7 +2005,7 @@ namespace WBSF
 
 
 							double Fcd = hDay[hh].GetVarEx(H_FNCD);
-							double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR2], hDay[hh][H_EA2] / 1000, Fcd);
+							double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR2], hDay[hh][H_EA], Fcd);
 							double Rn = 0;
 							if (hDay[hh][H_SRAD2] > 0)
 							{
@@ -2096,9 +2096,9 @@ namespace WBSF
 							//h = transfer coefficient for heat and vapor from the surface to the atmosphere [cm/min]
 							double h = Geth(c, Uc);
 							//water vapor pressure of the atmosphere [mbar]
-							double Ea = hDay[hh][H_EA2] / 100.0;			//Pa  --> mbar
+							double Ea = hDay[hh][H_EA] * 10.0;			//kPa  --> mbar
 							//saturated water vapor pressure of the atmosphere [mbar]
-							double Es = hDay[hh][H_ES2] / 100.0;			//Pa  --> mbar
+							double Es = hDay[hh][H_ES] * 10.0;			//kPa  --> mbar
 
 							//potential latent heat flux density (evaporation) [cm³/(cm²·min)]. (potential volume of water loss from a wet surface area)
 							double Ep = GetEp(Δ, λ, δ, p, Cp, h, Ea, Es)*0.5;//add a 0.5 factor to get same result as the Excel file

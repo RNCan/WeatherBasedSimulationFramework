@@ -1,5 +1,6 @@
 ﻿//**********************************************************************
-// 27/07/2018	3.1.1	Rémi Saint-Amant    Chnage name SB -> Qc. Compile with VS 2017
+// 10/09/2018	3.1.2	Rémi Saint-Amant    Bug correction in aridity 
+// 27/07/2018	3.1.1	Rémi Saint-Amant    Change in name SB -> Qc. Compile with VS 2017
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/03/2009			Rémi Saint-Amant	Update with new BioSIMModelBase (hxGrid)
@@ -47,7 +48,7 @@ namespace WBSF
 	CClimaticQc::CClimaticQc()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "3.1.1 (2018)";
+		VERSION = "3.1.2 (2018)";
 
 		// initialise your variable here (optionnal)
 		m_threshold = 0;
@@ -102,8 +103,6 @@ namespace WBSF
 		CThornthwaiteET TPET;
 		CModelStatVector PET;
 		TPET.Execute(m_weather, PET);
-		//CTStatMatrix PET;
-		//TPET.Transform(CTTransformation(_PET.GetTPeriod(), CTM(CTM::ANNUAL)), _PET, PET);
 		PET.Transform(CTM(CTM::MONTHLY), SUM);
 		
 
@@ -127,7 +126,6 @@ namespace WBSF
 			CTPeriod FFPeriod = GS.GetFrostFreePeriod(m_weather[y]);
 			size_t dayWithoutFrost = m_weather[y].GetNbDays() - GetNbFrostDay(m_weather[y]);
 			ASSERT(dayWithoutFrost >= 0 && dayWithoutFrost <= m_weather[y].GetNbDays());
-			//ASSERT(GetConsecutiveDayWithoutFrost(m_weather[y], 0) == FFPeriod.GetLength());
 
 			CTPeriod growingSeason = GS.GetGrowingSeason(m_weather[y]);
 			double pptGS = m_weather[y](H_PRCP, growingSeason)[SUM];
@@ -137,20 +135,12 @@ namespace WBSF
 			//WARNING: In Climatic Annual, VPS is givent in kPa and are take from database, but here 
 			// humidity is an aproximation from temperature
 			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]);//mbars; 
-			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10;//mbarsm, *10 de kPa -> hPas(mBar)
-		
-
-			//TPET.SetLoc(m_info.m_loc);
-			//(m_weather[y], 0, CThornthwaitePET::POTENTIEL_STANDARD);
-			//double ar = TPET.GetWaterDeficit(m_weather[y]) / 10;//in cm
-
+			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10;//kPa -> hPas(mBar)
+	
 			double ar = 0;
 			for(size_t m=0; m<12; m++)
 				ar += max(0.0, PET[y*12+m][CThornthwaiteET::S_ET] - m_weather[y][m].GetStat(H_PRCP)[SUM]) / 10;//in cm
-
-			//double ar = m_weather[y].GetWaterDeficit()/10;//in cm
-			//double annualSnow = m_weather[y].GetStat( STAT_SNOW, SUM);
-
+	
 			double annualSnow = 0;
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -176,8 +166,8 @@ namespace WBSF
 			stat[y][O_GS_TMEAN] = TmeanGS;
 			stat[y][O_JULY_TMEAN] = meanJuly;
 			stat[y][O_DAY_WITHOUT_FROST] = dayWithoutFrost;
-			stat[y][O_FF_PERIOD_LENGTH] = FFPeriod.GetLength();
-			stat[y][O_GROWING_SEASON_LENGTH] = growingSeason.GetLength();
+			stat[y][O_FF_PERIOD_LENGTH] = FFPeriod.as(CTM::DAILY).GetLength();
+			stat[y][O_GROWING_SEASON_LENGTH] = growingSeason.as(CTM::DAILY).GetLength();
 			stat[y][O_FF_PERIOD_BEGIN] = FFPeriod.Begin().GetJDay();
 			stat[y][O_FFPERIOD_END] = FFPeriod.End().GetJDay();
 			stat[y][O_MEAN_VPD] = VPD; //in mBar
@@ -218,7 +208,7 @@ namespace WBSF
 		return nbDayMax;
 	}*/
 
-	//deficit pressure in mbars
+	//deficit pressure in [mbars]
 	double CClimaticQc::GetUtilDeficitPressionVapeur(const CWeatherYear& weather)
 	{
 		double udpv = 0;
@@ -238,26 +228,53 @@ namespace WBSF
 				double T2 = 7.5*Tmin / (237.3 + Tmin);
 				udpv += pow(10., T1) - pow(10., T2);
 			}
-
-			//udpv2 += day.GetDaylightVaporPressureDeficit();
-			//static const double A = -1.88E4;
-			//static const double B = -13.1;
-			//static const double C = -1.5E-2;
-			//static const double D = 8.0E-7;
-			//static const double E = -1.69E-11;
-			//static const double F = 6.456;
-			//double TK = day.GetTMean() + 273.15;
-
-			////svp is the saturation vapor pressure in kPa
-			//double i = A/TK + B + C*TK + D*Square(TK) + E*Cube(TK) + F*log(TK);
-			//double svp = exp(i);
-
-			//udpv2 += svp*(1-day[DAILY_DATA::RELH]/100);
 		}
-		udpv *= 6.108;
+		udpv *= 6.108;//[hPa]
 
 		return udpv;
 	}
+
+	//udpv2 += day.GetDaylightVaporPressureDeficit();
+
+	
+	//from wikipedia :https://en.wikipedia.org/wiki/Vapour-pressure_deficit
+	//{\displaystyle A = -1.044\times 10 ^ {4}},
+	//{ \displaystyle B = -11.29 } {\displaystyle B = -11.29},
+	//{ \displaystyle C = -2.7\times 10 ^ {-2} } {\displaystyle C = -2.7\times 10 ^ {-2}},
+	//{ \displaystyle D = 1.289\times 10 ^ {-5} } {\displaystyle D = 1.289\times 10 ^ {-5}},
+	//{ \displaystyle E = -2.478\times 10 ^ {-9} } {\displaystyle E = -2.478\times 10 ^ {-9}},
+	//{ \displaystyle F = 6.456 } F = 6.456,
+	//{ \displaystyle T } T is temperature of t
+	//	//static const double A = -1.88E4;
+	//	//static const double B = -13.1;
+	//	//static const double C = -1.5E-2;
+	//	//static const double D = 8.0E-7;
+	//	//static const double E = -1.69E-11;
+	//	//static const double F = 6.456;
+	//	double TT = (day.GetTMean() - 491.67) × 5 / 9
+	//	//double TK = day.GetTMean() + 273.15;
+
+	//	////svp is the saturation vapor pressure in kPa
+	//	//double i = A/TK + B + C*TK + D*Square(TK) + E*Cube(TK) + F*log(TK);
+	//	//double svp = exp(i);
+
+	//	//udpv2 += svp*(1-day[DAILY_DATA::RELH]/100);
+
+
+	////static const double A = -1.88E4;
+	////static const double B = -13.1;
+	////static const double C = -1.5E-2;
+	////static const double D = 8.0E-7;
+	////static const double E = -1.69E-11;
+	////static const double F = 6.456;
+	//double TT = (T(°R) - 491.67) × 5 / 9
+	////double TK = day.GetTMean() + 273.15;
+
+	////svp is the saturation vapor pressure in kPa
+	//double i = A/TK + B + C*TK + D*Square(TK) + E*Cube(TK) + F*log(TK);
+	//double svp = exp(i);
+
+	//udpv2 += svp*(1-day[DAILY_DATA::RELH]/100);
 
 	//this method is call to load your parameter in your variable
 	ERMsg CClimaticQc::ProcessParameters(const CParameterVector& parameters)
@@ -273,9 +290,7 @@ namespace WBSF
 		return message;
 	}
 
-
-
-
+	//Saturation vapor pressure at daylight temperature[kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherYear& weather)
 	{
 		CStatistic stat;
@@ -284,7 +299,7 @@ namespace WBSF
 
 		return stat[MEAN];
 	}
-
+	//Saturation vapor pressure at daylight temperature[kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherMonth& weather)
 	{
 		CStatistic stat;
@@ -294,13 +309,13 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
-	//Saturation vapor pressure at daylight temperature
+	//Saturation vapor pressure at daylight temperature[kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherDay& weather)
 	{
 		double daylightT = weather.GetTdaylight();
-		double daylightEs = eᵒ(daylightT) * 1000;//Pa
+		double daylightEs = eᵒ(daylightT);//kPa
 
-		return max(0.0, daylightEs - weather[H_EA2][MEAN]);
+		return max(0.0, daylightEs - weather[H_EA][MEAN]);//[kPa]
 	}
 
 	double GetNbDayWithPrcp(const CWeatherYear& weather)

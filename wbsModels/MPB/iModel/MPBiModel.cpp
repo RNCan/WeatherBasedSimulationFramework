@@ -126,8 +126,8 @@ namespace WBSF
 			for (size_t g = 0; g < stat.size(); g++)
 			{
 				ComputeGenerationValue(stat[g], output[g]);
-				CTRef firstDay = stat[g].GetFirstTRef(S_NB_OBJECT_ALIVE, 0.05, 0);
-				CTRef lastDay = stat[g].GetLastTRef(S_NB_OBJECT_ALIVE, 0.05, 0);
+				CTRef firstDay = stat[g].GetFirstTRef(S_NB_OBJECT_ALIVE, ">=", 0.05, 0);
+				CTRef lastDay = stat[g].GetLastTRef(S_NB_OBJECT_ALIVE, ">=", 0.05, 0);
 
 				if (firstDay.IsInit())
 				{

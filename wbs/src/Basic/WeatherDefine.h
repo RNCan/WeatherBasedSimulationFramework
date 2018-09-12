@@ -95,9 +95,9 @@ namespace WBSF
 			H_CSRA,				//clear-sky radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 			H_EXRA,				//extraterrestrial radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
 			H_SWRA,				//net short-wave radiation [MJ m-2 d-1] or [MJ m-2 hr-1]
-			H_ES2,				//saturated vapor pressure from Tdew [Pa]
-			H_EA2,				//actual vapor pressure from Tair [Pa]
-			H_VPD2,				//vapor pressure deficit [Pa]
+			H_ES,				//saturated vapor pressure from Tdew [kPa]
+			H_EA,				//actual vapor pressure from Tair [kPa]
+			H_VPD,				//vapor pressure deficit [kPa]
 			H_TNTX,				//daily mean temperature [°C] from daily Tmin and Tmax
 			H_TRNG2,			//daily diurnal temperature range [°C] from daily Tmin and Tmax
 			H_SRMJ,				//mean solar radiation  [MJ m-2 d-1] or [MJ m-2 hr-1]

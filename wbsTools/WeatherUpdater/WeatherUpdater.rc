@@ -165,7 +165,7 @@ BEGIN
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
     BUTTON      ID_TASK_CONVERT_DB
-	BUTTON      ID_TASK_CREATE_ANIMATION
+    BUTTON      ID_TASK_CREATE_ANIMATION
     SEPARATOR
     BUTTON      ID_TASK_DELETE_TOOL
 END
@@ -224,7 +224,7 @@ BEGIN
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
     BUTTON      ID_TASK_CONVERT_DB
-	BUTTON      ID_TASK_CREATE_ANIMATION
+    BUTTON      ID_TASK_CREATE_ANIMATION
     BUTTON      ID_TASK_UPDATE
     BUTTON      ID_TASK_TOOLS
 END
@@ -242,8 +242,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,6,2,4
- PRODUCTVERSION 5,6,2,4
+ FILEVERSION 5,7,0,0
+ PRODUCTVERSION 5,7,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -260,21 +260,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.6.2.4"
+            VALUE "FileVersion", "5.7.0.0"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.6.2.4"
+            VALUE "ProductVersion", "5.7.0.0"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.6.2.4"
+            VALUE "FileVersion", "5.7.0.0"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.6.2.4"
+            VALUE "ProductVersion", "5.7.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -720,7 +720,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables|Isobares"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-							"Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
+                            "Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_TOOL_CREATE_HOURLY_P 
@@ -743,7 +743,8 @@ BEGIN
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
     IDS_TOOL_CONVERT_DB_P   "Direction|Fichier d'entrée|Fichier de sortie"
-	IDS_TOOL_CREATE_ANIMATION_P "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
+    IDS_TOOL_CREATE_ANIMATION_P 
+                            "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
 END
 
 STRINGTABLE
@@ -811,7 +812,8 @@ STRINGTABLE
 BEGIN
     ID_TASK_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP\nFTP"
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
-	ID_TASK_CREATE_ANIMATION "Créer une animation a partir d'images radar\nAnimation"
+    ID_TASK_CREATE_ANIMATION 
+                            "Créer une animation a partir d'images radar\nAnimation"
     ID_TASK_DELETE_UPDATE   "Enlever une tâche de mise à jour\nEnlever"
     ID_TASK_UPDATE          "Ajouter une tâche de type téléchargement\ntéléchargement"
     ID_TASK_TOOLS           "Ajouter une tâche de type outil\noutil"
@@ -1191,7 +1193,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Working directory|Variables|Isobars"
     IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
     IDS_UPDATER_GRIB_FORECAST_P 
-		"Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
+                            "Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 
@@ -1214,7 +1216,8 @@ BEGIN
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local file|User name|Password|Connection type|Connection timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
     IDS_TOOL_CONVERT_DB_P   "Direction|Input file|Output file"
-	IDS_TOOL_CREATE_ANIMATION_P "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
+    IDS_TOOL_CREATE_ANIMATION_P 
+                            "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
 END
 
 STRINGTABLE
@@ -1282,7 +1285,7 @@ STRINGTABLE
 BEGIN
     ID_TASK_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site\nFTP"
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvert"
-	ID_TASK_CREATE_ANIMATION "Create animation from radar images\nAnimation"
+    ID_TASK_CREATE_ANIMATION "Create animation from radar images\nAnimation"
     ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"
     ID_TASK_UPDATE          "Add a task of type downloader\nDownloader"
     ID_TASK_TOOLS           "Add a task of type tool\nTool"

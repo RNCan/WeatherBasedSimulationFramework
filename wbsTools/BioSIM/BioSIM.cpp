@@ -1,6 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
-// 11.4.9: 30/08/2018	Rémi Saint-Amant	compile with WBS 1.0.1
+// 11.5.0 (1.1.0): 12/09/2018 Rémi Saint-Amant	Bug correction in unit of vapor pressure.
+//												Bug correction in generation of hourly precipitation from daily values
+// 11.4.9 (1.0.1): 30/08/2018 Rémi Saint-Amant	Major update in spatial interpolation.
 // 11.4.8: 11/07/2018	Rémi Saint-Amant	Optimization of memory in ATM
 //											Correction of bug in sub-hourly output and time step
 // 11.4.7: 05/07/2018	Rémi Saint-Amant	Bug correction ATM (no end loop)
@@ -336,7 +338,7 @@
 #include "OutputView.h"
 #include "WeatherBasedSimulationUI.h"
 #include "WeatherBasedSimulationString.h"
-
+#include "wbs_version.h"
 
 
 using namespace UtilWin;
@@ -731,6 +733,8 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_VERSION, m_versionCtrl);
+	DDX_Control(pDX, IDC_WBSF_VERSION, m_WBSFversionCtrl);
+	
 
 	if( !pDX->m_bSaveAndValidate )
 	{
@@ -739,10 +743,12 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 		GetModuleFileNameW(GetModuleHandle(NULL), filepath.GetBuffer(MAX_PATH), MAX_PATH);
 		filepath.ReleaseBuffer();
 
-
 		CString version = UtilWin::GetVersionString(filepath);
 		CString date = UtilWin::GetCompilationDateString(__DATE__);
 		m_versionCtrl.SetWindowText( version + _T(" (") + date + _T(") 64 bits") );
+
+		m_WBSFversionCtrl.SetWindowText(CString(WBSF_VERSION) );
+		
 	}
 }
 

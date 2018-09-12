@@ -33,10 +33,16 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ETsz (Daily).mdl" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\ASCE-ETsz (Hourly).mdl" "..\Install\NRCan\Models\ASCE-ETsz (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\ASCE-ETsz.dll" "..\Install\NRCan\Models\ASCE-ETsz.dll"
 copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-ET2005.pdf"
+
+
+copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
+copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
+
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"
 copy /Y ".\bin\Releasex64\Models\BlueStainVariables.mdl" "..\Install\NRCan\Models\BlueStainVariables.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainVariables.dll" "..\Install\NRCan\Models\BlueStainVariables.dll"
+
 copy /Y ".\bin\Releasex64\Models\Climatic (Hourly).mdl" "..\Install\NRCan\Models\Climatic (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic (Daily).mdl"  "..\Install\NRCan\Models\Climatic (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic (Monthly).mdl" "..\Install\NRCan\Models\Climatic (Monthly).mdl"
@@ -117,6 +123,8 @@ copy /Y ".\bin\Releasex64\Models\MPB-ColdTolerance.dll" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\MPB-SLR.dll" "..\Install\NRCan\Models\MPB-SLR.dll"
 copy /Y ".\bin\Releasex64\Models\MPB-SLR.mdl" "..\Install\NRCan\Models\MPB-SLR.mdl"
 
+copy /Y ".\bin\Releasex64\Models\PlantHardiness.mdl" "..\Install\NRCan\Models\PlantHardiness.mdl"
+copy /Y ".\bin\Releasex64\Models\PlantHardiness.dll" "..\Install\NRCan\Models\PlantHardiness.dll"
 
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Annual).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Monthly).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Monthly).mdl"

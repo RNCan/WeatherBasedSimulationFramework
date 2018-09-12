@@ -15,12 +15,13 @@ namespace WBSF
 	CTRef CEggModel::GetFirstDay()const
 	{
 		//it's the first oviposition date
-		return min(m_eggState.GetFirstTRef(PREDIAPAUSE), m_eggState.GetFirstTRef(HATCH));
+		//return min(m_eggState.GetFirstTRef(PREDIAPAUSE), m_eggState.GetFirstTRef(HATCH));
+		return min(m_eggState.GetFirstTRef(PREDIAPAUSE, ">", 0), m_eggState.GetFirstTRef(HATCH, ">", 0));//by RSA 11-09-2018
 	}
 
 	CTRef CEggModel::GetFirstHatch()const
 	{
-		return m_eggState.GetFirstTRef(HATCH);
+		return m_eggState.GetFirstTRef(HATCH, ">", 0);//by RSA 11-09-2018
 	}
 
 

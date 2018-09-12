@@ -4,7 +4,7 @@
 //
 #define IDP_OLE_INIT_FAILED             100
 #define IDS_TOOLBAR_STANDARD            124
-#define IDS_TOOLBAR_STATUS	            125
+#define IDS_TOOLBAR_STATUS              125
 #define IDS_PROJECT_WND                 126
 #define IDS_SPREADSHEET_WND             127
 #define IDS_CHARTS_WND                  128
@@ -55,6 +55,7 @@
 #define IDI_R                           340
 #define IDB_BIOSIM_LOGO                 345
 #define IDC_VERSION                     1016
+#define IDC_WBSF_VERSION                1017
 #define IDC_EXPORT_SCRIPT               1019
 #define IDC_MAIL_TO_JR                  1020
 #define IDC_MAIL_TO_RSA                 1021
@@ -68,12 +69,12 @@
 #define IDC_OPTION_SAVEATRUN            1508
 #define IDC_OPTION_JACK                 1509
 #define IDC_OPTION_EXPORT_ALL_LINES     1510
-#define ID_HOURLY_EDITOR				32780
-#define ID_DAILY_EDITOR					32781
-#define ID_NORMALS_EDITOR				32782
-#define ID_WEATHER_UPDATER				32783
+#define ID_HOURLY_EDITOR                32780
+#define ID_DAILY_EDITOR                 32781
+#define ID_NORMALS_EDITOR               32782
+#define ID_WEATHER_UPDATER              32783
 #define ID_MATCH_STATION                32784
-#define ID_STATISTIC					32794
+#define ID_STATISTIC                    32794
 #define ID_EXECUTE                      32798
 #define ID_TOOLS_LOC_EDITOR             32801
 #define ID_TOOLS_CLEANUP                32802
@@ -116,7 +117,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        348
+#define _APS_NEXT_RESOURCE_VALUE        350
 #define _APS_NEXT_COMMAND_VALUE         32924
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           313

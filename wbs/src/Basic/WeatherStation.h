@@ -416,14 +416,6 @@ public:
 		return bHaveData;
 	}
 
-
-	//laquel utiliser????
-	//double GetEs()const{ return (at(HOURLY_DATA::H_TAIR)>-999) ? Pv(at(HOURLY_DATA::H_TAIR)) : -999;; }
-	//double GetEa()const{ return (at(HOURLY_DATA::H_TAIR)>-999 && at(HOURLY_DATA::H_RELH)>-999) ? Hr2Pv(at(HOURLY_DATA::H_TAIR), at(HOURLY_DATA::H_RELH)) : -999; }
-	//double GetVPD()const{ return (at(HOURLY_DATA::H_TAIR)>-999 && at(HOURLY_DATA::H_RELH)>-999) ? max(0.0, GetEs() - GetEa()) : -999; }
-	//double GetVPD()const{ return max(0.0, Pv(at(HOURLY_DATA::H_TAIR)) - Pv(at(HOURLY_DATA::H_TDEW))); }
-
-
 	virtual inline const CDataInterface& Get(CTRef ref)const;
 	virtual inline CDataInterface& Get(CTRef ref);
 	virtual const CStatistic& GetData(HOURLY_DATA::TVarH v)const;

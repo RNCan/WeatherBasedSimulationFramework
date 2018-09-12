@@ -89,7 +89,7 @@
         <OutputVariable>
             <Name>Pwv</Name>
             <Title>Pwv</Title>
-            <Units/>
+            <Units>mm</Units>
             <Description>Précipitation totale du mois le plus humide</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -97,7 +97,7 @@
         <OutputVariable>
             <Name>Pwm</Name>
             <Title>Pwm</Title>
-            <Units/>
+            <Units>1..12</Units>
             <Description>Mois le plus humide</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -105,15 +105,15 @@
         <OutputVariable>
             <Name>Pdv</Name>
             <Title>Pdv</Title>
-            <Units/>
-            <Description>Précipitation totale du mois le plus sec (mm)</Description>
+            <Units>mm</Units>
+            <Description>Précipitation totale du mois le plus sec</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Pdm</Name>
             <Title>Pdm</Title>
-            <Units/>
+            <Units>1..12</Units>
             <Description>Mois le plus sec</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -121,8 +121,8 @@
         <OutputVariable>
             <Name>Trng</Name>
             <Title>Trng</Title>
-            <Units/>
-            <Description>Différence entre Tmax du mois le plus chaud et Tmin du mois le plus froid (°C)</Description>
+            <Units>°C</Units>
+            <Description>Différence entre Tmax du mois le plus chaud et Tmin du mois le plus froid</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -130,7 +130,7 @@
             <Name>PET</Name>
             <Title>PET</Title>
             <Units>mm</Units>
-            <Description>Évapotranspiration potentielle de Hamon (mm). Formule mensuelle.</Description>
+            <Description>Évapotranspiration potentielle de Hamon. Formule mensuelle.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -146,7 +146,7 @@
             <Name>WBAL</Name>
             <Title>WBAL</Title>
             <Units>mm</Units>
-            <Description>Précipitation totale annuelle - l'évapotranspiration potentiel (mm)</Description>
+            <Description>Précipitation totale annuelle - l'évapotranspiration potentiel</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -193,8 +193,8 @@
         <OutputVariable>
             <Name>FPP</Name>
             <Title>FPP</Title>
-            <Units/>
-            <Description>Durée de la période sans gel (jours)</Description>
+            <Units>jours</Units>
+            <Description>Durée de la période sans gel</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+// 11/09/2018	1.3.1	Rémi Saint-Amant    Compile with VS 2017
 // 20/09/2016	1.3.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.2.2	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/02/2012	1.0		Rémi Saint-Amant	Creation
@@ -33,7 +34,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 5;
-		VERSION = "1.3.0 (2016)";
+		VERSION = "1.3.1 (2018)";
 
 		m_crop = BROCCOLI;
 		m_Jplant = CMonthDay(0,0);

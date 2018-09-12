@@ -273,8 +273,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,4,9,1
- PRODUCTVERSION 11,4,9,1
+ FILEVERSION 11,5,0,0
+ PRODUCTVERSION 11,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -291,23 +291,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.4.9.1"
+            VALUE "FileVersion", "11.5.0.0"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.4.9.1"
+            VALUE "ProductVersion", "11.5.0.0"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.4.9.1"
+            VALUE "FileVersion", "11.5.0.0"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.4.9.1"
+            VALUE "ProductVersion", "11.5.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -529,26 +529,28 @@ END
 
 IDD_ABOUTBOX2 DIALOGEX 0, 0, 425, 260
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Au sujet de BioSIM"
+CAPTION "Au sujet de BioSIM "
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "BioSIM",IDC_STATIC,224,9,27,8,SS_NOPREFIX
+    LTEXT           "BioSIM :",IDC_STATIC,224,9,27,8,SS_NOPREFIX
     DEFPUSHBUTTON   "OK",1,386,7,32,14,WS_GROUP
-    LTEXT           "Planification saisonnière de la lutte antiparasitaire",IDC_STATIC,224,23,194,19
-    LTEXT           "Programmé par :",IDC_STATIC,224,40,52,8
+    LTEXT           "Planification saisonnière de la lutte antiparasitaire",IDC_STATIC,224,34,194,12
+    LTEXT           "Programmé par :",IDC_STATIC,224,45,52,8
     LTEXT           "Ressources Naturelles Canada, Service canadien des forêts, C. P. 10380 succ. Sainte-Foy, QC, Canada G1V 4C7",IDC_STATIC,53,220,160,29
-    LTEXT           "Contributions :",IDC_STATIC,322,40,58,8
-    LTEXT           "Manon Gignac\nPierre Duval\nMichael Roden\nBarry Cooke",IDC_STATIC,329,51,64,40
+    LTEXT           "Contributions :",IDC_STATIC,322,45,58,8
+    LTEXT           "Manon Gignac\nPierre Duval\nMichael Roden\nBarry Cooke",IDC_STATIC,329,56,64,40
     LTEXT           "Régnière, J., St-Amant, R. 2007. Stochastic simulation of daily air temperature and precipitation from monthly normals in North America north of Mexico. International Journal of Biometeorology. 51:415-430.",IDC_STATIC,238,218,180,35
     LTEXT           "Références :",IDC_STATIC,224,170,42,8
     LTEXT           "Régnière, J. 1996. A generalized approach to landscape-wide seasonal forecasting with temperature-driven simulation models. Environ. Entomol. 25: 869-881.",IDC_STATIC,238,181,180,33
-    LTEXT           "Librairies externes :",IDC_STATIC,224,86,61,8
+    LTEXT           "Librairies externes :",IDC_STATIC,224,91,61,8
     LTEXT           "x.x.x",IDC_VERSION,254,8,127,8,SS_NOPREFIX
-    CONTROL         "Jacques Régnière",IDC_MAIL_TO_JR,"MfcLink",WS_TABSTOP,238,63,60,11
-    CONTROL         "Rémi Saint-Amant",IDC_MAIL_TO_RSA,"MfcLink",WS_TABSTOP,238,51,60,10
+    CONTROL         "Jacques Régnière",IDC_MAIL_TO_JR,"MfcLink",WS_TABSTOP,238,68,60,11
+    CONTROL         "Rémi Saint-Amant",IDC_MAIL_TO_RSA,"MfcLink",WS_TABSTOP,238,56,60,10
     ICON            IDR_MAINFRAME,IDC_BIOSIM_LOGO2,19,19,20,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
-    ICON            IDI_RNCAN48,IDC_STATIC,7,217,21,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
-    LTEXT           "UltimateGrid\tCode Project\nMTCLIM 4.3\tPeter Thornton\nANN\t\tSunil Arya and David Mount\nGDAL\t\tFrank Warmerdam\nNEWMAT\tR B Davie\nChartCtrl\tCédric Moonen\nDlib\t\tDavis E. King\n",IDC_STATIC,238,97,180,63
+    ICON            IDI_RNCAN48,IDC_STATIC,7,217,20,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
+    LTEXT           "UltimateGrid\tCode Project\nMTCLIM 4.3\tPeter Thornton\nANN\t\tSunil Arya and David Mount\nGDAL\t\tFrank Warmerdam\nNEWMAT\tR B Davie\nChartCtrl\tCédric Moonen\nDlib\t\tDavis E. King\n",IDC_STATIC,238,102,180,63
+    LTEXT           "WBSF :",IDC_STATIC,224,21,27,8,SS_NOPREFIX
+    LTEXT           "x.x.x",IDC_WBSF_VERSION,254,20,127,8,SS_NOPREFIX
 END
 
 IDD_BIOSIM_OPTION DIALOGEX 0, 0, 340, 220
@@ -602,6 +604,17 @@ BEGIN
 0x6b6e, 0x465f, 0x6c75, 0x546c, 0x7865, 0x5474, 0x6f6f, 0x746c, 0x7069, 
 0x543e, 0x5552, 0x3c45, 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x465f, 0x6c75, 
 0x546c, 0x7865, 0x5474, 0x6f6f, 0x746c, 0x7069, "\076" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX2 AFX_DIALOG_LAYOUT
+BEGIN
     0
 END
 
@@ -990,11 +1003,11 @@ BEGIN
     IDD_ABOUTBOX2, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 418
+        RIGHTMARGIN, 436
         VERTGUIDE, 224
         VERTGUIDE, 238
         TOPMARGIN, 6
-        BOTTOMMARGIN, 251
+        BOTTOMMARGIN, 270
     END
 
     IDD_BIOSIM_OPTION, DIALOG
@@ -1023,28 +1036,30 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX2 DIALOGEX 0, 0, 425, 258
+IDD_ABOUTBOX2 DIALOGEX 0, 0, 443, 277
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About BioSIM"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",1,386,6,32,14,WS_GROUP
-    LTEXT           "Pest seasonal biology forecasting system",IDC_STATIC,224,25,129,8
-    LTEXT           "Programmed by:",IDC_STATIC,224,39,52,8
-    LTEXT           "Natural Resources Canada, Canadian Forest Service, P.O. Box 10380, Stn Sainte Foy, QC, Canada G1V 4C7",IDC_STATIC,55,216,143,31
-    LTEXT           "Contributions:",IDC_STATIC,323,39,58,8
-    LTEXT           "Manon Gignac\nPierre Duval\nMichael Roden\nBarry Cooke",IDC_STATIC,337,49,57,33
-    LTEXT           "Régnière, J., St-Amant, R. 2007. Stochastic simulation of daily air temperature and precipitation from monthly normals in North America north of Mexico. International Journal of Biometeorology. 51:415-430.",IDC_STATIC,238,208,180,32
-    LTEXT           "References:",IDC_STATIC,224,158,40,8
-    LTEXT           "Régnière, J. 1996. A generalized approach to landscape-wide seasonal forecasting with temperature-driven simulation models. Environ. Entomol. 25: 869-881.",IDC_STATIC,238,171,180,34
-    LTEXT           "Extern Libraries :",IDC_STATIC,224,83,53,8
-    LTEXT           "UltimateGrid\tCode Project\nMTCLIM 4.3\tPeter Thornton\nANN\t\tSunil Arya and David Mount\nGDAL\t\tFrank Warmerdam\nNEWMAT\tR B Davie\nChartCtrl\tCédric Moonen\nDlib\t\tDavis E. King\n",IDC_STATIC,238,93,180,63
+    DEFPUSHBUTTON   "OK",1,404,6,32,14,WS_GROUP
+    LTEXT           "Pest seasonal biology forecasting system",IDC_STATIC,224,47,129,8
+    LTEXT           "Programmed by:",IDC_STATIC,224,61,52,8
+    LTEXT           "Natural Resources Canada, Canadian Forest Service, P.O. Box 10380, Stn Sainte Foy, QC, Canada G1V 4C7",IDC_STATIC,55,238,143,31
+    LTEXT           "Contributions:",IDC_STATIC,323,61,58,8
+    LTEXT           "Manon Gignac\nPierre Duval\nMichael Roden\nBarry Cooke",IDC_STATIC,337,71,57,33
+    LTEXT           "Régnière, J., St-Amant, R. 2007. Stochastic simulation of daily air temperature and precipitation from monthly normals in North America north of Mexico. International Journal of Biometeorology. 51:415-430.",IDC_STATIC,238,230,198,32
+    LTEXT           "References:",IDC_STATIC,224,180,40,8
+    LTEXT           "Régnière, J. 1996. A generalized approach to landscape-wide seasonal forecasting with temperature-driven simulation models. Environ. Entomol. 25: 869-881.",IDC_STATIC,238,193,198,34
+    LTEXT           "Extern Libraries :",IDC_STATIC,224,105,53,8
+    LTEXT           "UltimateGrid\tCode Project\nMTCLIM 4.3\tPeter Thornton\nANN\t\tSunil Arya and David Mount\nGDAL\t\tFrank Warmerdam\nNEWMAT\tR B Davie\nChartCtrl\tCédric Moonen\nDlib\t\tDavis E. King\n",IDC_STATIC,238,115,198,63
     LTEXT           "BioSIM:",IDC_STATIC,224,9,25,8,SS_NOPREFIX
-    LTEXT           "x.x.x",IDC_VERSION,257,8,123,8,SS_NOPREFIX
-    CONTROL         "Jacques Régnière",IDC_MAIL_TO_JR,"MfcLink",WS_TABSTOP,238,65,60,14
-    CONTROL         "Rémi Saint-Amant",IDC_MAIL_TO_RSA,"MfcLink",WS_TABSTOP,238,51,60,14
-    ICON            IDR_MAINFRAME,IDC_BIOSIM_LOGO2,19,19,20,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
-    ICON            IDI_RNCAN48,IDC_STATIC,7,212,21,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
+    LTEXT           "x.x.x",IDC_VERSION,257,8,127,8,SS_NOPREFIX
+    CONTROL         "Jacques Régnière",IDC_MAIL_TO_JR,"MfcLink",WS_TABSTOP,238,87,60,14
+    CONTROL         "Rémi Saint-Amant",IDC_MAIL_TO_RSA,"MfcLink",WS_TABSTOP,238,73,60,14
+    ICON            IDR_MAINFRAME,IDC_BIOSIM_LOGO2,19,19,21,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
+    ICON            IDI_RNCAN48,IDC_STATIC,7,234,21,20,SS_REALSIZEIMAGE,WS_EX_TRANSPARENT
+    LTEXT           "WBSF:",IDC_STATIC,224,21,27,8,SS_NOPREFIX
+    LTEXT           "x.x.x",IDC_WBSF_VERSION,257,20,127,8,SS_NOPREFIX
 END
 
 IDD_BIOSIM_OPTION DIALOGEX 0, 0, 340, 220
@@ -1111,6 +1126,17 @@ BEGIN
 0x6554, 0x7478, 0x6f54, 0x6c6f, 0x6974, 0x3e70, 0x4146, 0x534c, 0x3c45, 
 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x465f, 0x6c75, 0x546c, 0x7865, 0x5474, 
 0x6f6f, 0x746c, 0x7069, "\076" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX2 AFX_DIALOG_LAYOUT
+BEGIN
     0
 END
 

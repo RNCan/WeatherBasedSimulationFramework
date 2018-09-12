@@ -32,171 +32,171 @@
     <OutputVariableArray>
         <OutputVariable>
             <Name>DegreeDay</Name>
-            <Title>Degree-Days (C° day)</Title>
-            <Units/>
+            <Title>Degree-Days</Title>
+            <Units>°C day</Units>
             <Description>Annual growing degree-day summation over threshold (define by user)</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalPrecipitation</Name>
-            <Title>Total precipitation (mm)</Title>
-            <Units/>
+            <Title>Total precipitation</Title>
+            <Units>mm</Units>
             <Description>Annual total precipitation</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>UtilPrecipitation</Name>
-            <Title>Util precipitation (mm)</Title>
-            <Units/>
+            <Title>Util precipitation</Title>
+            <Units>mm</Units>
             <Description>Precipitation in June, July and August. Julian day between 152 and 243.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>GrowingSeasonPrecipitation</Name>
-            <Title>Growing season precipitation (mm)</Title>
-            <Units/>
+            <Title>Growing season precipitation</Title>
+            <Units>mm</Units>
             <Description>Total precipitation during growing season. See growing season.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TMin</Name>
-            <Title>TMin (C°)</Title>
-            <Units/>
+            <Title>TMin</Title>
+            <Units>°C</Units>
             <Description>Annual mean of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TMean</Name>
-            <Title>TMean (C°)</Title>
-            <Units/>
+            <Title>TMean</Title>
+            <Units>°C</Units>
             <Description>Annual mean of daily mean temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TMax</Name>
-            <Title>TMax (C°)</Title>
-            <Units/>
+            <Title>TMax</Title>
+            <Units>°C</Units>
             <Description>Annual mean of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>GrowingSeasonTmean</Name>
-            <Title>Growing season Tmean (C°)</Title>
-            <Units/>
+            <Title>Growing season Tmean</Title>
+            <Units>°C</Units>
             <Description>Mean temperature during growing season. See growing season.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>JulyTmean</Name>
-            <Title>July Tmean (C°)</Title>
-            <Units/>
+            <Title>July Tmean</Title>
+            <Units>°C</Units>
             <Description>Mean july temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>DaysWithoutFrost</Name>
-            <Title>Days without frost (day)</Title>
-            <Units/>
+            <Title>Days without frost</Title>
+            <Units>day</Units>
             <Description>Total number of days without frost (Tmin &gt; 0)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>ConsecutiveDaysWithoutFrost</Name>
-            <Title>Consecutive days without frost (day)</Title>
-            <Units/>
+            <Title>Consecutive days without frost</Title>
+            <Units>day</Units>
             <Description>Longest period of consecutive days without frost (Tmin&gt;0)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>GrowingSeasonLength</Name>
-            <Title>Growing season length (day)</Title>
-            <Units/>
+            <Title>Growing season length</Title>
+            <Units>day</Units>
             <Description>Length of growing season. Growing season is define as the period between the last 3 consecutives days with frost (Tmin&lt;0) in the spring and the first 3 consecutives days with frost (Tmin&lt;0) in the fall</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>LastFrostDay</Name>
-            <Title>Last frost day (julian day)</Title>
-            <Units/>
+            <Title>Last frost day</Title>
+            <Units>julian day</Units>
             <Description>Last frost day at spring</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>FirstFrostDay</Name>
-            <Title>First frost day (julian day)</Title>
-            <Units/>
+            <Title>First frost day</Title>
+            <Units>julian day</Units>
             <Description>First frost day at falls</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>VapourPressureDeficit</Name>
-            <Title>Vapour pressure deficit (mBars)</Title>
-            <Units/>
+            <Title>Vapour pressure deficit</Title>
+            <Units>hPa (mbar)</Units>
             <Description>Vapour pressure deficit.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>UtilVapourPressureDeficit</Name>
-            <Title>Util vapour pressure deficit (mBars)</Title>
-            <Units/>
+            <Title>Util vapour pressure deficit</Title>
+            <Units>hPa (mbar)</Units>
             <Description>Vapour pressure deficit in June, July and August. Julian day between 152 and 243.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Aridity</Name>
-            <Title>Aridity (cm)</Title>
-            <Units/>
+            <Title>Aridity</Title>
+            <Units>cm</Units>
             <Description>Aridity is accumulation of monthly water deficit (monthly Thornthwaite potential evapotranspiration - monthly precipitation, zero if negative). </Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>2</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>SnowfallProportion</Name>
-            <Title>Snowfall proportion (%)</Title>
-            <Units/>
+            <Title>Snowfall proportion</Title>
+            <Units>%</Units>
             <Description>Proportion of precipitation as snow (snow is assume when Tmean is below zero)</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalSnowfall</Name>
-            <Title>Total snowfall (mm of water)</Title>
-            <Units/>
+            <Title>Total snowfall</Title>
+            <Units>mm of water</Units>
             <Description>Annual precipitation (in mm of water) as snow (snow is assume when Tmean is below zero).</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>2</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalRadiation</Name>
-            <Title>Total radiation (MJ/m²)</Title>
-            <Units/>
+            <Title>Total radiation</Title>
+            <Units>MJ/m²</Units>
             <Description>Annual total radiation computes by MTCLIM. See documentation of MTCLIM 4.3</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>GrowingSeasonRadiation</Name>
-            <Title>Growing season radiation (MJ/m²)</Title>
-            <Units/>
+            <Title>Growing season radiation</Title>
+            <Units>MJ/m²</Units>
             <Description>Total radiation during growing season . See growing season and total radiation.</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

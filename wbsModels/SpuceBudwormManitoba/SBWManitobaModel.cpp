@@ -257,7 +257,8 @@ namespace WBSF
 									int pp = CSBWContinuingRatio::O_FIRST_STAGE + s;
 
 									short year = SAResult[i].m_ref.GetYear();
-									long index = statSim.GetFirstIndex(pp, obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
+									//long index = statSim.GetFirstIndex(pp, obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
+									long index = statSim.GetFirstIndex(pp, ">=", obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
 									if (index >= 1)
 									{
 										double obsDD1 = statSim[index][CSBWContinuingRatio::O_DD];
@@ -380,7 +381,7 @@ namespace WBSF
 									int pp = CSBWContinuingRatio::O_FIRST_STAGE + s;
 
 									short year = m_SAResult[i].m_ref.GetYear();
-									long index = statSim.GetFirstIndex(pp, obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
+									long index = statSim.GetFirstIndex(pp,">=", obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
 									if (index >= 1)
 									{
 										double obsDD1 = statSim[index][CSBWContinuingRatio::O_DD];
@@ -423,7 +424,7 @@ namespace WBSF
 									int pp = CSBWContinuingRatio::O_FIRST_STAGE + s;
 
 									short year = m_SAResult[i].m_ref.GetYear();
-									long index = statSim.GetFirstIndex(pp, obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
+									long index = statSim.GetFirstIndex(pp, ">=", obsS, 1, CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY));
 									if (index >= 1)
 									{
 										double obsDD1 = statSim[index][CSBWContinuingRatio::O_DD];

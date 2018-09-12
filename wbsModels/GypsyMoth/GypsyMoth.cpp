@@ -276,39 +276,9 @@ namespace WBSF
 		return newOvipDate;
 	}
 
-	//double CGypsyMoth::GetTotal(short type)const
-	//{
-	//	
-	//	double total=0.;
-	//	for (int i=0; i<m_stageFreq.size(); i++) 
-	//    {
-	//		total += m_stageFreq[i][type] ;
-	//	}
-	//
-	//	//a vérifier
-	//	//double total2 = m_stageFreq.GetStat(type)[SUM];
-	//	//ASSERT( fabs(total-total2)<0.0001);
-	//
-	//
-	//	return total;
-	//}
-
 	CTRef CGypsyMoth::GetLastDay()const
 	{
 		return m_stageFreq.GetLastTRef(TOT_POP, 0);
-		//int lastDay = -1;
-		//for(int i=m_stageFreq.size()-1; i>=0; i--)
-		//{
-		//	if( m_stageFreq[i][TOT_POP] > 0)
-		//	{
-		//		lastDay = i;
-		//		break;
-		//	}
-		//}
-
-		//_ASSERTE( lastDay >= -1 && lastDay<(int)m_stageFreq.size());
-
-		//return lastDay;
 	}
 
 	//See if the generation was viable
@@ -402,30 +372,12 @@ namespace WBSF
 
 		CTPeriod p = m_stageFreq.GetTPeriod();
 
-		bool bViable = true;//GetViabilityFlag();
-
-
+		bool bViable = true;
 		CTPeriod p2 = p.GetAnnualPeriodByIndex(1);
 		for (CTRef i = p2.Begin(); i <= p2.End(); i++)
 			stat[i] = bViable ? m_stageFreq[i] : m_stageFreq[0];
 
 
-		//for test only
-		/*	for(CTRef d=m_stageFreq.GetFirstTRef(); d<p2.Begin(); d++)
-			{
-			if( d>stat.GetFirstTRef() )
-			stat[d][EGG] = m_pHatch->GetEggsPourcent(d, PREDIAPAUSE);
-			}
-
-
-			for (CTRef d=p2.Begin(); d<=p2.End(); d++)
-			{
-
-			stat[d][EGG+1] = m_pHatch->GetEggsPourcent(d, DIAPAUSE);
-			stat[d][EGG+2] = m_pHatch->GetEggsPourcent(d, POSDIAPAUSE);
-			stat[d][EGG+3] = m_pHatch->GetEggsPourcent(d, HATCH);
-			}
-			*/
 	}
 
 }

@@ -127,7 +127,7 @@
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Logan Probability</Name>
+            <Name>Logan_p</Name>
             <Title>Logan Probability</Title>
             <Units/>
             <Description>Probability of Logan stability (constant univoltine oviposition date within a user defined date range)</Description>
@@ -136,15 +136,15 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Logan Probability2b</Name>
-            <Title>Logan Probability2b</Title>
+            <Name>Logan_P_2b</Name>
+            <Title>Logan Probability 2b</Title>
             <Units/>
             <Description>Probability of relaxed Logan</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Safranyik Probability</Name>
+            <Name>Safranyik_p</Name>
             <Title>Safranyik Probability</Title>
             <Units/>
             <Description/>
@@ -152,15 +152,15 @@
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Safranyik P3 P4 Probability</Name>
-            <Title>Safranyik P3 P4 Probability</Title>
+            <Name>Safranyik_p_34</Name>
+            <Title>Safranyik Probability P3 P4</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Cold Tolerance Survival</Name>
+            <Name>CT_Survival</Name>
             <Title>Cold Tolerance Survival</Title>
             <Units/>
             <Description/>
@@ -168,7 +168,7 @@
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Hybrid (CT)</Name>
+            <Name>Hybrid</Name>
             <Title>Hybrid (CT)</Title>
             <Units/>
             <Description/>
@@ -176,24 +176,24 @@
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Product(pL*pS*pC)</Name>
-            <Title>Product(pL*pS*pC)</Title>
+            <Name>Prod_pLpS34_pC</Name>
+            <Title>Product (pL*pS34*pC)</Title>
             <Units/>
             <Description>Product of Logan  x Safranyik (P3P4) x Cold Tolerance</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Geometric product(pL2b*pS*pC)</Name>
-            <Title>Geometric product(pL2b*pS*pC)</Title>
+            <Name>Geo_prod_pL2b_pS34_pC</Name>
+            <Title>Geometric product (pL2b*pS34*pC)</Title>
             <Units/>
             <Description>Geometric product of Logan (2b) x Safranyik (P3P4) x Cold Tolerance</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Geometric product(pL2b*pC)</Name>
-            <Title>Geometric product(pL2b*pC)</Title>
+            <Name>Geo_prod_pL2b_pC</Name>
+            <Title>Geometric product (pL2b*pC)</Title>
             <Units/>
             <Description>Geometric product of Logan (2b) x  Cold Tolerance</Description>
             <TimeMode>4 0</TimeMode>

@@ -219,7 +219,7 @@ namespace WBSF
 			Tm = -2.8;
 
 
-		int N = GetNbDayPerMonth(year, m);
+		int N = (int)GetNbDayPerMonth(year, m);
 		double Vm = max(0.0, N*(0.36*Tm + Lf[m])) / 2.0;
 
 		double DChalf = DCMo + 0.5*Vm; // add in only half of drying before the rain influence

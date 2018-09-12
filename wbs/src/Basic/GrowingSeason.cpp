@@ -209,8 +209,6 @@ namespace WBSF
 	//FrostFree period: get the longest frost free period of the year
 	CTPeriod CGrowingSeason::GetFrostFreePeriod(const CWeatherYear& weather)const
 	{
-		//CTPeriod p = 
-		//int year = p.Begin().GetYear();
 		CTPeriod period = weather.GetEntireTPeriod();
 		CTPeriod pTmp = period;
 		CTPeriod p;
@@ -219,7 +217,6 @@ namespace WBSF
 		
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
-			//const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef]);
 			double T = weather.IsHourly() ? weather[TRef][H_TAIR2][MEAN] : weather[TRef][H_TMIN2][MEAN];
 
 			if (T>0) //Frost-free period begin or continues

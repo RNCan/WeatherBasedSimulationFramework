@@ -33,21 +33,21 @@
         <OutputVariable>
             <Name>DaylightVPD</Name>
             <Title>Daylight VPD</Title>
-            <Units>Pa</Units>
-            <Description/>
+            <Units>hPa</Units>
+            <Description>Monthly mean of daily daylight vapour pressure deficit</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>VaporPressureDeficit</Name>
             <Title>Vapor Pressure Deficit</Title>
-            <Units>Pa</Units>
+            <Units>hPa</Units>
             <Description>Monthly mean of daily vapour pressure deficit</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit> Version                Date                           Note&#x0A;2.3 (2013)        05/07/2013          Remove GDD and ET&#x0A;</Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>

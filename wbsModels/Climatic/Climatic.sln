@@ -34,6 +34,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TminTairTmax", "TminTairTma
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticQc", "ClimaticQc.vcxproj", "{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Hourly", "Daily vs Hourly.vcxproj", "{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -168,6 +170,14 @@ Global
 		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|Win32.Build.0 = Release|Win32
 		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.ActiveCfg = Release|x64
 		{A7BDCC5A-6C99-499F-B254-5C5D7D1DFDF3}.Release|x64.Build.0 = Release|x64
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Debug|Win32.Build.0 = Debug|Win32
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Debug|x64.ActiveCfg = Debug|x64
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Debug|x64.Build.0 = Debug|x64
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|Win32.ActiveCfg = Release|Win32
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|Win32.Build.0 = Release|Win32
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|x64.ActiveCfg = Release|x64
+		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -67,6 +67,7 @@ protected:
 
 
 	CStatic m_versionCtrl;
+	CStatic m_WBSFversionCtrl;
 
 	// Implementation
 protected:

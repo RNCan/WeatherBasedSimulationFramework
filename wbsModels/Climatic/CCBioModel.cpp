@@ -1,4 +1,5 @@
 //**********************************************************************
+// 11/09/2018	2.5.1	Rémi Saint-Amant    Compile with VS 2017
 // 20/09/2016	2.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 // 03/10/2013	2.3		Rémi Saint-Amant	New compilation (x64)
@@ -28,7 +29,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "2.5.0 (2016)";
+		VERSION = "2.5.1 (2018)";
 	}
 
 	CCCBioModel::~CCCBioModel()

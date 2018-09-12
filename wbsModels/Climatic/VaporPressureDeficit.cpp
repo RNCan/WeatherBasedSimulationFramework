@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 11/09/2018	1.1.1	Rémi Saint-Amant    Bug correction in units. return VPD in [hPa]
 // 20/09/2016	1.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	1.0.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
 //**********************************************************************
@@ -39,7 +40,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.1.0 (2016)";
+		VERSION = "1.1.1 (2018)";
 	}
 
 	CVPDModel::~CVPDModel()
@@ -63,11 +64,11 @@ namespace WBSF
 
 		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
-			double daylightVPD = GetDaylightVaporPressureDeficit(m_weather[y]); //[Pa]
-			double VPD = m_weather[y][H_VPD2][MEAN]; //[Pa]
+			double daylightVPD = GetDaylightVaporPressureDeficit(m_weather[y]); //[kPa]
+			double VPD = m_weather[y][H_VPD][MEAN]; //[kPa]
 
-			m_output[y][O_DAYLIGHT_VPD] = daylightVPD;
-			m_output[y][O_MEAN_VPD] = VPD;
+			m_output[y][O_DAYLIGHT_VPD] = daylightVPD*10;//kPa --> hPa
+			m_output[y][O_MEAN_VPD] = VPD*10;//kPa --> hPa
 		}
 
 		return msg;
@@ -85,11 +86,11 @@ namespace WBSF
 		{
 			for (size_t m = 0; m<12; m++)
 			{
-				double daylightVPD = GetDaylightVaporPressureDeficit(m_weather[y][m]); //[Pa]
-				double VPD = GetVPD(m_weather[y][m]); //[Pa]
+				double daylightVPD = GetDaylightVaporPressureDeficit(m_weather[y][m]); //[kPa]
+				double VPD = GetVPD(m_weather[y][m]); //[kPa]
 
-				m_output[y * 12 + m][O_DAYLIGHT_VPD] = daylightVPD;
-				m_output[y * 12 + m][O_MEAN_VPD] = VPD;
+				m_output[y * 12 + m][O_DAYLIGHT_VPD] = daylightVPD*10;//kPa --> hPa
+				m_output[y * 12 + m][O_MEAN_VPD] = VPD*10;//kPa --> hPa
 			}
 		}
 
@@ -113,13 +114,13 @@ namespace WBSF
 				{
 					const CWeatherDay& wDay = m_weather[y][m][d];
 
-					double daylightVPD = GetDaylightVaporPressureDeficit(wDay); //Pa
-					double VPD = GetVPD(wDay);//Pa
+					double daylightVPD = GetDaylightVaporPressureDeficit(wDay); //[kPa]
+					double VPD = GetVPD(wDay);//[kPa]
 
 					CTRef ref = m_weather[y][m][d].GetTRef();
 
-					m_output[ref][O_DAYLIGHT_VPD] = daylightVPD;
-					m_output[ref][O_MEAN_VPD] = VPD;
+					m_output[ref][O_DAYLIGHT_VPD] = daylightVPD*10;//kPa --> hPa
+					m_output[ref][O_MEAN_VPD] = VPD*10;//kPa --> hPa
 				}
 			}
 		}
@@ -151,9 +152,7 @@ namespace WBSF
 					for (size_t h = 0; h < m_weather[y][m][d].size(); h++)
 					{
 						const CHourlyData& wHour = m_weather[y][m][d][h];
-
-						//double daylightVPD = GetDaylightVaporPressureDeficit(wDay); //Pa
-						double VPD = max(0.0f, wHour[H_ES2] - wHour[H_EA2] );
+						double VPD = max(0.0f, wHour[H_ES] - wHour[H_EA] )*10;//kPa --> hPa
 
 						CTRef ref = m_weather[y][m][d][h].GetTRef();
 						size_t sunrise = Round(sun.GetSunrise(ref));
@@ -161,8 +160,8 @@ namespace WBSF
 
 						double daylightVPD = (h >= sunrise && h <= sunset) ? VPD : -9999;
 
-						m_output[ref][O_DAYLIGHT_VPD] = daylightVPD;
-						m_output[ref][O_MEAN_VPD] = VPD;
+						m_output[ref][O_DAYLIGHT_VPD] = daylightVPD;//hPa
+						m_output[ref][O_MEAN_VPD] = VPD;//hPa
 					}
 				}
 			}
@@ -172,7 +171,7 @@ namespace WBSF
 		return msg;
 	}
 
-
+	//Saturation vapor pressure at daylight temperature [kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherYear& weather)
 	{
 		CStatistic stat;
@@ -182,6 +181,7 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
+	//Saturation vapor pressure at daylight temperature [kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherMonth& weather)
 	{
 		CStatistic stat;
@@ -191,7 +191,7 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
-	//Saturation vapor pressure at daylight temperature
+	//Saturation vapor pressure at daylight temperature [kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherDay& weather)
 	{
 		CStatistic VPD;
@@ -202,20 +202,20 @@ namespace WBSF
 			size_t sunset = min(23ll, Round(sun.GetSunset(weather.GetTRef())));
 
 			for (size_t h = sunrise; h <= sunset; h++)
-				VPD += max(0.0f, weather[h][H_ES2] - weather[h][H_EA2]);
+				VPD += max(0.0f, weather[h][H_ES] - weather[h][H_EA]);
 				
 		}
 		else
 		{
 			double daylightT = weather.GetTdaylight();
-			double daylightEs = eᵒ(daylightT) * 1000;
-			VPD += max(0.0, daylightEs - weather[H_EA2][MEAN]);
+			double daylightEs = eᵒ(daylightT);//kPa // *1000; //by RSA 11-09-2018 kPa instead of Pa
+			VPD += max(0.0, daylightEs - weather[H_EA][MEAN]);
 		}
 
 		return VPD[MEAN];
 	}
 
-
+	//return vapor pressure deficit [kPa]
 	static double GetVPD(const CWeatherYear& weather)
 	{
 		CStatistic stat;
@@ -224,7 +224,7 @@ namespace WBSF
 
 		return stat[MEAN];
 	}
-
+	//return vapor pressure deficit [kPa]
 	static double GetVPD(const CWeatherMonth& weather)
 	{
 		CStatistic stat;
@@ -234,17 +234,18 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
+	//return vapor pressure deficit [kPa]
 	static double GetVPD(const CWeatherDay& weather)
 	{
 		CStatistic stat;
 		if (weather.IsHourly())
 		{
 			for (size_t h = 0; h < 24; h++)
-				stat += max(0.0f, weather[h][H_ES2] - weather[h][H_EA2]);
+				stat += max(0.0f, weather[h][H_ES] - weather[h][H_EA]);
 		}
 		else
 		{
-			stat += max(0.0, weather[H_ES2][MEAN] - weather[H_EA2][MEAN]);
+			stat += max(0.0, weather[H_ES][MEAN] - weather[H_EA][MEAN]);
 		}
 
 		return stat[MEAN];

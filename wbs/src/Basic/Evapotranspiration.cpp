@@ -393,9 +393,9 @@ void CTurcET::Execute(const CWeatherStation& weather, CModelStatVector& output)
 			for (size_t d = 0; d < weather[y][m].size(); d++)
 			{
 				double T = weather[y][m][d][H_TNTX][MEAN];
-				double Ea = weather[y][m][d][H_EA2][MEAN];	//vapor pressure [Pa]
-				double Es = weather[y][m][d][H_ES2][MEAN];	//vapor pressure [Pa]
-				double RH = max(1.0,min(100.0, Ea / Es * 100.0));//weather[y][m][d][H_RELH][MEAN];
+				double Ea = weather[y][m][d][H_EA][MEAN];	//vapor pressure [kPa]
+				double Es = weather[y][m][d][H_ES][MEAN];	//vapor pressure [kPa]
+				double RH = max(1.0,min(100.0, Ea / Es * 100.0));
 				double Rg = weather[y][m][d][H_SRMJ][SUM]; //solar radiation in MJ/(m²·d)
 				double C = RH>=50?1:1+(50-RH)/70;
 
@@ -907,8 +907,8 @@ void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector
 		double Tmax = data[H_TMAX2][MEAN];
 		double T = data[H_TNTX][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);	//Wind speed at 2 meters [m/s]
-		double Ea = data[H_EA2][MEAN] / 1000;	//vapor pressure [kPa]
-		double Es = data[H_ES2][MEAN] / 1000;	//vapor pressure [kPa]
+		double Ea = data[H_EA][MEAN];	//vapor pressure [kPa]
+		double Es = data[H_ES][MEAN];	//vapor pressure [kPa]
 
 		double Rn = max(0.0, data.GetNetRadiation(Fcd));
 		double G = weather.IsHourly() ? CASCE_ETsz::GetGH(CASCE_ETsz::SHORT_REF, Rn) : 0;
@@ -1002,10 +1002,10 @@ void CASCE_ETsz::Execute(const CWeatherStation& weather, CModelStatVector& stats
 		const CDataInterface& data = weather[TRef];
 
 		double T = data[H_TNTX][MEAN];
-		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);//wind speed at 2 meters [m/s]
-		double P = data[H_PRES][MEAN] / 10; ASSERT(!IsMissing(data[H_PRES][MEAN]));//pressure [kPa]
-		double Ea = data[H_EA2][MEAN] / 1000;	ASSERT(!IsMissing(data[H_EA2][MEAN]));//vapor pressure [kPa]
-		double Es = data[H_ES2][MEAN] / 1000;	ASSERT(!IsMissing(data[H_ES2][MEAN]));//vapor pressure [kPa]
+		double U² = data[H_WND2][MEAN] * 1000.0 / 3600.0; ASSERT(U² >= 0);//wind speed at 2 meters [m/s]
+		double P = data[H_PRES][MEAN] / 10.0; ASSERT(!IsMissing(data[H_PRES][MEAN]));//pressure [kPa]
+		double Ea = data[H_EA][MEAN];	ASSERT(!IsMissing(data[H_EA][MEAN]));//vapor pressure [kPa]
+		double Es = data[H_ES][MEAN];	ASSERT(!IsMissing(data[H_ES][MEAN]));//vapor pressure [kPa]
 
 //			double Ra = data.GetExtraterrestrialRadiation();
 //		double Fcd² = WHour.GetCloudiness(Ra);

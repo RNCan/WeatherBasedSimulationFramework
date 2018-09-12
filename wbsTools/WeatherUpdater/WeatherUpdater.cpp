@@ -1,3 +1,5 @@
+//5.7.0	11/09/2018	Rémi Saint-Amant	Correction in vapor pressure units
+//										Correction in hourly generation from daily
 //5.6.2 18/07/2018	Rémi Saint-Amant	Bug correction in RAP HTTP 
 //										Keep EnvCan forecast during 7 day to fill gaps
 //										Used of HRRR v3

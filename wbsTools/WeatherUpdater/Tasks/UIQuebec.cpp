@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "UIQuebec.h"
+#include "UIQuebec.h" 
 
 #include "basic/WeatherStation.h"
 #include "basic/CSV.h"
@@ -9,9 +9,9 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 #include "json\json11.hpp"
-#include "Geomatic/TimeZones.h"
+#include "Geomatic/TimeZones.h" 
 #include "mosa.h"
-
+ 
 
 using namespace WBSF::HOURLY_DATA;
 using namespace Mosa;
