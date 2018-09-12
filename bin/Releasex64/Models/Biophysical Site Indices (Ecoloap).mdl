@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Biophysical site indices (Ecoloap)</Title>
+    <Version>2.0</Version>
+    <ID>.BSI</ID>
+    <EXE>Biophysical site indices (Ecoloap).dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model compute annual variable from article:&#x0D;&#x0A;Biophysical site indices for shade tolerant and intolerant boreal species&#x0D;&#x0A;</Description>
+    <WindowRect>0 0 77 401</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Threshold</Name>
+            <Caption>No input</Caption>
+            <Description>Threshold of degree day summation</Description>
+            <Type>10</Type>
+            <Rect>10 10 30 260</Rect>
+            <SeparatorPos>185</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DegreeDay</Name>
+            <Title>Degree-Days</Title>
+            <Units>°C day</Units>
+            <Description>Annual growing degree-day summation over 5 °C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>UtilPrecipitation</Name>
+            <Title>Util precipitation</Title>
+            <Units>mm</Units>
+            <Description>Total precipitation in June, July and August.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Aridity</Name>
+            <Title>Aridity</Title>
+            <Units>cm</Units>
+            <Description>Annual arridity for month when mean daily Tair &gt; 0. Aridity is accumulation of monthly water deficit (monthly Thornthwaite potential evapotranspiration - monthly precipitation, zero if negative). </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>UtilVapourPressureDeficit</Name>
+            <Title>Util vapour pressure deficit</Title>
+            <Units>hPa (mbar)</Units>
+            <Description>Sum of vapour pressure deficit in June, July and August.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Evapotranspiration</Name>
+            <Title>Evapotranspiration</Title>
+            <Units>cm</Units>
+            <Description>Annual evapotranspiration for month where mean daily Tair &gt; 0. </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
