@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 11-09-2018	Rémi Saint-Amant	bug correction in page size
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //****************************************************************************
 #include "stdafx.h"
@@ -736,50 +737,6 @@ namespace WBSF
 	const CDirectoryManager& CModelMPage::GetManager()const { return WBSF::GetFM().Model(); }
 
 
-
-	//void CModelMPage::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
-	//{
-	//	pResult = 0;
-
-	//	std::string filePath;
-	//	int iItem = m_list.GetSelItem();
-	//	if (iItem != -1)
-	//	{
-	//		filePath = CStringA(m_list.GetItemText(iItem));
-	//		filePath = WBSF::GetFM().Model().GetFilePath(filePath);
-	//	}
-	//	else
-	//	{
-	//		filePath = WBSF::GetFM().Model().GetLocalPath();
-	//	}
-
-	//	m_filePathCtrl.SetWindowText(Convert(filePath));
-	//}
-	//void CModelMPage::OnSize(UINT nType, int cx, int cy)
-	//{
-	//	if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
-	//		return;
-
-	//	if (!m_bInit)
-	//	{
-	//		GetClientRect(m_rect);
-	//		m_bInit = true;
-	//	}
-
-	//	CRect rect;
-	//	GetClientRect(rect);
-	//	int dx = rect.Width() - m_rect.Width();
-	//	int dy = rect.Height() - m_rect.Height();
-	//	m_rect = rect;
-
-	//	//CRect rect;
-	//	m_list.GetWindowRect(rect); ScreenToClient(rect);
-	//	m_list.SetWindowPos(NULL, 0, 0, rect.Width() + dx, rect.Height() + dy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-
-	//	m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
-	//	m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top + dy, rect.Width() + dx, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-	//}
-
 	//********************************************************************************
 	// CWeatherUpdatePage property page
 
@@ -857,49 +814,6 @@ namespace WBSF
 
 
 
-	//void CWeatherUpdateMPage::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
-	//{
-	//	pResult = 0;
-
-	//	std::string filePath;
-	//	int iItem = m_list.GetSelItem();
-	//	if (iItem != -1)
-	//	{
-	//		filePath = CStringA(m_list.GetItemText(iItem));
-	//		filePath = WBSF::GetFM().WeatherUpdate().GetFilePath(filePath);
-	//	}
-	//	else
-	//	{
-	//		filePath = WBSF::GetFM().WeatherUpdate().GetLocalPath();
-	//	}
-
-	//	m_filePathCtrl.SetWindowText(Convert(filePath));
-	//}
-
-	//void CWeatherUpdateMPage::OnSize(UINT nType, int cx, int cy)
-	//{
-	//	if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
-	//		return;
-
-	//	if (!m_bInit)
-	//	{
-	//		GetClientRect(m_rect);
-	//		m_bInit = true;
-	//	}
-
-	//	CRect rect;
-	//	GetClientRect(rect);
-	//	int dx = rect.Width() - m_rect.Width();
-	//	int dy = rect.Height() - m_rect.Height();
-	//	m_rect = rect;
-
-	//	//CRect rect;
-	//	m_list.GetWindowRect(rect); ScreenToClient(rect);
-	//	m_list.SetWindowPos(NULL, 0, 0, rect.Width() + dx, rect.Height() + dy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-
-	//	m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
-	//	m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top + dy, rect.Width() + dx, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-	//}
 	//********************************************************************************
 	// CModelsPage property page
 
@@ -957,76 +871,21 @@ namespace WBSF
 	// CModelsPage property page
 
 	BEGIN_MESSAGE_MAP(CScriptMPage, CCommonMPage)
-		//ON_NOTIFY(ON_BLB_SELCHANGE, IDC_DB_LIST, OnSelChange)
-		//ON_WM_SIZE()
 	END_MESSAGE_MAP()
 
 
 	CScriptMPage::CScriptMPage() :
 		CCommonMPage(IDD_NORMAL_PAGE, IDS_CMN_SCRIPT_PAGE)
-		//m_bInit(false)
 	{
-		//m_psp.dwFlags &= ~(PSP_HASHELP);
 	}
 
-	//CScriptMPage::~CScriptMPage()
-	//{}
 
 	void CScriptMPage::DoDataExchange(CDataExchange* pDX)
 	{
 		CCommonMPage::DoDataExchange(pDX);
-
-		////DDX_Control(pDX, IDC_DB_LIST, m_list);
-		//DDX_Control(pDX, IDC_DB_FILEPATH, m_filePathCtrl);
-		//m_list.SetFocus();
 	}
 
 	CBioSIMListBoxPtr CScriptMPage::GetList() { return std::make_shared<CScriptMListBox>(); }
 	const CDirectoryManager& CScriptMPage::GetManager()const { return WBSF::GetFM().Script(); }
 
-
-	//
-	//	void CScriptMPage::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
-	//	{
-	//		pResult = 0;
-	//
-	//		std::string filePath;
-	//		int iItem = m_list.GetSelItem();
-	//		if (iItem != -1)
-	//		{
-	//			filePath = CStringA(m_list.GetItemText(iItem));
-	//			filePath = WBSF::GetFM().Script().GetFilePath(filePath);
-	//		}
-	//		else
-	//		{
-	//			filePath = WBSF::GetFM().Script().GetLocalPath();
-	//		}
-	//
-	//		m_filePathCtrl.SetWindowText(Convert(filePath));
-	//	}
-	//
-	//	void CScriptMPage::OnSize(UINT nType, int cx, int cy)
-	//	{
-	//		if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
-	//			return;
-	//
-	//		if (!m_bInit)
-	//		{
-	//			GetClientRect(m_rect);
-	//			m_bInit = true;
-	//		}
-	//
-	//		CRect rect;
-	//		GetClientRect(rect);
-	//		int dx = rect.Width() - m_rect.Width();
-	//		int dy = rect.Height() - m_rect.Height();
-	//		m_rect = rect;
-	//
-	//		//CRect rect;
-	//		m_list.GetWindowRect(rect); ScreenToClient(rect);
-	//		m_list.SetWindowPos(NULL, 0, 0, rect.Width() + dx, rect.Height() + dy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-	//
-	//		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
-	//		m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top + dy, rect.Width() + dx, rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-	//	}
 }

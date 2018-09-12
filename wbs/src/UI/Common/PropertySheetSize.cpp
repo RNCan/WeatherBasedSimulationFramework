@@ -67,8 +67,8 @@ BOOL CResizablePropertySheet::OnInitDialog()
 {
 	BOOL bResult = CMFCPropertySheet::OnInitDialog();
 
-	/*GetClientRect(&m_rCrt);
-	m_bInitialized = TRUE;*/
+//	GetClientRect(&m_rCrt);
+	m_bInitialized = TRUE;
 
 	return bResult;
 }
@@ -86,19 +86,8 @@ int CResizablePropertySheet::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CMFCPropertySheet::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// keep client area
-	//CRect rect;
-	//GetClientRect(&rect);
-
 	// set resizable style
 	ModifyStyle(DS_MODALFRAME, WS_POPUP | WS_THICKFRAME);
-	//ModifyStyleEx(0, WS_EX_TOOLWINDOW);
-	//m_wndTab.AutoSizeWindow(TRUE);
-
-
-	// adjust size to reflect new style
-	//::AdjustWindowRectEx(&rect, GetStyle(), ::IsMenu(GetMenu()->GetSafeHmenu()), GetExStyle());
-	//SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION);
 
 	return 0;
 }
@@ -108,28 +97,18 @@ void CResizablePropertySheet::OnSize(UINT nType, int cx, int cy)
 {
 	CMFCPropertySheet::OnSize(nType, cx, cy);
 
-	AdjustControlsLayout(cx, cy);
+	if (m_bInitialized)
+		AdjustControlsLayout(cx, cy);
 }
 void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 {
-	//if (!m_bInitialized)
-		//return;
-
-
 	CWnd* pParentWnd = GetParent();
-	//ASSERT(pParentWnd != NULL && pParentWnd->IsWindowVisible());
+
 	if (pParentWnd == NULL || !pParentWnd->IsWindowVisible() || GetTabControl() == NULL || m_wndOutlookBar.GetSafeHwnd() == NULL)
 		return;
 
-	//ASSERT(pParentWnd != NULL && pParentWnd->IsWindowVisible());
-
 
 	LockWindowUpdate();
-
-	//int dx = cx - m_rCrt.Width();
-	//int dy = cy - m_rCrt.Height();
-	//GetClientRect(&m_rCrt);
-
 
 	CTabCtrl* pTab = GetTabControl();
 	ASSERT_VALID(pTab);
@@ -145,7 +124,6 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 
 	CRect rectClient;
 	GetClientRect(rectClient);
-	//pTab->SetWindowPos(&wndTop, 0, 0, rectClient.Width()+dx, rectClient.Height()+dy, SWP_NOMOVE | SWP_NOACTIVATE);
 	pTab->MoveWindow(m_nBarWidth, -nTabsHeight, rectClient.right, rectClient.bottom - 2 * nVertMargin);
 
 
@@ -160,15 +138,20 @@ void CResizablePropertySheet::AdjustControlsLayout(int cx, int cy)
 
 	m_wndOutlookBar.SetWindowPos(&wndTop, rectNavigator.left, rectNavigator.top, rectNavigator.Width(), rectNavigator.Height(), SWP_NOACTIVATE);
 
+	//adjust size of all pages
+	m_rectPage = rectClient;
+	m_rectPage.left = rectNavigator.right;
+	m_rectPage.bottom = rectTab.bottom;
+	m_rectPage.DeflateRect(1, 1);
+
 	CPropertyPage* pppg = GetActivePage();
+	//resize the active windows
+	pppg->SetWindowPos(NULL, 0, 0, m_rectPage.Width(), m_rectPage.Height(), SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOACTIVATE);
 
-	SetActivePage(pppg);//update page
-	CRect rectPage = rectClient;
-	rectPage.left = rectNavigator.right;
-	rectPage.bottom = rectTab.bottom;
-	rectPage.DeflateRect(1, 1);
 
-	pppg->SetWindowPos(NULL, 0, 0, rectPage.Width(), rectPage.Height(), SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOACTIVATE);
+	//update current window
+	pppg->SetModified();
+	pppg->UpdateWindow();
 
 
 	ReposButtons(TRUE);
@@ -247,3 +230,13 @@ void CResizablePropertySheet::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 	lpMMI->ptMinTrackSize.y = 300;
 }
 
+void CResizablePropertySheet::OnActivatePage(CPropertyPage* pPage)
+{
+	CMFCPropertySheet::OnActivatePage(pPage);
+	
+	if (m_bInitialized)
+	{
+		//resize activated page
+		pPage->SetWindowPos(NULL, 0, 0, m_rectPage.Width(), m_rectPage.Height(), SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOACTIVATE);
+	}
+}
