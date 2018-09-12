@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Hourly 2 Daily</Title>
+    <Version>1.0</Version>
+    <ID>.null</ID>
+    <EXE>Daily vs Hourly.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model computes daily variables from hourly variables</Description>
+    <WindowRect>0 0 83 331</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS WD R</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Head</Name>
+            <Caption>No input</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Daily minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>0</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Approximation of mean temperature of the day: (Tmin + Tmax)/2</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Daily maximum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+            <Climatic>2</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Total precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>3</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tdew</Name>
+            <Title>Tdew</Title>
+            <Units>°C</Units>
+            <Description>Dew point temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>4</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RelH</Name>
+            <Title>RelH</Title>
+            <Units>%</Units>
+            <Description>Relative humidity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>5</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WndS</Name>
+            <Title>WndS</Title>
+            <Units>km/h</Units>
+            <Description>Wind speed</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>6</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WndD</Name>
+            <Title>WndD</Title>
+            <Units>°</Units>
+            <Description>Wind direction</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>7</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SRad</Name>
+            <Title>SRad</Title>
+            <Units>Watt/m²</Units>
+            <Description>Income solar radiation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>8</Climatic>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
