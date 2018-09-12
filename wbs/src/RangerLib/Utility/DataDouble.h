@@ -42,6 +42,7 @@ public:
     this->num_rows = num_rows;
     this->num_cols = num_cols;
     this->num_cols_no_snp = num_cols;
+	this->externalData = true;
   }
   virtual ~DataDouble();
 
@@ -67,6 +68,13 @@ public:
   }
 	
   void reserveMemory() {
+	  externalData = false;
+	  if (data != nullptr)
+	  {
+		  delete[] data;
+		  data = nullptr;
+	  }
+
     data = new double[num_cols * num_rows];
   }
 

@@ -62,6 +62,13 @@ public:
   }
 
   void reserveMemory() {
+	  externalData = false;
+	  if (data != nullptr)
+	  {
+		  delete[] data;
+		  data = nullptr;
+	  }
+
     data = new float[num_cols * num_rows];
   }
 

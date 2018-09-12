@@ -63,6 +63,13 @@ public:
   }
 
   void reserveMemory() {
+	  externalData = false;
+	  if (data != nullptr)
+	  {
+		  delete[] data;
+		  data = nullptr;
+	  }
+
     data = new char[num_cols * num_rows];
   }
 
