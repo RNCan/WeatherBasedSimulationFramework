@@ -401,7 +401,7 @@ namespace WBSF
 		string DEM_filepath, gribs_filepath, hourly_DB_filepath, defoliation_filepath, host_filepath, distraction_filepath, water_filepath;
 		string outputPath = GetPath(fileManager);		//Generate output path
 		string DBFilePath = GetDBFilePath(outputPath);		//Generate DB file path
-		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + m_parameters.m_world.m_outputFileTitle + ".csv" : "";
+		string outputFilePath = !m_parameters.m_world.m_outputFileTitle.empty() && m_parameters.m_world.m_bOutputSubHourly ? fileManager.GetOutputPath() + GetFileTitle(m_parameters.m_world.m_outputFileTitle) + ".csv" : "";
 
 		//if (!m_parameters.m_world.m_simulationPeriod.IsInside(m_parameters.m_world.m_flightPeriod))
 			//msg.ajoute("Flight period (" + m_parameters.m_world.m_flightPeriod.GetFormatedString() + ") must be inside simulation period (" + m_parameters.m_world.m_simulationPeriod.GetFormatedString() + ")");

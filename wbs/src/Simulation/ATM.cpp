@@ -6,6 +6,8 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 13-09-2018   1.0.1   Rémi Saint-Amant	Bug correction when weather is not complete over simulation period
+//											Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
 // 04-09-2018	1.0.0	Rémi Saint-Amant	Add ATM version number.
 // 17-07-2018	        Rémi Saint-Amant	flags change and Bug correction in sub-hourly and time step, optimization of memory
 // 01-05-2018	        Rémi Saint-Amant	Modification to follow publication Régniere & Saint-Amant 2018
@@ -27,7 +29,7 @@
 
 #include "WeatherBasedSimulationString.h"
 
-const char* WBSF_ATM_VERSION = "1.0.0";
+const char* WBSF_ATM_VERSION = "1.0.1";
 
 
 
@@ -86,15 +88,15 @@ namespace WBSF
 
 		switch (vv)
 		{
-		case HOURLY_DATA::H_TAIR2: v = ATM_TAIR; break;
-		case HOURLY_DATA::H_TMIN2: break;
-		case HOURLY_DATA::H_TMAX2: break;
+		case HOURLY_DATA::H_TAIR: v = ATM_TAIR; break;
+		case HOURLY_DATA::H_TMIN: break;
+		case HOURLY_DATA::H_TMAX: break;
 		case HOURLY_DATA::H_PRCP: v = ATM_PRCP; break;
 		case HOURLY_DATA::H_TDEW: break;
 		case HOURLY_DATA::H_RELH: v = ATM_RH;  break;
 		case HOURLY_DATA::H_WNDS: v = ATM_WNDU; break;
 		case HOURLY_DATA::H_WNDD: v = ATM_WNDV; break;
-		case HOURLY_DATA::H_SRAD2: break;
+		case HOURLY_DATA::H_SRAD: break;
 		case HOURLY_DATA::H_PRES: v = ATM_PRES; break;
 		case HOURLY_DATA::H_SNOW: break;
 		case HOURLY_DATA::H_SNDH: break;
@@ -257,12 +259,8 @@ namespace WBSF
 
 	}
 
-
 	const char* CSBWMothParameters::MEMBERS_NAME[NB_ATM_MEMBERS] = { "Pmax", "Wmin", "WingBeatScale", "ReductionFactor", "ReductionHeight", "Whorzontal", "WhorzontalSD", "Wdescent", "WdescentSD","FlightTimeAfterSunrize","MaximumFlights", "ReadyToFlyMaleShift", "ReadyToFlyFemaleShift" };
 	const char* CATMWorldParamters::MEMBERS_NAME[NB_MEMBERS] = { "WeatherType", "SimulationPeriod", "TimeStep", "Seed", "UseSpaceInterpol", "UseTimeInterpol", "UsePredictorCorrectorMethod", "UseVerticalVelocity", "MaximumFlyers", "MaxMissHours", "ForceFirstFlight", "BroodTSource", "PSource", "DEM", "WaterLayer", "Gribs", "HourlyDB", "Defoliation", "OutputSubHourly", "OutputFileTitle", "OutputFrequency", "CreateEggsMap", "EggsMapTitle", "EggsMapRes", "WindStabilityType", "NbWeatherStations" };
-
-
-
 
 	//***********************************************************************************************
 
@@ -724,15 +722,15 @@ namespace WBSF
 		ASSERT(!IsMissing(w[ATM_WNDV]) && !IsMissing(w[ATM_WNDU]));
 		ASSERT(m_state == FLY);
 
-		double alpha = 0;//geometric angle
-		if (w[ATM_WNDV] != 0 || w[ATM_WNDU] != 0)
-			alpha = atan2(w[ATM_WNDV], w[ATM_WNDU]);
+		double alpha = 0;//wind direction clockwise from map up(map up = 0)
+		if (w[ATM_WNDU] != 0 || w[ATM_WNDV] != 0)
+			alpha = atan2(w[ATM_WNDU], w[ATM_WNDV]);
 
 		if (_isnan(alpha) || !_finite(alpha))
 			alpha = 0;
 
-		double Ux = (w[ATM_WNDU] + cos(alpha)*m_w_horizontal);	//[m/s]
-		double Uy = (w[ATM_WNDV] + sin(alpha)*m_w_horizontal);	//[m/s]
+		double Ux = (w[ATM_WNDU] + sin(alpha)*m_w_horizontal);	//[m/s]
+		double Uy = (w[ATM_WNDV] + cos(alpha)*m_w_horizontal);	//[m/s]
 		double Uz = 0;
 
 		if (m_flight_flag == FLIYNG)
@@ -1004,6 +1002,8 @@ namespace WBSF
 
 			__int64 UTCCurrentTime = UTCTimeº + t;
 			__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
+			ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
+
 			CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
 			bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
 			if (bExodus)//if exodus occurd, set liftoff
@@ -1014,6 +1014,7 @@ namespace WBSF
 			}
 
 			AddStat(w);
+
 		}//for t in exodus period
 
 
@@ -1182,7 +1183,7 @@ namespace WBSF
 		if (at(1).m_time != at(0).m_time)
 		{
 			//when the time is not between, so we klimit between 0 qnd 1 
-			double fᵒ = max(0.0, min( 1.0, 1 - (double(UTCCurrentTime) - at(0).m_time) / (at(1).m_time - at(0).m_time))); // get fraction of time
+			double fᵒ = max(0.0, min(1.0, 1 - (double(UTCCurrentTime) - at(0).m_time) / (at(1).m_time - at(0).m_time))); // get fraction of time
 			if (!m_bUseTimeInterpolation)
 				fᵒ = fᵒ >= 0.5 ? 1 : 0;
 
@@ -1873,7 +1874,7 @@ namespace WBSF
 							{
 							case ATM_TAIR:
 							{
-								CStatistic Tair = station[TRef][H_TAIR2];
+								CStatistic Tair = station[TRef][H_TAIR];
 								if (Tair.IsInit())
 									pts->push_back(CGridPoint(station.m_x, station.m_y, 10, 0, 0, Tair[MEAN], station.m_lat, station.GetShoreDistance(), station.GetPrjID()));
 							}
@@ -1925,7 +1926,7 @@ namespace WBSF
 							}
 							case ATM_WATER:
 							{
-								CStatistic Tair = station[TRef][H_TAIR2];
+								CStatistic Tair = station[TRef][H_TAIR];
 								if (Tair.IsInit())
 								{
 									double Tw = m_Twater[index].GetTwI(TRef.Transform(CTM(CTM::DAILY)));
@@ -2025,7 +2026,7 @@ namespace WBSF
 					TTimeFilePathMap::const_iterator hi2 = hi--;
 					first = max(first, hi2->first);
 				}
-					
+
 			}
 			else
 			{
@@ -2998,7 +2999,10 @@ namespace WBSF
 			output_file.write_value(no);
 
 			CTRef TRef = output[no].GetFirstTRef();
-			int offset = (TRef - savedPeriod.Begin());
+			CTRef TRefFirstWrite = max(savedPeriod.Begin(), output[no].GetFirstTRef());
+			int offset = (TRefFirstWrite - savedPeriod.Begin());
+			ASSERT(offset >= 0);
+
 			std::streampos pos2 = offset * size_struct;
 			output_file.seekp(pos2, ios::cur);
 

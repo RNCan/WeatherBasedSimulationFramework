@@ -485,7 +485,9 @@ namespace WBSF
 
 		static double get_Uw(double p, double t, double ω);
 		double get_wind_speed(bool b_used_z = false)const{ return   sqrt(at(ATM_WNDU) * at(ATM_WNDU) + at(ATM_WNDV) * at(ATM_WNDV) + (b_used_z ? (at(ATM_WNDW)*at(ATM_WNDW)) : 0)); }
-		double get_wind_direction()const{ return fmod(5 * WBSF::PI / 2 - atan2(at(ATM_WNDV), at(ATM_WNDU)), 2 * WBSF::PI) / WBSF::PI * 180; }//a vérifier
+		//return wind direction clockwise from up [°]
+		//in the middle of the grid, it can be considerate to be the North
+		//double get_wind_direction()const { return Rad2Deg(atan2(at(ATM_WNDU), at(ATM_WNDU))) ; }
 		bool is_init()const
 		{ 
 			bool bInit = false;
