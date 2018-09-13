@@ -1,4 +1,7 @@
 ﻿//**********************************************************************
+// 10/09/2018	4.0.0	Rémi Saint-Amant    Change in units of aridity, pet 
+//											mean of VPD instead of summation
+//											Add PET as output
 // 10/09/2018	3.1.2	Rémi Saint-Amant    Bug correction in aridity 
 // 27/07/2018	3.1.1	Rémi Saint-Amant    Change in name SB -> Qc. Compile with VS 2017
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -48,7 +51,7 @@ namespace WBSF
 	CClimaticQc::CClimaticQc()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "3.1.2 (2018)";
+		VERSION = "4.0.0 (2018)";
 
 		// initialise your variable here (optionnal)
 		m_threshold = 0;
@@ -74,6 +77,7 @@ namespace WBSF
 	//	Gel hatif
 	//	Déficit de prévision de valeur utile
 	//	Déficit de prévision de valeur annuelle
+	//  Évapotranspiration potentiel
 	//	Aridité
 	//	Fraction nivale (ou précipitations sous forme de neige)
 	//	Neige total
@@ -84,14 +88,16 @@ namespace WBSF
 	{
 		O_DD_SUM, O_TOTAL_PPT, O_UTIL_PPT, O_GS_PPT, O_TMIN, O_TMEAN, O_TMAX, O_GS_TMEAN, O_JULY_TMEAN,
 		O_DAY_WITHOUT_FROST, O_FF_PERIOD_LENGTH, O_GROWING_SEASON_LENGTH, O_FF_PERIOD_BEGIN, O_FFPERIOD_END,
-		O_MEAN_VPD, O_MEAN_UVPD, O_ARIDITY, O_SNOW_RATIO, O_ANNUAL_SNOW, O_TOTAL_RAD, O_GS_RAD, NB_OUTPUT
+		O_MEAN_DAYLIGHT_VPD, O_MEAN_UVPD, O_PET, O_ARIDITY, O_SNOW_RATIO, O_ANNUAL_SNOW, O_TOTAL_RAD, O_GS_RAD, NB_OUTPUTS
 	};
-
-	typedef CModelStatVectorTemplate<NB_OUTPUT> COutputStat;
 
 	ERMsg CClimaticQc::OnExecuteAnnual()
 	{
 		ERMsg message;
+
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+		m_output.Init(p, NB_OUTPUTS, -999);
+
 
 		CDegreeDays DDE(CDegreeDays::DAILY_AVERAGE, m_threshold);
 		CModelStatVector DD;
@@ -104,13 +110,7 @@ namespace WBSF
 		CModelStatVector PET;
 		TPET.Execute(m_weather, PET);
 		PET.Transform(CTM(CTM::MONTHLY), SUM);
-		
 
-		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		COutputStat stat(p);
-
-
-		
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			int year = m_weather[y].GetTRef().GetYear();
@@ -132,15 +132,20 @@ namespace WBSF
 			double TmeanGS = m_weather[y](H_TAIR, growingSeason)[MEAN];
 			double meanJuly = m_weather[y][JULY][H_TAIR][MEAN];
 
-			//WARNING: In Climatic Annual, VPS is givent in kPa and are take from database, but here 
-			// humidity is an aproximation from temperature
-			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]);//mbars; 
-			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10;//kPa -> hPas(mBar)
-	
+			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
+			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
+
+			double PETa = 0;
 			double ar = 0;
-			for(size_t m=0; m<12; m++)
-				ar += max(0.0, PET[y*12+m][CThornthwaiteET::S_ET] - m_weather[y][m].GetStat(H_PRCP)[SUM]) / 10;//in cm
-	
+			for (size_t m = 0; m < 12; m++)
+			{
+				double PETm = PET[y * 12 + m][CThornthwaiteET::S_ET];
+				double pptm = m_weather[y][m].GetStat(H_PRCP)[SUM];
+				PETa += PETm;
+				ar += max(0.0, PETm - pptm);//in mm since version 4.0.0
+			}
+
+
 			double annualSnow = 0;
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -156,32 +161,33 @@ namespace WBSF
 			double rad = m_weather[y][H_SRMJ][SUM];
 			double GSRad = m_weather[y](H_SRMJ, growingSeason)[SUM];
 
-			stat[y][O_DD_SUM] = dd;
-			stat[y][O_TOTAL_PPT] = ppt;
-			stat[y][O_UTIL_PPT] = utilPpt;
-			stat[y][O_GS_PPT] = pptGS;
-			stat[y][O_TMIN] = Tmin;
-			stat[y][O_TMEAN] = Tmean;
-			stat[y][O_TMAX] = Tmax;
-			stat[y][O_GS_TMEAN] = TmeanGS;
-			stat[y][O_JULY_TMEAN] = meanJuly;
-			stat[y][O_DAY_WITHOUT_FROST] = dayWithoutFrost;
-			stat[y][O_FF_PERIOD_LENGTH] = FFPeriod.as(CTM::DAILY).GetLength();
-			stat[y][O_GROWING_SEASON_LENGTH] = growingSeason.as(CTM::DAILY).GetLength();
-			stat[y][O_FF_PERIOD_BEGIN] = FFPeriod.Begin().GetJDay();
-			stat[y][O_FFPERIOD_END] = FFPeriod.End().GetJDay();
-			stat[y][O_MEAN_VPD] = VPD; //in mBar
-			stat[y][O_MEAN_UVPD] = UVPD; //in mBar
-			stat[y][O_ARIDITY] = ar;
-			stat[y][O_SNOW_RATIO] = snowRatio;
-			stat[y][O_ANNUAL_SNOW] = annualSnow;
-			stat[y][O_TOTAL_RAD] = rad;
-			stat[y][O_GS_RAD] = GSRad;
+			m_output[y][O_DD_SUM] = dd;
+			m_output[y][O_TOTAL_PPT] = ppt; //[mm]
+			m_output[y][O_UTIL_PPT] = utilPpt;//[mm]
+			m_output[y][O_GS_PPT] = pptGS;//[mm]
+			m_output[y][O_TMIN] = Tmin;//°C
+			m_output[y][O_TMEAN] = Tmean;//°C
+			m_output[y][O_TMAX] = Tmax;//°C
+			m_output[y][O_GS_TMEAN] = TmeanGS;//°C
+			m_output[y][O_JULY_TMEAN] = meanJuly;//°C
+			m_output[y][O_DAY_WITHOUT_FROST] = dayWithoutFrost;
+			m_output[y][O_FF_PERIOD_LENGTH] = FFPeriod.as(CTM::DAILY).GetLength();
+			m_output[y][O_GROWING_SEASON_LENGTH] = growingSeason.as(CTM::DAILY).GetLength();
+			m_output[y][O_FF_PERIOD_BEGIN] = FFPeriod.Begin().GetJDay();
+			m_output[y][O_FFPERIOD_END] = FFPeriod.End().GetJDay();
+			m_output[y][O_MEAN_DAYLIGHT_VPD] = VPD; //[hPa] (mBar)
+			m_output[y][O_MEAN_UVPD] = UVPD; //[hPa] (mBar)
+			m_output[y][O_PET] = PETa;//[mm]
+			m_output[y][O_ARIDITY] = ar;//[mm] since version 4.0., aridity are in mm, was in cm
+			m_output[y][O_SNOW_RATIO] = snowRatio;//[%]
+			m_output[y][O_ANNUAL_SNOW] = annualSnow; //[mm] of water
+			m_output[y][O_TOTAL_RAD] = rad;//[MJ/m²]
+			m_output[y][O_GS_RAD] = GSRad;//[MJ/m²]
 
 			HxGridTestConnection();
 		}
 
-		SetOutput(stat);
+
 
 		return message;
 	}
@@ -208,17 +214,16 @@ namespace WBSF
 		return nbDayMax;
 	}*/
 
-	//deficit pressure in [mbars]
+	//mean of June, July and August vapor pressure deficit [kPa]
 	double CClimaticQc::GetUtilDeficitPressionVapeur(const CWeatherYear& weather)
 	{
-		double udpv = 0;
-		
-		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		CTRef TRef = p.Begin();
+		CStatistic udpv;
 
-		for (int d = 151; d <= 242; d++)
+		int year = weather.GetTRef().GetYear();
+		CTPeriod p(CTRef(year, JUNE, FIRST_DAY), CTRef(year, AUGUST, LAST_DAY));
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
-			const CWeatherDay& day = (const CWeatherDay&)(weather[TRef + d]);
+			const CWeatherDay& day = weather.GetDay(TRef);
 			double Tmin = day[H_TMIN][LOWEST];
 			double Tmax = day[H_TMAX][HIGHEST];
 
@@ -226,17 +231,17 @@ namespace WBSF
 			{
 				double T1 = 7.5*Tmax / (237.3 + Tmax);
 				double T2 = 7.5*Tmin / (237.3 + Tmin);
-				udpv += pow(10., T1) - pow(10., T2);
+				udpv += 0.6108*(pow(10., T1) - pow(10., T2));//[kPa]
 			}
 		}
-		udpv *= 6.108;//[hPa]
 
-		return udpv;
+
+		return udpv[MEAN];
 	}
 
 	//udpv2 += day.GetDaylightVaporPressureDeficit();
 
-	
+
 	//from wikipedia :https://en.wikipedia.org/wiki/Vapour-pressure_deficit
 	//{\displaystyle A = -1.044\times 10 ^ {4}},
 	//{ \displaystyle B = -11.29 } {\displaystyle B = -11.29},
@@ -312,6 +317,8 @@ namespace WBSF
 	//Saturation vapor pressure at daylight temperature[kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherDay& weather)
 	{
+		ASSERT(weather[H_EA].IsInit());
+
 		double daylightT = weather.GetTdaylight();
 		double daylightEs = eᵒ(daylightT);//kPa
 

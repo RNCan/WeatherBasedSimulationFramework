@@ -33,8 +33,8 @@ namespace WBSF
 
 	CMicroClimate::CMicroClimate(const CWeatherDay& weather)
 	{
-		double Tmin = weather[H_TMIN2][MEAN];
-		double Tmax = weather[H_TMAX2][MEAN];
+		double Tmin = weather[H_TMIN][MEAN];
+		double Tmax = weather[H_TMAX][MEAN];
 		double Trange = Tmax - Tmin;
 		double Sin = sin(2 * 3.14159*(weather.GetTRef().GetJDay() / 365. - 0.25));
 

@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description>This model compute annual climatic variable</Description>
     <WindowRect>0 0 77 401</WindowRect>
-    <SimulatedCategory>TN T TX P R</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -143,28 +143,36 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>VapourPressureDeficit</Name>
-            <Title>Vapour pressure deficit</Title>
+            <Name>DaylightVPD</Name>
+            <Title>Daylight VPD</Title>
+            <Units>hPa</Units>
+            <Description>Mean of daylight Vapor Pressure Deficit</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>UtilVPD</Name>
+            <Title>Util VPD</Title>
             <Units>hPa (mbar)</Units>
-            <Description>Vapour pressure deficit.</Description>
+            <Description>Mean of vapour pressure deficit in June, July and August (Julian day between 152 and 243).</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>UtilVapourPressureDeficit</Name>
-            <Title>Util vapour pressure deficit</Title>
-            <Units>hPa (mbar)</Units>
-            <Description>Vapour pressure deficit in June, July and August. Julian day between 152 and 243.</Description>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Thornthwaite potentiel evapotranspiration.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Aridity</Name>
             <Title>Aridity</Title>
-            <Units>cm</Units>
+            <Units>mm</Units>
             <Description>Aridity is accumulation of monthly water deficit (monthly Thornthwaite potential evapotranspiration - monthly precipitation, zero if negative). </Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>SnowfallProportion</Name>
@@ -180,7 +188,7 @@
             <Units>mm of water</Units>
             <Description>Annual precipitation (in mm of water) as snow (snow is assume when Tmean is below zero).</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalRadiation</Name>

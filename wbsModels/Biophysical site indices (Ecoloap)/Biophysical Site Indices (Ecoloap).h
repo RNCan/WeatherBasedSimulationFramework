@@ -28,7 +28,7 @@ namespace WBSF
 
 		static double DegreeDays(const CWeatherYear& weather, double threshold);
 		static void Aridite(const CWeatherYear& weather, double& A, double& E, double& PU);
-		static double DeficitVaporPressure(const CWeatherYear& weather);
+		static double UtilDeficitVaporPressure(const CWeatherYear& weather);
 
 	};
 }

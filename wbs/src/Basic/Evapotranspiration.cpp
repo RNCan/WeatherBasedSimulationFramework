@@ -154,7 +154,7 @@ double CThornthwaiteET::GetET(const CMonth& weather, double I)
 	double mean = weather[H_TNTX][MEAN];
 	if(mean>0) 
 	{
-		ET = 16*pow(10.*mean/I, alpha);
+		ET = 16.0*pow(10.0*mean/I, alpha);//[mm]
 		if (m_type == POTENTIEL_ADJUSTED)
 		{
 			//The resulting potential evapotranspiration value, determined using the graph or formula, is for 360 hours 

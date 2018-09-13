@@ -1,5 +1,7 @@
 //**********************************************************************
-// 11-09-2018	2.0.0	Rémi Saint-Amant	Update with BioSIM 11
+// 11-09-2018	2.0.0	Rémi Saint-Amant	Update with BioSIM 11.5.0
+//											Change in unit of aridity and ET [mm instead of cm]
+//											mean of VPD instead of summation
 // 12-04-1999			Jacques Régnière	Creation from existing code  
 //**********************************************************************
 
@@ -18,7 +20,7 @@ namespace WBSF
 		CModelFactory::RegisterModel(CBiophysicalSiteIndices::CreateObject);
 
 	enum TOutput { O_DJ5, O_PU, O_A, O_DPV, O_ET, NB_OUTPUS };
-	static const char HEADER[] = "DD5,Prcp,Aridity,DPV,ET";
+	static const char HEADER[] = "DD5,Prcp,Aridity,VPD,ET";
 
 	CBiophysicalSiteIndices::CBiophysicalSiteIndices()
 	{
@@ -53,13 +55,13 @@ namespace WBSF
 			double DJ5 = DegreeDays(m_weather[y], 5.0);
 			double A = 0, ET = 0, PU = 0;
 			Aridite(m_weather[y], A, ET, PU);
-			double VPD = DeficitVaporPressure(m_weather[y]);
+			double uVPD = UtilDeficitVaporPressure(m_weather[y])*10;//[kPa] --> [hPa]
 
-			m_output[y][O_DJ5] = Round(DJ5,1);	
-			m_output[y][O_PU] = Round(PU,1);		//[mm]
-			m_output[y][O_A] = Round(A,2);		//[cm]
-			m_output[y][O_DPV] = Round(VPD,1);	//[hPa] or mbar
-			m_output[y][O_ET] = Round(ET,2);		//[cm]
+			m_output[y][O_DJ5] = DJ5;	
+			m_output[y][O_PU] = PU;		//[mm]
+			m_output[y][O_A] = A;		//[mm] since version 2.0.0
+			m_output[y][O_DPV] = uVPD;	//[hPa] (mbar), mean instead of summation since version 2.0.0
+			m_output[y][O_ET] = ET;		//[mm]since version 2.0.0
 		}
 
 		return msg;
@@ -71,8 +73,8 @@ namespace WBSF
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
-			double Tmin = weather[TRef][H_TMIN2][MEAN];
-			double Tmax = weather[TRef][H_TMAX2][MEAN];
+			double Tmin = weather[TRef][H_TMIN][MEAN];
+			double Tmax = weather[TRef][H_TMAX][MEAN];
 
 			double DD = (Tmin + Tmax) / 2.0 - threshold;
 			if (DD > 0)
@@ -90,8 +92,8 @@ namespace WBSF
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
-			double Tmin = weather[TRef][H_TMIN2][MEAN];
-			double Tmax = weather[TRef][H_TMAX2][MEAN];
+			double Tmin = weather[TRef][H_TMIN][MEAN];
+			double Tmax = weather[TRef][H_TMAX][MEAN];
 			double prcp = weather[TRef][H_PRCP][SUM];
 
 			size_t m = TRef.GetMonth();
@@ -116,12 +118,12 @@ namespace WBSF
 		{
 			if (Ta[m][MEAN] > 0.0)
 			{
-				double Et = 1.6*pow(10.*Ta[m][MEAN] / I, alpha);//[cm]
-				E += Et;//[cm]
+				double Et = 16.0*pow(10.0*Ta[m][MEAN] / I, alpha);//[mm]
+				E += Et;//[mm]
 
-				double Ar = (Et - P[m][SUM] / 10.0); //[cm]
+				double Ar = (Et - P[m][SUM]); //[mm]
 				if (Ar > 0.0)
-					A += Ar; //[cm]
+					A += Ar; //[mm]
 			}
 		}
 
@@ -129,25 +131,25 @@ namespace WBSF
 		PU = (P[JUNE][SUM] + P[JULY][SUM] + P[AUGUST][SUM]); //precipitation [mm]
 	}
 
-
-	double CBiophysicalSiteIndices::DeficitVaporPressure(const CWeatherYear& weather)
+	//mean of June, July and August vapor pressure deficit [kPa]
+	double CBiophysicalSiteIndices::UtilDeficitVaporPressure(const CWeatherYear& weather)
 	{
-		double dpv = 0;
+		CStatistic udpv;
 
 		int year = weather.GetTRef().GetYear();
 		CTPeriod p(CTRef(year, JUNE, FIRST_DAY), CTRef(year, AUGUST, LAST_DAY));
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
-			double Tmin = weather[TRef][H_TMIN2][MEAN];
-			double Tmax = weather[TRef][H_TMAX2][MEAN];
+			double Tmin = weather[TRef][H_TMIN][MEAN];
+			double Tmax = weather[TRef][H_TMAX][MEAN];
 
 			double T1 = 7.5*Tmax / (237.3 + Tmax);
 			double T2 = 7.5*Tmin / (237.3 + Tmin);
-			dpv += 6.108*pow(10., T1) - pow(10., T2);
+			udpv += 0.6108*(pow(10., T1) - pow(10., T2));//[kPa]
 		}
 
 
-		return dpv;
+		return udpv[MEAN];//[kPa]
 	}
 
 

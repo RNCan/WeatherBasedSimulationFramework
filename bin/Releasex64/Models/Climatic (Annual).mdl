@@ -36,7 +36,7 @@
             <Units>°C</Units>
             <Description>Lowest daily minimum temperature of the year</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>MeanTMin</Name>
@@ -44,7 +44,7 @@
             <Units>°C</Units>
             <Description>Annual mean of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>MeanTMean</Name>
@@ -52,7 +52,7 @@
             <Units>°C</Units>
             <Description>Annual mean of daily mean temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>MeanTMax</Name>
@@ -60,7 +60,7 @@
             <Units>°C</Units>
             <Description>Annual mean of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>HitghestTMax</Name>
@@ -68,7 +68,7 @@
             <Units>°C</Units>
             <Description>Highest daily maximum temperature of the year</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalPrecipitation</Name>
@@ -76,7 +76,7 @@
             <Units>mm</Units>
             <Description>Annual total precipitation</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TDew</Name>
@@ -84,7 +84,7 @@
             <Units>°C</Units>
             <Description>Annual mean of daily mean dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>RelativeHumidity</Name>
@@ -92,7 +92,7 @@
             <Units>%</Units>
             <Description>Annual mean of daily mean relative humidity</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>WindSpeed</Name>
@@ -100,7 +100,7 @@
             <Units>km/h</Units>
             <Description>Mean wind speed at 10 meters (km/h)</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>FrostDay</Name>
@@ -116,7 +116,7 @@
             <Units>days</Units>
             <Description>Number of days in the year when the daily minimum temperature is &gt;= 0 °C</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>WetDay</Name>
@@ -124,7 +124,7 @@
             <Units>days</Units>
             <Description>Number of days in the year when the daily precipitation is &gt;= 0.2 mm</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>DryDay</Name>
@@ -132,7 +132,7 @@
             <Units>days</Units>
             <Description>Number of days in the year when the daily precipitation is &lt; 0.2 mm</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>TotalRadiation</Name>
@@ -140,7 +140,7 @@
             <Units>MJ/m²</Units>
             <Description>Annual total radiation computes by MTCLIM. See documentation of MTCLIM 4.3</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>

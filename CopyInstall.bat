@@ -34,9 +34,8 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ETsz (Hourly).mdl" "..\Install\NRCan\Model
 copy /Y ".\bin\Releasex64\Models\ASCE-ETsz.dll" "..\Install\NRCan\Models\ASCE-ETsz.dll"
 copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-ET2005.pdf"
 
-
-copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
-copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
+::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
+::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
 
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"
@@ -168,15 +167,21 @@ copy /Y ".\bin\Releasex64\Models\Tranosema Biology (daily).mdl" "..\Install\NRCa
 copy /Y ".\bin\Releasex64\Models\Tranosema Biology.dll" "..\Install\NRCan\Models\Tranosema Biology.dll"
 copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (annual).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (generation).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (generation).mdl"
+
+copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Annual).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Monthly).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Monthly).mdl"
+copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Daily).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Hourly).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Hourly).mdl"
+copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit.dll" "..\Install\NRCan\Models\VaporPressureDeficit.dll"
+
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm (annual).mdl" "..\Install\NRCan\Models\Western Spruce Budworm (annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.dll" "..\Install\NRCan\Models\Western Spruce Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.mdl" "..\Install\NRCan\Models\Western Spruce Budworm.mdl"
-
 copy /Y ".\bin\Releasex64\Models\WetnessDuration (Hourly).mdl" "..\Install\NRCan\Models\WetnessDuration (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\WetnessDuration.dll" "..\Install\NRCan\Models\WetnessDuration.dll"
-
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.mdl" "..\Install\NRCan\Models\WhitePineWeevil.mdl"
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.dll" "..\Install\NRCan\Models\WhitePineWeevil.dll"
+
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.dll" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.dll"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.mdl"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.pdf"

@@ -36,7 +36,7 @@
             <Units>°C</Units>
             <Description>Hourly minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
+            <Precision>1</Precision>
             <Climatic>0</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -45,7 +45,7 @@
             <Units>°C</Units>
             <Description>Hourly mean temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
+            <Precision>1</Precision>
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -54,7 +54,7 @@
             <Units>°C</Units>
             <Description>Hourly maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>2</Precision>
+            <Precision>1</Precision>
             <Climatic>2</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -63,7 +63,7 @@
             <Units>mm</Units>
             <Description>Hourly total precipitation</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
             <Climatic>3</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -72,7 +72,7 @@
             <Units>°C</Units>
             <Description>Hourly mean dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
             <Climatic>4</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -81,7 +81,7 @@
             <Units>%</Units>
             <Description>Hourly mean relative humidity</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
             <Climatic>5</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -90,7 +90,7 @@
             <Units>km/h</Units>
             <Description>Hourly mean wind speed at 10 meters</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
             <Climatic>6</Climatic>
         </OutputVariable>
         <OutputVariable>
@@ -99,7 +99,7 @@
             <Units>MJ/m²</Units>
             <Description>Cumulative solar radiation</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>1</Precision>
             <Climatic>8</Climatic>
         </OutputVariable>
     </OutputVariableArray>

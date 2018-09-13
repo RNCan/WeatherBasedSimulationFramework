@@ -143,7 +143,7 @@ namespace WBSF
 			m_output[y][ANNUAL_FROSTFREE_DAY] = frostFreeDay;
 			m_output[y][ANNUAL_WET_DAY] = nbWetDay;
 			m_output[y][ANNUAL_DRY_DAY] = nbDryDay;
-			m_output[y][ANNUAL_SUN] = Round(annualSun, 3);
+			m_output[y][ANNUAL_SUN] = Round(annualSun, 1);
 		}
 
 	
@@ -192,7 +192,7 @@ namespace WBSF
 				m_output[y * 12 + m][MONTHLY_FROSTFREE_DAY] = frostFreeDay;
 				m_output[y * 12 + m][MONTHLY_WET_DAY] = nbWetDay;
 				m_output[y * 12 + m][MONTHLY_DRY_DAY] = nbDryDay;
-				m_output[y * 12 + m][MONTHLY_SUN] = Round(monthlySun, 3);
+				m_output[y * 12 + m][MONTHLY_SUN] = Round(monthlySun, 1);
 			}
 		}
 

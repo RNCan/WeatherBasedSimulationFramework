@@ -205,12 +205,12 @@
     <Link>
       <AdditionalDependencies>gdal_i.lib;proj_i.lib;version.lib;external.lib;wbs.lib;wbsUI.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateMapFile>true</GenerateMapFile>
+      <GenerateMapFile>false</GenerateMapFile>
       <HeapReserveSize>
       </HeapReserveSize>
       <AdditionalLibraryDirectories>..\..\external\gdal\lib$(PlatformArchitecture);..\..\external\lib$(PlatformArchitecture);..\..\external\VisualLeakDetector\lib\Win$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -247,7 +247,7 @@
     <Link>
       <AdditionalDependencies>gdal_i.lib;proj_i.lib;version.lib;external.lib;wbs.lib;wbsUI.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
