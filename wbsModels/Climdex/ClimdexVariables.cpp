@@ -108,18 +108,18 @@ namespace WBSF
 	//Rx1day, Monthly maximum 1 - day precipitation.
 	//PRCPTOT: Annual total precipitation in wet days(RR ≥ 1.0mm).
 
-	double CClimdexVariables::GetTXX(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMAX2][HIGHEST] : -999; }
-	double CClimdexVariables::GetTNX(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMIN2][HIGHEST] : -999; }
-	double CClimdexVariables::GetTXN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMAX2][LOWEST] : -999; }
-	double CClimdexVariables::GetTNN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMIN2][LOWEST] : -999; }
+	double CClimdexVariables::GetTXX(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMAX][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMAX][HIGHEST] : -999; }
+	double CClimdexVariables::GetTNX(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMIN][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMIN][HIGHEST] : -999; }
+	double CClimdexVariables::GetTXN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMAX][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMAX][LOWEST] : -999; }
+	double CClimdexVariables::GetTNN(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TMIN][NB_VALUE] <= NB_MISSING_M) ? weather[H_TMIN][LOWEST] : -999; }
 	double CClimdexVariables::GetDTR(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_TRNG2][NB_VALUE] <= NB_MISSING_M) ? weather[H_TRNG2][MEAN] : -999; }
 	double CClimdexVariables::GetRX1DAY(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= NB_MISSING_M) ? weather[H_PRCP][HIGHEST] : -999; }
 	double CClimdexVariables::GetPRCP(const CWeatherMonth& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= NB_MISSING_M) ? weather[H_PRCP][SUM] : -999; }
 
-	double CClimdexVariables::GetTXX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMAX2][HIGHEST] : -999; }
-	double CClimdexVariables::GetTNX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMIN2][HIGHEST] : -999; }
-	double CClimdexVariables::GetTXN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX2][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMAX2][LOWEST] : -999; }
-	double CClimdexVariables::GetTNN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN2][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMIN2][LOWEST] : -999; }
+	double CClimdexVariables::GetTXX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMAX][HIGHEST] : -999; }
+	double CClimdexVariables::GetTNX(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMIN][HIGHEST] : -999; }
+	double CClimdexVariables::GetTXN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMAX][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMAX][LOWEST] : -999; }
+	double CClimdexVariables::GetTNN(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TMIN][NB_VALUE] <= NB_MISSING_A) ? weather[H_TMIN][LOWEST] : -999; }
 	double CClimdexVariables::GetDTR(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_TRNG2][NB_VALUE] <= NB_MISSING_A) ? weather[H_TRNG2][MEAN] : -999; }
 	double CClimdexVariables::GetRX1DAY(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= NB_MISSING_A) ? weather[H_PRCP][HIGHEST] : -999; }
 	double CClimdexVariables::GetPRCP(const CWeatherYear& weather)	{ return (weather.GetNbDays() - weather[H_PRCP][NB_VALUE] <= NB_MISSING_A) ? weather[H_PRCP][SUM] : -999; }
@@ -135,10 +135,10 @@ namespace WBSF
 		double value = -999;
 		switch (index)
 		{
-		case FD: value = weather[H_TMIN2].IsInit() ? (weather[H_TMIN2][LOWEST] < 0) ? 1 : 0 : -999; break;
-		case SU: value = weather[H_TMAX2].IsInit() ? (weather[H_TMAX2][HIGHEST] > 25) ? 1 : 0 : -999; break;
-		case ID:value = weather[H_TMAX2].IsInit() ? (weather[H_TMAX2][HIGHEST] < 0) ? 1 : 0 : -999; break;
-		case TR:value = weather[H_TMIN2].IsInit() ? (weather[H_TMIN2][LOWEST] > 20) ? 1 : 0 : -999; break;
+		case FD: value = weather[H_TMIN].IsInit() ? (weather[H_TMIN][LOWEST] < 0) ? 1 : 0 : -999; break;
+		case SU: value = weather[H_TMAX].IsInit() ? (weather[H_TMAX][HIGHEST] > 25) ? 1 : 0 : -999; break;
+		case ID:value = weather[H_TMAX].IsInit() ? (weather[H_TMAX][HIGHEST] < 0) ? 1 : 0 : -999; break;
+		case TR:value = weather[H_TMIN].IsInit() ? (weather[H_TMIN][LOWEST] > 20) ? 1 : 0 : -999; break;
 		default: ASSERT(false);
 		}
 
@@ -708,7 +708,7 @@ namespace WBSF
 	//Calculate threshold
 
 	
-	const TVarH CClimdexNormals::VARIABLES[NB_PERCENTILS_VAR] = { H_TMIN2, H_TMAX2 };
+	const TVarH CClimdexNormals::VARIABLES[NB_PERCENTILS_VAR] = { H_TMIN, H_TMAX };
 
 	CClimdexNormals::CClimdexNormals()
 	{

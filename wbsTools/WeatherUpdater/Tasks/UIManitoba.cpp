@@ -519,9 +519,9 @@ namespace WBSF
 
 	//		enum TCommonyColumns{ TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS };
 	//		enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
-	//		static const TVarH COL_POS_H[NB_COLUMNS_H] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_SKIP, H_RELH, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_PRCP, H_SKIP };
+	//		static const TVarH COL_POS_H[NB_COLUMNS_H] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TMAX, H_TMIN, H_SKIP, H_RELH, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD, H_SKIP, H_PRCP, H_SKIP };
 	//		enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
-	//		static const TVarH COL_POS_D[NB_COLUMNS_D] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_TMAX2, H_SKIP, H_TMIN2, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+	//		static const TVarH COL_POS_D[NB_COLUMNS_D] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TMAX, H_SKIP, H_TMIN, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
 
 	//		bool b10m = true;
 	//		for (CSVIterator loop(file, ",", false); loop != CSVIterator() && msg; ++loop)
@@ -599,7 +599,7 @@ namespace WBSF
 	//								ASSERT(value < 100);
 	//							}
 
-	//							if (cPos == H_TAIR2 || cPos == H_TMIN2 || cPos == H_TMAX2)
+	//							if (cPos == H_TAIR || cPos == H_TMIN || cPos == H_TMAX)
 	//							{
 	//								ASSERT(value > -60 && value < 60);
 	//							}
@@ -847,7 +847,7 @@ namespace WBSF
 		CWeatherYears data(false);
 
 		enum THourlyColumns { C_DATE, C_TMAX, C_TMIN, C_TAVG, C_PPT, C_GDD, C_CHU, NB_COLUMNS };
-		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX2, H_TMIN2, H_TAIR2, H_PRCP, H_SKIP, H_SKIP };
+		static const TVarH DAILY_VAR[NB_COLUMNS] = { H_SKIP, H_TMAX, H_TMIN, H_TAIR, H_PRCP, H_SKIP, H_SKIP };
 
 		try
 		{
@@ -925,7 +925,7 @@ namespace WBSF
 		CWeatherYears data(true);
 
 		enum THourlyColumns { C_HOUR, C_TEMP, C_RH, C_RAIN, C_WIND_SPEED, C_WIND_DIR, C_PEAK_WIND, C_SOIL_TEMP, NB_COLUMNS };
-		static const TVarH HOURLY_VARS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_RELH, H_PRCP, H_WNDS, H_WNDD, H_SKIP, H_ADD1 };
+		static const TVarH HOURLY_VARS[NB_COLUMNS] = { H_SKIP, H_TAIR, H_RELH, H_PRCP, H_WNDS, H_WNDD, H_SKIP, H_ADD1 };
 
 		try
 		{
@@ -1322,7 +1322,7 @@ namespace WBSF
 
 			//station	datetime	tmp	rh	wd	cwd	ws	wsmax	rn_1
 			enum THourlyColumns { C_STATION, C_DATETIME, C_TMP, C_RH, C_WD, C_CWD, C_WS, C_WSMAX, C_RN_1, NB_COLUMNS };
-			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 			{
@@ -1531,7 +1531,7 @@ namespace WBSF
 
 	enum TVariables { H_WATER_LEVEL, H_WATER_TEMPERATURE, H_AIR_TEMPERATURE, H_WIND_DIRECTION, H_WIND_SPEED, H_WIND_GUST, H_PRECIPITATION, H_RELATIVE_HUMIDITY, H_ATMOSPHERIC_PRESSURE, NB_MAN_VARS };
 	static char* HYDRO_VAR_NAME[NB_MAN_VARS] = { "HG", "TW", "TA", "UD", "US", "UG", "PC", "XR", "PA" };
-	static const TVarH HYDRO_VAR[NB_MAN_VARS] = { H_ADD1, H_ADD2, H_TAIR2, H_WNDD, H_WNDS, H_SKIP, H_PRCP, H_RELH, H_PRES };
+	static const TVarH HYDRO_VAR[NB_MAN_VARS] = { H_ADD1, H_ADD2, H_TAIR, H_WNDD, H_WNDS, H_SKIP, H_PRCP, H_RELH, H_PRES };
 	static size_t GetVar(string filePath)
 	{
 		size_t var = NOT_INIT;
@@ -1862,7 +1862,7 @@ namespace WBSF
 					CTPeriod p = data.GetEntireTPeriod();
 					for (CTRef h = p.Begin(); h <= p.End(); h++)
 					{
-						CStatistic T = data[h][H_TAIR2];
+						CStatistic T = data[h][H_TAIR];
 						CStatistic Hr = data[h][H_RELH];
 						if (T.IsInit() && Hr.IsInit())
 							data[h].SetStat(H_TDEW, Hr2Td(T[MEAN], Hr[MEAN]));
@@ -2111,7 +2111,7 @@ namespace WBSF
 
 							value = value < 1000 ? value * 10.0 : value / 100.0;
 							if (value > 0 && value < 500)
-								data[Tref].SetStat(H_SRAD2, value);
+								data[Tref].SetStat(H_SRAD, value);
 						}// tmp == 3 and sRad is init
 					}
 

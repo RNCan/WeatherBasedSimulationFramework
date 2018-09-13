@@ -32,7 +32,7 @@ namespace WBSF
 		for (size_t m = 0; m < 12; m++)
 		{
 			
-			CStatistic stat = GetNormalStat(weather, m, H_TMIN2);
+			CStatistic stat = GetNormalStat(weather, m, H_TMIN);
 
 			if (stat[MEAN] < T)
 			{
@@ -51,7 +51,7 @@ namespace WBSF
 		double T = -999;
 		for (size_t m = 0; m < 12; m++)
 		{
-			CStatistic stat = GetNormalStat(weather, m, H_TMAX2);
+			CStatistic stat = GetNormalStat(weather, m, H_TMAX);
 
 			if (stat[MEAN] > T)
 			{
@@ -119,11 +119,11 @@ namespace WBSF
 		//X5 = winter factor expressed in terms of (0°C - X1)Rjan where Rjan represents the rainfall in January expressed in mm
 		//X6 = mean maximum snow depth in terms of S/(S+a) where a=25.4 if S is in millimeters and a=1 if S is in inches
 		//X7 = maximum wind gust in (km/hr) in 30 years
-		double X1 = GetNormalStat(weather, cm, H_TMIN2)[MEAN];
+		double X1 = GetNormalStat(weather, cm, H_TMIN)[MEAN];
 		double X2 = GetMeanFrosFreePeriod(weather);//(double)weather.GetFrostFreeDay()/weather.GetNbYear();
 		double P = GetJuneNovemberRain(weather);
 		double X3 = P / (P + 25.4);
-		double X4 = GetNormalStat(weather, wm, H_TMAX2)[MEAN];
+		double X4 = GetNormalStat(weather, wm, H_TMAX)[MEAN];
 		double Pjan = GetJanuaryRainfall(weather);
 		double X5 = (0 - X1)*Pjan;
 		double N = GetMeanMaximumSnowDepth(weather) * 10;//cm --> mm

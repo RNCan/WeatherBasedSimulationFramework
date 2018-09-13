@@ -271,7 +271,7 @@ namespace WBSF
 
 			enum THourlyColumns{ STATION_CODE, OBSDATE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, RAINFALL, WIND_DIRECTION, NB_COLUMNS };
 			static const char* COL_NAME[NB_COLUMNS] = { "WSTNCODE", "Date", "Time", "temp", "RH", "speed", "precip", "WindDir" };
-			static const TVarH  COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_PRCP, H_WNDD };
+			static const TVarH  COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDS, H_PRCP, H_WNDD };
 
 			try
 			{
@@ -341,7 +341,7 @@ namespace WBSF
 								data[year][m][d][h][v] = value;
 								if (v == H_RELH)
 								{
-									double T = data[year][m][d][h][H_TAIR2];
+									double T = data[year][m][d][h][H_TAIR];
 									if (!WEATHER::IsMissing(T))
 										data[year][m][d][h][H_TDEW] = Hr2Td(T, value);
 								}
@@ -477,7 +477,7 @@ namespace WBSF
 
 
 			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
-			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDS, H_WNDD, H_PRCP };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 			{

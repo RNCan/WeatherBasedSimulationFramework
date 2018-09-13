@@ -129,8 +129,8 @@ namespace WBSF
 		static const double a = 17.27;
 		static const double b = 237.7;
 
-		double Tmin = wDay[H_TMIN2][MEAN];
-		double Tmax = wDay[H_TMAX2][MEAN];
+		double Tmin = wDay[H_TMIN][MEAN];
+		double Tmax = wDay[H_TMAX][MEAN];
 		double Trng = Tmax - Tmin;
 
 		double RH = max(1.0, min(100.0, wDay[H_RELH][MEAN] + K[0] * Trng));
@@ -390,7 +390,7 @@ namespace WBSF
 		{
 			int h = (hh + 12) % 24;
 			const CDay& hDay = hh < 12 ? hourlyDay : nextHourlyDay;
-			double DPD = max(0.0f, hDay[h][H_TAIR2] - hDay[h][H_TDEW]);
+			double DPD = max(0.0f, hDay[h][H_TAIR] - hDay[h][H_TDEW]);
 			double RH = hDay[h][H_RELH];
 			double sRad = hDay[h][H_SRAD];
 
@@ -442,9 +442,9 @@ namespace WBSF
 			int h = (hh + 12) % 24;
 			const CDay& hDay = hh < 12 ? hourlyDay : nextHourlyDay;
 
-			double T = hDay[h][H_TAIR2];
+			double T = hDay[h][H_TAIR];
 			double RH = hDay[h][H_RELH];
-			double DPD = max(0.0f, hDay[h][H_TAIR2] - hDay[h][H_TDEW]);
+			double DPD = max(0.0f, hDay[h][H_TAIR] - hDay[h][H_TDEW]);
 			double U = hDay[h][H_WND2] * 1000 / 3600;// (m/s)
 			//double ws = hDay[h][H_WND2]*1000/3600;// (m/s)
 			//double U = CASCE_ETsz::GetWindProfileRelationship(ws,10);//convert wind speed at 10 meters to 2 meters
@@ -1760,12 +1760,12 @@ namespace WBSF
 						//In the model, the onset of dew occurred when LE>0 and the ending occurred when the condensate which
 						//had accumulated during the night evaporated during the morning (Mintah,1977).
 						double c = hDay[h].GetVarEx(H_FNCD);
-						double Tws = hDay[h][H_TAIR2];		//[°C]
+						double Tws = hDay[h][H_TAIR];		//[°C]
 						double ews = hDay[h][H_EA] * 10;	//[mb]
 						double esaws = hDay[h][H_ES] * 10;	//[mb]   
 						double Zws = 10;					//[m]
 						double Uws = hDay[h][H_WNDS] * 1000 / 3600;		//km/h --> m/s
-						double Rs1 = hDay[h][H_SRAD2]/**1000000/3600*/;	//MJ/(m²·h) --> W/m²;
+						double Rs1 = hDay[h][H_SRAD]/**1000000/3600*/;	//MJ/(m²·h) --> W/m²;
 
 						double Rs = Rs1;
 						if (m_exposure == EXPOSED_LEAF)
@@ -1996,7 +1996,7 @@ namespace WBSF
 							double δ = CASCE_ETsz::GetPsychrometricConstant(ap) * 10;//kPa/°C  --> mbar/°C
 
 							//hourly temperature [°C]
-							double T = hDay[hh][H_TAIR2];
+							double T = hDay[hh][H_TAIR];
 							//slope of the saturation vapor pressure-temperature curve [mbar/°C]
 							double Δ = CASCE_ETsz::GetSlopeOfSaturationVaporPressure(T) * 10;
 							//latent heat of vaporization [J/g]
@@ -2005,9 +2005,9 @@ namespace WBSF
 
 
 							double Fcd = hDay[hh].GetVarEx(H_FNCD);
-							double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR2], hDay[hh][H_EA], Fcd);
+							double Rln = CASCE_ETsz::GetNetLongWaveRadiationH(hDay[hh][H_TAIR], hDay[hh][H_EA], Fcd);
 							double Rn = 0;
-							if (hDay[hh][H_SRAD2] > 0)
+							if (hDay[hh][H_SRAD] > 0)
 							{
 								if (bReset)
 								{
@@ -2088,7 +2088,7 @@ namespace WBSF
 							double Uc = GetUc(Uz, Z, Zc);
 
 							//hourly temperature [Kelvin]
-							double Tk = hDay[hh][H_TAIR2] + 273.15;
+							double Tk = hDay[hh][H_TAIR] + 273.15;
 							//p = density of air [g/cm³]
 							double p = ap / (Rspecific*Tk);//Kpa·Kg/J = g/cm³
 							//Cp = specific heat of air [J/(g·°C)]

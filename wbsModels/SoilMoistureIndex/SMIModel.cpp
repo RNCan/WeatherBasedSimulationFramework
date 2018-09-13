@@ -52,8 +52,8 @@ namespace WBSF
 					CTRef Tref = m_weather[y][m][d].GetTRef();
 
 					//Input:
-					double Tmin = m_weather[y][m][d][H_TMIN2][MEAN]; //Minimum daily temperature (°C)
-					double Tmax = m_weather[y][m][d][H_TMAX2][MEAN]; //Maximum daily temperature (°C)
+					double Tmin = m_weather[y][m][d][H_TMIN][MEAN]; //Minimum daily temperature (°C)
+					double Tmax = m_weather[y][m][d][H_TMAX][MEAN]; //Maximum daily temperature (°C)
 					double ppt = m_weather[y][m][d][H_PRCP][SUM]; //Precipitation (mm) 
 
 					//Calculate:

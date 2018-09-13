@@ -407,7 +407,7 @@ namespace WBSF
 		//							if (v == H_PRCP)
 		//								value *= 3600;//mm/s --> mm for one hours
 
-		//							if (v == H_SRAD2)
+		//							if (v == H_SRAD)
 		//								value *= 3600;//J/m² --> W/m²
 
 		//							if (v == H_PRES)
@@ -417,7 +417,7 @@ namespace WBSF
 		//								value *= 3600/1000;//Pa --> hPa
 
 
-		//							if (v == H_TAIR2)
+		//							if (v == H_TAIR)
 		//								Tair = value;
 
 		//							if (v == H_TDEW)

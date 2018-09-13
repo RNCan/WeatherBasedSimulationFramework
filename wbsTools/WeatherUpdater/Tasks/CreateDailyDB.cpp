@@ -165,9 +165,9 @@ namespace WBSF
 					if (station.IsHourly())
 					{
 						//transform hourly data to daily data
-						station.GetStat(H_TAIR2);//compute daily stat
+						station.GetStat(H_TAIR);//compute daily stat
 						station.SetHourly(false);//remove hourly values
-						//station.GetStat(H_TAIR2);//compute stat again
+						//station.GetStat(H_TAIR);//compute stat again
 					}
 
 					CleanSparse(station);
@@ -255,8 +255,8 @@ namespace WBSF
 		CWVariables variables = station.GetVariables();
 		//array<double, NB_VAR_H> factor;
 		//factor.fill( station.IsHourly() ? 24 : 1);
-		//factor[H_TMIN2] = 1;//Tmin and Tmax always have only one value event from hourly compilation
-		//factor[H_TMAX2] = 1;
+		//factor[H_TMIN] = 1;//Tmin and Tmax always have only one value event from hourly compilation
+		//factor[H_TMAX] = 1;
 
 		double monthlyCompleteness = as<double>(MONTHLY_COMPLETENESS);
 		double annualCompleteness = as<double>(ANNUAL_COMPLETENESS);

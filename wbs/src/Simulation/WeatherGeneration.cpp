@@ -247,8 +247,8 @@ namespace WBSF
 										if (messageTmp && !msgTmp)
 										{
 											if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || 
-												(i == 2 && (v == H_TMIN2 || v == H_TMAX2)) || 
-												(i == 0 && (v == H_WNDD || v == H_SRAD2 || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
+												(i == 2 && (v == H_TMIN || v == H_TMAX)) || 
+												(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
 												v == H_PRES)
 											{
 												Dmin = 0;

@@ -63,7 +63,7 @@ namespace WBSF
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++, i++)//for all years
 		{
 			const CWeatherMonth& weather = m_weather.GetMonth(TRef);
-			Tair[i] = weather[H_TAIR2][MEAN];
+			Tair[i] = weather[H_TAIR][MEAN];
 			Prcp[i] = weather[H_PRCP][SUM];
 		}
 		

@@ -42,7 +42,7 @@ namespace WBSF
 		size_t nbDay = 0;
 		for (size_t jd = 0; jd < weatherYear.GetNbDays(); jd++)
 		{
-			if (weatherYear.GetDay(jd)[H_TMAX2][MEAN] >= 15)
+			if (weatherYear.GetDay(jd)[H_TMAX][MEAN] >= 15)
 				nbDay++;
 		}
 
@@ -59,7 +59,7 @@ namespace WBSF
 		size_t nbDay = 0;
 		for (size_t jd = 0; jd < weatherYear.GetNbDays(); jd++)
 		{
-			if (weatherYear.GetDay(jd)[H_TMAX2][MEAN] >= 15)
+			if (weatherYear.GetDay(jd)[H_TMAX][MEAN] >= 15)
 				nbDay++;
 
 			if (nbDay == day15)
@@ -83,7 +83,7 @@ namespace WBSF
 		for (size_t jd = fd; jd < ld; jd++)
 		{
 			const CWeatherDay& wDay = weatherYear.GetDay(jd);
-			double Tmean = wDay[H_TAIR2][MEAN];
+			double Tmean = wDay[H_TAIR][MEAN];
 			double Trange = wDay[H_TRNG2][MEAN];
 			for (size_t h = 0; h < 24; h++)
 			{

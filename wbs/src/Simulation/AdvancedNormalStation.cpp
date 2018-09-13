@@ -72,15 +72,15 @@ namespace WBSF
 							{
 								switch (v)
 								{
-								case H_TMAX2:
-								case H_TMIN2:
+								case H_TMAX:
+								case H_TMIN:
 								case H_TDEW:
 								case H_RELH:
 								case H_WNDD:
 								case H_SNDH:
 								case H_PRES:
 								case H_SWE:
-								case H_SRAD2:	at(y)[v][m] += data[m][d].GetData(v)[MEAN]; break;
+								case H_SRAD:	at(y)[v][m] += data[m][d].GetData(v)[MEAN]; break;
 								case H_PRCP:
 								case H_SNOW:	at(y)[v][m] += data[m][d].GetData(v)[SUM]; break;
 								case H_WNDS:
@@ -263,7 +263,7 @@ namespace WBSF
 			}
 		}
 
-		if (bValid[H_TMIN2] && bValid[H_TMAX2])
+		if (bValid[H_TMIN] && bValid[H_TMAX])
 		{
 			//compute the 9 variables of temperature
 			ComputeTemperature(dailyStation);
@@ -278,7 +278,7 @@ namespace WBSF
 		ASSERT(NB_FIELDS == 16);
 		for (size_t m = 0; m < 12; m++)
 		{
-			if (bValid[H_TMIN2] && bValid[H_TMAX2])
+			if (bValid[H_TMIN] && bValid[H_TMAX])
 			{
 				//data[m][TMIN_MN] = float(m_dailyStat[TMIN][m][MEAN]);
 				//data[m][TMAX_MN] = float(m_dailyStat[TMAX][m][MEAN]);
@@ -448,8 +448,8 @@ namespace WBSF
 		{
 			//double Tmean = float(m_dailyStat[H_TAIR][m][MEAN]);
 			//double Trange = float(m_dailyStat[H_TRNG][m][MEAN]);
-			normals[m][TMIN_MN] = m_dailyStat[H_TMIN2][m][MEAN];
-			normals[m][TMAX_MN] = m_dailyStat[H_TMAX2][m][MEAN];
+			normals[m][TMIN_MN] = m_dailyStat[H_TMIN][m][MEAN];
+			normals[m][TMAX_MN] = m_dailyStat[H_TMAX][m][MEAN];
 			
 
 			for (size_t v = 0; v < 2; v++)
@@ -481,14 +481,14 @@ namespace WBSF
 				int year = dailyStation[y].GetTRef().GetYear();
 				if (dailyStation[y].HaveData())
 				{
-					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(H_TAIR2, m);
+					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(H_TAIR, m);
 
 					CWVariablesCounter variables = dailyStation[y][m].GetVariablesCount();
 
-					if (variables[H_TMIN2].first >= nbDayMin && variables[H_TMAX2].first >= nbDayMin)
+					if (variables[H_TMIN].first >= nbDayMin && variables[H_TMAX].first >= nbDayMin)
 					{
-						ASSERT(m_monthStatArray[y][H_TMIN2][m][NB_VALUE] >= nbDayMin);
-						ASSERT(m_monthStatArray[y][H_TMAX2][m][NB_VALUE] >= nbDayMin);
+						ASSERT(m_monthStatArray[y][H_TMIN][m][NB_VALUE] >= nbDayMin);
+						ASSERT(m_monthStatArray[y][H_TMAX][m][NB_VALUE] >= nbDayMin);
 
 						for (size_t d = 0; d < dailyStation[y][m].size(); d++)
 						{
@@ -498,7 +498,7 @@ namespace WBSF
 							double TminMonthNormal = normals.Interpole(TRef, TMIN_MN);
 							double TmaxMonthNormal = normals.Interpole(TRef, TMAX_MN);
 
-							if (dailyStation[TRef][H_TMIN2].IsInit() && dailyStation[TRef][H_TMAX2].IsInit())
+							if (dailyStation[TRef][H_TMIN].IsInit() && dailyStation[TRef][H_TMAX].IsInit())
 							{
 								double Tmin[3] = { MISSING, MISSING, MISSING };
 								double Tmax[3] = { MISSING, MISSING, MISSING };
@@ -507,12 +507,12 @@ namespace WBSF
 									CTRef shiftTRef = TRef - dd;
 									if (period.IsInside(shiftTRef) &&
 										dailyStation.IsYearInit(shiftTRef.GetYear()) &&
-										dailyStation[TRef - dd][H_TMIN2].IsInit() &&
-										dailyStation[TRef - dd][H_TMAX2].IsInit())
+										dailyStation[TRef - dd][H_TMIN].IsInit() &&
+										dailyStation[TRef - dd][H_TMAX].IsInit())
 									{
 										//remove interpolated mean
-										Tmin[dd] = dailyStation[shiftTRef][H_TMIN2][MEAN] - TminMonthNormal;
-										Tmax[dd] = dailyStation[shiftTRef][H_TMAX2][MEAN] - TmaxMonthNormal;
+										Tmin[dd] = dailyStation[shiftTRef][H_TMIN][MEAN] - TminMonthNormal;
+										Tmax[dd] = dailyStation[shiftTRef][H_TMAX][MEAN] - TmaxMonthNormal;
 									}
 								}
 
@@ -539,12 +539,12 @@ namespace WBSF
 
 		for (size_t m = 0; m < 12; m++)
 		{
-			if (m_dailyStat[H_TMIN2][m].IsInit() && m_dailyStat[H_TMAX2][m].IsInit())
+			if (m_dailyStat[H_TMIN][m].IsInit() && m_dailyStat[H_TMAX][m].IsInit())
 			{
 				//double Tmean = m_dailyStat[H_TAIR][m][MEAN];
 				//double Trange = m_dailyStat[H_TRNG][m][MEAN];
-				m_Tmin[m] = m_dailyStat[H_TMIN2][m][MEAN];
-				m_Tmax[m] = m_dailyStat[H_TMAX2][m][MEAN];
+				m_Tmin[m] = m_dailyStat[H_TMIN][m][MEAN];
+				m_Tmax[m] = m_dailyStat[H_TMAX][m][MEAN];
 				m_minMaxRelation[m] = statMinMax[m][SUM] / sqrt(statMin[m][SUM²] * statMax[m][SUM²]);
 				m_sigmaDelta[m] = statMin[m][STD_DEV];
 				m_sigmaEpsilon[m] = statMax[m][STD_DEV];

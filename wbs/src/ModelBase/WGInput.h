@@ -28,7 +28,7 @@ namespace WBSF
 		void reset()
 		{
 			fill(-999);//radius in meters
-			for (size_t v = HOURLY_DATA::H_SRAD2; v < HOURLY_DATA::NB_VAR_H; v++)
+			for (size_t v = HOURLY_DATA::H_SRAD; v < HOURLY_DATA::NB_VAR_H; v++)
 				at(v) = 0; //no search by default for secondery variables
 		}
 

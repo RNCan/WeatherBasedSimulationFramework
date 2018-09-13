@@ -1175,7 +1175,7 @@ namespace WBSF
 					CTRef TRef(year, month, day, hour);
 
 					bool bValid[NB_VAR_H] = { 0 };
-					bValid[H_TAIR2] = ((*loop)[TEMPERATURE_FLAG + fix].empty() || (*loop)[TEMPERATURE_FLAG + fix] == "E") && !(*loop)[TEMPERATURE + fix].empty();
+					bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG + fix].empty() || (*loop)[TEMPERATURE_FLAG + fix] == "E") && !(*loop)[TEMPERATURE + fix].empty();
 					bValid[H_PRES] = (*loop)[PRESSURE_FLAG + fix].empty() && !(*loop)[PRESSURE + fix].empty();
 					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG + fix].empty() || (*loop)[DEWPOINT_FLAG + fix] != "M") && !(*loop)[DEWPOINT + fix].empty();
 					bValid[H_RELH] = ((*loop)[RELHUM_FLAG + fix].empty() || (*loop)[RELHUM_FLAG + fix] != "M") && !(*loop)[RELHUM + fix].empty();
@@ -1194,9 +1194,9 @@ namespace WBSF
 						}
 					}
 
-					if (bValid[H_TAIR2] && (!bValid[H_TDEW] || !bValid[H_RELH]))
+					if (bValid[H_TAIR] && (!bValid[H_TDEW] || !bValid[H_RELH]))
 					{
-						double Tair = ToDouble((*loop)[COL_POS[H_TAIR2]])*FACTOR[H_TAIR2];
+						double Tair = ToDouble((*loop)[COL_POS[H_TAIR]])*FACTOR[H_TAIR];
 						double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
 						double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
 						if (Hr == -999 && Tdew != -999)
@@ -1235,9 +1235,9 @@ namespace WBSF
 	const TVarH CUIEnvCanHourly::VARIABLE_TYPE[NB_SWOB_VARIABLES] =
 	{
 		H_PRES, H_SKIP, H_SKIP, H_SKIP, H_SKIP,
-		H_SKIP, H_WNDS, H_WNDD, H_TAIR2,
-		H_TMAX2, H_ADD2, H_TMIN2, H_ADD1, H_PRCP,
-		H_SNDH, H_SKIP, H_SKIP, H_TDEW, H_SRAD2,
+		H_SKIP, H_WNDS, H_WNDD, H_TAIR,
+		H_TMAX, H_ADD2, H_TMIN, H_ADD1, H_PRCP,
+		H_SNDH, H_SKIP, H_SKIP, H_TDEW, H_SRAD,
 		H_SKIP, H_SKIP, H_SKIP
 	};
 
@@ -2055,13 +2055,13 @@ namespace WBSF
 								if (!swob[d][h][vv * 2 + 4].empty() && swob[d][h][vv * 2 + 4] != "MSNG")
 								{
 									int QAValue = WBSF::as<int>(swob[d][h][vv * 2 + 1 + 4]);
-									if (QAValue > 0 || (v == H_SRAD2 && QAValue == 0))
+									if (QAValue > 0 || (v == H_SRAD && QAValue == 0))
 									{
 										float value = WBSF::as<float>(swob[i][j][vv * 2 + 4]);
-										if (v == H_SRAD2 && value < 0)
+										if (v == H_SRAD && value < 0)
 											value = 0;
 
-										if (v == H_SRAD2 && bFredericton)//fredericton have data 10 *????
+										if (v == H_SRAD && bFredericton)//fredericton have data 10 *????
 											value /= 10;
 
 										station[TRef].SetStat(v, value);
@@ -2079,10 +2079,10 @@ namespace WBSF
 						station[TRef].SetStat(H_ADD1, CStatistic());
 						station[TRef].SetStat(H_ADD1, CStatistic());
 
-						if (station[TRef][H_TMIN2].IsInit() && station[TRef][H_TMAX2].IsInit() && !station[TRef][H_TAIR2].IsInit())
+						if (station[TRef][H_TMIN].IsInit() && station[TRef][H_TMAX].IsInit() && !station[TRef][H_TAIR].IsInit())
 						{
-							CStatistic Tair = station[TRef][H_TMIN2] + station[TRef][H_TMAX2];
-							station[TRef].SetStat(H_TAIR2, Tair[MEAN]);
+							CStatistic Tair = station[TRef][H_TMIN] + station[TRef][H_TMAX];
+							station[TRef].SetStat(H_TAIR, Tair[MEAN]);
 						}
 					}//if in year
 				}//if init

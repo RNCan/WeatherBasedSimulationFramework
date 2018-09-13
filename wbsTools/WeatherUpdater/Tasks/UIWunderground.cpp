@@ -428,7 +428,7 @@ namespace WBSF
 		
 		enum {NB_VARS=7};
 		static const char* VAR_NAME[NB_VARS] = { "Temp.:", "DewPoint:", "Humidity:", "WindSpeed:", "Pressure:", "Precipitation:", "SolarRadiation:" };
-		static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR2, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD2 };
+		static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD };
 		for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
 		{
 			if (IsEqual(str, VAR_NAME[vv]))
@@ -976,7 +976,7 @@ namespace WBSF
 						{
 							ASSERT(Tair > -60 && Tair < 50);
 
-							data[TRef].SetStat(H_TAIR2, Tair);
+							data[TRef].SetStat(H_TAIR, Tair);
 						}
 
 						if (Tmin != -DBL_MAX && Tmax != -DBL_MAX && Tmin > -60 && Tmin < 50 && Tmax > -60 && Tmax < 50)
@@ -988,8 +988,8 @@ namespace WBSF
 							if (Tmin > Tmax)
 								Switch(Tmin, Tmax);
 
-							data[TRef].SetStat(H_TMIN2, Tmin);
-							data[TRef].SetStat(H_TMAX2, Tmax);
+							data[TRef].SetStat(H_TMIN, Tmin);
+							data[TRef].SetStat(H_TMAX, Tmax);
 						}
 
 						if (Pmin != -DBL_MAX && Pmax != -DBL_MAX && Pmin > 800 && Pmin < 1100 && Pmax > 800 && Pmax < 1100)

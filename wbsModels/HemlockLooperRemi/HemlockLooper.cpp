@@ -106,7 +106,7 @@ namespace WBSF
 	void CHemlockLooperModel::ExecuteDaily(CModelStatVector& output)
 	{
 		//for (size_t y = 0; y < m_weather.size(); y++)
-			//m_weather[y][H_TAIR2];
+			//m_weather[y][H_TAIR];
 
 		//m_weather.SetHourly(false);
 
@@ -133,7 +133,7 @@ namespace WBSF
 		//kill adult when temperature under -5°C
 		for (CTRef TRef = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
 		{
-			if (m_weather[TRef][H_TMIN2][MEAN] < -5)
+			if (m_weather[TRef][H_TMIN][MEAN] < -5)
 			{
 				for (CTRef TRef2 = output.GetFirstTRef(); TRef <= output.GetLastTRef(); TRef++)
 				{

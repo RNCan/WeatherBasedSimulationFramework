@@ -48,7 +48,7 @@ CMatchStationDoc::CMatchStationDoc()
 
 	//load last session param
 	m_curIndex = UNKNOWN_POS;
-	m_variable = (TVarH)options.GetProfileInt(_T("Variable"), H_TAIR2);
+	m_variable = (TVarH)options.GetProfileInt(_T("Variable"), H_TAIR);
 	m_searchRadius = options.GetProfileDouble(_T("SearchRadius"), -1);
 	m_year = options.GetProfileInt(_T("Year"), 2015);
 	m_nbStations = options.GetProfileInt(_T("NbStations"), 4);
@@ -545,8 +545,8 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 			if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == NORMALS_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
 			{
 				TVarH v = m_variable;
-				if (v == H_TAIR2)
-					v = H_TMIN2;
+				if (v == H_TAIR)
+					v = H_TMIN;
 
 				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, m_variable, -999);
 				pNormalsDB->GetStations(m_normalsStations, m_normalsResult);
@@ -613,8 +613,8 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == OBSERVATION_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
 				{
 					TVarH v = m_variable;
-					if (v == H_TAIR2)
-						v = H_TMIN2;
+					if (v == H_TAIR)
+						v = H_TMIN;
 					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
 					pDailyDB->GetStations(m_dailyStations, m_dailyResult, m_year);
 				}
@@ -631,8 +631,8 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				if (lHint == INIT || lHint == LOCATION_INDEX_CHANGE || lHint == OBSERVATION_DATABASE_CHANGE || lHint == PROPERTIES_CHANGE)
 				{
 					TVarH v = m_variable;
-					if (v == H_TMIN2 || v == H_TMAX2)
-						v = H_TAIR2;
+					if (v == H_TMIN || v == H_TMAX)
+						v = H_TAIR;
 
 					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
 					pHourlyDB->GetStations(m_hourlyStations, m_hourlyResult, m_year);

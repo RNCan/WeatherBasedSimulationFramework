@@ -146,8 +146,8 @@ namespace WBSF
 		CWVariables variables = station.GetVariables();
 		array<double, NB_VAR_H> factor;
 		factor.fill(24);
-		factor[H_TMIN2] = 1;//Tmin and Tmax always have only one value event from hourly compilation
-		factor[H_TMAX2] = 1;
+		factor[H_TMIN] = 1;//Tmin and Tmax always have only one value event from hourly compilation
+		factor[H_TMAX] = 1;
 
 		double dailyCompleteness = as<double>(DAILY_COMPLETENESS);
 		double monthlyCompleteness = as<double>(MONTHLY_COMPLETENESS);

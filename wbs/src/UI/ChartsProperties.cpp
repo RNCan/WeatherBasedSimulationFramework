@@ -374,7 +374,7 @@ namespace WBSF
 		CMFCPropertyGridProperty* pSeries = new CStdGridProperty(section[2]);
 
 		CMFCPropertyGridProperty* pGeneral = new CStdGridProperty(section[3]);
-		pGeneral->AddSubItem(new CWeatherVariableProperty(name[VARIABLE], size_t(H_TAIR2), description[VARIABLE], VARIABLE));
+		pGeneral->AddSubItem(new CWeatherVariableProperty(name[VARIABLE], size_t(H_TAIR), description[VARIABLE], VARIABLE));
 		pGeneral->AddSubItem(new CStatisticProperty(name[STATISTIC], WBSF::MEAN, description[STATISTIC], STATISTIC));
 		pGeneral->AddSubItem(new CSerieTypeProperty(name[SERIE_TYPE], WBSF::MEAN, description[SERIE_TYPE], SERIE_TYPE));
 		pGeneral->AddSubItem(new CYAxisTypeProperty(name[Y_AXIS], CGraphSerie::LEFT_AXIS, description[Y_AXIS], Y_AXIS));

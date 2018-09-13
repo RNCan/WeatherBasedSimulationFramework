@@ -225,13 +225,13 @@ namespace WBSF
 
 			int year = m_weather[y].GetTRef().GetYear();
 			CTPeriod p = CTPeriod(CTRef(year, SEPTEMBER, DAY_01, 0, m_weather.GetTM()), CTRef(year + 1, AUGUST, DAY_31, 23, m_weather.GetTM()));
-			double deltaMonth = m_weather[year][JULY][H_TMAX2][MEAN] - m_weather[year][JANUARY][H_TMIN2][MEAN];
+			double deltaMonth = m_weather[year][JULY][H_TMAX][MEAN] - m_weather[year][JANUARY][H_TMIN][MEAN];
 			
 			std::deque<double> Q3;
 			for (CTRef TRef = p.Begin() - m_nbDays; TRef < p.Begin(); TRef++)
 			{
 				const CWeatherDay& wDay = m_weather.GetDay(TRef);
-				double Tmin = wDay[H_TMIN2][MEAN];
+				double Tmin = wDay[H_TMIN][MEAN];
 				double T = wDay[H_TNTX][MEAN];
 				Q3.push_back(T);
 			}
@@ -239,7 +239,7 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				const CWeatherDay& wDay = m_weather.GetDay(TRef);
-				double Tmin = wDay[H_TMIN2][MEAN];
+				double Tmin = wDay[H_TMIN][MEAN];
 				double T = wDay[H_TNTX][MEAN];
 
 				if (T<-1.0)

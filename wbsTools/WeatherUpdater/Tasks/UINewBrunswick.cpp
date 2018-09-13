@@ -101,20 +101,20 @@ namespace WBSF
 			else if (type == C_RN_1)
 				v = H_PRCP;
 			else if (type == C_TMIN)
-				v = H_TMIN2;
+				v = H_TMIN;
 			else if (type == C_TEMP)
-				v = H_TAIR2;
+				v = H_TAIR;
 			else if (type == C_TMAX)
-				v = H_TMAX2;
+				v = H_TMAX;
 		}
 		else
 		{
 			if (type == C_RN24)
 				v = H_PRCP;
 			else if (type == C_TMIN24)
-				v = H_TMIN2;
+				v = H_TMIN;
 			else if (type == C_TMAX24)
-				v = H_TMAX2;
+				v = H_TMAX;
 		}
 
 		return v;
@@ -299,7 +299,7 @@ namespace WBSF
 
 		if (find(IMPERIAL_ID.begin(), IMPERIAL_ID.end(), ID) != IMPERIAL_ID.end())
 		{
-			if (v == H_TAIR2 || v == H_TMAX2 || v == H_TMIN2 || v == H_TDEW)
+			if (v == H_TAIR || v == H_TMAX || v == H_TMIN || v == H_TDEW)
 				value = ((value - 32.0)*5.0 / 9.0); //°F --> °C
 			else if (v == H_WNDS)
 				value = value * 1.60934;//miles/hour --> km/hour
@@ -319,7 +319,7 @@ namespace WBSF
 
 
 		enum THourlyColumns { C_DATE_TIME, C_TOUTSIDE, C_TMAX, C_TMIN, C_HUMIDITY, C_TDEW, C_WSPD, C_DIR, C_RAIN, C_TSOIL, NB_COLUMNS };
-		static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR2, H_TMAX2, H_TMIN2, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
+		static const TVarH COL_POS[NB_COLUMNS] = { H_SKIP, H_TAIR, H_TMAX, H_TMIN, H_RELH, H_TDEW, H_WNDS, H_WNDD, H_PRCP, H_SKIP };
 
 		try
 		{
@@ -1120,7 +1120,7 @@ namespace WBSF
 
 								if (variables[c] == H_RELH)
 								{
-									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR2);
+									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR);
 									if (it != variables.end())
 									{
 										string TairStr = (*loop)[std::distance(variables.cbegin(), it)];
@@ -1155,7 +1155,7 @@ namespace WBSF
 
 	enum TFireHistorical { CH_NAME, CH_FILENAME, CH_DATE, CH_JULIAN, CH_TIME, CH_TEMP, CH_RH, CH_DIR, CH_WSPD, CH_MX_SPD, CH_RN_1, CH_RN24, CH_FFMC, CH_DMC, CH_DC, CH_ISI, CH_BUI, CH_FWI, CH_DSR, CH_NB_COLUMNS };
 	static const char* COLUMN_NAME_FH[CH_NB_COLUMNS] = { "Name", "Filename", "Date", "Julian", "Time", "Temp", "RH", "Dir", "Wspd", "Mx_Spd", "Rn_1", "Rn24", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR" };
-	static const TVarH VARS[CH_NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_WNDD, H_WND2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+	static const TVarH VARS[CH_NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDD, H_WND2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
 
 	static size_t GetColumnFH(const string& header)
 	{
@@ -1269,7 +1269,7 @@ namespace WBSF
 
 								if (variables[c] == H_RELH)
 								{
-									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR2);
+									vector<size_t>::const_iterator it = find(variables.begin(), variables.end(), H_TAIR);
 									if (it != variables.end())
 									{
 										string TairStr = (*loop)[std::distance(variables.cbegin(), it)];

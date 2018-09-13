@@ -93,8 +93,8 @@ namespace WBSF
 
 	const TVarH CUINOAAForecast::FORECAST_VARIABLES[NB_DATA_TYPE][NB_VARS_MAX] =
 	{
-		{ H_TAIR2, H_TDEW, H_RELH, H_WNDS, H_WNDD },
-		{ H_TMIN2, H_TMAX2, H_PRCP, H_RELH, H_RELH }
+		{ H_TAIR, H_TDEW, H_RELH, H_WNDS, H_WNDD },
+		{ H_TMIN, H_TMAX, H_PRCP, H_RELH, H_RELH }
 	};
 
 	const char* CUINOAAForecast::FORECAST_TYPE[NB_FORECAST_TYPE] = { "VP.001-003", "VP.004-007" };
@@ -343,7 +343,7 @@ namespace WBSF
 		ASSERT(station.m_lon != -999);
 
 		CTRef current = CTRef::GetCurrentTRef(station.GetTM());
-		station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
+		station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = station.GetVariablesCount();
 		CTRef TRefEnd = counter.GetTPeriod().End();
 		ASSERT(TRefEnd <= current);
@@ -355,8 +355,8 @@ namespace WBSF
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
 
-			//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
-				//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+			//if (bAddForecast[H_TMIN] || bAddForecast[H_TAIR] || bAddForecast[H_TMAX])
+				//bAddForecast[H_TMIN] = bAddForecast[H_TAIR] = bAddForecast[H_TMAX] = true;
 
 
 			//cctz::time_zone zone;

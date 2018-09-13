@@ -21,7 +21,7 @@ namespace WBSF
 	const char* CEnvCanGribForecast::SERVER_NAME = "dd.weather.gc.ca";
 
 	const char* CEnvCanGribForecast::FORECAST_VAR_NAME[NB_FORECAST_VAR] = { "PRES_SFC_0", "TMP_TGL_2", "DPT_TGL_2", "PRATE_SFC_0", "WIND_TGL_10", "WDIR_TGL_10", "DLWRF_SFC_0" };
-	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR2, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD2};
+	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD};
 	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 
 	//TSOIL_SFC_0 : soil temperaturte
@@ -340,7 +340,7 @@ namespace WBSF
 		//no forecast are added on old data
 //		if (station.IsYearInit(year))
 		CTRef current = CTRef::GetCurrentTRef(TM);
-		station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
+		station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = station.GetVariablesCount();
 		CTRef TRefEnd = counter.GetTPeriod().End();
 		ASSERT(TRefEnd <= current);
@@ -399,7 +399,7 @@ namespace WBSF
 									if (v == H_PRCP)
 										value *= 3600;//mm/s --> mm for one hours
 
-									if (v == H_SRAD2)
+									if (v == H_SRAD)
 										value *= 3600;//J/m² --> W/m²
 
 									if (v == H_PRES)
@@ -409,7 +409,7 @@ namespace WBSF
 										value *= 3600/1000;//Pa --> hPa
 
 
-									if (v == H_TAIR2)
+									if (v == H_TAIR)
 										Tair = value;
 
 									if (v == H_TDEW)

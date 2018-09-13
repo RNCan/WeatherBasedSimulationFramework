@@ -65,15 +65,15 @@ namespace WBSF
 								CTRef ref = wDay.GetTRef();
 								switch (v)
 								{
-								case H_TMIN2: m_output[ref][vv] = Round(wDay[H_TMIN2][LOWEST], 1); break;
-								case H_TAIR2: m_output[ref][vv] = Round(wDay[H_TAIR2][MEAN], 1); break;
-								case H_TMAX2: m_output[ref][vv] = Round(wDay[H_TMAX2][HIGHEST], 1); break;
+								case H_TMIN: m_output[ref][vv] = Round(wDay[H_TMIN][LOWEST], 1); break;
+								case H_TAIR: m_output[ref][vv] = Round(wDay[H_TAIR][MEAN], 1); break;
+								case H_TMAX: m_output[ref][vv] = Round(wDay[H_TMAX][HIGHEST], 1); break;
 								case H_PRCP:  m_output[ref][vv] = Round(wDay[H_PRCP][SUM], 1); break;
 								case H_TDEW:  m_output[ref][vv] = Round(wDay[H_TDEW][MEAN], 1); break;
 								case H_RELH:  m_output[ref][vv] = Round(wDay[H_RELH][MEAN], 1); break;
 								case H_WNDS:  m_output[ref][vv] = Round(wDay[H_WNDS][MEAN], 1); break;
 								case H_WNDD:  m_output[ref][vv] = Round(wDay[H_WNDD][MEAN], 1); break;
-								case H_SRAD2:  m_output[ref][vv] = Round(wDay[H_SRAD2][MEAN], 1); break;
+								case H_SRAD:  m_output[ref][vv] = Round(wDay[H_SRAD][MEAN], 1); break;
 								default: ASSERT(false);
 								}
 								vv++;
@@ -122,15 +122,15 @@ namespace WBSF
 									CTRef ref = wHour.GetTRef();
 									switch (v)
 									{
-									case H_TMIN2: m_output[ref][vv] = Round(wHour[H_TMIN2], 1); break;
-									case H_TAIR2: m_output[ref][vv] = Round(wHour[H_TAIR2], 1); break;
-									case H_TMAX2: m_output[ref][vv] = Round(wHour[H_TMAX2], 1); break;
+									case H_TMIN: m_output[ref][vv] = Round(wHour[H_TMIN], 1); break;
+									case H_TAIR: m_output[ref][vv] = Round(wHour[H_TAIR], 1); break;
+									case H_TMAX: m_output[ref][vv] = Round(wHour[H_TMAX], 1); break;
 									case H_PRCP:  m_output[ref][vv] = Round(wHour[H_PRCP], 1); break;
 									case H_TDEW:  m_output[ref][vv] = Round(wHour[H_TDEW], 1); break;
 									case H_RELH:  m_output[ref][vv] = Round(wHour[H_RELH], 1); break;
 									case H_WNDS:  m_output[ref][vv] = Round(wHour[H_WNDS], 1); break;
 									case H_WNDD:  m_output[ref][vv] = Round(wHour[H_WNDD], 1); break;
-									case H_SRAD2: m_output[ref][vv] = Round(wHour[H_SRAD2], 1); break;
+									case H_SRAD: m_output[ref][vv] = Round(wHour[H_SRAD], 1); break;
 									default: ASSERT(false);
 									}
 									vv++;

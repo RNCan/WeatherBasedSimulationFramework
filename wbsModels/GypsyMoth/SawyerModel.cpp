@@ -122,7 +122,7 @@ namespace WBSF
 			const CWeatherDay& wDay = weather.GetDay(day);
 			for (size_t h = 0; h < 24; h += SAWYER_TIME_STEP)
 			{
-				double T = wDay[h][HOURLY_DATA::H_TAIR2];
+				double T = wDay[h][HOURLY_DATA::H_TAIR];
 				double rin = 0.;
 				if (T > Tl0[m] && T < Th1[m])
 				{

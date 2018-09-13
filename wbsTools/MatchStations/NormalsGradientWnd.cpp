@@ -153,7 +153,7 @@ void CNormalsGradientCtrl::Update()
 size_t CNormalsGradientCtrl::GetNbGradient()const
 {
 	size_t nbGradients = 0;
-	if (m_variable == H_TMIN2 || m_variable == H_TAIR2 || m_variable == H_TMAX2)
+	if (m_variable == H_TMIN || m_variable == H_TAIR || m_variable == H_TMAX)
 		nbGradients = 1;
 	else if (m_variable == H_PRCP)
 		nbGradients = 1;
@@ -386,7 +386,7 @@ string CNormalsGradientCtrl::GetDataText(int col, long row)const
 	size_t m = col - G_FIRST_MONTH;
 	size_t s = row % NB_SPACE_EX;
 
-	if (m_variable == H_TAIR2)
+	if (m_variable == H_TAIR)
 	{
 		size_t g1 = TMIN_GR;
 		size_t g2 = TMAX_GR;

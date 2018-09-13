@@ -433,7 +433,7 @@ public:
 	//void ComputeTRange();
 
 
-	double K()const{ return (!WEATHER::IsMissing(at(HOURLY_DATA::H_TAIR2))) ? at(HOURLY_DATA::H_TAIR2) + 273.15 : WEATHER::MISSING; }
+	double K()const{ return (!WEATHER::IsMissing(at(HOURLY_DATA::H_TAIR))) ? at(HOURLY_DATA::H_TAIR) + 273.15 : WEATHER::MISSING; }
 	double GetLatentHeatOfVaporization()const;
 	double GetExtraterrestrialRadiation()const;
 	virtual double GetNetRadiation(double& Fcd)const;

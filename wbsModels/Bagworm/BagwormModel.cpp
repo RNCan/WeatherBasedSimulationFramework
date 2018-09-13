@@ -85,10 +85,10 @@ namespace WBSF
 		for (CTRef d = firstDate; d < lastDate; d++)
 		{
 			const CWeatherDay& day = m_weather.GetDay(d);
-			if (day[H_TMIN2][MEAN] < Tmin)
+			if (day[H_TMIN][MEAN] < Tmin)
 			{
 				dayWhenMinimum = d;
-				Tmin = day[H_TMIN2][MEAN];
+				Tmin = day[H_TMIN][MEAN];
 			}
 		}
 

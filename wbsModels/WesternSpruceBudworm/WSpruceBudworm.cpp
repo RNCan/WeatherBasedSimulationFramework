@@ -102,7 +102,7 @@ namespace WBSF
 
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
-			double T = weather[h][H_TAIR2];
+			double T = weather[h][H_TAIR];
 
 
 			const CWSBTableLookup& equations = Equations();
@@ -187,12 +187,12 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		else if ((GetStage() == EGG && (weather[H_TMIN2][MEAN] < CWSpruceBudworm::EGG_FREEZING_POINT || m_eggAge>30)))
+		else if ((GetStage() == EGG && (weather[H_TMIN][MEAN] < CWSpruceBudworm::EGG_FREEZING_POINT || m_eggAge>30)))
 		{
 			m_status = DEAD;
 			m_death = FROZEN_EGG;
 		}
-		else if ((GetStage() == ADULT && weather[H_TMIN2][MEAN] < CWSpruceBudworm::ADULT_FREEZING_POINT))
+		else if ((GetStage() == ADULT && weather[H_TMIN][MEAN] < CWSpruceBudworm::ADULT_FREEZING_POINT))
 		{
 			m_age += 1;
 			m_status = DEAD;
@@ -220,7 +220,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = MISSING_ENERGY;
 		}
-		else if (GetGeneration() == 0 && GetStage() >= L2 && GetStage() <= PUPAE && weather[H_TMIN2][MEAN] < -10)
+		else if (GetGeneration() == 0 && GetStage() >= L2 && GetStage() <= PUPAE && weather[H_TMIN][MEAN] < -10)
 		{
 			//all non l2o are kill by frost under -10°C
 			m_status = DEAD;
@@ -492,7 +492,7 @@ namespace WBSF
 		bool bLastDay = TRef.GetMonth() == DECEMBER && TRef.GetDay() == DAY_31;
 
 		//For optimisation, nothing happens when temperature is under -10
-		if (!bFirstDay && !bLastDay && weather[H_TMAX2][MEAN] < -10)
+		if (!bFirstDay && !bLastDay && weather[H_TMAX][MEAN] < -10)
 			return;
 
 		ComputeMineable(weather);
@@ -533,7 +533,7 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_DDbud += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_DDbud += max(0.0, (min((double)weather[h][H_TAIR], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 
 			//At end of day, compute proportion of buds mineable
@@ -563,7 +563,7 @@ namespace WBSF
 			for (size_t h = 0; h < weather.size(); h++)
 			{
 				//Linear DDays with upper threshold
-				m_DDshoot += max(0.0, (min((double)weather[h][H_TAIR2], MAX_TEMP) - BASE_TEMP) / weather.size());
+				m_DDshoot += max(0.0, (min((double)weather[h][H_TAIR], MAX_TEMP) - BASE_TEMP) / weather.size());
 			}
 		}
 	}

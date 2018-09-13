@@ -548,7 +548,7 @@ void CSimplifiedPriestleyTaylorET::Execute(const CWeatherStation& weather, CMode
 		//const CDataInterface& data = weather[TRef];
 		const CWeatherDay& data = weather.GetDay(TRef); 
 
-		double RsRa = 0.16*sqrt(data[H_TMAX2][MEAN] - data[H_TMIN2][MEAN]);					// Hargreaves and 0.16 recommended by Allen et all (1998)
+		double RsRa = 0.16*sqrt(data[H_TMAX][MEAN] - data[H_TMIN][MEAN]);					// Hargreaves and 0.16 recommended by Allen et all (1998)
 		double Ra = data.GetVarEx(H_EXRA)[MEAN];		//extraterrestrial radiation  [MJ/(m²·d)]
 		double Rs = RsRa*Ra;							//Solar radiation  [MJ/(m²·d)]
 		double rad = Rs * 1000000 / (3600*24);			//daylight radiation [W/m²]
@@ -820,9 +820,9 @@ void CHargreavesET::Execute(const CWeatherStation& weather, CModelStatVector& ou
 			{
 				static const double C = 0.4082; //Conversion to ET equivalent [(m2 mm)/MJ]
 
-				double Tmin = weather[y][m][d][H_TMIN2][MEAN];
+				double Tmin = weather[y][m][d][H_TMIN][MEAN];
 				double T = weather[y][m][d][H_TNTX][MEAN];
-				double Tmax = weather[y][m][d][H_TMAX2][MEAN];
+				double Tmax = weather[y][m][d][H_TMAX][MEAN];
 				double Rs = weather[y][m][d][H_SRMJ][SUM];
 				//double Rs = 0.16*Ra*(Tmax - Tmin) ^ 0.5;
 				double dailyET = 0.0135 * Rs*C*(T + 17.8);
@@ -903,8 +903,8 @@ void CPenmanMonteithET::Execute(const CWeatherStation& weather, CModelStatVector
 	{
 		const CDataInterface& data = weather[TRef];
 
-		double Tmin = data[H_TMIN2][MEAN];
-		double Tmax = data[H_TMAX2][MEAN];
+		double Tmin = data[H_TMIN][MEAN];
+		double Tmax = data[H_TMAX][MEAN];
 		double T = data[H_TNTX][MEAN];
 		double U² = data[H_WND2][MEAN] * 1000 / 3600; ASSERT(U² >= 0);	//Wind speed at 2 meters [m/s]
 		double Ea = data[H_EA][MEAN];	//vapor pressure [kPa]

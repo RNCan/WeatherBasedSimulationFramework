@@ -210,6 +210,11 @@ namespace WBSF
 			double daylightT = weather.GetTdaylight();
 			double daylightEs = eᵒ(daylightT);//kPa // *1000; //by RSA 11-09-2018 kPa instead of Pa
 			VPD += max(0.0, daylightEs - weather[H_EA][MEAN]);
+
+			//double Dmax = eᵒ(weather[H_TMAX]) - eᵒ(weather[H_TMIN]);
+			//VPD += 2.0 / 3.0*Dmax;
+
+			//VPD += max(0.0, weather[H_ES][MEAN] - weather[H_EA][MEAN]);
 		}
 
 		return VPD[MEAN];
@@ -234,6 +239,46 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
+	/*double ʃ(double Tᴰ, double Tᴸ, double Tᴴ )
+	{
+		ASSERT(Tᴰ <= Tᴸ);
+		ASSERT(Tᴸ <= Tᴴ);
+
+		double sum=0;
+		for (size_t i = 0; i <= 100; i++)
+		{
+			double T = Tᴸ + i*(Tᴴ - Tᴸ) / 100.0;
+			sum += eᵒ(T) - eᵒ(Tᴰ);
+		}
+		
+		return sum;
+	}*/
+
+	double ʃ(double Tᴰ, double T)
+	{
+		ASSERT(Tᴰ <= T);
+		return eᵒ(T) - eᵒ(Tᴰ);
+	}
+
+
+	// Function to evalute the value of integral 
+	double trapezoidal(double Tᴰ, double Tᴸ, double Tᴴ, int n = 100)
+	{
+		// Grid spacing 
+		double h = (Tᴴ - Tᴸ) / n;
+
+		// Computing sum of first and last terms 
+		// in above formula 
+		double s = ʃ(Tᴰ, Tᴸ) + ʃ(Tᴰ, Tᴴ);
+
+		// Adding middle terms in above formula 
+		for (int i = 1; i < n; i++)
+			s += 2 * ʃ(Tᴰ, Tᴸ + i * h);
+
+		// h/2 indicates (b-a)/2n. Multiplying h/2 
+		// with s. 
+		return (h / 2)*s;
+	}
 	//return vapor pressure deficit [kPa]
 	static double GetVPD(const CWeatherDay& weather)
 	{
@@ -246,6 +291,33 @@ namespace WBSF
 		else
 		{
 			stat += max(0.0, weather[H_ES][MEAN] - weather[H_EA][MEAN]);
+
+
+			//test from Castellvi(1996)
+		/*	
+			double Tᴰ = eᵒ(weather[H_TDEW][MEAN]);
+			double Tn = eᵒ(weather[H_TMIN][MEAN]);
+			double Tx = eᵒ(weather[H_TMAX][MEAN]);
+			double Ta = (Tn+Tx)/2;
+			if (Tᴰ < Tn && Tn < Tx)
+			{
+				double a = trapezoidal(Tᴰ, Tn, Ta);
+				double b = trapezoidal(Tᴰ, Tn, Tx);
+				ASSERT(a/b > 0 && a/b<=1);
+
+				while (abs(0.5 - a/b)> 0.001)
+				{
+					Ta += (0.5-a/b)*(Tx-Tn);
+					ASSERT(Ta >= Tn && Ta <= Tx);
+					a = trapezoidal(Tᴰ, Tn, Ta);
+					ASSERT(a / b >= 0 && a / b <= 1);
+				}
+			}
+
+			double h = std::max(1.0, std::min(100.0, weather[H_RELH][MEAN]));
+			stat += eᵒ(Ta)*(1- h /100.0);
+*/
+			
 		}
 
 		return stat[MEAN];

@@ -137,7 +137,7 @@ namespace WBSF
 						bool bBegin = TRef == p.Begin();
 						bool bEnd = TRef == p.End();
 						if (bBegin || bEnd ||
-							dayº[H_TMIN2][MEAN] >= -10)
+							dayº[H_TMIN][MEAN] >= -10)
 						{
 							budworm.Live(w, 1);
 

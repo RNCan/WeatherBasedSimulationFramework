@@ -188,7 +188,7 @@ namespace WBSF
 
 		for (size_t h = 0; h < 24; h += GRAY_TIME_STEP)
 		{
-			double T = wDay[h][HOURLY_DATA::H_TAIR2];
+			double T = wDay[h][HOURLY_DATA::H_TAIR];
 
 			//prediapause rates are age-independent 
 			double prediap_rate = prediapause_rate(T);

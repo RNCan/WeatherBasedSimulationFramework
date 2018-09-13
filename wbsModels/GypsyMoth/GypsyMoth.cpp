@@ -109,7 +109,7 @@ namespace WBSF
 			//weather.GetDay(day).GetAllenWave(hourly, 12.0, gTimeStep);
 			std::vector<double> hourly(6);
 			for (size_t hh = 0; hh < 6; hh++)
-				hourly[hh] = weather.GetDay(day)[hh * 4][HOURLY_DATA::H_TAIR2];
+				hourly[hh] = weather.GetDay(day)[hh * 4][HOURLY_DATA::H_TAIR];
 
 			//for all stages, both sexes, if a cohort exists
 			for (int stage = 0; stage<8; ++stage)

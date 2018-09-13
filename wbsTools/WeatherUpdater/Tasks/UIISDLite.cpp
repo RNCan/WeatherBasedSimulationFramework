@@ -705,7 +705,7 @@ namespace WBSF
 								station[accumulator.GetTRef()].SetData(accumulator);
 
 							if (e[ISD_T] > -9999)
-								accumulator.Add(TRef, H_TAIR2, e[ISD_T] / 10.0);
+								accumulator.Add(TRef, H_TAIR, e[ISD_T] / 10.0);
 							if (e[ISD_P] > -9999)
 								accumulator.Add(TRef, H_PRES, e[ISD_P] / 10.0);//in hPa
 							if (e[ISD_PRCP1] > -9999 && int(e[ISD_PRCP1]) != -1)

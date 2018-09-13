@@ -144,7 +144,7 @@ namespace WBSF
 			CWVariables variables = weather.GetVariables();
 
 			//don't save Tair: problem with BioSIM10
-			variables.reset(HOURLY_DATA::H_TAIR2);
+			variables.reset(HOURLY_DATA::H_TAIR);
 			variables.reset(HOURLY_DATA::H_SNOW);
 			variables.reset(HOURLY_DATA::H_SWE);
 			variables.reset(HOURLY_DATA::H_SNDH);

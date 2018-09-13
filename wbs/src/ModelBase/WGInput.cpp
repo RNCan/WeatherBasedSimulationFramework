@@ -281,30 +281,30 @@ namespace WBSF
 		//if (m_variables[H_TRNG] && m_allowedDerivedVariables[H_TRNG] && !m_variables[H_TAIR])
 		//dVariables.set(H_TAIR);
 
-		if ((m_variables[H_TMIN2] && !m_variables[H_TAIR2]) || (m_variables[H_TMAX2] && !m_variables[H_TAIR2]))
-			dVariables.set(H_TAIR2);
-		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
+		if ((m_variables[H_TMIN] && !m_variables[H_TAIR]) || (m_variables[H_TMAX] && !m_variables[H_TAIR]))
+			dVariables.set(H_TAIR);
+		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
 		if (m_variables[H_TDEW] && m_allowedDerivedVariables[H_TDEW] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
+		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
 		if (m_variables[H_RELH] && m_allowedDerivedVariables[H_RELH] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SRAD2] && m_allowedDerivedVariables[H_SRAD2] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
-		if (m_variables[H_SRAD2] && m_allowedDerivedVariables[H_SRAD2] && !m_variables[H_PRCP])
+		if (m_variables[H_SRAD] && m_allowedDerivedVariables[H_SRAD] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
+		if (m_variables[H_SRAD] && m_allowedDerivedVariables[H_SRAD] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
+		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
 		if (m_variables[H_SNOW] && m_allowedDerivedVariables[H_SNOW] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
+		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
 		if (m_variables[H_SNDH] && m_allowedDerivedVariables[H_SNDH] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
-		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_TAIR2])
-			dVariables.set(H_TAIR2);
+		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_TAIR])
+			dVariables.set(H_TAIR);
 		if (m_variables[H_SWE] && m_allowedDerivedVariables[H_SWE] && !m_variables[H_PRCP])
 			dVariables.set(H_PRCP);
 		/*if (m_variables[H_EA] && m_allowedDerivedVariables[H_EA] && !m_variables[H_TDEW])
@@ -321,16 +321,16 @@ namespace WBSF
 
 		
 
-		/*if (m_variables[H_TAIR2] && (!m_variables[H_TMIN2] || !m_variables[H_TMAX2]))
+		/*if (m_variables[H_TAIR] && (!m_variables[H_TMIN] || !m_variables[H_TMAX]))
 		{
-			dVariables.set(H_TMIN2);
-			dVariables.set(H_TMAX2);
+			dVariables.set(H_TMIN);
+			dVariables.set(H_TMAX);
 		}*/
 
-		if (dVariables[H_TAIR2])
+		if (dVariables[H_TAIR])
 		{
-			dVariables.set(H_TMIN2);
-			dVariables.set(H_TMAX2);
+			dVariables.set(H_TMIN);
+			dVariables.set(H_TMAX);
 		}
 
 
@@ -353,23 +353,23 @@ namespace WBSF
 		CWVariables mVariables(m_variables);
 		mVariables |= GetMissingInputVariables();
 
-		/*if (mVariables[H_TAIR2] && !mVariables[H_TMIN2])
-			mVariables.set(H_TMIN2);
+		/*if (mVariables[H_TAIR] && !mVariables[H_TMIN])
+			mVariables.set(H_TMIN);
 
-		if (mVariables[H_TAIR2] && !mVariables[H_TMAX2])
-			mVariables.set(H_TMAX2);*/
+		if (mVariables[H_TAIR] && !mVariables[H_TMAX])
+			mVariables.set(H_TMAX);*/
 
-		if (mVariables[H_PRCP] && ! mVariables[H_TAIR2] )
-			mVariables.set(H_TAIR2);
+		if (mVariables[H_PRCP] && ! mVariables[H_TAIR] )
+			mVariables.set(H_TAIR);
 
 		if (mVariables[H_TDEW] && !mVariables[H_RELH])
 			mVariables.set(H_RELH);
 
-		if (mVariables[H_TDEW] && mVariables[H_TAIR2] )
-			mVariables.set(H_TAIR2);
+		if (mVariables[H_TDEW] && mVariables[H_TAIR] )
+			mVariables.set(H_TAIR);
 
-		//if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
-			//mVariables.set(H_TMAX2);
+		//if (mVariables[H_TDEW] && !mVariables[H_TMAX])
+			//mVariables.set(H_TMAX);
 
 		if (mVariables[H_WND2] && !mVariables[H_WNDS])
 			mVariables.set(H_WNDS);
@@ -377,10 +377,10 @@ namespace WBSF
 		if (mVariables[H_WNDS] && !mVariables[H_PRCP])
 			mVariables.set(H_PRCP);
 
-		if (mVariables[H_TAIR2])
+		if (mVariables[H_TAIR])
 		{
-			mVariables.set(H_TMIN2);
-			mVariables.set(H_TMAX2);
+			mVariables.set(H_TMIN);
+			mVariables.set(H_TMAX);
 		}
 
 		return mVariables;

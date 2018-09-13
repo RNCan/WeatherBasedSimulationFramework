@@ -110,7 +110,7 @@ namespace WBSF
 		for (size_t step = 0; step < nbSteps && GetStage() < DEAD_ADULTS; step++)
 		{
 			size_t h = step*GetTimeStep();
-			double T = weather[h][H_TAIR2];
+			double T = weather[h][H_TAIR];
 
 			size_t s = GetStage();
 
@@ -168,7 +168,7 @@ namespace WBSF
 				if (m_adultAge > PRE_OVIPOSITION)
 				{
 					_ASSERTE(IsAlive());
-					double T = weather[h][H_TAIR2];
+					double T = weather[h][H_TAIR];
 					double Fᵗ = m_potentialFecundity - m_totalBroods;
 					double Eᵗ = stand.m_oviposition.GetRate(T, m_potentialFecundity, Fᵗ) / nbSteps;
 					m_broods += Eᵗ;
@@ -225,7 +225,7 @@ namespace WBSF
 						m_death = ATTRITION;
 					}
 				
-					if( weather[H_TMIN2][MEAN] < CHemlockLooper::FREEZING_POINT)
+					if( weather[H_TMIN][MEAN] < CHemlockLooper::FREEZING_POINT)
 					{
 						m_status = DEAD;
 						m_death = FROZEN;

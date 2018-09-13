@@ -66,8 +66,8 @@ namespace WBSF
 			double Pwyr = m_weather.GetStat(H_PRCP, p1)[SUM] / 10;
 			double PETwyr = GetSPMPET(m_weather, p1) / 10;
 
-			double tmaxwyr = m_weather.GetStat(H_TMAX2, p1)[MEAN];
-			double tminwyr = m_weather.GetStat(H_TMIN2, p1)[MEAN];
+			double tmaxwyr = m_weather.GetStat(H_TMAX, p1)[MEAN];
+			double tminwyr = m_weather.GetStat(H_TMIN, p1)[MEAN];
 
 			double CMIwyr = Pwyr - PETwyr;
 
@@ -101,8 +101,8 @@ namespace WBSF
 		{
 			for (size_t m = 0; m < 12; m++)
 			{
-				double TMaxMean = m_weather[y][m][H_TMAX2][MEAN];
-				double TMinMean = m_weather[y][m][H_TMIN2][MEAN];
+				double TMaxMean = m_weather[y][m][H_TMAX][MEAN];
+				double TMinMean = m_weather[y][m][H_TMIN][MEAN];
 				double TMeanMean = m_weather[y][m][H_TNTX][MEAN];
 
 				double pptSum = m_weather[y][m].GetStat(H_PRCP)[SUM] / 10;//in cm
@@ -130,8 +130,8 @@ namespace WBSF
 		ASSERT(elev > -999);
 
 		//input monthly tmax, tmin, prec and calculate tmean
-		double TMax = weather[H_TMAX2][MEAN];
-		double TMin = weather[H_TMIN2][MEAN];
+		double TMax = weather[H_TMAX][MEAN];
+		double TMin = weather[H_TMIN][MEAN];
 		double TMean = weather[H_TNTX][MEAN];
 
 		//First calculate SVP for monthly tmax tmin and tdew (assumed = tmin - 2.5)

@@ -119,9 +119,9 @@ namespace WBSF
 			double dd = DD[y][0];
 			double ppt = m_weather[y].GetStat(H_PRCP)[SUM];
 			double utilPpt = m_weather[y].GetStat(H_PRCP, utilPeriod)[SUM];
-			double Tmin = m_weather[y][H_TMIN2][MEAN];
-			double Tmean = m_weather[y][H_TAIR2][MEAN];
-			double Tmax = m_weather[y][H_TMAX2][MEAN];
+			double Tmin = m_weather[y][H_TMIN][MEAN];
+			double Tmean = m_weather[y][H_TAIR][MEAN];
+			double Tmax = m_weather[y][H_TMAX][MEAN];
 
 			CTPeriod FFPeriod = GS.GetFrostFreePeriod(m_weather[y]);
 			size_t dayWithoutFrost = m_weather[y].GetNbDays() - GetNbFrostDay(m_weather[y]);
@@ -129,8 +129,8 @@ namespace WBSF
 
 			CTPeriod growingSeason = GS.GetGrowingSeason(m_weather[y]);
 			double pptGS = m_weather[y](H_PRCP, growingSeason)[SUM];
-			double TmeanGS = m_weather[y](H_TAIR2, growingSeason)[MEAN];
-			double meanJuly = m_weather[y][JULY][H_TAIR2][MEAN];
+			double TmeanGS = m_weather[y](H_TAIR, growingSeason)[MEAN];
+			double meanJuly = m_weather[y][JULY][H_TAIR][MEAN];
 
 			//WARNING: In Climatic Annual, VPS is givent in kPa and are take from database, but here 
 			// humidity is an aproximation from temperature
@@ -145,7 +145,7 @@ namespace WBSF
 			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				double T = m_weather[TRef][H_TAIR2][MEAN];
+				double T = m_weather[TRef][H_TAIR][MEAN];
 				double ppt = m_weather[TRef][H_PRCP][SUM];
 
 				if (T < 0)
@@ -219,8 +219,8 @@ namespace WBSF
 		for (int d = 151; d <= 242; d++)
 		{
 			const CWeatherDay& day = (const CWeatherDay&)(weather[TRef + d]);
-			double Tmin = day[H_TMIN2][LOWEST];
-			double Tmax = day[H_TMAX2][HIGHEST];
+			double Tmin = day[H_TMIN][LOWEST];
+			double Tmax = day[H_TMAX][HIGHEST];
 
 			if (Tmin > 0 && Tmax > 0)
 			{
@@ -361,7 +361,7 @@ namespace WBSF
 
 	double GetNbFrostDay(const CWeatherDay& weather)
 	{
-		return (weather[H_TMIN2][LOWEST] <= 0 ? 1 : 0);
+		return (weather[H_TMIN][LOWEST] <= 0 ? 1 : 0);
 	}
 
 

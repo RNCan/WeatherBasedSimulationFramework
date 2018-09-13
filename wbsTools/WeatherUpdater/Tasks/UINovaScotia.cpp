@@ -348,7 +348,7 @@ namespace WBSF
 
 	enum TColumns { C_STATIONNAME, C_DATE_TIME, C_RH, C_RHMAX, C_RHMAX24, C_RHMIN, C_RHMIN24, C_RN24, C_RNTOTAL, C_RN_1, C_TMAX, C_TMAX24, C_TMIN, C_TMIN24, C_TEMP, C_WSPD, C_MAX_SPD, C_MAX_DIR, C_DIR, NB_COLUMNS };
 	static const char* NS_COLUMN_NAME[NB_COLUMNS] = { "StationName", "DateTime", "Rh", "RhMax", "RhMax24", "RhMin", "RhMin24", "Rn24", "RnTotal", "Rn_1", "TMax", "TMax24", "TMin", "TMin24", "Temp", "Wspd", "Max_Spd", "Max_Dir", "Dir" };
-	//static const TVarH NS_FIRE_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_SKIP, H_PRCP, H_TMAX2, H_SKIP, H_TMIN2, H_SKIP, H_TAIR2, H_WNDS, H_SKIP, H_SKIP, H_WNDD };
+	//static const TVarH NS_FIRE_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_SKIP, H_PRCP, H_TMAX, H_SKIP, H_TMIN, H_SKIP, H_TAIR, H_WNDS, H_SKIP, H_SKIP, H_WNDD };
 	//Rn24, RHMin24, RHMax24, TMIN24 and TMAX24 is valid only at noon and is NOON to NOON computed
 
 
@@ -388,11 +388,11 @@ namespace WBSF
 		else if (type == C_RN_1)
 			v = H_PRCP;
 		else if (type == C_TMIN)
-			v = H_TMIN2;
+			v = H_TMIN;
 		else if (type == C_TEMP)
-			v = H_TAIR2;
+			v = H_TAIR;
 		else if (type == C_TMAX)
-			v = H_TMAX2;
+			v = H_TMAX;
 
 		return v;
 	}

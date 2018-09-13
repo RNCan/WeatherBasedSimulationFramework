@@ -518,7 +518,7 @@ namespace WBSF
 
 
 			enum THourlyColumns { C_TIME, C_REPORT, C_TEMPERATURE, C_WIND_SPEED, C_WIND_GUST, C_WIND_DIRECTION, C_HUMIDITY, C_RAINFALL, C_PRESSURE, NB_COLUMNS };
-			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR2,  H_WNDS, H_SKIP, H_WNDD, H_RELH, H_PRCP, H_PRES };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR,  H_WNDS, H_SKIP, H_WNDD, H_RELH, H_PRCP, H_PRES };
 
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
 			{
@@ -545,7 +545,7 @@ namespace WBSF
 
 								if (variable == H_RELH)
 								{
-									double T = data[TRef][H_TAIR2][MEAN];
+									double T = data[TRef][H_TAIR][MEAN];
 									if (T != -999)
 										data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(T, value));
 								}
@@ -581,7 +581,7 @@ namespace WBSF
 			//Station,"Rain (mm)","Max Temperature (ºC)","Min Temperature (ºC)","Sun (hr)","Wind Gust (Kts)","Wind Speed (Kts)","Soil (ºC)","Global (J/cm^2)","Gmin (ºC)"
 			
 			enum THourlyColumns { STATION, RAIN, MAX_TEMPERATURE, MIN_TEMPERATURE, SUN, WIND_GUST, WIND_SPEED, SOIL, GLOBAL, GMIN, NB_COLUMNS };
-			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_PRCP, H_TMAX2,  H_TMIN2,  H_SKIP, H_SKIP, H_WNDS, H_SKIP, H_SRAD2, H_SKIP };
+			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_PRCP, H_TMAX,  H_TMIN,  H_SKIP, H_SKIP, H_WNDS, H_SKIP, H_SRAD, H_SKIP };
 
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
 			{
@@ -820,7 +820,7 @@ namespace WBSF
 
 	enum TIrelandColumns { C_DATE, C_RAIN, C_MAXT, C_MAXTP, C_MINT, C_MINTP, C_IGMIN, C_GMIN, C_SOIL, C_WDSP, C_HM, C_DDHM, C_HG, C_CBL, C_SUN, C_G_RAD, C_PE, C_EVAP, C_SMD_WD, C_SMD_MD, C_SMD_PD, C_IND, C_TEMP, C_WETB, C_DEWPT, C_RHUM, C_VAPPR, C_MSL, C_WDDIR, C_WW, C_W, C_VIS, C_CLHT, C_CLAMT, C_GLORAD, C_DOS, NB_COLUMNS };
 	static const char* COLUMN_NAME[NB_COLUMNS] = { "Date", "rain","maxt","maxtp","mint","mintp","igmin","gmin","soil","wdsp","hm","ddhm","hg","cbl","sun","g_rad","pe","evap","smd_wd","smd_md","smd_pd","ind", "temp","wetb","dewpt","rhum","vappr","msl","wddir","ww","w","vis","clht","clamt", "glorad", "dos",  };
-	static HOURLY_DATA::TVarH COLUMN_VARIABLE[NB_COLUMNS] = { H_SKIP, H_PRCP, H_TMAX2, H_TMAX2, H_TMIN2, H_TMIN2, H_SKIP, H_SKIP,H_SKIP,H_WNDS,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SRAD2,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_TAIR2, H_SKIP, H_TDEW, H_RELH, H_SKIP, H_PRES, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD2, H_SKIP };
+	static HOURLY_DATA::TVarH COLUMN_VARIABLE[NB_COLUMNS] = { H_SKIP, H_PRCP, H_TMAX, H_TMAX, H_TMIN, H_TMIN, H_SKIP, H_SKIP,H_SKIP,H_WNDS,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SRAD,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_TAIR, H_SKIP, H_TDEW, H_RELH, H_SKIP, H_PRES, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD, H_SKIP };
 
 	size_t CUIOtherCountries::GetIrelandColumn(const string& header)
 	{
@@ -856,7 +856,7 @@ namespace WBSF
 		case H_WNDS: value = value * 1.852184256; break;//knok --> km/h
 			//joule/cm² = watt·s/cm² = 10000·w·s/m² = 10000/3600·w·h/m²
 			//1 m² = 10000 cm²
-		case H_SRAD2: value = value * 10000 / ((bHourly ? 1 : 24) * 60 * 60); break;	//j/cm² --> w·h/m²
+		case H_SRAD: value = value * 10000 / ((bHourly ? 1 : 24) * 60 * 60); break;	//j/cm² --> w·h/m²
 		case H_PRES: value = WBSF::msl2atp(value, elev); break;	//MSL --> station pressure
 		default:;//do nothing
 		}

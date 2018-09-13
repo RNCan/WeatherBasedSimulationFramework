@@ -323,7 +323,7 @@ string CNormalsEstimateCtrl::GetDataText(int col, long row)const
 	case -1:	str = to_string(row + 1); break;
 	case G_TYPE:str = TYPE_NAME[row]; break;
 	default:	
-		if (m_variable == H_TAIR2)
+		if (m_variable == H_TAIR)
 		{
 			size_t f1 = NORMALS_DATA::TMIN_MN;
 			size_t f2 = NORMALS_DATA::TMAX_MN;

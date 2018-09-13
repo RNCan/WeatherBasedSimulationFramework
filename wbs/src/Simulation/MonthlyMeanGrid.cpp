@@ -353,18 +353,18 @@ namespace WBSF
 
 						if (f!=-1 && stationIn[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
 						{
-							if (v == HOURLY_DATA::H_TMIN2)
+							if (v == HOURLY_DATA::H_TMIN)
 							{
 								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
-								CStatistic statOut = stationIn[y][m][d][H_TMIN2][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
-								stationII[y][m][d][HOURLY_DATA::H_TMIN2] = statOut[MEAN];
+								CStatistic statOut = stationIn[y][m][d][H_TMIN][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
+								stationII[y][m][d][HOURLY_DATA::H_TMIN] = statOut[MEAN];
 								
 							}
-							else if (v == HOURLY_DATA::H_TMAX2)
+							else if (v == HOURLY_DATA::H_TMAX)
 							{
 								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
-								CStatistic statOut = stationIn[y][m][d][H_TMAX2][MEAN] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
-								stationII[y][m][d][HOURLY_DATA::H_TMAX2] = statOut[MEAN];
+								CStatistic statOut = stationIn[y][m][d][H_TMAX][MEAN] + (ccMonthlyMean[m][TMAX_MN] - refMonthlyMean[m][TMAX_MN]);
+								stationII[y][m][d][HOURLY_DATA::H_TMAX] = statOut[MEAN];
 							}
 							else if (v == HOURLY_DATA::H_PRCP)
 							{
@@ -377,22 +377,22 @@ namespace WBSF
 								if (IsMissing(refMonthlyMean[m][RELH_MN]))//no relative humidity. then take specific humidity
 								{
 									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specyfic humidity g[H2O]/kg[air]
-									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TMIN2].IsInit() && stationIn[y][m][d][H_TMAX2].IsInit())
+									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TMIN].IsInit() && stationIn[y][m][d][H_TMAX].IsInit())
 									{
-										ASSERT(stationIn[y][m][d][H_TMIN2].IsInit());
-										ASSERT(stationIn[y][m][d][H_TMAX2].IsInit());
+										ASSERT(stationIn[y][m][d][H_TMIN].IsInit());
+										ASSERT(stationIn[y][m][d][H_TMAX].IsInit());
 
 										//convert Hr to Hs with station temperature
-										double Tmin = stationIn[y][m][d][H_TMIN2][MEAN];
-										double Tmax = stationIn[y][m][d][H_TMAX2][MEAN];
+										double Tmin = stationIn[y][m][d][H_TMIN][MEAN];
+										double Tmax = stationIn[y][m][d][H_TMAX][MEAN];
 										double Hr = stationIn[y][m][d][H_RELH][MEAN];
 										double Hs = Hr2Hs(Tmin, Tmax, Hr);
 										Hs *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);//specific humidity ratio
 
 										ASSERT(stationII[y][m][d].GetParent());
 										//convert back Hs to Hr with the new station temperature
-										double TminII = stationII[y][m][d][H_TMIN2][MEAN];
-										double TmaxII = stationII[y][m][d][H_TMAX2][MEAN];
+										double TminII = stationII[y][m][d][H_TMIN][MEAN];
+										double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
 										Hr = Hs2Hr(TminII, TmaxII, Hs);
 
 										stationII[y][m][d][H_RELH] = Hr;
@@ -415,8 +415,8 @@ namespace WBSF
 								stationII[y][m][d][H_RELH] = Hr;
 
 								//we compute the best Tdew as we can. A vérifier... 
-								double TminII = stationII[y][m][d][H_TMIN2][MEAN];
-								double TmaxII = stationII[y][m][d][H_TMAX2][MEAN];
+								double TminII = stationII[y][m][d][H_TMIN][MEAN];
+								double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
 								double Pv = Hr2Pv(TminII, TmaxII, Hr);
 								double Td = WBSF::Pv2Td(Pv / 1000);
 								stationII[y][m][d][H_TDEW] = Td;
@@ -431,18 +431,18 @@ namespace WBSF
 					}//for all fields
 
 					//complete humidity
-					if (stationII[y][m][d][H_TAIR2].IsInit())
+					if (stationII[y][m][d][H_TAIR].IsInit())
 					{
 						if (stationII[y][m][d][H_TDEW].IsInit() &&
 							!stationII[y][m][d][H_RELH].IsInit())
 						{
-							double RH = Td2Hr(stationII[y][m][d][H_TAIR2][MEAN], stationII[y][m][d][H_TDEW][MEAN]);
+							double RH = Td2Hr(stationII[y][m][d][H_TAIR][MEAN], stationII[y][m][d][H_TDEW][MEAN]);
 							stationII[y][m][d][H_RELH] = RH;
 						}
 						else if (stationII[y][m][d][H_RELH].IsInit() &&
 							!stationII[y][m][d][H_TDEW].IsInit())
 						{
-							double TDew = Hr2Td(stationII[y][m][d][H_TAIR2][MEAN], stationII[y][m][d][H_RELH][MEAN]);
+							double TDew = Hr2Td(stationII[y][m][d][H_TAIR][MEAN], stationII[y][m][d][H_RELH][MEAN]);
 							stationII[y][m][d][H_TDEW] = TDew;
 						}
 					}

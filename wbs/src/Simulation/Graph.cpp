@@ -28,15 +28,15 @@ namespace WBSF
 
 	static const CGraphSerie DEFAULT_WEATHER_SERIES[NB_VAR_H] =
 	{
-		{ "Tmin", 0, H_TMIN2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Tair", 0, H_TAIR2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(145, 45, 170), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "Tmax", 0, H_TMAX2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tmin", 0, H_TMIN, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 255), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(000, 000, 255), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tair", 0, H_TAIR, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(145, 45, 170), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
+		{ "Tmax", 0, H_TMAX, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "Prcp", 1, H_PRCP, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::HIST_VERTICAL, 6, RGB(000, 192, 255), 1, RGB(0, 0, 0) },
 		{ "Tdew", 0, H_TDEW, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 150, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(060, 150, 030), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "RelH", 0, H_RELH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(100, 100, 100), false, CGraphSerie::fsHatchDownDiag, CGraphSerie::FILL_BOTTOM, RGB(215, 215, 215) },
 		{ "WndS", 2, H_WNDS, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(120, 040, 020), false, CGraphSerie::fsHatchUpDiag, CGraphSerie::FILL_BOTTOM, RGB(200, 200, 200) },
 		{ "WndD", 2, H_WNDD, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stElli, 4, 4, RGB(000, 000, 255), true, RGB(160, 160, 160), CGraphSerie::lsNone, 1, RGB(000, 000, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
-		{ "SRad", 3, H_SRAD2, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 192, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 192, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 125) },
+		{ "SRad", 3, H_SRAD, MEAN, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 192, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(255, 192, 000), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 125) },
 		{ "Pres", 3, H_PRES, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::stNone, 6, 6, RGB(255, 000, 000), true, RGB(255, 255, 255), CGraphSerie::lsSolid, 1, RGB(030, 100, 050), false, CGraphSerie::fsNone, CGraphSerie::FILL_BOTTOM, RGB(245, 245, 245) },
 		{ "Snow", 1, H_SNOW, SUM, CGraphSerie::LEFT_AXIS, false, 2, RGB(200, 200, 200), CGraphSerie::HIST_VERTICAL, 6, RGB(192, 192, 192), 1, RGB(0, 0, 0) },
 		{ "SnDh", 1, H_SNDH, MEAN, CGraphSerie::RIGHT_AXIS, false, 2, RGB(000, 000, 000), CGraphSerie::stNone, 6, 6, RGB(000, 000, 000), true, RGB(000, 255, 255), CGraphSerie::lsSolid, 1, RGB(120, 120, 245), false, CGraphSerie::fsHatchDiagCross, CGraphSerie::FILL_BOTTOM, RGB(120, 120, 245) },
@@ -51,19 +51,19 @@ namespace WBSF
 
 	static const int DEFAULT_HOURLY_CHARTS[NB_CHARTS][NB_VAR_MAX] =
 	{
-		{ H_RELH, H_TDEW, H_TAIR2, -1, -1 },//air
+		{ H_RELH, H_TDEW, H_TAIR, -1, -1 },//air
 		{ H_SNDH, H_SWE, H_SNOW, H_PRCP, -1 },//ground
 		{ H_WNDS, H_WND2, H_WNDD, -1, -1 },
-		{ H_SRAD2, H_PRES, -1, -1, -1 },
+		{ H_SRAD, H_PRES, -1, -1, -1 },
 		{ H_ADD1, H_ADD2, -1, -1, -1 },
 	};
 
 	static const int DEFAULT_DAILY_CHARTS[NB_CHARTS][NB_VAR_MAX] =
 	{
-		{ H_RELH, H_TDEW, H_TMIN2, H_TMAX2, -1 },//air
+		{ H_RELH, H_TDEW, H_TMIN, H_TMAX, -1 },//air
 		{ H_SNDH, H_SWE, H_SNOW, H_PRCP, -1 },//ground
 		{ H_WNDS, H_WND2, H_WNDD, -1, -1 },
-		{ H_SRAD2, H_PRES, -1, -1, -1 },
+		{ H_SRAD, H_PRES, -1, -1, -1 },
 		{ H_ADD1, H_ADD2, -1, -1, -1 },
 	};
 

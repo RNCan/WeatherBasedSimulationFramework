@@ -493,12 +493,12 @@ namespace WBSF
 			MakeLower(var_name);
 
 			if (var_name == "temperature" || var_name == "air_temperature" || var_name == "current_air_temperature1" || var_name == "current_air_temperature2")
-				v = H_TAIR2;
+				v = H_TAIR;
 				
 			else if (var_name == "minimum_air_temperature" || var_name == "min_temp")
-				v = H_TMIN2;
+				v = H_TMIN;
 			else if (var_name == "maximum_air_temperature" || var_name == "max_temp")
-				v = H_TMAX2;
+				v = H_TMAX;
 			else if (var_name == "precipitation" || var_name == "hourly_precipitation" || var_name == "precipitation_new" || var_name == "one_day_precipitation" || var_name == "one_day_rain")
 				v = H_PRCP;
 			else if (var_name == "dew_point")

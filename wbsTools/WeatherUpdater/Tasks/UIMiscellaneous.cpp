@@ -723,14 +723,14 @@ namespace WBSF
 					string ppt = line.substr(43, 5);
 
 					if (Tmean != "-99.9")
-						m_weatherStations[ID][TRef].SetStat(H_TAIR2, ToDouble(Tmean));
+						m_weatherStations[ID][TRef].SetStat(H_TAIR, ToDouble(Tmean));
 
 					if (Tmin != "-99.9" && Tmax != "-99.9")
 					{
 						if (ToDouble(Tmin) < ToDouble(Tmax))
 						{
-							m_weatherStations[ID][TRef].SetStat(H_TMIN2, ToDouble(Tmin));
-							m_weatherStations[ID][TRef].SetStat(H_TMAX2, ToDouble(Tmax));
+							m_weatherStations[ID][TRef].SetStat(H_TMIN, ToDouble(Tmin));
+							m_weatherStations[ID][TRef].SetStat(H_TMAX, ToDouble(Tmax));
 						}
 					}
 
@@ -766,7 +766,7 @@ namespace WBSF
 			callback.PushTask("Load SOPFEU in memmory", file.length());
 
 			enum { C_NO_STATION, C_DATE, C_HEURE, C_PLUIE, C_PLUIE_HOR, C_CC, C_TSEC, C_THUM, C_DV, C_VV, C_VVR, C_PRO, C_HR, OTHER_FIELDS };
-			TVarH VAR_TYPE[OTHER_FIELDS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_TAIR2, H_SKIP, H_WNDD, H_WNDS, H_SKIP, H_TDEW, H_RELH };
+			TVarH VAR_TYPE[OTHER_FIELDS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_TAIR, H_SKIP, H_WNDD, H_WNDS, H_SKIP, H_TDEW, H_RELH };
 			for (CSVIterator loop(file, ",", true); loop != CSVIterator(); ++loop)
 			{
 				ASSERT(loop->size() >= OTHER_FIELDS);
@@ -970,7 +970,7 @@ namespace WBSF
 
 
 		enum { C_STID, C_STNM, C_TIME, C_LAT, C_LON, C_ELEV, C_TAIR, C_RELH, C_TDEW, C_WDIR, C_WSPD, C_WMAX, C_TAIR3HR, C_TDEW3HR, C_RAIN1HR, C_RAIN3HR, C_RAIN, C_PRES, C_PMSL, C_PMSL3HR, C_SNOW, C_SRAD, C_TAIRMIN, C_TAIRMAX, C_PT020H, C_PT040H, C_PT050H, NB_INPUT_HOURLY_COLUMN };
-		const TVarH COL_POS[NB_INPUT_HOURLY_COLUMN] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR2, H_RELH, H_TDEW, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_PRES, H_SKIP, H_SKIP, H_SNOW, H_SRAD2, H_TMIN2, H_TMAX2, H_SKIP, H_SKIP, H_SKIP };
+		const TVarH COL_POS[NB_INPUT_HOURLY_COLUMN] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_TDEW, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_PRES, H_SKIP, H_SKIP, H_SNOW, H_SRAD, H_TMIN, H_TMAX, H_SKIP, H_SKIP, H_SKIP };
 		static const char* COL_NAME[NB_INPUT_HOURLY_COLUMN] = { "STID", "STNM", "TIME", "LAT", "LON", "ELEV", "TAIR", "RELH", "TDEW", "WDIR", "WSPD", "WMAX", "TAIR3HR", "TDEW3HR", "RAIN1HR", "RAIN3HR", "RAIN", "PRES", "PMSL", "PMSL3HR", "SNOW", "SRAD", "TAIRMIN", "TAIRMAX", "PT020H", "PT040H", "PT050H" };
 		//const int COL_POS[NB_VAR_H] = { C_TAIRMIN, C_TAIR, C_TAIRMAX, C_RAIN1HR, C_TDEW, C_RELH, C_WSPD, C_WDIR, C_SRAD, C_PRES, -1, C_SNOW, -1, -1, -1, -1 };
 
@@ -1167,7 +1167,7 @@ T Value is interpolated with the specific procedure for gaps 3 hours or shorter.
 						if (line[26] != '9')
 						{
 							double srad = stof(line.substr(22, 4)) * 1000.0 / 3600.0;//kJ/m² -> W/m²
-							station[year][m][d][h][H_SRAD2] = srad;
+							station[year][m][d][h][H_SRAD] = srad;
 						}
 
 						if (line[92] != '9')
@@ -1178,14 +1178,14 @@ T Value is interpolated with the specific procedure for gaps 3 hours or shorter.
 						if (line[97] != '9')
 						{
 							double Tair = stof(line.substr(93, 4)) / 10.0;
-							station[year][m][d][h][H_TAIR2] = Tair;
+							station[year][m][d][h][H_TAIR] = Tair;
 						}
 						if (line[102] != '9')
 						{
 							double Tdew = stof(line.substr(98, 4)) / 10.0;
 							station[year][m][d][h][H_TDEW] = Tdew;
-							if (!WEATHER::IsMissing(station[year][m][d][h][H_TAIR2]))
-								station[year][m][d][h][H_RELH] = Td2Hr(station[year][m][d][h][H_TAIR2], Tdew);
+							if (!WEATHER::IsMissing(station[year][m][d][h][H_TAIR]))
+								station[year][m][d][h][H_RELH] = Td2Hr(station[year][m][d][h][H_TAIR], Tdew);
 						}
 						if (line[106] != '9')
 						{

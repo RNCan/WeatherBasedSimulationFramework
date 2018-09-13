@@ -176,7 +176,7 @@ namespace WBSF
 				m_death = FROZEN;
 			}
 		}
-		else if (GetStage() > EGG && weather[H_TMIN2][MEAN] < -10)
+		else if (GetStage() > EGG && weather[H_TMIN][MEAN] < -10)
 		{
 			m_status = DEAD;
 			m_death = FROZEN;

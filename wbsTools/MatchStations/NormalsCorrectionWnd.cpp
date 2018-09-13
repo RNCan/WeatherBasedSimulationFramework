@@ -345,7 +345,7 @@ string CNormalsCorrectionCtrl::GetDataText(int col, long row)const
 	}
 	default:
 	{
-		if (m_variable == H_TAIR2)
+		if (m_variable == H_TAIR)
 		{
 			size_t g1 = TMIN_GR;
 			size_t g2 = TMAX_GR;

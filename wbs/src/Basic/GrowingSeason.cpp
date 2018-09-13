@@ -92,10 +92,10 @@ namespace WBSF
 	//	{
 		switch (m_type)
 		{
-		case TT_TMIN:	T = data[H_TMIN2][MEAN]; break;
+		case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
 		case TT_TMEAN:	T = data[H_TNTX][MEAN]; break;
-		case TT_TMAX:	T = data[H_TMAX2][MEAN]; break;
-		case TT_TNOON:  T = data[12][H_TAIR2]; break;
+		case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
+		case TT_TNOON:  T = data[12][H_TAIR]; break;
 		default: ASSERT(false);
 		}
 		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
@@ -153,7 +153,7 @@ namespace WBSF
 				ASSERT((TRef1 - dd).Transform(p.GetTM()) >= p.Begin());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef1 - dd]);
-				if (wDay[H_TMIN2].IsInit() && wDay[H_TMAX2].IsInit())
+				if (wDay[H_TMIN].IsInit() && wDay[H_TMAX].IsInit())
 					bGetIt1 = m_begin.GetGST(wDay) < m_begin.m_threshold;
 			}
 		} while (!bGetIt1 && (TRef1 - p.Begin())>m_begin.m_nbDays);
@@ -179,7 +179,7 @@ namespace WBSF
 				ASSERT((TRef2 + dd).Transform(p.GetTM())<=p.End());
 
 				const CWeatherDay& wDay = dynamic_cast<const CWeatherDay&>(weather[TRef2 + dd]);
-				if (wDay[H_TMIN2].IsInit() && wDay[H_TMAX2].IsInit())
+				if (wDay[H_TMIN].IsInit() && wDay[H_TMAX].IsInit())
 					bGetIt2 = m_end.GetGST(wDay) < m_end.m_threshold;
 			}
 		} while (!bGetIt2 && (p.End()-TRef2)>m_end.m_nbDays);
@@ -217,7 +217,7 @@ namespace WBSF
 		
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
-			double T = weather.IsHourly() ? weather[TRef][H_TAIR2][MEAN] : weather[TRef][H_TMIN2][MEAN];
+			double T = weather.IsHourly() ? weather[TRef][H_TAIR][MEAN] : weather[TRef][H_TMIN][MEAN];
 
 			if (T>0) //Frost-free period begin or continues
 			{

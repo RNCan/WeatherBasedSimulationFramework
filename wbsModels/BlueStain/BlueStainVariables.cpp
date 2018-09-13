@@ -273,9 +273,9 @@ namespace WBSF
 			{
 				switch (v)
 				{
-				case V_TMIN_EXT:	output[y][v] = weather[y][H_TMIN2][MEAN]; break;
+				case V_TMIN_EXT:	output[y][v] = weather[y][H_TMIN][MEAN]; break;
 				case V_TMEAN:		output[y][v] = weather[y][H_TNTX][MEAN]; break;
-				case V_TMAX_EXT:	output[y][v] = weather[y][H_TMAX2][MEAN]; break;
+				case V_TMAX_EXT:	output[y][v] = weather[y][H_TMAX][MEAN]; break;
 				case V_PRCP:		output[y][v] = weather[y](H_PRCP)[SUM]; break;
 				case V_WARMQ_TMEAN:	output[y][v] = weather[y](H_TNTX, Q[WARMEST])[MEAN]; break;
 				case V_COLDQ_TMEAN:	output[y][v] = weather[y](H_TNTX, Q[COLDEST])[MEAN]; break;

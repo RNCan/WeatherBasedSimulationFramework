@@ -1296,7 +1296,7 @@ namespace WBSF
 		{
 			correction = (GetPressure(station.m_alt) - GetPressure(m_target.m_alt)) / 100; //correction in [hPa]
 		}
-		else if (v == H_TMIN2 || v == H_TAIR2 || v == H_TMAX2)
+		else if (v == H_TMIN || v == H_TAIR || v == H_TMAX)
 		{
 			if (TRef.GetType() == CTM::HOURLY)
 			{
@@ -1317,7 +1317,7 @@ namespace WBSF
 			}
 			else
 			{
-				if (v == H_TAIR2)
+				if (v == H_TAIR)
 				{
 					//pour l'instant je laisse les gradients moyen, mais a changer pour le gradient Tair  : ajouter Tair Pres dans normals
 					for (size_t s = 0; s < GetNbSpaces(); s++)

@@ -906,7 +906,7 @@ namespace WBSF
 						float Tair = ToFloat((*loop)[MEAN_TEMP]);
 						ASSERT(Tair >= -70 && Tair <= 70);
 
-						dailyData[Tref][H_TAIR2] = Tair;
+						dailyData[Tref][H_TAIR] = Tair;
 					}
 
 					if (((*loop)[MIN_TEMP_FLAG].empty() || (*loop)[MIN_TEMP_FLAG] == "E") && !(*loop)[MIN_TEMP].empty() &&
@@ -921,8 +921,8 @@ namespace WBSF
 						if (Tmin > Tmax)
 							Switch(Tmin, Tmax);
 
-						dailyData[Tref][H_TMIN2] = Tmin;
-						dailyData[Tref][H_TMAX2] = Tmax;
+						dailyData[Tref][H_TMIN] = Tmin;
+						dailyData[Tref][H_TMAX] = Tmax;
 					}
 
 					if (((*loop)[TOTAL_PRECIP_FLAG].empty() || (*loop)[TOTAL_PRECIP_FLAG] == "E" || (*loop)[TOTAL_PRECIP_FLAG] == "T") && !(*loop)[TOTAL_PRECIP].empty())

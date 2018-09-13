@@ -914,11 +914,11 @@ namespace WBSF
 
 							TVarH var = H_SKIP;
 							if (var_str == "AT" || var_str == "ATA")
-								var = H_TAIR2;
+								var = H_TAIR;
 							else if (var_str == "TX")
-								var = H_TMAX2;
+								var = H_TMAX;
 							else if (var_str == "TN")
-								var = H_TMIN2;
+								var = H_TMIN;
 							else if (var_str == "PR")
 								var = H_PRCP;
 							else if (var_str == "HU" || var_str == "HUA")
@@ -930,7 +930,7 @@ namespace WBSF
 							else if (var_str == "US")
 								var = H_WND2;
 							else if (var_str == "IR")
-								var = H_SRAD2;
+								var = H_SRAD;
 							/*else if (var_str == "PC")
 								var = H_ADD1;
 								else if (var_str == "P1")
@@ -949,12 +949,12 @@ namespace WBSF
 									if (type == HOURLY_WEATHER)
 									{
 										station[TRef].SetStat(var, value);
-										if (var == H_RELH && station[TRef][H_TAIR2].IsInit())
-											station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR2], value));
+										if (var == H_RELH && station[TRef][H_TAIR].IsInit())
+											station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR], value));
 									}
 									else
 									{
-										if (var == H_SRAD2)
+										if (var == H_SRAD)
 											value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
 
 										station[TRef].SetStat(var, value);
@@ -962,7 +962,7 @@ namespace WBSF
 										string str_min = columns[c++];
 										string str_max = columns[c++];
 
-										if (var == H_TAIR2)
+										if (var == H_TAIR)
 										{
 											float Tmin = WBSF::as<float>(str_min);
 											float Tmax = WBSF::as<float>(str_max);
@@ -972,8 +972,8 @@ namespace WBSF
 												ASSERT(Tmax >= -70 && Tmax <= 70);
 												ASSERT(Tmin <= Tmax);
 
-												station[TRef].SetStat(H_TMIN2, Tmin);
-												station[TRef].SetStat(H_TMAX2, Tmax);
+												station[TRef].SetStat(H_TMIN, Tmin);
+												station[TRef].SetStat(H_TMAX, Tmax);
 
 											}
 										}

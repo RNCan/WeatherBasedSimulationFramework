@@ -54,7 +54,7 @@ namespace WBSF
 	const char * CSOPFEU::FIELDS_NAME[NB_FIELDS] =
 	{ "TAI000H", "TAN000H", "TAX000H", "TAM000H", "PC040H", "PT040H", "PC020H", "PT041H", "HAI000H", "HAN000H", "HAX000H", "NSI000H", "VDI300H", "VVI300H", "VVXI500H", "VDM025B", "VVM025B", "TDI000H", "VB000B" };
 	
-	const TVarH CSOPFEU::VARIABLE[NB_FIELDS] = { H_TAIR2, H_TMIN2, H_TMAX2, H_TAIR2, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
+	const TVarH CSOPFEU::VARIABLE[NB_FIELDS] = { H_TAIR, H_TMIN, H_TMAX, H_TAIR, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
 
 	TVarH CSOPFEU::GetVariable(std::string str)
 	{
@@ -380,9 +380,9 @@ namespace WBSF
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN2: 
-		case H_TAIR2:
-		case H_TMAX2: 
+		case H_TMIN: 
+		case H_TAIR:
+		case H_TMAX: 
 		case H_TDEW: bValid = value >= -45 && value <= 40; break;
 		case H_PRCP:
 		case H_SWE:

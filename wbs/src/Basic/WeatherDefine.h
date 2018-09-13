@@ -64,16 +64,16 @@ namespace WBSF
 		{
 			H_SKIP = -1,
 			H_FIRST_VAR = 0,
-			H_TMIN2 = H_FIRST_VAR,	//minimum daily temperature [°C]
-			H_TAIR2 ,				//air temperature [°C]
-			H_TMAX2,				//maximum daily temperature [°C]
+			H_TMIN = H_FIRST_VAR,	//minimum daily temperature [°C]
+			H_TAIR ,				//air temperature [°C]
+			H_TMAX,					//maximum daily temperature [°C]
 			H_PRCP,					//precipitation accumulation [mm] 
 			H_TDEW,					//Dew point temperature [°C]
 			H_SPEH = H_TDEW,		//specific humidity [kg/kg]
 			H_RELH,					//relatice humidity [%]
 			H_WNDS,					//wind speed at 10 meters [km/h]
 			H_WNDD,					//wind direction [° north]
-			H_SRAD2,				//mean solar radiation [watt/m²]
+			H_SRAD,					//mean solar radiation [watt/m²]
 			H_PRES,					//atmospheric pressure [hPa] 
 			H_SNOW,					//snowfall (equivalent in water) [mm]
 			H_SNDH,					//snow depth [cm]

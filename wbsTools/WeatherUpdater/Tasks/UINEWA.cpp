@@ -425,7 +425,7 @@ namespace WBSF
 	{
 
 		static const char* VAR_NAME[] = { "temp", "avg", "max", "min", "lw", "rain", "dewpoint", "rh", "rhhrs", "avg wind", "wind spd", "wind dir", "solar rad", "Est LW" };
-		static const TVarH VARIABLES[] = { H_TAIR2, H_TAIR2, H_TMAX2, H_TMIN2, H_ADD1, H_PRCP, H_TDEW, H_RELH, H_SKIP, H_WNDS, H_WNDS, H_WNDD, H_SRAD2, H_ADD1 };
+		static const TVarH VARIABLES[] = { H_TAIR, H_TAIR, H_TMAX, H_TMIN, H_ADD1, H_PRCP, H_TDEW, H_RELH, H_SKIP, H_WNDS, H_WNDS, H_WNDD, H_SRAD, H_ADD1 };
 
 		TVarH var = H_SKIP;
 		for (size_t v = 0; v < sizeof(VAR_NAME) / sizeof(char*) && var == H_SKIP; v++)
@@ -441,13 +441,13 @@ namespace WBSF
 	{
 		switch (var)
 		{
-		case H_TMIN2: 
-		case H_TAIR2:
-		case H_TMAX2:
+		case H_TMIN: 
+		case H_TAIR:
+		case H_TMAX:
 		case H_TDEW: value = (float)Celsius(Fahrenheit(value)).get(); break; //F --> °C; 
 		case H_PRCP: value = (float)mm(inch(value)).get(); break; //inch --> mm
 		case H_WNDS: value = kph(mph(value)).get(); break; //miles/h --> km/h
-		case H_SRAD2: value *= 697.3/60.0; break;// Langley --> W/m²
+		case H_SRAD: value *= 697.3/60.0; break;// Langley --> W/m²
 		case H_RELH:
 		case H_WNDD:
 		case H_ADD1: break;//leaf wetness (minutes)

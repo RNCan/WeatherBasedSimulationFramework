@@ -508,14 +508,14 @@ namespace WBSF
 				{
 					ASSERT(Tmin >= -70 && Tmin <= 70);
 					ASSERT(Tmax >= -70 && Tmax <= 70);
-					dailyData[Tref][H_TMIN2] = Tmin;
-					dailyData[Tref][H_TMAX2] = Tmax;
+					dailyData[Tref][H_TMIN] = Tmin;
+					dailyData[Tref][H_TMAX] = Tmax;
 				}
 
 				if (Tair > -999)
 				{
 					ASSERT(Tair >= -70 && Tair <= 70);
-					dailyData[Tref][H_TAIR2] = Tair;
+					dailyData[Tref][H_TAIR] = Tair;
 				}
 
 				float prcp = ToFloat((*loop)[TOTAL_PRECIP]);

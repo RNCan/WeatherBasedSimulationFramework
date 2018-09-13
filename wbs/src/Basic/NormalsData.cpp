@@ -125,16 +125,16 @@ namespace WBSF
 	CWVariables CNormalsMonth::GetVariables()const
 	{
 		using namespace HOURLY_DATA;
-		static const size_t VARIABLES[NB_FIELDS] = { H_TMIN2, H_TMAX2, H_TAIR2, H_TAIR2, H_TAIR2, H_TAIR2, H_TAIR2, H_TAIR2, H_TAIR2, H_PRCP, H_PRCP, H_TDEW, H_RELH, H_RELH, H_WNDS, H_WNDS };
+		static const size_t VARIABLES[NB_FIELDS] = { H_TMIN, H_TMAX, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_PRCP, H_PRCP, H_TDEW, H_RELH, H_RELH, H_WNDS, H_WNDS };
 
 		CWVariables vars;
 		for (size_t f = 0; f < NB_FIELDS; f++)
 			vars[VARIABLES[f]] = vars[VARIABLES[f]] || !IsMissing(at(f));
 
-		if (vars[H_TAIR2])
+		if (vars[H_TAIR])
 		{
-			vars[H_TMIN2] = true;
-			vars[H_TMAX2] = true;
+			vars[H_TMIN] = true;
+			vars[H_TMAX] = true;
 		}
 			
 

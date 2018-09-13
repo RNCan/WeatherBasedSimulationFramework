@@ -55,7 +55,7 @@ namespace WBSF
 	//NSi000H
 	
 	
-	const TVarH CMFFP::VARIABLE[NB_FIELDS] = { H_TAIR2, H_TMIN2, H_TMAX2, H_TAIR2, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_SKIP, H_SKIP, H_SKIP, H_TDEW, H_SKIP, H_SKIP, H_SKIP };
+	const TVarH CMFFP::VARIABLE[NB_FIELDS] = { H_TAIR, H_TMIN, H_TMAX, H_TAIR, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_SKIP, H_SKIP, H_SKIP, H_TDEW, H_SKIP, H_SKIP, H_SKIP };
 
 	TVarH CMFFP::GetVariable(std::string str)
 	{
@@ -392,9 +392,9 @@ namespace WBSF
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN2: 
-		case H_TAIR2:
-		case H_TMAX2: 
+		case H_TMIN: 
+		case H_TAIR:
+		case H_TMAX: 
 		case H_TDEW: bValid = value >= -45 && value <= 40; break;
 		case H_PRCP:
 		case H_SWE:

@@ -122,21 +122,21 @@ namespace WBSF
 
 	double COverheat::GetTmin(const CWeatherDay& weather)const
 	{
-		return weather[H_TMIN2][MEAN];
+		return weather[H_TMIN][MEAN];
 	}
 
 	double COverheat::GetTmax(const CWeatherDay& weather)const
 	{
 		if (m_overheat == 0)//by optimisation, avoid compute statistic
-			return weather[H_TMAX2][MEAN];
+			return weather[H_TMAX][MEAN];
 
-		return weather[H_TMAX2][MEAN] + weather[H_TRNG2][MEAN] * m_overheat;
+		return weather[H_TMAX][MEAN] + weather[H_TRNG2][MEAN] * m_overheat;
 	}
 
 	double COverheat::GetOverheat(const CWeatherDay& weather, size_t h, size_t hourTmax)const
 	{
 		double OH = 0;
-		if (m_overheat != 0 && weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
+		if (m_overheat != 0 && weather[H_TMIN].IsInit() && weather[H_TMAX].IsInit())
 		{
 			double Fo = 0.5*(1 + cos((double(hourTmax) - h) / 12.0*PI));
 			double maxOverheat = weather[H_TRNG2][MEAN] * m_overheat;
@@ -152,7 +152,7 @@ namespace WBSF
 
 
 		double T = -999;
-		if (weather[H_TMIN2].IsInit() && weather[H_TMAX2].IsInit())
+		if (weather[H_TMIN].IsInit() && weather[H_TMAX].IsInit())
 		{
 			const CWeatherDay& d1 = weather.GetPrevious();
 			const CWeatherDay& d2 = weather;
@@ -177,7 +177,7 @@ namespace WBSF
 		m_deltaHourMin = 20;
 		m_minimumHours.fill(6);
 		m_minimumHours[HOURLY_DATA::H_PRCP] = 20;
-		m_minimumHours[HOURLY_DATA::H_SRAD2] = 20;
+		m_minimumHours[HOURLY_DATA::H_SRAD] = 20;
 		m_minimumHours[HOURLY_DATA::H_SNDH] = 1;
 		m_minimumHours[HOURLY_DATA::H_SWE] = 1;
 		m_minimumDays.fill(22);
@@ -374,33 +374,33 @@ namespace WBSF
 					me.m_variables[v].clear();//reset var
 
 					//CStatistic stat = GetStat(v, MIDNIGHT_MIDNIGHT);
-					//CStatistic stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT);
+					//CStatistic stat = (v == H_TMIN) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT);
 
-					//CStatistic stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT) ;
+					//CStatistic stat = (v == H_TMIN) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT) ;
 
 					CStatistic stat;
 					switch (DAILY_AGREGATION)
 					{
-					case ACCUMUL_12_00: stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
-					case ACCUMUL_18_00:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
-					case ACCUMUL_18_18:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P18_18); break;
-					case ACCUMUL_22_22: stat = (v == H_TMIN2) ? GetStat(v, P22_22) : GetStat(v, P22_22); break;
-					case ACCUMUL_00_00:	stat = (v == H_TMIN2) ? GetStat(v, MIDNIGHT_MIDNIGHT) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
-						//case ACCUMUL_18_06:	stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P06_06); break;
+					case ACCUMUL_12_00: stat = (v == H_TMIN) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+					case ACCUMUL_18_00:	stat = (v == H_TMIN) ? GetStat(v, P18_18) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+					case ACCUMUL_18_18:	stat = (v == H_TMIN) ? GetStat(v, P18_18) : GetStat(v, P18_18); break;
+					case ACCUMUL_22_22: stat = (v == H_TMIN) ? GetStat(v, P22_22) : GetStat(v, P22_22); break;
+					case ACCUMUL_00_00:	stat = (v == H_TMIN) ? GetStat(v, MIDNIGHT_MIDNIGHT) : GetStat(v, MIDNIGHT_MIDNIGHT); break;
+						//case ACCUMUL_18_06:	stat = (v == H_TMIN) ? GetStat(v, P18_18) : GetStat(v, P06_06); break;
 					default: ASSERT(false);
 					}
 
-					//CStatistic stat = (v == H_TMIN2) ? GetStat(v, P18_18) : GetStat(v, P06_06);
-					//CStatistic stat = (v == H_TMIN2) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT);
-					//if (!stat.IsInit() && v == H_TMAX2)
+					//CStatistic stat = (v == H_TMIN) ? GetStat(v, P18_18) : GetStat(v, P06_06);
+					//CStatistic stat = (v == H_TMIN) ? GetStat(v, NOON_NOON) : GetStat(v, MIDNIGHT_MIDNIGHT);
+					//if (!stat.IsInit() && v == H_TMAX)
 						//stat = GetStat(v, MIDNIGHT_MIDNIGHT);
 
 					if (stat.IsInit())
 					{
 						switch (v)
 						{
-						case H_TMIN2:	me.m_variables[v] = stat[LOWEST]; break;
-						case H_TMAX2:	me.m_variables[v] = stat[HIGHEST]; break;
+						case H_TMIN:	me.m_variables[v] = stat[LOWEST]; break;
+						case H_TMAX:	me.m_variables[v] = stat[HIGHEST]; break;
 						case H_PRCP:	me.m_variables[v] = stat[SUM]; break;
 						default:		me.m_variables[v] = stat[MEAN];
 						}
@@ -408,22 +408,22 @@ namespace WBSF
 					}
 				}//for all variables
 
-				if (!me.m_variables[H_TMIN2].IsInit() || !me.m_variables[H_TMAX2].IsInit())
+				if (!me.m_variables[H_TMIN].IsInit() || !me.m_variables[H_TMAX].IsInit())
 				{
-					me.m_variables[H_TMIN2].clear();//reset var
-					me.m_variables[H_TMAX2].clear();//reset var
+					me.m_variables[H_TMIN].clear();//reset var
+					me.m_variables[H_TMAX].clear();//reset var
 				}
 				else
 				{
-					ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
+					ASSERT(me.m_variables[H_TMAX][MEAN] >= me.m_variables[H_TMIN][MEAN]);
 
 					//in some case noon-noon minimum can be greather than midnight-midnight max
 					//a vérifier: quoi faire dans ce cas ???
-					if (me.m_variables[H_TMAX2][MEAN] < me.m_variables[H_TMIN2][MEAN])
-						Switch(me.m_variables[H_TMAX2], me.m_variables[H_TMIN2]);
+					if (me.m_variables[H_TMAX][MEAN] < me.m_variables[H_TMIN][MEAN])
+						Switch(me.m_variables[H_TMAX], me.m_variables[H_TMIN]);
 				}
 
-				//			ASSERT(me.m_variables[H_TMAX2][MEAN] >= me.m_variables[H_TMIN2][MEAN]);
+				//			ASSERT(me.m_variables[H_TMAX][MEAN] >= me.m_variables[H_TMIN][MEAN]);
 			}//for all variable	
 
 			me.m_variables.m_bInit = true;
@@ -442,7 +442,7 @@ namespace WBSF
 			//in case of the last TRef is in the night, we take the current accumulation 
 			ASSERT(m_midnightTRefMatrix.size() == 24);
 
-			if (v == H_TMAX2)
+			if (v == H_TMAX)
 			{
 				bValid = false;
 				for (size_t h = 14; h <= 16 && !bValid; h++)
@@ -451,18 +451,18 @@ namespace WBSF
 
 				if (!bValid)
 				{
-					if (m_midnightVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_midnightVariables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 14; h <= 16 && !bValid; h++)
-							if (m_midnightTRefMatrix[h][H_TAIR2] > 0)
+							if (m_midnightTRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmax
+							v = H_TAIR; //use Tair stat instead of Tmax
 					}
 				}
 			}
-			else if (v == H_TMIN2)
+			else if (v == H_TMIN)
 			{
 				bValid = false;
 				for (size_t h = 3; h <= 6 && !bValid; h++)
@@ -471,14 +471,14 @@ namespace WBSF
 
 				if (!bValid)
 				{
-					if (m_midnightVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_midnightVariables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 3; h <= 6 && !bValid; h++)
-							if (m_midnightTRefMatrix[h][H_TAIR2] > 0)
+							if (m_midnightTRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmax
+							v = H_TAIR; //use Tair stat instead of Tmax
 					}
 				}
 			}
@@ -507,7 +507,7 @@ namespace WBSF
 			//		if (m_midnightTRefMatrix2[h][v]>0)
 			//			NbTRef += (int)h;
 
-			//	if (v == H_TMAX2)
+			//	if (v == H_TMAX)
 			//	{
 			//		bValid = false;
 			//		for (size_t h = 14; h <= 16 && !bValid; h++)
@@ -516,14 +516,14 @@ namespace WBSF
 
 			//		if (!bValid)
 			//		{
-			//			if (m_midnightVariables2[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+			//			if (m_midnightVariables2[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 			//			{
 			//				for (size_t h = 14; h <= 16 && !bValid; h++)
-			//					if (m_midnightTRefMatrix2[h][H_TAIR2] > 0)
+			//					if (m_midnightTRefMatrix2[h][H_TAIR] > 0)
 			//						bValid = true;
 
 			//				if (bValid)
-			//					v = H_TAIR2; //use Tair stat instead of Tmax
+			//					v = H_TAIR; //use Tair stat instead of Tmax
 			//			}
 			//		}
 			//	}
@@ -544,7 +544,7 @@ namespace WBSF
 		{
 			ASSERT(m_noonTRefMatrix.size() == 24);
 
-			if (v == H_TMIN2)
+			if (v == H_TMIN)
 			{
 				bValid = false;
 				if (m_noonVariables[v][NB_VALUE] >= m_minimumHours[v])
@@ -558,14 +558,14 @@ namespace WBSF
 				//try with Tair 
 				if (!bValid)
 				{
-					if (m_noonVariables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_noonVariables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 3; h <= 6 && !bValid; h++)
-							if (m_noonTRefMatrix[h][H_TAIR2] > 0)
+							if (m_noonTRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmin
+							v = H_TAIR; //use Tair stat instead of Tmin
 					}
 				}
 			}
@@ -590,7 +590,7 @@ namespace WBSF
 		{
 			ASSERT(m_06TRefMatrix.size() == 24);
 
-			if (v == H_TMAX2)
+			if (v == H_TMAX)
 			{
 				bValid = false;
 				for (size_t h = 14; h <= 16 && !bValid; h++)
@@ -599,14 +599,14 @@ namespace WBSF
 
 				if (!bValid)
 				{
-					if (m_06Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_06Variables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 14; h <= 16 && !bValid; h++)
-							if (m_06TRefMatrix[h][H_TAIR2] > 0)
+							if (m_06TRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmax
+							v = H_TAIR; //use Tair stat instead of Tmax
 					}
 				}
 			}
@@ -631,7 +631,7 @@ namespace WBSF
 		{
 			ASSERT(m_18TRefMatrix.size() == 24);
 
-			if (v == H_TMAX2)
+			if (v == H_TMAX)
 			{
 				bValid = false;
 				for (size_t h = 14; h <= 16 && !bValid; h++)
@@ -640,18 +640,18 @@ namespace WBSF
 
 				if (!bValid)
 				{
-					if (m_18Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_18Variables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 14; h <= 16 && !bValid; h++)
-							if (m_18TRefMatrix[h][H_TAIR2] > 0)
+							if (m_18TRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmax
+							v = H_TAIR; //use Tair stat instead of Tmax
 					}
 				}
 			}
-			else if (v == H_TMIN2)
+			else if (v == H_TMIN)
 			{
 				bValid = false;
 				if (m_18Variables[v][NB_VALUE] >= m_minimumHours[v])
@@ -665,14 +665,14 @@ namespace WBSF
 				//try with Tair 
 				if (!bValid)
 				{
-					if (m_18Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_18Variables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 3; h <= 6 && !bValid; h++)
-							if (m_18TRefMatrix[h][H_TAIR2] > 0)
+							if (m_18TRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmin
+							v = H_TAIR; //use Tair stat instead of Tmin
 					}
 				}
 			}
@@ -697,7 +697,7 @@ namespace WBSF
 		{
 			ASSERT(m_22TRefMatrix.size() == 24);
 
-			if (v == H_TMAX2)
+			if (v == H_TMAX)
 			{
 				bValid = false;
 				for (size_t h = 14; h <= 16 && !bValid; h++)
@@ -706,18 +706,18 @@ namespace WBSF
 
 				if (!bValid)
 				{
-					if (m_22Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_22Variables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 14; h <= 16 && !bValid; h++)
-							if (m_22TRefMatrix[h][H_TAIR2] > 0)
+							if (m_22TRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmax
+							v = H_TAIR; //use Tair stat instead of Tmax
 					}
 				}
 			}
-			else if (v == H_TMIN2)
+			else if (v == H_TMIN)
 			{
 				bValid = false;
 				if (m_22Variables[v][NB_VALUE] >= m_minimumHours[v])
@@ -731,14 +731,14 @@ namespace WBSF
 				//try with Tair 
 				if (!bValid)
 				{
-					if (m_22Variables[H_TAIR2][NB_VALUE] >= m_minimumHours[v])
+					if (m_22Variables[H_TAIR][NB_VALUE] >= m_minimumHours[v])
 					{
 						for (size_t h = 3; h <= 6 && !bValid; h++)
-							if (m_22TRefMatrix[h][H_TAIR2] > 0)
+							if (m_22TRefMatrix[h][H_TAIR] > 0)
 								bValid = true;
 
 						if (bValid)
-							v = H_TAIR2; //use Tair stat instead of Tmin
+							v = H_TAIR; //use Tair stat instead of Tmin
 					}
 				}
 			}
@@ -873,7 +873,7 @@ namespace WBSF
 		}
 
 		//compute new Fcd
-		double Rnl = CASCE_ETsz::GetNetLongWaveRadiationH(me[H_TAIR2], me[H_EA], Fcd);
+		double Rnl = CASCE_ETsz::GetNetLongWaveRadiationH(me[H_TAIR], me[H_EA], Fcd);
 		double Rns = CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]);
 
 		return  CASCE_ETsz::GetNetRadiation(Rns, Rnl);// hourly incoming radiation [MJ/(m²·h)]
@@ -884,7 +884,7 @@ namespace WBSF
 	double CHourlyData::GetLatentHeatOfVaporization()const
 	{
 		const CHourlyData& me = *this;
-		return 2.5023 - 0.00243054 * me[H_TAIR2];
+		return 2.5023 - 0.00243054 * me[H_TAIR];
 	}
 
 	CStatistic CHourlyData::GetVarEx(HOURLY_DATA::TVarEx v)const
@@ -896,22 +896,20 @@ namespace WBSF
 		CStatistic stat;
 		switch (v)
 		{
-			//case H_TMIN:	stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TRNG)) ? at(H_TAIR) - at(H_TRNG) / 2 : !WEATHER::IsMissing(at(H_TAIR))?at(H_TAIR): WEATHER::MISSING; break;
-			//case H_TMAX:	stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TRNG)) ? at(H_TAIR) + at(H_TRNG) / 2 : !WEATHER::IsMissing(at(H_TAIR))?at(H_TAIR): WEATHER::MISSING; break;
 		case H_KELV:	stat = K(); break;	//temperature in kelvin
 		case H_PSYC:	stat = !WEATHER::IsMissing(at(H_PRES)) ? CASCE_ETsz::GetPsychrometricConstant(at(H_PRES) / 10) : WEATHER::MISSING; break;
-		case H_SSVP:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(at(H_TAIR2)) : WEATHER::MISSING; break;
+		case H_SSVP:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(at(H_TAIR)) : WEATHER::MISSING; break;
 		case H_LHVW:	stat = GetLatentHeatOfVaporization(); break;	// latent heat of vaporization of water [MJ kg-1]
-		case H_FNCD:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ], me[H_CSRA]) : WEATHER::MISSING; break;
+		case H_FNCD:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ], me[H_CSRA]) : WEATHER::MISSING; break;
 		case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(GetExtraterrestrialRadiation(), loc.m_alt); break;//faudrait chnager pour W/m²
 		case H_EXRA:	stat = GetExtraterrestrialRadiation(); break;//faudrait chnager pour W/m²
-		case H_SWRA:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]) : WEATHER::MISSING; break;
-		case H_ES:		stat = !WEATHER::IsMissing(at(H_TAIR2)) ? eᵒ(at(H_TAIR2)) : WEATHER::MISSING; break;//[kPa]
+		case H_SWRA:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ]) : WEATHER::MISSING; break;
+		case H_ES:		stat = !WEATHER::IsMissing(at(H_TAIR)) ? eᵒ(at(H_TAIR)) : WEATHER::MISSING; break;//[kPa]
 		case H_EA:		stat = !WEATHER::IsMissing(at(H_TDEW)) ? eᵒ(at(H_TDEW)) : WEATHER::MISSING; break;//[kPa]
-		case H_VPD:		stat = !WEATHER::IsMissing(at(H_TAIR2)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, eᵒ(at(H_TAIR2)) - eᵒ(at(H_TDEW))) : WEATHER::MISSING; break; //[kPa]
-		case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? at(H_TAIR2) : WEATHER::MISSING; break;
-		case H_TRNG2:	stat = !WEATHER::IsMissing(at(H_TAIR2)) ? 0 : WEATHER::MISSING; break;
-		case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD2)) ? at(H_SRAD2)*3600.0 / 1000000 : WEATHER::MISSING; break; //[MJ/m²]
+		case H_VPD:		stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, eᵒ(at(H_TAIR)) - eᵒ(at(H_TDEW))) : WEATHER::MISSING; break; //[kPa]
+		case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? at(H_TAIR) : WEATHER::MISSING; break;
+		case H_TRNG2:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? 0 : WEATHER::MISSING; break;
+		case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? at(H_SRAD)*3600.0 / 1000000 : WEATHER::MISSING; break; //[MJ/m²]
 		default:ASSERT(false);
 		}
 
@@ -1044,9 +1042,9 @@ namespace WBSF
 					//		const CWeatherDay& previousDay = me.GetPrevious();
 					//		for (size_t h = 22; h < 24; h++)
 					//		{
-					//			accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
-					//			accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
-					//			accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+					//			accumulator.Add(previousDay[h].GetTRef(), H_TMIN, previousDay[h][H_TMIN]);
+					//			accumulator.Add(previousDay[h].GetTRef(), H_TAIR, previousDay[h][H_TAIR]);
+					//			accumulator.Add(previousDay[h].GetTRef(), H_TMAX, previousDay[h][H_TMAX]);
 					//		}
 					//	}
 					//}
@@ -1059,9 +1057,9 @@ namespace WBSF
 							const CWeatherDay& previousDay = me.GetPrevious();
 							for (size_t h = 12; h < 24; h++)
 							{
-								accumulator.Add(previousDay[h].GetTRef(), H_TMIN2, previousDay[h][H_TMIN2]);
-								accumulator.Add(previousDay[h].GetTRef(), H_TAIR2, previousDay[h][H_TAIR2]);
-								accumulator.Add(previousDay[h].GetTRef(), H_TMAX2, previousDay[h][H_TMAX2]);
+								accumulator.Add(previousDay[h].GetTRef(), H_TMIN, previousDay[h][H_TMIN]);
+								accumulator.Add(previousDay[h].GetTRef(), H_TAIR, previousDay[h][H_TAIR]);
+								accumulator.Add(previousDay[h].GetTRef(), H_TMAX, previousDay[h][H_TMAX]);
 							}
 
 						}
@@ -1078,11 +1076,11 @@ namespace WBSF
 
 						if (me[h].HaveData())
 						{
-							if (IsMissing(me[h][H_RELH]) && !IsMissing(me[h][H_TAIR2]) && !IsMissing(me[h][H_TDEW]))
-								me[h][H_RELH] = (float)Td2Hr(me[h][H_TAIR2], me[h][H_TDEW]);
+							if (IsMissing(me[h][H_RELH]) && !IsMissing(me[h][H_TAIR]) && !IsMissing(me[h][H_TDEW]))
+								me[h][H_RELH] = (float)Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
 
-							if (IsMissing(me[h][H_TDEW]) && !IsMissing(me[h][H_TAIR2]) && !IsMissing(me[h][H_RELH]))
-								me[h][H_TDEW] = (float)Hr2Td(me[h][H_TAIR2], me[h][H_RELH]);
+							if (IsMissing(me[h][H_TDEW]) && !IsMissing(me[h][H_TAIR]) && !IsMissing(me[h][H_RELH]))
+								me[h][H_TDEW] = (float)Hr2Td(me[h][H_TAIR], me[h][H_RELH]);
 
 							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 							{
@@ -1090,7 +1088,7 @@ namespace WBSF
 								{
 									//accumulator.Add(me[h].GetTRef(), v, me[h][v]);
 
-									if (v != H_TMIN2 && v != H_TMAX2)
+									if (v != H_TMIN && v != H_TMAX)
 										me.m_dailyStat[v] += me[h][v];
 								}
 							}
@@ -1109,26 +1107,26 @@ namespace WBSF
 					//		const CWeatherDay& nextDay = GetNext();
 					//		for (size_t h = 0; h < 12; h++)//<= 06 flush de data
 					//		{
-					//			accumulator.Add(nextDay[h].GetTRef(), H_TMIN2, nextDay[h][H_TMIN2]);
-					//			accumulator.Add(nextDay[h].GetTRef(), H_TAIR2, nextDay[h][H_TAIR2]);
-					//			accumulator.Add(nextDay[h].GetTRef(), H_TMAX2, nextDay[h][H_TMAX2]);
+					//			accumulator.Add(nextDay[h].GetTRef(), H_TMIN, nextDay[h][H_TMIN]);
+					//			accumulator.Add(nextDay[h].GetTRef(), H_TAIR, nextDay[h][H_TAIR]);
+					//			accumulator.Add(nextDay[h].GetTRef(), H_TMAX, nextDay[h][H_TMAX]);
 					//		}
 
 					//	}
 					//}
 
-					ASSERT(!m_dailyStat[H_TAIR2].IsInit() || (m_dailyStat[H_TAIR2][MEAN] >= -90 && m_dailyStat[H_TAIR2][MEAN] < 90));
-					ASSERT(!m_dailyStat[H_TMIN2].IsInit() || (m_dailyStat[H_TMIN2][MEAN] >= -90 && m_dailyStat[H_TMIN2][MEAN] < 90));
-					ASSERT(!m_dailyStat[H_TMAX2].IsInit() || (m_dailyStat[H_TMAX2][MEAN] >= -90 && m_dailyStat[H_TMAX2][MEAN] < 90));
+					ASSERT(!m_dailyStat[H_TAIR].IsInit() || (m_dailyStat[H_TAIR][MEAN] >= -90 && m_dailyStat[H_TAIR][MEAN] < 90));
+					ASSERT(!m_dailyStat[H_TMIN].IsInit() || (m_dailyStat[H_TMIN][MEAN] >= -90 && m_dailyStat[H_TMIN][MEAN] < 90));
+					ASSERT(!m_dailyStat[H_TMAX].IsInit() || (m_dailyStat[H_TMAX][MEAN] >= -90 && m_dailyStat[H_TMAX][MEAN] < 90));
 
-					CStatistic Tmin = accumulator.GetStat(H_TMIN2);
-					CStatistic Tmax = accumulator.GetStat(H_TMAX2);
+					CStatistic Tmin = accumulator.GetStat(H_TMIN);
+					CStatistic Tmax = accumulator.GetStat(H_TMAX);
 					if (Tmin.IsInit() && Tmax.IsInit())
 					{
 						ASSERT(Tmax[MEAN] >= Tmin[MEAN]);
 
-						me.m_dailyStat[H_TMIN2] = Tmin;
-						me.m_dailyStat[H_TMAX2] = Tmax;
+						me.m_dailyStat[H_TMIN] = Tmin;
+						me.m_dailyStat[H_TMAX] = Tmax;
 					}
 				}
 
@@ -1167,11 +1165,11 @@ namespace WBSF
 			size_t sunset = min(23ll, Round(sun.GetSunset(GetTRef())));
 
 			for (size_t h = sunrise; h <= sunset; h++)
-				Tdaylight += me[h][H_TAIR2];
+				Tdaylight += me[h][H_TAIR];
 		}
 		else
 		{
-			Tdaylight = GetTdaylightEstimate(me[H_TMAX2][MEAN], me[H_TAIR2][MEAN]);
+			Tdaylight = GetTdaylightEstimate(me[H_TMAX][MEAN], me[H_TAIR][MEAN]);
 		}
 
 
@@ -1255,8 +1253,8 @@ namespace WBSF
 		else
 		{
 			const CLocation& loc = GetLocation();
-			double Tmin = me[H_TMIN2][MEAN];
-			double Tmax = me[H_TMAX2][MEAN];
+			double Tmin = me[H_TMIN][MEAN];
+			double Tmax = me[H_TMAX][MEAN];
 			double Ea = me[H_EA][MEAN];		//vapor pressure [kPa]
 			double Rs = me[H_SRMJ][SUM];	//net radiation in MJ/(m²·d)
 			int J = int(GetTRef().GetJDay() + 1);
@@ -1288,8 +1286,8 @@ namespace WBSF
 
 		if (v == H_TNTX || v == H_TRNG2)
 		{
-			const CStatistic& Tmin = GetStat(H_TMIN2);
-			const CStatistic& Tmax = GetStat(H_TMAX2);
+			const CStatistic& Tmin = GetStat(H_TMIN);
+			const CStatistic& Tmax = GetStat(H_TMAX);
 
 			if (Tmin.IsInit() && Tmax.IsInit())
 			{
@@ -1319,16 +1317,16 @@ namespace WBSF
 					break;
 				}
 				case H_PSYC:	stat = me[H_PRES].IsInit() ? CASCE_ETsz::GetPsychrometricConstant(me[H_PRES][MEAN] / 10) : WEATHER::MISSING; break;
-				case H_SSVP:	stat = me[H_TAIR2].IsInit() ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(me[H_TAIR2][MEAN]) : WEATHER::MISSING; break;
-				case H_LHVW:	stat = me[H_TAIR2].IsInit() ? 2.5023 - 0.00243054 * me[H_TAIR2][MEAN] : WEATHER::MISSING; break;	// latent heat of vaporization of water [MJ kg-1]
-				case H_FNCD:	stat = me[H_SRAD2].IsInit() ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ][SUM], CWeatherDay::GetVarEx(H_CSRA)[SUM]) : WEATHER::MISSING; break;
+				case H_SSVP:	stat = me[H_TAIR].IsInit() ? CASCE_ETsz::GetSlopeOfSaturationVaporPressure(me[H_TAIR][MEAN]) : WEATHER::MISSING; break;
+				case H_LHVW:	stat = me[H_TAIR].IsInit() ? 2.5023 - 0.00243054 * me[H_TAIR][MEAN] : WEATHER::MISSING; break;	// latent heat of vaporization of water [MJ kg-1]
+				case H_FNCD:	stat = me[H_SRAD].IsInit() ? CASCE_ETsz::GetCloudinessFunction(me[H_SRMJ][SUM], CWeatherDay::GetVarEx(H_CSRA)[SUM]) : WEATHER::MISSING; break;
 				case H_CSRA:	stat = CASCE_ETsz::GetClearSkySolarRadiation(CWeatherDay::GetVarEx(H_EXRA), loc.m_z); break;
 				case H_EXRA:	stat = CASCE_ETsz::GetExtraterrestrialRadiation(loc.m_lat, int(TRef.GetJDay() + 1)); break;
-				case H_SWRA:	stat = me[H_SRAD2].IsInit() ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ][SUM]) : WEATHER::MISSING; break;
-				case H_ES:		stat = (me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit()) ? eᵒ(me[H_TMIN2], me[H_TMAX2]) : WEATHER::MISSING; break;//[kPa]
+				case H_SWRA:	stat = me[H_SRAD].IsInit() ? CASCE_ETsz::GetNetShortWaveRadiation(me[H_SRMJ][SUM]) : WEATHER::MISSING; break;
+				case H_ES:		stat = (me[H_TMIN].IsInit() && me[H_TMAX].IsInit()) ? eᵒ(me[H_TMIN], me[H_TMAX]) : WEATHER::MISSING; break;//[kPa]
 				case H_EA:		stat = me[H_TDEW].IsInit() ? eᵒ(me[H_TDEW][LOWEST], me[H_TDEW][HIGHEST]) : WEATHER::MISSING; break;//[kPa]
-				case H_VPD:		stat = (me[H_TMIN2].IsInit() && me[H_TMAX2].IsInit() && me[H_TDEW].IsInit()) ? max(0.0, me[H_ES][MEAN] - me[H_EA][MEAN]) : WEATHER::MISSING; break;//[kPa]
-				case H_SRMJ:	stat = me[H_SRAD2].IsInit() ? me[H_SRAD2][MEAN] * 24 * 3600 / 1000000 : WEATHER::MISSING; break;
+				case H_VPD:		stat = (me[H_TMIN].IsInit() && me[H_TMAX].IsInit() && me[H_TDEW].IsInit()) ? max(0.0, me[H_ES][MEAN] - me[H_EA][MEAN]) : WEATHER::MISSING; break;//[kPa]
+				case H_SRMJ:	stat = me[H_SRAD].IsInit() ? me[H_SRAD][MEAN] * 24 * 3600 / 1000000 : WEATHER::MISSING; break;
 				case H_TNTX:	//apply only for daily value, see upper
 				case H_TRNG2:
 				default:ASSERT(false);
@@ -1347,8 +1345,8 @@ namespace WBSF
 		const CWeatherDay& me = *this;
 		const CWeatherDay& dn = GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 
 			const CLocation& loc = GetLocation();
@@ -1359,8 +1357,8 @@ namespace WBSF
 			double noon = sun.GetSolarNoon(GetTRef());
 			double D = sun.GetDayLength(GetTRef());
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 			if (D < PolarDayLength)
 			{
@@ -1391,8 +1389,8 @@ namespace WBSF
 		const CWeatherDay& me = *this;
 		const CWeatherDay& dn = GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 
 			const CLocation& loc = GetLocation();
@@ -1403,8 +1401,8 @@ namespace WBSF
 			//double noon = sun.GetSolarNoon(GetTRef());
 			double D = sun.GetDayLength(GetTRef());
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 			if (D < PolarDayLength)
 			{
@@ -1436,12 +1434,12 @@ namespace WBSF
 		const CWeatherDay& me = *this;
 		const CWeatherDay& dn = GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 			const CLocation& loc = GetLocation();
 			CSun sun(loc.m_lat, loc.m_lon);
@@ -1474,12 +1472,12 @@ namespace WBSF
 		const CWeatherDay& me = *this;
 		const CWeatherDay& dn = GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 
 			const CLocation& loc = GetLocation();
@@ -1515,8 +1513,8 @@ namespace WBSF
 		const CWeatherDay& me = *this;
 		const CWeatherDay& dn = GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 			const CLocation& loc = GetLocation();
 			CSun sun(loc.m_lat, loc.m_lon);
@@ -1526,8 +1524,8 @@ namespace WBSF
 			double noon = sun.GetSolarNoon(GetTRef());
 			double D = sun.GetDayLength(GetTRef());
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 			if (D < PolarDayLength)
 			{
@@ -1557,11 +1555,11 @@ namespace WBSF
 	//	const CWeatherDay& me = *this;
 	//	const CWeatherDay& dn = GetNext();
 	//
-	//	if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-	//		&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+	//	if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+	//		&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 	//	{
-	//		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-	//		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+	//		double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+	//		double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 	//
 	//		Tair = WBSF::GetPolarWinter(Tmin, Tmax, h);
 	//	}
@@ -1607,11 +1605,11 @@ namespace WBSF
 			const CWeatherDay& dp = GetPrevious();
 			const CWeatherDay& me = *this;
 			const CWeatherDay& dn = GetNext();
-			ASSERT(dp[H_TMIN2].IsInit() && me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit());
-			ASSERT(dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit() && dn[H_TMAX2].IsInit());
+			ASSERT(dp[H_TMIN].IsInit() && me[H_TMIN].IsInit() && dn[H_TMIN].IsInit());
+			ASSERT(dp[H_TMAX].IsInit() && me[H_TMAX].IsInit() && dn[H_TMAX].IsInit());
 
-			//		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-				//	double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			//		double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+				//	double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 					//By RSA 23/01/2018
 			double Tmin[3] = { overheat.GetTmin(dp), overheat.GetTmin(me), overheat.GetTmin(dn) };
@@ -1682,10 +1680,10 @@ namespace WBSF
 			if (variable[v])
 				read_value(stream, m_dailyStat[v]), u++;
 
-		/*if (variable[H_TMIN2] && variable[H_TMAX2])
+		/*if (variable[H_TMIN] && variable[H_TMAX])
 		{
-			ASSERT(m_dailyStat[H_TMIN2].IsInit());
-			ASSERT(m_dailyStat[H_TMAX2].IsInit());
+			ASSERT(m_dailyStat[H_TMIN].IsInit());
+			ASSERT(m_dailyStat[H_TMAX].IsInit());
 		}*/
 	}
 
@@ -1701,12 +1699,12 @@ namespace WBSF
 		CWeatherDay& me = *this;
 		const CWeatherDay& dp = GetPrevious();
 		const CWeatherDay& dn = GetNext();
-		if (!dp[H_TMIN2].IsInit() || !me[H_TMIN2].IsInit() || !dn[H_TMIN2].IsInit() ||
-			!dp[H_TMAX2].IsInit() || !me[H_TMAX2].IsInit() || !dn[H_TMAX2].IsInit())
+		if (!dp[H_TMIN].IsInit() || !me[H_TMIN].IsInit() || !dn[H_TMIN].IsInit() ||
+			!dp[H_TMAX].IsInit() || !me[H_TMAX].IsInit() || !dn[H_TMAX].IsInit())
 			return;
 
-		double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-		double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+		double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+		double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 		//double-sine method
 		const CLocation& loc = GetLocation();
@@ -1748,7 +1746,7 @@ namespace WBSF
 				}
 			}
 
-			me[h][H_TAIR2] = float(Tair);
+			me[h][H_TAIR] = float(Tair);
 		}
 
 
@@ -1933,9 +1931,9 @@ namespace WBSF
 			double Tdp = 0.761*sin((h - 1.16)*PI / Kr - 3 * PI / 4);
 			double moduloTd = double((h + 12) % 24);
 
-			if (!IsMissing(me[h][H_TAIR2]))
+			if (!IsMissing(me[h][H_TAIR]))
 			{
-				double Tdew = min((double)me[h][H_TAIR2], Td1 + moduloTd / 24 * (Td2 - Td1) + Tdp);
+				double Tdew = min((double)me[h][H_TAIR], Td1 + moduloTd / 24 * (Td2 - Td1) + Tdp);
 				me[h][H_TDEW] = (float)Tdew;
 			}
 
@@ -1953,15 +1951,15 @@ namespace WBSF
 	{
 		CWeatherDay& me = *this;
 
-		if (me[H_TAIR2].IsInit() && me[H_TDEW].IsInit())
+		if (me[H_TAIR].IsInit() && me[H_TDEW].IsInit())
 		{
 			for (size_t h = 0; h < 24; h++)
 			{
 				//*****************************************************************************************
 				//RH from Tair and Tdew
-				if (!WEATHER::IsMissing(me[h][H_TAIR2]) && !WEATHER::IsMissing(me[h][H_TDEW]))
+				if (!WEATHER::IsMissing(me[h][H_TAIR]) && !WEATHER::IsMissing(me[h][H_TDEW]))
 				{
-					double RH = Td2Hr(me[h][H_TAIR2], me[h][H_TDEW]);
+					double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
 					me[h][H_RELH] = (float)RH;
 				}
 			}
@@ -2066,7 +2064,7 @@ namespace WBSF
 	void CWeatherDay::ComputeHourlySRad()
 	{
 		CWeatherDay& me = *this;
-		if (!me[H_SRAD2].IsInit())
+		if (!me[H_SRAD].IsInit())
 			return;
 
 		const CLocation & loc = GetLocation();
@@ -2092,11 +2090,11 @@ namespace WBSF
 
 		for (size_t h = 0; h < 24; h++)
 		{
-			me[h][H_SRAD2] = 0;
+			me[h][H_SRAD] = 0;
 			if (sumSolarAltitude > 0)
 			{
 				double r = hourlySolarAltitude[h][MEAN] / sumSolarAltitude;
-				me[h][H_SRAD2] = (float)(r * 24 * me[H_SRAD2][MEAN]);//daily solar radiation is the mean of 24 hours
+				me[h][H_SRAD] = (float)(r * 24 * me[H_SRAD][MEAN]);//daily solar radiation is the mean of 24 hours
 			}
 		}
 
@@ -2153,16 +2151,16 @@ namespace WBSF
 
 				switch (v)
 				{
-				case H_TMIN2: break;
-				case H_TAIR2: ComputeHourlyTair(Tmethod); break;
-				case H_TMAX2: break;
+				case H_TMIN: break;
+				case H_TAIR: ComputeHourlyTair(Tmethod); break;
+				case H_TMAX: break;
 				case H_PRCP: ComputeHourlyPrcp(); break;
 				case H_TDEW: ComputeHourlyTdew(); break;
 				case H_RELH: ComputeHourlyRelH();  break;
 				case H_WNDS: ComputeHourlyWndS(); break;
 				case H_WND2: ComputeHourlyWnd2(); break;
 				case H_WNDD: ComputeHourlyWndD(); break;//to do
-				case H_SRAD2: ComputeHourlySRad(); break;
+				case H_SRAD: ComputeHourlySRad(); break;
 				case H_PRES: ComputeHourlyPres(); break;
 
 				case H_SNOW://take daily value devide by 24
@@ -2779,9 +2777,9 @@ namespace WBSF
 					{
 						switch (v)
 						{
-						case H_TMIN2:
-						case H_TAIR2:
-						case H_TMAX2:
+						case H_TMIN:
+						case H_TAIR:
+						case H_TMAX:
 						case H_TDEW:
 						case H_RELH:
 						case H_WNDS:
@@ -2790,7 +2788,7 @@ namespace WBSF
 						case H_SNDH:
 						case H_SWE:
 						case H_WND2:
-						case H_SRAD2:
+						case H_SRAD:
 						case H_ADD1:
 						case H_ADD2: me.m_stat[v] += it->second->GetStat(v, p)[MEAN]; break;
 						case H_PRCP:
@@ -3261,7 +3259,7 @@ namespace WBSF
 								if (!IsMissing(lastSnowVal))
 								{
 									if (me[d][H_PRCP][SUM] == 0 || me[d][H_SNOW][SUM] == 0 ||
-										(lastSnowVal == 0 && me[d][H_TMIN2].IsInit() && me[d][H_TMIN2][MEAN] > 6))
+										(lastSnowVal == 0 && me[d][H_TMIN].IsInit() && me[d][H_TMIN][MEAN] > 6))
 									{
 										me[d][H_SNDH] = lastSnowVal;
 									}
@@ -3284,7 +3282,7 @@ namespace WBSF
 									if (!IsMissing(lastSnowVal))
 									{
 										if (me[d][H_PRCP][SUM] == 0 || me[d][H_SNOW][SUM] == 0 ||
-											(lastSnowVal == 0 && me[d][H_TMIN2].IsInit() && me[d][H_TMIN2][MEAN] > 6))
+											(lastSnowVal == 0 && me[d][H_TMIN].IsInit() && me[d][H_TMIN][MEAN] > 6))
 										{
 											me[d][H_SNDH] = lastSnowVal;
 										}
@@ -3338,12 +3336,12 @@ namespace WBSF
 		CWeatherYears& me = *this;
 
 		CWVariables vAvail = GetVariables();
-		if (vAvail[H_TMIN2] && vAvail[H_TMAX2])
-			vAvail.set(H_TAIR2);
+		if (vAvail[H_TMIN] && vAvail[H_TMAX])
+			vAvail.set(H_TAIR);
 
 		variables &= vAvail;
 
-		if (!variables[H_TDEW] && variables[H_TMIN2] && variables[H_TMAX2] && variables[H_RELH])
+		if (!variables[H_TDEW] && variables[H_TMIN] && variables[H_TMAX] && variables[H_RELH])
 		{
 			variables.set(H_TDEW);
 			for (size_t y = 0; y < size(); y++)
@@ -3625,7 +3623,7 @@ namespace WBSF
 									switch (v)
 									{
 									case H_PRCP: break;
-									case H_SRAD2: break;
+									case H_SRAD: break;
 									default:
 										float mean = wea¯¹[v];
 										float range = wea¹[v] - wea¯¹[v];
@@ -3669,7 +3667,7 @@ namespace WBSF
 								switch (v)
 								{
 								case H_PRCP: break;
-								case H_SRAD2: break;
+								case H_SRAD: break;
 								default:
 									CStatistic stat = wea¯¹[v];
 									stat += wea¹[v];

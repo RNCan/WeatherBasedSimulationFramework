@@ -2,6 +2,7 @@
 // version de BioSIM 
 // 11.5.0 (1.1.0): 12/09/2018 Rémi Saint-Amant	Bug correction in unit of vapor pressure.
 //												Bug correction in generation of hourly precipitation from daily values
+//												Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
 // 11.4.9 (1.0.1): 30/08/2018 Rémi Saint-Amant	Major update in spatial interpolation.
 // 11.4.8: 11/07/2018	Rémi Saint-Amant	Optimization of memory in ATM
 //											Correction of bug in sub-hourly output and time step

@@ -89,8 +89,8 @@ namespace WBSF
 				double L = 0; //Rate of catalysis
 
 				//Microclimate
-				double Tmax = T[H_TMAX2][MEAN];
-				double Tmin = T[H_TMIN2][MEAN];
+				double Tmax = T[H_TMAX][MEAN];
+				double Tmin = T[H_TMIN][MEAN];
 
 				//If phloem temperature is being generated from air temperature
 				if (m_bMicroClimate)
@@ -197,8 +197,8 @@ namespace WBSF
 				double L = 0; //Rate of catalysis
 
 				//Microclimate
-				double Tmax = T[H_TMAX2][MEAN];
-				double Tmin = T[H_TMIN2][MEAN];
+				double Tmax = T[H_TMAX][MEAN];
+				double Tmin = T[H_TMIN][MEAN];
 
 				//If phloem temperature is being generated from air temperature
 				if (m_bMicroClimate)

@@ -48,7 +48,7 @@ namespace WBSF
 
 	static double GetDD(const CWeatherDay& wDay, double threashold = 3.0)
 	{
-		double Tair = (wDay[HOURLY_DATA::H_TMIN2][MEAN] + wDay[HOURLY_DATA::H_TMAX2][MEAN])/2.0;
+		double Tair = (wDay[HOURLY_DATA::H_TMIN][MEAN] + wDay[HOURLY_DATA::H_TMAX][MEAN])/2.0;
 		return max(0.0, Tair - threashold);
 	}
 
@@ -85,7 +85,7 @@ namespace WBSF
 		// calculate the number of cold days for the look up table 
 		for (CTRef i = p.Begin() + 273; i <= hatch_day; i++)
 		{
-			double Tair = (weather.GetDay(i)[HOURLY_DATA::H_TMIN2][MEAN] + weather.GetDay(i)[HOURLY_DATA::H_TMAX2][MEAN]) / 2.0;
+			double Tair = (weather.GetDay(i)[HOURLY_DATA::H_TMIN][MEAN] + weather.GetDay(i)[HOURLY_DATA::H_TMAX][MEAN]) / 2.0;
 			if (Tair <= 5.0)
 				num_under_5++;
 		}

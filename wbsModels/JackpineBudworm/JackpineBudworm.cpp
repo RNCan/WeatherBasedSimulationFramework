@@ -322,7 +322,7 @@ namespace WBSF
 			for (size_t d = 1; d < m_weather[y].GetNbDays() - 1; d++)
 			{
 				const CWeatherDay& day = m_weather[y].GetDay(d);
-				DDAYS = DDAYS + Allen(day[H_TMAX2][MEAN], day[H_TMIN2][MEAN], BASE_TEMP);
+				DDAYS = DDAYS + Allen(day[H_TMAX][MEAN], day[H_TMIN][MEAN], BASE_TEMP);
 
 				//a for 1 base and 1 for overWintering
 				double PINS[NB_INSTAR + 1] = { 0 };

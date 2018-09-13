@@ -90,7 +90,7 @@ namespace WBSF
 		{
 			size_t h = step*GetTimeStep();
 			size_t s = GetStage();
-			double T = weather[h][H_TAIR2];
+			double T = weather[h][H_TAIR];
 
 			//Relative development rate for time step
 			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
@@ -171,7 +171,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		else if (!m_bRequireDiapause && GetStage() != L3D && weather[H_TMIN2][MEAN] < GetStand()->m_lethalTemp)
+		else if (!m_bRequireDiapause && GetStage() != L3D && weather[H_TMIN][MEAN] < GetStand()->m_lethalTemp)
 		{
 			m_status = DEAD;
 			m_death = FROZEN;

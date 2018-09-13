@@ -462,9 +462,9 @@ namespace WBSF
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN2:
-		case H_TAIR2:
-		case H_TMAX2:
+		case H_TMIN:
+		case H_TAIR:
+		case H_TMAX:
 		case H_TDEW: bValid = value >= -50 && value <= 50; break;
 		case H_PRCP: bValid = value >= 0 && value < 300; break;
 		case H_RELH: bValid = value > 0 && value <= 100; break;//ignore zero values
@@ -529,13 +529,13 @@ namespace WBSF
 					//remove daily Tmin and Tmax when hourly and Tair when daily
 					/*for (size_t v = 0; v < header.size() && msg; v++)
 					{
-						if (variables[v] == H_TMIN2 && TM.IsHourly())
+						if (variables[v] == H_TMIN && TM.IsHourly())
 							variables[v] = H_SKIP;
 
-						if (variables[v] == H_TAIR2 && TM.IsDaily())
+						if (variables[v] == H_TAIR && TM.IsDaily())
 							variables[v] = H_SKIP;
 
-						if (variables[v] == H_TMAX2 && TM.IsHourly())
+						if (variables[v] == H_TMAX && TM.IsHourly())
 							variables[v] = H_SKIP;
 					}*/
 
@@ -893,7 +893,7 @@ namespace WBSF
 			enum { LO24, T2M, HI24, PMID, MDWP, RELH, MSKT, MDIR, SOLR, PRES, SNOW, WEQS, NB_VARS };
 
 			static const char* VAR_NAME[NB_VARS] = { "air_temp_high_24_hour", "air_temp", "air_temp_low_24_hour", "precip_accum_since_local_midnight", "dew_point_temperature", "relative_humidity", "wind_speed", "wind_direction", "solar_radiation", "pressure", "snow_depth", "snow_water_equivalent" };
-			static const TVarH VAR_TYPE[NB_VARS] = { H_TMIN2, H_TAIR2, H_TMAX2, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD2, H_PRES, H_SNDH, H_SWE };
+			static const TVarH VAR_TYPE[NB_VARS] = { H_TMIN, H_TAIR, H_TMAX, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD, H_PRES, H_SNDH, H_SWE };
 
 			for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
 			{

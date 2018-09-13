@@ -575,7 +575,7 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 			CDay& day = (CDay&)station[TRef];
 			
 			if (dataYear[jd][V_TAVG]>-999)
-				day.SetStat(H_TAIR2, (double)dataYear[jd][V_TAVG]);
+				day.SetStat(H_TAIR, (double)dataYear[jd][V_TAVG]);
 			 
 			if (dataYear[jd][V_TMIN]>-999 && dataYear[jd][V_TMAX]>-999)
 			{
@@ -585,8 +585,8 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 				if (Tmin > Tmax)
 					Switch(Tmin, Tmax);
 
-				day.SetStat(H_TMIN2, Tmin);
-				day.SetStat(H_TMAX2, Tmax);
+				day.SetStat(H_TMIN, Tmin);
+				day.SetStat(H_TMAX, Tmax);
 			}
 
 			if (dataYear[jd][V_TMIN]>-999 && dataYear[jd][V_TMAX]>-999 &&

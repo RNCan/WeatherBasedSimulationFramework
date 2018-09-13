@@ -189,11 +189,11 @@ namespace WBSF
 
 			size_t v = 0;
 			if (f == TMIN_MN )
-				v = HOURLY_DATA::H_TMIN2;
+				v = HOURLY_DATA::H_TMIN;
 			else if (f == TMAX_MN)
-				v = HOURLY_DATA::H_TMAX2;
+				v = HOURLY_DATA::H_TMAX;
 			else if (f >= TMNMX_R && f <= TACF_B2 )
-				v = HOURLY_DATA::H_TAIR2;
+				v = HOURLY_DATA::H_TAIR;
 			else if (f >= PRCP_TT && f <= PRCP_SD)
 				v = HOURLY_DATA::H_PRCP;
 			else if (f == TDEW_MN)
@@ -214,8 +214,8 @@ namespace WBSF
 			size_t f = UNKNOWN_POS;
 			switch (v)
 			{
-			case HOURLY_DATA::H_TMIN2: f = TMIN_MN; break;
-			case HOURLY_DATA::H_TMAX2: f = TMAX_MN; break;
+			case HOURLY_DATA::H_TMIN: f = TMIN_MN; break;
+			case HOURLY_DATA::H_TMAX: f = TMAX_MN; break;
 			case HOURLY_DATA::H_PRCP:
 			case HOURLY_DATA::H_SNOW:
 			case HOURLY_DATA::H_SNDH:
@@ -228,9 +228,9 @@ namespace WBSF
 			case HOURLY_DATA::H_WNDD:
 		//	case HOURLY_DATA::H_ES:
 //			case HOURLY_DATA::H_VPD:
-			case HOURLY_DATA::H_TAIR2:
+			case HOURLY_DATA::H_TAIR:
 			case HOURLY_DATA::H_PRES:
-			case HOURLY_DATA::H_SRAD2: break;
+			case HOURLY_DATA::H_SRAD: break;
 			default: break;
 			}
 
@@ -321,9 +321,9 @@ namespace WBSF
 			if (var == H_SKIP)
 			{
 				if (varName == "TMIN" || varName == "TMINIM" )
-					var = H_TMIN2;
+					var = H_TMIN;
 				if( varName == "TMAX" || varName == "TMAXIM")
-					var = H_TMAX2;
+					var = H_TMAX;
 				else if (varName == "PRECIP")
 					var = H_PRCP;
 				else if (varName == "TDEWPT" || varName == "TDEWMIN" || varName == "TDEWMAX")
@@ -410,9 +410,9 @@ namespace WBSF
 			short v = 0;
 			switch (g)
 			{
-			case TMIN_GR: v = HOURLY_DATA::H_TMIN2; break;
-			//case TAIR_GR: v = HOURLY_DATA::H_TAIR2; break;
-			case TMAX_GR: v = HOURLY_DATA::H_TMAX2; break;
+			case TMIN_GR: v = HOURLY_DATA::H_TMIN; break;
+			//case TAIR_GR: v = HOURLY_DATA::H_TAIR; break;
+			case TMAX_GR: v = HOURLY_DATA::H_TMAX; break;
 			case PRCP_GR: v = HOURLY_DATA::H_PRCP; break;
 			case TDEW_GR: v = HOURLY_DATA::H_TDEW; break;
 			default: _ASSERTE(false);
@@ -424,11 +424,11 @@ namespace WBSF
 		size_t V2G(size_t v)
 		{
 			size_t g = NOT_INIT;
-			if (v == HOURLY_DATA::H_TMIN2)
+			if (v == HOURLY_DATA::H_TMIN)
 				g = TMIN_GR;
-			//else if (v == HOURLY_DATA::H_TAIR2)
+			//else if (v == HOURLY_DATA::H_TAIR)
 				//g = TAIR_GR;
-			else if (v == HOURLY_DATA::H_TMAX2)
+			else if (v == HOURLY_DATA::H_TMAX)
 				g = TMAX_GR;
 			else if (v == HOURLY_DATA::H_PRCP)
 				g = PRCP_GR;

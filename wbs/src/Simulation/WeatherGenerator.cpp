@@ -183,11 +183,11 @@ namespace WBSF
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
 
-		if (m_gradients.m_variables[H_TMIN2] || m_gradients.m_variables[H_TAIR2] || m_gradients.m_variables[H_TMAX2])
+		if (m_gradients.m_variables[H_TMIN] || m_gradients.m_variables[H_TAIR] || m_gradients.m_variables[H_TMAX])
 		{
-			m_gradients.m_variables.set(H_TMIN2);
-			m_gradients.m_variables.set(H_TAIR2);
-			m_gradients.m_variables.set(H_TMAX2);
+			m_gradients.m_variables.set(H_TMIN);
+			m_gradients.m_variables.set(H_TAIR);
+			m_gradients.m_variables.set(H_TMAX);
 		}
 
 		m_gradients.m_allowDerivedVariables = m_tgi.m_allowedDerivedVariables;
@@ -250,16 +250,16 @@ namespace WBSF
 			if (simulationPoint.IsHourly())
 			{
 				//in hourly, Tmin and Tmax is equal to Tair
-				if (variables[H_TMIN2] && !data[H_TMIN2].IsInit() && data[H_TAIR2].IsInit())
-					data.SetStat(H_TMIN2, data[H_TAIR2][MEAN]);
+				if (variables[H_TMIN] && !data[H_TMIN].IsInit() && data[H_TAIR].IsInit())
+					data.SetStat(H_TMIN, data[H_TAIR][MEAN]);
 
-				if (variables[H_TMAX2] && !data[H_TMAX2].IsInit() && data[H_TAIR2].IsInit())
-					data.SetStat(H_TMAX2, data[H_TAIR2][MEAN]);
+				if (variables[H_TMAX] && !data[H_TMAX].IsInit() && data[H_TAIR].IsInit())
+					data.SetStat(H_TMAX, data[H_TAIR][MEAN]);
 			}
 			else
 			{
-				if (variables[H_TAIR2] && !data[H_TAIR2].IsInit() && data[H_TMIN2].IsInit() && data[H_TMAX2].IsInit())
-					data.SetStat(H_TAIR2, (data[H_TMIN2][MEAN] + data[H_TMAX2][MEAN]) / 2);
+				if (variables[H_TAIR] && !data[H_TAIR].IsInit() && data[H_TMIN].IsInit() && data[H_TMAX].IsInit())
+					data.SetStat(H_TAIR, (data[H_TMIN][MEAN] + data[H_TMAX][MEAN]) / 2);
 			}
 
 			if (variables[H_PRES] && !data[H_PRES].IsInit())
@@ -267,15 +267,15 @@ namespace WBSF
 				data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
 			}
 
-			if (variables[H_TDEW] && !data[H_TDEW].IsInit() && data[H_RELH].IsInit() && data[H_TAIR2].IsInit())
+			if (variables[H_TDEW] && !data[H_TDEW].IsInit() && data[H_RELH].IsInit() && data[H_TAIR].IsInit())
 			{
-				double Td = Hr2Td(data[H_TAIR2][MEAN], data[H_RELH][MEAN]);
+				double Td = Hr2Td(data[H_TAIR][MEAN], data[H_RELH][MEAN]);
 				data.SetStat(H_TDEW, Td);
 			}
 
-			if (variables[H_RELH] && !data[H_RELH].IsInit() && data[H_TDEW].IsInit() && data[H_TAIR2].IsInit())
+			if (variables[H_RELH] && !data[H_RELH].IsInit() && data[H_TDEW].IsInit() && data[H_TAIR].IsInit())
 			{
-				double Hr = Td2Hr(data[H_TAIR2][MEAN], data[H_TDEW][MEAN]);
+				double Hr = Td2Hr(data[H_TAIR][MEAN], data[H_TDEW][MEAN]);
 				data.SetStat(H_RELH, Hr);
 			}
 
@@ -409,7 +409,7 @@ namespace WBSF
 
 
 					//2- if some mandatory variables is complete for some complex variables, complete theses variables
-					bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD2];
+					bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD];
 					bool bSN = mVariables[H_SNOW] || mVariables[H_SNDH] || mVariables[H_SWE];
 					bool bWD = mVariables[H_WNDD];
 					bool bTPcomplet = m_simulationPoints[0].IsComplete("Tmin Tair Tmax Prcp", m_tgi.GetTPeriod());
@@ -486,7 +486,7 @@ namespace WBSF
 		//******************************************************************
 		// compute exposition
 
-		if ((m_tgi.m_variables[H_TMIN2] || m_tgi.m_variables[H_TMAX2]))
+		if ((m_tgi.m_variables[H_TMIN] || m_tgi.m_variables[H_TMAX]))
 		{
 
 
@@ -512,15 +512,15 @@ namespace WBSF
 								}
 								else
 								{
-									double Tmin = (*itD)[H_TMIN2][MEAN];
-									double Tmax = (*itD)[H_TMAX2][MEAN];
+									double Tmin = (*itD)[H_TMIN][MEAN];
+									double Tmax = (*itD)[H_TMAX][MEAN];
 									Tmax += float(exposureIndex[m] * (Tmax - Tmin));
 
-									if (m_tgi.m_variables[H_TAIR2])
-										itD->SetStat(H_TAIR2, (Tmin + Tmax) / 2);
+									if (m_tgi.m_variables[H_TAIR])
+										itD->SetStat(H_TAIR, (Tmin + Tmax) / 2);
 
-									if (m_tgi.m_variables[H_TMAX2])
-										itD->SetStat(H_TMAX2, Tmax);
+									if (m_tgi.m_variables[H_TMAX])
+										itD->SetStat(H_TMAX, Tmax);
 								}
 							}//all days
 						}//all months
@@ -543,7 +543,7 @@ namespace WBSF
 				{
 					for (size_t d = 0; d < m_simulationPoints[r][y][m].size(); d++)
 					{
-						for (TVarH v = H_TMIN2; v < NB_VAR_H; v++)
+						for (TVarH v = H_TMIN; v < NB_VAR_H; v++)
 						{
 							if (m_tgi.m_variables[v])
 							{
@@ -582,7 +582,7 @@ namespace WBSF
 
 		if (variables[H_TDEW] && !simulationPoint.IsComplete(CWVariables(H_TDEW)))
 			bTdew = true;
-		else if (variables[H_SRAD2] && !simulationPoint.IsComplete(CWVariables(H_SRAD2)))
+		else if (variables[H_SRAD] && !simulationPoint.IsComplete(CWVariables(H_SRAD)))
 			bSRad = true;
 
 		if (msg && (bTdew || bSRad))
@@ -625,8 +625,8 @@ namespace WBSF
 						
 						//intput
 						data.yday[jd] = int(jd + 1);
-						data.s_tmin[jd] = day[H_TMIN2][MEAN];
-						data.s_tmax[jd] = day[H_TMAX2][MEAN];
+						data.s_tmin[jd] = day[H_TMIN][MEAN];
+						data.s_tmax[jd] = day[H_TMAX][MEAN];
 						data.s_tday[jd] = day.GetTdaylight(); //temperature during daylight
 						data.s_prcp[jd] = day[H_PRCP][SUM] / 10;	//ppt in cm
 						data.s_swe[jd] = bHaveSnowpack ? day[H_SWE][MEAN] / 10 : 0;	//Snow water equivalent MTClim 4.3 in cm. If not available, will be computed later
@@ -663,8 +663,8 @@ namespace WBSF
 						size_t jd = wDay.GetTRef().GetJDay();
 
 						//need temperature to compure hourly Tdew and Hr
-						wDay[H_TMIN2] = data.s_tmin[jd];
-						wDay[H_TMAX2] = data.s_tmax[jd];
+						wDay[H_TMIN] = data.s_tmin[jd];
+						wDay[H_TMAX] = data.s_tmax[jd];
 
 						if (variables[H_TDEW])// && !wDay[H_TDEW].IsInit())
 							wDay[H_TDEW] = data.s_tdew[jd];
@@ -685,17 +685,17 @@ namespace WBSF
 						}
 
 
-						if (variables[H_SRAD2])// && !wDay[H_SRAD].IsInit())
+						if (variables[H_SRAD])// && !wDay[H_SRAD].IsInit())
 						{
 							_ASSERTE(data.s_srad[jd] >= 0);
 							_ASSERTE(data.s_dayl[jd] >= 0);
 							_ASSERTE(!_isnan(data.s_srad[jd]));
 							_ASSERTE(!_isnan(data.s_dayl[jd]));
-							//wDay[H_SRAD2] = (data.s_srad[jd] * data.s_dayl[jd] / 1000000); // convert W/m² to MJ/m²·day
-							wDay[H_SRAD2] = data.s_srad[jd] * data.s_dayl[jd] / (24 * 3600); // convert daylight radiation [W/m²] into daily radiation [W/m²]
+							//wDay[H_SRAD] = (data.s_srad[jd] * data.s_dayl[jd] / 1000000); // convert W/m² to MJ/m²·day
+							wDay[H_SRAD] = data.s_srad[jd] * data.s_dayl[jd] / (24 * 3600); // convert daylight radiation [W/m²] into daily radiation [W/m²]
 						}
 
-						_ASSERTE(!variables[H_SRAD2] || wDay[H_SRAD2].IsInit());
+						_ASSERTE(!variables[H_SRAD] || wDay[H_SRAD].IsInit());
 					}//for all days
 				}//for all month
 
@@ -717,8 +717,8 @@ namespace WBSF
 					if (variables[H_RELH] && !data[H_RELH].IsInit())
 						data.SetStat(H_RELH, copy[TRef][H_RELH]);
 
-					if (variables[H_SRAD2] && !data[H_SRAD2].IsInit())
-						data.SetStat(H_SRAD2, copy[TRef][H_SRAD2]);
+					if (variables[H_SRAD] && !data[H_SRAD].IsInit())
+						data.SetStat(H_SRAD, copy[TRef][H_SRAD]);
 				}//for all TRef
 			}//for all years
 
@@ -994,7 +994,7 @@ namespace WBSF
 			//first step: get direct observations variables
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (m_tgi.m_variables[v] && (v != H_TMIN2 && v != H_TMAX2))
+				if (m_tgi.m_variables[v] && (v != H_TMIN && v != H_TMAX))
 				{
 					CSearchResultVector results;
 					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
@@ -1005,7 +1005,7 @@ namespace WBSF
 					if (year > currentYear)
 						msg = ERMsg();
 
-					//if (!msg && (v == H_TMIN2 || v == H_TMAX2))//Tmin and Tmax equal Tair in hourly data
+					//if (!msg && (v == H_TMIN || v == H_TMAX))//Tmin and Tmax equal Tair in hourly data
 					//msg = ERMsg();
 
 					if (!msg)
@@ -1048,7 +1048,7 @@ namespace WBSF
 
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 				{
-					if (neededVariables[v] && (v != H_TMIN2 && v != H_TMAX2))
+					if (neededVariables[v] && (v != H_TMIN && v != H_TMAX))
 					{
 						CSearchResultVector results;
 						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
@@ -1145,7 +1145,7 @@ namespace WBSF
 			//first step, get observations from database
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (m_tgi.m_variables[v] && v != H_TAIR2)
+				if (m_tgi.m_variables[v] && v != H_TAIR)
 				{
 					CSearchResultVector results;
 
@@ -1158,7 +1158,7 @@ namespace WBSF
 					if (year > currentYear)
 						msg = ERMsg();
 
-					//if (!msg && v == H_TAIR2)//Tair = (Tmin + Tmax)/2 in daily data
+					//if (!msg && v == H_TAIR)//Tair = (Tmin + Tmax)/2 in daily data
 					//msg = ERMsg();
 
 					if (!msg)
@@ -1202,7 +1202,7 @@ namespace WBSF
 				neededVariables &= ~observationVariables;//remove variable already loaded
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 				{
-					if (neededVariables[v] && v != H_TAIR2)
+					if (neededVariables[v] && v != H_TAIR)
 					{
 						CSearchResultVector results;
 						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
@@ -1439,20 +1439,20 @@ namespace WBSF
 			if (mVariables[H_WNDS] && !mVariables[H_PRCP])
 				mVariables.set(H_PRCP);
 
-			if (mVariables[H_PRCP] && !mVariables[H_TMIN2])
-				mVariables.set(H_TMIN2);
+			if (mVariables[H_PRCP] && !mVariables[H_TMIN])
+				mVariables.set(H_TMIN);
 
-			if (mVariables[H_PRCP] && !mVariables[H_TMAX2])
-				mVariables.set(H_TMAX2);
+			if (mVariables[H_PRCP] && !mVariables[H_TMAX])
+				mVariables.set(H_TMAX);
 
 			if (mVariables[H_TDEW] && !mVariables[H_RELH])
 				mVariables.set(H_RELH);
 
-			if (mVariables[H_TDEW] && !mVariables[H_TMIN2])
-				mVariables.set(H_TMIN2);
+			if (mVariables[H_TDEW] && !mVariables[H_TMIN])
+				mVariables.set(H_TMIN);
 
-			if (mVariables[H_TDEW] && !mVariables[H_TMAX2])
-				mVariables.set(H_TMAX2);
+			if (mVariables[H_TDEW] && !mVariables[H_TMAX])
+				mVariables.set(H_TMAX);
 
 			//load derived input missing variables
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)

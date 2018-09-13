@@ -697,7 +697,7 @@ namespace WBSF
 				if (Tmean > -60 && Tmean <  40)
 				{
 					double TmeanC = ((Tmean - 32.0)*5.0 / 9.0);
-					data[TRef][H_TAIR2] = TmeanC;
+					data[TRef][H_TAIR] = TmeanC;
 				}
 
 				if (Tmin > -60 && Tmin < 40 &&
@@ -709,8 +709,8 @@ namespace WBSF
 
 					double TminC = ((Tmin - 32.0)*5.0 / 9.0);
 					double TmaxC = ((Tmax - 32.0)*5.0 / 9.0);
-					data[TRef][H_TMIN2] = TminC;
-					data[TRef][H_TMAX2] = TmaxC;
+					data[TRef][H_TMIN] = TminC;
+					data[TRef][H_TMAX] = TmaxC;
 				}
 
 				if (ppt >= 0 && ppt<10)

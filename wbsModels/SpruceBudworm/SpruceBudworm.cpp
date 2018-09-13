@@ -169,14 +169,14 @@ namespace WBSF
 
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
-		double T = weather[H_TAIR2];
+		double T = weather[H_TAIR];
 		if (NeedOverheating())
 			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
 
 		//Time step development rate
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
-		double RR = GetRelativeDevRate(weather[H_TAIR2], r);
+		double RR = GetRelativeDevRate(weather[H_TAIR], r);
 		//correction for defoliation (from 1 to .75 between 50 and 100 %)
 		//if (s >= L3 && s <= L6) //commented by RSA 03-08-2018
 		//{
@@ -213,7 +213,7 @@ namespace WBSF
 
 		//adjust overwintering energy
 		if (s == L2o)
-			m_OWEnergy -= GetEnergyLost(weather[H_TAIR2]) / (24.0 / timeStep);
+			m_OWEnergy -= GetEnergyLost(weather[H_TAIR]) / (24.0 / timeStep);
 
 		//Compute defoliation on tree
 		m_eatenFoliage += GetEatenFoliage(RR);
@@ -235,7 +235,7 @@ namespace WBSF
 	void CSpruceBudworm::Live(const CWeatherDay& weather)
 	{
 		//For optimization, nothing happens when temperature is under -10
-		if (weather[H_TMIN2][MEAN] < -10)
+		if (weather[H_TMIN][MEAN] < -10)
 			return;
 
 		size_t nbSteps = GetTimeStep().NbSteps();
@@ -336,13 +336,13 @@ namespace WBSF
 				m_death = MISSING_ENERGY;
 			}
 		}
-		else if (GetStage() == PUPAE && weather[H_TMIN2][MEAN] < 0)
+		else if (GetStage() == PUPAE && weather[H_TMIN][MEAN] < 0)
 		{
 			//all pupae are killed by frost under 0ºC
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		else if (GetStage() != L2o && weather[H_TMIN2][MEAN] < -9)
+		else if (GetStage() != L2o && weather[H_TMIN][MEAN] < -9)
 		{
 			//all non l2o are kill by frost under -10ºC
 			m_status = DEAD;
@@ -520,7 +520,7 @@ namespace WBSF
 		//temperature interpolation between 2 hours
 		const CHourlyData& wº = weather[hº];
 		const CHourlyData& w¹ = wº.GetNext();
-		double Tair = (h - hº)*w¹[H_TAIR2] + (h¹ - h)*wº[H_TAIR2];
+		double Tair = (h - hº)*w¹[H_TAIR] + (h¹ - h)*wº[H_TAIR];
 
 		ASSERT(!WEATHER::IsMissing(Tair));
 		return Tair;
@@ -732,7 +732,7 @@ namespace WBSF
 
 	void CSBWTree::Live(const CWeatherDay& weather)
 	{
-		if (weather[H_TMIN2][MEAN] < -10)
+		if (weather[H_TMIN][MEAN] < -10)
 		{
 			if (weather.GetTRef().GetJDay() > 180 && !m_bAutumnCleaned)
 			{
@@ -865,7 +865,7 @@ namespace WBSF
 	//	assert(m_status == HEALTHY);
 
 	//	//For optimization, nothing happens when temperature is under -10
-	//	if (weather[H_TMIN2][MEAN] < -10)
+	//	if (weather[H_TMIN][MEAN] < -10)
 	//		return;
 
 
@@ -882,14 +882,14 @@ namespace WBSF
 	//	{
 	//		size_t h = step*GetTimeStep();
 	//		size_t s = GetStage();
-	//		double T = weather[h][H_TAIR2];
+	//		double T = weather[h][H_TAIR];
 	//		if (NeedOverheating())
 	//			T += overheat.GetOverheat(weather, h);
 
 	//		//Time step development rate
 	//		double r = Equations().GetRate(s, m_sex, T) / nbSteps;
 	//		//Relative development rate
-	//		double RR = GetRelativeDevRate(weather[h][H_TAIR2], r);
+	//		double RR = GetRelativeDevRate(weather[h][H_TAIR], r);
 
 	//		//development rate for white spruce is accelerated by a factor
 	//		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -918,7 +918,7 @@ namespace WBSF
 
 	//		//adjust overwintering energy
 	//		if (s == L2o)
-	//			m_OWEnergy -= GetEnergyLost(weather[h][H_TAIR2]) / nbSteps;
+	//			m_OWEnergy -= GetEnergyLost(weather[h][H_TAIR]) / nbSteps;
 
 	//		//Compute defoliation on tree
 	//		m_eatenFoliage += GetEatenFoliage(RR);
@@ -959,7 +959,7 @@ namespace WBSF
 	//	//effect of temperature. The amplitude of sumF is independent of size of time step.
 	//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
 	//	if (prcp >= 0)
-	//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR2])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR2]) / 9.52), 1.3));
+	//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR]) / 9.52), 1.3));
 
 	//	sumF += F / nbSteps;
 	//}
@@ -1009,7 +1009,7 @@ namespace WBSF
 
 
 	//			//temperature interpolation between 2 hours
-	//			double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//			double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR];
 	//			if (T <= Tº)
 	//				Δtᵀ = t;
 	//		}
@@ -1043,7 +1043,7 @@ namespace WBSF
 
 
 	//				//temperature interpolation between 2 hours
-	//				double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR2] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR2];
+	//				double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR];
 	//				if (T > 0)
 	//				{
 	//					double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));

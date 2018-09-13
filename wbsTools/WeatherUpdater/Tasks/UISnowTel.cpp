@@ -660,13 +660,13 @@ namespace WBSF
 						Tmax >= -70 && Tmax <= 70 &&
 						Tmin <= Tmax)
 					{
-						accumulator.Add(TRef, H_TMIN2, Tmin);
-						accumulator.Add(TRef, H_TMAX2, Tmax);
+						accumulator.Add(TRef, H_TMIN, Tmin);
+						accumulator.Add(TRef, H_TMAX, Tmax);
 					}
 
 					if (!IsMissing(Tavg) && Tavg >= -70 && Tavg <= 70)
 					{
-						accumulator.Add(TRef, H_TAIR2, Tavg);
+						accumulator.Add(TRef, H_TAIR, Tavg);
 					}
 
 					double prcp = file[V_PRCP];
@@ -726,7 +726,7 @@ namespace WBSF
 					if (!IsMissing(R))
 					{
 						ASSERT(R >= 0 && R < 1500);//(watt/m2) 
-						accumulator.Add(TRef, H_SRAD2, R);
+						accumulator.Add(TRef, H_SRAD, R);
 					}
 					else
 					{

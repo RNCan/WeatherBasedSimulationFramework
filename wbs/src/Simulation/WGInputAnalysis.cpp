@@ -129,7 +129,7 @@ namespace WBSF
 		TVarH variable;
 		switch (c)
 		{
-		case 0: variable = H_TAIR2; break;
+		case 0: variable = H_TAIR; break;
 		case 1: variable = H_PRCP; break;
 		case 2: variable = H_TDEW; break;
 		case 3: variable = H_WNDS; break;
@@ -497,7 +497,7 @@ namespace WBSF
 		{
 			if (m_kind == MATCH_STATION_NORMALS)
 			{
-				static const TVarH VARIABLE_FOR_CATEGORY[4] = { H_TAIR2, H_PRCP, H_RELH, H_WNDS };
+				static const TVarH VARIABLE_FOR_CATEGORY[4] = { H_TAIR, H_PRCP, H_RELH, H_WNDS };
 				bitset<4> category = GetCategory(WGInput.m_variables);
 
 				static const char* CAT_ID[4] = {"T","P","H","W" };

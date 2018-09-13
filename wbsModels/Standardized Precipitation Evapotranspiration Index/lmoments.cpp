@@ -53,8 +53,9 @@ void pwm(double series[], int n, double pwms[], double A, double B, int isBeta)
 // Estimates the first two L-moments of the sample
 void lMoments(double series[], int n, double lMoment[], double A, double B) {
 
-	int i, j, ordenLMom;
-	double C, D, E, acum[3], alpha[3];
+	//int i, j, ordenLMom;
+//	double C, D, E, acum[3], alpha[3];
+	double alpha[3] = { 0 };
 
 	// Calculate the first three PWMs
 	pwm(series, n, alpha, A, B, 0);

@@ -480,7 +480,7 @@ namespace WBSF
 
 
 			CTRef current = CTRef::GetCurrentTRef(TM);
-			station.GetStat(H_TAIR2);//force to compute stat before call GetVariablesCount
+			station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 			CWVariablesCounter counter = station.GetVariablesCount();
 			CTRef TRefEnd = counter.GetTPeriod().End();
 			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
@@ -494,8 +494,8 @@ namespace WBSF
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
 
-				//if (bAddForecast[H_TMIN2] || bAddForecast[H_TAIR2] || bAddForecast[H_TMAX2])
-					//bAddForecast[H_TMIN2] = bAddForecast[H_TAIR2] = bAddForecast[H_TMAX2] = true;
+				//if (bAddForecast[H_TMIN] || bAddForecast[H_TAIR] || bAddForecast[H_TMAX])
+					//bAddForecast[H_TMIN] = bAddForecast[H_TAIR] = bAddForecast[H_TMAX] = true;
 
 				int shapeNo = -1;
 
@@ -572,12 +572,12 @@ namespace WBSF
 
 			int var = -1;
 			if (type == "air")
-				var = H_TAIR2;
+				var = H_TAIR;
 			else if (type == "dew-point")
 				var = H_TDEW;
 
 
-			if (var == H_TAIR2 || var == H_TDEW)
+			if (var == H_TAIR || var == H_TDEW)
 			{
 				for (zen::XmlIn child2 = child["temperature-value"]; child2; child2.next())
 				{
@@ -603,8 +603,8 @@ namespace WBSF
 						CHourlyData& data = station[ref.GetYear()][ref.GetMonth()][ref.GetDay()][ref.GetHour()];
 						data[var] = (low + hi) / 2;
 
-						if (data[H_TAIR2] > -999 && data[H_TDEW] > -999)
-							data[H_RELH] = Td2Hr(data[H_TAIR2], data[H_TDEW]);
+						if (data[H_TAIR] > -999 && data[H_TDEW] > -999)
+							data[H_RELH] = Td2Hr(data[H_TAIR], data[H_TDEW]);
 					}
 				}
 			}

@@ -96,8 +96,8 @@ namespace WBSF
 				data.m_DDGen = DD.GetDD(weatherYear);
 			}
 
-			data.m_lowestMinimum = weatherYear[H_TMIN2][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
-			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX2][MEAN];//.GetStat(STAT_TMAX, MEAN);
+			data.m_lowestMinimum = weatherYear[H_TMIN][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
+			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX][MEAN];//.GetStat(STAT_TMAX, MEAN);
 			data.m_totalPrecip = weatherYear[H_PRCP][SUM];//GetStat(STAT_PRCP, SUM);
 			//wather deficit was in mm
 

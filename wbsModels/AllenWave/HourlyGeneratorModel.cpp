@@ -114,8 +114,8 @@ namespace WBSF
 		//const CWeatherDay& me = *this;
 		const CWeatherDay& dn = me.GetNext();
 
-		if (me[H_TMIN2].IsInit() && dn[H_TMIN2].IsInit()
-			&& dp[H_TMAX2].IsInit() && me[H_TMAX2].IsInit())
+		if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+			&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
 		{
 			const CLocation& loc = me.GetLocation();
 			CSun sun(loc.m_lat, loc.m_lon);
@@ -124,8 +124,8 @@ namespace WBSF
 			double Tss = sun.GetSunset(me.GetTRef());
 			double D = sun.GetDayLength(me.GetTRef());
 
-			double Tmin[3] = { dp[H_TMIN2][MEAN], me[H_TMIN2][MEAN], dn[H_TMIN2][MEAN] };
-			double Tmax[3] = { dp[H_TMAX2][MEAN], me[H_TMAX2][MEAN], dn[H_TMAX2][MEAN] };
+			double Tmin[3] = { dp[H_TMIN][MEAN], me[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+			double Tmax[3] = { dp[H_TMAX][MEAN], me[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
 
 			if (D < PolarDayLength)
 			{

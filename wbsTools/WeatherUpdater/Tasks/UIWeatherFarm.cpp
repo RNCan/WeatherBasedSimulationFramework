@@ -193,7 +193,7 @@ namespace WBSF
 
 		
 		enum TColumns { C_DATE_TIME, C_TEMP, C_RAIN, C_RAIN_ACC, C_RH, C_WIND_SPEED, C_WIND_DIR, NB_COLUMNS };
-		static const TVarH VARIABLES[NB_COLUMNS] = {H_SKIP, H_TAIR2, H_PRCP, H_SKIP, H_RELH, H_WNDS, H_WNDD };
+		static const TVarH VARIABLES[NB_COLUMNS] = {H_SKIP, H_TAIR, H_PRCP, H_SKIP, H_RELH, H_WNDS, H_WNDD };
 		
 		
 
@@ -315,8 +315,8 @@ namespace WBSF
 																	data[TRef].SetStat(VARIABLES[c], v2);
 
 																	//compute Tdew
-																	if (VARIABLES[c] == H_RELH && data[TRef][H_TAIR2].IsInit())
-																		data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(data[TRef][H_TAIR2][MEAN], v2));
+																	if (VARIABLES[c] == H_RELH && data[TRef][H_TAIR].IsInit())
+																		data[TRef].SetStat(H_TDEW, WBSF::Hr2Td(data[TRef][H_TAIR][MEAN], v2));
 																}
 															}
 														}
@@ -610,9 +610,9 @@ namespace WBSF
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN2:
-		case H_TAIR2:
-		case H_TMAX2:
+		case H_TMIN:
+		case H_TAIR:
+		case H_TMAX:
 		case H_TDEW: bValid = value >= -50 && value <= 50; break;
 		case H_PRCP: bValid = value >= 0 && value < 300; break;
 		case H_RELH: bValid = value > 0 && value <= 100; break;//ignore zero values
