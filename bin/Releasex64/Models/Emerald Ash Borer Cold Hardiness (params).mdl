@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Emerald Ash Borer Cold Hardiness</Title>
+    <Version>1.0</Version>
+    <ID>.SCP</ID>
+    <EXE>EmeraldAshBorerColdHardiness.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>compute Emerald Ash Borer Cold Hardiness from experimented temperature</Description>
+    <WindowRect>0 0 309 413</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>nbHours</Name>
+            <Caption>nbHours</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 20 100 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>168</DefaultValue>
+            <MinValue>48</MinValue>
+            <MaxValue>1008</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lambda</Name>
+            <Caption>Lambda</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 20 130 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>wTo</Name>
+            <Caption>mdTo</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>135 20 155 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-40</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>wTmin</Name>
+            <Caption>a0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 20 50 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-10</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>loCSP</Name>
+            <Caption>loCSP</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 100 200 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-37</DefaultValue>
+            <MinValue>-45</MinValue>
+            <MaxValue>45</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>hiSCP</Name>
+            <Caption>hiCSP</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 100 230 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-12</DefaultValue>
+            <MinValue>-20</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>titre1</Name>
+            <Caption>Acclimatation</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>0 20 25 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>titre2</Name>
+            <Caption>Desacclimatation</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>0 205 20 355</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tbark_min</Name>
+            <Title>Tbark Min</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tbark_max</Name>
+            <Title>Tbark Max</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tw</Name>
+            <Title>Tw</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SCP</Name>
+            <Title>SCP</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mortality</Name>
+            <Title>Mortality</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>WARNING: this model was never validated</Copyright>
+    <Credit>DEvloped by Remi Saint-Amant from Lyons 2004 publication</Credit>
+    <HelpFileName/>
+</Model>
