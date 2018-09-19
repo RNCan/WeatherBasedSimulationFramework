@@ -1,3 +1,4 @@
+// 4.4.0	18/09/2018	Rémi Saint-Amant	Crash correction on Windows 10
 // 4.4.0	13/09/2018	Rémi Saint-Amant	Compile with WBSF 1.1.0 (BioSIM 11.5)
 // 4.3.2	12/06/2018	Rémi Saint-Amant	bug fix
 // 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
@@ -134,6 +135,10 @@ BOOL CDailyEditorApp::InitInstance()
 	AddDocTemplate(pDocTemplate);
 
 
+	// Activer les ouvertures d'exécution DDE
+	EnableShellOpen();
+	RegisterShellFileTypes(TRUE);
+
 	ERMsg msg;
 	msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
 
@@ -144,9 +149,6 @@ BOOL CDailyEditorApp::InitInstance()
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
-	// Activer les ouvertures d'exécution DDE
-	EnableShellOpen();
-	RegisterShellFileTypes(TRUE);
 
 
 	// Commandes de dispatch spécifiées sur la ligne de commande.  Retournent FALSE si

@@ -103,8 +103,11 @@ BOOL CHourlyEditorApp::InitInstance()
 	LoadStdProfileSettings(8);  // Charge les options de fichier INI standard (y compris les derniers fichiers utilisés)
 
 	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL);
-
+	if (Gdiplus::GdiplusStartup(&m_nGdiplusToken, &gdiplusStartupInput, NULL) != Gdiplus::Ok)
+	{
+		MessageBox(NULL, TEXT("GDI+ failed to start up!"), TEXT("Error!"), MB_ICONERROR);
+		return FALSE;
+	}
 
 
 	//set local to default operating system

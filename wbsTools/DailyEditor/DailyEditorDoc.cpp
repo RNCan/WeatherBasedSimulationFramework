@@ -148,7 +148,9 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		size_t pos = cmd.Find("-ID", false);
 		if (pos < cmd.size() && pos + 1 < cmd.size())
 			SetCurStationIndex(m_pDatabase->GetStationIndex(cmd[pos + 1], false), NULL, false);
-		
+		else  if (!m_pDatabase->empty())
+			SetCurStationIndex(0, NULL, false);
+
 		//not init by default
 		const std::set<int>& years = m_pDatabase->GetYears();
 		if (!m_period.IsInit() && !years.empty())

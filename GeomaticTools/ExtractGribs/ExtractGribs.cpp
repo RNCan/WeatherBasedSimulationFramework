@@ -516,7 +516,7 @@ namespace WBSF
 								case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU] * 3600.0 / 1000.0; break;
 								case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600.0 / 1000.0; break;
 								case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed() * 3600.0 / 1000.0; break;
-								case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
+								case GR_WNDD: /*outputData[tlv][xy] = var.get_wind_direction();a faire*/ break;
 								default: ASSERT(false);
 								}
 
@@ -566,7 +566,7 @@ namespace WBSF
 							case GR_WNDU: outputData[tlv][xy] = var[ATM_WNDU]*3600.0 /1000.0; break;
 							case GR_WNDV: outputData[tlv][xy] = var[ATM_WNDV] * 3600.0 / 1000.0; break;
 							case GR_WNDS: outputData[tlv][xy] = var.get_wind_speed()*3600.0 / 1000.0; break;
-							case GR_WNDD: outputData[tlv][xy] = var.get_wind_direction(); break;
+							case GR_WNDD:/* outputData[tlv][xy] = var.get_wind_direction();*/ break;
 							default: ASSERT(false);
 							}
 						}//v
