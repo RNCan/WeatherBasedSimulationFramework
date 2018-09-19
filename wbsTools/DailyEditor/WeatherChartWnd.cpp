@@ -133,6 +133,7 @@ END_MESSAGE_MAP()
 CWeatherChartWnd::CWeatherChartWnd()
 {
 	m_bMustBeUpdated=false;
+	m_bEnableMessage = false;
 }
 
 CWeatherChartWnd::~CWeatherChartWnd()
@@ -161,9 +162,11 @@ int CWeatherChartWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CWeatherChartWnd::CreateToolBar()
 {
+	
 	if (m_wndToolBar.GetSafeHwnd())
 		m_wndToolBar.DestroyWindow();
 
+	m_bEnableMessage = false;
 	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, IDR_TABLE_TOOLBAR);
 	m_wndToolBar.LoadToolBar(IDR_GRAPH_TOOLBAR, 0, 0, TRUE);
 	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
@@ -171,7 +174,7 @@ void CWeatherChartWnd::CreateToolBar()
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	
-
+	m_bEnableMessage = true;
 }
 
 void CWeatherChartWnd::OnSize(UINT nType, int cx, int cy)
@@ -285,29 +288,32 @@ void CWeatherChartWnd::OnToolbarCommand(UINT ID, NMHDR *pNMHDR, LRESULT *pResult
 
 void CWeatherChartWnd::OnToolbarCommand(UINT ID)
 {
-	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
-	if (!pDoc)
-		return;
-
-	bool bInit = pDoc->GetCurStationIndex() != UNKNOWN_POS && !pDoc->GetDataInEdition();
-	bool bPeriodEnable = pDoc->GetPeriodEnabled();
-	int index = m_wndToolBar.CommandToIndex(ID);
-	CMFCToolBarButton* pCtrl = m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-
-	if (bInit)
+	if (m_bEnableMessage)
 	{
-		switch (ID)
+		CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
+		if (!pDoc)
+			return;
+
+		bool bInit = pDoc->GetCurStationIndex() != UNKNOWN_POS && !pDoc->GetDataInEdition();
+		bool bPeriodEnable = pDoc->GetPeriodEnabled();
+		int index = m_wndToolBar.CommandToIndex(ID);
+		CMFCToolBarButton* pCtrl = m_wndToolBar.GetButton(index); ASSERT(pCtrl);
+
+		if (bInit)
 		{
-		case ID_GRAPH_COPY:				OnCopyGraph(); break;
-		case ID_GRAPH_SAVE:				OnSaveGraph(); break;
-		case ID_GRAPH_OPTIONS:			OnGraphOptions(); break;
-		case ID_GRAPH_ZOOM:				pDoc->SetChartsZoom(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
-		case ID_GRAPH_PERIOD_ENABLED:	pDoc->SetPeriodEnabled(!(pCtrl->m_nStyle & TBBS_CHECKED)); break;
-		case ID_GRAPH_PERIOD_BEGIN:		OnDateChange(ID); break;
-		case ID_GRAPH_PERIOD_END:		OnDateChange(ID); break;
-		case ID_GRAPH_FILTER:			pDoc->SetVariables(((CMFCToolBarWVariablesButton*)pCtrl)->GetVariables()); break;
-		case ID_GRAPH_STAT:				pDoc->SetStatistic(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
-		case ID_GRAPH_TM_TYPE:			pDoc->SetTM(CTM(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel())); break;
+			switch (ID)
+			{
+			case ID_GRAPH_COPY:				OnCopyGraph(); break;
+			case ID_GRAPH_SAVE:				OnSaveGraph(); break;
+			case ID_GRAPH_OPTIONS:			OnGraphOptions(); break;
+			case ID_GRAPH_ZOOM:				pDoc->SetChartsZoom(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
+			case ID_GRAPH_PERIOD_ENABLED:	pDoc->SetPeriodEnabled(!(pCtrl->m_nStyle & TBBS_CHECKED)); break;
+			case ID_GRAPH_PERIOD_BEGIN:		OnDateChange(ID); break;
+			case ID_GRAPH_PERIOD_END:		OnDateChange(ID); break;
+			case ID_GRAPH_FILTER:			pDoc->SetVariables(((CMFCToolBarWVariablesButton*)pCtrl)->GetVariables()); break;
+			case ID_GRAPH_STAT:				pDoc->SetStatistic(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
+			case ID_GRAPH_TM_TYPE:			pDoc->SetTM(CTM(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel())); break;
+			}
 		}
 	}
 }
@@ -315,6 +321,8 @@ void CWeatherChartWnd::OnToolbarCommand(UINT ID)
 
 void CWeatherChartWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
+	m_bEnableMessage = false;
+
 	if (lHint == CDailyEditorDoc::LANGUAGE_CHANGE)
 	{
 		CreateToolBar();
@@ -359,8 +367,12 @@ void CWeatherChartWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_GRAPH_PERIOD_BEGIN); ASSERT(pCtrl1);
 		CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_GRAPH_PERIOD_END); ASSERT(pCtrl2);
 
-		pCtrl1->SetTime(oFirstDate);
-		pCtrl2->SetTime(oLastDate);
+		if (oFirstDate.GetStatus() == COleDateTime::valid &&
+			oLastDate.GetStatus() == COleDateTime::valid)
+		{
+			pCtrl1->SetTime(oFirstDate);
+			pCtrl2->SetTime(oLastDate);
+		}
 	}
 
 	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::DATA_PROPERTIES_VARIABLES_CHANGE)
@@ -400,6 +412,9 @@ void CWeatherChartWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		m_weatherChartsCtrl.Update();
 	else
 		m_bMustBeUpdated=true;
+
+
+	m_bEnableMessage = true;
 }
 
 

@@ -363,8 +363,12 @@ void CWeatherChartWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_GRAPH_PERIOD_BEGIN); ASSERT(pCtrl1);
 		CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_GRAPH_PERIOD_END); ASSERT(pCtrl2);
 
-		pCtrl1->SetTime(oFirstDate);
-		pCtrl2->SetTime(oLastDate);
+		if (oFirstDate.GetStatus() == COleDateTime::valid &&
+			oLastDate.GetStatus() == COleDateTime::valid)
+		{
+			pCtrl1->SetTime(oFirstDate);
+			pCtrl2->SetTime(oLastDate);
+		}
 	}
 
 	if (lHint == CHourlyEditorDoc::INIT || lHint == CHourlyEditorDoc::DATA_PROPERTIES_VARIABLES_CHANGE)

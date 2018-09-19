@@ -58,6 +58,7 @@ protected:
 	CWeatherSpreadsheetToolBar m_wndToolBar;
 	WBSF::CWeatherDataGridCtrl m_grid;
 	bool m_bMustBeUpdated;
+	bool m_bEnableMessage;
 
 
 	DECLARE_MESSAGE_MAP()

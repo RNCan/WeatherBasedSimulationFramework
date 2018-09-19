@@ -122,6 +122,7 @@ END_MESSAGE_MAP()
 CWeatherSpreadsheetWnd::CWeatherSpreadsheetWnd()
 {
 	m_bMustBeUpdated=false;
+	m_bEnableMessage = false;
 }
 
 CWeatherSpreadsheetWnd::~CWeatherSpreadsheetWnd()
@@ -149,13 +150,14 @@ void CWeatherSpreadsheetWnd::CreateToolBar()
 	if (m_wndToolBar.GetSafeHwnd())
 		m_wndToolBar.DestroyWindow();
 
+	m_bEnableMessage = false;
 	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE | CBRS_SIZE_DYNAMIC, IDR_TABLE_TOOLBAR);
 	m_wndToolBar.LoadToolBar(IDR_TABLE_TOOLBAR, 0, 0, TRUE);
 	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
 	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-
+	m_bEnableMessage = true;
 }
 
 void CWeatherSpreadsheetWnd::OnSize(UINT nType, int cx, int cy)
@@ -184,6 +186,8 @@ void CWeatherSpreadsheetWnd::AdjustLayout()
 
 void CWeatherSpreadsheetWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
+	m_bEnableMessage = false;
+
 	CDailyEditorDoc* pDoc = (CDailyEditorDoc*)GetDocument();
 	CTPeriod period = pDoc->GetPeriod();
 	bool bPeriodEnabled = pDoc->GetPeriodEnabled();
@@ -222,8 +226,12 @@ void CWeatherSpreadsheetWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHi
 		CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_BEGIN); ASSERT(pCtrl1);
 		CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_END); ASSERT(pCtrl2);
 
-		pCtrl1->SetTime(oFirstDate);
-		pCtrl2->SetTime(oLastDate);
+		if (oFirstDate.GetStatus() == COleDateTime::valid &&
+			oLastDate.GetStatus() == COleDateTime::valid)
+		{
+			pCtrl1->SetTime(oFirstDate);
+			pCtrl2->SetTime(oLastDate);
+		}
 	}
 
 	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::DATA_PROPERTIES_VARIABLES_CHANGE)
@@ -265,6 +273,8 @@ void CWeatherSpreadsheetWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHi
 		m_grid.Update();
 	else 
 		m_bMustBeUpdated = true;
+
+	m_bEnableMessage = true;
 }
 
 void CWeatherSpreadsheetWnd::OnWindowPosChanged(WINDOWPOS* lpwndpos)
@@ -310,64 +320,67 @@ void CWeatherSpreadsheetWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 
 void CWeatherSpreadsheetWnd::OnToolbarCommand(UINT ID)
 {
-	CDailyEditorDoc* pDoc = GetDocument();
-	if (!pDoc)
-		return;
+	if (m_bEnableMessage)
+	{
+		CDailyEditorDoc* pDoc = GetDocument();
+		if (!pDoc)
+			return;
 
-	int index = m_wndToolBar.CommandToIndex(ID);
-	CMFCToolBarButton* pCtrl = m_wndToolBar.GetButton(index); ASSERT(pCtrl);
-	
-	switch (ID)
-	{
-	case ID_TABLE_MODE_VISUALISATION:
-	{
-		if (pDoc->GetDataInEdition())
+		int index = m_wndToolBar.CommandToIndex(ID);
+		CMFCToolBarButton* pCtrl = m_wndToolBar.GetButton(index); ASSERT(pCtrl);
+
+		switch (ID)
 		{
-			if (m_grid.IsModified())
+		case ID_TABLE_MODE_VISUALISATION:
+		{
+			if (pDoc->GetDataInEdition())
 			{
-				int rep = AfxMessageBox(IDS_SAVE_DATA, MB_YESNOCANCEL | MB_ICONQUESTION);
-				if (rep == IDYES)
+				if (m_grid.IsModified())
 				{
-					if (SaveData())
-						pDoc->SetDataInEdition(false);
-				}
-				else if (rep == IDNO)
-				{
-					//reload station in document
-					if( pDoc->CancelDataEdition() )
+					int rep = AfxMessageBox(IDS_SAVE_DATA, MB_YESNOCANCEL | MB_ICONQUESTION);
+					if (rep == IDYES)
 					{
-						//reload data in interface
-						pDoc->SetDataInEdition(false);
+						if (SaveData())
+							pDoc->SetDataInEdition(false);
+					}
+					else if (rep == IDNO)
+					{
+						//reload station in document
+						if (pDoc->CancelDataEdition())
+						{
+							//reload data in interface
+							pDoc->SetDataInEdition(false);
+						}
 					}
 				}
+				else
+				{
+					pDoc->SetDataInEdition(false);
+				}
 			}
-			else
-			{
-				pDoc->SetDataInEdition(false);
-			}
-		}
 
-		break;
-	}
-	case ID_TABLE_MODE_EDITION:
-	{
-		if (!pDoc->GetDataInEdition())
+			break;
+		}
+		case ID_TABLE_MODE_EDITION:
 		{
-			pDoc->SetTM(CTM::DAILY);
-			pDoc->SetStatistic(MEAN);
-			pDoc->SetDataInEdition(true);
+			if (!pDoc->GetDataInEdition())
+			{
+				pDoc->SetTM(CTM::DAILY);
+				pDoc->SetStatistic(MEAN);
+				pDoc->SetDataInEdition(true);
+			}
+			break;
 		}
-		break;
-	}
-	case ID_TABLE_SAVE:			SaveData();  break;
-	case ID_TABLE_SENDTO_EXCEL:	ExportToExcel(); break;
-	case ID_TABLE_PERIOD_ENABLED:	pDoc->SetPeriodEnabled(!(pCtrl->m_nStyle & TBBS_CHECKED)); break;
-	case ID_TABLE_PERIOD_BEGIN:		OnDateChange(ID); break;
-	case ID_TABLE_PERIOD_END:		OnDateChange(ID); break;
-	case ID_TABLE_FILTER:			pDoc->SetVariables(((CMFCToolBarWVariablesButton*)pCtrl)->GetVariables()); break;
-	case ID_TABLE_STAT:			pDoc->SetStatistic(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
-	case ID_TABLE_TM_TYPE:		pDoc->SetTM(CTM(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel())); break;
+		case ID_TABLE_SAVE:			SaveData();  break;
+		case ID_TABLE_SENDTO_EXCEL:	ExportToExcel(); break;
+		case ID_TABLE_PERIOD_ENABLED:	pDoc->SetPeriodEnabled(!(pCtrl->m_nStyle & TBBS_CHECKED)); break;
+		case ID_TABLE_PERIOD_BEGIN:		OnDateChange(ID); break;
+		case ID_TABLE_PERIOD_END:		OnDateChange(ID); break;
+		case ID_TABLE_FILTER:			pDoc->SetVariables(((CMFCToolBarWVariablesButton*)pCtrl)->GetVariables()); break;
+		case ID_TABLE_STAT:			pDoc->SetStatistic(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel()); break;
+		case ID_TABLE_TM_TYPE:		pDoc->SetTM(CTM(((CMFCToolBarComboBoxButton*)pCtrl)->GetCurSel())); break;
 
+		}
 	}
 }
 

@@ -76,7 +76,7 @@ protected:
 	WBSF::CWeatherChartsCtrl m_weatherChartsCtrl;
 	CWeatherChartToolBar m_wndToolBar;
 	bool m_bMustBeUpdated;
-
+	bool m_bEnableMessage;
 
 };
 
