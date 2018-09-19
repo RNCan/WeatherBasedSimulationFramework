@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;;external_d.lib;wbs_d.lib;wbsUI_d.lib</AdditionalDependencies>
     </Link>
     <Midl>
@@ -144,7 +144,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;;external_d.lib;wbs_d.lib;wbsUI_d.lib</AdditionalDependencies>
     </Link>
     <Midl>
@@ -177,7 +177,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;external.lib;wbs.lib;wbsUI.lib</AdditionalDependencies>
     </Link>
     <Midl>
@@ -211,7 +211,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\external\boost\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;external.lib;wbs.lib;wbsUI.lib</AdditionalDependencies>
     </Link>
     <Midl>

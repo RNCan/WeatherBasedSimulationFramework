@@ -139,7 +139,7 @@ BOOL CDailyEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	
 	if (msg)
 	{
-		CString str = GetCommandLine();
+		CString str = GetCommandLine(); 
 		std::string cmd_line = CStringA(str);
 		std::replace(cmd_line.begin(), cmd_line.end(), '\\', '/');
 

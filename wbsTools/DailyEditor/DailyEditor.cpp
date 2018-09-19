@@ -136,8 +136,9 @@ BOOL CDailyEditorApp::InitInstance()
 
 
 	// Activer les ouvertures d'exécution DDE
-	EnableShellOpen();
-	RegisterShellFileTypes(TRUE);
+	//these line is no longuer usefull with Windows 7
+	//EnableShellOpen();
+	//RegisterShellFileTypes(TRUE);
 
 	ERMsg msg;
 	msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
