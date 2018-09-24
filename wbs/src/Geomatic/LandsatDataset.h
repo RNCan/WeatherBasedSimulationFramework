@@ -29,7 +29,7 @@ namespace WBSF
 		enum TCorr8 { NO_CORR8 = -1, C_CANADA, C_AUSTRALIA, C_USA, NB_CORR8_TYPE };
 
 
-		const char* GetSceneName(size_t s);
+		const char* GetBandName(size_t s);
 		const char* GetIndiceName(size_t i);
 		TDomain GetIndiceDomain(const std::string& str);
 		TIndices GetIndiceType(const std::string& str);

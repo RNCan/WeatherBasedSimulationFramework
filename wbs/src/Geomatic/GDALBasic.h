@@ -904,23 +904,42 @@ namespace WBSF
 
 		CGeoCoordFile()
 		{
-			m_prjIDSource = PRJ_NOT_INIT;
+			m_prjID = PRJ_NOT_INIT;
+			m_Xcol = NOT_INIT;
+			m_Ycol = NOT_INIT;
 		}
 
 		std::string m_header;
 		CGeoPointVector m_xy;
+		size_t m_Xcol;
+		size_t m_Ycol;
 
 		ERMsg Load(const std::string& filePath, const std::string X = "X", const std::string Y = "Y");
-		ERMsg Save(const std::string& filePath);
+		ERMsg Save(const std::string& filePath, bool bSaveDefinitionFile=true);
 
-		vector<size_t> GetCoordinate(const StringVector& header, const std::string X = "X", const std::string Y = "Y");
+		//vector<size_t> GetCoordinate(const StringVector& header, const std::string X = "X", const std::string Y = "Y");
 		ERMsg ManageProjection(size_t dstPrjID);
+
+		size_t GetPrjID()const { return m_prjID; }
+		void SetPrjID(size_t ID){  m_prjID= ID;  }
 
 	protected:
 
-		size_t m_prjIDSource;
+		size_t m_prjID;
 	};
 
+	class CGeoCoordTimeFile : public CGeoCoordFile
+	{
+	public:
+
+		CGeoCoordTimeFile()
+		{}
+
+		StringVector m_time;
+
+		ERMsg Load(const std::string& filePath, const std::string X = "X", const std::string Y = "Y", const std::string Time = "Time");
+	
+	};
 
 
 }

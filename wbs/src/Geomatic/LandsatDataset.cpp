@@ -25,7 +25,7 @@ namespace WBSF
 {
 
 
-	const char* Landsat::GetSceneName(size_t s)
+	const char* Landsat::GetBandName(size_t s)
 	{
 		static const char* BANDS_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
@@ -295,7 +295,7 @@ namespace WBSF
 					if (nbImages > 1)
 						name += "_" + FormatA("%02d", i + 1);
 
-					name += string("_") + GetSceneName(b) + ".tif|";
+					name += string("_") + GetBandName(b) + ".tif|";
 					options.m_VRTBandsName += name;
 				}
 			}
@@ -395,7 +395,7 @@ namespace WBSF
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetSceneName(b%SCENES_SIZE));
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
@@ -406,7 +406,7 @@ namespace WBSF
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA( "%d_%s", int(b/SCENES_SIZE)+1, Landsat::GetSceneName(b%SCENES_SIZE));
+			title = FormatA( "%d_%s", int(b/SCENES_SIZE)+1, Landsat::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
