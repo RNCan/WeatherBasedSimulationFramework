@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.3	20/09/2018	Rémi Saint-Amant	bestMedian use B3, B4, B5 instead of all bands
 // 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, add bestMedian
 // 1.1.1	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
 // 1.1.0	15/11/2017	Rémi Saint-Amant	Compile with GDAL 2.0
@@ -33,7 +34,7 @@ namespace WBSF
 {
 
 
-	const char* CMedianImage::VERSION = "1.1.2";
+	const char* CMedianImage::VERSION = "1.1.3";
 	std::string CMedianImage::GetDescription() { return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CMedianImage::NB_THREAD_PROCESS = 2;
 
@@ -50,6 +51,8 @@ namespace WBSF
 		m_bDebug = false;
 		m_corr8 = NO_CORR8;
 		m_bBestMedian = false;
+		m_bRemoveWorstQA = false;
+		m_bBandSeparatly = false;
 
 		m_meanType = NO_MEAN;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
@@ -58,9 +61,11 @@ namespace WBSF
 		AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\" or \"always2\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"no\" by default." },
+			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\", \"always2\", \"always3\" or \"always4\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"no\" by default." },
 			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
-			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for all bands (B1..B7). Take individual median by band by default." },
+			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for bands (B3,B4,B5,QA). Take individual median by band by default." },
+			{ "-worstQA", 1, "", false, "Remove the worst QA before computing median." },
+			{ "-BandValidity", 1, "", false, "Verify validity on each band separatly. all or not vbalid be default" },
 			
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -144,6 +149,14 @@ namespace WBSF
 			m_corr8 = Landsat::GetCorr8(argv[++i]);
 			if (m_corr8 == NO_CORR8)
 				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
+		}
+		else if (IsEqual(argv[i], "-worstQA"))
+		{
+			m_bRemoveWorstQA = true;
+		}
+		else if (IsEqual(argv[i], "-BandValidity"))
+		{
+			m_bBandSeparatly = true;
 		}
 		else
 		{
@@ -476,11 +489,13 @@ namespace WBSF
 
 					array<vector<pair<__int16, __int16>>, SCENES_SIZE> median;
 					array<vector<pair<__int16, __int16>>, SCENES_SIZE> median2;
+					array < vector < pair<__int16, __int16>>, SCENES_SIZE>  medianQA;
 
 					for (size_t z = 0; z < median.size(); z++)
 					{
 						median[z].reserve(window.GetNbScenes());
 						median2[z].reserve(window.GetNbScenes());
+						medianQA[z].reserve(window.GetNbScenes());
 					}
 
 
@@ -488,19 +503,45 @@ namespace WBSF
 					{
 						CLandsatPixel pixel = window.GetPixel(iz, x, y);
 
-						if (pixel.IsValid() && !pixel.IsBlack())
+						//if (pixel.IsValid() && !pixel.IsBlack())
+						if (!pixel.IsBlack())
 						{
-							for (size_t z = 0; z < pixel.size(); z++)
+							if (m_options.m_bBandSeparatly || pixel.IsValid())
 							{
-								median[z].push_back(make_pair(pixel[z], pixel[QA]));
-								median2[z].push_back(make_pair(pixel[z], __int16(iz)));
+								for (size_t z = 0; z < pixel.size(); z++)
+								{
+									if (!m_options.m_bBandSeparatly || pixel[z] > -32000)
+									{
+										median[z].push_back(make_pair(pixel[z], pixel[QA]));
+										median2[z].push_back(make_pair(pixel[z], __int16(iz)));
+										medianQA[z].push_back(make_pair(pixel[QA], medianQA[z].size()));
+									}
+								}
 							}
 						}
 
+						
 					}//iz
 
 					if (!median[0].empty())
 					{
+						if (m_options.m_bRemoveWorstQA )
+						{
+							for (size_t z = 0; z < median.size(); z++)
+							{
+								if (median[z].size() > 1)
+								{
+									sort(medianQA[z].begin(), medianQA[z].end());
+									//eliminate worst QA
+									__int16 worstQA = medianQA[z].back().second;
+
+									median[z].erase(median[z].begin() + worstQA);
+									median2[z].erase(median2[z].begin() + worstQA);
+								}
+							}
+						}
+
+
 						for (size_t z = 0; z < median.size(); z++)
 						{
 							sort(median[z].begin(), median[z].end());
@@ -519,7 +560,7 @@ namespace WBSF
 								for (size_t s = 0; s < scenesScore.size(); s++)
 									scenesScore[s] = make_pair(0, s);
 
-								for (size_t z = 0; z <QA; z++)
+								for (size_t z = B3; z <= B5; z++)
 								{
 									size_t N = (median2[z].size() + 1) / 2;
 									for (size_t l = 0; l < median2[z].size(); l++)
@@ -545,6 +586,8 @@ namespace WBSF
 							}
 							else
 							{
+								
+
 								for (size_t z = 0; z < median.size(); z++)
 								{
 									size_t N1 = (median[z].size() + 1) / 2 - 1;

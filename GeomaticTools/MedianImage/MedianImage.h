@@ -31,6 +31,8 @@ namespace WBSF
 		Landsat::TCorr8 m_corr8;
 		TMean m_meanType;
 		bool m_bBestMedian;
+		bool m_bRemoveWorstQA;
+		bool m_bBandSeparatly;
 		//bool m_bFilterTCB;
 		//size_t m_bufferTCB;
 		//double m_TCBthreshold[2];

@@ -730,7 +730,7 @@ ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& p
 			{
 				
 				for (size_t b = 0; b < SCENES_SIZE; b++)
-					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + Landsat::GetSceneName(b) + ".tif|";
+					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + Landsat::GetBandName(b) + ".tif|";
 			}
 
 			msg += exportBandsDS[i].CreateImage(exportPath, options);

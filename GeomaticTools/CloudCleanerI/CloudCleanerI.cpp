@@ -61,7 +61,7 @@ CCloudCleanerIOption::CCloudCleanerIOption() :CBaseOptions(false)
 	m_bOutputDT = false;
 	m_B1threshold = { -175, -60 };
 	m_TCBthreshold = { 600, 200 };
-	m_ZSWthreshold = { 500, 160 };
+	//m_ZSWthreshold = { 500, 160 };
 	m_doubleTrigger = 5;
 	m_bBackup = false;
 	m_maxScene = 3;
@@ -78,7 +78,7 @@ CCloudCleanerIOption::CCloudCleanerIOption() :CBaseOptions(false)
 
 	static const COptionDef OPTIONS[] =
 	{
-		{ "-Thres", 4, "type B1 TCB ZSW", false, "Set trigger threshold for B1, TCB and ZSW to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -175 600 500 for primary and -60 200 160 for secondary." },
+		{ "-Thres", 3, "type B1 TCB ZSW", false, "Set trigger threshold for B1, TCB and ZSW to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -175 600 500 for primary and -60 200 160 for secondary." },
 		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 1 by default." },
 		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 2 by default." },
 		{ "-Backup", 0, "", false, "Backup JD layer before overwrite it. If a backup already exist, it will be overwrite." },
@@ -130,7 +130,7 @@ ERMsg CCloudCleanerIOption::ProcessOption(int& i, int argc, char* argv[])
 		{
 			m_B1threshold[type] = atoi(argv[++i]);
 			m_TCBthreshold[type] = atoi(argv[++i]);
-			m_ZSWthreshold[type] = atoi(argv[++i]);
+			//m_ZSWthreshold[type] = atoi(argv[++i]);
 		}
 		else
 		{
@@ -1275,23 +1275,23 @@ __int32 CCloudCleanerIOption::GetTCBTrigger(std::array <CLandsatPixel, 3>& p, si
 	return (t1 + t2) / t3;
 }
 
-__int32 CCloudCleanerIOption::GetZSWTrigger(std::array <CLandsatPixel, 3>& p, size_t t, size_t fm)
-{
-	size_t c0 = (fm == 0) ? 1 : 0;
-	size_t c2 = (fm == 2) ? 1 : 2;
-
-	if (!p[fm].IsInit())
-		return 32767;
-
-	if (!p[c0].IsInit() && !p[c2].IsInit())
-		return 32767;
-
-	__int32 t1 = p[c0].IsInit() ? max(0, (p[c0][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW]) - m_ZSWthreshold[t]) : 0;
-	__int32 t2 = p[c2].IsInit() ? max(0, (p[c2][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW]) - m_ZSWthreshold[t]) : 0;
-	__int32 t3 = (p[c0].IsInit() ? 1 : 0) + (p[c2].IsInit() ? 1 : 0);
-
-	return (t1 + t2) / t3;
-}
+//__int32 CCloudCleanerIOption::GetZSWTrigger(std::array <CLandsatPixel, 3>& p, size_t t, size_t fm)
+//{
+//	size_t c0 = (fm == 0) ? 1 : 0;
+//	size_t c2 = (fm == 2) ? 1 : 2;
+//
+//	if (!p[fm].IsInit())
+//		return 32767;
+//
+//	if (!p[c0].IsInit() && !p[c2].IsInit())
+//		return 32767;
+//
+//	__int32 t1 = p[c0].IsInit() ? max(0, (p[c0][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW]) - m_ZSWthreshold[t]) : 0;
+//	__int32 t2 = p[c2].IsInit() ? max(0, (p[c2][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW]) - m_ZSWthreshold[t]) : 0;
+//	__int32 t3 = (p[c0].IsInit() ? 1 : 0) + (p[c2].IsInit() ? 1 : 0);
+//
+//	return (t1 + t2) / t3;
+//}
 
 
 

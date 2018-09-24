@@ -259,7 +259,7 @@ namespace WBSF
 
 
 		if (b < SCENES_SIZE)
-			str += string("_") + Landsat::GetSceneName(b);
+			str += string("_") + Landsat::GetBandName(b);
 
 		return str;
 	}

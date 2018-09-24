@@ -43,9 +43,9 @@ namespace WBSF
 
 			bool bB1 = IsB1Trigged(p, t, fm);
 			bool bTCB = IsTCBTrigged(p, t, fm);
-			bool bZSW = IsZSWTrigged(p, t, fm);
+			//bool bZSW = IsZSWTrigged(p, t, fm);
 
-			return bB1 || bTCB || bZSW;
+			return bB1 || bTCB /*|| bZSW*/;
 		}
 
 		bool IsB1Trigged(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
@@ -92,7 +92,7 @@ namespace WBSF
 
 			return (t3&&t4);
 		}
-		bool IsZSWTrigged(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
+		/*bool IsZSWTrigged(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
@@ -107,17 +107,17 @@ namespace WBSF
 			bool t6 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW] > m_ZSWthreshold[t]) : true;
 
 			return (t5&&t6);
-		}
+		}*/
 
 
 		__int32 GetTrigger(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
-			return GetB1Trigger(p, t, fm) + GetTCBTrigger(p, t, fm) + GetZSWTrigger(p, t, fm);
+			return GetB1Trigger(p, t, fm) + GetTCBTrigger(p, t, fm);
 		}
 
 		__int32 GetB1Trigger(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1);
 		__int32 GetTCBTrigger(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1);
-		__int32 GetZSWTrigger(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1);
+		//__int32 GetZSWTrigger(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1);
 
 		int GetDebugID(std::array <CLandsatPixel, 3>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
@@ -125,15 +125,15 @@ namespace WBSF
 
 			int nB1 = IsB1Trigged(p, t, fm) ? 1 : 0;
 			int nTCB = IsTCBTrigged(p, t, fm) ? 2 : 0;
-			int nZSW = IsZSWTrigged(p, t, fm) ? 4 : 0;
-			int nt = (t == T_SECONDARY && (nB1 + nTCB + nZSW) > 0) ? 8 : 0;
+//			int nZSW = IsZSWTrigged(p, t, fm) ? 4 : 0;
+			int nt = (t == T_SECONDARY && (nB1 + nTCB ) > 0) ? 4 : 0;
 
-			return nt + nB1 + nTCB + nZSW;
+			return nt + nB1 + nTCB;
 		}
 
 		std::array<__int32, 2> m_B1threshold;
 		std::array<__int32, 2> m_TCBthreshold;
-		std::array<__int32, 2> m_ZSWthreshold;
+		//std::array<__int32, 2> m_ZSWthreshold;
 		size_t m_buffer;
 		size_t m_bufferEx;
 
