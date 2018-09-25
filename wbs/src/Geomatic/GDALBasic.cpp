@@ -2782,7 +2782,7 @@ namespace WBSF
 						if (i == m_Xcol)
 							file << "CoordX";
 						else if (i == m_Ycol)
-							file << "CoordX";
+							file << "CoordY";
 						else
 							file << "Real";
 					}

@@ -526,21 +526,24 @@ namespace WBSF
 				//	ioFile.m_header = m_options.m_IHeader + ",";
 				
 				
-				oFile.m_header = iFile.m_header;
-				oFile.m_xy = iFile.m_xy;
-				oFile.m_Xcol = iFile.m_Xcol;
-				oFile.m_Ycol = iFile.m_Ycol;
-				oFile.SetPrjID( iFile.GetPrjID() );
-				oFile.m_time = iFile.m_time;
-				oFile.m_header = m_options.m_IHeader;
+				
 
 
 				if (m_options.m_bExportAll)
 				{
 					oFile = iFile;
+					oFile.m_header = iFile.m_header;
+					oFile.m_xy = iFile.m_xy;
+					oFile.m_Xcol = iFile.m_Xcol;
+					oFile.m_Ycol = iFile.m_Ycol;
+					oFile.SetPrjID(iFile.GetPrjID());
+					oFile.m_time = iFile.m_time;
 				}
 				else
 				{
+					oFile.m_header = m_options.m_IHeader;
+					oFile.SetPrjID(iFile.GetPrjID());
+					
 					//add only Code
 					StringVector header(iFile.m_header, ",;");
 					set<size_t> posCode = header.FindAll(m_options.m_IHeader);
