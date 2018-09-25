@@ -1,7 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-dstNoData -32768 -ExportAll -ExportAllBand -overwrite -ref "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout_median.vrt" "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Model\TraningSource.csv" "D:\Travaux\CloudCleaner\Model\Traning2005-2007.csv"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-te 801000 6447000 3588000 7995000 -period 2004-01-01 2008-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 1 1 -ref "U:\GIS\#documents\TestCodes\MedianImage\Median_Qc.vrt" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingCloud.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\TrainingMiddle.csv"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>-te 801000 6447000 3588000 7995000 -period 2004-01-01 2008-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 1 1 -ref "U:\GIS\#documents\TestCodes\MedianImage\Median_Qc.vrt" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingCloud.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\TrainingMiddle.csv"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-te 801000 6447000 3588000 7995000 -period 2004-01-01 2008-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 1 1 -ref "U:\GIS\#documents\TestCodes\MedianImage\Median_Qc.vrt" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingCloud.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\TrainingMiddle.csv"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-te 801000 6447000 3588000 7995000 -period 2004-01-01 2008-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 1 1 -ref "U:\GIS\#documents\TestCodes\MedianImage\Median_Qc.vrt" "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8417_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingCloud.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\TrainingMiddle.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

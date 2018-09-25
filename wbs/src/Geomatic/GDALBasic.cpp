@@ -1879,8 +1879,10 @@ namespace WBSF
 		bool bTemporal = !m_scenesPeriod.empty() && m_entirePeriod.IsInit();
 		ASSERT(!bTemporal || p.IsInit());
 
-		size_t nbSegment = bTemporal ? p.GetNbSegments() : 1ull;
-		CStatisticVector nbRaster(nbSegment);
+		ASSERT(p.GetNbSegments()==1);//only continue period is accepted
+		//size_t nbSegment = bTemporal ? p.GetNbSegments() : 1ull;
+		//CStatisticVector nbRaster(nbSegment);
+		size_t nbRasterMax =0;
 		for (size_t k = 0; k < (int)m_bandHolder.size(); k++)
 		{
 			ASSERT(!m_bandHolder[k]->GetInternalMapExtents().IsRectEmpty());
@@ -1892,19 +1894,23 @@ namespace WBSF
 				{
 					//m_scenesPeriod[sceneNo].GetNbSegment(.GetNbSegement(p)
 					//assume m_scenesPeriod[sceneNo] ans p is annual
-					int l = bTemporal ? p.GetSegmentIndex(m_scenesPeriod[sceneNo].Begin()) : 0;
-					nbRaster[l] += 1;
+					//int l = bTemporal ? p.GetSegmentIndex(m_scenesPeriod[sceneNo].Begin()) : 0;
+					//if(l>=0 && l<nbRaster.size())
+						//nbRaster[l] += 1;
+
+					nbRasterMax++;
 				}
 			}
 		}
 
-		CStatistic nbRasterAll;
+	/*	CStatistic nbRasterAll;
 		for (int l = 0; l < nbSegment; l++)
 			if (nbRaster[l][NB_VALUE] > 0)
 				nbRasterAll += nbRaster[l][SUM];
-
-		int nbRasterMax = (nbRasterAll[NB_VALUE] > 0) ? (int)nbRasterAll[HIGHEST] : 0;
+*/
+		//int nbRasterMax = (nbRasterAll[NB_VALUE] > 0) ? (int)nbRasterAll[HIGHEST] : 0;
 		nbRasterMax += (m_pMaskBandHolder.get() != NULL) ? 1 : 0;
+		
 
 		return nbRasterMax;
 	}
