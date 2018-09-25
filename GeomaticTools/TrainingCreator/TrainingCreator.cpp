@@ -105,6 +105,7 @@ namespace WBSF
 		m_nbPixels = { {1,1} };
 		m_bExportAllBand = false;
 		m_bExportAll = false;
+		m_bTakeSerial = false;
 
 		m_appDescription = "This software extract LANDSAT pixel from LANDSAT image and coordinates/time's file";
 
@@ -120,12 +121,13 @@ namespace WBSF
 			{ "-Y", 1, "str", false, "File header title for Y coordinates. \"Y\" by default." },
 			{ "JD", 1,"str",false, "File header title for event Julian day 1970 . \"JD\" by default."  },
 			{ "-Code", 1, "str", false, "File header title for dependant variable. \"Code\" by default." },
-			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 1 by default." },
-			//{ "-Median", 0, "", false, "Extract the median of all scenes and add it at the end of the training file. false by default." },
+			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 2 by default." },
+			{ "-RefMedian", 0, "", false, "Extract the median of all scenes available and add it at the end of the training file. false by default." },
 			{ "-Ref", 1, "refImage", false, "Add reference image value (for example median) at the end of the training file. All scene of the reference imnage will be added." },
 			{ "-ExportAllBand", 0, "", false, "Export all bands(B1..JD). B1..B7 by default." },
 			{ "-ExportAll", 0, "", false, "Export all input columns. Export only dependant and independant varaibles by default." },
-			{ "-windows", 1, "pixels", false, "Buffer windows of extraction. 0 by default." },
+			{ "-ExportSerial", 0, "", false, "Export serial without skipping missing values. Export only valid pixels by default." },
+			//{ "-windows", 1, "pixels", false, "Buffer windows of extraction. 0 by default." }, a faire
 			{ "-prec", 1, "precision", false, "Output precision. 4 by default." },
 			{ "Image", 0, "", false, "Landsat Image to extract information." },
 			{ "srcfile", 0, "", false, "Input coordinate file path (CSV)" },
@@ -217,6 +219,10 @@ namespace WBSF
 		{
 			//m_THeader = argv[++i];
 		}
+		else if (IsEqual(argv[i], "-RefMedian"))
+		{
+			m_bRefMedian = true;
+		}
 		else if (IsEqual(argv[i], "-Ref"))
 		{
 			m_refFilePath = argv[++i];
@@ -232,6 +238,10 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-ExportAll"))
 		{
 			m_bExportAll = true;
+		}
+		else if (IsEqual(argv[i], "-ExportSerial"))
+		{
+			m_bTakeSerial = true;
 		}
 		else
 		{
@@ -456,7 +466,11 @@ namespace WBSF
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NoData         = " << inputDS.GetNoData(0) << endl;
-
+			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
+			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
+			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
+			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -473,10 +487,6 @@ namespace WBSF
 				cout << endl << "Open references..." << endl;
 
 			msg += refDS.OpenInputImage(m_options.m_refFilePath, m_options);
-			/*if (refDS.GetExtents() != inputDS.GetExtents())
-			{
-				msg.ajoute("Invalid reference's image extents. Reference image must have exactly the same extents than the input image including block size.");
-			}*/
 		}
 
 
@@ -526,24 +536,21 @@ namespace WBSF
 				//	ioFile.m_header = m_options.m_IHeader + ",";
 				
 				
-				
+				oFile.m_header = iFile.m_header;
+				oFile.m_xy = iFile.m_xy;
+				oFile.m_Xcol = iFile.m_Xcol;
+				oFile.m_Ycol = iFile.m_Ycol;
+				oFile.SetPrjID( iFile.GetPrjID() );
+				oFile.m_time = iFile.m_time;
+				oFile.m_header = m_options.m_IHeader;
 
 
 				if (m_options.m_bExportAll)
 				{
 					oFile = iFile;
-					oFile.m_header = iFile.m_header;
-					oFile.m_xy = iFile.m_xy;
-					oFile.m_Xcol = iFile.m_Xcol;
-					oFile.m_Ycol = iFile.m_Ycol;
-					oFile.SetPrjID(iFile.GetPrjID());
-					oFile.m_time = iFile.m_time;
 				}
 				else
 				{
-					oFile.m_header = m_options.m_IHeader;
-					oFile.SetPrjID(iFile.GetPrjID());
-					
 					//add only Code
 					StringVector header(iFile.m_header, ",;");
 					set<size_t> posCode = header.FindAll(m_options.m_IHeader);
@@ -570,6 +577,10 @@ namespace WBSF
 					for (size_t j = 0; j < m_options.nbBandExport(); j++)
 					{
 						string title = "t" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
+
+						if (!inputDS.GetInternalName((int)i).empty())
+							title = GetFileTitle(inputDS.GetInternalName((int)i));
+
 						oFile.m_header += "," + title;
 					}
 				}
@@ -580,6 +591,10 @@ namespace WBSF
 					for (size_t j = 0; j < m_options.nbBandExport(); j++)
 					{
 						string title = "r" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
+
+						if (!inputDS.GetInternalName((int)i).empty())
+							title = GetFileTitle(inputDS.GetInternalName((int)i));
+
 						oFile.m_header += "," + title;
 					}
 				}
@@ -631,6 +646,8 @@ namespace WBSF
 			//bandHolder.GetWindow(input);
 			CLandsatWindow window = bandHolder.GetWindow();
 			size_t nbScenes = bandHolder.GetNbScenes();
+			if (xBlock == 0 && yBlock == 0)
+				cout << "nb scenes = " << nbScenes << endl;
 
 			CLandsatWindow windowRef = bandHolderRef.GetWindow();
 			size_t nbRefScenes = bandHolderRef.GetNbScenes();
@@ -661,21 +678,52 @@ namespace WBSF
 					
 					if (z != NOT_INIT)
 					{
-						for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z-zz-1)< nbScenes; zz++)
-							pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(z-zz-1, xy.m_x, xy.m_y);
+						if (m_options.m_bTakeSerial)
+						{
+							/*for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z-zz-1)< nbScenes; zz++)
+								pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(z-zz-1, xy.m_x, xy.m_y);
 
-						pixels[m_options.m_nbPixels[0]] = window.GetPixel(z, xy.m_x, xy.m_y);
+							pixels[m_options.m_nbPixels[0]] = window.GetPixel(z, xy.m_x, xy.m_y);
 
-						for (size_t zz = 0; zz < m_options.m_nbPixels[1] && (z + zz + 1) < nbScenes; zz++)
-							pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z+zz+1, xy.m_x, xy.m_y);
+							for (size_t zz = 0; zz < m_options.m_nbPixels[1] && (z + zz + 1) < nbScenes; zz++)
+								pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z+zz+1, xy.m_x, xy.m_y);*/
+						}
+						else
+						{
+							for (size_t zz = 0, zzz = z - 1; zz < m_options.m_nbPixels[0] && zzz < nbScenes; zzz--)
+							{
+								if (window.GetPixel(zzz, xy.m_x, xy.m_y).IsValid())
+								{
+									pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(zzz, xy.m_x, xy.m_y);
+									zz++;
+								}
+							}
+
+							pixels[m_options.m_nbPixels[0]] = window.GetPixel(z, xy.m_x, xy.m_y);
+
+							for (size_t zz = 0, zzz = z + 1; zz < m_options.m_nbPixels[1] && zzz < nbScenes; zzz++)
+							{
+								if (window.GetPixel(zzz, xy.m_x, xy.m_y).IsValid())
+								{
+									pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(zzz, xy.m_x, xy.m_y);
+									zz++;
+								}
+							}
+						}
+
+						if (m_options.m_bRefMedian)
+						{
+							//add median
+							pixels[nbPixels-1] = window.GetPixelMedian(xy.m_x, xy.m_y);
+						}
+
+
+							//add reference at the end
+							for (size_t i = 0; i < nbRefScenes; i++)
+							{
+								pixels[nbPixels + i] = windowRef.GetPixel(i, xy.m_x, xy.m_y);
+							}
 					}
-
-					//add reference at the end
-					for (size_t i = 0; i < nbRefScenes; i++)
-					{
-						pixels[nbPixels + i] = windowRef.GetPixel(i, xy.m_x, xy.m_y);
-					}
-
 
 					for (size_t z = 0; z < pixels.size(); z++)
 					{

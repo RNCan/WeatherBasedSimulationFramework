@@ -261,6 +261,8 @@ namespace WBSF
 		CLandsatWindow(const CLandsatWindow& in);
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
 		CLandsatPixel GetPixelMean(size_t i, int x, int y, int buffer)const;
+		CLandsatPixel GetPixelMedian(size_t f, size_t l, int x, int y, int buffer=0)const;
+		CLandsatPixel GetPixelMedian(int x, int y, int buffer=0)const { return GetPixelMedian(0, size()-1, x, y, buffer); }
 		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
 
 		Landsat::TCorr8 m_corr8;

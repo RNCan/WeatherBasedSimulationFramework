@@ -765,6 +765,46 @@ namespace WBSF
 		return i != NOT_INIT && IsValid(i, pixel);
 	}
 
+	CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, int buffer)const
+	{
+		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+
+		array<CStatisticEx, SCENES_SIZE> stat;
+		for (size_t i = f; i <= l; i++)
+		{
+			
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+			{
+				size_t ii = i * SCENES_SIZE + z;
+				
+				for (int yy = 0; yy < 2 * buffer + 1; yy++)
+				{
+					for (int xx = 0; xx < 2 * buffer + 1; xx++)
+					{
+						LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
+						if (val != noData)
+							stat[z] += val;
+					}
+				}
+			}
+		}
+
+		bool bValid = true;
+		for (size_t z = 0; z < SCENES_SIZE&&bValid; z++)
+		{
+			if (!stat[z].IsInit())
+				bValid = false;
+		}
+
+		CLandsatPixel pixel;
+		if (bValid)
+		{
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+				pixel[z] = stat[z][MEDIAN];
+		}
+
+		return pixel;
+	}
 
 	//****************************************************************************************************************
 
