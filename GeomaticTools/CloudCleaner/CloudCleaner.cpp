@@ -69,7 +69,7 @@ static const char* version = "2.1.0";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
-const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag",/* "_B1f", "_TCBf", */"_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB", "_delta_B1_ref", "_delta_TCB_ref" };
+const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag","_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB"};
 
 
 std::string CCloudCleaner::GetDescription()
@@ -166,7 +166,7 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_bFillClouds = true;
 	}
-	else if (IsEqual(argv[i], "-FillMissings"))
+	else if (IsEqual(argv[i], "-FillMissing"))
 	{
 		m_bFillMissing = true;
 	}
@@ -1414,8 +1414,8 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1][xy] = m_options.GetB1Trigger(p, r, fm);
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB][xy] = m_options.GetTCBTrigger(p, r, fm);
-								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1_REF][xy] = m_options.GetB1TriggerRef(p[fm], r);
-								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB_REF][xy] = m_options.GetTCBTriggerRef(p[fm], r);
+//								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1_REF][xy] = m_options.GetB1TriggerRef(p[fm], r);
+	//							debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB_REF][xy] = m_options.GetTCBTriggerRef(p[fm], r);
 
 								//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_ZSW][xy] = m_options.GetZSWTrigger(p, r, fm);
 							}
@@ -1675,21 +1675,23 @@ __int32 CCloudCleanerOption::GetB1Trigger(std::array <CLandsatPixel, 4>& p, std:
 	if (!p[fm].IsInit())
 		return -32768;
 
-	if (!p[c0].IsInit() && !p[c2].IsInit())
+	if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 		return -32768;
 
 	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
 	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
-	__int32 t3 = 32767;
-	for (size_t i = 0; i < r.size(); i++)
-	{
-		if (r[i].IsInit())
-			t3 = min(t3, abs(r[i][Landsat::B1] - p[fm][Landsat::B1]));
-	}
+	__int32 t3 = p[3].IsInit() ? (p[3][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
+	
+	//__int32 t43 = 32767;
+	//for (size_t i = 0; i < r.size(); i++)
+	//{
+	//	if (r[i].IsInit())
+	//		t3 = min(t3, abs(r[i][Landsat::B1] - p[fm][Landsat::B1]));
+	//}
 
 	//__int32 t = max(t1, t2, t3);
 	//return (t == -32767) ? -32768 : t;
-	return max(t1, t2);
+	return max( max(t1, t2), t3);
 }
 
 __int32 CCloudCleanerOption::GetTCBTrigger(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t fm)
@@ -1700,15 +1702,16 @@ __int32 CCloudCleanerOption::GetTCBTrigger(std::array <CLandsatPixel, 4>& p, std
 	if (!p[fm].IsInit())
 		return -32768;
 
-	if (!p[c0].IsInit() && !p[c2].IsInit())
+	if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 		return -32768;
 
 	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
 	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
+	__int32 t3 = p[3].IsInit() ? (p[3][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
+	
 
-	//__int32 t = min(t1, t2, t3);
-	//return (t == -32767) ? -32768 : t;
-	return min(t1, t2);
+	
+	return min(min(t1, t2),t3);
 }
 
 

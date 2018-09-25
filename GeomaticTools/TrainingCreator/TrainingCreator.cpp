@@ -417,7 +417,7 @@ namespace WBSF
 					else
 					{
 						oFile.push_back(*it);
-					//	it++;
+						//	it++;
 					}
 
 				}
@@ -535,13 +535,13 @@ namespace WBSF
 
 				//if (!m_options.m_bExportAll)
 				//	ioFile.m_header = m_options.m_IHeader + ",";
-				
-				
+
+
 				oFile.m_header = iFile.m_header;
 				oFile.m_xy = iFile.m_xy;
 				oFile.m_Xcol = iFile.m_Xcol;
 				oFile.m_Ycol = iFile.m_Ycol;
-				oFile.SetPrjID( iFile.GetPrjID() );
+				oFile.SetPrjID(iFile.GetPrjID());
 				oFile.m_time = iFile.m_time;
 				oFile.m_header = m_options.m_IHeader;
 
@@ -571,7 +571,7 @@ namespace WBSF
 						return msg;
 					}
 				}
-					
+
 
 				for (size_t i = 0; i < m_options.GetNbPixels(); i++)
 				{
@@ -611,7 +611,7 @@ namespace WBSF
 		{
 			m_options.m_timerRead.Start();
 			bandHolder.LoadBlock(xBlock, yBlock);
-			if(bandHolderRef.GetRasterCount()>0)
+			if (bandHolderRef.GetRasterCount() > 0)
 				bandHolderRef.LoadBlock(xBlock, yBlock);
 
 			m_options.m_timerRead.Stop();
@@ -676,18 +676,18 @@ namespace WBSF
 						if (window.GetPixel(zz, xy.m_x, xy.m_y).at(JD) >= time)
 							z = zz;
 
-					
+
 					if (z != NOT_INIT)
 					{
 						if (m_options.m_bTakeSerial)
 						{
-							for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z-zz-1)< nbScenes; zz++)
-								pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(z-zz-1, xy.m_x, xy.m_y);
+							for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z - zz - 1) < nbScenes; zz++)
+								pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(z - zz - 1, xy.m_x, xy.m_y);
 
 							pixels[m_options.m_nbPixels[0]] = window.GetPixel(z, xy.m_x, xy.m_y);
 
 							for (size_t zz = 0; zz < m_options.m_nbPixels[1] && (z + zz + 1) < nbScenes; zz++)
-								pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z+zz+1, xy.m_x, xy.m_y);
+								pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z + zz + 1, xy.m_x, xy.m_y);
 						}
 						else
 						{
@@ -715,15 +715,15 @@ namespace WBSF
 						if (m_options.m_bAddMedian)
 						{
 							//add median
-							pixels[nbPixels-1] = window.GetPixelMedian(xy.m_x, xy.m_y);
+							pixels[nbPixels - 1] = window.GetPixelMedian(xy.m_x, xy.m_y);
 						}
 
 
-							//add reference at the end
-							for (size_t i = 0; i < nbRefScenes; i++)
-							{
-								pixels[nbPixels + i] = windowRef.GetPixel(i, xy.m_x, xy.m_y);
-							}
+						//add reference at the end
+						for (size_t i = 0; i < nbRefScenes; i++)
+						{
+							pixels[nbPixels + i] = windowRef.GetPixel(i, xy.m_x, xy.m_y);
+						}
 					}
 
 					for (size_t z = 0; z < pixels.size(); z++)
