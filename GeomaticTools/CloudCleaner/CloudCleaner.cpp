@@ -166,7 +166,7 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_bFillClouds = true;
 	}
-	else if (IsEqual(argv[i], "-FillMissing"))
+	else if (IsEqual(argv[i], "-FillMissings"))
 	{
 		m_bFillMissing = true;
 	}
@@ -337,7 +337,7 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 	landsatDS.UpdateOption(m_options);
 
 	//update period from scene
-	m_options.m_period = landsatDS.GetPeriod();
+	//m_options.m_period = landsatDS.GetPeriod();
 	size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 
 	CTPeriod processPeriod;
@@ -372,6 +372,8 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 		cout << "    Process period = " << processPeriod.GetFormatedString() << endl;
 	}
 
+	if (!m_options.m_period.IsIntersect(processPeriod))
+		msg.ajoute("Input period and process perid does not intersect. Verify period or scenes options");
 
 
 	if (msg && !m_options.m_maskName.empty())
