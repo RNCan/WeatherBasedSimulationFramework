@@ -120,7 +120,7 @@ namespace WBSF
 			{ "-Y", 1, "str", false, "File header title for Y coordinates. \"Y\" by default." },
 			{ "JD", 1,"str",false, "File header title for event Julian day 1970 . \"JD\" by default."  },
 			{ "-Code", 1, "str", false, "File header title for dependant variable. \"Code\" by default." },
-			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 2 by default." },
+			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 1 by default." },
 			//{ "-Median", 0, "", false, "Extract the median of all scenes and add it at the end of the training file. false by default." },
 			{ "-Ref", 1, "refImage", false, "Add reference image value (for example median) at the end of the training file. All scene of the reference imnage will be added." },
 			{ "-ExportAllBand", 0, "", false, "Export all bands(B1..JD). B1..B7 by default." },
@@ -473,10 +473,10 @@ namespace WBSF
 				cout << endl << "Open references..." << endl;
 
 			msg += refDS.OpenInputImage(m_options.m_refFilePath, m_options);
-			if (refDS.GetExtents() != inputDS.GetExtents())
+			/*if (refDS.GetExtents() != inputDS.GetExtents())
 			{
 				msg.ajoute("Invalid reference's image extents. Reference image must have exactly the same extents than the input image including block size.");
-			}
+			}*/
 		}
 
 

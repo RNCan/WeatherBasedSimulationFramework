@@ -376,10 +376,10 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			cout << endl << "Open references..." << endl;
 
 		msg += refDS.OpenInputImage(m_options.m_refFilePath, m_options);
-		if (refDS.GetExtents() != landsatDS.GetExtents())
+	/*	if (refDS.GetExtents() != landsatDS.GetExtents())
 		{
 			msg.ajoute("Invalid reference's image extents. Reference image must have exactly the same extents than the input image including block size.");
-		}
+		}*/
 	}
 
 
