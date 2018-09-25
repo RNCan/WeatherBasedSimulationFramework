@@ -28,13 +28,13 @@ namespace WBSF
 		int m_precision;
 		std::array<int, 2> m_nbPixels;
 		std::string m_refFilePath;
-		bool m_bRefMedian;
+		bool m_bAddMedian;
 		bool m_bExportAllBand;
 		bool m_bExportAll;
 		bool m_bTakeSerial;
 
 
-		int GetNbPixels()const { return m_nbPixels[0] + m_nbPixels[1] + 1 + (m_bRefMedian?1:0); }
+		int GetNbPixels()const { return m_nbPixels[0] + m_nbPixels[1] + 1 + (m_bAddMedian?1:0); }
 
 		size_t nbBandExport()const { return m_bExportAllBand ? Landsat::SCENES_SIZE : Landsat::QA; }
 	};

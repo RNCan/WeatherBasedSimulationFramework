@@ -103,7 +103,7 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_precision = 4;
 		m_nbPixels = { {1,1} };
-		m_bRefMedian = false;
+		m_bAddMedian = false;
 		m_bExportAllBand = false;
 		m_bExportAll = false;
 		m_bTakeSerial = false;
@@ -123,8 +123,8 @@ namespace WBSF
 			{ "JD", 1,"str",false, "File header title for event Julian day 1970 . \"JD\" by default."  },
 			{ "-Code", 1, "str", false, "File header title for dependant variable. \"Code\" by default." },
 			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 2 by default." },
-			{ "-RefMedian", 0, "", false, "Extract the median of all scenes available and add it at the end of the training file. false by default." },
-			{ "-Ref", 1, "refImage", false, "Add reference image value (for example median) at the end of the training file. All scene of the reference imnage will be added." },
+			{ "-AddMedian", 0, "", false, "Add the median (of all scenes available limited by -Period) at the end of the training file. False by default." },
+			//{ "-Ref", 1, "refImage", false, "Add reference image value (for example median) at the end of the training file. All scene of the reference imnage will be added." },
 			{ "-ExportAllBand", 0, "", false, "Export all bands(B1..JD). B1..B7 by default." },
 			{ "-ExportAll", 0, "", false, "Export all input columns. Export only dependant and independant varaibles by default." },
 			{ "-ExportSerial", 0, "", false, "Export serial without skipping missing values. Export only valid pixels by default." },
@@ -220,9 +220,9 @@ namespace WBSF
 		{
 			//m_THeader = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-RefMedian"))
+		else if (IsEqual(argv[i], "-AddMedian"))
 		{
-			m_bRefMedian = true;
+			m_bAddMedian = true;
 		}
 		else if (IsEqual(argv[i], "-Ref"))
 		{
@@ -712,7 +712,7 @@ namespace WBSF
 							}
 						}
 
-						if (m_options.m_bRefMedian)
+						if (m_options.m_bAddMedian)
 						{
 							//add median
 							pixels[nbPixels-1] = window.GetPixelMedian(xy.m_x, xy.m_y);

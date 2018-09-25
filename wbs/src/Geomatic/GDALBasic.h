@@ -185,6 +185,7 @@ namespace WBSF
 			m_windowRect = windowRect;
 		}
 
+		bool IsInit()const {return m_sceneSize!= 0;}
 		size_t GetNbScenes()const{ return size() / m_sceneSize; }
 		size_t GetSceneSize()const{ return m_sceneSize; }
 
