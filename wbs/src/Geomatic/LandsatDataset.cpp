@@ -767,12 +767,14 @@ namespace WBSF
 
 	CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, int buffer)const
 	{
+		assert(f < GetNbScenes());
+		assert(l < GetNbScenes());
 		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+
 
 		array<CStatisticEx, SCENES_SIZE> stat;
 		for (size_t i = f; i <= l; i++)
 		{
-			
 			for (size_t z = 0; z < SCENES_SIZE; z++)
 			{
 				size_t ii = i * SCENES_SIZE + z;

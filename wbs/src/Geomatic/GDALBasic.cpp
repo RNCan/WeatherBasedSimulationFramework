@@ -1882,7 +1882,7 @@ namespace WBSF
 		ASSERT(p.GetNbSegments()==1);//only continue period is accepted
 		//size_t nbSegment = bTemporal ? p.GetNbSegments() : 1ull;
 		//CStatisticVector nbRaster(nbSegment);
-		size_t nbRasterMax =0;
+		int nbRasterMax =0;
 		for (size_t k = 0; k < (int)m_bandHolder.size(); k++)
 		{
 			ASSERT(!m_bandHolder[k]->GetInternalMapExtents().IsRectEmpty());

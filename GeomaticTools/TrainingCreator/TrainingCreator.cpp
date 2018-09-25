@@ -103,6 +103,7 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_precision = 4;
 		m_nbPixels = { {1,1} };
+		m_bRefMedian = false;
 		m_bExportAllBand = false;
 		m_bExportAll = false;
 		m_bTakeSerial = false;
@@ -680,13 +681,13 @@ namespace WBSF
 					{
 						if (m_options.m_bTakeSerial)
 						{
-							/*for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z-zz-1)< nbScenes; zz++)
+							for (size_t zz = 0; zz < m_options.m_nbPixels[0] && (z-zz-1)< nbScenes; zz++)
 								pixels[m_options.m_nbPixels[0] - zz - 1] = window.GetPixel(z-zz-1, xy.m_x, xy.m_y);
 
 							pixels[m_options.m_nbPixels[0]] = window.GetPixel(z, xy.m_x, xy.m_y);
 
 							for (size_t zz = 0; zz < m_options.m_nbPixels[1] && (z + zz + 1) < nbScenes; zz++)
-								pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z+zz+1, xy.m_x, xy.m_y);*/
+								pixels[m_options.m_nbPixels[0] + zz + 1] = window.GetPixel(z+zz+1, xy.m_x, xy.m_y);
 						}
 						else
 						{
