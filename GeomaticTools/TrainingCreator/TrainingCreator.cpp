@@ -112,7 +112,7 @@ namespace WBSF
 		for (int i = 0; i < sizeof(DEFAULT_OPTIONS) / sizeof(char*); i++)
 			AddOption(DEFAULT_OPTIONS[i]);
 
-
+		AddOption("-period");
 		static const COptionDef OPTIONS[] =
 		{
 			//{ "-Condition", 1, "type", true, "Add conditions to the extraction. 4 possibility of condition can be define: \"AllValid\", \"AtLeastOneValid\", \"AtLeastOneMissing\", \"AllMissing\". No conditions are define by default (all will be output)." },
@@ -139,8 +139,8 @@ namespace WBSF
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input", "Image", "", "9", "", "" },
-			{ "Input", "srcfile", "", "4 or more", "ID|X|Y|JD|other information...", "The columns order is not important. The coordinates must have a column header \"X\" and \"Y\". A line's ID is recommended because line order is not kept in extraction" },
-			{ "Output", "dstfile", "", "", "ID|X|Y|others information...|9*nbPixels...", "" },
+			{ "Input", "srcfile", "", "4 or more", "ID|X|Y|JD|Code|other information...", "The columns order is not important. The coordinates must have a column header \"X\" and \"Y\". A line's ID is recommended because line order is not kept in extraction" },
+			{ "Output", "dstfile", "", "", "Code|7*(3+ref)...", "" },
 		};
 
 		for (int i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)

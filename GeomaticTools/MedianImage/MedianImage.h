@@ -33,6 +33,7 @@ namespace WBSF
 		bool m_bBestMedian;
 		bool m_bRemoveWorstQA;
 		bool m_bBandSeparatly;
+		//std::array<size_t, 2> m_scenes;
 		//bool m_bFilterTCB;
 		//size_t m_bufferTCB;
 		//double m_TCBthreshold[2];

@@ -53,6 +53,7 @@ namespace WBSF
 		m_bBestMedian = false;
 		m_bRemoveWorstQA = false;
 		m_bBandSeparatly = false;
+		//m_scenes = { {NOT_INIT, NOT_INIT } };//use -Period instead
 
 		m_meanType = NO_MEAN;
 		m_appDescription = "This software select the median pixel for each band of all scenes (composed of " + to_string(SCENES_SIZE) + " bands)";
@@ -66,7 +67,7 @@ namespace WBSF
 			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for bands (B3,B4,B5,QA). Take individual median by band by default." },
 			{ "-worstQA", 1, "", false, "Remove the worst QA before computing median." },
 			{ "-BandValidity", 1, "", false, "Verify validity on each band separatly. all or not vbalid be default" },
-			
+			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
@@ -158,6 +159,11 @@ namespace WBSF
 		{
 			m_bBandSeparatly = true;
 		}
+		//else if (IsEqual(argv[i], "-Scenes"))
+		//{
+		//	m_scenes[0] = atoi(argv[++i]) - 1;
+		//	m_scenes[1] = atoi(argv[++i]) - 1;
+		//}
 		else
 		{
 			//Look to see if it's a know base option
@@ -279,9 +285,37 @@ namespace WBSF
 		{
 			inputDS.UpdateOption(m_options);
 			m_options.InitFileInfo(inputDS);
+
+			//if (m_options.m_scenes[0] == NOT_INIT)
+			//	m_options.m_scenes[0] = 0;
+
+			//if (m_options.m_scenes[1] == NOT_INIT)
+			//	m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
+
+			//if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
+			//	msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
+
+			//if (m_options.m_scenes[0] > m_options.m_scenes[1])
+			//	msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
+
 		}
 
+		//m_options.m_period = inputDS.GetPeriod();
+		//size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 
+		//CTPeriod processPeriod;
+		//const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
+
+		//ASSERT(m_options.m_scenes[0] < p.size());
+		//ASSERT(m_options.m_scenes[1] < p.size());
+
+		//for (size_t i = 0; i < nbScenedProcess; i++)
+		//{
+		//	size_t ii = size_t(m_options.m_scenes[0] + i);
+		//	ASSERT(ii < p.size());
+
+		//	processPeriod += p[ii];
+		//}
 
 		if (!m_options.m_bQuiet)
 		{
@@ -297,10 +331,13 @@ namespace WBSF
 			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
 			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
 			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+//			cout << "    Process period   = " << processPeriod.GetFormatedString() << endl;
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
 		}
+
+		
 
 		if (!m_options.m_maskName.empty())
 		{
@@ -321,6 +358,7 @@ namespace WBSF
 				cout << "Open output images..." << endl;
 				cout << "    Size           = " << m_options.m_extents.m_xSize << " cols x " << m_options.m_extents.m_ySize << " rows x " << option.m_nbBands << " bands" << endl;
 				cout << "    Extents        = X:{" << ToString(m_options.m_extents.m_xMin) << ", " << ToString(m_options.m_extents.m_xMax) << "}  Y:{" << ToString(m_options.m_extents.m_yMin) << ", " << ToString(m_options.m_extents.m_yMax) << "}" << endl;
+
 			}
 
 			string filePath = option.m_filesPath[CMedianImageOption::OUTPUT_FILE_PATH];
