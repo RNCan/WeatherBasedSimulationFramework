@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 2.1.1	25/09/2018	Rémi Saint-Amant	replace buffer and bufferEx
+// 2.1.1	25/09/2018	Rémi Saint-Amant	replace buffer and bufferEx. Separate cloud and shadow suspect pixel, chnage in secondary defeniiton.
 // 2.1.0	20/09/2018  Rémi Saint-Amant	Add the use of a reference image
 // 2.0.7	07/09/2018	Rémi Saint-Amant	Bug correctionn in flush cache
 // 2.0.6    06/09/2018	Rémi Saint-Amant	Optimization of clear suspicious and LoadData. correction of memory leak in Ranger. 
@@ -66,7 +66,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.1.0";
+static const char* version = "2.1.1";
 static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
