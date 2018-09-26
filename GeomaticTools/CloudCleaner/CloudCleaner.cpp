@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.1.1	25/09/2018	Rémi Saint-Amant	replace buffer and bufferEx
 // 2.1.0	20/09/2018  Rémi Saint-Amant	Add the use of a reference image
 // 2.0.7	07/09/2018	Rémi Saint-Amant	Bug correctionn in flush cache
 // 2.0.6    06/09/2018	Rémi Saint-Amant	Optimization of clear suspicious and LoadData. correction of memory leak in Ranger. 
@@ -85,15 +86,16 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_scenesSize = Landsat::SCENES_SIZE;
 	m_bDebug = false;
 	m_bOutputDT = false;
-	m_B1threshold = { -190, -10 };
-	m_TCBthreshold = { 900, 300 };
+	m_B1threshold = { -175, /*0, */250 };
+	m_TCBthreshold = { 800, /*200, */2400 };
 	//m_ZSWthreshold = { 10000, 10000 }; // { 600, 250 };
 	m_bFillClouds = false;
 	m_bFillMissing = false;
 	m_bUseMedian = false;
+	m_bVerifyDoubleCloud = true;
 
-	m_buffer = 0;
-	m_bufferEx = 0;
+	m_buffer = 10;
+	m_bufferEx = { {3,1} };
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	m_sieve = 9;
 
@@ -103,13 +105,14 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 	static const COptionDef OPTIONS[] =
 	{
-		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB to set pixel as suspect and execute random forest. Type is 1 for primary threshold and 2 for secondary threshod. -190 900  for primary and -10 300 for secondary." },
-		{ "-FillClouds", 0, "", false, "Fill clouds with next or previous valid scenes (+1,-1,+2,-2,...)." },
-		{ "-FillMissing", 0, "", false, "Fill missing with next or previous valid scenes (+1,-1,+2,-2,...). FillClouds must be selected." },
+		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB. The trigger threshold identify suspect pixels to be evaluated by Random Forest. Type 1 is for primary and 2 is for secondary. Primary test pixel with previous, next and median. Secondary test pixel alone. Default value are -175 800 for primary and 500 2000 for secondary." },
+		{ "-FillClouds", 0, "", false, "Fill clouds with next or previous valid scenes (+1,-1,+2,-2,...). Only reset by default. Use NoResult to avoid output result." },
+		{ "-FillMissing", 0, "", false, "Fill also missing pixels when -FillClouds is activated." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-		{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 0 by default." },
-		{ "-BufferEx", 1, "nbPixel", false, "Set suspicious pixels arround cloud pixels as cloud. 0 by default." },
+		//{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 0 by default." },
+		{ "-Buffer", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther thant tnis maximum buffer will be reset. 7 by default." },
+		{ "-BufferEx", 2, "primary secondary", false, "Set all suspicious pixels arround cloud pixels as cloud. 3 for primary and 1 for secondary by default." },
 		//{ "-Clean", 1, "nbPixel", false, "Keep secondary suspicious pixels arround cloud pixels as cloud. 0 by default." },
 		//{ "-UseMedian", 0, "", false, "Use median as extra pixel. Training file must have median pixle et the 4e position. false by default." },
 		//{ "-Ref", 1, "refImage", false, "Use reference images (like median image) to add accurency." },
@@ -180,12 +183,9 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	}
 	else if (IsEqual(argv[i], "-BufferEx"))
 	{
-		m_bufferEx = atoi(argv[++i]);
+		m_bufferEx[0] = atoi(argv[++i]);
+		m_bufferEx[1] = atoi(argv[++i]);
 	}
-	//else if (IsEqual(argv[i], "-SuspectAsCloud"))
-	//{
-	//	m_bSuspectAsCloud = true;
-	//}
 	else if (IsEqual(argv[i], "-Scenes"))
 	{
 		m_scenes[0] = atoi(argv[++i]) - 1;
@@ -203,9 +203,9 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_bDebug = true;
 	}
-	/*else if (IsEqual(argv[i], "-UseMedian"))
+	/*else if (IsEqual(argv[i], "-CheckDoubleCloud"))
 	{
-		m_bUseMedian = true;
+		m_bVerifyDoubleCloud = true;
 	}
 	*/else if (IsEqual(argv[i], "-Ref"))
 	{
@@ -570,21 +570,19 @@ ERMsg CCloudCleaner::Execute()
 
 		CGeoExtents extents = bandHolder.GetExtents();
 
-		CloudBitset suspects1(nbScenedProcess);
-		for (size_t i = 0; i < suspects1.size(); i++)
-			suspects1[i].resize((size_t)extents.m_xSize*extents.m_ySize);
-
-		CloudBitset suspects2;
-		suspects2.resize(nbScenedProcess);
-		for (size_t i = 0; i < suspects2.size(); i++)
-			suspects2[i].resize((size_t)extents.m_xSize*extents.m_ySize);
-
+		SuspectBitset suspects1(nbScenedProcess);
+		SuspectBitset suspects2(nbScenedProcess);
 		CloudBitset clouds(nbScenedProcess);
-		for (size_t i = 0; i < clouds.size(); i++)
-			clouds[i].resize((size_t)extents.m_xSize*extents.m_ySize);
 
-
-
+		for (size_t i = 0; i < nbScenedProcess; i++)
+		{
+			for (size_t ii = 0; ii < 2; ii++)
+			{
+				suspects1[i][ii].resize((size_t)extents.m_xSize*extents.m_ySize);
+				suspects2[i][ii].resize((size_t)extents.m_xSize*extents.m_ySize);
+				clouds[i][ii].resize((size_t)extents.m_xSize*extents.m_ySize);
+			}
+		}
 
 		//		cout << "random fill..." << endl;
 		//		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
@@ -635,12 +633,14 @@ ERMsg CCloudCleaner::Execute()
 
 		if (!m_options.m_bQuiet)
 		{
-			cout << "Suspicious1 (Suspicious2) for scenes... " << endl;
+			cout << "    Clouds1 (Clouds2)     Shadows1 (Shadows2) before clearing" << endl;
 			for (size_t zz = 0; zz < suspects1.size(); zz++)
 			{
-				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%";// << endl;
-				if (suspects2.size() == suspects1.size())
-					cout << " (" << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%)";
+				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2);
+				cout << (double)(suspects1[zz][0].count()) / suspects1[zz][0].size() * 100.0 << "%";
+				cout << " (" << (double)(suspects2[zz][0].count()) / suspects2[zz][0].size() * 100.0 << "%)";
+				cout << "     " << (double)(suspects1[zz][1].count()) / suspects1[zz][1].size() * 100.0 << "%";
+				cout << " (" << (double) (suspects2[zz][1].count()) / suspects2[zz][1].size() * 100.0 << "%)";
 				cout << endl;
 			}
 		}
@@ -655,7 +655,8 @@ ERMsg CCloudCleaner::Execute()
 #pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 			for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
 			{
-				SieveSuspect1(m_options.m_sieve, extents, suspects1[zz]);
+				for (size_t i = 0; i < 2; i++)
+					SieveSuspect1(m_options.m_sieve, extents, suspects1[zz][i]);
 			}
 			GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
 			cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
@@ -669,19 +670,25 @@ ERMsg CCloudCleaner::Execute()
 
 #pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
-			CleanSuspect2(extents, suspects1[zz], suspects2[zz]);
-
+		{
+			for (size_t i = 0; i < 2; i++)
+				CleanSuspect2(extents, suspects1[zz][i], suspects2[zz][i]);
+		}
 		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
 		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
 
 		if (!m_options.m_bQuiet)
 		{
-			cout << "Suspicious1 (Suspicious2) for scenes after clearing... " << endl;
+			cout << "    Clouds1 (Clouds2)     Shadows1 (Shadows2) after clearing" << endl;
 			for (size_t zz = 0; zz < suspects1.size(); zz++)
 			{
-				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)suspects1[zz].count() / suspects1[zz].size() * 100.0 << "%";// << endl;
-				if (suspects2.size() == suspects1.size())
-					cout << " (" << (double)suspects2[zz].count() / suspects2[zz].size() * 100.0 << "%)";
+//				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)(suspects1[zz][0].count() + suspects1[zz][1].count()) / suspects1[zz][0].size() * 100.0 << "%";// << endl;
+	//			cout << " (" << (double)(suspects2[zz][0].count() + suspects2[zz][1].count()) / suspects2[zz][0].size() * 100.0 << "%)";
+				cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2);
+				cout << (double)(suspects1[zz][0].count()) / suspects1[zz][0].size() * 100.0 << "%";
+				cout << " (" << (double)(suspects2[zz][0].count()) / suspects2[zz][0].size() * 100.0 << "%)";
+				cout << "     " << (double)(suspects1[zz][1].count()) / suspects1[zz][1].size() * 100.0 << "%";
+				cout << " (" << (double)(suspects2[zz][1].count()) / suspects2[zz][1].size() * 100.0 << "%)";
 				cout << endl;
 			}
 			cout << "Call ranger for all suspicious pixels" << endl;
@@ -708,8 +715,8 @@ ERMsg CCloudCleaner::Execute()
 
 		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
 		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
-
-
+		
+		
 		SetBuffer(extents, suspects1, suspects2, clouds);
 
 
@@ -741,11 +748,19 @@ ERMsg CCloudCleaner::Execute()
 			}//for all blocks
 		}
 
+	
+
 		//close inputs and outputs
 		CloseAll(lansatDS, maskDS, outputDS, DTCodeDS, debugDS);
 
+		cout << endl;
+		cout << "    Clouds      Shadows" << endl;
 		for (size_t zz = 0; zz < clouds.size(); zz++)
-			cout << "Cloud for scene " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2) << (double)clouds[zz].count() / clouds[zz].size() * 100.0 << "%" << endl;
+		{
+			cout << "    " << m_options.m_scenes[0] + zz + 1 << ": " << std::fixed << std::setprecision(2);
+			cout << (double)(clouds[zz][0].count()) / clouds[zz][0].size() * 100.0 << "%";
+			cout << "    " << (double)(clouds[zz][1].count()) / clouds[zz][1].size() * 100.0 << "%" << endl;
+		}
 
 		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
 		cout << "Memory used (Mo): " << memCounter.WorkingSetSize / (1024 * 1024) << endl;
@@ -809,7 +824,7 @@ size_t CCloudCleaner::get_m(size_t z1, const CLandsatPixelVector& data)
 	{
 		m = 2;
 	}
-	else//before and after is not init
+	else //before and after is not init
 	{
 		m = 1;
 	}
@@ -874,7 +889,7 @@ std::vector <CLandsatPixel> CCloudCleaner::GetR(CLandsatWindow& windowRef, size_
 	return r;
 }
 //Get input image reference
-void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, CloudBitset& suspects1, CloudBitset& suspects2)
+void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, SuspectBitset& suspects1, SuspectBitset& suspects2)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -923,16 +938,24 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 				std::vector <CLandsatPixel> r = GetR(windowRef, x, y);
 
 				size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
-				if (m_options.IsTrigged(p, r, CCloudCleanerOption::T_PRIMARY, fm))
-				{
-					suspects1[zz].set(xy2);
-				}//if suspect
+				
+					//if (m_options.IsTrigged(p, CCloudCleanerOption::T_PRIMARY, fm))
+					//{
+					//	suspects1[zz].set(xy2);
+					//	suspects2[zz].set(xy2);//all suspectec 1 is also suspect 2
+					//}//if suspect
+				
+					//if (m_options.IsTrigged(p, CCloudCleanerOption::T_SECONDARY, fm))
+					//{
+					//	suspects2[zz].set(xy2);
+					//}
+				
+				suspects1[zz][0].set(xy2, m_options.IsB1Trigged(p, CCloudCleanerOption::T_PRIMARY, fm));
+				suspects1[zz][1].set(xy2, m_options.IsTCBTrigged(p, CCloudCleanerOption::T_PRIMARY, fm));
+				
+				suspects2[zz][0].set(xy2, m_options.IsB1Trigged(p, CCloudCleanerOption::T_SECONDARY, fm));
+				suspects2[zz][1].set(xy2, m_options.IsTCBTrigged(p, CCloudCleanerOption::T_SECONDARY, fm));
 
-				if (!suspects2.empty() &&
-					m_options.IsTrigged(p, r, CCloudCleanerOption::T_SECONDARY, fm))
-				{
-					suspects2[zz].set(xy2);
-				}
 			}//x
 		}//y
 
@@ -943,7 +966,7 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 }
 
 //Get input image reference
-void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, const Forests3& forests, RFCodeData& RFcode, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, const Forests3& forests, RFCodeData& RFcode, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -1015,8 +1038,8 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 
 								size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
 
-								bool b1 = suspects1[zz].test(xy2);
-								bool b2 = !suspects2.empty() ? suspects2[zz].test(xy2) : false;
+								bool b1 = suspects1[zz][0].test(xy2) || suspects1[zz][1].test(xy2);
+								bool b2 = suspects2[zz][0].test(xy2) || suspects2[zz][1].test(xy2);
 								if (b1 || b2)
 								{
 									suspectPixel.set(xy);
@@ -1085,10 +1108,14 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 							{
 								int RFexit = int(forests[m]->getPredictions().at(0).at(0).at(cur_xy));
 
-								if (RFexit > 100)
+								size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
+								if (RFexit == 116)//clouds
 								{
-									size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
-									clouds[zz].set(xy2);
+									clouds[zz][0].set(xy2);
+								}//if cloud
+								if (RFexit == 115)//shadow
+								{
+									clouds[zz][1].set(xy2);
 								}//if cloud
 
 								if (!RFcode.empty())
@@ -1168,7 +1195,8 @@ size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSie
 					size_t xxx = xy.m_x + xx - 1;
 					if (xxx < (size_t)extents.m_xSize)
 					{
-						if (abs(int(xx) - 1) != abs(int(yy) - 1))
+						//if (abs(int(xx) - 1) != abs(int(yy) - 1))
+						if (xx != 1 && yy != 1)
 						{
 							size_t xy2 = yyy * extents.m_xSize + xxx;
 							if (suspects1.test(xy2))
@@ -1184,6 +1212,7 @@ size_t CCloudCleaner::SieveSuspect1(size_t level, size_t& nbPixels, size_t nbSie
 
 		if (nbPixels <= nbSieve || level >= 50000)
 			suspects1.reset(xy1);
+
 	}
 
 	return nbPixels;
@@ -1198,7 +1227,7 @@ void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, bo
 			size_t xy = y * extents.m_xSize + x;
 			size_t nbPixels = 0;
 			SieveSuspect1(0, nbPixels, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1);
-
+			
 #pragma omp atomic		
 			m_options.m_xx++;
 		}
@@ -1259,7 +1288,7 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 			{
 				//do circle cleaning
 				bool bReset = true;
-				size_t maxBuffer_y = 5;
+				size_t maxBuffer_y = m_options.m_buffer;
 				for (size_t yy = 0; (yy < 2 * maxBuffer_y + 1) && bReset; yy++)
 				{
 					size_t maxBuffer_x = min(maxBuffer_y, yy <= maxBuffer_y ? yy : 2 * maxBuffer_y - yy + 1);
@@ -1321,7 +1350,7 @@ void CCloudCleaner::CleanSuspect2(const CGeoExtents& extents, const boost::dynam
 }
 
 
-void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, LansatData& data, DebugData& debug, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, LansatData& data, DebugData& debug, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -1387,22 +1416,21 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 
 					if (!debug.empty())
 					{
-						if (data[xy].at(z).IsValid())
+						if (dataCopy[xy].at(z).IsValid())
 						{
-							array <CLandsatPixel, 4> p = GetP(z, data[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());// GetP(z, dataCopy[xy]);????
+							array <CLandsatPixel, 4> p = GetP(z, dataCopy[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());// GetP(z, dataCopy[xy]);????
 							std::vector <CLandsatPixel> r = GetR(windowRef, x, y);
 
 							//size_t fm = get_m(z, data[xy]);
-							size_t fm = get_m(z, data[xy]);
+							size_t fm = get_m(z, dataCopy[xy]);
 							ASSERT(fm<p.size());
 							if (p[fm].IsInit())
 							{
-								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, r, CCloudCleanerOption::T_PRIMARY, fm);
-								if (!suspects2.empty())
-								{
-									if (!suspects1[zz].test(xy2) && suspects2[zz].test(xy2))
-										debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, r, CCloudCleanerOption::T_SECONDARY, fm);
-								}
+								if (suspects1[zz][0].test(xy2) || suspects1[zz][1].test(xy2))
+									debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, r, CCloudCleanerOption::T_PRIMARY, fm);
+								else if (/*!suspects1[zz].test(xy2) && */suspects2[zz][0].test(xy2) || suspects2[zz][1].test(xy2))
+									debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, r, CCloudCleanerOption::T_SECONDARY, fm);
+
 
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_NB_SCENE][xy] = (p[0].IsInit() ? 1 : 0) + (p[1].IsInit() ? 1 : 0) + (p[2].IsInit() ? 1 : 0);
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_MODEL][xy] = (__int16)fm;
@@ -1412,8 +1440,8 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 								//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ZSW][xy] = m_options.IsZSWTrigged(p);
 								//debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_ZSW][xy] = m_options.IsZSWTrigged(p);
 
-								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1][xy] = m_options.GetB1Trigger(p, r, fm);
-								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB][xy] = m_options.GetTCBTrigger(p, r, fm);
+								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1][xy] = m_options.GetB1Trigger(p, fm);
+								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB][xy] = m_options.GetTCBTrigger(p, fm);
 //								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1_REF][xy] = m_options.GetB1TriggerRef(p[fm], r);
 	//							debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_TCB_REF][xy] = m_options.GetTCBTriggerRef(p[fm], r);
 
@@ -1422,8 +1450,8 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 						}
 					}
 
-					bool bCloud = clouds[zz].test(xy2);
-					bool bMissing = m_options.m_bFillMissing && !data[xy].at(z).IsValid();
+					bool bCloud = (clouds[zz][0].test(xy2)|| clouds[zz][1].test(xy2));
+					bool bMissing = m_options.m_bFillMissing && !dataCopy[xy].at(z).IsValid();
 					
 					if (bCloud|| bMissing)
 					{
@@ -1435,7 +1463,7 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 							{
 								size_t izz = size_t(zz + (int)pow(-1, i)*(i / 2 + 1));
 
-								bool bReplace = (izz < clouds.size()) ? data[xy].at(iz).IsValid() && !( clouds[izz].test(xy2) && suspects1[izz].test(xy2)) : true;
+								bool bReplace = (izz < clouds.size()) ? dataCopy[xy].at(iz).IsValid() && !( clouds[izz][0].test(xy2) || clouds[izz][1].test(xy2)) : true; /* && suspects1[izz].test(xy2)*/
 								if (bReplace)
 									z2 = iz;
 							}
@@ -1548,60 +1576,131 @@ void CCloudCleaner::WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder
 }
 
 
-void CCloudCleaner::SetBuffer(const CGeoExtents& extents, CloudBitset& suspects1, CloudBitset& suspects2, CloudBitset& clouds)
+//void CCloudCleaner::SetBuffer(const CGeoExtents& extents, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
+//{
+//	if (m_options.m_buffer > 0 || m_options.m_bufferEx > 0)
+//	{
+//
+//		m_options.ResetBar(clouds.size()*extents.m_xSize*extents.m_ySize);
+//		//set buffer around cloud
+//#pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
+//		for (__int64 zz = 0; zz < (__int64)clouds.size(); zz++)
+//		{
+//			boost::dynamic_bitset<size_t> cloudsCopy = clouds[zz];
+//			//size_t z = m_options.m_scenes[0] + zz;
+//			for (size_t y = 0; y < extents.m_ySize; y++)
+//			{
+//				for (size_t x = 0; x < extents.m_xSize; x++)
+//				{
+//					//size_t xy = (size_t)y*blockSize.m_x + x;
+//					size_t xy2 = y * extents.m_xSize + x;
+//
+//					//he suspicious = 
+//					if (cloudsCopy.test(xy2))
+//					{
+//						size_t maxBuffer = max(m_options.m_buffer, m_options.m_bufferEx);
+//						for (size_t yy = 0; yy < 2 * maxBuffer + 1; yy++)
+//						{
+//							for (size_t xx = 0; xx < 2 * maxBuffer + 1; xx++)
+//							{
+//								size_t yyy = y + yy - maxBuffer;
+//								size_t xxx = x + xx - maxBuffer;
+//								if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
+//								{
+//									size_t xy3 = yyy * extents.m_xSize + xxx;
+//
+//									if (xx < (2 * m_options.m_buffer + 1) && yy < (2 * m_options.m_buffer + 1))
+//									{
+//										clouds[zz].set(xy3);
+//									}
+//
+//									if (xx < (2 * m_options.m_bufferEx + 1) && yy < (2 * m_options.m_bufferEx + 1))
+//									{
+//										bool bSus = !suspects2.empty() ? suspects2[zz].test(xy3) : false;
+//										if (suspects1[zz].test(xy3) || bSus)
+//											clouds[zz].set(xy3);
+//									}
+//
+//								}
+//							}//for buffer x
+//						}//for buffer y 
+//					}//if cloud
+//#pragma omp atomic
+//					m_options.m_xx++;
+//				}//x
+//				m_options.UpdateBar();
+//			}//y
+//		}//zz
+//	}
+//}
+
+void CCloudCleaner::SetBuffer(const CGeoExtents& extents, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
 {
-	if (m_options.m_buffer > 0 || m_options.m_bufferEx > 0)
+	if (m_options.m_bufferEx[1] > 0 || m_options.m_bufferEx[2] > 0)
 	{
 
-		m_options.ResetBar(clouds.size()*extents.m_xSize*extents.m_ySize);
-		//set buffer around cloud
+		m_options.ResetBar(clouds.size()*extents.m_xSize*extents.m_ySize*2);
+		
+		//set suspicious around cloud as cloud
 #pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (__int64 zz = 0; zz < (__int64)clouds.size(); zz++)
 		{
-			boost::dynamic_bitset<size_t> cloudsCopy = clouds[zz];
-			//size_t z = m_options.m_scenes[0] + zz;
-			for (size_t y = 0; y < extents.m_ySize; y++)
+			for (size_t i = 0; i < 2; i++)
 			{
-				for (size_t x = 0; x < extents.m_xSize; x++)
+				boost::dynamic_bitset<size_t> cloudsCopy = clouds[zz][i];
+
+				for (size_t y = 0; y < extents.m_ySize; y++)
 				{
-					//size_t xy = (size_t)y*blockSize.m_x + x;
-					size_t xy2 = y * extents.m_xSize + x;
-
-					//he suspicious = 
-					if (cloudsCopy.test(xy2))
+					for (size_t x = 0; x < extents.m_xSize; x++)
 					{
-						size_t maxBuffer = max(m_options.m_buffer, m_options.m_bufferEx);
-						for (size_t yy = 0; yy < 2 * maxBuffer + 1; yy++)
+						size_t xy2 = y * extents.m_xSize + x;
+
+						if (cloudsCopy.test(xy2))
 						{
-							for (size_t xx = 0; xx < 2 * maxBuffer + 1; xx++)
+							//primary
+							for (size_t yy = 0; yy < 2 * m_options.m_bufferEx[0] + 1; yy++)
 							{
-								size_t yyy = y + yy - maxBuffer;
-								size_t xxx = x + xx - maxBuffer;
-								if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
+								for (size_t xx = 0; xx < 2 * m_options.m_bufferEx[0] + 1; xx++)
 								{
-									size_t xy3 = yyy * extents.m_xSize + xxx;
-
-									if (xx < (2 * m_options.m_buffer + 1) && yy < (2 * m_options.m_buffer + 1))
+									size_t yyy = y + yy - m_options.m_bufferEx[0];
+									size_t xxx = x + xx - m_options.m_bufferEx[0];
+									if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
 									{
-										clouds[zz].set(xy3);
+										size_t xy3 = yyy * extents.m_xSize + xxx;
+										if (xx < (2 * m_options.m_bufferEx[0] + 1) && yy < (2 * m_options.m_bufferEx[0] + 1))
+										{
+											if (suspects1[zz][i].test(xy3))
+												clouds[zz][i].set(xy3);
+										}
 									}
+								}//for buffer x
+							}//for buffer y 
 
-									if (xx < (2 * m_options.m_bufferEx + 1) && yy < (2 * m_options.m_bufferEx + 1))
+							//secondary
+							for (size_t yy = 0; yy < 2 * m_options.m_bufferEx[1] + 1; yy++)
+							{
+								for (size_t xx = 0; xx < 2 * m_options.m_bufferEx[1] + 1; xx++)
+								{
+									size_t yyy = y + yy - m_options.m_bufferEx[1];
+									size_t xxx = x + xx - m_options.m_bufferEx[1];
+									if (yyy < (size_t)extents.m_ySize && xxx < (size_t)extents.m_xSize)
 									{
-										bool bSus = !suspects2.empty() ? suspects2[zz].test(xy3) : false;
-										if (suspects1[zz].test(xy3) || bSus)
-											clouds[zz].set(xy3);
+										size_t xy3 = yyy * extents.m_xSize + xxx;
+										if (xx < (2 * m_options.m_bufferEx[1] + 1) && yy < (2 * m_options.m_bufferEx[1] + 1))
+										{
+											if (suspects2[zz][i].test(xy3))
+												clouds[zz][i].set(xy3);
+										}
 									}
-
-								}
-							}//for buffer x
-						}//for buffer y 
-					}//if cloud
+								}//for buffer x
+							}//for buffer y 
+						}//if cloud
 #pragma omp atomic
-					m_options.m_xx++;
-				}//x
-				m_options.UpdateBar();
-			}//y
+						m_options.m_xx++;
+					}//x
+					m_options.UpdateBar();
+				}//y
+			}
 		}//zz
 	}
 }
@@ -1667,7 +1766,7 @@ void CCloudCleaner::LoadData(const CBandsHolder& bandHolder, LansatData& data, C
 
 
 
-__int32 CCloudCleanerOption::GetB1Trigger(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t fm)
+__int32 CCloudCleanerOption::GetB1Trigger(std::array <CLandsatPixel, 4>& p, size_t fm)
 {
 	size_t c0 = (fm == 0) ? 1 : 0;
 	size_t c2 = (fm == 2) ? 1 : 2;
@@ -1694,7 +1793,7 @@ __int32 CCloudCleanerOption::GetB1Trigger(std::array <CLandsatPixel, 4>& p, std:
 	return max( max(t1, t2), t3);
 }
 
-__int32 CCloudCleanerOption::GetTCBTrigger(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t fm)
+__int32 CCloudCleanerOption::GetTCBTrigger(std::array <CLandsatPixel, 4>& p, size_t fm)
 {
 	size_t c0 = (fm == 0) ? 1 : 0;
 	size_t c2 = (fm == 2) ? 1 : 2;
