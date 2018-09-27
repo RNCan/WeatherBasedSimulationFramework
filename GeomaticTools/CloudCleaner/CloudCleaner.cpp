@@ -107,18 +107,18 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 	static const COptionDef OPTIONS[] =
 	{
-		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB. The trigger threshold identify suspect pixels to be evaluated by Random Forest. Type 1 is for primary and 2 is for secondary. Primary test pixel with previous, next and median. Secondary test pixel alone. Default value are -175 800 for primary and 500 2000 for secondary." },
+		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB. The trigger threshold identify suspect pixels to be evaluated by Random Forest. Type 1 is for primary and 2 is for secondary. Primary test pixel with previous, next and median. Secondary will also test pixel in absolute value. Default value are -175 600 for primary and -5 100 for secondary." },
 		{ "-FillClouds", 0, "", false, "Fill clouds with next or previous valid scenes (+1,-1,+2,-2,...). Only reset by default. Use NoResult to avoid output result." },
 		{ "-FillMissing", 0, "", false, "Fill also missing pixels when -FillClouds is activated." },
 		//{ "-MaxScene", 1, "nbScenes", false, "Use to limit the number of scenes read (around the working scene) to find and fill clouds. 2 by default (from ws -2 to ws + 2)." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 		//{ "-Buffer", 1, "nbPixel", false, "Set all pixels arround cloud pixels as cloud. 0 by default." },
 		{ "-Buffer", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther thant tnis maximum buffer will be reset. 7 by default." },
-		{ "-BufferEx", 2, "primary secondary", false, "Set all suspicious pixels arround cloud pixels as cloud. 3 for primary and 1 for secondary by default." },
+		{ "-BufferEx", 2, "primary secondary", false, "Set all suspicious pixels arround cloud pixels as cloud. 0 by default." },
 		//{ "-Clean", 1, "nbPixel", false, "Keep secondary suspicious pixels arround cloud pixels as cloud. 0 by default." },
 		//{ "-UseMedian", 0, "", false, "Use median as extra pixel. Training file must have median pixle et the 4e position. false by default." },
 		//{ "-Ref", 1, "refImage", false, "Use reference images (like median image) to add accurency." },
-		{ "-Sieve", 1, "nbPixel", false, "Set the minimum number of contigious pixel to consider it as suspicious. 9 by default." },
+		{ "-Sieve", 1, "nbPixel", false, "Set the minimum number of contigious pixel to consider it as suspicious. 5 by default." },
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
 		{ "-Debug",0,"",false,"Output debug information."},
 		{ "Model", 0, "", false, "Random forest cloud model file path." },
