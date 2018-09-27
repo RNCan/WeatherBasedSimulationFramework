@@ -116,13 +116,13 @@ namespace WBSF
 
 		AddOption("-period");
 		static const COptionDef OPTIONS[] =
-		{
+		{ 
 			//{ "-Condition", 1, "type", true, "Add conditions to the extraction. 4 possibility of condition can be define: \"AllValid\", \"AtLeastOneValid\", \"AtLeastOneMissing\", \"AllMissing\". No conditions are define by default (all will be output)." },
 			{ "-X", 1, "str", false, "File header title for X coordinates. \"X\" by default." },
 			{ "-Y", 1, "str", false, "File header title for Y coordinates. \"Y\" by default." },
 			{ "JD", 1,"str",false, "File header title for event Julian day 1970 . \"JD\" by default."  },
 			{ "-Code", 1, "str", false, "File header title for dependant variable. \"Code\" by default." },
-			{ "-nbPixels", 1, "before after", false, "Number of valid pixels to find before and after the event. 1 2 by default." },
+			{ "-nbPixels", 2, "before after", false, "Number of valid pixels to find before and after the event. 1 2 by default." },
 			{ "-AddMedian", 0, "", false, "Add the median (of all scenes available limited by -Period) at the end of the training file. False by default." },
 			//{ "-Ref", 1, "refImage", false, "Add reference image value (for example median) at the end of the training file. All scene of the reference imnage will be added." },
 			{ "-ExportAllBand", 0, "", false, "Export all bands(B1..JD). B1..B7 by default." },
@@ -395,7 +395,7 @@ namespace WBSF
 				{
 					size_t nbPixel = m_options.GetNbPixels() + bandHolderRef.GetNbScenes();
 					for (size_t z = 0; z < nbPixel; z++)
-						for (size_t b = 0; b < m_options.nbBandExport(); z++)
+						for (size_t b = 0; b < m_options.nbBandExport(); b++)
 							oFile[i] += ',' + strNodata;
 				}
 			}
@@ -554,7 +554,7 @@ namespace WBSF
 				{
 					//add only Code
 					StringVector header(iFile.m_header, ",;");
-					set<size_t> posCode = header.FindAll(m_options.m_IHeader);
+					set<size_t> posCode = header.FindAll(m_options.m_IHeader, false, true);
 					if (posCode.size() == 1)
 					{
 						oFile.reserve(iFile.size());

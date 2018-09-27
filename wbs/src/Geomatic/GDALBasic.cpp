@@ -2692,8 +2692,8 @@ namespace WBSF
 			m_header = ToString(loop.Header(), "", ",", "");
 
 			//vector<size_t> coordinatePos = GetCoordinate(loop.Header(), X, Y);
-			set<size_t> posX = loop.Header().FindAll(X);
-			set<size_t> posY = loop.Header().FindAll(Y);
+			set<size_t> posX = loop.Header().FindAll(X, false, true);
+			set<size_t> posY = loop.Header().FindAll(Y, false, true);
 			if (posX.size() != 1 || posY.size() != 1)
 			{
 				msg.ajoute("Invalid header for coordinates (X,Y). " + ToString(posX.size() + posY.size()) + " column(s) match for header \"" + X.c_str() + "\" and \"" + Y.c_str() + "\".");
@@ -2811,7 +2811,7 @@ namespace WBSF
 		if (msg)
 		{
 			StringVector header(m_header, ",;");
-			set<size_t> posTime = header.FindAll(Time);
+			set<size_t> posTime = header.FindAll(Time,false,true);
 			if (posTime.size() == 1)
 			{
 				m_time.reserve(size());

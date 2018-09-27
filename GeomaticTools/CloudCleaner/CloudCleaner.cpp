@@ -523,8 +523,10 @@ ERMsg CCloudCleaner::Execute()
 			msg.ajoute("Bad Random Forest models. All model must have the same number of independant variable. Ie 21 or 28 fro model with median.");
 		}
 
-		if (forests[0]->getNumIndependentVariables() != 21 &&
-			forests[0]->getNumIndependentVariables() != 28)
+
+		if (forests[0]->getNumIndependentVariables() - forests[0]->get_virtual_cols_name().size() != 14 &&
+			forests[0]->getNumIndependentVariables() - forests[0]->get_virtual_cols_name().size() != 21 &&
+			forests[0]->getNumIndependentVariables() - forests[0]->get_virtual_cols_name().size() != 28)
 		{
 			msg.ajoute("Bad Random Forest models. Number of independant variable must be 21 or 28 (when median is used).");
 		}
@@ -651,7 +653,7 @@ ERMsg CCloudCleaner::Execute()
 			if (!m_options.m_bQuiet)
 				cout << "Sieve primary suspicious pixels" << endl;
 
-			m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize*2);
+			m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize * 2);
 
 #pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 			for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
@@ -669,7 +671,7 @@ ERMsg CCloudCleaner::Execute()
 		if (!m_options.m_bQuiet)
 			cout << "Clean secondary suspicious pixels that do not touch primary suspicious pixel" << endl;
 
-		m_options.ResetBar((size_t)2 * nbScenedProcess*extents.m_xSize*extents.m_ySize*2);
+		m_options.ResetBar((size_t)2 * nbScenedProcess*extents.m_xSize*extents.m_ySize * 2);
 
 #pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (__int64 zz = 0; zz < (__int64)nbScenedProcess; zz++)
@@ -967,7 +969,7 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 }
 
 //Get input image reference
-void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, const Forests3& forests, RFCodeData& RFcode, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
+void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& /*bandHolderRef*/, const Forests3& forests, RFCodeData& RFcode, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds)
 {
 	size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 	size_t nbScenes = bandHolder.GetNbScenes();
@@ -993,17 +995,18 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 	CLandsatPixelVector median;
 	LoadData(bandHolder, data, median);
 
-	CLandsatWindow windowRef = bandHolderRef.GetWindow();
-	size_t nbRefScenes = (m_options.m_bUseMedian ? 1 : 0) + bandHolderRef.GetNbScenes();
+	//	CLandsatWindow windowRef = bandHolderRef.GetWindow();
+		//size_t nbRefScenes = (m_options.m_bUseMedian ? 1 : 0) + bandHolderRef.GetNbScenes();
 
-	//forest model, 0: beg,1: mid, 2: end
-	StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
+		//forest model, 0: beg,1: mid, 2: end
+		//StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
+	StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7", ",");
 	//add reference names
-	for (size_t i = 0; i < nbRefScenes; i++)
+	/*for (size_t i = 0; i < nbRefScenes; i++)
 	{
 		for (size_t b = B1; b < QA; b++)
 			vars.push_back("r" + to_string(i + 1) + "_" + Landsat::GetBandName(b));
-	}
+	}*/
 
 #pragma omp critical(ProcessBlock)
 	{
@@ -1067,11 +1070,22 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 							{
 
 								array <CLandsatPixel, 4> p = GetP(z, data[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());
-								std::vector <CLandsatPixel> r = GetR(windowRef, x, y);
+								//std::vector <CLandsatPixel> r = GetR(windowRef, x, y);
+
+								//size_t c = 0;
+								//for (size_t t = 0; t < 3 + (m_options.m_bUseMedian ? 1 : 0); t++)
+								//{
+								//	for (size_t b = 0; b < 7; b++)
+								//	{
+								//		bool error = false;
+								//		input.set(c++, cur_xy, p[t][b], error);
+								//	}
+								//}
 
 								size_t c = 0;
-								for (size_t t = 0; t < 3 + (m_options.m_bUseMedian ? 1 : 0); t++)
+								for (size_t tt = 0; tt < 2; tt++)
 								{
+									size_t t = tt * 2 + 1;
 									for (size_t b = 0; b < 7; b++)
 									{
 										bool error = false;
@@ -1080,14 +1094,14 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 								}
 
 								//add reference
-								for (size_t i = 0; i < r.size(); i++)
+							/*	for (size_t i = 0; i < r.size(); i++)
 								{
 									for (size_t b = 0; b < QA; b++)
 									{
 										bool error = false;
 										input.set(c++, cur_xy, r[i][b], error);
 									}
-								}
+								}*/
 
 
 								ASSERT(c == vars.size());
@@ -1179,7 +1193,7 @@ void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder
 
 void CCloudCleaner::SieveSuspect1(size_t level, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated, size_t& nbPixels)
 {
-//	size_t nbPixels = 0;
+	//	size_t nbPixels = 0;
 	size_t xy1 = (size_t)xy.m_y * extents.m_xSize + xy.m_x;
 	assert(suspects1.test(xy1));
 	assert(!treated.test(xy1));
@@ -1202,7 +1216,7 @@ void CCloudCleaner::SieveSuspect1(size_t level, size_t nbSieve, const CGeoExtent
 				if (xxx < (size_t)extents.m_xSize)
 				{
 					size_t xy2 = yyy * extents.m_xSize + xxx;
-					if (suspects1.test(xy2) && !treated.test(xy2) )
+					if (suspects1.test(xy2) && !treated.test(xy2))
 					{
 						SieveSuspect1(level + 1, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, treated, nbPixels);
 					}//not treated
@@ -1261,11 +1275,11 @@ void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, bo
 	//ofStream file;
 	//file.open("D:/Sieve.csv");
 	//file << "i,j,X,Y,Pixels";
-	
+
 	//file << endl;
 	for (size_t y = 0; y < extents.m_ySize; y++)
 	{
-		
+
 		for (size_t x = 0; x < extents.m_xSize; x++)
 		{
 			//size_t nbPixels = 0;
@@ -1273,9 +1287,9 @@ void CCloudCleaner::SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, bo
 			if (suspects1.test(xy) /*&& !treated1.test(xy)*/)
 			{
 				treated1.reset();
-	//			boost::dynamic_bitset<size_t> treated2(suspects1.size());
+				//			boost::dynamic_bitset<size_t> treated2(suspects1.size());
 
-				size_t nbPixels=0;
+				size_t nbPixels = 0;
 				SieveSuspect1(0, nbSieve, extents, CGeoPointIndex((int)x, (int)y), suspects1, treated1, nbPixels);
 				new_suspects1.set(xy, nbPixels > nbSieve);
 
