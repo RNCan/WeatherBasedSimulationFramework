@@ -22,7 +22,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TTrigger { T_PRIMARY, T_SECONDARY, NB_TRIGGER_TYPE };
+		enum TTrigger { T_PRIMARY, T_SECONDARY, T_ABSOLUTE, NB_TRIGGER_TYPE };
 		enum TFilePath { RF_MODEL_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 
 		enum TDebug { D_DEBUG_FLAG, D_NB_SCENE, D_SCENE_USED, D_MODEL, D_DELTA_B1, D_DELTA_TCB/*, D_DELTA_B1_REF, D_DELTA_TCB_REF*/, NB_DBUG };
@@ -63,10 +63,11 @@ namespace WBSF
 			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
 			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
 			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
-			bool t4 = p[3].IsInit() ? ((__int32)p[fm][Landsat::B1] > m_B1threshold[t]) : false;
+			bool t4 = (p[3].IsInit() && t == T_PRIMARY)? ((__int32)p[fm][Landsat::B1] > m_B1threshold[2]) : true;
+			//bool t4 = p[3].IsInit() ? ((__int32)p[fm][Landsat::B1] > m_B1threshold[t]) : false;
 
-
-			return (t == T_PRIMARY) ? (t1&&t2&&t3) : t4;
+			return t1 && t2 && t3;
+			//return (t == T_PRIMARY) ? (t1&&t2&&t3) : t3;
 		}
 
 
@@ -86,10 +87,10 @@ namespace WBSF
 			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
 			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
 			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-			bool t4 = p[3].IsInit() ? ((__int32)p[fm][Landsat::I_TCB] < m_TCBthreshold[t]) : false;
+			bool t4 = (p[3].IsInit() && t == T_PRIMARY )? ((__int32)p[fm][Landsat::I_TCB] < m_TCBthreshold[2]) : false;
 
-
-			return (t == T_PRIMARY) ? (t1&&t2&&t3) : t4;
+			return t1 && t2&&t3;
+			//return (t == T_PRIMARY) ? (t1&&t2&&t3) : t3;
 		}
 
 
@@ -191,7 +192,7 @@ namespace WBSF
 		size_t m_sieve;
 
 		bool m_bDebug;
-		bool m_bOutputDT;
+		bool m_bOutputCode;
 		bool m_bFillClouds;
 		bool m_bFillMissing;
 		bool m_bUseMedian;
@@ -233,8 +234,11 @@ namespace WBSF
 
 		void LoadData(const CBandsHolder& bandHolder, LansatData& data, CLandsatPixelVector& median);
 
-		size_t SieveSuspect1(size_t level, size_t& nbPixel, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1);
+		void SieveSuspect1(size_t level, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated, size_t& nbPixels);
+		//		void CleanSuspect1(const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated);
 		void SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, boost::dynamic_bitset<size_t>& suspects1);
+
+
 
 		static void TouchSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2, boost::dynamic_bitset<size_t>& treated, boost::dynamic_bitset<size_t>& touch);
 		void CleanSuspect2(const CGeoExtents& extents, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2);
