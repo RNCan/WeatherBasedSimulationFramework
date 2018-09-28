@@ -533,7 +533,7 @@ ERMsg CCloudCleaner::Execute()
 
 		if (msg)
 		{
-			if (forests[0]->getNumIndependentVariables() == 28)
+			if (forests[0]->getNumIndependentVariables() - forests[0]->get_virtual_cols_name().size() == 28)
 				m_options.m_bUseMedian = true;
 
 			//if (forests[0]->getNumIndependentVariables() != (3 + (m_options.m_bUseMedian ? 1 : 0) + refDS.GetNbScenes()) * 7)
@@ -999,13 +999,18 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 		//size_t nbRefScenes = (m_options.m_bUseMedian ? 1 : 0) + bandHolderRef.GetNbScenes();
 
 		//forest model, 0: beg,1: mid, 2: end
-		//StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
-	StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7", ",");
+	StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7,t3_B1,t3_B2,t3_B3,t3_B4,t3_B5,t3_B6,t3_B7", ",");
+	//StringVector vars("t1_B1,t1_B2,t1_B3,t1_B4,t1_B5,t1_B6,t1_B7,t2_B1,t2_B2,t2_B3,t2_B4,t2_B5,t2_B6,t2_B7", ",");
 	//add reference names
-	/*for (size_t i = 0; i < nbRefScenes; i++)
+	if (m_options.m_bUseMedian)
 	{
 		for (size_t b = B1; b < QA; b++)
-			vars.push_back("r" + to_string(i + 1) + "_" + Landsat::GetBandName(b));
+			vars.push_back(string("t4_") + Landsat::GetBandName(b));
+	}
+
+	/*for (size_t i = 0; i < nbRefScenes; i++)
+	{
+	
 	}*/
 
 #pragma omp critical(ProcessBlock)
@@ -1072,17 +1077,17 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 								array <CLandsatPixel, 4> p = GetP(z, data[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());
 								//std::vector <CLandsatPixel> r = GetR(windowRef, x, y);
 
-								//size_t c = 0;
-								//for (size_t t = 0; t < 3 + (m_options.m_bUseMedian ? 1 : 0); t++)
-								//{
-								//	for (size_t b = 0; b < 7; b++)
-								//	{
-								//		bool error = false;
-								//		input.set(c++, cur_xy, p[t][b], error);
-								//	}
-								//}
-
 								size_t c = 0;
+								for (size_t t = 0; t < 3 + (m_options.m_bUseMedian ? 1 : 0); t++)
+								{
+									for (size_t b = 0; b < 7; b++)
+									{
+										bool error = false;
+										input.set(c++, cur_xy, p[t][b], error);
+									}
+								}
+
+								/*size_t c = 0;
 								for (size_t tt = 0; tt < 2; tt++)
 								{
 									size_t t = tt * 2 + 1;
@@ -1091,7 +1096,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 										bool error = false;
 										input.set(c++, cur_xy, p[t][b], error);
 									}
-								}
+								}*/
 
 								//add reference
 							/*	for (size_t i = 0; i < r.size(); i++)

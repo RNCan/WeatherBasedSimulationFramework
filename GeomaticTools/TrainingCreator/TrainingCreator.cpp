@@ -128,6 +128,7 @@ namespace WBSF
 			{ "-ExportAllBand", 0, "", false, "Export all bands(B1..JD). B1..B7 by default." },
 			{ "-ExportAll", 0, "", false, "Export all input columns. Export only dependant and independant varaibles by default." },
 			{ "-ExportSerial", 0, "", false, "Export serial without skipping missing values. Export only valid pixels by default." },
+			{ "-Verify", 2, "colID nbPixels", false, "Export images for all training values into the \"verify\" subdirectory. colID is the identifieur use to create image name and nbPixel is the number of pixel arround the value to extract. False by default." },
 			//{ "-windows", 1, "pixels", false, "Buffer windows of extraction. 0 by default." }, a faire
 			{ "-prec", 1, "precision", false, "Output precision. 4 by default." },
 			{ "Image", 0, "", false, "Landsat Image to extract information." },
