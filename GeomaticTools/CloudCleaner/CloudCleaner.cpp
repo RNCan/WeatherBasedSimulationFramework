@@ -97,7 +97,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_bVerifyDoubleCloud = true;
 
 	m_buffer = 7;
-	m_bufferEx = { {0,0} };
+	m_bufferEx = { {2,1} };
 	m_scenes = { {NOT_INIT, NOT_INIT } };
 	m_sieve = 5;
 
