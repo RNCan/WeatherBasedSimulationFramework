@@ -113,10 +113,12 @@ namespace WBSF
 
 			if (m_bMultipleImages)
 			{
+				//build vrt before closing to remove empty bands
+				BuildVRT(options);
+
+
 				for (size_t i = 0; i < m_poDatasetVector.size(); i++)
 					CloseVRTBand(i);
-
-				BuildVRT(options.m_bQuiet);
 
 				m_poDatasetVector.clear();
 				m_bMultipleImages = false;
@@ -504,12 +506,12 @@ namespace WBSF
 				double dstNoData = options.m_dstNodata;
 				if (dstNoData == MISSING_NO_DATA)
 					if (options.m_bUseDefaultNoData)
-						dstNoData = GetDefaultNoData(i);
+						dstNoData = WBSF::GetDefaultNoData(options.m_outputType);
 
 				//if no data isn't supply, take the input no data (if we have the same number of band) if present, if not take smaller value of the type
 				if (dstNoData != MISSING_NO_DATA)
 				{
-					msg += WBSF::VerifyNoData(dstNoData, GetRasterBand(i)->GetRasterDataType());
+					msg += WBSF::VerifyNoData(dstNoData, options.m_outputType);
 					GetRasterBand(i)->SetNoDataValue(dstNoData);
 				}
 			}
@@ -562,11 +564,13 @@ namespace WBSF
 		}
 	}
 
-	ERMsg CGDALDatasetEx::BuildVRT(bool bQuiet)
+	ERMsg CGDALDatasetEx::BuildVRT(const CBaseOptions& options)
 	{
 		ERMsg msg;
 
-		if (!bQuiet)
+
+
+		if (!options.m_bQuiet)
 			cout << "Build VRT..." << endl;
 
 		string listFilePath = m_filePath;
@@ -575,14 +579,67 @@ namespace WBSF
 		msg = file.open(listFilePath);
 		if (msg)
 		{
-			ASSERT(m_internalName.size() == GetRasterCount());
-			for (size_t b = 0; b < m_internalName.size(); b++)//for all segment
-				file << m_internalName[b] << endl;
+			//size_t scenesSize = max(1, options.m_scenesSize);
 
+
+			ASSERT(m_internalName.size() == GetRasterCount());
+			//cout << "Build VRT nb scenes = " << GetNbScenes() << endl;
+			//cout << "Build VRT scenes size = " << GetSceneSize() << endl;
+
+			for (size_t i = 0; i < GetNbScenes(); i++)//for all segment
+			{
+				bool bUseIt = true;
+				if (options.m_bRemoveEmptyBand)
+				{
+					for (size_t bb = 0; bb < GetSceneSize()&& bUseIt; bb++)//for all segment
+					{
+						double min = 0;
+						double max = 0;
+						double mean = 0;
+						double stddev = 0;
+
+						size_t b = i * GetSceneSize() + bb;
+						GDALRasterBand * pBand = GetRasterBand(b);
+						if (pBand->GetStatistics(true, true, &min, &max, &mean, &stddev) != CE_None)
+							bUseIt = false;
+					}
+				}
+
+				for (size_t bb = 0; bb < GetSceneSize(); bb++)//for all segment
+				{
+					size_t b = i * GetSceneSize() + bb;
+
+					if (bUseIt)
+						file << m_internalName[b] << endl;
+				}
+			}
+
+			//else
+			//{
+			//	ASSERT(m_internalName.size() == GetRasterCount());
+			//	for (size_t b = 0; b < m_internalName.size(); b++)//for all segment
+			//	{
+			//		bool bUseIt = true;
+			//		if (options.bRemoveEmptyBand)
+			//		{
+			//			double min = 0;
+			//			double max = 0;
+			//			double mean = 0;
+			//			double stddev = 0;
+
+			//			GDALRasterBand * pBand = GetRasterBand(b);
+			//			if (pBand->GetStatistics(true, true, &min, &max, &mean, &stddev) != CE_None)
+			//				bUseIt = false;
+			//		}
+
+			//		if (bUseIt)
+			//			file << m_internalName[b] << endl;
+			//	}
+			//}
 			file.close();
 		}
 
-		string command = "GDALBuildVRT.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (bQuiet ? " -q" : "");
+		string command = "GDALBuildVRT.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (options.m_bQuiet ? " -q" : "");
 		msg = WinExecWait(command);
 
 		return msg;
@@ -1878,11 +1935,10 @@ namespace WBSF
 
 		bool bTemporal = !m_scenesPeriod.empty() && m_entirePeriod.IsInit();
 		ASSERT(!bTemporal || p.IsInit());
-
-		ASSERT(p.GetNbSegments()==1);//only continue period is accepted
+		ASSERT(!bTemporal || p.GetNbSegments() == 1);//only continue period is accepted
 		//size_t nbSegment = bTemporal ? p.GetNbSegments() : 1ull;
 		//CStatisticVector nbRaster(nbSegment);
-		int nbRasterMax =0;
+		int nbRasterMax = 0;
 		for (size_t k = 0; k < (int)m_bandHolder.size(); k++)
 		{
 			ASSERT(!m_bandHolder[k]->GetInternalMapExtents().IsRectEmpty());
@@ -1903,14 +1959,14 @@ namespace WBSF
 			}
 		}
 
-	/*	CStatistic nbRasterAll;
-		for (int l = 0; l < nbSegment; l++)
-			if (nbRaster[l][NB_VALUE] > 0)
-				nbRasterAll += nbRaster[l][SUM];
-*/
-		//int nbRasterMax = (nbRasterAll[NB_VALUE] > 0) ? (int)nbRasterAll[HIGHEST] : 0;
+		/*	CStatistic nbRasterAll;
+			for (int l = 0; l < nbSegment; l++)
+				if (nbRaster[l][NB_VALUE] > 0)
+					nbRasterAll += nbRaster[l][SUM];
+	*/
+	//int nbRasterMax = (nbRasterAll[NB_VALUE] > 0) ? (int)nbRasterAll[HIGHEST] : 0;
 		nbRasterMax += (m_pMaskBandHolder.get() != NULL) ? 1 : 0;
-		
+
 
 		return nbRasterMax;
 	}
@@ -2762,7 +2818,7 @@ namespace WBSF
 			file.close();
 
 			//save projection
-			if (m_prjID  != PRJ_NOT_INIT)
+			if (m_prjID != PRJ_NOT_INIT)
 			{
 				string prjFilePath(filePath);
 				SetFileExtension(prjFilePath, ".prj");
@@ -2811,7 +2867,7 @@ namespace WBSF
 		if (msg)
 		{
 			StringVector header(m_header, ",;");
-			set<size_t> posTime = header.FindAll(Time,false,true);
+			set<size_t> posTime = header.FindAll(Time, false, true);
 			if (posTime.size() == 1)
 			{
 				m_time.reserve(size());

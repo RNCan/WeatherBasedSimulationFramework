@@ -51,6 +51,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtractGribs", "ExtractGrib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrainingCreator", "TrainingCreator\TrainingCreator.vcxproj", "{A7086AC5-8C2F-4269-98DE-FE08C7C0CFF1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "See5Images", "See5\See5.vcxproj", "{3595F964-4847-49A6-A92B-78F2F7D1F6C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -251,6 +253,14 @@ Global
 		{A7086AC5-8C2F-4269-98DE-FE08C7C0CFF1}.Release|Win32.Build.0 = Release|Win32
 		{A7086AC5-8C2F-4269-98DE-FE08C7C0CFF1}.Release|x64.ActiveCfg = Release|x64
 		{A7086AC5-8C2F-4269-98DE-FE08C7C0CFF1}.Release|x64.Build.0 = Release|x64
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Debug|Win32.Build.0 = Debug|Win32
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Debug|x64.ActiveCfg = Debug|x64
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Debug|x64.Build.0 = Debug|x64
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Release|Win32.ActiveCfg = Release|Win32
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Release|Win32.Build.0 = Release|Win32
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Release|x64.ActiveCfg = Release|x64
+		{3595F964-4847-49A6-A92B-78F2F7D1F6C1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

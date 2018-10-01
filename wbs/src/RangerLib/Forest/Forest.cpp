@@ -485,9 +485,11 @@ void Forest::writeOutput(Data* training, std::string output_prefix) {
 		*verbose_out << std::endl;
 		writeOutputInternal();
 		*verbose_out << "Dependent variable name:           " << training->getVariableNames()[dependent_varID] << std::endl;
-		*verbose_out << "Dependent variable ID:             " << dependent_varID << std::endl;
+		*verbose_out << "Dependent variable ID:             " << dependent_varID + 1 << std::endl;
 		*verbose_out << "Number of trees:                   " << num_trees << std::endl;
 		*verbose_out << "Sample size:                       " << training->getNumRows() << std::endl;
+		*verbose_out << "Number of input variables:         " << num_independent_variables - virtual_cols_name.size() << std::endl;
+		*verbose_out << "Number of virtual variables:       " << virtual_cols_name.size() << std::endl;
 		*verbose_out << "Number of independent variables:   " << num_independent_variables << std::endl;
 		*verbose_out << "Mtry:                              " << mtry << std::endl;
 		*verbose_out << "Target node size:                  " << min_node_size << std::endl;

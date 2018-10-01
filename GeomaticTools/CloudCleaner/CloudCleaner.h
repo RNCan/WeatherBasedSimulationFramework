@@ -33,7 +33,7 @@ namespace WBSF
 		virtual ERMsg ParseOption(int argc, char* argv[]);
 		virtual ERMsg ProcessOption(int& i, int argc, char* argv[]);
 
-		bool IsTrigged(std::array <CLandsatPixel, 4>& p, size_t t = T_PRIMARY, size_t fm = 1)
+		/*bool IsTrigged(std::array <CLandsatPixel, 4>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
@@ -41,13 +41,8 @@ namespace WBSF
 			bool bB1 = IsB1Trigged(p, t, fm);
 			bool bTCB = IsTCBTrigged(p, t, fm);
 
-			//	bool bB1ref = (!r.empty()) ? IsB1TriggedRef(p[fm], r, t) : true;
-				//bool bTCBref = (!r.empty()) ? IsTCBTriggedRef(p[fm], r, t) : true;
-
-				//bool bZSW = IsZSWTrigged(p, r, t, fm);
-
-			return (bB1 /*&& bB1ref*/) || (bTCB /*&& bTCBref*/) /*|| bZSW*/;
-		}
+			return bB1 || bTCB;
+		}*/
 
 		bool IsB1Trigged(std::array <CLandsatPixel, 4>& p, size_t t, size_t fm)
 		{
@@ -64,10 +59,8 @@ namespace WBSF
 			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
 			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
 			bool t4 = (p[3].IsInit() && t == T_PRIMARY)? ((__int32)p[fm][Landsat::B1] > m_B1threshold[2]) : true;
-			//bool t4 = p[3].IsInit() ? ((__int32)p[fm][Landsat::B1] > m_B1threshold[t]) : false;
 
 			return t1 && t2 && t3;
-			//return (t == T_PRIMARY) ? (t1&&t2&&t3) : t3;
 		}
 
 
@@ -90,7 +83,6 @@ namespace WBSF
 			bool t4 = (p[3].IsInit() && t == T_PRIMARY )? ((__int32)p[fm][Landsat::I_TCB] < m_TCBthreshold[2]) : false;
 
 			return t1 && t2&&t3;
-			//return (t == T_PRIMARY) ? (t1&&t2&&t3) : t3;
 		}
 
 
@@ -128,6 +120,7 @@ namespace WBSF
 
 			return t3;
 		}
+
 		bool IsTCBTriggedRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r, size_t t = T_PRIMARY)
 		{
 			if (!p.IsInit())
@@ -139,44 +132,21 @@ namespace WBSF
 
 			return t3;
 		}
-		//bool IsZSWTrigged(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t t = T_PRIMARY, size_t fm = 1)
-		//{
-		//	size_t c0 = (fm == 0) ? 1 : 0;
-		//	size_t c2 = (fm == 2) ? 1 : 2;
-
-		//	if (!p[c0].IsInit() && !p[c2].IsInit())
-		//		return false;
-
-		//	//if (DoubleCloud(p, fm))
-		//		//return false;
-
-		//	bool t5 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW] > m_ZSWthreshold[t]) : true;
-		//	bool t6 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::I_ZSW] - p[fm][Landsat::I_ZSW] > m_ZSWthreshold[t]) : true;
-
-		//	return (t5&&t6);
-		//}
-
+		
 		__int32 GetB1Trigger(std::array <CLandsatPixel, 4>& p, size_t fm);
 		__int32 GetTCBTrigger(std::array <CLandsatPixel, 4>& p, size_t fm);
-		__int32 GetB1TriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
-		__int32 GetTCBTriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
+		//__int32 GetB1TriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
+		//__int32 GetTCBTriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
 
-		//__int32 GetB1TriggerRef(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t fm = 1);
-		//__int32 GetTCBTriggerRef(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t fm = 1);
-		//__int32 GetZSWTrigger(std::array <CLandsatPixel, 4>& p, size_t fm = 1);
-
-		int GetDebugFlag(std::array <CLandsatPixel, 4>& p, std::vector <CLandsatPixel>& r, size_t t = T_PRIMARY, size_t fm = 1)
+		int GetDebugFlag(std::array <CLandsatPixel, 4>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
 
 			bool bB1 = IsB1Trigged(p, t, fm);
 			bool bTCB = IsTCBTrigged(p, t, fm);
-			//bool bB1ref = (!r.empty()) ? IsB1TriggedRef(p[fm], r, t) : true;
-			//bool bTCBref = (!r.empty()) ? IsTCBTriggedRef(p[fm], r, t) : true;
-
-			int nB1 = (bB1 /*&& bB1ref*/) ? 1 : 0;
-			int nTCB = (bTCB /*&& bTCBref*/) ? 2 : 0;
+			int nB1 = (bB1) ? 1 : 0;
+			int nTCB = (bTCB) ? 2 : 0;
 
 			int nt = (t == T_SECONDARY && (nB1 + nTCB) > 0) ? 4 : 0;
 
@@ -186,20 +156,25 @@ namespace WBSF
 
 		std::array<__int32, NB_TRIGGER_TYPE> m_B1threshold;
 		std::array<__int32, NB_TRIGGER_TYPE> m_TCBthreshold;
-		//std::array<__int32, 2> m_ZSWthreshold;
+		
 		size_t m_buffer;
 		std::array < size_t, 2> m_bufferEx;
 		size_t m_sieve;
 
 		bool m_bDebug;
 		bool m_bOutputCode;
+		//bool m_bOutputJD;
 		bool m_bFillClouds;
 		bool m_bFillMissing;
 		bool m_bUseMedian;
 		bool m_bVerifyDoubleCloud;
+		CTPeriod m_periodTreated;
+		std::string m_rename;
 
-		std::array<size_t, 2> m_scenes;
+		std::array<size_t, 2> m_scenesTreated;
+		std::array<size_t, 2> m_scenesLoaded;
 		std::string m_refFilePath;
+
 
 		__int64 m_nbPixelDT;
 		__int64 m_nbPixel;
@@ -222,25 +197,23 @@ namespace WBSF
 		ERMsg Execute();
 
 
-		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CLandsatDataset& refDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
-		void ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder, CBandsHolder& bandHolderRef);
-		void FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, SuspectBitset& suspects1, SuspectBitset& suspects2);
-		void FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, const Forests3& forest, RFCodeData& DTCode, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds);
+		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS/*, CGDALDatasetEx& JDDS*/);
+		void ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder);
+		void FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, SuspectBitset& suspects1, SuspectBitset& suspects2);
+		void FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const Forests3& forest, RFCodeData& DTCode, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds);
 		void WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, RFCodeData& DTCode, CGDALDatasetEx& DTCodeDS);
-		void ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderRef, LansatData& data, DebugData& debug, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds);
-		void WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
+		void ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, LansatData& data, DebugData& debug, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds);
+		void WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS/*, CGDALDatasetEx& JDDS*/);
 		void SetBuffer(const CGeoExtents& extents, SuspectBitset& suspects1, SuspectBitset& suspects2, CloudBitset& clouds);
 		void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS);
 
 		void LoadData(const CBandsHolder& bandHolder, LansatData& data, CLandsatPixelVector& median);
 
 		void SieveSuspect1(size_t level, size_t nbSieve, const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated, size_t& nbPixels);
-		//		void CleanSuspect1(const CGeoExtents& extents, CGeoPointIndex xy, boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& treated);
 		void SieveSuspect1(size_t nbSieve, const CGeoExtents& extents, boost::dynamic_bitset<size_t>& suspects1);
+		void FastSieveSuspect1(size_t nbSieve, const CGeoExtents& extents, boost::dynamic_bitset<size_t>& suspects1);
 
-
-
-		static void TouchSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2, boost::dynamic_bitset<size_t>& treated, boost::dynamic_bitset<size_t>& touch);
+		static void TouchSuspect1(size_t level, const CGeoExtents& extents, CGeoPointIndex xy, const boost::dynamic_bitset<size_t>& suspects1, const boost::dynamic_bitset<size_t>& suspects2, boost::dynamic_bitset<size_t>& treated, boost::dynamic_bitset<size_t>& touch);
 		void CleanSuspect2(const CGeoExtents& extents, const boost::dynamic_bitset<size_t>& suspects1, boost::dynamic_bitset<size_t>& suspects2);
 
 
@@ -249,6 +222,7 @@ namespace WBSF
 
 		static ERMsg ReadModel(std::string filePath, int CPU, ForestPtr& forest);
 		ERMsg ReadModel(Forests3& forest);
+		static std::string GetScenesDateFormat(const std::vector<CTPeriod>& p);
 	};
 
 }

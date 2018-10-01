@@ -388,6 +388,61 @@ namespace WBSF
 		return title;
 	}
 
+	std::string CLandsatDataset::GetSubname(size_t i, std::string format, size_t b)const
+	{
+		string subName;
+		if (format.empty())
+		{
+			//if we not rename 
+			if (b == NOT_INIT)
+			{
+				//if specific band is not selected common name for all bans of the image
+				subName = WBSF::TrimConst(GetCommonImageName(i), "_");
+				if (subName.empty())
+					subName = FormatA("%02d", i + 1);
+
+				subName = subName;
+			}
+			else
+			{
+				//if specific band is selected, return the specific name this band in the image
+				subName = WBSF::TrimConst(GetSpecificBandName(i*SCENES_SIZE + b), "_");
+			}
+		}
+		else
+		{
+			double min = 0;
+			double max = 0;
+			double mean = 0;
+			double stddev = 0;
+
+			GDALRasterBand * pBand = const_cast<GDALRasterBand * >(GetRasterBand(i*SCENES_SIZE + JD));
+			if (pBand->GetStatistics(true, true, &min, &max, &mean, &stddev) == CE_None)
+			{
+				
+				CTRef TRef = CTRef(1970, JANUARY, DAY_01) + int(mean) - 1;
+				WBSF::ReplaceString(format, "%J", to_string(int(mean)));//replace %J by Julina day since 1970
+				
+
+				if (format.find("%P") != string::npos )
+				{
+					ASSERT(i < m_info.size());
+					string path_row = WBSF::FormatA("%03d%03d", m_info[i].m_path, m_info[i].m_row);
+					WBSF::ReplaceString(format, "%P", path_row);//replace %P by path/row
+				}
+				
+				subName = TRef.GetFormatedString(format);
+			}
+			
+			if (b != NOT_INIT)
+				subName += string("_") + Landsat::GetBandName(b);
+		}
+
+		return subName;
+	}
+
+
+
 	std::string CLandsatDataset::GetCommonBandName(size_t b)const
 	{
 		std::string common = CLandsatDataset::GetCommonImageName(b / SCENES_SIZE);
@@ -415,54 +470,35 @@ namespace WBSF
 	std::string CLandsatDataset::GetSpecificBandName(size_t i, size_t b)const
 	{
 		return CLandsatDataset::GetSpecificBandName(i*SCENES_SIZE + b);
-		//ASSERT(i<this->GetNbScenes());
-		//ASSERT(b<SCENES_SIZE);
-
-		////replace the common part by the new name
-		//size_t common_end = MAX_PATH;//common begin
-
-		//for (size_t j = 0; j < SCENES_SIZE - 1; j++)
-		//{
-		//	string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j));
-		//	string title1 = GetFileTitle(GetInternalName(i*SCENES_SIZE + j + 1));
-		//	size_t k = 0;//common begin
-		//	while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
-		//		k++;
-
-		//	common_end = max(common_end, k);
-		//}
-
-
-		//std::string common = CLandsatDataset::GetCommonBandName();
-		//if (common_begin != MAX_PATH)
-		//{
-		//	string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
-		//	common = title.substr(common.length(), common_begin);
-		//}
-
-
-		//return title;
 	}
 
 	void CLandsatDataset::Close(const CBaseOptions& options)
 	{
 		if (IsOpen())
 		{
-			if (options.m_RGBType != CBaseOptions::NO_RGB)
+			if (m_bOpenUpdate)
 			{
+				//update scene period size before closing to correctly buildt VRT without empty bands
+				size_t nbScenes = size_t(GetRasterCount() / options.m_scenesSize);
+				m_scenesPeriod.resize(nbScenes);
 
-				size_t nbImages = GetRasterCount() / SCENES_SIZE;
-				for (size_t i = 0; i < nbImages; i++)
+
+				if (options.m_RGBType != CBaseOptions::NO_RGB)
 				{
-					string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
-					//string commonName = WBSF::TrimConst(GetCommonBandName(i*SCENES_SIZE),"_");
-					string filePath = m_filePath;
-					//string title = GetFileTitle(filePath);
-					SetFileTitle(filePath, title.substr(0, title.length()-2) + "RGB");
-					ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
-					if (!msg)
+
+					//size_t nbImages = GetRasterCount() / SCENES_SIZE;
+					for (size_t i = 0; i < nbScenes; i++)
 					{
-						//cout << msg.get;
+						string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
+						//string commonName = WBSF::TrimConst(GetCommonBandName(i*SCENES_SIZE),"_");
+						string filePath = m_filePath;
+						//string title = GetFileTitle(filePath);
+						SetFileTitle(filePath, title.substr(0, title.length() - 2) + "RGB");
+						ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
+						if (!msg)
+						{
+							//cout << msg.get;
+						}
 					}
 				}
 			}

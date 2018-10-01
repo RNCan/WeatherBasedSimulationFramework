@@ -430,7 +430,7 @@ namespace WBSF
 		int GetRasterXSize()const;
 		int GetRasterYSize()const;
 		size_t GetRasterCount()const;
-		ERMsg BuildVRT(bool bQuiet);
+		ERMsg BuildVRT(const CBaseOptions& options);
 		void GetGeoTransform(CGeoTransform GT)const;
 		
 		GDALRasterBand *GetRasterBand(size_t i);
@@ -487,8 +487,8 @@ namespace WBSF
 		void GetBandsMetaData(BandsMetaData& meta_data)const;
 
 		//temporal section
-		size_t GetSceneSize()const{ return m_scenesPeriod.size()>0 ? GetRasterCount() / m_scenesPeriod.size() : GetRasterCount(); }
-		size_t GetNbScenes()const{ return m_scenesPeriod.size(); }
+		size_t GetSceneSize()const{ return m_scenesPeriod.size()>0 ? GetRasterCount() / m_scenesPeriod.size() : 1; }
+		size_t GetNbScenes()const{ return m_scenesPeriod.size() > 0 ? m_scenesPeriod.size(): GetRasterCount(); }
 		const std::vector<CTPeriod>& GetScenePeriod()const{ return m_scenesPeriod; }
 
 		CTPeriod GetPeriod()const

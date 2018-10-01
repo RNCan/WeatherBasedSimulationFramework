@@ -104,7 +104,7 @@ int ArgumentHandler::processArguments() {
 			break;
 		}
 
-		switch (c) {
+		switch (c) { 
 
 			// upper case options
 		case 'A':

@@ -243,6 +243,7 @@ namespace WBSF
 		std::string GetCommonBandName(size_t b)const;
 		std::string GetSpecificBandName(size_t i)const;
 		std::string GetSpecificBandName(size_t i, size_t j)const;
+		std::string GetSubname(size_t i, std::string format, size_t b = NOT_INIT)const;
 
 	protected:
 		

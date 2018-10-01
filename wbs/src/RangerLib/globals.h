@@ -51,6 +51,7 @@ typedef unsigned int uint;
 
 // Tree types, probability is not selected by ID
 enum TreeType {
+  TREE_UNKNOW=-1,
   TREE_CLASSIFICATION = 1,
   TREE_REGRESSION = 3,
   TREE_SURVIVAL = 5,

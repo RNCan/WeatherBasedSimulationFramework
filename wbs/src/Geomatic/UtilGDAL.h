@@ -304,6 +304,7 @@ namespace WBSF
 		std::vector<int> m_overviewLevels;
 		bool m_bComputeStats;
 		bool m_bComputeHistogram;
+		bool m_bRemoveEmptyBand;
 			
 		int m_TTF; //temporal type format for temporal dataset
 		int m_scenesSize;

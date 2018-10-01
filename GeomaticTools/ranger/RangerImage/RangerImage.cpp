@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.1.0	28/09/2018	Rémi Saint-Amant	Add virtual variables
 // 1.0.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with no end loop
 // 1.0.0	07/11/2017	Rémi Saint-Amant	Creation
@@ -40,13 +41,12 @@ using namespace WBSF;
 //-te 2025000 6952000 2226000 7154000 -multi -co compress=LZW -multi -blocksize 1024 1024 -stats -hist -co tiled=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 --config GDAL_CACHEMAX 1024 -ot int16 -dstnodata 255  -seed %seed% -overview {16} -overwrite -mask U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\LOSSmsk_BK2_BK1.tif -maskvalue 1 -iocpu 3 "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test2_pv.classification.forest" "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\BK2_BK1_B123457.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\TestDeadLock.tif"
 
 
-static const char* version = "1.0.2";
+static const char* version = "1.1.0";
 static const int NB_THREAD_PROCESS = 2; 
 
 
 enum TFilePath { FOREST_FILE_PATH, LANDSAT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-//enum TOutputBand{ O_FIRST_DATE, O_DISTURBANCE, O_DATE1, O_DATE2, O_LAST_DATE, NB_OUTPUT_BANDS };//O_NB_CONFIRM,
-enum TOutputBand{ O_RESULT, NB_OUTPUT_BANDS };//O_NB_CONFIRM,
+enum TOutputBand{ O_RESULT, NB_OUTPUT_BANDS };
 
 
 class CRangerImageOption : public CBaseOptions
@@ -56,17 +56,13 @@ public:
 	{
 		m_seed = 0;
 		m_bUncertainty = false;
-		//m_nbPixel=0;
-		//m_nbPixelDT=0;
-		m_scenesSize = 7;// SCENES_SIZE;
+		//m_scenesSize = 7;
 		m_appDescription = "This software look up (with a random forest tree model) for disturbance in a any number series of LANDSAT scenes";
 
 		static const COptionDef OPTIONS[] = 
 		{
-		//	{ "-Trigger", 3, "tt op th", true, "Add optimization trigger to execute decision tree when comparing T-1 with T+1. tt is the trigger type, op is the comparison operator '<' or '>' and th is the trigger threshold. Supported type are \"B1\"..\"JD\", \"NBR\",\"EUCLIDEAN\", \"NDVI\", \"NDMI\", \"TCB\" (Tasseled Cap Brightness), \"TCG\" (Tasseled Cap Greenness) or \"TCW\" (Tasseled Cap Wetness)." },
 			{ "-Seed", 1, "sd", false, "Seed for Random forest." },
 			{ "-uncertainty",0,"",false,"Output uncertainty of prediction classification. Standard error for regression."},
-			//{ "-Debug",0,"",false,"Output debug information."},
 			{ "ForestFile",0,"",false,"Random forest model file path."},
 			{ "srcfile",0,"",false, "LANDSAT scenes image file path."},
 			{ "dstfile",0,"",false, "Output image file path."}
@@ -77,14 +73,9 @@ public:
 
 		static const CIOFileInfoDef IO_FILE_INFO[] = 
 		{
-			{ "Input Model", "DTModel","","","","Decision tree model file generate by Ranger."},
-			{ "LANDSAT Image", "src1file","","Same number as the ranger model independant variables",""},
-			//{ "Geophysical Image", "src2file", "", "3", "B1: Degres-day 5°C threshold|B2: Digital Elevation Model (DEM)|B3: Slope (?)" },
+			{ "Model", "Model","","","","Decision tree model file generate by Ranger."},
+			{ "Input Image", "src1file","","Input image. The number of independant variables mnust be the same as the ranger model (without virtual variables)",""},
 			{ "Output Image", "dstfile","Ranger estimation"},
-			//{ "Optional Output Image", "dstfile_FireSeverity","1","3","Ron|Jo|Mean of Ron and Jo"},
-			//{ "Optional Output Image", "dstfile_ExportBands","One file per perturbation","OutputBands(9) x NbTime(8) = 36","T-2: Scenes 2 years preciding T|...|T+5: Scenes 5 years folowing T"},
-			//{ "Optional Output Image", "dstfile_TimeSeries", "One file per input years", "Nb Years", "Y1: first year|...|Yn: last year" },
-			//{ "Optional Output Image", "dstfile_debug","1","9"," NbPairs: number of \"Pair\", a pair is composed of 2 valid images|NbDisturbances: number of disturbances found in the series.|Disturbance: last diturbance|D1: date of the first image of the last disturbance|D2: date of the second image of the last disturbance|MeanD: mean NBR distance|MaxD1: highest NBR distance|MaxD2: second highest NBR distance|MaxD3: third highest NBR distance"}
 		};
 
 		for(int i=0; i<sizeof(IO_FILE_INFO)/sizeof(CIOFileInfoDef); i++)
@@ -188,7 +179,7 @@ public:
 
 	bool m_bUncertainty;
 	int m_seed;
-
+	StringVector m_cols_name;
 	//__int64 m_nbPixelDT;
 	//__int64 m_nbPixel;
 };
@@ -215,49 +206,65 @@ public:
 	void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
 	void ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder, ForestPtr& forest, OutputData& output, UncertaintyData& uncertainty);
 	void WriteBlock(int xBlock, int yBlock, OutputData& output, UncertaintyData& uncertainty, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS);
-	void CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS);
+	void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS);
 
 	//void Evaluate( int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
 		
-	ERMsg ReadRules(ForestPtr& forest);
+	ERMsg ReadForest(ForestPtr& forest);
 
 	CRangerImageOption m_options;
 };
 
-ERMsg CRangerImage::ReadRules(ForestPtr& forest)
+ERMsg CRangerImage::ReadForest(ForestPtr& forest)
 {
 	ERMsg msg;
 	if(!m_options.m_bQuiet) 
 	{
 		cout << "Read forest..."<<endl;
 	}
-
-	CTimer timer(true);
 	
 	TreeType treetype = GetTreeType(m_options.m_filesPath[FOREST_FILE_PATH]);
-	
-	//forests.reserve(m_options.m_CPU);
-	forest.reset( CreateForest(treetype) );
-	forest->init_predict(m_options.m_seed, m_options.m_bMulti?m_options.m_CPU:-1, false, DEFAULT_PREDICTIONTYPE);
-	//forest->init_predict(m_options.m_seed, 1, false, DEFAULT_PREDICTIONTYPE);
-	forest->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
-	
-	cout << "forest type                        " << GetTreeTypeStr(treetype) << std::endl;
-	cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
-	cout << "Dependent variable ID:             " << forest->getDependentVarId() << std::endl;
-	cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
-	cout << "Seed:                              " << m_options.m_seed << std::endl;
+	if (treetype != TREE_UNKNOW)
+	{
+		CTimer timer(true);
 
-	timer.Stop();
+		forest.reset(CreateForest(treetype));
+		forest->init_predict(m_options.m_seed, m_options.m_bMulti ? m_options.m_CPU : -1, false, DEFAULT_PREDICTIONTYPE);
+		//forest->init_predict(m_options.m_seed, 1, false, DEFAULT_PREDICTIONTYPE);
+		forest->loadFromFile(m_options.m_filesPath[FOREST_FILE_PATH]);
 
-	if( !m_options.m_bQuiet )
-		cout << "Read forest time = " << SecondToDHMS(timer.Elapsed()).c_str() << endl << endl;
+		cout << "Forest name:                       " << GetFileTitle(m_options.m_filesPath[FOREST_FILE_PATH]) << std::endl;
+		cout << "Forest type                        " << GetTreeTypeStr(treetype) << std::endl;
+		cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
+		cout << "Dependent variable ID:             " << forest->getDependentVarId() + 1 << std::endl;
+		cout << "Number of input variables:         " << forest->getNumIndependentVariables() - forest->get_virtual_cols_name().size() << std::endl;
+		cout << "Number of virtual variables:       " << forest->get_virtual_cols_name().size() << std::endl;
+		cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
+		cout << "Seed:                              " << m_options.m_seed << std::endl;
+
+
+		timer.Stop();
+
+		if (!m_options.m_bQuiet)
+			cout << "Read forest time = " << SecondToDHMS(timer.Elapsed()).c_str() << endl << endl;
+
+		if (forest->getNumIndependentVariables() == 0)
+			msg.ajoute("Invalid tree:" + m_options.m_filesPath[FOREST_FILE_PATH]);
+	}
+	else
+	{
+		msg.ajoute("Unable to determine tree type of " + m_options.m_filesPath[FOREST_FILE_PATH]);
+		if (!FileExists(m_options.m_filesPath[FOREST_FILE_PATH]))
+			msg.ajoute("File doesn't exist");
+
+		return msg;
+	}
 
 	return msg;
 }	
 
 
-ERMsg CRangerImage::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS)
+ERMsg CRangerImage::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS)
 {
 	ERMsg msg;
 	
@@ -265,29 +272,38 @@ ERMsg CRangerImage::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, C
 	if(!m_options.m_bQuiet) 
 		cout << endl << "Open input image..." << endl;
 
-	msg = landsatDS.OpenInputImage(m_options.m_filesPath[LANDSAT_FILE_PATH], m_options);
+	msg = inputDS.OpenInputImage(m_options.m_filesPath[LANDSAT_FILE_PATH], m_options);
 
 	if(msg)
 	{
-		landsatDS.UpdateOption(m_options);
+		inputDS.UpdateOption(m_options);
 			
 		if(!m_options.m_bQuiet) 
 		{
-			CGeoExtents extents = landsatDS.GetExtents();
-			CProjectionPtr pPrj = landsatDS.GetPrj();
+			CGeoExtents extents = inputDS.GetExtents();
+			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
-			cout << "    Size           = " << landsatDS->GetRasterXSize() << " cols x " << landsatDS->GetRasterYSize() << " rows x " << landsatDS.GetRasterCount() << " bands" << endl;
+			cout << "    Size           = " << inputDS->GetRasterXSize() << " cols x " << inputDS->GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
-			cout << "    NbBands        = " << landsatDS.GetRasterCount() << endl;
-			//cout << "    Scene size     = " << landsatDS.GetSceneSize() << endl;
-			//cout << "    Nb. Scenes     = " << landsatDS.GetNbScenes() << endl;
-			//cout << "    First image    = " << landsatDS.GetPeriod().Begin().GetFormatedString() << endl;
-			//cout << "    Last image     = " << landsatDS.GetPeriod().End().GetFormatedString() << endl;
+			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
+			//cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
+			//cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
+			//cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
+			//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
 			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
 			
+		}
+
+		
+		for (size_t i = 0; i < inputDS.GetRasterCount(); i++)
+		{
+			string name = GetFileTitle(inputDS.GetInternalName(i));
+			if (name.empty())
+				name = "B" + to_string(i + 1);
+			m_options.m_cols_name.push_back(name);
 		}
 	}
 
@@ -356,7 +372,7 @@ ERMsg CRangerImage::Execute()
 
 
 	ForestPtr forest;
-	msg += ReadRules(forest);
+	msg += ReadForest(forest);
 	if (!msg)
 		return msg;
 	
@@ -370,9 +386,10 @@ ERMsg CRangerImage::Execute()
 	
 	if( msg)
 	{
-		if (inputDS.GetRasterCount() != forest->getNumIndependentVariables())
+		size_t iv = forest->getNumIndependentVariables() - forest->get_virtual_cols_name().size();
+		if (inputDS.GetRasterCount() != iv)
 		{
-			msg.ajoute("The number of raster bands (" + ToString(inputDS.GetRasterCount()) + ") in the input image is not equal to the number of the independant variables (" + ToString(forest->getNumIndependentVariables() )+ ") in the forest model");
+			msg.ajoute("The number of raster bands (" + ToString(inputDS.GetRasterCount()) + ") in the input image is not equal to the number of the input variables (" + ToString(iv) + ") in the forest model. Virtual varialbes ("+ to_string(forest->get_virtual_cols_name().size()) +") are excluded");
 			return msg;
 		}
 
@@ -495,7 +512,8 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 
 
 			DataShort input;
-			input.resize(validPixel.count(), window.GetSceneSize());
+			input.set_virtual_cols(forest->get_virtual_cols_txt(), forest->get_virtual_cols_name());
+			input.resize(validPixel.count(), m_options.m_cols_name);
 			
 			int cur_xy = 0;
 			for (int y = 0; y < blockSize.m_y; y++)
@@ -514,6 +532,9 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 					}
 				}
 			}
+
+			if (!input.update_virtual_cols())
+				return;
 
 			forest->run_predict(&input);
 			
@@ -589,12 +610,12 @@ void CRangerImage::WriteBlock(int xBlock, int yBlock, OutputData& output, Uncert
 	}
 }
 
-void CRangerImage::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS)
+void CRangerImage::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS)
 {
 	if( !m_options.m_bQuiet )		
 		_tprintf("\nClose all files...\n");
 
-	landsatDS.Close();
+	inputDS.Close();
 	maskDS.Close(); 
 
 	//close output

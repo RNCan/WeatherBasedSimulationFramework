@@ -1444,7 +1444,8 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
-	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file. Type can be Natural or LandWater. " },
+	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be Natural or LandWater. " },
+	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data). Entire image will be remove for Landsat images. " },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},
@@ -1549,6 +1550,7 @@ void CBaseOptions::Reset()
 	m_bCreateImage = true;
 	m_bComputeStats=false;
 	m_bComputeHistogram = false;
+	m_bRemoveEmptyBand = false;
 		
 	m_TTF = JDAY1970;
 	m_scenesSize = 0; //number of image per scene
@@ -1840,6 +1842,10 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	else if (IsEqual(argv[i], "-Hist"))
 	{
 		m_bComputeHistogram = true;
+	}
+	else if (IsEqual(argv[i], "-RemoveEmpty"))
+	{
+		m_bRemoveEmptyBand = true;
 	}
 	else if( IsEqual(argv[i],"-NoResult") )
 	{

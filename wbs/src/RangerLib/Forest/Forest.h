@@ -46,7 +46,7 @@
 
 inline TreeType GetTreeType(std::string forest_file_path)
 {
-	TreeType treetype;
+	TreeType treetype = TREE_UNKNOW;
 	if (forest_file_path.find(GetTreeTypeStr(TREE_CLASSIFICATION))!=std::string::npos)
 		treetype = TREE_CLASSIFICATION;
 	else if (forest_file_path.find(GetTreeTypeStr(TREE_REGRESSION)) != std::string::npos)
