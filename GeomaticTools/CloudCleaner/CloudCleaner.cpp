@@ -695,10 +695,10 @@ ERMsg CCloudCleaner::Execute()
 			}
 		}
 
-		cout << "random fill..." << endl;
+		/*cout << "random fill..." << endl;
 		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
 				
-		/*CRandomGenerator RG;
+		CRandomGenerator RG;
 		for (__int64 b = 0; b < (__int64)nbScenedProcess; ++b)
 		{
 			for (size_t xy = 0; xy < (size_t)extents.m_xSize*extents.m_ySize; ++xy)
@@ -732,7 +732,7 @@ ERMsg CCloudCleaner::Execute()
 
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
-#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU/2) if (m_options.m_bMulti)
 		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 		{
 			size_t thread = omp_get_thread_num();
@@ -1087,8 +1087,8 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 	CLandsatPixelVector median;
 	LoadData(bandHolder, data, median);
 
-#pragma omp critical(ProcessBlock)
-#pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
+//#pragma omp critical(ProcessBlock)
+//#pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 	for (__int64 zz = 0; zz < (__int64)nbScenesProcess; zz++)
 	{
 		size_t z = m_options.m_scenesTreated[0] + zz;
@@ -2083,7 +2083,7 @@ void CCloudCleaner::LoadData(const CBandsHolder& bandHolder, LansatData& data, C
 		}
 
 #pragma omp atomic		
-		m_options.m_xx += (std::min((size_t)extents.m_xSize*extents.m_ySize, (size_t)blockSize.m_x*blockSize.m_y));
+		m_options.m_xx += (size_t)blockSize.m_x*blockSize.m_y;
 		m_options.UpdateBar();
 
 	}
