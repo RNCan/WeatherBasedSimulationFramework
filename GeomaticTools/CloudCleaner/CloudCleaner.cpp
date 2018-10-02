@@ -748,8 +748,6 @@ ERMsg CCloudCleaner::Execute()
 			size_t xBlock = XYindex[b].first;
 			size_t yBlock = XYindex[b].second;
 
-			//cout << "thread = " << thread;
-			//data
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
 			FindSuspicious(xBlock, yBlock, bandHolder[thread], suspects1, suspects2);
 
@@ -2079,7 +2077,7 @@ void CCloudCleaner::LoadData(const CBandsHolder& bandHolder, LansatData& data, C
 			data[y*blockSize.m_x + x].resize(nbScenes);
 
 
-#pragma omp parallel for num_threads(max(m_options.m_CPU-1, 1)) if (m_options.m_bMulti)
+#pragma omp parallel for num_threads(m_options.BLOCK_CPU()) if (m_options.m_bMulti)
 	for (int zz = 0; zz < (int)nbScenesLoaded; zz++)
 	{
 		size_t z = m_options.m_scenesLoaded[0] + zz;
