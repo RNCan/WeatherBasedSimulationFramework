@@ -842,7 +842,7 @@ namespace WBSF
 						if (m_poDatasetVector[i])
 						{
 							if (!bQuiet)
-								cout << "B" << i + 1 << ": ";
+								cout << FormatA("%-4.4s", FormatA("B%d", i + 1).c_str()) << ": ";
 
 							m_poDatasetVector[i]->BuildOverviews("NEAREST", (int)list.size(), const_cast<int *>(list.data()), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL);
 						}
@@ -872,7 +872,7 @@ namespace WBSF
 			for (size_t i = 0; i < GetRasterCount(); i++)
 			{
 				if (!bQuiet)
-					cout << "B" << i + 1 << ": ";
+					cout << FormatA("%-4.4s", FormatA("B%d", i + 1).c_str()) << ": ";
 
 				if (GetRasterBand(i))
 					GetRasterBand(i)->ComputeStatistics(false, &dfMin, &dfMax, &dfMean, &dfStdDev, (bQuiet) ? GDALDummyProgress : GDALTermProgress, NULL);
@@ -892,7 +892,7 @@ namespace WBSF
 			for (size_t i = 0; i < GetRasterCount(); i++)
 			{
 				if (!bQuiet)
-					cout << "B" << i + 1 << ": ";
+					cout << FormatA("%-4.4s", FormatA("B%d", i + 1).c_str()) << ": ";
 
 				if (GetRasterBand(i))
 				{
