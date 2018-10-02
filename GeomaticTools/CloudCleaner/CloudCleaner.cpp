@@ -318,7 +318,7 @@ ERMsg CCloudCleaner::ReadModel(Forests3MT& forests)
 		{
 			string filePath = m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH];
 			SetFileName(filePath, GetFileTitle(filePath) + "_" + EXTRA[f] + ".classification.forest");
-			msg += ReadModel(filePath, m_options.m_bMulti ? m_options.BLOCK_CPU() : -1, forests[t][f], t!=0);
+			msg += ReadModel(filePath, m_options.m_bMulti ? /*m_options.BLOCK_CPU()*/32 : -1, forests[t][f], t!=0);
 		}
 	}
 
@@ -704,24 +704,24 @@ ERMsg CCloudCleaner::Execute()
 			}
 		}
 
-		/*cout << "random fill..." << endl;
-		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
-				
-		CRandomGenerator RG;
-		for (__int64 b = 0; b < (__int64)nbScenedProcess; ++b)
-		{
-			for (size_t xy = 0; xy < (size_t)extents.m_xSize*extents.m_ySize; ++xy)
-			{
-				suspects1[b][0].set(xy, RG.Randu(0, 1) > 0.95);
-				suspects1[b][1].set(xy, RG.Randu(0, 1) > 0.99);
-				suspects2[b][0].set(xy, RG.Randu(0, 1) > 0.90);
-				suspects2[b][1].set(xy, RG.Randu(0, 1) > 0.95);
-#pragma omp atomic		
-				m_options.m_xx++;
-			}
-		
-			m_options.UpdateBar();
-		}*/
+//		cout << "random fill..." << endl;
+//		m_options.ResetBar((size_t)nbScenedProcess*extents.m_xSize*extents.m_ySize);
+//				
+//		CRandomGenerator RG;
+//		for (__int64 b = 0; b < (__int64)nbScenedProcess; ++b)
+//		{
+//			for (size_t xy = 0; xy < (size_t)extents.m_xSize*extents.m_ySize; ++xy)
+//			{
+//				suspects1[b][0].set(xy, RG.Randu(0, 1) > 0.95);
+//				suspects1[b][1].set(xy, RG.Randu(0, 1) > 0.99);
+//				suspects2[b][0].set(xy, RG.Randu(0, 1) > 0.90);
+//				suspects2[b][1].set(xy, RG.Randu(0, 1) > 0.95);
+//#pragma omp atomic		
+//				m_options.m_xx++;
+//			}
+//		
+//			m_options.UpdateBar();
+//		}
 
 		PROCESS_MEMORY_COUNTERS memCounter;
 		if (!m_options.m_bQuiet)
@@ -1166,8 +1166,6 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 			vars.push_back(string("t4_") + Landsat::GetBandName(b));
 	}
 
-//#pragma omp critical(ProcessBlock)
-	{
 		//m_options.m_timerProcess.Start();
 
 		if (m_options.m_bOutputCode)
@@ -1249,7 +1247,10 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 					}//y
 
 					input.update_virtual_cols();
-					forests[m]->run_predict(&input);
+//#pragma omp critical(ProcessBlock)
+					{
+						forests[m]->run_predict(&input);
+					}
 
 					cur_xy = 0;
 					for (size_t y = 0; y < blockSize.m_y; y++)
@@ -1288,7 +1289,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 		}//m
 
 		//m_options.m_timerProcess.Stop();
-	}//omp
+	//}//omp
 }
 
 void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, RFCodeData& RFcode, CGDALDatasetEx& RFCodeDS)
