@@ -14,7 +14,8 @@ namespace WBSF
 	typedef std::deque< std::vector<__int16>> RFCodeData;
 	typedef std::vector< CLandsatPixelVector > LansatData;
 	typedef std::auto_ptr<Forest> ForestPtr;
-	typedef std::array<ForestPtr, 4> Forests3;
+	typedef std::array<ForestPtr, 3> Forests3;
+	typedef std::vector < Forests3> Forests3MT;
 	typedef std::vector < std::array<boost::dynamic_bitset<size_t>, 2>> CloudBitset;
 	typedef std::vector < std::array<boost::dynamic_bitset<size_t>, 2>> SuspectBitset;
 
@@ -222,8 +223,8 @@ namespace WBSF
 
 		CCloudCleanerOption m_options;
 
-		static ERMsg ReadModel(std::string filePath, int CPU, ForestPtr& forest);
-		ERMsg ReadModel(Forests3& forest);
+		static ERMsg ReadModel(std::string filePath, int CPU, ForestPtr& forest, bool bQuit);
+		ERMsg ReadModel(Forests3MT& forest);
 		static std::string GetScenesDateFormat(const std::vector<CTPeriod>& p);
 	};
 

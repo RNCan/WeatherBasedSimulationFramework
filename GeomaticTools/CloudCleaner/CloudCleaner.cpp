@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.1.4    02/10/2018	Rémi Saint-Amsant	Add BLOCK_THREADS options
 // 2.1.3    29/09/2018	Rémi Saint-Amsant	Add -PeriodTreated,-Rename and -OutputJD and many optimization.
 // 2.1.2	26/09/2018	Rémi Saint-Amant	Bug correction in seive. change in secondary definition.
 // 2.1.1	25/09/2018	Rémi Saint-Amant	replace buffer and bufferEx. Separate cloud and shadow suspect pixel, 
@@ -72,8 +73,8 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.1.3";
-static const int NB_THREAD_PROCESS = 2;
+static const char* version = "2.1.4";
+//static const int NB_THREAD_PROCESS = 2;
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag","_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB" };
@@ -258,6 +259,8 @@ ERMsg CCloudCleanerOption::ParseOption(int argc, char* argv[])
 	}
 	//if (m_maxScene < 1)
 		//msg.ajoute("Invalid -MaxScene. -FillMaxScene must be greater than 1.");
+	
+	//m_CPU = max(1, m_CPU/m_BLOCK_THREADS);
 
 	return msg;
 }
@@ -266,7 +269,7 @@ ERMsg CCloudCleanerOption::ParseOption(int argc, char* argv[])
 //***********************************************************************
 
 
-ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
+ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest, bool bQuit)
 {
 	ERMsg msg;
 
@@ -277,15 +280,18 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 		forest.reset(CreateForest(treetype));
 		forest->init_predict(0, CPU, false, DEFAULT_PREDICTIONTYPE);
 		forest->loadFromFile(filePath);
-		cout << "Forest name:                       " << GetFileTitle(GetFileTitle(filePath)) << std::endl;
-		cout << "Forest type:                       " << GetTreeTypeStr(treetype) << std::endl;
-		cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
-		cout << "Dependent variable column:         " << forest->getDependentVarId() + 1 << std::endl;
-		cout << "Number of input variables:         " << forest->getNumIndependentVariables() - forest->get_virtual_cols_name().size() << std::endl;
-		cout << "Number of virtual variables:       " << forest->get_virtual_cols_name().size() << std::endl;
-		cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
+		if (!bQuit)
+		{
+			cout << "Forest name:                       " << GetFileTitle(GetFileTitle(filePath)) << std::endl;
+			cout << "Forest type:                       " << GetTreeTypeStr(treetype) << std::endl;
+			cout << "Number of trees:                   " << forest->getNumTrees() << std::endl;
+			cout << "Dependent variable column:         " << forest->getDependentVarId() + 1 << std::endl;
+			cout << "Number of input variables:         " << forest->getNumIndependentVariables() - forest->get_virtual_cols_name().size() << std::endl;
+			cout << "Number of virtual variables:       " << forest->get_virtual_cols_name().size() << std::endl;
+			cout << "Number of independent variables:   " << forest->getNumIndependentVariables() << std::endl;
 
-		cout << std::endl;
+			cout << std::endl;
+		}
 	}
 	catch (std::exception e)
 	{
@@ -295,7 +301,7 @@ ERMsg CCloudCleaner::ReadModel(std::string filePath, int CPU, ForestPtr& forest)
 	return msg;
 }
 
-ERMsg CCloudCleaner::ReadModel(Forests3& forests)
+ERMsg CCloudCleaner::ReadModel(Forests3MT& forests)
 {
 	ERMsg msg;
 
@@ -304,14 +310,17 @@ ERMsg CCloudCleaner::ReadModel(Forests3& forests)
 	if (!m_options.m_bQuiet)
 		cout << "Read forest..." << endl;
 
-	static const char* EXTRA[3] = { "START","MIDDLE","END" };
-	for (size_t f = 0; f < 3; f++)
+	forests.resize(m_options.m_BLOCK_THREADS);
+	for (size_t t = 0; t < forests.size(); t++)
 	{
-		string filePath = m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH];
-		SetFileName(filePath, GetFileTitle(filePath) + "_" + EXTRA[f] + ".classification.forest");
-		msg += ReadModel(filePath, m_options.m_bMulti ? m_options.m_CPU : -1, forests[f]);
+		static const char* EXTRA[3] = { "START","MIDDLE","END" };
+		for (size_t f = 0; f < 3; f++)
+		{
+			string filePath = m_options.m_filesPath[CCloudCleanerOption::RF_MODEL_FILE_PATH];
+			SetFileName(filePath, GetFileTitle(filePath) + "_" + EXTRA[f] + ".classification.forest");
+			msg += ReadModel(filePath, m_options.m_bMulti ? m_options.BLOCK_CPU() : -1, forests[t][f], t!=0);
+		}
 	}
-
 
 	timer.Stop();
 
@@ -330,12 +339,6 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 	if (!m_options.m_bQuiet)
 	{
 		cout << endl << "Open input image..." << endl;
-		if (m_options.m_period.IsInit())
-			cout << "    User require loaded period    = " << m_options.m_period.GetFormatedString() << endl;
-
-		if (m_options.m_periodTreated.IsInit())
-			cout << "    User require treated period   = " << m_options.m_periodTreated.GetFormatedString() << endl;
-
 	}
 
 
@@ -377,7 +380,7 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			for (size_t s = 0; s < scenesPeriod.size(); s++)
 			{
 				if (s > 1 && (scenesPeriod[s].End() < scenesPeriod[s - 1].Begin()))
-					msg.ajoute("Scenes of the input landsat images (" + GetFileName(m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH]) + ")are not sorted by date.");
+					msg.ajoute("Scenes of the input landsat images (" + GetFileName(m_options.m_filesPath[CCloudCleanerOption::LANDSAT_FILE_PATH]) + ") are not chronologically ordered.");
 
 				if (p.IsIntersect(scenesPeriod[s]))
 					selected.insert(s);
@@ -443,6 +446,12 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 		CGeoExtents extents = landsatDS.GetExtents();
 		CProjectionPtr pPrj = landsatDS.GetPrj();
 		string prjName = pPrj ? pPrj->GetName() : "Unknown";
+
+		if (m_options.m_period.IsInit())
+			cout << "    User's Input loading period  = " << m_options.m_period.GetFormatedString() << endl;
+
+		if (m_options.m_periodTreated.IsInit())
+			cout << "    User's Input treating period = " << m_options.m_periodTreated.GetFormatedString() << endl;
 
 		cout << "    Size           = " << landsatDS->GetRasterXSize() << " cols x " << landsatDS->GetRasterYSize() << " rows x " << landsatDS.GetRasterCount() << " bands" << endl;
 		cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
@@ -625,7 +634,7 @@ ERMsg CCloudCleaner::Execute()
 
 	GDALAllRegister();
 
-	Forests3 forests;
+	Forests3MT forests;
 	msg += ReadModel(forests);
 
 	if (!msg)
@@ -642,18 +651,18 @@ ERMsg CCloudCleaner::Execute()
 
 	if (msg)
 	{
-		size_t iv = forests[0]->getNumIndependentVariables() - forests[0]->get_virtual_cols_name().size();
+		size_t iv = forests[0][0]->getNumIndependentVariables() - forests[0][0]->get_virtual_cols_name().size();
 		if (iv == 28)
 			m_options.m_bUseMedian = true;
 
 
 		if (iv != 21 && iv != 28)
 		{
-			msg.ajoute("Bad Random Forest models. Number of independant variable (" + to_string(iv) + ") excluding virtual vars (" + to_string(forests[0]->get_virtual_cols_name().size()) + ") must be 21 or 28 (when median is used).");
+			msg.ajoute("Bad Random Forest models. Number of independant variable (" + to_string(iv) + ") excluding virtual vars (" + to_string(forests[0][0]->get_virtual_cols_name().size()) + ") must be 21 or 28 (when median is used).");
 		}
 
-		if (forests[0]->getNumIndependentVariables() != forests[1]->getNumIndependentVariables() ||
-			forests[1]->getNumIndependentVariables() != forests[2]->getNumIndependentVariables())
+		if (forests[0][0]->getNumIndependentVariables() != forests[0][1]->getNumIndependentVariables() ||
+			forests[0][1]->getNumIndependentVariables() != forests[0][2]->getNumIndependentVariables())
 		{
 			msg.ajoute("Bad Random Forest models. All model must have the same number of independant variable. Ie 21 or 28 fro model with median.");
 		}
@@ -667,7 +676,7 @@ ERMsg CCloudCleaner::Execute()
 		size_t nbScenedLoaded = m_options.m_scenesLoaded[1] - m_options.m_scenesLoaded[0] + 1;
 		
 
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 
 		if (maskDS.IsOpen())
 			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
@@ -724,7 +733,7 @@ ERMsg CCloudCleaner::Execute()
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		if (!m_options.m_bQuiet)
-			cout << "Find suspicious pixel..." << endl;
+			cout << "Find suspicious pixels with " << m_options.m_BLOCK_THREADS << " block threads and " << m_options.BLOCK_CPU() << " CPUs for each block threads" << endl;
 
 		CTimer timer(true);
 		size_t nbPixels = max(extents.m_xSize*extents.m_ySize, extents.m_xBlockSize*extents.m_yBlockSize);
@@ -732,13 +741,14 @@ ERMsg CCloudCleaner::Execute()
 
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
-#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU/2) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
 		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 		{
 			size_t thread = omp_get_thread_num();
 			size_t xBlock = XYindex[b].first;
 			size_t yBlock = XYindex[b].second;
 
+			//cout << "thread = " << thread;
 			//data
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
 			FindSuspicious(xBlock, yBlock, bandHolder[thread], suspects1, suspects2);
@@ -774,7 +784,7 @@ ERMsg CCloudCleaner::Execute()
 		{
 			timer.Start(true);
 			if (!m_options.m_bQuiet)
-				cout << "Sieve primary suspicious pixels" << endl;
+				cout << "Sieve primary suspicious pixels with " << m_options.m_CPU << " CPUs" << endl;
 
 			m_options.ResetBar((size_t)nbScenedProcess*nbPixels * 2);
 
@@ -800,7 +810,7 @@ ERMsg CCloudCleaner::Execute()
 		{
 			timer.Start(true);
 			if (!m_options.m_bQuiet)
-				cout << "Clean secondary suspicious pixels that do not touch primary suspicious pixel" << endl;
+				cout << "Clean secondary suspicious pixels that do not touch primary suspicious pixel with " << m_options.m_CPU << " CPUs" << endl;
 
 			m_options.ResetBar((size_t)2 * nbScenedProcess*nbPixels * 2);
 
@@ -841,11 +851,11 @@ ERMsg CCloudCleaner::Execute()
 		}
 
 		if (!m_options.m_bQuiet)
-			cout << "Call ranger for all suspicious pixels" << endl;
+			cout << "Call ranger for all suspicious pixels with " << m_options.m_BLOCK_THREADS << " block threads and " << m_options.BLOCK_CPU() << " CPUs for each block threads" << endl;
 		//pass 2 : find clouds
 		timer.Start(true);
 		m_options.ResetBar((size_t)nbScenedProcess*nbPixels * 3 + nbScenedLoaded * nbPixels);
-#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int thread = omp_get_thread_num();
@@ -855,7 +865,7 @@ ERMsg CCloudCleaner::Execute()
 			//data
 			RFCodeData RFcode;
 			ReadBlock(xBlock, yBlock, bandHolder[thread]);
-			FindClouds(xBlock, yBlock, bandHolder[thread], forests, RFcode, suspects1, suspects2, clouds);
+			FindClouds(xBlock, yBlock, bandHolder[thread], forests[thread], RFcode, suspects1, suspects2, clouds);
 			WriteBlock1(xBlock, yBlock, bandHolder[thread], RFcode, DTCodeDS);
 		}//for all blocks
 
@@ -870,11 +880,11 @@ ERMsg CCloudCleaner::Execute()
 			cout << "Memory used: " << memCounter.WorkingSetSize / (1024 * 1024) << " Mo" << endl;
 			cout << "Time to identify cloud with Ranger: " << SecondToDHMS(timer.Elapsed()) << endl;
 		}
-
+		
 		if (m_options.m_bufferEx[0] > 0 || m_options.m_bufferEx[1] > 0)
 		{
 			if (!m_options.m_bQuiet)
-				cout << "Set suspicious pixels around clouds as clouds" << endl;
+				cout << "Set suspicious pixels around clouds as clouds with " << m_options.m_CPU << " CPUs" << endl;
 
 			timer.Start(true);
 			//size_t nbPixels = min(extents.m_xSize*extents.m_ySize, extents.m_xBlockSize*extents.m_yBlockSize);
@@ -891,12 +901,13 @@ ERMsg CCloudCleaner::Execute()
 		{
 			timer.Start(true);
 			if (!m_options.m_bQuiet)
-				cout << "Clean/replace clouds, output debug..." << endl;
+				cout << "Clean/replace clouds, output debug with " << m_options.m_BLOCK_THREADS << " block threads and " << m_options.BLOCK_CPU() << " CPUs for each block threads" << endl;
 
 			m_options.ResetBar((size_t)nbScenedProcess*nbPixels + nbScenedLoaded * nbPixels);
 
 			//pass 3 : reset or replace clouds
 // no omp here
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
 			for (int b = 0; b < (int)XYindex.size(); b++)
 			{
 				int thread = omp_get_thread_num();
@@ -944,7 +955,7 @@ ERMsg CCloudCleaner::Execute()
 
 void CCloudCleaner::ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder)
 {
-#pragma omp critical(BlockIO)
+#pragma omp critical(ReadBlockIO)
 	{
 
 		m_options.m_timerRead.Start();
@@ -1088,7 +1099,7 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 	LoadData(bandHolder, data, median);
 
 //#pragma omp critical(ProcessBlock)
-//#pragma omp parallel for num_threads(m_options.m_CPU) if (m_options.m_bMulti)
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU()) if (m_options.m_bMulti)
 	for (__int64 zz = 0; zz < (__int64)nbScenesProcess; zz++)
 	{
 		size_t z = m_options.m_scenesTreated[0] + zz;
@@ -1157,9 +1168,9 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 			vars.push_back(string("t4_") + Landsat::GetBandName(b));
 	}
 
-#pragma omp critical(ProcessBlock)
+//#pragma omp critical(ProcessBlock)
 	{
-		m_options.m_timerProcess.Start();
+		//m_options.m_timerProcess.Start();
 
 		if (m_options.m_bOutputCode)
 		{
@@ -1278,14 +1289,14 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 			}//z
 		}//m
 
-		m_options.m_timerProcess.Stop();
+		//m_options.m_timerProcess.Stop();
 	}//omp
 }
 
 void CCloudCleaner::WriteBlock1(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, RFCodeData& RFcode, CGDALDatasetEx& RFCodeDS)
 {
 
-#pragma omp critical(BlockIO)
+#pragma omp critical(WriteBlockIO)
 	{
 
 		m_options.m_timerWrite.Start();
@@ -1709,9 +1720,9 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 			replacement[i].insert(replacement[i].begin(), blockSize.m_x*blockSize.m_y, NOT_INIT);
 	}
 
-#pragma omp critical(ProcessBlock)
+//#pragma omp critical(ProcessBlock)
 	{
-		m_options.m_timerProcess.Start();
+		//m_options.m_timerProcess.Start();
 
 
 		//process debug and find replacement pixel 
@@ -1802,7 +1813,7 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 		}//z
 
 
-		m_options.m_timerProcess.Stop();
+		//m_options.m_timerProcess.Stop();
 	}//critical
 }
 
@@ -1810,7 +1821,7 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 void CCloudCleaner::WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const LansatData& data, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 {
 
-#pragma omp critical(BlockIO)
+#pragma omp critical(WriteBlockIO)
 	{
 		m_options.m_timerWrite.Start();
 

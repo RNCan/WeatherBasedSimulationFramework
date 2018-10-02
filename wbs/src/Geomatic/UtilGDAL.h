@@ -259,6 +259,8 @@ namespace WBSF
 		int GetTRefIndex(CTRef TRef)const{ return TRef.IsInit() ? GetTRefIndex(m_TTF, TRef) : int(m_dstNodata); }
 		CTRef GetTRef(int index)const{ return GetTRef(m_TTF, index); }
 		bool IsVRT()const { return IsEqualNoCase(m_format, "VRT"); }
+		int BLOCK_CPU()const { return std::max(1, int(m_CPU / m_BLOCK_THREADS) ); }
+
 
 		std::string m_format;
 		short m_outputType;
@@ -285,6 +287,7 @@ namespace WBSF
 		float m_maskDataUsed;
 		int m_CPU;
 		int m_IOCPU;
+		int m_BLOCK_THREADS;
 
 		bool m_bMulti;
 		bool m_bAlpha;

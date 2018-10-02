@@ -1430,8 +1430,9 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{"-mask",1,"name",false,"Specify an input mask. Use all value different than nodata by default."},
 	{"-maskValue",1,"value",false,"Select a value in the mask to treat. By default all valid data are treat."},
 	{"-multi",0,"",false,"Use multithreaded implementation. Multiple threads will be used to process chunks of image and perform input/output operation simultaneously."},
-	{"-CPU",1,"nbCPU",false,"Number of CPUs to used when computation. If the number is negative, then CPU define the number of free CPU. All CPUs are used by default.-multi must be define"},
-	{"-IOCPU",1,"nbCPU",false,"number of CPUs used to read files. If the number is negative, then CPU define the number of free CPU. Only one thread is assigned by default. IOCPU is only  used when -multi is define."},
+	{"-CPU",1,"nbCPU",false,"Number of CPUs to used when computation. If the number is negative, then CPU define the number of free CPU. CPUs = AllCPU/BLOCK_CPU by default. Only  used when -multi is define."},
+	{"-IOCPU",1,"nbCPU",false,"number of CPUs used to read files. If the number is negative, then CPU define the number of free CPU. Only one thread is assigned by default. Only  used when -multi is define."},
+	{"-BLOCK_THREADS",1,"threads",false,"Number of threads used to process blocks. 2 by default. Only used when -multi is define. "},
 	{"-wm",1,"size(mb)",false,"Set the amount of memory (in megabytes) that API is allowed to use for caching."},
 	{"-ResetJobLog",0,"",false,"Create a log with output information. If the file already exist, the text will be append at the end of the file."},
 	{"-JobLog",1,"filePath",false,"Reset the job log file. Must be call for the first job."},
@@ -1445,7 +1446,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
 	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be Natural or LandWater. " },
-	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data). Entire image will be remove for Landsat images. " },
+	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},
@@ -1467,7 +1468,7 @@ int CBaseOptions::GetOptionIndex(const char* name)
 }
 
 
-const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-wm","-BlockSize","-NoResult","-Overview","-stats", "-hist", "-?","-??","-???","-help"};//, "-stats"
+const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-BLOCK_THREADS","-wm","-BlockSize","-NoResult","-Overview","-stats", "-hist", "-?","-??","-???","-help"};//, "-stats"
 static const int NB_DEFAULT_OPTIONS = sizeof(CBaseOptions::DEFAULT_OPTIONS)/sizeof(char*);
 CBaseOptions::CBaseOptions(bool bAddDefaultOption)
 {
@@ -1531,8 +1532,9 @@ void CBaseOptions::Reset()
 	m_yRes=0;
 	m_bandsToUsed.clear();
 	m_maskDataUsed=DataTypeMin;
-	m_CPU=0;
+	m_CPU=0;//slect all cpu by default
 	m_IOCPU=1;//by default take only one thread for IO
+	m_BLOCK_THREADS = 2;
 
 	m_bMulti=false;
 	m_bAlpha=false;
@@ -1811,6 +1813,12 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 		if( m_IOCPU <= 0)
 			m_IOCPU = max(1, omp_get_num_procs() + m_IOCPU);
 	}   
+	else if (IsEqual(argv[i], "-BLOCK_THREADS"))
+	{
+		m_BLOCK_THREADS = atoi(argv[++i]);
+		//if (m_IOCPU <= 0)
+			//m_IOCPU = max(1, omp_get_num_procs() + m_IOCPU);
+	}
 	else if( IsEqual(argv[i],"-wm") )
 	{
 		m_memoryLimit = CPLAtofM(argv[i+1]) * 1024 * 1024;

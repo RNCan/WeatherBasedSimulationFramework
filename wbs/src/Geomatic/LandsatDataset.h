@@ -261,7 +261,9 @@ namespace WBSF
 		CLandsatWindow(const CRasterWindow& in);
 		CLandsatWindow(const CLandsatWindow& in);
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
-		CLandsatPixel GetPixelMean(size_t i, int x, int y, int buffer)const;
+		
+		//CLandsatPixel GetPixelMean(size_t f, size_t l, int x, int y, int buffer, const std::vector<double>& weight = std::vector<double>())const;
+		CLandsatPixel GetPixelMean(size_t i, int x, int y, int buffer, const std::vector<double>& weight = std::vector<double>())const;
 		CLandsatPixel GetPixelMedian(size_t f, size_t l, int x, int y, int buffer=0)const;
 		CLandsatPixel GetPixelMedian(int x, int y, int buffer=0)const { return GetPixelMedian(0, GetNbScenes() -1, x, y, buffer); }
 		bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
