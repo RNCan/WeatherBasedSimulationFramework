@@ -891,7 +891,7 @@ ERMsg CCloudCleaner::Execute()
 		{
 			timer.Start(true);
 			if (!m_options.m_bQuiet)
-				cout << "Clean/replace clouds,output JD, debug..." << endl;
+				cout << "Clean/replace clouds, output debug..." << endl;
 
 			m_options.ResetBar((size_t)nbScenedProcess*nbPixels + nbScenedLoaded * nbPixels);
 
