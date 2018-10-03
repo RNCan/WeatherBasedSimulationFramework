@@ -42,6 +42,8 @@
 
 
 #include "stdafx.h"
+#include "VisualLeakDetector\include\vld.h"
+
 #include <float.h>
 #include <math.h>
 #include <array>
@@ -56,6 +58,7 @@
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/LandsatDataset.h"
+
 
 
 
@@ -682,7 +685,7 @@ ERMsg CCloudCleaner::Execute()
 			return msg;
 
 		CGeoExtents extents = bandHolder.GetExtents();
-		const std::vector<CTPeriod>& scenesPeriod = inputDS.GetScenePeriod();
+		std::vector<CTPeriod> scenesPeriod = inputDS.GetScenePeriod();
 		string date_format = GetScenesDateFormat(scenesPeriod);
 
 		SuspectBitset suspects1(nbScenedProcess);
@@ -731,9 +734,28 @@ ERMsg CCloudCleaner::Execute()
 			cout << "Find suspicious pixels with " << m_options.m_BLOCK_THREADS << " block threads (" << m_options.BLOCK_CPU() << " threads/block)" << endl;
 
 		CTimer timer(true);
-		size_t nbPixels = max(extents.m_xSize*extents.m_ySize, extents.m_xBlockSize*extents.m_yBlockSize);
+		size_t nbPixels = extents.m_xSize*extents.m_ySize;// min(extents.m_xSize*extents.m_ySize, extents.m_xBlockSize*extents.m_yBlockSize);
 		m_options.ResetBar((size_t)nbScenedProcess*nbPixels + nbScenedLoaded * nbPixels);
+		
+		size_t nbPixelsTest1 = 0;
+		size_t nbPixelsTest2 = 0;
+		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
+		{
+			size_t xBlock = XYindex[b].first;
+			size_t yBlock = XYindex[b].second;
 
+			CGeoRectIndex index = extents.GetBlockRect((int)xBlock, (int)yBlock);
+			CGeoSize blockSize = extents.GetBlockSize((int)xBlock, (int)yBlock);
+
+			nbPixelsTest1 += index.m_xSize*index.m_ySize;
+			nbPixelsTest2 += blockSize.m_x*blockSize.m_y;
+
+		}
+		cout << "nb pixels =" << nbPixels << endl;
+		cout << "nb pixels =" << nbPixelsTest1 << endl;
+		cout << "nb pixels =" << nbPixelsTest2 << endl;
+
+		
 		//pass 1 : find suspicious pixel
 		omp_set_nested(1);
 #pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
@@ -864,6 +886,8 @@ ERMsg CCloudCleaner::Execute()
 
 		if (DTCodeDS.IsOpen())
 			DTCodeDS.FlushCache();
+
+		forests.clear();//destroy forest end free memory
 
 		timer.Stop();
 
@@ -1138,7 +1162,7 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 #pragma omp parallel for num_threads( m_options.BLOCK_CPU()) if (m_options.m_bMulti)
 	for (__int64 zz = 0; zz < (__int64)nbScenesProcess; zz++)
 	{
-		size_t z = m_options.m_scenesTreated[0] + zz;
+		size_t z = m_options.m_scenesTreated[0] - m_options.m_scenesLoaded[0] + zz;
 
 		for (size_t y = 0; y < blockSize.m_y; y++)
 		{
@@ -1147,7 +1171,7 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 				size_t xy = y * blockSize.m_x + x;
 
 				size_t fm = get_m(z, data[xy]);
-				array <CLandsatPixel, 4> p = GetP(zz, data[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());
+				array <CLandsatPixel, 4> p = GetP(z, data[xy], (xy < median.size()) ? median[xy] : CLandsatPixel());
 
 				size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
 
@@ -1157,11 +1181,11 @@ void CCloudCleaner::FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHol
 				suspects2[zz][0].set(xy2, m_options.IsB1Trigged(p, CCloudCleanerOption::T_SECONDARY, fm));
 				suspects2[zz][1].set(xy2, m_options.IsTCBTrigged(p, CCloudCleanerOption::T_SECONDARY, fm));
 
-#pragma omp atomic		
-				m_options.m_xx++;
 			}//x
 		}//y
 
+#pragma omp atomic		
+		m_options.m_xx += (size_t)blockSize.m_x*blockSize.m_y;
 
 		m_options.UpdateBar();
 
@@ -1383,18 +1407,19 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 	}
 
 	for (int m = 0; m < 3; m++)
-	//int m = 1;
 	{
-		for (size_t zz = 0; zz < nbScenesProcess; zz++)
+		for (int zz = 0; zz < (int)nbScenesProcess; zz++)
 		{
-			size_t z = m_options.m_scenesTreated[0] + zz;
+			size_t z = m_options.m_scenesTreated[0] - m_options.m_scenesLoaded[0] + zz;
 
 			boost::dynamic_bitset<size_t> suspectPixel((size_t)blockSize.m_x*blockSize.m_y);
 			for (size_t y = 0; y < blockSize.m_y; y++)
 			{
 				for (size_t x = 0; x < blockSize.m_x; x++)
 				{
-					m_options.m_nbPixel++;
+					if(m==0)
+						m_options.m_nbPixel++;
+
 					size_t xy = y * blockSize.m_x + x;
 					size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
 					bool b1 = suspects1[zz][0].test(xy2) || suspects1[zz][1].test(xy2);
@@ -1402,16 +1427,12 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 					if (b1 || b2)
 					{
 						ASSERT(data[xy][z].IsValid());
-
-						//if (data[xy][z].IsValid())
-						//{
 						size_t fm = get_m(z, data[xy]);
 						if (fm == m)
 						{
 							suspectPixel.set(xy);
 							m_options.m_nbPixelDT++;
 						}
-						//}
 					}
 				}
 			}
@@ -1474,9 +1495,9 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 
 				input.update_virtual_cols();
 				//#pragma omp critical(ProcessBlock)
-				{
-					forests[m]->run_predict(&input);
-				}
+				//{
+				forests[m]->run_predict(&input);
+				//}
 
 				cur_xy = 0;
 				for (size_t y = 0; y < blockSize.m_y; y++)
@@ -1957,15 +1978,13 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 //no ompMP here
 		for (size_t zz = 0; zz < nbScenesProcess; zz++)
 		{
-			size_t z = m_options.m_scenesTreated[0] + zz;
+			size_t z = m_options.m_scenesTreated[0] - m_options.m_scenesLoaded[0] + zz;
 			for (size_t y = 0; y < blockSize.m_y; y++)
 			{
 				for (size_t x = 0; x < blockSize.m_x; x++)
 				{
 					size_t xy = (size_t)y*blockSize.m_x + x;
 					size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
-
-
 
 					if (!debug.empty())
 					{
@@ -2002,9 +2021,9 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 							size_t iz = size_t(z + (int)pow(-1, i)*(i / 2 + 1));
 							if (iz < dataCopy[xy].size() && dataCopy[xy][iz].IsInit())
 							{
-								size_t izz = size_t(zz + (int)pow(-1, i)*(i / 2 + 1));
+								size_t izz = size_t(z + (int)pow(-1, i)*(i / 2 + 1));
 
-								bool bReplace = (izz < clouds.size()) ? dataCopy[xy].at(iz).IsValid() && !(clouds[izz][0].test(xy2) || clouds[izz][1].test(xy2)) : true; /* && suspects1[izz].test(xy2)*/
+								bool bReplace = (izz < clouds.size()) ? dataCopy[xy].at(iz).IsValid() && !(clouds[izz][0].test(xy2) || clouds[izz][1].test(xy2)) : true; 
 								if (bReplace)
 									z2 = iz;
 							}
@@ -2030,7 +2049,7 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 		//replace cloud by valid pixel for all x and y 
 		for (size_t zz = 0; zz < replacement.size(); zz++)
 		{
-			size_t z = m_options.m_scenesTreated[0] + zz;
+			size_t z = m_options.m_scenesTreated[0] - m_options.m_scenesLoaded[0] + zz;
 			for (size_t xy = 0; xy < replacement[zz].size(); xy++)
 			{
 				if (replacement[zz][xy] != NOT_INIT)
@@ -2075,7 +2094,9 @@ void CCloudCleaner::WriteBlock2(size_t xBlock, size_t yBlock, const CBandsHolder
 				{
 					ASSERT(data.size() == blockSize.m_x*blockSize.m_y);
 
-					size_t z = m_options.m_scenesTreated[0] + bb / SCENES_SIZE;
+					size_t z = m_options.m_scenesTreated[0] - m_options.m_scenesLoaded[0] + bb / SCENES_SIZE;
+					//size_t z = m_options.m_scenesTreated[0] + bb / SCENES_SIZE;
+					//size_t z = bb / SCENES_SIZE;
 					size_t b = bb % SCENES_SIZE;
 					for (size_t y = 0; y < blockSize.m_y; y++)
 					{
