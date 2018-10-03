@@ -87,7 +87,7 @@ void ForestRegression::growInternal(Data* data) {
 	}
 }
 
-void ForestRegression::allocatePredictMemory(const Data* data){
+void ForestRegression::allocatePredictMemory(const Data* data) {
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all || prediction_type == TERMINALNODES) {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
@@ -129,7 +129,7 @@ void ForestRegression::predictInternal(size_t sample_idx, const Data* data) {
 		for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
 			double pred = ((TreeRegression*)trees[tree_idx])->getPrediction(sample_idx);
 			sum += pred;
-			sum² += pred*pred;
+			sum² += pred * pred;
 		}
 		predictions[0][0][sample_idx] = sum / num_trees;
 		uncertainty[sample_idx] = sqrt(std::max(0.0, (sum² - ((sum*sum) / num_trees)) / num_trees)) / (sum / num_trees);
@@ -248,7 +248,7 @@ void ForestRegression::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	num_independent_variables = num_variables_saved-1; //add by RSA
+	num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));

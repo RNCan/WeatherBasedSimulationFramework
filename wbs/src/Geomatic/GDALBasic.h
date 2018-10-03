@@ -613,7 +613,7 @@ namespace WBSF
 		void FlushCache(double yMax = -9999999999);
 
 		CGeoSize ComputeBlockSize(const CGeoExtents& extents, CTPeriod period)const;
-
+		
 		DataType GetPixel(size_t layer, int x, int y)const
 		{
 			DataType noData = (DataType)m_bandHolder[layer]->GetNoData();

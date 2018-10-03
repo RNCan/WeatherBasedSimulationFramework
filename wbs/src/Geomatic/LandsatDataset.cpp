@@ -739,6 +739,30 @@ namespace WBSF
 			CRasterWindow::operator=(in);
 	}
 
+	size_t CLandsatWindow::GetPrevious(size_t z, int x, int y)const
+	{
+		size_t previous = NOT_INIT;
+		for (size_t zz = z - 1; zz < GetNbScenes() && previous == NOT_INIT; zz--)
+		{
+			if (GetPixel(zz, x, y).IsValid())
+				previous = zz;
+		}
+
+		return previous;
+	}
+
+	size_t CLandsatWindow::GetNext(size_t z, int x, int y)const
+	{
+		size_t next = NOT_INIT;
+
+		for (size_t zz = z + 1; zz < GetNbScenes() && next == NOT_INIT; zz++)
+		{
+			if (GetPixel(zz, x, y).IsValid())
+				next = zz;
+		}
+		return next;
+	}
+
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
 	{
 		CLandsatPixel pixel;
@@ -761,40 +785,46 @@ namespace WBSF
 		if (w.empty())// no weight
 			w.resize(buffer, 1.0);
 
-		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+		//LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
 
 
 		CLandsatPixel pixel;
-		if (GetPixel(i, x, y).IsValid())
+		//if (GetPixel(i, x, y).IsValid())//???? est-ce qu
+		//{
+			//for (size_t z = 0; z < SCENES_SIZE; z++)
+			//{
+				//size_t ii = i * SCENES_SIZE + z;
+
+		array<CStatistic, SCENES_SIZE> stat;
+		CStatistic stat_w;
+		for (int yy = -buffer; yy <= buffer; yy++)
 		{
-			for (size_t z = 0; z < SCENES_SIZE; z++)
+			for (int xx = -buffer; xx <= buffer; xx++)
 			{
-				size_t ii = i * SCENES_SIZE + z;
-
-				CStatistic stat;
-				CStatistic stat_w;
-				for (int yy = -buffer; yy <= buffer; yy++)
+				CLandsatPixel p = GetPixel(i, x + xx, y + yy);
+				if (p.IsValid())
 				{
-					for (int xx = -buffer; xx <= buffer; xx++)
+					//LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx, y + yy);
+					//if (val != noData)
+					for (size_t z = 0; z < SCENES_SIZE; z++)
 					{
-						LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx, y + yy);
-						if (val != noData)
-						{
-							size_t r = max(abs(xx), abs(yy));
-							ASSERT(r < w.size());
-							stat_w += w[r];
-							stat += val * w[r];
-						}
+						size_t r = max(abs(xx), abs(yy));
+						ASSERT(r < w.size());
+						stat_w += w[r];
+						stat[z] += p[z] * w[r];
 					}
-				}
-
-				if (stat.IsInit())
-				{
-					ASSERT(stat_w[SUM] > 0);
-					pixel[z] = stat[SUM] / stat_w[SUM];
 				}
 			}
 		}
+
+		if (stat_w.IsInit())
+		{
+			ASSERT(stat_w[SUM] > 0);
+			for (size_t z = 0; z < SCENES_SIZE; z++)
+				pixel[z] = stat[z][SUM] / stat_w[SUM];
+		}
+		//}
+	//}
 
 		return pixel;
 	}
@@ -820,22 +850,40 @@ namespace WBSF
 		assert(f < GetNbScenes());
 		assert(l < GetNbScenes());
 		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
-
+		bool bAllBandsValid = true;
 
 		array<CStatisticEx, SCENES_SIZE> stat;
 		for (size_t i = f; i <= l; i++)
 		{
-			for (size_t z = 0; z < SCENES_SIZE; z++)
+			if (bAllBandsValid)
 			{
-				size_t ii = i * SCENES_SIZE + z;
-
 				for (int yy = 0; yy < 2 * buffer + 1; yy++)
 				{
 					for (int xx = 0; xx < 2 * buffer + 1; xx++)
 					{
-						LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
-						if (val != noData)
-							stat[z] += val;
+						CLandsatPixel p = GetPixel(i, x + xx, y + yy);
+						if (p.IsValid())
+						{
+							for (size_t z = 0; z < SCENES_SIZE; z++)
+								stat[z] += p[z];
+						}
+					}
+				}
+			}
+			else
+			{
+				for (size_t z = 0; z < SCENES_SIZE; z++)
+				{
+					size_t ii = i * SCENES_SIZE + z;
+
+					for (int yy = 0; yy < 2 * buffer + 1; yy++)
+					{
+						for (int xx = 0; xx < 2 * buffer + 1; xx++)
+						{
+							LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
+							if (val != noData)
+								stat[z] += val;
+						}
 					}
 				}
 			}

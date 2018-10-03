@@ -37,7 +37,7 @@
 #include "RangerLib/utility/Data.h"
 
 ForestSurvival::ForestSurvival() :
-status_varID(-1), response_timepointIDs(0) {
+	status_varID(-1), response_timepointIDs(0) {
 }
 
 ForestSurvival::~ForestSurvival() {
@@ -152,8 +152,8 @@ void ForestSurvival::predictInternal(size_t i, const Data* data) {
 	  predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_timepoints, 0)));
 	  }*/
 
-	// For each person and timepoint sum over trees
-	// for (size_t i = 0; i < num_prediction_samples; ++i) {
+	  // For each person and timepoint sum over trees
+	  // for (size_t i = 0; i < num_prediction_samples; ++i) {
 	if (predict_all) {
 		for (size_t j = 0; j < num_timepoints; ++j) {
 			for (size_t k = 0; k < num_trees; ++k) {
@@ -325,7 +325,7 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 
 	// Read status_varID
 	infile.read((char*)&status_varID, sizeof(status_varID));
-	if (status_varID<num_independent_variables)
+	if (status_varID < num_independent_variables)
 		num_independent_variables = num_independent_variables - 1; //add by RSA
 
 	// Read unique timepoints

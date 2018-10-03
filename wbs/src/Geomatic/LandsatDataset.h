@@ -260,7 +260,12 @@ namespace WBSF
 		CLandsatWindow();
 		CLandsatWindow(const CRasterWindow& in);
 		CLandsatWindow(const CLandsatWindow& in);
+
+
 		CLandsatPixel GetPixel(size_t i, int x, int y)const;
+		size_t GetPrevious(size_t z, int x, int y)const;
+		size_t GetNext(size_t z, int x, int y)const;
+
 		
 		//CLandsatPixel GetPixelMean(size_t f, size_t l, int x, int y, int buffer, const std::vector<double>& weight = std::vector<double>())const;
 		CLandsatPixel GetPixelMean(size_t i, int x, int y, int buffer, const std::vector<double>& weight = std::vector<double>())const;

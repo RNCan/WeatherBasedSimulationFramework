@@ -184,6 +184,7 @@ public:
   std::string get_virtual_cols_txt()const { return virtual_cols_txt; }
   const std::vector<std::string>& get_virtual_cols_name()const { return virtual_cols_name; }
 
+  void clear() { predictions.clear(); predictions.shrink_to_fit(); }
 protected:
 	
 	void grow(Data* data);

@@ -102,7 +102,7 @@ void ForestProbability::growInternal(Data* data) {
 	}
 }
 
-void ForestProbability::allocatePredictMemory(const Data* data){
+void ForestProbability::allocatePredictMemory(const Data* data) {
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all) {
 		predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
@@ -289,7 +289,7 @@ void ForestProbability::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	num_independent_variables = num_variables_saved-1; //add by RSA
+	num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));
