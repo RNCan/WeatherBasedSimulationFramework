@@ -42,14 +42,19 @@ namespace WBSF
 		m_scenes = { { NOT_INIT, NOT_INIT } };
 		m_bVirtual = false;
 		m_mul = 10000;
-		m_appDescription = "This software computes indices (NBR, HDMI, ...) from Landsat images (composed of " + to_string(SCENES_SIZE) + " bands).";
+		m_rings = 0;
 
+		m_appDescription = "This software computes indices (NBR, HDMI, ...) from Landsat images (composed of " + to_string(SCENES_SIZE) + " bands).";
+		
+		AddOption("-Period");
 		static const COptionDef OPTIONS[] =
-		{ 
+		{
 			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
 			{ "-Despike", 3, "type threshold min", true, "Despike to remove outbound pixels. Type is the indice type, threshold is the despike threshold and min is the minimum between T-1 and T+1 to execute despike. Supported type are the same as indice. Usual value are TCB 0.75 0.1." },
-			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to output indices. All scenes are selected by default." },
+//			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to output indices. All scenes are selected by default." },
 			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file that used input file. Combine with -NoResult, this avoid to copy files. " },
+			{ "-Window", 1, "n", false, "Compute window mean around the pixel. n is the number of rings. 0 = 1x1, 1 = 3x3, 2 = 5x5 etc. By default all rings have the same weight. Weight can be modified with option -weight. 1x1 by default." },
+			{ "-Weight", 1, "{w0,w1,w2...}", false, "Change the weight of window's rings. For example, if you enter {3,2,1} for a 5x5 windows, weight of the center pixel will be w0=3/6, the first ring will be w1=2/6 and secoond right will be w2=1/6. Equal weights by default." },
 
 			//{ "-mul", 1, "multiplicator", false, "Multiplicator for indices that need multiplication to output in integer. 10000 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -88,14 +93,39 @@ namespace WBSF
 
 		if (m_indices.count() == 0)
 		{
-			msg.ajoute("No indices selected. Indices must be add with option -i.");
+			msg.ajoute("No indice selected. Indices must be add with option -i.");
 		}
+
+		if (m_bVirtual && m_rings > 0)
+		{
+			msg.ajoute("option -Virtual cannot be used with option -Window)");
+		}
+
+		if (m_weight_str.empty())
+		{
+			m_weight.resize(m_rings + 1, 1.0 / (m_rings + 1));
+		}
+		else
+		{
+			StringVector tmp(m_weight_str, "{,;}");
+			if (tmp.size() == m_rings + 1)
+			{
+				for (size_t i = 0; i < tmp.size(); i++)
+					m_weight.push_back(as<double>(tmp[i]));
+			}
+			else
+			{
+				msg.ajoute("Invalid weight. The number of weight (" + to_string(tmp.size()) + ") is no equal to the number of rings + 1 (" + to_string(m_rings +1) + ").");
+			}
+		}
+
+		
 
 		if (!m_despike.empty() && m_bVirtual)
 		{
 			msg.ajoute("Option -Virtual can't be used with option -Despike.");
 		}
-		//if (m_outputType == GDT_Unknown)
+	
 		m_outputType = GDT_Int16;
 
 		return msg;
@@ -130,6 +160,14 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-Virtual"))
 		{
 			m_bVirtual = true;
+		}
+		else if (IsEqual(argv[i], "-Window"))
+		{
+			m_rings = atoi(argv[++i]);
+		}
+		else if (IsEqual(argv[i], "-Weight"))
+		{
+			m_weight_str = argv[++i];
 		}
 		else if (IsEqual(argv[i], "-Despike"))
 		{
@@ -248,7 +286,9 @@ namespace WBSF
 		ERMsg msg;
 
 		if (!m_options.m_bQuiet)
+		{
 			cout << endl << "Open input image..." << endl;
+		}
 
 		msg = inputDS.OpenInputImage(m_options.m_filesPath[CLandsatIndicesOption::INPUT_FILE_PATH], m_options);
 		if (msg)
@@ -257,6 +297,33 @@ namespace WBSF
 
 		if (msg && !m_options.m_bQuiet)
 		{
+			if (m_options.m_period.IsInit())
+			{
+				const std::vector<CTPeriod>& scenesPeriod = inputDS.GetScenePeriod();
+				CTPeriod p = m_options.m_period;
+
+				set<size_t> selected;
+
+				for (size_t s = 0; s < scenesPeriod.size(); s++)
+				{
+					//if (s > 1 && (scenesPeriod[s].End() < scenesPeriod[s - 1].Begin()))
+						//msg.ajoute("Scenes of the input landsat images (" + GetFileName(m_options.m_filesPath[CLandsatIndicesOption::INPUT_FILE_PATH]) + ") are not chronologically ordered.");
+
+					if (p.IsIntersect(scenesPeriod[s]))
+						selected.insert(s);
+				}
+
+				if (!selected.empty())
+				{
+					m_options.m_scenes[0] = *selected.begin();
+					m_options.m_scenes[1] = *selected.rbegin();
+				}
+				else
+				{
+					msg.ajoute("No input scenes intersect -Period (" + m_options.m_period.GetFormatedString("%1 %2", "%F") + ").");
+				}
+			}
+
 			CGeoExtents extents = inputDS.GetExtents();
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
@@ -264,36 +331,36 @@ namespace WBSF
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
 
-			if (m_options.m_scenes[0] == NOT_INIT)
-				m_options.m_scenes[0] = 0;
+			//if (m_options.m_scenes[0] == NOT_INIT)
+				//m_options.m_scenes[0] = 0;
 
-			if (m_options.m_scenes[1] == NOT_INIT)
-				m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
+			//if (m_options.m_scenes[1] == NOT_INIT)
+//				m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
 
-			if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
-				msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
+			//if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
+			//	msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
 
-			if (m_options.m_scenes[0] > m_options.m_scenes[1])
-				msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
+			//if (m_options.m_scenes[0] > m_options.m_scenes[1])
+			//	msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
 
 			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
 
 			//set the period to the period in the scene selection
+			size_t nbSceneLoaded = m_options.m_scenes[1] - m_options.m_scenes[1] + 1;
 			CTPeriod period;
-			for (size_t z = m_options.m_scenes[0]; z <= m_options.m_scenes[1]; z++)
-				period.Inflate(p[z]);
+			for (size_t z = 0; z < nbSceneLoaded; z++)
+				period.Inflate(p[m_options.m_scenes[0]+z]);
 
+			if (m_options.m_period.IsInit())
+				cout << "    User's input working period = " << m_options.m_period.GetFormatedString() << endl;
 
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
 			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
-			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
-			cout << "    Working period = " << period.GetFormatedString() << endl;
+			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
+			cout << "    Working period = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
 
 
 			m_options.m_period = period;
@@ -355,10 +422,13 @@ namespace WBSF
 	}
 
 
-	
+
 
 	void CLandsatIndices::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData)
 	{
+		ASSERT(m_options.m_weight.size() == m_options.m_rings + 1);
+
+
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 		size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
@@ -412,7 +482,8 @@ namespace WBSF
 						for (size_t zz = 0; zz < nbScenesProcess; zz++)
 						{
 							size_t z = m_options.m_scenes[0] + zz;
-							CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixel(z, x, y);
+							//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixel(z, x, y);
+							CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, m_options.m_weight.size(), m_options.m_weight);
 
 							if (pixel.IsValid())
 								data.push_back(make_pair(pixel, zz));

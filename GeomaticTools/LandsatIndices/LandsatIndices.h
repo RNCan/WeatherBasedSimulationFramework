@@ -28,6 +28,9 @@ namespace WBSF
 		std::array<size_t, 2> m_scenes;
 		bool m_bVirtual;
 		double m_mul;
+		size_t m_rings;
+		std::vector<double> m_weight;
+		std::string m_weight_str;
 	};
 
 

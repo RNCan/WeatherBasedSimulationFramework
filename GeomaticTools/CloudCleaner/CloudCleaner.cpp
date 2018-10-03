@@ -728,7 +728,7 @@ ERMsg CCloudCleaner::Execute()
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		if (!m_options.m_bQuiet)
-			cout << "Find suspicious pixels with " << m_options.m_BLOCK_THREADS << " block threads (" << m_options.BLOCK_CPU() << ") threads/block" << endl;
+			cout << "Find suspicious pixels with " << m_options.m_BLOCK_THREADS << " block threads (" << m_options.BLOCK_CPU() << " threads/block)" << endl;
 
 		CTimer timer(true);
 		size_t nbPixels = max(extents.m_xSize*extents.m_ySize, extents.m_xBlockSize*extents.m_yBlockSize);
