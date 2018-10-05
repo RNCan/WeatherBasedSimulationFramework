@@ -98,8 +98,8 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_bDebug = false;
 	m_bOutputCode = false;
 	//	m_bOutputJD = false;
-	m_B1threshold = { -175, -50/*, 250*/ };
-	m_TCBthreshold = { 600, 200/*, 2400*/ };
+	m_B1threshold = { -175, -80/*, 250*/ };
+	m_TCBthreshold = { 600, 300/*, 2400*/ };
 	m_bFillClouds = false;
 	m_bFillMissing = false;
 	m_bUseMedian = false;
@@ -1380,7 +1380,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 								{
 									//reset RFexit 
 									if (RFexit != 99)
-										RFexit += 100;
+										RFexit = 99;
 								}
 
 								if (!RFcode.empty())
@@ -1469,13 +1469,16 @@ bool CCloudCleaner::SieveSuspect1(size_t level, size_t nbSieve, const CGeoExtent
 				if (xxx < (size_t)extents.m_xSize)
 				{
 					size_t xy2 = yyy * extents.m_xSize + xxx;
-					if (suspects1.test(xy2))
+					if (xx != 1 && yy != 1)
 					{
-						if (pixels.size() == nbSieve || new_suspects1.test(xy2))
-							bSieve = false;
-						else
-							bSieve = SieveSuspect1(level + 1, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, new_suspects1, pixels);
-					}//not treated
+						if (suspects1.test(xy2))
+						{
+							if (pixels.size() == nbSieve || new_suspects1.test(xy2))
+								bSieve = false;
+							else
+								bSieve = SieveSuspect1(level + 1, nbSieve, extents, CGeoPointIndex((int)xxx, (int)yyy), suspects1, new_suspects1, pixels);
+						}//not treated
+					}
 				}//inside extent
 			}//for buffer x
 		}//inside extent
