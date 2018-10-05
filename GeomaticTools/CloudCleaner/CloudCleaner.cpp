@@ -119,7 +119,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 	static const COptionDef OPTIONS[] =
 	{
-		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB. The trigger threshold identify suspect pixels to be evaluated by Random Forest. Type 1 is for primary and 2 is for secondary. Primary test pixel with previous, next and median. Secondary will also test pixel in absolute value. Default value are -175 600 for primary and -5 100 for secondary." },
+		{ "-Thres", 3, "type B1 TCB", false, "Set trigger threshold for B1 and TCB. The trigger threshold identify suspect pixels to be evaluated by Random Forest. Type 1 is for primary and 2 is for secondary. Primary test pixel with previous, next and median. Secondary will also test pixel in absolute value. Default value are -175 600 for primary and -80 300 for secondary." },
 		{ "-FillClouds", 0, "", false, "Fill clouds with next or previous valid scenes (+1,-1,+2,-2,...). Only reset by default. Use NoResult to avoid output result." },
 		{ "-FillMissing", 0, "", false, "Fill also missing pixels when -FillClouds is activated." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
@@ -1761,12 +1761,15 @@ void CCloudCleaner::ResetReplaceClouds(size_t xBlock, size_t yBlock, const CBand
 							ASSERT(fm < p.size());
 							if (p[fm].IsInit())
 							{
+								__int16 flag = -32768;
+								
 								if (suspects1[zz][CLOUDS].test(xy2) || suspects1[zz][SHADOW].test(xy2))
-									debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, CCloudCleanerOption::T_PRIMARY, fm);
-								else if (suspects2[zz][CLOUDS].test(xy2) || suspects2[zz][SHADOW].test(xy2))
-									debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = m_options.GetDebugFlag(p, CCloudCleanerOption::T_SECONDARY, fm);
+									flag = m_options.GetDebugFlag(p, CCloudCleanerOption::T_PRIMARY, fm);
 
+								if (flag <= 0 && (suspects2[zz][CLOUDS].test(xy2) || suspects2[zz][SHADOW].test(xy2)) )
+									flag = m_options.GetDebugFlag(p, CCloudCleanerOption::T_SECONDARY, fm);
 
+								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DEBUG_FLAG][xy] = flag;
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_NB_SCENE][xy] = (p[0].IsInit() ? 1 : 0) + (p[1].IsInit() ? 1 : 0) + (p[2].IsInit() ? 1 : 0);
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_MODEL][xy] = (__int16)fm;
 								debug[zz*CCloudCleanerOption::NB_DBUG + CCloudCleanerOption::D_DELTA_B1][xy] = m_options.GetB1Trigger(p, fm);
