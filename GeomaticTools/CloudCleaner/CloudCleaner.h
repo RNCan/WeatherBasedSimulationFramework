@@ -64,7 +64,7 @@ namespace WBSF
 			}
 
 			bool t6 = (t1 && t2) != (t4 && t5);
-			return t6 || t3;
+			return t6/* || t3*/;
 
 
 			//return (t1 && t2) || t3;
@@ -99,7 +99,7 @@ namespace WBSF
 			}
 
 			bool t6 = (t1 && t2) != (t4 && t5);
-			return t6 || t3;
+			return t6 /*|| t3*/;
 
 
 			//return (t1 && t2) ||t3;

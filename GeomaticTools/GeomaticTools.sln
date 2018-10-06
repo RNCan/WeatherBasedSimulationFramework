@@ -53,6 +53,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "See5Images", "See5\See5.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubistImage", "CubistImage\CubistImage.vcxproj", "{E2983491-BEB0-4960-9159-40424F755EB9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cubist", "Cubist\Cubist.vcxproj", "{2BC495AE-898B-4AFE-A192-C9E10079915D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -261,6 +263,14 @@ Global
 		{E2983491-BEB0-4960-9159-40424F755EB9}.Release|Win32.Build.0 = Release|Win32
 		{E2983491-BEB0-4960-9159-40424F755EB9}.Release|x64.ActiveCfg = Release|x64
 		{E2983491-BEB0-4960-9159-40424F755EB9}.Release|x64.Build.0 = Release|x64
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Debug|Win32.Build.0 = Debug|Win32
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Debug|x64.ActiveCfg = Debug|x64
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Debug|x64.Build.0 = Debug|x64
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Release|Win32.ActiveCfg = Release|Win32
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Release|Win32.Build.0 = Release|Win32
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Release|x64.ActiveCfg = Release|x64
+		{2BC495AE-898B-4AFE-A192-C9E10079915D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
