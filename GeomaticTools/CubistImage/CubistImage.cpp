@@ -43,17 +43,19 @@ extern String		FileStem;
 extern RRuleSet	*	CubistModel;
 extern int			MaxAtt;
 extern DataRec		*Case;
+extern Definition	*AttDef;
+extern char		*SpecialStatus;
+extern void Error(int ErrNo, String S1, String S2);
+extern String		*AttName; 
+extern String		**AttValName;
+extern DiscrValue	*MaxAttVal;
 
 
 static const char* version = "2.0.0";
-static const int NB_THREAD_PROCESS = 2;
 
 
 enum TFilePath { CubistImage_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 typedef vector<float> DTCodeVector;
-//typedef CDecisionTreeBlock CCubistImageTreeBlock;
-//typedef CDecisionTreeBaseEx CCubistImageTree;
-//typedef CDecisionTree CCubistImageTreeMT;
 typedef std::vector<float>  OutputData;
 
 
@@ -100,7 +102,7 @@ public:
 		ASSERT(NB_FILE_PATH == 3);
 		if (msg && m_filesPath.size() != NB_FILE_PATH)
 		{
-			msg.ajoute("ERROR: Invalid argument line. 4 files are needed: decision tree model, the geophysical image, the LANDSAT image and the destination image.");
+			msg.ajoute("ERROR: Invalid argument line. 3 files are needed: Cubist model, the intput image and the destination image.");
 			msg.ajoute("Argument found: ");
 			for (size_t i = 0; i < m_filesPath.size(); i++)
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
@@ -215,7 +217,8 @@ public:
 	//void Evaluate(int x, int y, const vector<array<short, 3>>& DTCode, vector<vector<vector<short>>>& output);
 	//void LoadData(const CBandsHolder& bandHolder1, const CBandsHolder& bandHolder2, vector< vector< CDADVector >>& data);
 	//void LoadData(int x, int y, const CBandsHolder& bandHolder, CCubistImageTreeBlock& block);
-	ERMsg LoadModel(string filePath, RRuleSet * model);
+	ERMsg LoadModel(string filePath, RRuleSet ** model);
+	void GetDataRecGDAL(int xBlock, int yBlock, const CBandsHolder &bandHolder, Boolean Train, DataRec* pBl);
 
 	CCubistImageOption m_options;
 
@@ -226,7 +229,7 @@ public:
 
 };
 
-ERMsg CCubistImage::LoadModel(string filePath, RRuleSet * model)
+ERMsg CCubistImage::LoadModel(string filePath, RRuleSet ** model)
 {
 	ERMsg msg;
 
@@ -250,7 +253,7 @@ ERMsg CCubistImage::LoadModel(string filePath, RRuleSet * model)
 	// Read the model file that defines the ruleset and sets values
 	// for various global variables such as USEINSTANCES  
 	FileStem = (String)m_options.m_filesPath[0].c_str();
-	model = CubistModel = GetCommittee(".model");
+	*model = CubistModel = GetCommittee(".model");
 
 	fileName = m_options.m_filesPath[0] + ".data";
 	F = fopen(fileName.c_str(), "r");
@@ -323,14 +326,6 @@ ERMsg CCubistImage::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGD
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
-			//			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-				//		cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
-					//	cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			//			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-				//		cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
-
-					//	if (inputDS.GetNbScenes() <= 1)
-						//	msg.ajoute("DisturbanceAnalyser can't be performed over only one scene");
 		}
 	}
 
@@ -384,8 +379,8 @@ ERMsg CCubistImage::Execute()
 		return msg;
 
 
-	RRuleSet	* model;
-	msg += LoadModel(m_options.m_filesPath[CubistImage_FILE_PATH], model);
+	RRuleSet	* model = NULL;
+	msg += LoadModel(m_options.m_filesPath[CubistImage_FILE_PATH], &model);
 	if (!msg)
 		return msg;
 
@@ -396,9 +391,12 @@ ERMsg CCubistImage::Execute()
 
 	msg = OpenAll(inputDS, maskDS, outputDS);
 
+	if (msg && inputDS.GetRasterCount() != (MaxAtt - 1))
+		msg.ajoute("The number of bands in the input image (" + to_string(inputDS.GetRasterCount()) + ") is not equal as the number of independants variables (" + to_string(MaxAtt - 1) + ") in the model.");
+
 	if (msg)
 	{
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 
 		if (maskDS.IsOpen())
 			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
@@ -417,7 +415,7 @@ ERMsg CCubistImage::Execute()
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		omp_set_nested(1);
-#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int thread = omp_get_thread_num();
@@ -431,7 +429,7 @@ ERMsg CCubistImage::Execute()
 			WriteBlock(xBlock, yBlock, outputDS, data);
 		}//for all blocks
 
-		
+
 		//  Close decision tree and free allocated memory  
 		FreeCttee(model);
 		FreeNamesData();
@@ -487,11 +485,13 @@ void CCubistImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 	for (size_t xy = 0; xy < blockSize.m_x*blockSize.m_y; xy++)
 		Block[xy] = AllocZero(MaxAtt + 3, AttValue);
 
+	GetDataRecGDAL(xBlock, yBlock, bandHolder, false, Block);
+
 	//process all x and y 
-#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)  
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU()) if (m_options.m_bMulti)  
 	for (int xy = 0; xy < blockSize.m_y; xy++)
 	{
-		data[xy] = PredictValue(model, Block[xy], &Err[xy]);
+		data[xy] = PredictValue(CubistModel, Block[xy], &Err[xy]);
 	}//for x
 
 
@@ -526,7 +526,7 @@ void CCubistImage::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, 
 
 
 			float noDataOut = (float)outputDS.GetNoData(0);
-			ASSERT(data.size() == blockSize.m_x);
+			ASSERT(data.size() == blockSize.m_x*blockSize.m_y);
 			GDALRasterBand *pBand = outputDS.GetRasterBand(0);
 
 			//for (size_t b = 0; b < outputDS.GetRasterCount(); b++)
@@ -558,15 +558,121 @@ void CCubistImage::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGD
 	outputDS.Close(m_options);
 	m_options.m_timerWrite.Stop();
 
-	if (!m_options.m_bQuiet)
+	/*if (!m_options.m_bQuiet)
 	{
 		double percent = m_options.m_nbPixel > 0 ? (double)m_options.m_nbPixelDT / m_options.m_nbPixel * 100 : 0;
 
 		_tprintf("\n");
 		_tprintf("Percentage of pixel treated by DecisionTree: %0.3lf %%\n\n", percent);
-	}
+	}*/
 
 	m_options.PrintTime();
+}
+
+void CCubistImage::GetDataRecGDAL(int xBlock, int yBlock, const CBandsHolder &bandHolder, Boolean Train, DataRec* pBl)
+{
+	ASSERT(bandHolder.GetRasterCount() == MaxAtt - 1);
+
+	CGeoExtents extents = bandHolder.GetExtents();
+	CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+
+
+	for (Attribute Att = 1; Att <= MaxAtt; Att++)
+	{
+		if (AttDef[Att])
+		{
+			for (int xy = 0; xy < blockSize.m_x*blockSize.m_y; xy++)
+			{
+				pBl[xy][Att] = EvaluateDef(AttDef[Att], pBl[xy]);
+				//if (Continuous(Att))
+				//{
+				CheckValue(pBl[xy], Att);
+				//}
+			}
+
+			continue;
+		}
+
+		if (Att == 1)
+		{
+			for (int xy = 0; xy < blockSize.m_x*blockSize.m_y; xy++)
+			{
+				//if (Continuous(Att))
+				CVal(pBl[xy], Att) = UNKNOWN;
+				//else
+					//DVal(pBl[x], Att) = 0;
+			}
+			continue;
+		}
+
+		//  Get the attribute values
+		CDataWindowPtr pWindow = bandHolder.GetWindow(Att - 1 - 1);
+		for (size_t y = 0; y < blockSize.m_y; y++)
+		{
+			for (size_t x = 0; x < blockSize.m_x; x++)
+			{
+				double test = pWindow->at((int)x, (int)y);
+				CVal(pBl[y*blockSize.m_x + x], Att) = pWindow->at( (int)x, (int)y);
+				CheckValue(pBl[y*blockSize.m_x + x], Att);
+			}
+		}
+
+		//for (size_t y = 0; y < blockSize.m_y; y++)
+		//{
+		//	for (size_t x = 0; x < blockSize.m_x; x++)
+		//	{
+		//		int xy = y * blockSize.m_x + x;
+		//		if (Continuous(Att))
+		//		{
+		//			CVal(pBl[xy], Att) = pWindow->at((int)x, (int)y);
+		//			CheckValue(pBl[xy], Att);
+		//		}
+		//		else
+		//		{
+		//			char	Name[1000] = { 0 };
+		//			_gcvt_s(Name, 1000, pWindow->at((int)x, (int)y), 5);
+
+		//			int Dv = Which(Name, AttValName[Att], 1, MaxAttVal[Att]);
+		//			if (!Dv)
+		//			{
+		//				if (StatBit(Att, DISCRETE))
+		//				{
+		//					if (Train)
+		//					{
+		//						//  Add value to list  
+		//						if (MaxAttVal[Att] >= (long)AttValName[Att][0])
+		//						{
+		//							Error(TOOMANYVALS, AttName[Att], (char *)AttValName[Att][0] - 1);
+		//							Dv = MaxAttVal[Att];
+		//						}
+		//						else
+		//						{
+		//							Dv = ++MaxAttVal[Att];
+		//							AttValName[Att][Dv] = _strdup(Name);
+		//							AttValName[Att][Dv + 1] = "<other>"; // no free 
+		//						}
+		//					}
+		//					else
+		//					{
+		//						//  Set value to "<other>"  
+		//						Dv = MaxAttVal[Att] + 1;
+		//					}
+		//				}
+		//				else
+		//				{
+		//					Error(BADATTVAL, AttName[Att], Name);
+		//				}
+		//			}
+		//			DVal(pBl[x], Att) = Dv;
+		//		}
+		//	}
+		//}
+	}
+
+
+	//  Preserve original case number  
+	for (int xy = 0; xy < blockSize.m_x*blockSize.m_y; xy++)
+		DVal(pBl[xy], 0) = MaxCase + 1;
 }
 
 

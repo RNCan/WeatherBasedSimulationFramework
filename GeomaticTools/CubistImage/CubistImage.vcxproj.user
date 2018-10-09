@@ -1,4 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-blocksize 1 128  -overwrite "D:\Travaux\RegressionTree(Cubist)\Model\XY_MFFP_cubist_DEFO_v3_no_vb" "D:\Travaux\RegressionTree(Cubist)\Input\input.vrt" "D:\Travaux\RegressionTree(Cubist)\Output\Defoliation.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-BLOCK_THREADS 4 -multi -blocksize 1 1000000 -co compress=LZW -overwrite  "D:\Travaux\RegressionTree(Cubist)\Model\XY_MFFP_cubist_MORTL_v3_no_vb" "D:\Travaux\RegressionTree(Cubist)\Input\input.vrt" "D:\Travaux\RegressionTree(Cubist)\Output\mortality.tif"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

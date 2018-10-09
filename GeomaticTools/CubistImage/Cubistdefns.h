@@ -1,25 +1,24 @@
-/*************************************************************************/
-/*									 */
-/*	Source code for use with Cubist Release 2.09 (revised)		 */
-/*	------------------------------------------------------		 */
-/*		   Copyright RuleQuest Research 2016			 */
-/*									 */
-/*	This code is provided "as is" without warranty of any kind,	 */
-/*	either express or implied.  All use is at your own risk.	 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//	Source code for use with Cubist Release 2.07			 
+//	--------------------------------------------			 
+//		   Copyright RuleQuest Research 2010			 
+//									 
+//	This code is provided "as is" without warranty of any kind,	 
+//	either express or implied.  All use is at your own risk.	 
+//									 
+//***********************************************************************
 
-
-/*************************************************************************/
-/*									 */
-/*		Definitions used by Cubist				 */
-/*              --------------------------				 */
-/*									 */
-/*************************************************************************/
 #pragma once
+//***********************************************************************
+//									 
+//		Definitions used by Cubist				 
+//              --------------------------				 
+//									 
+//***********************************************************************
 
-#define	 RELEASE	"2.09"
-
+#define	 RELEASE	"2.07"
+//#define USEDOUBLE
 
 #include <stdio.h>
 #include <math.h>
@@ -93,42 +92,41 @@
 #endif
 
 
-/*************************************************************************/
-/*									 */
-/*		Constants, macros etc.					 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//		Constants, macros etc.					 
+//									 
+//***********************************************************************
 
 
 #define	 CUBIST
 
-#define  MAXN     20		/* max number neighbors allowing for ties */
-#define	 MAXDENOM 1000000
+#define  MAXN     20		// max number neighbors allowing for ties 
 
-#define	 Nil	   0		/* null pointer */
-#define	 WIDTH	   80		/* approx max width of output */
+#define	 Nil	   0		// null pointer 
+#define	 false	   0
+#define	 true	   1
+#define	 WIDTH_OUTPUT	   80		// approx max width of output 
 
-#define  EXCLUDE   1		/* special attribute status: do not use */
-#define  SKIP	   2		/* do not use in models */
-#define  DISCRETE  4		/* ditto: collect values as data read */
-#define  ORDERED   8		/* ditto: ordered discrete values */
-#define  DATEVAL   16		/* ditto: YYYY/MM/DD or YYYY-MM-DD */
-#define  STIMEVAL  32		/* ditto: HH:MM:SS */
-#define	 TSTMPVAL  64		/* date time */
+#define  EXCLUDE   1		// special attribute status: do not use 
+#define  SKIP	   2		// do not use in models 
+#define  DISCRETE  4		// ditto: collect values as data read 
+#define  ORDERED   8		// ditto: ordered discrete values 
+#define  DATEVAL   16		// ditto: YYYY/MM/DD or YYYY-MM-DD 
+#define  STIMEVAL  32		// ditto: HH:MM:SS 
+#define	 TSTMPVAL  64		// date time 
 
-#define	 UNKNOWN   1.5777218104420236e-30	/* unlikely value! */
+#define	 UNKNOWN   1.5777218104420236e-30	// unlikely value! 
 #define	 NA	   1
 
-#define	 BrDiscr   1		/* test on discrete attribute */
-#define	 BrThresh  2		/* threshold test on continuous attribute */
-#define	 BrSubset  3		/* subset test on discrete attribute */
+#define	 BrDiscr   1		// test on discrete attribute 
+#define	 BrThresh  2		// threshold test on continuous attribute 
+#define	 BrSubset  3		// subset test on discrete attribute 
 
 #define  Plural(n)		((n) != 1 ? "s" : "")
 
-#define	 RoundVal(x)		(rint((x)/ClassUnit)*ClassUnit)
-
 #define  AllocZero(N,T)		(T *) Pcalloc(N, sizeof(T))
-#define  Alloc(N,T)		AllocZero(N,T)  /* for safety */
+#define  Alloc(N,T)		AllocZero(N,T)  // for safety 
 #define  Realloc(V,N,T)		V = (T *) Prealloc(V, (N)*sizeof(T))
 
 #define	 Max(a,b)               ((a)>(b) ? a : b) 
@@ -141,6 +139,7 @@
 #define	 SetBit(b,s)		(s[(b) >> 3] |= Bit((b) & 07))
 
 #define	 ForEach(v,f,l)		for(v=f ; v<=l ; ++v) 
+#define	 ForEach2(v,f,l)		for(int v=f ; v<=l ; ++v) 
 
 #define	 StatBit(a,b)		(SpecialStatus[a]&(b))
 #define	 Exclude(a)		StatBit(a,EXCLUDE)
@@ -165,8 +164,6 @@
 
 #define	 Before(n1,n2)		(n1->Tested < n2->Tested ||\
 				 n1->Tested == n2->Tested && n1->Cut < n2->Cut)
-
-#define  Bound(v,l,h)           ((v) < (l) ? (l) : (v) > (h) ? (h) : (v))
 
 
 #define	 NOFILE		 0
@@ -202,51 +199,51 @@
 
 
 
-/*************************************************************************/
-/*									 */
-/*		Type definitions					 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//		Type definitions					 
+//									 
+//***********************************************************************
 
 
 typedef  unsigned char	Boolean, BranchType, *Set;
 typedef	 char		*String;
 
-typedef  int	CaseNo;		/* data item number */
-typedef  int	CaseCount;	/* count of cases */
+typedef  int	CaseNo;		// data item number 
+typedef  int	CaseCount;	// count of cases 
 
-typedef  int	DiscrValue,	/* discrete attribute value (0 = ?) */
-		Attribute;	/* attribute number, 1..MaxAtt */
+typedef  int	DiscrValue,	// discrete attribute value (0 = ?) 
+Attribute;	// attribute number, 1..MaxAtt 
 
 #ifdef USEDOUBLE
-typedef	 double	ContValue;	/* continuous attribute value */
-#define	 PREC	14		/* precision */
+typedef	 double	ContValue;	// continuous attribute value 
+#define	 PREC	14		// precision 
 #else
-typedef	 float	ContValue;	/* continuous attribute value */
-#define	 PREC	 7		/* precision */
+typedef	 float	ContValue;	// continuous attribute value 
+#define	 PREC	 7		// precision 
 #endif
 
-				/* Attribute values are packed into a union:
+				// Attribute values are packed into a union:
+					 //DVal = (int) discrete value
+					 //CVal = (float) continuous value
+					 //SVal = (int) offset in IgnoredVals
 
-				     DVal = (int) discrete value
-				     CVal = (float) continuous value
-				     SVal = (int) offset in IgnoredVals
+				   //Missing and non-applicable values are:
 
-				   Missing and non-applicable values are:
+				   //  discrete:
+				   //    not applicable:	DVal = NA
+				   //    missing:		DVal = 0
+				   //  continuous:
+				   //    not applicable:	DVal = NA
+				   //    missing:		CVal = UNKNOWN  
 
-				     discrete:
-				       not applicable:	DVal = NA
-				       missing:		DVal = 0
-				     continuous:
-				       not applicable:	DVal = NA
-				       missing:		CVal = UNKNOWN  */
-
+//typedef  union _attribute_value
 typedef  union _attribute_value
-	 {
-	    ContValue	_cont_val;
-	    DiscrValue	_discr_val;
-	 }
-	 AttValue, *DataRec;
+{
+	ContValue	_cont_val;
+	DiscrValue	_discr_val;
+}
+AttValue, *DataRec;
 
 #define  CVal(Case,Attribute)   Case[Attribute]._cont_val
 #define  DVal(Case,Attribute)   Case[Attribute]._discr_val
@@ -257,112 +254,112 @@ typedef  union _attribute_value
 #define	 DRef2(Case)		Case[MaxAtt+2]._cont_val
 
 
-typedef  int	RuleNo;			/* rule number */
+typedef  int	RuleNo;			// rule number 
 
 typedef  struct _condrec
-	 {
-	    BranchType	NodeType;	/* test type */
-	    Attribute	Tested;		/* attribute tested */
-	    ContValue	Cut;		/* threshold (if relevant) */
-	    Set		Subset;		/* subset (if relevant) */
-	    int		TestValue;	/* specified outcome of test */
-	 }
-	 CondRec, *Condition;
+{
+	BranchType	NodeType;	// test type 
+	Attribute	Tested;		// attribute tested 
+	ContValue	Cut;		// threshold (if relevant) 
+	Set		Subset;		// subset (if relevant) 
+	int		TestValue;	// specified outcome of test 
+}
+CondRec, *Condition;
 
 
 typedef  struct _rulerec
-	 {
-	    RuleNo	RNo;		/* rule number */
-	    int		MNo,		/* member number for committee models */
-			Size;		/* number of conditions */
-	    Condition	*Lhs;		/* conditions themselves */
-	    double	*Rhs;		/* model given by rule */
-	    CaseCount	Cover;		/* number of cases covered */
-	    float	Mean,		/* mean value of cases matching rule */
-			LoVal,		/* lowest value in data */
-			HiVal,		/* highest value in data */
-			LoLim,		/* lower bound on predictions */
-			HiLim,		/* upper bound on predictions */
-			EstErr;		/* estimated error */
-	 }
-	 RuleRec, *CRule;
+{
+	RuleNo	RNo;		// rule number 
+	int		MNo,		// member number for committee models 
+		Size;		// number of conditions 
+	Condition	*Lhs;		// conditions themselves 
+	double	*Rhs;		// model given by rule 
+	CaseCount	Cover;		// number of cases covered 
+	float	Mean,		// mean value of cases matching rule 
+		LoVal,		// lowest value in data 
+		HiVal,		// highest value in data 
+		LoLim,		// lower bound on predictions 
+		HiLim,		// upper bound on predictions 
+		EstErr;		// estimated error 
+}
+RuleRec, *CRule;
 
 
 typedef  struct _oldrulerec
-	 {
-	    RuleNo	RNo;		/* rule number */
-	    int		Size;		/* number of conditions */
-	    Condition	*Lhs;		/* conditions themselves */
-	    double	*Rhs;		/* model given by rule */
-	    CaseCount	Cover;		/* number of cases covered */
-	    float	Mean,		/* mean value of cases matching rule */
-			LoVal,		/* lowest value in data */
-			HiVal,		/* highest value in data */
-			LoLim,		/* lower bound on predictions */
-			HiLim,		/* upper bound on predictions */
-			EstErr;		/* estimated error */
-	 }
-	 OldRuleRec;
+{
+	RuleNo	RNo;		// rule number 
+	int		Size;		// number of conditions 
+	Condition	*Lhs;		// conditions themselves 
+	double	*Rhs;		// model given by rule 
+	CaseCount	Cover;		// number of cases covered 
+	float	Mean,		// mean value of cases matching rule 
+		LoVal,		// lowest value in data 
+		HiVal,		// highest value in data 
+		LoLim,		// lower bound on predictions 
+		HiLim,		// upper bound on predictions 
+		EstErr;		// estimated error 
+}
+OldRuleRec;
 
 
 typedef struct _rulesetrec
-	 {
-	    RuleNo	SNRules;	/* number of rules */
-	    CRule	*SRule;		/* rules */
-	 }
-	 RuleSetRec, *RRuleSet;
+{
+	RuleNo	SNRules;	// number of rules 
+	CRule	*SRule;		// rules 
+}
+RuleSetRec, *RRuleSet;
 
 
 typedef	 struct _indexrec	*Index;
 typedef	 struct _indexrec
-	 {
-	    Attribute	Tested;		/* split attribute for KD-tree */
-	    ContValue	Cut,		/* threshold for continuous atts */
-			MinDRef[2],	/* min reference distances */
-			MaxDRef[2];	/* max ditto */
-	    CaseNo	IFp, ILp;	/* first and last item at leaf */
-	    Index	*SubIndex;	/* subtrees */
-	 }
-	 IndexRec;
+{
+	Attribute	Tested;		// split attribute for KD-tree 
+	ContValue	Cut,		// threshold for continuous atts 
+		MinDRef[2],	// min reference distances 
+		MaxDRef[2];	// max ditto 
+	CaseNo	IFp, ILp;	// first and last item at leaf 
+	Index	*SubIndex;	// subtrees 
+}
+IndexRec;
 
 
 typedef  struct _nnrec
-	 {
-	    int		BestI[MAXN];	/* numbers of best instances */
-	    float	BestD[MAXN],	/* distances to best instances */
-			*WorstBest,	/* points to worst BestD */
-			*AttMinD;	/* min attribute distance from case */
-	 }
-	 NNEnvRec, *NNEnv;
+{
+	int		BestI[MAXN];	// numbers of best instances 
+	float	BestD[MAXN],	// distances to best instances 
+		*WorstBest,	// points to worst BestD 
+		*AttMinD;	// min attribute distance from case 
+}
+NNEnvRec, *NNEnv;
 
 
 typedef  union	 _def_val
-	 {
-	    String	_s_val;		/* att val for comparison */
-	    ContValue	_n_val;		/* number for arith */
-	 }
-	 DefVal;
+{
+	String	_s_val;		// att val for comparison 
+	ContValue	_n_val;		// number for arith 
+}
+DefVal;
 
 typedef  struct  _def_elt
-	 {
-	    short	_op_code;	/* type of element */
-	    DefVal	_operand;	/* string or numeric value */
-	 }
-	 DefElt, *Definition;
+{
+	short	_op_code;	// type of element 
+	DefVal	_operand;	// string or numeric value 
+}
+DefElt, *Definition;
 
 typedef  struct  _elt_rec
-	 {
-	    int		Fi,		/* index of first char of element */
-			Li;		/* last ditto */
-	    char	Type;		/* 'B', 'S', or 'N' */
-	 }
-	 EltRec;
+{
+	int		Fi,		// index of first char of element 
+		Li;		// last ditto 
+	char	Type;		// 'B', 'S', or 'N' 
+}
+EltRec;
 
 #define	 DefOp(DE)	DE._op_code
 #define	 DefSVal(DE)	DE._operand._s_val
 #define	 DefNVal(DE)	DE._operand._n_val
 
-#define	 OP_ATT			 0	/* opcodes */
+#define	 OP_ATT			 0	// opcodes 
 #define	 OP_NUM			 1
 #define	 OP_STR			 2
 #define	 OP_MISS		 3
@@ -392,16 +389,18 @@ typedef  struct  _elt_rec
 #define	 OP_END			99
 
 
-/*************************************************************************/
-/*									 */
-/*		Function prototypes					 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//		Function prototypes					 
+//									 
+//***********************************************************************
 
 void	    PrintResult(int t);
 void	    PrepareForSMP(void);
 void	    TerminateSMP(void);
-ThreadFn    ProcessCase(int t);
+//ThreadFn    ProcessCase(int t);
+
+unsigned int __stdcall ProcessCase(void*);
 Boolean	    ReadName(FILE *f, String s, int n, char ColonOpt);
 void	    GetNames(FILE *Nf);
 void	    ExplicitAtt(FILE *Nf);
@@ -470,8 +469,7 @@ float	    NNEstimate(RRuleSet *Cttee, DataRec Case, NNEnv E, float *ErrLim);
 float	    Distance(DataRec Case1, DataRec Case2, float Thresh);
 void	    CheckDistance(DataRec Case, CaseNo Saved, NNEnv E);
 void	    FindNearestNeighbors(DataRec Case, NNEnv E);
-float	    AverageNeighbors(RRuleSet *Cttee, DataRec Case, NNEnv E,
-		float *ErrLim);
+float	    AverageNeighbors(RRuleSet *Cttee, DataRec Case, NNEnv E, float *ErrLim);
 void	    ShowNearestNeighbors(int Offset, NNEnv E);
 Index	    BuildIndex(CaseNo Fp, CaseNo Lp);
 void	    ScanIndex(DataRec Case, Index Node, float MinD, NNEnv E);
@@ -504,11 +502,11 @@ double	    rint(double);
 #endif
 
 
-/*************************************************************************/
-/*									 */
-/*		Text strings						 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//		Text strings						 
+//									 
+//***********************************************************************
 
 
 #define	 T_IgnoreNATarget	"*** Ignoring instances with N/A target value\n"

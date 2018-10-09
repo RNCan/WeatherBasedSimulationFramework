@@ -1,29 +1,26 @@
 /*************************************************************************/
 /*									 */
-/*	Source code for use with Cubist Release 2.09			 */
+/*	Source code for use with Cubist Release 2.07			 */
 /*	--------------------------------------------			 */
-/*		   Copyright RuleQuest Research 2016			 */
+/*		   Copyright RuleQuest Research 2010			 */
 /*									 */
 /*	This code is provided "as is" without warranty of any kind,	 */
 /*	either express or implied.  All use is at your own risk.	 */
 /*									 */
 /*************************************************************************/
 
-#include <float.h>
+#if defined WIN32 || defined _CONSOLE
+
+#include "Windows.h"
+//#include "global.h"
+#include "float.h"
 #include "Cubistdefns.h"
 #include "Cubistglobal.c"
 
-//#define	 false	   0
-//#define	 true	   1
 
-//extern int NCPU;
-//extern int Delimiter;
-//extern char		Fn[512];
-//extern int LineNo;
-//extern int ErrMsgs;
-//extern int AttExIn;
-//extern DiscrValue	*MaxAttVal;
-//extern String		*AttName;
+#endif
+
+#pragma warning (disable:4996)
 
 /*************************************************************************/
 /*									 */
@@ -1673,7 +1670,8 @@ int InChar(FILE *f)
 /*=======================================================================*/
 
 
-#define Inc 2048
+//#define Inc 2048
+#define Inc 8192
 
 CaseCount	*Freq;			/* discrete value frequencies */
 
@@ -1696,7 +1694,7 @@ CaseCount	*Freq;			/* discrete value frequencies */
 double drand48();
 #endif
 
-#define XError(a,b,c)	Error(a,b,c)
+//#define XError(a,b,c)	Error(a,b,c)
 
 
 void GetData(FILE *Df, Boolean Train, Boolean AllowUnknownTarget)
@@ -1705,9 +1703,9 @@ void GetData(FILE *Df, Boolean Train, Boolean AllowUnknownTarget)
 	CaseNo	CaseSpace, i;
 	DataRec	DVec;
 	Boolean	AnyUnknown = false, FirstIgnore = true, *AttMsg;
-	Attribute	Att;
-	ContValue	Val, Range;
-	char	CVS[20];
+	//    Attribute	Att;
+	ContValue	/*Val,*/ Range;
+	//char	CVS[20];
 
 	LineNo = 0;
 
@@ -1751,14 +1749,9 @@ void GetData(FILE *Df, Boolean Train, Boolean AllowUnknownTarget)
 				Goodbye(0);
 			}
 
-			if (MaxCase > 0 && MaxCase % Incr == 0)
+			if (MaxCase > 0 && MaxCase % 100 == 0)
 			{
 				NotifyNumber("Case", MaxCase);
-				if (Incr < 100000 && ++Times == 10)
-				{
-					Incr *= 10;
-					Times = 1;
-				}
 			}
 #endif
 #endif
@@ -1880,10 +1873,10 @@ DataRec GetDataRec(FILE *Df, Boolean Train)
 	ContValue	Cv;
 	DataRec	DVec;
 	Boolean	FirstValue = true;
-#if defined WIN32  && ! defined _CONSOLE 
-	extern int	XREF;
-#endif
-
+	//#if defined WIN32  && ! defined _CONSOLE 
+	//    extern int	XREF;
+	//#endif
+	//
 
 	if (ReadName(Df, Name, 1000, '\00'))
 	{
@@ -1904,7 +1897,7 @@ DataRec GetDataRec(FILE *Df, Boolean Train)
 
 			if (!FirstValue && !ReadName(Df, Name, 1000, '\00'))
 			{
-				XError(EOFINATT, AttName[Att], "");
+				Error(EOFINATT, AttName[Att], "");
 				FreeCase(DVec);
 				return Nil;
 			}
@@ -1912,124 +1905,118 @@ DataRec GetDataRec(FILE *Df, Boolean Train)
 
 			if (Exclude(Att))
 			{
-#if defined WIN32 && ! defined _CONSOLE
-				if (XREF || Att == LabelAtt)
-#else
+				//#if defined WIN32 && ! defined _CONSOLE
+				//				if ( XREF || Att == LabelAtt )
+				//#else
 				if (Att == LabelAtt)
-#endif
+					//#endif
 				{
 					/*  Record the value as a string  */
-
 					SVal(DVec, Att) = StoreIVal(Name);
 				}
 			}
-			else
-				if (!strcmp(Name, "?"))
-				{
-					/*  Unknown value  */
+			else if (!strcmp(Name, "?"))
+			{
+				/*  Unknown value  */
 
-					if (Continuous(Att))
-					{
-						CVal(DVec, Att) = UNKNOWN;
-					}
-					else
-					{
-						DVal(DVec, Att) = 0;
-					}
+				if (Continuous(Att))
+				{
+					CVal(DVec, Att) = UNKNOWN;
 				}
 				else
-					if (!strcmp(Name, "N/A"))
+				{
+					DVal(DVec, Att) = 0;
+				}
+			}
+			else if (!strcmp(Name, "N/A"))
+			{
+				/*  Non-applicable value  */
+
+				DVal(DVec, Att) = NA;
+			}
+			else if (Discrete(Att))
+			{
+				Dv = Which(Name, AttValName[Att], 1, MaxAttVal[Att]);
+				if (!Dv)
+				{
+					if (StatBit(Att, DISCRETE))
 					{
-						/*  Non-applicable value  */
-
-						DVal(DVec, Att) = NA;
-					}
-					else
-						if (Discrete(Att))
+						if (Train)
 						{
-							Dv = Which(Name, AttValName[Att], 1, MaxAttVal[Att]);
-							if (!Dv)
+							/*  Add value to list  */
+
+							if (MaxAttVal[Att] >= (long)AttValName[Att][0])
 							{
-								if (StatBit(Att, DISCRETE))
-								{
-									if (Train)
-									{
-										/*  Add value to list  */
-
-										if (MaxAttVal[Att] >= (long)AttValName[Att][0])
-										{
-											XError(TOOMANYVALS, AttName[Att],
-												(char *)AttValName[Att][0] - 1);
-											Dv = MaxAttVal[Att];
-										}
-										else
-										{
-											Dv = ++MaxAttVal[Att];
-											AttValName[Att][Dv] = strdup(Name);
-											AttValName[Att][Dv + 1] = "<other>"; /* no free */
-										}
-									}
-									else
-									{
-										/*  Set value to "<other>"  */
-
-										Dv = MaxAttVal[Att] + 1;
-									}
-								}
-								else
-								{
-									XError(BADATTVAL, AttName[Att], Name);
-								}
+								Error(TOOMANYVALS, AttName[Att],
+									(char *)AttValName[Att][0] - 1);
+								Dv = MaxAttVal[Att];
 							}
-							DVal(DVec, Att) = Dv;
+							else
+							{
+								Dv = ++MaxAttVal[Att];
+								AttValName[Att][Dv] = strdup(Name);
+								AttValName[Att][Dv + 1] = "<other>"; /* no free */
+							}
 						}
 						else
 						{
-							/*  Continuous value  */
+							/*  Set value to "<other>"  */
 
-							if (TStampVal(Att))
-							{
-								Cv = TStampToMins(Name);
-								if (Cv >= 1E9)	/* long time in future */
-								{
-									XError(BADTSTMP, AttName[Att], Name);
-									Cv = UNKNOWN;
-								}
-							}
-							else
-								if (DateVal(Att))
-								{
-									Cv = DateToDay(Name);
-									if (Cv < 1)
-									{
-										XError(BADDATE, AttName[Att], Name);
-										Cv = UNKNOWN;
-									}
-								}
-								else
-									if (TimeVal(Att))
-									{
-										Cv = TimeToSecs(Name);
-										if (Cv < 0)
-										{
-											XError(BADTIME, AttName[Att], Name);
-											Cv = UNKNOWN;
-										}
-									}
-									else
-									{
-										Cv = strtod(Name, &EndVal);
-										if (EndVal == Name || *EndVal != '\0')
-										{
-											XError(BADATTVAL, AttName[Att], Name);
-											Cv = UNKNOWN;
-										}
-									}
-
-							CVal(DVec, Att) = Cv;
-
-							CheckValue(DVec, Att);
+							Dv = MaxAttVal[Att] + 1;
 						}
+					}
+					else
+					{
+						Error(BADATTVAL, AttName[Att], Name);
+					}
+				}
+				DVal(DVec, Att) = Dv;
+			}
+			else
+			{
+				/*  Continuous value  */
+
+				if (TStampVal(Att))
+				{
+					Cv = TStampToMins(Name);
+					if (Cv >= 1E9)	/* long time in future */
+					{
+						Error(BADTSTMP, AttName[Att], Name);
+						Cv = UNKNOWN;
+					}
+				}
+				else if (DateVal(Att))
+				{
+					Cv = DateToDay(Name);
+					if (Cv < 1)
+					{
+						Error(BADDATE, AttName[Att], Name);
+						Cv = UNKNOWN;
+					}
+				}
+				else if (TimeVal(Att))
+				{
+					Cv = TimeToSecs(Name);
+					if (Cv < 0)
+					{
+						Error(BADTIME, AttName[Att], Name);
+						Cv = UNKNOWN;
+					}
+				}
+				else
+				{
+					Cv = strtod(Name, &EndVal);
+					if (EndVal == Name || *EndVal != '\0')
+					{
+						Error(BADATTVAL, AttName[Att], Name);
+						Cv = UNKNOWN;
+					}
+				}
+
+				CVal(DVec, Att) = Cv;
+
+				CheckValue(DVec, Att);
+			}
 		}
 
 		/*  Preserve original case number  */
@@ -2094,7 +2081,7 @@ void CheckValue(DataRec DVec, Attribute Att)
 	ContValue	Cv;
 
 	Cv = CVal(DVec, Att);
-	if (!_finite(Cv))
+	if (!finite(Cv))
 	{
 		Error(BADNUMBER, AttName[Att], "");
 
@@ -2345,6 +2332,8 @@ void CheckFile(String Extension, Boolean Write)
 void ReadFilePrefix(String Extension)
 /*   --------------  */
 {
+	//    int		Head;
+
 #if defined WIN32 || defined _CONSOLE
 	if (!(Mf = GetFile(Extension, "rb"))) Error(NOFILE, Fn, "");
 #else
@@ -2433,7 +2422,6 @@ void ReadHeader(void)
 
 		case PRECP:
 			sscanf(PropVal, "\"%d\"", &Precision);
-			ClassUnit = 1.0 / pow(10.0, Precision + 1);
 			break;
 
 		case GLOBALMEANP:
@@ -2760,19 +2748,22 @@ void FreeCttee(RRuleSet *Cttee)
 	int		m, r;
 	RRuleSet	RS;
 
-	ForEach(m, 0, MEMBERS - 1)
+	if (Cttee)
 	{
-		if (!(RS = Cttee[m])) continue;
-
-		ForEach(r, 1, RS->SNRules)
+		ForEach(m, 0, MEMBERS - 1)
 		{
-			ReleaseRule(RS->SRule[r]);
-		}
-		Free(RS->SRule);
-		Free(RS);
-	}
+			if (!(RS = Cttee[m])) continue;
 
-	Free(Cttee);
+			ForEach(r, 1, RS->SNRules)
+			{
+				ReleaseRule(RS->SRule[r]);
+			}
+			Free(RS->SRule);
+			Free(RS);
+		}
+
+		Free(Cttee);
+	}
 }
 
 
@@ -3005,7 +2996,7 @@ void PrintRule(CRule R)
 	{
 		if (Att != ClassAtt && Model[Att])
 		{
-			Importance[Att] = fabs(Model[Att]) * AttSD[Att];
+			Importance[Att] = float(fabs(Model[Att]) * AttSD[Att]);
 			NCoeff++;
 		}
 	}
@@ -3141,7 +3132,7 @@ void PrintCondition(Condition C)
 					First = false;
 				}
 				else
-					if (Col + Entry + 2 >= WIDTH)
+					if (Col + Entry + 2 >= WIDTH_OUTPUT)
 					{
 						Col = Base;
 						fprintf(Of, ",\n%*s", Col, "");
@@ -3237,9 +3228,10 @@ float PredictValue(RRuleSet *Cttee, DataRec CaseDesc, float *ErrLim)
 		SumErrLim += IntErrLim;
 	}
 
-	*ErrLim = (SumErrLim / MEMBERS) * ErrReduction;
+	*ErrLim = float((SumErrLim / MEMBERS) * ErrReduction);
 
-	return PredSum / MEMBERS;
+
+	return float(PredSum / MEMBERS);
 }
 
 
@@ -3268,7 +3260,8 @@ float RuleSetPrediction(RRuleSet RS, DataRec CaseDesc, float *ErrLim)
 				Val += CVal(CaseDesc, Att) * R->Rhs[Att];
 			}
 
-			Sum += Bound(Val, R->LoLim, R->HiLim);
+			Sum += (Val < R->LoLim ? R->LoLim :
+				Val > R->HiLim ? R->HiLim : Val);
 			SumErrLim += 2.5 * R->EstErr;
 			Weight += 1.0;
 		}
@@ -3276,8 +3269,8 @@ float RuleSetPrediction(RRuleSet RS, DataRec CaseDesc, float *ErrLim)
 
 	if (Weight)
 	{
-		*ErrLim = SumErrLim / Weight;
-		return Sum / Weight;
+		*ErrLim = float(SumErrLim / Weight);
+		return float(Sum / Weight);
 	}
 	else
 	{
@@ -3510,7 +3503,7 @@ float Distance(DataRec Case1, DataRec Case2, float Thresh)
 			else
 				if (Ordered(Att))
 				{
-					DTot += fabs(DVal(Case2, Att) - DVal(Case1, Att)) /
+					DTot += fabs(double(DVal(Case2, Att) - DVal(Case1, Att))) /
 						(MaxAttVal[Att] - 1);
 				}
 				else
@@ -3520,7 +3513,7 @@ float Distance(DataRec Case1, DataRec Case2, float Thresh)
 					}
 	}
 
-	return DTot;
+	return float(DTot);
 }
 
 
@@ -3648,7 +3641,9 @@ float AverageNeighbors(RRuleSet *Cttee, DataRec Case, NNEnv E, float *ErrLim)
 		do
 		{
 			Est = AdjustedValue(E->BestI[d], BaseEst);
-			Est = Bound(Est, Floor, Ceiling);
+			if (Est > Ceiling) Est = Ceiling;
+			else
+				if (Est < Floor) Est = Floor;
 
 			SameSum += Wt * Est;
 			SameWt += Wt;
@@ -3676,7 +3671,7 @@ float AverageNeighbors(RRuleSet *Cttee, DataRec Case, NNEnv E, float *ErrLim)
 
 	*ErrLim = 0.8 * SumErrLim / SumELWt;
 	Est = TotSum / TotWt;
-	return Bound(Est, Floor, Ceiling);
+	return (Est < Floor ? Floor : Est > Ceiling ? Ceiling : Est);
 }
 
 
@@ -3857,7 +3852,7 @@ Index BuildIndex(CaseNo Fp, CaseNo Lp)
 					{
 						ForEach(vv, 2, MaxAttVal[Att])
 						{
-							ExpDist += ValFreq[v] * ValFreq[vv] * fabs(vv - v);
+							ExpDist += ValFreq[v] * ValFreq[vv] * fabs(double(vv - v));
 						}
 					}
 				}
@@ -4055,7 +4050,7 @@ void ScanIndex(DataRec Case, Index Node, float MinD, NNEnv E)
 					(v == 1 || First == 1 ? 1.0 :
 						Continuous(Att) ? CVDiff(Case, Node->Cut, Att) :
 						Ordered(Att) ?
-						fabs(v - First) / (MaxAttVal[Att] - 1) :
+						fabs(double(v - First)) / (MaxAttVal[Att] - 1) :
 						2.0 / (MaxAttVal[Att] - 1));
 				NewMinD = MinD + E->AttMinD[Att] - SaveAttMinD;
 
@@ -4233,8 +4228,7 @@ void Error(int ErrNo, String S1, String S2)
 #ifdef WIN32
 	if (ErrNo == NOMEM)
 	{
-		MessageBox(NULL, "Cannot allocate sufficient memory", "Fatal Error",
-			MB_ICONERROR | MB_OK);
+		//MessageBox(NULL, "Cannot allocate sufficient memory", "Fatal Error",MB_ICONERROR | MB_OK);
 		Goodbye(1);
 	}
 	else
@@ -4244,7 +4238,7 @@ void Error(int ErrNo, String S1, String S2)
 			{
 				sprintf(Msg, "File %s is incompatible with .names file\n(%s `%s')",
 					Fn, S1, S2);
-				MessageBox(NULL, Msg, "Cannot Load Model", MB_ICONERROR | MB_OK);
+				//MessageBox(NULL, Msg, "Cannot Load Model", MB_ICONERROR | MB_OK);
 			}
 			ErrMsgs++;
 			return;
@@ -4391,7 +4385,7 @@ void Error(int ErrNo, String S1, String S2)
 	else
 		if (ErrMsgs <= 10)
 		{
-			MessageBox(NULL, Buffer, (WarningOnly ? "Warning" : "Error"), MB_OK);
+			//		MessageBox(NULL, Buffer, ( WarningOnly ? "Warning" : "Error" ), MB_OK);
 		}
 #else
 	fprintf(Of, Buffer);
@@ -4444,23 +4438,37 @@ FILE *GetFile(String Extension, String RW)
 int Denominator(ContValue Val)
 /*  -----------  */
 {
-	unsigned int	N, D = 1;
-	float		AltVal;
+	double	Resid, IntPart;
+	int		Mult = 1, MaxMult = 1000000;
 
-	Val = fabs(Val);
+	Resid = fabs(Val);
+	if (Resid == 0) return 1;
 
-	while (D < MAXDENOM)
+	/*  Skip leading zeros  */
+
+	while (Resid < 0.1)
 	{
-		N = Val * D + 0.5;
-
-		AltVal = N / (double)D;
-
-		if (abs((*(int*)&AltVal) - (*(int*)&Val)) < 2) break;
-
-		D *= 10;
+		Resid *= 10;
+		Mult *= 10;
 	}
 
-	return D;
+	Resid = modf(Resid, &IntPart);
+
+	/*  Reduce maximum denominator by integral digits  */
+
+	while (IntPart >= 1 && MaxMult >= 10)
+	{
+		IntPart /= 10;
+		MaxMult /= 10;
+	}
+
+	for (; Mult < MaxMult; Mult *= 10)
+	{
+		if (Resid < 0.005 || Resid > 0.995) return Mult;
+		Resid = modf(Resid * 10, &IntPart);
+	}
+
+	return MaxMult;
 }
 
 
@@ -4468,32 +4476,20 @@ int FracBase(Attribute Att)
 /*  --------  */
 {
 	CaseNo	i;
-	long double	Denom = 1, Num;
-	int		Prec = 0;
-	float	Val, AltVal;
+	int		Denom = 0, ThisDenom;
 
 	ForEach(i, 0, MaxCase)
 	{
-		if ((Val = CVal(Case[i], Att)) != UNKNOWN &&
-			!NotApplic(Case[i], Att))
+		if (CVal(Case[i], Att) != UNKNOWN &&
+			!NotApplic(Case[i], Att) &&
+			(ThisDenom = Denominator(CVal(Case[i], Att))) > Denom)
 		{
-			Val = fabs(Val);
-
-			while (true)
-			{
-				Num = rint(Val * Denom);
-
-				AltVal = Num / Denom;
-
-				if (abs((*(int*)&AltVal) - (*(int*)&Val)) < 2) break;
-
-				Denom *= 10;
-				if (++Prec > 15) return Prec;
-			}
+			Denom = ThisDenom;
+			if (Denom == 1000000) break;
 		}
 	}
 
-	return Prec;
+	return Denom;
 }
 
 

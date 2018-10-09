@@ -1,93 +1,92 @@
-/*************************************************************************/
-/*									 */
-/*	Source code for use with Cubist Release 2.09			 */
-/*	--------------------------------------------			 */
-/*		   Copyright RuleQuest Research 2016			 */
-/*									 */
-/*	This code is provided "as is" without warranty of any kind,	 */
-/*	either express or implied.  All use is at your own risk.	 */
-/*									 */
-/*************************************************************************/
-
-#include "Cubistdefns.h"
-/*************************************************************************/
-/*									 */
-/*		General data for Cubist					 */
-/*									 */
-/*************************************************************************/
+//***********************************************************************
+//									 
+//	Source code for use with Cubist Release 2.07			 
+//	--------------------------------------------			 
+//		   Copyright RuleQuest Research 2010			 
+//									 
+//	This code is provided "as is" without warranty of any kind,	 
+//	either express or implied.  All use is at your own risk.	 
+//									 
+//***********************************************************************
 
 
-	Attribute	ClassAtt=0,	/* attribute to use as class */
-			LabelAtt=0,	/* attribute containing case label */
-			CWtAtt=0;	/* attribute containing case weight */
+//***********************************************************************
+//									 
+//		General data for Cubist					 
+//									 
+//***********************************************************************
 
-	int		MaxAtt,		/* max att number */
-			MaxDiscrVal=3,	/* max discrete values for any att */
-			Precision=2,	/* decimal places for target */
-			MaxLabel=0,	/* max characters in case label */
-			LineNo=0,	/* input line number */
-			ErrMsgs=0,	/* errors found */
-			AttExIn,	/* attribute exclusions/inclusions */
-			TSBase=0,	/* base day for time stamps */
-			Delimiter,	/* character at end of name */
-			NCPU=1;		/* number of CPUs */
+//#include "global.h"
 
-	double		ClassUnit;
+Attribute	ClassAtt = 0;	// attribute to use as class 
+Attribute	LabelAtt = 0;	// attribute containing case label 
+Attribute	CWtAtt = 0;	// attribute containing case weight 
 
-	float		ErrReduction=1;	/* effect of committee model */
+int		MaxAtt;		// max att number 
+int		MaxDiscrVal = 3;	// max discrete values for any att 
+int		Precision = 2;	// decimal places for target 
+int		MaxLabel = 0;	// max characters in case label 
+int		LineNo = 0;	// input line number 
+int		ErrMsgs = 0;	// errors found 
+int		AttExIn;	// attribute exclusions/inclusions 
+int		TSBase = 0;	// base day for time stamps 
+int		Delimiter;	// character at end of name 
+int		NCPU = 1;		// number of CPUs 
 
-	CaseNo		MaxCase=-1;	/* max data item number */
+float		ErrReduction = 1;	// effect of committee model 
 
-	DataRec		*Case;		/* data items */
+CaseNo		MaxCase = -1;	// max data item number 
 
-	DiscrValue	*MaxAttVal,	/* number of values for each att */
-			*Modal;		/* most frequent value for discr att */
+DataRec		*Case;		// data items 
 
-	char		*SpecialStatus;	/* special att treatment */
+DiscrValue	*MaxAttVal;	// number of values for each att 
+DiscrValue	*Modal;		// most frequent value for discr att 
 
-	Definition	*AttDef;	/* definitions of implicit atts */
+char		*SpecialStatus;	// special att treatment 
 
-	String		Target,		/* name of dependent att */
-		  	*AttName,	/* att names */
-		  	**AttValName;	/* att value names */
+Definition	*AttDef;	// definitions of implicit atts 
 
-	char		*IgnoredVals=0;	/* values of labels and ignored atts */
-	int		IValsSize=0,	/* size of above */
-			IValsOffset=0;	/* index of first free char */
+String		Target;		// name of dependent att 
+String		*AttName;	// att names 
+String		**AttValName;	// att value names 
 
-	String		FileStem="undefined";
-	char		Fn[512];	/* file name */
+char		*IgnoredVals = 0;	// values of labels and ignored atts 
+int		IValsSize = 0;	// size of above 
+int		IValsOffset = 0;	// index of first free char 
 
-	FILE		*Mf=0;		/* file for reading models */
+String		FileStem = "undefined";
+char		Fn[512];	// file name 
 
-	ContValue	*AttMean=Nil,	/* means of att values */
-			*AttSD=Nil,	/* std dev ditto */
-			*AttMaxVal=Nil,	/* max value in training data */
-			*AttMinVal=Nil,	/* min value ditto */
-			Ceiling=1E38,	/* max allowable global prediction */
-			Floor=-1E38;	/* min allowable global prediction */
+FILE		*Mf = 0;		// file for reading models 
 
-	int		*AttPrec=Nil;	/* Attribute precision  */
+ContValue	*AttMean = Nil;	// means of att values 
+ContValue	*AttSD = Nil;		// std dev ditto 
+ContValue	*AttMaxVal = Nil;	// max value in training data 
+ContValue	*AttMinVal = Nil;	// min value ditto 
+ContValue	Ceiling = 1E38;	// max allowable global prediction 
+ContValue	Floor = -1E38;	// min allowable global prediction 
 
-	DataRec		*Instance=Nil,	/* training cases */
-			Ref[2];		/* reference point */
-	Index		KDTree=Nil;	/* index for searching training cases */
-	CaseNo		MaxInstance=-1;	/* highest instance */
-	float		*RSPredVal=Nil, /* tabulated RS predictions */
-			*RSErrLim=Nil;	/* tabulated RS error limits */
-	NNEnvRec	GNNEnv;		/* global NN environment */
+int		*AttPrec = Nil;	// Attribute precision  
 
-	unsigned char	*Tested;	/* used in BuildIndex */
-	CaseCount	*ValFreq;	/* used in BuildIndex */
+DataRec		*Instance = Nil;	// training cases 
+DataRec		Ref[2];		// reference point 
+Index		KDTree = Nil;	// index for searching training cases 
+CaseNo		MaxInstance = -1;	// highest instance 
+float		*RSPredVal = Nil; // tabulated RS predictions 
+float		*RSErrLim = Nil;	// tabulated RS error limits 
+NNEnvRec	GNNEnv;		// global NN environment 
 
-	RRuleSet	*CubistModel;	/* from .model file */
+unsigned char	*Tested;	// used in BuildIndex 
+CaseCount	*ValFreq;	// used in BuildIndex 
 
-	Boolean		USEINSTANCES;
-	float		EXTRAP=0.05f,	/* allowed extrapolation from models */
-			SAMPLE=0.0,	/* sample training proportion  */
-			MAXD,		/* max distance for close neighbors */
-			GlobalMean=0,	/* global mean on training data */
-			GlobalErrLim;	/* estimated global error limit */
-	int		MEMBERS=1,	/* models in committee */
-			NN=5,		/* nearest neighbors to use */
-			KRInit;
+RRuleSet	*CubistModel;	// from .model file 
+
+Boolean		USEINSTANCES;
+float		EXTRAP = 0.1f;	// allowed extrapolation from models 
+float		SAMPLE = 0;		// sample training proportion  
+float		MAXD;			// max distance for close neighbors 
+float		GlobalMean = 0;	// global mean on training data 
+float		GlobalErrLim;	// estimated global error limit 
+int		MEMBERS = 1;			// models in committee 
+int		NN = 5;				// nearest neighbors to use 
+int		KRInit;
