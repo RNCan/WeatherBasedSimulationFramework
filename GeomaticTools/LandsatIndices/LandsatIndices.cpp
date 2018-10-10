@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.1	10/10/2018 Rémi Saint-Amant		Add window and weight
 // 1.0.0	27/06/2018	Rémi Saint-Amant	Creation
 
 
@@ -29,11 +30,10 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CLandsatIndices::VERSION = "1.0.0";
-	const int CLandsatIndices::NB_THREAD_PROCESS = 2;
+	const char* CLandsatIndices::VERSION = "1.0.1";
+	
 
-
-	//*********************************************************************************************************************
+	///*********************************************************************************************************************
 
 	CLandsatIndicesOption::CLandsatIndicesOption()
 	{
@@ -45,8 +45,10 @@ namespace WBSF
 		m_rings = 0;
 
 		m_appDescription = "This software computes indices (NBR, HDMI, ...) from Landsat images (composed of " + to_string(SCENES_SIZE) + " bands).";
-		
+
 		AddOption("-Period");
+		AddOption("-Rename");
+
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
@@ -54,7 +56,7 @@ namespace WBSF
 //			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to output indices. All scenes are selected by default." },
 			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file that used input file. Combine with -NoResult, this avoid to copy files. " },
 			{ "-Window", 1, "n", false, "Compute window mean around the pixel. n is the number of rings. 0 = 1x1, 1 = 3x3, 2 = 5x5 etc. By default all rings have the same weight. Weight can be modified with option -weight. 1x1 by default." },
-			{ "-Weight", 1, "{w0,w1,w2...}", false, "Change the weight of window's rings. For example, if you enter {3,2,1} for a 5x5 windows, weight of the center pixel will be w0=3/6, the first ring will be w1=2/6 and secoond right will be w2=1/6. Equal weights by default." },
+			{ "-Weight", 1, "{w0,w1,...,wn}", false, "Change the weight of window's rings. For example, if you enter {3,2,1} for a 5x5 windows, weight of the center pixel will be w0=3/6, the first ring will be w1=2/6 and secoond right will be w2=1/6. Equal weights by default." },
 
 			//{ "-mul", 1, "multiplicator", false, "Multiplicator for indices that need multiplication to output in integer. 10000 by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -107,7 +109,7 @@ namespace WBSF
 		}
 		else
 		{
-			StringVector tmp(m_weight_str, "{,;}");
+			StringVector tmp(m_weight_str, "{ ,;}");
 			if (tmp.size() == m_rings + 1)
 			{
 				for (size_t i = 0; i < tmp.size(); i++)
@@ -115,17 +117,17 @@ namespace WBSF
 			}
 			else
 			{
-				msg.ajoute("Invalid weight. The number of weight (" + to_string(tmp.size()) + ") is no equal to the number of rings + 1 (" + to_string(m_rings +1) + ").");
+				msg.ajoute("Invalid weight. The number of weight (" + to_string(tmp.size()) + ") is no equal to the number of rings + 1 (" + to_string(m_rings + 1) + ").");
 			}
 		}
 
-		
+
 
 		if (!m_despike.empty() && m_bVirtual)
 		{
 			msg.ajoute("Option -Virtual can't be used with option -Despike.");
 		}
-	
+
 		m_outputType = GDT_Int16;
 
 		return msg;
@@ -148,11 +150,11 @@ namespace WBSF
 				msg.ajoute(str + " is not a valid indices. See help.");
 			}
 		}
-		else if (IsEqual(argv[i], "-Scenes"))
-		{
-			m_scenes[0] = atoi(argv[++i]) - 1;
-			m_scenes[1] = atoi(argv[++i]) - 1;
-		}
+		//else if (IsEqual(argv[i], "-Scenes"))
+		//{
+		//	m_scenes[0] = atoi(argv[++i]) - 1;
+		//	m_scenes[1] = atoi(argv[++i]) - 1;
+		//}
 		else if (IsEqual(argv[i], "-mul"))
 		{
 			m_mul = atof(argv[++i]);
@@ -225,7 +227,7 @@ namespace WBSF
 		GDALAllRegister();
 
 		CLandsatDataset inputDS;
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandHolder(int(m_options.m_rings * 2 + 1), m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 		CGDALDatasetEx maskDS;
 		CGDALDatasetEx outputDS;
 		msg = OpenAll(inputDS, maskDS, outputDS);
@@ -246,7 +248,8 @@ namespace WBSF
 			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 
 
-			m_options.ResetBar(nbScenedProcess*extents.m_xSize*extents.m_ySize);
+
+			m_options.ResetBar(extents.m_xSize*extents.m_ySize);
 			vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
@@ -255,7 +258,7 @@ namespace WBSF
 			}
 
 			omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
 			for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 			{
 				int xBlock = XYindex[b].first;
@@ -346,10 +349,10 @@ namespace WBSF
 			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
 
 			//set the period to the period in the scene selection
-			size_t nbSceneLoaded = m_options.m_scenes[1] - m_options.m_scenes[1] + 1;
+			size_t nbSceneLoaded = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 			CTPeriod period;
 			for (size_t z = 0; z < nbSceneLoaded; z++)
-				period.Inflate(p[m_options.m_scenes[0]+z]);
+				period.Inflate(p[m_options.m_scenes[0] + z]);
 
 			if (m_options.m_period.IsInit())
 				cout << "    User's input working period = " << m_options.m_period.GetFormatedString() << endl;
@@ -387,18 +390,27 @@ namespace WBSF
 			options.m_nbBands = m_options.m_indices.count() * nbScenedProcess;
 
 			//replace the common part by the new name
+			set<string> subnames;
 			for (size_t zz = 0; zz < nbScenedProcess; zz++)
 			{
 				size_t z = m_options.m_scenes[0] + zz;
+				string subName = inputDS.GetSubname(z, m_options.m_rename);
+				string uniqueSubName = subName;
+				size_t i = 1;
+				while (subnames.find(uniqueSubName) != subnames.end())
+					uniqueSubName = subName + "_" + to_string(++i);
+
+				subnames.insert(uniqueSubName);
+
 				for (size_t i = 0; i < m_options.m_indices.size(); i++)
 				{
 					if (m_options.m_indices.test(i))
 					{
-						string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
-						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + subName + "_" + Landsat::GetIndiceName(i) + ".tif|";
+						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat::GetIndiceName(i) + ".tif|";
 					}
 				}
 			}
+
 
 			msg += outputDS.CreateImage(filePath, options);
 		}
@@ -435,13 +447,9 @@ namespace WBSF
 
 		if (bandHolder.IsEmpty())
 		{
-			int nbCells = blockSize.m_x*blockSize.m_y;
-
 #pragma omp atomic
-			m_options.m_xx += nbCells;
-
+			m_options.m_xx += blockSize.m_x*blockSize.m_y;
 			m_options.UpdateBar();
-
 
 			return;
 		}
@@ -460,77 +468,73 @@ namespace WBSF
 		}
 
 
-#pragma omp critical(ProcessBlock)
+		//#pragma omp critical(ProcessBlock)
+				//{
+		m_options.m_timerProcess.Start();
+
+		//multithread here is very not efficient.
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti) 
+		for (int y = 0; y < blockSize.m_y; y++)
 		{
-			m_options.m_timerProcess.Start();
-
-			//multithread here is very not efficient.
-#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
-			for (int y = 0; y < blockSize.m_y; y++)
+			for (int x = 0; x < blockSize.m_x; x++)
 			{
-				for (int x = 0; x < blockSize.m_x; x++)
+				vector<bool> bSpiking(nbScenesProcess, false);
+
+				if (!m_options.m_despike.empty())//if despike
 				{
-					vector<bool> bSpiking(nbScenesProcess, false);
+					vector< pair<CLandsatPixel, size_t>> data;
 
-					if (!m_options.m_despike.empty())//if despike
-					{
-						vector< pair<CLandsatPixel, size_t>> data;
-
-						ASSERT(window.GetNbScenes() == nbScenesProcess);
-						data.reserve(nbScenesProcess);
-
-						for (size_t zz = 0; zz < nbScenesProcess; zz++)
-						{
-							size_t z = m_options.m_scenes[0] + zz;
-							//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixel(z, x, y);
-							CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, m_options.m_weight.size(), m_options.m_weight);
-
-							if (pixel.IsValid())
-								data.push_back(make_pair(pixel, zz));
-						}
-
-						for (size_t i = 1; (i + 1) < data.size(); i++)
-						{
-							bSpiking[data[i].second] = m_options.m_despike.IsSpiking(data[i - 1].first, data[i].first, data[i + 1].first);
-						}
-
-					}
+					ASSERT(window.GetNbScenes() == nbScenesProcess);
+					data.reserve(nbScenesProcess);
 
 					for (size_t zz = 0; zz < nbScenesProcess; zz++)
 					{
 						size_t z = m_options.m_scenes[0] + zz;
-						CLandsatPixel pixel = window.GetPixel(z, x, y);
-						if (pixel.IsValid() && !bSpiking[zz])
+						//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixel(z, x, y);
+						CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_weight.size(), m_options.m_weight);
+
+						if (pixel.IsValid())
+							data.push_back(make_pair(pixel, zz));
+					}
+
+					for (size_t i = 1; (i + 1) < data.size(); i++)
+					{
+						bSpiking[data[i].second] = m_options.m_despike.IsSpiking(data[i - 1].first, data[i].first, data[i + 1].first);
+					}
+
+				}
+
+				for (size_t zz = 0; zz < nbScenesProcess; zz++)
+				{
+					size_t z = m_options.m_scenes[0] + zz;
+					CLandsatPixel pixel = m_options.m_rings == 0 ? window.GetPixel(z, x, y) : window.GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
+					if (pixel.IsValid() && !bSpiking[zz])
+					{
+						//bool bIsBlack = pixel.IsBlack();
+						//if (!bIsBlack)
+						size_t ii = 0;
+						for (size_t i = 0; i < m_options.m_indices.size(); i++)
 						{
-							//bool bIsBlack = pixel.IsBlack();
-							//if (!bIsBlack)
-							size_t ii = 0;
-							for (size_t i = 0; i < m_options.m_indices.size(); i++)
+							if (m_options.m_indices.test(i))
 							{
-								if (m_options.m_indices.test(i))
-								{
-									size_t xy = (size_t)y*blockSize.m_x + x;
-									outputData[zz][ii][xy] = pixel[Landsat::TIndices(i)];
-									ii++;
-								}
+								size_t xy = (size_t)y*blockSize.m_x + x;
+								outputData[zz][ii][xy] = pixel[Landsat::TIndices(i)];
+								ii++;
 							}
 						}
-
-#pragma omp atomic 
-						m_options.m_xx++;
-
 					}
 				}
 			}
-
-			m_options.UpdateBar();
-			m_options.m_timerProcess.Stop();
-
-			bandHolder.FlushCache();
 		}
 
+#pragma omp atomic 
+		m_options.m_xx += blockSize.m_x*blockSize.m_y;
 
+		m_options.UpdateBar();
+		m_options.m_timerProcess.Stop();
 
+		bandHolder.FlushCache();
+		//}
 	}
 
 	void CLandsatIndices::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData)
@@ -556,7 +560,8 @@ namespace WBSF
 				{
 					for (size_t i = 0; i < outputData[z].size(); i++)
 					{
-						GDALRasterBand *pBand = outputDS.GetRasterBand(z*m_options.m_indices.count() + i);
+						size_t b = z * m_options.m_indices.count() + i;
+						GDALRasterBand *pBand = outputDS.GetRasterBand(b);
 						if (!outputData[z][i].empty())
 						{
 							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
