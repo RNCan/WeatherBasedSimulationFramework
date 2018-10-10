@@ -190,7 +190,6 @@ namespace WBSF
 		bool m_bUseMedian;
 		bool m_bVerifyDoubleCloud;
 		CTPeriod m_periodTreated;
-		std::string m_rename;
 
 		std::array<size_t, 2> m_scenesTreated;
 		std::array<size_t, 2> m_scenesLoaded;

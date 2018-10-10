@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.4	29/06/2018 Rémi Saint-Amant		Add -Rename
 // 1.1.3	29/06/2018 Rémi Saint-Amant		Add -Virtual
 // 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.1	15/11/2017	Rémi Saint-Amant	remove multi-thread : bad performance
@@ -35,30 +36,38 @@ using namespace WBSF::Landsat;
 namespace WBSF
 {
 	const char* CLandsat2RGB::VERSION = "1.1.3";
-	const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
+	//const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 
 	//*********************************************************************************************************************
 
 	CLandsat2RGBOption::CLandsat2RGBOption()
 	{
-		m_type = NATURAL;
+
+		m_RGBType = NATURAL;
 		m_outputType = GDT_Byte;
 		m_scenesSize = SCENES_SIZE;
 		m_scenes = { { NOT_INIT, NOT_INIT } };
 		m_dstNodata = 255;
 		m_bust = { { 0, 255 } };
+		m_bVirtual = false;
+
+
+
 		m_appDescription = "This software transform Landsat images (composed of " + to_string(SCENES_SIZE) + " bands) into RGB image.";
+
+		AddOption("-RGB");
+		AddOption("-Rename");
 
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-RGB", 1, "t", false, "RGB Type. Type can be Natural or LandWater. NATURAL by default." },
-			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
-			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
-			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file based on input files. Combine with -NoResult, this avoid to create new files. " },
-			{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0 and 255 by default." },
-			{ "srcfile", 0, "", false, "Input image file path." },
-			{ "dstfile", 0, "", false, "Output image file path." }
+			//			{ "-RGB", 1, "t", false, "RGB Type. Type can be Natural or LandWater. NATURAL by default." },
+			//			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
+			//			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
+						{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file based on input files. Combine with -NoResult, this avoid to create new files. " },
+						{ "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0 and 255 by default." },
+						{ "srcfile", 0, "", false, "Input image file path." },
+						{ "dstfile", 0, "", false, "Output image file path." }
 		};
 
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
@@ -99,24 +108,25 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (IsEqual(argv[i], "-RGB"))
-		{
-			string str = argv[++i];
+		/*		if (IsEqual(argv[i], "-RGB"))
+				{
+					string str = argv[++i];
 
-			if (IsEqualNoCase(str, RGB_NAME[NATURAL]))
-				m_type = NATURAL;
-			else if (IsEqualNoCase(str, RGB_NAME[LANDWATER]))
-				m_type = LANDWATER;
-			else
-				msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\" or \"LandWater\"");
+					if (IsEqualNoCase(str, RGB_NAME[NATURAL]))
+						m_type = NATURAL;
+					else if (IsEqualNoCase(str, RGB_NAME[LANDWATER]))
+						m_type = LANDWATER;
+					else
+						msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\" or \"LandWater\"");
 
-		}
-		else if (IsEqual(argv[i], "-Scenes"))
-		{
-			m_scenes[0] = atoi(argv[++i]) - 1;
-			m_scenes[1] = atoi(argv[++i]) - 1;
-		}
-		else if (IsEqual(argv[i], "-Bust"))
+				}
+				else if (IsEqual(argv[i], "-Scenes"))
+				{
+					m_scenes[0] = atoi(argv[++i]) - 1;
+					m_scenes[1] = atoi(argv[++i]) - 1;
+				}
+				else */
+		if (IsEqual(argv[i], "-Bust"))
 		{
 			m_bust[0] = ToInt(argv[++i]);
 			m_bust[1] = ToInt(argv[++i]);
@@ -134,7 +144,7 @@ namespace WBSF
 
 		return msg;
 	}
-
+	
 
 	ERMsg CLandsat2RGB::Execute()
 	{
@@ -153,11 +163,11 @@ namespace WBSF
 
 		CLandsatDataset inputDS;
 		CLandsatCloudCleaner cloudsCleaner;
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 		CGDALDatasetEx maskDS;
 		vector<CGDALDatasetEx> outputDS;
 		msg = OpenAll(inputDS, maskDS, outputDS);
-		if(!msg)
+		if (!msg)
 			return msg;
 
 		if (m_options.m_bCreateImage)
@@ -177,13 +187,53 @@ namespace WBSF
 			m_options.ResetBar(nbScenedProcess*extents.m_xSize*extents.m_ySize);
 			vector<pair<int, int>> XYindex = extents.GetBlockList(5, 5);
 
+			m_options.m_stats.resize(nbScenedProcess);
+			if (m_options.m_RGBType == CBaseOptions::TRUE_COLOR)
+			{
+				//Get statistic of the image
+				for (size_t zz = 0; zz < nbScenedProcess; zz++)
+				{
+
+					for (size_t b = B1; b <= B3; b++)
+					{
+						size_t z = (m_options.m_scenes[0] + zz)*SCENES_SIZE + b;
+						GDALRasterBand * pBand = inputDS.GetRasterBand(z);
+						//pBand->GetStatistics(true, true, &(m_options.m_stats[zz][0]), &(m_options.m_stats[zz][1]), NULL, NULL);
+						pBand->GetStatistics(false, true, &m_options.m_stats[zz][b].m_min, &m_options.m_stats[zz][b].m_max, &m_options.m_stats[zz][b].m_mean, &m_options.m_stats[zz][b].m_sd);
+						
+					}
+
+				/*	double s_min = min(m_options.m_stats[zz][0].m_min, min( m_options.m_stats[zz][1].m_min, m_options.m_stats[zz][2].m_min));
+					double s_max = max(m_options.m_stats[zz][0].m_max, min(m_options.m_stats[zz][1].m_max, m_options.m_stats[zz][2].m_max));
+					double mean = (m_options.m_stats[zz][0].m_mean + m_options.m_stats[zz][1].m_mean + m_options.m_stats[zz][2].m_mean) / 3.0;
+					double sd = (m_options.m_stats[zz][0].m_sd + m_options.m_stats[zz][1].m_sd + m_options.m_stats[zz][2].m_sd) / 3.0;
+					
+					m_options.m_stats[zz][0].m_min = s_min;
+					m_options.m_stats[zz][1].m_min = s_min;
+					m_options.m_stats[zz][2].m_min = s_min;
+
+					m_options.m_stats[zz][0].m_max = s_max;
+					m_options.m_stats[zz][1].m_max = s_max;
+					m_options.m_stats[zz][2].m_max = s_max;
+
+
+					m_options.m_stats[zz][0].m_mean = mean;
+					m_options.m_stats[zz][1].m_mean = mean;
+					m_options.m_stats[zz][2].m_mean = mean;
+
+					m_options.m_stats[zz][0].m_sd = sd;
+					m_options.m_stats[zz][1].m_sd = sd;
+					m_options.m_stats[zz][2].m_sd = sd;*/
+				}
+
+			}
 			/*	if (!m_options.m_bQuiet)
 				{
 					cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B)" << endl;
 				}*/
 
 			omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
 			for (int b = 0; b < (int)XYindex.size(); b++)
 			{
 				int xBlock = XYindex[b].first;
@@ -230,6 +280,31 @@ namespace WBSF
 
 		if (msg && !m_options.m_bQuiet)
 		{
+			if (m_options.m_period.IsInit())
+			{
+				const std::vector<CTPeriod>& scenesPeriod = inputDS.GetScenePeriod();
+				CTPeriod p = m_options.m_period;
+
+				set<size_t> selected;
+
+				for (size_t s = 0; s < scenesPeriod.size(); s++)
+				{
+					if (p.IsIntersect(scenesPeriod[s]))
+						selected.insert(s);
+				}
+
+				if (!selected.empty())
+				{
+					m_options.m_scenes[0] = *selected.begin();
+					m_options.m_scenes[1] = *selected.rbegin();
+				}
+				else
+				{
+					msg.ajoute("No input scenes intersect -PeriodTrait (" + m_options.m_period.GetFormatedString("%1 %2", "%F") + ").");
+				}
+			}
+
+
 			CGeoExtents extents = inputDS.GetExtents();
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
@@ -249,20 +324,25 @@ namespace WBSF
 			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
 
 			//set the period to the period in the scene selection
+			size_t nbSceneLoaded = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 			CTPeriod period;
-			for (size_t z = m_options.m_scenes[0]; z <= m_options.m_scenes[1]; z++)
-				period.Inflate(p[z]);
+			for (size_t z = 0; z < nbSceneLoaded; z++)
+				period.Inflate(p[m_options.m_scenes[0] + z]);
+
+			if (m_options.m_period.IsInit())
+				cout << "    User's Input loading period  = " << m_options.m_period.GetFormatedString() << endl;
 
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
 			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
-			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
-			cout << "    Working period = " << period.GetFormatedString() << endl;
+			//			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
+						//cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
+						//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
+			cout << "    Loaded period  = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
+
 
 			m_options.m_period = period;
 
@@ -282,24 +362,39 @@ namespace WBSF
 		}
 
 
-		if (m_options.m_bCreateImage)
+		if (msg && m_options.m_bCreateImage)
 		{
 			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 
 			outputDS.resize(nbScenedProcess);
 			//replace the common part by the new name
+			set<string> subnames;
 			for (size_t zz = 0; zz < nbScenedProcess; zz++)
 			{
 				size_t z = m_options.m_scenes[0] + zz;
 
 				CLandsat2RGBOption options(m_options);
 				string filePath = options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
+				string path = GetPath(filePath);
+
 				options.m_nbBands = 3;
 				options.m_outputType = GDT_Byte;
 				options.m_format = "GTiff";
 
-				string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
-				filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_RGB.tif";
+				//string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
+				//if (subName.empty())
+					//subName = FormatA("%02d", z+1);
+				string subName = inputDS.GetSubname(z, m_options.m_rename);
+
+				string uniqueSubName = subName;
+				size_t i = 1;
+				while (subnames.find(uniqueSubName) != subnames.end())
+					uniqueSubName = subName + "_" + to_string(++i);
+
+				subnames.insert(uniqueSubName);
+
+
+				filePath = path + GetFileTitle(filePath) + "_" + uniqueSubName + "_RGB.tif";
 
 				msg += outputDS[zz].CreateImage(filePath, options);
 			}
@@ -338,17 +433,14 @@ namespace WBSF
 	{
 		CGeoExtents extents = bandHolder.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+		size_t zz = z - m_options.m_scenes[0];
 
 		if (bandHolder.IsEmpty())
 		{
-			int nbCells = blockSize.m_x*blockSize.m_y;
-
 #pragma omp atomic
-			m_options.m_xx += nbCells;
+			m_options.m_xx += blockSize.m_x*blockSize.m_y;
 
 			m_options.UpdateBar();
-
-
 			return;
 		}
 
@@ -362,55 +454,49 @@ namespace WBSF
 				outputData[j].resize(blockSize.m_x*blockSize.m_y, dstNodata);
 		}
 
-#pragma omp critical(ProcessBlock)
+		m_options.m_timerProcess.Start();
+
+
+		for (size_t y = 0; y < blockSize.m_y; y++)
 		{
-			m_options.m_timerProcess.Start();
-
-
-			for (size_t y = 0; y < blockSize.m_y; y++)
+			for (size_t x = 0; x < blockSize.m_x; x++)
 			{
-				for (size_t x = 0; x < blockSize.m_x; x++)
+				ASSERT(z < bandHolder.GetNbScenes());
+				CLandsatPixel pixel = window.GetPixel(z, (int)x, (int)y);
+				if (pixel.IsValid())
 				{
-					ASSERT(z < bandHolder.GetNbScenes());
-					CLandsatPixel pixel = window.GetPixel(z, (int)x, (int)y);
-					if (pixel.IsValid())
+					bool bIsBlack = pixel.IsBlack();
+
+					if (!bIsBlack)
 					{
-						bool bIsBlack = pixel.IsBlack();
 
-						if (!bIsBlack)
+						Color8 R = pixel.R(m_options.m_RGBType, m_options.m_stats[zz]);
+						Color8 G = pixel.G(m_options.m_RGBType, m_options.m_stats[zz]);
+						Color8 B = pixel.B(m_options.m_RGBType, m_options.m_stats[zz]);
+
+						//Color8 R = Color8(max(0.0, min(254.0, ((pixel[B4] + 150.0) / 6150.0) * 254.0)));
+						//Color8 G = Color8(max(0.0, min(254.0, ((pixel[B5] + 190.0) / 5190.0) * 254.0)));
+						//Color8 B = Color8(max(0.0, min(254.0, ((pixel[B3] + 200.0) / 2700.0) * 254.0)));
+
+						bool bIsBust = m_options.IsBusting(R, G, B);
+
+						if (!bIsBust)
 						{
-
-							Color8 R = pixel.R(m_options.m_type);
-							Color8 G = pixel.G(m_options.m_type);
-							Color8 B = pixel.B(m_options.m_type);
-
-							//Color8 R = Color8(max(0.0, min(254.0, ((pixel[B4] + 150.0) / 6150.0) * 254.0)));
-							//Color8 G = Color8(max(0.0, min(254.0, ((pixel[B5] + 190.0) / 5190.0) * 254.0)));
-							//Color8 B = Color8(max(0.0, min(254.0, ((pixel[B3] + 200.0) / 2700.0) * 254.0)));
-
-							bool bIsBust = m_options.IsBusting(R, G, B);
-
-							if (!bIsBust)
-							{
-								outputData[0][y*blockSize.m_x + x] = R;
-								outputData[1][y*blockSize.m_x + x] = G;
-								outputData[2][y*blockSize.m_x + x] = B;
-							}
+							outputData[0][y*blockSize.m_x + x] = R;
+							outputData[1][y*blockSize.m_x + x] = G;
+							outputData[2][y*blockSize.m_x + x] = B;
 						}
 					}
+				}
 
 #pragma omp atomic 
-					m_options.m_xx++;
+				m_options.m_xx++;
 
-				}
 			}
-
-			m_options.UpdateBar();
-			m_options.m_timerProcess.Stop();
-
-
 		}
 
+		m_options.UpdateBar();
+		m_options.m_timerProcess.Stop();
 
 
 	}
@@ -467,7 +553,7 @@ namespace WBSF
 			string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
 			std::string filePath = m_options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
 			filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_RGB.vrt";
-			msg += inputDS.CreateRGB(z, filePath, (CBaseOptions::TRGBTye)m_options.m_type);
+			msg += inputDS.CreateRGB(z, filePath, (CBaseOptions::TRGBTye)m_options.m_RGBType);
 		}
 
 		return msg;

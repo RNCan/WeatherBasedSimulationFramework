@@ -116,6 +116,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 
 
 	AddOption("-RGB");
+	AddOption("-Rename");
 
 	static const COptionDef OPTIONS[] =
 	{
@@ -132,7 +133,6 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-OutputCode", 0, "", false, "Output random forest result code." },
 		//{ "-OutputJD", 0, "", false, "Output JD layer with cloud and shadow replace by no data." },
 		{ "-Debug",0,"",false,"Output debug information."},
-		{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },//overide scene size defenition
 		{ "Model", 0, "", false, "Random forest cloud model file path." },
 		{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 		{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
@@ -226,10 +226,6 @@ ERMsg CCloudCleanerOption::ProcessOption(int& i, int argc, char* argv[])
 	else if (IsEqual(argv[i], "-MedianFile"))
 	{
 		m_medianFilePath = argv[++i];
-	}
-	else if (IsEqual(argv[i], "-Rename"))
-	{
-		m_rename = argv[++i];
 	}
 	else
 	{

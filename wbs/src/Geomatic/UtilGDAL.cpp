@@ -1408,7 +1408,7 @@ size_t CBaseOptions::m_xx=0;
 size_t CBaseOptions::m_xxx=0;
 const char* CBaseOptions::TEMPORAL_REF_NAME[NB_SOURCES] = { "Jday1970", "YYYYMMDD" };
 const char* CBaseOptions::TT_TYPE_NAME[NB_TT] = { "OverallYears", "ByYears", "ByMonths", "None" };
-const char* CBaseOptions::RGB_NAME[NB_RGB] = { "natural", "landWater" };
+const char* CBaseOptions::RGB_NAME[NB_RGB] = { "Natural", "LandWater", "TrueColor" };
 
 const COptionDef CBaseOptions::OPTIONS_DEF[] =
 {
@@ -1447,6 +1447,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
 	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be Natural or LandWater. " },
 	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
+	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },//overide scene size defenition
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},
@@ -1553,6 +1554,7 @@ void CBaseOptions::Reset()
 	m_bComputeStats=false;
 	m_bComputeHistogram = false;
 	m_bRemoveEmptyBand = false;
+	m_rename.clear();
 		
 	m_TTF = JDAY1970;
 	m_scenesSize = 0; //number of image per scene
@@ -1855,6 +1857,10 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	{
 		m_bRemoveEmptyBand = true;
 	}
+	else if (IsEqual(argv[i], "-Rename"))
+	{
+		m_rename = argv[++i];
+	}
 	else if( IsEqual(argv[i],"-NoResult") )
 	{
 		m_bCreateImage = false;
@@ -1894,12 +1900,14 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	{
 		string str = argv[++i];
 		
-		if (IsEqualNoCase(str, RGB_NAME[NATURAL]))
-			m_RGBType = NATURAL;
-		else if (IsEqualNoCase(str, RGB_NAME[LANDWATER]))
-			m_RGBType = LANDWATER;
-		else 
-			msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\" or \"LandWater\"");
+		m_RGBType = NO_RGB;
+		for (size_t i = 0; i < NB_RGB && m_RGBType == NO_RGB; i++)
+			if (IsEqualNoCase(str, RGB_NAME[i]))
+				m_RGBType = static_cast<TRGBTye>(i);
+		
+		
+		if(m_RGBType == NO_RGB)
+			msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\", \"LandWater\" or \"TrueColor\"");
 		
 	}
 	else if( IsEqual(argv[i],"-?") )

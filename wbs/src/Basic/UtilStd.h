@@ -954,7 +954,17 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	{
 		size_t pos = str.find_last_of("\\/");
 		if (pos != std::string::npos)
+		{
 			str = str.substr(0, pos + 1);
+		}
+		else
+		{
+			size_t pos = str.find_last_of(":");
+			if (pos != std::string::npos)
+				str = str.substr(0, pos + 1);
+			else
+				str.clear();
+		}
 
 		return str;
 	}
@@ -967,7 +977,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		size_t pos = str.find_last_of("\\/");
 		if (pos != std::string::npos)
 			str.replace(0, pos + 1, newPath);
-		else str.insert(0, newPath);
+		else 
+			str.insert(0, newPath);
 
 		return str;
 	}

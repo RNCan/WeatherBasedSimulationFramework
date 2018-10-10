@@ -35,7 +35,8 @@ namespace WBSF
 		std::array<size_t, 2> m_scenes;
 		std::array<int, 2> m_bust;
 		bool m_bVirtual;
-		CBaseOptions::TRGBTye m_type;
+
+		std::vector<CBandStats> m_stats;
 	};
 
 

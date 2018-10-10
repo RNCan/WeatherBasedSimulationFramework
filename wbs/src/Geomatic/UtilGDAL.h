@@ -227,7 +227,7 @@ namespace WBSF
 		static int GetTRefIndex(int type, CTRef Tref);
 		static CTRef GetTRef(int type, int index);
 		
-		enum TRGBTye{ NO_RGB=-1, NATURAL, LANDWATER, NB_RGB };
+		enum TRGBTye{ NO_RGB=-1, NATURAL, LANDWATER, TRUE_COLOR, NB_RGB };
 		static const char* RGB_NAME[NB_RGB];
 
 		enum TTT			{ TT_UNKNOWN = -1, TT_OVERALL_YEARS, TT_BY_YEARS, TT_BY_MONTHS, TT_NONE, NB_TT };
@@ -308,6 +308,7 @@ namespace WBSF
 		bool m_bComputeStats;
 		bool m_bComputeHistogram;
 		bool m_bRemoveEmptyBand;
+		std::string m_rename;
 			
 		int m_TTF; //temporal type format for temporal dataset
 		int m_scenesSize;

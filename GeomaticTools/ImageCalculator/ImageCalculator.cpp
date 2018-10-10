@@ -1,4 +1,5 @@
 //ImagesCalculator.exe
+// 3.0.2	10/10/2018	Rémi Saint-Amant	Add -BLOCK_THREADS	
 // 3.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 3.0.0	03/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 2.0.1	13/06/2015	Rémi Saint-Amant	Add -hist option
@@ -47,8 +48,8 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-static const char* version = "3.0.1";
-static const int NB_THREAD_PROCESS = 2;
+static const char* version = "3.0.2";
+//static const int NB_THREAD_PROCESS = 2;
 
 
 using namespace std;
@@ -406,7 +407,7 @@ ERMsg CImageCalculator::Execute()
 		if( !m_options.m_bQuiet )		
 			cout << "Compile Equations..." << endl << endl;
 
-		CBandsHolderCalculatorMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderCalculatorMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 		if( maskDS.IsOpen() )
 			bandHolder.SetMask( maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed );
 		
@@ -424,7 +425,7 @@ ERMsg CImageCalculator::Execute()
 		vector<pair<int,int>> XYindex = extents.GetBlockList(10,10);
 		
 		omp_set_nested(1);//for at leat IOCPU 
-		#pragma omp parallel for schedule(static, 1) num_threads(NB_THREAD_PROCESS) if (m_options.m_bMulti)
+		#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti)
 		for(int xy=0; xy<(int)XYindex.size(); xy++)
 		{
 			int threadBlockNo = ::omp_get_thread_num();
@@ -449,7 +450,7 @@ ERMsg CImageCalculator::Execute()
 
 void CImageCalculator::ReadBlock(int xBlock, int yBlock, CBandsHolderCalculator& bandHolder)
 {
-	#pragma omp critical(BlockIO)
+	#pragma omp critical(BlockIORead)
 	{
 		m_options.m_timerRead.Start();
 		bandHolder.LoadBlock(xBlock, yBlock);
@@ -478,7 +479,7 @@ void CImageCalculator::ProcessBlock(int xBlock, int yBlock, CBandsHolderCalculat
 		return;
 	}
 
-	#pragma omp critical(ProcessBlock)
+	//#pragma omp critical(ProcessBlock)
 	{
 		m_options.m_timerProcess.Start();
 
@@ -493,8 +494,9 @@ void CImageCalculator::ProcessBlock(int xBlock, int yBlock, CBandsHolderCalculat
 				output[v][y].resize(blockSize.m_x);
 		}
 
+		
 		//Load x,z 
-		#pragma omp parallel for schedule(static, 100) num_threads( m_options.m_CPU ) if (m_options.m_bMulti)
+		#pragma omp parallel for /*schedule(static, 100) */num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)
 		for(int y=0; y<blockSize.m_y; y++)
 		{
 			for(int x=0; x<blockSize.m_x; x++)
@@ -527,7 +529,7 @@ void CImageCalculator::ProcessBlock(int xBlock, int yBlock, CBandsHolderCalculat
 
 void CImageCalculator::WriteBlock(int xBlock, int yBlock, CBandsHolderCalculator& bandHolder, CGDALDatasetEx& outputDS, vector< vector< vector<float>>>& output)
 {
-	#pragma omp critical(BlockIO)
+	#pragma omp critical(BlockIOWrite)
 	{
 		if (!output.empty())
 		{

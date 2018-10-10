@@ -44,6 +44,23 @@ namespace WBSF
 		TCorr8 GetCorr8(const std::string& str);
 	}
 
+	class CBandStat
+	{
+	public:
+
+		CBandStat()
+		{
+			m_min = m_max = m_mean = m_sd = DBL_MAX;
+		}
+
+		double m_min, m_max, m_mean, m_sd;
+	};
+
+	typedef std::array< CBandStat, Landsat::SCENES_SIZE> CBandStats;
+
+
+
+
 	typedef __int16 LandsatDataType;
 	typedef std::array<LandsatDataType, Landsat::SCENES_SIZE> LandsatPixel;
 	class CLandsatPixel : public LandsatPixel
@@ -79,9 +96,9 @@ namespace WBSF
 		double SR() const;
 		double CL()const;
 		double HZ()const;
-		Color8 R(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
-		Color8 G(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
-		Color8 B(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER)const;
+		Color8 R(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER, const CBandStats& stats=CBandStats() )const;
+		Color8 G(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER, const CBandStats& stats=CBandStats() )const;
+		Color8 B(CBaseOptions::TRGBTye type = CBaseOptions::LANDWATER, const CBandStats& stats=CBandStats() )const;
 
 		void correction8to7(Landsat::TCorr8 type);
 
